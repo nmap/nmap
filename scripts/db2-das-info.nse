@@ -116,7 +116,7 @@ end
 --- Does *very* basic parsing of a DB2 packet
 --
 -- Due to the limited documentation of the protocol this function is guesswork
--- The section called info is essentialy the data part of the db2das data response
+-- The section called info is essentially the data part of the db2das data response
 -- The length of this section is found at offset 158 in the db2das.data section
 --
 --
@@ -156,7 +156,7 @@ end
 -- The bytes following the header are considered to be the data
 --
 -- Offset 38 of the header contains an integer with the length of the data section
--- The length of the data section can unfortunately be of either endianess
+-- The length of the data section can unfortunately be of either endianness
 -- There's
 --
 -- @param socket connected to the server

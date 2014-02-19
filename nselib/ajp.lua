@@ -286,7 +286,7 @@ Comm = {
   -- Sends a request to the server
   --
   -- @param req instance of object that can be serialized with tostring
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return err string containing error message on failure
   send = function(self, req)
     return self.socket:send(tostring(req))
@@ -294,7 +294,7 @@ Comm = {
 
   -- Receives an AJP response from the server
   --
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table containing the following fields, or string
   --         containing error message on failure
   --         <code>status</code> - status of response (see HTTP status codes)
@@ -380,7 +380,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   request = function(self, method, url, headers, attributes, options)
@@ -437,7 +437,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   get = function(self, url, headers, attributes, options)
@@ -450,7 +450,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   head = function(self, url, headers, attributes, options)
@@ -463,7 +463,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   trace = function(self, url, headers, attributes, options)
@@ -476,7 +476,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   put = function(self, url, headers, attributes, options)
@@ -489,7 +489,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   delete = function(self, url, headers, attributes, options)
@@ -502,7 +502,7 @@ Helper = {
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response table (@see Comm.receive), or string containing error
   --         message on failure
   options = function(self, url, headers, attributes, options)

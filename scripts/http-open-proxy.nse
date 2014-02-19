@@ -49,7 +49,7 @@ categories = {"default", "discovery", "external", "safe"}
 -- @param port The port table
 -- @param test_url The url te send the request
 -- @param pattern The pattern to check for valid result
--- @return status (if any request was succeded
+-- @return status if any request succeeded
 -- @return response String with supported methods
 function custom_test(host, port, test_url, pattern)
   local lstatus = false
@@ -96,7 +96,7 @@ end
 --
 -- @param host The host table
 -- @param port The port table
--- @return status (if any request was succeded
+-- @return status if any request succeeded
 -- @return response String with supported methods
 function default_test(host, port)
   local fstatus = false

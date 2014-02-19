@@ -139,7 +139,7 @@ function getRevisionNumber( host, port, sessionid )
   return revision
 end
 
---- Gets the database identitity for the library
+--- Gets the database identity for the library
 --
 -- @param host table containing an ip field.
 -- @param port table containing number and protocol fields.

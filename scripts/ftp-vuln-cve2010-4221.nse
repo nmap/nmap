@@ -34,7 +34,7 @@ Reference:
 -- |     Description:
 -- |       ProFTPD server (version 1.3.2rc3 through 1.3.3b) is vulnerable to
 -- |       stack-based buffer overflow. By sending a large number of TELNET_IAC
--- |       escape sequence, a remote attacker will be able to corrup the stack and
+-- |       escape sequence, a remote attacker will be able to corrupt the stack and
 -- |       execute arbitrary code.
 -- |     Disclosure date: 2010-11-02
 -- |     References:
@@ -180,7 +180,7 @@ action = function(host, port)
       description = [[
 ProFTPD server (version 1.3.2rc3 through 1.3.3b) is vulnerable to
 stack-based buffer overflow. By sending a large number of TELNET_IAC
-escape sequence, a remote attacker will be able to corrup the stack and
+escape sequence, a remote attacker will be able to corrupt the stack and
 execute arbitrary code.]],
       references = {
 'http://bugs.proftpd.org/show_bug.cgi?id=3521',

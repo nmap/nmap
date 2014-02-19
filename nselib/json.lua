@@ -21,7 +21,7 @@
 -- Heavily modified 02/22/2010 - v0.3. Rewrote the parser into an OO-form, to not have to handle
 -- all kinds of state with parameters and return values.
 -- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson
--- and fromJson intogenerate() and parse(), implemented more proper numeric parsing and added some more error checking.
+-- and fromJson into generate() and parse(), implemented more proper numeric parsing and added some more error checking.
 
 local bit = require "bit"
 local nmap = require "nmap"
@@ -404,7 +404,7 @@ function Json:parseUnicodeEscape()
 end
 
 -- Encode a Unicode code point to UTF-8. See RFC 3629.
--- Does not check that cp is a real charaacter; that is, doesn't exclude the
+-- Does not check that cp is a real character; that is, doesn't exclude the
 -- surrogate range U+D800 - U+DFFF and a handful of others.
 local function utf8_enc(cp)
   local bytes = {}

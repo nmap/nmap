@@ -114,7 +114,7 @@ action = function(host, port)
 
   local mechs = helper:getAuthMechs()
   if ( not(mechs) ) then
-    return "\n  ERROR: Failed to retreive authentication mechs from XMPP server"
+    return "\n  ERROR: Failed to retrieve authentication mechs from XMPP server"
   end
 
   local mech_prio = stdnse.get_script_args("xmpp-brute.auth")

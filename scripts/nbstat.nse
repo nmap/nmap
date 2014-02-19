@@ -80,7 +80,7 @@ owns.
 author = "Brandon Enright, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
--- Current version of this script was based entirly on Implementing CIFS, by
+-- Current version of this script was based entirely on Implementing CIFS, by
 -- Christopher R. Hertel.
 categories = {"default", "discovery", "safe"}
 

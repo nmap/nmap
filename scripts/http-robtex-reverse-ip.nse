@@ -42,7 +42,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
 
---- Scrape reverse ip informations from robtex website
+--- Scrape reverse ip information from robtex website
 -- @param data string containing the retrieved web page
 -- @return table containing the resolved host names
 function parse_robtex_response(data)

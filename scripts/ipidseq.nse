@@ -10,7 +10,7 @@ Classifies a host's IP ID sequence (test for susceptibility to idle
 scan).
 
 Sends six probes to obtain IP IDs from the target and classifies them
-similiarly to Nmap's method.  This is useful for finding suitable zombies
+similarly to Nmap's method.  This is useful for finding suitable zombies
 for Nmap's idle scan (<code>-sI</code>) as Nmap itself doesn't provide a way to scan
 for these hosts.
 ]]

@@ -26,7 +26,7 @@ local b64table = {
   '4', '5', '6', '7', '8', '9', '+', '/'
 }
 
-local b64dctable = {} -- efficency
+local b64dctable = {} -- efficiency
 b64dctable['A'] = '000000'
 b64dctable['B'] = '000001'
 b64dctable['C'] = '000010'

@@ -488,7 +488,7 @@ Packet.PreAuth = {
   --- Parses the PreAuth packet response and extracts data needed to
   --  perform authentication
   --
-  -- @param tns Packet.TNS containing the TNS packet recieved from the server
+  -- @param tns Packet.TNS containing the TNS packet received from the server
   -- @return table containing the keys and values returned by the server
   parseResponse = function( self, tns )
     local kvps = {}
@@ -576,7 +576,7 @@ Packet.Auth = {
 
   -- Parses the response of an Auth packet
   --
-  -- @param tns Packet.TNS containing the TNS packet recieved from the server
+  -- @param tns Packet.TNS containing the TNS packet received from the server
   -- @return table containing the key pair values from the Auth packet
   parseResponse = function( self, tns )
     local kvps = {}
@@ -1084,7 +1084,7 @@ Packet.QueryResponseAck = {
 
   -- The mask is used in order to achieve "compression" and is essentially
   -- at a bit mask that decides what columns should be fetched from the
-  -- preceeding row. The mask is provided in reverse order and a set bit
+  -- preceding row. The mask is provided in reverse order and a set bit
   -- indicates that data is provided while an unset bit indicates that the
   -- column data should be fetched from the previous row.
   --
@@ -1319,10 +1319,10 @@ Comm = {
     return self.socket:send( tostring(tns) )
   end,
 
-  --- Handles communication when a MARKER packet is recieved and retrieves
+  --- Handles communication when a MARKER packet is received and retrieves
   --  the following error message
   --
-  -- @return false always to indicate that an error occured
+  -- @return false always to indicate that an error occurred
   -- @return msg containing the error message
   handleMarker = function( self )
     local status, tns = self:recvTNSPacket()
@@ -1354,10 +1354,10 @@ Comm = {
     return false, msg
   end,
 
-  --- Recieves a TNS packet and handles TNS-resends
+  --- Receives a TNS packet and handles TNS-resends
   --
   -- @return status true on success, false on failure
-  -- @return tns Packet.TNS containing the recieved packet or err on failure
+  -- @return tns Packet.TNS containing the received packet or err on failure
   recvTNSPacket = function( self )
     local tns
     local retries = 5
@@ -1391,9 +1391,9 @@ Comm = {
     return true, tns
   end,
 
-  --- Sends a TNS packet and recieves (and handles) the response
+  --- Sends a TNS packet and receives (and handles) the response
   --
-  -- @param pkt containingt the Packet.* to send to the server
+  -- @param pkt containing the Packet.* to send to the server
   -- @return status true on success, false on failure
   -- @return the parsed response as return from the respective parseResponse
   --         function or error message if status was false
@@ -1495,7 +1495,7 @@ Crypt = {
   -- @param user containing the Oracle user name
   -- @param pass containing the Oracle user password
   -- @param srv_sesskey_enc containing the encrypted server session key as
-  --        recieved from the PreAuth packet
+  --        received from the PreAuth packet
   -- @return cli_sesskey_enc the encrypted client session key
   -- @return auth_pass the encrypted Oracle password
   Encrypt10g = function( self, user, pass, srv_sesskey_enc )
@@ -1525,8 +1525,8 @@ Crypt = {
   --
   -- @param pass containing the Oracle user password
   -- @param srv_sesskey_enc containing the encrypted server session key as
-  --        recieved from the PreAuth packet
-  -- @param auth_vrfy_data containing the password salt as recieved from the
+  --        received from the PreAuth packet
+  -- @param auth_vrfy_data containing the password salt as received from the
   --        PreAuth packet
   -- @return cli_sesskey_enc the encrypted client session key
   -- @return auth_pass the encrypted Oracle password
@@ -1672,10 +1672,10 @@ Helper = {
   end,
 
   --- Sends a command to the TNS lsnr
-  -- It currently accepts and tries to send all commands recieved
+  -- It currently accepts and tries to send all commands received
   --
   -- @param cmd string containing the command to send to the server
-  -- @return data string containing the result recieved from the server
+  -- @return data string containing the result received from the server
   lsnrCtl = function( self, cmd )
     local status, data = self.socket:connect( self.host.ip, self.port.number, "tcp" )
     local conn, packet, tns, pkt

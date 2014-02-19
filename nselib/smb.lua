@@ -874,8 +874,8 @@ function smb_read(smb, read_data)
 
   local result = netbios_data .. smb_data
   if(#result ~= length) then
-    stdnse.print_debug(1, "SMB: ERROR: Received wrong number of bytes, there will likely be issues (recieved %d, expected %d)", #result, length)
-    return false, string.format("SMB: ERROR: Didn't receive the expected number of bytes; recieved %d, expected %d. This will almost certainly cause some errors.", #result, length)
+    stdnse.print_debug(1, "SMB: ERROR: Received wrong number of bytes, there will likely be issues (received %d, expected %d)", #result, length)
+    return false, string.format("SMB: ERROR: Didn't receive the expected number of bytes; received %d, expected %d. This will almost certainly cause some errors.", #result, length)
   end
 
   -- Check the message signature (ignoring the first four bytes, which are the netbios header)
@@ -956,7 +956,7 @@ end
 function negotiate_protocol(smb, overrides)
   local header, parameters, data
   local pos
-  local header1, header2, header3, ehader4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
+  local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
 
   header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
 
@@ -991,7 +991,7 @@ function negotiate_protocol(smb, overrides)
   end
 
   -- Parse out the header
-  local uid, tid, header4
+  local uid, tid
   pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
   -- Get the protocol version
@@ -1522,7 +1522,7 @@ end
 --    *  'uid'         The UserID for the session
 --    *  'is_guest'    If set, the username wasn't found so the user was automatically logged in as the guest account
 --    *  'os'          The operating system
---    *  'lanmanager'  The servers's LAN Manager
+--    *  'lanmanager'  The server's LAN Manager
 function start_session(smb, overrides, log_errors)
   -- Use a mutex to avoid some issues (see http://seclists.org/nmap-dev/2011/q1/464)
   local smb_auth_mutex = nmap.mutex( "SMB Authentication Mutex" )
@@ -2482,7 +2482,7 @@ function file_write(host, data, share, remotefile, use_anonymous)
     overrides = get_overrides_anonymous()
   end
 
-  -- Create the SMB sessioan
+  -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, remotefile, nil, overrides)
 
   if(status == false) then
@@ -2536,7 +2536,7 @@ function file_read(host, share, remotefile, use_anonymous, overrides)
     overrides = get_overrides_anonymous(overrides)
   end
 
-  -- Create the SMB sessioan
+  -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, remotefile, nil, overrides)
 
   if(status == false) then
@@ -2588,7 +2588,7 @@ function files_exist(host, share, files, overrides)
   -- We don't wan to be creating the files
   overrides['file_create_disposition'] = 1
 
-  -- Create the SMB sessioan
+  -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, nil, nil, overrides)
 
   if(status == false) then
@@ -2675,7 +2675,7 @@ end
 --              <code>volid</code> - include volume ids in result
 --              <code>dir</code> - find directories
 --              <code>archive</code> - find archived files
--- @return iterator function retreiving the next result
+-- @return iterator function retrieving the next result
 function find_files(smbstate, fname, options)
   local TRANS2_FIND_FIRST2, TRANS2_FIND_NEXT2 = 1, 2
   options = options or {}
@@ -3094,7 +3094,7 @@ function share_get_details(host, share)
   -- Try and get full details about the share
   status, result = msrpc.get_share_info(host, share)
   if(status == false) then
-    -- We don't stop for this error (it's pretty common since administive privileges are required here)
+    -- We don't stop for this error (it's pretty common since administrative privileges are required here)
     stdnse.print_debug(1, "SMB: Failed to get share info for %s: %s", share, result)
     details['details'] = result
   else
@@ -3423,7 +3423,7 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
 
   status, err      = negotiate_protocol(smbstate, overrides)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to negotiatie protocol: %s [%s]", err, username)
+    stdnse.print_debug("SMB; is_admin: Failed to negotiate protocol: %s [%s]", err, username)
     stop(smbstate)
     return false
   end

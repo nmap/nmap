@@ -39,8 +39,8 @@ the NTP service.
 It should be noted that the very nature of the NTP monitor data means that the
 Mode 7 commands sent by this script are recorded by the target (and will often
 appear in these results). Since the monitor data is a MRU list, it is probable
-that you can overwrite the record of the Mode 7 command by sending an innoccuous
-looking Client Mode request. This can be acheived easily using Nmap:
+that you can overwrite the record of the Mode 7 command by sending an innocuous
+looking Client Mode request. This can be achieved easily using Nmap:
 <code>nmap -sU -pU:123 -Pn -n --max-retries=0 <target></code>
 
 Notes:
@@ -509,7 +509,7 @@ function check(status, response, track)
   else -- seq <= hseq !duplicate!
     track.evil_pkts = track.evil_pkts+1
     stdnse.print_debug(1,
-      'Response from %s had a duplcate sequence number - dropping it.',
+      'Response from %s had a duplicate sequence number - dropping it.',
       track.target
     )
     return nil

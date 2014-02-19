@@ -34,7 +34,7 @@ o unmapall - unmaps all previously mapped ports for the requesting IP
 --       choose another port, create the mapping and return the resulting port.
 --
 -- @args nat-pmp-mapport.privport the internal port of the calling IP to map requests
---       to. This port will recieve all requests coming in to the external port on the
+--       to. This port will receive all requests coming in to the external port on the
 --       router.
 --
 -- @args nat-pmp-mapport.protocol the protocol to map, can be either tcp or udp.

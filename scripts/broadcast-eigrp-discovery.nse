@@ -221,7 +221,7 @@ action = function()
     -- If an interface was provided, get its information
     interface = nmap.get_interface_info(interface)
     if not interface then
-      return ("\n ERROR: Failed to retreive %s interface information."):format(interface)
+      return ("\n ERROR: Failed to retrieve %s interface information."):format(interface)
     end
     interfaces = {interface}
     stdnse.print_debug("%s: Will use %s interface.", SCRIPT_NAME, interface.shortname)

@@ -51,7 +51,7 @@ Driver = {
         return false, brute.Error:new( "Login failed" )
       end
 
-      -- something else happend, let's retry
+      -- something else happened, let's retry
       local err = brute.Error:new( err )
       err:setRetry( true )
       return false, err

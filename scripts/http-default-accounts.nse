@@ -69,7 +69,7 @@ portrule = shortport.http
 --validate_fingerprints(fingerprints)
 --Returns an error string if there is something wrong with
 --fingerprint table.
---Modified's version of http-enums validation code
+--Modified version of http-enums validation code
 --@param fingerprints Fingerprint table
 --@return Error string if its an invalid fingerprint table
 ---

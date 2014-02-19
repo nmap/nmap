@@ -110,7 +110,7 @@ function table_count(tt, item)
   return count
 end
 
-parse_page = function( host, port, uri, intresting_keys )
+parse_page = function( host, port, uri, interesting_keys )
   local result = {}
   local response = http.get( host, port, uri )
   stdnse.print_debug(1, "%s: Status %s",
@@ -125,7 +125,7 @@ parse_page = function( host, port, uri, intresting_keys )
       if nmap.verbosity() > 1 then
         result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
       else
-        for i,v in ipairs(intresting_keys) do
+        for i,v in ipairs(interesting_keys) do
           if name:match(("^%s"):format(v)) then
             result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
           end

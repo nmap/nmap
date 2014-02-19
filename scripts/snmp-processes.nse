@@ -38,7 +38,7 @@ dependencies = {"snmp-brute"}
 
 -- Version 0.4
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 01/19/2010 - v0.2 - fixed loop that would occure if a mib did not exist
+-- Revised 01/19/2010 - v0.2 - fixed loop that would occur if a mib did not exist
 -- Revised 01/19/2010 - v0.3 - removed debugging output and renamed file
 -- Revised 04/11/2010 - v0.4 - moved snmp_walk to snmp library <patrik@cqure.net>
 

@@ -70,7 +70,7 @@ Performs brute force password auditing against http form-based authentication.
 -- Version 0.3
 -- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 05/23/2011 - v0.2 - changed so that uservar is optional
--- Revised 06/05/2011 - v0.3 - major re-write, added onsucces, onfailure and
+-- Revised 06/05/2011 - v0.3 - major re-write, added onsuccess, onfailure and
 --                support for redirects
 --
 
@@ -96,7 +96,7 @@ Driver = {
   end,
 
   connect = function( self )
-    -- This will cause problems, as ther is no way for us to "reserve"
+    -- This will cause problems, as there is no way for us to "reserve"
     -- a socket. We may end up here early with a set of credentials
     -- which won't be guessed until the end, due to socket exhaustion.
     return true

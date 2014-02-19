@@ -88,7 +88,7 @@ EIGRP = {
     return o
   end,
 
-  --- Parses a raw eigrp packet and returns a structred response.
+  --- Parses a raw eigrp packet and returns a structured response.
   -- @param eigrp_raw string EIGRP Raw packet.
   -- @return response table Structured eigrp packet.
   parse = function(eigrp_raw)

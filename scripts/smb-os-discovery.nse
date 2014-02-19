@@ -14,7 +14,7 @@ a difference); in response to a session starting, the server will send back all 
 information.
 
 The following fields may be included in the output, depending on the
-cirumstances (e.g. the workgroup name is mutually exclusive with domain and forest
+circumstances (e.g. the workgroup name is mutually exclusive with domain and forest
 names) and the information available:
 * OS
 * Computer name

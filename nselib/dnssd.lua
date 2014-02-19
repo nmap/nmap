@@ -3,7 +3,7 @@
 -- The library supports
 -- * Unicast and Multicast requests
 -- * Decoding responses
--- * Running requests in parallell using Lua coroutines
+-- * Running requests in parallel using Lua coroutines
 --
 -- The library contains the following classes
 -- * <code>Comm</code>
@@ -14,15 +14,15 @@
 -- * <code>Util</code>
 -- ** The <code>Util</code> class contains a number of static functions mainly used to convert data.
 --
--- The following code snipplet queries all mDNS resolvers on the network for a
--- full list of their supported services and returns the formated output:
+-- The following code snippet queries all mDNS resolvers on the network for a
+-- full list of their supported services and returns the formatted output:
 -- <code>
 --   local helper = dnssd.Helper:new( )
 --   helper:setMulticast(true)
 --   return stdnse.format_output(helper:queryServices())
 -- </code>
 --
--- This next snipplet queries a specific host for the same information:
+-- This next snippet queries a specific host for the same information:
 -- <code>
 --   local helper = dnssd.Helper:new( host, port )
 --   return stdnse.format_output(helper:queryServices())
@@ -86,7 +86,7 @@ Util = {
     local services = {}
     -- Create unique table of services
     for _, r in ipairs( response ) do
-      -- do we really have mutliple responses?
+      -- do we really have multiple responses?
       if ( not(r.output) ) then return end
       for _, svc in ipairs(r.output ) do
         services[svc] = services[svc] or {}
@@ -116,7 +116,7 @@ Util = {
     return services
   end,
 
-  --- Returns the amount of currenlty active threads
+  --- Returns the amount of currently active threads
   --
   -- @param threads table containing the list of threads
   -- @return count number containing the number of non-dead threads

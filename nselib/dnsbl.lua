@@ -102,7 +102,7 @@ SERVICES = {
         local rev_ip = dns.reverse(self.ip):match("^(.*)%.in%-addr%.arpa$")
         return ("%s.spam.dnsbl.sorbs.net"):format(rev_ip)
       end,
-      -- This function parses the response and supports borth long and
+      -- This function parses the response and supports both long and
       -- short mode.
       resp_parser = function(self, r)
         local responses = {
@@ -384,7 +384,7 @@ SERVICES = {
         local octet1, octet2, octet3, octet4 = table.unpack(parts)
 
         if ( octet1 ~= 127 ) then
-          -- This should'nt happen :P
+          -- This shouldn't happen :P
           stdnse.print_debug(
             "The request made to dnsbl.httpbl.org was considered invalid (%i)",
             octet1)

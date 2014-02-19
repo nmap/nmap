@@ -8,7 +8,7 @@
 -- interface for script writers, and the <code>IMAP</code> class providing
 -- all protocol-level functionality.
 --
--- The following example illustrates the reommended use of the library:
+-- The following example illustrates the recommended use of the library:
 -- <code>
 -- local helper = imap.Helper:new(host, port)
 -- helper:connect()
@@ -130,7 +130,7 @@ IMAP = {
       status, data = self.socket:send("TlRMTVNTUAABAAAAB7IIogYABgA3AAAADwAPACgAAAAFASgKAAAAD0FCVVNFLUFJUi5MT0NBTERPTUFJTg==\r\n")
       if ( not(status) ) then return false, "ERROR: Failed to send NTLM packet" end
       status, data = self:receive()
-      if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end
+      if ( not(status) ) then return false, "ERROR: Failed to receive NTLM challenge" end
     end
 
     if ( data:match(("^A%04d "):format(self.counter-1)) ) then
@@ -245,7 +245,7 @@ Helper = {
     return self.client:connect()
   end,
 
-  --- Login to the server using eithe plain-text or using the authentication
+  --- Login to the server using either plain-text or using the authentication
   -- mechanism provided in the mech argument.
   --
   -- @param username string containing the username

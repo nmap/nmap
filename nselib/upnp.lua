@@ -13,14 +13,14 @@
 -- * <code>Util</code>
 -- ** The <code>Util</code> class contains a number of static functions mainly used to convert and sort data.
 --
--- The following code snipplet queries all UPnP services on the network:
+-- The following code snippet queries all UPnP services on the network:
 -- <code>
 --   local helper = upnp.Helper:new()
 --   helper:setMulticast(true)
 --   return stdnse.format_output(helper:queryServices())
 -- </code>
 --
--- This next snipplet queries a specific host for the same information:
+-- This next snippet queries a specific host for the same information:
 -- <code>
 --   local helper = upnp.Helper:new(host, port)
 --   return stdnse.format_output(helper:queryServices())

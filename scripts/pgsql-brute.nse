@@ -114,7 +114,7 @@ action = function( host, port )
         break
       end
 
-      -- SSL failed, this can occure due to:
+      -- SSL failed, this can occur due to:
       -- 1. The server does not do SSL
       -- 2. SSL was denied on a per host or network level
       --

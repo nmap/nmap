@@ -72,7 +72,7 @@ NMEA = {
     return true
   end,
 
-  -- Parses a GPS sentence using the apropriate parser
+  -- Parses a GPS sentence using the appropriate parser
   --
   -- @param str containing the GPS sentence
   -- @return entry table containing the parsed response or

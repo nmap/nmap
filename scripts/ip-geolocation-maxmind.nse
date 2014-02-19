@@ -566,7 +566,7 @@ local GeoIP = {
           x[i] = x[i] + bit.lshift(buf:byte((self._recordLength * i + j) +1 ), j*8)
         end
       end
-      -- Gotta test this out thorougly because of the ipnum
+      -- Gotta test this out thoroughly because of the ipnum
       if bit.band(ipnum, bit.lshift(1,depth)) ~= 0 then
         if x[1] >= self._databaseSegments then
           return x[1]

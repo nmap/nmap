@@ -4,7 +4,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
-Get's the routers WAN IP using the NAT Port Mapping Protocol (NAT-PMP).
+Gets the routers WAN IP using the NAT Port Mapping Protocol (NAT-PMP).
 The NAT-PMP protocol is supported by a broad range of routers including:
   - Apple AirPort Express
   - Apple AirPort Extreme

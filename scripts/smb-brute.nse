@@ -49,7 +49,7 @@ to perform their checks.
 The blank password is always tried first, followed by "special passwords" (such as the username
 and the username reversed). Once those are exhausted, the unpwdb password list is used.
 
-One major goal of this script is to avoid accout lockouts. This is done in a few ways. First,
+One major goal of this script is to avoid account lockouts. This is done in a few ways. First,
 when a lockout is detected, unless you user specifically overrides it with the <code>smblockout</code>
 argument, the scan stops. Second, all usernames are checked with the most common passwords first,
 so with not-too-strict lockouts (10 invalid attempts), the 10 most common passwords will still
@@ -468,7 +468,7 @@ local function convert_case(str, num)
 end
 
 ---Attempts to determine the case of a password. This is done by trying every possible combination of upper and lowercase
--- characters in the password, in the most efficient possible ordering, until the corerct case is found.
+-- characters in the password, in the most efficient possible ordering, until the correct case is found.
 --
 -- A session has to be active when this function is called.
 --

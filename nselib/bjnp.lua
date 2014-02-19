@@ -284,7 +284,7 @@ Helper = {
   -- @return attribs table containing device attributes when status is true
   --         errmsg string containing the error message when status is false
   getDeviceIdentity = function(self, devtype)
-    -- Were currenlty only decoding this as I don't know what the other cruft is
+    -- Were currently only decoding this as I don't know what the other cruft is
     local attrib_names = {
       ["scanner"] = {
         { ['MFG'] = "Manufacturer" },

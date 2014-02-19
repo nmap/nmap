@@ -13,7 +13,7 @@ Performs password guessing against databases supporting the IBM DB2 protocol suc
 
 ---
 -- @args drda-brute.threads the amount of accounts to attempt to brute
--- force in parallell (default 10).
+-- force in parallel (default 10).
 -- @args drda-brute.dbname the database name against which to guess
 -- passwords (default <code>"SAMPLE"</code>).
 --
@@ -33,7 +33,7 @@ categories={"intrusive", "brute"}
 -- Version 0.5
 -- Created 05/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 05/09/2010 - v0.2 - re-wrote as multi-threaded <patrik@cqure.net>
--- Revised 05/10/2010 - v0.3 - revised parallellised design <patrik@cqure.net>
+-- Revised 05/10/2010 - v0.3 - revised parallelised design <patrik@cqure.net>
 -- Revised 08/14/2010 - v0.4 - renamed script and library from db2* to drda* <patrik@cqure.net>
 -- Revised 09/09/2011 - v0.5 - changed account status text to be more consistent with other *-brute scripts
 
@@ -60,8 +60,8 @@ end
 
 --- Iterates over the password list and guesses passwords
 --
--- @param host table with information as recieved by <code>action</code>
--- @param port table with information as recieved by <code>action</code>
+-- @param host table with information as received by <code>action</code>
+-- @param port table with information as received by <code>action</code>
 -- @param database string containing the database name
 -- @param creds an iterator producing username, password pairs
 -- @param valid_accounts table in which to store found accounts
@@ -93,8 +93,8 @@ end
 
 --- Checks if the supplied database exists
 --
--- @param host table with information as recieved by <code>action</code>
--- @param port table with information as recieved by <code>action</code>
+-- @param host table with information as received by <code>action</code>
+-- @param port table with information as received by <code>action</code>
 -- @param database string containing the database name
 -- @return status true on success, false on failure
 isValidDb = function( host, port, database )
@@ -112,7 +112,7 @@ isValidDb = function( host, port, database )
   return false
 end
 
---- Returns the amount of currenlty active threads
+--- Returns the amount of currently active threads
 --
 -- @param threads table containing the list of threads
 -- @return count number containing the number of non-dead threads

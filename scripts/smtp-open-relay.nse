@@ -18,7 +18,7 @@ hardcoded in the source file. The script will output all the working combination
 server allows if nmap is in verbose mode otherwise the script will print the number of
 successful tests. The script will not output if the server requires authentication.
 
-If debug is enabled and an error occurrs while testing the target host, the error will be
+If debug is enabled and an error occurs while testing the target host, the error will be
 printed with the list of any combinations that were found prior to the error.
 ]]
 

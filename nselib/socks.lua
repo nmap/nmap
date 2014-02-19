@@ -171,7 +171,7 @@ Helper = {
   -- Create a new instance of the class
   -- @param host table containing the host table
   -- @param port table containing the port table
-  -- @param options table containing library options, currenlty:
+  -- @param options table containing library options, currently:
   --        <code>timeout</code> - socket timeout in ms
   -- @return o instance of Helper
   new = function(self, host, port, options)
@@ -197,7 +197,7 @@ Helper = {
   -- Connects to the SOCKS server
   -- @param auth_method table containing the auth. methods to request
   -- @return status true on success, false on failure
-  -- @return response table containing the respons or err string on failure
+  -- @return response table containing the response or err string on failure
   connect = function(self, auth_method)
     self.socket = nmap.new_socket()
     self.socket:set_timeout(self.options.timeout or 10000)
@@ -267,7 +267,7 @@ Helper = {
       end
 
       if ( auth:isSuccess() ) then
-        return true, "Authentication was successfull"
+        return true, "Authentication was successful"
       else
         return false, "Authentication failed"
       end

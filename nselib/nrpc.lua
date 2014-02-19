@@ -82,8 +82,8 @@ Helper = {
 
   --- Creates a new Helper instance
   --
-  -- @param host table as recieved by the script action method
-  -- @param port table as recieved by the script action method
+  -- @param host table as received by the script action method
+  -- @param port table as received by the script action method
   new = function(self, host, port)
     local o = {}
     setmetatable(o, self)

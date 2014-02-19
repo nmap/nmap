@@ -634,9 +634,9 @@ Helper = {
     -- At this point we have a few differences in behaviour
     --  * DB2 has told us earlier if the DB does not exist
     --  * Apache Derby will do so here, regardless of the login was
-    --    successfull or not
+    --    successful or not
     --  * Informix will tell us that the DB does not exist IF the
-    --    login was successfull
+    --    login was successful
     --
     -- Therefore the order of these checks are important!!
     if ( packet:getDRDAByCodePoint( CodePoint.ACCRDBRM ) ) then
@@ -778,7 +778,7 @@ StringUtil =
   --
   -- @param str string to pad
   -- @param chr char to pad with
-  -- @param len the total length of the finnished string
+  -- @param len the total length of the finished string
   -- @return str string containing the padded string
   padWithChar = function( str, chr, len )
     if ( len < #str ) then

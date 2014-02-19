@@ -5,10 +5,10 @@ Attempts to retrieve information about the domain name of the target
 ---
 -- @usage nmap --script whois-domain.nse <target>
 --
--- This script starts by quering the whois.iana.org (which is the root of the
+-- This script starts by querying the whois.iana.org (which is the root of the
 -- whois servers). Using some patterns the script can determine if the response
--- represents a refferal to a record hosted elsewhere. If that's the case it will
--- query that refferal. The script keeps repeating this until the response don't
+-- represents a referral to a record hosted elsewhere. If that's the case it will
+-- query that referral. The script keeps repeating this until the response don't
 -- match with any of the patterns, meaning that there are no other referrals and
 -- prints the output.
 --

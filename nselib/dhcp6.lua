@@ -581,7 +581,7 @@ Helper = {
     self.__index = self
 
     local info, err = nmap.get_interface_info(iface)
-    -- if we faile to get interface info, don't return a helper
+    -- if we fail to get interface info, don't return a helper
     -- this is true on OS X for interfaces like: p2p0 and vboxnet0
     if ( not(info) and err ) then
       return
@@ -593,7 +593,7 @@ Helper = {
     return o
   end,
 
-  -- Sends a DHCP6 Solicit message to the server, essentiall requesting a new
+  -- Sends a DHCP6 Solicit message to the server, essentially requesting a new
   -- IPv6 non-temporary address
   -- @return table of results suitable for use with
   --         <code>stdnse.format_output</code>

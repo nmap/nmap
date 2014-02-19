@@ -886,7 +886,7 @@ local function get_config(host, config)
     mod.name    = mod.name or (string.format("%s %s", mod.program, mod.args or ""))
     mod.maxtime = mod.maxtime or 1
 
-    -- Check if they forgot the uploadbility
+    -- Check if they forgot the uploadibility
     if(mod.upload == nil) then
       enabled = false
       mod.disabled_message = string.format("Configuration error: '%s': 'upload' field is required", mod.name)

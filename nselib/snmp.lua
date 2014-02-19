@@ -81,7 +81,7 @@ local tagDecoder = {}
 -- IP Address
 
 -- Response-PDU
--- TOOD: Figure out how to remove these dependancies
+-- TOOD: Figure out how to remove these dependencies
 tagDecoder["A2"] = function( self, encStr, elen, pos )
    local seq = {}
 
@@ -483,7 +483,7 @@ function snmpWalk( socket, base_oid )
 
     status, response = socket:receive_bytes(1)
     if ( not( status ) ) then
-      -- Unless we don't have a usefull error message, don't report it
+      -- Unless we have a useful error message, don't report it
       if ( response ~= "ERROR" ) then
         stdnse.print_debug("snmp.snmpWalk: Received no answer (%s)", response)
         return false, response

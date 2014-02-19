@@ -46,7 +46,7 @@ MobileMe = {
   -- Sends a message to an iOS device
   -- @param devid string containing the device id to which the message should
   --        be sent
-  -- @param subject string containing the messsage subject
+  -- @param subject string containing the message subject
   -- @param message string containing the message body
   -- @param alarm boolean true if alarm should be sounded, false if not
   -- @return status true on success, false on failure
@@ -116,7 +116,7 @@ MobileMe = {
       if ( response.status == 401 ) then
         return false, "Authentication failed"
       elseif ( response.status ~= 200 and response.status ~= 330 ) then
-        return false, "An unexpected error occured"
+        return false, "An unexpected error occurred"
       end
 
       retries = retries - 1
@@ -229,7 +229,7 @@ Helper = {
   --
   -- @param devid string containing the device id to which the message should
   --        be sent
-  -- @param subject string containing the messsage subject
+  -- @param subject string containing the message subject
   -- @param message string containing the message body
   -- @param alarm boolean true if alarm should be sounded, false if not
   -- @return status true on success, false on failure

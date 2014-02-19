@@ -26,7 +26,7 @@ Attempts to enumerate RTSP media URLS by testing for common paths on devices suc
 -- on which it determines whether the URL is valid or not.
 --
 -- @args rtsp-url-brute.urlfile sets an alternate URL dictionary file
--- @args rtsp-url-brute.threads sets the maximum number of parallell threads to run
+-- @args rtsp-url-brute.threads sets the maximum number of parallel threads to run
 
 --
 -- Version 0.1
@@ -135,9 +135,9 @@ action = function(host, port)
 
   -- urls that could not be retrieved due to low level errors, such as
   -- failure in socket send or receive
-  local failure_urls = { name='An error occured while testing the following URLs' }
+  local failure_urls = { name='An error occurred while testing the following URLs' }
 
-  -- urls that illicited a 200 OK response
+  -- urls that elicited a 200 OK response
   local success_urls = { name='Discovered URLs' }
 
   -- urls requiring authentication

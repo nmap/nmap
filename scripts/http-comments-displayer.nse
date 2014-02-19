@@ -13,7 +13,7 @@ Extracts and outputs HTML and JavaScript comments from HTTP responses.
 --       Default: nil (crawler mode on)
 -- @args http-comments-displayer.context declares the number of chars
 --       to extend our final strings. This is useful when we need to
---       to see the code that the comments are reffering to.
+--       to see the code that the comments are referring to.
 --       Default: 0, Maximum Value: 50
 --
 --
@@ -52,7 +52,7 @@ PATTERNS = {
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
--- Returns comment's line number by counting the occurences of the
+-- Returns comment's line number by counting the occurrences of the
 -- new line character ("\n") from the start of the HTML file until
 -- the related comment.
 local getLineNumber = function(body, comment)

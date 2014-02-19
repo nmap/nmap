@@ -117,7 +117,7 @@ local backorifice =
     -- both are encrypted with the same initial seed, this is
     -- how we verify we are talking to a BackOrifice service.
     -- The statement is optimized so as not to decrypt unless
-    -- comparison of encrypted magicstrings succeds
+    -- comparison of encrypted magicstrings succeeds
     if status and response:sub(1,8) == encrypted_ping:sub(1,8)
         and self:BOcrypt(response,seed):match("!PONG!(1%.20)!.*!") then
       local BOversion, BOhostname = self:BOcrypt(response,seed):match("!PONG!(1%.20)!(.*)!")

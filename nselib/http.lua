@@ -620,7 +620,7 @@ local function recv_body(s, response, method, partial)
   end
 
   -- 4. If the message uses the media type "multipart/byteranges", and the
-  --    ransfer-length is not otherwise specified, then this self- elimiting
+  --    transfer-length is not otherwise specified, then this self-delimiting
   --    media type defines the transfer-length. [sic]
 
   -- Case 4 is unhandled.
@@ -998,7 +998,7 @@ local function lookup_cache (method, host, port, path, options)
 end
 
 local function response_is_cacheable(response)
-  -- if response.status is nil, then an error must have occured during the request
+  -- if response.status is nil, then an error must have occurred during the request
   -- and we probably don't want to cache the response
   if not response.status then
     return false
@@ -1444,7 +1444,7 @@ local function get_redirect_ok(host, port, options)
 end
 
 ---Fetches a resource with a GET request and returns the result as a table. This is a simple
--- wraper around <code>generic_request</code>, with the added benefit of having local caching
+-- wrapper around <code>generic_request</code>, with the added benefit of having local caching
 -- and support for HTTP redirects. Redirects are followed only if they pass all the
 -- validation rules of the redirect_ok function. This function may be overridden by supplying
 -- a custom function in the <code>redirect_ok</code> field of the options array. The default
@@ -1621,7 +1621,7 @@ end
 --
 -- @param path The path to retrieve.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
--- @param all_requests [optional] The current pipeline queue (retunred from a previous <code>add_pipeline</code> call), or nil if it's the first call.
+-- @param all_requests [optional] The current pipeline queue (returned from a previous <code>add_pipeline</code> call), or nil if it's the first call.
 -- @param method [optional] The HTTP method ('GET', 'HEAD', 'POST', etc). Default: 'GET'.
 -- @return Table with the pipeline get requests (plus this new one)
 -- @see http.pipeline_go

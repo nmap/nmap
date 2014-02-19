@@ -53,7 +53,7 @@ This check WILL crash the service, if it's vulnerable, and requires a guest acco
 or higher to work. It is considered <code>unsafe</code>.
 
 SMBv2 DoS. Performs a denial-of-service against the vulnerability disclosed in
-CVE-2009-3103. Checks if the server went offline. This works agianst Windows Vista
+CVE-2009-3103. Checks if the server went offline. This works against Windows Vista
 and some versions of Windows 7, and causes a bluescreen if successful. The
 proof-of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used,
 with one small change.
@@ -64,7 +64,7 @@ getting information from the Remote Access and Routing service. RASRPC can be
 accessed using either "\ROUTER" SMB pipe or the "\SRVSVC" SMB pipe (usually on Windows XP machines).
 This is in RPC world known as "ncan_np" RPC transport. <code>RasRpcSumbitRequest()</code>
 method is a generic method which provides different functionalities according
-to the <code>RequestBuffer</code> structure and particulary the <code>RegType</code> field within that
+to the <code>RequestBuffer</code> structure and particularly the <code>RegType</code> field within that
 structure. <code>RegType</code> field is of <code>enum ReqTypes</code> type. This enum type lists all
 the different available operation that can be performed using the <code>RasRpcSubmitRequest()</code>
 RPC method. The one particular operation that this vuln targets is the <code>REQTYPE_GETDEVCONFIG</code>
@@ -627,7 +627,7 @@ action = function(host)
     end
   end
 
-  -- Check for SMBv2 vulnerablity
+  -- Check for SMBv2 vulnerability
   status, result = check_smbv2_dos(host)
   if(status == false) then
     table.insert(response, get_response("SMBv2 DoS (CVE-2009-3103)", "ERROR", result, 0, 1))

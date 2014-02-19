@@ -9,7 +9,7 @@ local pcre = require "pcre"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("match", stdnse.seeall)
 
---various functions for use with nse's nsock:receive_buf - function
+--various functions for use with NSE's nsock:receive_buf - function
 
 -- e.g.
 -- sock:receive_buf(regex("myregexpattern"), true) - does a match using pcre

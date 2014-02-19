@@ -24,7 +24,7 @@
 --
 -- If you want to add calls to classes you know of, you can use e.g Jode to decompile the
 -- stub-class or skeleton class and find out the details that are needed to perform an
--- RMI method invokation. Those are
+-- RMI method invocation. Those are
 --  Class hashcode
 --  Method number (each method gets a number)
 --  Arguments f
@@ -78,7 +78,7 @@ end
 -- local breader= BufferedReader:new(socket)
 --
 -- bWriter.pack('>i', integer)
--- bWrier.flush() -- sends the data
+-- bWriter.flush() -- sends the data
 --
 -- if bsocket:canRead(4) then -- Waits until four bytes can be read
 --   local packetLength = bsocket:unpack('i') -- Read the four bytess
@@ -142,7 +142,7 @@ BufferedWriter = {
 -- local breader= BufferedReader:new(socket)
 --
 -- bWriter.pack('>i', integer)
--- bWrier.flush() -- sends the data
+-- bWriter.flush() -- sends the data
 --
 -- if bsocket:canRead(4) then -- Waits until four bytes can be read
 --   local packetLength = bsocket:unpack('i') -- Read the four bytess
@@ -161,7 +161,7 @@ BufferedReader = {
   end,
   ---
   -- This method blocks until the specified number of bytes
-  -- have been read from the socket and are avaiable for
+  -- have been read from the socket and are available for
   -- the caller to read, e.g via the unpack function
   canRead= function(self,count)
     local status, data
@@ -257,7 +257,7 @@ local JavaTypes = {
 ---
 -- The JavaDOS classes
 -- The JavaDOS class is an approximation of a java DataOutputStream. It provides convenience functions
--- for writing java types toan underlying BufferedWriter
+-- for writing java types to an underlying BufferedWriter
 --
 -- When used in conjunction with the BufferedX- classes, they handle the availability-
 -- checks transparently, i.e the caller does not have to check if enough data is available
@@ -335,7 +335,7 @@ JavaDIS = {
     return o
   end,
 
-  -- This closure method generates all reader methods (except unstandard ones) on the fly
+  -- This closure method generates all reader methods (except nonstandard ones) on the fly
   -- according to the definitions in JavaTypes.
   _generateReaderFunc = function(self, javatype)
     local functionName = 'read'..javatype.name
@@ -349,7 +349,7 @@ JavaDIS = {
     end
     self[functionName] = newFunc
   end,
-  -- This is a bit special, since we do not know beforehand how many bytes must be read. Therfore
+  -- This is a bit special, since we do not know beforehand how many bytes must be read. Therefore
   -- this cannot be generated on the fly like the others.
   readUTF = function(self, text)
     -- First, we need to read the length, 2 bytes
@@ -703,7 +703,7 @@ RmiDataStream = {
 
 ----
 -- Connects to a remote service. The connection process creates a
--- socket and does some handshaking. If this is successfull,
+-- socket and does some handshaking. If this is successful,
 -- we are definitely talking to an RMI service.
 function RmiDataStream:connect(host, port)
   local status, err
@@ -752,7 +752,7 @@ function RmiDataStream:connect(host, port)
   return true
 end
 
--- Reads a DgcAck message, which is sent during conection handshake
+-- Reads a DgcAck message, which is sent during connection handshake
 --@param dis - a JavaDIS to read from
 --@return status
 --@return error message
@@ -1216,7 +1216,7 @@ function readNonProxyDesc(dis)
     if ( TypeDecoders[fieldType] ) then
       status, value= TypeDecoders[fieldType](dis)
     else
-      dbg("ellol reading".. RMIUtils.tcString(fieldType))
+      dbg("error reading".. RMIUtils.tcString(fieldType))
       return
     end
     dbg("Read fieldvalue ".. tostring(value) .. " for field ".. tostring(fields[i]))
@@ -1460,7 +1460,7 @@ function Registry:lookup(name)
 end
 ----
 -- Arguments class
--- This class is meant to handle arguments which is sent to a mehtod invoked
+-- This class is meant to handle arguments which is sent to a method invoked
 -- remotely. It is mean to contain functionality to add java primitive datatypes,
 -- such as pushInt, pushString, pushLong etc. All of these are not implemented
 -- currently

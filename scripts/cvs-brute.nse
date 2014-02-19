@@ -61,7 +61,7 @@ Driver =
       return true, brute.Account:new(username, password, creds.State.VALID)
     end
 
-    -- This error seems to indicate tha the user does not exist
+    -- This error seems to indicate that the user does not exist
     if ( err:match("E PAM start error%: Critical error %- immediate abort\0$") ) then
       stdnse.print_debug(2, "%s: The user %s does not exist", SCRIPT_NAME, username)
       local err = brute.Error:new("Account invalid")

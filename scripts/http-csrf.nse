@@ -10,7 +10,7 @@ will also calculate the entropy of each attribute's value. A big entropy means a
 possible token.
 
 A common use case for this script comes along with a cookie that gives access
-in pages that require authentication, because that's where the priviledged
+in pages that require authentication, because that's where the privileged
 exist. See the http library's documentation to set your own cookie.
 ]]
 
@@ -31,15 +31,15 @@ exist. See the http library's documentation to set your own cookie.
 -- | Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=some-very-random-page.com
 -- |   Found the following CSRF vulnerabilities:
 -- |
--- |     Path: http://www.some-very-random-page.com/
+-- |     Path: http://www.example.com/
 -- |     Form id: search_bar_input
 -- |     Form action: /search
 -- |
--- |     Path: http://www.some-very-random-page.com/c/334/watches.html
+-- |     Path: http://www.example.com/c/334/watches.html
 -- |     Form id: custom_price_filters
 -- |     Form action: /search
 -- |
--- |     Path: http://www.some-very-radom-page.com/c/334/watches.html
+-- |     Path: http://www.example.com/c/334/watches.html
 -- |     Form id: custom_price_filters
 -- |_    Form action: /c/334/rologia-xeiros-watches.html
 --

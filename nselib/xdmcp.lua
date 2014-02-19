@@ -286,7 +286,7 @@ Helper = {
   -- @param host table as received by the action method
   -- @param port table as received by the action method
   -- @param options table
-  -- @retun o new instance of Helper
+  -- @return o new instance of Helper
   new = function(self, host, port, options)
     local o = {
       host = host,

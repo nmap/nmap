@@ -21,7 +21,7 @@ user to gain root privileges by specifying an alternate configuration
 file using the -C option (CVE-2010-4345).
 
 The <code>smtp-vuln-cve2010-4344.exploit</code> script argument will make
-the script try to exploit the vulnerabilties, by sending more than 50MB of
+the script try to exploit the vulnerabilities, by sending more than 50MB of
 data, it depends on the message size limit configuration option of the
 Exim server. If the exploit succeed the <code>exploit.cmd</code> or
 <code>smtp-vuln-cve2010-4344.cmd</code> script arguments can be used to
@@ -155,11 +155,11 @@ local function escalate_privs(socket, smtp_opts)
   return exploited, results
 end
 
--- Tries to exploit the heap overflow and the priviled escalation
+-- Tries to exploit the heap overflow and the privilege escalation
 -- Returns true, exploit_status, possible values:
 --  nil      Not vulnerable
 --  "heap"   Vulnerable to the heap overflow
---  "heap-exploited"  The heap overflow vulenrability was exploited
+--  "heap-exploited"  The heap overflow vulnerability was exploited
 local function exploit_heap(socket, smtp_opts)
   local exploited, ret = false, ""
 

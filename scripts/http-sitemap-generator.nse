@@ -98,8 +98,8 @@ end
 local function internal_table_to_output(t)
   local output = {}
   for _,dir in ipairs(t) do
-    local ext_and_occurences = sort_by_keys(dir[2])
-    output[#output+1] = {name=dir[1], table.concat(ext_and_occurences, "; ")}
+    local ext_and_occurrences = sort_by_keys(dir[2])
+    output[#output+1] = {name=dir[1], table.concat(ext_and_occurrences, "; ")}
   end
   return output
 end

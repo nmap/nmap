@@ -372,7 +372,7 @@ MessageDecoders = {
     _, len = bin.unpack(">S", data )
 
     -- For some *@#! reason the SQ_DONE packet sometimes contains an
-    -- length exeeding the length of the packet by one. Attempt to
+    -- length exceeding the length of the packet by one. Attempt to
     -- detect this and fix.
     status, data = socket:receive_buf(match.numbytes(len), true)
     _, tmp = bin.unpack(">S", data, len - 2)
@@ -471,7 +471,7 @@ MessageDecoders = {
   --
   -- @param socket already connected to the Informix database server
   -- @param info table containing the following fields:
-  --        <code>metadata</code> as recieved from <code>SQ_DESCRIBE</code>
+  --        <code>metadata</code> as received from <code>SQ_DESCRIBE</code>
   --        <code>rows</code> containing already retrieved rows
   --        <code>id</code> containing the statement id as sent to SQ_ID
   -- @return status true on success, false on failure
@@ -1026,7 +1026,7 @@ Packet.Connect = {
     pos, tmp = bin.unpack(">S", data, pos)
 
     if ( 108 ~= tmp ) then
-      return false, "Connect recieved unexpected response"
+      return false, "Connect received unexpected response"
     end
 
     pos = pos + 12
@@ -1058,7 +1058,7 @@ Packet.Connect = {
     pos, tmp = bin.unpack(">S", data, pos)
 
     if ( tmp ~= 102 ) then
-      return false, "Connect recieved unexpected response"
+      return false, "Connect received unexpected response"
     end
 
     pos = pos + 6
@@ -1066,7 +1066,7 @@ Packet.Connect = {
     pos, self.oserror = bin.unpack(">s", data, pos )
 
     if ( self.svcerror ~= 0 ) then
-      self.errmsg = Constants.ErrorMsg[self.svcerror] or ("Unknown error %d occured"):format( self.svcerror )
+      self.errmsg = Constants.ErrorMsg[self.svcerror] or ("Unknown error %d occurred"):format( self.svcerror )
     end
 
     return true
@@ -1204,7 +1204,7 @@ Helper = {
 
   --- Attempts to login to the Informix database server
   -- The optional parameters parameter takes any informix specific parameters
-  -- used to connect to the database. In case it's ommited a set of default
+  -- used to connect to the database. In case it's omitted a set of default
   -- parameters are set. Parameters should be past as key, value pairs inside
   -- of a table array as the following example:
   --

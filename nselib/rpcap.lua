@@ -1,6 +1,6 @@
 ---
 -- This library implements the fundamentals needed to communicate with the
--- WinPcap Remote Capture Deamon. It currently supports authenticating to
+-- WinPcap Remote Capture Daemon. It currently supports authenticating to
 -- the service using either NULL-, or Password-based authentication.
 -- In addition it has the capabilities to list the interfaces that may be
 -- used for sniffing.
@@ -10,7 +10,7 @@
 -- handled by the <code>Comm</code> class, and the main interface for script
 -- writers is kept under the <code>Helper</code> class.
 --
--- The following code snipplet illustrates how to connect to the service and
+-- The following code snippet illustrates how to connect to the service and
 -- extract information about network interfaces:
 -- <code>
 --   local helper = rpcap.Helper:new(host, port)
@@ -388,7 +388,7 @@ Helper = {
   -- @param username [optional]
   -- @param password [optional]
   -- @return status true on success, false on failure
-  -- @return err string containing error mesage on failure
+  -- @return err string containing error message on failure
   login = function(self, username, password)
     local auth
 

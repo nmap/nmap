@@ -84,7 +84,7 @@ anonymous bind will be used as a last attempt.
 -- Created 01/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/20/2010 - v0.2 - added SSL support
 -- Revised 01/26/2010 - v0.3 - Changed SSL support to comm.tryssl, prefixed arguments with ldap, changes in determination of namingContexts
--- Revised 02/17/2010 - v0.4 - Added dependencie to ldap-brute and the abilitity to check for ldap accounts (credentials) stored in nmap registry
+-- Revised 02/17/2010 - v0.4 - Added dependency to ldap-brute and the abilitity to check for ldap accounts (credentials) stored in nmap registry
 --                             Capped output to 20 entries, use ldap.maxObjects to override
 -- Revised 07/16/2010 - v0.5 - Fixed bug with empty contexts, added objectClass person to qfilter users, add error msg for invalid credentials
 -- Revised 09/05/2011 - v0.6 - Added support for saving searches to a file via argument ldap.savesearch

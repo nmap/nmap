@@ -9,7 +9,7 @@ The script determines if the protected URI is vulnerable by performing HTTP verb
  for PHP servers ).
 
 If the table <code>paths</code> is set, it will attempt to access the given URIs. Otherwise, a web crawler
-is initiated to try to find protected resources. Note that in a PHP environment with .htacess files you need to specify a
+is initiated to try to find protected resources. Note that in a PHP environment with .htaccess files you need to specify a
 path to a file rather than a directory to find misconfigured .htaccess files.
 
 References:
@@ -46,7 +46,7 @@ References:
 -- |       http://capec.mitre.org/data/definitions/274.html
 -- |_      https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29
 --
--- @args http-method-tamper.uri Base URI to crawl. Not aplicable if <code>http-method-tamper.paths</code> is set.
+-- @args http-method-tamper.uri Base URI to crawl. Not applicable if <code>http-method-tamper.paths</code> is set.
 -- @args http-method-tamper.paths Array of paths to check. If not set, the script will crawl the web server.
 -- @args http-method-tamper.timeout Web crawler timeout. Default: 10s
 ---

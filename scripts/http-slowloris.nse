@@ -83,7 +83,7 @@ local Reason = "slowloris" -- DoSed due to slowloris attack or something else
 local Bestopt
 
 
--- get time (in miliseconds) when the script should finish
+-- get time (in milliseconds) when the script should finish
 local function get_end_time()
   if TimeLimit == nil then
     return -1

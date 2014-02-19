@@ -130,7 +130,7 @@ local LSA_GROUPSIZE  = 20
 -- up. Raising this could find more users, but at the expense of more packets.
 local LSA_MINEMPTY = 10
 
----Mapping between well known MSRPC UUIDs and coresponding exe/service
+---Mapping between well known MSRPC UUIDs and corresponding exe/service
 local UUID2EXE = {
   ["1ff70682-0a51-30e8-076d-740be8cee98b"] = "mstask.exe atsvc interface (Scheduler service)",
   ["3faf4738-3a21-4307-b46c-fdda9bb8c0d5"] = "AudioSrv AudioSrv interface (Windows Audio service)",
@@ -279,13 +279,13 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
   parameters = result['parameters']
   data = result['data']
 
-  -- Extract the first part from the resposne
+  -- Extract the first part from the response
   pos, result['version_major'], result['version_minor'], result['packet_type'], result['packet_flags'], result['data_representation'], result['frag_length'], result['auth_length'], result['call_id'] = bin.unpack("<CCCC>I<SSI", data)
   if(result['call_id'] == nil) then
     return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
   end
 
-  -- Check if the packet tyep was a fault
+  -- Check if the packet type was a fault
   if(result['packet_type'] == 0x03) then -- MSRPC_FAULT
     return false, "Bind() returned a fault (packet type)"
   end
@@ -406,7 +406,7 @@ function call_function(smbstate, opnum, arguments)
     parameters = result['parameters']
     data       = result['data']
 
-    -- Extract the first part from the resposne
+    -- Extract the first part from the response
     pos, result['version_major'], result['version_minor'], result['packet_type'], result['packet_flags'], result['data_representation'], result['frag_length'], result['auth_length'], result['call_id'] = bin.unpack("<CCCC>I<SSI", data)
     if(result['call_id'] == nil) then
       return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
@@ -458,7 +458,7 @@ function call_function(smbstate, opnum, arguments)
 
   result['arguments'] = arguments
 
-  stdnse.print_debug(3, "MSRPC: Function call successful, %d bytes of returned argumenst", #result['arguments'])
+  stdnse.print_debug(3, "MSRPC: Function call successful, %d bytes of returned arguments", #result['arguments'])
 
   return true, result
 end
@@ -1018,12 +1018,12 @@ function spoolss_open_printer(smbstate,printer)
 
   local arguments = msrpctypes.marshall_unicode_ptr(printer,true)
   arguments = arguments .. msrpctypes.marshall_int32(0)
-  --devmod containter
+  --devmod container
   arguments = arguments .. msrpctypes.marshall_int32(0)
   arguments = arguments .. msrpctypes.marshall_int32(0)
   --access we require
   arguments = arguments .. msrpctypes.marshall_int32(0x02020000)
-  -- spool client containter
+  -- spool client container
   arguments = arguments .. msrpctypes.marshall_int32(1)
   arguments = arguments .. msrpctypes.marshall_int32(1)
   arguments = arguments .. msrpctypes.marshall_int32(12345135)
@@ -1145,10 +1145,10 @@ function uuid_to_string(uuid)
   return string.format("%02x-%02x-%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",i1,s1,s2,c1,c2,c3,c4,c5,c6,c7,c8)
 end
 
---- Helper function that maps known UUIDs to coresponding exe/services.
+--- Helper function that maps known UUIDs to corresponding exe/services.
 --
 --@param uuid
---@return Coresponding service and description as a string or nil.
+--@return Corresponding service and description as a string or nil.
 function string_uuid_to_exe(uuid)
   return UUID2EXE[uuid]
 end
@@ -2574,7 +2574,7 @@ end
 -- under the given handle, at the index of 'index'.
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example.
+--@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a usable key, for example.
 --@param index     The index of the key to return. Generally you'll start at 0 and increment until
 --                 an error is returned.
 --@param name      The <code>name</code> buffer. This should be set to the empty string; however, setting to 'nil' can have
@@ -2647,7 +2647,7 @@ end
 --- Calls the function <code>OpenKey</code>, which obtains a handle to a named key.
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example.
+--@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a usable key, for example.
 --@param keyname   The name of the key to open.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is a handle to the newly opened key.
@@ -4059,7 +4059,7 @@ function get_user_list(host)
   return true, response, names
 end
 
----Retrieve information about a domain. This is done by three seperate calls to samr_querydomaininfo2() to get all
+---Retrieve information about a domain. This is done by three separate calls to samr_querydomaininfo2() to get all
 -- possible information. smbstate has to be in the proper state for this to work.
 local function get_domain_info(host, domain)
   local result = {}
@@ -4649,7 +4649,7 @@ function get_server_stats(host)
   stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])
   stats['bytesrcvd'] = bit.bor(bit.lshift(stats['bytesrcvd_high'], 32), stats['bytesrcvd_low'])
 
-  -- Sidestep divide-by-zero errors (probabyl won't come up, but I'd rather be safe)
+  -- Sidestep divide-by-zero errors (probably won't come up, but I'd rather be safe)
   if(stats['period'] == 0) then
     stats['period'] = 1
   end
@@ -4687,7 +4687,7 @@ function enum_shares(host)
     return false, bind_result
   end
 
-  -- Call netsharenumall
+  -- Call netshareenumall
   status, netshareenumall_result = srvsvc_netshareenumall(smbstate, host.ip)
   if(status == false) then
     smb.stop(smbstate)

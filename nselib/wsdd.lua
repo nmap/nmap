@@ -21,7 +21,7 @@
 -- * <code>Decoders</code>
 -- ** The Decoders class contains static functions used for decoding probe matches
 --
--- The following code snipplet shows how the library can be used:
+-- The following code snippet shows how the library can be used:
 -- <code>
 -- local helper = wsdd.Helper:new()
 -- helper:setMulticast(true)

@@ -11,7 +11,7 @@ to those functions is denied, a list of common share names are checked.
 Finding open shares is useful to a penetration tester because there may be private files
 shared, or, if it's writable, it could be a good place to drop a Trojan or to infect a file
 that's already there. Knowing where the share is could make those kinds of tests more useful,
-except that determiing where the share is requires administrative privileges already.
+except that determining where the share is requires administrative privileges already.
 
 Running <code>NetShareEnumAll</code> will work anonymously against Windows 2000, and
 requires a user-level account on any other Windows version. Calling <code>NetShareGetInfo</code>

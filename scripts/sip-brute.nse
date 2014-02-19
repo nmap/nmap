@@ -74,7 +74,7 @@ Driver = {
 -- Function used to check if we can distinguish existing from non-existing
 -- accounts. In order to do so we send a semi-random username and password
 -- and interpret the response. Some servers will respond as if the login
--- was successful which makes it impossible to tell successfull logins
+-- was successful which makes it impossible to tell successful logins
 -- from non-existing accounts apart.
 local function checkBadUser(host, port)
   local user = "baduser-" .. math.random(10000)
@@ -98,7 +98,7 @@ action = function(host, port)
     local status = checkBadUser(host, port)
     if ( status ) then
       return "\nERROR: Cannot detect non-existing user accounts, this will result in:\n" ..
-        "  * Non-exisiting accounts being detected as found\n" ..
+        "  * Non-existing accounts being detected as found\n" ..
         "  * Passwords for existing accounts being correctly detected\n\n" ..
         "Supply the sip-brute.force argument to override"
     end

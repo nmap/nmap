@@ -24,7 +24,7 @@ package since version 2.1.2 when the UDP status service was implemented.
 When run as a version detection script (<code>-sV</code>), the script will report on the
 server version, name, uptime, authentication scheme, and OS.  When run
 explicitly (<code>--script ventrilo-info</code>), the script will additionally report on the
-server name phonetic pronounciation string, the server comment, maximum number
+server name phonetic pronunciation string, the server comment, maximum number
 of clients, voice codec, voice format, channel and client counts, and details
 about channels and currently connected clients.
 
@@ -228,7 +228,7 @@ local crypt_crc = {
   0x6e17,0x7e36,0x4e55,0x5e74,0x2e93,0x3eb2,0x0ed1,0x1ef0
 }
 
--- The probe payload is static as it has proven to be unecessary to forge a new
+-- The probe payload is static as it has proven to be unnecessary to forge a new
 -- one every time. The data used includes the following parameters:
 -- cmd = 2, password = 0, header len = 20, data len = 16, totlen = 36
 -- static 2 byte status request id (time(NULL) in the original protocol)

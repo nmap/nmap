@@ -31,7 +31,7 @@ Helper = {
 
   -- Handles send and receive of control messages
   -- @param data string containing the command to send
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return data containing the response from the server
   --         err string, if status is false
   ctrl_exch = function(self, data)
@@ -103,7 +103,7 @@ Helper = {
     end
 
     if ( data == "@RSYNCD: OK" ) then
-      return true, "Authentication successfull"
+      return true, "Authentication successful"
     end
     return false, "Authentication failed"
   end,

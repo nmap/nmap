@@ -22,7 +22,7 @@ _ENV = stdnse.module("pgsql", stdnse.seeall)
 
 -- Version 0.3
 -- Created 02/05/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 02/20/2010 - v0.2 - added detectVersion to automaticaly detect and return
+-- Revised 02/20/2010 - v0.2 - added detectVersion to automatically detect and return
 --                             the correct version class
 -- Revised 03/04/2010 - v0.3 - added support for trust authentication method
 
@@ -68,7 +68,7 @@ v2 =
 
     --- Decodes an Auth Request packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding, -1 on error
@@ -100,7 +100,7 @@ v2 =
 
     --- Decodes an Error packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding
@@ -212,7 +212,7 @@ v2 =
   -- @param params table containing any additional parameters <code>authtype</code>, <code>version</code>
   -- @param username string containing the username to use for authentication
   -- @param password string containing the password to use for authentication
-  -- @param salt string containing the crypthographic salt value
+  -- @param salt string containing the cryptographic salt value
   -- @return status true on success, false on failure
   -- @return result table containing parameter status information,
   --         result string containing an error message if login fails
@@ -261,7 +261,7 @@ v3 =
 
     --- Decodes an Auth Request packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding, -1 on error
@@ -292,7 +292,7 @@ v3 =
 
     --- Decodes an ParameterStatus packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding
@@ -308,7 +308,7 @@ v3 =
 
     --- Decodes an Error packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding
@@ -345,7 +345,7 @@ v3 =
 
     --- Decodes the BackendKeyData packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding, -1 on error
@@ -364,7 +364,7 @@ v3 =
 
     --- Decodes an ReadyForQuery packet
     --
-    -- @param data string containing raw data recieved from socket
+    -- @param data string containing raw data received from socket
     -- @param len number containing the length as retrieved from the header
     -- @param pos number containing the offset into the data buffer
     -- @return pos number containing the offset after decoding, -1 on error
@@ -468,7 +468,7 @@ v3 =
   -- @param params table containing any additional parameters <code>authtype</code>, <code>version</code>
   -- @param username string containing the username to use for authentication
   -- @param password string containing the password to use for authentication
-  -- @param salt string containing the crypthographic salt value
+  -- @param salt string containing the cryptographic salt value
   -- @return status true on success, false on failure
   -- @return result table containing parameter status information,
   --         result string containing an error message if login fails

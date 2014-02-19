@@ -46,7 +46,7 @@ local DISCARD = {}
 --- Removes uninteresting data from the table
 -- uses the DISCARD table above to see what
 -- keys should be omitted from the results
--- @param data a table containg data
+-- @param data a table containing data
 --@return another table containing data, with some keys removed
 local function queryResultToTable(data)
   local result = {}

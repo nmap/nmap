@@ -76,13 +76,13 @@ local encode_auth = function(username, password)
   return bin.pack("C",0x93) .. bin.pack("C",0xaa) .. method .. get_prefix(username) .. username .. get_prefix(password) .. password
 end
 
--- returns a msgpacked data for any method without exstra parameters
+-- returns a msgpacked data for any method without extra parameters
 local encode_noparam = function(token,method)
   -- token is always the same length
   return bin.pack("C",0x92) .. get_prefix(method) .. method .. bin.pack("H","da0020") .. token
 end
 
--- does the actuall call with specified, pre-packed data
+-- does the actual call with specified, pre-packed data
 -- and returns the response
 local msgrpc_call = function(host, port, msg)
   local data
@@ -98,7 +98,7 @@ local msgrpc_call = function(host, port, msg)
   return nil
 end
 
--- auth.login wraper, returns the auth token
+-- auth.login wrapper, returns the auth token
 local login = function(username, password,host,port)
 
   local data  = msgrpc_call(host, port, encode_auth(username,password))
@@ -107,7 +107,7 @@ local login = function(username, password,host,port)
     local start = string.find(data,"success")
     if  start > -1 then
       -- get token
-      local token = string.sub(string.sub(data,start),17) -- "manualy" unpack token
+      local token = string.sub(string.sub(data,start),17) -- "manually" unpack token
       return true, token
     else
       return false, nil
@@ -117,7 +117,7 @@ local login = function(username, password,host,port)
   return false, nil
 end
 
--- core.version wraper, returns version info, and sets the OS type
+-- core.version wrapper, returns version info, and sets the OS type
 -- so we can decide which commands to send later
 local get_version = function(host, port, token)
   local msg = encode_noparam(token,"core.version")
@@ -160,7 +160,7 @@ local get_version = function(host, port, token)
   return nil
 end
 
--- console.create wraper, returns console_id
+-- console.create wrapper, returns console_id
 -- which we can use to interact with metasploit further
 local create_console = function(host,port,token)
   local msg = encode_noparam(token,"console.create")
@@ -181,7 +181,7 @@ local create_console = function(host,port,token)
 
 end
 
--- console.read wraper
+-- console.read wrapper
 local read_console = function(host,port,token,console_id)
   local msg = encode_console_read("console.read",token,console_id)
   local data = msgrpc_call(host, port, msg)
@@ -204,7 +204,7 @@ local read_console = function(host,port,token,console_id)
   end
 end
 
--- console.write wraper
+-- console.write wrapper
 local write_console = function(host,port,token,console_id,command)
   local msg = encode_console_write("console.write",token,console_id,command .. "\n")
   local data = msgrpc_call(host, port, msg)
@@ -215,7 +215,7 @@ local write_console = function(host,port,token,console_id,command)
   return false
 end
 
--- console.destroy wraper, just to be nice, we don't want console to hang ...
+-- console.destroy wrapper, just to be nice, we don't want console to hang ...
 local destroy_console = function(host,port,token,console_id)
   local msg = encode_console_read("console.destroy",token,console_id)
   local data = msgrpc_call(host, port, msg)

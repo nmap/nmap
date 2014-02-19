@@ -976,7 +976,7 @@ end
 -- @param db        String id of the service from which the response was obtained.
 -- @param ip        String representing the Target's IP address.
 -- @param meta      Table, nmap.registry.whois.whoisdb[db] where db is either the service queried or a mirrored service.
--- @return          String containing the most specific part of the response (or the entire response if only one inetneum object is present).
+-- @return          String containing the most specific part of the response (or the entire response if only one inetnum object is present).
 -- @return          Number position of the start of the most specific part of the response.
 -- @see             smallest_range
 
@@ -1873,7 +1873,7 @@ function file_exists( file )
   elseif err then
     return false, err
   else
-    return false, ( "unforseen error while checking " .. file )
+    return false, ( "unforeseen error while checking " .. file )
   end
 
 end

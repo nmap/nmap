@@ -17,7 +17,7 @@ Either with guest credentials or with specified username/password.
 ---
 -- @usage nmap  -p 445 <target> --script=smb-vuln-ms10-054 --script-args unsafe
 --
--- @args unsafe Required to run the script, "safty swich" to prevent running it by accident
+-- @args unsafe Required to run the script, "safety swich" to prevent running it by accident
 -- @args smb-vuln-ms10-054.share Share to connect to (defaults to SharedDocs)
 -- @output
 -- Host script results:

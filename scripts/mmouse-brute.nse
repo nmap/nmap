@@ -74,7 +74,7 @@ Driver = {
       return true, brute.Account:new("", password, creds.State.VALID)
     end
 
-    local err = brute.Error:new("An unexpected error occured, retrying ...")
+    local err = brute.Error:new("An unexpected error occurred, retrying ...")
     err:setRetry(true)
     return false, err
   end,

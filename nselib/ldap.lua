@@ -29,7 +29,7 @@ _ENV = stdnse.module("ldap", stdnse.seeall)
 local ldapMessageId = 1
 
 ERROR_MSG = {}
-ERROR_MSG[1]  = "Intialization of LDAP library failed."
+ERROR_MSG[1]  = "Initialization of LDAP library failed."
 ERROR_MSG[4]  = "Size limit exceeded."
 ERROR_MSG[13] = "Confidentiality required"
 ERROR_MSG[32] = "No such object"
@@ -367,7 +367,7 @@ function bindRequest( socket, params )
   response.protocolOp = asn1.intToBER( tmp )
 
   if response.protocolOp.number ~= APPNO.BindResponse then
-    return false, string.format("Recieved incorrect Op in packet: %d, expected %d", response.protocolOp.number, APPNO.BindResponse)
+    return false, string.format("Received incorrect Op in packet: %d, expected %d", response.protocolOp.number, APPNO.BindResponse)
   end
 
   pos, response.resultCode = decode( packet, pos )
@@ -378,7 +378,7 @@ function bindRequest( socket, params )
     pos, response.errorMessage = decode( packet, pos )
     error_msg = ERROR_MSG[response.resultCode]
     return false, string.format("\n  Error: %s\n  Details: %s",
-      error_msg or "Unknown error occured (code: " .. response.resultCode ..
+      error_msg or "Unknown error occurred (code: " .. response.resultCode ..
       ")", response.errorMessage or "" )
   else
     return true, "Success"
@@ -643,7 +643,7 @@ function searchResultToFile( searchEntries, filename )
     end
   end
 
-  -- write the new, fully populuated table out to CSV
+  -- write the new, fully populated table out to CSV
 
   -- initialize header row
   local output = "\"name\""
@@ -710,7 +710,7 @@ function convertADTimeStamp(timestamp)
   if (timestamp and timestamp > 0) then
 
     -- The result value was 3036 seconds off what Microsoft says it should be.
-    -- I have been unable to find an explaination for this, and have resorted to
+    -- I have been unable to find an explanation for this, and have resorted to
     -- manually adjusting the formula.
 
     result = ( timestamp /  10000000 ) - 3036
@@ -728,7 +728,7 @@ end
 --  For example 20110904003302.0Z becomes 2001/09/04 00:33:02 UTC
 --
 --
--- @param timestamp in Zulu format without seperators
+-- @param timestamp in Zulu format without separators
 -- @return string containing human readable form
 function convertZuluTimeStamp(timestamp)
 

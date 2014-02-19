@@ -26,7 +26,7 @@
 --      server.
 --
 -- * Helper
---    - The prefered script interface to the library containing functions
+--    - The preferred script interface to the library containing functions
 --      that wrap functions from the NCP class using more descriptive names
 --      and easier interface.
 --

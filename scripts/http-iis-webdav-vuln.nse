@@ -48,7 +48,7 @@ local enum_results =
   UNKNOWN = 3
 }
 
----Sends a PROPFIND request to the given host, and for the given folder. Returns a table reprenting a response.
+---Sends a PROPFIND request to the given host, and for the given folder. Returns a table representing a response.
 local function get_response(host, port, folder)
   local webdav_req = '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/><getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/><checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>'
 

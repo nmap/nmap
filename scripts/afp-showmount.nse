@@ -29,7 +29,7 @@ Shows AFP shares and ACLs.
 -- Version 0.4
 -- Created 01/03/2010 - v0.1 - created by Patrik Karlsson
 -- Revised 01/13/2010 - v0.2 - Fixed a bug where a single share wouldn't show due to formatting issues
--- Revised 01/20/2010 - v0.3 - removed superflous functions
+-- Revised 01/20/2010 - v0.3 - removed superfluous functions
 -- Revised 05/03/2010 - v0.4 - cleaned up and added dependency to afp-brute and added support for credentials
 --                             by argument or registry
 

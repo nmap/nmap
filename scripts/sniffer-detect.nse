@@ -74,7 +74,7 @@ do_test = function(dnet, pcap, host, test)
       -- so that 1 would mean (0-10ms), 2=(10-40ms) and 3=(40ms-90ms)
       -- but when we're running this tests on macs, first test is always 2.
       -- which means that the first answer is dropped.
-      -- for now, just return 1 if test was successfull, it's easier
+      -- for now, just return 1 if test was successful, it's easier
       -- return(i)
       return(1)
     end
@@ -91,7 +91,7 @@ action = function(host)
     ['1_____1_'] = false, -- MacOSX(Tiger.Panther)/Linux/ ?Win98/ WinXP sp2(no pcap)
     ['1_______'] = false, -- Old Apple/SunOS/3Com
     ['1___1_1_'] = false, -- MacOSX(Tiger)
-    ['11111111'] = true,  -- BSD/Linux/OSX/     (or not promiscous openwrt )
+    ['11111111'] = true,  -- BSD/Linux/OSX/     (or not promiscuous openwrt )
     ['1_1___1_'] = false, -- WinXP sp2 + pcap|| win98 sniff || win2k sniff (see below)
     ['111___1_'] = true,  -- WinXP sp2 promisc
     --['1111__1_'] = true,  -- ?Win98 promisc + ??win98 no promisc *not confirmed*

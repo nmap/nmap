@@ -119,7 +119,7 @@ function action(host,port)
   local respname = ( #response >= 5 ) and response[5]
 
   if ( rescode ~= 0 ) then
-    local errmsg = ( #response >= 4 ) and response[4] or "An unknown error occured"
+    local errmsg = ( #response >= 4 ) and response[4] or "An unknown error occurred"
     return "\n  ERROR: " .. errmsg
   end
 

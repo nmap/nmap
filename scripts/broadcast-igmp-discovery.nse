@@ -105,7 +105,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "broadcast"}
 
---- Parses a raw igmp packet and return a structred packet.
+--- Parses a raw igmp packet and return a structured packet.
 -- @param data string IGMP Raw packet.
 -- @return response table Structured igmp packet.
 local igmpParse = function(data)
@@ -204,7 +204,7 @@ end
 
 --- Crafts a raw IGMP packet.
 -- @param interface Source interface of the packet.
--- @param vesion IGMP version. Could be 1, 2 or 3.
+-- @param version IGMP version. Could be 1, 2 or 3.
 -- @return string Raw IGMP packet.
 local igmpRaw = function(interface, version)
   -- Only 1, 2 and 3 are valid IGMP versions
@@ -247,7 +247,7 @@ end
 local igmpQuery;
 --- Sends an IGMP Membership query.
 -- @param interface Network interface to send on.
--- @param vesion IGMP version. Could be 1, 2, 3 or all.
+-- @param version IGMP version. Could be 1, 2, 3 or all.
 igmpQuery = function(interface, version)
   local srcip = interface.address
   local dstip = "224.0.0.1"
@@ -278,7 +278,7 @@ igmpQuery = function(interface, version)
   end
 end
 
--- Function to compare wieght of an IGMP response message.
+-- Function to compare weight of an IGMP response message.
 -- Used to sort elements in responses table.
 local respCompare = function(a,b)
   return ipOps.todword(a.src) + a.type + (a.ngroups or ipOps.todword(a.group))
@@ -338,7 +338,7 @@ action = function(host, port)
     -- Get the interface information
     interface = nmap.get_interface_info(interface)
     if not interface then
-      return ("ERROR: Failed to retreive %s interface information."):format(interface)
+      return ("ERROR: Failed to retrieve %s interface information."):format(interface)
     end
     interfaces = {interface}
     stdnse.print_debug("%s: Will use %s interface.", SCRIPT_NAME, interface.shortname)

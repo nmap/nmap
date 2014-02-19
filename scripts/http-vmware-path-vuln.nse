@@ -62,7 +62,7 @@ local function fake_xml_parse(str, tag)
 
   -- Lowercase the 'body' we're searching
   local lc = string.lower(str)
-  -- Lowrcase the tag
+  -- Lowercase the tag
   tag = string.lower(tag)
 
   -- This loop does some ugly pattern-based xml parsing

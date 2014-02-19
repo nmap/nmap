@@ -50,11 +50,11 @@
 -- </code>
 --
 -- Known limitations:
--- * The library does not support SSL. The foremost reason being the akward choice of implementation where the SSL handshake is performed within the TDS data block. By default, servers support connections over non SSL connections though.
+-- * The library does not support SSL. The foremost reason being the awkward choice of implementation where the SSL handshake is performed within the TDS data block. By default, servers support connections over non SSL connections though.
 -- * Version 7 and ONLY version 7 of the protocol is supported. This should cover Microsoft SQL Server 7.0 and later.
 -- * TDS Responses contain one or more response tokens which are parsed based on their type. The supported tokens are listed in the <code>TokenType</code> table and their respective parsers can be found in the <code>Token</code> class. Note that some token parsers are not fully implemented and simply move the offset the right number of bytes to continue processing of the response.
 -- * The library only supports a limited subsets of datatypes and will abort execution and return an error if it detects an unsupported type. The supported data types are listed in the <code>DataTypes</code> table. In order to add additional data types a parser function has to be added to both the <code>ColumnInfo</code> and <code>ColumnData</code> class.
--- * No functionality for languages, localization or characted codepages has been considered or implemented.
+-- * No functionality for languages, localization or character codepages has been considered or implemented.
 -- * The library does database authentication only. No OS authentication or use of the integrated security model is supported.
 -- * Queries using SELECT, INSERT, DELETE and EXEC of procedures have been tested while developing scripts.
 --
@@ -78,7 +78,7 @@
 -- @args mssql.instance-port The port of the instance to connect to.
 --
 -- @args mssql.instance-all Targets all SQL server instances discovered
---       throught the browser service.
+--       through the browser service.
 --
 -- @args mssql.domain The domain against which to perform integrated
 --       authentication. When set, the scripts assume integrated authentication
@@ -267,9 +267,9 @@ SqlServerVersionInfo =
   minor = nil, -- The minor version (e.g. 0)
   build = nil, -- The build number (e.g. 2047)
   subBuild = nil, -- The sub-build number (e.g. 0)
-  productName = nil, -- The prodcut name (e.g. "SQL Server 2005")
+  productName = nil, -- The product name (e.g. "SQL Server 2005")
   brandedVersion = nil, -- The branded version of the product (e.g. "2005")
-  servicePackLevel = nil, -- The service pack leve (e.g. "SP1")
+  servicePackLevel = nil, -- The service pack level (e.g. "SP1")
   patched = nil, -- Whether patches have been applied since SP installation (true/false/nil)
   source = nil, -- The source of the version info (e.g. "SSRP", "SSNetLib")
 
@@ -513,7 +513,7 @@ SSRP =
   --- Parses an SSRP string and returns a table containing one or more
   --  SqlServerInstanceInfo objects created from the parsed string.
   _ParseSsrpString = function( host, ssrpString )
-    -- It would seem easier to just capture (.-;;) repeateadly, since
+    -- It would seem easier to just capture (.-;;) repeatedly, since
     -- each instance ends with ";;", but ";;" can also occur within the
     -- data, signifying an empty field (e.g. "...bv;;@COMPNAME;;tcp;1433;;...").
     -- So, instead, we'll split up the string ahead of time.
@@ -743,7 +743,7 @@ for i, v in pairs(LoginErrorType) do
   LoginErrorMessage[v] = i
 end
 
--- "static" ColumInfo parser class
+-- "static" ColumnInfo parser class
 ColumnInfo =
 {
 
@@ -879,7 +879,7 @@ ColumnInfo =
 
 }
 
--- "static" ColumData parser class
+-- "static" ColumnData parser class
 ColumnData =
 {
   Parse = {
@@ -1326,7 +1326,7 @@ Token =
       return pos, token
     end,
 
-    --- Parses a DoneProc token recieved after executing a SP
+    --- Parses a DoneProc token received after executing a SP
     --
     -- @param data string containing "raw" data
     -- @param pos number containing offset into data
@@ -1341,7 +1341,7 @@ Token =
     end,
 
 
-    --- Parses a DoneInProc token recieved after executing a SP
+    --- Parses a DoneInProc token received after executing a SP
     --
     -- @param data string containing "raw" data
     -- @param pos number containing offset into data
@@ -1834,7 +1834,7 @@ LoginPacket =
 
     -- offset to auth info
     data = data .. bin.pack("<S", offset)
-    -- lenght of nt auth (should be 0 for sql auth)
+    -- length of nt auth (should be 0 for sql auth)
     data = data .. bin.pack("<S", authLen)
     -- next position (same as total packet length)
     data = data .. bin.pack("<S", self.length)
@@ -2143,7 +2143,7 @@ TDSStream = {
     end
   end,
 
-  --- Recieves responses from SQL Server
+  --- Receives responses from SQL Server
   -- The function continues to read and assemble a response until the server
   -- responds with the last response flag set
   --
@@ -3140,7 +3140,7 @@ Util =
   --- Takes a table as returned by Query and does some fancy formatting
   --  better suitable for <code>stdnse.output_result</code>
   --
-  -- @param tbl as recieved by <code>Helper.Query</code>
+  -- @param tbl as received by <code>Helper.Query</code>
   -- @param with_headers boolean true if output should contain column headers
   -- @return table suitable for <code>stdnse.output_result</code>
   FormatOutputTable = function ( tbl, with_headers )

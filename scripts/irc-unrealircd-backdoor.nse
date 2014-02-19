@@ -72,7 +72,7 @@ action = function(host, port)
   local delay = 8
 
   -- If the command takes (delay - delay_fudge) or more seconds, the server is vulnerable.
-  -- I defined the furdge as 1 second, for now, just because of rounding issues. In practice,
+  -- I defined the fudge as 1 second, for now, just because of rounding issues. In practice,
   -- the actual delay should never be shorter than the given delay, only longer.
   local delay_fudge = 1
 

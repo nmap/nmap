@@ -10,7 +10,7 @@ local unpwdb = require "unpwdb"
 
 description = [[
 Discovers valid usernames by brute force querying likely usernames against a Kerberos service.
-When an invalid username is requested the server will responde using the
+When an invalid username is requested the server will respond using the
 Kerberos error code KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN, allowing us to determine
 that the user name was invalid. Valid user names will illicit either the
 TGT in a AS-REP response or the error KRB5KDC_ERR_PREAUTH_REQUIRED, signaling

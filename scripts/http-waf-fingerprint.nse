@@ -41,7 +41,7 @@ categories = {"discovery", "intrusive"}
 -- Version 0.1:
 -- - Initial version based on work done with wafw00f and w3af.
 -- - Removed many false positives.
--- - Added fingeprints for WAFs such as Incapsula WAF, Cloudflare, USP-SES,
+-- - Added fingerprints for WAFs such as Incapsula WAF, Cloudflare, USP-SES,
 --   Cisco ACE XML Gateway and ModSecurity.
 -- - Added fingerprints and version detection for Webknight and BinarySec,
 --   Citrix Netscaler and ModSecurity
@@ -342,7 +342,7 @@ netscaler = {
       end
 
       if response.header.cneonction == "close" or response.header.nncoection == "close" then
-        if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through Cneoction/nnCoection header.", SCRIPT_NAME) end
+        if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through Cneonction/nnCoection header.", SCRIPT_NAME) end
         netscaler.detected = true
       end
 
@@ -535,7 +535,7 @@ naxsi = {
   end,
   intensive = function(host, port, root, responses)
     -- Credit to Henri Doreau
-    local response = http.get(host, port, root .. "?a=[") -- This shouldn't trigget the rules
+    local response = http.get(host, port, root .. "?a=[") -- This shouldn't trigger the rules
     local response2 = http.get(host, port, root .. "?a=[[[]]]][[[]") -- This should trigger the score based rules
 
     if response.status ~= response2.status then
@@ -595,9 +595,9 @@ local send_requests = function(host, port, root)
   all = http.pipeline_add(root, nil, all, "GET")
   table.insert(requests,"normal")
 
-  -- Normal inexisting
+  -- Normal nonexistent
   all = http.pipeline_add(root .. "asofKlj", nil, all, "GET")
-  table.insert(requests,"inexisting")
+  table.insert(requests,"nonexistent")
 
   -- Invalid Method
   all = http.pipeline_add(root, nil, all, "ASDE")

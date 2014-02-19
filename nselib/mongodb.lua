@@ -325,7 +325,7 @@ Standard message header :
 struct {
     int32   messageLength;  // total size of the message, including the 4 bytes of length
     int32   requestID;      // client or database-generated identifier for this message
-    int32   responseTo;     // requestID from the original request (used in reponses from db)
+    int32   responseTo;     // requestID from the original request (used in responses from db)
     int32   opCode;         // request type - see table below
 }
 
@@ -573,7 +573,7 @@ function query(socket, data)
     data = data .. try( socket:receive() )
     isComplete, pSize = isPacketComplete(data)
   end
-  -- All required data shold be read now
+  -- All required data should be read now
   local packetData = data:sub(1,pSize)
   local residualData = data:sub(pSize+1)
   local responseHeader = parseResponseHeader(packetData)
@@ -629,8 +629,8 @@ function login(socket, db, username, password)
 end
 
 
---- Converts a quert result as received from MongoDB query into nmap "result" table
--- @param resultTable table as returned from a quer
+--- Converts a query result as received from MongoDB query into nmap "result" table
+-- @param resultTable table as returned from a query
 -- @return table suitable for <code>stdnse.format_output</code>
 function queryResultToTable( resultTable )
 

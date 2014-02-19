@@ -105,7 +105,7 @@ Response = {
     local tmp = stdnse.strsplit("\r\n", data)
     if ( not(tmp) ) then return nil end
 
-    -- we should have atleas one entry
+    -- we should have atleast one entry
     if ( #tmp > 1 ) then
       o.headers = {}
       for i=2, #tmp do
@@ -207,15 +207,15 @@ Client = {
     repeat
       local err
       status, err = self.socket:send( tostring(req) )
-      -- check if send was successfull, in case it wasn't AND
+      -- check if send was successful, in case it wasn't AND
       -- this is our last retry, ABORT
       if ( not(status) and 0 == retries - 1 ) then
         stdnse.print_debug(2, "Failed to send request to server (%s)", err)
         return false, ("Failed to send request to server (%s)"):format(err)
-      -- if send was successfull, attempt to receive the response
+      -- if send was successful, attempt to receive the response
       elseif ( status ) then
         status, data = self.socket:receive()
-        -- if we got the response allright, break out of retry loop
+        -- if we got the response all right, break out of retry loop
         if ( status ) then break end
       end
       -- if either send or receive fails, re-connect the socket

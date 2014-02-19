@@ -12,7 +12,7 @@ In order to use the script, at least one printer needs to be shared
 over SMB. If no printer is specified, script tries to enumerate existing
 ones by calling LANMAN API which might not be always available.
 LANMAN is available by default on Windows XP, but not on Vista or Windows 7
-for example. In that case, you need to specify printer share name manualy
+for example. In that case, you need to specify printer share name manually
 using <code>printer</code> script argument. You can find out available shares
 by using smb-enum-shares script.
 
@@ -101,7 +101,7 @@ action = function(host,port)
     end
   end
   if not printer then
-    stdnse.print_debug("No printer found, system may be unpached but it needs at least one printer shared to be vulnerable.")
+    stdnse.print_debug("No printer found, system may be unpatched but it needs at least one printer shared to be vulnerable.")
     return false
   end
   stdnse.print_debug("Using %s as printer.",printer)

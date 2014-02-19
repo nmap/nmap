@@ -69,7 +69,7 @@ local function validateAuth(host, port)
   if ( status ) then
     return false, "Authentication not required"
   elseif ( not(status) and
-    "Authentication failed; NULL autentication not permitted." == result ) then
+    "Authentication failed; NULL authentication not permitted." == result ) then
     return true
   end
   return status, result

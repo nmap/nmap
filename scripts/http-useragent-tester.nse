@@ -1,14 +1,14 @@
 description = [[
-Checks if various crawling ultities are allowed by the host.
+Checks if various crawling utilities are allowed by the host.
 ]]
 
 ---
 -- @usage nmap -p80 --script http-useragent-tester.nse <host>
 --
 -- This script sets various User-Agent headers that are used by different
--- ultities and crawling libraries (for example CURL or wget). If the request is
+-- utilities and crawling libraries (for example CURL or wget). If the request is
 -- redirected to a page different than a (valid) browser request would be, that
--- means that this ultity is banned.
+-- means that this utility is banned.
 --
 -- @args http-useragent-tester.useragents A table with more User-Agent headers.
 --       Default: nil

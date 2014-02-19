@@ -729,7 +729,7 @@ local function initial_ttl(host)
     nmap.registry['firewalk']['traceroutefail'] = true
 
     if nmap.verbosity() > 0 then
-      stdnse.print_debug("%s requires unavailable traceroute informations.", SCRIPT_NAME)
+      stdnse.print_debug("%s requires unavailable traceroute information.", SCRIPT_NAME)
     end
 
     return nil
@@ -906,7 +906,7 @@ end
 
 --- send a probe and update it
 -- @param scanner the scanner handle
--- @param probe the probe specifications and related informations
+-- @param probe the probe specifications and related information
 local function send_probe(scanner, probe)
 
   local try = nmap.new_try(function() scanner.sock:ip_close() end)
@@ -918,7 +918,7 @@ local function send_probe(scanner, probe)
 
   try(scanner.sock:ip_send(pkt.buf, scanner.target))
 
-  -- update probe informations
+  -- update probe information
   probe.retry = probe.retry + 1
   probe.sent_time = nmap.clock_ms()
 

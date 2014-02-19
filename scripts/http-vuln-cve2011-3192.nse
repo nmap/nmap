@@ -41,7 +41,7 @@ References:
 -- 2011-08-29 Duarte Silva <duarte.silva@serializing.me>
 --   - Removed the "Accept-Encoding" HTTP header
 --   - Removed response header printing
---   * Changes based on Henri Doreau and David Fifield sugestions
+--   * Changes based on Henri Doreau and David Fifield suggestions
 -- 2011-08-20 Duarte Silva <duarte.silva@serializing.me>
 --   * First version ;)
 -- 2011-11-07 Henri Doreau

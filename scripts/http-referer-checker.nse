@@ -5,7 +5,7 @@ third-party entities.
 ]]
 
 ---
--- @usage nmap -p80 --script http-refferer-checker.nse <host>
+-- @usage nmap -p80 --script http-referer-checker.nse <host>
 --
 -- This script informs about cross-domain include of scripts by
 -- finding src attributes that point to a different domain.

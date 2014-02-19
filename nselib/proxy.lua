@@ -15,7 +15,7 @@ _ENV = stdnse.module("proxy", stdnse.seeall)
 
 -- Start of local functions
 
---- check function, makes checkings for all valid returned status
+--- check function, checks for all valid returned status
 --- If any of the HTTP status below is found, the proxy is potentially open
 --- The script tries to split header from body before checking for status
 --@param result connection result
@@ -225,7 +225,7 @@ function socksHandshake(socket, version, hostname)
     if(r2 ~= 0x00) then
       stdnse.print_debug("Socks5: Authentication required")
     else
-      -- If no Auth is required, try to estabilish connection
+      -- If no Auth is required, try to establish connection
       stdnse.print_debug("Socks5: No authentication required")
       -- Socks5 second payload: Version, Command, Null, Address type, Ip-Address, Port number
       paystring = '05 01 00 01 ' .. sip .. '00 50'
@@ -264,7 +264,7 @@ end
 --  if true, the proxy server might be redirecting the requests
 --  to a default page
 --
---  Functions slipts body from head before comparing, to avoid session
+--  Functions splits body from head before comparing, to avoid session
 --  variables, cookies...
 --
 --  @param resp1 A string with the response for the first request

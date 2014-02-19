@@ -7,11 +7,11 @@
 -- * <code>Packet</code>
 -- ** The <code>Packet</code> classes contain one class for each TFTP operation.
 -- * <code>File</code>
--- ** The <code>File</code> class holds a recieved file including the name and contents
+-- ** The <code>File</code> class holds a received file including the name and contents
 -- * <code>ConnHandler</code>
 -- ** The <code>ConnHandler</code> class handles and processes incoming connections.
 --
--- The following code snipplet starts the TFTP server and waits for the file incoming.txt
+-- The following code snippet starts the TFTP server and waits for the file incoming.txt
 -- to be uploaded for 10 seconds:
 -- <code>
 --   tftp.start()
@@ -192,14 +192,14 @@ local function processConnection( host, port, data )
   while( true ) do
     local status, pdata = socket:receive()
     if ( not(status) ) then
-      -- if we're here and havent succesfully read a packet for 5 seconds, abort
+      -- if we're here and haven't successfully read a packet for 5 seconds, abort
       if ( os.time() - lastread  > 5 ) then
         coroutine.yield(false)
       else
         coroutine.yield(true)
       end
     else
-      -- record last time we had a succesful read
+      -- record last time we had a successful read
       lastread = os.time()
       pos, op = bin.unpack(">S", pdata)
       if ( OpCode.DATA ~= op ) then
@@ -217,7 +217,7 @@ local function processConnection( host, port, data )
         break
       end
 
-      -- for every fith block check that we've received the preceeding four
+      -- for every fifth block check that we've received the preceding four
       if ( ( #blocks % 5 ) == 0 ) then
         for b = #blocks - 4, #blocks do
           if ( not(blocks[b]) ) then
@@ -251,7 +251,7 @@ local function processConnection( host, port, data )
     end
     filecontent = filecontent .. blocks[i]
   end
-  stdnse.print_debug("Finnished receiving file \"%s\"", filename)
+  stdnse.print_debug("Finished receiving file \"%s\"", filename)
 
   -- Add  anew file to the global infiles table
   table.insert( infiles, File:new(filename, filecontent, host) )
@@ -305,7 +305,7 @@ end
 local function waitLast()
   -- The thread that started the server needs to wait here until the rest
   -- of the scripts finnish running. We know we are done once the state
-  -- shifts to STOPPED and we get a singla from the condvar in the
+  -- shifts to STOPPED and we get a signal from the condvar in the
   -- dispatcher
   local s_condvar = nmap.condvar(state)
   while( srvthread == coroutine.running() and state ~= "STOPPED" ) do
@@ -316,7 +316,7 @@ end
 --- Waits for a file with a specific filename for at least the number of
 -- seconds specified by the timeout parameter. If this function is called
 -- from the thread that's running the server it will wait until all the
--- other threads have finnished executing before returning.
+-- other threads have finished executing before returning.
 --
 -- @param filename string containing the name of the file to receive
 -- @param timeout number containing the minimum number of seconds to wait

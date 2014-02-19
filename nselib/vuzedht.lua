@@ -10,7 +10,7 @@
 --
 -- o Response - the response class containing all of the response classes. It
 --              currently contains the Header, PING, FIND_NODE and ERROR
---              classs.
+--              class.
 --
 -- o Session  - a class containing "session state" such as the transaction- and
 --              instance ID's.
@@ -175,7 +175,7 @@ Response = {
     end
   },
 
-  -- The reponse header, present in all packets
+  -- The response header, present in all packets
   Header = {
 
     Vendors = {
@@ -503,7 +503,7 @@ Helper = {
   end,
 
   -- Sends a Vuze PING request to the server and parses the response
-  -- @return status true on succes, false on failure
+  -- @return status true on success, false on failure
   -- @return response PING response instance on success,
   --         err string containing the error message on failure
   ping = function(self)

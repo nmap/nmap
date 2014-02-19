@@ -16,9 +16,9 @@
 -- Strings are a little bit trickier. A string is preceded by three 32-bit values: the max length, the offset, and
 -- the length. Additionally, strings may or may not be null terminated, depending on where they're being used. For
 -- more information on strings, see the comments on <code>marshall_unicode</code>. The functions <code>marshall_unicode</code>
--- and <code>unmarshall_unicode</code> can be used to mashall/unmarshall strings.
+-- and <code>unmarshall_unicode</code> can be used to marshall/unmarshall strings.
 --
--- Pointers also have interesting properties. A pointer is preceeded by a 4-byte value called (at least by Wireshark)
+-- Pointers also have interesting properties. A pointer is preceded by a 4-byte value called (at least by Wireshark)
 -- the "referent id". For a valid pointer, this can be anything except 0 (I use 'NMAP' for it). If it's '0', then
 -- it's a null pointer and the data doesn't actually follow. To help clarify, a pointer to the integer '4' could be
 -- marshalled as the hex string <code>78 56 34 12 04 00 00 00</code> (the referent_id is 0x12345678 and the integer
@@ -33,7 +33,7 @@
 --
 -- So far, this is fairly straight forward. Arrays are where everything falls apart.
 --
--- An array of basic types is simply the types themselves, preceeded by the "max length" of the array (which can be
+-- An array of basic types is simply the types themselves, preceded by the "max length" of the array (which can be
 -- longer than the actual length). When pointers are used in an array, however, things get hairy. The 'referent_id's
 -- of the pointers are all put at the start of the array, along with the base types. Then, the data is put at the
 -- end of the array, for all the referent_ids that aren't null. Let's say you have four strings, "abc", "def", null, and
@@ -83,12 +83,12 @@
 -- function the same way <code>unmarshall_array</code> would. This is a bit of a kludge, but it's the best I could come up
 -- with.
 --
--- There are different sections in here, which correspond to "families" of types. I modelled these after Samba's <code>.idl</code> files.
+-- There are different sections in here, which correspond to "families" of types. I modeled these after Samba's <code>.idl</code> files.
 -- MISC corresponds to <code>misc.idl</code>, LSA to <code>lsa.idl</code>, etc. Each of these sections has possible dependencies; for example, SAMR
 -- functions use LSA strings, and everything uses SECURITY and MISC. So the order is important -- dependencies have to go
 -- above the module.
 --
--- The datatypes used here are modelled after the datatypes used by Microsoft's functions. Each function that represents
+-- The datatypes used here are modeled after the datatypes used by Microsoft's functions. Each function that represents
 -- a struct will have the struct definition in its comment; and that struct (or the closest representation to it) will be
 -- returned. Often, this requires scripts to access something like <code>result['names']['names'][0]['name']</code>, which is
 -- rather unwieldy, but I decided that following Microsoft's definitions was the most usable way for many reasons. I find
@@ -148,7 +148,7 @@ function string_to_unicode(string, do_null)
     result = result .. string.sub(string, i, i) .. string.char(0)
   end
 
-  -- Add a null, if the caller requestd it
+  -- Add a null, if the caller requested it
   if(do_null == true) then
     result = result .. string.char(0) .. string.char(0)
   end
@@ -230,7 +230,7 @@ end
 -- When marshalling the body, the function <code>func</code> is called, which is passed as
 -- a parameter, with the arguments <code>args</code>. This function has to return a marshalled
 -- parameter, but other than that it can be any marshalling function. The 'value' parameter
--- simply determined whether or not it's a null pointer, and will probably be a repease of
+-- simply determined whether or not it's a null pointer, and will probably be a repeat of
 -- one of the arguments.
 --
 -- Note that the function <code>func</code> doesn't have to conform to any special prototype,
@@ -572,7 +572,7 @@ function marshall_unicode(str, do_null, max_length)
   return result
 end
 
---- Marshall a null-teriminated ascii string, with the length/maxlength prepended. Very similar
+--- Marshall a null-terminated ascii string, with the length/maxlength prepended. Very similar
 -- to <code>marshall_unicode</code>, except it's ascii and the null terminator is always used.
 --
 --@param str        The string to marshall.
@@ -1154,7 +1154,7 @@ function marshall_NTTIME(time)
   return result
 end
 
----Unmarshalles an NTTIME. See <code>marshall_NTTIME</code> for more information.
+---Unmarshalls an NTTIME. See <code>marshall_NTTIME</code> for more information.
 --
 --@param data The data packet.
 --@param pos  The position within the data.
@@ -1190,7 +1190,7 @@ function marshall_NTTIME_ptr(time)
   return result
 end
 
----Unmarshalles an <code>NTTIME*</code>.
+---Unmarshalls an <code>NTTIME*</code>.
 --
 --@param data The data packet.
 --@param pos  The position within the data.
@@ -1935,7 +1935,7 @@ end
 --@param sid_type  The <code>sid_type</code> value (I don't know what this means)
 --@param rid       The <code>rid</code> (a number representing the user)
 --@param sid_index The <code>sid_index</code> value (I don't know what this means, either)
---@param unknown   An unknown value (is normaly 0).
+--@param unknown   An unknown value (is normally 0).
 --@return A string representing the marshalled data.
 local function marshall_lsa_TranslatedSid2(location, sid_type, rid, sid_index, unknown)
   local result = ""
@@ -2760,7 +2760,7 @@ function unmarshall_winreg_StringBuf_ptr(data, pos)
 end
 
 
---- A winreg_String has the same makup as a winreg_StringBuf, as far as I can tell, so delegate to that function.
+--- A winreg_String has the same makeup as a winreg_StringBuf, as far as I can tell, so delegate to that function.
 --
 --@param table The table representing the String.
 --@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null.
@@ -2775,7 +2775,7 @@ function marshall_winreg_String(table, max_length)
   return result
 end
 
----Unmarshall a winreg_String. Since ti has the same makup as winreg_StringBuf, delegate to that.
+---Unmarshall a winreg_String. Since it has the same makeup as winreg_StringBuf, delegate to that.
 --
 --@param data   The data buffer.
 --@param pos    The position in the data buffer.
@@ -4499,19 +4499,19 @@ local atsvc_DaysOfMonth =
   Fifth           =       0x00000010,
   Sixth           =       0x00000020,
   Seventh         =       0x00000040,
-  Eight           =       0x00000080,
+  Eighth          =       0x00000080,
   Ninth           =       0x00000100,
   Tenth           =       0x00000200,
   Eleventh        =       0x00000400,
   Twelfth         =       0x00000800,
-  Thitteenth      =       0x00001000,
+  Thirteenth      =       0x00001000,
   Fourteenth      =       0x00002000,
   Fifteenth       =       0x00004000,
   Sixteenth       =       0x00008000,
   Seventeenth     =       0x00010000,
   Eighteenth      =       0x00020000,
   Ninteenth       =       0x00040000,
-  Twentyth        =       0x00080000,
+  Twentieth       =       0x00080000,
   Twentyfirst     =       0x00100000,
   Twentysecond    =       0x00200000,
   Twentythird     =       0x00400000,

@@ -133,11 +133,11 @@ action = function(host, port)
             if ( status ) then
               local status, fsize = afpHelper:GetFileSize( vol, item.name)
               if ( not(status) ) then
-                return ("\n\nERROR: Failed to retreive file size for %/%s"):format(vol, item.name)
+                return ("\n\nERROR: Failed to retrieve file size for %/%s"):format(vol, item.name)
               end
               local status, date = afpHelper:GetFileDates( vol, item.name)
               if ( not(status) ) then
-                return ("\n\nERROR: Failed to retreive file dates for %/%s"):format(vol, item.name)
+                return ("\n\nERROR: Failed to retrieve file dates for %/%s"):format(vol, item.name)
               end
 
               tab.addrow(file_tab, result.privs, result.uid, result.gid, fsize, date.create, item.name)
@@ -156,7 +156,7 @@ action = function(host, port)
     status, response = afpHelper:Logout()
     status, response = afpHelper:CloseSession()
 
-    -- stop after first succesfull attempt
+    -- stop after first successful attempt
     if ( output and #output > 0 ) then
       table.insert(output, "")
       table.insert(output, ("Information retrieved as: %s"):format(username))

@@ -89,7 +89,7 @@ Reply = {
     end,
 
     --- Attempts to create an instance by reading data off the socket
-    -- @param socket socket conected to the SRVLOC service
+    -- @param socket socket connected to the SRVLOC service
     -- @return new instance of the Reply.Service class
     fromSocket = function(socket)
       local status, data = socket:receive()
@@ -143,7 +143,7 @@ Reply = {
     end,
 
     --- Attempts to create an instance by reading data off the socket
-    -- @param socket socket conected to the SRVLOC service
+    -- @param socket socket connected to the SRVLOC service
     -- @return new instance of the Reply.Attribute class
     fromSocket = function(socket)
       local status, data = socket:receive()
@@ -295,7 +295,7 @@ Request = {
 }
 
 
--- The Helper class serves as primary interface for scripts using the libraryy
+-- The Helper class serves as primary interface for scripts using the library
 Helper = {
 
   new = function(self, host, port)

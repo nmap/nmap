@@ -53,7 +53,7 @@
 --
 --@args  smbusername The SMB username to log in with. The forms "DOMAIN\username" and "username@DOMAIN"
 --                   are not understood. To set a domain, use the <code>smbdomain</code> argument.
---@args  smbdomain   The domain to log in with. If you aren't in a domained environment, then anything
+--@args  smbdomain   The domain to log in with. If you aren't in a domain environment, then anything
 --                   will (should?) be accepted by the server.
 --@args  smbpassword The password to connect with. Be cautious with this, since some servers will lock
 --                   accounts if the incorrect password is given. Although it's rare that the
@@ -770,7 +770,7 @@ function get_host_info_from_security_blob(security_blob)
   if ( target_info_length > 0 ) then
 
     -- Definition of AvId values (IDs for AV_PAIR (attribute-value pair) structures),
-    -- as definied by the NTLM Authentication Protocol specification [MS-NLMP].
+    -- as defined by the NTLM Authentication Protocol specification [MS-NLMP].
     local NTLM_AV_ID_VALUES = {
       MsvAvEOL = 0x0,
       MsvAvNbComputerName = 0x1,
@@ -824,7 +824,7 @@ end
 
 ---Create an 8-byte message signature that's sent with all SMB packets.
 --
---@param mac_key The key used for authentication. It's the concatination of the session key and the
+--@param mac_key The key used for authentication. It's the concatenation of the session key and the
 --               response hash.
 --@param data The packet to generate the signature for. This should be the packet that's about to be
 --            sent, except with the signature slot replaced with the sequence number.
