@@ -22,19 +22,113 @@ local nmap = require "nmap"
 _ENV = stdnse.module("unittest", stdnse.seeall)
 
 local libs = {
-"afp", "ajp", "amqp", "asn1", "base32", "base64", "bin", "bitcoin", "bit",
-"bittorrent", "bjnp", "brute", "cassandra", "citrixxml", "comm", "creds",
-"cvs", "datafiles", "dhcp6", "dhcp", "dnsbl", "dns", "dnssd", "drda", "eap",
-"eigrp", "formulas", "ftp", "giop", "gps", "http", "httpspider", "iax2", "ike",
-"imap", "informix", "ipOps", "ipp", "iscsi", "isns", "jdwp", "json", "ldap",
-"lfs", "listop", "match", "membase", "mobileme", "mongodb", "msrpc",
-"msrpcperformance", "msrpctypes", "mssql", "mysql", "natpmp", "ncp", "ndmp",
-"netbios", "nmap", "nrpc", "nsedebug", "omp2", "openssl", "ospf", "packet",
-"pcre", "pgsql", "pop3", "pppoe", "proxy", "rdp", "redis", "rmi", "rpcap",
-"rpc", "rsync", "rtsp", "sasl", "shortport", "sip", "smbauth", "smb", "smtp",
-"snmp", "socks", "srvloc", "ssh1", "ssh2", "sslcert", "stdnse", "strbuf",
-"stun", "tab", "target", "tftp", "tns", "unittest", "unpwdb", "upnp", "url",
-"versant", "vnc", "vulns", "vuzedht", "wsdd", "xdmcp", "xmpp",
+"afp",
+"ajp",
+"amqp",
+"asn1",
+"base32",
+"base64",
+"bin",
+"bitcoin",
+"bit",
+"bittorrent",
+"bjnp",
+"brute",
+"cassandra",
+"citrixxml",
+"comm",
+"creds",
+"cvs",
+"datafiles",
+"dhcp6",
+"dhcp",
+"dnsbl",
+"dns",
+"dnssd",
+"drda",
+"eap",
+"eigrp",
+"formulas",
+"ftp",
+"giop",
+"gps",
+"http",
+"httpspider",
+"iax2",
+"ike",
+"imap",
+"informix",
+"ipOps",
+"ipp",
+"iscsi",
+"isns",
+"jdwp",
+"json",
+"ldap",
+"lfs",
+"listop",
+"match",
+"membase",
+"mobileme",
+"mongodb",
+"msrpc",
+"msrpcperformance",
+"msrpctypes",
+"mssql",
+"mysql",
+"natpmp",
+"ncp",
+"ndmp",
+"netbios",
+"nmap",
+"nrpc",
+"nsedebug",
+"omp2",
+"openssl",
+"ospf",
+"packet",
+"pcre",
+"pgsql",
+"pop3",
+"pppoe",
+"proxy",
+"rdp",
+"redis",
+"rmi",
+"rpcap",
+"rpc",
+"rsync",
+"rtsp",
+"sasl",
+"shortport",
+"sip",
+"smbauth",
+"smb",
+"smtp",
+"snmp",
+"socks",
+"srvloc",
+"ssh1",
+"ssh2",
+"sslcert",
+"stdnse",
+"strbuf",
+"stun",
+"tab",
+"target",
+"tftp",
+"tns",
+"unittest",
+"unpwdb",
+"upnp",
+"url",
+"versant",
+"vnc",
+"vulns",
+"vuzedht",
+"wsdd",
+"xdmcp",
+"xmpp",
 }
 
 ---
@@ -161,6 +255,24 @@ not_nil = function(value)
   return value ~= nil
 end
 not_nil = make_test(not_nil, "Expected not nil, got %s")
+
+--- Test tables for equality, 1 level deep
+-- @param a The first table to test
+-- @param b The second table to test
+-- @return bool True if #a == #b and a[i] == b[i] for every i<#a, false otherwise.
+table_equal = function(a, b)
+  return function (suite)
+    if #a ~= #b then
+      return false, "Length not equal"
+    end
+    for i, v in ipairs(a) do
+      if b[i] ~= v then
+        return false, string.format("%s ~= %s at position %d", v, b[i], i)
+      end
+    end
+    return true
+  end
+end
 
 --- Test for equality
 -- @param a The first value to test
