@@ -88,14 +88,14 @@ local known_features = {
   ['ver'] = true
 }
 
-local check_citadele = function(id1, id2)
+local check_citadel = function(id1, id2)
   stdnse.print_debug("CHECK")
   local i1 = tonumber(id1, 16)
   local i2 = tonumber(id2, 16)
   return i2 - i1 < 20 and i2 > i1
 end
 
--- Be carefull while adding fingerprints into the table - it must be well sorted
+-- Be careful while adding fingerprints into the table - it must be well sorted
 -- as some fingerprints are actually supersetted by another...
 local id_database = {
   {
@@ -113,8 +113,8 @@ local id_database = {
   {
     regexp1 = '^' .. string.rep('[0-9a-f]', 8) .. '$',
     regexp2 = '^' .. string.rep('[0-9a-f]', 8) .. '$',
-    name = 'Citidel',
-    check = check_citadele
+    name = 'Citadel',
+    check = check_citadel
   },
 
   {

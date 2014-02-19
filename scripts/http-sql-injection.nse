@@ -87,7 +87,7 @@ local function check_injection_response(response)
 end
 
 --[[
-Replaces usual queries with malicious querie and return a table with them.
+Replaces usual queries with malicious query and return a table with them.
 ]]--
 
 local function build_injection_vector(urls)

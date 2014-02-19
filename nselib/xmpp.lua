@@ -108,8 +108,8 @@ XMPP = {
 
   --- Creates a new instance of the XMPP class
   --
-  -- @param host table as receieved by the action function
-  -- @param port table as receieved by the action function
+  -- @param host table as received by the action function
+  -- @param port table as received by the action function
   -- @param options table containing options, currently supported
   --  <code>timeout</code> - sets the socket timeout
   --  <code>servername</code> - sets the server name to use in
@@ -215,7 +215,7 @@ XMPP = {
       status, err = self:send("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>")
       if ( not(status) ) then return false, "ERROR: Failed to initiate STARTTLS" end
       local status, tag = self:receive_tag()
-      if ( not(status) ) then return false, "ERROR: Failed to recevice from server" end
+      if ( not(status) ) then return false, "ERROR: Failed to receive from server" end
       if ( tag.name == "proceed" ) then
         status, err = self.socket:reconnect_ssl()
         self.options.starttls = false
@@ -364,8 +364,8 @@ XMPP = {
 Helper = {
 
   --- Creates a new Helper instance
-  -- @param host table as receieved by the action function
-  -- @param port table as receieved by the action function
+  -- @param host table as received by the action function
+  -- @param port table as received by the action function
   -- @param options table containing options, currently supported
   --  <code>timeout</code> - sets the socket timeout
   --  <code>servername</code> - sets the server name to use in

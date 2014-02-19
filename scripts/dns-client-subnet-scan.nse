@@ -339,7 +339,7 @@ action = function(host, port)
   end
 
   local nameserver = (host and host.ip) or argNS
-  -- if we have no nameserver argument and no host, we dont have sufficient
+  -- if we have no nameserver argument and no host, we don't have sufficient
   -- information to continue, abort
   if not nameserver then
     return nil

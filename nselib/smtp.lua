@@ -362,7 +362,7 @@ end
 --
 -- @param socket connected to server
 -- @param domain to use in the EHLO command.
--- @return true on sucess, or false on failures.
+-- @return true on success, or false on failures.
 -- @return response returned by the SMTP server on success, or an
 --         error message on failures.
 ehlo = function(socket, domain)
@@ -640,7 +640,7 @@ login = function(socket, username, password, mech)
     -- sniffed of the wire, seems to always be the same
     -- decodes to some NTLMSSP blob greatness
     status, response = query(socket, "TlRMTVNTUAABAAAAB7IIogYABgA3AAAADwAPACgAAAAFASgKAAAAD0FCVVNFLUFJUi5MT0NBTERPTUFJTg==")
-    if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end
+    if ( not(status) ) then return false, "ERROR: Failed to receive NTLM challenge" end
   end
 
 

@@ -8,7 +8,7 @@
 -- Each vulnerability must have its own state:
 --  <code>NOT_VULN</code>: The program was confirmed to be not vulnerable.
 --  <code>LIKELY_VULN</code>: The program is likely to be vulnerable,
---      this can be the case when we do a simple version comparaison. This
+--      this can be the case when we do a simple version comparison. This
 --      state should cover possible false positive situations.
 --  <code>VULN</code>: The program was confirmed to be vulnerable.
 --  <code>EXPLOIT</code>: The program was confirmed to be vulnerable and
@@ -157,7 +157,7 @@
 -- </code>
 --
 -- @args vulns.showall  If set, the library will show and report all the
---   registred vulnerabilities which includes the
+--   registered vulnerabilities which includes the
 --   <code>NOT VULNERABLE</code> ones. By default the library will only
 --   report the <code>VULNERABLE</code> entries: <code>VULNERABLE</code>,
 --   <code>LIKELY VULNERABLE</code>, <code>VULNERABLE (DoS)</code>
@@ -336,7 +336,7 @@ local VULNS
 --        },
 --      },
 --
---      -- Entries whithout the vulnerability ID are stored here.
+--      -- Entries without the vulnerability ID are stored here.
 --      'NMAP_ID' = {
 --        'XXXXX' = {
 --          ...
@@ -600,7 +600,7 @@ local default_filter = function(vuln_table) return true end
 -- This function just inserts the callback filters in the filters_db.
 --
 -- @param filters_db The filters database (a table in the registry).
--- @param filter_callback The callbackk function.
+-- @param filter_callback The callback function.
 -- @return FID  The filter ID associated with the callback function.
 local register_filter = function(filters_db, filter_callback)
   if filter_callback and type(filter_callback) == "function" then
@@ -683,7 +683,7 @@ local l_update_id = function(fid_table, id_type, id, vuln_table)
   -- Add the ID vulnerability type if it is missing
   l_add_id_type(fid_table, id_type)
 
-  -- Make sure that we are referecing the correct tables
+  -- Make sure that we are referencing the correct tables
   fid_table[id_type][id] = fid_table[id_type][id] or {}
   fid_table[id_type][id]['ENTRIES'] = fid_table[id_type][id]['ENTRIES'] or {}
   local push_table = fid_table[id_type][id]['ENTRIES']
@@ -1015,7 +1015,7 @@ local l_add = function(vulndb, vuln_table)
   -- Search the Filters IDS for the vulnerability
   for _, fid in ipairs(FIDS) do
     for id_type, id in pairs(vuln_table.IDS) do
-      -- Count how many IDs should be refenrecing the vulnerability
+      -- Count how many IDs should be referencing the vulnerability
       -- entry in all the FILTERS_IDS tables.
       ids_count = ids_count + 1
 
@@ -1564,7 +1564,7 @@ end
 -- This function can be used to see if there are any references to the
 -- specified vulnerability in the database, it will return
 -- <code>True</code> if so which means that one of the scripts has
--- attempted to check this vulnerabilty.
+-- attempted to check this vulnerability.
 --
 -- Scripts must call <code>vulns.save_reports()</code> function first to
 -- setup the vulnerability database.
@@ -1712,7 +1712,7 @@ end
 --
 -- The <code>selection_filter</code> is an optional table parameter of
 -- optional fields which can be used to select which vulnerabilities to
--- report, if it is not set then all vulnerabilites entries will be
+-- report, if it is not set then all vulnerabilities entries will be
 -- returned.
 --
 -- @usage

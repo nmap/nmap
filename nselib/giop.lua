@@ -95,8 +95,8 @@ Packet.GIOP = {
 
   --- Creates a Packet.GIOP
   --
-  -- @param msgtype number containing the messaget type
-  -- @param data string conatining the message data
+  -- @param msgtype number containing the message type
+  -- @param data string containing the message data
   -- @return obj a new Packet.GIOP instance
   new = function( self, msgtype, data )
     local o = {}
@@ -422,7 +422,7 @@ MessageDecoder = {
 
   --- Decodes a get response
   --
-  -- @param packet the GIOP packet as recieved by the comm
+  -- @param packet the GIOP packet as received by the comm
   --       <code>exchGIOPPacket</code> function
   -- @return status true on success, false on failure
   -- @return table containing <code>ip</code> and <code>ctx</code>
@@ -445,7 +445,7 @@ MessageDecoder = {
 
   --- Decodes a _is_a response (not implemented)
   --
-  -- @param packet the GIOP packet as recieved by the comm
+  -- @param packet the GIOP packet as received by the comm
   --       <code>exchGIOPPacket</code> function
   -- @return status, always true
   ["_is_a"] = function( packet )
@@ -454,7 +454,7 @@ MessageDecoder = {
 
   --- Decodes a list response
   --
-  -- @param packet the GIOP packet as recieved by the comm
+  -- @param packet the GIOP packet as received by the comm
   --       <code>exchGIOPPacket</code> function
   -- @return status true on success, false on failure
   -- @return table containing <code>id</code>, <code>kind</code> and
@@ -509,7 +509,7 @@ Comm = {
     return o
   end,
 
-  --- Sends and recieves a GIOP packet
+  --- Sends and receives a GIOP packet
   --
   -- @param packet containing a Packet.* object, the object must
   --        implement the __tostring meta method

@@ -79,7 +79,7 @@ Driver = {
   end,
 
   connect = function( self )
-    -- This will cause problems, as ther is no way for us to "reserve"
+    -- This will cause problems, as there is no way for us to "reserve"
     -- a socket. We may end up here early with a set of credentials
     -- which won't be guessed until the end, due to socket exhaustion.
     return true

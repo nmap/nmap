@@ -111,7 +111,7 @@ local function dnsDiscover()
     local d = domain
     -- reduce domain until we only have a single dot left
     -- there is a security problem in querying for wpad.tld like eg
-    -- wpad.com as this could be a rougue domain. This loop does not
+    -- wpad.com as this could be a rogue domain. This loop does not
     -- account for domains with tld's containing two parts e.g. co.uk.
     -- However, as the script just attempts to download and parse the
     -- proxy values in the WPAD there should be no real harm here.

@@ -12,7 +12,7 @@ commands. The goal of this script is to discover all the user accounts in the re
 system.
 
 The script will output the list of user names that were found. The script will stop
-querying the SMTP server if authentication is enforced. If an error occurrs while testing
+querying the SMTP server if authentication is enforced. If an error occurs while testing
 the target host, the error will be printed with the list of any combinations that were
 found prior to the error.
 
@@ -65,7 +65,7 @@ STATUS_CODES = {
 }
 
 ---Counts the number of occurrences in a table. Helper function
--- from LUA documentation http://lua-users.org/wiki/TableUtils.
+-- from Lua documentation http://lua-users.org/wiki/TableUtils.
 --
 -- @param from Source table
 -- @param what What element to count
@@ -82,7 +82,7 @@ function table_count(from, what)
 end
 
 ---Creates a new table from a source without the duplicates. Helper
--- function from LUA documentation http://lua-users.org/wiki/TableUtils.
+-- function from Lua documentation http://lua-users.org/wiki/TableUtils.
 --
 -- @param from Source table
 -- @return New table without the duplicates

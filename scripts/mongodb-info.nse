@@ -81,7 +81,7 @@ function action(host,port)
 
   local req, statusresponse, buildinfo, err
 
-  -- uglyness to allow creds.mongodb to work, as the port is not recognized
+  -- ugliness to allow creds.mongodb to work, as the port is not recognized
   -- as mongodb, unless a service scan was run
   local ps = port.service
   port.service = 'mongodb'

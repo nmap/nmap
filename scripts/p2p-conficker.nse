@@ -240,7 +240,7 @@ local function prng_generate_ports(ip, seed)
     end
   until(is_blacklisted_port(ports[1]) == false and is_blacklisted_port(ports[2]) == false and ports[1] ~= ports[2])
 
-  -- Update the accumlator with the seed
+  -- Update the accumulator with the seed
   v1 = bit.bxor(v1, seed)
 
   -- Loop 10 more times to generate the second pair of ports
@@ -292,7 +292,7 @@ local function p2p_checksum(data)
 end
 
 ---Encrypt/decrypt the buffer with a simple xor-based symmetric encryption. It uses a 64-bit key, represented
--- by key1:key2, that is transmited in plain text. Since sniffed packets can be decrypted, this is a
+-- by key1:key2, that is transmitted in plain text. Since sniffed packets can be decrypted, this is a
 -- simple obfuscation technique.
 --
 --@param packet The packet to encrypt (before the key and optional length are prepended).

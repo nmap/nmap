@@ -283,7 +283,7 @@ Comm = {
 Util = {
 
   -- creates a random string
-  -- @param len number containg the length of the generated random string
+  -- @param len number containing the length of the generated random string
   -- @return str containing the random string
   randomString = function(len)
     local str = ""
@@ -325,7 +325,7 @@ Helper = {
 
   -- Get's the external public IP
   -- @return status true on success, false on failure
-  -- @return result containing the IP as tring
+  -- @return result containing the IP as string
   getExternalAddress = function(self)
     local trans_id
 

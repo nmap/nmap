@@ -85,7 +85,7 @@ action = function()
   end
 
   if ( not(arg_deviceindex) and not(arg_listdevices) ) then
-    return fail("No device ID was specificed")
+    return fail("No device ID was specified")
   end
 
   if ( 1 == tonumber(arg_listdevices) or "true" == arg_listdevices ) then

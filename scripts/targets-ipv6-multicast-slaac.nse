@@ -58,7 +58,7 @@ end
 --- Get a Unique-local Address with random global ID.
 -- @param local_scope The scope of the address, local or reserved.
 -- @return A 16-byte string of IPv6 address, and the length of the prefix.
-local function get_radom_ula_prefix(local_scope)
+local function get_random_ula_prefix(local_scope)
   local ula_prefix
   math.randomseed(os.time())
   local global_id = string.char(math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1)
@@ -145,7 +145,7 @@ local function single_interface_broadcast(if_nfo, results)
   pcap:pcap_open(if_nfo.device, 128, true, "src ::0/128 and dst net ff02::1:0:0/96 and icmp6 and ip6[6:1] = 58 and ip6[40:1] = 135")
 
   local actual_prefix = string.sub(src_ip6,1,8)
-  local ula_prefix, prefix_len = get_radom_ula_prefix()
+  local ula_prefix, prefix_len = get_random_ula_prefix()
 
   -- preferred_lifetime <= valid_lifetime.
   -- Nmap will get the whole IPv6 addresses of each host if the two parameters are both longer than 5 seconds.

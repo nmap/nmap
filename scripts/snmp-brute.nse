@@ -27,7 +27,7 @@ this wordlist does not exist, the script falls back to
 
 No output is reported if no valid account is found.
 ]]
--- 2008-07-03 Philip Pickering, basic verstion
+-- 2008-07-03 Philip Pickering, basic version
 -- 2011-07-17 Gorjan Petrovski, Patrik Karlsson, optimization and creds
 --            accounts, rejected use of the brute library because of
 --            implementation using unconnected sockets.
@@ -180,7 +180,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
   -- last_run indicated whether there will be only one more receive
   local last_run = false
 
-  -- receive even when status=false untill all the probes are sent
+  -- receive even when status=false until all the probes are sent
   while true do
     local status, plen, l2, l3, _ = pcap:pcap_receive()
 
@@ -287,7 +287,7 @@ action = function(host, port)
     -- return output
     return tostring(c)
   else
-    stdnse.print_debug("An error occured: "..result.msg)
+    stdnse.print_debug("An error occurred: "..result.msg)
   end
 end
 

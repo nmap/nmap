@@ -344,7 +344,7 @@ end
 --  //  for each instance.
 --  //
 --  //  If (PERF_DATA_BLOCK.NumInstances < 0) then the counter definition
---  //  strucutre above will be followed by only a PERF_COUNTER_BLOCK and the
+--  //  structure above will be followed by only a PERF_COUNTER_BLOCK and the
 --  //  counter data for that COUNTER.
 --  typedef struct _PERF_INSTANCE_DEFINITION {
 --    DWORD           ByteLength;         // Length in bytes of this structure,

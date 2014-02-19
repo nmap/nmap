@@ -278,7 +278,7 @@ Comm = {
 
   -- Creates new Comm instance
   -- @param host table as received by the action method
-  -- @param port table as receuved by the action method
+  -- @param port table as received by the action method
   -- @return o new instance of Comm
   new = function(self, host, port)
     local o = {

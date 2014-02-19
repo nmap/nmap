@@ -28,7 +28,7 @@ local b32standard = {
   'Y', 'Z', '2', '3', '4', '5', '6', '7',
 }
 
-local b32dcstandard = {} -- efficency
+local b32dcstandard = {} -- efficiency
 b32dcstandard['A'] = '00000'
 b32dcstandard['B'] = '00001'
 b32dcstandard['C'] = '00010'
@@ -69,7 +69,7 @@ local b32hexExtend = {
         'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
 }
 
-local b32dchexExtend = {} -- efficency
+local b32dchexExtend = {} -- efficiency
 b32dchexExtend['0'] = '00000'
 b32dchexExtend['1'] = '00001'
 b32dchexExtend['2'] = '00010'

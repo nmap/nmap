@@ -15,7 +15,7 @@ also download any Domino ID Files attached to the Person document.
 -- @usage
 -- nmap --script domino-enum-passwords -p 80 <host> --script-args domino-enum-passwords.username='patrik karlsson',domino-enum-passwords.password=secret
 --
--- This script attempts to enumerate the password hashes used to authenitcate
+-- This script attempts to enumerate the password hashes used to authenticate
 -- to the Lotus Domino Web interface. By default, these hashes are accessible
 -- to every authenticated user. Passwords are presented in a form suitable for
 -- running in John the Ripper.
@@ -115,7 +115,7 @@ end
 --
 -- @param host table as received by the action function or the name specified
 --             in the hostname argument
--- @param port as recieved by the action method
+-- @param port as received by the action method
 -- @param path the patch against which to validate the credentials
 -- @param user the username used for authentication
 -- @param pass the password used for authentication
@@ -133,9 +133,9 @@ end
 
 --- Retrieves all uniq links in a pages
 --
--- @param body the html content of the recieved page
+-- @param body the html content of the received page
 -- @param filter a filter to use for additional link filtering
--- @param links [optional] table containing previousy retrieved links
+-- @param links [optional] table containing previously retrieved links
 -- @return links table containing retrieved links
 local function getLinks( body, filter, links )
   local tmp = {}
@@ -164,7 +164,7 @@ end
 
 --- Retrieves the "next page" path from the returned document
 --
--- @param body the html content of the recieved page
+-- @param body the html content of the received page
 -- @return link to next page
 local function getPager( body )
   return body:match("<form.+action=\"(.+%?ReadForm)&" )
@@ -172,7 +172,7 @@ end
 
 --- Retrieves the username and passwords for a user
 --
--- @param body the html content of the recieved page
+-- @param body the html content of the received page
 -- @return full_name the full name of the user
 -- @return password the password hash for the user
 local function getUserDetails( body )

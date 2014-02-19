@@ -110,7 +110,7 @@ Driver =
     end
 
     -- we force a brief incorrect statement just to get an error message to
-    -- confirm that we've succesfully authenticated to the server
+    -- confirm that we've successfully authenticated to the server
     local bad_cli_pref = "CLIENT <|> PREFERENCES <|>\n<|> CLIENT\n"
     status = self.socket:send(bad_cli_pref)
     if ( not(status) ) then

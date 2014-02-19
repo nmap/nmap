@@ -180,7 +180,7 @@ Driver = {
 
   login = function( self, username, password)
     -- We are using the "password" values instead of the "username" so we
-    -- could benifit from brute.lua passonly option and setPasswordIterator
+    -- could benefit from brute.lua passonly option and setPasswordIterator
     -- function, as we are doing usernames enumeration only and not
     -- credentials brute forcing.
     local status, response, responsecode

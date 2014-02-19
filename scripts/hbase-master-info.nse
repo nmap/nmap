@@ -12,7 +12,7 @@ Retrieves information from an Apache HBase (Hadoop database) master HTTP status 
 Information gathered:
  * Hbase version
  * Hbase compile date
- * Hbase root eirectory
+ * Hbase root directory
  * Hadoop version
  * Hadoop compile date
  * Average load

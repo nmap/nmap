@@ -5,7 +5,7 @@
 -- History:
 --   2012/05/31: Start
 --   2012/06/01: extracting data from XML; tested with ePO 4.5 and 4.6
---   2012/06/05: V0.0.2 convertion to version script by Daniel Miller
+--   2012/06/05: V0.0.2 conversion to version script by Daniel Miller
 --   2012/06/20: new portrule by Daniel Miller
 
 description = [[

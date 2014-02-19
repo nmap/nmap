@@ -110,7 +110,7 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
 
   local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
   packet.set_u32("....", 0, valid_time) .. -- valid lifetime
-  packet.set_u32("....", 0, preferred_time) .. -- preffered lifetime
+  packet.set_u32("....", 0, preferred_time) .. -- preferred lifetime
   string.char(0,0,0,0) .. --unknown
   prefix
 
@@ -145,7 +145,7 @@ local function broadcast_on_interface(iface)
 
   --- maximum possible value of 4-byte integer
   local valid_time = tonumber(0xffffffff)
-  local preffered_time = tonumber(0xffffffff)
+  local preferred_time = tonumber(0xffffffff)
 
   local mtu = 1500
 
@@ -165,7 +165,7 @@ local function broadcast_on_interface(iface)
     packet.ip_bin_src = src_ip6_addr
     packet.ip_bin_dst = dst_ip6_addr
 
-    local icmpv6_payload = build_router_advert(src_mac, prefix, prefix_len, valid_time, preffered_time, mtu)
+    local icmpv6_payload = build_router_advert(src_mac, prefix, prefix_len, valid_time, preferred_time, mtu)
     packet:build_icmpv6_header(134, 0, icmpv6_payload)
     packet:build_ipv6_packet()
     packet:build_ether_frame()

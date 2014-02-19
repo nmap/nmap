@@ -80,7 +80,7 @@ portrule = shortport.port_or_service(53, "domain", {"tcp", "udp"})
 
 all_results = {}
 
--- get time (in miliseconds) when the script should finish
+-- get time (in milliseconds) when the script should finish
 local function get_end_time()
   local t = nmap.timing_level()
   local limit = stdnse.parse_timespec(stdnse.get_script_args('dns-nsec3-enum.timelimit') or "30m")
@@ -230,7 +230,7 @@ local function query_for_hashes(host,subdomain,domain)
   return ranges
 end
 
--- does the actuall enumeration
+-- does the actual enumeration
 local function enum(host, port, domain)
 
   local seen, seen_subdomain = {}, {}

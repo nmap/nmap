@@ -9,7 +9,7 @@
 -- The library contains the following classes:
 -- * <code>Comm </code>
 -- ** Handles network connections.
--- ** Handles low-level packet sending, recieving, decoding and encoding.
+-- ** Handles low-level packet sending, receiving, decoding and encoding.
 -- ** Stores rpc programs info: socket, protocol, program name, id and version.
 -- ** Used by Mount, NFS, RPC and Portmap.
 -- * <code>Portmap</code>
@@ -1668,7 +1668,7 @@ NFS = {
       pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
 
     else
-      stdnse.pritn_debug("NFS.LookUpDecode: NFS unsupported version %d", comm.version)
+      stdnse.print_debug("NFS.LookUpDecode: NFS unsupported version %d", comm.version)
       return -1, nil
     end
 

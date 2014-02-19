@@ -122,7 +122,7 @@ local llmnrListen = function(interface, timeout, result)
         -- Now, answer record
         local response, alen = {}
         index, alen = bin.unpack(">C", llmnr, index)
-        -- Extract hostname with the correct case sensivity.
+        -- Extract hostname with the correct case sensitivity.
         index, response.hostname = bin.unpack(">A".. alen, llmnr, index)
 
         -- skip null byte, type, class, ttl, dlen

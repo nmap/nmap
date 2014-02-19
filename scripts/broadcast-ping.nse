@@ -24,7 +24,7 @@ The <code>newtarget</code> script-arg can be used so the script adds the
 discovered IPs as targets.
 
 The timeout of the ICMP probes can be specified using the <code>timeout</code>
-script-arg. The default timeout is 3000 ms. A higher number might be necesary
+script-arg. The default timeout is 3000 ms. A higher number might be necessary
 when scanning across larger networks.
 
 The number of sent probes can be specified using the <code>num-probes</code>

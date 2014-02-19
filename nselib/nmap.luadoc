@@ -713,7 +713,7 @@ function pcap_close()
 --
 -- It also has the following member functions:
 --
--- * <code>digest(algorithm)</code> returns the digest of the certificate using the given digest algorithm, which is any of the strings returned by <code>openssl.supported_digests</code>, typicaly something like <code>"md5"</code> or <code>"sha1"</code>.
+-- * <code>digest(algorithm)</code> returns the digest of the certificate using the given digest algorithm, which is any of the strings returned by <code>openssl.supported_digests</code>, typically something like <code>"md5"</code> or <code>"sha1"</code>.
 --
 -- The <code>"subject"</code> and <code>"issuer"</code> fields hold each
 -- distinguished name. Fields with an unknown OID are represented as an array

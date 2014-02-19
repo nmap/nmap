@@ -11,7 +11,7 @@ description = [[
 Tries to obtain a list of installed WordPress plugins by brute force
 testing for known plugins.
 
-The script will brute force the /wp-content/plugins/ folder with a dictionnary
+The script will brute force the /wp-content/plugins/ folder with a dictionary
 of 14K (and counting) known WP plugins. Anything but a 404 means that a given
 plugin directory probably exists, so the plugin probably also does.
 

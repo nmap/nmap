@@ -410,7 +410,7 @@ end
 --- This thread sends a DHT find_node query to every node in
 -- pnt.nodes_find_node, after which every node is moved to pnt.nodes_get_peers
 -- to be processed by the get_peers_thread() function. The responses to these
--- queries contain adresses of other DHT nodes (usually 8) which are added to
+-- queries contain addresses of other DHT nodes (usually 8) which are added to
 -- the pnt.nodes_find_node list. This action is done for a timeout with a
 -- default value of 30 seconds.
 local find_node_thread = function(pnt, timeout)
@@ -430,7 +430,7 @@ local find_node_thread = function(pnt, timeout)
 
       -- standard bittorrent protocol specified find_node query with y = q (query),
       -- q = "find_node" (type of query),
-      -- find_node Query = {"t":<trainsaction_id>, "y":"q", "q":"find_node", "a": {"id":<node_id>, "target":<info_hash>}}
+      -- find_node Query = {"t":<transaction_id>, "y":"q", "q":"find_node", "a": {"id":<node_id>, "target":<info_hash>}}
       local find_node_query = "d1:ad2:id20:" .. pnt.node_id .. "6:target20:" ..
         pnt.info_hash .. "e1:q9:find_node1:t2:" .. openssl.rand_bytes(2) .. "1:y1:qe"
 
@@ -1173,7 +1173,7 @@ Torrent =
 
     -- the action in the response has to be 0 too
     if not r_action == "00000000" then
-      return false, "Wrong action field, usualy caused by an erroneous request"
+      return false, "Wrong action field, usually caused by an erroneous request"
     end
 
     -- established a connection, and now for an announce message, to which a

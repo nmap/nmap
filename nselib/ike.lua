@@ -11,7 +11,7 @@ local io = require "io"
 description = [[
 A very basic IKE library.
 
-The current funcionality includes:
+The current functionality includes:
   1. Generating a Main or Aggressive Mode IKE request packet with a variable amount of transforms and a vpn group.
   2. Sending a packet
   3. Receiving the response
@@ -271,7 +271,7 @@ local function lookup(vendor_ids)
 
     if row.category == 'vid_ordering' and all_vids:find(row.fingerprint) then
 
-      -- Use ordering information if there where no vendor matches from prevoius step
+      -- Use ordering information if there where no vendor matches from previous step
       if info.vendor == nil then
         info.vendor = row
 
@@ -489,7 +489,7 @@ end
 
 
 -- Generate multiple transforms
--- Input nust be a table of complete transforms
+-- Input must be a table of complete transforms
 --
 local function generate_transforms(transform_table)
   local transforms = ''
@@ -504,7 +504,7 @@ end
 
 -- Create a request packet
 -- Support for multiple transforms, which minimizes the
--- the amount of traffic/packets needed to be sendt
+-- the amount of traffic/packets needed to be sent
 --
 function request(port, proto, mode, transforms, diffie, id)
   local payload_after_sa, str_aggressive, l, l_sa, l_pro

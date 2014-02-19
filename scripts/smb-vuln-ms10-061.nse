@@ -133,7 +133,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
     end
   end
   if not printer then
-    stdnse.print_debug("No printer found, system may be unpached but it needs at least one printer shared to be vulnerable.")
+    stdnse.print_debug("No printer found, system may be unpatched but it needs at least one printer shared to be vulnerable.")
     return false
   end
   stdnse.print_debug("Using %s as printer.",printer)
@@ -162,7 +162,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
   if stdnse.tohex(write_result) == "00000000" then -- patched version would report 4 bytes written
     ms10_061.state = vulns.STATE.VULN -- identified by diffing patched an unpatched version
   end
-  -- call abort_printer to stop the actuall printing in case the remote system is not vulnerable
+  -- call abort_printer to stop the actual printing in case the remote system is not vulnerable
   -- we care about the environment and don't want to spend more paper then needed :)
   status,result = msrpc.spoolss_abort_printer(smbstate,printer_handle)
 

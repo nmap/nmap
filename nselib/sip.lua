@@ -175,7 +175,7 @@ Session = {
     end
     local status, lhost, lport, rhost, rport = self.conn.socket:get_info()
     if ( not(status) ) then
-      return false, "Failed to retreive socket information"
+      return false, "Failed to retrieve socket information"
     end
     self.sessdata:setClient(lhost, lport)
     self.sessdata:setServer(rhost, rport)
@@ -741,7 +741,7 @@ SipAuth = {
   end,
 
   --- Calculates the authentication response
-  -- @return reponse string containing the authentication response
+  -- @return response string containing the authentication response
   calculateResponse = function(self)
 
     if ( not(self.nonce) or not(self.algorithm) or not(self.realm) ) then

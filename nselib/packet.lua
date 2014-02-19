@@ -110,7 +110,7 @@ function in_cksum(b)
   sum = bit.rshift(sum, 16) + bit.band(sum, 0xffff)
   sum = sum + bit.rshift(sum, 16)
   sum = bit.bnot(sum)
-  sum = bit.band(sum, 0xffff) -- trunctate to 16 bits
+  sum = bit.band(sum, 0xffff) -- truncate to 16 bits
   return sum
 end
 
@@ -361,7 +361,7 @@ end
 -- @param mac_src six-byte string of source MAC address.
 -- @param mac_dst sis-byte string of destination MAC address.
 -- @param ip_bin_src 16-byte string of source IPv6 address.
--- @param ip_bin_dst 16-byte string of destinatiion IPv6 address.
+-- @param ip_bin_dst 16-byte string of destination IPv6 address.
 -- @param id integer that represents Echo ID.
 -- @param sequence integer that represents Echo sequence.
 -- @param data string of Echo data.
@@ -453,7 +453,7 @@ end
 -- @param mac_src six-byte string of source MAC address.
 -- @param mac_dst sis-byte string of destination MAC address.
 -- @param ip_bin_src 16-byte string of source IPv6 address.
--- @param ip_bin_dst 16-byte string of destinatiion IPv6 address.
+-- @param ip_bin_dst 16-byte string of destination IPv6 address.
 -- @param id integer that represents Echo ID.
 -- @param seq integer that represents Echo sequence.
 -- @param data string of Echo data.
@@ -505,7 +505,7 @@ function ip6tobin(str)
   local dot_count = stdnse.strsplit("%.", str)
   if #dot_count == 4 then -- It might be IPv4-compatible IPv6 address.
     local ip64 = stdnse.strsplit(":", str)
-    local ip4_str = ip64[#ip64] -- Get the embeded IPv4 address string.
+    local ip4_str = ip64[#ip64] -- Get the embedded IPv4 address string.
     ip4_bin = iptobin(ip4_str)
     if not ip4_bin then
       return nil
@@ -626,7 +626,7 @@ function Packet:u32(index)
 end
 --- Return part of the packet contents as a byte string.
 -- @param index The beginning of the part of the packet to extract. The index
--- is 0-based. If omitted the default value is 0 (begining of the string)
+-- is 0-based. If omitted the default value is 0 (beginning of the string)
 -- @param length The length of the part of the packet to extract. If omitted
 -- the remaining contents from index to the end of the string are returned.
 -- @return A string.

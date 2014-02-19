@@ -89,7 +89,7 @@ action = function(host, port)
 
   local status, tftpserver, _, _, _ = socket:get_info()
   if( not(status) ) then
-    return "ERROR: Failed to determin local ip"
+    return "ERROR: Failed to determine local ip"
   end
 
   -- build a SNMP v1 packet

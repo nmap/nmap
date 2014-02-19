@@ -261,7 +261,7 @@ Request = {
   -- @param func_id number containing the function ID of the message
   -- @param flags number containing the message flags
   -- @param data string containing the opaque raw data
-  -- @param auth string containing the opaqur raw auth data
+  -- @param auth string containing the opaque raw auth data
   -- @param trans_id number containing the transaction id
   -- @param seq_id number containing the sequence id
   -- @return o new instance of Request
@@ -452,7 +452,7 @@ Helper = {
   --
   -- Lists portals
   -- @return status true on success, false on failure
-  -- @return resulst list of iSCSI nodes, err string on failure
+  -- @return results list of iSCSI nodes, err string on failure
   listPortals = function(self)
     local attribs, name = Attributes:new(), "iqn.control.node\0por"
 
@@ -510,7 +510,7 @@ Helper = {
   --
   -- Lists iSCSI nodes
   -- @return status true on success, false on failure
-  -- @return resulst list of iSCSI nodes, err string on failure
+  -- @return results list of iSCSI nodes, err string on failure
   listISCINodes = function(self)
     local attribs = Attributes:new()
     local name = "iqn.control.node\0por"

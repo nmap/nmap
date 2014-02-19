@@ -26,7 +26,7 @@ Other interesting files:
 -- |     State: VULNERABLE (Exploitable)
 -- |     Description:
 -- |       Some TP-Link wireless routers are vulnerable to a path traversal vulnerability that allows attackers to read configurations or any other file in the device.
--- |       This vulnerability can be exploited remotely and without authenticatication.
+-- |       This vulnerability can be exploited remotely and without authentication.
 -- |       Confirmed vulnerable models: WR740N, WR740ND, WR2543ND
 -- |       Possibly vulnerable (Based on the same firmware): WR743ND,WR842ND,WA-901ND,WR941N,WR941ND,WR1043ND,MR3220,MR3020,WR841N.
 -- |     Disclosure date: 2012-06-18
@@ -115,7 +115,7 @@ action = function(host, port)
        state = vulns.STATE.NOT_VULN,
        description = [[
 Some TP-Link wireless routers are vulnerable to a path traversal vulnerability that allows attackers to read configurations or any other file in the device.
-This vulnerability can be exploited without authenticatication.
+This vulnerability can be exploited without authentication.
 Confirmed vulnerable models: WR740N, WR740ND, WR2543ND
 Possibly vulnerable (Based on the same firmware): WR743ND,WR842ND,WA-901ND,WR941N,WR941ND,WR1043ND,MR3220,MR3020,WR841N.]],
        references = {

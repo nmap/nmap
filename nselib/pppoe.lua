@@ -822,7 +822,7 @@ Helper = {
       retries = retries - 1
     until( pado.tags or retries == 0 )
     if ( not(pado.tags) ) then
-      return false, "PADO response containined no tags"
+      return false, "PADO response contained no tags"
     end
 
     local pado_host_unique

@@ -6,7 +6,7 @@
 -- The <code>DigestMD5</code> class contains all code necessary to calculate
 -- a DIGEST-MD5 response based on the servers challenge and the other
 -- necessary arguments (@see DigestMD5.new).
--- It can be called throught the SASL helper or directly like this:
+-- It can be called through the SASL helper or directly like this:
 -- <code>
 -- local dmd5 = DigestMD5:new(chall, user, pass, "AUTHENTICATE", nil, "imap")
 -- local digest = dmd5:calcDigest()
@@ -21,7 +21,7 @@
 -- local response = ntlm:calcResponse()
 -- </code>
 --
--- The Helper class contains the high level methodes:
+-- The Helper class contains the high level methods:
 -- * <code>new</code>: This is the SASL object constructor.
 -- * <code>set_mechanism</code>: Sets the authentication mechanism to use.
 -- * <code>set_callback</code>: Sets the encoding function to use.
@@ -37,7 +37,7 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 -- Version 0.2
--- Created 07/17/2011 - v0.1 - Created by Djalal Harouini
+-- Created 07/17/2011 - v0.1 - Created by Djalal Harouni
 -- Revised 07/18/2011 - v0.2 - Added NTLM, DIGEST-MD5 classes
 
 
@@ -80,7 +80,7 @@ if HAVE_SSL then
     end,
 
     -- parses a challenge received from the server
-    -- takes care of both quoted and unqoted identifiers
+    -- takes care of both quoted and unquoted identifiers
     -- regardless of what RFC says
     parseChallenge = function(self)
       local results = {}
@@ -190,7 +190,7 @@ if HAVE_SSL then
       return o
     end,
 
-    --- Converst str to "unicode" (adds null bytes for every other byte)
+    --- Converts str to "unicode" (adds null bytes for every other byte)
     -- @param str containing string to convert
     -- @return unicode string containing the unicoded str
     to_unicode = function(str)
@@ -442,7 +442,7 @@ Helper = {
 
   --- Resets all the data of the SASL object.
   --
-  -- This methode will clear the specified SASL mechanism.
+  -- This method will clear the specified SASL mechanism.
   reset = function(self)
     self:set_mechanism()
   end,

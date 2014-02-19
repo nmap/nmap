@@ -17,7 +17,7 @@ Metasploit msgrpc interface.
 -- nmap --script metasploit-msgrpc-brute -p 55553 <host>
 --
 -- This script uses brute library to perform password
--- guessing agains Metasploit's msgrpc interface.
+-- guessing against Metasploit's msgrpc interface.
 --
 --
 -- @output

@@ -95,7 +95,7 @@ Driver =
       end
       status, data = self.helper:Connect()
       if ( not(status) ) then
-        stdnse.print_debug(2, "%s: ERROR: An Oracle %s error occured", SCRIPT_NAME, data)
+        stdnse.print_debug(2, "%s: ERROR: An Oracle %s error occurred", SCRIPT_NAME, data)
         self.helper:Close()
       else
         break

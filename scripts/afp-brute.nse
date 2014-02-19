@@ -6,7 +6,7 @@ local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
 
--- we dont really need openssl here, but let's attempt to load it as a way
+-- we don't really need openssl here, but let's attempt to load it as a way
 -- to simply prevent the script from running, in case we don't have it
 local openssl = stdnse.silent_require("openssl")
 
@@ -44,7 +44,7 @@ categories = {"intrusive", "brute"}
 -- Version 0.3
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 03/09/2010 - v0.2 - changed so that passwords are iterated over users
---                           - this change makes better sence as guessing is slow
+--                           - this change makes better sense as guessing is slow
 -- Revised 09/09/2011 - v0.3 - changed account status text to be more consistent with other *-brute scripts
 
 portrule = shortport.port_or_service(548, "afp")

@@ -48,7 +48,7 @@ categories = {"broadcast", "safe"}
 
 prerule = function() return true end
 
--- function used for running several discovery threads in parallell
+-- function used for running several discovery threads in parallel
 --
 -- @param funcname string containing the name of the function to run
 --        the name should be one of the discovery functions in wsdd.Helper

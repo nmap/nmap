@@ -72,7 +72,7 @@
 -- </code>
 --
 -- Supported output formats are CSV, verbose and plain.  In both verbose and plain
--- records are seperated by colons.  The difference between the two is that verbose
+-- records are separated by colons.  The difference between the two is that verbose
 -- includes the credential state.  The file extension is automatically added to
 -- the filename based on the type requested.
 --

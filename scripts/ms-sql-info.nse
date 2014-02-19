@@ -31,7 +31,7 @@ Additionally, it provides imprecise version information.
 * Sending a probe to the instance, causing the instance to respond with
 information including the exact version number. This is the same method that
 Nmap uses for service versioning; however, this script can also do the same for
-instances accessiable via Windows named pipes, and can target all of the
+instances accessible via Windows named pipes, and can target all of the
 instances listed by the SQL Server Browser service.
 
 In the event that the script can connect to the SQL Server Browser service

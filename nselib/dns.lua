@@ -167,7 +167,7 @@ local function sendPacketsTCP(data, host, port, timeout)
 end
 
 ---
--- Call appropriate protocol handeler
+-- Call appropriate protocol handler
 -- @param data Data to be sent.
 -- @param host Host to connect to.
 -- @param port Port to connect to.
@@ -682,7 +682,7 @@ additionalFetcher[types.TXT] = function(dec, retAll)
   if not retAll and dec.add[1].data then
     return true, string.sub(dec.add[1].data, 2)
   elseif not retAll then
-    stdnse.print_debug(1, "dns.aditionalFetcher found no records of the required type: TXT")
+    stdnse.print_debug(1, "dns.additionalFetcher found no records of the required type: TXT")
     return false, "No Answers"
   else
     for _, v in ipairs(dec.add) do
@@ -1413,7 +1413,7 @@ local function encodeOPT_Z(flags)
 end
 
 ---
--- Adds an client-subnet paylod to the OPT packet
+-- Adds an client-subnet payload to the OPT packet
 -- implementing http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
@@ -1431,7 +1431,7 @@ function addClientSubnet(pkt,Z,subnet)
 end
 
 ---
--- Adds an NSID paylod to the OPT packet
+-- Adds an NSID payload to the OPT packet
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
 function addNSID (pkt,Z)

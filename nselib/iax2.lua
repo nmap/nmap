@@ -269,7 +269,7 @@ Helper = {
   end,
 
   -- Request a session release
-  -- @param username string containing the extention (username)
+  -- @param username string containing the extension (username)
   -- @param password string containing the password
   regRelease = function(self, username, password)
 

@@ -54,7 +54,7 @@ function action(host,port)
 
   local results = {}
 
-  -- uglyness to allow creds.cassandra to work, as the port is not recognized
+  -- ugliness to allow creds.cassandra to work, as the port is not recognized
   -- as cassandra even when service scan was run, taken from mongodb
   local ps = port.service
   port.service = 'cassandra'

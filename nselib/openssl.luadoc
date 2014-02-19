@@ -85,7 +85,7 @@ function bignum_rand(bits)
 
 --- Returns a pseudorandom bignum.
 -- @param bits Size of the returned bignum in bits.
--- @return Pseudoandom bignum.
+-- @return Pseudorandom bignum.
 function bignum_pseudo_rand(bits)
 
 --- Returns the bignum which is the result of <code>a</code>^<code>p</code> mod

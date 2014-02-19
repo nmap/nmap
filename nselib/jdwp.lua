@@ -1,14 +1,14 @@
 --- JDWP (Java Debug Wire Protocol) library implementing a set of commands needed to
 --  use remote debugging port and inject java bytecode.
 --
--- There are two basic packet types in JDWP protool.
+-- There are two basic packet types in JDWP protocol.
 -- Command packet and reply packet. Command packets are sent by
 -- a debugger to a remote port which replies with a reply packet.
 --
 -- Simple handshake is needed to start the communication.
 -- The debugger sends a "JDWP-Handshake" string and gets the same as a reply.
 -- Each (command and reply packet) has an id field since communication can be asynchronous.
--- Packet id can be monothonicaly increasing.
+-- Packet id can be monotonicaly increasing.
 -- Although communication can be asynchronous, it is not (at least in my tests) so the same
 -- packet id can be used for all communication.
 --
@@ -128,13 +128,13 @@ JDWPCommandPacket = {
   end,
 
   -- Packs command packet as a string od bytes, ready to be sent
-  -- to the target debugee.
+  -- to the target debuggee.
   pack = function(self)
     local packed_packet
     if self.data == nil then
-      packed_packet = bin.pack(">I",11) -- lenght - minimal header is 11 bytes
+      packed_packet = bin.pack(">I",11) -- length - minimal header is 11 bytes
     else
-      packed_packet = bin.pack(">I",11 + #self.data) -- lenght with data
+      packed_packet = bin.pack(">I",11 + #self.data) -- length with data
     end
     packed_packet = packed_packet .. bin.pack(">I",self.id)
     packed_packet = packed_packet .. bin.pack(">C",0) -- flag
@@ -182,7 +182,7 @@ JDWPReplyPacket = {
 
 }
 
---- Negotiates the initial debugger-debugee handshake.
+--- Negotiates the initial debugger-debuggee handshake.
 --
 --@param host Host to connect to.
 --@param port Port to connect to.
@@ -217,14 +217,14 @@ end
 --- Helper function to pack regular string into UTF-8 string.
 --
 --@param data String to pack into UTF-8.
---@return utf8_string UTF-8 packed string. Four bytes lenght followed by the string its self.
+--@return utf8_string UTF-8 packed string. Four bytes length followed by the string its self.
 function toUTF8(data)
   local utf8_string = bin.pack(">i",#data) .. data
   return utf8_string
 end
 
 --- Helper function to read all Reply packed data which might be fragmented
---  over multipe packets.
+--  over multiple packets.
 --
 --@param socket Socket to receive from.
 --@return (status,data) If status is false, error string is returned, else data contains read ReplyPacket bytes.
@@ -238,7 +238,7 @@ function receive_all(socket)
   while expected_length > #data do -- read until we get all the ReplyPacket data
   status,result = socket:receive()
   if not status then
-    return true, data -- if somethign is wrong,return partial data
+    return true, data -- if something is wrong, return partial data
   end
   data = data .. result
 end
@@ -251,7 +251,7 @@ end
 --
 --@param data Data from which to extract the string.
 --@param pos  Offset into data string where to begin.
---@return (pos,ascii_string) Returns position where the string extraction ended and actuall ascii string.
+--@return (pos,ascii_string) Returns position where the string extraction ended and actual ascii string.
 local function extract_string(data,pos)
   local string_size
   if pos > #data then
@@ -281,7 +281,7 @@ function executeCommand(socket,command)
   if not status then
     return false, reply_packet
   end
-  if not (reply_packet.error_code == 0) then -- we have a packet with error , error code 0 means no error occured
+  if not (reply_packet.error_code == 0) then -- we have a packet with error , error code 0 means no error occurred
     return false, ERROR_CODES[reply_packet.error_code]
   end
   local data = reply_packet.data
@@ -289,7 +289,7 @@ function executeCommand(socket,command)
 end
 
 --- VirtualMachine Command Set (1)
---  Commands targeted at the debugggee virtual machine.
+--  Commands targeted at the debuggee virtual machine.
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine
 
 
@@ -297,7 +297,7 @@ end
 --  Returns the JDWP version implemented by the target VM as a table.
 --
 --  Returns a table with following values:
---  * 'description' Debugge vm verbose description.
+--  * 'description' Debugger vm verbose description.
 --  * 'jdwpMajor'   Number representing major JDWP version.
 --  * 'jdwpMinor'   Number representing minor JDWP version.
 --  * 'vmVersion'   String representing version of the debuggee VM.
@@ -376,7 +376,7 @@ end
 --
 --@param socket Socket to use to send the command.
 --@param id     Packet id.
---@return (status, threads) If status is false threads contains an error string, else it conatins a list of all threads in the debuggee VM.
+--@return (status, threads) If status is false threads contains an error string, else it contains a list of all threads in the debuggee VM.
 function getAllThreads(socket,id)
   local command = JDWPCommandPacket:new(id,1,4,nil)
   local status, data = executeCommand(socket,command)
@@ -567,7 +567,7 @@ end
 --@numberOfArguments Number of method arguments.
 --@arguments Already packed arguments.
 --@options Invocation options.
---@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manualy.
+--@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manually.
 function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,arguments,options)
   local params
   if numberOfArguments == 0 then
@@ -685,7 +685,7 @@ end
 --@param methodID ID of the method to invoke.
 --@param numberOfArguments Number of method arguments.
 --@arguments Already packed arguments.
---@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manualy.
+--@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manually.
 function invokeObjectMethod(socket,id,objectID,threadID,classID,methodID,numberOfArguments,arguments)
   local params
 
@@ -922,7 +922,7 @@ end
 --
 --  Returns a table containing following fields:
 --  * 'id' Injected class reference ID.
---  * 'instance' Inected calss' instance reference ID.
+--  * 'instance' Injected calss' instance reference ID.
 --  * 'thread' Thread in which the class was injected and instantiated.
 --
 -- @param socket Socket to use for communication.
@@ -944,7 +944,7 @@ function injectClass(socket,class_bytes)
     end
   end
   if byteArrayID == nil then
-    stdnse.print_debug("finding byte arrray id failed")
+    stdnse.print_debug("finding byte array id failed")
     return false
   end
   stdnse.print_debug("Found byte[] id %d",byteArrayID)

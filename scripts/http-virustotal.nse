@@ -225,7 +225,7 @@ action = function()
     resource = json_data['resource']
 
     local output = {}
-    table.insert(output, "Your file was succesfully uploaded and placed in the scanning queue.")
+    table.insert(output, "Your file was successfully uploaded and placed in the scanning queue.")
     table.insert(output, { name = "To check the current status visit:", json_data['permalink'] })
     return stdnse.format_output(true, output)
   elseif ( arg_filename ) then
@@ -248,7 +248,7 @@ action = function()
   end
 
   if ( not(response.response_code) or 0 == tonumber(response.response_code) ) then
-    return fail(("Failed to retreive scan report for resource: %s"):format(resource))
+    return fail(("Failed to retrieve scan report for resource: %s"):format(resource))
   end
 
   return stdnse.format_output(true, parseScanReport(response))

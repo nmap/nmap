@@ -102,7 +102,7 @@ function sendcmd (socket, command, cnt)
     response = response .. resp2
   end
 
-  -- magic response starts at 5th byte for 4 bytes, 4 byte for length + length of string commmand
+  -- magic response starts at 5th byte for 4 bytes, 4 byte for length + length of string command
   if (string.sub(response,5,8+4+string.len(command)) ~= CASSANDRARESP..pack4str(command)) then
     return false, "protocol response error"
   end

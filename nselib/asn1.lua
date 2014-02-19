@@ -171,7 +171,7 @@ ASN1Decoder = {
   end,
 
   -- Decode one component of an OID from a byte string. 7 bits of the component
-  -- are stored in each octet, most significant first, with the eigth bit set in
+  -- are stored in each octet, most significant first, with the eighth bit set in
   -- all octets but the last. These encoding rules come from
   -- http://luca.ntop.org/Teaching/Appunti/asn1.html, section 5.9 OBJECT
   -- IDENTIFIER.
@@ -324,7 +324,7 @@ ASN1Encoder = {
   registerBaseEncoders = function(self)
     self.encoder = {}
 
-    -- Bolean encoder
+    -- Boolean encoder
     self.encoder['boolean'] = function( self, val )
       if val then
         return bin.pack('H','01 01 FF')
@@ -362,7 +362,7 @@ ASN1Encoder = {
   end,
 
   -- Encode one component of an OID as a byte string. 7 bits of the component are
-  -- stored in each octet, most significant first, with the eigth bit set in all
+  -- stored in each octet, most significant first, with the eighth bit set in all
   -- octets but the last. These encoding rules come from
   -- http://luca.ntop.org/Teaching/Appunti/asn1.html, section 5.9 OBJECT
   -- IDENTIFIER.

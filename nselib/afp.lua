@@ -57,7 +57,7 @@
 -- </code>
 --
 -- The next step needed to be performed is to authenticate to the server. We need to do this even for
--- functions that are available publically. In order to authenticate as the public user simply
+-- functions that are available publicly. In order to authenticate as the public user simply
 -- authenticate using nil for both username and password. This can be achieved by calling the Login method
 -- without any parameters, like this:
 -- <code>
@@ -76,7 +76,7 @@
 -- status, shares = helper:ListShares()
 -- </code>
 --
--- Once we're finnished, we need to logout and close the AFP session this is done by calling the
+-- Once we're finished, we need to logout and close the AFP session this is done by calling the
 -- following two methods of the Helper class:
 -- <code>
 -- status, response = helper:Logout()
@@ -107,7 +107,7 @@
 -- Revised 03/05/2010 - v0.4 - changed output table of Helper:Dir to include type and ID
 --                           - added support for --without-openssl
 --
--- Revised 03/09/2010 - v0.5 - documentation, documenation and more documentation
+-- Revised 03/09/2010 - v0.5 - documentation, documentation and more documentation
 -- Revised 04/03/2011 - v0.6 - add support for getting file- sizes, dates and Unix ACLs
 --                           - moved afp.username & afp.password arguments to library
 
@@ -337,7 +337,7 @@ local ERROR_MSG = {
   [ERROR.FPBadUAM]="Specified UAM is unknown",
   [ERROR.FPBadVersNum]="Server does not support the specified AFP version",
   [ERROR.FPBitmapErr]="Attempt was made to get or set a parameter that cannot be obtained or set with this command, or a required bitmap is null",
-  [ERROR.FPCantMove]="Attempt was made to move a directory into one of its descendent directories.",
+  [ERROR.FPCantMove]="Attempt was made to move a directory into one of its descendant directories.",
   [ERROR.FPEOFErr]="No more matches or end of fork reached.",
   [ERROR.FPLockErr]="Some or all of the requested range is locked by another user; a lock range conflict exists.",
   [ERROR.FPMiscErr]="Non-AFP error occurred.",
@@ -385,7 +385,7 @@ Response = {
     if self.error_msg then
       return self.error_msg
     else
-      return ERROR_MSG[self.error_code] or ("Unknown error (%d) occured"):format(self.error_code)
+      return ERROR_MSG[self.error_code] or ("Unknown error (%d) occurred"):format(self.error_code)
     end
   end,
 
@@ -566,11 +566,11 @@ Proto = {
   --
   -- @param src_vol number containing the ID of the src file volume
   -- @param srd_did number containing the directory id of the src file
-  -- @param src_path string containingt the file path/name of the src file
+  -- @param src_path string containing the file path/name of the src file
   -- @param dst_vol number containing the ID of the dst file volume
   -- @param dst_did number containing the id of the dest. directory
   -- @param dst_path string containing the dest path (can be nil or "")
-  -- @param new_name string containign the new name of the destination
+  -- @param new_name string containing the new name of the destination
   -- @return Response object
   fp_copy_file = function(self, src_vol, src_did, src_path, dst_vol, dst_did, dst_path, new_name )
     local pad, data_offset = 0, 0
@@ -643,7 +643,7 @@ Proto = {
     offsets.directory_names_count, offsets.utf8_server_name
       = bin.unpack(">SSSS", packet.data, pos)
 
-    -- this sets up all the server flaqs in the response table as booleans
+    -- this sets up all the server flags in the response table as booleans
     result.flags.SuperClient = flag_is_set(result.flags.raw, SERVERFLAGS.SuperClient)
     result.flags.UUIDs = flag_is_set(result.flags.raw, SERVERFLAGS.UUIDs)
     result.flags.UTF8ServerName = flag_is_set(result.flags.raw, SERVERFLAGS.UTF8ServerName)
@@ -848,7 +848,7 @@ Proto = {
     data = response:getPacketData()
     pos, parms.server_time, parms.vol_count = bin.unpack("IC", data)
 
-    -- we should now be at the leading zero preceeding the first volume name
+    -- we should now be at the leading zero preceding the first volume name
     -- next is the length of the volume name, move pos there
     pos = pos + 1
 
@@ -875,7 +875,7 @@ Proto = {
   --   o DHCAST128
   --
   -- The DHCAST128 UAM should work against most servers even though it's
-  -- superceeded by the DHX2 UAM.
+  -- superceded by the DHX2 UAM.
   --
   -- @param afp_version string (AFP3.3|AFP3.2|AFP3.1)
   -- @param uam string containing authentication information
@@ -1350,8 +1350,8 @@ Helper = {
 
   --- Connects to the remote server and establishes a new AFP session
   --
-  -- @param host table as recieved by the action function of the script
-  -- @param port table as recieved by the action function of the script
+  -- @param host table as received by the action function of the script
+  -- @param port table as received by the action function of the script
   -- @return status boolean
   -- @return string containing error message (if status is false)
   OpenSession = function( self, host, port )
@@ -1386,7 +1386,7 @@ Helper = {
     return status, packet
   end,
 
-  --- Terminates the connection, withou closing the AFP session
+  --- Terminates the connection, without closing the AFP session
   --
   -- @return status (always true)
   -- @return string (always "")
@@ -1904,7 +1904,7 @@ Util =
 
   --- Converts a numeric acl to string
   --
-  -- @param acls number containig acls as recieved from <code>fp_get_file_dir_parms</code>
+  -- @param acls number containing acls as received from <code>fp_get_file_dir_parms</code>
   -- @return table of long ACLs
   acls_to_long_string = function( acls )
 
@@ -2066,7 +2066,7 @@ Util =
       local offset, p, name
       pos, offset = bin.unpack(">S", data, pos)
 
-      -- TODO: This really needs to be adressed someway
+      -- TODO: This really needs to be addressed someway
       -- Barely, never, ever happens, which makes it difficult to pin down
       -- http://developer.apple.com/mac/library/documentation/Networking/Reference/
       -- AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDBEHBG [URL is wrapped]

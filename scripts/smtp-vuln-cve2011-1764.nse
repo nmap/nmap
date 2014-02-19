@@ -80,7 +80,7 @@ local function get_exim_banner(response)
 end
 
 -- Sends the mail with the evil DKIM-Signatures header.
--- Returns true, true if the Exim server is vulnrable
+-- Returns true, true if the Exim server is vulnerable
 local function check_dkim(socket, smtp_opts)
   local killed = false
 

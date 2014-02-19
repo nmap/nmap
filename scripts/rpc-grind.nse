@@ -199,7 +199,7 @@ local rpcGrinder = function(host, port, iterator, result)
     if type(response) == 'table' then
       if xid ~= response.xid then
         -- Shouldn't happen.
-        stdnse.print_debug("%s: XID mismtach.", SCRIPT_NAME)
+        stdnse.print_debug("%s: XID mismatch.", SCRIPT_NAME)
       end
       -- Look at accept state
       -- Not supported version means that we used the right program number

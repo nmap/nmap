@@ -110,7 +110,7 @@ action = function(host, port)
       if payload_example and ( string.len(payload_example) > string.len(attack_vectors_n1[i]) ) then
         payload_example = attack_vectors_n1[i]
       end
-      stdnse.print_debug(2, "Payload:%s trigerred the IDS/IPS/WAF", attack_vectors_n1[i])
+      stdnse.print_debug(2, "Payload:%s triggered the IDS/IPS/WAF", attack_vectors_n1[i])
       if res.status and res.body then
         stdnse.print_debug(3, "Status:%s Body:%s\n", res.status, res.body)
       end

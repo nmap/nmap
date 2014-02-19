@@ -197,7 +197,7 @@ end
 ---
 -- Rebuilds a parsed URL from its components.
 --
--- Components are protected if any reserved or unallowed characters are found.
+-- Components are protected if any reserved or disallowed characters are found.
 -- @param parsed Parsed URL, as returned by parse.
 -- @return A string with the corresponding URL.
 -----------------------------------------------------------------------------

@@ -41,16 +41,16 @@
 -- For advanced use, the library currently supports a number of closures (withinhost,
 -- withindomain, doscraping). Please note, that withinhost and withindomain options also
 -- support boolean values. You will want to override them only for advanced use. You can
--- define them using the following ultities:
+-- define them using the following utilities:
 --
 -- * <code>iswithinhost</code>
--- ** You can use this ultity to check if the resource exists within the host.
+-- ** You can use this utility to check if the resource exists within the host.
 --
 -- * <code>iswithindomain</code>
--- ** You can use this ultity to check if the resource exists within the domain.
+-- ** You can use this utility to check if the resource exists within the domain.
 --
 -- * <code>isresource</code>
--- ** You can use this ultity to check the type of the resource (for example "js").
+-- ** You can use this utility to check the type of the resource (for example "js").
 -- ** A third option may hold a number of signs that may exist after the extension
 -- ** of the resource. By default, these are [#, ?]. For example, if we want to return
 -- only php resources, the function will also return example.php?query=foo or
@@ -506,7 +506,7 @@ UrlQueue = {
     return o
   end,
 
-  -- get's the next available url in the queue
+  -- gets the next available url in the queue
   getNext = function(self)
     return table.remove(self.urls,1)
   end,
@@ -548,7 +548,7 @@ Crawler = {
 
   removewww = function(url) return string.gsub(url, "^www%.", "") end,
 
-  -- An ultity when defining closures. Checks if the resource exists within host.
+  -- An utility when defining closures. Checks if the resource exists within host.
   -- @param u URL that points to the resource we want to check.
   iswithinhost = function(self, u)
     local parsed_u = url.parse(tostring(u))
@@ -565,7 +565,7 @@ Crawler = {
     return true
   end,
 
-  -- An ultity when defining closures. Checks if the resource exists within domain.
+  -- An utility when defining closures. Checks if the resource exists within domain.
   -- @param u URL that points to the resource we want to check.
   iswithindomain = function(self, u)
     local parsed_u = url.parse(tostring(u))
@@ -581,7 +581,7 @@ Crawler = {
     return true
   end,
 
-  -- An ultity when defining closures. Checks the type of the resource.
+  -- An utility when defining closures. Checks the type of the resource.
   -- @param u URL that points to the resource we want to check.
   -- @param ext the extension of the resource.
   -- @param signs table of signs that may exist after the extension of the resource.
@@ -663,12 +663,12 @@ Crawler = {
     o.options.timeout = o.options.timeout or 10000
     o.processed = {}
 
-    -- script arguments have precedense
+    -- script arguments have precedence
     if ( not(o.options.maxdepth) ) then
       o.options.maxdepth = tonumber(stdnse.get_script_args("httpspider.maxdepth"))
     end
 
-    -- script arguments have precedense
+    -- script arguments have precedence
     if ( not(o.options.maxpagecount) ) then
       o.options.maxpagecount = tonumber(stdnse.get_script_args("httpspider.maxpagecount"))
     end
@@ -678,7 +678,7 @@ Crawler = {
     end
 
     if ( o.options.useheadfornonwebfiles ) then
-      -- Load web files extensitons from a file in nselib/data folder.
+      -- Load web files extensions from a file in nselib/data folder.
       -- For more information on individual file formats, see
       -- http://en.wikipedia.org/wiki/List_of_file_formats.
       o.web_files_extensions = {}

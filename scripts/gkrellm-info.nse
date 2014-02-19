@@ -161,7 +161,7 @@ action = function(host, port)
   -- If there's an error we get a response back, and only then
   local status, data = socket:receive_buf("\n", false)
   if( status and data ~= "<error>" ) then
-    return fail("An unknown error occured, aborting ...")
+    return fail("An unknown error occurred, aborting ...")
   elseif ( status ) then
     status, data = socket:receive_buf("\n", false)
     if ( status ) then

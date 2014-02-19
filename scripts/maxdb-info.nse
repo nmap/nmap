@@ -91,7 +91,7 @@ end
 
 -- Parses and decodes the raw version response from the server
 -- @param data string containing the raw response
--- @return version_info table containining a number of dynamic fields based on
+-- @return version_info table containing a number of dynamic fields based on
 --         the response from the server. The fields typically include:
 --         <code>VERSION</code>, <code>BUILD</code>, <code>OS</code>,
 --         <code>INSTROOT</code>,<code>LOGON</code>, <code>CODE</code>,

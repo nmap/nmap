@@ -19,7 +19,7 @@ _ENV = stdnse.module("mysql", stdnse.seeall)
 --
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/23/2010 - v0.2 - added query support, cleanup, documentation
--- Revised 08/24/2010 - v0.3 - added error handling for recieveGreeting
+-- Revised 08/24/2010 - v0.3 - added error handling for receiveGreeting
 --                             fixed a number of incorrect receives and changed
 --                             them to receive_bytes instead.
 
@@ -97,7 +97,7 @@ local function decodeHeader( data, pos )
   return pos, response
 end
 
---- Recieves the server greeting upon intial connection
+--- Receives the server greeting upon initial connection
 --
 -- @param socket already connected to the remote server
 -- @return status true on success, false on failure
@@ -188,7 +188,7 @@ end
 --               currently only post41 authentication is supported
 -- @param username string containing the username of the user that is authenticating
 -- @param password string containing the users password or nil if empty
--- @param salt string containing the servers salt as recieved from <code>receiveGreeting</code>
+-- @param salt string containing the servers salt as received from <code>receiveGreeting</code>
 -- @return status boolean
 -- @return response table or error message on failure
 function loginRequest( socket, params, username, password, salt )
@@ -489,7 +489,7 @@ end
 -- @param socket socket already connected to mysql
 -- @param query string containing the sql query
 -- @return status true on success, false on failure
--- @return rows table containing row tabels as decoded by <code>decodeDataPackets</code>
+-- @return rows table containing row tables as decoded by <code>decodeDataPackets</code>
 function sqlQuery( socket, query )
 
   local catch = function() socket:close() stdnse.print_debug("sqlQuery(): failed") end
@@ -548,7 +548,7 @@ end
 -- @param rs table as returned from <code>sqlQuery</code>
 -- @param options table containing additional options, currently:
 --        - <code>noheaders</code> - does not include column names in result
--- @return string containing the formated resultset table
+-- @return string containing the formatted resultset table
 function formatResultset(rs, options)
   options = options or {}
   if ( not(rs) or not(rs.cols) or not(rs.rows) ) then

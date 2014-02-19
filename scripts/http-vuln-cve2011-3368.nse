@@ -125,7 +125,7 @@ servers to remote users who send carefully crafted requests.]],
         { prefix = ":", suffix = ":80"}
       }
 
-      -- try a bunch of hosts, and hope we hit one thats
+      -- try a bunch of hosts, and hope we hit one that's
       -- not on the network, this will give us the delay we're expecting
       local hosts = {
         "10.10.10.10",

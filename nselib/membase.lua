@@ -97,7 +97,7 @@ TAP = {
       -- Creates a new instance of the request
       -- @param username string containing the username
       -- @param password string containing the password
-      -- @param mech string containing the SASL mechanism, currently suppored:
+      -- @param mech string containing the SASL mechanism, currently supported:
       --        PLAIN - plain-text authentication
       -- @return o instance of request
       new = function(self, username, password, mech)
@@ -315,7 +315,7 @@ Helper = {
   -- @param password string containing the password
   -- @param mech string containing the SASL mechanism to use
   -- @return status true on success, false on failure
-  -- @return respons string containing "Auth failure" on failure
+  -- @return response string containing "Auth failure" on failure
   login = function(self, username, password, mech)
     mech = mech or self.mech or "PLAIN"
     local status, response = self:exch(TAP.Request.Authenticate:new(username, password, mech))

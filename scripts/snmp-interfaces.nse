@@ -41,7 +41,7 @@ dependencies = {"snmp-brute"}
 
 -- code borrowed heavily from Patrik Karlsson's excellent snmp scripts
 -- Created 03/03/2010 - v0.1 - created by Thomas Buchanan <tbuchanan@thecompassgrp.net>
--- Revised 03/05/2010 - v0.2 - Reworked output slighty, moved iana_types to script scope. Suggested by David Fifield
+-- Revised 03/05/2010 - v0.2 - Reworked output slightly, moved iana_types to script scope. Suggested by David Fifield
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 -- Revised 08/10/2010 - v0.3 - prerule; add interface addresses to Nmap's target list (Kris Katterjohn)
 -- Revised 05/27/2011 - v0.4 - action; add MAC addresses to nmap.registry[host.ip]["mac-geolocation"] (Gorjan Petrovski)
@@ -423,7 +423,7 @@ action = function(host, port)
   socket:set_timeout(5000)
   try(socket:connect(srvhost, srvport, "udp"))
 
-  -- retreive network interface information from IF-MIB
+  -- retrieve network interface information from IF-MIB
   status, interfaces = snmp.snmpWalk( socket, if_oid )
   socket:close()
 
@@ -436,7 +436,7 @@ action = function(host, port)
   -- build a table of network interfaces from the IF-MIB table
   interfaces = process_interfaces( interfaces )
 
-  -- retreive IP address information from IP-MIB
+  -- retrieve IP address information from IP-MIB
   try(socket:connect(srvhost, srvport, "udp"))
   status, ips = snmp.snmpWalk( socket, ip_oid )
 

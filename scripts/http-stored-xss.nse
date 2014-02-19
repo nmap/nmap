@@ -1,7 +1,7 @@
 description = [[
 Posts specially crafted strings to every form it
 encounters and then searches through the website for those
-strings to determine whether the payloads were succesful.
+strings to determine whether the payloads were successful.
 ]]
 
 ---
@@ -118,7 +118,7 @@ local checkPayload = function(body, p)
 
 end
 
--- Check if the payloads were succesfull by checking the content of pages in the uploadspaths array.
+-- Check if the payloads were successful by checking the content of pages in the uploadspaths array.
 local checkRequests = function(body, target)
 
   local output = {}

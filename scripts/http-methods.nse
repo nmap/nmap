@@ -66,7 +66,7 @@ action = function(host, port)
   local url_path, retest_http_methods
   local response, methods, options_status_line, output
 
-  -- default vaules for script-args
+  -- default values for script-args
   url_path = stdnse.get_script_args("http-methods.url-path") or "/"
   retest_http_methods = stdnse.get_script_args("http-methods.retest") ~= nil
 

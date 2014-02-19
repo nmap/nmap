@@ -2,7 +2,7 @@
 -- The brute library is an attempt to create a common framework for performing
 -- password guessing against remote services.
 --
--- The library currently attempts to parallellize the guessing by starting
+-- The library currently attempts to parallelize the guessing by starting
 -- a number of working threads. The number of threads can be defined using
 -- the brute.threads argument, it defaults to 10.
 --
@@ -73,7 +73,7 @@
 -- The <code>connect</code> method provides the framework with the ability to
 -- ensure that the thread can run once it has been dispatched a set of
 -- credentials. As the sockets in NSE are limited we want to limit the risk of
--- a thread blocking, due to insufficient free sockets, after it has aquired a
+-- a thread blocking, due to insufficient free sockets, after it has acquired a
 -- username and password pair.
 --
 -- The following sample code illustrates how to implement a sample
@@ -141,7 +141,7 @@
 -- @args brute.passonly iterate over passwords only for services that provide
 --       only a password for authentication. (default: false)
 -- @args brute.retries the number of times to retry if recoverable failures
---       occure. (default: 3)
+--       occur. (default: 3)
 -- @args brute.delay the number of seconds to wait between guesses (default: 0)
 -- @args brute.threads the number of initial worker threads, the number of
 --       active threads will be automatically adjusted.
@@ -214,7 +214,7 @@ _ENV = stdnse.module("brute", stdnse.seeall)
 --   * mode        - can be set to either cred, user or pass and controls
 --                   whether the engine should iterate over users, passwords
 --                   or fetch a list of credentials from a single file.
---                   (can be set using script-arg brut.mode)
+--                   (can be set using script-arg brute.mode)
 --   * title       - changes the title of the result table where the
 --                   passwords are returned.
 --   * nostore     - don't store the results in the credential library
@@ -502,7 +502,7 @@ Engine =
       local driver = self.driver:new( self.host, self.port, self.driver_options )
       status = driver:connect()
 
-      -- Did we succesfully connect?
+      -- Did we successfully connect?
       if ( status ) then
         if ( not(username) and not(password) ) then
           repeat
@@ -545,7 +545,7 @@ Engine =
       retries = retries - 1
 
       -- End if:
-      -- * The guess was successfull
+      -- * The guess was successful
       -- * The response was not set to retry
       -- * We've reached the maximum retry attempts
     until( status or ( response and not( response:isRetry() ) ) or retries == 0)
@@ -621,7 +621,7 @@ Engine =
         stdnse.print_debug(2, "threads=%d,tps=%d", self:activeThreads(), tps )
       end
 
-      -- if delay was speciefied, do sleep
+      -- if delay was specified, do sleep
       if ( self.options.delay > 0 ) then stdnse.sleep( self.options.delay ) end
     end
     condvar "signal"
@@ -775,7 +775,7 @@ Engine =
 
     result = ( #result ) and stdnse.format_output( true, result ) or ""
 
-    -- Did any error occure? If so add this to the result.
+    -- Did any error occur? If so add this to the result.
     if ( self.error ) then
       result = result .. ("  \n ERROR: %s"):format( self.error )
       return false, result

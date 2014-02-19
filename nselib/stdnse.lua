@@ -272,7 +272,7 @@ end
 -- stdnse.tohex(123456, {separator = ":"}) --> "1:e2:40"
 -- stdnse.tohex(123456, {separator = ":", group = 4}) --> "1:e240"
 -- @param s String or number to be encoded.
--- @param options Table specifiying formatting options.
+-- @param options Table specifying formatting options.
 -- @return String in hexadecimal format.
 function tohex( s, options )
   options = options or EMPTY
@@ -702,7 +702,7 @@ end
 --              occurs.
 --@param data   The table of output.
 --@param indent Used for indentation on recursive calls; should generally be set to
---              nil when callling from a script.
+--              nil when calling from a script.
 -- @return <code>nil</code>, if <code>data</code> is empty, otherwise a
 -- multiline string.
 function format_output(status, data, indent)

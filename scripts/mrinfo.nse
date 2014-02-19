@@ -111,8 +111,8 @@ local mrinfoParse = function(data)
     address.ip = ipOps.fromdword(address.ip)
     -- Link metric
     index, address.metric = bin.unpack(">C", data, index)
-    -- Treshold
-    index, address.treshold= bin.unpack(">C", data, index)
+    -- Threshold
+    index, address.threshold= bin.unpack(">C", data, index)
     -- Flags
     index, address.flags = bin.unpack(">C", data, index)
     -- Number of neighbors

@@ -164,7 +164,7 @@ action = function()
   local request_type = dhcp.request_types["DHCPDISCOVER"]
   local ip_address = bin.pack(">I", ipOps.todword("0.0.0.0"))
 
-  -- we nead to set the flags to broadcast
+  -- we need to set the flags to broadcast
   local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
   local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, nil, request_options, overrides, lease_time, transaction_id)
   if (not(status)) then return "\n  ERROR: Failed to build packet" end

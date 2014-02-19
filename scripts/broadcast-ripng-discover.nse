@@ -47,7 +47,7 @@ RIPng = {
     -- @param prefix string containing the ipv6 route prefix
     -- @param tag number containing the route tag
     -- @param prefix_len number containing the length in bits of the
-    --        signifcant part of the prefix
+    --        significant part of the prefix
     -- @param metric number containing the current metric for the
     --        destination
     new = function(self, prefix, tag, prefix_len, metric)

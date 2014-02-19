@@ -214,7 +214,7 @@ local traceParse = function(data)
     if index >= #data then
       break
     elseif #data - index < 31 then
-      stdnse.print_verbose("%s malformated traceroute response.", SCRIPT_NAME)
+      stdnse.print_verbose("%s malformed traceroute response.", SCRIPT_NAME)
       return
     end
 

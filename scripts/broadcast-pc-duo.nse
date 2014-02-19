@@ -33,7 +33,7 @@ local TIMEOUT = stdnse.parse_timespec(stdnse.get_script_args("broadcast-pc-duo.t
 prerule = function() return ( nmap.address_family() == "inet") end
 
 -- Sends a UDP probe to the server and processes the response
--- @param probe table contaning a pc-duo probe
+-- @param probe table containing a pc-duo probe
 -- @param responses table containing the responses
 local function udpProbe(probe, responses)
 

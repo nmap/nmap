@@ -109,7 +109,7 @@ end
 
 --- Formats output.
 --@param passwd <code>passwd</code> or <code>boot.ini</code> file.
---@param dir Formatted request which elicited the good reponse.
+--@param dir Formatted request which elicited the good response.
 --@return String description for output
 local output = function(passwd, dir)
   local trunc, len = truncatePasswd(passwd)

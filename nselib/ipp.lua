@@ -398,7 +398,7 @@ Helper = {
     for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_JOB)) do
       local uri = ag:getAttributeValue("printer-uri")
       local printer = uri:match(".*/(.*)$") or "Unknown"
-      -- some jobs have mutlitple state attributes, so far the ENUM ones have been correct
+      -- some jobs have multiple state attributes, so far the ENUM ones have been correct
       local state = ag:getAttributeValue("job-state", IPP.Attribute.IPP_TAG_ENUM) or ag:getAttributeValue("job-state")
       -- some jobs have multiple id tag, so far the INTEGER type have shown the correct ID
       local id = ag:getAttributeValue("job-id", IPP.Attribute.IPP_TAG_INTEGER) or ag:getAttributeValue("job-id")

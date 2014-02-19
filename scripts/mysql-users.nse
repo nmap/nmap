@@ -74,7 +74,7 @@ action = function( host, port )
   end
 
   --
-  -- Iterates over credentials, breaks once it successfully recieves results
+  -- Iterates over credentials, breaks once it successfully receives results
   --
   for username, password in pairs(users) do
 

@@ -48,7 +48,7 @@ Driver = {
   login = function( self, username, password )
     local status, response = self.helper:reqCmd("AUTH", password)
 
-    -- some error occured, attempt to retry
+    -- some error occurred, attempt to retry
     if ( status and response.type == redis.Response.Type.ERROR and
       "-ERR invalid password" == response.data ) then
       return false, brute.Error:new( "Incorrect password" )

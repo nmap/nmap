@@ -12,7 +12,7 @@ _ENV = stdnse.module("shortport", stdnse.seeall)
 
 ---
 -- See if a table contains a value.
--- @param t A table repesenting a set.
+-- @param t A table representing a set.
 -- @param value The value to check for.
 -- @return True if <code>t</code> contains <code>value</code>, false otherwise.
 local function includes(t, value)

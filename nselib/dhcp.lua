@@ -11,7 +11,7 @@
 -- 2011-12-28 - Revised by Patrik Karlsson <patrik@cqure.net>
 --   o Split dhcp_send into dhcp_send, dhcp_receive
 --   o Added basic support for adding options to requests
---   o Added possibility to ovverride transaction id
+--   o Added possibility to override transaction id
 --   o Added WPAD action
 
 local bin = require "bin"

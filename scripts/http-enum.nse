@@ -83,7 +83,7 @@ local common_ext = { 'php', 'asp', 'aspx', 'jsp', 'pl', 'cgi', 'css', 'js', 'htm
 ---Convert the filename to backup variations. These can be valuable for a number of reasons.
 -- First, because they may not have the same access restrictions as the main version (file.php
 -- may run as a script, but file.php.bak or file.php~ might not). And second, the old versions
--- might contain old vulnerablities
+-- might contain old vulnerabilities
 --
 -- At the time of the writing, these were all decided by me (Ron Bowes).
 local function get_variations(filename)

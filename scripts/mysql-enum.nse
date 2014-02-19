@@ -14,7 +14,7 @@ Performs valid-user enumeration against MySQL server using a bug
 discovered and published by Kingcope
 (http://seclists.org/fulldisclosure/2012/Dec/9).
 
-Server version 5.x are succeptible to an user enumeration
+Server version 5.x are susceptible to an user enumeration
 attack due to different messages during login when using
 old authentication mechanism from versions 4.x and earlier.
 

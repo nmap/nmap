@@ -65,7 +65,7 @@ end
 
 ---
 -- Cached results are checked before sending a query for the target and extracting the
--- relevent information from the response.  Mutual exclusion is used so that results can be
+-- relevant information from the response.  Mutual exclusion is used so that results can be
 -- cached and so a single thread will be active at any time.
 -- @param host  Host table.
 -- @return      Formatted answers or <code>nil</code> on errors.
