@@ -37,7 +37,6 @@ local http = require "http"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
-local strbuf = require "strbuf"
 local string = require "string"
 local table = require "table"
 local target = require "target"
@@ -105,9 +104,9 @@ Comm = {
     local status, err
 
     if ( self.mcast ) then
-      status, err = self.socket:sendto( self.host, self.port, strbuf.dump(payload) )
+      status, err = self.socket:sendto( self.host, self.port, payload )
     else
-      status, err = self.socket:send( strbuf.dump(payload) )
+      status, err = self.socket:send( payload )
     end
 
     if ( not(status) ) then return false, err end
