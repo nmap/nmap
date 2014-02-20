@@ -1,5 +1,5 @@
 /***************************************************************************
- * nbase_winunix.h -- Misc. compatability routines that generally try to   *
+ * nbase_winunix.h -- Misc. compatibility routines that generally try to   *
  * reproduce UNIX-centric concepts on Windows.                             *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
@@ -159,7 +159,7 @@
    <system_error> doesn't compile, so we pretend not to have C++0x to
    avoid it. */
 #define _INC_ERRNO  /* suppress errno.h */
-#define _ERRNO_H_ /* Also for errno.h suppresion */
+#define _ERRNO_H_ /* Also for errno.h suppression */
 #define _SYSTEM_ERROR_
 #undef _HAS_CPP0X
 #define _HAS_CPP0X 0

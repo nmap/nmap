@@ -511,7 +511,7 @@ void FPNetworkControl::response_reception_handler(nsock_pool nsp, nsock_event ns
   enum nse_status status = nse_status(nse);
   enum nse_type type = nse_type(nse);
   const u8 *rcvd_pkt = NULL;                    /* Points to the captured packet */
-  size_t rcvd_pkt_len = 0;                      /* Lenght of the captured packet */
+  size_t rcvd_pkt_len = 0;                      /* Length of the captured packet */
   struct timeval pcaptime;                    /* Time the packet was captured  */
   struct sockaddr_storage sent_ss;
   struct sockaddr_storage rcvd_ss;
@@ -1240,7 +1240,7 @@ void FPHost::__reset() {
 
 
 /* Returns the IP address of the target associated with the FPHost in
- * stuct sockaddr_storage format. */
+ * struct sockaddr_storage format. */
 const struct sockaddr_storage *FPHost::getTargetAddress() {
   return this->target_host->TargetSockAddr();
 }
@@ -1253,7 +1253,7 @@ const struct sockaddr_storage *FPHost::getTargetAddress() {
  * - A closed TCP port.
  * - A closed UDP port.
  *
- * When not enough information is found in the Target, the neccessary port
+ * When not enough information is found in the Target, the necessary port
  * numbers are generated randomly. */
 int FPHost::choose_osscan_ports() {
   Port *tport = NULL;
@@ -1356,7 +1356,7 @@ int FPHost::update_RTO(int measured_rtt_usecs, bool retransmission) {
   if (this->srtt == -1 && this->rttvar == -1) {
       this->srtt = measured_rtt_usecs;
       this->rttvar = measured_rtt_usecs/2;
-      this->rto = this->srtt + MAX(500000, 4*this->rttvar); /* Asume a granularity of 1/2 sec */
+      this->rto = this->srtt + MAX(500000, 4*this->rttvar); /* Assume a granularity of 1/2 sec */
   } else {
 
  /* RFC 2988: When a subsequent RTT measurement R' is made, a host MUST set
@@ -1424,7 +1424,7 @@ void FPHost6::init(Target *tgt, FPNetworkControl *fpnc) {
     this->target_host->FPR = new FingerPrintResultsIPv6;
   this->target_host->osscanSetFlag(OS_PERF);
 
-  /* Choose TCP/UDP ports for the prbes. */
+  /* Choose TCP/UDP ports for the probes. */
   this->choose_osscan_ports();
 
   /* Build the list of OS detection probes */
@@ -2537,7 +2537,7 @@ void FPProbe::reset() {
     free(this->probe_id);
   this->probe_id = NULL;
 
-  /* Also call FPPacket::__reset() to free any exising packet information */
+  /* Also call FPPacket::__reset() to free any existing packet information */
   this->__reset();
 }
 
@@ -2586,7 +2586,7 @@ int FPProbe::incrementRetransmissions() {
 
 
 /* Returns the number of times the probe has been replied. This applies for
- * timed probes, which may be retransmitted even if we got a reply (becase
+ * timed probes, which may be retransmitted even if we got a reply (because
  * another timed probe timeout and we had to retransmit all of them to keep
  * the timing accurate). */
 int FPProbe::getReplies() const {

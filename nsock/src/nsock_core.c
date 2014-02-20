@@ -1015,7 +1015,7 @@ void process_event(mspool *nsp, gh_list_t *evlist, msevent *nse, int ev) {
             do_actual_pcap_read(nse);
         }
 
-        /* if already received smth */
+        /* if already received something */
         if (fs_length(&(nse->iobuf)) > 0)
           handle_pcap_read_result(nsp, nse, NSE_STATUS_SUCCESS);
 

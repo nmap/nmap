@@ -162,7 +162,7 @@ struct udpprobeinfo {
   struct in_addr target;
 };
 
-/* The runtime statistics used to decide how fast to proced and how
+/* The runtime statistics used to decide how fast to proceed and how
    many ports we can try at once */
 struct scanstats {
   int packet_incr;

@@ -418,7 +418,7 @@ void NmapOps::ValidateOptions() {
                 privreq = "WinPcap version 3.1 or higher and\n\
 iphlpapi.dll.  You seem to be missing one or both of these.  Winpcap is\n\
 available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and\n\
-later operating sytems and NT 4.0 with SP4 or greater.  For previous windows\n\
+later operating systems and NT 4.0 with SP4 or greater.  For previous Windows\n\
 versions, you may be able to take iphlpapi.dll from another system and place\n\
 it in your system32 dir (e.g. c:\\windows\\system32).\n\
 On Windows Vista and Windows 7, The WinPcap NPF service must be started by an\n\

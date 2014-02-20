@@ -293,7 +293,7 @@ class HostOsScanStats {
   std::list<OFProbe *> probesActive;
 
   /* A record of total number of probes that have been sent to this
-   * host, including restranmited ones. */
+   * host, including retransmitted ones. */
   unsigned int num_probes_sent;
   /* Delay between two probes.    */
   unsigned int sendDelayMs;

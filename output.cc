@@ -2,7 +2,7 @@
 /***************************************************************************
  * output.cc -- Handles the Nmap output system.  This currently involves   *
  * console-style human readable output, XML output, Script |<iddi3         *
- * output, and the legacy greppable output (used to be called "machine     *
+ * output, and the legacy grepable output (used to be called "machine      *
  * readable").  I expect that future output forms (such as HTML) may be    *
  * created by a different program, library, or script using the XML        *
  * output.                                                                 *
@@ -529,7 +529,7 @@ static char *formatScriptOutput(ScriptResult sr) {
 #endif /* NOLUA */
 
 /* Prints the familiar Nmap tabular output showing the "interesting"
-   ports found on the machine.  It also handles the Machine/Greppable
+   ports found on the machine.  It also handles the Machine/Grepable
    output and the XML output.  It is pretty ugly -- in particular I
    should write helper functions to handle the table creation */
 void printportoutput(Target *currenths, PortList *plist) {
@@ -817,7 +817,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 #ifndef NOLUA
         if (o.script) {
           ScriptResults::const_iterator ssr_iter;
-          //Sort the results before outputing them on the screen
+          //Sort the results before outputting them on the screen
           current->scriptResults.sort(scriptid_lessthan);
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
@@ -939,7 +939,7 @@ char *logfilename(const char *str, struct tm *tm) {
 
 /* This is the workhorse of the logging functions.  Usually it is
    called through log_write(), but it can be called directly if you are dealing
-   with a vfprintf-style va_list. YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL
+   with a vfprintf-style va_list. YOU MUST SANDWICH EACH EXECUTION OF THIS CALL
    BETWEEN va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap) {
   char *writebuf;
@@ -2090,7 +2090,7 @@ void printserviceinfooutput(Target *currenths) {
 
     // The following 2 lines (from portlist.h) tell us that we don't need to
     // worry about free()ing anything in the serviceDeductions struct. pass in
-    // an allocated struct serviceDeductions (don't wory about initializing, and
+    // an allocated struct serviceDeductions (don't worry about initializing, and
     // you don't have to free any internal ptrs.
     currenths->ports.getServiceDeductions(p->portno, p->proto, &sd);
 

@@ -238,7 +238,7 @@ private:
    * Nmap will pop future targets from this queue. */
   std::queue<std::string> queue;
 
-  /* A cache to save scanned targets specifiactions.
+  /* A cache to save scanned targets specifications.
    * (These are targets that were pushed to Nmap scan queue) */
   std::set<std::string> history;
 

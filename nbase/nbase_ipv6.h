@@ -202,7 +202,7 @@ int sockaddr_storage_equal(const struct sockaddr_storage *a,
 /* This function is an easier version of inet_ntop because you don't
    need to pass a dest buffer.  Instead, it returns a static buffer that
    you can use until the function is called again (by the same or another
-   thread in the process).  If there is a wierd error (like sslen being
+   thread in the process).  If there is a weird error (like sslen being
    too short) then NULL will be returned. */
 const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen);
 

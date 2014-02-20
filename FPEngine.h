@@ -429,7 +429,7 @@ class FPHost {
 };
 
 /* This class represents IPv6 hosts to be fingerprinted. The class performs
- * OS detection asynchronously. To use it, shedule() must be called at regular
+ * OS detection asynchronously. To use it, schedule() must be called at regular
  * intervals until done() returns true. After that, status() will indicate
  * whether the host was successfully matched with a particular OS or not. */
 class FPHost6 : public FPHost {

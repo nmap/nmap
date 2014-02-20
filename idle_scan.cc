@@ -182,7 +182,7 @@ struct idle_proxy_info {
   int senddelay; /* Delay between sending pr0be SYN packets to target
                     (in microseconds) */
   int max_senddelay; /* Maximum time we are allowed to wait between
-                        sending pr0bes (when we send a bunch in a row.
+                        sending probes (when we send a bunch in a row.
                         In microseconds. */
 
   pcap_t *pd; /* A Pcap descriptor which (starting in
@@ -295,7 +295,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
       proxy->host.TargetSockAddr(&ss, &sslen);
       res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
       if (res == -1)
-        fatal("Error occured while trying to send IPv6 packet");
+        fatal("Error occurred while trying to send IPv6 packet");
       free(ipv6_packet);
     }
     sent++;
@@ -453,7 +453,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHO, 0x00, data, sizeof(data) , &packetlen);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
   if (res == -1)
-    fatal("Error occured while trying to send ICMPv6 Echo Request to the idle host");
+    fatal("Error occurred while trying to send ICMPv6 Echo Request to the idle host");
   free(ipv6_packet);
   gettimeofday(&ipv6_packet_send_time, NULL);
 
@@ -493,7 +493,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
   if (res == -1)
-    fatal("Error occured while trying to send spoofed ICMPv6 Echo Request to the idle host");
+    fatal("Error occurred while trying to send spoofed ICMPv6 Echo Request to the idle host");
 
   free(ipv6_packet);
 
@@ -506,7 +506,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHO, 0x00, data, sizeof(data) , &packetlen);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
   if (res == -1)
-    fatal("Error occured while trying to send ICMPv6 Echo Request to the idle host");
+    fatal("Error occurred while trying to send ICMPv6 Echo Request to the idle host");
 
   free(ipv6_packet);
 
@@ -521,7 +521,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   usleep(10000);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
   if (res == -1)
-    fatal("Error occured while trying to send ICMPv6 PTB to the idle host");
+    fatal("Error occurred while trying to send ICMPv6 PTB to the idle host");
   free(ipv6_packet);
 }
 
@@ -628,7 +628,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   proxy->host.setTargetSockAddr(&ss, sslen);
 
   /* Lets figure out the appropriate source address to use when sending
-     the pr0bez */
+     the probes */
   proxy->host.TargetSockAddr(&ss, &sslen);
   if (!nmap_route_dst(&ss, &rnfo))
     fatal("Unable to find appropriate source address and device interface to use when sending packets to %s", proxyName);
@@ -698,7 +698,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   sequence_base = get_random_u32();
 
-  /* Yahoo!  It is finally time to send our pr0beZ! */
+  /* Yahoo!  It is finally time to send our probes! */
 
   while (probes_sent < NUM_IPID_PROBES) {
     if (o.scan_delay)
@@ -732,7 +732,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                                        &packetlen);
       res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
       if (res == -1)
-        fatal("Error occured while trying to send IPv6 packet");
+        fatal("Error occurred while trying to send IPv6 packet");
       free(ipv6_packet);
     }
 
@@ -875,7 +875,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     log_write(LOG_PLAIN, "Idle scan using zombie %s (%s:%hu); Class: %s\n", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
     break;
   default:
-    fatal("Idle scan zombie %s (%s) port %hu cannot be used because IP ID sequencability class is: %s.  Try another proxy.", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
+    fatal("Idle scan zombie %s (%s) port %hu cannot be used because IP ID sequence class is: %s.  Try another proxy.", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
   }
 
   proxy->latestid = ipids[probes_returned - 1];
@@ -926,7 +926,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                                          &packetlen);
         res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
         if (res == -1)
-          fatal("Error occured while trying to send IPv6 packet ");
+          fatal("Error occurred while trying to send IPv6 packet ");
         free(ipv6_packet);
       }
     }
@@ -1071,7 +1071,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
       fatal("%s: Failed to open ethernet device (%s)", __func__, target->deviceName());
   } else eth.ethsd = NULL;
 
-  /* I start by sending out the SYN pr0bez */
+  /* I start by sending out the SYN probes */
   for (pr0be = 0; pr0be < numports; pr0be++) {
     if (o.scan_delay)
       enforce_scan_delay(NULL);
@@ -1099,7 +1099,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
                                     &packetlen);
         res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, &ss, packet, packetlen);
         if (res == -1)
-          fatal("Error occured while trying to send IPv6 packet");
+          fatal("Error occurred while trying to send IPv6 packet");
         free(packet);
     }
   }
@@ -1348,7 +1348,7 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
           adjust_idle_timing(proxy, target, retry2, retrycount);
         } else {
           if (o.debugging)
-            error("Adjusting timing because my first scan of %d ports, starting with %hu found %d open, while second scan yeilded %d", secondHalfSz, ports[firstHalfSz], flatcount2, retrycount);
+            error("Adjusting timing because my first scan of %d ports, starting with %hu found %d open, while second scan yielded %d", secondHalfSz, ports[firstHalfSz], flatcount2, retrycount);
           adjust_idle_timing(proxy, target, flatcount2, retrycount);
         }
 
@@ -1432,7 +1432,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
      scan is sort of tree structured (we scan a group and then divide
      it up and drill down in subscans of the group), we split the port
      space into smaller groups and then call a recursive
-     divide-and-counquer function to find the open ports */
+     divide-and-conquer function to find the open ports */
   while (portidx < numports) {
     portsleft = numports - portidx;
     /* current_groupsz is doubled below because idle_subscan cuts in half */

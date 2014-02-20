@@ -2,7 +2,7 @@
 /***************************************************************************
  * output.h -- Handles the Nmap output system.  This currently involves    *
  * console-style human readable output, XML output, Script |<iddi3         *
- * output, and the legacy greppable output (used to be called "machine     *
+ * output, and the legacy grepable output (used to be called "machine      *
  * readable").  I expect that future output forms (such as HTML) may be    *
  * created by a different program, library, or script using the XML        *
  * output.                                                                 *
@@ -132,7 +132,7 @@
 #define OUTPUT_H
 
 #define LOG_NUM_FILES 4 /* # of values that actual files (they must come first */
-#define LOG_FILE_MASK 15 /* The mask for log typs in the file array */
+#define LOG_FILE_MASK 15 /* The mask for log types in the file array */
 #define LOG_NORMAL 1
 #define LOG_MACHINE 2
 #define LOG_SKID 4
@@ -177,7 +177,7 @@ void win32_fatal_raw_sockets(const char *devname);
 #endif
 
 /* Prints the familiar Nmap tabular output showing the "interesting"
-   ports found on the machine.  It also handles the Machine/Greppable
+   ports found on the machine.  It also handles the Machine/Grepable
    output and the XML output.  It is pretty ugly -- in particular I
    should write helper functions to handle the table creation */
 void printportoutput(Target *currenths, PortList *plist);
@@ -200,7 +200,7 @@ void log_write(int logt, const char *fmt, ...)
    called through log_write(), but it can be called directly if you
    are dealing with a vfprintf-style va_list.  Unlike log_write, YOU
    CAN ONLY CALL THIS WITH ONE LOG TYPE (not a bitmask full of them).
-   In addition, YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL BETWEEN
+   In addition, YOU MUST SANDWICH EACH EXECUTION OF THIS CALL BETWEEN
    va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap);
 

@@ -459,7 +459,7 @@ u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim,
                    const char *data, u16 datalen, u32 *packetlen);
 
 
-// Returns whether the packet receive time value obtaned from libpcap
+// Returns whether the packet receive time value obtained from libpcap
 // (and thus by readip_pcap()) should be considered valid.  When
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.
 bool pcap_recv_timeval_valid();
@@ -520,7 +520,7 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
 int get_link_offset(char *device);
 /* If rcvdtime is non-null and a packet is returned, rcvd will be
    filled with the time that packet was captured from the wire by
-   pcap.  If linknfo is not NULL, lnknfo->headerlen and
+   pcap.  If linknfo is not NULL, lnkinfo->headerlen and
    lnkinfo->header will be filled with the appropriate values. */
 char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                     struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
@@ -537,7 +537,7 @@ int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long 
    and returns 1.  If it times out and reads no arp requests, returns
    0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
    blocking to the extent possible, and -1 to block forever.  Returns
-   -1 or exits if ther is an error. */
+   -1 or exits if there is an error. */
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
                        long to_usec, struct timeval *rcvdtime);
 
@@ -563,7 +563,7 @@ void broadcast_socket(int sd);
    len) into buf .  Give up after 'seconds'.  Returns the number of
    bytes read (or -1 in the case of an error.  It only does one recv
    (it will not keep going until len bytes are read).  If timedout is
-   not NULL, it will be set to zero (no timeout occured) or 1 (it
+   not NULL, it will be set to zero (no timeout occurred) or 1 (it
    did). */
 int recvtime(int sd, char *buf, int len, int seconds, int *timedout);
 

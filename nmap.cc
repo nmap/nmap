@@ -275,7 +275,7 @@ static void printusage(int rc) {
          "  --script-trace: Show all data sent and received\n"
          "  --script-updatedb: Update the script database.\n"
          "  --script-help=<Lua scripts>: Show help about scripts.\n"
-         "           <Lua scripts> is a comma separted list of script-files or\n"
+         "           <Lua scripts> is a comma-separated list of script-files or\n"
          "           script-categories.\n"
 #endif
          "OS DETECTION:\n"
@@ -575,8 +575,8 @@ void parse_options(int argc, char **argv) {
     {"proxy", required_argument, 0, 0},
     {"osscan_limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
     {"osscan-limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
-    {"osscan_guess", no_argument, 0, 0}, /* More guessing flexability */
-    {"osscan-guess", no_argument, 0, 0}, /* More guessing flexability */
+    {"osscan_guess", no_argument, 0, 0}, /* More guessing flexibility */
+    {"osscan-guess", no_argument, 0, 0}, /* More guessing flexibility */
     {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
     {"packet_trace", no_argument, 0, 0}, /* Display all packets sent/rcv */
     {"packet-trace", no_argument, 0, 0}, /* Display all packets sent/rcv */
@@ -1539,7 +1539,7 @@ void  apply_delayed_options() {
    * --We are doing a raw sock scan and NOT pinging anyone */
   if (o.SourceSockAddr() && !*o.device) {
     if (ipaddr2devname(o.device, o.SourceSockAddr()) != 0) {
-      fatal("Could not figure out what device to send the packet out on with the source address you gave me!  If you are trying to sp00f your scan, this is normal, just give the -e eth0 or -e ppp0 or whatever.  Otherwise you can still use -e, but I find it kindof fishy.");
+      fatal("Could not figure out what device to send the packet out on with the source address you gave me!  If you are trying to sp00f your scan, this is normal, just give the -e eth0 or -e ppp0 or whatever.  Otherwise you can still use -e, but I find it kind of fishy.");
     }
   }
 

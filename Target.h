@@ -325,7 +325,7 @@ class Target {
   unsigned int flags; /* HOST_UNKNOWN, HOST_UP, or HOST_DOWN. */
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
-  char * targetname; // The name of the target host given on the commmand line if it is a named host
+  char * targetname; // The name of the target host given on the command line if it is a named host
 
   struct probespec traceroute_probespec;
   std::list <TracerouteHop> traceroute_hops;

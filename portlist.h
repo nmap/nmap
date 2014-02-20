@@ -278,7 +278,7 @@ class PortList {
   // will be NULL if unavailable. Note that this function makes its
   // own copy of sname and product/version/extrainfo.  This function
   // also takes care of truncating the version strings to a
-  // 'reasonable' length if necessary, and cleaning up any unprinable
+  // 'reasonable' length if necessary, and cleaning up any unprintable
   // chars. (these tests are to avoid annoying DOS (or other) attacks
   // by malicious services).  The fingerprint should be NULL unless
   // one is available and the user should submit it.  tunnel must be
@@ -304,7 +304,7 @@ class PortList {
 
   /* Cycles through the 0 or more "ignored" ports which should be
    consolidated for Nmap output.  They are returned sorted by the
-   number of prots in the state, starting with the most common.  It
+   number of ports in the state, starting with the most common.  It
    should first be called with PORT_UNKNOWN to obtain the most popular
    ignored state (if any).  Then call with that state to get the next
    most popular one.  Returns the state if there is one, but returns
