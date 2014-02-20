@@ -257,7 +257,7 @@ class NetworkInventory(object):
         #remove ports which are no longer up
         if old_date < new_date:
             for defunct_port in old_list:
-                #Check if defunt_port is in ports and that the protocol matches
+                #Check if defunct_port is in ports and that the protocol matches
                 port_number = int(defunct_port['portid'])
                 if port_number in ports:
                     if defunct_port['protocol'] in ports[port_number]:
@@ -664,7 +664,7 @@ class FilteredNetworkInventoryTest(unittest.TestCase):
 
 class PortChangeTest(unittest.TestCase):
     def test_port(self):
-        """Verify that the port status (open/filtered/closed) is diplayed """ \
+        """Verify that the port status (open/filtered/closed) is displayed """ \
         """correctly when the port status changes in newer scans"""
         from zenmapCore.NmapParser import NmapParser
         inv = NetworkInventory()

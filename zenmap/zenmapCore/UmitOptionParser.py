@@ -238,7 +238,7 @@ used more than once to get even more verbosity"))
 
     def get_target(self):
         """Returns a string with the target specified, or False if this option
-        wass not called by the user"""
+        was not called by the user"""
         return self.options.target
 
     def get_open_results(self):

@@ -146,7 +146,7 @@ class HIGClosableTabLabel(HIGHBox):
         self.label_text = label_text
         self.__create_widgets()
 
-        #self.propery_map = {"label_text" : self.label.get_label}
+        #self.property_map = {"label_text" : self.label.get_label}
 
     def __create_widgets(self):
         self.label = gtk.Label(self.label_text)

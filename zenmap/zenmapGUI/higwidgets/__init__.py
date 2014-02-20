@@ -127,7 +127,7 @@ This module implements GTK Widgets that try their best to adhere to the
 GNOME Human Interface Guidelines (aka HIG).
 
 This is mostly implemented by subclassing from the GTK classes, and
-providing defaults that better match the HIG specifications/recomendations.
+providing defaults that better match the HIG specifications/recommendations.
 """
 
 from gtkutils import *

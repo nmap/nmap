@@ -84,7 +84,7 @@
 
 class option:
     """A single option, part of a pool of potential options. It's just a name
-    and a flag saying if the option takes no argument, if an agument is
+    and a flag saying if the option takes no argument, if an argument is
     optional, or if an argument is required."""
     NO_ARGUMENT = 0
     REQUIRED_ARGUMENT = 1

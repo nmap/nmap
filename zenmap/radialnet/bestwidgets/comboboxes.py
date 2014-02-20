@@ -144,7 +144,7 @@ class BWChangeableComboBoxEntry(gtk.ComboBoxEntry):
         if self.get_active() != -1:
             self.__last_active = self.get_active()
 
-    def bw_get_lenght(self):
+    def bw_get_length(self):
         """
         """
         return len(self.__liststore)

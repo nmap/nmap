@@ -130,17 +130,17 @@ class RecentScans(object):
         self.temp_list = []
 
         try:
-            self.recents_scans_file = Path.recent_scans
+            self.recent_scans_file = Path.recent_scans
         except:
-            self.recents_scans_file = False
+            self.recent_scans_file = False
 
-        if self.recents_scans_file and \
-            (access(self.recents_scans_file, R_OK and W_OK) or \
-             access(dirname(self.recents_scans_file), R_OK and W_OK)):
+        if self.recent_scans_file and \
+            (access(self.recent_scans_file, R_OK and W_OK) or \
+             access(dirname(self.recent_scans_file), R_OK and W_OK)):
             self.using_file = True
 
             # Recovering saved targets
-            recent_file = open(self.recents_scans_file, "r")
+            recent_file = open(self.recent_scans_file, "r")
             self.temp_list = [t for t in recent_file.read().split(";") \
                                     if t != "" and t != "\n"]
             recent_file.close()
@@ -149,7 +149,7 @@ class RecentScans(object):
 
     def save(self):
         if self.using_file:
-            recent_file = open(self.recents_scans_file, "w")
+            recent_file = open(self.recent_scans_file, "w")
             recent_file.write(";".join(self.temp_list))
             recent_file.close()
 

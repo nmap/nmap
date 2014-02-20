@@ -175,7 +175,7 @@ if isinstance(umitdb, str):
         fs_enc = "UTF-8"
     umitdb = umitdb.decode(fs_enc)
 
-# pyslite 2.4.0 doesn't handle a unicode database name, though earlier and
+# pysqlite 2.4.0 doesn't handle a unicode database name, though earlier and
 # later versions do. Encode to UTF-8 as pysqlite would do internally anyway.
 umitdb = umitdb.encode("UTF-8")
 
@@ -183,7 +183,7 @@ connection = sqlite.connect(umitdb)
 
 # By default pysqlite will raise an OperationalError when trying to return a
 # TEXT data type that is not UTF-8 (it always tries to decode text in order to
-# return a unicdoe object). We store XML in the database, which may have a
+# return a unicode object). We store XML in the database, which may have a
 # different encoding, so instruct pysqlite to return a plain str for TEXT data
 # types, and not to attempt any decoding.
 try:
@@ -292,7 +292,7 @@ class UmitDB(object):
 
     def cleanup(self, save_time):
         log.debug(">>> Cleaning up data base.")
-        log.debug(">>> Removing results olders than %s seconds" % save_time)
+        log.debug(">>> Removing results older than %s seconds" % save_time)
         self.cursor.execute("SELECT scans_id FROM scans WHERE date < ?",
                 (time() - save_time,))
 

@@ -517,8 +517,8 @@ def host_pairs(a, b):
 
 
 class ScanDiff(object):
-    """An abtract class for different diff output types. Subclasses must define
-    various output methods."""
+    """An abstract class for different diff output types. Subclasses must
+    define various output methods."""
     def __init__(self, scan_a, scan_b, f=sys.stdout):
         """Create a ScanDiff from the "before" scan_a and the "after"
         scan_b."""

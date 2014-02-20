@@ -319,7 +319,7 @@ def print_parseable_sent_packet(test_number, test_packet, ip_version):
     else :
         print_and_store_line(tag + "={"+str(test_number)+", " + "0" +", " + hexstr(str(test_packet), onlyhex=1) + "}")
 
-def print_parseable_time_dependant_test_result(test_number, response, ip_version):
+def print_parseable_time_dependent_test_result(test_number, response, ip_version):
     if ip_version==4 :
         tag="timed4_result"
     else :
@@ -353,7 +353,7 @@ def print_welcome_banner():
     print "                                                                 "
     print " We'd like to thank you in advance for running this tool. After  "
     print " the execution has finished, a file with the following name      "
-    print " will be sted in the working directory:                          "
+    print " will be created in the working directory:                       "
     print "                                                                 "
     print output_file_name_g.center(65)
     print "                                                                 "
@@ -809,7 +809,7 @@ def filter_responses(sent, received):
         # If we get here (we have not "break"ed the loop), it means that we
         # did not find any standard response. Now check for ICMP errors.
         # We do a very soft matching. We can probably make mistakes here if
-        # we send many packets and we get many different resposnes, but this
+        # we send many packets and we get many different responses, but this
         # is not a common case in ipv6fp.py, so we should be fine.
         for i in range(0, len(response_set)) :
 
@@ -839,7 +839,7 @@ def filter_responses(sent, received):
                     if response_set[i][IPerror6].src==sent_probe.src:
                         if response_set[i][IPerror6].dst==sent_probe.dst:
                             if response_set[i][IPerror6].nh==sent_probe.nh:
-                                print_debug("TimeExceede MATCH")
+                                print_debug("TimeExceeded MATCH")
                                 final_results.append( [sent_probe, response_set[i]] )
                                 match=response_set[i]
                                 break
@@ -969,7 +969,7 @@ def sndrcv_ng(pkt, timeout=1, iface=None, inter = 0, verbose=1, retry=0, multi=0
         elif pid < 0:
             print "ERROR: unable to fork()"
 
-        # Packet recption child
+        # Packet reception child
         else:
             print_debug("Reception Child")
             cap_pkts=sniff(timeout=timeout)
@@ -1032,7 +1032,7 @@ def send_and_receive_eth(packet, verbosity=1):
 
     return responses
 
-# Note that this function does NOT strip the ethernet header of the returned (answered, unsanswered) set.
+# Note that this function does NOT strip the ethernet header of the returned (answered, unanswered) set.
 def send_and_receive_eth_multiple(packet, verbosity=1):
     # Send packet and get response
 
@@ -1136,11 +1136,11 @@ def run_test_multiple(test_number_base, test_id, test_description, test_packet, 
         if type(responses[0][i][1])==scapy.layers.l2.Ether :
             print_received_packet(responses[0][i][1].payload)
             myresponses.append(responses[0][i][1].payload)
-            print_parseable_time_dependant_test_result(test_number_base+i, responses[0][i][1].payload, ip_version)
+            print_parseable_time_dependent_test_result(test_number_base+i, responses[0][i][1].payload, ip_version)
         else:
             print_received_packet(responses[0][i][1])
             myresponses.append(responses[0][i][1])
-            print_parseable_time_dependant_test_result(test_number_base+i, responses[0][i][1], ip_version)
+            print_parseable_time_dependent_test_result(test_number_base+i, responses[0][i][1], ip_version)
 
     # Cleanup and return
     print_end_separator()
@@ -1714,7 +1714,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 42
     test6_ids.append("ICMP_NI_Query_0")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=1, Payload='.' (root) in DNS format")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=1, Payload='.' (root) in DNS format")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=1  # RFC: On transmission, the ICMPv6 Code in a NOOP Query must be set to 1
@@ -1728,7 +1728,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 43
     test6_ids.append("ICMP_NI_Query_1")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=1, Payload=localhost (in DNS format)")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=1, Payload=localhost (in DNS format)")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=1  # RFC: On transmission, the ICMPv6 Code in a NOOP Query must be set to 1
@@ -1742,7 +1742,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 44
     test6_ids.append("ICMP_NI_Query_2")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=1, Payload=Bogus DNS formatted name (label length>63)")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=1, Payload=Bogus DNS formatted name (label length>63)")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=1  # RFC: On transmission, the ICMPv6 Code in a NOOP Query must be set to 1
@@ -1756,7 +1756,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 45
     test6_ids.append("ICMP_NI_Query_3")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=1, Payload=Bogus DNS formatted name (Characters missing)")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=1, Payload=Bogus DNS formatted name (Characters missing)")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=1  # RFC: On transmission, the ICMPv6 Code in a NOOP Query must be set to 1
@@ -1770,7 +1770,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 46
     test6_ids.append("ICMP_NI_Query_4")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=0, Subject Addr=::0")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=0, Subject Addr=::0")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=0  # This is forbidden by RFC 4620
@@ -1784,7 +1784,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 47
     test6_ids.append("ICMP_NI_Query_5")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=0, Subject Addr=target's")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=0, Subject Addr=target's")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=0  # IPv6 Address. Using this in NOOP is forbidden by RFC 4620
@@ -1798,7 +1798,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 48
     test6_ids.append("ICMP_NI_Query_6")
-    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/IMCP Code=0xAB (unknown), Payload=0x00")
+    test6_descriptions.append("ICMP/NI Query NOOP/Dst=target/ICMP Code=0xAB (unknown), Payload=0x00")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=0xAB  # This one is also forbidden by RFC 4620
@@ -1812,7 +1812,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 49
     test6_ids.append("ICMP_NI_Query_7")
-    test6_descriptions.append("ICMP/NI Query Unused/Dst=target/IMCP Code=1, Payload=localhost")
+    test6_descriptions.append("ICMP/NI Query Unused/Dst=target/ICMP Code=1, Payload=localhost")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=1  # DNS name
@@ -1826,7 +1826,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 50
     test6_ids.append("ICMP_NI_Query_8")
-    test6_descriptions.append("ICMP/NI Query Unused/Dst=target/IMCP Code=0, Payload=target's addr")
+    test6_descriptions.append("ICMP/NI Query Unused/Dst=target/ICMP Code=0, Payload=target's addr")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=0  # IPv6 Address
@@ -1840,7 +1840,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 51
     test6_ids.append("ICMP_NI_Query_9")
-    test6_descriptions.append("ICMP/NI Query Node Name/Dst=target/IMCP Code=1, Name=localhost")
+    test6_descriptions.append("ICMP/NI Query Node Name/Dst=target/ICMP Code=1, Name=localhost")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryName()
     icmp_packet.code=1  # DNS Name
@@ -1854,7 +1854,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 52
     test6_ids.append("ICMP_NI_Query_10")
-    test6_descriptions.append("ICMP/NI Query Node Name/Dst=target/IMCP Code=0, Addr=target's")
+    test6_descriptions.append("ICMP/NI Query Node Name/Dst=target/ICMP Code=0, Addr=target's")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryName()
     icmp_packet.code=0  # IPv6 Addr
@@ -1868,7 +1868,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 53
     test6_ids.append("ICMP_NI_Query_11")
-    test6_descriptions.append("ICMP/NI Query Node Addresses IPv6/Dst=target/IMCP Code=0, Addr=target's, Flags=All addresses")
+    test6_descriptions.append("ICMP/NI Query Node Addresses IPv6/Dst=target/ICMP Code=0, Addr=target's, Flags=All addresses")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryIPv6()
     icmp_packet.code=0  # IPv6 Addr
@@ -1882,7 +1882,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 54
     test6_ids.append("ICMP_NI_Query_12")
-    test6_descriptions.append("ICMP/NI Query Node Addresses IPv6/Dst=target/IMCP Code=0, Addr=target's, Flags=None")
+    test6_descriptions.append("ICMP/NI Query Node Addresses IPv6/Dst=target/ICMP Code=0, Addr=target's, Flags=None")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryIPv6()
     icmp_packet.code=0  # IPv6 Addr
@@ -1896,7 +1896,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 55
     test6_ids.append("ICMP_NI_Query_13")
-    test6_descriptions.append("ICMP/NI Query Node Addresses IPv6/Dst=target/IMCP Code=0, Name=localhost, Flags=All")
+    test6_descriptions.append("ICMP/NI Query Node Addresses IPv6/Dst=target/ICMP Code=0, Name=localhost, Flags=All")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryIPv6()
     icmp_packet.code=1  # DNS Name
@@ -1910,7 +1910,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 56
     test6_ids.append("ICMP_NI_Query_14")
-    test6_descriptions.append("ICMP/NI Query Node Addresses IPv4/Dst=target/IMCP Code=0, Name=localhost, Flags='A'")
+    test6_descriptions.append("ICMP/NI Query Node Addresses IPv4/Dst=target/ICMP Code=0, Name=localhost, Flags='A'")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryIPv4()
     icmp_packet.code=1  # DNS Name
@@ -1924,7 +1924,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 57
     test6_ids.append("ICMP_NI_Query_15")
-    test6_descriptions.append("ICMP/NI Query Node Addresses IPv4/Dst=target/IMCP Code=0, Addr=target's, Flags='A'")
+    test6_descriptions.append("ICMP/NI Query Node Addresses IPv4/Dst=target/ICMP Code=0, Addr=target's, Flags='A'")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryIPv4()
     icmp_packet.code=0  # IPv6 Addr
@@ -1938,7 +1938,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 58
     test6_ids.append("ICMP_NI_Query_16")
-    test6_descriptions.append("ICMP/NI Query Bogus Op code/Dst=target/IMCP Code=0, Addr=target's")
+    test6_descriptions.append("ICMP/NI Query Bogus Op code/Dst=target/ICMP Code=0, Addr=target's")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=0  # IPv6 Addr
@@ -1952,7 +1952,7 @@ def set_up_ipv6_tests(target):
 
     # TEST 59
     test6_ids.append("ICMP_NI_Query_17")
-    test6_descriptions.append("ICMP/NI Query Bogus Op code/Dst=target/IMCP Code=Bogus")
+    test6_descriptions.append("ICMP/NI Query Bogus Op code/Dst=target/ICMP Code=Bogus")
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6NIQueryNOOP()
     icmp_packet.code=0xFB  # Bogus
@@ -1985,7 +1985,7 @@ def set_up_ipv6_tests(target):
     test6_descriptions.append("IPv6/ExtHdr DestOpts {Opts Empty} / No next Header")
     ip_packet=build_default_ipv6(target)
     ext_hdr=IPv6ExtHdrDestOpt()
-    ext_hdr.nh=59 # No Next HEader
+    ext_hdr.nh=59 # No Next Header
     final_packet=ip_packet/ext_hdr
     test6_packets.append(final_packet)
 
@@ -2380,7 +2380,7 @@ def set_up_ipv6_tests(target):
     frag_hdr_2.offset=1 # 1=8 octets
     frag_hdr_2.id=0x34567812
     frag_hdr_2.nh=58 # ICMPv6
-    payload="\xFF\xFF\x00\x00"*10 # Checksum collision (sabe cksum as "\x00\x00\xFF\xFF"*10 )
+    payload="\xFF\xFF\x00\x00"*10 # Checksum collision (same cksum as "\x00\x00\xFF\xFF"*10 )
     final_packet_2=ip_packet_2/frag_hdr_2/payload
     finals_t88=[final_packet_1,  final_packet_2]
     test6_packets.append(finals_t88)
@@ -2588,7 +2588,7 @@ def set_up_ipv6_tests(target):
        #
        #      Code: 0
        #      Pointer: high-order octet of the IPv6 Payload Length
-    test6_descriptions.append("IPv6 with PLEN=0/Hop-by-hop withotu Jumbo Payload")
+    test6_descriptions.append("IPv6 with PLEN=0/Hop-by-hop without Jumbo Payload")
     ip_packet=build_default_ipv6(target)
     ext_1=IPv6ExtHdrHopByHop()
     icmp_packet=build_default_icmpv6()
@@ -3597,7 +3597,7 @@ def run_all_tests(target6, target4, from_test, to_test):
                 test4_replies.append(res)
                 time.sleep(inter_test_delay_g) # Wait for a bit before the next test
 
-def run_timing_dependant_tests() :
+def run_timing_dependent_tests() :
     global inter_packet_delay_g
 
     # Select the appropriate packets
@@ -3609,9 +3609,9 @@ def run_timing_dependant_tests() :
     inter_packet_delay_g=0.1 # 100ms
 
     if target_host6_g!=None :
-        run_test_multiple(1000, "IPv6_NmapProbes_100ms", "Time dependant IPv6 probes", packets6, 6)
+        run_test_multiple(1000, "IPv6_NmapProbes_100ms", "Time dependent IPv6 probes", packets6, 6)
     if target_host4_g!=None :
-        run_test_multiple(2000, "IPv4_NmapProbes_100ms", "Time dependant IPv4 probes", packets4, 4)
+        run_test_multiple(2000, "IPv4_NmapProbes_100ms", "Time dependent IPv4 probes", packets4, 4)
 
     # Restore original inter packet delay
     inter_packet_delay_g=ipdbak
@@ -3958,7 +3958,7 @@ def test_connectivity():
         icmp_packet=ICMPv6EchoRequest()
         final_packets=[ip_packet1/tcp_packet, ip_packet2/icmp_packet]
         # Send the packet and listen for responses
-        sys.stdout.write("[+] IPv6 conectivity: ")
+        sys.stdout.write("[+] IPv6 connectivity: ")
         sys.stdout.flush()
         if send_eth_g == True:
             response6=send_and_receive_eth(final_packets, verbosity=0)
@@ -3990,7 +3990,7 @@ def test_connectivity():
         icmp_packet=ICMP(type=8)
         final_packets=[ip_packet1/tcp_packet, ip_packet2/icmp_packet]
         # Send the packet and listen for responses
-        sys.stdout.write("[+] IPv4 conectivity: ")
+        sys.stdout.write("[+] IPv4 connectivity: ")
         sys.stdout.flush()
         if send_eth_g == True:
             response4=send_and_receive_eth(final_packets, verbosity=0)
@@ -4086,9 +4086,9 @@ def main():
     # Run main the tests
     run_all_tests(target_host6_g, target_host4_g, first_test_g, last_test_g+1)
 
-    # Run time dependant tests only when all others are requested
+    # Run time dependent tests only when all others are requested
     if first_test_g==0 and last_test_g> len(test6_ids) :
-        run_timing_dependant_tests() # Nmap OS probes that are sent 100ms apart
+        run_timing_dependent_tests() # Nmap OS probes that are sent 100ms apart
 
     # Build result vectors
     build_result_vector6()

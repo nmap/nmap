@@ -907,7 +907,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def _parsing(self, attrs, unique_names, other_names):
         # Returns a dict with the attributes of a given tag with the
-        # atributes names as keys and their respective values
+        # attributes names as keys and their respective values
         dic = {}
         for at in unique_names:
             dic[at] = unique(attrs.get(at, ""))
@@ -1262,7 +1262,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
             writer.endElement("uptime")
 
             #####################
-            # Sequences elementes
+            # Sequences elements
             ## TCP Sequence element
             # Cannot use dict() here, because of the 'class' attribute.
             writer.startElement("tcpsequence",

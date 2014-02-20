@@ -307,7 +307,7 @@ class TargetEntry(gtk.Entry):
     def update(self):
         self.set_text(u" ".join(self.ops.target_specs))
 
-    def changed_cb(self, eidget):
+    def changed_cb(self, widget):
         self.ops.target_specs = self.get_targets()
 
     def get_targets(self):

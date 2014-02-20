@@ -238,7 +238,7 @@ class ScriptInterface:
         self.current_arguments = []
         self.set_help_texts()
         self.prev_script_spec = None
-        self.focussedentry = None
+        self.focusedentry = None
 
         self.liststore = gtk.ListStore(str, "gboolean", object)
 
@@ -677,7 +677,7 @@ clicking in the value field beside the argument name.""")
             self.set_description(entry)
             self.populate_arg_list(entry)
             # Remember the currently pointing script entry
-            self.focussedentry = entry
+            self.focusedentry = entry
 
     def update_help_ls_cb(self, widget, extra):  # list of scripts
         """Callback method to display the help for the list of scripts."""
@@ -696,7 +696,7 @@ clicking in the value field beside the argument name.""")
             # convert_widget_to_bin_window_coords was introduced in PyGTK 2.12.
             return
         path = treeview.get_path_at_pos(x, y)
-        if not path or not self.focussedentry:
+        if not path or not self.focusedentry:
             self.help_buf.set_text("")
             return
         path = path[0]

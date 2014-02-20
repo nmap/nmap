@@ -191,7 +191,7 @@ class HIGSpinnerImages:
         self.rest_pixbuf = self.static_pixbufs[name]
 
     def set_size(self, width, height):
-        """Sets the size of eache pixbuf (static and animated)"""
+        """Sets the size of each pixbuf (static and animated)"""
         new_animated = []
         for p in self.animated_pixbufs:
             new_animated.append(p.scale_simple(width, height,
@@ -349,11 +349,11 @@ class HIGSpinner(gtk.EventBox):
         self.images_width = 32
         self.images_height = 32
 
-        # Timeout set to 100 miliseconds per frame, just as the
+        # Timeout set to 100 milliseconds per frame, just as the
         # Nautilus/Epiphany implementation
         self.timeout = 120
 
-        # Initialize a cache for ouselves
+        # Initialize a cache for ourselves
         self.cache = HIGSpinnerCache()
         self.cache.load_static_from_lookup()
         self.cache.load_animated_from_lookup()

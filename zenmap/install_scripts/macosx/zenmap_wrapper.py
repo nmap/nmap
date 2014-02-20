@@ -31,7 +31,7 @@ def create_dir(path):
 # The format of pango/pangorc is called "key file." It's described at
 # http://library.gnome.org/devel/glib/stable/glib-Key-value-file-parser.
 
-# Escape a string as approprite for a "key file."
+# Escape a string as appropriate for a "key file."
 def escape_key_file_value(value):
     result = []
     for c in value:
@@ -82,7 +82,7 @@ def hack_xinitrc(system_xinitrc_filename, home_xinitrc_filename):
     system_xinitrc = open(system_xinitrc_filename, "r")
     home_xinitrc = open(home_xinitrc_filename, "w")
     lines = iter(system_xinitrc)
-    # Look for the first non-comment line so we don't pre-empt the #! line.
+    # Look for the first non-comment line so we don't preempt the #! line.
     for line in lines:
         if not line.lstrip().startswith("#"):
             break
