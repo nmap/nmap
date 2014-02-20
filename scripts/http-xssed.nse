@@ -46,7 +46,7 @@ action = function(host, port)
 
   local fixed, unfixed
 
-  local target = XSSED_SEARCH .. host.targetname
+  local target = XSSED_SEARCH .. (host.targetname or host.name or host.ip)
 
   -- Only one instantiation of the script should ping xssed at once.
   local mutex = nmap.mutex("http-xssed")
