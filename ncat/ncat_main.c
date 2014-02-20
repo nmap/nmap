@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
             o.proto = IPPROTO_UDP;
             break;
         case 'v':
-            /* One -v activites verbose, after that it's debugging. */
+            /* One -v activates verbose, after that it's debugging. */
             if (o.verbose == 0)
                 o.verbose++;
             else

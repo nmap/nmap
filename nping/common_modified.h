@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * common_modified.h --  This file holds all those functions and classes   *
- * that have been reused from nmap's code but that needed to be modified   *
+ * that have been reused from Nmap's code but that needed to be modified   *
  * in order to reuse them.                                                 *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

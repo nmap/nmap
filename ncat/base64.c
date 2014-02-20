@@ -131,7 +131,7 @@ static int b64enc_internal(const unsigned char *data, int len, char *dest)
 
     char *buf = dest;
 
-    /* Encode three bytes per iteration ala rfc3548. */
+    /* Encode three bytes per iteration a la rfc3548. */
     while (len >= 3) {
         buf[0] = b64alpha[(data[0] >> 2) & 0x3f];
         buf[1] = b64alpha[((data[0] << 4) & 0x30) | ((data[1] >> 4) & 0xf)];

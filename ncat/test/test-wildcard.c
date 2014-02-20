@@ -192,7 +192,7 @@ static struct lstr *check(SSL *ssl, const struct lstr names[])
     return results;
 }
 
-/* Make a certificate object trusted by an SSL_CTX. I coulnd't find a way to do
+/* Make a certificate object trusted by an SSL_CTX. I couldn't find a way to do
    this directly, so the certificate is written in PEM format to a temporary
    file and then loaded with SSL_CTX_load_verify_locations. Returns 1 on success
    and 0 on failure. */

@@ -9,7 +9,7 @@ typedef struct service_lookup {
 	char *name;
 	u8 proto;
 	u16 portno;
-} sevice_lookup;
+} service_lookup;
 
 
 

@@ -235,7 +235,7 @@
 
 /* CONSTANT DEFINES ***********************************************************
  * @warning It's better not to play with these, because the code may make     *
- * SOME asumptions like "defined value A is an integer greater than defined   *
+ * SOME assumptions like "defined value A is an integer greater than defined  *
  * value B" or "value C is an odd integer greater than 0", etc.               */
 
 /* VERBOSITY LEVELS */
@@ -246,7 +246,7 @@
  * printed. For example, we have some calls to output functions that print out
  * things like "%d target IPs resolved". We don't want that message to always
  * get printed during  Nping's execution. We only want it out when the user
- * has increasse the verbosity.
+ * has increase the verbosity.
  * 
  * So the thing here is that there are two things that should be taken
  * into account:
@@ -275,7 +275,7 @@
  *  verbose to us, programmers, because calls that supply QT_X levels almost
  *  always get printed. This is because base verbosity is VB_0 and that
  *  includes all QT_X levels. So you have to be careful with those. QT_ levels
- *  should only be used to print important stuff like fata errors, warnings,
+ *  should only be used to print important stuff like fatal errors, warnings,
  *  and some basic running time information. Level QT_4 is the quiet-est one
  *  and nothing is ever printed out.
  *
@@ -295,8 +295,8 @@
 #define QT_1 3   /**< Start and timing information but no sent/recv packets  */
 
 /* Base level (QT_0 is provided for consistency but should not be used)      */
-#define QT_0 4   /**< Normal info (sent/recv packes, statistics...) (DEFAULT */
-#define VB_0 4   /**< Normal info (sent/recv packes, statistics...) (DEFAULT)*/
+#define QT_0 4   /**< Normal info (sent/recv packets, statistics...) (DEFAULT */
+#define VB_0 4   /**< Normal info (sent/recv packets, statistics...) (DEFAULT)*/
 
 /* More verbosity */
 #define VB_1 5   /**< Detailed information about times, flags, etc.          */
@@ -364,7 +364,7 @@
 
 #define DEFAULT_DELAY 1000              /**< Milliseconds between each probe */
 
- /** Millisenconds Nping waits for teplies after all probes have been  sent */
+ /** Milliseconds Nping waits for replies after all probes have been sent */
 #define DEFAULT_WAIT_AFTER_PROBES 1000 
 
 #define DEFAULT_IP_TTL 64               /**< Default IP Time To Live         */
@@ -399,7 +399,7 @@
  * of the whole IP packet is more than 16436 when using loopback interface or
  * more than 1500 when using a normal network interface, the kernel complains
  * and says "Message too long". This is obviously caused by the configured
- * MTU. So the thing is that altough we allow users to specify payloads up to
+ * MTU. So the thing is that although we allow users to specify payloads up to
  * MAX_PAYLOAD_ALLOWED bytes, when we generate random payloads, we set our
  * on limit on 1500-20-20=1460 bytes. Let's be conservative and consider that
  * IP packet has 40bytes of options and TCP has 20. So max length should be
@@ -425,7 +425,7 @@
  * without problem, so it should never happen. We expect to use this constant
  * when received packets are really weird (eg. tunneled traffic, protocols we
  * don't understand, etc. The 40 bytes are a compromise between dropping the
- * packet but provide total protection against data leakeage due to attacks to
+ * packet but provide total protection against data leakage due to attacks to
  * the echo server, and providing some flexibility at the risk of leaking
  * a few bytes if an attacker is able to trick the echo server into echoing
  * packets that were not originated by him. */

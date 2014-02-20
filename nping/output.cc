@@ -257,7 +257,7 @@ int nping_print(int level, const char *str, ...){
 /*****************************************************************************/
 /* The following functions are provided only for compatibility with some     */
 /* code from Nmap. They should NOT be used in any new piece of code unless   */
-/* the code you are writting needs to be shared with nmap.                   */
+/* the code you are writing needs to be shared with nmap.                    */
 /*****************************************************************************/
 /** Print fatal error messages to stderr and then exits.
  * @warning This function does not return because it calls exit() */

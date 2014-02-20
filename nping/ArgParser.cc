@@ -452,7 +452,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         /* CASE 2: User supplied a list of flags in the format "syn,ack,ecn" */
         }else if( contains(optarg, ",") ){
             if( ((strlen(optarg)+1)%4)  !=0 )
-                nping_fatal(QT_3, "Invalid format in --flag. Make sure you specify a comma-separed list that contains 3-charater flag names (e.g: --flags syn,ack,psh)");
+                nping_fatal(QT_3, "Invalid format in --flag. Make sure you specify a comma-separated list that contains 3-character flag names (e.g: --flags syn,ack,psh)");
 
             for( size_t f=0; f< strlen(optarg); f+=4 ){
                 if(!strncasecmp((optarg+f), "CWR",3)){ o.setFlagTCP(FLAG_CWR);  }
@@ -639,7 +639,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
             nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         this->parseICMPTimestamp(optarg, &aux32);
         o.setICMPReceiveTimestamp(aux32);
-    /* ICMP Timestamp trasnmit timestamp */
+    /* ICMP Timestamp transmit timestamp */
     } else if (optcmp(long_options[option_index].name, "icmp-trans-time") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
             nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
@@ -1351,7 +1351,7 @@ int ArgParser::parseAdvertEntry(char *str, struct in_addr *addr, u32 *pref){
   if(aux>=str+len-1 )
     nping_fatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, comma cannot be placed at the end");
 
-  /* Looks like at least the syntax is corect */
+  /* Looks like at least the syntax is correct */
   memcpy(first, str, aux-str);
   memcpy(last, aux+1, len-(aux-str) );
 
@@ -1375,7 +1375,7 @@ int ArgParser::parseAdvertEntry(char *str, struct in_addr *addr, u32 *pref){
  *  Four letters - three letters:  dest-unr
  *  Initials:                      du
  *
- *  In ICMP types that REQUEST something, the word "request" is always ommited.
+ *  In ICMP types that REQUEST something, the word "request" is always omitted.
  *  For example: Echo request should be specified as "echo" or "e",
  *  not "echo-request"/"echo-req"/"er"
  *
@@ -1483,7 +1483,7 @@ int ArgParser::atoICMPType(char *opt, u8 *type){
  *  Four letters - three letters:  need-fra
  *  Our own version (varies):      frag
  *
- *  In ICMP types that REQUEST something, the word "request" is always ommited.
+ *  In ICMP types that REQUEST something, the word "request" is always omitted.
  *  For example: Echo request should be specified as "echo" or "e",
  *  not "echo-request"/"echo-req"/"er"
  *

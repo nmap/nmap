@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * common.h --  This file holds all those functions and classes that have  *
- * been copied verbatim from nmap's source code                            *
+ * been copied verbatim from Nmap's source code                            *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

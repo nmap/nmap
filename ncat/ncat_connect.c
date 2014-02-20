@@ -705,7 +705,7 @@ static int do_proxy_socks5(void)
 
             /*
              * For username/password authentication the client's authentication request is
-             * field 1: version number, 1 byte (must be 0x01 -- version of subnegotion)
+             * field 1: version number, 1 byte (must be 0x01 -- version of subnegotiation)
              * field 2: username length, 1 byte
              * field 3: username
              * field 4: password length, 1 byte
@@ -861,7 +861,7 @@ int ncat_connect(void)
     nsock_pool mypool;
     int rc;
 
-    /* Unless explicitely asked not to do so, ncat uses the
+    /* Unless explicitly asked not to do so, ncat uses the
      * fallback nsock engine to maximize compatibility between
      * operating systems and the different use cases.
      */

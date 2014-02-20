@@ -230,7 +230,7 @@ class NpingOps {
     bool payload_len_set;
     
     /* Roles */
-    int role;                 /* Nping's role: normal|cliente|server.  */
+    int role;                 /* Nping's role: normal|client|server.  */
     bool role_set;
     
     /* IPv4 */

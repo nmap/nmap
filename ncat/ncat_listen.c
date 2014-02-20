@@ -165,7 +165,7 @@
    from us, like a pending ssl negotiation. */
 static fd_set master_readfds, master_writefds, master_broadcastfds;
 #ifdef HAVE_OPENSSL
-/* sslpending_fds containts the list of ssl sockets that are waiting to complete
+/* sslpending_fds contains the list of ssl sockets that are waiting to complete
    the ssl handshake */
 static fd_set sslpending_fds;
 #endif

@@ -149,7 +149,7 @@ class NpingTarget {
     char *hostname;         /**< Resolved host name                          */
     int namedhost;          /**< =1 is named host; =0 is an IP; =-1 unset    */
     char *targetname;       /**< Name of the target host given on the        *
-                             *   commmand line if it is a named host         */
+                             *   command line if it is a named host          */
 
     struct sockaddr_storage targetsock;   /**< Target address                */
     size_t targetsocklen;

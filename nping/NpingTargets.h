@@ -168,7 +168,7 @@ class NpingTargets {
     unsigned long int freeTargets();
     NpingTarget *findTarget(struct sockaddr_storage *tt);
 
-    /* TODO: MAke private */
+    /* TODO: Make private */
     NpingTarget *currenths;
     vector<NpingTarget *> Targets;
 

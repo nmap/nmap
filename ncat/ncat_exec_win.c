@@ -508,7 +508,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     break;
                 /* Restore the select event (and non-block the socket again.) */
                 WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
-                /* Queue another ansychronous read. */
+                /* Queue another asychronous read. */
                 ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
             } else {
                 if (GetLastError() != ERROR_IO_PENDING)

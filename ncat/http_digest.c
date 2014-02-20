@@ -378,7 +378,7 @@ char *http_digest_proxy_authorization(const struct http_challenge *challenge,
 }
 
 /* Check that a nonce is one that we issued, and that the response is what is
-   expected. This doesn't do any checking aginst the lifetime of the nonce. */
+   expected. This doesn't do any checking against the lifetime of the nonce. */
 int http_digest_check_credentials(const char *username, const char *realm,
     const char *password, const char *method,
     const struct http_credentials *credentials)

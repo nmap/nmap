@@ -226,7 +226,7 @@ int ncat_http_server(void)
             continue;
         }
 
-        /* make us not block on accepts in wierd cases. See ncat_listen.c:209 */
+        /* make us not block on accepts in weird cases. See ncat_listen.c:209 */
         unblock_socket(listen_socket[num_sockets]);
 
         /* setup select sets and max fd */

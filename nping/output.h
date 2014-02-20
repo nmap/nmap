@@ -150,14 +150,14 @@
 #define MAX_ERR_STR_LEN 1024      /* Max length of an error message  */
 #define MAX_OUTPUT_STR_LEN 2048   /* Max length of an output message */
 
-/* For backwards compatibility with nmap's code */
+/* For backwards compatibility with Nmap's code */
 int fatal(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
 
 int error(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
 
-/* For backwards compatibility with nmap's code */
+/* For backwards compatibility with Nmap's code */
 int pfatal(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
 

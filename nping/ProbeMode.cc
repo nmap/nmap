@@ -205,7 +205,7 @@ int ProbeMode::start(){
   u32 zero=0;                      /**< Empty payload                        */
   u8 pktinfobuffer[512+1];         /**< Used in ippackethdrinfo() calls      */
   u8 pkt[MAX_IP_PACKET_LEN];       /**< Holds packets returned by fillpacket */
-  int pktLen=0;                    /**< Lenght of current packet             */
+  int pktLen=0;                    /**< Length of current packet             */
   NpingTarget *target=NULL;        /**< Current target                       */
   u16 *targetPorts=NULL;           /**< Pointer to array of target ports     */
   int numTargetPorts=0;            /**< Total number of target ports         */
@@ -221,7 +221,7 @@ int ProbeMode::start(){
   sendpkt_t pkts2send[MX_PKT];     /**< We have a race condition here but the
   * problem is not trivial to solve because we cannot create a sendpkt_t
   * struct for every probe we send. That could be alright in most cases but
-  * not when targetting large networks or when doing flooding. The problem here
+  * not when targeting large networks or when doing flooding. The problem here
   * is that we may need access to specific sendpkt_t vars inside the nsock
   * event handlers but as some operations are asynchronous, we may exhaust
   * the current array of sendpkt_t structs and overwrite some positions
@@ -291,7 +291,7 @@ int ProbeMode::start(){
 
 
   /***************************************************************************/
-  /** UDP UNPRIVILEGD MODE                                                  **/
+  /** UDP UNPRIVILEGED MODE                                                 **/
   /***************************************************************************/
   case UDP_UNPRIV:
     o.stats.startClocks();
@@ -848,7 +848,7 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
   if( o.getFlagTCP(FLAG_FIN) == 1 )  t.setFIN();
 
 
- /* Now let's encapsule the TCP packet into an IP packet */
+ /* Now let's encapsulate the TCP packet into an IP packet */
  switch( o.getIPVersion() ){
 
     case IP_VERSION_4:
@@ -966,7 +966,7 @@ int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int buffle
   u.setDestinationPort( port );
   u.setTotalLength();
 
- /* Now let's encapsule the TCP packet into an IP packet */
+ /* Now let's encapsulate the TCP packet into an IP packet */
  switch( o.getIPVersion() ){
 
     case IP_VERSION_4:

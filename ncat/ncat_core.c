@@ -1,5 +1,5 @@
 /***************************************************************************
- * ncat_core.c -- Contains option defintions and miscellaneous functions.  *
+ * ncat_core.c -- Contains option definitions and miscellaneous functions. *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2013 Insecure.Com LLC. Nmap is    *
