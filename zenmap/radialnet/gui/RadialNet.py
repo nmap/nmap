@@ -1088,9 +1088,9 @@ class RadialNet(gtk.DrawingArea):
 
     def __draw_node(self, context, node):
         """
-        Draw nodes and your informations
+        Draw nodes and your information
         @type  : NetNode
-        @param : The node will be draw
+        @param : The node to be drawn
         """
         x, y = node.get_cartesian_coordinate()
         xc, yc = self.__center_of_widget
@@ -1234,9 +1234,9 @@ class RadialNet(gtk.DrawingArea):
         """
         distance = abs(self.__fisheye_ring - ring)
         level_of_detail = self.__ring_gap * self.__fisheye_interest
-        spreaded_distance = distance - distance * self.__fisheye_spread
+        spread_distance = distance - distance * self.__fisheye_spread
 
-        value = level_of_detail / (spreaded_distance + 1)
+        value = level_of_detail / (spread_distance + 1)
 
         if value < self.__min_ring_gap:
             value = self.__min_ring_gap

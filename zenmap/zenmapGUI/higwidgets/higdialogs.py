@@ -148,7 +148,7 @@ class HIGAlertDialog(gtk.MessageDialog):
     """
     HIGfied Alert Dialog.
 
-    Implements the sugestions documented on:
+    Implements the suggestions documented in:
     http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html
     """
 

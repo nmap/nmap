@@ -783,7 +783,7 @@ class ScanInterface(HIGVBox):
 
     def host_selection_changed(self, widget):
         self.refresh_port_output()
-        # Switch nmap output to show first host occourrence
+        # Switch nmap output to show first host occurrence
         model, selection = self.host_view_selection.get_selected_rows()
         for path in selection:
             self.go_to_host(model[path][2])

@@ -141,7 +141,7 @@ class HIGTable(gtk.Table):
 
     # TODO:
     # - Automatic position packing,
-    # - Gereric attach function that detects the widget type
+    # - Generic attach function that detects the widget type
 
     def __init__(self, rows=1, columns=1, homogeneous=False):
         gtk.Table.__init__(self, rows, columns, homogeneous)

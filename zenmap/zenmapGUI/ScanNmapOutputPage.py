@@ -228,7 +228,7 @@ class ScanNmapOutputPage(HIGVBox):
         self._update()
 
     def set_active_iter(self, i):
-        """Set the active entry to an interator into the ScansListStore
+        """Set the active entry to an iterator into the ScansListStore
         referred to by this object."""
         self.scans_list.set_active_iter(i)
 

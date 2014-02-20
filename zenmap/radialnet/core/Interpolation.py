@@ -122,7 +122,7 @@
 
 class Linear2DInterpolator:
     """
-    Implements a bidimesional linear interpolator.
+    Implements a bidimensional linear interpolator.
     """
 
     def __init__(self):
