@@ -298,7 +298,7 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
     /* "In coming up with the worlds least efficient machine-readable time
        encoding format, the ISO nevertheless decided to forgo the encoding of
        centuries, a problem which has been kludged around by redefining the time
-       as UTCTime if the date is 2049 or ealier, and GeneralizedTime if the date
+       as UTCTime if the date is 2049 or earlier, and GeneralizedTime if the date
        is 2050 or later."
        http://www.cs.auckland.ac.nz/~pgut001/pubs/x509guide.txt */
     if (year < 50)
@@ -357,8 +357,8 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
   /* Omit tm_wday and tm_yday. */
 }
 
-/* This is a helper function for x509_validity_to_table. It takes teh given
-   ASN1_TIME and covnerts it to a value on the stack, which is one of
+/* This is a helper function for x509_validity_to_table. It takes the given
+   ASN1_TIME and converts it to a value on the stack, which is one of
      nil, if the time is NULL;
      a date table, if the date can be parsed; and
      a string of the raw bytes, if the date cannot be parsed. */
@@ -375,7 +375,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
   }
 }
 
-/* This is a helper functino for x509_validity_to_table. It builds a table with
+/* This is a helper function for x509_validity_to_table. It builds a table with
    the two members "notBefore" and "notAfter", whose values are what is returned
    from asn1_time_to_obj. */
 static void x509_validity_to_table(lua_State *L, const X509 *cert)

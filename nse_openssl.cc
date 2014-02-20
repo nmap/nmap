@@ -1,7 +1,7 @@
 /* OpenSSL library for lua
  * adapted from lmd5 library (http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/)
  * Original code written by Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
- * Adapted for NMap by Thomas Buchanan <tbuchanan@thecompassgrp.net>
+ * Adapted for Nmap by Thomas Buchanan <tbuchanan@thecompassgrp.net>
  * bignum and rand_bytes functions added by Sven Klemm <sven@c3d2.de>
  */
 

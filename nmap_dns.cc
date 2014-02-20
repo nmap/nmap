@@ -168,7 +168,7 @@
 // http://www.hcsw.org
 
 /*
- * DNS Caching and ageing added by Eddie Bell ejlbell@gmail.com 2007
+ * DNS Caching and aging added by Eddie Bell ejlbell@gmail.com 2007
  */
 
 // TODO:
@@ -581,7 +581,7 @@ static int process_result(u32 ia, char *result, int action, u16 id) {
         do_possible_writes();
 
         // Close DNS servers if we're all done so that we kill
-        // all events and return from nsock_loop immediatley
+        // all events and return from nsock_loop immediateley
         if (total_reqs == 0)
           close_dns_servers();
         return 1;

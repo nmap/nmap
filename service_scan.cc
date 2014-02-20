@@ -429,7 +429,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // The next part is a perl style regular expression specifier, like:
   // m/^220 .*smtp/i Where 'm' means a normal regular expressions is
   // used, the char after m can be anything (within reason, slash in
-  // this case) and tells us what delieates the end of the regex.
+  // this case) and tells us what delineates the end of the regex.
   // After the delineating character are any single-character
   // options. ('i' means "case insensitive", 's' means that . matches
   // newlines (both are just as in perl)
@@ -517,9 +517,9 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // ServiceProbeMatch, returns the details of the match (service
   // name, version number if applicable, and whether this is a "soft"
   // match.  If the buf doesn't match, the serviceName field in the
-  // structure will be NULL.  The MatchDetails sructure returned is
+  // structure will be NULL.  The MatchDetails structure returned is
   // only valid until the next time this function is called. The only
-  // exception is that the serviceName field can be saved throughought
+  // exception is that the serviceName field can be saved throughout
   // program execution.  If no version matched, that field will be
   // NULL.
 const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int buflen) {
@@ -1397,7 +1397,7 @@ int AllProbes::check_excluded_port(unsigned short portno, int proto)
 // If the buf doesn't match, the serviceName field in the structure
 // will be NULL.  The MatchDetails returned is only valid until the
 // next time this function is called.  The only exception is that the
-// serviceName field can be saved throughought program execution.  If
+// serviceName field can be saved throughout program execution.  If
 // no version matched, that field will be NULL. This function may
 // return NULL if there are no match lines at all in this probe.
 const struct MatchDetails *ServiceProbe::testMatch(const u8 *buf, int buflen, int n = 0) {
@@ -1996,7 +1996,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       end_svcprobe(nsp, (svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED : PROBESTATE_FINISHED_NOMATCH, SG, svc, NULL);
     }
   } else {
-    // The finisehd probe was not a NULL probe.  So we close the
+    // The finished probe was not a NULL probe.  So we close the
     // connection, and if further probes are available, we launch the
     // next one.
     if (!isInitial)
@@ -2059,7 +2059,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
    should end the service with its successful match.  If the tunnel
    results can be determined with no more effort, 0 is also returned.
    For example, a service that already matched as "ssl/ldap" will be
-   chaned to "ldap" with the tunnel being SSL and 0 will be returned.
+   changed to "ldap" with the tunnel being SSL and 0 will be returned.
    That is a special case.
 */
 
@@ -2299,7 +2299,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
         break;
 
       case NSE_STATUS_KILL:
-        /* User probablby specified host_timeout and so the service scan is
+        /* User probably specified host_timeout and so the service scan is
          * shutting down */
         end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
         return;
@@ -2308,7 +2308,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
         fatal("Unexpected nsock status (%d) returned for connection attempt", (int)status);
     }
   }
-  // We may have room for more pr0bes!
+  // We may have room for more probes!
   launchSomeServiceProbes(nsp, SG);
   return;
 }
@@ -2340,7 +2340,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
     return;
 
   if (status == NSE_STATUS_KILL) {
-    /* User probablby specified host_timeout and so the service scan is
+    /* User probably specified host_timeout and so the service scan is
        shutting down */
     end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
     return;
@@ -2357,7 +2357,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
     error("Got nsock WRITE response with status %s - aborting this service", nse_status2str(status));
   end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
 
-  // We may have room for more pr0bes!
+  // We may have room for more probes!
   launchSomeServiceProbes(nsp, SG);
 
   return;
@@ -2537,7 +2537,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
             socket_strerror(err));
     }
   } else if (status == NSE_STATUS_KILL) {
-    /* User probablby specified host_timeout and so the service scan is
+    /* User probably specified host_timeout and so the service scan is
        shutting down */
     end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
     return;
@@ -2545,7 +2545,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
     fatal("Unexpected status (%d) in NSE_TYPE_READ callback.", (int) status);
   }
 
-  // We may have room for more pr0bes!
+  // We may have room for more probes!
   launchSomeServiceProbes(nsp, SG);
   return;
 }

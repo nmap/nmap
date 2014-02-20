@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * nbase_time.c -- Some small time-related utility/compatability           *
+ * nbase_time.c -- Some small time-related utility/compatibility           *
  * functions.                                                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

@@ -1,6 +1,6 @@
 /***************************************************************************
  * nsock_internal.h -- PRIVATE interface definitions for the guts of the   *
- * nsock paralle socket event library.  Applications calling this library  *
+ * nsock parallel socket event library. Applications calling this library  *
  * should NOT include this. even LOOK at these :).                         *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************

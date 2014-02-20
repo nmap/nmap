@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * nbase.h -- The main include file exposing the external API for          *
- * libnbase, a library of base (often compatability) routines.  Programs   *
+ * libnbase, a library of base (often compatibility) routines.  Programs   *
  * using libnbase can guarantee the availability of functions like         *
  * (v)snprintf and inet_pton.  This library also provides consistency and  *
  * extended features for some functions.  It was originally written for    *
@@ -134,7 +134,7 @@
 /* NOTE -- libnbase offers the following features that you should probably
  * be aware of:
  *
- * * 'inline' is defined to what is neccessary for the C compiler being
+ * * 'inline' is defined to what is necessary for the C compiler being
  *   used (which may be nothing)
  *
  * * snprintf, inet_pton, memcpy, and bzero are
@@ -155,7 +155,7 @@
  * * IPv6 structures like 'sockaddr_storage' are provided if they do
  *   not already exist.
  *
- * * Various Windows -> UNIX compatability definitions are added (such as defining EMSGSIZE to WSAEMSGSIZE)
+ * * Various Windows -> UNIX compatibility definitions are added (such as defining EMSGSIZE to WSAEMSGSIZE)
  */
 
 #if HAVE_CONFIG_H
@@ -234,7 +234,7 @@ typedef int32_t s32;
 typedef uint64_t u64;
 typedef int64_t s64;
 
-/* Mathematicial MIN/MAX/ABS (absolute value) macros */
+/* Mathematical MIN/MAX/ABS (absolute value) macros */
 #ifndef MAX
 #define MAX(x,y) (((x)>(y))?(x):(y))
 #endif
@@ -488,7 +488,7 @@ char *format_bytecount(unsigned long long bytes, char *buf, size_t buflen);
 
 /* Compare a canonical option name (e.g. "max-scan-delay") with a
    user-generated option such as "max_scan_delay" and returns 0 if the
-   two values are considered equivalant (for example, - and _ are
+   two values are considered equivalent (for example, - and _ are
    considered to be the same), nonzero otherwise. */
 int optcmp(const char *a, const char *b);
 

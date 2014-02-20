@@ -227,7 +227,7 @@ const char *MACPrefix2Corp(const u8 *prefix) {
    contains that string.  Sets the first three bytes in mac_data and
    returns true for the first matching entry found.  If no entries
    match, leaves mac_data untouched and returns false.  Note that this
-   is not particularly efficient and so should be rewriteen if it is
+   is not particularly efficient and so should be rewritten if it is
    called often */
 bool MACCorp2Prefix(const char *vendorstr, u8 *mac_data) {
   std::map<int, char *>::iterator i;

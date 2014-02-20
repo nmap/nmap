@@ -315,7 +315,7 @@ void *realloc();
 #endif
 
 /* Maximum number of extra hostnames, OSs, and devices, we
-   consider when outputing the extra service info fields */
+   consider when outputting the extra service info fields */
 #define MAX_SERVICE_INFO_FIELDS 5
 
 /* We wait at least 100 ms for a response by default - while that

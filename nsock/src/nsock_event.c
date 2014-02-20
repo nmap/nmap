@@ -487,7 +487,7 @@ void msevent_delete(mspool *nsp, msevent *nse) {
   else
     nsock_log_debug(nsp, "msevent_delete (IOD #%li) (EID #%li)", nse->iod->id, nse->id);
 
-  /* First free the IOBuf inside it if neccessary */
+  /* First free the IOBuf inside it if necessary */
   if (nse->type == NSE_TYPE_READ || nse->type ==  NSE_TYPE_WRITE) {
     fs_free(&nse->iobuf);
   }

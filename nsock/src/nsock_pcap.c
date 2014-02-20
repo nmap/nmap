@@ -213,7 +213,7 @@ static int nsock_pcap_try_open(mspool *nsp, mspcap *mp, const char *dev,
 /* Convert new nsiod to pcap descriptor. Other parameters have
  * the same meaning as for pcap_open_live in pcap(3).
  *   device   : pcap-style device name
- *   snaplen  : size of packet to be copied to hanler
+ *   snaplen  : size of packet to be copied to handler
  *   promisc  : whether to open device in promiscuous mode
  *   bpf_fmt   : berkeley filter
  * return value: NULL if everything was okay, or error string

@@ -13,7 +13,7 @@
 --
 -- A few notes about the safety of the engine, that is, the ability for
 -- a script developer to crash or otherwise stall NSE. The purpose of noting
--- these attack vectors is more to show the difficulty in accidently
+-- these attack vectors is more to show the difficulty in accidentally
 -- breaking the system than to indicate a user may wish to break the
 -- system through these means.
 --  - A script writer can use the undocumented Lua function newproxy
@@ -125,7 +125,7 @@ local unpack = table.unpack;
 
 do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   local function loader (lib)
-    lib = lib:gsub("%.", "/"); -- change Lua "module seperator" to directory separator
+    lib = lib:gsub("%.", "/"); -- change Lua "module separator" to directory separator
     local name = "nselib/"..lib..".lua";
     local type, path = cnse.fetchfile_absolute(name);
     if type == "file" then
@@ -162,7 +162,7 @@ local NSE_YIELD_VALUE = {};
 do
   -- This is the method by which we allow a script to have nested
   -- coroutines. If a sub-thread yields in an NSE function such as
-  -- nsock.connect, then we propogate the yield up. These replacements
+  -- nsock.connect, then we propagate the yield up. These replacements
   -- to the coroutine library are used only by Script Threads, not the engine.
 
   local function handle (co, status, ...)
@@ -1176,7 +1176,7 @@ do -- Load script arguments (--script-args)
       return "", eqj-1;
     else
       error("Value around '"..sub(str, start, start+10)..
-          "' is invalid or is unterminated by a valid seperator");
+          "' is invalid or is unterminated by a valid separator");
     end
   end
   -- Takes 'str' at index 'start' and parses a table.

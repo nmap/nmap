@@ -293,7 +293,7 @@ void serviceDeductions::populateFullVersionString(char *buf, size_t n) const {
       strncat(dst, " ", spaceleft);
       spaceleft--;
     }
-    // This time we need to trucate inside of the () so we have spaceleft - 2
+    // This time we need to truncate inside of the () so we have spaceleft - 2
     strncat(dst, "(", spaceleft);
     if (spaceleft - 2 < strlen(extrainfo)) {
       strncat(dst, extrainfo, spaceleft - 5);
@@ -567,7 +567,7 @@ int PortList::getPortState(u16 portno, u8 protocol) {
 }
 
 /* Return true if nothing special is known about this port; i.e., it's in the
-   default state as defiend by setDefaultPortState and every other data field is
+   default state as defined by setDefaultPortState and every other data field is
    unset. */
 bool PortList::portIsDefault(u16 portno, u8 protocol) {
   return lookupPort(portno, protocol) == NULL;
@@ -617,7 +617,7 @@ Port *PortList::nextPort(const Port *cur, Port *next,
 
   if (cur) {
     proto = INPROTO2PORTLISTPROTO(cur->proto);
-    assert(port_map[proto]!=NULL); // Hmm, it's not posible to handle port that doesn't have anything in map
+    assert(port_map[proto]!=NULL); // Hmm, it's not possible to handle port that doesn't have anything in map
     assert(cur->proto!=IPPROTO_IP || cur->portno<256);
     mapped_pno = port_map[proto][cur->portno];
     mapped_pno++; //  we're interested in next port after current
@@ -759,8 +759,8 @@ u16 *PortList::port_map[PORTLIST_PROTO_MAX];
 u16 *PortList::port_map_rev[PORTLIST_PROTO_MAX];
 int PortList::port_list_count[PORTLIST_PROTO_MAX];
 
-/* This function must be runned before any PortList object is created.
- * It must be runned for every used protocol. The data in "ports"
+/* This function must be run before any PortList object is created.
+ * It must be run for every used protocol. The data in "ports"
  * should be sorted. */
 void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
   int i;
@@ -789,7 +789,7 @@ void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
 
   /* Cycles through the 0 or more "ignored" ports which should be
    consolidated for Nmap output.  They are returned sorted by the
-   number of prots in the state, starting with the most common.  It
+   number of ports in the state, starting with the most common.  It
    should first be called with PORT_UNKNOWN to obtain the most popular
    ignored state (if any).  Then call with that state to get the next
    most popular one.  Returns the state if there is one, but returns

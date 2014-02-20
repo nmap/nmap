@@ -166,11 +166,11 @@ class FingerPrintResults {
    returned */
   const struct OS_Classification_Results *getOSClassification();
 
-  int osscan_opentcpport; /* Open TCP port used for scannig (if one found --
+  int osscan_opentcpport; /* Open TCP port used for scanning (if one found --
                           otherwise -1) */
-  int osscan_closedtcpport; /* Closed TCP port used for scannig (if one found --
+  int osscan_closedtcpport; /* Closed TCP port used for scanning (if one found --
                             otherwise -1) */
-  int osscan_closedudpport;  /* Closed UDP port used for scannig (if one found --
+  int osscan_closedudpport;  /* Closed UDP port used for scanning (if one found --
                             otherwise -1) */
   int distance; /* How "far" is this FP gotten from? */
   int distance_guess; /* How "far" is this FP gotten from? by guessing based on ttl. */
@@ -179,7 +179,7 @@ class FingerPrintResults {
      between sending 1st tseq probe and sending first ICMP echo probe.
      Zero means we didn't see any ratios (the tseq probes weren't
      sent), 1 is ideal, and larger values are undesirable from a
-     consistancy standpoint. */
+     consistency standpoint. */
   double maxTimingRatio;
 
 /* If the fingerprint is of potentially poor quality, we don't want to

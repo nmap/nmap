@@ -244,7 +244,7 @@ int get_initial_ttl_guess(u8 ttl) {
 
 
 /* This function takes an array of "numSamples" IP IDs and analyzes
- them to determine their sequenceability classification.  It returns
+ them to determine their sequence classification.  It returns
  one of the IPID_SEQ_* classifications defined in nmap.h .  If the
  function cannot determine the sequence, IPID_SEQ_UNKNOWN is returned.
  This islocalhost argument is a boolean specifying whether these
@@ -3197,7 +3197,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
     hss->storedIcmpReply = replyNo;
     return true;
   } else if (hss->storedIcmpReply == replyNo) {
-    /* This is a dunplicated icmp reply. */
+    /* This is a duplicated icmp reply. */
     return false;
   }
 
@@ -3295,7 +3295,7 @@ bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, i
    *   MSS, Sack Permitted, Timestamp with both value not zero, Nop, WScale with value 2
    */
 
-  /* Be aware of the max increament value for p in parsing,
+  /* Be aware of the max increment value for p in parsing,
    * now is 5 = strlen("Mxxxx") <-> MSS Option
    */
   while (length > 0 && (p - result) < (maxlen - 5)) {
@@ -3708,7 +3708,7 @@ int OSScan::os_scan(std::vector<Target *> &Targets) {
   if (ip6_targets.size() > 0)
       res6 = this->os_scan_ipv6(ip6_targets);
 
-  /* If both scans were succesful, return OK */
+  /* If both scans were successful, return OK */
   if (res4 == OP_SUCCESS && res6 == OP_SUCCESS)
     return OP_SUCCESS;
   else

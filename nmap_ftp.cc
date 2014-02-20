@@ -325,7 +325,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
             error("Your FTP bounce server doesn't allow privileged ports, skipping them.");
             while (i < numports && portarray[i] < 1024) i++;
             if (!portarray[i]) {
-              fatal("And you didn't want to scan any unpriviliged ports.  Giving up.");
+              fatal("And you didn't want to scan any unprivileged ports.  Giving up.");
             }
           }
         } else { /* Not an error message */

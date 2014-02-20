@@ -180,7 +180,7 @@ double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *o
    reference fingerprint DB.  The results are stored in in FPR (which
    must point to an instantiated FingerPrintResultsIPv4 class) -- results
    will be reverse-sorted by accuracy.  No results below
-   accuracy_threshhold will be included.  The max matches returned is
+   accuracy_threshold will be included.  The max matches returned is
    the maximum that fits in a FingerPrintResultsIPv4 class.  */
 void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
                        const FingerPrintDB *DB, double accuracy_threshold);

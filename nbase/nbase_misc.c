@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * nbase_misc.c -- Some small miscelaneous utility/compatability           *
+ * nbase_misc.c -- Some small miscellaneous utility/compatibility          *
  * functions.                                                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
@@ -222,7 +222,7 @@ int sockaddr_storage_equal(const struct sockaddr_storage *a,
 /* This function is an easier version of inet_ntop because you don't
    need to pass a dest buffer.  Instead, it returns a static buffer that
    you can use until the function is called again (by the same or another
-   thread in the process).  If there is a wierd error (like sslen being
+   thread in the process).  If there is a weird error (like sslen being
    too short) then NULL will be returned. */
 const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen) {
 
@@ -606,7 +606,7 @@ unsigned long nbase_crc32(unsigned char *buf, int len)
  * CRC-32C (Castagnoli) Cyclic Redundancy Check.
  * Taken straight from Appendix C of RFC 4960 (SCTP), with the difference that
  * the remainder register (crc32) is initialized to 0xffffffffL rather than ~0L,
- * for correct operation on platforms where unisigned long is longer than 32
+ * for correct operation on platforms where unsigned long is longer than 32
  * bits.
  */
 
@@ -695,13 +695,13 @@ unsigned long nbase_adler32(unsigned char *buf, int len)
  * that the caller is supposed to free().
  * */
 char *hexdump(const u8 *cp, u32 length){
-  static char asciify[257];          /* Stores cha6acter table           */
+  static char asciify[257];          /* Stores character table           */
   int asc_init=0;                    /* Flag to generate table only once */
   u32 i=0, hex=0, asc=0;             /* Array indexes                    */
   u32 line_count=0;                  /* For byte count at line start     */
   char *current_line=NULL;           /* Current line to write            */
   char *buffer=NULL;                 /* Dynamic buffer we return         */
-  #define LINE_LEN 74                /* Lenght of printed line           */
+  #define LINE_LEN 74                /* Length of printed line           */
   char line2print[LINE_LEN];         /* Stores current line              */
   char printbyte[16];                /* For byte conversion              */
   int bytes2alloc;                   /* For buffer                       */

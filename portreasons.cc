@@ -422,7 +422,7 @@ static int update_state_summary(state_reason_summary_t *head, reason_t reason_id
         return 0;
 }
 
-/* Converts Port objects and their corrosponsing state_reason structures into
+/* Converts Port objects and their corresponding state_reason structures into
  * state_reason_summary structures using update_state_summary */
 static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports, int state) {
         Port *current = NULL;

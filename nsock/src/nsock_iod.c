@@ -1,6 +1,6 @@
 /***************************************************************************
  * nsock_iod.c -- This contains the functions relating to nsock_iod (and   *
- * its nsock internal manifistation -- nsockiod.  This is is similar to a  *
+ * its nsock internal manifestation -- nsockiod.  This is is similar to a  *
  * file descriptor in that you create it and then use it to initiate       *
  * connections, read/write data, etc.                                      *
  *                                                                         *

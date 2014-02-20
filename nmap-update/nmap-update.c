@@ -692,7 +692,7 @@ Updates system-independent Nmap files. By default the new files are installed to
   -r, --repo REPO      use REPO as SVN repository and path (default %s).\n\
   -v, --verbose        be more verbose.\n\
   --username USERNAME  use this username.\n\
-  --password PASSWORE  use this password.\n\
+  --password PASSWORD  use this password.\n\
 ", program_name, install_dir, install_dir, DEFAULT_SVN_REPO);
 	free(install_dir);
 }

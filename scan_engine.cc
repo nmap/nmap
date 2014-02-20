@@ -1,8 +1,8 @@
 
 /***************************************************************************
  * scan_engine.cc -- Includes much of the "engine" functions for scanning, *
- * such as ultra_scan.  It also includes dependant functions such as those *
- * for collecting SYN/connect scan responses.				   *
+ * such as ultra_scan.  It also includes dependent functions such as those *
+ * for collecting SYN/connect scan responses.                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -287,7 +287,7 @@ public:
   enum UPType { UP_UNSET, UP_IP, UP_CONNECT, UP_ARP, UP_ND } type; /* The type of probe this is */
 
   /* Sets this UltraProbe as type UP_IP and creates & initializes the
-     internal IPProbe.  The relevent probespec is necessary for setIP
+     internal IPProbe.  The relevant probespec is necessary for setIP
      because pspec.type is ambiguous with just the ippacket (e.g. a
      tcp packet could be PS_PROTO or PS_TCP). */
   void setIP(u8 *ippacket, u32 iplen, const probespec *pspec);
@@ -358,7 +358,7 @@ public:
   }
 
   u8 tryno; /* Try (retransmission) number of this probe */
-  u8 pingseq; /* 0 if this is not a scanping. Otherwise a posative ping seq#. */
+  u8 pingseq; /* 0 if this is not a scanping. Otherwise a positive ping seq#. */
   /* If true, probe is considered no longer active due to timeout, but it
      may be kept around a while, just in case a reply comes late */
   bool timedout;
@@ -483,7 +483,7 @@ public:
   HostScanStats(Target *t, UltraScanInfo *UltraSI);
   ~HostScanStats();
   int freshPortsLeft(); /* Returns the number of ports remaining to probe */
-  int next_portidx; /* Index of the next port to probe in the relevent
+  int next_portidx; /* Index of the next port to probe in the relevant
                        ports array in USI.ports */
   bool sent_arp; /* Has an ARP probe been sent for the target yet? */
 
@@ -578,7 +578,7 @@ public:
      probespec) that have met the current maximum tryno, and are on
      ice until that tryno increases (so we can retransmit again), or
      solidifies (so we can mark the port firewalled or whatever).  The
-     tryno of benh members is bench_tryno.  If the maximum tryno
+     tryno of bench members is bench_tryno.  If the maximum tryno
      increases, everyone on the bench is moved to the retry_stack.
    */
   std::vector<probespec> probe_bench;
@@ -628,7 +628,7 @@ public:
      and marking of remaining timedout ports firewalled or whatever is
      appropriate.  If mayincrease is non-NULL, it is set to whether
      the allowedTryno may increase again.  If it is false, any probes
-     which have reached the given limit may be dealth with. */
+     which have reached the given limit may be dealt with. */
   unsigned int allowedTryno(bool *capped, bool *mayincrease);
 
 
@@ -910,7 +910,7 @@ void UltraProbe::setND(u8 *ndpkt, u32 ndlen) {
 }
 
 /* Sets this UltraProbe as type UP_IP and creates & initializes the
-    internal IPProbe.  The relevent probespec is necessary for setIP
+    internal IPProbe.  The relevant probespec is necessary for setIP
     because pspec.type is ambiguous with just the ippacket (e.g. a
     tcp packet could be PS_PROTO or PS_TCP). */
 void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
@@ -1135,7 +1135,7 @@ bool GroupScanStats::sendOK(struct timeval *when) {
     return false;
 
   /* We need to stop sending if it has been a long time since
-     the last listen call, at least for systems such as Windoze that
+     the last listen call, at least for systems such as Windows that
      don't give us a proper pcap time.  Also for connect scans, since
      we don't get an exact response time with them either. */
   recentsends = USI->gstats->probes_sent - USI->gstats->probes_sent_at_last_wait;
@@ -1465,7 +1465,7 @@ bool HostScanStats::nextTimeout(struct timeval *when) {
    and marking of remaining timedout ports firewalled or whatever is
    appropriate.  If mayincrease is non-NULL, it is set to whether
    the allowedTryno may increase again.  If it is false, any probes
-   which have reached the given limit may be dealth with. */
+   which have reached the given limit may be dealt with. */
 unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) {
   std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
@@ -1747,7 +1747,7 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
       rawsd = nmap_raw_socket();
       if (rawsd < 0)
         pfatal("socket troubles in %s", __func__);
-      /* We do not wan't to unblock the socket since we want to wait
+      /* We do not want to unblock the socket since we want to wait
       if kernel send buffers fill up rather than get ENOBUF, and
       we won't be receiving on the socket anyway
       unblock_socket(rawsd);*/
@@ -2824,7 +2824,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     if (newstate != PORT_OPEN) {
       if (noresp_open_scan) {
         hss->target->ports.setPortState(portno, proto, newstate);
-      } /* Otherwise The old open takes precendence */
+      } /* Otherwise The old open takes precedence */
     }
     break;
   case PORT_CLOSED:
@@ -3202,7 +3202,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   hss->num_probes_active++;
 
   /* It would be convenient if the connect() call would never succeed
-     or permanantly fail here, so related code cood all be localized
+     or permanently fail here, so related code cood all be localized
      elsewhere.  But the reality is that connect() MAY be finished now. */
 
   if (rc != -1) {
@@ -4642,7 +4642,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
           ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
           /* prot scan has no headers coming back, so we don't reserve the
-          8 xtra bytes */
+          8 extra bytes */
          ) {
         if (o.debugging)
           error("Received short ICMP packet (%u bytes)", datalen);
@@ -4771,7 +4771,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
           ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
           /* prot scan has no headers coming back, so we don't reserve the
-             8 xtra bytes */
+             8 extra bytes */
          ) {
         if (o.debugging)
           error("Received short ICMPv6 packet (%u bytes)", datalen);
@@ -5161,7 +5161,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
             ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
             /* prot scan has no headers coming back, so we don't reserve the
-               8 xtra bytes */
+               8 extra bytes */
            ) {
           if (o.debugging)
             error("Received short ICMP or ICMPv6 packet (%u bytes)", datalen);

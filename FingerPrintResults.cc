@@ -313,7 +313,7 @@ static bool strnulleq(const char *s, const char *t) {
     return strcmp(s, t) == 0;
 }
 
-// Go through any previously enterted classes to see if this is a dupe;
+// Go through any previously entered classes to see if this is a dupe;
 bool FingerPrintResults::classAlreadyExistsInResults(struct OS_Classification *OSC) {
   int i;
 

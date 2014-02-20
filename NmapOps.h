@@ -167,7 +167,7 @@ class NmapOps {
      is not necessarily used. */
   bool RawScan();
   void ValidateOptions(); /* Checks that the options given are
-                             reasonable and consistant.  If they aren't, the
+                             reasonable and consistent.  If they aren't, the
                              function may bail out of Nmap or make small
                              adjustments (quietly or with a warning to the
                              user). */
@@ -241,7 +241,7 @@ class NmapOps {
 
   /* These functions retrieve and set the Round Trip Time timeouts, in
    milliseconds.  The set versions do extra processing to insure sane
-   values and to adjust each other to insure consistance (e.g. that
+   values and to adjust each other to insure consistence (e.g. that
    max is always at least as high as min) */
   int maxRttTimeout() { return max_rtt_timeout; }
   int minRttTimeout() { return min_rtt_timeout; }
@@ -289,7 +289,7 @@ class NmapOps {
   bool open_only;
 
   int scanflags; /* if not -1, this value should dictate the TCP flags
-                    for the core portscaning routine (eg to change a
+                    for the core portscanning routine (eg to change a
                     FIN scan into a PSH scan.  Sort of a hack, but can
                     be very useful sometimes. */
 

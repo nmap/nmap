@@ -161,7 +161,7 @@ struct MatchDetails {
   // The line number of this match in nmap-service-probes.
   int lineno;
 
-  // The product/verson/info for the service that was matched (Or NULL)
+  // The product/version/info for the service that was matched (Or NULL)
   // zero-terminated.
   const char *product;
   const char *version;
@@ -199,7 +199,7 @@ class ServiceProbeMatch {
   // match.  If the buf doesn't match, the serviceName field in the
   // structure will be NULL.  The MatchDetails returned is only valid
   // until the next time this function is called.  The only exception
-  // is that the serviceName field can be saved throughought program
+  // is that the serviceName field can be saved throughout program
   // execution.  If no version matched, that field will be NULL.
   const struct MatchDetails *testMatch(const u8 *buf, int buflen);
 // Returns the service name this matches
@@ -327,7 +327,7 @@ class ServiceProbe {
   // If the buf doesn't match, the serviceName field in the structure
   // will be NULL.  The MatchDetails returned is only valid until the
   // next time this function is called.  The only exception is that the
-  // serviceName field can be saved throughought program execution.  If
+  // serviceName field can be saved throughout program execution.  If
   // no version matched, that field will be NULL. This function may
   // return NULL if there are no match lines at all in this probe.
   const struct MatchDetails *testMatch(const u8 *buf, int buflen, int n);
