@@ -237,7 +237,7 @@ action = function(host, port)
   local _, http_status, _ = http.identify_404(host,port)
   if ( http_status == 200 ) then
     stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
-    return false
+    return nil
   end
 
   --Load fingerprint data or abort
