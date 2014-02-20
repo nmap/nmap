@@ -570,7 +570,7 @@ static int field_name_equal(const char *a, const char *b)
 
 /* Get the value of every header with the given name, separated by commas. If
    you only want the first value for header fields that should not be
-   concatentated in this way, use http_header_get_first. The returned string
+   concatenated in this way, use http_header_get_first. The returned string
    must be freed. */
 char *http_header_get(const struct http_header *header, const char *name)
 {

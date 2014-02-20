@@ -258,7 +258,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
         maxfd = info->fd;
 
     /* This is the parent process. Enter a "caretaker" loop that reads from the
-       socket and writes to the suprocess, and reads from the subprocess and
+       socket and writes to the subprocess, and reads from the subprocess and
        writes to the socket. We exit the loop on any read error (or EOF). On a
        write error we just close the opposite side of the conversation. */
     crlf_state = 0;

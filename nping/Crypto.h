@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * Crypto.h -- The Crypto Class contains miscellanious methods and helpers *
+ * Crypto.h -- The Crypto Class contains miscellaneous methods and helpers *
  * that may be used to provide properties such as authentication, integrity*
  * or confidentiality.                                                     *
  *                                                                         *

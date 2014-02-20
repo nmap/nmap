@@ -590,7 +590,7 @@ int NpingOps::getDebugging(){
 } /* End of getDebugging() */
 
 
-/** Increments debugginh level by one. (When it reaches DBG_9 it stops
+/** Increments debugging level by one. (When it reaches DBG_9 it stops
   * getting incremented)
   *   * @return previous verbosity level */
 int NpingOps::increaseDebugging(){
@@ -793,7 +793,7 @@ bool NpingOps::issetDevice(){
 } /* End of issetDevice() */
 
 
-/** Returns true if user requested explicitely that he wants IP source
+/** Returns true if user requested explicitly that he wants IP source
  *  spoofing */
 bool NpingOps::spoofSource(){
   return this->spoofsource;
@@ -2287,7 +2287,7 @@ void NpingOps::validateOptions() {
 const char *privreq = "root privileges";
 #ifdef WIN32
     //if (!this->have_pcap)
-        privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating sytems and NT 4.0 with SP4 or greater.  For previous windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
+        privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating systems and NT 4.0 with SP4 or greater.  For previous Windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
 #endif
 /* If user did not specify --privileged or --unprivileged explicitly, try to
  * determine if has root privileges. */
@@ -2396,14 +2396,14 @@ if (this->havePcap()==false){
 /** SOURCE IP, SOURCE MAC and NETWORK DEVICE *********************************/
 /* If we are in a mode where we need to craft IP packets, then we need to
  * obtain a network interface name and a source IP address. There are three
- * different posibilities:
+ * different possibilities:
  *  1. User did NOT specify both network interface and source IP address.
  *  2. User did specify a network interface but not a source IP address.
  *  3. User did actually supply a source IP but not a network interface name
  *
  * I know the following code is ugly but the thing is that we want to determine
  * interface and source IP without user intervention, so we try in many ways
- * until either we succeed or we run out of possibilites and fatal().
+ * until either we succeed or we run out of possibilities and fatal().
  */
 if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole()!=ROLE_SERVER){
 
@@ -2540,11 +2540,11 @@ if(this->getRole()!=ROLE_SERVER){
 
     if( this->getMode()==ARP && !this->sendPreferenceEthernet() ){
         this->setSendEth(true);
-        nping_warning(QT_2, "Warning: ARP mode requieres raw ethernet frame transmission. Specified preference will be ignored.");
+        nping_warning(QT_2, "Warning: ARP mode requires raw ethernet frame transmission. Specified preference will be ignored.");
     }
     else if( this->ipv6() ){
 
-        /* CASE 1: User requested ethernet explicitely and supplied all
+        /* CASE 1: User requested ethernet explicitly and supplied all
          * necessary options. */
         if( this->sendPreferenceEthernet() && this->canDoIPv6Ethernet() ){
             this->setSendEth(true);
@@ -2689,7 +2689,7 @@ bool NpingOps::canDoIPv6Ethernet(){
 
 
 /******************************************************************************
- *  Miscellanious                                                             *
+ *  Miscellaneous                                                             *
  ******************************************************************************/
 
 void NpingOps::displayNpingDoneMsg(){
@@ -3050,7 +3050,7 @@ struct timeval NpingOps::getLastPacketSentTime(){
 /** Sets the RCVD output to be delayed. The supplied string is strdup()ed, so
   * the caller may safely free() it or modify after calling this function.
   * The "id" parameter is the nsock timer event scheduled for the output of
-  * the RCVD string (usially scheduled by ProbeMode). It is provided to allow
+  * the RCVD string (usually scheduled by ProbeMode). It is provided to allow
   * other objects (like EchoClient) to cancel the event if they take care of
   * printing the RCVD string before the timer goes off.*/
 int NpingOps::setDelayedRcvd(const char *str, nsock_event_id id){

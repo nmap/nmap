@@ -143,7 +143,7 @@ using namespace std;
 #define PKT_TYPE_ARP_RAW      6
 
 /* The sendpkt structure is the data normalProbeMode() function passes to
- * the nsock event handler. It contains the neccessary information so a
+ * the nsock event handler. It contains the necessary information so a
  * handler can send one probe. */
 typedef struct sendpkt{
     int type;

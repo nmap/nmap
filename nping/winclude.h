@@ -1,6 +1,6 @@
 /***************************************************************************
  * winclude.h -- some windows include files and                            *
- * windows-compatabilty-related functions that are specific to Nmap.  Most *
+ * windows-compatibility-related functions that are specific to Nmap. Most *
  * of this has been moved into nbase so it can be shared.                  *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

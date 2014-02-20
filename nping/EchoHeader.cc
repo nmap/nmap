@@ -156,7 +156,7 @@ void EchoHeader::reset() {
   this->echo_mac=(u8 *)this->data_echo->payload_and_mac;
   this->echo_bytes=0;
 
-  /* Some safe initilizations */
+  /* Some safe initializations */
   this->setVersion(ECHO_CURRENT_PROTO_VER);
   this->setTotalLength(STD_NEP_HEADER_LEN + MAC_LENGTH);
   this->length=STD_NEP_HEADER_LEN + MAC_LENGTH; /* Sets length in PacketElement superclass */
@@ -184,7 +184,7 @@ int EchoHeader::storeRecvData(const u8 *buf, size_t len){
 } /* End of storeRecvData() */
 
 
-/* Returns a protocol identifier. This is used by packet parsing funtions
+/* Returns a protocol identifier. This is used by packet parsing functions
  * that return linked lists of PacketElement objects, to determine the protocol
  * the object represents. */
 int EchoHeader::protocol_id() const {

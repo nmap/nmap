@@ -309,7 +309,7 @@ class EchoHeader : public ApplicationLayerElement {
         int echo_bytes;
         nep_error_data_t *data_error;
         u8 *fs_off;    /**< Current field spec offset     */
-        int fs_bytes;  /**< Currend field spec byte count */
+        int fs_bytes;  /**< Current field spec byte count */
 
     private:
         int getFieldLength(u8 field);

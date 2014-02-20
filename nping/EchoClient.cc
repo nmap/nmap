@@ -170,7 +170,7 @@ int EchoClient::start(NpingTarget *target, u16 port){
 
   /* Init Nsock in the probe engine */
   if( this->probe.init_nsock() != OP_SUCCESS ){
-    nping_warning(QT_2, "Couln't initialize Nsock.");
+    nping_warning(QT_2, "Couldn't initialize Nsock.");
     return OP_FAILURE;
   }else{
     /* Extract the nsock pool handler and store it here */
@@ -950,7 +950,7 @@ int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, voi
     nping_print(DBG_4, "%s() Received %d bytes", __func__, recvbytes);
   }
 
-  /* Here there are different possibilites. We may have received exactly one
+  /* Here there are different possibilities. We may have received exactly one
    * packet, we may have received more than one packet (as there is no way to
    * make Nsock return an exact amount of bytes), or we may have received
    * less than one packet. In the last case, we determine the number of bytes
@@ -1039,7 +1039,7 @@ int EchoClient::nep_recv_hs_final_handler(nsock_pool nsp, nsock_event nse, void 
 
 
 /** Handles reception of NEP_READY message. It handles the received
-  * data provided by nsock and passes it to the parse_readyl() which is the
+  * data provided by nsock and passes it to the parse_ready() which is the
   * one in charge of validating NEP_HANDSHAKE_FINAL packets and updating
   * the internal context accordingly. Returns OP_SUCCESS on success and
   * OP_FAILURE in case of error. */

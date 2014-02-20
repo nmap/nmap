@@ -362,7 +362,7 @@ void luis_hdump(char *cp, unsigned int length) {
   unsigned int i=0, hex=0, asc=0;    /* Array indexes                    */
   int line_count=0;                  /* For byte count at line start     */
   u8 current_char=0;                 /* Current character to print       */
-  #define LINE_LEN 70                /* Lenght of printed line           */
+  #define LINE_LEN 70                /* Length of printed line           */
   char line2print[LINE_LEN];         /* Stores current line              */
   char printbyte[16];                /* For byte conversion              */
   memset(line2print, ' ', LINE_LEN);

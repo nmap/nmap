@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * utils_net.cc -- Miscellanious network-related functions that perform    *
+ * utils_net.cc -- Miscellaneous network-related functions that perform    *
  * various tasks.                                                          *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

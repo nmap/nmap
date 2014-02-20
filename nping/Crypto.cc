@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * Crypto.cc -- The Crypto Class contains miscellanious methods and helpers*
+ * Crypto.cc -- The Crypto Class contains miscellaneous methods and helpers*
  * that may be used to provide properties such as authentication, integrity*
  * or confidentiality.                                                     *
  *                                                                         *
@@ -235,7 +235,7 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
              * the last one and then EVP_DecryptFinal says we have decrypted nothing.
              * However I've tested this for hours and everything works fine. The
              * full buffer is decrypted correctly, from the first to the last byte,
-             * so we return OP_SUCCESS even if OpenSSL says the opossite. */
+             * so we return OP_SUCCESS even if OpenSSL says the opposite. */
 
             /* NOTE for developers debugging memory issues with Valgrind:
              * None of these seems to free OpenSSL's internal error structures.
