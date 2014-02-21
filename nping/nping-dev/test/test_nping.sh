@@ -626,7 +626,7 @@ sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type echo --icmp-code boguscode
 t ICMP_51 "Run ICMP mode supplying a number code, NON-RFC compliant." \
 sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type echo --icmp-code 99
 
-t ICMP_52 "Set ICMP Identifier. (Dont get confused with output for the IP id value)" \
+t ICMP_52 "Set ICMP Identifier. (Don't get confused with output for the IP id value)" \
 sudo nping --icmp $TARGETS $GLOBALOPTS --icmp-type echo --icmp-code 9 --icmp-id 2
 
 t ICMP_53 "Set bogus Identifier. Expected: error message" \

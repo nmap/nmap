@@ -29,7 +29,7 @@ Performs password guessing against Apple Filing Protocol (AFP).
 -- Snow Leopard
 -- ------------
 -- - Delay 10 seconds for accounts with more than 5 incorrect login attempts (good)
--- - Instant response if password is successfull
+-- - Instant response if password is successful
 --
 -- Netatalk
 -- --------

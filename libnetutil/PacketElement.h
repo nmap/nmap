@@ -253,7 +253,7 @@ class PacketElement {
     } /* End of getBinaryBuffer() */
 
 
-    /** Returns the lenght of this PacketElement + the length of all the
+    /** Returns the length of this PacketElement + the length of all the
      *  PacketElements that are next to it (are linked trough the "next"
      *  attribute). So for example, if we have IPv4Header p1, linked to
      *  a TCPHeader p2, representing a simple TCP SYN with no options,

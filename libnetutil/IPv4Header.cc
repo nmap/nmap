@@ -665,7 +665,7 @@ int IPv4Header::setOpts(const char *txt){
 int IPv4Header::setOpts(u8 *opts_buff,  u32 opts_len){
   if(opts_buff==NULL || opts_len==0)
    return OP_FAILURE;
-  assert(opts_len<=MAX_IP_OPTIONS_LEN); /* Max lenght for IP options */
+  assert(opts_len<=MAX_IP_OPTIONS_LEN); /* Max length for IP options */
   memcpy(this->h.options, opts_buff, opts_len);
   this->ipoptlen=opts_len;
   this->length += opts_len;

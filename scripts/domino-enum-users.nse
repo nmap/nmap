@@ -18,8 +18,8 @@ Attempts to discover valid IBM Lotus Domino users and download their ID files by
 -- 1352/tcp open  lotusnotes
 -- | domino-enum-users:
 -- |   User "Patrik Karlsson" found, but not ID file could be downloaded
--- |   Succesfully stored "FFlintstone" in /tmp/FFlintstone.id
--- |_  Succesfully stored "MJacksson" in /tmp/MJacksson.id
+-- |   Successfully stored "FFlintstone" in /tmp/FFlintstone.id
+-- |_  Successfully stored "MJacksson" in /tmp/MJacksson.id
 --
 --
 -- @args domino-id.path the location to which any retrieved ID files are stored
@@ -107,13 +107,13 @@ action = function(host, port)
       local status, err = saveIDFile( filename, data )
 
       if ( status ) then
-        table.insert(result, ("Succesfully stored \"%s\" in %s"):format(username, filename) )
+        table.insert(result, ("Successfully stored \"%s\" in %s"):format(username, filename) )
       else
         stdnse.print_debug( err )
         table.insert(result, ("Failed to store \"%s\" to %s"):format(username, filename) )
       end
     elseif( status and data ) then
-      table.insert(result, ("Succesfully retrieved ID for \"%s\" (to store set the domino-enum-users.path argument)"):format(username) )
+      table.insert(result, ("Successfully retrieved ID for \"%s\" (to store set the domino-enum-users.path argument)"):format(username) )
     elseif ( status ) then
       table.insert(result, ("User \"%s\" found, but no ID file could be downloaded"):format(username) )
     end

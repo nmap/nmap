@@ -682,7 +682,7 @@ packets they send look like when they reach their destination.
         Unless Nping is compiled without OpenSSL support, all Nping Echo 
         Protocol (NEP) packets are transmitted encrypted. Rijndael/AES standard
         is used. It has a block size of 128 bits, that's why all NEP packets
-        must have a lenght that is multiple of 16 bytes.
+        must have a length that is multiple of 16 bytes.
 
         Every NEP packet includes a SHA-256 checksum. SHA-256 has been chosen
         over MD5 or SHA1, just to be safe in the future. MD5 is already broken

@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * scan_engine.h -- Includes much of the "engine" functions for scanning,  *
- * such as ultra_scan.  It also includes dependant functions such as       *
+ * such as ultra_scan.  It also includes dependent functions such as       *
  * those for collecting SYN/connect scan responses.                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

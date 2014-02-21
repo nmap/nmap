@@ -130,7 +130,7 @@
 #include "NetworkLayerElement.h"
 
 #define IP_RF 0x8000               /* Reserved fragment flag         */
-#define IP_DF 0x4000               /* Dont fragment flag             */
+#define IP_DF 0x4000               /* Don't fragment flag            */
 #define IP_MF 0x2000               /* More fragments flag            */
 #define IP_OFFMASK 0x1fff          /* Mask for fragmenting bits      */
 #define IP_HEADER_LEN 20           /* Length of the standard header  */
@@ -213,7 +213,7 @@ class IPv4Header : public NetworkLayerElement {
         int setTOS(u8 v);
         u8 getTOS() const;
 
-        /* Total lenght of the datagram */
+        /* Total length of the datagram */
         int setTotalLength();
         int setTotalLength(u16 l);
         u16 getTotalLength() const;

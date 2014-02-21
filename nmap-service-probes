@@ -22,7 +22,7 @@
 # LLC.  It is distributed under the Nmap Open Source license as
 # provided in the COPYING file of the source distribution or at
 # http://nmap.org/data/COPYING .  Note that this license
-# requires you to license your own work under a compatable open source
+# requires you to license your own work under a compatible open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).
 # Dozens of software vendors already license Nmap technology such as
@@ -2544,7 +2544,7 @@ match smtp m|^220 CheckPoint FireWall-1 secure SMTP server\r\n$| p/Checkpoint Fi
 match smtp m|^220 ([-.+\w]+) running IBM AS/400 SMTP V([\w]+)| p|IBM AS/400 smtpd| v/$2/ h/$1/
 match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[\w.]+)- ready at | p/MailEnable smptd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-.+\w]+) ESMTP Mail Enable SMTP Service, Version: (\d[\w.]+)-- ready at| p/MailEnable smptd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-# Enterprise version number seems to be preceeded by "0--"; Professional with "0-"
+# Enterprise version number seems to be preceded by "0--"; Professional with "0-"
 match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: \d+--([\d.]+) ready at| p/MailEnable Enterprise smptd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 # Catch-alls. Hyphens aren't making sense -Doug
 match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: ([\w._-]+) ready at| p/MailEnable smptd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -4540,7 +4540,7 @@ match http m|^HTTP/1\.0 400 msg=Bad%20Request&rc=%00%00%03%1b\r\n| p/TimesTen ht
 match http m|^HTTP/1\.1 400  Bad  request\r\nContent-Type: text/html; charset=ISO-8859-1\r\n\r\n<body><h1>HTTP/1\.1 400  Bad  request <h1></body>| p/XOSoft WanSync http config/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/\*\.\* 400 Bad Request\r\nDate: .*\r\nContent-Type:text/plain\r\nContent-Length:61\r\n\r\nThe received request is either NULL or invalid/wrong format\r\n| p/Kaba application server httpd/
 
-# This lame service responds in many wierd ways - luckily always to GenericLines
+# This lame service responds in many weird ways - luckily always to GenericLines
 match http m|^HTTP/1\.1 403 Forbidden\r\nContent-Type: text/xml\r\n\r\n<\?xml version='1\.0' encoding='UTF-8' \?><autnresponse><action>NONE</action><response>The action you attempted is forbidden by your client</response></autnresponse>| p/Veritas backup exec continuous protection httpd/
 match http m|^HTTP/1\.1 403 Forbidden\nContent-Type: text/xml\n\n<ACTION>GETSTATUS</ACTION><RESPONSE>The action you attempted is forbidden by your client</RESPONSE>| p/Veritas backup exec continuous protection httpd/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n\n\nCONNECTION NOT AUTHORIZED\n\n\n| p/Veritas backup exec continuous protection httpd/ i/unauthorized/

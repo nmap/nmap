@@ -163,7 +163,7 @@ action = function( host, port )
     threads[co] = true
   end
 
-  -- wait for all threads to finnish running
+  -- wait for all threads to finish running
   while threadCount(threads)>0 do
     condvar("wait")
   end

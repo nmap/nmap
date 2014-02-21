@@ -537,7 +537,7 @@ MessageDecoders = {
     status, data = socket:receive_buf(match.numbytes(26), true)
     if( not(status) ) then return false, "Failed to read column data" end
 
-    -- signal finnish reading
+    -- signal finish reading
     status, data = socket:send( tostring(Packet.SQ_ID:new( info.id, nil, "end" ) ) )
     status, data = socket:receive_buf(match.numbytes(2), true)
 

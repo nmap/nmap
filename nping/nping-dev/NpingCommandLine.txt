@@ -63,7 +63,7 @@ IP OPTIONS:
                  {target specification} ). 
   --tos <val>  : Set type of service field (8bits).
   --id  <val>  : Set identification field (16 bits).
-  --df         : Set Dont Fragment flag.
+  --df         : Set Don't Fragment flag.
   --mf         : Set More Fragments flag.
   --ttl <val>  : Set time to live [0-256].
   --badsum-ip  : Use a random invalid checksum. 

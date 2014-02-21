@@ -89,7 +89,7 @@ end
 -- Seconde: Request to wikipedia.org and checks for wikimedia pattern
 -- Third: Request to computerhistory.org and checks for museum pattern
 --
--- If any of the requests is succesful, the proxy is considered open
+-- If any of the requests is successful, the proxy is considered open
 -- If all get requests return the same result, the user is alerted that
 -- the proxy might be redirecting his requests (very common on wi-fi
 -- connections at airports, cafes, etc.)

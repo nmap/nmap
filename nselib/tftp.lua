@@ -304,7 +304,7 @@ end
 
 local function waitLast()
   -- The thread that started the server needs to wait here until the rest
-  -- of the scripts finnish running. We know we are done once the state
+  -- of the scripts finish running. We know we are done once the state
   -- shifts to STOPPED and we get a signal from the condvar in the
   -- dispatcher
   local s_condvar = nmap.condvar(state)
