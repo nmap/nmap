@@ -2896,7 +2896,7 @@ worth the extra time.</para>
 <para>Enforce use of a given nsock IO multiplexing engine. Only the
 <literal>select(2)</literal>-based fallback engine is guaranteed to be
 available on your system.  Engines are named after the name of the IO
-management facility they leverage.  Engines currenty implemented are
+management facility they leverage.  Engines currently implemented are
 <literal>epoll</literal>, <literal>kqueue</literal>, <literal>poll</literal>,
 and <literal>select</literal>, but not all will be present on any platform.
 Use <command>nmap -V</command> to see which engines are supported.</para>

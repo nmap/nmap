@@ -995,7 +995,7 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
       </para>
 
       <para>Script arguments are often qualified with the relevant
-      script name so that a user doesn't unintentially affect multiple
+      script name so that a user doesn't unintentionally affect multiple
       scripts with a single generic name.  For example, you can set
       the timeout for responses to the
       <literal>broadcast-ping</literal> script (and only that script)
@@ -2415,7 +2415,7 @@ try(socket:send(result))
     <sect2 id="nse-api-registry">
       <title>The Registry</title>
       <indexterm><primary>registry (NSE)</primary></indexterm>
-	<para>Scripts can share information by stroring values in a
+	<para>Scripts can share information by storing values in a
 	<firstterm>register</firstterm>, which is a special table that can be
 	accessed by all scripts. There is a global registry with the name
 	<varname>nmap.registry</varname>, shared by all scripts. Each host
