@@ -407,7 +407,7 @@ function check(status, response, track)
     -- NoOp
   elseif err == 1 then
     fail = true
-    msg = 'Incompatable Implementation Number'
+    msg = 'Incompatible Implementation Number'
   elseif err == 2 then
     fail = true
     msg = 'Unimplemented Request Code'

@@ -3920,7 +3920,7 @@ def write_results_file():
         output_file.write(line)
         output_file.write("\r\n")
 
-    # Write OS details request if we dont have OS info
+    # Write OS details request if we don't have OS info
     if target_os_details_g==None:
         req=get_results_file_osrequest()
         for line in req :

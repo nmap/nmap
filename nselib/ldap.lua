@@ -208,7 +208,7 @@ end
 --
 -- This function has a concept of softerrors which populates the return tables error information
 -- while returning a true status. The reason for this is that LDAP may return a number of records
--- and then finnish of with an error like SIZE LIMIT EXCEEDED. We still want to return the records
+-- and then finish off with an error like SIZE LIMIT EXCEEDED. We still want to return the records
 -- that were received prior to the error. In order to achieve this and not terminating the script
 -- by returning a false status a true status is returned together with a table containing all searchentries.
 -- This table has the <code>errorMessage</code> and <code>resultCode</code> entries set with the error information.

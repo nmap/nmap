@@ -1086,7 +1086,7 @@ end
 -- http://msdn.microsoft.com/en-us/library/cc244831%28v=prot.10%29
 --@param smbstate         The SMB state table
 --@param printer_handle    Printer handle returned by spoolss_open_printer()
---@param data              Actuall data to write to a file
+--@param data              Actual data to write to a file
 --@return (status, result) If status is false, result is an error message. Otherwise, result is number of bytes written.
 function spoolss_write_printer(smbstate,printer_handle,data)
   stdnse.print_debug("len %d", #data)
@@ -1928,7 +1928,7 @@ end
 --
 --@param smbstate       The SMB state table
 --@param alias_handle   The alias_handle, already marshaled
---@param args      Actuall data to send, already marshaled
+--@param args      Actual data to send, already marshaled
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_getaliasmembership(smbstate, alias_handle,args)
   local status, result

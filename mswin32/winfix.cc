@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * winfix.cc -- A few trivial windows-compatabilty-related functions that  *
+ * winfix.cc -- A few trivial windows-compatibility-related functions that *
  * are specific to Nmap.  Most of this has been moved into nbase so it can *
  * be shared.                                                              *
  *                                                                         *

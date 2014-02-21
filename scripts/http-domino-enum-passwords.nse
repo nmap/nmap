@@ -122,7 +122,7 @@ end
 -- @return true on valid access, false on failure
 local function isValidCredential( host, port, path, user, pass )
   -- we need to supply the no_cache directive, or else the http library
-  -- incorrectly tells us that the authentication was successfull
+  -- incorrectly tells us that the authentication was successful
   local result = http.get( host, port, path, { auth = { username = user, password = pass }, no_cache = true })
 
   if ( result.status == 401 ) then

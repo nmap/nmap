@@ -169,7 +169,7 @@ int RoutingHeader::storeRecvData(const u8 *buf, size_t len){
     this->length=0;
     return OP_FAILURE;
   }else{
-     /* Store the first 4 bytes, so we can access lenght and routing type */
+     /* Store the first 4 bytes, so we can access length and routing type */
      memcpy(&(this->h), buf, 4);
 
      /* Our behaviour is different depending on the routing type. */

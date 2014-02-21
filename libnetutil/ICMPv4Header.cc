@@ -1029,7 +1029,7 @@ u32 ICMPv4Header::getOutputLinkMTU() const {
 } /* End of getOutputLinkMTU() */
 
 
-/* Miscellanious *************************************************************/
+/* Miscellaneous *************************************************************/
 /** Returns the standard ICMP header length for the supplied ICMP message type.
  *  @warning Return value corresponds strictly to the ICMP header, this is,
  *  the minimum length of the ICMP header, variable length payload is never

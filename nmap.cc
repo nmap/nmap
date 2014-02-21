@@ -878,7 +878,7 @@ void parse_options(int argc, char **argv) {
           o.idlescan = 1;
           o.idleProxy = strdup(optarg);
         } else if (strcmp(long_options[option_index].name, "vv") == 0) {
-          /* Compatability hack ... ugly */
+          /* Compatibility hack ... ugly */
           o.verbose += 2;
         } else if (strcmp(long_options[option_index].name, "ff") == 0) {
           o.fragscan += 16;

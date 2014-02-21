@@ -729,7 +729,7 @@ Engine =
       self.threads[co].running = true
     end
 
-    -- wait for all threads to finnish running
+    -- wait for all threads to finish running
     while self:threadCount()>0 do condvar "wait" end
 
     local valid_accounts

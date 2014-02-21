@@ -427,7 +427,7 @@ int HopByHopHeader::addOption(u8 type, u8 len, const u8 *data){
 
 
 /* If the current length of the extension header is not a multiple of 8 octets,
- * this method adds the neccessary padding (either PadN or Pad1 options)*/
+ * this method adds the necessary padding (either PadN or Pad1 options)*/
 int HopByHopHeader::addPadding(){
   u8 zeroes[8]={0,0,0,0,0,0,0,0};
   int required_octets=8-(this->length%8);

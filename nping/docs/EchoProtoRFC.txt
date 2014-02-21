@@ -602,7 +602,7 @@ This documents presents the technical specification of the Nping Echo Protocol.
 
         PacketSpec:  864 bits.
             Tells the server which header fields should be checked to match
-            a captured packet with the client that sent it. This is neccessary
+            a captured packet with the client that sent it. This is necessary
             as the server supports multiple user sessions at a time, and needs
             a way to distinguish the packets.
 
@@ -1123,7 +1123,7 @@ This documents presents the technical specification of the Nping Echo Protocol.
         For each party producing encrypted data, the first initialization
         vector should be the nonce that this same party generated during the
         authentication handshake phase. If the nonce has more bits than needed,
-        only the neccessary number of bits should be used. These bits should be
+        only the necessary number of bits should be used. These bits should be
         the most significant ones.
 
         The initialization vector for subsequent encryption operations should

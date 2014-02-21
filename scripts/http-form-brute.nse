@@ -104,7 +104,7 @@ Driver = {
 
   login = function( self, username, password )
     -- we need to supply the no_cache directive, or else the http library
-    -- incorrectly tells us that the authentication was successfull
+    -- incorrectly tells us that the authentication was successful
     local postparams = { [self.options.passvar] = password }
     if ( self.options.uservar ) then postparams[self.options.uservar] = username end
 

@@ -338,26 +338,26 @@ int UDPHeader::setTotalLength(){
   * here because UDP is supposed to be independent of IPv4, IPv6 or
   * whatever other network layer protocol is used to carry the UDP datagrams.*/
   if ((mylen+otherslen) > 65535 || (mylen+otherslen)<8 ){
-    printf("UDPHeader::setTotalLenght(): Invalid length.\n");
+    printf("UDPHeader::setTotalLength(): Invalid length.\n");
     return OP_FAILURE;
   }
 
   h.uh_ulen=htons( mylen+otherslen );
 
   return OP_SUCCESS;
-} /* End of setTotalLenght() */
+} /* End of setTotalLength() */
 
 
 /** @warning Supplied value MUST be in HOST byte order */
 int UDPHeader::setTotalLength(u16 l){
   this->h.uh_ulen=htons(l);
   return OP_SUCCESS;
-} /* End of setTotalLenght() */
+} /* End of setTotalLength() */
 
 
 /** @warning Returned value is in HOST byte order */
 u16 UDPHeader::getTotalLength() const {
   return ntohs(this->h.uh_ulen);
-} /* End of getTotalLenght() */
+} /* End of getTotalLength() */
 
 
