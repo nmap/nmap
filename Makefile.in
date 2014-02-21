@@ -143,7 +143,7 @@ netutil_build: libnetutil/Makefile
 	@echo Compiling libnetutil;
 	cd libnetutil && $(MAKE)
 
-ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h
+ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h @PCAP_BUILD@
 	cd $(NCATDIR) && $(MAKE)
 
 lua_build: $(LIBLUADIR)/Makefile
@@ -324,7 +324,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 build-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
-build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build netutil_build $(NPINGDIR)/nping.h
+build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build netutil_build $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
