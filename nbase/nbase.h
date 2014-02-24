@@ -368,6 +368,10 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #define DEVNULL "/dev/null"
 #endif
 
+#if defined(_MSC_VER) && !defined(__cplusplus) && !defined(inline)
+#define inline __inline
+#endif
+
 
 static inline int checked_fd_isset(int fd, const fd_set *fds) {
 #ifndef WIN32
