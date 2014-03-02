@@ -230,6 +230,26 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  name = "F5 BIG-IP",
+  category = "routers",
+  paths = {
+    {path = "/tmui/login.jsp"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["f5-login-page"] == "true"
+           and response.body
+           and response.body:find("logmein.html",1,true)
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "logmein.html", "login%.jsp%?msgcode=1", {username=user, passwd=pass})
+  end
+})
+
 ---
 --Digital recorders
 ---
@@ -249,4 +269,3 @@ table.insert(fingerprints, {
     return try_http_basic_login(host, port, path, user, pass, true)
   end
 })
-
