@@ -349,7 +349,7 @@ Comm = {
 
 --- AJP Request options
 -- @name ajp.options
--- @type table
+-- @class table
 -- @field auth table with <code>username</code> and <code>password</code> fields
 -- @field timeout Socket timeout in milliseconds. Default: 5000
 Helper = {
