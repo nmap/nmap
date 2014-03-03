@@ -44,7 +44,7 @@ ASN1Decoder = {
   --- Tells the decoder to stop if it detects an error while decoding
   -- this should probably be the default, but some scripts depend on being
   -- able to decode stuff while lacking proper ASN1 decoding functions.
-  --
+  -- @name ASN1Decoder.setStopOnError
   -- @param val boolean, true if decoding should stop on error,
   --        otherwise false (default)
   setStopOnError = function(self, val)
@@ -52,7 +52,7 @@ ASN1Decoder = {
   end,
 
   --- Registers the base simple type decoders
-  --
+  -- @name ASN1Decoder.registerBaseDecoders
   registerBaseDecoders = function(self)
     self.decoder = {}
 
@@ -93,9 +93,27 @@ ASN1Decoder = {
     end
   end,
 
-  --- Allows for registration of additional tag decoders
+  --- Table for registering additional tag decoders.
   --
-  -- @param tagDecoders table containing decoding functions @see tagDecoders
+  -- Each index is a tag number as a hex string. Values are ASN1 decoder
+  -- functions.
+  -- @name tagDecoders
+  -- @class table
+  -- @see asn1.decoder
+
+  --- Template for an ASN1 decoder function.
+  -- @name asn1.decoder
+  -- @param self The ASN1Decoder object
+  -- @param encStr Encoded string
+  -- @param elen Length of the object in bytes
+  -- @param pos Current position in the string
+  -- @return The position after decoding
+  -- @return The decoded object
+
+  --- Allows for registration of additional tag decoders
+  -- @name ASN1Decoder.registerTagDecoders
+  -- @param tagDecoders table containing decoding functions
+  -- @see tagDecoders
   registerTagDecoders = function(self, tagDecoders)
     self:registerBaseDecoders()
     for k, v in pairs(tagDecoders) do
@@ -104,7 +122,7 @@ ASN1Decoder = {
   end,
 
   --- Decodes the ASN.1's built-in simple types
-  --
+  -- @name ASN1Decoder.decode
   -- @param encStr Encoded string.
   -- @param pos Current position in the string.
   -- @return The position after decoding
@@ -128,6 +146,7 @@ ASN1Decoder = {
   ---
   -- Decodes length part of encoded value according to ASN.1 basic encoding
   -- rules.
+  -- @name ASN1Decoder.decodeLength
   -- @param encStr Encoded string.
   -- @param pos Current position in the string.
   -- @return The position after decoding.
@@ -151,6 +170,7 @@ ASN1Decoder = {
 
   ---
   -- Decodes a sequence according to ASN.1 basic encoding rules.
+  -- @name ASN1Decoder.decodeSeq
   -- @param encStr Encoded string.
   -- @param len Length of sequence in bytes.
   -- @param pos Current position in the string.
@@ -188,7 +208,7 @@ ASN1Decoder = {
   end,
 
   --- Decodes an OID from a sequence of bytes.
-  --
+  -- @name ASN1Decoder.decodeOID
   -- @param encStr Encoded string.
   -- @param len Length of sequence in bytes.
   -- @param pos Current position in the string.
@@ -243,6 +263,7 @@ ASN1Decoder = {
 
   ---
   -- Decodes an Integer according to ASN.1 basic encoding rules.
+  -- @name ASN1Decoder.decodeInt
   -- @param encStr Encoded string.
   -- @param len Length of integer in bytes.
   -- @param pos Current position in the string.
@@ -286,16 +307,20 @@ ASN1Encoder = {
   end,
 
   ---
-  -- Encodes an ASN1 sequence, the value of 30 below breaks down as
-  -- 0x30  = 00110000 =  00          1                   10000
-  -- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)
+  -- Encodes an ASN1 sequence
+  -- @name ASN1Encoder.encodeSeq
+  -- @param seqData A string of sequence data
+  -- @return ASN.1 BER-encoded sequence
   encodeSeq = function(self, seqData)
+    -- 0x30  = 00110000 =  00          1                   10000
+    -- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)
     return bin.pack('HAA' , '30', self.encodeLength(#seqData), seqData)
   end,
 
   ---
   -- Encodes a given value according to ASN.1 basic encoding rules for SNMP
   -- packet creation.
+  -- @name ASN1Encoder.encode
   -- @param val Value to be encoded.
   -- @return Encoded value.
   encode = function(self, val)
@@ -310,9 +335,24 @@ ASN1Encoder = {
     return ''
   end,
 
-  --- Allows for registration of additional tag encoders
+  --- Table for registering additional tag encoders.
   --
-  -- @param tagEncoders table containing encoding functions @see tagEncoders
+  -- Each index is a lua type as a string. Values are ASN1 encoder
+  -- functions.
+  -- @name tagEncoders
+  -- @class table
+  -- @see asn1.encoder
+
+  --- Template for an ASN1 encoder function.
+  -- @name asn1.encoder
+  -- @param self The ASN1Encoder object
+  -- @param val The value to encode
+  -- @return The encoded object
+
+  --- Allows for registration of additional tag encoders
+  -- @name ASN1Decoder.registerTagEncoders
+  -- @param tagEncoders table containing encoding functions
+  -- @see tagEncoders
   registerTagEncoders = function(self, tagEncoders)
     self:registerBaseEncoders()
     for k, v in pairs(tagEncoders) do
@@ -320,7 +360,12 @@ ASN1Encoder = {
     end
   end,
 
-  -- ASN.1 Simple types encoders
+  --- Registers the base ASN.1 Simple types encoders
+  -- * boolean
+  -- * integer (Lua number)
+  -- * string
+  -- * null (Lua nil)
+  -- @name ASN1Encoder.registerBaseEncoders
   registerBaseEncoders = function(self)
     self.encoder = {}
 
@@ -378,6 +423,7 @@ ASN1Encoder = {
 
   ---
   -- Encodes an Integer according to ASN.1 basic encoding rules.
+  -- @name ASN1Encoder.encodeInt
   -- @param val Value to be encoded.
   -- @return Encoded integer.
   encodeInt = function(val)
@@ -416,6 +462,7 @@ ASN1Encoder = {
   ---
   -- Encodes the length part of a ASN.1 encoding triplet using the "primitive,
   -- definite-length" method.
+  -- @name ASN1Encoder.encodeLength
   -- @param len Length to be encoded.
   -- @return Encoded length value.
   encodeLength = function(len)
@@ -459,8 +506,11 @@ end
 -- Converts an integer to a BER encoded type table
 --
 -- @param i number containing the value to decode
--- @return table with the following entries <code>class</code>, <code>constructed</code>,
--- <code>primitive</code> and <code>number</code>
+-- @return table with the following entries:
+-- * <code>class</code>
+-- * <code>constructed</code>
+-- * <code>primitive</code>
+-- * <code>number</code>
 function intToBER( i )
   local ber = {}
 
@@ -482,7 +532,6 @@ function intToBER( i )
   end
   return ber
 end
-
 
 
 return _ENV;
