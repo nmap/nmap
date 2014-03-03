@@ -265,7 +265,12 @@ AJP = {
 -- The Comm class handles sending and receiving AJP requests/responses
 Comm = {
 
-  -- Creates a new Comm instance
+  --; Creates a new Comm instance
+  -- @name Comm.new
+  -- @param host host table
+  -- @param port port table
+  -- @param options Table of options. Fields:
+  -- * timeout - Timeout in milliseconds. Default: 5000
   new = function(self, host, port, options)
     local o = { host = host, port = port, options = options or {}}
     setmetatable(o, self)
@@ -273,8 +278,8 @@ Comm = {
     return o
   end,
 
-  -- Connects to the AJP server
-  --
+  --; Connects to the AJP server
+  -- @name Comm.connect
   -- @return status true on success, false on failure
   -- @return err string containing error message on failure
   connect = function(self)
@@ -283,8 +288,8 @@ Comm = {
     return self.socket:connect(self.host, self.port)
   end,
 
-  -- Sends a request to the server
-  --
+  --; Sends a request to the server
+  -- @name Comm.send
   -- @param req instance of object that can be serialized with tostring
   -- @return status true on success, false on failure
   -- @return err string containing error message on failure
@@ -292,16 +297,19 @@ Comm = {
     return self.socket:send(tostring(req))
   end,
 
-  -- Receives an AJP response from the server
-  --
+  --- AJP response table
+  -- @class table
+  -- @name ajp.response
+  -- @field status status of response (see HTTP status codes)
+  -- @field status-line the complete status line (eg. 200 OK)
+  -- @field body the response body as string
+  -- @field headers table of response headers
+
+  --; Receives an AJP response from the server
+  -- @name Comm.receive
   -- @return status true on success, false on failure
-  -- @return response table containing the following fields, or string
-  --         containing error message on failure
-  --         <code>status</code> - status of response (see HTTP status codes)
-  --         <code>status-line</code> - the complete status line (eg. 200 OK)
-  --         <code>body</code> - the response body as string
-  --         <code>headers</code> - table of response headers
-  --
+  -- @return AJP response table, or error message on failure
+  -- @see ajp.response
   receive = function(self)
     local response = {}
     while(true) do
@@ -331,21 +339,27 @@ Comm = {
     return true, response
   end,
 
-  -- Closes the socket
+  --; Closes the socket
+  -- @name Comm.close
   close = function(self)
     return self.socket:close()
   end,
 
 }
 
-
+--- AJP Request options
+-- @name ajp.options
+-- @type table
+-- @field auth table with <code>username</code> and <code>password</code> fields
+-- @field timeout Socket timeout in milliseconds. Default: 5000
 Helper = {
 
   --- Creates a new AJP Helper instance
-  --
-  -- @param host table
-  -- @param port table
-  -- @param opt
+  -- @name Helper.new
+  -- @param host host table
+  -- @param port port table
+  -- @param opt request and comm options
+  -- @see ajp.options
   -- @return o new Helper instance
   new = function(self, host, port, opt)
     local o = { host = host, port = port, opt = opt or {} }
@@ -355,7 +369,7 @@ Helper = {
   end,
 
   --- Connects to the AJP server
-  --
+  -- @name Helper.connect
   -- @return status true on success, false on failure
   -- @return err string containing error message on failure
   connect = function(self)
@@ -375,14 +389,15 @@ Helper = {
   end,
 
   --- Sends an AJP request to the server
-  --
+  -- @name Helper.request
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   request = function(self, method, url, headers, attributes, options)
     local status, lhost, lport, rhost, rport = self.comm.socket:get_info()
     if ( not(status) ) then
@@ -432,79 +447,85 @@ Helper = {
   end,
 
   --- Sends an AJP GET request to the server
-  --
+  -- @name Helper.get
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   get = function(self, url, headers, attributes, options)
     return self:request("GET", url, headers, attributes, options)
   end,
 
   --- Sends an AJP HEAD request to the server
-  --
+  -- @name Helper.head
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   head = function(self, url, headers, attributes, options)
     return self:request("HEAD", url, headers, attributes, options)
   end,
 
   --- Sends an AJP TRACE request to the server
-  --
+  -- @name Helper.trace
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   trace = function(self, url, headers, attributes, options)
     return self:request("TRACE", url, headers, attributes, options)
   end,
 
   --- Sends an AJP PUT request to the server
-  --
+  -- @name Helper.put
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   put = function(self, url, headers, attributes, options)
     return self:request("PUT", url, headers, attributes, options)
   end,
 
   --- Sends an AJP DELETE request to the server
-  --
+  -- @name Helper.delete
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   delete = function(self, url, headers, attributes, options)
     return self:request("DELETE", url, headers, attributes, options)
   end,
 
   --- Sends an AJP OPTIONS request to the server
-  --
+  -- @name Helper.options
   -- @param url string containing the URL to query
   -- @param headers table containing optional headers
   -- @param attributes table containing optional attributes
   -- @param options table with request specific options
+  -- @see ajp.options
   -- @return status true on success, false on failure
-  -- @return response table (@see Comm.receive), or string containing error
-  --         message on failure
+  -- @return response table, or error message on failure
+  -- @see ajp.response
   options = function(self, url, headers, attributes, options)
     return self:request("OPTIONS", url, headers, attributes, options)
   end,
@@ -516,6 +537,7 @@ Helper = {
   end,
 
   --- Disconnects from the server
+  -- @name Helper.close
   close = function(self)
     return self.comm:close()
   end,
