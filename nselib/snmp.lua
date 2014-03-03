@@ -137,19 +137,6 @@ function decode(encStr, pos)
 end
 
 ---
--- Decodes an SNMP packet or a part of it according to ASN.1 basic encoding
--- rules.
--- @param encStr Encoded string.
--- @param pos Current position in the string.
--- @return The decoded value(s).
-function dec(encStr, pos)
-  local result
-  local _
-  _, result = decode(encStr, pos)
-  return result
-end
-
----
 -- Create an SNMP packet.
 -- @param PDU SNMP Protocol Data Unit to be encapsulated in the packet.
 -- @param version SNMP version, default <code>0</code> (SNMP V1).

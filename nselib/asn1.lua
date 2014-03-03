@@ -255,19 +255,6 @@ ASN1Decoder = {
     return pos, value
   end,
 
-  ---
-  -- Decodes an SNMP packet or a part of it according to ASN.1 basic encoding
-  -- rules.
-  -- @param encStr Encoded string.
-  -- @param pos Current position in the string.
-  -- @return The decoded value(s).
-  dec = function(self, encStr, pos)
-    local result
-    local _
-    _, result = self:decode(encStr, pos)
-    return result
-  end,
-
 }
 
 --- The encoder class
