@@ -5,7 +5,7 @@
 --
 -- The <code>DigestMD5</code> class contains all code necessary to calculate
 -- a DIGEST-MD5 response based on the servers challenge and the other
--- necessary arguments (@see DigestMD5.new).
+-- necessary arguments.
 -- It can be called through the SASL helper or directly like this:
 -- <code>
 -- local dmd5 = DigestMD5:new(chall, user, pass, "AUTHENTICATE", nil, "imap")
@@ -14,7 +14,7 @@
 --
 -- The <code>NTLM</code> class contains all code necessary to calculate a
 -- NTLM response based on the servers challenge and the other necessary
--- arguments (@see NTLM.new). It can be called through the SASL helper or
+-- arguments. It can be called through the SASL helper or
 -- directly like this:
 -- <code>
 -- local ntlm = NTLM:new(chall, user, pass)

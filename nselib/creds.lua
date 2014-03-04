@@ -104,7 +104,8 @@ local table = require "table"
 _ENV = stdnse.module("creds", stdnse.seeall)
 
 
--- Table containing the different account states
+--- Table mapping the different account states to their number
+-- @class table
 State = {
   LOCKED = 1,
   VALID = 2,
@@ -260,6 +261,7 @@ Credentials = {
 
   --- Returns a credential iterator
   --
+  -- @see State
   -- @param state mask containing values from the <Code>State</code> table
   -- @return credential iterator, returning a credential each time it's
   --         called. Unless filtered by the state mask all credentials
@@ -269,7 +271,7 @@ Credentials = {
   --         <code>port</code> - number containing the port number
   --         <code>user</code> - string containing the user name
   --         <code>pass</code> - string containing the user password
-  --         <code>state</code> - a state number @see <code>State</code>
+  --         <code>state</code> - a state number
   --         <code>service</code> - string containing the name of the service
   --         <code>scriptname</code> - string containing the name of the
   --                                   script that added the credential
