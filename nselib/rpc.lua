@@ -945,7 +945,6 @@ Mount = {
       end
     end
 
-    ---
     --  Decode directory entries
     --
     --  [entry]
@@ -953,14 +952,13 @@ Mount = {
     --     [Directory]
     --        4 bytes   - value len
     --        len bytes - directory name
-    --        ? bytes   - fill bytes (@see calcFillByte)
+    --        ? bytes   - fill bytes (see calcFillByte)
     --     [Groups]
     --        4 bytes  - value follows (1 if more data, 0 if not)
     --         [Group] (1 or more)
     --            4 bytes   - group len
     --            len bytes - group value
-    --            ? bytes   - fill bytes (@see calcFillByte)
-    ---
+    --            ? bytes   - fill bytes (see calcFillByte)
     while true do
       -- make sure we have atleast 4 more bytes to check for value follows
       status, data = comm:GetAdditionalBytes( data, pos, 4 )

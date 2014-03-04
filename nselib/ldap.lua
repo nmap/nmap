@@ -41,7 +41,8 @@ ERRORS = {
   LDAP_SIZELIMIT_EXCEEDED = 4
 }
 
--- Application constants
+--- Application constants
+-- @class table
 APPNO = {
   BindRequest = 0,
   BindResponse = 1,
@@ -192,7 +193,8 @@ end
 
 -- Encodes an LDAP Application operation and its data as a sequence
 --
--- @param appno LDAP application number @see <code>APPNO</code>
+-- @param appno LDAP application number
+-- @see APPNO
 -- @param isConstructed boolean true if constructed, false if primitive
 -- @param data string containing the LDAP operation content
 -- @return string containing the encoded LDAP operation
