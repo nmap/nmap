@@ -7,7 +7,7 @@
 -- script written by Vasiliy Kulikov.
 --
 -- The library consist of the following classes:
--- * <code>XML<code> - containing a minimal XML parser written by
+-- * <code>XML</code> - containing a minimal XML parser written by
 --                     Vasiliy Kulikov.
 -- * <code>TagProcessor</code> - Contains processing code for common tags
 -- * <code>XMPP</code> - containing the low-level functions used to
@@ -25,7 +25,7 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author Patrik Karlsson <patrik@cqure.net>
---
+
 -- Version 0.2
 -- Created 07/19/2011 - v0.1 - Created by Patrik Karlsson
 -- Revised 07/22/2011 - v0.2 - Added TagProcessors and two new auth mechs:
@@ -40,12 +40,26 @@ local table = require "table"
 _ENV = stdnse.module("xmpp", stdnse.seeall)
 
 
+-- This is a trivial XML processor written by Vasiliy Kulikov.  It doesn't
+-- fully support XML, but it should be sufficient for the basic XMPP
+-- stream handshake.  If you see stanzas with uncommon symbols, feel
+-- free to enhance these regexps.
 XML = {
 
-  -- This is a trivial XML processor written by Vasiliy Kulikov.  It doesn't
-  -- fully support XML, but it should be sufficient for the basic XMPP
-  -- stream handshake.  If you see stanzas with uncommon symbols, feel
-  -- free to enhance these regexps.
+  ---XML tag table
+  --@class table
+  --@name XML.tag
+  --@field name The tag name
+  --@field attrs The tag attributes as a key-value table
+  --@field start True if this was an opening tag.
+  --@field contents The contents of the tag
+  --@field finish true if the tag was closed.
+
+  ---Parse an XML tag
+  --@name XML.parse_tag
+  --@param s String containing the XML tag
+  --@return XML tag table
+  --@see XML.tag
   parse_tag = function(s)
     local _, _, contents, empty, name = string.find(s, "([^<]*)<(/?)([?:%w-]+)")
     local attrs = {}
@@ -108,13 +122,14 @@ XMPP = {
 
   --- Creates a new instance of the XMPP class
   --
+  -- @name XMPP.new
   -- @param host table as received by the action function
   -- @param port table as received by the action function
   -- @param options table containing options, currently supported
-  --  <code>timeout</code> - sets the socket timeout
-  --  <code>servername</code> - sets the server name to use in
+  -- * <code>timeout</code> - sets the socket timeout
+  -- * <code>servername</code> - sets the server name to use in
   --                            communication with the server.
-  --  <code>starttls</code> - start TLS handshake even if it is optional.
+  -- * <code>starttls</code> - start TLS handshake even if it is optional.
   new = function(self, host, port, options)
     local o = { host = host,
     port = port,
@@ -128,6 +143,7 @@ XMPP = {
   end,
 
   --- Sends data to XMPP server
+  -- @name XMPP.send
   -- @param data string containing data to send to server
   -- @return status true on success false on failure
   -- @return err string containing error message
@@ -148,9 +164,13 @@ XMPP = {
 
   --- Receives a XML tag from the server
   --
+  -- @name XMPP.receive_tag
   -- @param tag [optional] if unset, receives the next available tag
   --            if set, reads until the given tag has been found
   -- @param close [optional] if set, matches a closing tag
+  -- @return true on success, false on error
+  -- @return The XML tag table, or error message
+  -- @see XML.tag
   receive_tag = function(self, tag, close)
     local result
     repeat
@@ -163,6 +183,7 @@ XMPP = {
   end,
 
   --- Connects to the XMPP server
+  -- @name XMPP.connect
   -- @return status true on success, false on failure
   -- @return err string containing an error message if status is false
   connect = function(self)
@@ -228,6 +249,7 @@ XMPP = {
 
   --- Logs in to the XMPP server
   --
+  -- @name XMPP.login
   -- @param username string
   -- @param password string
   -- @param mech string containing a supported authentication mechanism
@@ -347,11 +369,14 @@ XMPP = {
   end,
 
   --- Retrieves the available authentication mechanisms
+  -- @name XMPP.getAuthMechs
   -- @return table containing all available authentication mechanisms
   getAuthMechs = function(self) return self.auth.mechs end,
 
   --- Disconnects the socket from the server
+  -- @name XMPP.disconnect
   -- @return status true on success, false on failure
+  -- @return error message if status is false
   disconnect = function(self)
     local status, err = self.socket:close()
     self.socket = nil
@@ -364,11 +389,12 @@ XMPP = {
 Helper = {
 
   --- Creates a new Helper instance
+  -- @name Helper.new
   -- @param host table as received by the action function
   -- @param port table as received by the action function
   -- @param options table containing options, currently supported
-  --  <code>timeout</code> - sets the socket timeout
-  --  <code>servername</code> - sets the server name to use in
+  -- * <code>timeout</code> - sets the socket timeout
+  -- * <code>servername</code> - sets the server name to use in
   --                            communication with the server.
   new = function(self, host, port, options)
     local o = { host = host,
@@ -382,6 +408,7 @@ Helper = {
   end,
 
   --- Connects to the XMPP server and starts the initial communication
+  -- @name Helper.connect
   -- @return status true on success, false on failure
   -- @return err string containing an error message is status is false
   connect = function(self)
@@ -395,15 +422,19 @@ Helper = {
 
   --- Login to the XMPP server
   --
+  -- @name Helper.login
   -- @param username string
   -- @param password string
   -- @param mech string containing a supported authentication mechanism
-  --             (@see <code>getAuthMechs</code>)
+  -- @see Helper.getAuthMechs
+  -- @return status true on success, false on failure
+  -- @return err string containing error message if status is false
   login = function(self, username, password, mech)
     return self.xmpp:login(username, password, mech)
   end,
 
   --- Retrieves the available authentication mechanisms
+  -- @name Helper.getAuthMechs
   -- @return table containing all available authentication mechanisms
   getAuthMechs = function(self)
     if ( self.state == "CONNECTED" ) then
@@ -413,6 +444,7 @@ Helper = {
   end,
 
   --- Closes the connection to the server
+  -- @name Helper.close
   close = function(self)
     self.xmpp:disconnect()
     self.state = "DISCONNECTED"
