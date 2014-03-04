@@ -81,6 +81,8 @@
 #    get_option_check_auxiliary_widget in OptionBuilder.py.
 # 7) Make sure the test case works now.
 
+from functools import reduce
+
 
 class option:
     """A single option, part of a pool of potential options. It's just a name
