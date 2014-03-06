@@ -396,6 +396,10 @@ function utf8to16(from)
   return table.concat(buf)
 end
 
+if not unittest.testing() then
+  return _ENV
+end
+
 test_suite = unittest.TestSuite:new()
 test_suite:add_test(function()
     local pos, cp = utf8_dec("\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E")

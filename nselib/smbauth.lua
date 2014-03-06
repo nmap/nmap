@@ -920,6 +920,10 @@ function calculate_signature(mac_key, data)
   end
 end
 
+if not unittest.testing() then
+  return _ENV
+end
+
 test_suite = unittest.TestSuite:new()
 test_suite:add_test(unittest.equal(
     stdnse.tohex(select(-1, lm_create_hash("passphrase"))),
