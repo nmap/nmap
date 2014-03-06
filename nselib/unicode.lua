@@ -149,8 +149,8 @@ end
 -- Does not check that the returned code point is a real character.
 --@param buf A string containing the character
 --@param pos The index in the string where the character begins
---@return pos The index in the string where the character ended
---@return cp The code point of the character as a number
+--@return pos The index in the string where the character ended or nil on error
+--@return cp The code point of the character as a number, or an error string
 function utf8_dec(buf, pos)
   pos = pos or 1
   local n, mask
@@ -170,14 +170,20 @@ function utf8_dec(buf, pos)
     n = 3
     mask = 0xF0
   else
-    return nil
+    return nil, string.format("Invalid UTF-8 byte at %d", pos)
   end
 
   local cp = bv - mask
 
+  if pos + n > #buf then
+    return nil, string.format("Incomplete UTF-8 sequence at %d", pos)
+  end
   for i = 1, n do
-    bv = band(byte(buf, pos + i), 0x3F)
-    cp = lshift(cp, 6) + bv
+    bv = byte(buf, pos + i)
+    if bv < 0x80 or bv > 0xBF then
+      return nil, string.format("Invalid UTF-8 sequence at %d", pos + i)
+    end
+    cp = lshift(cp, 6) + band(bv, 0x3F)
   end
 
   return pos + 1 + n, cp
