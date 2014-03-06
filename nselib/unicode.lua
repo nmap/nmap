@@ -11,7 +11,7 @@ local string = require "string"
 local table = require "table"
 local stdnse = require "stdnse"
 local unittest = require "unittest"
-_ENV = stdnse.module("json", stdnse.seeall)
+_ENV = stdnse.module("unicode", stdnse.seeall)
 
 -- Localize a few functions for a tiny speed boost, since these will be looped
 -- over every char of a string
