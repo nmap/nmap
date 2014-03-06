@@ -601,8 +601,8 @@ end
 function login(socket, db, username, password)
 
   local collectionName = ("%s.$cmd"):format(arg_DB or db)
-  local query = { getnonce = 1 }
-  local status, packet = createQuery(collectionName, query)
+  local q = { getnonce = 1 }
+  local status, packet = createQuery(collectionName, q)
   local response
   status, response = query(socket, packet)
   if ( not(status) or not(response.nonce) ) then
@@ -613,10 +613,10 @@ function login(socket, db, username, password)
   local pwdigest = stdnse.tohex(openssl.md5(username .. ':mongo:' ..password))
   local digest = stdnse.tohex(openssl.md5(nonce .. username .. pwdigest))
 
-  query = { user = username, nonce = nonce, key = digest }
-  query._cmd = { authenticate = 1 }
+  q = { user = username, nonce = nonce, key = digest }
+  q._cmd = { authenticate = 1 }
 
-  local status, packet = createQuery(collectionName, query)
+  local status, packet = createQuery(collectionName, q)
   status, response = query(socket, packet)
   if ( not(status) ) then
     return status, response
