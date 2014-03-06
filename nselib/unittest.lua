@@ -180,6 +180,7 @@ TestSuite = {
 
   --- Creates a new TestSuite object
   --
+  -- @name TestSuite.new
   -- @return TestSuite object
   new = function(self)
     local o = {}
@@ -190,14 +191,17 @@ TestSuite = {
   end,
 
   --- Set up test environment. Override this.
+  -- @name TestSuite.setup
   setup = function(self)
     return true
   end,
   --- Tear down test environment. Override this.
+  -- @name TestSuite.teardown
   teardown = function(self)
     return true
   end,
   --- Add a test.
+  -- @name TestSuite.add_test
   -- @param test Function that will be called with the TestSuite object as its only parameter.
   -- @param description A description of the test being run
   add_test = function(self, test, description)
@@ -206,6 +210,7 @@ TestSuite = {
 
   --- Run tests.
   -- Runs all tests in the TestSuite, and returns the number of failures.
+  -- @name TestSuite.__call
   -- @return failures The number of tests that failed
   -- @return tests The number of tests run
   __call = function(self)
