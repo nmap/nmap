@@ -15,6 +15,9 @@
 --
 -- The library is driven by the unittest NSE script.
 --
+-- @args unittest.run Run tests. Causes <code>unittest.testing()</code> to
+--                    return true.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
@@ -136,11 +139,22 @@ local libs = {
 "xmpp",
 }
 
+local am_testing = stdnse.get_script_args('unittest.run')
+---Check whether tests are being run
+--
+-- Libraries can use this function to avoid the overhead of creating tests if
+-- the user hasn't chosen to run them.
+-- @return true if unittests are being run, false otherwise.
+function testing()
+  return am_testing
+end
+
 ---
 -- Run tests provided by NSE libraries
 -- @param to_test A list (table) of libraries to test. If none is provided, all
 --                libraries are tested.
 run_tests = function(to_test)
+  am_testing = true
   if to_test == nil then
     to_test = libs
   end
@@ -352,6 +366,11 @@ expected_failure = function(test)
     end
     return true
   end
+end
+
+
+if not testing() then
+  return _ENV
 end
 
 -- Self test

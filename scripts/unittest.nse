@@ -6,7 +6,6 @@ Runs unit tests on all NSE libraries.
 ]]
 
 ---
--- @args unittest.run Run tests
 -- @args unittest.tests Run tests from only these libraries (defaults to all)
 --
 -- @usage
@@ -24,7 +23,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe"}
 
 
-prerule = function() return stdnse.get_script_args("unittest.run") end
+prerule = unittest.testing
 
 action = function()
   local libs = stdnse.get_script_args("unittest.tests")

@@ -655,6 +655,11 @@ hex_to_bin = function( hex )
 
 end
 
+--Ignore the rest if we are not testing.
+if not unittest.testing() then
+  return _ENV
+end
+
 test_suite = unittest.TestSuite:new()
 test_suite:add_test(unittest.is_true(isPrivate("192.168.123.123")), "192.168.123.123 is private")
 test_suite:add_test(unittest.is_false(isPrivate("1.1.1.1")), "1.1.1.1 is not private")
