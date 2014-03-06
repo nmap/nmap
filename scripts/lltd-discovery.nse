@@ -7,6 +7,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local target = require "target"
+local unicode = require "unicode"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -147,12 +148,7 @@ local parseHello = function(data)
 
         -- Machine Name (Hostname)
       elseif t == 0x0f then
-        hostname = ''
-        -- Hostname is returned in unicode, but Lua doesn't support that,
-        -- so we skip 00 values.
-        for i=1, #v-1, 2 do
-          hostname = hostname .. string.char(v:byte(i))
-        end
+        hostname = unicode.utf16to8(v)
       end
 
       p = p + l
