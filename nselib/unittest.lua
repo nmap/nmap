@@ -7,9 +7,11 @@
 -- <code>unittest.TestSuite</code> class has this property, and tests can be
 -- added with <code>add_test</code>. Example:
 --
+-- <code>
 -- local data = {"foo", "bar", "baz"}
 -- test_suite = unittest.TestSuite:new()
 -- test_suite:add_test(equal(data[2], "bar"), "data[2] should equal 'bar'")
+-- </code>
 --
 -- The library is driven by the unittest NSE script.
 --
