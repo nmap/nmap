@@ -86,6 +86,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
+local unittest = require "unittest"
 _ENV = stdnse.module("smbauth", stdnse.seeall)
 
 local have_ssl, openssl = pcall(require, "openssl")
@@ -344,6 +345,25 @@ local function lm_create_hash(password)
 
   -- Convert the password to uppercase
   password = string.upper(password)
+
+  -- Encode the password in OEM code page
+  -- Supporting all the OEM code pages would be burdensome, so we try to
+  -- convert to CP437, the default for US-English Windows, which is
+  -- used for Alt+NumPad "unicode" entry in all versions of Windows.
+  -- https://en.wikipedia.org/wiki/Code_page_437
+  do
+    local buf = {}
+    for i, cp in ipairs(unicode.decode(password, unicode.utf8_dec)) do
+      local ch = unicode.cp437_enc(cp)
+      if ch == nil then
+        return false, "Couldn't encode password in CP437"
+      end
+      buf[i] = ch
+    end
+    password = table.concat(buf)
+    local nsedebug = require 'nsedebug'
+    stdnse.print_debug("LM Password: %s", stdnse.tohex(password))
+  end
 
   -- If password is under 14 characters, pad it to 14
   if(#password < 14) then
@@ -900,5 +920,30 @@ function calculate_signature(mac_key, data)
   end
 end
 
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(unittest.equal(
+    stdnse.tohex(select(-1, lm_create_hash("passphrase"))),
+    "855c3697d9979e78ac404c4ba2c66533"
+    ),
+  "lm_create_hash"
+  )
+test_suite:add_test(unittest.equal(
+    stdnse.tohex(select(-1, ntlm_create_hash("passphrase"))),
+    "7f8fe03093cc84b267b109625f6bbf4b"
+    ),
+  "ntlm_create_hash"
+  )
+test_suite:add_test(unittest.equal(
+    stdnse.tohex(select(-1, lm_create_hash("ÅÇÅÇ"))),
+    "1830f5732b438091aad3b435b51404ee"
+    ),
+  "lm_create_hash"
+  )
+test_suite:add_test(unittest.equal(
+    stdnse.tohex(select(-1, ntlm_create_hash("öäü"))),
+    "4848bcb81cf018c3b70ea1479bd1374d"
+    ),
+  "ntlm_create_hash"
+  )
 
 return _ENV;
