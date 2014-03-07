@@ -843,6 +843,7 @@ void http_request_init(struct http_request *request)
     uri_init(&request->uri);
     request->version = HTTP_UNKNOWN;
     request->header = NULL;
+    request->content_length_set = 0;
     request->content_length = 0;
     request->bytes_transferred = 0;
 }
@@ -898,6 +899,7 @@ void http_response_init(struct http_response *response)
     response->code = 0;
     response->phrase = NULL;
     response->header = NULL;
+    response->content_length_set = 0;
     response->content_length = 0;
     response->bytes_transferred = 0;
 }
@@ -1053,7 +1055,7 @@ int http_parse_header(struct http_header **result, const char *header)
     return 0;
 }
 
-static int http_header_get_content_length(const struct http_header *header, unsigned long *content_length)
+static int http_header_get_content_length(const struct http_header *header, int *content_length_set, unsigned long *content_length)
 {
     char *content_length_s;
     char *tail;
@@ -1061,6 +1063,7 @@ static int http_header_get_content_length(const struct http_header *header, unsi
 
     content_length_s = http_header_get_first(header, "Content-Length");
     if (content_length_s == NULL) {
+        *content_length_set = 0;
         *content_length = 0;
         return 0;
     }
@@ -1068,6 +1071,7 @@ static int http_header_get_content_length(const struct http_header *header, unsi
     code = 0;
 
     errno = 0;
+    *content_length_set = 1;
     *content_length = parse_long(content_length_s, (char **) &tail);
     if (errno != 0 || *tail != '\0' || tail == content_length_s)
         code = 400;
@@ -1084,7 +1088,7 @@ int http_request_parse_header(struct http_request *request, const char *header)
     code = http_parse_header(&request->header, header);
     if (code != 0)
         return code;
-    code = http_header_get_content_length(request->header, &request->content_length);
+    code = http_header_get_content_length(request->header, &request->content_length_set, &request->content_length);
     if (code != 0)
         return code;
 
@@ -1099,7 +1103,7 @@ int http_response_parse_header(struct http_response *response, const char *heade
     code = http_parse_header(&response->header, header);
     if (code != 0)
         return code;
-    code = http_header_get_content_length(response->header, &response->content_length);
+    code = http_header_get_content_length(response->header, &response->content_length_set, &response->content_length);
     if (code != 0)
         return code;
 

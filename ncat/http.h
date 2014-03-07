@@ -184,6 +184,7 @@ struct http_request {
     struct uri uri;
     enum http_version version;
     struct http_header *header;
+    int content_length_set;
     unsigned long content_length;
     unsigned long bytes_transferred;
 };
@@ -193,6 +194,7 @@ struct http_response {
     int code;
     char *phrase;
     struct http_header *header;
+    int content_length_set;
     unsigned long content_length;
     unsigned long bytes_transferred;
 };
