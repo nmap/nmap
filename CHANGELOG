@@ -4,6 +4,11 @@ o [NSE] Add quake1-info script for retrieving server and player information
   from Quake 1 game servers. Reports potential DoS amplification factor.
   [Ulrik Haugen]
 
+o [NSE] Add unicode library for decoding and encoding UTF-8, UTF-16, CP437 and
+  other character sets to Unicode code points. Scripts that previously just
+  added or skipped nulls in UTF-16 data can use this to support non-ASCII
+  characters. [Daniel Miller]
+
 o When doing a ping scan (-sn), the --open option will prevent down hosts from
   being shown when -v is specified. This aligns with similar output for other
   scan types. [Daniel Miller]
