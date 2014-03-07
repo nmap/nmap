@@ -219,7 +219,7 @@ AJP = {
         pos, sh.status = bin.unpack(">S", data, pos)
         pos, status_msg  = bin.unpack(">P", data, pos)
         pos = pos + 1
-        sh['status-line'] = ("AJP/1.3 %d %s"):format(sh.status, status_msg)
+        sh.status_line = ("AJP/1.3 %d %s"):format(sh.status, status_msg)
 
         pos, hdr_count = bin.unpack(">S", data, pos)
 
@@ -301,7 +301,7 @@ Comm = {
   -- @class table
   -- @name ajp.response
   -- @field status status of response (see HTTP status codes)
-  -- @field status-line the complete status line (eg. 200 OK)
+  -- @field status_line the complete status line (eg. 200 OK)
   -- @field body the response body as string
   -- @field headers table of response headers
 

@@ -83,7 +83,7 @@ action = function(host, port)
   helper:close()
 
   if ( response ) then
-    local output = response['status-line'] .. "\n" ..
+    local output = response.status_line .. "\n" ..
       stdnse.strjoin("\n", response.rawheaders) ..
       (response.body and "\n\n" .. response.body or "")
     if ( arg_file ) then
