@@ -46,7 +46,7 @@ action = function(host, port)
     return
   end
 
-  local result = { name = answer["status-line"]:match("^(.*)\r?\n$") }
+  local result = { name = answer.status_line:match("^(.*)\r?\n$") }
 
   local www_authenticate = answer.headers["www-authenticate"]
   if not www_authenticate then
