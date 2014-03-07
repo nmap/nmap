@@ -2079,6 +2079,17 @@ proxy_test_raw "HTTP POST",
 	$resp->content eq "abc\n" or die "Proxy sent \"" . $resp->content . "\"";
 };
 
+proxy_test_raw "HTTP POST Content-Length: 0",
+[], [], [], sub {
+	my $req = "POST http://$HOST:$PORT/ HTTP/1.0\r\nContent-Length: 0\r\n\r\n";
+	syswrite($c_in, $req);
+	close($c_in);
+	my $resp = timeout_read($s_out) or die "Read timeout";
+	$resp = HTTP::Request->parse($resp);
+	$resp->method eq "POST" or die "Proxy sent \"" . $resp->method . "\"";
+	$resp->content eq "" or die "Proxy sent \"" . $resp->content . "\"";
+};
+
 proxy_test_raw "HTTP POST short Content-Length",
 [], [], [], sub {
 	my $req = "POST http://$HOST:$PORT/ HTTP/1.0\r\nContent-Length: 2\r\n\r\nabc\n";
@@ -2113,6 +2124,23 @@ proxy_test_raw "HTTP POST chunked transfer encoding",
 		$resp = HTTP::Request->parse($resp);
 		$resp->method eq "POST" or die "Proxy sent \"" . $resp->method . "\"";
 		$resp->content eq "abc\n" or die "Proxy sent \"" . $resp->content . "\"";
+	} else {
+		$resp = timeout_read($c_out) or die "Read timeout";
+		$resp = HTTP::Response->parse($resp);
+		$resp->code == 400 or $resp->code == 411 or die "Proxy returned code " . $resp->code;
+	}
+};
+
+proxy_test_raw "HTTP POST chunked transfer encoding, no data",
+[], [], [], sub {
+	my $req = "POST http://$HOST:$PORT/ HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n";
+	syswrite($c_in, $req);
+	close($c_in);
+	my $resp = timeout_read($s_out);
+	if ($resp) {
+		$resp = HTTP::Request->parse($resp);
+		$resp->method eq "POST" or die "Proxy sent \"" . $resp->method . "\"";
+		$resp->content eq "" or die "Proxy sent \"" . $resp->content . "\"";
 	} else {
 		$resp = timeout_read($c_out) or die "Read timeout";
 		$resp = HTTP::Response->parse($resp);
