@@ -660,7 +660,7 @@ static int do_transaction(struct http_request *request,
        request) if it cannot determine the length of the message, or with 411
        (length required) if it wishes to insist on receiving a valid
        Content-Length." */
-    if (strcmp(request->method, "POST") == 0 && request->content_length == 0) {
+    if (strcmp(request->method, "POST") == 0 && !request->content_length_set) {
         if (o.debug)
             logdebug("POST request with no Content-Length.\n");
         return 400;
@@ -771,14 +771,16 @@ static int do_transaction(struct http_request *request,
     /* If the Content-Length is 0, read until the connection is closed.
        Otherwise read until the Content-Length. At this point it's too late to
        return our own error code so return 0 in case of any error. */
-    while (response.content_length == 0
+    while (!response.content_length_set
         || response.bytes_transferred < response.content_length) {
-        size_t remaining = response.content_length - response.bytes_transferred;
         size_t count;
 
         count = sizeof(buf);
-        if (response.content_length > 0 && remaining < count)
-            count = remaining;
+        if (response.content_length_set) {
+            size_t remaining = response.content_length - response.bytes_transferred;
+            if (remaining < count)
+                count = remaining;
+        }
         n = socket_buffer_read(server_sock, buf, count);
         if (n <= 0)
             break;
