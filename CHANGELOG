@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add quake1-info script for retrieving server and player information
+  from Quake 1 game servers. Reports potential DoS amplification factor.
+  [Ulrik Haugen]
+
 o When doing a ping scan (-sn), the --open option will prevent down hosts from
   being shown when -v is specified. This aligns with similar output for other
   scan types. [Daniel Miller]

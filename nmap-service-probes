@@ -11932,6 +11932,14 @@ match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01]
 
 
 ##############################NEXT PROBE##############################
+# Quake1 server info
+Probe UDP Quake1_server_info q|\x80\x00\x00\x0c\x02\x51\x55\x41\x4b\x45\x00\x03|
+rarity 9
+ports 26000-26004
+
+match quake m|^\x80\x00..\x83([^\x00]*)\x00([^\x00]*)\x00| p/Quake 1 server/ i/address: $1, name: $2/
+
+##############################NEXT PROBE##############################
 # Quake2 status
 Probe UDP Quake2_status q|\xff\xff\xff\xffstatus|
 rarity 8
