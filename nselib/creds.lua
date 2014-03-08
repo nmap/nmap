@@ -105,7 +105,22 @@ _ENV = stdnse.module("creds", stdnse.seeall)
 
 
 --- Table mapping the different account states to their number
+--
+-- Also available is the <code>StateMsg</code> table, used to map these numbers
+-- to a description.
 -- @class table
+-- @name State
+-- @field LOCKED Account is locked
+-- @field VALID Valid credentials
+-- @field DISABLED Account is disabled
+-- @field CHANGEPW Valid credentials, password must be changed at next logon
+-- @field PARAM Credentials passed to script during Nmap execution
+-- @field EXPIRED Valid credentials, account expired
+-- @field TIME_RESTRICTED Valid credentials, account cannot log in at current time
+-- @field HOST_RESTRICTED Valid credentials, account cannot log in from current host
+-- @field LOCKED_VALID Valid credentials, account locked
+-- @field DISABLED_VALID Valid credentials, account disabled
+-- @field HASHED Hashed valid or invalid credentials
 State = {
   LOCKED = 1,
   VALID = 2,
