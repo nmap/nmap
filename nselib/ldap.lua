@@ -43,6 +43,7 @@ ERRORS = {
 
 --- Application constants
 -- @class table
+-- @name APPNO
 APPNO = {
   BindRequest = 0,
   BindResponse = 1,

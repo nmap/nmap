@@ -810,13 +810,13 @@ end
 -- Host information for NTLM security
 -- @class table
 -- @name host_info
--- @field target_realm
--- @field netbios_computer_name
--- @field netbios_domain_name
--- @field fqdn
--- @field dns_domain_name
--- @field dns_forest_name
--- @field timestamp
+-- @field target_realm Target Name Data
+-- @field netbios_computer_name Server name
+-- @field netbios_domain_name Domain name
+-- @field fqdn DNS server name
+-- @field dns_domain_name DNS domain name
+-- @field dns_forest_name DNS tree name
+-- @field timestamp Timestamp
 
 ---
 -- Gets host info from a security blob
