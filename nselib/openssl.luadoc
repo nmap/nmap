@@ -45,7 +45,7 @@ function bignum_clear_bit(bignum, position)
 --- Gets the state of the bit at <code>position</code> in <code>bignum</code>.
 -- @param bignum bignum to operate on.
 -- @param position Bit position.
--- @return True if the selected bit is set, false otherwise. 
+-- @return True if the selected bit is set, false otherwise.
 function bignum_is_bit_set(bignum, position)
 
 --- Converts a binary-encoded string into a bignum.

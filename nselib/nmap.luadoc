@@ -4,7 +4,7 @@
 -- The <code>nmap</code> module is an interface with Nmap's internal functions
 -- and data structures. The API provides target host details such as port
 -- states and version detection results. It also offers an interface to the
--- Nsock library for efficient network I/O. 
+-- Nsock library for efficient network I/O.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module "nmap"
@@ -18,7 +18,7 @@ function debugging()
 
 --- Determines whether Nmap was compiled with SSL support.
 --
--- This can be used to avoid sending SSL probes when SSL is not available. 
+-- This can be used to avoid sending SSL probes when SSL is not available.
 -- @return True if Nmap was compiled with SSL support, false otherwise.
 function have_ssl()
 
@@ -102,10 +102,10 @@ function get_interface()
 function get_interface_info(interface_name)
 
 --- Lists network interfaces
--- 
+--
 -- This script enumerates all network interfaces and returns a list of tables
--- containing information about every interface. 
--- 
+-- containing information about every interface.
+--
 -- Keys of each table:
 -- * <code>device</code> The interface name, can be an interface alias.
 -- * <code>shortname</code> A simple short name of the device.
@@ -116,17 +116,17 @@ function get_interface_info(interface_name)
 -- * <code>broadcast</code> The string representing the broadcast address assigned to the interface if the interface type is <code>"ethernet"</code> and if the used address is IPv4, otherwise it is <code>nil</code>.
 -- * <code>up</code> The state of the interface, possible values are <code>"up"</code> or <code>"down"</code>.
 -- * <code>mtu</code> The MTU size of the interface.
--- 
+--
 -- @return Array of tables containing information about every discovered interface.
 -- @usage local interfaces, err = nmap.list_interfaces()
 function list_interfaces()
 
 --- Returns the TTL (time to live) value selected by the --ttl option
 --
--- If there is no value specified or if the value specified with the --ttl 
+-- If there is no value specified or if the value specified with the --ttl
 -- option is out of the range 0 to 255 (inclusive) this function returns 64,
--- which is the default TTL for an IP packet. This function would be most 
--- useful in crafting packets, which we want to comply with the selected 
+-- which is the default TTL for an IP packet. This function would be most
+-- useful in crafting packets, which we want to comply with the selected
 -- Nmap TTL value.
 --
 -- @return A number containing the TTL value
@@ -370,7 +370,7 @@ function condvar(object)
 -- @param handler User cleanup function (optional).
 -- @usage
 -- local result, socket, try, catch
--- 
+--
 -- result = ""
 -- socket = nmap.new_socket()
 -- catch = function()
@@ -520,7 +520,7 @@ function send(data)
 -- * <code>"CANCELLED"</code>: The operation was cancelled.
 -- * <code>"KILL"</code>: For example the script scan is aborted due to a faulty script.
 -- * <code>"EOF"</code>: An EOF was read (probably will not occur for a send operation).
--- @param host The hostname or IP address to send to. 
+-- @param host The hostname or IP address to send to.
 -- @param port The port number to send to.
 -- @param data The data to send.
 -- @return Status (true or false).
