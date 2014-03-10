@@ -2,9 +2,9 @@
 -- Pack and unpack binary data.
 --
 -- A problem script authors often face is the necessity of encoding values
--- into binary data. For example after analyzing a protocol the starting 
+-- into binary data. For example after analyzing a protocol the starting
 -- point to write a script could be a hex dump, which serves as a preamble
--- to every sent packet. Although it is possible to work with the 
+-- to every sent packet. Although it is possible to work with the
 -- functionality Lua provides, it's not very convenient. Therefore NSE includes
 -- Binlib, based on lpack (http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/)
 -- by Luiz Henrique de Figueiredo.
@@ -35,7 +35,7 @@
 -- * <code>></code> big endian modifier
 -- * <code>=</code> native endian modifier
 --
--- Note that the endian operators work as modifiers to all the 
+-- Note that the endian operators work as modifiers to all the
 -- characters following them in the format string.
 
 module "bin"
@@ -65,7 +65,7 @@ function pack(format, ...)
 -- like in <code>pack</code>, except if used with <code>A</code>,
 -- <code>B</code>, or <code>H</code>, in which cases the number tells
 -- <code>unpack</code> how many bytes to read. <code>unpack</code> stops if
--- either the format string or the binary data string are exhausted. 
+-- either the format string or the binary data string are exhausted.
 -- @param format Format string, used to unpack values out of data string.
 -- @param data String containing packed data.
 -- @param init Optional starting position within the string.
