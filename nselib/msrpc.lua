@@ -179,27 +179,34 @@ local UUID2EXE = {
 }
 
 
---- This is a wrapper around the SMB class, designed to get SMB going quickly for MSRPC calls. This will
---  connect to the SMB server, negotiate the protocol, open a session, connect to the IPC$ share, and
---  open the named pipe given by 'path'. When this successfully returns, the 'smbstate' table can be immediately
---  used for MSRPC (the <code>bind</code> function should be called right after).
+--- This is a wrapper around the SMB class, designed to get SMB going quickly for MSRPC calls.
 --
--- Note that the smbstate table is the same one used in the SMB files (obviously), so it will contain
--- the various results/information places in there by SMB functions.
+-- This will connect to the SMB server, negotiate the protocol, open a session,
+-- connect to the IPC$ share, and open the named pipe given by 'path'. When
+-- this successfully returns, the 'smbstate' table can be immediately used for
+-- MSRPC (the <code>bind</code> function should be called right after).
+--
+-- Note that the smbstate table is the same one used in the SMB files
+-- (obviously), so it will contain the various results/information places in
+-- there by SMB functions.
 --
 --@param host The host object.
---@param path The path to the named pipe; for example, msrpc.SAMR_PATH or msrpc.SRVSVC_PATH.
---@param disable_extended [optional] If set to 'true', disables extended security negotiations.
+--@param path The path to the named pipe; for example, msrpc.SAMR_PATH or
+--            msrpc.SRVSVC_PATH.
+--@param disable_extended [optional] If set to 'true', disables extended
+--                        security negotiations.
 --@param overrides [optional] Overrides variables in all the SMB functions.
---@return (status, smbstate) if status is false, smbstate is an error message. Otherwise, smbstate is
---        required for all further calls.
+--@return status true or false
+--@return smbstate if status is true, or an error message.
 function start_smb(host, path, disable_extended, overrides)
   overrides = overrides or {}
   return smb.start_ex(host, true, true, "IPC$", path, disable_extended, overrides)
 end
 
---- A wrapper around the <code>smb.stop</code> function. I only created it to add symmetry, so client code
---  doesn't have to call both msrpc and smb functions.
+--- A wrapper around the <code>smb.stop</code> function.
+--
+-- I only created it to add symmetry, so client code doesn't have to call both
+-- msrpc and smb functions.
 --
 --@param state The SMB state table.
 function stop_smb(state)
@@ -344,23 +351,33 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
   return true, result
 end
 
---- Call a MSRPC function on the remote sever, with the given opnum and arguments. I opted to make this a local function
---  for design reasons -- scripts shouldn't be directly calling a function, if a function I haven't written is needed, it
---  ought to be added to this file.
+--- Call a MSRPC function on the remote server, with the given opnum and arguments.
 --
--- Anyways, this function takes the opnum and marshalled arguments, and passes it down to the SMB layer. The SMB layer sends
--- out a <code>SMB_COM_TRANSACTION</code> packet, and parses the result. Once the SMB stuff has been stripped off the result, it's
--- passed down here, cleaned up some more, and returned to the caller.
+-- I opted to make this a local function for design reasons -- scripts
+-- shouldn't be directly calling a function, if a function I haven't written is
+-- needed, it ought to be added to this file.
 --
--- There's a reason that SMB is sometimes considered to be between layer 4 and 7 on the OSI model. :)
+-- Anyways, this function takes the opnum and marshalled arguments, and passes
+-- it down to the SMB layer. The SMB layer sends out a
+-- <code>SMB_COM_TRANSACTION</code> packet, and parses the result. Once the SMB
+-- stuff has been stripped off the result, it's passed down here, cleaned up
+-- some more, and returned to the caller.
 --
---@param smbstate  The SMB state table (after <code>bind</code> has been called).
---@param opnum     The operating number (ie, the function). Find this in the MSRPC documentation or with a packet logger.
---@param arguments The marshalled arguments to pass to the function. Currently, marshalling is all done manually.
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'arguments', which are the values returned by the server. If the packet is fragmented, the fragments
---        will be reassembled and 'arguments' will represent all the arguments; however, the rest of the result table will represent
---        the most recent fragment.
+-- There's a reason that SMB is sometimes considered to be between layer 4 and
+-- 7 on the OSI model. :)
+--
+--@param smbstate The SMB state table (after <code>bind</code> has been called).
+--@param opnum The operating number (ie, the function). Find this in the
+--             MSRPC documentation or with a packet logger.
+--@param arguments The marshalled arguments to pass to the function. Currently,
+--                 marshalling is all done manually.
+--@return status true or false
+--@return If status is false, result is an error message. Otherwise, result is
+--        a table of values, the most useful one being 'arguments', which are
+--        the values returned by the server. If the packet is fragmented, the
+--        fragments will be reassembled and 'arguments' will represent all the
+--        arguments; however, the rest of the result table will represent the
+--        most recent fragment.
 function call_function(smbstate, opnum, arguments)
   local i
   local status, result
@@ -549,9 +566,11 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
   return true, entries
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a ShareType to an english string.
--- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
--- functions.
+---A proxy to a <code>msrpctypes</code> function that converts a ShareType to
+-- an English string.
+--
+-- I implemented this as a proxy so scripts don't have to make direct calls to
+-- <code>msrpctypes</code> functions.
 --
 --@param val The value to convert.
 --@return A string that can be displayed to the user.
@@ -559,13 +578,17 @@ function srvsvc_ShareType_tostr(val)
   return msrpctypes.srvsvc_ShareType_tostr(val)
 end
 
----Call the MSRPC function <code>netshareenumall</code> on the remote system. This function basically returns a list of all the shares
--- on the system.
+---Call the MSRPC function <code>netshareenumall</code> on the remote system.
+--
+-- This function basically returns a list of all the shares on the system.
 --
 --@param smbstate The SMB state table
---@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'shares', which is a list of the system's shares.
+--@param server The IP or Hostname of the server (seems to be ignored but it's
+--              a good idea to have it)
+--@return status true or false
+--@return If status is false, result is an error message. Otherwise, result is
+--        a table of values, the most useful one being 'shares', which is a
+--        list of the system's shares.
 function srvsvc_netshareenumall(smbstate, server)
   local i, j
   local status, result
@@ -1281,9 +1304,10 @@ function epmapper_lookup(smbstate,handle)
   return status,lookup_response
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an english string.
--- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
--- functions.
+---A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an English string.
+--
+-- I implemented this as a proxy so scripts don't have to make direct calls to
+-- <code>msrpctypes</code> functions.
 --
 --@param val The value to convert.
 --@return A string that can be displayed to the user.
@@ -1291,9 +1315,11 @@ function samr_PasswordProperties_tostr(val)
   return msrpctypes.samr_PasswordProperties_tostr(val)
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a AcctFlags to an english string.
--- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
--- functions.
+---A proxy to a <code>msrpctypes</code> function that converts a AcctFlags to
+-- an English string.
+--
+-- I implemented this as a proxy so scripts don't have to make direct calls to
+-- <code>msrpctypes</code> functions.
 --
 --@param val The value to convert.
 --@return A string that can be displayed to the user.
@@ -1301,13 +1327,17 @@ function samr_AcctFlags_tostr(val)
   return msrpctypes.samr_AcctFlags_tostr(val)
 end
 
----Call the <code>connect4</code> function, to obtain a "connect handle". This must be done before calling many
--- of the SAMR functions.
+---Call the <code>connect4</code> function, to obtain a "connect handle".
 --
---@param smbstate  The SMB state table
---@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'connect_handle', which is required to call other functions.
+-- This must be done before calling many of the SAMR functions.
+--
+--@param smbstate The SMB state table
+--@param server The IP or Hostname of the server (seems to be ignored but it's
+--              a good idea to have it)
+--@return status true or false
+--@return If status is false, result is an error message. Otherwise, result is
+--        a table of values, the most useful one being 'connect_handle', which
+--        is required to call other functions.
 function samr_connect4(smbstate, server)
   local i, j
   local status, result
@@ -2359,9 +2389,11 @@ function lsa_close(smbstate, handle)
   return true, result
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a SidType to an english string.
--- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
--- functions.
+---A proxy to a <code>msrpctypes</code> function that converts a SidType to an
+-- English string.
+--
+-- I implemented this as a proxy so scripts don't have to make direct calls to
+-- <code>msrpctypes</code> functions.
 --
 --@param val The value to convert.
 --@return A string that can be displayed to the user.
@@ -3456,15 +3488,19 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   return true, result
 end
 
----Calls the function <code>JobAdd</code>, which schedules a process to be run on the remote
--- machine. This requires administrator privileges to run, and the command itself runs as
--- SYSTEM.
+---Calls the function <code>JobAdd</code>, which schedules a process to be run
+-- on the remote machine.
+--
+-- This requires administrator privileges to run, and the command itself runs
+-- as SYSTEM.
 --@param smbstate The SMB state table.
---@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
---@param command  The command to run on the remote machine. The appropriate file(s) already
---                have to be there, and this should be a full path.
---@param time     (optional) The time at which to run the command. Default: 5 seconds from
---                when the user logged in.
+--@param server The IP or Hostname of the server (seems to be ignored but it's
+--              a good idea to have it)
+--@param command The command to run on the remote machine. The appropriate
+--               file(s) already have to be there, and this should be a full
+--               path.
+--@param time [optional] The time at which to run the command. Default: 5
+--            seconds from when the user logged in.
 function atsvc_jobadd(smbstate, server, command, time)
   local i, j
   local status, result
@@ -4290,25 +4326,29 @@ function get_domains(host)
   return true, response
 end
 
----Create a "service" on a remote machine. This service is linked to an executable that is already
--- on the system. The name of the service can be whatever you want it to be. The service is created
--- in the "stopped" state with "manual" startup, and it ignores errors. The 'servicename' is what
--- people will see on the system while the service is running, and what'll stay there is something
--- happens that the service can't be deleted properly.
+---Create a "service" on a remote machine.
 --
--- Note that this (and the other "service" functions) are highly invasive. They make configuration
--- changes to the machine that can potentially affect stability.
+-- This service is linked to an executable that is already on the system. The
+-- name of the service can be whatever you want it to be. The service is
+-- created in the "stopped" state with "manual" startup, and it ignores errors.
+-- The 'servicename' is what people will see on the system while the service is
+-- running, and what'll stay there is something happens that the service can't
+-- be deleted properly.
 --
--- The reason that this and the other "service" functions don't require a <code>smbstate</code>
--- object is that I wanted them to be independent. If a service fails to start, I don't want it
--- to affect the program's ability to stop and delete the service. Every service function is
--- independent.
+-- Note that this (and the other "service" functions) are highly invasive. They
+-- make configuration changes to the machine that can potentially affect
+-- stability.
+--
+-- The reason that this and the other "service" functions don't require a
+-- <code>smbstate</code> object is that I wanted them to be independent. If a
+-- service fails to start, I don't want it to affect the program's ability to
+-- stop and delete the service. Every service function is independent.
 --
 --@param host        The host object.
 --@param servicename The name of the service to create.
 --@param path        The path and filename on the remote system.
---@return (status, err) If status is <code>false</code>, <code>err</code> is an error message;
---        otherwise, err is undefined.
+--@return status true or false
+--@return error message if status is false
 function service_create(host, servicename, path)
   local status, smbstate, bind_result, open_result, create_result, close_result
 
@@ -4595,12 +4635,15 @@ function service_delete(host, servicename)
   return true
 end
 
----Retrieves statistical information about the given server. This function requires administrator privileges
--- to run, and is present on all Windows versions, so it's a useful way to check whether or not an account
--- is administrative.
---@param host       The host object
---@return (status, data) If status is false, data is an error message; otherwise, data is a table of information
---        about the server.
+---Retrieves statistical information about the given server.
+--
+-- This function requires administrator privileges to run, and is present on
+-- all Windows versions, so it's a useful way to check whether or not an
+-- account is administrative.
+--@param host The host object
+--@return status true or false
+--@return If status is false, data is an error message; otherwise, data is a
+--        table of information about the server.
 function get_server_stats(host)
   local stats
   local status

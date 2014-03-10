@@ -17,6 +17,7 @@ local table = require "table"
 _ENV = stdnse.module("formulas", stdnse.seeall)
 
 --- Calculate the entropy of a password.
+--
 -- A random password's information entropy, H, is given by the formula: H = L *
 -- (logN) / (log2), where N is the number of possible symbols and L is the
 -- number of symbols in the password. Based on
@@ -94,6 +95,7 @@ local CHI2_CDF = {
 }
 
 --- Checks whether a sample looks random
+--
 -- Because our sample is so small (only 16 bytes), do a chi-square
 -- goodness of fit test across groups of 2, 4, and 8 bits. If using only
 -- 8 bits, for example, any sample whose bytes are all different would

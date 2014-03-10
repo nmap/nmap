@@ -1012,10 +1012,12 @@ Helper = {
 
   --- Retrieves some information from the server using the following NCP
   -- functions:
-  --  <code>GetFileServerInfo</code>
-  --  <code>Ping</code>
-  --  <code>EnumerateNetworkAddress</code>
-  --  <code>GetMountVolumeList</code>
+  --
+  --  * <code>GetFileServerInfo</code>
+  --  * <code>Ping</code>
+  --  * <code>EnumerateNetworkAddress</code>
+  --  * <code>GetMountVolumeList</code>
+  --
   -- The result contains the Tree name, product versions and mounts
   getServerInfo = function(self)
     local status, srv_info = self.ncp:GetFileServerInfo()

@@ -1414,6 +1414,7 @@ end
 
 ---
 -- Adds an client-subnet payload to the OPT packet
+--
 -- implementing http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
@@ -1441,8 +1442,10 @@ function addNSID (pkt,Z)
 end
 
 ---
--- Adds an OPT RR to a DNS packet's additional section. Only the table of Z
--- flags is supported (i.e., not RDATA). See RFC 2671 section 4.3.
+-- Adds an OPT RR to a DNS packet's additional section.
+--
+-- Only the table of Z flags is supported (i.e., not RDATA). See RFC 2671
+-- section 4.3.
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
 function addOPT(pkt, Z, opt)

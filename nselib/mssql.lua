@@ -207,12 +207,13 @@ SqlServerInstanceInfo =
     return areEqual
   end,
 
-  --- Merges the data from one SqlServerInstanceInfo object into another. Each
-  --  field in the first object is populated with the data from that field in
-  --  second object if the first object's field is nil OR if <code>overwrite</code>
-  --  is set to true. A special case is made for the <code>version</code> field,
-  --  which is only overwritten in the second object has more reliable version
-  --  information. The second object is not modified.
+  --- Merges the data from one SqlServerInstanceInfo object into another.
+  --
+  -- Each field in the first object is populated with the data from that field
+  -- in second object if the first object's field is nil OR if
+  -- <code>overwrite</code> is set to true. A special case is made for the
+  -- <code>version</code> field, which is only overwritten in the second object
+  -- has more reliable version information. The second object is not modified.
   Merge = function( self, other, overwrite )
     local mergeFields = { "host", "port", "instanceName", "version", "isClustered", "pipeName" }
     for _, fieldname in ipairs( mergeFields ) do
@@ -227,8 +228,9 @@ SqlServerInstanceInfo =
     end
   end,
 
-  --- Returns a name for the instance, based on the available information. This
-  --  may take one of the following forms:
+  --- Returns a name for the instance, based on the available information.
+  --
+  -- This may take one of the following forms:
   --  * HOST\INSTANCENAME
   --  * PIPENAME
   --  * HOST:PORT
@@ -2144,6 +2146,7 @@ TDSStream = {
   end,
 
   --- Receives responses from SQL Server
+  --
   -- The function continues to read and assemble a response until the server
   -- responds with the last response flag set
   --
@@ -2301,11 +2304,13 @@ Helper =
   end,
 
   --- Adds an instance to the list of instances kept in the Nmap registry for
-  --  shared use by SQL Server scripts. If the registry already contains the
-  --  instance, any new information is merged into the existing instance info.
-  --  This may happen, for example, when an instance is discovered via named
-  --  pipes, but the same instance has already been discovered via SSRP; this
-  --  will prevent duplicates, where possible.
+  --  shared use by SQL Server scripts.
+  --
+  --  If the registry already contains the instance, any new information is
+  --  merged into the existing instance info.  This may happen, for example,
+  --  when an instance is discovered via named pipes, but the same instance has
+  --  already been discovered via SSRP; this will prevent duplicates, where
+  --  possible.
   AddOrMergeInstance = function( newInstance )
     local instanceExists
 
@@ -2356,6 +2361,7 @@ Helper =
 
   --- Attempts to discover SQL Server instances using SSRP to query one or
   --  more (if <code>broadcast</code> is used) SQL Server Browser services.
+  --
   --  Any discovered instances are returned, as well as being stored for use
   --  by other scripts (see <code>mssql.Helper.GetDiscoveredInstances()</code>).
   --
@@ -2413,8 +2419,11 @@ Helper =
   end,
 
   --- Attempts to discover a SQL Server instance listening on the specified
-  --  port. If an instance is discovered, it is returned, as well as being
-  --  stored for use by other scripts (see <code>mssql.Helper.GetDiscoveredInstances()</code>).
+  --  port.
+  --
+  --  If an instance is discovered, it is returned, as well as being stored for
+  --  use by other scripts (see
+  --  <code>mssql.Helper.GetDiscoveredInstances()</code>).
   --
   --  @param host A host table for the target.
   --  @param port A port table for the target port.
@@ -2449,8 +2458,10 @@ Helper =
   end,
 
   ---  Attempts to discover SQL Server instances listening on default named
-  --  pipes. Any discovered instances are returned, as well as being stored
-  --  for use by other scripts (see <code>mssql.Helper.GetDiscoveredInstances()</code>).
+  --  pipes.
+  --
+  --  Any discovered instances are returned, as well as being stored for use by
+  --  other scripts (see <code>mssql.Helper.GetDiscoveredInstances()</code>).
   --
   --  @param host A host table for the target.
   --  @param port A port table for the port to connect on for SMB
@@ -2487,6 +2498,7 @@ Helper =
   end,
 
   --- Attempts to discover SQL Server instances by a variety of means.
+  --
   --  This function calls the three DiscoverBy functions, which perform the
   --  actual discovery. Any discovered instances can be retrieved using
   --  <code>mssql.Helper.GetDiscoveredInstances()</code>.
@@ -2563,6 +2575,7 @@ Helper =
 
   ---  Returns a username-password set according to the following rules of
   --  precedence:
+  --
   --  * If the <code>mssql.username</code> and <code>mssql.password</code>
   --    script arguments were set, their values are used. (If the username
   --    argument was specified without the password argument, a blank
@@ -2616,8 +2629,9 @@ Helper =
     return true
   end,
 
-  --- Authenticates to SQL Server. If login fails, one of the following error
-  --  messages will be returned:
+  --- Authenticates to SQL Server.
+  --
+  -- If login fails, one of the following error messages will be returned:
   --  * "Password is expired"
   --  * "Must change password at next logon"
   --  * "Account is locked out"
@@ -2711,10 +2725,11 @@ Helper =
   end,
 
   --- Authenticates to SQL Server, using the credentials returned by
-  --  Helper.GetLoginCredentials(). If the login is rejected by the server,
-  --  the error code will be returned, as a number in the form of a
-  --  <code>mssql.LoginErrorType</code> (for which error messages can be
-  --  looked up in <code>mssql.LoginErrorMessage</code>).
+  --  Helper.GetLoginCredentials().
+  --
+  --  If the login is rejected by the server, the error code will be returned,
+  --  as a number in the form of a <code>mssql.LoginErrorType</code> (for which
+  --  error messages can be looked up in <code>mssql.LoginErrorMessage</code>).
   --
   -- @param instanceInfo a SqlServerInstanceInfo object for the instance to log into
   -- @param database string containing the database to access
@@ -2967,6 +2982,7 @@ Helper =
   end,
 
   --- Queries the SQL Browser service for the DAC port of the specified instance
+  --
   --  The DAC (Dedicated Admin Connection) port allows DBA's to connect to
   --  the database when normal connection attempts fail, for example, when
   --  the server is hanging, out of memory or other bad states.
@@ -3002,7 +3018,9 @@ Helper =
 
   --- Returns a hostrule for standard SQL Server scripts, which will return
   --  true if one or more instances have been targeted with the <code>mssql.instance</code>
-  --  script argument. However, if a previous script has failed to find any
+  --  script argument.
+  --
+  --  However, if a previous script has failed to find any
   --  SQL Server instances on the host, the hostrule function will return
   --  false to keep further scripts from running unnecessarily on that host.
   --
@@ -3022,8 +3040,9 @@ Helper =
   end,
 
 
-  ---  Returns a portrule for standard SQL Server scripts, which will run return
-  --  true if BOTH of the following conditions are met:
+  ---  Returns a portrule for standard SQL Server scripts
+  --
+  -- The portrule return true if BOTH of the following conditions are met:
   --  * The port has been identified as "ms-sql-s"
   --  * The <code>mssql.instance</code> script argument has NOT been used
   --

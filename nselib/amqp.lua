@@ -190,8 +190,8 @@ AMQP = {
   end,
 
   --- Performs the AMQP handshake and determines
-  -- o The AMQP protocol version
-  -- o The server properties/capabilities
+  -- * The AMQP protocol version
+  -- * The server properties/capabilities
   --
   -- @return status, true on success, false on failure
   -- @return error string containing error message if status is false

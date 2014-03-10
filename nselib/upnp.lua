@@ -115,7 +115,9 @@ Comm = {
   end,
 
   --- Receives one or multiple UPNP responses depending on whether
-  -- <code>setBroadcast</code> was enabled or not. The function returns the
+  -- <code>setBroadcast</code> was enabled or not.
+  --
+  -- The function returns the
   -- status and a response containing:
   -- * an array (table) of responses if broadcast is used
   -- * a single response if broadcast is not in use

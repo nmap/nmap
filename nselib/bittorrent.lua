@@ -695,6 +695,7 @@ Torrent =
   end,
 
   --- Runs the three threads which do a DHT discovery of nodes and peers.
+  --
   -- The default timeout for this discovery is 30 seconds but it can be
   -- set through the timeout argument.
   dht_peers = function(self, timeout)
@@ -756,6 +757,7 @@ Torrent =
   end,
 
   --- Parses self.buffer, fills self.tor_struct, self.info_buf
+  --
   -- This function is similar to the bdecode function but it has a few
   -- additions for calculating torrent file specific fields
   parse_buffer = function(self)
@@ -1026,9 +1028,10 @@ Torrent =
     if size == 0 then return false end
   end,
 
-  --- Calculates the info hash using self.info_buf. The info_hash value
-  -- is used in many communication transactions for identifying the file
-  -- shared among the bittorrent peers
+  --- Calculates the info hash using self.info_buf.
+  --
+  -- The info_hash value is used in many communication transactions for
+  -- identifying the file shared among the bittorrent peers
   calc_info_hash = function(self)
     local info_hash = openssl.sha1(self.info_buf)
     self.info_hash_url = url.escape(info_hash)
@@ -1142,9 +1145,10 @@ Torrent =
     return true
   end,
 
-  --- Gets the peers from udp trackers when supplied the URL of the tracker
-  -- First we establish a connection to the udp server and then we can request peers
-  -- for a good specification refer to:
+  --- Gets the peers from udp trackers when supplied the URL of the tracker.
+  --
+  -- First we establish a connection to the udp server and then we can request
+  -- peers. For a good specification refer to:
   -- http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
   udp_tracker_peers = function(self, tracker)
     local host, port = tracker:match("^udp://(.-):(.+)")

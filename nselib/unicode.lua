@@ -56,6 +56,7 @@ function encode(list, encoder, bigendian)
 end
 
 ---Encode a Unicode code point to UTF-16. See RFC 2781.
+--
 -- Windows OS prior to Windows 2000 only supports UCS-2, so beware using this
 -- function to encode code points above 0xFFFF.
 --@param cp The Unicode code point as a number
@@ -82,6 +83,7 @@ function utf16_enc(cp, bigendian)
 end
 
 ---Decodes a UTF-16 character.
+--
 -- Does not check that the returned code point is a real character.
 -- Specifically, it can be fooled by out-of-order lead- and trail-surrogate
 -- characters.
@@ -108,6 +110,7 @@ function utf16_dec(buf, pos, bigendian)
 end
 
 ---Encode a Unicode code point to UTF-8. See RFC 3629.
+--
 -- Does not check that cp is a real character; that is, doesn't exclude the
 -- surrogate range U+D800 - U+DFFF and a handful of others.
 --@param cp The Unicode code point as a number
@@ -146,6 +149,7 @@ function utf8_enc(cp)
 end
 
 ---Decodes a UTF-8 character.
+--
 -- Does not check that the returned code point is a real character.
 --@param buf A string containing the character
 --@param pos The index in the string where the character begins

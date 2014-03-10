@@ -159,11 +159,12 @@ local SMTP_CMD = {
   },
 }
 ---
--- Returns a domain to be used in the SMTP commands that need it. If the
--- user specified one through the script argument <code>smtp.domain</code>
--- this function will return it. Otherwise it will try to find the domain
--- from the typed hostname and from the rDNS name. If it still can't find
--- one it will return the nmap.scanme.org by default.
+-- Returns a domain to be used in the SMTP commands that need it.
+--
+-- If the user specified one through the script argument
+-- <code>smtp.domain</code> this function will return it. Otherwise it will try
+-- to find the domain from the typed hostname and from the rDNS name. If it
+-- still can't find one it will return the nmap.scanme.org by default.
 --
 -- @param host The host table
 -- @return The hostname to be used by the different SMTP commands.
