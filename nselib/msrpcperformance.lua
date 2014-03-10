@@ -421,13 +421,18 @@ local function parse_perf_counter_block(data, pos)
   return true, pos, result
 end
 
----Retrieve the parsed performance data from the given host for the requested object values. To get a list of possible
--- object values, leave 'objects' blank and look at <code>result['title_database']</code> -- it'll contain a list of
--- indexes that can be looked up. These indexes are passed as a string or as a series of space-separated strings (eg,
--- "230" for "Process" and "238" for "Process" and "Processor").
+---Retrieve the parsed performance data from the given host for the requested
+-- object values.
+--
+-- To get a list of possible object values, leave 'objects' blank and look at
+-- <code>result['title_database']</code> -- it'll contain a list of indexes
+-- that can be looked up. These indexes are passed as a string or as a series
+-- of space-separated strings (eg, "230" for "Process" and "238" for "Process"
+-- and "Processor").
 --
 --@param host The host object
---@param objects [optional] The space-separated list of object numbers to retrieve. Default: only retrieve the database.
+--@param objects [optional] The space-separated list of object numbers to
+--               retrieve. Default: only retrieve the database.
 function get_performance_data(host, objects)
 
   -- Create the SMB session

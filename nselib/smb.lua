@@ -245,9 +245,12 @@ function get_port(host)
   return nil
 end
 
----Turn off extended security negotiations for this connection. There are a few reasons you might want to
--- do that, the main ones being that extended security is going to be marginally slower and it's not going
--- to give the same level of information in some cases (namely, it doesn't present the server's name).
+---Turn off extended security negotiations for this connection.
+--
+-- There are a few reasons you might want to do that, the main ones being that
+-- extended security is going to be marginally slower and it's not going to
+-- give the same level of information in some cases (namely, it doesn't present
+-- the server's name).
 --@param smb The SMB state table.
 function disable_extended(smb)
   smb['extended_security'] = false
@@ -324,23 +327,29 @@ function start(host)
   return false, "SMB: Couldn't find a valid port to check"
 end
 
----Initiates a SMB connection over whichever port it can, then optionally sends the common
--- initialization packets. Note that each packet depends on the previous one, so if you want
--- to go all the way up to create_file, you have to set all parameters.
+---Initiates a SMB connection over whichever port it can, then optionally sends
+-- the common initialization packets.
 --
--- If anything fails, we back out of the connection and return an error, so the calling function
--- doesn't have to call smb.stop().
+-- Note that each packet depends on the previous one, so if you want to go all
+-- the way up to create_file, you have to set all parameters.
 --
---@param host               The host object.
---@param bool_negotiate_protocol [optional] If 'true', send the protocol negotiation. Default: false.
---@param bool_start_session      [optional] If 'true', start the session. Default: false.
---@param str_tree_connect       [optional] The tree to connect to, if given (eg. "IPC$" or "C$"). If not given,
---                          packet isn't sent.
---@param str_create_file        [optional] The path and name of the file (or pipe) that's created, if given. If
---                          not given, packet isn't sent.
---@param overrides          [optional] A table of overrides (for, for example, username, password, etc.) to pass
---                          to all functions.
---@param bool_disable_extended   [optional] If set to true, disables extended security negotiations.
+-- If anything fails, we back out of the connection and return an error, so the
+-- calling function doesn't have to call smb.stop().
+--
+--@param host The host object.
+--@param bool_negotiate_protocol [optional] If 'true', send the protocol
+--                               negotiation. Default: false.
+--@param bool_start_session [optional] If 'true', start the session. Default:
+--                          false.
+--@param str_tree_connect [optional] The tree to connect to, if given (eg.
+--                        "IPC$" or "C$"). If not given, packet isn't sent.
+--@param str_create_file [optional] The path and name of the file (or pipe)
+--                       that's created, if given. If not given, packet isn't
+--                       sent.
+--@param overrides [optional] A table of overrides (for, for example, username,
+--                 password, etc.) to pass to all functions.
+--@param bool_disable_extended [optional] If set to true, disables extended
+--                             security negotiations.
 function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_connect, str_create_file, bool_disable_extended, overrides)
   local smbstate
   local status, err
@@ -475,24 +484,27 @@ local function get_subnames(name)
   return list
 end
 
---- Begins a SMB session over NetBIOS. This requires a NetBIOS Session Start message to
---  be sent first, which in turn requires the NetBIOS name. The name can be provided as
---  a parameter, or it can be automatically determined.
+--- Begins a SMB session over NetBIOS.
 --
--- Automatically determining the name is interesting, to say the least. Here are the names
--- it tries, and the order it tries them in:
+-- This requires a NetBIOS Session Start message to be sent first, which in
+-- turn requires the NetBIOS name. The name can be provided as a parameter, or
+-- it can be automatically determined.
+--
+-- Automatically determining the name is interesting, to say the least. Here
+-- are the names it tries, and the order it tries them in:
 -- * The name the user provided, if present
 -- * The name pulled from NetBIOS (udp/137), if possible
 -- * The generic name "*SMBSERVER"
--- * Each subset of the domain name (for example, scanme.insecure.org would attempt "scanme",
---    "scanme.insecure", and "scanme.insecure.org")
+-- * Each subset of the domain name (for example, scanme.insecure.org would
+--   attempt "scanme", "scanme.insecure", and "scanme.insecure.org")
 --
--- This whole sequence is a little hackish, but it's the standard way of doing it.
+-- This whole sequence is a little hackish, but it's the standard way of doing
+-- it.
 --
 --@param host The host object to check.
 --@param port The port to use (most likely 139).
---@param name [optional] The NetBIOS name of the host. Will attempt to automatically determine
---            if it isn't given.
+--@param name [optional] The NetBIOS name of the host. Will attempt to
+--            automatically determine if it isn't given.
 --@return (status, socket) if status is true, result is the port
 --        Otherwise, socket is the error message.
 function start_netbios(host, port, name)
@@ -678,7 +690,9 @@ function smb_encode_header(smb, command, overrides)
   return header
 end
 
---- Converts a string containing the parameters section into the encoded parameters string.
+--- Converts a string containing the parameters section into the encoded
+--  parameters string.
+--
 -- The encoding is simple:
 -- * (1 byte)   The number of 2-byte values in the parameters section
 -- * (variable) The parameter section
@@ -695,6 +709,7 @@ local function smb_encode_parameters(parameters, overrides)
 end
 
 --- Converts a string containing the data section into the encoded data string.
+--
 -- The encoding is simple:
 -- * (2 bytes)  The number of bytes in the data section
 -- * (variable) The data section
@@ -737,9 +752,10 @@ local function message_sign(smb, body)
   return string.sub(body, 1, 14) .. signature .. string.sub(body, 23)
 end
 
----Check the signature of the message. This is the opposite of <code>message_sign</code>,
--- and works the same way (replaces the signature with the sequence number, calculates
--- hash, checks)
+---Check the signature of the message.
+--
+-- This is the opposite of <code>message_sign</code>, and works the same way
+-- (replaces the signature with the sequence number, calculates hash, checks)
 --@param smb  The smb state object.
 --@param body The body of the packet that's being checked.
 --@return A true/false value -- true if the packet was signed properly, false if it wasn't.
@@ -773,8 +789,10 @@ local function message_check_signature(smb, body)
 end
 
 --- Prepends the NetBIOS header to the packet, which is essentially the length, encoded
---  in 4 bytes of big endian, and sends it out. The length field is actually 17 or 24 bits
---  wide, depending on whether or not we're using raw, but that shouldn't matter.
+--  in 4 bytes of big endian, and sends it out.
+--
+--  The length field is actually 17 or 24 bits wide, depending on whether or
+--  not we're using raw, but that shouldn't matter.
 --
 --@param smb        The SMB object associated with the connection
 --@param header     The header, encoded with <code>smb_get_header</code>.
@@ -924,6 +942,7 @@ function smb_read(smb, read_data)
 end
 
 --- Sends out <code>SMB_COM_NEGOTIATE</code>, which is typically the first SMB packet sent out.
+--
 -- Sends the following:
 -- * List of known protocols
 --
@@ -1496,6 +1515,7 @@ local function start_session_extended(smb, log_errors, overrides)
 end
 
 --- Sends out SMB_COM_SESSION_SETUP_ANDX, which attempts to log a user in.
+--
 -- Sends the following:
 -- * Negotiated parameters (multiplexed connections, virtual circuit, capabilities)
 -- * Passwords (plaintext, unicode, lanman, ntlm, lmv2, ntlmv2, etc)
@@ -1534,7 +1554,9 @@ function start_session(smb, overrides, log_errors)
   return status, result
 end
 
---- Sends out <code>SMB_COM_SESSION_TREE_CONNECT_ANDX</code>, which attempts to connect to a share.
+--- Sends out <code>SMB_COM_SESSION_TREE_CONNECT_ANDX</code>, which attempts to
+-- connect to a share.
+--
 -- Sends the following:
 -- * Password (for share-level security, which we don't support)
 -- * Share name
@@ -1705,8 +1727,10 @@ function logoff(smb, overrides)
 end
 
 --- This sends a SMB request to open or create a file.
---  Most of the parameters I pass here are used directly from a packetlog, especially the various permissions fields and flags.
---  I might make this more adjustable in the future, but this has been working for me.
+--
+--  Most of the parameters I pass here are used directly from a packetlog,
+--  especially the various permissions fields and flags.  I might make this
+--  more adjustable in the future, but this has been working for me.
 --
 --@param smb       The SMB object associated with the connection
 --@param path      The path of the file or pipe to open
@@ -2183,23 +2207,31 @@ end
 
 
 
----This is the core of making MSRPC calls. It sends out a MSRPC packet with the given parameters and data.
--- Don't confuse these parameters and data with SMB's concepts of parameters and data -- they are completely
--- different. In fact, these parameters and data are both sent in the SMB packet's 'data' section.
+---This is the core of making MSRPC calls. It sends out a MSRPC packet with the
+-- given parameters and data.
 --
--- It is probably best to think of this as another protocol layer. This function will wrap SMB stuff around a
--- MSRPC call, make the call, then unwrap the SMB stuff from it before returning.
+-- Don't confuse these parameters and data with SMB's concepts of parameters
+-- and data -- they are completely different. In fact, these parameters and
+-- data are both sent in the SMB packet's 'data' section.
 --
---@param smb                  The SMB object associated with the connection
---@param function_parameters  The parameter data to pass to the function. This is untested, since none of the
---                            transactions I've done have required parameters.
---@param function_data        The data to send with the packet. This is basically the next protocol layer
---@param pipe [optional]      The pipe to transact on. Default: "\PIPE\".
---@param no_setup [optional]  If set, the 'setup' is set to 0 and some parameters are left off. This occurs while
---                            using the LANMAN Remote API. Default: false.
---@param overrides            The overrides table
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table
---        containing 'parameters' and 'data', representing the parameters and data returned by the server.
+-- It is probably best to think of this as another protocol layer. This
+-- function will wrap SMB stuff around a MSRPC call, make the call, then unwrap
+-- the SMB stuff from it before returning.
+--
+--@param smb The SMB object associated with the connection
+--@param function_parameters The parameter data to pass to the function. This
+--                           is untested, since none of the transactions I've
+--                           done have required parameters.
+--@param function_data The data to send with the packet. This is basically the
+--                     next protocol layer
+--@param pipe [optional] The pipe to transact on. Default: "\PIPE\".
+--@param no_setup [optional] If set, the 'setup' is set to 0 and some
+--                parameters are left off. This occurs while using the LANMAN
+--                Remote API. Default: false.
+--@param overrides The overrides table
+--@return (status, result) If status is false, result is an error message.
+--        Otherwise, result is a table containing 'parameters' and 'data',
+--        representing the parameters and data returned by the server.
 function send_transaction_named_pipe(smb, function_parameters, function_data, pipe, no_setup, overrides)
   overrides = overrides or {}
   local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
@@ -3355,17 +3387,25 @@ function get_socket_info(host)
   return true, lhost, lport, rhost, rport, lmac
 end
 
----Generate a string that's somewhat unique, but is based on factors that won't change on a host. At the moment, this is a very simple
--- hash based on the IP address. This hash is *very* likely to have collisions, and that's by design -- while it should be somewhat unique,
--- I don't want it to be trivial to uniquely determine who it originated from.
+---Generate a string that's somewhat unique, but is based on factors that won't
+-- change on a host.
 --
--- TODO: At some point, I should re-do this function properly, with a method of hashing that's somewhat proven.
+-- At the moment, this is a very simple hash based on the IP address. This hash
+-- is *very* likely to have collisions, and that's by design -- while it should
+-- be somewhat unique, I don't want it to be trivial to uniquely determine who
+-- it originated from.
+--
+-- TODO: At some point, I should re-do this function properly, with a method of
+-- hashing that's somewhat proven.
 --
 --@param host      The host object
---@param extension [optional] The extension to add on the end of the file. Default: none.
---@param seed      [optional] Some randomness on which to base the name. If you want to do multiple files, each with its
---                 own uniqueish name, this can be used.
---@return (status, data) If status is true, data is a table of values; otherwise, data is an error message. Can be any kind of string.
+--@param extension [optional] The extension to add on the end of the file.
+--                 Default: none.
+--@param seed [optional] Some randomness on which to base the name. If you want
+--            to do multiple files, each with its own uniqueish name, this can
+--            be used.
+--@return (status, data) If status is true, data is a table of values;
+--        otherwise, data is an error message. Can be any kind of string.
 function get_uniqueish_name(host, extension, seed)
 
   local status

@@ -330,8 +330,10 @@ end
 
 ---
 -- Parses a time duration specification, which is a number followed by a
--- unit, and returns a number of seconds. The unit is optional and
--- defaults to seconds. The possible units (case-insensitive) are
+-- unit, and returns a number of seconds.
+--
+-- The unit is optional and defaults to seconds. The possible units
+-- (case-insensitive) are
 -- * <code>ms</code>: milliseconds,
 -- * <code>s</code>: seconds,
 -- * <code>m</code>: minutes,
@@ -385,12 +387,13 @@ local function utc_offset(t)
   -- Interpret both as local calendar dates and find the difference.
   return difftime(os.time(localtime), os.time(gmtime))
 end
---- Convert a date table into an integer timestamp. Unlike os.time, this does
--- not assume that the date table represents a local time. Rather, it takes an
--- optional offset number of seconds representing the time zone, and returns
--- the timestamp that would result using that time zone as local time. If the
--- offset is omitted or 0, the date table is interpreted as a UTC date. For
--- example, 4:00 UTC is the same as 5:00 UTC+1:
+--- Convert a date table into an integer timestamp.
+--
+-- Unlike os.time, this does not assume that the date table represents a local
+-- time. Rather, it takes an optional offset number of seconds representing the
+-- time zone, and returns the timestamp that would result using that time zone
+-- as local time. If the offset is omitted or 0, the date table is interpreted
+-- as a UTC date. For example, 4:00 UTC is the same as 5:00 UTC+1:
 -- <code>
 -- date_to_timestamp({year=1970,month=1,day=1,hour=4,min=0,sec=0})          --> 14400
 -- date_to_timestamp({year=1970,month=1,day=1,hour=4,min=0,sec=0}, 0)       --> 14400
@@ -658,7 +661,9 @@ local function format_output_sub(status, data, indent)
 end
 
 ---Takes a table of output on the commandline and formats it for display to the
--- user. This is basically done by converting an array of nested tables into a
+-- user.
+--
+-- This is basically done by converting an array of nested tables into a
 -- string. In addition to numbered array elements, each table can have a 'name'
 -- and a 'warning' value. The 'name' will be displayed above the table, and
 -- 'warning' will be displayed, with a 'WARNING' tag, if and only if debugging
@@ -837,6 +842,7 @@ function registry_exists(subkeys, key, value)
 end
 
 ---Add an item to an array in the registry, creating all sub-keys if necessary.
+--
 -- For example, calling:
 -- <code>registry_add_array({'192.168.1.100', 'www', '80', 'pages'}, 'index.html')</code>
 -- Will create nmap.registry['192.168.1.100'] as a table, if necessary, then add a table
@@ -1012,6 +1018,7 @@ do end -- no function here, see nse_main.lua
 
 
 ---Checks if the port is in the port range
+--
 -- For example, calling:
 -- <code>in_port_range({number=31337,protocol="udp"},"T:15,50-75,U:31334-31339")</code>
 -- would result in a true value
@@ -1211,8 +1218,12 @@ end
 local FILESYSTEM_UNSAFE = "[^a-zA-Z0-9._-]"
 ---
 -- Escape a string to remove bytes and strings that may have meaning to
--- a filesystem, such as slashes. All bytes are escaped, except for:
--- * alphabetic <code>a</code>-<code>z</code> and <code>A</code>-<code>Z</code>, digits 0-9, <code>.</code> <code>_</code> <code>-</code>
+-- a filesystem, such as slashes.
+--
+-- All bytes are escaped, except for:
+-- * alphabetic <code>a</code>-<code>z</code> and <code>A</code>-<code>Z</code>
+-- * digits 0-9
+-- * <code>.</code> <code>_</code> <code>-</code>
 -- In addition, the strings <code>"."</code> and <code>".."</code> have
 -- their characters escaped.
 --

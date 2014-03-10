@@ -214,15 +214,18 @@ end
 
 
 ---
--- Compares two IP addresses. When comparing addresses from different families,
+-- Compares two IP addresses.
+--
+-- When comparing addresses from different families,
 -- IPv4 addresses will sort before IPv6 addresses.
--- @param left   String representing an IPv4 or IPv6 address.  Shortened
--- notation is permitted.
--- @param op     A comparison operator which may be one of the following
--- strings: <code>"eq"</code>, <code>"ge"</code>, <code>"le"</code>,
--- <code>"gt"</code> or <code>"lt"</code> (respectively ==, >=, <=, >, <).
--- @param right  String representing an IPv4 or IPv6 address.  Shortened
--- notation is permitted.
+-- @param left String representing an IPv4 or IPv6 address.  Shortened
+--             notation is permitted.
+-- @param op A comparison operator which may be one of the following strings:
+--           <code>"eq"</code>, <code>"ge"</code>, <code>"le"</code>,
+--           <code>"gt"</code> or <code>"lt"</code> (respectively ==, >=, <=,
+--           >, <).
+-- @param right String representing an IPv4 or IPv6 address.  Shortened
+--              notation is permitted.
 -- @usage
 -- if ipOps.compare_ip( "2001::DEAD:0:0:0", "eq", "2001:0:0:0:DEAD::" ) then
 --   ...
@@ -477,14 +480,14 @@ end
 ---
 -- Calculates the last IP address of a range of addresses given an IP address in
 -- the range and prefix length for that range.
--- @param ip      String representing an IPv4 or IPv6 address.  Shortened
--- notation is permitted.
--- @param prefix  Number or a string representing a decimal number corresponding
--- to a prefix length.
+-- @param ip String representing an IPv4 or IPv6 address.  Shortened notation
+--           is permitted.
+-- @param prefix Number or a string representing a decimal number corresponding
+--               to a prefix length.
 -- @usage
 -- last = ipOps.get_last_ip( "192.0.0.0", 26 )
--- @return        String representing the last IP address of the range denoted
--- by the supplied parameters (or <code>nil</code> in case of an error).
+-- @return String representing the last IP address of the range denoted by the
+--         supplied parameters (or <code>nil</code> in case of an error).
 -- @return String error message in case of an error.
 get_last_ip = function( ip, prefix )
 
@@ -543,13 +546,13 @@ end
 ---
 -- Converts an IP address into a string representing the address as binary
 -- digits.
--- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
--- is permitted.
+-- @param ip String representing an IPv4 or IPv6 address.  Shortened notation
+--           is permitted.
 -- @usage
 -- bit_string = ipOps.ip_to_bin( "2001::" )
--- @return    String representing the supplied IP address as 32 or 128 binary
--- digits (or <code>nil</code> in case of an error).
--- @return    String error message in case of an error.
+-- @return String representing the supplied IP address as 32 or 128 binary
+--         digits (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 ip_to_bin = function( ip )
   local err
 

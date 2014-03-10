@@ -1003,6 +1003,7 @@ Packet.Connect = {
   getErrMsg = function( self ) return self.errmsg end,
 
   --- Reads and decodes the response to the connect packet from the server.
+  --
   -- The function will return true even if the response contains an Informix
   -- error. In order to verify if the connection was successful, check for OS
   -- or service errors using the getSvcError and getOsError methods.
@@ -1203,6 +1204,7 @@ Helper = {
   end,
 
   --- Attempts to login to the Informix database server
+  --
   -- The optional parameters parameter takes any informix specific parameters
   -- used to connect to the database. In case it's omitted a set of default
   -- parameters are set. Parameters should be past as key, value pairs inside

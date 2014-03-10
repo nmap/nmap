@@ -314,9 +314,10 @@ local function waitLast()
 end
 
 --- Waits for a file with a specific filename for at least the number of
--- seconds specified by the timeout parameter. If this function is called
--- from the thread that's running the server it will wait until all the
--- other threads have finished executing before returning.
+-- seconds specified by the timeout parameter.
+--
+-- If this function is called from the thread that's running the server it will
+-- wait until all the other threads have finished executing before returning.
 --
 -- @param filename string containing the name of the file to receive
 -- @param timeout number containing the minimum number of seconds to wait

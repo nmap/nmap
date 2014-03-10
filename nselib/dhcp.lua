@@ -471,14 +471,16 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   return true, packet
 end
 
----Parse a DHCP packet (either a request or a response) and return the results as a table. The
--- table at the top of this function (<code>actions</code>) defines the name of each field, as
--- laid out in rfc2132, and the function that parses it.
+---Parse a DHCP packet (either a request or a response) and return the results
+-- as a table.
+--
+-- The table at the top of this function (<code>actions</code>) defines the
+-- name of each field, as laid out in rfc2132, and the function that parses it.
 --
 -- In theory, this should be able to parse any valid DHCP packet.
 --
---@param data The DHCP packet data. Any padding at the end of the packet will be ignored (by default,
---            DHCP packets are padded with \x00 bytes).
+--@param data The DHCP packet data. Any padding at the end of the packet will
+--            be ignored (by default, DHCP packets are padded with \x00 bytes).
 function dhcp_parse(data, transaction_id)
   local pos = 1
   local result = {}

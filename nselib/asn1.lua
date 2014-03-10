@@ -41,8 +41,9 @@ ASN1Decoder = {
     return o
   end,
 
-  --- Tells the decoder to stop if it detects an error while decoding
-  -- this should probably be the default, but some scripts depend on being
+  --- Tells the decoder to stop if it detects an error while decoding.
+  --
+  -- This should probably be the default, but some scripts depend on being
   -- able to decode stuff while lacking proper ASN1 decoding functions.
   -- @name ASN1Decoder.setStopOnError
   -- @param val boolean, true if decoding should stop on error,
@@ -324,6 +325,7 @@ ASN1Encoder = {
   end,
 
   --- Registers the base ASN.1 Simple types encoders
+  --
   -- * boolean
   -- * integer (Lua number)
   -- * string
@@ -446,8 +448,8 @@ ASN1Encoder = {
 }
 
 
----
--- Converts a BER encoded type to a numeric value
+--- Converts a BER encoded type to a numeric value
+--
 -- This allows it to be used in the encoding function
 --
 -- @param class number - see <code>BERCLASS<code>

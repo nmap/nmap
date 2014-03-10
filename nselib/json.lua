@@ -81,8 +81,9 @@ local function escape(str)
 end
 
 --- Makes a table be treated as a JSON Array when generating JSON
---  A table treated as an Array has all non-number indices ignored.
--- () param t a table to be treated as an array
+--
+-- A table treated as an Array has all non-number indices ignored.
+-- @param t a table to be treated as an array
 function make_array(t)
   local mt = getmetatable(t) or {}
   mt["json"] = "array"
@@ -90,8 +91,9 @@ function make_array(t)
 end
 
 --- Makes a table be treated as a JSON Object when generating JSON
---  A table treated as an Object has all non-number indices ignored.
--- () param t a table to be treated as an object
+--
+-- A table treated as an Object has all non-number indices ignored.
+-- @param t a table to be treated as an object
 function make_object(t)
   local mt = getmetatable(t) or {}
   mt["json"] = "object"
@@ -99,8 +101,8 @@ function make_object(t)
 end
 
 --- Checks what JSON type a variable will be treated as when generating JSON
--- () param var a variable to inspect
--- () return a string containing the JSON type. Valid values are "array",
+-- @param var a variable to inspect
+-- @return a string containing the JSON type. Valid values are "array",
 --        "object", "number", "string", "boolean", and "null"
 function typeof(var)
   local t = type(var)
@@ -437,6 +439,7 @@ end
 return val
 end
 --- Parses json data into an object form
+--
 -- This is the method you probably want to use if you
 -- use this library from a script.
 --@param data a json string

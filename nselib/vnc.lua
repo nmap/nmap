@@ -109,8 +109,8 @@ VNC = {
   end,
 
   --- Performs the VNC handshake and determines
-  -- o The RFB Protocol to use
-  -- o The supported authentication security types
+  -- * The RFB Protocol to use
+  -- * The supported authentication security types
   --
   -- @return status, true on success, false on failure
   -- @return error string containing error message if status is false

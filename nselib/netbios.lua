@@ -21,10 +21,12 @@ types = {
   NBSTAT = 33,
 }
 
---- Encode a NetBIOS name for transport. Most packets that use the NetBIOS name
---  require this encoding to happen first. It takes a name containing any possible
---  character, and converted it to all uppercase characters (so it can, for example,
---  pass case-sensitive data in a case-insensitive way)
+--- Encode a NetBIOS name for transport.
+--
+-- Most packets that use the NetBIOS name require this encoding to happen
+-- first. It takes a name containing any possible character, and converted it
+-- to all uppercase characters (so it can, for example, pass case-sensitive
+-- data in a case-insensitive way)
 --
 -- There are two levels of encoding performed:
 -- * L1: Pad the string to 16 characters withs spaces (or NULLs if it's the
@@ -82,9 +84,10 @@ end
 
 
 
---- Does the exact opposite of name_encode. Converts an encoded name to
---  the string representation. If the encoding is invalid, it will still attempt
---  to decode the string as best as possible.
+--- Converts an encoded name to the string representation.
+--
+-- If the encoding is invalid, it will still attempt to decode the string as
+-- best as possible.
 --@param encoded_name The L2-encoded name
 --@return the decoded name and the scope. The name will still be padded, and the
 --         scope will never be nil (empty string is returned if no scope is present)
@@ -178,10 +181,11 @@ function get_server_name(host, names)
   return false, "Couldn't find NetBIOS server name"
 end
 
---- Sends out a UDP probe on port 137 to get the user's name (that is, the
---  entry in its NBSTAT table with a 0x03 suffix, that isn't the same as
---  the server's name. If the username can't be determined, which is frequently
---  the case, nil is returned.
+--- Sends out a UDP probe on port 137 to get the user's name
+--
+-- User name is the entry in its NBSTAT table with a 0x03 suffix, that isn't
+-- the same as the server's name. If the username can't be determined, which is
+-- frequently the case, nil is returned.
 --@param host The IP or hostname of the server.
 --@param names [optional] The names to use, from <code>do_nbstat</code>.
 --@return (status, result) If status is true, the result is the NetBIOS name or nil.
@@ -214,8 +218,10 @@ end
 
 
 --- This is the function that actually handles the UDP query to retrieve
---  the NBSTAT information. We make use of the Nmap registry here, so if another
---  script has already performed a nbstat query, the result can be re-used.
+-- the NBSTAT information.
+--
+-- We make use of the Nmap registry here, so if another script has already
+-- performed a nbstat query, the result can be re-used.
 --
 -- The NetBIOS request's header looks like this:
 --<code>

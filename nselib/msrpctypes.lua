@@ -117,12 +117,16 @@ local HEAD = 'HEAD'
 local BODY = 'BODY'
 local ALL  = 'ALL'
 
---- Convert a string to fake unicode (ascii with null characters between them), optionally add a null terminator,
---  and optionally align it to 4-byte boundaries. This is frequently used in MSRPC calls, so I put it here, but
---  it might be a good idea to move this function (and the converse one below) into a separate library.
+--- Convert a string to Unicode (UTF-16 LE), optionally add a null terminator,
+-- and align it to 4-byte boundaries.
+--
+-- This is frequently used in MSRPC calls, so I put it here, but it might be a
+-- good idea to move this function (and the converse one below) into a separate
+-- library.
 --
 --@param string The string to convert.
---@param do_null [optional]  Add a null-terminator to the unicode string. Default false.
+--@param do_null [optional] Add a null-terminator to the unicode string.
+--               Default false.
 --@return The unicode version of the string.
 function string_to_unicode(string, do_null)
   local i
@@ -199,19 +203,23 @@ end
 -- (dependencies: n/a)
 -------------------------------------
 
----Marshalls a pointer to another datatype. This function will optionally separate the
--- REFERENT_ID of the pointer (which goes at location = HEAD) from the data part of the
--- pointer (which goes at location = BODY). If the entire pointer is needed, then location
--- should be set to ALL.
+---Marshalls a pointer to another datatype.
 --
--- When marshalling the body, the function <code>func</code> is called, which is passed as
--- a parameter, with the arguments <code>args</code>. This function has to return a marshalled
--- parameter, but other than that it can be any marshalling function. The 'value' parameter
--- simply determined whether or not it's a null pointer, and will probably be a repeat of
--- one of the arguments.
+-- This function will optionally separate the REFERENT_ID of the pointer (which
+-- goes at location = HEAD) from the data part of the pointer (which goes at
+-- location = BODY). If the entire pointer is needed, then location should be
+-- set to ALL.
 --
--- Note that the function <code>func</code> doesn't have to conform to any special prototype,
--- as long as the <code>args</code> array matches what the function wants.
+-- When marshalling the body, the function <code>func</code> is called, which
+-- is passed as a parameter, with the arguments <code>args</code>. This
+-- function has to return a marshalled parameter, but other than that it can be
+-- any marshalling function. The 'value' parameter simply determined whether or
+-- not it's a null pointer, and will probably be a repeat of one of the
+-- arguments.
+--
+-- Note that the function <code>func</code> doesn't have to conform to any
+-- special prototype, as long as the <code>args</code> array matches what the
+-- function wants.
 --
 -- This can be used to marshall an int16 value of 0x1234 with padding like this:
 -- <code>
@@ -224,15 +232,16 @@ end
 --  marshall_ptr(ALL, marshall_unicode, {str, true}, str)
 -- </code>
 --
---@param location The part of the pointer wanted, either HEAD (for the referent_id), BODY
---                (for the pointer data), or ALL (for both together). Generally, unless the
---                referent_id is split from the data (for example, in an array), you will want
---                ALL.
---@param func     The function to call when encoding the body. Should convert the arguments passed
---                in the <code>args</code> parameter to a string.
---@param args     An array of arguments that will be directly passed to the function <code>func</code>
---@param value    The value that's actually being encoded. This is simply used to determine whether or
---                not the pointer is null.
+--@param location The part of the pointer wanted, either HEAD (for the
+--                referent_id), BODY (for the pointer data), or ALL (for both
+--                together). Generally, unless the referent_id is split from
+--                the data (for example, in an array), you will want ALL.
+--@param func The function to call when encoding the body. Should convert the
+--            arguments passed in the <code>args</code> parameter to a string.
+--@param args An array of arguments that will be directly passed to the
+--            function <code>func</code>
+--@param value The value that's actually being encoded. This is simply used to
+--             determine whether or not the pointer is null.
 --@return A string representing the marshalled data.
 local function marshall_ptr(location, func, args, value)
   local result = ""
@@ -262,34 +271,41 @@ local function marshall_ptr(location, func, args, value)
   return result
 end
 
----Unmarshalls a pointer by removing the referent_id in the HEAD section and the data in the
--- BODY section (or both in the ALL section). Because the unmarshall function for the body is
--- called if and only if the referent_id is non-zero, if the head and the body are split apart,
--- the second call to this function has to know the context. This is the purpose for the <code>result</code>
--- parameter, it is the result from the first time this is called.
+---Unmarshalls a pointer by removing the referent_id in the HEAD section and
+--the data in the BODY section (or both in the ALL section).
+--
+-- Because the unmarshall function for the body is called if and only if the
+-- referent_id is non-zero, if the head and the body are split apart, the
+-- second call to this function has to know the context. This is the purpose
+-- for the <code>result</code> parameter, it is the result from the first time
+-- this is called.
 --
 -- The function <code>func</code> has to conform to this format:
 --<code>
 -- func(data, pos, <args>)
 --</code>
 --
---@param location The part of the pointer being processed, either HEAD (for the referent_id), BODY
---                (for the pointer data), or ALL (for both together). Generally, unless the
---                referent_id is split from the data (for example, in an array), you will want
---                ALL.
---@param data     The data being processed.
---@param pos      The position within <code>data</code>
---@param func     The function that's used to process the body data (only called if it isn't a null
---                pointer). This function has to conform to a specific prototype, see above.
---@param args     The arguments that'll be passed to the function <code>func</code>, after the data
---                array and the position.
---@param result   This is required when unmarshalling the BODY section, which always comes after
---                unmarshalling the HEAD. It is the result returned for this parameter during the
---                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything.
---@return (pos, result) The new position along with the result. For HEAD the result is either <code>true</code>
---                for valid pointers or <code>false</code> for null pointers. For BODY or ALL, the result is
---                <code>nil</code> for null pointers, or the data for valid pointers.
+--@param location The part of the pointer being processed, either HEAD (for the
+--                referent_id), BODY (for the pointer data), or ALL (for both
+--                together). Generally, unless the referent_id is split from
+--                the data (for example, in an array), you will want ALL.
+--@param data The data being processed.
+--@param pos The position within <code>data</code>
+--@param func The function that's used to process the body data (only
+--            called if it isn't a null pointer). This function has to conform
+--            to a specific prototype, see above.
+--@param args The arguments that'll be passed to the function
+--            <code>func</code>, after the data array and the position.
+--@param result This is required when unmarshalling the BODY section, which
+--              always comes after unmarshalling the HEAD. It is the result
+--              returned for this parameter during the HEAD unmarshall. If the
+--              referent_id was '0', then this function doesn't unmarshall
+--              anything.
+--@return The new position
+--@reutrn The result. For HEAD the result is either <code>true</code> for valid
+--        pointers or <code>false</code> for null pointers. For BODY or ALL,
+--        the result is <code>nil</code> for null pointers, or the data for
+--        valid pointers.
 local function unmarshall_ptr(location, data, pos, func, args, result)
   stdnse.print_debug(4, "MSRPC: Entering unmarshall_ptr()")
   if(args == nil) then
@@ -330,22 +346,26 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
 end
 
 ---Similar to <code>marshall_ptr</code>, except that this marshalls a type that isn't a pointer.
--- It also understands pointers, in the sense that it'll only return data in the HEAD section, since
--- basetypes are printed in the HEAD and not the BODY.
 --
--- Using this isn't strictly necessary, but it cleans up functions for generating structs containing
--- both pointers and basetypes (see <code>marshall_srvsvc_NetShareInfo2</code>).
+-- It also understands pointers, in the sense that it'll only return data in
+-- the HEAD section, since basetypes are printed in the HEAD and not the BODY.
 --
--- Like <code>marshall_ptr</code>, the function doesn't have to match any prototype, as long as the
--- proper arguments are passed to it.
+-- Using this isn't strictly necessary, but it cleans up functions for
+-- generating structs containing both pointers and basetypes (see
+-- <code>marshall_srvsvc_NetShareInfo2</code>).
 --
---@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
---                referent_id is split from the data (for example, in an array), you will want
+-- Like <code>marshall_ptr</code>, the function doesn't have to match any
+-- prototype, as long as the proper arguments are passed to it.
+--
+--@param location The part of the pointer wanted, either HEAD (for the data
+--                itself), BODY (for nothing, since this isn't a pointer), or
+--                ALL (for the data). Generally, unless the referent_id is
+--                split from the data (for example, in an array), you will want
 --                ALL.
---@param func     The function to call when encoding the body. Should convert the arguments passed
---                in the <code>args</code> parameter to a string.
---@param args     An array of arguments that will be directly passed to the function <code>func</code>
+--@param func The function to call when encoding the body. Should convert the
+--            arguments passed in the <code>args</code> parameter to a string.
+--@param args An array of arguments that will be directly passed to the
+--            function <code>func</code>
 --@return A string representing the marshalled data.
 local function marshall_basetype(location, func, args)
   local result
@@ -362,23 +382,27 @@ local function marshall_basetype(location, func, args)
   return result
 end
 
----Marshalls an array. Recall (from the module comment) that the data in an array is split into the
--- referent_ids and base types at the top and the data at the bottom. This function will call
--- any number of location-aware functions twice (once for the top and once for the bottom).
+---Marshalls an array.
 --
--- Each element in the array can technically have a different function. I don't know why I allowed
--- that, and may refactor it out in the future. For now, I strongly recommend setting the function
--- to the same for every element.
+-- Recall (from the module comment) that the data in an array is split into the
+-- referent_ids and base types at the top and the data at the bottom. This
+-- function will call any number of location-aware functions twice (once for
+-- the top and once for the bottom).
+--
+-- Each element in the array can technically have a different function. I don't
+-- know why I allowed that, and may refactor it out in the future. For now, I
+-- strongly recommend setting the function to the same for every element.
 --
 -- The function that's called has to have the prototype:
 --<code>
 -- func(location, <args>)
 --</code>
--- where "location" is the standard HEAD/BODY/ALL location used throughout the functions.
+-- where "location" is the standard HEAD/BODY/ALL location used throughout the
+-- functions.
 --
---@param array An array of tables. Each table contains 'func', a pointer to the marshalling
---             function and 'args', the arguments to pass to the marshalling function after the
---             'location' variable.
+--@param array An array of tables. Each table contains 'func', a pointer to the
+--             marshalling function and 'args', the arguments to pass to the
+--             marshalling function after the 'location' variable.
 --@return A string representing the marshalled data.
 function marshall_array(array)
   local i
@@ -411,29 +435,34 @@ function marshall_array(array)
   return result
 end
 
----Unmarshalls an array. This function starts to get a little hairy, due to the number of
--- parameters that need to be propagated, but it isn't too bad. Basically, this unmarshalls an
--- array by calling the given function for each element.
+---Unmarshalls an array.
+--
+-- This function starts to get a little hairy, due to the number of parameters
+-- that need to be propagated, but it isn't too bad. Basically, this
+-- unmarshalls an array by calling the given function for each element.
 --
 -- The function <code>func</code> has to conform to a very specific prototype:
 --<code>
 -- func(location, data, pos, result, <args>)
 --</code>
--- Where <code>location<code> is the standard HEAD/BODY location, <code>data<code> and <code>pos<code>
--- are the packet and position within it, <code>result<code> is the result from the HEAD section (if
--- it's nil, it isn't used), and <code>args<code> are arbitrary arguments passed to it.
+-- Where <code>location<code> is the standard HEAD/BODY location,
+-- <code>data<code> and <code>pos<code> are the packet and position within it,
+-- <code>result<code> is the result from the HEAD section (if it's nil, it
+-- isn't used), and <code>args<code> are arbitrary arguments passed to it.
 --
--- I made the call to pass the same arguments to each function when it's called. This is, for example,
--- whether or not to null-terminate a string, or whether or not to pad an int16. If different types are
--- required, you're probably out of luck.
+-- I made the call to pass the same arguments to each function when it's
+-- called. This is, for example, whether or not to null-terminate a string, or
+-- whether or not to pad an int16. If different types are required, you're
+-- probably out of luck.
 --
 --@param data     The data being processed.
 --@param pos      The position within <code>data</code>.
 --@param count    The number of elements in the array.
---@param func     The function to call to unmarshall each parameter. Has to match a specific prototype;
---                see the function comment.
+--@param func The function to call to unmarshall each parameter. Has to match a
+--            specific prototype; see the function comment.
 --@param args     Arbitrary arguments to pass to the function.
---@return (pos, result) The new position and the result of unmarshalling this value.
+--@return The new position
+--@return The result of unmarshalling this value.
 local function unmarshall_array(data, pos, count, func, args)
   local i
   local size
@@ -467,23 +496,26 @@ local function unmarshall_array(data, pos, count, func, args)
   return pos, result
 end
 
----Call a function that matches the prototype for <code>unmarshall_array</code>. This allows the same
--- struct to be used in <code>unmarshall_array</code> and in <code>unmarshall_ptr</code>. It is kind
--- of a kludge, but it makes sense, and was the cleanest solution I could come up with to this problem
--- (although I'm sure that there's a better one staring me in the face).
+---Call a function that matches the prototype for <code>unmarshall_array</code>.
 --
--- The <code>func</code> parameter, obviously, has to match the same prototype as strings being passed to
--- <code>unmarshall_array</code>, which is:
+-- This allows the same struct to be used in <code>unmarshall_array</code> and
+-- in <code>unmarshall_ptr</code>. It is kind of a kludge, but it makes sense,
+-- and was the cleanest solution I could come up with to this problem (although
+-- I'm sure that there's a better one staring me in the face).
+--
+-- The <code>func</code> parameter, obviously, has to match the same prototype
+-- as strings being passed to <code>unmarshall_array</code>, which is:
 --<code>
 -- func(location, data, pos, result, <args>)
 --</code>
 --
 --@param data     The data being processed.
 --@param pos      The position within <code>data</code>.
---@param func     The function to call to unmarshall each parameter. Has to match a specific prototype;
---                see the function comment.
+--@param func The function to call to unmarshall each parameter. Has to match a
+--            specific prototype; see the function comment.
 --@param args     Arbitrary arguments to pass to the function.
---@return (pos, result) The new position and the result of unmarshalling this value.
+--@return The new position
+--@return The result of unmarshalling this value.
 local function unmarshall_struct(data, pos, func, args)
   local result
 
@@ -889,6 +921,7 @@ end
 
 --- Marshall a pointer to an int32, which has the following format:
 -- <code>     [in,out]   uint32 *ptr</code>
+--
 -- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
 -- it uses a referent id followed by the integer.
 --
@@ -906,6 +939,7 @@ end
 
 --- Marshall a pointer to an int16, which has the following format:
 -- <code>     [in,out]   uint16 *ptr</code>
+--
 -- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
 -- it uses a referent id followed by the integer.
 --
@@ -924,6 +958,7 @@ end
 
 --- Marshall a pointer to an int8, which has the following format:
 -- <code>     [in,out]   uint8 *ptr</code>
+--
 -- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
 -- it uses a referent id followed by the integer.
 --
@@ -1110,10 +1145,12 @@ function unmarshall_int32_array_ptr(data, pos)
   return pos, array
 end
 
----Marshalls an NTTIME. This is sent as the number of 1/10 microseconds since 1601; however
--- the internal representation is the number of seconds since 1970. Because doing conversions
--- in code is annoying, the user will never have to understand anything besides seconds since
--- 1970.
+---Marshalls an NTTIME.
+--
+-- This is sent as the number of 1/10 microseconds since 1601; however the
+-- internal representation is the number of seconds since 1970. Because doing
+-- conversions in code is annoying, the user will never have to understand
+-- anything besides seconds since 1970.
 --
 --@param time The time, in seconds since 1970.
 --@return A string representing the marshalled data.
@@ -1213,9 +1250,12 @@ function unmarshall_SYSTEMTIME(data, pos)
   return pos, os.time(date)
 end
 
----Unmarshalls a <code>hyper</code>. I have no idea what a <code>hyper</code> is, just that it seems
--- to be a 64-bit data type used for measuring time, and that the units happen to be negative
--- microseconds. This function converts the value to seconds and returns it.
+---Unmarshalls a <code>hyper</code>.
+--
+-- I have no idea what a <code>hyper</code> is, just that it seems to be a
+-- 64-bit data type used for measuring time, and that the units happen to be
+-- negative microseconds. This function converts the value to seconds and
+-- returns it.
 --
 --@param data The data packet.
 --@param pos  The position within the data.
@@ -1231,13 +1271,16 @@ function unmarshall_hyper(data, pos)
   return pos, result
 end
 
----Marshall an entry in a table. Basically, converts the string to a number based on the entries in
--- <code>table</code> before sending. Multiple values can be ORed together (like flags) by separating
--- them with pipes ("|").
+---Marshall an entry in a table.
 --
---@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C".
---@param table The table to use for lookups. The keys should be the names, and the values should be
---             the numbers.
+-- Basically, converts the string to a number based on the entries in
+-- <code>table</code> before sending. Multiple values can be ORed together
+-- (like flags) by separating them with pipes ("|").
+--
+--@param val The value to look up. Can be multiple values with pipes between,
+--           e.g. "A|B|C".
+--@param table The table to use for lookups. The keys should be the names, and
+--             the values should be the numbers.
 --@return A string representing the marshalled data.
 local function marshall_Enum32(val, table)
   local result = 0
@@ -1313,13 +1356,16 @@ local function unmarshall_Enum16(data, pos, table, default, pad)
   return pos, default
 end
 
----Marshall an entry in a table. Basically, converts the string to a number based on the entries in
--- <code>table</code> before sending. Multiple values can be ORed together (like flags) by separating
--- them with pipes ("|").
+---Marshall an entry in a table.
 --
---@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C".
---@param table The table to use for lookups. The keys should be the names, and the values should be
---             the numbers.
+-- Basically, converts the string to a number based on the entries in
+-- <code>table</code> before sending. Multiple values can be ORed together
+-- (like flags) by separating them with pipes ("|").
+--
+--@param val The value to look up. Can be multiple values with pipes between,
+--           e.g. "A|B|C".
+--@param table The table to use for lookups. The keys should be the names, and
+--             the values should be the numbers.
 --@param pad [optional] If set, will ensure that we end up on an even multiple of 4. Default: true.
 --@return A string representing the marshalled data.
 local function marshall_Enum8(val, table, pad)
