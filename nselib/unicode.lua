@@ -55,6 +55,28 @@ function encode(list, encoder, bigendian)
   return table.concat(buf, "")
 end
 
+---Transcode a string from one format to another
+--
+--The string will be decoded and re-encoded in one pass. This saves some
+--overhead vs simply passing the output of <code>unicode.encode</code> to
+--<code>unicode.decode</code>.
+--@param buf The string/buffer to be transcoded
+--@param decoder A Unicode decoder function (such as utf16_dec)
+--@param encoder A Unicode encoder function (such as utf8_enc)
+--@param bigendian_dec Set this to true to force big-endian decoding.
+--@param bigendian_enc Set this to true to force big-endian encoding.
+--@return An encoded string
+function transcode(buf, decoder, encoder, bigendian_dec, bigendian_enc)
+  local out = {}
+  local cp
+  local pos = 1
+  while pos <= #buf do
+    pos, cp = decoder(buf, pos, bigendian_dec)
+    out[#out+1] = encoder(cp, bigendian_enc)
+  end
+  return table.concat(out)
+end
+
 ---Encode a Unicode code point to UTF-16. See RFC 2781.
 --
 -- Windows OS prior to Windows 2000 only supports UCS-2, so beware using this
@@ -374,14 +396,7 @@ end
 --@param from A string in UTF-16, little-endian
 --@return The string in UTF-8
 function utf16to8(from)
-  local buf = {}
-  local cp
-  local pos = 1
-  while pos <= #from do
-    pos, cp = utf16_dec(from, pos)
-    buf[#buf+1] = utf8_enc(cp)
-  end
-  return table.concat(buf)
+  return transcode(from, utf16_dec, utf8_enc, false, nil)
 end
 
 ---Helper function for the common case of UTF-8 to UTF-16 transcoding, such as
@@ -390,14 +405,7 @@ end
 --@param from A string in UTF-8
 --@return The string in UTF-16, little-endian
 function utf8to16(from)
-  local buf = {}
-  local cp
-  local pos = 1
-  while pos <= #from do
-    pos, cp = utf8_dec(from, pos)
-    buf[#buf+1] = utf16_enc(cp)
-  end
-  return table.concat(buf)
+  return transcode(from, utf8_dec, utf16_enc, nil, false)
 end
 
 if not unittest.testing() then
