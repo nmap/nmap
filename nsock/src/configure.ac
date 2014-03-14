@@ -125,7 +125,8 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
-      have_libpcap=yes ])
+      have_libpcap=yes
+      LIBPCAP_LIBS=-lpcap ])
     ;;
   included)
     have_libpcap=no

@@ -3534,6 +3534,7 @@ if test "${with_libpcap+set}" = set; then :
 if test "x$ac_cv_header_pcap_h" = xyes; then :
 
       have_libpcap=yes
+      LIBPCAP_LIBS=-lpcap
 fi
 
 
