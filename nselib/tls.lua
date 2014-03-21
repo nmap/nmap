@@ -152,6 +152,7 @@ EC_POINT_FORMATS = {
 ---
 -- Extensions
 -- RFC 6066, draft-agl-tls-nextprotoneg-03
+-- https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml
 --
 EXTENSIONS = {
   ["server_name"] = 0,
@@ -160,9 +161,25 @@ EXTENSIONS = {
   ["trusted_ca_keys"] = 3,
   ["truncated_hmac"] = 4,
   ["status_request"] = 5,
+  ["user_mapping"] = 6,
+  ["client_authz"] = 7,
+  ["server_authz"] = 8,
+  ["cert_type"] = 9,
   ["elliptic_curves"] = 10,
   ["ec_point_formats"] = 11,
+  ["srp"] = 12,
+  ["signature_algorithms"] = 13,
+  ["use_srtp"] = 14,
+  ["heartbeat"] = 15,
+  ["application_layer_protocol_negotiation"] = 16,
+  ["status_request_v2"] = 17,
+  ["signed_certificate_timestamp"] = 18,
+  ["client_certificate_type"] = 19,
+  ["server_certificate_type"] = 20,
+  ["padding"] = 21, -- Temporary, expires 2015-03-12
+  ["SessionTicket TLS"] = 35,
   ["next_protocol_negotiation"] = 13172,
+  ["renegotiation_info"] = 65281,
 }
 
 ---
