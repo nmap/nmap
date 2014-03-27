@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Improved ntp-info script to handle underscores in returned
+  data. [nnposter]
+
 o [NSE] Add quake1-info script for retrieving server and player information
   from Quake 1 game servers. Reports potential DoS amplification factor.
   [Ulrik Haugen]

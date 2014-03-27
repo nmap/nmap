@@ -116,7 +116,7 @@ action = function(host, port)
     -- This parsing is not quite right with respect to quoted strings.
     -- Backslash escapes should be interpreted inside strings and commas should
     -- be allowed inside them.
-    for k, q, v in string.gmatch(data, "%s*(%w+)=(\"?)([^,\"\r\n]*)%2,?") do
+    for k, q, v in string.gmatch(data, "%s*([%w_]+)=(\"?)([^,\"\r\n]*)%2,?") do
       output[k] = v
     end
   end
