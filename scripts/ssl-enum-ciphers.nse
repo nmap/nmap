@@ -166,8 +166,6 @@ local function try_params(host, port, t)
     status, buffer, err = tls.record_buffer(sock, buffer, 1)
     if not status then
       stdnse.print_debug(1, "Couldn't read a TLS record: %s", err)
-      local nsedebug = require "nsedebug"
-      nsedebug.print_hex(req)
       return nil
     end
     -- Parse response.
