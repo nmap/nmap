@@ -778,7 +778,11 @@ function client_hello(t)
     if t["extensions"] ~= nil then
       -- Add specified extensions.
       for extension, data in pairs(t["extensions"]) do
-        table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
+        if type(extension) == "number" then
+          table.insert(extensions, bin.pack(">S", extension))
+        else
+          table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
+        end
         table.insert(extensions, bin.pack(">P", data))
       end
     end
