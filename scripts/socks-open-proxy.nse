@@ -65,8 +65,11 @@ local function custom_test(host, port, test_url, pattern)
   test_url = url_table.path
 
   -- make requests
-  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
-  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+  local err
+  err, status4, get_r4, cstatus4 = pcall(proxy.test_get, host, port, "socks4", test_url, hostname, pattern)
+  status4 = err and status4
+  err, status5, get_r5, cstatus5 = pcall(proxy.test_get, host, port, "socks5", test_url, hostname, pattern)
+  status5 = err and status5
 
   fstatus = status4 or status5
   if(cstatus4) then response[#response+1]="socks4" end
@@ -105,8 +108,11 @@ local function default_test(host, port)
   local test_url = "/"
   local hostname = "www.google.com"
   local pattern = "^server: gws"
-  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
-  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+  local err
+  err, status4, get_r4, cstatus4 = pcall(proxy.test_get, host, port, "socks4", test_url, hostname, pattern)
+  status4 = err and status4
+  err, status5, get_r5, cstatus5 = pcall(proxy.test_get, host, port, "socks5", test_url, hostname, pattern)
+  status5 = err and status5
 
   fstatus = status4 or status5
   if(cstatus4) then response[#response+1]="socks4" end
@@ -123,8 +129,10 @@ local function default_test(host, port)
   test_url = "/"
   hostname = "www.wikipedia.org"
   pattern  = "wikimedia"
-  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
-  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+  err, status4, get_r4, cstatus4 = pcall(proxy.test_get, host, port, "socks4", test_url, hostname, pattern)
+  status4 = err and status4
+  err, status5, get_r5, cstatus5 = pcall(proxy.test_get, host, port, "socks5", test_url, hostname, pattern)
+  status5 = err and status5
 
   if(status4) then fstatus = true; response[#response+1]="socks4" end
   if(status5) then fstatus = true; response[#response+1]="socks5" end
@@ -138,8 +146,10 @@ local function default_test(host, port)
   test_url = "/"
   hostname = "www.computerhistory.org"
   pattern  = "museum"
-  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
-  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+  err, status4, get_r4, cstatus4 = pcall(proxy.test_get, host, port, "socks4", test_url, hostname, pattern)
+  status4 = err and status4
+  err, status5, get_r5, cstatus5 = pcall(proxy.test_get, host, port, "socks5", test_url, hostname, pattern)
+  status5 = err and status5
 
   if(status4) then fstatus = true; response[#response+1]="socks4" end
   if(status5) then fstatus = true; response[#response+1]="socks5" end
