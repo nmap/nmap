@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed an error-handling bug in socks-open-proxy that caused it to fail
+  when scanning a SOCKS4-only proxy. Reported on IRC by Husky. [Daniel Miller]
+
 o [NSE] Improved ntp-info script to handle underscores in returned
   data. [nnposter]
 
