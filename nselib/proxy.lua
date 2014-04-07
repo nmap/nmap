@@ -69,11 +69,18 @@ end
 --@return result The result of the request
 --@return code_status True or false. If pattern was used, returns the result of code checking for the same result. If pattern was not used, is nil.
 local function test(socket, req, pattern)
-  local _, result, s_code, s_pattern
-  socket:send(req)
-  _, result = socket:receive()
+  local status, result = socket:send(req)
+  if not status then
+    socket:close()
+    return false, result
+  end
+  status, result = socket:receive()
+  if not status then
+    socket:close()
+    return false, result
+  end
   socket:close()
-  s_code, s_pattern = check(result, pattern)
+  local s_code, s_pattern = check(result, pattern)
   if result and pattern then return s_pattern, result, s_code end
   if result then return s_code, result, nil end
   return false, nil, nil
@@ -88,8 +95,10 @@ end
 -- @param pattern The pattern to check for valid result
 -- @return the result of the function test (status and the request result)
 function test_get(host, port, proxyType, test_url, hostname, pattern)
-  local socket = connectProxy(host, port, proxyType, hostname)
-  if not socket then return false end
+  local status, socket = connectProxy(host, port, proxyType, hostname)
+  if not status then
+    return false, socket
+  end
   local req = "GET " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
   stdnse.print_debug("GET Request: " .. req)
   return test(socket, req, pattern)
@@ -104,8 +113,10 @@ end
 -- @param pattern The pattern to check for valid result
 -- @return the result of the function test (status and the request result)
 function test_head(host, port, proxyType, test_url, hostname, pattern)
-  local socket = connectProxy(host, port, proxyType, hostname)
-  if not socket then return false end
+  local status, socket = connectProxy(host, port, proxyType, hostname)
+  if not status then
+    return false, socket
+  end
   local req = "HEAD " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
   stdnse.print_debug("HEAD Request: " .. req)
   return test(socket, req, pattern)
@@ -118,8 +129,10 @@ end
 -- @param hostname The hostname of the server to send the request
 -- @return the result of the function test (status and the request result)
 function test_connect(host, port, proxyType, hostname)
-  local socket = connectProxy(host, port, proxyType, hostname)
-  if not socket then return false end
+  local status, socket = connectProxy(host, port, proxyType, hostname)
+  if not status then
+    return false, socket
+  end
   local req = "CONNECT " .. hostname .. ":80 HTTP/1.0\r\n\r\n"
   stdnse.print_debug("CONNECT Request: " .. req)
   return test(socket, req, false)
@@ -170,94 +183,127 @@ end
 --  @param port The port table
 --  @param proxyType A string with the proxy type. Might be "http","socks4" or "socks5"
 --  @param hostname The proxy destination hostname
---  @return socket A socket with the handshake already done
+--  @return status True if handshake succeeded, false otherwise
+--  @return socket A socket with the handshake already done, or an error if
 function connectProxy(host, port, proxyType, hostname)
   local socket = nmap.new_socket()
   socket:set_timeout(10000)
-  local try = nmap.new_try(function() socket:close() return false end)
-  try(socket:connect(host, port))
-  if proxyType == "http" then return socket end
+  local status, err = socket:connect(host, port)
+  if not status then
+    socket:close()
+    return false, err
+  end
+  if proxyType == "http" then return true, socket end
   if proxyType == "socks4" then return socksHandshake(socket, 4, hostname) end
   if proxyType == "socks5" then return socksHandshake(socket, 5, hostname) end
-  return false
+  socket:close()
+  return false, "Invalid proxyType"
 end
 
 --- Performs a socks handshake on a socket and returns it
 --  @param socket The socket where the handshake will be performed
 --  @param version The socks version (might be 4 or 5)
 --  @param hostname The proxy destination hostname
---  @return socket A socket with the handshake already done
+--  @return status True if handshake succeeded, false otherwise
+--  @return socket A socket with the handshake already done, or an error if
+--                 status is false
 function socksHandshake(socket, version, hostname)
   local resolve, sip, paystring, payload
   resolve, sip = hex_resolve(hostname)
-  local try = nmap.new_try(function() socket:close() return false end)
   if not resolve then
-    stdnse.print_debug("Unable to resolve hostname.")
-    return false
+    return false, "Unable to resolve hostname"
   end
   if version == 4 then
     paystring = '04 01 00 50 ' .. sip .. ' 6e 6d 61 70 00'
     payload = bin.pack("H",paystring)
-    try(socket:send(payload))
-    local response = try(socket:receive())
+    local status, response = socket:send(payload)
+    if not status then
+      socket:close()
+      return false, response
+    end
+    status, response = socket:receive()
+    if not status then
+      socket:close()
+      return false, response
+    end
+    if #response < 2 then
+      socket:close()
+      return false, "Invalid or unknown SOCKS response"
+    end
     local request_status = string.byte(response, 2)
+    local err = string.format("Unknown response (0x%02x)", request_status)
     if(request_status == 0x5a) then
-      stdnse.print_debug("Socks4: Received \"Request Granted\" from proxy server\n")
-      return socket
+      stdnse.print_debug('Socks4: Received "Request Granted" from proxy server')
+      return true, socket
     end
     if(request_status == 0x5b) then
-      stdnse.print_debug("Socks4: Received \"Request rejected or failed\" from proxy server")
+      err = "Request rejected or failed"
     elseif (request_status == 0x5c) then
-      stdnse.print_debug("Socks4: Received \"request failed because client is not running identd\" from proxy server")
+      err = "request failed because client is not running identd"
     elseif (request_status == 0x5d) then
-      stdnse.print_debug("Socks4: Received \"request failed because client's identd could not confirm" ..
-      "\nthe user ID string in the request from proxy server")
+      err = "request failed because client program and identd report different user-ids"
     end
-    return false
+    stdnse.print_debug('Socks4: Received "%s" from proxy server', err)
+    return false, err
   end
   if version == 5 then
     local payload = bin.pack("H",'05 01 00')
-    try(socket:send(payload))
-    local auth = try(socket:receive())
+    local status, err = socket:send(payload)
+    if not status then
+      socket:close()
+      return false, err
+    end
+    local auth
+    status, auth = socket:receive()
     local r2 = string.byte(auth,2)
 
     -- If Auth is required, proxy is closed, skip next test
     if(r2 ~= 0x00) then
-      stdnse.print_debug("Socks5: Authentication required")
+      err = "Authentication Required"
     else
       -- If no Auth is required, try to establish connection
       stdnse.print_debug("Socks5: No authentication required")
       -- Socks5 second payload: Version, Command, Null, Address type, Ip-Address, Port number
       paystring = '05 01 00 01 ' .. sip .. '00 50'
       payload = bin.pack("H",paystring)
-      try(socket:send(payload))
-      local z = try(socket:receive())
+      status, err = socket:send(payload)
+      if not status then
+        socket:close()
+        return false, err
+      end
+      local z
+      status, z = socket:receive()
+      if not status then
+        socket:close()
+        return false, z
+      end
       local request_status = string.byte(z, 2)
+      err = string.format("Unknown response (0x%02x)", request_status)
       if (request_status == 0x00) then
-        stdnse.print_debug("Socks5: Received \"Request Granted\" from proxy server\n")
-        return socket
+        stdnse.print_debug('Socks5: Received "Request Granted" from proxy server')
+        return true, socket
       elseif(request_status == 0x01) then
-        stdnse.print_debug("Socks5: Received \"General failure\" from proxy server")
+        err = "General Failure"
       elseif (request_status == 0x02) then
-        stdnse.print_debug("Socks5: Received \"Connection not allowed by ruleset\" from proxy server")
+        err = "Connection not allowed by ruleset"
       elseif (request_status == 0x03) then
-        stdnse.print_debug("Socks5: Received \"Network unreachable\" from proxy server")
+        err = "Network unreachable"
       elseif (request_status == 0x04) then
-        stdnse.print_debug("Socks5: Received \"Host unreachable\" from proxy server")
+        err = "Host unreachable"
       elseif (request_status == 0x05) then
-        stdnse.print_debug("Socks5: Received \"Connection refused by destination host\" from proxy server")
+        err = "Connection refused by destination host"
       elseif (request_status == 0x06) then
-        stdnse.print_debug("Socks5: Received \"TTL Expired\" from proxy server")
+        err = "TTL Expired"
       elseif (request_status == 0x07) then
-        stdnse.print_debug("Socks5: Received \"command not supported / protocol error\" from proxy server")
+        err = "command not supported / protocol error"
       elseif (request_status == 0x08) then
-        stdnse.print_debug("Socks5: Received \"Address type not supported\" from proxy server")
+        err = "Address type not supported"
       end
     end
-    return false
+    stdnse.print_debug('Socks5: Received "%s" from proxy server', err)
+    return false, err
   end
-  stdnse.print_debug("Unrecognized proxy type");
-  return false
+  return false, "Invalid SOCKS version"
 end
 
 --- Checks if two different responses are equal,
