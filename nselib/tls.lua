@@ -189,7 +189,7 @@ EXTENSION_HELPERS = {
   ["server_name"] = function (server_name)
     -- Only supports host_name type (0), as per RFC
     -- Support for other types could be added later
-    return bin.pack(">CSA", 0, #server_name, server_name)
+    return bin.pack(">P", bin.pack(">CP", 0, server_name))
   end,
   ["max_fragment_length"] = tostring,
   ["client_certificate_url"] = tostring,
