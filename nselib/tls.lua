@@ -687,8 +687,14 @@ function record_read(buffer, i)
         b["compressor"] = find_key(COMPRESSORS, b["compressor"])
       else
         -- TODO: implement other handshake message types
+        stdnse.print_debug(2, "Unknown handshake message type: %s", b["type"])
         j = msg_end
       end
+    elseif h["type"] == "heartbeat" then
+      j, b["type"], b["payload_length"] = bin.unpack("C>S", buffer, j)
+      j, b["payload"], b["padding"] = bin.unpack("PP", buffer, j)
+    else
+      stdnse.print_debug("Unknown message type: %s", h["type"])
     end
   end
 
