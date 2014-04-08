@@ -30,7 +30,8 @@ TLS_CONTENTTYPE_REGISTRY = {
   ["change_cipher_spec"]  = 20,
   ["alert"]               = 21,
   ["handshake"]           = 22,
-  ["application_data"]    = 23
+  ["application_data"]    = 23,
+  ["heartbeat"]           = 24
 }
 
 --
