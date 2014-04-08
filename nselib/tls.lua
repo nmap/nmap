@@ -673,6 +673,7 @@ function record_read(buffer, i)
           b["extensions"] = {}
           j, num_exts = bin.unpack(">S", buffer, j)
           for e = 0, num_exts do
+            if j >= msg_end then break end
             local extcode, datalen
             j, extcode = bin.unpack(">S", buffer, j)
             extcode = find_key(EXTENSIONS, extcode) or extcode
@@ -692,7 +693,7 @@ function record_read(buffer, i)
   end
 
   -- Ignore unparsed bytes.
-  j = len
+  j = len+1
 
   return j, h
 end
