@@ -5,6 +5,9 @@ o Proper SSL support in proxy mode.
     exported but it should be implemented just like the other operations. Then
     it would be trivial (and clean) for the library to SSLify the channel
     established by the proxy hooks.
+  - When redesigning nsock SSL code, keep in mind the ability to establish a SSL
+    session and still expose the raw TCP. That can be convenient when auditing
+    the SSL/TLS layer.
 o Don't drop pending writes when deleting the corresponding IOD. For nsock to
   behave a bit like standard BSD sockets we should flush writes on close. (OTOH
   anything which isn't ack'ed has no meaning, caller can still cancel it
