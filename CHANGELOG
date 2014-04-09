@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add ssl-heartbleed script to detect the Heartbleed bug in OpenSSL
+  CVE-2014-0160 [Patrik Karlsson]
+  
 o [NSE] Fixed an error-handling bug in socks-open-proxy that caused it to fail
   when scanning a SOCKS4-only proxy. Reported on IRC by Husky. [Daniel Miller]
 
