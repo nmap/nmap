@@ -27,8 +27,11 @@ The code is based on the Python script ssltest.py authored by Jared Stafford (js
 
 local bin = require('bin')
 local match = require('match')
+local nmap = require('nmap')
 local shortport = require('shortport')
+local sslcert = require('sslcert')
 local stdnse = require('stdnse')
+local string = require('string')
 local vulns = require('vulns')
 
 author = "Patrik Karlsson <patrik@cqure.net>"
@@ -46,6 +49,7 @@ local function recvmsg(s)
 		return
 	end
 	local pos, typ, ver, ln = bin.unpack('>CSS', hdr)
+	local pay
 	status, pay = s:receive_buf(match.numbytes(ln), true)
 	if not status then
 		stdnse.print_debug(3, 'Unexpected EOF receiving record payload - server closed connection')
