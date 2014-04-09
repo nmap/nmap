@@ -35,13 +35,14 @@ local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local string = require('string')
 local table = require('table')
+local tls = require('tls')
 local vulns = require('vulns')
 
 author = "Patrik Karlsson <patrik@cqure.net>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
 
-local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLS 1.0', 'TLS 1.1', 'TLS 1.2'}
+local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLSv1.0', 'TLSv1.1', 'TLSv1.2'}
 
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.isPortSupported(port)
@@ -68,7 +69,7 @@ end
 
 local function testversion(host, port, version)
 
-  local hello = bin.pack('HHH', "16", version, table.concat(
+  local hello = bin.pack('H>SH', "16", version, table.concat(
       {
         "00 dc", -- record length
         "01", -- handshake type ClientHello
@@ -150,7 +151,7 @@ local function testversion(host, port, version)
       })
     )
 
-  local hb = bin.pack('HHH', '18', version, table.concat({
+  local hb = bin.pack('H>SH', '18', version, table.concat({
         "00 03", -- record length
         "01", -- HeartbeatType HeartbeatRequest
         "0f e9", -- payload length (falsified)
@@ -186,7 +187,7 @@ local function testversion(host, port, version)
   while(true) do
     local status, typ, ver, pay, len
     status, typ, ver, len = recvhdr(s)
-    if not status then
+    if not status or ver ~= version then
       return
     end
     status, pay = recvmsg(s, len)
@@ -234,13 +235,6 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
     }
   }
 
-  local versions = {
-    -- ['SSL 3.0'] = '03 00',
-    ['TLS 1.0'] = '03 01',
-    ['TLS 1.1'] = '03 02',
-    ['TLS 1.2'] = '03 03'
-  }
-
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   local test_vers = arg_protocols
 
@@ -249,10 +243,10 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
   end
 
   for _, ver in ipairs(test_vers) do
-    if nil == versions[ver] then
+    if nil == tls.PROTOCOLS[ver] then
       return "\n  Unsupported protocol version: " .. ver
     end
-    local status = testversion(host, port, versions[ver])
+    local status = testversion(host, port, tls.PROTOCOLS[ver])
     if ( status ) then
       vuln_table.state = vulns.STATE.VULN
       break
