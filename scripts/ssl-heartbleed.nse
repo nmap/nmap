@@ -24,7 +24,7 @@ The code is based on the Python script ssltest.py authored by Jared Stafford (js
 -- |_      http://cvedetails.com/cve/2014-0160/
 --
 --
--- @args ssl-heartbleed.protocols (default tries all) SSL 3.0, TLS 1.0, TLS 1.1, or TLS 1.2
+-- @args ssl-heartbleed.protocols (default tries all) TLS 1.0, TLS 1.1, or TLS 1.2
 --
 
 local bin = require('bin')
@@ -44,9 +44,7 @@ categories = { "vuln", "safe" }
 local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLS 1.0', 'TLS 1.1', 'TLS 1.2'}
 
 portrule = function(host, port)
-  result = false
-  pcall(function () result = shortport.ssl(host, port) or sslcert.isPortSupported(port) end)
-  return result
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
 end
 
 local function recvhdr(s)
@@ -162,9 +160,9 @@ local function testversion(host, port, version)
 
   local s = nmap.new_socket()
   s:set_timeout(5000)
-  
+
   if not s:connect(host, port, "tcp") then
-    stndse.print_debug(3, "Connection to server failed")
+    stdnse.print_debug(3, "Connection to server failed")
     return
   end
 
@@ -191,6 +189,7 @@ local function testversion(host, port, version)
       break
     end
     if typ == 24 then
+      local pay
       status, pay = recvmsg(s, len)
       s:close()
       if #pay > 3 then
