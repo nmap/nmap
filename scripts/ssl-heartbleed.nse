@@ -158,13 +158,25 @@ local function testversion(host, port, version)
       })
     )
 
-  local s = nmap.new_socket()
-  s:set_timeout(5000)
-
-  if not s:connect(host, port, "tcp") then
-    stdnse.print_debug(3, "Connection to server failed")
-    return
+  local s
+  local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
+  if specialized then
+    local status
+    status, s = specialized(host, port)
+    if not status then
+      stdnse.print_debug(3, "Connection to server failed")
+      return
+    end
+  else
+    s = nmap.new_socket()
+    local status = s:connect(host, port)
+    if not status then
+      stdnse.print_debug(3, "Connection to server failed")
+      return
+    end
   end
+
+  s:set_timeout(5000)
 
   if not s:send(hello) then
     stdnse.print_debug(3, "Failed to send packet to server")
