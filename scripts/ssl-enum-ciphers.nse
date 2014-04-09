@@ -2,6 +2,7 @@ local coroutine = require "coroutine"
 local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -140,14 +141,26 @@ local function try_params(host, port, t)
   local buffer, err, i, record, req, resp, sock, status
 
   -- Create socket.
-  sock = nmap.new_socket()
-  sock:set_timeout(5000)
-  status, err = sock:connect(host, port, "tcp")
-  if not status then
-    stdnse.print_debug(1, "Can't connect: %s", err)
-    sock:close()
-    return nil
+  local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
+  if specialized then
+    local status
+    status, sock = specialized(host, port)
+    if not status then
+      stdnse.print_debug(1, "Can't connect: %s", err)
+      return nil
+    end
+  else
+    sock = nmap.new_socket()
+    sock:set_timeout(5000)
+    local status = sock:connect(host, port)
+    if not status then
+      stdnse.print_debug(1, "Can't connect: %s", err)
+      sock:close()
+      return nil
+    end
   end
+
+  sock:set_timeout(5000)
 
   -- Send request.
   req = tls.client_hello(t)
@@ -428,7 +441,9 @@ local filltable = function(filename,table)
   return true
 end
 
-portrule = shortport.ssl
+portrule = function (host, port)
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+end
 
 --- Return a table that yields elements sorted by key when iterated over with pairs()
 --  Should probably put this in a formatting library later.
