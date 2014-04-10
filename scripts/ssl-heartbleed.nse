@@ -35,8 +35,9 @@ local sslcert = require('sslcert')
 local stdnse = require('stdnse')
 local string = require('string')
 local table = require('table')
-local tls = require('tls')
 local vulns = require('vulns')
+local have_tls, tls = pcall(require,'tls')
+assert(have_tls, "This script requires the tls.lua library from http://nmap.org/nsedoc/lib/tls.html")
 
 author = "Patrik Karlsson <patrik@cqure.net>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -198,7 +199,7 @@ local function testversion(host, port, version)
   while(true) do
     local status, typ, ver, len = recvhdr(s)
     if not status then
-      stdnse.print_debug(3, 'No heartbeat response received, server likely not vulnerable')
+      stdnse.print_debug(1, 'No heartbeat response received, server likely not vulnerable')
       break
     end
     if typ == 24 then
@@ -208,11 +209,11 @@ local function testversion(host, port, version)
       if #pay > 3 then
         return true
       else
-        stdnse.print_debug(3, 'Server processed malformed heartbeat, but did not return any extra data.')
+        stdnse.print_debug(1, 'Server processed malformed heartbeat, but did not return any extra data.')
         break
       end
     elseif typ == 21 then
-      stdnse.print_debug(3, 'Server returned error, likely not vulnerable')
+      stdnse.print_debug(1, 'Server returned error, likely not vulnerable')
       break
     end
   end
