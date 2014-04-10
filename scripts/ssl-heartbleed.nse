@@ -173,22 +173,70 @@ local function testversion(host, port, version)
 
   s:set_timeout(5000)
 
-  if not s:send(hello) then
-    stdnse.print_debug(3, "Failed to send packet to server")
-    return
+  -- Send Client Hello to the target server
+  local status, err = s:send(hello)
+  if not status then
+    stdnse.print_debug("Couldn't send Client Hello: %s", err)
+    s:close()
+    return nil
   end
 
-  while(true) do
-    local status, typ, ver, pay, len
-    status, typ, ver, len = recvhdr(s)
-    if not status or ver ~= tls.PROTOCOLS[version] then
-      return
+  -- Read response
+  local done = false
+  local supported = false
+  local i = 1
+  local response
+  repeat
+    status, response, err = tls.record_buffer(s, response, i)
+    if err == "TIMEOUT" then
+      -- Timed out while waiting for server_hello_done
+      -- Could be client certificate required or other message required
+      -- Let's just drop out and try sending the heartbeat anyway.
+      done = true
+      break
+    elseif not status then
+      stdnse.print_debug("Couldn't receive: %s", err)
+      s:close()
+      return nil
     end
-    status, pay = recvmsg(s, len)
-    if ( typ == 22 and string.byte(pay,1) == 14 ) then break end
+
+    local record
+    i, record = tls.record_read(response, i)
+    if record == nil then
+      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+      s:close()
+      return nil
+    elseif record.protocol ~= version then
+      stdnse.print_debug("%s: Protocol version mismatch", SCRIPT_NAME)
+      s:close()
+      return nil
+    end
+
+    if record.type == "handshake" then
+      for _, body in ipairs(record.body) do
+        if body.type == "server_hello" then
+          if body.extensions and body.extensions["heartbeat"] == "\x01" then
+            supported = true
+          end
+        elseif body.type == "server_hello_done" then
+          stdnse.print_debug("we're done!")
+          done = true
+        end
+      end
+    end
+  until done
+  if not supported then
+    stdnse.print_debug("%s: Server does not support TLS Heartbeat Requests.", SCRIPT_NAME)
+    s:close()
+    return nil
   end
 
-  s:send(hb)
+  status, err = s:send(hb)
+  if not status then
+    stdnse.print_debug("Couldn't send heartbeat request: %s", err)
+    s:close()
+    return nil
+  end
   while(true) do
     local status, typ, ver, len = recvhdr(s)
     if not status then
