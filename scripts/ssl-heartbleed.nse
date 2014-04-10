@@ -144,7 +144,7 @@ local function testversion(host, port, version)
     })
 
   local payload = "Nmap ssl-heartbleed"
-  local hb = tls.record_write("heartbeat", "TLSv1.1", bin.pack("C>SA",
+  local hb = tls.record_write("heartbeat", version, bin.pack("C>SA",
       1, -- HeartbeatMessageType heartbeat_request
       0x0fe9, -- payload length (falsified)
       -- payload length is based on 4096 - 16 bytes padding - 8 bytes packet
