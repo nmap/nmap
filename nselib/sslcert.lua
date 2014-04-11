@@ -218,27 +218,35 @@ StartTLS = {
 
 -- A table mapping port numbers to specialized SSL negotiation functions.
 local SPECIALIZED_PREPARE_TLS = {
+  ftp = StartTLS.ftp_prepare_tls,
   [21] = StartTLS.ftp_prepare_tls,
+  smtp = StartTLS.smtp_prepare_tls,
   [25] = StartTLS.smtp_prepare_tls,
   [587] = StartTLS.smtp_prepare_tls,
+  xmpp = StartTLS.xmpp_prepare_tls,
   [5222] = StartTLS.xmpp_prepare_tls,
   [5269] = StartTLS.xmpp_prepare_tls
 }
 
 local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
+  ftp = StartTLS.ftp_prepare_tls_without_reconnect,
   [21] = StartTLS.ftp_prepare_tls_without_reconnect,
+  smtp = StartTLS.smtp_prepare_tls_without_reconnect,
   [25] = StartTLS.smtp_prepare_tls_without_reconnect,
   [587] = StartTLS.smtp_prepare_tls_without_reconnect,
+  xmpp = StartTLS.xmpp_prepare_tls_without_reconnect,
   [5222] = StartTLS.xmpp_prepare_tls_without_reconnect,
   [5269] = StartTLS.xmpp_prepare_tls_without_reconnect
 }
 
 function getPrepareTLSWithoutReconnect(port)
-  return SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number]
+  return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
+    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service])
 end
 
 function isPortSupported(port)
-  return SPECIALIZED_PREPARE_TLS[port.number]
+  return (SPECIALIZED_PREPARE_TLS[port.number] or
+    SPECIALIZED_PREPARE_TLS[port.service])
 end
 
 --- Gets a certificate for the given host and port
