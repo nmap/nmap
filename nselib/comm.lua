@@ -22,6 +22,7 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local nmap = require "nmap"
+local shortport = require "shortport"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("comm", stdnse.seeall)
 
@@ -131,27 +132,13 @@ exchange = function(host, port, data, opts)
     return status, ret
 end
 
---- This function just checks if the provided port number is on a list
--- of ports that usually provide services with ssl
+--- This function uses shortport.ssl to check if the port is a likely SSL port
+-- @see shortport.ssl
 --
--- @param port_number The number of the port to check
+-- @param port The port table to check
 -- @return bool True if port is usually ssl, otherwise false
-local function is_ssl(port_number)
-    local common_ssl_ports = {
-      [443] = true,
-      [465] = true,
-      [989] = true,
-      [990] = true,
-      [992] = true,
-      [993] = true,
-      [994] = true,
-      [995] = true,
-      [587] = true,
-      [6697] = true,
-      [6679] = true,
-      [8443] = true,
-    }
-    return not not common_ssl_ports[port_number]
+local function is_ssl(port)
+  return shortport.ssl(nil, port)
 end
 
 --- This function returns best protocol order for trying  to open a
@@ -165,9 +152,9 @@ local function bestoption(port)
     if type(port) == 'table' then
         if port.version and port.version.service_tunnel and port.version.service_tunnel == "ssl" then return "ssl","tcp" end
         if port.version and port.version.name_confidence and port.version.name_confidence > 6 then return "tcp","ssl" end
-        if is_ssl(port.number) then return "ssl","tcp" end
-    elseif type(port) == 'number' then
         if is_ssl(port) then return "ssl","tcp" end
+    elseif type(port) == 'number' then
+      if is_ssl({number=port, protocol="tcp", state="open", version={}}) then return "ssl","tcp" end
     end
     return "tcp","ssl"
 end
@@ -269,5 +256,15 @@ function tryssl(host, port, data, opts)
     if not sd then best = "none" end
     return sd, response, best, early_resp
 end
+
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(unittest.table_equal({bestoption(443)}, {"ssl", "tcp"}), "bestoption ssl number")
+test_suite:add_test(unittest.table_equal({bestoption(80)}, {"tcp", "ssl"}), "bestoption tcp number")
+test_suite:add_test(unittest.table_equal({bestoption({number=8443,protocol="tcp",state="open",version={}})}, {"ssl", "tcp"}), "bestoption ssl table")
+test_suite:add_test(unittest.table_equal({bestoption({number=1234,protocol="tcp",state="open",version={}})}, {"tcp", "ssl"}), "bestoption tcp table")
 
 return _ENV;
