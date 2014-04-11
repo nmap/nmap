@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/28/2013
+.\"      Date: 11/11/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "11/11/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -531,11 +531,11 @@ Cet état est utilisé quand Nmap est incapable de déterminer si un port est fe
 .RE
 .SH "TECHNIQUES DE SCAN DE PORTS"
 .PP
-Comme un débutant tâchant d\*(Aqeffectuer une réparation automobile, je peux me battre pendant des heures en essayant d\*(Aqutiliser convenablement mes rudimentaires outils (marteau, clefs, etc\&.) pour la tâche à laquelle je me suis attablé\&. Une fois que j\*(Aqai lamentablement échoué et que j\*(Aqai fait remorqué ma guimbarde par un vrai mécanicien, à chaque fois il farfouille dans sa grosse caisse à outils pour y trouver le parfait bidule qui, d\*(Aqun coup de cuillère à pot, répare le truc\&. L\*(Aqart du scan de port, c\*(Aqest la même chose\&. Les experts connaissent des douzaines de techniques de scan et choisissent la bonne (ou une combinaison) pour une tâche donnée\&. D\*(Aqun autre côté, les utilisateurs inexpérimentés et les script kiddies essaient de tout résoudre avec le scan SYN par défaut\&. Comme Nmap est gratuit, la seule barrière à franchir pour atteindre la maîtrise du scan est la connaissance\&. C\*(Aqest bien mieux que l\*(Aqautomobile, où il faut une grande expérience pour déterminer que vous avez besoin d\*(Aqune plieuse à tablier hydraulique, mais il faut quand même payer des centaines d\*(Aqeuros pour en disposer d\*(Aqune\&.
+Comme un débutant tâchant d\*(Aqeffectuer une réparation automobile, je peux me battre pendant des heures en essayant d\*(Aqutiliser convenablement mes rudimentaires outils (marteau, clefs, etc\&.) pour la tâche à laquelle je me suis attablé\&. Une fois que j\*(Aqai lamentablement échoué et que j\*(Aqai fait remorquer ma guimbarde par un vrai mécanicien, à chaque fois il farfouille dans sa grosse caisse à outils pour y trouver le parfait bidule qui, d\*(Aqun coup de cuillère à pot, répare le truc\&. L\*(Aqart du scan de port, c\*(Aqest la même chose\&. Les experts connaissent des douzaines de techniques de scan et choisissent la bonne (ou une combinaison) pour une tâche donnée\&. D\*(Aqun autre côté, les utilisateurs inexpérimentés et les script kiddies essaient de tout résoudre avec le scan SYN par défaut\&. Comme Nmap est gratuit, la seule barrière à franchir pour atteindre la maîtrise du scan est la connaissance\&. C\*(Aqest bien mieux que l\*(Aqautomobile, où il faut une grande expérience pour déterminer que vous avez besoin d\*(Aqune plieuse à tablier hydraulique, mais où quand bien même il faut encore payer des centaines d\*(Aqeuros pour en disposer\&.
 .PP
 La plupart des types de scans ne sont disponibles que pour les utilisateurs privilégiés\&. Ceci est dû au fait qu\*(Aqils émettent et reçoivent des paquets bruts (raw), qui nécessitent les droits root sur les systèmes UNIX\&. L\*(Aqutilisation d\*(Aqun compte administrateur est conseillé sous Windows, bien que Nmap puisse fonctionner avec des utilisateurs non\-privilégiés si WinPcap est déjà chargé avec l\*(AqOS\&. Ce besoin des droits root était une sérieuse restriction quand Nmap a été diffusé en 1997, car beaucoup d\*(Aqutilisateurs avaient seulement accès à des comptes Internet partagés\&. Maintenant, le monde est différent\&. Les ordinateurs sont moins chers, bien plus de gens disposent d\*(Aqun accès 24/24 direct à Internet et les systèmes UNIX de bureau (comme Linux et Mac OS X) sont répandus\&. Une version Windows de Nmap est désormais disponible, permettant ainsi de le lancer sur encore plus de machines\&. Pour toutes ces raisons, les utilisateurs ont bien moins besoin de lancer Nmap depuis des comptes Internet limités\&. Ceci est heureux, car les options privilégiés rendent Nmap bien plus puissant et flexible\&.
 .PP
-Si Nmap essaie de produire des résultats précis, il faut garder à l\*(Aqesprit que toute sa perspicacité est basée sur les paquets renvoyés par les machines cibles (ou les pare\-feux qui les protègent)\&. De tels hôtes ne sont pas toujours dignes de confiance et peuvent répondre dans le but de brouiller ou d\*(Aqenduire Nmap d\*(Aqerreurs\&. Les hôtes qui ne respectent pas les RFCs et ne répondent pas comme ils devraient sont encore plus courants\&. Les scans FIN, Null et Xmas sont les plus sensibles à ce problème\&. Ces points sont spécifiques à certains types de scan et sont donc abordés dans leur section propre de la documentation\&.
+Si Nmap essaie de produire des résultats précis, il faut garder à l\*(Aqesprit que toute sa perspicacité est basée sur les paquets renvoyés par les machines cibles (ou les pare\-feux qui les protègent)\&. De tels hôtes ne sont pas toujours dignes de confiance et peuvent répondre dans le but de d\*(Aqinduire Nmap en erreur\&. Les hôtes qui ne respectent pas les RFCs et ne répondent pas comme ils devraient sont encore plus courants\&. Les scans FIN, Null et Xmas sont les plus sensibles à ce problème\&. Ces points sont spécifiques à certains types de scan et sont donc abordés dans leur section propre de la documentation\&.
 .PP
 Cette section documente la douzaine de techniques de scan de ports gérées par Nmap\&. Les méthodes ne peuvent pas être utilisés simultanément, excepté le scan UDP (\fB\-sU\fR) qui peut être combiné avec chacun des types de scan TCP\&. A titre d\*(Aqaide mémoire, les options de type de scan sont de la forme
 \fB\-s\fR\fB\fIC\fR\fR\fB \fR, où
@@ -1735,7 +1735,7 @@ Cette option n\*(Aqest utile que dans le cadre du deboggage de fuites de mémoir
 .PP
 \fB\-\-interactive\fR (Démarrer en mode interactif)
 .RS 4
-Démarre Nmap en mode interactif, qui offre un prompt interactif avec Nmap permettant le lancement facile de plusieurs scans (que ce soit en synchronisation ou en arrière\-plan)\&. Cette procédure est utile pour les gens qui scannent à partir de systèmes multi\-utilisateurs puisqu\*(Aqils souhaitent souvent tester leur sécurité sans que d\*(Aqautre utilisateur sur le système ne sache précisément quels systèmes ils sont en train de scanner\&. Utilisez
+Démarre Nmap en mode interactif, qui offre un prompt interactif avec Nmap permettant le lancement facile de plusieurs scans (que ce soit en synchronisation ou en arrière\-plan)\&. Cette procédure est utile pour les gens qui scannent à partir de systèmes multi\-utilisateurs puisqu\*(Aqils souhaitent souvent tester leur sécurité sans que d\*(Aqautres utilisateurs sur le système ne sachent précisément quels systèmes ils sont en train de scanner\&. Utilisez
 \fB\-\-interactive\fR
 pour activer ce mode puis entrez
 h
@@ -1861,7 +1861,7 @@ qui est distribué avec Nmap mais aussi disponible sur
 .SH "DISPOSITIONS LéGALES"
 .SS "Droits d\*(Aqauteur et licence"
 .PP
-Le Nmap Security Scanner est sous droits d\*(Aqauteur (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap est aussi une marque déposée de Insecure\&.Com LLC\&. Ce programme est un logiciel libre; vous pouvez le redistribuer ou le modifier selon les termes de la licence GNU General Public License comme publiée par la Free Software Foundation; Version 2\&. Cela garantie vos droits d\*(Aqutilisation, de modification et de redistribution de ce logiciel, et ce, sous certaines conditions\&. Si vous souhaitez inclure la technologie Nmap dans un logiciel propriétaire, nous nous réservons le droit de vendre d\*(Aqautres licences (communiquez avec
+Le Nmap Security Scanner est sous droits d\*(Aqauteur (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap est aussi une marque déposée de Insecure\&.Com LLC\&. Ce programme est un logiciel libre; vous pouvez le redistribuer ou le modifier selon les termes de la licence GNU General Public License comme publiée par la Free Software Foundation; Version 2\&. Cela garantit vos droits d\*(Aqutilisation, de modification et de redistribution de ce logiciel, et ce, sous certaines conditions\&. Si vous souhaitez inclure la technologie Nmap dans un logiciel propriétaire, nous nous réservons le droit de vendre d\*(Aqautres licences (communiquez avec
 <sales@insecure\&.com>)\&. Beaucoup de distributeurs de scanners de sécurité ont déjà acquis une licence pour les technologies Nmap, notamment la découverte d\*(Aqhôte, le scan de ports, le détection du système d\*(Aqexploitation et la détection de service ou de version\&.
 .PP
 Notez que la licence GPL comporte d\*(Aqimportantes restrictions relativement aux
