@@ -17,6 +17,8 @@ http://www.lexmark.com/vgn/images/portal/Security%20Features%20of%20Lexmark%20MF
 
 
 ---
+--@usage
+-- nmap -sU -p 9100 --script=lexmark-config <target>
 --@output
 -- Interesting ports on 192.168.1.111:
 -- PORT     STATE   SERVICE REASON

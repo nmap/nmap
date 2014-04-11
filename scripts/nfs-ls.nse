@@ -32,6 +32,9 @@ These access permissions are shown only with NFSv3:
 ]]
 
 ---
+-- @usage
+-- nmap -p 111 --script=nfs-ls <target>
+-- nmap -sV --script=nfs-ls <target>
 -- @output
 -- PORT    STATE SERVICE
 -- 111/tcp open  rpcbind

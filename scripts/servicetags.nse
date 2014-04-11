@@ -15,6 +15,8 @@ http://arc.opensolaris.org/caselog/PSARC/2006/638/ServiceTag_API_CLI_v07.pdf
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 6481 --script=servicetags <target>
 -- @output
 -- | servicetags:
 -- |   URN: urn:st:3bf76681-5e68-415b-f980-abcdef123456

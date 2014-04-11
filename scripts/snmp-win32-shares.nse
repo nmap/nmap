@@ -9,6 +9,8 @@ Attempts to enumerate Windows Shares through SNMP.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-win32-shares <target>
 -- @output
 -- | snmp-win32-shares:
 -- |   SYSVOL

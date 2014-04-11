@@ -8,6 +8,8 @@ information from the response, if the server attribute is present.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -sV -p 3478 <target>
 -- @output
 -- PORT     STATE SERVICE VERSION
 -- 3478/udp open  stun    Vovida.org 0.96

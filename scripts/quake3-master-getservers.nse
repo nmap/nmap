@@ -11,6 +11,8 @@ Queries Quake3-style master servers for game servers (many games other than Quak
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 27950 --script=quake3-master-getservers <target>
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 27950/udp open  quake3-master

@@ -20,6 +20,8 @@ successfully added.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-interfaces <target>
 -- @args snmp-interfaces.host  Specifies the SNMP server to probe when
 --       running in the "pre-scanning phase".
 -- @args snmp-interfaces.port  The optional port number corresponding

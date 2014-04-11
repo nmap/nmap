@@ -12,6 +12,9 @@ A single UDP packet (a login request) is sent. If the server does not have a
 password set, the exact version, name, and OS type will also be reported on.
 ]]
 
+---
+-- @usage
+-- nmap -sU -sV -p 8767 <target>
 -- @output
 -- PORT     STATE SERVICE    REASON     VERSION
 -- 8767/udp open  teamspeak2 script-set TeamSpeak 2.0.23.19 (name: COWCLANS; no password)

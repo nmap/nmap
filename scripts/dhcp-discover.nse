@@ -39,6 +39,8 @@ Some of the more useful fields:
 --                cause the router to reserve a new  IP address each time.
 -- @args requests Set to an integer to make up to  that many requests (and display the results).
 --
+-- @usage
+-- nmap -sU -p 67 --script=dhcp-discover <target>
 -- @output
 -- Interesting ports on 192.168.1.1:
 -- PORT   STATE SERVICE

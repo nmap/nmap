@@ -21,6 +21,8 @@ documentation of the protocol.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 123 --script ntp-info <target>
 -- @output
 -- PORT    STATE SERVICE VERSION
 -- 123/udp open  ntp     NTP v4

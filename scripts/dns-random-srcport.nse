@@ -25,6 +25,8 @@ porttest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 53 --script=dns-random-srcport <target>
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 53/udp open  domain  udp-response

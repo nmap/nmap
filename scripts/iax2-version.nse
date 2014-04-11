@@ -10,6 +10,8 @@ The script sends an Inter-Asterisk eXchange (IAX) Revision 2 Control Frame POKE 
 ]]
 
 ---
+-- @usage
+-- nmap -sU -sV -p 4569 <target>
 -- @output
 -- PORT     STATE  SERVICE VERSION
 -- 4569/udp closed iax2

@@ -13,6 +13,8 @@ newtargets script argument.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-netstat <target>
 -- @output
 -- | snmp-netstat:
 -- |   TCP  0.0.0.0:21           0.0.0.0:2256
