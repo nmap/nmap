@@ -1,4 +1,4 @@
-Nmap 6.41SVN ( http://nmap.org )
+Nmap 6.45 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -49,7 +49,7 @@ SCRIPT SCAN:
   --script-trace: Show all data sent and received
   --script-updatedb: Update the script database.
   --script-help=<Lua scripts>: Show help about scripts.
-           <Lua scripts> is a comma separted list of script-files or
+           <Lua scripts> is a comma-separated list of script-files or
            script-categories.
 OS DETECTION:
   -O: Enable OS detection
@@ -74,6 +74,7 @@ FIREWALL/IDS EVASION AND SPOOFING:
   -S <IP_Address>: Spoof source address
   -e <iface>: Use specified interface
   -g/--source-port <portnum>: Use given port number
+  --proxies <url1,[url2],...>: Relay connections through HTTP/SOCKS4 proxies
   --data-length <num>: Append random data to sent packets
   --ip-options <options>: Send packets with specified ip options
   --ttl <val>: Set IP time-to-live field

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 08/17/2013
+.\"      Date: 04/10/2014
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "08/17/2013" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "04/10/2014" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -123,7 +123,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 6\&.41SVN ( http://nmap\&.org )
+Nmap 6\&.45 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -174,7 +174,7 @@ SCRIPT SCAN:
   \-\-script\-trace: Show all data sent and received
   \-\-script\-updatedb: Update the script database\&.
   \-\-script\-help=<Lua scripts>: Show help about scripts\&.
-           <Lua scripts> is a comma separted list of script\-files or
+           <Lua scripts> is a comma\-separated list of script\-files or
            script\-categories\&.
 OS DETECTION:
   \-O: Enable OS detection
@@ -199,6 +199,7 @@ FIREWALL/IDS EVASION AND SPOOFING:
   \-S <IP_Address>: Spoof source address
   \-e <iface>: Use specified interface
   \-g/\-\-source\-port <portnum>: Use given port number
+  \-\-proxies <url1,[url2],\&.\&.\&.>: Relay connections through HTTP/SOCKS4 proxies
   \-\-data\-length <num>: Append random data to sent packets
   \-\-ip\-options <options>: Send packets with specified ip options
   \-\-ttl <val>: Set IP time\-to\-live field
@@ -1595,7 +1596,7 @@ ports isn\*(Aqt worth the extra time\&.
 \fB\-\-nsock\-engine epoll|kqueue|poll|select\fR .\" --nsock-engine .\" Nsock IO engine
 .RS 4
 Enforce use of a given nsock IO multiplexing engine\&. Only the
-select(2)\-based fallback engine is guaranteed to be available on your system\&. Engines are named after the name of the IO management facility they leverage\&. Engines currenty implemented are
+select(2)\-based fallback engine is guaranteed to be available on your system\&. Engines are named after the name of the IO management facility they leverage\&. Engines currently implemented are
 epoll,
 kqueue,
 poll, and
@@ -1858,7 +1859,7 @@ Cisco\&. This option only affects raw packet scans such as SYN scan or OS detect
 .RS 4
 Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4
 .\" proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
-\fB\-\-max\-prallelism\fR
+\fB\-\-max\-parallelism\fR
 may help because some proxies refuse to handle as many concurrent connections as Nmap opens by default\&.
 .sp
 This option takes a list of proxies as argument, expressed as URLs in the format
@@ -1867,7 +1868,7 @@ HTTP
 and
 SOCKS4\&.
 .sp
-Warning: this feature is still under development and has limitations\&. It is implemented within the nsock library and thus has no effect on the ping, port scanning and OS discovery phases of a scan\&. Only NSE and version scan benefit from this option so far\(emother features may disclose your true address\&. SSL connections are not yet supported, nor is proxy\-side DNS resolution (hostnames are always resolved by nmap)\&.
+Warning: this feature is still under development and has limitations\&. It is implemented within the nsock library and thus has no effect on the ping, port scanning and OS discovery phases of a scan\&. Only NSE and version scan benefit from this option so far\(emother features may disclose your true address\&. SSL connections are not yet supported, nor is proxy\-side DNS resolution (hostnames are always resolved by Nmap)\&.
 .RE
 .PP
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums) .\" --badsum .\" TCP checksum .\" checksums
@@ -2576,7 +2577,7 @@ which is open\-source software, written by Philip Hazel\&..\" Hazel, Philip
 Certain raw networking functions use the
 \m[blue]\fBLibdnet\fR\m[]\&\s-2\u[24]\d\s+2.\" libdnet
 networking library, which was written by Dug Song\&..\" Song, Dug
-A modified version is distributed with Nma\&.p Nmap can optionally link with the
+A modified version is distributed with Nmap\&. Nmap can optionally link with the
 \m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[25]\d\s+2.\" OpenSSL
 for SSL version detection support\&. The Nmap Scripting Engine uses an embedded version of the
 \m[blue]\fBLua programming language\fR\m[]\&\s-2\u[26]\d\s+2\&..\" Lua programming language
