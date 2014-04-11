@@ -10,6 +10,8 @@ Attempts to enumerate installed software through SNMP.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-win32-software <target>
 -- @output
 -- | snmp-win32-software:
 -- |   Apache Tomcat 5.5 (remove only); 2007-09-15 15:13:18

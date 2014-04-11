@@ -13,6 +13,10 @@ Obtains information (such as vendor and device type where available) from an IKE
 
 
 ---
+-- @usage
+-- nmap -sU -sV -p 500 <target>
+-- nmap -sU -p 500 --script ike-version <target>
+--
 -- @output
 -- PORT    STATE SERVICE REASON       VERSION
 -- 500/udp open  isakmp  udp-response Cisco VPN Concentrator 3000 4.0.7

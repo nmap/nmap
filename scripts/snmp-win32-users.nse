@@ -9,6 +9,8 @@ Attempts to enumerate Windows user accounts through SNMP
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-win32-users <target>
 -- @output
 -- | snmp-win32-users:
 -- |   Administrator

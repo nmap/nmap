@@ -25,6 +25,8 @@ txidtest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 53 --script=dns-random-txid <target>
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 53/udp open  domain  udp-response

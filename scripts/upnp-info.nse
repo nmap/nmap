@@ -9,6 +9,8 @@ Attempts to extract system information from the UPnP service.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 1900 --script=upnp-info <target>
 -- @output
 -- |  upnp-info:  System/1.0 UPnP/1.0 IGD/1.0
 -- |_ Location: http://192.168.1.1:80/UPnP/IGD.xml

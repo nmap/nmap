@@ -15,6 +15,9 @@ the version used is NFSv3.
 ]]
 
 ---
+-- @usage
+-- nmap -p 111 --script=nfs-statfs <target>
+-- nmap -sV --script=nfs-statfs <target>
 -- @output
 -- PORT    STATE SERVICE
 -- | nfs-statfs:

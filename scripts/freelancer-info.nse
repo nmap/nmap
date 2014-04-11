@@ -20,6 +20,10 @@ See http://sourceforge.net/projects/gameq/
 (relevant files: games.ini, packets.ini, freelancer.php)
 ]]
 
+---
+-- @usage
+-- nmap -sU -sV -p 2302 <target>
+-- nmap -sU -p 2302 --script=freelancer-info <target>
 -- @output
 -- PORT     STATE SERVICE    REASON       VERSION
 -- 2302/udp open  freelancer udp-response Freelancer (name: Discovery Freelancer RP 24/7; players: 152/225; password: no)

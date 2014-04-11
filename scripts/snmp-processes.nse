@@ -9,6 +9,8 @@ Attempts to enumerate running processes through SNMP.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-processes <target>
 -- @output
 -- | snmp-processes:
 -- |   System Idle Process

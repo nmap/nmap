@@ -13,6 +13,8 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 ---
+-- @usage
+-- nmap -sU -p 53 --script=dns-update <target>
 -- @output
 -- PORT   STATE SERVICE
 -- 53/udp open  domain

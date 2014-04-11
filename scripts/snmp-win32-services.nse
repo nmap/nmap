@@ -9,6 +9,8 @@ Attempts to enumerate Windows services through SNMP.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 161 --script=snmp-win32-services <target>
 -- @output
 -- | snmp-win32-services:
 -- |   Apache Tomcat

@@ -11,6 +11,8 @@ nameservers.
 ]]
 
 ---
+-- @usage
+-- nmap -sU -p 53 --script=dns-recursion <target>
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 53/udp open  domain  udp-response
