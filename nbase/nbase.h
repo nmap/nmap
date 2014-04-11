@@ -373,7 +373,7 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #endif
 
 
-static inline int checked_fd_isset(int fd, const fd_set *fds) {
+static inline int checked_fd_isset(int fd, fd_set *fds) {
 #ifndef WIN32
   if (fd >= FD_SETSIZE) {
     fprintf(stderr, "Attempt to FD_ISSET fd %d, which is not less than "
