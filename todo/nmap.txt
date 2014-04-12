@@ -1,13 +1,14 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Our "make uninstall" should uninstall ndiff if it was installed too.
+  We should probably do it in pretty much the same way we handle
+  Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
+
 o We should probably update our included libpcap.  We currently
   include version 1.2.1 (we upgraded to that in April 2012) while the
   latest version on tcpdump.org is 1.5.2.  We make minor changes to
   libpcap that we ship, and instructions for upgrading are in
   libpcap/NMAP_MODIFICATIONS.
-
-o We should update our OpenSSL Windows binaries from version 1.0.1c to
-  something newer, like 1.01f
 
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
@@ -784,6 +785,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should update our OpenSSL Windows binaries from version 1.0.1c to
+  something newer, like 1.01f
 
 o Web: figure out why autogeneration of nmap.org/nsedoc/ doesn't seem
   to be working.  I think we had a cron job which was supposed to be
