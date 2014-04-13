@@ -1,5 +1,17 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o We should improve the Windows build process for Ndiff, since it
+  works differently now that it is modularized.  To build the Nmap
+  6.45 release, we (as a temporary hack, not in SVN):
+  - Added 'ndiff' to zenmap/setup.py 'packages' list in
+    COMMON_SETUP_ARGS
+  - Created a zenmap/ndiff subdir and put ndiff.py there during build.
+    We should find a more elegant solution and check it into SVN.  The
+    fundamental issue is that the ndiff.exe we generate needs to be
+    able to access the new ndiff.py module.
+  Also, we need to make sure the -win32.zip Nmap distribution works
+  properly.
+
 o Our "make uninstall" should uninstall ndiff if it was installed too.
   We should probably do it in pretty much the same way we handle
   Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
