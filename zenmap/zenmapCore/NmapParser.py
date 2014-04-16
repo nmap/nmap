@@ -131,7 +131,7 @@ import copy
 from types import StringTypes
 from xml.sax import make_parser
 from xml.sax import SAXException
-from xml.sax.handler import ContentHandler
+from xml.sax.handler import ContentHandler, EntityResolver
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl as Attributes
 
@@ -1349,11 +1349,21 @@ class NmapParserSAX(ParserBasics, ContentHandler):
         return self.unsaved
 
 
+class OverrideEntityResolver(EntityResolver):
+    """This class overrides the default behavior of xml.sax to download
+    remote DTDs, instead returning blank strings"""
+    empty = StringIO.StringIO()
+
+    def resolveEntity(self, publicId, systemId):
+        return OverrideEntityResolver.empty
+
+
 def nmap_parser_sax():
     parser = make_parser()
     nmap_parser = NmapParserSAX()
 
     parser.setContentHandler(nmap_parser)
+    parser.setEntityResolver(OverrideEntityResolver())
     nmap_parser.set_parser(parser)
 
     return nmap_parser
