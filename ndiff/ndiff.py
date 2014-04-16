@@ -21,10 +21,20 @@ import time
 import xml.sax
 import xml.sax.saxutils
 import xml.dom.minidom
+from StringIO import StringIO
 
 verbose = False
 
 NDIFF_XML_VERSION = u"1"
+
+
+class OverrideEntityResolver(xml.sax.handler.EntityResolver):
+    """This class overrides the default behavior of xml.sax to download
+    remote DTDs, instead returning blank strings"""
+    empty = StringIO()
+
+    def resolveEntity(self, publicId, systemId):
+        return OverrideEntityResolver.empty
 
 
 class Scan(object):
@@ -48,6 +58,7 @@ class Scan(object):
         """Load a scan from the Nmap XML in the file-like object f."""
         parser = xml.sax.make_parser()
         handler = NmapContentHandler(self)
+        parser.setEntityResolver(OverrideEntityResolver())
         parser.setContentHandler(handler)
         parser.parse(f)
 
