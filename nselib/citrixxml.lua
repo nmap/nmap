@@ -37,13 +37,16 @@ function decode_xml_document(xmldata)
   end
 
   local newstr = xmldata
+  local escaped_val
 
-  for m in xmldata:gmatch("(&#%d+;)") do
-    hexval = m:match("(%d+)")
+  while string.match(newstr, "(&#%d+;)" ) do
+    escaped_val = string.match(newstr, "(&#%d+;)")
+    hexval = escaped_val:match("(%d+)")
 
     if ( hexval ) then
-      newstr = xmldata:gsub(m, string.char(hexval))
+      newstr, _ = newstr:gsub(escaped_val, string.char(hexval))
     end
+
   end
 
   return newstr
