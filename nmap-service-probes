@@ -9560,7 +9560,7 @@ match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x85[\x00\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\x05\0..Served by POWERDNS ([\w._-]+) (\$Id: packethandler\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x03\0\x04....$|s p/Netgear ProSafe FVS318v3 firewall named/ d/firewall/
-match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.*)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04....|s p/Aruba 3400 Mobility Controller named/
 
 match https-dns m|^\0\x06\x81\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/HTTPS-DNS HTTPS-over-DNS tunnel/
@@ -12185,7 +12185,7 @@ match tarantool m|---\r\ninfo:\r\n  version: \"([^\"]*)\"\r\n  uptime: (\d*)\r\n
 Probe TCP couchbase-data q|\x80\x10\0\0\0\0\0\0\0\0\0\0\x15\xf0\xd1\x62\0\0\0\0\0\0\0\0|
 rarity 8
 ports 11210
-match couchbase-tap m|^\x81\x10..\0\0\0\0\0\0\0.....\0\0\0\0\0\0\0\0ep_version([._\w]+).*ep_dbname([_\\\/\w\s:]*)|s p/Couchbase Membase/ v/$1/ i/DB name: $2/
+match couchbase-tap m|^\x81\x10..\0\0\0\0\0\0\0.....\0\0\0\0\0\0\0\0ep_version([._\w]+).*ep_dbname([_\\\/\w\s:]+)|s p/Couchbase Membase/ v/$1/ i/DB name: $2/
 match couchbase-tap m|^\x81\x10..\0\0\0\0\0\0\0.....\0\0\0\0\0\0\0\0ep_version([._\w]+)|s p/Couchbase Membase/ v/$1/
 
 ##############################NEXT PROBE##############################
@@ -12206,7 +12206,7 @@ match vp3 m|^ok$| p/Voldemort/
 # Kumofs kumo-server version probe
 Probe TCP kumo-server q|\x94\0\xcd\xef\xd1\x61\x91\x03|
 ports 19800,19700
-match kumo-server m|^\x94\x01\xcd\xef\xd1\xc0\xda\0.([^\s]*)|s p/Kumofs/ v/$1/
+match kumo-server m|^\x94\x01\xcd\xef\xd1\xc0\xda\0.([^\s]+)|s p/Kumofs/ v/$1/
 match kumo-manager m|^\x94\x01\xcd\xef\xd1\x05\xc0$| p/Kumofs/
 
 ##############################NEXT PROBE##############################
@@ -12256,8 +12256,8 @@ match minecraft m|^\xff\x00.\x00\xa7\x00\x31\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.
 Probe TCP erlang-node q|\0\x0bn\0\0\0\0\x01\x04nm@p|
 rarity 9
 
-match erlang-node m|^\0\x03sok\0.n\0\0.{8}(.*)|s p/Erlang Distribution Node/ i/Node name: $1/
-match erlang-node m|^\0[^\x03]s(.*)|s p/Erlang Distribution Node/ i/Status: $1/
+match erlang-node m|^\0\x03sok\0.n\0\0.{8}(.+).|s p/Erlang Distribution Node/ i/Node name: $1/
+match erlang-node m|^\0[^\x03]s(.+)|s p/Erlang Distribution Node/ i/Status: $1/
 
 
 ##############################NEXT PROBE##############################
