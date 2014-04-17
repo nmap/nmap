@@ -179,6 +179,9 @@ action = function(host, port)
 
   local result
   result = snmp.fetchFirst(response)
+  if not result then
+    return
+  end
 
   if result == 3 then
     result = ( infile and infile:getContent() )
