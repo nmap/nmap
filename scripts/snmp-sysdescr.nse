@@ -93,6 +93,9 @@ action = function(host, port)
   try(socket:close())
 
   local uptime = snmp.fetchFirst(response)
+  if not uptime then
+    return
+  end
 
   local days, hours, minutes, seconds, htime, mtime, stime
   days = math.floor(uptime / 8640000)
