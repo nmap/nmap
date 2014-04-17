@@ -602,7 +602,7 @@ end
 -- @return The current position in the buffer
 -- @return The record that was read, as a table
 function record_read(buffer, i)
-  local b, h, j, len
+  local b, h, len
 
   ------------
   -- Header --
@@ -615,8 +615,20 @@ function record_read(buffer, i)
 
   -- Parse header.
   h = {}
-  j, h["type"] = bin.unpack("C", buffer, i)
-  j, h["protocol"] = bin.unpack(">S", buffer, j)
+  local j, typ, proto = bin.unpack(">CS", buffer, i)
+  local name = find_key(TLS_CONTENTTYPE_REGISTRY, typ)
+  if name == nil then
+    stdnse.print_debug("Unknown TLS ContentType: %d", typ)
+    return j, nil
+  end
+  h["type"] = name
+  name = find_key(PROTOCOLS, proto)
+  if name == nil then
+    stdnse.print_debug("Unknown TLS Protocol: 0x%x", typ)
+    return j, nil
+  end
+  h["protocol"] = name
+
   j, h["length"] = bin.unpack(">S", buffer, j)
 
   -- Ensure we have enough data for the body.
@@ -626,8 +638,6 @@ function record_read(buffer, i)
   end
 
   -- Convert to human-readable form.
-  h["type"] = find_key(TLS_CONTENTTYPE_REGISTRY, h["type"])
-  h["protocol"] = find_key(PROTOCOLS, h["protocol"])
 
   ----------
   -- Body --
