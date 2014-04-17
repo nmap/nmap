@@ -44,7 +44,7 @@ function decode_xml_document(xmldata)
     hexval = escaped_val:match("(%d+)")
 
     if ( hexval ) then
-      newstr, _ = newstr:gsub(escaped_val, string.char(hexval))
+      newstr = newstr:gsub(escaped_val, string.char(hexval))
     end
 
   end
