@@ -1,13 +1,33 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 6.46 [2014-04-18]
+
+o [NSE] Made numerous improvements to ssl-heartbleed to provide
+  more reliable detection of the vulnerability.
+
+o [Zenmap] Fixed a bug which caused this crash message:
+     IOError: [Errno socket error] [Errno 10060] A connection attempt failed
+     because the connected party did not properly respond after a period of
+     time, or established connection failed because connected host has
+     failed to
+     respond
+  The bug was caused by us adding a DOCTYPE definition to Nmap's XML
+  output which caused Python's XML parser to try and fetch the DTD
+  every time it parses an XML file.  We now override that DTD-fetching
+  behavior. [Daniel Miller]
+
+o [NSE] Fix some bugs which could cause snmp-ios-config and
+  snmp-sysdescr scripts to crash
+  (http://seclists.org/nmap-dev/2014/q2/120) [Patrik Karlsson]
+
+o [NSE] Improved performance of citrixlua library when handling large XML
+  responses containing application lists. [Tom Sellers]
+
 Nmap 6.45 [2014-04-11]
 
 o NOTE THAT THE CHANGELOG FOR THIS RELEASE IS INCOMPLETE.  We plan to
   finish it soon.
 
-o [NSE] Improved performance of citrixlua library when handling large XML
-  responses containing application lists. [Tom Sellers]
-  
 o [NSE] Add ssl-heartbleed script to detect the Heartbleed bug in OpenSSL
   CVE-2014-0160 [Patrik Karlsson]
   
