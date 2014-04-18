@@ -5,7 +5,7 @@ o We should improve the Windows build process for Ndiff, since it
   6.45 release, we (as a temporary hack, not in SVN):
   - Added 'ndiff' to zenmap/setup.py 'packages' list in
     COMMON_SETUP_ARGS
-  - Created a zenmap/ndiff subdir and put ndiff.py there during build.
+  - Created a zenmap/ndiff subdir (empty) and copy ndiff/ndiff.py into zenmap/ before build.
     We should find a more elegant solution and check it into SVN.  The
     fundamental issue is that the ndiff.exe we generate needs to be
     able to access the new ndiff.py module.
