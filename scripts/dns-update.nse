@@ -10,7 +10,7 @@ Attempts to perform a dynamic DNS update without authentication.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"vuln", "intrusive"}
 
 ---
 -- @usage
