@@ -1625,7 +1625,8 @@ function script_init( )
     "\n%s*([Rr]eserved:%s*$addr)",
     "\n[^\n]*([Nn]ot%s[Aa]ssigned[^\n]*$addr)",
     "\n%s*(No match!!)%s*\n",
-    "(Invalid IP or CIDR block:%s*$addr)"
+    "(Invalid IP or CIDR block:%s*$addr)",
+    "\n%s*%%%s*(Unallocated and unassigned in LACNIC block:%s*$addr)",
   }
   nmap.registry.whois.m_err = {
     "\n%s*([Aa]n [Ee]rror [Oo]ccured)%s*\n",
