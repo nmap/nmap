@@ -197,25 +197,25 @@ action = function( host )
     status, retval = pcall( get_next_action, tracking, host.ip )
     if not status then
       stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", SCRIPT_NAME, host.ip, retval )
-  else tracking = retval end
+    else tracking = retval end
 
-  if tracking.this_db then
-    -- do query
-    local response = do_query( tracking.this_db, host.ip )
-    tracking.completed[#tracking.completed+1] = tracking.this_db
+    if tracking.this_db then
+      -- do query
+      local response = do_query( tracking.this_db, host.ip )
+      tracking.completed[#tracking.completed+1] = tracking.this_db
 
-    -- analyse data
-    status, retval = pcall( analyse_response, tracking, host.ip, response, data )
-    if not status then
-      stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", SCRIPT_NAME, host.ip, retval )
-  else data = retval end
+      -- analyse data
+      status, retval = pcall( analyse_response, tracking, host.ip, response, data )
+      if not status then
+        stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", SCRIPT_NAME, host.ip, retval )
+      else data = retval end
 
-  -- get next action
-  status, retval = pcall( get_next_action, tracking, host.ip )
-  if not status then
-    stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", SCRIPT_NAME, host.ip, retval )
-    if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
-else tracking = retval end
+      -- get next action
+      status, retval = pcall( get_next_action, tracking, host.ip )
+      if not status then
+        stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", SCRIPT_NAME, host.ip, retval )
+        if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
+      else tracking = retval end
     end
 
     nmap.registry.whois.mutex[tracking.last_db] "done"
@@ -1138,8 +1138,10 @@ function smallest_range( range_1, range_2 )
   local r1_first, r1_last = ipOps.get_ips_from_range( range_1.range )
   local r2_first, r2_last = ipOps.get_ips_from_range( range_2.range )
 
-  if range_1.pointer and ipOps.compare_ip( r1_first, "eq", r2_first ) and ipOps.compare_ip( r1_last, "eq", r2_last )
-    and range_1.pointer < range_2.pointer then
+  if  range_1.pointer
+  and ipOps.compare_ip( r1_first, "eq", r2_first )
+  and ipOps.compare_ip( r1_last, "eq", r2_last )
+  and range_1.pointer < range_2.pointer then
     sorted = false
   end
 
@@ -1365,7 +1367,8 @@ function script_init( )
   nmap.registry.whois.fields_meta = {
     rpsl = {
       ob_exist =  "\r?\n?%s*[Ii]net6?num:%s*.-\r?\n",
-      ob_netnum = {ob_start = "\r?\n?%s*[Ii]net6?num:%s*.-\r?\n",
+      ob_netnum = {
+        ob_start = "\r?\n?%s*[Ii]net6?num:%s*.-\r?\n",
         ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
         inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
         netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:%s*(.-)\r?\n",
@@ -1373,66 +1376,87 @@ function script_init( )
         descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
         country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
         status = "\r?\n%s*[Ss]tatus:%s*(.-)\r?\n",
-      source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
-      ob_org = {  ob_start = "\r?\n%s*[Oo]rgani[sz]ation:%s*.-\r?\n",
+        source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"
+      },
+      ob_org = {
+        ob_start = "\r?\n%s*[Oo]rgani[sz]ation:%s*.-\r?\n",
         ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
         organisation = "\r?\n%s*[Oo]rgani[sz]ation:%s*(.-)\r?\n",
         orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:%s*(.-)\r?\n",
         descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
-      email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"},
-      ob_role = { ob_start = "\r?\n%s*[Rr]ole:%s*.-\r?\n",
+        email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"
+      },
+      ob_role = {
+        ob_start = "\r?\n%s*[Rr]ole:%s*.-\r?\n",
         ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
         role = "\r?\n%s*[Rr]ole:%s*(.-)\r?\n",
-      email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"},
-      ob_persn = {  ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
+        email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"
+      },
+      ob_persn = {
+        ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
         ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
         person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
-    email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
+        email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"
+      }
+    },
     arin = {
       ob_exist =  "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
-      ob_netnum = {ob_start = "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
+      ob_netnum = {
+        ob_start = "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         netrange = "\r?\n%s*[Nn]et[-]-[Rr]ange:(.-)\r?\n",
         netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:(.-)\r?\n",
-      nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:(.-)\r?\n"},
-      ob_org = {ob_start = "\r?\n%s*[Oo]rg[-]-[Nn]ame:.-\r?\n",
+        nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:(.-)\r?\n"
+      },
+      ob_org = {
+        ob_start = "\r?\n%s*[Oo]rg[-]-[Nn]ame:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:(.-)\r?\n",
         orgid = "\r?\n%s*[Oo]rg[-]-[Ii][Dd]:(.-)\r?\n",
         stateprov = "\r?\n%s*[Ss]tate[-]-[Pp]rov:(.-)\r?\n",
-      country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
-      ob_cust = {ob_start = "\r?\n%s*[Cc]ust[-]-[Nn]ame:.-\r?\n",
+        country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"
+      },
+      ob_cust = {
+        ob_start = "\r?\n%s*[Cc]ust[-]-[Nn]ame:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         custname =  "\r?\n%s*[Cc]ust[-]-[Nn]ame:(.-)\r?\n",
         stateprov = "\r?\n%s*[Ss]tate[-]-[Pp]rov:(.-)\r?\n",
-      country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
-      ob_persn = {ob_start = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:.-\r?\n",
+        country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"
+      },
+      ob_persn = {
+        ob_start = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:.-\r?\n",
         ob_end = "\r?\n\r?\n",
-        orgtechname =
-        "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:(.-)\r?\n",
-        orgtechemail =
-    "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Ee][-]-[Mm]ail:(.-)\r?\n"}  },
+        orgtechname = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:(.-)\r?\n",
+        orgtechemail = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Ee][-]-[Mm]ail:(.-)\r?\n"
+      }
+    },
     lacnic = {
       ob_exist =  "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
-      ob_netnum = {ob_start = "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
+      ob_netnum = {
+        ob_start = "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
         ob_end = "\r?\n\r?\n",
         inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
         owner = "\r?\n%s*[Oo]wner:%s*(.-)\r?\n",
         ownerid = "\r?\n%s*[Oo]wner[-]-[Ii][Dd]:%s*(.-)\r?\n",
         responsible = "\r?\n%s*[Rr]esponsible:%s*(.-)\r?\n",
         country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
-      source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
-      ob_persn = {ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
+        source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
+        ob_persn = {ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
         ob_end = "\r?\n\r?\n",
         person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
-    email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
+        email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"
+      }
+    },
     jpnic = {
       ob_exist =  "\r?\n%s*[Nn]etwork%s-[Ii]nformation:%s*.-\r?\n",
-      ob_netnum = {ob_start = "[[Nn]etwork%s*[Nn]umber]%s*.-\r?\n",
+      ob_netnum = {
+        ob_start = "[[Nn]etwork%s*[Nn]umber]%s*.-\r?\n",
         ob_end = "\r?\n\r?\n",
         inetnum = "[[Nn]etwork%s*[Nn]umber]%s*(.-)\r?\n",
         netname = "[[Nn]etwork%s*[Nn]ame]%s*(.-)\r?\n",
-    orgname = "[[Oo]rganization]%s*(.-)\r?\n"} }
+        orgname = "[[Oo]rganization]%s*(.-)\r?\n"
+      }
+    }
   }
 
   ---
@@ -1480,15 +1504,15 @@ function script_init( )
       redirects = {
         {"ob_org", "orgname", "longname"},
         {"ob_org", "orgname", "id"},
-      {"ob_org", "orgid", "id"} },
+        {"ob_org", "orgid", "id"} },
       output_short = {
         {"ob_netnum", {"netrange", "netname"}},
-      {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}}  },
+        {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}}  },
       output_long = {
         {"ob_netnum", {"netrange", "netname"}},
         {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}},
         {"ob_cust", {"custname", {"country", "stateprov"}}},
-      {"ob_persn", {"orgtechname", "orgtechemail"}} },
+        {"ob_persn", {"orgtechname", "orgtechemail"}} },
       reg = "netrange",
       unordered = true
     },
@@ -1501,15 +1525,15 @@ function script_init( )
       redirects = {
         {"ob_role", "role", "longname"},
         {"ob_org", "orgname", "id"},
-      {"ob_org", "orgname", "longname"} },
+        {"ob_org", "orgname", "longname"} },
       output_short = {
         {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-      {"ob_org", {"orgname", "organisation", "descr", "email"}} },
+        {"ob_org", {"orgname", "organisation", "descr", "email"}} },
       output_long = {
         {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
         {"ob_org", {"orgname", "organisation", "descr", "email"}},
         {"ob_role", {"role", "email"}},
-      {"ob_persn", {"person", "email"}} },
+        {"ob_persn", {"person", "email"}} },
       reg = "inetnum"
     },
     apnic = {
@@ -1522,15 +1546,15 @@ function script_init( )
         {"ob_netnum", "netname", "id"},
         {"ob_org", "orgname", "longname"},
         {"ob_role", "role", "longname"},
-      {"ob_netnum", "source", "id"} },
+        {"ob_netnum", "source", "id"} },
       output_short = {
         {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-      {"ob_org", {"orgname", "organisation", "descr", "email"}} },
+        {"ob_org", {"orgname", "organisation", "descr", "email"}} },
       output_long = {
         {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
         {"ob_org", {"orgname", "organisation", "descr", "email"}},
         {"ob_role", {"role", "email"}},
-      {"ob_persn", {"person", "email"}} },
+        {"ob_persn", {"person", "email"}} },
       reg = "inetnum"
     },
     lacnic = {
@@ -1542,43 +1566,45 @@ function script_init( )
       smallnet_rule = nmap.registry.whois.fields_meta.lacnic.ob_netnum.inetnum,
       redirects = {
         {"ob_netnum", "ownerid", "id"},
-      {"ob_netnum", "source", "id"} },
+        {"ob_netnum", "source", "id"} },
       output_short = {
         {"ob_netnum",
-      {"inetnum", "owner", "ownerid", "responsible", "country"}}  },
+        {"inetnum", "owner", "ownerid", "responsible", "country"}}  },
       output_long = {
         {"ob_netnum",
         {"inetnum", "owner", "ownerid", "responsible", "country"}},
-      {"ob_persn", {"person", "email"}} },
+        {"ob_persn", {"person", "email"}} },
       reg = "inetnum"
     },
     afrinic = {
       id = "afrinic",
       hostname = "whois.afrinic.net", preflag = "-c", postflag = "",
-      longname = {"african internet numbers registry",
-      "african network information center"},
+      longname = {
+        "african internet numbers registry",
+        "african network information center"
+      },
       fieldreq = nmap.registry.whois.fields_meta.rpsl,
       smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
       redirects = {
-      {"ob_org", "orgname", "longname"} },
+        {"ob_org", "orgname", "longname"} },
       output_short = {
         {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-      {"ob_org", {"orgname", "organisation", "descr", "email"}} },
+        {"ob_org", {"orgname", "organisation", "descr", "email"}} },
       output_long = {
         {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
         {"ob_org", {"orgname", "organisation", "descr", "email"}},
         {"ob_role", {"role", "email"}},
-      {"ob_persn", {"person", "email"}} },
+        {"ob_persn", {"person", "email"}} },
       reg = "inetnum"
     },--[[
     jpnic = {
-    id = "jpnic",
-    hostname = "whois.nic.ad.jp", preflag = "", postflag = "/e",
-    longname = {"japan network information center"},
-    fieldreq = nmap.registry.whois.fields_meta.jpnic,
-    output_short = {
-    {"ob_netnum", {"inetnum", "netname", "orgname"}}  },
-    reg = "inetnum" },--]]
+      id = "jpnic",
+      hostname = "whois.nic.ad.jp", preflag = "", postflag = "/e",
+      longname = {"japan network information center"},
+      fieldreq = nmap.registry.whois.fields_meta.jpnic,
+      output_short = {
+        {"ob_netnum", {"inetnum", "netname", "orgname"}}  },
+      reg = "inetnum" },--]]
     iana = {  -- not actually a db but required here
       id = "iana", longname = {"internet assigned numbers authority"}
     }
@@ -1908,12 +1934,12 @@ function requires_updating( file )
   if (etag == "") then etag = nil end
   if not ( last_cached or mod or etag ) then return true, nil end
   if not (
-      mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
-      or
-      mod:match( "%a*day,%d%d-%a%a%a-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
-      or
-      mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
-      ) then
+    mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+  or
+    mod:match( "%a*day,%d%d-%a%a%a-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+  or
+    mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
+  ) then
     mod = nil
   end
   if not etag and not mod then
@@ -1999,8 +2025,10 @@ function conditional_download( url, mod_date, e_tag )
   local request_response = http.get_url( url, request_options )
 
   -- follow one redirection
-  if request_response.status ~= 304 and ( tostring( request_response.status ):match( "30%d" ) and
-      type( request_response.header.location ) == "string"  and request_response.header.location ~= "" ) then
+  if  request_response.status ~= 304
+  and ( tostring( request_response.status ):match( "30%d" )
+  and type( request_response.header.location ) == "string"
+  and request_response.header.location ~= "" ) then
     stdnse.print_debug( 2, "%s: HTTP Status:%d New Location: %s.", SCRIPT_NAME, request_response.status, request_response.header.location )
     request_response = http.get_url( request_response.header.location, request_options )
   end
