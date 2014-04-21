@@ -735,28 +735,36 @@ function analyse_response( tracking, ip, response, data )
     -- add mirrored_db to extracted data
     data[this_db].mirror = mirrored_db
 
-    -- If we are accepting a record, only cache the data for that record
-    if not nextdb or nmap.registry.whois.nofollow then
-      -- no redirect - accept as result and clear any previous data
-      data = data[this_db]
-      data.id = this_db
-    elseif nextdb and table.concat( tracking.completed, " " ):match( nextdb ) then
-      -- redirected to a previously queried service - accept as result
-      data = data[nextdb]
-      data.id = nextdb
-      nextdb = nil
-    elseif have_objects and ( data.iana > 1 ) and not table.concat( tracking.completed, " " ):match( nmap.registry.whois.whoisdb.arin.id ) then
-      -- two redirects to IANA - query ARIN next (which we should probably have done already!)
-      nextdb = nmap.registry.whois.whoisdb.arin.id
-    elseif have_objects and ( data.iana > 1 ) and table.concat( tracking.completed, " " ):match( nmap.registry.whois.whoisdb.arin.id ) then
-      -- two redirects to IANA - accept result from ARIN
-      data = data[nmap.registry.whois.whoisdb.arin.id]
-      data.id = nmap.registry.whois.whoisdb.arin.id
-      nextdb = nil
-    end
+  end -- have objects
 
-    -- cache our analysis
-    local range
+  -- If we are accepting a record, only cache the data for that record
+  if (have_objects and not nextdb) or nmap.registry.whois.nofollow then
+    -- no redirect - accept as result and clear any previous data
+    data = data[this_db]
+    data.id = this_db
+  elseif nextdb and table.concat( tracking.completed, " " ):match( nextdb ) then
+    -- redirected to a previously queried service - accept as result
+    data = data[nextdb]
+    data.id = nextdb
+    nextdb = nil
+  elseif have_objects and ( data.iana > 1 ) and not table.concat( tracking.completed, " " ):match( nmap.registry.whois.whoisdb.arin.id ) then
+    -- two redirects to IANA - query ARIN next (which we should probably have done already!)
+    nextdb = nmap.registry.whois.whoisdb.arin.id
+  elseif have_objects and ( data.iana > 1 ) and table.concat( tracking.completed, " " ):match( nmap.registry.whois.whoisdb.arin.id ) then
+    -- two redirects to IANA - accept result from ARIN
+    data = data[nmap.registry.whois.whoisdb.arin.id]
+    data.id = nmap.registry.whois.whoisdb.arin.id
+    nextdb = nil
+  elseif not have_objects then
+    data = data[this_db]
+    data.id = this_db
+  end
+
+  -- cache our analysis
+  local range
+
+  if have_objects then
+
     if data[this_db] and data[this_db].ob_netnum then
       range = data[this_db].ob_netnum[meta.reg]
     elseif data.ob_netnum and data.mirror then
@@ -781,10 +789,9 @@ function analyse_response( tracking, ip, response, data )
     -- prevent caching (0/0 or /8) or (::/0 or /23) or
     range = not_short_prefix( ip, range, nextdb )
 
-    -- add to cache
-    add_to_cache( ip, range, nextdb, data )
+  end
 
-  end -- if have_objects
+  add_to_cache( ip, range, nextdb, data )
 
   return data
 
@@ -1316,7 +1323,9 @@ function format_data_for_output( data )
 
   end
 
-  if #output < 3 then return "Could not display any information." end
+  if #output < 3 then
+     output[#output+1] = ", but its content was not understood."
+  end
 
   return ( table.concat( output ):gsub( "[%s\n]\n", "\n" ) )
 
