@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Improvements to whois-ip.nse: fix an unhandled error when a referred-to
+  response could not be understood; add a new pattern to recognise a
+  LACNIC "record not found" type of response and update the way ARIN is
+  queried. [jah]
+
 Nmap 6.46 [2014-04-18]
 
 o [NSE] Made numerous improvements to ssl-heartbleed to provide

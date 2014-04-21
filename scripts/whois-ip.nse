@@ -1506,7 +1506,7 @@ function script_init( )
   nmap.registry.whois.whoisdb = {
     arin = {
       id = "arin",
-      hostname = "whois.arin.net", preflag = "+", postflag = "",
+      hostname = "whois.arin.net", preflag = "n +", postflag = "",
       longname = {"american registry for internet numbers"},
       fieldreq = nmap.registry.whois.fields_meta.arin,
       smallnet_rule = nmap.registry.whois.fields_meta.arin.ob_netnum.netrange,
