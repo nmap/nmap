@@ -22,6 +22,10 @@ o We should probably update our included libpcap.  We currently
   libpcap that we ship, and instructions for upgrading are in
   libpcap/NMAP_MODIFICATIONS.
 
+o We should fix service detection so it can handle 0-byte captures
+  without crashing.
+  See http://seclists.org/nmap-dev/2014/q2/105
+
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
   by running:
