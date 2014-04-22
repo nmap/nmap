@@ -26,6 +26,14 @@ o We should fix service detection so it can handle 0-byte captures
   without crashing.
   See http://seclists.org/nmap-dev/2014/q2/105
 
+o The XML version of Nmap lists and describes the six port states
+  recognized by Nmap near the top of the "Port Scanning Basics"
+  section.  That can be seen in the HTML rendering at
+  http://nmap.org/book/man-port-scanning-basics.html.  But in the man
+  page (nroff) rendering, the list is missing and it just gives the
+  title: "The six port states recognized by Nmap".  We should figure out
+  why, and fix it.
+
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
   by running:
