@@ -1557,9 +1557,9 @@ function head(host, port, path, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
   repeat
-    response, state = lookup_cache("HEAD", host, port, path, options);
+    response, state = lookup_cache("HEAD", u.host, u.port, u.path, options);
     if response == nil then
-      response = generic_request(host, port, "HEAD", path, options)
+      response = generic_request(u.host, u.port, "HEAD", u.path, options)
       insert_cache(state, response);
     end
     u = parse_redirect(host, port, path, response)
