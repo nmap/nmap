@@ -57,11 +57,13 @@ This script was based on http-enum.
 -- Revision History
 -- 2013-08-13 nnposter
 --   * added support for target_check()
+-- 2014-04-27
+--   * changed category from safe to intrusive
 ---
 
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "auth", "safe"}
+categories = {"discovery", "auth", "intrusive"}
 
 portrule = shortport.http
 
