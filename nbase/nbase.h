@@ -478,10 +478,6 @@ int alloc_vsprintf(char **strp, const char *fmt, va_list va)
 
 char *escape_windows_command_arg(const char *arg);
 
-/* Trivial function that returns nonzero if all characters in str of
-   length strlength are printable (as defined by isprint()) */
-int stringisprintable(const char *str, int strlength);
-
 /* parse_long is like strtol or atoi, but it allows digits only.
    No whitespace, sign, or radix prefix. */
 long parse_long(const char *s, char **tail);

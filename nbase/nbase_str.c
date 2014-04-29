@@ -317,18 +317,6 @@ char *escape_windows_command_arg(const char *arg)
     return ret;
 }
 
-/* Trivial function that returns nonzero if all characters in str of length strlength are
-   printable (as defined by isprint()) */
-int stringisprintable(const char *str, int strlength) {
-  int i;
-
-  for (i = 0; i < strlength; i++)
-    if (!isprint((int)(unsigned char)str[i]))
-      return 0;
-
-  return 1;
-}
-
 /* Convert non-printable characters to replchar in the string */
 void replacenonprintable(char *str, int strlength, char replchar) {
   int i;
