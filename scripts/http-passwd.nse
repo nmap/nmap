@@ -173,8 +173,7 @@ action = function(host, port)
 
   -- Check for something that looks like a query referring to a file name, like
   -- "index.php?page=next.php". Replace the query value with each of the test
-  -- vectors. Add an encoded null byte at the end to bypass some checks; see
-  -- http://insecure.org/news/P55-01.txt.
+  -- vectors. 
   local response = http.get(host, port, root)
   if response.body then
     local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")
@@ -183,10 +182,19 @@ action = function(host, port)
       stdnse.print_debug(1, "%s: testing with query %s.", SCRIPT_NAME, query_base .. "...")
 
       for _, dir in ipairs(dirs) do
+        -- Add an encoded null byte at the end to bypass some checks; see
+        -- http://insecure.org/news/P55-01.txt.
         local response = http.get(host, port, query_base .. dir .. "%00")
 
         if validate(response) then
-          return output(response.body, dir)
+          return output(response.body, dir .. "%00")
+        end
+
+        -- Try again. This time without null byte injection. For example as
+        -- of PHP 5.3.4, include() does not accept paths with NULL in them.
+        local response = http.get(host, port, query_base .. dir)
+        if validate(response) then
+            return output(response.body, dir)
         end
       end
     end
