@@ -5,7 +5,7 @@ local string = require "string"
 local vulns = require "vulns"
 
 description = [[
-A 0 day was been released on the 6th december 2013 by rubina119, and was patched in Zimbra 7.2.6.
+An 0 day was released on the 6th December 2013 by rubina119, and was patched in Zimbra 7.2.6.
 
 The vulnerability is a local file inclusion that can retrieve any file from the server.
 
@@ -18,18 +18,18 @@ Then, send some payload to create the new mail account.
 
 ---
 -- @usage
--- nmap -sV --script http-vuln-0-day-lfi-zimbra <target>
--- nmap -p80 --script http-vuln-0-day-lfi-zimbra --script-args http-vuln-0-day-lfi-zimbra=/ZimBra <target>
+-- nmap -sV --script http-vuln-cve2013-7091 <target>
+-- nmap -p80 --script http-vuln-cve2013-7091 --script-args http-vuln-cve2013-7091=/ZimBra <target>
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-vuln-0-day-lfi-zimbra:
+-- | http-vuln-cve2013-7091:
 -- |   VULNERABLE:
 -- |   Zimbra Local File Inclusion and Disclosure of Credentials
 -- |     State: VULNERABLE (Exploitable)
--- |     IDs:  None, 0-day
+-- |     IDs:  CVE:CVE-2013-7091
 -- |     Description:
--- |       A 0 day has been released on the 6th december 2013 by rubina119.
+-- |       An 0 day was released on the 6th December 2013 by rubina119.
 -- |       The vulnerability is a local file inclusion that can retrieve the credentials of the Zimbra installations etc.
 -- |       Using this script, we can detect if the file is present.
 -- |       If the file is present, we assume that the host might be vulnerable.
@@ -40,13 +40,13 @@ Then, send some payload to create the new mail account.
 -- |       TODO:
 -- |       Add the possibility to read compressed file (because we're only looking if it exists)
 -- |       Then, send some payload to create the new mail account
--- |     Disclosure date: 2013-06-12
+-- |     Disclosure date: 2013-12-06
 -- |     Extra information:
 -- |       Proof of Concept:/index.php?-s
 -- |     References:
 -- |_      http://www.exploit-db.com/exploits/30085/
 --
--- @args http-vuln-0-day-lfi-zimbra.uri URI. Default: /zimbra
+-- @args http-vuln-cve2013-7091.uri URI. Default: /zimbra
 ---
 
 author = "Paul AMAR <aos.paul@gmail.com>, Ron Bowes"
@@ -64,6 +64,7 @@ action = function(host, port)
   local vuln = {
        title = 'Zimbra Local File Inclusion (Gather admin credentials)',
        state = vulns.STATE.NOT_VULN, -- default
+       IDS = {CVE = 'CVE-2013-7091'},
        description = [[
 This script exploits a Local File Inclusion in
 /res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz
@@ -78,7 +79,7 @@ This issue was patched in Zimbra 7.2.6.
           'http://www.exploit-db.com/exploits/30085/',
        },
        dates = {
-           disclosure = {year = '2013', month = '12', day = '6'},
+           disclosure = {year = '2013', month = '12', day = '06'},
        },
      }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
