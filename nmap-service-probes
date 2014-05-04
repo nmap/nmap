@@ -1,4 +1,4 @@
-﻿# Nmap service detection probe list -*- mode: fundamental; -*-
+# Nmap service detection probe list -*- mode: fundamental; -*-
 # $Id$
 #
 # This is a database of custom probes and expected responses that the
