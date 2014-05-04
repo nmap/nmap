@@ -36,7 +36,7 @@ CHANGELOG:
 -- |       switches, such as -s, -d or -c to be passed to the php-cgi binary,
 -- |       which can be exploited to disclose source code and obtain arbitrary
 -- |       code execution.
--- |     Disclosure date: 2012-05-3
+-- |     Disclosure date: 2012-05-03
 -- |     Extra information:
 -- |       Proof of Concept:/index.php?-s
 -- |     References:
@@ -77,7 +77,7 @@ code execution.]],
            'http://ompldr.org/vZGxxaQ',
        },
        dates = {
-           disclosure = {year = '2012', month = '05', day = '3'},
+           disclosure = {year = '2012', month = '05', day = '03'},
        },
      }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
