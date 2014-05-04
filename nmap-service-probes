@@ -1,4 +1,4 @@
-# Nmap service detection probe list -*- mode: fundamental; -*-
+﻿# Nmap service detection probe list -*- mode: fundamental; -*-
 # $Id$
 #
 # This is a database of custom probes and expected responses that the
@@ -12381,3 +12381,8 @@ ports 13246
 
 match AirHID m|^andReceiver-\d+\.\d+\.\d+$|s p/AirHID Andrioid remote mouse server/
 
+##############################NEXT PROBE##############################
+Probe UDP NetMotionMobility q|\0\x40\x50\0\0\0\0\x85\x5d\xb4\x91\x28\0\0\0\0\0\x01\x7c\x91\x40\0\0\0\xaa\x39\xda\x42\x37\x65\xcf\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 7
+ports 5008
+match NetMotionMobility m|^\0\x40\x51\0\0\0\0| d/NetMotion Mobility VPN/
