@@ -2507,6 +2507,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
         startNextProbe(nsp, nsi, SG, svc, true);
       }
       break;
+    case ENETUNREACH:
     case EHOSTUNREACH:
       // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
       // something else nasty during the scan.  Shrug.  I'll give up on this port
