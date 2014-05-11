@@ -9,7 +9,7 @@ While the script does some guessing, note that overall there's no way to
 determine what technologies a given site is using.
 
 You can help improve this script by adding new entries to
-nselib/data/http-tools-fingerprints.lua
+nselib/data/http-devframework-fingerprints.lua
 
 Each entry must have:
 * <code>rapidDetect</code> - Callback function that is called in the beginning
