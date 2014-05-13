@@ -34,6 +34,9 @@ o The XML version of Nmap lists and describes the six port states
   title: "The six port states recognized by Nmap".  We should figure out
   why, and fix it.
 
+o INFRASTRUCTURE: Upgrade seclists to use Mailman 3, which apparently
+  has many improvements.
+
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
   by running:
