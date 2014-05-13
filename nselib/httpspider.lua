@@ -769,6 +769,7 @@ Crawler = {
       -- pages we have retrieved so far
       local count = self:getPageCount()
       if ( self.options.maxpagecount and
+          ( self.options.maxpagecount > 0 ) and
           ( count > self.options.maxpagecount ) ) then
         table.insert(response_queue, { false, { err = false, msg = "Reached max page count" } })
         condvar "signal"
