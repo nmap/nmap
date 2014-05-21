@@ -71,20 +71,20 @@ extern struct timeval nsock_tod;
 
 
 void nsock_set_log_function(nsock_pool nsp, nsock_logger_t logger) {
-  mspool *ms = (mspool *)nsp;
+  struct npool *ms = (struct npool *)nsp;
 
   ms->logger = logger;
   nsock_log_debug(ms, "Registered external logging function: %p", logger);
 }
 
 nsock_loglevel_t nsock_get_loglevel(nsock_pool nsp) {
-  mspool *ms = (mspool *)nsp;
+  struct npool *ms = (struct npool *)nsp;
 
   return ms->loglevel;
 }
 
 void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel) {
-  mspool *ms = (mspool *)nsp;
+  struct npool *ms = (struct npool *)nsp;
 
   ms->loglevel = loglevel;
 }
@@ -110,7 +110,7 @@ void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
 
   rc = vasprintf(&rec.msg, format, args);
   if (rc >= 0) {
-    mspool *ms = (mspool *)nsp;
+    struct npool *ms = (struct npool *)nsp;
 
     ms->logger(nsp, &rec);
     free(rec.msg);

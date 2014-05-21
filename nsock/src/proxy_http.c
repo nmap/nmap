@@ -111,7 +111,7 @@ static void proxy_http_node_delete(struct proxy_node *node) {
   free(node);
 }
 
-static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
+static int handle_state_initial(struct npool *nsp, struct nevent *nse, void *udata) {
   struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   struct sockaddr_storage *ss;
   size_t sslen;
@@ -144,7 +144,7 @@ static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   return 0;
 }
 
-static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
+static int handle_state_tcp_connected(struct npool *nsp, struct nevent *nse, void *udata) {
   struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   char *res;
   int reslen;
@@ -173,8 +173,8 @@ static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
 
 static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   int rc = 0;
-  mspool *nsp = (mspool *)nspool;
-  msevent *nse = (msevent *)nsevent;
+  struct npool *nsp = (struct npool *)nspool;
+  struct nevent *nse = (struct nevent *)nsevent;
 
   switch (nse->iod->px_ctx->px_state) {
     case PROXY_STATE_INITIAL:

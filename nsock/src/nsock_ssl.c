@@ -111,7 +111,7 @@ static SSL_CTX *ssl_init_common() {
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
-  mspool *ms = (mspool *)ms_pool;
+  struct npool *ms = (struct npool *)ms_pool;
   char rndbuf[128];
 
   if (ms->sslctx == NULL)
@@ -153,7 +153,7 @@ nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
  * security. Insecure ciphers are used when they are faster and no certificate
  * verification is done. Returns the SSL_CTX so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
-  mspool *ms = (mspool *)ms_pool;
+  struct npool *ms = (struct npool *)ms_pool;
   char rndbuf[128];
 
   if (ms->sslctx == NULL)
@@ -180,7 +180,7 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
  * SSL object is SSL_VERIFY_NONE, or if OpenSSL is disabled, this function
  * always returns true. */
 int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
-  msiod *iod = (msiod *)nsockiod;
+  struct niod *iod = (struct niod *)nsockiod;
 
   assert(iod->ssl != NULL);
   if (SSL_get_verify_mode(iod->ssl) != SSL_VERIFY_NONE) {
