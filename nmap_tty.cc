@@ -188,7 +188,7 @@ static int tty_getchar()
         struct timeval tv;
 #endif
         
-        if (tty_fd && tcgetpgrp(tty_fd) == getpid()) {
+        if (tty_fd && tcgetpgrp(tty_fd) == getpgrp()) {
 
         // This is so that when the terminal has been disconnected, it will be
         // reconnected when possible. If it slows things down, just remove it
@@ -227,6 +227,37 @@ static void tty_flush(void)
         tcflush(tty_fd, TCIFLUSH);
 }
 
+static void install_handler(int signo, void (*handler) (int signo))
+{
+        struct sigaction sa;
+        sa.sa_handler = handler;
+        sigfillset(&sa.sa_mask); /* block all signals during handler execution */
+        sa.sa_flags = 0;
+        sigaction(signo, &sa, NULL);
+}
+
+static void shutdown_clean(int signo)
+{
+        sigset_t set;
+
+/* We reinstall the default handler and call tty_done */
+        install_handler(signo, SIG_DFL);
+        tty_done();
+
+/* Unblock signo and raise it (thus allowing the default handler to occur) */
+        sigemptyset(&set);
+        sigaddset(&set, signo);
+        sigprocmask(SIG_UNBLOCK, &set, NULL);
+        raise(signo); /* This _should_ kill us */
+        _exit(EXIT_FAILURE); /* If it does not */
+}
+
+static void install_all_handlers() {
+        install_handler(SIGINT, shutdown_clean);
+        install_handler(SIGTERM, shutdown_clean);
+        install_handler(SIGQUIT, shutdown_clean);
+}
+
 /*
  * Initializes the terminal for unbuffered non-blocking input. Also
  * registers tty_done() via atexit().  You need to call this before
@@ -239,13 +270,15 @@ void tty_init()
         if(o.noninteractive)
                 return;
 
+        install_all_handlers();
+
         if (tty_fd)
                 return;
 
         if ((tty_fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
 
 #ifndef __CYGWIN32__
-        if (tcgetpgrp(tty_fd) != getpid()) {
+        if (tcgetpgrp(tty_fd) != getpgrp()) {
                 close(tty_fd); return;
         }
 #endif

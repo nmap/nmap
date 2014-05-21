@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug which caused Nmap to be unable to have any runtime interaction
+  when called from sudo or from a shell script. [Jay Bosamiya]
+
 o Improvements to whois-ip.nse: fix an unhandled error when a referred-to
   response could not be understood; add a new pattern to recognise a
   LACNIC "record not found" type of response and update the way ARIN is
