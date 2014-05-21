@@ -99,6 +99,10 @@ extern "C" {
  * can always initiate another read request to ask for more. */
 #define NSOCK_READ_CHUNK_SIZE 0x8FFFF
 
+struct npool;
+struct niod;
+struct nevent;
+struct proxy_chain;
 
 /* ------------------- TYPEDEFS ------------------- */
 
@@ -106,7 +110,7 @@ extern "C" {
  * only be accessed using the appropriate accessor functions (described below). */
 
 /* An nsock_pool aggregates and manages events and i/o descriptors */
-typedef void *nsock_pool;
+typedef struct npool *nsock_pool;
 
 /* nsock_iod is an I/O descriptor -- you create it and then use it to
  * make calls to do connect()s, read()s, write()s, etc. A single IOD can handle
@@ -115,12 +119,12 @@ typedef void *nsock_pool;
  * followed by a bunch of nsock_read* and nsock_write* calls.  Then you either
  * destroy the iod for good with nsi_delete() and allocate a new one via nsi_new
  * for your next connection. */
-typedef void *nsock_iod;
+typedef struct niod *nsock_iod;
 
 /* An event is created when you do various calls (for reading, writing,
  * connecting, timers, etc) and is provided back to you in the callback when the
  * call completes/fails. It is automatically destroyed after the callback */
-typedef void *nsock_event;
+typedef struct nevent *nsock_event;
 
 /* Provided by calls which (internally) create an nsock_event.  This allows you
  * to cancel the event */
@@ -131,7 +135,7 @@ typedef void *nsock_ssl_session;
 typedef void *nsock_ssl_ctx;
 typedef void *nsock_ssl;
 
-typedef void *nsock_proxychain;
+typedef struct proxy_chain *nsock_proxychain;
 
 
 /* Logging-related data structures */
