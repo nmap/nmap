@@ -137,7 +137,7 @@ function date_to_string(date)
   if type(date) == "string" then
     return string.format("Can't parse; string is \"%s\"", date)
   else
-    return stdnse.format_timestamp(stdnse.date_to_timestamp(date, 0), 0)
+    return stdnse.format_timestamp(date)
   end
 end
 
@@ -193,7 +193,7 @@ local function output_tab(cert)
     if type(v)=="string" then
       o.validity[k] = v
     else
-      o.validity[k] = stdnse.format_timestamp(stdnse.date_to_timestamp(v, 0), 0)
+      o.validity[k] = stdnse.format_timestamp(v)
     end
   end
   o.md5 = stdnse.tohex(cert:digest("md5"))
