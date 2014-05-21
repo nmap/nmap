@@ -104,7 +104,6 @@ static SSL_CTX *ssl_init_common() {
 
   return ctx;
 }
-#endif /* HAVE_OPENSSL */
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
  * SSL_CTX, which is like a template that sets options for all connections that
@@ -112,7 +111,6 @@ static SSL_CTX *ssl_init_common() {
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
-#if HAVE_OPENSSL
   mspool *ms = (mspool *)ms_pool;
   char rndbuf[128];
 
@@ -149,16 +147,12 @@ nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
           ERR_error_string(ERR_get_error(), NULL));
   }
   return ms->sslctx;
-#else
-  fatal("%s called with no OpenSSL support", __func__);
-#endif
 }
 
 /* Initializes an Nsock pool to create SSL connections that emphasize speed over
  * security. Insecure ciphers are used when they are faster and no certificate
  * verification is done. Returns the SSL_CTX so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
-#if HAVE_OPENSSL
   mspool *ms = (mspool *)ms_pool;
   char rndbuf[128];
 
@@ -176,9 +170,6 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
           ERR_error_string(ERR_get_error(), NULL));
   }
   return ms->sslctx;
-#else
-  fatal("%s called with no OpenSSL support", __func__);
-#endif
 }
 
 /* Check server certificate verification, after a connection is established. We
@@ -189,7 +180,6 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
  * SSL object is SSL_VERIFY_NONE, or if OpenSSL is disabled, this function
  * always returns true. */
 int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
-#if HAVE_OPENSSL
   msiod *iod = (msiod *)nsockiod;
 
   assert(iod->ssl != NULL);
@@ -207,7 +197,21 @@ int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
       /* Something wrong with verification. */
       return 0;
   }
-#endif
   return 1;
 }
 
+#else /* NOT HAVE_OPENSSL */
+
+nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
+  fatal("%s called with no OpenSSL support", __func__);
+}
+
+nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
+  fatal("%s called with no OpenSSL support", __func__);
+}
+
+int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
+  return 1;
+}
+
+#endif
