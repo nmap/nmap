@@ -125,6 +125,10 @@ import os
 import subprocess
 import sys
 import tempfile
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 import xml.sax
 
 from zenmapCore.Name import APP_NAME

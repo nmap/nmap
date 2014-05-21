@@ -125,6 +125,11 @@ import gobject
 import gtk
 import sys
 import tempfile
+
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 import xml.sax
 
 from zenmapGUI.higwidgets.higwindows import HIGWindow

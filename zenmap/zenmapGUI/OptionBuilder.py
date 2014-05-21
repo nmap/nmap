@@ -123,6 +123,11 @@
 import gobject
 import gtk
 
+
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 from xml.dom import minidom
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox

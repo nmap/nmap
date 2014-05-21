@@ -126,6 +126,11 @@ import pango
 import os
 import os.path
 import sys
+
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 import xml.sax
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
