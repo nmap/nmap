@@ -66,7 +66,7 @@
 #include <string.h>
 
 
-static int mksock_bind_addr(mspool *ms, msiod *iod) {
+static int mksock_bind_addr(struct npool *ms, struct niod *iod) {
   int rc;
   int one = 1;
 
@@ -90,7 +90,7 @@ static int mksock_bind_addr(mspool *ms, msiod *iod) {
   return 0;
 }
 
-static int mksock_set_ipopts(mspool *ms, msiod *iod) {
+static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
   int rc;
 
   errno = 0;
@@ -105,7 +105,7 @@ static int mksock_set_ipopts(mspool *ms, msiod *iod) {
   return 0;
 }
 
-static int mksock_bind_device(mspool *ms, msiod *iod) {
+static int mksock_bind_device(struct npool *ms, struct niod *iod) {
   int rc;
 
   rc = socket_bindtodevice(iod->sd, ms->device);
@@ -122,7 +122,7 @@ static int mksock_bind_device(mspool *ms, msiod *iod) {
   return 0;
 }
 
-static int mksock_set_broadcast(mspool *ms, msiod *iod) {
+static int mksock_set_broadcast(struct npool *ms, struct niod *iod) {
   int rc;
   int one = 1;
 
@@ -141,7 +141,7 @@ static int mksock_set_broadcast(mspool *ms, msiod *iod) {
  * broadcast flag. Trying to change these functions after making this call will
  * not have an effect. This function needs to be called before you try to read
  * or write on the iod. */
-static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int proto) {
+static int nsock_make_socket(struct npool *ms, struct niod *iod, int family, int type, int proto) {
 
   /* inheritable_socket is from nbase */
   iod->sd = (int)inheritable_socket(family, type, proto);
@@ -172,8 +172,8 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
 }
 
 int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
-  mspool *ms = (mspool *)nsp;
-  msiod *nsi = (msiod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct niod *nsi = (struct niod *)ms_iod;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
@@ -187,14 +187,14 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
 
 /* This does the actual logistics of requesting a TCP connection.  It is shared
  * by nsock_connect_tcp and nsock_connect_ssl */
-void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen,
+void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen,
                             unsigned short port) {
 
   struct sockaddr_in *sin;
 #if HAVE_IPV6
   struct sockaddr_in6 *sin6;
 #endif
-  msiod *iod = nse->iod;
+  struct niod *iod = nse->iod;
 
   if (iod->px_ctx   /* proxy enabled */
       && proto == IPPROTO_TCP   /* restrict proxying to TCP connections */
@@ -275,14 +275,14 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struc
  * connect).  sslen should be the sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs,
                                              void *userdata, struct sockaddr *saddr, size_t sslen) {
-  msiod *nsi = (msiod *)nsiod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)nsiod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
@@ -301,14 +301,14 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
  * connect).  sslen should be the sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
                                                void *userdata, struct sockaddr *saddr, size_t sslen) {
-  msiod *nsi = (msiod *)nsiod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)nsiod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "UNIX domain socket (DGRAM) connection requested to %s (IOD #%li) EID %li",
@@ -329,14 +329,14 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
  * sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port) {
-  msiod *nsi = (msiod *)ms_iod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "TCP connection requested to %s:%hu (IOD #%li) EID %li",
@@ -357,14 +357,14 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
 nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
                                   void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port) {
 
-  msiod *nsi = (msiod *)ms_iod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "SCTP association requested to %s:%hu (IOD #%li) EID %li",
@@ -393,16 +393,16 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   return (nsock_event_id)0; /* UNREACHED */
 #else
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
-  msiod *nsi = (msiod *)nsiod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)nsiod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
 
   if (!ms->sslctx)
     nsp_ssl_init(ms);
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT_SSL, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT_SSL, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
@@ -431,14 +431,14 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   fatal("nsock_reconnect_ssl called - but nsock was built w/o SSL support.  QUITTING");
   return (nsock_event_id) 0; /* UNREACHED */
 #else
-  msiod *nsi = (msiod *)nsiod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)nsiod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
 
   if (!ms->sslctx)
     nsp_ssl_init(ms);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT_SSL, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT_SSL, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
@@ -473,14 +473,14 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
 nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, void *userdata,
                                  struct sockaddr *saddr, size_t sslen, unsigned short port) {
 
-  msiod *nsi = (msiod *)nsiod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)nsiod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "UDP connection requested to %s:%hu (IOD #%li) EID %li",
@@ -506,7 +506,7 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
  * sizeof(sockaddr_storage) if that is what you are passing). */
 int nsi_getlastcommunicationinfo(nsock_iod ms_iod, int *protocol, int *af, struct sockaddr *local,
                                  struct sockaddr *remote, size_t socklen) {
-  msiod *nsi = (msiod *)ms_iod;
+  struct niod *nsi = (struct niod *)ms_iod;
   int ret = 1;
   struct sockaddr_storage sock;
   socklen_t slen = sizeof(struct sockaddr_storage);

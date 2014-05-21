@@ -69,11 +69,11 @@
 nsock_event_id nsock_readlines(nsock_pool nsp, nsock_iod ms_iod,
                                nsock_ev_handler handler, int timeout_msecs,
                                void *userdata, int nlines) {
-  msiod *nsi = (msiod *)ms_iod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
 
-  nse = msevent_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "Read request for %d lines from IOD #%li [%s] EID %li",
@@ -92,11 +92,11 @@ nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod,
                                nsock_ev_handler handler, int timeout_msecs,
                                void *userdata, int nbytes) {
 
-  msiod *nsi = (msiod *)ms_iod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
 
-  nse = msevent_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "Read request for %d bytes from IOD #%li [%s] EID %li",
@@ -116,11 +116,11 @@ nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod,
 nsock_event_id nsock_read(nsock_pool nsp, nsock_iod ms_iod,
                           nsock_ev_handler handler, int timeout_msecs,
                           void *userdata) {
-  msiod *nsi = (msiod *)ms_iod;
-  mspool *ms = (mspool *)nsp;
-  msevent *nse;
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
 
-  nse = msevent_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
+  nse = event_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(ms, "Read request from IOD #%li [%s] (timeout: %dms) EID %li",

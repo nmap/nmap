@@ -90,7 +90,7 @@ static const struct proxy_spec *ProxyBackends[] = {
 /* A proxy chain is a comma-separated list of proxy specification strings:
  * proto://[user:pass@]host[:port] */
 int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool) {
-  mspool *nsp = (mspool *)nspool;
+  struct npool *nsp = (struct npool *)nspool;
   struct proxy_chain *pxc, **pchain = (struct proxy_chain **)chain;
 
   *pchain = NULL;
@@ -139,7 +139,7 @@ void nsock_proxychain_delete(nsock_proxychain chain) {
 }
 
 int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
-  mspool *nsp = (mspool *)nspool;
+  struct npool *nsp = (struct npool *)nspool;
 
   if (nsp && nsp->px_chain) {
     nsock_log_error(nsp, "Invalid call. Existing proxychain on this nsock_pool");
@@ -151,7 +151,7 @@ int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
 }
 
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
-  mspool *nsp = (mspool *)nspool;
+  struct npool *nsp = (struct npool *)nspool;
   struct proxy_chain_context *ctx;
 
   ctx = (struct proxy_chain_context *)safe_malloc(sizeof(struct proxy_chain_context));
@@ -413,8 +413,8 @@ void proxy_parser_delete(struct proxy_parser *parser) {
 }
 
 void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
-  mspool *nsp = (mspool *)nspool;
-  msevent *nse = (msevent *)nsevent;
+  struct npool *nsp = (struct npool *)nspool;
+  struct nevent *nse = (struct nevent *)nsevent;
   enum nse_type cached_type;
   enum nse_status cached_status;
 
@@ -436,7 +436,7 @@ void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
 }
 
 void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata) {
-  msevent *nse = (msevent *)nsevent;
+  struct nevent *nse = (struct nevent *)nsevent;
 
   if (nse->status == NSE_STATUS_SUCCESS) {
     struct proxy_node *current;

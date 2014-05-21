@@ -92,10 +92,10 @@ const char *get_unixsock_path(const struct sockaddr_storage *addr);
 /* Get the peer address string. In case of a Unix domain socket, returns the
  * path to UNIX socket, otherwise it returns string containing
  * "<address>:<port>". */
-char *get_peeraddr_string(const msiod *iod);
+char *get_peeraddr_string(const struct niod *iod);
 
 /* Get the local bind address string. */
-char *get_localaddr_string(const msiod *iod);
+char *get_localaddr_string(const struct niod *iod);
 
 #endif /* NETUTILS_H */
 

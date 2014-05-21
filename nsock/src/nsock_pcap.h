@@ -135,7 +135,7 @@
 typedef struct{
   pcap_t *pt;
   int pcap_desc;
-  /* Like the corresponding member in msiod, when this reaches 0 we stop
+  /* Like the corresponding member in iod, when this reaches 0 we stop
    * watching the socket for readability. */
   int readsd_count;
   int datalink;
@@ -151,7 +151,7 @@ typedef struct{
   const unsigned char *packet;  /* caplen bytes */
 } nsock_pcap;
 
-int do_actual_pcap_read(msevent *nse);
+int do_actual_pcap_read(struct nevent *nse);
 
 #endif /* HAVE_PCAP */
 #endif /* NSOCK_PCAP_H */

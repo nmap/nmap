@@ -65,10 +65,10 @@ extern struct timeval nsock_tod;
  * course it can also return due to error, cancellation, etc. */
 nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
                                   int timeout_msecs, void *userdata) {
-  mspool *nsp = (mspool *)ms_pool;
-  msevent *nse;
+  struct npool *nsp = (struct npool *)ms_pool;
+  struct nevent *nse;
 
-  nse = msevent_new(nsp, NSE_TYPE_TIMER, NULL, timeout_msecs, handler, userdata);
+  nse = event_new(nsp, NSE_TYPE_TIMER, NULL, timeout_msecs, handler, userdata);
   assert(nse);
 
   nsock_log_info(nsp, "Timer created - %dms from now.  EID %li", timeout_msecs,

@@ -86,16 +86,16 @@ nsock_iod nsi_new(nsock_pool nsockp, void *userdata) {
  * dup()ed, so you may close or otherwise manipulate your copy.  The duped copy
  * will be destroyed when the nsi is destroyed. */
 nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
-  mspool *nsp = (mspool *)nsockp;
+  struct npool *nsp = (struct npool *)nsockp;
   gh_lnode_t *lnode;
-  msiod *nsi;
+  struct niod *nsi;
 
   lnode = gh_list_pop(&nsp->free_iods);
   if (!lnode) {
-    nsi = (msiod *)safe_malloc(sizeof(msiod));
+    nsi = (struct niod *)safe_malloc(sizeof(*nsi));
     memset(nsi, 0, sizeof(*nsi));
   } else {
-    nsi = container_of(lnode, msiod, nodeq);
+    nsi = container_of(lnode, struct niod, nodeq);
   }
 
   if (sd == -1) {
@@ -125,7 +125,7 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
   nsi->write_count = 0;
 
   nsi->userdata = userdata;
-  nsi->nsp = (mspool *)nsockp;
+  nsi->nsp = (struct npool *)nsockp;
 
   nsi->_flags = 0;
 
@@ -151,7 +151,7 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
   if (nsi->id == 0)
     nsi->id = nsp->next_iod_serial++;
 
-  /* The nsp keeps track of active msiods so it can delete them if it is deleted */
+  /* The nsp keeps track of active iods so it can delete them if it is deleted */
   gh_list_append(&nsp->active_iods, &nsi->nodeq);
 
   nsock_log_info(nsp, "nsi_new (IOD #%lu)", nsi->id);
@@ -160,9 +160,9 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
 }
 
 /* Defined in nsock_core.c. */
-int socket_count_zero(msiod *iod, mspool *ms);
+int socket_count_zero(struct niod *iod, struct npool *ms);
 
-/* If msiod_new returned success, you must free the iod when you are done with
+/* If nsi_new returned success, you must free the iod when you are done with
  * it to conserve memory (and in some cases, sockets).  After this call,
  * nsockiod may no longer be used -- you need to create a new one with
  * nsi_new().  pending_response tells what to do with any events that are
@@ -171,7 +171,7 @@ int socket_count_zero(msiod *iod, mspool *ms);
  * to the killed events), or NSOCK_PENDING_ERROR (print an error message and
  * quit the program) */
 void nsi_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) {
-  msiod *nsi = (msiod *)nsockiod;
+  struct niod *nsi = (struct niod *)nsockiod;
   gh_lnode_t *evlist_ar[3];
   gh_list_t *corresp_list[3];
   int i;
@@ -188,8 +188,8 @@ void nsi_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) {
   nsock_log_info(nsi->nsp, "nsi_delete (IOD #%lu)", nsi->id);
 
   if (nsi->events_pending > 0) {
-    /* shit -- they killed the msiod while an event was still pending on it.
-     * Maybe I should store the pending events in the msiod.  On the other hand,
+    /* shit -- they killed the struct niod while an event was still pending on it.
+     * Maybe I should store the pending events in the iod.  On the other hand,
      * this should be a pretty rare occurrence and so I'll save space and hassle
      * by just locating the events here by searching through the active events
      * list */
@@ -208,16 +208,16 @@ void nsi_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) {
 
     for (i = 0; i < 3 && nsi->events_pending > 0; i++) {
       for (current = evlist_ar[i]; current != NULL; current = next) {
-        msevent *nse;
+        struct nevent *nse;
 
         next = gh_lnode_next(current);
-        nse = lnode_msevent(current);
+        nse = lnode_nevent(current);
 
         /* we're done with this list of events for the current IOD */
         if (nse->iod != nsi)
           break;
 
-        msevent_cancel(nsi->nsp, nse, corresp_list[i], current, pending_response == NSOCK_PENDING_NOTIFY);
+        nevent_delete(nsi->nsp, nse, corresp_list[i], current, pending_response == NSOCK_PENDING_NOTIFY);
       }
     }
   }
@@ -295,13 +295,13 @@ void nsi_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) {
  * given nspool (unless you blow through billions of them). */
 unsigned long nsi_id(nsock_iod nsockiod) {
   assert(nsockiod);
-  return ((msiod *)nsockiod)->id;
+  return ((struct niod *)nsockiod)->id;
 }
 
 /* Returns the SSL object inside an nsock_iod, or NULL if unset. */
 nsock_ssl nsi_getssl(nsock_iod nsockiod) {
 #if HAVE_OPENSSL
-  return ((msiod *)nsockiod)->ssl;
+  return ((struct niod *)nsockiod)->ssl;
 #else
   return NULL;
 #endif
@@ -310,7 +310,7 @@ nsock_ssl nsi_getssl(nsock_iod nsockiod) {
 /* Returns the SSL_SESSION of an nsock_iod, and increments it's usage count. */
 nsock_ssl_session nsi_get1_ssl_session(nsock_iod nsockiod) {
 #if HAVE_OPENSSL
-  return SSL_get1_session(((msiod *)nsockiod)->ssl);
+  return SSL_get1_session(((struct niod *)nsockiod)->ssl);
 #else
   return NULL;
 #endif
@@ -319,7 +319,7 @@ nsock_ssl_session nsi_get1_ssl_session(nsock_iod nsockiod) {
 /* Returns the SSL_SESSION without incrementing usage count. */
 nsock_ssl_session nsi_get0_ssl_session(nsock_iod nsockiod) {
 #if HAVE_OPENSSL
-  return SSL_get0_session(((msiod *)nsockiod)->ssl);
+  return SSL_get0_session(((struct niod *)nsockiod)->ssl);
 #else
   return NULL;
 #endif
@@ -328,7 +328,7 @@ nsock_ssl_session nsi_get0_ssl_session(nsock_iod nsockiod) {
 /* sets the ssl session of an nsock_iod, increments usage count. The session
  * should not have been set yet (as no freeing is done) */
 #if HAVE_OPENSSL
-void nsi_set_ssl_session(msiod *iod, SSL_SESSION *sessid) {
+void nsi_set_ssl_session(struct niod *iod, SSL_SESSION *sessid) {
   if (sessid) {
     iod->ssl_session = sessid;
     /* No reference counting for the copy stored briefly in nsiod */
@@ -336,30 +336,30 @@ void nsi_set_ssl_session(msiod *iod, SSL_SESSION *sessid) {
 }
 #endif
 
-/* Sometimes it is useful to store a pointer to information inside the msiod so
+/* Sometimes it is useful to store a pointer to information inside the struct niod so
  * you can retrieve it during a callback. */
 void nsi_setud(nsock_iod nsockiod, void *data) {
   assert(nsockiod);
-  ((msiod *)nsockiod)->userdata = data;
+  ((struct niod *)nsockiod)->userdata = data;
 }
 
 /* And the function above wouldn't make much sense if we didn't have a way to
  * retrieve that data... */
 void *nsi_getud(nsock_iod nsockiod) {
   assert(nsockiod);
-  return ((msiod *)nsockiod)->userdata;
+  return ((struct niod *)nsockiod)->userdata;
 }
 
 /* Returns 1 if an NSI is communicating via SSL, 0 otherwise. */
 int nsi_checkssl(nsock_iod nsockiod) {
-  return (((msiod *)nsockiod)->ssl) ? 1 : 0;
+  return (((struct niod *)nsockiod)->ssl) ? 1 : 0;
 }
 
 /* Returns the remote peer port (or -1 if unavailable).  Note the return value
  * is a whole int so that -1 can be distinguished from 65535.  Port is returned
  * in host byte order. */
 int nsi_peerport(nsock_iod nsockiod) {
-  msiod *nsi = (msiod *)nsockiod;
+  struct niod *nsi = (struct niod *)nsockiod;
   int fam;
 
   if (nsi->peerlen <= 0)
@@ -379,7 +379,7 @@ int nsi_peerport(nsock_iod nsockiod) {
 
 /* Sets the local address to bind to before connect() */
 int nsi_set_localaddr(nsock_iod nsi, struct sockaddr_storage *ss, size_t sslen) {
-  msiod *iod = (msiod *)nsi;
+  struct niod *iod = (struct niod *)nsi;
 
   assert(iod);
 
@@ -395,7 +395,7 @@ int nsi_set_localaddr(nsock_iod nsi, struct sockaddr_storage *ss, size_t sslen) 
  * so you can free() yours if necessary. This copy is freed when the iod is
  * destroyed. */
 int nsi_set_ipoptions(nsock_iod nsi, void *opts, size_t optslen) {
-  msiod *iod = (msiod *)nsi;
+  struct niod *iod = (struct niod *)nsi;
 
   assert(iod);
 
@@ -416,7 +416,7 @@ int nsi_set_ipoptions(nsock_iod nsi, void *opts, size_t optslen) {
  * create havok by closing the descriptor!  If the descriptor you get back is
  * -1, the iod does not currently possess a valid descriptor */
 int nsi_getsd(nsock_iod nsockiod) {
-  msiod *iod = (msiod *)nsockiod;
+  struct niod *iod = (struct niod *)nsockiod;
 
   assert(nsockiod);
 
@@ -430,16 +430,16 @@ int nsi_getsd(nsock_iod nsockiod) {
 
 unsigned long nsi_get_read_count(nsock_iod nsockiod){
   assert(nsockiod);
-  return ((msiod *)nsockiod)->read_count;
+  return ((struct niod *)nsockiod)->read_count;
 }
 
 unsigned long nsi_get_write_count(nsock_iod nsockiod){
   assert(nsockiod);
-  return ((msiod *)nsockiod)->write_count;
+  return ((struct niod *)nsockiod)->write_count;
 }
 
 int nsi_set_hostname(nsock_iod nsi, const char *hostname) {
-  msiod *iod = (msiod *)nsi;
+  struct niod *iod = (struct niod *)nsi;
 
   if (iod->hostname != NULL)
     free(iod->hostname);

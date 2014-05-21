@@ -1,7 +1,7 @@
 /***************************************************************************
  * nsock_pool.c -- This contains the functions that deal with creating,    *
  * destroying, and otherwise manipulating nsock_pools (and their internal  *
- * mspool representation).  An nsock_pool aggregates and manages events    *
+ * struct npool representation).  An nsock_pool aggregates and manages events    *
  * and i/o descriptors                                                     *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
@@ -92,7 +92,7 @@ static void nsock_library_initialize(void);
 
 /* Every mst has an ID that is unique across the program execution */
 unsigned long nsp_getid(nsock_pool nsp) {
-  mspool *mt = (mspool *)nsp;
+  struct npool *mt = (struct npool *)nsp;
   return mt->id;
 }
 
@@ -100,21 +100,21 @@ unsigned long nsp_getid(nsock_pool nsp) {
  * valid if the status NSOCK_LOOP_ERROR was returned by nsock_loop() */
 
 int nsp_geterrorcode(nsock_pool nsp) {
-  mspool *mt = (mspool *)nsp;
+  struct npool *mt = (struct npool *)nsp;
   return mt->errnum;
 }
 
 /* Sometimes it is useful to store a pointer to information inside
  * the NSP so you can retrieve it during a callback. */
 void nsp_setud(nsock_pool nsp, void *data) {
-  mspool *mt = (mspool *)nsp;
+  struct npool *mt = (struct npool *)nsp;
   mt->userdata = data;
 }
 
 /* And the define above wouldn't make much sense if we didn't have a way
  * to retrieve that data ... */
 void *nsp_getud(nsock_pool nsp) {
-  mspool *mt = (mspool *)nsp;
+  struct npool *mt = (struct npool *)nsp;
   return mt->userdata;
 }
 
@@ -122,22 +122,22 @@ void *nsp_getud(nsock_pool nsp) {
  * set in nsp_new(). Any non-zero (true) value sets SO_BROADCAST on all new
  * sockets (value of optval will be used directly in the setsockopt() call */
 void nsp_setbroadcast(nsock_pool nsp, int optval) {
-  mspool *mt = (mspool *)nsp;
+  struct npool *mt = (struct npool *)nsp;
   mt->broadcast = optval;
 }
 
 /* Sets the name of the interface for new sockets to bind to. */
 void nsp_setdevice(nsock_pool nsp, const char *device) {
-  mspool *mt = (mspool *)nsp;
+  struct npool *mt = (struct npool *)nsp;
   mt->device = device;
 }
 
 static int expirable_cmp(gh_hnode_t *n1, gh_hnode_t *n2) {
-  msevent *nse1;
-  msevent *nse2;
+  struct nevent *nse1;
+  struct nevent *nse2;
 
-  nse1 = container_of(n1, msevent, expire);
-  nse2 = container_of(n2, msevent, expire);
+  nse1 = container_of(n1, struct nevent, expire);
+  nse2 = container_of(n2, struct nevent, expire);
 
   return (TIMEVAL_BEFORE(nse1->timeout, nse2->timeout)) ? 1 : 0;
 }
@@ -147,7 +147,7 @@ static int expirable_cmp(gh_hnode_t *n1, gh_hnode_t *n2) {
  * returned.  If you do not wish to immediately associate any userdata, pass in
  * NULL. */
 nsock_pool nsp_new(void *userdata) {
-  mspool *nsp;
+  struct npool *nsp;
 
   /* initialize the library in not already done */
   if (!nsocklib_initialized) {
@@ -155,7 +155,7 @@ nsock_pool nsp_new(void *userdata) {
     nsocklib_initialized = 1;
   }
 
-  nsp = (mspool *)safe_malloc(sizeof(*nsp));
+  nsp = (struct npool *)safe_malloc(sizeof(*nsp));
   memset(nsp, 0, sizeof(*nsp));
 
   gettimeofday(&nsock_tod, NULL);
@@ -206,9 +206,9 @@ nsock_pool nsp_new(void *userdata) {
  * longer be used.  Any pending events are sent an NSE_STATUS_KILL callback and
  * all outstanding iods are deleted. */
 void nsp_delete(nsock_pool ms_pool) {
-  mspool *nsp = (mspool *)ms_pool;
-  msevent *nse;
-  msiod *nsi;
+  struct npool *nsp = (struct npool *)ms_pool;
+  struct nevent *nse;
+  struct niod *nsi;
   int i;
   gh_lnode_t *current, *next;
   gh_list_t *event_lists[] = {
@@ -232,10 +232,10 @@ void nsp_delete(nsock_pool ms_pool) {
 
 #if HAVE_PCAP
       if (event_lists[i] == &nsp->pcap_read_events)
-        nse = lnode_msevent2(lnode);
+        nse = lnode_nevent2(lnode);
       else
 #endif
-        nse = lnode_msevent(lnode);
+        nse = lnode_nevent(lnode);
 
       assert(nse);
 
@@ -247,7 +247,7 @@ void nsp_delete(nsock_pool ms_pool) {
         nse->iod->events_pending--;
         assert(nse->iod->events_pending >= 0);
       }
-      msevent_delete(nsp, nse);
+      event_delete(nsp, nse);
     }
     gh_list_free(event_lists[i]);
   }
@@ -257,25 +257,25 @@ void nsp_delete(nsock_pool ms_pool) {
     gh_hnode_t *hnode;
 
     hnode = gh_heap_pop(&nsp->expirables);
-    nse = container_of(hnode, msevent, expire);
+    nse = container_of(hnode, struct nevent, expire);
 
     if (nse->type == NSE_TYPE_TIMER) {
       nse->status = NSE_STATUS_KILL;
       nsock_trace_handler_callback(nsp, nse);
       nse->handler(nsp, nse, nse->userdata);
-      msevent_delete(nsp, nse);
+      event_delete(nsp, nse);
       gh_list_append(&nsp->free_events, &nse->nodeq_io);
     }
   }
 
   gh_heap_free(&nsp->expirables);
 
-  /* foreach msiod */
+  /* foreach struct niod */
   for (current = gh_list_first_elem(&nsp->active_iods);
        current != NULL;
        current = next) {
     next = gh_lnode_next(current);
-    nsi = container_of(current, msiod, nodeq);
+    nsi = container_of(current, struct niod, nodeq);
 
     nsi_delete(nsi, NSOCK_PENDING_ERROR);
 
@@ -285,12 +285,12 @@ void nsp_delete(nsock_pool ms_pool) {
 
   /* Now we free all the memory in the free iod list */
   while ((current = gh_list_pop(&nsp->free_iods))) {
-    nsi = container_of(current, msiod, nodeq);
+    nsi = container_of(current, struct niod, nodeq);
     free(nsi);
   }
 
   while ((current = gh_list_pop(&nsp->free_events))) {
-    nse = lnode_msevent(current);
+    nse = lnode_nevent(current);
     free(nse);
   }
 

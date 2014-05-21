@@ -109,12 +109,12 @@
 
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
-static int poll_init(mspool *nsp);
-static void poll_destroy(mspool *nsp);
-static int poll_iod_register(mspool *nsp, msiod *iod, int ev);
-static int poll_iod_unregister(mspool *nsp, msiod *iod);
-static int poll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr);
-static int poll_loop(mspool *nsp, int msec_timeout);
+static int poll_init(struct npool *nsp);
+static void poll_destroy(struct npool *nsp);
+static int poll_iod_register(struct npool *nsp, struct niod *iod, int ev);
+static int poll_iod_unregister(struct npool *nsp, struct niod *iod);
+static int poll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+static int poll_loop(struct npool *nsp, int msec_timeout);
 
 
 /* ---- ENGINE DEFINITION ---- */
@@ -130,20 +130,20 @@ struct io_engine engine_poll = {
 
 
 /* --- INTERNAL PROTOTYPES --- */
-static void iterate_through_event_lists(mspool *nsp);
+static void iterate_through_event_lists(struct npool *nsp);
 
 /* defined in nsock_core.c */
-void process_iod_events(mspool *nsp, msiod *nsi, int ev);
-void process_event(mspool *nsp, gh_list_t *evlist, msevent *nse, int ev);
-void process_expired_events(mspool *nsp);
+void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
+void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
+void process_expired_events(struct npool *nsp);
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
-int pcap_read_on_nonselect(mspool *nsp);
+int pcap_read_on_nonselect(struct npool *nsp);
 #endif
 #endif
 
 /* defined in nsock_event.c */
-void update_first_events(msevent *nse);
+void update_first_events(struct nevent *nse);
 
 
 extern struct timeval nsock_tod;
@@ -192,7 +192,7 @@ static inline int evlist_grow(struct poll_engine_info *pinfo) {
 }
 
 
-int poll_init(mspool *nsp) {
+int poll_init(struct npool *nsp) {
   struct poll_engine_info *pinfo;
 
   pinfo = (struct poll_engine_info *)safe_malloc(sizeof(struct poll_engine_info));
@@ -205,7 +205,7 @@ int poll_init(mspool *nsp) {
   return 1;
 }
 
-void poll_destroy(mspool *nsp) {
+void poll_destroy(struct npool *nsp) {
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
 
   assert(pinfo != NULL);
@@ -213,7 +213,7 @@ void poll_destroy(mspool *nsp) {
   free(pinfo);
 }
 
-int poll_iod_register(mspool *nsp, msiod *iod, int ev) {
+int poll_iod_register(struct npool *nsp, struct niod *iod, int ev) {
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
   int sd;
 
@@ -244,7 +244,7 @@ int poll_iod_register(mspool *nsp, msiod *iod, int ev) {
   return 1;
 }
 
-int poll_iod_unregister(mspool *nsp, msiod *iod) {
+int poll_iod_unregister(struct npool *nsp, struct niod *iod) {
   iod->watched_events = EV_NONE;
 
   /* some IODs can be unregistered here if they're associated to an event that was
@@ -266,7 +266,7 @@ int poll_iod_unregister(mspool *nsp, msiod *iod) {
   return 1;
 }
 
-int poll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
+int poll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
   int sd;
   int new_events;
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
@@ -301,7 +301,7 @@ int poll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
   return 1;
 }
 
-int poll_loop(mspool *nsp, int msec_timeout) {
+int poll_loop(struct npool *nsp, int msec_timeout) {
   int results_left = 0;
   int event_msecs; /* msecs before an event goes off */
   int combined_msecs;
@@ -314,7 +314,7 @@ int poll_loop(mspool *nsp, int msec_timeout) {
     return 0; /* No need to wait on 0 events ... */
 
   do {
-    msevent *nse;
+    struct nevent *nse;
 
     nsock_log_debug_all(nsp, "wait for events");
 
@@ -374,7 +374,7 @@ int poll_loop(mspool *nsp, int msec_timeout) {
 
 /* ---- INTERNAL FUNCTIONS ---- */
 
-static inline int get_evmask(mspool *nsp, msiod *nsi) {
+static inline int get_evmask(struct npool *nsp, struct niod *nsi) {
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
   int sd, evmask = EV_NONE;
   POLLFD *pev;
@@ -406,7 +406,7 @@ static inline int get_evmask(mspool *nsp, msiod *nsi) {
 /* Iterate through all the event lists (such as connect_events, read_events,
  * timer_events, etc) and take action for those that have completed (due to
  * timeout, i/o, etc) */
-void iterate_through_event_lists(mspool *nsp) {
+void iterate_through_event_lists(struct npool *nsp) {
   gh_lnode_t *current, *next, *last;
 
   last = gh_list_last_elem(&nsp->active_iods);
@@ -414,7 +414,7 @@ void iterate_through_event_lists(mspool *nsp) {
   for (current = gh_list_first_elem(&nsp->active_iods);
        current != NULL && gh_lnode_prev(current) != last;
        current = next) {
-    msiod *nsi = container_of(current, msiod, nodeq);
+    struct niod *nsi = container_of(current, struct niod, nodeq);
 
     process_iod_events(nsp, nsi, get_evmask(nsp, nsi));
 

@@ -84,12 +84,12 @@
 
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
-static int epoll_init(mspool *nsp);
-static void epoll_destroy(mspool *nsp);
-static int epoll_iod_register(mspool *nsp, msiod *iod, int ev);
-static int epoll_iod_unregister(mspool *nsp, msiod *iod);
-static int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr);
-static int epoll_loop(mspool *nsp, int msec_timeout);
+static int epoll_init(struct npool *nsp);
+static void epoll_destroy(struct npool *nsp);
+static int epoll_iod_register(struct npool *nsp, struct niod *iod, int ev);
+static int epoll_iod_unregister(struct npool *nsp, struct niod *iod);
+static int epoll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+static int epoll_loop(struct npool *nsp, int msec_timeout);
 
 
 /* ---- ENGINE DEFINITION ---- */
@@ -105,20 +105,20 @@ struct io_engine engine_epoll = {
 
 
 /* --- INTERNAL PROTOTYPES --- */
-static void iterate_through_event_lists(mspool *nsp, int evcount);
+static void iterate_through_event_lists(struct npool *nsp, int evcount);
 
 /* defined in nsock_core.c */
-void process_iod_events(mspool *nsp, msiod *nsi, int ev);
-void process_event(mspool *nsp, gh_list_t *evlist, msevent *nse, int ev);
-void process_expired_events(mspool *nsp);
+void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
+void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
+void process_expired_events(struct npool *nsp);
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
-int pcap_read_on_nonselect(mspool *nsp);
+int pcap_read_on_nonselect(struct npool *nsp);
 #endif
 #endif
 
 /* defined in nsock_event.c */
-void update_first_events(msevent *nse);
+void update_first_events(struct nevent *nse);
 
 
 extern struct timeval nsock_tod;
@@ -137,7 +137,7 @@ struct epoll_engine_info {
 };
 
 
-int epoll_init(mspool *nsp) {
+int epoll_init(struct npool *nsp) {
   struct epoll_engine_info *einfo;
 
   einfo = (struct epoll_engine_info *)safe_malloc(sizeof(struct epoll_engine_info));
@@ -151,7 +151,7 @@ int epoll_init(mspool *nsp) {
   return 1;
 }
 
-void epoll_destroy(mspool *nsp) {
+void epoll_destroy(struct npool *nsp) {
   struct epoll_engine_info *einfo = (struct epoll_engine_info *)nsp->engine_data;
 
   assert(einfo != NULL);
@@ -160,7 +160,7 @@ void epoll_destroy(mspool *nsp) {
   free(einfo);
 }
 
-int epoll_iod_register(mspool *nsp, msiod *iod, int ev) {
+int epoll_iod_register(struct npool *nsp, struct niod *iod, int ev) {
   int sd;
   struct epoll_event epev;
   struct epoll_engine_info *einfo = (struct epoll_engine_info *)nsp->engine_data;
@@ -188,7 +188,7 @@ int epoll_iod_register(mspool *nsp, msiod *iod, int ev) {
   return 1;
 }
 
-int epoll_iod_unregister(mspool *nsp, msiod *iod) {
+int epoll_iod_unregister(struct npool *nsp, struct niod *iod) {
   iod->watched_events = EV_NONE;
 
   /* some IODs can be unregistered here if they're associated to an event that was
@@ -205,7 +205,7 @@ int epoll_iod_unregister(mspool *nsp, msiod *iod) {
   return 1;
 }
 
-int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
+int epoll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
   int sd;
   struct epoll_event epev;
   int new_events;
@@ -243,7 +243,7 @@ int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
   return 1;
 }
 
-int epoll_loop(mspool *nsp, int msec_timeout) {
+int epoll_loop(struct npool *nsp, int msec_timeout) {
   int results_left = 0;
   int event_msecs; /* msecs before an event goes off */
   int combined_msecs;
@@ -264,7 +264,7 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
   }
 
   do {
-    msevent *nse;
+    struct nevent *nse;
 
     nsock_log_debug_all(nsp, "wait for events");
 
@@ -339,12 +339,12 @@ static inline int get_evmask(struct epoll_engine_info *einfo, int n) {
 /* Iterate through all the event lists (such as connect_events, read_events,
  * timer_events, etc) and take action for those that have completed (due to
  * timeout, i/o, etc) */
-void iterate_through_event_lists(mspool *nsp, int evcount) {
+void iterate_through_event_lists(struct npool *nsp, int evcount) {
   struct epoll_engine_info *einfo = (struct epoll_engine_info *)nsp->engine_data;
   int n;
 
   for (n = 0; n < evcount; n++) {
-    msiod *nsi = (msiod *)einfo->events[n].data.ptr;
+    struct niod *nsi = (struct niod *)einfo->events[n].data.ptr;
 
     assert(nsi);
 
