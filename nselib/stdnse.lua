@@ -446,9 +446,16 @@ end
 -- This function should be used for all dates emitted as part of NSE structured
 -- output.
 function format_timestamp(t, offset)
-  local tz_string = format_tz(offset)
-  offset = offset or 0
-  return os.date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
+  if type(t) == "table" then
+    return string.format(
+      "%d-%02d-%02dT%02d:%02d:%02d",
+      t.year, t.month, t.day, t.hour, t.min, t.sec
+      )
+  else
+    local tz_string = format_tz(offset)
+    offset = offset or 0
+    return os.date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
+  end
 end
 
 --- Format the difference between times <code>t2</code> and <code>t1</code>
