@@ -38,16 +38,16 @@ The output is intended to resemble the output of the UNIX <code>ls</code> comman
 -- @args smb-ls.checksum [optional] download each file and calculate a SHA1 checksum
 --
 
+author = "Patrik Karlsson"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"discovery", "safe"}
+
 local arg_share    = stdnse.get_script_args(SCRIPT_NAME .. '.share')
 local arg_path     = stdnse.get_script_args(SCRIPT_NAME .. '.path')
 local arg_pattern  = stdnse.get_script_args(SCRIPT_NAME .. '.pattern') or '*'
 local arg_maxfiles = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.maxfiles'))
 local arg_maxdepth = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.maxdepth'))
 local arg_checksum = stdnse.get_script_args(SCRIPT_NAME .. '.checksum')
-
-author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
 
 hostrule = function(host)
   return ( smb.get_port(host) ~= nil and arg_share and arg_path )

@@ -1,3 +1,15 @@
+local bin = require('bin')
+local match = require('match')
+local nmap = require('nmap')
+local shortport = require('shortport')
+local sslcert = require('sslcert')
+local stdnse = require('stdnse')
+local string = require('string')
+local table = require('table')
+local vulns = require('vulns')
+local have_tls, tls = pcall(require,'tls')
+assert(have_tls, "This script requires the tls.lua library from http://nmap.org/nsedoc/lib/tls.html")
+
 description = [[
 Detects whether a server is vulnerable to the OpenSSL Heartbleed bug (CVE-2014-0160).
 The code is based on the Python script ssltest.py authored by Jared Stafford (jspenguin@jspenguin.org)
@@ -26,18 +38,6 @@ The code is based on the Python script ssltest.py authored by Jared Stafford (js
 --
 -- @args ssl-heartbleed.protocols (default tries all) TLS 1.0, TLS 1.1, or TLS 1.2
 --
-
-local bin = require('bin')
-local match = require('match')
-local nmap = require('nmap')
-local shortport = require('shortport')
-local sslcert = require('sslcert')
-local stdnse = require('stdnse')
-local string = require('string')
-local table = require('table')
-local vulns = require('vulns')
-local have_tls, tls = pcall(require,'tls')
-assert(have_tls, "This script requires the tls.lua library from http://nmap.org/nsedoc/lib/tls.html")
 
 author = "Patrik Karlsson <patrik@cqure.net>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
