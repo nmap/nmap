@@ -42,6 +42,12 @@ o The XML version of Nmap lists and describes the six port states
 o INFRASTRUCTURE: Upgrade seclists to use Mailman 3, which apparently
   has many improvements.
 
+o We should fix nsedoc generation so it doesn't fail when blocks like
+  @usage, @output, etc. are followed by a local declaration.  See
+  http://seclists.org/nmap-dev/2014/q2/331.  If for some reason this
+  just can't be fixed, we will have to document the heck out of it, I
+  suppose.
+
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
   by running:
