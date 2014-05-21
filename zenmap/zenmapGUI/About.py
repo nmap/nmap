@@ -139,6 +139,11 @@ from zenmapCore.Version import VERSION
 from zenmapCore.Paths import Path
 import zenmapCore.I18N
 
+
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 # For escaping text in marked-up labels.
 from xml.sax.saxutils import escape
 

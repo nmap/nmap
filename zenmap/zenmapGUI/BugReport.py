@@ -127,6 +127,11 @@ from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapCore.Name import APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, NMAP_WEB_SITE
 import zenmapCore.I18N
 
+
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 # For escaping text in marked-up labels.
 from xml.sax.saxutils import escape
 

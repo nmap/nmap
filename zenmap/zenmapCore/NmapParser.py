@@ -128,6 +128,10 @@ import socket
 import StringIO
 import copy
 
+# Prevent loading PyXML
+import xml
+xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
+
 from types import StringTypes
 from xml.sax import make_parser
 from xml.sax import SAXException
