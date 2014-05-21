@@ -19,15 +19,6 @@ Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 * https://github.com/ioerror/tlsdate
 ]]
 
-author = "Aleksandar Nikolic"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe", "default"}
-
-portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
-end
-
-
 ---
 -- @usage
 -- nmap <target> --script=ssl-date
@@ -40,6 +31,14 @@ end
 -- @xmloutput
 -- <elem key="date">2012-08-02T18:29:31+00:00</elem>
 -- <elem key="delta">4</elem>
+
+author = "Aleksandar Nikolic"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"discovery", "safe", "default"}
+
+portrule = function(host, port)
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+end
 
 --
 -- most of the code snatched from tls-nextprotoneg until we decide if we want a separate library
