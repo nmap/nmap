@@ -16,6 +16,11 @@ o Our "make uninstall" should uninstall ndiff if it was installed too.
   We should probably do it in pretty much the same way we handle
   Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
 
+o Look into moving our Mac building/testing system into a virtual
+  machine or leased server sort of environment so that multiple Nmap
+  developers can access it and nobody has to keep a stack of Mac Minis
+  in their closet.
+
 o We should probably update our included libpcap.  We currently
   include version 1.2.1 (we upgraded to that in April 2012) while the
   latest version on tcpdump.org is 1.5.2.  We make minor changes to
@@ -44,6 +49,19 @@ o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
   This was initially reported by Timo Juhani Lindfors on the Debian
   bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
+
+o We should work to reduce Zenmap's memory consumption.  Right now we
+  commonly get error reports from people who load so many systems that
+  Zenmap gives an out of memory error and crashes.  For example, see
+  this thread: http://seclists.org/nmap-dev/2014/q2/46
+
+o In an ideal world, Zenmap would not run out of memory and crash.
+  And we already have an entry for improving Zenmap's memory
+  consumption.  But in the meantime, we should catch the error and
+  present a more useful error message/explanation so the user
+  understands the problem.  This should reduce the number of
+  out-of-memory "crash reports" we get too.  See
+  http://seclists.org/nmap-dev/2014/q2/298
 
 o Adopt an issue tracking system for Nmap and related tools.  We
   should probably look at our needs and options and then decide on and
