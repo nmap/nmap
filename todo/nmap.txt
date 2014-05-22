@@ -148,10 +148,6 @@ o Some things that GSoC 2014 student Sriharsha is or is likely to soon
   be working on:
   o Setting up his dev environment, getting Nmap compiling on Linux +
     Win.
-  o When Ncat is compiled without OpenSSL, we should still accept the
-    --ssl argument and just give an error message noting that SSL was not
-    compiled in.  This reduces confusion for users
-    (e.g. http://seclists.org/nmap-dev/2013/q3/579)
   o Implement some improvements to dns-ip6-arpa.nse, as describe at
     http://seclists.org/nmap-dev/2012/q2/45.
     - Also consider a move to "fire and forget" logic.  Just blast out
@@ -840,6 +836,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o When Ncat is compiled without OpenSSL, we should still accept the
+  --ssl argument and just give an error message noting that SSL was not
+  compiled in.  This reduces confusion for users
+  (e.g. http://seclists.org/nmap-dev/2013/q3/579)
 
 o We should update our OpenSSL Windows binaries from version 1.0.1c to
   something newer, like 1.01f
