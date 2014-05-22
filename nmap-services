@@ -2901,7 +2901,7 @@ rpi	2214/udp	0.000330	# RDQ Protocol Interface
 ipcore	2215/udp	0.000661	# IPCore.co.za GPRS
 gotodevice	2217/udp	0.000330	# GoToDevice Device Management
 rockwell-csp1	2221/udp	0.000330	# Rockwell CSP1
-EtherNet/IP-1	2222/tcp	0.000608	# EtherNet/IP I/O
+EtherNet-IP-1	2222/tcp	0.000608	# EtherNet/IP I/O
 msantipiracy	2222/udp	0.047902	# Microsoft Office OS X antipiracy network monitor
 rockwell-csp2	2223/udp	0.010902	# Rockwell CSP2
 efi-mg	2224/tcp	0.000076	# Easy Flexible Internet/Multiplayer Games
@@ -15060,7 +15060,8 @@ unknown	44794/udp	0.000518
 unknown	44800/udp	0.000518
 unknown	44815/udp	0.000518
 unknown	44817/udp	0.000518
-EtherNet/IP-2	44818/udp	0.000518	# EtherNet/IP messaging
+EtherNet-IP-2	44818/udp	0.000518	# EtherNet/IP messaging
+EtherNet-IP-2	44818/tcp	0.000000	# EtherNet/IP messaging
 unknown	44819/udp	0.001036
 unknown	44823/udp	0.000518
 unknown	44831/udp	0.000518
