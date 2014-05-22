@@ -27,10 +27,6 @@ o We should probably update our included libpcap.  We currently
   libpcap that we ship, and instructions for upgrading are in
   libpcap/NMAP_MODIFICATIONS.
 
-o We should fix service detection so it can handle 0-byte captures
-  without crashing.
-  See http://seclists.org/nmap-dev/2014/q2/105
-
 o The XML version of Nmap lists and describes the six port states
   recognized by Nmap near the top of the "Port Scanning Basics"
   section.  That can be seen in the HTML rendering at
@@ -47,14 +43,6 @@ o We should fix nsedoc generation so it doesn't fail when blocks like
   http://seclists.org/nmap-dev/2014/q2/331.  If for some reason this
   just can't be fixed, we will have to document the heck out of it, I
   suppose.
-
-o Fix a segmentation fault in Ncat when scanned with the SSL NSE
-  scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
-  by running:
-  Ncat: ncat -v -k --ssl -l localhost
-  Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
-  This was initially reported by Timo Juhani Lindfors on the Debian
-  bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
 
 o We should work to reduce Zenmap's memory consumption.  Right now we
   commonly get error reports from people who load so many systems that
@@ -156,10 +144,33 @@ o Consider a continuous integration system for automating tests of
   various hardware/software for testing) and projects like Buildbot,
   Travis, Hudson, Jenkins, etc.
 
-o When Ncat is compiled without OpenSSL, we should still accept the
-  --ssl argument and just give an error message noting that SSL was not
-  compiled in.  This reduces confusion for users
-  (e.g. http://seclists.org/nmap-dev/2013/q3/579)
+o Some things that GSoC 2014 student Sriharsha is or is likely to soon
+  be working on:
+  o Setting up his dev environment, getting Nmap compiling on Linux +
+    Win.
+  o When Ncat is compiled without OpenSSL, we should still accept the
+    --ssl argument and just give an error message noting that SSL was not
+    compiled in.  This reduces confusion for users
+    (e.g. http://seclists.org/nmap-dev/2013/q3/579)
+  o Implement some improvements to dns-ip6-arpa.nse, as describe at
+    http://seclists.org/nmap-dev/2012/q2/45.
+    - Also consider a move to "fire and forget" logic.  Just blast out
+    the queries that we know we have to make, and then read any replies
+    that may happen to come back. (but still try not to introduce
+    inaccuracy (missed hosts) by flooding the network.
+  o We should fix service detection so it can handle 0-byte captures
+    without crashing.
+    See http://seclists.org/nmap-dev/2014/q2/105
+  o Fix a segmentation fault in Ncat when scanned with the SSL NSE
+    scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
+    by running:
+    Ncat: ncat -v -k --ssl -l localhost
+    Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
+    This was initially reported by Timo Juhani Lindfors on the Debian
+    bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
+
+
+
 
 o Our http library should allow the client to specify a max size in
   advance and should probably enforce some sort of maximum by default
@@ -258,13 +269,6 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o Implement some improvements to dns-ip6-arpa.nse, as describe at
-  http://seclists.org/nmap-dev/2012/q2/45.
-  - Also consider a move to "fire and forget" logic.  Just blast out
-  the queries that we know we have to make, and then read any replies
-  that may happen to come back. (but still try not to introduce
-  inaccuracy (missed hosts) by flooding the network.
 
 o Consider making a version of Nmap for Apple's official Mac App
   Store.  A particular concern with the downloadable Mac version of
