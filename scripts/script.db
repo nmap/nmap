@@ -101,6 +101,7 @@ Entry { filename = "drda-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "drda-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "duplicates.nse", categories = { "safe", } }
 Entry { filename = "eap-info.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "enip-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "eppc-enum-processes.nse", categories = { "discovery", "safe", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
