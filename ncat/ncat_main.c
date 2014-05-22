@@ -306,12 +306,17 @@ int main(int argc, char *argv[])
         {"proxy-auth",      required_argument,  NULL,         0},
         {"nsock-engine",    required_argument,  NULL,         0},
         {"test",            no_argument,        NULL,         0},
-#ifdef HAVE_OPENSSL
         {"ssl",             no_argument,        &o.ssl,       1},
+#ifdef HAVE_OPENSSL
         {"ssl-cert",        required_argument,  NULL,         0},
         {"ssl-key",         required_argument,  NULL,         0},
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   required_argument,  NULL,         0},
+#else
+        {"ssl-cert",        optional_argument,  NULL,         0},
+        {"ssl-key",         optional_argument,  NULL,         0},
+        {"ssl-verify",      no_argument,        NULL,         0},
+        {"ssl-trustfile",   optional_argument,  NULL,         0},
 #endif
         {0, 0, 0, 0}
     };
@@ -514,6 +519,16 @@ int main(int argc, char *argv[])
                    verification. */
                 o.sslverify = 1;
             }
+#else
+            else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-cert option cannot be chosen.");
+            } else if (strcmp(long_options[option_index].name, "ssl-key") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-key option cannot be chosen.");
+            } else if (strcmp(long_options[option_index].name, "ssl-verify") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-verify option cannot be chosen.");
+            } else if (strcmp(long_options[option_index].name, "ssl-trustfile") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-trustfile option cannot be chosen.");
+            }
 #endif
 #ifdef HAVE_LUA
             else if (strcmp(long_options[option_index].name, "lua-exec") == 0) {
@@ -614,6 +629,11 @@ int main(int argc, char *argv[])
             bye("Unrecognised option.");
         }
     }
+
+#ifndef HAVE_OPENSSL
+    if (o.ssl)
+        bye("OpenSSL isn't compiled in. The --ssl option cannot be chosen.");
+#endif
 
     if (o.normlog)
         o.normlogfd = ncat_openlog(o.normlog, o.append);
