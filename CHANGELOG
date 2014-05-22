@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add enip-info script to get device information from SCADA/ICS devices
+  via EtherNet/IP [Stephen Hilt]
+
 o Fixed a bug which caused Nmap to be unable to have any runtime interaction
   when called from sudo or from a shell script. [Jay Bosamiya]
 
