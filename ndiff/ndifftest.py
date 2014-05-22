@@ -11,7 +11,6 @@ import xml
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.dom.minidom
-import StringIO
 
 import imp
 dont_write_bytecode = sys.dont_write_bytecode
@@ -22,6 +21,8 @@ for x in dir(ndiff):
         globals()[x] = getattr(ndiff, x)
 sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
+
+import StringIO
 
 
 class scan_test(unittest.TestCase):
