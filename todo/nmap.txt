@@ -1,5 +1,11 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Integrate latest IPv4 OS detection submissions and corrections
+
+o Integrate latest IPv6 OS detection submissions and corrections
+
+o Integrate latest version detection submissions and corrections
+
 o We should improve the Windows build process for Ndiff, since it
   works differently now that it is modularized.  To build the Nmap
   6.45 release, we (as a temporary hack, not in SVN):
@@ -123,21 +129,12 @@ o Investigate how we're ending up with OS fingerprints in nmap-os-db
   integration/merge tools) and fix that then remove them from the
   file.
 
-o Add IPv6 subnet/pattern support like we offer for IPv4.
-  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
-    make sense in some cases.  For example, the VPS hosting company
-    Linode assigns only one IPv6 address per user (unless they pay)
-    and you can find many Linode machines by scanning certain /112's.
-    And patterns might be useful because people assigned /64's might
-    still put their machines at ::1, ::2, etc.
-     o David says: "We need to design a new way to iterate over host
-       specifications (i.e., different than nexthost). Because the new
-       host discovery code is sometimes going to want whole netblocks
-       and sometimes individual hosts. So I'm thinking of a two-stage
-       model, where the iterator will received (parsed) specifications
-       like AAAA::1/48, and then it can decide whether to further
-       iterate that into individual addresses, or pass the block off
-       to some specialized discovery routine."
+o Consider a two-stage model for IPv6 subnet/pattern support
+  o Right now you can try to scan a /64, for example, and Nmap will try
+    to iterate through them all (and of course never complete).  So
+    perhaps Nmap should first look at a specification and decide if it
+    should use other techniques like multicast discovery instead.
+
 
 o Move advanced IPv6 host discovery features from NSE into core Nmap.
   We'll probably add the functionality of
@@ -183,8 +180,8 @@ o Some things that GSoC 2014 student Sriharsha is or is likely to soon
     Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
     This was initially reported by Timo Juhani Lindfors on the Debian
     bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
-
-
+    Henri notes: "I traced the latter back to openssl  and opened a
+  ticket there, which never got any reply... https://rt.openssl.org/Ticket/Display.html?id=2885&user=guest&pass=guest"
 
 
 o Our http library should allow the client to specify a max size in
@@ -829,6 +826,25 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add IPv6 subnet/pattern support like we offer for IPv4.
+  o OK, we now have the subnet/pattern support, but not the two-stage
+  model discussed below.  So we added a separate task for that.
+  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
+    make sense in some cases.  For example, the VPS hosting company
+    Linode assigns only one IPv6 address per user (unless they pay)
+    and you can find many Linode machines by scanning certain /112's.
+    And patterns might be useful because people assigned /64's might
+    still put their machines at ::1, ::2, etc.
+     o David says: "We need to design a new way to iterate over host
+       specifications (i.e., different than nexthost). Because the new
+       host discovery code is sometimes going to want whole netblocks
+       and sometimes individual hosts. So I'm thinking of a two-stage
+       model, where the iterator will received (parsed) specifications
+       like AAAA::1/48, and then it can decide whether to further
+       iterate that into individual addresses, or pass the block off
+       to some specialized discovery routine."
+
 
 o Consider implementing RPC scan with ultra_scan or something else.
   Right now it is the only program using pos_scan.  On the other hand,
