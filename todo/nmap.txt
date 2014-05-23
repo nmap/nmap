@@ -803,10 +803,6 @@ o Provide an option to send a comment in scan packet data for target
   SecOps, extension 2147" or --comment "pH33r my l3eT
   s|&lt;iLLz!  I'll 0wN UR b0x!"
 
-o Consider implementing RPC scan with ultra_scan or something else.
-  Right now it is the only program using pos_scan.  On the other hand,
-  I'm not sure TCP RPC scanning is appropriate for ultra_scan.
-
 o Look at all the pcap functions, there are some like
   pcap_findalldevs() which could be quite useful.  There are mails to
   the Nmap list relating to suggested improvements --
@@ -836,6 +832,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Consider implementing RPC scan with ultra_scan or something else.
+  Right now it is the only program using pos_scan.  On the other hand,
+  I'm not sure TCP RPC scanning is appropriate for ultra_scan.
 
 o When Ncat is compiled without OpenSSL, we should still accept the
   --ssl argument and just give an error message noting that SSL was not
