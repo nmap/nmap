@@ -223,7 +223,7 @@ u8 *parseBufferSpec(char *str, size_t *outlen){
     /* This catches the case of an empty "0x" */
     if(strlen(str) == 2)
         return NULL;
-        start=str+2;
+    start=str+2;
   }
   /* String should be treated as list of hex char in this format: \x00\xFF\x0A*/
   else if( !strncmp("\\x", str, 2) ){
