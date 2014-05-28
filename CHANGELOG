@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add bacnet-info script to get device information from SCADA/ICS devices
+  via BACnet (Building Automation and Control Networks) [Stephen Hilt, Michael
+  Toecker]
+
 o [NSE] Add Cisco Anyconnect library and scripts http-cisco-anyconnect,
   http-vuln-cve2014-2126, http-vuln-cve2014-2127, http-vuln-cve2014-2128 and
   http-vuln-cve2014-2129. [Patrik Karlsson]
