@@ -51,10 +51,12 @@ function parse_robtex_response(data)
   data = data:match("<span id=\"sharednss\">.-<ul.->(.-)</ul>")
 
   -- process each html list item
-  for li in data:gmatch("<li>(.-)</li>") do
-    local domain = li:match("<a.->(.*)</a>")
-    if ( domain ) then
-      table.insert(result, domain)
+  if data then
+    for li in data:gmatch("<li>(.-)</li>") do
+      local domain = li:match("<a.->(.*)</a>")
+      if ( domain ) then
+        table.insert(result, domain)
+      end
     end
   end
 

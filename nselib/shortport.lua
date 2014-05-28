@@ -197,7 +197,7 @@ local LIKELY_SSL_SERVICES = {
 -- @usage
 -- portrule = shortport.ssl
 function ssl(host, port)
-  return port.version.service_tunnel == "ssl" or
+  return (port.version and port.version.service_tunnel == "ssl") or
     port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port)
 end
 
