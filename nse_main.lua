@@ -443,7 +443,7 @@ do
         co = co,
         env = env,
         identifier = tostring(co),
-        info = format("'%s' (%s)", self.short_basename, tostring(co));
+        info = format("'%s' M:%s", self.id, match(tostring(co), "0x(.*)") , -1);
         parent = nil, -- placeholder
         script = self,
         type = script_type,
@@ -466,7 +466,7 @@ do
       args = {n = select("#", ...), ...},
       close_handlers = {},
       co = co,
-      info = format("'%s' worker (%s)", self.short_basename, tostring(co));
+      info = format("'%s' W:%s", self.id, match(tostring(co), "0x(.*)") , -1);
       parent = self,
       worker = true,
     };
@@ -904,6 +904,20 @@ local function run (threads_iter, hosts)
 
   rawset(stdnse, "base", function ()
     return current and current.co;
+  end);
+  rawset(stdnse, "gettid", function ()
+    return current and current.identifier;
+  end);
+  rawset(stdnse, "getid", function ()
+    return current and current.id;
+  end);
+  rawset(stdnse, "gethostport", function ()
+    if current then
+        return current.host, current.port;
+    end
+  end);
+  rawset(stdnse, "isworker", function ()
+    return current and current.worker;
   end);
 
   while threads_iter and num_threads < CONCURRENCY_LIMIT do
@@ -1344,6 +1358,10 @@ local function main (hosts, scantype)
   -- These functions do not exist until we are executing action functions.
   rawset(stdnse, "new_thread", nil)
   rawset(stdnse, "base", nil)
+  rawset(stdnse, "gettid", nil)
+  rawset(stdnse, "getid", nil)
+  rawset(stdnse, "gethostport", nil)
+  rawset(stdnse, "isworker", nil)
 
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
