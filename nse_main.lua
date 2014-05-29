@@ -443,7 +443,7 @@ do
         co = co,
         env = env,
         identifier = tostring(co),
-        info = format("'%s' M:%s", self.id, match(tostring(co), "0x(.*)") , -1);
+        info = format("'%s' M:%s", self.id, match(tostring(co), "0x(.*)"));
         parent = nil, -- placeholder
         script = self,
         type = script_type,
@@ -466,7 +466,7 @@ do
       args = {n = select("#", ...), ...},
       close_handlers = {},
       co = co,
-      info = format("'%s' W:%s", self.id, match(tostring(co), "0x(.*)") , -1);
+      info = format("'%s' W:%s", self.id, match(tostring(co), "0x(.*)"));
       parent = self,
       worker = true,
     };
