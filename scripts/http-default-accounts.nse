@@ -148,7 +148,7 @@ local function load_fingerprints(filename, cat)
 
   -- Check if fingerprints are cached
   if(nmap.registry.http_default_accounts_fingerprints ~= nil) then
-    stdnse.print_debug(1, "%s: Loading cached fingerprints", SCRIPT_NAME)
+    stdnse.debug(1, "Loading cached fingerprints")
     return nmap.registry.http_default_accounts_fingerprints
   end
 
@@ -160,11 +160,11 @@ local function load_fingerprints(filename, cat)
   end
 
   -- Load the file
-  stdnse.print_debug(1, "%s: Loading fingerprints: %s", SCRIPT_NAME, filename_full)
+  stdnse.debug(1, "Loading fingerprints: %s", filename_full)
   local env = setmetatable({fingerprints = {}}, {__index = _G});
   file = loadfile(filename_full, "t", env)
   if( not(file) ) then
-    stdnse.print_debug(1, "%s: Couldn't load the file: %s", SCRIPT_NAME, filename_full)
+    stdnse.debug(1, "Couldn't load the file: %s", filename_full)
     return false, "Couldn't load fingerprint file: " .. filename_full
   end
   file()
@@ -238,7 +238,7 @@ action = function(host, port)
   -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
   local _, http_status, _ = http.identify_404(host,port)
   if ( http_status == 200 ) then
-    stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
+    stdnse.debug(1, "Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
     return nil
   end
 
@@ -247,14 +247,14 @@ action = function(host, port)
   if(not(status)) then
     return stdnse.format_output(false, fingerprints)
   end
-  stdnse.print_debug(1, "%s: %d fingerprints were loaded", SCRIPT_NAME, #fingerprints)
+  stdnse.debug(1, "%d fingerprints were loaded", #fingerprints)
 
   --Format basepath: Removes or adds slashs
   basepath = format_basepath(basepath)
 
   -- Add requests to the http pipeline
   requests = {}
-  stdnse.print_debug(1, "%s: Trying known locations under path '%s' (change with '%s.basepath' argument)", SCRIPT_NAME, basepath, SCRIPT_NAME)
+  stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   for i = 1, #fingerprints, 1 do
     for j = 1, #fingerprints[i].paths, 1 do
       requests = http.pipeline_add(basepath .. fingerprints[i].paths[j].path, nil, requests, 'GET')
@@ -278,7 +278,7 @@ action = function(host, port)
 
   for i, fingerprint in ipairs(fingerprints) do
     local credentials_found = false
-    stdnse.print_debug(1, "%s: Processing %s", SCRIPT_NAME, fingerprint.name)
+    stdnse.debug(1, "Processing %s", fingerprint.name)
     for _, probe in ipairs(fingerprint.paths) do
 
       if (results[j] and not(credentials_found)) then
@@ -289,12 +289,12 @@ action = function(host, port)
           or fingerprint.target_check(host, port, path, results[j]))
         then
           for _, login_combo in ipairs(fingerprint.login_combos) do
-            stdnse.print_debug(2, "%s: Trying login combo -> %s:%s", SCRIPT_NAME, login_combo["username"], login_combo["password"])
+            stdnse.debug(2, "Trying login combo -> %s:%s", login_combo["username"], login_combo["password"])
             --Check default credentials
             if( fingerprint.login_check(host, port, path, login_combo["username"], login_combo["password"]) ) then
 
               --Valid credentials found
-              stdnse.print_debug(1, "%s:[%s] valid default credentials found.", SCRIPT_NAME, fingerprint.name)
+              stdnse.debug(1, "[%s] valid default credentials found.", fingerprint.name)
               output_lns[#output_lns + 1] = string.format("[%s] credentials found -> %s:%s Path:%s",
                                           fingerprint.name, login_combo["username"], login_combo["password"], path)
               -- Add to http credentials table

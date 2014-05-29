@@ -33,6 +33,7 @@ local max = math.max
 
 local format = string.format;
 local rep = string.rep
+local match = string.match
 
 local concat = table.concat;
 local insert = table.insert;
@@ -61,14 +62,72 @@ _ENV.sleep = nmap.socket.sleep;
 -- Prints a formatted debug message if the current debugging level is greater
 -- than or equal to a given level.
 --
--- This is a convenience wrapper around
--- <code>nmap.log_write</code>. The first optional numeric
--- argument, <code>level</code>, is used as the debugging level necessary
--- to print the message (it defaults to 1 if omitted). All remaining arguments
--- are processed with Lua's <code>string.format</code> function.
+-- This is a convenience wrapper around <code>nmap.log_write</code>. The first
+-- optional numeric argument, <code>level</code>, is used as the debugging level
+-- necessary to print the message (it defaults to 1 if omitted). All remaining
+-- arguments are processed with Lua's <code>string.format</code> function.
+--
+-- If known, the output includes some context based information: the script
+-- identifier and the target ip/port (if there is one). If the debug level is 
+-- at least 2, it also prints the base thread identifier and whether it is a
+-- worker thread or the master thread.
+--
 -- @param level Optional debugging level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
+function debug (level, fmt, ...)
+  local current = nmap.debugging()
+  local prefix = "["
+  local id = getid()
+  if id then
+    prefix = prefix .. id
+  end
+  local host, port = gethostport()
+  if host and host.ip then
+    prefix = prefix .. " " .. host.ip
+  end
+  if port and port.number then
+    prefix = prefix .. ":" .. port.number
+  end
+  local tid = gettid()
+  local tid = match(tostring(tid), "0x(.*)") 
+  local worker = isworker()
+  if current >= 2 and tid then
+    if worker then
+        prefix = prefix .. " W:" .. tid
+    else
+        prefix = prefix .. " M:" .. tid
+    end
+  end
+  prefix = prefix .. "] "
+  if type(level) == "number" then
+    if level <= current then
+      if prefix ~= "[] " then 
+        nmap.log_write("stdout", prefix..format(fmt, ...))
+      else
+        nmap.log_write("stdout", format(fmt, ...))
+      end
+    end
+  elseif 1 <= current then
+    -- level is fmt and fmt is first argument
+    if prefix ~= "[] " then
+      nmap.log_write("stdout", prefix..format(level, fmt, ...))
+    else
+      nmap.log_write("stdout", format(level, fmt, ...))
+    end
+  end
+end
+
+--Aliases for particular debug levels
+function debug1 (...) return stdnse.debug(1, ...) end
+function debug2 (...) return stdnse.debug(2, ...) end
+function debug3 (...) return stdnse.debug(3, ...) end
+function debug3 (...) return stdnse.debug(4, ...) end
+function debug5 (...) return stdnse.debug(5, ...) end
+
+---
+-- Deprecated version of debug(), kept for now to prevent the script id from being 
+-- printed twice. Scripts should use debug() and not pass SCRIPT_NAME
 print_debug = function(level, fmt, ...)
   local l, d = tonumber(level), nmap.debugging();
   if l and l <= d then
@@ -77,19 +136,68 @@ print_debug = function(level, fmt, ...)
     nmap.log_write("stdout", format(level, fmt, ...));
   end
 end
-
+ 
 ---
 -- Prints a formatted verbosity message if the current verbosity level is greater
 -- than or equal to a given level.
+-- 
+-- This is a convenience wrapper around <code>nmap.log_write</code>. The first
+-- optional numeric argument, <code>level</code>, is used as the verbosity level
+-- necessary to print the message (it defaults to 1 if omitted). All remaining
+-- arguments are processed with Lua's <code>string.format</code> function.
 --
--- This is a convenience wrapper around
--- <code>nmap.log_write</code>. The first optional numeric
--- argument, <code>level</code>, is used as the verbosity level necessary
--- to print the message (it defaults to 1 if omitted). All remaining arguments
--- are processed with Lua's <code>string.format</code> function.
+-- If known, the output includes some context based information: the script
+-- identifier. If the verbosity level is at least 2, it also prints the target
+-- ip/port (if there is one)
+--
 -- @param level Optional verbosity level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
+function verbose (level, fmt, ...)
+  local current = nmap.verbosity()
+  local prefix = "["
+  local id = getid()
+  if id then
+    prefix = prefix .. id
+  end
+  if current >= 2 then
+      local host, port = gethostport()
+      if host and host.ip then
+        prefix = prefix .. " " .. host.ip
+      end
+      if port and port.number then
+        prefix = prefix .. ":" .. port.number
+      end
+  end
+  prefix = prefix .. "] "
+  if type(level) == "number" then
+    if level <= current then
+      if prefix ~= "[] " then
+        nmap.log_write("stdout", prefix..format(fmt, ...))
+      else
+        nmap.log_write("stdout", format(fmt, ...))
+      end
+    end
+  elseif 1 <= current then
+    -- level is fmt and fmt is first argument
+    if prefix ~= "[] " then
+      nmap.log_write("stdout", prefix..format(level, fmt, ...))
+    else
+      nmap.log_write("stdout", format(level, fmt, ...))
+    end
+  end
+end
+
+--Aliases for particular verbosity levels
+function verbose1 (...) return stdnse.verbose(1, ...) end
+function verbose2 (...) return stdnse.verbose(2, ...) end
+function verbose3 (...) return stdnse.verbose(3, ...) end
+function verbose4 (...) return stdnse.verbose(4, ...) end
+function verbose5 (...) return stdnse.verbose(5, ...) end
+
+---
+-- Deprecated version of verbose(), kept for now to prevent the script id from being 
+-- printed twice. Scripts should use verbose() and not pass SCRIPT_NAME
 print_verbose = function(level, fmt, ...)
   local l, d = tonumber(level), nmap.verbosity();
   if l and l <= d then
@@ -98,7 +206,6 @@ print_verbose = function(level, fmt, ...)
     nmap.log_write("stdout", format(level, fmt, ...));
   end
 end
-
 
 --- Join a list of strings with a separator string.
 --
