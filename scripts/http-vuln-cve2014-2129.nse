@@ -66,8 +66,10 @@ The SIP inspection engine in Cisco Adaptive Security Appliance (ASA) Software 8.
 
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
 	local ac = anyconnect.Cisco.AnyConnect:new(host, port)
-	local status = ac:connect()
-	if status then
+  local status, err = ac:connect()
+  if not status then
+    return ("\n  ERROR: %s"):format(err)
+  else
   	local ver = ac:get_version()
 		if vuln_versions[ver['major']] and vuln_versions[ver['major']][ver['minor']] then
 			if vuln_versions[ver['major']][ver['minor']] > tonumber(ver['rev']) then
