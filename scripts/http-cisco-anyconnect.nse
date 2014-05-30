@@ -41,8 +41,10 @@ end
 
 action = function(host, port)
   local ac = anyconnect.Cisco.AnyConnect:new(host, port)
-  local status = ac:connect()
-  if status then
+  local status, err = ac:connect()
+  if not status then
+    return ("\n  ERROR: %s"):format(err)
+  else
     local o = stdnse.output_table()
     local xmltags = { 'version', 'tunnel-group', 'group-alias',
       'config-hash', 'host-scan-ticket', 'host-scan-token',

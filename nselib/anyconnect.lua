@@ -89,20 +89,25 @@ Cisco = {
         end
       }
 
-
-      local response = http.head(self.host, self.port, '/', options)
+      local path = '/'
+      local response = http.head(self.host, self.port, path, options)
       -- account for redirects
       if not response.status == 200 then
         return false, "Failed to connect to SSL VPN server"
       elseif response.location then
         local u = url.parse(response.location[#response.location])
-        self.host = u.host
+        if u.host then
+          self.host = u.host
+        end
+        if u.path then
+          path = u.path
+        end
       end
 
-      response = http.post(self.host, self.port, '/', options, nil, data)
+      response = http.post(self.host, self.port, path, options, nil, data)
 
       if response.status ~= 200 or response.body == nil then
-        return false, "Error in SSL VPN server response"
+        return false, "Not a Cisco ASA or unsupported version"
       end
 
       local xmltags = {
@@ -126,6 +131,11 @@ Cisco = {
           self.conn_attr[tag] = m
         end
       end
+
+      if not self.conn_attr['version'] then
+        return false, "Not a Cisco ASA or unsupported version"
+      end
+
       -- in case we were redirected
       self.conn_attr['host'] = stdnse.get_hostname(self.host)
       return true
