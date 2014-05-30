@@ -12,11 +12,8 @@
 * Get rid of global_structures.h (integrate into more-specific header files)
 
 * NSE stuff
-  * sstp-discover - review and commit
   * broadcast-srvloc-info - test
   * broadcast-rpcbind - write, test
-  * Patrik's tns lib and oracle scripts
-  * libssh or other SSH support
   * deflate/gzip for HTTP, etc.
   * Consolidate utility functions
 
