@@ -3284,7 +3284,10 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
                ETH_TYPE_ARP);
   arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST,
                      *hss->target->SrcMACAddress(), *hss->target->v4sourceip(),
-                     ETH_ADDR_BROADCAST,  *hss->target->v4hostip());
+                     "\x00\x00\x00\x00\x00\x00",  *hss->target->v4hostip());
+// RFC 826 says that the ar$tha field need not be set to anything in particular (i.e. its value doesn't matter)
+// We use 00:00:00:00:00:00 since that is what IP stacks in currently popular operating systems use
+
   gettimeofday(&USI->now, NULL);
   probe->sent = USI->now;
   hss->probeSent(sizeof(frame));
