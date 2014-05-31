@@ -67,9 +67,6 @@ o GSOC 2014 student Jay will be looking at these items:
     http://seclists.org/nmap-dev/2012/q4/420.
   o Implement an --exclude-ports option. See
     http://seclists.org/nmap-dev/2012/q1/275
-  o Investigate report of Nmap ARP discovery using the wrong target MAC
-    address field in ARP requests (it is correct in the ethernet frame
-    itself).  See this thread: http://seclists.org/nmap-dev/2011/q3/547
   o [Zenmap] Combine parallel timed-out hops into one node in the
     topology view. http://seclists.org/nmap-dev/2012/q1/82 has a patch,
     however it doesn't handle the case of two or more consecutive
@@ -828,6 +825,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Investigate report of Nmap ARP discovery using the wrong target MAC
+  address field in ARP requests (it is correct in the ethernet frame
+  itself).  See this thread: http://seclists.org/nmap-dev/2011/q3/547
 
 o Add randomizer to configure script so that a random ASCII art from
   docs/leet-nmap-ascii-art*.txt is printed.  I think I'll start naming
