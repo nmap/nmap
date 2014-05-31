@@ -74,9 +74,6 @@ o GSOC 2014 student Jay will be looking at these items:
     topology view. http://seclists.org/nmap-dev/2012/q1/82 has a patch,
     however it doesn't handle the case of two or more consecutive
     timeouts.
-  o Add randomizer to configure script so that a random ASCII art from
-    docs/leet-nmap-ascii-art*.txt is printed.  I think I'll start naming
-    them leet-nmap-ascii-art-submittername.txt.
   o Provide an option to send a comment in scan packet data for target
     network.  Examples: --comment "Scan conducted by Marc Reis from
     SecOps, extension 2147" or --comment "pH33r my l3eT
@@ -831,6 +828,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add randomizer to configure script so that a random ASCII art from
+  docs/leet-nmap-ascii-art*.txt is printed.  I think I'll start naming
+  them leet-nmap-ascii-art-submittername.txt.
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
   o OK, we now have the subnet/pattern support, but not the two-stage
