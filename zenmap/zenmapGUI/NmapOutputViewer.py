@@ -216,16 +216,14 @@ class NmapOutputViewer (gtk.VBox):
     def go_to_host(self, host):
         """Go to host line on nmap output result"""
         buff = self.text_view.get_buffer()
-        start_iter, end_iter = buff.get_bounds()
+        start_iter = buff.get_start_iter()
 
-        output = buff.get_text(start_iter, end_iter).split("\n")
-        re_host = re.compile(r'^Nmap scan report for %s\s*$' % re.escape(host))
-
-        for i in xrange(len(output)):
-            if re_host.match(output[i]):
-                self.text_view.scroll_to_iter(
-                        buff.get_iter_at_line(i), 0, True, 0, 0)
-                break
+        found = start_iter.forward_search(
+                "\nNmap scan report for %s\n" % host, gtk.TEXT_SEARCH_TEXT_ONLY
+                )[0]
+        if not found.forward_line():
+            return
+        self.text_view.scroll_to_iter(found, 0, True, 0, 0)
 
     def show_output_properties(self, widget):
         nmap_out_prop = NmapOutputProperties(self.text_view)
