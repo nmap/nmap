@@ -218,9 +218,13 @@ class NmapOutputViewer (gtk.VBox):
         buff = self.text_view.get_buffer()
         start_iter = buff.get_start_iter()
 
-        found = start_iter.forward_search(
+        found_tuple = start_iter.forward_search(
                 "\nNmap scan report for %s\n" % host, gtk.TEXT_SEARCH_TEXT_ONLY
-                )[0]
+                )
+        if found_tuple is None:
+                return
+
+        found = found_tuple[0]
         if not found.forward_line():
             return
         self.text_view.scroll_to_iter(found, 0, True, 0, 0)
