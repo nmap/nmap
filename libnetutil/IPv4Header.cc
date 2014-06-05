@@ -568,7 +568,7 @@ u16 IPv4Header::getSum() const {
 int IPv4Header::setDestinationAddress(u32 d){
   h.ip_dst.s_addr =  d;
   return OP_SUCCESS;
-} /* End of getDestinationAddress() */
+} /* End of setDestinationAddress() */
 
 /** Sets destination IP address.
  *  @warning Destination IP must be supplied in NETWORK byte order. Usually
@@ -577,7 +577,7 @@ int IPv4Header::setDestinationAddress(u32 d){
 int IPv4Header::setDestinationAddress(struct in_addr d){
   h.ip_dst=d;
   return OP_SUCCESS;
-} /* End of getDestinationAddress() */
+} /* End of setDestinationAddress() */
 
 
 /** Returns destination IP address.
