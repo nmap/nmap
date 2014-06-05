@@ -163,7 +163,8 @@ static void tty_flush(void)
         FlushConsoleInputBuffer(stdinput);
 }
 
-#else
+#else  //!win32
+#include <signal.h>
 #if !defined(O_NONBLOCK) && defined(O_NDELAY)
 #define O_NONBLOCK			O_NDELAY
 #endif
