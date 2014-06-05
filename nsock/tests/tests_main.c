@@ -30,6 +30,7 @@ extern const struct test_case TestTimer;
 extern const struct test_case TestLogLevels;
 extern const struct test_case TestErrLevels;
 extern const struct test_case TestConnectTCP;
+extern const struct test_case TestConnectFailure;
 extern const struct test_case TestGHLists;
 extern const struct test_case TestGHHeaps;
 extern const struct test_case TestHeapOrdering;
@@ -48,6 +49,7 @@ static const struct test_case *TestCases[] = {
   &TestErrLevels,
   /* ---- connect.c */
   &TestConnectTCP,
+  &TestConnectFailure,
   /* ---- ghlists.c */
   &TestGHLists,
   /* ---- ghheaps.c */
