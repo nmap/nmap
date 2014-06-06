@@ -946,8 +946,26 @@ AC_SUBST(NMAP_UPDATE_DIST_CLEAN)
 
 
 AC_OUTPUT(Makefile libnetutil/Makefile)
+
 # Krad ASCII ART#!#@$!@#$
-if test -f docs/leet-nmap-ascii-art.txt; then
-	cat docs/leet-nmap-ascii-art.txt
+# Randomly store the name of one of the ASCII Art files in FILENAME
+FILENAME=`ls docs/leet-nmap-ascii-art*.txt 2>/dev/null | awk '
+    BEGIN {
+        srand();
+    }
+
+    {
+        lines[[++d]] = $0
+    }
+
+    END {
+        # This makes AWKs random numbers more random
+        print lines[[int(rand()*49139)%d+1]];
+    }
+    '`
+# Print the file to screen, if any such file exists (i.e. $FILENAME is not empty)
+if test "$FILENAME"; then
+	cat "$FILENAME"
 fi
+
 echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."
