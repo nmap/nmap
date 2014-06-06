@@ -11,5 +11,5 @@
  * @(#) $Header: /tcpdump/master/libpcap/pcap-septel.h,v 1.2 2008-04-04 19:37:45 guy Exp $
  */
 
-pcap_t *septel_create(const char *device, char *ebuf);
-
+pcap_t *septel_create(const char *device, char *ebuf, int *is_ours);
+int septel_findalldevs(pcap_if_t **devlistp, char *errbuf);

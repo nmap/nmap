@@ -133,10 +133,11 @@ struct rtentry;		/* declarations in <net/if.h> */
  *
  * XXX - or platforms that have other, better mechanisms but for which
  * we don't yet have code to use that mechanism; I think there's a better
- * way on Linux, for example.
+ * way on Linux, for example, but if that better way is "getifaddrs()",
+ * we already have that.
  */
 int
-pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
+pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 {
 	pcap_if_t *devlist = NULL;
 	register int fd;
@@ -408,15 +409,6 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	}
 	free(buf);
 	(void)close(fd);
-
-	if (ret != -1) {
-		/*
-		 * We haven't had any errors yet; do any platform-specific
-		 * operations to add devices.
-		 */
-		if (pcap_platform_finddevs(&devlist, errbuf) < 0)
-			ret = -1;
-	}
 
 	if (ret == -1) {
 		/*

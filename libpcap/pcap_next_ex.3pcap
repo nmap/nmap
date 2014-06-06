@@ -77,6 +77,41 @@ The
 structure pointed to by
 .I h
 is filled in with the appropriate values for the packet.
+.PP
+The bytes of data from the packet begin with a link-layer header.  The
+format of the link-layer header is indicated by the return value of the
+.B pcap_datalink()
+routine when handed the
+.B pcap_t
+value also passed to
+.B pcap_loop()
+or
+.BR pcap_dispatch() .
+.I http://www.tcpdump.org/linktypes.html
+lists the values
+.B pcap_datalink()
+can return and describes the packet formats that
+correspond to those values.  The value it returns will be valid for all
+packets received unless and until
+.B pcap_set_datalink()
+is called; after a successful call to
+.BR pcap_set_datalink() ,
+all subsequent packets will have a link-layer header of the type
+specified by the link-layer header type value passed to
+.BR pcap_set_datalink() .
+.PP
+Do
+.B NOT
+assume that the packets for a given capture or ``savefile`` will have
+any given link-layer header type, such as
+.B DLT_EN10MB
+for Ethernet.  For example, the "any" device on Linux will have a
+link-layer header type of
+.B DLT_LINUX_SLL
+even if all devices on the system at the time the "any" device is opened
+have some other data link type, such as
+.B DLT_EN10MB
+for Ethernet.
 .SH RETURN VALUE
 .B pcap_next_ex()
 returns 1 if the packet was read without problems, 0
@@ -104,4 +139,5 @@ non-blocking mode and no packets were available to be read), or if no
 more packets are available in a ``savefile.''  Unfortunately, there is
 no way to determine whether an error occurred or not.
 .SH SEE ALSO
-pcap(3PCAP), pcap_geterr(3PCAP), pcap_dispatch(3PCAP)
+pcap(3PCAP), pcap_geterr(3PCAP), pcap_dispatch(3PCAP),
+pcap_datalink(3PCAP)

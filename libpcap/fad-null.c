@@ -53,7 +53,7 @@ static const char rcsid[] _U_ =
  * packet capture.
  */
 int
-pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
+pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 {
 	/*
 	 * Succeed, but don't return any interfaces; we return only those

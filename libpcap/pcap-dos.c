@@ -143,11 +143,19 @@ static struct device *get_device (int fd)
   return handle_to_device [fd-1];
 }
 
-pcap_t *pcap_create (const char *device, char *ebuf)
+/*
+ * Private data for capturing on MS-DOS.
+ */
+struct pcap_dos {
+	void (*wait_proc)(void); /*          call proc while waiting */
+	struct pcap_stat stat;
+};
+
+pcap_t *pcap_create_interface (const char *device, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(device, ebuf);
+	p = pcap_create_common(device, ebuf, sizeof (struct pcap_dos));
 	if (p == NULL)
 		return (NULL);
 
@@ -161,6 +169,8 @@ pcap_t *pcap_create (const char *device, char *ebuf)
  */
 static int pcap_activate_dos (pcap_t *pcap)
 { 
+  struct pcap_dos *pcapd = pcap->priv;
+
   if (pcap->opt.rfmon) {
     /*
      * No monitor mode on DOS.
@@ -210,15 +220,16 @@ static int pcap_activate_dos (pcap_t *pcap)
 static int
 pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
 {
+  struct pcap_dos *pd = p->priv;
   struct pcap_pkthdr pcap;
-  struct timeval     now, expiry;
+  struct timeval     now, expiry = { 0,0 };
   BYTE  *rx_buf;
   int    rx_len = 0;
 
-  if (p->md.timeout > 0)
+  if (p->opt.timeout > 0)
   {
     gettimeofday2 (&now, NULL);
-    expiry.tv_usec = now.tv_usec + 1000UL * p->md.timeout;
+    expiry.tv_usec = now.tv_usec + 1000UL * p->opt.timeout;
     expiry.tv_sec  = now.tv_sec;
     while (expiry.tv_usec >= 1000000L)
     {
@@ -287,10 +298,10 @@ pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
       return (1);
     }
 
-    /* If not to wait for a packet or pcap_close() called from
+    /* If not to wait for a packet or pcap_cleanup_dos() called from
      * e.g. SIGINT handler, exit loop now.
      */
-    if (p->md.timeout <= 0 || (volatile int)p->fd <= 0)
+    if (p->opt.timeout <= 0 || (volatile int)p->fd <= 0)
        break;
 
     gettimeofday2 (&now, NULL);
@@ -308,7 +319,7 @@ pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
 
   if (rx_len < 0)            /* receive error */
   {
-    p->md.stat.ps_drop++;
+    pd->stat.ps_drop++;
 #ifdef USE_32BIT_DRIVERS
     if (pcap_pkt_debug > 1)
        printk ("pkt-err %s\n", pktInfo.error);
@@ -321,9 +332,10 @@ pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
 static int
 pcap_read_dos (pcap_t *p, int cnt, pcap_handler callback, u_char *data)
 {
+  struct pcap_dos *pd = p->priv;
   int rc, num = 0;
 
-  while (num <= cnt || (cnt < 0))
+  while (num <= cnt || PACKET_COUNT_IS_UNLIMITED(cnt))
   {
     if (p->fd <= 0)
        return (-1);
@@ -343,6 +355,7 @@ pcap_read_dos (pcap_t *p, int cnt, pcap_handler callback, u_char *data)
 static int pcap_stats_dos (pcap_t *p, struct pcap_stat *ps)
 {
   struct net_device_stats *stats;
+  struct pcap_dos         *pd;
   struct device           *dev = p ? get_device(p->fd) : NULL;
 
   if (!dev)
@@ -359,12 +372,13 @@ static int pcap_stats_dos (pcap_t *p, struct pcap_stat *ps)
 
   FLUSHK();
 
-  p->md.stat.ps_recv   = stats->rx_packets;
-  p->md.stat.ps_drop  += stats->rx_missed_errors;
-  p->md.stat.ps_ifdrop = stats->rx_dropped +  /* queue full */
+  pd = p->priv;
+  pd->stat.ps_recv   = stats->rx_packets;
+  pd->stat.ps_drop  += stats->rx_missed_errors;
+  pd->stat.ps_ifdrop = stats->rx_dropped +  /* queue full */
                          stats->rx_errors;    /* HW errors */
   if (ps)
-     *ps = p->md.stat;
+     *ps = pd->stat;
 
   return (0);
 }
@@ -428,10 +442,13 @@ u_long pcap_filter_packets (void)
  */
 static void pcap_cleanup_dos (pcap_t *p)
 {
+  struct pcap_dos *pd;
+
   if (p && !exc_occured)
   {
+    pd = p->priv;
     if (pcap_stats(p,NULL) < 0)
-       p->md.stat.ps_drop = 0;
+       pd->stat.ps_drop = 0;
     if (!get_device(p->fd))
        return;
 
@@ -590,10 +607,12 @@ void pcap_assert (const char *what, const char *file, unsigned line)
  */
 void pcap_set_wait (pcap_t *p, void (*yield)(void), int wait)
 {
+  struct pcap_dos *pd;
   if (p)
   {
-    p->wait_proc         = yield;
-    p->md.timeout        = wait;
+    pd                   = p->priv;
+    pd->wait_proc        = yield;
+    p->opt.timeout        = wait;
   }
 }
 

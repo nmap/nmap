@@ -47,6 +47,8 @@ VPATH = @srcdir@
 LD = /usr/bin/ld
 CC = @CC@
 AR = @AR@
+LN_S = @LN_S@
+MKDEP = @MKDEP@
 CCOPT = @V_CCOPT@
 INCLS = -I. @V_INCLS@
 DEFS = @DEFS@ @V_DEFS@
@@ -57,6 +59,7 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 DYEXT = @DYEXT@
 V_RPATH_OPT = @V_RPATH_OPT@
+DEPENDENCY_CFLAG = @DEPENDENCY_CFLAG@
 PROG=libpcap
 
 # Standard CFLAGS
@@ -74,7 +77,7 @@ RANLIB = @RANLIB@
 	@rm -f $@
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/$*.c
 
-PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @CAN_SRC@ @NETFILTER_SRC@
+PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @CAN_SRC@ @NETFILTER_SRC@ @CANUSB_SRC@ @DBUS_SRC@
 FSRC =  fad-@V_FINDALLDEVS@.c
 SSRC =  @SSRC@
 CSRC =	pcap.c inet.c gencode.c optimize.c nametoaddr.c etherent.c \
@@ -122,7 +125,8 @@ TESTS = \
 	findalldevstest \
 	nonblocktest \
 	opentest \
-	selpolltest
+	selpolltest \
+	valgrindtest
 
 TESTS_SRC = \
 	tests/filtertest.c \
@@ -130,7 +134,8 @@ TESTS_SRC = \
 	tests/nonblocktest.c \
 	tests/opentest.c \
 	tests/reactivatetest.c \
-	tests/selpolltest.c
+	tests/selpolltest.c \
+	tests/valgrindtest.c
 
 GENHDR = \
 	scanner.h tokdefs.h version.h
@@ -149,10 +154,12 @@ MAN3PCAP_EXPAND = \
 	pcap_compile.3pcap.in \
 	pcap_datalink.3pcap.in \
 	pcap_dump_open.3pcap.in \
+	pcap_get_tstamp_precision.3pcap.in \
 	pcap_list_datalinks.3pcap.in \
 	pcap_list_tstamp_types.3pcap.in \
 	pcap_open_dead.3pcap.in \
 	pcap_open_offline.3pcap.in \
+	pcap_set_tstamp_precision.3pcap.in \
 	pcap_set_tstamp_type.3pcap.in
 
 MAN3PCAP_NOEXPAND = \
@@ -186,6 +193,7 @@ MAN3PCAP_NOEXPAND = \
 	pcap_open_live.3pcap \
 	pcap_set_buffer_size.3pcap \
 	pcap_set_datalink.3pcap \
+	pcap_set_immediate_mode.3pcap \
 	pcap_set_promisc.3pcap \
 	pcap_set_rfmon.3pcap \
 	pcap_set_snaplen.3pcap \
@@ -219,6 +227,7 @@ EXTRA_DIST = \
 	INSTALL.txt \
 	LICENSE \
 	Makefile.in \
+	Makefile-devel-adds \
 	README \
 	README.aix \
 	README.dag \
@@ -281,9 +290,13 @@ EXTRA_DIST = \
 	pcap-bt-linux.h \
 	pcap-can-linux.c \
 	pcap-can-linux.h \
+	pcap-canusb-linux.c \
+	pcap-canusb-linux.h \
 	pcap-config.in \
 	pcap-dag.c \
 	pcap-dag.h \
+	pcap-dbus.c \
+	pcap-dbus.h \
 	pcap-dlpi.c \
 	pcap-dos.c \
 	pcap-dos.h \
@@ -518,6 +531,9 @@ opentest: tests/opentest.c libpcap.a
 selpolltest: tests/selpolltest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o selpolltest $(srcdir)/tests/selpolltest.c libpcap.a $(LIBS)
 
+valgrindtest: tests/valgrindtest.c libpcap.a
+	$(CC) $(FULL_CFLAGS) -I. -L. -o valgrindtest $(srcdir)/tests/valgrindtest.c libpcap.a $(LIBS)
+
 install: install-shared install-archive pcap-config
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
@@ -548,42 +564,39 @@ install: install-shared install-archive pcap-config
 	for i in $(MAN3PCAP_EXPAND:.in=); do \
 		$(INSTALL_DATA) $$i \
 		    $(DESTDIR)$(mandir)/man3/$$i; done
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_name.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_dump_open.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_freealldevs.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_findalldevs.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_freealldevs.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_geterr.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_sendpacket.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_inject.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_sendpacket.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_free_datalinks.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_list_datalinks.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_free_datalinks.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_free_tstamp_types.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_list_tstamp_types.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_free_tstamp_types.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_loop.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_major_version.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_next_ex.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_open_offline.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
-	rm -f $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
-	ln $(DESTDIR)$(mandir)/man3/pcap_setnonblock.3pcap \
-		 $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
+	(cd $(DESTDIR)$(mandir)/man3 && \
+	rm -f pcap_datalink_val_to_description.3pcap && \
+	$(LN_S) pcap_datalink_val_to_name.3pcap \
+		 pcap_datalink_val_to_description.3pcap && \
+	rm -f pcap_dump_fopen.3pcap && \
+	$(LN_S) pcap_dump_open.3pcap pcap_dump_fopen.3pcap && \
+	rm -f pcap_freealldevs.3pcap && \
+	$(LN_S) pcap_findalldevs.3pcap pcap_freealldevs.3pcap && \
+	rm -f pcap_perror.3pcap && \
+	$(LN_S) pcap_geterr.3pcap pcap_perror.3pcap && \
+	rm -f pcap_sendpacket.3pcap && \
+	$(LN_S) pcap_inject.3pcap pcap_sendpacket.3pcap && \
+	rm -f pcap_free_datalinks.3pcap && \
+	$(LN_S) pcap_list_datalinks.3pcap pcap_free_datalinks.3pcap && \
+	rm -f pcap_free_tstamp_types.3pcap && \
+	$(LN_S) pcap_list_tstamp_types.3pcap pcap_free_tstamp_types.3pcap && \
+	rm -f pcap_dispatch.3pcap && \
+	$(LN_S) pcap_loop.3pcap pcap_dispatch.3pcap && \
+	rm -f pcap_minor_version.3pcap && \
+	$(LN_S) pcap_major_version.3pcap pcap_minor_version.3pcap && \
+	rm -f pcap_next.3pcap && \
+	$(LN_S) pcap_next_ex.3pcap pcap_next.3pcap && \
+	rm -f pcap_open_dead_with_tstamp_precision.3pcap && \
+	$(LN_S) pcap_open_dead.3pcap \
+		 pcap_open_dead_with_tstamp_precision.3pcap && \
+	rm -f pcap_open_offline_with_tstamp_precision.3pcap && \
+	$(LN_S) pcap_open_offline.3pcap pcap_open_offline_with_tstamp_precision.3pcap && \
+	rm -f pcap_fopen_offline.3pcap && \
+	$(LN_S) pcap_open_offline.3pcap pcap_fopen_offline.3pcap && \
+	rm -f pcap_fopen_offline_with_tstamp_precision.3pcap && \
+	$(LN_S) pcap_open_offline.3pcap pcap_fopen_offline_with_tstamp_precision.3pcap && \
+	rm -f pcap_getnonblock.3pcap && \
+	$(LN_S) pcap_setnonblock.3pcap pcap_getnonblock.3pcap)
 	for i in $(MANFILE); do \
 		$(INSTALL_DATA) `echo $$i | sed 's/.manfile.in/.manfile/'` \
 		    $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@/`echo $$i | sed 's/.manfile.in/.@MAN_FILE_FORMATS@/'`; done
@@ -660,7 +673,10 @@ uninstall: uninstall-shared
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
+	rm -f $(DESTDIR)$(mandir)/man3/pcap_open_dead_with_tstamp_precision.3pcap
+	rm -f $(DESTDIR)$(mandir)/man3/pcap_open_offline_with_tstamp_precision.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
+	rm -f $(DESTDIR)$(mandir)/man3/pcap_fopen_offline_with_tstamp_precision.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
 	for i in $(MANFILE); do \
 		rm -f $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@/`echo $$i | sed 's/.manfile.in/.@MAN_FILE_FORMATS@/'`; done
@@ -705,7 +721,7 @@ packaging/pcap.spec: packaging/pcap.spec.in VERSION
 	RPMVERSION=`cat VERSION | sed s/-.*//g`; \
 		sed -e s/@VERSION@/$$RPMVERSION/ -e s/@NAME@/libpcap-`cat VERSION`/ $<   > $@
 
-releasetar: 
+releasetar:
 	@cwd=`pwd` ; dir=`basename $$cwd` ; name=$(PROG)-`cat VERSION` ; \
 	   mkdir $$name; \
 	   tar cf - $(CSRC) $(HDR) $(MAN1) $(MAN3PCAP_EXPAND) \
@@ -715,9 +731,4 @@ releasetar:
 	   rm -rf $$name
 
 depend:	$(GENSRC) $(GENHDR) bpf_filter.c
-	./mkdep -c $(CC) $(DEFS) $(INCLS) $(SRC)
-
-Makefile: Makefile.in config.status
-	./config.status
-	@echo your Makefile was out of date, now run $(MAKE) again
-	exit 1
+	$(MKDEP) -c $(CC) -m $(DEPENDENCY_CFLAG) $(DEFS) $(INCLS) $(SRC)

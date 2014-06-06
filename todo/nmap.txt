@@ -27,12 +27,6 @@ o Look into moving our Mac building/testing system into a virtual
   developers can access it and nobody has to keep a stack of Mac Minis
   in their closet.
 
-o We should probably update our included libpcap.  We currently
-  include version 1.2.1 (we upgraded to that in April 2012) while the
-  latest version on tcpdump.org is 1.5.2.  We make minor changes to
-  libpcap that we ship, and instructions for upgrading are in
-  libpcap/NMAP_MODIFICATIONS.
-
 o The XML version of Nmap lists and describes the six port states
   recognized by Nmap near the top of the "Port Scanning Basics"
   section.  That can be seen in the HTML rendering at
@@ -825,6 +819,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should probably update our included libpcap.  We currently
+  include version 1.2.1 (we upgraded to that in April 2012) while the
+  latest version on tcpdump.org is 1.5.3.  We make minor changes to
+  libpcap that we ship, and instructions for upgrading are in
+  libpcap/NMAP_MODIFICATIONS.
 
 o Investigate report of Nmap ARP discovery using the wrong target MAC
   address field in ARP requests (it is correct in the ethernet frame

@@ -118,7 +118,7 @@
 #define LINKTYPE_AX25		DLT_AX25
 #define LINKTYPE_PRONET		DLT_PRONET
 #define LINKTYPE_CHAOS		DLT_CHAOS
-#define LINKTYPE_TOKEN_RING	DLT_IEEE802	/* DLT_IEEE802 is used for Token Ring */
+#define LINKTYPE_IEEE802_5	DLT_IEEE802	/* DLT_IEEE802 is used for 802.5 Token Ring */
 #define LINKTYPE_ARCNET_BSD	DLT_ARCNET	/* BSD-style headers */
 #define LINKTYPE_SLIP		DLT_SLIP
 #define LINKTYPE_PPP		DLT_PPP
@@ -193,8 +193,8 @@
 
 #define LINKTYPE_PFLOG		117		/* OpenBSD DLT_PFLOG */
 #define LINKTYPE_CISCO_IOS	118		/* For Cisco-internal use */
-#define LINKTYPE_PRISM_HEADER	119		/* 802.11+Prism II monitor mode */
-#define LINKTYPE_AIRONET_HEADER	120		/* FreeBSD Aironet driver stuff */
+#define LINKTYPE_IEEE802_11_PRISM 119		/* 802.11 plus Prism II monitor mode radio metadata header */
+#define LINKTYPE_IEEE802_11_AIRONET 120		/* 802.11 plus FreeBSD Aironet driver radio metadata header */
 
 /*
  * Reserved for Siemens HiPath HDLC.
@@ -212,7 +212,7 @@
 #define LINKTYPE_PCI_EXP	125		/* PCI Express */
 #define LINKTYPE_AURORA		126		/* Xilinx Aurora link layer */
 
-#define LINKTYPE_IEEE802_11_RADIO 127		/* 802.11 plus BSD radio header */
+#define LINKTYPE_IEEE802_11_RADIOTAP 127	/* 802.11 plus radiotap radio metadata header */
 
 /*
  * Reserved for the TZSP encapsulation, as per request from
@@ -307,11 +307,8 @@
  * including radio information:
  *
  *	http://www.shaftnet.org/~pizza/software/capturefrm.txt
- *
- * but could and arguably should also be used by non-AVS Linux
- * 802.11 drivers; that may happen in the future.
  */
-#define LINKTYPE_IEEE802_11_RADIO_AVS 163	/* 802.11 plus AVS radio header */
+#define LINKTYPE_IEEE802_11_AVS	163	/* 802.11 plus AVS radio metadata header */
 
 /*
  * Juniper-private data link type, as per request from
@@ -322,7 +319,7 @@
 #define LINKTYPE_JUNIPER_MONITOR 164
 
 /*
- * Reserved for BACnet MS/TP.
+ * BACnet MS/TP frames.
  */
 #define LINKTYPE_BACNET_MS_TP	165
 
@@ -844,13 +841,98 @@
 #define LINKTYPE_NETANALYZER_TRANSPARENT	241
 
 /*
- * IP-over-Infiniband, as specified by RFC 4391.
+ * IP-over-InfiniBand, as specified by RFC 4391.
  *
  * Requested by Petr Sumbera <petr.sumbera@oracle.com>.
  */
 #define LINKTYPE_IPOIB		242
 
-#define LINKTYPE_MATCHING_MAX	242		/* highest value in the "matching" range */
+/*
+ * MPEG-2 transport stream (ISO 13818-1/ITU-T H.222.0).
+ *
+ * Requested by Guy Martin <gmsoft@tuxicoman.be>.
+ */
+#define LINKTYPE_MPEG_2_TS	243
+
+/*
+ * ng4T GmbH's UMTS Iub/Iur-over-ATM and Iub/Iur-over-IP format as
+ * used by their ng40 protocol tester.
+ *
+ * Requested by Jens Grimmer <jens.grimmer@ng4t.com>.
+ */
+#define LINKTYPE_NG40		244
+
+/*
+ * Pseudo-header giving adapter number and flags, followed by an NFC
+ * (Near-Field Communications) Logical Link Control Protocol (LLCP) PDU,
+ * as specified by NFC Forum Logical Link Control Protocol Technical
+ * Specification LLCP 1.1.
+ *
+ * Requested by Mike Wakerly <mikey@google.com>.
+ */
+#define LINKTYPE_NFC_LLCP	245
+
+/*
+ * pfsync output; DLT_PFSYNC is 18, which collides with DLT_CIP in
+ * SuSE 6.3, on OpenBSD, NetBSD, DragonFly BSD, and Mac OS X, and
+ * is 121, which collides with DLT_HHDLC, in FreeBSD.  We pick a
+ * shiny new link-layer header type value that doesn't collide with
+ * anything, in the hopes that future pfsync savefiles, if any,
+ * won't require special hacks to distinguish from other savefiles.
+ *
+ */
+#define LINKTYPE_PFSYNC		246
+
+/*
+ * Raw InfiniBand packets, starting with the Local Routing Header.
+ *
+ * Requested by Oren Kladnitsky <orenk@mellanox.com>.
+ */
+#define LINKTYPE_INFINIBAND	247
+
+/*
+ * SCTP, with no lower-level protocols (i.e., no IPv4 or IPv6).
+ *
+ * Requested by Michael Tuexen <Michael.Tuexen@lurchi.franken.de>.
+ */
+#define LINKTYPE_SCTP		248
+
+/*
+ * USB packets, beginning with a USBPcap header.
+ *
+ * Requested by Tomasz Mon <desowin@gmail.com>
+ */
+#define LINKTYPE_USBPCAP	249
+
+/*
+ * Schweitzer Engineering Laboratories "RTAC" product serial-line
+ * packets.
+ *
+ * Requested by Chris Bontje <chris_bontje@selinc.com>.
+ */
+#define DLT_RTAC_SERIAL		250
+
+/*
+ * Bluetooth Low Energy air interface link-layer packets.
+ *
+ * Requested by Mike Kershaw <dragorn@kismetwireless.net>.
+ */
+#define LINKTYPE_BLUETOOTH_LE_LL	251
+
+/*
+ * Link-layer header type for upper-protocol layer PDU saves from wireshark.
+ * 
+ * the actual contents are determined by two TAGs stored with each
+ * packet:
+ *   EXP_PDU_TAG_LINKTYPE          the link type (LINKTYPE_ value) of the
+ *				   original packet.
+ *
+ *   EXP_PDU_TAG_PROTO_NAME        the name of the wireshark dissector
+ * 				   that can make sense of the data stored.
+ */
+#define LINKTYPE_WIRESHARK_UPPER_PDU	252
+
+#define LINKTYPE_MATCHING_MAX	252		/* highest value in the "matching" range */
 
 static struct linktype_map {
 	int	dlt;
@@ -866,11 +948,12 @@ static struct linktype_map {
 	{ DLT_AX25,		LINKTYPE_AX25 },
 	{ DLT_PRONET,		LINKTYPE_PRONET },
 	{ DLT_CHAOS,		LINKTYPE_CHAOS },
-	{ DLT_IEEE802,		LINKTYPE_TOKEN_RING },
+	{ DLT_IEEE802,		LINKTYPE_IEEE802_5 },
 	{ DLT_ARCNET,		LINKTYPE_ARCNET_BSD },
 	{ DLT_SLIP,		LINKTYPE_SLIP },
 	{ DLT_PPP,		LINKTYPE_PPP },
 	{ DLT_FDDI,	 	LINKTYPE_FDDI },
+	{ DLT_SYMANTEC_FIREWALL, LINKTYPE_SYMANTEC_FIREWALL },
 
 	/*
 	 * These DLT_* codes have different values on different
@@ -883,7 +966,6 @@ static struct linktype_map {
 	{ DLT_FR,		LINKTYPE_FRELAY },
 #endif
 
-	{ DLT_SYMANTEC_FIREWALL, LINKTYPE_SYMANTEC_FIREWALL },
 	{ DLT_ATM_RFC1483, 	LINKTYPE_ATM_RFC1483 },
 	{ DLT_RAW,		LINKTYPE_RAW },
 	{ DLT_SLIP_BSDOS,	LINKTYPE_SLIP_BSDOS },
@@ -923,6 +1005,12 @@ dlt_to_linktype(int dlt)
 	int i;
 
 	/*
+	 * Map DLT_PFSYNC, whatever it might be, to LINKTYPE_PFSYNC.
+	 */
+	if (dlt == DLT_PFSYNC)
+		return (LINKTYPE_PFSYNC);
+
+	/*
 	 * Map the values in the matching range.
 	 */
 	if (dlt >= DLT_MATCHING_MIN && dlt <= DLT_MATCHING_MAX)
@@ -948,6 +1036,15 @@ int
 linktype_to_dlt(int linktype)
 {
 	int i;
+
+	/*
+	 * Map LINKTYPE_PFSYNC to DLT_PFSYNC, whatever it might be.
+	 * LINKTYPE_PFSYNC is in the matching range, to make sure
+	 * it's as safe from reuse as we can arrange, so we do
+	 * this test first.
+	 */
+	if (linktype == LINKTYPE_PFSYNC)
+		return (DLT_PFSYNC);
 
 	/*
 	 * Map the values in the matching range.

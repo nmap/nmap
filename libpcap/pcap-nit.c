@@ -71,9 +71,17 @@ static const char rcsid[] _U_ =
 /* Forwards */
 static int nit_setflags(int, int, int, char *);
 
+/*
+ * Private data for capturing on NIT devices.
+ */
+struct pcap_nit {
+	struct pcap_stat stat;
+};
+
 static int
 pcap_stats_nit(pcap_t *p, struct pcap_stat *ps)
 {
+	struct pcap_nit *pn = p->priv;
 
 	/*
 	 * "ps_recv" counts packets handed to the filter, not packets
@@ -91,13 +99,14 @@ pcap_stats_nit(pcap_t *p, struct pcap_stat *ps)
 	 * kernel by libpcap or packets not yet read from libpcap by the
 	 * application.
 	 */
-	*ps = p->md.stat;
+	*ps = pn->stat;
 	return (0);
 }
 
 static int
 pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 {
+	struct pcap_nit *pn = p->priv;
 	register int cc, n;
 	register u_char *bp, *cp, *ep;
 	register struct nit_hdr *nh;
@@ -156,7 +165,7 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		case NIT_NOMBUF:
 		case NIT_NOCLUSTER:
 		case NIT_NOSPACE:
-			p->md.stat.ps_drop = nh->nh_dropped;
+			pn->stat.ps_drop = nh->nh_dropped;
 			continue;
 
 		case NIT_SEQNO:
@@ -167,7 +176,7 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			    "bad nit state %d", nh->nh_state);
 			return (-1);
 		}
-		++p->md.stat.ps_recv;
+		++pn->stat.ps_recv;
 		bp += ((sizeof(struct nit_hdr) + nh->nh_datalen +
 		    sizeof(int) - 1) & ~(sizeof(int) - 1));
 
@@ -180,7 +189,7 @@ pcap_read_nit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			h.len = nh->nh_wirelen;
 			h.caplen = caplen;
 			(*callback)(user, &h, cp);
-			if (++n >= cnt && cnt > 0) {
+			if (++n >= cnt && !PACKET_COUNT_IS_UNLIMITED(cnt)) {
 				p->cc = ep - bp;
 				p->bp = bp;
 				return (n);
@@ -209,28 +218,42 @@ pcap_inject_nit(pcap_t *p, const void *buf, size_t size)
 }                           
 
 static int
-nit_setflags(int fd, int promisc, int to_ms, char *ebuf)
+nit_setflags(pcap_t *p)
 {
 	struct nit_ioc nioc;
 
 	memset(&nioc, 0, sizeof(nioc));
-	nioc.nioc_bufspace = BUFSPACE;
-	nioc.nioc_chunksize = CHUNKSIZE;
 	nioc.nioc_typetomatch = NT_ALLTYPES;
 	nioc.nioc_snaplen = p->snapshot;
 	nioc.nioc_bufalign = sizeof(int);
 	nioc.nioc_bufoffset = 0;
 
-	if (to_ms != 0) {
-		nioc.nioc_flags |= NF_TIMEOUT;
-		nioc.nioc_timeout.tv_sec = to_ms / 1000;
-		nioc.nioc_timeout.tv_usec = (to_ms * 1000) % 1000000;
+	if (p->opt.buffer_size != 0)
+		nioc.nioc_bufspace = p->opt.buffer_size;
+	else {
+		/* Default buffer size */
+		nioc.nioc_bufspace = BUFSPACE;
 	}
-	if (promisc)
+
+	if (p->opt.immediate) {
+		/*
+		 * XXX - will this cause packets to be delivered immediately?
+		 * XXX - given that this is for SunOS prior to 4.0, do
+		 * we care?
+		 */
+		nioc.nioc_chunksize = 0;
+	} else
+		nioc.nioc_chunksize = CHUNKSIZE;
+	if (p->opt.timeout != 0) {
+		nioc.nioc_flags |= NF_TIMEOUT;
+		nioc.nioc_timeout.tv_sec = p->opt.timeout / 1000;
+		nioc.nioc_timeout.tv_usec = (p->opt.timeout * 1000) % 1000000;
+	}
+	if (p->opt.promisc)
 		nioc.nioc_flags |= NF_PROMISC;
 
-	if (ioctl(fd, SIOCSNIT, &nioc) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "SIOCSNIT: %s",
+	if (ioctl(p->fd, SIOCSNIT, &nioc) < 0) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNIT: %s",
 		    pcap_strerror(errno));
 		return (-1);
 	}
@@ -273,7 +296,8 @@ pcap_activate_nit(pcap_t *p)
 		    "bind: %s: %s", snit.snit_ifname, pcap_strerror(errno));
 		goto bad;
 	}
-	nit_setflags(p->fd, p->opt.promisc, p->md.timeout, p->errbuf);
+	if (nit_setflags(p) < 0)
+		goto bad;
 
 	/*
 	 * NIT supports only ethernets.
@@ -328,11 +352,11 @@ pcap_activate_nit(pcap_t *p)
 }
 
 pcap_t *
-pcap_create(const char *device, char *ebuf)
+pcap_create_interface(const char *device, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(device, ebuf);
+	p = pcap_create_common(device, ebuf, sizeof (struct pcap_nit));
 	if (p == NULL)
 		return (NULL);
 

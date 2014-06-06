@@ -19,7 +19,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP 3PCAP "4 April 2008"
+.TH PCAP 3PCAP "1 July 2013"
 .SH NAME
 pcap \- Packet Capture library
 .SH SYNOPSIS
@@ -174,9 +174,11 @@ arbitrarily long period of time.
 .IP
 Not all platforms support a read timeout; on platforms that
 don't, the read timeout is ignored.  A zero value for the timeout,
-on platforms that support a read timeout,
-will cause a read to wait forever to allow enough packets to
-arrive, with no timeout.
+on platforms that support a read timeout, has platform-dependent
+behavior that could cause a read to wait for an unlimited amount
+of time until the capture buffer fills up or could cause a read timeout
+of 1 millisecond to be used.  We recommend that a value of zero not be
+used.
 .IP
 .BR NOTE :
 the read timeout cannot be used to cause calls that read
@@ -308,6 +310,19 @@ handle, call
 .I http://www.tcpdump.org/linktypes.html
 lists the values it returns and describes the packet formats that
 correspond to those values.
+.PP
+Do
+.B NOT
+assume that the packets for a given capture or ``savefile`` will have
+any given link-layer header type, such as
+.B DLT_EN10MB
+for Ethernet.  For example, the "any" device on Linux will have a
+link-layer header type of
+.B DLT_LINUX_SLL
+even if all devices on the system at the time the "any" device is opened
+have some other data link type, such as
+.B DLT_EN10MB
+for Ethernet.
 .PP
 To obtain the
 .B "FILE\ *"
@@ -510,20 +525,13 @@ number of bytes available from the capture, if the length of the packet
 is larger than the maximum number of bytes to capture).
 .RE
 .PP
-.BR pcap_next_ex ()
-supplies that pointer through a pointer argument.
-.BR pcap_next ()
-is passed an argument that points to a
-.I struct pcap_pkthdr
-structure, and fills it in.
-.PP
 The callback is also supplied a
 .I const u_char
 pointer to the first
 .B caplen
 (as given in the
 .I struct pcap_pkthdr
-a pointer to which is passed to the callback routine)
+mentioned above)
 bytes of data from the packet.  This won't necessarily be the entire
 packet; to capture the entire packet, you will have to provide a value
 for
@@ -534,10 +542,28 @@ that is sufficiently large to get all of the packet's data - a value of
 65535 should be sufficient on most if not all networks).  When reading
 from a ``savefile'', the snapshot length specified when the capture was
 performed will limit the amount of packet data available.
+.PP
 .BR pcap_next ()
-returns that pointer;
+is passed an argument that points to a
+.I struct pcap_pkthdr
+structure, and fills it in with the time stamp and length values for the
+packet.  It returns a
+.I const u_char
+to the first
+.B caplen
+bytes of the packet on success, and NULL on error.
+.PP
 .BR pcap_next_ex ()
-supplies that pointer through a pointer argument.
+is passed two pointer arguments, one of which points to a
+.IR struct pcap_pkthdr *
+and one of which points to a 
+.IR "const u_char" *.
+It sets the first pointer to point to a
+.I struct pcap_pkthdr
+structure with the time stamp and length values for the packet, and sets
+the second pointer to point to the first
+.B caplen
+bytes of the packet.
 .PP
 To force the loop in
 .BR pcap_dispatch ()

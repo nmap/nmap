@@ -3,7 +3,7 @@ and verify the signature.
 
 cd
 # Make a copy of this directory.
-cp -r ~/nmap/NMAP_MODIFICATIONS .
+cp -r ~/nmap/libpcap/NMAP_MODIFICATIONS .
 tar xzvf libpcap-X.Y.tar.gz
 cd nmap
 rsync -rv --delete ~/libpcap-X.Y/ ~/nmap/libpcap/

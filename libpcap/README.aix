@@ -19,11 +19,13 @@ Using BPF:
     possible a description of the symptoms, including indications of the
     network link-layer type being wrong or time stamps being wrong).
 
-    If you fix the problems yourself, please submit a patch to
+    If you fix the problems yourself, please submit a patch by forking
+    the branch at
 
-	http://sourceforge.net/projects/libpcap/
+	https://github.com/the-tcpdump-group/libpcap/issues
 
-    so we can incorporate them into the next release.
+    and issuing a pull request, so we can incorporate the fixes into the
+    next release.
 
     If you don't fix the problems yourself, you can, as a workaround,
     make libpcap use DLPI instead of BPF.

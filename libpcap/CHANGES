@@ -1,3 +1,90 @@
+Wednesday December 18, 2013 guy@alum.mit.edu
+Summary for 1.5.3 libpcap release
+	Don't let packets that don't match the current filter get to the
+	    application when TPACKET_V3 is used. (GitHub issue #331)
+	Fix handling of pcap_loop()/pcap_dispatch() with a packet count
+	    of 0 on some platforms (including Linux with TPACKET_V3).
+	    (GitHub issue #333)
+	Work around TPACKET_V3 deficiency that causes packets to be lost
+	    when a timeout of 0 is specified. (GitHub issue #335)
+	Man page formatting fixes.
+
+Wednesday December 4, 2013 guy@alum.mit.edu
+Summary for 1.5.2 libpcap release
+	Fix libpcap to work when compiled with TPACKET_V3 support and
+	    running on a kernel without TPACKET_V3 support. (GitHub
+	    issue #329)
+
+Wednesday November 20, 2013 guy@alum.mit.edu
+Summary for 1.5.1 libpcap release
+	Report an error, rather than crashing, if an IPv6 address is
+	    used for link-layer filtering.  (Wireshark bug 9376)
+
+Wednesday October 30, 2013 guy@alum.mit.edu
+Summary for 1.5.0 libpcap release
+	TPACKET_V3 support added for Linux
+	Point users to the the-tcpdump-group repository on GitHub rather
+	    than the mcr repository
+	Checks added for malloc()/realloc()/etc. failures
+	Fixed build on Solaris 11
+	Support filtering filtering E1 SS7 traffic on MTP2 layer Annex A
+	Use "ln -s" to link man pages by default
+        Add support for getting nanosecond-resolution time stamps when
+	    capturing and reading capture files
+        Many changes to autoconf to deal better with non-GCC compilers
+        added many new DLT types
+
+Saturday April 6, 2013 guy@alum.mit.edu
+Summary for 1.4.0 libpcap release
+	Add netfilter/nfqueue interface.
+	If we don't have support for IPv6 address resolution, support,
+	    in filter expressions, what IPv6 stuff we can.
+	Fix pcap-config to include -lpthread if canusb support is
+	    present
+	Try to fix "pcap_parse not defined" problems when --without-flex
+	    and --without-bison are used when you have Flex and Bison
+	Fix some issues with the pcap_loop man page.
+	Fix pcap_getnonblock() and pcap_setnonblock() to fill in the
+	    supplied error message buffer
+	Fix typo that, it appeared, would cause pcap-libdlpi.c not to
+	    compile (perhaps systems with libdlpi also have BPF and use
+	    that instead)
+	Catch attempts to call pcap_compile() on a non-activated pcap_t
+	Fix crash on Linux with CAN-USB support without usbfs
+	Fix addition of VLAN tags for Linux cooked captures
+	Check for both EOPNOTSUPP and EINVAL after SIOCETHTOOL ioctl, so
+	    that the driver can report either one if it doesn't support
+	    SIOCETHTOOL
+	Add DLT_INFINIBAND and DLT_SCTP
+	Describe "proto XXX" and "protochain XXX" in the pcap-filter man
+	    page
+	Handle either directories, or symlinks to directories, that
+	    correspond to interfaces in /sys/class/net
+	Fix handling of VLAN tag insertion to check, on Linux 3.x
+	    kernels, for VLAN tag valid flag
+	Clean up some man pages
+	Support libnl3 as well as libnl1 and libnl2 on Linux
+	Fix handling of Bluetooth devices on 3.x Linux kernels
+
+Friday  March 30, 2012.  mcr@sandelman.ca
+Summary for 1.3.0 libpcap release
+        Handle DLT_PFSYNC in {FreeBSD, other *BSD+Mac OS X, other}.
+        Linux: Don't fail if netfilter isn't enabled in the kernel.
+        Add new link-layer type for NFC Forum LLCP.
+        Put the CANUSB stuff into EXTRA_DIST, so it shows up in the release tarball.
+        Add LINKTYPE_NG40/DLT_NG40.
+        Add DLT_MPEG_2_TS/LINKTYPE_MPEG_2_TS for MPEG-2 transport streams.
+        [PATCH] Fix AIX-3.5 crash with read failure during stress
+        AIX fixes.
+        Introduce --disable-shared configure option.
+        Added initial support for canusb devices.
+        Include the pcap(3PCAP) additions as 1.2.1 changes.
+        many updates to documentation: pcap.3pcap.in
+        Improve 'inbound'/'outbound' capture filters under Linux.
+        Note the cleanup of handling of new DLT_/LINKTYPE_ values.
+        On Lion, don't build for PPC.
+        For mac80211 devices we need to clean up monitor mode on exit.
+
 Friday  December 9, 2011.  guy@alum.mit.edu.
 Summary for 1.2.1 libpcap release
 	Update README file.

@@ -177,10 +177,36 @@ struct bpf_program {
 #endif
 
 /*
- * 17 is used for DLT_OLD_PFLOG in OpenBSD;
- *     OBSOLETE: DLT_PFLOG is 117 in OpenBSD now as well. See below.
- * 18 is used for DLT_PFSYNC in OpenBSD; don't use it for anything else.
+ * 17 was used for DLT_PFLOG in OpenBSD; it no longer is.
+ *
+ * It was DLT_LANE8023 in SuSE 6.3, so we defined LINKTYPE_PFLOG
+ * as 117 so that pflog captures would use a link-layer header type
+ * value that didn't collide with any other values.  On all
+ * platforms other than OpenBSD, we defined DLT_PFLOG as 117,
+ * and we mapped between LINKTYPE_PFLOG and DLT_PFLOG.
+ *
+ * OpenBSD eventually switched to using 117 for DLT_PFLOG as well.
+ *
+ * Don't use 17 for anything else.
  */
+
+/*
+ * 18 is used for DLT_PFSYNC in OpenBSD, NetBSD, DragonFly BSD and
+ * Mac OS X; don't use it for anything else.  (FreeBSD uses 121,
+ * which collides with DLT_HHDLC, even though it doesn't use 18
+ * for anything and doesn't appear to have ever used it for anything.)
+ *
+ * We define it as 18 on those platforms; it is, unfortunately, used
+ * for DLT_CIP in Suse 6.3, so we don't define it as DLT_PFSYNC
+ * in general.  As the packet format for it, like that for
+ * DLT_PFLOG, is not only OS-dependent but OS-version-dependent,
+ * we don't support printing it in tcpdump except on OSes that
+ * have the relevant header files, so it's not that useful on
+ * other platforms.
+ */
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__)
+#define DLT_PFSYNC	18
+#endif
 
 #define DLT_ATM_CLIP	19	/* Linux Classical-IP over ATM */
 
@@ -312,15 +338,8 @@ struct bpf_program {
 #define DLT_IPFILTER	116
 
 /*
- * OpenBSD DLT_PFLOG; DLT_PFLOG is 17 in OpenBSD, but that's DLT_LANE8023
- * in SuSE 6.3, so we can't use 17 for it in capture-file headers.
- *
- * XXX: is there a conflict with DLT_PFSYNC 18 as well?
+ * OpenBSD DLT_PFLOG.
  */
-#ifdef __OpenBSD__
-#define DLT_OLD_PFLOG	17
-#define DLT_PFSYNC	18
-#endif
 #define DLT_PFLOG	117
 
 /*
@@ -342,9 +361,48 @@ struct bpf_program {
 #define DLT_AIRONET_HEADER	120
 
 /*
- * Reserved for Siemens HiPath HDLC.
+ * Sigh.
+ *
+ * This was reserved for Siemens HiPath HDLC on 2002-01-25, as
+ * requested by Tomas Kukosa.
+ *
+ * On 2004-02-25, a FreeBSD checkin to sys/net/bpf.h was made that
+ * assigned 121 as DLT_PFSYNC.  Its libpcap does DLT_ <-> LINKTYPE_
+ * mapping, so it probably supports capturing on the pfsync device
+ * but not saving the captured data to a pcap file.
+ *
+ * OpenBSD, from which pf came, however, uses 18 for DLT_PFSYNC;
+ * their libpcap does no DLT_ <-> LINKTYPE_ mapping, so it would
+ * use 18 in pcap files as well.
+ *
+ * NetBSD and DragonFly BSD also use 18 for DLT_PFSYNC; their
+ * libpcaps do DLT_ <-> LINKTYPE_ mapping, and neither has an entry
+ * for DLT_PFSYNC, so it might not be able to write out dump files
+ * with 18 as the link-layer header type.  (Earlier versions might
+ * not have done mapping, in which case they'd work the same way
+ * OpenBSD does.)
+ *
+ * Mac OS X defines it as 18, but doesn't appear to use it as of
+ * Mac OS X 10.7.3.  Its libpcap does DLT_ <-> LINKTYPE_ mapping.
+ *
+ * We'll define DLT_PFSYNC as 121 on FreeBSD and define it as 18 on
+ * all other platforms.  We'll define DLT_HHDLC as 121 on everything
+ * except for FreeBSD; anybody who wants to compile, on FreeBSD, code
+ * that uses DLT_HHDLC is out of luck.
+ *
+ * We'll define LINKTYPE_PFSYNC as 18, *even on FreeBSD*, and map
+ * it, so that savefiles won't use 121 for PFSYNC - they'll all
+ * use 18.  Code that uses pcap_datalink() to determine the link-layer
+ * header type of a savefile won't, when built and run on FreeBSD,
+ * be able to distinguish between LINKTYPE_PFSYNC and LINKTYPE_HHDLC
+ * capture files; code that doesn't, such as the code in Wireshark,
+ * will be able to distinguish between them.
  */
+#ifdef __FreeBSD__
+#define DLT_PFSYNC		121
+#else
 #define DLT_HHDLC		121
+#endif
 
 /*
  * This is for RFC 2625 IP-over-Fibre Channel.
@@ -542,7 +600,7 @@ struct bpf_program {
 #define DLT_JUNIPER_MONITOR     164
 
 /*
- * Reserved for BACnet MS/TP.
+ * BACnet MS/TP frames.
  */
 #define DLT_BACNET_MS_TP	165
 
@@ -1075,13 +1133,98 @@ struct bpf_program {
 #define DLT_NETANALYZER_TRANSPARENT	241
 
 /*
- * IP-over-Infiniband, as specified by RFC 4391.
+ * IP-over-InfiniBand, as specified by RFC 4391.
  *
  * Requested by Petr Sumbera <petr.sumbera@oracle.com>.
  */
 #define DLT_IPOIB		242
 
-#define DLT_MATCHING_MAX	242	/* highest value in the "matching" range */
+/*
+ * MPEG-2 transport stream (ISO 13818-1/ITU-T H.222.0).
+ *
+ * Requested by Guy Martin <gmsoft@tuxicoman.be>.
+ */
+#define DLT_MPEG_2_TS		243
+
+/*
+ * ng4T GmbH's UMTS Iub/Iur-over-ATM and Iub/Iur-over-IP format as
+ * used by their ng40 protocol tester.
+ *
+ * Requested by Jens Grimmer <jens.grimmer@ng4t.com>.
+ */
+#define DLT_NG40		244
+
+/*
+ * Pseudo-header giving adapter number and flags, followed by an NFC
+ * (Near-Field Communications) Logical Link Control Protocol (LLCP) PDU,
+ * as specified by NFC Forum Logical Link Control Protocol Technical
+ * Specification LLCP 1.1.
+ *
+ * Requested by Mike Wakerly <mikey@google.com>.
+ */
+#define DLT_NFC_LLCP		245
+
+/*
+ * 245 is used as LINKTYPE_PFSYNC; do not use it for any other purpose.
+ *
+ * DLT_PFSYNC has different values on different platforms, and all of
+ * them collide with something used elsewhere.  On platforms that
+ * don't already define it, define it as 245.
+ */
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__) && !defined(__DragonFly__) && !defined(__APPLE__)
+#define DLT_PFSYNC		246
+#endif
+
+/*
+ * Raw InfiniBand packets, starting with the Local Routing Header.
+ *
+ * Requested by Oren Kladnitsky <orenk@mellanox.com>.
+ */
+#define DLT_INFINIBAND		247
+
+/*
+ * SCTP, with no lower-level protocols (i.e., no IPv4 or IPv6).
+ *
+ * Requested by Michael Tuexen <Michael.Tuexen@lurchi.franken.de>.
+ */
+#define DLT_SCTP		248
+
+/*
+ * USB packets, beginning with a USBPcap header.
+ *
+ * Requested by Tomasz Mon <desowin@gmail.com>
+ */
+#define DLT_USBPCAP		249
+
+/*
+ * Schweitzer Engineering Laboratories "RTAC" product serial-line
+ * packets.
+ *
+ * Requested by Chris Bontje <chris_bontje@selinc.com>.
+ */
+#define DLT_RTAC_SERIAL		250
+
+/*
+ * Bluetooth Low Energy air interface link-layer packets.
+ *
+ * Requested by Mike Kershaw <dragorn@kismetwireless.net>.
+ */
+#define DLT_BLUETOOTH_LE_LL	251
+
+/*
+ * DLT type for upper-protocol layer PDU saves from wireshark.
+ * 
+ * the actual contents are determined by two TAGs stored with each
+ * packet:
+ *   EXP_PDU_TAG_LINKTYPE          the link type (LINKTYPE_ value) of the
+ *				   original packet.
+ *
+ *   EXP_PDU_TAG_PROTO_NAME        the name of the wireshark dissector
+ * 				   that can make sense of the data stored.
+ */
+#define DLT_WIRESHARK_UPPER_PDU	252
+
+#define DLT_MATCHING_MAX	252	/* highest value in the "matching" range */
 
 /*
  * DLT and savefile link type values are split into a class and

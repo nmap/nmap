@@ -15,8 +15,7 @@ dnl
 # config.sub.
 #
 
-AC_REVISION($Revision: 1.168 $)
-AC_PREREQ(2.50)
+AC_PREREQ(2.61)
 AC_INIT(pcap.c)
 
 AC_CANONICAL_SYSTEM
@@ -27,6 +26,10 @@ AC_LBL_C_INIT(V_CCOPT, V_INCLS)
 AC_LBL_SHLIBS_INIT
 AC_LBL_C_INLINE
 AC_C___ATTRIBUTE__
+if test "$ac_cv___attribute__" = "yes"; then
+	AC_C___ATTRIBUTE___UNUSED
+	AC_C___ATTRIBUTE___FORMAT
+fi
 
 AC_CHECK_HEADERS(sys/bitypes.h)
 
@@ -346,6 +349,16 @@ AC_MSG_RESULT($V_PCAP)
 case "$V_PCAP" in
 dlpi)
 	#
+	# Needed for common functions used by pcap-[dlpi,libdlpi].c
+	#
+ 	SSRC="dlpisubs.c"
+
+	#
+	# Checks for some header files.
+	#
+	AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi_ext.h)
+
+	#
 	# Checks to see if Solaris has the public libdlpi(3LIB) library.
 	# Note: The existence of /usr/include/libdlpi.h does not mean it is the
 	# public libdlpi(3LIB) version. Before libdlpi was made public, a 
@@ -359,9 +372,11 @@ dlpi)
 	saved_ldflags=$LDFLAGS
 	LDFLAGS="$LIBS -L/lib"
 	AC_CHECK_LIB(dlpi, dlpi_walk,
-		LIBS="-ldlpi $LIBS"
-		V_PCAP=libdlpi
-		AC_DEFINE(HAVE_LIBDLPI,1,[if libdlpi exists]),
+		[
+			LIBS="-ldlpi $LIBS"
+			V_PCAP=libdlpi
+			AC_DEFINE(HAVE_LIBDLPI,1,[if libdlpi exists])
+		],
 		V_PCAP=dlpi)
 	LDFLAGS=$saved_ldflags
 
@@ -430,19 +445,44 @@ linux)
 		with_libnl=$withval,,)
 
 	if test x$with_libnl != xno ; then
+		have_any_nl="no"
+
 		#
-		# Try libnl 2.x first.
+		# Try libnl 3.x first.
 		#
-		AC_CHECK_LIB(nl, nl_socket_alloc,
+		AC_CHECK_LIB(nl-3, nl_socket_alloc,
 		[
 			#
-			# Yes, we have libnl 2.x.
+			# Yes, we have libnl 3.x.
 			#
-			LIBS="-lnl-genl -lnl $LIBS"
+			LIBS="-lnl-genl-3 -lnl-3 $LIBS"
 			AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
-			AC_DEFINE(HAVE_LIBNL_2_x,1,[if libnl exists and is version 2.x])
-		],
-		[
+			AC_DEFINE(HAVE_LIBNL_3_x,1,[if libnl exists and is version 3.x])
+			AC_DEFINE(HAVE_LIBNL_NLE,1,[libnl has NLE_FAILURE])
+			AC_DEFINE(HAVE_LIBNL_SOCKETS,1,[libnl has new-style socket api])
+			V_INCLS="$V_INCLS -I/usr/include/libnl3"
+			have_any_nl="yes"
+		])
+
+		if test x$have_any_nl = xno ; then
+			#
+			# Try libnl 2.x
+			#
+			AC_CHECK_LIB(nl, nl_socket_alloc,
+			[
+				#
+				# Yes, we have libnl 2.x.
+				#
+				LIBS="-lnl-genl -lnl $LIBS"
+				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
+				AC_DEFINE(HAVE_LIBNL_2_x,1,[if libnl exists and is version 2.x])
+				AC_DEFINE(HAVE_LIBNL_NLE,1,[libnl has NLE_FAILURE])
+				AC_DEFINE(HAVE_LIBNL_SOCKETS,1,[libnl has new-style socket api])
+				have_any_nl="yes"
+			])
+		fi
+
+		if test x$have_any_nl = xno ; then
 			#
 			# No, we don't; do we have libnl 1.x?
 			#
@@ -453,16 +493,18 @@ linux)
 				#
 				LIBS="-lnl $LIBS"
 				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
-			],
-			[
-				#
-				# No, we don't have libnl at all.
-				#
-				if test x$with_libnl = xyes ; then
-					AC_MSG_ERROR([libnl support requested but libnl not found])
-				fi
+				have_any_nl="yes"
 			])
-		])
+		fi
+
+		if test x$have_any_nl = xno ; then
+			#
+			# No, we don't have libnl at all.
+			#
+			if test x$with_libnl = xyes ; then
+				AC_MSG_ERROR([libnl support requested but libnl not found])
+			fi
+		fi
 	fi
 
 	AC_CHECK_HEADERS(linux/ethtool.h,,,
@@ -573,7 +615,6 @@ else
 		case "$V_PCAP" in
 
 		dlpi|libdlpi)
-			AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi_ext.h)
 			#
 			# This might be Solaris 8 or later, with
 			# SIOCGLIFCONF, or it might be some other OS
@@ -597,10 +638,6 @@ else
 			else
 				V_FINDALLDEVS=gifc
 			fi
-			#
-			# Needed for common functions used by pcap-[dlpi,libdlpi].c
-			#
-		 	SSRC="dlpisubs.c"
 			;;
 
 		*)
@@ -1058,6 +1095,45 @@ darwin*)
 	if test "$enable_universal" != "no"; then
 		case "$host_os" in
 
+		darwin[0-7].*)
+			#
+			# Pre-Tiger.  Build only for 32-bit PowerPC; no
+			# need for any special compiler or linker flags.
+			#
+			;;
+
+		darwin8.[0123]*)
+			#
+			# Tiger, prior to Intel support.  Build for 32-bit
+			# PowerPC and 64-bit PowerPC, with 32-bit PowerPC
+			# first.  (I'm guessing that's what Apple does.)
+			#
+			V_CCOPT="$V_CCOPT -arch ppc -arch ppc64"
+			LDFLAGS="$LDFLAGS -arch ppc -arch ppc64"
+			;;
+
+		darwin8.[456]*)
+			#
+			# Tiger, subsequent to Intel support but prior to
+			# x86-64 support.  Build for 32-bit PowerPC, 64-bit
+			# PowerPC, and x86, with 32-bit PowerPC first.
+			# (I'm guessing that's what Apple does.)
+			#
+			V_CCOPT="$V_CCOPT -arch ppc -arch ppc64 -arch i386"
+			LDFLAGS="$LDFLAGS -arch ppc -arch ppc64 -arch i386"
+			;;
+
+		darwin8.*)
+			#
+			# All other Tiger, so subsequent to x86-64
+			# support. Build for 32-bit PowerPC, 64-bit
+			# PowerPC, x86, and x86-64, and with 32-bit PowerPC
+			# first.  (I'm guessing that's what Apple does.)
+			#
+			V_CCOPT="$V_CCOPT -arch ppc -arch ppc64 -arch i386 -arch x86_64"
+			LDFLAGS="$LDFLAGS -arch ppc -arch ppc64 -arch i386 -arch x86_64"
+			;;
+
 		darwin9.*)
 			#
 			# Leopard.  Build for 32-bit PowerPC, 64-bit
@@ -1082,11 +1158,13 @@ darwin*)
 			LDFLAGS="$LDFLAGS -arch x86_64 -arch i386 -arch ppc"
 			;;
 
-		darwin11.*)
+		darwin*)
 			#
-			# Lion.  Build for x86-64 and x86, with x86-64
-			# first.  (That's probably what Apple does,
-			# given that Rosetta is gone.)
+			# Post-Snow Leopard.  Build for x86-64 and
+			# x86, with x86-64 first.  (That's probably what
+			# Apple does, given that Rosetta is gone.)
+			# XXX - update if and when Apple drops support
+			# for 32-bit x86 code.
 			#
 			V_CCOPT="$V_CCOPT -arch x86_64 -arch i386"
 			LDFLAGS="$LDFLAGS -arch x86_64 -arch i386"
@@ -1206,8 +1284,15 @@ solaris*)
 	;;
 esac
 
+AC_ARG_ENABLE(shared,
+AC_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
+test "x$enable_shared" = "xno" && DYEXT="none"
+
 AC_PROG_RANLIB
 AC_CHECK_TOOL([AR], [ar])
+
+AC_PROG_LN_S
+AC_SUBST(LN_S)
 
 AC_LBL_DEVEL(V_CCOPT)
 
@@ -1323,11 +1408,14 @@ linux*)
 	  AC_TRY_COMPILE([
 AC_INCLUDES_DEFAULT
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <linux/types.h>
 
 #include <linux/netlink.h>
+#include <linux/netfilter.h>
 #include <linux/netfilter/nfnetlink.h>
-#include <linux/netfilter/nfnetlink_log.h>],
+#include <linux/netfilter/nfnetlink_log.h>
+#include <linux/netfilter/nfnetlink_queue.h>],
 	    [],
 	    ac_cv_netfilter_can_compile=yes,
 	    ac_cv_netfilter_can_compile=no))
@@ -1347,7 +1435,8 @@ AC_SUBST(NETFILTER_SRC)
 
 AC_ARG_ENABLE([bluetooth],
 [AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
-,enable_bluetooth=yes)
+    [],
+    [enable_bluetooth=yes])
 
 if test "x$enable_bluetooth" != "xno" ; then
 	dnl check for Bluetooth sniffing support
@@ -1358,6 +1447,26 @@ if test "x$enable_bluetooth" != "xno" ; then
 		  AC_DEFINE(PCAP_SUPPORT_BT, 1, [target host supports Bluetooth sniffing])
 		  BT_SRC=pcap-bt-linux.c
 		  AC_MSG_NOTICE(Bluetooth sniffing is supported)
+
+		  #
+		  # OK, does struct sockaddr_hci have an hci_channel
+		  # member?
+		  #
+		  AC_MSG_CHECKING(if struct sockaddr_hci has hci_channel member)
+		  AC_CACHE_VAL(ac_cv_lbl_sockaddr_hci_has_hci_channel,
+		    AC_TRY_COMPILE(
+[
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/hci.h>
+],
+		      [u_int i = sizeof(((struct sockaddr_hci *)0)->hci_channel)],
+		      ac_cv_lbl_sockaddr_hci_has_hci_channel=yes,
+		      ac_cv_lbl_sockaddr_hci_has_hci_channel=no))
+		    AC_MSG_RESULT($ac_cv_lbl_sockaddr_hci_has_hci_channel)
+		    if test $ac_cv_lbl_sockaddr_hci_has_hci_channel = yes ; then
+		      AC_DEFINE(SOCKADDR_HCI_HAS_HCI_CHANNEL,,
+			[if struct sockaddr_hci has hci_channel member])
+		    fi
 		],
 		AC_MSG_NOTICE(Bluetooth sniffing is not supported; install bluez-lib devel to enable it)
 		)
@@ -1370,9 +1479,37 @@ if test "x$enable_bluetooth" != "xno" ; then
 	AC_SUBST(BT_SRC)
 fi
 
+AC_ARG_ENABLE([canusb],
+[AC_HELP_STRING([--enable-canusb],[enable canusb support @<:@default=yes, if support available@:>@])],
+    [],
+    [enable_canusb=yes])
+
+if test "x$enable_canusb" != "xno" ; then
+	dnl check for canusb support
+	case "$host_os" in
+	linux*)
+		AC_CHECK_HEADER(libusb-1.0/libusb.h,
+		[
+		    AC_DEFINE(PCAP_SUPPORT_CANUSB, 1, [target host supports canusb])
+		    CANUSB_SRC=pcap-canusb-linux.c
+		    LIBS="-lusb-1.0 -lpthread $LIBS"
+		    AC_MSG_NOTICE(canusb sniffing is supported)
+		],
+		AC_MSG_NOTICE(canusb sniffing is not supported; install libusb1.0 lib devel to enable it)
+		)
+		;;
+	*)
+		AC_MSG_NOTICE(no canusb support implemented for $host_os)
+		;;
+	esac
+	AC_SUBST(PCAP_SUPPORT_CANUSB)
+	AC_SUBST(CANUSB_SRC)
+fi
+
 AC_ARG_ENABLE([can],
 [AC_HELP_STRING([--enable-can],[enable CAN support @<:@default=yes, if support available@:>@])],
-,enable_can=yes)
+    [],
+    [enable_can=yes])
 
 if test "x$enable_can" != "xno" ; then
 	dnl check for CAN sniffing support
@@ -1392,6 +1529,57 @@ if test "x$enable_can" != "xno" ; then
 	esac
 	AC_SUBST(PCAP_SUPPORT_CAN)
 	AC_SUBST(CAN_SRC)
+fi
+
+AC_ARG_ENABLE([dbus],
+[AC_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
+    [],
+    [enable_dbus=ifavailable])
+
+if test "x$enable_dbus" != "xno"; then
+	AC_CHECK_PROG([PKGCONFIG], [pkg-config], [pkg-config], [no])
+	if test "x$PKGCONFIG" != "xno"; then
+		AC_MSG_CHECKING([for D-Bus])
+		if "$PKGCONFIG" dbus-1; then
+			AC_MSG_RESULT([yes])
+			DBUS_CFLAGS=`"$PKGCONFIG" --cflags dbus-1`
+			DBUS_LIBS=`"$PKGCONFIG" --libs dbus-1`
+			save_CFLAGS="$CFLAGS"
+			save_LIBS="$LIBS"
+			CFLAGS="$CFLAGS $DBUS_CFLAGS"
+			LIBS="$LIBS $DBUS_LIBS"
+			AC_MSG_CHECKING(whether the D-Bus library defines dbus_connection_read_write)
+			AC_TRY_LINK(
+			    [#include <string.h>
+
+			     #include <time.h>
+			     #include <sys/time.h>
+
+			     #include <dbus/dbus.h>],
+			    [return dbus_connection_read_write(NULL, 0);],
+			    [
+				AC_MSG_RESULT([yes])
+				AC_DEFINE(PCAP_SUPPORT_DBUS, 1, [support D-Bus sniffing])
+				DBUS_SRC=pcap-dbus.c
+				V_INCLS="$V_INCLS $DBUS_CFLAGS"
+			    ],
+			    [
+				AC_MSG_RESULT([no])
+				if test "x$enable_dbus" = "xyes"; then
+				    AC_MSG_ERROR([--enable-dbus was given, but the D-Bus library doesn't define dbus_connection_read_write()])
+				fi
+				LIBS="$save_LIBS"
+			     ])
+			CFLAGS="$save_CFLAGS"
+		else
+			AC_MSG_RESULT([no])
+			if test "x$enable_dbus" = "xyes"; then
+				AC_MSG_ERROR([--enable-dbus was given, but the dbus-1 package is not installed])
+			fi
+		fi
+	fi
+	AC_SUBST(PCAP_SUPPORT_DBUS)
+	AC_SUBST(DBUS_SRC)
 fi
 
 dnl check for hardware timestamp support
@@ -1426,14 +1614,16 @@ AC_PROG_INSTALL
 
 AC_CONFIG_HEADER(config.h)
 
+AC_OUTPUT_COMMANDS([if test -f .devel; then
+	echo timestamp > stamp-h
+	cat Makefile-devel-adds >> Makefile
+	make depend
+fi])
 AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
 	pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap
 	pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap
-	pcap_list_datalinks.3pcap pcap_list_tstamp_types.3pcap
-	pcap_open_dead.3pcap pcap_open_offline.3pcap
+	pcap_get_tstamp_precision.3pcap pcap_list_datalinks.3pcap
+	pcap_list_tstamp_types.3pcap pcap_open_dead.3pcap
+	pcap_open_offline.3pcap pcap_set_tstamp_precision.3pcap
 	pcap_set_tstamp_type.3pcap)
-
-if test -f .devel ; then
-	make depend
-fi
 exit 0

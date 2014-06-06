@@ -54,9 +54,21 @@ static const char rcsid[] _U_ =
 #include <string.h>
 #include <ifaddrs.h>
 
-#ifdef AF_PACKET
+#include "pcap-int.h"
+
+#ifdef HAVE_OS_PROTO_H
+#include "os-proto.h"
+#endif
+
+/*
+ * We don't do this on Solaris 11 and later, as it appears there aren't
+ * any AF_PACKET addresses on interfaces, so we don't need this, and
+ * we end up including both the OS's <net/bpf.h> and our <pcap/bpf.h>,
+ * and their definitions of some data structures collide.
+ */
+#if (defined(linux) || defined(__Lynx__)) && defined(AF_PACKET)
 # ifdef HAVE_NETPACKET_PACKET_H
-/* Solaris 11 and later, Linux distributions with newer glibc */
+/* Linux distributions with newer glibc */
 #  include <netpacket/packet.h>
 # else /* HAVE_NETPACKET_PACKET_H */
 /* LynxOS, Linux distributions with older glibc */
@@ -69,13 +81,7 @@ static const char rcsid[] _U_ =
 #  include <linux/if_packet.h>
 # endif /* __Lynx__ */
 # endif /* HAVE_NETPACKET_PACKET_H */
-#endif /* AF_PACKET */
-
-#include "pcap-int.h"
-
-#ifdef HAVE_OS_PROTO_H
-#include "os-proto.h"
-#endif
+#endif /* (defined(linux) || defined(__Lynx__)) && defined(AF_PACKET) */
 
 /*
  * This is fun.
@@ -120,7 +126,7 @@ get_sa_len(struct sockaddr *addr)
 		return (sizeof (struct sockaddr_in6));
 #endif
 
-#ifdef AF_PACKET
+#if (defined(linux) || defined(__Lynx__)) && defined(AF_PACKET)
 	case AF_PACKET:
 		return (sizeof (struct sockaddr_ll));
 #endif
@@ -141,11 +147,9 @@ get_sa_len(struct sockaddr *addr)
  * Returns -1 on error, 0 otherwise.
  * The list, as returned through "alldevsp", may be null if no interfaces
  * were up and could be opened.
- *
- * This is the implementation used on platforms that have "getifaddrs()".
  */
 int
-pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
+pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 {
 	pcap_if_t *devlist = NULL;
 	struct ifaddrs *ifap, *ifa;
@@ -272,15 +276,6 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	}
 
 	freeifaddrs(ifap);
-
-	if (ret != -1) {
-		/*
-		 * We haven't had any errors yet; do any platform-specific
-		 * operations to add devices.
-		 */
-		if (pcap_platform_finddevs(&devlist, errbuf) < 0)
-			ret = -1;
-	}
 
 	if (ret == -1) {
 		/*

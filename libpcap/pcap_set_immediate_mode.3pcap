@@ -1,4 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_set_timeout.3pcap,v 1.1 2008-04-06 02:53:22 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -19,30 +18,28 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_SET_TIMEOUT 3PCAP "5 April 2008"
+.TH PCAP_SET_IMMEDIATE_MODE 3PCAP "8 May 2013"
 .SH NAME
-pcap_set_timeout \- set the read timeout for a not-yet-activated
-capture handle
+pcap_set_immediate_mode \- set immediate mode for a not-yet-activated capture
+handle
 .SH SYNOPSIS
 .nf
 .ft B
 #include <pcap/pcap.h>
 .LP
 .ft B
-int pcap_set_timeout(pcap_t *p, int to_ms);
+int pcap_set_immediate_mode(pcap_t *p, int immediate_mode);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_set_timeout()
-sets the read timeout that will be used on a capture handle when
-the handle is activated to
-.IR to_ms ,
-which is in units of milliseconds.
-.LP
-The behavior, if the timeout isn't specified, is undefined.  We
-recommend always setting the timeout to a non-zero value.
+.B pcap_set_immediate_mode()
+sets whether immediate mode should be set on a capture handle when
+the handle is activated.
+If
+.I immediate_mode
+is non-zero, immediate mode will be set, otherwise it will not be set.
 .SH RETURN VALUE
-.B pcap_set_timeout()
+.B pcap_set_immediate_mode()
 returns 0 on success or
 .B PCAP_ERROR_ACTIVATED
 if called on a capture handle that has been activated.

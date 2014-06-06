@@ -37,8 +37,12 @@ const char *pcap_datalink_val_to_description(int dlt);
 .SH DESCRIPTION
 .B pcap_datalink_val_to_name()
 translates a link-layer header type value to the corresponding
-link-layer header type name.  NULL is returned on failure.
+link-layer header type name.
+.B NULL
+is returned on failure.
 .PP
 .B pcap_datalink_val_to_description()
 translates a link-layer header type value to a short description of that
-link-layer header type.  NULL is returned on failure.
+link-layer header type.
+.B NULL
+is returned on failure.

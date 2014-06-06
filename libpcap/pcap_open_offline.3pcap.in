@@ -19,9 +19,10 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OPEN_OFFLINE 3PCAP "5 April 2008"
+.TH PCAP_OPEN_OFFLINE 3PCAP "1 July 2013"
 .SH NAME
-pcap_open_offline, pcap_fopen_offline \- open a saved capture file for reading
+pcap_open_offline, pcap_open_offline_with_tstamp_precision,
+pcap_fopen_offline, pcap_fopen_offline_with_tstamp_precision \- open a saved capture file for reading
 .SH SYNOPSIS
 .nf
 .ft B
@@ -35,12 +36,18 @@ char errbuf[PCAP_ERRBUF_SIZE];
 .LP
 .ft B
 pcap_t *pcap_open_offline(const char *fname, char *errbuf);
+pcap_t *pcap_open_offline_with_tstamp_precision(const char *fname,
+    u_int precision, char *errbuf);
 pcap_t *pcap_fopen_offline(FILE *fp, char *errbuf);
+pcap_t *pcap_fopen_offline_with_tstamp_precision(FILE *fp,
+    u_int precision, char *errbuf);
 .ft
 .fi
 .SH DESCRIPTION
 .B pcap_open_offline()
-is called to open a ``savefile'' for reading.
+and
+.B pcap_open_offline_with_tstamp_precision()
+are called to open a ``savefile'' for reading.
 .PP
 .I fname
 specifies the name of the file to open. The file can have the pcap file
@@ -55,15 +62,37 @@ be read.
 The name "-" in a synonym for
 .BR stdin .
 .PP
+.B pcap_open_offline_with_tstamp_precision()
+takes an additional
+.I precision
+argument specifying the time stamp precision desired;
+if
+.B PCAP_TSTAMP_PRECISION_MICRO
+is specified, packet time stamps will be supplied in seconds and
+microseconds,
+and if
+.B PCAP_TSTAMP_PRECISION_NANO
+is specified, packet time stamps will be supplied in seconds and
+nanoseconds.  If the time stamps in the file do not have the same
+precision as the requested precision, they will be scaled up or down as
+necessary before being supplied.
+.PP
 Alternatively, you may call
 .B pcap_fopen_offline()
+or
+.B pcap_fopen_offline_with_tstamp_precision()
 to read dumped data from an existing open stream
 .IR fp .
+.B pcap_fopen_offline_with_tstamp_precision() takes an additional
+.I precision
+argument as described above.
 Note that on Windows, that stream should be opened in binary mode.
 .SH RETURN VALUE
-.B pcap_open_offline()
+.BR pcap_open_offline() ,
+.BR pcap_open_offline_with_tstamp_precision() ,
+.BR pcap_fopen_offline() ,
 and
-.B pcap_fopen_offline()
+.B pcap_fopen_offline_with_tstamp_precision()
 return a
 .I pcap_t *
 on success and

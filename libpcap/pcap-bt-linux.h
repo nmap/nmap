@@ -36,5 +36,5 @@
 /*
  * Prototypes for Bluetooth-related functions
  */
-int bt_platform_finddevs(pcap_if_t **alldevsp, char *err_str);
-pcap_t *bt_create(const char *device, char *ebuf);
+int bt_findalldevs(pcap_if_t **alldevsp, char *err_str);
+pcap_t *bt_create(const char *device, char *ebuf, int *is_ours);
