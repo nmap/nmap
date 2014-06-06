@@ -55,15 +55,23 @@ Link-layer header type
 .RE
 .PP
 All fields in the per-file header are in the byte order of the host
-writing the file.  The first field in the per-file header is a 4-byte
-magic number, with the value 0xa1b2c3d4.  The magic number, when read by
-a host with the same byte order as the host that wrote the file, will
-have the value 0xa1b2c3d4, and, when read by a host with the opposite
-byte order as the host that wrote the file, will have the value
+writing the file.  Normally, the first field in the per-file header is a
+4-byte magic number, with the value 0xa1b2c3d4.  The magic number, when
+read by a host with the same byte order as the host that wrote the file,
+will have the value 0xa1b2c3d4, and, when read by a host with the
+opposite byte order as the host that wrote the file, will have the value
 0xd4c3b2a1.  That allows software reading the file to determine whether
 the byte order of the host that wrote the file is the same as the byte
 order of the host on which the file is being read, and thus whether the
 values in the per-file and per-packet headers need to be byte-swapped.
+.PP
+If the magic number has the value 0xa1b23c4d (with the two nibbles of
+the two lower-order bytes of the magic number swapped), which would be
+read as 0xa1b23c4d by a host with the same byte order as the host that
+wrote the file and as 0x4d3cb2a1 by a host with the opposite byte order
+as the host that wrote the file, the file format is the same as for
+regular files, except that the time stamps for packets are given in
+seconds and nanoseconds rather than seconds and microseconds.
 .PP
 Following this are:
 .IP
@@ -104,7 +112,7 @@ box;
 c.
 Time stamp, seconds value
 _
-Time stamp, microseconds value
+Time stamp, microseconds or nanoseconds value
 _
 Length of captured packet data
 _
@@ -117,11 +125,12 @@ writing the file.  The per-packet header begins with a time stamp giving
 the approximate time the packet was captured; the time stamp consists of
 a 4-byte value, giving the time in seconds since January 1, 1970,
 00:00:00 UTC, followed by a 4-byte value, giving the time in
-microseconds since that second.  Following that are a 4-byte value
-giving the number of bytes of captured data that follow the per-packet
-header and a 4-byte value giving the number of bytes that would have
-been present had the packet not been truncated by the snapshot length. 
-The two lengths will be equal if the number of bytes of packet data are
-less than or equal to the snapshot length.
+microseconds or nanoseconds since that second, depending on the magic
+number in the file header.  Following that are a 4-byte value giving the
+number of bytes of captured data that follow the per-packet header and a
+4-byte value giving the number of bytes that would have been present had
+the packet not been truncated by the snapshot length.  The two lengths
+will be equal if the number of bytes of packet data are less than or
+equal to the snapshot length.
 .SH SEE ALSO
 pcap(3PCAP), pcap-linktype(@MAN_MISC_INFO@)

@@ -58,20 +58,15 @@ if the signal interrupted a call reading packets in a live capture,
 when your signal handler returns after calling pcap_breakloop(), the
 call will be restarted, and the loop will not terminate until more
 packets arrive and the call completes.
+.ft R
 .PP
+.ft B
 Note also that, in a multi-threaded application, if one thread is
-blocked in
-.BR pcap_dispatch() ,
-.BR pcap_loop() ,
-.BR pcap_next() ,
-or
-.BR pcap_next_ex() ,
-a call to
-.B pcap_breakloop()
-in a different thread will not unblock that thread; you will need to use
-whatever mechanism the OS provides for breaking a thread out of blocking
-calls in order to unblock the thread, such as thread cancellation in
-systems that support POSIX threads.
+blocked in pcap_dispatch(), pcap_loop(), pcap_next(), or pcap_next_ex(),
+a call to pcap_breakloop() in a different thread will not unblock that
+thread; you will need to use whatever mechanism the OS provides for
+breaking a thread out of blocking calls in order to unblock the thread,
+such as thread cancellation in systems that support POSIX threads.
 .ft R
 .PP
 Note that

@@ -1,7 +1,7 @@
 From 3807934db1b073534a01d9a8546cddcec9be501f Mon Sep 17 00:00:00 2001
 From: David Fifield <david@bamsoftware.com>
 Date: Mon, 9 Apr 2012 17:02:40 -0700
-Subject: [PATCH 2/4] Add the --disable-packet-ring configure option.
+Subject: [PATCH 2/2] Add the --disable-packet-ring configure option.
 
 This allows the creation of 32-bit binaries that are compatible with
 64-bit Linux kernels before version 2.6.27.
@@ -40,28 +40,34 @@ index 24097b2..5eca6ab 100644
  
  AC_CONFIG_HEADER(config.h)
 diff --git pcap-linux.c pcap-linux.c
-index d4f50b7..213558b 100644
+index 17bd0f5..bd2457d 100644
 --- pcap-linux.c
 +++ pcap-linux.c
-@@ -219,14 +219,16 @@ static const char rcsid[] _U_ =
+@@ -196,17 +196,19 @@ static const char rcsid[] _U_ =
   /* check for memory mapped access avaibility. We assume every needed 
    * struct is defined if the macro TPACKET_HDRLEN is defined, because it
    * uses many ring related structs and macros */
 -# ifdef TPACKET_HDRLEN
 -#  define HAVE_PACKET_RING
+-#  ifdef TPACKET3_HDRLEN
+-#   define HAVE_TPACKET3
+-#  endif /* TPACKET3_HDRLEN */
 -#  ifdef TPACKET2_HDRLEN
 -#   define HAVE_TPACKET2
--#  else
--#   define TPACKET_V1	0
+-#  else  /* TPACKET2_HDRLEN */
+-#   define TPACKET_V1	0    /* Old kernel with only V1, so no TPACKET_Vn defined */
 -#  endif /* TPACKET2_HDRLEN */
 -# endif /* TPACKET_HDRLEN */
 +# ifdef PCAP_SUPPORT_PACKET_RING
 +#  ifdef TPACKET_HDRLEN
 +#   define HAVE_PACKET_RING
++#   ifdef TPACKET3_HDRLEN
++#    define HAVE_TPACKET3
++#   endif /* TPACKET3_HDRLEN */
 +#   ifdef TPACKET2_HDRLEN
 +#    define HAVE_TPACKET2
-+#   else
-+#    define TPACKET_V1	0
++#   else  /* TPACKET2_HDRLEN */
++#    define TPACKET_V1	0    /* Old kernel with only V1, so no TPACKET_Vn defined */
 +#   endif /* TPACKET2_HDRLEN */
 +#  endif /* TPACKET_HDRLEN */
 +# endif /* PCAP_SUPPORT_PACKET_RING */

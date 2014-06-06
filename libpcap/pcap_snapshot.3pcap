@@ -40,5 +40,15 @@ or
 .B pcap_open_live()
 was called, for a live capture, or the snapshot length from the capture
 file, for a ``savefile''.
+.PP
+It must not be called on a pcap descriptor created by
+.B pcap_create()
+that has not yet been activated by
+.BR pcap_activate() .
+.SH RETURN VALUE
+.B pcap_snapshot()
+returns the snapshot length on success and
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated.
 .SH SEE ALSO
 pcap(3PCAP)

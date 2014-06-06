@@ -70,15 +70,21 @@ static int bt_inject_linux(pcap_t *, const void *, size_t);
 static int bt_setdirection_linux(pcap_t *, pcap_direction_t);
 static int bt_stats_linux(pcap_t *, struct pcap_stat *);
 
+/*
+ * Private data for capturing on Linux Bluetooth devices.
+ */
+struct pcap_bt {
+	int dev_id;		/* device ID of device we're bound to */
+};
+
 int 
-bt_platform_finddevs(pcap_if_t **alldevsp, char *err_str)
+bt_findalldevs(pcap_if_t **alldevsp, char *err_str)
 {
-	pcap_if_t *found_dev = *alldevsp;
 	struct hci_dev_list_req *dev_list;
 	struct hci_dev_req *dev_req;
 	int i, sock;
 	int ret = 0;
-	
+
 	sock  = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
 	if (sock < 0)
 	{
@@ -117,7 +123,7 @@ bt_platform_finddevs(pcap_if_t **alldevsp, char *err_str)
 		snprintf(dev_name, 20, BT_IFACE"%d", dev_req->dev_id);
 		snprintf(dev_descr, 30, "Bluetooth adapter number %d", i);
 			
-		if (pcap_add_if(&found_dev, dev_name, 0, 
+		if (pcap_add_if(alldevsp, dev_name, 0, 
 		       dev_descr, err_str) < 0)
 		{
 			ret = -1;
@@ -135,11 +141,41 @@ done:
 }
 
 pcap_t *
-bt_create(const char *device, char *ebuf)
+bt_create(const char *device, char *ebuf, int *is_ours)
 {
+	const char *cp;
+	char *cpend;
+	long devnum;
 	pcap_t *p;
 
-	p = pcap_create_common(device, ebuf);
+	/* Does this look like a Bluetooth device? */
+	cp = strrchr(device, '/');
+	if (cp == NULL)
+		cp = device;
+	/* Does it begin with BT_IFACE? */
+	if (strncmp(cp, BT_IFACE, sizeof BT_IFACE - 1) != 0) {
+		/* Nope, doesn't begin with BT_IFACE */
+		*is_ours = 0;
+		return NULL;
+	}
+	/* Yes - is BT_IFACE followed by a number? */
+	cp += sizeof BT_IFACE - 1;
+	devnum = strtol(cp, &cpend, 10);
+	if (cpend == cp || *cpend != '\0') {
+		/* Not followed by a number. */
+		*is_ours = 0;
+		return NULL;
+	}
+	if (devnum < 0) {
+		/* Followed by a non-valid number. */
+		*is_ours = 0;
+		return NULL;
+	}
+
+	/* OK, it's probably ours. */
+	*is_ours = 1;
+
+	p = pcap_create_common(device, ebuf, sizeof (struct pcap_bt));
 	if (p == NULL)
 		return (NULL);
 
@@ -150,6 +186,7 @@ bt_create(const char *device, char *ebuf)
 static int
 bt_activate(pcap_t* handle)
 {
+	struct pcap_bt *handlep = handle->priv;
 	struct sockaddr_hci addr;
 	int opt;
 	int		dev_id;
@@ -178,7 +215,7 @@ bt_activate(pcap_t* handle)
 	handle->getnonblock_op = pcap_getnonblock_fd;
 	handle->setnonblock_op = pcap_setnonblock_fd;
 	handle->stats_op = bt_stats_linux;
-	handle->md.ifindex = dev_id;
+	handlep->dev_id = dev_id;
 	
 	/* Create HCI socket */
 	handle->fd = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
@@ -223,10 +260,13 @@ bt_activate(pcap_t* handle)
 
 	/* Bind socket to the HCI device */
 	addr.hci_family = AF_BLUETOOTH;
-	addr.hci_dev = handle->md.ifindex;
+	addr.hci_dev = handlep->dev_id;
+#ifdef SOCKADDR_HCI_HAS_HCI_CHANNEL
+	addr.hci_channel = HCI_CHANNEL_RAW;
+#endif
 	if (bind(handle->fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
 		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
-		    "Can't attach to device %d: %s", handle->md.ifindex,
+		    "Can't attach to device %d: %s", handlep->dev_id,
 		    strerror(errno));
 		goto close_fail;
 	}
@@ -341,10 +381,11 @@ bt_inject_linux(pcap_t *handle, const void *buf, size_t size)
 static int 
 bt_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 {
+	struct pcap_bt *handlep = handle->priv;
 	int ret;
 	struct hci_dev_info dev_info;
 	struct hci_dev_stats * s = &dev_info.stat;
-	dev_info.dev_id = handle->md.ifindex;
+	dev_info.dev_id = handlep->dev_id;
 	
 	/* ignore eintr */
 	do {

@@ -2,6 +2,7 @@ This file lists people who have contributed to libpcap:
 
 The current maintainers:
     Bill Fenner                   <fenner at research dot att dot com>
+    Denis Ovsienko                <infrastation at yandex dot ru>
     Fulvio Risso                  <risso at polito dot it>
     Guy Harris                    <guy at alum dot mit dot edu>
     Hannes Gredler                <hannes at juniper dot net>
@@ -9,18 +10,23 @@ The current maintainers:
 
 Additional people who have contributed patches:
 
+    Akos Vandra                   <axos88 at gmail dot com>
     Alan Bawden                   <Alan at LCS dot MIT dot EDU>
     Albert Chin                   <china at thewrittenword dot com>
     Alexander 'Leo' Bergolth      <Leo dot Bergolth at wu-wien dot ac dot at>
     Alexey Kuznetsov              <kuznet at ms2 dot inr dot ac dot ru>
     Alon Bar-Lev                  <alonbl at sourceforge dot net>
+    Andres Perera                 <andres dot p at zoho dot com>
     Andrew Brown                  <atatat at atatdot dot net>
                                   <andy-1 at sourceforge dot net>
+    Ani Sinha                     <ani at aristanetworks dot com>
     Antti Kantee                  <pooka at netbsd dot org>
     Arien Vijn                    <arienvijn at sourceforge dot net>
     Arkadiusz Miskiewicz          <misiek at pld dot org dot pl>
     Armando L. Caro Jr.           <acaro at mail dot eecis dot udel dot edu>
     Assar Westerlund              <assar at sics dot se>
+    Bill Parker                   <wp02855 at gmail dot com>
+    Brent Cook                    <brent at boundary dot com>
     Brian Ginsbach                <ginsbach at cray dot com>
     Charles M. Hannum             <mycroft at netbsd dot org>
     Chris G. Demetriou            <cgd at netbsd dot org>
@@ -29,14 +35,21 @@ Additional people who have contributed patches:
     Chris Pepper                  <pepper at mail dot reppep dot com>
     Christian Bell                <csbell at myri dot com>
     Christian Peron               <csjp at freebsd dot org>
+    Christian Svensson            <blue at cmd dot nu>
     Daniele Orlandi               <daniele at orlandi dot com>
+    Darren Lim                    <darren dot lim at endace dot com>
     Darren Reed                   <darrenr at sun dot com>
+    David Clark                   <david dot clark at datasoft dot com>
     David Kaelbling               <drk at sgi dot com>
+    David Ward                    <david dot ward at ll dot mit dot edu>
     David Young                   <dyoung at ojctech dot com>
     Dean Gaudet                   <dean at arctic dot org>
+    dhruv                         <rsrivat at sourceforge dot net>
     Don Ebright                   <Don dot Ebright at compuware dot com> 
     Dug Song                      <dugsong at monkey dot org>
     Dustin Spicuzza               <dustin at virtualroadside dot com>
+    dzejarczech                   <dzejarczech at sourceforge dot net>
+    Edward Sheldrake              <ejs1920 at sourceforge dot net>
     Eric Anderson                 <anderse at hpl dot hp dot com>
     Erik de Castro Lopo           <erik dot de dot castro dot lopo at sensorynetworks dot com>
     Felix Obenhuber               <felix at obenhuber dot de>
@@ -45,31 +58,37 @@ Additional people who have contributed patches:
     frederich                     <frederich at sourceforge dot net>
     Fulko Hew                     <fulko dot hew at gmail dot com>
     Fumiyuki Shimizu              <fumifumi at abacustech dot jp>
+    Gabor Tatarka                 <gabor dot tatarka at ericsson dot com>
     Garrett Cooper                <yaberauneya at sourceforge dot net>
+    George Neville-Neil           <gnn at freebsd dot org>
     Gianluca Varenni              <gianluca dot varenni at gmail dot com>
     Gilbert Hoyek                 <gil_hoyek at hotmail dot com>
     Gisle Vanem                   <gvanem at broadpark dot no>
     Graeme Hewson                 <ghewson at cix dot compulink dot co dot uk>
+    Gregor Maier                  <gregor at net dot in dot tum dot de>
     Greg Stark                    <gsstark at mit dot edu>
     Greg Troxel                   <gdt at ir dot bbn dot com>
-    Gregor Maier                  <gregor at net dot in dot tum dot de>
     Guillaume Pelat               <endymion_ at users dot sourceforge dot net>
+    Gustavo Zacarias              <gustavo at zacarias dot com dot ar>
     Hagen Paul Pfeifer            <hagen at jauu dot net>
     Henri Doreau                  <hdoreau at sourceforge dot net>
     Hyung Sik Yoon                <hsyn at kr dot ibm dot com>
     Igor Khristophorov            <igor at atdot dot org>
+    Jakub Zawadzki                <darkjames at darkjames dot pl>
     Jan-Philip Velders            <jpv at veldersjes dot net>
     Jason R. Thorpe               <thorpej at netbsd dot org>
     Javier Achirica               <achirica at ttd dot net>
+    Jean-Louis Charton            <Jean-Louis dot CHARTON at oikialog dot com>
     Jean Tourrilhes               <jt at hpl dot hp dot com>
-    Jean-Louis Charton            <Jean-Louis.CHARTON at oikialog dot com>
     Jefferson Ogata               <jogata at nodc dot noaa dot gov>
     Jesper Dangaard Brouer        <hawk at comx dot dk>
     Jesper Peterson               <jesper at endace dot com>
+    Jiri Slaby                    <jirislaby at gmail dot com>
     Joerg Mayer                   <jmayer at loplof dot de>
     John Bankier                  <jbankier at rainfinity dot com>
     Jon Lindgren                  <jonl at yubyub dot net>
     Jon Smirl                     <jonsmirl at gmail dot com>
+    Jorge Boncompte [DTI2]        <jorge at dti2 dot net>
     Juergen Schoenwaelder         <schoenw at ibr dot cs dot tu-bs dot de>
     Julien Moutinho               <julm at savines dot alpes dot fr dot eu dot org>
     Jung-uk Kim                   <jkim at FreeBSD dot org>
@@ -83,6 +102,7 @@ Additional people who have contributed patches:
     Love Hörnquist-Åstrand        <lha at stacken dot kth dot se>
     Luis MartinGarcia             <luis dot mgarc at gmail dot com>
     Maciej W. Rozycki             <macro at ds2 dot pg dot gda dot pl>
+    Mansour Behabadi              <mansour at oxplot dot com>
     Marcus Felipe Pereira         <marcus at task dot com dot br>
     Mark C. Brown                 <mbrown at hp dot com>
     Mark Pizzolato                <List-tcpdump-workers at subscriptions dot pizzolato dot net>
@@ -91,14 +111,17 @@ Additional people who have contributed patches:
     Márton Németh                 <nm127 at freemail dot hu>
     Matthew Luckie                <mjl at luckie dot org dot nz>
     Max Laier                     <max at love2party dot net>
+    Michal Labedzki               
+    Michal Sekletar               <msekleta at redhat dot com>
     Mike Frysinger                <vapier at gmail dot com>
     Mike Kershaw                  <dragorn at kismetwireless dot net>
     Mike Wiacek                   <mike at iroot dot net>
     Miroslav Lichvar              <mlichvar at redhat dot com>
     Monroe Williams               <monroe at pobox dot com>
-                                  <nvercamm at sourceforge dot net>
-    N. Leiten                     <nleiten at sourceforge dot net>
     Nicolas Dade                  <ndade at nsd dot dyndns dot org>
+    Niko Delarich                 <niko dot delarich at gmail dot com>
+    N. Leiten                     <nleiten at sourceforge dot net>
+                                  <nvercamm at sourceforge dot net>
     Octavian Cerna                <tavy at ylabs dot com>
     Olaf Kirch                    <okir at caldera dot de>
     Ollie Wild                    <aaw at users dot sourceforge dot net>
@@ -142,8 +165,8 @@ Additional people who have contributed patches:
     Xianjie Zhang                 <xzhang at cup dot hp dot com>
     Xin Li                        <delphij at FreeBSD dot org>
     Yen Yen Lim
-    Yvan Vanhullebus              <vanhu at sourceforge dot net>
     Yoann Vandoorselaere          <yoann at prelude-ids dot org>
+    Yvan Vanhullebus              <vanhu at sourceforge dot net>
 
 The original LBL crew:
     Steve McCanne
@@ -151,4 +174,4 @@ The original LBL crew:
     Van Jacobson
 
 Past maintainers:
-    Jun-ichiro itojun Hagino         <itojun at iijlab dot net>
+    Jun-ichiro itojun Hagino         <itojun at iijlab dot net>		Also see: http://www.wide.ad.jp/itojun-award/

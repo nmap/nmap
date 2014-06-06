@@ -160,18 +160,19 @@ sf_setdirection(pcap_t *p, pcap_direction_t d)
 	return (-1);
 }
 
-static void
+void
 sf_cleanup(pcap_t *p)
 {
-	if (p->sf.rfile != stdin)
-		(void)fclose(p->sf.rfile);
+	if (p->rfile != stdin)
+		(void)fclose(p->rfile);
 	if (p->buffer != NULL)
 		free(p->buffer);
 	pcap_freecode(&p->fcode);
 }
 
 pcap_t *
-pcap_open_offline(const char *fname, char *errbuf)
+pcap_open_offline_with_tstamp_precision(const char *fname, u_int precision,
+    char *errbuf)
 {
 	FILE *fp;
 	pcap_t *p;
@@ -199,7 +200,7 @@ pcap_open_offline(const char *fname, char *errbuf)
 			return (NULL);
 		}
 	}
-	p = pcap_fopen_offline(fp, errbuf);
+	p = pcap_fopen_offline_with_tstamp_precision(fp, precision, errbuf);
 	if (p == NULL) {
 		if (fp != stdin)
 			fclose(fp);
@@ -207,8 +208,16 @@ pcap_open_offline(const char *fname, char *errbuf)
 	return (p);
 }
 
+pcap_t *
+pcap_open_offline(const char *fname, char *errbuf)
+{
+	return (pcap_open_offline_with_tstamp_precision(fname,
+	    PCAP_TSTAMP_PRECISION_MICRO, errbuf));
+}
+
 #ifdef WIN32
-pcap_t* pcap_hopen_offline(intptr_t osfd, char *errbuf)
+pcap_t* pcap_hopen_offline_with_tstamp_precision(intptr_t osfd, u_int precision,
+    char *errbuf)
 {
 	int fd;
 	FILE *file;
@@ -227,11 +236,18 @@ pcap_t* pcap_hopen_offline(intptr_t osfd, char *errbuf)
 		return NULL;
 	}
 
-	return pcap_fopen_offline(file, errbuf);
+	return pcap_fopen_offline_with_tstamp_precision(file, precision,
+	    errbuf);
+}
+
+pcap_t* pcap_hopen_offline(intptr_t osfd, char *errbuf)
+{
+	return pcap_hopen_offline_with_tstamp_precision(osfd,
+	    PCAP_TSTAMP_PRECISION_MICRO, errbuf);
 }
 #endif
 
-static int (*check_headers[])(pcap_t *, bpf_u_int32, FILE *, char *) = {
+static pcap_t *(*check_headers[])(bpf_u_int32, FILE *, u_int, char *, int *) = {
 	pcap_check_header,
 	pcap_ng_check_header
 };
@@ -242,16 +258,14 @@ static int (*check_headers[])(pcap_t *, bpf_u_int32, FILE *, char *) = {
 static
 #endif
 pcap_t *
-pcap_fopen_offline(FILE *fp, char *errbuf)
+pcap_fopen_offline_with_tstamp_precision(FILE *fp, u_int precision,
+    char *errbuf)
 {
 	register pcap_t *p;
 	bpf_u_int32 magic;
 	size_t amt_read;
 	u_int i;
-
-	p = pcap_create_common("(savefile)", errbuf);
-	if (p == NULL)
-		return (NULL);
+	int err;
 
 	/*
 	 * Read the first 4 bytes of the file; the network analyzer dump
@@ -272,26 +286,23 @@ pcap_fopen_offline(FILE *fp, char *errbuf)
 			    (unsigned long)sizeof(magic),
 			    (unsigned long)amt_read);
 		}
-		goto bad;
+		return (NULL);
 	}
 
 	/*
 	 * Try all file types.
 	 */
 	for (i = 0; i < N_FILE_TYPES; i++) {
-		switch ((*check_headers[i])(p, magic, fp, errbuf)) {
-
-		case -1:
+		p = (*check_headers[i])(magic, fp, precision, errbuf, &err);
+		if (p != NULL) {
+			/* Yup, that's it. */
+			goto found;
+		}
+		if (err) {
 			/*
 			 * Error trying to read the header.
 			 */
-			goto bad;
-
-		case 1:
-			/*
-			 * Yup, that's it.
-			 */
-			goto found;
+			return (NULL);
 		}
 	}
 
@@ -299,15 +310,13 @@ pcap_fopen_offline(FILE *fp, char *errbuf)
 	 * Well, who knows what this mess is....
 	 */
 	snprintf(errbuf, PCAP_ERRBUF_SIZE, "unknown file format");
-	goto bad;
+	return (NULL);
 
 found:
-	p->sf.rfile = fp;
+	p->rfile = fp;
 
-#ifdef PCAP_FDDIPAD
 	/* Padding only needed for live capture fcode */
 	p->fddipad = 0;
-#endif
 
 #if !defined(WIN32) && !defined(MSDOS)
 	/*
@@ -333,13 +342,26 @@ found:
 	p->setmode_op = sf_setmode;
 	p->setmintocopy_op = sf_setmintocopy;
 #endif
-	p->cleanup_op = sf_cleanup;
+
+	/*
+	 * For offline captures, the standard one-shot callback can
+	 * be used for pcap_next()/pcap_next_ex().
+	 */
+	p->oneshot_callback = pcap_oneshot;
+
 	p->activated = 1;
 
 	return (p);
- bad:
-	free(p);
-	return (NULL);
+}
+
+#ifdef WIN32
+static
+#endif
+pcap_t *
+pcap_fopen_offline(FILE *fp, char *errbuf)
+{
+	return (pcap_fopen_offline_with_tstamp_precision(fp,
+	    PCAP_TSTAMP_PRECISION_MICRO, errbuf));
 }
 
 /*
@@ -375,7 +397,7 @@ pcap_offline_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 				return (n);
 		}
 
-		status = p->sf.next_packet_op(p, &h, &data);
+		status = p->next_packet_op(p, &h, &data);
 		if (status) {
 			if (status == 1)
 				return (0);

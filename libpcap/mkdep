@@ -18,6 +18,7 @@ export PATH
 
 MAKE=Makefile			# default makefile name is "Makefile"
 CC=cc				# default C compiler is "cc"
+DEPENDENCY_CFLAG=-M		# default dependency-generation flag is -M
 
 while :
 	do case "$1" in
@@ -31,6 +32,11 @@ while :
 			MAKE=$2
 			shift; shift ;;
 
+		# -m allows you to specify the dependency-generation flag
+		-m)
+			DEPENDENCY_CFLAG=$2
+			shift; shift ;;
+
 		# the -p flag produces "program: program.c" style dependencies
 		# so .o's don't get produced
 		-p)
@@ -42,7 +48,7 @@ while :
 done
 
 if [ $# = 0 ] ; then
-	echo 'usage: mkdep [-p] [-c cc] [-f makefile] [flags] file ...'
+	echo 'usage: mkdep [-p] [-c cc] [-f makefile] [-m dependency-cflag] [flags] file ...'
 	exit 1
 fi
 
@@ -74,7 +80,7 @@ _EOF_
 # sed -e 's/:[^"]*"\([^"]*\)".*/: \1/' -e 's/\.c/.o/' |
 
 # XXX this doesn't work with things like "-DDECLWAITSTATUS=union\ wait"
-$CC -M $* |
+$CC $DEPENDENCY_CFLAG $* |
 sed "
 	s; \./; ;g
 	$SED" |

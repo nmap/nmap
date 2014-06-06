@@ -47,11 +47,22 @@ The caller is responsible for freeing the array with
 .BR pcap_free_datalinks() ,
 which frees the list of link-layer header types pointed to by
 .IR dlt_list .
+.LP
+It must not be called on a pcap descriptor created by
+.B pcap_create()
+that has not yet been activated by
+.BR pcap_activate() .
 .SH RETURN VALUE
 .B pcap_list_datalinks()
-returns the number of link-layer header types in the array on success
-and \-1 on failure.
-If \-1 is returned,
+returns the number of link-layer header types in the array on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+and
+.B PCAP_ERROR
+(\-1) on other errors.
+If
+.B PCAP_ERROR
+is returned,
 .B pcap_geterr()
 or
 .B pcap_perror()

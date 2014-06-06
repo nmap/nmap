@@ -66,6 +66,10 @@ static const char rcsid[] _U_ =
 #include <stropts.h>
 #include <unistd.h>
 
+#ifdef HAVE_LIBDLPI
+#include <libdlpi.h>
+#endif
+
 #include "pcap-int.h"
 #include "dlpisubs.h"
 
@@ -79,6 +83,7 @@ static void pcap_stream_err(const char *, int, char *);
 int
 pcap_stats_dlpi(pcap_t *p, struct pcap_stat *ps)
 {
+	struct pcap_dlpi *pd = p->priv;
 
 	/*
 	 * "ps_recv" counts packets handed to the filter, not packets
@@ -103,7 +108,7 @@ pcap_stats_dlpi(pcap_t *p, struct pcap_stat *ps)
 	 * the kernel by libpcap, but they may include packets not
 	 * yet read from libpcap by the application.
 	 */
-	*ps = p->md.stat;
+	*ps = pd->stat;
 
 	/*
 	 * Add in the drop count, as per the above comment.
@@ -120,6 +125,7 @@ int
 pcap_process_pkts(pcap_t *p, pcap_handler callback, u_char *user,
 	int count, u_char *bufp, int len)
 {
+	struct pcap_dlpi *pd = p->priv;
 	int n, caplen, origlen;
 	u_char *ep, *pk;
 	struct pcap_pkthdr pkthdr;
@@ -162,7 +168,7 @@ pcap_process_pkts(pcap_t *p, pcap_handler callback, u_char *user,
 		} else
 #endif
 			sbp = (struct sb_hdr *)bufp;
-		p->md.stat.ps_drop = sbp->sbh_drops;
+		pd->stat.ps_drop = sbp->sbh_drops;
 		pk = bufp + sizeof(*sbp);
 		bufp += sbp->sbh_totlen;
 		origlen = sbp->sbh_origlen;
@@ -173,7 +179,7 @@ pcap_process_pkts(pcap_t *p, pcap_handler callback, u_char *user,
 		pk = bufp;
 		bufp += caplen;
 #endif
-		++p->md.stat.ps_recv;
+		++pd->stat.ps_recv;
 		if (bpf_filter(p->fcode.bf_insns, pk, origlen, caplen)) {
 #ifdef HAVE_SYS_BUFMOD_H
 			pkthdr.ts.tv_sec = sbp->sbh_timestamp.tv_sec;
@@ -187,7 +193,7 @@ pcap_process_pkts(pcap_t *p, pcap_handler callback, u_char *user,
 			if (pkthdr.caplen > p->snapshot)
 				pkthdr.caplen = p->snapshot;
 			(*callback)(user, &pkthdr, pk);
-			if (++n >= count && count >= 0) {
+			if (++n >= count && !PACKET_COUNT_IS_UNLIMITED(count)) {
 				p->cc = ep - bufp;
 				p->bp = bufp;
 				return (n);
@@ -267,46 +273,53 @@ pcap_process_mactype(pcap_t *p, u_int mactype)
  * Push and configure the buffer module. Returns -1 for error, otherwise 0.
  */
 int
-pcap_conf_bufmod(pcap_t *p, int snaplen, int timeout)
+pcap_conf_bufmod(pcap_t *p, int snaplen)
 {
-	int retv = 0;
-
+	struct timeval to;
 	bpf_u_int32 ss, chunksize;
 
 	/* Non-standard call to get the data nicely buffered. */
 	if (ioctl(p->fd, I_PUSH, "bufmod") != 0) {
 		pcap_stream_err("I_PUSH bufmod", errno, p->errbuf);
-		retv = -1;
+		return (-1);
 	}
 
 	ss = snaplen;
 	if (ss > 0 &&
 	    strioctl(p->fd, SBIOCSSNAP, sizeof(ss), (char *)&ss) != 0) {
 		pcap_stream_err("SBIOCSSNAP", errno, p->errbuf);
-		retv = -1;
+		return (-1);
 	}
 
-	/* Set up the bufmod timeout. */
-	if (timeout != 0) {
-		struct timeval to;
-
-		to.tv_sec = timeout / 1000;
-		to.tv_usec = (timeout * 1000) % 1000000;
+	if (p->opt.immediate) {
+		/* Set the timeout to zero, for immediate delivery. */
+		to.tv_sec = 0;
+		to.tv_usec = 0;
 		if (strioctl(p->fd, SBIOCSTIME, sizeof(to), (char *)&to) != 0) {
 			pcap_stream_err("SBIOCSTIME", errno, p->errbuf);
-			retv = -1;
+			return (-1);
+		}
+	} else {
+		/* Set up the bufmod timeout. */
+		if (p->opt.timeout != 0) {
+			to.tv_sec = p->opt.timeout / 1000;
+			to.tv_usec = (p->opt.timeout * 1000) % 1000000;
+			if (strioctl(p->fd, SBIOCSTIME, sizeof(to), (char *)&to) != 0) {
+				pcap_stream_err("SBIOCSTIME", errno, p->errbuf);
+				return (-1);
+			}
+		}
+
+		/* Set the chunk length. */
+		chunksize = CHUNKSIZE;
+		if (strioctl(p->fd, SBIOCSCHUNK, sizeof(chunksize), (char *)&chunksize)
+		    != 0) {
+			pcap_stream_err("SBIOCSCHUNKP", errno, p->errbuf);
+			return (-1);
 		}
 	}
 
-	/* Set the chunk length. */
-	chunksize = CHUNKSIZE;
-	if (strioctl(p->fd, SBIOCSCHUNK, sizeof(chunksize), (char *)&chunksize)
-	    != 0) {
-		pcap_stream_err("SBIOCSCHUNKP", errno, p->errbuf);
-		retv = -1;
-	}
-
-	return (retv);
+	return (0);
 }
 #endif /* HAVE_SYS_BUFMOD_H */
 

@@ -96,12 +96,20 @@ implemented.
 DAG cards by default capture entire packets including the L2
 CRC/FCS. If the card is not configured to discard the CRC/FCS, this
 can confuse applications that use libpcap if they're not prepared for
-packets to have an FCS. Libpcap now reads the environment variable
-ERF_FCS_BITS to determine how many bits of CRC/FCS to strip from the
-end of the captured frame. This defaults to 32 for use with
-Ethernet. If the card is configured to strip the CRC/FCS, then set
-ERF_FCS_BITS=0. If used with a HDLC/PoS/PPP/Frame Relay link with 16
-bit CRC/FCS, then set ERF_FCS_BITS=16.
+packets to have an FCS.
+
+Libpcap now reads the environment variable ERF_FCS_BITS to determine
+how many bits of CRC/FCS to strip from the end of the captured
+frame. This defaults to 32 for use with Ethernet. If the card is
+configured to strip the CRC/FCS, then set ERF_FCS_BITS=0. If used with
+a HDLC/PoS/PPP/Frame Relay link with 16 bit CRC/FCS, then set
+ERF_FCS_BITS=16.
+
+If you wish to create a pcap file that DOES contain the Ethernet FCS,
+specify the environment variable ERF_DONT_STRIP_FCS. This will cause
+the existing FCS to be captured into the pcap file. Note some
+applications may incorrectly report capture errors or oversize packets
+when reading these files.
 
 ----------------------------------------------------------------------
 

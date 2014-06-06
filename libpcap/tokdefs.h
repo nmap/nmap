@@ -1,19 +1,19 @@
-/* A Bison parser, made by GNU Bison 2.5.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison interface for Yacc-like parsers in C
-   
-      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
-   
+
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -26,129 +26,144 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-   
+
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+#ifndef YY_PCAP_Y_TAB_H_INCLUDED
+# define YY_PCAP_Y_TAB_H_INCLUDED
+/* Debug traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+#if YYDEBUG
+extern int pcap_debug;
+#endif
 
-/* Tokens.  */
+/* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     DST = 258,
-     SRC = 259,
-     HOST = 260,
-     GATEWAY = 261,
-     NET = 262,
-     NETMASK = 263,
-     PORT = 264,
-     PORTRANGE = 265,
-     LESS = 266,
-     GREATER = 267,
-     PROTO = 268,
-     PROTOCHAIN = 269,
-     CBYTE = 270,
-     ARP = 271,
-     RARP = 272,
-     IP = 273,
-     SCTP = 274,
-     TCP = 275,
-     UDP = 276,
-     ICMP = 277,
-     IGMP = 278,
-     IGRP = 279,
-     PIM = 280,
-     VRRP = 281,
-     CARP = 282,
-     ATALK = 283,
-     AARP = 284,
-     DECNET = 285,
-     LAT = 286,
-     SCA = 287,
-     MOPRC = 288,
-     MOPDL = 289,
-     TK_BROADCAST = 290,
-     TK_MULTICAST = 291,
-     NUM = 292,
-     INBOUND = 293,
-     OUTBOUND = 294,
-     PF_IFNAME = 295,
-     PF_RSET = 296,
-     PF_RNR = 297,
-     PF_SRNR = 298,
-     PF_REASON = 299,
-     PF_ACTION = 300,
-     TYPE = 301,
-     SUBTYPE = 302,
-     DIR = 303,
-     ADDR1 = 304,
-     ADDR2 = 305,
-     ADDR3 = 306,
-     ADDR4 = 307,
-     RA = 308,
-     TA = 309,
-     LINK = 310,
-     GEQ = 311,
-     LEQ = 312,
-     NEQ = 313,
-     ID = 314,
-     EID = 315,
-     HID = 316,
-     HID6 = 317,
-     AID = 318,
-     LSH = 319,
-     RSH = 320,
-     LEN = 321,
-     IPV6 = 322,
-     ICMPV6 = 323,
-     AH = 324,
-     ESP = 325,
-     VLAN = 326,
-     MPLS = 327,
-     PPPOED = 328,
-     PPPOES = 329,
-     ISO = 330,
-     ESIS = 331,
-     CLNP = 332,
-     ISIS = 333,
-     L1 = 334,
-     L2 = 335,
-     IIH = 336,
-     LSP = 337,
-     SNP = 338,
-     CSNP = 339,
-     PSNP = 340,
-     STP = 341,
-     IPX = 342,
-     NETBEUI = 343,
-     LANE = 344,
-     LLC = 345,
-     METAC = 346,
-     BCC = 347,
-     SC = 348,
-     ILMIC = 349,
-     OAMF4EC = 350,
-     OAMF4SC = 351,
-     OAM = 352,
-     OAMF4 = 353,
-     CONNECTMSG = 354,
-     METACONNECT = 355,
-     VPI = 356,
-     VCI = 357,
-     RADIO = 358,
-     FISU = 359,
-     LSSU = 360,
-     MSU = 361,
-     SIO = 362,
-     OPC = 363,
-     DPC = 364,
-     SLS = 365,
-     AND = 366,
-     OR = 367,
-     UMINUS = 368
-   };
+  enum yytokentype
+  {
+    DST = 258,
+    SRC = 259,
+    HOST = 260,
+    GATEWAY = 261,
+    NET = 262,
+    NETMASK = 263,
+    PORT = 264,
+    PORTRANGE = 265,
+    LESS = 266,
+    GREATER = 267,
+    PROTO = 268,
+    PROTOCHAIN = 269,
+    CBYTE = 270,
+    ARP = 271,
+    RARP = 272,
+    IP = 273,
+    SCTP = 274,
+    TCP = 275,
+    UDP = 276,
+    ICMP = 277,
+    IGMP = 278,
+    IGRP = 279,
+    PIM = 280,
+    VRRP = 281,
+    CARP = 282,
+    ATALK = 283,
+    AARP = 284,
+    DECNET = 285,
+    LAT = 286,
+    SCA = 287,
+    MOPRC = 288,
+    MOPDL = 289,
+    TK_BROADCAST = 290,
+    TK_MULTICAST = 291,
+    NUM = 292,
+    INBOUND = 293,
+    OUTBOUND = 294,
+    PF_IFNAME = 295,
+    PF_RSET = 296,
+    PF_RNR = 297,
+    PF_SRNR = 298,
+    PF_REASON = 299,
+    PF_ACTION = 300,
+    TYPE = 301,
+    SUBTYPE = 302,
+    DIR = 303,
+    ADDR1 = 304,
+    ADDR2 = 305,
+    ADDR3 = 306,
+    ADDR4 = 307,
+    RA = 308,
+    TA = 309,
+    LINK = 310,
+    GEQ = 311,
+    LEQ = 312,
+    NEQ = 313,
+    ID = 314,
+    EID = 315,
+    HID = 316,
+    HID6 = 317,
+    AID = 318,
+    LSH = 319,
+    RSH = 320,
+    LEN = 321,
+    IPV6 = 322,
+    ICMPV6 = 323,
+    AH = 324,
+    ESP = 325,
+    VLAN = 326,
+    MPLS = 327,
+    PPPOED = 328,
+    PPPOES = 329,
+    ISO = 330,
+    ESIS = 331,
+    CLNP = 332,
+    ISIS = 333,
+    L1 = 334,
+    L2 = 335,
+    IIH = 336,
+    LSP = 337,
+    SNP = 338,
+    CSNP = 339,
+    PSNP = 340,
+    STP = 341,
+    IPX = 342,
+    NETBEUI = 343,
+    LANE = 344,
+    LLC = 345,
+    METAC = 346,
+    BCC = 347,
+    SC = 348,
+    ILMIC = 349,
+    OAMF4EC = 350,
+    OAMF4SC = 351,
+    OAM = 352,
+    OAMF4 = 353,
+    CONNECTMSG = 354,
+    METACONNECT = 355,
+    VPI = 356,
+    VCI = 357,
+    RADIO = 358,
+    FISU = 359,
+    LSSU = 360,
+    MSU = 361,
+    HFISU = 362,
+    HLSSU = 363,
+    HMSU = 364,
+    SIO = 365,
+    OPC = 366,
+    DPC = 367,
+    SLS = 368,
+    HSIO = 369,
+    HOPC = 370,
+    HDPC = 371,
+    HSLS = 372,
+    OR = 373,
+    AND = 374,
+    UMINUS = 375
+  };
 #endif
 /* Tokens.  */
 #define DST 258
@@ -255,23 +270,27 @@
 #define FISU 359
 #define LSSU 360
 #define MSU 361
-#define SIO 362
-#define OPC 363
-#define DPC 364
-#define SLS 365
-#define AND 366
-#define OR 367
-#define UMINUS 368
+#define HFISU 362
+#define HLSSU 363
+#define HMSU 364
+#define SIO 365
+#define OPC 366
+#define DPC 367
+#define SLS 368
+#define HSIO 369
+#define HOPC 370
+#define HDPC 371
+#define HSLS 372
+#define OR 373
+#define AND 374
+#define UMINUS 375
 
-
-
-
+/* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
 {
-
-/* Line 2068 of yacc.c  */
-#line 242 "grammar.y"
+#line 242 "grammar.y" /* yacc.c:1909  */
 
 	int i;
 	bpf_u_int32 h;
@@ -287,16 +306,15 @@ typedef union YYSTYPE
 	} blk;
 	struct block *rblk;
 
-
-
-/* Line 2068 of yacc.c  */
-#line 294 "y.tab.h"
-} YYSTYPE;
+#line 310 "y.tab.h" /* yacc.c:1909  */
+};
 # define YYSTYPE_IS_TRIVIAL 1
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+
 extern YYSTYPE pcap_lval;
 
+int pcap_parse (void);
 
+#endif /* !YY_PCAP_Y_TAB_H_INCLUDED  */

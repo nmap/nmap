@@ -10,8 +10,8 @@
  * @(#) $Header: /tcpdump/master/libpcap/pcap-dag.h,v 1.7 2008-04-04 19:37:45 guy Exp $ (LBL)
  */
 
-pcap_t *dag_create(const char *, char *);
-int dag_platform_finddevs(pcap_if_t **devlistp, char *errbuf);
+pcap_t *dag_create(const char *, char *, int *);
+int dag_findalldevs(pcap_if_t **devlistp, char *errbuf);
 
 #ifndef TYPE_AAL5
 #define TYPE_AAL5               4

@@ -58,9 +58,17 @@ static const char rcsid[] _U_ =
 #include "os-proto.h"
 #endif
 
+/*
+ * Private data for capturing on snoop devices.
+ */
+struct pcap_snoop {
+	struct pcap_stat stat;
+};
+
 static int
 pcap_read_snoop(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 {
+	struct pcap_snoop *psn = p->priv;
 	int cc;
 	register struct snoopheader *sh;
 	register u_int datalen;
@@ -124,7 +132,7 @@ again:
 	if (p->fcode.bf_insns == NULL ||
 	    bpf_filter(p->fcode.bf_insns, cp, datalen, caplen)) {
 		struct pcap_pkthdr h;
-		++p->md.stat.ps_recv;
+		++psn->stat.ps_recv;
 		h.ts.tv_sec = sh->snoop_timestamp.tv_sec;
 		h.ts.tv_usec = sh->snoop_timestamp.tv_usec;
 		h.len = datalen;
@@ -156,6 +164,7 @@ pcap_inject_snoop(pcap_t *p, const void *buf, size_t size)
 static int
 pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
 {
+	struct pcap_snoop *psn = p->priv;
 	register struct rawstats *rs;
 	struct rawstats rawstats;
 
@@ -180,7 +189,7 @@ pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
 	 * rather than just this socket?  If not, why does it have
 	 * both Snoop and Drain statistics?
 	 */
-	p->md.stat.ps_drop =
+	psn->stat.ps_drop =
 	    rs->rs_snoop.ss_ifdrops + rs->rs_snoop.ss_sbdrops +
 	    rs->rs_drain.ds_ifdrops + rs->rs_drain.ds_sbdrops;
 
@@ -189,7 +198,7 @@ pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
 	 * As filtering is done in userland, this does not include
 	 * packets dropped because we ran out of buffer space.
 	 */
-	*ps = p->md.stat;
+	*ps = psn->stat;
 	return (0);
 }
 
@@ -394,11 +403,11 @@ pcap_activate_snoop(pcap_t *p)
 }
 
 pcap_t *
-pcap_create(const char *device, char *ebuf)
+pcap_create_interface(const char *device, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(device, ebuf);
+	p = pcap_create_common(device, ebuf, sizeof (struct pcap_snoop));
 	if (p == NULL)
 		return (NULL);
 

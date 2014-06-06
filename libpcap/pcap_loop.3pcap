@@ -84,7 +84,7 @@ processed when reading a ``savefile''.
 \fIcnt\fP
 was 0 was undefined; different platforms and devices behaved
 differently, so code that must work with older versions of libpcap
-should use \-1, nor 0, as the value of
+should use \-1, not 0, as the value of
 \fIcnt\fP.)
 .ft R
 .PP
@@ -115,12 +115,48 @@ and the packet data are not to be freed by the callback routine, and are
 not guaranteed to be valid after the callback routine returns; if the
 code needs them to be valid after the callback, it must make a copy of
 them.
+.PP
+The bytes of data from the packet begin with a link-layer header.  The
+format of the link-layer header is indicated by the return value of the
+.B pcap_datalink()
+routine when handed the
+.B pcap_t
+value also passed to
+.B pcap_loop()
+or
+.BR pcap_dispatch() .
+.I http://www.tcpdump.org/linktypes.html
+lists the values
+.B pcap_datalink()
+can return and describes the packet formats that
+correspond to those values.  The value it returns will be valid for all
+packets received unless and until
+.B pcap_set_datalink()
+is called; after a successful call to
+.BR pcap_set_datalink() ,
+all subsequent packets will have a link-layer header of the type
+specified by the link-layer header type value passed to
+.BR pcap_set_datalink() .
+.PP
+Do
+.B NOT
+assume that the packets for a given capture or ``savefile`` will have
+any given link-layer header type, such as
+.B DLT_EN10MB
+for Ethernet.  For example, the "any" device on Linux will have a
+link-layer header type of
+.B DLT_LINUX_SLL
+even if all devices on the system at the time the "any" device is opened
+have some other data link type, such as
+.B DLT_EN10MB
+for Ethernet.
 .SH RETURN VALUE
 .B pcap_loop()
 returns 0 if
 .I cnt
-is exhausted, \-1 if an error occurs, or \-2 if the loop terminated due
-to a call to
+is exhausted or if, when reading from a ``savefile'', no more packets
+are available.  It returns \-1 if an error occurs or \-2 if the loop
+terminated due to a call to
 .B pcap_breakloop()
 before any packets were processed.
 It does
@@ -154,4 +190,5 @@ may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP), pcap_geterr(3PCAP), pcap_breakloop(3PCAP)
+pcap(3PCAP), pcap_geterr(3PCAP), pcap_breakloop(3PCAP),
+pcap_datalink(3PCAP)

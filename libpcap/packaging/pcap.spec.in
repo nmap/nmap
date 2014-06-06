@@ -66,8 +66,10 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root)
 %{_bindir}/pcap-config
-%{_includedir}/pcap*.h
+%{_includedir}/pcap/*.h
 %{_includedir}/pcap.h
+%{_includedir}/pcap-bpf.h
+%{_includedir}/pcap-namedb.h
 %{_libdir}/libpcap.so
 %{_libdir}/libpcap.a
 %{_mandir}/man1/pcap-config.1*
