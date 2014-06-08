@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added new option --noscript to turn off NSE. Useful to avoid running
+  version-category scripts during a quick -sV scan. [Daniel Miller]
+
 o [NSE] Add bacnet-info script to get device information from SCADA/ICS devices
   via BACnet (Building Automation and Control Networks) [Stephen Hilt, Michael
   Toecker]

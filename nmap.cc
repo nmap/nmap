@@ -639,6 +639,7 @@ void parse_options(int argc, char **argv) {
     {"script_args_file", required_argument, 0, 0},
     {"script-help", required_argument, 0, 0},
     {"script_help", required_argument, 0, 0},
+    {"noscript", no_argument, 0, 0},
 #endif
     {"ip_options", required_argument, 0, 0},
     {"ip-options", required_argument, 0, 0},
@@ -676,6 +677,8 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "script-help") == 0) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
+      } else if (optcmp(long_options[option_index].name, "noscript") == 0) {
+        o.noscript = true;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -1440,6 +1443,9 @@ void  apply_delayed_options() {
   if (o.portlist && o.fastscan)
     fatal("You cannot use -F (fast scan) with -p (explicit port selection) but see --top-ports and --port-ratio to fast scan a range of ports");
 
+  if (o.noscript && o.script)
+    fatal("You have specified --noscript and explicitly enabled script scanning. Make up your mind");
+
   if (o.ipprotscan) {
     if (o.portlist)
       getpts(o.portlist, &ports);
@@ -1791,11 +1797,11 @@ int nmap_main(int argc, char *argv[]) {
   }
   if (o.servicescan)
     o.scriptversion = 1;
-  if (o.scriptversion || o.script || o.scriptupdatedb)
+  if (!o.noscript && (o.scriptversion || o.script || o.scriptupdatedb))
     open_nse();
 
   /* Run the script pre-scanning phase */
-  if (o.script) {
+  if (!o.noscript && o.script) {
     new_targets = NewTargets::get();
     script_scan_results = get_script_scan_results_obj();
     script_scan(Targets, SCRIPT_PRE_SCAN);
@@ -1822,7 +1828,7 @@ int nmap_main(int argc, char *argv[]) {
 
       if ((o.noportscan && !o.traceroute
 #ifndef NOLUA
-           && !o.script
+           && (!o.script || o.noscript)
 #endif
           ) || o.listscan) {
         /* We're done with the hosts */
@@ -1983,7 +1989,7 @@ int nmap_main(int argc, char *argv[]) {
       traceroute(Targets);
 
 #ifndef NOLUA
-    if (o.script || o.scriptversion) {
+    if (!o.noscript && (o.script || o.scriptversion)) {
       script_scan(Targets, SCRIPT_SCAN);
     }
 #endif
@@ -2042,7 +2048,7 @@ int nmap_main(int argc, char *argv[]) {
   } while (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
 
 #ifndef NOLUA
-  if (o.script) {
+  if (!o.noscript && o.script) {
     script_scan(Targets, SCRIPT_POST_SCAN);
     printscriptresults(script_scan_results, SCRIPT_POST_SCAN);
     while (!script_scan_results->empty()) {
