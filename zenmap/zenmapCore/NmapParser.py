@@ -476,7 +476,7 @@ class ParserBasics(object):
                 }
 
         self.ops = NmapOptions()
-        self._nmap_output = None
+        self._nmap_output = StringIO.StringIO()
 
     def set_xml_is_temp(self, xml_is_temp):
         # This flag is False if a user has specified his own -oX option - in
@@ -498,10 +498,16 @@ class ParserBasics(object):
         self.ops.target_specs = targets
 
     def get_nmap_output(self):
-        return self._nmap_output
+        return self._nmap_output.getvalue()
 
     def set_nmap_output(self, nmap_output):
-        self._nmap_output = nmap_output
+        self._nmap_output.close()
+        del self._nmap_output
+        self._nmap_output = StringIO.StringIO(nmap_output)
+
+    def del_nmap_output(self):
+        self._nmap_output.close()
+        del _nmap_output
 
     def get_debugging_level(self):
         return self.nmap.get('debugging', '')
@@ -732,7 +738,7 @@ in epoch format!")
         return ports
 
     profile_name = property(get_profile_name, set_profile_name)
-    nmap_output = property(get_nmap_output, set_nmap_output)
+    nmap_output = property(get_nmap_output, set_nmap_output, del_nmap_output)
     debugging_level = property(get_debugging_level, set_debugging_level)
     verbose_level = property(get_verbose_level, set_verbose_level)
     scaninfo = property(get_scaninfo, set_scaninfo)
@@ -808,8 +814,8 @@ class NmapParserSAX(ParserBasics, ContentHandler):
     def _parse_nmaprun(self, attrs):
         run_tag = "nmaprun"
 
-        if self._nmap_output is None and "nmap_output" in attrs:
-            self._nmap_output = attrs["nmap_output"]
+        if self.nmap_output == "" and "nmap_output" in attrs:
+            self.nmap_output = attrs["nmap_output"]
         self.nmap[run_tag]["profile_name"] = attrs.get("profile_name", "")
         self.nmap[run_tag]["start"] = attrs.get("start", "")
         self.nmap[run_tag]["args"] = attrs.get("args", "")
@@ -1057,12 +1063,12 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def characters(self, content):
         if self.in_interactive_output:
-            self.nmap_output += content
+            self._nmap_output.write(content)
 
     def write_text(self, f):
         """Write the Nmap text output of this object to the file-like object
         f."""
-        if self._nmap_output is None:
+        if self.nmap_output == "":
             return
         f.write(self.nmap_output)
 
@@ -1100,7 +1106,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
         fd.close()
 
     def _write_output(self, writer):
-        if self._nmap_output is None:
+        if self.nmap_output == "":
             return
         writer.startElement("output", Attributes({"type": "interactive"}))
         writer.characters(self.nmap_output)
