@@ -125,8 +125,13 @@ import os
 import os.path
 import time
 import socket
-import StringIO
 import copy
+
+# Use the faster cStringIO if available, fallback on StringIO if not
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 # Prevent loading PyXML
 import xml
@@ -476,7 +481,7 @@ class ParserBasics(object):
                 }
 
         self.ops = NmapOptions()
-        self._nmap_output = StringIO.StringIO()
+        self._nmap_output = StringIO()
 
     def set_xml_is_temp(self, xml_is_temp):
         # This flag is False if a user has specified his own -oX option - in
@@ -503,7 +508,8 @@ class ParserBasics(object):
     def set_nmap_output(self, nmap_output):
         self._nmap_output.close()
         del self._nmap_output
-        self._nmap_output = StringIO.StringIO(nmap_output)
+        self._nmap_output = StringIO()
+        self._nmap_output.write(nmap_output)
 
     def del_nmap_output(self):
         self._nmap_output.close()
@@ -1092,7 +1098,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def get_xml(self):
         """Return a string containing the XML representation of this scan."""
-        buffer = StringIO.StringIO()
+        buffer = StringIO()
         self.write_xml(buffer)
         string = buffer.getvalue()
         buffer.close()
@@ -1362,7 +1368,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 class OverrideEntityResolver(EntityResolver):
     """This class overrides the default behavior of xml.sax to download
     remote DTDs, instead returning blank strings"""
-    empty = StringIO.StringIO()
+    empty = StringIO()
 
     def resolveEntity(self, publicId, systemId):
         return OverrideEntityResolver.empty
