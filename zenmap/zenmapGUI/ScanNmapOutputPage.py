@@ -268,7 +268,7 @@ class ScanNmapOutputPage(HIGVBox):
         if entry.parsed is not None:
             self.nmap_output.set_command_execution(None)
             nmap_output = entry.parsed.get_nmap_output()
-            if nmap_output != "":
+            if nmap_output:
                 self.nmap_output.show_nmap_output(nmap_output)
             self.details_button.set_sensitive(True)
         elif entry.command is not None:
