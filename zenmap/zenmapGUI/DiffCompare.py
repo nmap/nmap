@@ -202,7 +202,7 @@ class ScanChooser(HIGVBox):
 
     def show_scan(self, widget):
         nmap_output = self.get_nmap_output()
-        if nmap_output is not None:
+        if nmap_output != "":
             self.txt_scan_result.get_buffer().set_text(nmap_output)
 
     def normalize_output(self, output):
