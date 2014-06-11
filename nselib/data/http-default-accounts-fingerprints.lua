@@ -87,13 +87,58 @@ table.insert(fingerprints, {
     {path = "/cacti/"}
   },
   target_check = function (host, port, path, response)
-    return response.status == 200
+    -- true if the response is HTTP/200 and sets cookie "Cacti"
+    if response.status == 200 then
+      for _, ck in ipairs(response.cookies or {}) do
+        if ck.name:lower() == "cacti" then return true end
+      end
+    end
+    return false
   end,
   login_combos = {
     {username = "admin", password = "admin"}
   },
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "index.php", "Invalid User Name/Password", {action="login", login_username=user, login_password=pass}, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Xplico",
+  category = "web",
+  paths = {
+    {path = "/users/login"}
+  },
+  target_check = function (host, port, path, response)
+    -- true if the response is HTTP/200 and sets cookie "Xplico"
+    if response.status == 200 then
+      for _, ck in ipairs(response.cookies or {}) do
+        if ck.name:lower() == "xplico" then return true end
+      end
+    end
+    return false
+  end,
+  login_combos = {
+    {username = "admin", password = "xplico"},
+    {username = "xplico", password = "xplico"}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- harvest all hidden fields from the login form
+    local req1 = http.get(host, port, path, {no_cache=true, redirect_ok = false})
+    if req1.status ~= 200 then return false end
+    local html = req1.body and req1.body:match('<form%s+action%s*=%s*"/users/login".->(.-)</form>')
+    if not html then return false end
+    local form = {}
+    for n, v in html:gmatch('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"(.-)"%s+value%s*=%s*"(.-)"') do
+      form[n] = v
+    end
+    -- add username and password to the form and submit it
+    form["data[User][username]"] = user
+    form["data[User][password]"] = pass
+    local req2 = http.post(host, port, path, {no_cache=true, cookies=req1.cookies}, nil, form)
+    if req2.status ~= 302 then return false end
+    local loc = req2.header["location"]
+    return loc and (loc:match("/admins$") or loc:match("/pols/index$"))
   end
 })
 
