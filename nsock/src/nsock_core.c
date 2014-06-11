@@ -1323,6 +1323,14 @@ void nsp_add_event(struct npool *nsp, struct nevent *nse) {
     default:
       fatal("Unknown nsock event type (%d)", nse->type);
   }
+
+  /* It can happen that the event already completed. In which case we can
+   * already deliver it, even though we're probably not inside nsock_loop(). */
+  if (nse->event_done) {
+    event_dispatch_and_delete(nsp, nse, 1);
+    update_first_events(nse);
+    nevent_unref(nsp, nse);
+  }
 }
 
 /* An event has been completed and the handler is about to be called. This
