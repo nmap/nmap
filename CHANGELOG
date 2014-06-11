@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Modify the included libpcap configure script to disable certain unused
+  features: bluetooth, usb, usb-can, and dbus sniffing. Dbus support caused a
+  build problem on CentOS 6.5. [Daniel Miller]
+
 o Added new option --noscript to turn off NSE. Useful to avoid running
   version-category scripts during a quick -sV scan. [Daniel Miller]
 
