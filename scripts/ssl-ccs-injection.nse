@@ -1,0 +1,264 @@
+local bin = require('bin')
+local match = require('match')
+local nmap = require('nmap')
+local shortport = require('shortport')
+local sslcert = require('sslcert')
+local stdnse = require('stdnse')
+local string = require('string')
+local table = require('table')
+local vulns = require('vulns')
+local have_tls, tls = pcall(require,'tls')
+
+assert(have_tls,
+  "This script requires tls.lua from http://nmap.org/nsedoc/lib/tls.html")
+
+description = [[
+Detects whether a server is vulnerable to the SSL/TLS "CCS Injection"
+vulnerability (CVE-2014-0160), first discovered by Masashi Kikuchi.
+The script is based on the ccsinjection.c code authored by Ramon de C Valle
+(https://gist.github.com/rcvalle/71f4b027d61a78c42607)
+
+In order to exploit the vulnerablity, a MITM attacker would effectively
+do the following:
+
+    o Wait for a new TLS connection, followed by the ClientHello
+      ServerHello handshake messages.
+
+    o Issue a CCS packet in both the directions, which causes the OpenSSL
+      code to use a zero length pre master secret key. The packet is sent
+      to both ends of the connection. Session Keys are derived using a
+      zero length pre master secret key, and future session keys also
+      share this weakness.
+
+    o Renegotiate the handshake parameters.
+
+    o The attacker is now able to decrypt or even modify the packets
+      in transit.
+
+The script works by sending a 'ChangeCipherSpec' message out of order and
+checking whether the server returns an 'UNEXPECTED_MESSAGE' alert record
+or not. Since a non-patched server would simply accept this message, the
+CCS packet is sent twice, in order to force an alert from the server. If
+the alert type is different than 'UNEXPECTED_MESSAGE', we can conclude
+the server is vulnerable.
+]]
+
+---
+-- @usage
+-- nmap -p 443 --script ssl-ccs-injection <target>
+--
+-- @output
+-- PORT    STATE SERVICE
+-- 443/tcp open  https
+-- | ssl-ccs-injection:
+-- |   VULNERABLE:
+-- |   SSL/TLS MITM vulnerability (CCS Injection)
+-- |     State: VULNERABLE
+-- |     Risk factor: High
+-- |     Description:
+-- |       OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before
+-- |       1.0.1h does not properly restrict processing of ChangeCipherSpec
+-- |       messages, which allows man-in-the-middle attackers to trigger use
+-- |       of a zero-length master key in certain OpenSSL-to-OpenSSL
+-- |       communications, and consequently hijack sessions or obtain
+-- |       sensitive information, via a crafted TLS handshake, aka the
+-- |       "CCS Injection" vulnerability.
+-- |
+-- |     References:
+-- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0224
+-- |       http://www.cvedetails.com/cve/2014-0224
+-- |_      http://www.openssl.org/news/secadv_20140605.txt
+
+author = "Claudiu Perta <claudiu.perta@gmail.com>"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = { "vuln", "safe" }
+
+
+portrule = function(host, port)
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+end
+
+---
+-- Reads an SSL/TLS record and returns true if it's a fatal,
+-- 'unexpected_message' alert and false otherwise.
+local function alert_unexpected_message(s)
+  local status, buffer
+  status, buffer = tls.record_buffer(s, buffer, 1)
+  if not status then
+    return false
+  end
+
+  local position, record = tls.record_read(buffer, 1)
+  if record == nil then
+    return false
+  end
+
+  if record.type ~= "alert" then
+    return false
+  end
+
+  for _, body in ipairs(record.body) do
+    if body.level == "fatal" and body.description == "unexpected_message" then
+      return true
+    end
+  end
+
+  return false
+end
+
+local function keys(t)
+  local ret = {}
+  for k, _ in pairs(t) do
+    ret[#ret+1] = k
+  end
+  return ret
+end
+
+local function test_ccs_injection(host, port, version)
+  local hello = tls.client_hello({
+      ["protocol"] = version,
+      -- Claim to support every cipher
+      -- Doesn't work with IIS, but IIS isn't vulnerable
+      ["ciphers"] = keys(tls.CIPHERS),
+      ["compressors"] = {"NULL"},
+      ["extensions"] = {
+        -- Claim to support every elliptic curve
+        ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](
+          keys(tls.ELLIPTIC_CURVES)),
+        -- Claim to support every EC point format
+        ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](
+          keys(tls.EC_POINT_FORMATS)),
+      },
+    })
+
+  local status, err
+  local s = nmap.new_socket()
+  local status = s:connect(host, port)
+  if not status then
+    stdnse.print_debug(1, "Connection to server failed")
+    return false
+  end
+
+  -- Set a sufficiently large timeout
+  s:set_timeout(10000)
+
+  -- Send Client Hello to the target server
+  status, err = s:send(hello)
+  if not status then
+    stdnse.print_debug(1, "Couldn't send Client Hello: %s", err)
+    s:close()
+    return false
+  end
+
+  -- Read response
+  local done = false
+  local i = 1
+  local response
+  repeat
+    status, response, err = tls.record_buffer(s, response, i)
+    if err == "TIMEOUT" or not status then
+      stdnse.print_verbose(1, "No response from server: %s", err)
+      s:close()
+      return false
+    end
+
+    local record
+    i, record = tls.record_read(response, i)
+    if record == nil then
+      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+      s:close()
+      return "NOT_VULNERABLE"
+    elseif record.protocol ~= version then
+      stdnse.print_debug(1, "%s: Protocol version mismatch (%s)",
+        SCRIPT_NAME, version)
+      s:close()
+      return false, true
+    end
+
+    if record.type == "handshake" then
+      for _, body in ipairs(record.body) do
+        if body.type == "server_hello_done" then
+          stdnse.print_debug(1, "Handshake completed (%s)", version)
+          done = true
+        end
+      end
+    end
+  until done
+
+  -- Send the change_cipher_spec message twice to
+  -- force an alert in the case the server is not
+  -- patched.
+
+  -- change_cipher_spec message
+  local ccs = tls.record_write(
+    "change_cipher_spec", version, bin.pack("C", 0x01))
+
+  -- Send the first ccs message
+  status, err = s:send(ccs)
+  if not status then
+    stdnse.print_debug(1, "Couldn't send first ccs message: %s", err)
+    s:close()
+    return false
+  end
+
+  -- Send the second ccs message
+  status, err = s:send(ccs)
+  if not status then
+    stdnse.print_debug(1, "Couldn't send second ccs message: %s", err)
+    s:close()
+    return false
+  end
+
+  -- Read the alert message.
+  status = alert_unexpected_message(s)
+
+  if status then
+    stdnse.print_debug(
+      1, 'Server returned UNEXPECTED_MESSAGE alert, not vulnerable')
+    s:close()
+    return false
+  else
+    stdnse.print_debug(
+      1, 'Vulnerable - alert is not UNEXPECTED_MESSAGE')
+    s:close()
+    return true
+  end
+end
+
+action = function(host, port)
+  local vuln_table = {
+    title = "SSL/TLS MITM vulnerability (CCS Injection)",
+    state = vulns.STATE.NOT_VULN,
+    risk_factor = "High",
+    description = [[
+OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h
+does not properly restrict processing of ChangeCipherSpec messages,
+which allows man-in-the-middle attackers to trigger use of a zero
+length master key in certain OpenSSL-to-OpenSSL communications, and
+consequently hijack sessions or obtain sensitive information, via
+a crafted TLS handshake, aka the "CCS Injection" vulnerability.
+    ]],
+    references = {
+      'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0224',
+      'http://www.cvedetails.com/cve/2014-0224',
+      'http://www.openssl.org/news/secadv_20140605.txt'
+    }
+  }
+
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
+
+  -- Iterate over tls.PROTOCOLS
+  for tls_version, _ in pairs(tls.PROTOCOLS) do
+    local vulnerable, protocol_mismatch = test_ccs_injection(
+      host, port, tls_version)
+
+    if not(protocol_mismatch) then
+      if vulnerable then
+        vuln_table.state = vulns.STATE.VULN
+      end
+      break
+    end
+  end
+
+  return report:make_output(vuln_table)
+end
