@@ -86,13 +86,13 @@ static int connect_tcp_failure(void *tdata) {
 
   memset(&peer, 0, sizeof(peer));
   peer.sin_family = AF_INET;
-  inet_aton("192.0.2.1", &peer.sin_addr);   /* Unreachable by RFC5737 */
+  inet_aton("0.0.0.1", &peer.sin_addr);   /* IANA reserved */
 
   nsock_connect_tcp(ctd->nsp, ctd->nsi, connect_handler, 4000, NULL,
                     (struct sockaddr *)&peer, sizeof(peer), PORT_TCP);
 
   nsock_loop(ctd->nsp, 4000);
-  return ctd->connect_result == -ENETUNREACH ? 0 : ctd->connect_result;
+  return ctd->connect_result == -EINVAL ? 0 : ctd->connect_result;
 }
 
 
