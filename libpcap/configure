@@ -1375,16 +1375,11 @@ Optional Features:
   --enable-optimizer-dbg  build optimizer debugging code
   --enable-yydebug        build parser debugging code
   --disable-universal     don't build universal on OS X
-  --enable-shared         build shared libraries [default=yes, if support
-                          available]
-  --enable-bluetooth      enable Bluetooth support [default=yes, if support
-                          available]
-  --enable-canusb         enable canusb support [default=yes, if support
-                          available]
-  --enable-can            enable CAN support [default=yes, if support
-                          available]
-  --enable-dbus           enable D-Bus capture support [default=yes, if
-                          support available]
+  --enable-shared         build shared libraries [default=no]
+  --enable-bluetooth      enable Bluetooth support [default=no]
+  --enable-canusb         enable canusb support [default=no]
+  --enable-can            enable CAN support [default=no]
+  --enable-dbus           enable D-Bus capture support [default=no]
   --enable-packet-ring    enable Linux packet ring support [default=yes]
 
 Optional Packages:
@@ -6944,7 +6939,7 @@ if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared;
 fi
 
-test "x$enable_shared" = "xno" && DYEXT="none"
+test "x$enable_shared" != "xyes" && DYEXT="none"
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
@@ -7824,7 +7819,7 @@ esac
 if test "${enable_bluetooth+set}" = set; then :
   enableval=$enable_bluetooth;
 else
-  enable_bluetooth=yes
+  enable_bluetooth=no
 fi
 
 
@@ -7901,7 +7896,7 @@ fi
 if test "${enable_canusb+set}" = set; then :
   enableval=$enable_canusb;
 else
-  enable_canusb=yes
+  enable_canusb=no
 fi
 
 
@@ -7940,7 +7935,7 @@ fi
 if test "${enable_can+set}" = set; then :
   enableval=$enable_can;
 else
-  enable_can=yes
+  enable_can=no
 fi
 
 
@@ -7977,7 +7972,7 @@ fi
 if test "${enable_dbus+set}" = set; then :
   enableval=$enable_dbus;
 else
-  enable_dbus=ifavailable
+  enable_dbus=no
 fi
 
 
