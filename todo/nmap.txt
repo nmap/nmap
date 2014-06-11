@@ -1,5 +1,11 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Augment the configure script to list unmet dependencies. Currently, configure
+  works just fine without a C++ compiler installed, but make generates an
+  error.  The configure script should be able to detect this. Also, a list of
+  features that are/are-not available would be nice at the end of the script,
+  so folks can see that they've e.g. missed the OpenSSL dependency.
+
 o Integrate latest IPv4 OS detection submissions and corrections
 
 o Integrate latest IPv6 OS detection submissions and corrections
