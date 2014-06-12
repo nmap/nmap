@@ -132,11 +132,21 @@ local function test_ccs_injection(host, port, version)
     })
 
   local status, err
-  local s = nmap.new_socket()
-  local status = s:connect(host, port)
-  if not status then
-    stdnse.print_debug(1, "Connection to server failed")
-    return false
+  local s
+  local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
+  if specialized then
+    status, s = specialized(host, port)
+    if not status then
+      stdnse.print_debug(3, "Connection to server failed")
+      return
+    end
+  else
+    s = nmap.new_socket()
+    status = s:connect(host, port)
+    if not status then
+      stdnse.print_debug(3, "Connection to server failed")
+      return
+    end
   end
 
   -- Set a sufficiently large timeout
