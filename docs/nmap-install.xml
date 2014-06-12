@@ -542,9 +542,7 @@ just the command-line executable and data files, while the
 <literal>zenmap</literal> package contains the optional <application>Zenmap</application>
 graphical frontend (see <xref linkend="zenmap"/>).
 The <literal>zenmap</literal> package requires
-that the <literal>nmap</literal> package be installed first.  One down
-side to installing the RPMs rather than compiling from source is that
-the RPMs don't support OpenSSL for version detection and Nmap Scripting Engine probing of SSL services.</para>
+that the <literal>nmap</literal> package be installed first.</para>
 
 <para>
 <indexterm><primary>RPM</primary><secondary>installing from</secondary></indexterm>
