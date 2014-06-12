@@ -1467,11 +1467,11 @@ Hello. This short message is being sent by Ncat.
     <para>
     Continuing the example from <xref linkend="ncat-listen"/>, we can
     create a simple HTTP server that serves the
-    <literal>index.html<literal> file using the following command:
+    <literal>index.html</literal> file using the following command:
     </para>
 
 <literallayout>
-<command>nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"<command>
+<command>nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"</command>
 </literallayout>
 
     <para>
@@ -1508,7 +1508,7 @@ https://svn.nmap.org/nmap-exp/d33tah/lua-exec-examples/ncat/scripts/httpd.lua
     <para>
     Once you have downloaded it, simply run Ncat in listening mode. Assuming
     that your working directory contains the httpd.lua script, simply run:
-    <para>
+    </para>
 
 <literallayout>
 <command>ncat --lua-exec httpd.lua --listen 8080 --keep-open</command>
