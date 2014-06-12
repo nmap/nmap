@@ -6,6 +6,12 @@
 -- ssl-cert script in an effort to allow certs to be cached and shared among
 -- other scripts.
 --
+-- STARTTLS functions are included for several protocols:
+--
+-- * FTP
+-- * SMTP
+-- * XMPP
+--
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
 local nmap = require "nmap"
@@ -15,6 +21,7 @@ local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
 StartTLS = {
+  -- TODO: Implement STARTTLS for IMAP, POP3, LDAP, NNTP
 
   ftp_prepare_tls_without_reconnect = function(host, port)
     local s = nmap.new_socket()
@@ -239,11 +246,24 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   [5269] = StartTLS.xmpp_prepare_tls_without_reconnect
 }
 
+--- Get a specialized SSL connection function without starting SSL
+--
+-- For protocols that require some sort of START-TLS setup, this function will
+-- return a function that can be used to produce a socket that is ready for SSL
+-- messages.
+-- @param port A port table with 'number' and 'service' keys
+-- @return A STARTTLS function or nil
 function getPrepareTLSWithoutReconnect(port)
   return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
     SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service])
 end
 
+--- Get a specialized SSL connection function to create an SSL socket
+--
+-- For protocols that require some sort of START-TLS setup, this function will
+-- return a function that can be used to produce an SSL-connected socket.
+-- @param port A port table with 'number' and 'service' keys
+-- @return A STARTTLS function or nil
 function isPortSupported(port)
   return (SPECIALIZED_PREPARE_TLS[port.number] or
     SPECIALIZED_PREPARE_TLS[port.service])
