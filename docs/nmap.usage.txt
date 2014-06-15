@@ -75,6 +75,8 @@ FIREWALL/IDS EVASION AND SPOOFING:
   -e <iface>: Use specified interface
   -g/--source-port <portnum>: Use given port number
   --proxies <url1,[url2],...>: Relay connections through HTTP/SOCKS4 proxies
+  --data <hex string>: Append a custom payload to sent packets
+  --data-string <string>: Append a custom ASCII string to sent packets
   --data-length <num>: Append random data to sent packets
   --ip-options <options>: Send packets with specified ip options
   --ttl <val>: Set IP time-to-live field

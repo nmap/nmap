@@ -1,5 +1,10 @@
 DONE:
 
+o Provide an option to send a comment in scan packet data for target
+  network.  Examples: --data-string "Scan conducted by Marc Reis from
+  SecOps, extension 2147" or --data-string "pH33r my l3eT
+  s|&lt;iLLz!  I'll 0wN UR b0x!"
+
 o We should probably update our included libpcap.  We currently
   include version 1.2.1 (we upgraded to that in April 2012) while the
   latest version on tcpdump.org is 1.5.3.  We make minor changes to

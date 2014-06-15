@@ -302,6 +302,8 @@ static void printusage(int rc) {
          "  -e <iface>: Use specified interface\n"
          "  -g/--source-port <portnum>: Use given port number\n"
          "  --proxies <url1,[url2],...>: Relay connections through HTTP/SOCKS4 proxies\n"
+         "  --data <hex string>: Append a custom payload to sent packets\n"
+         "  --data-string <string>: Append a custom ASCII string to sent packets\n"
          "  --data-length <num>: Append random data to sent packets\n"
          "  --ip-options <options>: Send packets with specified ip options\n"
          "  --ttl <val>: Set IP time-to-live field\n"
@@ -582,6 +584,9 @@ void parse_options(int argc, char **argv) {
     {"packet-trace", no_argument, 0, 0}, /* Display all packets sent/rcv */
     {"version_trace", no_argument, 0, 0}, /* Display -sV related activity */
     {"version-trace", no_argument, 0, 0}, /* Display -sV related activity */
+    {"data", required_argument, 0, 0},
+    {"data_string", required_argument, 0, 0},
+    {"data-string", required_argument, 0, 0},
     {"data_length", required_argument, 0, 0},
     {"data-length", required_argument, 0, 0},
     {"send_eth", no_argument, 0, 0},
@@ -819,7 +824,32 @@ void parse_options(int argc, char **argv) {
         } else if (optcmp(long_options[option_index].name, "version-trace") == 0) {
           o.setVersionTrace(true);
           o.debugging++;
+        } else if (optcmp(long_options[option_index].name, "data") == 0) {
+          if (o.extra_payload)
+            fatal("Can't use the --data option(s) multiple times, or together.");
+          u8 *tempbuff=NULL;
+          size_t len=0;
+          if( (tempbuff=parse_hex_string(optarg, &len))==NULL)
+            fatal("Invalid hex string specified");
+          else {
+            o.extra_payload_length = len;
+            o.extra_payload = (char *) safe_malloc(o.extra_payload_length);
+            memcpy(o.extra_payload, tempbuff, len);
+          }
+          if (o.extra_payload_length > 1400) /* 1500 - IP with opts - TCP with opts. */
+            error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
+        } else if (optcmp(long_options[option_index].name, "data-string") == 0) {
+          if (o.extra_payload)
+            fatal("Can't use the --data option(s) multiple times, or together.");
+          o.extra_payload_length = strlen(optarg);
+          if (o.extra_payload_length < 0 || o.extra_payload_length > MAX_PAYLOAD_ALLOWED)
+            fatal("string length must be between 0 and %d", MAX_PAYLOAD_ALLOWED);
+          if (o.extra_payload_length > 1400) /* 1500 - IP with opts - TCP with opts. */
+            error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
+          o.extra_payload = strdup(optarg);
         } else if (optcmp(long_options[option_index].name, "data-length") == 0) {
+          if (o.extra_payload)
+            fatal("Can't use the --data option(s) multiple times, or together.");
           o.extra_payload_length = (int)strtol(optarg, NULL, 10);
           if (o.extra_payload_length < 0 || o.extra_payload_length > MAX_PAYLOAD_ALLOWED)
             fatal("data-length must be between 0 and %d", MAX_PAYLOAD_ALLOWED);
