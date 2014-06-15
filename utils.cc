@@ -495,6 +495,77 @@ void bintohexstr(char *buf, int buflen, char *src, int srclen) {
     bp += Snprintf(buf + bp, buflen - bp, "\n");
 }
 
+/** Returns a buffer that contains the binary equivalent to the supplied
+ *  hex spec or NULL in case of error.
+ *  @warning Returned pointer points to a static buffer that subsequent calls
+ *  will overwrite. */
+u8 *parse_hex_string(char *str, size_t *outlen) {
+  char auxbuff[4096];
+  static u8 dst[16384];
+  size_t dstlen=16384;
+  unsigned int i=0, j=0;
+  char *start=NULL;
+
+  if(str==NULL || outlen==NULL)
+    return NULL;
+  /* This catches the empty string possibility "" */
+  if(strlen(str) == 0)
+    return NULL;
+  else
+    memset(auxbuff,0,4096);
+
+  /* String should be treated as a hex number in this format: 0xAABBCCDDEE...
+   * We process it the way it is specified, we don't perform byte order
+   * conversions so if the users says 0x00AA we write dst[0]=0x00, dst[1]==0xAA
+   * no matter the endianness of the host system. */
+  if( !strncmp("0x", str, 2) ) {
+    /* This catches the case of an empty "0x" */
+    if(strlen(str) == 2)
+      return NULL;
+    start=str+2;
+  }
+  /* String should be treated as list of hex char in this format: \x00\xFF\x0A*/
+  else if( !strncmp("\\x", str, 2) ) {
+    /* This catches the case of an empty "\x" */
+    if(strlen(str) == 2)
+      return NULL;
+    /* Copy all interesting bytes to an aux array, discard "\x" */
+    for(i=0; i<strlen(str) && j<4095; i++) {
+      if( str[i]!='\\' && str[i]!='x' && str[i]!='X')
+        auxbuff[j++]=str[i];
+    }
+    auxbuff[j]='\0'; /* NULL terminate the string */
+    start=auxbuff;
+  }
+  /* It must be a hex number in this format: AABBCCDDEE (without 0x or \x) */
+  else {
+    start=str;
+  }
+
+  /*OK, here we should have "start" pointing to the beginning of a string
+   * in the format AABBCCDDEE... */
+  /* Check if all we've got are hex chars */
+  for(i=0; i<strlen(start); i++) {
+    if( !isxdigit(start[i]) )
+      return NULL;
+  }
+  /* Check if we have an even number of hex chars */
+  if( strlen(start)%2 != 0 )
+    return NULL;
+
+  /* We are ready to parse this string */
+  for(i=0, j=0; j<dstlen && i<strlen(start)-1; i+=2) {
+    char twobytes[3];
+    twobytes[0]=start[i];
+    twobytes[1]=start[i+1];
+    twobytes[2]='\0';
+    dst[j++]=(u8)strtol(twobytes, NULL, 16);
+  }
+  /* Store final length */
+  *outlen=j;
+  return dst;
+}
+
 /* Get the CPE part (first component of the URL, should be "a", "h", or "o") as
    a character: 'a', 'h', or 'o'. Returns -1 on error. */
 int cpe_get_part(const char *cpe) {

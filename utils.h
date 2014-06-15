@@ -214,6 +214,8 @@ char *cstring_unescape(char *str, unsigned int *len);
 
 void bintohexstr(char *buf, int buflen, char *src, int srclen);
 
+u8 *parse_hex_string(char *str, size_t *outlen);
+
 #ifndef HAVE_STRERROR
 char *strerror(int errnum);
 #endif
