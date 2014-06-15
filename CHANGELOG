@@ -1,8 +1,19 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added options --data <hex string> and --data-string <string> to send custom
+  payloads in scan packet data. [Jay Bosamiya]
+
+o [Zenmap] Improved NmapParser to increase speed in opening scans. Large scans
+  now open in seconds instead of hours. [Jay Bosamiya]
+
 o Modify the included libpcap configure script to disable certain unused
   features: bluetooth, usb, usb-can, and dbus sniffing. Dbus support caused a
   build problem on CentOS 6.5. [Daniel Miller]
+
+o Updated the bundled libpcap from 1.2.1 to 1.5.3 [Jay Bosamiya]
+
+o Correct the Target MAC Address in Nmap's ARP discovery to conform to what IP
+  stacks in currently popular operating systems use. [Jay Bosamiya]
 
 o Added new option --noscript to turn off NSE. Useful to avoid running
   version-category scripts during a quick -sV scan. [Daniel Miller]
