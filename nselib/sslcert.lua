@@ -9,6 +9,8 @@
 -- STARTTLS functions are included for several protocols:
 --
 -- * FTP
+-- * IMAP
+-- * POP3
 -- * SMTP
 -- * XMPP
 --
@@ -21,7 +23,8 @@ local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
 StartTLS = {
-  -- TODO: Implement STARTTLS for IMAP, POP3, LDAP, NNTP
+
+  -- TODO: Implement STARTTLS for LDAP, NNTP
 
   ftp_prepare_tls_without_reconnect = function(host, port)
     local s = nmap.new_socket()
@@ -78,6 +81,119 @@ StartTLS = {
       end
     end
     return false, "Failed to connect to FTP server"
+  end,
+
+  imap_prepare_tls_without_reconnect = function(host, port)
+    local s = nmap.new_socket()
+    -- Attempt to negotiate TLS over IMAP for services that support it
+    -- Works for IMAP (143)
+
+    -- Open a standard TCP socket
+    local status, error = s:connect(host, port, "tcp")
+    if not status then
+      return false, "Failed to connect to IMAP server"
+    else
+      -- Read the greetings message
+      -- TODO(claudiu) There may be a better way to handle this.
+      local greetings
+      local i = 0
+      repeat
+        status, greetings = s:receive_lines(1)
+        i = i + 1
+      until string.match(greetings, "OK") or i == 5
+
+      -- Check for STARTTLS support.
+      local result, query
+      query = "a001 CAPABILITY\r\n"
+      status = s:send(query)
+      status, result = s:receive_lines(1)
+
+      if not (string.match(result, "STARTTLS")) then
+        stdnse.print_debug(1, "Server doesn't support STARTTLS")
+        return false, "Failed to connect to IMAP server"
+      end
+
+      -- Send the STARTTLS message
+      query = "a002 STARTTLS\r\n"
+      status = s:send(query)
+      status, result = s:receive_lines(1)
+
+      if not (string.match(result, "OK")) then
+        stdnse.print_debug(1, string.format("Error: %s", result))
+        return false, "Failed to connect to IMAP server"
+      end
+    end
+
+    -- Should have a solid TLS over IMAP session now...
+    return true, s
+  end,
+
+  imap_prepare_tls = function(host, port)
+    local err
+    local status, s = StartTLS.imap_prepare_tls_without_reconnect(host, port)
+    if status then
+      status,err = s:reconnect_ssl()
+      if not status then
+        stdnse.print_debug(
+          1, "Could not establish SSL session after STARTTLS command.")
+        s:close()
+        return false, "Failed to connect to IMAP server"
+      else
+        return true,s
+      end
+    end
+    return false, "Failed to connect to IMAP server"
+  end,
+
+  pop3_prepare_tls_without_reconnect = function(host, port)
+    local s = nmap.new_socket()
+    -- Attempt to negotiate TLS over POP3 for services that support it
+    -- Works for POP3 (110)
+
+    -- Open a standard TCP socket
+    local status, error = s:connect(host, port, "tcp")
+    if not status then
+      return false, "Failed to connect to POP3 server"
+    else
+      -- Read the greetings message
+      -- TODO(claudiu) There may be a better way to handle this.
+      local greetings
+      local i = 0
+      repeat
+        status, greetings = s:receive_lines(1)
+        i = i + 1
+      until string.match(greetings, "OK") or i == 5
+
+      -- Send the STLS message
+      query = "STLS\r\n"
+      status = s:send(query)
+      status, result = s:receive_lines(1)
+
+      if not (string.match(result, "OK")) then
+        stdnse.print_debug(1, string.format("Error: %s", result))
+        return false, "Failed to connect to POP3 server"
+      end
+    end
+
+    -- Should have a solid TLS over POP3 session now...
+    return true, s
+  end,
+
+  pop3_prepare_tls = function(host, port)
+    local err
+    local status, s = StartTLS.pop3_prepare_tls_without_reconnect(host, port)
+    if status then
+      status,err = s:reconnect_ssl()
+      if not status then
+        stdnse.print_debug(
+          1, "Could not establish SSL session after STARTTLS command.")
+        s:close()
+        return false, "Failed to connect to POP3 server"
+      else
+        return true,s
+      end
+    end
+    return false, "Failed to connect to POP3 server"
   end,
 
   smtp_prepare_tls_without_reconnect = function(host, port)
@@ -227,6 +343,10 @@ StartTLS = {
 local SPECIALIZED_PREPARE_TLS = {
   ftp = StartTLS.ftp_prepare_tls,
   [21] = StartTLS.ftp_prepare_tls,
+  imap = StartTLS.imap_prepare_tls,
+  [143] = StartTLS.imap_prepare_tls,
+  pop3 = StartTLS.pop3_prepare_tls,
+  [110] = StartTLS.pop3_prepare_tls,
   smtp = StartTLS.smtp_prepare_tls,
   [25] = StartTLS.smtp_prepare_tls,
   [587] = StartTLS.smtp_prepare_tls,
@@ -238,6 +358,10 @@ local SPECIALIZED_PREPARE_TLS = {
 local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   ftp = StartTLS.ftp_prepare_tls_without_reconnect,
   [21] = StartTLS.ftp_prepare_tls_without_reconnect,
+  imap = StartTLS.imap_prepare_tls_without_reconnect,
+  [143] = StartTLS.imap_prepare_tls_without_reconnect,
+  pop3 = StartTLS.pop3_prepare_tls_without_reconnect,
+  [110] = StartTLS.pop3_prepare_tls_without_reconnect,
   smtp = StartTLS.smtp_prepare_tls_without_reconnect,
   [25] = StartTLS.smtp_prepare_tls_without_reconnect,
   [587] = StartTLS.smtp_prepare_tls_without_reconnect,
