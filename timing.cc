@@ -774,3 +774,4 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
   log_flush(LOG_STDOUT|LOG_XML);
   return true;
 }
+

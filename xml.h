@@ -153,3 +153,4 @@ bool xml_tag_open();
 bool xml_root_written();
 
 #endif
+

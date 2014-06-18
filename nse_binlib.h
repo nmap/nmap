@@ -6,3 +6,4 @@
 LUALIB_API int luaopen_binlib (lua_State *L);
 
 #endif /* NSE_BINLIB */
+

@@ -530,3 +530,4 @@ void nse_nsock_init_ssl_cert(lua_State *L)
   lua_setfield(L, -2, "__index");
   ssl_cert_methods_index_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 }
+

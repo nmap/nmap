@@ -1460,3 +1460,4 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   target->stopTimeOutClock(NULL);
   return;
 }
+

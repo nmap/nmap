@@ -366,3 +366,4 @@ LUALIB_API int luaopen_dnet (lua_State *L)
 
   return 1;
 }
+

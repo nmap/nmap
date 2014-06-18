@@ -130,3 +130,4 @@
 int traceroute(std::vector<Target *> &Targets);
 
 void traceroute_hop_cache_clear();
+

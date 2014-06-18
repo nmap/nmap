@@ -816,3 +816,4 @@ void close_nse (void)
     L_NSE = NULL;
   }
 }
+

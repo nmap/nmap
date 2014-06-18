@@ -290,3 +290,4 @@ void nmap_adjust_loglevel(nsock_pool nsp, bool trace);
 void nmap_nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec);
 
 #endif /* OUTPUT_H */
+

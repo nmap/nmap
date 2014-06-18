@@ -201,3 +201,4 @@ int determineScanGroupSize(int hosts_scanned_so_far,
                            struct scan_lists *ports);
 
 #endif /* SCAN_ENGINE_H */
+
