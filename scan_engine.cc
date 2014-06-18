@@ -5864,4 +5864,3 @@ void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
   if (o.debugging > 2 && USI.pd != NULL)
     pcap_print_stats(LOG_PLAIN, USI.pd);
 }
-

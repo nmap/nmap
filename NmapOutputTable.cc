@@ -319,4 +319,3 @@ char *NmapOutputTable::printableTable(int *size) {
   if (size) *size = p;
   return tableout;
 }
-

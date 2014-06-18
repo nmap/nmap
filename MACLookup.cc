@@ -246,4 +246,3 @@ bool MACCorp2Prefix(const char *vendorstr, u8 *mac_data) {
   }
   return false;
 }
-

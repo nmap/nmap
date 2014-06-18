@@ -2760,4 +2760,3 @@ int service_scan(std::vector<Target *> &Targets) {
 
   return 0;
 }
-

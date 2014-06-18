@@ -3131,4 +3131,3 @@ static void display_nmap_version() {
   log_write(LOG_STDOUT, "\n");
   log_write(LOG_STDOUT, "Available nsock engines: %s\n", nsock_list_engines());
 }
-

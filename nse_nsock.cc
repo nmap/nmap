@@ -1102,4 +1102,3 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 
   return 1;
 }
-

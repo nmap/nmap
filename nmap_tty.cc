@@ -374,4 +374,3 @@ bool keyWasPressed()
 
   return false;
 }
-

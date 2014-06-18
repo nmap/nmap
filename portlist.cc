@@ -943,4 +943,3 @@ void random_port_cheat(u16 *ports, int portcount) {
     }
   }
 }
-
