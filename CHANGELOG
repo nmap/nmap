@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add s7-info script to get device information from Siemens PLCs via the
+  S7 service, tunnelled over ISO-TSAP on TCP port 102. [Stephen Hilt]
+
 o Added options --data <hex string> and --data-string <string> to send custom
   payloads in scan packet data. [Jay Bosamiya]
 
