@@ -575,4 +575,3 @@ void Target::osscanSetFlag(int flag) {
         else
                 osscan_flag = flag;
 }
-
