@@ -37,7 +37,7 @@ Cisco = {
     end,
 
   },
-  
+
   AnyConnect = {
 
     new = function(self, host, port)
@@ -46,7 +46,7 @@ Cisco = {
       self.__index = self
       return o
     end,
-    
+
     -- generate a random hex-string of length 'length'
     --
     generate_random = function(length)
