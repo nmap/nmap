@@ -330,4 +330,3 @@ bool FingerPrintResults::classAlreadyExistsInResults(struct OS_Classification *O
   // Went through all the results -- no duplicates found
   return false;
 }
-

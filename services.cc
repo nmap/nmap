@@ -566,4 +566,3 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports) {
   else if (o.debugging && level >= 1)
     log_write(LOG_STDOUT, "PORTS: Using top %d ports found open (TCP:%d, UDP:%d, SCTP:%d)\n", (int) level, ports->tcp_count, ports->udp_count, ports->sctp_count);
 }
-

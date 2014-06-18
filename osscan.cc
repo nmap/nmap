@@ -1301,4 +1301,3 @@ FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
 
   return parse_fingerprint_file(filename);
 }
-

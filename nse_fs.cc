@@ -320,4 +320,3 @@ LUALIB_API int luaopen_lfs(lua_State *L) {
   set_info (L);
   return 1;
 }
-

@@ -250,4 +250,3 @@ struct protoent *nmap_getprotbynum(int num) {
   /* Couldn't find it ... oh well. */
   return NULL;
 }
-

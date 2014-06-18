@@ -972,4 +972,3 @@ int luaopen_nmap (lua_State *L)
 
   return 1;
 }
-

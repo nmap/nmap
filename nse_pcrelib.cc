@@ -402,4 +402,3 @@ LUALIB_API int luaopen_pcrelib(lua_State *L)
         
         return 1;
 }
-

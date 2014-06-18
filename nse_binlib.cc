@@ -411,4 +411,3 @@ LUALIB_API int luaopen_binlib (lua_State *L) {
   luaL_newlib(L, binlib);
   return 1;
 }
-

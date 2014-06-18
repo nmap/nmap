@@ -100,4 +100,3 @@ void lua_state_dump (lua_State *L)
 
   assert(lua_gettop(L) == top);
 }
-

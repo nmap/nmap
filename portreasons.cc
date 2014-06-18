@@ -562,4 +562,3 @@ char *port_reason_str(state_reason_t r) {
         }
         return reason;
 }
-

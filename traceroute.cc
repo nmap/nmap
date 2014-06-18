@@ -1649,4 +1649,3 @@ static struct timeval get_now(struct timeval *now) {
 static const char *ss_to_string(const struct sockaddr_storage *ss) {
   return inet_ntop_ez(ss, sizeof(*ss));
 }
-

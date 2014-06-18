@@ -382,4 +382,3 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
               numports, (long) time(NULL) - starttime);
   return;
 }
-

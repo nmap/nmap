@@ -452,4 +452,3 @@ bool xml_tag_open() {
 bool xml_root_written() {
   return xml.root_written;
 }
-

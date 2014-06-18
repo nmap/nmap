@@ -2683,4 +2683,3 @@ void nmap_nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec) {
   log_write(LOG_STDERR, "NSOCK %s [%.4fs] %s(): %s\n", nslog2str(rec->level),
             elapsed_time/1000.0, rec->func, rec->msg);
 }
-
