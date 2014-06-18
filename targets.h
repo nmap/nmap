@@ -235,3 +235,4 @@ int dumpExclude(addrset *exclude_group);
 void returnhost(HostGroupState *hs);
 
 #endif /* TARGETS_H */
+

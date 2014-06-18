@@ -3726,3 +3726,4 @@ int OSScan::os_scan(std::vector<Target *> &Targets) {
   else
     return OP_FAILURE;
 }
+

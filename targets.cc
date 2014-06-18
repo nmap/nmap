@@ -721,3 +721,4 @@ Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
 
   return hs->hostbatch[hs->next_batch_no++];
 }
+

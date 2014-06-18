@@ -125,3 +125,4 @@
 
 int l_get_ssl_certificate(lua_State *L);
 void nse_nsock_init_ssl_cert(lua_State *L);
+

@@ -251,3 +251,4 @@ protected:
 };
 
 #endif /* TARGETGROUP_H */
+

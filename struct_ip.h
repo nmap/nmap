@@ -160,3 +160,4 @@ struct icmp
 #define icmp_data       icmp_dun.id_data
 };
 #endif /* HAVE_STRUCT_ICMP */
+

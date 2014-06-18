@@ -158,3 +158,4 @@ struct protoent *nmap_getprotbynum(int num);
    "N/A")
 
 #endif
+

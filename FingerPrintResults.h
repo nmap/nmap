@@ -223,3 +223,4 @@ public:
 };
 
 #endif /* FINGERPRINTRESULTS_H */
+

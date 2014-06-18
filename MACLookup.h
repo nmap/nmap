@@ -145,3 +145,4 @@ const char *MACPrefix2Corp(const u8 *prefix);
 bool MACCorp2Prefix(const char *vendorstr, u8 *mac_data);
 
 #endif /* MACLOOKUP_H */
+

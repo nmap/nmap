@@ -785,3 +785,4 @@ unsigned long NewTargets::insert (const char *target) {
 
   return new_targets->push(target);
 }
+

@@ -173,3 +173,4 @@ struct addrinfo {
 };
 
 #endif /* _NMAP_AMIGAOS_H_ */
+

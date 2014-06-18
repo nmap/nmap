@@ -144,3 +144,4 @@ void idle_scan(Target *target, u16 *portarray, int numports,
                char *proxy, const struct scan_lists *ports);
 
 #endif /* IDLE_SCAN_H */
+
