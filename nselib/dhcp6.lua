@@ -511,10 +511,10 @@ DHCP6.Response = {
 }
 
 -- Table of option to string converters
--- Each option should have it's own function to convert an instance of option
+-- Each option should have its own function to convert an instance of option
 -- to a printable string.
 --
--- TODO: These functions could eventually be moved to a method in it's
+-- TODO: These functions could eventually be moved to a method in its
 -- respective class.
 OptionToString = {
 

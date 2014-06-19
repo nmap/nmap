@@ -307,7 +307,7 @@ nsock_ssl nsi_getssl(nsock_iod nsockiod) {
 #endif
 }
 
-/* Returns the SSL_SESSION of an nsock_iod, and increments it's usage count. */
+/* Returns the SSL_SESSION of an nsock_iod, and increments its usage count. */
 nsock_ssl_session nsi_get1_ssl_session(nsock_iod nsockiod) {
 #if HAVE_OPENSSL
   return SSL_get1_session(((struct niod *)nsockiod)->ssl);

@@ -322,7 +322,7 @@ function decodeField( data, pos )
 
 end
 
---- Decodes the result set header packet into it's sub components
+--- Decodes the result set header packet into its sub components
 --
 -- ref: http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Result_Set_Header_Packet
 --

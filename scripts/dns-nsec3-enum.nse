@@ -173,7 +173,7 @@ local function random_string()
 end
 
 -- generate a random hash with domains suffix
--- return both domain and it's hash
+-- return both domain and its hash
 local function generate_hash(domain, iter, salt)
   local rand_str = random_string()
   local random_domain = rand_str .. "." .. domain

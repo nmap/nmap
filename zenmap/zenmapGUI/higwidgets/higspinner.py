@@ -187,7 +187,7 @@ class HIGSpinnerImages:
         if name not in self.static_pixbufs:
             raise StaticPixbufNotFound
 
-        # self.rest_pixbuf holds the *real* pixbuf, not it's name
+        # self.rest_pixbuf holds the *real* pixbuf, not its name
         self.rest_pixbuf = self.static_pixbufs[name]
 
     def set_size(self, width, height):

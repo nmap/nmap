@@ -41,7 +41,7 @@ local err =stdnse.print_debug
 -- Library methods for handling the BSON format
 --
 -- For more documentation about the BSON format,
----and more details about it's implementations, check out the
+---and more details about its implementations, check out the
 -- python BSON implementation which is available at
 -- http://github.com/mongodb/mongo-python-driver/blob/master/pymongo/bson.py
 -- and licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0)

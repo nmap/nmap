@@ -207,7 +207,7 @@ used more than once to get even more verbosity"))
             # Store the next argument in a specific list
             nmap_args.append(parser.rargs[0])
 
-            # Remove the added argument from rargs to avoid it's latter
+            # Remove the added argument from rargs to avoid its later
             # parsing by optparse
             del parser.rargs[0]
 
