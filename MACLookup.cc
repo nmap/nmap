@@ -172,13 +172,13 @@ static void mac_prefix_init() {
     lineno++;
     if (*line == '#') continue;
     if (!isxdigit((int) (unsigned char) *line)) {
-      error("Parse error one line #%d of %s. Giving up parsing.", lineno, filename);
+      error("Parse error on line #%d of %s. Giving up parsing.", lineno, filename);
       break;
     }
     /* First grab the prefix */
     pfx = strtol(line, &endptr, 16);
     if (!endptr || !isspace((int) (unsigned char) *endptr)) {
-      error("Parse error one line #%d of %s. Giving up parsing.", lineno, filename);
+      error("Parse error on line #%d of %s. Giving up parsing.", lineno, filename);
       break;
     }
     /* Now grab the vendor */
