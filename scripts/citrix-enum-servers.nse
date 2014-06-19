@@ -70,7 +70,7 @@ action = function(host, port)
 
   --
   -- Packets were intercepted from the Citrix Program Neighborhood client
-  -- They are used to query a server for it's list of published applications
+  -- They are used to query a server for its list of published applications
   --
   -- We're really not interested in the responses to the first two packets
   -- The third response contains the list of published applications

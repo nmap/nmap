@@ -333,7 +333,7 @@ end
 --- Classes by Signature command (2)
 --  Returns reference types for all the classes loaded by the target VM which match the given signature.
 --
---  Given the class signature (like "Ljava/lang/Class") returns it's reference ID which can be used to reference that class
+--  Given the class signature (like "Ljava/lang/Class") returns its reference ID which can be used to reference that class
 --  in other commands. Returns a list of tables containing following values:
 --  * 'refTypeTag' JNI type tag
 --  * 'referenceTypeID' Reference type of the class
@@ -1055,7 +1055,7 @@ function injectClass(socket,class_bytes)
   local tag,injectedClassID
   _,tag,injectedClassID = bin.unpack(">CL",injectedClass)
 
-  -- our class is now injected, but we need to find it's methods by calling Class.getMethods() on it
+  -- our class is now injected, but we need to find its methods by calling Class.getMethods() on it
   -- and for that we need its runtime_type which is Class
   local runtime_type
   status, runtime_type = getRuntimeType(socket,0,injectedClassID) -- should be Class

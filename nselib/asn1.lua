@@ -12,7 +12,7 @@
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Adapted to create a framework for SNMP, LDAP and future protocols
 -- Revised 02/02/2010 - v0.3 - Changes: o Re-designed so that ASN1Encoder and ASN1Decoder are separate classes
---                             o Each script or library should now create it's own Encoder and Decoder instance
+--                             o Each script or library should now create its own Encoder and Decoder instance
 --
 
 local bin = require "bin"

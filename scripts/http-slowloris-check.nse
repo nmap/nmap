@@ -19,7 +19,7 @@ the final CRLF. After 10 seconds, second connection sends
 additional header. Both connections then wait for server timeout.
 If second connection gets a timeout 10 or more seconds after the
 first one, we can conclude that sending additional header prolonged
-it's timeout and that the server is vulnerable to slowloris DoS attack.
+its timeout and that the server is vulnerable to slowloris DoS attack.
 
 You can specify custom http User-agent field with <code>http.useragent</code>
 script argument.

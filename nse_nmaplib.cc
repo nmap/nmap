@@ -484,7 +484,7 @@ static int l_get_port_state (lua_State *L)
 }
 
 /* this function must be used by version category scripts or any other
- * lua code to check if a given port with it's protocol are in the
+ * lua code to check if a given port with its protocol are in the
  * exclude directive found in the nmap-service-probes file.
  * */
 static int l_port_is_excluded (lua_State *L)

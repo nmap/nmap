@@ -23,7 +23,7 @@ Retrieves some basic information, including protocol version from a Vuze filesha
 -- |   Network id: Stable (0)
 -- |_  Instance id: 2260473691
 --
--- As Vuze doesn't have a default port for it's DHT service, this script has
+-- As Vuze doesn't have a default port for its DHT service, this script has
 -- some difficulties in determining when to run. Most scripts are triggered by
 -- either a default port or a fingerprinted service. To get around this, there
 -- are two options:

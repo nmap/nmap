@@ -2977,7 +2977,7 @@ Util =
     return stdnse.tooctal(code)
   end,
 
-  --- Converts a numeric ACL to it's character equivalent eg. (rwxr-xr-x)
+  --- Converts a numeric ACL to its character equivalent eg. (rwxr-xr-x)
   --
   -- @param mode number containing the ACL mode
   -- @return string containing the ACL characters
@@ -3374,7 +3374,7 @@ Util =
     return df, nil
   end,
 
-  --- Converts a RPC program name to it's equivalent number
+  --- Converts a RPC program name to its equivalent number
   --
   -- @param prog_name string containing the name of the RPC program
   -- @return num number containing the program ID
@@ -3396,7 +3396,7 @@ Util =
     return
   end,
 
-  --- Converts the RPC program number to it's equivalent name
+  --- Converts the RPC program number to its equivalent name
   --
   -- @param num number containing the RPC program identifier
   -- @return string containing the RPC program name

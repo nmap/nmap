@@ -93,7 +93,7 @@ Default configuration of RMI registry allows loading classes from remote URLs wh
   rmiArgs:addRaw(bin.pack("H", argsRaw));
 
   -- reference: java/rmi/dgc/DGCImpl_Stub.java and java/rmi/dgc/DGCImpl_Skel.java
-  -- we are calling DGC's (it's objectId is 2) method with opnum 0
+  -- we are calling DGC's (its objectId is 2) method with opnum 0
   -- DCG's hashcode is f6b6898d8bf28643 hex or -669196253586618813 dec
   local status, j_array = registry.out:writeMethodCall(registry.out, 2, "f6b6898d8bf28643", 0, rmiArgs);
   local status, retByte = registry.out.dis:readByte();

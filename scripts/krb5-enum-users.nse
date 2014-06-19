@@ -52,7 +52,7 @@ portrule = shortport.port_or_service( 88, {"kerberos-sec"}, {"udp","tcp"}, {"ope
 
 -- This an embryo of a Kerberos 5 packet creation and parsing class. It's very
 -- tiny class and holds only the necessary functions to support this script.
--- This class be factored out into it's own library, once more scripts make use
+-- This class be factored out into its own library, once more scripts make use
 -- of it.
 KRB5 = {
 

@@ -24,7 +24,7 @@ local function includes(t, value)
   return false
 end
 
---- Check if the port and it's protocol are in the exclude directive.
+--- Check if the port and its protocol are in the exclude directive.
 --
 -- @param port A port number.
 -- @param proto The protocol to match against, default <code>"tcp"</code>.
@@ -134,7 +134,7 @@ end
 -- and <code>port_or_service</code> functions. The port, service, proto may
 -- be single values or a list of values as in those functions.
 -- This function can be used by version category scripts to check if a
--- given port and it's protocol are in the exclude directive.
+-- given port and its protocol are in the exclude directive.
 -- @usage portrule = shortport.version_port_or_service(22)
 -- @usage portrule = shortport.version_port_or_service(nil, "ssh", "tcp")
 -- @param services Service name or a list of names to run against.

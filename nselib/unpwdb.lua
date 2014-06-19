@@ -286,7 +286,7 @@ passwords = function(time_limit, count_limit)
   return true, limited_iterator(iterator, time_limit, count_limit)
 end
 
---- Returns a new iterator that iterates trough it's consecutive iterators,
+--- Returns a new iterator that iterates through its consecutive iterators,
 -- basically concatenating them.
 -- @param iter1 First iterator to concatenate.
 -- @param iter2 Second iterator to concatenate.
@@ -310,7 +310,7 @@ function concat_iterators (iter1, iter2)
   return iterator
 end
 
---- Returns a new iterator that filters it's results based on the filter.
+--- Returns a new iterator that filters its results based on the filter.
 -- @param iterator Iterator that needs to be filtered
 -- @param filter Function that returns bool, which serves as a filter
 -- @return function The filtered iterator.

@@ -56,7 +56,7 @@ Ncat has support for HTTP "CONNECT" via an HTTP proxy server such as Squid.
 It can also connect via a SOCKS4 server and is very flexible in terms of
 how it shuffles your data around.
 
-Ncat can also spawn it's own it's own HTTP CONNECT proxy server for your
+Ncat can also spawn its own HTTP CONNECT proxy server for your
 own relaying requirements.
 
 Ncat has the ability to execute a program and handle the I/O for its data

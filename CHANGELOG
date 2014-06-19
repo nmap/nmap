@@ -3402,7 +3402,7 @@ o [Nping] Substantially improved the Nping man page. You can read it
   online at http://nmap.org/book/nping-man.html. [Luis, David]
 
 o Documented the licenses of the third-party software used by Nmap and
-  it's sibling tools:
+  its sibling tools:
   http://nmap.org/svn/docs/3rd-party-licenses.txt. [David]
 
 o [NSE] Improved the SMB scripts so that they can run in parallel
@@ -4166,7 +4166,7 @@ o [NSE] Added 5 new MySQL NSE scripts and a MySQL library by Patrik Karlsson:
     (http://nmap.org/nsedoc/scripts/mysql-empty-password.html).
   - mysql-users queries MySQL for a list of database users
     (http://nmap.org/nsedoc/scripts/mysql-users.html).
-  - mysql-variables queries MySQL for it's variables and their
+  - mysql-variables queries MySQL for its variables and their
     settings (http://nmap.org/nsedoc/scripts/mysql-variables.html).
 
 o Improved the passwords.lst database used by NSE by combining several
@@ -5560,7 +5560,7 @@ o [NSE] Added http-iis-webdav-vuln.nse, which detects the recently
 o The Nmap Reference Guide has been translated to German by Open
   Source Press and Indonesian by Tedi Heriyanto. You can now read it
   in 16 languages at http://nmap.org/docs.html. We're always looking
-  for more translations of Nmap and it's documentation--if you'd like
+  for more translations of Nmap and its documentation--if you'd like
   to help, see http://seclists.org/nmap-dev/2009/q2/0667.html.
 
 o Open Source Press completed and released the German translation of
@@ -9295,7 +9295,7 @@ o Fixed a bug which caused nmap --iflist to crash (and might have
 o Applied a bunch of code cleanup patches from Kris Katterjohn.
 
 o Some scan types were fixed when used against localhost. The UDP Scan
-  doesn't find it's own port, the TCP Scan won't print a message (with -d)
+  doesn't find its own port, the TCP Scan won't print a message (with -d)
   about an unexpected packet (for the same reason), and the IPProto Scan
   won't list every port as "open" when using --data-length >= 8.  [Kris]
 

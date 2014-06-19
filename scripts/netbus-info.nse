@@ -11,7 +11,7 @@ the host and the NetBus service itself.
 The extracted host information includes a list of running
 applications, and the hosts sound volume settings.
 
-The extracted service information includes it's access control list
+The extracted service information includes its access control list
 (acl), server information, and setup. The acl is a list of IP
 addresses permitted to access the service. Server information
 contains details about the server installation path, restart

@@ -45,7 +45,7 @@
 -- </code>
 --
 -- Here's the longer version, with some explanatory text. To start using the Helper class,
--- the script has to create it's own instance. We do this by issuing the following:
+-- the script has to create its own instance. We do this by issuing the following:
 -- <code>
 -- helper = afp.Helper:new()
 -- </code>

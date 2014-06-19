@@ -19226,7 +19226,7 @@ T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=S)
 
-# Develop Ineo 350. Develop is a Konica Minolta reseller with it's own brands / marketing names. (The 250 and 350 builds seem to be identical.)
+# Develop Ineo 350. Develop is a Konica Minolta reseller with its own brands / marketing names. (The 250 and 350 builds seem to be identical.)
 Fingerprint Develop ineo 250 or 350 printer
 Class Develop | embedded || printer
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
@@ -19243,7 +19243,7 @@ T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
-# Develop Ineo 600. Develop is a Konica Minolta reseller with it's own brands / marketing names. (The 600 and 700 builds seem to be identical.)
+# Develop Ineo 600. Develop is a Konica Minolta reseller with its own brands / marketing names. (The 600 and 700 builds seem to be identical.)
 Fingerprint Develop ineo 600 or 700 printer
 Class Develop | embedded || printer
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%TS=1)
@@ -76987,7 +76987,7 @@ T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=ARF%O=%RD=0%Q=)
 U1(R=N)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
-# Cisco/Codian MCU 4210, according to it's boot messages - NetBSD inside
+# Cisco/Codian MCU 4210, according to its boot messages - NetBSD inside
 Fingerprint Tandberg Codian videoconferencing system (NetBSD)
 Class Tandberg | NetBSD || media device
 CPE cpe:/o:tandberg:netbsd auto
