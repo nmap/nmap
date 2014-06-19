@@ -284,7 +284,7 @@ u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
   nping_print(DBG_4, "%s()", __func__);
   if(from==NULL || fromlen==0)
       return NULL;
-  
+
   #ifdef HAVE_OPENSSL
     if( o.doCrypto() ){
         static u8 hash[MAX(SHA256_HASH_LEN, EVP_MAX_MD_SIZE)];

@@ -124,11 +124,11 @@
 #define __PACKETDIFF_H__ 1
 
 #include "nping.h"
-        
+
 class PacketDiff {
 
     private:
-    
+
     public:
 
     /* Misc */

@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  * NEPContext.cc --                                                        *
  *                                                                         *
@@ -202,7 +202,7 @@ class NEPContext {
         struct sockaddr_storage clnt_addr;
 
         u8 *generateKey(int key_type, size_t *final_len);
-        
+
     public:
 
         NEPContext();
@@ -260,7 +260,7 @@ class NEPContext {
         u8 *getCipherKeyS2C();
         u8 *getCipherKeyS2C(size_t *final_len);
         int generateCipherKeyS2C();
-        
+
         int generateClientNonce();
         int generateServerNonce();
         int setClientNonce(u8 *buff);

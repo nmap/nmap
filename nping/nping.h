@@ -432,7 +432,7 @@
 #define PAYLOAD_ECHO_BYTES_IN_DOUBT 40
 
 #define NSOCK_INFINITE -1
-    
+
 /* Prototypes for nping.cc shared functions */
 char *getBPFFilterString();
 

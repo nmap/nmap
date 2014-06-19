@@ -243,7 +243,7 @@ int main(int argc, char *argv[] ){
   o.displayNpingDoneMsg();
   o.cleanup();
   exit(EXIT_SUCCESS);
-  
+
   exit(EXIT_SUCCESS);
 } /* End of main() */
 

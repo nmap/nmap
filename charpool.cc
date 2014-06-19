@@ -183,7 +183,7 @@ void *cp_alloc(int sz) {
 
   if ((modulus = sz % ALIGN_ON))
     sz += ALIGN_ON - modulus;
-  
+
   if ((nextchar - charpool[currentcharpool]) + sz <= currentcharpoolsz) {
     p = nextchar;
     nextchar += sz;
@@ -193,7 +193,7 @@ void *cp_alloc(int sz) {
   cp_grow();
 
  return cp_alloc(sz);
- 
+
 }
 
 char *cp_strdup(const char *src) {

@@ -150,7 +150,7 @@ class EchoClient  {
         ProbeMode probe;
         u8 lasthdr[MAX_NEP_PACKET_LENGTH];
         size_t readbytes;
-        
+
         /* Methods */
         int nep_connect(NpingTarget *target, u16 port);
         int nep_handshake();

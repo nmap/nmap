@@ -239,7 +239,7 @@ int NpingTarget::getTargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) 
   memcpy(ss, &targetsock, targetsocklen);
   *ss_len = targetsocklen;
   return 0;
-  
+
 } /* End of getTargetSockAddr() */
 
 
@@ -952,7 +952,7 @@ int NpingTarget::setProbeRecvTCP(u16 sport, u16 dport){
           /* Update stats info */
           diff= TIMEVAL_SUBTRACT(this->sentprobes[i].recv, this->sentprobes[i].sent);
           this->updateRTTs(diff);
-  
+
         return OP_SUCCESS;
     }
   }

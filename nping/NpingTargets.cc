@@ -279,7 +279,7 @@ int NpingTargets::processSpecs(){
   size_t slen=0;
   bool result=false;
   struct route_nfo rnfo;
-      
+
   memset(&ss, 0, sizeof(struct sockaddr_storage));
   memset(buff, 0, MAX_NPING_HOSTNAME_LEN+1);
 
@@ -332,7 +332,7 @@ int NpingTargets::processSpecs(){
 		  if( o.spoofSource() ){
 			mytarget->setSpoofedSourceSockAddr( o.getSourceSockAddr(), sizeof(struct sockaddr_storage));
 		  }
-		  
+
 		  /* Network interface */  
 		  mytarget->setDeviceNames( rnfo.ii.devname, rnfo.ii.devfullname );
 		  mytarget->setDeviceType( rnfo.ii.device_type );
@@ -359,7 +359,7 @@ int NpingTargets::processSpecs(){
         s6->sin6_family=AF_INET6;        
         mytarget->setSourceSockAddr(&ss, sizeof(struct sockaddr_storage));
     }
-    
+
       /* Insert current target into targets array */
       this->Targets.push_back(mytarget);
   }

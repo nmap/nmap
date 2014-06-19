@@ -833,7 +833,7 @@ if( !addr || !dev )
     }
   }
   return -1;
-  
+
 } /* End of devname2ipaddr() */
 
 

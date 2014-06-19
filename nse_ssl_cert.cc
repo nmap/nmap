@@ -491,7 +491,7 @@ int l_get_ssl_certificate(lua_State *L)
 static int l_ssl_cert_index(lua_State *L)
 {
   struct cert_userdata *udata;
-  
+
   udata = (struct cert_userdata *) luaL_checkudata(L, 1, "SSL_CERT");
   lua_rawgeti(L, LUA_REGISTRYINDEX, udata->attributes_table);
   /* The key. */
@@ -505,7 +505,7 @@ static int l_ssl_cert_index(lua_State *L)
 static int l_ssl_cert_gc(lua_State *L)
 {
   struct cert_userdata *udata;
-  
+
   udata = (struct cert_userdata *) luaL_checkudata(L, 1, "SSL_CERT");
   X509_free(udata->cert);
   luaL_unref(L, LUA_REGISTRYINDEX, udata->attributes_table);

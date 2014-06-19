@@ -134,7 +134,7 @@
 
 extern NpingOps o;
 extern EchoServer es;
-  
+
 EchoServer::EchoServer() {
   this->reset();
 } /* End of EchoServer constructor */
@@ -265,7 +265,7 @@ int EchoServer::nep_listen_socket(){
      * this port in a previous execution, not long ago. */
     if( setsockopt(master_sd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, sizeof(int))!=0 )
         nping_warning(QT_3, "Failed to set SO_REUSEADDR on master socket.");
-      
+
     memset(&server_addr6, 0, sizeof(struct sockaddr_in6));
     server_addr6.sin6_addr = (o.spoofSource()) ? o.getIPv6SourceAddress() : in6addr_any;
     server_addr6.sin6_family = AF_INET6;
@@ -297,7 +297,7 @@ int EchoServer::nep_listen_socket(){
     /* Obtain a regular TCP socket for IPv4 */
     if( (master_sd=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0 )
         nping_fatal(QT_3, "Could not obtain AF_INET/SOCK_STREAM/IPPROTO_TCP socket");
-        
+
     /* Set SO_REUSEADDR on socket so the bind does not fail if we had used
      * this port in a previous execution, not long ago. */
     if( setsockopt(master_sd, SOL_SOCKET, SO_REUSEADDR, (char *) &one, sizeof(int))!=0 )
@@ -311,7 +311,7 @@ int EchoServer::nep_listen_socket(){
 #ifdef HAVE_SOCKADDR_IN_SIN_LEN
     server_addr4.sin_len = sizeof(struct sockaddr_in);
 #endif
-    
+
     /* Bind to local address and the specified port */
     if( bind(master_sd, (struct sockaddr *)&server_addr4, sizeof(server_addr4)) != 0 ){
         nping_warning(QT_3, "Failed to bind to source address %s. Trying to bind to port %d...", IPtoa(server_addr4.sin_addr), port);
@@ -584,7 +584,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
         minimum_score=MIN_ACCEPTABLE_SCORE_ICMP;
     else
         minimum_score=10000;
-        
+
     /* Check if we managed to match packet and client */
     if (candidate>=0 && candidate_score>=minimum_score){
         nping_print(DBG_2, "%s() Packet matched successfully with client #%d", __func__, candidate);
@@ -733,7 +733,7 @@ clientid_t EchoServer::nep_match_packet(const u8 *pkt, size_t pktlen){
                     }
                 }
             break;
-            
+
             default:
                 return CLIENT_NOT_FOUND;
             break;
@@ -1062,7 +1062,7 @@ int EchoServer::nep_packetspec_handler(nsock_pool nsp, nsock_event nse, void *pa
   /* At this point, we consider the NEP session fully established and therefore
    * we update the count of served clients */
   o.stats.addEchoClientServed();
-  
+
   return OP_SUCCESS;
 } /* End of nep_packetspec_handler() */
 
@@ -1165,7 +1165,7 @@ int EchoServer::parse_hs_client(u8 *pkt, size_t pktlen, NEPContext *ctx){
   nping_print(DBG_3,"Session Key MAC_S2C:"); print_hexdump(DBG_3,ctx->getMacKeyS2C(), MAC_KEY_LEN);
   nping_print(DBG_3,"Session Key CIPHER_C2S:"); print_hexdump(DBG_3,ctx->getCipherKeyC2S(), MAC_KEY_LEN);
   nping_print(DBG_3,"Session Key CIPHER_S2C:"); print_hexdump(DBG_3,ctx->getCipherKeyS2C(), MAC_KEY_LEN);
-  
+
 
   /* Decrypt the encrypted part of the message before validating the MAC */
   if((next_iv=h.decrypt(ctx->getCipherKeyC2S(), CIPHER_KEY_LEN, ctx->getClientNonce(), TYPE_NEP_HANDSHAKE_CLIENT))==NULL){
@@ -1366,7 +1366,7 @@ int EchoServer::generate_ready(EchoHeader *h, NEPContext *ctx){
   if( (next_iv=h->encrypt(ctx->getCipherKeyS2C(), CIPHER_KEY_LEN, ctx->getNextEncryptionIV()))==NULL )
       return OP_FAILURE;
   ctx->setNextEncryptionIV(next_iv);
-  
+
   return OP_SUCCESS;
 } /* End of generate_ready() */
 
@@ -1392,7 +1392,7 @@ int EchoServer::generate_echo(EchoHeader *h, const u8 *pkt, size_t pktlen, NEPCo
   }else{
     /* Determine where the application data starts */
     int offset=PacketParser::payload_offset(pkt, pktlen, false);
-    
+
     /* If the packet does not have application data, don't touch it */
     if(offset==0){
         nping_print(DBG_3, "No payload found. Echoing the whole packet\n");
@@ -1459,7 +1459,7 @@ int EchoServer::start() {
   /* Create new IOD for pcap */
   if ((pcap_nsi = nsi_new(nsp, NULL)) == NULL)
     nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
-        
+
   /* Open pcap */
   nping_print(DBG_2,"Opening pcap device %s", o.getDevice());
   Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
