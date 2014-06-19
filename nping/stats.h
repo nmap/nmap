@@ -193,7 +193,7 @@ class NpingTimer {
     double elapsed(struct timeval *now=NULL);
     bool is_started();
     bool is_stopped();
-    
+
 
   private:
       bool timeval_set(const struct timeval *tv);
@@ -236,7 +236,7 @@ class NpingStats {
 
     int startRxClock();
     int stopRxClock();
-    
+
     int startRuntime();
     int stopRuntime();
 

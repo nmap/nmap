@@ -67,7 +67,7 @@ struct ip
 /*
  *	Non DIX types. Won't clash for 1500 types.
  */
- 
+
 #define ETH_P_802_3	0x0001		/* Dummy type for 802.3 frames  */
 #define ETH_P_AX25	0x0002		/* Dummy protocol id for AX.25  */
 #define ETH_P_ALL	0x0003		/* Every packet (be careful!!!) */
@@ -292,7 +292,7 @@ struct	ip_timestamp {
 #define ICMP_UNREACH_FILTER_PROHIB      13      /* admin prohib */
 #define ICMP_UNREACH_HOST_PRECEDENCE    14      /* host prec vio. */
 #define ICMP_UNREACH_PRECEDENCE_CUTOFF  15      /* prec cutoff */
-   
+
 
 #define	ICMP_SOURCEQUENCH				4		/* packet lost, slow down */
 #define ICMP_ROUTERADVERT				9       /* router advertisement */

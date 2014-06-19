@@ -399,6 +399,6 @@ LUALIB_API int luaopen_pcrelib(lua_State *L)
         lua_pop(L, 1);
 
         luaL_newlib(L, pcrelib);
-        
+
         return 1;
 }

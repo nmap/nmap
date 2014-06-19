@@ -234,7 +234,7 @@ static int nmap_services_init() {
       continue;
 
     res = sscanf(line, "%127s %hu/%15s %31s", servicename, &portno, proto, ratio_str);
-    
+
     if (res == 3) {
       ratio = 0;
     } else if (res == 4) {
@@ -245,13 +245,13 @@ static int nmap_services_init() {
 
         if (ratio_n < 0 || ratio_d < 0)
           fatal("%s:%d contains an invalid negative value", filename, lineno);
-        
+
         if (ratio_n > ratio_d)
           fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
-        
+
         if (ratio_d == 0)
           fatal("%s:%d has a ratio denominator of 0 causing a division by 0 error", filename, lineno);
-        
+
         ratio = (double)ratio_n / ratio_d;
         ratio_format = 1;
       } else if (strncmp(ratio_str, "0.", 2) == 0) {
@@ -325,7 +325,7 @@ void free_services() {
   services_initialized = 0;
 }
 
-  
+
 /* Adds ports whose names match mask and one or more protocols
  * specified by range_type to porttbl. Increases the respective
  * protocol counts in ports.
@@ -338,7 +338,7 @@ int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
 
   if (!services_initialized && nmap_services_init() == -1)
     fatal("%s: Couldn't get port numbers", __func__);
-  
+
   for (i = service_table.begin(); i != service_table.end(); i++) {
     service_node& current = i->second;
     if (wildtest(mask, current.s_name)) {

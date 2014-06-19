@@ -360,7 +360,7 @@ NpingOps::NpingOps() {
 
     memset(echo_passphrase, 0, sizeof(echo_passphrase));
     echo_passphrase_set=false;
-    
+
     memset(&last_sent_pkt_time, 0, sizeof(struct timeval));
 
     delayed_rcvd_str=NULL;
@@ -2357,7 +2357,7 @@ if (this->havePcap()==false){
       else
           this->setPacketCount( DEFAULT_PACKET_COUNT );
   }
-    
+
 
   if( !this->issetDelay() )
     this->setDelay( DEFAULT_DELAY );

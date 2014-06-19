@@ -188,7 +188,7 @@ class NpingOps {
     bool mode_set;
     bool traceroute;          /* Is traceroute mode enabled?           */
     bool traceroute_set;
-    
+
     /* Output */
     int vb;                   /* Current Verbosity level               */
     bool vb_set;
@@ -220,7 +220,7 @@ class NpingOps {
     /* Privileges */
     bool isr00t;              /* True if current user has root privs   */
     bool isr00t_set;
-    
+
     /* Payloads */
     int payload_type;         /* Type of payload (RAND,HEX,FILE)       */
     bool payload_type_set;
@@ -228,11 +228,11 @@ class NpingOps {
     bool payload_buff_set;
     int payload_len;          /* Length of payload                     */
     bool payload_len_set;
-    
+
     /* Roles */
     int role;                 /* Nping's role: normal|client|server.  */
     bool role_set;
-    
+
     /* IPv4 */
     u8 ttl;                   /* IPv4 TTL / IPv6 Hop limit             */
     bool ttl_set;
@@ -254,7 +254,7 @@ class NpingOps {
     bool ipv4_src_address_set;
     char *ip_options;         /* IP Options                            */
     bool ip_options_set;
-    
+
     /* IPv6 */
     u8 ipv6_tclass;           /* Traffic Class                         */
     bool ipv6_tclass_set;
@@ -262,7 +262,7 @@ class NpingOps {
     bool ipv6_flowlabel_set;
     struct in6_addr ipv6_src_address;  /**< Source IPv6 address          */
     bool ipv6_src_address_set;
-    
+
     /* TCP / UDP */
     u16 *target_ports;        /* Will point to an array of ports       */
     int tportcount;           /* Total number of target ports          */
@@ -279,7 +279,7 @@ class NpingOps {
     bool tcpwin_set;
     bool badsum;              /* Generate invalid TCP/UDP checksums?   */
     bool badsum_set;
-    
+
     /* ICMP */
     u8 icmp_type;             /* ICMP Type                             */
     bool icmp_type_set;
@@ -308,7 +308,7 @@ class NpingOps {
     u32 icmp_advert_entry_pref[MAX_ICMP_ADVERT_ENTRIES];
     int icmp_advert_entry_count;
     bool icmp_advert_entry_set;
-    
+
     /* Ethernet */
     u8 src_mac[6];            /* Source MAC address                    */
     bool src_mac_set;
@@ -316,7 +316,7 @@ class NpingOps {
     bool dst_mac_set;
     u16 eth_type;             /* EtherType field of the Ethernet frame */
     bool eth_type_set;
-    
+
     /* ARP/RARP */
     u16 arp_htype;            /* ARP Hardware type                     */
     bool arp_htype_set;
@@ -336,7 +336,7 @@ class NpingOps {
     bool arp_spa_set;
     struct in_addr arp_tpa;   /* ARP Target protocol address           */
     bool arp_tpa_set;
-    
+
     /* Echo mode */
     u16 echo_port;           /* Echo port to listen or connect to      */
     bool echo_port_set;
@@ -407,7 +407,7 @@ class NpingOps {
     bool issetSendPreference();
     bool sendPreferenceEthernet();
     bool sendPreferenceIP();
-    
+
     int setSendEth(bool val);
     bool sendEth();
     bool issetSendEth();

@@ -188,7 +188,7 @@ static int tty_getchar()
         fd_set set;
         struct timeval tv;
 #endif
-        
+
         if (tty_fd && tcgetpgrp(tty_fd) == getpgrp()) {
 
         // This is so that when the terminal has been disconnected, it will be

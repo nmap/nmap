@@ -163,16 +163,16 @@ class NpingTarget {
 
     struct sockaddr_storage nexthopsock;  /**< Next Hop address              */
     size_t nexthopsocklen;
-    
+
     char targetipstring[INET6_ADDRSTRLEN];
     bool targetipstring_set;
 
     u8 MACaddress[6];         /**< Target MAC Address                        */
     bool MACaddress_set;
-    
+
     u8 SrcMACaddress[6];      /**< Source MAC Address                        */
     bool SrcMACaddress_set;
-    
+
     u8 NextHopMACaddress[6];  /**< Next Hop MAC Address                      */
     bool NextHopMACaddress_set;
 
@@ -190,13 +190,13 @@ class NpingTarget {
     void Initialize();
     void FreeInternal();
     void generateIPString();
-  
+
   public:
-  
+
     NpingTarget();
     ~NpingTarget();
     void Recycle();
-  
+
     /* Target IP address */
     int getTargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
     int setTargetSockAddr(struct sockaddr_storage *ss, size_t ss_len);
@@ -205,7 +205,7 @@ class NpingTarget {
     struct in6_addr getIPv6Address();
     const struct in6_addr *getIPv6Address_aux();
     u8 *getIPv6Address_u8();
-    
+
     /* Source address used to reach the target */
     int getSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
     int setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
@@ -219,7 +219,7 @@ class NpingTarget {
     struct in6_addr getIPv6SourceAddress();  
     const struct in6_addr *getIPv6SourceAddress_aux();
     u8 *getIPv6SourceAddress_u8();
-    
+
     /* Info about host proximity */
     void setDirectlyConnected(bool connected);
     bool isDirectlyConnected();
@@ -236,7 +236,7 @@ class NpingTarget {
     const u8 *getMACAddress();
     bool determineNextHopMACAddress();
     bool determineTargetMACAddress();
-    
+
     /* Source MAC address */
     int setSrcMACAddress(const u8 *addy);
     const u8 *getSrcMACAddress();
@@ -247,7 +247,7 @@ class NpingTarget {
     const char *getDeviceFullName();
     int setDeviceType(devtype type);
     devtype getDeviceType();
- 
+
     /* Resolved Host name */
     const char *getResolvedHostName();
     void setResolvedHostName(char *name);

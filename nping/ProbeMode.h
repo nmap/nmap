@@ -162,7 +162,7 @@ class ProbeMode  {
 
         nsock_pool nsp;        /**< Internal Nsock pool                       */
         bool nsock_init;       /**< True if nsock pool has been initialized   */
-     
+
     public:
 
         ProbeMode();
@@ -172,7 +172,7 @@ class ProbeMode  {
         int start();
         int cleanup();
         nsock_pool getNsockPool();
-        
+
         static int createIPv4(IPv4Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target);
         static int createIPv6(IPv6Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target);
         static int doIPv6ThroughSocket(int rawfd);

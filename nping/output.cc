@@ -157,7 +157,7 @@ int nping_fatal(int level, const char *str, ...) {
     return OP_SUCCESS;
   if( level>=DBG_0 && level<=DBG_9 && level>current_dbg_level )
     return OP_SUCCESS;
-  
+
 
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
     vfprintf(stderr, str, list);
@@ -189,7 +189,7 @@ int nping_warning(int level, const char *str, ...) {
 
   int current_vb_level= o.getVerbosity();
   int current_dbg_level= o.getDebugging();
-  
+
   /* Determine if caller requested that we don't print a newline character */
   if ( level & NO_NEWLINE ){
     level ^= NO_NEWLINE; /* Unset the flag restoring the original level */
@@ -201,7 +201,7 @@ int nping_warning(int level, const char *str, ...) {
     return OP_SUCCESS;
   if( level>=DBG_0 && level<=DBG_9 && level>current_dbg_level )
     return OP_SUCCESS;
-  
+
   /* Otherwise, print the info to stderr*/
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
     vfprintf(stderr, str, list); /* Print to stderr */
@@ -230,7 +230,7 @@ int nping_print(int level, const char *str, ...){
 
   int current_vb_level= o.getVerbosity();
   int current_dbg_level= o.getDebugging();
-  
+
   /* Determine if caller requested that we don't print a newline character */
   if ( level & NO_NEWLINE ){
     level ^= NO_NEWLINE; /* Unset the flag restoring the original level */
@@ -242,7 +242,7 @@ int nping_print(int level, const char *str, ...){
     return OP_SUCCESS;
   if( level>=DBG_0 && level<=DBG_9 && level>current_dbg_level )
     return OP_SUCCESS;
-  
+
   /* Otherwise, print the info to stderr*/
   if ( (level>=QT_3 && level<=VB_4) || (level>=DBG_1 && level<=DBG_9) ){
     vfprintf(stdout, str, list); /* Print to stderr */

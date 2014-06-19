@@ -224,7 +224,7 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
   struct sockaddr_in *s4=(struct sockaddr_in *)&ss;
   struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ss;
   enum nsock_loopstatus loopstatus;
-  
+
   if(target==NULL)
     nping_fatal(QT_3, "nep_connect(): NULL parameter supplied.");
   else
@@ -279,7 +279,7 @@ int EchoClient::nep_handshake(){
   nping_print(DBG_4, "%s()", __func__);
   enum nsock_loopstatus loopstatus;
   EchoHeader h;
-  
+
   /* Receive NEP_HANDSHAKE_SERVER message */
   nsock_readbytes(this->nsp, this->nsi, recv_hs_server_handler, ECHO_READ_TIMEOUT, NULL, NEP_HANDSHAKE_SERVER_LEN);
   loopstatus=nsock_loop(this->nsp, ECHO_READ_TIMEOUT-1);
@@ -313,7 +313,7 @@ int EchoClient::nep_handshake(){
   loopstatus=nsock_loop(this->nsp, ECHO_READ_TIMEOUT-1);
   if(loopstatus!=NSOCK_LOOP_QUIT)
     return OP_FAILURE;
-  
+
   nping_print(DBG_1, "===NEP Handshake completed successfully===");
   return OP_SUCCESS;
 } /* End of nep_handshake() */
@@ -735,7 +735,7 @@ int EchoClient::generate_packet_spec(EchoHeader *h){
   h->setTimestamp();
   h->setIPVersion( o.getIPVersion()==AF_INET6 ? 0x06: 0x04 );
   h->setPacketCount( (o.getPacketCount()>0xFFFF) ? 0xFFFF : o.getPacketCount() );
-    
+
   /** Insert packet field specifiers */
   if(o.ipv6()){ /* AF_INET6 */
     /* Traffic class */
@@ -858,7 +858,7 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
       }
       return OP_FAILURE;
   }
-  
+
   /* Read the remaining data */
   if( (recvbuff=(u8 *)nse_readbuf(nse, &recvbytes))==NULL ){
     nping_print(DBG_4,"nep_echoed_packet_handler(): nse_readbuf failed!\n");

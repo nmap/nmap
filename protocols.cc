@@ -162,7 +162,7 @@ static int nmap_protocols_init() {
   o.loaded_data_files["nmap-protocols"] = filename;
 
   memset(protocol_table, 0, sizeof(protocol_table));
-  
+
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
     p = line;

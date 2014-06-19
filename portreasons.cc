@@ -500,7 +500,7 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 
         states = state_summary_size(reason_head);
         currentr = reason_head;
-        
+
         while(currentr != NULL) {
                 if(states == 1 && (!first_time))
                         separator = " and ";

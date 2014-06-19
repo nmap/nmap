@@ -158,7 +158,7 @@ class EchoServer  {
         int generate_hs_final(EchoHeader *h, NEPContext *ctx);
         int generate_ready(EchoHeader *h, NEPContext *ctx);
         int generate_echo(EchoHeader *h, const u8 *pkt, size_t pktlen, NEPContext *ctx);
-        
+
     public:
 
         EchoServer();

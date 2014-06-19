@@ -192,7 +192,7 @@
 #define DLT_NODATALINKHEADERINCLUDED 0x0000
 
 /* GENERAL FORMAT:
- 
+
         0                   1                   2                   3
         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -325,21 +325,21 @@ class EchoHeader : public ApplicationLayerElement {
 
         int setVersion(u8 val);
         u8 getVersion();
-        
+
         int setMessageType(u8 val);
         u8 getMessageType();
-        
+
         int setTotalLength(u16 val);
         int setTotalLength();
         u16 getTotalLength();
 
         int setSequenceNumber(u32 val);
         u32 getSequenceNumber();
-        
+
         int setTimestamp(u32 val);
         int setTimestamp();
         u32 getTimestamp();
-        
+
         int setReserved(u32 val);
         u32 getReserved();
 

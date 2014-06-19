@@ -120,7 +120,7 @@
  * Nmap, and also available from https://svn.nmap.org/nmap/COPYING         *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include "PacketDiff.h"
 #include "nping.h"
 

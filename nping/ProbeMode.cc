@@ -700,7 +700,7 @@ int ProbeMode::createIPv6(IPv6Header *i, PacketElement *next_element, const char
     i->setNextHeader(next_proto);
     i->setPayloadLength();
     i->setDestinationAddress( target->getIPv6Address_u8() );
-    
+
     /* Hop Limit */
     if ( o.issetTraceroute() ){
         i->setHopLimit( o.getCurrentRound() );
@@ -1689,7 +1689,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
 
             /* Read a packet */
             nse_readpcap(nse, &link, &linklen, &packet, &packetlen, NULL, &pcaptime);
-            
+
             /* If we are on a Ethernet network, extract the next packet protocol
              * from the Ethernet frame. */
             if( nsi_pcap_linktype(nsi) == DLT_EN10MB ){
@@ -1726,7 +1726,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     return;
                 }
             }
-                
+
             /* Packet is IP */
             if(ip){
                 getPacketStrInfo("IP",(const u8*)packet, packetlen, buffer, 512);

@@ -238,7 +238,7 @@ class OFProbe {
 class HostOsScanStats {
 
  friend class HostOsScan;
- 
+
  public:
   HostOsScanStats(Target *t);
   ~HostOsScanStats();
@@ -528,7 +528,7 @@ class OSScan {
   int chunk_and_do_scan(std::vector<Target *> &Targets, int family);
   int os_scan_ipv4(std::vector<Target *> &Targets);
   int os_scan_ipv6(std::vector<Target *> &Targets);
-        
+
   public:
    OSScan();
    ~OSScan();

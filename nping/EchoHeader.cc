@@ -476,7 +476,7 @@ int EchoHeader::setClientNonce(u8 *nonce){
     case TYPE_NEP_HANDSHAKE_FINAL:
         memcpy(this->data_hsfinal->client_nonce , nonce, NONCE_LEN);
     break;
-    
+
     default:
         return OP_FAILURE;
     break;
@@ -594,7 +594,7 @@ u8 EchoHeader::getIPVersion(){
     case TYPE_NEP_PACKET_SPEC:
         return this->data_pspec->ip_version;
     break;
-    
+
     default:
         return 0xAB;
     break;
