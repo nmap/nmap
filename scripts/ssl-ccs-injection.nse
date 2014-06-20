@@ -94,16 +94,17 @@ local function alert_unexpected_message(s)
   end
 
   if record.type ~= "alert" then
-    return false
+    -- Mark this as VULNERABLE, we expect an alert record
+    return true,true
   end
 
   for _, body in ipairs(record.body) do
     if body.level == "fatal" and body.description == "unexpected_message" then
-      return true
+      return true,false
     end
   end
 
-  return false
+  return true,true
 end
 
 local function keys(t)
@@ -219,17 +220,26 @@ local function test_ccs_injection(host, port, version)
     return false
   end
 
-  -- Read the alert message.
-  status = alert_unexpected_message(s)
+  -- Read the alert message
+  status,vulnerable = alert_unexpected_message(s)
 
-  if status then
+  -- Leave the target not vulnerable in case of an error. This could occur
+  -- when running against a different TLS/SSL implementations (e.g., GnuTLS)
+  if not status then
     stdnse.print_debug(
-      1, 'Server returned UNEXPECTED_MESSAGE alert, not vulnerable')
+      1, "Couldn't get reply from the server (probably not OpenSSL)")
+    s:close()
+    return false
+  end
+
+  if not vulnerable then
+    stdnse.print_debug(
+      1, "Server returned UNEXPECTED_MESSAGE alert, not vulnerable")
     s:close()
     return false
   else
     stdnse.print_debug(
-      1, 'Vulnerable - alert is not UNEXPECTED_MESSAGE')
+      1, "Vulnerable - alert is not UNEXPECTED_MESSAGE")
     s:close()
     return true
   end
