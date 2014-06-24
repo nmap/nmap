@@ -505,6 +505,14 @@ public:
 
 struct tm *local_time;
 
+static void test_file_name(const char *filename, const char *option) {
+  if (filename[0] == '-' && filename[1] != '\0') {
+    fatal("Output filename begins with '-'. Try '-%s ./%s' if you really want it to be named as such.", option, filename);
+  } else if (filename[0] == '-' && strcmp(option,"oA") == 0) {
+    fatal("Cannot display multiple output types to stdout.");
+  }
+}
+
 void parse_options(int argc, char **argv) {
   char *p, *q;
   int arg;
@@ -878,18 +886,23 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
           o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
         } else if (strcmp(long_options[option_index].name, "oN") == 0) {
+          test_file_name(optarg, long_options[option_index].name);
           delayed_options.normalfilename = logfilename(optarg, local_time);
         } else if (strcmp(long_options[option_index].name, "oG") == 0
                    || strcmp(long_options[option_index].name, "oM") == 0) {
+          test_file_name(optarg, long_options[option_index].name);
           delayed_options.machinefilename = logfilename(optarg, local_time);
         } else if (strcmp(long_options[option_index].name, "oS") == 0) {
+          test_file_name(optarg, long_options[option_index].name);
           delayed_options.kiddiefilename = logfilename(optarg, local_time);
         } else if (strcmp(long_options[option_index].name, "oH") == 0) {
           fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
         } else if (strcmp(long_options[option_index].name, "oX") == 0) {
+          test_file_name(optarg, long_options[option_index].name);
           delayed_options.xmlfilename = logfilename(optarg, local_time);
         } else if (strcmp(long_options[option_index].name, "oA") == 0) {
           char buf[MAXPATHLEN];
+          test_file_name(optarg, long_options[option_index].name);
           Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, local_time));
           delayed_options.normalfilename = strdup(buf);
           Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, local_time));
