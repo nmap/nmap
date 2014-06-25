@@ -948,7 +948,7 @@ void parse_options(int argc, char **argv) {
             fatal("--top-ports should be an integer 1 or greater");
         } else if (optcmp(long_options[option_index].name, "ip-options") == 0) {
           o.ipoptions    = (u8*) safe_malloc(4 * 10 + 1);
-          if ( (o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4 * 10 + 1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr))) == OP_FAILURE)
+          if ((o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4 * 10 + 1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr))) == OP_FAILURE)
             fatal("%s", errstr);
           if (o.ipoptionslen > 4 * 10)
             fatal("Ip options can't be more than 40 bytes long");

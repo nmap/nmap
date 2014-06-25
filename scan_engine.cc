@@ -1928,7 +1928,7 @@ int UltraScanInfo::removeCompletedHosts() {
 
   /* We don't want to run this all of the time */
   TIMEVAL_MSEC_ADD(compare, lastCompletedHostRemoval, completedHostLifetime / 2);
-  if ( TIMEVAL_AFTER(now, compare) ) {
+  if (TIMEVAL_AFTER(now, compare) ) {
     for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI = nxt) {
       nxt = hostI;
       nxt++;
@@ -1939,7 +1939,7 @@ int UltraScanInfo::removeCompletedHosts() {
         continue;
 
       TIMEVAL_MSEC_ADD(compare, hss->completiontime, completedHostLifetime);
-      if ( TIMEVAL_AFTER(now, compare) ) {
+      if (TIMEVAL_AFTER(now, compare) ) {
         completedHosts.erase(hostI);
         hostsRemoved++;
       }

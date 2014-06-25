@@ -1848,7 +1848,7 @@ int FPHost6::build_probe_list() {
   i++;
 
   /* Set untimed TCP probes */
-  for ( ; i < NUM_FP_PROBES_IPv6_TCP; i++) {
+  for (; i < NUM_FP_PROBES_IPv6_TCP; i++) {
     /* If the probe is targeted to a TCP port and we don't have
      * any port number for that particular state, skip the probe. */
     if (TCP_DESCS[i].dstport == OPEN && this->open_port_tcp < 0)

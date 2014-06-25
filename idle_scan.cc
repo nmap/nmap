@@ -219,7 +219,7 @@ int ipv6_get_fragment_id(const struct ip6_hdr *ip6, unsigned int len) {
     p += (*(p + 1) + 1) * 8;
   }
 
-  if ( hdr != IP_PROTO_FRAGMENT ||  (p + 2 + sizeof(ip6_ext_data_fragment)) > end)
+  if (hdr != IP_PROTO_FRAGMENT ||  (p + 2 + sizeof(ip6_ext_data_fragment)) > end)
     return -1;
 
   frag_header = (struct ip6_ext_data_fragment *)( p + 2 );
@@ -1081,7 +1081,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
        but doing it the straightforward way (using the same decoys as
        we use in probing the proxy box is risky.  I'll have to think
        about this more. */
-   if ( o.af() == AF_INET ) {
+   if (o.af() == AF_INET ) {
       send_tcp_raw(proxy->rawsd, eth.ethsd ? &eth : NULL,
                    proxy->host.v4hostip(), target->v4hostip(),
                    o.ttl, false,

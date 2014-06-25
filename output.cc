@@ -2335,7 +2335,7 @@ static void printtraceroute_normal(Target *currenths) {
         /* The beginning and end of timeout consolidation. */
         int begin_ttl, end_ttl;
         begin_ttl = end_ttl = it->ttl;
-        for ( ; it != currenths->traceroute_hops.end() && it->timedout; it++)
+        for (; it != currenths->traceroute_hops.end() && it->timedout; it++)
           end_ttl = it->ttl;
         if (begin_ttl == end_ttl)
           Tbl.addItem(row, RTT_COL, false, "...");

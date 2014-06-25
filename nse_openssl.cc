@@ -459,7 +459,7 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
 {
   size_t len;
   const unsigned char *data = (unsigned char *) luaL_checklstring( L, 1, &len );
-  if ( len != 7 )
+  if (len != 7 )
     return luaL_error( L, "String must have length of 7 bytes." );
 
   DES_cblock key;

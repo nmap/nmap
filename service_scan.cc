@@ -1650,7 +1650,7 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   // Now for the probe response itself ...
   for(srcidx=0; srcidx < respused; srcidx++) {
     // A run of this can take up to 8 chars: "\n  \x20"
-    assert( servicefpalloc - servicefplen > 8);
+    assert(servicefpalloc - servicefplen > 8);
 
     if (isalnum((int)resp[srcidx]))
       addServiceChar((char) resp[srcidx], servicewrap);
@@ -2262,7 +2262,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
 #if HAVE_OPENSSL
     // Snag our SSL_SESSION from the nsi for use in subsequent connections.
     if (nsi_checkssl(nsi)) {
-      if ( svc->ssl_session ) {
+      if (svc->ssl_session ) {
         if (svc->ssl_session == (SSL_SESSION *)(nsi_get0_ssl_session(nsi))) {
           //nada
         } else {

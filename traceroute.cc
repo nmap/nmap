@@ -1081,7 +1081,7 @@ static Hop *merge_hops(const struct sockaddr_storage *tag, Hop *a, Hop *b) {
     p->parent = a;
   else if (b != NULL)
     p->parent = b;
-  for ( ; p != NULL; p = p->parent)
+  for (; p != NULL; p = p->parent)
     p->tag = *tag;
 
   return head.parent;
