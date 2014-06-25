@@ -2449,7 +2449,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     seq_AVs.push_back(AV);
 
   /* SS: Shared IP ID sequence boolean */
-  if ( (tcp_ipid_seqclass == IPID_SEQ_INCR ||
+  if ((tcp_ipid_seqclass == IPID_SEQ_INCR ||
         tcp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
         tcp_ipid_seqclass == IPID_SEQ_RPI) &&
        (icmp_ipid_seqclass == IPID_SEQ_INCR ||
@@ -2459,7 +2459,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
        are in the same sequence. */
     AV.attribute = "SS";
     u32 avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
-    if ( hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] + 3 * avg) {
+    if (hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] + 3 * avg) {
       AV.value = "S";
     } else {
       AV.value = "O";

@@ -142,14 +142,14 @@
 
 //Pcap functions replacement using miamipcap.library (MiamiSDK v2.11)
 #define pcap_open_live(a, b, c, d...)	MiamiPCapOpenLive(a, b, 0, d)
-#define pcap_filter(args...)		MiamiPCapFilter( args)
-#define pcap_close(args...)		MiamiPCapClose( args)
-#define pcap_datalink(args...)		MiamiPCapDatalink( args)
-#define pcap_geterr(args...)		MiamiPCapGeterr( args)
-#define pcap_next(args...)		MiamiPCapNext( args)
-#define pcap_lookupnet(args...)		MiamiPCapLookupnet( args)
-#define pcap_compile(args...)		MiamiPCapCompile( args)
-#define pcap_setfilter(args...)		MiamiPCapSetfilter( args)
+#define pcap_filter(args...)		MiamiPCapFilter(args)
+#define pcap_close(args...)		MiamiPCapClose(args)
+#define pcap_datalink(args...)		MiamiPCapDatalink(args)
+#define pcap_geterr(args...)		MiamiPCapGeterr(args)
+#define pcap_next(args...)		MiamiPCapNext(args)
+#define pcap_lookupnet(args...)		MiamiPCapLookupnet(args)
+#define pcap_compile(args...)		MiamiPCapCompile(args)
+#define pcap_setfilter(args...)		MiamiPCapSetfilter(args)
 
 #ifndef DLT_MIAMI
 #define DLT_MIAMI 100

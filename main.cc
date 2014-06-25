@@ -142,10 +142,10 @@ struct Library *SocketBase = NULL, *MiamiBase = NULL, *MiamiBPFBase = NULL, *Mia
 static const char ver[] = "$VER:" NMAP_NAME " v"NMAP_VERSION " [Amiga.sf]";
 
 static void CloseLibs(void) {
-  if ( MiamiPCapBase ) CloseLibrary( MiamiPCapBase );
-  if ( MiamiBPFBase  ) CloseLibrary(  MiamiBPFBase );
-  if (  SocketBase   ) CloseLibrary(   SocketBase  );
-  if (   MiamiBase   ) CloseLibrary(   MiamiBase   );
+  if (MiamiPCapBase ) CloseLibrary( MiamiPCapBase );
+  if (MiamiBPFBase  ) CloseLibrary(  MiamiBPFBase );
+  if ( SocketBase   ) CloseLibrary(   SocketBase  );
+  if (  MiamiBase   ) CloseLibrary(   MiamiBase   );
 }
 
 static BOOL OpenLibs(void) {

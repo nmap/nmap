@@ -356,7 +356,7 @@ u8 *build_tcp_raw_ipv6(const struct in6_addr *source,
 
 /* Build and send a raw tcp packet.  If TTL is -1, a partially random
    (but likely large enough) one is chosen */
-int send_tcp_raw( int sd, const struct eth_nfo *eth,
+int send_tcp_raw(int sd, const struct eth_nfo *eth,
                   const struct in_addr *source, const struct in_addr *victim,
                   int ttl, bool df,
                   u8* ipopt, int ipoptlen,
@@ -365,7 +365,7 @@ int send_tcp_raw( int sd, const struct eth_nfo *eth,
                   u8 *options, int optlen,
                   const char *data, u16 datalen);
 
-int send_tcp_raw_decoys( int sd, const struct eth_nfo *eth,
+int send_tcp_raw_decoys(int sd, const struct eth_nfo *eth,
                          const struct in_addr *victim,
                          int ttl, bool df,
                          u8* ipopt, int ipoptlen,
@@ -392,14 +392,14 @@ u8 *build_udp_raw_ipv6(const struct in6_addr *source,
                        u8 hoplimit, u16 sport, u16 dport,
                        const char *data, u16 datalen, u32 *packetlen);
 
-int send_udp_raw( int sd, const struct eth_nfo *eth,
+int send_udp_raw(int sd, const struct eth_nfo *eth,
                   struct in_addr *source, const struct in_addr *victim,
                   int ttl, u16 ipid,
                   u8* ipopt, int ipoptlen,
                   u16 sport, u16 dport,
                   const char *data, u16 datalen);
 
-int send_udp_raw_decoys( int sd, const struct eth_nfo *eth,
+int send_udp_raw_decoys(int sd, const struct eth_nfo *eth,
                          const struct in_addr *victim,
                          int ttl, u16 ipid,
                          u8* ipops, int ip,

@@ -131,7 +131,7 @@
 extern NmapOps o;
 
 struct ftpinfo get_default_ftpinfo(void) {
-#if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
+#if (defined(IN_ADDR_DEEPSTRUCT) || defined(SOLARIS))
   /* Note that struct in_addr in solaris is 3 levels deep just to store an
    * unsigned int! */
   struct ftpinfo ftp = { FTPUSER, FTPPASS, "",  { { { 0 } } } , 21, 0};

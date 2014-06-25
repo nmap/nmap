@@ -535,7 +535,7 @@ static void make_ipv6_netmask(struct in6_addr *mask, int bits) {
 
   i = 0;
   /* 0 < bits <= 128, so this loop goes at most 15 times. */
-  for ( ; bits > 8; bits -= 8)
+  for (; bits > 8; bits -= 8)
     mask->s6_addr[i++] = 0xFF;
   mask->s6_addr[i] = 0xFF << (8 - bits);
 }
