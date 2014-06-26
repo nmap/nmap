@@ -2483,7 +2483,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
       dhz = (double) ts_diffs[i] / (time_usec_diffs[i] / 1000000.0);
       /*       printf("ts incremented by %d in %li usec -- %fHZ\n", ts_diffs[i], time_usec_diffs[i], dhz); */
-      avg_ts_hz += dhz / ( hss->si.responses - 1);
+      avg_ts_hz += dhz / (hss->si.responses - 1);
     }
 
     if (avg_ts_hz > 0 && avg_ts_hz < 5.66) { /* relatively wide range because sampling time so short and frequency so slow */
