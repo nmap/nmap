@@ -364,6 +364,7 @@ int print_iflist(void) {
   struct sys_route *routes;
   NmapOutputTable *Tbl = NULL;
   char errstr[256];
+  const char *address = NULL;
   errstr[0]='\0';
 
   iflist = getinterfaces(&numifs, errstr, sizeof(errstr));
@@ -388,8 +389,10 @@ int print_iflist(void) {
       Tbl->addItem(i + 1, devcol, false, iflist[i].devfullname);
       Tbl->addItemFormatted(i + 1, shortdevcol, false, "(%s)",
                             iflist[i].devname);
+      fprintf(stderr,"dev %s, AF %d\n", iflist[i].devname, iflist[i].addr.ss_family);
+      address = inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr));
       Tbl->addItemFormatted(i + 1, ipcol, false, "%s/%d",
-                            inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr)),
+                            address == NULL ? "(none)" : address,
                             iflist[i].netmask_bits);
       if (iflist[i].device_type == devt_ethernet) {
         Tbl->addItem(i + 1, typecol, false, "ethernet");
