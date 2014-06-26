@@ -6278,8 +6278,8 @@ fi
 $as_echo "$ac_cv_lib_pcap_pcap_datalink" >&6; }
 if test "x$ac_cv_lib_pcap_pcap_datalink" = xyes; then :
   have_libpcap=yes
-	LIBPCAP_INC=$with_libpcap/include
-	LIBPCAP_LIB=$with_libpcap/lib
+        LIBPCAP_INC=$with_libpcap/include
+        LIBPCAP_LIB=$with_libpcap/lib
 fi
 
 fi
@@ -6742,7 +6742,7 @@ if test "${with_liblua+set}" = set; then :
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
-	have_lua="yes"
+      have_lua="yes"
 
   ;;
   no)
@@ -9410,7 +9410,7 @@ FILENAME=`ls docs/leet-nmap-ascii-art*.txt 2>/dev/null | awk '
     '`
 # Print the file to screen, if any such file exists (i.e. $FILENAME is not empty)
 if test "$FILENAME"; then
-	cat "$FILENAME"
+  cat "$FILENAME"
 fi
 
 echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."
