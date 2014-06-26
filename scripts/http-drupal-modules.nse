@@ -1,7 +1,6 @@
 local http = require "http"
 local io = require "io"
 local nmap = require "nmap"
-local pcre = require "pcre"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -68,14 +67,8 @@ local get_modules_path = function(host, port, root)
   local modules_path = stdnse.get_script_args(SCRIPT_NAME .. '.modules_path')
 
   if modules_path == nil then
-    -- greps response body for sign of the modules path
-    local pathregex = "sites/[a-zA-Z0-9.-]*/modules/"
     local body = http.get(host, port, root).body
-    local regex = pcre.new(pathregex, 0, "C")
-    local limit, limit2, matches = regex:match(body)
-    if limit ~= nil then
-      modules_path = body:sub(limit, limit2)
-    end
+    modules_path = body:match "sites/[%w.-]*/modules/"
   end
   return modules_path or default_path
 end

@@ -1,12 +1,24 @@
 local comm = require "comm"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
+local re = require "re"
+local U = require "lpeg.utility"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local brute = require "brute"
-local pcre = require "pcre"
+
+local P = lpeg.P;
+local R = lpeg.R;
+local S = lpeg.S;
+local V = lpeg.V;
+local C = lpeg.C;
+local Cb = lpeg.Cb;
+local Cc = lpeg.Cc;
+local Cf = lpeg.Cf;
+local Cg = lpeg.Cg;
+local Ct = lpeg.Ct;
 
 description = [[
 Performs brute-force password auditing against telnet servers.
@@ -32,7 +44,7 @@ Performs brute-force password auditing against telnet servers.
 --                              count based on the behavior of the target
 --                              (default: "true")
 
-author = "nnposter"
+author = "nnposter, Patrick Donnelly"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'brute', 'intrusive'}
 
@@ -52,9 +64,6 @@ local login_debug = 2     -- debug level for printing attempted credentials
 local detail_debug = 3    -- debug level for printing individual login steps
                           --                          and thread-level info
 
-local pcreptn = {}        -- cache of compiled PCRE patterns
-
-
 ---
 -- Print debug messages, prepending them with the script name
 --
@@ -65,6 +74,20 @@ local print_debug = function (level, fmt, ...)
   stdnse.print_debug(level, "%s: " .. fmt, SCRIPT_NAME, ...)
 end
 
+local patt_login = U.atwordboundary(re.compile [[([uU][sS][eE][rR][nN][aA][mM][eE] / [lL][oO][gG][iI][nN]) %s* ':' %s* !.]])
+
+local patt_password = U.atwordboundary(re.compile [[[pP][aA][sS][sS] ([wW][oO][rR][dD] / [cC][oO][dD][eE]) %s* ':' %s* !.]])
+
+local patt_login_success = re.compile([[
+  prompt <- [/>%$#] \ -- general prompt
+            [lL][aA][sS][tT] %s+ [lL][oO][gG][iI][nN] %s* ':' \ -- linux telnetd
+            [A-Z] ':\\' \ -- Windows telnet
+            'Main' (%s \ %ESC '[' %d+ ';' %d+ 'H') 'Menu' \ -- Netgear RM356
+            [mM][aA][iI][nN] (%s \ '\x1B'  ) [mM][eE][nN][uU] ! %a \ -- Netgear RM356
+            [eE][nN][tT][eE][rR] %s+ [tT][eE][rR][mM][iI][nN][aA][lL] %s+ [eE][mM][uU][lL][aA][tT][iI][oO][nN] %s* ':' -- Hummingbird telnetd
+]], {ESC = "\x1B"})
+
+local patt_login_failure = U.atwordboundary(U.caseless "incorrect" + U.caseless "failed" + U.caseless "denied" + U.caseless "invalid" + U.caseless "bad")
 
 ---
 -- Decide whether a given string (presumably received from a telnet server)
@@ -73,10 +96,7 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_username_prompt = function (str)
-  pcreptn.username_prompt = pcreptn.username_prompt
-    or pcre.new("\\b(?:username|login)\\s*:\\s*$",
-      pcre.flags().CASELESS, "C")
-  return pcreptn.username_prompt:match(str)
+  return not not login_patt:match(str)
 end
 
 
@@ -87,10 +107,7 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_password_prompt = function (str)
-  pcreptn.password_prompt = pcreptn.password_prompt
-    or pcre.new("\\bpass(?:word|code)\\s*:\\s*$",
-      pcre.flags().CASELESS, "C")
-  return pcreptn.password_prompt:match(str)
+  return not not password_patt:match(str)
 end
 
 
@@ -101,14 +118,7 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_success = function (str)
-  pcreptn.login_success = pcreptn.login_success
-  or pcre.new("[/>%$#]\\s*$" -- general prompt
-    .. "|^Last login\\s*:" -- linux telnetd
-    .. "|^(?-i:[A-Z]):\\\\" -- Windows telnet
-    .. "|Main(?:\\s|\\x1B\\[\\d+;\\d+H)Menu\\b" -- Netgear RM356
-    .. "|^Enter Terminal Emulation:\\s*$", -- Hummingbird telnetd
-  pcre.flags().CASELESS, "C")
-  return pcreptn.login_success:match(str)
+  return not not password_login_success:match(str)
 end
 
 
@@ -119,10 +129,7 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_failure = function (str)
-  pcreptn.login_failure = pcreptn.login_failure
-    or pcre.new("\\b(?:incorrect|failed|denied|invalid|bad)\\b",
-      pcre.flags().CASELESS, "C")
-  return pcreptn.login_failure:match(str)
+  return not not patt_login_failure:match(str)
 end
 
 

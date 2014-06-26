@@ -115,6 +115,7 @@ local gsub = string.gsub;
 local lower = string.lower;
 local match = string.match;
 local sub = string.sub;
+local upper = string.upper;
 
 local table = require "table";
 local concat = table.concat;
@@ -136,6 +137,19 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   end
   insert(package.searchers, 1, loader);
 end
+
+local lpeg = require "lpeg";
+local locale = lpeg.locale;
+local P = lpeg.P;
+local R = lpeg.R;
+local S = lpeg.S;
+local V = lpeg.V;
+local C = lpeg.C;
+local Cb = lpeg.Cb;
+local Cc = lpeg.Cc;
+local Cf = lpeg.Cf;
+local Cg = lpeg.Cg;
+local Ct = lpeg.Ct;
 
 local nmap = require "nmap";
 local lfs = require "lfs";
@@ -254,6 +268,12 @@ local function host_copy(t)
   local h = tcopy(t)
   h.registry = t.registry
   return h
+end
+
+-- Return a pattern which matches a "keyword" literal, case insensitive.
+local function K (a)
+  local insensitize = Cf((P(1) / function (a) return S(lower(a)..upper(a)) end)^1, function (a, b) return a * b end);
+  return assert(insensitize:match(a)) * -(locale().alnum + P "_"); -- "keyword" token
 end
 
 local REQUIRE_ERROR = {};
@@ -639,14 +659,7 @@ local function get_chosen_scripts (rules)
     "\tplease update using: nmap --script-updatedb");
 
   local chosen_scripts, files_loaded = {}, {};
-  local entry_rules, used_rules, forced_rules = {}, {}, {};
-
-  -- Tokens that are allowed in script rules (--script)
-  local protected_lua_tokens = {
-    ["and"] = true,
-    ["or"] = true,
-    ["not"] = true,
-  };
+  local used_rules, forced_rules = {}, {};
 
   -- Was this category selection forced to run (e.g. "+script").
   -- Return:
@@ -661,16 +674,6 @@ local function get_chosen_scripts (rules)
     end
   end
 
-  -- Globalize all names in str that are not protected_lua_tokens
-  local function globalize (str)
-    local lstr = lower(str);
-    if protected_lua_tokens[lstr] then
-      return lstr;
-    else
-      return 'm("'..str..'")';
-    end
-  end
-
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
     local original_rule = rule;
@@ -679,80 +682,60 @@ local function get_chosen_scripts (rules)
     forced_rules[rule] = forced;
     -- Here we escape backslashes which might appear in Windows filenames.
     rule = gsub(rule, "\\([^\\])", "\\\\%1");
-    -- Globalize all `names`, all visible characters not ',', '(', ')', and ';'
-    local globalized_rule =
-        gsub(rule, "[\033-\039\042-\043\045-\058\060-\126]+", globalize);
-    -- Precompile the globalized rule
-    local env = {m = nil};
-    local compiled_rule, err = load("return "..globalized_rule, "rule", "t", env);
-    if not compiled_rule then
-      err = err:match("rule\"]:%d+:(.+)$"); -- remove (luaL_)where in code
-      error("Bad script rule:\n\t"..original_rule.." -> "..err);
-    end
-    -- These are used to reference and check all the rules later.
-    entry_rules[globalized_rule] = {
-      original_rule = rule,
-      compiled_rule = compiled_rule,
-      env = env,
-    };
+    rules[i] = rule;
   end
 
   -- Checks if a given script, script_entry, should be loaded. A script_entry
   -- should be in the form: { filename = "name.nse", categories = { ... } }
   function db_env.Entry (script_entry)
-    local categories, filename = script_entry.categories, script_entry.filename;
-    assert(type(categories) == "table" and type(filename) == "string",
-        "script database appears corrupt, try `nmap --script-updatedb`");
-    local escaped_basename = match(filename, "([^/\\]-)%.nse$") or
-                             match(filename, "([^/\\]-)$");
-
-    local r_categories = {all = true}; -- A reverse table of categories
-    for i, category in ipairs(categories) do
-      assert(type(category) == "string", "bad entry in script database");
-      r_categories[lower(category)] = true; -- Lowercase the entry
-    end
-
+    local categories = rawget(script_entry, "categories");
+    local filename = rawget(script_entry, "filename");
+    assert(type(categories) == "table" and type(filename) == "string", "script database appears corrupt, try `nmap --script-updatedb`");
+    local escaped_basename = match(filename, "([^/\\]-)%.nse$") or match(filename, "([^/\\]-)$");
+    local selected_by_name = false;
     -- The script selection parameters table.
     local script_params = {};
 
-    -- A matching function for each script rule.
-    -- If the pattern directly matches a category (e.g. "all"), then
-    -- we return true. Otherwise we test if it is a filename or if
-    -- the script_entry.filename matches the pattern.
-    local function m (pattern)
-      -- Check categories
-      if r_categories[lower(pattern)] then
-        script_params.selection = "category";
-        return true;
-      end
-
-      -- Check filename with wildcards
-      pattern = gsub(pattern, "%.nse$", ""); -- remove optional extension
-      pattern = gsub(pattern, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
-      pattern = gsub(pattern, "%*", ".*"); -- change to Lua wildcard
-      pattern = "^"..pattern.."$"; -- anchor to beginning and end
-      if find(escaped_basename, pattern) then
-        script_params.selection = "name";
-        script_params.verbosity = true;
-        return true;
-      end
-
-      return false;
+    -- Test if path is a glob pattern that matches script_entry.filename.
+    local function match_script (path)
+      path = gsub(path, "%.nse$", ""); -- remove optional extension
+      path = gsub(path, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
+      path = gsub(path, "%*", ".*"); -- change to Lua wildcard
+      path = "^"..path.."$"; -- anchor to beginning and end
+      local found = not not find(escaped_basename, path);
+      selected_by_name = selected_by_name or found;
+      return found;
     end
 
-    for globalized_rule, rule_table in pairs(entry_rules) do
-      -- Clear and set the environment of the compiled script rule
-      rule_table.env.m = m;
-      local status, found = pcall(rule_table.compiled_rule)
-      rule_table.env.m = nil;
-      if not status then
-        error("Bad script rule:\n\t"..rule_table.original_rule..
-              " -> script rule expression not supported.");
-      end
-      -- The script rule matches a category or a pattern
-      if found then
-        used_rules[rule_table.original_rule] = true;
-        script_params.forced = not not forced_rules[rule_table.original_rule];
+    local T = locale {
+      V "space"^0 * V "expression" * V "space"^0 * P(-1);
+  
+      expression = V "disjunct" + V "conjunct" + V "value";
+      disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
+      conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
+      value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
+              P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
+              K "true" * Cc(true) +
+              K "false" * Cc(false) +
+              V "category" +
+              V "path";
+  
+      category = K "all" * Cc(true); -- pseudo-category "all" matches everything
+      path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
+    };
+
+    for i, category in ipairs(categories) do
+      assert(type(category) == "string", "bad entry in script database");
+      T.category = T.category + K(category) * Cc(true);
+    end
+
+    T = P(T);
+
+    for i, rule in ipairs(rules) do
+      selected_by_name = false;
+      if T:match(rule) then
+        used_rules[rule] = true;
+        script_params.forced = not not forced_rules[rule];
         local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
@@ -1169,88 +1152,60 @@ local function script_help_xml(chosen_scripts)
   cnse.xml_newline();
 end
 
-do -- Load script arguments (--script-args)
-  local args = cnse.scriptargs or "";
-  print_debug(1, "Script Arguments seen from CLI: %s", args);
-
-  -- Parse a string in 'str' at 'start'.
-  local function parse_string (str, start)
-    -- Unquoted
-    local uqi, uqj, uqm = find(str,
-        "^%s*([^'\"%s{},=][^{},=]-)%s*[},=]", start);
-    -- Quoted
-    local qi, qj, q, qm = find(str, "^%s*(['\"])(.-[^\\])%1%s*[},=]", start);
-    -- Empty Quote
-    local eqi, eqj = find(str, "^%s*(['\"])%1%s*[},=]", start);
-    if uqi then
-      return uqm, uqj-1;
-    elseif qi then
-      return gsub(qm, "\\"..q, q), qj-1;
-    elseif eqi then
-      return "", eqj-1;
-    else
-      error("Value around '"..sub(str, start, start+10)..
-          "' is invalid or is unterminated by a valid separator");
-    end
-  end
-  -- Takes 'str' at index 'start' and parses a table.
-  -- Returns the table and the place in the string it finished reading.
-  local function parse_table (str, start)
-    local _, j = find(str, "^%s*{", start);
-    local t = {}; -- table we return
-    local tmp, nc; -- temporary and next character inspected
-
-    while true do
-      j = j+1; -- move past last token
-
-      _, j, nc = find(str, "^%s*(%S)", j);
-
-      if nc == "}" then -- end of table
-        return t, j;
-      else -- try to read key/value pair, or array value
-        local av = false; -- this is an array value?
-        if nc == "{" then -- array value
-          av, tmp, j = true, parse_table(str, j);
-        else
-          tmp, j = parse_string(str, j);
-        end
-        nc = sub(str, j+1, j+1); -- next token
-        if not av and nc == "=" then -- key/value?
-          _, j, nc = find(str, "^%s*(%S)", j+2);
-          if nc == "{" then
-            t[tmp], j = parse_table(str, j);
-          else -- regular string
-            t[tmp], j = parse_string(str, j);
-          end
-          nc = sub(str, j+1, j+1); -- next token
-        else -- not key/value pair, save array value
-          t[#t+1] = tmp;
-        end
-        if nc == "," then j = j+1 end -- skip "," token
-      end
-    end
-  end
-  nmap.registry.args = parse_table("{"..args.."}", 1);
-  -- Check if user wants to read scriptargs from a file
-  if cnse.scriptargsfile ~= nil then --scriptargsfile path/to/file
+nmap.registry.args = {};
+do
+  local args = {};
+  
+  if cnse.scriptargsfile then
     local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
     assert(t == 'file', format("%s is not a file", path))
-    local argfile = assert(open(path, 'r'));
-    local argstring = argfile:read("*a")
-    argstring = gsub(argstring,"\n",",")
-    local tmpargs = parse_table("{"..argstring.."}",1)
-    for k,v in pairs(nmap.registry.args) do
-      tmpargs[k] = v
-    end
-    nmap.registry.args = tmpargs
+    print_debug(1, "Loading script-args from file `%s'", cnse.scriptargsfile);
+    args[#args+1] = assert(assert(open(path, 'r')):read "*a"):gsub("\n", ","):gsub(",*$", "");
   end
-  if debugging() >= 2 then
-    local out = {}
-    rawget(stdnse, "pretty_printer")(nmap.registry.args, function (s) out[#out+1] = s end)
-    print_debug(2, "%s", concat(out))
+  
+  if cnse.scriptargs then -- Load script arguments (--script-args)
+    print_debug(1, "Arguments from CLI: %s", cnse.scriptargs);
+    args[#args+1] = cnse.scriptargs;
+  end
+
+  args = concat(args, ",");
+  if #args > 0 then
+    print_debug(1, "Arguments parsed: %s", args);
+    local function set (t, a, b)
+      if b == nil then
+        insert(t, a);
+        return t;
+       else
+        return rawset(t, a, b);
+      end
+    end
+    local parser = locale {
+      V "space"^0 * V "table" * V "space"^0,
+      table = Cf(Ct "" * P "{" * V "space"^0 * (V "fieldlst")^-1 * V "space"^0 * P "}", set);
+      fieldlst = V "field" * (V "space"^0 * P "," * V "space"^0 * V "field")^0;
+      field = V "kv" + V "av";
+      kv = Cg(V "string" * V "space"^0 * P "=" * V "space"^0 * V "value");
+      av = Cg(V "value");
+      value = V "table" + V "string";
+      string = V "qstring" + V "uqstring";
+      qstring = P "'" * C((-P "'" * (P "\\'" + P(1)))^0) * P "'" +
+                P '"' * C((-P '"' * (P '\\"' + P(1)))^0) * P '"';
+      uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",}=")^0) * V "space"^0; -- everything but ',}=', do not capture final space
+    };
+    parser = assert(P(parser));
+    nmap.registry.args = parser:match("{"..args.."}");
+    if not nmap.registry.args then
+      log_write("stdout", "args = "..args);
+      error "arguments did not parse!"
+    end
+    if debugging() >= 2 then
+      local out = {}
+      rawget(stdnse, "pretty_printer")(nmap.registry.args, function (s) out[#out+1] = s end)
+      print_debug(2, "%s", concat(out))
+    end
   end
 end
-
+  
 -- Update Missing Script Database?
 if script_database_type ~= "file" then
   print_verbose(1, "Script Database missing, will create new one.");
