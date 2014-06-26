@@ -389,7 +389,6 @@ int print_iflist(void) {
       Tbl->addItem(i + 1, devcol, false, iflist[i].devfullname);
       Tbl->addItemFormatted(i + 1, shortdevcol, false, "(%s)",
                             iflist[i].devname);
-      fprintf(stderr,"dev %s, AF %d\n", iflist[i].devname, iflist[i].addr.ss_family);
       address = inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr));
       Tbl->addItemFormatted(i + 1, ipcol, false, "%s/%d",
                             address == NULL ? "(none)" : address,
