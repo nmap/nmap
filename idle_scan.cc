@@ -313,7 +313,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
       gettimeofday(&tv_end, NULL);
       if (ip) {
         if (o.af() == AF_INET) {
-          if (bytes < ( 4 * ip->ip_hl) + 14U)
+          if (bytes < (4 * ip->ip_hl) + 14U)
             continue;
           if (ip->ip_p == IPPROTO_TCP)
             tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
@@ -344,7 +344,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
               else if (o.af() == AF_INET6)
                 inet_ntop(AF_INET6, &(ip6->ip6_src), straddr, sizeof(straddr));
               error("Received unexpected response packet from %s during IP ID zombie probing:", straddr);
-              readtcppacket( (unsigned char *) ip, MIN(ntohs(ip->ip_len), bytes));
+              readtcppacket((unsigned char *) ip, MIN(ntohs(ip->ip_len), bytes));
             }
             continue;
           }
@@ -767,7 +767,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
           continue; /* probably a duplicate */
         }
         lastipid = ip->ip_id;
-        if (bytes < ( 4 * ip->ip_hl) + 14U)
+        if (bytes < (4 * ip->ip_hl) + 14U)
           continue;
 
         if (ip->ip_p == IPPROTO_TCP) {
