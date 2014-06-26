@@ -19,6 +19,7 @@
 #include "nse_pcrelib.h"
 #include "nse_openssl.h"
 #include "nse_debug.h"
+#include "nse_lpeg.h"
 
 #define NSE_MAIN "NSE_MAIN" /* the main function */
 
@@ -543,6 +544,7 @@ static void set_nmap_libraries (lua_State *L)
     {NSE_BINLIBNAME, luaopen_binlib},
     {BITLIBNAME, luaopen_bit},
     {LFSLIBNAME, luaopen_lfs},
+    {LPEGLIBNAME, luaopen_lpeg},
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
 #endif

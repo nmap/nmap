@@ -1,6 +1,5 @@
 local http = require "http"
 local nmap = require "nmap"
-local pcre = require "pcre"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -69,29 +68,15 @@ portrule = shortport.service("http")
 --- Attempts to extract the html title
 -- from an HTTP response body.
 --@param responsebody Response's body.
-local extract_title = function(responsebody)
-  local title = ''
-  local titlere = '<title>(?P<title>.*)</title>'
-  local regex = pcre.new(titlere, 0, "C")
-  local limit, limit2, matches = regex:match(responsebody)
-  if limit ~= nil then
-    title = matches["title"]
-  end
-  return title
+local function extract_title (responsebody)
+  return responsebody:match "<title>(.-)</title>"
 end
 
 --- Attempts to extract the X-Forwarded-For header
 -- from an HTTP response body in case of TRACE requests.
 --@param responsebody Response's body.
-local extract_xfwd = function(responsebody)
-  local xfwd = ''
-  local xfwdre = '(?P<xfwd>X-Forwarded-For: .*)'
-  local regex = pcre.new(xfwdre, 0, "C")
-  local limit, limit2, matches = regex:match(responsebody)
-  if limit ~= nil then
-    xfwd = matches["xfwd"]
-  end
-  return xfwd
+local function extract_xfwd (responsebody)
+  return responsebody:match "X-Forwarded-For: [^\r\n]*"
 end
 
 ---  Check for differences in response headers, status code

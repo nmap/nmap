@@ -12,7 +12,7 @@
 -- <code>undefined</code>.) <code>NULL</code> values in JSON are represented by
 -- the special value <code>json.NULL</code>.
 --
--- @author Martin Holst Swende
+-- @author Martin Holst Swende (originally), David Fifield, Patrick Donnelly
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 -- TODO: Unescape/escape unicode
@@ -23,13 +23,162 @@
 -- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson
 -- and fromJson into generate() and parse(), implemented more proper numeric parsing and added some more error checking.
 
-local bit = require "bit"
+local bit = require "bit";
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
 _ENV = stdnse.module("json", stdnse.seeall)
+
+local lpeg = require "lpeg";
+local locale = lpeg.locale;
+local P = lpeg.P;
+local R = lpeg.R;
+local S = lpeg.S;
+local V = lpeg.V;
+local C = lpeg.C;
+local Cb = lpeg.Cb;
+local Cc = lpeg.Cc;
+local Cf = lpeg.Cf;
+local Cg = lpeg.Cg;
+local Cp = lpeg.Cp;
+local Cs = lpeg.Cs;
+local Ct = lpeg.Ct;
+local Cmt = lpeg.Cmt;
+
+-- case sensitive keyword
+local function K (a)
+  return P(a) * -(locale().alnum + "_");
+end
+
+local NULL = {};
+_M.NULL = NULL;
+
+-- Encode a Unicode code point to UTF-8. See RFC 3629.
+-- Does not check that cp is a real charaacter; that is, doesn't exclude the
+-- surrogate range U+D800 - U+DFFF and a handful of others.
+local function utf8_enc (cp)
+  local result = {};
+  local n, mask;
+  
+  if cp % 1.0 ~= 0.0 or cp < 0 then
+    -- Only defined for nonnegative integers.
+    error("utf code point defined only for non-negative integers");
+  elseif cp <= 0x7F then
+    -- Special case of one-byte encoding.
+    return string.char(cp);
+  elseif cp <= 0x7FF then
+    n = 2;
+    mask = 0xC0;
+  elseif cp <= 0xFFFF then
+    n = 3;
+    mask = 0xE0;
+  elseif cp <= 0x10FFFF then
+    n = 4;
+    mask = 0xF0;
+  else
+    assert(false);
+  end
+  
+  while n > 1 do
+    result[n] = 0x80 + bit.band(cp, 0x3F);
+    cp = bit.rshift(cp, 6);
+    n = n - 1;
+  end
+  result[1] = mask + cp;
+  
+  return string.char(unpack(result));
+end
+
+-- Decode a Unicode escape, assuming that self.pos starts just after the
+-- initial \u. May consume an additional escape in the case of a UTF-16
+-- surrogate pair. See RFC 2781 for UTF-16.
+local unicode = P [[\u]] * C(locale().xdigit * locale().xdigit * locale().xdigit * locale().xdigit);
+local function unicode16 (subject, position, hex)
+  local cp = assert(tonumber(hex, 16));
+
+  if cp < 0xD800 or cp > 0xDFFF then
+    return position, utf8_enc(cp);
+  elseif cp >= 0xDC00 and cp <= 0xDFFF then
+    error(("Not a Unicode character: U+%04X"):format(cp));
+  end
+
+  -- Beginning of a UTF-16 surrogate.
+  local lowhex = unicode:match(subject, position);
+
+  if not lowhex then
+    error(("Bad unicode escape \\u%s (missing low surrogate)"):format(hex))
+  else
+    local cp2 = assert(tonumber(lowhex, 16));
+    if not (cp2 >= 0xDC00 and cp2 <= 0xDFFF) then
+      error(("Bad unicode escape \\u%s\\u%s (bad low surrogate)"):format(hex, lowhex))
+    end
+    position = position+4;
+    cp = 0x10000 + bit.band(cp, 0x3FF) * 0x400 + bit.band(cp2, 0x3FF)
+    return position, utf8_enc(cp);
+  end
+end
+
+-- call lpeg.locale on the grammar to add V "space"
+local json = locale {
+  V "json";
+
+  json = V "space"^0 * V "value" * V "space"^0 * P(-1); -- FIXME should be 'V "object" + V "array"' instead of 'V "value"' ?
+
+  value = V "string" +
+          V "number" +
+          V "object" +
+          V "array" +
+          K "true" * Cc(true)+
+          K "false" * Cc(false)+
+          K "null" * Cc(NULL);
+
+  object = Cf(Ct "" * P "{" * V "space"^0 * (V "members")^-1 * V "space"^0 * P "}", rawset);
+  members = V "pair" * (V "space"^0 * P "," * V "space"^0 * V "pair")^0;
+  pair = Cg(V "string" * V "space"^0 * P ":" * V "space"^0 * V "value");
+
+  array = Ct(P "[" * V "space"^0 * (V "elements")^-1 * V "space"^0 * P "]");
+  elements = V "value" * V "space"^0 * (P "," * V "space"^0 * V "value")^0;
+
+  string = Ct(P [["]] * (V "char")^0 * P [["]]) / table.concat;
+  char = P [[\"]] * Cc [["]] +
+         P [[\\]] * Cc [[\]] +
+         P [[\b]] * Cc "\b" +
+         P [[\f]] * Cc "\f" +
+         P [[\n]] * Cc "\n" +
+         P [[\r]] * Cc "\r" +
+         P [[\t]] * Cc "\t" +
+         P [[\u]] * Cmt(C(V "xdigit" * V "xdigit" * V "xdigit" * V "xdigit"), unicode16) +
+         P [[\]] * C(1) +
+         (C(1) - P [["]]);
+
+  number = C((P "-")^-1 * V "space"^0 * (V "hexadecimal" + V "floating" + V "integer")) / function (a) return assert(tonumber(a)) end;
+  hexadecimal = P "0x" * V "xdigit"^1;
+  floating = (V "digit"^1 * P "." * V "digit"^0 + V "digit"^0 * P "." * V "digit"^1) * (V "exponent")^-1;
+  integer = V "digit"^1 * (V "exponent")^-1;
+  exponent = S "eE" * (S "-+")^-1 * V "digit"^1;
+};
+json = P(json); -- compile the grammar
+
+
+--- Parses JSON data into a Lua object.
+-- This is the method you probably want to use if you use this library from a
+-- script.
+--@param data a json string
+--@return status true if ok, false if bad
+--@return an object representing the json, or error message
+function parse (data)
+  local status, object = pcall(json.match, json, data);
+
+  if not status then
+    return false, object;
+  elseif object then
+    return true, object;
+  else
+    return false, "syntax error";
+  end
+end
 
 --Some local shortcuts
 local function dbg(str,...)
@@ -46,9 +195,6 @@ end
 local function dbg_err(str,...)
   stdnse.print_debug("json-ERR:"..str, ...)
 end
-
--- Javascript null representation, see explanation above
-NULL = {}
 
 -- See section 2.5 for escapes.
 -- For convenience, ESCAPE_TABLE maps to escape sequences complete with
@@ -125,7 +271,6 @@ end
 --@param obj a table containing data
 --@return a string containing valid json
 function generate(obj)
-
   -- NULL-check must be performed before
   -- checking type == table, since the NULL-object
   -- is a table
@@ -158,302 +303,6 @@ function generate(obj)
   error("Unknown data type in generate")
 end
 
--- This is the parser, implemented in OO-form to deal with state better
-Json = {}
--- Constructor
-function Json:new(input)
-  local o = {}
-  setmetatable(o, self)
-  self.__index = self
-  o.input = input
-  o.pos = 1 -- Pos is where the NEXT letter will be read
-  return o
-end
-
--- Gets next character and ups the position
---@return next character
-function Json:next()
-  self.pos = self.pos+1
-  return self.input:sub(self.pos-1, self.pos-1)
-end
--- Updates the position to next non whitespace position
-function Json:eatWhiteSpace()
-  --Find next non-white char
-  local a,b = self.input:find("%S",self.pos)
-  if not a then
-    self:syntaxerror("Empty data")
-    return
-  end
-  self.pos = a
-end
-
--- Jumps to a specified position
---@param position where to go
-function Json:jumpTo(position)
-  self.pos = position
-end
-
--- Returns next character, but without upping position
---@return next character
-function Json:peek()
-  return self.input:sub(self.pos, self.pos)
-end
-
---@return true if more input is in store
-function Json:hasMore()
-  return self.input:len() >= self.pos
-end
-
--- Checks that the following input is equal to a string
--- and updates position so next char will be after that string
--- If false, triggers a syntax error
---@param str the string to test
-function Json:assertStr(str)
-  local content = self.input:sub(self.pos,self.pos+str:len()-1)
-  if(content == str) then-- All ok
-    -- Jump forward
-    self:jumpTo(self.pos+str:len())
-    return
-  end
-  self:syntaxerror(("Expected '%s' but got '%s'"):format( str, content))
-end
-
--- Trigger a syntax error
-function Json:syntaxerror(reason)
-  self.error = ("Syntax error near pos %d: %s input: %s"):format( self.pos, reason, self.input)
-  dbg(self.error)
-end
--- Check if any errors has occurred
-function Json:errors()
-  return self.error ~= nil
-end
--- Parses a top-level JSON structure (object or array).
---@return the parsed object or puts error messages in self.error
-function Json:parseStart()
-  -- The top level of JSON only allows an object or an array. Only inside
-  -- of the outermost container can other types appear.
-  self:eatWhiteSpace()
-  local c = self:peek()
-  if c == '{' then
-    return self:parseObject()
-  elseif c == '[' then
-    return self:parseArray()
-  else
-    self:syntaxerror(("JSON must start with object or array (started with %s)"):format(c))
-    return
-  end
-end
-
--- Parses a value
---@return the parsed value
-function Json:parseValue()
-  self:eatWhiteSpace()
-  local c = self:peek()
-
-  local value
-  if c == '{' then
-    value = self:parseObject()
-  elseif c == '[' then
-    value = self:parseArray()
-  elseif c == '"' then
-    value = self:parseString()
-  elseif c == 'n' then
-    self:assertStr("null")
-    value = NULL
-  elseif c == 't' then
-    self:assertStr("true")
-    value = true
-  elseif c == 'f' then
-    self:assertStr("false")
-    value = false
-  else -- numeric
-    -- number = [ minus ] int [ frac ] [ exp ]
-    local a,b =self.input:find("-?%d+%.?%d*[eE]?[+-]?%d*", self.pos)
-    if not a or not b then
-      self:syntaxerror("Error 1 parsing numeric value")
-      return
-    end
-    value = tonumber(self.input:sub(a,b))
-    if(value == nil) then
-      self:syntaxerror("Error 2 parsing numeric value")
-      return
-    end
-    self:jumpTo(b+1)
-  end
-  return value
-end
--- Parses a json object {}
---@return the object (or triggers a syntax error)
-function Json:parseObject()
-  local object  = {}
-  make_object(object)
-  local _= self:next() -- Eat {
-
-  while(self:hasMore() and not self:errors()) do
-    self:eatWhiteSpace()
-    local c = self:peek()
-    if(c == '}') then -- Empty object, probably
-      self:next() -- Eat it
-      return object
-    end
-
-    if(c ~= '"') then
-      self:syntaxerror(("Expected '\"', got '%s'"):format(c))
-      return
-    end
-
-    local key = self:parseString()
-    if self:errors() then
-      return
-    end
-    self:eatWhiteSpace()
-    c = self:next()
-    if(c ~= ':') then
-      self:syntaxerror("Expected ':' got "..c)
-      return
-    end
-    local value = self:parseValue()
-
-    if self:errors() then
-      return
-    end
-
-    object[key] = value
-
-    self:eatWhiteSpace()
-    c = self:next()
-    -- Valid now is , or }
-    if(c == '}') then
-      return object
-    end
-    if(c ~= ',') then
-      self:syntaxerror("Expected ',' or '}', got "..c)
-      return
-    end
-  end
-end
--- Parses a json array [] or triggers a syntax error
---@return the array object
-function Json:parseArray()
-  local array  = {}
-  make_array(array)
-  self:next()
-  while(self:hasMore() and not self:errors()) do
-    self:eatWhiteSpace()
-    if(self:peek() == ']') then -- Empty array, probably
-      self:next()
-      break
-    end
-    local value = self:parseValue()
-    if self:errors() then
-      return
-    end
-    table.insert(array, value)
-    self:eatWhiteSpace()
-    local c = self:next()
-    -- Valid now is , or ]
-    if(c == ']') then return array end
-    if(c ~= ',') then
-      self:syntaxerror(("Expected ',' but got '%s'"):format(c))
-      return
-    end
-  end
-  return array
-end
-
--- Decode a Unicode escape, assuming that self.pos starts just after the
--- initial \u. May consume an additional escape in the case of a UTF-16
--- surrogate pair. See RFC 2781 for UTF-16.
-function Json:parseUnicodeEscape()
-  local n, cp
-  local hex, lowhex
-  local s, e
-
-  s, e, hex = self.input:find("^(....)", self.pos)
-  if not hex then
-    self:syntaxerror(("EOF in Unicode escape \\u%s"):format(self.input:sub(self.pos)))
-    return
-  end
-  n = tonumber(hex, 16)
-  if not n then
-    self:syntaxerror(("Bad unicode escape \\u%s"):format(hex))
-    return
-  end
-  cp = n
-  self.pos = e + 1
-  if n < 0xD800 or n > 0xDFFF then
-    return cp
-  end
-  if n >= 0xDC00 and n <= 0xDFFF then
-    self:syntaxerror(("Not a Unicode character: U+%04X"):format(cp))
-    return
-  end
-
-  -- Beginning of a UTF-16 surrogate.
-  s, e, lowhex = self.input:find("^\\u(....)", self.pos)
-  if not lowhex then
-    self:syntaxerror(("Bad unicode escape \\u%s (missing low surrogate)"):format(hex))
-    return
-  end
-  n = tonumber(lowhex, 16)
-  if not n or not (n >= 0xDC00 and n <= 0xDFFF) then
-    self:syntaxerror(("Bad unicode escape \\u%s\\u%s (bad low surrogate)"):format(hex, lowhex))
-    return
-  end
-  self.pos = e + 1
-  cp = 0x10000 + bit.band(cp, 0x3FF) * 0x400 + bit.band(n, 0x3FF)
-  -- also remove last "
-  return cp
-end
-
--- Parses a json string
--- @return the string or triggers syntax error
-function Json:parseString()
-
-  local val = ''
-  local c = self:next()
-  assert( c == '"')
-  while(self:hasMore()) do
-    local c  = self:next()
-
-    if(c == '"') then -- end of string
-    break
-  elseif(c == '\\') then-- Escaped char
-    local d = self:next()
-    if REVERSE_ESCAPE_TABLE[d] ~= nil then
-      val = val .. REVERSE_ESCAPE_TABLE[d]
-    elseif d == 'u' then -- Unicode chars
-      local codepoint = self:parseUnicodeEscape()
-      if not codepoint then
-        return
-      end
-      val = val .. unicode.utf8_enc(codepoint)
-    else
-      self:syntaxerror(("Undefined escape character '%s'"):format(d))
-      return false
-    end
-  else -- Char
-    val = val .. c
-  end
-end
-return val
-end
---- Parses json data into an object form
---
--- This is the method you probably want to use if you
--- use this library from a script.
---@param data a json string
---@return status true if ok, false if bad
---@return an object representing the json, or error message
-function parse(data)
-  local parser = Json:new(data)
-  local result = parser:parseStart()
-  if(parser.error) then
-    return false, parser.error
-  end
-  return true, result
-end
-
 ----------------------------------------------------------------------------------
 -- Test-code for debugging purposes below
 ----------------------------------------------------------------------------------
@@ -470,10 +319,9 @@ local TESTS = {
   '[1,2,3,4,5,null,false,true,"\195\164\195\165\195\182\195\177","bar"]',
   '[]',-- This will yield {} in toJson, since in lua there is only one basic datatype - and no difference when empty
   '{}',
-
-  '', -- error
-  'null', -- error
-  '"abc"', -- error
+  '',			-- error
+  'null',			-- error
+  '"abc"',		-- error
   '{a":1}', -- error
   '{"a" bad :1}', -- error
   '["a\\\\t"]',  -- Should become Lua {"a\\t"}
@@ -496,11 +344,11 @@ function test()
   local i,v,res,status
   for i,v in pairs(TESTS) do
     print("----------------------------")
-    print(v)
+    print(("%q"):format(v))
     status,res = parse(v)
     if not status then print( res) end
     if(status) then
-      print(generate(res))
+		  print(("%q"):format(generate(res)))
     else
       print("Error:".. res)
     end
