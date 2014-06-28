@@ -252,13 +252,22 @@ class NmapCommand(object):
 
     def kill(self):
         """Kill the nmap subprocess."""
+        from time import sleep
+
         log.debug(">>> Killing scan process %s" % self.command_process.pid)
 
         if sys.platform != "win32":
             try:
-                from signal import SIGKILL
-                os.kill(self.command_process.pid, SIGKILL)
-                self.command_process.wait()
+                from signal import SIGTERM, SIGKILL
+                os.kill(self.command_process.pid, SIGTERM)
+                for i in range(10):
+                    sleep(0.5)
+                    if self.command_process.poll() is not None: # Process has been TERMinated
+                        break
+                else:
+                    log.debug(">>> SIGTERM has not worked even after waiting for 5 seconds. Using SIGKILL.")
+                    os.kill(self.command_process.pid, SIGKILL)
+                    self.command_process.wait()
             except:
                 pass
         else:
