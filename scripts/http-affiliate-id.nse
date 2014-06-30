@@ -60,6 +60,11 @@ local AFFILIATE_PATTERNS = {
 ]],
 }
 
+local URL_SHORTENERS = {
+  ["amzn.to"] = re.compile [[{| ( 'http://' ('www.')? 'amzn.to' {'/' ([%a%d])+ } / .)*|}]]
+}
+
+
 portrule = shortport.http
 
 postrule = function() return (nmap.registry["http-affiliate-id"] ~= nil) end
@@ -86,12 +91,27 @@ portaction = function(host, port)
     return
   end
 
+  local followed = {}
+
+  for shortener, pattern in pairs(URL_SHORTENERS) do
+    for i, shortened in ipairs(pattern:match(body)) do
+      stdnse.print_debug("Found shortened Url: " .. shortened) 
+      local response = http.get(shortener, 80, shortened)
+      stdnse.print_debug("status code: %d", response.status)
+      if (response.status == 301 or response.status == 302) and response.header['location'] then
+        followed[#followed + 1] = response.header['location']
+      end
+    end
+  end 
+  followed = table.concat(followed, "\n")
+
   -- Here goes affiliate matching
   for name, pattern in pairs(AFFILIATE_PATTERNS) do
     local ids = {}
-    for i, id in ipairs(pattern:match(body)) do
+    for i, id in ipairs(pattern:match(body..followed)) do
       if not ids[id] then
         result[#result + 1] = name .. ": " .. id
+        stdnse.print_debug("found id:" .. result[#result])
         add_key_to_registry(host, port, url_path, result[#result])
         ids[id] = true
       end
