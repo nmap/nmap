@@ -105,6 +105,13 @@ o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
 
+o Work on Nmap on Mobile devices, particularly Android.  Would be
+  great to get it in Google Play store, for example.  An official
+  version with a workable GUI.  For now, people have to do manual work
+  and it isn't as well tested either:
+  https://secwiki.org/w/Nmap/Android . If this is successful, we could
+  consider iOS.
+
 o INFRASTRUCTURE: Add IPv6 support to secwiki
  - We probably just have to designate a new IPv6 address for it and
    add it to Apache config.
