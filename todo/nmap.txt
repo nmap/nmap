@@ -55,13 +55,6 @@ o GSOC 2014 student Jay will be looking at these items:
     commonly get error reports from people who load so many systems that
     Zenmap gives an out of memory error and crashes.  For example, see
     this thread: http://seclists.org/nmap-dev/2014/q2/46
-  o In an ideal world, Zenmap would not run out of memory and crash.
-    And we already have an entry for improving Zenmap's memory
-    consumption.  But in the meantime, we should catch the error and
-    present a more useful error message/explanation so the user
-    understands the problem.  This should reduce the number of
-    out-of-memory "crash reports" we get too.  See
-    http://seclists.org/nmap-dev/2014/q2/298
   o Consider using a binary decision diagram for --exclude list to make
     it more efficient for large exclude lists.  See
     http://seclists.org/nmap-dev/2012/q4/420.

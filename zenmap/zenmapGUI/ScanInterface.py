@@ -654,7 +654,10 @@ class ScanInterface(HIGVBox):
                 warn_dialog.destroy()
         parsed.set_xml_is_temp(command.xml_is_temp)
         self.collect_umit_info(command, parsed)
-        parsed.nmap_output = command.get_output()
+        try:
+            parsed.nmap_output = command.get_output()
+        except MemoryError:
+            self.scan_result.scan_result_notebook.nmap_output.nmap_output.show_large_output_message(command)
         self.update_ui()
         self.scans_store.finish_running_scan(command, parsed)
 
