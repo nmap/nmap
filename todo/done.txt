@@ -1,5 +1,13 @@
 DONE:
 
+o In an ideal world, Zenmap would not run out of memory and crash.
+  And we already have an entry for improving Zenmap's memory
+  consumption.  But in the meantime, we should catch the error and
+  present a more useful error message/explanation so the user
+  understands the problem.  This should reduce the number of
+  out-of-memory "crash reports" we get too.  See
+  http://seclists.org/nmap-dev/2014/q2/298
+
 o Provide an option to send a comment in scan packet data for target
   network.  Examples: --data-string "Scan conducted by Marc Reis from
   SecOps, extension 2147" or --data-string "pH33r my l3eT
