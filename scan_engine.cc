@@ -3209,12 +3209,15 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     /* Connection succeeded! */
     if (USI->ping_scan) {
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &USI->now);
+      hss->target->reason.reason_id = ER_CONACCEPT;
       /* If the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
     } else if (probe->isPing())
       ultrascan_ping_update(USI, hss, probeI, &USI->now);
-    else
+    else {
       ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &USI->now);
+      hss->target->ports.setStateReason(probe->pspec()->pd.tcp.dport, probe->protocol(), ER_CONACCEPT, 0, NULL);
+    }
     probe = NULL;
   } else if (connect_errno == EINPROGRESS || connect_errno == EAGAIN) {
     USI->gstats->CSI->watchSD(CP->sd);
@@ -3260,6 +3263,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         hss->destroyAllOutstandingProbes();
     } else if (!USI->ping_scan && port_state != PORT_UNKNOWN) {
       ultrascan_port_probe_update(USI, hss, probeI, port_state, &USI->now);
+      hss->target->ports.setStateReason(probe->pspec()->pd.tcp.dport, probe->protocol(), port_state, 0, NULL);
     } else {
       hss->destroyOutstandingProbe(probeI);
     }
