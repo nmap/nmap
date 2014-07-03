@@ -216,7 +216,7 @@ class Port {
 
  private:
   /* This is allocated only on demand by PortList::setServiceProbeResults
-     Pto save memory for the many closed or filtered ports that don't need it. */
+     to save memory for the many closed or filtered ports that don't need it. */
   serviceDeductions *service;
 };
 
@@ -247,7 +247,7 @@ class PortList {
   int forgetPort(u16 portno, u8 protocol);
   bool portIsDefault(u16 portno, u8 protocol);
   /* Saves an identification string for the target containing these
-     ports (an IP addrss might be a good example, but set what you
+     ports (an IP address might be a good example, but set what you
      want).  Only used when printing new port updates.  Optional.  A
      copy is made. */
   void setIdStr(const char *id);
