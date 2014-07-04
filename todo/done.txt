@@ -1,5 +1,8 @@
 DONE:
 
+o Implement an --exclude-ports option. See
+  http://seclists.org/nmap-dev/2012/q1/275
+
 o In an ideal world, Zenmap would not run out of memory and crash.
   And we already have an entry for improving Zenmap's memory
   consumption.  But in the meantime, we should catch the error and

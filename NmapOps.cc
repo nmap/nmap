@@ -167,6 +167,10 @@ NmapOps::~NmapOps() {
     free(portlist);
     portlist = NULL;
   }
+  if (exclude_portlist) {
+    free(exclude_portlist);
+    exclude_portlist = NULL;
+  }
   if (proxy_chain) {
     nsock_proxychain_delete(proxy_chain);
     proxy_chain = NULL;
@@ -382,6 +386,7 @@ void NmapOps::Initialize() {
   inputfd = NULL;
   idleProxy = NULL;
   portlist = NULL;
+  exclude_portlist = NULL;
   proxy_chain = NULL;
 }
 
