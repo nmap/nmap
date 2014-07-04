@@ -436,6 +436,7 @@ void printinteractiveusage();
 void getpts(const char *expr, struct scan_lists * ports); /* someone stole the name getports()! */
 void getpts_simple(const char *origexpr, int range_type,
                    unsigned short **list, int *count);
+void removepts(const char *expr, struct scan_lists * ports);
 void free_scan_lists(struct scan_lists *ports);
 
 /* Renamed main so that interactive mode could preprocess when necessary */

@@ -255,6 +255,7 @@ static void printusage(int rc) {
          "PORT SPECIFICATION AND SCAN ORDER:\n"
          "  -p <port ranges>: Only scan specified ports\n"
          "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9\n"
+         "  --exclude-ports <port ranges>: Exclude the specified ports from scanning\n"
          "  -F: Fast mode - Scan fewer ports than the default scan\n"
          "  -r: Scan ports consecutively - don't randomize\n"
          "  --top-ports <number>: Scan <number> most common ports\n"
@@ -638,6 +639,8 @@ void parse_options(int argc, char **argv) {
     {"dns-servers", required_argument, 0, 0},
     {"port-ratio", required_argument, 0, 0},
     {"port_ratio", required_argument, 0, 0},
+    {"exclude-ports", required_argument, 0, 0},
+    {"exclude_ports", required_argument, 0, 0},
     {"top-ports", required_argument, 0, 0},
     {"top_ports", required_argument, 0, 0},
 #ifndef NOLUA
@@ -941,6 +944,10 @@ void parse_options(int argc, char **argv) {
           o.topportlevel = strtod(optarg, &ptr);
           if (!ptr || o.topportlevel < 0 || o.topportlevel >= 1)
             fatal("--port-ratio should be between [0 and 1)");
+        } else if (optcmp(long_options[option_index].name, "exclude-ports") == 0) {
+          if (o.exclude_portlist)
+            fatal("Only 1 --exclude-ports option allowed, separate multiple ranges with commas.");
+          o.exclude_portlist = strdup(optarg);
         } else if (optcmp(long_options[option_index].name, "top-ports") == 0) {
           char *ptr;
           o.topportlevel = strtod(optarg, &ptr);
@@ -1495,7 +1502,7 @@ void  apply_delayed_options() {
     else
       getpts((char *) (o.fastscan ? "[P:0-]" : "0-"), &ports);  // Default protocols to scan
   } else if (!o.noportscan) {
-    gettoppts(o.topportlevel, o.portlist, &ports);
+    gettoppts(o.topportlevel, o.portlist, &ports, o.exclude_portlist);
   }
 
   // Uncomment the following line to use the common lisp port spec test suite
@@ -1560,6 +1567,9 @@ void  apply_delayed_options() {
   /* Warn if setuid/setgid. */
   check_setugid();
 
+  /* Remove any ports that are in the exclusion list */
+  removepts(o.exclude_portlist, &ports);
+
   /* By now, we've got our port lists.  Give the user a warning if no
    * ports are specified for the type of scan being requested.  Other things
    * (such as OS ident scan) might break cause no ports were specified,  but
@@ -1573,6 +1583,16 @@ void  apply_delayed_options() {
     error("WARNING: UDP scan was requested, but no udp ports were specified.  Skipping this scan type.");
   if (o.ipprotscan && ports.prot_count == 0)
     error("WARNING: protocol scan was requested, but no protocols were specified to be scanned.  Skipping this scan type.");
+
+  if (o.pingtype & PINGTYPE_TCP && ports.syn_ping_count+ports.ack_ping_count == 0)
+    error("WARNING: a TCP ping scan was requested, but after excluding requested TCP ports, none remain. Skipping this scan type.");
+  if (o.pingtype & PINGTYPE_UDP && ports.udp_ping_count == 0)
+    error("WARNING: a UDP ping scan was requested, but after excluding requested UDP ports, none remain. Skipping this scan type.");
+  if (o.pingtype & PINGTYPE_SCTP_INIT && ports.sctp_ping_count == 0)
+    error("WARNING: a SCTP ping scan was requested, but after excluding requested SCTP ports, none remain. Skipping this scan type.");
+  if (o.pingtype & PINGTYPE_PROTO && ports.proto_ping_count == 0)
+    error("WARNING: a IP Protocol ping scan was requested, but after excluding requested protocols, none remain. Skipping this scan type.");
+
 
   /* Set up our array of decoys! */
   if (o.decoyturn == -1) {
@@ -2379,6 +2399,11 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
     range_type |= SCAN_SCTP_PORT;
   if (o.ipprotscan)
     range_type |= SCAN_PROTOCOLS;
+  if (o.noportscan && o.exclude_portlist) { // We want to exclude from ping scans in this case but we take port list normally and then removepts() handles it
+    range_type |= SCAN_TCP_PORT;
+    range_type |= SCAN_UDP_PORT;
+    range_type |= SCAN_SCTP_PORT;
+  }
 
   porttbl = (u8 *) safe_zalloc(65536);
 
@@ -2475,6 +2500,80 @@ void getpts_simple(const char *origexpr, int range_type,
   free(porttbl);
 }
 
+/* removepts() takes a port specification and removes any matching ports
+  from the given scan_lists struct. */
+
+static int remaining_ports(unsigned short int *ports, int count, unsigned short int *exclude_ports, int exclude_count, const char *type = "");
+
+void removepts(const char *expr, struct scan_lists * ports) {
+  static struct scan_lists exclude_ports;
+
+  if (!expr)
+    return;
+
+  getpts(expr, &exclude_ports);
+
+  #define SUBTRACT_PORTS(type,excludetype) \
+    ports->type##_count = remaining_ports(ports->type##_ports, \
+                                          ports->type##_count, \
+                                          exclude_ports.excludetype##_ports, \
+                                          exclude_ports.excludetype##_count, \
+                                          #type)
+
+  SUBTRACT_PORTS(tcp, tcp);
+  SUBTRACT_PORTS(udp, udp);
+  SUBTRACT_PORTS(sctp, sctp);
+  SUBTRACT_PORTS(syn_ping, tcp);
+  SUBTRACT_PORTS(ack_ping, tcp);
+  SUBTRACT_PORTS(udp_ping, udp);
+  SUBTRACT_PORTS(sctp_ping, sctp);
+
+  #define prot_ports prots
+  SUBTRACT_PORTS(prot, prot);
+  SUBTRACT_PORTS(proto_ping, prot);
+  #undef prot_ports
+
+  #undef SUBTRACT_PORTS
+
+  free_scan_lists(&exclude_ports);
+}
+
+/* This function returns the number of ports that remain after the excluded ports
+  are removed from the ports. It places these ports at the start of the ports array. */
+static int remaining_ports(unsigned short int *ports, int count, unsigned short int *exclude_ports, int exclude_count, const char *type) {
+  static bool has_been_excluded[65536];
+  int i, j;
+
+  if (count == 0 || exclude_count == 0)
+    return count;
+
+  if (o.debugging > 1)
+    log_write(LOG_STDOUT, "Removed %s ports: ", type);
+
+  for (i = 0; i < 65536; i++)
+    has_been_excluded[i] = false;
+  for (i = 0; i < exclude_count; i++)
+    has_been_excluded[exclude_ports[i]] = true;
+  for (i = 0, j = 0; i < count; i++)
+    if (!has_been_excluded[ports[i]])
+      ports[j++] = ports[i];
+    else if (o.debugging > 1)
+      log_write(LOG_STDOUT, "%d ", ports[i]);
+
+  if (o.debugging > 1) {
+    if (count-j) {
+      log_write(LOG_STDOUT, "\n");
+    } else {
+      log_write(LOG_STDOUT, "None\n");
+    }
+  }
+  if (o.debugging && count-j) {
+    log_write(LOG_STDOUT, "Removed %d %s ports that would have been considered for scanning otherwise.\n", count-j, type);
+  }
+
+  return j;
+}
+
 /* getpts() and getpts_simple() (see above) are wrappers for this function */
 
 static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning, bool change_range_type) {
@@ -2548,10 +2647,10 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       rangestart = strtol(current_range, &endptr, 10);
       if (range_type & SCAN_PROTOCOLS) {
         if (rangestart < 0 || rangestart > 255)
-          fatal("Protocols to be scanned must be between 0 and 255 inclusive");
+          fatal("Protocols specified must be between 0 and 255 inclusive");
       } else {
         if (rangestart < 0 || rangestart > 65535)
-          fatal("Ports to be scanned must be between 0 and 65535 inclusive");
+          fatal("Ports specified must be between 0 and 65535 inclusive");
       }
       current_range = endptr;
       while (isspace((int) (unsigned char) *current_range)) current_range++;
@@ -2595,10 +2694,10 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
         rangeend = strtol(current_range, &endptr, 10);
         if (range_type & SCAN_PROTOCOLS) {
           if (rangeend < 0 || rangeend > 255)
-            fatal("Protocols to be scanned must be between 0 and 255 inclusive");
+            fatal("Protocols specified must be between 0 and 255 inclusive");
         } else {
           if (rangeend < 0 || rangeend > 65535)
-            fatal("Ports to be scanned must be between 0 and 65535 inclusive");
+            fatal("Ports specified must be between 0 and 65535 inclusive");
         }
         current_range = endptr;
       } else {

@@ -372,6 +372,7 @@ class NmapOps {
   char *exclude_spec;
   FILE *inputfd;
   char *portlist; /* Ports list specified by user */
+  char *exclude_portlist; /* exclude-ports list specified by user */
 
   nsock_proxychain proxy_chain;
 

@@ -424,10 +424,13 @@ static bool is_port_member(const struct scan_lists *ptsdata, const struct servic
 // If level is 1 or above, we treat it as a "top ports" directive
 // and return the N highest ratio ports (where N==level).
 //
+// If the fourth parameter is not NULL, then the specified ports
+// are excluded first and only then are the top N ports taken
+//
 // This function doesn't support IP protocol scan so only call this
 // function if o.TCPScan() || o.UDPScan() || o.SCTPScan()
 
-void gettoppts(double level, char *portlist, struct scan_lists * ports) {
+void gettoppts(double level, char *portlist, struct scan_lists * ports, char *exclude_ports) {
   int ti=0, ui=0, si=0;
   struct scan_lists ptsdata = { 0 };
   bool ptsdata_initialized = false;
@@ -466,7 +469,14 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports) {
   if (portlist){
     getpts(portlist, &ptsdata);
     ptsdata_initialized = true;
+  } else if (exclude_ports) {
+    getpts("-", &ptsdata);
+    ptsdata_initialized = true;
   }
+
+  if (ptsdata_initialized && exclude_ports)
+    removepts(exclude_ports, &ptsdata);
+
   if (level < 1) {
     for (i = services_by_ratio.begin(); i != services_by_ratio.end(); i++) {
       current = &(*i);
