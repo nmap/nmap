@@ -80,13 +80,22 @@ local patt_login = U.atwordboundary(re.compile [[([uU][sS][eE][rR][nN][aA][mM][e
 local patt_password = U.atwordboundary(re.compile [[[pP][aA][sS][sS] ([wW][oO][rR][dD] / [cC][oO][dD][eE]) %s* ':' %s* !.]])
 
 local patt_login_success = re.compile([[
-  prompt <- [/>%$#] \ -- general prompt
-            [lL][aA][sS][tT] %s+ [lL][oO][gG][iI][nN] %s* ':' \ -- linux telnetd
-            [A-Z] ':\\' \ -- Windows telnet
-            'Main' (%s \ %ESC '[' %d+ ';' %d+ 'H') 'Menu' \ -- Netgear RM356
-            [mM][aA][iI][nN] (%s \ '\x1B'  ) [mM][eE][nN][uU] ! %a \ -- Netgear RM356
+  prompt <- [/>%$#] / -- general prompt
+            [lL][aA][sS][tT] %s+ [lL][oO][gG][iI][nN] %s* ':' / -- linux telnetd
+            [A-Z] ':\\' / -- Windows telnet
+            [mM][aA][iI][nN] (%s / %ESC '[' %d+ ';' %d+ 'H') [mM][eE][nN][uU] ! %a / -- Netgear RM356
             [eE][nN][tT][eE][rR] %s+ [tT][eE][rR][mM][iI][nN][aA][lL] %s+ [eE][mM][uU][lL][aA][tT][iI][oO][nN] %s* ':' -- Hummingbird telnetd
 ]], {ESC = "\x1B"})
+
+-- basic tests
+assert(patt_login_success:match "$");
+assert(patt_login_success:match "/");
+assert(patt_login_success:match "last login:");
+assert(patt_login_success:match "C:\\\\");
+assert(patt_login_success:match "MaIn Menu:");
+assert(patt_login_success:match "MaIn Menu");
+assert(patt_login_success:match "MaIn\x1B[12;31HMenu");
+assert(patt_login_success:match "enter terminaL\temulation:");
 
 local patt_login_failure = U.atwordboundary(U.caseless "incorrect" + U.caseless "failed" + U.caseless "denied" + U.caseless "invalid" + U.caseless "bad")
 
