@@ -8,6 +8,7 @@ local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local brute = require "brute"
+local lpeg = require "lpeg"
 
 local P = lpeg.P;
 local R = lpeg.R;
@@ -96,7 +97,7 @@ local patt_login_failure = U.atwordboundary(U.caseless "incorrect" + U.caseless 
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_username_prompt = function (str)
-  return not not login_patt:match(str)
+  return not not patt_login:match(str)
 end
 
 
@@ -107,7 +108,7 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_password_prompt = function (str)
-  return not not password_patt:match(str)
+  return not not patt_password:match(str)
 end
 
 
@@ -118,7 +119,7 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_success = function (str)
-  return not not password_login_success:match(str)
+  return not not patt_login_success:match(str)
 end
 
 
