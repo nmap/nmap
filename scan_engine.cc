@@ -3155,6 +3155,10 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
   int newhoststate = HOST_UNKNOWN;
   reason_t current_reason = ER_NORESPONSE;
   UltraProbe *probe = *probeI;
+  struct sockaddr_storage local;
+  socklen_t local_len = sizeof(struct sockaddr_storage);
+  struct sockaddr_storage remote;
+  size_t remote_len;
 
   switch (connect_errno) {
     case 0:
@@ -3237,9 +3241,34 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
        ultrascan_port_probe_update deletes probe. */
     u8 protocol = probe->protocol();
     u16 dport = probe->dport();
-
-    ultrascan_port_probe_update(USI, hss, probeI, newportstate, rcvdtime, adjust_timing);
-    hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
+    /* Check for self-connected probe */
+    if (getsockname(probe->CP()->sd, (struct sockaddr*)&local, &local_len) == 0
+        && hss->target->TargetSockAddr(&remote, &remote_len) == 0) {
+      if (sockaddr_storage_cmp(&local, &remote) == 0 && (
+            (local.ss_family == AF_INET &&
+             ((struct sockaddr_in*)&local)->sin_port == htons(dport))
+#if HAVE_IPV6
+            || (local.ss_family == AF_INET6 &&
+              ((struct sockaddr_in6*)&local)->sin6_port == htons(dport))
+#endif
+            )) {
+        if (o.debugging) {
+          log_write(LOG_STDOUT, "Detected likely self-connect on port %d\n", probe->dport());
+        }
+        /* It's not really timed out, but this is a simple way to retry the
+         * probe. It shouldn't affect timing too much, since this is quite
+         * rare (should average one per scan, for localhost -p 0-65535 scans
+         * only) */
+        hss->markProbeTimedout(probeI);
+      }
+      else {
+        ultrascan_port_probe_update(USI, hss, probeI, newportstate, rcvdtime, adjust_timing);
+        hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
+      }
+    }
+    else {
+      gh_perror("getsockname or TargetSockAddr failed");
+    }
   } else if (destroy_probe) {
     hss->destroyOutstandingProbe(probeI);
   }
