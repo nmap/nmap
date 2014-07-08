@@ -3145,107 +3145,6 @@ static void init_socket(int sd) {
   }
 }
 
-static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
-                                  std::list<UltraProbe *>::iterator probeI,
-                                  int connect_errno,
-                                  bool destroy_probe=false) {
-  bool adjust_timing = true;
-  struct timeval *rcvdtime = &USI->now;
-  int newportstate = PORT_UNKNOWN;
-  int newhoststate = HOST_UNKNOWN;
-  reason_t current_reason = ER_NORESPONSE;
-  UltraProbe *probe = *probeI;
-
-  switch (connect_errno) {
-    case 0:
-      newhoststate = HOST_UP;
-      newportstate = PORT_OPEN;
-      current_reason = ER_CONACCEPT;
-      break;
-    case EACCES:
-      /* Apparently this can be caused by dest unreachable admin
-         prohibited messages sent back, at least from IPv6
-         hosts */
-      newhoststate = HOST_DOWN;
-      newportstate = PORT_FILTERED;
-      current_reason = ER_ADMINPROHIBITED;
-      break;
-    /* This can happen on localhost, successful/failing connection immediately
-       in non-blocking mode. */
-    case ECONNREFUSED:
-      newhoststate = HOST_UP;
-      newportstate = PORT_CLOSED;
-      current_reason = ER_CONREFUSED;
-      break;
-    case EAGAIN:
-      log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", hss->target->targetipstr(), USI->ports->syn_ping_ports[probe->dport()]);
-      /* Fall through. */
-#ifdef WIN32
-    case WSAENOTCONN:
-#endif
-      newhoststate = HOST_UP;
-      current_reason = ER_CONACCEPT;
-      break;
-#ifdef ENOPROTOOPT
-    case ENOPROTOOPT:
-#endif
-    case EHOSTUNREACH:
-      newhoststate = HOST_DOWN;
-      newportstate = PORT_FILTERED;
-      current_reason = ER_HOSTUNREACH;
-      break;
-    case ETIMEDOUT:
-      rcvdtime = NULL;
-#ifdef WIN32
-    case WSAEADDRNOTAVAIL:
-#endif
-    case EHOSTDOWN:
-      newhoststate = HOST_DOWN;
-      /* It could be the host is down, or it could be firewalled.  We
-         will go on the safe side & assume port is closed ... on second
-         thought, lets go firewalled! and see if it causes any trouble */
-      newportstate = PORT_FILTERED;
-      current_reason = ER_NORESPONSE;
-      break;
-    case ENETUNREACH:
-      newhoststate = HOST_DOWN;
-      newportstate = PORT_FILTERED;
-      current_reason = ER_NETUNREACH;
-      break;
-    case ENETDOWN:
-    case ENETRESET:
-    case ECONNABORTED:
-      fatal("Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", hss->target->targetipstr(), connect_errno, strerror(connect_errno));
-      break;
-    default:
-      error("Strange read error from %s (%d - '%s')", hss->target->targetipstr(), connect_errno, strerror(connect_errno));
-      break;
-  }
-  if (newhoststate != HOST_UP) {
-    adjust_timing = false;
-  }
-  if (probe->isPing()) {
-    ultrascan_ping_update(USI, hss, probeI, rcvdtime, adjust_timing);
-  } else if (USI->ping_scan && newhoststate != HOST_UNKNOWN) {
-    ultrascan_host_probe_update(USI, hss, probeI, newhoststate, rcvdtime, adjust_timing);
-    hss->target->reason.reason_id = current_reason;
-    /* If the host is up, we can forget our other probes. */
-    if (newhoststate == HOST_UP)
-      hss->destroyAllOutstandingProbes();
-  } else if (!USI->ping_scan && newportstate != PORT_UNKNOWN) {
-    /* Save these values so we can use them after
-       ultrascan_port_probe_update deletes probe. */
-    u8 protocol = probe->protocol();
-    u16 dport = probe->dport();
-
-    ultrascan_port_probe_update(USI, hss, probeI, newportstate, rcvdtime, adjust_timing);
-    hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
-  } else if (destroy_probe) {
-    hss->destroyOutstandingProbe(probeI);
-  }
-  return;
-}
-
 /* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
    ping sequence number (they start at 1).  The probe sent is returned. */
 static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
@@ -3253,6 +3152,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
   UltraProbe *probe = new UltraProbe();
   std::list<UltraProbe *>::iterator probeI;
+  static bool connecterror = false;
   int rc;
   int connect_errno = 0;
   struct sockaddr_storage sock;
@@ -3305,10 +3205,68 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
      or permanently fail here, so related code cood all be localized
      elsewhere.  But the reality is that connect() MAY be finished now. */
 
-  if (rc == -1 && (connect_errno == EINPROGRESS || connect_errno == EAGAIN)) {
+  if (rc != -1) {
+    /* Connection succeeded! */
+    if (USI->ping_scan) {
+      ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &USI->now);
+      hss->target->reason.reason_id = ER_CONACCEPT;
+      /* If the host is up, we can forget our other probes. */
+      hss->destroyAllOutstandingProbes();
+    } else if (probe->isPing())
+      ultrascan_ping_update(USI, hss, probeI, &USI->now);
+    else {
+      ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &USI->now);
+      hss->target->ports.setStateReason(probe->pspec()->pd.tcp.dport, probe->protocol(), ER_CONACCEPT, 0, NULL);
+    }
+    probe = NULL;
+  } else if (connect_errno == EINPROGRESS || connect_errno == EAGAIN) {
     USI->gstats->CSI->watchSD(CP->sd);
   } else {
-    handleConnectResult(USI, hss, probeI, connect_errno, true);
+    int host_state = HOST_UNKNOWN, port_state = PORT_UNKNOWN;
+
+    switch (connect_errno) {
+      /* This can happen on localhost, successful/failing connection immediately
+         in non-blocking mode. */
+    case ECONNREFUSED:
+      host_state = HOST_UP;
+      port_state = PORT_CLOSED;
+      hss->target->reason.reason_id = ER_CONREFUSED;
+      break;
+    case ENETUNREACH:
+      if (o.debugging)
+        log_write(LOG_STDOUT, "Got ENETUNREACH from %s connect()\n", __func__);
+      host_state = HOST_DOWN;
+      hss->target->reason.reason_id = ER_NETUNREACH;
+      break;
+    case EACCES:
+      if (o.debugging)
+        log_write(LOG_STDOUT, "Got EACCES from %s connect()\n", __func__);
+      host_state = HOST_DOWN;
+      hss->target->reason.reason_id = ER_ACCES;
+      break;
+    default:
+      if (!connecterror) {
+        connecterror = true;
+        fprintf(stderr, "Strange error from connect (%d):", connect_errno);
+        fflush(stdout);
+        fflush(stderr);
+        perror("");
+      }
+      host_state = HOST_DOWN;
+      hss->target->reason.reason_id = ER_UNKNOWN;
+    }
+    if (probe->isPing()) {
+      ultrascan_ping_update(USI, hss, probeI, &USI->now);
+    } else if (USI->ping_scan && host_state != HOST_UNKNOWN) {
+      ultrascan_host_probe_update(USI, hss, probeI, host_state, &USI->now);
+      if (host_state == HOST_UP)
+        hss->destroyAllOutstandingProbes();
+    } else if (!USI->ping_scan && port_state != PORT_UNKNOWN) {
+      ultrascan_port_probe_update(USI, hss, probeI, port_state, &USI->now);
+      hss->target->ports.setStateReason(probe->pspec()->pd.tcp.dport, probe->protocol(), port_state, 0, NULL);
+    } else {
+      hss->destroyOutstandingProbe(probeI);
+    }
     probe = NULL;
   }
   gettimeofday(&USI->now, NULL);
@@ -4147,11 +4105,17 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int sd;
   std::list<HostScanStats *>::iterator hostI;
   HostScanStats *host;
+  std::list<UltraProbe *>::iterator probeI, nextProbeI;
   UltraProbe *probe = NULL;
+  unsigned int listsz;
+  unsigned int probenum;
+  int newportstate = PORT_UNKNOWN;
+  int newhoststate = HOST_UNKNOWN;
   int optval;
   recvfrom6_t optlen = sizeof(int);
   int numGoodSD = 0;
   int err = 0;
+  reason_t current_reason = ER_NORESPONSE;
 
   do {
     timeleft = TIMEVAL_MSEC_SUBTRACT(*stime, USI->now);
@@ -4201,15 +4165,17 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
     if (host->num_probes_active == 0)
       continue;
 
-    std::list<UltraProbe *>::iterator nextProbeI;
-    for (std::list<UltraProbe *>::iterator probeI = host->probes_outstanding.begin(), end = host->probes_outstanding.end();
-        probeI != end && numGoodSD < selectres; probeI = nextProbeI) {
-      /* handleConnectResult may remove the probe at probeI, which invalidates
-       * the iterator. We copy and increment it here instead of in the for-loop
-       * statement to avoid incrementing an invalid iterator */
-      nextProbeI = probeI;
-      nextProbeI++;
+    nextProbeI = probeI = host->probes_outstanding.end();
+    listsz = host->num_probes_outstanding();
+    if (listsz)
+      nextProbeI--;
+    for (probenum = 0; probenum < listsz && numGoodSD < selectres; probenum++) {
+      probeI = nextProbeI;
+      if (probeI != host->probes_outstanding.begin())
+        nextProbeI--;
       probe = *probeI;
+      /* Assume that we will adjust timing when a response is received. */
+      bool adjust_timing = true;
       assert(probe->type == UltraProbe::UP_CONNECT);
       sd = probe->CP()->sd;
       /* Let see if anything has happened! */
@@ -4217,11 +4183,93 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
                       checked_fd_isset(sd, &fds_wtmp) ||
                       checked_fd_isset(sd, &fds_xtmp))) {
         numGoodSD++;
+        newportstate = PORT_UNKNOWN;
         if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (char *) &optval,
                        &optlen) != 0)
           optval = socket_errno(); /* Stupid Solaris ... */
+        switch (optval) {
+        case 0:
+          newhoststate = HOST_UP;
+          newportstate = PORT_OPEN;
+          current_reason = ER_CONACCEPT;
+          break;
+        case EACCES:
+          /* Apparently this can be caused by dest unreachable admin
+             prohibited messages sent back, at least from IPv6
+             hosts */
+          newhoststate = HOST_DOWN;
+          newportstate = PORT_FILTERED;
+          current_reason = ER_ADMINPROHIBITED;
+          break;
+        case ECONNREFUSED:
+          newhoststate = HOST_UP;
+          newportstate = PORT_CLOSED;
+          current_reason = ER_CONREFUSED;
+          break;
+        case EAGAIN:
+          log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", host->target->targetipstr(), USI->ports->syn_ping_ports[probe->dport()]);
+          /* Fall through. */
+#ifdef WIN32
+        case WSAENOTCONN:
+#endif
+          newhoststate = HOST_UP;
+          current_reason = ER_CONACCEPT;
+          break;
+#ifdef ENOPROTOOPT
+        case ENOPROTOOPT:
+#endif
+        case EHOSTUNREACH:
+          newhoststate = HOST_DOWN;
+          newportstate = PORT_FILTERED;
+          current_reason = ER_HOSTUNREACH;
+          break;
+#ifdef WIN32
+        case WSAEADDRNOTAVAIL:
+#endif
+        case ETIMEDOUT:
+        case EHOSTDOWN:
+          newhoststate = HOST_DOWN;
+          /* It could be the host is down, or it could be firewalled.  We
+             will go on the safe side & assume port is closed ... on second
+             thought, lets go firewalled! and see if it causes any trouble */
+          newportstate = PORT_FILTERED;
+          current_reason = ER_NORESPONSE;
+          break;
+        case ENETUNREACH:
+          newhoststate = HOST_DOWN;
+          newportstate = PORT_FILTERED;
+          current_reason = ER_NETUNREACH;
+          break;
+        case ENETDOWN:
+        case ENETRESET:
+        case ECONNABORTED:
+          fatal("Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", host->target->targetipstr(), optval, strerror(optval));
+          break;
+        default:
+          error("Strange read error from %s (%d - '%s')", host->target->targetipstr(), optval, strerror(optval));
+          break;
+        }
 
-        handleConnectResult(USI, host, probeI, optval);
+        if (USI->ping_scan && newhoststate != HOST_UNKNOWN) {
+          if (probe->isPing())
+            ultrascan_ping_update(USI, host, probeI, &USI->now, adjust_timing);
+          else {
+            ultrascan_host_probe_update(USI, host, probeI, newhoststate, &USI->now, adjust_timing);
+            host->target->reason.reason_id = current_reason;
+          }
+        } else if (!USI->ping_scan && newportstate != PORT_UNKNOWN) {
+          if (probe->isPing())
+            ultrascan_ping_update(USI, host, probeI, &USI->now, adjust_timing);
+          else {
+            /* Save these values so we can use them after
+               ultrascan_port_probe_update deletes probe. */
+            u8 protocol = probe->protocol();
+            u16 dport = probe->dport();
+
+            ultrascan_port_probe_update(USI, host, probeI, newportstate, &USI->now, adjust_timing);
+            host->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
+          }
+        }
       }
     }
   }
