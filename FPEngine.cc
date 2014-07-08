@@ -1280,7 +1280,7 @@ int FPHost::choose_osscan_ports() {
 
   /* Choose a closed TCP port. */
   if (this->target_host->FPR != NULL && this->target_host->FPR->osscan_closedtcpport > 0) {
-     this->closed_port_tcp =this->target_host->FPR->osscan_closedtcpport;
+     this->closed_port_tcp = this->target_host->FPR->osscan_closedtcpport;
   } else if ((tport = this->target_host->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_CLOSED))) {
     this->closed_port_tcp = tport->portno;
     /* If it is zero, let's try another one if there is one */
@@ -1293,7 +1293,7 @@ int FPHost::choose_osscan_ports() {
     this->closed_port_tcp = tport->portno;
     /* But again we'd prefer not to have zero */
     if (tport->portno == 0)
-      if ((tport =this->target_host->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_UNFILTERED)))
+      if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_UNFILTERED)))
         this->closed_port_tcp = tport->portno;
   } else {
     /* If we don't have a closed port, set it to -1 so we don't send probes that
