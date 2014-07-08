@@ -368,7 +368,7 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
         break;
 
       if (pspec->ops->node_new(&proxy, &uri) < 0)
-        proxy = NULL;
+        fatal("Cannot initialize proxy node %s", proxystr);
 
       uri_free(&uri);
 
@@ -455,7 +455,7 @@ int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen) {
 
   rc = getaddrinfo(host, NULL, NULL, &res);
   if (rc)
-    return -rc;
+    return -abs(rc);
 
   *addr = *res->ai_addr;
   *addrlen = res->ai_addrlen;
