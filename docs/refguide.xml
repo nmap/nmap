@@ -652,6 +652,7 @@ you would expect.</para>
           response.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
 <man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
+ The <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm> and <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm> options can be used to send custom payloads to every port. For example: <option>--data 0xCAFE09</option> or <option>--data-string "Gort! Klaatu barada nikto!"</option>
  The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm> option can be used to send a fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.  You can also disable payloads by specifying <option>--data-length 0</option>.</para>
           <para>The port list
           takes the same format as with the previously discussed
@@ -821,9 +822,11 @@ you would expect.</para>
           with the proper protocol
           headers<indexterm><primary>protocol-specific payloads</primary><secondary>IP</secondary></indexterm>
           while other protocols are
-          sent with no additional data beyond the IP header (unless the
+          sent with no additional data beyond the IP header (unless any of
+          <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm>,
+          <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm>, or
           <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
-          option is specified).</para>
+          options are specified).</para>
 
           <para>This host discovery method looks for either responses
           using the same protocol as a probe, or ICMP protocol
@@ -1261,7 +1264,8 @@ run.</para>
 targeted port. For some common ports such as 53 and 161, a
 protocol-specific payload is sent, but for most ports the packet is
 empty.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
-The <option>--data-length</option> option can be used to send a
+The <option>--data</option> and <option>--data-string</option> options can be used to send a custom
+payload to every port and the <option>--data-length</option> option can be used to send a
 fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.
 If an ICMP port unreachable error (type 3, code 3) is
 returned, the port is <literal>closed</literal>.  Other ICMP unreachable errors (type 3,
@@ -3283,6 +3287,49 @@ and script scanning. Setting the source port also doesn't work for OS detection,
 because Nmap must use different port numbers for certain OS detection tests to
 work properly.</para>
 
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+           <option>--data <replaceable>hex string</replaceable></option> (Append custom binary data to sent packets)
+          <indexterm><primary><option>--data</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option lets you include binary data as payload in sent packets.
+           <replaceable>hex string</replaceable> may be specified in any of
+           the following formats: <literal>0xAABBCCDDEEFF<replaceable>...</replaceable></literal>,
+           <literal>AABBCCDDEEFF<replaceable>...</replaceable></literal> or
+           <literal>\xAA\xBB\xCC\xDD\xEE\xFF<replaceable>...</replaceable></literal>.
+           Examples of use are <option>--data 0xdeadbeef</option> and
+           <option>--data \xCA\xFE\x09</option>. Note that if you specify a
+           number like <literal>0x00ff</literal>
+           no byte-order conversion is performed. Make sure you specify
+           the information in the byte order expected by the receiver.
+        </para>
+        </listitem>
+      </varlistentry>
+
+     
+      <varlistentry>
+        <term>
+          <option>--data-string <replaceable>string</replaceable></option> (Append custom string to sent packets)
+          <indexterm><primary><option>--data-string</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+            This option lets you include a regular string as payload in
+            sent packets. <replaceable>string</replaceable> can
+            contain any string. However, note that some characters
+            may depend on your system's locale and the receiver may not
+            see the same information. Also, make sure you enclose the string
+            in double quotes and escape any special characters from the shell.
+            Examples: <option>--data-string "Scan conducted by Security Ops, extension 7192"</option>
+            or <option>--data-string "Ph34r my l33t skills"</option>.
+            Keep in mind that nobody is likely to actually see any comments left by this option
+            unless they are carefully monitoring the network with a sniffer or custom IDS rules.
+        </para>
         </listitem>
       </varlistentry>
 
