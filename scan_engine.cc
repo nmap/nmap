@@ -3150,7 +3150,6 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
                                   int connect_errno,
                                   bool destroy_probe=false) {
   bool adjust_timing = true;
-  struct timeval *rcvdtime = &USI->now;
   int newportstate = PORT_UNKNOWN;
   int newhoststate = HOST_UNKNOWN;
   reason_t current_reason = ER_NORESPONSE;
@@ -3198,11 +3197,10 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
       newportstate = PORT_FILTERED;
       current_reason = ER_HOSTUNREACH;
       break;
-    case ETIMEDOUT:
-      rcvdtime = NULL;
 #ifdef WIN32
     case WSAEADDRNOTAVAIL:
 #endif
+    case ETIMEDOUT:
     case EHOSTDOWN:
       newhoststate = HOST_DOWN;
       /* It could be the host is down, or it could be firewalled.  We
@@ -3225,13 +3223,10 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
       error("Strange read error from %s (%d - '%s')", hss->target->targetipstr(), connect_errno, strerror(connect_errno));
       break;
   }
-  if (newhoststate != HOST_UP) {
-    adjust_timing = false;
-  }
-  if (probe->isPing()) {
-    ultrascan_ping_update(USI, hss, probeI, rcvdtime, adjust_timing);
+  if (probe->isPing() && newhoststate != HOST_UNKNOWN ) {
+    ultrascan_ping_update(USI, hss, probeI, &USI->now, adjust_timing);
   } else if (USI->ping_scan && newhoststate != HOST_UNKNOWN) {
-    ultrascan_host_probe_update(USI, hss, probeI, newhoststate, rcvdtime, adjust_timing);
+    ultrascan_host_probe_update(USI, hss, probeI, newhoststate, &USI->now, adjust_timing);
     hss->target->reason.reason_id = current_reason;
     /* If the host is up, we can forget our other probes. */
     if (newhoststate == HOST_UP)
@@ -3262,7 +3257,7 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
         hss->markProbeTimedout(probeI);
       }
       else {
-        ultrascan_port_probe_update(USI, hss, probeI, newportstate, rcvdtime, adjust_timing);
+        ultrascan_port_probe_update(USI, hss, probeI, newportstate, &USI->now, adjust_timing);
         hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
       }
     }
