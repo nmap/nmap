@@ -1746,7 +1746,12 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
 #endif
       rawsd = nmap_raw_socket();
       if (rawsd < 0)
-        pfatal("socket troubles in %s", __func__);
+        pfatal("Couldn't open a raw socket. "
+#if defined(sun) && defined(__SVR4)
+        "In Solaris shared-IP non-global zones, this requires the PRIV_NET_RAWACCESS privilege. "
+#endif
+        "Error"
+        );
       /* We do not want to unblock the socket since we want to wait
       if kernel send buffers fill up rather than get ENOBUF, and
       we won't be receiving on the socket anyway
