@@ -38,6 +38,7 @@
 /ipcam.sdp
 /ipcam_h264.sdp
 /live.sdp
+/live/ch00_0
 /live/h264
 /live/mpeg4
 /live_mpeg4.sdp
