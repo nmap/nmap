@@ -367,6 +367,7 @@ class NmapOps {
 
   bool traceroute;
   bool reason;
+  bool show_ttl;
   bool adler32;
   FILE *excludefd;
   char *exclude_spec;
