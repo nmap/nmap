@@ -1145,7 +1145,7 @@ void parse_options(int argc, char **argv) {
       else if (*optarg == 'P')
         o.pingtype |= PINGTYPE_ICMP_TS;
       else if (*optarg == 'n' || *optarg == '0' || *optarg == 'N' || *optarg == 'D')
-        o.pingtype = PINGTYPE_NONE;
+        o.pingtype |= PINGTYPE_NONE;
       else if (*optarg == 'R')
         o.pingtype |= PINGTYPE_ARP;
       else if (*optarg == 'S') {
@@ -1272,7 +1272,7 @@ void parse_options(int argc, char **argv) {
         case 'L':
           o.listscan = 1;
           o.noportscan = 1;
-          o.pingtype = PINGTYPE_NONE;
+          o.pingtype |= PINGTYPE_NONE;
           break;
         case 'M':
           o.maimonscan = 1;
@@ -1429,6 +1429,10 @@ void  apply_delayed_options() {
     o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
     o.os_labels_ipv6 = load_fp_matches();
   }
+
+  // Must check and change this before validate_scan_lists
+  if (o.pingtype & PINGTYPE_NONE)
+    o.pingtype = PINGTYPE_NONE;
 
   validate_scan_lists(ports, o);
   o.ValidateOptions();
