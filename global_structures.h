@@ -238,7 +238,6 @@ struct FingerPrintDB {
 
 /* Based on TCP congestion control techniques from RFC2581. */
 struct ultra_timing_vals {
-private:
   double cwnd; /* Congestion window - in probes */
   int ssthresh; /* The threshold above which mode is changed from slow start
                    to congestion avoidance */
@@ -257,24 +256,6 @@ private:
   struct timeval last_drop;
 
   double cc_scale(const struct scan_performance_vars *perf);
-public:
-  ultra_timing_vals(double cwnd_arg, int ssthresh_arg, struct timeval *now) {
-    cwnd = cwnd_arg;
-    ssthresh = ssthresh_arg;
-    num_replies_expected = 0;
-    num_replies_received = 0;
-    num_updates = 0;
-    if (now == NULL)
-      gettimeofday(&last_drop, NULL);
-    else
-      last_drop = *now;
-  }
-  double getCwnd() const { return cwnd; }
-  int getSsthresh() const { return ssthresh; }
-  int getNumUpdates() const { return num_updates; }
-  struct timeval getLastDrop() const { return last_drop; }
-  void incrementNumUpdates() { num_updates++; }
-  void incrementNumRepliesExpected() { num_replies_expected++; }
   void ack(const struct scan_performance_vars *perf, double scale = 1.0);
   void drop(unsigned in_flight,
     const struct scan_performance_vars *perf, const struct timeval *now);

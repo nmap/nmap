@@ -783,6 +783,14 @@ private:
 /* Whether this is storing timing stats for a whole group or an
    individual host */
 enum ultra_timing_type { TIMING_HOST, TIMING_GROUP };
+/* Initialize the ultra_timing_vals structure timing.  The utt must be
+   TIMING_HOST or TIMING_GROUP.  If you happen to have the current
+   time handy, pass it as now, otherwise pass NULL */
+static void init_ultra_timing_vals(ultra_timing_vals *timing,
+                                   enum ultra_timing_type utt,
+                                   int num_hosts_in_group,
+                                   struct ultra_scan_performance_vars *perf,
+                                   struct timeval *now);
 
 /* Take a buffer, buf, of size bufsz (64 bytes is sufficient) and
    writes a short description of the probe (arg1) into buf.  It also returns
@@ -1052,12 +1060,11 @@ bool ConnectScanInfo::clearSD(int sd) {
   }
 }
 
-GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) : timing(
-    UltraSI->perf.group_initial_cwnd, UltraSI->perf.initial_ssthresh,
-    &UltraSI->now) {
+GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   memset(&latestip, 0, sizeof(latestip));
   memset(&timeout, 0, sizeof(timeout));
   USI = UltraSI;
+  init_ultra_timing_vals(&timing, TIMING_GROUP, USI->numIncompleteHosts(), &(USI->perf), &USI->now);
   initialize_timeout_info(&to);
   /* Default timout should be much lower for arp */
   if (USI->ping_scan_arp)
@@ -1192,7 +1199,7 @@ bool GroupScanStats::sendOK(struct timeval *when) {
     return true;
   }
 
-  if (timing.getCwnd() >= num_probes_active + 0.5) {
+  if (timing.cwnd >= num_probes_active + 0.5) {
     if (when)
       *when = USI->now;
     return true;
@@ -1233,9 +1240,7 @@ static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
   return false;
 }
 
-HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) : timing(
-    UltraSI->perf.host_initial_cwnd, UltraSI->perf.initial_ssthresh,
-    &UltraSI->now) {
+HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   target = t;
   USI = UltraSI;
   next_portidx = 0;
@@ -1259,6 +1264,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) : timing(
   ports_finished = 0;
   numprobes_sent = 0;
   memset(&completiontime, 0, sizeof(completiontime));
+  init_ultra_timing_vals(&timing, TIMING_HOST, 1, &(USI->perf), &USI->now);
   bench_tryno = 0;
   memset(&sdn, 0, sizeof(sdn));
   sdn.last_boost = USI->now;
@@ -1332,9 +1338,7 @@ unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe) {
    (call it again if they do).  when will become now if it returns
    true. */
 bool HostScanStats::sendOK(struct timeval *when) {
-  struct ultra_timing_vals tmng = ultra_timing_vals(USI->perf.group_initial_cwnd,
-                                                    USI->perf.initial_ssthresh,
-                                                    &USI->now);
+  struct ultra_timing_vals tmng;
   std::list<UltraProbe *>::iterator probeI;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
@@ -1377,7 +1381,7 @@ bool HostScanStats::sendOK(struct timeval *when) {
   }
 
   getTiming(&tmng);
-  if (tmng.getCwnd() >= num_probes_active + .5 &&
+  if (tmng.cwnd >= num_probes_active + .5 &&
       (freshPortsLeft() || num_probes_waiting_retransmit || !retry_stack.empty())) {
     if (when)
       *when = USI->now;
@@ -1414,7 +1418,7 @@ bool HostScanStats::sendOK(struct timeval *when) {
       earliest_to = sendTime;
     } else {
       getTiming(&tmng);
-      if (tdiff > 0 && tmng.getCwnd() > num_probes_active + .5) {
+      if (tdiff > 0 && tmng.cwnd > num_probes_active + .5) {
         earliest_to = sendTime;
       }
     }
@@ -2048,6 +2052,24 @@ int determineScanGroupSize(int hosts_scanned_so_far,
   return groupsize;
 }
 
+/* Initialize the ultra_timing_vals structure timing.  The utt must be
+   TIMING_HOST or TIMING_GROUP.  If you happen to have the current
+   time handy, pass it as now, otherwise pass NULL */
+static void init_ultra_timing_vals(ultra_timing_vals *timing,
+                                   enum ultra_timing_type utt,
+                                   int num_hosts_in_group,
+                                   struct ultra_scan_performance_vars *perf,
+                                   struct timeval *now) {
+  timing->cwnd = (utt == TIMING_HOST) ? perf->host_initial_cwnd : perf->group_initial_cwnd;
+  timing->ssthresh = perf->initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
+  timing->num_replies_expected = 0;
+  timing->num_replies_received = 0;
+  timing->num_updates = 0;
+  if (now)
+    timing->last_drop = *now;
+  else gettimeofday(&timing->last_drop, NULL);
+}
+
 /* Returns the next probe to try against target.  Supports many
    different types of probes (see probespec structure).  Returns 0 and
    fills in pspec if there is a new probe, -1 if there are none
@@ -2352,11 +2374,11 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
                                     struct timeval *rcvdtime) {
   int ping_magnifier = (probe->isPing()) ? USI->perf.ping_magnifier : 1;
 
-  USI->gstats->timing.incrementNumRepliesExpected();
-  USI->gstats->timing.incrementNumUpdates();
+  USI->gstats->timing.num_replies_expected++;
+  USI->gstats->timing.num_updates++;
 
-  hss->timing.incrementNumRepliesExpected();
-  hss->timing.incrementNumUpdates();
+  hss->timing.num_replies_expected++;
+  hss->timing.num_updates++;
 
   /* Notice a drop if
      1) We get a response to a retransmitted probe (meaning the first reply was
@@ -2367,9 +2389,9 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing() ? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
-    if (TIMEVAL_AFTER(probe->sent, hss->timing.getLastDrop()))
+    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop))
       hss->timing.drop(hss->num_probes_active, &USI->perf, &USI->now);
-    if (TIMEVAL_AFTER(probe->sent, USI->gstats->timing.getLastDrop()))
+    if (TIMEVAL_AFTER(probe->sent, USI->gstats->timing.last_drop))
       USI->gstats->timing.drop_group(USI->gstats->num_probes_active, &USI->perf, &USI->now);
   }
   /* If !probe->isPing() and rcvdtime == NULL, do nothing. */
@@ -2677,15 +2699,15 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
   }
 
   /* Otherwise, use the global cwnd stats if it has sufficient responses */
-  if (USI->gstats->timing.getNumUpdates() > 1) {
+  if (USI->gstats->timing.num_updates > 1) {
     *tmng = USI->gstats->timing;
     return;
   }
 
-  *tmng = ultra_timing_vals(USI->perf.host_initial_cwnd,
-                            USI->perf.initial_ssthresh, NULL);
-
   /* Last resort is to use canned values */
+  tmng->cwnd = USI->perf.host_initial_cwnd;
+  tmng->ssthresh = USI->perf.initial_ssthresh;
+  tmng->num_updates = 0;
   return;
 }
 
@@ -4105,19 +4127,15 @@ static void printAnyStats(UltraScanInfo *USI) {
 
   std::list<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  struct ultra_timing_vals hosttm = ultra_timing_vals(USI->perf.group_initial_cwnd,
-                                                      USI->perf.initial_ssthresh,
-                                                      &now);
+  struct ultra_timing_vals hosttm;
 
   /* Print debugging states for each host being scanned */
   if (o.debugging > 2) {
     log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ssthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStart());
     log_write(LOG_PLAIN, "   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
               USI->numIncompleteHosts(), USI->numInitialHosts(),
-              USI->gstats->num_probes_active, USI->gstats->timing.getCwnd(),
-              USI->gstats->timing.getSsthresh(), USI->gstats->to.timeout,
+              USI->gstats->num_probes_active, USI->gstats->timing.cwnd,
+              USI->gstats->timing.ssthresh, USI->gstats->to.timeout,
               USI->gstats->to.srtt, USI->gstats->to.rttvar);
 
     if (o.debugging > 3) {
@@ -4130,7 +4148,7 @@ static void printAnyStats(UltraScanInfo *USI) {
                   (int) hss->retry_stack.size(),
                   hss->num_probes_outstanding(),
                   hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
-                  hosttm.getCwnd(), hosttm.getSsthresh(), hss->sdn.delayms,
+                  hosttm.cwnd, hosttm.ssthresh, hss->sdn.delayms,
                   hss->probeTimeout(), hss->target->to.srtt,
                   hss->target->to.rttvar);
       }

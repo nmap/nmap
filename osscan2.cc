@@ -999,9 +999,7 @@ const char *OFProbe::typestr() {
  * Implementation of class HostOsScanStats                                    *
  ******************************************************************************/
 
-HostOsScanStats::HostOsScanStats(Target * t) : timing(perf.host_initial_cwnd,
-  perf.initial_ssthresh, NULL) {
-
+HostOsScanStats::HostOsScanStats(Target * t) {
   int i;
 
   target = t;
@@ -1017,6 +1015,14 @@ HostOsScanStats::HostOsScanStats(Target * t) : timing(perf.host_initial_cwnd,
   num_probes_sent = 0;
   sendDelayMs = MAX(o.scan_delay, OS_PROBE_DELAY);
   lastProbeSent = now;
+
+  /* Timing */
+  timing.cwnd = perf.host_initial_cwnd;
+  timing.ssthresh = perf.initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
+  timing.num_replies_expected = 0;
+  timing.num_replies_received = 0;
+  timing.num_updates = 0;
+  gettimeofday(&timing.last_drop, NULL);
 
   for (i = 0; i < NUM_FPTESTS; i++)
     FPtests[i] = NULL;
@@ -1294,11 +1300,11 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
     adjust_timeouts2(&(probe->sent), rcvdtime, &(stats->to));
   }
 
-  stats->timing.incrementNumRepliesExpected();
-  stats->timing.incrementNumUpdates();
+  stats->timing.num_replies_expected++;
+  stats->timing.num_updates++;
 
-  hss->timing.incrementNumRepliesExpected();
-  hss->timing.incrementNumUpdates();
+  hss->timing.num_replies_expected++;
+  hss->timing.num_updates++;
 
   /* Notice a drop if
      1. We get a response to a retransmitted probe (meaning the first reply was
@@ -1314,9 +1320,9 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
           hss->target->targetipstr());
       }
     }
-    if (TIMEVAL_AFTER(probe->sent, hss->timing.getLastDrop()))
+    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop))
       hss->timing.drop(hss->numProbesActive(), &perf, &now);
-    if (TIMEVAL_AFTER(probe->sent, stats->timing.getLastDrop()))
+    if (TIMEVAL_AFTER(probe->sent, stats->timing.last_drop))
       stats->timing.drop_group(stats->num_probes_active, &perf, &now);
   }
 
@@ -1533,7 +1539,7 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
     }
   }
 
-  if (hss->timing.getCwnd() >= hss->numProbesActive() + .5) {
+  if (hss->timing.cwnd >= hss->numProbesActive() + .5) {
     if (when)
       *when = now;
     return true;
@@ -1565,7 +1571,7 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
     if (tdiff < 0) {
       earliest_to = sendTime;
     } else {
-      if (tdiff > 0 && hss->timing.getCwnd() > hss->numProbesActive() + .5) {
+      if (tdiff > 0 && hss->timing.cwnd > hss->numProbesActive() + .5) {
         earliest_to = sendTime;
       }
     }
@@ -1606,7 +1612,7 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
     return false;
   }
 
-  if (hss->timing.getCwnd() >= hss->numProbesActive() + .5) {
+  if (hss->timing.cwnd >= hss->numProbesActive() + .5) {
     if (when)
       *when = now;
     return true;
@@ -1636,7 +1642,7 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
   if (tdiff < 0) {
     earliest_to = sendTime;
   } else {
-    if (tdiff > 0 && hss->timing.getCwnd() > hss->numProbesActive() + .5) {
+    if (tdiff > 0 && hss->timing.cwnd > hss->numProbesActive() + .5) {
       earliest_to = sendTime;
     }
   }
@@ -2216,8 +2222,14 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
  * Implementation of class ScanStats                                          *
  ******************************************************************************/
 
-ScanStats::ScanStats() : timing(perf.host_initial_cwnd, perf.initial_ssthresh,
-    NULL) {
+ScanStats::ScanStats() {
+  /* init timing val */
+  timing.cwnd = perf.group_initial_cwnd;
+  timing.ssthresh = perf.initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
+  timing.num_replies_expected = 0;
+  timing.num_replies_received = 0;
+  timing.num_updates = 0;
+  gettimeofday(&timing.last_drop, NULL);
 
   initialize_timeout_info(&to);
 
@@ -2231,7 +2243,7 @@ bool ScanStats::sendOK() {
   if (num_probes_sent - num_probes_sent_at_last_wait >= 50)
     return false;
 
-  if (timing.getCwnd() < num_probes_active + 0.5)
+  if (timing.cwnd < num_probes_active + 0.5)
     return false;
 
   return true;
