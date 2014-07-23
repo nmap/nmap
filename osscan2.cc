@@ -181,7 +181,7 @@ u16 prbWindowSz[] = { 1, 63, 4, 4, 16, 512, 3, 128, 256, 1024, 31337, 32768, 655
 static struct timeval now;
 
 /* Global to store performance info */
-struct scan_performance_vars perf;
+static struct scan_performance_vars perf;
 
 
 /******************************************************************************
