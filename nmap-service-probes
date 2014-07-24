@@ -12365,7 +12365,7 @@ Probe UDP ASE q|s|
 rarity 9
 ports 1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138
 
-match allseeingeye m/^EYE1.(.*?)(?|\x02(\d)|\x03(\d{2})|\x04(\d{3})|\x05(\d{4})|\x06(\d{5}))/s p/All-Seeing Eye/ i/game: $1; port: $2/
+match allseeingeye m/^EYE1.(.*?)(\x02(\d)|\x03(\d{2})|\x04(\d{3})|\x05(\d{4})|\x06(\d{5}))/s p/All-Seeing Eye/ i/game: $1; port: $P(2)/
 
 ##############################NEXT PROBE##############################
 Probe UDP AndroMouse q|AMSNIFF|
