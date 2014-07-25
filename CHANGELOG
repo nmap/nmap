@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed SOCKS5 username/password authentication. The password length was
+  being written in the wrong place, so authentication could not succeed.
+  Reported with patch by Pierluigi Vittori.
+
 o [NSE] Add s7-info script to get device information from Siemens PLCs via the
   S7 service, tunnelled over ISO-TSAP on TCP port 102. [Stephen Hilt]
 
