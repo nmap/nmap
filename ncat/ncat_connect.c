@@ -723,7 +723,7 @@ static int do_proxy_socks5(void)
             memcpy(socks5auth.data+1,username,strlen(username));
             len = 2 + strlen(username); // (version + strlen) + username
 
-            socks5auth.data[len]=strlen(password);
+            socks5auth.data[len-1]=strlen(password);
             memcpy(socks5auth.data+len,password,strlen(password));
             len += 1 + strlen(password);
 
