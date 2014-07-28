@@ -643,6 +643,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
         break;
     }
 
+    o.decoys[o.decoyturn] = t->v4source();
     hs->hostbatch[hs->current_batch_sz++] = t;
   }
 
