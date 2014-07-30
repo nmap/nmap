@@ -28,6 +28,7 @@ portrule = function(host, port)
   return port.service == "tcpwrapped"
     and port.protocol == "tcp" and port.state == "open"
     and not(shortport.port_is_excluded(port.number,port.protocol))
+    and nmap.version_intensity() >= 7
 end
 
 action = function(host, port)

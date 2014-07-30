@@ -30,7 +30,7 @@ portrule = function(host, port)
   if type(port.version) == "table" and (port.version.name_confidence > 3 or port.version.product ~= nil) then
     return false
   end
-  return shortport.http(host,port)
+  return (shortport.http(host,port) and nmap.version_intensity() >= 7)
 end
 
 action = function(host, port)
