@@ -74,6 +74,7 @@ function portrule(host, port)
   and port.protocol == 'udp'
   and ((26000 <= port.number and port.number <= 26004)
     or port.service == 'quake')
+  and nmap.version_intensity() >= 7
 end
 
 

@@ -31,10 +31,12 @@ local string = require "string"
 
 portrule = function(host, port)
   if port.version ~= nil and port.version.product ~= nil then
-    return (port.version.product:find("[eE][pP]olicy Orch")
+    return ((port.version.product:find("[eE][pP]olicy Orch")
           or port.version.product:find("[eE]PO [aA]gent"))
+          and nmap.version_intensity() >= 7)
   else
-    return (port.number == 8081 and port.protocol == "tcp")
+    return ((port.number == 8081 and port.protocol == "tcp")
+            and nmap.version_intensity() >= 7)
   end
 end
 

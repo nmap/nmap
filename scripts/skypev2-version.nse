@@ -24,6 +24,7 @@ portrule = function(host, port)
   and port.protocol == "tcp" and port.state == "open"
   and port.version.name_confidence < 10
   and not(shortport.port_is_excluded(port.number,port.protocol))
+  and nmap.version_intensity() >= 7
 end
 
 action = function(host, port)

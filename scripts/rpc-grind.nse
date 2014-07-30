@@ -52,7 +52,7 @@ portrule = function(host, port)
     -- different than rpcbind.
     return false
   end
-  return true
+  return nmap.version_intensity() >= 7
 end
 
 --- Function that determines if the target port of host uses RPC protocol.

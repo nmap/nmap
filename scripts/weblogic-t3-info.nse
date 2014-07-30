@@ -10,7 +10,7 @@ categories = {"default","safe","discovery","version"}
 
 portrule = function(host, port)
   if type(port.version) == "table" and port.version.name_confidence > 3 and port.version.product ~= nil then
-    return string.find(port.version.product, "WebLogic", 1, true)
+    return string.find(port.version.product, "WebLogic", 1, true) and nmap.version_intensity() >= 7
   end
   return shortport.version_port_or_service({7001,7002,7003},"http")(host,port)
 end
