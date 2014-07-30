@@ -1089,6 +1089,30 @@ void HostOsScanStats::initScanStats() {
     target->FPR->osscan_opentcpport = openTCPPort;
   }
 
+  /* We should look at a different port if we know that this port is tcpwrapped */
+  if (o.servicescan && openTCPPort > 0 && target->ports.isTCPwrapped(openTCPPort)) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "First choice open TCP port %d is tcpwrapped. ", openTCPPort);
+    }
+    /* Keep moving to other ports until we find one which is not tcpwrapped, or until we run out of ports */
+    while ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_OPEN))) {
+      openTCPPort = tport->portno;
+      if (!target->ports.isTCPwrapped(openTCPPort)) {
+        break;
+      }
+    }
+
+    target->FPR->osscan_opentcpport = openTCPPort;
+
+    if (o.debugging) {
+      if (target->ports.isTCPwrapped(openTCPPort)) {
+        log_write(LOG_STDOUT, "All open TCP ports are found to be tcpwrapped. Using %d for OS detection, but results might not be accurate.\n", openTCPPort);
+      } else {
+        log_write(LOG_STDOUT, "Using non-tcpwrapped port %d for OS detection.\n", openTCPPort);
+      }
+    }
+  }
+
   /* Now we should find a closed TCP port */
   if (target->FPR->osscan_closedtcpport > 0)
     closedTCPPort = target->FPR->osscan_closedtcpport;

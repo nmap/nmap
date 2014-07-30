@@ -320,6 +320,9 @@ class PortList {
   int numPorts() const;
   bool hasOpenPorts() const;
 
+  /* Returns true if service scan is done and portno is found to be tcpwrapped, false otherwise */
+  bool isTCPwrapped(u16 portno) const;
+
  private:
   void mapPort(u16 *portno, u8 *protocol) const;
   /* Get Port structure from PortList structure.*/
