@@ -894,6 +894,29 @@ bool PortList::hasOpenPorts() const {
     getStateCounts(PORT_UNFILTERED) != 0;
 }
 
+/* Returns true if service scan is done and portno is found to be tcpwrapped, false otherwise */
+bool PortList::isTCPwrapped(u16 portno) const {
+  const Port *port = lookupPort(portno, IPPROTO_TCP);
+  if (port == NULL) {
+    if (o.debugging > 1) {
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but port not in list", portno);
+    }
+    return false;
+  } else if (!o.servicescan) {
+    if (o.debugging > 1) {
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but service scan was never asked to be done", portno);
+    }
+    return false;
+  } else if (port->service == NULL) {
+    if (o.debugging > 1) {
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but port has not been service scanned yet", portno);
+    }
+    return false;
+  } else {
+    return (strcmp(port->service->name,"tcpwrapped")==0);
+  }
+}
+
 int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl,
   const struct sockaddr_storage *ip_addr) {
     Port *answer = NULL;
