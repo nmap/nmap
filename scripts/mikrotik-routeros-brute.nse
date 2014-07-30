@@ -24,7 +24,7 @@ Additional information:
 
 author = "Paulino Calderon <calderon()websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "brute"}
+categories = {"intrusive", "brute"}
 
 local shortport = require "shortport"
 local comm = require "comm"
