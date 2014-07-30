@@ -128,26 +128,32 @@ end
 
 --- Return a portrule that returns true when given an open port matching
 -- either a port number or service name and has not been listed in the
--- exclude port directive of the nmap-service-probes file.
+-- exclude port directive of the nmap-service-probes file. If version
+-- intensity is lesser than rarity value, portrule always returns false.
 --
 -- This function is a combination of the <code>port_is_excluded</code>
 -- and <code>port_or_service</code> functions. The port, service, proto may
 -- be single values or a list of values as in those functions.
 -- This function can be used by version category scripts to check if a
--- given port and its protocol are in the exclude directive.
+-- given port and its protocol are in the exclude directive and that version
+-- intensity is greater than or equal to the rarity value of the script.
 -- @usage portrule = shortport.version_port_or_service(22)
 -- @usage portrule = shortport.version_port_or_service(nil, "ssh", "tcp")
+-- @usage portrule = shortport.version_port_or_service(nil, nil, "tcp", nil, 8)
 -- @param services Service name or a list of names to run against.
 -- @param protos The protocol or list of protocols to match against, default
 -- <code>"tcp"</code>.
 -- @param states A state or list of states to match against, default
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
+-- @param rarity A minimum value of version script intensity, below
+-- which the function always returns false, default 7.
 -- @return Function for the portrule.
-version_port_or_service = function(ports, services, protos, states)
+version_port_or_service = function(ports, services, protos, states, rarity)
   return function(host, port)
     local p_s_check = port_or_service(ports, services, protos, states)
     return p_s_check(host, port)
       and not(port_is_excluded(port.number, port.protocol))
+      and (nmap.version_intensity() >= (rarity or 7))
   end
 end
 

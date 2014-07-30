@@ -634,6 +634,38 @@ static int l_new_try (lua_State *L)
   return 1;
 }
 
+static int l_get_version_intensity (lua_State *L)
+{
+  static int intensity = -1;
+
+  if (intensity < 0) {
+    int is_script_intensity_set;
+    int script_intensity;
+
+    lua_getglobal(L, "nmap");
+    lua_getfield(L, -1, "registry");
+    lua_getfield(L, -1, "args");
+    lua_getfield(L, -1, "script-intensity");
+
+    script_intensity = lua_tointegerx(L, lua_gettop(L), &is_script_intensity_set);
+
+    lua_pop(L, 4);
+
+    if (is_script_intensity_set) {
+      if (script_intensity < 0 || script_intensity > 9)
+        error("Warning: Valid values of script arg script-intensity are between "
+              "0 and 9. Using %d nevertheless.\n", script_intensity);      
+      intensity = script_intensity;
+    } else {
+      intensity = o.version_intensity;
+    }
+  }
+
+  lua_pushnumber(L, intensity);
+
+  return 1;
+}
+
 static int l_get_verbosity (lua_State *L)
 {
   int verbosity;
@@ -912,6 +944,7 @@ int luaopen_nmap (lua_State *L)
     {"clock", l_clock},
     {"log_write", l_log_write},
     {"new_try", l_new_try},
+    {"version_intensity", l_get_version_intensity},
     {"verbosity", l_get_verbosity},
     {"debugging", l_get_debugging},
     {"have_ssl", l_get_have_ssl},
