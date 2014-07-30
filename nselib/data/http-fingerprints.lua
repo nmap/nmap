@@ -4601,6 +4601,27 @@ table.insert(fingerprints, {
       }
     }
   });
+
+-- http://www.rapid7.com/db/modules/payload/windows/meterpreter/reverse_hop_http
+-- "GET /hop.php?/control" will grab all pending messages, but is unreliable if
+-- there are no pending messages.
+table.insert(fingerprints, {
+    category = 'security',
+    probes = {
+      {
+        path = '/hop.php?/12345',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        -- TODO: this only works for Meterpreter payloads. Find a more generic means?
+        match = 'METERPRETER_TRANSPORT_HTTP',
+        output = 'Metasploit reverse_hop_http hop point'
+      },
+    }
+  });
+
 ------------------------------------------------
 ----        MANAGEMENT SOFTWARE             ----
 ------------------------------------------------
