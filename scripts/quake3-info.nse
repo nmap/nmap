@@ -76,7 +76,7 @@ local function range(first, last)
   return list
 end
 
-portrule = shortport.port_or_service(range(27960, 27970), {'quake3'}, 'udp')
+portrule = shortport.version_port_or_service(range(27960, 27970), {'quake3'}, 'udp')
 
 local function parsefields(data)
   local fields = {}

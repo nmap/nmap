@@ -535,7 +535,7 @@ local factor = function( t1, t2 )
   return both, t1only, t2only
 end
 
-portrule = shortport.port_or_service({5222, 5269}, {"jabber", "xmpp-client", "xmpp-server"})
+portrule = shortport.version_port_or_service({5222, 5269}, {"jabber", "xmpp-client", "xmpp-server"})
 action = function(host, port)
   local server_name = stdnse.get_script_args("xmpp-info.server_name") or host.targetname or host.name
   local alt_server_name = stdnse.get_script_args("xmpp-info.alt_server_name") or "."

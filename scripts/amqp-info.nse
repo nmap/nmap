@@ -39,7 +39,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe", "version"}
 
 
-portrule = shortport.port_or_service(5672, "amqp", "tcp", "open")
+portrule = shortport.version_port_or_service(5672, "amqp", "tcp", "open")
 
 action = function(host, port)
   local cli = amqp.AMQP:new( host.ip, port.number )
