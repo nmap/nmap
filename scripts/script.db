@@ -284,7 +284,7 @@ Entry { filename = "memcached-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "metasploit-info.nse", categories = { "intrusive", "safe", } }
 Entry { filename = "metasploit-msgrpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "metasploit-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
-Entry { filename = "mikrotik-routeros-brute.nse", categories = { "brute", "discovery", } }
+Entry { filename = "mikrotik-routeros-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mmouse-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mmouse-exec.nse", categories = { "intrusive", } }
 Entry { filename = "modbus-discover.nse", categories = { "discovery", "intrusive", } }
