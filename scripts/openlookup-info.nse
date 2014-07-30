@@ -28,7 +28,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe", "version"}
 
 
-portrule = shortport.port_or_service(5850, "openlookup")
+portrule = shortport.version_port_or_service(5850, "openlookup")
 
 -- Netstring helpers
 -- http://cr.yp.to/proto/netstrings.txt

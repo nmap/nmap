@@ -35,7 +35,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "default", "version" }
 
 
-portrule = shortport.port_or_service(7210, "maxdb", "tcp")
+portrule = shortport.version_port_or_service(7210, "maxdb", "tcp")
 
 -- Sends and receive a MaxDB packet
 -- @param socket already connected to the server

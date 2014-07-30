@@ -56,7 +56,7 @@ categories = {"discovery", "version"}
 --
 --
 -- IANA replaced the historical EtherNet/IP-2 name with EtherNet-IP-2
-portrule = shortport.port_or_service(44818, {"EtherNet-IP-2", "EtherNet/IP-2"}, {"tcp","udp"})
+portrule = shortport.version_port_or_service(44818, {"EtherNet-IP-2", "EtherNet/IP-2"}, {"tcp","udp"})
 
 ---
 --  Table to look up the Vendor Name based on Vendor ID

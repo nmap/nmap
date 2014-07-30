@@ -22,7 +22,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "version"}
 
 
-portrule = shortport.port_or_service(37, "time", {"tcp", "udp"})
+portrule = shortport.version_port_or_service(37, "time", {"tcp", "udp"})
 
 action = function(host, port)
   local status, result = comm.exchange(host, port, "", {bytes=4, proto=port.protocol})

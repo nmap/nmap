@@ -28,7 +28,7 @@ author = "Jesper Kueckelhahn"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe", "version"}
 
-portrule = shortport.port_or_service(500, "isakmp", "udp")
+portrule = shortport.version_port_or_service(500, "isakmp", "udp")
 
 
 -- Test different methods for getting version
