@@ -6,6 +6,9 @@ Runs unit tests on all NSE libraries.
 ]]
 
 ---
+-- @args unittest.run Run tests. Causes <code>unittest.testing()</code> to
+--                    return true.
+--
 -- @args unittest.tests Run tests from only these libraries (defaults to all)
 --
 -- @usage
