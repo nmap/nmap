@@ -736,6 +736,12 @@ local function get_chosen_scripts (rules)
       if T:match(rule) then
         used_rules[rule] = true;
         script_params.forced = not not forced_rules[rule];
+        if selected_by_name then
+          script_params.selection = "name"
+          script_params.verbosity = true
+        else
+          script_params.selection = "category"
+        end
         local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
