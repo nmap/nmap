@@ -1,3 +1,64 @@
+---
+-- Regular Expression functions
+--
+-- This is the re.lua module included in the LPeg distribution (http://www.inf.puc-rio.br/~roberto/lpeg/re.html)
+--
+-- @class module
+-- @name re
+-- @copyright 2008-2010 Lua.org, PUC-Rio. (https://svn.nmap.org/nmap/docs/licenses/MIT)
+
+--- Compiles the given string and returns an equivalent LPeg pattern.
+--
+-- The given string may define either an expression or a grammar. The optional
+-- defs table provides extra Lua values to be used by the pattern.
+-- @class function
+-- @name compile
+-- @param string
+-- @param defs Optional
+-- @return an LPeg pattern
+
+--- Searches the given pattern in the given subject.
+--
+-- If it finds a match, returns the index where this occurrence starts and the
+-- index where it ends. Otherwise, returns nil.
+--
+-- An optional numeric argument init makes the search starts at that position
+-- in the subject string. As usual in Lua libraries, a negative value counts
+-- from the end.
+-- @class function
+-- @name find
+-- @param subject
+-- @param pattern
+-- @param init Optional
+-- @return index where the occurrence starts or nil
+-- @return index where the occurrence ends
+
+--- Global substitution.
+--
+-- Does a global substitution, replacing all occurrences of pattern in the
+-- given subject by replacement.
+-- @class function
+-- @name gsub
+-- @param subject
+-- @param pattern
+-- @param replacement
+-- @return index where occurrence starts or pattern captures
+
+--- Matches the given pattern against the given subject
+--
+-- Matches the given pattern against the given subject, returning all captures.
+-- @class function
+-- @name match
+-- @param subject
+-- @param pattern
+-- @param init Optional
+-- @return pattern captures
+
+--- Updates the pre-defined character classes to the current locale.
+--
+-- @class function
+-- @name updatelocale
+
 -- $Id: re.lua,v 1.44 2013/03/26 20:11:40 roberto Exp $
 
 -- imported functions and modules
@@ -254,6 +315,7 @@ local re = {
   updatelocale = updatelocale,
 }
 
-if version == "Lua 5.1" then _G.re = re end
+-- NSE uses Lua 5.2
+--if version == "Lua 5.1" then _G.re = re end
 
 return re
