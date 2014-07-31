@@ -320,6 +320,8 @@ int xml_start_document() {
   if (xml_newline() < 0)
     return -1;
 
+  log_write(LOG_XML, "<!DOCTYPE nmaprun PUBLIC \"-//IDN nmap.org//DTD Nmap XML %s//EN\" \"https://svn.nmap.org/nmap/docs/nmap.dtd\">\n", NMAP_XMLOUTPUTVERSION);
+
   return 0;
 }
 
