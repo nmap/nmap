@@ -15,9 +15,6 @@
 --
 -- The library is driven by the unittest NSE script.
 --
--- @args unittest.run Run tests. Causes <code>unittest.testing()</code> to
---                    return true.
---
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
@@ -143,7 +140,8 @@ local am_testing = stdnse.get_script_args('unittest.run')
 ---Check whether tests are being run
 --
 -- Libraries can use this function to avoid the overhead of creating tests if
--- the user hasn't chosen to run them.
+-- the user hasn't chosen to run them. Unittesting is turned on with the
+-- <code>unittest.run</code> script-arg.
 -- @return true if unittests are being run, false otherwise.
 function testing()
   return am_testing
