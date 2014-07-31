@@ -105,6 +105,7 @@ Entry { filename = "eap-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "enip-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "eppc-enum-processes.nse", categories = { "discovery", "safe", } }
+Entry { filename = "fcrdns.nse", categories = { "discovery", "safe", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
 Entry { filename = "firewall-bypass.nse", categories = { "intrusive", "vuln", } }
