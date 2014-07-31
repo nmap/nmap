@@ -13,6 +13,9 @@ References:
 ]]
 
 ---
+-- @usage
+-- nmap -sn -Pn --script fcrdns <target>
+--
 -- @output
 -- Host script results:
 -- |_fcrdns: FAIL (12.19.29.17, 12.19.20.14, 23.10.13.25)
