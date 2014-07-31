@@ -13,8 +13,8 @@
 -- defs table provides extra Lua values to be used by the pattern.
 -- @class function
 -- @name compile
--- @param string
--- @param defs Optional
+-- @param string a regular expression or an LPeg grammar
+-- @param defs Optional values to be used by the pattern
 -- @return an LPeg pattern
 
 --- Searches the given pattern in the given subject.
@@ -27,9 +27,9 @@
 -- from the end.
 -- @class function
 -- @name find
--- @param subject
--- @param pattern
--- @param init Optional
+-- @param subject The string to search
+-- @param pattern A regular expression
+-- @param init Optional index into subject to start searching
 -- @return index where the occurrence starts or nil
 -- @return index where the occurrence ends
 
@@ -39,19 +39,19 @@
 -- given subject by replacement.
 -- @class function
 -- @name gsub
--- @param subject
--- @param pattern
--- @param replacement
--- @return index where occurrence starts or pattern captures
+-- @param subject The string to search
+-- @param pattern The pattern to match
+-- @param replacement The replacement for each pattern
+-- @return The string with all occurrences replaced
 
 --- Matches the given pattern against the given subject
 --
 -- Matches the given pattern against the given subject, returning all captures.
 -- @class function
 -- @name match
--- @param subject
--- @param pattern
--- @param init Optional
+-- @param subject The string to search
+-- @param pattern The pattern to match
+-- @param init Optional index into subject to start searching
 -- @return pattern captures
 
 --- Updates the pre-defined character classes to the current locale.
