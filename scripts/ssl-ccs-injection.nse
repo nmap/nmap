@@ -176,7 +176,7 @@ local function test_ccs_injection(host, port, version)
     local record
     i, record = tls.record_read(response, i)
     if record == nil then
-      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+      stdnse.debug1("Unknown response from server")
       s:close()
       return "NOT_VULNERABLE"
     elseif record.protocol ~= version then

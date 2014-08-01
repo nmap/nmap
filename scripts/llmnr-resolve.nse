@@ -74,7 +74,7 @@ local llmnrSend = function(query, mcast, mport)
   local sock = nmap.new_socket()
   local status, err = sock:connect(mcast, mport, "udp")
   if not status then
-    stdnse.print_debug("%s: %s", SCRIPT_NAME, err)
+    stdnse.debug1("%s", err)
     return
   end
   sock:send(query)

@@ -52,7 +52,7 @@ end
 -- made so no more requests are made to the server during one scan
 action = function(host)
   if nmap.registry["ip-geolocation-geobytes"] and nmap.registry["ip-geolocation-geobytes"].blocked then
-    stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
+    stdnse.debug1("20 requests per hour Limit Exceeded")
     return nil
   end
   local response = http.get("www.geobytes.com", 80, "/IpLocator.htm?GetLocation&template=json.txt&IpAddress="..host.ip, nil)
@@ -63,7 +63,7 @@ action = function(host)
     if loc.city and loc.city == "Limit Exceeded" then
       if not nmap.registry["ip-geolocation-geobytes"] then nmap.registry["ip-geolocation-geobytes"]={} end
       nmap.registry["ip-geolocation-geobytes"].blocked = true
-      stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
+      stdnse.debug1("20 requests per hour Limit Exceeded")
       return nil
     end
     -- Process output
@@ -80,7 +80,7 @@ action = function(host)
   elseif response.body:match("Limit Exceeded") then
     if not nmap.registry["ip-geolocation-geobytes"] then nmap.registry["ip-geolocation-geobytes"]={} end
     nmap.registry["ip-geolocation-geobytes"].blocked = true
-    stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
+    stdnse.debug1("20 requests per hour Limit Exceeded")
     return nil
   end
   return nil

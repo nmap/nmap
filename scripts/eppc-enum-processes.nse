@@ -45,7 +45,7 @@ action = function( host, port )
 
   local try = nmap.new_try(
     function()
-      stdnse.print_debug("%s: failed", SCRIPT_NAME)
+      stdnse.debug1("failed")
       socket:close()
     end
   )

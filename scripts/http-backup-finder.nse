@@ -89,7 +89,7 @@ action = function(host, port)
 
   local res, res404, known404 = http.identify_404(host, port)
   if not res then
-    stdnse.print_debug("%s: Can't identify 404 pages", SCRIPT_NAME)
+    stdnse.debug1("Can't identify 404 pages")
     return nil
   end
 

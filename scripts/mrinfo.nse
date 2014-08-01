@@ -258,7 +258,7 @@ action = function()
     return ("\n ERROR: Couldn't get interface for %s"):format(target)
   end
 
-  stdnse.print_debug("%s: will send to %s via %s interface.", SCRIPT_NAME, target, interface.shortname)
+  stdnse.debug1("will send to %s via %s interface.", target, interface.shortname)
 
   -- Thread that listens for responses
   stdnse.new_thread(mrinfoListen, interface, timeout, responses)

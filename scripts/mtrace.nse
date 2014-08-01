@@ -348,8 +348,8 @@ action = function()
   -- Destination defaults to our own host
   toip = toip or interface.address
 
-  stdnse.print_debug("%s: Traceroute group %s from %s to %s.", SCRIPT_NAME, group, fromip, toip)
-  stdnse.print_debug("%s: will send to %s via %s interface.", SCRIPT_NAME, firsthop, interface.shortname)
+  stdnse.debug1("Traceroute group %s from %s to %s.", group, fromip, toip)
+  stdnse.debug1("will send to %s via %s interface.", firsthop, interface.shortname)
 
   -- Thread that listens for responses
   stdnse.new_thread(traceListener, interface, timeout, responses)
