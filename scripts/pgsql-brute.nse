@@ -82,7 +82,7 @@ action = function( host, port )
     elseif ( tonumber(nmap.registry.args['pgsql.version']) == 3 ) then
       pg = pgsql.v3
     else
-      stdnse.print_debug("pgsql-brute: Unsupported version %s", nmap.registry.args['pgsql.version'])
+      stdnse.debug1("Unsupported version %s", nmap.registry.args['pgsql.version'])
       return
     end
   else
@@ -129,7 +129,7 @@ action = function( host, port )
             stdnse.print_debug("The host was denied access to db \"%s\" as user \"%s\", aborting ...", username, username )
             break
           else
-            stdnse.print_debug("pgsql-brute: sendStartup returned: %s", response )
+            stdnse.debug1("sendStartup returned: %s", response )
             break
           end
         end

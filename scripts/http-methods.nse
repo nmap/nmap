@@ -72,7 +72,7 @@ action = function(host, port)
 
   response = http.generic_request(host, port, "OPTIONS", url_path)
   if not response.status then
-    stdnse.print_debug("http-methods: OPTIONS %s failed.", url_path)
+    stdnse.debug1("OPTIONS %s failed.", url_path)
     return
   end
   -- Cache in case retest is requested.

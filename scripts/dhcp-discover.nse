@@ -95,7 +95,7 @@ local function go(host, port)
     -- Generate the MAC address, if it's random
     local mac_addr = host.mac_addr_src
     if(nmap.registry.args.randomize_mac == 'true' or nmap.registry.args.randomize_mac == '1') then
-      stdnse.print_debug(2, "dhcp-discover: Generating a random MAC address")
+      stdnse.debug2("Generating a random MAC address")
       mac_addr = ""
       for j=1, 6, 1 do
         mac_addr = mac_addr .. string.char(math.random(1, 255))
@@ -109,7 +109,7 @@ local function go(host, port)
 
     local status, result = dhcp.make_request(host.ip, request_type, iface.address, mac_addr)
     if( not(status) ) then
-      stdnse.print_debug(1, "dhcp-discover: Couldn't send DHCP request: %s", result)
+      stdnse.debug1("Couldn't send DHCP request: %s", result)
       return false, result
     end
 

@@ -47,10 +47,10 @@ action = function(host)
     local status, result = smb.start_ex(host, true, true)
     if(status) then
       table.insert(states, result) -- Keep the result so it doesn't get garbage cleaned
-      stdnse.print_debug(1, "smb-flood: Connection successfully opened")
+      stdnse.debug1("Connection successfully opened")
       stdnse.sleep(.1)
     else
-      stdnse.print_debug(1, "smb-flood: Connection failed: %s", result)
+      stdnse.debug1("Connection failed: %s", result)
       stdnse.sleep(1)
     end
   until false

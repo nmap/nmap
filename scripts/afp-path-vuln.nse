@@ -176,8 +176,8 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
       status, response = afp_helper:Login(nil, nil)
     end
     if ( not(status) ) then
-      stdnse.print_debug("afp-path-vuln: Login failed", response)
-      stdnse.print_debug(3, "afp-path-vuln: Login error: %s", response)
+      stdnse.debug1("Login failed", response)
+      stdnse.debug3("Login error: %s", response)
       return
     end
 
@@ -188,7 +188,7 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
       local status, response = afp_helper:Dir( share .. "/../", { max_depth = 2 } )
 
       if ( not(status) ) then
-        stdnse.print_debug(3, "afp-path-vuln: %s", response)
+        stdnse.debug3("%s", response)
       else
         if ( isVulnerable( response ) ) then
           vulnerable = true

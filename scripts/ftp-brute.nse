@@ -84,14 +84,14 @@ Driver = {
     while(line)do
       stdnse.print_debug("Received: %s", line)
       if(string.match(line, "^230")) then
-        stdnse.print_debug(1, "ftp-brute: Successful login: %s/%s", user, pass)
+        stdnse.debug1("Successful login: %s/%s", user, pass)
         return true, brute.Account:new( user, pass, creds.State.VALID)
       elseif(string.match(line, "^530")) then
         return false,  brute.Error:new( "Incorrect password" )
       elseif(string.match(line, "^220")) then
       elseif(string.match(line, "^331")) then
       else
-        stdnse.print_debug(1, "ftp-brute: WARNING: Unhandled response: %s", line)
+        stdnse.debug1("WARNING: Unhandled response: %s", line)
         local err = brute.Error:new("Unhandled response")
         err:setRetry(true)
         return false, err

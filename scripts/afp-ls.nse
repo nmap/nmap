@@ -110,8 +110,8 @@ action = function(host, port)
     end
 
     if ( not status ) then
-      stdnse.print_debug("afp-showmount: Login failed", response)
-      stdnse.print_debug(3, "afp-showmount: Login error: %s", response)
+      stdnse.debug1("Login failed", response)
+      stdnse.debug3("Login error: %s", response)
       return
     end
 

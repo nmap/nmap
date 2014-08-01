@@ -267,7 +267,7 @@ local function stop_session(hostinfo)
   local status, err
 
   if(hostinfo['smbstate'] ~= nil) then
-    stdnse.print_debug(2, "smb-brute: Stopping the SMB session")
+    stdnse.debug2("Stopping the SMB session")
     status, err = smb.stop(hostinfo['smbstate'])
     if(status == false) then
       return false, err
@@ -290,7 +290,7 @@ local function restart_session(hostinfo)
   -- Stop the old session, if it exists
   stop_session(hostinfo)
 
-  stdnse.print_debug(2, "smb-brute: Starting the SMB session")
+  stdnse.debug2("Starting the SMB session")
   status, smbstate = smb.start_ex(hostinfo['host'], true, nil, nil, nil, true)
   if(status == false) then
     return false, smbstate
@@ -524,24 +524,24 @@ end
 local function bad_lockout_policy(host)
   -- If the user is ok with locking out accounts, just return
   if(stdnse.get_script_args( "smblockout" )) then
-    stdnse.print_debug(1, "smb-brute: Not checking server's lockout policy")
+    stdnse.debug1("Not checking server's lockout policy")
     return true, false
   end
 
   local status, result = msrpc.get_domains(host)
   if(not(status)) then
-    stdnse.print_debug(1, "smb-brute: Couldn't detect lockout policy: %s", result)
+    stdnse.debug1("Couldn't detect lockout policy: %s", result)
     return false, "Couldn't retrieve lockout policy: " .. result
   end
 
   for domain, data in pairs(result) do
     if(data and data.lockout_threshold) then
-      stdnse.print_debug(1, "smb-brute: Server's lockout policy: lock out after %d attempts", data.lockout_threshold)
+      stdnse.debug1("Server's lockout policy: lock out after %d attempts", data.lockout_threshold)
       return true, true
     end
   end
 
-  stdnse.print_debug(1, "smb-brute: Server has no lockout policy")
+  stdnse.debug1("Server has no lockout policy")
   return true, false
 end
 
@@ -567,12 +567,12 @@ local function initialize(host)
   else
     hostinfo['os'] = os['os']
   end
-  stdnse.print_debug(1, "smb-brute: Remote operating system: %s", hostinfo['os'])
+  stdnse.debug1("Remote operating system: %s", hostinfo['os'])
 
   -- Check lockout policy
   status, bad_lockout_policy_result = bad_lockout_policy(host)
   if(not(status)) then
-    stdnse.print_debug(1, "smb-brute: WARNING: couldn't determine lockout policy: %s", bad_lockout_policy_result)
+    stdnse.debug1("WARNING: couldn't determine lockout policy: %s", bad_lockout_policy_result)
   else
     if(bad_lockout_policy_result) then
       return false, "Account lockouts are enabled on the host. To continue (and risk lockouts), add --script-args=smblockout=1 -- for more information, run smb-enum-domains."
@@ -580,7 +580,7 @@ local function initialize(host)
   end
 
   -- Attempt to enumerate users
-  stdnse.print_debug(1, "smb-brute: Trying to get user list from server")
+  stdnse.debug1("Trying to get user list from server")
   local _
   hostinfo['have_user_list'], _, hostinfo['user_list'] = msrpc.get_user_list(host)
   hostinfo['user_list_index'] = 1
@@ -590,7 +590,7 @@ local function initialize(host)
 
   -- If the enumeration failed, try using the built-in list
   if(not(hostinfo['have_user_list'])) then
-    stdnse.print_debug(1, "smb-brute: Couldn't enumerate users (normal for Windows XP and higher), using unpwdb initially")
+    stdnse.debug1("Couldn't enumerate users (normal for Windows XP and higher), using unpwdb initially")
     status, hostinfo['user_list_default'] = unpwdb.usernames()
     if(status == false) then
       return false, "Couldn't open username file"
@@ -598,14 +598,14 @@ local function initialize(host)
   end
 
   -- Open the password file
-  stdnse.print_debug(1, "smb-brute: Opening password list")
+  stdnse.debug1("Opening password list")
   status, hostinfo['password_list'] = unpwdb.passwords()
   if(status == false) then
     return false, "Couldn't open password file"
   end
 
   -- Start the SMB session
-  stdnse.print_debug(1, "smb-brute: Starting the initial SMB session")
+  stdnse.debug1("Starting the initial SMB session")
   local err
   status, err = restart_session(hostinfo)
   if(status == false) then
@@ -619,8 +619,8 @@ local function initialize(host)
   hostinfo['invalid_username'] = check_login(hostinfo, get_random_string(8), get_random_string(8), "ntlm")
   hostinfo['invalid_password'] = check_login(hostinfo, "Administrator",      get_random_string(8), "ntlm")
 
-  stdnse.print_debug(1, "smb-brute: Server's response to invalid usernames: %s", result_short_strings[hostinfo['invalid_username']])
-  stdnse.print_debug(1, "smb-brute: Server's response to invalid passwords: %s", result_short_strings[hostinfo['invalid_password']])
+  stdnse.debug1("Server's response to invalid usernames: %s", result_short_strings[hostinfo['invalid_username']])
+  stdnse.debug1("Server's response to invalid passwords: %s", result_short_strings[hostinfo['invalid_password']])
 
   -- If either of these comes back as success, there's no way to tell what's valid/invalid
   if(hostinfo['invalid_username'] == results.SUCCESS) then
@@ -634,16 +634,16 @@ local function initialize(host)
 
   -- Print a message to the user if we can identify passwords
   if(hostinfo['invalid_username'] ~= hostinfo['invalid_password']) then
-    stdnse.print_debug(1, "smb-brute: Invalid username and password response are different, so identifying valid accounts is possible")
+    stdnse.debug1("Invalid username and password response are different, so identifying valid accounts is possible")
   end
 
   -- Print a warning message if invalid_username and invalid_password go to the same thing that isn't FAIL
   if(hostinfo['invalid_username'] ~= results.FAIL and hostinfo['invalid_username'] == hostinfo['invalid_password']) then
-    stdnse.print_debug(1, "smb-brute: WARNING: Difficult to recognize invalid usernames/passwords; may not get good results")
+    stdnse.debug1("WARNING: Difficult to recognize invalid usernames/passwords; may not get good results")
   end
 
   -- Restart the SMB connection so we have a clean slate
-  stdnse.print_debug(1, "smb-brute: Restarting the session before the bruteforce")
+  stdnse.debug1("Restarting the session before the bruteforce")
   status, err = restart_session(hostinfo)
   if(status == false) then
     stop_session(hostinfo)
@@ -772,7 +772,7 @@ function test_lockouts(hostinfo)
     end
 
     if(canaries > 0) then
-      stdnse.print_debug(1, "smb-brute: Detecting server lockout on '%s' with %d canaries", username, canaries)
+      stdnse.debug1("Detecting server lockout on '%s' with %d canaries", username, canaries)
     end
 
     local result
@@ -784,14 +784,14 @@ function test_lockouts(hostinfo)
     if(result == results.LOCKED) then
       -- If the canary just became locked, we're one step from locking out every account. Loop through the usernames and invalidate them to
       -- prevent them from being locked out
-      stdnse.print_debug(1, "smb-brute: Canary (%s) became locked out -- aborting")
+      stdnse.debug1("Canary (%s) became locked out -- aborting")
 
       -- Add it to the locked username list (so it can be reported)
       hostinfo['locked_usernames'][username] = true
 
       -- Mark all the usernames as invalid (a bit of a hack, but it's safer this way)
       while(username ~= nil) do
-        stdnse.print_debug(1, "smb-brute: Marking '%s' as 'invalid'", username)
+        stdnse.debug1("Marking '%s' as 'invalid'", username)
         hostinfo['invalid_usernames'][username] = true
         username = get_next_username(hostinfo)
       end
@@ -819,7 +819,7 @@ local function validate_usernames(hostinfo)
   local result
   local username, password
 
-  stdnse.print_debug(1, "smb-brute: Checking which account names exist (based on what goes to the 'guest' account)")
+  stdnse.debug1("Checking which account names exist (based on what goes to the 'guest' account)")
 
   -- Start a session
   status, err = restart_session(hostinfo)
@@ -836,34 +836,34 @@ local function validate_usernames(hostinfo)
 
     if(result ~= hostinfo['invalid_password'] and result == hostinfo['invalid_username']) then
       -- If the account matches the value of 'invalid_username', but not the value of 'invalid_password', it's invalid
-      stdnse.print_debug(1, "smb-brute: Blank password for '%s' -> '%s' (invalid account)", username, result_short_strings[result])
+      stdnse.debug1("Blank password for '%s' -> '%s' (invalid account)", username, result_short_strings[result])
       hostinfo['invalid_usernames'][username] = true
 
     elseif(result == hostinfo['invalid_password']) then
 
       -- If the account matches the value of 'invalid_password', and 'invalid_password' is reliable, it's probably valid
       if(hostinfo['invalid_username'] ~= results.FAIL and hostinfo['invalid_username'] == hostinfo['invalid_password']) then
-        stdnse.print_debug(1, "smb-brute: Blank password for '%s' => '%s' (can't determine validity)", username, result_short_strings[result])
+        stdnse.debug1("Blank password for '%s' => '%s' (can't determine validity)", username, result_short_strings[result])
       else
-        stdnse.print_debug(1, "smb-brute: Blank password for '%s' => '%s' (probably valid)", username, result_short_strings[result])
+        stdnse.debug1("Blank password for '%s' => '%s' (probably valid)", username, result_short_strings[result])
       end
 
     elseif(result == results.ACCOUNT_LOCKED) then
       -- If the account is locked out, don't try it
       hostinfo['locked_usernames'][username] = true
-      stdnse.print_debug(1, "smb-brute: Blank password for '%s' => '%s' (locked out)", username, result_short_strings[result])
+      stdnse.debug1("Blank password for '%s' => '%s' (locked out)", username, result_short_strings[result])
 
     elseif(result == results.FAIL) then
       -- If none of the standard options work, check if it's FAIL. If it's FAIL, there's an error somewhere (probably, the
       -- 'administrator' username is changed so we're getting invalid data).
-      stdnse.print_debug(1, "smb-brute: Blank password for '%s' => '%s' (may be valid)", username, result_short_strings[result])
+      stdnse.debug1("Blank password for '%s' => '%s' (may be valid)", username, result_short_strings[result])
 
     else
       -- If none of those came up, either the password is legitimately blank, or any account works. Figure out what!
       local new_result = check_login(hostinfo, username, get_random_string(14), "ntlm")
       if(new_result == result) then
         -- Any password works (often happens with 'guest' account)
-        stdnse.print_debug(1, "smb-brute: All passwords accepted for %s (goes to %s)", username, result_short_strings[result])
+        stdnse.debug1("All passwords accepted for %s (goes to %s)", username, result_short_strings[result])
         status, err = found_account(hostinfo, username, "<anything>", result)
         if(status == false) then
           return false, err
@@ -932,7 +932,7 @@ function found_account(hostinfo, username, password, result)
     -- Check lockout policy
     local status, bad_lockout_policy_result = bad_lockout_policy(hostinfo['host'])
     if(not(status)) then
-      stdnse.print_debug(1, "smb-brute: WARNING: couldn't determine lockout policy: %s", bad_lockout_policy_result)
+      stdnse.debug1("WARNING: couldn't determine lockout policy: %s", bad_lockout_policy_result)
     else
       if(bad_lockout_policy_result) then
         return false, "Account lockouts are enabled on the host. To continue (and risk lockouts), add --script-args=smblockout=1 -- for more information, run smb-enum-domains."
@@ -942,7 +942,7 @@ function found_account(hostinfo, username, password, result)
     -- If we haven't retrieved the real user list yet, do so
     if(hostinfo['have_user_list'] == false) then
       -- Attempt to enumerate users
-      stdnse.print_debug(1, "smb-brute: Trying to get user list from server using newly discovered account")
+      stdnse.debug1("Trying to get user list from server using newly discovered account")
       local _
       hostinfo['have_user_list'], _, hostinfo['user_list'] = msrpc.get_user_list(hostinfo['host'])
       hostinfo['user_list_index'] = 1
@@ -952,7 +952,7 @@ function found_account(hostinfo, username, password, result)
 
       -- If the list was found, let the user know and reset the password list
       if(hostinfo['have_user_list']) then
-        stdnse.print_debug(1, "smb-brute: Found %d accounts to check!", #hostinfo['user_list'])
+        stdnse.debug1("Found %d accounts to check!", #hostinfo['user_list'])
         reset_password(hostinfo)
 
         -- Validate them (pick out the ones that can't possibly log in)
@@ -1035,17 +1035,17 @@ local function go(host)
           end
 
           -- Let the user know that it went badly
-          stdnse.print_debug(1, "smb-brute: '%s' became locked out; stopping", username)
+          stdnse.debug1("'%s' became locked out; stopping", username)
 
           return true, hostinfo['accounts'], hostinfo['locked_usernames']
         else
-          stdnse.print_debug(1, "smb-brute: '%s' became locked out; continuing", username)
+          stdnse.debug1("'%s' became locked out; continuing", username)
         end
       end
 
       if(is_positive_result(hostinfo, result)) then
         -- Reset the connection
-        stdnse.print_debug(2, "smb-brute: Found an account; resetting connection")
+        stdnse.debug2("Found an account; resetting connection")
         status, err = restart_session(hostinfo)
         if(status == false) then
           return false, err
@@ -1054,9 +1054,9 @@ local function go(host)
         -- Find the case of the password, unless it's a hash
         local case_password
         if(not(#password == 32 or #password == 64 or #password == 65)) then
-          stdnse.print_debug(1, "smb-brute: Determining password's case (%s)", format_result(username, password))
+          stdnse.debug1("Determining password's case (%s)", format_result(username, password))
           case_password = find_password_case(hostinfo, username, password, result)
-          stdnse.print_debug(1, "smb-brute: Result: %s", format_result(username, case_password))
+          stdnse.debug1("Result: %s", format_result(username, case_password))
         else
           case_password = password
         end

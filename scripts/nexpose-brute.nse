@@ -59,13 +59,13 @@ Driver =
     end
 
     if (response.body == nil or response.body:match('<LoginResponse.*success="0"')) then
-      stdnse.print_debug(2, "nexpose-brute: Bad login: %s/%s", username, password)
+      stdnse.debug2("Bad login: %s/%s", username, password)
       return false, brute.Error:new( "Bad login" )
     elseif (response.body:match('<LoginResponse.*success="1"')) then
-      stdnse.print_debug(1, "nexpose-brute: Good login: %s/%s", username, password)
+      stdnse.debug1("Good login: %s/%s", username, password)
       return true, brute.Account:new(username, password, creds.State.VALID)
     end
-    stdnse.print_debug(1, "nexpose-brute: WARNING: Unhandled response: %s", response.body)
+    stdnse.debug1("WARNING: Unhandled response: %s", response.body)
     return false, brute.Error:new( "incorrect response from server" )
   end,
 

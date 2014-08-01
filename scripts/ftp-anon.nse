@@ -152,13 +152,13 @@ action = function(host, port)
     -- We are primarily looking for 230: User logged in, proceed.
   else
     if not code then
-      stdnse.print_debug(1, "ftp-anon: got socket error %q.", message)
+      stdnse.debug1("got socket error %q.", message)
     elseif code == 421 or code == 530 then
       -- Don't log known error codes.
       -- 421: Service not available, closing control connection.
       -- 530: Not logged in.
     else
-      stdnse.print_debug(1, "ftp-anon: got code %d %q.", code, message)
+      stdnse.debug1("got code %d %q.", code, message)
     end
     return nil
   end

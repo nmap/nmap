@@ -74,7 +74,7 @@ local function go_single(host, port, folder)
     local vuln_response
     local check_folder
 
-    stdnse.print_debug(1, "http-iis-webdav-vuln: Found protected folder (401): %s", folder)
+    stdnse.debug1("Found protected folder (401): %s", folder)
 
     -- check for IIS 6.0 and 5.1
     -- doesn't appear to work on 5.0
@@ -82,19 +82,19 @@ local function go_single(host, port, folder)
     check_folder = string.sub(folder, 1, 2) .. "%c0%af" .. string.sub(folder, 3)
     vuln_response = get_response(host, port, check_folder)
     if(vuln_response.status == 207) then
-      stdnse.print_debug(1, "http-iis-webdav-vuln: Folder seems vulnerable: %s", folder)
+      stdnse.debug1("Folder seems vulnerable: %s", folder)
       return enum_results.VULNERABLE
     else
-      stdnse.print_debug(1, "http-iis-webdav-vuln: Folder does not seem vulnerable: %s", folder)
+      stdnse.debug1("Folder does not seem vulnerable: %s", folder)
       return enum_results.NOT_VULNERABLE
     end
   else
     if(response['status-line'] ~= nil) then
-      stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder (%s): %s", response['status-line'], folder)
+      stdnse.debug3("Not a protected folder (%s): %s", response['status-line'], folder)
     elseif(response['status'] ~= nil) then
-      stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder (%s): %s", response['status'], folder)
+      stdnse.debug3("Not a protected folder (%s): %s", response['status'], folder)
     else
-      stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder: %s",folder)
+      stdnse.debug3("Not a protected folder: %s",folder)
     end
     return enum_results.UNKNOWN
   end
@@ -150,29 +150,29 @@ action = function(host, port)
   -- Start by checking if '/' is protected -- if it is, we can't do the tests
   local result = go_single(host, port, "/")
   if(result == enum_results.NOT_VULNERABLE) then
-    stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is password protected, aborting.")
+    stdnse.debug1("Root folder is password protected, aborting.")
     return nmap.verbosity() > 0 and "Could not determine vulnerability, since root folder is password protected" or nil
   end
 
-  stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is not password protected, continuing...")
+  stdnse.debug1("Root folder is not password protected, continuing...")
 
   local response = get_response(host, port, "/")
   if(response.status == 501) then
     -- WebDAV is disabled
-    stdnse.print_debug(1, "http-iis-webdav-vuln: WebDAV is DISABLED (PROPFIND failed).")
+    stdnse.debug1("WebDAV is DISABLED (PROPFIND failed).")
     return nmap.verbosity() > 0 and "WebDAV is DISABLED. Server is not currently vulnerable." or nil
   else
     if(response.status == 207) then
       -- PROPFIND works, WebDAV is enabled
-      stdnse.print_debug(1, "http-iis-webdav-vuln: WebDAV is ENABLED (PROPFIND was successful).")
+      stdnse.debug1("WebDAV is ENABLED (PROPFIND was successful).")
     else
       -- probably not running IIS 5.0/5.1/6.0
       if(response['status-line'] ~= nil) then
-        stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed with \"%s\".", response['status-line'])
+        stdnse.debug1("PROPFIND request failed with \"%s\".", response['status-line'])
       elseif(response['status'] ~= nil) then
-        stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed with \"%s\".", response['status'])
+        stdnse.debug1("PROPFIND request failed with \"%s\".", response['status'])
       else
-        stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed.")
+        stdnse.debug1("PROPFIND request failed.")
       end
       return nmap.verbosity() > 0 and "ERROR: This web server is not supported." or nil
     end

@@ -65,14 +65,14 @@ Driver =
     status, response = self.socket:receive_buf("\r?\n", false)
 
     if (response == nil or string.match(response,"<name>faultString</name><value><string>authentication error</string>")) then
-      stdnse.print_debug(2, "metasploit-xmlrpc-brute: Bad login: %s/%s", username, password)
+      stdnse.debug2("Bad login: %s/%s", username, password)
       return false, brute.Error:new( "Bad login" )
     elseif (string.match(response,"<name>result</name><value><string>success</string></value>")) then
 
-      stdnse.print_debug(1, "metasploit-xmlrpc-brute: Good login: %s/%s", username, password)
+      stdnse.debug1("Good login: %s/%s", username, password)
       return true, brute.Account:new(username, password, creds.State.VALID)
     end
-    stdnse.print_debug(1, "metasploit-xmlrpc-brute: WARNING: Unhandled response: %s", response)
+    stdnse.debug1("WARNING: Unhandled response: %s", response)
     return false, brute.Error:new( "unhandled response" )
   end,
 

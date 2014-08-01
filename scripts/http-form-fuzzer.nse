@@ -186,7 +186,7 @@ function action(host, port)
   local return_table = {}
 
   for _,target in ipairs(targets) do
-    stdnse.print_debug(2, "http-form-fuzzer: testing path: "..target["path"])
+    stdnse.debug2("testing path: "..target["path"])
     local path = target["path"]
     if path then
       local response = http.get( host, port, path )
