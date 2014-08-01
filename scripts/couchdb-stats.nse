@@ -50,10 +50,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 portrule = shortport.port_or_service({5984})
 -- Some lazy shortcuts
-local function dbg(str,...)
-  stdnse.print_debug("couchdb-stats:"..str, ...)
-end
-
+local dbg = stdnse.debug1
 
 local DISCARD = {stddev=1,min=1,max=1, mean=1}
 --- Removes uninteresting data from the table

@@ -101,7 +101,7 @@ local function check_form(form, host, port, path)
 
   for _,field in ipairs(form["fields"]) do
     if rfi_field(field["type"]) then
-      stdnse.print_debug(2, "http-rfi-spider: checking field %s", field["name"])
+      stdnse.debug2("checking field %s", field["name"])
       postdata[field["name"]] = inclusion_url
       response = sending_function(postdata)
       if response and response.body and response.status==200 then

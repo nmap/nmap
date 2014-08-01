@@ -562,28 +562,28 @@ local function get_service_files(host)
   if(status == false) then
     return false, string.format("Error generating service name: %s", service_name)
   end
-  stdnse.print_debug("smb-psexec: Generated static service name: %s", service_name)
+  stdnse.debug1("Generated static service name: %s", service_name)
 
   -- Get the name and service's executable file (with a .txt extension for fun)
   status, service_file = smb.get_uniqueish_name(host, "txt")
   if(status == false) then
     return false, string.format("Error generating remote filename: %s", service_file)
   end
-  stdnse.print_debug("smb-psexec: Generated static service name: %s", service_name)
+  stdnse.debug1("Generated static service name: %s", service_name)
 
   -- Get the temporary output file
   status, temp_output_file = smb.get_uniqueish_name(host, "out.tmp")
   if(status == false) then
     return false, string.format("Error generating remote filename: %s", temp_output_file)
   end
-  stdnse.print_debug("smb-psexec: Generated static service filename: %s", temp_output_file)
+  stdnse.debug1("Generated static service filename: %s", temp_output_file)
 
   -- Get the actual output file
   status, output_file = smb.get_uniqueish_name(host, "out")
   if(status == false) then
     return false, string.format("Error generating remote output file: %s", output_file)
   end
-  stdnse.print_debug("smb-psexec: Generated static output filename: %s", output_file)
+  stdnse.debug1("Generated static output filename: %s", output_file)
 
   -- Return everything
   return true, service_name, service_file, temp_output_file, output_file
@@ -605,17 +605,17 @@ function cleanup(host, config)
     return
   end
 
-  stdnse.print_debug(1, "smb-psexec: Entering cleanup() -- errors here can generally be ignored")
+  stdnse.debug1("Entering cleanup() -- errors here can generally be ignored")
   -- Try stopping the service
   status, err = msrpc.service_stop(host, config.service_name)
   if(status == false) then
-    stdnse.print_debug(1, "smb-psexec: [cleanup] Couldn't stop service: %s", err)
+    stdnse.debug1("[cleanup] Couldn't stop service: %s", err)
   end
 
   -- Try deleting the service
   status, err = msrpc.service_delete(host, config.service_name)
   if(status == false) then
-    stdnse.print_debug(1, "smb-psexec: [cleanup] Couldn't delete service: %s", err)
+    stdnse.debug1("[cleanup] Couldn't delete service: %s", err)
   end
 
   -- Delete the files
@@ -623,7 +623,7 @@ function cleanup(host, config)
     status, err = smb.file_delete(host, share, config.all_files)
   end
 
-  stdnse.print_debug(1, "smb-psexec: Leaving cleanup()")
+  stdnse.debug1("Leaving cleanup()")
 
   return true
 end
@@ -635,7 +635,7 @@ end
 --@param extension The extension of the file (filename without the extension is tried first).
 --@return The full filename, or nil if it couldn't be found.
 local function locate_file(filename, extension)
-  stdnse.print_debug(1, "smb-psexec: Attempting to find file: %s", filename)
+  stdnse.debug1("Attempting to find file: %s", filename)
 
   extension = extension or ""
 
@@ -723,7 +723,7 @@ local function find_share(host)
       return false, "Setting the 'share' script-arg requires the 'sharepath' to be set as well."
     end
 
-    stdnse.print_debug(1, "smb-psexec: Using share chosen by the user: %s (%s)", share, path)
+    stdnse.debug1("Using share chosen by the user: %s (%s)", share, path)
   else
     -- Try and find a share to use.
     status, share, path, shares = smb.share_find_writable(host)
@@ -733,7 +733,7 @@ local function find_share(host)
     if(path == nil) then
       return false, string.format("Couldn't find path to writable share (we probably don't have admin access): '%s'", share)
     end
-    stdnse.print_debug(1, "smb-psexec: Found usable share %s (%s) (all writable shares: %s)", share, path, stdnse.strjoin(", ", shares))
+    stdnse.debug1("Found usable share %s (%s) (all writable shares: %s)", share, path, stdnse.strjoin(", ", shares))
   end
 
   return true, share, path, shares
@@ -807,7 +807,7 @@ local function get_config(host, config)
 
   -- Load the config file
   local env = setmetatable({modules = {}; overrides = {}; module = function() stdnse.print_debug(1, "WARNING: Selected config file contains an unnecessary call to module()") end}, {__index = _G})
-  stdnse.print_debug(1, "smb-psexec: Attempting to load config file: %s", filename)
+  stdnse.debug1("Attempting to load config file: %s", filename)
   local file = loadfile(filename, "t", env)
   if(not(file)) then
     return false, "Couldn't load module file:\n" .. filename
@@ -869,7 +869,7 @@ local function get_config(host, config)
   end
 
   -- Loop through the modules for some pre-processing
-  stdnse.print_debug(1, "smb-psexec: Verifying uploadable executables exist")
+  stdnse.debug1("Verifying uploadable executables exist")
   for i, mod in ipairs(modules) do
     local enabled = true
     -- Do some sanity checking
@@ -959,7 +959,7 @@ local function get_config(host, config)
     -- Checks for the uploadable modules
     if(mod.upload) then
       -- Check if the module actually exists
-      stdnse.print_debug(1, "smb-psexec: Looking for uploadable module: %s or %s.exe", mod.program, mod.program)
+      stdnse.debug1("Looking for uploadable module: %s or %s.exe", mod.program, mod.program)
       mod.filename = locate_file(mod.program, "exe")
       if(mod.filename == nil) then
         enabled = false
@@ -972,14 +972,14 @@ local function get_config(host, config)
         end
       else
         -- We found it
-        stdnse.print_debug(1, "smb-psexec: Found: %s", mod.filename)
+        stdnse.debug1("Found: %s", mod.filename)
 
         -- Generate a name to upload them as (we don't upload with the original names)
         status, mod.upload_name = smb.get_uniqueish_name(host, "txt", mod.filename)
         if(not(status)) then
           return false, "Couldn't generate name for uploaded file: " .. mod.upload_name
         end
-        stdnse.print_debug("smb-psexec: Will upload %s as %s", mod.filename, mod.upload_name)
+        stdnse.debug1("Will upload %s as %s", mod.filename, mod.upload_name)
       end
     end
 
@@ -994,12 +994,12 @@ local function get_config(host, config)
       -- Loop through all of the extra files
       mod.extrafiles_paths = {}
       for i, extrafile in ipairs(mod.extrafiles) do
-        stdnse.print_debug(1, "smb-psexec: Looking for extra module: %s", extrafile)
+        stdnse.debug1("Looking for extra module: %s", extrafile)
         mod.extrafiles_paths[i] = locate_file(extrafile)
         if(mod.extrafiles_paths[i] == nil) then
           return false, string.format("Couldn't find required file to upload: %s", extrafile)
         end
-        stdnse.print_debug(1, "smb-psexec: Found: %s", mod.extrafiles_paths[i])
+        stdnse.debug1("Found: %s", mod.extrafiles_paths[i])
       end
     end
 
@@ -1020,7 +1020,7 @@ local function get_config(host, config)
   -- Finalize the timeout
   local max_timeout = nmap.registry.args.timeout or 15
   config.timeout = math.max(config.timeout, max_timeout)
-  stdnse.print_debug(1, "smb-psexec: Timeout waiting for a response is %d seconds", config.timeout)
+  stdnse.debug1("Timeout waiting for a response is %d seconds", config.timeout)
 
   -- Do config overrides
   if(overrides) then
@@ -1028,7 +1028,7 @@ local function get_config(host, config)
   end
 
   -- Replace variable values in the configuration (this has to go last)
-  stdnse.print_debug(1, "smb-psexec: Replacing variables in the modules' fields")
+  stdnse.debug1("Replacing variables in the modules' fields")
   for i, mod in ipairs(config.enabled_modules) do
     for k, v in pairs(mod) do
       mod[k] = replace_variables(config, v)
@@ -1128,21 +1128,21 @@ local function upload_everything(host, config)
   end
 
   -- Upload the service file
-  stdnse.print_debug(1, "smb-psexec: Uploading: %s => \\\\%s\\%s", config.local_service_file, config.share, config.service_file)
+  stdnse.debug1("Uploading: %s => \\\\%s\\%s", config.local_service_file, config.share, config.service_file)
   local status, err
   status, err = smb.file_upload(host, config.local_service_file, config.share, "\\" .. config.service_file, overrides, is_xor_encoded)
   if(status == false) then
     cleanup(host, config)
     return false, string.format("Couldn't upload the service file: %s\n", err)
   end
-  stdnse.print_debug(1, "smb-psexec: Service file successfully uploaded!")
+  stdnse.debug1("Service file successfully uploaded!")
 
   -- Upload the modules and all their extras
-  stdnse.print_debug(1, "smb-psexec: Attempting to upload the modules")
+  stdnse.debug1("Attempting to upload the modules")
   for _, mod in ipairs(config.enabled_modules) do
     -- If it's an uploadable module, upload it
     if(mod.upload) then
-      stdnse.print_debug(1, "smb-psexec: Uploading: %s => \\\\%s\\%s", mod.filename, config.share, mod.upload_name)
+      stdnse.debug1("Uploading: %s => \\\\%s\\%s", mod.filename, config.share, mod.upload_name)
       status, err = smb.file_upload(host, mod.filename, config.share, "\\" .. mod.upload_name, overrides)
       if(status == false) then
         cleanup(host, config)
@@ -1161,7 +1161,7 @@ local function upload_everything(host, config)
       for i, extrafile in ipairs(mod.extrafiles) do
         local extrafile_local = mod.extrafiles_paths[i]
 
-        stdnse.print_debug(1, "smb-psexec: Uploading extra file: %s => \\\\%s\\%s", extrafile_local, config.share, extrafile)
+        stdnse.debug1("Uploading extra file: %s => \\\\%s\\%s", extrafile_local, config.share, extrafile)
         status, err = smb.file_upload(host, extrafile_local, config.share, extrafile, overrides)
         if(status == false) then
           cleanup(host, config)
@@ -1170,7 +1170,7 @@ local function upload_everything(host, config)
       end
     end
   end
-  stdnse.print_debug(1, "smb-psexec: Modules successfully uploaded!")
+  stdnse.debug1("Modules successfully uploaded!")
 
   return true
 end
@@ -1183,7 +1183,7 @@ end
 local function create_service(host, config)
   local status, err = msrpc.service_create(host, config.service_name, config.path .. "\\" .. config.service_file)
   if(status == false) then
-    stdnse.print_debug(1, "smb-psexec: Couldn't create the service: %s", err)
+    stdnse.debug1("Couldn't create the service: %s", err)
     cleanup(host, config)
 
     if(string.find(err, "MARKED_FOR_DELETE")) then
@@ -1240,7 +1240,7 @@ end
 local function start_service(host, config, params)
   local status, err = msrpc.service_start(host, config.service_name, params)
   if(status == false) then
-    stdnse.print_debug(1, "smb-psexec: Couldn't start the service: %s", err)
+    stdnse.debug1("Couldn't start the service: %s", err)
     return false, string.format("Couldn't start the service on the remote machine: %s", err)
   end
 
@@ -1256,7 +1256,7 @@ end
 --@return result The file if status is true, or an error message if status is false.
 
 local function get_output_file(host, config)
-  stdnse.print_debug(1, "smb-psexec: Waiting for output file to be created (timeout = %d seconds)", config.timeout)
+  stdnse.debug1("Waiting for output file to be created (timeout = %d seconds)", config.timeout)
   local status, result
 
   local i = config.timeout
@@ -1265,7 +1265,7 @@ local function get_output_file(host, config)
 
     if(not(status) and result ~= "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
       -- An unexpected error occurred
-      stdnse.print_debug(1, "smb-psexec: Couldn't read the file: %s", result)
+      stdnse.debug1("Couldn't read the file: %s", result)
       cleanup(host, config)
 
       return false, string.format("Couldn't read the file from the remote machine: %s", result)
@@ -1274,13 +1274,13 @@ local function get_output_file(host, config)
     if(not(status) and result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
       -- An expected error occurred; if this happens, we just wait
       if(i == 0) then
-        stdnse.print_debug(1, "smb-psexec: Error in remote service: output file was never created!")
+        stdnse.debug1("Error in remote service: output file was never created!")
         cleanup(host, config)
 
         return false, string.format("Error in remote service: output file was never created")
       end
 
-      stdnse.print_debug(1, "smb-psexec: Output file %s doesn't exist yet, waiting for %d more seconds", config.output_file, i)
+      stdnse.debug1("Output file %s doesn't exist yet, waiting for %d more seconds", config.output_file, i)
       stdnse.sleep(1)
       i = i - 1
     end
@@ -1474,7 +1474,7 @@ action = function(host)
   local files
 
   -- First check for nmap_service.exe; we can't do anything without it.
-  stdnse.print_debug(1, "smb-psexec: Looking for the service file: nmap_service or nmap_service.exe")
+  stdnse.debug1("Looking for the service file: nmap_service or nmap_service.exe")
   config.local_service_file = locate_file("nmap_service", "exe")
   if (config.local_service_file == nil) then
     if nmap.verbosity() > 0 then

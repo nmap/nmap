@@ -57,7 +57,7 @@ action = function(host, port)
   data = http.get(host, port, '/', options)
 
   if data.body then
-    stdnse.print_debug(2, "mcafee-epo-agent: data.body:sub = %s", data.body:sub(1, 80))
+    stdnse.debug2("data.body:sub = %s", data.body:sub(1, 80))
 
     if data.body:StartsWith('<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="FrameworkLog.xsl"?><naLog>') then
       port.version.hostname = ExtractXMLElement(data.body, "ComputerName")

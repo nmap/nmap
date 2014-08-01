@@ -204,17 +204,17 @@ local function timed_mode(host, port, domains)
   end
   mean, stddev = mean_stddev(times)
   cutoff = mean + stddev * TIMED_MULTIPLIER
-  stdnse.print_debug(1, "dns-cache-snoop: reference %s: mean %g  stddev %g  cutoff %g", TIMED_DUMMY_DOMAIN, mean, stddev, cutoff)
+  stdnse.debug1("reference %s: mean %g  stddev %g  cutoff %g", TIMED_DUMMY_DOMAIN, mean, stddev, cutoff)
 
   -- Now try all domains one by one.
   for _, domain in ipairs(domains) do
     t = timed_query(host, port, domain)
     if t then
       if t < cutoff then
-        stdnse.print_debug(1, "dns-cache-snoop: %s: %g is cached (cutoff %g)", domain, t, cutoff)
+        stdnse.debug1("%s: %g is cached (cutoff %g)", domain, t, cutoff)
         cached[#cached + 1] = domain
       else
-        stdnse.print_debug(1, "dns-cache-snoop: %s: %g not cached (cutoff %g)", domain, t, cutoff)
+        stdnse.debug1("%s: %g not cached (cutoff %g)", domain, t, cutoff)
       end
     end
   end

@@ -171,7 +171,7 @@ local function get_fingerprints(fingerprint_file, category)
   -- There might be a race condition here, where multiple scripts will read the file and set this variable, but the impact
   -- of that would be minimal (and definitely isn't security)
   if(nmap.registry.http_fingerprints ~= nil) then
-    stdnse.print_debug(1, "http-enum: Using cached HTTP fingerprints")
+    stdnse.debug1("Using cached HTTP fingerprints")
     return nmap.registry.http_fingerprints
   end
 
@@ -181,11 +181,11 @@ local function get_fingerprints(fingerprint_file, category)
     filename_full = fingerprint_file
   end
 
-  stdnse.print_debug("http-enum: Loading fingerprint database: %s", filename_full)
+  stdnse.debug1("Loading fingerprint database: %s", filename_full)
   local env = setmetatable({fingerprints = {}}, {__index = _G})
   local file = loadfile(filename_full, "t", env)
   if(not(file)) then
-    stdnse.print_debug("http-enum: Couldn't load configuration file: %s", filename_full)
+    stdnse.debug1("Couldn't load configuration file: %s", filename_full)
     return false, "Couldn't load fingerprint file: " .. filename_full
   end
 
@@ -353,7 +353,7 @@ action = function(host, port)
   if(not(status)) then
     return stdnse.format_output(false, fingerprints)
   end
-  stdnse.print_debug(1, "http-enum: Loaded %d fingerprints", #fingerprints)
+  stdnse.debug1("Loaded %d fingerprints", #fingerprints)
 
   -- Check what response we get for a 404
   local result, result_404, known_404 = http.identify_404(host, port)
@@ -380,7 +380,7 @@ action = function(host, port)
 
   local results_nopipeline = {}
   -- Loop through the fingerprints
-  stdnse.print_debug(1, "http-enum: Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
+  stdnse.debug1("Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
   for i = 1, #fingerprints, 1 do
     -- Add each path. The order very much matters here.
     for j = 1, #fingerprints[i].probes, 1 do
@@ -402,7 +402,7 @@ action = function(host, port)
 
   -- Check for http.pipeline error
   if(results == nil) then
-    stdnse.print_debug(1, "http-enum: http.pipeline_go encountered an error")
+    stdnse.debug1("http.pipeline_go encountered an error")
     return stdnse.format_output(false, "http.pipeline_go encountered an error")
   end
 

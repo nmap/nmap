@@ -140,9 +140,9 @@ function parse_db2_packet(packet)
   response.info = packet.data:sub(info_offset, info_offset + response.info_length - (info_offset-info_length_offset))
 
   if(nmap.debugging() > 3)  then
-    stdnse.print_debug("db2-das-info: version: %s", response.version)
-    stdnse.print_debug("db2-das-info: info_length: %d", response.info_length)
-    stdnse.print_debug("db2-das-info: response.info:len(): %d", response.info:len())
+    stdnse.debug1("version: %s", response.version)
+    stdnse.debug1("info_length: %d", response.info_length)
+    stdnse.debug1("response.info:len(): %d", response.info:len())
   end
 
   return response
@@ -185,7 +185,7 @@ function read_db2_packet(socket)
 
   if packet.header.raw:sub(1, 10) == string.char(0x00, 0x00, 0x00, 0x00, 0x44, 0x42, 0x32, 0x44, 0x41, 0x53) then
 
-    stdnse.print_debug("db2-das-info: Got DB2DAS packet")
+    stdnse.debug1("Got DB2DAS packet")
 
     local _, endian = bin.unpack( "A2", packet.header.raw, ENDIANESS_OFFSET )
 
@@ -198,20 +198,20 @@ function read_db2_packet(socket)
     total_len = header_len + packet.header.data_len
 
     if(nmap.debugging() > 3) then
-      stdnse.print_debug("db2-das-info: data_len: %d", packet.header.data_len)
-      stdnse.print_debug("db2-das-info: buf_len: %d", buf:len())
-      stdnse.print_debug("db2-das-info: total_len: %d", total_len)
+      stdnse.debug1("data_len: %d", packet.header.data_len)
+      stdnse.debug1("buf_len: %d", buf:len())
+      stdnse.debug1("total_len: %d", total_len)
     end
 
     -- do we have all data as specified by data_len?
     while total_len > buf:len() do
       -- if not read additional bytes
       if(nmap.debugging() > 3)  then
-        stdnse.print_debug("db2-das-info: Reading %d additional bytes", total_len - buf:len())
+        stdnse.debug1("Reading %d additional bytes", total_len - buf:len())
       end
       local tmp = try( socket:receive_bytes( total_len - buf:len() ) )
       if(nmap.debugging() > 3)  then
-        stdnse.print_debug("db2-das-info: Read %d bytes", tmp:len())
+        stdnse.debug1("Read %d bytes", tmp:len())
       end
       buf = buf .. tmp
     end
@@ -219,7 +219,7 @@ function read_db2_packet(socket)
     packet.data = buf:sub(header_len + 1)
 
   else
-    stdnse.print_debug("db2-das-info: Unknown packet, aborting ...")
+    stdnse.debug1("Unknown packet, aborting ...")
     return
   end
 

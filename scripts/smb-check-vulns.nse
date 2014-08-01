@@ -394,7 +394,7 @@ local function check_smbv2_dos(host)
   socket:close()
 
   -- Give it some time to crash
-  stdnse.print_debug(1, "smb-check-vulns: Waiting 5 seconds to see if Windows crashed")
+  stdnse.debug1("Waiting 5 seconds to see if Windows crashed")
   stdnse.sleep(5)
 
   -- Create a new socket
@@ -404,27 +404,27 @@ local function check_smbv2_dos(host)
   end
 
   -- Try and do something simple
-  stdnse.print_debug(1, "smb-check-vulns: Attempting to connect to the host")
+  stdnse.debug1("Attempting to connect to the host")
   socket:set_timeout(5000)
   status, result = socket:connect(host, 445)
 
   -- Check the result
   if(status == false or status == nil) then
-    stdnse.print_debug(1, "smb-check-vulns: Connect failed, host is likely vulnerable!")
+    stdnse.debug1("Connect failed, host is likely vulnerable!")
     socket:close()
     return true, VULNERABLE
   end
 
   -- Try sending something
-  stdnse.print_debug(1, "smb-check-vulns: Attempting to send data to the host")
+  stdnse.debug1("Attempting to send data to the host")
   status, result = socket:send("AAAA")
   if(status == false or status == nil) then
-    stdnse.print_debug(1, "smb-check-vulns: Send failed, host is likely vulnerable!")
+    stdnse.debug1("Send failed, host is likely vulnerable!")
     socket:close()
     return true, VULNERABLE
   end
 
-  stdnse.print_debug(1, "smb-check-vulns: Checks finished; host is likely not vulnerable.")
+  stdnse.debug1("Checks finished; host is likely not vulnerable.")
   socket:close()
   return true, PATCHED
 end
