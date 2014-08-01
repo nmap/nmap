@@ -153,11 +153,11 @@ local function testversion(host, port, version)
     local record
     i, record = tls.record_read(response, i)
     if record == nil then
-      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+      stdnse.debug1("Unknown response from server")
       s:close()
       return nil
     elseif record.protocol ~= version then
-      stdnse.print_debug("%s: Protocol version mismatch", SCRIPT_NAME)
+      stdnse.debug1("Protocol version mismatch")
       s:close()
       return nil
     end
@@ -176,7 +176,7 @@ local function testversion(host, port, version)
     end
   until done
   if not supported then
-    stdnse.print_debug("%s: Server does not support TLS Heartbeat Requests.", SCRIPT_NAME)
+    stdnse.debug1("Server does not support TLS Heartbeat Requests.")
     s:close()
     return nil
   end

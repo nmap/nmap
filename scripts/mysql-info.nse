@@ -80,14 +80,14 @@ action = function(host, port)
   local status, err = socket:connect(host, port)
 
   if not status then
-    stdnse.print_debug("%s: error connecting: %s", SCRIPT_NAME, err)
+    stdnse.debug1("error connecting: %s", err)
     return nil
   end
 
   local status, info = mysql.receiveGreeting(socket)
 
   if not status then
-    stdnse.print_debug("%s: MySQL error: %s", SCRIPT_NAME, info)
+    stdnse.debug1("MySQL error: %s", info)
     output["MySQL Error"] = info
     if nmap.verbosity() > 1 then
       return output

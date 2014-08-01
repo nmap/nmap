@@ -125,7 +125,7 @@ function action(host, port)
       -- Do the requests.
       replies = http.pipeline_go(host, port, pl_requests)
       if replies == nil then
-        stdnse.print_debug("%s: pipeline_go() error. Aborting.", SCRIPT_NAME)
+        stdnse.debug1("pipeline_go() error. Aborting.")
         return nil
       end
 

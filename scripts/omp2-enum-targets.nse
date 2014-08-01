@@ -59,14 +59,14 @@ local function account_enum_targets(host, port, username, password)
   local status, err = session:connect(host, port)
 
   if not status then
-    stdnse.print_debug("%s: connection failure (%s)", SCRIPT_NAME, err)
+    stdnse.debug1("connection failure (%s)", err)
     return nil
   end
 
   if session:authenticate(username, password) then
     targets = session:ls_targets()
   else
-    stdnse.print_debug("%s: authentication failure (%s:%s)", SCRIPT_NAME, username, password)
+    stdnse.debug1("authentication failure (%s:%s)", username, password)
   end
 
   session:close()
@@ -115,7 +115,7 @@ action = function(host, port)
     end
 
     if target.ALLOW_NEW_TARGETS and targets ~= nil then
-      stdnse.print_debug("%s: adding new targets %s", SCRIPT_NAME, stdnse.strjoin(", ", targets))
+      stdnse.debug1("adding new targets %s", stdnse.strjoin(", ", targets))
       target.add(table.unpack(targets))
     end
 

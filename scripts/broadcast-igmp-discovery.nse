@@ -302,14 +302,14 @@ local mgroup_names_fetch = function(filename)
 end
 
 local mgroup_name_identify = function(db, ip)
-  --stdnse.print_debug("%s: '%s'", SCRIPT_NAME, ip)
+  --stdnse.debug1("'%s'", ip)
   for _, mg in ipairs(db) do
     local ip1 = mg[1]
     local ip2 = mg[2]
     local desc = mg[3]
-    --stdnse.print_debug("%s: try: %s <= %s <= %s (%s)", SCRIPT_NAME, ip1, ip, ip2, desc)
+    --stdnse.debug1("try: %s <= %s <= %s (%s)", ip1, ip, ip2, desc)
     if (not ipOps.compare_ip(ip, "lt", ip1) and not ipOps.compare_ip(ip2, "lt", ip)) then
-      --stdnse.print_debug("%s: found! %s <= %s <= %s (%s)", SCRIPT_NAME, ip1, ip, ip2, desc)
+      --stdnse.debug1("found! %s <= %s <= %s (%s)", ip1, ip, ip2, desc)
       return desc
     end
   end
@@ -341,7 +341,7 @@ action = function(host, port)
       return ("ERROR: Failed to retrieve %s interface information."):format(interface)
     end
     interfaces = {interface}
-    stdnse.print_debug("%s: Will use %s interface.", SCRIPT_NAME, interface.shortname)
+    stdnse.debug1("Will use %s interface.", interface.shortname)
   else
     local ifacelist = nmap.list_interfaces()
     for _, iface in ipairs(ifacelist) do
@@ -349,7 +349,7 @@ action = function(host, port)
       if iface.address and iface.link=="ethernet" and
         iface.address:match("%d+%.%d+%.%d+%.%d+") then
 
-        stdnse.print_debug("%s: Will use %s interface.", SCRIPT_NAME, iface.shortname)
+        stdnse.debug1("Will use %s interface.", iface.shortname)
         table.insert(interfaces, iface)
       end
     end

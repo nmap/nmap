@@ -63,14 +63,14 @@ action = function( host, port )
 
   local status = helper:connect()
   if ( not(status) ) then
-    stdnse.print_debug("%s: failed to connect to server", SCRIPT_NAME )
+    stdnse.debug1("failed to connect to server" )
     return
   end
 
   local records
   status, records = helper:discoverTargets()
   if ( not(status) ) then
-    stdnse.print_debug("%s: failed to discover targets", SCRIPT_NAME )
+    stdnse.debug1("failed to discover targets" )
     return
   end
   status = helper:logout()

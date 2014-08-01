@@ -78,7 +78,7 @@ local isRPC = function(host, port)
     rpcConn = rpc.Comm:new("rpcbind", 2)
     status, err = rpcConn:Connect(host, port)
     if not status then
-      stdnse.print_debug("%s: %s", SCRIPT_NAME, err)
+      stdnse.debug1("%s", err)
       return
     end
 
@@ -94,7 +94,7 @@ local isRPC = function(host, port)
     -- And check response
     status, data = rpcConn:ReceivePacket()
     if not status then
-      stdnse.print_debug("%s: isRPC didn't receive response.", SCRIPT_NAME)
+      stdnse.debug1("isRPC didn't receive response.")
       return
     else
       -- If we got response, set port to open
@@ -110,7 +110,7 @@ local isRPC = function(host, port)
       end
     end
   end
-  stdnse.print_debug("%s: RPC checking function response data is not RPC.", SCRIPT_NAME)
+  stdnse.debug1("RPC checking function response data is not RPC.")
 end
 
 -- Function that iterates over the nmap-rpc file and
@@ -121,14 +121,14 @@ local rpcIterator = function()
   -- Check if nmap-rpc file is present.
   local path = nmap.fetchfile("nmap-rpc")
   if not path then
-    stdnse.print_debug("%s: Could not find nmap-rpc file.", SCRIPT_NAME)
+    stdnse.debug1("Could not find nmap-rpc file.")
     return false
   end
 
   -- And is readable
   local nmaprpc, _, _ = io.open( path, "r" )
   if not nmaprpc then
-    stdnse.print_debug("%s: Could not open nmap-rpc for reading.", SCRIPT_NAME)
+    stdnse.debug1("Could not open nmap-rpc for reading.")
     return false
   end
 
@@ -199,7 +199,7 @@ local rpcGrinder = function(host, port, iterator, result)
     if type(response) == 'table' then
       if xid ~= response.xid then
         -- Shouldn't happen.
-        stdnse.print_debug("%s: XID mismatch.", SCRIPT_NAME)
+        stdnse.debug1("XID mismatch.")
       end
       -- Look at accept state
       -- Not supported version means that we used the right program number

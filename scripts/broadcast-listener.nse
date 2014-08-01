@@ -111,7 +111,7 @@ loadDecoders = function(fname)
   local env = setmetatable({Decoders = {}}, {__index = _G});
   local file = loadfile(abs_fname, "t", env)
   if(not(file)) then
-    stdnse.print_debug("%s: Couldn't load decoder file: %s", SCRIPT_NAME, fname)
+    stdnse.debug1("Couldn't load decoder file: %s", fname)
     return false, "ERROR: Couldn't load decoder file: " .. fname
   end
 

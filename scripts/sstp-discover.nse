@@ -68,7 +68,7 @@ action = function(host, port)
     string.format(request, host.targetname or host.ip),
     { timeout=3000, lines=4 })
   if not socket then
-    stdnse.print_debug("%s: Problem establishing connection: %s", SCRIPT_NAME, response)
+    stdnse.debug1("Problem establishing connection: %s", response)
     return nil
   end
   socket:close()

@@ -131,12 +131,12 @@ action = function()
 
   local iname = nmap.get_interface()
   if ( not(iname) ) then
-    stdnse.print_debug("%s: No interface supplied, use -e", SCRIPT_NAME)
+    stdnse.debug1("No interface supplied, use -e")
     return
   end
 
   if ( not(nmap.is_privileged()) ) then
-    stdnse.print_debug("%s: not running for lack of privileges", SCRIPT_NAME)
+    stdnse.debug1("not running for lack of privileges")
     return
   end
 

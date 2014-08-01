@@ -102,19 +102,19 @@ end
 local check_npn = function(response)
   local i, record = tls.record_read(response, 0)
   if record == nil then
-    stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+    stdnse.debug1("Unknown response from server")
     return nil
   end
 
   if record.type == "handshake" and record.body[1].type == "server_hello" then
     if record.body[1].extensions == nil then
-      stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
+      stdnse.debug1("Server does not support TLS NPN extension.")
       return nil
     end
     local results = {}
     local npndata = record.body[1].extensions["next_protocol_negotiation"]
     if npndata == nil then
-      stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
+      stdnse.debug1("Server does not support TLS NPN extension.")
       return nil
     end
     -- Parse data
@@ -127,7 +127,7 @@ local check_npn = function(response)
 
     return results
   else
-    stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
+    stdnse.debug1("Server response was not server_hello")
     return nil
   end
 end
