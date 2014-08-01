@@ -1,6 +1,7 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
 local string = require "string"
@@ -12,7 +13,8 @@ Retrieves a target host's time and date from its TLS ServerHello response.
 
 
 In many TLS implementations, the first four bytes of server randomness
-are a Unix timestamp.
+are a Unix timestamp. The script will test whether this is indeed true
+and report the time only if it passes this test.
 
 Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 * https://github.com/ioerror/TeaTime
@@ -32,7 +34,7 @@ Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 -- <elem key="date">2012-08-02T18:29:31+00:00</elem>
 -- <elem key="delta">4</elem>
 
-author = "Aleksandar Nikolic"
+author = "Aleksandar Nikolic, nnposter"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
@@ -75,7 +77,7 @@ local client_hello = function(host, port)
     status, err = sock:connect(host, port)
     if not status then
       sock:close()
-      stdnse.print_debug("Can't send: %s", err)
+      stdnse.debug("Can't send: %s", err)
       return false
     end
   else
@@ -89,7 +91,7 @@ local client_hello = function(host, port)
   -- Send Client Hello to the target server
   status, err = sock:send(cli_h)
   if not status then
-    stdnse.print_debug("Couldn't send: %s", err)
+    stdnse.debug("Couldn't send: %s", err)
     sock:close()
     return false
   end
@@ -97,7 +99,7 @@ local client_hello = function(host, port)
   -- Read response
   status, response, err = tls.record_buffer(sock)
   if not status then
-    stdnse.print_debug("Couldn't receive: %s", err)
+    stdnse.debug("Couldn't receive: %s", err)
     sock:close()
     return false
   end
@@ -109,7 +111,7 @@ end
 local extract_time = function(response)
   local i, record = tls.record_read(response, 0)
   if record == nil then
-    stdnse.debug1("Unknown response from server")
+    stdnse.debug("%s: Unknown response from server", SCRIPT_NAME)
     return nil
   end
 
@@ -120,27 +122,51 @@ local extract_time = function(response)
       end
     end
   end
-  stdnse.debug1("Server response was not server_hello")
+  stdnse.debug("%s: Server response was not server_hello", SCRIPT_NAME)
   return nil
 end
 
-action = function(host, port)
-  local status, response
-
+local get_time_sample = function (host, port)
   -- Send crafted client hello
-  status, response = client_hello(host, port)
-  local now = os.time()
-  if status and response then
-    -- extract time from response
-    local result
-    status, result = extract_time(response)
-    if status then
-      local output = {
-        date = stdnse.format_timestamp(result, 0),
-        delta = os.difftime(result, now),
-      }
-      return output, string.format("%s; %s from local time.", output.date,
-        stdnse.format_difftime(os.date("!*t",result),os.date("!*t", now)))
+  local rstatus, response = client_hello(host, port)
+  local stm = os.time()
+  if not (rstatus and response) then return nil end
+  -- extract time from response
+  local tstatus, ttm = extract_time(response)
+  if not tstatus then return nil end
+  return ttm, stm
+end
+
+
+action = function(host, port)
+  local ttm, stm = get_time_sample(host, port)
+  if not ttm then
+    return stdnse.format_output(false, "Unable to obtain data from the target")
+  end
+  local delta = os.difftime(ttm, stm)
+  stdnse.debug(2, "Sample #1 time difference is %d seconds", delta)
+
+  if math.abs(delta) > 15*60 then
+    -- time difference is suspect
+    -- get a second sample to determine if the clock is simply off
+    -- or if the TLS randomness does not represent the time at all
+    ttm, stm = get_time_sample(host, port)
+    if not ttm then
+      return stdnse.format_output(false, "Unable to obtain data from the target")
+    end
+    local origdelta = delta
+    delta = os.difftime(ttm, stm)
+    stdnse.debug(2, "Sample #2 time difference is %d seconds", delta)
+    if math.abs(origdelta - delta) > 5 then
+      return stdnse.format_output(false, "TLS randomness does not represent time")
     end
   end
+
+  local output = {
+                 date = stdnse.format_timestamp(ttm, 0),
+                 delta = delta,
+                 }
+  return output,
+         string.format("%s; %s from scanner time.", output.date,
+                 stdnse.format_difftime(os.date("!*t",ttm),os.date("!*t", stm)))
 end
