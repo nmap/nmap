@@ -59,12 +59,12 @@ local function loadFingerprints(filename, cat)
   filename = nmap.fetchfile('nselib/data/' .. filename) or filename
 
   -- Load the file
-  stdnse.print_debug(1, "%s: Loading fingerprints: %s", SCRIPT_NAME, filename)
+  stdnse.debug1("Loading fingerprints: %s", filename)
   local env = setmetatable({fingerprints = {}}, {__index = _G});
   file = loadfile(filename, "t", env)
 
   if( not(file) ) then
-    stdnse.print_debug(1, "%s: Couldn't load the file: %s", SCRIPT_NAME, filename)
+    stdnse.debug1("Couldn't load the file: %s", filename)
     return
   end
 

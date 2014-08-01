@@ -650,10 +650,10 @@ local function locate_file(filename, extension)
   if(filename_full == nil) then
     local f, err = io.open(filename, "rb")
     if f == nil then
-      stdnse.print_debug(1, "%s: Error opening %s: %s", SCRIPT_NAME, filename, err)
+      stdnse.debug1("Error opening %s: %s", filename, err)
       f, err = io.open(filename .. "." .. extension, "rb")
       if f == nil then
-        stdnse.print_debug(1, "%s: Error opening %s.%s: %s", SCRIPT_NAME, filename, extension, err)
+        stdnse.debug1("Error opening %s.%s: %s", filename, extension, err)
         return nil -- unnecessary, but explicit
       else
         f:close()

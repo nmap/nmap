@@ -40,7 +40,7 @@ action = function(host, port)
     end
     return stdnse.strjoin(" ", capstrings)
   elseif type(err) == "string" then
-    stdnse.print_debug(1, "%s: '%s' for %s", SCRIPT_NAME, err, host.ip)
+    stdnse.debug1("'%s' for %s", err, host.ip)
     return
   else
     return "server doesn't support CAPA"

@@ -95,7 +95,7 @@ end
 
 function add_target(hostname)
   if target.ALLOW_NEW_TARGETS then
-    stdnse.print_debug(1, "%s: Added target: %s", SCRIPT_NAME, hostname)
+    stdnse.debug1("Added target: %s", hostname)
     local status,err = target.add(hostname)
   end
 end
@@ -185,18 +185,18 @@ action = function( host, port )
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME, body)
     if body:match("Version:%s*</b>([^][,]+)") then
       local version = body:match("Version:%s*</b>([^][,]+)")
-      stdnse.print_debug(1, "%s: Version %s", SCRIPT_NAME, version)
+      stdnse.debug1("Version %s", version)
       result[#result+1] =  ("Version: %s"):format(version)
       port.version.version = version
     end
     if body:match("Compiled:%s*</b>([^][<]+)") then
       local compiled = body:match("Compiled:%s*</b>([^][<]+)")
-      stdnse.print_debug(1, "%s: Compiled %s", SCRIPT_NAME, compiled)
+      stdnse.debug1("Compiled %s", compiled)
       result[#result+1] =  ("Compiled: %s"):format(compiled)
     end
     if body:match("ServerID:%s*([^][<]+)") then
       local upgrades = body:match("ServerID:%s*([^][<]+)")
-      stdnse.print_debug(1, "%s: ServerID %s", SCRIPT_NAME, upgrades)
+      stdnse.debug1("ServerID %s", upgrades)
       result[#result] = ("ServerID: %s"):format(upgrades)
     end
     for logical,physical,hostname in string.gmatch(body,

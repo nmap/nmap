@@ -203,7 +203,7 @@ action = function(host)
       end
     end
   else
-    stdnse.print_debug(1, "%s: Cannot find hostlist file, quitting", SCRIPT_NAME)
+    stdnse.debug1("Cannot find hostlist file, quitting")
     return
   end
 
@@ -268,7 +268,7 @@ action = function(host)
         end
       end
     else
-      stdnse.print_debug(1, "%s: Cannot find srvlist file, skipping", SCRIPT_NAME)
+      stdnse.debug1("Cannot find srvlist file, skipping")
     end
   end
 

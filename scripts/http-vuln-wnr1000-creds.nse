@@ -71,7 +71,7 @@ action = function(host, port)
         local id_netgear = string.match(escape(detection_session.body), ('(id=%d+)'))
 
         if id_netgear == nil then
-            stdnse.print_debug(1, "%s: Unable to obtain the id", SCRIPT_NAME)
+            stdnse.debug1("Unable to obtain the id")
             return
         else
             -- send the payload to get username and password
@@ -83,7 +83,7 @@ action = function(host, port)
                     stdnse.print_debug(1, "%s: username : " .. escape(netgear_username), SCRIPT_NAME)
                     stdnse.print_debug(1, "%s: password : " .. escape(netgear_password), SCRIPT_NAME)
                 else
-                    stdnse.print_debug(1, "%s: We haven't been able to get username/password", SCRIPT_NAME)
+                    stdnse.debug1("We haven't been able to get username/password")
                 end
             end
         end

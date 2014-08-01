@@ -186,7 +186,7 @@ action = function(host, port)
   status, response = socket:receive_bytes(0)
   if response ~= bin.pack("H","0300000b06d00000123400") then
     --probably not rdp at all
-    stdnse.print_debug(1, "%s: not RDP", SCRIPT_NAME)
+    stdnse.debug1("not RDP")
     return nil
   end
   status, err = socket:send(connectInitial)

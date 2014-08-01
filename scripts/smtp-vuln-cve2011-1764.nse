@@ -232,7 +232,7 @@ arbitrary code with the privileges of the Exim daemon.]],
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   local status, err = check_exim(smtp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, err)
+    stdnse.debug1("%s", err)
     return nil
   end
   return report:make_output(smtp_opts.vuln)

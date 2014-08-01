@@ -280,7 +280,7 @@ than PLAIN and LOGIN.]],
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   local status, err = check_smtpd(smtp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, err)
+    stdnse.debug1("%s", err)
     return nil
   end
   return report:make_output(smtp_opts.vuln)

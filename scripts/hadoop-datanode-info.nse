@@ -46,7 +46,7 @@ action = function( host, port )
   local uri = "/browseDirectory.jsp"
   stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s", SCRIPT_NAME,response['status-line'] or "No Response")
+  stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
@@ -55,7 +55,7 @@ action = function( host, port )
       port.version.product = "Apache Hadoop"
       nmap.set_port_version(host, port)
       local logs = body:match("([^][\"]+)\">Log")
-      stdnse.print_debug(1, "%s: Logs %s", SCRIPT_NAME,logs)
+      stdnse.debug1("Logs %s",logs)
       table.insert(result, ("Logs: %s"):format(logs))
     end
     return stdnse.format_output(true, result)

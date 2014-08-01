@@ -461,7 +461,7 @@ action = function(host, port)
   end
   local status, output = check_exim(smtp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, output)
+    stdnse.debug1("%s", output)
     return nil
   end
   return stdnse.format_output(status, output)

@@ -52,28 +52,28 @@ action = function(host, port)
   local config_file = ""
 
   -- Retrieve file
-  stdnse.print_debug(1, "%s: Connecting to %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
+  stdnse.debug1("Connecting to %s:%s", host.targetname or host.ip, port.number)
   local data = http.get(host, port, path)
 
   -- Check if file exists
   if data and data.status and data.status == 200 and data.body and data.body ~= "" then
 
     -- Check if the config file is valid
-    stdnse.print_debug(1, "%s: HTTP %s: %s", SCRIPT_NAME, data.status, path)
+    stdnse.debug1("HTTP %s: %s", data.status, path)
     if string.match(data.body, '<QDocRoot version="[^"]+">') then
       config_file = data.body
     else
-      stdnse.print_debug(1, "%s: %s:%s uses an invalid config file.", SCRIPT_NAME, host.targetname or host.ip, port.number)
+      stdnse.debug1("%s:%s uses an invalid config file.", host.targetname or host.ip, port.number)
       return
     end
 
   else
-    stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, path)
+    stdnse.debug1("Failed to retrieve file: %s", path)
     return
   end
 
   -- Extract system info from config file
-  stdnse.print_debug(1, "%s: Extracting system info from %s", SCRIPT_NAME, path)
+  stdnse.debug1("Extracting system info from %s", path)
   local vars = {
 
     -- System details --
