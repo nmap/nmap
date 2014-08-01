@@ -111,7 +111,7 @@ end
 local extract_time = function(response)
   local i, record = tls.record_read(response, 0)
   if record == nil then
-    stdnse.debug("%s: Unknown response from server", SCRIPT_NAME)
+    stdnse.debug("Unknown response from server")
     return nil
   end
 
@@ -122,7 +122,7 @@ local extract_time = function(response)
       end
     end
   end
-  stdnse.debug("%s: Server response was not server_hello", SCRIPT_NAME)
+  stdnse.debug("Server response was not server_hello")
   return nil
 end
 
