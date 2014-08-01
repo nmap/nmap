@@ -112,7 +112,7 @@ local llmnrListen = function(interface, timeout, result)
       -- Message == Response bit
       -- and 1 Question (hostname we requested) and
       if (bit.rshift(flags, 15) == 1) and questions == 0x01 then
-        stdnse.print_debug("%s got response from %s", SCRIPT_NAME, p.ip_src)
+        stdnse.debug1("got response from %s", p.ip_src)
         -- Skip header's 12 bytes
         -- extract host length
         local index, qlen = bin.unpack(">C", llmnr, 13)
@@ -131,7 +131,7 @@ local llmnrListen = function(interface, timeout, result)
         response.address = ipOps.fromdword(response.address)
         table.insert(result, response)
       else
-        stdnse.print_debug("%s skipped llmnr response.", SCRIPT_NAME)
+        stdnse.debug1("skipped llmnr response.")
       end
     end
   end
@@ -172,7 +172,7 @@ action = function()
 
   -- Check if a valid hostname was provided
   if not hostname or #hostname == 0 then
-    stdnse.print_debug("%s no hostname was provided.", SCRIPT_NAME)
+    stdnse.debug1("no hostname was provided.")
     return
   end
 

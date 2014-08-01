@@ -729,7 +729,7 @@ local function initial_ttl(host)
     nmap.registry['firewalk']['traceroutefail'] = true
 
     if nmap.verbosity() > 0 then
-      stdnse.print_debug("%s requires unavailable traceroute information.", SCRIPT_NAME)
+      stdnse.debug1("requires unavailable traceroute information.")
     end
 
     return nil

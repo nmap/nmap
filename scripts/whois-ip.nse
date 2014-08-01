@@ -494,14 +494,14 @@ end
 function do_query(db, ip)
 
   if type( db ) ~= "string" or not nmap.registry.whois.whoisdb[db] then
-    stdnse.print_debug("%s %s Error in do_query: %s is not a defined Whois service.", SCRIPT_NAME, ip, db)
+    stdnse.debug1("%s Error in do_query: %s is not a defined Whois service.", ip, db)
     return nil
   end
 
   local service = nmap.registry.whois.whoisdb[db]
 
   if type( service.hostname ) ~= "string" or service.hostname == "" then
-    stdnse.print_debug("%s %s Error in do_query: Invalid hostname for %s.", SCRIPT_NAME, ip, db)
+    stdnse.debug1("%s Error in do_query: Invalid hostname for %s.", ip, db)
     return nil
   end
 

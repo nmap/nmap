@@ -71,26 +71,26 @@ bigip = {
     for _, response in pairs(responses) do
 
       if response.header['x-cnection'] then
-        stdnse.print_debug("%s BigIP detected through X-Cnection header.", SCRIPT_NAME)
+        stdnse.debug1("BigIP detected through X-Cnection header.")
         bigip.detected = true
         return
       end
 
       if response.header.server == 'BigIP' then --
-        stdnse.print_debug("%s BigIP detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("BigIP detected through Server header.")
         bigip.detected = true
         return
       end
 
       for _, cookie in pairs(response.cookies) do --
         if string.find(cookie.name, "BIGipServer") then
-          stdnse.print_debug("%s BigIP detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("BigIP detected through cookies.")
           bigip.detected = true
           return
         end
         -- Application Security Manager module
         if string.match(cookie.name, 'TS%w+') and string.len(cookie.name) <= 8 then
-          stdnse.print_debug("%s F5 ASM detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("F5 ASM detected through cookies.")
           bigip.detected = true
           return
         end
@@ -110,13 +110,13 @@ webknight = {
   match = function(responses)
     for name, response in pairs(responses) do
       if response.header.server and string.find(response.header.server, 'WebKnight/') then --
-        stdnse.print_debug("%s WebKnight detected through Server Header.", SCRIPT_NAME)
+        stdnse.debug1("WebKnight detected through Server Header.")
         webknight.version = string.sub(response.header.server, 11)
         webknight.detected = true
         return
       end
       if response.status == 999 then
-        if not webknight.detected then stdnse.print_debug("%s WebKnight detected through 999 response status code.", SCRIPT_NAME) end
+        if not webknight.detected then stdnse.debug1("WebKnight detected through 999 response status code.") end
         webknight.detected = true
       end
     end
@@ -140,7 +140,7 @@ isaserver = {
     for _, response in pairs(responses) do
       for _, reason in pairs(isaserver.reason) do --
         if http.response_contains(response, reason, true) then -- TODO Replace with something more performant
-          stdnse.print_debug("%s ISA Server detected through response reason.", SCRIPT_NAME)
+          stdnse.debug1("ISA Server detected through response reason.")
           isaserver.detected = true
           return
         end
@@ -163,13 +163,13 @@ airlock = {
         -- TODO Check if version detection is possible
         -- based on the difference in cookies name
         if cookie.name == "AL_LB" and string.sub(cookie.value, 1, 4) == '$xc/' then
-          stdnse.print_debug("%s Airlock detected through AL_LB cookies.", SCRIPT_NAME)
+          stdnse.debug1("Airlock detected through AL_LB cookies.")
           airlock.detected = true
           return
         end
         if cookie.name == "AL_SESS" and (string.sub(cookie.value, 1, 5) == 'AAABL'
           or string.sub(cookie.value, 1, 5) == 'LgEAA' )then
-          stdnse.print_debug("%s Airlock detected through AL_SESS cookies.", SCRIPT_NAME)
+          stdnse.debug1("Airlock detected through AL_SESS cookies.")
           airlock.detected = true
           return
         end
@@ -190,7 +190,7 @@ barracuda = {
     for _, response in pairs(responses) do
       for _, cookie in pairs(response.cookies) do
         if cookie.name == "barra_counter_session" then
-          stdnse.print_debug("%s Barracuda detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("Barracuda detected through cookies.")
           barracuda.detected = true
           return
         end
@@ -212,7 +212,7 @@ denyall = {
       for _, cookie in pairs(response.cookies) do
         -- TODO Check accuracy
         if cookie.name == "sessioncookie" then
-          stdnse.print_debug("%s Denyall detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("Denyall detected through cookies.")
           denyall.detected = true
           return
         end
@@ -234,14 +234,14 @@ f5trafficshield = {
       -- TODO Check for version detection possibility
       -- based on the cookie name / server header presence
       if response.header.server == "F5-TrafficShield" then
-        stdnse.print_debug("%s F5 Traffic Shield detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("F5 Traffic Shield detected through Server header.")
         f5trafficshield.detected = true
         return
       end
 
       for _, cookie in pairs(response.cookies) do
         if cookie.name == "ASINFO" then
-          stdnse.print_debug("%s F5 Traffic Shield detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("F5 Traffic Shield detected through cookies.")
           f5trafficshield.detected = true
           return
         end
@@ -262,7 +262,7 @@ teros = {
     for _, response in pairs(responses) do
       for _, cookie in pairs(response.cookies) do
         if cookie.name == "st8id" or cookie.name == "st8_wat" or cookie.name == "st8_wlf" then
-          stdnse.print_debug("%s Teros / CAF detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("Teros / CAF detected through cookies.")
           teros.detected = true
           return
         end
@@ -282,13 +282,13 @@ binarysec = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header.server and string.find(response.header.server, 'BinarySEC/') then --
-        stdnse.print_debug("%s BinarySec detected through Server Header.", SCRIPT_NAME)
+        stdnse.debug1("BinarySec detected through Server Header.")
         binarysec.version = string.sub(response.header.server, 11)
         binarysec.detected = true
         return
       end
       if response.header['x-binarysec-via'] or response.header['x-binarysec-nocache']then
-        if not binarysec.detected then stdnse.print_debug("%s BinarySec detected through header.", SCRIPT_NAME) end
+        if not binarysec.detected then stdnse.debug1("BinarySec detected through header.") end
         binarysec.detected = true
       end
     end
@@ -306,13 +306,13 @@ profense = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header.server ==  'Profense' then
-        stdnse.print_debug("%s Profense detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("Profense detected through Server header.")
         profense.detected = true
         return
       end
       for _, cookie in pairs(response.cookies) do
         if cookie.name == "PLBSID" then
-          stdnse.print_debug("%s Profense detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("Profense detected through cookies.")
           profense.detected = true
           return
         end
@@ -335,27 +335,27 @@ netscaler = {
       -- TODO Check for other version detection possibilities
       -- based on fingerprint difference
       if response.header.via and string.find(response.header.via, 'NS%-CACHE') then --
-        stdnse.print_debug("%s Citrix Netscaler detected through Via Header.", SCRIPT_NAME)
+        stdnse.debug1("Citrix Netscaler detected through Via Header.")
         netscaler.version = string.sub(response.header.via, 10, 12)
         netscaler.detected = true
         return
       end
 
       if response.header.cneonction == "close" or response.header.nncoection == "close" then
-        if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through Cneonction/nnCoection header.", SCRIPT_NAME) end
+        if not netscaler.detected then stdnse.debug1("Netscaler detected through Cneonction/nnCoection header.") end
         netscaler.detected = true
       end
 
       -- TODO Does X-CLIENT-IP apply to Citrix Application Firewall too ?
       if response.header['x-client-ip'] then
-        if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through X-CLIENT-IP header.", SCRIPT_NAME) end
+        if not netscaler.detected then stdnse.debug1("Netscaler detected through X-CLIENT-IP header.") end
         netscaler.detected = true
       end
 
       for _, cookie in pairs(response.cookies) do
         if cookie.name == "ns_af" or cookie.name == "citrix_ns_id" or
           string.find(cookie.name, "NSC_") then
-          if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through cookies.", SCRIPT_NAME) end
+          if not netscaler.detected then stdnse.debug1("Netscaler detected through cookies.") end
           netscaler.detected = true
         end
       end
@@ -374,7 +374,7 @@ dotdefender = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header['X-dotdefender-denied'] == "1" then
-        stdnse.print_debug("%s dotDefender detected through X-dotDefender-denied header.", SCRIPT_NAME)
+        stdnse.debug1("dotDefender detected through X-dotDefender-denied header.")
         dotdefender.detected = true
         return
       end
@@ -393,7 +393,7 @@ ibmdatapower = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header['x-backside-transport'] then
-        stdnse.print_debug("%s IBM DataPower detected through X-Backside-Transport header.", SCRIPT_NAME)
+        stdnse.debug1("IBM DataPower detected through X-Backside-Transport header.")
         ibmdatapower.detected = true
         return
       end
@@ -412,13 +412,13 @@ cloudflare = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header.server ==  'cloudflare-nginx' then
-        stdnse.print_debug("%s Cloudflare detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("Cloudflare detected through Server header.")
         cloudflare.detected = true
         return
       end
       for _, cookie in pairs(response.cookies) do
         if cookie.name == "__cfduid" then
-          stdnse.print_debug("%s Cloudflare detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("Cloudflare detected through cookies.")
           cloudflare.detected = true
           return
         end
@@ -439,7 +439,7 @@ incapsula = {
     for _, response in pairs(responses) do
       for _, cookie in pairs(response.cookies) do
         if string.find(cookie.name, 'incap_ses') or string.find(cookie.name, 'visid_incap') then
-          stdnse.print_debug("%s Incapsula WAF detected through cookies.", SCRIPT_NAME)
+          stdnse.debug1("Incapsula WAF detected through cookies.")
           incapsula.detected = true
           return
         end
@@ -459,7 +459,7 @@ uspses = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header.server ==  'Secure Entry Server' then
-        stdnse.print_debug("%s USP-SES detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("USP-SES detected through Server header.")
         uspses.detected = true
         return
       end
@@ -478,7 +478,7 @@ ciscoacexml = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header.server ==  'ACE XML Gateway' then
-        stdnse.print_debug("%s Cisco ACE XML Gateway detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("Cisco ACE XML Gateway detected through Server header.")
         ciscoacexml.detected = true
         return
       end
@@ -499,7 +499,7 @@ modsecurity = {
   match = function(responses)
     for _, response in pairs(responses) do
       if response.header.server and string.find(response.header.server, 'mod_security/') then
-        stdnse.print_debug("%s Modsecurity detected through Server Header.", SCRIPT_NAME)
+        stdnse.debug1("Modsecurity detected through Server Header.")
         local pos = string.find(response.header.server, 'mod_security/')
         modsecurity.version = string.sub(response.header.server, pos + 13, pos + 18)
         modsecurity.detected = true
@@ -507,7 +507,7 @@ modsecurity = {
       end
 
       if response.header.server and string.find(response.header.server, 'Mod_Security') then
-        stdnse.print_debug("%s Modsecurity detected through Server Header.", SCRIPT_NAME)
+        stdnse.debug1("Modsecurity detected through Server Header.")
         modsecurity.version = string.sub(response.header.server, 13, -9)
         modsecurity.detected = true
         return
@@ -516,7 +516,7 @@ modsecurity = {
       -- The default SecServerSignature value is "NOYB" <= TODO For older versions, so we could
       -- probably do some version detection out of it.
       if response.header.server ==  'NOYB' then
-        stdnse.print_debug("%s modsecurity detected through Server header.", SCRIPT_NAME)
+        stdnse.debug1("modsecurity detected through Server header.")
         modsecurity.detected = true
       end
     end
@@ -539,7 +539,7 @@ naxsi = {
     local response2 = http.get(host, port, root .. "?a=[[[]]]][[[]") -- This should trigger the score based rules
 
     if response.status ~= response2.status then
-      stdnse.print_debug("%s Naxsi detected through intensive scan.", SCRIPT_NAME)
+      stdnse.debug1("Naxsi detected through intensive scan.")
       naxsi.detected = true
     end
     return
@@ -635,7 +635,7 @@ local send_requests = function(host, port, root)
   -- send all requests
   local pipeline_responses = http.pipeline_go(host, port, all)
   if not pipeline_responses then
-    stdnse.print_debug("%s No response from pipelined requests", SCRIPT_NAME)
+    stdnse.debug1("No response from pipelined requests")
     return nil
   end
 

@@ -39,13 +39,13 @@ hostrule = function(host)
     stdnse.print_debug( "%s not running: Error in Hostrule: %s.", SCRIPT_NAME, err )
     return false
   elseif is_private then
-    stdnse.print_debug("%s not running: Private IP address of target: %s", SCRIPT_NAME, host.ip)
+    stdnse.debug1("not running: Private IP address of target: %s", host.ip)
     return false
   end
 
   local api_key = stdnse.get_script_args(SCRIPT_NAME..".apikey")
   if not (type(api_key)=="string") then
-    stdnse.print_debug("%s not running: No IPInfoDB API key specified.", SCRIPT_NAME)
+    stdnse.debug1("not running: No IPInfoDB API key specified.")
     return false
   end
 
