@@ -87,7 +87,7 @@ local isRPC = function(host, port)
     data = rpcConn:EncodePacket(xid)
     status, err = rpcConn:SendPacket(data)
     if not status then
-      stdnse.print_debug("%s SendPacket(): %s", SCRIPT_NAME, err)
+      stdnse.debug1("SendPacket(): %s", err)
       return
     end
 
@@ -168,7 +168,7 @@ local rpcGrinder = function(host, port, iterator, result)
   status, err = rpcConn:Connect(host, port)
 
   if not status then
-    stdnse.print_debug("%s Connect(): %s", SCRIPT_NAME, err)
+    stdnse.debug1("Connect(): %s", err)
     condvar "signal";
     return
   end
@@ -183,14 +183,14 @@ local rpcGrinder = function(host, port, iterator, result)
     packet = rpcConn:EncodePacket(xid)
     status, err = rpcConn:SendPacket(packet)
     if not status then
-      stdnse.print_debug("%s SendPacket(): %s", SCRIPT_NAME, err)
+      stdnse.debug1("SendPacket(): %s", err)
       condvar "signal";
       return
     end
 
     status, data = rpcConn:ReceivePacket()
     if not status then
-      stdnse.print_debug("%s ReceivePacket(): %s", SCRIPT_NAME, data)
+      stdnse.debug1("ReceivePacket(): %s", data)
       condvar "signal";
       return
     end

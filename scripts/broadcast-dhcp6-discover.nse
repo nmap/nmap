@@ -43,7 +43,7 @@ prerule = function()
   end
 
   if nmap.address_family() ~= 'inet6' then
-    stdnse.print_debug("%s is IPv6 compatible only.", SCRIPT_NAME)
+    stdnse.debug1("is IPv6 compatible only.")
     return false
   end
   return true

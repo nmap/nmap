@@ -73,7 +73,7 @@ categories = {"discovery", "safe"}
 -- We want to run against a specific host if UDP/67 is open
 function portrule(host, port)
   if nmap.address_family() ~= 'inet' then
-    stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+    stdnse.debug1("is IPv4 compatible only.")
     return false
   end
 

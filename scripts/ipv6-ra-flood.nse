@@ -44,7 +44,7 @@ math.randomseed(os.time())
 
 prerule = function()
   if nmap.address_family() ~= "inet6" then
-    stdnse.print_debug("%s is IPv6 compatible only.", SCRIPT_NAME)
+    stdnse.debug1("is IPv6 compatible only.")
     return false
   end
 
@@ -181,7 +181,7 @@ local function broadcast_on_interface(iface)
   end
 
   if counter > 0 then
-    stdnse.print_debug("%s generated %d packets in %d seconds.", SCRIPT_NAME, counter, stop - start)
+    stdnse.debug1("generated %d packets in %d seconds.", counter, stop - start)
   end
 end
 

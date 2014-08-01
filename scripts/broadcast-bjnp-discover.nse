@@ -45,7 +45,7 @@ local arg_timeout  = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME ..
 
 prerule = function()
   if ( nmap.address_family() ~= 'inet' ) then
-    stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+    stdnse.debug1("is IPv4 compatible only.")
     return false
   end
   return true

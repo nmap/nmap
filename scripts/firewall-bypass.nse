@@ -56,7 +56,7 @@ ftp_helper = {
     local status, _ = testsock:connect(host.ip, helperport)
     testsock:close()
     if not status then
-      stdnse.print_debug("%s Unable to connect to %s helper port.", SCRIPT_NAME, helperport)
+      stdnse.debug1("Unable to connect to %s helper port.", helperport)
       return false
     end
     return true
@@ -111,14 +111,14 @@ ftp_helper = {
       if isIp4 then
         if not p:ip_parse() then
           -- An error happened
-          stdnse.print_debug("%s Couldn't parse IPv4 sniffed packet.", SCRIPT_NAME)
+          stdnse.debug1("Couldn't parse IPv4 sniffed packet.")
           sniffer:pcap_close()
           return false
         end
       else
         if not p:ip6_parse() then
           -- An error happened
-          stdnse.print_debug("%s Couldn't parse IPv6 sniffed packet.", SCRIPT_NAME)
+          stdnse.debug1("Couldn't parse IPv6 sniffed packet.")
           sniffer:pcap_close()
           return false
         end
@@ -168,7 +168,7 @@ ftp_helper = {
     local status, _ = socket:connect(host.ip, helperport)
     if not status then
       -- Problem connecting to helper port
-      stdnse.print_debug("%s Problem connecting to helper port %s.", SCRIPT_NAME, tostring(helperport))
+      stdnse.debug1("Problem connecting to helper port %s.", tostring(helperport))
       return
     end
 
@@ -203,7 +203,7 @@ hostrule = function(host)
   end
 
   if helper and not helpers[helper] then
-    stdnse.print_debug("%s %s helper not supported at the moment.", SCRIPT_NAME, helper)
+    stdnse.debug1("%s helper not supported at the moment.", helper)
     return false
   end
 
@@ -221,7 +221,7 @@ action = function(host, port)
     testsock:set_timeout(1000)
     local status, _ = testsock:connect(host.ip, targetport)
     if status then
-      stdnse.print_debug("%s %s target port already open.", SCRIPT_NAME, targetport)
+      stdnse.debug1("%s target port already open.", targetport)
       return nil
     end
     testsock:close()
@@ -231,10 +231,10 @@ action = function(host, port)
     local port = nmap.get_ports(host, nil, "tcp", "filtered") or nmap.get_ports(host, nil, "tcp", "closed")
     if port then
       targetport = port.number
-      stdnse.print_debug("%s %s chosen as target port.", SCRIPT_NAME, targetport)
+      stdnse.debug1("%s chosen as target port.", targetport)
     else
       -- No closed or filtered ports to check on.
-      stdnse.print_debug("%s Target port not specified and no closed or filtered port found.", SCRIPT_NAME)
+      stdnse.debug1("Target port not specified and no closed or filtered port found.")
       return
     end
   end
@@ -250,13 +250,13 @@ action = function(host, port)
     for i, helper in pairs(helpers) do
       if helper.should_run(host, helperport) then
         helpername = i
-        stdnse.print_debug("%s %s chosen as helper.", SCRIPT_NAME, helpername)
+        stdnse.debug1("%s chosen as helper.", helpername)
         helper.attack(host, helperport, targetport)
         break
       end
     end
     if not helpername then
-      stdnse.print_debug("%s no suitable helper found.", SCRIPT_NAME)
+      stdnse.debug1("no suitable helper found.")
       return nil
     end
   end

@@ -49,7 +49,7 @@ action = function(host, port)
 
     sha1 = stdnse.tohex(cert.digest(cert, "sha1"))
     query = sha1 .. ".certs.googlednstest.com"
-    stdnse.print_debug("%s %s", SCRIPT_NAME, query)
+    stdnse.debug1("%s", query)
 
     local status, decoded_response = dns.query(query, { dtype = "TXT" })
 

@@ -278,7 +278,7 @@ hostrule = function(host)
   end
 
   if nmap.address_family() ~= 'inet' then
-    stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+    stdnse.debug1("is IPv4 compatible only.")
     return false
   end
   if not (host.interface and host.interface_mtu) then
