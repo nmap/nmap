@@ -64,7 +64,7 @@ get_userhistory = function( host, port )
   local uri = "/jobhistory.jsp?pageno=-1&search="
   stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s", SCRIPT_NAME,response['status-line'] or "No Response")
+  stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
@@ -73,7 +73,7 @@ get_userhistory = function( host, port )
       if line:match("job_[%d_]+") then
         local user =  line:match("<td>([^][<>]+)</td></tr>")
         local job_time =  line:match("</td><td>([^][<]+)")
-        stdnse.print_debug(1, "%s: User: %s (%s)", SCRIPT_NAME,user,job_time)
+        stdnse.debug1("User: %s (%s)",user,job_time)
         table.insert( results,  ("User: %s (%s)"):format(user,job_time))
       end
     end
@@ -85,19 +85,19 @@ get_tasktrackers = function( host, port )
   local uri = "/machines.jsp?type=active"
   stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s", SCRIPT_NAME,response['status-line'] or "No Response")
+  stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,response['body'])
     for line in string.gmatch(response['body'], "[^\n]+") do
       stdnse.print_debug(3, "%s: Line %s\n", SCRIPT_NAME,line)
       if line:match("href=\"[%w]+://([%w%.:]+)/\">tracker") then
         local tasktracker =  line:match("href=\".*//([%w%.:]+)/\">tracker")
-        stdnse.print_debug(1, "%s: taskstracker %s", SCRIPT_NAME,tasktracker)
+        stdnse.debug1("taskstracker %s",tasktracker)
         table.insert( results, tasktracker)
         if target.ALLOW_NEW_TARGETS then
           if tasktracker:match("([%w%.]+)") then
             local newtarget = tasktracker:match("([%w%.]+)")
-            stdnse.print_debug(1, "%s: Added target: %s", SCRIPT_NAME, newtarget)
+            stdnse.debug1("Added target: %s", newtarget)
             local status,err = target.add(newtarget)
           end
         end
@@ -112,40 +112,40 @@ action = function( host, port )
   local uri = "/jobtracker.jsp"
   stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s", SCRIPT_NAME,response['status-line'] or "No Response")
+  stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,response['body'])
     if response['body']:match("State:</b>%s*([^][<]+)") then
       local state = response['body']:match("State:</b>%s*([^][<]+)")
-      stdnse.print_debug(1, "%s: State %s", SCRIPT_NAME,state)
+      stdnse.debug1("State %s",state)
       table.insert(result, ("State: %s"):format(state))
     end
     if response['body']:match("Started:</b>%s*([^][<]+)") then
       local started = response['body']:match("Started:</b>%s*([^][<]+)")
-      stdnse.print_debug(1, "%s: Started %s", SCRIPT_NAME,started)
+      stdnse.debug1("Started %s",started)
       table.insert(result, ("Started: %s"):format(started))
     end
     if response['body']:match("Version:</b>%s*([^][<]+)") then
       local version = response['body']:match("Version:</b>%s*([^][<]+)")
       local versionNo = version:match("([^][,]+)")
       local versionHash = version:match("[^][,]+%s+(%w+)")
-      stdnse.print_debug(1, "%s: Version %s (%s)", SCRIPT_NAME,versionNo,versionHash)
+      stdnse.debug1("Version %s (%s)",versionNo,versionHash)
       table.insert(result, ("Version: %s (%s)"):format(versionNo,versionHash))
       port.version.version = versionNo
     end
     if response['body']:match("Compiled:</b>%s*([^][<]+)") then
       local compiled = response['body']:match("Compiled:</b>%s*([^][<]+)"):gsub("%s+", " ")
-      stdnse.print_debug(1, "%s: Compiled %s", SCRIPT_NAME,compiled)
+      stdnse.debug1("Compiled %s",compiled)
       table.insert(result, ("Compiled: %s"):format(compiled))
     end
     if response['body']:match("Identifier:</b>%s*([^][<]+)") then
       local identifier = response['body']:match("Identifier:</b>%s*([^][<]+)")
-      stdnse.print_debug(1, "%s: Identifier %s", SCRIPT_NAME,identifier)
+      stdnse.debug1("Identifier %s",identifier)
       table.insert(result, ("Identifier: %s"):format(identifier))
     end
     if response['body']:match("([%w/]+)\">Log<") then
       local logfiles = response['body']:match("([%w/-_:%%]+)\">Log<")
-      stdnse.print_debug(1, "%s: Log Files %s", SCRIPT_NAME,logfiles)
+      stdnse.debug1("Log Files %s",logfiles)
       table.insert(result, ("Log Files: %s"):format(logfiles))
     end
     local tasktrackers = get_tasktrackers (host, port)

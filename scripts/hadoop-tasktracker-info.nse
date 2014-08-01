@@ -50,7 +50,7 @@ action = function( host, port )
   local uri = "/tasktracker.jsp"
   stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s", SCRIPT_NAME,response['status-line'] or "No Response")
+  stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
@@ -58,18 +58,18 @@ action = function( host, port )
       local version = response['body']:match("Version:</b>%s*([^][<]+)")
       local versionNo = version:match("([^][,]+)")
       local versionHash = version:match("[^][,]+%s+(%w+)")
-      stdnse.print_debug(1, "%s: Version %s (%s)", SCRIPT_NAME,versionNo,versionHash)
+      stdnse.debug1("Version %s (%s)",versionNo,versionHash)
       table.insert(result, ("Version: %s (%s)"):format(versionNo,versionHash))
       port.version.version = version
     end
     if response['body']:match("Compiled:</b>%s*([^][<]+)") then
       local compiled = response['body']:match("Compiled:</b>%s*([^][<]+)"):gsub("%s+", " ")
-      stdnse.print_debug(1, "%s: Compiled %s", SCRIPT_NAME,compiled)
+      stdnse.debug1("Compiled %s",compiled)
       table.insert(result, ("Compiled: %s"):format(compiled))
     end
     if body:match("([^][\"]+)\">Log") then
       local logs = body:match("([^][\"]+)\">Log")
-      stdnse.print_debug(1, "%s: Logs %s", SCRIPT_NAME,logs)
+      stdnse.debug1("Logs %s",logs)
       table.insert(result, ("Logs: %s"):format(logs))
     end
     if #result > 0 then

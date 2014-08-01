@@ -196,7 +196,7 @@ execute arbitrary code.]],
 
   local status, err = check_proftpd(ftp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, err)
+    stdnse.debug1("%s", err)
     return nil
   end
   return report:make_output(ftp_opts.vuln)

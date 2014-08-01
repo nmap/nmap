@@ -193,7 +193,7 @@ vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
   -- check if vsFTPd was backdoored
   status, ret = check_backdoor(host, cmd, vsftp_vuln)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, ret)
+    stdnse.debug1("%s", ret)
     return nil
   end
 

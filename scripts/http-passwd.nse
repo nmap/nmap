@@ -179,7 +179,7 @@ action = function(host, port)
     local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")
     if page_var then
       local query_base = root .. "?" .. page_var .. "="
-      stdnse.print_debug(1, "%s: testing with query %s.", SCRIPT_NAME, query_base .. "...")
+      stdnse.debug1("testing with query %s.", query_base .. "...")
 
       for _, dir in ipairs(dirs) do
         -- Add an encoded null byte at the end to bypass some checks; see

@@ -54,7 +54,7 @@ local function get_wp_user(host, port, path, id)
   stdnse.print_debug(2, "%s: Trying to get username with id %s", SCRIPT_NAME, id)
   local req = http.get(host, port, path.."?author="..id, { no_cache = true})
   if req.status then
-    stdnse.print_debug(1, "%s: User id #%s returned status %s", SCRIPT_NAME, id, req.status)
+    stdnse.debug1("User id #%s returned status %s", id, req.status)
     if req.status == 301 then
       local _, _, user = string.find(req.header.location, 'https?://.*/.*/(.*)/')
       return user
@@ -124,7 +124,7 @@ action = function(host, port)
   for i=1, tonumber(limit) do
     local user = get_wp_user(host, port, basepath, i)
     if user then
-      stdnse.print_debug(1, "%s: Username found -> %s", SCRIPT_NAME, user)
+      stdnse.debug1("Username found -> %s", user)
       output[#output+1] = string.format("Username found: %s", user)
       users[#users+1] = user
     end

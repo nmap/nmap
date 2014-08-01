@@ -60,7 +60,7 @@ action = function(host, port)
   -- send requests
   local pipeline_responses = http.pipeline_go(host, port, allrequests)
   if not pipeline_responses then
-    stdnse.print_debug(1, "%s: No answers from pipelined requests", SCRIPT_NAME)
+    stdnse.debug1("No answers from pipelined requests")
     return nil
   end
 

@@ -130,7 +130,7 @@ basically account password protection is as good as nonexistent.
   -- Chance of succeeding is 1/256. Let's try 1,500 to be safe.
   --
   for i=1,iterations do
-    stdnse.print_debug(1, "%s: Connection attempt #%d", SCRIPT_NAME, i)
+    stdnse.debug1("Connection attempt #%d", i)
     try( socket:connect(host, port) )
     response = try( mysql.receiveGreeting(socket) )
     status, response = mysql.loginRequest(socket, {authversion = "post41", charset = response.charset}, mysql_user, mysql_pwd, response.salt)

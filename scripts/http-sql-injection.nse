@@ -270,7 +270,7 @@ action = function(host, port)
   -- try to inject
   local results_queries = {}
   if #injectable > 0 then
-    stdnse.print_debug(1, "%s: Testing %d suspicious URLs", SCRIPT_NAME, #injectable)
+    stdnse.debug1("Testing %d suspicious URLs", #injectable)
     local injectableQs = build_injection_vector(injectable)
     local responses = inject(host, port, injectableQs)
     results_queries = check_responses(injectableQs, responses)

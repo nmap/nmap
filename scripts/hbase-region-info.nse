@@ -58,7 +58,7 @@ action = function( host, port )
   local uri = "/rs-status"
   stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s", SCRIPT_NAME,response['status-line'] or "No Response")
+  stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
@@ -70,22 +70,22 @@ action = function( host, port )
     end
     if body:match("HBase%s+Compiled</td><td>([^][<]+)") then
       local compiled = body:match("HBase%s+Compiled</td><td>([^][<]+)"):gsub("%s+", " ")
-      stdnse.print_debug(1, "%s: Hbase Compiled %s", SCRIPT_NAME,compiled)
+      stdnse.debug1("Hbase Compiled %s",compiled)
       table.insert(result, ("Hbase Compiled: %s"):format(compiled))
     end
     if body:match("Metrics</td><td>([^][<]+)") then
       local metrics = body:match("Metrics</td><td>([^][<]+)"):gsub("%s+", " ")
-      stdnse.print_debug(1, "%s: Metrics %s", SCRIPT_NAME,metrics)
+      stdnse.debug1("Metrics %s",metrics)
       table.insert(result, ("Metrics %s"):format(metrics))
     end
     if body:match("Quorum</td><td>([^][<]+)") then
       local quorum = body:match("Quorum</td><td>([^][<]+)"):gsub("%s+", " ")
-      stdnse.print_debug(1, "%s: Zookeeper Quorum %s", SCRIPT_NAME,quorum)
+      stdnse.debug1("Zookeeper Quorum %s",quorum)
       table.insert(result, ("Zookeeper Quorum: %s"):format(quorum))
       if target.ALLOW_NEW_TARGETS then
         if quorum:match("([%w%.]+)") then
           local newtarget = quorum:match("([%w%.]+)")
-          stdnse.print_debug(1, "%s: Added target: %s", SCRIPT_NAME, newtarget)
+          stdnse.debug1("Added target: %s", newtarget)
           local status,err = target.add(newtarget)
         end
       end
