@@ -303,7 +303,7 @@ action = function( host, port )
     local output_file = output_prefix .. "_" .. host.ip .. "_" .. port.number
     status, err = credTable:saveToFile(output_file,output_type)
     if not status then
-      stdnse.print_debug(err)
+      stdnse.debug1("%s", err)
     end
   end
 

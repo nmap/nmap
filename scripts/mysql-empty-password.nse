@@ -44,7 +44,7 @@ action = function( host, port )
 
     status, response = mysql.receiveGreeting( socket )
     if ( not(status) ) then
-      stdnse.print_debug(3, SCRIPT_NAME)
+      stdnse.debug3("%s", SCRIPT_NAME)
       socket:close()
       return response
     end

@@ -111,7 +111,7 @@ action = function(host, port)
   local path = stdnse.get_script_args("ssl-known-key.fingerprintfile") or FINGERPRINT_FILE
   local status, result = get_fingerprints(path)
   if not status then
-    stdnse.print_debug(1, result)
+    stdnse.debug1("%s", result)
     return
   end
   local fingerprints = result

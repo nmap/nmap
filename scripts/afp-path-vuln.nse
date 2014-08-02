@@ -165,7 +165,7 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
 
     status, response = afp_helper:OpenSession(host, port)
     if ( not(status) ) then
-      stdnse.print_debug(response)
+      stdnse.debug1("%s", response)
       return
     end
 

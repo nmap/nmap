@@ -251,7 +251,7 @@ function action(host,port)
       local output_file = saveFile .. "_" .. host.ip .. "_" .. port.number .. ".csv"
       local save_status, save_err = ldap.searchResultToFile(searchResEntries,output_file)
       if not save_status then
-        stdnse.print_debug(save_err)
+        stdnse.debug1("%s", save_err)
       end
     end
 

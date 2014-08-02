@@ -109,7 +109,7 @@ action = function(host, port)
       if ( status ) then
         table.insert(result, ("Successfully stored \"%s\" in %s"):format(username, filename) )
       else
-        stdnse.print_debug( err )
+        stdnse.debug1("%s", err)
         table.insert(result, ("Failed to store \"%s\" to %s"):format(username, filename) )
       end
     elseif( status and data ) then
