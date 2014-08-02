@@ -113,9 +113,7 @@ local function exploit(host, port, basepath)
   for i, vector in ipairs(CREDENTIALS_PAYLOADS) do
     local req = http.get(host, port, basepath..LFI_PAYLOAD_FRAG_1..vector..LFI_PAYLOAD_FRAG_2)
       if req.body and string.find(req.body, "encrypted=true") then
-        stdnse.print_debug(1,
-          "%s: String pattern found. Exploitation worked with vector '%s'.",
-          SCRIPT_NAME, vector)
+        stdnse.debug1("String pattern found. Exploitation worked with vector '%s'.", vector)
         return true, req.body
       end
   end

@@ -246,8 +246,7 @@ local function check_smtpd(smtp_opts)
         auth_tests))
     end
   else
-    stdnse.print_debug(2, "%s: Authentication is not available",
-      SCRIPT_NAME)
+    stdnse.debug2("Authentication is not available")
     table.insert(vuln.check_results, "Authentication is not available")
   end
 

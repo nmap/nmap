@@ -1000,24 +1000,18 @@ action = function(host, port)
   --
   local status, err = sock:bind(nil, 47808)
   if(status == false) then
-    stdnse.print_debug(1,
-      "Couldn't bind to 47808/udp. Continuing anyway, results may vary")
+    stdnse.debug1("Couldn't bind to 47808/udp. Continuing anyway, results may vary")
   end
   -- connect to the remote host
   local constatus, conerr = sock:connect(host, port)
   if not constatus then
-    stdnse.print_debug(1,
-      'Error establishing a UDP connection for %s - %s', host, conerr
-      )
+    stdnse.debug1('Error establishing a UDP connection for %s - %s', host, conerr)
     return nil
   end
   -- send the original query to see if it is a valid BACNet Device
   local sendstatus, senderr = sock:send(orig_query)
   if not sendstatus then
-    stdnse.print_debug(1,
-      'Error sending BACNet request to %s:%d - %s',
-      host.ip, port.number,  senderr
-      )
+    stdnse.debug1('Error sending BACNet request to %s:%d - %s', host.ip, port.number, senderr)
     return nil
   end
 

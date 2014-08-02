@@ -101,16 +101,12 @@ prerule = function()
   )
 
   if not dns_opts.domain then
-    stdnse.print_debug(3,
-    "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
-    SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.debug3("Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
   if not dns_opts.server then
-    stdnse.print_debug(3,
-      "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
-      SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.debug3("Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
@@ -131,9 +127,7 @@ portrule = function(host, port)
         dns_opts.domain = host.name
       else
         -- can't do anything without a hostname
-        stdnse.print_debug(3,
-          "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
-          SCRIPT_NAME, SCRIPT_TYPE)
+        stdnse.debug3("Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
         return false
       end
     end
@@ -600,9 +594,7 @@ function add_zone_info(response)
     end
 
     -- parse all available resource records
-    stdnse.print_debug(3,
-      "Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d",
-      SCRIPT_NAME, answers, auth_answers, add_answers)
+    stdnse.debug3("Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d", answers, auth_answers, add_answers)
     RR['Node Names'] = {}
     offset = parse_records(answers, data, RR, offset)
     offset = parse_records(auth_answers, data, RR, offset)
@@ -638,8 +630,7 @@ function add_zone_info(response)
         if dns_opts.addall or not ipOps.isPrivate(rdata) then
           status, ret = target.add(rdata)
           if not status then
-            stdnse.print_debug(3,
-              "Error: failed to add all 'A' records.")
+            stdnse.debug3("Error: failed to add all 'A' records.")
             break
           end
           newhosts_count = newhosts_count + ret
@@ -649,8 +640,7 @@ function add_zone_info(response)
       for rdata in pairs(RR[rectype]) do
         status, ret = target.add(rdata)
         if not status then
-          stdnse.print_debug(3,
-            "Error: failed to add all '%s' records.", rectype)
+          stdnse.debug3("Error: failed to add all '%s' records.", rectype)
           break
         end
         newhosts_count = newhosts_count + ret
@@ -704,9 +694,7 @@ function dump_zone_info(table, response)
     end
 
     -- parse all available resource records
-    stdnse.print_debug(3,
-        "Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d",
-        SCRIPT_NAME, answers, auth_answers, add_answers)
+    stdnse.debug3("parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d", answers, auth_answers, add_answers)
     offset = parse_records_table(answers, data, table, offset)
     offset = parse_records_table(auth_answers, data, table, offset)
     offset = parse_records_table(add_answers, data, table, offset)

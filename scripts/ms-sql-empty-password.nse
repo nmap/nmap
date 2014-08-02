@@ -84,8 +84,7 @@ local function test_credentials( instance, helper, username, password )
       table.insert( instance.ms_sql_empty, string.format("'sa' account is locked out.", result ) )
     end
     if ( mssql.LoginErrorMessage[ loginErrorCode ] == nil ) then
-      stdnse.print_debug( 2, "%s: Attemping login to %s: Unknown login error number: %s",
-        SCRIPT_NAME, instance:GetName(), loginErrorCode )
+      stdnse.debug2("Attemping login to %s: Unknown login error number: %s", instance:GetName(), loginErrorCode )
       table.insert( instance.ms_sql_empty, string.format( "Unknown login error number: %s", loginErrorCode ) )
     end
   else

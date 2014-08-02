@@ -600,7 +600,7 @@ action = function(host, port)
       if (fulldatalen > totpck) or (curlen > totlen)
         or (fulldatalen == totpck and curlen ~= totlen)
         or (curlen == totlen and fulldatalen ~= totpck) then
-        stdnse.print_debug("Invalid state (fulldatalen = " .. fulldatalen ..
+        stdnse.debug1("Invalid state (fulldatalen = " .. fulldatalen ..
           "; totpck = " .. totpck .. "; curlen = " .. curlen ..
           "; totlen = " .. totlen .. "). Aborting script.")
         cleanup()

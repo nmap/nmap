@@ -84,8 +84,7 @@ local function check_backdoor(host, shell_cmd, vuln)
 
   local status, ret = socket:connect(host, 6200, "tcp")
   if not status then
-    stdnse.print_debug(3, "%s: can't connect to tcp port 6200: NOT VULNERABLE",
-      SCRIPT_NAME)
+    stdnse.debug3("can't connect to tcp port 6200: NOT VULNERABLE")
     vuln.state = vulns.STATE.NOT_VULN
     return finish_ftp(socket, true)
   end
@@ -103,9 +102,7 @@ local function check_backdoor(host, shell_cmd, vuln)
   end
 
   if not ret:match("uid=") then
-    stdnse.print_debug(3,
-      "%s: service on port 6200 is not the vsFTPd backdoor: NOT VULNERABLE",
-      SCRIPT_NAME)
+    stdnse.debug3("service on port 6200 is not the vsFTPd backdoor: NOT VULNERABLE")
     vuln.state = vulns.STATE.NOT_VULN
     return finish_ftp(socket, true)
   else
@@ -167,8 +164,7 @@ vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
     {recv_before = false,
     timeout = 8000})
   if not sock then
-    stdnse.print_debug(1, "%s: can't connect: %s",
-      SCRIPT_NAME, err)
+    stdnse.debug1("can't connect: %s", err)
     return nil
   end
 
@@ -176,16 +172,14 @@ vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
   local buffer = stdnse.make_buffer(sock, "\r?\n")
   local code, message = ftp.read_reply(buffer)
   if not code then
-    stdnse.print_debug(1, "%s: can't read banner: %s",
-      SCRIPT_NAME, message)
+    stdnse.debug1("can't read banner: %s", message)
     sock:close()
     return nil
   end
 
   status, ret = sock:send(CMD_FTP .. "\r\n")
   if not status then
-    stdnse.print_debug(1, "%s: failed to send privilege escalation command: %s",
-      SCRIPT_NAME, ret)
+    stdnse.debug1("failed to send privilege escalation command: %s", ret)
     return nil
   end
 

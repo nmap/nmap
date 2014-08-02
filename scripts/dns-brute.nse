@@ -68,9 +68,7 @@ categories = {"intrusive", "discovery"}
 
 prerule = function()
   if not stdnse.get_script_args("dns-brute.domain") then
-    stdnse.print_debug(1,
-    "Skipping '%s' %s, 'dns-brute.domain' argument is missing.",
-    SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.debug1("Skipping '%s' %s, 'dns-brute.domain' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
   return true

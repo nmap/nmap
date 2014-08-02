@@ -481,9 +481,7 @@ function check_ms06_025(host)
   msrpc.stop_smb(smbstate)
   --sanity check
   if(status == false) then
-    stdnse.print_debug(
-      3,
-      "check_ms06_025: RRAS_SubmitRequest failed")
+    stdnse.debug3("check_ms06_025: RRAS_SubmitRequest failed")
     if(sr_result == "NT_STATUS_PIPE_BROKEN") then
       return true, VULNERABLE
     else
@@ -535,9 +533,7 @@ function check_ms07_029(host)
   --sanity check
   msrpc.stop_smb(smbstate)
   if(status == false) then
-    stdnse.print_debug(
-      3,
-      "check_ms07_029: DNSSERVER_Query failed")
+    stdnse.debug3("check_ms07_029: DNSSERVER_Query failed")
     if(q_result == "NT_STATUS_PIPE_BROKEN") then
       return true, VULNERABLE
     else

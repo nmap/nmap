@@ -30,15 +30,11 @@ hostrule = function(host)
   -- print debug messages because the script relies on
   -- script arguments and traceroute results.
   if not target.ALLOW_NEW_TARGETS then
-    stdnse.print_debug(3,
-      "Skipping %s script, 'newtargets' script argument is missing.",
-      SCRIPT_NAME)
+    stdnse.debug3("Skipping %s script, 'newtargets' script argument is missing.", SCRIPT_NAME)
     return false
   end
   if not host.traceroute then
-    stdnse.print_debug(3,
-      "Skipping %s script because traceroute results are missing.",
-      SCRIPT_NAME)
+    stdnse.debug3("Skipping %s script because traceroute results are missing.", SCRIPT_NAME)
     return false
   end
   return true
@@ -53,8 +49,7 @@ action = function(host)
       local status, ret = target.add(hop.ip)
       if status then
         ntargets = ntargets + ret
-        stdnse.print_debug(3,
-            "TRACEROUTE Scan Hops: Added new target "..host.ip.." from traceroute results")
+        stdnse.debug3("TRACEROUTE Scan Hops: Added new target "..host.ip.." from traceroute results")
       else
         stdnse.debug3("TRACEROUTE Scan Hops: " .. ret)
       end

@@ -42,7 +42,7 @@ categories={"brute","intrusive"}
 
 portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
 
-local dbg = stdnse.print_debug
+local dbg = stdnse.debug
 
 -- some parts of the following class are taken from irc-brute written by Patrik
 Driver = {
@@ -65,7 +65,7 @@ Driver = {
     end
     if string.find(r:lower(), "throttled") then
       -- we were reconnecting too fast
-      dbg(2, "%s, throttled.", SCRIPT_NAME)
+      dbg(2, "throttled.")
       return false, "We got throttled."
     end
     local status, _ = s:send("CAP END\r\n")
@@ -91,7 +91,7 @@ Driver = {
         return false, err
       end
       challenge = string.match(response, "AUTHENTICATE (.*)")
-      dbg(3, "%s, challenge found: %s", SCRIPT_NAME, tostring(challenge))
+      dbg(3, "challenge found: %s", tostring(challenge))
       if challenge then status = false end
     until (not status)
     local msg = self.saslencoder:encode(username, password, challenge)
@@ -150,7 +150,7 @@ local function check_sasl(host, port)
   local supported = {}
   for _,m in ipairs(to_check) do
     s:send("AUTHENTICATE "..m.."\r\n")
-    dbg(3, "%s, checking mechanism %s", SCRIPT_NAME, m)
+    dbg(3, "checking mechanism %s", m)
     repeat
       local status, lines = s:receive_lines(1)
       if string.find(lines, "AUTHENTICATE") then
@@ -185,7 +185,7 @@ action = function(host, port)
   for _,m in ipairs(mechs) do
     if saslencoder:set_mechanism(m) then
       sasl_mech = m
-      dbg(2, "%s, supported mechanism found: %s", SCRIPT_NAME, m)
+      dbg(2, "supported mechanism found: %s", m)
       break
     end
   end

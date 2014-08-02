@@ -204,9 +204,7 @@ action = function(host, port)
   -- connect to host
   local constatus, conerr = sock:connect(host, port)
   if not constatus then
-    stdnse.print_debug(1,
-      'Error establishing connection for %s - %s', host, conerr
-      )
+    stdnse.debug1('Error establishing connection for %s - %s', host, conerr)
     return nil
   end
   -- send and receive the COTP Packet
@@ -247,9 +245,7 @@ action = function(host, port)
     -- re connect to the device ( a RST packet was sent in the previous attempts)
     local constatus, conerr = sock:connect(host, port)
     if not constatus then
-      stdnse.print_debug(1,
-        'Error establishing connection for %s - %s', host, conerr
-        )
+      stdnse.debug1('Error establishing connection for %s - %s', host, conerr)
       return nil
     end
     -- send and receive the alternate COTP Packet, the dst is 200 instead of 102( do nothing with result)

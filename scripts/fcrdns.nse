@@ -81,12 +81,6 @@ local function keys(t)
   return ret
 end
 
-if stdnse.debug == nil then
-  -- Backwards compatibility.
-  -- TODO: remove this after next release
-  stdnse.debug = stdnse.print_debug
-end
-
 action = function(host)
   -- Do reverse-DNS lookup of the IP
   -- Can't just use host.name because some IPs have multiple PTR records

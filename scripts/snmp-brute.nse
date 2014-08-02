@@ -113,8 +113,7 @@ local communities = function()
   nmap.fetchfile("nselib/data/snmpcommunities.lst")
 
   if communities_file then
-    stdnse.print_debug(1, "%s: Using the %s as the communities file",
-    SCRIPT_NAME, communities_file)
+    stdnse.debug1("Using the %s as the communities file", communities_file)
 
     local status, iterator = communities_raw(communities_file)
 
@@ -131,8 +130,7 @@ local communities = function()
 
     return true, unpwdb.limited_iterator(iterator, time_limit, count_limit)
   else
-    stdnse.print_debug(1, "%s: Cannot read the communities file, using the nmap username/password database instead",
-      SCRIPT_NAME)
+    stdnse.debug1("Cannot read the communities file, using the nmap username/password database instead")
 
     return unpwdb.passwords()
   end

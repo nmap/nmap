@@ -84,8 +84,7 @@ end
 local function check_dkim(socket, smtp_opts)
   local killed = false
 
-  stdnse.print_debug(2, "%s: checking the Exim DKIM Format String",
-        SCRIPT_NAME)
+  stdnse.debug2("checking the Exim DKIM Format String")
 
   local status, response = smtp.mail(socket, smtp_opts.mailfrom)
   if not status then
@@ -123,8 +122,7 @@ local function check_dkim(socket, smtp_opts)
   status, response = smtp.query(socket, ".")
   if not status then
     if string.match(response, "connection closed") then
-      stdnse.print_debug(2,
-          "%s: Exim server is vulnerable to DKIM Format String", SCRIPT_NAME)
+      stdnse.debug2("Exim server is vulnerable to DKIM Format String")
       killed = true
     else
       return status, "failed to terminate the message, seems NOT VULNERABLE"

@@ -36,9 +36,7 @@ categories = {"safe", "discovery"}
 
 prerule = function()
   if not stdnse.get_script_args("resolveall.hosts") then
-    stdnse.print_debug(3,
-      "Skipping '%s' %s, 'resolveall.hosts' argument is missing.",
-      SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.debug3("Skipping '%s' %s, 'resolveall.hosts' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
   return true

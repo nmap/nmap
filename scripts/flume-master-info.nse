@@ -113,15 +113,13 @@ end
 parse_page = function( host, port, uri, interesting_keys )
   local result = {}
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s",
-    SCRIPT_NAME, response['status-line'] or "No Response")
+  stdnse.debug1("Status %s", response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK")
     and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     for name,value in string.gmatch(body,
       "<tr><th>([^][<]+)</th>%s*<td><div%sclass=[^][>]+>([^][<]+)") do
-      stdnse.print_debug(1, "%s:  %s=%s ",
-        SCRIPT_NAME, name, value:gsub("^%s*(.-)%s*$", "%1"))
+      stdnse.debug1("%s=%s ", name, value:gsub("^%s*(.-)%s*$", "%1"))
       if nmap.verbosity() > 1 then
         result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
       else
@@ -173,11 +171,9 @@ action = function( host, port )
   local nodes = {  }
   local zookeepers = {  }
   local hbasemasters = {  }
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s",
-    SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, "%s: Status %s",
-    SCRIPT_NAME, response['status-line'] or "No Response")
+  stdnse.debug1("Status %s", response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK")
     and response['body']  then
     local body = response['body']:gsub("%%","%%%%")

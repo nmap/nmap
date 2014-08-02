@@ -56,8 +56,7 @@ action = function(host, port)
 
   if not response or not response.status or response.status ~= 200 or
     not response.body then
-    stdnse.print_debug(1, "%s: Failed to retrieve file: %s",
-      SCRIPT_NAME, path)
+    stdnse.debug1("Failed to retrieve file: %s", path)
     return
   end
 

@@ -226,20 +226,17 @@ local function test_ccs_injection(host, port, version)
   -- Leave the target not vulnerable in case of an error. This could occur
   -- when running against a different TLS/SSL implementations (e.g., GnuTLS)
   if not status then
-    stdnse.print_debug(
-      1, "Couldn't get reply from the server (probably not OpenSSL)")
+    stdnse.debug1("Couldn't get reply from the server (probably not OpenSSL)")
     s:close()
     return false
   end
 
   if not vulnerable then
-    stdnse.print_debug(
-      1, "Server returned UNEXPECTED_MESSAGE alert, not vulnerable")
+    stdnse.debug1("Server returned UNEXPECTED_MESSAGE alert, not vulnerable")
     s:close()
     return false
   else
-    stdnse.print_debug(
-      1, "Vulnerable - alert is not UNEXPECTED_MESSAGE")
+    stdnse.debug1("Vulnerable - alert is not UNEXPECTED_MESSAGE")
     s:close()
     return true
   end

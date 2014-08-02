@@ -111,8 +111,7 @@ overlapping byte ranges are requested.]],
     response = http.head(host, port, path, request_opts)
 
     if not response.status then
-      stdnse.print_debug(1, "%s: Invalid response from server to the vulnerability check",
-        SCRIPT_NAME)
+      stdnse.debug1("Invalid response from server to the vulnerability check")
     elseif response.status == 206 then
       vuln.state = vulns.STATE.VULN
     else

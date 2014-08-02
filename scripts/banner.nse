@@ -71,8 +71,7 @@ function grab_banner(host, port)
 
   if not status then
     local errlvl = { ["EOF"]=3,["TIMEOUT"]=3,["ERROR"]=2 }
-    stdnse.print_debug(errlvl[response] or 1, "%s failed for %s on %s port %s. Message: %s",
-               SCRIPT_NAME, host.ip, port.protocol, port.number, response or "No Message." )
+    stdnse.debug(errlvl[response] or 1, "failed for %s on %s port %s. Message: %s", host.ip, port.protocol, port.number, response or "No Message.")
     return nil
   end
 

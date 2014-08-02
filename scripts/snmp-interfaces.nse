@@ -54,9 +54,7 @@ dependencies = {"snmp-brute"}
 
 prerule = function()
   if not stdnse.get_script_args({"snmp-interfaces.host", "host"}) then
-    stdnse.print_debug(3,
-    "Skipping '%s' %s, 'snmp-interfaces.host' argument is missing.",
-    SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.debug3("Skipping '%s' %s, 'snmp-interfaces.host' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 

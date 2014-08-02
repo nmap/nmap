@@ -159,10 +159,7 @@ function doquery(sock, host, port, inum, rcode, records)
   records.peerlist = records.peerlist or {}
 
   if #records + #records.peerlist >= MAX_RECORDS then
-    stdnse.print_debug(1,
-      'MAX_RECORDS has been reached for target %s - only processing what we have already!',
-      target
-    )
+    stdnse.debug1('MAX_RECORDS has been reached for target %s - only processing what we have already!', target)
     if sock then sock:close() end
     return nil
   end
@@ -173,25 +170,17 @@ function doquery(sock, host, port, inum, rcode, records)
     sock:set_timeout(TIMEOUT)
     local constatus, conerr = sock:connect(host, port)
     if not constatus then
-      stdnse.print_debug(1,
-        'Error establishing a UDP connection for %s - %s', target, conerr
-      )
+      stdnse.debug1('Error establishing a UDP connection for %s - %s', target, conerr)
       return nil
     end
   end
 
   -- send
-  stdnse.print_debug(2,
-    'Sending NTPv2 Mode 7 Request %d Implementation %d to %s.',
-    rcode, inum, target
-  )
+  stdnse.debug2('Sending NTPv2 Mode 7 Request %d Implementation %d to %s.', rcode, inum, target)
   local ntpData = getPrivateMode(inum, rcode)
   local sendstatus, senderr = sock:send(ntpData)
   if not sendstatus then
-    stdnse.print_debug(1,
-      'Error sending NTP request to %s:%d - %s',
-      host.ip, port.number,  senderr
-    )
+    stdnse.debug1('Error sending NTP request to %s:%d - %s', host.ip, port.number, senderr)
     sock:close()
     return nil
   end
@@ -219,25 +208,16 @@ function doquery(sock, host, port, inum, rcode, records)
     if not track.errcond then
       local remain = parse_v2m7(packet_to_parse, records)
       if remain > 0 then
-        stdnse.print_debug(1,
-          'MAX_RECORDS has been reached while parsing NTPv2 Mode 7 Code %d responses from the target %s.',
-          rcode, target
-        )
+        stdnse.debug1('MAX_RECORDS has been reached while parsing NTPv2 Mode 7 Code %d responses from the target %s.', rcode, target)
         track.rcv_again = false
       elseif remain == -1 then
-        stdnse.print_debug(1,
-          'Parsing of NTPv2 Mode 7 implementation number %d request code %d response from %s has not been implemented.',
-          inum, rcode, target
-        )
+        stdnse.debug1('Parsing of NTPv2 Mode 7 implementation number %d request code %d response from %s has not been implemented.', inum, rcode, target)
         track.rcv_again = false
       end
     end
     records.badpkts = records.badpkts + track.evil_pkts
     if records.badpkts >= MAXIMUM_EVIL then
-      stdnse.print_debug(1,
-        'Had %d bad packets from %s - Not continuing with this host!',
-        target, records.badpkts
-      )
+      stdnse.debug1('Had %d bad packets from %s - Not continuing with this host!', target, records.badpkts)
       sock:close()
       return nil
     end
@@ -306,9 +286,7 @@ function check(status, response, track)
     track.errcond = true
     track.rcv_again = false
     if track.rcv_again then -- we were expecting more responses
-      stdnse.print_debug(1,
-        'Socket error while reading from %s - %s', track.target, response
-      )
+      stdnse.debug1('Socket error while reading from %s - %s', track.target, response)
     end
     return nil
   end
@@ -322,9 +300,7 @@ function check(status, response, track)
   if pkt == nil then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Failed to create a Packet object with response from %s', track.target
-    )
+    stdnse.debug1('Failed to create a Packet object with response from %s', track.target)
     return nil
   end
 
@@ -340,10 +316,7 @@ function check(status, response, track)
   if val < 8 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Expected a response of at least 8 bytes from %s, got %d bytes.',
-      track.target, val
-    )
+    stdnse.debug1('Expected a response of at least 8 bytes from %s, got %d bytes.', track.target, val)
     return nil
   end
 
@@ -351,9 +324,7 @@ function check(status, response, track)
   if bit.rshift(pkt:u8(off), 7) ~= 1 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Bad response from %s - did not have response bit set.', track.target
-    )
+    stdnse.debug1('Bad response from %s - did not have response bit set.', track.target)
     return nil
   end
   -- version is as expected
@@ -361,10 +332,7 @@ function check(status, response, track)
   if val ~= track.v then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Bad response from %s - expected NTP version %d, got %d', track.target,
-      track.v, val
-    )
+    stdnse.debug1('Bad response from %s - expected NTP version %d, got %d', track.target, track.v, val)
     return nil
   end
   -- mode is as expected
@@ -372,10 +340,7 @@ function check(status, response, track)
   if val ~= track.m then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Bad response from %s - expected NTP mode %d, got %d', track.target,
-      track.m, val
-    )
+    stdnse.debug1('Bad response from %s - expected NTP mode %d, got %d', track.target, track.m, val)
     return nil
   end
   -- implementation number is as expected
@@ -383,10 +348,7 @@ function check(status, response, track)
   if val ~= track.i then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Bad response from %s - expected NTP implementation number %d, got %d',
-      track.target, track.i, val
-    )
+    stdnse.debug1('Bad response from %s - expected NTP implementation number %d, got %d', track.target, track.i, val)
     return nil
   end
   -- request code is as expected
@@ -394,10 +356,7 @@ function check(status, response, track)
   if val ~= track.c then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Bad response from %s - expected NTP request code %d got %d.', track.target,
-      track.c, val
-    )
+    stdnse.debug1('Bad response from %s - expected NTP request code %d got %d.', track.target, track.c, val)
     return nil
   end
   -- NTP error conditions - defined codes are not evil (bogus codes are).
@@ -430,9 +389,7 @@ function check(status, response, track)
   end
   if fail then
     track.errcond = true
-    stdnse.print_debug(1,
-      'Response from %s was NTP Error Code %d - "%s"', track.target, err, msg
-    )
+    stdnse.debug1('Response from %s was NTP Error Code %d - "%s"', track.target, err, msg)
     return nil
   end
 
@@ -447,32 +404,24 @@ function check(status, response, track)
   if icount < 1 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Expected at least one record from %s.', track.target
-    )
+    stdnse.debug1('Expected at least one record from %s.', track.target)
     return nil
   elseif icount*isize + 8 > response:len() then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'NTP Mode 7 response from %s has invalid count (%d) and/or size (%d) values.',
-      track.target, icount, isize
-    )
+    stdnse.debug1('NTP Mode 7 response from %s has invalid count (%d) and/or size (%d) values.', track.target, icount, isize)
     return nil
   elseif icount*isize > 500 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'NTP Mode 7 data section is larger than 500 bytes (%d) in response from %s.',
-      icount*isize, track.target
-    )
+    stdnse.debug1('NTP Mode 7 data section is larger than 500 bytes (%d) in response from %s.', icount*isize, track.target)
     return nil
   end
 
   if track.c == 42 and track.i == 3 and isize ~= 72 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
+    stdnse.debug1(
       'Expected item size of 72 bytes (got %d) for request code 42 implementation number 3 in response from %s.',
       isize, track.target
     )
@@ -480,7 +429,7 @@ function check(status, response, track)
   elseif track.c == 0 and track.i == 3 and isize ~= 32 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
+    stdnse.debug1(
       'Expected item size of 32 bytes (got %d) for request code 0 implementation number 3 in response from %s.',
       isize, track.target
     )
@@ -508,7 +457,7 @@ function check(status, response, track)
     track.hseq = seq
   else -- seq <= hseq !duplicate!
     track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
+    stdnse.debug1(
       'Response from %s had a duplicate sequence number - dropping it.',
       track.target
     )
@@ -807,7 +756,7 @@ function interpret(recs, targetip)
       elseif r.flags == 4 then
         t.casts.m[af][r.daddr] = r.daddr
       else -- shouldn't happen
-        stdnse.print_debug(1,
+        stdnse.debug1(
           'Host associated with %s had transmission flag value %d - Strange!',
           targetip, r.flags
         )
