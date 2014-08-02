@@ -223,7 +223,7 @@ action = function (host, port)
 
           table.insert(backups, url_path .. " " .. response["status-line"]);
         else
-          stdnse.print_debug(1, SCRIPT_NAME .. ": %s: found but not matching: %s",
+          stdnse.debug1("%s: found but not matching: %s",
             host.targetname or host.ip, url_path);
         end
       end
