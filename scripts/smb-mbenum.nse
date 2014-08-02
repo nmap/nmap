@@ -64,7 +64,7 @@ categories = {"discovery", "safe"}
 
 hostrule = function(host) return smb.get_port(host) ~= nil end
 
-local function log(msg) stdnse.print_debug(3, msg) end
+local function log(msg) stdnse.debug3("%s", msg) end
 
 ServerTypes = {
   SV_TYPE_WORKSTATION = 0x00000001,

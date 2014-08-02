@@ -60,7 +60,7 @@ action = function(host, port)
 
     status, response = afpHelper:OpenSession(host, port)
     if ( not status ) then
-      stdnse.print_debug(response)
+      stdnse.debug1("%s", response)
       return
     end
 

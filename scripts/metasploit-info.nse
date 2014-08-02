@@ -153,7 +153,7 @@ local get_version = function(host, port, token)
       else -- mingw compiler means it's a windows build
         os_type = "windows"
       end
-      stdnse.print_debug(info)
+      stdnse.debug1("%s", info)
       return info
     end
   end
@@ -247,7 +247,7 @@ action = function( host, port )
     local console_id = create_console(host,port,token)
     if console_id then
       local read_data = read_console(host,port,token,console_id) -- first read the banner/ascii art
-      stdnse.print_debug(2,read_data) -- print the nice looking banner if dbg level high enough :)
+      stdnse.debug2("%s", read_data) -- print the nice looking banner if dbg level high enough :)
       if read_data then
         if os_type == "linux" then
           read_data = write_read_console(host,port,token,console_id, "uname -a")
@@ -261,7 +261,7 @@ action = function( host, port )
         elseif os_type == "windows" then
           read_data = write_read_console(host,port,token,console_id, "systeminfo")
           if read_data then
-            stdnse.print_debug(2,read_data) -- print whole info if dbg level high enough
+            stdnse.debug2("%s", read_data) -- print whole info if dbg level high enough
             local stop = string.find(read_data,"Hotfix") -- trim data down , systeminfo return A LOT
             read_data = string.sub(read_data,1,stop-2)
             info = info .. "\nAdditional info: \n" ..  read_data

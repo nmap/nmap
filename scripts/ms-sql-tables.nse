@@ -186,7 +186,7 @@ local function process_instance( instance )
             query = query:format( v[1], v[1], v[1], tbl_limit, v[1], keywords_filter)
             status, tables = helper:Query( query )
             if ( not(status) ) then
-              stdnse.print_debug(tables)
+              stdnse.debug1("%s", tables)
             else
               local item = {}
               item = mssql.Util.FormatOutputTable( tables, true )
