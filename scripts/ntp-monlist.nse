@@ -442,15 +442,14 @@ function check(status, response, track)
     track.hseq = track.hseq+1
   elseif track.mseq:match(('|%d|'):format(seq)) then -- one of our missing seq#
     track.mseq:gsub(('|%d|'):format(seq), '|', 1)
-    stdnse.print_debug(3,
-      'Response from %s with sequence number %s was previously missing.', -- this never seems to happen!
+    stdnse.debug3('Response from %s with sequence number %s was previously missing.', -- this never seems to happen!
       track.target, seq
     )
   elseif seq > track.hseq then -- some seq# have gone missing
     for i=track.hseq+1, seq-1 do
       track.mseq = ('%s%d|'):format(track.mseq, i)
     end
-    stdnse.print_debug(3,
+    stdnse.debug3(
       'Response from %s was out of sequence - expected #%d but got #%d (missing:%s)',
       track.target, track.hseq+1, seq, track.mseq
     )
