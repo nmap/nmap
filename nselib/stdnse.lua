@@ -119,11 +119,11 @@ function debug (level, fmt, ...)
 end
 
 --Aliases for particular debug levels
-function debug1 (...) return stdnse.debug(1, ...) end
-function debug2 (...) return stdnse.debug(2, ...) end
-function debug3 (...) return stdnse.debug(3, ...) end
-function debug3 (...) return stdnse.debug(4, ...) end
-function debug5 (...) return stdnse.debug(5, ...) end
+function debug1 (...) return _ENV.debug(1, ...) end
+function debug2 (...) return _ENV.debug(2, ...) end
+function debug3 (...) return _ENV.debug(3, ...) end
+function debug4 (...) return _ENV.debug(4, ...) end
+function debug5 (...) return _ENV.debug(5, ...) end
 
 ---
 -- Deprecated version of debug(), kept for now to prevent the script id from being 
@@ -189,11 +189,11 @@ function verbose (level, fmt, ...)
 end
 
 --Aliases for particular verbosity levels
-function verbose1 (...) return stdnse.verbose(1, ...) end
-function verbose2 (...) return stdnse.verbose(2, ...) end
-function verbose3 (...) return stdnse.verbose(3, ...) end
-function verbose4 (...) return stdnse.verbose(4, ...) end
-function verbose5 (...) return stdnse.verbose(5, ...) end
+function verbose1 (...) return _ENV.verbose(1, ...) end
+function verbose2 (...) return _ENV.verbose(2, ...) end
+function verbose3 (...) return _ENV.verbose(3, ...) end
+function verbose4 (...) return _ENV.verbose(4, ...) end
+function verbose5 (...) return _ENV.verbose(5, ...) end
 
 ---
 -- Deprecated version of verbose(), kept for now to prevent the script id from being 
