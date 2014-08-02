@@ -228,23 +228,23 @@ ff::00
 EOF
 
 # Name lookup.
-test_addrset "google.com" "google.com" <<EOF
+test_addrset "scanme.nmap.org" "scanme.nmap.org" <<EOF
 1:2::3:4
 1.2.3.4
-google.com
+scanme.nmap.org
 EOF
 
 # Name lookup combined with CIDR netmask.
-test_addrset "google.com/30" "google.com" <<EOF
+test_addrset "scanme.nmap.org/30" "scanme.nmap.org" <<EOF
 1:2::3:4
 1.2.3.4
-google.com
+scanme.nmap.org
 EOF
 
 # Name lookup combined with /0 CIDR netmask.
-test_addrset "google.com/0" "1.2.3.4 google.com" <<EOF
+test_addrset "scanme.nmap.org/0" "1.2.3.4 scanme.nmap.org" <<EOF
 1.2.3.4
-google.com
+scanme.nmap.org
 EOF
 
 expect_fail "."
