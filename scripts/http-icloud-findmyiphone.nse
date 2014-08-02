@@ -57,7 +57,7 @@ action = function()
   local status, response = mobileme:getLocation()
 
   if ( not(status) ) then
-    stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, response)
+    stdnse.debug2("%s", response)
     return fail("Failed to retrieve location information")
   end
 

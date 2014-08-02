@@ -95,7 +95,7 @@ system commands as the 'root' user.
   end
 
   -- Parse response
-  stdnse.print_debug(2, "%s: Received reply:\n%s", SCRIPT_NAME, data)
+  stdnse.debug2("Received reply:\n%s", data)
   if not string.match(data, "QCONN") then
     stdnse.debug1("%s:%s is not a QNX QCONN daemon.", host.targetname or host.ip, port.number)
     return

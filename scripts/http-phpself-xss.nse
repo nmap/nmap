@@ -83,7 +83,7 @@ local function launch_probe(host, port, uri)
     return false
   end
 
-  stdnse.print_debug(1, "%s:HTTP GET %s%s", SCRIPT_NAME, uri, PHP_SELF_PROBE)
+  stdnse.debug1("HTTP GET %s%s", uri, PHP_SELF_PROBE)
   probe_response = http.get(host, port, uri .. PHP_SELF_PROBE)
 
   --save probe in list to avoid repeating it

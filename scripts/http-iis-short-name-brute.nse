@@ -114,7 +114,7 @@ local function findName(host, port, path, number)
         errors = errors+1
       end
       if errors>10 then
-        stdnse.print_debug(1, "%s:False positive detected. Exiting.", SCRIPT_NAME)
+        stdnse.debug1("False positive detected. Exiting.")
         errors_max=true
       else
         stdnse.print_debug(1, "Added folder: %s", path .. "~" .. number)

@@ -91,11 +91,11 @@ Driver =
     local status, data
     repeat
       if ( tries < MAX_RETRIES ) then
-        stdnse.print_debug(2, "%s: Attempting to re-connect (attempt %d of %d)", SCRIPT_NAME, MAX_RETRIES - tries, MAX_RETRIES)
+        stdnse.debug2("Attempting to re-connect (attempt %d of %d)", MAX_RETRIES - tries, MAX_RETRIES)
       end
       status, data = self.helper:Connect()
       if ( not(status) ) then
-        stdnse.print_debug(2, "%s: ERROR: An Oracle %s error occurred", SCRIPT_NAME, data)
+        stdnse.debug2("ERROR: An Oracle %s error occurred", data)
         self.helper:Close()
       else
         break

@@ -51,7 +51,7 @@ portrule = shortport.http
 -- @return false if not found otherwise it returns the username
 ---
 local function get_wp_user(host, port, path, id)
-  stdnse.print_debug(2, "%s: Trying to get username with id %s", SCRIPT_NAME, id)
+  stdnse.debug2("Trying to get username with id %s", id)
   local req = http.get(host, port, path.."?author="..id, { no_cache = true})
   if req.status then
     stdnse.debug1("User id #%s returned status %s", id, req.status)
@@ -77,7 +77,7 @@ end
 --@return True if WP was found
 --
 local function check_wp(host, port, path)
-  stdnse.print_debug(2, "%s:Checking %swp-login.php ", SCRIPT_NAME, path)
+  stdnse.debug2("Checking %swp-login.php ", path)
   local req = http.get(host, port, path.."wp-login.php", {no_cache=true})
   if req.status and req.status == 200 then
     return true

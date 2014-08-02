@@ -174,7 +174,7 @@ local function check_keys(host, keys, f)
           for _,name in ipairs(possible_host_names) do
             local hash = base64.enc(openssl.hmac("SHA1", salt, name))
             if parts_hostname[4] == hash then
-              stdnse.print_debug(2, "%s: found a hash that matches: %s for hostname: %s", SCRIPT_NAME, hash, name)
+              stdnse.debug2("found a hash that matches: %s for hostname: %s", hash, name)
               foundhostname = true
               table.insert(keys_from_file, {name=name, key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
             end

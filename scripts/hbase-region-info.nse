@@ -56,15 +56,15 @@ action = function( host, port )
   -- uri was previously "/regionserver.jsp". See
   -- http://seclists.org/nmap-dev/2012/q3/903.
   local uri = "/rs-status"
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
+    stdnse.debug2("Body %s\n",body)
     if body:match("HBase%s+Version</td><td>([^][<]+)") then
       local version = body:match("HBase%s+Version</td><td>([^][<]+)"):gsub("%s+", " ")
-      stdnse.print_debug(1, "%s:Hbase  Version %s", SCRIPT_NAME,version)
+      stdnse.debug1("Hbase  Version %s",version)
       table.insert(result, ("Hbase Version: %s"):format(version))
       port.version.version = version
     end

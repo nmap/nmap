@@ -62,12 +62,12 @@ end
 get_datanodes = function( host, port, Status )
   local result = {}
   local uri = "/dfsnodelist.jsp?whatNodes=" .. Status
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response" )
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
+    stdnse.debug2("Body %s\n",body)
     for datanodetmp in string.gmatch(body, "[%w%.:-_]+/browseDirectory.jsp") do
       local datanode = datanodetmp:gsub("/browseDirectory.jsp","")
       stdnse.debug1("Datanode %s",datanode)
@@ -88,13 +88,13 @@ action = function( host, port )
 
   local result = {}
   local uri = "/dfshealth.jsp"
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     local capacity = {}
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
+    stdnse.debug2("Body %s\n",body)
     if body:match("Started:%s*<td>([^][<]+)") then
       local start = body:match("Started:%s*<td>([^][<]+)")
       stdnse.debug1("Started %s",start)

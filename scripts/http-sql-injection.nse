@@ -78,7 +78,7 @@ local function check_injection_response(response)
   if errorstrings then
     for _,e in ipairs(errorstrings) do
       if string.find(body, e) then
-        stdnse.print_debug(2, "%s: error string matched: %s", SCRIPT_NAME, e)
+        stdnse.debug2("error string matched: %s", e)
         return true
       end
     end
@@ -192,7 +192,7 @@ local function check_form(form, host, port, path)
 
   for _,field in ipairs(form["fields"]) do
     if sqli_field(field["type"]) then
-      stdnse.print_debug(2, "%s: checking field %s", SCRIPT_NAME, field["name"])
+      stdnse.debug2("checking field %s", field["name"])
       postdata[field["name"]] = "' OR sqlspider"
       response = sending_function(postdata)
       if response and response.body and response.status==200 then

@@ -78,10 +78,10 @@ local function detect(host, port, uri)
 
   local req_ok = http.post(host, port, uri, opts, nil, PAYLOAD_OK)
   local req_time = http.post(host, port, uri, opts, nil, PAYLOAD_TIME)
-  stdnse.print_debug(2, "%s:First request returned status %d. Second request returned status %d", SCRIPT_NAME, req_ok.status, req_time.status)
+  stdnse.debug2("First request returned status %d. Second request returned status %d", req_ok.status, req_time.status)
   if req_ok.status == 200 and req_time.status == 200 then
     local req_malformed = http.post(host, port, uri, opts, nil, PAYLOAD_MALFORMED)
-    stdnse.print_debug(2, "%s:Malformed request returned status %d", SCRIPT_NAME, req_malformed.status)
+    stdnse.debug2("Malformed request returned status %d", req_malformed.status)
     if req_malformed.status == 500 then
       return true
     end
@@ -111,7 +111,7 @@ The attackers don't need to be authenticated to exploit these vulnerabilities.
   }
 
   if detect(host,port,uri) then
-    stdnse.print_debug(1, "%s:Received status 500 as expected in vulnerable installations. Marking as vulnerable...", SCRIPT_NAME)
+    stdnse.debug1("Received status 500 as expected in vulnerable installations. Marking as vulnerable...")
     vuln_table.state = vulns.STATE.VULN
     local report = vulns.Report:new(SCRIPT_NAME, host, port)
     return report:make_output(vuln_table)

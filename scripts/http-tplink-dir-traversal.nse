@@ -91,10 +91,10 @@ end
 ---
 local function check_vuln(host, port)
   local evil_uri = TRAVERSAL_QRY..DEFAULT_REMOTE_FILE
-  stdnse.print_debug(1, "%s:HTTP GET %s", SCRIPT_NAME, evil_uri)
+  stdnse.debug1("HTTP GET %s", evil_uri)
   local response = http.get(host, port, evil_uri)
   if response.body and response.status==200 and response.body:match("root:") then
-    stdnse.print_debug(1, "%s:Pattern 'root:' found.", SCRIPT_NAME, response.body)
+    stdnse.debug1("Pattern 'root:' found.", response.body)
     return true
   end
   return false
@@ -134,7 +134,7 @@ Possibly vulnerable (Based on the same firmware): WR743ND,WR842ND,WA-901ND,WR941
     if response.body and response.status==200 then
       stdnse.print_debug(2, "%s", response.body)
       if response.body:match("Error") then
-        stdnse.print_debug(1, "%s:[Error] File not found:%s", SCRIPT_NAME, rfile)
+        stdnse.debug1("[Error] File not found:%s", rfile)
         vuln.extra_info = string.format("%s not found.\n", rfile)
         return vuln_report:make_output(vuln)
       end

@@ -182,7 +182,7 @@ action = function( host, port )
     and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     local capacity = {}
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME, body)
+    stdnse.debug2("Body %s\n", body)
     if body:match("Version:%s*</b>([^][,]+)") then
       local version = body:match("Version:%s*</b>([^][,]+)")
       stdnse.debug1("Version %s", version)

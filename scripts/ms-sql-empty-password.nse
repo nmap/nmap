@@ -67,7 +67,7 @@ local function test_credentials( instance, helper, username, password )
   local status, result = helper:ConnectEx( instance )
   local loginErrorCode
   if( status ) then
-    stdnse.print_debug( 2, "%s: Attempting login to %s", SCRIPT_NAME, instance:GetName() )
+    stdnse.debug2("Attempting login to %s", instance:GetName() )
     status, result, loginErrorCode = helper:Login( username, password, database, instance.host.ip )
   end
   helper:Disconnect()
@@ -80,7 +80,7 @@ local function test_credentials( instance, helper, username, password )
     if ( loginErrorCode == mssql.LoginErrorType.PasswordExpired ) then passwordIsGood = true end
     if ( loginErrorCode == mssql.LoginErrorType.PasswordMustChange ) then passwordIsGood = true end
     if ( loginErrorCode == mssql.LoginErrorType.AccountLockedOut ) then
-      stdnse.print_debug( 1, "%s: Account %s locked out on %s", SCRIPT_NAME, username, instance:GetName() )
+      stdnse.debug1("Account %s locked out on %s", username, instance:GetName() )
       table.insert( instance.ms_sql_empty, string.format("'sa' account is locked out.", result ) )
     end
     if ( mssql.LoginErrorMessage[ loginErrorCode ] == nil ) then
@@ -135,7 +135,7 @@ local function process_instance( instance )
     instance.ms_sql_empty = instance.ms_sql_empty or {}
 
     if not instance:HasNetworkProtocols() then
-      stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("%s has no network protocols enabled.", instance:GetName() )
       table.insert( instance.ms_sql_empty, "No network protocols enabled." )
     end
 

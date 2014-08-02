@@ -34,7 +34,7 @@ local MAGIC_URI = "administrator.cfc?method=login&adminpassword=&rdsPasswordAllo
 local function get_admin_cookie(host, port, basepath)
   local req = http.get(host, port, basepath..MAGIC_URI)
   if req.header['set-cookie'] then
-    stdnse.print_debug(1, "%s:Header 'set-cookie' detected in response.", SCRIPT_NAME)
+    stdnse.debug1("Header 'set-cookie' detected in response.")
     local _, _, admin_cookie = string.find(req.header['set-cookie'], ";path=/, CFAUTHORIZATION_cfadmin=(.*);path=/")
     if admin_cookie:len() > 79 then
       stdnse.debug1("Extracted cookie:%s", admin_cookie)

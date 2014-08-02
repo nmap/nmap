@@ -90,7 +90,7 @@ action = function(host)
       return
     end
     local url = base_url:format(server)
-    stdnse.print_debug(2, "%s: Querying URL: %s", SCRIPT_NAME, url)
+    stdnse.debug2("Querying URL: %s", url)
     data = fetch_robtex_data(url)
 
     domains = parse_robtex_response(data)

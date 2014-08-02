@@ -94,7 +94,7 @@ action = function(host, port)
   --check for awstats signature
   local awstats_check = check_installation(host, port, uri)
   if not(awstats_check) then
-    stdnse.print_debug(1, "%s:This does not look like Awstats Totals. Quitting.", SCRIPT_NAME)
+    stdnse.debug1("This does not look like Awstats Totals. Quitting.")
     return
   end
 
