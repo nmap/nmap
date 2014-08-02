@@ -116,7 +116,7 @@ local function do_half_http(host, port, obj)
   local catch = function()
     -- This connection is now dead
     ThreadCount = ThreadCount - 1
-    stdnse.print_debug(SCRIPT_NAME .. " [HALF HTTP]: lost connection")
+    stdnse.debug1("[HALF HTTP]: lost connection")
     slowloris:close()
     slowloris = nil
     condvar("signal")
@@ -161,7 +161,7 @@ local function do_monitor(host, port)
   local general_faults = 0
   local request_faults = 0 -- keeps track of how many times we didn't get a reply from the server
 
-  stdnse.print_debug(SCRIPT_NAME .. " [MONITOR]: Monitoring " .. host.ip .. " started")
+  stdnse.debug1("[MONITOR]: Monitoring " .. host.ip .. " started")
 
   local request = "GET / HTTP/1.1\r\n" ..
     "Host: " .. host.ip ..
@@ -193,12 +193,12 @@ local function do_monitor(host, port)
       end
       status, _ = monitor:receive_lines(1)
       if not status then
-        stdnse.print_debug(SCRIPT_NAME .. " [MONITOR]: Didn't get a reply from " .. host.ip  .. "." )
+        stdnse.debug1("[MONITOR]: Didn't get a reply from " .. host.ip  .. "." )
         monitor:close()
         request_faults = request_faults +1
         if request_faults > 3 then
           if TimeLimit then
-            stdnse.print_debug(SCRIPT_NAME .. " [MONITOR]: server " .. host.ip .. " is now unavailable. The attack worked.")
+            stdnse.debug1("[MONITOR]: server " .. host.ip .. " is now unavailable. The attack worked.")
             DOSed = true
           end
           monitor:close()
@@ -207,7 +207,7 @@ local function do_monitor(host, port)
       else
         request_faults = 0
         general_faults = 0
-        stdnse.print_debug(SCRIPT_NAME .. " [MONITOR]: ".. host.ip .." still up, answer received.")
+        stdnse.debug1("[MONITOR]: ".. host.ip .." still up, answer received.")
         stdnse.sleep(10)
         monitor:close()
       end
@@ -246,7 +246,7 @@ local function worker_scheduler(host, port)
           Threads[thread] = nil
         end
       end
-      stdnse.print_debug(SCRIPT_NAME .. " [SCHEDULER]: starting new thread")
+      stdnse.debug1("[SCHEDULER]: starting new thread")
       local co = stdnse.new_thread(do_half_http, host, port, obj)
       Threads[co] = true
       if ( next(Threads) ) then
@@ -273,19 +273,19 @@ action = function(host, port)
   stdnse.new_thread(do_monitor, host, port)
   stdnse.sleep(2) -- let the monitor make the first request
 
-  stdnse.print_debug(SCRIPT_NAME .. " [MAIN THREAD]: starting scheduler")
+  stdnse.debug1("[MAIN THREAD]: starting scheduler")
   stdnse.new_thread(worker_scheduler, host, port)
   local end_time = get_end_time()
   local last_message
   if TimeLimit == nil then
-    stdnse.print_debug(SCRIPT_NAME .. " [MAIN THREAD]: running forever!")
+    stdnse.debug1("[MAIN THREAD]: running forever!")
   end
 
   -- return a live notice from time to time
   while (nmap.clock_ms() < end_time or TimeLimit == nil) and not StopAll do
     if ServerNotice ~= last_message then
       -- don't flood the output by repeating the same info
-      stdnse.print_debug(SCRIPT_NAME .. " [MAIN THREAD]: " .. ServerNotice)
+      stdnse.debug1("[MAIN THREAD]: " .. ServerNotice)
       last_message = ServerNotice
     end
     if DOSed and TimeLimit ~= nil then
@@ -299,14 +299,14 @@ action = function(host, port)
   StopAll = true
   if DOSed then
     if Reason == "slowloris" then
-      stdnse.print_debug(2, SCRIPT_NAME .. " Slowloris Attack stopped, building output")
+      stdnse.debug2("Slowloris Attack stopped, building output")
       output = "Vulnerable:\n" ..
         "the DoS attack took "..
         dos_time .. "\n" ..
         "with ".. Sockets .. " concurrent connections\n" ..
         "and " .. Queries .." sent queries"
     else
-      stdnse.print_debug(2, SCRIPT_NAME .. " Slowloris Attack stopped. Monitor couldn't communicate with the server.")
+      stdnse.debug2("Slowloris Attack stopped. Monitor couldn't communicate with the server.")
       output = "Probably vulnerable:\n" ..
         "the DoS attack took " .. dos_time .. "\n" ..
         "with " .. Sockets .. " concurrent connections\n" ..

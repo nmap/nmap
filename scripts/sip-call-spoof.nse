@@ -166,6 +166,6 @@ action = function(host, port)
       return stdnse.format_output(true, "Ringing, got no answer. (script timeout)")
     end
   else
-    stdnse.print_debug(SCRIPT_NAME .. "Target phone didn't ring.")
+    stdnse.debug1("Target phone didn't ring.")
   end
 end
