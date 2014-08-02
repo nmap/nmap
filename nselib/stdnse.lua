@@ -58,6 +58,34 @@ _ENV = require "strict" {};
 -- @usage stdnse.sleep(1.5)
 _ENV.sleep = nmap.socket.sleep;
 
+local function debug (level, ...)
+  if type(level) ~= "number" then
+    return debug(1, level, ...)
+  end
+  local current = nmap.debugging()
+  if level <= current then
+    local prefix = "["
+    if current >= 2 then
+      prefix = prefix .. (getinfo() or "")
+    else
+      prefix = prefix .. (getid() or "")
+    end
+    local host, port = gethostport()
+    if host and host.ip then
+      prefix = prefix .. " " .. host.ip
+    end
+    if port and port.number then
+      prefix = prefix .. ":" .. port.number
+    end
+    prefix = prefix .. "] "
+    if prefix ~= "[] " then 
+      nmap.log_write("stdout", prefix..format(...))
+    else
+      nmap.log_write("stdout", format(...))
+    end
+  end
+end
+
 ---
 -- Prints a formatted debug message if the current debugging level is greater
 -- than or equal to a given level.
@@ -72,58 +100,19 @@ _ENV.sleep = nmap.socket.sleep;
 -- at least 2, it also prints the base thread identifier and whether it is a
 -- worker thread or the master thread.
 --
+-- @class function
+-- @name debug
 -- @param level Optional debugging level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
-function debug (level, fmt, ...)
-  local current = nmap.debugging()
-  local prefix = "["
-  local id = getid()
-  if id then
-    prefix = prefix .. id
-  end
-  local host, port = gethostport()
-  if host and host.ip then
-    prefix = prefix .. " " .. host.ip
-  end
-  if port and port.number then
-    prefix = prefix .. ":" .. port.number
-  end
-  local tid = gettid()
-  local tid = match(tostring(tid), "0x(.*)") 
-  local worker = isworker()
-  if current >= 2 and tid then
-    if worker then
-        prefix = prefix .. " W:" .. tid
-    else
-        prefix = prefix .. " M:" .. tid
-    end
-  end
-  prefix = prefix .. "] "
-  if type(level) == "number" then
-    if level <= current then
-      if prefix ~= "[] " then 
-        nmap.log_write("stdout", prefix..format(fmt, ...))
-      else
-        nmap.log_write("stdout", format(fmt, ...))
-      end
-    end
-  elseif 1 <= current then
-    -- level is fmt and fmt is first argument
-    if prefix ~= "[] " then
-      nmap.log_write("stdout", prefix..format(level, fmt, ...))
-    else
-      nmap.log_write("stdout", format(level, fmt, ...))
-    end
-  end
-end
+_ENV.debug = debug
 
 --Aliases for particular debug levels
-function debug1 (...) return _ENV.debug(1, ...) end
-function debug2 (...) return _ENV.debug(2, ...) end
-function debug3 (...) return _ENV.debug(3, ...) end
-function debug4 (...) return _ENV.debug(4, ...) end
-function debug5 (...) return _ENV.debug(5, ...) end
+function debug1 (...) return debug(1, ...) end
+function debug2 (...) return debug(2, ...) end
+function debug3 (...) return debug(3, ...) end
+function debug4 (...) return debug(4, ...) end
+function debug5 (...) return debug(5, ...) end
 
 ---
 -- Deprecated version of debug(), kept for now to prevent the script id from being 
@@ -136,7 +125,32 @@ print_debug = function(level, fmt, ...)
     nmap.log_write("stdout", format(level, fmt, ...));
   end
 end
- 
+
+local function verbose (level, ...)
+  if type(level) ~= "number" then
+    return verbose(1, level, ...)
+  end
+  local current = nmap.verbosity()
+  if level <= current then
+    local prefix = "[" .. (getid() or "")
+    if current >= 2 then
+      local host, port = gethostport()
+      if host and host.ip then
+        prefix = prefix .. " " .. host.ip
+      end
+      if port and port.number then
+        prefix = prefix .. ":" .. port.number
+      end
+    end
+    prefix = prefix .. "] "
+    if prefix ~= "[] " then
+      nmap.log_write("stdout", prefix..format(...))
+    else
+      nmap.log_write("stdout", format(...))
+    end
+  end
+end
+
 ---
 -- Prints a formatted verbosity message if the current verbosity level is greater
 -- than or equal to a given level.
@@ -150,50 +164,19 @@ end
 -- identifier. If the verbosity level is at least 2, it also prints the target
 -- ip/port (if there is one)
 --
+-- @class function
+-- @name verbose
 -- @param level Optional verbosity level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
-function verbose (level, fmt, ...)
-  local current = nmap.verbosity()
-  local prefix = "["
-  local id = getid()
-  if id then
-    prefix = prefix .. id
-  end
-  if current >= 2 then
-      local host, port = gethostport()
-      if host and host.ip then
-        prefix = prefix .. " " .. host.ip
-      end
-      if port and port.number then
-        prefix = prefix .. ":" .. port.number
-      end
-  end
-  prefix = prefix .. "] "
-  if type(level) == "number" then
-    if level <= current then
-      if prefix ~= "[] " then
-        nmap.log_write("stdout", prefix..format(fmt, ...))
-      else
-        nmap.log_write("stdout", format(fmt, ...))
-      end
-    end
-  elseif 1 <= current then
-    -- level is fmt and fmt is first argument
-    if prefix ~= "[] " then
-      nmap.log_write("stdout", prefix..format(level, fmt, ...))
-    else
-      nmap.log_write("stdout", format(level, fmt, ...))
-    end
-  end
-end
+_ENV.verbose = verbose
 
 --Aliases for particular verbosity levels
-function verbose1 (...) return _ENV.verbose(1, ...) end
-function verbose2 (...) return _ENV.verbose(2, ...) end
-function verbose3 (...) return _ENV.verbose(3, ...) end
-function verbose4 (...) return _ENV.verbose(4, ...) end
-function verbose5 (...) return _ENV.verbose(5, ...) end
+function verbose1 (...) return verbose(1, ...) end
+function verbose2 (...) return verbose(2, ...) end
+function verbose3 (...) return verbose(3, ...) end
+function verbose4 (...) return verbose(4, ...) end
+function verbose5 (...) return verbose(5, ...) end
 
 ---
 -- Deprecated version of verbose(), kept for now to prevent the script id from being 

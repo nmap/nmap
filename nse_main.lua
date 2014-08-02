@@ -52,6 +52,9 @@ local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 local FORMAT_TABLE = "NSE_FORMAT_TABLE";
 local FORMAT_XML = "NSE_FORMAT_XML";
 
+-- Unique value indicating the action function is going to run.
+local ACTION_STARTING = {};
+
 -- This is a limit on the number of script instance threads running at once. It
 -- exists only to limit memory use when there are many open ports. It doesn't
 -- count worker threads started by scripts.
@@ -120,6 +123,7 @@ local upper = string.upper;
 local table = require "table";
 local concat = table.concat;
 local insert = table.insert;
+local pack = table.pack;
 local remove = table.remove;
 local sort = table.sort;
 local unpack = table.unpack;
@@ -399,7 +403,6 @@ do
 
   -- Register scripts in the timeouts list to track their timeouts.
   function Thread:start (timeouts)
-    self:d("Starting %THREAD_AGAINST.");
     if self.host then
       timeouts[self.host] = timeouts[self.host] or {};
       timeouts[self.host][self.co] = true;
@@ -435,7 +438,7 @@ do
   function Script:new_thread (rule, ...)
     local script_type = assert(NSE_SCRIPT_RULES[rule]);
     if not self[rule] then return nil end -- No rule for this script?
-    local script_closure_generator = self.script_closure_generator;
+
     -- Rebuild the environment for the running thread.
     local env = {
         SCRIPT_PATH = self.filename,
@@ -443,50 +446,46 @@ do
         SCRIPT_TYPE = script_type,
     };
     setmetatable(env, {__index = _G});
-    local script_closure = script_closure_generator(env);
-    local unique_value = {}; -- to test valid yield
-    local function main (_ENV, ...)
-      script_closure(); -- loads script globals
-      return action(yield(unique_value, _ENV[rule](...)));
+    local forced = self.forced_to_run;
+    local script_closure_generator = self.script_closure_generator;
+    local function main (...)
+      local _ENV = env; -- change the environment
+      -- Load the script's globals in the same Lua thread the action and rule
+      -- functions will execute in.
+      script_closure_generator(_ENV)();
+      if forced or _ENV[rule](...) then
+        yield(ACTION_STARTING)
+        return action(...)
+      end
     end
-    -- This thread allows us to load the script's globals in the
-    -- same Lua thread the action and rule functions will execute in.
+
     local co = create(main);
-    local s, value, rule_return = resume(co, env, ...);
-    if s and value ~= unique_value then
-      print_debug(1,
-    "A thread for %s yielded unexpectedly in the file or %s function:\n%s\n",
-          self.filename, rule, traceback(co));
-    elseif s and (rule_return or self.forced_to_run) then
-      local thread = {
-        close_handlers = {},
-        co = co,
-        env = env,
-        identifier = tostring(co),
-        info = format("'%s' M:%s", self.id, match(tostring(co), "0x(.*)"));
-        parent = nil, -- placeholder
-        script = self,
-        type = script_type,
-        worker = false,
-      };
-      thread.parent = thread;
-      setmetatable(thread, Thread)
-      return thread;
-    elseif not s then
-      log_error("A thread for %s failed to load in %s function:\n%s\n",
-          self.filename, rule, traceback(co, tostring(value)));
-    end
-    return nil;
+    local thread = {
+      action_started = false,
+      args = pack(...),
+      close_handlers = {},
+      co = co,
+      env = env,
+      identifier = tostring(co),
+      info = format("%s M:%s", self.id, match(tostring(co), "0x(.*)"));
+      parent = nil, -- placeholder
+      script = self,
+      type = script_type,
+      worker = false,
+    };
+    thread.parent = thread;
+    setmetatable(thread, Thread)
+    return thread;
   end
 
   function Thread:new_worker (main, ...)
     local co = create(main);
     print_debug(2, "%s spawning new thread (%s).", self.parent.info, tostring(co));
     local thread = {
-      args = {n = select("#", ...), ...},
+      args = pack(...),
       close_handlers = {},
       co = co,
-      info = format("'%s' W:%s", self.id, match(tostring(co), "0x(.*)"));
+      info = format("%s W:%s", self.id, match(tostring(co), "0x(.*)"));
       parent = self,
       worker = true,
     };
@@ -497,8 +496,36 @@ do
     return thread, info;
   end
 
-  function Thread:resume ()
-    return resume(self.co, unpack(self.args, 1, self.args.n));
+  function Thread:resume (timeouts)
+    local ok, r1, r2 = resume(self.co, unpack(self.args, 1, self.args.n));
+    local status = status(self.co);
+    if ok and r1 == ACTION_STARTING then
+      self:d("Starting %THREAD_AGAINST.");
+      self.action_started = true
+      return self:resume(timeouts);
+    elseif not ok then
+      if debugging() > 0 then
+        self:d("%THREAD_AGAINST threw an error!\n%s\n", traceback(self.co, tostring(r1)));
+      else
+        self:set_output("ERROR: Script execution failed (use -d to debug)");
+      end
+      self:close(timeouts, r1);
+      return false
+    elseif status == "suspended" then
+      if r1 == NSE_YIELD_VALUE then
+        return true
+      else
+        self:d("%THREAD yielded unexpectedly and cannot be resumed.");
+        self:close(timeouts, "yielded unexpectedly and cannot be resumed");
+        return false
+      end
+    elseif status == "dead" then
+      if self.action_started then
+        self:set_output(r1, r2);
+        self:d("Finished %THREAD_AGAINST.");
+      end
+      self:close(timeouts);
+    end
   end
 
   function Thread:__index (key)
@@ -833,7 +860,8 @@ local function run (threads_iter, hosts)
   -- running scripts may be resumed at any time. waiting scripts are
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
-  -- at once back to running.
+  -- at once back to running. pending is used because we cannot modify
+  -- running during traversal.
   local running, waiting, pending = {}, {}, {};
   local all = setmetatable({}, {__mode = "kv"}); -- base coroutine to Thread
   local current; -- The currently running Thread.
@@ -858,7 +886,7 @@ local function run (threads_iter, hosts)
       co = base.co;
       if waiting[co] then -- ignore a thread not waiting
         pending[co], waiting[co] = waiting[co], nil;
-        pending[co].args = {n = select("#", ...), ...};
+        pending[co].args = pack(...);
       end
     end
   end
@@ -900,6 +928,9 @@ local function run (threads_iter, hosts)
   rawset(stdnse, "getid", function ()
     return current and current.id;
   end);
+  rawset(stdnse, "getinfo", function ()
+    return current and current.info;
+  end);
   rawset(stdnse, "gethostport", function ()
     if current then
         return current.host, current.port;
@@ -908,20 +939,6 @@ local function run (threads_iter, hosts)
   rawset(stdnse, "isworker", function ()
     return current and current.worker;
   end);
-
-  while threads_iter and num_threads < CONCURRENCY_LIMIT do
-    local thread = threads_iter()
-    if not thread then
-      threads_iter = nil;
-      break;
-    end
-    all[thread.co], running[thread.co], total = thread, thread, total+1;
-    num_threads = num_threads + 1;
-    thread:start(timeouts);
-  end
-  if num_threads == 0 then
-    return
-  end
 
   local progress = cnse.scan_progress_meter(NAME);
 
@@ -978,29 +995,10 @@ local function run (threads_iter, hosts)
       current, running[co] = thread, nil;
       thread:start_time_out_clock();
 
-      -- Threads may have zero, one, or two return values.
-      local s, r1, r2 = thread:resume();
-      if not s then -- script error...
+      if thread:resume(timeouts) then
+        waiting[co] = thread;
+      else
         all[co], num_threads = nil, num_threads-1;
-        if debugging() > 0 then
-          thread:d("%THREAD_AGAINST threw an error!\n%s\n", traceback(co, tostring(r1)));
-        else
-          thread:set_output("ERROR: Script execution failed (use -d to debug)");
-        end
-        thread:close(timeouts, r1);
-      elseif status(co) == "suspended" then
-        if r1 == NSE_YIELD_VALUE then
-          waiting[co] = thread;
-        else
-          all[co], num_threads = nil, num_threads-1;
-          thread:d("%THREAD yielded unexpectedly and cannot be resumed.");
-          thread:close();
-        end
-      elseif status(co) == "dead" then
-        all[co], num_threads = nil, num_threads-1;
-        thread:set_output(r1, r2);
-        thread:d("Finished %THREAD_AGAINST.");
-        thread:close(timeouts);
       end
       current = nil;
     end
@@ -1316,14 +1314,6 @@ local function main (hosts, scantype)
     print_verbose(1, "Script Post-scanning.");
   end
 
-  -- These functions do not exist until we are executing action functions.
-  rawset(stdnse, "new_thread", nil)
-  rawset(stdnse, "base", nil)
-  rawset(stdnse, "gettid", nil)
-  rawset(stdnse, "getid", nil)
-  rawset(stdnse, "gethostport", nil)
-  rawset(stdnse, "isworker", nil)
-
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
@@ -1333,8 +1323,7 @@ local function main (hosts, scantype)
         for _, script in ipairs(scripts) do
            local thread = script:new_thread("prerule");
            if thread then
-             thread.args = {n = 0};
-             yield(thread);
+             yield(thread)
            end
         end
       -- activate hostrule and portrule scripts
@@ -1344,7 +1333,7 @@ local function main (hosts, scantype)
           for _, script in ipairs(scripts) do
             local thread = script:new_thread("hostrule", host_copy(host));
             if thread then
-              thread.args, thread.host = {n = 1, host_copy(host)}, host;
+              thread.host = host;
               yield(thread);
             end
           end
@@ -1353,7 +1342,7 @@ local function main (hosts, scantype)
             for _, script in ipairs(scripts) do
               local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
               if thread then
-                thread.args, thread.host, thread.port = {n = 2, host_copy(host), tcopy(port)}, host, port;
+                thread.host, thread.port = host, port;
                 yield(thread);
               end
             end
@@ -1364,7 +1353,6 @@ local function main (hosts, scantype)
         for _, script in ipairs(scripts) do
           local thread = script:new_thread("postrule");
           if thread then
-            thread.args = {n = 0};
             yield(thread);
           end
         end
