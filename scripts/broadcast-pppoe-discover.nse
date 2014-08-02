@@ -36,7 +36,7 @@ categories = {"broadcast", "safe"}
 
 prerule = function()
   if not nmap.is_privileged() then
-    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    stdnse.verbose1("not running for lack of privileges.")
     return false
   end
   return true

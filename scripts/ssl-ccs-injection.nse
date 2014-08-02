@@ -168,7 +168,7 @@ local function test_ccs_injection(host, port, version)
   repeat
     status, response, err = tls.record_buffer(s, response, i)
     if err == "TIMEOUT" or not status then
-      stdnse.print_verbose(1, "No response from server: %s", err)
+      stdnse.verbose1("No response from server: %s", err)
       s:close()
       return false
     end

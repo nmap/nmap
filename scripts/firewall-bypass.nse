@@ -192,7 +192,7 @@ hostrule = function(host)
   if not nmap.is_privileged() then
     nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
     if not nmap.registry[SCRIPT_NAME].rootfail then
-      stdnse.print_verbose("%s lacks privileges.", SCRIPT_NAME )
+      stdnse.verbose1("lacks privileges." )
       nmap.registry[SCRIPT_NAME].rootfail = true
     end
     return false

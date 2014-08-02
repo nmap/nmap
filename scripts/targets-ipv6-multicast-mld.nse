@@ -36,7 +36,7 @@ local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. 
 
 prerule = function()
   if ( not(nmap.is_privileged()) ) then
-    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    stdnse.verbose1("not running for lack of privileges.")
     return false
   end
   return true

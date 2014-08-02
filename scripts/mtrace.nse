@@ -102,11 +102,11 @@ FWD_CODE = {
 
 prerule = function()
   if nmap.address_family() ~= 'inet' then
-    stdnse.print_verbose("%s is IPv4 only.", SCRIPT_NAME)
+    stdnse.verbose1("is IPv4 only.")
     return false
   end
   if not nmap.is_privileged() then
-    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    stdnse.verbose1("not running for lack of privileges.")
     return false
   end
   return true
@@ -214,7 +214,7 @@ local traceParse = function(data)
     if index >= #data then
       break
     elseif #data - index < 31 then
-      stdnse.print_verbose("%s malformed traceroute response.", SCRIPT_NAME)
+      stdnse.verbose1("malformed traceroute response.")
       return
     end
 
@@ -303,12 +303,12 @@ local getInterface = function(target)
   local sock = nmap.new_socket()
   local status, err = sock:connect(target, "12345", "udp")
   if not status then
-    stdnse.print_verbose("%s: %s", SCRIPT_NAME, err)
+    stdnse.verbose1("%s", err)
     return
   end
   local status, address, _, _, _ = sock:get_info()
   if not status then
-    stdnse.print_verbose("%s: %s", SCRIPT_NAME, err)
+    stdnse.verbose1("%s", err)
     return
   end
   for _, interface in pairs(nmap.list_interfaces()) do
@@ -330,7 +330,7 @@ action = function()
 
   -- Source address from which to traceroute
   if not fromip then
-    stdnse.print_verbose("%s: A source IP must be provided through fromip argument.", SCRIPT_NAME)
+    stdnse.verbose1("A source IP must be provided through fromip argument.")
     return
   end
 

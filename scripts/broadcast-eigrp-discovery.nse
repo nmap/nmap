@@ -76,11 +76,11 @@ categories = {"discovery", "broadcast", "safe"}
 
 prerule = function()
   if nmap.address_family() ~= 'inet' then
-    stdnse.print_verbose("%s is IPv4 only.", SCRIPT_NAME)
+    stdnse.verbose1("is IPv4 only.")
     return false
   end
   if not nmap.is_privileged() then
-    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    stdnse.verbose1("not running for lack of privileges.")
     return false
   end
   return true

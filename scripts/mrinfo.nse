@@ -72,11 +72,11 @@ categories = {"discovery", "safe", "broadcast"}
 
 prerule = function()
   if nmap.address_family() ~= 'inet' then
-    stdnse.print_verbose("%s is IPv4 only.", SCRIPT_NAME)
+    stdnse.verbose1("is IPv4 only.")
     return false
   end
   if not nmap.is_privileged() then
-    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    stdnse.verbose1("not running for lack of privileges.")
     return false
   end
   return true
@@ -226,12 +226,12 @@ local getInterface = function(target)
   local sock = nmap.new_socket()
   local status, err = sock:connect(target, "12345", "udp")
   if not status then
-    stdnse.print_verbose("%s: %s", SCRIPT_NAME, err)
+    stdnse.verbose1("%s", err)
     return
   end
   local status, address, _, _, _ = sock:get_info()
   if not status then
-    stdnse.print_verbose("%s: %s", SCRIPT_NAME, err)
+    stdnse.verbose1("%s", err)
     return
   end
   for _, interface in pairs(nmap.list_interfaces()) do

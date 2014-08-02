@@ -49,7 +49,7 @@ prerule = function()
   if not nmap.is_privileged() then
     nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
     if not nmap.registry[SCRIPT_NAME].rootfail then
-      stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+      stdnse.verbose1("not running for lack of privileges.")
     end
     nmap.registry[SCRIPT_NAME].rootfail = true
     return nil
