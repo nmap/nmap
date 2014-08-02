@@ -109,7 +109,7 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
     if pppoe_user then
       vuln.state = vulns.STATE.EXPLOIT
     else
-      stdnse.print_debug(1, "%s:Username string was not found in this page. Exiting.", SCRIPT_NAME)
+      stdnse.debug1("Username string was not found in this page. Exiting.")
       return vuln_report:make_output(vuln)
     end
 

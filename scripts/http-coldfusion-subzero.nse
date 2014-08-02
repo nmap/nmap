@@ -71,7 +71,7 @@ local CREDENTIALS_PAYLOADS = {
 local function get_installation_path(host, port, basepath)
   local req = http.get(host, port, basepath..PATH_PAYLOAD)
   if req.header['set-cookie'] then
-    stdnse.print_debug(1, "%s:Header 'set-cookie' detected in response.", SCRIPT_NAME)
+    stdnse.debug1("Header 'set-cookie' detected in response.")
     local _, _, path = string.find(req.header['set-cookie'],
       "path=/, ANALYZER_DIRECTORY=(.-);path=/")
     if path then
@@ -91,16 +91,16 @@ local function get_version(host, port, basepath)
   if img_req.status == 200 then
     local md5chk = stdnse.tohex(openssl.md5(img_req.body))
     if md5chk == "a4c81b7a6289b2fc9b36848fa0cae83c" then
-      stdnse.print_debug(1, "%s:CF version 10 detected.", SCRIPT_NAME)
+      stdnse.debug1("CF version 10 detected.")
       version = 10
     elseif md5chk == "596b3fc4f1a0b818979db1cf94a82220" then
-      stdnse.print_debug(1, "%s:CF version 9 detected.", SCRIPT_NAME)
+      stdnse.debug1("CF version 9 detected.")
       version = 9
     elseif md5chk == "" then
-      stdnse.print_debug(1, "%s:CF version 8 detected.", SCRIPT_NAME)
+      stdnse.debug1("CF version 8 detected.")
       version = 8
     else
-      stdnse.print_debug(1, "%s:Could not determine version.", SCRIPT_NAME)
+      stdnse.debug1("Could not determine version.")
       version = nil
     end
   end

@@ -202,15 +202,15 @@ local id_database = {
 
 local receive_tag = function(conn)
   local status, data = conn:receive_buf(">", true)
-  if data then stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, data) end
+  if data then stdnse.debug2("%s", data) end
   return status and xmpp.XML.parse_tag(data)
 end
 
 local log_tag = function(tag)
-  stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, "name=" .. tag.name)
-  stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, "finish=" .. tostring(tag.finish))
-  stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, "empty=" .. tostring(tag.empty))
-  stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, "contents=" .. tag.contents)
+  stdnse.debug2("%s", "name=" .. tag.name)
+  stdnse.debug2("%s", "finish=" .. tostring(tag.finish))
+  stdnse.debug2("%s", "empty=" .. tostring(tag.empty))
+  stdnse.debug2("%s", "contents=" .. tag.contents)
 end
 
 local make_request = function(server_name, xmlns)
@@ -542,7 +542,7 @@ action = function(host, port)
   local tls_result
   local starttls_failed
 
-  stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, "server = " .. server_name)
+  stdnse.debug2("%s", "server = " .. server_name)
 
   local altname_result = scan(host, port, alt_server_name, false)
 

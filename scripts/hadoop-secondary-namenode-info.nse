@@ -59,13 +59,13 @@ action = function( host, port )
 
   local result = {}
   local uri = "/status.jsp"
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Resposne")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     local stats = {}
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
+    stdnse.debug2("Body %s\n",body)
     -- Page isn't valid html :(
     for i in string.gmatch(body,"\n[%w%s]+:%s+[^][\n]+") do
       table.insert(stats,i:match(":%s+([^][\n]+)"))

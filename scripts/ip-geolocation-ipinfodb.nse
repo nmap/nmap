@@ -36,7 +36,7 @@ categories = {"discovery","external","safe"}
 hostrule = function(host)
   local is_private, err = ipOps.isPrivate( host.ip )
   if is_private == nil then
-    stdnse.print_debug( "%s not running: Error in Hostrule: %s.", SCRIPT_NAME, err )
+    stdnse.debug1("not running: Error in Hostrule: %s.", err )
     return false
   elseif is_private then
     stdnse.debug1("not running: Private IP address of target: %s", host.ip)

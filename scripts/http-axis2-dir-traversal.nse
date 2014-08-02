@@ -145,14 +145,14 @@ action = function(host, port)
   --Use selected service and exploit
   stdnse.debug1("Querying service: %s", selected_service)
   req = http.get(host, port, basepath..selected_service.."?xsd="..rfile)
-  stdnse.print_debug(2, "%s: Query -> %s", SCRIPT_NAME, basepath..selected_service.."?xsd="..rfile)
+  stdnse.debug2("Query -> %s", basepath..selected_service.."?xsd="..rfile)
 
   --response came back
   if req.status and req.status == 200 then
     --if body is empty something wrong could have happened...
     if string.len(req.body) <= 0 then
       if nmap.verbosity() >= 2 then
-        stdnse.print_debug(1, "%s:Response was empty. The file does not exists or the web server does not have sufficient permissions", SCRIPT_NAME)
+        stdnse.debug1("Response was empty. The file does not exists or the web server does not have sufficient permissions")
       end
       return
     end

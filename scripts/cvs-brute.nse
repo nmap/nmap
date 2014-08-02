@@ -63,7 +63,7 @@ Driver =
 
     -- This error seems to indicate that the user does not exist
     if ( err:match("E PAM start error%: Critical error %- immediate abort\0$") ) then
-      stdnse.print_debug(2, "%s: The user %s does not exist", SCRIPT_NAME, username)
+      stdnse.debug2("The user %s does not exist", username)
       local err = brute.Error:new("Account invalid")
       err:setInvalidAccount(username)
       return false, err

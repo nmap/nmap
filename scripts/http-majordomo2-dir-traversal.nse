@@ -76,7 +76,7 @@ action = function(host, port)
   response = http.get(host, port, evil_uri)
   if response.body and response.status==200 then
     if response.body:match("unknowntopic") then
-      stdnse.print_debug(1, "%s:[Error] The server is not vulnerable, '%s' was not found or the web server has insufficient permissions to read it", SCRIPT_NAME, rfile)
+      stdnse.debug1("[Error] The server is not vulnerable, '%s' was not found or the web server has insufficient permissions to read it", rfile)
       return
     end
     local _

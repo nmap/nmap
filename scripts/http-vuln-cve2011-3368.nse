@@ -84,7 +84,7 @@ servers to remote users who send carefully crafted requests.]],
 
   local bypass_request = http.pipeline_go(host,port, all)
   if ( not(bypass_request) ) then
-    stdnse.print_debug(1, "%s : got no answers from pipelined queries", SCRIPT_NAME)
+    stdnse.debug1("got no answers from pipelined queries")
     return "\n  ERROR: Got no answers from pipelined queries"
   end
 
@@ -112,7 +112,7 @@ servers to remote users who send carefully crafted requests.]],
   end
 
   for i=1, #bypass_request, 1 do
-    stdnse.print_debug(1, "%s : test %d returned a %d", SCRIPT_NAME,i,bypass_request[i].status)
+    stdnse.debug1("test %d returned a %d",i,bypass_request[i].status)
 
     -- here a 400 should be the evidence for a patched server.
     if ( bypass_request[i].status == 200 and vuln.state ~= vulns.STATE.VULN )  then

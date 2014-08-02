@@ -91,7 +91,7 @@ local table = require "table"
 hostrule = function( host )
   local is_private, err = ipOps.isPrivate( host.ip )
   if is_private == nil then
-    stdnse.print_debug( "%s Error in Hostrule: %s.", SCRIPT_NAME, err )
+    stdnse.debug1("Error in Hostrule: %s.", err )
     return false
   end
 

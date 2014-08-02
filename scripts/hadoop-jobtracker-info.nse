@@ -62,14 +62,14 @@ end
 get_userhistory = function( host, port )
   local results = {}
   local uri = "/jobhistory.jsp?pageno=-1&search="
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,body)
+    stdnse.debug2("Body %s\n",body)
     for line in string.gmatch(body, "[^\n]+") do
-      stdnse.print_debug(3, "%s: Line %s\n", SCRIPT_NAME,line)
+      stdnse.debug3("Line %s\n",line)
       if line:match("job_[%d_]+") then
         local user =  line:match("<td>([^][<>]+)</td></tr>")
         local job_time =  line:match("</td><td>([^][<]+)")
@@ -83,13 +83,13 @@ end
 get_tasktrackers = function( host, port )
   local results = {}
   local uri = "/machines.jsp?type=active"
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,response['body'])
+    stdnse.debug2("Body %s\n",response['body'])
     for line in string.gmatch(response['body'], "[^\n]+") do
-      stdnse.print_debug(3, "%s: Line %s\n", SCRIPT_NAME,line)
+      stdnse.debug3("Line %s\n",line)
       if line:match("href=\"[%w]+://([%w%.:]+)/\">tracker") then
         local tasktracker =  line:match("href=\".*//([%w%.:]+)/\">tracker")
         stdnse.debug1("taskstracker %s",tasktracker)
@@ -110,11 +110,11 @@ action = function( host, port )
 
   local result = {}
   local uri = "/jobtracker.jsp"
-  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s", SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
+  stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
-    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME,response['body'])
+    stdnse.debug2("Body %s\n",response['body'])
     if response['body']:match("State:</b>%s*([^][<]+)") then
       local state = response['body']:match("State:</b>%s*([^][<]+)")
       stdnse.debug1("State %s",state)

@@ -39,7 +39,7 @@ local arg_target = stdnse.get_script_args(SCRIPT_NAME .. ".target")
 
 hostrule = function(host)
   if ( not(host.mac_addr) ) then
-    stdnse.print_debug( "%s: Failed to determine hosts remote MAC address", SCRIPT_NAME )
+    stdnse.debug1("Failed to determine hosts remote MAC address" )
   end
   return (arg_target ~= nil and host.mac_addr ~= nil)
 end

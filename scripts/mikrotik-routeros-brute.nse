@@ -59,19 +59,19 @@ Driver =
     try = nmap.new_try(function() return false end)
     try(self.s:send(data))
     data = try(self.s:receive_bytes(50))
-    stdnse.print_debug(1, "%s:Response #1:%s", SCRIPT_NAME, data)
+    stdnse.debug1("Response #1:%s", data)
     local _, _, ret = string.find(data, '!done%%=ret=(.+)')
 
     --If we find the challenge value we continue the connection process
     if ret then
-        stdnse.print_debug(1, "%s:Challenge value found:%s", SCRIPT_NAME, ret)
+        stdnse.debug1("Challenge value found:%s", ret)
         local md5str = bin.pack("xAA", password, bin.pack("H", ret)) --appends pwd and challenge
         local chksum = stdnse.tohex(openssl.md5(md5str))
         local user_l = username:len()+6 --we add six because of the string "=name="
         local login_pkt = bin.pack("cAcAcAx", 0x6, "/login", user_l, "=name="..username, 0x2c, "=response=00"..chksum)
         try(self.s:send(login_pkt))
         data = try(self.s:receive_bytes(50))
-        stdnse.print_debug(1, "%s:Response #2:%s", SCRIPT_NAME, data)
+        stdnse.debug1("Response #2:%s", data)
         if data then
           if string.find(data, "message=cannot") == nil then
             local c = creds.Credentials:new(SCRIPT_NAME, self.host, self.port )

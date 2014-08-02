@@ -56,7 +56,7 @@ action = function(host, port)
       elseif req.status == 404 and nmap.verbosity() >= 2 then
         output[#output+1] = string.format("Page: %s was not found. Try with an existing file.", rfile)
       end
-      stdnse.print_debug(2, "%s:Request status:%s body:%s", SCRIPT_NAME, req.status, req.body)
+      stdnse.debug2("Request status:%s body:%s", req.status, req.body)
     else
       output[#output+1] = "\nLitespeed Web Server Source Code Disclosure (CVE-2010-2333)"
       output[#output+1] = string.format("%s source code:", rfile)

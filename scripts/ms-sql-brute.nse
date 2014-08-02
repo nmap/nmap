@@ -142,7 +142,7 @@ local function test_credentials( instance, helper, username, password )
   local status, result = helper:ConnectEx( instance )
   local loginErrorCode
   if( status ) then
-    stdnse.print_debug( 2, "%s: Attempting login to %s as %s/%s", SCRIPT_NAME, instance:GetName(), username, password )
+    stdnse.debug2("Attempting login to %s as %s/%s", instance:GetName(), username, password )
     status, result, loginErrorCode = helper:Login( username, password, database, instance.host.ip )
   end
   helper:Disconnect()
@@ -160,7 +160,7 @@ local function test_credentials( instance, helper, username, password )
     if ( loginErrorCode == mssql.LoginErrorType.PasswordExpired ) then passwordIsGood = true
     elseif ( loginErrorCode == mssql.LoginErrorType.PasswordMustChange ) then passwordIsGood = true
     elseif ( loginErrorCode == mssql.LoginErrorType.AccountLockedOut ) then
-      stdnse.print_debug( 1, "%s: Account %s locked out on %s", SCRIPT_NAME, username, instance:GetName() )
+      stdnse.debug1("Account %s locked out on %s", username, instance:GetName() )
       table.insert( instance.ms_sql_brute.warnings, string.format( "%s: Account is locked out.", username ) )
       if ( not stdnse.get_script_args( "ms-sql-brute.ignore-lockout" ) ) then
         stopInstance = true
@@ -226,14 +226,14 @@ local function process_instance( instance )
     local helper = mssql.Helper:new()
 
     if ( not instance:HasNetworkProtocols() ) then
-      stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("%s has no network protocols enabled.", instance:GetName() )
       table.insert( instance.ms_sql_brute.errors, "No network protocols enabled." )
       stopInstance = true
     end
 
     status, usernames = unpwdb.usernames()
     if ( not(status) ) then
-      stdnse.print_debug( 1, "%s: Failed to load usernames list.", SCRIPT_NAME )
+      stdnse.debug1("Failed to load usernames list." )
       table.insert( instance.ms_sql_brute.errors, "Failed to load usernames list." )
       stopInstance = true
     end
@@ -241,7 +241,7 @@ local function process_instance( instance )
     if ( status ) then
       status, passwords = unpwdb.passwords()
       if ( not(status) ) then
-        stdnse.print_debug( 1, "%s: Failed to load passwords list.", SCRIPT_NAME )
+        stdnse.debug1("Failed to load passwords list." )
         table.insert( instance.ms_sql_brute.errors, "Failed to load passwords list." )
         stopInstance = true
       end

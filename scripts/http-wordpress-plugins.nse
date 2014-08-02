@@ -91,7 +91,7 @@ action = function(host, port)
     plugins_search = tonumber(plugins_search_arg)
   end
 
-  stdnse.print_debug(1, "%s plugins search range: %s", SCRIPT_NAME, plugins_search or "unlimited")
+  stdnse.debug1("plugins search range: %s", plugins_search or "unlimited")
 
 
   -- search the website root for evidences of a Wordpress path
@@ -102,9 +102,9 @@ action = function(host, port)
       wp_autoroot = string.match(target_index.body, "http://[%w%-%.]-/([%w%-%./]-)wp%-content")
       if wp_autoroot then
         wp_autoroot = "/" .. wp_autoroot
-        stdnse.print_debug(1, "%s WP root directory: %s", SCRIPT_NAME, wp_autoroot)
+        stdnse.debug1("WP root directory: %s", wp_autoroot)
       else
-        stdnse.print_debug(1, "%s WP root directory: wp_autoroot was unable to find a WP content dir (root page returns %d).", SCRIPT_NAME, target_index.status)
+        stdnse.debug1("WP root directory: wp_autoroot was unable to find a WP content dir (root page returns %d).", target_index.status)
       end
     end
   end
@@ -147,7 +147,7 @@ action = function(host, port)
   -- release hell...
   local pipeline_returns = http.pipeline_go(host, port, all)
   if not pipeline_returns then
-    stdnse.print_debug(1, "%s : got no answers from pipelined queries", SCRIPT_NAME)
+    stdnse.debug1("got no answers from pipelined queries")
   end
 
   for i, data in pairs(pipeline_returns) do

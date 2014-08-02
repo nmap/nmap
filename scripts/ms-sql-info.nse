@@ -201,21 +201,21 @@ local function process_instance( instance )
     foundVersion, ssnetlibVersion = mssql.Helper.GetInstanceVersion( instance )
     if ( foundVersion ) then
       instance.version = ssnetlibVersion
-      stdnse.print_debug( 1, "%s: Retrieved SSNetLib version for %s.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("Retrieved SSNetLib version for %s.", instance:GetName() )
     else
-      stdnse.print_debug( 1, "%s: Could not retrieve SSNetLib version for %s.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("Could not retrieve SSNetLib version for %s.", instance:GetName() )
     end
   end
 
   -- If we didn't get a version from SSNetLib, give the user some detail as to why
   if ( not foundVersion ) then
     if ( not instance:HasNetworkProtocols() ) then
-      stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("%s has no network protocols enabled.", instance:GetName() )
     end
     if ( instance.version ) then
-      stdnse.print_debug( 1, "%s: Using version number from SSRP response for %s.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("Using version number from SSRP response for %s.", instance:GetName() )
     else
-      stdnse.print_debug( 1, "%s: Version info could not be retrieved for %s.", SCRIPT_NAME, instance:GetName() )
+      stdnse.debug1("Version info could not be retrieved for %s.", instance:GetName() )
     end
   end
 

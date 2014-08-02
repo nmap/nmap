@@ -79,7 +79,7 @@ local function getMechs(host, port)
 
   local status, response = helper:getSASLMechList()
   if ( not(status) ) then
-    stdnse.print_debug(2, "%s: Received unexpected response: %s", SCRIPT_NAME, response)
+    stdnse.debug2("Received unexpected response: %s", response)
     return false, "Received unexpected response"
   end
 

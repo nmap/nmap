@@ -136,7 +136,7 @@ function init()
     stdnse.get_script_args('userdir.users')
   local read, usernames = datafiles.parse_file(customlist or "nselib/data/usernames.lst", {})
   if not read then
-    stdnse.print_debug(1, "%s %s", SCRIPT_NAME,
+    stdnse.debug1("%s",
       usernames or "Unknown Error reading usernames list.")
     nmap.registry.userdir = {}
     return nil
@@ -144,7 +144,7 @@ function init()
   -- random dummy username to catch false positives (not necessary)
 --  if #usernames > 0 then table.insert(usernames, 1, randomstring()) end
   nmap.registry.userdir = usernames
-  stdnse.print_debug(1, "%s Testing %d usernames.", SCRIPT_NAME, #usernames)
+  stdnse.debug1("Testing %d usernames.", #usernames)
   return nil
 end
 

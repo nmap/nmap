@@ -212,7 +212,7 @@ local rpcGrinder = function(host, port, iterator, result)
 
         -- Otherwise, an Accept state other than Program unavailable is not normal behaviour.
       elseif response.accept_state ~= rpc.Portmap.AcceptState.PROG_UNAVAIL then
-        stdnse.print_debug("%s: returned %s accept state for %s program number.",SCRIPT_NAME, response.accept_state, number)
+        stdnse.debug1("returned %s accept state for %s program number.", response.accept_state, number)
       end
     end
   end

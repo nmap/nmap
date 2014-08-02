@@ -70,7 +70,7 @@ action = function(host, port)
   local use_body = stdnse.get_script_args(SCRIPT_NAME..".detectBodyChanges") or false
 
   --get original response from a "good" request
-  stdnse.print_debug(2, "%s: Requesting URI %s", SCRIPT_NAME, path)
+  stdnse.debug2("Requesting URI %s", path)
   orig_req = http.get(host, port, path)
   orig_req.body = http.clean_404(orig_req.body)
   if orig_req.status and orig_req.body then

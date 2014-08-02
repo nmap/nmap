@@ -134,7 +134,7 @@ action = function(host, port)
     end
   elseif response.status==500 then
     vuln.state = vulns.STATE.LIKELY_VULN
-    stdnse.print_debug(1, "%s:[Error] File not found:%s", SCRIPT_NAME, rfile)
+    stdnse.debug1("[Error] File not found:%s", rfile)
     stdnse.debug1("response : %s", response.body)
     vuln.extra_info = string.format("%s not found.\n", rfile)
   end

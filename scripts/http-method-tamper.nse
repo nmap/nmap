@@ -73,7 +73,7 @@ portrule = shortport.http
 -- First, it tries with HEAD, POST and then with a random string.
 --
 local function probe_http_verbs(host, port, uri)
-  stdnse.print_debug(2, "%s:Tampering HTTP verbs %s", SCRIPT_NAME, uri)
+  stdnse.debug2("Tampering HTTP verbs %s", uri)
   local head_req = http.head(host, port, uri)
   if head_req and head_req.status ~= 401 then
     return true, "HEAD"
@@ -134,11 +134,11 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
         end
       end
       if r.response.status == 401 then
-        stdnse.print_debug(2, "%s:%s is protected! Let's try some verb tampering...", SCRIPT_NAME, tostring(r.url))
+        stdnse.debug2("%s is protected! Let's try some verb tampering...", tostring(r.url))
         local parsed = url.parse(tostring(r.url))
         local probe_status, probe_type = probe_http_verbs(host, port, parsed.path)
         if probe_status then
-          stdnse.print_debug(1, "%s:Vulnerable URI %s", SCRIPT_NAME, uri)
+          stdnse.debug1("Vulnerable URI %s", uri)
           table.insert(vuln_uris, parsed.path..string.format(" [%s]", probe_type))
         end
       end
@@ -157,7 +157,7 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
       if path_req.status == 401 then
         local probe_status, probe_type = probe_http_verbs(host, port, path)
         if probe_status then
-          stdnse.print_debug(1, "%s:Vulnerable URI %s", SCRIPT_NAME, path)
+          stdnse.debug1("Vulnerable URI %s", path)
           table.insert(vuln_uris, path..string.format(" [%s]", probe_type))
         end
       end
