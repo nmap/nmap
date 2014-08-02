@@ -58,7 +58,7 @@ local function custom_test(host, port, test_url, pattern)
   -- strip hostname
   if not string.match(test_url, "^http://.*") then
     test_url = "http://" .. test_url
-    stdnse.print_debug("URL missing scheme. URL concatenated to http://")
+    stdnse.debug1("URL missing scheme. URL concatenated to http://")
   end
   local url_table = url.parse(test_url)
   local hostname = url_table.host
@@ -118,7 +118,7 @@ local function default_test(host, port)
   -- if we do not receive any valid status code,
   -- there is no reason to keep testing... the proxy is probably not open
   if not (cstatus4 or cstatus5) then return false, nil end
-  stdnse.print_debug("Test 1 - Google Web Server: Received valid status codes, but pattern does not match")
+  stdnse.debug1("Test 1 - Google Web Server: Received valid status codes, but pattern does not match")
 
   test_url = "/"
   hostname = "www.wikipedia.org"
@@ -131,7 +131,7 @@ local function default_test(host, port)
   if(fstatus) then return fstatus, response end
 
   if not (cstatus4 or cstatus5) then return false, nil end
-  stdnse.print_debug("Test 2 - Wikipedia.org: Received valid status codes, but pattern does not match")
+  stdnse.debug1("Test 2 - Wikipedia.org: Received valid status codes, but pattern does not match")
 
   local redir_check_get = get_r4 or get_r5
 
@@ -146,7 +146,7 @@ local function default_test(host, port)
   if(fstatus) then return fstatus, response end
 
   if not (cstatus4 or cstatus5) then return false, nil end
-  stdnse.print_debug("Test 3 - Computer History: Received valid status codes, but pattern does not match")
+  stdnse.debug1("Test 3 - Computer History: Received valid status codes, but pattern does not match")
 
   -- Check if GET is being redirected
   if proxy.redirectCheck(get_r4 or get_r5, redir_check_get) then

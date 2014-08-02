@@ -48,7 +48,7 @@ action = function()
 
     local status, _, _, ip = socket:get_info()
     if ( not(status) ) then
-      stdnse.print_debug(2, "Failed to get socket information")
+      stdnse.debug2("Failed to get socket information")
       break
     end
 

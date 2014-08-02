@@ -74,7 +74,7 @@ action = function(host, port)
   orig_req = http.get(host, port, path)
   orig_req.body = http.clean_404(orig_req.body)
   if orig_req.status and orig_req.body then
-    stdnse.print_debug(3, "Normal HTTP response -> Status:%d Body:\n%s", orig_req.status, orig_req.body)
+    stdnse.debug3("Normal HTTP response -> Status:%d Body:\n%s", orig_req.status, orig_req.body)
   else
     return "[ERROR] Initial HTTP request failed"
   end
@@ -88,7 +88,7 @@ action = function(host, port)
   --perform the "3v1l" requests to try to trigger the IDS/IPS/WAF
   tests = nil
   for _, vector in pairs(attack_vectors_n1) do
-    stdnse.print_debug(2, "Probing with payload:%s",vector)
+    stdnse.debug2("Probing with payload:%s",vector)
     tests = http.pipeline_add(path..vector, nil, tests)
   end
   local test_results = http.pipeline_go(host, port, tests)
@@ -110,9 +110,9 @@ action = function(host, port)
       if payload_example and ( string.len(payload_example) > string.len(attack_vectors_n1[i]) ) then
         payload_example = attack_vectors_n1[i]
       end
-      stdnse.print_debug(2, "Payload:%s triggered the IDS/IPS/WAF", attack_vectors_n1[i])
+      stdnse.debug2("Payload:%s triggered the IDS/IPS/WAF", attack_vectors_n1[i])
       if res.status and res.body then
-        stdnse.print_debug(3, "Status:%s Body:%s\n", res.status, res.body)
+        stdnse.debug3("Status:%s Body:%s\n", res.status, res.body)
       end
       waf_bool = true
     end

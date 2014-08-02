@@ -60,7 +60,7 @@ function custom_test(host, port, test_url, pattern)
   -- strip hostname
   if not string.match(test_url, "^http://.*") then
     test_url = "http://" .. test_url
-    stdnse.print_debug("URL missing scheme. URL concatenated to http://")
+    stdnse.debug1("URL missing scheme. URL concatenated to http://")
   end
   local url_table = url.parse(test_url)
   local hostname = url_table.host
@@ -136,7 +136,7 @@ function default_test(host, port)
   -- if we do not receive any valid status code,
   -- there is no reason to keep testing... the proxy is probably not open
   if not (get_cstatus or head_cstatus or conn_status) then return false, nil end
-  stdnse.print_debug("Test 1 - Google Web Server\nReceived valid status codes, but pattern does not match")
+  stdnse.debug1("Test 1 - Google Web Server\nReceived valid status codes, but pattern does not match")
 
   test_url = "http://www.wikipedia.org"
   hostname = "www.wikipedia.org"
@@ -156,7 +156,7 @@ function default_test(host, port)
 
   -- same valid code checking as above
   if not (get_cstatus or head_cstatus or conn_status) then return false, nil end
-  stdnse.print_debug("Test 2 - Wikipedia.org\nReceived valid status codes, but pattern does not match")
+  stdnse.debug1("Test 2 - Wikipedia.org\nReceived valid status codes, but pattern does not match")
 
   test_url = "http://www.computerhistory.org"
   hostname = "www.computerhistory.org"
@@ -172,7 +172,7 @@ function default_test(host, port)
 
   if fstatus then return fstatus, "Methods supported:" .. response end
   if not get_cstatus then
-    stdnse.print_debug("Test 3 - Computer History\nReceived valid status codes, but pattern does not match")
+    stdnse.debug1("Test 3 - Computer History\nReceived valid status codes, but pattern does not match")
   end
 
   -- Check if GET is being redirected

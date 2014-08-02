@@ -69,7 +69,7 @@ getLastLoc = function(host, port, useragent)
 
   options['header']['User-Agent'] = useragent
 
-  stdnse.print_debug(2, "Making a request with User-Agent: " .. useragent)
+  stdnse.debug2("Making a request with User-Agent: " .. useragent)
 
   local response = http.get(host, port, '/', options)
 

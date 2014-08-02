@@ -73,14 +73,14 @@ local client_hello = function(host, port)
   status, err = sock:connect(host, port)
   if not status then
     sock:close()
-    stdnse.print_debug("Can't send: %s", err)
+    stdnse.debug1("Can't send: %s", err)
     return false
   end
 
   -- Send Client Hello to the target server
   status, err = sock:send(cli_h)
   if not status then
-    stdnse.print_debug("Couldn't send: %s", err)
+    stdnse.debug1("Couldn't send: %s", err)
     sock:close()
     return false
   end
@@ -88,7 +88,7 @@ local client_hello = function(host, port)
   -- Read response
   status, response, err = tls.record_buffer(sock)
   if not status then
-    stdnse.print_debug("Couldn't receive: %s", err)
+    stdnse.debug1("Couldn't receive: %s", err)
     sock:close()
     return false
   end

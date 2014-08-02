@@ -85,7 +85,7 @@ action = function(host, port)
               if ( #prefix > 1 ) then
                 table.insert(prefixes,prefix)
                 if target.ALLOW_NEW_TARGETS then
-                  stdnse.print_debug("Added targets: "..prefix)
+                  stdnse.debug1("Added targets: "..prefix)
                   local status,err = target.add(prefix)
                 end
               end

@@ -52,7 +52,7 @@ end
 local function recvhdr(s)
   local status, hdr = s:receive_buf(match.numbytes(5), true)
   if not status then
-    stdnse.print_debug(3, 'Unexpected EOF receiving record header - server closed connection')
+    stdnse.debug3('Unexpected EOF receiving record header - server closed connection')
     return
   end
   local pos, typ, ver, ln = bin.unpack('>CSS', hdr)
@@ -62,7 +62,7 @@ end
 local function recvmsg(s, len)
   local status, pay = s:receive_buf(match.numbytes(len), true)
   if not status then
-    stdnse.print_debug(3, 'Unexpected EOF receiving record payload - server closed connection')
+    stdnse.debug3('Unexpected EOF receiving record payload - server closed connection')
     return
   end
   return true, pay
@@ -109,14 +109,14 @@ local function testversion(host, port, version)
     local status
     status, s = specialized(host, port)
     if not status then
-      stdnse.print_debug(3, "Connection to server failed")
+      stdnse.debug3("Connection to server failed")
       return
     end
   else
     s = nmap.new_socket()
     local status = s:connect(host, port)
     if not status then
-      stdnse.print_debug(3, "Connection to server failed")
+      stdnse.debug3("Connection to server failed")
       return
     end
   end
@@ -126,7 +126,7 @@ local function testversion(host, port, version)
   -- Send Client Hello to the target server
   local status, err = s:send(hello)
   if not status then
-    stdnse.print_debug("Couldn't send Client Hello: %s", err)
+    stdnse.debug1("Couldn't send Client Hello: %s", err)
     s:close()
     return nil
   end
@@ -145,7 +145,7 @@ local function testversion(host, port, version)
       done = true
       break
     elseif not status then
-      stdnse.print_debug("Couldn't receive: %s", err)
+      stdnse.debug1("Couldn't receive: %s", err)
       s:close()
       return nil
     end
@@ -169,7 +169,7 @@ local function testversion(host, port, version)
             supported = true
           end
         elseif body.type == "server_hello_done" then
-          stdnse.print_debug("we're done!")
+          stdnse.debug1("we're done!")
           done = true
         end
       end
@@ -183,14 +183,14 @@ local function testversion(host, port, version)
 
   status, err = s:send(hb)
   if not status then
-    stdnse.print_debug("Couldn't send heartbeat request: %s", err)
+    stdnse.debug1("Couldn't send heartbeat request: %s", err)
     s:close()
     return nil
   end
   while(true) do
     local status, typ, ver, len = recvhdr(s)
     if not status then
-      stdnse.print_debug(1, 'No heartbeat response received, server likely not vulnerable')
+      stdnse.debug1('No heartbeat response received, server likely not vulnerable')
       break
     end
     if typ == 24 then
@@ -200,11 +200,11 @@ local function testversion(host, port, version)
       if #pay > 3 then
         return true
       else
-        stdnse.print_debug(1, 'Server processed malformed heartbeat, but did not return any extra data.')
+        stdnse.debug1('Server processed malformed heartbeat, but did not return any extra data.')
         break
       end
     elseif typ == 21 then
-      stdnse.print_debug(1, 'Server returned error, likely not vulnerable')
+      stdnse.debug1('Server returned error, likely not vulnerable')
       break
     end
   end

@@ -1029,11 +1029,11 @@ function constrain_response( response, db, ip, meta )
     local dbg = "%s %s %s smallest range is offset from %s to %s."
     -- isolate inetnum and associated objects
     if bound then
-      stdnse.print_debug(5, dbg, SCRIPT_NAME, ip, db, ptr, bound)
+      stdnse.debug5(dbg, SCRIPT_NAME, ip, db, ptr, bound)
       -- get from pointer to bound
       return response:sub(ptr,bound), ptr
     else
-      stdnse.print_debug(5, dbg, SCRIPT_NAME, ip, db, ptr, "the end")
+      stdnse.debug5(dbg, SCRIPT_NAME, ip, db, ptr, "the end")
       -- or get the whole thing from the pointer onwards
       return response:sub(ptr), ptr
     end

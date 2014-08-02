@@ -82,7 +82,7 @@ Driver = {
 
     -- Loop over the lines
     while(line)do
-      stdnse.print_debug("Received: %s", line)
+      stdnse.debug1("Received: %s", line)
       if(string.match(line, "^230")) then
         stdnse.debug1("Successful login: %s/%s", user, pass)
         return true, brute.Account:new( user, pass, creds.State.VALID)

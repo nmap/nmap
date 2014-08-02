@@ -224,7 +224,7 @@ action = function(host, port)
   local result, lthreads = {}, {}
 
   if not isRPC(host, port) then
-    stdnse.print_debug("Target port %s is not a RPC port.", port.number)
+    stdnse.debug1("Target port %s is not a RPC port.", port.number)
     return
   end
   local threads = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".threads")) or 4
@@ -262,7 +262,7 @@ action = function(host, port)
     end
     nmap.set_port_version(host, port, "hardmatched")
   else
-    stdnse.print_debug("Couldn't determine the target RPC service. Running a service not in nmap-rpc ?")
+    stdnse.debug1("Couldn't determine the target RPC service. Running a service not in nmap-rpc ?")
   end
   return nil
 end

@@ -203,7 +203,7 @@ function formatoptions(header)
   end
   local rawmeth = msg["method"]
   if not rawmeth then
-    stdnse.print_debug(2, "header missing method field")
+    stdnse.debug2("header missing method field")
     return
   end
   local method = parsestring(rawmeth)
@@ -211,7 +211,7 @@ function formatoptions(header)
     return
   end
   if method ~= "hello" then
-    stdnse.print_debug(1, "expecting hello, got " .. method .. " instead")
+    stdnse.debug1("expecting hello, got " .. method .. " instead")
     return
   end
   local rawopts = msg["options"]

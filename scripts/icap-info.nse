@@ -51,7 +51,7 @@ local function parseResponse(resp)
   local resp_tbl = stdnse.strsplit("\r?\n", resp)
 
   if ( not(resp_tbl) or #resp_tbl == 0 ) then
-    stdnse.print_debug(2, "Received an invalid response from server")
+    stdnse.debug2("Received an invalid response from server")
     return
   end
 
@@ -61,7 +61,7 @@ local function parseResponse(resp)
   for i=2, #resp_tbl do
     local key, val = resp_tbl[i]:match("^([^:]*):%s*(.*)$")
     if ( not(key) or not(val) ) then
-      stdnse.print_debug(2, "Failed to parse header: %s", resp_tbl[i])
+      stdnse.debug2("Failed to parse header: %s", resp_tbl[i])
     else
       resp_p.header[key:lower()] = val
     end

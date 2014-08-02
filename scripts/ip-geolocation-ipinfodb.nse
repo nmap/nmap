@@ -58,11 +58,11 @@ local ipinfodb = function(ip)
   local response = http.get("api.ipinfodb.com", 80, "/v3/ip-city/?key="..api_key.."&format=json".."&ip="..ip, nil)
   local stat, loc = json.parse(response.body)
   if not stat then
-    stdnse.print_debug("No response, possibly a network problem.")
+    stdnse.debug1("No response, possibly a network problem.")
     return nil
   end
   if loc.statusMessage and loc.statusMessage == "Invalid API key." then
-    stdnse.print_debug(loc.statusMessage)
+    stdnse.debug1(loc.statusMessage)
     return nil
   end
 

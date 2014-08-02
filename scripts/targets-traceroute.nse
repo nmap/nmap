@@ -56,7 +56,7 @@ action = function(host)
         stdnse.print_debug(3,
             "TRACEROUTE Scan Hops: Added new target "..host.ip.." from traceroute results")
       else
-        stdnse.print_debug(3, "TRACEROUTE Scan Hops: " .. ret)
+        stdnse.debug3("TRACEROUTE Scan Hops: " .. ret)
       end
     end
   end

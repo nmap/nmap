@@ -209,7 +209,7 @@ end
 local igmpRaw = function(interface, version)
   -- Only 1, 2 and 3 are valid IGMP versions
   if version ~= 1 and version ~= 2 and version ~= 3 then
-    stdnse.print_debug("IGMP version %s doesn't exist.", version)
+    stdnse.debug1("IGMP version %s doesn't exist.", version)
     return
   end
 

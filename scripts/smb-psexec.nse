@@ -806,7 +806,7 @@ local function get_config(host, config)
   end
 
   -- Load the config file
-  local env = setmetatable({modules = {}; overrides = {}; module = function() stdnse.print_debug(1, "WARNING: Selected config file contains an unnecessary call to module()") end}, {__index = _G})
+  local env = setmetatable({modules = {}; overrides = {}; module = function() stdnse.debug1("WARNING: Selected config file contains an unnecessary call to module()") end}, {__index = _G})
   stdnse.debug1("Attempting to load config file: %s", filename)
   local file = loadfile(filename, "t", env)
   if(not(file)) then
@@ -963,10 +963,10 @@ local function get_config(host, config)
       mod.filename = locate_file(mod.program, "exe")
       if(mod.filename == nil) then
         enabled = false
-        stdnse.print_debug(1, "Couldn't find uploadable module %s, disabling", mod.program)
+        stdnse.debug1("Couldn't find uploadable module %s, disabling", mod.program)
         mod.disabled_message = {string.format("Couldn't find uploadable module %s, disabling", mod.program)}
         if(mod.url) then
-          stdnse.print_debug(1, "You can try getting it from: %s", mod.url)
+          stdnse.debug1("You can try getting it from: %s", mod.url)
           table.insert(mod.disabled_message, string.format("You can try getting it from: %s", mod.url))
           table.insert(mod.disabled_message, "And placing it in Nmap's nselib/data/psexec/ directory")
         end
@@ -1124,7 +1124,7 @@ local function upload_everything(host, config)
   if is_xor_encoded == nil then
     return nil, msg
   elseif is_xor_encoded then
-    stdnse.print_debug(2, "%s is the XOR-encoded version from the 5.21 release.", config.local_service_file)
+    stdnse.debug2("%s is the XOR-encoded version from the 5.21 release.", config.local_service_file)
   end
 
   -- Upload the service file
@@ -1407,8 +1407,8 @@ local function parse_output(config, data)
         -- Go to the next module, and make sure it exists
         mod = config.enabled_modules[module_num + 1]
         if(mod == nil) then
-          stdnse.print_debug(1, "Server's response wasn't formatted properly (mod %d); if you can reproduce, place report to dev@nmap.org", module_num)
-          stdnse.print_debug(1, "--\n" .. string.gsub("%%", "%%", data) .. "\n--")
+          stdnse.debug1("Server's response wasn't formatted properly (mod %d); if you can reproduce, place report to dev@nmap.org", module_num)
+          stdnse.debug1("--\n" .. string.gsub("%%", "%%", data) .. "\n--")
           return false, "Server's response wasn't formatted properly; if you can reproduce, place report to dev@nmap.org"
         end
 

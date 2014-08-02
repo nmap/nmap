@@ -307,7 +307,7 @@ local function enum(host, port, domain)
   while subdomain do
     local result = {}
     local status, result, nsec
-    stdnse.print_debug("Trying %q.%q", subdomain, domain)
+    stdnse.debug1("Trying %q.%q", subdomain, domain)
     status, result = dns.query(join({subdomain, domain}), {host = host.ip, port=port.number, proto=port.protocol, dtype='A', retAll=true, retPkt=true, dnssec=true})
     nsec = status and get_next_nsec(result, join({subdomain, domain})) or nil
     if nsec then
@@ -316,18 +316,18 @@ local function enum(host, port, domain)
 
       first, remainder = remove_suffix(nsec.dname, domain)
       if #remainder > 0 then
-        stdnse.print_debug("Result name %q doesn't end in %q.", nsec.dname, domain)
+        stdnse.debug1("Result name %q doesn't end in %q.", nsec.dname, domain)
         subdomain = nil
         break
       end
       last, remainder = remove_suffix(nsec.next_dname, domain)
       if #remainder > 0 then
-        stdnse.print_debug("Result name %q doesn't end in %q.", nsec.next_dname, domain)
+        stdnse.debug1("Result name %q doesn't end in %q.", nsec.next_dname, domain)
         subdomain = nil
         break
       end
       if #last == 0 then
-        stdnse.print_debug("Wrapped")
+        stdnse.debug1("Wrapped")
         subdomain = nil
         break
       end
@@ -345,7 +345,7 @@ local function enum(host, port, domain)
           all_results[index] = excise(all_results, index, -1)
         end
       else
-        stdnse.print_debug("adding %s", last)
+        stdnse.debug1("adding %s", last)
         subdomain = next_domain(last)
         table.insert(all_results, join({last, domain}))
         seen[last] = #all_results

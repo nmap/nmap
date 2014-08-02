@@ -257,7 +257,7 @@ action = function(host, port)
     local pos, CC_connect_confirm = bin.unpack("C", response, 6)
     -- if PDU type is not 0xd0, then not a successful COTP connection
     if ( CC_connect_confirm ~= 0xd0) then
-      stdnse.print_debug(1, "Not a successful COTP Packet")
+      stdnse.debug1("Not a successful COTP Packet")
       return nil
     end
     -- send and receive the packets as before.
@@ -266,7 +266,7 @@ action = function(host, port)
     local pos, protocol_id = bin.unpack("C", response, 8)
     -- if protocol ID is not 0x32 then return nil
     if ( protocol_id ~= 0x32) then
-      stdnse.print_debug(1, "Not a successful S7COMM Packet")
+      stdnse.debug1("Not a successful S7COMM Packet")
       return nil
     end
     response  = send_receive(sock, Read_SZL)
@@ -274,7 +274,7 @@ action = function(host, port)
     local pos, protocol_id = bin.unpack("C", response, 8)
     -- if protocol ID is not 0x32 then return nil
     if ( protocol_id ~= 0x32) then
-      stdnse.print_debug(1, "Not a successful S7COMM Packet")
+      stdnse.debug1("Not a successful S7COMM Packet")
       return nil
     end
     response  = send_receive(sock, first_SZL_Request)

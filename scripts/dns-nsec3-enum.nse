@@ -220,12 +220,12 @@ local function query_for_hashes(host,subdomain,domain)
       local h2 = string.lower(nsec3.hash.base32)
       if not stdnse.contains(all_results,"nexthash " .. h1 .. " " .. h2) then
         table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
-        stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
+        stdnse.debug1("nexthash " .. h1 .. " " .. h2)
       end
       ranges[h1] = h2
     end
   else
-    stdnse.print_debug(1, "DNS error: %s", result)
+    stdnse.debug1("DNS error: %s", result)
   end
   return ranges
 end
@@ -258,11 +258,11 @@ local function enum(host, port, domain)
       local h2 = string.lower(nsec3.hash.base32)
       if table_size(todo) == 0 then
         table.insert(all_results, "domain " .. domain)
-        stdnse.print_debug("domain " .. domain)
+        stdnse.debug1("domain " .. domain)
         table.insert(all_results, "salt " .. salt)
-        stdnse.print_debug("salt " .. salt)
+        stdnse.debug1("salt " .. salt)
         table.insert(all_results, "iterations " .. iter)
-        stdnse.print_debug("iterations " .. iter)
+        stdnse.debug1("iterations " .. iter)
         if h1 < h2 then
           todo[h2] = h1
         else
@@ -299,7 +299,7 @@ local function enum(host, port, domain)
         end -- for
       end -- else
       table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
-      stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
+      stdnse.debug1("nexthash " .. h1 .. " " .. h2)
     end
   end
 
@@ -342,7 +342,7 @@ local function enum(host, port, domain)
             end
           end
           --if changed then
-          --  stdnse.print_debug("break[]")
+          --  stdnse.debug1("break[]")
           --break
           --  end
         end

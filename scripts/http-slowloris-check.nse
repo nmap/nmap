@@ -93,7 +93,7 @@ local function slowThread2(host,port)
   local catch = function()
     -- note the time the socket timedout
     TimeWith = nmap.clock()
-    stdnse.print_debug("2 try")
+    stdnse.debug1("2 try")
   end
   local try = nmap.new_try(catch)
   socket = nmap.new_socket()
@@ -147,12 +147,12 @@ so, it starves the http server's resources causing Denial Of Service.
     return
   end
   local diff = TimeWith - TimeWithout
-  stdnse.print_debug("Time difference is: %d",diff)
+  stdnse.debug1("Time difference is: %d",diff)
   -- if second connection died 10 or more seconds after the first
   -- it means that sending additional data prolonged the connection's time
   -- and the server is vulnerable to slowloris attack
   if diff >= 10 then
-    stdnse.print_debug("Difference is greater or equal to 10 seconds.")
+    stdnse.debug1("Difference is greater or equal to 10 seconds.")
     slowloris.state = vulns.STATE.VULN
   end
   return report:make_output(slowloris)

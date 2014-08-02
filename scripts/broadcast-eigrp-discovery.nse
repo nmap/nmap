@@ -261,7 +261,7 @@ action = function()
     until next(lthreads) == nil;
 
     if #astab > 0 then
-      stdnse.print_debug("Will use %s A.S value.", astab[1])
+      stdnse.debug1("Will use %s A.S value.", astab[1])
       as = astab[1]
     else
       return "\n ERROR: Couldn't get an A.S value."

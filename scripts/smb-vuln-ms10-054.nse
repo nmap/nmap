@@ -88,7 +88,7 @@ local function send_transaction2(smbstate, sub_command, function_parameters)
   local data = "\0\0\0" .. (function_parameters or '')
 
   -- Send the transaction request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION2")
+  stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION2")
   local result, err = smb.smb_send(smbstate, header, parameters, data, {})
   if(result == false) then
     return false, err
@@ -99,7 +99,7 @@ end
 
 action = function(host,port)
   if not stdnse.get_script_args(SCRIPT_NAME .. '.unsafe') then
-    stdnse.print_debug("You must specify unsafe script argument to run this script.")
+    stdnse.debug1("You must specify unsafe script argument to run this script.")
     return false
   end
   local ms10_054  = {
@@ -138,7 +138,7 @@ to execute arbitrary code via a crafted SMB packet, aka "SMB Pool Overflow Vulne
   if not status then -- if not , it has crashed
     ms10_054.state = vulns.STATE.VULN
   else
-    stdnse.print_debug("Machine is not vulnerable")
+    stdnse.debug1("Machine is not vulnerable")
   end
   return report:make_output(ms10_054)
 end

@@ -83,7 +83,7 @@ local function parsefields(data)
   local parts = stdnse.strsplit("\\", data)
   local nullprefix = table.remove(parts, 1)
   if nullprefix ~= "" then
-    stdnse.print_debug(2, "unrecognized field format, skipping options")
+    stdnse.debug2("unrecognized field format, skipping options")
     return {}
   end
   for i = 1, #parts, 2 do
@@ -112,11 +112,11 @@ end
 local function parseplayer(data)
   local parts = stdnse.strsplit(" ", data)
   if #parts < 3 then
-    stdnse.print_debug(2, "player info line is missing elements, skipping a player")
+    stdnse.debug2("player info line is missing elements, skipping a player")
     return nil
   end
   if #parts > 3 then
-    stdnse.print_debug(2, "player info line has unknown elements, skipping a player")
+    stdnse.debug2("player info line has unknown elements, skipping a player")
     return nil
   end
   local player = {}
@@ -124,7 +124,7 @@ local function parseplayer(data)
   player.ping = parts[2]
   player.name = parsename(parts[3])
   if player.name == nil then
-    stdnse.print_debug(2, "invalid player name serialization, skipping a player")
+    stdnse.debug2("invalid player name serialization, skipping a player")
     return nil
   end
   return player
@@ -204,12 +204,12 @@ action = function(host, port)
     return
   end
   if #parts < 2 then
-    stdnse.print_debug(2, "incomplete status response, script abort")
+    stdnse.debug2("incomplete status response, script abort")
     return
   end
   local nullend = table.remove(parts)
   if nullend ~= "" then
-    stdnse.print_debug(2, "missing terminating endline, script abort")
+    stdnse.debug2("missing terminating endline, script abort")
     return
   end
   local field_data = table.remove(parts, 1)

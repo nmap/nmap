@@ -305,7 +305,7 @@ function action(host, port)
       if #params >= 2 then
         channels[#channels + 1] = params[2]
       else
-        stdnse.print_debug("Got short " .. RPL_LIST .. "response.")
+        stdnse.debug1("Got short " .. RPL_LIST .. "response.")
       end
     elseif code == RPL_LISTEND then
       break

@@ -182,7 +182,7 @@ action = function(host, port)
       break
     end
     if ( not(tag:match("^<.*>$")) ) then
-      stdnse.print_debug(2, "Expected tag, got: %s", tag)
+      stdnse.debug2("Expected tag, got: %s", tag)
       break
     else
       tag = tag:match("^<(.*)>$")

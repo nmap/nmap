@@ -70,19 +70,19 @@ action = function( host, port )
         status, response = helper:OpenSession( host, port )
 
         if ( not(status) ) then
-          stdnse.print_debug("OpenSession failed")
+          stdnse.debug1("OpenSession failed")
           return
         end
 
 
-        stdnse.print_debug("Trying %s/%s ...", username, password)
+        stdnse.debug1("Trying %s/%s ...", username, password)
         status, response = helper:Login( username, password )
 
         -- if the response is "Parameter error." we're dealing with Netatalk
         -- This basically means that the user account does not exist
         -- In this case, why bother continuing? Simply abort and thank Netatalk for the fish
         if response:match("Parameter error.") then
-          stdnse.print_debug("Netatalk told us the user does not exist! Thanks.")
+          stdnse.debug1("Netatalk told us the user does not exist! Thanks.")
           -- mark it as "found" to skip it
           found_users[username] = true
         end

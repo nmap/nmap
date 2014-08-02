@@ -91,7 +91,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
   local status, smbstate
   status, smbstate = msrpc.start_smb(host, msrpc.SPOOLSS_PATH,true)
   if(status == false) then
-    stdnse.print_debug("SMB: " .. smbstate)
+    stdnse.debug1("SMB: " .. smbstate)
     return false, smbstate
   end
 
@@ -99,20 +99,20 @@ aka "Print Spooler Service Impersonation Vulnerability."
   status, bind_result = msrpc.bind(smbstate,msrpc.SPOOLSS_UUID, msrpc.SPOOLSS_VERSION, nil)
   if(status == false) then
     msrpc.stop_smb(smbstate)
-    stdnse.print_debug("SMB: " .. bind_result)
+    stdnse.debug1("SMB: " .. bind_result)
     return false, bind_result
   end
   local printer = stdnse.get_script_args(SCRIPT_NAME .. '.printer')
   -- if printer not set find available printers
   if not printer then
-    stdnse.print_debug("No printer specified, trying to find one...")
+    stdnse.debug1("No printer specified, trying to find one...")
     local lanman_result
     local REMSmb_NetShareEnum_P  = "WrLeh"
     local REMSmb_share_info_1 = "B13BWz"
     status, lanman_result = msrpc.call_lanmanapi(smbstate,0,REMSmb_NetShareEnum_P,REMSmb_share_info_1,bin.pack("ss",0x01,65406))
     if status == false then
-      stdnse.print_debug("SMB: " .. lanman_result)
-      stdnse.print_debug("SMB: Looks like LANMAN API is not available. Try setting printer script arg.")
+      stdnse.debug1("SMB: " .. lanman_result)
+      stdnse.debug1("SMB: Looks like LANMAN API is not available. Try setting printer script arg.")
     end
 
     local parameters = lanman_result.parameters
@@ -127,30 +127,30 @@ aka "Print Spooler Service Impersonation Vulnerability."
       -- pos needs to be rounded to the next even multiple of 20
       pos = pos + ( 20 - (#name % 20) ) - 1
       if share_type == 1 then -- share is printer
-        stdnse.print_debug("Found printer share %s.", name)
+        stdnse.debug1("Found printer share %s.", name)
         printer = name
       end
     end
   end
   if not printer then
-    stdnse.print_debug("No printer found, system may be unpatched but it needs at least one printer shared to be vulnerable.")
+    stdnse.debug1("No printer found, system may be unpatched but it needs at least one printer shared to be vulnerable.")
     return false
   end
-  stdnse.print_debug("Using %s as printer.",printer)
+  stdnse.debug1("Using %s as printer.",printer)
   -- call RpcOpenPrinterEx - opnum 69
   local status, result = msrpc.spoolss_open_printer(smbstate,"\\\\"..host.ip.."\\"..printer)
   if not status then
     return false
   end
   local printer_handle = string.sub(result.data,25,#result.data-4)
-  stdnse.print_debug("Printer handle %s",stdnse.tohex(printer_handle))
+  stdnse.debug1("Printer handle %s",stdnse.tohex(printer_handle))
   -- call RpcStartDocPrinter - opnum 17
   status,result = msrpc.spoolss_start_doc_printer(smbstate,printer_handle,",") -- patched version will allow this
   if not status then
     return false
   end
   local print_job_id = string.sub(result.data,25,#result.data-4)
-  stdnse.print_debug("Start doc printer job id %s",stdnse.tohex(print_job_id))
+  stdnse.debug1("Start doc printer job id %s",stdnse.tohex(print_job_id))
 
   -- call RpcWritePrinter - 19
   status, result = msrpc.spoolss_write_printer(smbstate,printer_handle,"aaaa")
@@ -158,7 +158,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
     return false
   end
   local write_result = string.sub(result.data,25,#result.data-4)
-  stdnse.print_debug("Written %s bytes to a file.",stdnse.tohex(write_result))
+  stdnse.debug1("Written %s bytes to a file.",stdnse.tohex(write_result))
   if stdnse.tohex(write_result) == "00000000" then -- patched version would report 4 bytes written
     ms10_061.state = vulns.STATE.VULN -- identified by diffing patched an unpatched version
   end

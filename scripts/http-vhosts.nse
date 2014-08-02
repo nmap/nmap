@@ -162,7 +162,7 @@ action = function(host, port)
   else
     status, hostnames = datafiles.parse_file("nselib/data/vhosts-default.lst" , {})
     if not status then
-      stdnse.print_debug(1, "Can not open file with vhosts file names list")
+      stdnse.debug1("Can not open file with vhosts file names list")
       return
     end
   end

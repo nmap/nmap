@@ -87,7 +87,7 @@ Driver = {
 
   login = function( self, username, password )
     -- Note the no_cache directive
-    stdnse.print_debug(2, "HTTP POST %s%s\n", self.host, self.uri)
+    stdnse.debug2("HTTP POST %s%s\n", self.host, self.uri)
     local response = http.post( self.host, self.port, self.uri, { no_cache = true }, nil, { [self.options.uservar] = username, [self.options.passvar] = password } )
                 -- This redirect is taking us to /wp-admin
     if response.status == 302 then
@@ -105,13 +105,13 @@ Driver = {
 
   check = function( self )
     local response = http.get( self.host, self.port, self.uri )
-    stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
+    stdnse.debug1("HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
     -- Check if password field is there
     if ( response.status == 200 and response.body:match('type=[\'"]password[\'"]')) then
-      stdnse.print_debug(1, "Initial check passed. Launching brute force attack")
+      stdnse.debug1("Initial check passed. Launching brute force attack")
       return true
     else
-      stdnse.print_debug(1, "Initial check failed. Password field wasn't found")
+      stdnse.debug1("Initial check failed. Password field wasn't found")
     end
 
     return false

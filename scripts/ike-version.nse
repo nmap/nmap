@@ -56,45 +56,45 @@ local function get_version(host, port)
 
   -- try aggressive mode (diffie hellman group 2)
   local diffie = 2
-  stdnse.print_debug(1, "Sending Aggressive mode packet ...")
+  stdnse.debug1("Sending Aggressive mode packet ...")
   packet = ike.request(port.number, port.protocol, 'Aggressive', t, diffie, 'vpngroup')
   version = ike.send_request(host, port, packet)
   if version.success then
     return version
   end
-  stdnse.print_debug(1, "Aggressive mode (dh 2) failed")
+  stdnse.debug1("Aggressive mode (dh 2) failed")
 
   -- try aggressive mode (diffie hellman group 1)
   diffie = 1
-  stdnse.print_debug(1, "Sending Aggressive mode packet ...")
+  stdnse.debug1("Sending Aggressive mode packet ...")
   packet = ike.request(port.number, port.protocol, 'Aggressive', t, diffie, 'vpngroup')
   version = ike.send_request(host, port, packet)
   if version.success then
     return version
   end
-  stdnse.print_debug(1, "Aggressive mode (dh 1) failed")
+  stdnse.debug1("Aggressive mode (dh 1) failed")
 
   -- try aggressive mode (diffie hellman group 2, no id)
   -- some checkpoint devices respond to this
   local diffie = 2
-  stdnse.print_debug(1, "Sending Aggressive mode packet ...")
+  stdnse.debug1("Sending Aggressive mode packet ...")
   packet = ike.request(port.number, port.protocol, 'Aggressive', t, diffie, '')
   version = ike.send_request(host, port, packet)
   if version.success then
     return version
   end
-  stdnse.print_debug(1, "Aggressive mode (dh 2, no id) failed")
+  stdnse.debug1("Aggressive mode (dh 2, no id) failed")
 
   -- try main mode
-  stdnse.print_debug(1, "Sending Main mode packet ...")
+  stdnse.debug1("Sending Main mode packet ...")
   packet = ike.request(port.number, port.protocol, 'Main', t, '')
   version = ike.send_request(host, port, packet)
   if version.success then
     return version
   end
-  stdnse.print_debug(1, "Main mode failed")
+  stdnse.debug1("Main mode failed")
 
-  stdnse.print_debug(1, "Version detection not possible")
+  stdnse.debug1("Version detection not possible")
   return false
 end
 
@@ -120,7 +120,7 @@ action = function( host, port )
       nmap.set_port_state(host, port, "open")
     end
   end
-  stdnse.print_debug(1, "Version: %s", port.version.product )
+  stdnse.debug1("Version: %s", port.version.product )
   return
 end
 

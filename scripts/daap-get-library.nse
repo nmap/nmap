@@ -93,7 +93,7 @@ local function getAttributeAsInt( data, name )
     pos, len = bin.unpack( ">I", data, pos )
 
     if ( len ~= 4 ) then
-      stdnse.print_debug("Unexpected length returned: %d", len )
+      stdnse.debug1("Unexpected length returned: %d", len )
       return
     end
 
@@ -199,7 +199,7 @@ parseItem = function( data, len )
     if itemFetcher[name] then
       pos, item[name] = itemFetcher[name](data, pos )
     else
-      stdnse.print_debug("No itemfetcher for: %s", name)
+      stdnse.debug1("No itemfetcher for: %s", name)
       break
     end
 

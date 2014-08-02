@@ -78,7 +78,7 @@ function verify_password( host, port, username, password, domain )
       account.valid = false
       account.message = "Unspecified"
     else
-      stdnse.print_debug("UNKNOWN response: " .. response)
+      stdnse.debug1("UNKNOWN response: " .. response)
       account.valid = false
       account.message = "failed"
     end
@@ -146,12 +146,12 @@ action = function(host, port)
         table.insert(valid_accounts, account)
 
         if account.valid then
-          stdnse.print_debug(1, "Trying %s/%s => Login Correct, Info: %s", username, password, account.message)
+          stdnse.debug1("Trying %s/%s => Login Correct, Info: %s", username, password, account.message)
         else
-          stdnse.print_debug(1, "Trying %s/%s => Login Correct", username, password)
+          stdnse.debug1("Trying %s/%s => Login Correct", username, password)
         end
       else
-        stdnse.print_debug(1, "Trying %s/%s => Login Failed, Reason: %s", username, password, account.message)
+        stdnse.debug1("Trying %s/%s => Login Failed, Reason: %s", username, password, account.message)
       end
       password = nextPass()
     end

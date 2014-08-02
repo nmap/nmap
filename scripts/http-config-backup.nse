@@ -215,9 +215,9 @@ action = function (host, port)
           if save then
             local status, err = write_file(save .. filename, response.body);
             if status then
-              stdnse.print_debug(1, "%s saved", filename);
+              stdnse.debug1("%s saved", filename);
             else
-              stdnse.print_debug(1, "error saving %s", err);
+              stdnse.debug1("error saving %s", err);
             end
           end
 

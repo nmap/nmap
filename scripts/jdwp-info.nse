@@ -55,7 +55,7 @@ action = function(host, port)
   stdnse.sleep(5) -- let the remote socket recover from connect() scan
   local status,socket = jdwp.connect(host,port) -- initialize the connection
   if not status then
-    stdnse.print_debug("error, %s",socket)
+    stdnse.debug1("error, %s",socket)
     return nil
   end
 

@@ -52,7 +52,7 @@ local addtargets = function(list)
     if st then
       sum = sum + 1
     else
-      stdnse.print_debug("Couldn't add target " .. t .. ": " .. err)
+      stdnse.debug1("Couldn't add target " .. t .. ": " .. err)
     end
   end
 

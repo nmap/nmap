@@ -76,7 +76,7 @@ action = function()
       table.insert(output,
       "After NULL UDP avahi packet DoS (CVE-2011-1002).")
 
-      stdnse.print_debug(3, "sleeping for %d seconds", wtime)
+      stdnse.debug3("sleeping for %d seconds", wtime)
       stdnse.sleep(wtime)
       -- try to re-discover hosts
       status, result = helper:queryServices()

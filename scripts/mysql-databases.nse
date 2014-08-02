@@ -66,7 +66,7 @@ action = function( host, port )
     end
   -- last, no dice, we don't have any credentials at all
   else
-    stdnse.print_debug("No credentials supplied, aborting ...")
+    stdnse.debug1("No credentials supplied, aborting ...")
     return
   end
 

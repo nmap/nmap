@@ -138,14 +138,14 @@ local function test_ccs_injection(host, port, version)
   if specialized then
     status, s = specialized(host, port)
     if not status then
-      stdnse.print_debug(3, "Connection to server failed")
+      stdnse.debug3("Connection to server failed")
       return
     end
   else
     s = nmap.new_socket()
     status = s:connect(host, port)
     if not status then
-      stdnse.print_debug(3, "Connection to server failed")
+      stdnse.debug3("Connection to server failed")
       return
     end
   end
@@ -156,7 +156,7 @@ local function test_ccs_injection(host, port, version)
   -- Send Client Hello to the target server
   status, err = s:send(hello)
   if not status then
-    stdnse.print_debug(1, "Couldn't send Client Hello: %s", err)
+    stdnse.debug1("Couldn't send Client Hello: %s", err)
     s:close()
     return false
   end
@@ -180,7 +180,7 @@ local function test_ccs_injection(host, port, version)
       s:close()
       return "NOT_VULNERABLE"
     elseif record.protocol ~= version then
-      stdnse.print_debug(1, "%s: Protocol version mismatch (%s)",
+      stdnse.debug1("%s: Protocol version mismatch (%s)",
         SCRIPT_NAME, version)
       s:close()
       return false, true
@@ -189,7 +189,7 @@ local function test_ccs_injection(host, port, version)
     if record.type == "handshake" then
       for _, body in ipairs(record.body) do
         if body.type == "server_hello_done" then
-          stdnse.print_debug(1, "Handshake completed (%s)", version)
+          stdnse.debug1("Handshake completed (%s)", version)
           done = true
         end
       end
@@ -207,7 +207,7 @@ local function test_ccs_injection(host, port, version)
   -- Send the first ccs message
   status, err = s:send(ccs)
   if not status then
-    stdnse.print_debug(1, "Couldn't send first ccs message: %s", err)
+    stdnse.debug1("Couldn't send first ccs message: %s", err)
     s:close()
     return false
   end
@@ -215,7 +215,7 @@ local function test_ccs_injection(host, port, version)
   -- Send the second ccs message
   status, err = s:send(ccs)
   if not status then
-    stdnse.print_debug(1, "Couldn't send second ccs message: %s", err)
+    stdnse.debug1("Couldn't send second ccs message: %s", err)
     s:close()
     return false
   end

@@ -73,11 +73,11 @@ action = function()
   if not iface then
     return "please specify an interface with -e"
   end
-  stdnse.print_debug(1, "iface: %s", iface.device)
+  stdnse.debug1("iface: %s", iface.device)
 
   local timeout = (arg_timeout or 10) * 1000
 
-  stdnse.print_debug(2, "timeout: %s", timeout)
+  stdnse.debug2("timeout: %s", timeout)
 
   local pcap = nmap.new_socket()
   pcap:pcap_open(iface.device, 512, true, "ether proto 0x888e")
@@ -100,7 +100,7 @@ action = function()
   for i,v in ipairs(scan) do
     v = tonumber(v)
     if v ~= nil and v < 256 and v > 3 then
-      stdnse.print_debug(1, "selected: %s", eap.eap_str[v] or "unassigned" )
+      stdnse.debug1("selected: %s", eap.eap_str[v] or "unassigned" )
       identity.auth[v] = UNKNOWN
       valid = true
     end
@@ -118,26 +118,26 @@ action = function()
   while(nmap.clock_ms() - start_time < timeout) and not tried_all do
     local status, plen, l2_data, l3_data, time = pcap:pcap_receive()
     if (status) then
-      stdnse.print_debug(2, "packet size: 0x%x", plen )
+      stdnse.debug2("packet size: 0x%x", plen )
       local packet = eap.parse(l2_data .. l3_data)
 
       if packet then
-        stdnse.print_debug(2, "packet valid")
+        stdnse.debug2("packet valid")
 
         -- respond to identity requests, using the same session id
         if packet.eap.type == eap.eap_t.IDENTITY and  packet.eap.code == eap.code_t.REQUEST then
-          stdnse.print_debug(1, "server identity: %s",packet.eap.body.identity)
+          stdnse.debug1("server identity: %s",packet.eap.body.identity)
           eap.send_identity_response(iface, packet.eap.id, identity.name)
         end
 
         -- respond with NAK to every auth request to enumerate them until we get a failure
         if packet.eap.type ~= eap.eap_t.IDENTITY and  packet.eap.code == eap.code_t.REQUEST then
-          stdnse.print_debug(1, "auth request: %s",eap.eap_str[packet.eap.type])
+          stdnse.debug1("auth request: %s",eap.eap_str[packet.eap.type])
           identity.auth[packet.eap.type] = true
 
           identity.probe = -1
           for i,v in pairs(identity.auth) do
-            stdnse.print_debug(1, "identity.auth: %d %s",i,tostring(v))
+            stdnse.debug1("identity.auth: %d %s",i,tostring(v))
             if v == UNKNOWN then
               identity.probe = i
               eap.send_nak_response(iface, packet.eap.id, i)
@@ -149,7 +149,7 @@ action = function()
 
         -- retry on failure
         if packet.eap.code == eap.code_t.FAILURE then
-          stdnse.print_debug(1, "auth failure")
+          stdnse.debug1("auth failure")
           identity.auth[identity.probe] = false
 
           -- don't give up at the first failure!
@@ -171,7 +171,7 @@ action = function()
         end
 
       else
-        stdnse.print_debug(1, "packet invalid! wrong filter?")
+        stdnse.debug1("packet invalid! wrong filter?")
       end
     end
   end
@@ -186,7 +186,7 @@ action = function()
   end
 
   for i,v in ipairs(results) do
-    stdnse.print_debug(1, "%s", tostring(v))
+    stdnse.debug1("%s", tostring(v))
   end
 
   return stdnse.format_output(true, results)

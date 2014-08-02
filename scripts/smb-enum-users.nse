@@ -170,7 +170,7 @@ action = function(host)
 
     if(samr_status) then
       -- Copy the returned array into the names[] table
-      stdnse.print_debug(2, "EnumUsers: Received %d names from SAMR", #samr_result)
+      stdnse.debug2("EnumUsers: Received %d names from SAMR", #samr_result)
       for i = 1, #samr_result, 1 do
         -- Insert the full info into the names list
         table.insert(names, samr_result[i])
@@ -185,7 +185,7 @@ action = function(host)
     lsa_status, lsa_result  = msrpc.lsa_enum_users(host)
     if(lsa_status) then
       -- Copy the returned array into the names[] table
-      stdnse.print_debug(2, "EnumUsers: Received %d names from LSA", #lsa_result)
+      stdnse.debug2("EnumUsers: Received %d names from LSA", #lsa_result)
       for i = 1, #lsa_result, 1 do
         if(lsa_result[i]['name'] ~= nil) then
           -- Check if the name already exists

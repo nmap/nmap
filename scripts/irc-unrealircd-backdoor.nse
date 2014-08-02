@@ -194,7 +194,7 @@ action = function(host, port)
       local kill_command = string.format("%s||%s||%s", trigger, linux_kill, windows_kill)
 
       -- Kill the process
-      stdnse.print_debug(1, "Running kill command: %s", kill_command)
+      stdnse.debug1("Running kill command: %s", kill_command)
       socket:send(kill_command .. "\n")
     end
 

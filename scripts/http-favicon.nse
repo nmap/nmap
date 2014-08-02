@@ -56,7 +56,7 @@ action = function(host, port)
 
   status, favicondb = datafiles.parse_file( favicondbfile, {["^%s*([^%s#:]+)[%s:]+"] = "^%s*[^%s#:]+[%s:]+(.*)"})
   if not status then
-    stdnse.print_debug( 1, "Could not open file: %s", favicondbfile )
+    stdnse.debug1("Could not open file: %s", favicondbfile )
     return
   end
 
@@ -67,7 +67,7 @@ action = function(host, port)
   if(favicon_uri) then
     -- If we got a script arg URI, always use that.
     answer = http.get( host, port, root .. "/" .. favicon_uri)
-    stdnse.print_debug( 4, "Using URI %s", favicon_uri)
+    stdnse.debug4("Using URI %s", favicon_uri)
   else
     -- Otherwise, first try parsing the home page.
     index = http.get( host, port, root .. "/" )
@@ -77,7 +77,7 @@ action = function(host, port)
       -- if we find a pattern
       if icon then
         local hostname = host.targetname or (host.name ~= "" and host.name) or host.ip
-        stdnse.print_debug(1, "Got icon URL %s.", icon)
+        stdnse.debug1("Got icon URL %s.", icon)
         local icon_host, icon_port, icon_path = parse_url_relative(icon, hostname, port.number, root)
         if (icon_host == host.ip or
           icon_host == host.targetname or
@@ -96,7 +96,7 @@ action = function(host, port)
     -- If that didn't work, try /favicon.ico.
     if not answer or answer.status ~= 200 then
       answer = http.get( host, port, root .. "/favicon.ico" )
-      stdnse.print_debug( 4, "Using default URI.")
+      stdnse.debug4("Using default URI.")
     end
   end
 
@@ -112,7 +112,7 @@ action = function(host, port)
       end
     end
   else
-    stdnse.print_debug( 1, "No favicon found.")
+    stdnse.debug1("No favicon found.")
     return
   end --- status == 200
   return result

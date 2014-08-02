@@ -72,7 +72,7 @@ function action (host, port)
   local buf = stdnse.make_buffer(sd, "\r?\n")
 
   while line do
-    stdnse.print_debug(2, "%s", line)
+    stdnse.debug2("%s", line)
 
     -- This one lets us know we've connected, pre-PONGed, and got a NICK
     -- Start of MOTD, we'll take the server name from here

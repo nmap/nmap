@@ -132,7 +132,7 @@ Possibly vulnerable (Based on the same firmware): WR743ND,WR842ND,WA-901ND,WR941
     vuln.state = vulns.STATE.EXPLOIT
     response = http.get(host, port, TRAVERSAL_QRY..rfile)
     if response.body and response.status==200 then
-      stdnse.print_debug(2, "%s", response.body)
+      stdnse.debug2("%s", response.body)
       if response.body:match("Error") then
         stdnse.debug1("[Error] File not found:%s", rfile)
         vuln.extra_info = string.format("%s not found.\n", rfile)

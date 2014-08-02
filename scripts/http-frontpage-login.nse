@@ -70,19 +70,19 @@ Default installations of older versions of frontpage extensions allow anonymous 
       data = http.post(host,port,path .. "/_vti_bin/_vti_aut/author.dll",nil,nil,postdata)
       if data and data.status then
         if data.status == 200  then
-          stdnse.print_debug("Frontpage returned 200 OK, server vulnerable.")
+          stdnse.debug1("Frontpage returned 200 OK, server vulnerable.")
           frontpage_vuln.state = vulns.STATE.VULN;
           return report:make_output(frontpage_vuln);
         elseif data.status == 401  then
-          stdnse.print_debug("Frontpage returned 401, password protected.")
+          stdnse.debug1("Frontpage returned 401, password protected.")
           return false
         else
-          stdnse.print_debug("Frontpage returned unknown response.")
+          stdnse.debug1("Frontpage returned unknown response.")
           return false
         end
       end
     end
   end
-  stdnse.print_debug("Frontpage probably not installed.")
+  stdnse.debug1("Frontpage probably not installed.")
   return false
 end

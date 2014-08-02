@@ -83,7 +83,7 @@ local generate_filenames = function(host)
   local customlist = stdnse.get_script_args('tftp-enum.filelist')
   local status, default_filenames = datafiles.parse_file(customlist or "nselib/data/tftplist.txt" , {})
   if not status then
-    stdnse.print_debug(1, "Can not open file with tftp file names list")
+    stdnse.debug1("Can not open file with tftp file names list")
     return {}
   end
 
@@ -98,7 +98,7 @@ local create_tftp_file_request = function(filename)
 end
 
 local check_file_present = function(host, port, filename)
-  stdnse.print_debug(1, "checking file %s", filename)
+  stdnse.debug1("checking file %s", filename)
 
   local file_request = create_tftp_file_request(filename)
 
@@ -109,14 +109,14 @@ local check_file_present = function(host, port, filename)
 
 
   if (not (status)) then
-    stdnse.print_debug(1, "error %s", lhost)
+    stdnse.debug1("error %s", lhost)
     socket:close()
     return REQUEST_ERROR
   end
 
 
   local bind_socket = nmap.new_socket("udp")
-  stdnse.print_debug(1, "local port = %d", lport)
+  stdnse.debug1("local port = %d", lport)
 
   socket:send(file_request)
   socket:close()
@@ -124,10 +124,10 @@ local check_file_present = function(host, port, filename)
   local bindOK, error = bind_socket:bind(nil, lport)
 
 
-  stdnse.print_debug(1, "starting listener")
+  stdnse.debug1("starting listener")
 
   if (not (bindOK)) then
-    stdnse.print_debug(1, "Error in bind %s", error)
+    stdnse.debug1("Error in bind %s", error)
     bind_socket:close()
     return REQUEST_ERROR
   end
@@ -136,7 +136,7 @@ local check_file_present = function(host, port, filename)
   local recvOK, data = bind_socket:receive()
 
   if (not (recvOK)) then
-    stdnse.print_debug(1, "Error in receive %s", data)
+    stdnse.debug1("Error in receive %s", data)
     bind_socket:close()
     return REQUEST_ERROR
   end
@@ -199,11 +199,11 @@ end
 action = function(host, port)
 
   if (not (check_open_tftp(host, port))) then
-    stdnse.print_debug(1, "tftp seems not active")
+    stdnse.debug1("tftp seems not active")
     return
   end
 
-  stdnse.print_debug(1, "tftp detected")
+  stdnse.debug1("tftp detected")
 
   nmap.set_port_state(host, port, "open")
 

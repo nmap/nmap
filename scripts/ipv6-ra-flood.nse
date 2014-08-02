@@ -49,12 +49,12 @@ prerule = function()
   end
 
   if not nmap.is_privileged() then
-    stdnse.print_debug("Running %s needs root privileges.", SCRIPT_NAME)
+    stdnse.debug1("Running %s needs root privileges.", SCRIPT_NAME)
     return false
   end
 
   if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
-    stdnse.print_debug("No interface was selected, aborting...", SCRIPT_NAME)
+    stdnse.debug1("No interface was selected, aborting...", SCRIPT_NAME)
     return false
   end
 
@@ -69,7 +69,7 @@ local function get_interface()
   if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
     return if_table.device
   else
-    stdnse.print_debug("Interface %s not supported or not properly configured, exiting...", arg_interface)
+    stdnse.debug1("Interface %s not supported or not properly configured, exiting...", arg_interface)
   end
 end
 

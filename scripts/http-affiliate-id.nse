@@ -95,9 +95,9 @@ portaction = function(host, port)
 
   for shortener, pattern in pairs(URL_SHORTENERS) do
     for i, shortened in ipairs(pattern:match(body)) do
-      stdnse.print_debug("Found shortened Url: " .. shortened) 
+      stdnse.debug1("Found shortened Url: " .. shortened) 
       local response = http.get(shortener, 80, shortened)
-      stdnse.print_debug("status code: %d", response.status)
+      stdnse.debug1("status code: %d", response.status)
       if (response.status == 301 or response.status == 302) and response.header['location'] then
         followed[#followed + 1] = response.header['location']
       end
@@ -111,7 +111,7 @@ portaction = function(host, port)
     for i, id in ipairs(pattern:match(body..followed)) do
       if not ids[id] then
         result[#result + 1] = name .. ": " .. id
-        stdnse.print_debug("found id:" .. result[#result])
+        stdnse.debug1("found id:" .. result[#result])
         add_key_to_registry(host, port, url_path, result[#result])
         ids[id] = true
       end

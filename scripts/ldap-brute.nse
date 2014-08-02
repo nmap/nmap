@@ -172,7 +172,7 @@ action = function( host, port )
   context = get_naming_context(socket)
 
   if not context then
-    stdnse.print_debug("Failed to retrieve namingContext")
+    stdnse.debug1("Failed to retrieve namingContext")
     socket:close()
     return
   end
@@ -207,12 +207,12 @@ action = function( host, port )
         password = username
       end
 
-      stdnse.print_debug( "Trying %s/%s ...", fq_username, password )
+      stdnse.debug1( "Trying %s/%s ...", fq_username, password )
       status, response = ldap.bindRequest( socket, { version=3, ['username']=fq_username, ['password']=password} )
 
       -- if the DN (username) does not exist, break loop
       if not status and response:match("invalid DN") then
-        stdnse.print_debug( "%s returned: \"Invalid DN\"", fq_username )
+        stdnse.debug1( "%s returned: \"Invalid DN\"", fq_username )
         invalid_account_cnt = invalid_account_cnt + 1
         break
       end
@@ -291,7 +291,7 @@ action = function( host, port )
     passwords("reset")
   end
 
-  stdnse.print_debug( "Finished brute against LDAP, total tries: %d, tps: %d", tot_tries, ( tot_tries / ( ( nmap.clock_ms() - clock_start ) / 1000 ) ) )
+  stdnse.debug1( "Finished brute against LDAP, total tries: %d, tps: %d", tot_tries, ( tot_tries / ( ( nmap.clock_ms() - clock_start ) / 1000 ) ) )
 
   if ( invalid_account_cnt == user_cnt and base_dn ~= nil ) then
     return "WARNING: All usernames were invalid. Invalid LDAP base?"

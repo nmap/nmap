@@ -513,7 +513,7 @@ local function find_password_case(hostinfo, username, password)
   end
 
   -- Print an error message
-  stdnse.print_debug(1, "ERROR: smb-brute: Was unable to determine case of %s's password", username)
+  stdnse.debug1("ERROR: smb-brute: Was unable to determine case of %s's password", username)
 
   -- If all else fails, just return the actual password (we probably shouldn't get here)
   return password

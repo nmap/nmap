@@ -79,19 +79,19 @@ Driver = {
     magic = string.sub(response,18,22)
 
     if (magic == cassandra.LOGINSUCC) then
-      stdnse.print_debug(3, "Account SUCCESS: "..combo)
+      stdnse.debug3("Account SUCCESS: "..combo)
       return true, brute.Account:new(username, password, creds.State.VALID)
     elseif (magic == cassandra.LOGINFAIL) then
-      stdnse.print_debug(3,"Account FAIL: "..combo)
+      stdnse.debug3("Account FAIL: "..combo)
       return false, brute.Error:new( "Incorrect password" )
     elseif (magic == cassandra.LOGINACC) then
-      stdnse.print_debug(3, "Account VALID, but wrong password: "..combo)
+      stdnse.debug3("Account VALID, but wrong password: "..combo)
       return false, brute.Error:new( "Good user, bad password" )
     else
-      stdnse.print_debug(3, "Unrecognized packet for "..combo)
-      stdnse.print_debug(3, "packet hex: %s", stdnse.tohex(response) )
-      stdnse.print_debug(3, "size packet hex: %s", stdnse.tohex(size) )
-      stdnse.print_debug(3, "magic packet hex: %s", stdnse.tohex(magic) )
+      stdnse.debug3("Unrecognized packet for "..combo)
+      stdnse.debug3("packet hex: %s", stdnse.tohex(response) )
+      stdnse.debug3("size packet hex: %s", stdnse.tohex(size) )
+      stdnse.debug3("magic packet hex: %s", stdnse.tohex(magic) )
       local err = brute.Error:new( response )
       err:setRetry( true )
       return false, err

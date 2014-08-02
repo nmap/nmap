@@ -50,7 +50,7 @@ action = function()
   sock:set_timeout(2 * DROPBOX_BROADCAST_PERIOD * 1000)
   local status, result = sock:bind(nil, DROPBOX_PORT)
   if not status then
-    stdnse.print_debug(1, "Could not bind on port %d: %s", DROPBOX_PORT, result)
+    stdnse.debug1("Could not bind on port %d: %s", DROPBOX_PORT, result)
     sock:close()
     return
   end
@@ -78,10 +78,10 @@ action = function()
       -- Get IP address of broadcasting host.
       local status, _, _, ip, _ = sock:get_info()
       if not status then
-        stdnse.print_debug(1, "Failed to get socket info.")
+        stdnse.debug1("Failed to get socket info.")
         break
       end
-      stdnse.print_debug(1, "Received broadcast from host %s (%s).", info.displayname, ip)
+      stdnse.debug1("Received broadcast from host %s (%s).", info.displayname, ip)
 
       -- Check if we've already seen this ID.
       if ids[info.host_int] then
@@ -114,7 +114,7 @@ action = function()
       stdnse.strjoin(", ", info.namespaces)
       )
 
-      stdnse.print_debug(1, "Added host %s.", info.displayname)
+      stdnse.debug1("Added host %s.", info.displayname)
     end
 
     status, result = sock:receive()

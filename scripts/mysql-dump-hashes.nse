@@ -71,7 +71,7 @@ end
 action = function(host, port)
   local creds = getCredentials()
   if ( not(creds) ) then
-    stdnse.print_debug(2, "No credentials were supplied, aborting ...")
+    stdnse.debug2("No credentials were supplied, aborting ...")
     return
   end
 

@@ -85,17 +85,17 @@ action = function()
   interface_info = nmap.get_interface_info(interface)
 
   if interface_info==nil then -- Check if we have the interface information
-    stdnse.print_debug(1,"Error: Unable to get interface info. Did you specify the correct interface using 'targets-sniffer.iface=<interface>' or '-e <interface>'?")
+    stdnse.debug1("Error: Unable to get interface info. Did you specify the correct interface using 'targets-sniffer.iface=<interface>' or '-e <interface>'?")
     return
   end
 
 
   if sock==nil then
-    stdnse.print_debug(1,"Error - unable to open socket using interface %s",interface)
+    stdnse.debug1("Error - unable to open socket using interface %s",interface)
     return
   else
     sock:pcap_open(interface, 104, true, "ip or ip6")
-    stdnse.print_debug(1, "Will sniff for %s seconds on interface %s.", (timeout/1000),interface)
+    stdnse.debug1("Will sniff for %s seconds on interface %s.", (timeout/1000),interface)
 
     repeat
 
@@ -108,7 +108,7 @@ action = function()
 
         packet_counter=packet_counter+1
         addresses = get_ip_addresses(layer3)
-        stdnse.print_debug(1, "Got IP addresses %s", stdnse.strjoin(" ", addresses))
+        stdnse.debug1("Got IP addresses %s", stdnse.strjoin(" ", addresses))
 
         for _, addr in ipairs(addresses) do
           if check_if_valid(addr) == true then
@@ -143,11 +143,11 @@ action = function()
       end
     end
   else
-    stdnse.print_debug(1,"Not adding targets to newtargets. If you want to do that use the 'newtargets' script argument.")
+    stdnse.debug1("Not adding targets to newtargets. If you want to do that use the 'newtargets' script argument.")
   end
 
   if #all_addresses>0 then
-    stdnse.print_debug(1,"Added %s address(es) to newtargets", #all_addresses)
+    stdnse.debug1("Added %s address(es) to newtargets", #all_addresses)
   end
 
   return string.format("Sniffed %s address(es). \n", #all_addresses) .. stdnse.strjoin("\n",all_addresses)

@@ -79,7 +79,7 @@ action = function(host)
   local output_tab = stdnse.output_table()
   response = http.get(HOSTMAP_SERVER, 80, query)
   if not response.status then
-    stdnse.print_debug(1, "Error: could not GET http://%s%s", HOSTMAP_SERVER, query)
+    stdnse.debug1("Error: could not GET http://%s%s", HOSTMAP_SERVER, query)
     return nil
   end
   local hostnames = {}
@@ -96,7 +96,7 @@ action = function(host)
 
   if #hosts_log == 0 then
     if not string.find(response.body, "<p>The server returned no hits.</p>") then
-      stdnse.print_debug(1,"Error: found no hostnames but not the marker for \"no hostnames found\" (pattern error?)")
+      stdnse.debug1("Error: found no hostnames but not the marker for \"no hostnames found\" (pattern error?)")
     end
     return nil
   end
@@ -110,7 +110,7 @@ action = function(host)
     if status then
       output_tab.filename = filename
     else
-      stdnse.print_debug(1,"Error saving to %s: %s\n", filename, err)
+      stdnse.debug1("Error saving to %s: %s\n", filename, err)
     end
   end
 

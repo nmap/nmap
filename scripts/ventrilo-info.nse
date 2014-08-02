@@ -582,7 +582,7 @@ action = function(host, port)
         -- check for an invalid response
         if #response < 20 or pck >= totpck or
           len > 492 or curlen > totlen then
-          stdnse.print_debug("Invalid response. Aborting script.")
+          stdnse.debug1("Invalid response. Aborting script.")
           cleanup()
           return
         end
@@ -615,7 +615,7 @@ action = function(host, port)
       -- receive another packet
       status, response = socket:receive()
       if not status then
-        stdnse.print_debug("Response packets stopped coming midway. Aborting script.")
+        stdnse.debug1("Response packets stopped coming midway. Aborting script.")
         cleanup()
         return
       end
@@ -629,7 +629,7 @@ action = function(host, port)
     -- check for an invalid checksum on the response data sections (no headers)
     local fulldata_crc_sum = crc(fulldata_str)
     if fulldata_crc_sum ~= head_crc_sum then
-      stdnse.print_debug("Invalid CRC sum, received = %04X, calculated = %04X", head_crc_sum, fulldata_crc_sum)
+      stdnse.debug1("Invalid CRC sum, received = %04X, calculated = %04X", head_crc_sum, fulldata_crc_sum)
       cleanup()
       return
     end

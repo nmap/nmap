@@ -51,7 +51,7 @@ categories = {"intrusive", "brute"}
 -- which is specified by the ports script argument
 portrule = function(host, port)
   if not stdnse.get_script_args(SCRIPT_NAME .. ".ports") then
-    stdnse.print_debug(3,"Skipping '%s' %s, 'ports' argument is missing.",SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.debug3("Skipping '%s' %s, 'ports' argument is missing.",SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
@@ -59,7 +59,7 @@ portrule = function(host, port)
 
   --print out a debug message if port 31337/udp is open
   if port.number==31337 and port.protocol == "udp" and not(ports) then
-    stdnse.print_debug("Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
+    stdnse.debug1("Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
     return false
   end
 

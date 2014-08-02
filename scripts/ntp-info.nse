@@ -124,7 +124,7 @@ action = function(host, port)
   end
 
   if(#output > 0) then
-    stdnse.print_debug("Test len: %d", #output)
+    stdnse.debug1("Test len: %d", #output)
     nmap.set_port_state(host, port, "open")
     if nmap.verbosity() < 1 then
       local mt = getmetatable(output)

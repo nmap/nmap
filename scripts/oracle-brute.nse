@@ -154,7 +154,7 @@ Driver =
       return true, brute.Account:new(username .. " as sysdba", password, creds.State.VALID)
     -- check for any other message
     elseif ( data:match("ORA[-]%d+")) then
-      stdnse.print_debug(3, "username: %s, password: %s, error: %s", username, password, data )
+      stdnse.debug3("username: %s, password: %s, error: %s", username, password, data )
       return false, brute.Error:new(data)
     -- any other errors are likely communication related, attempt to re-try
     else

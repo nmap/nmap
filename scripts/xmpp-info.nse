@@ -89,7 +89,7 @@ local known_features = {
 }
 
 local check_citadel = function(id1, id2)
-  stdnse.print_debug("CHECK")
+  stdnse.debug1("CHECK")
   local i1 = tonumber(id1, 16)
   local i2 = tonumber(id2, 16)
   return i2 - i1 < 20 and i2 > i1
@@ -255,14 +255,14 @@ local scan = function(host, port, server_name, tls)
   local t_xmpp = stdnse.output_table()
 
   local xmlns
-  stdnse.print_debug(port.version.name)
+  stdnse.debug1(port.version.name)
   if port.version.name == 'xmpp-client' then
     xmlns = "'jabber:client'"
   else
     xmlns = "'jabber:server'"
   end
   if tls then tls_text = ", tls" else tls_text = "" end
-  stdnse.print_debug("name '" .. server_name .. "', ns '" .. xmlns .. "'" .. tls_text)
+  stdnse.debug1("name '" .. server_name .. "', ns '" .. xmlns .. "'" .. tls_text)
 
   status, data = client:connect(host, port)
   if not status then
@@ -306,7 +306,7 @@ local scan = function(host, port, server_name, tls)
     end
 
     if inside() and not known_features[tag.name] then
-      stdnse.print_debug(tag.name)
+      stdnse.debug1(tag.name)
       table.insert(unknown, tag.name)
     end
 
@@ -335,7 +335,7 @@ local scan = function(host, port, server_name, tls)
     end
 
     if tag.name == "sm" and tag.start and inside() then
-      stdnse.print_debug("OK")
+      stdnse.debug1("OK")
       --http://xmpp.org/extensions/xep-0198.html
       --sample: el-tramo.be
       local version = string.match(tag.attrs.xmlns, "^urn:xmpp:sm:(%.)")
@@ -460,9 +460,9 @@ local server_info = function(host, port, id1, id2)
     if ((not id1 and not v.regexp1) or (id1 and v.regexp1 and string.find(id1, v.regexp1))) and
       ((not id2 and not v.regexp2) or (id2 and v.regexp2 and string.find(id2, v.regexp2))) then
       if not v.check or v.check(id1, id2) then
-        stdnse.print_debug("MATCHED")
+        stdnse.debug1("MATCHED")
         port.version.product = v.name
-        stdnse.print_debug("  " .. v.name)
+        stdnse.debug1("  " .. v.name)
         port.version.name_confidence = 6
         nmap.set_port_version(host, port)
         break

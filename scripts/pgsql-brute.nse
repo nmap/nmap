@@ -105,7 +105,7 @@ action = function( host, port )
   for username in usernames do
     ssl_enable = not(nossl)
     for password in passwords do
-      stdnse.print_debug("Trying %s/%s ...", username, password )
+      stdnse.debug1("Trying %s/%s ...", username, password )
       local socket = connectSocket( host, port, ssl_enable )
       status, response = pg.sendStartup(socket, username, username)
 
@@ -126,7 +126,7 @@ action = function( host, port )
         status, response = pg.sendStartup(socket, username, username)
         if (not(status)) then
           if ( response:match("no pg_hba.conf entry for host") ) then
-            stdnse.print_debug("The host was denied access to db \"%s\" as user \"%s\", aborting ...", username, username )
+            stdnse.debug1("The host was denied access to db \"%s\" as user \"%s\", aborting ...", username, username )
             break
           else
             stdnse.debug1("sendStartup returned: %s", response )

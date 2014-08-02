@@ -74,13 +74,13 @@ end
 
 action = function(host, port)
   if ( not(arg_query) ) then
-    stdnse.print_debug(2, "No query was given, aborting ...")
+    stdnse.debug2("No query was given, aborting ...")
     return
   end
 
   local creds = getCredentials()
   if ( not(creds) ) then
-    stdnse.print_debug(2, "No credentials were supplied, aborting ...")
+    stdnse.debug2("No credentials were supplied, aborting ...")
     return
   end
 

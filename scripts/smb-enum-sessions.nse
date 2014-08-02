@@ -211,7 +211,7 @@ local function winreg_enum_rids(host)
 
   -- Convert the SID to the name of the user
   local results = {}
-  stdnse.print_debug(3, "MSRPC: Found %d SIDs that might be logged in", #elements)
+  stdnse.debug3("MSRPC: Found %d SIDs that might be logged in", #elements)
   for i = 1, #elements, 1 do
     if(elements[i]['name'] ~= nil) then
       local sid = elements[i]['name']
@@ -223,7 +223,7 @@ local function winreg_enum_rids(host)
 
         if(status == false) then
           -- It may not succeed, if it doesn't that's ok
-          stdnse.print_debug(3, "MSRPC: Lookup failed")
+          stdnse.debug3("MSRPC: Lookup failed")
         else
           -- Create the result array
           local result = {}

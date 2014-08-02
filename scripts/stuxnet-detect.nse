@@ -47,14 +47,14 @@ local function check_infected(host, path, save)
   -- Create an SMB session.
   status, session = msrpc.start_smb(host, path)
   if not status then
-    stdnse.print_debug(1, "Failed to establish session on %s.", path)
+    stdnse.debug1("Failed to establish session on %s.", path)
     return false, nil
   end
 
   -- Bind to the Stuxnet service.
   status, result = msrpc.bind(session, STUXNET_UUID, STUXNET_VERSION, nil)
   if not status or result["ack_result"] ~= 0 then
-    stdnse.print_debug(1, "Failed to bind to Stuxnet service.")
+    stdnse.debug1("Failed to bind to Stuxnet service.")
     msrpc.stop_smb(session)
     return false, nil
   end
@@ -62,7 +62,7 @@ local function check_infected(host, path, save)
   -- Request version of Stuxnet infection.
   status, result = msrpc.call_function(session, RPC_GET_VERSION, "")
   if not status then
-    stdnse.print_debug(1, "Failed to retrieve Stuxnet version: %s", result)
+    stdnse.debug1("Failed to retrieve Stuxnet version: %s", result)
     msrpc.stop_smb(session)
     return false, nil
   end
@@ -74,7 +74,7 @@ local function check_infected(host, path, save)
 
     status, result = msrpc.call_function(session, RPC_GET_EXECUTABLE, "")
     if not status then
-      stdnse.print_debug(1, "Failed to retrieve Stuxnet executable: %s", result)
+      stdnse.debug1("Failed to retrieve Stuxnet executable: %s", result)
       msrpc.stop_smb(session)
       return true, version
     end
@@ -83,11 +83,11 @@ local function check_infected(host, path, save)
     fmt = fmt:gsub("%%v", version)
     file = io.open(stdnse.filename_escape(fmt), "w")
     if file then
-      stdnse.print_debug(1, "Wrote %d bytes to file %s.", #result.arguments, fmt)
+      stdnse.debug1("Wrote %d bytes to file %s.", #result.arguments, fmt)
       file:write(result.arguments)
       file:close()
     else
-      stdnse.print_debug(1, "Failed to open file: %s", fmt)
+      stdnse.debug1("Failed to open file: %s", fmt)
     end
   end
 

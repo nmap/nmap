@@ -167,11 +167,11 @@ local function test_credentials( instance, helper, username, password )
       end
     end
     if ( mssql.LoginErrorMessage[ loginErrorCode ] == nil ) then
-      stdnse.print_debug( 2, "%s: Attemping login to %s as (%s/%s): Unknown login error number: %s",
+      stdnse.debug2("%s: Attemping login to %s as (%s/%s): Unknown login error number: %s",
         SCRIPT_NAME, instance:GetName(), username, password, loginErrorCode )
       table.insert( instance.ms_sql_brute.warnings, string.format( "Unknown login error number: %s", loginErrorCode ) )
     end
-    stdnse.print_debug( 3, "%s: Attempt to login to %s as (%s/%s): %d (%s)",
+    stdnse.debug3("%s: Attempt to login to %s as (%s/%s): %d (%s)",
       SCRIPT_NAME, instance:GetName(), username, password, loginErrorCode, tostring( mssql.LoginErrorMessage[ loginErrorCode ] ) )
   else
     table.insert( instance.ms_sql_brute.errors, string.format("Network error. Skipping instance. Error: %s", result ) )

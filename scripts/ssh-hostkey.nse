@@ -190,7 +190,7 @@ local function check_keys(host, keys, f)
         end
       else
         if stdnse.contains(possible_host_names, parts[1]) then
-          stdnse.print_debug(2, "Found an entry that matches: %s", parts[1])
+          stdnse.debug2("Found an entry that matches: %s", parts[1])
           table.insert(keys_from_file, ("%s %s"):format(parts[2], parts[3]))
         else
           -- Is the key the same but the clear text hostname isn't?

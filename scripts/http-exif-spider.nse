@@ -521,10 +521,10 @@ function action(host, port)
     -- Check if we got a response, and the response is a .jpg file
     if r.response and r.response.body and r.response.status==200 and (string.match(r.url.path, ".jpg") or string.match(r.url.path, ".jpeg")) then
       local status, result
-      stdnse.print_debug(1, "Attempting to read exif data from %s", r.url.raw)
+      stdnse.debug1("Attempting to read exif data from %s", r.url.raw)
       status, result = parse_jpeg(r.response.body)
       if(not(status)) then
-        stdnse.print_debug(1, "Couldn't read exif from %s: %s", r.url.raw, result)
+        stdnse.debug1("Couldn't read exif from %s: %s", r.url.raw, result)
       else
         -- If there are any exif results, add them to the result
         if(result and #result > 0) then

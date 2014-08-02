@@ -115,10 +115,10 @@ local function thread_main(domainname, results, name_iter)
         for _,addr in ipairs(res) do
           local hostn = name..'.'..domainname
           if target.ALLOW_NEW_TARGETS then
-            stdnse.print_debug("Added target: "..hostn)
+            stdnse.debug1("Added target: "..hostn)
             local status,err = target.add(hostn)
           end
-          stdnse.print_debug("Hostname: "..hostn.." IP: "..addr)
+          stdnse.debug1("Hostname: "..hostn.." IP: "..addr)
           local record = { hostname=hostn, address=addr }
           setmetatable(record, {
             __tostring = function(t)
@@ -146,10 +146,10 @@ local function srv_main(domainname, srvresults, srv_iter)
           if(srvres) then
             for srvhost,srvip in ipairs(srvres) do
               if target.ALLOW_NEW_TARGETS then
-                stdnse.print_debug("Added target: "..srvip)
+                stdnse.debug1("Added target: "..srvip)
                 local status,err = target.add(srvip)
               end
-              stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
+              stdnse.debug1("Hostname: "..hostn.." IP: "..srvip)
               local record = { hostname=hostn, address=srvip }
               setmetatable(record, {
                 __tostring = function(t)
@@ -180,15 +180,15 @@ action = function(host)
   end
 
   if nmap.registry.bruteddomains[domainname] then
-    stdnse.print_debug("Skipping already-bruted domain %s", domainname)
+    stdnse.debug1("Skipping already-bruted domain %s", domainname)
     return nil
   end
 
   nmap.registry.bruteddomains[domainname] = true
-  stdnse.print_debug("Starting dns-brute at: "..domainname)
+  stdnse.debug1("Starting dns-brute at: "..domainname)
   local max_threads = stdnse.get_script_args('dns-brute.threads') and tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
   local dosrv = stdnse.get_script_args("dns-brute.srv") or false
-  stdnse.print_debug("THREADS: "..max_threads)
+  stdnse.debug1("THREADS: "..max_threads)
   -- First look for dns-brute.hostlist
   local fileName = stdnse.get_script_args('dns-brute.hostlist')
   -- Check fetchfile locations, then relative paths
@@ -211,7 +211,7 @@ action = function(host)
   local condvar = nmap.condvar( results )
   local i = 1
   local howmany = math.floor(#hostlist/max_threads)+1
-  stdnse.print_debug("Hosts per thread: "..howmany)
+  stdnse.debug1("Hosts per thread: "..howmany)
   repeat
     local j = math.min(i+howmany, #hostlist)
     local name_iter = array_iter(hostlist, i, j)
@@ -249,7 +249,7 @@ action = function(host)
       threads = {}
       howmany = math.floor(#srvlist/max_threads)+1
       condvar = nmap.condvar( srvresults )
-      stdnse.print_debug("SRV's per thread: "..howmany)
+      stdnse.debug1("SRV's per thread: "..howmany)
       repeat
         local j = math.min(i+howmany, #srvlist)
         local name_iter = array_iter(srvlist, i, j)

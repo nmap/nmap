@@ -45,14 +45,14 @@ portrule = shortport.version_port_or_service(7210, "maxdb", "tcp")
 local function exchPacket(socket, packet)
   local status, err = socket:send(packet)
   if ( not(status) ) then
-    stdnse.print_debug(2, "Failed to send packet to server")
+    stdnse.debug2("Failed to send packet to server")
     return false, "Failed to send packet to server"
   end
 
   local data
   status, data= socket:receive()
   if ( not(status) ) then
-    stdnse.print_debug(2, "Failed to read packet from server")
+    stdnse.debug2("Failed to read packet from server")
     return false, "Failed to read packet from server"
   end
   local pos, len = bin.unpack("<S", data)
@@ -62,7 +62,7 @@ local function exchPacket(socket, packet)
     local tmp
     status, tmp = socket:receive_bytes(len - #data)
     if ( not(status) ) then
-      stdnse.print_debug(2, "Failed to read packet from server")
+      stdnse.debug2("Failed to read packet from server")
       return false, "Failed to read packet from server"
     end
     data = data .. tmp

@@ -60,7 +60,7 @@ action = function()
       if ( srv_name and domain_name ) then
         tab.addrow(outtab, v.peer, srv_name, domain_name)
       else
-        stdnse.print_debug(3, "No server name or domain name was found")
+        stdnse.debug3("No server name or domain name was found")
       end
     end
   end

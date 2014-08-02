@@ -433,7 +433,7 @@ action = function(host, port)
     return
   end
 
-  stdnse.print_debug("SNMP walk of IF-MIB returned %d lines", #interfaces)
+  stdnse.debug1("SNMP walk of IF-MIB returned %d lines", #interfaces)
 
   -- build a table of network interfaces from the IF-MIB table
   interfaces = process_interfaces( interfaces )
@@ -461,7 +461,7 @@ action = function(host, port)
       if st then
         sum = sum + 1
       else
-        stdnse.print_debug("Couldn't add target " .. i .. ": " .. err)
+        stdnse.debug1("Couldn't add target " .. i .. ": " .. err)
       end
     end
 

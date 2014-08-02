@@ -113,7 +113,7 @@ local login = function(username, password,host,port)
       return false, nil
     end
   end
-  stdnse.print_debug("something is wrong:" .. data )
+  stdnse.debug1("something is wrong:" .. data )
   return false, nil
 end
 
@@ -235,7 +235,7 @@ end
 
 action = function( host, port )
   if not arg_username or not arg_password then
-    stdnse.print_debug("This script requires username and password supplied as arguments")
+    stdnse.debug1("This script requires username and password supplied as arguments")
     return false
   end
 

@@ -88,13 +88,13 @@ Driver = {
   end,
 
   login = function( self, username, password )
-    stdnse.print_debug(2, "HTTP POST %s%s with security token %s\n", self.host, self.uri, security_token)
+    stdnse.debug2("HTTP POST %s%s with security token %s\n", self.host, self.uri, security_token)
     local response = http.post( self.host, self.port, self.uri, { cookies = session_cookie_str, no_cache = true, no_cache_body = true }, nil,
       { [self.options.uservar] = username, [self.options.passvar] = password,
       [security_token] = 1, lang = "", option = "com_login", task = "login" } )
 
     if response.body and not( response.body:match('name=[\'"]*'..self.options.passvar ) ) then
-      stdnse.print_debug(2, "Response:\n%s", response.body)
+      stdnse.debug2("Response:\n%s", response.body)
       local c = creds.Credentials:new(SCRIPT_NAME, self.host, self.port )
       c:add(username, password, creds.State.VALID )
       return true, brute.Account:new( username, password, "OPEN")
@@ -108,25 +108,25 @@ Driver = {
 
   check = function( self )
     local response = http.get( self.host, self.port, self.uri )
-    stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
+    stdnse.debug1("HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
     -- Check if password field is there
     if ( response.status == 200 and response.body:match('type=[\'"]password[\'"]')) then
-      stdnse.print_debug(1, "Initial check passed. Launching brute force attack")
+      stdnse.debug1("Initial check passed. Launching brute force attack")
       session_cookie_str = response.cookies[1]["name"].."="..response.cookies[1]["value"];
       if response.body then
         local _
         _, _, security_token = string.find(response.body, '<input type="hidden" name="(%w+)" value="1" />')
       end
       if security_token then
-        stdnse.print_debug(2, "Security Token found:%s", security_token)
+        stdnse.debug2("Security Token found:%s", security_token)
       else
-        stdnse.print_debug(2, "The security token was not found.")
+        stdnse.debug2("The security token was not found.")
         return false
       end
 
       return true
     else
-      stdnse.print_debug(1, "Initial check failed. Password field wasn't found")
+      stdnse.debug1("Initial check failed. Password field wasn't found")
     end
     return false
   end

@@ -193,7 +193,7 @@ local tcp_funcs_v4 = {
 
     if port and scanner.ports.tcp[port] then
 
-      stdnse.print_debug("Marking port %d/tcp v4 as forwarded (reply from %s)", ip2.tcp_dport, ip.ip_src)
+      stdnse.debug1("Marking port %d/tcp v4 as forwarded (reply from %s)", ip2.tcp_dport, ip.ip_src)
 
       -- mark the gateway as forwarding the packet
       scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
@@ -207,7 +207,7 @@ local tcp_funcs_v4 = {
       end
 
     else
-      stdnse.print_debug("Invalid reply to port %d/tcp", ip2.tcp_dport)
+      stdnse.debug1("Invalid reply to port %d/tcp", ip2.tcp_dport)
     end
   end,
 
@@ -257,7 +257,7 @@ local udp_funcs_v4 = {
 
     if port and scanner.ports.udp[port] then
 
-      stdnse.print_debug("Marking port %d/udp v4 as forwarded", ip2.udp_dport)
+      stdnse.debug1("Marking port %d/udp v4 as forwarded", ip2.udp_dport)
 
       -- mark the gateway as forwarding the packet
       scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
@@ -270,7 +270,7 @@ local udp_funcs_v4 = {
       end
 
     else
-      stdnse.print_debug("Invalid reply to port %d/udp", ip2.udp_dport)
+      stdnse.debug1("Invalid reply to port %d/udp", ip2.udp_dport)
     end
 
   end,
@@ -320,7 +320,7 @@ local tcp_funcs_v6 = {
 
     if port and scanner.ports.tcp[port] then
 
-      stdnse.print_debug("Marking port %d/tcp v6 as forwarded (reply from %s)", ip2.tcp_dport, ip.ip_src)
+      stdnse.debug1("Marking port %d/tcp v6 as forwarded (reply from %s)", ip2.tcp_dport, ip.ip_src)
 
       -- mark the gateway as forwarding the packet
       scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
@@ -334,7 +334,7 @@ local tcp_funcs_v6 = {
       end
 
     else
-      stdnse.print_debug("Invalid reply to port %d/tcp", ip2.tcp_dport)
+      stdnse.debug1("Invalid reply to port %d/tcp", ip2.tcp_dport)
     end
   end,
 
@@ -382,7 +382,7 @@ local udp_funcs_v6 = {
 
     if port and scanner.ports.udp[port] then
 
-      stdnse.print_debug("Marking port %d/udp v6 as forwarded (reply from %s)", ip2.udp_dport, ip2.ip_src)
+      stdnse.debug1("Marking port %d/udp v6 as forwarded (reply from %s)", ip2.udp_dport, ip2.ip_src)
 
       -- mark the gateway as forwarding the packet
       scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
@@ -395,7 +395,7 @@ local udp_funcs_v6 = {
       end
 
     else
-      stdnse.print_debug("Invalid reply to port %d/udp", ip2.udp_dport)
+      stdnse.debug1("Invalid reply to port %d/udp", ip2.udp_dport)
     end
 
   end,
@@ -497,7 +497,7 @@ local Firewalk_v4 = {
         -- mark port as forwarded and discard any related pending probes
         proto_func.update_scan(scanner, ip, ip2)
       else
-        stdnse.print_debug("Invalid protocol for reply (%d)", ip2.ip_p)
+        stdnse.debug1("Invalid protocol for reply (%d)", ip2.ip_p)
       end
     end
   end,
@@ -563,7 +563,7 @@ local Firewalk_v6 = {
         -- mark port as forwarded and discard any related pending probes
         proto_func.update_scan(scanner, ip, ip2)
       else
-        stdnse.print_debug("Invalid protocol for reply (%d)", ip2.ip_p)
+        stdnse.debug1("Invalid protocol for reply (%d)", ip2.ip_p)
       end
     end
   end,
@@ -654,7 +654,7 @@ local function getopts()
     RecvTimeout = parse_timespec_ms(timespec)
 
     if not RecvTimeout then
-      stdnse.print_debug("Invalid time specification for option: firewalk.recv-timeout (%s)", timespec)
+      stdnse.debug1("Invalid time specification for option: firewalk.recv-timeout (%s)", timespec)
       return false
     end
 
@@ -671,7 +671,7 @@ local function getopts()
     ProbeTimeout = parse_timespec_ms(timespec)
 
     if not ProbeTimeout then
-      stdnse.print_debug("Invalid time specification for option: firewalk.probe-timeout (%s)", timespec)
+      stdnse.debug1("Invalid time specification for option: firewalk.probe-timeout (%s)", timespec)
       return false
     end
 
@@ -735,7 +735,7 @@ local function initial_ttl(host)
     return nil
   end
 
-  stdnse.print_debug("Using ttl %d", #host.traceroute)
+  stdnse.debug1("Using ttl %d", #host.traceroute)
   return #host.traceroute
 end
 
@@ -911,7 +911,7 @@ local function send_probe(scanner, probe)
 
   local try = nmap.new_try(function() scanner.sock:ip_close() end)
 
-  stdnse.print_debug("Sending new probe (%d/%s ttl=%d)", probe.portno, probe.proto, probe.ttl)
+  stdnse.debug1("Sending new probe (%d/%s ttl=%d)", probe.portno, probe.proto, probe.ttl)
 
   -- craft the raw packet
   local pkt = proto_vtable[probe.proto].getprobe(scanner.target, probe.portno, probe.ttl)

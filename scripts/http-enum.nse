@@ -475,7 +475,7 @@ action = function(host, port)
             output = output .. " (" .. http.get_status_string(result) .. ")"
           end
 
-          stdnse.print_debug(1, "Found a valid page! %s", output)
+          stdnse.debug1("Found a valid page! %s", output)
 
           table.insert(response, output)
         end

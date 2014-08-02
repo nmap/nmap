@@ -127,7 +127,7 @@ action = function( host )
       result = {}
       local socket = nmap.new_socket()
       local catch = function()
-        stdnse.print_debug( "fail")
+        stdnse.debug1( "fail")
         socket:close()
       end
 

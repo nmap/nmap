@@ -73,14 +73,14 @@ Ping = {
       len = bit.band(len, 0x0000FFFF)
 
       if ( len ~= #self.data ) then
-        stdnse.print_debug(2, "The packet length was reported as %d, expected %d", len, #self.data)
+        stdnse.debug2("The packet length was reported as %d, expected %d", len, #self.data)
         return
       end
 
       local connectionless_tds
       pos, connectionless_tds = bin.unpack("p", self.data, 9)
       if ( connectionless_tds ~= "CONNECTIONLESS_TDS" ) then
-        stdnse.print_debug(2, "Did not find the expected CONNECTIONLESS_TDS header")
+        stdnse.debug2("Did not find the expected CONNECTIONLESS_TDS header")
         return
       end
 

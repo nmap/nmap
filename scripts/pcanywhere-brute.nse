@@ -90,7 +90,7 @@ Driver = {
       if not status and not retry then
         break
       end
-      stdnse.print_debug("in a loop")
+      stdnse.debug1("in a loop")
       stdnse.sleep(2) -- needs relatively big timeout between retries
     end
     if not status or string.find(response,"Please press <Enter>") == nil then
@@ -118,7 +118,7 @@ Driver = {
     local response
     local err
     local status
-    stdnse.print_debug( "Trying %s/%s ...", user, pass )
+    stdnse.debug1( "Trying %s/%s ...", user, pass )
     -- send username and password
     -- both are prefixed with 0x06, size and are encrypted
     status, err = self.socket:send(bin.pack("C",0x06) .. bin.pack("C",string.len(user)) .. encrypt(user) ) -- send username

@@ -84,7 +84,7 @@ Driver = {
         ["Content-Type"] = "binary/message-pack"
       }
     }
-    stdnse.print_debug( "Trying %s/%s ...", user, pass )
+    stdnse.debug1( "Trying %s/%s ...", user, pass )
     data = http.post(self.host,self.port, "/api/",options, nil , encode(user,pass))
     if data and data.status and tostring( data.status ):match( "200" )  then
       if string.find(data.body,"success") then

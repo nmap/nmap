@@ -218,7 +218,7 @@ local function prng_generate_ports(ip, seed)
   local i
   local magic = 0x015A4E35
 
-  stdnse.print_debug(1, "Conficker: Generating ports based on ip (0x%08x) and seed (%d)", ip, seed)
+  stdnse.debug1("Conficker: Generating ports based on ip (0x%08x) and seed (%d)", ip, seed)
 
   v1 = -(ip + 1)
   repeat
@@ -274,7 +274,7 @@ local function p2p_checksum(data)
   local pos, i
   local hash = #data
 
-  stdnse.print_debug(2, "Conficker: Calculating checksum for %d-byte buffer", #data)
+  stdnse.debug2("Conficker: Calculating checksum for %d-byte buffer", #data)
 
   -- Get the first character
   pos, i = bin.unpack("<C", data)

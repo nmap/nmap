@@ -91,9 +91,9 @@ This issue was patched in Zimbra 7.2.6.
   local url_short = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_short .. "%00"
   local url_long = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_long .. "%00"
 
-  stdnse.print_debug(1, "Trying to detect if the server is vulnerable")
-  stdnse.print_debug(1, "GET " .. uri .. escape(url_short))
-  stdnse.print_debug(1, "GET " .. uri .. escape(url_long))
+  stdnse.debug1("Trying to detect if the server is vulnerable")
+  stdnse.debug1("GET " .. uri .. escape(url_short))
+  stdnse.debug1("GET " .. uri .. escape(url_long))
 
   local session_short = http.get(host, port, uri..url_short)
   local session_long = http.get(host, port, uri..url_long)
@@ -102,20 +102,20 @@ This issue was patched in Zimbra 7.2.6.
     if session_short.header['content-type'] == "application/x-javascript" then
       -- Because .gz format is somewhat odd, giving a bit of a margin of error here
       if (string.len(session_long.body) - string.len(session_short.body)) > 100 then
-        stdnse.print_debug(1, "The website appears to be vulnerable a local file inclusion vulnerability in Zimbra")
+        stdnse.debug1("The website appears to be vulnerable a local file inclusion vulnerability in Zimbra")
         vuln.state = vulns.STATE.EXPLOIT
         return vuln_report:make_output(vuln)
       else
-        stdnse.print_debug(1, "The host does not appear to be vulnerable")
+        stdnse.debug1("The host does not appear to be vulnerable")
         vuln.state = vulns.STATE.NOT_VULN
         return vuln_report:make_output(vuln)
       end
     else
-      stdnse.print_debug(1, "Bad content-type for the resource : " .. session_short.header['content-type'])
+      stdnse.debug1("Bad content-type for the resource : " .. session_short.header['content-type'])
       return
     end
   else
-      stdnse.print_debug(1, "The website seems to be not vulnerable to this attack.")
+      stdnse.debug1("The website seems to be not vulnerable to this attack.")
       return
   end
 end

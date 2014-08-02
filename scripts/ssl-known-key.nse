@@ -49,7 +49,7 @@ local FINGERPRINT_FILE = "ssl-fingerprints"
 local get_fingerprints = function(path)
   -- Check registry for cached fingerprints.
   if nmap.registry.ssl_fingerprints then
-    stdnse.print_debug(2, "Using cached SSL fingerprints.")
+    stdnse.debug2("Using cached SSL fingerprints.")
     return true, nmap.registry.ssl_fingerprints
   end
 
@@ -58,7 +58,7 @@ local get_fingerprints = function(path)
   if not full_path then
     full_path = path
   end
-  stdnse.print_debug(2, "Loading SSL fingerprints from %s.", full_path)
+  stdnse.debug2("Loading SSL fingerprints from %s.", full_path)
 
   -- Open database.
   local file = io.open(full_path, "r")
@@ -77,20 +77,20 @@ local get_fingerprints = function(path)
       if line:sub(1,1) == "[" then
         -- Start a new section.
         line = line:sub(2, #line - 1)
-        stdnse.print_debug(4, "Starting new section %s.", line)
+        stdnse.debug4("Starting new section %s.", line)
         section = line
       elseif section ~= nil then
         -- Add fingerprint to section.
         local fingerprint = bin.pack("H", line)
         if #fingerprint == 20 then
           fingerprints[fingerprint] = section
-          stdnse.print_debug(4, "Added key %s to database.", line)
+          stdnse.debug4("Added key %s to database.", line)
         else
-          stdnse.print_debug(0, "Cannot parse presumed fingerprint %q in section %q.", line, section)
+          stdnse.debug0("Cannot parse presumed fingerprint %q in section %q.", line, section)
         end
       else
         -- Key found outside of section.
-        stdnse.print_debug(1, "Key %s is not in a section.", line)
+        stdnse.debug1("Key %s is not in a section.", line)
       end
     end
   end
@@ -119,7 +119,7 @@ action = function(host, port)
   -- Get SSL certificate.
   local status, cert = sslcert.getCertificate(host, port)
   if not status then
-    stdnse.print_debug(1, "sslcert.getCertificate error: %s", cert)
+    stdnse.debug1("sslcert.getCertificate error: %s", cert)
     return
   end
   local fingerprint = cert:digest("sha1")
@@ -128,7 +128,7 @@ action = function(host, port)
   -- Check SSL fingerprint against database.
   local section = fingerprints[fingerprint]
   if not section then
-    stdnse.print_debug(2, "%s was not in the database.", fingerprint_fmt)
+    stdnse.debug2("%s was not in the database.", fingerprint_fmt)
     return
   end
 

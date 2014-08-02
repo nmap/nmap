@@ -274,13 +274,13 @@ hostaction = function(host)
       mnt_comm = rpc.Comm:new('mountd', host.registry.nfs.mountver)
       status, result = mnt_comm:Connect(ahost, host.registry.nfs.mountport)
       if ( not(status) ) then
-        stdnse.print_debug(4, "ShowMounts: %s", result)
+        stdnse.debug4("ShowMounts: %s", result)
         return false, result
       end
       status, mounts = mnt:Export(mnt_comm)
       mnt_comm:Disconnect()
       if ( not(status) ) then
-        stdnse.print_debug(4, "ShowMounts: %s", mounts)
+        stdnse.debug4("ShowMounts: %s", mounts)
       end
       return status, mounts
     end,
@@ -294,14 +294,14 @@ hostaction = function(host)
 
       status, err = mnt_comm:Connect(host, host.registry.nfs.mountport)
       if not status then
-        stdnse.print_debug(4, "MountPath: %s", err)
+        stdnse.debug4("MountPath: %s", err)
         return nil, err
       end
 
       status, fhandle = mnt:Mount(mnt_comm, path)
       if not status then
         mnt_comm:Disconnect()
-        stdnse.print_debug(4, "MountPath: %s", fhandle)
+        stdnse.debug4("MountPath: %s", fhandle)
         return nil, fhandle
       end
 
@@ -314,7 +314,7 @@ hostaction = function(host)
       nfs_comm = rpc.Comm:new('nfs', host.registry.nfs.nfsver)
       status, err = nfs_comm:Connect(host, host.registry.nfs.nfsport)
       if not status then
-        stdnse.print_debug(4, "NfsOpen: %s", err)
+        stdnse.debug4("NfsOpen: %s", err)
         return nil, err
       end
 

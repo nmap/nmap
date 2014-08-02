@@ -36,7 +36,7 @@ action = function(host, port)
   local helper = rtsp.Helper:new(host, port)
   local status = helper:connect()
   if ( not(status) ) then
-    stdnse.print_debug(2, "ERROR: Failed to connect to RTSP server")
+    stdnse.debug2("ERROR: Failed to connect to RTSP server")
     return
   end
 

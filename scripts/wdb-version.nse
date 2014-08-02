@@ -106,7 +106,7 @@ local function decode_reply(data, pos)
   pos, wdberr = rpc.Util.unmarshall_uint32(data, pos)
   info["error"] = bit.band(wdberr, 0xc0000000)
   if (info["error"] ~= 0x00000000 ) then
-    stdnse.print_debug(1,"Error from decode_reply: %x", info["error"])
+    stdnse.debug1("Error from decode_reply: %x", info["error"])
     return nil, info
   end
   pos, len = rpc.Util.unmarshall_uint32(data, pos)

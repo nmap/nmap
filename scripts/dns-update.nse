@@ -53,26 +53,26 @@ portrule = shortport.port_or_service( 53, "dns", "udp", {"open", "open|filtered"
 local function test(host, port)
 
   local status, err = dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="10.10.10.10" } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "www2", { zone="cqure.net", host=host, port=port, dtype="A", data="10.10.10.10" } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="www.cqure.net" } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "cqure.net", { host=host, port=port, dtype="MX", data={ pref=10, mx="mail.cqure.net"} })
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data={ prio=0, weight=100, port=389, target="ldap.cqure.net" } } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
 
   status, err = dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "www2.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="", ttl=0 } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "cqure.net", { host=host, port=port, dtype="MX", data="", ttl=0 } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
   status, err = dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data="", ttl=0 } )
-  if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
+  if ( status ) then stdnse.debug1("SUCCESS") else stdnse.debug1("FAIL: " .. (err or "")) end
 
 end
 

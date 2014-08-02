@@ -74,7 +74,7 @@ local function processURL(host, port, url_iter, result)
     local status = helper:connect()
 
     if ( not(status) ) then
-      stdnse.print_debug(2, "ERROR: Connecting to RTSP server url: %s", url)
+      stdnse.debug2("ERROR: Connecting to RTSP server url: %s", url)
       table.insert(result, { url = url, status = -1 } )
       break
     end
@@ -82,7 +82,7 @@ local function processURL(host, port, url_iter, result)
     local response
     status, response = helper:describe(url)
     if ( not(status) ) then
-      stdnse.print_debug(2, "ERROR: Sending DESCRIBE request to url: %s", url)
+      stdnse.debug2("ERROR: Sending DESCRIBE request to url: %s", url)
       table.insert(result, { url = url, status = -1 } )
       break
     end

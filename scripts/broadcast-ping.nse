@@ -197,7 +197,7 @@ local broadcast_if = function(if_table,icmp_responders)
         icmp_responders[icmpreply.ip_src] = mac_pretty
       end
     else
-      stdnse.print_debug("Erroneous ICMP packet received; Cannot parse IP header.")
+      stdnse.debug1("Erroneous ICMP packet received; Cannot parse IP header.")
     end
   end
 
@@ -221,7 +221,7 @@ action = function()
     local interface = interface_opt or interface_arg
     local if_table = nmap.get_interface_info(interface)
     if not if_table or not if_table.address or not if_table.link=="ethernet" then
-      stdnse.print_debug("Interface not supported or not properly configured.")
+      stdnse.debug1("Interface not supported or not properly configured.")
       return false
     end
     table.insert(interfaces, if_table)
@@ -237,7 +237,7 @@ action = function()
   end
 
   if #interfaces == 0 then
-    stdnse.print_debug("No interfaces found.")
+    stdnse.debug1("No interfaces found.")
     return
   end
 

@@ -130,7 +130,7 @@ local nrpe_open = function(host, port)
       return true, sock
     end
 
-    stdnse.print_debug(2, "Can't connect using %s: %s", proto, err)
+    stdnse.debug2("Can't connect using %s: %s", proto, err)
     sock:close()
   end
 
@@ -183,7 +183,7 @@ local nrpe_check = function(host, port, cmd)
   -- Send query.
   local status, err = sock:send(nrpe_write(cmd))
   if not status then
-    stdnse.print_debug(1, "Failed to send NRPE query for command %s: %s", cmd, err)
+    stdnse.debug1("Failed to send NRPE query for command %s: %s", cmd, err)
     sock:close()
     return false, nil
   end
@@ -191,7 +191,7 @@ local nrpe_check = function(host, port, cmd)
   -- Receive response.
   local status, resp = sock:receive()
   if not status then
-    stdnse.print_debug(1, "Can't read NRPE response: %s", resp)
+    stdnse.debug1("Can't read NRPE response: %s", resp)
     sock:close()
     return false, nil
   end

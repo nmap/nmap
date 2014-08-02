@@ -55,7 +55,7 @@ local function get_exports(host, port)
   local mnt_comm = rpc.Comm:new('mountd', mountver)
   local status, result = mnt_comm:Connect(host, port)
   if ( not(status) ) then
-    stdnse.print_debug(4, "get_exports: %s", result)
+    stdnse.debug4("get_exports: %s", result)
     return false, result
   end
   host.registry.nfs.mountver = mountver
@@ -63,7 +63,7 @@ local function get_exports(host, port)
   local status, mounts = mnt:Export(mnt_comm)
   mnt_comm:Disconnect()
   if ( not(status) ) then
-    stdnse.print_debug(4, "get_exports: %s", mounts)
+    stdnse.debug4("get_exports: %s", mounts)
   end
   return status, mounts
 end

@@ -76,7 +76,7 @@ Driver = {
       self.socket:close()
     end
     if ( not(status) ) then
-      stdnse.print_debug(3, "ERROR: failed to connect to server")
+      stdnse.debug3("ERROR: failed to connect to server")
     end
     return status
   end,
@@ -92,7 +92,7 @@ Driver = {
       return false, err
     end
     if ( data ~= "\0" ) then
-      stdnse.print_debug(2, "ERROR: Expected null byte")
+      stdnse.debug2("ERROR: Expected null byte")
       local err = brute.Error:new( "Expected null byte" )
       err:setRetry( true )
       return false, err
@@ -105,7 +105,7 @@ Driver = {
       return false, err
     end
     if ( data ~= "Password: " ) then
-      stdnse.print_debug(2, "ERROR: Expected password prompt")
+      stdnse.debug2("ERROR: Expected password prompt")
       local err = brute.Error:new( "Expected password prompt" )
       err:setRetry( true )
       return false, err

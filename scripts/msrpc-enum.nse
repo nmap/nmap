@@ -79,20 +79,20 @@ action = function(host,port)
   local status, smbstate
   status, smbstate = msrpc.start_smb(host,msrpc.EPMAPPER_PATH,true)
   if(status == false) then
-    stdnse.print_debug("SMB: " .. smbstate)
+    stdnse.debug1("SMB: " .. smbstate)
     return false, smbstate
   end
   local bind_result,epresult -- bind to endpoint mapper service
   status, bind_result = msrpc.bind(smbstate,msrpc.EPMAPPER_UUID, msrpc.EPMAPPER_VERSION, nil)
   if(status == false) then
     msrpc.stop_smb(smbstate)
-    stdnse.print_debug("SMB: " .. bind_result)
+    stdnse.debug1("SMB: " .. bind_result)
     return false, bind_result
   end
   local results = {}
   status, epresult = msrpc.epmapper_lookup(smbstate,nil) -- get the initial handle
   if not status then
-    stdnse.print_debug("SMB: " .. epresult)
+    stdnse.debug1("SMB: " .. epresult)
     return false, epresult
 
   end

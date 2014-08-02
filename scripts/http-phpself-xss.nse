@@ -62,7 +62,7 @@ local probes = {}
 --@param response Response table
 --@return True if attack vector is found in response's body
 local function check_probe_response(response)
-  stdnse.print_debug(3, "Probe response:\n%s", response.body)
+  stdnse.debug3("Probe response:\n%s", response.body)
   if string.find(response.body, "'\"/><script>alert(1)</script>", 1, true) ~= nil then
     return true
   end

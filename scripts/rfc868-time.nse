@@ -37,7 +37,7 @@ action = function(host, port)
       _, stamp = bin.unpack(">I", result)
       port.version.extrainfo = "64 bits"
     else
-      stdnse.print_debug(1, "Odd response: %s", stdnse.filename_escape(result))
+      stdnse.debug1("Odd response: %s", stdnse.filename_escape(result))
       return nil
     end
 
@@ -49,7 +49,7 @@ action = function(host, port)
       local diff = os.difftime(stamp,os.time())
       if diff < 0 then diff = -diff end
       -- confidence decreases by 1 for each year the time is off.
-      stdnse.print_debug(1, "Time difference: %d seconds (%0.2f years)", diff, diff / 31556926)
+      stdnse.debug1("Time difference: %d seconds (%0.2f years)", diff, diff / 31556926)
       local confidence = 10 - diff / 31556926
       if confidence < 0 then confidence = 0 end
       port.version.name_confidence = confidence

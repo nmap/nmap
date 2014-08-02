@@ -894,13 +894,13 @@ function standard_query(socket, type)
   --try to pull the  information
   local status, result = socket:send(query)
   if(status == false) then
-    stdnse.print_debug(1, "Socket error sending query: %s", result)
+    stdnse.debug1("Socket error sending query: %s", result)
     return nil
   end
   -- receive packet from response
   local rcvstatus, response = socket:receive()
   if(rcvstatus == false) then
-    stdnse.print_debug(1, "Socket error receiving: %s", response)
+    stdnse.debug1("Socket error receiving: %s", response)
     return nil
   end
   -- validate valid BACNet Packet
@@ -913,12 +913,12 @@ function standard_query(socket, type)
       return field_size(response)
       -- if it was an error packet, set the string to error for later purposes
     else
-      stdnse.print_debug(1, "Error receiving: BACNet Error")
+      stdnse.debug1("Error receiving: BACNet Error")
       return nil
     end
     -- else ERROR
   else
-    stdnse.print_debug(1, "Error receiving Vendor ID: Invalid BACNet packet")
+    stdnse.debug1("Error receiving Vendor ID: Invalid BACNet packet")
     return nil
   end
 
@@ -938,13 +938,13 @@ function vendornum_query(socket)
   --send the vendor information
   local status, result = socket:send(vendor_query)
   if(status == false) then
-    stdnse.print_debug(1, "Socket error sending vendor query: %s", result)
+    stdnse.debug1("Socket error sending vendor query: %s", result)
     return nil
   end
   -- receive vendor information packet
   local rcvstatus, response = socket:receive()
   if(rcvstatus == false) then
-    stdnse.print_debug(1, "Socket error receiving vendor query: %s", response)
+    stdnse.debug1("Socket error receiving vendor query: %s", response)
     return nil
   end
   -- validate valid BACNet Packet
@@ -956,7 +956,7 @@ function vendornum_query(socket)
       -- this value determines if vendor number is 1 or 2 bytes
       pos, value = bin.unpack("C", response, 18)
     else
-      stdnse.print_debug(1, "Error receiving Vendor ID: BACNet Error")
+      stdnse.debug1("Error receiving Vendor ID: BACNet Error")
       return nil
     end
     -- if value is 21 (byte 18)
@@ -974,7 +974,7 @@ function vendornum_query(socket)
       return vendor_lookup(vendornum)
     else
       -- set return value to an Error if byte 18 was not 21/22
-      stdnse.print_debug(1, "Error receiving Vendor ID: Invalid BACNet packet")
+      stdnse.debug1("Error receiving Vendor ID: Invalid BACNet packet")
       return nil
     end
   end
@@ -1024,7 +1024,7 @@ action = function(host, port)
   -- receive response
   local rcvstatus, response = sock:receive()
   if(rcvstatus == false) then
-    stdnse.print_debug(1, "Receive error: %s", response)
+    stdnse.debug1("Receive error: %s", response)
     return nil
   end
 

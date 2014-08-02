@@ -74,7 +74,7 @@ doLogin = function( host, port, database, creds, valid_accounts )
     if ( nmap.registry.db2users == nil or nmap.registry.db2users[username] == nil ) then
       helper = drda.Helper:new()
       helper:connect( host, port )
-      stdnse.print_debug( "Trying %s/%s against %s...", username, password, host.ip )
+      stdnse.debug1( "Trying %s/%s against %s...", username, password, host.ip )
       status, response = helper:login( database, username, password )
       helper:close()
 
@@ -156,7 +156,7 @@ action = function( host, port )
 
   creds = new_usrpwd_iterator( usernames, passwords )
 
-  stdnse.print_debug("Starting brute force with %d threads", max_threads )
+  stdnse.debug1("Starting brute force with %d threads", max_threads )
 
   for i=1,max_threads do
     local co = stdnse.new_thread( doLogin, host, port, database, creds, valid_accounts )

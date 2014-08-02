@@ -287,7 +287,7 @@ action = function(host, port)
     -- return output
     return tostring(c)
   else
-    stdnse.print_debug("An error occurred: "..result.msg)
+    stdnse.debug1("An error occurred: "..result.msg)
   end
 end
 

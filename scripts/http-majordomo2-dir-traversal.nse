@@ -72,7 +72,7 @@ action = function(host, port)
   rfile = stdnse.get_script_args("http-majordomo2-dir-traversal.rfile") or DEFAULT_REMOTE_FILE
   evil_uri = uri..MAJORDOMO2_EXPLOIT_QRY..rfile
 
-  stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(host), evil_uri)
+  stdnse.debug1("HTTP GET %s%s", stdnse.get_hostname(host), evil_uri)
   response = http.get(host, port, evil_uri)
   if response.body and response.status==200 then
     if response.body:match("unknowntopic") then

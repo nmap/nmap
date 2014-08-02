@@ -146,7 +146,7 @@ local function try_params(host, port, t)
     local status
     status, sock = specialized(host, port)
     if not status then
-      stdnse.print_debug(1, "Can't connect: %s", err)
+      stdnse.debug1("Can't connect: %s", err)
       return nil
     end
   else
@@ -154,7 +154,7 @@ local function try_params(host, port, t)
     sock:set_timeout(5000)
     local status = sock:connect(host, port)
     if not status then
-      stdnse.print_debug(1, "Can't connect: %s", err)
+      stdnse.debug1("Can't connect: %s", err)
       sock:close()
       return nil
     end
@@ -166,7 +166,7 @@ local function try_params(host, port, t)
   req = tls.client_hello(t)
   status, err = sock:send(req)
   if not status then
-    stdnse.print_debug(1, "Can't send: %s", err)
+    stdnse.debug1("Can't send: %s", err)
     sock:close()
     return nil
   end
@@ -178,13 +178,13 @@ local function try_params(host, port, t)
     local status
     status, buffer, err = tls.record_buffer(sock, buffer, 1)
     if not status then
-      stdnse.print_debug(1, "Couldn't read a TLS record: %s", err)
+      stdnse.debug1("Couldn't read a TLS record: %s", err)
       return nil
     end
     -- Parse response.
     i, record = tls.record_read(buffer, 1)
     if record and record.type == "alert" and record.body[1].level == "warning" then
-      stdnse.print_debug(1, "Ignoring warning: %s", record.body[1].description)
+      stdnse.debug1("Ignoring warning: %s", record.body[1].description)
       -- Try again.
     elseif record then
       sock:close()
@@ -253,26 +253,26 @@ local function find_ciphers(host, port, protocol)
 
       if record == nil then
         if protocol_worked then
-          stdnse.print_debug(2, "%d ciphers rejected. (No handshake)", #group)
+          stdnse.debug2("%d ciphers rejected. (No handshake)", #group)
         else
-          stdnse.print_debug(1, "%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
+          stdnse.debug1("%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
         end
         break
       elseif record["protocol"] ~= protocol then
-        stdnse.print_debug(1, "Protocol %s rejected.", protocol)
+        stdnse.debug1("Protocol %s rejected.", protocol)
         protocol_worked = nil
         break
       elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
         protocol_worked = true
-        stdnse.print_debug(2, "%d ciphers rejected.", #group)
+        stdnse.debug2("%d ciphers rejected.", #group)
         break
       elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-        stdnse.print_debug(2, "Unexpected record received.")
+        stdnse.debug2("Unexpected record received.")
         break
       else
         protocol_worked = true
         name = record["body"][1]["cipher"]
-        stdnse.print_debug(2, "Cipher %s chosen.", name)
+        stdnse.debug2("Cipher %s chosen.", name)
         remove(group, name)
 
         -- Add cipher to the list of accepted ciphers.
@@ -316,25 +316,25 @@ local function find_compressors(host, port, protocol, good_cipher)
 
     if record == nil then
       if protocol_worked then
-        stdnse.print_debug(2, "%d compressors rejected. (No handshake)", #compressors)
+        stdnse.debug2("%d compressors rejected. (No handshake)", #compressors)
       else
-        stdnse.print_debug(1, "%d compressors and/or protocol %s rejected. (No handshake)", #compressors, protocol)
+        stdnse.debug1("%d compressors and/or protocol %s rejected. (No handshake)", #compressors, protocol)
       end
       break
     elseif record["protocol"] ~= protocol then
-      stdnse.print_debug(1, "Protocol %s rejected.", protocol)
+      stdnse.debug1("Protocol %s rejected.", protocol)
       break
     elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
       protocol_worked = true
-      stdnse.print_debug(2, "%d compressors rejected.", #compressors)
+      stdnse.debug2("%d compressors rejected.", #compressors)
       break
     elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-      stdnse.print_debug(2, "Unexpected record received.")
+      stdnse.debug2("Unexpected record received.")
       break
     else
       protocol_worked = true
       name = record["body"][1]["compressor"]
-      stdnse.print_debug(2, "Compressor %s chosen.", name)
+      stdnse.debug2("Compressor %s chosen.", name)
       remove(compressors, name)
 
       -- Add compressor to the list of accepted compressors.
@@ -381,9 +381,9 @@ local function try_protocol(host, port, protocol, upresults)
     else
       cipherstr="unknown strength"
     end
-    stdnse.print_debug(2, "Strength of %s rated %d.",cipherstr,cipherstrength[cipherstr])
+    stdnse.debug2("Strength of %s rated %d.",cipherstr,cipherstrength[cipherstr])
     if mincipherstrength>cipherstrength[cipherstr] then
-      stdnse.print_debug(2, "Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
+      stdnse.debug2("Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
       mincipherstrength=cipherstrength[cipherstr]
     end
     local outcipher = {name=name, strength=cipherstr}
@@ -431,7 +431,7 @@ local filltable = function(filename,table)
       if cipherstrength[lsplit[2]] then
         table[lsplit[1]] = lsplit[2]
       else
-        stdnse.print_debug(1,"Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
+        stdnse.debug1("Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
       end
     end
   end
@@ -474,7 +474,7 @@ action = function(host, port)
     filltable(rankedciphersfilename,rankedciphers)
   else
     rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
-    stdnse.print_debug(1, "Ranked ciphers filename: %s", rankedciphersfilename)
+    stdnse.debug1("Ranked ciphers filename: %s", rankedciphersfilename)
     filltable(rankedciphersfilename,rankedciphers)
   end
 
@@ -484,7 +484,7 @@ action = function(host, port)
   local threads = {}
 
   for name, _ in pairs(tls.PROTOCOLS) do
-    stdnse.print_debug(1, "Trying protocol %s.", name)
+    stdnse.debug1("Trying protocol %s.", name)
     local co = stdnse.new_thread(try_protocol, host, port, name, results)
     threads[co] = true
   end

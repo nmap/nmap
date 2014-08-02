@@ -368,7 +368,7 @@ local RD = {
     local version, siz, hp, vp, lat, lon, alt
     version = string.byte(data, offset)
     if version ~= 0 then
-      stdnse.print_debug(2, "Unknown LOC RR version: %d", version)
+      stdnse.debug2("Unknown LOC RR version: %d", version)
       return offset, ''
     end
     siz = string.byte(data, offset+1)
@@ -616,7 +616,7 @@ function add_zone_info(response)
   for rdata in pairs(RR['Node Names']) do
     status, ret = target.add(rdata)
     if not status then
-      stdnse.print_debug(3, "Error: failed to add all Node Names.")
+      stdnse.debug3("Error: failed to add all Node Names.")
       break
     end
     newhosts_count = newhosts_count + ret

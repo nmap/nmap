@@ -579,7 +579,7 @@ local GeoIP = {
         offset = x[0]
       end
     end
-    stdnse.print_debug('Error traversing database - perhaps it is corrupt?')
+    stdnse.debug1('Error traversing database - perhaps it is corrupt?')
     return nil
   end,
 }

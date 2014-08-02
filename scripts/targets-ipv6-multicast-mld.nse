@@ -55,7 +55,7 @@ local function get_interfaces()
     if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
       interfaces[#interfaces + 1] = if_table
     else
-      stdnse.print_debug("Interface not supported or not properly configured.")
+      stdnse.debug1("Interface not supported or not properly configured.")
     end
   else
     for _, if_table in ipairs(nmap.list_interfaces()) do
@@ -69,7 +69,7 @@ local function get_interfaces()
 end
 
 local function single_interface_broadcast(if_nfo, results)
-  stdnse.print_debug(2, "Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
+  stdnse.debug2("Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
   local condvar = nmap.condvar(results)
   local src_mac = if_nfo.mac
   local src_ip6 = packet.ip6tobin(if_nfo.address)
