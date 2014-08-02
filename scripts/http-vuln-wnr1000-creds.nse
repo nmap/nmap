@@ -80,8 +80,8 @@ action = function(host, port)
                 local netgear_username = string.match(escape(payload_session.body), 'Router Admin Username</td>.+align="left">(.+)</td>.+Router Admin')
                 local netgear_password = string.match(escape(payload_session.body), 'Router Admin Password</td>.+align="left">(.+)</td>.+MNUText')
                 if (username ~= nil and password ~= nil) then
-                    stdnse.print_debug(1, "%s: username : " .. escape(netgear_username), SCRIPT_NAME)
-                    stdnse.print_debug(1, "%s: password : " .. escape(netgear_password), SCRIPT_NAME)
+                    stdnse.debug1("username : %s", escape(netgear_username))
+                    stdnse.debug1("password : %s", escape(netgear_password))
                 else
                     stdnse.debug1("We haven't been able to get username/password")
                 end

@@ -153,7 +153,7 @@ action = function(host, port)
   for i, data in pairs(pipeline_returns) do
     -- if it's not a four-'o-four, it probably means that the plugin is present
     if http.page_exists(data, result_404, body_404, bfqueries[i][1], true) then
-      stdnse.print_debug(1, "http-wordpress-plugins.nse: Found a plugin: %s", bfqueries[i][2])
+      stdnse.debug1("Found a plugin: %s", bfqueries[i][2])
       table.insert(result, bfqueries[i][2])
     end
   end

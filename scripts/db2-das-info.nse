@@ -130,7 +130,7 @@ function parse_db2_packet(packet)
   local response = {}
 
   if packet.header.data_len < info_length_offset then
-    stdnse.print_debug( "db2-das-info: packet too short to be DB2 response...")
+    stdnse.debug1("packet too short to be DB2 response...")
     return
   end
 
@@ -172,7 +172,7 @@ function read_db2_packet(socket)
   local ENDIANESS_OFFSET = 23
 
   local catch = function()
-    stdnse.print_debug("%s", "db2-das-info: ERROR communicating with DB2 server")
+    stdnse.debug1("ERROR communicating with DB2 server")
     socket:close()
   end
 
@@ -235,7 +235,7 @@ end
 function send_db2_packet( socket, packet )
 
   local catch = function()
-    stdnse.print_debug("%s", "db2-das-info: ERROR communicating with DB2 server")
+    stdnse.debug1("ERROR communicating with DB2 server")
     socket:close()
   end
 
@@ -290,7 +290,7 @@ action = function(host, port)
 
   -- do some exception handling / cleanup
   local catch = function()
-    stdnse.print_debug("%s", "db2-das-info: ERROR communicating with " .. host.ip .. " on port " .. port.number)
+    stdnse.debug1("ERROR communicating with " .. host.ip .. " on port " .. port.number)
     socket:close()
   end
 

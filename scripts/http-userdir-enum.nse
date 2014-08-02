@@ -80,7 +80,7 @@ action = function(host, port)
   local i
   for i = 1, #usernames, 1 do
     if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
-      stdnse.print_debug(1, "http-userdir-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
+      stdnse.debug1("Reached the limit (%d), stopping", nmap.registry.args.limit)
       break;
     end
 
@@ -95,7 +95,7 @@ action = function(host, port)
 
   -- Check for http.pipeline error
   if(results == nil) then
-    stdnse.print_debug(1, "http-userdir-enum.nse: http.pipeline returned nil")
+    stdnse.debug1("http.pipeline returned nil")
     if(nmap.debugging() > 0) then
       return "ERROR: http.pipeline returned nil"
     else
@@ -106,7 +106,7 @@ action = function(host, port)
   local found = {}
   for i, data in pairs(results) do
     if(http.page_exists(data, result_404, known_404, "/~" .. usernames[i], true)) then
-      stdnse.print_debug(1, "http-userdir-enum.nse: Found a valid user: %s", usernames[i])
+      stdnse.debug1("Found a valid user: %s", usernames[i])
       table.insert(found, usernames[i])
     end
   end
@@ -136,8 +136,7 @@ function init()
     stdnse.get_script_args('userdir.users')
   local read, usernames = datafiles.parse_file(customlist or "nselib/data/usernames.lst", {})
   if not read then
-    stdnse.debug1("%s",
-      usernames or "Unknown Error reading usernames list.")
+    stdnse.debug1("%s", usernames or "Unknown Error reading usernames list.")
     nmap.registry.userdir = {}
     return nil
   end

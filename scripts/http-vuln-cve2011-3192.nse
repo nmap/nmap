@@ -79,7 +79,7 @@ overlapping byte ranges are requested.]],
   if not path then
     path = '/'
 
-    stdnse.print_debug(1, "Setting the request path to '/' since 'http-vuln-cve2011-3192.path' argument is missing.")
+    stdnse.debug1("Setting the request path to '/' since 'http-vuln-cve2011-3192.path' argument is missing.")
   end
 
   -- This first request will try to get a code 206 reply from the server by
@@ -100,8 +100,7 @@ overlapping byte ranges are requested.]],
   local response = http.head(host, port, path, request_opts)
 
   if not response.status then
-    stdnse.print_debug(1, "%s: Functionality check HEAD request failed for %s (with path '%s').",
-      SCRIPT_NAME, hostname or host.ip, path)
+    stdnse.debug1("Functionality check HEAD request failed for %s (with path '%s').", hostname or host.ip, path)
   elseif response.status == 206 then
     -- The server handle range requests. Now try to request 11 ranges (one more
     -- than allowed).
@@ -117,12 +116,10 @@ overlapping byte ranges are requested.]],
     elseif response.status == 206 then
       vuln.state = vulns.STATE.VULN
     else
-      stdnse.print_debug(1, "%s: Server isn't vulnerable (%i status code)",
-        SCRIPT_NAME, response.status)
+      stdnse.debug1("Server isn't vulnerable (%i status code)", response.status)
     end
   else
-    stdnse.print_debug(1, "%s: Server ignores the range header (%i status code)",
-      SCRIPT_NAME, response.status)
+    stdnse.debug1("Server ignores the range header (%i status code)", response.status)
   end
   return vuln_report:make_output(vuln)
 end

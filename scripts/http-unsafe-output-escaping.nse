@@ -46,9 +46,7 @@ categories = {"discovery", "intrusive"}
 
 portrule = shortport.http
 
-local function dbg(str,...)
-  stdnse.print_debug(2,"%s:"..str, SCRIPT_NAME, ...)
-end
+local dbg = stdnse.debug2
 
 local function getHostPort(parsed)
   local host, port = parsed.host, parsed.port

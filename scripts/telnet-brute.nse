@@ -71,9 +71,7 @@ local detail_debug = 3    -- debug level for printing individual login steps
 -- @param level Verbosity level (mandatory, unlike stdnse.print_debug).
 -- @param fmt Format string.
 -- @param ... Arguments to format.
-local print_debug = function (level, fmt, ...)
-  stdnse.print_debug(level, "%s: " .. fmt, SCRIPT_NAME, ...)
-end
+local debug = stdnse.debug
 
 local patt_login = U.atwordboundary(re.compile [[([uU][sS][eE][rR][nN][aA][mM][eE] / [lL][oO][gG][iI][nN]) %s* ':' %s* !.]])
 
@@ -478,7 +476,7 @@ Driver.methods.connect_autosize = function (self)
   end
   -- let's park the thread here till all the functioning threads finish
   self.target:inuse(false)
-  print_debug(detail_debug, "Retiring %s", tostring(coroutine.running()))
+  debug(detail_debug, "Retiring %s", tostring(coroutine.running()))
   while not self.target:idle() do self.thread_exit("wait") end
   -- pretend that it connected
   self.conn = Connection.GHOST
@@ -538,7 +536,7 @@ Driver.methods.login = function (self, username, password)
   local loc = " in " .. tostring(coroutine.running())
 
   local connection_error = function (msg)
-    print_debug(detail_debug, msg .. loc)
+    debug(detail_debug, msg .. loc)
     local err = brute.Error:new(msg)
     err:setRetry(true)
     return false, err
@@ -546,7 +544,7 @@ Driver.methods.login = function (self, username, password)
 
   local passonly_error = function ()
     local msg = "Password prompt encountered"
-    print_debug(critical_debug, msg .. loc)
+    debug(critical_debug, msg .. loc)
     local err = brute.Error:new(msg)
     err:setAbort(true)
     return false, err
@@ -554,7 +552,7 @@ Driver.methods.login = function (self, username, password)
 
   local username_error = function ()
     local msg = "Invalid username encountered"
-    print_debug(detail_debug, msg .. loc)
+    debug(detail_debug, msg .. loc)
     local err = brute.Error:new(msg)
     err:setInvalidAccount(username)
     return false, err
@@ -562,23 +560,23 @@ Driver.methods.login = function (self, username, password)
 
   local login_error = function ()
     local msg = "Login failed"
-    print_debug(detail_debug, msg .. loc)
+    debug(detail_debug, msg .. loc)
     return false, brute.Error:new(msg)
   end
 
   local login_success = function ()
     local msg = "Login succeeded"
-    print_debug(detail_debug, msg .. loc)
+    debug(detail_debug, msg .. loc)
     return true, brute.Account:new(username, password, "OPEN")
   end
 
   local login_no_password = function ()
     local msg = "Login succeeded without password"
-    print_debug(detail_debug, msg .. loc)
+    debug(detail_debug, msg .. loc)
     return true, brute.Account:new(username, "<none>", "OPEN")
   end
 
-  print_debug(detail_debug, "Login attempt %s:%s%s", username, password, loc)
+  debug(detail_debug, "Login attempt %s:%s%s", username, password, loc)
 
   if conn == Connection.GHOST then
     -- reached when auto-sizing is enabled and all worker threads
@@ -597,7 +595,7 @@ Driver.methods.login = function (self, username, password)
     if is_username_prompt(line) then
       -- being prompted for a username
       conn:discard_line()
-      print_debug(detail_debug, "Sending username" .. loc)
+      debug(detail_debug, "Sending username" .. loc)
       if not conn:send_line(username) then
         return connection_error(conn.error)
       end
@@ -633,7 +631,7 @@ Driver.methods.login = function (self, username, password)
     elseif is_password_prompt(line) then
       -- being prompted for a password
       conn:discard_line()
-      print_debug(detail_debug, "Sending password" .. loc)
+      debug(detail_debug, "Sending password" .. loc)
       if not conn:send_line(password) then
         return connection_error(conn.error)
       end

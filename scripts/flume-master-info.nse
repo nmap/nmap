@@ -201,8 +201,7 @@ action = function( host, port )
     end
     for logical,physical,hostname in string.gmatch(body,
       "<tr><td>([%w%.-_:]+)</td><td>([%w%.]+)</td><td>([%w%.]+)</td>") do
-      stdnse.print_debug(2, "%s:  %s (%s) %s",
-        SCRIPT_NAME, physical, logical, hostname)
+      stdnse.debug2("%s (%s) %s", physical, logical, hostname)
       if (table_count(nodes, hostname) == 0) then
         nodes[#nodes+1] = hostname
         add_target(hostname)
