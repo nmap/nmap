@@ -722,10 +722,10 @@ function analyse_response( tracking, ip, response, data )
     end
 
     -- DEBUG
-    stdnse.debug6("%s %s Fields captured :", ip, this_db )
+    stdnse.debug5("%s %s Fields captured :", ip, this_db )
     for ob, t in pairs( data[this_db] ) do
       for fieldname, fieldvalue in pairs( t ) do
-        stdnse.debug6("%s %s %s.%s %s.", ip, this_db, ob, fieldname, fieldvalue )
+        stdnse.debug5("%s %s %s.%s %s.", ip, this_db, ob, fieldname, fieldvalue )
       end
     end
 
