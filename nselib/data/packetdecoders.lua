@@ -97,7 +97,7 @@ Decoders = {
         end
 
         local mac = sender.mac:gsub("(..)(..)(..)(..)(..)(..)","%1:%2:%3:%4:%5:%6")
-        stdnse.print_debug(1, "Decoded ARP: %s, %s, %s", ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
+        stdnse.debug1("Decoded ARP: %s, %s, %s", ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
         if ( not(self.dups[("%u:%s"):format(sender.ip,sender.mac)]) ) then
           if ( target.ALLOW_NEW_TARGETS ) then target.add(sender.ip) end
           self.dups[("%u:%s"):format(sender.ip,sender.mac)] = true
@@ -328,7 +328,7 @@ Decoders = {
           -- is applied to the whole packet+password
         else
           -- Error
-          stdnse.print_debug("Unknown OSPF auth type %d", header.auth_type)
+          stdnse.debug1("Unknown OSPF auth type %d", header.auth_type)
           return
         end
 
@@ -396,7 +396,7 @@ udp = {
           local gw = self.getOption(result.options, "Router") or "-"
           local dns = self.getOption(result.options, "Domain Name Server") or "-"
           local vendor = self.getOption(result.options, "Class Identifier") or "-"
-          stdnse.print_debug(1, "Decoded DHCP: %s, %s, %s, %s, %s, %s", p.ip_src, result.yiaddr_str, mask, gw, dns, vendor)
+          stdnse.debug1("Decoded DHCP: %s, %s, %s, %s, %s, %s", p.ip_src, result.yiaddr_str, mask, gw, dns, vendor)
           tab.addrow(self.results, p.ip_src, result.yiaddr_str, mask, gw, dns, vendor )
         end
       end
@@ -440,7 +440,7 @@ udp = {
         if ( #res == 0 ) then
           tab.addrow(res, 'ip', 'query')
         end
-        stdnse.print_debug(1, 'Decoded Netbios(%s): %s, %s', (isreg and "Registration" or "Query"), ip, name)
+        stdnse.debug1('Decoded Netbios(%s): %s, %s', (isreg and "Registration" or "Query"), ip, name)
 
         if ( not(dup[ip]) or not(dup[ip][name]) ) then
           if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
@@ -488,7 +488,7 @@ udp = {
       ip = ipOps.fromdword(ip)
       src = netbios.name_decode(src)
       dst = netbios.name_decode(dst)
-      stdnse.print_debug(1, "Decoded BROWSER: %s, %s, %s", ip, src, dst)
+      stdnse.debug1("Decoded BROWSER: %s, %s, %s", ip, src, dst)
 
       local dup_rec = ("%s:%s:%s"):format(ip, src, dst)
       if ( not(self.dups[dup_rec]) ) then
@@ -581,7 +581,7 @@ udp = {
         tab.addrow(self.results, 'ip', 'uri', 'loc', 'model')
       end
 
-      stdnse.print_debug(1, "Decoded CUPS: %s, %s, %s, %s", p.ip_src, uri, loc, model)
+      stdnse.debug1("Decoded CUPS: %s, %s, %s, %s", p.ip_src, uri, loc, model)
       if ( not(self.dups[p.ip_src]) or not(self.dups[p.ip_src][uri]) ) then
         tab.addrow(self.results, p.ip_src, uri, loc, model)
         self.dups[p.ip_src] = self.dups[p.ip_src] or {}
@@ -826,7 +826,7 @@ udp = {
           self.macbooks[macbook]['model'] = self.macbooks[macbook]['model'] or model
           self.macbooks[macbook]['ip'] = self.macbooks[macbook]['ip'] or ip
           self.macbooks[macbook]['ipv6'] = self.macbooks[macbook]['ipv6'] or ipv6
-          stdnse.print_debug(1, "Decoded MDNS(MacBook): %s, %s, %s, %s",
+          stdnse.debug1("Decoded MDNS(MacBook): %s, %s, %s, %s",
           (self.macbooks[macbook]['ip'] or ""), (self.macbooks[macbook]['ipv6'] or ""),
           self.macbooks[macbook]['model'], self.macbooks[macbook]['macbook'])
         else
@@ -839,7 +839,7 @@ udp = {
           else
             self.generic[name]['ip'] = p.ip_src
           end
-          stdnse.print_debug(1, "Decoded MDNS(Generic): %s, %s", name, p.ip_src)
+          stdnse.debug1("Decoded MDNS(Generic): %s, %s", name, p.ip_src)
         end
       end
     end,
@@ -899,7 +899,7 @@ udp = {
 
     local name = (( resp.questions and #resp.questions > 0 ) and resp.questions[1].dname )
     if ( not(name) ) then return end
-    stdnse.print_debug(1, "Decoded LLMNR: %s, %s", p.ip_src, name)
+    stdnse.debug1("Decoded LLMNR: %s, %s", p.ip_src, name)
 
     if ( not(self.dups[("%s:%s"):format(p.ip_src, name)]) ) then
       self.dups[("%s:%s"):format(p.ip_src, name)] = true

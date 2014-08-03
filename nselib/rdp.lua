@@ -326,7 +326,7 @@ Comm = {
 
     local pos, itut_code = bin.unpack("C", data, 6)
     if ( itut_code == 0xD0 ) then
-      stdnse.print_debug(2, "RDP: Received ConnectionConfirm response")
+      stdnse.debug2("RDP: Received ConnectionConfirm response")
       return true, Response.ConnectionConfirm.parse(data)
     elseif ( itut_code == 0xF0 ) then
       return true, Response.MCSConnectResponse.parse(data)

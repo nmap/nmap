@@ -284,7 +284,7 @@ local function processResponse( response, dname, dtype, options )
   end
 
   -- nothing worked
-  stdnse.print_debug(1, "dns.query() failed to resolve the requested query%s%s", dname and ": " or ".", dname or "")
+  stdnse.debug1("dns.query() failed to resolve the requested query%s%s", dname and ": " or ".", dname or "")
   return false, "No Answers"
 
 end
@@ -397,7 +397,7 @@ function query(dname, options)
       return processResponse( response[1].data, dname, dtype, options)
     end
   else
-    stdnse.print_debug(1, "dns.query() got zero responses attempting to resolve query%s%s", dname and ": " or ".", dname or "")
+    stdnse.debug1("dns.query() got zero responses attempting to resolve query%s%s", dname and ": " or ".", dname or "")
     return false, "No Answers"
   end
 end
@@ -453,7 +453,7 @@ answerFetcher[types.TXT] = function(dec, retAll)
   if not retAll and dec.answers[1].data then
     return true, string.sub(dec.answers[1].data, 2)
   elseif not retAll then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: TXT")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: TXT")
     return false, "No Answers"
   else
     for _, v in ipairs(dec.answers) do
@@ -465,7 +465,7 @@ answerFetcher[types.TXT] = function(dec, retAll)
     end
   end
   if #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: TXT")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: TXT")
     return false, "No Answers"
   end
   return true, answers
@@ -487,7 +487,7 @@ answerFetcher[types.A] = function(dec, retAll)
     end
   end
   if not retAll or #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: A")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: A")
     return false, "No Answers"
   end
   return true, answers
@@ -504,7 +504,7 @@ answerFetcher[types.CNAME] = function(dec, retAll)
   if not retAll and dec.answers[1].domain then
     return true, dec.answers[1].domain
   elseif not retAll then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: NS, PTR or CNAME")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: NS, PTR or CNAME")
     return false, "No Answers"
   else
     for _, v in ipairs(dec.answers) do
@@ -512,7 +512,7 @@ answerFetcher[types.CNAME] = function(dec, retAll)
     end
   end
   if #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: NS, PTR or CNAME")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: NS, PTR or CNAME")
     return false, "No Answers"
   end
   return true, answers
@@ -532,7 +532,7 @@ answerFetcher[types.MX] = function(dec, retAll)
     if not retAll then break end
   end
   if #mx == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: MX")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: MX")
     return false, "No Answers"
   end
   for _, add in ipairs(dec.add) do
@@ -570,7 +570,7 @@ answerFetcher[types.SRV] = function(dec, retAll)
     end
   end
   if #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: SRV")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: SRV")
     return false, "No Answers"
   end
 
@@ -590,7 +590,7 @@ answerFetcher[types.NSEC] = function(dec, retAll)
     if not retAll then break end
   end
   if #nsec == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: NSEC")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: NSEC")
     return false, "No Answers"
   end
   for _, nsecrec in ipairs(nsec) do
@@ -633,7 +633,7 @@ answerFetcher[types.AAAA] = function(dec, retAll)
     end
   end
   if not retAll or #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: AAAA")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: AAAA")
     return false, "No Answers"
   end
   return true, answers
@@ -653,13 +653,13 @@ function findNiceAnswer(dtype, dec, retAll)
     if answerFetcher[dtype] then
       return answerFetcher[dtype](dec, retAll)
     else
-      stdnse.print_debug(1, "dns.findNiceAnswer() does not have an answerFetcher for dtype %s", tostring(dtype))
+      stdnse.debug1("dns.findNiceAnswer() does not have an answerFetcher for dtype %s", tostring(dtype))
       return false, "Unable to handle response"
     end
   elseif (dec.flags.RC3 and dec.flags.RC4) then
     return false, "No Such Name"
   else
-    stdnse.print_debug(1, "dns.findNiceAnswer() found zero answers in a response, but got an unexpected flags.replycode")
+    stdnse.debug1("dns.findNiceAnswer() found zero answers in a response, but got an unexpected flags.replycode")
     return false, "No Answers"
   end
 end
@@ -682,7 +682,7 @@ additionalFetcher[types.TXT] = function(dec, retAll)
   if not retAll and dec.add[1].data then
     return true, string.sub(dec.add[1].data, 2)
   elseif not retAll then
-    stdnse.print_debug(1, "dns.additionalFetcher found no records of the required type: TXT")
+    stdnse.debug1("dns.additionalFetcher found no records of the required type: TXT")
     return false, "No Answers"
   else
     for _, v in ipairs(dec.add) do
@@ -694,7 +694,7 @@ additionalFetcher[types.TXT] = function(dec, retAll)
     end
   end
   if #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: TXT")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: TXT")
     return false, "No Answers"
   end
   return true, answers
@@ -716,7 +716,7 @@ additionalFetcher[types.A] = function(dec, retAll)
     end
   end
   if not retAll or #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: A")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: A")
     return false, "No Answers"
   end
   return true, answers
@@ -741,7 +741,7 @@ additionalFetcher[types.SRV] = function(dec, retAll)
     end
   end
   if #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: SRV")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: SRV")
     return false, "No Answers"
   end
 
@@ -765,7 +765,7 @@ additionalFetcher[types.AAAA] = function(dec, retAll)
     end
   end
   if not retAll or #answers == 0 then
-    stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: AAAA")
+    stdnse.debug1("dns.answerFetcher found no records of the required type: AAAA")
     return false, "No Answers"
   end
   return true, answers
@@ -784,14 +784,14 @@ function findNiceAdditional(dtype, dec, retAll)
     if additionalFetcher[dtype] then
       return additionalFetcher[dtype](dec, retAll)
     else
-      stdnse.print_debug(1, "dns.findNiceAdditional() does not have an additionalFetcher for dtype %s",
+      stdnse.debug1("dns.findNiceAdditional() does not have an additionalFetcher for dtype %s",
       (type(dtype) == 'string' and dtype) or type(dtype) or "nil")
       return false, "Unable to handle response"
     end
   elseif (dec.flags.RC3 and dec.flags.RC4) then
     return false, "No Such Name"
   else
-    stdnse.print_debug(1, "dns.findNiceAdditional() found zero answers in a response, but got an unexpected flags.replycode")
+    stdnse.debug1("dns.findNiceAdditional() found zero answers in a response, but got an unexpected flags.replycode")
     return false, "No Answers"
   end
 end

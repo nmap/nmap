@@ -181,7 +181,7 @@ local make_eap = function (arg)
   arg.header.payload = bin.pack("C",arg.code) .. bin.pack("C",arg.id) .. bin.pack(">S",bin_payload:len() + EAP_HEADER_SIZE).. bin.pack("C",arg.type) .. bin_payload
 
   local v = make_eapol(arg.header)
-  stdnse.print_debug(2, "make eapol %s", arg.header.src)
+  stdnse.debug2("make eapol %s", arg.header.src)
 
   return v
 end
@@ -190,7 +190,7 @@ parse = function (packet)
   local tb = {}
   local _
 
-  stdnse.print_debug(2, "packet size: 0x%x", #packet )
+  stdnse.debug2("packet size: 0x%x", #packet )
 
   -- parsing ethernet header
   _, tb.mac_src, tb.mac_dst, tb.ether_type = bin.unpack(">A6A6S", packet)
@@ -199,12 +199,12 @@ parse = function (packet)
   -- parsing eapol header
   _, tb.version, tb.type, tb.length = bin.unpack(">CCS", packet, ETHER_HEADER_SIZE + 1)
 
-  stdnse.print_debug(1, "mac_src: %s, mac_dest: %s, ether_type: 0x%X",
+  stdnse.debug1("mac_src: %s, mac_dest: %s, ether_type: 0x%X",
   tb.mac_src_str, tb.mac_dst_str, tb.ether_type)
 
   if tb.ether_type ~= ETHER_TYPE_EAPOL_N then return nil, "not an eapol packet" end
 
-  stdnse.print_debug(2, "version: %X, type: %s, length: 0x%X",
+  stdnse.debug2("version: %X, type: %s, length: 0x%X",
   tb.version, eapol_str[tb.type] or "unknown",
   tb.length)
 
@@ -215,11 +215,11 @@ parse = function (packet)
 
     _, tb.eap.code, tb.eap.id, tb.eap.length, tb.eap.type = bin.unpack(">CCSC", packet,
     ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + 1)
-    stdnse.print_debug(2, "code: %s, id: 0x%X, length: 0x%X, type: %s",
+    stdnse.debug2("code: %s, id: 0x%X, length: 0x%X, type: %s",
     code_str[tb.eap.code] or "unknown",
     tb.eap.id, tb.eap.length, eap_str[tb.eap.type] or "unknown" )
     if tb.length ~= tb.eap.length then
-      stdnse.print_debug(1, "WARNING length mismatch: 0x%X and 0x%X", tb.length, tb.eap.length )
+      stdnse.debug1("WARNING length mismatch: 0x%X and 0x%X", tb.length, tb.eap.length )
     end
   end
 
@@ -229,7 +229,7 @@ parse = function (packet)
   if tb.length > 5 and tb.eap.type == eap_t.IDENTITY then
     _, tb.eap.body.identity = bin.unpack("z", packet,
     ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
-    stdnse.print_debug(1, "identity: %s", tb.eap.body.identity )
+    stdnse.debug1("identity: %s", tb.eap.body.identity )
   end
 
   if tb.length > 5 and tb.eap.type == eap_t.MD5  then
@@ -242,7 +242,7 @@ end
 send_identity_response = function (iface, id, identity)
 
   if not iface then
-    stdnse.print_debug(1, "no interface given")
+    stdnse.debug1("no interface given")
     return
   end
 
@@ -258,7 +258,7 @@ end
 send_nak_response = function (iface, id, auth)
 
   if not iface then
-    stdnse.print_debug(1, "no interface given")
+    stdnse.debug1("no interface given")
     return
   end
 
@@ -275,7 +275,7 @@ end
 send_start = function (iface)
 
   if not iface then
-    stdnse.print_debug(1, "no interface given")
+    stdnse.debug1("no interface given")
     return
   end
 

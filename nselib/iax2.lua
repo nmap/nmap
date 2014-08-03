@@ -76,7 +76,7 @@ IAX2 = {
       local pos, frame_type = bin.unpack("C", data)
       if ( bit.band(frame_type, 0x80) == 0 ) then
         print("frame_type", stdnse.tohex(frame_type))
-        stdnse.print_debug(2, "Frametype not supported")
+        stdnse.debug2("Frametype not supported")
         return
       end
       header.type = IAX2.PacketType.FULL

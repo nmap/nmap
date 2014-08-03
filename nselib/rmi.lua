@@ -53,7 +53,7 @@ _ENV = stdnse.module("rmi", stdnse.seeall)
 
 local function dbg(str,...)
   local arg={...}
-  stdnse.print_debug(3,"RMI:"..str, table.unpack(arg))
+  stdnse.debug3("RMI:"..str, table.unpack(arg))
 end
 -- Convenience function to both print an error message and return <false, msg>
 -- Example usage :
@@ -62,7 +62,7 @@ end
 -- end
 local function doh(str,...)
   local arg={...}
-  stdnse.print_debug("RMI-ERR:"..tostring(str), table.unpack(arg))
+  stdnse.debug1("RMI-ERR:"..tostring(str), table.unpack(arg))
   return false, str
 end
 

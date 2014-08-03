@@ -191,11 +191,11 @@ DRDA = {
   -- @return err string containing the error message if status is false
   addParameter = function( self, param )
     if ( not(self.DDM) ) then
-      stdnse.print_debug("drda.DRDA.addParameter: DDM must be set prior to adding parameters")
+      stdnse.debug1("drda.DRDA.addParameter: DDM must be set prior to adding parameters")
       return false, "DDM must be set prior to adding parameters"
     end
     if ( not(param) ) then
-      stdnse.print_debug("drda.DRDA.addParameter: Param cannot be nil")
+      stdnse.debug1("drda.DRDA.addParameter: Param cannot be nil")
       return false, "Param cannot be nil"
     end
 
@@ -226,7 +226,7 @@ DRDA = {
   -- @return data containing the object instance
   __tostring = function(self)
     if ( not(self.DDM) ) then
-      stdnse.print_debug("drda.DRDA.toString: DDM cannot be nil")
+      stdnse.debug1("drda.DRDA.toString: DDM cannot be nil")
       return nil
     end
 
@@ -258,7 +258,7 @@ DRDA = {
     -- first read atleast enough so that we can populate the DDM
     local status, data = db2socket:receive_buf( match.numbytes(DDM_SIZE), true )
     if ( not(status) ) then
-      stdnse.print_debug("drda.DRDA.receive: %s", data)
+      stdnse.debug1("drda.DRDA.receive: %s", data)
       return false, ("Failed to read at least %d bytes from socket"):format(DDM_SIZE)
     end
 
@@ -607,7 +607,7 @@ Helper = {
 
     if ( packet:getDRDAByCodePoint( CodePoint.RDBNFNRM ) or
         packet:getDRDAByCodePoint( CodePoint.RDBAFLRM ) ) then
-      stdnse.print_debug("drda.Helper.login: ERROR: RDB not found")
+      stdnse.debug1("drda.Helper.login: ERROR: RDB not found")
       return false, "ERROR: Database not found"
     end
 
@@ -618,12 +618,12 @@ Helper = {
 
     local param = drda:getParameter( CodePoint.SECMEC )
     if ( not(param) ) then
-      stdnse.print_debug("drda.Helper.login: ERROR: Response did not contain any valid security mechanisms")
+      stdnse.debug1("drda.Helper.login: ERROR: Response did not contain any valid security mechanisms")
       return false, "ERROR: Response did not contain any valid security mechanisms"
     end
 
     if ( select(2, bin.unpack(">S", param:getData())) ~= SecMec.USER_PASSWORD ) then
-      stdnse.print_debug("drda.Helper.login: ERROR: Securite Mechanism not supported")
+      stdnse.debug1("drda.Helper.login: ERROR: Securite Mechanism not supported")
       return false, "ERROR: Security mechanism not supported"
     end
 
@@ -706,13 +706,13 @@ Comm = {
     local status, err = self.socket:send( tostring(packet) )
 
     if ( not(status) ) then
-      stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", err )
+      stdnse.debug1("drda.Helper.login: ERROR: DB2Socket error: %s", err )
       return false, ("ERROR: DB2Socket error: %s"):format( err )
     end
 
     status, drda = self:recvDRDA()
     if( not(status) ) then
-      stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", drda )
+      stdnse.debug1("drda.Helper.login: ERROR: DB2Socket error: %s", drda )
       return false, ("ERROR: DB2Socket error: %s"):format( drda )
     end
     return true, DRDAPacket:new( drda )

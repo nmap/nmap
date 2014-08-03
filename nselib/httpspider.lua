@@ -294,7 +294,7 @@ LinkExtractor = {
     if ( self.options.maxdepth and self.options.maxdepth >= 0 ) then
       local depth = self:getDepth( url )
       if ( -1 == depth or depth > self.options.maxdepth ) then
-        stdnse.print_debug(3, "%s: Skipping link depth: %d; b_url=%s; url=%s", LIBRARY_NAME, depth, tostring(self.options.base_url), tostring(url))
+        stdnse.debug3("%s: Skipping link depth: %d; b_url=%s; url=%s", LIBRARY_NAME, depth, tostring(self.options.base_url), tostring(url))
         return false
       end
     end
@@ -302,7 +302,7 @@ LinkExtractor = {
     -- withindomain trumps any whitelisting
     if ( self.options.withindomain ) then
       if ( not(self.options.withindomain(url)) ) then
-        stdnse.print_debug(2, "%s: Link is not within domain: %s", LIBRARY_NAME, tostring(url))
+        stdnse.debug2("%s: Link is not within domain: %s", LIBRARY_NAME, tostring(url))
         return false
       end
     end
@@ -310,7 +310,7 @@ LinkExtractor = {
     -- withinhost trumps any whitelisting
     if ( self.options.withinhost ) then
       if ( not(self.options.withinhost(url)) ) then
-        stdnse.print_debug(2, "%s: Link is not within host: %s", LIBRARY_NAME, tostring(url))
+        stdnse.debug2("%s: Link is not within host: %s", LIBRARY_NAME, tostring(url))
         return false
       end
     end
@@ -319,7 +319,7 @@ LinkExtractor = {
     if ( #self.options.blacklist > 0 ) then
       for _, func in ipairs(self.options.blacklist) do
         if ( func(url) ) then
-          stdnse.print_debug(2, "%s: Blacklist match: %s", LIBRARY_NAME, tostring(url))
+          stdnse.debug2("%s: Blacklist match: %s", LIBRARY_NAME, tostring(url))
           valid = false
           break
         end
@@ -331,7 +331,7 @@ LinkExtractor = {
       valid = false
       for _, func in ipairs(self.options.whitelist) do
         if ( func(url) ) then
-          stdnse.print_debug(2, "%s: Whitelist match: %s", LIBRARY_NAME, tostring(url))
+          stdnse.debug2("%s: Whitelist match: %s", LIBRARY_NAME, tostring(url))
           valid = true
           break
         end
@@ -379,10 +379,10 @@ LinkExtractor = {
         local valid = self:validate_link(url)
 
         if ( valid ) then
-          stdnse.print_debug(3, "%s: Adding link: %s", LIBRARY_NAME, tostring(url))
+          stdnse.debug3("%s: Adding link: %s", LIBRARY_NAME, tostring(url))
           links[tostring(url)] = true
         elseif ( tostring(url) ) then
-          stdnse.print_debug(3, "%s: Skipping url: %s", LIBRARY_NAME, link)
+          stdnse.debug3("%s: Skipping url: %s", LIBRARY_NAME, link)
         end
       end
     end
@@ -441,11 +441,11 @@ URL = {
       self.domain= self.host:match("^[^%.]-%.(.*)")
       return true
     elseif( self.raw:match("^javascript:") ) then
-      stdnse.print_debug(2, "%s: Skipping javascript url: %s", LIBRARY_NAME, self.raw)
+      stdnse.debug2("%s: Skipping javascript url: %s", LIBRARY_NAME, self.raw)
     elseif( self.raw:match("^mailto:") ) then
-      stdnse.print_debug(2, "%s: Skipping mailto link: %s", LIBRARY_NAME, self.raw)
+      stdnse.debug2("%s: Skipping mailto link: %s", LIBRARY_NAME, self.raw)
     else
-      stdnse.print_debug(2, "%s: WARNING: Failed to parse url: %s", LIBRARY_NAME, self.raw)
+      stdnse.debug2("%s: WARNING: Failed to parse url: %s", LIBRARY_NAME, self.raw)
     end
     return false
   end,
@@ -527,7 +527,7 @@ UrlQueue = {
       if ( u ) then
         table.insert(self.urls, u)
       else
-        stdnse.print_debug("ERROR: Invalid URL: %s", url)
+        stdnse.debug1("ERROR: Invalid URL: %s", url)
       end
     end
   end,
@@ -690,7 +690,7 @@ Crawler = {
       end
     end
 
-    stdnse.print_debug(2, "%s: %s", LIBRARY_NAME, o:getLimitations())
+    stdnse.debug2("%s: %s", LIBRARY_NAME, o:getLimitations())
 
     return o
   end,
@@ -790,16 +790,16 @@ Crawler = {
       end
 
       if ( self.options.maxpagecount ) then
-        stdnse.print_debug(2, "%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
+        stdnse.debug2("%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
       else
-        stdnse.print_debug(2, "%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
+        stdnse.debug2("%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
       end
 
       local scrape = true
 
 
       if not (self.options.doscraping(url)) then
-        stdnse.print_debug(2, "%s: Scraping is not allowed for url: %s", LIBRARY_NAME, tostring(url))
+        stdnse.debug2("%s: Scraping is not allowed for url: %s", LIBRARY_NAME, tostring(url))
         scrape = false
       end
 
@@ -819,10 +819,10 @@ Crawler = {
           end
         end
         if is_web_file then
-          stdnse.print_debug(2, "%s: Using GET: %s", LIBRARY_NAME, file)
+          stdnse.debug2("%s: Using GET: %s", LIBRARY_NAME, file)
           response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
         else
-          stdnse.print_debug(2, "%s: Using HEAD: %s", LIBRARY_NAME, file)
+          stdnse.debug2("%s: Using HEAD: %s", LIBRARY_NAME, file)
           response = http.head(url:getHost(), url:getPort(), url:getFile())
         end
       else
@@ -854,7 +854,7 @@ Crawler = {
       end
       table.insert(response_queue, { true, { url = url, response = response } } )
       while ( PREFETCH_SIZE < #response_queue ) do
-        stdnse.print_debug(2, "%s: Response queue full, waiting ...", LIBRARY_NAME)
+        stdnse.debug2("%s: Response queue full, waiting ...", LIBRARY_NAME)
         condvar "wait"
       end
       condvar "signal"
@@ -866,7 +866,7 @@ Crawler = {
   loadScriptArguments = function(self)
     local sn = self.options.scriptname
     if ( not(sn) ) then
-      stdnse.print_debug("%s: WARNING: Script argument could not be loaded as scriptname was not set", LIBRARY_NAME)
+      stdnse.debug1("%s: WARNING: Script argument could not be loaded as scriptname was not set", LIBRARY_NAME)
       return
     end
 

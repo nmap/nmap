@@ -86,7 +86,7 @@ transport.payload = function( packet )
   assert(packet_length and padding_length)
   payload_length = packet_length - padding_length - 1
   if packet_length ~= packet:len() then
-    stdnse.print_debug("SSH-2 packet doesn't match length: payload_length is %d but total length is only %d.", packet_length, packet:len())
+    stdnse.debug1("SSH-2 packet doesn't match length: payload_length is %d but total length is only %d.", packet_length, packet:len())
     return nil
   end
   offset, payload = bin.unpack( ">A" .. payload_length, packet, offset )
@@ -179,7 +179,7 @@ fetch_host_key = function( host, port, key_type )
 
   if not tostring(kex_init.server_host_key_algorithms):find( key_type, 1, true ) then
     -- server does not support host key type
-    stdnse.print_debug( 2, "Hostkey type '%s' not supported by server.", key_type )
+    stdnse.debug2("Hostkey type '%s' not supported by server.", key_type )
     return
   end
 
@@ -225,7 +225,7 @@ fetch_host_key = function( host, port, key_type )
     algorithm = "ECDSA"
     bits = "521"
   else
-    stdnse.print_debug( "Unsupported key type: %s", key_type )
+    stdnse.debug1("Unsupported key type: %s", key_type )
   end
 
   return { key=base64.enc(public_host_key), key_type=key_type, fp_input=public_host_key, bits=bits,

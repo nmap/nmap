@@ -89,7 +89,7 @@ v2 =
       elseif ( authtype == 0 ) then
         response.success = true
       else
-        stdnse.print_debug("unknown auth type: %d", authtype)
+        stdnse.debug1("unknown auth type: %d", authtype)
       end
 
       response.authtype = authtype
@@ -138,7 +138,7 @@ v2 =
         return pos, response
       end
     else
-      stdnse.print_debug("Missing decoder for %d", ptype)
+      stdnse.debug1("Missing decoder for %d", ptype)
       return -1, ("Missing decoder for %d"):format(ptype)
     end
     return -1, "Decoding failed"
@@ -159,7 +159,7 @@ v2 =
     local tmp = ""
     local ptype, len
 
-    local catch = function() socket:close() stdnse.print_debug("processResponse(): failed") end
+    local catch = function() socket:close() stdnse.debug1("processResponse(): failed") end
     local try = nmap.new_try(catch)
 
     if ( data == nil or data:len() == 0 ) then
@@ -218,7 +218,7 @@ v2 =
   --         result string containing an error message if login fails
   loginRequest = function ( socket, params, username, password, salt )
 
-    local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end
+    local catch = function() socket:close() stdnse.debug1("loginRequest(): failed") end
     local try = nmap.new_try(catch)
     local response = {}
     local status, data, len, pos, tmp
@@ -283,7 +283,7 @@ v3 =
       elseif ( authtype == 0 ) then
         response.success = true
       else
-        stdnse.print_debug( "unknown auth type: %d", authtype )
+        stdnse.debug1("unknown auth type: %d", authtype )
       end
 
       response.authtype = authtype
@@ -397,7 +397,7 @@ v3 =
     local ptype, len
     local header
 
-    local catch = function() socket:close() stdnse.print_debug("processResponse(): failed") end
+    local catch = function() socket:close() stdnse.debug1("processResponse(): failed") end
     local try = nmap.new_try(catch)
 
     if ( data:len() - pos < 5 ) then
@@ -455,7 +455,7 @@ v3 =
         return pos, response
       end
     else
-      stdnse.print_debug( "Missing decoder for %d", header.type )
+      stdnse.debug1("Missing decoder for %d", header.type )
       return -1, ("Missing decoder for %d"):format(header.type)
     end
     return -1, "Decoding failed"
@@ -474,7 +474,7 @@ v3 =
   --         result string containing an error message if login fails
   loginRequest = function ( socket, params, username, password, salt )
 
-    local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end
+    local catch = function() socket:close() stdnse.debug1("loginRequest(): failed") end
     local try = nmap.new_try(catch)
     local response, header = {}, {}
     local status, data, len, tmp, _
@@ -601,7 +601,7 @@ function printErrorMessage( dberror )
     return
   end
   for k, v in pairs(dberror) do
-    stdnse.print_debug("%s=%s", k, v)
+    stdnse.debug1("%s=%s", k, v)
   end
 end
 

@@ -139,7 +139,7 @@ ASN1Decoder = {
     if self.decoder[etype] then
       return self.decoder[etype]( self, encStr, elen, newpos )
     else
-      stdnse.print_debug("no decoder for etype: " .. etype)
+      stdnse.debug1("no decoder for etype: " .. etype)
       return newpos, nil
     end
   end,

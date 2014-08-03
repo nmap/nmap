@@ -587,7 +587,7 @@ Response = {
     if ( self.data ) then
       local len = #self.data - pos
       if ( ( #self.data - pos ) ~= ( self.length - 33 ) ) then
-        stdnse.print_debug("NCP packet length mismatched")
+        stdnse.debug1("NCP packet length mismatched")
         return
       end
     end

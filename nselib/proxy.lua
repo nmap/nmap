@@ -100,7 +100,7 @@ function test_get(host, port, proxyType, test_url, hostname, pattern)
     return false, socket
   end
   local req = "GET " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
-  stdnse.print_debug("GET Request: " .. req)
+  stdnse.debug1("GET Request: " .. req)
   return test(socket, req, pattern)
 end
 
@@ -118,7 +118,7 @@ function test_head(host, port, proxyType, test_url, hostname, pattern)
     return false, socket
   end
   local req = "HEAD " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
-  stdnse.print_debug("HEAD Request: " .. req)
+  stdnse.debug1("HEAD Request: " .. req)
   return test(socket, req, pattern)
 end
 
@@ -134,7 +134,7 @@ function test_connect(host, port, proxyType, hostname)
     return false, socket
   end
   local req = "CONNECT " .. hostname .. ":80 HTTP/1.0\r\n\r\n"
-  stdnse.print_debug("CONNECT Request: " .. req)
+  stdnse.debug1("CONNECT Request: " .. req)
   return test(socket, req, false)
 end
 
@@ -262,7 +262,7 @@ function socksHandshake(socket, version, hostname)
       err = "Authentication Required"
     else
       -- If no Auth is required, try to establish connection
-      stdnse.print_debug("Socks5: No authentication required")
+      stdnse.debug1("Socks5: No authentication required")
       -- Socks5 second payload: Version, Command, Null, Address type, Ip-Address, Port number
       paystring = '05 01 00 01 ' .. sip .. '00 50'
       payload = bin.pack("H",paystring)

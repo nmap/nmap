@@ -19,7 +19,7 @@
 -- <code>
 -- local status,socket = jdwp.connect(host,port)
 -- if not status then
---   stdnse.print_debug("error, %s",socket)
+--   stdnse.debug1("error, %s",socket)
 -- end
 -- local version_info
 -- status, version_info = jdwp.getVersion(socket,0)
@@ -176,7 +176,7 @@ JDWPReplyPacket = {
     if flags == 0x80 then
       return true, JDWPReplyPacket:new(length,id,error_code,data)
     end
-    stdnse.print_debug(2,"JDWP error parsing reply. Wrong reply packet flag. Raw data: ", stdnse.tohex(reply_packet))
+    stdnse.debug2("JDWP error parsing reply. Wrong reply packet flag. Raw data: ", stdnse.tohex(reply_packet))
     return false, "JDWP error parsing reply."
   end
 
@@ -194,21 +194,21 @@ function connect(host,port)
   socket:set_timeout(10000)
   local status, err = socket:connect(host, port)
   if not status then
-    stdnse.print_debug(2,"JDWP could not connect: %s",err)
+    stdnse.debug2("JDWP could not connect: %s",err)
     return status, err
   end
   status, err = socket:send(JDWP_CONSTANTS.handshake)
   if not status then
-    stdnse.print_debug(2,"JDWP could not send handshake: %s",err)
+    stdnse.debug2("JDWP could not send handshake: %s",err)
     return status, err
   end
   status, result = socket:receive()
   if not status then
-    stdnse.print_debug(2,"JDWP could not receive handshake: %s",result)
+    stdnse.debug2("JDWP could not receive handshake: %s",result)
     return status, result
   end
   if result == JDWP_CONSTANTS.handshake then
-    stdnse.print_debug("JDWP handshake successful.")
+    stdnse.debug1("JDWP handshake successful.")
     return true, socket
   end
   return false, "JDWP handshake unsuccessful."
@@ -255,7 +255,7 @@ end
 local function extract_string(data,pos)
   local string_size
   if pos > #data then
-    stdnse.print_debug(2,"JDWP extract_string() position higher than data length, probably incomplete data received.")
+    stdnse.debug2("JDWP extract_string() position higher than data length, probably incomplete data received.")
     return pos, nil
   end
   pos, string_size = bin.unpack(">I",data,pos)
@@ -311,7 +311,7 @@ function getVersion(socket,id)
   local command = JDWPCommandPacket:new(id,1,1,nil) -- Version Command (1)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getVersion() error : %s",data)
+    stdnse.debug2("JDWP getVersion() error : %s",data)
     return false,data
   end
   -- parse data
@@ -348,7 +348,7 @@ function getClassBySignature(socket,id,signature)
   local command = JDWPCommandPacket:new(id,1,2,toUTF8(signature))
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getClassBySignature() error : %s",data)
+    stdnse.debug2("JDWP getClassBySignature() error : %s",data)
     return false,data
   end
   -- parse data
@@ -381,7 +381,7 @@ function getAllThreads(socket,id)
   local command = JDWPCommandPacket:new(id,1,4,nil)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getAllThreads() error: %s", data)
+    stdnse.debug2("JDWP getAllThreads() error: %s", data)
     return false,data
   end
   -- parse data
@@ -407,13 +407,13 @@ function resumeVM(socket,id)
   local command = JDWPCommandPacket:new(id,1,9,nil)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP resumeVM() error: %s", data)
+    stdnse.debug2("JDWP resumeVM() error: %s", data)
     return false,data
   end
   -- wait for event notification
   status, data = receive_all(socket)
   if not status then
-    stdnse.print_debug(2,"JDWP resumeVM() event notification failed: %s", data)
+    stdnse.debug2("JDWP resumeVM() event notification failed: %s", data)
   end
   return true, nil
 end
@@ -431,7 +431,7 @@ function createString(socket,id,ascii_string)
   local command = JDWPCommandPacket:new(id,1,11,toUTF8(ascii_string))
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP createString() error: %s", data)
+    stdnse.debug2("JDWP createString() error: %s", data)
     return false,data
   end
   local _,stringID = bin.unpack(">L",data)
@@ -456,7 +456,7 @@ function getAllClassesWithGeneric(socket,id)
   local command = JDWPCommandPacket:new(id,1,20,nil)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getAllClassesWithGeneric() error: %s", data)
+    stdnse.debug2("JDWP getAllClassesWithGeneric() error: %s", data)
     return false,data
   end
   -- parse data
@@ -499,7 +499,7 @@ function getSignatureWithGeneric(socket,id,classID)
   local command = JDWPCommandPacket:new(id,2,13,bin.pack(">L",classID)) -- Version Command (1)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getVersion() error : %s",data)
+    stdnse.debug2("JDWP getVersion() error : %s",data)
     return false,data
   end
   local _,signature = extract_string(data,0)
@@ -526,7 +526,7 @@ function getMethodsWithGeneric(socket,id,classID)
   local command = JDWPCommandPacket:new(id,2,15,bin.pack(">L",classID))
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getMethodsWithGeneric() error : %s",data)
+    stdnse.debug2("JDWP getMethodsWithGeneric() error : %s",data)
     return false,data
   end
   -- parse data
@@ -579,7 +579,7 @@ function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,argumen
   local command = JDWPCommandPacket:new(id,3,3,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP invokeStaticMethod() error: %s", data)
+    stdnse.debug2("JDWP invokeStaticMethod() error: %s", data)
     return false,data
   end
   return true,data
@@ -610,11 +610,11 @@ function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,
   local command = JDWPCommandPacket:new(id,3,4,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP newClassInstance() error: %s", data)
+    stdnse.debug2("JDWP newClassInstance() error: %s", data)
     return false,data
   end
   -- parse data
-  stdnse.print_debug("newClassInstance data: %s",stdnse.tohex(data))
+  stdnse.debug1("newClassInstance data: %s",stdnse.tohex(data))
   local pos, tag = bin.unpack(">C",data)
   local objectID
   pos, objectID = bin.unpack(">L",data,pos)
@@ -639,7 +639,7 @@ function newArrayInstance(socket,id,arrayType,length)
   local command = JDWPCommandPacket:new(id,4,1,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP newArrayInstance() error: %s", data)
+    stdnse.debug2("JDWP newArrayInstance() error: %s", data)
     return false,data
   end
   local pos,_ , tag, arrayID
@@ -664,11 +664,11 @@ function getRuntimeType(socket,id,objectID)
   local command = JDWPCommandPacket:new(id,9,1,bin.pack(">L",objectID))
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP resumeVM() error: %s", data)
+    stdnse.debug2("JDWP resumeVM() error: %s", data)
     return false,data
   end
   local _,tag,runtime_type = bin.unpack(">CL",data)
-  stdnse.print_debug("runtime type: %d",runtime_type)
+  stdnse.debug1("runtime type: %d",runtime_type)
   return true,runtime_type
 end
 
@@ -698,10 +698,10 @@ function invokeObjectMethod(socket,id,objectID,threadID,classID,methodID,numberO
   local command = JDWPCommandPacket:new(id,9,6,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP invokeObjectMethod() error: %s", data)
+    stdnse.debug2("JDWP invokeObjectMethod() error: %s", data)
     return false,data
   end
-  stdnse.print_debug("invoke obj method data: %s ",stdnse.tohex(data))
+  stdnse.debug1("invoke obj method data: %s ",stdnse.tohex(data))
   return true,data
 end
 
@@ -721,7 +721,7 @@ function readString(socket,id,stringID)
   local command = JDWPCommandPacket:new(id,10,1,bin.pack(">L",stringID))
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP readString() error: %s", data)
+    stdnse.debug2("JDWP readString() error: %s", data)
     return false,data
   end
   local _,result = extract_string(data,0)
@@ -746,7 +746,7 @@ function getThreadName(socket,id,threadID)
   local command = JDWPCommandPacket:new(id,11,1,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getThreadName() error: %s", data)
+    stdnse.debug2("JDWP getThreadName() error: %s", data)
     return false,data
   end
   -- parse data
@@ -768,7 +768,7 @@ function suspendThread(socket,id,threadID)
   local command = JDWPCommandPacket:new(id,11,2,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP suspendThread() error: %s", data)
+    stdnse.debug2("JDWP suspendThread() error: %s", data)
     return false,data
   end
   return true, nil
@@ -789,10 +789,10 @@ function threadStatus(socket,id,threadID)
   local command = JDWPCommandPacket:new(id,11,4,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP threadStatus() error: %s", data)
+    stdnse.debug2("JDWP threadStatus() error: %s", data)
     return false,data
   end
-  stdnse.print_debug("threadStatus %s",stdnse.tohex(data))
+  stdnse.debug1("threadStatus %s",stdnse.tohex(data))
   return true, data
 end
 
@@ -813,7 +813,7 @@ function setArrayValues(socket,id,objectID,idx,values)
   local command = JDWPCommandPacket:new(id,13,3,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP setArrayValues() error: %s", data)
+    stdnse.debug2("JDWP setArrayValues() error: %s", data)
     return false,data
   end
   return true, nil
@@ -835,7 +835,7 @@ function setThreadSinglestep(socket,id,threadID)
   local command = JDWPCommandPacket:new(id,15,1,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP setThreadSinglestep() error: %s", data)
+    stdnse.debug2("JDWP setThreadSinglestep() error: %s", data)
     return false,data
   end
   local _, requestID = bin.unpack(">i",data)
@@ -855,7 +855,7 @@ function clearThreadSinglestep(socket,id,eventID)
   local command = JDWPCommandPacket:new(id,15,2,params)
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP clearThreadSinglestep() error: %s", data)
+    stdnse.debug2("JDWP clearThreadSinglestep() error: %s", data)
     return false,data
   end
   return true,nil
@@ -879,7 +879,7 @@ function getReflectedType(socket,id,classObjectID)
   local command = JDWPCommandPacket:new(id,17,1,bin.pack(">L",classObjectID))
   local status, data = executeCommand(socket,command)
   if not status then
-    stdnse.print_debug(2,"JDWP getReflectedType() error: %s", data)
+    stdnse.debug2("JDWP getReflectedType() error: %s", data)
     return false,data
   end
   local reflected_type = {
@@ -904,7 +904,7 @@ function findMethod(socket,class,methodName,skipFirst)
     return false
   end
   for _, method in ipairs(methods) do -- find first constructor and first defineClass() method
-    stdnse.print_debug(2,"Method name: %s", method.name)
+    stdnse.debug2("Method name: %s", method.name)
     if methodID == nil then
       if string.find(method.name,methodName) then
         if skipFirst then
@@ -933,7 +933,7 @@ function injectClass(socket,class_bytes)
   -- find byte array class id needed to create new array to load our bytecode into
   status,classes = getAllClassesWithGeneric(socket,0)
   if not status then
-    stdnse.print_debug("getAllClassesWithGeneric failed: %s", classes)
+    stdnse.debug1("getAllClassesWithGeneric failed: %s", classes)
     return false
   end
   local byteArrayID
@@ -944,10 +944,10 @@ function injectClass(socket,class_bytes)
     end
   end
   if byteArrayID == nil then
-    stdnse.print_debug("finding byte array id failed")
+    stdnse.debug1("finding byte array id failed")
     return false
   end
-  stdnse.print_debug("Found byte[] id %d",byteArrayID)
+  stdnse.debug1("Found byte[] id %d",byteArrayID)
 
   -- find SecureClassLoader id by signature
   status, classes = getClassBySignature(socket,0,"Ljava/security/SecureClassLoader;")
@@ -955,7 +955,7 @@ function injectClass(socket,class_bytes)
     return false
   end
   local secureClassLoader = classes[1].referenceTypeID
-  stdnse.print_debug("Found SecureClassLoader id %d",secureClassLoader)
+  stdnse.debug1("Found SecureClassLoader id %d",secureClassLoader)
   -- find SecureClassLoader() constructor
   local constructorMethodID = findMethod(socket,secureClassLoader,"<init>",true)
   -- find ClassLoader id by signature
@@ -964,13 +964,13 @@ function injectClass(socket,class_bytes)
     return false
   end
   local classLoader = classes[1].referenceTypeID
-  stdnse.print_debug("Found ClassLoader id %d",classes[1].referenceTypeID)
+  stdnse.debug1("Found ClassLoader id %d",classes[1].referenceTypeID)
   -- find ClassLoader's defineClass() method
   local defineClassMethodID = findMethod(socket,classLoader,"defineClass",false)
   -- find ClassLoader's resolveClass() method
   local resolveClassMethodID = findMethod(socket,classLoader,"resolveClass",false)
   if constructorMethodID == nil or defineClassMethodID == nil or resolveClassMethodID == nil then
-    stdnse.print_debug("Either constructor, defineClass or resolveClass method could not be found %s,%s,%s", type(constructorMethodID), type(defineClassMethodID),type(resolveClassMethodID))
+    stdnse.debug1("Either constructor, defineClass or resolveClass method could not be found %s,%s,%s", type(constructorMethodID), type(defineClassMethodID),type(resolveClassMethodID))
     return false
   end
 
@@ -979,18 +979,18 @@ function injectClass(socket,class_bytes)
   local arrayID
   status, arrayID = newArrayInstance(socket,0,byteArrayID,#class_bytes)
   if not status then
-    stdnse.print_debug("New array failed: %s", arrayID)
+    stdnse.debug1("New array failed: %s", arrayID)
     return false
   end
-  stdnse.print_debug("Created new byte array of length %d",#class_bytes)
+  stdnse.debug1("Created new byte array of length %d",#class_bytes)
   -- set array values
   local temp
   status, temp = setArrayValues(socket,0,arrayID,0,class_bytes)
   if not status then
-    stdnse.print_debug("Set values failed: %s", temp)
+    stdnse.debug1("Set values failed: %s", temp)
     return
   end
-  stdnse.print_debug("Set array values to injected class bytes")
+  stdnse.debug1("Set array values to injected class bytes")
 
   -- get main thread id
   -- in order to load a new class file, thread must be suspended by an event
@@ -998,58 +998,58 @@ function injectClass(socket,class_bytes)
   local threads
   status,threads = getAllThreads(socket,0)
   if not status then
-    stdnse.print_debug("get threads failed: %s", threads)
+    stdnse.debug1("get threads failed: %s", threads)
     return false
   end
   local main_thread
   local eventID
-  stdnse.print_debug("Looking for main thread...")
+  stdnse.debug1("Looking for main thread...")
   for _,thread in ipairs(threads) do
     local thread_name
     status, thread_name = getThreadName(socket,0,thread)
     if not status then
-      stdnse.print_debug("getThreadName failed: %s", thread_name)
+      stdnse.debug1("getThreadName failed: %s", thread_name)
       return false
     end
     if thread_name == "main" then
-      stdnse.print_debug("Setting singlesteping to main thread.")
+      stdnse.debug1("Setting singlesteping to main thread.")
       status, eventID = setThreadSinglestep(socket,0,thread)
       main_thread = thread
       break
     end
   end
   if main_thread == nil then
-    stdnse.print_debug("couldn't find main thread")
+    stdnse.debug1("couldn't find main thread")
     return false
   end
   -- to trigger the singlestep event, VM must be resumed
-  stdnse.print_debug("Resuming VM and waiting for single step event from main thread...")
+  stdnse.debug1("Resuming VM and waiting for single step event from main thread...")
   local status, _ = resumeVM(socket,0)
   -- clear singlestep since we need to run our code in this thread and we don't want it to stop after each instruction
   clearThreadSinglestep(socket,0,eventID)
-  stdnse.print_debug("Cleared singlesteping from main thread.")
+  stdnse.debug1("Cleared singlesteping from main thread.")
 
   -- instantiate new class loader
   local class_loader_instance
   status, class_loader_instance = newClassInstance(socket,0,secureClassLoader,main_thread,constructorMethodID,0,nil)
   if not status then
-    stdnse.print_debug("newClassInstance failed: %s", class_loader_instance)
+    stdnse.debug1("newClassInstance failed: %s", class_loader_instance)
     return false
   end
-  stdnse.print_debug("Created new instance of SecureClassLoader.")
+  stdnse.debug1("Created new instance of SecureClassLoader.")
 
   local injectedClass
   -- invoke defineClass with byte array that contains our bytecode
   local defineClassArgs = bin.pack(">CLCiCi",0x5b,arrayID,0x49,0,0x49,#class_bytes) -- argument tags taken from http://docs.oracle.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp9502
-  stdnse.print_debug("Calling secureClassLoader.defineClass(byte[],int,int) ...")
+  stdnse.debug1("Calling secureClassLoader.defineClass(byte[],int,int) ...")
   status, injectedClass = invokeObjectMethod(socket,0,class_loader_instance,main_thread,secureClassLoader,defineClassMethodID,3,defineClassArgs)
   if not status then
-    stdnse.print_debug("invokeObjectMethod failed: %s", injectedClass)
+    stdnse.debug1("invokeObjectMethod failed: %s", injectedClass)
   end
   -- resolve (Java's way of saying link) loaded class
   status, _ = invokeObjectMethod(socket,0,class_loader_instance,main_thread,secureClassLoader,resolveClassMethodID,1,injectedClass) -- call with injectedClass which still has a tag
   if not status then
-    stdnse.print_debug("invokeObjectMethod failed:")
+    stdnse.debug1("invokeObjectMethod failed:")
   end
   -- extract the injected class' ID
   local tag,injectedClassID
@@ -1064,17 +1064,17 @@ function injectClass(socket,class_bytes)
   status, _ = invokeObjectMethod(socket,0,injectedClassID,main_thread,runtime_type,getMethodsMethod,0,nil)
 
 
-  stdnse.print_debug("New class defined. Injected class id : %d",injectedClassID)
+  stdnse.debug1("New class defined. Injected class id : %d",injectedClassID)
   local sig, reflected_type
   status, sig = getSignatureWithGeneric(socket,0,injectedClassID)
-  stdnse.print_debug("Injected class signature: %s", sig)
+  stdnse.debug1("Injected class signature: %s", sig)
   status, reflected_type = getReflectedType(socket,0,injectedClassID)
 
   -- find injected class constructor
   local injectedConstructor = findMethod(socket,injectedClassID,"<init>",false)
 
   if injectedConstructor == nil then
-    stdnse.print_debug("Couldn't find either evil method or constructor")
+    stdnse.debug1("Couldn't find either evil method or constructor")
     return false
   end
 

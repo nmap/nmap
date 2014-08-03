@@ -234,7 +234,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
   local pos, align
   local result
 
-  stdnse.print_debug(2, "MSRPC: Sending Bind() request")
+  stdnse.debug2("MSRPC: Sending Bind() request")
 
   -- Use the only transfer_syntax value I know of.
   if(transfer_syntax == nil) then
@@ -280,7 +280,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: Received Bind() result")
+  stdnse.debug3("MSRPC: Received Bind() result")
 
   -- Make these easier to access.
   parameters = result['parameters']
@@ -402,7 +402,7 @@ function call_function(smbstate, opnum, arguments)
     arguments
     )
 
-  stdnse.print_debug(3, "MSRPC: Calling function 0x%02x with %d bytes of arguments", #arguments, opnum)
+  stdnse.debug3("MSRPC: Calling function 0x%02x with %d bytes of arguments", #arguments, opnum)
 
   -- Pass the information up to the smb layer
   status, result = smb.write_file(smbstate, data, 0)
@@ -475,7 +475,7 @@ function call_function(smbstate, opnum, arguments)
 
   result['arguments'] = arguments
 
-  stdnse.print_debug(3, "MSRPC: Function call successful, %d bytes of returned arguments", #result['arguments'])
+  stdnse.debug3("MSRPC: Function call successful, %d bytes of returned arguments", #result['arguments'])
 
   return true, result
 end
@@ -493,7 +493,7 @@ function call_lanmanapi(smbstate, opnum, paramdesc, datadesc, data)
     data
     )
 
-  stdnse.print_debug(1, "MSRPC: Sending Browser Service request")
+  stdnse.debug1("MSRPC: Sending Browser Service request")
   status, result = smb.send_transaction_named_pipe(smbstate, parameters, nil, "\\PIPE\\LANMAN", true)
 
   if(not(status)) then
@@ -530,14 +530,14 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
   local parameters = result.parameters
   local data = result.data
 
-  stdnse.print_debug(1, "MSRPC: Parsing Browser Service response")
+  stdnse.debug1("MSRPC: Parsing Browser Service response")
   local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
 
   if(status ~= 0) then
     return false, string.format("Call to Browser Service failed with status = %d", status)
   end
 
-  stdnse.print_debug(1, "MSRPC: Browser service returned %d entries", entry_count)
+  stdnse.debug1("MSRPC: Browser service returned %d entries", entry_count)
 
 
   local pos = 1
@@ -547,7 +547,7 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
     local server = {}
 
     pos, server.name = bin.unpack("<z", data, pos)
-    stdnse.print_debug(1, "MSRPC: Found name: %s", server.name)
+    stdnse.debug1("MSRPC: Found name: %s", server.name)
 
     -- pos needs to be rounded to the next even multiple of 16
     pos = pos + ( 16 - (#server.name % 16) ) - 1
@@ -598,7 +598,7 @@ function srvsvc_netshareenumall(smbstate, server)
   local level
   local ctr, referent, count, max_count
 
-  stdnse.print_debug(2, "MSRPC: Calling NetShareEnumAll() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling NetShareEnumAll() [%s]", smbstate['ip'])
 
   -- [in]   [string,charset(UTF16)] uint16 *server_unc
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
@@ -623,7 +623,7 @@ function srvsvc_netshareenumall(smbstate, server)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: NetShareEnumAll() returned successfully")
+  stdnse.debug3("MSRPC: NetShareEnumAll() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -688,7 +688,7 @@ function srvsvc_netsharegetinfo(smbstate, server, share, level)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: NetShareGetInfo() returned successfully")
+  stdnse.debug3("MSRPC: NetShareGetInfo() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -729,7 +729,7 @@ function srvsvc_netsessenum(smbstate, server)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling NetSessEnum() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling NetSessEnum() [%s]", smbstate['ip'])
 
   --    [in]   [string,charset(UTF16)] uint16 *server_unc,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
@@ -760,7 +760,7 @@ function srvsvc_netsessenum(smbstate, server)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: NetSessEnum() returned successfully")
+  stdnse.debug3("MSRPC: NetSessEnum() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -836,7 +836,7 @@ function srvsvc_netservergetstatistics(smbstate, server)
 
   local service = "SERVICE_SERVER"
 
-  stdnse.print_debug(2, "MSRPC: Calling NetServerGetStatistics() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling NetServerGetStatistics() [%s]", smbstate['ip'])
 
   --    [in]      [string,charset(UTF16)] uint16 *server_unc,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
@@ -859,7 +859,7 @@ function srvsvc_netservergetstatistics(smbstate, server)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: NetServerGetStatistics() returned successfully")
+  stdnse.debug3("MSRPC: NetServerGetStatistics() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -907,7 +907,7 @@ function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathfla
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling NetPathCompare(%s, %s) [%s]", path1, path2, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling NetPathCompare(%s, %s) [%s]", path1, path2, smbstate['ip'])
 
   --    [in]   [string,charset(UTF16)] uint16 *server_unc,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
@@ -930,7 +930,7 @@ function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathfla
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: NetPathCompare() returned successfully")
+  stdnse.debug3("MSRPC: NetPathCompare() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -970,7 +970,7 @@ function srvsvc_netpathcanonicalize(smbstate, server, path)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling NetPathCanonicalize(%s) [%s]", path, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling NetPathCanonicalize(%s) [%s]", path, smbstate['ip'])
 
   --        [in]   [string,charset(UTF16)] uint16 *server_unc,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
@@ -995,7 +995,7 @@ function srvsvc_netpathcanonicalize(smbstate, server, path)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: NetPathCanonicalize() returned successfully")
+  stdnse.debug3("MSRPC: NetPathCanonicalize() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1065,7 +1065,7 @@ function spoolss_open_printer(smbstate,printer)
 
   local status, result = call_function(smbstate, 69, arguments)
   if not status then
-    stdnse.print_debug("MSRPC spoolss_open_printer(): %s ",result)
+    stdnse.debug1("MSRPC spoolss_open_printer(): %s ",result)
   end
   return status,result
 
@@ -1099,7 +1099,7 @@ function spoolss_start_doc_printer(smbstate,printer_handle,filename)
 
   local status, result = call_function(smbstate, 17, arguments)
   if not status then
-    stdnse.print_debug("MSRPC spoolss_start_doc_printer(): %s",result)
+    stdnse.debug1("MSRPC spoolss_start_doc_printer(): %s",result)
   end
   return status,result
 end
@@ -1112,7 +1112,7 @@ end
 --@param data              Actual data to write to a file
 --@return (status, result) If status is false, result is an error message. Otherwise, result is number of bytes written.
 function spoolss_write_printer(smbstate,printer_handle,data)
-  stdnse.print_debug("len %d", #data)
+  stdnse.debug1("len %d", #data)
   local padding_len = 4 - math.fmod(#data,4)
   local data_padding = nil
   if not (padding_len == 4) then
@@ -1125,7 +1125,7 @@ function spoolss_write_printer(smbstate,printer_handle,data)
   arguments = arguments ..  msrpctypes.marshall_int32(#data)
   local status,result = call_function(smbstate, 19, arguments)
   if not status then
-    stdnse.print_debug("MSRPC spoolss_write_printer(): %s",result)
+    stdnse.debug1("MSRPC spoolss_write_printer(): %s",result)
   end
   return status,result
 end
@@ -1139,7 +1139,7 @@ end
 function spoolss_end_doc_printer(smbstate,printer_handle)
   local status,result = call_function(smbstate,23,printer_handle)
   if not status then
-    stdnse.print_debug("MSRPC spoolss_end_doc_printer(): %s",result)
+    stdnse.debug1("MSRPC spoolss_end_doc_printer(): %s",result)
   end
   return status,result
 end
@@ -1153,7 +1153,7 @@ end
 function spoolss_abort_printer(smbstate,printer_handle)
   local status,result = call_function(smbstate,21,printer_handle)
   if not status then
-    stdnse.print_debug("MSRPC spoolss_abort_printer(): %s",result)
+    stdnse.debug1("MSRPC spoolss_abort_printer(): %s",result)
   end
   return status,result
 end
@@ -1215,7 +1215,7 @@ function epmapper_lookup(smbstate,handle)
 
   local status,result = call_function(smbstate,2,params)
   if not status then
-    stdnse.print_debug("MSRPC epmapper_lookup(): %s",result)
+    stdnse.debug1("MSRPC epmapper_lookup(): %s",result)
   end
 
   local data = result.data
@@ -1239,7 +1239,7 @@ function epmapper_lookup(smbstate,handle)
 
   lookup_response.new_handle = string.sub(data,25,44)
 
-  --  stdnse.print_debug("new_handle: %s", stdnse.tohex(new_handle))
+  --  stdnse.debug1("new_handle: %s", stdnse.tohex(new_handle))
 
   local num_entries
   pos,  num_entries = bin.unpack("<I",data,45)
@@ -1295,7 +1295,7 @@ function epmapper_lookup(smbstate,handle)
         elseif address_type == 0x1f then
           pos, lookup_response.ncacn_http = bin.unpack(">S",data,pos)
         else
-          stdnse.print_debug("unknown address type %x",address_type)
+          stdnse.debug1("unknown address type %x",address_type)
         end
       end
     end
@@ -1344,7 +1344,7 @@ function samr_connect4(smbstate, server)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling Connect4() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling Connect4() [%s]", smbstate['ip'])
 
   -- [in,string,charset(UTF16)] uint16 *system_name,
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
@@ -1363,7 +1363,7 @@ function samr_connect4(smbstate, server)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: Connect4() returned successfully")
+  stdnse.debug3("MSRPC: Connect4() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1398,7 +1398,7 @@ function samr_enumdomains(smbstate, connect_handle)
   local result
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling EnumDomains() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling EnumDomains() [%s]", smbstate['ip'])
 
   --    [in,ref]      policy_handle *connect_handle,
   arguments = msrpctypes.marshall_policy_handle(connect_handle)
@@ -1419,7 +1419,7 @@ function samr_enumdomains(smbstate, connect_handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: EnumDomains() returned successfully")
+  stdnse.debug3("MSRPC: EnumDomains() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1461,7 +1461,7 @@ function samr_lookupdomain(smbstate, connect_handle, domain)
   local pos, align
   local referent_id
 
-  stdnse.print_debug(2, "MSRPC: Calling LookupDomain(%s) [%s]", domain, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LookupDomain(%s) [%s]", domain, smbstate['ip'])
 
   --    [in,ref]  policy_handle *connect_handle,
   arguments = msrpctypes.marshall_policy_handle(connect_handle)
@@ -1478,7 +1478,7 @@ function samr_lookupdomain(smbstate, connect_handle, domain)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: LookupDomain() returned successfully")
+  stdnse.debug3("MSRPC: LookupDomain() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1514,7 +1514,7 @@ function samr_opendomain(smbstate, connect_handle, sid)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenDomain(%s) [%s]", sid, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenDomain(%s) [%s]", sid, smbstate['ip'])
 
   --    [in,ref]      policy_handle *connect_handle,
   arguments = msrpctypes.marshall_policy_handle(connect_handle)
@@ -1534,7 +1534,7 @@ function samr_opendomain(smbstate, connect_handle, sid)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenDomain() returned successfully")
+  stdnse.debug3("MSRPC: OpenDomain() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1570,7 +1570,7 @@ function samr_enumdomainusers(smbstate, domain_handle)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling EnumDomainUsers() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling EnumDomainUsers() [%s]", smbstate['ip'])
 
   --    [in,ref]      policy_handle *domain_handle,
   arguments = msrpctypes.marshall_policy_handle(domain_handle)
@@ -1594,7 +1594,7 @@ function samr_enumdomainusers(smbstate, domain_handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: EnumDomainUsers() returned successfully")
+  stdnse.debug3("MSRPC: EnumDomainUsers() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1651,7 +1651,7 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
 
   -- This loop is because, in my testing, if I asked for all the results at once, it would blow up (ERR_BUFFER_OVERFLOW). So, instead,
   -- I put a little loop here and grab the names individually.
-  stdnse.print_debug(2, "MSRPC: Calling QueryDisplayInfo(%d) [%s]", index, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling QueryDisplayInfo(%d) [%s]", index, smbstate['ip'])
 
   --    [in,ref]    policy_handle *domain_handle,
   arguments = msrpctypes.marshall_policy_handle(domain_handle)
@@ -1679,7 +1679,7 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: QueryDisplayInfo() returned successfully", i)
+  stdnse.debug3("MSRPC: QueryDisplayInfo() returned successfully", i)
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -1741,7 +1741,7 @@ function samr_querydomaininfo2(smbstate, domain_handle, level)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling QueryDomainInfo2(%d) [%s]", level, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling QueryDomainInfo2(%d) [%s]", level, smbstate['ip'])
 
   --    [in,ref]      policy_handle *domain_handle,
   arguments = msrpctypes.marshall_policy_handle(domain_handle)
@@ -1757,7 +1757,7 @@ function samr_querydomaininfo2(smbstate, domain_handle, level)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: QueryDomainInfo2() returned successfully")
+  stdnse.debug3("MSRPC: QueryDomainInfo2() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2066,7 +2066,7 @@ end
 --
 --
 --  pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
---stdnse.print_debug("Return = %08x\n", result['return'])
+--stdnse.debug1("Return = %08x\n", result['return'])
 --  if(result['return'] == nil) then
 --    return false, "Read off the end of the packet (samr.getmembersinalias)"
 --  end
@@ -2091,7 +2091,7 @@ function samr_close(smbstate, handle)
   local pos, align
 
 
-  stdnse.print_debug(2, "MSRPC: Calling Close() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling Close() [%s]", smbstate['ip'])
 
   --    [in,out,ref]  policy_handle *handle
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -2102,7 +2102,7 @@ function samr_close(smbstate, handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: Close() returned successfully")
+  stdnse.debug3("MSRPC: Close() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2135,7 +2135,7 @@ function lsa_openpolicy2(smbstate, server)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling LsarOpenPolicy2() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarOpenPolicy2() [%s]", smbstate['ip'])
 
   --    [in,unique]      [string,charset(UTF16)] uint16 *system_name,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
@@ -2154,7 +2154,7 @@ function lsa_openpolicy2(smbstate, server)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: LsarOpenPolicy2() returned successfully")
+  stdnse.debug3("MSRPC: LsarOpenPolicy2() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2193,7 +2193,7 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
   local result
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling LsarLookupNames2(%s) [%s]", stdnse.strjoin(", ", names), smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarLookupNames2(%s) [%s]", stdnse.strjoin(", ", names), smbstate['ip'])
 
 
   --    [in]     policy_handle *handle,
@@ -2229,7 +2229,7 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: LsarLookupNames2() returned successfully")
+  stdnse.debug3("MSRPC: LsarLookupNames2() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2285,7 +2285,7 @@ function lsa_lookupsids2(smbstate, policy_handle, sids)
   local result
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling LsarLookupSids2(%s) [%s]", stdnse.strjoin(", ", sids), smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsarLookupSids2(%s) [%s]", stdnse.strjoin(", ", sids), smbstate['ip'])
 
   --    [in]     policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(policy_handle)
@@ -2343,7 +2343,7 @@ function lsa_lookupsids2(smbstate, policy_handle, sids)
     return false, smb.get_status_name(result['return']) .. " (lsa.lookupsids2)"
   end
 
-  stdnse.print_debug(3, "MSRPC: LsarLookupSids2(): Returning")
+  stdnse.debug3("MSRPC: LsarLookupSids2(): Returning")
   return true, result
 
 end
@@ -2359,7 +2359,7 @@ function lsa_close(smbstate, handle)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling LsaClose() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling LsaClose() [%s]", smbstate['ip'])
 
   --    [in,out]     policy_handle *handle
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -2385,7 +2385,7 @@ function lsa_close(smbstate, handle)
     return false, smb.get_status_name(result['return']) .. " (lsa.close)"
   end
 
-  stdnse.print_debug(3, "MSRPC: LsaClose() returned successfully")
+  stdnse.debug3("MSRPC: LsaClose() returned successfully")
   return true, result
 end
 
@@ -2413,7 +2413,7 @@ function winreg_openhku(smbstate)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenHKU() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenHKU() [%s]", smbstate['ip'])
 
   --    [in]      uint16 *system_name,
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
@@ -2429,7 +2429,7 @@ function winreg_openhku(smbstate)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenHKU() returned successfully")
+  stdnse.debug3("MSRPC: OpenHKU() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2463,7 +2463,7 @@ function winreg_openhklm(smbstate)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenHKLM() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenHKLM() [%s]", smbstate['ip'])
 
   --    [in]      uint16 *system_name,
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
@@ -2479,7 +2479,7 @@ function winreg_openhklm(smbstate)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenHKLM() returned successfully")
+  stdnse.debug3("MSRPC: OpenHKLM() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2512,7 +2512,7 @@ function winreg_openhkpd(smbstate)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenHKPD() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenHKPD() [%s]", smbstate['ip'])
 
   --    [in]      uint16 *system_name,
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
@@ -2528,7 +2528,7 @@ function winreg_openhkpd(smbstate)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenHKPD() returned successfully")
+  stdnse.debug3("MSRPC: OpenHKPD() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2561,7 +2561,7 @@ function winreg_openhkcu(smbstate)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenHKCU() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenHKCU() [%s]", smbstate['ip'])
 
   --    [in]      uint16 *system_name,
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
@@ -2577,7 +2577,7 @@ function winreg_openhkcu(smbstate)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenHKCU() returned successfully")
+  stdnse.debug3("MSRPC: OpenHKCU() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2619,7 +2619,7 @@ function winreg_enumkey(smbstate, handle, index, name)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling EnumKey(%d) [%s]", index, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling EnumKey(%d) [%s]", index, smbstate['ip'])
 
   --    [in,ref]        policy_handle    *handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -2644,7 +2644,7 @@ function winreg_enumkey(smbstate, handle, index, name)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: EnumKey() returned successfully")
+  stdnse.debug3("MSRPC: EnumKey() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2689,7 +2689,7 @@ function winreg_openkey(smbstate, handle, keyname)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenKey(%s) [%s]", keyname, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenKey(%s) [%s]", keyname, smbstate['ip'])
 
   --    [in,ref] policy_handle *parent_handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -2712,7 +2712,7 @@ function winreg_openkey(smbstate, handle, keyname)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenKey() returned successfully")
+  stdnse.debug3("MSRPC: OpenKey() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2749,7 +2749,7 @@ function winreg_queryinfokey(smbstate, handle)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling QueryInfoKey() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling QueryInfoKey() [%s]", smbstate['ip'])
 
   --    [in,ref] policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -2773,7 +2773,7 @@ function winreg_queryinfokey(smbstate, handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: QueryInfoKey() returned successfully")
+  stdnse.debug3("MSRPC: QueryInfoKey() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2834,7 +2834,7 @@ function winreg_queryvalue(smbstate, handle, value)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling QueryValue(%s) [%s]", value, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling QueryValue(%s) [%s]", value, smbstate['ip'])
 
 
   --    [in,ref] policy_handle *handle,
@@ -2861,7 +2861,7 @@ function winreg_queryvalue(smbstate, handle, value)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: QueryValue() returned successfully")
+  stdnse.debug3("MSRPC: QueryValue() returned successfully")
   local length, referent_id
 
   -- Make arguments easier to use
@@ -2889,7 +2889,7 @@ function winreg_queryvalue(smbstate, handle, value)
     elseif(result['type'] == "REG_NONE") then
       result['value'] = ""
     else
-      stdnse.print_debug("MSRPC ERROR: Unknown type: %s", result['type'])
+      stdnse.debug1("MSRPC ERROR: Unknown type: %s", result['type'])
       result['value'] = result['type']
     end
   else
@@ -2929,7 +2929,7 @@ function winreg_closekey(smbstate, handle)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling CloseKey() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling CloseKey() [%s]", smbstate['ip'])
 
   --    [in,out,ref] policy_handle *handle
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -2940,7 +2940,7 @@ function winreg_closekey(smbstate, handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: CloseKey() returned successfully")
+  stdnse.debug3("MSRPC: CloseKey() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -2973,7 +2973,7 @@ function svcctl_openscmanagera(smbstate, machinename)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenSCManagerA() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenSCManagerA() [%s]", smbstate['ip'])
 
   --        [in] [string,charset(UTF16)] uint16 *MachineName,
   arguments = msrpctypes.marshall_ascii_ptr("\\\\" .. machinename)
@@ -2993,7 +2993,7 @@ function svcctl_openscmanagera(smbstate, machinename)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenSCManagerA() returned successfully")
+  stdnse.debug3("MSRPC: OpenSCManagerA() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3034,7 +3034,7 @@ function svcctl_openscmanagerw(smbstate, machinename)
   --    return svcctl_openscmanagera(smbstate, machinename)
   --  end
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenSCManagerW() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenSCManagerW() [%s]", smbstate['ip'])
 
   --        [in] [string,charset(UTF16)] uint16 *MachineName,
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. machinename, true)
@@ -3054,7 +3054,7 @@ function svcctl_openscmanagerw(smbstate, machinename)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenSCManagerW() returned successfully")
+  stdnse.debug3("MSRPC: OpenSCManagerW() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3090,7 +3090,7 @@ function svcctl_closeservicehandle(smbstate, handle)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling CloseServiceHandle() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling CloseServiceHandle() [%s]", smbstate['ip'])
 
   --        [in,out,ref] policy_handle *handle
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3102,7 +3102,7 @@ function svcctl_closeservicehandle(smbstate, handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenSCManagerA() returned successfully")
+  stdnse.debug3("MSRPC: OpenSCManagerA() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3135,7 +3135,7 @@ function svcctl_createservicew(smbstate, handle, service_name, display_name, pat
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling CreateServiceW() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling CreateServiceW() [%s]", smbstate['ip'])
 
   --        [in,ref] policy_handle *scmanager_handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3192,7 +3192,7 @@ function svcctl_createservicew(smbstate, handle, service_name, display_name, pat
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: CreateServiceW() returned successfully")
+  stdnse.debug3("MSRPC: CreateServiceW() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3242,7 +3242,7 @@ function svcctl_deleteservice(smbstate, handle)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling DeleteService() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling DeleteService() [%s]", smbstate['ip'])
 
   --        [in,ref] policy_handle *handle
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3254,7 +3254,7 @@ function svcctl_deleteservice(smbstate, handle)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: DeleteService() returned successfully")
+  stdnse.debug3("MSRPC: DeleteService() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3289,7 +3289,7 @@ function svcctl_openservicew(smbstate, handle, name)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling OpenServiceW() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling OpenServiceW() [%s]", smbstate['ip'])
 
   --        [in,ref] policy_handle *scmanager_handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3308,7 +3308,7 @@ function svcctl_openservicew(smbstate, handle, name)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: OpenServiceW() returned successfully")
+  stdnse.debug3("MSRPC: OpenServiceW() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3344,7 +3344,7 @@ function svcctl_startservicew(smbstate, handle, args)
   local status, result
   local arguments
   local pos, align
-  stdnse.print_debug(2, "MSRPC: Calling StartServiceW() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling StartServiceW() [%s]", smbstate['ip'])
 
   --        [in,ref] policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3365,7 +3365,7 @@ function svcctl_startservicew(smbstate, handle, args)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: StartServiceW() returned successfully")
+  stdnse.debug3("MSRPC: StartServiceW() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3400,7 +3400,7 @@ function svcctl_controlservice(smbstate, handle, control)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling ControlService() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling ControlService() [%s]", smbstate['ip'])
 
   --        [in,ref] policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3417,7 +3417,7 @@ function svcctl_controlservice(smbstate, handle, control)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: ControlService() returned successfully")
+  stdnse.debug3("MSRPC: ControlService() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3453,7 +3453,7 @@ function svcctl_queryservicestatus(smbstate, handle, control)
   local arguments
   local pos, align
 
-  stdnse.print_debug(2, "MSRPC: Calling QueryServiceStatus() [%s]", smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling QueryServiceStatus() [%s]", smbstate['ip'])
 
   --        [in,ref] policy_handle *handle,
   arguments = msrpctypes.marshall_policy_handle(handle)
@@ -3467,7 +3467,7 @@ function svcctl_queryservicestatus(smbstate, handle, control)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: QueryServiceStatus() returned successfully")
+  stdnse.debug3("MSRPC: QueryServiceStatus() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3512,7 +3512,7 @@ function atsvc_jobadd(smbstate, server, command, time)
     -- TODO
   end
 
-  stdnse.print_debug(2, "MSRPC: Calling AddJob(%s) [%s]", command, smbstate['ip'])
+  stdnse.debug2("MSRPC: Calling AddJob(%s) [%s]", command, smbstate['ip'])
 
   --        [in,unique,string,charset(UTF16)] uint16 *servername,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
@@ -3528,7 +3528,7 @@ function atsvc_jobadd(smbstate, server, command, time)
     return false, result
   end
 
-  stdnse.print_debug(3, "MSRPC: AddJob() returned successfully")
+  stdnse.debug3("MSRPC: AddJob() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -3692,7 +3692,7 @@ end
 function samr_enum_groups(host)
   local i, j
 
-  stdnse.print_debug(1, "MSRPC: Attempting to enumerate groups on %s", host.ip)
+  stdnse.debug1("MSRPC: Attempting to enumerate groups on %s", host.ip)
   -- Create the SMB session
   local status, smbstate = start_smb(host, SAMR_PATH, true)
 
@@ -3770,7 +3770,7 @@ function samr_enum_groups(host)
     end
 
     -- Print some output
-    stdnse.print_debug(1, "MSRPC: Found %d groups in %s", #enumaliases_result['sam']['entries'], domain)
+    stdnse.debug1("MSRPC: Found %d groups in %s", #enumaliases_result['sam']['entries'], domain)
 
     -- Record the results
     local group_rids = {}
@@ -3810,7 +3810,7 @@ function samr_enum_groups(host)
       end
 
       -- Print some output
-      stdnse.print_debug(1, "MSRPC: Adding group '%s' (RID: %d) with %d members", domains[domain][group_rid]['name'], group_rid, #member_sids)
+      stdnse.debug1("MSRPC: Adding group '%s' (RID: %d) with %d members", domains[domain][group_rid]['name'], group_rid, #member_sids)
 
       -- Save the output
       domains[domain][group_rid]['member_sids'] = member_sids
@@ -3962,7 +3962,7 @@ function lsa_enum_users(host)
 
     status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
     if(status == false) then
-      stdnse.print_debug(1, "Error looking up RIDs: %s", lookupsids2_result)
+      stdnse.debug1("Error looking up RIDs: %s", lookupsids2_result)
     else
       -- Put the details for each name into an array
       -- NOTE: Be sure to mirror any changes here in the next bit!
@@ -3996,7 +3996,7 @@ function lsa_enum_users(host)
       -- Try converting this group of RIDs into names
       status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
       if(status == false) then
-        stdnse.print_debug(1, "Error looking up RIDs: %s", lookupsids2_result)
+        stdnse.debug1("Error looking up RIDs: %s", lookupsids2_result)
       else
         -- Put the details for each name into an array
         for j = 1, #lookupsids2_result['names']['names'], 1 do
@@ -4063,7 +4063,7 @@ function get_user_list(host)
 
   status_lsa,  result_lsa  = lsa_enum_users(host)
   if(status_lsa == false) then
-    stdnse.print_debug("MSRPC: Failed to enumerate users through LSA: %s", result_lsa)
+    stdnse.debug1("MSRPC: Failed to enumerate users through LSA: %s", result_lsa)
   else
     for i = 1, #result_lsa, 1 do
       if(result_lsa[i]['name'] ~= nil and result_lsa[i]['type'] == "SID_NAME_USER") then
@@ -4074,7 +4074,7 @@ function get_user_list(host)
 
   status_samr, result_samr = samr_enum_users(host)
   if(status_samr == false) then
-    stdnse.print_debug("MSRPC: Failed to enumerate users through SAMR: %s", result_samr)
+    stdnse.debug1("MSRPC: Failed to enumerate users through SAMR: %s", result_samr)
   else
     for i = 1, #result_samr, 1 do
       if(result_samr[i]['name'] ~= nil and result_samr[i]['type'] == "SID_NAME_USER") then
@@ -4352,7 +4352,7 @@ end
 function service_create(host, servicename, path)
   local status, smbstate, bind_result, open_result, create_result, close_result
 
-  stdnse.print_debug(1, "Creating service: %s (%s)", servicename, path)
+  stdnse.debug1("Creating service: %s (%s)", servicename, path)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
@@ -4368,7 +4368,7 @@ function service_create(host, servicename, path)
   end
 
   -- Open the service manager
-  stdnse.print_debug(2, "Opening the remote service manager")
+  stdnse.debug2("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
   if(status == false) then
     smb.stop(smbstate)
@@ -4376,7 +4376,7 @@ function service_create(host, servicename, path)
   end
 
   -- Create the service
-  stdnse.print_debug(2, "Creating the service", servicename)
+  stdnse.debug2("Creating the service", servicename)
   status, create_result = svcctl_createservicew(smbstate, open_result['handle'], servicename, servicename, path)
   if(status == false) then
     smb.stop(smbstate)
@@ -4416,7 +4416,7 @@ end
 function service_start(host, servicename, args)
   local status, smbstate, bind_result, open_result, open_service_result, start_result, close_result, query_result
 
-  stdnse.print_debug(1, "Starting service: %s", servicename)
+  stdnse.debug1("Starting service: %s", servicename)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
@@ -4432,7 +4432,7 @@ function service_start(host, servicename, args)
   end
 
   -- Open the service manager
-  stdnse.print_debug(1, "Opening the remote service manager")
+  stdnse.debug1("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
   if(status == false) then
     smb.stop(smbstate)
@@ -4440,7 +4440,7 @@ function service_start(host, servicename, args)
   end
 
   -- Get a handle to the service
-  stdnse.print_debug(2, "Getting a handle to the service")
+  stdnse.debug2("Getting a handle to the service")
   status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
   if(status == false) then
     smb.stop(smbstate)
@@ -4448,7 +4448,7 @@ function service_start(host, servicename, args)
   end
 
   -- Start it
-  stdnse.print_debug(2, "Starting the service")
+  stdnse.debug2("Starting the service")
   status, start_result = svcctl_startservicew(smbstate, open_service_result['handle'], args)
   if(status == false) then
     smb.stop(smbstate)
@@ -4456,7 +4456,7 @@ function service_start(host, servicename, args)
   end
 
   -- Wait for it to start (TODO: Check the query result better)
-  stdnse.print_debug(1, "Waiting for the service to start")
+  stdnse.debug1("Waiting for the service to start")
   repeat
     status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
     if(status == false) then
@@ -4498,7 +4498,7 @@ end
 function service_stop(host, servicename)
   local status, smbstate, bind_result, open_result, open_service_result, control_result, close_result, query_result
 
-  stdnse.print_debug(1, "Stopping service: %s", servicename)
+  stdnse.debug1("Stopping service: %s", servicename)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
@@ -4514,7 +4514,7 @@ function service_stop(host, servicename)
   end
 
   -- Open the service manager
-  stdnse.print_debug(2, "Opening the remote service manager")
+  stdnse.debug2("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
   if(status == false) then
     smb.stop(smbstate)
@@ -4522,7 +4522,7 @@ function service_stop(host, servicename)
   end
 
   -- Get a handle to the service
-  stdnse.print_debug(2, "Getting a handle to the service")
+  stdnse.debug2("Getting a handle to the service")
   status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
   if(status == false) then
     smb.stop(smbstate)
@@ -4530,7 +4530,7 @@ function service_stop(host, servicename)
   end
 
   -- Stop it
-  stdnse.print_debug(2, "Stopping the service")
+  stdnse.debug2("Stopping the service")
   status, control_result = svcctl_controlservice(smbstate, open_service_result['handle'], "SERVICE_CONTROL_STOP")
   if(status == false) then
     smb.stop(smbstate)
@@ -4538,7 +4538,7 @@ function service_stop(host, servicename)
   end
 
   -- Wait for it to stop (TODO: Check the query result better)
-  stdnse.print_debug(2, "Waiting for the service to stop")
+  stdnse.debug2("Waiting for the service to stop")
   repeat
     status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
     if(status == false) then
@@ -4577,7 +4577,7 @@ end
 function service_delete(host, servicename)
   local status, smbstate, bind_result, open_result, open_service_result, delete_result, close_result
 
-  stdnse.print_debug(1, "Deleting service: %s", servicename)
+  stdnse.debug1("Deleting service: %s", servicename)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
@@ -4593,7 +4593,7 @@ function service_delete(host, servicename)
   end
 
   -- Open the service manager
-  stdnse.print_debug(2, "Opening the remote service manager")
+  stdnse.debug2("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
   if(status == false) then
     smb.stop(smbstate)
@@ -4601,7 +4601,7 @@ function service_delete(host, servicename)
   end
 
   -- Get a handle to the service
-  stdnse.print_debug(2, "Getting a handle to the service: %s", servicename)
+  stdnse.debug2("Getting a handle to the service: %s", servicename)
   status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
   if(status == false) then
     smb.stop(smbstate)
@@ -4609,7 +4609,7 @@ function service_delete(host, servicename)
   end
 
   -- Delete the service
-  stdnse.print_debug(2, "Deleting the service")
+  stdnse.debug2("Deleting the service")
   status, delete_result = svcctl_deleteservice(smbstate, open_service_result['handle'])
   if(status == false) then
     smb.stop(smbstate)

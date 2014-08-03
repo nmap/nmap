@@ -225,7 +225,7 @@ function parse_lines(lines, data_struct)
         _, ret[index] = parse_lines( lines, value )
       else
         -- TEMP
-        stdnse.print_debug( "Error in datafiles.parse_lines: Index with type %s has unexpected value %s", type(index), type(value))
+        stdnse.debug1("Error in datafiles.parse_lines: Index with type %s has unexpected value %s", type(index), type(value))
       end
     elseif type(index) == "string" or type(index) == "function"  then
       if type( value ) == "string" or type( value ) == "function" then
@@ -235,7 +235,7 @@ function parse_lines(lines, data_struct)
       end
     else
       -- TEMP
-      stdnse.print_debug( "Error in datafiles.parse_lines: Index with type %s has unexpected value %s", type(index), type(value))
+      stdnse.debug1("Error in datafiles.parse_lines: Index with type %s has unexpected value %s", type(index), type(value))
     end
   end
 

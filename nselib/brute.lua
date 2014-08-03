@@ -266,7 +266,7 @@ Options = {
     end
 
     if ( not(supported) ) then
-      stdnse.print_debug("ERROR: brute.options.setMode: mode %s not supported", mode)
+      stdnse.debug1("ERROR: brute.options.setMode: mode %s not supported", mode)
       return false, "Unsupported mode"
     else
       self.mode = mode
@@ -535,7 +535,7 @@ Engine =
         end
 
         local msg = ( retries ~= self.options.max_retries ) and "Re-trying" or "Trying"
-        stdnse.print_debug(2, "%s %s against %s:%d", msg, c, self.host.ip, self.port.number )
+        stdnse.debug2("%s %s against %s:%d", msg, c, self.host.ip, self.port.number )
         status, response = driver:login( username, password )
 
         driver:disconnect()
@@ -584,7 +584,7 @@ Engine =
             table.insert(self.credstore, response:toString() )
           end
 
-          stdnse.print_debug("Discovered account: %s", response:toString())
+          stdnse.debug1("Discovered account: %s", response:toString())
 
           -- if we're running in passonly mode, and want to continue guessing
           -- we will have a problem as the username is always the same.
@@ -618,7 +618,7 @@ Engine =
         interval_start = os.time()
         local tps = self.counter / ( os.time() - self.starttime )
         table.insert(self.tps, tps )
-        stdnse.print_debug(2, "threads=%d,tps=%d", self:activeThreads(), tps )
+        stdnse.debug2("threads=%d,tps=%d", self:activeThreads(), tps )
       end
 
       -- if delay was specified, do sleep

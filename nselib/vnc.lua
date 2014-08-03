@@ -127,13 +127,13 @@ VNC = {
 
     self.protover = VNC.versions[data]
     if ( not(self.protover) ) then
-      stdnse.print_debug("ERROR: VNC:handshake unsupported version (%s)", data:sub(1,11))
+      stdnse.debug1("ERROR: VNC:handshake unsupported version (%s)", data:sub(1,11))
       return false, ("Unsupported version (%s)"):format(data:sub(1,11))
     end
 
     status = self.socket:send( self.cli_version )
     if ( not(status) ) then
-      stdnse.print_debug("ERROR: VNC:handshake failed to send client version")
+      stdnse.debug1("ERROR: VNC:handshake failed to send client version")
       return false, "ERROR: VNC:handshake failed"
     end
 
@@ -167,7 +167,7 @@ VNC = {
     else
       local status, tmp = self.socket:receive_buf(match.numbytes(1), true)
       if ( not(status) ) then
-        stdnse.print_debug("ERROR: VNC:handshake failed to receive security data")
+        stdnse.debug1("ERROR: VNC:handshake failed to receive security data")
         return false, "ERROR: VNC:handshake failed to receive security data"
       end
 
@@ -178,7 +178,7 @@ VNC = {
       status, tmp = self.socket:receive_buf(match.numbytes(vncsec.count), true)
 
       if ( not(status) ) then
-        stdnse.print_debug("ERROR: VNC:handshake failed to receive security data")
+        stdnse.debug1("ERROR: VNC:handshake failed to receive security data")
         return false, "ERROR: VNC:handshake failed to receive security data"
       end
 

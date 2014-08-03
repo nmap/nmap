@@ -291,12 +291,12 @@ function start(host)
       state['name'] = result
     end
   else
-    stdnse.print_debug(2, "SMB: Resolved netbios name from cache")
+    stdnse.debug2("SMB: Resolved netbios name from cache")
     state['name'] = host.registry['netbios_name']
   end
   nbcache_mutex "done"
 
-  stdnse.print_debug(2, "SMB: Starting SMB session for %s (%s)", host.name, host.ip)
+  stdnse.debug2("SMB: Starting SMB session for %s (%s)", host.name, host.ip)
 
   if(port == nil) then
     return false, "SMB: Couldn't find a valid port to check"
@@ -426,7 +426,7 @@ function stop(smb)
     logoff(smb)
   end
 
-  stdnse.print_debug(2, "SMB: Closing socket")
+  stdnse.debug2("SMB: Closing socket")
   if(smb['socket'] ~= nil) then
     local status, err = smb['socket']:close()
 
@@ -548,7 +548,7 @@ function start_netbios(host, port, name)
     name = names[i]
 
     -- Some debug information
-    stdnse.print_debug(1, "SMB: Trying to start NetBIOS session with name = '%s'", name)
+    stdnse.debug1("SMB: Trying to start NetBIOS session with name = '%s'", name)
     -- Request a NetBIOS session
     local session_request = bin.pack(">CCSzz",
       0x81,                        -- session request
@@ -558,7 +558,7 @@ function start_netbios(host, port, name)
       netbios.name_encode("NMAP")  -- client name
       );
 
-    stdnse.print_debug(3, "SMB: Connecting to %s", host.ip)
+    stdnse.debug3("SMB: Connecting to %s", host.ip)
     socket:set_timeout(TIMEOUT)
     status, err = socket:connect(host, port, "tcp")
     if(status == false) then
@@ -567,7 +567,7 @@ function start_netbios(host, port, name)
     end
 
     -- Send the session request
-    stdnse.print_debug(3, "SMB: Sending NetBIOS session request with name %s", name)
+    stdnse.debug3("SMB: Sending NetBIOS session request with name %s", name)
     status, err = socket:send(session_request)
     if(status == false) then
       socket:close()
@@ -576,7 +576,7 @@ function start_netbios(host, port, name)
     socket:set_timeout(TIMEOUT)
 
     -- Receive the session response
-    stdnse.print_debug(3, "SMB: Receiving NetBIOS session response")
+    stdnse.debug3("SMB: Receiving NetBIOS session response")
     status, result = socket:receive_buf(match.numbytes(4), true);
     if(status == false) then
       socket:close()
@@ -589,12 +589,12 @@ function start_netbios(host, port, name)
 
     -- Check for a positive session response (0x82)
     if result == 0x82 then
-      stdnse.print_debug(3, "SMB: Successfully established NetBIOS session with server name %s", name)
+      stdnse.debug3("SMB: Successfully established NetBIOS session with server name %s", name)
       return true, socket
     end
 
     -- If the session failed, close the socket and try the next name
-    stdnse.print_debug(1, "SMB: Session request failed, trying next name")
+    stdnse.debug1("SMB: Session request failed, trying next name")
     socket:close()
 
     -- Try the next name
@@ -603,7 +603,7 @@ function start_netbios(host, port, name)
   until i > #names
 
   -- We reached the end of our names list
-  stdnse.print_debug(1, "SMB: None of the NetBIOS names worked!")
+  stdnse.debug1("SMB: None of the NetBIOS names worked!")
   return false, "SMB: Couldn't find a NetBIOS name that works for the server. Sorry!"
 end
 
@@ -734,10 +734,10 @@ local function message_sign(smb, body)
   smb['sequence'] = smb['sequence'] + 1
 
   if(smb['mac_key'] == nil) then
-    stdnse.print_debug(3, "SMB: Not signing message (missing mac_key)")
+    stdnse.debug3("SMB: Not signing message (missing mac_key)")
     return body
   elseif(nmap.registry.args.smbsign == "disable") then
-    stdnse.print_debug(3, "SMB: Not signing message (disabled by user)")
+    stdnse.debug3("SMB: Not signing message (disabled by user)")
 
     return body
   end
@@ -763,13 +763,13 @@ local function message_check_signature(smb, body)
   smb['sequence'] = smb['sequence'] + 1
 
   if(smb['mac_key'] == nil) then
-    stdnse.print_debug(3, "SMB: Not signing message (missing mac_key)")
+    stdnse.debug3("SMB: Not signing message (missing mac_key)")
     return true
   elseif(nmap.registry.args.smbsign ~= "force" and bit.band(smb['security_mode'], 0x0A) ~= 0) then
-    stdnse.print_debug(3, "SMB: Not signing message (server doesn't support it -- default)")
+    stdnse.debug3("SMB: Not signing message (server doesn't support it -- default)")
     return true
   elseif(nmap.registry.args.smbsign == "disable" or nmap.registry.args.smbsign == "ignore") then
-    stdnse.print_debug(3, "SMB: Not signing message (disabled by user)")
+    stdnse.debug3("SMB: Not signing message (disabled by user)")
     return true
   end
 
@@ -818,12 +818,12 @@ function smb_send(smb, header, parameters, data, overrides)
 
   repeat
     attempts = attempts - 1
-    stdnse.print_debug(3, "SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
+    stdnse.debug3("SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
     status, err = smb['socket']:send(out)
   until(status or (attempts == 0))
 
   if(attempts == 0) then
-    stdnse.print_debug(1, "SMB: Sending packet failed after 5 tries! Giving up.")
+    stdnse.debug1("SMB: Sending packet failed after 5 tries! Giving up.")
   end
 
   return status, err
@@ -845,7 +845,7 @@ function smb_read(smb, read_data)
   local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
   local attempts = 5
 
-  stdnse.print_debug(3, "SMB: Receiving SMB packet")
+  stdnse.debug3("SMB: Receiving SMB packet")
 
   -- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
   smb['socket']:set_timeout(TIMEOUT)
@@ -857,7 +857,7 @@ function smb_read(smb, read_data)
     status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
 
     if ( not(status) and netbios_data == "EOF" ) then
-      stdnse.print_debug(1, "SMB: ERROR: Server disconnected the connection")
+      stdnse.debug1("SMB: ERROR: Server disconnected the connection")
       return false, "SMB: ERROR: Server disconnected the connection"
     end
   until(status or (attempts == 0))
@@ -893,7 +893,7 @@ function smb_read(smb, read_data)
 
   local result = netbios_data .. smb_data
   if(#result ~= length) then
-    stdnse.print_debug(1, "SMB: ERROR: Received wrong number of bytes, there will likely be issues (received %d, expected %d)", #result, length)
+    stdnse.debug1("SMB: ERROR: Received wrong number of bytes, there will likely be issues (received %d, expected %d)", #result, length)
     return false, string.format("SMB: ERROR: Didn't receive the expected number of bytes; received %d, expected %d. This will almost certainly cause some errors.", #result, length)
   end
 
@@ -937,7 +937,7 @@ function smb_read(smb, read_data)
     data = nil
   end
 
-  stdnse.print_debug(3, "SMB: Received %d bytes", #result)
+  stdnse.debug3("SMB: Received %d bytes", #result)
   return true, header, parameters, data
 end
 
@@ -998,7 +998,7 @@ function negotiate_protocol(smb, overrides)
   end
 
   -- Send the negotiate request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_NEGOTIATE")
+  stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(status == false) then
     return false, err
@@ -1179,7 +1179,7 @@ local function start_session_basic(smb, log_errors, overrides)
       )
 
     -- Send the session setup request
-    stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
+    stdnse.debug2("SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
     result, err = smb_send(smb, header, parameters, data, overrides)
     if(result == false) then
       return false, err
@@ -1221,17 +1221,17 @@ local function start_session_basic(smb, log_errors, overrides)
 
       -- Check if they're using an un-supported system
       if(os == nil or lanmanager == nil or domain == nil) then
-        stdnse.print_debug(1, "SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
+        stdnse.debug1("SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
       elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
-        stdnse.print_debug(1, "SMB: WARNING: the server appears to be Unix; your mileage may vary.")
+        stdnse.debug1("SMB: WARNING: the server appears to be Unix; your mileage may vary.")
       end
 
       -- Check if they were logged in as a guest
       if(log_errors == nil or log_errors == true) then
         if(smb['is_guest'] == 1) then
-          stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username))
+          stdnse.debug1("SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username))
         else
-          stdnse.print_debug(2, "SMB: Login as %s\\%s succeeded", domain, stdnse.string_or_blank(username))
+          stdnse.debug2("SMB: Login as %s\\%s succeeded", domain, stdnse.string_or_blank(username))
         end
       end
 
@@ -1250,12 +1250,12 @@ local function start_session_basic(smb, log_errors, overrides)
         end
 
         local backoff = math.random() * 10
-        stdnse.print_debug(1, "SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
+        stdnse.debug1("SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
         stdnse.sleep(backoff)
       else
         -- This username failed, print a warning and keep going
         if(log_errors == nil or log_errors == true) then
-          stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
+          stdnse.debug1("SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
         end
 
         -- Go to the next account
@@ -1270,7 +1270,7 @@ local function start_session_basic(smb, log_errors, overrides)
   end
 
   if(log_errors ~= false) then
-    stdnse.print_debug(1, "SMB: ERROR: %s", username)
+    stdnse.debug1("SMB: ERROR: %s", username)
   end
 
   if (status ~= nil) then
@@ -1392,7 +1392,7 @@ local function start_session_extended(smb, log_errors, overrides)
         )
 
       -- Send the session setup request
-      stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
+      stdnse.debug2("SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
       result, err = smb_send(smb, header, parameters, data, overrides)
       if(result == false) then
         return false, err
@@ -1451,17 +1451,17 @@ local function start_session_extended(smb, log_errors, overrides)
         if(status_name == "NT_STATUS_SUCCESS") then
           -- Check if they're using an un-supported system
           if(os == nil or lanmanager == nil) then
-            stdnse.print_debug(1, "SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
+            stdnse.debug1("SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
           elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
-            stdnse.print_debug(1, "SMB: WARNING: the server appears to be Unix; your mileage may vary.")
+            stdnse.debug1("SMB: WARNING: the server appears to be Unix; your mileage may vary.")
           end
 
           -- Check if they were logged in as a guest
           if(log_errors == nil or log_errors == true) then
             if(smb['is_guest'] == 1) then
-              stdnse.print_debug(1, "SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username))
+              stdnse.debug1("SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username))
             else
-              stdnse.print_debug(2, "SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username))
+              stdnse.debug2("SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username))
             end
           end
 
@@ -1482,12 +1482,12 @@ local function start_session_extended(smb, log_errors, overrides)
       end
 
       local backoff = math.random() * 10
-      stdnse.print_debug(1, "SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
+      stdnse.debug1("SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
       stdnse.sleep(backoff)
     else
       -- Display a message to the user, and try the next account
       if(log_errors == nil or log_errors == true) then
-        stdnse.print_debug(1, "SMB: Extended login to %s as %s\\%s failed (%s)", smb['ip'], domain, stdnse.string_or_blank(username), status_name)
+        stdnse.debug1("SMB: Extended login to %s as %s\\%s failed (%s)", smb['ip'], domain, stdnse.string_or_blank(username), status_name)
       end
 
       -- Go to the next account
@@ -1508,7 +1508,7 @@ local function start_session_extended(smb, log_errors, overrides)
   end -- Loop over the accounts
 
   if(log_errors == nil or log_errors == true) then
-    stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
+    stdnse.debug1("SMB: ERROR: All logins failed, sorry it didn't work out!")
   end
 
   return false, status_name
@@ -1595,7 +1595,7 @@ function tree_connect(smb, path, overrides)
     )
 
   -- Send the tree connect request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_TREE_CONNECT_ANDX")
+  stdnse.debug2("SMB: Sending SMB_COM_TREE_CONNECT_ANDX")
   result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -1641,7 +1641,7 @@ function tree_disconnect(smb, overrides)
   header = smb_encode_header(smb, command_codes['SMB_COM_TREE_DISCONNECT'], overrides)
 
   -- Send the tree disconnect request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_TREE_DISCONNECT")
+  stdnse.debug2("SMB: Sending SMB_COM_TREE_DISCONNECT")
   local result, err = smb_send(smb, header, "", "", overrides)
   if(result == false) then
     return false, err
@@ -1690,7 +1690,7 @@ function logoff(smb, overrides)
     )
 
   -- Send the tree disconnect request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_LOGOFF_ANDX")
+  stdnse.debug2("SMB: Sending SMB_COM_LOGOFF_ANDX")
   local result, err = smb_send(smb, header, parameters, "", overrides)
   if(result == false) then
     return false, err
@@ -1715,7 +1715,7 @@ function logoff(smb, overrides)
   end
 
   if(status == 0xc0000022) then
-    stdnse.print_debug(1, "SMB: ERROR: Access was denied in 'logoff', indicating a problem with your message signatures")
+    stdnse.debug1("SMB: ERROR: Access was denied in 'logoff', indicating a problem with your message signatures")
     return false, "SMB: ERROR: Access was denied in 'logoff', indicating a problem with your message signatures"
   end
   if(status ~= 0) then
@@ -1774,7 +1774,7 @@ function create_file(smb, path, overrides)
     data = bin.pack("z", path)
 
     -- Send the create file
-    stdnse.print_debug(2, "SMB: Sending SMB_COM_NT_CREATE_ANDX")
+    stdnse.debug2("SMB: Sending SMB_COM_NT_CREATE_ANDX")
     local result, err = smb_send(smb, header, parameters, data, overrides)
     if(result == false) then
       mutex "done"
@@ -1799,7 +1799,7 @@ function create_file(smb, path, overrides)
       if(error_count > 10) then
         return false, "SMB: ERROR: Server returned NT_STATUS_PIPE_NOT_AVAILABLE too many times; giving up."
       end
-      stdnse.print_debug(1, "WARNING: Server refused connection with NT_STATUS_PIPE_NOT_AVAILABLE; trying again")
+      stdnse.debug1("WARNING: Server refused connection with NT_STATUS_PIPE_NOT_AVAILABLE; trying again")
       stdnse.sleep(.2)
     end
   until (status ~= 0xc00000ac)
@@ -1866,7 +1866,7 @@ function read_file(smb, offset, count, overrides)
   data = ""
 
   -- Send the create file
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_READ_ANDX")
+  stdnse.debug2("SMB: Sending SMB_COM_READ_ANDX")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -1961,7 +1961,7 @@ function write_file(smb, write_data, offset, overrides)
   data = write_data
 
   -- Send the create file
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_WRITE_ANDX")
+  stdnse.debug2("SMB: Sending SMB_COM_WRITE_ANDX")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -2021,7 +2021,7 @@ function close_file(smb, overrides)
   data = ""
 
   -- Send the close file
-  stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
+  stdnse.debug2("SMB: Sending SMB_CLOSE")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -2070,7 +2070,7 @@ function delete_file(smb, path, overrides)
     path)
 
   -- Send the close file
-  stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
+  stdnse.debug2("SMB: Sending SMB_CLOSE")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -2152,7 +2152,7 @@ local function send_transaction2(smb, sub_command, function_parameters, function
   data = data .. (function_data or '')
 
   -- Send the transaction request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION2")
+  stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION2")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -2299,7 +2299,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
   data = data .. (function_data or '')
 
   -- Send the transaction request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION")
+  stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -2386,7 +2386,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe, overrides)
   data = bin.pack("<zA", pipe, padding);
 
   -- Send the transaction request
-  stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
+  stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
   local result, err = smb_send(smb, header, parameters, data, overrides)
   if(result == false) then
     return false, err
@@ -2439,7 +2439,7 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 
   -- If the open failed, try to search for the file
   if(not(handle)) then
-    stdnse.print_debug(1, "Couldn't open %s directly, searching Nmap's paths...", localfile)
+    stdnse.debug1("Couldn't open %s directly, searching Nmap's paths...", localfile)
     local filename = nmap.fetchfile(localfile)
 
     -- Check if it was found
@@ -2675,7 +2675,7 @@ function file_delete(host, share, remotefile)
   for _, file in ipairs(remotefile) do
     status, err = delete_file(smbstate, file)
     if(status == false) then
-      stdnse.print_debug(1, "SMB: Couldn't delete %s\\%s: %s", share, file, err)
+      stdnse.debug1("SMB: Couldn't delete %s\\%s: %s", share, file, err)
       if(err ~= 'NT_STATUS_OBJECT_NAME_NOT_FOUND') then
         stop(smbstate)
         return false, err
@@ -3045,20 +3045,20 @@ function share_host_returns_proper_error(host, use_anonymous)
   end
 
   -- Connect to the share
-  stdnse.print_debug(1, "SMB: Trying a random share to see if server responds properly: %s", share)
+  stdnse.debug1("SMB: Trying a random share to see if server responds properly: %s", share)
   status, err = tree_connect(smbstate, share, overrides)
 
   if(status == false) then
     -- If the error is NT_STATUS_ACCESS_DENIED (0xc0000022), that's bad -- we don't want non-existent shares
     -- showing up as 'access denied'. Any other error is ok.
     if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
-      stdnse.print_debug(1, "SMB: Server doesn't return proper value for non-existent shares (returns ACCESS_DENIED)")
+      stdnse.debug1("SMB: Server doesn't return proper value for non-existent shares (returns ACCESS_DENIED)")
       stop(smbstate)
       return true, false
     end
   else
     -- If we were actually able to connect to this share, then there's probably a serious issue
-    stdnse.print_debug(1, "SMB: Server doesn't return proper value for non-existent shares (accepts the connection)")
+    stdnse.debug1("SMB: Server doesn't return proper value for non-existent shares (accepts the connection)")
     stop(smbstate)
     return true, false
   end
@@ -3083,7 +3083,7 @@ function share_get_details(host, share)
   details['name'] = share
 
   -- Check if the current user can read the share
-  stdnse.print_debug(1, "SMB: Checking if share %s can be read by the current user", share)
+  stdnse.debug1("SMB: Checking if share %s can be read by the current user", share)
   status, result = share_user_can_read(host, share)
   if(status == false) then
     return false, result
@@ -3091,14 +3091,14 @@ function share_get_details(host, share)
   details['user_can_read'] = result
 
   -- Check if the anonymous reader can read the share
-  stdnse.print_debug(1, "SMB: Checking if share %s can be read by the anonymous user", share)
+  stdnse.debug1("SMB: Checking if share %s can be read by the anonymous user", share)
   status, result = share_anonymous_can_read(host, share)
   if(status == true) then
     details['anonymous_can_read'] = result
   end
 
   -- Check if the current user can write to the share
-  stdnse.print_debug(1, "SMB: Checking if share %s can be written by the current user", share)
+  stdnse.debug1("SMB: Checking if share %s can be written by the current user", share)
   status, result = share_user_can_write(host, share)
   if(status == false) then
     if(result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
@@ -3110,7 +3110,7 @@ function share_get_details(host, share)
   details['user_can_write'] = result
 
   -- Check if the anonymous user can write to the share
-  stdnse.print_debug(1, "SMB: Checking if share %s can be written by the anonymous user", share)
+  stdnse.debug1("SMB: Checking if share %s can be written by the anonymous user", share)
   status, result = share_anonymous_can_write(host, share)
   if(status == false and result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
     details['anonymous_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
@@ -3122,7 +3122,7 @@ function share_get_details(host, share)
   status, result = msrpc.get_share_info(host, share)
   if(status == false) then
     -- We don't stop for this error (it's pretty common since administrative privileges are required here)
-    stdnse.print_debug(1, "SMB: Failed to get share info for %s: %s", share, result)
+    stdnse.debug1("SMB: Failed to get share info for %s: %s", share, result)
     details['details'] = result
   else
     -- Process the result a bit
@@ -3155,13 +3155,13 @@ function share_get_list(host)
   local share_details = {}
 
   -- Try and do this the good way, make a MSRPC call to get the shares
-  stdnse.print_debug(1, "SMB: Attempting to log into the system to enumerate shares")
+  stdnse.debug1("SMB: Attempting to log into the system to enumerate shares")
   enum_status, shares = msrpc.enum_shares(host)
 
   -- If that failed, try doing it with brute force. This almost certainly won't find everything, but it's the
   -- best we can do.
   if(enum_status == false) then
-    stdnse.print_debug(1, "SMB: Enumerating shares failed, guessing at common ones (%s)", shares)
+    stdnse.debug1("SMB: Enumerating shares failed, guessing at common ones (%s)", shares)
     extra = string.format("ERROR: Enumerating shares failed, guessing at common ones (%s)", shares)
 
     -- Take some common share names I've seen (thanks to Brandon Enright for most of these, except the last few)
@@ -3178,7 +3178,7 @@ function share_get_list(host)
       shares[ sharesLength + shareItr ] = shares[ shareItr ] .. '$'
     end
   else
-    stdnse.print_debug(1, "SMB: Found %d shares, will attempt to find more information", #shares)
+    stdnse.debug1("SMB: Found %d shares, will attempt to find more information", #shares)
   end
 
   -- Sort the shares
@@ -3201,12 +3201,12 @@ function share_get_list(host)
   -- Get more information on each share
   for i = 1, #shares, 1 do
     local status, result
-    stdnse.print_debug(1, "SMB: Getting information for share: %s", shares[i])
+    stdnse.debug1("SMB: Getting information for share: %s", shares[i])
     status, result = share_get_details(host, shares[i])
     if(status == false and result == 'NT_STATUS_BAD_NETWORK_NAME') then
-      stdnse.print_debug(1, "SMB: Share doesn't exist: %s", shares[i])
+      stdnse.debug1("SMB: Share doesn't exist: %s", shares[i])
     elseif(status == false) then
-      stdnse.print_debug(1, "SMB: Error while getting share details: %s", result)
+      stdnse.debug1("SMB: Error while getting share details: %s", result)
       return false, result
     else
       -- Save the share details
@@ -3447,46 +3447,46 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
   local status, smbstate, err, result
   local overrides = get_overrides(username, domain, password, password_hash, hash_type)
 
-  stdnse.print_debug("SMB: Checking if %s is an administrator", username)
+  stdnse.debug1("SMB: Checking if %s is an administrator", username)
 
   status, smbstate = start(host)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to start SMB: %s [%s]", smbstate, username)
+    stdnse.debug1("SMB; is_admin: Failed to start SMB: %s [%s]", smbstate, username)
     stop(smbstate)
     return false
   end
 
   status, err      = negotiate_protocol(smbstate, overrides)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to negotiate protocol: %s [%s]", err, username)
+    stdnse.debug1("SMB; is_admin: Failed to negotiate protocol: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = start_session(smbstate, overrides)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to start session %s [%s]", err, username)
+    stdnse.debug1("SMB; is_admin: Failed to start session %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = tree_connect(smbstate, "IPC$", overrides)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
+    stdnse.debug1("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = create_file(smbstate, msrpc.SRVSVC_PATH, overrides)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to create file: %s [%s]", err, username)
+    stdnse.debug1("SMB; is_admin: Failed to create file: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Failed to bind: %s [%s]", err, username)
+    stdnse.debug1("SMB; is_admin: Failed to bind: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
@@ -3494,7 +3494,7 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
   -- Call netservergetstatistics for 'server'
   status, err = msrpc.srvsvc_netservergetstatistics(smbstate, host.ip)
   if(status == false) then
-    stdnse.print_debug("SMB; is_admin: Couldn't get server stats (may be normal): %s [%s]", err, username)
+    stdnse.debug1("SMB; is_admin: Couldn't get server stats (may be normal): %s [%s]", err, username)
     stop(smbstate)
     return false
   end
@@ -4158,7 +4158,7 @@ namedpipes =
       pipeSubPath = match
       status = true
       if writeToDebugLog then
-        stdnse.print_debug( 2, "%s: Converting %s to subpath %s", NP_LIBRARY_NAME, pipeName, match )
+        stdnse.debug2("%s: Converting %s to subpath %s", NP_LIBRARY_NAME, pipeName, match )
       end
     else
       status = false
@@ -4196,7 +4196,7 @@ namedpipes =
 
     connect = function( self, host, pipeSubPath, overrides )
 
-      stdnse.print_debug( 2, "%s: connect() called with %s", NP_LIBRARY_NAME, tostring( pipeSubPath ) )
+      stdnse.debug2("%s: connect() called with %s", NP_LIBRARY_NAME, tostring( pipeSubPath ) )
       self._overrides = overrides or {}
       self._host = host
       self._pipeSubPath = pipeSubPath
@@ -4208,13 +4208,13 @@ namedpipes =
         local status
         status, self._pipeSubPath = namedpipes.get_pipe_subpath( self._pipeSubPath, true )
         if ( not status ) then
-          stdnse.print_debug( 1, "%s: Attempt to connect to invalid pipe name: %s", NP_LIBRARY_NAME, tostring( pipeSubPath ) )
+          stdnse.debug1("%s: Attempt to connect to invalid pipe name: %s", NP_LIBRARY_NAME, tostring( pipeSubPath ) )
           return false, "Invalid pipe name"
         end
       end
       self.name = namedpipes.make_pipe_name( self._host.ip, self._pipeSubPath )
 
-      stdnse.print_debug( 2, "%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
+      stdnse.debug2("%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
       local status, result, errorMessage
       local bool_negotiate_protocol, bool_start_session, bool_disable_extended = true, true, false
       status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
@@ -4224,7 +4224,7 @@ namedpipes =
         self._smbstate = result
       else
         errorMessage = string.format( "Connection failed: %s", result )
-        stdnse.print_debug( 2, "%s: Connection to named pipe (%s) failed: %s",
+        stdnse.debug2("%s: Connection to named pipe (%s) failed: %s",
           NP_LIBRARY_NAME, self.name, errorMessage )
       end
 
@@ -4234,17 +4234,17 @@ namedpipes =
 
     disconnect = function( self )
       if ( self._smbstate ) then
-        stdnse.print_debug( 2, "%s: Disconnecting named pipe: %s", NP_LIBRARY_NAME, self.name )
+        stdnse.debug2("%s: Disconnecting named pipe: %s", NP_LIBRARY_NAME, self.name )
         return stop( self._smbstate )
       else
-        stdnse.print_debug( 2, "%s: disconnect() called, but SMB connection is already closed: %s", NP_LIBRARY_NAME, self.name )
+        stdnse.debug2("%s: disconnect() called, but SMB connection is already closed: %s", NP_LIBRARY_NAME, self.name )
       end
     end,
 
 
     send = function( self, messageData )
       if not self._smbstate then
-        stdnse.print_debug( 2, "%s: send() called on closed pipe (%s)", NP_LIBRARY_NAME, self.name )
+        stdnse.debug2("%s: send() called on closed pipe (%s)", NP_LIBRARY_NAME, self.name )
         return false, "Failed to send message on named pipe"
       end
 
@@ -4255,7 +4255,7 @@ namedpipes =
 
       -- if status is true, result is data that we don't need to pay attention to
       if not status then
-        stdnse.print_debug( 2, "%s: Write to named pipe (%s) failed: %s",
+        stdnse.debug2("%s: Write to named pipe (%s) failed: %s",
           NP_LIBRARY_NAME, self.name, result )
         errorMessage = "Failed to send message on named pipe", result
       end
@@ -4266,7 +4266,7 @@ namedpipes =
 
     receive = function( self )
       if not self._smbstate then
-        stdnse.print_debug( 2, "%s: receive() called on closed pipe (%s)", NP_LIBRARY_NAME, self.name )
+        stdnse.debug2("%s: receive() called on closed pipe (%s)", NP_LIBRARY_NAME, self.name )
         return false, "Failed to read from named pipe"
       end
 
@@ -4280,7 +4280,7 @@ namedpipes =
       if status and result.data then
         messageData = result.data
       else
-        stdnse.print_debug( 2, "%s: Read from named pipe (%s) failed: %s",
+        stdnse.debug2("%s: Read from named pipe (%s) failed: %s",
           NP_LIBRARY_NAME, self.name, result )
         return false, "Failed to read from named pipe", result
       end
@@ -4291,7 +4291,7 @@ namedpipes =
         if status and result.data then
           messageData = messageData .. result.data
         else
-          stdnse.print_debug( 2, "%s: Read additional data from named pipe (%s) failed: %s",
+          stdnse.debug2("%s: Read additional data from named pipe (%s) failed: %s",
             NP_LIBRARY_NAME, self.name, result )
           return false, "Failed to read from named pipe", result
         end

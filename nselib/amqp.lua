@@ -249,7 +249,7 @@ AMQP = {
     -- parse frame header
     local frametype, chnumber, framesize, method
     _, frametype, chnumber, framesize, method = bin.unpack(">CSII", tmp)
-    stdnse.print_debug("frametype: %d, chnumber: %d, framesize: %d, method: %d", frametype, chnumber, framesize, method)
+    stdnse.debug1("frametype: %d, chnumber: %d, framesize: %d, method: %d", frametype, chnumber, framesize, method)
 
     if (frametype ~= 1) then
       return false, ("ERROR: AQMP:handshake expected header (1) frame, but was %d"):format(frametype)

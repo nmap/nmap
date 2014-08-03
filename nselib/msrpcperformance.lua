@@ -41,7 +41,7 @@ local function parse_perf_title_database(data, pos)
     if(number == nil) then
       return false, "Couldn't parse the title database: end of string encountered early"
     elseif(tonumber(number) == nil) then -- Not sure if this actually happens, but it doesn't hurt to check
-      stdnse.print_debug(1, "MSRPC: ERROR: Couldn't parse the title database: string found where number expected (%d: '%s')", i, number)
+      stdnse.debug1("MSRPC: ERROR: Couldn't parse the title database: string found where number expected (%d: '%s')", i, number)
       return false, "Couldn't parse the title database"
     end
 
@@ -510,14 +510,14 @@ function get_performance_data(host, objects)
       end
 
       -- Start setting up the result object
-      --stdnse.print_debug("Index = %d\n", object_type['ObjectNameTitleIndex'])
+      --stdnse.debug1("Index = %d\n", object_type['ObjectNameTitleIndex'])
       local object_name = result['title_database'][object_type['ObjectNameTitleIndex']]
       result[object_name] = {}
 
-      --stdnse.print_debug("\n\nOBJECT: %s\n", object_name)
-      --stdnse.print_debug(" Counters: %d\n", object_type['NumCounters'])
-      --stdnse.print_debug(" Instances: %d\n", object_type['NumInstances'])
-      --stdnse.print_debug("-----------------\n")
+      --stdnse.debug1("\n\nOBJECT: %s\n", object_name)
+      --stdnse.debug1(" Counters: %d\n", object_type['NumCounters'])
+      --stdnse.debug1(" Instances: %d\n", object_type['NumInstances'])
+      --stdnse.debug1("-----------------\n")
 
       -- Bring the position to the beginning of the counter definitions
       pos = object_start + object_type['HeaderLength']
@@ -529,7 +529,7 @@ function get_performance_data(host, objects)
           msrpc.stop_smb(smbstate)
           return false, pos
         end
-        --stdnse.print_debug(" Counter definition #%2d: [%d bytes] %s\n", j, counter_definitions[j]['CounterSize'], result['title_database'][counter_definitions[j]['CounterNameTitleIndex']])
+        --stdnse.debug1(" Counter definition #%2d: [%d bytes] %s\n", j, counter_definitions[j]['CounterSize'], result['title_database'][counter_definitions[j]['CounterNameTitleIndex']])
       end
 
       -- Bring the position to the beginning of the instances (or counters)
@@ -556,11 +556,11 @@ function get_performance_data(host, objects)
           -- Bring the pos to the start of the counter block
           pos = instance_start + object_instances[j]['ByteLength']
 
-          --stdnse.print_debug("\n  INSTANCE: %s\n", instance_name)
-          --stdnse.print_debug("  Length: %d\n",     object_instances[j]['ByteLength'])
-          --stdnse.print_debug("  NameOffset: %d\n", object_instances[j]['NameOffset'])
-          --stdnse.print_debug("  NameLength: %d\n", object_instances[j]['NameLength'])
-          --stdnse.print_debug("  --------------\n")
+          --stdnse.debug1("\n  INSTANCE: %s\n", instance_name)
+          --stdnse.debug1("  Length: %d\n",     object_instances[j]['ByteLength'])
+          --stdnse.debug1("  NameOffset: %d\n", object_instances[j]['NameOffset'])
+          --stdnse.debug1("  NameLength: %d\n", object_instances[j]['NameLength'])
+          --stdnse.debug1("  --------------\n")
 
           -- The counter block
           local status, counter_block
@@ -580,7 +580,7 @@ function get_performance_data(host, objects)
             end
 
             local counter_name = result['title_database'][counter_definitions[k]['CounterNameTitleIndex']]
-            --stdnse.print_debug("    %s: %s\n", counter_name, counter_result)
+            --stdnse.debug1("    %s: %s\n", counter_name, counter_result)
 
             -- Save it in the result
             result[object_name][instance_name][counter_name] = counter_result
@@ -600,7 +600,7 @@ function get_performance_data(host, objects)
           end
 
           local counter_name = result['title_database'][counter_definitions[k]['CounterNameTitleIndex']]
-          --stdnse.print_debug("    %s: %s\n", counter_name, counter_result)
+          --stdnse.debug1("    %s: %s\n", counter_name, counter_result)
 
           -- Save it in the result
           result[object_name][counter_name] = counter_result

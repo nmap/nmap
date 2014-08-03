@@ -75,12 +75,12 @@ MobileMe = {
     if ( response.status == 200 ) then
       local status, resp = json.parse(response.body)
       if ( not(status) ) then
-        stdnse.print_debug(2, "Failed to parse JSON response from server")
+        stdnse.debug2("Failed to parse JSON response from server")
         return false, "Failed to parse JSON response from server"
       end
 
       if ( resp.statusCode ~= "200" ) then
-        stdnse.print_debug(2, "Failed to send message to server")
+        stdnse.debug2("Failed to send message to server")
         return false, "Failed to send message to server"
       end
     end

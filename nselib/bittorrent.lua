@@ -678,15 +678,15 @@ Torrent =
       if tracker:match("^http://") then -- http tracker
         status, err = self:http_tracker_peers(tracker)
         if not status then
-          stdnse.print_debug("Could not get peers from tracker %s, reason: %s",tracker, err)
+          stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
         end
       elseif tracker:match("^udp://") then -- udp tracker
         status, err = self:udp_tracker_peers(tracker)
         if not status then
-          stdnse.print_debug("Could not get peers from tracker %s, reason: %s",tracker, err)
+          stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
         end
       else -- unknown tracker
-        stdnse.print_debug("Unknown tracker protocol for: "..tracker)
+        stdnse.debug1("Unknown tracker protocol for: "..tracker)
       end
       --if not status then return false, err end
     end
@@ -699,10 +699,10 @@ Torrent =
   -- The default timeout for this discovery is 30 seconds but it can be
   -- set through the timeout argument.
   dht_peers = function(self, timeout)
-    stdnse.print_debug("bittorrent: Starting DHT peers discovery")
+    stdnse.debug1("bittorrent: Starting DHT peers discovery")
 
     if next(self.peers) == nil then
-      stdnse.print_debug("bittorrent: No peers detected")
+      stdnse.debug1("bittorrent: No peers detected")
       return
     end
 

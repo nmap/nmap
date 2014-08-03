@@ -41,7 +41,7 @@ types = {
 --        (eg. "\x20FEEFFDFEDBCACACACACACACACACAAA\x08insecure\x03org")
 function name_encode(name, scope)
 
-  stdnse.print_debug(3, "Encoding name '%s'", name)
+  stdnse.debug3("Encoding name '%s'", name)
   -- Truncate or pad the string to 16 bytes
   if(#name >= 16) then
     name = string.sub(name, 1, 16)
@@ -78,7 +78,7 @@ function name_encode(name, scope)
     end
   end
 
-  stdnse.print_debug(3, "=> '%s'", L2_encoded)
+  stdnse.debug3("=> '%s'", L2_encoded)
   return L2_encoded
 end
 
@@ -98,7 +98,7 @@ function name_decode(encoded_name)
   local len = string.byte(encoded_name, 1)
   local i
 
-  stdnse.print_debug(3, "Decoding name '%s'", encoded_name)
+  stdnse.debug3("Decoding name '%s'", encoded_name)
 
   for i = 2, len + 1, 2 do
     local ch = 0
@@ -121,7 +121,7 @@ function name_decode(encoded_name)
     scope = string.sub(scope, 1, #scope - 1)
   end
 
-  stdnse.print_debug(3, "=> '%s'", name)
+  stdnse.debug3("=> '%s'", name)
 
   return name, scope
 end
@@ -272,12 +272,12 @@ function do_nbstat(host)
   local statistics
   local reg
   if type(host) == "string" then --ip
-    stdnse.print_debug(3, "Performing nbstat on host '%s'", host)
+    stdnse.debug3("Performing nbstat on host '%s'", host)
     nmap.registry.netbios = nmap.registry.netbios or {}
     nmap.registry.netbios[host] = nmap.registry.netbios[host] or {}
     reg = nmap.registry.netbios[host]
   else
-    stdnse.print_debug(3, "Performing nbstat on host '%s'", host.ip)
+    stdnse.debug3("Performing nbstat on host '%s'", host.ip)
     if host.registry.netbios == nil and
       nmap.registry.netbios ~= nil and
       nmap.registry.netbios[host.ip] ~= nil then
@@ -289,7 +289,7 @@ function do_nbstat(host)
 
   -- Check if it's cached in the registry for this host
   if(reg["nbstat_names"] ~= nil) then
-    stdnse.print_debug(3, " |_ [using cached value]")
+    stdnse.debug3(" |_ [using cached value]")
     return true, reg["nbstat_names"], reg["nbstat_statistics"]
   end
 

@@ -348,7 +348,7 @@ Packet = {
           table.insert(resp.records, record)
           break
         else
-          stdnse.print_debug("ERROR: iscsi.TextResponse: Unknown target record (%s)", k)
+          stdnse.debug1("ERROR: iscsi.TextResponse: Unknown target record (%s)", k)
         end
       end
 
@@ -669,7 +669,7 @@ Helper = {
     end
 
     if ( resp.status_code ~= 0 ) then
-      stdnse.print_debug(3, "ERROR: iscsi.Helper.login: Authentication failed (error code: %d)", resp.status_code)
+      stdnse.debug3("ERROR: iscsi.Helper.login: Authentication failed (error code: %d)", resp.status_code)
       return false, resp
     elseif ( auth_method:upper()=="NONE" ) then
       return true, resp

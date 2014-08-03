@@ -56,8 +56,8 @@ StartTLS = {
       status, result = s:receive_lines(1)
 
       if not (string.match(result, "^234")) then
-        stdnse.print_debug(1,"%s",result)
-        stdnse.print_debug(1,"AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
+        stdnse.debug1("%s",result)
+        stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
         -- Send QUIT to clean up server side connection
         local query = "QUIT\r\n"
@@ -77,7 +77,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug(1,"Could not establish SSL session after STARTTLS command.")
+        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to SMTP server"
       else
@@ -113,7 +113,7 @@ StartTLS = {
       status, result = s:receive_lines(1)
 
       if not (string.match(result, "STARTTLS")) then
-        stdnse.print_debug(1, "Server doesn't support STARTTLS")
+        stdnse.debug1("Server doesn't support STARTTLS")
         return false, "Failed to connect to IMAP server"
       end
 
@@ -123,7 +123,7 @@ StartTLS = {
       status, result = s:receive_lines(1)
 
       if not (string.match(result, "OK")) then
-        stdnse.print_debug(1, string.format("Error: %s", result))
+        stdnse.debug1(string.format("Error: %s", result))
         return false, "Failed to connect to IMAP server"
       end
     end
@@ -192,7 +192,7 @@ StartTLS = {
     ldapOp = asn1.intToBER(tmp)
 
     if ldapOp.number ~= ExtendedResponse then
-      stdnse.print_debug(1, string.format(
+      stdnse.debug1(string.format(
         "STARTTLS failed (got wrong op number: %d)", ldapOp.number))
       return false, "STARTTLS failed"
     end
@@ -202,7 +202,7 @@ StartTLS = {
     pos, resultCode = ldap.decode(response, pos)
 
     if resultCode ~= 0 then
-      stdnse.print_debug(1, string.format(
+      stdnse.debug1(string.format(
         "STARTTLS failed (LDAP error code is: %d)", resultCode))
       return false, "STARTTLS failed"
     end
@@ -253,7 +253,7 @@ StartTLS = {
       status, result = s:receive_lines(1)
 
       if not (string.match(result, "OK")) then
-        stdnse.print_debug(1, string.format("Error: %s", result))
+        stdnse.debug1(string.format("Error: %s", result))
         return false, "Failed to connect to POP3 server"
       end
     end
@@ -307,8 +307,8 @@ StartTLS = {
       status, resultEHLO = s:receive_lines(1)
 
       if not (string.match(resultEHLO, "^250")) then
-        stdnse.print_debug(1,"%s",resultEHLO)
-        stdnse.print_debug(1,"EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+        stdnse.debug1("%s",resultEHLO)
+        stdnse.debug1("EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
         return false, "Failed to connect to SMTP server"
       end
 
@@ -320,8 +320,8 @@ StartTLS = {
       status, resultEHLO = s:receive_lines(1)
 
       if not (string.match(resultEHLO, "^220")) then
-        stdnse.print_debug(1,"%s",resultEHLO)
-        stdnse.print_debug(1,"STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
+        stdnse.debug1("%s",resultEHLO)
+        stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
         -- Send QUIT to clean up server side connection
         local query = "QUIT\r\n"
@@ -341,7 +341,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug(1,"Could not establish SSL session after STARTTLS command.")
+        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to SMTP server"
       else
@@ -360,30 +360,30 @@ StartTLS = {
     status, err = sock:connect(host, port)
     if not status then
       sock:close()
-      stdnse.print_debug("Can't send: %s", err)
+      stdnse.debug1("Can't send: %s", err)
       return false, "Failed to connect to XMPP server"
     end
     status, err = sock:send(xmppStreamStart)
     if not status then
-      stdnse.print_debug("Couldn't send: %s", err)
+      stdnse.debug1("Couldn't send: %s", err)
       sock:close()
       return false, "Failed to connect to XMPP server"
     end
     status, result = sock:receive()
     if not status then
-      stdnse.print_debug("Couldn't receive: %s", err)
+      stdnse.debug1("Couldn't receive: %s", err)
       sock:close()
       return false, "Failed to connect to XMPP server"
     end
     status, err = sock:send(xmppStartTLS)
     if not status then
-      stdnse.print_debug("Couldn't send: %s", err)
+      stdnse.debug1("Couldn't send: %s", err)
       sock:close()
       return false, "Failed to connect to XMPP server"
     end
     status, result = sock:receive()
     if not status then
-      stdnse.print_debug("Couldn't receive: %s", err)
+      stdnse.debug1("Couldn't receive: %s", err)
       sock:close()
       return false, "Failed to connect to XMPP server"
     end
@@ -393,7 +393,7 @@ StartTLS = {
 
     status, result = sock:receive() -- might not be in the first reply
     if not status then
-      stdnse.print_debug("Couldn't receive: %s", err)
+      stdnse.debug1("Couldn't receive: %s", err)
       sock:close()
       return false, "Failed to connect to XMPP server"
     end
@@ -493,7 +493,7 @@ function getCertificate(host, port)
 
   if ( host.registry["ssl-cert"] and
     host.registry["ssl-cert"][port.number] ) then
-    stdnse.print_debug(2, "sslcert: Returning cached SSL certificate")
+    stdnse.debug2("sslcert: Returning cached SSL certificate")
     mutex "done"
     return true, host.registry["ssl-cert"][port.number]
   end

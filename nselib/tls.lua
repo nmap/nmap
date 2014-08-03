@@ -618,13 +618,13 @@ function record_read(buffer, i)
   local j, typ, proto = bin.unpack(">CS", buffer, i)
   local name = find_key(TLS_CONTENTTYPE_REGISTRY, typ)
   if name == nil then
-    stdnse.print_debug("Unknown TLS ContentType: %d", typ)
+    stdnse.debug1("Unknown TLS ContentType: %d", typ)
     return j, nil
   end
   h["type"] = name
   name = find_key(PROTOCOLS, proto)
   if name == nil then
-    stdnse.print_debug("Unknown TLS Protocol: 0x%x", typ)
+    stdnse.debug1("Unknown TLS Protocol: 0x%x", typ)
     return j, nil
   end
   h["protocol"] = name
@@ -698,14 +698,14 @@ function record_read(buffer, i)
         b["compressor"] = find_key(COMPRESSORS, b["compressor"])
       else
         -- TODO: implement other handshake message types
-        stdnse.print_debug(2, "Unknown handshake message type: %s", b["type"])
+        stdnse.debug2("Unknown handshake message type: %s", b["type"])
         j = msg_end
       end
     elseif h["type"] == "heartbeat" then
       j, b["type"], b["payload_length"] = bin.unpack("C>S", buffer, j)
       j, b["payload"], b["padding"] = bin.unpack("PP", buffer, j)
     else
-      stdnse.print_debug("Unknown message type: %s", h["type"])
+      stdnse.debug1("Unknown message type: %s", h["type"])
     end
   end
 

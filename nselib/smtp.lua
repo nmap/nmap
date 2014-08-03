@@ -227,12 +227,12 @@ check_reply = function(cmd, reply)
         return true, reply
       end
     else
-      stdnse.print_debug(3,
+      stdnse.debug3(
           "SMTP: check_smtp_reply failed: %s not supported", cmd)
       return false, string.format("SMTP: %s %s", cmd, reply)
     end
   end
-  stdnse.print_debug(3,
+  stdnse.debug3(
       "SMTP: check_smtp_reply failed: %s %s", cmd, reply)
   return false, string.format("SMTP: %s %s", cmd, reply)
 end
@@ -259,14 +259,14 @@ query = function(socket, cmd, data, lines)
   local st, ret = socket:send(string.format("%s\r\n", cmd))
   if not st then
     socket:close()
-    stdnse.print_debug(3, "SMTP: failed to send %s request.", cmd)
+    stdnse.debug3("SMTP: failed to send %s request.", cmd)
     return st, string.format("SMTP failed to send %s request.", cmd)
   end
 
   st, ret = socket:receive_lines(lines or 1)
   if not st then
     socket:close()
-    stdnse.print_debug(3, "SMTP %s: failed to receive data: %s.",
+    stdnse.debug3("SMTP %s: failed to receive data: %s.",
                     cmd, (ERROR_MESSAGES[ret] or 'unspecified error'))
     return st, string.format("SMTP %s: failed to receive data: %s",
                     cmd, (ERROR_MESSAGES[ret] or 'unspecified error'))
@@ -580,7 +580,7 @@ end
 --
 -- @param socket connected to server.
 quit = function(socket)
-  stdnse.print_debug(3, "SMTP: sending 'QUIT'.")
+  stdnse.debug3("SMTP: sending 'QUIT'.")
   socket:send("QUIT\r\n")
   socket:close()
 end

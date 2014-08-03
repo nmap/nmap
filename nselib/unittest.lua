@@ -158,7 +158,7 @@ run_tests = function(to_test)
   end
   local fails = stdnse.output_table()
   for _,lib in ipairs(to_test) do
-    stdnse.print_debug(1, "Testing %s", lib)
+    stdnse.debug1("Testing %s", lib)
     local thelib = require(lib)
     local failed = 0
     if rawget(thelib,"test_suite") ~= nil then
@@ -216,7 +216,7 @@ TestSuite = {
     local passes = 0
     self:setup()
     for _,test in ipairs(self.tests) do
-      stdnse.print_debug(2, "| Test: %s...", test[2])
+      stdnse.debug2("| Test: %s...", test[2])
       local status, note = test[1](self)
       local result
       local lvl = 2
@@ -227,7 +227,7 @@ TestSuite = {
         result = "Fail"
         lvl = 1
         if nmap.debugging() < 2 then
-          stdnse.print_debug(1, "| Test: %s...", test[2])
+          stdnse.debug1("| Test: %s...", test[2])
         end
         failures = failures + 1
       end
@@ -237,7 +237,7 @@ TestSuite = {
         stdnse.print_debug(lvl, "| \\_result: %s", result)
       end
     end
-    stdnse.print_debug(1, "|_%d of %d tests passed", passes, #self.tests)
+    stdnse.debug1("|_%d of %d tests passed", passes, #self.tests)
     self:teardown()
     return failures, #self.tests
   end,

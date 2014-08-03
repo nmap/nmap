@@ -51,7 +51,7 @@ _ENV = stdnse.module("sasl", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require, 'openssl')
 if ( not(HAVE_SSL) ) then
-  stdnse.print_debug(1,
+  stdnse.debug1(
   "sasl.lua: OpenSSL not present, SASL support limited.")
 end
 local MECHANISMS = { }
@@ -348,7 +348,7 @@ function check_mechanism(mechanism)
       lmech = mechanism
       lcallback = MECHANISMS[mechanism]
     else
-      stdnse.print_debug(3,
+      stdnse.debug3(
         "sasl library does not support '%s' mechanism", mechanism)
     end
   end

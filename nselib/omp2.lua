@@ -81,13 +81,13 @@ Session = {
       .. "</credentials></authenticate>")
 
     if not status then
-      stdnse.print_debug("ERROR: %s", err)
+      stdnse.debug1("ERROR: %s", err)
       return false, err
     end
 
     status, xmldata = self.socket:receive()
     if not status then
-      stdnse.print_debug("ERROR: %s", xmldata)
+      stdnse.debug1("ERROR: %s", xmldata)
       return false, xmldata
     end
 
@@ -102,13 +102,13 @@ Session = {
     status, err = self.socket:send("<get_targets/>")
 
     if not status then
-      stdnse.print_debug("ERROR: %s", err)
+      stdnse.debug1("ERROR: %s", err)
       return false, err
     end
 
     status, xmldata = self.socket:receive()
     if not status then
-      stdnse.print_debug("ERROR: %s", xmldata)
+      stdnse.debug1("ERROR: %s", xmldata)
       return false, xmldata
     end
 

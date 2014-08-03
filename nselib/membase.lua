@@ -165,7 +165,7 @@ TAP = {
       -- @return status true on success, false on failure
       parse = function(self)
         if ( 24 > #self.data ) then
-          stdnse.print_debug("membase: Header packet too short (%d bytes)", #self.data)
+          stdnse.debug1("membase: Header packet too short (%d bytes)", #self.data)
           return false, "Packet to short"
         end
         local pos
@@ -286,7 +286,7 @@ Helper = {
     local header = TAP.Response.Header:new(data)
 
     if ( header.opcode ~= req.header.opcode ) then
-      stdnse.print_debug("WARNING: Received invalid op code, request contained (%d), response contained (%d)", req.header.opcode, header.opcode)
+      stdnse.debug1("WARNING: Received invalid op code, request contained (%d), response contained (%d)", req.header.opcode, header.opcode)
     end
 
     if ( not(TAP.Response.Decoder[tonumber(header.opcode)]) ) then

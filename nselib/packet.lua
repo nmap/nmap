@@ -249,7 +249,7 @@ function Packet:new(packet, packet_len, force_continue)
   if o.ip_v == 6 then
     while o:ipv6_is_extension_header() do
       if not o:ipv6_ext_header_parse(force_continue) or o.ip6_data_offset >= o.packet_len then
-        stdnse.print_debug("Error while parsing IPv6 extension headers.")
+        stdnse.debug1("Error while parsing IPv6 extension headers.")
         return o
       end
     end
@@ -258,19 +258,19 @@ function Packet:new(packet, packet_len, force_continue)
 
   if o.ip_p == IPPROTO_TCP then
     if not o:tcp_parse(force_continue) then
-      stdnse.print_debug("Error while parsing TCP packet\n")
+      stdnse.debug1("Error while parsing TCP packet\n")
     end
   elseif o.ip_p == IPPROTO_UDP then
     if not o:udp_parse(force_continue) then
-      stdnse.print_debug("Error while parsing UDP packet\n")
+      stdnse.debug1("Error while parsing UDP packet\n")
     end
   elseif o.ip_p == IPPROTO_ICMP then
     if not o:icmp_parse(force_continue) then
-      stdnse.print_debug("Error while parsing ICMP packet\n")
+      stdnse.debug1("Error while parsing ICMP packet\n")
     end
   elseif o.ip_p == IPPROTO_ICMPV6 then
     if not o:icmpv6_parse(force_continue) then
-      stdnse.print_debug("Error while parsing ICMPv6 packet\n")
+      stdnse.debug1("Error while parsing ICMPv6 packet\n")
     end
   end
   return o

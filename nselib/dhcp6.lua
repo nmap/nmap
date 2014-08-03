@@ -126,7 +126,7 @@ DHCP6.Option = {
       local pos
       pos, opt.duid = bin.unpack(">S", data, pos)
       if ( 1 ~= opt.duid ) then
-        stdnse.print_debug("Unexpected DUID type (%d)", opt.duid)
+        stdnse.debug1("Unexpected DUID type (%d)", opt.duid)
         return
       end
       pos, opt.hwtype, opt.time, opt.mac = bin.unpack(">SIA" .. (#data - pos - 4 - 2 + 1), data, pos)
@@ -501,7 +501,7 @@ DHCP6.Response = {
           table.insert(resp.opts, { type = opt.type, resp = opt_parsed, raw = opt.data })
         end
       else
-        stdnse.print_debug(2, "No option decoder for type: %d; len: %d", opt.type, #(opt.data or ""))
+        stdnse.debug2("No option decoder for type: %d; len: %d", opt.type, #(opt.data or ""))
         table.insert(resp.opts, { type = opt.type, raw = opt.data })
       end
     end
@@ -647,7 +647,7 @@ Helper = {
           table.insert(result_options, ("%s: %s"):format(topic, str))
         end
       else
-        stdnse.print_debug(2, "No decoder for option type: %d", opt.type)
+        stdnse.debug2("No decoder for option type: %d", opt.type)
       end
     end
     table.insert(result, result_options)

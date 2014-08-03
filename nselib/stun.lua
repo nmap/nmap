@@ -143,7 +143,7 @@ Attribute = {
       ( attr.type == Attribute.SOURCE_ADDRESS ) or
       ( attr.type == Attribute.CHANGED_ADDRESS ) ) then
       if ( attr.length ~= 8 ) then
-        stdnse.print_debug(2, "Incorrect attribute length")
+        stdnse.debug2("Incorrect attribute length")
       end
       attr.addr = parseAddress(data, pos)
     elseif( attr.type == Attribute.SERVER ) then

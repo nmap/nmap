@@ -267,7 +267,7 @@ IPP = {
         end
 
         if ( not(group) ) then
-          stdnse.print_debug(2, "Unexpected tag: %d", tag)
+          stdnse.debug2("Unexpected tag: %d", tag)
           return
         end
 

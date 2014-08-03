@@ -1371,7 +1371,7 @@ local l_make_output = function(fid_table, entries, filter)
   end
 
   if next(hosts) then
-    stdnse.print_debug(3,
+    stdnse.debug3(
       "vulns.lua: sorting vulnerability entries for %d host",
       #hosts)
     sort(hosts, sort_hosts)

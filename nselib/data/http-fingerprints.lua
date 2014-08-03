@@ -11874,7 +11874,7 @@ local f = nmap.fetchfile(nikto_db_path) or io.open(nikto_db_path, "r")
 
 if f then
 
-  stdnse.print_debug(1, "Found nikto db.")
+  stdnse.debug1("Found nikto db.")
 
   local nikto_db = {}
   for l in io.lines(nikto_db_path) do

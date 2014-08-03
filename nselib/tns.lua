@@ -1137,7 +1137,7 @@ Packet.QueryResponseAck = {
         pos, marker = bin.unpack("C", data, pos)
       end
       if ( marker ~= 0x07 ) then
-        stdnse.print_debug(2, "Encountered unknown marker: %d", marker)
+        stdnse.debug2("Encountered unknown marker: %d", marker)
         break
       end
 
@@ -1624,7 +1624,7 @@ Helper = {
     end
 
     if ( not(status) ) then
-      stdnse.print_debug(2, "ERROR: Version %s is not yet supported", self.os)
+      stdnse.debug2("ERROR: Version %s is not yet supported", self.os)
       return false, ("ERROR: Connect to version %s is not yet supported"):format(self.os)
     end
 
@@ -1781,7 +1781,7 @@ Helper = {
     end
 
     if ( not(status) ) then
-      stdnse.print_debug(2, "ERROR: Version %s is not yet supported", self.os)
+      stdnse.debug2("ERROR: Version %s is not yet supported", self.os)
       return false, ("ERROR: Querying version %s is not yet supported"):format(self.os)
     end
 

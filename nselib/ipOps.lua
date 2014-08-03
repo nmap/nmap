@@ -162,7 +162,7 @@ end
 --@return The string representing the address.
 fromdword = function( ip )
   if type( ip ) ~= "number" then
-    stdnse.print_debug(1, "Error in ipOps.todword: Expected IPv4 address.")
+    stdnse.debug1("Error in ipOps.todword: Expected IPv4 address.")
     return nil
   end
 

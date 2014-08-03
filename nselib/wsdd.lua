@@ -255,7 +255,7 @@ Comm = {
       local _, ip
       status, _, _, ip, _ = self.socket:get_info()
       if( not(status) ) then
-        stdnse.print_debug( 3, "wsdd.recvProbeMatches: ERROR: Failed to get socket info" )
+        stdnse.debug3("wsdd.recvProbeMatches: ERROR: Failed to get socket info" )
         return false, "ERROR: Failed to get socket info"
       end
 

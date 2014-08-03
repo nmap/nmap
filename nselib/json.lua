@@ -182,7 +182,7 @@ end
 
 --Some local shortcuts
 local function dbg(str,...)
-  stdnse.print_debug("Json:"..str, ...)
+  stdnse.debug1("Json:"..str, ...)
 end
 local function d4(str,...)
   if nmap.debugging() > 3 then dbg(str, ...) end
@@ -193,7 +193,7 @@ end
 
 --local dbg =stdnse.print_debug
 local function dbg_err(str,...)
-  stdnse.print_debug("json-ERR:"..str, ...)
+  stdnse.debug1("json-ERR:"..str, ...)
 end
 
 -- See section 2.5 for escapes.

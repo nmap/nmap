@@ -266,17 +266,17 @@ local function validate_options(options)
   for key, value in pairs(options) do
     if(key == 'timeout') then
       if(type(tonumber(value)) ~= 'number') then
-        stdnse.print_debug(1, 'http: options.timeout contains a non-numeric value')
+        stdnse.debug1('http: options.timeout contains a non-numeric value')
         bad = true
       end
     elseif(key == 'header') then
       if(type(value) ~= 'table') then
-        stdnse.print_debug(1, "http: options.header should be a table")
+        stdnse.debug1("http: options.header should be a table")
         bad = true
       end
     elseif(key == 'content') then
       if(type(value) ~= 'string' and type(value) ~= 'table') then
-        stdnse.print_debug(1, "http: options.content should be a string or a table")
+        stdnse.debug1("http: options.content should be a string or a table")
         bad = true
       end
     elseif(key == 'cookies') then
@@ -285,42 +285,42 @@ local function validate_options(options)
           for cookie_key, cookie_value in pairs(cookie) do
             if(cookie_key == 'name') then
               if(type(cookie_value) ~= 'string') then
-                stdnse.print_debug(1, "http: options.cookies[i].name should be a string")
+                stdnse.debug1("http: options.cookies[i].name should be a string")
                 bad = true
               end
             elseif(cookie_key == 'value') then
               if(type(cookie_value) ~= 'string') then
-                stdnse.print_debug(1, "http: options.cookies[i].value should be a string")
+                stdnse.debug1("http: options.cookies[i].value should be a string")
                 bad = true
               end
             elseif(cookie_key == 'path') then
               if(type(cookie_value) ~= 'string') then
-                stdnse.print_debug(1, "http: options.cookies[i].path should be a string")
+                stdnse.debug1("http: options.cookies[i].path should be a string")
                 bad = true
               end
             elseif(cookie_key == 'expires') then
               if(type(cookie_value) ~= 'string') then
-                stdnse.print_debug(1, "http: options.cookies[i].expires should be a string")
+                stdnse.debug1("http: options.cookies[i].expires should be a string")
                 bad = true
               end
             else
-              stdnse.print_debug(1, "http: Unknown field in cookie table: %s", cookie_key)
+              stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
               bad = true
             end
           end
         end
       elseif(type(value) ~= 'string') then
-        stdnse.print_debug(1, "http: options.cookies should be a table or a string")
+        stdnse.debug1("http: options.cookies should be a table or a string")
         bad = true
       end
     elseif(key == 'auth') then
       if(type(value) == 'table') then
         if(value['username'] == nil or value['password'] == nil) then
-          stdnse.print_debug(1, "http: options.auth should contain both a 'username' and a 'password' key")
+          stdnse.debug1("http: options.auth should contain both a 'username' and a 'password' key")
           bad = true
         end
       else
-        stdnse.print_debug(1, "http: options.auth should be a table")
+        stdnse.debug1("http: options.auth should be a table")
         bad = true
       end
     elseif (key == 'digestauth') then
@@ -328,27 +328,27 @@ local function validate_options(options)
         local req_keys = {"username","realm","nonce","digest-uri","response"}
         for _,k in ipairs(req_keys) do
           if not value[k] then
-            stdnse.print_debug(1, "http: options.digestauth missing key: %s",k)
+            stdnse.debug1("http: options.digestauth missing key: %s",k)
             bad = true
             break
           end
         end
       else
         bad = true
-        stdnse.print_debug(1, "http: options.digestauth should be a table")
+        stdnse.debug1("http: options.digestauth should be a table")
       end
     elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body') then
       if(type(value) ~= 'boolean') then
-        stdnse.print_debug(1, "http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
+        stdnse.debug1("http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
         bad = true
       end
     elseif(key == 'redirect_ok') then
       if(type(value)~= 'function' and type(value)~='boolean') then
-        stdnse.print_debug(1, "http: options.redirect_ok must be a function or boolean")
+        stdnse.debug1("http: options.redirect_ok must be a function or boolean")
         bad = true
       end
     else
-      stdnse.print_debug(1, "http: Unknown key in the options table: %s", key)
+      stdnse.debug1("http: Unknown key in the options table: %s", key)
     end
   end
 
@@ -525,7 +525,7 @@ local function recv_chunked(s, partial)
     if not line then
       -- this warning message was initially an error but was adapted
       -- to support broken servers, such as the Citrix XML Service
-      stdnse.print_debug(2, "Didn't find CRLF after chunk-data.")
+      stdnse.debug2("Didn't find CRLF after chunk-data.")
     elseif not string.match(line, "^\r?\n") then
       return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
     end
@@ -925,7 +925,7 @@ local function check_size (cache)
   local size = cache.size;
 
   if size > max_size then
-    stdnse.print_debug(1,
+    stdnse.debug1(
         "Current http cache size (%d bytes) exceeds max size of %d",
         size, max_size);
     table.sort(cache, function(r1, r2)
@@ -942,7 +942,7 @@ local function check_size (cache)
     end
     cache.size = size;
   end
-  stdnse.print_debug(2, "Final http cache size (%d bytes) of max size of %d",
+  stdnse.debug2("Final http cache size (%d bytes) of max size of %d",
       size, max_size);
   return size;
 end
@@ -1202,7 +1202,7 @@ local function request(host, port, data, options)
 
   if type(port) == 'table' then
     if port.protocol and port.protocol ~= 'tcp' then
-      stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
+      stdnse.debug1("http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
       return http_error("Unsupported protocol.")
     end
   end
@@ -1256,7 +1256,7 @@ function generic_request(host, port, method, path, options)
   local digest_auth = options and options.auth and options.auth.digest
 
   if digest_auth and not have_ssl then
-    stdnse.print_debug("http: digest auth requires openssl.")
+    stdnse.debug1("http: digest auth requires openssl.")
   end
 
   if digest_auth and have_ssl then
@@ -1267,7 +1267,7 @@ function generic_request(host, port, method, path, options)
     local r = generic_request(host, port, method, path, options_with_auth_removed)
     local h = r.header['www-authenticate']
     if not r.status or (h and not string.find(h:lower(), "digest.-realm")) then
-      stdnse.print_debug("http: the target doesn't support digest auth or there was an error during request.")
+      stdnse.debug1("http: the target doesn't support digest auth or there was an error during request.")
       return http_error("The target doesn't support digest auth or there was an error during request.")
     end
     -- Compute the response hash
@@ -1381,7 +1381,7 @@ function redirect_ok(host, port)
     counter = counter - 1
     for i, rule in ipairs( rules ) do
       if ( not(rule( url, host, port )) ) then
-        --stdnse.print_debug("Rule failed: %d", i)
+        --stdnse.debug1("Rule failed: %d", i)
         return false
       end
     end
@@ -1603,19 +1603,19 @@ end
 
 -- Deprecated pipeline functions
 function pGet( host, port, path, options, ignored, allReqs )
-  stdnse.print_debug(1, "WARNING: pGet() is deprecated. Use pipeline_add() instead.")
+  stdnse.debug1("WARNING: pGet() is deprecated. Use pipeline_add() instead.")
   return pipeline_add(path, options, allReqs, 'GET')
 end
 function pHead( host, port, path, options, ignored, allReqs )
-  stdnse.print_debug(1, "WARNING: pHead() is deprecated. Use pipeline_add instead.")
+  stdnse.debug1("WARNING: pHead() is deprecated. Use pipeline_add instead.")
   return pipeline_add(path, options, allReqs, 'HEAD')
 end
 function addPipeline(host, port, path, options, ignored, allReqs, method)
-  stdnse.print_debug(1, "WARNING: addPipeline() is deprecated! Use pipeline_add instead.")
+  stdnse.debug1("WARNING: addPipeline() is deprecated! Use pipeline_add instead.")
   return pipeline_add(path, options, allReqs, method)
 end
 function pipeline(host, port, allReqs)
-  stdnse.print_debug(1, "WARNING: pipeline() is deprecated. Use pipeline_go() instead.")
+  stdnse.debug1("WARNING: pipeline() is deprecated. Use pipeline_go() instead.")
   return pipeline_go(host, port, allReqs)
 end
 
@@ -1678,7 +1678,7 @@ end
 -- @return A list of responses, in the same order as the requests were queued.
 --         Each response is a table as described in the module documentation.
 function pipeline_go(host, port, all_requests)
-  stdnse.print_debug("Total number of pipelined requests: " .. #all_requests)
+  stdnse.debug1("Total number of pipelined requests: " .. #all_requests)
   local responses
   local response
   local partial
@@ -1687,7 +1687,7 @@ function pipeline_go(host, port, all_requests)
 
   -- Check for an empty request
   if (#all_requests == 0) then
-    stdnse.print_debug(1, "Warning: empty set of requests passed to http.pipeline()")
+    stdnse.debug1("Warning: empty set of requests passed to http.pipeline()")
     return responses
   end
 
@@ -1713,7 +1713,7 @@ function pipeline_go(host, port, all_requests)
   limit = limit > #all_requests and #all_requests or limit
   local max_pipeline = stdnse.get_script_args("http.max-pipeline") or limit -- how many requests should be pipelined
   local count = 1
-  stdnse.print_debug(1, "Number of requests allowed by pipeline: " .. limit)
+  stdnse.debug1("Number of requests allowed by pipeline: " .. limit)
 
   while #responses < #all_requests do
     local j, batch_end
@@ -1752,7 +1752,7 @@ function pipeline_go(host, port, all_requests)
     local req_sent = 0
     -- start sending the requests and pipeline them in batches of max_pipeline elements
     while start <= len do
-      stdnse.print_debug(2, "HTTP pipeline: number of requests in current batch: %d, already sent: %d, responses from current batch: %d, all responses received: %d",len,start-1,count,#responses)
+      stdnse.debug2("HTTP pipeline: number of requests in current batch: %d, already sent: %d, responses from current batch: %d, all responses received: %d",len,start-1,count,#responses)
       local req = {}
       if max_pipeline == limit then
         req = requests
@@ -1772,8 +1772,8 @@ function pipeline_go(host, port, all_requests)
       while inner_count < num_req and #responses < #all_requests do
         response, partial = next_response(socket, all_requests[#responses + 1].method, partial)
         if not response then
-          stdnse.print_debug("HTTP pipeline: there was a problem while receiving responses.")
-          stdnse.print_debug(3, "The request was:\n%s",req)
+          stdnse.debug1("HTTP pipeline: there was a problem while receiving responses.")
+          stdnse.debug3("The request was:\n%s",req)
           fail = true
           break
         end
@@ -1787,15 +1787,15 @@ function pipeline_go(host, port, all_requests)
     socket:close()
 
     if count == 0 then
-      stdnse.print_debug("Received 0 of %d expected responses.\nGiving up on pipeline.", limit);
+      stdnse.debug1("Received 0 of %d expected responses.\nGiving up on pipeline.", limit);
       break
     elseif count < req_sent then
-      stdnse.print_debug("Received only %d of %d expected responses.\nDecreasing max pipelined requests to %d.", count, req_sent, count)
+      stdnse.debug1("Received only %d of %d expected responses.\nDecreasing max pipelined requests to %d.", count, req_sent, count)
       limit = count
     end
   end
 
-  stdnse.print_debug("Number of received responses: " .. #responses)
+  stdnse.debug1("Number of received responses: " .. #responses)
 
   return responses
 end
@@ -1993,17 +1993,17 @@ function parse_date(s)
     tz = "GMT"
   end
   if not day then
-    stdnse.print_debug(1, "http.parse_date: can't parse date \"%s\": unknown format.", s)
+    stdnse.debug1("http.parse_date: can't parse date \"%s\": unknown format.", s)
     return nil
   end
   -- Look up the numeric code for month.
   month = MONTH_MAP[month_name]
   if not month then
-    stdnse.print_debug(1, "http.parse_date: unknown month name \"%s\".", month_name)
+    stdnse.debug1("http.parse_date: unknown month name \"%s\".", month_name)
     return nil
   end
   if tz ~= "GMT" then
-    stdnse.print_debug(1, "http.parse_date: don't know time zone \"%s\", only \"GMT\".", tz)
+    stdnse.debug1("http.parse_date: don't know time zone \"%s\", only \"GMT\".", tz)
     return nil
   end
   day = tonumber(day)
@@ -2169,26 +2169,26 @@ function can_use_head(host, port, result_404, path)
   local data = head( host, port, path )
   if data then
     if data.status and data.status == 302 and data.header and data.header.location then
-      stdnse.print_debug(1, "HTTP: Warning: Host returned 302 and not 200 when performing HEAD.")
+      stdnse.debug1("HTTP: Warning: Host returned 302 and not 200 when performing HEAD.")
       return false
     end
 
     if data.status and data.status == 200 and data.header then
       -- check that a body wasn't returned
       if #data.body > 0 then
-        stdnse.print_debug(1, "HTTP: Warning: Host returned data when performing HEAD.")
+        stdnse.debug1("HTTP: Warning: Host returned data when performing HEAD.")
         return false
       end
 
-      stdnse.print_debug(1, "HTTP: Host supports HEAD.")
+      stdnse.debug1("HTTP: Host supports HEAD.")
       return true, data
     end
 
-    stdnse.print_debug(1, "HTTP: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
+    stdnse.debug1("HTTP: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
     return false
   end
 
-  stdnse.print_debug(1, "HTTP: HEAD request completely failed.")
+  stdnse.debug1("HTTP: HEAD request completely failed.")
   return false
 end
 
@@ -2294,17 +2294,17 @@ function identify_404(host, port)
   data = get(host, port, URL_404_1)
 
   if(data == nil) then
-    stdnse.print_debug(1, "HTTP: Failed while testing for 404 status code")
+    stdnse.debug1("HTTP: Failed while testing for 404 status code")
     return false, "Failed while testing for 404 error message"
   end
 
   if(data.status and data.status == 404) then
-    stdnse.print_debug(1, "HTTP: Host returns proper 404 result.")
+    stdnse.debug1("HTTP: Host returns proper 404 result.")
     return true, 404
   end
 
   if(data.status and data.status == 200) then
-    stdnse.print_debug(1, "HTTP: Host returns 200 instead of 404.")
+    stdnse.debug1("HTTP: Host returns 200 instead of 404.")
 
     -- Clean up the body (for example, remove the URI). This makes it easier to validate later
     if(data.body) then
@@ -2312,7 +2312,7 @@ function identify_404(host, port)
       local data2 = get(host, port, URL_404_2)
       local data3 = get(host, port, URL_404_3)
       if(data2 == nil or data3 == nil) then
-        stdnse.print_debug(1, "HTTP: Failed while testing for extra 404 error messages")
+        stdnse.debug1("HTTP: Failed while testing for extra 404 error messages")
         return false, "Failed while testing for extra 404 error messages"
       end
 
@@ -2323,7 +2323,7 @@ function identify_404(host, port)
         if(type(data2.status) ~= "number") then
           data2.status = -1
         end
-        stdnse.print_debug(1, "HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
+        stdnse.debug1("HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
         return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
       end
 
@@ -2332,7 +2332,7 @@ function identify_404(host, port)
         if(type(data3.status) ~= "number") then
           data3.status = -1
         end
-        stdnse.print_debug(1, "HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
+        stdnse.debug1("HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
         return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
       end
 
@@ -2341,33 +2341,33 @@ function identify_404(host, port)
       local clean_body2 = clean_404(data2.body)
       local clean_body3 = clean_404(data3.body)
       if(clean_body ~= clean_body2) then
-        stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
-        stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+        stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
+        stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
         return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
       end
 
       if(clean_body ~= clean_body3) then
-        stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
-        stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+        stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+        stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
         return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
       end
 
       return true, 200, clean_body
     end
 
-    stdnse.print_debug(1, "HTTP: The 200 response didn't contain a body.")
+    stdnse.debug1("HTTP: The 200 response didn't contain a body.")
     return true, 200
   end
 
   -- Loop through any expected error codes
   for _,code in pairs(bad_responses) do
     if(data.status and data.status == code) then
-      stdnse.print_debug(1, "HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
+      stdnse.debug1("HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
       return true, code
     end
   end
 
-  stdnse.print_debug(1,  "Unexpected response returned for 404 check: %s", get_status_string(data))
+  stdnse.debug1("Unexpected response returned for 404 check: %s", get_status_string(data))
 
   return true, data.status
 end
@@ -2398,17 +2398,17 @@ function page_exists(data, result_404, known_404, page, displayall)
         -- If the 404 response is also "200", deal with it (check if the body matches)
         if(#data.body == 0) then
           -- I observed one server that returned a blank string instead of an error, on some occasions
-          stdnse.print_debug(1, "HTTP: Page returned a totally empty body; page likely doesn't exist")
+          stdnse.debug1("HTTP: Page returned a totally empty body; page likely doesn't exist")
           return false
         elseif(clean_404(data.body) ~= known_404) then
-          stdnse.print_debug(1, "HTTP: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
+          stdnse.debug1("HTTP: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
           return true
         else
           return false
         end
       else
         -- If 404s return something other than 200, and we got a 200, we're good to go
-        stdnse.print_debug(1, "HTTP: Page was '%s', it exists! (%s)", get_status_string(data), page)
+        stdnse.debug1("HTTP: Page was '%s', it exists! (%s)", get_status_string(data), page)
         return true
       end
     else
@@ -2416,7 +2416,7 @@ function page_exists(data, result_404, known_404, page, displayall)
       if(data.status ~= 404 and data.status ~= result_404) then
         -- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
         -- asks for everything (with a script argument), only display 401 Authentication Required here.
-        stdnse.print_debug(1, "HTTP: Page didn't match the 404 response (%s) (%s)", get_status_string(data), page)
+        stdnse.debug1("HTTP: Page didn't match the 404 response (%s) (%s)", get_status_string(data), page)
 
         if(data.status == 401) then -- "Authentication Required"
           return true
@@ -2431,7 +2431,7 @@ function page_exists(data, result_404, known_404, page, displayall)
       end
     end
   else
-    stdnse.print_debug(1, "HTTP: HTTP request failed (is the host still up?)")
+    stdnse.debug1("HTTP: HTTP request failed (is the host still up?)")
     return false
   end
 end

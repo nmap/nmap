@@ -377,7 +377,7 @@ SERVICES = {
 
         if ( not(parts) or err ) then
           -- TODO Should we return failure in the result?
-          stdnse.print_debug("The dnsbl.httpbl.org provider failed to return a valid address")
+          stdnse.debug1("The dnsbl.httpbl.org provider failed to return a valid address")
           return
         end
 
@@ -592,7 +592,7 @@ Helper = {
       local status, answer = dns.query(query, {dtype=ns_type, retAll=true} )
       answers[name] = { status = status, answer = answer, svc = svc }
     else
-      stdnse.print_debug("Query function returned nothing, skipping '%s'", name)
+      stdnse.debug1("Query function returned nothing, skipping '%s'", name)
     end
 
     condvar "signal"
@@ -626,7 +626,7 @@ Helper = {
         local svc_result = svc:resp_parser(answer)
         if ( not(svc_result) ) then
           local resp = ( #answer > 0 and ("UNKNOWN (%s)"):format(answer[1]) or "UNKNOWN" )
-          stdnse.print_debug(2, "%s received %s", name, resp)
+          stdnse.debug2("%s received %s", name, resp)
         end
 
         if ( svc_result ) then

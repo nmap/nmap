@@ -158,7 +158,7 @@ local function dispatcher()
   end
   state = "STOPPED"
   s_condvar "broadcast"
-  stdnse.print_debug("Exiting _dispatcher")
+  stdnse.debug1("Exiting _dispatcher")
 end
 
 -- Processes a new incoming file transfer
@@ -179,7 +179,7 @@ local function processConnection( host, port, data )
 
   -- If we get anything else than a write request, abort the connection
   if ( OpCode.WRQ ~= op ) then
-    stdnse.print_debug("Unsupported opcode")
+    stdnse.debug1("Unsupported opcode")
     socket:send( tostring(Packet.ERROR:new(0, "TFTP server has write-only support")))
   end
 
@@ -203,7 +203,7 @@ local function processConnection( host, port, data )
       lastread = os.time()
       pos, op = bin.unpack(">S", pdata)
       if ( OpCode.DATA ~= op ) then
-        stdnse.print_debug("Expected a data packet, terminating TFTP transfer")
+        stdnse.debug1("Expected a data packet, terminating TFTP transfer")
       end
 
       local block, data
@@ -251,7 +251,7 @@ local function processConnection( host, port, data )
     end
     filecontent = filecontent .. blocks[i]
   end
-  stdnse.print_debug("Finished receiving file \"%s\"", filename)
+  stdnse.debug1("Finished receiving file \"%s\"", filename)
 
   -- Add  anew file to the global infiles table
   table.insert( infiles, File:new(filename, filecontent, host) )

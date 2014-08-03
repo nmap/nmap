@@ -98,7 +98,7 @@ NMEA = {
       return true, e
     else
       local err = ("No parser for prefix: %s"):format(prefix)
-      stdnse.print_debug(2, err)
+      stdnse.debug2("%s", err)
       return false, err
     end
 

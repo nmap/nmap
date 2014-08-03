@@ -233,7 +233,7 @@ Comm = {
 
       -- check to see if the IP address returned matches the IP address we scanned
       if xhost ~= self.host.ip then
-        stdnse.print_debug("IP addresses did not match! Found %s, using %s instead.", xhost, self.host.ip)
+        stdnse.debug1("IP addresses did not match! Found %s, using %s instead.", xhost, self.host.ip)
         xhost = self.host.ip
       end
 

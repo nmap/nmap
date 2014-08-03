@@ -72,7 +72,7 @@ OSPF = {
         _, header.auth_data.hash = bin.unpack(">H"..header.auth_data.length, data, header.length+1)
       else
         -- Shouldn't happen
-        stdnse.print_debug("Unknown authentication type " .. header.auth_type)
+        stdnse.debug1("Unknown authentication type " .. header.auth_type)
         return nil
       end
       header.router_id = ipOps.fromdword(header.router_id)
@@ -188,7 +188,7 @@ OSPF = {
       hello.BDR = ipOps.fromdword(hello.BDR)
 
       if ( ( #data - pos + 1 ) % 4 ~= 0 ) then
-        stdnse.print_debug(2, "Unexpected OSPF packet length, aborting ...")
+        stdnse.debug2("Unexpected OSPF packet length, aborting ...")
         return
       end
 

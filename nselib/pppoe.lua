@@ -496,7 +496,7 @@ PPPoE = {
         if ( PPPoE.TagDecoder[tag] ) then
           pos, decoded = PPPoE.TagDecoder[tag](data, pos, len)
         else
-          stdnse.print_debug("PPPoE: Unsupported tag (%d)", tag)
+          stdnse.debug1("PPPoE: Unsupported tag (%d)", tag)
           pos = pos + len
         end
         local t = PPPoE.Tag:new(tag, raw)

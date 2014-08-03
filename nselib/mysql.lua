@@ -106,7 +106,7 @@ end
 -- <code>status</code> or error message on failure (status == false)
 function receiveGreeting( socket )
 
-  local catch = function() socket:close() stdnse.print_debug("receiveGreeting(): failed") end
+  local catch = function() socket:close() stdnse.debug1("receiveGreeting(): failed") end
   local try = nmap.new_try(catch)
   local data = try( socket:receive_bytes(HEADER_SIZE) )
   local pos, response, tmp, _
@@ -193,7 +193,7 @@ end
 -- @return response table or error message on failure
 function loginRequest( socket, params, username, password, salt )
 
-  local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end
+  local catch = function() socket:close() stdnse.debug1("loginRequest(): failed") end
   local try = nmap.new_try(catch)
   local packetno = 1
   local authversion = params.authversion or "post41"
@@ -330,7 +330,7 @@ end
 -- @return table containing the following <code>header</code>, <code>fields</code> and <code>data</code>
 function decodeQueryResponse( socket )
 
-  local catch = function() socket:close() stdnse.print_debug("decodeQueryResponse(): failed") end
+  local catch = function() socket:close() stdnse.debug1("decodeQueryResponse(): failed") end
   local try = nmap.new_try(catch)
   local data, header, pos
   local rs, blocks = {}, {}
@@ -492,7 +492,7 @@ end
 -- @return rows table containing row tables as decoded by <code>decodeDataPackets</code>
 function sqlQuery( socket, query )
 
-  local catch = function() socket:close() stdnse.print_debug("sqlQuery(): failed") end
+  local catch = function() socket:close() stdnse.debug1("sqlQuery(): failed") end
   local try = nmap.new_try(catch)
   local packetno = 0
   local querylen = query:len() + 1

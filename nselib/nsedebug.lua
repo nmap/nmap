@@ -54,7 +54,7 @@ function tostr(data, indent)
       end
     end
   else
-    stdnse.print_debug(1, "Error: unknown data type: %s", type(data))
+    stdnse.debug1("Error: unknown data type: %s", type(data))
   end
 
   return table.concat(str)

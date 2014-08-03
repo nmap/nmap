@@ -464,7 +464,7 @@ function snmpWalk( socket, base_oid )
 
     status, err = socket:send(payload)
     if ( not( status ) ) then
-      stdnse.print_debug("snmp.snmpWalk: Send failed")
+      stdnse.debug1("snmp.snmpWalk: Send failed")
       return false, err
     end
 
@@ -472,7 +472,7 @@ function snmpWalk( socket, base_oid )
     if ( not( status ) ) then
       -- Unless we have a useful error message, don't report it
       if ( response ~= "ERROR" ) then
-        stdnse.print_debug("snmp.snmpWalk: Received no answer (%s)", response)
+        stdnse.debug1("snmp.snmpWalk: Received no answer (%s)", response)
         return false, response
       end
       return false, nil
