@@ -385,7 +385,7 @@ SERVICES = {
 
         if ( octet1 ~= 127 ) then
           -- This shouldn't happen :P
-          stdnse.print_debug(
+          stdnse.debug1(
             "The request made to dnsbl.httpbl.org was considered invalid (%i)",
             octet1)
         elseif ( "short" == self.mode ) then

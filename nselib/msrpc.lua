@@ -4855,7 +4855,7 @@ end
 --####################################################################--
 --# 3) RRAS RASRPC OPERATIONS
 --####################################################################--
-local RRAS_DEBUG_LVL = 2 --debug level for rras operations when calling stdnse.print_debug
+local RRAS_DEBUG_LVL = 2 --debug level for rras operations when calling stdnse.debug
 
 --####################################################################--
 --- RRAS operation numbers.
@@ -4904,7 +4904,7 @@ function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
   req_blob = req_blob .. msrpctypes.marshall_int32(dwcbBufSize)
   --call the function
   local status, result
-  stdnse.print_debug(
+  stdnse.debug(
     RRAS_DEBUG_LVL,
     "RRAS_SubmitRequest: Calling...")
   status, result = call_function(
@@ -4913,13 +4913,13 @@ function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
   req_blob)
   --sanity check
   if(status == false) then
-    stdnse.print_debug(
+    stdnse.debug(
       RRAS_DEBUG_LVL,
       "RRAS_SubmitRequest: Call function failed: %s",
     result)
     return false, result
   end
-  stdnse.print_debug(
+  stdnse.debug(
     RRAS_DEBUG_LVL,
     "RRAS_SubmitRequest: Returned successfully")
   --dissect the reply
@@ -4953,7 +4953,7 @@ DNSSERVER_ConfInfo =
 --####################################################################--
 --# 3) DNS SERVER MANAGEMENT SERVICE OPERATIONS
 --####################################################################--
-local DNSSERVER_DEBUG_LVL = 2 --debug level for dnsserver operations when calling stdnse.print_debug
+local DNSSERVER_DEBUG_LVL = 2 --debug level for dnsserver operations when calling stdnse.debug
 
 --####################################################################--
 --- DNSSERVER operation numbers.
@@ -5042,7 +5042,7 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
     get_pad(operation_ascii, 4))
 
   local call_result
-  stdnse.print_debug(
+  stdnse.debug(
     DNSSERVER_DEBUG_LVL,
     "DNSSERVER_Query: Calling...")
   status, call_result = call_function(
@@ -5051,13 +5051,13 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
     req_blob)
   --sanity check
   if(status == false) then
-    stdnse.print_debug(
+    stdnse.debug(
       DNSSERVER_DEBUG_LVL,
       "DNSSERVER_Query: Call function failed: %s",
       call_result)
     return false, call_result
   end
-  stdnse.print_debug(
+  stdnse.debug(
     DNSSERVER_DEBUG_LVL,
     "DNSSERVER_Query: Returned successfully")
   --dissect the reply

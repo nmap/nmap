@@ -2107,7 +2107,7 @@ end
 
 
 ---Take the data returned from a HTTP request and return the status string.
--- Useful for <code>stdnse.print_debug</code> messages and even advanced output.
+-- Useful for <code>stdnse.debug</code> messages and even advanced output.
 --
 -- @param data The response table from any HTTP request
 -- @return The best status string we could find: either the actual status string, the status code, or <code>"<unknown status>"</code>.

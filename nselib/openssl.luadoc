@@ -10,7 +10,7 @@
 -- <code>
 -- if not pcall(require, "openssl") then
 --   action = function(host, port)
---     stdnse.print_debug(2, "Skipping \"%s\" because OpenSSL is missing.", id)
+--     stdnse.debug2("Skipping \"%s\" because OpenSSL is missing.", id)
 --   end
 -- end
 -- action = action or function(host, port)

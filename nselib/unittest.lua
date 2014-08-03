@@ -232,9 +232,9 @@ TestSuite = {
         failures = failures + 1
       end
       if note then
-        stdnse.print_debug(lvl, "| \\_result: %s (%s)", result, note)
+        stdnse.debug(lvl, "| \\_result: %s (%s)", result, note)
       else
-        stdnse.print_debug(lvl, "| \\_result: %s", result)
+        stdnse.debug(lvl, "| \\_result: %s", result)
       end
     end
     stdnse.debug1("|_%d of %d tests passed", passes, #self.tests)

@@ -138,8 +138,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug(
-          1, "Could not establish SSL session after STARTTLS command.")
+        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to IMAP server"
       else
@@ -217,8 +216,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug(
-          1,"Could not establish SSL session after STARTTLS command.")
+        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to LDAP server"
       else
@@ -268,8 +266,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug(
-          1, "Could not establish SSL session after STARTTLS command.")
+        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to POP3 server"
       else

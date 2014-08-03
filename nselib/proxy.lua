@@ -233,7 +233,7 @@ function socksHandshake(socket, version, hostname)
     local request_status = string.byte(response, 2)
     local err = string.format("Unknown response (0x%02x)", request_status)
     if(request_status == 0x5a) then
-      stdnse.print_debug('Socks4: Received "Request Granted" from proxy server')
+      stdnse.debug1('Socks4: Received "Request Granted" from proxy server')
       return true, socket
     end
     if(request_status == 0x5b) then
@@ -243,7 +243,7 @@ function socksHandshake(socket, version, hostname)
     elseif (request_status == 0x5d) then
       err = "request failed because client program and identd report different user-ids"
     end
-    stdnse.print_debug('Socks4: Received "%s" from proxy server', err)
+    stdnse.debug1('Socks4: Received "%s" from proxy server', err)
     return false, err
   end
   if version == 5 then
@@ -280,7 +280,7 @@ function socksHandshake(socket, version, hostname)
       local request_status = string.byte(z, 2)
       err = string.format("Unknown response (0x%02x)", request_status)
       if (request_status == 0x00) then
-        stdnse.print_debug('Socks5: Received "Request Granted" from proxy server')
+        stdnse.debug1('Socks5: Received "Request Granted" from proxy server')
         return true, socket
       elseif(request_status == 0x01) then
         err = "General Failure"
@@ -300,7 +300,7 @@ function socksHandshake(socket, version, hostname)
         err = "Address type not supported"
       end
     end
-    stdnse.print_debug('Socks5: Received "%s" from proxy server', err)
+    stdnse.debug1('Socks5: Received "%s" from proxy server', err)
     return false, err
   end
   return false, "Invalid SOCKS version"

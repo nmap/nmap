@@ -215,7 +215,7 @@ local function opencon(host, port, protocol, data, opts)
         status, response = sd:receive()
     else
         if not (opts and opts.recv_before) then
-            stdnse.print_debug("Using comm.tryssl without either first data payload or opts.recv_before." ..
+            stdnse.debug1("Using comm.tryssl without either first data payload or opts.recv_before." ..
                          "\nImpossible to test the connection for the correct protocol!")
         end
         response = early_resp

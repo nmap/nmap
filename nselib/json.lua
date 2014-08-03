@@ -191,7 +191,7 @@ local function d3(str,...)
   if nmap.debugging() > 2 then dbg(str, ...) end
 end
 
---local dbg =stdnse.print_debug
+--local dbg =stdnse.debug
 local function dbg_err(str,...)
   stdnse.debug1("json-ERR:"..str, ...)
 end

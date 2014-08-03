@@ -30,9 +30,9 @@ local arg_DB = stdnse.get_script_args("mongodb.db")
 local function dbg(str,...)
   stdnse.debug3("MngoDb:"..str, ...)
 end
---local dbg =stdnse.print_debug
+--local dbg =stdnse.debug1
 
-local err =stdnse.print_debug
+local err =stdnse.debug1
 
 ----------------------------------------------------------------------
 -- First of all comes a Bson parsing library. This can easily be moved out into a separate library should other
