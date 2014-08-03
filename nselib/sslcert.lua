@@ -56,8 +56,8 @@ StartTLS = {
       status, result = s:receive_lines(1)
 
       if not (string.match(result, "^234")) then
-        stdnse.print_debug("1","%s",result)
-        stdnse.print_debug("1","AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
+        stdnse.print_debug(1,"%s",result)
+        stdnse.print_debug(1,"AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
         -- Send QUIT to clean up server side connection
         local query = "QUIT\r\n"
@@ -77,7 +77,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug("1","Could not establish SSL session after STARTTLS command.")
+        stdnse.print_debug(1,"Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to SMTP server"
       else
@@ -307,8 +307,8 @@ StartTLS = {
       status, resultEHLO = s:receive_lines(1)
 
       if not (string.match(resultEHLO, "^250")) then
-        stdnse.print_debug("1","%s",resultEHLO)
-        stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+        stdnse.print_debug(1,"%s",resultEHLO)
+        stdnse.print_debug(1,"EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
         return false, "Failed to connect to SMTP server"
       end
 
@@ -320,8 +320,8 @@ StartTLS = {
       status, resultEHLO = s:receive_lines(1)
 
       if not (string.match(resultEHLO, "^220")) then
-        stdnse.print_debug("1","%s",resultEHLO)
-        stdnse.print_debug("1","STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
+        stdnse.print_debug(1,"%s",resultEHLO)
+        stdnse.print_debug(1,"STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
         -- Send QUIT to clean up server side connection
         local query = "QUIT\r\n"
@@ -341,7 +341,7 @@ StartTLS = {
     if status then
       status,err = s:reconnect_ssl()
       if not status then
-        stdnse.print_debug("1","Could not establish SSL session after STARTTLS command.")
+        stdnse.print_debug(1,"Could not establish SSL session after STARTTLS command.")
         s:close()
         return false, "Failed to connect to SMTP server"
       else
