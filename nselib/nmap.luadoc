@@ -798,7 +798,7 @@ function ip_close()
 --- Writes to a log file.
 --
 -- Writes <code>string</code> to <code>file</code> ("stdout" or "stderr").
--- Use stdnse.print_debug to print debug information based on the
+-- Use stdnse.debug to print debug information based on the
 -- debugging level.
--- @see stdnse.print_debug
+-- @see stdnse.debug
 function log_write(file, string)
