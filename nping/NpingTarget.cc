@@ -623,7 +623,7 @@ int NpingTarget::setNamedHost(bool val){
 
 bool NpingTarget::isNamedHost(){
   assert(this->namedhost==1 || this->namedhost==0 );
-  return (this->namedhost==1) ? true : false;
+  return (this->namedhost==1);
 } /* End of isNamedHost() */
 
 

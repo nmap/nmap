@@ -1868,7 +1868,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
   if (when)
     *when = lowhtime;
 
-  return (TIMEVAL_MSEC_SUBTRACT(lowhtime, now) == 0) ? true : false;
+  return (TIMEVAL_MSEC_SUBTRACT(lowhtime, now) == 0);
 }
 
 /* Find a HostScanStats by its IP address in the incomplete and completed lists.

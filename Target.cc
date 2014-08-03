@@ -517,7 +517,7 @@ bool Target::timedOut(const struct timeval *now) {
     used += TIMEVAL_MSEC_SUBTRACT(tv, htn.toclock_start);
   }
 
-  return (used > o.host_timeout)? true : false;
+  return (used > o.host_timeout);
 }
 
 
