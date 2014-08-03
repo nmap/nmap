@@ -68,7 +68,7 @@ local detail_debug = 3    -- debug level for printing individual login steps
 ---
 -- Print debug messages, prepending them with the script name
 --
--- @param level Verbosity level (mandatory, unlike stdnse.print_debug).
+-- @param level Verbosity level (mandatory, unlike stdnse.debug).
 -- @param fmt Format string.
 -- @param ... Arguments to format.
 local debug = stdnse.debug
