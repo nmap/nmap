@@ -1310,7 +1310,7 @@ bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) {
   }
 
   *when = (firstgood)? now : earliest_to;
-  return (firstgood)? false : true;
+  return !firstgood;
 }
 
 

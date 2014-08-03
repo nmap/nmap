@@ -1452,7 +1452,7 @@ bool HostScanStats::nextTimeout(struct timeval *when) {
   }
 
   *when = (firstgood) ? USI->now : earliest_to;
-  return (firstgood) ? false : true;
+  return !firstgood;
 }
 
 /* gives the maximum try number (try numbers start at zero and
