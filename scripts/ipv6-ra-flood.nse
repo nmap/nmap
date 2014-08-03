@@ -126,7 +126,7 @@ end
 --- Broadcasting on the selected interface
 -- @param iface table containing interface information
 local function broadcast_on_interface(iface)
-  stdnse.print_verbose1("Starting on interface " .. iface)
+  stdnse.verbose1("Starting on interface " .. iface)
 
   -- packet counter
   local counter = 0
