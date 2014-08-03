@@ -638,6 +638,18 @@ static int l_get_version_intensity (lua_State *L)
 {
   static int intensity = -1;
 
+  const int max_intensity = 9;
+
+  bool selected_by_name;
+  nse_selectedbyname(L);
+  selected_by_name = lua_toboolean(L, -1);
+  lua_pop(L,1);
+
+  if (selected_by_name) {
+    lua_pushnumber(L, max_intensity);
+    return 1;
+  }
+
   if (intensity < 0) {
     int is_script_intensity_set;
     int script_intensity;
