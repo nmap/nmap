@@ -69153,27 +69153,6 @@ T7(R=Y%DF=Y%T=FA-104%TG=FF%W=FFFF%S=A%A=S+%F=AR%O=%RD=0%Q=)
 U1(R=N)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
-# Netgear Wireless ADSL2+ Modem Router DG834G firmware version V5.01.14
-# WD TV Live Firmware 1.04.17_v
-Fingerprint Netgear DG834G WAP or Western Digital WD TV media player
-Class Netgear | embedded || WAP
-CPE cpe:/h:netgear:dg834g auto
-Class Western Digital | embedded || media device
-CPE cpe:/o:westerndigital:wd_tv
-SEQ(II=I)
-OPS(R=N)
-WIN(R=N)
-ECN(R=N)
-T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=O|S+%F=A|AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=3B-45%TG=40%CD=S)
-
 # Netgear DG834GB firmware 3.01.25
 Fingerprint Netgear DG834GB wireless broadband router
 Class Netgear | embedded || WAP
