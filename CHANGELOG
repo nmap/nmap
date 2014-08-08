@@ -25,9 +25,6 @@ o Updated the bundled libpcap from 1.2.1 to 1.5.3 [Jay Bosamiya]
 o Correct the Target MAC Address in Nmap's ARP discovery to conform to what IP
   stacks in currently popular operating systems use. [Jay Bosamiya]
 
-o Added new option --noscript to turn off NSE. Useful to avoid running
-  version-category scripts during a quick -sV scan. [Daniel Miller]
-
 o [NSE] Add bacnet-info script to get device information from SCADA/ICS devices
   via BACnet (Building Automation and Control Networks) [Stephen Hilt, Michael
   Toecker]

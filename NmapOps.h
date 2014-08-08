@@ -379,7 +379,6 @@ class NmapOps {
 
 #ifndef NOLUA
   int script;
-  bool noscript;
   char *scriptargs;
   char *scriptargsfile;
   int scriptversion;
