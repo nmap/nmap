@@ -1778,6 +1778,26 @@ way.</para>
 
       <varlistentry>
         <term>
+          <option>--exclude-ports <replaceable>port ranges</replaceable></option> (Exclude the specified ports from scanning)
+          <indexterm><primary><option>--exclude-ports</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>This option specifies which ports you do want Nmap to exclude
+          from scanning. The <replaceable>port ranges</replaceable>
+          are specified similar to <option>-p</option>. For IP protocol 
+          scanning (<option>-sO</option>), this option specifies the protocol
+          numbers you wish to exclude (0&ndash;255).</para>
+
+          <para>When ports are asked to be excluded, they are excluded from all
+          types of scans (i.e. they will not be scanned under any circumstances).
+          This also includes the discovery phase.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-F</option> (Fast (limited port) scan)
           <indexterm significance="preferred"><primary><option>-F</option></primary></indexterm>
           <indexterm><primary>fast scan</primary><see><option>-F</option></see></indexterm>
@@ -1836,7 +1856,8 @@ way.</para>
         <listitem>
         <indexterm><primary>--top-ports</primary></indexterm>
         <para>Scans the <replaceable>n</replaceable> highest-ratio ports
-        found in <filename>nmap-services</filename> file.
+        found in <filename>nmap-services</filename> file after excluding all
+        ports specified by <option>--exclude-ports</option>.
         <replaceable>n</replaceable> must be 1 or greater.</para>
         </listitem>
       </varlistentry>
