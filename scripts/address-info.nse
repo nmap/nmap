@@ -265,8 +265,6 @@ local function do_ipv6(addr)
   if matches(addr, "2002:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX") then
     -- 6to4, RFC 3056.
     local ipv4 = { addr[3], addr[4], addr[5], addr[6] }
-    local mac = decode_eui_64({ addr[9], addr[10], addr[11], addr[12],
-      addr[13], addr[14], addr[15], addr[16] })
 
     label = "6to4"
     output["IPv4 address"] = format_ipv4(ipv4)
@@ -281,7 +279,10 @@ local function do_ipv6(addr)
     end
   end
 
-  return {[label]= output}
+  if label then
+    return {[label]= output}
+  end
+  -- else no match
 end
 
 action = function(host)
