@@ -190,7 +190,8 @@ def make_graph_from_hosts(hosts):
     graph = Graph()
     nodes = list()
     node_cache = {}
-    invalid_node_cache = {}
+    ancestor_node_cache = {}
+    descendant_node_cache = {}
 
     # Setting initial reference host
     main_node = NetNode()
@@ -261,11 +262,27 @@ def make_graph_from_hosts(hosts):
                             pre_hop_distance = i
                             break
 
+                    post_hop = None
+                    post_hop_distance = 0
+                    for i in range(1, max(ttls) - ttl):
+                        post_hop = find_hop_by_ttl(hops, ttl+i)
+                        if post_hop is not None:
+                            post_hop_distance = i
+                            break
+
                     assert pre_hop is not None, "pre_hop should have become localhost if nothing else"
 
-                    key = (pre_hop["ipaddr"], pre_hop_distance)
+                    ancestor_key = (pre_hop["ipaddr"], pre_hop_distance)
+                    descendant_key = None
+                    if post_hop is not None:
+                        descendant_key = (post_hop["ipaddr"], post_hop_distance)
 
-                    if key not in invalid_node_cache:
+                    if ancestor_key in ancestor_node_cache:
+                        node = ancestor_node_cache[ancestor_key]
+                    elif descendant_key is not None and descendant_key in descendant_node_cache:
+                        node = descendant_node_cache[descendant_key]
+                        graph.set_connection(node, prev_node)
+                    else:
                         node = NetNode()
                         nodes.append(node)
 
@@ -274,9 +291,9 @@ def make_graph_from_hosts(hosts):
 
                         graph.set_connection(node, prev_node)
 
-                        invalid_node_cache[key] = node
-
-                    node = invalid_node_cache[key]
+                        ancestor_node_cache[ancestor_key] = node
+                        if descendant_key is not None:
+                            descendant_node_cache[descendant_key] = node
 
                 prev_node = node
                 endpoints[host] = node
