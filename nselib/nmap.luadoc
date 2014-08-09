@@ -22,6 +22,27 @@ function debugging()
 -- @return True if Nmap was compiled with SSL support, false otherwise.
 function have_ssl()
 
+--- Returns the version intensity as a non-negative integer.
+--
+-- The version intensity can be set for all version probes with the
+-- <code>--version-intensity</code> option. The intensity for version scripts
+-- can be overridden with the <code>script-intensity</code> script argument.
+-- If overridden, nmap.version_intensity() returns the overridden value
+-- automatically. If neither <code>--version-intensity</code> nor the script
+-- argument <code>script-intensity</code> are used, the version intensity
+-- defaults to 7.
+-- When a version script is given by name with the <code>--script</code>
+-- option, as opposed to being selected automatically due to <code>-sV</code>,
+-- its version intensity is automatically set to maximum (9).
+-- @return The version intensity.
+-- @usage
+-- portrule = function(host, port)
+--   return ... 
+--          ...
+--          and nmap.version_intensity() >= 7
+--   end
+function version_intensity()
+
 --- Returns the verbosity level as a non-negative integer.
 --
 -- The verbosity level can be set with the <code>-v</code> option. When
