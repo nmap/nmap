@@ -186,7 +186,7 @@ struct TracerouteHop {
 };
 
 class Target {
- public: /* For now ... a lot of the data members should be made private */
+ public: /* For now ... TODO: a lot of the data members should be made private */
   Target();
   ~Target();
   /* Recycles the object by freeing internal objects and reinitializing
