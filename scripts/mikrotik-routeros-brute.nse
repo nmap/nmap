@@ -8,7 +8,7 @@ Additional information:
 ---
 -- @usage
 -- nmap -p8728 --script mikrotik-routeros-brute <target>
--- 
+--
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 8728/tcp open  unknown syn-ack
@@ -35,7 +35,7 @@ local openssl = stdnse.silent_require "openssl"
 
 portrule = shortport.portnumber(8728, "tcp")
 
-Driver = 
+Driver =
 {
   new = function(self, host, port, options )
   local o = { host = host, port = port, options = options }
@@ -44,7 +44,7 @@ Driver =
     o.emptypass = true
     return o
   end,
-	
+
   connect = function( self )
     self.s = nmap.new_socket("tcp")
     self.s:set_timeout(self.options['timeout'])
@@ -81,10 +81,10 @@ Driver =
     end
     return false, brute.Error:new( "Incorrect password" )
   end,
-  
+
   disconnect = function( self )
     return self.s:close()
-  end		
+  end
 }
 
 action = function(host, port)

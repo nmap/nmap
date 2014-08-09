@@ -95,14 +95,14 @@ portaction = function(host, port)
 
   for shortener, pattern in pairs(URL_SHORTENERS) do
     for i, shortened in ipairs(pattern:match(body)) do
-      stdnse.debug1("Found shortened Url: " .. shortened) 
+      stdnse.debug1("Found shortened Url: " .. shortened)
       local response = http.get(shortener, 80, shortened)
       stdnse.debug1("status code: %d", response.status)
       if (response.status == 301 or response.status == 302) and response.header['location'] then
         followed[#followed + 1] = response.header['location']
       end
     end
-  end 
+  end
   followed = table.concat(followed, "\n")
 
   -- Here goes affiliate matching

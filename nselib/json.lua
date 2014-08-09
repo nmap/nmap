@@ -61,7 +61,7 @@ _M.NULL = NULL;
 local function utf8_enc (cp)
   local result = {};
   local n, mask;
-  
+
   if cp % 1.0 ~= 0.0 or cp < 0 then
     -- Only defined for nonnegative integers.
     error("utf code point defined only for non-negative integers");
@@ -80,14 +80,14 @@ local function utf8_enc (cp)
   else
     assert(false);
   end
-  
+
   while n > 1 do
     result[n] = 0x80 + bit.band(cp, 0x3F);
     cp = bit.rshift(cp, 6);
     n = n - 1;
   end
   result[1] = mask + cp;
-  
+
   return string.char(unpack(result));
 end
 

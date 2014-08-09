@@ -145,7 +145,7 @@ typedef struct Charset {
 
 #endif
 
-/*  
+/*
 ** $Id: lptree.h,v 1.2 2013/03/24 13:51:12 roberto Exp $
 */
 
@@ -900,7 +900,7 @@ static int pushcapture (CapState *cs) {
 /*
 ** Prepare a CapState structure and traverse the entire list of
 ** captures in the stack pushing its results. 's' is the subject
-** string, 'r' is the final position of the match, and 'ptop' 
+** string, 'r' is the final position of the match, and 'ptop'
 ** the index in the stack where some useful values were pushed.
 ** Returns the number of results pushed. (If the list produces no
 ** results, push the final position of the match.)
@@ -1306,7 +1306,7 @@ static int needfollow (TTree *tree) {
     case TSeq:
       tree = sib2(tree); goto tailcall;
     default: assert(0); return 0;
-  } 
+  }
 }
 
 /* }====================================================== */
@@ -1327,7 +1327,7 @@ int sizei (const Instruction *i) {
   switch((Opcode)i->i.code) {
     case ISet: case ISpan: return CHARSETINSTSIZE;
     case ITestSet: return CHARSETINSTSIZE + 1;
-    case ITestChar: case ITestAny: case IChoice: case IJmp: 
+    case ITestChar: case ITestAny: case IChoice: case IJmp:
     case ICall: case IOpenCall: case ICommit: case IPartialCommit:
     case IBackCommit: return 2;
     default: return 1;
@@ -1561,7 +1561,7 @@ static void codechoice (CompileState *compst, TTree *p1, TTree *p2, int opt,
     int jmp = NOINST;
     codegen(compst, p1, 0, test, fl);
     if (!emptyp2)
-      jmp = addoffsetinst(compst, IJmp); 
+      jmp = addoffsetinst(compst, IJmp);
     jumptohere(compst, test);
     codegen(compst, p2, opt, NOINST, fl);
     jumptohere(compst, jmp);
@@ -1572,7 +1572,7 @@ static void codechoice (CompileState *compst, TTree *p1, TTree *p2, int opt,
     codegen(compst, p1, 1, NOINST, fullset);
   }
   else {
-    /* <p1 / p2> == 
+    /* <p1 / p2> ==
         test(fail(p1)) -> L1; choice L1; <p1>; commit L2; L1: <p2>; L2: */
     int pcommit;
     int test = codetestset(compst, &cs1, e1);
@@ -2144,7 +2144,7 @@ void printktable (lua_State *L, int idx) {
 /* number of siblings for each tree */
 const byte numsiblings[] = {
   0, 0, 0,	/* char, set, any */
-  0, 0,		/* true, false */	
+  0, 0,		/* true, false */
   1,		/* rep */
   2, 2,		/* seq, choice */
   1, 1,		/* not, and */
@@ -3657,7 +3657,7 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
             capsize = 2 * captop;
           }
           /* add new captures to 'capture' list */
-          adddyncaptures(s, capture + captop - n - 2, n, fr); 
+          adddyncaptures(s, capture + captop - n - 2, n, fr);
         }
         p++;
         continue;

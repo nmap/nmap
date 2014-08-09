@@ -5,8 +5,8 @@ local string = require "string"
 local vulns = require "vulns"
 
 description = [[
-A vulnerability has been discovered in WNR 1000 series that allows an attacker 
-to retrieve administrator credentials with the router interface. 
+A vulnerability has been discovered in WNR 1000 series that allows an attacker
+to retrieve administrator credentials with the router interface.
 Tested On Firmware Version(s): V1.0.2.60_60.0.86 (Latest) and V1.0.2.54_60.0.82NA
 
 Vulnerability discovered by c1ph04.
@@ -18,14 +18,14 @@ Vulnerability discovered by c1ph04.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-vuln-wnr1000-creds: 
+-- | http-vuln-wnr1000-creds:
 -- |   VULNERABLE:
 -- |   Netgear WNR1000v3 Credential Harvesting Exploit
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  None, 0-day
 -- |     Description:
--- |       A vulnerability has been discovered in WNR 1000 series that allows an attacker 
--- |       to retrieve administrator credentials with the router interface. 
+-- |       A vulnerability has been discovered in WNR 1000 series that allows an attacker
+-- |       to retrieve administrator credentials with the router interface.
 -- |       Tested On Firmware Version(s): V1.0.2.60_60.0.86 (Latest) and V1.0.2.54_60.0.82NA
 -- |     Disclosure date: 26-01-2014
 -- |     References:
@@ -49,8 +49,8 @@ action = function(host, port)
         title = 'Netgear WNR1000v3 Credential Harvesting Exploit',
         state = vulns.STATE.NOT_VULN, -- default
         description = [[
-            A vulnerability has been discovered in WNR 1000 series that allows an attacker 
-            to retrieve administrator credentials with the router interface. 
+            A vulnerability has been discovered in WNR 1000 series that allows an attacker
+            to retrieve administrator credentials with the router interface.
             Tested On Firmware Version(s): V1.0.2.60_60.0.86 (Latest) and V1.0.2.54_60.0.82NA.
             Vulnerability discovered by c1ph04.
             ]],

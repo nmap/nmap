@@ -6,7 +6,7 @@ local sslcert = require('sslcert')
 
 description = [[
 Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA ASDM Privilege Escalation Vulnerability (CVE-2014-2126).
-]] 
+]]
 
 ---
 -- @usage
@@ -15,14 +15,14 @@ Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA ASDM Priv
 -- @output
 -- PORT    STATE SERVICE
 -- 443/tcp open  https
--- | http-vuln-cve2014-2126: 
+-- | http-vuln-cve2014-2126:
 -- |   VULNERABLE:
 -- |   Cisco ASA ASDM Privilege Escalation Vulnerability
 -- |     State: VULNERABLE
 -- |     Risk factor: High  CVSSv2: 8.5 (HIGH) (AV:N/AC:M/AU:S/C:C/I:C/A:C)
 -- |     Description:
 -- |       Cisco Adaptive Security Appliance (ASA) Software 8.2 before 8.2(5.47), 8.4 before 8.4(7.5), 8.7 before 8.7(1.11), 9.0 before 9.0(3.10), and 9.1 before 9.1(3.4) allows remote authenticated users to gain privileges by leveraging level-0 ASDM access, aka Bug ID CSCuj33496.
--- |           
+-- |
 -- |     References:
 -- |       http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa
 -- |_      http://cvedetails.com/cve/2014-2126/

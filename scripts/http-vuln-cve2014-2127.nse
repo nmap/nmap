@@ -6,7 +6,7 @@ local sslcert = require('sslcert')
 
 description = [[
 Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SSL VPN Privilege Escalation Vulnerability (CVE-2014-2127).
-]] 
+]]
 
 ---
 -- @usage
@@ -15,14 +15,14 @@ Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SSL VPN P
 -- @output
 -- PORT    STATE SERVICE
 -- 443/tcp open  https
--- | http-vuln-cve2014-2127: 
+-- | http-vuln-cve2014-2127:
 -- |   VULNERABLE:
 -- |   Cisco ASA SSL VPN Privilege Escalation Vulnerability
 -- |     State: VULNERABLE
 -- |     Risk factor: High  CVSSv2: 8.5 (HIGH) (AV:N/AC:M/AU:S/C:C/I:C/A:C)
 -- |     Description:
 -- |       Cisco Adaptive Security Appliance (ASA) Software 8.x before 8.2(5.48), 8.3 before 8.3(2.40), 8.4 before 8.4(7.9), 8.6 before 8.6(1.13), 9.0 before 9.0(4.1), and 9.1 before 9.1(4.3) does not properly process management-session information during privilege validation for SSL VPN portal connections, which allows remote authenticated users to gain privileges by establishing a Clientless SSL VPN session and entering crafted URLs, aka Bug ID CSCul70099.
--- |           
+-- |
 -- |     References:
 -- |       http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa
 -- |_      http://cvedetails.com/cve/2014-2127/

@@ -173,7 +173,7 @@ action = function(host, port)
 
   -- Check for something that looks like a query referring to a file name, like
   -- "index.php?page=next.php". Replace the query value with each of the test
-  -- vectors. 
+  -- vectors.
   local response = http.get(host, port, root)
   if response.body then
     local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")

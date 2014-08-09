@@ -736,7 +736,7 @@ local function get_chosen_scripts (rules)
 
     local T = locale {
       V "space"^0 * V "expression" * V "space"^0 * P(-1);
-  
+
       expression = V "disjunct" + V "conjunct" + V "value";
       disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
       conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
@@ -746,7 +746,7 @@ local function get_chosen_scripts (rules)
               K "false" * Cc(false) +
               V "category" +
               V "path";
-  
+
       category = K "all" * Cc(true); -- pseudo-category "all" matches everything
       path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
     };
@@ -1159,14 +1159,14 @@ end
 nmap.registry.args = {};
 do
   local args = {};
-  
+
   if cnse.scriptargsfile then
     local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
     assert(t == 'file', format("%s is not a file", path))
     print_debug(1, "Loading script-args from file `%s'", cnse.scriptargsfile);
     args[#args+1] = assert(assert(open(path, 'r')):read "*a"):gsub("\n", ","):gsub(",*$", "");
   end
-  
+
   if cnse.scriptargs then -- Load script arguments (--script-args)
     print_debug(1, "Arguments from CLI: %s", cnse.scriptargs);
     args[#args+1] = cnse.scriptargs;
@@ -1209,7 +1209,7 @@ do
     end
   end
 end
-  
+
 -- Update Missing Script Database?
 if script_database_type ~= "file" then
   print_verbose(1, "Script Database missing, will create new one.");

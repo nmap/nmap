@@ -16,7 +16,7 @@ and tunnel information.
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- | http-cisco-anyconnect: 
+-- | http-cisco-anyconnect:
 -- |   version: 9.1(5)
 -- |   tunnel-group: VPN
 -- |   group-alias: vpn

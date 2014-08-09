@@ -666,7 +666,7 @@ static int l_get_version_intensity (lua_State *L)
     if (is_script_intensity_set) {
       if (script_intensity < 0 || script_intensity > 9)
         error("Warning: Valid values of script arg script-intensity are between "
-              "0 and 9. Using %d nevertheless.\n", script_intensity);      
+              "0 and 9. Using %d nevertheless.\n", script_intensity);
       intensity = script_intensity;
     } else {
       intensity = o.version_intensity;

@@ -78,7 +78,7 @@ local function debug (level, ...)
       prefix = prefix .. ":" .. port.number
     end
     prefix = prefix .. "] "
-    if prefix ~= "[] " then 
+    if prefix ~= "[] " then
       nmap.log_write("stdout", prefix..format(...))
     else
       nmap.log_write("stdout", format(...))
@@ -96,7 +96,7 @@ end
 -- arguments are processed with Lua's <code>string.format</code> function.
 --
 -- If known, the output includes some context based information: the script
--- identifier and the target ip/port (if there is one). If the debug level is 
+-- identifier and the target ip/port (if there is one). If the debug level is
 -- at least 2, it also prints the base thread identifier and whether it is a
 -- worker thread or the master thread.
 --
@@ -115,7 +115,7 @@ function debug4 (...) return debug(4, ...) end
 function debug5 (...) return debug(5, ...) end
 
 ---
--- Deprecated version of debug(), kept for now to prevent the script id from being 
+-- Deprecated version of debug(), kept for now to prevent the script id from being
 -- printed twice. Scripts should use debug() and not pass SCRIPT_NAME
 print_debug = function(level, fmt, ...)
   local l, d = tonumber(level), nmap.debugging();
@@ -154,7 +154,7 @@ end
 ---
 -- Prints a formatted verbosity message if the current verbosity level is greater
 -- than or equal to a given level.
--- 
+--
 -- This is a convenience wrapper around <code>nmap.log_write</code>. The first
 -- optional numeric argument, <code>level</code>, is used as the verbosity level
 -- necessary to print the message (it defaults to 1 if omitted). All remaining
@@ -179,7 +179,7 @@ function verbose4 (...) return verbose(4, ...) end
 function verbose5 (...) return verbose(5, ...) end
 
 ---
--- Deprecated version of verbose(), kept for now to prevent the script id from being 
+-- Deprecated version of verbose(), kept for now to prevent the script id from being
 -- printed twice. Scripts should use verbose() and not pass SCRIPT_NAME
 print_verbose = function(level, fmt, ...)
   local l, d = tonumber(level), nmap.verbosity();

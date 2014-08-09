@@ -4,7 +4,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[
-Displays the contents of the "generator" meta tag of a web page (default: /) 
+Displays the contents of the "generator" meta tag of a web page (default: /)
 if there is one.
 ]]
 
