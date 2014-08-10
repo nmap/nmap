@@ -70,6 +70,7 @@ void set_portinfo (lua_State *L, const Target *target, const Port *port)
   nseU_setsfield(L, -1, "protocol", IPPROTO2STR(port->proto));
   nseU_setsfield(L, -1, "state", statenum2str(port->state));
   nseU_setsfield(L, -1, "reason", reason_str(port->reason.reason_id, 1));
+  nseU_setnfield(L, -1, "reason_ttl", port->reason.ttl);
   lua_newtable(L);
   set_version(L, &sd);
   lua_setfield(L, -2, "version");

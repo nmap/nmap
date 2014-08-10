@@ -1939,6 +1939,32 @@ host.os = {
 	  </varlistentry>
 	  
 	  <varlistentry>
+	    <term><option>port.reason</option>
+	      </term>
+	    <listitem>
+	      <para>
+    Contains a string representation of the reason why the target port is in 
+    its current state (given by <literal>port.state</literal>). The reason is 
+    given by the type of the packet that determined the state. For example, a 
+    <literal>RST</literal> packet from a closed port or 
+    <literal>SYN-ACK</literal> from an open port.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>port.reason_ttl</option>
+	      </term>
+	    <listitem>
+	      <para>
+    Contains the TTL value of the response packet, that was used to determine 
+    the status of the target port, when it arrived. This response packet is the 
+    packet that is also used to set <literal>port.reason</literal>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
 	    <term><option>port.version</option>
 	      </term>
 	    <listitem>
