@@ -151,6 +151,9 @@ void set_hostinfo(lua_State *L, Target *currenths) {
   nseU_setsfield(L, -1, "ip", currenths->targetipstr());
   nseU_setsfield(L, -1, "name", currenths->HostName());
   nseU_setsfield(L, -1, "targetname", currenths->TargetName());
+  nseU_setsfield(L, -1, "reason", reason_str(currenths->reason.reason_id, SINGULAR));
+  nseU_setnfield(L, -1, "reason_ttl", currenths->reason.ttl);
+
   if (currenths->directlyConnectedOrUnset() != -1)
     nseU_setbfield(L, -1, "directly_connected", currenths->directlyConnected());
   if (currenths->MACAddress())

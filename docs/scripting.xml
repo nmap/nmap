@@ -1784,6 +1784,29 @@ host.os = {
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
+	    <term><option>host.reason</option>
+	      </term>
+	    <listitem>
+	      <para>
+    Contains a string representation of the reason why the target host is in
+    its current state. The reason is given by the type of the packet that
+    determined the state. For example, an <literal>echo-reply</literal> from
+    an alive host.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><option>host.reason_ttl</option>
+	      </term>
+	    <listitem>
+	      <para>
+    Contains the TTL value of the response packet, that was used to determine 
+    the status of the target host, when it arrived. This response packet is the 
+    packet that is also used to set <literal>host.reason</literal>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
 	    <term><option>host.directly_connected</option>
 	      </term>
 	    <listitem>
