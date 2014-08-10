@@ -9,34 +9,34 @@ local url = require "url"
 
 description = [[
 Performs brute force password auditing against http form-based authentication.
+
+This script uses the unpwdb and brute libraries to perform password
+guessing. Any successful guesses are stored in the nmap registry, under
+the nmap.registry.credentials.http key for other scripts to use.
+
+The script automatically attempts to discover the form field names to
+use in order to perform password guessing. If it fails doing so the form
+parameters can be supplied using the uservar and passvar arguments.
+
+After attempting to authenticate using a HTTP POST request the script
+analyzes the response and attempt to determine whether authentication was
+successful or not. The script analyzes this by checking the response using
+the following rules:
+   1. If the response was empty the authentication was successful
+   2. If the response contains the message passed in the onsuccess
+      argument the authentication was successful
+   3. If no onsuccess argument was passed, and if the response
+      does not contain the message passed in the onfailure argument the
+      authentication was successful
+   4. If neither the onsuccess or onfailure argument was passed and the
+      response does not contain a password form field authentication
+      was successful
+   5. Authentication failed
 ]]
 
 ---
 -- @usage
 -- nmap --script http-form-brute -p 80 <host>
---
--- This script uses the unpwdb and brute libraries to perform password
--- guessing. Any successful guesses are stored in the nmap registry, under
--- the nmap.registry.credentials.http key for other scripts to use.
---
--- The script automatically attempts to discover the form field names to
--- use in order to perform password guessing. If it fails doing so the form
--- parameters can be supplied using the uservar and passvar arguments.
---
--- After attempting to authenticate using a HTTP POST request the script
--- analyzes the response and attempt to determine whether authentication was
--- successful or not. The script analyzes this by checking the response using
--- the following rules:
---    1. If the response was empty the authentication was successful
---    2. If the response contains the message passed in the onsuccess
---       argument the authentication was successful
---    3. If no onsuccess argument was passed, and if the response
---       does not contain the message passed in the onfailure argument the
---       authentication was successful
---    4. If neither the onsuccess or onfailure argument was passed and the
---       response does not contain a password form field authentication
---       was successful
---    5. Authentication failed
 --
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -46,11 +46,6 @@ Performs brute force password auditing against http form-based authentication.
 -- |     Patrik Karlsson:secret => Login correct
 -- |   Statistics
 -- |_    Perfomed 60023 guesses in 467 seconds, average tps: 138
---
--- Summary
--- -------
---   x The Driver class contains the driver implementation used by the brute
---     library
 --
 -- @args http-form-brute.path points to the path protected by authentication
 -- @args http-form-brute.hostname sets the host header in case of virtual
