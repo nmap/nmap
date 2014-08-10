@@ -81,6 +81,7 @@ static int test_case_run(const struct test_case *test) {
 #ifdef WIN32
 static int win_init(void) {
   WSADATA data;
+  int rc;
 
   rc = WSAStartup(MAKEWORD(2, 2), &data);
   if (rc)
