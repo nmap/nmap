@@ -75,8 +75,16 @@ categories = { "vuln", "safe" }
 
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+ return shortport.ssl(host, port) or sslcert.isPortSupported(port)
 end
+
+local Error = {
+  NOT_VULNERABLE    = 0,
+  CONNECT           = 1,
+  PROTOCOL_MISMATCH = 2,
+  SSL_HANDSHAKE     = 3,
+  TIMEOUT           = 4
+}
 
 ---
 -- Reads an SSL/TLS record and returns true if it's a fatal,
@@ -87,6 +95,8 @@ local function alert_unexpected_message(s)
   if not status then
     return false
   end
+
+  print(buffer)
 
   local position, record = tls.record_read(buffer, 1)
   if record == nil then
@@ -139,14 +149,14 @@ local function test_ccs_injection(host, port, version)
     status, s = specialized(host, port)
     if not status then
       stdnse.debug3("Connection to server failed")
-      return
+      return false, Error.CONNECT
     end
   else
     s = nmap.new_socket()
     status = s:connect(host, port)
     if not status then
       stdnse.debug3("Connection to server failed")
-      return
+      return false, Error.CONNECT
     end
   end
 
@@ -158,7 +168,7 @@ local function test_ccs_injection(host, port, version)
   if not status then
     stdnse.debug1("Couldn't send Client Hello: %s", err)
     s:close()
-    return false
+    return false, Error.CONNECT
   end
 
   -- Read response
@@ -170,7 +180,7 @@ local function test_ccs_injection(host, port, version)
     if err == "TIMEOUT" or not status then
       stdnse.verbose1("No response from server: %s", err)
       s:close()
-      return false
+      return false, Error.TIMEOUT
     end
 
     local record
@@ -178,12 +188,11 @@ local function test_ccs_injection(host, port, version)
     if record == nil then
       stdnse.debug1("Unknown response from server")
       s:close()
-      return "NOT_VULNERABLE"
+      return false, Error.NOT_VULNERABLE
     elseif record.protocol ~= version then
-      stdnse.debug1("%s: Protocol version mismatch (%s)",
-        SCRIPT_NAME, version)
+      stdnse.debug1("Protocol version mismatch (%s)", version)
       s:close()
-      return false, true
+      return false, Error.PROTOCOL_MISMATCH
     end
 
     if record.type == "handshake" then
@@ -209,7 +218,7 @@ local function test_ccs_injection(host, port, version)
   if not status then
     stdnse.debug1("Couldn't send first ccs message: %s", err)
     s:close()
-    return false
+    return false, Error.SSL_HANDSHAKE
   end
 
   -- Send the second ccs message
@@ -217,7 +226,7 @@ local function test_ccs_injection(host, port, version)
   if not status then
     stdnse.debug1("Couldn't send second ccs message: %s", err)
     s:close()
-    return false
+    return false, Error.SSL_HANDSHAKE
   end
 
   -- Read the alert message
@@ -228,13 +237,13 @@ local function test_ccs_injection(host, port, version)
   if not status then
     stdnse.debug1("Couldn't get reply from the server (probably not OpenSSL)")
     s:close()
-    return false
+    return false, Error.SSL_HANDSHAKE
   end
 
   if not vulnerable then
     stdnse.debug1("Server returned UNEXPECTED_MESSAGE alert, not vulnerable")
     s:close()
-    return false
+    return false, Error.NOT_VULNERABLE
   else
     stdnse.debug1("Vulnerable - alert is not UNEXPECTED_MESSAGE")
     s:close()
@@ -266,10 +275,15 @@ a crafted TLS handshake, aka the "CCS Injection" vulnerability.
 
   -- Iterate over tls.PROTOCOLS
   for tls_version, _ in pairs(tls.PROTOCOLS) do
-    local vulnerable, protocol_mismatch = test_ccs_injection(
-      host, port, tls_version)
+    local vulnerable, err = test_ccs_injection(host, port, tls_version)
 
-    if not(protocol_mismatch) then
+    -- Return an explicit message in case of a TIMEOUT,
+    -- to avoid considering this as not vulnerable.
+    if err == Error.TIMEOUT then
+      return "No reply from server (TIMEOUT)"
+    end
+
+    if err ~= Error.PROTOCOL_MISMATCH then
       if vulnerable then
         vuln_table.state = vulns.STATE.VULN
       end
