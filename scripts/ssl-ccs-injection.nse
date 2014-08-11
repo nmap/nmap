@@ -96,8 +96,6 @@ local function alert_unexpected_message(s)
     return false
   end
 
-  print(buffer)
-
   local position, record = tls.record_read(buffer, 1)
   if record == nil then
     return false
