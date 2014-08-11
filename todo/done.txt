@@ -1,5 +1,15 @@
 DONE:
 
+o [Zenmap] Combine parallel timed-out hops into one node in the
+  topology view. http://seclists.org/nmap-dev/2012/q1/82 has a patch,
+  however it doesn't handle the case of two or more consecutive
+  timeouts.
+
+o If Nmap uses a "tcpwrapped" port to do fingerprinting on, OS detection
+  might give false matches/results. Since it doesn't really matter which
+  open port gets chosen, we should move onto another open port if we 
+  notice "tcpwrapped".
+
 o Implement an --exclude-ports option. See
   http://seclists.org/nmap-dev/2012/q1/275
 
