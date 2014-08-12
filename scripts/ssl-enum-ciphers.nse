@@ -147,6 +147,10 @@ local rankedciphersfilename=false
 local function try_params(host, port, t)
   local buffer, err, i, record, req, resp, sock, status
 
+  -- Use Nmap's own discovered timeout, doubled for safety
+  -- Default to 10 seconds.
+  local timeout = ((host.times and host.times.timeout) or 5) * 1000 * 2
+
   -- Create socket.
   local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
   if specialized then
@@ -158,7 +162,7 @@ local function try_params(host, port, t)
     end
   else
     sock = nmap.new_socket()
-    sock:set_timeout(5000)
+    sock:set_timeout(timeout)
     local status = sock:connect(host, port)
     if not status then
       stdnse.debug1("Can't connect: %s", err)
@@ -167,7 +171,7 @@ local function try_params(host, port, t)
     end
   end
 
-  sock:set_timeout(5000)
+  sock:set_timeout(timeout)
 
   -- Send request.
   req = tls.client_hello(t)
