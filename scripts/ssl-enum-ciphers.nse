@@ -209,6 +209,15 @@ local function keys(t)
   return ret
 end
 
+local function sorted_keys(t)
+  local ret = {}
+  for k, _ in pairs(t) do
+    ret[#ret+1] = k
+  end
+  table.sort(ret)
+  return ret
+end
+
 local function in_chunks(t, size)
   local ret = {}
   for i = 1, #t, size do
@@ -299,17 +308,35 @@ local function remove_high_byte_ciphers(t)
   return output
 end
 
+-- Claim to support every elliptic curve and EC point format
+local base_extensions = {
+  -- Claim to support every elliptic curve
+  ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
+  -- Claim to support every EC point format
+  ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
+}
+
+-- Recursively copy a table.
+-- Only recurs when a value is a table, other values are copied by assignment.
+local function tcopy (t)
+  local tc = {};
+  for k,v in pairs(t) do
+    if type(v) == "table" then
+      tc[k] = tcopy(v);
+    else
+      tc[k] = v;
+    end
+  end
+  return tc;
+end
+
+-- Find which ciphers out of group are supported by the server.
 local function find_ciphers_group(host, port, protocol, group)
   local name, protocol_worked, record, results
   results = {}
   local t = {
     ["protocol"] = protocol,
-    ["extensions"] = {
-      -- Claim to support every elliptic curve
-      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
-      -- Claim to support every EC point format
-      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
-    },
+    ["extensions"] = tcopy(base_extensions),
   }
   if host.targetname then
     t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
@@ -371,7 +398,7 @@ end
 -- each chunk.
 local function find_ciphers(host, port, protocol)
   local name, protocol_worked, results, chunk
-  local ciphers = in_chunks(keys(tls.CIPHERS), CHUNK_SIZE)
+  local ciphers = in_chunks(sorted_keys(tls.CIPHERS), CHUNK_SIZE)
 
   results = {}
 
@@ -390,16 +417,14 @@ end
 
 local function find_compressors(host, port, protocol, good_cipher)
   local name, protocol_worked, record, results, t
-  local compressors = keys(tls.COMPRESSORS)
+  local compressors = sorted_keys(tls.COMPRESSORS)
+  -- NULL compressor must come last
+  remove(compressors, "NULL")
+  table.insert(compressors, "NULL")
   local t = {
     ["protocol"] = protocol,
     ["ciphers"] = {good_cipher},
-    ["extensions"] = {
-      -- Claim to support every elliptic curve
-      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
-      -- Claim to support every EC point format
-      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
-    },
+    ["extensions"] = tcopy(base_extensions),
   }
   if host.targetname then
     t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
@@ -456,12 +481,7 @@ local function compare_ciphers(host, port, protocol, cipher_a, cipher_b)
   local t = {
     ["protocol"] = protocol,
     ["ciphers"] = {cipher_a, cipher_b},
-    ["extensions"] = {
-      -- Claim to support every elliptic curve
-      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
-      -- Claim to support every EC point format
-      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
-    },
+    ["extensions"] = tcopy(base_extensions),
   }
   if host.targetname then
     t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
