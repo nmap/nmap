@@ -224,62 +224,79 @@ local function remove(t, e)
   return nil
 end
 
-local function find_ciphers(host, port, protocol)
-  local name, protocol_worked, record, results, t,cipherstr
-  local ciphers = in_chunks(keys(tls.CIPHERS), CHUNK_SIZE)
+local function find_ciphers_group(host, port, protocol, group)
+  local name, protocol_worked, record, results
+  results = {}
   local t = {
-        ["protocol"] = protocol,
-        ["extensions"] = {
-          -- Claim to support every elliptic curve
-          ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
-          -- Claim to support every EC point format
-          ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
-        },
-      }
+    ["protocol"] = protocol,
+    ["extensions"] = {
+      -- Claim to support every elliptic curve
+      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
+      -- Claim to support every EC point format
+      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
+    },
+  }
   if host.targetname then
     t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
   end
 
+  -- This is a hacky sort of tristate variable. There are three conditions:
+  -- 1. false = either ciphers or protocol is bad. Keep trying with new ciphers
+  -- 2. nil = The protocol is bad. Abandon thread.
+  -- 3. true = Protocol works, at least some cipher must be supported.
+  protocol_worked = false
+  while (next(group)) do
+    t["ciphers"] = group
+
+    record = try_params(host, port, t)
+
+    if record == nil then
+      if protocol_worked then
+        stdnse.debug2("%d ciphers rejected. (No handshake)", #group)
+      else
+        stdnse.debug1("%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
+      end
+      break
+    elseif record["protocol"] ~= protocol then
+      stdnse.debug1("Protocol %s rejected.", protocol)
+      protocol_worked = nil
+      break
+    elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
+      protocol_worked = true
+      stdnse.debug2("%d ciphers rejected.", #group)
+      break
+    elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
+      stdnse.debug2("Unexpected record received.")
+      break
+    else
+      protocol_worked = true
+      name = record["body"][1]["cipher"]
+      stdnse.debug2("Cipher %s chosen.", name)
+      remove(group, name)
+
+      -- Add cipher to the list of accepted ciphers.
+      table.insert(results, name)
+    end
+  end
+  return results, protocol_worked
+end
+
+-- Break the cipher list into chunks of CHUNK_SIZE (for servers that can't
+-- handle many client ciphers at once), and then call find_ciphers_group on
+-- each chunk.
+local function find_ciphers(host, port, protocol)
+  local name, protocol_worked, results, chunk
+  local ciphers = in_chunks(keys(tls.CIPHERS), CHUNK_SIZE)
+
   results = {}
 
   -- Try every cipher.
-  protocol_worked = false
   for _, group in ipairs(ciphers) do
-    while (next(group)) do
-      -- Create structure.
-      t["ciphers"] = group
-
-      record = try_params(host, port, t)
-
-      if record == nil then
-        if protocol_worked then
-          stdnse.debug2("%d ciphers rejected. (No handshake)", #group)
-        else
-          stdnse.debug1("%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
-        end
-        break
-      elseif record["protocol"] ~= protocol then
-        stdnse.debug1("Protocol %s rejected.", protocol)
-        protocol_worked = nil
-        break
-      elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
-        protocol_worked = true
-        stdnse.debug2("%d ciphers rejected.", #group)
-        break
-      elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-        stdnse.debug2("Unexpected record received.")
-        break
-      else
-        protocol_worked = true
-        name = record["body"][1]["cipher"]
-        stdnse.debug2("Cipher %s chosen.", name)
-        remove(group, name)
-
-        -- Add cipher to the list of accepted ciphers.
-        table.insert(results, name)
-      end
-    end
+    chunk, protocol_worked = find_ciphers_group(host, port, protocol, group)
     if protocol_worked == nil then return nil end
+    for _, name in ipairs(chunk) do
+      table.insert(results, name)
+    end
   end
   if not protocol_worked then return nil end
 
