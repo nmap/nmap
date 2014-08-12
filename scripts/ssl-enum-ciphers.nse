@@ -144,6 +144,11 @@ local rankedciphers={}
 local mincipherstrength=9999 --artificial "highest value"
 local rankedciphersfilename=false
 
+-- Add additional context (protocol) to debug output
+local function ctx_log(level, protocol, fmt, ...)
+  return stdnse.debug(level, "(%s) " .. fmt, protocol, ...)
+end
+
 local function try_params(host, port, t)
   local buffer, err, i, record, req, resp, sock, status
 
@@ -157,7 +162,7 @@ local function try_params(host, port, t)
     local status
     status, sock = specialized(host, port)
     if not status then
-      stdnse.debug1("Can't connect: %s", err)
+      ctx_log(1, t.protocol, "Can't connect: %s", err)
       return nil
     end
   else
@@ -165,7 +170,7 @@ local function try_params(host, port, t)
     sock:set_timeout(timeout)
     local status = sock:connect(host, port)
     if not status then
-      stdnse.debug1("Can't connect: %s", err)
+      ctx_log(1, t.protocol, "Can't connect: %s", err)
       sock:close()
       return nil
     end
@@ -177,7 +182,7 @@ local function try_params(host, port, t)
   req = tls.client_hello(t)
   status, err = sock:send(req)
   if not status then
-    stdnse.debug1("Can't send: %s", err)
+    ctx_log(1, t.protocol, "Can't send: %s", err)
     sock:close()
     return nil
   end
@@ -189,13 +194,13 @@ local function try_params(host, port, t)
     local status
     status, buffer, err = tls.record_buffer(sock, buffer, 1)
     if not status then
-      stdnse.debug1("Couldn't read a TLS record: %s", err)
+      ctx_log(1, t.protocol, "Couldn't read a TLS record: %s", err)
       return nil
     end
     -- Parse response.
     i, record = tls.record_read(buffer, 1)
     if record and record.type == "alert" and record.body[1].level == "warning" then
-      stdnse.debug1("Ignoring warning: %s", record.body[1].description)
+      ctx_log(1, t.protocol, "Ignoring warning: %s", record.body[1].description)
       -- Try again.
     elseif record then
       sock:close()
@@ -358,32 +363,32 @@ local function find_ciphers_group(host, port, protocol, group)
 
     if record == nil then
       if protocol_worked then
-        stdnse.debug2("%d ciphers rejected. (No handshake)", #group)
+        ctx_log(2, protocol, "%d ciphers rejected. (No handshake)", #group)
       else
-        stdnse.debug1("%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
+        ctx_log(1, protocol, "%d ciphers and/or protocol rejected. (No handshake)", #group)
       end
       break
     elseif record["protocol"] ~= protocol then
-      stdnse.debug1("Protocol %s rejected.", protocol)
+      ctx_log(1, protocol, "Protocol rejected.")
       protocol_worked = nil
       break
     elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
       protocol_worked = true
-      stdnse.debug2("%d ciphers rejected.", #group)
+      ctx_log(2, protocol, "%d ciphers rejected.", #group)
       break
     elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-      stdnse.debug2("Unexpected record received.")
+      ctx_log(2, protocol, "Unexpected record received.")
       break
     else
       protocol_worked = true
       name = record["body"][1]["cipher"]
-      stdnse.debug2("Cipher %s chosen.", name)
+      ctx_log(2, protocol, "Cipher %s chosen.", name)
       if not remove(group, name) then
-        stdnse.debug1("%s: chose cipher %s that was not offered.", t.protocol, name)
-        stdnse.debug1("%s: removing high-byte ciphers and trying again.", t.protocol)
+        ctx_log(1, protocol, "chose cipher %s that was not offered.", name)
+        ctx_log(1, protocol, "removing high-byte ciphers and trying again.")
         local size_before = #group
         group = remove_high_byte_ciphers(group)
-        stdnse.debug1("%s: removed %d high-byte ciphers.", t.protocol, size_before - #group)
+        ctx_log(1, protocol, "removed %d high-byte ciphers.", size_before - #group)
         if #group == size_before then
           -- No changes... Server just doesn't like our offered ciphers.
           break
@@ -447,25 +452,25 @@ local function find_compressors(host, port, protocol, good_cipher)
 
     if record == nil then
       if protocol_worked then
-        stdnse.debug2("%d compressors rejected. (No handshake)", #compressors)
+        ctx_log(2, protocol, "%d compressors rejected. (No handshake)", #compressors)
       else
-        stdnse.debug1("%d compressors and/or protocol %s rejected. (No handshake)", #compressors, protocol)
+        ctx_log(1, protocol, "%d compressors and/or protocol %s rejected. (No handshake)", #compressors, protocol)
       end
       break
     elseif record["protocol"] ~= protocol then
-      stdnse.debug1("Protocol %s rejected.", protocol)
+      ctx_log(1, protocol, "Protocol rejected.")
       break
     elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
       protocol_worked = true
-      stdnse.debug2("%d compressors rejected.", #compressors)
+      ctx_log(2, protocol, "%d compressors rejected.", #compressors)
       break
     elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-      stdnse.debug2("Unexpected record received.")
+      ctx_log(2, protocol, "Unexpected record received.")
       break
     else
       protocol_worked = true
       name = record["body"][1]["compressor"]
-      stdnse.debug2("Compressor %s chosen.", name)
+      ctx_log(2, protocol, "Compressor %s chosen.", name)
       remove(compressors, name)
 
       -- Add compressor to the list of accepted compressors.
@@ -492,10 +497,10 @@ local function compare_ciphers(host, port, protocol, cipher_a, cipher_b)
   end
   local record = try_params(host, port, t)
   if record and record["type"] == "handshake" and record["body"][1]["type"] == "server_hello" then
-    stdnse.debug2("%s: compare %s %s -> %s", t.protocol, cipher_a, cipher_b, record["body"][1]["cipher"])
+    ctx_log(2, protocol, "compare %s %s -> %s", cipher_a, cipher_b, record["body"][1]["cipher"])
     return record["body"][1]["cipher"]
   else
-    stdnse.debug2("%s: compare %s %s -> error", t.protocol, cipher_a, cipher_b)
+    ctx_log(2, protocol, "compare %s %s -> error", cipher_a, cipher_b)
     return nil, string.format("Error when comparing %s and %s", cipher_a, cipher_b)
   end
 end
@@ -522,7 +527,7 @@ local function find_cipher_preference(host, port, protocol, ciphers)
 
   -- Do a comparison in both directions to see if server ordering is consistent.
   local cipher_a, cipher_b = ciphers[1], ciphers[2]
-  stdnse.debug1("Comparing %s to %s", cipher_a, cipher_b)
+  ctx_log(1, protocol, "Comparing %s to %s", cipher_a, cipher_b)
   local winner_forwards, err = compare_ciphers(host, port, protocol, cipher_a, cipher_b)
   if not winner_forwards then
     return nil, err
@@ -547,7 +552,7 @@ local function sort_ciphers(host, port, protocol, ciphers)
       return nil, "Network error"
     end
     if #chunk ~= size then
-      stdnse.debug1("%s warning: %d ciphers offered but only %d accepted", protocol, size, #chunk)
+      ctx_log(1, protocol, "warning: %d ciphers offered but only %d accepted", size, #chunk)
     end
     table.insert(chunks, chunk)
   end
