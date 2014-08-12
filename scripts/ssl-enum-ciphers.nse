@@ -10,7 +10,7 @@ local table = require "table"
 local tls = require "tls"
 
 description = [[
-This script repeatedly initiates SSL/TLS connections, each time trying a new
+This script repeatedly initiates SSLv3/TLS connections, each time trying a new
 cipher or compressor while recording whether a host accepts or rejects it. The
 end result is a list of all the ciphers and compressors that a server accepts.
 
@@ -33,7 +33,8 @@ Some servers use the client's ciphersuite ordering: they choose the first of
 the client's offered suites that they also support. Other servers prefer their
 own ordering: they choose their most preferred suite from among those the
 client offers. In the case of server ordering, the script makes extra probes to
-discover the server's sorted preference list.
+discover the server's sorted preference list. Otherwise, the list is sorted
+alphabetically.
 
 This script is intrusive since it must initiate many connections to a server,
 and therefore is quite noisy.
@@ -49,76 +50,76 @@ and therefore is quite noisy.
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
 -- | ssl-enum-ciphers:
--- |   SSLv3
--- |     Ciphers (6)
--- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA - unknown strength
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA - strong
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA - unknown strength
+-- |   SSLv3:
+-- |     ciphers:
+-- |       TLS_RSA_WITH_RC4_128_MD5 - strong
+-- |       TLS_RSA_WITH_RC4_128_SHA - strong
 -- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - strong
--- |       TLS_RSA_WITH_AES_128_CBC_SHA - strong
--- |       TLS_RSA_WITH_AES_256_CBC_SHA - unknown strength
--- |     Compressors (1)
--- |       uncompressed
--- |   TLSv1.0
--- |     Ciphers (6)
--- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA - unknown strength
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA - strong
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA - unknown strength
+-- |     compressors:
+-- |       NULL
+-- |     cipher preference: server
+-- |   TLSv1.0:
+-- |     ciphers:
+-- |       TLS_RSA_WITH_RC4_128_MD5 - strong
+-- |       TLS_RSA_WITH_RC4_128_SHA - strong
 -- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - strong
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA - strong
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA - strong
--- |       TLS_RSA_WITH_AES_256_CBC_SHA - unknown strength
--- |     Compressors (1)
--- |       uncompressed
--- |_  Least strength = unknown strength
+-- |     compressors:
+-- |       NULL
+-- |     cipher preference: server
+-- |_  least strength: strong
 --
 -- @xmloutput
 -- <table key="SSLv3">
 --   <table key="ciphers">
 --     <table>
---       <elem key="strength">strong</elem>
---       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---     </table>
---     <table>
---       <elem key="strength">weak</elem>
---       <elem key="name">TLS_RSA_WITH_DES_CBC_SHA</elem>
---     </table>
---     <table>
---       <elem key="strength">strong</elem>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--       <elem key="strength">strong</elem>
 --     </table>
 --     <table>
---       <elem key="strength">strong</elem>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">strong</elem>
+--     </table>
+--     <table>
+--       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
+--       <elem key="strength">strong</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
 --     <elem>NULL</elem>
 --   </table>
+--   <elem key="cipher preference">server</elem>
 -- </table>
 -- <table key="TLSv1.0">
 --   <table key="ciphers">
 --     <table>
---       <elem key="strength">strong</elem>
---       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---     </table>
---     <table>
---       <elem key="strength">weak</elem>
---       <elem key="name">TLS_RSA_WITH_DES_CBC_SHA</elem>
---     </table>
---     <table>
---       <elem key="strength">strong</elem>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--       <elem key="strength">strong</elem>
 --     </table>
 --     <table>
---       <elem key="strength">strong</elem>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">strong</elem>
+--     </table>
+--     <table>
+--       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
+--       <elem key="strength">strong</elem>
+--     </table>
+--     <table>
+--       <elem key="name">TLS_RSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="strength">strong</elem>
+--     </table>
+--     <table>
+--       <elem key="name">TLS_RSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="strength">strong</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
 --     <elem>NULL</elem>
 --   </table>
+--   <elem key="cipher preference">server</elem>
 -- </table>
--- <elem key="least strength">weak</elem>
+-- <elem key="least strength">strong</elem>
 
 author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
