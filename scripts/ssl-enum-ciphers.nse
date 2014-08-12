@@ -29,6 +29,12 @@ methods a server supports than SSLv2. A client lists the ciphers and compressors
 that it is capable of supporting, and the server will respond with a single
 cipher and compressor chosen, or a rejection notice.
 
+Some servers use the client's ciphersuite ordering: they choose the first of
+the client's offered suites that they also support. Other servers prefer their
+own ordering: they choose their most preferred suite from among those the
+client offers. In the case of server ordering, the script makes extra probes to
+discover the server's sorted preference list.
+
 This script is intrusive since it must initiate many connections to a server,
 and therefore is quite noisy.
 ]]
