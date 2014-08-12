@@ -282,6 +282,17 @@ local function merge_recursive(chunks, cmp)
   end
 end
 
+-- https://bugzilla.mozilla.org/show_bug.cgi?id=946147
+local function remove_high_byte_ciphers(t)
+  local output = {}
+  for i, v in ipairs(t) do
+    if tls.CIPHERS[v] <= 255 then
+      output[#output+1] = v
+    end
+  end
+  return output
+end
+
 local function find_ciphers_group(host, port, protocol, group)
   local name, protocol_worked, record, results
   results = {}
@@ -330,10 +341,20 @@ local function find_ciphers_group(host, port, protocol, group)
       protocol_worked = true
       name = record["body"][1]["cipher"]
       stdnse.debug2("Cipher %s chosen.", name)
-      remove(group, name)
-
-      -- Add cipher to the list of accepted ciphers.
-      table.insert(results, name)
+      if not remove(group, name) then
+        stdnse.debug1("%s: chose cipher %s that was not offered.", t.protocol, name)
+        stdnse.debug1("%s: removing high-byte ciphers and trying again.", t.protocol)
+        local size_before = #group
+        group = remove_high_byte_ciphers(group)
+        stdnse.debug1("%s: removed %d high-byte ciphers.", t.protocol, size_before - #group)
+        if #group == size_before then
+          -- No changes... Server just doesn't like our offered ciphers.
+          break
+        end
+      else
+        -- Add cipher to the list of accepted ciphers.
+        table.insert(results, name)
+      end
     end
   end
   return results, protocol_worked
