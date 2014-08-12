@@ -1,5 +1,6 @@
 local coroutine = require "coroutine"
 local io = require "io"
+local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
@@ -224,6 +225,63 @@ local function remove(t, e)
   return nil
 end
 
+local function slice(t, i, j)
+  local output = {}
+  while i <= j do
+    output[#output+1] = t[i]
+    i = i + 1
+  end
+  return output
+end
+
+local function merge(a, b, cmp)
+  local output = {}
+  local i = 1
+  local j = 1
+  while i <= #a and j <= #b do
+    local winner, err = cmp(a[i], b[j])
+    if not winner then
+      return nil, err
+    end
+    if winner == a[i] then
+      output[#output+1] = a[i]
+      i = i + 1
+    else
+      output[#output+1] = b[j]
+      j = j + 1
+    end
+  end
+  while i <= #a do
+    output[#output+1] = a[i]
+    i = i + 1
+  end
+  while j <= #b do
+    output[#output+1] = b[j]
+    j = j + 1
+  end
+  return output
+end
+
+local function merge_recursive(chunks, cmp)
+  if #chunks == 0 then
+    return {}
+  elseif #chunks == 1 then
+    return chunks[1]
+  else
+    local m = math.floor(#chunks / 2)
+    local a, b = slice(chunks, 1, m), slice(chunks, m+1, #chunks)
+    local am, err = merge_recursive(a, cmp)
+    if not am then
+      return nil, err
+    end
+    local bm, err = merge_recursive(b, cmp)
+    if not bm then
+      return nil, err
+    end
+    return merge(am, bm, cmp)
+  end
+end
+
 local function find_ciphers_group(host, port, protocol, group)
   local name, protocol_worked, record, results
   results = {}
@@ -428,6 +486,32 @@ local function find_cipher_preference(host, port, protocol, ciphers)
   return "server", nil
 end
 
+-- Sort ciphers according to server preference with a modified merge sort
+local function sort_ciphers(host, port, protocol, ciphers)
+  local chunks = {}
+  for _, group in ipairs(in_chunks(ciphers, CHUNK_SIZE)) do
+    local size = #group
+    local chunk = find_ciphers_group(host, port, protocol, group)
+    if not chunk then
+      return nil, "Network error"
+    end
+    if #chunk ~= size then
+      stdnse.debug1("%s warning: %d ciphers offered but only %d accepted", protocol, size, #chunk)
+    end
+    table.insert(chunks, chunk)
+  end
+
+  -- The comparison operator for the merge is a 2-cipher ClientHello.
+  local function cmp(cipher_a, cipher_b)
+    return compare_ciphers(host, port, protocol, cipher_a, cipher_b)
+  end
+  local sorted, err = merge_recursive(chunks, cmp)
+  if not sorted then
+    return nil, err
+  end
+  return sorted
+end
+
 local function try_protocol(host, port, protocol, upresults)
   local ciphers, compressors, results
   local condvar = nmap.condvar(upresults)
@@ -456,6 +540,21 @@ local function try_protocol(host, port, protocol, upresults)
   -- Note the server's cipher preference algorithm.
   local cipher_pref, cipher_pref_err = find_cipher_preference(host, port, protocol, ciphers)
 
+  -- Order ciphers according to server preference, if possible
+  if cipher_pref == "server" then
+    local sorted, err = sort_ciphers(host, port, protocol, ciphers)
+    if sorted then
+      ciphers = sorted
+    else
+      -- Can't sort, fall back to alphabetical order
+      table.sort(ciphers)
+      cipher_pref_err = err
+    end
+  else
+    -- fall back to alphabetical order
+    table.sort(ciphers)
+  end
+
   -- Add rankings to ciphers
   local cipherstr
   for i, name in ipairs(ciphers) do
@@ -476,8 +575,6 @@ local function try_protocol(host, port, protocol, upresults)
     ciphers[i]=outcipher
   end
 
-  -- Format the cipher table.
-  table.sort(ciphers, function(a, b) return a["name"] < b["name"] end)
   results["ciphers"] = ciphers
 
   -- Format the compressor table.
