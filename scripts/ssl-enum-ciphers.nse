@@ -348,6 +348,69 @@ local function find_compressors(host, port, protocol, good_cipher)
   return results
 end
 
+-- Offer two ciphers and return the one chosen by the server. Returns nil and
+-- an error message in case of a server error.
+local function compare_ciphers(host, port, protocol, cipher_a, cipher_b)
+  local t = {
+    ["protocol"] = protocol,
+    ["ciphers"] = {cipher_a, cipher_b},
+    ["extensions"] = {
+      -- Claim to support every elliptic curve
+      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
+      -- Claim to support every EC point format
+      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
+    },
+  }
+  if host.targetname then
+    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
+  end
+  local record = try_params(host, port, t)
+  if record and record["type"] == "handshake" and record["body"][1]["type"] == "server_hello" then
+    stdnse.debug2("%s: compare %s %s -> %s", t.protocol, cipher_a, cipher_b, record["body"][1]["cipher"])
+    return record["body"][1]["cipher"]
+  else
+    stdnse.debug2("%s: compare %s %s -> error", t.protocol, cipher_a, cipher_b)
+    return nil, string.format("Error when comparing %s and %s", cipher_a, cipher_b)
+  end
+end
+
+-- Try to find whether the server prefers its own ciphersuite order or that of
+-- the client.
+--
+-- The return value is (preference, err). preference is a string:
+--   "server": the server prefers its own order. In this case ciphers is non-nil.
+--   "client": the server follows the client preference. ciphers is nil.
+--   "indeterminate": returned when there are only 0 or 1 ciphers. ciphers is nil.
+--   nil: an error ocurred during the test. err is non-nil.
+-- err is an error message string that is non-nil when preference is nil or
+-- indeterminate.
+--
+-- The algorithm tries offering two ciphersuites in two different orders. If
+-- the server makes a different choice each time, "client" preference is
+-- assumed. Otherwise, "server" preference is assumed.
+local function find_cipher_preference(host, port, protocol, ciphers)
+  -- Too few ciphers to make a decision?
+  if #ciphers < 2 then
+    return "indeterminate", "Too few ciphers supported"
+  end
+
+  -- Do a comparison in both directions to see if server ordering is consistent.
+  local cipher_a, cipher_b = ciphers[1], ciphers[2]
+  stdnse.debug1("Comparing %s to %s", cipher_a, cipher_b)
+  local winner_forwards, err = compare_ciphers(host, port, protocol, cipher_a, cipher_b)
+  if not winner_forwards then
+    return nil, err
+  end
+  local winner_backward, err = compare_ciphers(host, port, protocol, cipher_b, cipher_a)
+  if not winner_backward then
+    return nil, err
+  end
+  if winner_forwards ~= winner_backward then
+    return "client", nil
+  end
+  return "server", nil
+end
+
 local function try_protocol(host, port, protocol, upresults)
   local ciphers, compressors, results
   local condvar = nmap.condvar(upresults)
@@ -372,6 +435,9 @@ local function try_protocol(host, port, protocol, upresults)
   end
   -- Find all valid compression methods.
   compressors = find_compressors(host, port, protocol, ciphers[1])
+
+  -- Note the server's cipher preference algorithm.
+  local cipher_pref, cipher_pref_err = find_cipher_preference(host, port, protocol, ciphers)
 
   -- Add rankings to ciphers
   local cipherstr
@@ -400,6 +466,9 @@ local function try_protocol(host, port, protocol, upresults)
   -- Format the compressor table.
   table.sort(compressors)
   results["compressors"] = compressors
+
+  results["cipher preference"] = cipher_pref
+  results["cipher preference error"] = cipher_pref_err
 
   upresults[protocol] = results
   condvar "signal"
