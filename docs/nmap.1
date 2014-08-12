@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 04/17/2014
+.\"      Date: 08/12/2014
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "04/17/2014" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/12/2014" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -155,6 +155,7 @@ SCAN TECHNIQUES:
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080,S:9
+  \-\-exclude\-ports <port ranges>: Exclude the specified ports from scanning
   \-F: Fast mode \- Scan fewer ports than the default scan
   \-r: Scan ports consecutively \- don\*(Aqt randomize
   \-\-top\-ports <number>: Scan <number> most common ports
@@ -167,7 +168,7 @@ SERVICE/VERSION DETECTION:
   \-\-version\-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
   \-sC: equivalent to \-\-script=default
-  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of 
+  \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of
            directories, script\-files or script\-categories
   \-\-script\-args=<n1=v1,[n2=v2,\&.\&.\&.]>: provide arguments to scripts
   \-\-script\-args\-file=filename: provide NSE script args in a file
@@ -200,6 +201,8 @@ FIREWALL/IDS EVASION AND SPOOFING:
   \-e <iface>: Use specified interface
   \-g/\-\-source\-port <portnum>: Use given port number
   \-\-proxies <url1,[url2],\&.\&.\&.>: Relay connections through HTTP/SOCKS4 proxies
+  \-\-data <hex string>: Append a custom payload to sent packets
+  \-\-data\-string <string>: Append a custom ASCII string to sent packets
   \-\-data\-length <num>: Append random data to sent packets
   \-\-ip\-options <options>: Send packets with specified ip options
   \-\-ttl <val>: Set IP time\-to\-live field
@@ -493,6 +496,14 @@ and
 .\" payloads, protocol-specific
 Another host discovery option is the UDP ping, which sends a UDP packet to the given ports\&. For most ports, the packet will be empty, though for a few a protocol\-specific payload will be sent that is more likely to get a response\&..\" protocol-specific payloads: UDPThe payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payloads.html\fR\m[]\&.
 The
+\fB\-\-data\fR.\" --data
+and
+\fB\-\-data\-string\fR.\" --data-string
+options can be used to send custom payloads to every port\&. For example:
+\fB\-\-data 0xCAFE09\fR
+or
+\fB\-\-data\-string "Gort! Klaatu barada nikto!"\fR
+The
 \fB\-\-data\-length\fR.\" --data-length
 option can be used to send a fixed\-length random payload to every port or (if you specify a value of
 0) to disable payloads\&. You can also disable payloads by specifying
@@ -568,9 +579,11 @@ One of the newer host discovery options is the IP protocol ping, which sends IP 
 \fIDEFAULT_PROTO_PROBE_PORT_SPEC\fR.\" DEFAULT_PROTO_PROBE_PORT_SPEC
 in
 nmap\&.h\&. Note that for the ICMP, IGMP, TCP (protocol 6), UDP (protocol 17) and SCTP (protocol 132), the packets are sent with the proper protocol headers.\" protocol-specific payloads: IP
-while other protocols are sent with no additional data beyond the IP header (unless the
+while other protocols are sent with no additional data beyond the IP header (unless any of
+\fB\-\-data\fR.\" --data,
+\fB\-\-data\-string\fR.\" --data-string, or
 \fB\-\-data\-length\fR.\" --data-length
-option is specified)\&.
+options are specified)\&.
 .sp
 This host discovery method looks for either responses using the same protocol as a probe, or ICMP protocol unreachable messages which signify that the given protocol isn\*(Aqt supported on the destination host\&. Either type of response signifies that the target host is alive\&.
 .RE
@@ -747,6 +760,10 @@ option\&. It can be combined with a TCP scan type such as SYN scan (\fB\-sS\fR) 
 .sp
 UDP scan works by sending a UDP packet to every targeted port\&. For some common ports such as 53 and 161, a protocol\-specific payload is sent, but for most ports the packet is empty\&..\" protocol-specific payloads: UDP
 The
+\fB\-\-data\fR
+and
+\fB\-\-data\-string\fR
+options can be used to send a custom payload to every port and the
 \fB\-\-data\-length\fR
 option can be used to send a fixed\-length random payload to every port or (if you specify a value of
 0) to disable payloads\&. If an ICMP port unreachable error (type 3, code 3) is returned, the port is
@@ -1024,6 +1041,16 @@ equal to or below 1024:
 if unsure\&.
 .RE
 .PP
+\fB\-\-exclude\-ports \fR\fB\fIport ranges\fR\fR (Exclude the specified ports from scanning) .\" --exclude-ports
+.RS 4
+This option specifies which ports you do want Nmap to exclude from scanning\&. The
+\fIport ranges\fR
+are specified similar to
+\fB\-p\fR\&. For IP protocol scanning (\fB\-sO\fR), this option specifies the protocol numbers you wish to exclude (0\(en255)\&.
+.sp
+When ports are asked to be excluded, they are excluded from all types of scans (i\&.e\&. they will not be scanned under any circumstances)\&. This also includes the discovery phase\&.
+.RE
+.PP
 \fB\-F\fR (Fast (limited port) scan) .\" -F .\" fast scan
 .RS 4
 Specifies that you wish to scan fewer ports than the default\&. Normally Nmap scans the most common 1,000 ports for each scanned protocol\&. With
@@ -1062,7 +1089,8 @@ Scans the
 \fIn\fR
 highest\-ratio ports found in
 nmap\-services
-file\&.
+file after excluding all ports specified by
+\fB\-\-exclude\-ports\fR\&.
 \fIn\fR
 must be 1 or greater\&.
 .RE
@@ -1777,6 +1805,32 @@ scan,.\" connect scan
 version detection, and script scanning\&. Setting the source port also doesn\*(Aqt work for OS detection, because Nmap must use different port numbers for certain OS detection tests to work properly\&.
 .RE
 .PP
+\fB\-\-data \fR\fB\fIhex string\fR\fR (Append custom binary data to sent packets) .\" --data
+.RS 4
+This option lets you include binary data as payload in sent packets\&.
+\fIhex string\fR
+may be specified in any of the following formats:
+0xAABBCCDDEEFF\fI\&.\&.\&.\fR,
+AABBCCDDEEFF\fI\&.\&.\&.\fR
+or
+\exAA\exBB\exCC\exDD\exEE\exFF\fI\&.\&.\&.\fR\&. Examples of use are
+\fB\-\-data 0xdeadbeef\fR
+and
+\fB\-\-data \exCA\exFE\ex09\fR\&. Note that if you specify a number like
+0x00ff
+no byte\-order conversion is performed\&. Make sure you specify the information in the byte order expected by the receiver\&.
+.RE
+.PP
+\fB\-\-data\-string \fR\fB\fIstring\fR\fR (Append custom string to sent packets) .\" --data-string
+.RS 4
+This option lets you include a regular string as payload in sent packets\&.
+\fIstring\fR
+can contain any string\&. However, note that some characters may depend on your system\*(Aqs locale and the receiver may not see the same information\&. Also, make sure you enclose the string in double quotes and escape any special characters from the shell\&. Examples:
+\fB\-\-data\-string "Scan conducted by Security Ops, extension 7192"\fR
+or
+\fB\-\-data\-string "Ph34r my l33t skills"\fR\&. Keep in mind that nobody is likely to actually see any comments left by this option unless they are carefully monitoring the network with a sniffer or custom IDS rules\&.
+.RE
+.PP
 \fB\-\-data\-length \fR\fB\fInumber\fR\fR (Append random data to sent packets) .\" --data-length
 .RS 4
 Normally Nmap sends minimalist packets containing only a header\&. So its TCP packets are generally 40 bytes and ICMP echo requests are just 28\&. Some UDP ports.\" protocol-specific payloads: UDP
@@ -2215,11 +2269,11 @@ option in other situations\&.
 .PP
 \fB\-A\fR (Aggressive scan options) .\" -A
 .RS 4
-This option enables additional advanced and aggressive options\&. I haven\*(Aqt decided exactly which it stands for yet\&. Presently this enables OS detection (\fB\-O\fR), version scanning (\fB\-sV\fR), script scanning (\fB\-sC\fR) and traceroute (\fB\-\-traceroute\fR)\&..\" -A: features enabled by
+This option enables additional advanced and aggressive options\&. Presently this enables OS detection (\fB\-O\fR), version scanning (\fB\-sV\fR), script scanning (\fB\-sC\fR) and traceroute (\fB\-\-traceroute\fR)\&..\" -A: features enabled by
 More features may be added in the future\&. The point is to enable a comprehensive set of scan options without people having to remember a large set of flags\&. However, because script scanning with the default set is considered intrusive, you should not use
 \fB\-A\fR
 against target networks without permission\&. This option only enables features, and not timing options (such as
-\fB\-T4\fR) or verbosity options (\fB\-v\fR) that you might want as well\&.
+\fB\-T4\fR) or verbosity options (\fB\-v\fR) that you might want as well\&. Options which require privileges (e\&.g\&. root access) such as OS detection and traceroute will only be enabled if those privileges are available\&.
 .RE
 .PP
 \fB\-\-datadir \fR\fB\fIdirectoryname\fR\fR (Specify custom Nmap data file location) .\" --datadir
