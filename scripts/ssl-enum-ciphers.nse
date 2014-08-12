@@ -424,15 +424,12 @@ local function find_ciphers(host, port, protocol)
   return results
 end
 
-local function find_compressors(host, port, protocol, good_cipher)
+local function find_compressors(host, port, protocol, good_ciphers)
   local name, protocol_worked, record, results, t
   local compressors = sorted_keys(tls.COMPRESSORS)
-  -- NULL compressor must come last
-  remove(compressors, "NULL")
-  table.insert(compressors, "NULL")
   local t = {
     ["protocol"] = protocol,
-    ["ciphers"] = {good_cipher},
+    ["ciphers"] = good_ciphers,
     ["extensions"] = tcopy(base_extensions),
   }
   if host.targetname then
@@ -463,7 +460,17 @@ local function find_compressors(host, port, protocol, good_cipher)
     elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
       protocol_worked = true
       ctx_log(2, protocol, "%d compressors rejected.", #compressors)
-      break
+      -- Should never get here, because NULL should be good enough.
+      -- The server may just not be able to handle multiple compressors.
+      if #compressors > 1 then -- Make extra-sure it's not crazily rejecting the NULL compressor
+        compressors[1] = "NULL"
+        for i = 2, #compressors, 1 do
+          compressors[i] = nil
+        end
+        -- try again.
+      else
+        break
+      end
     elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
       ctx_log(2, protocol, "Unexpected record received.")
       break
@@ -591,7 +598,15 @@ local function try_protocol(host, port, protocol, upresults)
     return nil
   end
   -- Find all valid compression methods.
-  compressors = find_compressors(host, port, protocol, ciphers[1])
+  for _, c in ipairs(in_chunks(ciphers, CHUNK_SIZE)) do
+    compressors = find_compressors(host, port, protocol, c)
+    -- I observed a weird interaction between ECDSA ciphers and DEFLATE compression.
+    -- Some servers would reject the handshake if no non-ECDSA ciphers were available.
+    -- Sending 64 ciphers at a time should be sufficient, but we'll try them all if necessary.
+    if compressors and #compressors ~= 0 then
+      break
+    end
+  end
 
   -- Note the server's cipher preference algorithm.
   local cipher_pref, cipher_pref_err = find_cipher_preference(host, port, protocol, ciphers)
