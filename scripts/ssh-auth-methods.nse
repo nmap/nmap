@@ -23,6 +23,8 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 local username = stdnse.get_script_args("ssh.user") or stdnse.generate_random_string(5)
 portrule = shortport.port_or_service(22, 'ssh')
 
+categories = {"safe"}
+
 action = function (host, port)
   local result = stdnse.output_table()
   
