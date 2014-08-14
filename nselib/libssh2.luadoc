@@ -1,0 +1,71 @@
+--
+-- Provides a binding for the libssh2 library.
+--
+-- SSH2 is a complex protocol and libssh2 simplifies many tasks involved in
+-- interacting with ssh servers. This module provides bindings for some of the
+-- most commonly used libssh2 functions. 
+--
+-- For perfomance reasons, the modules reuses the NSE's existing nsock socket
+-- pool. In order to accomplish this, libssh2 is a given a unix socket pair 
+-- instead of a network socket. As a result, this library is *nix only at the
+-- current time.
+--
+-- @author Devin Bjelland
+-- @copyright same as Nmap
+
+module "libssh2"
+
+--- Creates libssh2 session and performs handshake
+-- @param host Host to connect to.
+-- @param port Port to connect to.
+-- @return session or nil on failure
+function session_open(host, port)
+
+--- Returns SHA1 or MD5 hostkey hash of session
+-- @param session Connected libssh2 session.
+-- @param hashtype (optional) "sha1" or "md5" (sha1 is default)
+-- @return hostkey hash of server
+function hostkey_hash(session, hashtype)
+
+--- Sets timeout of libssh2 session
+-- @param session Connected libssh2 session.
+-- @param timeout Timeout for session in milliseconds. 
+function set_timeout(session, timeout)
+
+--- Returns list of authentication methods supported by the server
+-- @param session Connected libssh2 session.
+-- @return List of supported authentication methods/
+function userauth_list(session)
+
+--- Attempts to authenicate libssh2 session using provided credentials
+-- @param username Username to authenicate as.
+-- @param password Password to authenicate with.
+-- @return true/false, depending on success 
+function userauth_password(session, username, password)
+
+--- Attempts to authenticate libssh2 session using provided publickey
+-- @param session Connected libssh2 session
+-- @param username Username to authenicate as
+-- @param privatekeyfile File containing privatekey
+-- @param passphrase Passphrase for privatekey
+-- @param publickeyfile File containing publickey. Not necessary if libssh2 is 
+-- compiled against OpenSSL
+-- @return true/false, depending on success
+function userauth_publickey(session, username, privatekeyfile, passphrase publickeyfile)
+
+--- Read publickey from id_*.pub type key file
+-- @param publickeyfile File containing publickey
+-- @return string containing raw key data
+function read_publickey(publickeyfile)
+
+--- Checks to see if ssh server accepts public key for authentication as given user.
+--  This doesn't require the private key as it doesn't finish authenticating.
+-- @param session Connected libssh2 session
+-- @param username Username to authenicate as
+-- @param publickeydata String containing raw publickey blob
+-- @return true/false, depending on whether user can authenticate with given key
+function publickey_canauth(session, username, publickeydata)
+
+--- Gracefully closes connected libssh2 session
+-- @param session Connected libssh2 session
+function session_close(session)

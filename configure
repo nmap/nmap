@@ -661,6 +661,7 @@ DNET_BUILD
 DNET_DEPENDS
 LIBDNETDIR
 LIBDNET_LIBS
+LIBSSH2_LIBS
 PCRE_DIST_CLEAN
 PCRE_CLEAN
 PCRE_BUILD
@@ -781,6 +782,7 @@ with_nping
 with_openssl
 with_libpcap
 with_libpcre
+with_libssh2
 with_libdnet
 with_liblua
 with_liblinear
@@ -1439,6 +1441,7 @@ Optional Packages:
   --with-libpcre=DIR      Use an existing (compiled) pcre lib from DIR/include
                           and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
+  --with-libssh2=DIR      Use speficic copy of libssh2
   --with-libdnet=DIR      Use an existing (compiled) dnet lib from DIR/include
                           and DIR/lib. This is NOT RECOMMENDED because we have
                           made many important fixes to our included libdnet,
@@ -5463,8 +5466,8 @@ if test "$with_ndiff" != "no"; then
 
         if test -n "$PYTHON"; then
       # If the user set $PYTHON, use it and don't search something else.
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version >= 2.4" >&5
-$as_echo_n "checking whether $PYTHON version >= 2.4... " >&6; }
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version is >= 2.4" >&5
+$as_echo_n "checking whether $PYTHON version is >= 2.4... " >&6; }
       prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
@@ -5482,7 +5485,9 @@ sys.exit(sys.hexversion < minverhex)"
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
-  as_fn_error $? "too old" "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+			       as_fn_error $? "Python interpreter is too old" "$LINENO" 5
 fi
       am_display_PYTHON=$PYTHON
     else
@@ -5494,7 +5499,7 @@ if ${am_cv_pathless_PYTHON+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python python2 python3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
+	for am_cv_pathless_PYTHON in python python2 python3 python3.3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
 	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
@@ -5610,6 +5615,25 @@ $as_echo "$am_cv_python_platform" >&6; }
   PYTHON_PLATFORM=$am_cv_python_platform
 
 
+  # Just factor out some code duplication.
+  am_python_setup_sysconfig="\
+import sys
+# Prefer sysconfig over distutils.sysconfig, for better compatibility
+# with python 3.x.  See automake bug#10227.
+try:
+    import sysconfig
+except ImportError:
+    can_use_sysconfig = 0
+else:
+    can_use_sysconfig = 1
+# Can't use sysconfig in CPython 2.7, since it's broken in virtualenvs:
+# <https://github.com/pypa/virtualenv/issues/118>
+try:
+    from platform import python_implementation
+    if python_implementation() == 'CPython' and sys.version[:3] == '2.7':
+        can_use_sysconfig = 0
+except ImportError:
+    pass"
 
 
             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON script directory" >&5
@@ -5623,7 +5647,14 @@ else
      else
        am_py_prefix=$prefix
      fi
-     am_cv_python_pythondir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(0,0,prefix='$am_py_prefix'))" 2>/dev/null`
+     am_cv_python_pythondir=`$PYTHON -c "
+$am_python_setup_sysconfig
+if can_use_sysconfig:
+    sitedir = sysconfig.get_path('purelib', vars={'base':'$am_py_prefix'})
+else:
+    from distutils import sysconfig
+    sitedir = sysconfig.get_python_lib(0, 0, prefix='$am_py_prefix')
+sys.stdout.write(sitedir)"`
      case $am_cv_python_pythondir in
      $am_py_prefix*)
        am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
@@ -5660,7 +5691,14 @@ else
      else
        am_py_exec_prefix=$exec_prefix
      fi
-     am_cv_python_pyexecdir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(1,0,prefix='$am_py_exec_prefix'))" 2>/dev/null`
+     am_cv_python_pyexecdir=`$PYTHON -c "
+$am_python_setup_sysconfig
+if can_use_sysconfig:
+    sitedir = sysconfig.get_path('platlib', vars={'platbase':'$am_py_prefix'})
+else:
+    from distutils import sysconfig
+    sitedir = sysconfig.get_python_lib(1, 0, prefix='$am_py_prefix')
+sys.stdout.write(sitedir)"`
      case $am_cv_python_pyexecdir in
      $am_py_exec_prefix*)
        am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
@@ -5732,8 +5770,8 @@ if test "$with_zenmap" != "no"; then
 
         if test -n "$PYTHON"; then
       # If the user set $PYTHON, use it and don't search something else.
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version >= 2.4" >&5
-$as_echo_n "checking whether $PYTHON version >= 2.4... " >&6; }
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version is >= 2.4" >&5
+$as_echo_n "checking whether $PYTHON version is >= 2.4... " >&6; }
       prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
@@ -5751,7 +5789,9 @@ sys.exit(sys.hexversion < minverhex)"
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
-  as_fn_error $? "too old" "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+			       as_fn_error $? "Python interpreter is too old" "$LINENO" 5
 fi
       am_display_PYTHON=$PYTHON
     else
@@ -5763,7 +5803,7 @@ if ${am_cv_pathless_PYTHON+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python python2 python3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
+	for am_cv_pathless_PYTHON in python python2 python3 python3.3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
 	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
@@ -5879,6 +5919,25 @@ $as_echo "$am_cv_python_platform" >&6; }
   PYTHON_PLATFORM=$am_cv_python_platform
 
 
+  # Just factor out some code duplication.
+  am_python_setup_sysconfig="\
+import sys
+# Prefer sysconfig over distutils.sysconfig, for better compatibility
+# with python 3.x.  See automake bug#10227.
+try:
+    import sysconfig
+except ImportError:
+    can_use_sysconfig = 0
+else:
+    can_use_sysconfig = 1
+# Can't use sysconfig in CPython 2.7, since it's broken in virtualenvs:
+# <https://github.com/pypa/virtualenv/issues/118>
+try:
+    from platform import python_implementation
+    if python_implementation() == 'CPython' and sys.version[:3] == '2.7':
+        can_use_sysconfig = 0
+except ImportError:
+    pass"
 
 
             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON script directory" >&5
@@ -5892,7 +5951,14 @@ else
      else
        am_py_prefix=$prefix
      fi
-     am_cv_python_pythondir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(0,0,prefix='$am_py_prefix'))" 2>/dev/null`
+     am_cv_python_pythondir=`$PYTHON -c "
+$am_python_setup_sysconfig
+if can_use_sysconfig:
+    sitedir = sysconfig.get_path('purelib', vars={'base':'$am_py_prefix'})
+else:
+    from distutils import sysconfig
+    sitedir = sysconfig.get_python_lib(0, 0, prefix='$am_py_prefix')
+sys.stdout.write(sitedir)"`
      case $am_cv_python_pythondir in
      $am_py_prefix*)
        am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
@@ -5929,7 +5995,14 @@ else
      else
        am_py_exec_prefix=$exec_prefix
      fi
-     am_cv_python_pyexecdir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(1,0,prefix='$am_py_exec_prefix'))" 2>/dev/null`
+     am_cv_python_pyexecdir=`$PYTHON -c "
+$am_python_setup_sysconfig
+if can_use_sysconfig:
+    sitedir = sysconfig.get_path('platlib', vars={'platbase':'$am_py_prefix'})
+else:
+    from distutils import sysconfig
+    sitedir = sysconfig.get_python_lib(1, 0, prefix='$am_py_prefix')
+sys.stdout.write(sitedir)"`
      case $am_cv_python_pyexecdir in
      $am_py_exec_prefix*)
        am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
@@ -6665,6 +6738,92 @@ fi
 
 
 
+
+
+
+have_libssh2=no
+
+# Check whether --with-libssh2 was given.
+if test "${with_libssh2+set}" = set; then :
+  withval=$with_libssh2;  case "$with_libssh2" in
+  yes)
+    have_libssh2=yes
+    ;;
+  included)
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: \"Libssh2 is not included with Nmap. Will try to find system version\"" >&5
+$as_echo "$as_me: WARNING: \"Libssh2 is not included with Nmap. Will try to find system version\"" >&2;}
+    ;;
+  *)
+    have_libssh2=yes
+    CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
+    LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
+  ;;
+  esac
+
+fi
+
+
+if test $have_libssh2 != yes; then
+  for ac_header in libssh2.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "libssh2.h" "ac_cv_header_libssh2_h" "$ac_includes_default"
+if test "x$ac_cv_header_libssh2_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSSH2_H 1
+_ACEOF
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
+$as_echo_n "checking for libssh2_version in -lssh2... " >&6; }
+if ${ac_cv_lib_ssh2_libssh2_version+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lssh2 -lm $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char libssh2_version ();
+int
+main ()
+{
+return libssh2_version ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ssh2_libssh2_version=yes
+else
+  ac_cv_lib_ssh2_libssh2_version=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
+$as_echo "$ac_cv_lib_ssh2_libssh2_version" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes; then :
+  have_libssh2=yes; break
+fi
+
+
+fi
+
+done
+
+fi
+
+LIBSSH2_LIBS=
+if test $have_libssh2 = yes; then
+  LIBSSH2_LIBS="-lssh2"
+  $as_echo "#define HAVE_LIBSSH2 1" >>confdefs.h
+
+fi
 
 
 have_dnet=no

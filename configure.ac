@@ -509,6 +509,38 @@ AC_SUBST(PCRE_BUILD)
 AC_SUBST(PCRE_CLEAN)
 AC_SUBST(PCRE_DIST_CLEAN)
 
+
+have_libssh2=no
+AC_ARG_WITH(libssh2,
+AC_HELP_STRING([--with-libssh2=DIR], [Use speficic copy of libssh2]),
+[ case "$with_libssh2" in
+  yes)
+    have_libssh2=yes
+    ;;
+  included)
+    AC_MSG_WARN("Libssh2 is not included with Nmap. Will try to find system version")
+    ;;
+  *)
+    have_libssh2=yes
+    CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
+    LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
+  ;;
+  esac]
+)
+
+if test $have_libssh2 != yes; then
+  AC_CHECK_HEADERS([libssh2.h],
+    AC_CHECK_LIB(ssh2, libssh2_version, [have_libssh2=yes; break],, [-lm])
+  )
+fi
+
+LIBSSH2_LIBS=
+if test $have_libssh2 = yes; then
+  LIBSSH2_LIBS="-lssh2"
+  AC_DEFINE(HAVE_LIBSSH2)
+fi
+AC_SUBST(LIBSSH2_LIBS)
+
 have_dnet=no
 requested_included_dnet=no
 LIBDNETDIR=libdnet-stripped
