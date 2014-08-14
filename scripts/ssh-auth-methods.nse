@@ -1,6 +1,6 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local libssh2 = require "libssh2"
+local libssh2 = stdnse.silent_require "libssh2"
 
 description = [[
 Returns authenication methods a ssh server supports.
