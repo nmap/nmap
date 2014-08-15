@@ -1465,9 +1465,6 @@ void  apply_delayed_options() {
   if (o.verbose > 1)
     o.reason = true;
 
-  if (o.verbose && o.reason)
-    o.show_ttl = true;
-
   // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
   if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", local_time) <= 0)
     fatal("Unable to properly format time");

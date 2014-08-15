@@ -553,7 +553,6 @@ void printportoutput(Target *currenths, PortList *plist) {
   int servicecol = -1;          // service or protocol name
   int versioncol = -1;
   int reasoncol = -1;
-  int ttlcol = -1;
   int colno = 0;
   unsigned int rowno;
   int numrows;
@@ -666,8 +665,6 @@ void printportoutput(Target *currenths, PortList *plist) {
   servicecol = colno++;
   if (o.reason)
     reasoncol = colno++;
-  if (o.show_ttl)
-    ttlcol = colno++;
   if (o.servicescan)
     versioncol = colno++;
 
@@ -696,8 +693,6 @@ void printportoutput(Target *currenths, PortList *plist) {
     Tbl->addItem(0, versioncol, false, "VERSION", 7);
   if (reasoncol > 0)
     Tbl->addItem(0, reasoncol, false, "REASON", 6);
-  if (ttlcol > 0)
-    Tbl->addItem(0, ttlcol, false, "TTL", 3);
 
   log_write(LOG_MACHINE, "\t%s: ", (o.ipprotscan) ? "Protocols" : "Ports");
 
@@ -710,10 +705,13 @@ void printportoutput(Target *currenths, PortList *plist) {
           log_write(LOG_MACHINE, ", ");
         else
           first = 0;
-        if (o.reason)
-          Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
-        if (o.show_ttl)
-          Tbl->addItemFormatted(rowno, ttlcol, false, "%d", current->reason.ttl);
+        if (o.reason) {
+          if (current->reason.ttl)
+            Tbl->addItemFormatted(rowno, reasoncol, false, "%s ttl %d", 
+                                port_reason_str(current->reason), current->reason.ttl);
+          else
+            Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
+        }
         state = statenum2str(current->state);
         proto = nmap_getprotbynum(current->portno);
         Snprintf(portinfo, sizeof(portinfo), "%s", proto ? proto->p_name : "unknown");
@@ -772,10 +770,13 @@ void printportoutput(Target *currenths, PortList *plist) {
         Tbl->addItem(rowno, portcol, true, portinfo);
         Tbl->addItem(rowno, statecol, false, state);
         Tbl->addItem(rowno, servicecol, true, serviceinfo);
-        if (o.reason)
-          Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
-        if (o.show_ttl)
-          Tbl->addItemFormatted(rowno, ttlcol, false, "%d", current->reason.ttl);
+        if (o.reason) {
+          if (current->reason.ttl)
+            Tbl->addItemFormatted(rowno, reasoncol, false, "%s ttl %d", 
+                                  port_reason_str(current->reason), current->reason.ttl);
+          else
+            Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
+        }
 
         sd.populateFullVersionString(fullversion, sizeof(fullversion));
         if (*fullversion && versioncol > 0)
@@ -1484,7 +1485,7 @@ void write_host_status(Target *currenths) {
       log_write(LOG_PLAIN, "Host is up");
       if (o.reason)
         log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
-      if (o.show_ttl)
+      if (o.reason && currenths->reason.ttl)
         log_write(LOG_PLAIN, " TTL %d", currenths->reason.ttl);
       if (currenths->to.srtt != -1)
         log_write(LOG_PLAIN, " (%ss latency)",
