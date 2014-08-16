@@ -7,9 +7,9 @@
 local base64 = require "base64"
 local bin = require "bin"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
 local string = require "string"
+local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh2", stdnse.seeall)
 
 -- table holding transport layer functions
