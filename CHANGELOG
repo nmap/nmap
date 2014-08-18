@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script supermicro-ipmi-conf to exploit Supermicro IPMI/BMC
+  controllers. [Paulino Calderon]
+
 o [NSE] Added mikrotik-routeros-brute script to perform password auditing 
   attacks against Mikrotik's RouterOS API. [Paulino Calderon]
 
