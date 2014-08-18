@@ -433,7 +433,6 @@ Entry { filename = "socks-auth-info.nse", categories = { "default", "discovery",
 Entry { filename = "socks-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "ssh-vuln-hostkey.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-ccs-injection.nse", categories = { "safe", "vuln", } }

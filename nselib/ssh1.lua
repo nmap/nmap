@@ -112,12 +112,6 @@ fetch_host_key = function(host, port)
   end
 end
 
---- Returns key fingerprint in hexadecimal
-fingerprint = function( hostkey )
-  local fingerprint = openssl.md5(hostkey)
-  return stdnse.tohex(fingerprint,{separator=":",group=2})
-end
-
 --- Format a key fingerprint in hexadecimal.
 -- @param fingerprint Key fingerprint.
 -- @param algorithm Key algorithm.

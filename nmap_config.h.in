@@ -175,8 +175,6 @@
 
 #undef HAVE_PCRE_H
 
-#undef HAVE_LIBSSH2
-
 #undef HAVE_PCRE_PCRE_H
 
 #undef BSD_NETWORKING
