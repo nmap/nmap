@@ -1,5 +1,42 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o We should work to reduce Zenmap's memory consumption. We used to
+  commonly get error reports from people who load so many systems that
+  Zenmap gives an out of memory error and crashes.  For example, see
+  this thread: http://seclists.org/nmap-dev/2014/q2/46
+  After committing patch at http://seclists.org/nmap-dev/2014/q2/429,
+  we no longer get the error report but the problem still exists.
+  The problem seems to lie in a very large Nmap Output being stored
+  in memory and a possible fix seems to be to use a file based paging
+  system.
+
+o Do a roll up on (state, TTL) pair instead of just state so that TTL
+  info is not lost when doing roll up on port states.
+  See thread at http://seclists.org/nmap-dev/2014/q3/93
+
+o Consider doing TTL analysis (using NSE script) to detect if a firewall
+  might exist in front of a host. See thread at 
+  http://seclists.org/nmap-dev/2014/q3/171
+
+o Consider adding a CLI option that allows the user to select which user
+  to drop to (when dropping privileges from root). We need to look
+  into the security implications of this before we implement it.
+  See thread at http://seclists.org/nmap-dev/2014/q3/304
+
+o Consider looking into differring TTL values during OS detection
+  phase and choose a port that is (hopefully) not firewalled to get
+  a better chance at correct result. See thread at
+  http://seclists.org/nmap-dev/2014/q3/33
+
+o [Zenmap] Look into and refactor code which uses the (very slow) += operation
+  on strings. http://seclists.org/nmap-dev/2014/q2/432 helped improve speeds
+  for opening files (from hours to seconds) and it seems like more speedups
+  can be done in other places.
+
+o Consider using a binary decision diagram for --exclude list to make
+  it more efficient for large exclude lists.  See
+  http://seclists.org/nmap-dev/2012/q4/420.
+
 o Augment the configure script to list unmet dependencies. Currently, configure
   works just fine without a C++ compiler installed, but make generates an
   error.  The configure script should be able to detect this. Also, a list of
@@ -49,15 +86,6 @@ o We should fix nsedoc generation so it doesn't fail when blocks like
   http://seclists.org/nmap-dev/2014/q2/331.  If for some reason this
   just can't be fixed, we will have to document the heck out of it, I
   suppose.
-
-o GSOC 2014 student Jay will be looking at these items:
-  o We should work to reduce Zenmap's memory consumption.  Right now we
-    commonly get error reports from people who load so many systems that
-    Zenmap gives an out of memory error and crashes.  For example, see
-    this thread: http://seclists.org/nmap-dev/2014/q2/46
-  o Consider using a binary decision diagram for --exclude list to make
-    it more efficient for large exclude lists.  See
-    http://seclists.org/nmap-dev/2012/q4/420.
 
 o Adopt an issue tracking system for Nmap and related tools.  We
   should probably look at our needs and options and then decide on and
