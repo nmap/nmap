@@ -1,5 +1,40 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add port.reason_ttl, host.reason, host.reason_ttl for use in scripts
+  [Jay Bosamiya]
+
+o [NSE] If a version script is run by name, nmap.version_intensity() returns
+  the maximum value (9) for it [Jay Bosamiya]
+
+o [NSE] shortport.version_port_or_service() takes an optional rarity parameter
+  now to run only when version intensity > rarity [Jay Bosamiya]
+
+o [NSE] Added nmap.version_intensity() function so that NSE version scripts
+  can use the argument to --version-intensity (which can be overridden by the
+  script arg 'script-intensity') in order to decide whether to run or not
+  [Jay Bosamiya]
+
+o Improve OS detection; If a port is detected to be 'tcpwrapped', then it will
+  not be used for OS detection. This helps in cases where a firewall might be
+  the port to be 'tcpwrapped' [Jay Bosamiya]
+
+o [Zenmap] Reduce noise generated in Topology View due to anonymous 
+  hops [Jay Bosamiya]
+
+o --reason is enabled for verbosity > 2
+
+o When --reason is asked for, show TTL information too in default output
+  mode [Jay Bosamiya]
+
+o Added option --exclude-ports to Nmap so that some ports can be excluded from
+  scanning (for example, due to policy) [Jay Bosamiya]
+
+o [Zenmap] Catch the MemoryError caused in Zenmap due to large Nmap Output,
+  and display a more helpful error message [Jay Bosamiya]
+
+o Catch badly named output files (such as those unintentionally caused by
+  "-oX -sV logfile.xml") [Jay Bosamiya]
+
 o [NSE] Added the script supermicro-ipmi-conf to exploit Supermicro IPMI/BMC
   controllers. [Paulino Calderon]
 
