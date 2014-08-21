@@ -308,8 +308,10 @@ int xml_write_escaped_v(const char *fmt, va_list va) {
   return 0;
 }
 
-/* Write the XML declaration: <?xml version="1.0"?>. */
-int xml_start_document() {
+/* Write the XML declaration: <?xml version="1.0"?>
+ * and the DOCTYPE declaration: <!DOCTYPE rootnode>
+ */
+int xml_start_document(const char *rootnode) {
   if (xml_open_pi("xml") < 0)
     return -1;
   if (xml_attribute("version", "1.0") < 0)
@@ -319,7 +321,7 @@ int xml_start_document() {
   if (xml_newline() < 0)
     return -1;
 
-  log_write(LOG_XML, "<!DOCTYPE nmaprun PUBLIC \"-//IDN nmap.org//DTD Nmap XML %s//EN\" \"https://svn.nmap.org/nmap/docs/nmap.dtd\">\n", NMAP_XMLOUTPUTVERSION);
+  log_write(LOG_XML, "<!DOCTYPE %s>\n", rootnode);
 
   return 0;
 }

@@ -1737,7 +1737,7 @@ int nmap_main(int argc, char *argv[]) {
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
   char *xslfname = o.XSLStyleSheet();
-  xml_start_document();
+  xml_start_document("nmaprun");
   if (xslfname) {
     xml_open_pi("xml-stylesheet");
     xml_attribute("href", "%s", xslfname);

@@ -129,7 +129,7 @@ int xml_write_raw(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 int xml_write_escaped(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 int xml_write_escaped_v(const char *fmt, va_list va) __attribute__ ((format (printf, 1, 0)));
 
-int xml_start_document();
+int xml_start_document(const char *rootnode);
 
 int xml_start_comment();
 int xml_end_comment();
