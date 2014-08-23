@@ -58,6 +58,14 @@ cp -R $LIBPREFIX/lib/gtk-2.0/$gtk_version/* $BASE/Resources/lib/gtk-2.0/$gtk_ver
 mkdir -p $BASE/Resources/etc/gtk-2.0
 cp $SCRIPT_DIR/gtkrc $BASE/Resources/etc/gtk-2.0/
 
+echo "Updating paths in GTK+ .so files"
+ESCAPED_LIBPREFIX=$(echo $LIBPREFIX | sed 's/\([\/\\.]\)/\\\1/g')
+find $BASE/Resources/lib/gtk-2.0/$gtk_version/ -type f -name '*.so' | while read so; do
+  otool -L "$so" | awk "/$ESCAPED_LIBPREFIX/{print \$1}" | while read dep; do
+    install_name_tool -change $dep $(echo $dep | sed "s/$ESCAPED_LIBPREFIX\/lib/@executable_path\/..\/Frameworks/") "$so"
+  done
+done
+
 pango_version=`$PKG_CONFIG --variable=pango_module_version pango`
 echo "Copying Pango $pango_version files."
 mkdir -p $BASE/Resources/etc/pango
