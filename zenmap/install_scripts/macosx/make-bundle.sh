@@ -81,7 +81,7 @@ cp -R $LIBPREFIX/etc/fonts $BASE/Resources/etc/
 sed -i "" 's/ *<dir>'$(echo "$LIBPREFIX" | sed -e 's/\([^a-zA-Z0-9]\)/\\\1/g')'\/share\/fonts<\/dir>//g' $BASE/Resources/etc/fonts/fonts.conf
 sed -i "" '/<cachedir>'$(echo "$LIBPREFIX" | sed -e 's/\([^a-zA-Z0-9]\)/\\\1/g')'\/var\/cache\/fontconfig<\/cachedir>/d' $BASE/Resources/etc/fonts/fonts.conf
 # Disable hinting to better match the Mac GUI.
-ln -sf ../conf.avail/10-unhinted.conf $BASE/Resources/etc/fonts/conf.d
+cp $LIBPREFIX/share/fontconfig/conf.avail/10-unhinted.conf $BASE/Resources/etc/fonts/conf.d
 
 echo "Renaming main Zenmap executable."
 mv $BASE/MacOS/$APP_NAME $BASE/MacOS/zenmap.bin
