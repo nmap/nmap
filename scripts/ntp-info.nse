@@ -75,8 +75,8 @@ action = function(host, port)
   local buftres, bufrlres
   local output = stdnse.output_table()
 
-  -- This is a ntp v4 mode3 (client) date/time request.
-  local treq = string.char(0xe3, 0x00, 0x04, 0xfa, 0x00, 0x01, 0x00, 0x00,
+  -- This is a ntp v2 mode3 (client) date/time request.
+  local treq = string.char(0xd3, 0x00, 0x04, 0xfa, 0x00, 0x01, 0x00, 0x00,
                            0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -89,10 +89,7 @@ action = function(host, port)
                             0x00, 0x00, 0x00, 0x00)
 
   status, buftres = comm.exchange(host, port, treq, {proto=port.protocol, timeout=TIMEOUT})
-  if not status then
-    -- Don't try the second probe if this one didn't work.
-    return nil
-  else
+  if status then
     local _, sec, frac, tstamp
 
     _, sec, frac = bin.unpack(">II", buftres, 33)
