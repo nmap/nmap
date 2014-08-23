@@ -401,7 +401,7 @@ nsock_check:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
 
 zenmap_check:
-	@cd $(ZENMAPDIR) && $(PYTHON) -m unittest discover build/lib.* '*.py'
+	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
 check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@
 
