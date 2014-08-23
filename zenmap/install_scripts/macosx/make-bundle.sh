@@ -64,10 +64,16 @@ mkdir -p $BASE/Resources/etc/pango
 cat > $BASE/Resources/etc/pango/pangorc.in <<EOF
 # This template is filled in at run time by the application.
 
-[PangoX]
-AliasFiles = \${RESOURCES}/etc/pango/pangox.aliases
+#
+# pangorc file for uninstalled operation.
+# We set the path as ../modules, such that it works from any of
+# top level build subdirs.
+#
+
+[Pango]
+ModuleFiles = \${RESOURCES}/etc/pango/pango.modules
 EOF
-cp $LIBPREFIX/etc/pango/pangox.aliases $BASE/Resources/etc/pango/
+cp $LIBPREFIX/etc/pango/pango.modules $BASE/Resources/etc/pango/
 
 echo "Copying Fontconfig files."
 cp -R $LIBPREFIX/etc/fonts $BASE/Resources/etc/
