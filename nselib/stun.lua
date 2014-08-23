@@ -323,7 +323,7 @@ Helper = {
     return self.comm:connect()
   end,
 
-  -- Get's the external public IP
+  -- Gets the external public IP
   -- @return status true on success, false on failure
   -- @return result containing the IP as string
   getExternalAddress = function(self)

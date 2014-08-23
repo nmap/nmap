@@ -138,7 +138,7 @@ MobileMe = {
     return true, parsed_json
   end,
 
-  -- Get's a list of devices
+  -- Gets a list of devices
   -- @return devices table containing a list of devices
   getDevices = function(self)
     if ( not(self.devices) ) then
@@ -166,7 +166,7 @@ Helper = {
     return o
   end,
 
-  -- Get's the geolocation from each device
+  -- Gets the geolocation from each device
   --
   -- @return status true on success, false on failure
   -- @return result table containing a table of device locations

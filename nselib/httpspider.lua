@@ -450,11 +450,11 @@ URL = {
     return false
   end,
 
-  -- Get's the host portion of the URL
+  -- Gets the host portion of the URL
   -- @return host string containing the hostname
   getHost = function(self) return self.host end,
 
-  -- Get's the protocol representation of the URL
+  -- Gets the protocol representation of the URL
   -- @return proto string containing the protocol (ie. http, https)
   getProto = function(self) return self.proto end,
 
@@ -695,13 +695,13 @@ Crawler = {
     return o
   end,
 
-  -- Set's the timeout used by the http library
+  -- Sets the timeout used by the http library
   -- @param timeout number containing the timeout in ms.
   set_timeout = function(self, timeout)
     self.options.timeout = timeout
   end,
 
-  -- Get's the amount of pages that has been retrieved
+  -- Gets the amount of pages that has been retrieved
   -- @return count number of pages retrieved by the instance
   getPageCount = function(self)
     local count = 1

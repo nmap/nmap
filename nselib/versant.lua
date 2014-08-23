@@ -169,7 +169,7 @@ Versant = {
   end,
 
 
-  -- Get's the XML license file from the database
+  -- Gets the XML license file from the database
   -- @return status true on success, false on failure
   -- @return data string containing the XML license file
   getLicense = function(self)
