@@ -69,4 +69,23 @@ function atwordboundary (patt)
   }
 end
 
+---
+-- Returns a pattern which captures the contents of a quoted string.
+--
+-- This can handle embedded escaped quotes, and captures the unescaped string.
+--
+-- @param quot The quote character to use. Default: '"'
+-- @param esc The escape character to use. Cannot be the same as quot. Default: "\"
+function escaped_quote (quot, esc)
+  quot = quot or '"'
+  esc = esc or '\\'
+  return lpeg.P {
+    lpeg.Cs(lpeg.V "quot" * lpeg.Cs((lpeg.V "simple_char" + lpeg.V "unesc")^0) * lpeg.V "quot"),
+    quot = lpeg.P(quot)/"",
+    esc = lpeg.P(esc),
+    simple_char = (lpeg.P(1) - (lpeg.V "quot" + lpeg.V "esc")),
+    unesc = (lpeg.V "esc" * lpeg.C( lpeg.P(1) ))/"%1",
+  }
+end
+
 return _ENV
