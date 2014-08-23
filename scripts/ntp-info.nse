@@ -5,6 +5,8 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local lpeg = require "lpeg"
+local U = require "lpeg.utility"
 
 description = [[
 Gets the time and configuration variables from an NTP server. We send two
@@ -70,6 +72,14 @@ local TIMEOUT = 5000
 -- Only these fields from the response are displayed with default verbosity.
 local DEFAULT_FIELDS = {"version", "processor", "system", "refid", "stratum"}
 
+-- comma-space-separated key=value pairs with optional quotes
+local kvmatch = U.localize( {
+    lpeg.V "space"^0 * lpeg.V "kv" * lpeg.P(",")^-1,
+    kv = lpeg.V "key" * "=" * lpeg.V "value",
+    key = lpeg.C( (lpeg.V "alnum" + "_")^1 ),
+    value = U.escaped_quote() + lpeg.C((lpeg.P(1) - ",")^1),
+  } )
+
 action = function(host, port)
   local status
   local buftres, bufrlres
@@ -112,12 +122,17 @@ action = function(host, port)
     -- preceded by a 2-byte length.
     _, data = bin.unpack(">P", bufrlres, 11)
 
-    -- This parsing is not quite right with respect to quoted strings.
-    -- Backslash escapes should be interpreted inside strings and commas should
-    -- be allowed inside them.
-    for k, q, v in string.gmatch(data, "%s*([%w_]+)=(\"?)([^,\"\r\n]*)%2,?") do
+    -- loop over capture pairs which represent (key, value)
+    local function accumulate_output (...)
+      local k, v = ...
+      if k == nil then return end
       output[k] = v
+      return accumulate_output(select(3, ...))
     end
+
+    -- do the match and accumulate the captures
+    local list = kvmatch^0 / accumulate_output
+    list:match(data)
   end
 
   if(#output > 0) then
