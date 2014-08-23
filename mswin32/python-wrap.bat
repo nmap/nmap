@@ -20,7 +20,11 @@ if not exist "%PROG%" (
 set PATH=%PATH%;C:\Python27;C:\Python26;C:\Python25;C:\Python24
 for %%P in ( python.exe ) do set PYTHON=%%~f$PATH:P
 
-if not exist "%PYTHON%" (
+if not exist "%PYTHON%" GOTO:NOPYTHON
+
+GOTO:EXEC
+
+:NOPYTHON
 	echo Cannot run %PROG%
 	echo because python.exe was not found anywhere in
 	echo %PATH%.
@@ -28,7 +32,7 @@ if not exist "%PYTHON%" (
 	echo To run this program, download and install Python from
 	echo http://www.python.org/download.
 	exit /B 1
-)
 
+:EXEC
 rem This command chaining allows the exit code to propagate.
 endlocal & "%PYTHON%" "%PROG%" %*
