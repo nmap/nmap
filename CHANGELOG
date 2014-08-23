@@ -41,10 +41,6 @@ o [NSE] Added the script supermicro-ipmi-conf to exploit Supermicro IPMI/BMC
 o [NSE] Added mikrotik-routeros-brute script to perform password auditing 
   attacks against Mikrotik's RouterOS API. [Paulino Calderon]
 
-o [Ncat] Fixed SOCKS5 username/password authentication. The password length was
-  being written in the wrong place, so authentication could not succeed.
-  Reported with patch by Pierluigi Vittori.
-
 o [NSE] Add s7-info script to get device information from Siemens PLCs via the
   S7 service, tunnelled over ISO-TSAP on TCP port 102. [Stephen Hilt]
 
@@ -81,6 +77,64 @@ o Improvements to whois-ip.nse: fix an unhandled error when a referred-to
   response could not be understood; add a new pattern to recognise a
   LACNIC "record not found" type of response and update the way ARIN is
   queried. [jah]
+
+Nmap 6.47 [2014-08-23]
+
+o Integrated all of your IPv4 OS fingerprint submissions since June 2013
+  (2700+ of them). Added 366 fingerprints, bringing the new total to 4485.
+  Additions include Linux 3.10 - 3.14, iOS 7, OpenBSD 5.4 - 5.5, FreeBSD 9.2,
+  OS X 10.9, Android 4.3, and more. Many existing fingerprints were improved.
+  Highlights: http://seclists.org/nmap-dev/2014/q3/325 [Daniel Miller]
+
+o (Windows, RPMs) Upgraded the included OpenSSL to version 1.0.1i. [Daniel Miller]
+
+o (Windows) Upgraded the included Python to version 2.7.8. [Daniel Miller]
+
+o Removed the External Entity Declaration from the DOCTYPE in Nmap's XML. This
+  was added in 6.45, and resulted in trouble for Nmap XML parsers without
+  network access, as well as increased traffic to Nmap's servers. The doctype
+  is now:
+  <!DOCTYPE nmaprun>
+
+o [Ndiff] Fixed the installation process on Windows, which was missing the
+  actual Ndiff Python module since we separated it from the driver script.
+  [Daniel Miller]
+
+o [Ndiff] Fixed the ndiff.bat wrapper in the zipfile Windows distribution,
+  which was giving the error, "\Microsoft was unexpected at this time." See
+  https://support.microsoft.com/kb/2524009 [Daniel Miller]
+
+o [Zenmap] Fixed the Zenmap .dmg installer for OS X. Zenmap failed to launch,
+  producing this error:
+    Could not import the zenmapGUI.App module:
+    'dlopen(/Applications/Zenmap.app/Contents/Resources/lib/python2.6/lib-dynload/glib/_glib.so, 2):
+    Library not loaded: /Users/david/macports-10.5/lib/libffi.5.dylib\n
+    Referenced from:
+    /Applications/Zenmap.app/Contents/Resources/lib/python2.6/lib-dynload/glib/_glib.so\n
+    Reason: image not found'.
+
+o [Ncat] Fixed SOCKS5 username/password authentication. The password length was
+  being written in the wrong place, so authentication could not succeed.
+  Reported with patch by Pierluigi Vittori.
+
+o Avoid formatting NULL as "%s" when running nmap --iflist. GNU libc converts
+  this to the string "(null)", but it caused segfault on Solaris. [Daniel Miller]
+
+o [Zenmap][Ndiff] Avoid crashing when users have the antiquated PyXML package
+  installed. Python tries to be nice and loads it when we import xml, but it
+  isn't compatible. Instead, we force Python to use the standard library xml
+  module. [Daniel Miller]
+
+o Handle ICMP admin-prohibited messages when doing service version detection.
+  Crash reported by Nathan Stocks was: Unexpected error in NSE_TYPE_READ
+  callback.  Error code: 101 (Network is unreachable) [David Fifield]
+
+o [NSE] Fix a bug causing http.head to not honor redirects. [Patrik Karlsson]
+
+o [Zenmap] Fix a bug in DiffViewer causing this crash:
+     TypeError: GtkTextBuffer.set_text() argument 1 must be string or read-only
+     buffer, not NmapParserSAX
+  Crash happened when trying to compare two scans within Zenmap. [Daniel Miller]
 
 Nmap 6.46 [2014-04-18]
 
