@@ -582,6 +582,14 @@ if 'py2exe' in sys.argv:
             }],
         # On Windows we build Ndiff here in Zenmap's setup.py so the two Python
         # programs will share a common runtime.
+        'py_modules': ["ndiff"],
+        # override the package search path to let Ndiff be found
+        'package_dir': {
+            'zenmapCore': 'zenmapCore',
+            'zenmapGUI': 'zenmapGUI',
+            'radialnet': 'radialnet',
+            '': '../ndiff'
+            },
         'console': [{
             "script": "../ndiff/scripts/ndiff",
             "description": "Nmap scan comparison tool"
