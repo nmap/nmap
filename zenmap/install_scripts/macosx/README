@@ -61,7 +61,7 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
 	cd $PREFIX
 	mkdir ports
 	ln -s var/macports/sources/rsync.macports.org/release/tarballs/ports ports.orig
-	for x in archivers/xz devel/apr-util devel/atk devel/gettext devel/glib2 gnome/gtk2 graphics/fontconfig graphics/gdk-pixbuf2 perl/p5-locale-gettext python/py26-gobject python/py27-libxml2 textproc/help2man textproc/libxml2 textproc/libxslt x11/pango; do
+	for x in archivers/xz editors/vim devel/apr-util devel/atk devel/gettext devel/glib2 gnome/gtk2 graphics/fontconfig graphics/gdk-pixbuf2 mail/libidn perl/p5-locale-gettext python/py-gobject python/py-libxml2 textproc/help2man textproc/libxml2 textproc/libxslt x11/pango; do
 		mkdir -v -p ports/$x;
 		cp -R ports.orig/$x ports/$(dirname $x);
 	done
@@ -74,7 +74,7 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
 	file:///Users/user/macports-10.5/ports
    above the rsync line. (Replace "user" with your user name.)
 7. Install the dependencies of Zenmap.
-	$PREFIX/bin/port install py26-gtk py26-py2app apr apr-util
+	$PREFIX/bin/port install py26-pygtk py26-py2app apr apr-util
 
 Here are instructions for updating the patch to keep up with MacPorts
 changes. First, sync the original ports tree.
