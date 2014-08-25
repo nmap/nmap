@@ -314,3 +314,27 @@ table.insert(fingerprints, {
     return try_http_basic_login(host, port, path, user, pass, true)
   end
 })
+
+---
+--Remote consoles
+---
+table.insert(fingerprints, {
+  name = "Lantronix SLC",
+  category = "console",
+  paths = {
+    {path = "/scsnetwork.htm"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^mini_httpd")
+           and response.body
+           and response.body:find("<title>Lantronix SLC",1,true)
+  end,
+  login_combos = {
+    {username = "sysadmin", password = "PASS"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "./", "%sname%s*=%s*(['\"]?)slcpassword%1[%s>]", {slclogin=user, slcpassword=pass})
+  end
+})
