@@ -3,7 +3,7 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @class module
--- @name lpeg.utility
+-- @name lpeg-utility
 
 local assert = assert
 

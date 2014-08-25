@@ -6,7 +6,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local lpeg = require "lpeg"
-local U = require "lpeg.utility"
+local U = require "lpeg-utility"
 
 description = [[
 Gets the time and configuration variables from an NTP server. We send two
