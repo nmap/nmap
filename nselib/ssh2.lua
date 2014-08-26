@@ -157,7 +157,25 @@ fetch_host_key = function( host, port, key_type )
   local status
 
   -- oakley group 2 prime taken from rfc 2409
-  local prime = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF"
+  local prime2 = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1\z
+    29024E088A67CC74020BBEA63B139B22514A08798E3404DD\z
+    EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245\z
+    E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED\z
+    EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381\z
+    FFFFFFFFFFFFFFFF"
+  -- oakley group 14 prime taken from rfc 3526
+  local prime14 = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1\z
+    29024E088A67CC74020BBEA63B139B22514A08798E3404DD\z
+    EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245\z
+    E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED\z
+    EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D\z
+    C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F\z
+    83655D23DCA3AD961C62F356208552BB9ED529077096966D\z
+    670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B\z
+    E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9\z
+    DE2BCBF6955817183995497CEA956AE515D2261898FA0510\z
+    15728E5A8AACAA68FFFFFFFFFFFFFFFF"
+
 
   status = socket:connect(host, port)
   if not status then return end
@@ -168,7 +186,10 @@ fetch_host_key = function( host, port, key_type )
   status = socket:send("SSH-2.0-Nmap-SSH2-Hostkey\r\n")
   if not status then socket:close(); return end
 
-  local packet = transport.build( transport.kex_init( {host_key_algorithms=key_type} ) )
+  local packet = transport.build( transport.kex_init( {
+        host_key_algorithms=key_type,
+        kex_algorithms="diffie-hellman-group1-sha1,diffie-hellman-group14-sha1"
+    } ) )
   status = socket:send( packet )
   if not status then socket:close(); return end
 
@@ -183,11 +204,24 @@ fetch_host_key = function( host, port, key_type )
     return
   end
 
+  local kex_algs = tostring(kex_init.kex_algorithms)
+  local prime, q
+  if kex_algs:find("diffie-hellman-group1-", 1, true) then
+    prime = prime2
+    q = 1024
+  elseif kex_algs:find("diffie-hellman-group14-", 1, true) then
+    prime = prime14
+    q = 2048
+  else
+    stdnse.debug2("No shared KEX methods supported by server")
+    return
+  end
+
   local e, g, x, p
   -- e = g^x mod p
   g = openssl.bignum_dec2bn( "2" )
   p = openssl.bignum_hex2bn( prime )
-  x = openssl.bignum_pseudo_rand( 1024 )
+  x = openssl.bignum_pseudo_rand( q )
   e = openssl.bignum_mod_exp( g, x, p )
 
   packet = transport.build( transport.kexdh_init( e ) )
@@ -196,9 +230,11 @@ fetch_host_key = function( host, port, key_type )
 
   local kexdh_reply
   status, kexdh_reply = transport.receive_packet( socket )
+  if not status then socket:close(); return end
   kexdh_reply = transport.payload( kexdh_reply )
   -- check for proper msg code
   if kexdh_reply:byte(1) ~= SSH2.SSH_MSG_KEXDH_REPLY then
+    socket:close()
     return
   end
 
@@ -228,6 +264,7 @@ fetch_host_key = function( host, port, key_type )
     stdnse.debug1("Unsupported key type: %s", key_type )
   end
 
+  socket:close()
   return { key=base64.enc(public_host_key), key_type=key_type, fp_input=public_host_key, bits=bits,
            full_key=('%s %s'):format(key_type,base64.enc(public_host_key)),
            algorithm=algorithm, fingerprint=openssl.md5(public_host_key) }
