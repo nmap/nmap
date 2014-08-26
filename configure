@@ -4360,6 +4360,7 @@ fi
 # Remember that all following tests will run with this CXXFLAGS by default
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for __func__" >&5
 $as_echo_n "checking for __func__... " >&6; }
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4522,36 +4523,45 @@ needs_cpp_precomp=no
 
 LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 
+
+
 case "$host" in
   *alpha-dec-osf*)
-    $as_echo "#define DEC 1" >>confdefs.h
+
+$as_echo "#define DEC 1" >>confdefs.h
 
     ;;
   *-netbsd* | *-knetbsd*-gnu)
-    $as_echo "#define NETBSD 1" >>confdefs.h
+
+$as_echo "#define NETBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-openbsd*)
-    $as_echo "#define OPENBSD 1" >>confdefs.h
+
+$as_echo "#define OPENBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    $as_echo "#define FREEBSD 1" >>confdefs.h
+
+$as_echo "#define FREEBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-bsdi*)
-    $as_echo "#define BSDI 1" >>confdefs.h
+
+$as_echo "#define BSDI 1" >>confdefs.h
 
     ;;
   *-sgi-irix5* | *-sgi-irix6*)
-    $as_echo "#define IRIX 1" >>confdefs.h
+
+$as_echo "#define IRIX 1" >>confdefs.h
 
     ;;
   *-hpux*)
-    $as_echo "#define HPUX 1" >>confdefs.h
+
+$as_echo "#define HPUX 1" >>confdefs.h
 
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
@@ -4743,7 +4753,8 @@ fi
     $as_echo "#define SOLARIS 1" >>confdefs.h
 
     # Solaris 11 and later use BPF packet capture rather than DLPI.
-    $as_echo "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
+
+$as_echo "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
 
     ;;
   *-solaris2.0*)
@@ -4791,18 +4802,22 @@ fi
 
     ;;
   *-sunos4*)
-    $as_echo "#define SUNOS 1" >>confdefs.h
 
-    $as_echo "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
+$as_echo "#define SUNOS 1" >>confdefs.h
+
+
+$as_echo "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
 
     ;;
   *-linux*)
-    $as_echo "#define LINUX 1" >>confdefs.h
+
+$as_echo "#define LINUX 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-apple-darwin*)
-    $as_echo "#define MACOSX 1" >>confdefs.h
+
+$as_echo "#define MACOSX 1" >>confdefs.h
 
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lm" >&5
 $as_echo_n "checking for main in -lm... " >&6; }
@@ -5430,7 +5445,8 @@ $as_echo_n "checking if AF_INET6 IPPROTO_RAW sockets include the packet header..
   # This should be replaced with a better test, if possible.
   case "$host" in
     *-linux*)
-      $as_echo "#define HAVE_IPV6_IPPROTO_RAW 1" >>confdefs.h
+
+$as_echo "#define HAVE_IPV6_IPPROTO_RAW 1" >>confdefs.h
 
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -6163,7 +6179,8 @@ fi
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
-  $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
+
+$as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
   OPENSSL_LIBS="-lssl -lcrypto"
 fi
@@ -6430,7 +6447,8 @@ if test $have_libpcap != yes; then
   PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
-  $as_echo "#define PCAP_INCLUDED 1" >>confdefs.h
+
+$as_echo "#define PCAP_INCLUDED 1" >>confdefs.h
 
 
   # libpcap can require libnl
@@ -6491,7 +6509,8 @@ if test "$ac_res" != no; then :
 fi
 
 else
-  $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
+
+$as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
 
   LIBPCAP_LIBS="-lpcap"
   PCAP_DEPENDS=""
@@ -6637,7 +6656,8 @@ if test $have_pcre != yes ; then
   PCRE_BUILD="pcre_build"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
-  $as_echo "#define PCRE_INCLUDED 1" >>confdefs.h
+
+$as_echo "#define PCRE_INCLUDED 1" >>confdefs.h
 
 else
 # We only need to check for and use this if we are NOT using included pcre
@@ -6705,7 +6725,8 @@ if test $have_dnet != yes ; then
   DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
-  $as_echo "#define DNET_INCLUDED 1" >>confdefs.h
+
+$as_echo "#define DNET_INCLUDED 1" >>confdefs.h
 
 else
   LIBDNET_LIBS="-ldnet"
@@ -7019,7 +7040,8 @@ $as_echo "no" >&6; }
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
-    $as_echo "#define LUA_INCLUDED 1" >>confdefs.h
+
+$as_echo "#define LUA_INCLUDED 1" >>confdefs.h
 
   else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -7141,7 +7163,8 @@ $as_echo "no" >&6; }
   LIBLINEAR_BUILD="liblinear_build"
   LIBLINEAR_CLEAN="liblinear_clean"
   LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
-  $as_echo "#define LIBLINEAR_INCLUDED 1" >>confdefs.h
+
+$as_echo "#define LIBLINEAR_INCLUDED 1" >>confdefs.h
 
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -7385,6 +7408,7 @@ $as_echo "#define AC_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if struct in_addr is a wacky huge structure (some Sun boxes)" >&5
 $as_echo_n "checking if struct in_addr is a wacky huge structure (some Sun boxes)... " >&6; }
 
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <netinet/in.h>
@@ -7466,7 +7490,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_icmp_exists" >&5
 $as_echo "$ac_cv_struct_icmp_exists" >&6; }
 if test $ac_cv_struct_icmp_exists = yes ; then
-        $as_echo "#define HAVE_STRUCT_ICMP 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRUCT_ICMP 1" >>confdefs.h
 
 fi
 
@@ -7504,7 +7529,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_ip_exists" >&5
 $as_echo "$ac_cv_struct_ip_exists" >&6; }
 if test $ac_cv_struct_ip_exists = yes ; then
-        $as_echo "#define HAVE_STRUCT_IP 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRUCT_IP 1" >>confdefs.h
 
 fi
 
@@ -7543,7 +7569,8 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_ip_has_ip_sum" >&5
 $as_echo "$ac_cv_ip_has_ip_sum" >&6; }
 if test $ac_cv_ip_has_ip_sum = yes ; then
-        $as_echo "#define HAVE_IP_IP_SUM 1" >>confdefs.h
+
+$as_echo "#define HAVE_IP_IP_SUM 1" >>confdefs.h
 
 fi
 

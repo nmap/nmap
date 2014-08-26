@@ -97,28 +97,28 @@ AH_TEMPLATE(STUPID_SOLARIS_CHECKSUM_BUG, [],
             [A bug in Solaris causing incorrect IP checksums])
 case "$host" in
   *alpha-dec-osf*)
-    AC_DEFINE(DEC, [], [DEC Alpha])
+    AC_DEFINE(DEC, 1, [DEC Alpha])
     ;;
   *-netbsd* | *-knetbsd*-gnu)
-    AC_DEFINE(NETBSD, [], [NetBSD])
+    AC_DEFINE(NETBSD, 1, [NetBSD])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-openbsd*)
-    AC_DEFINE(OPENBSD, [], [OpenBSD])
+    AC_DEFINE(OPENBSD, 1, [OpenBSD])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    AC_DEFINE(FREEBSD, [], [FreeBSD])
+    AC_DEFINE(FREEBSD, 1, [FreeBSD])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-bsdi*)
-    AC_DEFINE(BSDI, [], [BSD/OS])
+    AC_DEFINE(BSDI, 1, [BSD/OS])
     ;;
   *-sgi-irix5* | *-sgi-irix6*)
-    AC_DEFINE(IRIX, [], [IRIX])
+    AC_DEFINE(IRIX, 1, [IRIX])
     ;;
   *-hpux*)
-    AC_DEFINE(HPUX, [], [HP-UX])
+    AC_DEFINE(HPUX, 1, [HP-UX])
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
@@ -132,7 +132,7 @@ case "$host" in
   *-solaris2.1[[1-9]]*)
     AC_DEFINE(SOLARIS)
     # Solaris 11 and later use BPF packet capture rather than DLPI.
-    AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE, [], [Solaris 11 and later use BPF packet capture rather than DLPI.])
+    AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE, 1, [Solaris 11 and later use BPF packet capture rather than DLPI.])
     ;;
   *-solaris2.0*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
@@ -165,16 +165,16 @@ case "$host" in
     AC_DEFINE(SOLARIS)
     ;;
   *-sunos4*)
-    AC_DEFINE(SUNOS, [], [SunOS 4])
-    AC_DEFINE(SPRINTF_RETURNS_STRING, [],
+    AC_DEFINE(SUNOS, 1, [SunOS 4])
+    AC_DEFINE(SPRINTF_RETURNS_STRING, 1,
               [sprintf(9f) returns its first argument, not the number of characters printed])
     ;;
   *-linux*)
-    AC_DEFINE(LINUX, [], [Linux])
+    AC_DEFINE(LINUX, 1, [Linux])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-apple-darwin*)
-    AC_DEFINE(MACOSX, [], [Apple OS X])
+    AC_DEFINE(MACOSX, 1, [Apple OS X])
     dnl on Mac OSX the math library seems to contain unwanted getopt cruft
     AC_CHECK_LIB(m, main)
     LUA_CFLAGS="-DLUA_USE_MACOSX"
@@ -364,7 +364,7 @@ fi
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
-  AC_DEFINE(HAVE_OPENSSL, [], [Have OpenSSL library])
+  AC_DEFINE(HAVE_OPENSSL, 1, [Have OpenSSL library])
   OPENSSL_LIBS="-lssl -lcrypto"
 fi
 
@@ -436,12 +436,12 @@ if test $have_libpcap != yes; then
   PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
-  AC_DEFINE(PCAP_INCLUDED, [], [Using included libpcap])
+  AC_DEFINE(PCAP_INCLUDED, 1, [Using included libpcap])
 
   # libpcap can require libnl
   AC_SEARCH_LIBS(nl_handle_alloc, nl)
 else
-  AC_DEFINE(HAVE_LIBPCAP, [], [Have libpcap library])
+  AC_DEFINE(HAVE_LIBPCAP, 1, [Have libpcap library])
   LIBPCAP_LIBS="-lpcap"
   PCAP_DEPENDS=""
   PCAP_BUILD=""
@@ -496,7 +496,7 @@ if test $have_pcre != yes ; then
   PCRE_BUILD="pcre_build"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
-  AC_DEFINE(PCRE_INCLUDED, [], [Using included libpcre])
+  AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
 else
 # We only need to check for and use this if we are NOT using included pcre
   AC_CHECK_HEADERS(pcre/pcre.h)
@@ -549,7 +549,7 @@ if test $have_dnet != yes ; then
   DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
-  AC_DEFINE(DNET_INCLUDED, [], [Use included libdnet])
+  AC_DEFINE(DNET_INCLUDED, 1, [Use included libdnet])
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
@@ -645,7 +645,7 @@ else
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
-    AC_DEFINE(LUA_INCLUDED, [], [Using included liblua])
+    AC_DEFINE(LUA_INCLUDED, 1, [Using included liblua])
   else
     AC_MSG_RESULT(yes)
   fi
@@ -713,7 +713,7 @@ if test $have_liblinear != yes; then
   LIBLINEAR_BUILD="liblinear_build"
   LIBLINEAR_CLEAN="liblinear_clean"
   LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
-  AC_DEFINE(LIBLINEAR_INCLUDED, [], [Using included liblinear])
+  AC_DEFINE(LIBLINEAR_INCLUDED, 1, [Using included liblinear])
 else
   AC_MSG_RESULT(yes)
 fi
@@ -756,7 +756,7 @@ AC_CACHE_CHECK(if struct icmp exists, ac_cv_struct_icmp_exists,
         ac_cv_struct_icmp_exists=yes,
         ac_cv_struct_icmp_exists=no))
 if test $ac_cv_struct_icmp_exists = yes ; then
-        AC_DEFINE(HAVE_STRUCT_ICMP, [], [struct icmp is declared])
+        AC_DEFINE(HAVE_STRUCT_ICMP, 1, [struct icmp is declared])
 fi
 
 AC_CACHE_CHECK(if struct ip exists, ac_cv_struct_ip_exists,
@@ -773,7 +773,7 @@ AC_CACHE_CHECK(if struct ip exists, ac_cv_struct_ip_exists,
         ac_cv_struct_ip_exists=yes,
         ac_cv_struct_ip_exists=no))
 if test $ac_cv_struct_ip_exists = yes ; then
-        AC_DEFINE(HAVE_STRUCT_IP, [], [struct ip is declared])
+        AC_DEFINE(HAVE_STRUCT_IP, 1, [struct ip is declared])
 fi
 
 AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
@@ -791,7 +791,7 @@ AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
         ac_cv_ip_has_ip_sum=yes,
         ac_cv_ip_has_ip_sum=no))
 if test $ac_cv_ip_has_ip_sum = yes ; then
-        AC_DEFINE(HAVE_IP_IP_SUM, [], [struct ip has ip_sum member])
+        AC_DEFINE(HAVE_IP_IP_SUM, 1, [struct ip has ip_sum member])
 fi
 
 dnl Checks for library functions.
