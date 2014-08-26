@@ -1,5 +1,10 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Organize nselib into a hierarchy. A library "dirname/filename.lua" can be
+  required as "dirname.filename". We would need to ensure the installers
+  (Makefile, OS X, Windows, RPM) can handle this. See
+  http://seclists.org/nmap-dev/2014/q3/364
+
 o We should work to reduce Zenmap's memory consumption. We used to
   commonly get error reports from people who load so many systems that
   Zenmap gives an out of memory error and crashes.  For example, see
