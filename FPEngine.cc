@@ -463,7 +463,10 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
       /* Send the packet*/
       assert(myprobe->host != NULL);
       if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
-        pfatal("Unable to send packet in %s", __func__);
+        myprobe->setFailed();
+        this->cc_report_final_timeout();
+        myprobe->host->fail_one_probe();
+        gh_perror("Unable to send packet in %s", __func__);
       }
       myprobe->setTimeSent();
       free(buf);
@@ -743,6 +746,9 @@ void FPHost6::fill_FPR(FingerPrintResultsIPv6 *FPR) {
       break;
     }
   }
+
+  /* Did we fail to send some probe? */
+  FPR->incomplete = this->incomplete_fp;
 }
 
 static const IPv6Header *find_ipv6(const PacketElement *pe) {
@@ -1212,6 +1218,7 @@ void FPHost::__reset() {
   this->probes_sent = 0;
   this->probes_answered = 0;
   this->probes_unanswered = 0;
+  this->incomplete_fp = false;
   this->detection_done = false;
   this->timedprobes_sent = false;
   this->target_host = NULL;
@@ -1244,6 +1251,12 @@ const struct sockaddr_storage *FPHost::getTargetAddress() {
   return this->target_host->TargetSockAddr();
 }
 
+/* Marks one probe as unanswerable, making the fingerprint incomplete and
+ * ineligible for submission */
+void FPHost::fail_one_probe() {
+  this->probes_unanswered++;
+  this->incomplete_fp = true;
+}
 
 /* Accesses the Target object associated with the FPHost to extract the port
  * numbers to be used in OS detection. In particular it extracts:

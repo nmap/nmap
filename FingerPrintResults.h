@@ -181,6 +181,8 @@ class FingerPrintResults {
      consistency standpoint. */
   double maxTimingRatio;
 
+  bool incomplete; /* Were we unable to send all necessary probes? */
+
 /* If the fingerprint is of potentially poor quality, we don't want to
    print it and ask the user to submit it.  In that case, the reason
    for skipping the FP is returned as a static string.  If the FP is

@@ -392,6 +392,7 @@ class FPHost {
   unsigned int probes_sent;       /* Number of FPProbes sent (not counting retransmissions)       */
   unsigned int probes_answered;   /* Number of FPResponses received                               */
   unsigned int probes_unanswered; /* Number of FPProbes that timedout (after all retransmissions) */
+  bool incomplete_fp;             /* True if we were unable to send all attempted probes          */
   bool detection_done;            /* True if the OS detection process has been completed.         */
   bool timedprobes_sent;          /* True if the probes that have timing requirements were sent   */
   Target *target_host;            /* Info about the host to fingerprint                           */
@@ -424,6 +425,7 @@ class FPHost {
   virtual int schedule() = 0;
   virtual int callback(const u8 *pkt, size_t pkt_len, const struct timeval *tv) = 0;
   const struct sockaddr_storage *getTargetAddress();
+  void fail_one_probe();
 
 };
 

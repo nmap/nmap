@@ -138,6 +138,7 @@ FingerPrintResults::FingerPrintResults() {
   distance = -1;
   distance_guess = -1;
   maxTimingRatio = 0;
+  incomplete = false;
 }
 
 FingerPrintResults::~FingerPrintResults() {
@@ -233,6 +234,10 @@ const char *FingerPrintResults::OmitSubmissionFP() {
     return "Didn't receive UDP response. Please try again with -sSU";
   }
 
+  if (incomplete) {
+    return "Some probes failed to send so results incomplete";
+  }
+
   return NULL;
 }
 
@@ -244,6 +249,10 @@ const char *FingerPrintResultsIPv6::OmitSubmissionFP() {
   if (o.scan_delay > 500) { // This can screw up the sequence timing
     Snprintf(reason, sizeof(reason), "Scan delay (%d) is greater than 500", o.scan_delay);
     return reason;
+  }
+
+  if (incomplete) {
+    return "Some probes failed to send so results incomplete";
   }
 
   return NULL;
