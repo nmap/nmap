@@ -77,7 +77,7 @@ local kvmatch = U.localize( {
     lpeg.V "space"^0 * lpeg.V "kv" * lpeg.P ","^-1,
     kv = lpeg.V "key" * lpeg.P "="^-1 * lpeg.V "value",
     key = lpeg.C( (lpeg.V "alnum" + lpeg.S "_-.")^1 ),
-    value = U.escaped_quote() + lpeg.C((lpeg.P(1) - ",")^1),
+    value = U.escaped_quote() + lpeg.C((lpeg.P(1) - ",")^0),
   } )
 
 action = function(host, port)
