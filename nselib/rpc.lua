@@ -150,9 +150,10 @@ Comm = {
   --
   -- @param host table
   -- @param port table
+  -- @param timeout [optional] socket timeout in ms
   -- @return status boolean true on success, false on failure
   -- @return string containing error message (if status is false)
-  Connect = function(self, host, port)
+  Connect = function(self, host, port, timeout)
     local status, err, socket
     status, err = self:ChkProgram()
     if (not(status)) then
@@ -162,12 +163,23 @@ Comm = {
     if (not(status)) then
       return status, err
     end
+    timeout = timeout or (
+      -- Use host timeout value * 5 if available
+      (type(host) == "table" and host.times and host.times.timeout * 5)
+      or 10 -- default 10 seconds
+      ) * 1000 -- convert to ms
+    stdnse.debug1("Timeout: %d", timeout)
+    local new_socket = function(...)
+      local socket = nmap.new_socket(...)
+      socket:set_timeout(timeout)
+      return socket
+    end
     if ( port.protocol == "tcp" ) then
       if nmap.is_privileged() then
         -- Try to bind to a reserved port
         for i = 1, 10, 1 do
           local resvport = math.random(1, 1024)
-          socket = nmap.new_socket()
+          socket = new_socket()
           status, err = socket:bind(nil, resvport)
           if status then
             status, err = socket:connect(host, port)
@@ -176,7 +188,7 @@ Comm = {
           end
         end
       else
-        socket = nmap.new_socket()
+        socket = new_socket()
         status, err = socket:connect(host, port)
       end
     else
@@ -184,7 +196,7 @@ Comm = {
         -- Try to bind to a reserved port
         for i = 1, 10, 1 do
           local resvport = math.random(1, 1024)
-          socket = nmap.new_socket("udp")
+          socket = new_socket("udp")
           status, err = socket:bind(nil, resvport)
           if status then
             status, err = socket:connect(host, port)
@@ -193,7 +205,7 @@ Comm = {
           end
         end
       else
-        socket = nmap.new_socket("udp")
+        socket = new_socket("udp")
         status, err = socket:connect(host, port)
       end
     end
