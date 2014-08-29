@@ -36,7 +36,7 @@ local function get_admin_cookie(host, port, basepath)
   if req.header['set-cookie'] then
     stdnse.debug1("Header 'set-cookie' detected in response.")
     local _, _, admin_cookie = string.find(req.header['set-cookie'], ";path=/, CFAUTHORIZATION_cfadmin=(.*);path=/")
-    if admin_cookie:len() > 79 then
+    if admin_cookie and admin_cookie:len() > 79 then
       stdnse.debug1("Extracted cookie:%s", admin_cookie)
       return admin_cookie
     end
