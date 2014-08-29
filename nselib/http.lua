@@ -1904,7 +1904,7 @@ end
 ---
 -- Parses a form, that is, finds its action and fields.
 -- @param form A plaintext representation of form
--- @return A dictionary with keys: <code>action</action>,
+-- @return A dictionary with keys: <code>action</code>,
 -- <code>method</code> if one is specified, <code>fields</code>
 -- which is a list of fields found in the form each of which has a
 -- <code>name</code> attribute and <code>type</code> if specified.
