@@ -24,6 +24,7 @@ local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local url = require "url"
 
 portrule = shortport.http
 local DEFAULT_PATH = "/CFIDE/adminapi/"
@@ -32,13 +33,13 @@ local MAGIC_URI = "administrator.cfc?method=login&adminpassword=&rdsPasswordAllo
 -- Extracts the admin cookie by reading CFAUTHORIZATION_cfadmin from the header 'set-cookie'
 --
 local function get_admin_cookie(host, port, basepath)
-  local req = http.get(host, port, basepath..MAGIC_URI)
-  if req.header['set-cookie'] then
-    stdnse.debug1("Header 'set-cookie' detected in response.")
-    local _, _, admin_cookie = string.find(req.header['set-cookie'], ";path=/, CFAUTHORIZATION_cfadmin=(.*);path=/")
-    if admin_cookie and admin_cookie:len() > 79 then
-      stdnse.debug1("Extracted cookie:%s", admin_cookie)
-      return admin_cookie
+  local req = http.get(host, port, url.absolute(basepath, MAGIC_URI))
+  if not req then return nil end
+  for _, ck in ipairs(req.cookies or {}) do
+    stdnse.debug2("Set-Cookie for %q detected in response.", ck.name)
+    if ck.name == "CFAUTHORIZATION_cfadmin" and ck.value:len() > 79 then
+      stdnse.debug1("Extracted cookie:%s", ck.value)
+      return ck.value
     end
   end
   return nil
