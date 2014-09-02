@@ -7,6 +7,7 @@
 module "lfs"
 
 --- Returns a directory iterator listing the contents of the given path
+--
 -- Each time the iterator is called with dir_obj it returns a directory entry's
 -- name as a string, or nil if there are no more entries.
 --

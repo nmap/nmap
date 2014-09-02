@@ -586,6 +586,7 @@ function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,argumen
 end
 
 --- NewInstance Command (4)
+--
 --  Creates a new object of this type, invoking the specified constructor.
 --  The constructor method ID must be a member of the class type.
 --

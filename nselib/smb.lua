@@ -460,6 +460,7 @@ function start_raw(host, port)
 end
 
 --- This function will take a string like "a.b.c.d" and return "a", "a.b", "a.b.c", and "a.b.c.d".
+--
 --  This is used for discovering NetBIOS names. If a NetBIOS name is unknown, the substrings of the
 --  DNS name can be used in this way.
 --

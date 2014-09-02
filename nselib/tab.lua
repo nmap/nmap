@@ -71,9 +71,10 @@ function addrow(t, ...)
   nextrow(t)
 end
 
---- Move on to the next row in the table. If this is not called
--- then previous column values will be over-written by subsequent
--- values.
+--- Move on to the next row in the table.
+--
+-- If this is not called then previous column values will be over-written by
+-- subsequent values.
 -- @param t The table.
 function nextrow(t)
   assert(t)

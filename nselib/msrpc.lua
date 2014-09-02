@@ -213,7 +213,9 @@ function stop_smb(state)
   smb.stop(state)
 end
 
---- Bind to a MSRPC interface. Two common interfaces are SAML and SRVSVC, and can be found as
+--- Bind to a MSRPC interface.
+--
+--  Two common interfaces are SAML and SRVSVC, and can be found as
 --  constants at the top of this file. Once this function has successfully returned, any MSRPC
 --  call can be made (provided it doesn't depend on results from other MSRPC calls).
 --

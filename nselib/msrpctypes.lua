@@ -740,7 +740,8 @@ function marshall_int64(int64)
   return result
 end
 
---- Marshall an int32, which has the following format:
+--- Marshall an int32
+--
 -- <code>     [in]            uint32           var</code>
 --
 -- This is simply an integer inserted into the buffer, nothing fancy.
@@ -774,7 +775,8 @@ function marshall_int32_array(data)
   return result
 end
 
---- Marshall an int16, which has the following format:
+--- Marshall an int16
+--
 -- <code>     [in]            uint16           var</code>
 --
 -- This is simply an integer inserted into the buffer, nothing fancy.
@@ -797,7 +799,8 @@ function marshall_int16(int16, pad)
   return result
 end
 
---- Marshall an int8, which has the following format:
+--- Marshall an int8
+--
 -- <code>     [in]            uint8           var</code>
 --
 -- This is simply an integer inserted into the buffer, nothing fancy.
@@ -904,7 +907,9 @@ function unmarshall_int8(data, pos, pad)
   return pos, value
 end
 
---- Marshall a pointer to an int64. If the pointer is null, it simply marshalls the
+--- Marshall a pointer to an int64.
+--
+-- If the pointer is null, it simply marshalls the
 -- integer '0'. Otherwise, it uses a referent id followed by the integer.
 --
 --@param int64 The value of the integer pointer
@@ -919,7 +924,8 @@ function marshall_int64_ptr(int64)
   return result
 end
 
---- Marshall a pointer to an int32, which has the following format:
+--- Marshall a pointer to an int32
+--
 -- <code>     [in,out]   uint32 *ptr</code>
 --
 -- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
@@ -937,7 +943,8 @@ function marshall_int32_ptr(int32)
   return result
 end
 
---- Marshall a pointer to an int16, which has the following format:
+--- Marshall a pointer to an int16
+--
 -- <code>     [in,out]   uint16 *ptr</code>
 --
 -- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
@@ -956,7 +963,8 @@ function marshall_int16_ptr(int16, pad)
   return result
 end
 
---- Marshall a pointer to an int8, which has the following format:
+--- Marshall a pointer to an int8
+--
 -- <code>     [in,out]   uint8 *ptr</code>
 --
 -- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
@@ -1219,8 +1227,9 @@ function unmarshall_NTTIME_ptr(data, pos)
   return pos, time
 end
 
----Unmarshall a SYSTEMTIME structure, converting it to a standard representation. The structure is a
--- follows:
+---Unmarshall a SYSTEMTIME structure, converting it to a standard representation.
+--
+--The structure is as follows:
 --
 -- <code>
 --   typedef struct _SYSTEMTIME {
@@ -1520,7 +1529,7 @@ end
 -- (dependencies: MISC)
 ----------------------------------
 
----Unmarshall a struct with the following definition:
+---Unmarshall a dom_sid struct
 --
 --<code>
 --    typedef [public,gensize,noprint,noejs,nosize] struct {
@@ -1574,7 +1583,7 @@ function unmarshall_dom_sid2_ptr(data, pos)
   return unmarshall_ptr(ALL, data, pos, unmarshall_dom_sid2, {})
 end
 
----Marshall a struct with the following definition:
+---Marshall a dom_sid struct
 --
 --<code>
 --    typedef [public,gensize,noprint,noejs,nosize] struct {
@@ -1860,7 +1869,7 @@ function unmarshall_lsa_SidType(data, pos)
 end
 
 ---Convert a <code>lsa_SidType</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -1926,7 +1935,7 @@ function unmarshall_lsa_LookupNamesLevel(data, pos)
 end
 
 ---Convert a <code>lsa_LookupNamesLevel</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -1940,7 +1949,7 @@ function lsa_LookupNamesLevel_tostr(val)
   return result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_TranslatedSid2 struct
 --
 --<code>
 --    typedef struct {
@@ -1984,7 +1993,7 @@ local function marshall_lsa_TranslatedSid2(location, sid_type, rid, sid_index, u
   return result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a lsa_TranslatedSid2 struct
 --
 --<code>
 --    typedef struct {
@@ -2025,7 +2034,7 @@ local function unmarshall_lsa_TranslatedSid2(location, data, pos, result)
   return pos, result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_TranslatedName2 struct
 --
 --<code>
 --    typedef struct {
@@ -2104,7 +2113,7 @@ local function unmarshall_lsa_TranslatedName2(location, data, pos, result)
 end
 
 
----Marshall a struct with the following definition:
+---Marshall a lsa_TransSidArray2 struct
 --
 --<code>
 --    typedef struct {
@@ -2134,7 +2143,7 @@ function marshall_lsa_TransSidArray2(sids)
   return result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_StringLarge struct
 --
 --<code>
 --    typedef [public] struct {
@@ -2175,7 +2184,7 @@ local function unmarshall_lsa_StringLarge(location, data, pos, result)
   return pos, str
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a lsa_DomainInfo struct
 --
 --<code>
 --    typedef struct {
@@ -2215,7 +2224,7 @@ local function unmarshall_lsa_DomainInfo(location, data, pos, result)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a lsa_RefDomainList struct
 --
 --<code>
 --    typedef struct {
@@ -2260,7 +2269,7 @@ function unmarshall_lsa_RefDomainList_ptr(data, pos)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a lsa_TransSidArray2 struct
 --
 --<code>
 --    typedef struct {
@@ -2283,7 +2292,7 @@ function unmarshall_lsa_TransSidArray2(data, pos)
   return pos, result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_QosInfo struct
 --
 --<code>
 --    typedef struct {
@@ -2311,7 +2320,7 @@ function marshall_lsa_QosInfo()
   return result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_ObjectAttribute struct
 --
 --<code>
 --    typedef struct {
@@ -2343,7 +2352,7 @@ function marshall_lsa_ObjectAttribute()
   return result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_SidPtr struct
 --
 --<code>
 --    typedef struct {
@@ -2367,7 +2376,7 @@ local function marshall_lsa_SidPtr(location, sid)
   return result
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_SidArray struct
 --
 --<code>
 --    typedef [public] struct {
@@ -2395,10 +2404,13 @@ function marshall_lsa_SidArray(sids)
   return result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a lsa_SidPtr struct
+--
+--<code>
 --    typedef struct {
 --        dom_sid2 *sid;
 --    } lsa_SidPtr;
+--</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
@@ -2415,7 +2427,7 @@ function unmarshall_lsa_SidPtr(location, data, pos, result)
   return unmarshall_ptr(location, data, pos, unmarshall_dom_sid2, {}, result)
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a lsa_SidArray struct
 --
 --    typedef [public] struct {
 --        [range(0,1000)] uint32 num_sids;
@@ -2434,7 +2446,7 @@ function unmarshall_lsa_SidArray(data, pos)
   return pos, sidarray
 end
 
----Marshall a struct with the following definition:
+---Marshall a lsa_TransNameArray2 struct
 --
 --<code>
 --    typedef struct {
@@ -2556,7 +2568,7 @@ function unmarshall_winreg_AccessMask(data, pos)
 end
 
 ---Convert a <code>winreg_AccessMask</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -2667,7 +2679,7 @@ function unmarshall_winreg_Type_ptr(data, pos)
 end
 
 ---Convert a <code>winreg_Type</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -2883,7 +2895,7 @@ function unmarshall_srvsvc_ShareType(data, pos)
 end
 
 ---Convert a <code>srvsvc_ShareType</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -3107,7 +3119,9 @@ local function unmarshall_srvsvc_NetShareInfo2(location, data, pos, result)
   return pos, result
 end
 
----Marshall a NetShareCtr (container) type 0. It is a simple array with the following definition:
+---Marshall a NetShareCtr (container) type 0.
+--
+--It is a simple array with the following definition:
 --
 --<code>
 --     typedef struct {
@@ -3168,7 +3182,9 @@ function unmarshall_srvsvc_NetShareCtr0(data, pos)
   return pos, result
 end
 
----Marshall a NetShareCtr (container) type 1. It is a simple array with the following definition:
+---Marshall a NetShareCtr (container) type 1.
+--
+--It is a simple array with the following definition:
 --
 --<code>
 --    typedef struct {
@@ -3212,7 +3228,9 @@ function marshall_srvsvc_NetShareCtr1(NetShareCtr1)
 end
 
 
----Marshall a NetShareCtr (container) type 2. It is a simple array with the following definition:
+---Marshall a NetShareCtr (container) type 2.
+--
+--It is a simple array with the following definition:
 --
 --<code>
 --    typedef struct {
@@ -3441,7 +3459,9 @@ local function unmarshall_srvsvc_NetSessInfo10(location, data, pos, result)
   return pos, result
 end
 
----Marshall a NetSessCtr (session container) type 10. It is a simple array with the following definition:
+---Marshall a NetSessCtr (session container) type 10.
+--
+--It is a simple array with the following definition:
 --
 --<code>
 --    typedef struct {
@@ -3693,7 +3713,7 @@ function unmarshall_samr_ConnectAccessMask(data, pos)
 end
 
 ---Convert a <code>samr_ConnectAccessMask</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -3768,7 +3788,7 @@ function unmarshall_samr_DomainAccessMask(data, pos)
 end
 
 ---Convert a <code>samr_DomainAccessMask</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -3861,7 +3881,7 @@ function unmarshall_samr_AcctFlags(data, pos)
 end
 
 ---Convert a <code>samr_AcctFlags</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -3926,7 +3946,7 @@ function unmarshall_samr_PasswordProperties(data, pos)
 end
 
 ---Convert a <code>samr_PasswordProperties</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -3941,7 +3961,7 @@ function samr_PasswordProperties_tostr(val)
 end
 
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_SamEntry struct
 --
 --<code>
 --    typedef struct {
@@ -3981,7 +4001,7 @@ local function unmarshall_samr_SamEntry(location, data, pos, result)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_SamArray struct
 --
 --<code>
 --    typedef struct {
@@ -4020,7 +4040,7 @@ function unmarshall_samr_SamArray_ptr(data, pos)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_DispEntryGeneral struct
 --
 --<code>
 --    typedef struct {
@@ -4070,7 +4090,7 @@ local function unmarshall_samr_DispEntryGeneral(location, data, pos, result)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_DispInfoGeneral struct
 --
 --<code>
 --    typedef struct {
@@ -4094,7 +4114,7 @@ function unmarshall_samr_DispInfoGeneral(data, pos)
 end
 
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_DispInfo struct
 --
 --<code>
 --    typedef [switch_type(uint16)] union {
@@ -4128,7 +4148,7 @@ function unmarshall_samr_DispInfo(data, pos)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_DomInfo1 struct
 --
 --<code>
 --  typedef struct {
@@ -4158,7 +4178,7 @@ function unmarshall_samr_DomInfo1(data, pos)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_DomInfo8 struct
 --
 --<code>
 --  typedef struct {
@@ -4181,7 +4201,7 @@ function unmarshall_samr_DomInfo8(data, pos)
   return pos, result
 end
 
----Unmarshall a struct with the following definition:
+---Unmarshall a samr_DomInfo12 struct
 --
 --<code>
 --  typedef struct {
@@ -4206,7 +4226,7 @@ function unmarshall_samr_DomInfo12(data, pos)
   return pos, result
 end
 
----Unmarshall a union with the following definition:
+---Unmarshall a samr_DomainInfo union
 --
 --<code>
 --  typedef [switch_type(uint16)] union {
@@ -4268,7 +4288,7 @@ function unmarshall_samr_DomainInfo_ptr(data, pos)
   return pos, result
 end
 
----Unmarshall a structure with the following definition:
+---Unmarshall a samr_Ids struct
 --
 --<code>
 --    typedef struct {
@@ -4352,7 +4372,7 @@ function unmarshall_svcctl_ControlCode(data, pos)
 end
 
 ---Convert a <code>svcctl_ControlCode</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -4410,7 +4430,7 @@ function unmarshall_svcctl_Type(data, pos)
 end
 
 --[[Convert a <code>svcctl_Type</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -4464,7 +4484,7 @@ function unmarshall_svcctl_State(data, pos)
 end
 
 --[[Convert a <code>svcctl_State</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table.
+-- based on the <code>_str</code> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
 --@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
@@ -4479,8 +4499,9 @@ function svcctl_State_tostr(val)
 end]]--
 
 
----Unmarshall a SERVICE_STATUS struct, converting it to a table. The structure is as
--- follows:
+---Unmarshall a SERVICE_STATUS struct, converting it to a table.
+--
+-- The structure is as follows:
 --
 -- <code>
 --    typedef struct {
@@ -4616,7 +4637,9 @@ function marshall_atsvc_DaysOfWeek(flags)
   return result
 end
 
----Marshall a JobInfo struct. The structure is as follows:
+---Marshall a JobInfo struct.
+--
+--The structure is as follows:
 --
 --<code>
 --    typedef struct {

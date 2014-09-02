@@ -423,6 +423,7 @@ Packet = {
 }
 
 --- The communication class handles socket reads and writes
+--
 -- In addition it keeps track of both immediate packets and the amount of read
 -- packets and updates cmdsn and expstatsn accordingly.
 Comm = {

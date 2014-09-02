@@ -134,8 +134,9 @@ table_iterator = function(table)
   end
 end
 
---- Returns the suggested number of seconds to attempt a brute force attack,
--- based on the <code>unpwdb.timelimit</code> script argument, Nmap's timing
+--- Returns the suggested number of seconds to attempt a brute force attack
+--
+-- Based on the <code>unpwdb.timelimit</code> script argument, Nmap's timing
 -- values (<code>-T4</code> etc.) and whether or not a user-defined list is
 -- used.
 --
@@ -209,9 +210,10 @@ local passwords_raw = function()
   return true, table_iterator(passtable)
 end
 
---- Wraps time and count limits around an iterator. When either limit expires,
--- starts returning <code>nil</code>. Calling the iterator with an argument of
--- "reset" resets the count.
+--- Wraps time and count limits around an iterator.
+--
+-- When either limit expires, starts returning <code>nil</code>. Calling the
+-- iterator with an argument of "reset" resets the count.
 -- @param time_limit Time limit in seconds. Use 0 or <code>nil</code> for no limit.
 -- @param count_limit Count limit in seconds. Use 0 or <code>nil</code> for no limit.
 -- @return boolean Status.

@@ -277,7 +277,7 @@ Credentials = {
   --- Returns a credential iterator
   --
   -- @see State
-  -- @param state mask containing values from the <Code>State</code> table
+  -- @param state mask containing values from the <code>State</code> table
   -- @return credential iterator, returning a credential each time it's
   --         called. Unless filtered by the state mask all credentials
   --         for the host, port match are iterated over.

@@ -163,6 +163,7 @@ json = P(json); -- compile the grammar
 
 
 --- Parses JSON data into a Lua object.
+--
 -- This is the method you probably want to use if you use this library from a
 -- script.
 --@param data a json string

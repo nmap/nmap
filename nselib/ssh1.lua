@@ -41,7 +41,8 @@ check_packet_length = function( buffer )
 end
 
 --- Receives a complete SSH packet, even if fragmented
---  this function is an abstraction layer to deal with
+--
+--  This function is an abstraction layer to deal with
 --  checking the packet size to know if there is any more
 --  data to receive.
 --

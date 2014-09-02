@@ -232,6 +232,7 @@ function strsplit(pattern, text)
 end
 
 --- Generate a random string.
+--
 -- You can either provide your own charset or the function will use
 -- a default one which is [A-Z].
 -- @param len Length of the string we want to generate.
@@ -549,7 +550,9 @@ function format_timestamp(t, offset)
 end
 
 --- Format the difference between times <code>t2</code> and <code>t1</code>
--- into a string in one of the forms (signs may vary):
+-- into a string
+--
+-- String is in one of the forms (signs may vary):
 -- * 0s
 -- * -4s
 -- * +2m38s
