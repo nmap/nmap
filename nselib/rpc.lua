@@ -163,12 +163,7 @@ Comm = {
     if (not(status)) then
       return status, err
     end
-    timeout = timeout or (
-      -- Use host timeout value * 5 if available
-      (type(host) == "table" and host.times and host.times.timeout * 5)
-      or 10 -- default 10 seconds
-      ) * 1000 -- convert to ms
-    stdnse.debug1("Timeout: %d", timeout)
+    timeout = timeout or stdnse.get_timeout(host, 10000)
     local new_socket = function(...)
       local socket = nmap.new_socket(...)
       socket:set_timeout(timeout)

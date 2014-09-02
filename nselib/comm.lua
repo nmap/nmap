@@ -10,7 +10,7 @@
 -- * <code>bytes</code> - minimum number of bytes to read.
 -- * <code>lines</code> - minimum number of lines to read.
 -- * <code>proto</code> - string, protocol to use. Default <code>"tcp"</code>
--- * <code>timeout</code> - socket timeout in milliseconds. Default 8000
+-- * <code>timeout</code> - socket timeout in milliseconds. Default: same as <code>stdnse.get_timeout</code>
 -- * <code>connect_timeout</code> - override timeout for connection
 -- * <code>request_timeout</code> - override timeout for requests
 -- * <code>recv_before</code> - boolean, receive data before sending first payload
@@ -169,7 +169,7 @@ end
 -- request_timeout: specific timeout for requests
 -- recv_before: receive data before sending first payload
 --
--- Default timeout is set to 8000.
+-- Default timeout is result of stdnse.get_timeout
 --
 -- @param host The destination host IP
 -- @param port The destination host port
@@ -189,7 +189,7 @@ local function opencon(host, port, protocol, data, opts)
     elseif opts and opts.timeout then
         sd:set_timeout(opts.timeout)
     else
-        sd:set_timeout(8000)
+        sd:set_timeout(stdnse.get_timeout(host))
     end
 
     local status = sd:connect(host, port, protocol)
@@ -205,7 +205,7 @@ local function opencon(host, port, protocol, data, opts)
     elseif opts and opts.timeout then
         sd:set_timeout(opts.timeout)
     else
-        sd:set_timeout(8000)
+        sd:set_timeout(stdnse.get_timeout(host))
     end
 
     local response, early_resp;

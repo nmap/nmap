@@ -1363,5 +1363,40 @@ function contains(tab, item)
   return false, nil
 end
 
+--- Returns a conservative timeout for a host
+--
+-- If the host parameter is a NSE host table with a <code>times.timeout</code>
+-- attribute, then the return value is the host timeout scaled according to the
+-- max_timeout. The scaling factor is defined by a linear formula such that
+-- (max_timeout=8000, scale=2) and (max_timeout=1000, scale=1)
+--
+-- @param host The host object to base the timeout on. If this is anything but
+--             a host table, the max_timeout is returned.
+-- @param max_timeout The maximum timeout in milliseconds. This is the default
+--                    timeout used if there is no host.times.timeout. Default: 8000
+-- @param min_timeout The minimum timeout in milliseconds that will be
+--                    returned. Default: 1000
+-- @return The timeout in milliseconds, suitable for passing to set_timeout
+-- @usage
+-- assert(host.times.timeout == 1.3)
+--  assert(get_timeout() == 8000)
+--  assert(get_timeout(nil, 5000) == 5000)
+--  assert(get_timeout(host) == 2600)
+--  assert(get_timeout(host, 10000, 3000) == 3000)
+function get_timeout(host, max_timeout, min_timeout)
+  max_timeout = max_timeout or 8000
+  local t = type(host) == "table" and host.times and host.times.timeout
+  if not t then
+    return max_timeout
+  end
+  t = t * (max_timeout + 6000) / 7
+  min_timeout = min_timeout or 1000
+  if t < min_timeout then
+    return min_timeout
+  elseif t > max_timeout then
+    return max_timeout
+  end
+  return t
+end
 
 return _ENV;
