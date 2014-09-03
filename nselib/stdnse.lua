@@ -30,10 +30,12 @@ local type = type
 
 local ceil = math.ceil
 local max = math.max
+local random = math.random
 
 local format = string.format;
 local rep = string.rep
 local match = string.match
+local char = string.char
 
 local concat = table.concat;
 local insert = table.insert;
@@ -246,14 +248,14 @@ function generate_random_string(len, charset)
   local ascii_Z = 90
   if charset then
     for i=1,len do
-      t[i]=charset[math.random(#charset)]
+      t[i]=charset[random(#charset)]
     end
   else
     for i=1,len do
-      t[i]=string.char(math.random(ascii_A,ascii_Z))
+      t[i]=char(random(ascii_A,ascii_Z))
     end
   end
-  return table.concat(t)
+  return concat(t)
 end
 
 --- Return a wrapper closure around a socket that buffers socket reads into
