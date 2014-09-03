@@ -149,6 +149,7 @@
     <ClCompile Include="..\nse_debug.cc" />
     <ClCompile Include="..\nse_fs.cc" />
     <ClCompile Include="..\nse_main.cc" />
+    <ClCompile Include="..\nse_lpeg.cc" />
     <ClCompile Include="..\nse_utility.cc" />
     <ClCompile Include="..\nse_nmaplib.cc" />
     <ClCompile Include="..\nse_nsock.cc" />
