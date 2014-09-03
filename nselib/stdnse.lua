@@ -29,21 +29,29 @@ local print = print;
 local type = type
 
 local ceil = math.ceil
+local floor = math.floor
+local fmod = math.fmod
 local max = math.max
 local random = math.random
 
 local format = string.format;
 local rep = string.rep
 local match = string.match
+local find = string.find
+local sub = string.sub
+local gsub = string.gsub
 local char = string.char
+local byte = string.byte
 
 local concat = table.concat;
 local insert = table.insert;
+local remove = table.remove;
 local pack = table.pack;
 local unpack = table.unpack;
 
 local difftime = os.difftime;
 local time = os.time;
+local date = os.date;
 
 local EMPTY = {}; -- Empty constant table
 
@@ -450,19 +458,19 @@ function parse_timespec(timespec)
   local n, unit, t, m
   local multipliers = {[""] = 1, s = 1, m = 60, h = 60 * 60, ms = 0.001}
 
-  n, unit = string.match(timespec, "^([%d.]+)(.*)$")
+  n, unit = match(timespec, "^([%d.]+)(.*)$")
   if not n then
-    return nil, string.format("Can't parse time specification \"%s\"", timespec)
+    return nil, format("Can't parse time specification \"%s\"", timespec)
   end
 
   t = tonumber(n)
   if not t then
-    return nil, string.format("Can't parse time specification \"%s\" (bad number \"%s\")", timespec, n)
+    return nil, format("Can't parse time specification \"%s\" (bad number \"%s\")", timespec, n)
   end
 
   m = multipliers[unit]
   if not m then
-    return nil, string.format("Can't parse time specification \"%s\" (bad unit \"%s\")", timespec, unit)
+    return nil, format("Can't parse time specification \"%s\" (bad unit \"%s\")", timespec, unit)
   end
 
   return t * m
@@ -474,11 +482,11 @@ end
 -- correct?
 local function utc_offset(t)
   -- What does the calendar say locally?
-  local localtime = os.date("*t", t)
+  local localtime = date("*t", t)
   -- What does the calendar say in UTC?
-  local gmtime = os.date("!*t", t)
+  local gmtime = date("!*t", t)
   -- Interpret both as local calendar dates and find the difference.
-  return difftime(os.time(localtime), os.time(gmtime))
+  return difftime(time(localtime), time(gmtime))
 end
 --- Convert a date table into an integer timestamp.
 --
@@ -498,7 +506,7 @@ end
 -- </code>
 function date_to_timestamp(date, offset)
   offset = offset or 0
-  return os.time(date) + utc_offset(os.time(date)) - offset
+  return time(date) + utc_offset(time(date)) - offset
 end
 
 local function format_tz(offset)
@@ -514,11 +522,11 @@ local function format_tz(offset)
     sign = "+"
   end
   -- Truncate to minutes.
-  offset = math.floor(offset / 60)
-  hh = math.floor(offset / 60)
-  mm = math.floor(math.fmod(offset, 60))
+  offset = floor(offset / 60)
+  hh = floor(offset / 60)
+  mm = floor(fmod(offset, 60))
 
-  return string.format("%s%02d:%02d", sign, hh, mm)
+  return format("%s%02d:%02d", sign, hh, mm)
 end
 --- Format a date and time (and optional time zone) for structured output.
 --
@@ -540,14 +548,14 @@ end
 -- output.
 function format_timestamp(t, offset)
   if type(t) == "table" then
-    return string.format(
+    return format(
       "%d-%02d-%02dT%02d:%02d:%02d",
       t.year, t.month, t.day, t.hour, t.min, t.sec
       )
   else
     local tz_string = format_tz(offset)
     offset = offset or 0
-    return os.date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
+    return date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
   end
 end
 
@@ -606,29 +614,29 @@ function format_difftime(t2, t1)
   s = ""
   -- Seconds (pad to two digits).
   sec = d % 60
-  d = math.floor(d / 60)
+  d = floor(d / 60)
   if d == 0 and yeardiff == 0 then
-    return sign .. string.format("%gs", sec) .. s
+    return sign .. format("%gs", sec) .. s
   end
-  s = string.format("%02gs", sec) .. s
+  s = format("%02gs", sec) .. s
   -- Minutes (pad to two digits).
   min = d % 60
-  d = math.floor(d / 60)
+  d = floor(d / 60)
   if d == 0 and yeardiff == 0 then
-    return sign .. string.format("%dm", min) .. s
+    return sign .. format("%dm", min) .. s
   end
-  s = string.format("%02dm", min) .. s
+  s = format("%02dm", min) .. s
   -- Hours.
-  s = string.format("%dh", d % 24) .. s
-  d = math.floor(d / 24)
+  s = format("%dh", d % 24) .. s
+  d = floor(d / 24)
   if d == 0 and yeardiff == 0 then
     return sign .. s
   end
   -- Days.
-  s = string.format("%dd", d) .. s
+  s = format("%dd", d) .. s
   if yeardiff == 0 then return sign .. s end
   -- Years.
-  s = string.format("%dy", yeardiff) .. s
+  s = format("%dy", yeardiff) .. s
   return sign .. s
 end
 
@@ -671,16 +679,16 @@ local function splitlines(s)
 
   while i <= #s do
     local b, e
-    b, e = string.find(s, "\r?\n", i)
+    b, e = find(s, "\r?\n", i)
     if not b then
       break
     end
-    result[#result + 1] = string.sub(s, i, b - 1)
+    result[#result + 1] = sub(s, i, b - 1)
     i = e + 1
   end
 
   if i <= #s then
-    result[#result + 1] = string.sub(s, i)
+    result[#result + 1] = sub(s, i)
   end
 
   return result
@@ -1252,12 +1260,12 @@ function output_table ()
     __newindex = function (_, k, v)
       if t[k] == nil and v ~= nil then
         -- New key?
-        table.insert(order, k)
+        insert(order, k)
       elseif v == nil then
         -- Deleting an existing key?
         for i, key in ipairs(order) do
           if key == k then
-            table.remove(order, i)
+            remove(order, i)
             break
           end
         end
@@ -1345,8 +1353,8 @@ function filename_escape(s)
   elseif s == ".." then
     return "%2e%2e"
   else
-    return (string.gsub(s, FILESYSTEM_UNSAFE, function (c)
-      return string.format("%%%02x", string.byte(c))
+    return (gsub(s, FILESYSTEM_UNSAFE, function (c)
+      return format("%%%02x", byte(c))
     end))
   end
 end
