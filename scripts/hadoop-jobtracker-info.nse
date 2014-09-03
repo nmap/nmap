@@ -40,11 +40,25 @@ For more information about Hadoop, see:
 -- |   Log Files: logs/
 -- |   Tasktrackers:
 -- |     tracker1.example.com:50060
--- |    tracker2.example.com:50060
+-- |     tracker2.example.com:50060
 -- |   Userhistory:
 -- |     User: bob (Wed Sep 07 12:14:33 CEST 2011)
 -- |_    User: bob (Wed Sep 07 12:14:33 CEST 2011)
--- ---
+-- @xmloutput
+-- <elem key="State">RUNNING</elem>
+-- <elem key="Started">Wed May 11 22:33:44 PDT 2011, bob</elem>
+-- <elem key="Version">0.20.2 (f415ef415ef415ef415ef415ef415ef415ef415e)</elem>
+-- <elem key="Compiled">Wed May 11 22:33:44 PDT 2011 by bob from unknown</elem>
+-- <elem key="Identifier">201111031342</elem>
+-- <elem key="Log Files">logs/</elem>
+-- <table key="Tasktrackers">
+--   <elem>tracker1.example.com:50060</elem>
+--   <elem>tracker2.example.com:50060</elem>
+-- </table>
+-- <table key="Userhistory">
+--   <elem>User: bob (Wed Sep 07 12:14:33 CEST 2011)</elem>
+--   <elem>User: bob (Wed Sep 07 12:14:33 CEST 2011)</elem>
+-- </table>
 
 
 author = "John R. Bond"
@@ -59,7 +73,7 @@ portrule = function(host, port)
     or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
 end
 
-get_userhistory = function( host, port )
+local get_userhistory = function( host, port )
   local results = {}
   local uri = "/jobhistory.jsp?pageno=-1&search="
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
@@ -80,7 +94,7 @@ get_userhistory = function( host, port )
   end
   return results
 end
-get_tasktrackers = function( host, port )
+local get_tasktrackers = function( host, port )
   local results = {}
   local uri = "/machines.jsp?type=active"
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
@@ -108,61 +122,60 @@ get_tasktrackers = function( host, port )
 end
 action = function( host, port )
 
-  local result = {}
+  local result = stdnse.output_table()
   local uri = "/jobtracker.jsp"
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s",response['status-line'] or "No Response")
-  if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
-    stdnse.debug2("Body %s\n",response['body'])
-    if response['body']:match("State:</b>%s*([^][<]+)") then
-      local state = response['body']:match("State:</b>%s*([^][<]+)")
-      stdnse.debug1("State %s",state)
-      table.insert(result, ("State: %s"):format(state))
-    end
-    if response['body']:match("Started:</b>%s*([^][<]+)") then
-      local started = response['body']:match("Started:</b>%s*([^][<]+)")
-      stdnse.debug1("Started %s",started)
-      table.insert(result, ("Started: %s"):format(started))
-    end
-    if response['body']:match("Version:</b>%s*([^][<]+)") then
-      local version = response['body']:match("Version:</b>%s*([^][<]+)")
-      local versionNo = version:match("([^][,]+)")
-      local versionHash = version:match("[^][,]+%s+(%w+)")
-      stdnse.debug1("Version %s (%s)",versionNo,versionHash)
-      table.insert(result, ("Version: %s (%s)"):format(versionNo,versionHash))
-      port.version.version = versionNo
-    end
-    if response['body']:match("Compiled:</b>%s*([^][<]+)") then
-      local compiled = response['body']:match("Compiled:</b>%s*([^][<]+)"):gsub("%s+", " ")
-      stdnse.debug1("Compiled %s",compiled)
-      table.insert(result, ("Compiled: %s"):format(compiled))
-    end
-    if response['body']:match("Identifier:</b>%s*([^][<]+)") then
-      local identifier = response['body']:match("Identifier:</b>%s*([^][<]+)")
-      stdnse.debug1("Identifier %s",identifier)
-      table.insert(result, ("Identifier: %s"):format(identifier))
-    end
-    if response['body']:match("([%w/]+)\">Log<") then
-      local logfiles = response['body']:match("([%w/-_:%%]+)\">Log<")
-      stdnse.debug1("Log Files %s",logfiles)
-      table.insert(result, ("Log Files: %s"):format(logfiles))
-    end
-    local tasktrackers = get_tasktrackers (host, port)
-    if next(tasktrackers) then
-      table.insert(result, "Tasktrackers: ")
-      table.insert(result, tasktrackers)
-    end
-    if stdnse.get_script_args('hadoop-jobtracker-info.userinfo') then
-      local userhistory = get_userhistory (host, port)
-      table.insert(result, "Userhistory: ")
-      table.insert(result, userhistory)
-    end
-    if #result > 0 then
-      port.version.name = "hadoop-jobtracker"
-      port.version.product = "Apache Hadoop"
-      nmap.set_port_version(host, port)
-    end
-    return stdnse.format_output(true, result)
+  if not (response['status-line'] and response['status-line']:match("200%s+OK") and response['body']) then
+    return nil
   end
+  stdnse.debug2("Body %s\n",response['body'])
+  if response['body']:match("State:</b>%s*([^][<]+)") then
+    local state = response['body']:match("State:</b>%s*([^][<]+)")
+    stdnse.debug1("State %s",state)
+    result["State"] = state
+  end
+  if response['body']:match("Started:</b>%s*([^][<]+)") then
+    local started = response['body']:match("Started:</b>%s*([^][<]+)")
+    stdnse.debug1("Started %s",started)
+    result["Started"] = started
+  end
+  if response['body']:match("Version:</b>%s*([^][<]+)") then
+    local version = response['body']:match("Version:</b>%s*([^][<]+)")
+    local versionNo = version:match("([^][,]+)")
+    local versionHash = version:match("[^][,]+%s+(%w+)")
+    stdnse.debug1("Version %s (%s)",versionNo,versionHash)
+    result["Version"] = ("%s (%s)"):format(versionNo,versionHash)
+    port.version.version = versionNo
+  end
+  if response['body']:match("Compiled:</b>%s*([^][<]+)") then
+    local compiled = response['body']:match("Compiled:</b>%s*([^][<]+)"):gsub("%s+", " ")
+    stdnse.debug1("Compiled %s",compiled)
+    result["Compiled"] = compiled
+  end
+  if response['body']:match("Identifier:</b>%s*([^][<]+)") then
+    local identifier = response['body']:match("Identifier:</b>%s*([^][<]+)")
+    stdnse.debug1("Identifier %s",identifier)
+    result["Identifier"] = identifier
+  end
+  if response['body']:match("([%w/]+)\">Log<") then
+    local logfiles = response['body']:match("([%w/-_:%%]+)\">Log<")
+    stdnse.debug1("Log Files %s",logfiles)
+    result["Log Files"] = logfiles
+  end
+  local tasktrackers = get_tasktrackers (host, port)
+  if next(tasktrackers) then
+    result["Tasktrackers"] = tasktrackers
+  end
+  if stdnse.get_script_args('hadoop-jobtracker-info.userinfo') then
+    local userhistory = get_userhistory (host, port)
+    result["Userhistory"] = userhistory
+  end
+  if #result > 0 then
+    port.version.name = "hadoop-jobtracker"
+    port.version.product = "Apache Hadoop"
+    nmap.set_port_version(host, port)
+  end
+  return result
 end
