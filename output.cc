@@ -1486,7 +1486,7 @@ void write_host_status(Target *currenths) {
       if (o.reason)
         log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
       if (o.reason && currenths->reason.ttl)
-        log_write(LOG_PLAIN, " TTL %d", currenths->reason.ttl);
+        log_write(LOG_PLAIN, " ttl %d", currenths->reason.ttl);
       if (currenths->to.srtt != -1)
         log_write(LOG_PLAIN, " (%ss latency)",
                   num_to_string_sigdigits(currenths->to.srtt / 1000000.0, 2));
