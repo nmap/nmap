@@ -250,16 +250,15 @@ function getPrivateMode(impl, requestCode)
   -- Request Code 8bits: e.g. 0x2a (MON_GETLIST_1)
   -- Err 4bits: 0, Number of Data Items 12bits: 0
   -- MBZ 4bits: 0, Size of Data Items 12bits: 0
-  pay = string.char(
+  return string.char(
     0x17, 0x00, impl or 0x03, requestCode or 0x2a,
     0x00, 0x00, 0x00, 0x00
   )
   -- Data 40 Octets: 0
-  pay = pay .. string.char(0x00):rep(40)
+  .. string.char(0x00):rep(40)
   -- The following are optional if the Authenticated bit is set:
   -- Encryption Keyid 4 Octets: 0
   -- Message Authentication Code 16 Octets (MD5): 0
-  return pay
 end
 
 
@@ -495,16 +494,16 @@ function make_udp_packet(response)
 
   -- dummy headers
   -- ip
-  local dh = string.char(0x45, 0x00)
-  dh = dh .. bin.pack('S', iplen)
-  dh = dh .. string.char(
-    0x00, 0x00, 0x40, 0x00, 0x40, 0x11, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  -- udp
-    0x00, 0x00, 0x00, 0x00
-  )
-  dh = dh .. bin.pack('S', udplen)
-  dh = dh .. string.char(0x00, 0x00)
+  local dh = "\x45\x00" -- IPv4, 20-byte header, no DSCP, no ECN
+  .. bin.pack('>S', iplen) -- total length
+  .. "\x00\x00" -- IPID 0
+  .. "\x40\x00" -- DF
+  .. "\x40\x11" -- TTL 0x40, UDP (proto 17)
+  .. "\x00\x00" -- checksum 0
+  .. "\x00\x00\x00\x00\x00\x00\x00\x00" -- Source, destination 0.0.0.0
+  .. "\x00\x00\x00\x00" -- UDP source, dest port 0
+  .. bin.pack('S', udplen) -- UDP length
+  .. "\x00\x00" -- UDP checksum 0
 
   return packet.Packet:new(dh .. response, iplen)
 

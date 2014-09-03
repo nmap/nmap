@@ -60,24 +60,25 @@ function name_encode(name, scope)
   name = string.upper(name)
 
   -- Do the L1 encoding
-  local L1_encoded = ""
+  local L1_encoded = {}
   for i=1, #name, 1 do
     local b = string.byte(name, i)
-    L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0xF0), 4) + 0x41)
-    L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
+    L1_encoded[i*2-1] = string.char(bit.rshift(bit.band(b, 0xF0), 4) + 0x41)
+    L1_encoded[i*2]   = string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
   end
 
   -- Do the L2 encoding
-  local L2_encoded = string.char(32) .. L1_encoded
+  local L2_encoded = { string.char(32), table.concat(L1_encoded) }
 
   if scope ~= nil then
     -- Split the scope at its periods
     local piece
     for piece in string.gmatch(scope, "[^.]+") do
-      L2_encoded = L2_encoded .. string.char(#piece) .. piece
+      L2_encoded[#L2_encoded+1] = string.char(#piece) .. piece
     end
   end
 
+  L2_encoded = table.concat(L2_encoded)
   stdnse.debug3("=> '%s'", L2_encoded)
   return L2_encoded
 end

@@ -35,7 +35,7 @@ categories = {"discovery", "intrusive"}
 
 
 local STUXNET_PATHS = {"\\\\browser", "\\\\ntsvcs", "\\\\pipe\\browser", "\\\\pipe\\ntsvcs"}
-local STUXNET_UUID = string.char(0xe1, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)
+local STUXNET_UUID = "\xe1\x04\x02\x00\x00\x00\x00\x00\xc0\x00\x00\x00\x00\x00\x00\x46"
 local STUXNET_VERSION = 0x01
 
 local RPC_GET_VERSION = 0x00

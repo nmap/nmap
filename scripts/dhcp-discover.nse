@@ -96,10 +96,11 @@ local function go(host, port)
     local mac_addr = host.mac_addr_src
     if(nmap.registry.args.randomize_mac == 'true' or nmap.registry.args.randomize_mac == '1') then
       stdnse.debug2("Generating a random MAC address")
-      mac_addr = ""
+      mac_addr = {}
       for j=1, 6, 1 do
-        mac_addr = mac_addr .. string.char(math.random(1, 255))
+        mac_addr[i] = string.char(math.random(1, 255))
       end
+      mac_addr = table.concat(mac_addr)
     end
 
     local iface, err = nmap.get_interface_info(host.interface)

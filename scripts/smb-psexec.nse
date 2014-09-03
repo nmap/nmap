@@ -824,10 +824,11 @@ local function get_config(host, config)
   elseif(nmap.registry.args.key) then
     config.key = nmap.registry.args.key
   else
-    config.key = ""
+    local tmp = {}
     for i = 1, 127, 1 do
-      config.key = config.key .. string.char(math.random(0x20, 0x7F))
+      tmp[i] = string.char(math.random(0x20, 0x7F))
     end
+    config.key = table.concat(tmp)
     config.key_index = 0
   end
 
@@ -1044,7 +1045,7 @@ end
 --@args config The config file for this host (stores the encryption key).
 --@return      The decrypted string.
 local function cipher(str, config)
-  local result = ""
+  local result = {}
   if(config.key == "") then
     return str
   end
@@ -1056,10 +1057,10 @@ local function cipher(str, config)
     config.key_index = config.key_index + 1
     config.key_index = config.key_index % #config.key
 
-    result = result .. c
+    result[i] = c
   end
 
-  return result
+  return table.concat(result)
 end
 
 local function get_overrides()

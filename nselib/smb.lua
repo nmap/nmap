@@ -2459,14 +2459,14 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 
   local i = 0
   local data = handle:read(chunk)
+  local new_data = {}
   while(data ~= nil and #data > 0) do
 
     if(encoded) then
-      local new_data = ""
       for j = 1, #data, 1 do
-        new_data = new_data .. string.char(bit.bxor(0xFF, string.byte(data, j)))
+        new_data[j] = string.char(bit.bxor(0xFF, string.byte(data, j)))
       end
-      data = new_data
+      data = table.concat(new_data, "", 1, #data)
     end
 
     status, err = write_file(smbstate, data, i)

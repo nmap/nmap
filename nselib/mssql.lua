@@ -1732,7 +1732,7 @@ LoginPacket =
   library = "mssql.lua",
   locale = "",
   database = "master", --nil,
-  MAC = string.char(0x00,0x00,0x00,0x00,0x00,0x00), -- should contain client MAC, jTDS uses all zeroes
+  MAC = "\x00\x00\x00\x00\x00\x00", -- should contain client MAC, jTDS uses all zeroes
 
   new = function(self,o)
     o = o or {}

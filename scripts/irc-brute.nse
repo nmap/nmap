@@ -89,11 +89,7 @@ Driver = {
 }
 
 local function random_nick()
-  local nick = ""
-  for i = 0, 8, 1 do
-    nick = nick .. string.char(math.random(97, 122)) -- lowercase ascii
-  end
-  return nick
+  return stdnse.generate_random_string(9, "abcdefghijklmnopqrstuvwxyz")
 end
 
 local function needsPassword(host, port)

@@ -45,12 +45,8 @@ local function build_invalid_extension_header(nxt_hdr)
   -- bits; that instructs the receiver to send a Parameter Problem.
   -- Option type 0x80 is unallocated; see
   -- http://www.iana.org/assignments/ipv6-parameters/.
-  local ex_invalid_opt = string.char(0x80,0x01,0x00,0x00,0x00,0x00)
-  local ext_header =
-    string.char(nxt_hdr) .. --next header
-    string.char(0) .. -- length 8
-    ex_invalid_opt
-  return ext_header
+  return string.char(nxt_hdr, 0) .. --next header, length 8
+  "\x80\x01\x00\x00\x00\x00"
 end
 
 local function get_interfaces()
@@ -117,7 +113,7 @@ local function single_interface_broadcast(if_nfo, results)
   probe.icmpv6_type = 254
   probe.icmpv6_code = 0
   -- Add a non-empty payload too.
-  probe.icmpv6_payload = string.char(0x00, 0x00, 0x00, 0x00)
+  probe.icmpv6_payload = "\x00\x00\x00\x00"
   probe:build_icmpv6_header()
 
   probe.exheader = build_invalid_extension_header(packet.IPPROTO_ICMPV6)

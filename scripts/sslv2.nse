@@ -144,26 +144,24 @@ action = function(host, port)
 
   -- build client hello packet (contents inspired by
   -- http://mail.nessus.org/pipermail/plugins-writers/2004-October/msg00041.html )
-  local t = {};
-  table.insert(t, string.char(0x80, 0x31));
-  table.insert(t, string.char(0x01));
-  table.insert(t, string.char(0x00, 0x02));
-  table.insert(t, string.char(0x00, 0x18));
-  table.insert(t, string.char(0x00, 0x00));
-  table.insert(t, string.char(0x00, 0x10));
-  table.insert(t, string.char(0x07, 0x00, 0xc0));
-  table.insert(t, string.char(0x05, 0x00, 0x80));
-  table.insert(t, string.char(0x03, 0x00, 0x80));
-  table.insert(t, string.char(0x01, 0x00, 0x80));
-  table.insert(t, string.char(0x08, 0x00, 0x80));
-  table.insert(t, string.char(0x06, 0x00, 0x40));
-  table.insert(t, string.char(0x04, 0x00, 0x80));
-  table.insert(t, string.char(0x02, 0x00, 0x80));
-  table.insert(t, string.char(0xe4, 0xbd, 0x00, 0x00));
-  table.insert(t, string.char(0xa4, 0x41, 0xb6, 0x74));
-  table.insert(t, string.char(0x71, 0x2b, 0x27, 0x95));
-  table.insert(t, string.char(0x44, 0xc0, 0x3d, 0xc0));
-  ssl_v2_hello = table.concat(t, "")
+  ssl_v2_hello = "\x80\x31"
+  .. "\x01"
+  .. "\x00\x02"
+  .. "\x00\x18"
+  .. "\x00\x00"
+  .. "\x00\x10"
+  .. "\x07\x00\xc0"
+  .. "\x05\x00\x80"
+  .. "\x03\x00\x80"
+  .. "\x01\x00\x80"
+  .. "\x08\x00\x80"
+  .. "\x06\x00\x40"
+  .. "\x04\x00\x80"
+  .. "\x02\x00\x80"
+  .. "\xe4\xbd\x00\x00"
+  .. "\xa4\x41\xb6\x74"
+  .. "\x71\x2b\x27\x95"
+  .. "\x44\xc0\x3d\xc0"
 
   socket:connect(host, port, "tcp");
   socket:send(ssl_v2_hello);

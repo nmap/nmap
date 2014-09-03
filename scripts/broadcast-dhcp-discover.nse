@@ -67,11 +67,11 @@ end
 --
 -- @return mac_addr string containing a random MAC
 local function randomizeMAC()
-  local mac_addr = ""
+  local mac_addr = {}
   for j=1, 6 do
-    mac_addr = mac_addr .. string.char(math.random(1, 255))
+    mac_addr[j] = string.char(math.random(1, 255))
   end
-  return mac_addr
+  return table.concat(mac_addr)
 end
 
 -- Gets a list of available interfaces based on link and up filters
@@ -143,7 +143,7 @@ action = function()
   -- randomizing the MAC could exhaust dhcp servers with small scopes
   -- if ran multiple times, so we should probably refrain from doing
   -- this?
-  local mac = string.char(0xDE,0xAD,0xC0,0xDE,0xCA,0xFE)--randomizeMAC()
+  local mac = "\xDE\xAD\xC0\xDE\xCA\xFE" --randomizeMAC()
 
   local interfaces
 

@@ -125,12 +125,12 @@ local function requestFileScan(filename)
   local shortfile = filename:match("^.*[\\/](.*)$")
   local boundary = "----------------------------nmapboundary"
   local header = { ["Content-Type"] = ("multipart/form-data; boundary=%s"):format(boundary) }
-  local postdata = ("--%s\r\n"):format(boundary)
-  postdata = postdata .. "Content-Disposition: form-data; name=\"apikey\"\r\n\r\n"
-  postdata = postdata .. arg_apiKey .. "\r\n"
-  postdata = postdata .. ("--%s\r\n" ..
-    "Content-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n" ..
-    "Content-Type: text/plain\r\n\r\n%s\r\n--%s--\r\n"):format(boundary, shortfile, str, boundary)
+  local postdata = ("--%s\r\n"
+  .. 'Content-Disposition: form-data; name="apikey"\r\n\r\n'
+  .. "%s\r\n"
+  .. "--%s\r\n"
+  .. 'Content-Disposition: form-data; name="file"; filename="%s"\r\n'
+  .. "Content-Type: text/plain\r\n\r\n%s\r\n--%s--\r\n"):format(boundary, arg_apiKey, boundary, shortfile, str, boundary)
 
   local host = "www.virustotal.com"
   local port = { number = 80, protocol = "tcp" }

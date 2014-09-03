@@ -139,7 +139,7 @@ action = function( host, port )
 
   local clock_start = nmap.clock_ms()
 
-  local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
+  local ldap_anonymous_bind = "\x30\x0c\x02\x01\x01\x60\x07\x02\x01\x03\x04\x00\x80\x00"
   local socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
 
   local base_dn = stdnse.get_script_args('ldap.base')

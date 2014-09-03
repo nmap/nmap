@@ -101,20 +101,20 @@ action = function(host)
   pcap:pcap_open(host.interface, 64, false, "arp")
 
   local test_static = host.mac_addr_src ..
-    string.char(0x08,0x06, 0x00,0x01, 0x08,0x00, 0x06,0x04, 0x00,0x01) ..
+    "\x08\x06\x00\x01\x08\x00\x06\x04\x00\x01" ..
     host.mac_addr_src ..
     host.bin_ip_src ..
-    string.char(0x00,0x00, 0x00,0x00, 0x00,0x00) ..
+    "\x00\x00\x00\x00\x00\x00" ..
     host.bin_ip
   local t = {
-    string.char(0xff,0xff, 0xff,0xff, 0xff,0xff), -- B32 no meaning?
-    string.char(0xff,0xff, 0xff,0xff, 0xff,0xfe), -- B31
-    string.char(0xff,0xff, 0x00,0x00, 0x00,0x00), -- B16
-    string.char(0xff,0x00, 0x00,0x00, 0x00,0x00), -- B8
-    string.char(0x01,0x00, 0x00,0x00, 0x00,0x00), -- G
-    string.char(0x01,0x00, 0x5e,0x00, 0x00,0x00), -- M0
-    string.char(0x01,0x00, 0x5e,0x00, 0x00,0x01), -- M1 no meaning?
-    string.char(0x01,0x00, 0x5e,0x00, 0x00,0x03), -- M3
+    "\xff\xff\xff\xff\xff\xff", -- B32 no meaning?
+    "\xff\xff\xff\xff\xff\xfe", -- B31
+    "\xff\xff\x00\x00\x00\x00", -- B16
+    "\xff\x00\x00\x00\x00\x00", -- B8
+    "\x01\x00\x00\x00\x00\x00", -- G
+    "\x01\x00\x5e\x00\x00\x00", -- M0
+    "\x01\x00\x5e\x00\x00\x01", -- M1 no meaning?
+    "\x01\x00\x5e\x00\x00\x03", -- M3
   }
   local v
   local out = ""

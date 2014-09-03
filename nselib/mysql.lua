@@ -156,7 +156,7 @@ local function createLoginHash(pass, salt)
   local hash_stage1
   local hash_stage2
   local hash_stage3
-  local reply = ""
+  local reply = {}
   local pos, b1, b2, b3, _ = 1, 0, 0, 0
 
   if ( not(HAVE_SSL) ) then
@@ -171,10 +171,10 @@ local function createLoginHash(pass, salt)
     _, b1 = bin.unpack( "C", hash_stage1, pos )
     _, b2 = bin.unpack( "C", hash_stage3, pos )
 
-    reply = reply .. string.char( bit.bxor( b2, b1 ) )
+    reply[pos] = string.char( bit.bxor( b2, b1 ) )
   end
 
-  return reply
+  return table.concat(reply)
 
 end
 
@@ -218,19 +218,20 @@ function loginRequest( socket, params, username, password, salt )
   local extcapabilities = ExtCapabilities.SupportsMultipleStatments
   extcapabilities = extcapabilities + ExtCapabilities.SupportsMultipleResults
 
-  local packet = bin.pack( "S", clicap )
-  packet = packet .. bin.pack( "S", extcapabilities )
-  packet = packet .. bin.pack( "I", MAXPACKET )
-  packet = packet .. bin.pack( "C", Charset.latin1_COLLATE_latin1_swedish_ci )
-  packet = packet .. bin.pack( "A", string.char(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) )
-  packet = packet .. bin.pack( "z", username )
-
+  local hash = ""
   if ( password ~= nil and password:len() > 0 ) then
-    local hash = createLoginHash( password, salt )
-    packet = packet .. bin.pack( "A", string.char( 0x14 ) .. hash )
-  else
-    packet = packet .. bin.pack( "C", 0 )
+    hash = createLoginHash( password, salt )
   end
+
+  local packet = bin.pack( "SSICAzp",
+    clicap,
+    extcapabilities,
+    MAXPACKET,
+    Charset.latin1_COLLATE_latin1_swedish_ci,
+    string.rep("\0", 23),
+    username,
+    hash
+    )
 
   local tmp = packet:len() + bit.lshift( packetno, 24 )
 

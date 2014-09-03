@@ -40,9 +40,9 @@ AMQP = {
 
   -- version strings the client supports
   client_version_strings = {
-    ["0-8"] = string.char(0x01) .. string.char(0x01) .. string.char(0x08) .. string.char(0x00),
-    ["0-9"] = string.char(0x00) .. string.char(0x00) .. string.char(0x09) .. string.char(0x00),
-    ["0-9-1"] = string.char(0x00) .. string.char(0x00) .. string.char(0x09) .. string.char(0x01)
+    ["0-8"] = "\x01\x01\x08\x00",
+    ["0-9"] = "\x00\x00\x09\x00",
+    ["0-9-1"] = "\x00\x00\x09\x01"
   },
 
   new = function(self, host, port)

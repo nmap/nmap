@@ -301,7 +301,7 @@ end
 --@return The encrypted (or decrypted) data.
 local function p2p_cipher(packet, key1, key2)
   local i
-  local buf = ""
+  local buf = {}
 
   for i = 1, #packet, 1 do
     -- Do a 64-bit rotate on key1:key2
@@ -311,7 +311,7 @@ local function p2p_cipher(packet, key1, key2)
     local k = bit.band(key1, 0x0FF)
 
     -- Xor the current character and add it to the encrypted buffer
-    buf = buf .. string.char(bit.bxor(string.byte(packet, i), k))
+    buf[i] = string.char(bit.bxor(string.byte(packet, i), k))
 
     -- Update the key with 'k'
     key1 = key1 + k
@@ -323,7 +323,7 @@ local function p2p_cipher(packet, key1, key2)
     end
   end
 
-  return buf
+  return table.concat(buf)
 end
 
 ---Decrypt the packet, verify it, and parse it. This function will fail with an error if the packet can't be

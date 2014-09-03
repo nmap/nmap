@@ -64,48 +64,48 @@ _ENV = stdnse.module("msrpc", stdnse.seeall)
 
 -- The path, UUID, and version for SAMR
 SAMR_PATH       = "\\samr"
-SAMR_UUID       = string.char(0x78, 0x57, 0x34, 0x12, 0x34, 0x12, 0xcd, 0xab, 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xac)
+SAMR_UUID       = "\x78\x57\x34\x12\x34\x12\xcd\xab\xef\x00\x01\x23\x45\x67\x89\xac"
 SAMR_VERSION    = 0x01
 
 -- The path, UUID, and version for SRVSVC
 SRVSVC_PATH     = "\\srvsvc"
-SRVSVC_UUID     = string.char(0xc8, 0x4f, 0x32, 0x4b, 0x70, 0x16, 0xd3, 0x01, 0x12, 0x78, 0x5a, 0x47, 0xbf, 0x6e, 0xe1, 0x88)
+SRVSVC_UUID     = "\xc8\x4f\x32\x4b\x70\x16\xd3\x01\x12\x78\x5a\x47\xbf\x6e\xe1\x88"
 SRVSVC_VERSION  = 0x03
 
 -- The path, UUID, and version for SPOOLSS
 SPOOLSS_PATH    = "\\spoolss"
-SPOOLSS_UUID = string.char(0x78, 0x56, 0x34, 0x12, 0x34, 0x12, 0xcd, 0xab, 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab)
+SPOOLSS_UUID = "\x78\x56\x34\x12\x34\x12\xcd\xab\xef\x00\x01\x23\x45\x67\x89\xab"
 SPOOLSS_VERSION = 0x01
 
 -- The path, UUID, and version for LSA
 LSA_PATH        = "\\lsarpc"
-LSA_UUID        = string.char(0x78, 0x57, 0x34, 0x12, 0x34, 0x12, 0xcd, 0xab, 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab)
+LSA_UUID        = "\x78\x57\x34\x12\x34\x12\xcd\xab\xef\x00\x01\x23\x45\x67\x89\xab"
 LSA_VERSION     = 0
 
 -- The path, UUID, and version for WINREG
 WINREG_PATH     = "\\winreg"
-WINREG_UUID     = string.char(0x01, 0xd0, 0x8c, 0x33, 0x44, 0x22, 0xf1, 0x31, 0xaa, 0xaa, 0x90, 0x00, 0x38, 0x00, 0x10, 0x03)
+WINREG_UUID     = "\x01\xd0\x8c\x33\x44\x22\xf1\x31\xaa\xaa\x90\x00\x38\x00\x10\x03"
 WINREG_VERSION  = 1
 
 -- The path, UUID, and version for SVCCTL
 SVCCTL_PATH    = "\\svcctl"
-SVCCTL_UUID    = string.char(0x81, 0xbb, 0x7a, 0x36, 0x44, 0x98, 0xf1, 0x35, 0xad, 0x32, 0x98, 0xf0, 0x38, 0x00, 0x10, 0x03)
+SVCCTL_UUID    = "\x81\xbb\x7a\x36\x44\x98\xf1\x35\xad\x32\x98\xf0\x38\x00\x10\x03"
 SVCCTL_VERSION = 2
 
 -- The path, UUID, and version for ATSVC
 ATSVC_PATH     = "\\atsvc"
-ATSVC_UUID     = string.char(0x82, 0x06, 0xf7, 0x1f, 0x51, 0x0a, 0xe8, 0x30, 0x07, 0x6d, 0x74, 0x0b, 0xe8, 0xce, 0xe9, 0x8b)
+ATSVC_UUID     = "\x82\x06\xf7\x1f\x51\x0a\xe8\x30\x07\x6d\x74\x0b\xe8\xce\xe9\x8b"
 ATSVC_VERSION  = 1
 
 
 -- UUID and version for epmapper e1af8308-5d1f-11c9-91a4-08002b14a0fa v3.0
 EPMAPPER_PATH = "\\epmapper"
-EPMAPPER_UUID     = string.char(0x08, 0x83, 0xaf, 0xe1, 0x1f, 0x5d, 0xc9, 0x11, 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa)
+EPMAPPER_UUID     = "\x08\x83\xaf\xe1\x1f\x5d\xc9\x11\x91\xa4\x08\x00\x2b\x14\xa0\xfa"
 EPMAPPER_VERSION  = 3
 
 
 -- This is the only transfer syntax I've seen in the wild, not that I've looked hard. It seems to work well.
-TRANSFER_SYNTAX = string.char(0x04, 0x5d, 0x88, 0x8a, 0xeb, 0x1c, 0xc9, 0x11, 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60)
+TRANSFER_SYNTAX = "\x04\x5d\x88\x8a\xeb\x1c\xc9\x11\x9f\xe8\x08\x00\x2b\x10\x48\x60"
 
 -- The 'referent_id' value is ignored, as far as I can tell, so this value is passed for it. No, it isn't random. :)
 REFERENT_ID = 0x50414d4e
@@ -4791,7 +4791,7 @@ end
 --# 1) RRAS RASRPC INTERFACE
 --####################################################################--
 ROUTER_PATH = "\\router" --also can be reached across "\\srvsvc" pipe in WinXP
-RASRPC_UUID = string.char(0x36, 0x00, 0x61, 0x20, 0x22, 0xfa, 0xcf, 0x11, 0x98, 0x23, 0x00, 0xa0, 0xc9, 0x11, 0xe5, 0xdf)
+RASRPC_UUID = "\x36\x00\x61\x20\x22\xfa\xcf\x11\x98\x23\x00\xa0\xc9\x11\xe5\xdf"
 RASRPC_VERSION = 1
 
 --####################################################################--
@@ -4934,7 +4934,7 @@ end
 --# 1) DNS SERVER MANAGEMENT SERVICE INTERFACE
 --####################################################################--
 DNSSERVER_UUID_STR = "50abc2a4-574d-40b3-9d66-ee4fd5fba076"
-DNSSERVER_UUID = string.char(0xa4, 0xc2,0xab, 0x50, 0x4d, 0x57, 0xb3, 0x40, 0x9d, 0x66, 0xee, 0x4f, 0xd5, 0xfb, 0xa0, 0x76)
+DNSSERVER_UUID = "\xa4\xc2\xab\x50\x4d\x57\xb3\x40\x9d\x66\xee\x4f\xd5\xfb\xa0\x76"
 DNSSERVER_PATH = "\\DNSSERVER"
 DNSSERVER_VERSION = 5
 
