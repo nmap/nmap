@@ -123,4 +123,19 @@
 
 /* $Id$ */
 
+#include "scan_engine.h"
+#include "Target.h"
+#include <vector>
 
+void increment_base_port();
+int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime);
+void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets);
+UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
+                             u8 tryno, u8 pingseq);
+UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
+                            u8 tryno, u8 pingseq);
+UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
+                            const probespec *pspec, u8 tryno, u8 pingseq);
+bool get_arp_result(UltraScanInfo *USI, struct timeval *stime);
+bool get_ns_result(UltraScanInfo *USI, struct timeval *stime);
+bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime);

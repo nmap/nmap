@@ -123,4 +123,8 @@
 
 /* $Id$ */
 
+#include "scan_engine.h"
 
+UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
+                                 u16 destport, u8 tryno, u8 pingseq);
+bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime);

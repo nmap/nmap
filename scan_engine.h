@@ -757,5 +757,21 @@ private:
    individual host */
 enum ultra_timing_type { TIMING_HOST, TIMING_GROUP };
 
+const char *pspectype2ascii(int type);
+
+void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
+                                 std::list<UltraProbe *>::iterator probeI,
+                                 int newstate, struct timeval *rcvdtime,
+                                 bool adjust_timing_hint = true);
+
+void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
+                                        std::list<UltraProbe *>::iterator probeI,
+                                        int newstate, struct timeval *rcvdtime,
+                                        bool adjust_timing_hint = true);
+
+void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss,
+                                  std::list<UltraProbe *>::iterator probeI,
+                                  struct timeval *rcvdtime,
+                                  bool adjust_timing = true);
 #endif /* SCAN_ENGINE_H */
 
