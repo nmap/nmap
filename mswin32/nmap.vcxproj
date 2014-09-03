@@ -148,8 +148,8 @@
     <ClCompile Include="..\nse_bit.cc" />
     <ClCompile Include="..\nse_debug.cc" />
     <ClCompile Include="..\nse_fs.cc" />
-    <ClCompile Include="..\nse_main.cc" />
     <ClCompile Include="..\nse_lpeg.cc" />
+    <ClCompile Include="..\nse_main.cc" />
     <ClCompile Include="..\nse_utility.cc" />
     <ClCompile Include="..\nse_nmaplib.cc" />
     <ClCompile Include="..\nse_nsock.cc" />
@@ -204,6 +204,7 @@
     <ClInclude Include="..\nse_bit.h" />
     <ClInclude Include="..\nse_debug.h" />
     <ClInclude Include="..\nse_fs.h" />
+    <ClInclude Include="..\nse_lpeg.h" />
     <ClInclude Include="..\nse_main.h" />
     <ClInclude Include="..\nse_utility.h" />
     <ClInclude Include="..\nse_nmaplib.h" />
