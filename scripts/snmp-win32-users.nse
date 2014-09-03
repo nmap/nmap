@@ -22,6 +22,16 @@ Attempts to enumerate Windows user accounts through SNMP
 -- |   db2admin
 -- |   ldaptest
 -- |_  patrik
+-- @xmloutput
+-- <elem>Administrator</elem>
+-- <elem>Guest</elem>
+-- <elem>IUSR_EDUSRV011</elem>
+-- <elem>IWAM_EDUSRV011</elem>
+-- <elem>SUPPORT_388945a0</elem>
+-- <elem>Tomcat</elem>
+-- <elem>db2admin</elem>
+-- <elem>ldaptest</elem>
+-- <elem>patrik</elem>
 
 
 author = "Patrik Karlsson"
@@ -40,8 +50,8 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 --- Processes the table and creates the script output
 --
 -- @param tbl table containing <code>oid</code> and <code>value</code>
--- @return table suitable for <code>stdnse.format_output</code>
-function process_answer( tbl )
+-- @return table with just the values
+local function process_answer( tbl )
 
   local new_tab = {}
 
@@ -82,6 +92,6 @@ action = function(host, port)
 
   nmap.set_port_state(host, port, "open")
 
-  return stdnse.format_output( true, users )
+  return users
 end
 
