@@ -3,7 +3,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 
 description = [[
 Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes with their respective port numbers.
@@ -17,9 +16,16 @@ Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes with 
 -- PORT     STATE SERVICE
 -- 4369/tcp open  epmd
 -- | epmd-info.nse:
--- |   epmd running on port 4369
--- |   name rabbit at port 36804
--- |_  name ejabberd at port 46540
+-- |   epmd_port: 4369
+-- |   nodes:
+-- |     rabbit: 36804
+-- |_    ejabberd: 46540
+-- @xmloutput
+-- <elem key="epmd_port">4369</elem>
+-- <table key="nodes">
+--   <elem key="rabbit">36804</elem>
+--   <elem key="ejabberd">46540</elem>
+-- </table>
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -27,31 +33,38 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service (4369, "epmd")
 
-local NAMESREQ = 110
-
 action = function(host, port)
   local socket = nmap.new_socket()
-  local status, err = socket:connect(host.ip, port.number)
-  if not status then
-    return {}
+  socket:set_timeout(stdnse.get_timeout(host))
+  local try = nmap.new_try(function () socket:close() end)
+  try(socket:connect(host, port))
+
+  try(socket:send("\x00\x01n")) -- NAMESREQ = 110
+
+  local getline = stdnse.make_buffer(socket, "\n")
+
+  local data, err = getline()
+  if data == nil then
+    stdnse.debug2("Error on receive: %s", err)
+    socket:close()
+    return nil
   end
-  local payload = bin.pack("C", NAMESREQ)
-  local probe = bin.pack(">SA", #payload, payload)
-  socket:send(probe)
-  local status = true
-  local data = ""
-  local tmp = ""
-  while status do
-    data = data .. tmp
-    status, tmp = socket:receive()
-  end
+
   local pos, realport = bin.unpack(">I", data)
-  local nodestring = string.sub(data, pos, -2)
-  local nodes = stdnse.strsplit("\n", nodestring)
-  local response = {}
-  table.insert(response, 'epmd running on port ' .. realport)
-  for _, node in ipairs(nodes) do
-    table.insert(response, node)
+  data = string.sub(data, pos)
+
+  local nodes = stdnse.output_table()
+  local name, port
+  while data and data ~= "" do
+    name, port = data:match("^name (.*) at port (%d+)")
+    if name then
+      nodes[name] = port
+    end
+    data = getline()
   end
-  return stdnse.format_output(true, response)
+
+  local response = stdnse.output_table()
+  response.epmd_port = realport
+  response.nodes = nodes
+  return response
 end
