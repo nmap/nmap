@@ -164,6 +164,8 @@
     <ClCompile Include="..\portreasons.cc" />
     <ClCompile Include="..\protocols.cc" />
     <ClCompile Include="..\scan_engine.cc" />
+    <ClCompile Include="..\scan_engine_connect.cc" />
+    <ClCompile Include="..\scan_engine_raw.cc" />
     <ClCompile Include="..\service_scan.cc" />
     <ClCompile Include="..\services.cc" />
     <ClCompile Include="..\Target.cc" />
@@ -217,6 +219,8 @@
     <ClInclude Include="..\portreasons.h" />
     <ClInclude Include="..\protocols.h" />
     <ClInclude Include="..\scan_engine.h" />
+    <ClInclude Include="..\scan_engine_connect.h" />
+    <ClInclude Include="..\scan_engine_raw.h" />
     <ClInclude Include="..\service_scan.h" />
     <ClInclude Include="..\services.h" />
     <ClInclude Include="..\targets.h" />
