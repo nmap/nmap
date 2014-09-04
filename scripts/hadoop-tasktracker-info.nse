@@ -29,7 +29,11 @@ For more information about Hadoop, see:
 -- |   Version: 0.20.1 (f415ef415ef415ef415ef415ef415ef415ef415e)
 -- |   Compiled: Wed May 11 22:33:44 PDT 2011 by bob from unknown
 -- |_  Logs: /logs/
----
+--
+-- @xmloutput
+-- <elem key="Version">0.20.1 (f415ef415ef415ef415ef415ef415ef415ef415e)</elem>
+-- <elem key="Compiled">Wed May 11 22:33:44 PDT 2011 by bob from unknown</elem>
+-- <elem key="Logs">/logs/</elem>
 
 
 author = "John R. Bond"
@@ -46,7 +50,7 @@ end
 
 action = function( host, port )
 
-  local result = {}
+  local result = stdnse.output_table()
   local uri = "/tasktracker.jsp"
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
@@ -59,24 +63,24 @@ action = function( host, port )
       local versionNo = version:match("([^][,]+)")
       local versionHash = version:match("[^][,]+%s+(%w+)")
       stdnse.debug1("Version %s (%s)",versionNo,versionHash)
-      table.insert(result, ("Version: %s (%s)"):format(versionNo,versionHash))
+      result["Version"] = ("%s (%s)"):format(versionNo, versionHash)
       port.version.version = version
     end
     if response['body']:match("Compiled:</b>%s*([^][<]+)") then
       local compiled = response['body']:match("Compiled:</b>%s*([^][<]+)"):gsub("%s+", " ")
       stdnse.debug1("Compiled %s",compiled)
-      table.insert(result, ("Compiled: %s"):format(compiled))
+      result["Compiled"] = compiled
     end
     if body:match("([^][\"]+)\">Log") then
       local logs = body:match("([^][\"]+)\">Log")
       stdnse.debug1("Logs %s",logs)
-      table.insert(result, ("Logs: %s"):format(logs))
+      result["Logs"] = logs
     end
     if #result > 0 then
       port.version.name = "hadoop-tasktracker"
       port.version.product = "Apache Hadoop"
       nmap.set_port_version(host, port)
     end
-    return stdnse.format_output(true, result)
+    return result
   end
 end

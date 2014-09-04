@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local tab = require "tab"
 local table = require "table"
 local target = require "target"
 
@@ -39,12 +40,29 @@ For more information about Hadoop, see:
 -- |   Filesystem: /nn_browsedfscontent.jsp
 -- |   Logs: /logs/
 -- |   Storage:
--- |   Total       Used (DFS)      Used (Non DFS)  Remaining
--- |   100 TB      85 TB           500 GB          14.5 TB
+-- |     Total   Used (DFS)  Used (Non DFS)  Remaining
+-- |     100 TB  85 TB       500 GB          14.5 TB
 -- |   Datanodes (Live):
--- |     Datanode: datanode1.example.com:50075
--- |     Datanode: datanode2.example.com:50075
----
+-- |     datanode1.example.com:50075
+-- |_    datanode2.example.com:50075
+--
+-- @xmloutput
+-- <elem key="Started">Wed May 11 22:33:44 PDT 2011</elem>
+-- <elem key="Version">0.20.2-cdh3u1, f415ef415ef415ef415ef415ef415ef415ef415e</elem>
+-- <elem key="Compiled">Wed May 11 22:33:44 PDT 2011 by bob from unknown</elem>
+-- <elem key="Upgrades">There are no upgrades in progress.</elem>
+-- <elem key="Filesystem">/nn_browsedfscontent.jsp</elem>
+-- <elem key="Logs">/logs/</elem>
+-- <table key="Storage">
+--   <elem key="Total">100 TB</elem>
+--   <elem key="Used (DFS)">85 TB</elem>
+--   <elem key="Used (Non DFS)">500 GB</elem>
+--   <elem key="Remaining">14.5 TB</elem>
+-- </table>
+-- <table key="Datanodes (Live)">
+--   <elem>datanode1.example.com:50075</elem>
+--   <elem>datanode2.example.com:50075</elem>
+-- </table>
 
 
 author = "John R. Bond"
@@ -71,7 +89,7 @@ get_datanodes = function( host, port, Status )
     for datanodetmp in string.gmatch(body, "[%w%.:-_]+/browseDirectory.jsp") do
       local datanode = datanodetmp:gsub("/browseDirectory.jsp","")
       stdnse.debug1("Datanode %s",datanode)
-      table.insert(result, ("Datanode: %s"):format(datanode))
+      table.insert(result, datanode)
       if target.ALLOW_NEW_TARGETS then
         if datanode:match("([%w%.]+)") then
           local newtarget = datanode:match("([%w%.]+)")
@@ -86,7 +104,7 @@ end
 
 action = function( host, port )
 
-  local result = {}
+  local result = stdnse.output_table()
   local uri = "/dfshealth.jsp"
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
@@ -98,33 +116,33 @@ action = function( host, port )
     if body:match("Started:%s*<td>([^][<]+)") then
       local start = body:match("Started:%s*<td>([^][<]+)")
       stdnse.debug1("Started %s",start)
-      table.insert(result, ("Started: %s"):format(start))
+      result["Started"] = start
     end
     if body:match("Version:%s*<td>([^][<]+)") then
       local version = body:match("Version:%s*<td>([^][<]+)")
       stdnse.debug1("Version %s",version)
-      table.insert(result, ("Version: %s"):format(version))
+      result["Version"] = version
       port.version.version = version
     end
     if body:match("Compiled:%s*<td>([^][<]+)") then
       local compiled = body:match("Compiled:%s*<td>([^][<]+)")
       stdnse.debug1("Compiled %s",compiled)
-      table.insert(result, ("Compiled: %s"):format(compiled))
+      result["Compiled"] = compiled
     end
     if body:match("Upgrades:%s*<td>([^][<]+)") then
       local upgrades = body:match("Upgrades:%s*<td>([^][<]+)")
       stdnse.debug1("Upgrades %s",upgrades)
-      table.insert(result, ("Upgrades: %s"):format(upgrades))
+      result["Upgrades"] = upgrades
     end
     if body:match("([^][\"]+)\">Browse") then
       local filesystem = body:match("([^][\"]+)\">Browse")
       stdnse.debug1("Filesystem %s",filesystem)
-      table.insert(result, ("Filesystem: %s"):format(filesystem))
+      result["Filesystem"] = filesystem
     end
     if body:match("([^][\"]+)\">Namenode") then
       local logs = body:match("([^][\"]+)\">Namenode")
       stdnse.debug1("Logs %s",logs)
-      table.insert(result, ("Logs: %s"):format(logs))
+      result["Logs"] = logs
     end
     for i in string.gmatch(body, "[%d%.]+%s[KMGTP]B") do
       table.insert(capacity,i)
@@ -133,19 +151,29 @@ action = function( host, port )
       stdnse.debug1("Total %s",capacity[3])
       stdnse.debug1("Used DFS (NonDFS) %s (%s)",capacity[4],capacity[5])
       stdnse.debug1("Remaining %s",capacity[6])
-      table.insert(result,"Storage:")
-      table.insert(result,"Total\tUsed (DFS)\tUsed (Non DFS)\tRemaining")
-      table.insert(result, ("%s\t%s\t%s\t%s"):format(capacity[3],capacity[4],capacity[5],capacity[6]))
+      local storage = {
+        ["Total"] = capacity[3],
+        ["Used (DFS)"] = capacity[4],
+        ["Used (Non DFS)"] = capacity[5],
+        ["Remaining"] = capacity[6],
+      }
+      -- indented tabular string output
+      local st = tab.new()
+      tab.addrow(st, "", "", "Total", "Used (DFS)", "Used (Non DFS)", "Remaining")
+      tab.addrow(st, "", "", capacity[3], capacity[4], capacity[5], capacity[6])
+      st = tab.dump(st)
+      setmetatable(storage, {
+          __tostring = function (t) return "\n" .. st end
+        })
+      result["Storage"] = storage
     end
     local datanodes_live = get_datanodes(host,port, "LIVE")
     if next(datanodes_live) then
-      table.insert(result, "Datanodes (Live): ")
-      table.insert(result, datanodes_live)
+      result["Datanodes (Live)"] = datanodes_live
     end
     local datanodes_dead = get_datanodes(host,port, "DEAD")
     if next(datanodes_dead) then
-      table.insert(result, "Datanodes (Dead): ")
-      table.insert(result, datanodes_dead)
+      result["Datanodes (Dead)"] = datanodes_dead
     end
     if #result > 0 then
       port.version.name = "hadoop-namenode"
