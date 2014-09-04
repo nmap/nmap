@@ -70,31 +70,69 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 -- @output
 -- | ms-sql-info:
 -- |   Windows server name: WINXP
--- |   [192.168.100.128\PROD]
+-- |   192.168.100.128\PROD:
 -- |     Instance name: PROD
--- |     Version: Microsoft SQL Server 2000 SP3
--- |       Version number: 8.00.760
--- |       Product: Microsoft SQL Server 2005
+-- |     Version:
+-- |       name: Microsoft SQL Server 2000 SP3
+-- |       number: 8.00.760
+-- |       Product: Microsoft SQL Server 2000
 -- |       Service pack level: SP3
 -- |       Post-SP patches applied: No
 -- |     TCP port: 1278
 -- |     Named pipe: \\192.168.100.128\pipe\MSSQL$PROD\sql\query
 -- |     Clustered: No
--- |   [192.168.100.128\SQLFIREWALLED]
+-- |   192.168.100.128\SQLFIREWALLED:
 -- |     Instance name: SQLFIREWALLED
--- |     Version: Microsoft SQL Server 2008 RTM
+-- |     Version:
+-- |       name: Microsoft SQL Server 2008 RTM
 -- |       Product: Microsoft SQL Server 2008
 -- |       Service pack level: RTM
 -- |     TCP port: 4343
 -- |     Clustered: No
--- |   [\\192.168.100.128\pipe\sql\query]
--- |     Version: Microsoft SQL Server 2005 SP3+
--- |       Version number: 9.00.4053
+-- |   \\192.168.100.128\pipe\sql\query:
+-- |     Version:
+-- |       name: Microsoft SQL Server 2005 SP3+
+-- |       number: 9.00.4053
 -- |       Product: Microsoft SQL Server 2005
 -- |       Service pack level: SP3
 -- |       Post-SP patches applied: Yes
 -- |_    Named pipe: \\192.168.100.128\pipe\sql\query
 --
+-- @xmloutput
+-- <elem key="Windows server name">WINXP</elem>
+-- <table key="192.168.100.128\PROD">
+--   <elem key="Instance name">PROD</elem>
+--   <table key="Version">
+--     <elem key="name">Microsoft SQL Server 2000 SP3</elem>
+--     <elem key="number">8.00.760</elem>
+--     <elem key="Product">Microsoft SQL Server 2000</elem>
+--     <elem key="Service pack level">SP3</elem>
+--     <elem key="Post-SP patches applied">No</elem>
+--   </table>
+--   <elem key="TCP port">1278</elem>
+--   <elem key="Named pipe">\\192.168.100.128\pipe\MSSQL$PROD\sql\query</elem>
+--   <elem key="Clustered">No</elem>
+-- </table>
+-- <table key="192.168.100.128\SQLFIREWALLED">
+--   <elem key="Instance name">SQLFIREWALLED</elem>
+--   <table key="Version">
+--     <elem key="name">Microsoft SQL Server 2008 RTM</elem>
+--     <elem key="Product">Microsoft SQL Server 2008</elem>
+--     <elem key="Service pack level">RTM</elem>
+--   </table>
+--   <elem key="TCP port">4343</elem>
+--   <elem key="Clustered">No</elem>
+-- </table>
+-- <table key="\\192.168.100.128\pipe\sql\query">
+--   <table key="Version">
+--     <elem key="name">Microsoft SQL Server 2005 SP3+</elem>
+--     <elem key="number">9.00.4053</elem>
+--     <elem key="Product">Microsoft SQL Server 2005</elem>
+--     <elem key="Service pack level">SP3</elem>
+--     <elem key="Post-SP patches applied">Yes</elem>
+--   </table>
+--   <elem key="Named pipe">\\192.168.100.128\pipe\sql\query</elem>
+-- </table>
 
 -- rev 1.0 (2007-06-09)
 -- rev 1.1 (2009-12-06 - Added SQL 2008 identification T Sellers)
@@ -106,6 +144,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --                         weren't in original Nmap scan <chris3E3@gmail.com>)
 -- rev 1.5 (2011-02-01 - Moved discovery functionality into ms-sql-discover.nse and
 --               broadcast-ms-sql-discovery.nse <chris3E3@gmail.com>)
+-- rev 1.6 (2014-09-04 - Added structured output Daniel Miller)
 
 author = "Chris Woodbury, Thomas Buchanan"
 
@@ -133,32 +172,17 @@ hostrule = function(host)
 end
 
 
---- Adds a label and value to an output table. If the value is a boolean, it is
---  converted to Yes/No; if the value is nil, nothing is added to the table.
-local function add_to_output_table( outputTable, outputLabel, outputData )
-  if outputData == nil then return end
-
-  if outputData == true then
-    outputData = "Yes"
-  elseif outputData == false then
-    outputData = "No"
-  end
-
-  table.insert(outputTable, string.format( "%s: %s", outputLabel, outputData ) )
-end
-
-
 --- Returns formatted output for the given version data
 local function create_version_output_table( versionInfo )
   local versionOutput = {}
 
-  versionOutput["name"] = "Version: " .. versionInfo:ToString()
+  versionOutput["name"] = versionInfo:ToString()
   if ( versionInfo.source ~= "SSRP" ) then
-    add_to_output_table( versionOutput, "Version number", versionInfo.versionNumber )
+    versionOutput["number"] = versionInfo.versionNumber
   end
-  add_to_output_table( versionOutput, "Product", versionInfo.productName )
-  add_to_output_table( versionOutput, "Service pack level", versionInfo.servicePackLevel )
-  add_to_output_table( versionOutput, "Post-SP patches applied", versionInfo.patched )
+  versionOutput["Product"] = versionInfo.productName
+  versionOutput["Service pack level"] = versionInfo.servicePackLevel
+  versionOutput["Post-SP patches applied"] = versionInfo.patched
 
   return versionOutput
 end
@@ -171,17 +195,15 @@ local function create_instance_output_table( instance )
   -- being SQL Server), don't report anything
   if not ( instance.instanceName or instance.version ) then return nil end
 
-  local instanceOutput = {}
-  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  local instanceOutput = stdnse.output_table()
 
-  add_to_output_table( instanceOutput, "Instance name", instance.instanceName )
+  instanceOutput["Instance name"] = instance.instanceName
   if instance.version then
-    local versionOutput = create_version_output_table( instance.version )
-    table.insert( instanceOutput, versionOutput )
+    instanceOutput["Version"] = create_version_output_table( instance.version )
   end
-  if instance.port then add_to_output_table( instanceOutput, "TCP port", instance.port.number ) end
-  add_to_output_table( instanceOutput, "Named pipe", instance.pipeName )
-  add_to_output_table( instanceOutput, "Clustered", instance.isClustered )
+  if instance.port then instanceOutput["TCP port"] = instance.port.number end
+  instanceOutput["Named pipe"] = instance.pipeName
+  instanceOutput["Clustered"] = instance.isClustered
 
   return instanceOutput
 
@@ -229,7 +251,7 @@ end
 
 
 action = function( host )
-  local scriptOutput = {}
+  local scriptOutput = stdnse.output_table()
 
   local status, instanceList = mssql.Helper.GetTargetInstances( host )
   -- if no instances were targeted, then display info on all
@@ -246,19 +268,16 @@ action = function( host )
   else
     for _, instance in ipairs( instanceList ) do
       if instance.serverName then
-        table.insert(scriptOutput, string.format( "Windows server name: %s", instance.serverName ))
+        scriptOutput["Windows server name"] = instance.serverName
         break
       end
     end
     for _, instance in pairs( instanceList ) do
       process_instance( instance )
-      local instanceOutput = create_instance_output_table( instance )
-      if instanceOutput then
-        table.insert( scriptOutput, instanceOutput )
-      end
+      scriptOutput[instance:GetName()] = create_instance_output_table( instance )
     end
   end
 
-  return stdnse.format_output( true, scriptOutput )
+  return scriptOutput
 end
 
