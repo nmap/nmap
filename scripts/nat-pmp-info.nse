@@ -20,6 +20,11 @@ The NAT-PMP protocol is supported by a broad range of routers including:
 ---
 --@usage
 -- nmap -sU -p 5351 --script=nat-pmp-info <target>
+-- @output
+-- | nat-pmp-info:
+-- |_  WAN IP: 192.0.2.13
+-- @xmloutput
+-- <elem key="WAN IP">192.0.2.13</elem>
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -37,6 +42,6 @@ action = function(host, port)
     port.version.name = "nat-pmp"
     nmap.set_port_version(host, port)
 
-    return stdnse.format_output(true, ("WAN IP: %s"):format(response.ip))
+    return {["WAN IP"] = response.ip}
   end
 end

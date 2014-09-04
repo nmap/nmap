@@ -47,13 +47,18 @@ them.
 -- sudo nmap -sU -sS --script smb-security-mode.nse -p U:137,T:139 127.0.0.1
 --
 --@output
--- Host script results:
--- |  smb-security-mode:
--- |  |  Account that was used for smb scripts: administrator
--- |  |  User-level authentication
--- |  |  SMB Security: Challenge/response passwords supported
--- |_ |_ Message signing disabled (dangerous, but default)
------------------------------------------------------------------------
+-- | smb-security-mode:
+-- |   account_used: guest
+-- |   authentication_level: user
+-- |   challenge_response: supported
+-- |_  message_signing: disabled (dangerous, but default)
+--
+--@xmloutput
+-- <elem key="account_used">guest</elem>
+-- <elem key="authentication_level">user</elem>
+-- <elem key="challenge_response">supported</elem>
+-- <elem key="message_signing">disabled</elem>
+--
 
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -66,6 +71,19 @@ hostrule = function(host)
   return smb.get_port(host) ~= nil
 end
 
+local function label_warnings (t, w)
+  local out = {}
+  for k, v in pairs(t) do
+    local warn = w[k]
+    if warn then
+      warn = string.format(" (%s)", warn)
+    else
+      warn = ""
+    end
+    out[#out+1] = string.format("\n  %s: %s%s", k, v, warn)
+  end
+  return table.concat(out)
+end
 
 action = function(host)
 
@@ -86,38 +104,51 @@ action = function(host)
 
   local security_mode = state['security_mode']
 
-  local response = {}
+  local response = stdnse.output_table()
 
   local result, username, domain = smb.get_account(host)
   if(result ~= false) then
-    table.insert(response, string.format("Account that was used for smb scripts: %s%s", domain, stdnse.string_or_blank(username, '<blank>')))
+    if domain and domain ~= "" then
+      domain = domain .. "\\"
+    end
+    response.account_used = string.format("%s%s", domain, stdnse.string_or_blank(username, '<blank>'))
   end
 
+  local warnings = {}
   -- User-level authentication or share-level authentication
   if(bit.band(security_mode, 1) == 1) then
-    table.insert(response, "User-level authentication")
+    response.authentication_level = "user"
   else
-    table.insert(response, "Share-level authentication (dangerous)")
+    response.authentication_level = "share"
+    warnings.authentication_level = "dangerous"
   end
 
   -- Challenge/response supported?
   if(bit.band(security_mode, 2) == 0) then
-    table.insert(response, "Plaintext passwords required (dangerous)")
+    response.challenge_response = "plaintext-only"
+    warnings.challenge_response = "dangerous"
   else
-    table.insert(response, "SMB Security: Challenge/response passwords supported")
+    response.challenge_response = "supported"
   end
 
   -- Message signing supported/required?
   if(bit.band(security_mode, 8) == 8) then
-    table.insert(response, "Message signing required")
+    response.message_signing = "required"
   elseif(bit.band(security_mode, 4) == 4) then
-    table.insert(response, "Message signing supported")
+    response.message_signing = "supported"
   else
-    table.insert(response, "Message signing disabled (dangerous, but default)")
+    response.message_signing = "disabled"
+    warnings.message_signing = "dangerous, but default"
   end
 
   smb.stop(state)
-  return stdnse.format_output(true, response)
+
+  local rmeta = getmetatable(response)
+  rmeta.__tostring = function (t)
+    return label_warnings(t, warnings)
+  end
+  setmetatable(response, rmeta)
+  return response
 end
 
 
