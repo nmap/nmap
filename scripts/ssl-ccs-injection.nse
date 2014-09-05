@@ -115,28 +115,20 @@ local function alert_unexpected_message(s)
   return true,true
 end
 
-local function keys(t)
-  local ret = {}
-  for k, _ in pairs(t) do
-    ret[#ret+1] = k
-  end
-  return ret
-end
-
 local function test_ccs_injection(host, port, version)
   local hello = tls.client_hello({
       ["protocol"] = version,
       -- Claim to support every cipher
       -- Doesn't work with IIS, but IIS isn't vulnerable
-      ["ciphers"] = keys(tls.CIPHERS),
+      ["ciphers"] = stdnse.keys(tls.CIPHERS),
       ["compressors"] = {"NULL"},
       ["extensions"] = {
         -- Claim to support every elliptic curve
         ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](
-          keys(tls.ELLIPTIC_CURVES)),
+          stdnse.keys(tls.ELLIPTIC_CURVES)),
         -- Claim to support every EC point format
         ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](
-          keys(tls.EC_POINT_FORMATS)),
+          stdnse.keys(tls.EC_POINT_FORMATS)),
       },
     })
 
@@ -228,6 +220,7 @@ local function test_ccs_injection(host, port, version)
   end
 
   -- Read the alert message
+  local vulnerable
   status,vulnerable = alert_unexpected_message(s)
 
   -- Leave the target not vulnerable in case of an error. This could occur

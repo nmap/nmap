@@ -211,14 +211,6 @@ local function try_params(host, port, t)
   end
 end
 
-local function keys(t)
-  local ret = {}
-  for k, _ in pairs(t) do
-    ret[#ret+1] = k
-  end
-  return ret
-end
-
 local function sorted_keys(t)
   local ret = {}
   for k, _ in pairs(t) do
@@ -709,8 +701,7 @@ function sorted_by_key(t)
   local out = {}
   setmetatable(out, {
     __pairs = function(_)
-      local order = keys(t)
-      table.sort(order)
+      local order = sorted_keys(t)
       return coroutine.wrap(function()
         for i,k in ipairs(order) do
           coroutine.yield(k, t[k])
@@ -753,7 +744,7 @@ action = function(host, port)
     end
   until next(threads) == nil
 
-  if #( keys(results) ) == 0 then
+  if #( stdnse.keys(results) ) == 0 then
     return nil
   end
 

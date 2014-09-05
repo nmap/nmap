@@ -68,27 +68,19 @@ local function recvmsg(s, len)
   return true, pay
 end
 
-local function keys(t)
-  local ret = {}
-  for k, _ in pairs(t) do
-    ret[#ret+1] = k
-  end
-  return ret
-end
-
 local function testversion(host, port, version)
 
   local hello = tls.client_hello({
       ["protocol"] = version,
       -- Claim to support every cipher
       -- Doesn't work with IIS, but IIS isn't vulnerable
-      ["ciphers"] = keys(tls.CIPHERS),
+      ["ciphers"] = stdnse.keys(tls.CIPHERS),
       ["compressors"] = {"NULL"},
       ["extensions"] = {
         -- Claim to support every elliptic curve
-        ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
+        ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](stdnse.keys(tls.ELLIPTIC_CURVES)),
         -- Claim to support every EC point format
-        ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
+        ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](stdnse.keys(tls.EC_POINT_FORMATS)),
         ["heartbeat"] = "\x01", -- peer_not_allowed_to_send
       },
     })

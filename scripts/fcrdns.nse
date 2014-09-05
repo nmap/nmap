@@ -73,14 +73,6 @@ hostrule = function(host)
   return true
 end
 
-local function keys(t)
-  local ret = {}
-  for k, _ in pairs(t) do
-    ret[#ret+1] = k
-  end
-  return ret
-end
-
 action = function(host)
   -- Do reverse-DNS lookup of the IP
   -- Can't just use host.name because some IPs have multiple PTR records
@@ -135,7 +127,7 @@ action = function(host)
     str_out = nil
   elseif str_out == nil then
     -- we failed, and need to format a short output string
-    fail_addrs = keys(fail_addrs)
+    fail_addrs = stdnse.keys(fail_addrs)
     if #fail_addrs > 0 then
       table.sort(fail_addrs)
       str_out = string.format("FAIL (%s)", table.concat(fail_addrs, ", "))

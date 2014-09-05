@@ -1411,4 +1411,15 @@ function get_timeout(host, max_timeout, min_timeout)
   return t
 end
 
+--- Returns the keys of a table as an array
+-- @param t The table
+-- @return A table of keys
+function keys(t)
+  local ret = {}
+  for k, _ in pairs(t) do
+    ret[#ret+1] = k
+  end
+  return ret
+end
+
 return _ENV;
