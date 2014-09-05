@@ -34,29 +34,62 @@ for shares that require a user account.
 --
 --@output
 -- Host script results:
--- |  smb-enum-shares:
--- |  |  ADMIN$
--- |  |  |  Type: STYPE_DISKTREE_HIDDEN
--- |  |  |  Comment: Remote Admin
--- |  |  |  Users: 0, Max: <unlimited>
--- |  |  |  Path: C:\WINNT
--- |  |  |  Anonymous access: <none>
--- |  |  |_ Current user ('administrator') access: READ/WRITE
--- |  |  C$
--- |  |  |  Type: STYPE_DISKTREE_HIDDEN
--- |  |  |  Comment: Default share
--- |  |  |  Users: 0, Max: <unlimited>
--- |  |  |  Path: C:\
--- |  |  |  Anonymous access: <none>
--- |  |  |_ Current user ('administrator') access: READ
--- |  |  IPC$
--- |  |  |  Type: STYPE_IPC_HIDDEN
--- |  |  |  Comment: Remote IPC
--- |  |  |  Users: 1, Max: <unlimited>
--- |  |  |  Path:
--- |  |  |  Anonymous access: READ <not a file share>
--- |_ |_ |_ Current user ('administrator') access: READ <not a file share>
------------------------------------------------------------------------
+-- | smb-enum-shares:
+-- |  account_used: WORKGROUP\Administrator
+-- |  ADMIN$
+-- |    Type: STYPE_DISKTREE_HIDDEN
+-- |    Comment: Remote Admin
+-- |    Users: 0
+-- |    Max Users: <unlimited>
+-- |    Path: C:\WINNT
+-- |    Anonymous access: <none>
+-- |    Current user access: READ/WRITE
+-- |  C$
+-- |    Type: STYPE_DISKTREE_HIDDEN
+-- |    Comment: Default share
+-- |    Users: 0
+-- |    Max Users: <unlimited>
+-- |    Path: C:\
+-- |    Anonymous access: <none>
+-- |    Current user access: READ
+-- |  IPC$
+-- |    Type: STYPE_IPC_HIDDEN
+-- |    Comment: Remote IPC
+-- |    Users: 1
+-- |    Max Users: <unlimited>
+-- |    Path:
+-- |    Anonymous access: READ
+-- |_   Current user access: READ
+--
+-- @xmloutput
+-- <elem key="account_used">WORKGROUP\Administrator</elem>
+-- <table key="ADMIN$">
+--   <elem key="Type">STYPE_DISKTREE_HIDDEN</elem>
+--   <elem key="Comment">Remote Admin</elem>
+--   <elem key="Users">0</elem>
+--   <elem key="Max Users"><unlimited></elem>
+--   <elem key="Path">C:\WINNT</elem>
+--   <elem key="Anonymous access"><none></elem>
+--   <elem key="Current user access">READ/WRITE</elem>
+-- </table>
+-- <table key="C$">
+--   <elem key="Type">STYPE_DISKTREE_HIDDEN</elem>
+--   <elem key="Comment">Default share</elem>
+--   <elem key="Users">0</elem>
+--   <elem key="Max Users"><unlimited></elem>
+--   <elem key="Path">C:\</elem>
+--   <elem key="Anonymous access"><none></elem>
+--   <elem key="Current user access">READ</elem>
+-- </table>
+-- <table key="IPC$">
+--   <elem key="Type">STYPE_IPC_HIDDEN</elem>
+--   <elem key="Comment">Remote IPC</elem>
+--   <elem key="Users">1</elem>
+--   <elem key="Max Users"><unlimited></elem>
+--   <elem key="Path"></elem>
+--   <elem key="Anonymous access">READ</elem>
+--   <elem key="Current user access">READ</elem>
+-- </table>
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
@@ -71,12 +104,16 @@ end
 
 action = function(host)
   local status, shares, extra
-  local response = {}
+  local response = stdnse.output_table()
 
   -- Get the list of shares
   status, shares, extra = smb.share_get_list(host)
   if(status == false) then
     return stdnse.format_output(false, string.format("Couldn't enumerate shares: %s", shares))
+  end
+
+  if(extra ~= nil and extra ~= '') then
+    response.note = extra
   end
 
   -- Find out who the current user is
@@ -85,73 +122,57 @@ action = function(host)
     username = "<unknown>"
     domain = ""
   end
-
-  if(extra ~= nil and extra ~= '') then
-    table.insert(response, extra)
+  if domain and domain ~= "" then
+    domain = domain .. "\\"
   end
+  response.account_used = string.format("%s%s", domain, stdnse.string_or_blank(username, '<blank>'))
 
   for i = 1, #shares, 1 do
     local share = shares[i]
-    local share_output = {}
-    share_output['name'] = share['name']
+    local share_output = stdnse.output_table()
 
     if(type(share['details']) ~= 'table') then
       share_output['warning'] = string.format("Couldn't get details for share: %s", share['details'])
+      -- A share of 'NT_STATUS_OBJECT_NAME_NOT_FOUND' indicates this isn't a fileshare
+      if(share['user_can_write'] == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+        share_output["Type"] = "Not a file share"
+      end
     else
       local details = share['details']
 
-      table.insert(share_output, string.format("Type: %s",           details['sharetype']))
-      table.insert(share_output, string.format("Comment: %s",        details['comment']))
-      table.insert(share_output, string.format("Users: %s, Max: %s", details['current_users'], details['max_users']))
-      table.insert(share_output, string.format("Path: %s",           details['path']))
+      share_output["Type"] = details.sharetype
+      share_output["Comment"] = details.comment
+      share_output["Users"] = details.current_users
+      share_output["Max Users"] = details.max_users
+      share_output["Path"] = details.path
     end
-
-
-    -- A share of 'NT_STATUS_OBJECT_NAME_NOT_FOUND' indicates this isn't a fileshare
-    if(share['user_can_write'] == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
-      -- Print details for a non-file share
-      if(share['anonymous_can_read']) then
-        table.insert(share_output, "Anonymous access: READ <not a file share>")
-      else
-        table.insert(share_output, "Anonymous access: <none> <not a file share>")
-      end
-
-      -- Don't bother printing this if we're already anonymous
-      if(username ~= '') then
-        if(share['user_can_read']) then
-          table.insert(share_output, "Current user ('" .. username .. "') access: READ <not a file share>")
-        else
-          table.insert(share_output, "Current user ('" .. username .. "') access: <none> <not a file share>")
-        end
-      end
+    -- Print details for a file share
+    if(share['anonymous_can_read'] and share['anonymous_can_write']) then
+      share_output["Anonymous access"] = "READ/WRITE"
+    elseif(share['anonymous_can_read'] and not(share['anonymous_can_write'])) then
+      share_output["Anonymous access"] = "READ"
+    elseif(not(share['anonymous_can_read']) and share['anonymous_can_write']) then
+      share_output["Anonymous access"] = "WRITE"
     else
-      -- Print details for a file share
-      if(share['anonymous_can_read'] and share['anonymous_can_write']) then
-        table.insert(share_output, "Anonymous access: READ/WRITE")
-      elseif(share['anonymous_can_read'] and not(share['anonymous_can_write'])) then
-        table.insert(share_output, "Anonymous access: READ")
-      elseif(not(share['anonymous_can_read']) and share['anonymous_can_write']) then
-        table.insert(share_output, "Anonymous access: WRITE")
-      else
-        table.insert(share_output, "Anonymous access: <none>")
-      end
+      share_output["Anonymous access"] = "<none>"
+    end
 
-      if(username ~= '') then
-        if(share['user_can_read'] and share['user_can_write']) then
-          table.insert(share_output, "Current user ('" .. username .. "') access: READ/WRITE")
-        elseif(share['user_can_read'] and not(share['user_can_write'])) then
-          table.insert(share_output, "Current user ('" .. username .. "') access: READ")
-        elseif(not(share['user_can_read']) and share['user_can_write']) then
-          table.insert(share_output, "Current user ('" .. username .. "') access: WRITE")
-        else
-          table.insert(share_output, "Current user ('" .. username .. "') access: <none>")
-        end
+    -- Don't bother printing this if we're already anonymous
+    if(username ~= '') then
+      if(share['user_can_read'] and share['user_can_write']) then
+        share_output["Current user access"] = "READ/WRITE"
+      elseif(share['user_can_read'] and not(share['user_can_write'])) then
+        share_output["Current user access"] = "READ"
+      elseif(not(share['user_can_read']) and share['user_can_write']) then
+        share_output["Current user access"] = "WRITE"
+      else
+        share_output["Current user access"] = "<none>"
       end
     end
 
-    table.insert(response, share_output)
+    response[share.name] = share_output
   end
 
-  return stdnse.format_output(true, response)
+  return response
 end
 
