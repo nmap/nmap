@@ -562,21 +562,26 @@ end
 --- Format a time interval into a string
 --
 -- String is in the same format as format_difftime
--- @param interval A time interval in seconds
+-- @param interval A time interval
+-- @param unit The time unit division as a number. If <code>interval</code> is
+--             in milliseconds, this is 1000 for instance. Default: 1 (seconds)
 -- @return The time interval in string format
-function format_time(interval)
+function format_time(interval, unit)
+  unit = unit or 1
+  local precision = floor(math.log(unit, 10))
+  debug1("precision: %d, unit: %d", precision, unit)
 
-  local sec = interval % 60
-  interval = floor(interval / 60)
+  local sec = (interval % (60 * unit)) / unit
+  interval = floor(interval / (60 * unit))
   local min = interval % 60
   interval = floor(interval / 60)
   local hr = interval % 24
   interval = floor(interval / 24)
 
-  local s = string.format("%dd%02dh%02dm%02gs",
+  local s = format("%dd%02dh%02dm%02.".. precision .."fs",
     interval, hr, min, sec)
   -- trim off leading 0 and "empty" units
-  return string.match(s, "([1-9].*)") or "0s"
+  return match(s, "([1-9].*)") or format("%0.".. precision .."fs", 0)
 end
 
 --- Format the difference between times <code>t2</code> and <code>t1</code>
