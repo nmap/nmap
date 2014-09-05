@@ -80,25 +80,6 @@ local function getOrderPos(tag)
   return 1
 end
 
-local function minutesToUptime(value)
-  local days    = math.floor(value / (60 * 24))
-  local htime   = math.fmod(value, (60 * 24))
-  local hours   = math.floor(htime / 60)
-  local mtime   = math.fmod(htime, 60)
-  local minutes = math.floor(mtime)
-  local output = ""
-  if ( days > 0 ) then
-    output = output .. ("%d days, "):format(days)
-  end
-  if ( hours > 0 ) then
-    output = output .. ("%d hours, "):format(hours)
-  end
-  if ( minutes > 0 ) then
-    output = output .. ("%d minutes"):format(minutes)
-  end
-  return output
-end
-
 local function decodeTag(tag, lines)
   local result = { name = long_names[tag] }
   local order
@@ -131,7 +112,7 @@ local function decodeTag(tag, lines)
       "version" == tag ) then
     return ("%s: %s"):format(long_names[tag], lines[1])
   elseif ( "uptime" == tag ) then
-    return ("%s: %s"):format(long_names[tag], minutesToUptime(lines[1]))
+    return ("%s: %s"):format(long_names[tag], stdnse.format_time(lines[1] * 60))
   elseif ( "mem" == tag ) then
     local total, used = table.unpack(stdnse.strsplit("%s", lines[1]))
     if ( not(total) or not(used) ) then

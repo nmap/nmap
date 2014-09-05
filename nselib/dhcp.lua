@@ -224,24 +224,7 @@ local function read_time(data, pos, length)
   end
   pos, result = bin.unpack(">I", data, pos)
 
-  -- This code was mostly taken from snmp-sysdescr.nse. It should probably be abstracted into stdnse.lua [TODO]
-  local days, hours, minutes, seconds, htime, mtime, stime
-  days = math.floor(result / 86400)
-  htime = math.fmod(result, 86400)
-  hours = math.floor(htime / 3600)
-  mtime = math.fmod(htime, 3600)
-  minutes = math.floor(mtime / 60)
-  seconds = math.fmod(mtime, 60)
-
-  local dayLabel
-
-  if days == 1 then
-    dayLabel = "day"
-  else
-    dayLabel = "days"
-  end
-
-  return pos, string.format("%d %s, %d:%02d:%02d", days, dayLabel, hours, minutes, seconds)
+  return pos, stdnse.format_time(result)
 end
 
 ---Read a list of static routes. Each of them are a pair of IP addresses, a destination and a

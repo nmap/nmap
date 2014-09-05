@@ -4682,13 +4682,7 @@ function get_server_stats(host)
 
   -- Get the period and convert it to a proper time offset
   stats['period'] = os.time() - stats['start']
-  if(stats['period'] > 60 * 60 * 24) then
-    stats['period_str'] = string.format("%dd%dh%02dm%02ds", stats['period'] / (60*60*24), (stats['period'] % (60*60*24)) / 3600, (stats['period'] % 3600) / 60, stats['period'] % 60)
-  elseif(stats['period'] > 60 * 60) then
-    stats['period_str'] = string.format("%dh%02dm%02ds", stats['period'] / 3600, (stats['period'] % 3600) / 60, stats['period'] % 60)
-  else
-    stats['period_str'] = string.format("%02dm%02ds", stats['period'] / 60, stats['period'] % 60)
-  end
+  stats.period_str = stdnse.format_time(stats.period)
 
   -- Combine the 64-bit values
   stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])
