@@ -559,6 +559,26 @@ function format_timestamp(t, offset)
   end
 end
 
+--- Format a time interval into a string
+--
+-- String is in the same format as format_difftime
+-- @param interval A time interval in seconds
+-- @return The time interval in string format
+function format_time(interval)
+
+  local sec = interval % 60
+  interval = floor(interval / 60)
+  local min = interval % 60
+  interval = floor(interval / 60)
+  local hr = interval % 24
+  interval = floor(interval / 24)
+
+  local s = string.format("%dd%02dh%02dm%02gs",
+    interval, hr, min, sec)
+  -- trim off leading 0 and "empty" units
+  return string.match(s, "([1-9].*)") or "0s"
+end
+
 --- Format the difference between times <code>t2</code> and <code>t1</code>
 -- into a string
 --
@@ -610,30 +630,7 @@ function format_difftime(t2, t1)
     yeardiff = 0
   end
 
-  local s, sec, min
-  s = ""
-  -- Seconds (pad to two digits).
-  sec = d % 60
-  d = floor(d / 60)
-  if d == 0 and yeardiff == 0 then
-    return sign .. format("%gs", sec) .. s
-  end
-  s = format("%02gs", sec) .. s
-  -- Minutes (pad to two digits).
-  min = d % 60
-  d = floor(d / 60)
-  if d == 0 and yeardiff == 0 then
-    return sign .. format("%dm", min) .. s
-  end
-  s = format("%02dm", min) .. s
-  -- Hours.
-  s = format("%dh", d % 24) .. s
-  d = floor(d / 24)
-  if d == 0 and yeardiff == 0 then
-    return sign .. s
-  end
-  -- Days.
-  s = format("%dd", d) .. s
+  local s = format_time(d)
   if yeardiff == 0 then return sign .. s end
   -- Years.
   s = format("%dy", yeardiff) .. s
