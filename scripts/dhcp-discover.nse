@@ -45,13 +45,24 @@ Some of the more useful fields:
 -- Interesting ports on 192.168.1.1:
 -- PORT   STATE SERVICE
 -- 67/udp open  dhcps
--- |  dhcp-discover:
--- |  |  DHCP Message Type: DHCPACK
--- |  |  Server Identifier: 192.168.1.1
--- |  |  IP Address Lease Time: 1 day, 0:00:00
--- |  |  Subnet Mask: 255.255.255.0
--- |  |  Router: 192.168.1.1
--- |_ |_ Domain Name Server: 208.81.7.10, 208.81.7.14
+-- | dhcp-discover:
+-- |   DHCP Message Type: DHCPACK
+-- |   Server Identifier: 192.168.1.1
+-- |   IP Address Lease Time: 1 day, 0:00:00
+-- |   Subnet Mask: 255.255.255.0
+-- |   Router: 192.168.1.1
+-- |_  Domain Name Server: 208.81.7.10, 208.81.7.14
+--
+-- @xmloutput
+-- <elem key="DHCP Message Type">DHCPACK</elem>
+-- <elem key="Server Identifier">192.168.1.1</elem>
+-- <elem key="IP Address Lease Time">1 day, 0:00:00</elem>
+-- <elem key="Subnet Mask">255.255.255.0</elem>
+-- <elem key="Router">192.168.1.1</elem>
+-- <table key="Domain Name Server">
+--   <elem>208.81.7.10</elem>
+--   <elem>208.81.7.14</elem>
+-- </table>
 --
 
 --
@@ -121,6 +132,12 @@ local function go(host, port)
   return true, results
 end
 
+local commasep = {
+  __tostring = function (t)
+    return table.concat(t, ", ")
+  end
+}
+
 action = function(host, port)
   local status, results = go(host, port)
 
@@ -138,35 +155,29 @@ action = function(host, port)
     nmap.set_port_state(host, port, "open")
   end
 
-  local response = {}
+  local response = stdnse.output_table()
 
   -- Display the results
   for i, result in ipairs(results) do
-    local result_table = {}
+    local result_table = stdnse.output_table()
 
     if ( nmap.registry.args.dhcptype and
       "DHCPINFORM" ~= nmap.registry.args.dhcptype ) then
-      table.insert(result_table, string.format("IP Offered: %s", result.yiaddr_str))
+      result_table["IP Offered"] = result.yiaddr_str
     end
     for _, v in ipairs(result.options) do
-      if(type(v['value']) == 'table') then
-        table.insert(result_table, string.format("%s: %s", v['name'], stdnse.strjoin(", ", v['value'])))
-      else
-        table.insert(result_table, string.format("%s: %s\n", v['name'], v['value']))
+      if(type(v.value) == 'table') then
+        setmetatable(v.value, commasep)
       end
+      result_table[ v.name ] = v.value
     end
 
     if(#results == 1) then
       response = result_table
     else
-      result_table['name'] = string.format("Result %d of %d", i, #results)
-      table.insert(response, result_table)
+      response[string.format("Response %d of %d", i, #results)] = result_table
     end
   end
 
-  return stdnse.format_output(true, response)
+  return response
 end
-
-
-
-
