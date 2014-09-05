@@ -53,14 +53,14 @@ database can specify their own criteria for accepting a page as valid.
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- |  http-enum:
--- |  |  /icons/: Icons and images
--- |  |  /images/: Icons and images
--- |  |  /robots.txt: Robots file
--- |  |  /sw/auth/login.aspx: Citrix WebTop
--- |  |  /images/outlook.jpg: Outlook Web Access
--- |  |  /nfservlets/servlet/SPSRouterServlet/: netForensics
--- |_ |_ /nfservlets/servlet/SPSRouterServlet/: netForensics
+-- | http-enum:
+-- |   /icons/: Icons and images
+-- |   /images/: Icons and images
+-- |   /robots.txt: Robots file
+-- |   /sw/auth/login.aspx: Citrix WebTop
+-- |   /images/outlook.jpg: Outlook Web Access
+-- |   /nfservlets/servlet/SPSRouterServlet/: netForensics
+-- |_  /nfservlets/servlet/SPSRouterServlet/: netForensics
 
 author = "Ron Bowes, Andrew Orr, Rob Nicholls"
 

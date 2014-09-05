@@ -76,17 +76,17 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 --
 --@output
 -- Host script results:
--- |  smb-brute:
--- |  |  bad name:test => Valid credentials
--- |  |  consoletest:test => Valid credentials, password must be changed at next logon
--- |  |  guest:<anything> => Valid credentials, account disabled
--- |  |  mixcase:BuTTeRfLY1 => Valid credentials
--- |  |  test:password1 => Valid credentials, account expired
--- |  |  this:password => Valid credentials, account cannot log in at current time
--- |  |  thisisaverylong:password => Valid credentials
--- |  |  thisisaverylongname:password => Valid credentials
--- |  |  thisisaverylongnamev:password => Valid credentials
--- |_ |_ web:TeSt => Valid credentials, account disabled
+-- | smb-brute:
+-- |   bad name:test => Valid credentials
+-- |   consoletest:test => Valid credentials, password must be changed at next logon
+-- |   guest:<anything> => Valid credentials, account disabled
+-- |   mixcase:BuTTeRfLY1 => Valid credentials
+-- |   test:password1 => Valid credentials, account expired
+-- |   this:password => Valid credentials, account cannot log in at current time
+-- |   thisisaverylong:password => Valid credentials
+-- |   thisisaverylongname:password => Valid credentials
+-- |   thisisaverylongnamev:password => Valid credentials
+-- |_  web:TeSt => Valid credentials, account disabled
 --
 -- @args smblockout This argument will force the script to continue if it
 --       locks out an account or thinks it will lock out an account.

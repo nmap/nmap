@@ -66,21 +66,21 @@ who contributed!
 -- @output
 -- Clean machine (results printed only if extra verbosity ("-vv")is specified):
 -- Host script results:
--- |  p2p-conficker: Checking for Conficker.C or higher...
--- |  | Check 1 (port 44329/tcp): CLEAN (Couldn't connect)
--- |  | Check 2 (port 33824/tcp): CLEAN (Couldn't connect)
--- |  | Check 3 (port 31380/udp): CLEAN (Failed to receive data)
--- |  | Check 4 (port 52600/udp): CLEAN (Failed to receive data)
--- |_ |_ 0/4 checks: Host is CLEAN or ports are blocked
+-- | p2p-conficker: Checking for Conficker.C or higher...
+-- |   Check 1 (port 44329/tcp): CLEAN (Couldn't connect)
+-- |   Check 2 (port 33824/tcp): CLEAN (Couldn't connect)
+-- |   Check 3 (port 31380/udp): CLEAN (Failed to receive data)
+-- |   Check 4 (port 52600/udp): CLEAN (Failed to receive data)
+-- |_  0/4 checks: Host is CLEAN or ports are blocked
 --
 -- Infected machine (results always printed):
 -- Host script results:
--- |  p2p-conficker: Checking for Conficker.C or higher...
--- |  | Check 1 (port 18707/tcp): INFECTED (Received valid data)
--- |  | Check 2 (port 65273/tcp): INFECTED (Received valid data)
--- |  | Check 3 (port 11722/udp): INFECTED (Received valid data)
--- |  | Check 4 (port 12690/udp): INFECTED (Received valid data)
--- |_ |_ 4/4 checks: Host is likely INFECTED
+-- | p2p-conficker: Checking for Conficker.C or higher...
+-- |   Check 1 (port 18707/tcp): INFECTED (Received valid data)
+-- |   Check 2 (port 65273/tcp): INFECTED (Received valid data)
+-- |   Check 3 (port 11722/udp): INFECTED (Received valid data)
+-- |   Check 4 (port 12690/udp): INFECTED (Received valid data)
+-- |_  4/4 checks: Host is likely INFECTED
 --
 -----------------------------------------------------------------------
 
@@ -635,7 +635,7 @@ action = function(host)
       table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "udp", reason))
       count = count + 1
     else
-      table.insert(response, string.format("| Check %d (port %d/%s): CLEAN (%s)", checks, port, "udp", reason))
+      table.insert(response, string.format("Check %d (port %d/%s): CLEAN (%s)", checks, port, "udp", reason))
     end
   end
 
