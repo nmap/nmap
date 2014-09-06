@@ -14,7 +14,7 @@ assert(have_tls,
 
 description = [[
 Detects whether a server is vulnerable to the SSL/TLS "CCS Injection"
-vulnerability (CVE-2014-0160), first discovered by Masashi Kikuchi.
+vulnerability (CVE-2014-0224), first discovered by Masashi Kikuchi.
 The script is based on the ccsinjection.c code authored by Ramon de C Valle
 (https://gist.github.com/rcvalle/71f4b027d61a78c42607)
 
