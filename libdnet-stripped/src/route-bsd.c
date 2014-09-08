@@ -47,7 +47,7 @@
 
 #include "dnet.h"
 
-#ifdef RT_ROUNDUP
+#if defined(RT_ROUNDUP) && defined(__NetBSD__)
 /* NetBSD defines this macro rounding to 64-bit boundaries.
    http://fxr.watson.org/fxr/ident?v=NETBSD;i=RT_ROUNDUP */
 #define ROUNDUP(a) RT_ROUNDUP(a)
