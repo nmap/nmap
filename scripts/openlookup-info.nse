@@ -16,12 +16,20 @@ Parses and displays the banner information of an OpenLookup (network key-value s
 -- @output
 -- 5850/tcp open  openlookup
 -- | openlookup-info:
--- |     sync port: 5850
--- |     name: Paradise, Arizona
--- |     your address: 127.0.0.1:50162
--- |     timestamp: 1305977167.52 (2011-05-21 11:26:07 UTC)
--- |     version: 2.7
--- |_    http port: 5851
+-- |   sync port: 5850
+-- |   name: Paradise, Arizona
+-- |   your address: 127.0.0.1:50162
+-- |   timestamp: 2011-05-21T11:26:07
+-- |   version: 2.7
+-- |_  http port: 5851
+--
+-- @xmloutput
+-- <elem key="sync port">5850</elem>
+-- <elem key="name">Paradise, Arizona</elem>
+-- <elem key="your address">127.0.0.1:50162</elem>
+-- <elem key="timestamp">2011-05-21T11:26:07</elem>
+-- <elem key="version">2.7</elem>
+-- <elem key="http port">5851</elem>
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -166,13 +174,7 @@ local function formattime(data)
   if not time then
     return
   end
-  local human = stdnse.format_timestamp(time)
-  return time .. " (" .. human .. ")"
-end
-
-local function formatkey(key)
-  local parts = stdnse.strsplit("_", key)
-  return stdnse.strjoin(" ", parts)
+  return stdnse.format_timestamp(time)
 end
 
 local function formatvalue(key, nson)
@@ -188,12 +190,6 @@ local function formatvalue(key, nson)
     value = "<" .. #nson .. "B of data>"
   end
   return value
-end
-
-local function format(rawkey, nson)
-  local key = formatkey(rawkey)
-  local value = formatvalue(rawkey, nson)
-  return  key .. ": " .. value
 end
 
 function formatoptions(header)
@@ -218,18 +214,7 @@ function formatoptions(header)
   if not rawopts then
     return {}
   end
-  local options = parsedict(rawopts)
-  if not options then
-    return
-  end
-  local formatted = {}
-  for key, nson in pairs(options) do
-    local tmp = format(key, nson)
-    if tmp then
-      table.insert(formatted, tmp)
-    end
-  end
-  return formatted
+  return parsedict(rawopts)
 end
 
 action = function(host, port)
@@ -254,8 +239,6 @@ action = function(host, port)
   if #options < 1 then
     return
   end
-  local response = {}
-  table.insert(response, options)
-  return stdnse.format_output(true, response)
+  return options
 end
 

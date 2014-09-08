@@ -15,6 +15,10 @@ Discovers Versant object databases using the broadcast srvloc protocol.
 -- | broadcast-versant-locate:
 -- |_  vod://192.168.200.222:5019
 --
+-- @xmloutput
+-- <table>
+--   <elem>vod://192.168.200.222:5019</elem>
+-- </table>
 
 
 author = "Patrik Karlsson"
@@ -34,5 +38,5 @@ action = function()
   for _, v in ipairs(result) do
     table.insert(output, v:match("^service:odbms.versant:vod://(.*)$"))
   end
-  return stdnse.format_output(true, output)
+  return output
 end

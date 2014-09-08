@@ -13,12 +13,23 @@ Collects and displays information from remote iSCSI targets.
 -- 3260/tcp open  iscsi
 -- | iscsi-info:
 -- |   iqn.2006-01.com.openfiler:tsn.c8c08cad469d
--- |     Target address: 192.168.56.5:3260,1
+-- |     Address: 192.168.56.5:3260,1
 -- |     Authentication: NOT required
 -- |   iqn.2006-01.com.openfiler:tsn.6aea7e052952
--- |     Target address: 192.168.56.5:3260,1
--- |_    Authentication: required
+-- |     Address: 192.168.56.5:3260,1
+-- |     Authentication: required
+-- |_    Auth reason: Authentication failure
 --
+-- @xmloutput
+-- <table key="iqn.2006-01.com.openfiler:tsn.c8c08cad469d">
+--   <elem key="Address">192.168.56.5:3260,1</elem>
+--   <elem key="Authentication">NOT required</elem>
+-- </table>
+-- <table key="iqn.2006-01.com.openfiler:tsn.6aea7e052952">
+--   <elem key="Address">192.168.56.5:3260,1</elem>
+--   <elem key="Authentication">required</elem>
+--   <elem key="Auth reason">Authentication failure</elem>
+-- </table>
 
 -- Version 0.2
 -- Created 2010/11/18 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -76,21 +87,21 @@ action = function( host, port )
   status = helper:logout()
   status = helper:close()
 
-  local result = {}
+  local result = stdnse.output_table()
   for _, record in ipairs(records) do
-    local result_part = {}
-    result_part.name = ("Target: %s"):format(record.name)
+    local result_part = stdnse.output_table()
     for _, addr in ipairs( record.addr ) do
-      table.insert(result_part, ("Address: %s"):format(addr) )
+      result_part["Address"] = addr
     end
 
     local status, err = requiresAuth( host, port, record.name )
     if ( not(status) ) then
-      table.insert(result_part, "Authentication: " .. err )
+      result_part["Authentication"] = "required"
+      result_part["Auth reason"] = err
     else
-      table.insert(result_part, "Authentication: No authentication required")
+      result_part["Authentication"] = "NOT required"
     end
-    table.insert(result, result_part)
+    result[record.name] = result_part
   end
-  return stdnse.format_output( true, result )
+  return result
 end

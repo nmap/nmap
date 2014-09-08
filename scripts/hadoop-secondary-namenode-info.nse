@@ -42,6 +42,15 @@ For more information about Hadoop, see:
 -- |   Checkpoint Period: 3600 seconds
 -- |_  Checkpoint Size: 12345678 MB
 --
+-- @xmloutput
+-- <elem key="Start">Wed May 11 22:33:44 PDT 2011</elem>
+-- <elem key="Version">0.20.2, f415ef415ef415ef415ef415ef415ef415ef415e</elem>
+-- <elem key="Compiled">Wed May 11 22:33:44 PDT 2011 by bob from unknown</elem>
+-- <elem key="Log">/logs/</elem>
+-- <elem key="namenode">namenode1.example.com/192.0.1.1:8020</elem>
+-- <elem key="Last Checkpoint">Wed May 11 22:33:44 PDT 2011</elem>
+-- <elem key="Checkpoint Period">3600 seconds</elem>
+-- <elem key="Checkpoint Size">12345678 MB</elem>
 
 author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
@@ -57,7 +66,7 @@ end
 
 action = function( host, port )
 
-  local result = {}
+  local result = stdnse.output_table()
   local uri = "/status.jsp"
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
@@ -76,34 +85,29 @@ action = function( host, port )
       stdnse.debug1("Last Checkpoint %s",stats[3])
       stdnse.debug1("Checkpoint Period %s",stats[4])
       stdnse.debug1("Checkpoint Size %s",stats[5])
-      table.insert(result, ("Start: %s"):format(stats[2]))
+      result["Start"] = stats[2]
     end
     if body:match("Version:%s*</td><td>([^][\n]+)") then
       local version = body:match("Version:%s*</td><td>([^][\n]+)")
       stdnse.debug1("Version %s",version)
-      table.insert(result, ("Version: %s"):format(version))
+      result["Version"] = version
       port.version.version = version
     end
     if body:match("Compiled:%s*</td><td>([^][\n]+)") then
       local compiled = body:match("Compiled:%s*</td><td>([^][\n]+)")
       stdnse.debug1("Compiled %s",compiled)
-      table.insert(result, ("Compiled: %s"):format(compiled))
+      result["Compiled"] = compiled
     end
     if body:match("([^][\"]+)\">Logs") then
       local logs = body:match("([^][\"]+)\">Logs")
       stdnse.debug1("Logs %s",logs)
-      table.insert(result, ("Logs: %s"):format(logs))
+      result["Logs"] = logs
     end
     if #stats == 5 then
-      table.insert(result, ("Namenode: %s"):format(stats[1]))
-      table.insert(result, ("Last Checkpoint: %s"):format(stats[3]))
-      table.insert(result, ("Checkpoint Period: %s"):format(stats[4]))
-      table.insert(result, ("Checkpoint: Size %s"):format(stats[5]))
-    end
-    if #result > 0 then
-      port.version.name = "hadoop-secondary-namenode"
-      port.version.product = "Apache Hadoop"
-      nmap.set_port_version(host, port)
+      result["Namenode"] = stats[1]
+      result["Last Checkpoint"] = stats[3]
+      result["Checkpoint Period"] = stats[4]
+      result["Checkpoint"] = stats[5]
     end
     if target.ALLOW_NEW_TARGETS then
       if stats[1]:match("([^][/]+)") then
@@ -112,7 +116,12 @@ action = function( host, port )
         local status,err = target.add(newtarget)
       end
     end
+    if #result > 0 then
+      port.version.name = "hadoop-secondary-namenode"
+      port.version.product = "Apache Hadoop"
+      nmap.set_port_version(host, port)
+      return result
+    end
 
   end
-  return stdnse.format_output(true, result)
 end

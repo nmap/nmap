@@ -79,6 +79,61 @@ the Nmap scan queue.
 --|     mapred.job.tracker.retiredjobs.cache.size: 1000
 --|     mapred.task.tracker.http.address: 0.0.0.0:50060
 --|_    mapred.task.tracker.report.address: 127.0.0.1:0
+--
+--@xmloutput
+-- <elem key="Version">0.9.4-cdh3u3</elem>
+-- <elem key="ServerID">0</elem>
+-- <table key="Flume nodes">
+--   <elem>node1.example.com</elem>
+--   <elem>node2.example.com</elem>
+--   <elem>node5.example.com</elem>
+--   <elem>node6.example.com</elem>
+--   <elem>node3.example.com</elem>
+--   <elem>node4.example.com</elem>
+-- </table>
+-- <table key="Zookeeper Master">
+--   <elem>master1.example.com</elem>
+-- </table>
+-- <table key="Hbase Master Master">
+--   <elem>hdfs://master1.example.com:8020/hbase</elem>
+-- </table>
+-- <table key="Enviroment">
+--   <elem key="java.runtime.name">Java(TM) SE Runtime Environment</elem>
+--   <elem key="java.runtime.version">1.6.0_36-a01</elem>
+--   <elem key="java.version">1.6.0_36</elem>
+--   <elem key="java.vm.name">Java HotSpot(TM) 64-Bit Server VM</elem>
+--   <elem key="java.vm.vendor">Sun Microsystems Inc.</elem>
+--   <elem key="java.vm.version">14.0-b12</elem>
+--   <elem key="os.arch">amd64</elem>
+--   <elem key="os.name">Linux</elem>
+--   <elem key="os.version">2.6.32-220.4.2.el6.x86_64</elem>
+--   <elem key="user.country">US</elem>
+--   <elem key="user.name">flume</elem>
+-- </table>
+-- <table key="Config">
+--   <elem key="dfs.datanode.address">0.0.0.0:50010</elem>
+--   <elem key="dfs.datanode.http.address">0.0.0.0:50075</elem>
+--   <elem key="dfs.datanode.https.address">0.0.0.0:50475</elem>
+--   <elem key="dfs.datanode.ipc.address">0.0.0.0:50020</elem>
+--   <elem key="dfs.http.address">master1.example.com:50070</elem>
+--   <elem key="dfs.https.address">0.0.0.0:50470</elem>
+--   <elem key="dfs.secondary.http.address">0.0.0.0:50090</elem>
+--   <elem key="flume.collector.dfs.dir">hdfs://master1.example.com/user/flume/collected</elem>
+--   <elem key="flume.collector.event.host">node1.example.com</elem>
+--   <elem key="flume.master.servers">master1.example.com</elem>
+--   <elem key="fs.default.name">hdfs://master1.example.com:8020</elem>
+--   <elem key="mapred.job.tracker">master1.example.com:9001</elem>
+--   <elem key="mapred.job.tracker.handler.count">10</elem>
+--   <elem key="mapred.job.tracker.http.address">0.0.0.0:50030</elem>
+--   <elem key="mapred.job.tracker.http.address">0.0.0.0:50030</elem>
+--   <elem key="mapred.job.tracker.jobhistory.lru.cache.size">5</elem>
+--   <elem key="mapred.job.tracker.persist.jobstatus.active">false</elem>
+--   <elem key="mapred.job.tracker.persist.jobstatus.dir">/jobtracker/jobsInfo</elem>
+--   <elem key="mapred.job.tracker.persist.jobstatus.hours">0</elem>
+--   <elem key="mapred.job.tracker.retiredjobs.cache.size">1000</elem>
+--   <elem key="mapred.task.tracker.http.address">0.0.0.0:50060</elem>
+--   <elem key="mapred.task.tracker.report.address">127.0.0.1:0</elem>
+-- </table>
 
 author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
@@ -111,7 +166,7 @@ function table_count(tt, item)
 end
 
 parse_page = function( host, port, uri, interesting_keys )
-  local result = {}
+  local result = stdnse.output_table()
   local response = http.get( host, port, uri )
   stdnse.debug1("Status %s", response['status-line'] or "No Response")
   if response['status-line'] and response['status-line']:match("200%s+OK")
@@ -121,11 +176,11 @@ parse_page = function( host, port, uri, interesting_keys )
       "<tr><th>([^][<]+)</th>%s*<td><div%sclass=[^][>]+>([^][<]+)") do
       stdnse.debug1("%s=%s ", name, value:gsub("^%s*(.-)%s*$", "%1"))
       if nmap.verbosity() > 1 then
-        result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
+        result[name] = value:gsub("^%s*(.-)%s*$", "%1")
       else
         for i,v in ipairs(interesting_keys) do
           if name:match(("^%s"):format(v)) then
-            result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
+            result[name] = value:gsub("^%s*(.-)%s*$", "%1")
           end
         end
       end
@@ -136,7 +191,7 @@ end
 
 action = function( host, port )
 
-  local result = {}
+  local result = stdnse.output_table()
   local uri = "/flumemaster.jsp"
   local env_uri = "/masterenv.jsp"
   local config_uri = "/masterstaticconfig.jsp"
@@ -182,18 +237,18 @@ action = function( host, port )
     if body:match("Version:%s*</b>([^][,]+)") then
       local version = body:match("Version:%s*</b>([^][,]+)")
       stdnse.debug1("Version %s", version)
-      result[#result+1] =  ("Version: %s"):format(version)
+      result["Version"] = version
       port.version.version = version
     end
     if body:match("Compiled:%s*</b>([^][<]+)") then
       local compiled = body:match("Compiled:%s*</b>([^][<]+)")
       stdnse.debug1("Compiled %s", compiled)
-      result[#result+1] =  ("Compiled: %s"):format(compiled)
+      result["Compiled"] = compiled
     end
     if body:match("ServerID:%s*([^][<]+)") then
       local upgrades = body:match("ServerID:%s*([^][<]+)")
       stdnse.debug1("ServerID %s", upgrades)
-      result[#result] = ("ServerID: %s"):format(upgrades)
+      result["ServerID"] = upgrades
     end
     for logical,physical,hostname in string.gmatch(body,
       "<tr><td>([%w%.-_:]+)</td><td>([%w%.]+)</td><td>([%w%.]+)</td>") do
@@ -204,8 +259,7 @@ action = function( host, port )
       end
     end
     if next(nodes) ~= nil then
-      table.insert(result, "Flume nodes:")
-      result[#result+1] = nodes
+      result["Flume nodes"] = nodes
     end
     for zookeeper in string.gmatch(body,"Dhbase.zookeeper.quorum=([^][\"]+)") do
       if (table_count(zookeepers, zookeeper) == 0) then
@@ -214,8 +268,7 @@ action = function( host, port )
       end
     end
     if next(zookeepers) ~= nil then
-      result[#result+1] = "Zookeeper Master:"
-      result[#result+1] = zookeepers
+      result["Zookeeper Master"] = zookeepers
     end
     for hbasemaster in string.gmatch(body,"Dhbase.rootdir=([^][\"]+)") do
       if (table_count(hbasemasters, hbasemaster) == 0) then
@@ -224,24 +277,21 @@ action = function( host, port )
       end
     end
     if next(hbasemasters) ~= nil then
-      result[#result+1] = "Hbase Master Master:"
-      result[#result+1] = hbasemasters
+      result["Hbase Masters"] = hbasemasters
     end
     local vars = parse_page(host, port, env_uri, env_keys )
     if next(vars) ~= nil then
-      result[#result+1] = "Enviroment: "
-      result[#result+1] = vars
+      result["Environment"] = vars
     end
     local vars = parse_page(host, port, config_uri, config_keys )
     if next(vars) ~= nil then
-      result[#result+1] = "Config: "
-      result[#result+1] = vars
+      result["Config"] = vars
     end
     if #result > 0 then
       port.version.name = "flume-master"
       port.version.product = "Apache Flume"
       nmap.set_port_version(host, port)
+      return result
     end
-    return stdnse.format_output(true, result)
   end
 end

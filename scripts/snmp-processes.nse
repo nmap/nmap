@@ -13,25 +13,53 @@ Attempts to enumerate running processes through SNMP.
 -- nmap -sU -p 161 --script=snmp-processes <target>
 -- @output
 -- | snmp-processes:
--- |   System Idle Process
--- |     PID: 1
--- |   System
--- |     PID: 4
--- |   smss.exe
+-- |   1:
+-- |     Name: System Idle Process
+-- |   4:
+-- |     Name: System
+-- |   256:
+-- |     Name: smss.exe
 -- |     Path: \SystemRoot\System32\
--- |     PID: 256
--- |   csrss.exe
+-- |   308:
+-- |     Name: csrss.exe
 -- |     Path: C:\WINDOWS\system32\
 -- |     Params: ObjectDirectory=\Windows SharedSection=1024,3072,512 Windows=On SubSystemType=Windows ServerDll=basesrv,1 ServerDll=winsrv:UserS
--- |     PID: 308
--- |   winlogon.exe
--- |     PID: 332
--- |   services.exe
+-- |   332:
+-- |     Name: winlogon.exe
+-- |   380:
+-- |     Name: services.exe
 -- |     Path: C:\WINDOWS\system32\
--- |     PID: 380
--- |   lsass.exe
--- |     Path: C:\WINDOWS\system32\
--- |_    PID: 392
+-- |   392:
+-- |     Name: lsass.exe
+-- |_    Path: C:\WINDOWS\system32\
+--
+-- @xmloutput
+-- <table key="1">
+--   <elem key="Name">System Idle Process</elem>
+-- </table>
+-- <table key="4">
+--   <elem key="Name">System</elem>
+-- </table>
+-- <table key="256">
+--   <elem key="Name">smss.exe</elem>
+--   <elem key="Path">\SystemRoot\System32\</elem>
+-- </table>
+-- <table key="308">
+--   <elem key="Name">csrss.exe</elem>
+--   <elem key="Path">C:\WINDOWS\system32\</elem>
+--   <elem key="Params">ObjectDirectory=\Windows SharedSection=1024,3072,512 Windows=On SubSystemType=Windows ServerDll=basesrv,1 ServerDll=winsrv:UserS</elem>
+-- </table>
+-- <table key="332">
+--   <elem key="Name">winlogon.exe</elem>
+-- </table>
+-- <table key="380">
+--   <elem key="Name">services.exe</elem>
+--   <elem key="Path">C:\WINDOWS\system32\</elem>
+-- </table>
+-- <table key="392">
+--   <elem key="Name">lsass.exe</elem>
+--   <elem key="Path">C:\WINDOWS\system32\</elem>
+-- </table>
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -73,36 +101,35 @@ function process_answer( tbl )
   local swrun_pid = "1.3.6.1.2.1.25.4.2.1.1"
   local swrun_path = "1.3.6.1.2.1.25.4.2.1.4"
   local swrun_params = "1.3.6.1.2.1.25.4.2.1.5"
-  local new_tbl = {}
+  local new_tbl = stdnse.output_table()
 
   for _, v in ipairs( tbl ) do
 
-    if ( v.oid:match("^" .. swrun_name) ) then
-      local item = {}
-      local objid = v.oid:gsub( "^" .. swrun_name, swrun_path)
-      local value =  get_value_from_table( tbl, objid )
-
-      if value and value:len() > 0 then
-        table.insert( item, ("Path: %s"):format( value ) )
-      end
-
-      objid = v.oid:gsub( "^" .. swrun_name, swrun_params)
-      value = get_value_from_table( tbl, objid )
-
-      if value and value:len() > 0 then
-        table.insert( item, ("Params: %s"):format( value ) )
-      end
-
-      objid = v.oid:gsub( "^" .. swrun_name, swrun_pid)
-      value = get_value_from_table( tbl, objid )
+    if ( v.oid:match("^" .. swrun_pid) ) then
+      local item = stdnse.output_table()
+      local objid = v.oid:gsub( "^" .. swrun_pid, swrun_name)
+      local value = get_value_from_table( tbl, objid )
 
       if value then
-        table.insert( item, ("PID: %s"):format( value ) )
+        item["Name"] = value
       end
 
-      item.name = v.value
-      table.insert( item, value )
-      table.insert( new_tbl, item )
+      objid = v.oid:gsub( "^" .. swrun_pid, swrun_path)
+      value =  get_value_from_table( tbl, objid )
+
+      if value and value:len() > 0 then
+        item["Path"] = value
+      end
+
+      objid = v.oid:gsub( "^" .. swrun_pid, swrun_params)
+      value = get_value_from_table( tbl, objid )
+
+      if value and value:len() > 0 then
+        item["Params"] = value
+      end
+
+      -- key (PID) must be a string for output to work.
+      new_tbl[tostring(v.value)] = item
     end
 
   end
@@ -135,6 +162,6 @@ action = function(host, port)
 
   nmap.set_port_state(host, port, "open")
 
-  return stdnse.format_output( true, shares )
+  return shares
 end
 

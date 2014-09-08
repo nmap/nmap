@@ -16,6 +16,13 @@ Determines which methods are supported by the RTSP (real time streaming protocol
 -- | rtsp-methods:
 -- |_  DESCRIBE, SETUP, PLAY, TEARDOWN, OPTIONS
 --
+-- @xmloutput
+-- <elem>DESCRIBE</elem>
+-- <elem>SETUP</elem>
+-- <elem>PLAY</elem>
+-- <elem>TEARDOWN</elem>
+-- <elem>OPTIONS</elem>
+--
 -- @args rtsp-methods.path the path to query, defaults to "*" which queries
 --       the server itself, rather than a specific url.
 --
@@ -44,6 +51,7 @@ action = function(host, port)
   status, response = helper:options(path)
   helper:close()
   if ( status ) then
-    return stdnse.format_output(true, response.headers['Public'])
+    local opts = response.headers['Public']
+    return stdnse.strsplit(",%s*", opts), opts
   end
 end

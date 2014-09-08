@@ -18,18 +18,33 @@ Obtains information from a Bitcoin server by calling <code>getinfo</code> on its
 -- @output
 -- 8332/tcp open  unknown
 -- | bitcoinrpc-info.nse:
--- |   USER: root
--- |     connections: 36
--- |     hashespersec: 0
--- |     generate: false
--- |     keypoololdest: 1309381827
--- |     difficulty: 1379223.4296725
+-- |   root:
 -- |     balance: 0
--- |     version: 32100
+-- |     blocks: 135041
+-- |     connections: 36
+-- |     difficulty: 1379223.4296725
+-- |     generate: false
+-- |     genproclimit: -1
+-- |     hashespersec: 0
+-- |     keypoololdest: 1309381827
 -- |     paytxfee: 0
 -- |     testnet: false
--- |     blocks: 135041
--- |_    genproclimit: -1
+-- |_    version: 32100
+--
+-- @xmloutput
+-- <table key="root">
+--   <elem key="balance">0</elem>
+--   <elem key="blocks">135041</elem>
+--   <elem key="connections">36</elem>
+--   <elem key="difficulty">1379223.4296725</elem>
+--   <elem key="generate">false</elem>
+--   <elem key="genproclimit">-1</elem>
+--   <elem key="hashespersec">0</elem>
+--   <elem key="keypoololdest">1309381827</elem>
+--   <elem key="paytxfee">0</elem>
+--   <elem key="testnet">false</elem>
+--   <elem key="version">32100</elem>
+-- </table>
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -108,11 +123,12 @@ local function decode_bitcoin_version(n)
 end
 
 local function formatpairs(info)
-  local result = {}
-  for k, v in pairs(info) do
-    if v ~= "" then
-      local line = k .. ": " .. tostring(v)
-      table.insert(result, line)
+  local result = stdnse.output_table()
+  local keys = stdnse.keys(info)
+  table.sort(keys)
+  for _, k in ipairs(keys) do
+    if info[k] ~= "" then
+      result[k] = info[k]
     end
   end
   return result
@@ -125,15 +141,14 @@ local function getinfo(host, port, user, pass)
 end
 
 action = function(host, port)
-  local response = {}
+  local response = stdnse.output_table()
   local c = creds.Credentials:new(creds.ALL_DATA, host, port)
   local states = creds.State.VALID + creds.State.PARAM
   for cred in c:getCredentials(states) do
     local info = getinfo(host, port, cred.user, cred.pass)
     if info then
       local result = formatpairs(info)
-      result["name"] = "USER: " .. cred.user
-      table.insert(response, result)
+      response[cred.user] = result
 
       port.version.name = "http"
       port.version.product = "Bitcoin JSON-RPC"
@@ -144,6 +159,6 @@ action = function(host, port)
     end
   end
 
-  return stdnse.format_output(true, response)
+  return response
 end
 

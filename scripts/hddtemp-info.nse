@@ -15,7 +15,22 @@ Reads hard disk information (such as brand, model, and sometimes temperature) fr
 --
 -- @output
 -- 7634/tcp open  hddtemp
--- |_hddtemp-info: /dev/sda: WDC WD2500JS-60MHB1: 38 C
+-- | hddtemp-info:
+-- |_  /dev/sda: WDC WD2500JS-60MHB1: 38 C
+--
+-- @xmloutput
+-- <table>
+--   <elem key="label">WDC WD2500JS-60MHB1</elem>
+--   <elem key="unit">C</elem>
+--   <elem key="device">/dev/sda</elem>
+--   <elem key="temperature">38</elem>
+-- </table>
+-- <table>
+--   <elem key="label">WDC WD3200BPVT-75JJ5T0</elem>
+--   <elem key="unit">C</elem>
+--   <elem key="device">/dev/sdb</elem>
+--   <elem key="temperature">41</elem>
+-- </table>
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -24,6 +39,11 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service (7634, "hddtemp", {"tcp"})
 
+local fmt_meta = {
+  __tostring = function (t)
+    return string.format("%s: %s: %s %s", t.device, t.label, t.temperature, t.unit)
+  end
+}
 action = function( host, port )
   -- 5000B should be enough for 100 disks
   local status, data = comm.get_banner(host, port, {bytes=5000})
@@ -36,12 +56,14 @@ action = function( host, port )
   local disks = math.floor((# fields) / 5)
   for i = 0, (disks - 1) do
     local start = i * 5
-    local device = fields[start + 2]
-    local label = fields[start + 3]
-    local temperature = fields[start + 4]
-    local unit = fields[start + 5]
-    local formatted = string.format("%s: %s: %s %s", device, label, temperature, unit)
-    table.insert(info, formatted)
+    local diskinfo = {
+      device = fields[start + 2],
+      label = fields[start + 3],
+      temperature = fields[start + 4],
+      unit = fields[start + 5],
+    }
+    setmetatable(diskinfo, fmt_meta)
+    table.insert(info, diskinfo)
   end
-  return stdnse.format_output(true, info)
+  return info
 end

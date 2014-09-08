@@ -25,7 +25,9 @@ For more information about hadoop, see:
 -- 50075/tcp open  hadoop-datanode syn-ack
 -- | hadoop-datanode-info:
 -- |_  Logs: /logs/
----
+--
+-- @xmloutput
+-- <elem key="Logs">/logs/</elem>
 
 
 author = "John R. Bond"
@@ -42,7 +44,7 @@ end
 
 action = function( host, port )
 
-  local result = {}
+  local result = stdnse.output_table()
   local uri = "/browseDirectory.jsp"
   stdnse.debug1("HTTP GET %s:%s%s", host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
@@ -56,8 +58,8 @@ action = function( host, port )
       nmap.set_port_version(host, port)
       local logs = body:match("([^][\"]+)\">Log")
       stdnse.debug1("Logs %s",logs)
-      table.insert(result, ("Logs: %s"):format(logs))
+      result["Logs"] = logs
     end
-    return stdnse.format_output(true, result)
+    return result
   end
 end

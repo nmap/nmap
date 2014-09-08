@@ -51,8 +51,7 @@ end
 
 action = function( host, port )
 
-  local result = {}
-  local region_servers = {}
+  local result = stdnse.output_table()
   -- uri was previously "/regionserver.jsp". See
   -- http://seclists.org/nmap-dev/2012/q3/903.
   local uri = "/rs-status"
@@ -65,23 +64,23 @@ action = function( host, port )
     if body:match("HBase%s+Version</td><td>([^][<]+)") then
       local version = body:match("HBase%s+Version</td><td>([^][<]+)"):gsub("%s+", " ")
       stdnse.debug1("Hbase  Version %s",version)
-      table.insert(result, ("Hbase Version: %s"):format(version))
+      result["Hbase Version"] = version
       port.version.version = version
     end
     if body:match("HBase%s+Compiled</td><td>([^][<]+)") then
       local compiled = body:match("HBase%s+Compiled</td><td>([^][<]+)"):gsub("%s+", " ")
       stdnse.debug1("Hbase Compiled %s",compiled)
-      table.insert(result, ("Hbase Compiled: %s"):format(compiled))
+      result["Hbase Compiled"] = compiled
     end
     if body:match("Metrics</td><td>([^][<]+)") then
       local metrics = body:match("Metrics</td><td>([^][<]+)"):gsub("%s+", " ")
       stdnse.debug1("Metrics %s",metrics)
-      table.insert(result, ("Metrics %s"):format(metrics))
+      result["Metrics"] = metrics
     end
     if body:match("Quorum</td><td>([^][<]+)") then
       local quorum = body:match("Quorum</td><td>([^][<]+)"):gsub("%s+", " ")
       stdnse.debug1("Zookeeper Quorum %s",quorum)
-      table.insert(result, ("Zookeeper Quorum: %s"):format(quorum))
+      result["Zookeeper Quorum"] = quorum
       if target.ALLOW_NEW_TARGETS then
         if quorum:match("([%w%.]+)") then
           local newtarget = quorum:match("([%w%.]+)")
@@ -94,7 +93,7 @@ action = function( host, port )
       port.version.name = "hbase-region"
       port.version.product = "Apache Hadoop Hbase"
       nmap.set_port_version(host, port)
+      return result
     end
-    return stdnse.format_output(true, result)
   end
 end
