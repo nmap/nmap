@@ -308,3 +308,23 @@ AC_DEFUN([APR_FIND_APR], [
 
   AC_MSG_RESULT($apr_found)
 ])
+
+AC_DEFUN(LARGE_FILES_IF_NOT_BROKEN,
+[
+  AC_LANG_PUSH(C++)
+  AC_MSG_CHECKING([for broken _LARGE_FILES support, such as with gcc <4.4.0 on AIX])
+  AC_CACHE_VAL(ac_cv_large_files_broken,
+    AC_TRY_COMPILE(
+      [
+#define _LARGE_FILES 1
+#include<cstdio>],
+      [],
+      ac_cv_large_files_broken=no,
+      ac_cv_large_files_broken=yes))
+  if test $ac_cv_large_files_broken = no; then
+    AC_SYS_LARGEFILE
+  fi
+  AC_MSG_RESULT($ac_cv_large_files_broken)
+  AC_LANG_POP(C++)
+]
+)
