@@ -310,33 +310,42 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
        ultrascan_port_probe_update deletes probe. */
     u8 protocol = probe->protocol();
     u16 dport = probe->dport();
-    /* Check for self-connected probe */
-    if (getsockname(probe->CP()->sd, (struct sockaddr*)&local, &local_len) == 0
-        && hss->target->TargetSockAddr(&remote, &remote_len) == 0) {
-      if (sockaddr_storage_cmp(&local, &remote) == 0 && (
-            (local.ss_family == AF_INET &&
-             ((struct sockaddr_in*)&local)->sin_port == htons(dport))
+    /* getsockname can fail on AIX when socket is closed
+     * and we only care about self-connects for open ports anyway
+     */
+    if (newportstate == PORT_OPEN) {
+      /* Check for self-connected probe */
+      if (getsockname(probe->CP()->sd, (struct sockaddr*)&local, &local_len) == 0
+          && hss->target->TargetSockAddr(&remote, &remote_len) == 0) {
+        if (sockaddr_storage_cmp(&local, &remote) == 0 && (
+              (local.ss_family == AF_INET &&
+               ((struct sockaddr_in*)&local)->sin_port == htons(dport))
 #if HAVE_IPV6
-            || (local.ss_family == AF_INET6 &&
-              ((struct sockaddr_in6*)&local)->sin6_port == htons(dport))
+              || (local.ss_family == AF_INET6 &&
+                ((struct sockaddr_in6*)&local)->sin6_port == htons(dport))
 #endif
-            )) {
-        if (o.debugging) {
-          log_write(LOG_STDOUT, "Detected likely self-connect on port %d\n", probe->dport());
+              )) {
+          if (o.debugging) {
+            log_write(LOG_STDOUT, "Detected likely self-connect on port %d\n", probe->dport());
+          }
+          /* It's not really timed out, but this is a simple way to retry the
+           * probe. It shouldn't affect timing too much, since this is quite
+           * rare (should average one per scan, for localhost -p 0-65535 scans
+           * only) */
+          hss->markProbeTimedout(probeI);
         }
-        /* It's not really timed out, but this is a simple way to retry the
-         * probe. It shouldn't affect timing too much, since this is quite
-         * rare (should average one per scan, for localhost -p 0-65535 scans
-         * only) */
-        hss->markProbeTimedout(probeI);
+        else {
+          ultrascan_port_probe_update(USI, hss, probeI, newportstate, &USI->now, adjust_timing);
+          hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
+        }
       }
       else {
-        ultrascan_port_probe_update(USI, hss, probeI, newportstate, &USI->now, adjust_timing);
-        hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
+        gh_perror("getsockname or TargetSockAddr failed");
       }
     }
     else {
-      gh_perror("getsockname or TargetSockAddr failed");
+      ultrascan_port_probe_update(USI, hss, probeI, newportstate, &USI->now, adjust_timing);
+      hss->target->ports.setStateReason(dport, protocol, current_reason, 0, NULL);
     }
   } else if (destroy_probe) {
     hss->destroyOutstandingProbe(probeI);
