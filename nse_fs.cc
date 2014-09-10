@@ -26,13 +26,7 @@
  *
  **/
 
-#ifndef _WIN32
-#ifndef _AIX
-#define _FILE_OFFSET_BITS 64 /* Linux, Solaris and HP-UX */
-#else
-#define _LARGE_FILES 1 /* AIX */
-#endif
-#endif
+#include "nmap_config.h"
 
 #define _LARGEFILE64_SOURCE
 
