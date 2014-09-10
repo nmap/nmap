@@ -1404,6 +1404,15 @@ static bool validateTCPhdr(u8 *tcpc, unsigned len) {
       optlen -= 10;
       tcpc += 10;
       break;
+    case 14: /* Alternate checksum */
+      /* Sometimes used for hardware checksum offloading
+       * ftp://ftp.ucsd.edu/pub/csl/fastnet/faq.txt
+       */
+      if (optlen < 3)
+        return false;
+      optlen -= 3;
+      tcpc += 3;
+      break;
     default:
       optlen--;
       tcpc++;
