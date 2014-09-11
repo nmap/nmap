@@ -23,11 +23,6 @@ o Consider doing TTL analysis (using NSE script) to detect if a firewall
   might exist in front of a host. See thread at 
   http://seclists.org/nmap-dev/2014/q3/171
 
-o Consider adding a CLI option that allows the user to select which user
-  to drop to (when dropping privileges from root). We need to look
-  into the security implications of this before we implement it.
-  See thread at http://seclists.org/nmap-dev/2014/q3/304
-
 o Consider looking into differring TTL values during OS detection
   phase and choose a port that is (hopefully) not firewalled to get
   a better chance at correct result. See thread at
