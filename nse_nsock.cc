@@ -818,6 +818,7 @@ static int l_bind (lua_State *L)
   nu->source_addrlen = results->ai_addrlen;
   memcpy(&nu->source_addr, results->ai_addr, nu->source_addrlen);
 
+  freeaddrinfo(results);
   return nseU_success(L);
 }
 
