@@ -1207,6 +1207,7 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
     return false;
 
   reply->from_addr = hdr.src;
+  reply->ttl = hdr.ttl;
 
   if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
     /* ICMP responses comprise all the TTL exceeded messages we expect from all
