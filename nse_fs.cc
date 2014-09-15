@@ -26,10 +26,6 @@
  *
  **/
 
-#include "nmap_config.h"
-
-#define _LARGEFILE64_SOURCE
-
 extern "C" {
   #include "lauxlib.h"
   #include "lua.h"

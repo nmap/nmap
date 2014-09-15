@@ -56,7 +56,7 @@ AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 dnl For nse_fs.cc
-LARGE_FILES_IF_NOT_BROKEN
+dnl LARGE_FILES_IF_NOT_BROKEN
 
 if test -n "$GXX"; then
   # -fno-strict-aliasing disables strict-aliasing optimizations that assume
