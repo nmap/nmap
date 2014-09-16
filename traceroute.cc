@@ -224,7 +224,10 @@ static u16 global_id;
 static std::map<struct HopIdent, Hop *> hop_cache;
 /* A list of timedout hops, which are not kept in hop_cache, so we can delete
    all hops on occasion. */
-static std::list<Hop *> timedout_hops;
+/* This would be stack-allocated except for a weird bug on AIX that causes
+ * infinite loops when trying to traverse the list. For some reason,
+ * dynamically allocating it fixes the bug. */
+static std::list<Hop *> *timedout_hops = NULL;
 /* The TTL at which we start sending probes if we don't have a distance
    estimate. This is updated after each host group on the assumption that hosts
    across groups will not differ much in distance. Having this closer to the
@@ -994,14 +997,14 @@ static Hop *hop_cache_lookup(u8 ttl, const struct sockaddr_storage *addr) {
 
 static void hop_cache_insert(Hop *hop) {
   if (hop->addr.ss_family == 0) {
-    timedout_hops.push_back(hop);
+    timedout_hops->push_back(hop);
   } else {
     hop_cache[HopIdent(hop->ttl, hop->addr)] = hop;
   }
 }
 
 static unsigned int hop_cache_size() {
-  return hop_cache.size() + timedout_hops.size();
+  return hop_cache.size() + timedout_hops->size();
 }
 
 void traceroute_hop_cache_clear() {
@@ -1011,9 +1014,9 @@ void traceroute_hop_cache_clear() {
   for (map_iter = hop_cache.begin(); map_iter != hop_cache.end(); map_iter++)
     delete map_iter->second;
   hop_cache.clear();
-  for (list_iter = timedout_hops.begin(); list_iter != timedout_hops.end(); list_iter++)
+  for (list_iter = timedout_hops->begin(); list_iter != timedout_hops->end(); list_iter++)
     delete *list_iter;
-  timedout_hops.clear();
+  timedout_hops->clear();
 }
 
 /* Merge two hop chains together and return the head of the merged chain. This
@@ -1561,6 +1564,10 @@ static int traceroute_remote(std::vector<Target *> targets) {
 
   if (targets.empty())
     return 1;
+
+  if (timedout_hops == NULL) {
+    timedout_hops = new std::list<Hop *>;
+  }
 
   TracerouteState global_state(targets);
 
