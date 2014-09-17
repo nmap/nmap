@@ -18,7 +18,7 @@ The script automatically attempts to discover the form field names to
 use in order to perform password guessing. If it fails doing so the form
 parameters can be supplied using the uservar and passvar arguments.
 
-After attempting to authenticate using a HTTP POST request the script
+After attempting to authenticate using a HTTP GET or POST request the script
 analyzes the response and attempt to determine whether authentication was
 successful or not. The script analyzes this by checking the response using
 the following rules:
@@ -48,28 +48,31 @@ the following rules:
 -- |_    Perfomed 60023 guesses in 467 seconds, average tps: 138
 --
 -- @args http-form-brute.path points to the path protected by authentication
+--       (default: "/")
+-- @args http-form-brute.method sets the HTTP method (default: "POST")
 -- @args http-form-brute.hostname sets the host header in case of virtual
 --       hosting
 -- @args http-form-brute.uservar (optional) sets the http-variable name that
 --       holds the username used to authenticate. A simple autodetection of
 --       this variable is attempted.
 -- @args http-form-brute.passvar sets the http-variable name that holds the
---     password used to authenticate. A simple autodetection of this variable
---       is attempted.
+--       password used to authenticate. A simple autodetection of this
+--       variable is attempted.
 -- @args http-form-brute.onsuccess (optional) sets the message to expect on
---     successful authentication
+--       successful authentication
 -- @args http-form-brute.onfailure (optional) sets the message to expect on
---     unsuccessful authentication
+--       unsuccessful authentication
 
 --
--- Version 0.3
+-- Version 0.4
 -- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 05/23/2011 - v0.2 - changed so that uservar is optional
 -- Revised 06/05/2011 - v0.3 - major re-write, added onsuccess, onfailure and
---                support for redirects
+--                             support for redirects
+-- Revised 08/12/2014 - v0.4 - added support for GET method
 --
 
-author = "Patrik Karlsson"
+author = "Patrik Karlsson, nnposter"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
@@ -100,10 +103,10 @@ Driver = {
   login = function( self, username, password )
     -- we need to supply the no_cache directive, or else the http library
     -- incorrectly tells us that the authentication was successful
-    local postparams = { [self.options.passvar] = password }
-    if ( self.options.uservar ) then postparams[self.options.uservar] = username end
+    local params = { [self.options.passvar] = password }
+    if ( self.options.uservar ) then params[self.options.uservar] = username end
 
-    local response = Driver.postRequest(self.host, self.port, self.options.path, postparams)
+    local response = Driver.sendLogin(self.host, self.port, self.options.path, self.options.method, params)
     local success = false
 
     -- if we have no response, we were successful
@@ -149,8 +152,16 @@ Driver = {
     return true
   end,
 
-  postRequest = function( host, port, path, options )
-    local response = http.post( host, port, path, { no_cache = true }, nil, options )
+  sendLogin = function( host, port, path, method, params )
+    local response
+    if method == "POST" then
+      response = http.post(host, port, path, {no_cache = true}, nil, params)
+    else
+      local uri = path
+                  .. (path:find("?", 1, true) and "&" or "?")
+                  .. url.build_query(params)
+      response = http.get(host, port, uri, {no_cache = true})
+    end
     local status = ( response and tonumber(response.status) ) or 0
     if ( status > 300 and status < 400 ) then
       local new_path = url.absolute(path, response.header.location)
@@ -180,13 +191,19 @@ local function detectFormFields( host, port, path )
 end
 
 action = function( host, port )
+  local path = stdnse.get_script_args('http-form-brute.path') or "/"
+  local method = stdnse.get_script_args('http-form-brute.method') or "POST"
   local uservar = stdnse.get_script_args('http-form-brute.uservar')
   local passvar = stdnse.get_script_args('http-form-brute.passvar')
-  local path = stdnse.get_script_args('http-form-brute.path') or "/"
   local onsuccess = stdnse.get_script_args("http-form-brute.onsuccess")
   local onfailure = stdnse.get_script_args("http-form-brute.onfailure")
 
   local _
+
+  method=method:upper()
+  if not (method=="GET" or method=="POST") then
+    return stdnse.format_output(false, "Invalid HTTP method: " .. method)
+  end
 
   -- if now fields were given attempt to autodetect
   if ( not(uservar) and not(passvar) ) then
@@ -198,39 +215,38 @@ action = function( host, port )
 
   -- uservar is optional, so only make sure we have a passvar
   if ( not( passvar ) ) then
-    return "\n  ERROR: No passvar was specified (see http-form-brute.passvar)"
-  end
-
-  if ( not(path) ) then
-    return "\n  ERROR: No path was specified (see http-form-brute.path)"
+    return stdnse.format_output(false, "No passvar was specified (see http-form-brute.passvar)")
   end
 
   if ( onsuccess and onfailure ) then
-    return "\n  ERROR: Either the onsuccess or onfailure argument should be passed, not both."
+    return stdnse.format_output(false, "Either the onsuccess or onfailure argument should be passed, not both.")
   end
 
-  local options = { [passvar] = "this_is_not_a_valid_password" }
-  if ( uservar ) then options[uservar] = "this_is_not_a_valid_user" end
+  local params = { [passvar] = "this_is_not_a_valid_password" }
+  if ( uservar ) then params[uservar] = "this_is_not_a_valid_user" end
 
-  local response = Driver.postRequest( host, port, path, options )
+  local response = Driver.sendLogin( host, port, path, method, params )
   if ( not(response) or not(response.body) or response.status ~= 200 ) then
-    return ("\n  ERROR: Failed to retrieve path (%s) from server"):format(path)
+    return stdnse.format_output(false, ("Failed to retrieve path (%s) from server"):format(path))
   end
 
   -- try to detect onfailure match
   if ( onfailure and not(response.body:match(onfailure)) ) then
-    return ("\n  ERROR: Failed to match password failure message (%s)"):format(onfailure)
+    return stdnse.format_output(false, ("Failed to match password failure message (%s)"):format(onfailure))
   elseif ( not(onfailure) and
       not(onsuccess) and
       not(response.body:match("input.-type=[\"]*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd][\"]*")) ) then
-    return ("\n  ERROR: Failed to detect password form field see (http-form-brute.onsuccess or http-form-brute.onfailure)")
+    return stdnse.format_output(false, ("Failed to detect password form field see (http-form-brute.onsuccess or http-form-brute.onfailure)"))
   end
 
-  local engine = brute.Engine:new( Driver, host, port, {
-    uservar = uservar, passvar = passvar,
-    path = path, onsuccess = onsuccess, onfailure = onfailure
-  }
-  )
+  local engine = brute.Engine:new(Driver, host, port, {
+                                                      path = path,
+                                                      method = method,
+                                                      uservar = uservar,
+                                                      passvar = passvar,
+                                                      onsuccess = onsuccess,
+                                                      onfailure = onfailure
+                                                      })
   -- there's a bug in http.lua that does not allow it to be called by
   -- multiple threads
   engine:setMaxThreads(1)
