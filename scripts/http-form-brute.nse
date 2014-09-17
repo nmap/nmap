@@ -154,18 +154,17 @@ Driver = {
 
   sendLogin = function( host, port, path, method, params )
     local response
+    local uri = path
     if method == "POST" then
       response = http.post(host, port, path, {no_cache = true}, nil, params)
     else
-      local uri = path
-                  .. (path:find("?", 1, true) and "&" or "?")
-                  .. url.build_query(params)
-      response = http.get(host, port, uri, {no_cache = true})
+      uri = path .. (path:find("?", 1, true) and "&" or "?")
+                 .. url.build_query(params)
+      response = http.generic_request(host, port, method, uri, {no_cache = true})
     end
-    local status = ( response and tonumber(response.status) ) or 0
-    if ( status > 300 and status < 400 ) then
-      local new_path = url.absolute(path, response.header.location)
-      response = http.get( host, port, new_path, { no_cache = true } )
+    local u = http.parse_redirect(host, port, uri, response)
+    if u then
+      response = http.get( u.host, u.port, u.path, {no_cache = true} )
     end
     return response
   end,
@@ -202,7 +201,7 @@ action = function( host, port )
 
   method=method:upper()
   if not (method=="GET" or method=="POST") then
-    return stdnse.format_output(false, "Invalid HTTP method: " .. method)
+    stdnse.debug1("Using non-standard HTTP method: %s", method)
   end
 
   -- if now fields were given attempt to autodetect
