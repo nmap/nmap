@@ -1389,14 +1389,14 @@ function redirect_ok(host, port)
   end
 end
 
--- Handles a HTTP redirect
+--- Handles a HTTP redirect
 -- @param host table as received by the script action function
 -- @param port table as received by the script action function
 -- @param path string
 -- @param response table as returned by http.get or http.head
 -- @return url table as returned by <code>url.parse</code> or nil if there's no
 --         redirect taking place
-local function parse_redirect(host, port, path, response)
+function parse_redirect(host, port, path, response)
   if ( not(tostring(response.status):match("^30[01237]$")) or
        not(response.header) or
        not(response.header.location) ) then
