@@ -10,9 +10,9 @@
 -- * <code>bytes</code> - minimum number of bytes to read.
 -- * <code>lines</code> - minimum number of lines to read.
 -- * <code>proto</code> - string, protocol to use. Default <code>"tcp"</code>
--- * <code>timeout</code> - socket timeout in milliseconds. Default: same as <code>stdnse.get_timeout</code>
--- * <code>connect_timeout</code> - override timeout for connection
--- * <code>request_timeout</code> - override timeout for requests
+-- * <code>timeout</code> - override timeout in milliseconds. This overrides all other timeout defaults, but can be overridden by specific connect and request timeouts (below)
+-- * <code>connect_timeout</code> - socket timeout for connection. Default: same as <code>stdnse.get_timeout</code>
+-- * <code>request_timeout</code> - additional socket timeout for requests. This is added to the connect_timeout to get a total time for a request to receive a response. Default: 5000ms
 -- * <code>recv_before</code> - boolean, receive data before sending first payload
 --
 -- If both <code>"bytes"</code> and <code>"lines"</code> are provided,
@@ -25,6 +25,36 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("comm", stdnse.seeall)
+
+-- This timeout value (in ms) is added to the connect timeout and represents
+-- the amount of processing time allowed for the host before it sends a packet.
+-- For justification of this value, see totalwaitms in nmap-service-probes
+local REQUEST_TIMEOUT = 6000
+
+-- Function used to get a connect and request timeout based on specified options
+local function get_timeouts(host, opts)
+  local connect_timeout, request_timeout
+  -- connect_timeout based on options or stdnse.get_timeout()
+  if opts and opts.connect_timeout then
+    connect_timeout = opts.connect_timeout
+  elseif opts and opts.timeout then
+    connect_timeout = opts.timeout
+  else
+    connect_timeout = stdnse.get_timeout(host)
+  end
+
+  -- request_timeout based on options or READ_TIMEOUT + connect_timeout
+  if opts and opts.request_timeout then
+    request_timeout = opts.request_timeout
+  elseif opts and opts.timeout then
+    request_timeout = opts.timeout
+  else
+    request_timeout = REQUEST_TIMEOUT
+  end
+  request_timeout = request_timeout + connect_timeout
+
+  return connect_timeout, request_timeout
+end
 
 -- Makes sure that opts exists and the default proto is there
 local initopts = function(opts)
@@ -43,15 +73,17 @@ end
 local setup_connect = function(host, port, opts)
     local sock = nmap.new_socket()
 
-    if opts.timeout then
-        sock:set_timeout(opts.timeout)
-    end
+    local connect_timeout, request_timeout = get_timeouts(host, opts)
+
+    sock:set_timeout(connect_timeout)
 
     local status, err = sock:connect(host, port, opts.proto)
 
     if not status then
         return status, err
     end
+
+    sock:set_timeout(request_timeout)
 
     return true, sock
 end
@@ -164,12 +196,8 @@ end
 --  protocol used is fine)
 --
 -- Possible options:
--- timeout: generic timeout value
--- connect_timeout: specific timeout for connection
--- request_timeout: specific timeout for requests
+-- timeout, connect_timeout, request_timeout: See module documentation
 -- recv_before: receive data before sending first payload
---
--- Default timeout is result of stdnse.get_timeout
 --
 -- @param host The destination host IP
 -- @param port The destination host port
@@ -182,15 +210,9 @@ end
 local function opencon(host, port, protocol, data, opts)
     local sd = nmap.new_socket()
 
-    -- check for connect_timeout or timeout option
+    local connect_timeout, request_timeout = get_timeouts(host, opts)
 
-    if opts and opts.connect_timeout then
-        sd:set_timeout(opts.connect_timeout)
-    elseif opts and opts.timeout then
-        sd:set_timeout(opts.timeout)
-    else
-        sd:set_timeout(stdnse.get_timeout(host))
-    end
+    sd:set_timeout(connect_timeout)
 
     local status = sd:connect(host, port, protocol)
     if not status then
@@ -198,15 +220,7 @@ local function opencon(host, port, protocol, data, opts)
           return nil, nil, nil
         end
 
-    -- check for request_timeout or timeout option
-
-    if opts and opts.request_timeout then
-        sd:set_timeout(opts.request_timeout)
-    elseif opts and opts.timeout then
-        sd:set_timeout(opts.timeout)
-    else
-        sd:set_timeout(stdnse.get_timeout(host))
-    end
+    sd:set_timeout(request_timeout)
 
     local response, early_resp;
     if opts and opts.recv_before then status, early_resp = read(sd, opts) end
