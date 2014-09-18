@@ -1697,7 +1697,7 @@ function pipeline_go(host, port, all_requests)
   -- supports and how many requests we can send into one socket!
   local request = build_request(host, port, all_requests[1].method, all_requests[1].path, all_requests[1].options)
 
-  socket, partial, bopt = comm.tryssl(host, port, request, {connect_timeout=5000, request_timeout=3000, recv_before=false})
+  socket, partial, bopt = comm.tryssl(host, port, request, {recv_before=false})
   if not socket then
     return nil
   end
@@ -1735,7 +1735,7 @@ function pipeline_go(host, port, all_requests)
         all_requests[j].options.header["Connection"] = 'keep-alive'
       end
       table.insert(requests, build_request(host, port, all_requests[j].method, all_requests[j].path, all_requests[j].options))
-      -- to avoid calling build_request more then one time on the same request,
+      -- to avoid calling build_request more than one time on the same request,
       -- we might want to build all the requests once, above the main while loop
       j = j + 1
     end
@@ -2681,22 +2681,5 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'content-type', contenttype}, parsed['path_query'])
   end
 end
-
-local function get_default_timeout( nmap_timing )
-  local timeout = {}
-  if nmap_timing >= 0 and nmap_timing <= 3 then
-    timeout.connect = 10000
-    timeout.request = 15000
-  end
-  if nmap_timing >= 4 then
-    timeout.connect = 5000
-    timeout.request = 10000
-  end
-  if nmap_timing >= 5 then
-    timeout.request = 7000
-  end
-  return timeout
-end
-
 
 return _ENV;
