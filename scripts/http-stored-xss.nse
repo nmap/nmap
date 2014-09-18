@@ -202,7 +202,7 @@ action = function(host, port)
 
         form = http.parse_form(form)
 
-        if form then
+        if form and form.action then
 
           local action_absolute = string.find(form["action"], "https*://")
 

@@ -1914,8 +1914,6 @@ function parse_form(form)
   local form_action = string.match(form, '[Aa][Cc][Tt][Ii][Oo][Nn]=[\'"](.-)[\'"]')
   if form_action then
     parsed["action"] = form_action
-  else
-    return nil
   end
 
   -- determine if the form is using get or post

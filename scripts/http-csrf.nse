@@ -134,7 +134,7 @@ action = function(host, port)
         form = http.parse_form(form)
 
         local resistant = false
-        if form then
+        if form and form.action then
           for _, field in ipairs(form['fields']) do
 
             -- First we check the field's name.

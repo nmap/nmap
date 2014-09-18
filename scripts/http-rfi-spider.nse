@@ -198,7 +198,7 @@ function action(host, port)
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
         local path = r.url.path
-        if form then
+        if form and form.action then
           local vulnerable_fields = check_form(form, host, port, path)
           if #vulnerable_fields > 0 then
             vulnerable_fields["name"] = "Possible RFI in form at path: "..path..", action: "..form["action"].." for fields:"

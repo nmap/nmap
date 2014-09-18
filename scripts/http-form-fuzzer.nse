@@ -195,7 +195,7 @@ function action(host, port)
       local maxlen = target["maxlength"] or maxlen_global
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
-        if form then
+        if form and form.action then
           local affected_fields = fuzz_form(form, minlen, maxlen, host, port, path)
           if #affected_fields > 0 then
             affected_fields["name"] = "Path: "..path.." Action: "..form["action"]
