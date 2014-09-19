@@ -5,7 +5,6 @@
 
 local base64 = require "base64"
 local comm = require "comm"
-local nmap = require "nmap"
 local sasl = require "sasl"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -288,39 +287,16 @@ end
 -- @return response The response received on success and when
 --   the recv_before is set, or the error message on failures.
 connect = function(host, port, opts)
+  local socket, _, ret
   if opts.ssl then
-    local socket, _, _, ret = comm.tryssl(host, port, '', opts)
-    if not socket then
-      return socket, (ERROR_MESSAGES[ret] or 'unspecified error')
-    end
-    return socket, ret
+    socket, _, _, ret = comm.tryssl(host, port, '', opts)
   else
-    local timeout, recv, lines
-    local socket = nmap.new_socket()
-
-    if opts then
-      recv = opts.recv_before
-      timeout = opts.timeout
-      lines = opts.lines
-    end
-    socket:set_timeout(timeout or 8000)
-
-    local st, ret = socket:connect(host, port, port.protocol)
-    if not st then
-      socket:close()
-      return st, (ERROR_MESSAGES[ret] or 'unspecified error')
-    end
-
-    if recv then
-      st, ret = socket:receive_lines(lines or 1)
-      if not st then
-        socket:close()
-        return st, (ERROR_MESSAGES[ret] or 'unspecified error')
-      end
-    end
-
-  return socket, ret
+    socket, _, ret = comm.opencon(host, port, nil, opts)
   end
+  if not socket then
+    return socket, (ERROR_MESSAGES[ret] or 'unspecified error')
+  end
+  return socket, ret
 end
 
 --- Switches the plain text connection to be protected by the TLS protocol
