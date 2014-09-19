@@ -182,6 +182,10 @@ end
 -- @return Worst option ("tcp" or "ssl")
 local function bestoption(port)
     if type(port) == 'table' then
+      if port.protocol == "udp" then
+        stdnse.debug2("DTLS (SSL over UDP) is not supported")
+        return "udp", "udp"
+      end
         if port.version and port.version.service_tunnel and port.version.service_tunnel == "ssl" then return "ssl","tcp" end
         if port.version and port.version.name_confidence and port.version.name_confidence > 6 then return "tcp","ssl" end
         if is_ssl(port) then return "ssl","tcp" end
@@ -198,29 +202,22 @@ end
 -- Possible options:
 -- timeout, connect_timeout, request_timeout: See module documentation
 -- recv_before: receive data before sending first payload
+-- proto: the protocol to use ("tcp", "udp", or "ssl")
 --
 -- @param host The destination host IP
 -- @param port The destination host port
--- @param protocol The protocol for the connection
 -- @param data The first data payload of the connection
+-- @param opts An options table
 -- @return sd The socket descriptor, nil if no connection is established
 -- @return response The response received for the payload
 -- @return early_resp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
-local function opencon(host, port, protocol, data, opts)
-    local sd = nmap.new_socket()
-
-    local connect_timeout, request_timeout = get_timeouts(host, opts)
-
-    sd:set_timeout(connect_timeout)
-
-    local status = sd:connect(host, port, protocol)
+function opencon(host, port, data, opts)
+  local status, sd = setup_connect(host, port, opts)
     if not status then
           sd:close()
           return nil, nil, nil
         end
-
-    sd:set_timeout(request_timeout)
 
     local response, early_resp;
     if opts and opts.recv_before then status, early_resp = read(sd, opts) end
@@ -228,10 +225,6 @@ local function opencon(host, port, protocol, data, opts)
         sd:send(data)
         status, response = sd:receive()
     else
-        if not (opts and opts.recv_before) then
-            stdnse.debug1("Using comm.tryssl without either first data payload or opts.recv_before." ..
-                         "\nImpossible to test the connection for the correct protocol!")
-        end
         response = early_resp
     end
     if not status then
@@ -260,11 +253,24 @@ end
 -- @return earlyResp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
 function tryssl(host, port, data, opts)
+  opts = opts or {}
+  if not data or opts.recv_before then
+    stdnse.debug1(
+      "Using comm.tryssl without either first data payload or opts.recv_before.\n\z
+      Impossible to test the connection for the correct protocol!"
+      )
+  end
     local opt1, opt2 = bestoption(port)
     local best = opt1
-    local sd, response, early_resp = opencon(host, port, opt1, data, opts)
-    if not sd then
-        sd, response, early_resp = opencon(host, port, opt2, data, opts)
+    if opts.proto=="udp" then
+      stdnse.debug2("DTLS (SSL over UDP) is not supported")
+    end
+    opts.proto = opt1
+    local sd, response, early_resp = opencon(host, port, data, opts)
+    -- Try the second option (If udp, then both options are the same; skip it)
+    if not sd and opt1 ~= "udp" then
+        opts.proto = opt2
+        sd, response, early_resp = opencon(host, port, data, opts)
         best = opt2
     end
     if not sd then best = "none" end
