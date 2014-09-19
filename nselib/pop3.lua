@@ -5,7 +5,6 @@
 
 local base64 = require "base64"
 local comm = require "comm"
-local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -146,7 +145,7 @@ end
 -- @return nil or String error message.
 function capabilities(host, port)
 
-  local socket, line, bopt, first_line = comm.tryssl(host, port, "" , {timeout=10000, recv_before=true})
+  local socket, line, bopt, first_line = comm.tryssl(host, port, "" , {request_timeout=10000, recv_before=true})
   if not socket then
     return nil, "Could Not Connect"
   end

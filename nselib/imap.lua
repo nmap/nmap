@@ -93,9 +93,7 @@ IMAP = {
   -- @return status true on success, false on failure
   -- @return banner string containing the server banner
   connect = function(self)
-    local socket, banner, opt = comm.tryssl( self.host, self.port, "", { recv_before = true } )
-    if ( not(socket) ) then return false, "ERROR: Failed to connect to server" end
-    socket:set_timeout(self.timeout)
+    local socket, banner, opt = comm.tryssl( self.host, self.port, "", { request_timeout=self.timeout, recv_before=true } )
     if ( not(socket) or not(banner) ) then return false, "ERROR: Failed to connect to server" end
     self.socket = socket
     return true, banner
