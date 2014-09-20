@@ -1880,8 +1880,8 @@ end
 function grab_forms(body)
   local forms = {}
   if not body then return forms end
-  local form_start_expr = '<%s*[Ff][Oo][Rr][Mm]'
-  local form_end_expr = '</%s*[Ff][Oo][Rr][Mm]>'
+  local form_start_expr = '<%s*[Ff][Oo][Rr][Mm][%s>]'
+  local form_end_expr = '</%s*[Ff][Oo][Rr][Mm][%s>]'
 
   local form_opening = string.find(body, form_start_expr)
   local forms = {}
@@ -1901,6 +1901,23 @@ function grab_forms(body)
   return forms
 end
 
+local function get_attr (html, name)
+  local lhtml = html:lower()
+  local lname = name:lower()
+  -- try the attribute-value syntax first
+  local _, pos = lhtml:find('%s' .. lname .. '%s*=%s*[^%s]')
+  if not pos then
+    -- try the empty attribute syntax and, if found,
+    -- return zero-length string as its value; nil otherwise
+    return lhtml:match('[^%s=]%s+' .. lname .. '[%s/>]') and "" or nil
+  end
+  local value
+  _, value = html:match('^([\'"])(.-)%1', pos)
+  if not value then
+    value = html:match('^[^%s<>=\'"`]+', pos)
+  end
+  return value
+end
 ---
 -- Parses a form, that is, finds its action and fields.
 -- @param form A plaintext representation of form
@@ -1911,19 +1928,19 @@ end
 function parse_form(form)
   local parsed = {}
   local fields = {}
-  local form_action = string.match(form, '[Aa][Cc][Tt][Ii][Oo][Nn]=[\'"](.-)[\'"]')
+  local form_action = get_attr(form, "action")
   if form_action then
     parsed["action"] = form_action
   end
 
   -- determine if the form is using get or post
-  local form_method = string.match(form, '[Mm][Ee][Tt][Hh][Oo][Dd]=[\'"](.-)[\'"]')
+  local form_method = get_attr(form, "method")
   if form_method then
     parsed["method"] = string.lower(form_method)
   end
 
   -- get the id of the form
-  local form_id = string.match(form, '[iI][dD]=[\'"](.-)[\'"]')
+  local form_id = get_attr(form, "id")
   if form_id then
     parsed["id"] = string.lower(form_id)
   end
@@ -1934,10 +1951,10 @@ function parse_form(form)
   local input_value
 
   -- first find regular inputs
-  for f in string.gmatch(form, '<%s*[Ii][Nn][Pp][Uu][Tt].->') do
-    input_type = string.match(f, '[Tt][Yy][Pp][Ee]=[\'"](.-)[\'"]')
-    input_name = string.match(f, '[Nn][Aa][Mm][Ee]=[\'"](.-)[\'"]')
-    input_value = string.match(f, '[Vv][Aa][Ll][Uu][Ee]=[\'"](.-)[\'"]')
+  for f in string.gmatch(form, '<%s*[Ii][Nn][Pp][Uu][Tt]%f[%s/>].->') do
+    input_type = get_attr(f, "type")
+    input_name = get_attr(f, "name")
+    input_value = get_attr(f, "value")
     local next_field_index = #fields+1
     if input_name then
       fields[next_field_index] = {}
@@ -1952,8 +1969,8 @@ function parse_form(form)
   end
 
   -- now search for textareas
-  for f in string.gmatch(form, '<%s*[Tt][Ee][Xx][Tt][Aa][Rr][Ee][Aa].->') do
-    input_name = string.match(f, '[Nn][Aa][Mm][Ee]=[\'"](.-)[\'"]')
+  for f in string.gmatch(form, '<%s*[Tt][Ee][Xx][Tt][Aa][Rr][Ee][Aa]%f[%s/>].->') do
+    input_name = get_attr(f, "name")
     local next_field_index = #fields+1
     if input_name then
       fields[next_field_index] = {}
