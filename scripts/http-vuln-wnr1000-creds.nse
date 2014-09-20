@@ -79,13 +79,15 @@ action = function(host, port)
             if payload_session then
                 local netgear_username = string.match(escape(payload_session.body), 'Router Admin Username</td>.+align="left">(.+)</td>.+Router Admin')
                 local netgear_password = string.match(escape(payload_session.body), 'Router Admin Password</td>.+align="left">(.+)</td>.+MNUText')
-                if (username ~= nil and password ~= nil) then
+                if (netgear_username ~= nil and netgear_password ~= nil) then
                     stdnse.debug1("username : %s", escape(netgear_username))
                     stdnse.debug1("password : %s", escape(netgear_password))
+                    vuln.state = vulns.STATE.VULN
                 else
                     stdnse.debug1("We haven't been able to get username/password")
                 end
             end
         end
     end
+    return vuln_report:make_output(vuln)
 end
