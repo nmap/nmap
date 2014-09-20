@@ -39,7 +39,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln"}
 
 local http = require "http"
-local nmap = require "nmap"
+local io = require "io"
 local shortport = require "shortport"
 local string = require "string"
 local vulns = require "vulns"
@@ -79,13 +79,14 @@ network's Active Directory.]],
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local open_session = http.get(host.ip, port, "/PSBlock")
   if open_session and open_session.status ==200 and string.len(open_session.body)>200 then
-    s = open_session.body:gsub("%z", ".")
+    local s = open_session.body:gsub("%z", ".")
     vuln.state = vulns.STATE.EXPLOIT
-    vuln.extra_info = "Snippet from configuration file:\n"..string.sub(s, 25, 200)
     local status, err = write_file(fw,s)
+    local extra_info
     if status then
       extra_info = string.format("\nConfiguration file saved to '%s'\n", fw)
     else
+      extra_info = ''
       stdnse.debug(1, "Error saving configuration file to '%s': %s\n", fw, err)
     end	
 
