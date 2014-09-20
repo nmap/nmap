@@ -87,8 +87,7 @@ local function process_instance( instance )
   local output = {}
   local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
 
-  local RS_LIMIT = stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )
-    and tonumber(stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )) or 5
+  local RS_LIMIT = tonumber(stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )) or 5
 
   if ( RS_LIMIT <= 0 ) then
     limit = ""

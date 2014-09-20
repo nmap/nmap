@@ -116,7 +116,7 @@ function action(host,port)
   local saveFile = stdnse.get_script_args('ldap.savesearch')
   local accounts
   local objCount = 0
-  local maxObjects = stdnse.get_script_args('ldap.maxobjects') and tonumber(stdnse.get_script_args('ldap.maxobjects')) or 20
+  local maxObjects = tonumber(stdnse.get_script_args('ldap.maxobjects')) or 20
 
   -- In order to discover what protocol to use (SSL/TCP) we need to send a few bytes to the server
   -- An anonymous bind should do it

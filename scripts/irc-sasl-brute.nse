@@ -195,7 +195,7 @@ action = function(host, port)
   -- irc servers seem to be restrictive about too many connection attempts
   -- in a short time thus we need to limit the number of threads
   local threads = stdnse.get_script_args(("%s.threads"):format(SCRIPT_NAME))
-  threads = tonumber(threads) and tonumber(threads) or 2
+  threads = tonumber(threads) or 2
   engine:setMaxThreads(threads)
   local status, accounts = engine:start()
   return accounts

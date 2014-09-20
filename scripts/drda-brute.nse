@@ -136,7 +136,7 @@ action = function( host, port )
   local usernames, passwords, creds
   local database = stdnse.get_script_args('drda-brute.dbname') or "SAMPLE"
   local condvar = nmap.condvar( valid_accounts )
-  local max_threads = stdnse.get_script_args('drda-brute.threads') and tonumber( stdnse.get_script_args('drda-brute.threads') ) or 10
+  local max_threads = tonumber( stdnse.get_script_args('drda-brute.threads') ) or 10
 
   -- Check if the DB specified is valid
   if( not(isValidDb(host, port, database)) ) then

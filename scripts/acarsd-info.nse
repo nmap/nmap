@@ -56,8 +56,7 @@ action = function(host, port)
   if not timeout or timeout < 0 then timeout = 10 end
 
   -- Set bytes
-  local bytes = tonumber(nmap.registry.args[SCRIPT_NAME .. '.bytes'])
-  if not bytes then bytes = 512 else tonumber(bytes) end
+  local bytes = tonumber(nmap.registry.args[SCRIPT_NAME .. '.bytes']) or 512
 
   -- Connect and retrieve acarsd info in XML format over TCP
   stdnse.debug1("Connecting to %s:%s [Timeout: %ss]", host.targetname or host.ip, port.number, timeout)

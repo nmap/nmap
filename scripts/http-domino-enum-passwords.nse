@@ -222,7 +222,7 @@ action = function(host, port)
   local creds, pos, pager
   local links, result, hashes,legacyHashes, id_files = {}, {}, {}, {},{}
   local chunk_size = 30
-  local max_fetch = stdnse.get_script_args('domino-enum-passwords.count') and tonumber(stdnse.get_script_args('domino-enum-passwords.count')) or 10
+  local max_fetch = tonumber(stdnse.get_script_args('domino-enum-passwords.count')) or 10
   local http_response
 
   if ( nmap.registry['credentials'] and nmap.registry['credentials']['http'] ) then

@@ -184,7 +184,7 @@ action = function(host)
 
   nmap.registry.bruteddomains[domainname] = true
   stdnse.debug1("Starting dns-brute at: "..domainname)
-  local max_threads = stdnse.get_script_args('dns-brute.threads') and tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
+  local max_threads = tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
   local dosrv = stdnse.get_script_args("dns-brute.srv") or false
   stdnse.debug1("THREADS: "..max_threads)
   -- First look for dns-brute.hostlist
