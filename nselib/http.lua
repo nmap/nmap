@@ -1871,6 +1871,31 @@ local function read_token_or_quoted_string(s, pos)
   end
 end
 
+--- Create a pattern to find a tag
+--
+-- Case-insensitive search for tags
+-- @param tag The name of the tag to find
+-- @param endtag Boolean true if you are looking for an end tag, otherwise it will look for a start tag
+-- @return A pattern to find the tag
+function tag_pattern(tag, endtag)
+  local patt = {}
+  if endtag then
+    patt[1] = "</%s*"
+  else
+    patt[1] = "<%s*"
+  end
+  local up, down = tag:upper(), tag:lower()
+  for i = 1, #tag do
+    patt[#patt+1] = string.format("[%s%s]", up:sub(i,i), down:sub(i,i))
+  end
+  if endtag then
+    patt[#patt+1] = "%f[%s>].->"
+  else
+    patt[#patt+1] = "%f[%s/>].->"
+  end
+  return patt:concat()
+end
+
 ---
 -- Finds forms in html code
 --
@@ -1880,8 +1905,8 @@ end
 function grab_forms(body)
   local forms = {}
   if not body then return forms end
-  local form_start_expr = '<%s*[Ff][Oo][Rr][Mm][%s>]'
-  local form_end_expr = '</%s*[Ff][Oo][Rr][Mm][%s>]'
+  local form_start_expr = tag_pattern("form")
+  local form_end_expr = tag_pattern("form", true)
 
   local form_opening = string.find(body, form_start_expr)
   local forms = {}
@@ -1951,7 +1976,7 @@ function parse_form(form)
   local input_value
 
   -- first find regular inputs
-  for f in string.gmatch(form, '<%s*[Ii][Nn][Pp][Uu][Tt]%f[%s/>].->') do
+  for f in string.gmatch(form, tag_pattern("input")) do
     input_type = get_attr(f, "type")
     input_name = get_attr(f, "name")
     input_value = get_attr(f, "value")
@@ -1969,7 +1994,7 @@ function parse_form(form)
   end
 
   -- now search for textareas
-  for f in string.gmatch(form, '<%s*[Tt][Ee][Xx][Tt][Aa][Rr][Ee][Aa]%f[%s/>].->') do
+  for f in string.gmatch(form, tag_pattern("textarea")) do
     input_name = get_attr(f, "name")
     local next_field_index = #fields+1
     if input_name then
