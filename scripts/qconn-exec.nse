@@ -41,7 +41,7 @@ For more information about QNX QCONN, see:
 -- |_      http://metasploit.org/modules/exploit/unix/misc/qnx_qconn_exec
 --
 -- @args qconn-exec.timeout
---                 Set the timeout in seconds. The default value is 60.
+--                 Set the timeout in seconds. The default value is 30.
 --
 -- @args qconn-exec.bytes
 --                 Set the number of bytes to retrieve. The default value is 1024.

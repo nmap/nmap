@@ -52,7 +52,7 @@ action = function(host, port)
   local result = {}
 
   -- Set timeout
-  local timeout = tonumber(nmap.registry.args[SCRIPT_NAME .. '.timeout'])
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
   if not timeout or timeout < 0 then timeout = 10 end
 
   -- Set bytes

@@ -25,9 +25,7 @@ For more information about Ganglia, see:
 -- nmap --script ganglia-info --script-args ganglia-info.timeout=60,ganglia-info.bytes=1000000 -p <port> <target>
 --
 -- @args ganglia-info.timeout
---       Set the timeout in seconds. The default value is 60.
---       This should be enough for a grid of more than 100 hosts at 200Kb/s.
---       About 5KB-10KB of data is returned for each host in the cluster.
+--       Set the timeout in seconds. The default value is 30.
 -- @args ganglia-info.bytes
 --       Set the number of bytes to retrieve. The default value is 1000000.
 --       This should be enough for a grid of more than 100 hosts.
@@ -92,24 +90,16 @@ action = function( host, port )
   local result = {}
 
   -- Set timeout
-  local timeout = nmap.registry.args[SCRIPT_NAME .. '.timeout']
-  if not timeout then
-    timeout = 30
-  else
-    tonumber(timeout)
-  end
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
+  timeout = timeout or 30
 
   -- Set bytes
-  local bytes = nmap.registry.args[SCRIPT_NAME .. '.bytes']
-  if not bytes then
-    bytes = 1000000
-  else
-    tonumber(bytes)
-  end
+  local bytes = stdnse.get_script_args(SCRIPT_NAME .. '.bytes')
+  bytes = tonumber(bytes) or 1000000
 
   -- Retrieve grid data in XML format over TCP
   stdnse.debug1("Connecting to %s:%s", host.targetname or host.ip, port.number)
-  local status, data = comm.get_banner(host, port, {timeout=timeout*1000,bytes=bytes})
+  local status, data = comm.get_banner(host, port, {request_timeout=timeout*1000,bytes=bytes})
   if not status then
     stdnse.debug1("Timeout exceeded for %s:%s (Timeout: %ss).", host.targetname or host.ip, port.number, timeout)
     return

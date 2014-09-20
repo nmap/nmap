@@ -17,8 +17,7 @@ end
 
 action = function(host, port)
   local status, result = comm.exchange(host, port,
-    "t3 12.1.2\nAS:2048\nHL:19\n\n",
-    {proto=port.protocol, timeout=5000})
+    "t3 12.1.2\nAS:2048\nHL:19\n\n")
 
   if (not status) then
     return nil

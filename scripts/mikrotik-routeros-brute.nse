@@ -27,10 +27,12 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 local shortport = require "shortport"
-local comm = require "comm"
+local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
+local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local openssl = stdnse.silent_require "openssl"
 
 portrule = shortport.portnumber(8728, "tcp")
@@ -88,13 +90,12 @@ Driver =
 }
 
 action = function(host, port)
-  local result
   local thread_num = stdnse.get_script_args(SCRIPT_NAME..".threads") or 1
   local options = {timeout = 5000}
   local bengine = brute.Engine:new(Driver, host, port, options)
 
   bengine:setMaxThreads(thread_num)
   bengine.options.script_name = SCRIPT_NAME
-  _, result = bengine:start()
+  local _, result = bengine:start()
   return result
 end
