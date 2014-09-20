@@ -14,29 +14,25 @@ correctly.
 --@output
 -- PORT   STATE SERVICE VERSION
 -- 80/tcp open  http    Unidentified Server 1.0
---@args
--- http-server-header.skip  If set, this script will not run. Useful for
---                          printing service fingerprints to submit to Nmap.org
+--
+-- PORT   STATE SERVICE VERSION
+-- 80/tcp open  http    Unidentified Server 1.0
+-- | http-server-header:
+-- |_ Server: Unidentified Server 1.0
+--
+--@xmloutput
+--<elem key="Server">Unidentified Server 1.0</elem>
 
 author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 portrule = function(host, port)
-  if stdnse.get_script_args(SCRIPT_NAME .. ".skip") then
-    return false
-  end
-  -- Avoid running if -sV scan already got a match
-  if type(port.version) == "table" and (port.version.name_confidence > 3 or port.version.product ~= nil) then
-    return false
-  end
   return (shortport.http(host,port) and nmap.version_intensity() >= 7)
 end
 
 action = function(host, port)
-  local status, result = comm.tryssl(host, port,
-    "GET / HTTP/1.0\r\n\r\n",
-    {proto=port.protocol, timeout=5000})
+  local status, result = comm.tryssl(host, port, "GET / HTTP/1.0\r\n\r\n")
 
   if (not status) then
     return nil
@@ -52,17 +48,15 @@ action = function(host, port)
 
   local http_server = string.match(result, "\nServer:%s*(.-)\r?\n")
 
-  if port.version.product == nil then
+  -- Avoid setting version info if -sV scan already got a match
+  if port.version.product == nil and port.version.name_confidence <= 3 then
     port.version.product = http_server
+    -- Setting "softmatched" allows the service fingerprint to be printed
+    nmap.set_port_version(host, port, "softmatched")
   end
-  nmap.set_port_version(host, port, "hardmatched")
 
-  if nmap.verbosity() > 0 then
-    return [[
-Software version grabbed from Server header.
-Consider submitting a service fingerprint.
-Run with --script-args http-server-header.skip
-]]
+  if nmap.verbosity() > 0 and http_server then
+    return {Server=http_server}
   else
     return nil
   end
