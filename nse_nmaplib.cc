@@ -572,6 +572,7 @@ static int l_set_port_version (lua_State *L)
     *hostname       = (lua_getfield(L, 4, "hostname"),   lua_tostring(L, -1)),
     *ostype         = (lua_getfield(L, 4, "ostype"),     lua_tostring(L, -1)),
     *devicetype     = (lua_getfield(L, 4, "devicetype"), lua_tostring(L, -1)),
+    *service_fp     = (lua_getfield(L, 4, "service_fp"), lua_tostring(L, -1)),
     *service_tunnel = (lua_getfield(L, 4, "service_tunnel"),
                                                          lua_tostring(L, -1));
   if (service_tunnel == NULL || strcmp(service_tunnel, "none") == 0)
@@ -594,7 +595,8 @@ static int l_set_port_version (lua_State *L)
   target->ports.setServiceProbeResults(p->portno, p->proto,
       probestate, name, tunnel, product,
       version, extrainfo, hostname, ostype, devicetype,
-      (cpe.size() > 0) ? &cpe : NULL, NULL);
+      (cpe.size() > 0) ? &cpe : NULL,
+      probestate==PROBESTATE_FINISHED_HARDMATCHED ? NULL : service_fp);
   return 0;
 }
 
