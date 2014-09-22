@@ -2987,6 +2987,8 @@ worldwire	2371/tcp	0.000076	# Compaq WorldWire Port
 worldwire	2371/udp	0.000330	# Compaq WorldWire Port
 lanmessenger	2372/tcp	0.000076	# LanMessenger
 lanmessenger	2372/udp	0.000330	# LanMessenger
+docker	2375/tcp	0.000076	# docker.com
+docker	2376/tcp	0.000076	# docker.com
 unknown	2377/udp	0.000330
 unknown	2379/udp	0.000330
 unknown	2380/udp	0.000330
