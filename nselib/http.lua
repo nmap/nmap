@@ -1893,7 +1893,7 @@ function tag_pattern(tag, endtag)
   else
     patt[#patt+1] = "%f[%s/>].->"
   end
-  return patt:concat()
+  return table.concat(patt)
 end
 
 ---
