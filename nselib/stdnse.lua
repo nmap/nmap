@@ -1416,8 +1416,10 @@ end
 -- @return A table of keys
 function keys(t)
   local ret = {}
-  for k, _ in pairs(t) do
+  local k, v = next(t)
+  while k do
     ret[#ret+1] = k
+    k, v = next(t, k)
   end
   return ret
 end
