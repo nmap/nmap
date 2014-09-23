@@ -209,14 +209,13 @@ end
 -- @param data The first data payload of the connection
 -- @param opts An options table
 -- @return sd The socket descriptor, nil if no connection is established
--- @return response The response received for the payload
+-- @return response The response received for the payload, or an error message
 -- @return early_resp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
 function opencon(host, port, data, opts)
   local status, sd = setup_connect(host, port, opts)
   if not status then
-    sd:close()
-    return nil, nil, nil
+    return nil, sd, nil
   end
 
   local response, early_resp;
@@ -247,8 +246,8 @@ end
 -- @param port The port table
 -- @param data The first data payload of the connection
 -- @param opts Options, such as timeout
--- @return sd The socket descriptor
--- @return response The response received for the payload
+-- @return sd The socket descriptor, or nil on error
+-- @return response The response received for the payload, or an error message
 -- @return correctOpt Correct option for connection guess
 -- @return earlyResp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
