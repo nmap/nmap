@@ -199,7 +199,7 @@ Driver =
   -- @param password string containing the login password
   -- @return status, true on success, false on failure
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function( self, username, password )
     local status, msg
 
@@ -213,7 +213,7 @@ Driver =
       self.invalid_users[username] = true
       return false, brute.Error:new("Username not found")
     elseif ( status and msg:match("success") ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     else
       return false, brute.Error:new( "Incorrect password" )
     end

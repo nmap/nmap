@@ -85,7 +85,7 @@ Driver = {
       stdnse.debug1("Received: %s", line)
       if(string.match(line, "^230")) then
         stdnse.debug1("Successful login: %s/%s", user, pass)
-        return true, brute.Account:new( user, pass, creds.State.VALID)
+        return true, creds.Account:new( user, pass, creds.State.VALID)
       elseif(string.match(line, "^530")) then
         return false,  brute.Error:new( "Incorrect password" )
       elseif(string.match(line, "^220")) then

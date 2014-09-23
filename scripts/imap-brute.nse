@@ -72,13 +72,13 @@ Driver =
   -- @param username string containing the username
   -- @param password string containing the password
   -- @return status true on success, false on failure
-  -- @return brute.Error on failure and brute.Account on success
+  -- @return brute.Error on failure and creds.Account on success
   login = function( self, username, password )
     local status, err = self.helper:login( username, password, mech )
     if ( status ) then
       self.helper:close()
       self.helper:connect()
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
     if ( err:match("^ERROR: Failed to .* data$") ) then
       self.helper:close()

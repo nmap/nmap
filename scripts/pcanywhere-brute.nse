@@ -137,7 +137,7 @@ Driver = {
 
     if status then
       retry = true -- now the server is in "locked mode", we need to retry next connection a few times
-      return true, brute.Account:new( user, pass, creds.State.VALID)
+      return true, creds.Account:new( user, pass, creds.State.VALID)
     end
     return false,brute.Error:new( "Incorrect password" )
   end,

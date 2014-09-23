@@ -261,7 +261,7 @@ local Driver =
   -- @param username string containing username which is disregarded
   -- @param password string containing login password
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function( self, username, password )
     local status, msg = self.bo:try_password(password,nil)
     if status then
@@ -272,7 +272,7 @@ local Driver =
         nmap.registry.credentials['backorifice'] = {}
       end
       table.insert( nmap.registry.credentials.backorifice, { password = password } )
-      return true, brute.Account:new("", password, creds.State.VALID)
+      return true, creds.Account:new("", password, creds.State.VALID)
     else
       -- The only indication that the password is incorrect is a timeout
       local err = brute.Error:new( "Incorrect password" )

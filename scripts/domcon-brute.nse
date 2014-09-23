@@ -120,7 +120,7 @@ Driver =
   -- @param password string containing the login password
   -- @return status, true on success, false on failure
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function( self, username, password )
     local data = ("#UI %s,%s\n"):format(username,password)
     local status
@@ -141,7 +141,7 @@ Driver =
     if ( status and data:match("NOT_REG_ADMIN") ) then
       not_admins[username] = true
     elseif( status and data:match("VALID_USER") ) then
-      return true, brute.Account:new( username, password, creds.State.VALID)
+      return true, creds.Account:new( username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( "Incorrect password" )

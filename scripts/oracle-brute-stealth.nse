@@ -117,7 +117,7 @@ Driver =
   -- @param password string containing the login password
   -- @return status, true on success, false on failure
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function( self, username, password )
     local status, data = self.helper:StealthLogin( username, password )
 
@@ -126,7 +126,7 @@ Driver =
       if ( johnfile ) then
         johnfile:write(("%s:%s\n"):format(username,hash))
       end
-      return true, brute.Account:new(username, hash, creds.State.HASHED)
+      return true, creds.Account:new(username, hash, creds.State.HASHED)
     else
       return false, brute.Error:new( data )
     end

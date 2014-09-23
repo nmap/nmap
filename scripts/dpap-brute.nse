@@ -76,7 +76,7 @@ Driver = {
     end
 
     if ( data:match("^HTTP/1.1 200 OK") ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( "Incorrect password" )

@@ -64,7 +64,7 @@ Driver = {
     if self.session:authenticate(username, password) then
       -- store the account for possible future use
       omp2.add_account(self.host, username, password)
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     else
       return false, brute.Error:new("login failed")
     end

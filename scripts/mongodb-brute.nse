@@ -49,7 +49,7 @@ Driver = {
   login = function(self, username, password)
     local status, resp = mongodb.login(self.sock, arg_db, username, password)
     if ( status ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     elseif ( resp ~= "Authentication failed" ) then
       local err = brute.Error:new( resp )
       err:setRetry( true )

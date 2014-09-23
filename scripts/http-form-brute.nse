@@ -138,7 +138,7 @@ Driver = {
       nmap.registry['credentials'] = nmap.registry['credentials'] or {}
       nmap.registry.credentials['http'] = nmap.registry.credentials['http'] or {}
       table.insert( nmap.registry.credentials.http, { username = username, password = password } )
-      return true, brute.Account:new( username, password, creds.State.VALID)
+      return true, creds.Account:new( username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( "Incorrect password" )

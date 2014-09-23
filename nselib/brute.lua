@@ -7,9 +7,6 @@
 -- the brute.threads argument, it defaults to 10.
 --
 -- The library contains the following classes:
--- * <code>Account</code>
--- ** Implements a simple account class, that converts account "states" to common text representation.
--- ** The state can be either of the following: OPEN, LOCKED or DISABLED
 -- * <code>Engine</code>
 -- ** The actual engine doing the brute-forcing .
 -- * <code>Error</code>
@@ -31,7 +28,7 @@
 --
 -- The <code>login</code> method does not need a lot of explanation. The login
 -- function should return two parameters. If the login was successful it should
--- return true and an <code>Account</code>. If the login was a failure it
+-- return true and a <code>creds.Account</code>. If the login was a failure it
 -- should return false and an <code>Error</code>. The driver can signal the
 -- Engine to retry a set of credentials by calling the Error objects
 -- <code>setRetry</code> method. It may also signal the Engine to abort all
@@ -106,7 +103,7 @@
 --     status, data = self.socket:receive_bytes(1)
 --
 --     if ( data:match("SUCCESS") ) then
---       return true, brute.Account:new(username, password, "OPEN")
+--       return true, creds.Account:new(username, password, creds.State.VALID)
 --     end
 --     return false, brute.Error:new( "login failed" )
 --   end,
@@ -288,41 +285,6 @@ Options = {
 }
 
 -- The account object which is to be reported back from each driver
-Account =
-{
-  --- Creates a new instance of the Account class
-  --
-  -- @param username containing the user's name
-  -- @param password containing the user's password
-  -- @param state containing the account state and should be one of the
-  --        following <code>OPEN</code>, <code>LOCKED</code>,
-  --        <code>DISABLED</code>.
-  new = function(self, username, password, state)
-    local o = { username = username, password = password, state = state }
-    setmetatable(o, self)
-    self.__index = self
-    return o
-  end,
-
-  --- Converts an account object to a printable script
-  --
-  -- @return string representation of object
-  toString = function( self )
-    local c
-    if ( #self.username > 0 ) then
-      c = ("%s:%s"):format( self.username, #self.password > 0 and self.password or "<empty>" )
-    else
-      c = ("%s"):format( ( self.password and #self.password > 0 ) and self.password or "<empty>" )
-    end
-    if ( creds.StateMsg[self.state] ) then
-      return ( "%s - %s"):format(c, creds.StateMsg[self.state] )
-    else
-      return ("%s"):format(c)
-    end
-  end,
-
-}
-
 -- The Error class, is currently only used to flag for retries
 -- It also contains the error message, if one was returned from the driver.
 Error =

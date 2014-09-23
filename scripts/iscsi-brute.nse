@@ -50,7 +50,7 @@ Driver = {
     local status = self.helper:login( self.target, username, password, "CHAP")
 
     if ( status ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( "Incorrect password" )

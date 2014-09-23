@@ -58,7 +58,7 @@ Driver = {
     elseif ( not(status) ) then
       return false, brute.Error:new( "Login failed" )
     else
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
   end,
 

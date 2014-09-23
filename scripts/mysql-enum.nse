@@ -87,7 +87,7 @@ Driver = {
     end
     if string.find(response,"Access denied for user") == nil then
       -- found it
-      return true, brute.Account:new( pass, nil, creds.State.VALID)
+      return true, creds.Account:new( pass, nil, creds.State.VALID)
     else
       return false,brute.Error:new( "Incorrect username" )
     end

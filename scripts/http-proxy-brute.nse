@@ -63,7 +63,7 @@ Driver = {
     -- if we didn't get a 407 error, assume the credentials
     -- were correct. we should probably do some more checks here
     if ( response.status ~= 407 ) then
-      return true, brute.Account:new( username, password, creds.State.VALID)
+      return true, creds.Account:new( username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( "Incorrect password" )

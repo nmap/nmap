@@ -69,7 +69,7 @@ Driver = {
       err:setRetry( true )
       return false, err
     elseif( response.status ~= 401 ) then
-      return true, brute.Account:new(user, pass, creds.State.VALID)
+      return true, creds.Account:new(user, pass, creds.State.VALID)
     end
     return false, brute.Error:new( "Incorrect password" )
   end,

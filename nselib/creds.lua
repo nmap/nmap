@@ -235,6 +235,35 @@ RegStorage = {
 
 }
 
+Account = {
+  --- Creates a new instance of the Account class
+  --
+  -- @param username containing the user's name
+  -- @param password containing the user's password
+  -- @param state A <code>creds.State</code> account state
+  -- @return A new <code>creds.Account</code> object
+  -- @name Account.new
+  new = function(self, username, password, state)
+    local o = { username = username, password = password, state = state }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
+
+  --- Converts an account object to a printable script
+  --
+  -- @return string representation of object
+  -- @name Account.__tostring
+  __tostring = function( self )
+    return (
+      (self.user and self.user .. ":" or "") ..
+      (self.pass ~= "" and self.pass or "<empty>") ..
+      (self.state and " - " .. self.state or "")
+      )
+  end,
+}
+
+
 -- The credentials class
 Credentials = {
 

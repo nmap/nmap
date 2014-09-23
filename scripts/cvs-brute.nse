@@ -58,7 +58,7 @@ Driver =
   login = function( self, username, password )
     local status, err = self.helper:login( self.repo, username, password )
     if ( status ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
 
     -- This error seems to indicate that the user does not exist

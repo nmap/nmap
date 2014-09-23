@@ -68,7 +68,7 @@ Driver =
   -- @param password string containing the login password
   -- @return status, true on success, false on failure
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function( self, username, password )
 
     local status, data = self.vnc:handshake()
@@ -87,7 +87,7 @@ Driver =
     status, data = self.vnc:login( nil, password )
 
     if ( status ) then
-      return true, brute.Account:new("", password, creds.State.VALID)
+      return true, creds.Account:new("", password, creds.State.VALID)
     elseif ( not( data:match("Authentication failed") ) ) then
       local err = brute.Error:new( data )
       -- This might be temporary, set the retry flag

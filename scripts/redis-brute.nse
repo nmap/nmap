@@ -54,7 +54,7 @@ Driver = {
       return false, brute.Error:new( "Incorrect password" )
     elseif ( status and response.type == redis.Response.Type.STATUS and
       "+OK" ) then
-      return true, brute.Account:new( "", password, creds.State.VALID)
+      return true, creds.Account:new( "", password, creds.State.VALID)
     else
       local err = brute.Error:new( response.data )
       err:setRetry( true )

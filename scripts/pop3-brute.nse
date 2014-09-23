@@ -1,5 +1,6 @@
 local brute = require "brute"
 local comm = require "comm"
+local creds = require "creds"
 local nmap = require "nmap"
 local pop3 = require "pop3"
 local shortport = require "shortport"
@@ -73,13 +74,13 @@ Driver = {
   -- @param password string containing the login password
   -- @return status, true on success, false on failure
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function(self, username, password)
     local pstatus
     local perror
     pstatus, perror = self.login_function(self.socket, username, password, self.additional)
     if pstatus then
-      return true, brute.Account:new(username, password, "OPEN")
+      return true, creds.Account:new(username, password, creds.State.VALID)
     elseif (perror == pop3.err.pwError) then
       return false, brute.Error:new("Wrong password.")
     elseif (perror == pop3.err.userError) then

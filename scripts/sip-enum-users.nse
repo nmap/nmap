@@ -7,6 +7,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local math = require "math"
 local brute = require "brute"
+local creds = require "creds"
 local unpwdb = require "unpwdb"
 
 description = [[
@@ -192,17 +193,17 @@ Driver = {
       -- requires authentication
       if responsecode == sip.Error.UNAUTHORIZED or
         responsecode == sip.Error.PROXY_AUTH_REQUIRED then
-        return true, brute.Account:new(password, " Auth required", '')
+        return true, creds.Account:new(password, " Auth required", '')
 
         -- If response status code is 200, then extension exists
         -- and requires no authentication
       elseif responsecode == sip.Error.OK then
-        return true, brute.Account:new(password, " No auth", '')
+        return true, creds.Account:new(password, " No auth", '')
         -- If response status code is 200, then extension exists
         -- but access is forbidden.
 
       elseif responsecode == sip.Error.FORBIDDEN then
-        return true, brute.Account:new(password, " Forbidden", '')
+        return true, creds.Account:new(password, " Forbidden", '')
       end
       return false,brute.Error:new( "Not found" )
     else

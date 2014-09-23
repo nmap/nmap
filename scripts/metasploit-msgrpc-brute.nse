@@ -88,7 +88,7 @@ Driver = {
     data = http.post(self.host,self.port, "/api/",options, nil , encode(user,pass))
     if data and data.status and tostring( data.status ):match( "200" )  then
       if string.find(data.body,"success") then
-        return true, brute.Account:new( user, pass, creds.State.VALID)
+        return true, creds.Account:new( user, pass, creds.State.VALID)
       else
         return false,  brute.Error:new( "Incorrect username or password" )
       end

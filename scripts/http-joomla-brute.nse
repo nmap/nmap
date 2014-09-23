@@ -95,9 +95,7 @@ Driver = {
 
     if response.body and not( response.body:match('name=[\'"]*'..self.options.passvar ) ) then
       stdnse.debug2("Response:\n%s", response.body)
-      local c = creds.Credentials:new(SCRIPT_NAME, self.host, self.port )
-      c:add(username, password, creds.State.VALID )
-      return true, brute.Account:new( username, password, "OPEN")
+      return true, creds.Account:new( username, password, creds.State.VALID)
     end
     return false, brute.Error:new( "Incorrect password" )
   end,

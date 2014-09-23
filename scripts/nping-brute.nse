@@ -133,7 +133,7 @@ Driver =
 
   login = function(self, _, password)
     if self:testpass(password) then
-      return true, brute.Account:new("", password, creds.State.VALID)
+      return true, creds.Account:new("", password, creds.State.VALID)
     end
     return false, brute.Error:new("Incorrect password")
   end,

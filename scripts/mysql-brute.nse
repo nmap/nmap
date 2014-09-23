@@ -73,7 +73,7 @@ Driver = {
         nmap.registry.mysqlusers = {}
       end
       nmap.registry.mysqlusers[user]=pass
-      return true, brute.Account:new( user, pass, creds.State.VALID)
+      return true, creds.Account:new( user, pass, creds.State.VALID)
     end
     return false,brute.Error:new( "Incorrect password" )
   end,

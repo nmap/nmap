@@ -71,7 +71,7 @@ Driver = {
     if (data:match("^CONNECTED\30([^\30]*)") == "NO" ) then
       return false, brute.Error:new( "Incorrect password" )
     elseif ( data:match("^CONNECTED\30([^\30]*)") == "YES" ) then
-      return true, brute.Account:new("", password, creds.State.VALID)
+      return true, creds.Account:new("", password, creds.State.VALID)
     end
 
     local err = brute.Error:new("An unexpected error occurred, retrying ...")

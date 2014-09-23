@@ -80,7 +80,7 @@ Driver = {
     until(not(status))
 
     if (success) then
-      return true, brute.Account:new("", password, creds.State.VALID)
+      return true, creds.Account:new("", password, creds.State.VALID)
     end
     return false, brute.Error:new("Incorrect password")
   end,

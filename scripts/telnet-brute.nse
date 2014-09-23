@@ -1,5 +1,6 @@
 local comm = require "comm"
 local coroutine = require "coroutine"
+local creds = require "creds"
 local nmap = require "nmap"
 local re = require "re"
 local U = require "lpeg-utility"
@@ -525,7 +526,7 @@ end
 --
 -- @param self Driver object
 -- @return Status (true or false)
--- @return instance of brute.Account if the operation was successful;
+-- @return instance of creds.Account if the operation was successful;
 --         instance of brute.Error otherwise
 Driver.methods.login = function (self, username, password)
   assert(self.conn, "Attempt to use disconnected driver")
@@ -567,13 +568,13 @@ Driver.methods.login = function (self, username, password)
   local login_success = function ()
     local msg = "Login succeeded"
     debug(detail_debug, msg .. loc)
-    return true, brute.Account:new(username, password, "OPEN")
+    return true, creds.Account:new(username, password, creds.State.VALID)
   end
 
   local login_no_password = function ()
     local msg = "Login succeeded without password"
     debug(detail_debug, msg .. loc)
-    return true, brute.Account:new(username, "<none>", "OPEN")
+    return true, creds.Account:new(username, "", creds.State.VALID)
   end
 
   debug(detail_debug, "Login attempt %s:%s%s", username, password, loc)

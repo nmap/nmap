@@ -73,7 +73,7 @@ Driver =
   -- @param password string containing the login password
   -- @return status, true on success, false on failure
   -- @return brute.Error object on failure
-  --         brute.Account object on success
+  --         creds.Account object on success
   login = function( self, username, password )
     local status, data = self.helper:Login( username, password, {} )
 
@@ -82,10 +82,10 @@ Driver =
         nmap.registry['informix-brute'] = {}
       end
       table.insert( nmap.registry['informix-brute'], { ["username"] = username, ["password"] = password } )
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
       -- Check for account locked message
     elseif ( data:match("INFORMIXSERVER does not match either DBSERVERNAME or DBSERVERALIASES") ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( data )

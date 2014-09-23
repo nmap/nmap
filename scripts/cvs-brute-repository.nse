@@ -1,5 +1,6 @@
 local brute = require "brute"
 local coroutine = require "coroutine"
+local creds = require "creds"
 local cvs = require "cvs"
 local io = require "io"
 local nmap = require "nmap"
@@ -68,7 +69,7 @@ Driver =
       -- script can use them later.
       self.host.registry.cvs_repos = self.host.registry.cvs_repos or {}
       table.insert(self.host.registry.cvs_repos, password)
-      return true, brute.Account:new(username, password, 0)
+      return true, creds.Account:new(username, password, 0)
     end
     return false, brute.Error:new( "Incorrect password" )
   end,

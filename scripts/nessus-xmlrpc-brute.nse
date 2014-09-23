@@ -83,7 +83,7 @@ Driver =
     local status, response = authenticate(self.host, self.port, username, password)
     if ( status and response ) then
       if ( response:match("^HTTP/1.1 200 OK.*<status>OK</status>") ) then
-        return true, brute.Account:new(username, password, creds.State.VALID)
+        return true, creds.Account:new(username, password, creds.State.VALID)
       elseif ( response:match("^HTTP/1.1 200 OK.*<status>ERROR</status>") ) then
         return false, brute.Error:new("incorrect login")
       end

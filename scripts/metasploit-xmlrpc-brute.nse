@@ -70,7 +70,7 @@ Driver =
     elseif (string.match(response,"<name>result</name><value><string>success</string></value>")) then
 
       stdnse.debug1("Good login: %s/%s", username, password)
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
     stdnse.debug1("WARNING: Unhandled response: %s", response)
     return false, brute.Error:new( "unhandled response" )

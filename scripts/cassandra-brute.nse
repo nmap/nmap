@@ -80,7 +80,7 @@ Driver = {
 
     if (magic == cassandra.LOGINSUCC) then
       stdnse.debug3("Account SUCCESS: "..combo)
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     elseif (magic == cassandra.LOGINFAIL) then
       stdnse.debug3("Account FAIL: "..combo)
       return false, brute.Error:new( "Incorrect password" )

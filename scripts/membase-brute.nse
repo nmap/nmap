@@ -58,7 +58,7 @@ Driver = {
       err:setRetry( true )
       return false, err
     end
-    return true, brute.Account:new( arg_bucketname or username, password, creds.State.VALID)
+    return true, creds.Account:new( arg_bucketname or username, password, creds.State.VALID)
   end,
 
   disconnect = function(self)

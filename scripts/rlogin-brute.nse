@@ -130,7 +130,7 @@ Driver = {
       return false, brute.Error:new( "Incorrect password" )
     end
 
-    return true, brute.Account:new(username, password, creds.State.VALID)
+    return true, creds.Account:new(username, password, creds.State.VALID)
   end,
 
   disconnect = function(self)

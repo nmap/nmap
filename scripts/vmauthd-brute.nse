@@ -73,7 +73,7 @@ Driver = {
     status, response = self.socket:receive_buf("\r\n", false)
 
     if ( response:match("^230") ) then
-      return true, brute.Account:new(username, password, creds.State.VALID)
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
 
     return false, brute.Error:new( "Login incorrect" )
