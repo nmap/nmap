@@ -244,7 +244,7 @@ Account = {
   -- @return A new <code>creds.Account</code> object
   -- @name Account.new
   new = function(self, username, password, state)
-    local o = { username = username, password = password, state = state }
+    local o = { username = username, password = password, state = StateMsg[state] or state }
     setmetatable(o, self)
     self.__index = self
     return o
@@ -256,8 +256,8 @@ Account = {
   -- @name Account.__tostring
   __tostring = function( self )
     return (
-      (self.user and self.user .. ":" or "") ..
-      (self.pass ~= "" and self.pass or "<empty>") ..
+      (self.username and self.username .. ":" or "") ..
+      (self.password ~= "" and self.password or "<empty>") ..
       (self.state and " - " .. self.state or "")
       )
   end,
