@@ -261,8 +261,36 @@ Account = {
       (self.state and " - " .. self.state or "")
       )
   end,
+
+  --- Less-than operation for sorting
+  --
+  -- Lexicographic comparison by user, pass, and state
+  __lt = function (a, b)
+    if a.user >= b.user then
+      return false
+    elseif a.pass >= b.pass then
+      return false
+    elseif a.state >= b.state then
+      return false
+    end
+    return true
+  end,
 }
 
+
+-- Return a function suitable for use as a __pairs metamethod
+-- which will cause the table to yield its values sorted by key.
+local function sorted_pairs (sortby)
+  return function (t)
+    local order = stdnse.keys(t)
+    table.sort(order, sortby)
+    return coroutine.wrap(function()
+        for i,k in ipairs(order) do
+          coroutine.yield(k, t[k])
+        end
+      end)
+  end
+end
 
 -- The credentials class
 Credentials = {
@@ -378,63 +406,50 @@ Credentials = {
     local result = {}
 
     for v in self.storage:getAll() do
-      local h = ( v.host.ip or v.host )
-      local svc = ("%s/%s"):format(v.port,v.service)
-      local c
-      if ( v.user and #v.user > 0 ) then
-        if StateMsg[v.state] then
-          c = ("%s:%s - %s"):format(v.user, v.pass, StateMsg[v.state])
-        else
-          c = ("%s:%s"):format(v.user, v.pass)
-        end
-      else
-        if StateMsg[v.state] then
-          c = ("%s - %s"):format(v.pass, StateMsg[v.state])
-        else
-          c = ("%s"):format(v.pass)
-        end
-      end
-      local script = v.scriptname
-      assert(type(h)=="string", "Could not determine a valid host")
+      if ( v.scriptname == self.scriptname or self.scriptname == ALL_DATA ) then
+        local h = ( v.host.ip or v.host )
+        assert(type(h)=="string", "Could not determine a valid host")
+        local svc = ("%s/%s"):format(v.port,v.service)
 
-      if ( script == self.scriptname or self.scriptname == ALL_DATA ) then
         result[h] = result[h] or {}
         result[h][svc] = result[h][svc] or {}
-        table.insert( result[h][svc], c )
+        table.insert( result[h][svc], Account:new(
+            v.user ~= "" and v.user or nil,
+            v.pass,
+            v.state
+            )
+          )
       end
     end
 
-    local output = {}
-    for hostname, host in pairs(result) do
-      local host_tbl = { name = hostname }
-      for svcname, service in pairs(host) do
-        local svc_tbl = { name = svcname }
-        for _, account in ipairs(service) do
-          table.insert(svc_tbl, account)
-        end
+    for _, host_tbl in pairs(result) do
+      for _, svc_tbl in pairs(host_tbl) do
         -- sort the accounts
-        table.sort( svc_tbl, function(a,b) return a<b end)
-        table.insert( host_tbl, svc_tbl )
+        table.sort( svc_tbl )
       end
       -- sort the services
-      table.sort( host_tbl,
-      function(a,b)
-        return tonumber(a.name:match("^(%d+)")) < tonumber(b.name:match("^(%d+)"))
-      end
-      )
-      table.insert( output, host_tbl )
+      setmetatable(host_tbl, {
+          __pairs = sorted_pairs( function(a,b)
+              return tonumber(a:match("^(%d+)")) < tonumber(b:match("^(%d+)"))
+            end )
+        })
     end
 
     -- sort the IP addresses
-    table.sort( output, function(a, b) return ipOps.compare_ip(a.name, "le", b.name) end )
-    if ( self.host and self.port and #output > 0 ) then
-      output = output[1][1]
-      output.name = nil
-    elseif ( self.host and #output > 0 ) then
-      output = output[1]
-      output.name = nil
+    setmetatable(result, {
+        __pairs = sorted_pairs( function(a, b)
+          return ipOps.compare_ip(a, "le", b)
+        end )
+      })
+
+    local _
+    if ( self.host and next(result) ) then
+      _, result = next(result)
     end
-    return (#output > 0 ) and output
+    if ( self.host and self.port and next(result) ) then
+      _, result = next(result)
+    end
+    return next(result) and result
   end,
 
   -- Saves credentials in the current object to file
@@ -482,7 +497,7 @@ Credentials = {
   -- @return table suitable from <code>stdnse.format_output</code>
   __tostring = function(self)
     local all = self:getTable()
-    if ( all ) then return stdnse.format_output(true, all) end
+    if ( all ) then return tostring(all) end
   end,
 
 }

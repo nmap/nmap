@@ -543,10 +543,10 @@ Engine =
             creds.Credentials:new( self.options.script_name, self.host, self.port ):add(response.username, response.password, response.state )
           else
             self.credstore = self.credstore or {}
-            table.insert(self.credstore, response:toString() )
+            table.insert(self.credstore, tostring(response) )
           end
 
-          stdnse.debug1("Discovered account: %s", response:toString())
+          stdnse.debug1("Discovered account: %s", tostring(response))
 
           -- if we're running in passonly mode, and want to continue guessing
           -- we will have a problem as the username is always the same.
@@ -702,13 +702,12 @@ Engine =
       valid_accounts = self.credstore
     end
 
-    local result = {}
+    local result = stdnse.output_table()
     -- Did we find any accounts, if so, do formatting
     if ( valid_accounts and #valid_accounts > 0 ) then
-      valid_accounts.name = self.options.title or "Accounts"
-      table.insert( result, valid_accounts )
+      result[self.options.title or "Accounts"] = valid_accounts
     else
-      table.insert( result, {"No valid accounts found", name="Accounts"} )
+      result.Accounts = "No valid accounts found"
     end
 
     -- calculate the average tps
@@ -719,27 +718,21 @@ Engine =
     local tps = ( sum == 0 ) and ( self.counter / time_diff ) or ( sum / #self.tps )
 
     -- Add the statistics to the result
-    local stats = {}
-    table.insert(stats, ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps ) )
-    stats.name = "Statistics"
-    table.insert( result, stats )
+    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps )
 
     if ( self.options.max_guesses > 0 ) then
       -- we only display a warning if the guesses are equal to max_guesses
       for user, guesses in pairs(self.account_guesses) do
         if ( guesses == self.options.max_guesses ) then
-          table.insert( result, { name = "Information",
-          ("Guesses restricted to %d tries per account to avoid lockout"):format(self.options.max_guesses) } )
+          result.Information = ("Guesses restricted to %d tries per account to avoid lockout"):format(self.options.max_guesses)
           break
         end
       end
     end
 
-    result = ( #result ) and stdnse.format_output( true, result ) or ""
-
     -- Did any error occur? If so add this to the result.
     if ( self.error ) then
-      result = result .. ("  \n ERROR: %s"):format( self.error )
+      result.ERROR = self.error
       return false, result
     end
     return true, result
