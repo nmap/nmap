@@ -213,13 +213,14 @@ end
 -- @return early_resp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
 function opencon(host, port, data, opts)
+  opts = opts or {}
   local status, sd = setup_connect(host, port, opts)
   if not status then
     return nil, sd, nil
   end
 
   local response, early_resp;
-  if opts and opts.recv_before then status, early_resp = read(sd, opts) end
+  if opts.recv_before then status, early_resp = read(sd, opts) end
   if data and #data > 0 then
     sd:send(data)
     status, response = sd:receive()
