@@ -94,6 +94,7 @@ Entry { filename = "dns-srv-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dns-update.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "dns-zeustracker.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "dns-zone-transfer.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "docker-version.nse", categories = { "version", } }
 Entry { filename = "domcon-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "domcon-cmd.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domino-enum-users.nse", categories = { "auth", "intrusive", } }

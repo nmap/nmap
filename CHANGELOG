@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added docker-version script for detecting Docker [Claudio Criscione]
+
 o [NSE] Improved http-form-brute autodetection and behavior to handle more
   unusual-but-valid HTML syntax, non-POST forms, success/failure testing on
   HTTP headers, and more. [nnposter]
