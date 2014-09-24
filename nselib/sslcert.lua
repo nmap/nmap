@@ -19,6 +19,8 @@
 
 local asn1 = require "asn1"
 local bin = require "bin"
+local comm = require "comm"
+local ftp = require "ftp"
 local ldap = require "ldap"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -31,41 +33,31 @@ StartTLS = {
   -- TODO: Implement STARTTLS for NNTP
 
   ftp_prepare_tls_without_reconnect = function(host, port)
-    local s = nmap.new_socket()
     -- Attempt to negotiate TLS over FTP for services that support it
     -- Works for FTP (21)
 
     -- Open a standard TCP socket
-    local status, error = s:connect(host, port, "tcp")
-    local result
-    if not status then
-      return false, "Failed to connect to FTP server"
-    else
+    local s, err = comm.opencon(host, port)
+    if not s then
+      return false, string.format("Failed to connect to FTP server: %s", err)
+    end
+    local buf = stdnse.make_buffer(s, "\r?\n")
 
-      -- Loop until the service presents a banner to deal with server
-      -- load and timing issues.  There may be a better way to handle this.
-      local i = 0
-      repeat
-        status, result = s:receive_lines(1)
-        i = i + 1
-      until string.match(result, "^220") or i == 5
+    local code, result = ftp.read_reply(buf)
+    if code ~= 220 then
+      return false, string.format("FTP protocol error: %s", code or result)
+    end
 
-      -- Send AUTH TLS command, ask the service to start encryption
-      local query = "AUTH TLS\r\n"
-      status = s:send(query)
-      status, result = s:receive_lines(1)
+    -- Send AUTH TLS command, ask the service to start encryption
+    s:send("AUTH TLS\r\n")
+    code, result = ftp.read_reply(buf)
+    if code ~= 234 then
+      stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
-      if not (string.match(result, "^234")) then
-        stdnse.debug1("%s",result)
-        stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
+      -- Send QUIT to clean up server side connection
+      s:send("QUIT\r\n")
 
-        -- Send QUIT to clean up server side connection
-        local query = "QUIT\r\n"
-        status = s:send(query)
-        result = ""
-
-        return false, "Failed to connect to FTP server"
-      end
+      return false, string.format("FTP AUTH TLS error: %s", code or result)
     end
     -- Should have a solid TLS over FTP session now...
     return true, s
@@ -79,9 +71,9 @@ StartTLS = {
       if not status then
         stdnse.debug1("Could not establish SSL session after STARTTLS command.")
         s:close()
-        return false, "Failed to connect to SMTP server"
+        return false, "Failed to connect to FTP server"
       else
-        return true,s
+        return true, s
       end
     end
     return false, "Failed to connect to FTP server"
