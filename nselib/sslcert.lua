@@ -23,6 +23,7 @@ local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
 local nmap = require "nmap"
+local smtp = require "smtp"
 local stdnse = require "stdnse"
 local string = require "string"
 local xmpp = require "xmpp"
@@ -80,44 +81,35 @@ StartTLS = {
   end,
 
   imap_prepare_tls_without_reconnect = function(host, port)
-    local s = nmap.new_socket()
     -- Attempt to negotiate TLS over IMAP for services that support it
     -- Works for IMAP (143)
 
     -- Open a standard TCP socket
-    local status, error = s:connect(host, port, "tcp")
-    if not status then
+    local s, err, result = comm.opencon(host, port, "", {lines=1, recv_before=true})
+    if not s then
+      return false, string.format("Failed to connect to IMAP server: %s", err)
+    end
+
+    if not string.match(result, "^%* OK") then
+      return false, "IMAP protocol mismatch"
+    end
+
+    -- Check for STARTTLS support.
+    local status = s:send("A001 CAPABILITY\r\n")
+    status, result = s:receive_lines(1)
+
+    if not (string.match(result, "STARTTLS")) then
+      stdnse.debug1("Server doesn't support STARTTLS")
       return false, "Failed to connect to IMAP server"
-    else
-      -- Read the greetings message
-      -- TODO(claudiu) There may be a better way to handle this.
-      local greetings
-      local i = 0
-      repeat
-        status, greetings = s:receive_lines(1)
-        i = i + 1
-      until string.match(greetings, "OK") or i == 5
+    end
 
-      -- Check for STARTTLS support.
-      local result, query
-      query = "a001 CAPABILITY\r\n"
-      status = s:send(query)
-      status, result = s:receive_lines(1)
+    -- Send the STARTTLS message
+    status = s:send("A002 STARTTLS\r\n")
+    status, result = s:receive_lines(1)
 
-      if not (string.match(result, "STARTTLS")) then
-        stdnse.debug1("Server doesn't support STARTTLS")
-        return false, "Failed to connect to IMAP server"
-      end
-
-      -- Send the STARTTLS message
-      query = "a002 STARTTLS\r\n"
-      status = s:send(query)
-      status, result = s:receive_lines(1)
-
-      if not (string.match(result, "OK")) then
-        stdnse.debug1(string.format("Error: %s", result))
-        return false, "Failed to connect to IMAP server"
-      end
+    if not (string.match(result, "^A002 OK")) then
+      stdnse.debug1(string.format("Error: %s", result))
+      return false, "Failed to connect to IMAP server"
     end
 
     -- Should have a solid TLS over IMAP session now...
@@ -219,33 +211,27 @@ StartTLS = {
   end,
 
   pop3_prepare_tls_without_reconnect = function(host, port)
-    local s = nmap.new_socket()
     -- Attempt to negotiate TLS over POP3 for services that support it
     -- Works for POP3 (110)
 
     -- Open a standard TCP socket
-    local status, error = s:connect(host, port, "tcp")
-    if not status then
+    local s, err, result = comm.opencon(host, port, "", {lines=1, recv_before=true})
+    if not s then
+      return false, string.format("Failed to connect to POP3 server: %s", err)
+    end
+
+    if not string.match(result, "^%+OK") then
+      return false, "POP3 protocol mismatch"
+    end
+
+    -- Send the STLS message
+    local status = s:send("STLS\r\n")
+    status, result = s:receive_lines(1)
+
+    if not (string.match(result, "^%+OK")) then
+      stdnse.debug1(string.format("Error: %s", result))
+      status = s:send("QUIT\r\n")
       return false, "Failed to connect to POP3 server"
-    else
-      -- Read the greetings message
-      -- TODO(claudiu) There may be a better way to handle this.
-      local greetings
-      local i = 0
-      repeat
-        status, greetings = s:receive_lines(1)
-        i = i + 1
-      until string.match(greetings, "OK") or i == 5
-
-      -- Send the STLS message
-      query = "STLS\r\n"
-      status = s:send(query)
-      status, result = s:receive_lines(1)
-
-      if not (string.match(result, "OK")) then
-        stdnse.debug1(string.format("Error: %s", result))
-        return false, "Failed to connect to POP3 server"
-      end
     end
 
     -- Should have a solid TLS over POP3 session now...
@@ -269,56 +255,34 @@ StartTLS = {
   end,
 
   smtp_prepare_tls_without_reconnect = function(host, port)
-    local s = nmap.new_socket()
     -- Attempt to negotiate TLS over SMTP for services that support it
     -- Works for SMTP (25) and SMTP Submission (587)
 
     -- Open a standard TCP socket
-    local status, error = s:connect(host, port, "tcp")
+    local s, result = smtp.connect(host, port, {lines=1, recv_before=1, ssl=false})
+    if not s then
+      return false, string.format("Failed to connect to SMTP server: %s", result)
+    end
+
+    local status
+    status, result = smtp.ehlo(s, "example.com")
+    if not status then
+      stdnse.debug1("EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+      return false, string.format("Failed to connect to SMTP server: %s", result)
+    end
+
+    -- Send STARTTLS command ask the service to start encryption
+    status, result = smtp.query(s, "STARTTLS")
+    if status then
+      status, result = smtp.check_reply("STARTTLS", result)
+    end
 
     if not status then
-      return nil
-    else
-      local resultEHLO
-      -- Loop until the service presents a banner to deal with server
-      -- load and timing issues.  There may be a better way to handle this.
-      local i = 0
-      repeat
-        status, resultEHLO = s:receive_lines(1)
-        i = i + 1
-      until string.match(resultEHLO, "^220") or i == 5
+      stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
-      -- Send EHLO because the the server expects it
-      -- We are not going to check for STARTTLS in the capabilities
-      -- list, sometimes it is not advertised.
-      local query = "EHLO example.org\r\n"
-      status = s:send(query)
-      status, resultEHLO = s:receive_lines(1)
-
-      if not (string.match(resultEHLO, "^250")) then
-        stdnse.debug1("%s",resultEHLO)
-        stdnse.debug1("EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
-        return false, "Failed to connect to SMTP server"
-      end
-
-      resultEHLO = ""
-
-      -- Send STARTTLS command ask the service to start encryption
-      local query = "STARTTLS\r\n"
-      status = s:send(query)
-      status, resultEHLO = s:receive_lines(1)
-
-      if not (string.match(resultEHLO, "^220")) then
-        stdnse.debug1("%s",resultEHLO)
-        stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
-
-        -- Send QUIT to clean up server side connection
-        local query = "QUIT\r\n"
-        status = s:send(query)
-        resultEHLO = ""
-
-        return false, "Failed to connect to SMTP server"
-      end
+      -- Send QUIT to clean up server side connection
+      smtp.quit(s)
+      return false, string.format("Failed to connect to SMTP server: %s", result)
     end
     -- Should have a solid TLS over SMTP session now...
     return true, s
