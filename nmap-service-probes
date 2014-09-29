@@ -4073,7 +4073,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03Grandstream (\w+
 match telnet m|^\xff\xfe\x01Ethernet-Serial Server\r\nUser name:admin\r\nPassword:| p/Aaxeon DevoLinx Ethernet-Serial bridge telnetd/ d/bridge/
 match telnet m|^\xff\xfb\0\xff\xfd\0\xff\xfb,\xff\xfd,\xff\xfb'\xff\xfa,k\x0f\xff\xf0| p/Aaxeon DevoLinx COM port redirector/ d/bridge/
 match telnet m|^\r\nSorry, Telnet is not enabled from your address\.\r\n| p/ShoreTel VoIP appliance telnetd/ i/access denied by IP/ d/VoIP adapter/
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*{29}\r\n\*  Welcome to Print Server  \*\r\n\*     Telnet Console {8}\*\r\n\*{29}\r\n\r\nServer Name    :  ([\w.-]+)\0*\r\nServer Model   :  ([\w._ -]+)\0*\r\nF/W Version    :  ([\d.]+)  \0*\r\nMAC Address    :  (.. .. .. .. .. ..)\r\nUptime {9}:  ([\w ,:]+)\r\n\nPlease Enter Password: | p/CellVision Print Server telnetd/ v/$3/ h/$1/ i/model: $2; MAC address: $SUBST(4," ",":"); uptime: $5/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*{29}\r\n\*  Welcome to Print Server  \*\r\n\*     Telnet Console {8}\*\r\n\*{29}\r\n\r\nServer Name    :  ([\w.-]+)\0*\r\nServer Model   :  ([\w._ -]+)\0*\r\nF/W Version    :  ([\d.]+)  \0*\r\nMAC Address    :  (.. .. .. .. .. ..)\r\nUptime {9}:  ([\w ,:]+)\r\n\nPlease Enter Password: | p/CellVision Print Server telnetd/ v/$3/ i/model: $2; MAC address: $SUBST(4," ",":"); uptime: $5/ h/$1/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nWelcome to the server management network terminal!\r\n\r\r\n\r\r\nlogin : | p/IBM Integrated Management Module telnetd/ d/remote management/
 match telnet m|^\x1b\[H\x1b\[J\r\x1b\[100B\xff\xfb\x03\xff\xfb\x01\xff\xfd\x1f\n\n\n\n(DGS-[\w-]+) login: | p/D-Link $1 telnetd/ d/switch/
 # Unauthenticated root shells!
@@ -4105,7 +4105,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS \(TM\) VAX O
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\x1fPacketFront terminal\r\nLocaltime is .*\r\n\r\n| p/PacketFront telnetd/ d/switch/
 match telnet m|^\xff\xfc\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfb\x18\xff\xfd\x1f\xff\xfb\x1f\xff\xfb\"\xff\xfb\x05\r\n\r\nOne60L G\.SHDSL PPPoEoA\r\n\r\nUsername:| p/One60L G.SHDSL modem telnetd/ d/broadband router/
 match telnet m|^\r\n\(c\) Copyright 20\d\d, Extron Electronics, ([^,]+), V([\d.]+), ([\d-]+)\r\n| p/Extron $1 telnetd/ v/$2/ i/part number $3/
-match telnet m%^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\rSTMicroelectronics Base Distribution version ([\d.]+)\r\n\rLinux/sh4 (2\.\d+\.\d+|3\.\d+).*\r\n\r\r\n\rsh-([\d.]+)# % p/STMicroelectronics Base Distribution telnetd/ v/$1/ i/open; Linux $2; sh-$3/
+match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\rSTMicroelectronics Base Distribution version ([\d.]+)\r\n\rLinux/sh4 (2\.\d+\.\d+|3\.\d+).*\r\n\r\r\n\rsh-([\d.]+)# = p/STMicroelectronics Base Distribution telnetd/ v/$1/ i/open; Linux $2; sh-$3/
 match telnet m|^\xff\xfc\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfb\x18\xff\xfd\x1f\xff\xfb\x1f\xff\xfb\"\xff\xfb\x05\n\*{17} User Access Login \*{20}\r\n\r\nUser:| p/TP-LINK TL-SG2008 telnetd/ d/switch/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n[ _\r\n\x7c\.',-]+Arago Project http://arago-project\.org VS240HD\r\n\r\r\n\rArago ([\d.]+) VS240HD\r\n\r\r\n\r\r\nVS240HD login: | p/Arago Project telnetd/ v/$1/ i/Synology VS240HD/ d/storage-misc/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Grandstream (GXW\w+) \( Boot:[\d.]+  Loader:[\d.]+  App:([\d.]+)  HW: [\w.]+ \) Command Shell\r\nPassword: | p/Grandstream $1 telnetd/ v/$2/ d/VoIP device/
@@ -4368,7 +4368,7 @@ match zeo m|^\0\0\0\x04Z(\d)([1-9]\d)$| p/Zope Enterprise Objects service/ i/ZOD
 # https://publib.boulder.ibm.com/infocenter/zos/v1r12/index.jsp?topic=%2Fcom.ibm.zos.r12.halc001%2Fmccic.htm
 match zos-commserver m|^EZY1315E \d\d/\d\d/\d\d \d\d:\d\d:\d\d INVALID TRANID=\r\n\r\n PARTNER INET ADDR=[\d.]+ PORT=   \d+                                      | p|IBM z/OS Communications Server|
 
-softmatch telnet m/^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]/
+softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
 
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
@@ -8413,7 +8413,7 @@ match http m|^HTTP/1\.1 200 Document follows\r\nServer: Micro-Web\r\n| p/Micro-W
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Indy/([\w._-]+)\r\n|s p/Indy/ v/$1/
 match http m|^HTTP/1\.1 404 File not found\r\n.*Server: Indy/([\w._-]+)\r\n|s p/Indy/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\w._-]+)\r\n| p/WindWeb/ v/$1/ cpe:/a:windriver:windweb:$1/
-match http m|^HTTP/1\.0 200 OK\r\nServer: Perl Dancer ([\w._-]+)\r\n| p/Perl Dancer/ v/$1/ 
+match http m|^HTTP/1\.0 200 OK\r\nServer: Perl Dancer ([\w._-]+)\r\n| p/Perl Dancer/ v/$1/
 
 
 # No more HTTP softmatch because many services that I don't think are
@@ -9492,7 +9492,7 @@ match mxie m|^\x80\x00\x00\x0c\x72\xfe\x1d\x13\x00\x00\x00\x01\x00\x00\x00\x02$|
 match sybase-adaptive m|^\0\x01\0\x08\0\0\x00\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/a:sybase:adaptive_server/ cpe:/o:microsoft:windows/a
 match sybase-backup m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Backup Server/ o/Windows/ cpe:/a:sybase:backup_server/ cpe:/o:microsoft:windows/a
 
-match syncsort-cmagent m=^\x80\0\0.\x0f\x02\x02\x06\t\x1d\x02\x11m\x04\x15\x17\x01\x06c\x7csww{t\x1b...On\x04\x0f\x1d\x19wE\x0f\x13\x15\x08\x13g\x06\x03\x15\x04\x08\x0f\x13e\x18fm.ug= p/Syncsort Backup Express cmagent/
+match syncsort-cmagent m|^\x80\0\0.\x0f\x02\x02\x06\t\x1d\x02\x11m\x04\x15\x17\x01\x06c\x7csww{t\x1b...On\x04\x0f\x1d\x19wE\x0f\x13\x15\x08\x13g\x06\x03\x15\x04\x08\x0f\x13e\x18fm.ug| p/Syncsort Backup Express cmagent/
 
 match tandem-print m|^\x01$| p/Sharp printer tandem printing/ d/printer/
 
@@ -12471,7 +12471,7 @@ Probe TCP xmlsysd q|init\noff all\non identity version\nsend\nquit\n|
 rarity 9
 ports 7887
 
-match xmlsysd m|^Content-Length: [0-9]+\n\n<\?xml version=\"1\.0\"\?>\s*<xmlsysd init=\"1\">\s*<system>\s*<identity>\s*<hostname>([^<]*)</hostname>\s*<hostip>([^<]*)</hostip>\s*</identity>\s*</system>\s*<proc>\s*<version>([^<]*)</version>\s*</proc>\s*</xmlsysd>|s p/xmlsysd daemon/ h/$1/ i/IP: $2/ o/$3/ cpe:/a:wulfware:xmlsysd/
+match xmlsysd m|^Content-Length: [0-9]+\n\n<\?xml version=\"1\.0\"\?>\s*<xmlsysd init=\"1\">\s*<system>\s*<identity>\s*<hostname>([^<]*)</hostname>\s*<hostip>([^<]*)</hostip>\s*</identity>\s*</system>\s*<proc>\s*<version>([^<]*)</version>\s*</proc>\s*</xmlsysd>|s p/xmlsysd daemon/ i/IP: $2/ o/$3/ h/$1/ cpe:/a:wulfware:xmlsysd/
 
 ##############################NEXT PROBE##############################
 # Freelancer game server status query
@@ -12494,7 +12494,7 @@ Probe UDP ASE q|s|
 rarity 9
 ports 1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138
 
-match allseeingeye m/^EYE1.(.*?)(\x02(\d)|\x03(\d{2})|\x04(\d{3})|\x05(\d{4})|\x06(\d{5}))/s p/All-Seeing Eye/ i/game: $1; port: $P(2)/
+match allseeingeye m=^EYE1.(.*?)(\x02\d|\x03\d{2}|\x04\d{3}|\x05\d{4}|\x06\d{5})=s p/All-Seeing Eye/ i/game: $1; port: $P(2)/
 
 ##############################NEXT PROBE##############################
 Probe UDP AndroMouse q|AMSNIFF|
