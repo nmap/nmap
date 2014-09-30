@@ -464,6 +464,9 @@ match fiesta-online m|^\x04\x07\x08..$| p/Fiesta Online game server/
 
 match filemaker-xdbc m|^2\0TY\xb8\xd5\xbbH:x\x03\^v\xd5\xdf\x15Rgc\xd7\x1a\x067\(/\xbf\xc73\t\?3\x85\x9d\x92ne\x0bh\xbe\x8a\]\xdf!\x14xA\xbc\xb6\xe9_| p/FileMaker xDBC/
 
+# Not sure what this is
+match filezilla m|^FZS\0\x04\0A\t\0\0\x04\0\r\x01\0\0\x14\0\0\0\0\x08.{18}| p/FileZilla service/
+
 match finger m|\r\n {4}Line {5,8}User {6,8}Host\(s\) {13,18}Idle +Location\r\n| p/Cisco fingerd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
 match finger m|^OpenLDAP Finger Service\.\.\.\r\n| p/OpenLDAP fingerd/
 match finger m|^No cfingerd\.conf file present\.  Check your setup\.\n$| p/cfingerd/ i/Broken/
@@ -496,13 +499,13 @@ match ftp m|^220 ([-/.+\w]+)\((\d[-.\w]+)\) FTP server \(EPSON ([^\)]+)\) ready\
 match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server [Vv]er \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| o|OS/2| h/$1/ cpe:/a:ibm:os2_ftp_server/ cpe:/o:ibm:os2/
 match ftp m|^220 ([-/.+\w]+) IBM TCP/IP f\xfcr OS/2 - FTP-Server [Vv]er \d+:\d+:\d+ .* bereit\.\r\n| p|IBM OS/2 ftpd| i/German/ o|OS/2| h/$1/ cpe:/a:ibm:os2_ftp_server::::de/ cpe:/o:ibm:os2/
 match ftp m|^220 Internet Rex (\d[-.\w ]+) \(([-/.+\w]+)\) FTP server awaiting your command\.\r\n| p/Internet Rex ftpd/ v/$1/ i/$2/
-match ftp m|^220 ([-.+\w]+) FTP server \(Version (\d[-.\w]+)\([^\)]+\) [A-Z][a-z][a-z] [A-Z].*200\d\) ready\.\r\n| p/HP-UX ftpd/ v/$2/ o/HP-UX/ h/$1/ cpe:/o:hp:hp-ux/a
 match ftp m|^530 Connection refused, unknown IP address\.\r\n$| p/Microsoft IIS ftpd/ i/IP address rejected/ o/Windows/ cpe:/a:microsoft:iis/ cpe:/o:microsoft:windows/a
 match ftp m|^220 IIS ([\w._-]+) FTP\r\n| p/Microsoft IIS ftpd/ v/$1/ o/Windows/ cpe:/a:microsoft:iis:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220 PizzaSwitch FTP server ready\r\n| p/Xylan PizzaSwitch ftpd/
 match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V([-.\w]+)\) ready\.\r\n| p/IronPort mail appliance ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V([-.\w]+)\) ready\.\r\n| p/IronPort mail appliance ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V([-.\w]+)\) ready\r\n| p/IronPort firewall ftpd/ v/$2/ h/$1/
+match ftp m|^220 ([-.+\w]+) Cisco IronPort FTP server \(V([-.\w]+)\) ready\r\n| p/Cisco IronPort mail appliance ftpd/ v/$2/ h/$1/
 match ftp m|^220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software\) ready for new user\r\n| p/Texas Imperial Software WFTPD/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220.*\r\n220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software\) ready for new user\r\n|s p/Texas Imperial Software WFTPD/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (MICRO-[-.\w:#+ ]+)\) ready\.\r\n| p/Bay Networks MicroAnnex terminal server ftpd/ v/$2/ d/terminal server/ h/$1/
@@ -668,7 +671,8 @@ match ftp m|^220-\r\n220 ([-.\w]+) FTP server \(NetBSD-ftpd ([-.\w]+)\) ready.\r
 match ftp m|^220 ([-.\w]+) Network Management Card AOS v([-.\w]+) FTP server ready.\r\n$| p/APC AOS ftpd/ v/$2/ i/on APC $1 network management card/ d/power-device/ o/AOS/
 match ftp m|^220 FTP Server \(Version 1.0\) ready.\r\n$| p/GlobespanVirata ftpd/ v/1.0/ d/broadband router/
 # HP-UX B.11.00
-match ftp m|^220 ([-.\w ]+) FTP server \(Version (1.1.2[\d.]+) [A-Z][a-z]{2} [A-Z][a-z]{2} .*\) ready.\r\n| p/HP-UX ftpd/ v/$2/ o/HP-UX/ h/$1/ cpe:/o:hp:hp-ux/a
+match ftp m|^220 ([-.+\w ]+) FTP server \(Version (\d[-.\w]+) [A-Z][a-z]{2} [A-Z].*20\d\d\) ready\.\r\n| p/HP-UX ftpd/ v/$2/ o/HP-UX/ h/$1/ cpe:/o:hp:hp-ux/a
+match ftp m|^220 ([-.+\w ]+) FTP server \(Version (\d[-.\w]+)\(([^\)]+)\) [A-Z][a-z]{2} [A-Z].*\d{4}\) ready\.\r\n| p/HP-UX ftpd/ v/$2/ i/patchlevel $3/ o/HP-UX/ h/$1/ cpe:/o:hp:hp-ux/a
 # 220 mirrors.midco.net FTP server ready.
 # WarFTP Daemon 1.70 on Win2K
 match ftp m=^220-.*\r\n(?:220-|)    WarFTPd (\d[-.\w]+) \([\w ]+\) Ready\r\n=s p/WarFTPd/ v/$1/
@@ -931,7 +935,7 @@ match ftp m|^220 ATAboy2X-\d+ FTP V([\w._-]+) ready\n| p/ATAboy2X ftpd/ v/$1/ d/
 match ftp m|^220 Belkin Network USB Hub Ver ([\w._-]+) FTP server\.\r\n| p/Belkin USB hub ftpd/ v/$1/
 match ftp m|^220-TCP/IP for VSE FTP Daemon Version ([\w._-]+) | p/VSE ftpd/ v/$1/ o/VSE/
 match ftp m|^220 FTP server: Lexmark Optra LaserPrinter ready\r\n| p/Lexmark Optra LaserPrinter ftpd/ d/printer/
-match ftp m|^220 NSE \(AG 5000   v([\w._-]+)\) FTP server ready\r\n| p/Nomadix AG 5000 ftpd/ v/$1/ d/WAP/
+match ftp m|^220 NSE \(AG (\d+)   v([\w._-]+)\) FTP server ready\r\n| p/Nomadix AG $1 ftpd/ v/$2/ d/WAP/
 match ftp m|^220 Welcome to Easy File Sharing FTP Server!\r\n| p/Easy File Sharing ftpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220- \*+\r\n220- \r\n220-      Welcome to Dream FTP Server\r\n220-      Copyright 2002 - 2004\r\n220-      BolinTech Inc\.\r\n| p/BolinTech Dream FTP Server/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220 Welcome to the Netburner FTP server\.\r\n| p/Netburner embedded device ftpd/ d/specialized/
@@ -1009,6 +1013,7 @@ match ftp m|^220 BCB1COOL Server \(Proftpd FTP Server\) \[([\w._-]+)\]\r\n| p/Pr
 match ftp m|^220 FTP version ([\w.]+)\r\n| p/DrayTek Vigor 2820 ADSL router ftpd/ v/$1/ d/broadband router/
 match ftp m|^220 FTP version ([\w.]+)\r\n331 Enter PASS command\r\n$| p/DrayTek Vigor 2820 ADSL router ftpd/ v/$1/ d/broadband router/
 match ftp m|^220 Core FTP Server Version ([\w._-]+, build \d+), installed (\d+ days ago) Registered\r\n| p/Core FTP Server/ v/$1/ i/installed $2/
+match ftp m|^220 Core FTP Server Version ([\w._-]+, build \d+) Registered\r\n| p/Core FTP Server/ v/$1/
 match ftp m|^220-.*\r\n220 ([\w._-]+) FTP Server \(Apache/([\w._-]+) \(Linux/SUSE\)\) ready\.\r\n| p/Apache mod_ftpd/ v/$2/ o/Linux/ h/$1/ cpe:/o:linux:linux_kernel/a
 match ftp m|^220 pyftpdlib ([\w._-]+) ready\.\r\n| p/pyftpdlib/ v/$1/
 match ftp m|^220 Simple FTP daemon coming up!\r\n| p/A+V Link NVS-4000 surveillance system ftpd/ d/webcam/
@@ -1073,11 +1078,41 @@ match ftp m|^220 Multicraft ([\w._-]+) FTP server\r\n| p/Multicraft ftpd/ v/$1/
 match ftp m|^220 [\d.]+ BECO FTP server \(Version ([\w._-]+)\) ready\.\r\n| p/Kaba B-web 93 00 timeclock ftpd/ v/$1/
 match ftp m|^220-TiMOS-B-([\w._-]+) both/hops ALCATEL SR ([\w._-]+) Copyright \(c\) \d+-\d+ Alcatel-Lucent\.\r\n220-All rights reserved\. All use subject to applicable license agreements\.\r\n220-Built on (.*) by builder in /rel[\w._-]+/[\w._-]+/[\w._-]+/panos/main\r\n220-\r\n220-This is a Maxcom, system restricted to authorized individuals\. This system is subject to monitoring\. Unauthorized users, access, and/or modification will be prosecuted\.\r\n220 FTP server ready\r\n| p/Alcatel $2 Service Router ftpd/ i/build date: $3/ d/router/ o/TiMOS $1/ cpe:/h:alcatel:$2_service_router/ cpe:/o:alcatel:timos:$1/
 match ftp m|^220 ASTRA-Super FTP server ready\.\r\n$| p/Ishida Astra counter-top scale ftpd/
+match ftp m|^220 ucftpd FTP server ready\.\r\n| p/MontaVista ucftpd/ o/Linux/
+match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n| p/Stupid-FTPd/
+match ftp m|^220 FTP v([\d.]+) at ([\w.-]+) ready\.\r\n| p/OpenRG ftpd/ v/$1/ d/broadband router/ h/$2/
+match ftp m|^220 FRITZ!Box(\w+)\(kdg\) FTP server ready\.\r\n| p/AVM FRITZ!Box ftpd/ i/model: $1; Kabel Deutschland/ d/broadband router/
+match ftp m|^220-Welcome to cc-ftpd\.\r\n220-You are user number (\d+ of \d+) allowed\.\r\n220-Local time is now ([\d:]+)\. Server port: \d+\.\r\n220-This is a private system - No anonymous login\r\n220-IPv6 connections are also welcome on this server\.\r\n220 You will be disconnected after 15 minutes of inactivity\.\r\n| p/Centova Cast ftpd/ i/user $1; local time $2/
+match ftp m|^220 ([\w.-]+) FTP server \(QNXNTO-ftpd (\d{8})\) ready\.\r\n| p/QNX ftpd/ v/$2/ h/$1/
+match ftp m|^220-Cerberus FTP Server - Home Edition\r\n220-This is the UNLICENSED Home Edition and may be used for home, personal use only\r\n220-Welcome to Cerberus FTP Server\r\n220 Created by Cerberus, LLC\r\n| p/Cerberus FTP Server/ i/Home Edition/ o/Windows/
+match ftp m|^220-220-Welcome to Cerberus FTP Server\r\n220 220 Created by Cerberus, LLC\r\n| p/Cerberus FTP Server/ o/Windows/
+match ftp m|^220-Welcome to my Server\r\n220-\r\n220 ICS FTP Server ready\.\r\n| p/Overbyte Internet Component Suite ftpd/
+match ftp m|^220 ADAM2 FTP Server ready\r\n| p/Texas Instruments ADAM2 bootloader ftpd/
+match ftp m|^220-Idea FTP Server v([\d.]+) \(([\w.-]+)\) \[[\d.]+\]\r\n220 Ready\r\n| p/home.pl Idea ftpd/ v/$1/ h/$2/
+match ftp m|^220 ([\w.-]+)  Lexmark ([\w]+) FTP Server ([\w.-]+) ready\.\r\n| p/Lexmark printer ftpd/ v/$3/ i/model $2/ h/$1/ cpe:/h:lexmark:$2/
+match ftp m|^220 FTP Utility FTP server \(Version ([\d.]+)\) ready\.\r\n| p/Konica Minolta FTP Utility ftpd/ v/$1/
+match ftp m|^220 PocketPro (\w+) FTP server ready\.\r\n| p/TROY PocketPro $1 print server ftpd/
+match ftp m|^220 FTP Version ([\d.]+) on (IQ\w+)\r\n| p/IQinVision IQeye ftpd/ v/$1/ i/model $2/
+match ftp m|^220 FRITZ!Box(\d+(?:\(UI\))?) FTP server ready\.\r\n| p/AVM FRITZ!Box ftpd/ i/model $1/ d/broadband router/
+match ftp m|^220 220 RMNetwork FTP\r\n$| p/Ramnit worm ftpd/ i/malware/
+match ftp m|^220 Monarch (\d+) Print Adapter FTP server ready\.\r\n| p/Avery-Dennison Monarch $1 print server ftpd/
+match ftp m|^220-TCP/IP for VSE Internal FTPDAEMN ([\d.]+ ?[A-Z]) (\d{8}) \d\d\.\d\d\r\n    Copyright \(c\) 1995,2006 Connectivity Systems Incorporated\r\n220 Ready for new user\r\n| p|IBM z/VSE ftpd| v/$1/ i/build date $2/ o|z/VSE|
+match ftp m|^220- \r\n {14}_/_/_/_/  \*\*\* eXo Platform JCR FTP Server {8}_/_/_/_/\r\n| p/eXo Platform JCR ftpd/
+match ftp m|^220  RT-IP FTP Server ready\. Type HELP for help\r\n| p/Computer Solutions RT-IP ftpd/
+match ftp m|^220 Welcome to ([\w.-]+)'s Everything ETP Server version ([\d.]+)\r\n| p|Everything ETP/FTP server| v/$2/ h/$1/
+match ftp m|^220 Welcome to HD Media Box !\r\n| p|O2Media/Ellion HMR-600 ftpd| d/media device/
+# SurgeFTP 2.3a3
+match ftp m|^550 There is no place for you to log in\. Create domain for IP [\d.]+\.\r\n| p/NetWin SurgeFTP ftpd/
+match ftp m|^220 SAVIN (\w+) FTP server \(([\d.]+)\) ready\.\r\n| p/Savin printer ftpd/ v/$2/ i/model $1/ d/printer/ cpe:/h:savin:$1/
+match ftp m|^220 ([\w.-]+) FTP server \(StarOS\) ready\.\r\n| p/Cisco StarOS ftpd/ o/StarOS/ h/$1/ cpe:/o:cisco:staros/
+match ftp m|^220-  FTP Server \(RTOS-UH\) ready\. \(c\)IEP  Version: ([\d.]+)\r\n220 Connection is automatically closed if idle for 10 Minutes\r\n| p/RTOS-UH ftpd/ v/$1/ o/RTOS-UH/
 
 #(insert ftp)
 
-# Looks too generic, but didn't match anything else yet
+# These look too generic, but didn't match anything else yet
 match ftp m|^220 FTP Server 2\.1 ready\r\n| p/Android ftpd/ v/2.1/
+match ftp m|^220 FTP Server ready\.\.\.\r\n| p/Gene6 ftpd/
+
 # not already sure about the next. maybe too generic? it exists already above a signature for openftpd. embyte
 match ftp m|^220 OpenFTPD server([^ ]+)?| p/OpenFTPD/ v/$1/
 
@@ -1118,6 +1153,8 @@ match ftp-proxy m|^220 ([\w._-]+), KEN! FTP-Gateway\r\n| p/AVM KEN! ftp proxy/ h
 match ftp-proxy m|^220 server ready - login please\r\n| p/Squid ftp proxy/ cpe:/a:squid-cache:squid/
 match ftp-proxy m|^421 Proxy is closed \(unknown user location\)\r\n$| p/Zscaler ftp proxy/
 match ftp-proxy m|^220 Cleo VLProxy/([\w._-]+) FTP server ready\.\r\n$| p/Cleo VLProxy ftp proxy/ v/$1/
+match ftp-proxy m|^220 McAfee Web Gateway ([\d.]+ build \d+)\r\n| p/McAfee Web Gateway ftp proxy/ v/$1/
+match ftp-proxy m|^220-Firewall ftp proxy\.  You must login to the proxy first\.\r\n220 Use   proxy-user:auth-method@destination\.\r\n| p/Secure Computing Sidewinder firewall ftp proxy/ d/firewall/
 
 match varnish-cli m|^200 206     \n-----------------------------\nVarnish Cache CLI ([\w._-]+)\n-----------------------------\nLinux,([\w._-]+),([^\n]*)\n\nType 'help' for command list\.\nType 'quit' to close CLI session\.\n\n| p/Varnish Cache CLI/ v/$1/ i/$3/ o/Linux $2/ cpe:/o:linux:linux_kernel:$2/
 
@@ -8351,6 +8388,8 @@ match http m|^HTTP/1\.1 303 See Other\r\nServer: \r\nContent-type: text/plain\r\
 match http m|^HTTP/1\.1 407 MAG Authentication Failed!\r\n| p/AirWatch Mobile Access Gateway/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Linux, STUNNEL/1\.0, (D[\w-]+) Ver ([\w._-]+)\r\n| p/D-Link router admin httpd/ i/model $1; firmware $2/ d/WAP/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WindRiver-WebServer/([\d.]+)\r\n| p/Wind River Web Server/ v/$1/ cpe:/a:windriver:web_server:$1/
+# version number is not really a version (this was 1.7.0.11)
+match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Easy-Web Server/1.0\r\nAuthor: Easy Ftp Server\r\nWWW-Authenticate: BASIC realm=\"Ftp User Login\"\r\n| p/EasyFTP Server httpd/
 
 #(insert http)
 
@@ -10137,6 +10176,8 @@ match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimp
 
 match ftp m|^220[ -].*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n|s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
 
+match ftp m|^220 .*\r\n214-\xd1\xeb\xe5\xe4\xf3\xfe\xf9\xe8\xe5 \xea\xee\xec\xe0\xed\xe4\xfb \xe1\xfb\xeb\xe8 \xf0\xe0\xf1\xef\xee\xe7\xed\xe0\xed\xfb \(\* => \xed\xe5 \xf0\xe5\xe0\xeb\xe8\xe7\xee\xe2\xe0\xed\xee\):\r\n| p/ProFTPD/ i/locale: ru_RU/
+
 # Solaris 8 ftpd
 match ftp m|^220 ([-.+\w]+) FTP server \(.*\) ready\.\r\n214-The following commands are recognized:\r\n   USER    EPRT    STRU    MAIL\*   ALLO    CWD     STAT\*   XRMD \r\n   PASS    LPRT    MODE    MSND\*   REST\*   XCWD    HELP    PWD \r\n   ACCT\*   EPSV    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n| p/Sun Solaris ftpd/ o/Solaris/ h/$1/ cpe:/o:sun:sunos/a
 # Phaser860 printer
@@ -10194,7 +10235,8 @@ match ftp m|^200 1500\r\nf\0\x18\0\0\0x\xda\x0b\xcd\xcb\xce\xcb/\xcfSH\xce\xcf\x
 match ftp m|^220 Welcome to connection\.\r\n214 FTP Server Help\.\r\n  HUMAX PVR FTP Server\. \r\n214 End\r\n| p/Humax iHDR-5050C DVR ftpd/ d/media device/
 match ftp m|^220 Service ready for new user\r\n214-The following commands are recognized\r\n   ABOR\r\n   ALLO\r\n   APPE\r\n   CDUP\r\n   CWD\r\n   DELE\r\n   LIST\r\n   MKD\r\n   MODE\r\n   NLST\r\n   NOOP\r\n   PASS\r\n   PORT\r\n   PWD\r\n   QUIT\r\n   RETR\r\n   RMD\r\n   RNFR\r\n   RNTO\r\n   SIZE\r\n   SMNT\r\n   STOR\r\n   STRU\r\n   SYST\r\n   TYPE\r\n   USER\r\n   XCUP\r\n   XCWD\r\n   XMKD\r\n   XPWD\r\n   XRMD\r\n214 HELP command successful\r\n| p/Lumetrix Imaging Photometer ftpd/
 match ftp m|^220 ([\w._-]+) FTP server ready\.\r\n214-\r\n    The following commands are recognized\.\r\n    \(`-' = not implemented, `\+' = supports options\)\r\n    USER    REIN-   TYPE    ALLO    MKD     HELP    MIC     MLST\+   MSND-\r\n    PASS    PORT    STRU    REST    PWD     NOOP\+   CONF    MLSD    MSOM-\r\n    ACCT-   LPRT    MODE    RNFR    LIST    AUTH    ENC     MAIL-   XCUP\r\n    CWD     EPRT    RETR    RNTO    NLST    ADAT    FEAT    MLFL-   XCWD\r\n    CDUP    PASV    STOR    ABOR    SITE    PROT    OPTS    MRCP-   XMKD\r\n    SMNT-   LPSV    STOU    DELE    SYST    PBSZ    MDTM    MRSQ-   XPWD\r\n    QUIT    EPSV    APPE    RMD     STAT    CCC     SIZE    MSAM-   XRMD\r\n214 Direct comments to ftp-bugs@| p/QNX ftpd/ v/$1/
-match ftp m|^220 ([\w._-]+) FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    LPRT    MODE    MSOM\*   RNTO    SITE    RMD     SIZE    PROT \r\n   PASS    EPRT    RETR    MSAM\*   ABOR    SYST    XRMD    MDTM \r\n   ACCT\*   PASV    STOR    MRSQ\*   DELE    STAT    PWD     MFMT \r\n   SMNT\*   LPSV    APPE    MRCP\*   CWD     HELP    XPWD    FEAT \r\n   REIN\*   EPSV    MLFL\*   ALLO    XCWD    NOOP    CDUP    OPTS \r\n   QUIT    TYPE    MAIL\*   REST    LIST    MKD     XCUP    AUTH \r\n   PORT    STRU    MSND\*   RNFR    NLST    XMKD    STOU    PBSZ \r\n214 Direct comments to ftp-bugs@| p/Synology DS210j NAS device ftpd/ d/storage-misc/ h/$1/
+# DS210j, DS207+
+match ftp m|^220 ([\w._-]+) FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    LPRT    MODE    MSOM\*   RNTO    SITE    RMD     SIZE    PROT \r\n   PASS    EPRT    RETR    MSAM\*   ABOR    SYST    XRMD    MDTM \r\n   ACCT\*   PASV    STOR    MRSQ\*   DELE    STAT    PWD     MFMT \r\n   SMNT\*   LPSV    APPE    MRCP\*   CWD     HELP    XPWD    FEAT \r\n   REIN\*   EPSV    MLFL\*   ALLO    XCWD    NOOP    CDUP    OPTS \r\n   QUIT    TYPE    MAIL\*   REST    LIST    MKD     XCUP    AUTH \r\n   PORT    STRU    MSND\*   RNFR    NLST    XMKD    STOU    PBSZ \r\n214 Direct comments to ftp-bugs@| p/Synology DS200-series NAS device ftpd/ d/storage-misc/ h/$1/
 match ftp m|^220 Hi there!\r\n214-This is gatling \(www\.fefe\.de/gatling/\); No help available\.\r\n214 See http://cr\.yp\.to/ftp\.html for FTP help\.\r\n| p/gatling ftpd/
 match ftp m|^220 Service ready for new user\r\n214-The following commands are implemented\.\r\nABOR  APPE  CDUP  CWD   DELE  HELP  LIST  MDTM\r\nMKD   MODE  NLST  NOOP  PASS  PASV  PORT  PWD\r\nQUIT  REST  RETR  RMD   RNFR  RNTO  SITE  SIZE\r\nSTAT  STOR  STOU  STRU  SYST  TYPE  USER\r\n214 End of help\r\n| p/Cisco Wireless Control System ftpd/
 match ftp m|^220 Operation successful\r\n214-Features:\r\n EPSV\r\n PASV\r\n REST STREAM\r\n MDTM\r\n SIZE\r\n214 Ok\r\n| p/BusyBox ftpd/ cpe:/a:busybox:ftpd/
@@ -10204,6 +10246,7 @@ match ftp m|^220 pyftpdlib ([\w._-]+) ready\.\r\n214-The following commands are 
 match ftp m|^220 Service ready\r\n500 Unsupported command\r\n| p/Motorola Canopy WAP ftpd/ d/WAP/
 match ftp m|^220 FTP server ready\r\n214-The following commands are recognized:\r\nHELP\tUSER\tPASS\tQUIT\tLIST\tNLST\nRETR\tSTOR\tCWD\tTYPE\tPORT\tPWD\nSTRU\tMODE\tALLO\tACCT\tPASV\tNOOP\nDELE\n214 End of command list\.\r\n| p/Nortel CES1010E router ftpd/ d/router/ cpe:/h:nortel:ces1010e/
 match ftp m|^220 FTP server ready\.\r\n214-The following commands are recognized:\r\nHELP\tUSER\tPASS\tQUIT\tLIST\tNLST\tCDUP\r\nRETR\tSTOR\tCWD\tTYPE\tPORT\tPWD\tXCUP\r\nSTRU\tMODE\tXCWD\tALLO\tACCT\tXPWD\tPASV\r\nNOOP\tSYST\r\n214 End of command list\.\r\n| p/Alcatel Litespan-2000 PBX ftpd/ d/PBX/ cpe:/h:alcatel:litespan-2000/
+match ftp m|^220 Opto 22 FTP server ready\.\r\n502 HELP command not implemented, or not allowed\.\r\n| p/Opto 22 ftpd/
 
 # Before version 2.0.8, vsftpd outputs the "Please login" lines in response to
 # blank lines, which is caught under GenericLines above." In 2.0.8 and after,
@@ -11210,7 +11253,9 @@ match irc-proxy m|^Login failed\. Disconnecting\.\r\n$| p/psyBNC/ i/Login Failed
 
 match upnp m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nServer: UPnP/([\w._-]+), DLNADOC/([\w._-]+), Platinum/([\w._-]+)\r\n\r\n| p/XBMC UPnP/ i/Platinum $3; DLNADOC $2; UPnP $1/ o/Linux/ cpe:/o:linux:linux_kernel/
 
+# TODO: enumerate version differences between these two?
 match webdav m|^HTTP/1\.1 200 OK\r\n.*Server: cPanel\r\nContent-Length: 0\r\nConnection: Keep-Alive\r\nAllow: UNLOCK,HEAD,MOVE,OPTIONS,LOCK,POST,PUT,COPY,MKCOL,GET,DELETE,PROPFIND\r\nContent-Type: httpd/unix-directory\r\nDAV: 1,2,<http://apache\.org/dav/propset/fs/1>\r\nKeep-Alive: timeout=15, max=96\r\nMS-Author-Via: DAV\r\n\r\n|s p/cPanel webdav/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match webdav m|^HTTP/1\.1 200 OK\r\n.*Server: cPanel\r\nPersistent-Auth: false\r\nCache-Control: no-cache\r\nConnection: Keep-Alive\r\nVary: Accept-Encoding\r\nAllow: UNLOCK, HEAD, PROPPATCH, MOVE, OPTIONS, LOCK, POST, PUT, COPY, MKCOL, GET, DELETE, PROPFIND\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nExpires: Fri, 01 Jan 1990 00:00:00 GMT\r\nDAV: 1, 2\r\nKeep-Alive: timeout=15, max=96\r\nMS-Author-Via: DAV\r\n\r\n|s p/cPanel webdav/ o/Linux/ cpe:/o:linux:linux_kernel/a
 
 match xmpp m|^<stream:error><bad-format xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Isode M-Link XMPP/ cpe:/a:isode:m-link/
 
