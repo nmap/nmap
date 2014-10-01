@@ -81,11 +81,12 @@ function escaped_quote (quot, esc)
   quot = quot or '"'
   esc = esc or '\\'
   return lpeg.P {
-    lpeg.Cs(lpeg.V "quot" * lpeg.Cs((lpeg.V "simple_char" + lpeg.V "unesc")^0) * lpeg.V "quot"),
+    lpeg.Cs(lpeg.V "quot" * lpeg.Cs((lpeg.V "simple_char" + lpeg.V "noesc" + lpeg.V "unesc")^0) * lpeg.V "quot"),
     quot = lpeg.P(quot)/"",
     esc = lpeg.P(esc),
     simple_char = (lpeg.P(1) - (lpeg.V "quot" + lpeg.V "esc")),
-    unesc = (lpeg.V "esc" * lpeg.C( lpeg.P(1) ))/"%1",
+    unesc = (lpeg.V "esc" * lpeg.C( lpeg.V "esc" + lpeg.P(quot) ))/"%1",
+    noesc = lpeg.V "esc" * lpeg.V "simple_char"
   }
 end
 
