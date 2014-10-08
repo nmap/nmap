@@ -46,10 +46,12 @@ categories = {"discovery", "safe", "external"}
 -- @param data string containing the retrieved web page
 -- @return table containing the resolved host names
 function parse_robtex_response(data)
-  local data = string.gsub(data,"\r?\n","")
+  local data = data:match("<span id=\"shared_ma\">.-<ol.->(.-)</ol>")
   local result = {}
-  for href, link in string.gmatch(data,"<li><a href=\"([^\"^']-)\" >([^\"^']-)</a></li>") do
-    table.insert(result, link)
+  if data then
+    for domain in data:gmatch("<li><code>(.-)</code></li>") do
+      table.insert(result, domain)
+    end
   end
   return result
 end
@@ -64,8 +66,8 @@ action = function(host, port)
     return stdnse.format_output(false, "The argument \"http-robtex-reverse-ip.host\" did not contain a valid IPv4 address")
   end
 
-  local link = "https://www.robtex.com/ip/"..target..".html"
-  local htmldata = http.get_url(link)
+  local link = "/ip/"..target..".html"
+  local htmldata = http.get("www.robtex.com", 443, link)
   local domains = parse_robtex_response(htmldata.body)
   if ( #domains > 0 ) then
     return stdnse.format_output(true, domains)

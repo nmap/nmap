@@ -48,12 +48,11 @@ function parse_robtex_response(data)
   end
 
   -- cut out the section we're interested in
-  data = data:match("<span id=\"sharednss\">.-<ul.->(.-)</ul>")
+  data = data:match("<span id=\"shared_pn_mn\">.-<ol.->(.-)</ol>")
 
   -- process each html list item
   if data then
-    for li in data:gmatch("<li>(.-)</li>") do
-      local domain = li:match("<a.->(.*)</a>")
+    for domain in data:gmatch("<li><code>(.-)</code></li>") do
       if ( domain ) then
         table.insert(result, domain)
       end
