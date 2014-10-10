@@ -990,7 +990,7 @@ match ftp m|^550 Permission denied\.\(Too many user login!!!\)\r\nPermission den
 match ftp m|^220-FTPSERVE IBM VM Level (\d)(\d+) at ([\w._-]+), [^\r\n]*\r\n220 Connection will close if idle for more than 5 minutes\.\r\n| p/IBM FTPSERVE/ o|z/VM $1.$2| h/$3/
 match ftp m|^220 MeritFTP ([\d.]+) at ([\d.]+) ready\.\r\n| p/Merit Megatouch game device ftpd/ v/$1/ d/specialized/ h/$2/
 match ftp m|^220 NET\+OS ([\d.]+) FTP server ready\.\r\n503 Bad sequence of commands\r\n| p/NET+OS ftpd/ i/NET+OS $1/ o/NET+OS/
-match ftp m|^220 Welcome to the NSLU2 vsftp daemon\.\r\n| p/vsftpd/ i/NSLU2 NAS device/ o/storage-misc/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^220 Welcome to the NSLU2 vsftp daemon\.\r\n| p/vsftpd/ i/NSLU2 NAS device/ d/storage-misc/ cpe:/a:vsftpd:vsftpd/
 match ftp m|^220-  Menuet FTP Server v([\d.]+)\r\n220 Username and Password required\r\n| p/Menuet FTP Server/ v/$1/ o/MenuetOS/
 match ftp m|^220 Xyratex (\w+) RAID FTP server ready\.\r\n| p/Xyratex $1 RAID NAS device ftpd/ d/storage-misc/
 match ftp m|^220 MLT-57066 Version ([\w.]+) ready\.\r\n| p/Minolta PagePro 20 printer ftpd/ v/$1/
@@ -2392,15 +2392,15 @@ match qsp-proxy m|^\x01\x01\0\x08\x1c\xee\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 
 # Windows QOTD service only has 12 quotes.  Found on Windows XP in
 # %systemroot%\system32\drivers\etc\quotes
-match qotd m=^"(?:My spelling is Wobbly\.|Man can climb to the highest summits,|In Heaven an angel is nobody in particular\.|Assassination is the extreme form of censorship\.|When a stupid man is doing|We have no more right to consume happiness without|We want a few mad people now.|The secret of being miserable is to have leisure to|Here's the rule for bargains:|Oh the nerves, the nerves; the mysteries of this machine called man|A wonderful fact to reflect upon,|It was as true as taxes is\.)= p/Windows qotd/ i/English/ o/Windows/ cpe:/o:microsoft:qotd::::en/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:Mi ortograf\xeda tiembla\. Es bueno revisarla,|un hombre puede escalar a las m\xe1s altas cumbre|Algo maravilloso a poner de manifiesto:|Cuando un necio hace algo de lo que se aveg\xfcenza,|En el cielo, un \xe1ngel no es nadie en concreto|Traigamos unos cuantos locos ahora\.|Era tan verdad como los impuestos\. Y no|Hay libros cortos que, para entenderlos como se merecen,|La prosperidad hace amistades, y la adversidad las|El uso principal de un PC es confirmar la ley de|Quedarse en lo conocido por miedo a lo desconocido,|Cuando las leyes son injustas, no obligan en el fuero|Magia equivale a cualquier avance en la ciencia\.|Vale mejor consumir vanidades de la vida,)= p/Windows qotd/ i/Spanish/ o/Windows/ cpe:/o:microsoft:qotd::::es/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:My spelling is Wobbly\.|Man can climb to the highest summits,|In Heaven an angel is nobody in particular\.|Assassination is the extreme form of censorship\.|When a stupid man is doing|We have no more right to consume happiness without|We want a few mad people now.|The secret of being miserable is to have leisure to|Here's the rule for bargains:|Oh the nerves, the nerves; the mysteries of this machine called man|A wonderful fact to reflect upon,|It was as true as taxes is\.)= p/Windows qotd/ i/English/ o/Windows/ cpe:/a:microsoft:qotd::::en/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:Mi ortograf\xeda tiembla\. Es bueno revisarla,|un hombre puede escalar a las m\xe1s altas cumbre|Algo maravilloso a poner de manifiesto:|Cuando un necio hace algo de lo que se aveg\xfcenza,|En el cielo, un \xe1ngel no es nadie en concreto|Traigamos unos cuantos locos ahora\.|Era tan verdad como los impuestos\. Y no|Hay libros cortos que, para entenderlos como se merecen,|La prosperidad hace amistades, y la adversidad las|El uso principal de un PC es confirmar la ley de|Quedarse en lo conocido por miedo a lo desconocido,|Cuando las leyes son injustas, no obligan en el fuero|Magia equivale a cualquier avance en la ciencia\.|Vale mejor consumir vanidades de la vida,)= p/Windows qotd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:qotd::::es/ cpe:/o:microsoft:windows/a
 # Some Italian qotds start with a space instead of a "
-match qotd m=^.(?:Voce dal sen fuggita|Semel in anno licet insanire|Cosa bella e mortal passa e non dura|Quando uno stupido compie qualcosa di cui si vergogna,|Se tu pagare come dici tu,|Fatti non foste a viver come bruti,|Sperare senza far niente e` come)= p/Windows qotd/ i/Italian/ o/Windows/ cpe:/o:microsoft:qotd::::it/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:Prazos longos sao f\xa0ceis de subscrever\.|Deus, para a felicidade do homem, inventou a f\x82 e o amor\.|Ao vencido, \xa2dio ou compaixao, ao vencedor, as batatas\.|Quem nao sabe que ao p\x82 de cada bandeira p\xa3blica,|Nao te irrites se te pagarem mal um benef\xa1cio; antes cair|A vida, como a antiga Tebas, tem cem portas\.)= p/Windows qotd/ i/Portuguese/ o/Windows/ cpe:/o:microsoft:qotd::::pt/ cpe:/o:microsoft:windows/a
+match qotd m=^.(?:Voce dal sen fuggita|Semel in anno licet insanire|Cosa bella e mortal passa e non dura|Quando uno stupido compie qualcosa di cui si vergogna,|Se tu pagare come dici tu,|Fatti non foste a viver come bruti,|Sperare senza far niente e` come)= p/Windows qotd/ i/Italian/ o/Windows/ cpe:/a:microsoft:qotd::::it/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:Prazos longos sao f\xa0ceis de subscrever\.|Deus, para a felicidade do homem, inventou a f\x82 e o amor\.|Ao vencido, \xa2dio ou compaixao, ao vencedor, as batatas\.|Quem nao sabe que ao p\x82 de cada bandeira p\xa3blica,|Nao te irrites se te pagarem mal um benef\xa1cio; antes cair|A vida, como a antiga Tebas, tem cem portas\.)= p/Windows qotd/ i/Portuguese/ o/Windows/ cpe:/a:microsoft:qotd::::pt/ cpe:/o:microsoft:windows/a
 # The German version doesn't start with "
-match qotd m=^(?:Wer wirklich Autorit\xe4t hat, wird sich nicht scheuen,|Moral ist immer die Zuflucht der Leute,|Beharrlichkeit wird zuweilen mit Eigensinn|Wer den Tag mit Lachen beginnt, hat ihn|Wenn uns keine Ausweg mehr bleibt,|Gesichter sind die Leseb\xfccher des Lebens|Grosse Ereignisse werfen mitunter ihre Schatten|Dichtung ist verpflichtet, sich nach den|Ohne Freihet geht das Leben|Liebe ist wie ein Verkehrsunfall\. Man wird angefahren)= p/Windows qotd/ i/German/ o/Windows/ cpe:/o:microsoft:qotd::::de/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:Clovek ma tri cesty, jak moudre jednat\. Nejprve premyslenim|Co je vubec hodno toho, aby to bylo vykonano,|Fantazie je dulezitejsi nez vedeni\.|Potize narustaji, cim vice se clovek blizi|Kdo nezna pristav, do ktereho se chce plavit,|Lidske mysleni ztraci smysl,|Nikdo nevi, co muze vykonat,|Nic neprekvapi lidi vice nez zdravy rozum|Zadny cil neni tak vysoky,)= p/Windows qotd/ i/Czech/ o/Windows/ cpe:/o:microsoft:qotd::::cs/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:L'art de persuader consiste autant|Le peu que je sais, c'est \x85 mon ignorance|Certaines \x83mes vont \x85 l'absolu comme l'eau|Le m\x82rite a sa pudeur comme la chastet|Rien de plus futile, de plus faux, de plus|\xb7 vaincre sans p\x82ril, on triomphe|Le comble de l'orgueil, c'est de se)= p/Windows qotd/ i/French/ o/Windows/ cpe:/o:microsoft:qotd::::fr/ cpe:/o:microsoft:windows/a
+match qotd m=^(?:Wer wirklich Autorit\xe4t hat, wird sich nicht scheuen,|Moral ist immer die Zuflucht der Leute,|Beharrlichkeit wird zuweilen mit Eigensinn|Wer den Tag mit Lachen beginnt, hat ihn|Wenn uns keine Ausweg mehr bleibt,|Gesichter sind die Leseb\xfccher des Lebens|Grosse Ereignisse werfen mitunter ihre Schatten|Dichtung ist verpflichtet, sich nach den|Ohne Freihet geht das Leben|Liebe ist wie ein Verkehrsunfall\. Man wird angefahren)= p/Windows qotd/ i/German/ o/Windows/ cpe:/a:microsoft:qotd::::de/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:Clovek ma tri cesty, jak moudre jednat\. Nejprve premyslenim|Co je vubec hodno toho, aby to bylo vykonano,|Fantazie je dulezitejsi nez vedeni\.|Potize narustaji, cim vice se clovek blizi|Kdo nezna pristav, do ktereho se chce plavit,|Lidske mysleni ztraci smysl,|Nikdo nevi, co muze vykonat,|Nic neprekvapi lidi vice nez zdravy rozum|Zadny cil neni tak vysoky,)= p/Windows qotd/ i/Czech/ o/Windows/ cpe:/a:microsoft:qotd::::cs/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:L'art de persuader consiste autant|Le peu que je sais, c'est \x85 mon ignorance|Certaines \x83mes vont \x85 l'absolu comme l'eau|Le m\x82rite a sa pudeur comme la chastet|Rien de plus futile, de plus faux, de plus|\xb7 vaincre sans p\x82ril, on triomphe|Le comble de l'orgueil, c'est de se)= p/Windows qotd/ i/French/ o/Windows/ cpe:/a:microsoft:qotd::::fr/ cpe:/o:microsoft:windows/a
 
 match quagga m|^\r\nHello, this is [Qq]uagga \(version (\d[-.\w]+)\)\.\r\nCopyright 1996-200| p/Quagga routing software/ v/$1/ i/Derivative of GNU Zebra/
 
@@ -2863,6 +2863,15 @@ match smtp m|^554 ([\w._-]+)\r\n$| p/Cisco IronPort C160 firewall smtpd/ o/Async
 match smtp m|^220 HOST: ([\w._-]+) Supportworks ESMTP Server ([\w._-]+) ready\r\n| p/Hornbill Supportworks smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([\w._-]+) IP Office Voicemail Pro \[Hardware mode 00\] - Version ([\w._-]+ \([\w._-]+\)) SMTP MAIL Service ready .* ([+-]\d\d\d\d)\r\n| p/Avaya IP Office Voicemail Pro smtpd/ v/$2/ i/time zone: $3/ d/PBX/ h/$1/
 match smtp m|^220 ([\w._-]+) ESMTP \w+\.\d+ - gsmtp\r\n| p/Google gsmtp/ h/$1/
+match smtp m|^220 ([\w._-]+) mfiltro ESMTP server ready\r\n| p/Netasq Mfiltro spam detection smtpd/ h/$1/
+match smtp m|^220 ([\w._-]+) smtp4dev ready\r\n| p/smtp4dev/ h/$1/
+match smtp m|^200 MacGyver SMTP Ready\.\r\n| p/Perl Net::SMTP::Server/ v/1.0/
+match smtp m|^220 MacGyver SMTP Ready\.\r\n| p/Perl Net::SMTP::Server/ v/1.1/ i/or later/
+match smtp m|^220 ([\w._-]+) SMTP server ready \(MgSMTP ([\w._-]+)\)\r\n| p/MgSMTP/ v/$2/ o/Windows/ h/$1/
+match smtp m|^220 ([\w._-]+) SMTP IceWarp ([\w._-]+);| p/IceWarp smtpd/ v/$2/ h/$1/
+match smtp m|^554-([\w._-]+) \(\w+\) Nemesis ESMTP Service not available\r\n| p/Nemesis smtpd/ i/blacklisted/ h/$1/
+match smtp m|^421 4\.3\.2 Server license expired\r\n| p/Kerio Connect or MailServer smtpd/ i/license expired/
+match smtp m|^220 totemomail SMTP Server ready [\w, :]+ ([+-]\d\d\d\d) \([A-Z]*\)\r\n| p/totemomail Encryption Gateway smtpd/ i/time zone: $1/
 
 #(insert smtp)
 
@@ -2919,6 +2928,9 @@ match smtp-proxy m|^220 Net at Work Mail Gateway ready\r\n| p/Net at Work Mail G
 match smtp-proxy m|^220 ([\w._-]+) ([\w._-]+)/SMTP Ready\.\r\n| p/McAfee $2 smtp proxy/ h/$1/
 match smtp-proxy m|^220 ([\w._-]+) Python SMTP proxy version ([\w._-]+)\r\n| p/Python SMTP Proxy/ v/$2/ h/$1/
 match smtp-proxy m|^421 <ASSP\.nospam> service temporarily unavailable, closing transmission\r\n| p/ASSP Anti-Spam Proxy smtp proxy/
+match smtp-proxy m|^554 No SMTPd here\r\n| p/SonicWALL Email Security smtp proxy/ i/blacklisted/
+match smtp-proxy m|^554 5\.7\.1 You are not allowed to connect\.\r\n| p/Symantec Messaging Gateway/ i/blacklisted/
+match smtp-proxy m|^220 ([\w._-]+) GWAVA Proxy Copyright \(c\) \d\d\d\d GWAVA, Inc\. All rights reserved\. Ready\r\n| p/GWAVA Proxy smtpd/ h/$1/
 
 match fw1-topology m|^[QY]\0\0\0$| p/Checkpoint FireWall-1 Topology/ d/firewall/
 match fw1-pslogon m|^\0\0\0\x02\0\0\0\x02$| p/Checkpoint FireWall-1 Policy Server logon/ d/firewall/
@@ -2927,7 +2939,7 @@ match fw1-pslogon m|^\0\0\0\x02\0\0\0\x02$| p/Checkpoint FireWall-1 Policy Serve
 softmatch smtp m|^220[\s-].*?E?SMTP[^\r]*\r\n|
 softmatch smtp m|^572 Relay not authorized\r\n| i/Relay not authorized/
 # This is likely Cisco specific, but making it generic just in case - Tom S.
-softmatch smtp m|^550 (\d.\d.\d) ([^\r\n]+)| p/Unrecognized SMTP service/ i/$1 $2/
+softmatch smtp m|^550 (\d\.\d\.\d) ([^\r\n]{1,248})| p/Unrecognized SMTP service/ i/$1 $2/
 
 match smtp-stats m|^Statistics from .*\n M   msgsfr  bytes_from   msgsto    bytes_to  msgsrej msgsdis  Mailer\n| p/Multi Router Traffic Grapher smtp statistics/
 
@@ -4915,7 +4927,7 @@ match pathfinder-xml m|^<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?> <FatalErro
 # maui, http://supercluster.org/maui
 match pbs-maui m|^\+2\+15\+15056\+\d+\+\d+| p|PBS/Maui Roll| i/Rocks Cluster/ d/specialized/
 
-match pmcd m|^\0\0\0\x14\0\0\x70\0\0\0\x03\x48\xff\xff\xfc\x11\x02\0..$|s p/SGI performance metrics collector daemon/ o/Irix/ cpe:/o:sgi:irix:6.5/
+match pmcd m|^\0\0\0\x14\0\0\x70\0\0\0\x03\x48\xff\xff\xfc\x11\x02\0..$|s p/SGI performance metrics collector daemon/ o/IRIX/ cpe:/o:sgi:irix:6.5/
 
 match peercast m|^OK2\r\nicy-caps:\d+\r\n\r\nOK\r\n$| p/Peercast/
 
@@ -5050,6 +5062,7 @@ match uucp m|^login: login: login: $| p/NetBSD uucpd/ o/NetBSD/ cpe:/o:netbsd:ne
 match uucp m|^login: uucpd: \d+-\d+ The user is not known\.\n| p/AIX uucpd/ o/AIX/ cpe:/o:ibm:aix/a
 
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Unspecified, UPnP/1\.0, Unspecified\r\nCONTENT-LENGTH: 50\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>400 Bad Request</h1></body></html>| p/Belkin WeMo upnpd/ d/power-device/
+match upnp m|^ 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Net-OS (\d+)\.xx UPnP/([\d.]+)\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n| p/Digi NET+OS UPnPd/ i/UPnP $2/ o/NET+OS $1/
 
 match ups m|^32\r $| p/Cyber Power PowerPanelPlus UPS Server/ o/Windows/ cpe:/o:microsoft:windows/a
 
@@ -5131,6 +5144,7 @@ match telnet m|^\xff\xfb\x01Username: \n\rPassword: \n\rUsername: | p/3Com 8760 
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\nLANIER Maintenance Shell\.   \n\rUser access verification\.\n\rlogin:| p/Ricoh Aficio printer telnetd/ d/printer/
 match telnet m|^\xff\xfb\x01\r\nUser Name : \r\nUser Name : \r\nUser Name : | p/APC AP9630 network management telnetd/ d/power-device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nWelcome to VIP-X ([\w._-]+) from [\w._-]+\r\nTLS invalid record length\r\n\r\n\r\n\r\ninvalid username\r\n\r\nTLS version 0300 not supported\r\nenter username  -> | p/Bosch VIP X1 video encoder telnetd/ d/webcam/ h/$1/
+match telnet m|^\r\nUser ID:Password:\r\nUser ID:| p/NEC SL-series debug terminal/ d/VoIP phone/
 
 match transbase m|^\0\0\+\x04\0\0\0@TransBase Multiplexer error report:\nIllegal request| p/Transbase Database/
 
@@ -5147,6 +5161,8 @@ match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWRT/Attitude_Adjustm
 match upnp m|^ 501 Not Implemented\r\n.*Server: FedoraCore/(\d+) UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/Fedora Core $1; UPnP $2/
 match upnp m|^ 501 Not Implemented\r\n.*Server: Netgear/[\w._-]+ UPnP/([\w._-]+) miniupnpd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/Netgear DG834G or WNDR3300 WAP; UPnP $1/ d/WAP/ cpe:/h:netgear:dg834g/ cpe:/h:netgear:wndr3300/
 match upnp m|^ 501 Not Implemented\r\n.*Server: Arris/[\w._-]+ UPnP/([\w._-]+) miniupnpd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/Arris TG862G WAP; UPnP $1/ d/WAP/
+match upnp m|^ 501 Not Implemented\r\n.*Server: neufbox/neufbox UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n\r\n|s p/MiniUPnP/ v/$2/ i/Neufbox; UPnP $1/ d/broadband router/
+match upnp m|^ 501 Not Implemented\r\n.*Server: ASUSTeK UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n\r\n|s p/MiniUPnP/ v/$2/ i/Asus; UPnP $1/ d/broadband router/
 
 # MiniDLNA
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n| p/MiniDLNA/
@@ -7522,8 +7538,8 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: sw-cp-server/([\d.]+)\r\n.*<script l
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: sw-cp-server\r\n.*<script language=\"javascript\" type=\"text/javascript\" src=\"/javascript/common\.js\?plesk_version=([\w._-]+)\"/>|s p/sw-cp-server httpd/ i/Parallels Plesk WebAdmin version $1/
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nConnection: close\r\nX-UA-Compatible: IE=EmulateIE7\r\n.*P3P: CP=\"NON COR CURa ADMa OUR NOR UNI COM NAV STA\"\r\n.*Server: sw-cp-server\r\n|s p/sw-cp-server httpd/ i/Parallels Plesk WebAdmin/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Web Server\r\n X-UA-Compatible: IE=EmulateIE7\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n.*<title>Switch</title>|s p/Cisco SG200 switch http admin/ d/switch/ cpe:/h:cisco:sg200/
-match http m|^HTTP/1\.0 200 OK\r\n.*<title>Web-Thermograph</title>\r\n|s p/W&T Web-Thermograph http config/ i|firmware 1.50/1.30| o/specialized/
-match http m|^HTTP/1\.0 200 OK\r\n.*<title>Web-Thermograph NTC, 10/100BT, 12-24V</title>\r\n|s p/W&T Web-Thermograph NTC http config/ i/firmware 1.53/ o/specialized/
+match http m|^HTTP/1\.0 200 OK\r\n.*<title>Web-Thermograph</title>\r\n|s p/W&T Web-Thermograph http config/ i|firmware 1.50/1.30| d/specialized/
+match http m|^HTTP/1\.0 200 OK\r\n.*<title>Web-Thermograph NTC, 10/100BT, 12-24V</title>\r\n|s p/W&T Web-Thermograph NTC http config/ i/firmware 1.53/ d/specialized/
 match http m|^HTTP/1\.1 200 OK\r\nStatus:200 OK\r\n.*Server: RMC Webserver ([\d.]+)\r\n.*<TITLE>VTM</TITLE>|s p/RMC Webserver/ v/$1/ i/Stratus ftServer VTM/ d/remote management/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"ActiontecBHR\"| p/Actiontec TR069 remote access/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: RemoteSupportManager/([\d.]+)\r\n.*<title>Remote Support Manager</title>|s p/RemoteSupportManager/ v/$1/ i/n-able remote management/
@@ -7682,7 +7698,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Norman Security/([\d.]+)\r\n
 match http m|^HTTP/1\.1 200 OK\r\n.*<!-- \$Header: index\.html 115\.2 2003/03/18 21:32:39 hfux ship \$ -->.*<TITLE>Oracle Applications Rapid Install</TITLE>|s p/Oracle Rapid Install httpd/
 match http m|^HTTP/1\.1 200 OK\r\n.*<script language=\"JavaScript\" src=\"\./en/welcomeRes\.js\"> type=\"text/javascript\">.*<meta name=\"description\" content=\"VMware Converter\">|s p/VMware vCenter Converter httpd/ v/4/
 match http m|^HTTP/1\.1 200 OK\r\n.*<meta name=\"description\" content=\"VMware vCenter Converter Standalone\">|s p/VMware vCenter Converter httpd/ v/4.3/
-match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 273\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Root Index</TITLE></HEAD><BODY><UL><LI><A HREF=\"/ccm-notify\">/ccm-notify</A></LI>\r\n<LI><A HREF=\"/ccm-proxy\">/ccm-proxy</A></LI>\r\n<LI><A HREF=\"/ccm-update\">/ccm-update</A></LI>\r\n<LI><A HREF=\"/config_public/\">/config_public/</A></LI>\r\n</UL></BODY></HTML>\r\n$| p/RSA SecurID 2.0 RADIUS http config/ o/security-misc/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 273\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Root Index</TITLE></HEAD><BODY><UL><LI><A HREF=\"/ccm-notify\">/ccm-notify</A></LI>\r\n<LI><A HREF=\"/ccm-proxy\">/ccm-proxy</A></LI>\r\n<LI><A HREF=\"/ccm-update\">/ccm-update</A></LI>\r\n<LI><A HREF=\"/config_public/\">/config_public/</A></LI>\r\n</UL></BODY></HTML>\r\n$| p/RSA SecurID 2.0 RADIUS http config/ d/security-misc/
 match http m|^HTTP/1\.1 400 Bad Request\r\n.*Server: LapLink ([\d.]+)\r\n|s p/Laplink file transfer httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\n\n<HTML>\n<HEAD>\n<TITLE>[\w._-]+ - Hallo!</TITLE>| p/Xrelayd SSL engine httpd/ i/OpenWrt/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 200 OK\r\nServer: jToolkitHTTP/([\w._-]+) Python/([\d.]+)\r\n| p/jToolkit web framework httpd/ v/$1/ i/Python $2/
@@ -7969,8 +7985,8 @@ match http m|^HTTP/1\.0 404 Not Found\r\nContent-Length: 69\r\nContent-Type: tex
 match http m|^HTTP/1\.1 400 Bad request\n.*<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html><head>\n<title>400 Header 'Host' is missing\.</title>|s p/Kerio MailServer http config/
 match http m|^HTTP/1\.1 200 OK\r\n.*<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\n<html>\n<script language=\"JavaScript\" type=\"text/javascript\">\n  if \(top\.location != self\.location\).*<title>Authentication Required</title>|s p/D-Link DFL-800 or DFL-860 firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: TSEWS\r\n.*<title>TechniSat WebTools</title>.*<meta name='copyright'           content='TechniSat Digital\(r\) 2006-2009\(c\)'>|s p/TechniSat Digicorder HD S2 satellite receiver http interface/ d/media device/
-match http m|^HTTP/1\.1 505 HTTP Version not supported\r\n.*Server: Good\.iWare WebDAV Server for iPhone\r\n.*If you have any questions, please contact <a href=\"mailto:support@goodreader\.net\">support@goodreader\.net</a>|s p/Good.iWare WebDAV Server/ i/GoodReader PDF reader; iPhone/ d/phone/ o/iOS/ cpe:/h:apple:iphone/ cpe:/h:apple:iphone_os/
-match http m|^HTTP/1\.1 505 HTTP Version not supported\r\n.*Server: GoodReader for iPad\r\n.*If you have any questions, please contact <a href=\"mailto:support@goodreader\.net\">support@goodreader\.net</a>|s p/Good.iWare WebDAV Server/ i/GoodReader PDF reader; iPad/ d/media device/ o/iOS/ cpe:/h:apple:ipad/ cpe:/h:apple:iphone_os/
+match http m|^HTTP/1\.1 505 HTTP Version not supported\r\n.*Server: Good\.iWare WebDAV Server for iPhone\r\n.*If you have any questions, please contact <a href=\"mailto:support@goodreader\.net\">support@goodreader\.net</a>|s p/Good.iWare WebDAV Server/ i/GoodReader PDF reader; iPhone/ d/phone/ o/iOS/ cpe:/h:apple:iphone/ cpe:/o:apple:iphone_os/
+match http m|^HTTP/1\.1 505 HTTP Version not supported\r\n.*Server: GoodReader for iPad\r\n.*If you have any questions, please contact <a href=\"mailto:support@goodreader\.net\">support@goodreader\.net</a>|s p/Good.iWare WebDAV Server/ i/GoodReader PDF reader; iPad/ d/media device/ o/iOS/ cpe:/h:apple:ipad/ cpe:/o:apple:iphone_os/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Polycom-GAB\r\nContent-type: text/html\r\nPragma: no-cache\r\n\r\n$| p/Polycom CMA Global Address Book (GAB) httpd/
 match http m|^HTTP/1\.0 200 \r\n.*Server: AURA\r\n.*<TITLE>ServerView RAID Manager</TITLE>|s p/Fujitsu Siemens ServerView RAID Manager http interface/
 match http m|^HTTP/1\.0 200 \r\n.*Server: AURA\r\n.*<title>ServerView RAID Manager</title>|s p/Fujitsu Siemens ServerView RAID Manager http interface/
@@ -8597,6 +8613,9 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: HP_Compact_Server\r\nContent-Length: \
 match http m|^HTTP/1\.1 302 Found\r\nSet-Cookie: session=; path=/; expires=Thu, 01-Jan-1970 00:00:01 GMT; max-age=0; HttpOnly\r\nLocation: /login\.html\r\n\r\nHTTP/1\.1 200 OK\r\nCache-Control: max-age=0, no-cache, no-store\r\nPragma: no-cache\r\nServer: ntopng ([\d.]+) \((r\d*)\)\r\n| p/ntopng http interface/ v/$1/ i/SVN $2; auth bypass/
 match http m|^HTTP/1\.1 302 Found\r\nSet-Cookie: session=; path=/; expires=Thu, 01-Jan-1970 00:00:01 GMT; max-age=0; HttpOnly\r\nLocation: /login\.html\r\n\r\n$| p/ntopng http interface/ v/1.2 or later/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\nServer: owhttpd\r\nLast-Modified: .*\r\nContent-Type: text/html\r\n\r\n| p/OWFS httpd/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\nWWW-Authenticate: Digest realm=\"([^"]+)\", domain=\"/\", nonce=\"[\da-f]+\", algorithm=\"MD5\", qop=\"auth\"\r\nWWW-Authenticate: Basic realm=\"\1\"\r\nContent-Type: text/html\r\n.*<HTML>\r\n<HEAD>\r\n<TITLE>Error 401</TITLE>|s p/Tandberg videoconference httpd/ i/"$1"/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=.*<!--- Page\(page_login\)=\[Login\] --->.*<TITLE>(MP\d\w+)</TITLE>|s p/Audiocodes $1 gateway http config/ d/VoIP adapter/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\n\r\n<!doctype html>\n<html>\n  <head>\n    <title>rabbit\.js and Socket\.IO publish/subscribe example</title>| p/Node.js/ i/rabbit.js messaging example page/
 
 #(insert http)
 
@@ -8685,6 +8704,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nserver: node-static/([\w._-]+)\r\n| p/node-
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: corehttp-([\w._-]+)\r\n| p/CoreHTTP httpd/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ECS \(([a-z]{3}/[A-F\d]{4})\)\r\n|s p/Edgecast CDN httpd/ i/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedthis-http\r\n|s p/Embedthis HTTP lib httpd/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs/([\w._-]+)\r\n| p/GoAhead-Webs/ v/$1/
 
 # No more HTTP softmatch because many services that I don't think are
 # best classified 'http' use http-like semantics (for example UPnP,
@@ -9192,6 +9212,7 @@ match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <si
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM FRITZ!Box Fon ([^\r\n]+)\r\n|s p/AVM FRITZ!Box/ v/$1/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM FRITZ!Box WLAN ([\d.]+) ([^\r\n]+)\r\n| p/AVM FRITZ!Box WLAN $1/ v/$2/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM FRITZ!Fon ([\w_-]+) ([^\r\n]+)\r\n| p/AVM FRITZ!Fon $1/ v/$2/ d/VoIP adapter/
+match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: FRITZ!OS\r\nContent-Length: 0\r\n\r\n| p/AVM FRITZ!OS SIP/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM Speedport (W \w+) ([^\r\n]+)\r\n| p/Speedport $1/ v/$2/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM Sinus (W \w+) ([^\r\n]+)\r\n| p/AVM Sinus $1/ v/$2/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: Speedport (W \w+) ([^\r\n]+)\r\n| p/T-Com Speedport $1/ v/$2/ d/VoIP adapter/
@@ -9931,15 +9952,15 @@ match ppp m|^\x7e\xff\x7d\x23\xc0!}!#} }8}\"}&} } } } }#}\$\xc2'}%}&Q\x93\xee,}'
 
 # Windows qotd service. Same as the TCP version. It's only in this
 # Probe because this is the first UDP Probe that nmap tries.
-match qotd m=^"(?:My spelling is Wobbly\.|Man can climb to the highest summits,|In Heaven an angel is nobody in particular\.|Assassination is the extreme form of censorship\.|When a stupid man is doing|We have no more right to consume happiness without|We want a few mad people now.|The secret of being miserable is to have leisure to|Here's the rule for bargains:|Oh the nerves, the nerves; the mysteries of this machine called man|A wonderful fact to reflect upon,|It was as true as taxes is\.)= p/Windows qotd/ i/English/ o/Windows/ cpe:/o:microsoft:qotd::::en/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:Mi ortograf\xeda tiembla\. Es bueno revisarla,|un hombre puede escalar a las m\xe1s altas cumbre|Algo maravilloso a poner de manifiesto:|Cuando un necio hace algo de lo que se aveg\xfcenza,|En el cielo, un \xe1ngel no es nadie en concreto|Traigamos unos cuantos locos ahora\.|Era tan verdad como los impuestos\. Y no|Hay libros cortos que, para entenderlos como se merecen,|Quedarse en lo conocido por miedo a lo desconocido,|La prosperidad hace amistades, y la adversidad las|El uso principal de un PC es confirmar la ley de|Quedarse en lo conocido por miedo a lo desconocido,|Cuando las leyes son injustas, no obligan en el fuero|Magia equivale a cualquier avance en la ciencia\.|Vale mejor consumir vanidades de la vida,)= p/Windows qotd/ i/Spanish/ o/Windows/ cpe:/o:microsoft:qotd::::es/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:My spelling is Wobbly\.|Man can climb to the highest summits,|In Heaven an angel is nobody in particular\.|Assassination is the extreme form of censorship\.|When a stupid man is doing|We have no more right to consume happiness without|We want a few mad people now.|The secret of being miserable is to have leisure to|Here's the rule for bargains:|Oh the nerves, the nerves; the mysteries of this machine called man|A wonderful fact to reflect upon,|It was as true as taxes is\.)= p/Windows qotd/ i/English/ o/Windows/ cpe:/a:microsoft:qotd::::en/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:Mi ortograf\xeda tiembla\. Es bueno revisarla,|un hombre puede escalar a las m\xe1s altas cumbre|Algo maravilloso a poner de manifiesto:|Cuando un necio hace algo de lo que se aveg\xfcenza,|En el cielo, un \xe1ngel no es nadie en concreto|Traigamos unos cuantos locos ahora\.|Era tan verdad como los impuestos\. Y no|Hay libros cortos que, para entenderlos como se merecen,|Quedarse en lo conocido por miedo a lo desconocido,|La prosperidad hace amistades, y la adversidad las|El uso principal de un PC es confirmar la ley de|Quedarse en lo conocido por miedo a lo desconocido,|Cuando las leyes son injustas, no obligan en el fuero|Magia equivale a cualquier avance en la ciencia\.|Vale mejor consumir vanidades de la vida,)= p/Windows qotd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:qotd::::es/ cpe:/o:microsoft:windows/a
 # Some Italian qotds start with a space instead of a "
-match qotd m=^.(?:Voce dal sen fuggita|Semel in anno licet insanire|Cosa bella e mortal passa e non dura|Quando uno stupido compie qualcosa di cui si vergogna,|Se tu pagare come dici tu,|Fatti non foste a viver come bruti,|Sperare senza far niente e` come)= p/Windows qotd/ i/Italian/ o/Windows/ cpe:/o:microsoft:qotd::::it/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:Prazos longos sao f\xa0ceis de subscrever\.|Deus, para a felicidade do homem, inventou a f\x82 e o amor\.|Ao vencido, \xa2dio ou compaixao, ao vencedor, as batatas\.|Quem nao sabe que ao p\x82 de cada bandeira p\xa3blica,|Nao te irrites se te pagarem mal um benef\xa1cio; antes cair|A vida, como a antiga Tebas, tem cem portas\.)= p/Windows qotd/ i/Portuguese/ cpe:/o:microsoft:qotd::::pt/
+match qotd m=^.(?:Voce dal sen fuggita|Semel in anno licet insanire|Cosa bella e mortal passa e non dura|Quando uno stupido compie qualcosa di cui si vergogna,|Se tu pagare come dici tu,|Fatti non foste a viver come bruti,|Sperare senza far niente e` come)= p/Windows qotd/ i/Italian/ o/Windows/ cpe:/a:microsoft:qotd::::it/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:Prazos longos sao f\xa0ceis de subscrever\.|Deus, para a felicidade do homem, inventou a f\x82 e o amor\.|Ao vencido, \xa2dio ou compaixao, ao vencedor, as batatas\.|Quem nao sabe que ao p\x82 de cada bandeira p\xa3blica,|Nao te irrites se te pagarem mal um benef\xa1cio; antes cair|A vida, como a antiga Tebas, tem cem portas\.)= p/Windows qotd/ i/Portuguese/ cpe:/a:microsoft:qotd::::pt/
 # The German version doesn't start with "
-match qotd m=^(?:Wer wirklich Autorit\xe4t hat, wird sich nicht scheuen,|Moral ist immer die Zuflucht der Leute,|Beharrlichkeit wird zuweilen mit Eigensinn|Wer den Tag mit Lachen beginnt, hat ihn|Wenn uns keine Ausweg mehr bleibt,|Gesichter sind die Leseb\xfccher des Lebens|Grosse Ereignisse werfen mitunter ihre Schatten|Dichtung ist verpflichtet, sich nach den|Ohne Freihet geht das Leben|Liebe ist wie ein Verkehrsunfall\. Man wird angefahren)= p/Windows qotd/ i/German/ cpe:/o:microsoft:qotd::::de/
-match qotd m=^"(?:Clovek ma tri cesty, jak moudre jednat\. Nejprve premyslenim|Co je vubec hodno toho, aby to bylo vykonano,|Fantazie je dulezitejsi nez vedeni\.|Potize narustaji, cim vice se clovek blizi|Kdo nezna pristav, do ktereho se chce plavit,|Lidske mysleni ztraci smysl,|Nikdo nevi, co muze vykonat,|Nic neprekvapi lidi vice nez zdravy rozum|Zadny cil neni tak vysoky,)= p/Windows qotd/ i/Czech/ o/Windows/ cpe:/o:microsoft:qotd::::cs/ cpe:/o:microsoft:windows/a
-match qotd m=^"(?:L'art de persuader consiste autant|Le peu que je sais, c'est \x85 mon ignorance|Certaines \x83mes vont \x85 l'absolu comme l'eau|Le m\x82rite a sa pudeur comme la chastet|Rien de plus futile, de plus faux, de plus|\xb7 vaincre sans p\x82ril, on triomphe|Le comble de l'orgueil, c'est de se)= p/Windows qotd/ i/French/ o/Windows/ cpe:/o:microsoft:qotd::::fr/ cpe:/o:microsoft:windows/a
+match qotd m=^(?:Wer wirklich Autorit\xe4t hat, wird sich nicht scheuen,|Moral ist immer die Zuflucht der Leute,|Beharrlichkeit wird zuweilen mit Eigensinn|Wer den Tag mit Lachen beginnt, hat ihn|Wenn uns keine Ausweg mehr bleibt,|Gesichter sind die Leseb\xfccher des Lebens|Grosse Ereignisse werfen mitunter ihre Schatten|Dichtung ist verpflichtet, sich nach den|Ohne Freihet geht das Leben|Liebe ist wie ein Verkehrsunfall\. Man wird angefahren)= p/Windows qotd/ i/German/ cpe:/a:microsoft:qotd::::de/
+match qotd m=^"(?:Clovek ma tri cesty, jak moudre jednat\. Nejprve premyslenim|Co je vubec hodno toho, aby to bylo vykonano,|Fantazie je dulezitejsi nez vedeni\.|Potize narustaji, cim vice se clovek blizi|Kdo nezna pristav, do ktereho se chce plavit,|Lidske mysleni ztraci smysl,|Nikdo nevi, co muze vykonat,|Nic neprekvapi lidi vice nez zdravy rozum|Zadny cil neni tak vysoky,)= p/Windows qotd/ i/Czech/ o/Windows/ cpe:/a:microsoft:qotd::::cs/ cpe:/o:microsoft:windows/a
+match qotd m=^"(?:L'art de persuader consiste autant|Le peu que je sais, c'est \x85 mon ignorance|Certaines \x83mes vont \x85 l'absolu comme l'eau|Le m\x82rite a sa pudeur comme la chastet|Rien de plus futile, de plus faux, de plus|\xb7 vaincre sans p\x82ril, on triomphe|Le comble de l'orgueil, c'est de se)= p/Windows qotd/ i/French/ o/Windows/ cpe:/a:microsoft:qotd::::fr/ cpe:/o:microsoft:windows/a
 
 match mohaa m|\xff\xff\xff\xff\x01disconnect| p/Medal Of Honor Allied Assault game server/
 match mohaa-gamespy m|^\\final\\\\queryid\\\d+\.1| p/Medal Of Honor Allied Assault gamespy query port/
@@ -10133,7 +10154,7 @@ match domain m|^\0\x0c\0\x06\x81\x84\0\0\0\0\0\0\0\0$| p/MikroTik RouterOS named
 match domain m|^\0\x0c\0\x06\x81\x85\0\0\0\0\0\0\0\0$| p/Nortel Contivity firewall DNS/ d/firewall/
 match domain m|^..\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0..Nominum Vantio ([\w._-]+)$|s p/Nominum Vantio/ v/$1/
 
-match http m|^HTTP/1\.1 506 \r\nContent-Type: text/html\r\nServer: JavaWeb/0\r\n\r\n<html><body><h1>506 - IO Error</h1></body></html>$| p/AirDroid httpd/ d/phone/ o/Android/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/ cpe:/o:linux:linux_kernel/
+match http m|^HTTP/1\.1 506 \r\nContent-Type: text/html\r\nServer: JavaWeb/0\r\n\r\n<html><body><h1>506 - IO Error</h1></body></html>$| p/AirDroid httpd/ d/phone/ o/Android/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
 
 match ixia m=^\0.\x05\x02....\0\x01\x01@\0\0\0\0\0\0\0\0\0.\$Id: //ral_depot/products/IxChariot([\w._-]+)/(?:ENDPOINT|endpoint)/CODE/client\.c#\d+ \$\0\0\0..\0\x02\0\x0ce1_thread\0\0\x18main_process_incoming\0$= p/IxChariot/ v/$1/ i/Ixia XR100 performance monitor/
 
@@ -10407,6 +10428,7 @@ match smtp m|^220 ([\w_.-]+) Ready\r\n250-.*\r\n250-AUTH LOGIN\r\n(?:250-8BITMIM
 match smtp m|^220 .* Ready\r\n250-.*\r\n250-AUTH LOGIN\r\n(?:250-8BITMIME\r\n)?250-SIZE\r\n250 DSN\r\n| p/Novell NetWare GroupWise Internet Agent smtpd/ o/NetWare/ cpe:/o:novell:netware/a
 match smtp m|^220 \[[\w_.-]+\] ESMTP Ready\r\n501 HELO requires domain address\r\n| p/Canon imageRUNNER C5185 smtpd/ d/printer/ cpe:/h:canon:imagerunner_c5185/
 match smtp m|^220 .* SMTP ready at .*\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Domino smtpd/
+match smtp m|^220 Hello\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Domino smtpd/
 match smtp m|^220 ([\w_.-]+)\r\n250-[\w._-]+ Axigen ESMTP hello\r\n| p/Axigen smtpd/ o/Unix/ h/$1/
 match smtp m|^220 ([\w_.-]+) ESMTP\r\n501 ehlo requires domain/address - see RFC-2821 4\.1\.1\.1\r\n| p/qpsmtpd/ h/$1/
 match smtp m|^220 ([\w_.-]+) ESMTP Service ready\r\n250-[\w_.-]+ Missing required domain name in EHLO, defaulted to your IP address \[[\d.]+\]\r\n| p/Critical Path smtpd/ h/$1/
@@ -10418,6 +10440,8 @@ match smtp m|^220 ([\w._-]+)  ESMTP\r\n501 Syntax: EHLO hostname\r\n| p/Postfix/
 match smtp m|^220 ESMTP Postfix\r\n501 Syntax: EHLO hostname\r\n| p/Postfix/
 match smtp m|^220-\*{89}\r\n220 \*{32}\r\n250-Welcome [\w._-]+, nice to meet you\.\.\.\r\n250-AUTH=(?:\w+ ?)+\r\n250-AUTH(?: \w+)+\r\n250-SIZE \d+\r\n250-DSN\r\n250-ETRN\r\n250 XXXA\r\n| p/ArGoSoft smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ESMTP Ready\r\n250-([\w._-]+) Hello \[[\d.]+\]\r\n250-SIZE\r\n250-PIPELINING\r\n250-DSN\r\n250-ENHANCEDSTATUSCODES\r\n250-STARTTLS\r\n250-X-ANONYMOUSTLS\r\n250-AUTH NTLM\r\n250-X-EXPS GSSAPI NTLM\r\n250-8BITMIME\r\n250-BINARYMIME\r\n250-CHUNKING\r\n250-XEXCH50\r\n250 XRDST\r\n| p/Microsoft Outlook Web Access smtpd/ h/$1/
+match smtp m|^220 ([\w._-]+) ESMTP\r\n250-\1\r\n250-STARTTLS\r\n250-SIZE 50000000\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/qmail smtpd/ h/$1/
+match smtp m|^220  ESMTP\r\n501 5\.0\.0 EHLO requires domain address\r\n| p/Sendmail/
 
 match smtp m|^220 $| p/OpenBSD spamd/
 
@@ -10615,8 +10639,7 @@ match smtp m|^220 ([-.+\w]+) Generic SMTP handler\r\n214 Help not supported by t
 # Lotus Notes Domino 6.1 smtp server on Win2K
 match smtp m|^220 Welcome to ([-.+\w]+) ESMTP Server at .*\r\n214-Enter one of the following commands:\r\n214-HELO EHLO MAIL RCPT DATA RSET NOOP QUIT\r\n214 HELP VRFY EXPN STARTTLS \r\n$| p/Lotus Notes Domino smtpd/ h/$1/
 match smtp m|^220.*?\n214-Commands supported:\r\n214-    HELO EHLO MAIL RCPT DATA(?: ETRN)?(?: AUTH)?\r\n214     NOOP QUIT RSET HELP \r\n$| p/Exim smtpd/ v/3.X/ cpe:/a:exim:exim:3/
-match smtp m|^220.*?\r?\n214-Commands supported:\r\n214 AUTH STARTTLS HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP VRFY\r\n| p/Exim smtpd/ v/4.X/ cpe:/a:exim:exim:4/
-match smtp m|^220.*?ESMTP.*\n214-Commands supported:\r\n214 AUTH (?:STARTTLS )?HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP\r\n$| p/Exim smtpd/ v/4.X/ cpe:/a:exim:exim:4/
+match smtp m|^220.*?\r?\n214-Commands supported:\r\n214 AUTH (?:STARTTLS )?HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP(?: VRFY)?\r\n$|s p/Exim smtpd/ v/4.X/ cpe:/a:exim:exim:4/
 match smtp m|^220[\s-](\S+) ESMTP ?\r\n214[- ]qmail home page: http://pobox\.com/~djb/qmail\.html\r\n214[- ]qmail-ldap patch home page: http://www\.nrg4u\.com\r\n| p/qmail-ldap smtpd/ o/Unix/ h/$1/
 # Some qmails don't have host ... ?
 match smtp m|^220[\s-].*ESMTP ?\r\n214[- ]qmail home page: http://pobox\.com/~djb/qmail\.html\r\n| p/qmail smtpd/ o/Unix/
@@ -10628,11 +10651,9 @@ match smtp m|^220 ([-.\w]+) SMTP version 1\.00;\r\n214 We strongly advise you to
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n402 Error: command not implemented\r\n$| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
 match smtp m|^220 smtpd\r\n502 [\d.]+ Error: command not recognized\r\n| p/Postfix smtpd/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+)\r\n502 [\d.]+ Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
-match smtp m|^220 ([-\w_.]+) ESMTP\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
-match smtp m|^220 ([-\w_.]+) ESMTP \(Ubuntu\)\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ o/Linux/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:linux:linux_kernel/a
-match smtp m|^220 ([-\w_.]+) ESMTP [^\r\n]*\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ o/Linux/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:linux:linux_kernel/a
-match smtp m|^220 ([-\w_.]+) ESMTP [^\r\n]*\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
-match smtp m|^220 ([-\w_.]+) ESMTP [^\r\n]*\r\n402 4\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
+match smtp m|^220 ([-\w_.]+) ESMTP (?:[^(]+? )?\(Ubuntu\)\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ o/Linux/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:linux:linux_kernel/a
+match smtp m|^220 (?:.*? )?([-\w_.]+) ESMTP(?: [^\r\n]*)?\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
+match smtp m|^220 (?:.*? )?([-\w_.]+) ESMTP(?: [^\r\n]*)?\r\n402 4\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) SMTP READY\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
 match smtp m|^220 E?SMTP [^\r\n]*\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ cpe:/a:postfix:postfix/a
 match smtp m|^220 .*\r\n502 Error: command not implemented\r\n$| p/Postfix smtpd/ cpe:/a:postfix:postfix/a
@@ -10640,6 +10661,7 @@ match smtp m|^220 ([-\w_.]+) ESMTP \w+\r\n$| p/Postfix smtpd/ h/$1/ cpe:/a:postf
 # Courier ESMTP courier-0.42.0-1.7.3
 match smtp m|^220 ([-.\w]+) ESMTP\r\n502 ESMTP command error\r\n$| p/Courier smtpd/ h/$1/
 match smtp m|214-2\.0\.0 This is sendmail version (\S+)\r?\n214-2\.0\.0 Topics:|s p/Sendmail/ v/$1/ o/Unix/ cpe:/a:sendmail:sendmail:$1/
+match smtp m|214-2\.0\.0 This is sendmail\r\n214-2\.0\.0 Topics:|s p/Sendmail/ o/Unix/ cpe:/a:sendmail:sendmail/
 match smtp m|^220 (\S+) E?SMTP Sendmail;| p/Sendmail/ o/Unix/ h/$1/ cpe:/a:sendmail:sendmail/
 match smtp m|^220.* Sendmail (\d[-.\w]+) -- HELP not implemented\r\n|s p/Sendmail/ v/$1/ o/Unix/ cpe:/a:sendmail:sendmail:$1/
 match smtp m|^220.*214-This is America Online mail version [vV](\S+)|s p/AOL smtpd/ v/$1/
@@ -10691,7 +10713,7 @@ match smtp m|^220 ArGoSoft Mail Server Freeware, Version [-\w_.]+ \(([-\w_.]+)\)
 match smtp m|^220 ([-\w_.]+) Service ready\.\r\n214- Valid commands are:\r\n214- HELO  MAIL  RCPT  DATA  RSET  QUIT  NOOP\r\n214- HELP  VRFY\r\n214- Commands not valid are:\r\n214- SEND  SOML  SAML  TURN\r\n214- Mail forwarding handled by this server\.\r\n| p|i5/OS V5R4M0 or OS/400 smtpd| h/$1/
 match smtp m|^220 Simple Mail Tranfer Service Ready \r\n502 Commande not implement \r\n| p/Brother printer smtpd/ d/printer/
 match smtp m|^220 ([-\w_.]+) ESMTP server is ready\r\n.*214-Copyright \(c\) 1995-2004, Stalker Software, Inc\.\r\n|s p/Stalker Software Communigate smtpd/ h/$1/
-match smtp m|^220 ([-\w_.]+) ESMTP\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n| p/hMailserver smtpd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match smtp m|^220 ([-\w_.]+) ESMTP\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n| p/hMailServer smtpd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 \[[-\w_.]+\] Courier Mail Server ([-\w_.]+) ESMTP service ready\r\n| p/Courier MSA smtpd/ v/$1/
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n214-This is qpsmtpd \r\n214-See http://smtpd\.develooper\.com/\r\n| p/qpsmtpd smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) ESMTP Generic Ready\r\n502 Command not implemented\.\r\n| p/MailMarshal smtpd/ h/$1/
@@ -10701,11 +10723,16 @@ match smtp m|^220 ([\w_.-]+) Welcome\r\n214-ESMTP Mail Server\r\n214-Available c
 match smtp m|^220 ([\w_.-]+) ESMTP\r\n214-Run 'info anubis' or visit http://www\.gnu\.org/software/anubis/manual/\r\n214 End of HELP info\r\n$| p/GNU Anubis/ h/$1/
 # hMailServer 4.4.1-B273
 match smtp m|^220 ([\w_.-]+)\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n| p/hMailServer/ h/$1/
+# Maybe too general, but the greeting was unique.
+match smtp m|^220 .+\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n\r\n| p/hMailServer/
 match smtp m|^220 ([\w._-]+) -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/ h/$1/
 match smtp m|^220 Ready to receive mail2 -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/
 match smtp m|^220 ([\w._-]+) ESMTP service ready\r\n214 2\.0\.0 try reading the RFCs: http://www\.imc\.org/rfcs\.html\r\n| p/PowerMTA smtpd/ h/$1/
 match smtp m|^220 SMTP\r\n214-Usage: HELP <topic>\r\n214-Topics:\r\n214-\tHELO EHLO MAIL RCPT DATA\r\n214-\tVRFY EXPN RSET NOOP QUIT\r\n214 End of HELP info\r\n| p/Trend Micro IMSS smtpd/ v/7.0/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([\w._-]+) ESMTP\r\n214-2\.0\.0 These commands are recognised:\r\n214 2\.0\.0     DATA EHLO HELO HELP MAIL NOOP QUIT RCPT RSET\r\n| p/Koto Internet Services smtpd/ h/$1/
+match smtp m|^220 ([\w._-]+) ESMTP\r\n250 2\.0\.0 See http://www\.ietf\.org/rfc/rfc2821\r\n| p|Plan 9 upas/smtpd| o/Plan 9/ h/$1/
+match smtp m|^220 ([\w._-]+) Service ready\r\n214-Commands:\r\n214-\tHELO\tEHLO\tMAIL\tRCPT\tRSET\tNOOP\r\n214-\tQUIT\tHELP\tDATA\tAUTH\tVRFY\tEXPN\r\n214-\r\n214-For more info use \"HELP <topic>\"\r\n214 End of HELP info\r\n| p/Gattaca Server smtpd/ h/$1/
+match smtp m|^250 Ok, but unimplemented\r\n220 EventMachine SMTP Server\r\n| p/Mailcatcher smtpd/
 
 match smtp-proxy m|^220 SMTP service ready\r\n214-Commands:\r\n214-\tDATA\tRCPT\tMAIL\tQUIT\tRSET\r\n214 \tHELO\tVRFY\tEXPN\tHELP\tNOOP\r\n| p/WatchGuard smtp proxy/ d/firewall/
 match smtp-proxy m|^220 ready\r\n214-Commands:\r\n214-    HELO    MAIL    RCPT    DATA\r\n214-    RSET    NOOP    QUIT    HELP\r\n214-    VRFY    EXPN\r\n214-For more info use HELP <topic>\r\n214 End of HELP info\r\n| p/602LAN Suite smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -11471,6 +11498,7 @@ totalwaitms 7500
 match atalla m|^<00#020035#0101##>\r\n<00#020035#0101##>\r\n<00#020035#0101##>\r\n| p/Atalla Hardware Security Module payment system/ d/specialized/
 
 match honeypot m|^HTTP/1\.0 200 OK\r\nAllow: OPTIONS, GET, HEAD, POST\r\nContent-Length: 0\r\nConnection: close\r\n\r\n| p/Dionaea Honeypot httpd/
+match honeypot m|^SIP/2\.0 200 OK\r\nContent-Length: 0\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nFrom: sip:nm@nm;tag=root\r\nAccept: application/sdp\r\nTo: sip:nm2@nm2\r\nContact: sip:nm2@nm2\r\nCSeq: 42 OPTIONS\r\nAllow: REGISTER, OPTIONS, INVITE, CANCEL, BYE, ACK\r\nCall-ID: 50000\r\nAccept-Language: en\r\n\r\n| p/Dionaea Honeypot sipd/
 
 match http m|^SIP/2\.0 501 Not Implemented\r\nServer: Embedded HTTP Server ([\d.]+)\r\n| p/Embedded HTTP Server/ v/$1/
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nServer: Catwalk/([\d.]+)\r\n| p/Catwalk/ v/$1/ i/Canon imageRUNNER C5000-series printer http config/ d/printer/ cpe:/h:canon:imagerunner_c5000/
@@ -11485,6 +11513,7 @@ match http m|^HTTP/1\.0 501 Document Follows\r\nContent-Type: text/html\r\nConte
 match http m|^HTTP/2\.0 404 Not Found\r\nDate: .*\r\nServer: Restlet-Framework/([\w._-]+)\r\n.*<title>Status page</title>\n</head>\n<body style=\"font-family: sans-serif;\">\n<p style=\"font-size: 1\.2em;font-weight: bold;margin: 1em 0px;\">Not Found</p>\n<p>The server has not found anything matching the request URI</p>\n|s p/Serviio media server http status/ i/Restlet framework $1/
 match http m|^HTTP/2\.0 404 Not Found\r\n.*Server: Restlet-Framework/@major-number@\.@minor-number@@release-type@@release-number@\r\n.*<p>The server has not found anything matching the request URI</p>|s p/Serviio media server http status/ v/1.2/
 match http m=^HTTP/1\.1 500 Internal Server Error\r\nContent-Length: \d+\r\nContent-Type: text/plain\r\n\r\nTraceback \(most recent call last\):\n  File \"([\w._/-]+/(?:sickbeard|Sick-Beard)/cherrypy)/wsgiserver/__init__\.py\", line \d+, in communicate\n= p/CherryPy/ i/Sick Beard PVR; path: $1/
+match http m|^HTTP/1\.1 501 Unimplimented\r\nConnection: close\r\nContent-Length: 0\r\n\r\n| p/Huawei HG8245T modem http config/ d/broadband router/
 
 match imsp m|^VIA: BAD IMSP busy\r\nFROM: BAD IMSP busy\r\nTO: BAD IMSP busy\r\n|
 
@@ -11498,6 +11527,7 @@ match sip m|^SIP/2\.0 .*\r\nUser-Agent: PolycomSoundPointIP-SPIP_(\d+)-UA/([\d.]
 match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/ cpe:/o:microsoft:windows/a
 match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*Via: SIP/2\.0/TCP nm;branch=foo;received=[\d.]+;ms-received-port=\d+;ms-received-cid=[0-9A-F]{8}\r\nms-diagnostics: \d+;reason=\"Parsing failure\";source=\"([\w._-]+)\"\r\nContent-Length: 0\r\n\r\n$|s p/Microsoft Office Communications Server/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
+match sip m|^SIP/2\.0 405 Method Not Allowed.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Speedport ([\w._ -]+) \(|s p/T-Com Speedport/ v/$1/ d/broadband router/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nServer: Speedport/([\d.-]+)\r\n|s p/T-Com Speedport/ v/$1/ d/broadband router/
 match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: X-Lite release ([\w._ -]+)\r\n|s p/X-Lite SIP phone/ v/$1/ d/VoIP phone/
@@ -11525,7 +11555,7 @@ match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: VOIP_Agent_001\r\nAllow: INVITE, A
 match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Sipek on PJSUA v([\w._-]+)/win32\r\n|s p/Sipek VoIP/ v/$1/ i/on PJSUA/
 match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: snom([\w._-]+)/([\w._-]+)\r\n|s p/Snom $1 VoIP phone/ v/$2/ d/VoIP phone/
 match sip m|^SIP/2\.0 200 OK\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nContact: <sip:[\d.]+:\d+>\r\nAllow: INVITE,ACK,CANCEL,OPTIONS,UPDATE,INFO,NOTIFY,BYE,REFER\r\nAccept: application/sdp,application/media_control\+xml,application/dtmf-relay,application/dtmf,message/sipfrag;version=2\.0\r\nContent-Length: 0\r\n\r\n| p/Tandberg Codian IP GW 3510 VoIP gateway/ d/VoIP adapter/
-match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent: (AVM FRITZ!Box Fon WLAN [\w._-]+) ([\w._-]+ \(\w+ \d+ \d+\))|s p/$1 SIP/ v/$2/ d/WAP/
+match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent: (AVM FRITZ!Box Fon WLAN [\w._-]+(?: v\d)?) ([\w._-]+ \(\w+ +\d+ \d+\))|s p/$1 SIP/ v/$2/ d/WAP/
 match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: QIP ([\w._ -]+)\r\n|s p/QIP instant messenger SIP/ v/$1/
 match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: T-Com-IpPbxSrv/([\w._-]+)\r\n|s p/Telekom Netphone VoIP phone SIP/ v/$1/ d/VoIP phone/
 match sip m|^SIP/2\.0 403 Not relaying\r\n.*Server: kamailio \(([\w._-]+) \(x86_64/linux\)\)\r\n|s p/Kamailio/ v/$1/ i/x86_64/ o/Linux/ cpe:/o:linux:linux_kernel/
@@ -11542,6 +11572,16 @@ match sip m|^SIP/2\.0 504 Server time-out\r\nms-user-logon-data: RemoteUser\r\nF
 match sip m|^SIP/2\.0 403 Non-self Request-URI\r\n.*Server: Epygi Quadro SIP User Agent/v([\w._-]+) \(QUADRO-([^\)]*)\)\r\n|s p/Epygi Quadro $2 PBX SIP/ v/$1/ d/PBX/ cpe:/h:epygi:$2/
 match sip m|^SIP/2\.0 200 OK\r\n.*Allow: INVITE,ACK,CANCEL,OPTIONS,UPDATE,INFO,NOTIFY,BYE,REFER\r\nAccept: application/sdp,application/media_control\+xml,application/dtmf-relay,application/dtmf,message/sipfrag;version=2\.0\r\n|s p/Cisco TelePresence MCU 4505 videoconference system SIP/ cpe:/h:cisco:telepresence_mcu_4505/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent:Polycom (HDX [\w._ -]+) \(Release - ([\w._-]+)\)\r\n|s p/Polycom $1 videoconference system SIP/ v/$2/ cpe:/h:polycom:$1/
+match sip m|^SIP/2\.0 403 Forbidden\r\nContent-Type: application/X-NECSIPEXT2MLv1\r\nSupported: timer\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo;received=[\d.]+\r\nContent-Length: 99\r\n\r\nInd-ErrDsp=nec-code: 1:Non-Registered Access       ,2: \(Retry after    10 sec\)    ,6:1: EXIT  ,10\r\n| p/NEC SL1100 VoIP PBX/ d/PBX/
+match sip m|^SIP/2\.0 500 Server Internal Error\r\n.*User-Agent: SpeedTouch (\w+)\r\nX-Serialnumber: (\w+)\r\n|s p/SpeedTouch $1 SIP/ i/serial $2/ d/broadband router/
+match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: PolycomVVX-([\w._]+)-UA/([\d.]+)(?:_[\da-f]+)?\r\n|s p/Polycom $SUBST(1,"_"," ") SIP/ v/$2/ d/VoIP phone/
+match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Auerswald COMpact VoIP sofia-sip/([\w._-]+)\r\n|s p/sofia-sip/ v/$1/ i/Auerswald COMpact 5020 VoIP/ d/PBX/
+match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent: FRITZ!OS\r\n|s p/AVM FRITZ!OS SIP/ d/VoIP adapter/
+match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent: FRITZ!OS\r\n|s p/AVM FRITZ!OS SIP/ d/VoIP adapter/
+match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent:PolycomRealPresenceGroup(\d+)/([\w._-]+)\r\n|s p/Polycom RealPresence Group $1 SIP/ v/$2/
+match sip m|^SIP/2\.0 500 Server Internal Error\r\n.*User-Agent: BT Home Hub ([\w._-]+) Build ([\w._-]+)\r\nX-Serialnumber: (\w+)\r\n|s p/BT Home Hub $1 SIP/ v/$2/ i/serial: $3/ d/VoIP adapter/
+match sip m|^SIP/2\.0 400 Invalid Via Port 0\r\n.*User-Agent: drgos-drg(\d+)-([\w._-]+)\r\n|s p/Genexis DRG $1 SIP/ v/$2/ d/broadband router/
+match sip m|^SIP/2\.0 200 OK\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=[a-f\d-]{58}\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;received=[\d.]+;branch=foo\r\nSupported: gruu-10,replaces,msrtc-event-categories\r\nContent-Length: 0\r\n\r\n| p/LifeSize UVC Multipoint SIP/
 
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX ([\w._+-]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
@@ -11564,6 +11604,11 @@ match sip-proxy m|^SIP/2\.0 200 OK\r\n.*Server: Audiocodes-Sip-Gateway-(MP-[\w._
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*User-Agent: Berofix VOIP Gateway\r\n|s p/Berofix VoIP gateway/ d/VoIP adapter/
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*Server: HiPath ([\w._-]+) V([\w._ -]+) SIP Stack/([\w._-]+)\r\n|s p/Siemens HiPath $1 VoIP gateway/ v/$2/ i/SIP stack $3/ d/VoIP adapter/
 match sip-proxy m|^SIP/2\.0 503 Service Unavailable\r\nVia: SIP/2\.0/TCP nm;branch=foo;received=[\d.]+\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nDate: .*?\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nWarning: \d+ [\w._-]+ \"Unable to find a device handler for the request received on port \d+ from [\d.]+\"\r\nContent-Length: 0\r\n\r\n| p/Cisco Unified Communications Manager/
+# CUCM 6.1.2.1001-4
+match sip-proxy m|^SIP/2\.0 503 Service Unavailable\r\nDate: .*\r\nWarning: \d+ \"Routing failed: ccbid=\d+ tcpindex=\d+ socket=nm:\d+'\r\nFrom: <sip:nm@nm>;tag=root\r\nContent-Length: 0\r\nTo: <sip:nm2@nm2>;tag=\d+\r\nCall-ID: 50000\r\nVia: SIP/2\.0/TCP nm;branch=foo;received=[\d.]+\r\nCSeq: 42 OPTIONS\r\n\r\n| p/Cisco Unified Communications Manager/
+match sip-proxy m|^SIP/2\.0 100 Trying\r\n.*Server: Sipwise NGCP Proxy ([\w._-]+)\r\n|s p/Sipwise NGCP SIP/ v/$1/ d/PBX/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*Server: NEC-i SL Series ([\w._-]+)/2\.1\r\n|s p/NEC SL-series VoIP PBX/ v/$1/ d/PBX/
+match sip-proxy m|^SIP/2\.0 400 Bad Request - Branch in top Via header has no Magic Cookie\r\nv:SIP/2\.0/TCP nm;branch=foo;received=[\d.]+\r\nf:<sip:nm@nm>;tag=root\r\nt:<sip:nm2@nm2>;tag=to_tag_[\da-f]+\r\ni:50000\r\nCSeq:42 OPTIONS\r\nl:0\r\n\r\n|s p/Nokia CFX-5000 SIP core controller/ d/PBX/
 
 # The SIPOptionsProbe can trigger a response out of psyBNC
 match irc-proxy m|^Login failed\. Disconnecting\.\r\n$| p/psyBNC/ i/Login Failed/
@@ -11591,7 +11636,6 @@ ports 5060
 # Some VoIP phones take longer to respond
 totalwaitms 7500
 
-match sip m|^SIP/2\.0 200 OK\r\n.*Server: Asterisk PBX ([\w._+~-]+)\r\n|s p/Asterisk/ v/$1/ d/PBX/
 match sip m|^SIP/2\.0 200 OK\r\n.*Server: FPBX-([\w._\(\)-]+)\r\n|s p/FPBX/ v/$1/ d/PBX/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent: Asterisk PBX \(digium\)\r\n|s p/Digium Switchvox PBX/ i/based on Asterisk/ d/PBX/
 match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: SAGEM / 3202\.3 / 2601EC \r\n|s p/Sagem ADSL router/ d/broadband router/
@@ -11602,7 +11646,11 @@ match sip m|^SIP/2\.0 481 Call Leg/Transaction Does Not Exist\r\nFrom: <sip:nm@n
 match sip m|^SIP/2\.0 200 OK\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/UDP nm;branch=foo;rport\r\nFrom: <sip:nm@nm>;tag=root\r\nCall-ID: 50000\r\nTo: <sip:nm2@nm2>\r\nContact: <sip:nm2@[\d.]+>\r\nContent-Length: 0\r\n\r\n$| p/Ekiga SIP/ v/3.2.7/
 match sip m|^SIP/2\.0 403 Forbidden\r\n.*From: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=Mitel-([\w._-]+)_\d+-\d+\r\n|s p/Mitel $1 PBX SIP/ d/PBX/
 match sip m|^SIP/2\.0 200 OK\r\n.*Allow: INVITE, ACK, CANCEL, BYE, OPTIONS, INFO, REFER, SUBSCRIBE, NOTIFY\r\nAccept: application/sdp,application/dtmf-relay,application/simple-message-summary,message/sipfrag\r\nAccept-Encoding: identity\r\n|s p/Siemens Gigaset DX800A VoIP phone SIP/ d/VoIP phone/
+match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Zoiper rev\.(\d+)\r\n|s p/Zoiper softphone SIP/ v/$1/
+match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Ekiga/([\w._-]+)\r\n|s p/Ekiga/ v/$1/
+match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: HG4000/([\w._-]+)+\r\n|s p/Hypermedia HG-4000 VoIP GSM gateway SIP/ v/$1/ d/VoIP adapter/
 
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Asterisk PBX ([\w._+~-]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Express Router/ v/$1/ i/$2/
 # OpenSER and SER have joined to become SIP Router
@@ -11610,6 +11658,10 @@ match sip-proxy m|^SIP/2\.0 .*\r\nServer: SIP Router \(([\w\d\.-]+) \(([\d\w/]+)
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX\r\n|s p/Asterisk PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenSIPS \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSIPS SIP Server/ v/$1/ i/$2/
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: ComdasysB2BUA([\w._-]+)\r\n|s p/Comdasys SIP Server/ v/$1/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*Server: NEC-i SL Series ([\w._-]+)/2\.1\r\n|s p/NEC SL-series VoIP PBX/ v/$1/ d/PBX/
+match sip-proxy m|^SIP/2\.0 200 OK\r\nVia: SIP/2\.0/UDP nm;branch=foo;received=[\d.]+;rport=\d+\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=as\d+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nServer: -(\d[\w._-]+)\((\d[\w._-]+)\)\r\nAllow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH\r\nSupported: replaces, timer\r\nContact: .*\r\nAccept: application/sdp\r\nContent-Length: 0\r\n\r\n| p/Asterisk/ v/$2/ i/FreePBX $1/
+match sip-proxy m|^SIP/2\.0 400 Bad Request - [A-Z] - 16007\r\nv:SIP/2\.0/UDP nm;branch=foo;rport=\d+;received=[\d.]+\r\nf:<sip:nm@nm>;tag=root\r\nt:<sip:nm2@nm2>;tag=\d+\r\ni:50000\r\nCSeq:42 OPTIONS\r\nl:0\r\n\r\n| p/Nokia CFX-5000 SIP core controller/ d/PBX/
+match sip-proxy m|^SIP/2\.0 400 Bad Request - [A-Z] - 16007\r\nVia: SIP/2\.0/UDP nm;branch=foo;rport=\d+;received=[\d.]+\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\d+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nContent-Length: 0\r\n\r\n| p/Nokia CFX-5000 SIP core controller/ d/PBX/
 
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_\.\(\)]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
