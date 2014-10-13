@@ -138,6 +138,8 @@ match beidpcscd m|^\0\0\0\x1e\xffV\x92l\xfbUL\x87\xabw\x1f\xb2\n\xd8\xef/\0\0\0\
 
 match bf2rcon m|^### Battlefield 2 ModManager Rcon v([\d.]+)\.\n### Digest seed: \w+\n\n| p/Battlefield 2 ModManager Remote Console/ v/$1/
 
+softmatch bgp m|^\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\x15\x03\x06\x05| i/connection rejected/
+
 # https://en.bitcoin.it/wiki/Protocol_specification#Message_structure
 # https://en.bitcoin.it/wiki/Protocol_specification#version
 # https://en.bitcoin.it/wiki/Changelog
@@ -1118,6 +1120,8 @@ match ftp m|^220 iosFtp server ready\.\r\n| p/ios-ftp-server ftpd/ o/iOS/ cpe:/o
 match ftp m|^220 SP (C?\d+\w*) \([a-f0-9]+\) FTP server ready\r\n| p/Ricoh Aficio SP $1 ftpd/ d/printer/
 match ftp m|^220 Sharp - NetScan Tool\r\n| p/Sharp Scan to Desktop ftpd/
 match ftp m|^220 Welcome to ALPHA -FTPd server\.\r\n| p/Alpha ftpd/
+match ftp m|^220 IPCamera FtpServer\(www\.maygion\.com\),do NOT change firmware unless you know what you are doing!\r\n| p/Maygion IPCamera ftpd/ d/webcam/
+match ftp m|^220 AXIS ([\w._-]+) Video Encoder ([\w._-]+) \(\d\d\d\d\) ready\.\r\n| p/AXIS $1 video encoder ftpd/ v/$2/ d/media device/
 
 #(insert ftp)
 
@@ -1253,6 +1257,8 @@ match honeywell-ripsd m|^\0\x10\x03\x0c$| p/Honeywell ripsd power management ser
 
 match hptsvr m|^\(\0\0\0hpt_stor\x01..\xbf\0\0\0\0\0\0\0\0....\.\.\.E\0\0\0\0\0\0\0\0$|s p/HighPoint RAID management service/ v/3.13/
 match hptsvr m|^\(\0\0\0\0\0\0\0..`\0\x01\xff\xff\xff\xcc\xfa\x85\0C\x1d\xe6whfnk\.\.\.E\0\0\0\0\0\0\0\0$| p/HighPoint RAID management service/
+# version unknown
+softmatch hptsvr m|^\(\0\0\0hpt_stor\x01..\0\0\0\0\0\0\0\0\0....\.\.\.E\0\0\0\0\0\0\0\0$|s p/HighPoint RAID management service/
 
 match hpiod m|^msg=MessageError\nresult-code=5\n$| p/HP Linux Imaging and Printing System/
 
@@ -1769,6 +1775,10 @@ match netop m|^\xd6\x81\x81\0\0\xf9\0\xf9\xee\xe3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 
 match netrek m|^<>=======================================================================<>\n  Pl: Rank       Name             Login      Host name                Type\n| p/Netrek game server player information interface/
 
+# TRENDnet NetUSB - 4-byte-length-prefixed null-terminated strings
+# USB-over-network: https://www.trendnet.com/kb/kbp_viewquestion.asp?ToDo=view&questId=1350&catId=516
+match netusb m|^\0\0\0. connect success c\d+ \n\0\0\0\0. NetUSB ([\w._-]+), 2\d\d\d, \d+ \n\0\0\0\0\x0c AUTH ISOC\n\0\0\0\0\x18 MOVE_HEAD filterAudio\n\0\0\0\0\0| p/TRENDnet NetUSB/ v/$1/
+
 # Nping echo mode -- added in Nmap 5.36TEST1
 match nping-echo m|^\x01\x01\0\x18.{8}\0\0\0\0.{32}\0{16}.{32}$|s p/Nping echo/
 
@@ -1989,6 +1999,8 @@ match openfpc m|^OFPC READY\n$| p/OpenFPC packet capture/
 # http://any.openlookup.net:5851/
 match openlookup m|^\d+:d7:smethod,6:shello,8:soptions,\d+:d10:shttp_port,\d+:i\d+,5:sname,\d+:s([\w._-]+),10:ssync_port,\d+:i\d+,10:stimestamp,\d+:f\d+(?:\.\d+),8:sversion,\d+:s([\w._-]+),$| p/OpenLookup/ v/$2/ h/$1/
 match openlookup m|^\d+:d7:smethod,6:shello,8:soptions,\d+:d10:shttp_port,\d+:i\d+,10:ssync_port,\d+:i\d+,10:stimestamp,\d+:f\d+(?:\.\d+),8:sversion,\d+:s([\w._-]+),\d+:syour_address,\d+:a\d+:s[\w._-]+,\d+:i\d+,,,,$| p/OpenLookup/ v/$1/
+
+softmatch openwebnet m|^\*#\*1##|
 
 match ovhcheckout m|^200 OK [\d.]+ ([\w._-]+) oco-([\w._-]+) \n$| p/OVH OvhCheckOut/ v/$2/ h/$1/
 
@@ -4185,6 +4197,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03Grandstream (GXW\w+) \( Boot:[\d.]+  Loa
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\r\nSession code: | p/Get Console Airconsole serial adapter/ d/bridge/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03 {19}={22}\r\r\n {20}Welcome to ZXDSL ([\w._-]+)\r\r\n {19}={22}\r\r\n\r\r\nZTE Inc\., Software Release ZXDSL \1V([\w._-]+)\r\r\n\r\r\nLogin: | p/ZTE ZXDSL $1 telnetd/ v/$2/ d/broadband router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\x1b\[2J\x1b\[4;26HUsername: \x1b\[7;1m\[  \]\x1b\[0m\x1b\[5;26HPassword: \[ \*{15} \]\x1b\[23;1H\x1b\[2KEnter text, press <Return> or <Enter> when complete\.\x1b\[14;26HEnter Username: | p/Avaya ERS 5600-series telnetd/ d/switch/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfd\x03\xff\xfd\x01Welcome to QualityView Ipcam \r\n\r\nUsername: | p/QualityView IPcam telnetd/ d/webcam/
 
 #(insert telnet)
 
@@ -4893,7 +4906,7 @@ match memcache m|^ERROR\r\nERROR\r\n$| p/memcached/
 
 match minecraft m|^\x0eYou need to log in!                                             $| p/Minecraft game server/
 
-match netasq-admin m|^200 code=00100200 msg=\"Unknown command\"\r\n200 code=00100200 msg=\"Unknown command\"\r\n$| p/Netasq firewall admin/ d/firewall/
+match netasq-admin m|^200 code=00100200 msg=\"[^"]+\"\r\n200 code=00100200 msg=\"[^"]+\"\r\n$| p/Netasq firewall admin/ d/firewall/
 
 match netbios-ssn m|^\x82\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Nepenthes honeypot netbios-ssn/
 
@@ -7411,6 +7424,7 @@ match http m|^HTTP/1\.0 200 .*<title>BPA430 Web Configuration Pages</title></hea
 match http m|^HTTP/1\.0 200 Document follows\r\nServer: ADH-Web\r\n.*<meta name=\"author\" content=\"Dedicated Micros \(info@dmicros\.com\)\">\r\n|s p/ADH-Web httpd/ i/Dedicated Micros Digital Sprite 2 DVR http config/ d/media device/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FR114W\"\r\nContent-type: text/html\r\n\r\n401 Unauthorized| p/NetGear FR114W WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 .*\r\nServer: Mbedthis-Appweb/([\w._-]+)\r\n.*<title>Openstage IP Phone User</title>.*<meta name='author' content='Siemens AG,|s p/Mbedthis-Appweb/ v/$1/ i/Siemens Openstage VoIP phone http config/ d/VoIP phone/ cpe:/a:mbedthis:appweb:$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\n.*Server: Splunkd\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<response>\n  <messages>\n    <msg type=\"WARN\">Remote login disabled because you are using a free license which does not provide authentication\.|s p/Splunkd httpd/ i/free license; remote login disabled/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: Splunkd\r\n| p/Splunkd httpd/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Splunkd\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<!--This is to override browser formatting; see server\.conf\[httpServer\] to disable\.|s p/Splunkd httpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*<!-- General javascripts -->.*var path='http://www\.axis\.com/cgi-bin/prodhelp\?prod=axis_([\w._-]+)&ver=([\w._-]+)&|s p/AXIS $1 print server http config/ v/$2/ d/print server/
@@ -7449,6 +7463,7 @@ match http m|^HTTP/1\.0 401 Not Authorized\r\nServer: RapidLogic/([\w._-]+)\r\nM
 match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\n\r\n.*<br>Ability Mail Server ([\w._-]+) by Code-Crafters<br>|s p/Code-Crafters Ability Mail Server http config/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><head><title>Available Databases - Banshee DAAP Browser</title>| p/Banshee DAAP browser httpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: FlashCom/([\w._-]+)\r\n.*<html><head><title>Wowza Media Server ([^<]*)</title></head>|s p/FlashCom/ v/$1/ i/Wowza Media Server $2 http config/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: FlashCom/([\w._-]+)\r\n.*<html><head><title>Wowza Streaming Engine ([^<]*)</title></head>|s p/FlashCom/ v/$1/ i/Wowza Streaming Engine $2 http config/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: FlashCom/([\w._-]+)\r\n.*<\?xml version=\"1\.0\" encoding=\"utf-8\"\?>\n<result>\n\t<level>error</level>\n\t<code>NetConnection\.Connect\.Rejected</code>|s p/FlashCom/ v/$1/ i/Adobe Flash Media Server/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<html><body>This site is running <a href='http://www\.TeamViewer\.com'>TeamViewer</a>\.| p/TeamViewer httpd/
@@ -8357,7 +8372,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nExpires: Thu, 3 Oct
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: COLIB_ASYNC_HTTP_SERVER/([\w._-]+)\r\n| p/COLIB_ASYNC_HTTP_SERVER/ v/$1/ i/Cotendo content delivery network/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: https?://([\w._-]+):\d+/sabnzbd\r\nContent-Length: 0\r\nContent-Type: text/plain\r\n| p/SABnzbd newsreader http interface/ h/$1/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=[0-9A-F]+; path=/; expires=Fri, 01 Jan 2038 00:00:00 GMT; HttpOnly\r\nCache-Control: no-cache,no-store\r\nPragma: no-cache\r\n.*<!--- Page\(page_login\)=\[Zaloguj si\xc4\x99 \] --->|s p/Vtech ARX168 WAP/ d/WAP/
-match http m|^HTTP/1\.1 200 OK\r\nDate: .* GMT\r\nLast-Modified: .* GMT\r\nETag: .*\r\nAccept-Ranges: bytes\r\n| p/Fortinet FortiGate 50B or FortiWifi 80C firewall http config/ d/firewall/ o/FortiOS/ cpe:/h:fortinet:fortigate:50b/ cpe:/h:fortinet:fortiwifi:80c/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .* GMT\r\nLast-Modified: .* GMT\r\nETag: .*\r\nAccept-Ranges: bytes\r\n| p/Fortinet FortiGate 50B or FortiWifi 60C or 80C firewall http config/ d/firewall/ o/FortiOS/ cpe:/h:fortinet:fortigate:50b/ cpe:/h:fortinet:fortiwifi:60c/ cpe:/h:fortinet:fortiwifi:80c/
 match http m|^HTTP/1\.0 302 Redirection\r\nServer: TCSJH-WebServer\r\nDate: .* GMT\r\nLocation: http://[\w._-]+:\d+/index\.htm\r\n\r\n$| p/TCS John Huxley Gaming Floor Live httpd/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Date: .* 197\d \d+:\d+:\d+ GMT\r\nExpires: 0\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3c\.org/TR/1999/REC-html401-19991224/loose\.dtd\">\r\n<HTML><HEAD><TITLE>Firepro Wireless</TITLE>|s p/FirePro Router WAP http config/ v/5.4/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nAccess-Control-Allow-Origin:\*\r\nCache-Control:no-cache\r\nContent-Type:application/json; charset=utf-8\r\nPragma:no-cache\r\n\r\n{\"error\": { \"type\": \"4110\", \"message\": \"No user logged in\" }, \"version\": 9, \"client_version\": \"([\w._-]+)\", \"running\": false}$| p/Spotify Web Helper/ v/$1/
@@ -8501,6 +8516,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cook
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=.*\r\n\r\n<!-- Page\(9096\)=\[Home\] -->|s p/BT Home Hub config httpd/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Sierra Wireless Inc, Embedded Server\r\n| p/Sierra Wireless embedded httpd/
 match http m|^HTTP/1\.1 200 OK\r.*\nContent-Type: text/xml; charset=\"utf-8\"\r\nConnection: close\r\nServer: (UPnP/[\d.]+ DLNADOC/[\d.]+) Platinum/([\d.]+)\r\n\r\n|s p/Platinum UPnP httpd/ v/$2/ i/$1/
+match http m|^HTTP/1\.1 412 Precondition Failed\r\nDate: .*\r\nContent-Length: 0\r\nConnection: close\r\nServer: (UPnP/[\d.]+ DLNADOC/[\d.]+) Platinum/([\d.]+)\r\n\r\n|s p/Platinum UPnP httpd/ v/$2/ i/$1/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Length: 96\r\nContent-Type: text/html\r\n\r\n<html>\n<body bgcolor=\"#99ccff\">\n<center>\n<h1>Invalid Access</h1>\n</center>\n</p></body>\n</html>\n\n\n| p/Cisco ATA 186 httpd/ d/VoIP adapter/
 match http m|^HTTP/1\.1 404 Not Found\r\nDate: .*\r\nServer: RT-Platform/([\d.]+) (UPnP/[\d.]+) EBS Mi\r\n| p/EBS RTPlatform UPnP httpd/ v/$1/ i/$2/
 match http m|^HTTP/1\.1 302 Found\r\nServer: Cassini/(4\.[\d.]+)\r\nDate: .*\r\nX-AspNet-Version: ([\d.]+)\r\nLocation: /Login\.aspx\r\n| p/Cassini httpd/ v/$1/ i/SmarterStats 8.2; ASP.Net $2/
@@ -8606,7 +8622,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nExpires: .*\r\nConn
 match http m|^HTTP/1\.0 404 Not Found\r\nServer: Panasonic AVC Server/([\w._-]+)\r\nConnection: close\r\nCache-Control: no-cache,no-store\r\nContent-Length: 0\r\n\r\n| p/Panasonic AVC httpd/ v/$1/ d/media device/
 match http m|^HTTP/1\.0 403 Forbidden\r\nContent-Length: 15\r\nContent-Type: text/html\r\nAccess-Control-Allow-Origin: \*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS\r\n\r\nInvalid request| p/Amazon MP3 Downloader httpd/
 match http m|^HTTP/1\.1 303 See Other\r\nContent-Type: text/html\r\nContent-Length: 0\r\nLocation: https://([\w.-]+):\d+/webvpn\.html\r\nSet-Cookie: webvpncontext=00@[\w._-]+; path=/\r\nConnection: Keep-Alive\r\n\r\n| p/Cisco SSLVPN/ h/$1/
-match http m|^HTTP/1\.0 302 Redirect\r\nServer: Hikvision-Webs\r\nDate: .*\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://([\w.-]+):\d+/index\.asp\r\n\r\n| p/Hikvision DVR httpd/ d/media device/ h/$1/
+match http m|^HTTP/1\.0 302 Redirect\r\nServer: Hikvision-Webs\r\nDate: .*\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://([\w.-]+):\d+/index\.[asphtm]+\r\n\r\n| p/Hikvision DVR httpd/ d/media device/ h/$1/
 match http m|^HTTP/1\.1 400\r\nContent-Length: 22\r\nContent-Type: text/plain\r\n\r\nMalformed Request-Line| p/SABnzbd newsreader httpd/
 match http m|^HTTP/1\.1 200 OK\r\nServer: HP_Compact_Server\r\nContent-Length: \d+\r\n-onnection: keep-alive\r\nContent-Type: text/html\r\n| p/HP LaserJet printer http admin/ d/printer/
 # ntopng <= 1.1 (r7342) had an auth bypass because processing isn't terminated after redirect.
@@ -8616,6 +8632,18 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\nServer: owhttpd\r\nLast-Modified: .*
 match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\nWWW-Authenticate: Digest realm=\"([^"]+)\", domain=\"/\", nonce=\"[\da-f]+\", algorithm=\"MD5\", qop=\"auth\"\r\nWWW-Authenticate: Basic realm=\"\1\"\r\nContent-Type: text/html\r\n.*<HTML>\r\n<HEAD>\r\n<TITLE>Error 401</TITLE>|s p/Tandberg videoconference httpd/ i/"$1"/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=.*<!--- Page\(page_login\)=\[Login\] --->.*<TITLE>(MP\d\w+)</TITLE>|s p/Audiocodes $1 gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\n\r\n<!doctype html>\n<html>\n  <head>\n    <title>rabbit\.js and Socket\.IO publish/subscribe example</title>| p/Node.js/ i/rabbit.js messaging example page/
+match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\r\nDate: .*?\r\nConnection: close\r\n\r\n.*<OBJECT\s+classid=\"clsid:EE479A40-C128-40DD-93DA-000556AF9607\"\r\n\t  codebase=\"CtrWeb\.cab#version=([\d,]+)\".*?<param name=\"CmdPort\" value=\"(\d+)\">\n<param name=\"StreamPort\" value=\"(\d+)\">|s p/DVRWeb viewer/ v/$SUBST(1,",",".")/ i/CmdPort $2; StreamPort $3/
+match http m|^HTTP/1\.0 200 OK\r\nServer: KwikNet Web Server\r\n| p/Kadak KwikNet httpd/
+match http m|^HTTP/1\.1 406 Not Acceptable\r\nContent-Type: text/html\r\nServer: MineloadHTTPD\r\n\r\nInvalid XML password\.| p/Mineload Bukkit plugin/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: cPanel\r.*\nWWW-Authenticate: Basic realm=\"cPanel WebDisk\"\r\n|s p/cPanel httpd/ i/unauthorized/
+match http m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nCache-control: no-cache\r\nDate: .*\r\nServer: eXtensible UPnP agent\r\nAccept-Ranges: none\r\nConnection: close\r\nContent-Type: text/html\r\nEXT:\r\n\r\n.*Uptime: (\d+ days, [\d:]+).*Model: <a href=http://xupnpd\.org>xupnpd-([\w._-]+)</a>|s p/xupnpd http admin/ v/$2/ i/uptime: $1/
+match http m|^HTTP/1\.1 200 OK\r\nServer: fexsrv\r\nLast-Modified: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n| p/F*EX (Frams' Fast File EXchange) server/
+match http m|^HTTP/1\.0 403 Forbidden\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\nPragma: no-cache\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//en\">\r\n<html lang=\"en\">\r\n\r\n<head>\r\n    <meta LAG = \"<AG_PROXY_ID>\" >| p/Novell Access Gateway/
+match http m|^HTTP/1\.0 302 Moved Temporarily\r\nContent-Type: text/html\r\nSet-Cookie: wbm_cookie_session_id=[\dA-F]+; path=/; HttpOnly\r\nCache-Control: public,max-age=86400\r\nPragma: cache\r\nExpires: .*\r\nDate: .*\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\nLocation: /main\.cgi\?page=index\.html\r\n\r\n| p/Vodafone Station http config/ d/WAP/
+# Also responds to GenericLines (v6.60)
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nLast-Modified: .*\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: \d+ +\r\n\r\n.+>Dual DHCP DNS Server Version ([\w._-]+ Windows Build \d+)<|s p/Dual DHCP DNS Server http viewer/ v/$1/ o/Windows/
+match http m|^HTTP/1\.1 200 Ok\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nConnection: close\r\nRefresh: 5;url=/\r\n\r\n.*<td align=right class=title>PowerMTA&trade; ([\w._-]+)&nbsp;</td>|s p/Port25 Solutions PowerMTA http status/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nServer: WebServer\(IPCamera_Logo\)\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\nLast-Modified: .*\r\nCache-Control: max-age=60\r\n\r\n\xef\xbb\xbf<!--\r\nProduct:ipcamera\r\nAuthor:xwpcom@gmail\.com\r\n-->| p/Maygion IPCamera http interface/ i/RTSP on same port/
 
 #(insert http)
 
@@ -8940,6 +8968,9 @@ match http-proxy m|^HTTP/1\.0 200 OK\r\n\r\n$| p/sslstrip/
 # No info on what this is yet
 softmatch http-proxy m|^HTTP/1\.1 400 Bad request\r\nContent-Length: 53\r\nContent-Type: text/html\r\n\r\nCan't do transparent proxying without a Host: header\.|
 
+# http://www.everyhue.com/vanilla/discussion/112/other-open-ports-on-the-bridge/p1
+match hue-link m|^GET  HTTP1\.0\n\n$| p|Philips Hue link/debug|
+
 # http://foolscap.lothar.com/
 match foolscap m|^HTTP/1\.1 500 Internal Server Error: internal server error, see logs\r\n\r\n| p/foolscap RPC/
 
@@ -9176,6 +9207,8 @@ match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .*\r\nAllow: OPTIONS, DESCRIBE,
 match rtsp m|^HTTP/1\.0 401 Unauthorized\r\nConnection: close\r\nContent-Type: text/html; charset=ISO-8859-1\r\nWWW-Authenticate: Basic realm=\"server\r\nContent-Length: 166\r\n| p/Avtech MPEG4 DVR control rtspd/
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .*\r\nallow: OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN, SET_PARAMETER\r\n\r\n$| p/ACTi E32 webcam rtspd/ d/webcam/ cpe:/h:acti:e32/
 match rtsp m|^HTTP/1\.0 503 Service Unavailable\r\nServer: GStreamer RTSP Server\r\nConnection: close\r\nCache-Control: no-store\r\nPragma: no-cache\r\nDate: .*\r\n\r\n$| p/GStreamer rtspd/
+# Example i/Win32; Windows NT 6.1/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: Microsoft Application Virtualization Server/([\w._-]+) \[([^]]+)\]\r\nDate: .*\r\n\r\n| p/Microsoft Application Virtualization Server rtspd/ v/$1/ i/$2/ o/Windows/
 
 match sassafras m|^/0 0 ([-\w_.]+)\r\n/0 0 HUH\r\n| p/Sassafras Key Server/ h/$1/
 
@@ -9492,8 +9525,6 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: INEOQUEST/([\d.]+)\r\nConnection: clos
 match honeypot m|^HTTP/1\.0 401 Unauthorized\r\n\r\n<BODY><HTML><H1>401 - Authorization Failed</H1></HTML></BODY>\0| p/Network Flight Recorder BackOfficer Friendly http honeypot/
 match honeypot m|^\r\nHTTP/1\.1 404 Not Found\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 36\r\nServer: IIS 5\.0\r\n\r\nErro\. URL n\xe3o encontrada no servidor| p/Valhalla honeypot/
 
-match http m|^HTTP/1\.1 200 OK\r\nServer: fexsrv\r\n.*A HREF="mailto:fex@([^"]*)"|s p/F*EX (Frams' Fast File EXchange) server/ h/$1/
-
 # Maybe too specific?
 match hpilo-virtual-media m|^#\0\x04\0$| p/HP Integrated Lights-Out Virtual Media/
 
@@ -9521,6 +9552,8 @@ match printer m|^Invalid protocol request \(71\): GGET / HTTP/1\.0\r\n\n$| p/Sun
 match zftp-admin m|^220 \.\r\n500 ' / HTTP/1\.0': command not understood\.\r\n| p/zFTPServer ftpd admin/
 
 match mmouse m|^HTTP/1\.0\x20200\x20OK\x20\n\x20Server:\x20Mobile\x20Air\x20Mouse\x20Server\x20\n\x20Content-Type:\x20text/html\x20\n\x20Content-Length:\x20344\n\n<HTML><HEAD><TITLE>Success!</TITLE><meta\x20name=\"viewport\"\x20content=\"width=device-width,user-scalable=no\"\x20/></HEAD><BODY\x20BGCOLOR=#000000><br><br><p\x20style=\"font:12pt\x20arial,geneva,sans-serif;\x20text-align:center;\x20color:green;\x20font-weight:bold;\"\x20>The\x20Mobile\x20Air\x20Mouse\x20server\x20running\x20on\x20\"([^\"]*)\"\x20was\x20able\x20to\x20receive\x20your\x20request\.</p></BODY></HTML>$| i/server name: $1/
+
+softmatch rtsp m|^RTSP/1.0 .*\r\n|
 
 # Know the device, but not the service. Port 515.
 # match unknown m|^\x02| p/Conceptronics CPSERVU print server/ d/print server/
@@ -9681,7 +9714,8 @@ match policy m|^action=defer_if_permit Policy Rejection: Invalid data\n\n$| p/Po
 
 match pop3 m|^\+OK Citadel POP3 server <\d+@([-\w_.]+)>\r\n-ERR Not logged in\.\r\n-ERR Not logged in\.\r\n| p/Citadel pop3d/ h/$1/
 
-match rtsp m|^HTTP/1\.0 501 Not Implemented\r\nAllow: DESCRIBE, GET_PARAMETER, PAUSE, PLAY, SETUP, SET_PARAMETER, TEARDOWN\r\n| p/Axis M1054 Network Camera rtspd/ d/webcam/
+match rtsp m|^HTTP/1\.0 501 Not Implemented\r\nAllow: DESCRIBE, GET_PARAMETER, PAUSE, PLAY, SETUP, SET_PARAMETER, TEARDOWN\r\n| p/Axis M1054 or P3364 Network Camera rtspd/ d/webcam/
+match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nPublic: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY\r\nBoard: MIPS\r\nDevCaps: VideoColor,IRLed,LightMode,\r\n\r\n| p/Maygion IPCamera rtspd/ d/webcam/
 
 match sand-db m|^\xff\x02\x04\0\x03\0r\n\x08\0@L\x01\0\x01\x01\0\0\0\0[A-Z]{16}$| p/SAND database/
 
@@ -9738,6 +9772,7 @@ match rtsp m|^RTSP/1\.0 200 OK\r\nServer: iCanSystem/([\w._-]+)\r\nCseq: \r\nPub
 match rtsp m|^RTSP/1\.0 200 OK\r\nPublic: DESCRIBE, GET_PARAMETER, PAUSE, PLAY, SETUP, SET_PARAMETER, TEARDOWN\r\n\r\n$| p/AXIS 207W or 212 PTZ network camera rtspd/ d/webcam/
 match rtsp m|^RTSP/1\.0 200 OK\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, SET_PARAMETER\r\n\r\n$| p/Avtech MPEG4 DVR control rtspd/
 match rtsp m|^RTSP/1\.0 200 OK\r\nSupported: play\.basic, con\.persistent\r\nCseq: 0\r\nServer: Wowza Media Server ([\w._-]+) build(\d+)\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, OPTIONS, ANNOUNCE, RECORD, GET_PARAMETER\r\n\r\n$| p/Wowza Media Server rtspd/ v/$1 build $2/
+match rtsp m|^RTSP/1\.0 200 OK\r\nSupported: play\.basic, con\.persistent\r\nCseq: 0\r\nServer: Wowza Streaming Engine ([\w._-]+) build(\d+)\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, OPTIONS, ANNOUNCE, RECORD, GET_PARAMETER\r\nCache-Control: no-cache\r\n\r\n$| p/Wowza Streaming Engine rtspd/ v/$1 build $2/
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix Mobile Server Version ([\w._-]+) \(win32\) \(RealServer compatible\)\r\nPublic: OPTIONS, DESCRIBE, PLAY, PAUSE, SETUP, GET_PARAMETER, SET_PARAMETER, TEARDOWN\r\nTurboPlay: 1\r\nRealChallenge1: [0-9a-f]+\r\nStatsMask: 8\r\n\r\n$|s p/Helix Mobile Server rtspd/ v/$1/
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix Mobile Server Version ([\w._-]+) \(win32\) \(RealServer compatible\)\r\nPublic: OPTIONS, DESCRIBE, ANNOUNCE, PLAY, PAUSE, SETUP, GET_PARAMETER, SET_PARAMETER, TEARDOWN\r\nTurboPlay: 1\r\nRealChallenge1: [0-9a-f]+\r\nStatsMask: 8\r\n\r\n$|s p/Helix Mobile Server rtspd/ v/$1/
 match rtsp m|^RTSP/1\.0 200 OK\r\nCseq: 0\r\nPublic: OPTIONS,DESCRIBE,SETUP,PLAY,PING,PAUSE,TEARDOWN\r\n\r\n$| p/Cisco WVC54GCA webcam rtspd/ d/webcam/ cpe:/h:cisco:wvc54gca/
@@ -9751,11 +9786,17 @@ match rtsp m|^RTSP/1\.0 200 OK 200\r\n.*Server: Amino streamer\r\n|s p/Amino Ami
 match rtsp m|^RTSP/1\.0 200 OK\r\nServer: GM Streaming Server v([\w._-]+)\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE\r\n\r\n$| p/GM Streaming Server rtspd/ v/$1/ d/webcam/
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nCSeq: 0\r\n\r\n| p/Sanyo VCC-HD2300 webcam rtspd/ d/webcam/ cpe:/h:sanyo:vcc-hd2300/
 match rtsp m|^RTSP/1\.0 401 Unauthorized\r\nCSeq: 0\r\nWWW-Authenticate: Basic realm=\"Arecont Vision\"\r\n\r\n| p/Arecont Vision surveillance camera rtspd/ d/webcam/
-match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .* GMT\r\nAllow: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, GET_PARAMETER, SET_PARAMETER\r\n\r\n| p/D-Link DCS-2130 webcam rtspd/ d/webcam/ cpe:/h:dlink:dcs-2130/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .* GMT\r\nAllow: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, GET_PARAMETER, SET_PARAMETER\r\n\r\n| p/D-Link DCS-2130 or Pelco IDE10DN webcam rtspd/ d/webcam/ cpe:/h:dlink:dcs-2130/ cpe:/h:pelco:ide10dn/
 match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nDate: .*\r\nServer: RealMedia Server Version ([\d.]+) \(([^)]+)\)\r\nPublic: OPTIONS, DESCRIBE, ANNOUNCE, SETUP, GET_PARAMETER, SET_PARAMETER, TEARDOWN\r\nRealChallenge1: | p/RealMedia Server/ v/$1/ o/$2/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .*\r\nAllow: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE\r\n\r\n| p/NUUO IP Surveillance rtpsd/ d/webcam/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .*\r\nAllow: OPTIONS, DESCRIBE, SETUP, TEARDOWN, SET_PARAMETER, PLAY\r\n\r\n| p/Planet ICA-HM132 webcam rtspd/ d/webcam/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .*\r\nAllow: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, SET_PARAMETER\r\n\r\n| p/Live555 Streaming Server rtspd/
+match rtsp m|^RTSP/1\.0 200 OK\r\nAudio-Jack-Status: .*\r\nPublic: ANNOUNCE, SETUP, RECORD, PAUSE, FLUSH, TEARDOWN, OPTIONS, GET_PARAMETER, SET_PARAMETER\r\n\r\n| p/Shairport rtspd/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: Optelecom-NKF RTSPServer/([\w._-]+)\r\n\r\n| p/Optelecom-NKF rtspd/ v/$1/ d/webcam/
+match rtsp m|^RTSP/1\.0 200 OK\r\nServer: HiIpcam/([\w._-]+) VodServer/([\w._-]+)\r\nPublic: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY,SET_PARAMETER,GET_PARAMETER\r\n\r\n| p/VODServer rtspd/ v/$2/ i/HiIpcam $1/
 
 # IQinVision IQeye3 RTSP, this is pretty generic, leaving in (Brandon)
-match http m|^RTSP/1\.0 200 OK\r\nServer: Gordian Embedded([\d\.]+)\r\n.*Public: OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN\r\n|s p/Gordian httpd/ v/$1/ i/IQinVision IQeye3 webcam rtspd/ d/webcam/
+match rtsp m|^RTSP/1\.0 200 OK\r\nServer: Gordian Embedded([\d\.]+)\r\n.*Public: OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN\r\n|s p/Gordian httpd/ v/$1/ i/IQinVision IQeye3 webcam rtspd/ d/webcam/
 
 match http m|^HTTP/1\.1 403 Forbidden\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/([\d.]+).*This object on the APC Management Web Server is protected and requires a secure socket connection\.|s p/Allegro RomPager/ v/$1/ i/APC http config/ d/power-device/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.1 405 Method Not Allowed\r\nAllow: GET, HEAD, POST, PUT\r\nContent-Length: 0\r\nServer: Allegro-Software-RomPager/([\d.]+)\r\n\r\n$| p/Allegro RomPager/ v/$1/ cpe:/a:allegro:rompager:$1/
@@ -9784,6 +9825,7 @@ match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nDate: .*\r\nConnection
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nContent-Length: 0\r\n\r\n400 Bad Request\r\n| p/Cisco Wireless LAN Controller httpd/ d/remote management/
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n<html><head><title>505 HTTP Version Not Supported</title></head><body><h1>HTTP Version Not Supported</h1><p>HTTP versions 1\.0 and 1\.1 are supported\.</p></body></html>| p/Mitel SIP DEC VoIP phone http config/ d/VoIP phone/
 match http m|^<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad request version \('RTSP/1\.0'\)\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n| p/Python BaseHTTPServer/
+match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 59\r\nConnection: close\r\n\r\nError 400: Bad Request\nCannot parse HTTP request: \[OPTIONS\]$| p/Mongoose httpd/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 103\r\nConnection: close\r\n\r\n<html><body> <h2>Mikrotik HttpProxy</h2>\n\r<hr>\n\r<h2>\n\rError: 400 Bad Request\r\n\r\n</h2>\n\r</body></html>\n\r$| p/MikroTik HttpProxy/ d/router/
@@ -10240,6 +10282,9 @@ match freeciv m|^\0\x03\x58\0\x16\x01\0\0\0\0Freeciv ([\d.]+)\0\0\0\x03\0\0\x03\
 match imaze-game m|^\0\x18\x82iMaze server JC/HUK ([\d.]+)$| p/iMaze game server/ v/$1/
 
 match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0v\x07\0\0\x04\0\x01\x05\0\0.\0$|s p/Microsoft RPC/ o/Windows/ cpe:/o:microsoft:windows/a
+
+# http://msdn.microsoft.com/en-us/library/cc219293.aspx
+softmatch mc-nmf m|^\x08Ihttp://schemas\.microsoft\.com/ws/2006/05/framing/faults/UnsupportedVersion|
 
 match ormi m|^\xe3\r\n\r\n\0\x01\0.\0vInvalid protocol verification, illegal ORMI request or request performed with an incompatible version of this protocol|s p/Oracle Remote Method Invocation/
 
@@ -11397,6 +11442,7 @@ match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: /error\r\n$| p/Enphas
 match http m|^HTTP/1\.1 404 Not Found\r\nSet-Cookie: sid=[0-9a-f]{128}; path=/; httponly\r\nContent-Type: application/json\r\nDate: .*\r\nConnection: close\r\n\r\n{\"message\":\"Resource Not Found\",\"status\":404}| p/Node.js/
 match http m|^HTTP/1\.0 200 OK\r\nLast-modified: .*\r\nServer: ESERV-10/([\d.]+)\n| p/Viola ESERV-10 httpd/ v/$1/
 match http m|^HTTP/1\.1 503 DNS error for hostname nice%20ports%2C: Name or service not known\. If nice%20ports%2C refers to a configured cache repository, please check the corresponding configuration file\.\r\nContent-Length: 478\r\nContent-Type: text/html\r\nDate: .*\r\nServer: Debian Apt-Cacher NG/([\w._-]+)\r\nConnection: close\r\n\r\n| p/Debian Apt-Cacher NG/ v/$1/
+match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\r\n<head>\r\n<title>(SPA\d\d\d[\w._-]*) Configuration Utility</title>| p/Cisco $1 http config/ d/VoIP phone/
 
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/
@@ -11582,6 +11628,7 @@ match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent:PolycomRealPresenceGroup(\d+)/([\w.
 match sip m|^SIP/2\.0 500 Server Internal Error\r\n.*User-Agent: BT Home Hub ([\w._-]+) Build ([\w._-]+)\r\nX-Serialnumber: (\w+)\r\n|s p/BT Home Hub $1 SIP/ v/$2/ i/serial: $3/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Invalid Via Port 0\r\n.*User-Agent: drgos-drg(\d+)-([\w._-]+)\r\n|s p/Genexis DRG $1 SIP/ v/$2/ d/broadband router/
 match sip m|^SIP/2\.0 200 OK\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=[a-f\d-]{58}\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;received=[\d.]+;branch=foo\r\nSupported: gruu-10,replaces,msrtc-event-categories\r\nContent-Length: 0\r\n\r\n| p/LifeSize UVC Multipoint SIP/
+match sip m|^SIP/2\.0 403 Forbidden\r\nAllow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY\r\n.*User-Agent: Wowza Streaming Engine ([\w._-]+) build(\d+)\r\n|s p/Wowza Streaming Engine sipd/ v/$1 build $2/
 
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX ([\w._+-]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
