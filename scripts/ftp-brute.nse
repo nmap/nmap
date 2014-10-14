@@ -71,7 +71,7 @@ Driver = {
       return false, brute.Error:new("Couldn't send login: " .. err)
     end
 
-    status, err = self.socket:send("PASS " .. pass .. "\n\n")
+    status, err = self.socket:send("PASS " .. pass .. "\r\n")
     if(not(status)) then
       return false, brute.Error:new("Couldn't send login: " .. err)
     end

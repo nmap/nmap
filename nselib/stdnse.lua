@@ -119,11 +119,11 @@ function debug (level, fmt, ...)
 end
 
 --Aliases for particular debug levels
-function debug1 (...) return stdnse.debug(1, ...) end
-function debug2 (...) return stdnse.debug(2, ...) end
-function debug3 (...) return stdnse.debug(3, ...) end
-function debug3 (...) return stdnse.debug(4, ...) end
-function debug5 (...) return stdnse.debug(5, ...) end
+function debug1 (...) return debug(1, ...) end
+function debug2 (...) return debug(2, ...) end
+function debug3 (...) return debug(3, ...) end
+function debug3 (...) return debug(4, ...) end
+function debug5 (...) return debug(5, ...) end
 
 ---
 -- Deprecated version of debug(), kept for now to prevent the script id from being 
