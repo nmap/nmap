@@ -4262,6 +4262,8 @@ match tinyfw m|^\x0f\0\n\0\x01\0\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 
 match trackmania-gbx m|^\x0b\0\0\0GBXRemote 2$| p/TrackMania game GBX remote/
 
+match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Unspecified, UPnP/1\.0, Unspecified\r\nCONTENT-LENGTH: 50\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>400 Bad Request</h1></body></html>| p/Belkin Wemo upnpd/ i/UPnP 1.0/ d/power-misc/
+
 match venti m|^venti-02-libventi\n| p/Plan 9 venti storage system/
 
 match vidyoroom m|^Error VCXCI_ERROR_BADREQUEST error Code:3\n$| p/VidyoRoom HD-220 videoconferencing system/ d/media device/
@@ -4979,6 +4981,7 @@ match postgresql m|^EInvalid packet length\0$| p/PostgreSQL DB/ cpe:/a:postgresq
 # postgresql-7.2.3-5.73; linux 2.4.20-18.7 redhat 7.3
 match postgresql m|^EFATAL 1:  invalid length of startup packet\n\0| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 match postgresql m|^EFATAL:  ung\xfcltige L\xe4nge des Startpakets\n\0| p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
+match postgresql m|^E\0\0\09SFATAL\0MExpecting a startup message, but received \r\0\0| p/Postgres-XC/ v/1.1/
 
 # Port 6509.
 match printer m|^\xff$| p/Panasonic mfpscdl.exe service/
@@ -5169,13 +5172,17 @@ match upnp m|^ 501 Not Implemented\r\n.*Server: (RT-\w+) UPnP/([\w.]+) MiniUPnPd
 match upnp m|^ 501 Not Implemented\r\n.*Server: DrayTek/Vigor([\w._-]+) UPnP/([\w.]+) miniupnpd/([\w.]+)\r\n|s p/MiniUPnP/ v/$3/ i/DrayTek Vigor $1 router; UPnP $2/ d/router/
 match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/kamikaze UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/OpenWrt Kamikaze; UPnP $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWRT/Backfire__(r\d+)_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/OpenWrt Backfire $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWRT/Attitude_Adjustment__(r\d+)_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/OpenWrt Attitude Adjustment $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWRT/Backfire__unknown_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/OpenWrt Backfire; UPnP $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenW[Rr][Tt]/Attitude_Adjustment__(r\d+)_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/OpenWrt Attitude Adjustment $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWrt/Barrier_Breaker__(r\d+)_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/OpenWrt Barrier Breaker $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 # Lots of devices, all sorts
 match upnp m|^ 501 Not Implemented\r\n.*Server: FedoraCore/(\d+) UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/Fedora Core $1; UPnP $2/
 match upnp m|^ 501 Not Implemented\r\n.*Server: Netgear/[\w._-]+ UPnP/([\w._-]+) miniupnpd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/Netgear DG834G or WNDR3300 WAP; UPnP $1/ d/WAP/ cpe:/h:netgear:dg834g/ cpe:/h:netgear:wndr3300/
 match upnp m|^ 501 Not Implemented\r\n.*Server: Arris/[\w._-]+ UPnP/([\w._-]+) miniupnpd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/Arris TG862G WAP; UPnP $1/ d/WAP/
 match upnp m|^ 501 Not Implemented\r\n.*Server: neufbox/neufbox UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n\r\n|s p/MiniUPnP/ v/$2/ i/Neufbox; UPnP $1/ d/broadband router/
 match upnp m|^ 501 Not Implemented\r\n.*Server: ASUSTeK UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n\r\n|s p/MiniUPnP/ v/$2/ i/Asus; UPnP $1/ d/broadband router/
+match upnp m|^ 501 Not Implemented\r\n.*Server: Debian/(\w+) UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/Debian $1; UPnP $2/
+match upnp m|^ 501 Not Implemented\r\n.*Server: UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/UPnP $1/
 
 # MiniDLNA
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n| p/MiniDLNA/
@@ -5185,15 +5192,20 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnec
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Ubuntu/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Ubuntu $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:canonical:ubuntu_linux:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Gentoo/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Gentoo $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:gentoo:linux:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: OpenWrt Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/OpenWrt; DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: FreeBSD/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/FreeBSD $1/ cpe:/o:freebsd:freebsd:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$3/ i/DLNADOC $1; UPnP $2/
 # Catch-all for weird cases reporting OS incorrectly.
 # Avoid any that match OS/version so we can add those as they are submitted
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: ([^/ ]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/OS: $1; DLNADOC $2; UPnP $3/
 
-# ReadyDLNA
+# ReadyDLNA (formerly miniDLNA)
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: RAIDiator/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) ReadyDLNA/([\w._-]+)\r\n| p/ReadyDLNA/ v/$4/ i/RAIDiator $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux[ /]([\d.]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) ReadyDLNA/([\w._-]+)\r\n| p/ReadyDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: ([\d._-]+)ReadyNAS DLNADOC/([\w._-]+) UPnP/([\w._-]+) ReadyDLNA/([\w._-]+)\r\n| p/ReadyDLNA/ v/$4/ i/ReadyNAS; DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+# Catch-all for weird cases reporting OS incorrectly.
+# Avoid any that match OS/version so we can add those as they are submitted
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: ([^/ ]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) ReadyDLNA/([\w._-]+)\r\n| p/ReadyDLNA/ v/$4/ i/OS: $1; DLNADOC $2; UPnP $3/
 
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nConnection: close\r\nContent-type: text/html\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n$| p/MiniUPnP/
 match upnp m|^ 501 Not Implemented\r\n.*Server: Linux Mips ([\w._-]+) UPnP/([\w.]+) MiniUPnPd/([\w.]+)\r\n|s p/MiniUPnP/ v/$3/ i/Linux $1 (MIPS); UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel/a
@@ -5208,6 +5220,7 @@ match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: ([\w._-]+) 2/, UPnP/([\w._-]+
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p|Belkin/Linksys wireless router UPnP| i/UPnP $2; BRCM400 $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) ZyXEL-UPnP/([\w._-]+)\r\n| p/ZyXEL wireless router UPnP/ i/UPnP $2; ZyXEL-UPnP $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Symbian/([\w._-]+) UPnP/([\d.]+)\r\nContent-Length: 151\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html><head>\n<title>400 Bad Request</title>\n</head><body>\n<h1>Bad Request</h1>\n<hr />\n</body></html>$| p/Nokia N85 media share/ i/SymbianOS $1; UPnP $2/ d/phone/ o/SymbianOS/
+match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: XboxUpnp/([\w._-]+) UPnP/([\w._-]+) Xbox/2\.0\.(\d+)\.0\r\n|s p/Microsoft Xbox 360 upnpd/ v/$1/ i/UPnP $2; Xbox Dashboard 2.0.$3.0/ o/Xbox 360/ cpe:/h:microsoft:xbox_360_kernel:$3/
 
 match uptime-agent m|^ERR\n$| p/up.time server monitor/
 
@@ -8473,7 +8486,7 @@ match http m|^HTTP/1\.1 302 Found\r\nX-Frame-Options: SAMEORIGIN\r\nLocation: ht
 match http m|^HTTP/1\.1 302 Found\r\nX-Frame-Options: SAMEORIGIN\r\nLocation: https?://([\w._-]+):\d+/b/l\.e\r\nContent-Length: \d+\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">| p/Symantec PGP Web Messenger httpd/ h/$1/
 match http m|^HTTP/1\.1 302 Found\r\nX-Frame-Options: SAMEORIGIN\r\nLocation: https?://([\w._-]+):\d+/omc/GetLoginScreen\.uevent\r\nContent-Length: \d+\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">| p/Symantec PGP Universal Server http admin/ h/$1/
 match http m|^HTTP/1\.1 404 not found\r\nContent-Length: 13\r\n\r\n404 not found$| p/Slingbox 500 httpd/ d/media device/
-match http m|^HTTP/1\.1 403 Forbidden\r\n.*SERVER: LG-BDP DLNADOC/([\w._-]+)\r\n| p/LG BP730 Blu-ray player upnp/ i/DLNADOC $1/ d/media device/ cpe:/h:lg:bp730/
+match upnp m|^HTTP/1\.1 403 Forbidden\r\n.*SERVER: LG-BDP DLNADOC/([\w._-]+)\r\n| p/LG BP730 Blu-ray player upnp/ i/DLNADOC $1/ d/media device/ cpe:/h:lg:bp730/
 match http m|^HTTP/1\.1 200 OK\r\n.*Set-Cookie: ZM_TEST=true;Secure\r\n.*\* Zimbra Collaboration Suite Web Client\r\n \* Copyright \(C\) 2007, 2008, 2009, 2010 Zimbra, Inc\.\r\n \* \r\n \* The contents of this file are subject to the Zimbra Public License\r\n \* Version 1\.3|s p/Zimbra Collabration Suite httpd/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"> \n<title>Access Point Configuration Utility</title>| p/Cisco AP541N WAP http admin/ d/WAP/ cpe:/h:cisco:ap541n/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n$| p/Talk Talk YouView set-top box http config/ d/media device/
@@ -8968,6 +8981,8 @@ match http-proxy m|^HTTP/1\.0 200 OK\r\n\r\n$| p/sslstrip/
 # No info on what this is yet
 softmatch http-proxy m|^HTTP/1\.1 400 Bad request\r\nContent-Length: 53\r\nContent-Type: text/html\r\n\r\nCan't do transparent proxying without a Host: header\.|
 
+match hnap m|^HTTP/1\.1 200 OK.*\r\n\r\n<\?xml.*<soap:Envelope.*<Type>([^<]+)</Type>.*<VendorName>([^<]+)</VendorName>.*<ModelName>([^<]+)</ModelName>\n<FirmwareVersion>([^<]+)</FirmwareVersion>|s p/$2 HNAP/ v/$4/ i/device: $1; model: $3/
+
 # http://www.everyhue.com/vanilla/discussion/112/other-open-ports-on-the-bridge/p1
 match hue-link m|^GET  HTTP1\.0\n\n$| p|Philips Hue link/debug|
 
@@ -9410,9 +9425,16 @@ match upnp m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nDate: .* GMT\r\nSe
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: \r\nContent-Length: 0\r\nConnection: close\r\n\r\n| p/AllShare UPnP/ o/Bada/ cpe:/o:samsung:bada:1.2/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nSERVER: Linux/([\w._-]+) UPnP/([\w._-]+) DLNADOC/([\w._-]+) INTEL_NMPR/([\w._-]+) LGE_DLNA_SDK/([\w._-]+)\r\n| p/LG LW5700 TV upnp/ i/UPnP $2; DLNADOC $3; INTEL_NMPR $4; LGE_DLNA_SDK $5/ d/media device/ o/Linux $1/ cpe:/h:lg:lw5700/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 500 Internal server error\r\nDATE: .* GMT\r\nSERVER: OpenRG/([\w._-]+) UPnP/([\w._-]+) Actiontec/RG_VERSION\r\nCONNECTION: close\r\n\r\n$| p/Jungo OpenRG upnp/ v/$1/ i/UPnP $2/
-match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: PACKAGE_VERSION HUAWEI, UPnP, HUAWEI SDK for UPnP devices/  \r\nCONTENT-LENGTH: 48\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>$| p/Huawei E303s-2 broadband router upnp/ d/broadband router/ o/VxWorks/ cpe:/h:huawei:e303s-2/ cpe:/o:huawei:vxworks/
+# E303s-2, K4201
+match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: PACKAGE_VERSION HUAWEI, UPnP, HUAWEI SDK for UPnP devices/  \r\nCONTENT-LENGTH: 48\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>$| p/Huawei broadband router upnp/ d/broadband router/ o/VxWorks/ cpe:/o:huawei:vxworks/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html; charset=\"utf-8\"\r\nServer: Linux/([\w._-]+) CyberHTTP/([\d.]+)\r\nContent-Length: 0\r\nDate: .*\r\n\r\n| p/CyberLink upnp/ v/$2/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 404 Not Found\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) BRCM400-UPnP/([\d.]+)\r\n| p/Broadcom upnpd/ v/$3/ i/UPnP $2/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 404 Not Found\r\nServer: NFLC/([\w._-]+) UPnP/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/NetFront Living Connect upnpd/ v/$1/ i/UPnP $2; DLNADOC $3/
+match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: XboxUpnp/([\w._-]+) UPnP/([\w._-]+) Xbox/2\.0\.(\d+)\.0\r\n|s p/Microsoft Xbox 360 upnpd/ v/$1/ i/UPnP $2; Xbox Dashboard 2.0.$3.0/ o/Xbox 360/ cpe:/h:microsoft:xbox_360_kernel:$3/
+match upnp m|^HTTP/1\.1 404 Not Found\r\nSERVER: Linux/([\w._-]+) UPnP/([\w._-]+) Motorola-DLNA-Stack-DLNADOC/([\w._-]+)\r\n| p/Motorola DLNA Stack upnpd/ i/UPnP $2; DLNA $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: ipos/([\w._-]+) UPnP/([\w._-]+) (RNX-[\w._-]+)/1\.0\r\n| p/ipOS upnpd/ i/Rosewill $3; UPnP $2/ d/broadband router/ o/ipOS $1/ cpe:/o:ubicom:ipos:$1/
+match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: ipos/([\w._-]+) UPnP/([\w._-]+) (TL-[\w._-]+)/1\.0\r\n| p/ipOS upnpd/ i/TP-LINK $3; UPnP $2/ d/broadband router/ o/ipOS $1/ cpe:/o:ubicom:ipos:$1/
+match upnp m|^HTTP/1\.1 200 OK\r\n.*Server: UPnP/([\w._-]+) DLNADOC/([\w._-]+) Allwinnertech/([\w._-]+)\r\n\r\n|s p/AllWinner upnpd/ v/$3/ i/UPnP $1; DLNADOC $2/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -11145,6 +11167,54 @@ match omniback m|^\0\0\0.15\0 \x07\x01\[12:1\]\0 \x07\x02\[2003\]\0 \x07\x051\d+
 
 match ouman-trend m|^\0\0\0\x05\xffSMBr$| p/Ouman Trend environmental sensor/
 
+#### Match versions based on line numbers in error messages.
+# http://seclists.org/nmap-dev/2010/q1/456
+# Update like this:
+# for ver in 9.1.2 9.1.3 9.1.4 9.1.5 9.1.6 9.2.0 9.2.1; do echo -n "$ver "; wget -q -O - http://ftp.freebsd.org/pub/FreeBSD/distfiles/postgresql/postgresql-$ver.tar.bz2 | tar -xjf - -O | grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))"; done
+# or from git (faster!):
+# git tag -l 'REL*' | while read tag; do git checkout $tag -- postmaster.c; echo $tag:$(grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))));" postmaster.c) >> lines.txt; done
+# 7.4 - 9.3 done, minus betas and RCs
+
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ cpe:/a:postgresql:postgresql:7.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1293\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.2 - 7.4.30/ cpe:/a:postgresql:postgresql:7.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1408\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.0 - 8.0.1/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1431\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.2 - 8.0.4/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1439\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.7 - 8.0.8/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1443\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.9 - 8.0.13/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1445\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.6 or 8.0.14 - 8.0.26/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1449\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.0/ cpe:/a:postgresql:postgresql:8.1.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1450\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.1/ cpe:/a:postgresql:postgresql:8.1.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1448\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.3 - 8.1.4/ cpe:/a:postgresql:postgresql:8.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1452\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.5 - 8.1.9/ cpe:/a:postgresql:postgresql:8.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1454\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.2 or 8.1.10 - 8.1.23/ cpe:/a:postgresql:postgresql:8.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1432\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.0/ cpe:/a:postgresql:postgresql:8.2.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1437\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.1 - 8.2.4/ cpe:/a:postgresql:postgresql:8.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1440\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.5 - 8.2.19/ cpe:/a:postgresql:postgresql:8.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1441\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.5 or 8.2.20 - 8.2.23/ cpe:/a:postgresql:postgresql:8.0.5/ cpe:/a:postgresql:postgresql:8.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1497\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.0 - 8.3.7/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1507\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.8 - 8.3.13/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1508\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.14 - 8.3.18/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1514\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.19/ cpe:/a:postgresql:postgresql:8.3.19/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1515\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.20 - 8.3.23/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1570\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.0/ cpe:/a:postgresql:postgresql:8.4.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ cpe:/a:postgresql:postgresql:8.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1626\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.12/ cpe:/a:postgresql:postgresql:8.4.12/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1627\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.13 - 8.4.19/ cpe:/a:postgresql:postgresql:8.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1622\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.20 - 8.4.22/ cpe:/a:postgresql:postgresql:8.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1666\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.0 - 9.0.7/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ cpe:/a:postgresql:postgresql:9.0.8/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ cpe:/a:postgresql:postgresql:9.1.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ cpe:/a:postgresql:postgresql:9.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ cpe:/a:postgresql:postgresql:9.3/
+
 # PostgreSQL 7.4
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mnicht unterst.{1,2}tztes Frontend-Protokoll 65363\.19778: Server unterst.{1,2}tzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support[e\xe9]e de l'interface 65363\.19778: le serveur supporte de 1\.0 [a\xe0] 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French/ cpe:/a:postgresql:postgresql::::fr/
@@ -11155,63 +11225,16 @@ match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocolo 65363\.19778 n\xe3o \xe9 su
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocolo do cliente 65363\.19778 n.{4,6} suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/Portuguese/ cpe:/a:postgresql:postgresql::::pt/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support\xc3\xa9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xc3\xa0 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French; Unicode support/ cpe:/a:postgresql:postgresql::::fr/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
-
-#### Match versions based on line numbers in error messages.
-# http://seclists.org/nmap-dev/2010/q1/456
-# Update like this:
-# for ver in 9.1.2 9.1.3 9.1.4 9.1.5 9.1.6 9.2.0 9.2.1; do echo -n "$ver "; wget -q -O - http://ftp.freebsd.org/pub/FreeBSD/distfiles/postgresql/postgresql-$ver.tar.bz2 | tar -xjf - -O | grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))"; done
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1293\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/7.4.12 - 7.4.30/ cpe:/a:postgresql:postgresql:7.4/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1408\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.0.0/ cpe:/a:postgresql:postgresql:8.0/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1445\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.0.15 - 8.0.26/ cpe:/a:postgresql:postgresql:8.0/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1454\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.1.11 - 8.1.23/ cpe:/a:postgresql:postgresql:8.1/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1440\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.2.6 - 8.2.19/ cpe:/a:postgresql:postgresql:8.2/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1441\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.2.20 - 8.2.23/ cpe:/a:postgresql:postgresql:8.2/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1497\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.0 - 8.3.7/ cpe:/a:postgresql:postgresql:8.3/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1507\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.9 - 8.3.13/ cpe:/a:postgresql:postgresql:8.3/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1508\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.14 - 8.3.18/ cpe:/a:postgresql:postgresql:8.3/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1514\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.19/ cpe:/a:postgresql:postgresql:8.3.19/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1515\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.20 - 8.3.21/ cpe:/a:postgresql:postgresql:8.3/
-
-match postgresql m|^E\0\0\0\x9dSFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1507\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.9/ o/Windows/ cpe:/a:postgresql:postgresql:8.3.9/ cpe:/o:microsoft:windows/a
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1570\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.4.0/ cpe:/a:postgresql:postgresql:8.4.0/
-
-match postgresql m|^E\0\0\0\x9dSFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.1 - 8.4.2/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ cpe:/a:postgresql:postgresql:8.4/
-match postgresql m|^E\0\0\0\x94SFATAL\0C0A000\0MProtocole non support\?e de l'interface 65363\.19778 : le serveur supporte de 1\.0 \?\n3\.0\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ i/French/ cpe:/a:postgresql:postgresql:8.4:::fr/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1626\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.4.12/ cpe:/a:postgresql:postgresql:8.4.12/
-match postgresql m|^E\0\0\0\x94SFATAL\0C0A000\0MProtocole non support\?e de l'interface 65363\.19778 : le serveur supporte de 1\.0 \?\n3\.0\0Fpostmaster\.c\0L1626\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.4.12/ i/French/ cpe:/a:postgresql:postgresql:8.4.12:::fr/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1627\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.13 - 8.4.14/ cpe:/a:postgresql:postgresql:8.4/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1666\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.0.1 - 9.0.6/ cpe:/a:postgresql:postgresql:9.0/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1694\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ cpe:/a:postgresql:postgresql:9.1/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1/
-# Supposed to be Ukrainian? Submission came from a .ua domain.
-match postgresql m|^E\0\0\0\x9aS\?\?\?\?\0C0A000\0M\?\?\?\?\?\?\?\?\?\?\?\?\?\?\?\? \?\?\?\?\?\?\?\? \?\?\?\?\?\?\?\?\?\?\? \?\?\?\?\?\?\?\?\?\? 65363\.19778; \?\?\?\?\?\? \?\?\?\?\?\?\?\?\?\?\?\? 1\.0 - 3\.0 \0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1::uk/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1700\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.4/ cpe:/a:postgresql:postgresql:9.1.4/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.5 - 9.1.9/ cpe:/a:postgresql:postgresql:9.1/
-
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.2.0 - 9.2.2/ cpe:/a:postgresql:postgresql:9.2/
-
+match postgresql m|^E\0\0\0.S\xd0\xa4\xd0\x90\xd0\xa2\xd0\x90\xd0\x9b\xd0\xac\xd0\x9d\xd0\x90\xd0\xaf \xd0\x9e\xd0\xa8\xd0\x98\xd0\x91\xd0\x9a\xd0\x90\0C0A000\0M\xd0\xbd\xd0\xb5\xd0\xbf\xd0\xbe\xd0\xb4\xd0\xb4\xd0\xb5\xd1\x80\xd0\xb6\xd0\xb8\xd0\xb2\xd0\xb0\xd0\xb5\xd0\xbc\xd1\x8b\xd0\xb9 \xd0\xba\xd0\xbb\xd0\xb8\xd0\xb5\xd0\xbd\xd1\x82\xd1\x81\xd0\xba\xd0\xb8\xd0\xb9 \xd0\xbf\xd1\x80\xd0\xbe\xd1\x82\xd0\xbe\xd0\xba\xd0\xbe\xd0\xbb 65363\.19778: \xd1\x81\xd0\xb5\xd1\x80\xd0\xb2\xd0\xb5\xd1\x80 \xd0\xbf\xd0\xbe\xd0\xb4\xd0\xb4\xd0\xb5\xd1\x80\xd0\xb6\xd0\xb8\xd0\xb2\xd0\xb0\xd0\xb5\xd1\x82 \xd0\xbe\xd1\x82 1\.0 \xd0\xb4\xd0\xbe 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/Russian; Unicode support/ cpe:/a:postgresql:postgresql::::ru/
+# Supposed to be Ukrainian? submission came from a .ua domain.
+match postgresql m|^E\0\0\0.S\?\?\?\?\0C0A000\0M\?\?\?\?\?\?\?\?\?\?\?\?\?\?\?\? \?\?\?\?\?\?\?\? \?\?\?\?\?\?\?\?\?\?\? \?\?\?\?\?\?\?\?\?\? 65363\.19778; \?\?\?\?\?\? \?\?\?\?\?\?\?\?\?\?\?\? 1\.0 - 3\.0 \0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1::uk/
+# Korean
 match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0MProtocole non support\?e de l'interface 65363\.19778 : le serveur supporte de 1\.0 \?\n3\.0\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ i/French/ cpe:/a:postgresql:postgresql:8.4:::fr/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0MProtocole non support\?e de l'interface 65363\.19778 : le serveur supporte de 1\.0 \?\n3\.0\0Fpostmaster\.c\0L1626\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.4.12/ i/French/ cpe:/a:postgresql:postgresql:8.4.12:::fr/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778: .*? 1\.0 .*? 3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1507\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.9/ o/Windows/ cpe:/a:postgresql:postgresql:8.3.9/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778: .*? 1\.0 .*? 3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.1 - 8.4.2/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
+
 
 # PostgreSQL softmatch entries, put all hard matches above this line.
 softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
@@ -11454,7 +11477,7 @@ match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: AirTunes/([\w._-]+)\r\n\r\n$|
 match scifinder m|^\0\[T /nic$| p/CAS SciFinder/
 
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\n.*SERVER: Linux/([\w._+-]+), UPnP/([\d.]+), Intel UPnP SDK/([\w._~-]+)\r\n|s p/Portable SDK for UPnP devices/ v/$3/ i/kernel $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m=^HTTP/1\.0 \d\d\d .*\r\nSERVER: (?:TP-LINK )?Wireless (?:Router|AP) ([\w._/-]+)(?:http://www\.tp-link\.com)?, UPnP/([\d.]+)\r\n= p/TP-LINK $1 WAP upnp/ i/UPnP $2/ d/WAP/
+match upnp m=^HTTP/1\.0 \d\d\d .*\r\nSERVER: (?:TP-LINK )?Wireless (?:N )?(?:Router|AP) ([\w._/-]+)(?:http://www\.tp-link\.com)?, UPnP/([\d.]+)\r\n= p/TP-LINK $1 WAP upnp/ i/UPnP $2/ d/WAP/
 
 match vnc-http m|^HTTP/1\.0 404 Not Found\r?\n\r?\n<HTML>\n  <HEAD><TITLE>404 Not Found</TITLE></HEAD>\n  <BODY>\n    <H1>Not Found</H1>\n    The requested file could not be found\.\n  </BODY>\n</HTML>\n| p/TightVNC/
 
