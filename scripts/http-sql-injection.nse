@@ -71,7 +71,7 @@ local function check_injection_response(response)
 
   local body = string.lower(response.body)
 
-  if not (response.status == 200 or response.status ~= 500) then
+  if not (response.status == 200 or response.status == 500) then
     return false
   end
 
