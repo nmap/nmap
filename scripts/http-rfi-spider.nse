@@ -16,10 +16,10 @@ Crawls webservers in search of RFI (remote file inclusion) vulnerabilities. It t
 -- |_    inc
 --
 -- @args http-rfi-spider.inclusionurl the url we will try to include, defaults
---       to <code>http://www.yahoo.com/search?p=rfi</code>
+--       to <code>http://tools.ietf.org/html/rfc13?</code>
 -- @args http-rfi-spider.pattern the pattern to search for in <code>response.body</code>
 --       to determine if the inclusion was successful, defaults to
---       <code>'<a href="http://search.yahoo.com/info/submit.html">Submit Your Site</a>'</code>
+--       <code>'20 August 1969'</code>
 -- @args http-rfi-spider.maxdepth the maximum amount of directories beneath
 --       the initial url to spider. A negative value disables the limit.
 --       (default: 3)
@@ -75,16 +75,7 @@ local function check_form(form, host, port, path)
   local postdata = generate_safe_postdata(form)
   local sending_function, response
 
-  local action_absolute = string.find(form["action"], "^https?://")
-  -- determine the path where the form needs to be submitted
-  local form_submission_path
-  if action_absolute then
-    form_submission_path = form["action"]
-  else
-    local path_cropped = string.match(path, "(.*/).*")
-    path_cropped = path_cropped and path_cropped or ""
-    form_submission_path = path_cropped..form["action"]
-  end
+  local form_submission_path = url.absolute(path, form.action)
   if form["method"]=="post" then
     sending_function = function(data) return http.post(host, port, form_submission_path, nil, nil, data) end
   else
@@ -158,8 +149,8 @@ end
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 function action(host, port)
-  inclusion_url = stdnse.get_script_args('http-rfi-spider.inclusionurl') or 'http://www.yahoo.com/search?p=rfi'
-  local pattern_to_search = stdnse.get_script_args('http-rfi-spider.pattern') or '<a href="http://search%.yahoo%.com/info/submit%.html">Submit Your Site</a>'
+  inclusion_url = stdnse.get_script_args('http-rfi-spider.inclusionurl') or 'http://tools.ietf.org/html/rfc13?'
+  local pattern_to_search = stdnse.get_script_args('http-rfi-spider.pattern') or '20 August 1969'
 
   -- once we know the pattern we'll be searching for, we can set up the function
   check_response = function(body) return string.find(body, pattern_to_search) end
@@ -216,12 +207,10 @@ function action(host, port)
       local new_urls = build_urls(injectable)
       local responses = inject(host, port, new_urls)
       local suspects = check_responses(new_urls, responses)
-      if #suspects > 0 then
-        for p,q in pairs(suspects) do
-          local vulnerable_fields = q
-          vulnerable_fields["name"] = "Possible RFI in parameters at path: "..p.." for queries:"
-          table.insert(return_table, vulnerable_fields)
-        end
+      for p,q in pairs(suspects) do
+        local vulnerable_fields = q
+        vulnerable_fields["name"] = "Possible RFI in parameters at path: "..p.." for queries:"
+        table.insert(return_table, vulnerable_fields)
       end
     end
   end
