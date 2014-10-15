@@ -412,7 +412,7 @@ local function find_ciphers(host, port, protocol)
       table.insert(results, name)
     end
   end
-  if not protocol_worked then return nil end
+  if not next(results) then return nil end
 
   return results
 end
