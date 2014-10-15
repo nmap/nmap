@@ -1487,6 +1487,7 @@ match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE U
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN\] Messaging Multiplexor \(Oracle Communications Messaging Exchange Server ([\w._-]+) \(built (\w+ \d+ \d+)\)\)\r\n| p/Oracle Communications Message Exchange imapd/ v/$1 (built $2)/
 # Slackware 3.5 running kernel 2.0.34 IMAP2bis Service 7.8(100)
 match imap m|^\* OK ([\w._-]+) IMAP2bis Service ([\w._()-]+) at .* ([-+]\d+)| p/Slackware 3.5 imapd/ v/$2/ i/time zone $3/ h/$1/
+match imap m|^\* OK IceWarp ([\w._-]+) IMAP4rev1 .* ([-+]\d+)\r\n| p/IceWarp imapd/ v/$1/ i/time zone $2/
 
 # Fairly General
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n| p/MailEnable Professional imapd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -2297,6 +2298,10 @@ match pop3 m|^\+OK Welcome AltiPop3 POP3 Server\r\n| p/AltiGen AltiServ pop3d/ d
 match pop3 m|^\+OK Welcome to coremail Mail Pop3 Server \(gzidcs\[[0-9a-f]{32}s\]\)\r\n$| p/coremail pop3d/
 match pop3 m|^\+OK POP3 Server ([\w._-]+) \(InSciTek OIS\) ready <[\w._-]+@[\w._-]+>\r\n| p/Allworx VoIP server pop3d/ d/VoIP adapter/ h/$1/
 match pop3 m|^\+OK Citadel POP3 server ready\.\r\n$| p/Citadel pop3d/
+match pop3 m|^\+OK POP3 Mail server\r\n| p/MailEnable pop3d/ o/Windows/
+match pop3 m|^\+OK 200\r\n| p/Brother MFC-7360N pop3d/ d/printer/
+match pop3 m|^\+OK Welcome to the SLnet POP3 Service\r\n| p/SeattleLab SLMail pop3d/ o/Windows/
+match pop3 m|^\+OK webmail\.reint\.mg\.gov\.br POP3 server \(DeskNow\) ready \r\n| p/DeskNow pop3d/
 
 match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 match pop3-proxy m|^\+OK CCProxy (\S+) POP3 Service Ready\r\n| p/CCProxy pop3d/ v/$1/
@@ -4460,6 +4465,13 @@ match zeo m|^\0\0\0\x04Z(\d)([1-9]\d)$| p/Zope Enterprise Objects service/ i/ZOD
 # https://publib.boulder.ibm.com/infocenter/zos/v1r12/index.jsp?topic=%2Fcom.ibm.zos.r12.halc001%2Fmccic.htm
 match zos-commserver m|^EZY1315E \d\d/\d\d/\d\d \d\d:\d\d:\d\d INVALID TRANID=\r\n\r\n PARTNER INET ADDR=[\d.]+ PORT=   \d+                                      | p|IBM z/OS Communications Server|
 
+# http://www.space-walrus.com/games/Minebuilder
+# Very general, so leaving it here at the end
+# Version: 1.12.1
+match minebuilder m|^\0\0\0\x1a$| p/Minebuilder game server/
+# possibly newer version?
+match minebuilder m|^\0\0\0\x1a\x01$| p/Minebuilder game server/
+
 softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
 
 ##############################NEXT PROBE##############################
@@ -4975,7 +4987,9 @@ match pop3 m|^\+OK [^\r\n]*\r\n-ERR Unknown command\.\r\n-ERR Unknown command\.\
 
 # Perdition
 match pop3-proxy m|^\+OK POP3 Ready ([-\w_.]+) \w+\r\n-ERR Null command, mate\r\n| p/Perdition pop3 proxy/ h/$1/
+match pop3-proxy m|^\+OK POP3 perditon ready on ([\w._-]+) \w+\r\n-ERR Null command, mate\r\n| p/Perdition pop3 proxy/ h/$1/
 match pop3-proxy m|^\+OK POP3Proxy ready\r\n-ERR Unknown command\r\n-ERR Unknown command\r\n| p/Astaro firewall pop3 proxy/ d/firewall/
+match pop3-proxy m|^\+OK POP3Proxy ready on node \d+\r\n-ERR Unknown command\r\n-ERR Unknown command\r\n| p/Astaro firewall pop3 proxy/ d/firewall/
 
 # Postgres 7.1.3
 match postgresql m|^EInvalid packet length\0$| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
@@ -8660,6 +8674,8 @@ match http m|^HTTP/1\.1 200 Ok\r\nContent-Type: text/html\r\nCache-Control: no-c
 match http m|^HTTP/1\.1 200 OK\r\nServer: WebServer\(IPCamera_Logo\)\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\nLast-Modified: .*\r\nCache-Control: max-age=60\r\n\r\n\xef\xbb\xbf<!--\r\nProduct:ipcamera\r\nAuthor:xwpcom@gmail\.com\r\n-->| p/Maygion IPCamera http interface/ i/RTSP on same port/
 # Verizon FIOS?
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nWWW-Authenticate: Digest realm=\"IgdAuthentication\", domain=\"/\", nonce=\"\w{35}=\", qop=\"auth\", algorithm=MD5, opaque=\"5ccc09c403ebaf9f0171e9517f40e41\" \r\n\r\n| p/TL-069 remote access/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 23\r\nServer: MySQL Aggregator\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"CTA\"\r\nContent-Type: text/plain\r\n\r\nAuthorization required\n| p/MySQL Enterprise Agent Aggregator/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-cache \r\nServer: Bukkit Webby\r\nConnection: Close\r\n\r\n<script type='text/javascript'>var errorMsg = 'none';</script><!DOCTYPE html>| p/Bukkit Webby Minecraft http admin/
 
 #(insert http)
 
@@ -10944,6 +10960,8 @@ match msexchange-logcopier m|^\x15\x01\0\0\x08\0\0\0\0\x80\t\x03\x08$| p/Microso
 
 match netbios-ssn m|^\0\0\0%G\xd7\xf7\xba,\xff\xea\xff\xff~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0\0\0\x16\0$| p/Konica Minolta bixhub 350 printer smbd/ d/printer/
 
+match pop3-proxy m|^ERR concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus pop3 proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
+
 # This funny service runs on port 9001 and seems to echo other service probes,
 # however they don't seem to come in any obvious order. Examples:
 # ---------- GenericLines ----------
@@ -11469,6 +11487,7 @@ match http m|^HTTP/1\.1 404 Not Found\r\nSet-Cookie: sid=[0-9a-f]{128}; path=/; 
 match http m|^HTTP/1\.0 200 OK\r\nLast-modified: .*\r\nServer: ESERV-10/([\d.]+)\n| p/Viola ESERV-10 httpd/ v/$1/
 match http m|^HTTP/1\.1 503 DNS error for hostname nice%20ports%2C: Name or service not known\. If nice%20ports%2C refers to a configured cache repository, please check the corresponding configuration file\.\r\nContent-Length: 478\r\nContent-Type: text/html\r\nDate: .*\r\nServer: Debian Apt-Cacher NG/([\w._-]+)\r\nConnection: close\r\n\r\n| p/Debian Apt-Cacher NG/ v/$1/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\r\n<head>\r\n<title>(SPA\d\d\d[\w._-]*) Configuration Utility</title>| p/Cisco $1 http config/ d/VoIP phone/
+match http m|^HTTP/1\.0 403 \r\n.*\r\nserver: CubeCoders-McMyAdmin/IAWS\r\n.*<p id=\"verinfo\">McMyAdmin Enterprise - Web Backend v([\d.]+)</p>|s p/CubeCoders McMyAdmin Enterprise Minecraft control panel/ v/$1/
 
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/
