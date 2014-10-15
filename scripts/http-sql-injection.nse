@@ -102,7 +102,7 @@ local function build_injection_vector(urls)
 
       for k, v in pairs(qtab) do
         old_qtab = qtab[k];
-        qtab[k] = qtab[k] ..  "'%20OR%20sqlspider"
+        qtab[k] = qtab[k] ..  "' OR sqlspider"
 
         utab.query = url.build_query(qtab)
         urlstr = url.build(utab)

@@ -69,14 +69,6 @@ local function generate_safe_postdata(form)
   return postdata
 end
 
-local function generate_get_string(data)
-  local get_str = {"?"}
-  for name,value in pairs(data) do
-    get_str[#get_str+1]=url.escape(name).."="..url.escape(value).."&"
-  end
-  return table.concat(get_str)
-end
-
 -- checks each field of a form to see if it's vulnerable to rfi
 local function check_form(form, host, port, path)
   local vulnerable_fields = {}
@@ -96,7 +88,7 @@ local function check_form(form, host, port, path)
   if form["method"]=="post" then
     sending_function = function(data) return http.post(host, port, form_submission_path, nil, nil, data) end
   else
-    sending_function = function(data) return http.get(host, port, form_submission_path..generate_get_string(data), nil) end
+    sending_function = function(data) return http.get(host, port, form_submission_path.."?"..url.build_query(data), nil) end
   end
 
   for _,field in ipairs(form["fields"]) do
@@ -208,7 +200,7 @@ function action(host, port)
       end --for
     end --if
 
-    -- now try inclusion by parameters
+    -- now try inclusion by query parameters
     local injectable = {}
     -- search for injectable links (as in sql-injection.nse)
     if r.response.status and r.response.body then

@@ -319,7 +319,8 @@ end
 -- This function takes a <code><query></code> of the form
 -- <code>"name1=value1&name2=value2"</code>
 -- and returns a table containing the name-value pairs, with the name as the key
--- and the value as its associated value.
+-- and the value as its associated value. Both the name and the value are
+-- subject to URL decoding.
 -- @param query Query string.
 -- @return A table of name-value pairs following the pattern
 -- <code>table["name"]</code> = <code>value</code>.
@@ -333,9 +334,11 @@ function parse_query(query)
   query = string.gsub(query, "&gt;", ">")
 
   local function ginsert(qstr)
-    local first, last = string.find(qstr, "=")
-    if first then
-      parsed[string.sub(qstr, 0, first-1)] = string.sub(qstr, first+1)
+    local pos = qstr:find("=", 1, true)
+    if pos then
+      parsed[unescape(qstr:sub(1, pos - 1))] = unescape(qstr:sub(pos + 1))
+    else
+      parsed[unescape(qstr)] = ""
     end
   end
 
@@ -355,18 +358,19 @@ end
 ---
 -- Builds a query string from a table.
 --
--- This is the inverse of <code>parse_query</code>.
+-- This is the inverse of <code>parse_query</code>. Both the parameter name
+-- and value are subject to URL encoding.
 -- @param query A dictionary table where <code>table['name']</code> =
 -- <code>value</code>.
 -- @return A query string (like <code>"name=value2&name=value2"</code>).
 -----------------------------------------------------------------------------
 function build_query(query)
-  local qstr = ""
+  local qstr = {}
 
   for i,v in pairs(query) do
-    qstr = qstr .. i .. '=' .. v .. '&'
+    qstr[#qstr+1] = escape(i) .. '=' .. escape(v)
   end
-  return string.sub(qstr, 0, #qstr-1)
+  return table.concat(qstr, '&')
 end
 
 return _ENV;

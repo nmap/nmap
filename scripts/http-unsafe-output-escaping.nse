@@ -78,7 +78,7 @@ local function getReflected(parsed, r)
 end
 
 local function addPayload(v)
-  return v.."ghz%3Ehzx%22zxc%27xcv"
+  return v.."ghz>hzx\"zxc'xcv"
 end
 
 local function createMinedLinks(reflected_values, all_values)
