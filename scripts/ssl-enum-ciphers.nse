@@ -372,6 +372,10 @@ local function find_ciphers_group(host, port, protocol, group)
     elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
       ctx_log(2, protocol, "Unexpected record received.")
       break
+    elseif record["body"][1]["protocol"] ~= protocol then
+      ctx_log(1, protocol, "Protocol rejected.")
+      protocol_worked = nil
+      break
     else
       protocol_worked = true
       name = record["body"][1]["cipher"]
