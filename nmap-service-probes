@@ -13035,3 +13035,20 @@ Probe UDP NetMotionMobility q|\0\x40\x50\0\0\0\0\x85\x5d\xb4\x91\x28\0\0\0\0\0\x
 rarity 7
 ports 5008
 match NetMotionMobility m|^\0\x40\x51\0\0\0\0| p/NetMotion Mobility VPN/
+
+##############################NEXT PROBE##############################
+# Queries Docker APIs for the /version url containing version information.
+# https://docs.docker.com/reference/api/docker_remote_api/
+#
+Probe TCP docker q|GET /version HTTP/1.1\r\n\r\n|
+rarity 8
+ports 2375
+sslports 2376
+
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"KernelVersion\":\"([^"]+)\",.*\"Os\":\"([^"]+)\",.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$4/ i/API $1; KernelVersion $2/ o/$3/
+# Ordering doesn't matter, we'd like to at least grab ApiVersion and Version
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"Version\":\"(["]+)\"| p/Docker remote API/ v/$2/ i/API $1/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"(["]+)\"| p/Docker remote API/ v/$1/ i/API $2/
+# API spec only lists Version, GoVersion, ApiVersion (in API >= 1.12), and GitCommit.
+# Assuming the above matches will get ApiVersion if it's present, this one can report ApiVersion <= 1.11
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API 1.11 or older/
