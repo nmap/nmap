@@ -2991,6 +2991,8 @@ match urp m|^\0\0\0\x60\0\0\0\x01\xf8\x04\x96\0\0'com\.sun\.star\.bridge\.XProto
 match sourceoffice m|^200\r\nProtocol-Version:(\d[\d.]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\n\r\n(\w:\\.*ini)\r\n\r\n| p/Sourcegear SourceOffSite/ i/Protocol $1; INI file: $2/
 match sourceoffice m|^250\r\nProtocol-Version:(\d[\d.]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\nKey Length:(\d+)\r\n\r\n.*(\w:\\.*ini)\r\n\r\n|s p/Sourcegear SourceOffSite/ i/Protocol $1; Key len: $2; INI file: $3/
 
+match sphinx-search m|^C\0\0\0\n(\d\.[\w._-]+) \(r\d+\)\0\x01\0\0\0\x01\x02\x03\x04\x05\x06\x07\x08\0\x08\x82\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r| p/Sphinx Search daemon/ v/$1/
+
 # 12th byte seems to be a counter.
 match spideroak m|^\x60\0\0\0\0\0\0\0\0\0\x18..{88}$|s p/SpiderOak/
 
@@ -4303,7 +4305,8 @@ match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0jServer license key is missing, inva
 match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0nVNC Server license key is missing, invalid or has expired\.\nVisit http://www\.realvnc\.com to purchase a license\.| p/RealVNC/ i/Unlicensed; protocol 3.$1/
 match vnc m|^RFB 004\.000\n| p/RealVNC Personal/ i/protocol 4.0/
 match vnc m|^RFB 004\.001\n| p/RealVNC Enterprise/ i/protocol 4.1/
-match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0:Unable to open license file: No such file or directory \(2\)| p/RealVNC Enterprise Edition/ i/protcol 3.$1/
+match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0:Unable to open license file: No such file or directory \(2\)| p/RealVNC Enterprise Edition/ i/protocol 3.$1/
+match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0jServer license key is missing, invalid or has expired\.\nVisit http://www\.realvnc\.com to purchase a license\.| p/RealVNC Enterprise/ i/protocol 3.$1/
 match vnc m|^RFB 103\.006\n| p/Microsoft Virtual Server remote control/ o/Windows/ cpe:/o:microsoft:windows/a
 match vnc m|^ISD 001\.000\n$| p/iTALC/
 match vnc m|^.{27}\x16\x20\xe4\xb0\x95\x63\x29\x78\xdb\x6e\x35\x92$|s p/Ultr@VNC/
@@ -8247,6 +8250,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Secu
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nExpires: .*\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD><TITLE>Welcome to (963)</TITLE>| p/Trend $1 building control system httpd/ d/security-misc/ cpe:/h:trend:$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWww-Authenticate: Basic REALM=\"elmeg\"\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nUnauthorized request\r\n$| p/Elmeg IP 290 VoIP phone http config/ d/VoIP phone/ cpe:/h:elmeg:ip_290/
 match http m|^HTTP/1\.1 401 Authorization Required\nDate: .* ([-+]\d+)\nServer: WebPidginZ \n([\w._-]+)\nWWW-Authenticate: Digest realm=\"WebPidginZLoginDigest\", nonce=\"[0-9a-f]+\", opaque=\"0000000000000000\", stale=false, algorithm=MD5, qop=\"auth\"\nConnection: close\nContent-type: text/html\n\n\n\n$| p/WebPidgin-Z instant messaging interface/ v/$2/ i/time zone: $1/
+match http m|^HTTP/1\.0 \d\d\d [\w ]+\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\"name\" : \"([^"]+)\",\n  \"version\" : {\n    \"number\" : \"([^"]+)\",.*\"lucene_version\" : \"([^"]+)\"\n  },\n  \"tagline\" : \"You Know, for Search\"\n}|s p/Elasticsearch REST API/ v/$2/ i/name: $1; Lucene version: $3/
 match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{\n  \"ok\" : true,\n  \"name\" : \"[\w._ -]+\",\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"date\" : \"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)\",\n    \"snapshot_build\" : \w+\n  },\n|s p/ElasticSearch/ v/$1 $2/
 match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\n  \"name\" : \"([^"]+)\",.*\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"snapshot_build\" : false\n  },|s p/ElasticSearch/ v/$2/ i/name: $1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3\.org/TR/html4/loose\.dtd\">\n<!--\nCopyright 2004-2011 H2 Group\.\n| p/H2 database http console/
@@ -8633,7 +8637,6 @@ match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: JSESSIONID=[0-9A-F]{32}; Path=/\r\
 match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: JSESSIONID=[0-9A-F]{32}; Path=/; Secure; HttpOnly\r\nContent-Type: text/html;charset=utf-8\r\nContent-Length: \d+\r\nDate: .*\r\nConnection: close\r\nServer:  \r\n\r\n<!-- default page when just a URL is entered \(e\.g\. - http://ipaddress\) -->| p/Cisco Unified Communications Manager httpd/
 match http m|^HTTP/1\.0 500 No such header: Host\r\nserver: Ag \[47\]\r\ncontent-type: text/html\r\n\r\n<html>\n<head>\n</head>\n<body>\n<h1>500: No such header: Host</h1>\n</body>\n</html>\r\n| p/ZyXEL Keenetic http admin/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n<html><head><title>Basic Status</title></head><frameset rows=\"\*,0\" border=0 frameborder=no framespacing=0><frame src=\"basic\.htm\" name=\"main\"><frame src=\"hide\.htm\" name=\"Hide\" marginwidth=0 marginheight=0 border=0></frameset></html>\n| p/NetComm Wireless ADSL router http admin/ d/WAP/
-match http m|^HTTP/1\.0 200 OK\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{\n  \"ok\" : true,\n  \"status\" : 200,\n  \"name\" : \"([^"]+)\",\n  \"version\" : {\n    \"number\" : \"([^"]+)\",\n    \"build_hash\" : \"[a-f0-9]+\",\n    \"build_timestamp\" : \"[\d-]{10}T[\d:]{8}Z\",\n    \"build_snapshot\" : [truefals]{4,5},\n    \"lucene_version\" : \"([^"]+)\"\n  },\n  \"tagline\" : \"You Know, for Search\"\n}| p/Elasticsearch REST API/ v/$2/ i/name: $1, Lucene version: $3/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: Easy Chat Server/([\w._-]+)\r\n| p/Easy Chat Server httpd/ v/$1/
 match http m|^HTTP/1\.1 503 Service Unavailable\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nConnection: close\r\nContent-Length: \d+\r\nX-Iinfo: ?[\d-]+ .NNN RT\(\d+ \d+\) q\([ 0-9-]+\) r\([ 0-9-]+\)| p/Incapsula CDN httpd/
 match http m|^<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4\.01 Transitional//EN'><html><head><title>Evolis TCP/IP\r\n</title>| p/Evolis ID card printer httpd/ d/printer/
@@ -8684,11 +8687,16 @@ match http m|^HTTP/1\.1 200 Ok\r\nContent-Type: text/html\r\nCache-Control: no-c
 match http m|^HTTP/1\.1 200 OK\r\nServer: WebServer\(IPCamera_Logo\)\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\nLast-Modified: .*\r\nCache-Control: max-age=60\r\n\r\n\xef\xbb\xbf<!--\r\nProduct:ipcamera\r\nAuthor:xwpcom@gmail\.com\r\n-->| p/Maygion IPCamera http interface/ i/RTSP on same port/
 # Verizon FIOS?
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nWWW-Authenticate: Digest realm=\"IgdAuthentication\", domain=\"/\", nonce=\"\w{35}=\", qop=\"auth\", algorithm=MD5, opaque=\"5ccc09c403ebaf9f0171e9517f40e41\" \r\n\r\n| p/TL-069 remote access/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\nWWW-Authenticate: Digest realm=IgdAuthentication, domain=\"/\", qop=\"auth\", algorithm=MD5, nonce=\"\w{9}\"\r\n\r\n| p/TL-069 remote access/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 23\r\nServer: MySQL Aggregator\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"CTA\"\r\nContent-Type: text/plain\r\n\r\nAuthorization required\n| p/MySQL Enterprise Agent Aggregator/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-cache \r\nServer: Bukkit Webby\r\nConnection: Close\r\n\r\n<script type='text/javascript'>var errorMsg = 'none';</script><!DOCTYPE html>| p/Bukkit Webby Minecraft http admin/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: /console/index\.html\r\nConnection: close\r\nDate: .* GMT\r\n\r\n$| p/JBoss Administrator/
 match http m|^HTTP/1\.1 200 OK\r\nCache-Control: max-age=0\r\nPragma: no-cache\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nX-UA-Compatible: IE=Edge\r\nConnection: close\r\nSet-Cookie: web_session_id=\w+; path=/; HttpOnly; \r\n\r\n.*<title>PA Server Monitor</title>|s p/Power Admin Server Monitor http admin/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: SentinelKeysServer/([\w._-]+)\r\nMIME-Version: 1\.1\r\nContent-Type: text/html\r\n| p/Sentinel License Monitor/ v/$1/
+# The version numbers don't line up. Need more info or more fingerprints to figure out.
+# Also, this matches 4 or 5 different services within CloudView. No further info.
+match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: Close\r\nContent-Length: \d+\r\nContent-Type: .*\r\nDate: .*\r\nHost: 0\.0\.0\.0\r\nServer: NG/6\.0\.16943\r\n| p/Exalead CloudView/ v/5.1.12.31472/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nDate: .*\r\nEtag: .*\r\nServer: ngconvert/6\.0\.16943 edoc/1\.4\.36592 \(BUILD=6\.0\.16943;EDOC=1\.4\.36592;AUTOMIME=1\.03;CONFEX=0\.153;XPDFTEXTLIB=3\.02\.24\)\r\n\r\n| p/Exalead CloudView/ v/5.1.12.31472/
 
 #(insert http)
 
@@ -8705,6 +8713,7 @@ match http m|^HTTP/1\.1 302 Found\r\nLocation: http://[\d.]+:8080/\r\nContent-Le
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nLocation: https:///\r\n\r\n$| p/Checkpoint NGX Firewall-1/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nConnection: close\r\n\r\n$| p/Node.js/
 match http m|^HTTP/1\.0 302 Redirection\r\nLocation: index\.html\r\n\r\n$| p/JPS Radio Gateway http config/
+match http m|^HTTP/1\.1 404 \r\nAccept-Ranges: bytes\r\nConnection: close\r\nContent-Length: 0\r\n\r\n| p/SearchInform DLP/
 
 # If this is too general, it can be moved without modification to FourOhFourRequest, HTTPOptions, RTSPRequest, or SIPOptions
 match http m|^HTTP/1\.1 501 \r\nContent-Type:\r\nContent-Length:0\r\n\r\n$| p/Google Chromecast httpd/ d/media device/
@@ -8778,6 +8787,9 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: corehttp-([\w._-]+)\r\n| p/CoreHTTP
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ECS \(([a-z]{3}/[A-F\d]{4})\)\r\n|s p/Edgecast CDN httpd/ i/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedthis-http\r\n|s p/Embedthis HTTP lib httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs/([\w._-]+)\r\n| p/GoAhead-Webs/ v/$1/
+
+# Put this at the end because it's not a server, but a backend.
+match http m|^HTTP/1\.1 200 OK\r.*\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n|s p/Java Servlet/ v/$1/ i/JSP $2/
 
 # No more HTTP softmatch because many services that I don't think are
 # best classified 'http' use http-like semantics (for example UPnP,
@@ -9142,6 +9154,9 @@ match jabber m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http:
 match jabber m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http://etherx\.jabber\.org/streams' version='1\.0' xmlns='jabber:client'><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber client/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:client' version='1\.0' id=''><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber client/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:server' version='1\.0' id=''><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber server/
+match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xml:lang='en' xmlns:db='jabber:server:dialback' xmlns='jabber:server'><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Prosody Jabber server/
+match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='error-id'><stream:error><invalid-xml xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Isode M-Link Jabber client/ cpe:/a:isode:m-link/
+match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:server' xmlns:db='jabber:server:dialback' xmlns:stream='http://etherx\.jabber\.org/streams' id='error-id'><stream:error><invalid-xml xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Isode M-Link Jabber server/ cpe:/a:isode:m-link/
 
 match jabber m|^<\?xml version='1\.0' encoding='UTF-8'\?>\n<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' from=\"\" version=\"1\.0\">\n<stream:features/>$| p/Empathy Jabber client/
 
@@ -10121,6 +10136,7 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x
 # ISC Bind bind-9.6.0_p1~alpha
 match domain m|^\0\x06\x81\x85\0\0\0\0\0\0\0\0$| p/ISC BIND/ v/9.X/ cpe:/a:isc:bind:9/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0| p/ISC BIND/ v/8.X/ cpe:/a:isc:bind:8/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\+\*Served by Bind - www\.isc\.org/software/bind| p/ISC BIND/ cpe:/a:isc:bind/
 # Tinydns 1.05
 match domain m|^\0\x06\x81\x81\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/TinyDNS/
 # MyDNS 0.10.0 on Linux
@@ -10176,6 +10192,7 @@ match domain m|^\0\x06\x81\x84\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x0
 match domain m|^\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/NetWare dnsd/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04\xa3\xc0\x08\x06$| p/ArubaOS 3.3 named/ o/ArubaOS/
 match domain m|^\0\x06\x81\x05\0\0\0\0\0\0\0\0$| p/MaraDNS/
+match domain m|^\0\x06\x81\x03\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/Eagle DNS/
 
 match kerberos-sec m=^~[\x60-\x62]\x30[\x5e-\x60]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z\xa5[\x03-\x05]\x02(?:\x03...|\x02..|\x01.)\xa6\x03\x02\x01\x3c\xa9\x04\x1b\x02NM\xaa\x170\x15\xa0\x03\x02\x01\0\xa1\x0e0\x0c\x1b\x06krbtgt\x1b\x02NM\xab\x16\x1b\x14No client in request=s p/MIT Kerberos/ i/server time: $1-$2-$3 $4:$5:$6Z/ cpe:/a:mit:kerberos/
 
@@ -10185,6 +10202,8 @@ match symantec-av m|^\0\x06\x01\x01\0\x10..........$|s p/Symantec rtvscan antivi
 match tunnel-test m|^\0\x06\x01\0\0\x02\0\0\0\0\0\0$| p/Check Point tunnel_test/
 
 match unreal m|^.[\x40\xc0].[\x20\x23\x32\x38].[\x40\xc0].[\x20\x23\x32\x38]|s p/Unreal Tournament 2004 game server/
+
+softmatch domain m|^\0\x06[\x80-\x87].\0\x01\0.\0.\0.\x07version\x04bind\0\0\x10\0\x03|
 
 ##############################NEXT PROBE##############################
 Probe TCP DNSVersionBindReq q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
@@ -10253,6 +10272,8 @@ match domain m|^\0\x0c\0\x06\x81\x84\0\0\0\0\0\0\0\0$| p/MikroTik RouterOS named
 
 match domain m|^\0\x0c\0\x06\x81\x85\0\0\0\0\0\0\0\0$| p/Nortel Contivity firewall DNS/ d/firewall/
 match domain m|^..\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0..Nominum Vantio ([\w._-]+)$|s p/Nominum Vantio/ v/$1/
+
+softmatch domain m|^\0.\0\x06[\x80-\x87].\0\x01\0.\0.\0.\x07version\x04bind\0\0\x10\0\x03|
 
 match http m|^HTTP/1\.1 506 \r\nContent-Type: text/html\r\nServer: JavaWeb/0\r\n\r\n<html><body><h1>506 - IO Error</h1></body></html>$| p/AirDroid httpd/ d/phone/ o/Android/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
 
@@ -10428,6 +10449,8 @@ match domain m|^\x80\xf0\x80\x80\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 match domain m|^\x80\xf0\x80\x82\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows_server_2003/
 # Windows Server 2012 Release Candidate Datacenter running DNS 6.2.8400.0.
 match domain m|^\x80\xf0\x80\x02\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ v/6.2/ o/Windows/ cpe:/a:microsoft:dns:6.2/ cpe:/o:microsoft:windows_server_2012/
+
+match domain m|^\x80\xf0\x81\x83\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/Mikrotik DNS/ d/router/
 
 # NBT Response starts with a header:
 # The following fields are each 2 bytes: transaction ID; Flags; question count; answer count; name service count; additional record count
@@ -11197,11 +11220,12 @@ match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 match netbios-ssn m|^\x82\0\0\0\n-> doHttp: Connection timeouted!\n\ntelnetd: This system \*IN USE\* via telnet\.\nshell restarted\.\n\x08\x08\x08\x08        \*\*\*  EPSON Network Print Server \(([^)]+)\)  \*\*\*\n\n\x08\x08\x08\x08        \nPassword: | p/Epson print server smbd/ v/$1/ d/print server/
 match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x98. \0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x03\x32\0\x01\0....\x00\x00\x01\x00....\xf4\xc2\0\0|s p/IOGear GMFPSU22W6 print server smbd/ d/print server/
 # match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x98\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x032\0\x01\0\x04A\0\0\0\0\x01\0 \0\0\0\xf4\xc2\0\0\x80\x1e\xdd\x8b\xe7\?\xca\x01 \xfe\x08\x08\0z~\xc7\*\xc9\x1f\xd3\x9b"
-match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01.\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0|
 match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x98\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x02\x01\0\x01\0\xff\xff\0\0\xff\xff\0\0\0\0\0\0\x01\x02\0\0| p/Brother MFC-820CW printer smbd/ d/printer/
 match netbios-ssn m|^\0\0\0G\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\r\x04\0\0\0\xa0\x05\x02\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0WORKGROUP\0$| p/Citizen CLP-521 printer smbd/ d/printer/
 match netbios-ssn m|^\0\0\0G\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\r\x04\0\0\0\xa0\x05\x02\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Kyocera Mita KM-1530 printer smbd/ d/printer/
 match netbios-ssn m|^\x82\0\0\0$| p/Konica Minolta bizhub C452 printer smbd/ d/printer/ cpe:/h:konicaminolta:bizhub_c452/
+
+softmatch netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88[\x01\x03].\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0|
 
 # HP OpenView Storage Data Protector A.05.10 on Windows 2000
 # Hewlett Packard Omniback 4.1 on Windows NT
