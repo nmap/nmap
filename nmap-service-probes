@@ -1488,6 +1488,12 @@ match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE U
 # Slackware 3.5 running kernel 2.0.34 IMAP2bis Service 7.8(100)
 match imap m|^\* OK ([\w._-]+) IMAP2bis Service ([\w._()-]+) at .* ([-+]\d+)| p/Slackware 3.5 imapd/ v/$2/ i/time zone $3/ h/$1/
 match imap m|^\* OK IceWarp ([\w._-]+) IMAP4rev1 .* ([-+]\d+)\r\n| p/IceWarp imapd/ v/$1/ i/time zone $2/
+match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4REV1\] perdition ready on ([\w._-]+) \d+\r\n| p/Perdition imapd/ h/$1/
+match imap m|^\* OK \[CAPABILITY IMAP4REV1[^]]*\] \[[\d.]+\] Panda IMAP ([\w._-]+) at .*\r\n| p/Panda imapd/ v/$1/
+match imap m|^\* BYE imap4 connections must use ssl\n$| p/Plan 9 imapd/ i/must use ssl/ o/Plan 9/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 LITERAL\+ STARTTLS AUTH=PLAIN\] Zarafa IMAP gateway ready\r\n| p/Zarafa imapd/
+match imap m|^\* OK Welcome to the SLnet IMAP Service\r\n| p/SeattleLab SLMail imapd/ o/Windows/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 AUTH=LOGIN AUTH=CRAM-MD5 STARTTLS ID\] dbmail ([\w._-]+) ready\.\r\n| p/DBMail imapd/ v/$1/
 
 # Fairly General
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n| p/MailEnable Professional imapd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -1507,6 +1513,7 @@ match imap-proxy m|\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREA
 
 softmatch imap m|^\* OK ([-.\w]+) [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i h/$1/
 softmatch imap m|^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i
+softmatch imap m|^\* OK \[CAPABILITY IMAP4[Rr][Ee][Vv]1|
 
 # Cyrus IMSPD
 match imsp m|^\* OK Cyrus IMSP version (\d[-.\w]+) ready\r\n$| p/Cyrus IMSPd/ v/$1/
@@ -4152,7 +4159,6 @@ match telnet m|^\r\n\r\n\r\n\r\n<<<<<  NetProbe Lite Setup Program >>>>>\r\n\r\n
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\n\*\*\*Benzing Ethernet Option \*\*\*\n\r\0\r\0\nSerial Number (\d+)  MAC address ([\w:]+)\n\r\0Software version ([\w._-]+ \([\w._-]+\))\r\0\nPassword :| p/Kaba Benzing timeclock telnetd/ v/$3/ i/serial: $1; MAC: $2/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03(F[\w._-]+)\r\n\rLogin: | p/ZTE $1 router telnetd/ d/router/ cpe:/h:zte:$1/
 match telnet m|^\x1b\[1;1H\x1b\[H\x1b\[J\x1b\[1;1H\r\n\r\nHoneywell Building Network Adapter \(BNA\)\r\nBNA SUSI Server ([\w._-]+)  \(([\w._-]+)\)\r\n\r\n  login: | p/Honeywell Building Network Adapter SUSI telnetd/ v/$1/ d/router/ h/$2/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\(none\) login: | p/Q-SEE DVR telnetd/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\*{80}\r\n {38}I\( {10},\" {8}::\r\n  \${9}  j\${8}  \${7}} {6}\$\$\$ {6}\.%\$\$\$\$w    q\$\$\$\$\$:  j\$\$J  \"\$\$@\r\n| p/Teracom router telnetd/ d/broadband router/
 match telnet m|^\r\n\r\nNetwork Power Switch v([\d.]+)        Site: (.+)\r\n\r\n| p/WTI Network Power Switch telnetd/ v/$1/ i/site: $2/ d/power-device/
 match telnet m|^(\d\d\d\d)Telnet command shell\r\nPlease input username and password!\r\n\1Telnet-> | p/Aviosys IP Power telnetd/ i/model $1/ d/power-device/
@@ -4211,6 +4217,8 @@ match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfd\x03\xff\xfd\x01Welcome to Quali
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nPassword: | p/D-Link Boxee Box telnetd/ d/media device/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03Login: | p/Pirelli VDSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nusername:| p/TP-LINK ADSL2+ router telnetd/ d/WAP/
+# This one also matches Netgear CG3000-25TAUS
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n\(none\) login: | p/Q-SEE DVR telnetd/
 
 match telnet-proxy m|^nodnsquery/[\d.]+ is not authorized to use the telnet proxy\r\n| p/Gauntlet telnet proxy/
 match telnet-proxy m|^Eingabe Servername\[:Port\] : | p/JanaServer telnet proxy/ i/German/
@@ -4939,6 +4947,8 @@ match olsrd-txtinfo m|^HTTP/1\.0 200 OK\nContent-type: text/plain\n\nTable: Link
 
 match omniback m|^HP OpenView OmniBack II ([-.\w]+): INET, | p/HP OpenView OmniBack/ v/$1/
 
+match omniinet m|^H\0P\0 \0D\0a\0t\0a\0 \0P\0r\0o\0t\0e\0c\0t\0o\0r\0 \0A\0\.\x00[0\0]*([\0\w._-]+):\0 \0I\0N\0E\0T\0,\0 \0i\0n\0t\0e\0r\0n\0a\0l\0 \0b\0u\0i\0l\0d\0 \x00([\0\d]+),\0 \0b\0u\0i\0l\0t\0 \0o\0n\0 \0.*\n\0\0\0$| p/HP Data Protector/ v/$P(1) build $P(2)/
+
 # tcp/2368
 match opentable-listener m|^OpenTable Listener Version ([\w._-]+)\r\n\r\nerror=Bad request\r\n\r\nOTRequestHandler ([\w._-]+) WebRequest\r\n\r\n\0$| p/OpenTable restaurant reservation listener/ v/$1/ i/request handler version $2/
 # tcp/61031
@@ -5207,6 +5217,7 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnec
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Ubuntu/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Ubuntu $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:canonical:ubuntu_linux:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Gentoo/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Gentoo $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:gentoo:linux:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux ([23]\.[\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: OpenWrt Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/OpenWrt; DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: FreeBSD/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/FreeBSD $1/ cpe:/o:freebsd:freebsd:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$3/ i/DLNADOC $1; UPnP $2/
@@ -5236,6 +5247,7 @@ match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServe
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) ZyXEL-UPnP/([\w._-]+)\r\n| p/ZyXEL wireless router UPnP/ i/UPnP $2; ZyXEL-UPnP $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Symbian/([\w._-]+) UPnP/([\d.]+)\r\nContent-Length: 151\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html><head>\n<title>400 Bad Request</title>\n</head><body>\n<h1>Bad Request</h1>\n<hr />\n</body></html>$| p/Nokia N85 media share/ i/SymbianOS $1; UPnP $2/ d/phone/ o/SymbianOS/
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: XboxUpnp/([\w._-]+) UPnP/([\w._-]+) Xbox/2\.0\.(\d+)\.0\r\n|s p/Microsoft Xbox 360 upnpd/ v/$1/ i/UPnP $2; Xbox Dashboard 2.0.$3.0/ o/Xbox 360/ cpe:/h:microsoft:xbox_360_kernel:$3/
+match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Linux/([\w._-]+) UPnP/([\w._-]+) SKY DLNADOC/([\w._-]+)\r\n\r\n| p/BSkyB router upnpd/ i/UPnP $2; DLNADOC $3/ d/broadband router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 
 match uptime-agent m|^ERR\n$| p/up.time server monitor/
 
@@ -8543,8 +8555,6 @@ match http m|^HTTP/1\.0 302 Redirect\r\nServer: httpd\r\nDate: .*\r\nLocation: h
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=.*\r\n\r\n<!-- Page\(9123\)=\[Please Reset Your Password\] -->|s p/BT Home Hub config httpd/ i/password reset page/ d/WAP/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=.*\r\n\r\n<!-- Page\(9096\)=\[Home\] -->|s p/BT Home Hub config httpd/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Sierra Wireless Inc, Embedded Server\r\n| p/Sierra Wireless embedded httpd/
-match http m|^HTTP/1\.1 200 OK\r.*\nContent-Type: text/xml; charset=\"utf-8\"\r\nConnection: close\r\nServer: (UPnP/[\d.]+ DLNADOC/[\d.]+) Platinum/([\d.]+)\r\n\r\n|s p/Platinum UPnP httpd/ v/$2/ i/$1/
-match http m|^HTTP/1\.1 412 Precondition Failed\r\nDate: .*\r\nContent-Length: 0\r\nConnection: close\r\nServer: (UPnP/[\d.]+ DLNADOC/[\d.]+) Platinum/([\d.]+)\r\n\r\n|s p/Platinum UPnP httpd/ v/$2/ i/$1/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Length: 96\r\nContent-Type: text/html\r\n\r\n<html>\n<body bgcolor=\"#99ccff\">\n<center>\n<h1>Invalid Access</h1>\n</center>\n</p></body>\n</html>\n\n\n| p/Cisco ATA 186 httpd/ d/VoIP adapter/
 match http m|^HTTP/1\.1 404 Not Found\r\nDate: .*\r\nServer: RT-Platform/([\d.]+) (UPnP/[\d.]+) EBS Mi\r\n| p/EBS RTPlatform UPnP httpd/ v/$1/ i/$2/
 match http m|^HTTP/1\.1 302 Found\r\nServer: Cassini/(4\.[\d.]+)\r\nDate: .*\r\nX-AspNet-Version: ([\d.]+)\r\nLocation: /Login\.aspx\r\n| p/Cassini httpd/ v/$1/ i/SmarterStats 8.2; ASP.Net $2/
@@ -8606,7 +8616,7 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nLast-Modified: .*\r\nETag: \"[^"]\
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: qHTTPs\r\n| p/AEG Powersolutions UPS View http viewer/ d/power-device/
 match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: sid=[^;]+; path=/; httponly\r\nSet-Cookie: sid\.sig=[^;]+; path=/; httponly\r\nDate: .*\r\nConnection: close\r\n\r\n<!DOCTYPE HTML>.*<h1>Webhook Deployer v([\w._-]+)|s p/Node.js/ i/Webhook Deployer v$1/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Type: text/html; charset=ISO-8859-1\r\nContent-Length: \d+\r\nServer: SIMP LIGHT\r\n\r\n<head><title>SIMP Light web server \[ver\. ([\w._-]+)\]</title>| p/SIMP Light SCADA httpd/ v/$1/
-match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/xml;charset=utf-8\r\nContent-Length: \d+\r\nConnection: close\r\nX-Plex-Protocol: 1.0\r\nCache-Control: no-cache\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<MediaContainer size=\"\d+\" friendlyName=\"([^"]*)\" .* platform=\"([^"]+)\" platformVersion=\"([^"]+)\" .* version=\"([^"]+)\">| p/Plex Media Server httpd/ v/$4/ i/friendlyName: $1; OS version $3/ o/$2/
+match http m|^HTTP/1\.[01] 200 OK\r\nContent-Type: text/xml;charset=utf-8\r\nContent-Length: \d+\r\nConnection: close\r\nX-Plex-Protocol: 1\.0\r\nCache-Control: no-cache\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<MediaContainer size=\"\d+\" friendlyName=\"([^"]*)\" .* platform=\"([^"]+)\" platformVersion=\"([^"]+)\" .* version=\"([^"]+)\">| p/Plex Media Server httpd/ v/$4/ i/friendlyName: $1; OS version $3/ o/$2/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nContent-Type: text/html\r\nSet-Cookie: cookie_session_id_0=\d+; path=/;\r\nCache-Control: public\r\nPragma: cache\r\nExpires: .*\r\nDate: .*\r\nLast-Modified: Thu, 01 Jan 1970 00:00:00 GMT\r\nAccept-Ranges: bytes\r\nConnection: close\r\nLocation: https?://[\w._-]+:\d+/index\.cgi\?active%5fpage=9091&req%5fmode=0\r\n\r\n| p/OpenRT httpd/ o/OpenRT/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"(iRMC S\d)@iRMC([0-9A-F]{6})\", qop=\"auth\", nonce=\"[0-9a-f-]+\", opaque=\"[0-9a-f]+\", stale=\"FALSE\" \r\n(?:Connection: close\r\n)?Cache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n296\r\n| p/Fujitsu $1 httpd/ i/Host ID (MAC) $2/ d/remote management/
 match http m|^HTTP/1\.1 400 Bad Request\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: 727\r\n\r\n<HTML><HEAD>\r\n<TITLE>Request Error</TITLE>\r\n</HEAD>\r\n<BODY>\r\n<FONT face=\"Helvetica\">\r\n<big><strong></strong></big><BR>| p/ISPConfig http control panel/
@@ -8676,6 +8686,9 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: WebServer\(IPCamera_Logo\)\r\nContent-
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nWWW-Authenticate: Digest realm=\"IgdAuthentication\", domain=\"/\", nonce=\"\w{35}=\", qop=\"auth\", algorithm=MD5, opaque=\"5ccc09c403ebaf9f0171e9517f40e41\" \r\n\r\n| p/TL-069 remote access/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 23\r\nServer: MySQL Aggregator\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"CTA\"\r\nContent-Type: text/plain\r\n\r\nAuthorization required\n| p/MySQL Enterprise Agent Aggregator/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-cache \r\nServer: Bukkit Webby\r\nConnection: Close\r\n\r\n<script type='text/javascript'>var errorMsg = 'none';</script><!DOCTYPE html>| p/Bukkit Webby Minecraft http admin/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: /console/index\.html\r\nConnection: close\r\nDate: .* GMT\r\n\r\n$| p/JBoss Administrator/
+match http m|^HTTP/1\.1 200 OK\r\nCache-Control: max-age=0\r\nPragma: no-cache\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nX-UA-Compatible: IE=Edge\r\nConnection: close\r\nSet-Cookie: web_session_id=\w+; path=/; HttpOnly; \r\n\r\n.*<title>PA Server Monitor</title>|s p/Power Admin Server Monitor http admin/
+match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: SentinelKeysServer/([\w._-]+)\r\nMIME-Version: 1\.1\r\nContent-Type: text/html\r\n| p/Sentinel License Monitor/ v/$1/
 
 #(insert http)
 
@@ -9078,8 +9091,9 @@ match imap m|^\* OK .*IMAP4rev1 Server Completed\r\nGET BAD Protocol Error: Inva
 match imap m|^\* OK  MailSite IMAP4 Server ([-.\w]+) ready| p/MailSite imapd/ v/$1/
 match imap m|^\* OK ([\w._-]+) Welcome \(cimap\)\r\nGET BAD Invalid command \(/\)\r\n\* BAD - command line Insufficient tokens \(\)\r\n| p/SurgeMail imapd/ h/$1/
 match imap m|^GET NO Error in IMAP command received by server\.\r\n| p/cPanel Courier imapd/
-match imap m|^\* OK IMAPrev1\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ cpe:/o:microsoft:windows/a
+match imap m|^\* OK .*\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK ([\w._-]+)\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 [^]]*\]\r\nGET NO Error in IMAP command received by server\.\r\n\* NO Error in IMAP command received by server\.\r\n| p/Plesk Courier imapd/
 
 match intersys-cache m|^HTTP/1\.1 200 OK\r\nContent-Type: application/xml; charset=utf-8\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?><services xmlns:xsi=\"http://www\.w3\.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www\.intersystems\.com/services/schema/2009\.2\"/>$| p/Intersystems Cache httpd/
 
@@ -9339,6 +9353,7 @@ match tor-info m|^HTTP/1\.0 503 Directory busy, try again later\r\n\r\n$| p/Tor 
 match utsessiond m|^ERR/InvalidCommand\n$| p/Sun Ray utsessiond/
 match utsvc m|^protocolErrorInf error=Missing\\040hw\\040string\\040from\\040:\\040null\.\\040Check\\040hardware state=disconnected\n| p/Sun Ray utsvcd/
 
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: (UPnP/[\d.]+ DLNADOC/[\d.]+) Platinum/([\d.]+)\r\n\r\n|s p/Platinum UPnP/ v/$2/ i/$1/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-amd64-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_XP-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows XP $1; UPnP $2/ d/media device/ o/Windows XP/ cpe:/o:microsoft:windows_xp/
@@ -9374,6 +9389,7 @@ match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Linux/([\w._+-]+), UPnP/([\d.]+), Medi
 match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Darwin/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/Darwin $1; UPnP $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: FreeBSD/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/FreeBSD $1; UPnP $2/ o/FreeBSD/ cpe:/o:freebsd:freebsd:$1/
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: OpenBSD/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/OpenBSD $1; UPnP $2/ o/OpenBSD/ cpe:/o:openbsd:openbsd:$1/
+match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: SunOS/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/SunOS $1; UPnP $2/ o/Solaris/ cpe:/o:sun:sunos:$1/
 
 match upnp m|^HTTP/1\.1 \d\d\d .*Server: UPnP/([\w._-]+), pvConnect UPnP SDK/([\w._-]+),  Twonky UPnP SDK/([\w._-]+)\r\n|s p/TwonkyMedia UPnP/ i/UPnP $1; pvConnect SDK $2; SDK $3/ cpe:/a:packetvideo:twonky/
 match upnp m|^HTTP/1\.1 \d\d\d .*Server: UPnP/([\w._-]+), pvConnect UPnP SDK/([\w._-]+),  TwonkyMedia UPnP SDK/([\w._-]+)\r\n|s p/TwonkyMedia UPnP/ i/UPnP $1; pvConnect SDK $2; SDK $3/ cpe:/a:packetvideo:twonky/
@@ -9454,6 +9470,7 @@ match upnp m|^HTTP/1\.1 404 Not Found\r\nSERVER: Linux/([\w._-]+) UPnP/([\w._-]+
 match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: ipos/([\w._-]+) UPnP/([\w._-]+) (RNX-[\w._-]+)/1\.0\r\n| p/ipOS upnpd/ i/Rosewill $3; UPnP $2/ d/broadband router/ o/ipOS $1/ cpe:/o:ubicom:ipos:$1/
 match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: ipos/([\w._-]+) UPnP/([\w._-]+) (TL-[\w._-]+)/1\.0\r\n| p/ipOS upnpd/ i/TP-LINK $3; UPnP $2/ d/broadband router/ o/ipOS $1/ cpe:/o:ubicom:ipos:$1/
 match upnp m|^HTTP/1\.1 200 OK\r\n.*Server: UPnP/([\w._-]+) DLNADOC/([\w._-]+) Allwinnertech/([\w._-]+)\r\n\r\n|s p/AllWinner upnpd/ v/$3/ i/UPnP $1; DLNADOC $2/
+match upnp m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: \d+\r\nServer: Linux ([23]\.[\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) ReadyDLNA/([\w._-]+)\r\n| p/ReadyDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -10933,6 +10950,9 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 # Sometimes the hostname isn't included
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.2; Mac OS X 10.3 - 10.5/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 
+# Flags \x9f\xf3
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.9; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x:10.9/
+
 # Flags \x9f\xfb.
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookAir\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacBook Air/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacBook Pro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
@@ -10941,7 +10961,10 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacPro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Xserve\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Xserve/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.7 - 10.8/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.7 - 10.8; iMac/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent| p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.8; iMac/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
+
+softmatch afp m|^\x01\x03\0\0........\0\0\0\0.*AFP|s
 
 match ajp13 m|^AB\0N\x04\x01\x94\0\x06/cccb/\0\0\x02\0\x0cContent-Type\0\0\x17text/html;charset=utf-8\0\0\x0eContent-Length\0\0\x03970\0AB\x03| p/Apache Jserv/
 
@@ -12397,8 +12420,11 @@ softmatch firebird m|^\0\0\0\x03\0\0\0.\0\0\0.|s p/Firebird RDBMS/
 ##############################NEXT PROBE##############################
 Probe TCP ibm-db2-das q|\0\0\0\0DB2DAS      \x01\x04\0\0\0\x10\x39\x7a\0\x01\0\0\0\0\0\0\0\0\0\0\x01\x0c\0\0\0\0\0\0\x0c\0\0\0\x0c\0\0\0\x04|
 rarity 8
-ports 523,50000
+ports 523,9090,50000
 match ibm-db2 m|^\0\0\0\0DB2DAS\x20\x20\x20\x20\x20\x20.{28}\x9b\0\0\0\x0c\0\0\0Z\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\$\0\0\0\x0c\0\0\0O\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\x19\0\0\0\x0c\0\0\0\x04\0\0\x04\xb8SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$1.$2.$3/
+
+# 8001 = version, 0003 = EXCEPTION
+match thrift-binary m|^\x80\x01\0\x03\0\0\0\0B2DA\x0b\0\x01\0\0\0\0\x08\0\x02\0\0\0\x02\0| p/Apache Thrift TBinary/
 
 
 ##############################NEXT PROBE##############################
@@ -12527,9 +12553,11 @@ ports 548
 
 # See other AFP matches in SSLSessionReq.
 
-
+# Netatalk 3.1.1
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x79.([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x06\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3\x06AFP3\.4|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.4/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
 # Netatalk 2.2.2
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x59.([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x05\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.3/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x5d.MyBookWorld[\0\x01].*Netatalk([\w._-]+)\x05\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3|s p/Netatalk/ v/$1/ i/Western Digital MyBook World NAS device; name: MyBookWorld; protocol 3.3/ o/Unix/ cpe:/a:netatalk:netatalk:$1/
 # Netatalk 2.2.1dev
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x8f\x7d.([^\0\x01]+)[\0\x01].*Netatalk([\w._-]+)\x05\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x06AFP3\.3|s p/Netatalk/ v/$2/ i/name: $1; protocol 3.3/ o/Unix/ cpe:/a:netatalk:netatalk:$2/
 # Netatalk 2.2.0
@@ -12575,6 +12603,8 @@ match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7f.([^\0\x01]+)[\0\
 # Seems to repeat the length in the first reserved field.
 match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01].*Windows Version: 5\.0 \(2\) build 2195 Service Pack (\d+) (\d+)-bit \(ExtremeZ-IP ([\w._-]+)x05\)\x03\x06AFP3\.2\x06AFP3\.1\x06AFP2\.2.*afpserver/([\w._@-]+)\0|s p/ExtremeZ-IP AFP/ v/$4/ i/name: $1; afpserver: $5; protocol 3.2; $3-bit/ o/Windows 2000 SP$2/ cpe:/o:microsoft:windows_2000:sp$2/
 match afp m|^\x01\x03\0\x01\0\0\0\0................\x03\xff.([^\0\x01]+)[\0\x01].*Windows Version: 5\.1 \(2\) build 2600 Service Pack (\d+) (\d+)-bit \(ExtremeZ-IP ([\w._-]+)x10\)\x02\x06AFP2\.2\x06AFP3\.1.*afpserver/([\w._@-]+)\0|s p/ExtremeZ-IP AFP/ v/$4/ i/name: $1; afpserver: $5; protocol 3.1; $3-bit/ o/Windows XP SP$2/ cpe:/o:microsoft:windows_xp:sp$2/
+
+softmatch afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0.*AFP|s
 
 
 ##############################NEXT PROBE##############################
