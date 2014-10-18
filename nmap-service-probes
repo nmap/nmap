@@ -1985,6 +1985,7 @@ match nntp m|^200 ([-\w._]+) InterNetNews NNRP server INN (.*) ready \(posting o
 
 match nntp-proxy m|^200 CCProxy NNTP Service\r\n| p/CCProxy NNTP proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match nntp-proxy m|^200 avast! NNTP proxy ready\.\r\n$| p/Avast! anti-virus NNTP proxy/ o/Windows/ cpe:/o:microsoft:windows/a
+match nntp-proxy m|^502 concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus NNTP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
 
 softmatch nntp m|^200 [-\[\]\(\)!,/+:<>@.\w ]*nntp[-\[\]\(\)!,/+:<>@.\w ]*\r\n$|
 
@@ -2722,7 +2723,7 @@ match smtp m|^220 (\S+) -- Server ESMTP \(Sun Java System Messaging Server (\d[^
 match smtp m|^220 jMailer SMTP Server\r\n$| p/jMailer smtpd/
 match smtp m|^220[- ][^ ]+ Smail-([^ ]+) .*ESMTP|s p/Smail-ESMTP/ v/$1/
 match smtp m|^220[- ][^ ]+ Smail-([^ ]+) | p/Smail/ v/$1/
-match smtp m|^220 \[([-\w_.]+)\] ESMTP amavisd-new service ready\r\n| p/amavisd smtpd/ h/$1/
+match smtp m|^220 \[([-\w_.]+)\] ESMTP amavisd-new service ready\r\n| p/amavisd-new smtpd/ h/$1/
 match smtp m=^220 SMTP-Server Classic Hamster (?:Vr\.|Version) [\d.]+ \(Build ([\d.]+)\)\r\n= p/Classic Hamster smtpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220-Stalker Internet Mail Server V.([\w.]+) is ready\.\r\n| p/Stalker smtpd/ v/$1/ o/Mac OS/ cpe:/o:apple:mac_os/a
 match smtp m|^220-([-\w_.]+) Stalker Internet Mail Server V\.([\w.]+) is ready\.\r\n| p/Stalker smtpd/ v/$2/ o/Mac OS/ h/$1/ cpe:/o:apple:mac_os/a
@@ -4904,6 +4905,8 @@ match irr m|^% No search key specified\n\n| p/Merit Internet Routing Registry/
 
 match istat m|^<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?><isr athrej=\"1\"></isr>$| p/istatd server for iStat iPhone app/
 
+match itach m|^ERR 001\rERR 001\r| p/Global Cache iTach API/ d/bridge/
+
 # http://java.decompiler.free.fr/?q=node/626
 match jd-gui m|^\t$| p/JD-GUI Java decompiler/ v/0.3.3/
 
@@ -5219,6 +5222,7 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnec
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: RAIDiator/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/RAIDiator $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Ubuntu/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Ubuntu $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:canonical:ubuntu_linux:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Gentoo/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Gentoo $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:gentoo:linux:$1/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: SUSE LINUX/n/a DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$3/ i/SUSE Linux; DLNADOC $1; UPnP $2/ o/Linux/ cpe:/o:suse:suse_linux/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux ([23]\.[\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: OpenWrt Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/OpenWrt; DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
@@ -5316,6 +5320,23 @@ match ajp13 m|^AB\0\x13\x04\x01\x90\0\x0bBad Request\0\0\0AB\0\x02\x05\x01$| p/A
 match athinfod m|^athinfod: invalid query\.\n$| p/Athena athinfod/
 
 match automate m|^\x031[\w+/]{54}nXAvc01KqG\x03\r\n$| p/AutoMate Task Service/ v/9/
+
+# using line numbers to distinguish versions
+# for f in *.tar.gz; do echo -en $f"\t"; tar --wildcards -xOf $f '*/amavisd' | grep -n -e '__DATA__' -e "Missing 'request'" | grep -B1 req | awk -F: '{a=$1-a}END{print a}'; done
+# Avoiding pre- and rc- versions for brevity
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:187),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.3.0 - 2.3.2/ cpe:/a:ijs:amavisd_new:2.3/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:190),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.3.3/ cpe:/a:ijs:amavisd_new:2.3.3/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:195),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.4.0/ cpe:/a:ijs:amavisd_new:2.4.0/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:207),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.4.1 - 2.4.2/ cpe:/a:ijs:amavisd_new:2.4/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:208),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.4.3 - 2.4.4/ cpe:/a:ijs:amavisd_new:2.4/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:210),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.4.5/ cpe:/a:ijs:amavisd_new:2.4.5/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:214),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.5.0/ cpe:/a:ijs:amavisd_new:2.5.0/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:217),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.5.1 - 2.5.4/ cpe:/a:ijs:amavisd_new:2.5/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:230),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.6.0/ cpe:/a:ijs:amavisd_new:2.6.0/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:185),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.7.0 - 2.7.2/ cpe:/a:ijs:amavisd_new:2.7/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:188),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.8.0/ cpe:/a:ijs:amavisd_new:2.8.0/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:193),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.8.1/ cpe:/a:ijs:amavisd_new:2.8.1/
+match am-pdp m|^setreply=450 4\.5\.0 Failure:%20Missing%20'request'%20field%20at%20\(eval%20\d+\)%20line%20(?:196),%20<GEN\d+>%20line%20\d\.\r\n| p/amavisd-new AM.PDP/ v/2.9.0 - 2.9.1/ cpe:/a:ijs:amavisd_new:2.9/
 
 match amqp m|^AMQP\x00\x00\x09\x01$| p/Advanced Message Queue Protocol/
 match amqp m|^AMQP\x01\x01\x00\x0a$| p/Advanced Message Queue Protocol/
@@ -8133,7 +8154,6 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Linux, HTTP/1\.1, (DIR-[\w._+-]+) V
 match http m|^HTTP/1\.1 200 OK\r\n.*X-Powered-By: Servlet ([\w._-]+); JBoss-([\w._-]+) \(build: SVNTag=JBoss_[\w._-]+ date=\d+\)/Tomcat-([\w._-]+)\r\n|s p/Apache Tomcat/ v/$3/ i/JBoss $2; Servlet $1/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Prayer/([\w._-]+)\r\n|s p/Prayer webmail httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Nu-OS/([\w._-]+)\r\n.*<title>Pioneer Web Control System</title>|s p/Nu-OS/ v/$1/ i/Pioneer VSX-2020 AV receiver/ d/media device/
-match http m|^HTTP/1\.1 200 OK\r\nServer: cloudflare-nginx\r\n| p/cloudflare-nginx/
 match http m|^HTTP/1\.0 403 Access Denied\r\nConnection: close\r\n\r\n<html>The request you issued is not an authorized Convergence Notary request\.\n$| p/Convergence Notary server httpd/
 match http m|^HTTP/1\.1 200 OK\r\nDate: Wed, 31 Dec 1969 15:00:00 GMT\r\nConnection: close\r\nContent-Type: text/html; charset=ISO-8859-1\r\n.*<title>MONITOR NETWORK SETTINGS</title>.*<!--\nvar mac=\"(\w+)\";\nvar ip3=\d+;\nvar ip2=\d+;\nvar ip1=\d+;\nvar ip0=\d+;\nvar nm3=\d+;\nvar nm2=\d+;\nvar nm1=\d+;\nvar nm0=\d+;\nvar gw3=\d+;\nvar gw2=\d+;\nvar gw1=\d+;\nvar gw0=\d+;\nvar dh=\"0\";\nvar vDns1_0=(\d+);\nvar vDns1_1=(\d+);\nvar vDns1_2=(\d+);\nvar vDns1_3=(\d+);\nvar vDns2_0=\d+;\nvar vDns2_1=\d+;\nvar vDns2_2=\d+;\nvar vDns2_3=\d+;\nvar vVer=\"([\w._-]+)\";|s p/NEC Multeos M461 TV http config/ v/$6/ i/MAC: $1; nameserver $2.$3.$4.$5/
 match http m|^HTTP/1\.1 303 See Other\r\nConnection: close\r\nLocation: http://[\d.]+/login_home\.html\r\n\r\n| p/Tandberg Codian 3510 video gateway http config/ d/media device/
@@ -8625,7 +8645,6 @@ match http m|^HTTP/1\.0 302 Moved Temporarily\r\nContent-Type: text/html\r\nSet-
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"(iRMC S\d)@iRMC([0-9A-F]{6})\", qop=\"auth\", nonce=\"[0-9a-f-]+\", opaque=\"[0-9a-f]+\", stale=\"FALSE\" \r\n(?:Connection: close\r\n)?Cache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n296\r\n| p/Fujitsu $1 httpd/ i/Host ID (MAC) $2/ d/remote management/
 match http m|^HTTP/1\.1 400 Bad Request\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: 727\r\n\r\n<HTML><HEAD>\r\n<TITLE>Request Error</TITLE>\r\n</HEAD>\r\n<BODY>\r\n<FONT face=\"Helvetica\">\r\n<big><strong></strong></big><BR>| p/ISPConfig http control panel/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nServer: alphapd\r\nDate: .*\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-type: text/html\r\nWWW-Authenticate: Digest realm=\"(TV-IP\d\d\d\w*)\",qop=\"auth\", nonce=\"[a-f0-9]+\"\r\n\r\n| p/TRENDnet $1 httpd/ d/webcam/
-match http m|^HTTP/1\.1 403 Forbidden\r\nServer: cloudflare-nginx\r\n| p/Cloudflare nginx/
 #example $2 = "MediaCloset\0"
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n<html><head><title>APC Back-UPS ([^(]+)\(([^)]+)\)</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>| p/APC Back-UPS $1 http admin/ i/$P(2)/
 match http m|^HTTP/1\.1 401 UNAUTHORIZED\r\nWWW-Authenticate: Basic realm=\"Login Required\"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 90\r\nDate: .*\r\nServer: ([\w._-]+)\r\n\r\nCould not verify your access level for that URL\.\nYou have to login with proper credentials| p/Maraschino XBMC http interface/ h/$1/
@@ -8697,6 +8716,9 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: SentinelKeysServer/([\w._-
 # Also, this matches 4 or 5 different services within CloudView. No further info.
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: Close\r\nContent-Length: \d+\r\nContent-Type: .*\r\nDate: .*\r\nHost: 0\.0\.0\.0\r\nServer: NG/6\.0\.16943\r\n| p/Exalead CloudView/ v/5.1.12.31472/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nDate: .*\r\nEtag: .*\r\nServer: ngconvert/6\.0\.16943 edoc/1\.4\.36592 \(BUILD=6\.0\.16943;EDOC=1\.4\.36592;AUTOMIME=1\.03;CONFEX=0\.153;XPDFTEXTLIB=3\.02\.24\)\r\n\r\n| p/Exalead CloudView/ v/5.1.12.31472/
+
+match http m|^HTTP/1\.1 200 OK\r\n.*\r\n\r\n<!-- pageok -->\n<!-- managed by puppet -->\n<html>\n<pre>pageok</pre>\n</html>\n$|s p/GoDaddy error/
+match as2 m|^HTTP/1\.1 404 Not Found\r\nServer: Cleo LexiCom/([\w._-]+) \(([^)]+)\)\r\n| p/Cleo LexiCom AS2/ v/$1/ o/$2/
 
 #(insert http)
 
@@ -8787,6 +8809,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: corehttp-([\w._-]+)\r\n| p/CoreHTTP
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ECS \(([a-z]{3}/[A-F\d]{4})\)\r\n|s p/Edgecast CDN httpd/ i/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedthis-http\r\n|s p/Embedthis HTTP lib httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs/([\w._-]+)\r\n| p/GoAhead-Webs/ v/$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: cloudflare-nginx\r\n|s p/Cloudflare nginx/
 
 # Put this at the end because it's not a server, but a backend.
 match http m|^HTTP/1\.1 200 OK\r.*\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n|s p/Java Servlet/ v/$1/ i/JSP $2/
@@ -9005,7 +9028,7 @@ match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: smartcds/([\w.]+)\r\n| 
 match http-proxy m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: Brazil/([\d.]+)\r\nConnection: close\r\nContent-Length: 135\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Error: 404</title>\n<body>\nGot the error: <b>Not Found</b><br>\nwhile trying to obtain <b>/</b><br>\n\n</body>\n</html>| p/Sun Labs Brazil httpd/ v/$1/ i/Adblock Plus for Android/ o/Android/
 match http-proxy m|^HTTP/1\.0 400 Bad request: request-line invalid\r\nContent-type: text/html; charset=\"utf-8\"\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\r\n<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www\.w3\.org/1999/xhtml\">\r\n  <head>\r\n    <title>Request denied by WatchGuard HTTP Proxy</title>| p/WatchGuard http proxy/
 match http-proxy m|^HTTP/1\.1 301 Unknown Error\r\nServer: Varnish\r.*\nX-Varnish: \d+\r\nAge: 0\r\nVia: 1\.1 varnish\r\n|s p/Varnish http accelerator/
-match http-proxy m|^HTTP/1\.1 200 OK\r.*\nX-Varnish: \d+\r.*\nVia: 1\.1 varnish\r\n|s p/Varnish http accelerator/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nX-Varnish: \d+\r.*\nVia: 1\.1 varnish\r\n|s p/Varnish http accelerator/
 match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: Microdasys-SCIP\r\nContent-Type: text/html\r\nContent-Length: 240\r\nConnection: close\r\n\r\n<HTML>.*<ADDRESS><A HREF=\"http://www\.websense\.com/\">Websense Content Gateway Proxy v([\w._-]+)</A>| p/Websense Content Gateway http proxy/ v/$1/ i/Microdasys SCIP ssl proxy/
 match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: Microdasys-SCIP\r\n| p/Microdasys SCIP ssl proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: mitmproxy ([\w._-]+)\r\nContent-type: text/html\r\nContent-Length: \d+\r\n| p/mitmproxy/ v/$1/
@@ -9055,6 +9078,10 @@ match msn m|^{?Syntax Error : GET / HTTP/1\.0}? error\r\n$| p/amsn/
 match msn m|^{?Erreur de syntaxe : GET / HTTP/1\.0}? error\r\n$| p/amsn/ i/French/
 match msn m|^{? ?Erro de sintaxe : GET / HTTP/1\.0}? error\r\n$| p/amsn/ i/Portugese/
 match msn m|^{?Errore di sintassi : GET / HTTP/1\.0}? error\r\n$| p/amsn/ i/Italian/
+
+# http://www.icbevr.com/ibank/ibank2/
+# byte 8 is a counter, so \x18 in byte 7 may also increment?
+match ibank2 m|^\x02\0\0\x01E\(\x18.{25}$|
 
 match icap m|^ICAP/1\.0 501 Method not implemented.*\r\nServer: IronNet/([\d.]+)\r\n\r\n|s p/IronNet Compliance Application/ v/$1/
 match icap m|^ICAP/1\.0 501 Method not implemented.*\r\nService: ProxyAV AV scanner ([^\r\n]+)\r\n|s p/Blue Coat ProxyAV/ v/$1/
@@ -9390,7 +9417,8 @@ match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._+-]+), UPnP/([\d.]+), P
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._+-]+) UPnP/([\d.]+) DLNADOC/([\d.]+) Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$4/ i/Linux $1; DLNADOC $3; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: Linux/([\w._+-]+) DLNADOC/([\d.]+) UPnP/([\d.]+) MiniDLNA/([\w._-]+)\r\n|s p/MiniDLNA/ v/$4/ i/Linux $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.0 500 Internal Server Error\r\nSERVER: ([\w._-]+\.7601) 2/Service Pack (\d+), UPnP/([\w._-]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$4/ i/UPnP $3/ o/Windows 7 SP$2 build $1/
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ([\d. ]+)/, UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/Windows $1; UPnP $2/ o/Windows/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ([56]\.[\d. ]+)/, UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/Windows $1; UPnP $2/ o/Windows/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ([56]\.[\d. ]+)/Service Pack (\d+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$4/ i/Windows $1 (SP$2); UPnP $3/ o/Windows/
 
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/([-+\w_.]+), UPnP/([\d.]+), Intel SDK for UPnP devices ?/([\w._~-]+)\r\n|s p/Intel UPnP reference SDK/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/([-+\w_.]+) UPnP/([\d.]+) DLNADOC/([\w._-]+) Intel_SDK_for_UPnP_devices/([\w._~-]+)\r\n|s p/Intel UPnP reference SDK/ v/$4/ i/Linux $1; UPnP $2; DLNADOC $3/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
@@ -9426,7 +9454,7 @@ match upnp m|^HTTP/1\.0 404 Not Found\r\n.*Server: DrayTek/Vigor(\w+) UPnP/([\w.
 match upnp m|^HTTP/1\.0 200 OK\r\n.*Server: Linux,([\w._-]+),UPnP/([\w._-]+),Coherence UPnP framework,([\w._-]+)\r\n|s p/Coherence UPnP framework/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^HTTP/1\.[01] 404 Not Found\r\n.*Server: Netgem/([\d.]+) \(NeufboxTV UPnPServer\)\r\n|s p/Netgem UPnP/ v/$1/ i/Neuf Box TV/ d/media device/
 match upnp m|^HTTP/1\.1 200 OK\r\n.*Server: WINDOWS, UPnP/([\d.]+), Intel MicroStack/([\d.]+)\r\n.*<dlna:X_DLNADOC xmlns:dlna=\"urn:schemas-dlna-org:device-1-0\">(DMS-[\d.]+)</dlna:X_DLNADOC>.*<friendlyName>([\w._-]+): MediaServer</friendlyName>.*<manufacturer>Wistron</manufacturer>.*<modelDescription>WiDMS</modelDescription>|s p/Intel MicroStack UPnP/ v/$2/ i/Wistron Digital Media Server $3; UPnP $1/ o/Windows/ h/$4/ cpe:/o:microsoft:windows/a
-match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Linux, UPnP/([\d.]+), (DIR-[\w+]+) Ver ([\d.]+)\r\n| p/D-Link $2 WAP UPnP/ v/$3/ i/UPnP $1/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Linux, UPnP/([\d.]+), (DIR-[\w+]+) Ver ([\w._-]+)\r\n| p/D-Link $2 WAP UPnP/ v/$3/ i/UPnP $1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: FAST Router (\w+) Router, UPnP/([\w.]+)\r\n| p/FAST $1 router UPnP $2/ d/router/
 match upnp m|^HTTP/1\.0 \d\d\d .*SERVER: Linux/([\w._-]+) UPnP/([\w._-]+) myigd/([\w._-]+)\r\n|s p/myigd/ v/$3/ i/Linksys WAG354G router; Linux $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.0 \d\d\d .*SERVER: Linux/([\w._-]+), UPnP/([\w._-]+), Everest/([\w._-]+)\r\n|s p/Everest/ v/$3/ i/Pelco Spectra Mini IP webcam; Linux $1; UPnP $2/ d/webcam/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
@@ -9774,6 +9802,7 @@ match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*? UTC\r\nContent-type: te
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Origin: \r\nAccess-Control-Allow-Credentials: true\r\nAccess-Control-Max-Age: 86400\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nServer: nzbget-([\w._-]+)\r\n\r\n| p/NZBGet httpd/ v/$1/
 match http m|^HTTP/1\.1 501 Not Implemented\r\nContent-Length: 0\r\nConnection: close\r\n\r\nHTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Securesphere Gateway Authentication\"\r\nContent-Length: 0\r\nConnection: close\r\nSet-Cookie: session_id=\d+; Path=/\r\n\r\n| p/Imperva SecureSphere WAF http admin/
 match http m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: JiffyServer/([\w._-]+) Python/([\w._-]+)\r\nDate: .*\r\nContent-Type: text/html;charset=utf-8\r\nConnection: close\r\n\r\n| p/Jiffy secure messaging httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.1 405 Method not allowed\r\nCache-Control: no-cache\r\nConnection: close\r\nPragma: no-cache\r\nContent-Length: 8\r\nContent-Type: text/html\r\nAccept-Ranges: bytes\r\n\r\nERROR=0\n| p/ACTi NVR3 httpd/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
@@ -11467,6 +11496,7 @@ match http m|^HTTP/1\.1 404 Not Found\r\n\r\n404 Not Found: \[/nice ports,/Trini
 match http m|^HTTP/1\.0 404 Not Found\r\n.*<LINK REL=\"stylesheet\" HREF=\"/style\.css\" TYPE=\"text/css\"></HEAD>\r\n<BODY><H2>URL demand\xe9e introuvable\.</H2>|s p/Lexmark Optra T610 printer http config/ i/French/ d/printer/
 match http m|^HTTP/1\.0 403 File not found - unknown extension\r\n\r\n| p|apt-cache/apt-proxy httpd| o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 403 Forbidden file type or location\r\n.*Server: Debian Apt-Cacher NG/([\w._-]+)\r\n|s p/Debian Apt-Cacher NG httpd/ v/$1/
+match http m|^HTTP/1\.0 400 Bad Request\r\n.*Server: Debian Apt-Cacher NG/([\w._-]+)\r\n|s p/Debian Apt-Cacher NG httpd/ v/$1/
 match http m|^HTTP/1\.1 403 Sorry, not allowed to fetch that type of file: Tri%6Eity\.txt%2ebak\r\n\r\n| p/apt-cache httpd/
 match http m|^HTTP/1\.0 304 Not Modified\r\nContent-Length: 0\r\nServer: Unknown\r\n\r\n| p/McData 4500 fibre switch http config/ d/switch/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: KM-httpd/([-\w_.]+)\r\n.*<em>HTTP Response Code: </em> 404<br><em>From server at: </em> ([-\w_.]+)<br><em>|s p/Konica Minolta printer http config/ v/$1/ d/printer/ h/$2/
