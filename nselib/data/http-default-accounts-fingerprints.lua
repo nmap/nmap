@@ -1,3 +1,4 @@
+local bin = require "bin"
 local http = require "http"
 local table = require "table"
 local url = require "url"
@@ -255,6 +256,55 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "ASUS RT-N10U",
+  category = "routers",
+  paths = {
+    {path = "/as.asp"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "RT-N10U"
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Motorola RF Switch",
+  category = "routers",
+  paths = {
+    {path = "/getfwversion.cgi"}
+  },
+  target_check = function (host, port, path, response)
+    -- true if the response is HTTP/200 and returns a firmware version
+    return response.status == 200
+           and not response.header["server"]
+           and response.header["content-type"] == "text/plain"
+           and response.body
+           and response.body:find("\n%d+%.%d+%.%d+%.%d+%-%w+\n")
+  end,
+  login_combos = {
+    {username = "admin", password = "superuser"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local tohex = function (str)
+                    local _, hex = bin.unpack("H" .. str:len(), str)
+                    return hex:lower()
+                  end
+    local login = string.format("J20K34NMMT89XPIJ34S login %s %s", tohex(user), tohex(pass))
+    local lpath = url.absolute(path, "usmCgi.cgi/?" .. url.escape(login))
+    local req = http.get(host, port, lpath, {no_cache=true, redirect_ok = false})
+    return req
+           and req.status == 200
+           and req.body
+           and req.body:match("^login 0 ")
   end
 })
 
