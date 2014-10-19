@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-avaya-ipoffice-users script to enumerate users in Avaya 
+  IP Office 7.x systems. [Paulino Calderon]
+
 o [NSE] Added docker-version script for detecting Docker [Claudio Criscione]
 
 o [NSE] Improved http-form-brute autodetection and behavior to handle more

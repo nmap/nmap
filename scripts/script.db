@@ -139,6 +139,7 @@ Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", 
 Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth-finder.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
+Entry { filename = "http-avaya-ipoffice-users.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-awstatstotals-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-axis2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-backup-finder.nse", categories = { "discovery", "safe", } }
