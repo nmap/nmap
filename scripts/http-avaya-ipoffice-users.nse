@@ -41,11 +41,9 @@ action = function(host, port)
   local _, http_status, _ = http.identify_404(host,port)
   if ( http_status == 200 ) then
     stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
-    return false
+    return
   end
   local output = stdnse.output_table()
-  output.title = "Avaya IP Office User Listing"
-  output.users = {}
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local open_session = http.get(host.ip, port, "/system/user/scn_user_list")
   if open_session and open_session.status == 200 then
@@ -54,7 +52,9 @@ action = function(host, port)
       stdnse.debug(1, "Pattern not found. Exiting")
       return
     end
-    output.data_source = source
+    output.title = "Avaya IP Office User Listing"
+    output.users = {}
+     output.data_source = source
     --match the string data_source and print it //Avaya IP Office 7.0(27)
     for user_block in string.gmatch(open_session.body, "<user>(.-)</user>") do
       stdnse.debug(1, "User block found!")
@@ -70,6 +70,7 @@ action = function(host, port)
         table.insert(output.users, user)
       end
     end
+    return output
   end
-  return output
+  return
 end
