@@ -1371,7 +1371,7 @@ local l_make_output = function(fid_table, entries, filter)
   end
 
   if next(hosts) then
-    stdnse.debug3(
+    debug(3,
       "vulns.lua: sorting vulnerability entries for %d host",
       #hosts)
     sort(hosts, sort_hosts)
@@ -1808,24 +1808,28 @@ local format_vuln_base = function(vuln_table, showall)
             or "", STATE_MSG[vuln_table.state])
     return nil
   end
-
+  local output_table = stdnse.output_table()
   local out = {}
+  output_table.title = vuln_table.title
   insert(out, vuln_table.title)
+  output_table.state = STATE_MSG[vuln_table.state]
   insert(out,
       string_format("  State: %s", STATE_MSG[vuln_table.state]))
 
   if vuln_table.IDS and next(vuln_table.IDS) then
     local ids_str = ""
-
+    local ids_t = {}
     for id_type, id in pairs(vuln_table.IDS) do
       -- ignore internal NMAP IDs
       if id_type ~= 'NMAP_ID' then
         ids_str = ids_str .. string_format("  %s:%s", id_type, id)
+        table.insert(ids_t, string_format("%s:%s", id_type, id))
       end
     end
 
     if ids_str:len() > 0 then
       insert(out, string_format("  IDs:%s", ids_str))
+      output_table.ids = ids_t
     end
   end
 
@@ -1835,6 +1839,7 @@ local format_vuln_base = function(vuln_table, showall)
       local risk_str = ""
 
       if vuln_table.scores and next(vuln_table.scores) then
+	output_table.scores = vuln_table.scores
         for score_type, score in pairs(vuln_table.scores) do
           risk_str = risk_str .. string_format("  %s: %s", score_type, score)
         end
@@ -1847,16 +1852,23 @@ local format_vuln_base = function(vuln_table, showall)
     if vuln_table.description then
       local desc = format_vuln_special_fields(vuln_table.description)
       if desc then
-        insert(out, "  Description:")
+        local desc_str = ""
         for _, line in ipairs(desc) do
           insert(out, string_format("    %s", line))
+          desc_str = desc_str .. line
         end
+        output_table.description = vuln_table.description
       end
     end
 
     if vuln_table.dates and next(vuln_table.dates) then
+      output_table.dates = vuln_table.dates
       if vuln_table.dates.disclosure and
       next(vuln_table.dates.disclosure) then
+        output_table.disclosure = string_format("%s-%s-%s", 
+				vuln_table.dates.disclosure.year,
+				vuln_table.dates.disclosure.month,
+				vuln_table.dates.disclosure.day)
         insert(out, string_format("  Disclosure date: %s-%s-%s",
                         vuln_table.dates.disclosure.year,
                         vuln_table.dates.disclosure.month,
@@ -1865,6 +1877,7 @@ local format_vuln_base = function(vuln_table, showall)
     end
 
     if vuln_table.check_results then
+      output_table.check_results = vuln_table.check_results
       local check = format_vuln_special_fields(vuln_table.check_results)
       if check then
         insert(out, "  Check results:")
@@ -1875,6 +1888,7 @@ local format_vuln_base = function(vuln_table, showall)
     end
 
     if vuln_table.exploit_results then
+      output_table.exploit_results = vuln_table.exploit_results
       local exploit = format_vuln_special_fields(vuln_table.exploit_results)
       if exploit then
         insert(out, "  Exploit results:")
@@ -1885,6 +1899,7 @@ local format_vuln_base = function(vuln_table, showall)
     end
 
     if vuln_table.extra_info then
+      output_table.extra_info = vuln_table.extra_info
       local extra = format_vuln_special_fields(vuln_table.extra_info)
       if extra then
         insert(out, "  Extra information:")
@@ -1917,13 +1932,16 @@ local format_vuln_base = function(vuln_table, showall)
 
     if next(ref_set) then
       insert(out, "  References:")
+      local ref_str = {}
       for link in pairs(ref_set) do
         insert(out, string_format("    %s", link))
+	table.insert(ref_str, link)
       end
+      output_table.refs = ref_str
     end
   end
 
-  return out
+  return out, output_table
 end
 
 --- Format the vulnerability information and return it in a table.
@@ -2221,13 +2239,22 @@ Report = {
     local vuln_count = #self.entries.vulns
     local not_vuln_count = #self.entries.not_vulns
     local output = {}
-
+    local output_table = stdnse.output_table()
+    local out_t = stdnse.output_table()
+    local output_t2 = stdnse.output_table()
     -- VULNERABLE: LIKELY_VULN, VULN, DoS, EXPLOIT
     if vuln_count > 0 then
+      output_table.state = "VULNERABLE"
       insert(output, "VULNERABLE:")
       for i, vuln_table in ipairs(self.entries.vulns) do
-        local vuln_out = format_vuln_base(vuln_table)
+        local vuln_out, out_t = format_vuln_base(vuln_table)
+        if type(out_t) == "table" then 
+	  for i, v, k in pairs(out_t) do
+		  output_t2[i]=v
+	  end
+        end
         if vuln_out then
+          output_table.report = concat(vuln_out, "\n")
           insert(output, concat(vuln_out, "\n"))
           if vuln_count > 1 and i ~= vuln_count then
             insert(output, "") -- separate several entries
@@ -2235,16 +2262,22 @@ Report = {
         end
       end
     end
-
     -- NOT VULNERABLE: NOT_VULN
     if not_vuln_count > 0 then
       if SHOW_ALL then
         if vuln_count > 0 then insert(output, "") end
+        output_table.state = "NOT VULNERABLE"
         insert(output, "NOT VULNERABLE:")
       end
       for i, vuln_table in ipairs(self.entries.not_vulns) do
-        local vuln_out = format_vuln_base(vuln_table, SHOW_ALL)
+        local vuln_out, out_t = format_vuln_base(vuln_table, SHOW_ALL)
+        if type(out_t) == "table" then 
+	  for i, v, k in pairs(out_t) do
+		  output_t2[i]=v
+	  end
+        end
         if vuln_out then
+          output_table.report = concat(vuln_out, "\n")
           insert(output, concat(vuln_out, "\n"))
           if not_vuln_count > 1 and i ~= not_vuln_count then
             insert(output, "") -- separate several entries
@@ -2252,8 +2285,10 @@ Report = {
         end
       end
     end
-
-    return stdnse.format_output(true, output)
+   if #output==0 and #output_t2==0 then
+      return nil
+    end
+    return output_t2, stdnse.format_output(true, output)
   end,
 }
 
