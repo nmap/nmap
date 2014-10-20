@@ -1,5 +1,62 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Finish the version detection submission integration
+
+o Make sure the new version detection sigs have appropriate CPE’s.
+
+o Integrate latest IPv6 OS detection submissions and corrections
+
+o Our "make uninstall" should uninstall ndiff if it was installed too.
+  We should probably do it in pretty much the same way we handle
+  Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
+
+o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/running
+
+o Make and test build on a newer OS X than 10.6 (10.10 was recently released)
+
+o The XML version of Nmap lists and describes the six port states
+  recognized by Nmap near the top of the "Port Scanning Basics"
+  section.  That can be seen in the HTML rendering at
+  http://nmap.org/book/man-port-scanning-basics.html.  But in the man
+  page (nroff) rendering, the list is missing and it just gives the
+  title: "The six port states recognized by Nmap".  UPDATE: Now the
+  descriptions for each state appear in the man page, but the headings
+  ("open", etc.) are missing. We should figure out
+  why, and fix it.
+
+o Update OpenSSL library to 1.0.1j
+
+o Audit ncat's ssl algorithm and ciphersuite choices
+
+o Do a test/beta release (more, if necessary)
+
+o Make sure people have tested on Mac OS 10.10
+
+o Do CHANGELOG for new release[Fyodor]
+
+o Web updates for new release
+
+o Build and post new release
+
+==Items we need to finish before next big release go above this line==
+
+o Work on Nmap on Mobile devices, particularly Android.  Would be
+  great to get it in Google Play store, for example.  An official
+  version with a workable GUI.  For now, people have to do manual work
+  and it isn't as well tested either:
+  https://secwiki.org/w/Nmap/Android . If this is successful, we could
+  consider iOS.
+
+o Nmap performance work.  Particularly with --min-rate.
+
+o Consider re-architecting Nmap to have more of a scanning pipeline
+approach rather than fixed sets of hosts which start and finish one
+phase and then move into the next in parallel.  This could potentially
+allow us to add hosts one by one to a phase as other hosts finish that
+phase and, ideally, the phases could run in parallel too.
+
+o Nmap Network Scanning, 2nd Edition work [placeholder]
+
 o Organize nselib into a hierarchy. A library "dirname/filename.lua" can be
   required as "dirname.filename". We would need to ensure the installers
   (Makefile, OS X, Windows, RPM) can handle this. See
@@ -14,6 +71,16 @@ o We should work to reduce Zenmap's memory consumption. We used to
   The problem seems to lie in a very large Nmap Output being stored
   in memory and a possible fix seems to be to use a file based paging
   system.
+
+o Consider making a version of Nmap for Apple's official Mac App
+  Store.  A particular concern with the downloadable Mac version of
+  Nmap is that Apple's new "Mountain Lion" release may require users
+  to jump through hoops to install unsigned non-app-store content per
+  their "Gatekeeper" "feature".  Though maybe signing the app will be
+  enough.  There may also be an issue with the "Sandboxing"
+  requirement for App Store apps starting June 2012.  Will Nmap be
+  able to request all the permissions it needs?  Ignoring the
+  technical challenges for the moment, what will users prefer?
 
 o Do a roll up on (state, TTL) pair instead of just state so that TTL
   info is not lost when doing roll up on port states.
@@ -43,28 +110,12 @@ o Augment the configure script to list unmet dependencies. Currently, configure
   features that are/are-not available would be nice at the end of the script,
   so folks can see that they've e.g. missed the OpenSSL dependency.
 
-o Integrate latest IPv4 OS detection submissions and corrections
-
-o Integrate latest IPv6 OS detection submissions and corrections
-
 o Integrate latest version detection submissions and corrections
-
-o Our "make uninstall" should uninstall ndiff if it was installed too.
-  We should probably do it in pretty much the same way we handle
-  Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
 
 o Look into moving our Mac building/testing system into a virtual
   machine or leased server sort of environment so that multiple Nmap
   developers can access it and nobody has to keep a stack of Mac Minis
   in their closet.
-
-o The XML version of Nmap lists and describes the six port states
-  recognized by Nmap near the top of the "Port Scanning Basics"
-  section.  That can be seen in the HTML rendering at
-  http://nmap.org/book/man-port-scanning-basics.html.  But in the man
-  page (nroff) rendering, the list is missing and it just gives the
-  title: "The six port states recognized by Nmap".  We should figure out
-  why, and fix it.
 
 o INFRASTRUCTURE: Upgrade seclists to use Mailman 3, which apparently
   has many improvements.
@@ -108,13 +159,6 @@ o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
 
-o Work on Nmap on Mobile devices, particularly Android.  Would be
-  great to get it in Google Play store, for example.  An official
-  version with a workable GUI.  For now, people have to do manual work
-  and it isn't as well tested either:
-  https://secwiki.org/w/Nmap/Android . If this is successful, we could
-  consider iOS.
-
 o INFRASTRUCTURE: Add IPv6 support to secwiki
  - We probably just have to designate a new IPv6 address for it and
    add it to Apache config.
@@ -125,21 +169,11 @@ o INFRASTRUCTURE: Consider updating our svn-mailer.py (and conf file)
   currently using one from
   subversion-1.4.2/tools/hook-scripts/mailer/mailer.py.
 
-o Investigate how we're ending up with OS fingerprints in nmap-os-db
-  with attribute names like W0 and W8 when according to the docs they
-  are only supposed to be W1 - W6 (and plain W).
-  http://nmap.org/book/osdetect-methods.html#osdetect-w.  See also
-  http://seclists.org/nmap-dev/2013/q4/68.  Need to determine how
-  these are getting into the file (from Nmap itself or our
-  integration/merge tools) and fix that then remove them from the
-  file.
-
 o Consider a two-stage model for IPv6 subnet/pattern support
   o Right now you can try to scan a /64, for example, and Nmap will try
     to iterate through them all (and of course never complete).  So
     perhaps Nmap should first look at a specification and decide if it
     should use other techniques like multicast discovery instead.
-
 
 o Move advanced IPv6 host discovery features from NSE into core Nmap.
   We'll probably add the functionality of
@@ -165,29 +199,26 @@ o Consider a continuous integration system for automating tests of
   various hardware/software for testing) and projects like Buildbot,
   Travis, Hudson, Jenkins, etc.
 
-o Some things that GSoC 2014 student Sriharsha is or is likely to soon
-  be working on:
-  o Setting up his dev environment, getting Nmap compiling on Linux +
-    Win.
-  o Implement some improvements to dns-ip6-arpa.nse, as describe at
-    http://seclists.org/nmap-dev/2012/q2/45.
-    - Also consider a move to "fire and forget" logic.  Just blast out
-    the queries that we know we have to make, and then read any replies
-    that may happen to come back. (but still try not to introduce
-    inaccuracy (missed hosts) by flooding the network.
-  o We should fix service detection so it can handle 0-byte captures
-    without crashing.
-    See http://seclists.org/nmap-dev/2014/q2/105
-  o Fix a segmentation fault in Ncat when scanned with the SSL NSE
-    scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
-    by running:
+o Implement some improvements to dns-ip6-arpa.nse, as describe at
+  http://seclists.org/nmap-dev/2012/q2/45.
+  - Also consider a move to "fire and forget" logic.  Just blast out
+  the queries that we know we have to make, and then read any replies
+  that may happen to come back. (but still try not to introduce
+  inaccuracy (missed hosts) by flooding the network.
+
+o We should fix service detection so it can handle 0-byte captures
+  without crashing.
+  See http://seclists.org/nmap-dev/2014/q2/105
+
+o Fix a segmentation fault in Ncat when scanned with the SSL NSE
+  scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
+  by running:
     Ncat: ncat -v -k --ssl -l localhost
     Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
-    This was initially reported by Timo Juhani Lindfors on the Debian
-    bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
-    Henri notes: "I traced the latter back to openssl  and opened a
+  This was initially reported by Timo Juhani Lindfors on the Debian
+  bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
+  Henri notes: "I traced the latter back to openssl  and opened a
   ticket there, which never got any reply... https://rt.openssl.org/Ticket/Display.html?id=2885&user=guest&pass=guest"
-
 
 o Our http library should allow the client to specify a max size in
   advance and should probably enforce some sort of maximum by default
@@ -212,8 +243,6 @@ o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
-
-o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
@@ -248,9 +277,6 @@ o Test a hierarchical classifier for IPv6 OS detection. Our classifier
   suspect playing it by ear will be sufficient. Talk to David for more
   of his thinking on this topic.
 
-o Test Ncat's TLS hostname validation using the TLSPretense tool.
-  https://www.isecpartners.com/news-events/news/2012/october/the-lurking-menace-of-broken-tls-validation.aspx
-
 o [INFRASTRUCTURE] Improve our main web server http configuration to
   better handle high load situations and DoS attacks.  As part of
   this, we may have to raise the max client limits.  But then there is
@@ -266,12 +292,6 @@ o Investigate WinPcap support for NDIS 6.
     I'm not sure what Windows releases support NDIS 6 or what the
     backward compatability is like.
 
-o Consider re-architecting Nmap to have more of a scanning pipeline
-approach rather than fixed sets of hosts which start and finish one
-phase and then move into the next in parallel.  This could potentially
-allow us to add hosts one by one to a phase as other hosts finish that
-phase and, ideally, the phases could run in parallel too.
-
 o NSE WORK (note that this is mostly infrastructure because script
   ideas are generally put on the script ideas page instead:
   https://secwiki.org/w/Nmap_Script_Ideas)
@@ -282,16 +302,6 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o Consider making a version of Nmap for Apple's official Mac App
-  Store.  A particular concern with the downloadable Mac version of
-  Nmap is that Apple's new "Mountain Lion" release may require users
-  to jump through hoops to install unsigned non-app-store content per
-  their "Gatekeeper" "feature".  Though maybe signing the app will be
-  enough.  There may also be an issue with the "Sandboxing"
-  requirement for App Store apps starting June 2012.  Will Nmap be
-  able to request all the permissions it needs?  Ignoring the
-  technical challenges for the moment, what will users prefer?
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
@@ -483,7 +493,6 @@ o Improve Nsock proxies system
  - Nping could potentially use it as well (could be useful for
    measuring latency and reliability of a given proxy chain, for
    example).
-
  - Add proxy support to connect() scan.  This would mean moving
    connect scan to nsock.
 
@@ -791,9 +800,6 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
      scans. 
     o Maybe let you define "scan profiles" like is done with Zenmap.
       There would then be a command-line option to select the profile used.
-
-o Search for nmap on google news, on google web, and add appropriate
-  links to press page and the like.
 
 o Get new Zenmap logo
  o consider putting back on top-right of command constructor wizard
