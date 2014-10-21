@@ -210,16 +210,6 @@ o We should fix service detection so it can handle 0-byte captures
   without crashing.
   See http://seclists.org/nmap-dev/2014/q2/105
 
-o Fix a segmentation fault in Ncat when scanned with the SSL NSE
-  scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
-  by running:
-    Ncat: ncat -v -k --ssl -l localhost
-    Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
-  This was initially reported by Timo Juhani Lindfors on the Debian
-  bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
-  Henri notes: "I traced the latter back to openssl  and opened a
-  ticket there, which never got any reply... https://rt.openssl.org/Ticket/Display.html?id=2885&user=guest&pass=guest"
-
 o Our http library should allow the client to specify a max size in
   advance and should probably enforce some sort of maximum by default
   (unless turned off by the script).  That way sites can't DoS Nmap by

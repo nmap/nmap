@@ -1,5 +1,15 @@
 DONE:
 
+o Fix a segmentation fault in Ncat when scanned with the SSL NSE
+  scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
+  by running:
+    Ncat: ncat -v -k --ssl -l localhost
+    Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
+  This was initially reported by Timo Juhani Lindfors on the Debian
+  bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
+  Henri notes: "I traced the latter back to openssl  and opened a
+  ticket there, which never got any reply... https://rt.openssl.org/Ticket/Display.html?id=2885&user=guest&pass=guest"
+
 o Investigate how we're ending up with OS fingerprints in nmap-os-db
   with attribute names like W0 and W8 when according to the docs they
   are only supposed to be W1 - W6 (and plain W).
