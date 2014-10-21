@@ -354,7 +354,6 @@ static int ncat_listen_stream(int proto)
                 case NCAT_SSL_HANDSHAKE_COMPLETED:
                     /* Clear from sslpending_fds once ssl is established */
                     FD_CLR(i, &sslpending_fds);
-                    rm_fd(&client_fdlist, i);
                     post_handle_connection(*fdi);
                     break;
                 case NCAT_SSL_HANDSHAKE_PENDING_WRITE:
@@ -529,6 +528,10 @@ static void post_handle_connection(struct fdinfo sinfo)
             /* add to our lists */
             FD_SET(sinfo.fd, &master_readfds);
             /* add it to our list of fds for maintaining maxfd */
+#ifdef HAVE_OPENSSL
+            /* Don't add it twice (see handle_connection above) */
+            if (!o.ssl)
+#endif
             if (add_fdinfo(&client_fdlist, &sinfo) < 0)
                 bye("add_fdinfo() failed.");
         }
