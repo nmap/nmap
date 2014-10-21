@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ssl-poodle to detect CVE-2014-3566 [Daniel Miller]
+
 o [NSE] vulns.Report:make_output() now generates XML structured output 
   reports automatically. [Paulino Calderon]
 
