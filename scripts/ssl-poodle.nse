@@ -294,7 +294,7 @@ local function find_ciphers(host, port, protocol)
       table.insert(results, name)
     end
     -- Another POODLE shortcut
-    if protocol_worked then return results end
+    if protocol_worked and next(results) then return results end
   end
   return results
 end
