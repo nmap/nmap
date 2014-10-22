@@ -68,6 +68,7 @@ TLS_ALERT_REGISTRY = {
   ["protocol_version"]                    = 70,
   ["insufficient_security"]               = 71,
   ["internal_error"]                      = 80,
+  ["inappropriate_fallback"]              = 86,
   ["user_canceled"]                       = 90,
   ["no_renegotiation"]                    = 100,
   ["unsupported_extension"]               = 110,
@@ -398,7 +399,6 @@ CIPHERS = {
 ["TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256"]       =  0x00BD,
 ["TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256"]       =  0x00BE,
 ["TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256"]       =  0x00BF,
-["TLS_EMPTY_RENEGOTIATION_INFO_SCSV"]              =  0x00FF,
 ["TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256"]           =  0x00C0,
 ["TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256"]        =  0x00C1,
 ["TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256"]        =  0x00C2,
@@ -581,6 +581,11 @@ CIPHERS = {
 ["TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]      =  0xCC15,
 ["SSL_RSA_FIPS_WITH_DES_CBC_SHA"]                  =  0xFEFE,
 ["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]             =  0xFEFF,
+}
+
+SCSVS = {
+["TLS_EMPTY_RENEGOTIATION_INFO_SCSV"]              =  0x00FF, -- rfc5746
+["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
 }
 
 local function find_key(t, value)
@@ -768,7 +773,14 @@ function client_hello(t)
   if t["ciphers"] ~= nil then
     -- Add specified ciphers.
     for _, cipher in pairs(t["ciphers"]) do
-      table.insert(ciphers, bin.pack(">S", CIPHERS[cipher]))
+      if type(cipher) == "string" then
+        cipher = CIPHERS[cipher] or SCSVS[cipher]
+      end
+      if type(cipher) == "number" and cipher > 0 and cipher <= 0xffff then
+        table.insert(ciphers, bin.pack(">S", cipher))
+      else
+        stdnse.debug1("Unknown cipher in client_hello: %s", cipher)
+      end
     end
   else
     -- Use NULL cipher

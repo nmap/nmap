@@ -226,7 +226,7 @@ local function find_ciphers_group(host, port, protocol, group)
         ctx_log(1, protocol, "%d ciphers and/or protocol rejected. (No handshake)", #group)
       end
       break
-    elseif record["protocol"] ~= protocol then
+    elseif record["protocol"] ~= protocol or record["body"][1]["protocol"] and record.body[1].protocol ~= protocol then
       ctx_log(1, protocol, "Protocol rejected.")
       protocol_worked = nil
       break
@@ -299,6 +299,29 @@ local function find_ciphers(host, port, protocol)
   return results
 end
 
+-- check if draft-ietf-tls-downgrade-scsv-00 is implemented as a mitigation
+local function check_fallback_scsv(host, port, protocol, ciphers)
+  local results = {}
+  local t = {
+    ["protocol"] = protocol,
+    ["extensions"] = tcopy(base_extensions),
+  }
+  if host.targetname then
+    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
+  end
+
+  t["ciphers"] = tcopy(ciphers)
+  t.ciphers[#t.ciphers+1] = "TLS_FALLBACK_SCSV"
+
+  local record = try_params(host, port, t)
+
+  if record["type"] == "alert" and record["body"][1]["description"] == "inappropriate_fallback" then
+    ctx_log(2, protocol, "TLS_FALLBACK_SCSV rejected properly.")
+    return true
+  end
+  return false
+end
+
 portrule = function (host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
@@ -334,16 +357,16 @@ action = function(host, port)
   local ciphers = find_ciphers(host, port, 'SSLv3')
   if ciphers == nil then
     vuln_table.check_results = { "SSLv3 not supported" }
-    return report:make_output(vuln_table)
-  end
-
-  if #ciphers == 0 then
+  elseif #ciphers == 0 then
     vuln_table.check_results = { "No CBC ciphersuites found" }
-    return report:make_output(vuln_table)
+  else
+    vuln_table.check_results = ciphers
+    if check_fallback_scsv(host, port, 'SSLv3', ciphers) then
+      table.insert(vuln_table.check_results, "TLS_FALLBACK_SCSV properly implemented")
+      vuln_table.state = vulns.STATE.LIKELY_VULN
+    else
+      vuln_table.state = vulns.STATE.VULN
+    end
   end
-
-  -- else
-  vuln_table.check_results = ciphers
-  vuln_table.state = vulns.STATE.VULN
   return report:make_output(vuln_table)
 end
