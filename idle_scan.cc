@@ -590,15 +590,23 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   }
 
   /* If we have a : in IPv4 or [] in IPv6, we strip them off */
-  if (o.af() == AF_INET && strchr(proxyName, ':') != NULL )
-    strncpy(name, proxyName , MIN(strcspn(proxyName,":") , sizeof(name)));
-  else if (o.af() == AF_INET6 && strchr(proxyName, '[') != NULL && strchr(proxyName, ']') != NULL)
-    strncpy(name, strchr(proxyName, '[') + 1, MIN(strcspn(proxyName,"]") - strcspn(proxyName, "[") - 1, sizeof(name)));
+  if (o.af() == AF_INET && q != NULL ) {
+    /* I'm lazy, using a size_t we already had around */
+    sslen = MIN(strcspn(proxyName,":"), sizeof(name) - 1);
+    strncpy(name, proxyName, sslen);
+    /* Ensure NULL termination */
+    name[sslen] = '\0';
+  }
+  else if (o.af() == AF_INET6 && strchr(proxyName, '[') != NULL && strchr(proxyName, ']') != NULL) {
+    sslen = MIN(strcspn(proxyName,"]") - strcspn(proxyName, "[") - 1, sizeof(name) - 1);
+    strncpy(name, strchr(proxyName, '[') + 1, sslen);
+    name[sslen] = '\0';
+  }
   else
     strncpy(name, proxyName, sizeof(name));
 
   if (q) {
-    *q++ = '\0';
+    q++;
     proxy->probe_port = strtoul(q, &endptr, 10);
     if (*q == 0 || !endptr || *endptr != '\0' || !proxy->probe_port) {
       fatal("Invalid port number given in IP ID zombie specification: %s", proxyName);

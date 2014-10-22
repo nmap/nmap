@@ -922,6 +922,9 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "sI") == 0) {
           o.idlescan = 1;
           o.idleProxy = strdup(optarg);
+          if (strlen(o.idleProxy) > MAXHOSTNAMELEN) {
+            fatal("ERROR: -sI argument must be less than %d characters", MAXHOSTNAMELEN);
+          }
         } else if (strcmp(long_options[option_index].name, "vv") == 0) {
           /* Compatibility hack ... ugly */
           o.verbose += 2;
