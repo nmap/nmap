@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 08/29/2014
+.\"      Date: 10/22/2014
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "08/29/2014" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "10/22/2014" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -521,7 +521,8 @@ and
 .RS 4
 .\" payloads, protocol-specific
 Another host discovery option is the UDP ping, which sends a UDP packet to the given ports\&. For most ports, the packet will be empty, though for a few a protocol\-specific payload will be sent that is more likely to get a response\&.
-.\" protocol-specific payloads: UDPThe payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payloads.html\fR\m[]\&.
+The payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payloads.html\fR\m[]\&.
+.\" protocol-specific payloads: UDP
 The
 \fB\-\-data\fR
 .\" --data
@@ -607,7 +608,8 @@ While echo request is the standard ICMP ping query, Nmap does not stop there\&. 
 .\" RFC 792
 and
 \m[blue]\fBRFC 950\fR\m[]\&\s-2\u[4]\d\s+2
-.\" RFC 950) also specify timestamp request, information request, and address mask request packets as codes 13, 15, and 17, respectively\&. While the ostensible purpose for these queries is to learn information such as address masks and current times, they can easily be used for host discovery\&. A system that replies is up and available\&. Nmap does not currently implement information request packets, as they are not widely supported\&. RFC 1122 insists that
+.\" RFC 950
+) also specify timestamp request, information request, and address mask request packets as codes 13, 15, and 17, respectively\&. While the ostensible purpose for these queries is to learn information such as address masks and current times, they can easily be used for host discovery\&. A system that replies is up and available\&. Nmap does not currently implement information request packets, as they are not widely supported\&. RFC 1122 insists that
 \(lqa host SHOULD NOT implement these messages\(rq\&. Timestamp and address mask queries can be sent with the
 \fB\-PP\fR
 and
@@ -625,9 +627,11 @@ nmap\&.h\&. Note that for the ICMP, IGMP, TCP (protocol 6), UDP (protocol 17) an
 .\" protocol-specific payloads: IP
 while other protocols are sent with no additional data beyond the IP header (unless any of
 \fB\-\-data\fR
-.\" --data,
+.\" --data
+,
 \fB\-\-data\-string\fR
-.\" --data-string, or
+.\" --data-string
+, or
 \fB\-\-data\-length\fR
 .\" --data-length
 options are specified)\&.
@@ -1316,8 +1320,9 @@ value (such as 1) speeds Nmap up, though you miss out on retries which could pot
 .\" Nmap Scripting Engine (NSE)
 .PP
 The Nmap Scripting Engine (NSE) is one of Nmap\*(Aqs most powerful and flexible features\&. It allows users to write (and share) simple scripts (using the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[11]\d\s+2,
-.\" Lua programming language) to automate a wide variety of networking tasks\&. Those scripts are executed in parallel with the speed and efficiency you expect from Nmap\&. Users can rely on the growing and diverse set of scripts distributed with Nmap, or write their own to meet custom needs\&.
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[11]\d\s+2
+.\" Lua programming language
+) to automate a wide variety of networking tasks\&. Those scripts are executed in parallel with the speed and efficiency you expect from Nmap\&. Users can rely on the growing and diverse set of scripts distributed with Nmap, or write their own to meet custom needs\&.
 .PP
 Tasks we had in mind when creating the system include network discovery, more sophisticated version detection, vulnerability detection\&. NSE can even be used for vulnerability exploitation\&.
 .PP
@@ -1777,8 +1782,9 @@ and
 \fBT2\fR
 are similar but they only wait 15 seconds and 0\&.4 seconds, respectively, between probes\&.
 \fBT3\fR
+.\" normal (-T3) timing template
 is Nmap\*(Aqs default behavior, which includes parallelization\&.
-.\" normal (-T3) timing template\fB\-T4\fR
+\fB\-T4\fR
 does the equivalent of
 \fB\-\-max\-rtt\-timeout 1250ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
 and sets the maximum TCP scan delay to 10 milliseconds\&.
@@ -2023,7 +2029,8 @@ Cisco\&. This option only affects raw packet scans such as SYN scan or OS detect
 \fB\-\-proxies \fR\fB\fIComma\-separated list of proxy URLs\fR\fR (Relay TCP connections through a chain of proxies) .\" --proxies .\" proxy .\" proxies
 .RS 4
 Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4
-.\" proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
+.\" proxies
+proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
 \fB\-\-max\-parallelism\fR
 may help because some proxies refuse to handle as many concurrent connections as Nmap opens by default\&.
 .sp
@@ -2572,7 +2579,8 @@ For testing purposes, you have permission to scan the host scanme\&.nmap\&.org\&
 This permission only includes scanning via Nmap and not testing exploits or denial of service attacks\&. To conserve bandwidth, please do not initiate more than a dozen scans against that host per day\&. If this free scanning target service is abused, it will be taken down and Nmap will report
 Failed to resolve given hostname/IP: scanme\&.nmap\&.org\&. These permissions also apply to the hosts scanme2\&.nmap\&.org, scanme3\&.nmap\&.org, and so on, though those hosts do not currently exist\&.
 .PP
-.\" -v: example of\fBnmap \-v scanme\&.nmap\&.org\fR
+\fBnmap \-v scanme\&.nmap\&.org\fR
+.\" -v: example of
 .PP
 This option scans all reserved TCP ports on the machine
 scanme\&.nmap\&.org
@@ -2580,24 +2588,28 @@ scanme\&.nmap\&.org
 \fB\-v\fR
 option enables verbose mode\&.
 .PP
+\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .\" -sS: example of
-.\" -O: example of\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
+.\" -O: example of
 .PP
 Launches a stealth SYN scan against each machine that is up out of the 256 IPs on the class C sized network where Scanme resides\&. It also tries to determine what operating system is running on each host that is up and running\&. This requires root privileges because of the SYN scan and OS detection\&.
 .PP
-.\" -p: example of\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
+\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
+.\" -p: example of
 .PP
 Launches host enumeration and a TCP scan at the first half of each of the 255 possible eight\-bit subnets in the 198\&.116 class B address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
 .PP
+\fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
 .\" -iR: example of
-.\" -Pn: example of\fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
+.\" -Pn: example of
 .PP
 Asks Nmap to choose 100,000 hosts at random and scan them for web servers (port 80)\&. Host enumeration is disabled with
 \fB\-Pn\fR
 since first sending a couple probes to determine whether a host is up is wasteful when you are only probing one port on each target host anyway\&.
 .PP
+\fBnmap \-Pn \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .\" -oX: example of
-.\" -oG: example of\fBnmap \-Pn \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
+.\" -oG: example of
 .PP
 This scans 4096 IPs for any web servers (without pinging them) and saves the output in grepable and XML formats\&.
 .SH "NMAP BOOK"
@@ -2646,7 +2658,7 @@ file which is distributed with Nmap and also available from
 .\" copyright
 .\" GNU General Public License
 .PP
-The Nmap Security Scanner is (C) 1996\(en2013 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 (\(lqGPL\(rq), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
+The Nmap Security Scanner is (C) 1996\(en2014 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 (\(lqGPL\(rq), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
 <sales@nmap\&.com>)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, version detection, and the Nmap Scripting Engine\&.
 .PP
 Note that the GPL places important restrictions on

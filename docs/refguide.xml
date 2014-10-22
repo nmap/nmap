@@ -649,9 +649,10 @@ you would expect.</para>
           sends a UDP packet to the given ports. For most ports, the
           packet will be empty, though for a few a protocol-specific
           payload will be sent that is more likely to get a
-          response.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          response.
 <man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
+<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
  The <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm> and <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm> options can be used to send custom payloads to every port. For example: <option>--data 0xCAFE09</option> or <option>--data-string "Gort! Klaatu barada nikto!"</option>
  The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm> option can be used to send a fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.  You can also disable payloads by specifying <option>--data-length 0</option>.</para>
           <para>The port list
@@ -777,7 +778,8 @@ you would expect.</para>
           Nmap does not stop there.  The ICMP standards
           (<ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC 792</ulink><indexterm><primary>RFC 792</primary></indexterm>
           and
-          <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc950.txt">RFC 950</ulink><indexterm><primary>RFC 950</primary></indexterm>)
+          <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc950.txt">RFC 950</ulink><indexterm><primary>RFC 950</primary></indexterm>
+          )
           also specify timestamp request, information
           request, and address mask request packets as codes 13, 15,
           and 17, respectively.  While the ostensible purpose for
@@ -823,8 +825,8 @@ you would expect.</para>
           headers<indexterm><primary>protocol-specific payloads</primary><secondary>IP</secondary></indexterm>
           while other protocols are
           sent with no additional data beyond the IP header (unless any of
-          <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm>,
-          <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm>, or
+          <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm> ,
+          <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm> , or
           <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
           options are specified).</para>
 
@@ -2230,7 +2232,9 @@ way.</para>
 
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
-    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>, <indexterm><primary>Lua programming language</primary></indexterm>) to automate a wide variety of
+    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>
+    <indexterm><primary>Lua programming language</primary></indexterm>
+    ) to automate a wide variety of
     networking tasks.  Those scripts are executed in parallel with the
     speed and efficiency you expect from Nmap.  Users can rely on the
     growing and diverse set of scripts distributed with Nmap, or write
@@ -3014,9 +3018,8 @@ values.</para>
 so only one port is scanned at a time, and waiting five minutes
 between sending each probe.  <option>T1</option> and
 <option>T2</option> are similar but they only wait 15 seconds and 0.4
-seconds, respectively, between probes.  <option>T3</option> is Nmap's
-default behavior, which includes
-parallelization.<indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm>
+seconds, respectively, between probes.  <option>T3</option><indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm> is Nmap's
+default behavior, which includes parallelization.
 <option>-T4</option>
 does the equivalent of <option>--max-rtt-timeout 1250ms
 --initial-rtt-timeout 500ms --max-retries 6</option> and sets the maximum TCP scan delay
@@ -3516,7 +3519,8 @@ work properly.</para>
 
           <para>Asks Nmap to establish TCP connections with a final
           target through supplied chain of one or more HTTP or SOCKS4
-          <indexterm><primary>proxies</primary></indexterm>.  Proxies
+          <indexterm><primary>proxies</primary></indexterm>
+          proxies.  Proxies
           can help hide the true source of a scan or evade certain
           firewall restrictions, but they can hamper scan performance
           by increasing latency.  Users may need to adjust Nmap
@@ -4494,16 +4498,16 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     do not currently exist.</para>
 
     <para>
-      <indexterm><primary><option>-v</option></primary><secondary>example of</secondary></indexterm>
       <command>nmap -v scanme.nmap.org</command>
+      <indexterm><primary><option>-v</option></primary><secondary>example of</secondary></indexterm>
     </para>
     <para>This option scans all reserved TCP ports on the machine
     <literal>scanme.nmap.org</literal> . The <option>-v</option>
     option enables verbose mode.</para>
     <para>
+      <command>nmap -sS -O scanme.nmap.org/24</command>
       <indexterm><primary><option>-sS</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-O</option></primary><secondary>example of</secondary></indexterm>
-      <command>nmap -sS -O scanme.nmap.org/24</command>
     </para>
     <para>Launches a stealth SYN scan against each machine that is
     up out of the 256 IPs on the class C sized network where
@@ -4512,9 +4516,9 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     running. This requires root privileges because of the SYN scan
     and OS detection.</para>
     <para>
-      <indexterm><primary><option>-p</option></primary><secondary>example of</secondary></indexterm>
       <command>nmap -sV -p 22,53,110,143,4564
       198.116.0-255.1-127</command>
+      <indexterm><primary><option>-p</option></primary><secondary>example of</secondary></indexterm>
     </para>
 
     <para>Launches host enumeration and a TCP scan at the first half
@@ -4525,9 +4529,9 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     what application is running.</para>
 
     <para>
+      <command>nmap -v -iR 100000 -Pn -p 80</command>
       <indexterm><primary><option>-iR</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-Pn</option></primary><secondary>example of</secondary></indexterm>
-      <command>nmap -v -iR 100000 -Pn -p 80</command>
     </para>
 
     <para>Asks Nmap to choose 100,000 hosts at random and scan them
@@ -4537,10 +4541,10 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     probing one port on each target host anyway.</para>
 
     <para>
-      <indexterm><primary><option>-oX</option></primary><secondary>example of</secondary></indexterm>
-      <indexterm><primary><option>-oG</option></primary><secondary>example of</secondary></indexterm>
       <command>nmap -Pn -p80 -oX logs/pb-port80scan.xml -oG
       logs/pb-port80scan.gnmap 216.163.128.20/20</command>
+      <indexterm><primary><option>-oX</option></primary><secondary>example of</secondary></indexterm>
+      <indexterm><primary><option>-oG</option></primary><secondary>example of</secondary></indexterm>
     </para>
     <para>This scans 4096 IPs for any web servers (without pinging
     them) and saves the output in grepable and XML formats.</para>
