@@ -54,6 +54,8 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"vuln", "safe"}
 
+dependencies = {"ssl-enum-ciphers"}
+
 -- Test this many ciphersuites at a time.
 -- http://seclists.org/nmap-dev/2012/q3/156
 -- http://seclists.org/nmap-dev/2010/q1/859
@@ -313,13 +315,19 @@ local function check_fallback_scsv(host, port, protocol, ciphers)
   t["ciphers"] = tcopy(ciphers)
   t.ciphers[#t.ciphers+1] = "TLS_FALLBACK_SCSV"
 
-  local checked, record = pcall(try_params, host, port, t)
   -- TODO: remove this check after the next release.
   -- Users are using this script without the necessary tls.lua changes
-  if not checked then
-    stdnse.print_verbose(1, "You have an out-of-date version of tls.lua. Some checks were skipped.")
-    return nil
+  if not tls.TLS_ALERT_REGISTRY["inappropriate_fallback"] then
+    -- This could get dangerous if mixed with ssl-enum-ciphers
+    -- so we make this script dependent on ssl-enum-ciphers and hope for the best.
+    tls.CIPHERS["TLS_FALLBACK_SCSV"] = 0x5600
+    tls.TLS_ALERT_REGISTRY["inappropriate_fallback"] = 86
   end
+
+  local record = try_params(host, port, t)
+
+  -- cleanup (also remove after next release)
+  tls.CIPHERS["TLS_FALLBACK_SCSV"] = nil
 
   if record and record["type"] == "alert" and record["body"][1]["description"] == "inappropriate_fallback" then
     ctx_log(2, protocol, "TLS_FALLBACK_SCSV rejected properly.")
