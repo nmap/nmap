@@ -313,9 +313,15 @@ local function check_fallback_scsv(host, port, protocol, ciphers)
   t["ciphers"] = tcopy(ciphers)
   t.ciphers[#t.ciphers+1] = "TLS_FALLBACK_SCSV"
 
-  local record = try_params(host, port, t)
+  local checked, record = pcall(try_params, host, port, t)
+  -- TODO: remove this check after the next release.
+  -- Users are using this script without the necessary tls.lua changes
+  if not checked then
+    stdnse.print_verbose(1, "You have an out-of-date version of tls.lua. Some checks were skipped.")
+    return nil
+  end
 
-  if record["type"] == "alert" and record["body"][1]["description"] == "inappropriate_fallback" then
+  if record and record["type"] == "alert" and record["body"][1]["description"] == "inappropriate_fallback" then
     ctx_log(2, protocol, "TLS_FALLBACK_SCSV rejected properly.")
     return true
   end
