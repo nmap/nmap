@@ -138,14 +138,14 @@ local function test_ccs_injection(host, port, version)
   if specialized then
     status, s = specialized(host, port)
     if not status then
-      stdnse.debug3("Connection to server failed")
+      stdnse.debug3("Connection to server failed: %s", s)
       return false, Error.CONNECT
     end
   else
     s = nmap.new_socket()
-    status = s:connect(host, port)
+    status, err = s:connect(host, port)
     if not status then
-      stdnse.debug3("Connection to server failed")
+      stdnse.debug3("Connection to server failed: %s", err)
       return false, Error.CONNECT
     end
   end

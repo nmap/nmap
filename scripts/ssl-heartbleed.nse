@@ -95,20 +95,19 @@ local function testversion(host, port, version)
       )
     )
 
-  local s
+  local status, s, err
   local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
   if specialized then
-    local status
     status, s = specialized(host, port)
     if not status then
-      stdnse.debug3("Connection to server failed")
+      stdnse.debug3("Connection to server failed: %s", s)
       return
     end
   else
     s = nmap.new_socket()
-    local status = s:connect(host, port)
+    status, err = s:connect(host, port)
     if not status then
-      stdnse.debug3("Connection to server failed")
+      stdnse.debug3("Connection to server failed: %s", err)
       return
     end
   end
@@ -116,7 +115,7 @@ local function testversion(host, port, version)
   s:set_timeout(5000)
 
   -- Send Client Hello to the target server
-  local status, err = s:send(hello)
+  status, err = s:send(hello)
   if not status then
     stdnse.debug1("Couldn't send Client Hello: %s", err)
     s:close()

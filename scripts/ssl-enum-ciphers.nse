@@ -151,25 +151,24 @@ local function ctx_log(level, protocol, fmt, ...)
 end
 
 local function try_params(host, port, t)
-  local buffer, err, i, record, req, resp, sock, status
 
   -- Use Nmap's own discovered timeout, doubled for safety
   -- Default to 10 seconds.
   local timeout = ((host.times and host.times.timeout) or 5) * 1000 * 2
 
   -- Create socket.
+  local status, sock, err
   local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
   if specialized then
-    local status
     status, sock = specialized(host, port)
     if not status then
-      ctx_log(1, t.protocol, "Can't connect: %s", err)
+      ctx_log(1, t.protocol, "Can't connect: %s", sock)
       return nil
     end
   else
     sock = nmap.new_socket()
     sock:set_timeout(timeout)
-    local status = sock:connect(host, port)
+    status, err = sock:connect(host, port)
     if not status then
       ctx_log(1, t.protocol, "Can't connect: %s", err)
       sock:close()
@@ -180,7 +179,7 @@ local function try_params(host, port, t)
   sock:set_timeout(timeout)
 
   -- Send request.
-  req = tls.client_hello(t)
+  local req = tls.client_hello(t)
   status, err = sock:send(req)
   if not status then
     ctx_log(1, t.protocol, "Can't send: %s", err)
@@ -189,8 +188,8 @@ local function try_params(host, port, t)
   end
 
   -- Read response.
-  buffer = ""
-  record = nil
+  local buffer = ""
+  local i, record = nil
   while true do
     local status
     status, buffer, err = tls.record_buffer(sock, buffer, 1)
