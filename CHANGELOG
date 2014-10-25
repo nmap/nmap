@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add the signature algorithm that was used to sign the target port's 
+  x509 certificate to the output of ssl-cert.nse [Tom Sellers]
+
 o [NSE] Fixed a bug in the sslcert.lua library that was triggered against
   certain services when version detection was used. [Tom Sellers]
   

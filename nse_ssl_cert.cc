@@ -452,6 +452,10 @@ int l_get_ssl_certificate(lua_State *L)
     lua_setfield(L, -2, "subject");
   }
 
+  const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg->algorithm));
+  lua_pushstring(L, sig_algo);
+  lua_setfield(L, -2, "sig_algorithm");
+
   issuer = X509_get_issuer_name(cert);
   if (issuer != NULL) {
     x509_name_to_table(L, issuer);
