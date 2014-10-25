@@ -418,6 +418,9 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
 -- @param port A port table with 'number' and 'service' keys
 -- @return A STARTTLS function or nil
 function getPrepareTLSWithoutReconnect(port)
+  if port.service_tunnel == "ssl" then
+    return nil
+  end
   return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
     SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service])
 end
@@ -429,6 +432,9 @@ end
 -- @param port A port table with 'number' and 'service' keys
 -- @return A STARTTLS function or nil
 function isPortSupported(port)
+  if port.service_tunnel == "ssl" then
+    return nil
+  end
   return (SPECIALIZED_PREPARE_TLS[port.number] or
     SPECIALIZED_PREPARE_TLS[port.service])
 end
