@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug in the sslcert.lua library that was triggered against
+  certain services when version detection was used. [Tom Sellers]
+  
 o [NSE] Added ssl-poodle to detect CVE-2014-3566 [Daniel Miller]
 
 o [NSE] vulns.Report:make_output() now generates XML structured output 
