@@ -112,16 +112,16 @@ local function try_params(host, port, t)
 
   -- Read response.
   local buffer = ""
-  local i, record = nil
+  local i = 1
   while true do
-    local status
-    status, buffer, err = tls.record_buffer(sock, buffer, 1)
+    status, buffer, err = tls.record_buffer(sock, buffer, i)
     if not status then
       ctx_log(1, t.protocol, "Couldn't read a TLS record: %s", err)
       return nil
     end
     -- Parse response.
-    i, record = tls.record_read(buffer, 1)
+    local record
+    i, record = tls.record_read(buffer, i)
     if record and record.type == "alert" and record.body[1].level == "warning" then
       ctx_log(1, t.protocol, "Ignoring warning: %s", record.body[1].description)
       -- Try again.
@@ -129,7 +129,6 @@ local function try_params(host, port, t)
       sock:close()
       return record
     end
-    buffer = buffer:sub(i+1)
   end
 end
 
