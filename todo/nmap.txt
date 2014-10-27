@@ -14,16 +14,6 @@ o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/runni
 
 o Make and test build on a newer OS X than 10.6 (10.10 was recently released)
 
-o The XML version of Nmap lists and describes the six port states
-  recognized by Nmap near the top of the "Port Scanning Basics"
-  section.  That can be seen in the HTML rendering at
-  http://nmap.org/book/man-port-scanning-basics.html.  But in the man
-  page (nroff) rendering, the list is missing and it just gives the
-  title: "The six port states recognized by Nmap".  UPDATE: Now the
-  descriptions for each state appear in the man page, but the headings
-  ("open", etc.) are missing. We should figure out
-  why, and fix it.
-
 o Update OpenSSL library to 1.0.1j
 
 o Audit ncat's ssl algorithm and ciphersuite choices

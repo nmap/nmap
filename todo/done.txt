@@ -1,5 +1,21 @@
 DONE:
 
+o The XML version of Nmap lists and describes the six port states
+  recognized by Nmap near the top of the "Port Scanning Basics"
+  section.  That can be seen in the HTML rendering at
+  http://nmap.org/book/man-port-scanning-basics.html.  But in the man
+  page (nroff) rendering, the list is missing and it just gives the
+  title: "The six port states recognized by Nmap".  UPDATE: Now the
+  descriptions for each state appear in the man page, but the headings
+  ("open", etc.) are missing. We should figure out
+  why, and fix it.
+  - The bug in the stylesheets means that (From Daniel): "if you have an <indexterm>
+  element and it's followed by anything other than whitespace+CDATA
+  (like "</indexterm> foo") then the remaining cdata or element until
+  the next new element will be nroff-commented so this
+  <indexterm>blah</indexterm> is  ok, but this <indexterm>blah</indexterm>, is not ok because of the commaand this <indexterm>blah</indexterm>   <command>nmap -A</command> is bad no matter how much whitespace intervenes"
+
+
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
   by running:
