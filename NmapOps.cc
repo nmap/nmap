@@ -629,7 +629,7 @@ void NmapOps::setMinHostGroupSz(unsigned int sz) {
 
 void NmapOps::setMaxHostGroupSz(unsigned int sz) {
   if (sz < min_host_group_sz)
-    fatal("Maximum host group size may not be set to less than the maximum size (currently %d)\n", min_host_group_sz);
+    fatal("Maximum host group size may not be set to less than the minimum size (currently %d)\n", min_host_group_sz);
   if (sz <= 0)
     fatal("Max host size must be at least 1");
   max_host_group_sz = sz;
