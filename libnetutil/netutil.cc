@@ -4069,7 +4069,7 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
     netutil_fatal("%s called with too-large filter arg\n", __func__);
   va_end(ap);
 
-  if (pcap_compile(pd, &fcode, buf, 0, 0) < 0)
+  if (pcap_compile(pd, &fcode, buf, 1, PCAP_NETMASK_UNKNOWN) < 0)
     netutil_fatal("Error compiling our pcap filter: %s", pcap_geterr(pd));
   if (pcap_setfilter(pd, &fcode) < 0)
     netutil_fatal("Failed to set the pcap filter: %s\n", pcap_geterr(pd));
