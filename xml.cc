@@ -124,13 +124,13 @@
 This is a simple library for writing XML. It handles two main things:
 keeping track of the element stack, and escaping text where necessary.
 If you wanted to write this XML:
-  <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <?xml version="1.0" encoding="UTF-8"?>
   <!DOCTYPE elem>
   <elem name="&amp;10.5"></elem>
 these are the functions you would call. Each one is followed by the text
 it prints enclosed in ||.
 
-xml_start_document("elem")             |<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE elem>|
+xml_start_document("elem")             |<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE elem>|
 xml_newline();                         |\n|
 xml_open_start_tag("elem");            |<elem|
 xml_attribute("name", "&%.1f", 10.5);  | name="&amp;10.5"|
@@ -167,7 +167,7 @@ Additional functions are
 xml_write_raw                 Raw unescaped output.
 xml_write_escaped             XML-escaped output.
 xml_write_escaped_v           XML-escaped output, with a va_list.
-xml_start_document            Writes <?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE elem>.
+xml_start_document            Writes <?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE elem>.
 xml_depth                     Returns the size of the element stack.
 
 The library makes it harder but not impossible to make non-well-formed
@@ -309,7 +309,7 @@ int xml_write_escaped_v(const char *fmt, va_list va) {
   return 0;
 }
 
-/* Write the XML declaration: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+/* Write the XML declaration: <?xml version="1.0" encoding="UTF-8"?>
  * and the DOCTYPE declaration: <!DOCTYPE rootnode>
  */
 int xml_start_document(const char *rootnode) {
@@ -320,11 +320,6 @@ int xml_start_document(const char *rootnode) {
   /* Practically, Nmap only uses ASCII, but UTF-8 encompasses ASCII and allows
    * for future expansion */
   if (xml_attribute("encoding", "UTF-8") < 0)
-    return -1;
-  /* This indicates that parsers don't have to go elsewhere for entity
-   * declarations and so forth. We had trouble with this when we defined a
-   * PUBLIC doctype. */
-  if (xml_attribute("standalone", "yes") < 0)
     return -1;
   if (xml_close_pi() < 0)
     return -1;
