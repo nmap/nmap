@@ -3625,6 +3625,44 @@ if test "$have_libpcap" != "no"; then
 fi
 
 
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap" >&5
+$as_echo_n "checking if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap... " >&6; }
+  if ${ac_cv_have_pcap_netmask_unknown+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+      #include <pcap.h>
+
+int
+main ()
+{
+
+      int i = PCAP_NETMASK_UNKNOWN;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_have_pcap_netmask_unknown=yes
+else
+  ac_cv_have_pcap_netmask_unknown=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+  if test $ac_cv_have_pcap_netmask_unknown = no; then
+
+$as_echo "#define PCAP_NETMASK_UNKNOWN 0" >>confdefs.h
+
+  fi
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_pcap_netmask_unknown" >&5
+$as_echo "$ac_cv_have_pcap_netmask_unknown" >&6; }
+
+
   ax_have_epoll_cppflags="${CPPFLAGS}"
   ac_fn_c_check_header_mongrel "$LINENO" "linux/version.h" "ac_cv_header_linux_version_h" "$ac_includes_default"
 if test "x$ac_cv_header_linux_version_h" = xyes; then :
