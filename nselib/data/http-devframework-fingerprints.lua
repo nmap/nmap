@@ -369,7 +369,9 @@ tools = { Django = { rapidDetect = function(host, port)
       if response and response.status == 200 then
           header_composed_by = response.header['composed-by']
           -- Check in Composed-by header for the version
-          version = string.match(header_composed_by, ('SPIP ((%d+)%.(%d+)%.(%d+))'))
+          if header_composed_by ~= nil then
+              version = string.match(header_composed_by, ('SPIP ((%d+)%.(%d+)%.(%d+))'))
+          end
           if version ~= nil then
               return "Version of the SPIP install is " .. version
           end
