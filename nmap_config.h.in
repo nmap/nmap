@@ -237,5 +237,6 @@ extern "C" int gethostname (char *, unsigned int);
 #undef MACOSX
 
 #undef HAVE_IPV6_IPPROTO_RAW
+#undef PCAP_NETMASK_UNKNOWN
 
 #endif /* CONFIG_H */
