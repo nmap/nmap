@@ -583,6 +583,195 @@ CIPHERS = {
 ["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]             =  0xFEFF,
 }
 
+-- Keep this local to enforce use of the cipher_info function
+local cipher_info_cache = {
+  -- pre-populate the special cases that break the parser below
+  ["TLS_ECDH_anon_NULL_WITH_SHA-draft"] = {
+    kex = "ECDH", dh = true, ec = true,
+    server_auth = "anon",
+    cipher = "NULL",
+    hash = "SHA",
+    draft = true
+  },
+  ["TLS_ECMQV_ECDSA_NULL_SHA-draft"] = {
+    kex = "ECMQV", ec = true,
+    server_auth = "ECDSA",
+    cipher = "NULL",
+    hash = "SHA",
+    draft = true
+  },
+  ["TLS_ECMQV_ECNRA_NULL_SHA-draft"] = {
+    kex = "ECMQV", ec = true,
+    server_auth = "ECNRA",
+    cipher = "NULL",
+    hash = "SHA",
+    draft = true
+  },
+  ["TLS_GOSTR341094_WITH_28147_CNT_IMIT"] = {
+    kex = "GOSTR341094",
+    server_auth = "GOSTR341094",
+    cipher = "GOST28147",
+    hash = "IMIT_GOST28147",
+    draft = true
+  },
+  ["TLS_GOSTR341001_WITH_28147_CNT_IMIT"] = {
+    kex = "GOSTR341001",
+    server_auth = "GOSTR341001",
+    cipher = "GOST28147",
+    hash = "IMIT_GOST28147",
+    draft = true
+  },
+  ["TLS_GOSTR341094_WITH_NULL_GOSTR3411"] = {
+    kex = "GOSTR341094",
+    server_auth = "GOSTR341094",
+    cipher = "NULL",
+    hash = "HMAC_GOSTR3411",
+    draft = true
+  },
+  ["TLS_GOSTR341001_WITH_NULL_GOSTR3411"] = {
+    kex = "GOSTR341001",
+    server_auth = "GOSTR341001",
+    cipher = "NULL",
+    hash = "HMAC_GOSTR3411",
+    draft = true
+  },
+}
+
+--- Get info about a cipher suite
+--
+--  Returned table has "kex", "server_auth", "cipher", "mode", "size", and
+--  "hash" keys, as well as boolean flags "dh", "ec", and "draft". The "draft"
+--  flag is only supported for some suites that have different enumeration
+--  values in draft versus final RFC. The "export" key may be present with
+--  value either "EXPORT" or "EXPORT1024".
+-- @param c The cipher suite name, e.g. TLS_RSA_WITH_AES_128_GCM_SHA256
+-- @return A table of info as described above.
+function cipher_info (c)
+  local info = cipher_info_cache[c]
+  if info then return info end
+  info = {}
+  local tokens = stdnse.strsplit("_", c)
+  local i = 1
+  if tokens[i] ~= "TLS" and tokens[i] ~= "SSL" then
+    stdnse.debug2("cipher_info: Not a TLS ciphersuite: %s", c)
+    return nil
+  end
+  -- kex, server_auth, cipher, size, mode, hash
+  -- flags: dh, ec, export
+  while tokens[i] and tokens[i] ~= "WITH" do
+    i = i + 1
+    local t = tokens[i]
+    if t == "RSA" or t == "DSS" then
+      info.server_auth = t
+      info.kex = info.kex or t
+    elseif t:sub(1,2) == "EC" then
+      info.ec = true
+      if t == "ECDH" or t == "ECDHE" then
+        info.dh = true
+        info.kex = t
+      elseif t == "ECDSA" or t == "ECNRA" then
+        info.server_auth = t
+      elseif t == "ECMQV" then
+        info.kex = t
+      end
+    elseif t == "DH" or t == "DHE" then
+      info.dh = true
+      info.kex = t
+    elseif t == "PSK" then
+      info.kex = info.kex or t
+      info.server_auth = info.server_auth or t
+    elseif t == "EXPORT" or t == "EXPORT1024" then
+      info.export = t
+    elseif t == "SRP" then
+      info.kex = "SRP_SHA"
+      info.server_auth = "SRP_SHA"
+      i = i + 1 -- consume _SHA
+    elseif t == "FORTEZZA" then
+      info.kex = "FORTEZZA_KEA"
+      info.server_auth = "FORTEZZA"
+      i = i + 1 -- consume _KEA
+    elseif t == "NULL" then
+      info.kex = t
+      info.server_auth = "anon"
+    elseif t == "anon" then
+      info.server_auth = t
+    else
+      info.kex = info.kex or t
+      info.server_auth = info.server_auth or t
+    end
+  end
+
+  if tokens[i] and tokens[i] ~= "WITH" then
+    stdnse.debug2("cipher_info: Can't parse (no WITH): %s", c)
+    return nil
+  end
+
+  -- cipher
+  i = i + 1
+  local t = tokens[i]
+  info.cipher = t
+  if t == "3DES" then
+    i = i + 1 -- 3DES_EDE
+  end
+
+  -- key size
+  if t == "3DES" then -- NIST SP 800-57
+    info.size = 112
+  elseif t == "CHACHA20" then
+    info.size = 256
+  elseif t == "IDEA" then
+    info.size = 128
+  elseif t == "SEED" then
+    info.size = 128
+  elseif t == "FORTEZZA" then
+    info.size = 80
+  elseif t == "DES" then
+    info.size = 56
+  elseif t == "RC2" or t == "DES40" then
+    info.size = 40
+  elseif t == "NULL" then
+    info.size = 0
+  else
+    i = i + 1
+    info.size = tonumber(tokens[i])
+  end
+
+  -- stream ciphers don't have a mode
+  if info.cipher == "RC4" then
+    info.mode = "stream"
+  elseif info.cipher == "CHACHA20" then
+    i = i + 1
+    info.cipher = "CHACHA20-POLY1305"
+    info.mode = "stream"
+  elseif info.cipher ~= "NULL" then
+    i = i + 1
+    info.mode = tokens[i]
+  end
+
+  -- export key size override
+  if info.export and tonumber(tokens[i+1]) then
+    i = i + 1
+    info.size = tonumber(tokens[i])
+  end
+
+  -- hash
+  if info.mode == "CCM" then
+    info.hash = "SHA256"
+  else
+    i = i + 1
+    t = (tokens[i]):match("(.*)%-draft$")
+    if t then
+      info.draft = true
+    else
+      t = tokens[i]
+    end
+    info.hash = t
+  end
+
+  cipher_info_cache[c] = info
+  return info
+end
+
 SCSVS = {
 ["TLS_EMPTY_RENEGOTIATION_INFO_SCSV"]              =  0x00FF, -- rfc5746
 ["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
