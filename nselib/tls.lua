@@ -678,7 +678,7 @@ function cipher_info (c)
       info.dh = true
       info.kex = t
     elseif t == "PSK" then
-      info.kex = info.kex or t
+      info.kex = (info.kex and info.kex .. "_" .. t) or t
       info.server_auth = info.server_auth or t
     elseif t == "EXPORT" or t == "EXPORT1024" then
       info.export = t
@@ -789,6 +789,13 @@ local function find_key(t, value)
   return nil
 end
 
+-- Helper function to unpack a 3-byte integer value
+local function unpack_3byte (buffer, pos)
+  local low, high
+  pos, high, low = bin.unpack("C>S", buffer, pos)
+  return pos, low + high * 0x10000
+end
+
 ---
 -- Read a SSL/TLS record
 -- @param buffer The read buffer
@@ -855,10 +862,9 @@ function record_read(buffer, i)
     elseif h["type"] == "handshake" then
       -- Parse body.
       j, b["type"] = bin.unpack("C", buffer, j)
-      local blen, blen_upper
-      j, blen_upper, blen = bin.unpack("C>S", buffer, j)
-      blen = blen + blen_upper * 0x10000
-      local msg_end = j + blen
+      local msg_end
+      j, msg_end = unpack_3byte(buffer, j)
+      msg_end = msg_end + j
 
       -- Convert to human-readable form.
       b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
@@ -890,10 +896,30 @@ function record_read(buffer, i)
         b["protocol"] = find_key(PROTOCOLS, b["protocol"])
         b["cipher"] = find_key(CIPHERS, b["cipher"])
         b["compressor"] = find_key(COMPRESSORS, b["compressor"])
+      elseif b["type"] == "certificate" then
+        local cert_end
+        j, cert_end = unpack_3byte(buffer, j)
+        cert_end = cert_end + j
+        if cert_end > msg_end then
+          stdnse.debug2("server_certificate length > handshake body length!")
+        end
+        b["certificates"] = {}
+        while j < cert_end do
+          local cert_len, cert
+          j, cert_len = unpack_3byte(buffer, j)
+          j, cert = bin.unpack("A" .. cert_len, buffer, j)
+          -- parse these with sslcert.parse_ssl_certificate
+          table.insert(b["certificates"], cert)
+        end
+      elseif b["type"] == "certificate_request" then
+        local num_types
+        j, num_types = bin.unpack("C", buffer, j)
+        for i = 1, num_types do
+        end
       else
         -- TODO: implement other handshake message types
         stdnse.debug2("Unknown handshake message type: %s", b["type"])
-        j = msg_end
+        j, b["data"] = bin.unpack("A" .. msg_end - j, buffer, j)
       end
     elseif h["type"] == "heartbeat" then
       j, b["type"], b["payload_length"] = bin.unpack("C>S", buffer, j)
