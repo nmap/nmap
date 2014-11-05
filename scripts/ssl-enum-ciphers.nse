@@ -150,6 +150,28 @@ local function ctx_log(level, protocol, fmt, ...)
   return stdnse.debug(level, "(%s) " .. fmt, protocol, ...)
 end
 
+-- returns a function that yields a new tls record each time it is called
+local function get_record_iter(sock)
+  local buffer = ""
+  local i = 1
+  return function ()
+    local record
+    i, record = tls.record_read(buffer, i)
+    if record == nil then
+      local status, err
+      status, buffer, err = tls.record_buffer(sock, buffer, i)
+      if not status then
+        return nil, err
+      end
+      i, record = tls.record_read(buffer, i)
+      if record == nil then
+        return nil, "done"
+      end
+    end
+    return record
+  end
+end
+
 local function try_params(host, port, t)
 
   -- Use Nmap's own discovered timeout, doubled for safety
@@ -188,23 +210,28 @@ local function try_params(host, port, t)
   end
 
   -- Read response.
-  local buffer = ""
-  local i = 1
+  local get_next_record = get_record_iter(sock)
+  local records = {}
   while true do
-    status, buffer, err = tls.record_buffer(sock, buffer, i)
-    if not status then
-      ctx_log(1, t.protocol, "Couldn't read a TLS record: %s", err)
-      return nil
-    end
-    -- Parse response.
     local record
-    i, record = tls.record_read(buffer, i)
-    if record and record.type == "alert" and record.body[1].level == "warning" then
-      ctx_log(1, t.protocol, "Ignoring warning: %s", record.body[1].description)
-      -- Try again.
-    elseif record then
+    record, err = get_next_record()
+    if not record then
+      ctx_log(1, t.protocol, "Couldn't read a TLS record: %s", err)
       sock:close()
-      return record
+      return records
+    end
+    -- Collect message bodies into one record per type
+    records[record.type] = records[record.type] or record
+    local done = false
+    for j = 1, #record.body do -- no ipairs because we append below
+      local b = record.body[j]
+      done = ((record.type == "alert" and b.level == "fatal") or
+        (record.type == "handshake" and b.type == "server_hello_done"))
+      table.insert(records[record.type].body, b)
+    end
+    if done then
+      sock:close()
+      return records
     end
   end
 end
@@ -330,10 +357,19 @@ local function tcopy (t)
   return tc;
 end
 
+-- Get a message body from a record which has the specified property set to value
+local function get_body(record, property, value)
+  for i, b in ipairs(record.body) do
+    if b[property] == value then
+      return b
+    end
+  end
+  return nil
+end
+
 -- Find which ciphers out of group are supported by the server.
 local function find_ciphers_group(host, port, protocol, group)
-  local name, protocol_worked, record, results
-  results = {}
+  local results = {}
   local t = {
     ["protocol"] = protocol,
     ["extensions"] = tcopy(base_extensions),
@@ -346,51 +382,60 @@ local function find_ciphers_group(host, port, protocol, group)
   -- 1. false = either ciphers or protocol is bad. Keep trying with new ciphers
   -- 2. nil = The protocol is bad. Abandon thread.
   -- 3. true = Protocol works, at least some cipher must be supported.
-  protocol_worked = false
+  local protocol_worked = false
   while (next(group)) do
     t["ciphers"] = group
 
-    record = try_params(host, port, t)
+    local records = try_params(host, port, t)
+    local handshake = records.handshake
 
-    if record == nil then
-      if protocol_worked then
+    if handshake == nil then
+      local alert = records.alert
+      if alert then
+        ctx_log(2, protocol, "Got alert: %s", alert.body[1].description)
+        if alert["protocol"] ~= protocol then
+          ctx_log(1, protocol, "Protocol rejected.")
+          protocol_worked = nil
+          break
+        elseif get_body(alert, "description", "handshake_failure") then
+          protocol_worked = true
+          ctx_log(2, protocol, "%d ciphers rejected.", #group)
+          break
+        end
+      elseif protocol_worked then
         ctx_log(2, protocol, "%d ciphers rejected. (No handshake)", #group)
       else
         ctx_log(1, protocol, "%d ciphers and/or protocol rejected. (No handshake)", #group)
       end
       break
-    elseif record["protocol"] ~= protocol then
-      ctx_log(1, protocol, "Protocol rejected.")
-      protocol_worked = nil
-      break
-    elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
-      protocol_worked = true
-      ctx_log(2, protocol, "%d ciphers rejected.", #group)
-      break
-    elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-      ctx_log(2, protocol, "Unexpected record received.")
-      break
-    elseif record["body"][1]["protocol"] ~= protocol then
-      ctx_log(1, protocol, "Protocol rejected.")
-      protocol_worked = nil
-      break
     else
-      protocol_worked = true
-      name = record["body"][1]["cipher"]
-      ctx_log(2, protocol, "Cipher %s chosen.", name)
-      if not remove(group, name) then
-        ctx_log(1, protocol, "chose cipher %s that was not offered.", name)
-        ctx_log(1, protocol, "removing high-byte ciphers and trying again.")
-        local size_before = #group
-        group = remove_high_byte_ciphers(group)
-        ctx_log(1, protocol, "removed %d high-byte ciphers.", size_before - #group)
-        if #group == size_before then
-          -- No changes... Server just doesn't like our offered ciphers.
-          break
-        end
+      local server_hello = get_body(handshake, "type", "server_hello")
+      if not server_hello then
+        ctx_log(2, protocol, "Unexpected record received.")
+        break
+      end
+      if server_hello.protocol ~= protocol then
+        ctx_log(1, protocol, "Protocol rejected. cipher: %s", server_hello.cipher)
+        protocol_worked = (protocol_worked == nil) and nil or false
+        break
       else
-        -- Add cipher to the list of accepted ciphers.
-        table.insert(results, name)
+        protocol_worked = true
+        local name = server_hello.cipher
+        ctx_log(2, protocol, "Cipher %s chosen.", name)
+        if not remove(group, name) then
+          ctx_log(1, protocol, "chose cipher %s that was not offered.", name)
+          ctx_log(1, protocol, "removing high-byte ciphers and trying again.")
+          local size_before = #group
+          group = remove_high_byte_ciphers(group)
+          ctx_log(1, protocol, "removed %d high-byte ciphers.", size_before - #group)
+          if #group == size_before then
+            -- No changes... Server just doesn't like our offered ciphers.
+            break
+          end
+        else
+          -- Add cipher to the list of accepted ciphers.
+          table.insert(results, name)
+        end
       end
     end
   end
@@ -420,7 +465,6 @@ local function find_ciphers(host, port, protocol)
 end
 
 local function find_compressors(host, port, protocol, good_ciphers)
-  local name, protocol_worked, record, results, t
   local compressors = sorted_keys(tls.COMPRESSORS)
   local t = {
     ["protocol"] = protocol,
@@ -431,54 +475,68 @@ local function find_compressors(host, port, protocol, good_ciphers)
     t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
   end
 
-  results = {}
+  local results = {}
 
   -- Try every compressor.
-  protocol_worked = false
+  local protocol_worked = false
   while (next(compressors)) do
     -- Create structure.
     t["compressors"] = compressors
 
     -- Try connecting with compressor.
-    record = try_params(host, port, t)
+    local records = try_params(host, port, t)
+    local handshake = records.handshake
 
-    if record == nil then
-      if protocol_worked then
+    if handshake == nil then
+      local alert = records.alert
+      if alert then
+        ctx_log(2, protocol, "Got alert: %s", alert.body[1].description)
+        if alert["protocol"] ~= protocol then
+          ctx_log(1, protocol, "Protocol rejected.")
+          protocol_worked = nil
+          break
+        elseif get_body(alert, "description", "handshake_failure") then
+          protocol_worked = true
+          ctx_log(2, protocol, "%d compressors rejected.", #compressors)
+          -- Should never get here, because NULL should be good enough.
+          -- The server may just not be able to handle multiple compressors.
+          if #compressors > 1 then -- Make extra-sure it's not crazily rejecting the NULL compressor
+            compressors[1] = "NULL"
+            for i = 2, #compressors, 1 do
+              compressors[i] = nil
+            end
+            -- try again.
+          else
+            break
+          end
+        end
+      elseif protocol_worked then
         ctx_log(2, protocol, "%d compressors rejected. (No handshake)", #compressors)
       else
-        ctx_log(1, protocol, "%d compressors and/or protocol %s rejected. (No handshake)", #compressors, protocol)
+        ctx_log(1, protocol, "%d compressors and/or protocol rejected. (No handshake)", #compressors)
       end
-      break
-    elseif record["protocol"] ~= protocol then
-      ctx_log(1, protocol, "Protocol rejected.")
-      break
-    elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
-      protocol_worked = true
-      ctx_log(2, protocol, "%d compressors rejected.", #compressors)
-      -- Should never get here, because NULL should be good enough.
-      -- The server may just not be able to handle multiple compressors.
-      if #compressors > 1 then -- Make extra-sure it's not crazily rejecting the NULL compressor
-        compressors[1] = "NULL"
-        for i = 2, #compressors, 1 do
-          compressors[i] = nil
-        end
-        -- try again.
-      else
-        break
-      end
-    elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
-      ctx_log(2, protocol, "Unexpected record received.")
       break
     else
-      protocol_worked = true
-      name = record["body"][1]["compressor"]
-      ctx_log(2, protocol, "Compressor %s chosen.", name)
-      remove(compressors, name)
+      local server_hello = get_body(handshake, "type", "server_hello")
+      if not server_hello then
+        ctx_log(2, protocol, "Unexpected record received.")
+        break
+      end
+      if server_hello.protocol ~= protocol then
+        ctx_log(1, protocol, "Protocol rejected.")
+        protocol_worked = (protocol_worked == nil) and nil or false
+        break
+      else
+        protocol_worked = true
+        local name = server_hello.compressor
+        ctx_log(2, protocol, "Compressor %s chosen.", name)
+        remove(compressors, name)
 
-      -- Add compressor to the list of accepted compressors.
-      table.insert(results, name)
-      if name == "NULL" then
-        break -- NULL is always last choice, and must be included
+        -- Add compressor to the list of accepted compressors.
+        table.insert(results, name)
+        if name == "NULL" then
+          break -- NULL is always last choice, and must be included
+        end
       end
     end
   end
@@ -497,10 +555,11 @@ local function compare_ciphers(host, port, protocol, cipher_a, cipher_b)
   if host.targetname then
     t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
   end
-  local record = try_params(host, port, t)
-  if record and record["type"] == "handshake" and record["body"][1]["type"] == "server_hello" then
-    ctx_log(2, protocol, "compare %s %s -> %s", cipher_a, cipher_b, record["body"][1]["cipher"])
-    return record["body"][1]["cipher"]
+  local records = try_params(host, port, t)
+  local server_hello = records.handshake and get_body(records.handshake, "type", "server_hello")
+  if server_hello then
+    ctx_log(2, protocol, "compare %s %s -> %s", cipher_a, cipher_b, server_hello.cipher)
+    return server_hello.cipher
   else
     ctx_log(2, protocol, "compare %s %s -> error", cipher_a, cipher_b)
     return nil, string.format("Error when comparing %s and %s", cipher_a, cipher_b)
