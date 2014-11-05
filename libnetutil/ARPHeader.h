@@ -217,7 +217,7 @@ class ARPHeader : public NetworkLayerElement {
             u8  ar_pln;       /* Protocol Address Length.                     */
             u16 ar_op;        /* Operation Code.                              */
             u8 data[20];
-            // Cannot use these because the fucking alignment screws up
+            // Cannot use these because the four-flushing alignment screws up
             // everything. I miss ANSI C.
             //u8  ar_sha[6];    /* Sender Hardware Address.                     */
             //u32 ar_sip;       /* Sender Protocol Address (IPv4 address).      */

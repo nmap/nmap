@@ -759,7 +759,7 @@ int ProbeMode::doIPv6ThroughSocket(int rawfd){
     /* Transport layer checksum */
     /* This is totally crazy. We have to tell the kernel EXPLICITLY that we
      * want it to set the TCP/UDP checksum for us. Why the hell is this the
-     * default behavior if it's so fucking difficult to get the IPv6 source
+     * default behavior if it's so incredibly difficult to get the IPv6 source
      * address?
      * Additionally, we have to be very careful not to set this option when
      * dealing with ICMPv6 because in that case the kernel computes the

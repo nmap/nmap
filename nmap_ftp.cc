@@ -341,7 +341,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
               if (o.debugging)
                 log_write(LOG_STDOUT, "result of LIST: %s", recvbuf);
               if (!strncmp(recvbuf, "500", 3)) {
-                /* fuck, we are not aligned properly */
+                /* oh dear, we are not aligned properly */
                 if (o.verbose || o.debugging)
                   error("FTP command misalignment detected ... correcting.");
                 res = recvtime(sd, recvbuf, 2048, 10, NULL);

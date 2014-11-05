@@ -3169,7 +3169,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
     if (in_cksum((unsigned short *)ip2, 20) == checksum) {
       AV.value = "G"; /* The "expected" good value */
     } else {
-      AV.value = "I"; /* They fucked it up */
+      AV.value = "I"; /* They modified it */
     }
     *checksumptr = checksum;
   }
@@ -3194,7 +3194,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   }
   AV.attribute = "RUD";
   if (datastart < dataend)
-    AV.value = "I"; /* They fucked it up */
+    AV.value = "I"; /* They modified it */
   else
     AV.value = "G";
   AVs.push_back(AV);
