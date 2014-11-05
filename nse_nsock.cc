@@ -1048,6 +1048,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
     {"loop", l_loop},
     {"new", l_new},
     {"sleep", l_sleep},
+    {"parse_ssl_certificate", l_parse_ssl_certificate},
     {NULL, NULL}
   };
 

@@ -426,13 +426,32 @@ static const char *pkey_type_to_string(int type)
   }
 }
 
+static int parse_ssl_cert(lua_State *L, X509 *cert);
+
+int l_parse_ssl_certificate(lua_State *L)
+{
+  X509 *cert;
+  size_t l;
+  const char *der;
+
+  der = luaL_checklstring(L, 1, &l);
+  if (der == NULL) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  cert = d2i_X509(NULL, (const unsigned char **) &der, l);
+  if (cert == NULL) {
+    lua_pushnil(L);
+    return 1;
+  }
+  return parse_ssl_cert(L, cert);
+}
+
 int l_get_ssl_certificate(lua_State *L)
 {
   SSL *ssl;
-  struct cert_userdata *udata;
   X509 *cert;
-  X509_NAME *subject, *issuer;
-  EVP_PKEY *pubkey;
 
   ssl = nse_nsock_get_ssl(L);
   cert = SSL_get_peer_certificate(ssl);
@@ -440,6 +459,14 @@ int l_get_ssl_certificate(lua_State *L)
     lua_pushnil(L);
     return 1;
   }
+  return parse_ssl_cert(L, cert);
+}
+
+static int parse_ssl_cert(lua_State *L, X509 *cert)
+{
+  struct cert_userdata *udata;
+  X509_NAME *subject, *issuer;
+  EVP_PKEY *pubkey;
 
   udata = (struct cert_userdata *) lua_newuserdata(L, sizeof(*udata));
   udata->cert = cert;

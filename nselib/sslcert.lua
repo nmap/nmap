@@ -29,6 +29,14 @@ local string = require "string"
 local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
+--- Parse an X.509 certificate from DER-encoded string
+--@name parse_ssl_certificate
+--@class function
+--@param der DER-encoded certificate
+--@return table containing decoded certificate
+--@see nmap.get_ssl_certificate
+_ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
+
 StartTLS = {
 
   -- TODO: Implement STARTTLS for NNTP
