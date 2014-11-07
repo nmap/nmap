@@ -446,14 +446,13 @@ end
 -- handle many client ciphers at once), and then call find_ciphers_group on
 -- each chunk.
 local function find_ciphers(host, port, protocol)
-  local name, protocol_worked, results, chunk
   local ciphers = in_chunks(sorted_keys(tls.CIPHERS), CHUNK_SIZE)
 
-  results = {}
+  local results = {}
 
   -- Try every cipher.
   for _, group in ipairs(ciphers) do
-    chunk, protocol_worked = find_ciphers_group(host, port, protocol, group)
+    local chunk, protocol_worked = find_ciphers_group(host, port, protocol, group)
     if protocol_worked == nil then return nil end
     for _, name in ipairs(chunk) do
       table.insert(results, name)
@@ -630,13 +629,12 @@ local function sort_ciphers(host, port, protocol, ciphers)
 end
 
 local function try_protocol(host, port, protocol, upresults)
-  local ciphers, compressors, results
   local condvar = nmap.condvar(upresults)
 
-  results = stdnse.output_table()
+  local results = stdnse.output_table()
 
   -- Find all valid ciphers.
-  ciphers = find_ciphers(host, port, protocol)
+  local ciphers = find_ciphers(host, port, protocol)
   if ciphers == nil then
     condvar "signal"
     return nil
@@ -652,6 +650,7 @@ local function try_protocol(host, port, protocol, upresults)
     return nil
   end
   -- Find all valid compression methods.
+  local compressors
   for _, c in ipairs(in_chunks(ciphers, CHUNK_SIZE)) do
     compressors = find_compressors(host, port, protocol, c)
     -- I observed a weird interaction between ECDSA ciphers and DEFLATE compression.
@@ -774,7 +773,6 @@ function sorted_by_key(t)
 end
 
 action = function(host, port)
-  local name, result, results
 
   rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
   if rankedciphersfilename then
@@ -785,7 +783,7 @@ action = function(host, port)
     filltable(rankedciphersfilename,rankedciphers)
   end
 
-  results = {}
+  local results = {}
 
   local condvar = nmap.condvar(results)
   local threads = {}
@@ -805,7 +803,7 @@ action = function(host, port)
     end
   until next(threads) == nil
 
-  if #( stdnse.keys(results) ) == 0 then
+  if not next(results) then
     return nil
   end
 
