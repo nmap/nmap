@@ -518,11 +518,12 @@ local function find_ciphers_group(host, port, protocol, group, scores)
               if kex.server_key_exchange and ske then
                 local kex_info = kex.server_key_exchange(ske.data)
                 if kex_info.strength then
-                  if kex_strength and kex_strength > kex_info.strength then
-                    kex_strength = kex_info.strength
+                  local rsa_bits = tls.rsa_equiv(kex.type, kex_info.strength)
+                  if kex_strength and kex_strength > rsa_bits then
+                    kex_strength = rsa_bits
                     scores.warnings["Key exchange parameters of lower strength than certificate key"] = true
                   end
-                  kex_strength = kex_strength or kex_info.strength
+                  kex_strength = kex_strength or rsa_bits
                   extra = string.format("%s %d", kex.type, kex_info.strength)
                 end
               end
