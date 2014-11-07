@@ -32,6 +32,10 @@ client offers. In the case of server ordering, the script makes extra probes to
 discover the server's sorted preference list. Otherwise, the list is sorted
 alphabetically.
 
+The script will warn about certain SSL misconfigurations such as MD5-signed
+certificates, low-quality ephemeral DH parameters, and the POODLE
+vulnerability.
+
 This script is intrusive since it must initiate many connections to a server,
 and therefore is quite noisy.
 ]]
@@ -46,23 +50,23 @@ and therefore is quite noisy.
 -- | ssl-enum-ciphers:
 -- |   SSLv3:
 -- |     ciphers:
--- |       TLS_RSA_WITH_RC4_128_MD5 - A
--- |       TLS_RSA_WITH_RC4_128_SHA - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - E
+-- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - A
+-- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - A
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
 -- |     compressors:
 -- |       NULL
 -- |     cipher preference: server
 -- |   TLSv1.0:
 -- |     ciphers:
--- |       TLS_RSA_WITH_RC4_128_MD5 - A
--- |       TLS_RSA_WITH_RC4_128_SHA - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - E
--- |       TLS_RSA_WITH_AES_256_CBC_SHA - A
--- |       TLS_RSA_WITH_AES_128_CBC_SHA - A
+-- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - A
+-- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - A
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
+-- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA (dh 256) - A
+-- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA (dh 256) - A
 -- |     compressors:
 -- |       NULL
 -- |     cipher preference: server
--- |_  least strength: E
+-- |_  least strength: C
 --
 -- @xmloutput
 -- <table key="SSLv3">
@@ -70,14 +74,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
 --       <elem key="strength">A</elem>
+--       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
 --       <elem key="strength">A</elem>
+--       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">E</elem>
+--       <elem key="strength">C</elem>
+--       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
@@ -90,22 +97,27 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
 --       <elem key="strength">A</elem>
+--       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
 --       <elem key="strength">A</elem>
+--       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">E</elem>
+--       <elem key="strength">C</elem>
+--       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
---       <elem key="name">TLS_RSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="name">TLS_DHE_RSA_WITH_AES_256_CBC_SHA</elem>
 --       <elem key="strength">A</elem>
+--       <elem key="kex_info">dh 256</elem>
 --     </table>
 --     <table>
---       <elem key="name">TLS_RSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="name">TLS_DHE_RSA_WITH_AES_128_CBC_SHA</elem>
 --       <elem key="strength">A</elem>
+--       <elem key="kex_info">dh 256</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
@@ -113,7 +125,7 @@ and therefore is quite noisy.
 --   </table>
 --   <elem key="cipher preference">server</elem>
 -- </table>
--- <elem key="least strength">E</elem>
+-- <elem key="least strength">C</elem>
 
 author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
