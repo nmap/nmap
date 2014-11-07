@@ -12,17 +12,13 @@ local tls = require "tls"
 description = [[
 This script repeatedly initiates SSLv3/TLS connections, each time trying a new
 cipher or compressor while recording whether a host accepts or rejects it. The
-end result is a list of all the ciphers and compressors that a server accepts.
+end result is a list of all the ciphersuites and compressors that a server accepts.
 
-Each cipher is shown with a strength rating: one of <code>strong</code>,
-<code>weak</code>, or <code>unknown strength</code>. The output line
-beginning with <code>Least strength</code> shows the strength of the
-weakest cipher offered. If you are auditing for weak ciphers, you would
-want to look more closely at any port where <code>Least strength</code>
-is not <code>strong</code>. The cipher strength database is in the file
-<code>nselib/data/ssl-ciphers</code>, or you can use a different file
-through the script argument
-<code>ssl-enum-ciphers.rankedcipherlist</code>.
+Each ciphersuite is shown with a letter grade (A through F) indicating the
+strength of the connection. The grade is based on the cryptographic strength of
+the key exchange and of the stream cipher. The message integrity (hash)
+algorithm choice is not a factor.  The output line beginning with
+<code>Least strength</code> shows the strength of the weakest cipher offered.
 
 SSLv3/TLSv1 requires more effort to determine which ciphers and compression
 methods a server supports than SSLv2. A client lists the ciphers and compressors
@@ -44,46 +40,44 @@ and therefore is quite noisy.
 -- @usage
 -- nmap --script ssl-enum-ciphers -p 443 <host>
 --
--- @args ssl-enum-ciphers.rankedcipherlist A path to a file of cipher names and strength ratings
---
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
 -- | ssl-enum-ciphers:
 -- |   SSLv3:
 -- |     ciphers:
--- |       TLS_RSA_WITH_RC4_128_MD5 - strong
--- |       TLS_RSA_WITH_RC4_128_SHA - strong
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - strong
+-- |       TLS_RSA_WITH_RC4_128_MD5 - A
+-- |       TLS_RSA_WITH_RC4_128_SHA - A
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - E
 -- |     compressors:
 -- |       NULL
 -- |     cipher preference: server
 -- |   TLSv1.0:
 -- |     ciphers:
--- |       TLS_RSA_WITH_RC4_128_MD5 - strong
--- |       TLS_RSA_WITH_RC4_128_SHA - strong
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - strong
--- |       TLS_RSA_WITH_AES_256_CBC_SHA - strong
--- |       TLS_RSA_WITH_AES_128_CBC_SHA - strong
+-- |       TLS_RSA_WITH_RC4_128_MD5 - A
+-- |       TLS_RSA_WITH_RC4_128_SHA - A
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - E
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA - A
+-- |       TLS_RSA_WITH_AES_128_CBC_SHA - A
 -- |     compressors:
 -- |       NULL
 -- |     cipher preference: server
--- |_  least strength: strong
+-- |_  least strength: E
 --
 -- @xmloutput
 -- <table key="SSLv3">
 --   <table key="ciphers">
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">E</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
@@ -95,23 +89,23 @@ and therefore is quite noisy.
 --   <table key="ciphers">
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">E</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_AES_256_CBC_SHA</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="name">TLS_RSA_WITH_AES_128_CBC_SHA</elem>
---       <elem key="strength">strong</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
@@ -119,7 +113,7 @@ and therefore is quite noisy.
 --   </table>
 --   <elem key="cipher preference">server</elem>
 -- </table>
--- <elem key="least strength">strong</elem>
+-- <elem key="least strength">E</elem>
 
 author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
@@ -132,18 +126,6 @@ categories = {"discovery", "intrusive"}
 -- http://seclists.org/nmap-dev/2012/q3/156
 -- http://seclists.org/nmap-dev/2010/q1/859
 local CHUNK_SIZE = 64
-
-
-cipherstrength = {
-   ["broken"] = 0,
-   ["weak"]        = 1,
-   ["unknown strength"]    = 2,
-   ["strong"]      = 3
- }
-
-local rankedciphers={}
-local mincipherstrength=9999 --artificial "highest value"
-local rankedciphersfilename=false
 
 -- Add additional context (protocol) to debug output
 local function ctx_log(level, protocol, fmt, ...)
@@ -367,8 +349,59 @@ local function get_body(record, property, value)
   return nil
 end
 
+-- Score a ciphersuite implementation (including key exchange info)
+local function score_cipher (kex_strength, cipher_info)
+  local kex_score, cipher_score
+  if not kex_strength or not cipher_info.size then
+    return "unknown"
+  end
+  if kex_strength == 0 then
+    return 0
+  elseif kex_strength < 512 then
+    kex_score = 0.2
+  elseif kex_strength < 1024 then
+    kex_score = 0.4
+  elseif kex_strength < 2048 then
+    kex_score = 0.8
+  elseif kex_strength < 4096 then
+    kex_score = 0.9
+  else
+    kex_score = 1.0
+  end
+
+  if cipher_info.size == 0 then
+    return 0
+  elseif cipher_info.size < 128 then
+    cipher_score = 0.2
+  elseif cipher_info.size < 256 then
+    cipher_score = 0.8
+  else
+    cipher_score = 1.0
+  end
+
+  -- Based on SSL Labs' 30-30-40 rating without the first 30% (protocol support)
+  return 0.43 * kex_score + 0.57 * cipher_score
+end
+
+local function letter_grade (score)
+  if not tonumber(score) then return "unknown" end
+  if score >= 0.80 then
+    return "A"
+  elseif score >= 0.65 then
+    return "B"
+  elseif score >= 0.50 then
+    return "C"
+  elseif score >= 0.35 then
+    return "D"
+  elseif score >= 0.20 then
+    return "E"
+  else
+    return "F"
+  end
+end
+
 -- Find which ciphers out of group are supported by the server.
-local function find_ciphers_group(host, port, protocol, group)
+local function find_ciphers_group(host, port, protocol, group, scores)
   local results = {}
   local t = {
     ["protocol"] = protocol,
@@ -435,6 +468,72 @@ local function find_ciphers_group(host, port, protocol, group)
         else
           -- Add cipher to the list of accepted ciphers.
           table.insert(results, name)
+          if scores then
+            local info = tls.cipher_info(name)
+            -- Some warnings:
+            if info.hash and info.hash == "MD5" then
+              scores.warnings["Ciphersuite uses MD5 for message integrity"] = true
+            end
+            if protocol == "SSLv3" and  info.mode and info.mode == "CBC" then
+              scores.warnings["CBC-mode cipher in SSLv3 (CVE-2014-3566)"] = true
+            elseif info.cipher == "RC4" and tls.PROTOCOLS[protocol] >= 0x0302 then
+              scores.warnings["Weak cipher RC4 in TLSv1.1 or newer not needed for BEAST mitigation"] = true
+            end
+            local kex = tls.KEX_ALGORITHMS[info.kex]
+            local extra, kex_strength
+            if kex.anon then
+              kex_strength = 0
+            elseif kex.export then
+              if info.kex:find("1024$") then
+                kex_strength = 1024
+              else
+                kex_strength = 512
+              end
+            else
+              if kex.pubkey then
+                local certs = get_body(handshake, "type", "certificate")
+                -- Assume RFC compliance:
+                -- "The sender's certificate MUST come first in the list."
+                -- This may not always be the case, so
+                -- TODO: reorder certificates and validate entire chain
+                -- TODO: certificate validation (date, self-signed, etc)
+                local c = sslcert.parse_ssl_certificate(certs.certificates[1])
+                if c.pubkey.type == kex.pubkey then
+                  local sigalg = c.sig_algorithm:match("([mM][dD][245])")
+                  if sigalg then
+                    -- MD2 and MD5 are broken
+                    kex_strength = 0
+                    scores.warnings["Insecure certificate signature: " .. string.upper(sigalg)] = true
+                  else
+                    sigalg = c.sig_algorithm:match("([sS][hH][aA]1)")
+                    -- TODO: Update this when SHA-1 is deprecated in 2016
+                    -- kex_strength = 0
+                    scores.warnings["Weak certificate signature: SHA1"] = true
+                    kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
+                    extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
+                  end
+                end
+              end
+              local ske = get_body(handshake, "type", "server_key_exchange")
+              if kex.server_key_exchange and ske then
+                local kex_info = kex.server_key_exchange(ske.data)
+                if kex_info.strength then
+                  if kex_strength and kex_strength > kex_info.strength then
+                    kex_strength = kex_info.strength
+                    scores.warnings["Key exchange parameters of lower strength than certificate key"] = true
+                  end
+                  kex_strength = kex_strength or kex_info.strength
+                  extra = string.format("%s %d", kex.type, kex_info.strength)
+                end
+              end
+            end
+            scores[name] = {
+              cipher_strength=info.size,
+              kex_strength = kex_strength,
+              extra = extra,
+              letter_grade = letter_grade(score_cipher(kex_strength, info))
+            }
+          end
         end
       end
     end
@@ -449,10 +548,11 @@ local function find_ciphers(host, port, protocol)
   local ciphers = in_chunks(sorted_keys(tls.CIPHERS), CHUNK_SIZE)
 
   local results = {}
+  local scores = {warnings={}}
 
   -- Try every cipher.
   for _, group in ipairs(ciphers) do
-    local chunk, protocol_worked = find_ciphers_group(host, port, protocol, group)
+    local chunk, protocol_worked = find_ciphers_group(host, port, protocol, group, scores)
     if protocol_worked == nil then return nil end
     for _, name in ipairs(chunk) do
       table.insert(results, name)
@@ -460,7 +560,7 @@ local function find_ciphers(host, port, protocol)
   end
   if not next(results) then return nil end
 
-  return results
+  return results, scores
 end
 
 local function find_compressors(host, port, protocol, good_ciphers)
@@ -634,7 +734,7 @@ local function try_protocol(host, port, protocol, upresults)
   local results = stdnse.output_table()
 
   -- Find all valid ciphers.
-  local ciphers = find_ciphers(host, port, protocol)
+  local ciphers, scores = find_ciphers(host, port, protocol)
   if ciphers == nil then
     condvar "signal"
     return nil
@@ -682,19 +782,15 @@ local function try_protocol(host, port, protocol, upresults)
   -- Add rankings to ciphers
   local cipherstr
   for i, name in ipairs(ciphers) do
-    if rankedciphersfilename and rankedciphers[name] then
-      cipherstr=rankedciphers[name]
-    else
-      cipherstr="unknown strength"
-    end
-    stdnse.debug2("Strength of %s rated %d.",cipherstr,cipherstrength[cipherstr])
-    if mincipherstrength>cipherstrength[cipherstr] then
-      stdnse.debug2("Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
-      mincipherstrength=cipherstrength[cipherstr]
-    end
-    local outcipher = {name=name, strength=cipherstr}
+    local outcipher = {name=name, kex_info=scores[name].extra, strength=scores[name].letter_grade}
     setmetatable(outcipher,{
-      __tostring=function(t) return string.format("%s - %s", t.name, t.strength) end
+      __tostring=function(t)
+        if t.kex_info then
+          return string.format("%s (%s) - %s", t.name, t.kex_info, t.strength)
+        else
+          return string.format("%s - %s", t.name, t.strength)
+        end
+      end
     })
     ciphers[i]=outcipher
   end
@@ -707,45 +803,13 @@ local function try_protocol(host, port, protocol, upresults)
 
   results["cipher preference"] = cipher_pref
   results["cipher preference error"] = cipher_pref_err
+  if next(scores.warnings) then
+    results["warnings"] = sorted_keys(scores.warnings)
+  end
 
   upresults[protocol] = results
   condvar "signal"
   return nil
-end
-
--- Shamelessly stolen from nselib/unpwdb.lua and changed a bit. (Gabriel Lawrence)
-local filltable = function(filename,table)
-  if #table ~= 0 then
-    return true
-  end
-
-  local file = io.open(filename, "r")
-
-  if not file then
-    return false
-  end
-
-  while true do
-    local l = file:read()
-
-    if not l then
-      break
-    end
-
-    -- Comments takes up a whole line
-    if not l:match("#!comment:") then
-      local lsplit=stdnse.strsplit("%s+", l)
-      if cipherstrength[lsplit[2]] then
-        table[lsplit[1]] = lsplit[2]
-      else
-        stdnse.debug1("Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
-      end
-    end
-  end
-
-  file:close()
-
-  return true
 end
 
 portrule = function (host, port)
@@ -774,15 +838,6 @@ end
 
 action = function(host, port)
 
-  rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
-  if rankedciphersfilename then
-    filltable(rankedciphersfilename,rankedciphers)
-  else
-    rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
-    stdnse.debug1("Ranked ciphers filename: %s", rankedciphersfilename)
-    filltable(rankedciphersfilename,rankedciphers)
-  end
-
   local results = {}
 
   local condvar = nmap.condvar(results)
@@ -807,14 +862,14 @@ action = function(host, port)
     return nil
   end
 
-  if rankedciphersfilename then
-    for k, v in pairs(cipherstrength) do
-      if v == mincipherstrength then
-        -- Should sort before or after SSLv3, TLSv*
-        results["least strength"] = k
-      end
+  local least = "A"
+  for p, r in pairs(results) do
+    for i, c in ipairs(r.ciphers) do
+      -- counter-intuitive: "A" < "B", so really looking for max
+      least = least < c.strength and c.strength or least
     end
   end
+  results["least strength"] = least
 
   return sorted_by_key(results)
 end

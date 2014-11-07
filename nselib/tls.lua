@@ -583,6 +583,18 @@ CIPHERS = {
 ["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]             =  0xFEFF,
 }
 
+local function find_key(t, value)
+  local k, v
+
+  for k, v in pairs(t) do
+    if v == value then
+      return k
+    end
+  end
+
+  return nil
+end
+
 -- Keep this local to enforce use of the cipher_info function
 local cipher_info_cache = {
   -- pre-populate the special cases that break the parser below
@@ -637,13 +649,323 @@ local cipher_info_cache = {
   },
 }
 
+
+-- A couple helpers for server_key_exchange parsing
+local function unpack_dhparams (blob, pos)
+  local p, g, y
+  pos, p, g, y = bin.unpack(">PPP", blob)
+  return pos, {p=p, g=g, y=y}, rsa_equiv("dh", #p)
+end
+
+local function unpack_ecdhparams (blob, pos)
+  local eccurvetype
+  pos, eccurvetype = bin.unpack("C", blob, pos)
+  local ret = {}
+  local strength
+  if eccurvetype == 1 then
+    local p, a, b, base, order, cofactor
+    pos, p, a, b, base, order, cofactor = bin.unpack("pppppp", blob, pos)
+    strength = rsa_equiv("ec", #p)
+    ret.curve_params = {
+      ec_curve_type = "explicit_prime",
+      prime_p=p, curve={a=a, b=b}, base=base, order=order, cofactor=cofactor
+    }
+  elseif eccurvetype == 2 then
+    local p = {}
+    local m, basis
+    pos, m, basis = bin.unpack(">SC", blob, pos)
+    strength = rsa_equiv("ec", m)
+    if basis == 1 then -- ec_trinomial
+      pos, p.k = bin.unpack("p", blob, pos)
+    elseif basis == 2 then -- ec_pentanomial
+      pos, p.k1, p.k2, p.k3 = bin.unpack("ppp", blob, pos)
+    end
+    local a, b, base, order, cofactor
+    pos, a, b, base, order, cofactor = bin.unpack("ppppp", blob, pos)
+    ret.curve_params = {
+      ec_curve_type = "explicit_char2",
+      m=m, basis=basis, field=p, curve={a=a, b=b}, base=base, order=order, cofactor=cofactor
+    }
+  elseif eccurvetype == 3 then
+    local curve
+    pos, curve = bin.unpack(">S", blob, pos)
+    ret.curve_params = {
+      ec_curve_type = "namedcurve",
+      curve = find_key(ELLIPTIC_CURVES, curve)
+    }
+    local size = ret.curve_params.curve:match("(%d+)[rk]%d$")
+    if size then
+      strength = rsa_equiv("ec", tonumber(size))
+    end
+  end
+  pos, ret.public = bin.unpack("p", blob, pos)
+  return pos, ret, strength
+end
+
+local function unpack_signed (blob, pos, protocol)
+  if pos > #blob then -- not-signed
+    return pos, nil
+  end
+  local hash_alg, sig_alg, sig
+  -- TLSv1.2 changed to allow arbitrary hash and sig algorithms
+  if protocol and PROTOCOLS[protocol] >= 0x0303 then
+    pos, hash_alg, sig_alg, sig = bin.unpack("CC>P", blob, pos)
+  else
+    pos, sig = bin.unpack(">P", blob, pos)
+  end
+  return pos, {hash_algorithm=hash_alg, signature_algorithm=sig_alg, signature=sig}
+end
+
+--- Get the strength-equivalent RSA key size
+--
+-- Based on NIST SP800-57 part 1 rev 3
+-- @param ktype Key type ("dh", "ec", "rsa", "dsa")
+-- @param bits Size of key in bits
+-- @return Size in bits of RSA key with equivalent strength
+function rsa_equiv (ktype, bits)
+  if ktype == "rsa" or ktype == "dsa" or ktype == "dh" then
+    return bits
+  elseif ktype == "ec" then
+    if bits < 160 then
+      return 512 -- Possibly down to 0, but details not published
+    elseif bits < 224 then
+      return 1024
+    elseif bits < 256 then
+      return 2048
+    elseif bits < 384 then
+      return 3072
+    elseif bits < 512 then
+      return 7680
+    else -- 512+
+      return 15360
+    end
+  end
+  return nil
+end
+
+KEX_ALGORITHMS = {}
+
+-- RFC 5246
+KEX_ALGORITHMS.NULL = { anon = true }
+KEX_ALGORITHMS.DH_anon = {
+  anon = true,
+  type = "dh",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.dhparams, ret.strength = unpack_dhparams(blob)
+    return ret
+  end
+}
+KEX_ALGORITHMS.DH_anon_EXPORT = {
+  anon=true,
+  export=true,
+  type = "dh",
+  server_key_exchange = KEX_ALGORITHMS.DH_anon.server_key_exchange
+}
+KEX_ALGORITHMS.ECDH_anon = {
+  anon=true,
+  type = "ecdh",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob)
+    return ret
+  end
+}
+KEX_ALGORITHMS.ECDH_anon_EXPORT = {
+  anon=true,
+  export=true,
+  type = "ecdh",
+  server_key_exchange = KEX_ALGORITHMS.ECDH_anon.server_key_exchange
+}
+
+KEX_ALGORITHMS.RSA = {
+  pubkey="rsa",
+}
+-- http://www-archive.mozilla.org/projects/security/pki/nss/ssl/fips-ssl-ciphersuites.html
+KEX_ALGORITHMS.RSA_FIPS = KEX_ALGORITHMS.RSA
+KEX_ALGORITHMS.RSA_EXPORT = {
+  export=true,
+  pubkey="rsa",
+  type = "rsa",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {rsa={}}
+    pos, ret.rsa.modulus, ret.rsa.exponent = bin.unpack(">PP", blob)
+    pos, ret.signed = unpack_signed(blob, pos)
+    ret.strength = #ret.rsa.modulus
+    return ret
+  end
+}
+KEX_ALGORITHMS.RSA_EXPORT1024 = KEX_ALGORITHMS.RSA_EXPORT
+KEX_ALGORITHMS.DHE_RSA={
+  pubkey="rsa",
+  type = "dh",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.dhparams, ret.strength = unpack_dhparams(blob)
+    pos, ret.signed = unpack_signed(blob, pos)
+    return ret
+  end
+}
+KEX_ALGORITHMS.DHE_RSA_EXPORT={
+  export=true,
+  pubkey="rsa",
+  type = "dh",
+  server_key_exchange = KEX_ALGORITHMS.DHE_RSA.server_key_exchange
+}
+KEX_ALGORITHMS.DHE_DSS={
+  pubkey="dsa",
+  type = "dh",
+  server_key_exchange = KEX_ALGORITHMS.DHE_RSA.server_key_exchange
+}
+KEX_ALGORITHMS.DHE_DSS_EXPORT={
+  export=true,
+  pubkey="dsa",
+  type = "dh",
+  server_key_exchange = KEX_ALGORITHMS.DHE_RSA.server_key_exchange
+}
+KEX_ALGORITHMS.DHE_DSS_EXPORT1024 = KEX_ALGORITHMS.DHE_DSS_EXPORT1024
+
+KEX_ALGORITHMS.DH_DSS={
+  pubkey="dh",
+}
+KEX_ALGORITHMS.DH_DSS_EXPORT={
+  export=true,
+  pubkey="dh",
+}
+KEX_ALGORITHMS.DH_RSA={
+  pubkey="dh",
+}
+KEX_ALGORITHMS.DH_RSA_EXPORT={
+  export=true,
+  pubkey="dh",
+}
+
+KEX_ALGORITHMS.ECDHE_RSA={
+  pubkey="rsa",
+  type = "ecdh",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob)
+    pos, ret.signed = unpack_signed(blob, pos)
+    return ret
+  end
+}
+KEX_ALGORITHMS.ECDHE_ECDSA={
+  pubkey="ec",
+  type = "ecdh",
+  server_key_exchange = KEX_ALGORITHMS.ECDHE_RSA.server_key_exchange
+}
+KEX_ALGORITHMS.ECDH_ECDSA={
+  pubkey="ec",
+}
+KEX_ALGORITHMS.ECDH_RSA={
+  pubkey="ec",
+}
+
+-- draft-ietf-tls-ecc-00
+KEX_ALGORITHMS.ECDH_ECNRA={
+  pubkey="ec",
+}
+KEX_ALGORITHMS.ECMQV_ECDSA={
+  pubkey="ec",
+  type = "ecmqv",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.mqvparams = bin.unpack("p", blob)
+    return ret
+  end
+}
+KEX_ALGORITHMS.ECMQV_ECNRA={
+  pubkey="ec",
+}
+
+-- rfc4279
+KEX_ALGORITHMS.PSK = {
+  type = "psk",
+  server_key_exchange = function (blob, protocol)
+    local pos, hint = bin.unpack(">P", blob)
+    return {psk_identity_hint=hint}
+  end
+}
+KEX_ALGORITHMS.RSA_PSK = {
+  pubkey="rsa",
+  type = "psk",
+  server_key_exchange = KEX_ALGORITHMS.PSK.server_key_exchange
+}
+KEX_ALGORITHMS.DHE_PSK = {
+  type = "dh",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.psk_identity_hint = bin.unpack(">P", blob)
+    pos, ret.dhparams, ret.strength = unpack_dhparams(blob)
+    return ret
+  end
+}
+--nomenclature change
+KEX_ALGORITHMS.PSK_DHE = KEX_ALGORITHMS.DHE_PSK
+
+--rfc5489
+KEX_ALGORITHMS.ECDHE_PSK={
+  type = "ecdh",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {}
+    pos, ret.psk_identity_hint = bin.unpack(">P", blob)
+    pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob)
+    return ret
+  end
+}
+
+-- RFC 5054
+KEX_ALGORITHMS.SRP_SHA = {
+  type = "srp",
+  server_key_exchange = function (blob, protocol)
+    local pos
+    local ret = {srp={}}
+    pos, ret.srp.N, ret.srp.g, ret.srp.s, ret.srp.B = bin.unpack(">PPpP", blob)
+    pos, ret.signed = unpack_signed(blob, pos)
+    ret.strength = #ret.srp.N
+    return ret
+  end
+}
+KEX_ALGORITHMS.SRP_SHA_DSS = {
+  pubkey="dsa",
+  type = "srp",
+  server_key_exchange = KEX_ALGORITHMS.SRP_SHA.server_key_exchange
+}
+KEX_ALGORITHMS.SRP_SHA_RSA = {
+  pubkey="rsa",
+  type = "srp",
+  server_key_exchange = KEX_ALGORITHMS.SRP_SHA.server_key_exchange
+}
+
+-- RFC 6101
+KEX_ALGORITHMS.FORTEZZA_KEA={}
+
+-- RFC 4491
+KEX_ALGORITHMS.GOSTR341001={}
+KEX_ALGORITHMS.GOSTR341094={}
+
+-- RFC 2712
+KEX_ALGORITHMS.KRB5={}
+KEX_ALGORITHMS.KRB5_EXPORT={
+  export=true,
+}
+
+
 --- Get info about a cipher suite
 --
---  Returned table has "kex", "server_auth", "cipher", "mode", "size", and
---  "hash" keys, as well as boolean flags "dh", "ec", and "draft". The "draft"
+--  Returned table has "kex", "cipher", "mode", "size", and
+--  "hash" keys, as well as boolean flag "draft". The "draft"
 --  flag is only supported for some suites that have different enumeration
---  values in draft versus final RFC. The "export" key may be present with
---  value either "EXPORT" or "EXPORT1024".
+--  values in draft versus final RFC.
 -- @param c The cipher suite name, e.g. TLS_RSA_WITH_AES_128_GCM_SHA256
 -- @return A table of info as described above.
 function cipher_info (c)
@@ -656,50 +978,12 @@ function cipher_info (c)
     stdnse.debug2("cipher_info: Not a TLS ciphersuite: %s", c)
     return nil
   end
-  -- kex, server_auth, cipher, size, mode, hash
-  -- flags: dh, ec, export
+  -- kex, cipher, size, mode, hash
+  i = i + 1
   while tokens[i] and tokens[i] ~= "WITH" do
     i = i + 1
-    local t = tokens[i]
-    if t == "RSA" or t == "DSS" then
-      info.server_auth = t
-      info.kex = info.kex or t
-    elseif t:sub(1,2) == "EC" then
-      info.ec = true
-      if t == "ECDH" or t == "ECDHE" then
-        info.dh = true
-        info.kex = t
-      elseif t == "ECDSA" or t == "ECNRA" then
-        info.server_auth = t
-      elseif t == "ECMQV" then
-        info.kex = t
-      end
-    elseif t == "DH" or t == "DHE" then
-      info.dh = true
-      info.kex = t
-    elseif t == "PSK" then
-      info.kex = (info.kex and info.kex .. "_" .. t) or t
-      info.server_auth = info.server_auth or t
-    elseif t == "EXPORT" or t == "EXPORT1024" then
-      info.export = t
-    elseif t == "SRP" then
-      info.kex = "SRP_SHA"
-      info.server_auth = "SRP_SHA"
-      i = i + 1 -- consume _SHA
-    elseif t == "FORTEZZA" then
-      info.kex = "FORTEZZA_KEA"
-      info.server_auth = "FORTEZZA"
-      i = i + 1 -- consume _KEA
-    elseif t == "NULL" then
-      info.kex = t
-      info.server_auth = "anon"
-    elseif t == "anon" then
-      info.server_auth = t
-    else
-      info.kex = info.kex or t
-      info.server_auth = info.server_auth or t
-    end
   end
+  info.kex = table.concat(tokens, "_", 2, i-1)
 
   if tokens[i] and tokens[i] ~= "WITH" then
     stdnse.debug2("cipher_info: Can't parse (no WITH): %s", c)
@@ -776,18 +1060,6 @@ SCSVS = {
 ["TLS_EMPTY_RENEGOTIATION_INFO_SCSV"]              =  0x00FF, -- rfc5746
 ["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
 }
-
-local function find_key(t, value)
-  local k, v
-
-  for k, v in pairs(t) do
-    if v == value then
-      return k
-    end
-  end
-
-  return nil
-end
 
 -- Helper function to unpack a 3-byte integer value
 local function unpack_3byte (buffer, pos)
@@ -991,7 +1263,7 @@ function client_hello(t)
       if type(cipher) == "string" then
         cipher = CIPHERS[cipher] or SCSVS[cipher]
       end
-      if type(cipher) == "number" and cipher > 0 and cipher <= 0xffff then
+      if type(cipher) == "number" and cipher >= 0 and cipher <= 0xffff then
         table.insert(ciphers, bin.pack(">S", cipher))
       else
         stdnse.debug1("Unknown cipher in client_hello: %s", cipher)
