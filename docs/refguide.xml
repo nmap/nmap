@@ -437,7 +437,7 @@ you would expect.</para>
         <listitem>
            <para>This option tells Nmap not to do a port scan after host
            discovery, and only print out the available hosts that
-           responded to the scan.  This is often known as a <quote>ping
+           responded to the host discovery probes.  This is often known as a <quote>ping
            scan</quote>, but you can also request that traceroute and
            NSE host scripts be run. This is by default
            one step more intrusive than the list scan, and can often
