@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Updated our Wordpress plugin list to improve the
+  http-wordpress-plugins NSE script. We can now detect 34,077 plugins,
+  up from 18,570. [Danila Poyarkov]
+
 o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
   handshake, including certificate key size and DH parameters if applicable.
   This is similar to Qualys's SSL Labs scanner, and means that we no longer
