@@ -132,14 +132,6 @@ o When scanning your own IP from Windows, Nmap currently recognizes
   in this case (e.g. do a connect scan, etc.).  See
   http://seclists.org/nmap-dev/2013/q3/519
 
-o Web: We should probably distribute RapidSSL intermediate certificate
-  on SecWiki so it is trusted even if browsers don't have that cert
-  cached.  Here's a page nothing the issue:
-  https://www.ssllabs.com/ssltest/analyze.html?d=secwiki.org
-  - We probably need to add an entry in apache conf after
-  SSLCertificateFile which looks something like:
-  SSLCertificateChainFile /etc/apache2/rapidssl.pem
-
 o Investigate Checkmarx static analysis report of Nmap source tree
   that someone sent us on Feb 12.  It looks like mostly false positives,
   but we should go through to check for any real bugs or even possible

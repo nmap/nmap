@@ -1,5 +1,13 @@
 DONE:
 
+o Web: We should probably distribute RapidSSL intermediate certificate
+  on SecWiki so it is trusted even if browsers don't have that cert
+  cached.  Here's a page nothing the issue:
+  https://www.ssllabs.com/ssltest/analyze.html?d=secwiki.org
+  - We probably need to add an entry in apache conf after
+  SSLCertificateFile which looks something like:
+  SSLCertificateChainFile /etc/apache2/rapidssl.pem
+
 o The XML version of Nmap lists and describes the six port states
   recognized by Nmap near the top of the "Port Scanning Basics"
   section.  That can be seen in the HTML rendering at
