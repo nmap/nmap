@@ -168,9 +168,9 @@ end
 
 local function try_params(host, port, t)
 
-  -- Use Nmap's own discovered timeout, doubled for safety
-  -- Default to 10 seconds.
-  local timeout = ((host.times and host.times.timeout) or 5) * 1000 * 2
+  -- Use Nmap's own discovered timeout plus 5 seconds for host processing
+  -- Default to 10 seconds total.
+  local timeout = ((host.times and host.times.timeout) or 5) * 1000 + 5000
 
   -- Create socket.
   local status, sock, err
