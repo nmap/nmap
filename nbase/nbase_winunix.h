@@ -157,11 +157,18 @@
    Second, because <errno.h> is not defined, the C++0x header
    <system_error> doesn't compile, so we pretend not to have C++0x to
    avoid it. */
+#if _MSC_VER < 1800 /* Breaks on VS2013 */
 #define _INC_ERRNO  /* suppress errno.h */
 #define _ERRNO_H_ /* Also for errno.h suppression */
 #define _SYSTEM_ERROR_
 #undef _HAS_CPP0X
 #define _HAS_CPP0X 0
+#else
+/* VS2013: we include errno.h, then redefine the constants we want.
+ * This may work in other versions, but haven't tested (since the other method
+ * has been working just fine). */
+#include <errno.h>
+#endif
 
 /* Suppress winsock.h */
 #define _WINSOCKAPI_
