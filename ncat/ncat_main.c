@@ -382,8 +382,8 @@ int main(int argc, char *argv[])
                     a, gai_strerror(rc));
                 }
                 o.srcrtes[o.numsrcrtes] = addr.in.sin_addr;
-            } while (o.numsrcrtes++ <= 8 && (a = strtok(NULL, ",")));
-            if (o.numsrcrtes > 8)
+            } while (++o.numsrcrtes < 8 && (a = strtok(NULL, ",")));
+            if (strtok(NULL, ","))
                 bye("Sorry, you gave too many source route hops.");
             break;
         }
