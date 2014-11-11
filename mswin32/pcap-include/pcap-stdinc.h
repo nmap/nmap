@@ -66,7 +66,11 @@
 #define strdup _strdup
 #endif
 
+#ifndef __cplusplus
+/* C++ has the inline keyword.
+ * Additionally, C++11 forbids redefining a keyword as a macro */
 #define inline __inline 
+#endif
 
 #ifdef __MINGW32__
 #include <stdint.h>
