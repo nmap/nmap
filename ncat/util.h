@@ -168,6 +168,9 @@ do { \
 
 void die(char *);
 
+#ifdef WIN32
+__declspec(noreturn)
+#endif
 void bye(const char *, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));

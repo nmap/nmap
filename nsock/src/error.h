@@ -75,10 +75,16 @@
 #endif
 
 
+#ifdef WIN32
+__declspec(noreturn)
+#endif
 void fatal(char *fmt, ...)
   __attribute__ ((noreturn))
   __attribute__ ((format (printf, 1, 2)));
 
+#ifdef WIN32
+__declspec(noreturn)
+#endif
 void pfatal(char *fmt, ...)
   __attribute__ ((noreturn))
   __attribute__ ((format (printf, 1, 2)));

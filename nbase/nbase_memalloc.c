@@ -129,6 +129,9 @@
 #include "nbase.h"
 #include <stdio.h>
 
+#ifdef WIN32
+__declspec(noreturn)
+#endif
 static void fatal(char *fmt, ...)
   __attribute__ ((noreturn))
   __attribute__ ((format (printf, 1, 2)));

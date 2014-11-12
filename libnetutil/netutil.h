@@ -162,6 +162,9 @@ struct abstract_ip_hdr {
   u32 ipid; /* IPv4 IP ID or IPv6 flow label. */
 };
 
+#ifdef WIN32
+__declspec(noreturn)
+#endif
 void netutil_fatal(const char *str, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
