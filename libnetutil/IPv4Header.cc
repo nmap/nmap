@@ -681,7 +681,8 @@ const u8 *IPv4Header::getOpts() const {
 const u8 *IPv4Header::getOpts(int *len) const {
   if(len==NULL)
     printf("getOpts(): NULL pointer supplied.\n");
-  *len=ipoptlen;
+  else
+    *len=ipoptlen;
   return h.options;
 } /* End of getOpts() */
 
