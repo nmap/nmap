@@ -690,6 +690,7 @@ ZENMAPDIR
 NDIFF_DIST_CLEAN
 NDIFF_CLEAN
 NDIFF_CHECK
+UNINSTALLNDIFF
 INSTALLNDIFF
 BUILDNDIFF
 NDIFFDIR
@@ -5711,16 +5712,19 @@ fi
 if test "$with_ndiff" = "no"; then
   BUILDNDIFF=""
   INSTALLNDIFF=""
+  UNINSTALLNDIFF=""
   NDIFF_CHECK=""
   NDIFF_CLEAN=""
   NDIFF_DIST_CLEAN=""
 else
   BUILDNDIFF=build-ndiff
   INSTALLNDIFF=install-ndiff
+  UNINSTALLNDIFF=uninstall-ndiff
   NDIFF_CHECK="ndiff_check"
   NDIFF_CLEAN=ndiff_clean
   NDIFF_DIST_CLEAN=ndiff_dist_clean
 fi
+
 
 
 

@@ -83,6 +83,7 @@ INSTALLZENMAP=@INSTALLZENMAP@
 INSTALLNDIFF=@INSTALLNDIFF@
 INSTALLNPING=@INSTALLNPING@
 UNINSTALLZENMAP=@UNINSTALLZENMAP@
+UNINSTALLNDIFF=@UNINSTALLNDIFF@
 UNINSTALLNPING=@UNINSTALLNPING@
 
 ifneq (@LIBLUA_LIBS@,)
@@ -365,7 +366,7 @@ install-nping: $(NPINGDIR)/nping
 install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@ @NMAP_UPDATE_INSTALL@ $(INSTALLNDIFF) $(INSTALLNPING)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
-uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@ @NMAP_UPDATE_UNINSTALL@ $(UNINSTALLNPING)
+uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@ @NMAP_UPDATE_UNINSTALL@ $(UNINSTALLNDIFF) $(UNINSTALLNPING)
 
 uninstall-nmap:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
@@ -381,6 +382,9 @@ uninstall-zenmap:
 		rm -f $(DESTDIR)$(bindir)/nmapfe; \
 	fi
 	rm -f $(DESTDIR)$(bindir)/xnmap
+
+uninstall-ndiff:
+	cd $(NDIFFDIR) && $(PYTHON) setup.py uninstall
 
 uninstall-ncat:
 	@cd $(NCATDIR) && $(MAKE) uninstall
