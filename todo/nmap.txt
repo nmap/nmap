@@ -6,10 +6,6 @@ o Make sure the new version detection sigs have appropriate CPE’s.
 
 o Integrate latest IPv6 OS detection submissions and corrections
 
-o Our "make uninstall" should uninstall ndiff if it was installed too.
-  We should probably do it in pretty much the same way we handle
-  Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
-
 o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/running
 
 o Make and test build on a newer OS X than 10.6 (10.10 was recently released)

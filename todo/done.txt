@@ -1,5 +1,9 @@
 DONE:
 
+o Our "make uninstall" should uninstall ndiff if it was installed too.
+  We should probably do it in pretty much the same way we handle
+  Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
+
 o Web: We should probably distribute RapidSSL intermediate certificate
   on SecWiki so it is trusted even if browsers don't have that cert
   cached.  Here's a page nothing the issue:
