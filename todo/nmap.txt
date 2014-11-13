@@ -30,6 +30,10 @@ o Build and post new release
 
 ==Items we need to finish before next big release go above this line==
 
+o Add a --defeat-icmp-ratelimit (or similar) argument to modify UDP scans. This
+  would only find open and responsive ports, ignoring open|filtered. See
+  http://seclists.org/nmap-dev/2014/q4/183
+
 o Work on Nmap on Mobile devices, particularly Android.  Would be
   great to get it in Google Play store, for example.  An official
   version with a workable GUI.  For now, people have to do manual work
