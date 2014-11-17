@@ -93,7 +93,7 @@ static int connect_tcp_failure(void *tdata) {
                     (struct sockaddr *)&peer, 0, PORT_TCP);
 
   nsock_loop(ctd->nsp, 4000);
-  AssertEqual(ctd->connect_result, EINVAL);
+  AssertEqual(ctd->connect_result, -EINVAL);
   return 0;
 }
 
