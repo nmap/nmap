@@ -74,13 +74,18 @@
 #include <unistd.h>
 #endif
 
+#if defined(__GNUC__)
+#define NORETURN __attribute__((noreturn))
+#elif defined(_MSC_VER)
+#define NORETURN __declspec((noreturn))
+#else
+#define NORETURN
+#endif
 
-void fatal(char *fmt, ...)
-  __attribute__ ((noreturn))
+NORETURN void fatal(char *fmt, ...)
   __attribute__ ((format (printf, 1, 2)));
 
-void pfatal(char *fmt, ...)
-  __attribute__ ((noreturn))
+NORETURN void pfatal(char *fmt, ...)
   __attribute__ ((format (printf, 1, 2)));
 
 #endif /* ERROR_H */

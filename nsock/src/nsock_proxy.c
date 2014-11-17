@@ -375,6 +375,7 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
     }
   }
   fatal("Invalid protocol in proxy specification string: %s", proxystr);
+  return NULL;
 }
 
 struct proxy_parser *proxy_parser_new(const char *proxychainstr) {
