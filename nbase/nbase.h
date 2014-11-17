@@ -371,6 +371,14 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #define inline __inline
 #endif
 
+#if defined(__GNUC__)
+#define NORETURN __attribute__((noreturn))
+#elif defined(_MSC_VER)
+#define NORETURN __declspec((noreturn))
+#else
+#define NORETURN
+#endif
+
 
 static inline int checked_fd_isset(int fd, fd_set *fds) {
 #ifndef WIN32

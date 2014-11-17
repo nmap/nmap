@@ -162,11 +162,15 @@ struct abstract_ip_hdr {
   u32 ipid; /* IPv4 IP ID or IPv6 flow label. */
 };
 
-#ifdef WIN32
-__declspec(noreturn)
+#if defined(__GNUC__)
+#define NORETURN __attribute__((noreturn))
+#elif defined(_MSC_VER)
+#define NORETURN __declspec((noreturn))
+#else
+#define NORETURN
 #endif
-void netutil_fatal(const char *str, ...)
-     __attribute__ ((noreturn))
+
+NORETURN void netutil_fatal(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
 
 int netutil_error(const char *str, ...)

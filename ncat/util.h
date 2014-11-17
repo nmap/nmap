@@ -168,11 +168,7 @@ do { \
 
 void die(char *);
 
-#ifdef WIN32
-__declspec(noreturn)
-#endif
-void bye(const char *, ...)
-     __attribute__ ((noreturn))
+NORETURN void bye(const char *, ...)
      __attribute__ ((format (printf, 1, 2)));
 
 /* zero out some memory, bzero() is deprecated */
