@@ -107,7 +107,7 @@ static int nsock_pcap_set_filter(struct npool *nsp, pcap_t *pt, const char *devi
   struct bpf_program fcode;
   int rc;
 
-  rc = pcap_compile(pt, &fcode, (char *)bpf, 1, PCAP_NETMASK_UNKNOWN);
+  rc = pcap_compile(pt, &fcode, (char *)bpf, 1, 0);
   if (rc) {
     nsock_log_error(nsp, "Error compiling pcap filter: %s", pcap_geterr(pt));
     return rc;

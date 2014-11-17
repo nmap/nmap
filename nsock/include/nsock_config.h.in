@@ -85,5 +85,3 @@
 #undef HAVE_EPOLL
 #undef HAVE_POLL
 #undef HAVE_KQUEUE
-
-#undef PCAP_NETMASK_UNKNOWN
