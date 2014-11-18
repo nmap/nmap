@@ -569,7 +569,6 @@ end
 function format_time(interval, unit)
   unit = unit or 1
   local precision = floor(math.log(unit, 10))
-  debug1("precision: %d, unit: %d", precision, unit)
 
   local sec = (interval % (60 * unit)) / unit
   interval = floor(interval / (60 * unit))
