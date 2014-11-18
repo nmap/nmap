@@ -42,9 +42,16 @@ portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.isPortSupported(port)
 end
 
---
--- most of the code snatched from tls-nextprotoneg until we decide if we want a separate library
---
+-- Miscellaneous script-wide constants
+local conn_timeout = 5         -- connection timeout (seconds)
+local max_clock_skew = 90*60   -- maximum acceptable difference between target
+                               --   and scanner clocks to avoid additional
+                               --   testing (seconds)
+local max_clock_jitter = 5     -- maximum acceptable target clock jitter
+                               --   Logically should be 50-100% of conn_timeout
+                               --   (seconds)
+local detail_debug = 2         -- debug level for printing detailed steps
+
 
 --- Function that sends a client hello packet
 -- target host and returns the response
@@ -73,7 +80,7 @@ local client_hello = function(host, port)
 
   if not specialized_function then
     sock = nmap.new_socket()
-    sock:set_timeout(5000)
+    sock:set_timeout(1000 * conn_timeout)
     status, err = sock:connect(host, port)
     if not status then
       sock:close()
@@ -126,6 +133,13 @@ local extract_time = function(response)
   return nil
 end
 
+
+---
+-- Retrieve a timestamp from a TLS port and compare it to the scanner clock
+--
+-- @param host TLS host
+-- @param port TLS port
+-- @return Timestamp sample object or nil (if the operation failed)
 local get_time_sample = function (host, port)
   -- Send crafted client hello
   local rstatus, response = client_hello(host, port)
@@ -134,39 +148,75 @@ local get_time_sample = function (host, port)
   -- extract time from response
   local tstatus, ttm = extract_time(response)
   if not tstatus then return nil end
-  return ttm, stm
+  stdnse.debug(detail_debug, "TLS sample: %s", stdnse.format_timestamp(ttm, 0))
+  return {target=ttm, scanner=stm, delta=os.difftime(ttm, stm)}
+end
+
+
+local result = { STAGNANT = "stagnant",
+                 ACCEPTED = "accepted",
+                 REJECTED = "rejected" }
+
+---
+-- Obtain a new timestamp sample and validate it against a reference sample
+--
+-- @param host TLS host
+-- @param port TLS port
+-- @param reftm Reference timestamp sample
+-- @return Result code
+-- @return New timestamp sample object or nil (if the operation failed)
+local test_time_sample = function (host, port, reftm)
+  local tm = get_time_sample(host, port)
+  if not tm then return nil end
+  local tchange = os.difftime(tm.target, reftm.target)
+  local schange = os.difftime(tm.scanner, reftm.scanner)
+  local status =
+           -- clock cannot run backwards or drift rapidly
+           (tchange < 0 or math.abs(tchange - schange) > max_clock_jitter)
+             and result.REJECTED
+           -- the clock did not advance
+           or tchange == 0
+             and result.STAGNANT
+           -- plausible enough
+           or result.ACCEPTED
+  stdnse.debug(detail_debug, "TLS sample verdict: %s", status)
+  return status, tm
 end
 
 
 action = function(host, port)
-  local ttm, stm = get_time_sample(host, port)
-  if not ttm then
+  local tm = get_time_sample(host, port)
+  if not tm then
     return stdnse.format_output(false, "Unable to obtain data from the target")
   end
-  local delta = os.difftime(ttm, stm)
-  stdnse.debug(2, "Sample #1 time difference is %d seconds", delta)
-
-  if math.abs(delta) > 15*60 then
-    -- time difference is suspect
-    -- get a second sample to determine if the clock is simply off
-    -- or if the TLS randomness does not represent the time at all
-    ttm, stm = get_time_sample(host, port)
-    if not ttm then
+  if math.abs(tm.delta) > max_clock_skew then
+    -- The target clock differs substantially from the scanner
+    -- Let's take another sample to eliminate cases where the TLS field
+    -- contains either random or fixed data instead of the timestamp
+    local reftm = tm
+    local status
+    status, tm = test_time_sample(host, port, reftm)
+    if status and status == result.STAGNANT then
+      -- The target clock did not advance between the two samples (reftm, tm)
+      -- Let's wait long enough for the target clock to advance
+      -- and then re-take the second sample
+      stdnse.sleep(1.1)
+      status, tm = test_time_sample(host, port, reftm)
+    end
+    if not status then
       return stdnse.format_output(false, "Unable to obtain data from the target")
     end
-    local origdelta = delta
-    delta = os.difftime(ttm, stm)
-    stdnse.debug(2, "Sample #2 time difference is %d seconds", delta)
-    if math.abs(origdelta - delta) > 5 then
-      return stdnse.format_output(false, "TLS randomness does not represent time")
+    if status ~= result.ACCEPTED then
+      return {}, "TLS randomness does not represent time"
     end
   end
 
   local output = {
-                 date = stdnse.format_timestamp(ttm, 0),
-                 delta = delta,
+                 date = stdnse.format_timestamp(tm.target, 0),
+                 delta = tm.delta,
                  }
   return output,
          string.format("%s; %s from scanner time.", output.date,
-                 stdnse.format_difftime(os.date("!*t",ttm),os.date("!*t", stm)))
+                 stdnse.format_difftime(os.date("!*t", tm.target),
+                                        os.date("!*t", tm.scanner)))
 end
