@@ -20,6 +20,7 @@
 /cam0_1
 /cam1/h264
 /cam1/h264/multicast
+/cam/realmonitor
 /cam1/mjpeg
 /cam1/mpeg4
 /camera.stm
@@ -29,6 +30,7 @@
 /ch0_unicast_secondstream
 /channel1
 /h264
+/h264/ch1/main/av_stream
 /h264/media.amp
 /image.mpg
 /img/media.sav
@@ -65,6 +67,8 @@
 /rtsp_tunnel
 /rtsph264
 /stream1
+/streaming/channels/1
+/streaming/channels/101
 /user.pin.mp2
 /user_defined
 /video
