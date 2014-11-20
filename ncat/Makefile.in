@@ -107,7 +107,7 @@ ifneq ($(HAVE_OPENSSL),)
 TEST_PROGS += test/test-wildcard
 endif
 
-all: @LUA_BUILD@ $(TARGET) $(TEST_PROGS)
+all: $(TARGET) $(TEST_PROGS)
 
 lua_build: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) $(LUA_CFLAGS)"

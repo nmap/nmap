@@ -222,7 +222,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   included)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="lua_build \$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
