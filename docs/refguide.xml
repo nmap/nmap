@@ -647,14 +647,16 @@ you would expect.</para>
 
           <para>Another host discovery option is the UDP ping, which
           sends a UDP packet to the given ports. For most ports, the
-          packet will be empty, though for a few a protocol-specific
-          payload will be sent that is more likely to get a
+          packet will be empty, though some use a protocol-specific
+          payload that is more likely to elicit a
           response.
 <man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
-<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
- The <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm> and <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm> options can be used to send custom payloads to every port. For example: <option>--data 0xCAFE09</option> or <option>--data-string "Gort! Klaatu barada nikto!"</option>
- The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm> option can be used to send a fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.  You can also disable payloads by specifying <option>--data-length 0</option>.</para>
+<indexterm><primary>protocol-specific
+payloads</primary><secondary>UDP</secondary></indexterm>. Packet
+content can also be affected with the <option>--data</option>,
+<option>--data-string</option>, and <option>--data-length</option> options.</para>
+
           <para>The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
@@ -825,9 +827,9 @@ you would expect.</para>
           headers<indexterm><primary>protocol-specific payloads</primary><secondary>IP</secondary></indexterm>
           while other protocols are
           sent with no additional data beyond the IP header (unless any of
-          <option>--data</option><indexterm><primary><option>--data</option></primary></indexterm> ,
-          <option>--data-string</option><indexterm><primary><option>--data-string</option></primary></indexterm> , or
-          <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
+          <option>--data</option>,
+          <option>--data-string</option>, or
+          <option>--data-length</option>
           options are specified).</para>
 
           <para>This host discovery method looks for either responses
@@ -1264,11 +1266,10 @@ run.</para>
 
 <para>UDP scan works by sending a UDP packet to every
 targeted port. For some common ports such as 53 and 161, a
-protocol-specific payload is sent, but for most ports the packet is
-empty.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
-The <option>--data</option> and <option>--data-string</option> options can be used to send a custom
-payload to every port and the <option>--data-length</option> option can be used to send a
-fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.
+protocol-specific payload is sent to increase response rate, but for most ports the packet is
+empty unless the <option>--data</option>,
+<option>--data-string</option>, or <option>--data-length</option>
+options are specified.
 If an ICMP port unreachable error (type 3, code 3) is
 returned, the port is <literal>closed</literal>.  Other ICMP unreachable errors (type 3,
 codes 1, 2, 9, 10, or 13) mark the port as <literal>filtered</literal>.  Occasionally, a
