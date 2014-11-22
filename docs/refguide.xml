@@ -91,7 +91,7 @@
     linkend="man-ex-repscan" xrefstyle="select: label nopage" />.  The only Nmap arguments used in
     this example are <option>-A</option>, to enable OS and version
     detection, script scanning, and traceroute; <option>-T4</option> for
-    faster execution; and then the two target hostnames.</para>
+    faster execution; and then the hostname.</para>
 
 <example id="man-ex-repscan"><title>A representative Nmap scan</title>
 <indexterm><primary><option>-A</option></primary><secondary>example of</secondary></indexterm>
