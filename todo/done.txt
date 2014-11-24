@@ -1,5 +1,7 @@
 DONE:
 
+o Update OpenSSL library to 1.0.1j
+
 o Our "make uninstall" should uninstall ndiff if it was installed too.
   We should probably do it in pretty much the same way we handle
   Zenmap (configure.ac, Makefile.in, and ndiff/setup.pl)
