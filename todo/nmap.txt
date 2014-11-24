@@ -2,7 +2,14 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Finish the version detection submission integration
 
+o Do the very latest Nmap IPv4 OS detection (last was done with
+  snapshot from May).
+
 o Make sure the new version detection sigs have appropriate CPE’s.
+
+o Deal with our out-of-date CA root certificate bundle by either using
+OS-specific mechanisms and/or updating the latest from Mozilla or
+another source.  See http://seclists.org/nmap-dev/2014/q4/200
 
 o Integrate latest IPv6 OS detection submissions and corrections
 
