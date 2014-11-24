@@ -7,10 +7,6 @@ o Do the very latest Nmap IPv4 OS detection (last was done with
 
 o Make sure the new version detection sigs have appropriate CPE’s.
 
-o Deal with our out-of-date CA root certificate bundle by either using
-OS-specific mechanisms and/or updating the latest from Mozilla or
-another source.  See http://seclists.org/nmap-dev/2014/q4/200
-
 o Integrate latest IPv6 OS detection submissions and corrections
 
 o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/running
@@ -18,6 +14,21 @@ o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/runni
 o Make and test build on a newer OS X than 10.6 (10.10 was recently released)
 
 o Update OpenSSL library to 1.0.1j
+
+o Deal with our out-of-date CA root certificate bundle by either using
+  OS-specific mechanisms and/or updating the latest from Mozilla or
+  another source.  See http://seclists.org/nmap-dev/2014/q4/200
+
+o Change Ncat so that it does SSL certificate trust checking by
+  default (even without --ssl-verify) and provides a warning and the key
+  fingerprint if there is no valid trusted chain or the cert is
+  expired, etc.  The warning should happen (to STDERR) even if -v is
+  not specified.  We should add a new option to force Ncat to quit if
+  cert not valid, and --ssl-verify should become an undocumented alias
+  for that.
+
+o Figure out what nmap-update is doing for SSL certificate
+  verification (it uses libsvn to our SSL svn server).
 
 o Audit ncat's ssl algorithm and ciphersuite choices
 
