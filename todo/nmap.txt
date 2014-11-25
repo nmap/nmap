@@ -42,6 +42,10 @@ o Build and post new release
 
 ==Items we need to finish before next big release go above this line==
 
+o Make Ncat avoid linking with libpcap even when it's available. Currently this
+  conflicts with how Nmap needs to configure Nsock. One way ahead would be
+  building Nsock separately for each project in different build directories.
+
 o Add a --defeat-icmp-ratelimit (or similar) argument to modify UDP scans. This
   would only find open and responsive ports, ignoring open|filtered. See
   http://seclists.org/nmap-dev/2014/q4/183
