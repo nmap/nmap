@@ -963,7 +963,7 @@ AC_OUTPUT(Makefile libnetutil/Makefile)
 
 # Krad ASCII ART#!#@$!@#$
 # Randomly store the name of one of the ASCII Art files in FILENAME
-FILENAME=`ls docs/leet-nmap-ascii-art*.txt 2>/dev/null | awk '
+FILENAME=`ls $srcdir/docs/leet-nmap-ascii-art*.txt 2>/dev/null | awk '
     BEGIN {
         srand();
     }
