@@ -330,7 +330,7 @@ AC_DEFUN([APR_FIND_APR], [
   AC_MSG_RESULT($apr_found)
 ])
 
-AC_DEFUN(LARGE_FILES_IF_NOT_BROKEN,
+AC_DEFUN([LARGE_FILES_IF_NOT_BROKEN],
 [
   AC_LANG_PUSH(C++)
   AC_MSG_CHECKING([for broken _LARGE_FILES support, such as with gcc <4.4.0 on AIX])
