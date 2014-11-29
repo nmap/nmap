@@ -180,10 +180,18 @@ action = function(host, port)
   local filenames = generate_filenames(host)
 
   for i, filename in ipairs(filenames) do
+    if filename:match('{[Mm][Aa][Cc]}') then
+      if not host.mac_addr then
+        goto next_filename
+      end
+      filename = filename:gsub('{MAC}', string.upper(stdnse.tohex(host.mac_addr)))
+      filename = filename:gsub('{mac}', stdnse.tohex(host.mac_addr))
+    end
     local request_status = check_file_present(host, port, filename)
     if (request_status == FILE_FOUND) then
       table.insert(results, filename)
     end
+    ::next_filename::
   end
 
   return stdnse.format_output(true, results)
