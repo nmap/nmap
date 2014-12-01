@@ -1,5 +1,6 @@
 local comm = require "comm"
 local string = require "string"
+local table = require "table"
 local shortport = require "shortport"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -20,10 +21,13 @@ correctly.
 -- PORT   STATE SERVICE VERSION
 -- 80/tcp open  http    Unidentified Server 1.0
 -- | http-server-header:
--- |_ Server: Unidentified Server 1.0
+-- | Server:
+-- |_   Unidentified Server 1.0
 --
 --@xmloutput
---<elem key="Server">Unidentified Server 1.0</elem>
+--<table key="Server">
+--  <elem>Unidentified Server 1.0</elem>
+--</table>
 
 author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -82,8 +86,17 @@ action = function(host, port)
     responses[1] = result
   end
 
+  -- Also send a probe with host header if we can. IIS reported to send
+  -- different Server headers depending on presence of Host header.
+  local status, result = comm.tryssl(host, port,
+    ("GET / HTTP/1.1\r\nHost: %s\r\n\r\n"):format(stdnse.get_hostname(host)))
+  if status then
+    responses[#responses+1] = result
+  end
+
   port.version = port.version or {}
 
+  local headers = {}
   for _, result in ipairs(responses) do
     if string.match(result, "^HTTP/1.[01] %d%d%d") then
       port.version.service = "http"
@@ -98,12 +111,17 @@ action = function(host, port)
       end
 
       if http_server then
-        if nmap.verbosity() > 0 then
-          return {Server=http_server}
-        else
-          return nil
-        end
+        headers[http_server] = true
       end
     end
+  end
+
+  local out = {}
+  for s, _ in pairs(headers) do
+    out[#out+1] = s
+  end
+  if next(out) then
+    table.sort(out)
+    return {Server=out}
   end
 end
