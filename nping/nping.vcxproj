@@ -144,7 +144,6 @@
     <ClCompile Include="NpingTarget.cc" />
     <ClCompile Include="NpingTargets.cc" />
     <ClCompile Include="output.cc" />
-    <ClCompile Include="PacketDiff.cc" />
     <ClCompile Include="ProbeMode.cc" />
     <ClCompile Include="stats.cc" />
     <ClCompile Include="utils.cc" />
@@ -166,7 +165,6 @@
     <ClInclude Include="NpingTarget.h" />
     <ClInclude Include="NpingTargets.h" />
     <ClInclude Include="output.h" />
-    <ClInclude Include="PacketDiff.h" />
     <ClInclude Include="ProbeMode.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="utils.h" />
