@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added targets-ipv6-recon-map4to6 to generate target IPv6 addresses
+  which correspond to IPv4 addresses mapped within a particular IPv6 subnet.
+  [Raul Fuentes]
+
 o [NSE] Updated our Wordpress plugin list to improve the
   http-wordpress-plugins NSE script. We can now detect 34,077 plugins,
   up from 18,570. [Danila Poyarkov]
