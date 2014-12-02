@@ -51,10 +51,10 @@ generates IPv4-compatible IPv6 addresses.
 -- Update  05/05/2014 - V 1.2 Minor corrections and standardization.
 -- Update  18/10/2013 - V 1.1 Added     SaveMemory option
 -- Update  29/03/2013 - V 1.0 Functional script
--- Created 28/03/2013 - v0.1  Created by Raul Fuentes <ra.fuentess.sam+nmap@gmail.com>
+-- Created 28/03/2013 - v0.1  Created by Raúl Fuentes <ra.fuentess.sam+nmap@gmail.com>
 --
 
-author = "Raul Armando Fuentes Samaniego"
+author = "Raúl Armando Fuentes Samaniego"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {
   "discovery",
