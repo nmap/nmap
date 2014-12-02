@@ -1183,11 +1183,6 @@ function record_read(buffer, i)
           -- parse these with sslcert.parse_ssl_certificate
           table.insert(b["certificates"], cert)
         end
-      elseif b["type"] == "certificate_request" then
-        local num_types
-        j, num_types = bin.unpack("C", buffer, j)
-        for i = 1, num_types do
-        end
       else
         -- TODO: implement other handshake message types
         stdnse.debug2("Unknown handshake message type: %s", b["type"])
