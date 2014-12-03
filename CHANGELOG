@@ -1,6 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added targets-ipv6-recon-map4to6 to generate target IPv6 addresses
+o [NSE] Added targets-ipv6-wordlist to generate target IPv6 addresses
+  from a wordlist made of hexadecimal characters.  [Raúl Fuentes]
+
+o [NSE] Added targets-ipv6-map4to6 to generate target IPv6 addresses
   which correspond to IPv4 addresses mapped within a particular IPv6 subnet.
   [Raúl Fuentes]
 
