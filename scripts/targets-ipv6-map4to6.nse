@@ -18,23 +18,23 @@ generates IPv4-compatible IPv6 addresses.
 
 ---
 -- @usage
--- nmap -6 --script targets-ipv6-recon-map4to6 --script-args newtargets,targets-ipv6-recon-map4to6.IPv4Hosts={192.168.1.0/24},targets-ipv6-recon-subnet={2001:db8:c0ca::/64}
+-- nmap -6 --script targets-ipv6-map4to6 --script-args newtargets,targets-ipv6-map4to6.IPv4Hosts={192.168.1.0/24},targets-ipv6-subnet={2001:db8:c0ca::/64}
 --
 -- @output
 -- Pre-scan script results:
--- | targets-ipv6-recon-map4to6:
+-- | targets-ipv6-map4to6:
 -- |   node count: 256
 -- |   addresses:
 -- |_    2001:db8:c0ca:0:0:0:c0a8:100/120
 --
--- @args targets-ipv6-recon-map4to6.IPv4Hosts  This must have at least one IPv4
+-- @args targets-ipv6-map4to6.IPv4Hosts  This must have at least one IPv4
 --                                   Host for the script be able to work
 --                                   (Ex. 192.168.1.1 or
 --                                   { 192.168.1.1, 192.168.2.2 } ) or Subnet
 --                                   Addresses ( 192.168.1.0/24 or
 --                                   { 192.168.1.0/24, 192.168.2.0/24 } )
 --
--- @args targets-ipv6-recon-subnet  Table/single IPv6 address with prefix
+-- @args targets-ipv6-subnet  Table/single IPv6 address with prefix
 --                                  (Ex. 2001:db8:c0ca::/48 or
 --                                  { 2001:db8:c0ca::/48, 2001:db8:FEA::/48 })
 --
@@ -143,7 +143,7 @@ local From_4_to_6 = function (IPv6_Network, IPv4SHosts, addr_table)
 end
 
 local IPv4Sub = stdnse.get_script_args(SCRIPT_NAME .. ".IPv4Hosts")
-local IPv6User = stdnse.get_script_args("targets-ipv6-recon-subnet")
+local IPv6User = stdnse.get_script_args("targets-ipv6-subnet")
 ---
 -- We populated the host discovery list.
 local Prescanning = function ()
@@ -208,7 +208,7 @@ function prerule ()
   -- known but we have a last-option too .
   if IPv6User == nil then
     stdnse.verbose1("There are no IPv6 subnets to scan!\z
-    You must provide it using the targets-ipv6-recon-subnet script-arg.")
+    You must provide it using the targets-ipv6-subnet script-arg.")
     return false
   end
 
