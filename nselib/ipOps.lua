@@ -9,7 +9,6 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local type     = type
-local select   = select
 local ipairs   = ipairs
 local tonumber = tonumber
 local unittest = require "unittest"
@@ -648,7 +647,8 @@ hex_to_bin = function( hex )
   end
 
   local d = bin.pack("H", hex)
-  return select(2, bin.unpack("B" .. #d, d))
+  local _, b = bin.unpack("B" .. #d, d)
+  return b:sub(1, #hex * 4)
 end
 
 --Ignore the rest if we are not testing.
