@@ -9,8 +9,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local type     = type
-local table    = table
-local string   = string
+local select   = select
 local ipairs   = ipairs
 local tonumber = tonumber
 local unittest = require "unittest"
@@ -635,8 +634,7 @@ end
 -- Converts a string of hexadecimal digits into the corresponding string of
 -- binary digits.
 --
--- Each hex digit results in four bits. This function is really just a wrapper
--- around <code>stdnse.tobinary</code>.
+-- Each hex digit results in four bits.
 -- @param hex  String representing a hexadecimal number.
 -- @usage
 -- bin_string = ipOps.hex_to_bin( "F00D" )
@@ -649,13 +647,8 @@ hex_to_bin = function( hex )
     return nil, "Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number."
   end
 
-  local t, mask, binchar = {}, "0000"
-  for hexchar in string.gmatch( hex, "%x" ) do
-      binchar = stdnse.tobinary( tonumber( hexchar, 16 ) )
-      t[#t+1] = mask:sub( 1, # mask  - # binchar  ) .. binchar
-  end
-  return table.concat( t )
-
+  local d = bin.pack("H", hex)
+  return select(2, bin.unpack("B" .. #d, d))
 end
 
 --Ignore the rest if we are not testing.
