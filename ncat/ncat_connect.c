@@ -417,7 +417,8 @@ static int do_proxy_http(void)
         goto bail;
     }
     code = http_parse_status_line_code(status_line);
-    logdebug("Proxy returned status code %d.\n", code);
+    if (o.debug)
+      logdebug("Proxy returned status code %d.\n", code);
     free(status_line);
     status_line = NULL;
     if (http_read_header(&sockbuf, &header) != 0) {
@@ -458,7 +459,8 @@ static int do_proxy_http(void)
             http_challenge_free(&challenge);
             goto bail;
         }
-        logdebug("Reconnection header:\n%s", request);
+        if (o.debug)
+          logdebug("Reconnection header:\n%s", request);
         if (send(sd, request, n, 0) < 0) {
             loguser("Error sending proxy request: %s.\n", socket_strerror(socket_errno()));
             free(request);
@@ -475,7 +477,8 @@ static int do_proxy_http(void)
             goto bail;
         }
         code = http_parse_status_line_code(status_line);
-        logdebug("Proxy returned status code %d.\n", code);
+        if (o.debug)
+          logdebug("Proxy returned status code %d.\n", code);
         free(status_line);
         status_line = NULL;
         if (http_read_header(&sockbuf, &header) != 0) {
