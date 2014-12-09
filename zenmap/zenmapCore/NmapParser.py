@@ -623,7 +623,8 @@ in epoch format!")
         return ports
 
     def get_formatted_date(self):
-        return time.strftime("%B %d, %Y - %H:%M", self.get_date())
+        return time.strftime("%B %d, %Y - %H:%M", self.get_date()).decode(
+                locale.getlocale()[1])
 
     def get_scanner(self):
         return self.nmap['nmaprun'].get('scanner', '')
