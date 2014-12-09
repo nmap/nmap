@@ -624,7 +624,7 @@ in epoch format!")
 
     def get_formatted_date(self):
         return time.strftime("%B %d, %Y - %H:%M", self.get_date()).decode(
-                locale.getlocale()[1])
+                locale.getpreferredencoding())
 
     def get_scanner(self):
         return self.nmap['nmaprun'].get('scanner', '')
