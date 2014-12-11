@@ -177,8 +177,14 @@ SSL_CTX *setup_ssl_listen(void)
     SSL_CTX_set_options(sslctx, SSL_OP_ALL | SSL_OP_NO_SSLv2);
 
     /* Secure ciphers list taken from Nsock. */
-    if (!SSL_CTX_set_cipher_list(sslctx, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"))
+    if (o.sslciphers == NULL) {
+      if (!SSL_CTX_set_cipher_list(sslctx, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"))
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
+    else {
+      if (!SSL_CTX_set_cipher_list(sslctx, o.sslciphers))
+        bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
 
     if (o.sslcert == NULL && o.sslkey == NULL) {
         X509 *cert;

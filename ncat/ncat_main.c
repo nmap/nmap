@@ -311,11 +311,13 @@ int main(int argc, char *argv[])
         {"ssl-key",         required_argument,  NULL,         0},
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   required_argument,  NULL,         0},
+        {"ssl-ciphers",     required_argument,  NULL,         0},
 #else
         {"ssl-cert",        optional_argument,  NULL,         0},
         {"ssl-key",         optional_argument,  NULL,         0},
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   optional_argument,  NULL,         0},
+        {"ssl-ciphers",     optional_argument,  NULL,         0},
 #endif
         {0, 0, 0, 0}
     };
@@ -517,6 +519,9 @@ int main(int argc, char *argv[])
                 /* If they list a trustfile assume they want certificate
                    verification. */
                 o.sslverify = 1;
+            } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
+                o.ssl = 1;
+                o.sslciphers = Strdup(optarg);
             }
 #else
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
@@ -527,6 +532,8 @@ int main(int argc, char *argv[])
                 bye("OpenSSL isn't compiled in. The --ssl-verify option cannot be chosen.");
             } else if (strcmp(long_options[option_index].name, "ssl-trustfile") == 0) {
                 bye("OpenSSL isn't compiled in. The --ssl-trustfile option cannot be chosen.");
+            } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-ciphers option cannot be chosen.");
             }
 #endif
 #ifdef HAVE_LUA
