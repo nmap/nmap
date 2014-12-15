@@ -63,10 +63,9 @@ local form_rsid = function(sid, functionId, data)
   return "\0\0\0\0\0" .. bin.pack('CCC', payload_len, sid, functionId) .. data
 end
 
-discover_device_id_recursive = function(host, port, sid, start_id)
+discover_device_id_recursive = function(host, port, sid, start_id, objects_table)
   local rsid = form_rsid(sid, 0x2B, "\x0E\x01" .. bin.pack('C', start_id))
   local status, result = comm.exchange(host, port, rsid)
-  local objects_table = {}
   if ( status and (#result >= 8)) then
     local ret_code = string.byte(result, 8)
     if ( ret_code == 0x2B and #result >= 15 ) then
@@ -87,10 +86,7 @@ discover_device_id_recursive = function(host, port, sid, start_id)
       end
       if ( more_follows == 0xFF and next_object_id ~= 0x00 ) then
         stdnse.debug1("Has more objects")
-        local recursive_table = discover_device_id_recursive(host, port, sid, next_object_id)
-        for k,v in pairs(recursive_table) do
-          table.insert(objects_table, k, v)
-        end
+        return discover_device_id_recursive(host, port, sid, next_object_id, objects_table)
       end
     end
   end
@@ -98,7 +94,7 @@ discover_device_id_recursive = function(host, port, sid, start_id)
 end
 
 local discover_device_id = function(host, port, sid)
-  return discover_device_id_recursive(host, port, sid, 0x0)
+  return discover_device_id_recursive(host, port, sid, 0x0, {})
 end
 
 local extract_slave_id = function(response)
