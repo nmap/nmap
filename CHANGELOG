@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add support to citrix-enum-apps-xml for reporting if Citrix 
+   published applications in the list are enforcing/requiring the level 
+   of ICA/session data encryption shown in the script result.  
+   [Tom Sellers]
+   
 o [NSE] Added targets-ipv6-wordlist to generate target IPv6 addresses
   from a wordlist made of hexadecimal characters.  [Raúl Fuentes]
 

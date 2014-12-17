@@ -234,6 +234,7 @@ local function extract_appdata_settings(xmldata)
 
   for s in xmldata:gmatch("<Settings.->(.-)</Settings>") do
     settings['Encryption'] = s:match("<Encryption.->(.-)</Encryption>")
+    settings['EncryptionEnforced'] = s:match("<Encryption minimum=\"(.-)\">")
     settings['AppOnDesktop'] = s:match("<AppOnDesktop.-value=\"(.-)\"/>")
     settings['AppInStartmenu'] = s:match("<AppInStartmenu.-value=\"(.-)\"/>")
     settings['PublisherName'] = s:match("<PublisherName.->(.-)</PublisherName>")

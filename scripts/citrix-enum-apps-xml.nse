@@ -31,6 +31,7 @@ The script returns more output with higher verbosity.
 -- |     Desktop: false
 -- |     On Desktop: false
 -- |     Encryption: basic
+-- |     Encryption enforced: true
 -- |     In start menu: false
 -- |     Publisher: labb1farm
 -- |     SSL: false
@@ -41,6 +42,7 @@ The script returns more output with higher verbosity.
 -- |     Desktop: false
 -- |     On Desktop: false
 -- |     Encryption: basic
+-- |     Encryption enforced: true
 -- |     In start menu: false
 -- |     Publisher: labb1farm
 -- |     SSL: false
@@ -51,6 +53,7 @@ The script returns more output with higher verbosity.
 -- |     Desktop: false
 -- |     On Desktop: false
 -- |     Encryption: basic
+-- |     Encryption enforced: true
 -- |     In start menu: false
 -- |     Publisher: labb1farm
 -- |     SSL: false
@@ -61,6 +64,7 @@ The script returns more output with higher verbosity.
 -- Version 0.2
 -- Created 11/26/2009 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 12/02/2009 - v0.2 - Use stdnse.format_ouput for output
+-- Revised 12/16/2014 - v0.3 - Detect if encryption settings are minimum requirements
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -78,7 +82,7 @@ function format_output(appdata, mode)
 
   local result = {}
   local setting_titles = { {appisdisabled="Disabled"}, {appisdesktop="Desktop"}, {AppOnDesktop="On Desktop"},
-    {Encryption="Encryption"}, {AppInStartmenu="In start menu"},
+    {Encryption="Encryption"}, {EncryptionEnforced="Encryption enforced"}, {AppInStartmenu="In start menu"},
     {PublisherName="Publisher"}, {SSLEnabled="SSL"}, {RemoteAccessEnabled="Remote Access"} }
 
 
