@@ -107,7 +107,8 @@ fetch_host_key = function(host, port)
       fp_input = mod:tobin()..exp:tobin()
 
       return {exp=exp,mod=mod,bits=host_key_bits,key_type='rsa1',fp_input=fp_input,
-              full_key=exp:todec()..' '..mod:todec(),algorithm="RSA1",
+              full_key=('%d %s %s'):format(host_key_bits, exp:todec(), mod:todec()),
+              key=('%s %s'):format(exp:todec(), mod:todec()), algorithm="RSA1",
               fingerprint=openssl.md5(fp_input)}
     end
   end
