@@ -106,26 +106,30 @@ action = function (host, port)
     end
   end
 
+  local pos, decoded = snmp.decode(response)
+
   -- Check for SNMP version 3 and msgid 0x4a69 (from the probe)
-  if not response:match("^..\x02\x01\x03\x30.\x02\x02Ji") then
+  if ((not decoded) or
+      (decoded[1] or false) ~= 3 or
+      (not decoded[2]) or
+      (decoded[2][1] or false) ~= 0x4a69) then
     stdnse.debug1("Service is not SNMPv3, or packet structure not recognized")
     return nil
   end
-  local decoded = {snmp.decode(response)}
 
   -- This really only works for User-based Security Model (USM)
-  if decoded[2][2][4] ~= 3 then
+  if decoded[2][4] ~= 3 then
     -- TODO: at least report the security model in use
     stdnse.debug1("SNMP service not using User-based Security Model")
     return nil
   end
 
   -- Decode the msgSecurityParameters octet-string
-  decoded = {snmp.decode(decoded[2][3])}
+  pos, decoded = snmp.decode(decoded[3])
 
   local output = stdnse.output_table()
   -- Decode the msgAuthoritativeEngineID octet-string
-  local engineID = decoded[2][1]
+  local engineID = decoded[1]
   local pos, enterprise = bin.unpack(">I", engineID)
   if enterprise > 0x80000000 then
     enterprise = enterprise - 0x80000000
@@ -156,8 +160,8 @@ action = function (host, port)
     output.engineIDFormat = "unknown"
     output.engineIDData = stdnse.tohex(engineID:sub(5))
   end
-  output.snmpEngineBoots = decoded[2][2]
-  output.snmpEngineTime = stdnse.format_time(decoded[2][3])
+  output.snmpEngineBoots = decoded[2]
+  output.snmpEngineTime = stdnse.format_time(decoded[3])
 
   port.version = port.version or {}
   port.version.service = "snmp"
