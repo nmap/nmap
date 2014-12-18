@@ -59,7 +59,7 @@ local unescape = lpeg.P {
 
 -- Turn the service fingerprint reply to a probe into a binary blob
 local function get_response (fp, probe)
-  local i, e = string.find(fp, string.format("%s,%%d+,", probe))
+  local i, e = string.find(fp, string.format("%s,%%x+,", probe))
   if i == nil then return nil end
   return unescape:match(getquote:match(fp, e+1))
 end
