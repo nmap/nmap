@@ -137,6 +137,7 @@ end
 -- taken by <code>parse_lines</code>.
 -- @param filename Name of the file to parse.
 -- @param ... A table of capture patterns.
+-- @return Boolean status, false on failure
 -- @return A table whose structure mirrors that of the capture table,
 -- filled in with captured values.
 function parse_file(filename, ...)
