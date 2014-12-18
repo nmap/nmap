@@ -56,19 +56,6 @@ local function get_timeouts(host, opts)
   return connect_timeout, request_timeout
 end
 
--- Makes sure that opts exists and the default proto is there
-local initopts = function(opts)
-  if not opts then
-    opts = {}
-  end
-
-  if not opts.proto then
-    opts.proto = "tcp"
-  end
-
-  return opts
-end
-
 -- Sets up the socket and connects to host:port
 local setup_connect = function(host, port, opts)
   local sock = nmap.new_socket()
@@ -117,7 +104,7 @@ end
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
 get_banner = function(host, port, opts)
-  opts = initopts(opts)
+  opts = opts or {}
   opts.recv_before = true
   local socket, nothing, correct, banner = tryssl(host, port, "", opts)
   if socket then
@@ -140,7 +127,7 @@ end
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
 exchange = function(host, port, data, opts)
-  opts = initopts(opts)
+  opts = opts or {}
 
   local status, sock = setup_connect(host, port, opts)
   local ret
