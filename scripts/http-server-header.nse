@@ -104,7 +104,7 @@ action = function(host, port)
       local http_server = string.match(result, "\n[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\r?\n")
 
       -- Avoid setting version info if -sV scan already got a match
-      if port.version.product == nil and port.version.name_confidence <= 3 then
+      if port.version.product == nil and (port.version.name_confidence or 0) <= 3 then
         port.version.product = http_server
         -- Setting "softmatched" allows the service fingerprint to be printed
         nmap.set_port_version(host, port, "softmatched")
