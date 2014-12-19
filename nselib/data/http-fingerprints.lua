@@ -3449,6 +3449,21 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/console/login/loginForm.jsp',
+        method = 'HEAD'
+      }
+   },
+    matches = {
+      {
+        match = '',
+        output = 'Oracle WebLogic Server Administration Console'
+      }
+    }
+  });
 
 table.insert(fingerprints, {
     category = 'general',
