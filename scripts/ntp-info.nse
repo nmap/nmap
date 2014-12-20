@@ -141,7 +141,7 @@ action = function(host, port)
     if output['version'] then
       -- Look for the version string from the official ntpd and format it
       -- in a manner similar to the output of the standard Nmap version detection
-      local version_num = string.match(output['version'],"^ntpd ([^@]+)")
+      local version_num = string.match(output['version'],"^ntpd ([^ ]+)")
       if version_num then
         port.version.version = "v" .. version_num
         nmap.set_port_version(host, port, "hardmatched")
