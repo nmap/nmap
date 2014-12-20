@@ -2627,8 +2627,10 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       getpts_aux(++current_range, 1, porttbl, range_type, portwarning);
 
       // Skip past the ']'. This is OK because we can't nest []s
-      while (*current_range != ']') current_range++;
-      current_range++;
+      while (*current_range != ']' && *current_range != '\0')
+        current_range++;
+      if (*current_range == ']')
+        current_range++;
 
       // Skip over a following ',' so we're ready to keep parsing
       if (*current_range == ',')
