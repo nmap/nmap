@@ -27,7 +27,7 @@ documentation of the protocol.
 -- nmap -sU -p 123 --script ntp-info <target>
 -- @output
 -- PORT    STATE SERVICE VERSION
--- 123/udp open  ntp     NTP v4
+-- 123/udp open  ntp     NTP v4.2.4p4@1.1520-o
 -- | ntp-info:
 -- |   receive time stamp: Sat Dec 12 16:22:41 2009
 -- |   version: ntpd 4.2.4p4@1.1520-o Wed May 13 21:06:31 UTC 2009 (1)
@@ -138,6 +138,19 @@ action = function(host, port)
   if(#output > 0) then
     stdnse.debug1("Test len: %d", #output)
     nmap.set_port_state(host, port, "open")
+    if output['version'] then
+      -- Look for the version string from the official ntpd and format it
+      -- in a manner similar to the output of the standard Nmap version detection
+      local version_num = string.match(output['version'],"^ntpd ([^@]+)")
+      if version_num then
+        port.version.version = "v" .. version_num
+        nmap.set_port_version(host, port, "hardmatched")
+      end
+    end
+    if output['system'] then
+      port.version.ostype = output['system']
+      nmap.set_port_version(host, port, "hardmatched")
+    end
     if nmap.verbosity() < 1 then
       local mt = getmetatable(output)
       mt["__tostring"] = function(t)
