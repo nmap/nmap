@@ -119,5 +119,9 @@
  ***************************************************************************/
 
 /* $Id$ */
+#ifndef NCAT_LISTEN_H
+#define NCAT_LISTEN_H
 
 extern int ncat_listen(void);
+
+#endif

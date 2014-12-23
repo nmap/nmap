@@ -120,7 +120,10 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id: nmap.h 6676 2008-01-12 22:39:34Z fyodor $ */
+/* $Id$ */
+
+#ifndef NMAP_TRACEROUTE_H
+#define NMAP_TRACEROUTE_H
 
 #include "Target.h"
 
@@ -130,3 +133,4 @@ int traceroute(std::vector<Target *> &Targets);
 
 void traceroute_hop_cache_clear();
 
+#endif

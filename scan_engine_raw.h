@@ -123,6 +123,9 @@
 
 /* $Id$ */
 
+#ifndef SCAN_ENGINE_RAW_H
+#define SCAN_ENGINE_RAW_H
+
 #include "scan_engine.h"
 #include "Target.h"
 #include <vector>
@@ -139,3 +142,5 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 bool get_arp_result(UltraScanInfo *USI, struct timeval *stime);
 bool get_ns_result(UltraScanInfo *USI, struct timeval *stime);
 bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime);
+
+#endif

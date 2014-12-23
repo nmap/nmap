@@ -120,4 +120,9 @@
 
 /* $Id$ */
 
+#ifndef NCAT_BASE64_H
+#define NCAT_BASE64_H
+
 char *b64enc(const unsigned char *data, int len);
+
+#endif

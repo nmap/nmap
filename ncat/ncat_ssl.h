@@ -119,6 +119,8 @@
  ***************************************************************************/
 
 /* $Id$ */
+#ifndef NCAT_SSL_H
+#define NCAT_SSL_H
 
 #include "ncat_config.h"
 
@@ -158,4 +160,5 @@ extern int ssl_load_default_ca_certs(SSL_CTX *ctx);
  * already. */
 extern int ssl_handshake(struct fdinfo *sinfo);
 
+#endif
 #endif

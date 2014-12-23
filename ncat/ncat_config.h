@@ -118,6 +118,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef NCAT_CONFIG_H
+#define NCAT_CONFIG_H
+
 /* This is a wrapper that selects config.h or config_win.h depending on whether
    we're using Autoconf or a static Windows configuration file. */
 
@@ -127,4 +130,6 @@
 #include "config_win.h"
 #else
 #error "No config.h, and not WIN32"
+#endif
+
 #endif

@@ -123,6 +123,9 @@
 
 /* $Id$ */
 
+#ifndef NMAP_OPS_H
+#define NMAP_OPS_H
+
 #include "nmap.h"
 #include "global_structures.h"
 #include "output.h"
@@ -425,3 +428,4 @@ class NmapOps {
   bool spoof_mac_set;
 };
 
+#endif

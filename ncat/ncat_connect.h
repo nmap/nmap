@@ -119,8 +119,12 @@
  ***************************************************************************/
 
 /* $Id$ */
+#ifndef NCAT_CONNECT_H
+#define NCAT_CONNECT_H
 
 #include "nsock.h"
 
 /* handle nsock-powered connections */
 extern int ncat_connect(void);
+
+#endif

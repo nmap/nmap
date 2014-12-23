@@ -120,6 +120,9 @@
 
 /* $Id$ */
 
+#ifndef NCAT_PROXY_H
+#define NCAT_PROXY_H
+
 /* How long we will honor nonces we issue, in seconds. The client gets back a
    407 with stale="true" if the nonce is valid but expired. Nonces are good only
    once, so this is really a limit on how long we have to keep nonces on a
@@ -130,3 +133,5 @@
  * Simple forking HTTP proxy.
  */
 extern int ncat_http_server(void);
+
+#endif

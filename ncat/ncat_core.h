@@ -120,6 +120,9 @@
 
 /* $Id$ */
 
+#ifndef NCAT_CORE_H
+#define NCAT_CORE_H
+
 #include "nsock.h"
 #include "nbase.h"
 #include "util.h"
@@ -266,3 +269,5 @@ extern void set_lf_mode(void);
 extern int getaddrfamily(const char *addr);
 extern int setenv_portable(const char *name, const char *value);
 extern void setup_environment(struct fdinfo *fdinfo);
+
+#endif
