@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Updated translations for German (de, Chris Leick), Italian (it, Jan
+  Reister), Polish (pl, Jacek Wielemborek), and French (fr, MaZ)
+
+o [Zenmap] New Chinese-language (zh) translation from Jie Jiang.
+
 o [NSE] Added snmp-info to get the enterprise number and other information from
   the snmpEngineID in an SNMPv3 response packet. [Daniel Miller]
 
