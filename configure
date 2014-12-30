@@ -6514,22 +6514,7 @@ if test "$ac_res" != no; then :
 fi
 
 else
-
-$as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
-
-  LIBPCAP_LIBS="-lpcap"
-  PCAP_DEPENDS=""
-  PCAP_BUILD=""
-  PCAP_CLEAN=""
-  PCAP_DIST_CLEAN=""
-fi
-
-
-
-
-
-
-
+  # We assume our included libpcap doesn't need this check-and-define
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap" >&5
 $as_echo_n "checking if PCAP_NETMASK_UNKNOWN is defined/handled by libpcap... " >&6; }
@@ -6566,6 +6551,22 @@ $as_echo "#define PCAP_NETMASK_UNKNOWN 0" >>confdefs.h
   fi
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_pcap_netmask_unknown" >&5
 $as_echo "$ac_cv_have_pcap_netmask_unknown" >&6; }
+
+
+
+$as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
+
+  LIBPCAP_LIBS="-lpcap"
+  PCAP_DEPENDS=""
+  PCAP_BUILD=""
+  PCAP_CLEAN=""
+  PCAP_DIST_CLEAN=""
+fi
+
+
+
+
+
 
 
 have_pcre=no
