@@ -6,12 +6,12 @@ categories = {"exploit", "vuln"}
 
 ---
 -- @usage
--- nmap <target> -p 7547 --script=rompager-misfortune
+-- nmap <target> -p 7547 --script=http-misfortune-cookie
 --
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 7547/tcp open  unknown syn-ack
--- | rompager-misfortune:
+-- | http-misfortune-cookie:
 -- |   VULNERABLE:
 -- |   RomPager 4.07 Misfortune Cookie
 -- |     State: VULNERABLE
@@ -54,7 +54,8 @@ action = function(host, port)
     description = [[The cookie handling routines in RomPager 4.07 are vulnerable to remote code execution. This script has verified the vulnerability by exploiting the web server in a safe manner.]],
     references = {
       "http://www.checkpoint.com/blog/fortune-cookie-hole-internet-gateway/index.html",
-      "http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf"
+      "http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf",
+      "http://www.kb.cert.org/vuls/id/561444"
     }
   }   
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
