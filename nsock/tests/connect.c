@@ -9,7 +9,7 @@
 struct connect_test_data {
   nsock_pool nsp;
   nsock_iod  nsi;
-  enum nse_status connect_result;
+  int connect_result;
 };
 
 
