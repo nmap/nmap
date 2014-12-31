@@ -1,0 +1,7 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+# Change this to your needs
+sudo: false
+script: ./configure && make && make check

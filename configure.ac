@@ -447,6 +447,9 @@ if test $have_libpcap != yes; then
   # libpcap can require libnl
   AC_SEARCH_LIBS(nl_handle_alloc, nl)
 else
+  # We assume our included libpcap doesn't need this check-and-define
+  PCAP_DEFINE_NETMASK_UNKNOWN
+
   AC_DEFINE(HAVE_LIBPCAP, 1, [Have libpcap library])
   LIBPCAP_LIBS="-lpcap"
   PCAP_DEPENDS=""
@@ -460,8 +463,6 @@ AC_SUBST(PCAP_BUILD)
 AC_SUBST(PCAP_CLEAN)
 AC_SUBST(PCAP_DIST_CLEAN)
 AC_SUBST(LIBPCAP_LIBS)
-
-PCAP_DEFINE_NETMASK_UNKNOWN
 
 have_pcre=no
 requested_included_pcre=no
