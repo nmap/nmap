@@ -3,4 +3,5 @@ compiler:
   - gcc
   - clang
 # Change this to your needs
-script: ./configure && make
+sudo: false
+script: ./configure && make && make check
