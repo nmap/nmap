@@ -19,6 +19,7 @@ categories = {"exploit", "vuln"}
 -- |     Description:
 -- |       The cookie handling routines in RomPager 4.07 are vulnerable to remote code execution. This script has verified the vulnerability by exploiting the web server in a safe manner.
 -- |     References:
+-- |       http://www.kb.cert.org/vuls/id/561444
 -- |       http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf
 -- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-9222
 -- |       http://www.checkpoint.com/blog/fortune-cookie-hole-internet-gateway/index.html
