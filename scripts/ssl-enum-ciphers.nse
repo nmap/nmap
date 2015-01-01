@@ -509,6 +509,8 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 -- This may not always be the case, so
                 -- TODO: reorder certificates and validate entire chain
                 -- TODO: certificate validation (date, self-signed, etc)
+                -- TODO: Handle this gracefully when OpenSSL is not compiled in
+                --       (throws error otherwise)
                 local c = sslcert.parse_ssl_certificate(certs.certificates[1])
                 if c.pubkey.type == kex.pubkey then
                   local sigalg = c.sig_algorithm:match("([mM][dD][245])")
