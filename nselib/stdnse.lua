@@ -68,6 +68,12 @@ _ENV = require "strict" {};
 -- @usage stdnse.sleep(1.5)
 _ENV.sleep = nmap.socket.sleep;
 
+-- These stub functions get overwritten by the script run loop in nse_main.lua
+-- These empty stubs will be used if a library calls stdnse.debug while loading
+_ENV.getid = function () return end
+_ENV.getinfo = function () return end
+_ENV.gethostport = function () return end
+
 local function debug (level, ...)
   if type(level) ~= "number" then
     return debug(1, level, ...)
