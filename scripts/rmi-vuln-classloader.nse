@@ -14,7 +14,7 @@ classifies this as a design feature.
 Based on original Metasploit module by mihi.
 
 References:
-* http://dev.metasploit.com/redmine/projects/framework/repository/entry/modules/exploits/multi/misc/java_rmi_server.rb
+* https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_rmi_server.rb
 ]];
 
 ---
@@ -32,7 +32,7 @@ References:
 -- |               Default configuration of RMI registry allows loading classes from remote URLs which can lead to remote code executeion.
 -- |
 -- |     References:
--- |_      http://dev.metasploit.com/redmine/projects/framework/repository/entry/modules/exploits/multi/misc/java_rmi_server.rb
+-- |_      https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_rmi_server.rb
 
 author = "Aleksandar Nikolic";
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html";
@@ -82,7 +82,7 @@ action = function (host, port)
 Default configuration of RMI registry allows loading classes from remote URLs which can lead to remote code executeion.
 ]],
     references = {
-      'http://dev.metasploit.com/redmine/projects/framework/repository/entry/modules/exploits/multi/misc/java_rmi_server.rb',
+      'https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_rmi_server.rb',
     },
     exploit_results = {},
   };
