@@ -27,7 +27,7 @@ lifetime (a few seconds)
 
 See also:
 * RFC 4862, IPv6 Stateless Address Autoconfiguration, especially section 5.5.3.
-* http://dev.metasploit.com/redmine/projects/framework/repository/changes/modules/auxiliary/scanner/discovery/ipv6_neighbor_router_advertisement.rb
+* https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/discovery/ipv6_neighbor_router_advertisement.rb
 ]]
 
 ---

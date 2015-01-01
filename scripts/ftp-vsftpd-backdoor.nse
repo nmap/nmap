@@ -15,7 +15,7 @@ arguments.
 
 References:
  * http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
- * https://dev.metasploit.com/redmine/projects/framework/repository/revisions/13093
+ * https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/ftp/vsftpd_234_backdoor.rb
  * http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=CVE-2011-2523
 ]]
 
@@ -45,7 +45,7 @@ References:
 -- |       http://osvdb.org/73573
 -- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2523
 -- |       http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
--- |_      https://dev.metasploit.com/redmine/projects/framework/repository/revisions/13093
+-- |_      https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/ftp/vsftpd_234_backdoor.rb
 --
 
 author = "Daniel Miller"
@@ -141,7 +141,7 @@ action = function(host, port)
 vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
     references = {
       'http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html',
-      'https://dev.metasploit.com/redmine/projects/framework/repository/revisions/13093',
+      'https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/ftp/vsftpd_234_backdoor.rb',
     },
     dates = {
       disclosure = {year = '2011', month = '07', day = '03'},
