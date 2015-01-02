@@ -1904,31 +1904,33 @@ match musicvr m|^W\xff..\0\0A.[\x01-\x20][\w.]{1,32}[\x01-\x20][\w.]{1,32}|s p/M
 
 match myproxy m|^VERSION=MYPROXYv([\w._-]+)\nRESPONSE=1\nERROR=authentication failed\n\0$| p/MyProxy credential management/ v/$1/
 
-match mysql m|^.\0\0\0\xff.*Host .* is not allowed to connect to this MySQL server$|s p/MySQL/ i/unauthorized/ cpe:/a:mysql:mysql/
-match mysql m|^.\0\0\0\xff.*Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ i/unauthorized/ cpe:/a:mariadb:mariadb/
-match mysql m|^.\0\0\0\xff.\x04Too many connections|s p/MySQL/ i/Too many connections/ cpe:/a:mysql:mysql/
-match mysql m|^.\0\0\0\xff.\x04Host '[-.\w]+' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'|s p/MySQL/ i/Host blocked because of too many connections/ cpe:/a:mysql:mysql/
-match mysql m|^.\0\0\0\xff.\x04Le h\xf4te '[-.\w]+' n'est pas authoris\xe9 \xe0 se connecter \xe0 ce serveur MySQL$| p/MySQL/ i/unauthorized; French/ cpe:/a:mysql:mysql::::fr/
-match mysql m|^.\0\0\0\xffj\x04Host hat keine Berechtigung, eine Verbindung zu diesem MySQL Server herzustellen\.|s p/MySQL/ i/unauthorized; German/ cpe:/a:mysql:mysql::::de/
-match mysql m|^.\0\0\0.*Host '[-\w_.]+' hat keine Berechtigung, sich mit diesem MySQL-Server zu verbinden|s p/MySQL/ i/Unauthorized; German/ cpe:/a:mysql:mysql::::de/
-match mysql m|^.\0\0\0...Al sistema '[-.\w]+' non e` consentita la connessione a questo server MySQL$|s p/MySQL/ i/unauthorized; Italian/ cpe:/a:mysql:mysql::::it/
-match mysql m|^.\0\0\0\xffi?\x04?Host .* is blocked because of many connection errors\.|s p/MySQL/ i/blocked - too many connection errors/ cpe:/a:mysql:mysql/
-match mysql m|^.\0\0\0...Servidor '[-.\w]+' est\xe1 bloqueado por muchos errores de conexi\xf3n\.  Desbloquear con 'mysqladmin flush-hosts'|s p/MySQL/ i/Spanish; blocked - too many connection errors/ cpe:/a:mysql:mysql::::es/
-match mysql m|^.\0\0\0...'Host' '[-.\w]+' n\xe3o tem permiss\xe3o para se conectar com este servidor MySQL| p/MySQL/ i/Spanish; unauthorized/ cpe:/a:mysql:mysql::::es/
+# MySQL Handshake packet ( .\0\0\0\x0a ) reference - http://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::Handshake
+#       Error packet     ( .\0\0\0\xff ) reference - http://dev.mysql.com/doc/internals/en/packet-ERR_Packet.html#cs-packet-err-header
+match mysql m|^.\0\0\0\xff..Host .* is not allowed to connect to this MySQL server$|s p/MySQL/ i/unauthorized/ cpe:/a:mysql:mysql/
+match mysql m|^.\0\0\0\xff..Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ i/unauthorized/ cpe:/a:mariadb:mariadb/
+match mysql m|^.\0\0\0\xff..Too many connections|s p/MySQL/ i/Too many connections/ cpe:/a:mysql:mysql/
+match mysql m|^.\0\0\0\xff..Host .* is blocked because of many connection errors|s p/MySQL/ i/blocked - too many connection errors/ cpe:/a:mysql:mysql/
+match mysql m|^.\0\0\0\xff..Le h\xf4te '[-.\w]+' n'est pas authoris\xe9 \xe0 se connecter \xe0 ce serveur MySQL$| p/MySQL/ i/unauthorized; French/ cpe:/a:mysql:mysql::::fr/
+match mysql m|^.\0\0\0\xff..Host hat keine Berechtigung, eine Verbindung zu diesem MySQL Server herzustellen\.|s p/MySQL/ i/unauthorized; German/ cpe:/a:mysql:mysql::::de/
+match mysql m|^.\0\0\0\xff..Host '[-\w_.]+' hat keine Berechtigung, sich mit diesem MySQL-Server zu verbinden|s p/MySQL/ i/unauthorized; German/ cpe:/a:mysql:mysql::::de/
+match mysql m|^.\0\0\0\xff..Al sistema '[-.\w]+' non e` consentita la connessione a questo server MySQL$|s p/MySQL/ i/unauthorized; Italian/ cpe:/a:mysql:mysql::::it/
+
+match mysql m|^.\0\0\0...Servidor '[-.\w]+' est\xe1 bloqueado por muchos errores de conexi\xf3n\.  Desbloquear con 'mysqladmin flush-hosts'|s p/MySQL/ i/blocked - too many connection errors; Spanish/ cpe:/a:mysql:mysql::::es/
+match mysql m|^.\0\0\0...'Host' '[-.\w]+' n\xe3o tem permiss\xe3o para se conectar com este servidor MySQL| p/MySQL/ i/unauthorized; Spanish/ cpe:/a:mysql:mysql::::es/
 match mysql m|^.\0\0\0\x0a([\w._-]+)\0............\0\x5f\xd3\x2d\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0............\0$|s p/Drizzle/ v/$1/
 match mysql m|^.\0\0\0\x0a([\w._-]+)\0............\0\x5f\xd1\x2d\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0............\0$|s p/Drizzle/ v/$1/
 
-match minisql m|^.\0\0\x000:23:([\d.]+)\n$|s p/Mini SQL/ v/$1/
 
-# MySQL 4.0.13
 match mysql m|^.\0\0\0.(3\.[-_~.+\w]+)\0.*\x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0$|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
-match mysql m|^.\0\0\0\n(3\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
-match mysql m|^.\0\0\0\n(4\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
-match mysql m|^.\0\0\0\n(5\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
-match mysql m|^.\0\0\0\n(6\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
+match mysql m|^.\0\0\0\x0a(3\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
+match mysql m|^.\0\0\0\x0a(4\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
+match mysql m|^.\0\0\0\x0a(5\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
+match mysql m|^.\0\0\0\x0a(6\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\xffj\x04'[\d.]+' .* MySQL|s p/MySQL/ cpe:/a:mysql:mysql/
 
-match mysql m|^.\0\0\0\n(0[\w._-]+)\0| p/MySQL instance manager/ v/$1/
+match mysql m|^.\0\0\0\x0a(0[\w._-]+)\0| p/MySQL instance manager/ v/$1/
+
+match minisql m|^.\0\0\x000:23:([\d.]+)\n$|s p/Mini SQL/ v/$1/
 
 # TIME
 # This is a random 128-byte IV followed by a four-byte timestamp.
