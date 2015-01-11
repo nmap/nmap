@@ -621,6 +621,7 @@ int main(int argc, char *argv[])
 "      --ssl-key              Specify SSL private key (PEM) for listening\n"
 "      --ssl-verify           Verify trust and domain name of certificates\n"
 "      --ssl-trustfile        PEM file containing trusted SSL certificates\n"
+"      --ssl-ciphers          Cipherlist containing SSL ciphers to use\n"
 #endif
 "      --version              Display Ncat's version information and exit\n"
 "\n"

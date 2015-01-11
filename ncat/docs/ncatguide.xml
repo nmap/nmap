@@ -427,6 +427,24 @@ Content-Type: text/html; charset=UTF-8
   checking.
   </para>
 
+  <para>
+    <indexterm><primary>SSL ciphers</primary><secondary>in Ncat</secondary></indexterm>
+    SSL connections depend on the client and server agreeing on a common
+    ciphersuite: a combination of key exchange, symmetric cipher, and message
+    integrity mechanism. The choice of which ciphersuites to offer (as a
+    client) or accept (as a server) is a matter of choice between the greatest
+    compatibility and the greatest security. The default set, expressed as an
+    OpenSSL cipherlist, is
+    <literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal>, a reasonable balance
+    between the two ends of the spectrum. To set a different priority or
+    initial choice, use the <option>--ssl-ciphers</option> option.
+    <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>
+    <literallayout>
+      <command>ncat --ssl-ciphers <replaceable>HIGH:!aNULL:!eNULL</replaceable> <replaceable>server</replaceable> 443</command>
+    </literallayout>
+  </para>
+    <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>
+
   <indexterm><primary>SSL</primary><secondary>in Ncat</secondary></indexterm>
   <indexterm><primary>certificate</primary><secondary>automatic generation of</secondary></indexterm>
   <indexterm><primary>certificate</primary><seealso><option>--ssl-cert</option></seealso></indexterm>
