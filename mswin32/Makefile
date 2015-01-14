@@ -53,7 +53,7 @@ winbuild: nmap.rc nsis/Nmap.nsi LICENSE
 	$(MAKENSIS) nmap-$(NMAP_VERSION)/Nmap.nsi
 	mv nmap-$(NMAP_VERSION)/NmapInstaller.exe nmap-$(NMAP_VERSION)-setup.exe
 
-nmap.rc: nmap.rc.in
+nmap.rc: nmap.rc.in ../nmap.h
 	sed -e '1i// Automatically generated from $<.' \
 	     -e 's/@@FILEVERSION@@/"$(NMAP_VERSION)\\0"/' \
 	     -e 's/@@COMMAVERSION@@/$(COMMA_VERSION)/' \
