@@ -29,8 +29,8 @@ Remember each fingerprint must have:
 * <code>login_check</code> - Login function of the target
 
 In addition, a fingerprint may have:
-* <code>target_check</code> - Target validation function. If defined, it will be
-                              called to validate the target before attempting
+* <code>target_check</code> - Target validation function. If defined, it will be \z
+                              called to validate the target before attempting \z
                               any logins.
 
 Default fingerprint file: /nselib/data/http-default-accounts-fingerprints.lua
@@ -40,20 +40,16 @@ This script was based on http-enum.
 ---
 -- @usage
 -- nmap -p80 --script http-default-accounts host/ip
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
 -- |_http-default-accounts: [Cacti] credentials found -> admin:admin Path:/cacti/
--- Final times for host: srtt: 94615 rttvar: 71012  to: 378663
 --
 -- @args http-default-accounts.basepath Base path to append to requests. Default: "/"
--- @args http-default-accounts.fingerprintfile Fingerprint filename. Default:http-default-accounts-fingerprints.lua
+-- @args http-default-accounts.fingerprintfile Fingerprint filename. Default: http-default-accounts-fingerprints.lua
 -- @args http-default-accounts.category Selects a category of fingerprints to use.
---
--- Other useful arguments relevant to this script:
--- http.pipeline Sets max number of petitions in the same request.
--- http.useragent User agent for HTTP requests
---
+
 -- Revision History
 -- 2013-08-13 nnposter
 --   * added support for target_check()
