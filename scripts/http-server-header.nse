@@ -101,7 +101,7 @@ action = function(host, port)
     if string.match(result, "^HTTP/1.[01] %d%d%d") then
       port.version.service = "http"
 
-      local http_server = string.match(result, "\n[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\r?\n")
+      local http_server = string.match(result, "\n[Ss][Ee][Rr][Vv][Ee][Rr]:[ \t]*(.-)\r?\n")
 
       -- Avoid setting version info if -sV scan already got a match
       if port.version.product == nil and (port.version.name_confidence or 0) <= 3 then
