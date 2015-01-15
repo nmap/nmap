@@ -117,11 +117,14 @@ action = function(host, port)
   end
 
   local out = {}
+  local out_s = {}
   for s, _ in pairs(headers) do
     out[#out+1] = s
+    out_s[#out_s+1] = s == "" and "<empty>" or s
   end
   if next(out) then
-    table.sort(out)
-    return {Server=out}
+    table.sort(out_s)
+    table.insert(out_s, 1, "\nServer:")
+    return {Server=out}, table.concat(out_s, "\n  ")
   end
 end
