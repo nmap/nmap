@@ -13548,3 +13548,46 @@ match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: 
 # API spec only lists Version, GoVersion, ApiVersion (in API >= 1.12), and GitCommit.
 # Assuming the above matches will get ApiVersion if it's present, this one can report ApiVersion <= 1.11
 match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API 1.11 or older/
+
+
+##############################NEXT PROBE##############################
+# VERSIONS cell indicating support for protocol versions 3, 4, 5, and 6.
+# https://gitweb.torproject.org/torspec.git/tree/tor-spec.txt (see sections 3 and 4.1)
+# Versions 5 and 6 don't exist as of 2015, but send them in the hope of
+# catching future changes.
+# Structure is:
+#   CircID       2 bytes
+#   Command (7)  1 byte
+#   Length       2 bytes
+#   array of 2-byte version numbers
+# We can't detect protocol versions 1 and 2, because those require you to
+# do the SSL handshake in a particular way (version 1 requires you to use
+# specific ciphersuites and send a client certificate ("the v1 handshake")
+# and version 2 requires a renegotiation after the initial handshake ("the
+# v2 handshake")).
+Probe TCP tor-versions q|\x00\x00\x07\x00\x08\x00\x03\x00\x04\x00\x05\x00\x06|
+rarity 8
+sslports 443,9001,9002
+
+# Since 0.2.4.11-alpha - 2013-03-11.
+# https://gitweb.torproject.org/tor.git/tree/ChangeLog: "Support a new version
+# of the link protocol that allows 4-byte circuit IDs."
+# https://trac.torproject.org/projects/tor/ticket/7351
+# https://gitweb.torproject.org/torspec.git/tree/proposals/214-longer-circids.txt
+match tor-orport m|^\x00\x00\x07\x00\x04\x00\x03\x00\x04| p/Tor/ v/0.2.4.11 or later/ i/supported protocol versions: 3, 4/
+
+# 0.2.3.6-alpha - 2011-10-26
+# https://gitweb.torproject.org/tor.git/tree/ChangeLog: "This release also
+# features support for a new v3 connection handshake protocol..."
+#
+# Also matches this independent JavaScript implementation: https://github.com/Ayms/node-Tor
+# You can distinguish node-Tor from mainstream tor because it sends a response
+# with version 3 even if you indicate client support for only versions 1 and 2.
+# But that requires sending another version probe.
+match tor-orport m|^\x00\x00\x07\x00\x02\x00\x03| p/Tor/ v/0.2.3.7 - 0.2.4.11/ i/supported protocol versions: 3/
+
+# An independent implementation that "only returns the highest
+# understood version matching what the server supports, instead of a
+# list of all supported versions."
+# https://lists.torproject.org/pipermail/tor-dev/2015-January/008135.html
+match tor-orport m|^\x00\x00\x07\x00\x02\x00\x04| p/Tor/ i/supported protocol versions: 4/

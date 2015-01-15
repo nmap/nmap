@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a version probe for Tor. [David Fifield]
+
 o [Zenmap] Updated translations for German (de, Chris Leick), Italian (it, Jan
   Reister), Polish (pl, Jacek Wielemborek), and French (fr, MaZ)
 
