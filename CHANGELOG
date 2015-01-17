@@ -1,4 +1,9 @@
-# Nmap Changelog ($Id: CHANGELOG 33885 2014-12-23 14:21:26Z dmiller $); -*-text-*-
+# Nmap Changelog ($Id: CHANGELOG 33916 2015-01-17 03:01:58Z paulino $); -*-text-*-
+
+o [NSE] Added http-shellshock to detect web applications vulnerable to 
+  Shellshock (CVE2014-6271). [Paulino Calderon]
+
+o Added a version probe for Tor. [David Fifield]
 
 o [Zenmap] Updated translations for German (de, Chris Leick), Italian (it, Jan
   Reister), Polish (pl, Jacek Wielemborek), and French (fr, MaZ)
