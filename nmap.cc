@@ -151,6 +151,8 @@
 
 #ifdef WIN32
 #include "winfix.h"
+/* This name collides in the following include. */
+#undef PS_NONE
 #include <shlobj.h>
 #endif
 
