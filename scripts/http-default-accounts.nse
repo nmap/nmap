@@ -29,9 +29,7 @@ Remember each fingerprint must have:
 * <code>login_check</code> - Login function of the target
 
 In addition, a fingerprint may have:
-* <code>target_check</code> - Target validation function. If defined, it will be \z
-                              called to validate the target before attempting \z
-                              any logins.
+* <code>target_check</code> - Target validation function. If defined, it will be called to validate the target before attempting any logins.
 
 Default fingerprint file: /nselib/data/http-default-accounts-fingerprints.lua
 This script was based on http-enum.
