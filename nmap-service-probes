@@ -137,7 +137,9 @@ match bandwidth-test m|^\x01\0\0\0$| p/MikroTik bandwidth-test server/
 
 match barracuda-dcagent m|^Invalid Client IP\0\0$| p/Barracuda Domain Controller Agent/
 
-match bas-ncc m|^4dc\r\n| p/Blackberry Administration Service - Native Code Container/
+match bas m|^4dc\r\n$| p/Blackberry Administration Service - Native Code Container/
+match bas m|^4fd\r\n$| p/Blackberry Administration Service - Native Code Generator/
+match bas m|^507\r\n$| p/Blackberry Administration Service/
 
 # Port 2500: http://wiki.yobi.be/wiki/Belgian_eID
 match beidpcscd m|^\0\0\0\x1e\xffV\x92l\xfbUL\x87\xabw\x1f\xb2\n\xd8\xef/\0\0\0\x05Alive\0\0\0\x011| p/beidpcscd Belgian eID daemon/
@@ -476,6 +478,8 @@ match eggdrop m=\(Eggdrop v([\d.]+)\+(?:STEALER\.net|Gentoo) \(C\) 1997 Robey Po
 match eggdrop m|Copyright \(C\) 1997 Robey Pointer\r\n.*Eggheads| p/Eggdrop IRC bot console/
 
 match enistic-manager m|^WZ=AAAAAAAAAAByAAE=73\r0E0000000000cgAD83\r$| p/Enistic Energy Manager/
+
+match envisalink m|^5053CD\r\n| p/EyezOn EnvisaLink/ d/security-misc/
 
 match epp m|^\x00\x00\x03\x72<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\" \?>\n<epp xmlns=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0\" xmlns:xsi=\"http://www\.w3\.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0 epp-1\.0\.xsd\">\n\n  <greeting>\n    <svID>([^<]+)</svID>\n    <svDate>.*</svDate>\n    <svcMenu>\n      <version>([\w._-]+)</version>\n| p/Extensible Provisioning Protocol/ v/$2/ i/server name: $1/
 
@@ -1196,6 +1200,9 @@ match ftp-proxy m|^220 Cleo VLProxy/([\w._-]+) FTP server ready\.\r\n$| p/Cleo V
 match ftp-proxy m|^220 McAfee Web Gateway ([\d.]+ build \d+)\r\n| p/McAfee Web Gateway ftp proxy/ v/$1/
 match ftp-proxy m|^220-Firewall ftp proxy\.  You must login to the proxy first\.\r\n220 Use   proxy-user:auth-method@destination\.\r\n| p/Secure Computing Sidewinder firewall ftp proxy/ d/firewall/
 
+# DAZ Studio 4.5, port 27997
+match valentinadb m|^dddd\0\0\0\0\0\0\0\x0b| p/Valentina DB/
+
 match varnish-cli m|^200 206     \n-----------------------------\nVarnish Cache CLI ([\w._-]+)\n-----------------------------\nLinux,([\w._-]+),([^\n]*)\n\nType 'help' for command list\.\nType 'quit' to close CLI session\.\n\n| p/Varnish Cache CLI/ v/$1/ i/open; $3/ o/Linux $2/ cpe:/o:linux:linux_kernel:$2/
 # Authentication added in 2.1.0. The version reported was actually 4.0.1
 match varnish-cli m|^107 59      \n[a-z]{32}\n\nAuthentication required\.\n\n| p/Varnish Cache CLI/ v/2.0.6 or earlier/ i/authentication required/
@@ -1227,6 +1234,9 @@ match galaxy m|^\0\0\0\t\0\0\0\x80\0\0\0\0\0\0\0\0\0\0\x042\0\0\0\x01\0\0\t_\0\0
 
 match gamebots m|^HELLO_BOT\r\n| p/GameBots for Unreal Tournament 2004/
 match gamebots-control m|^HELLO_CONTROL_SERVER\r\n| p/GameBots for Unreal Tournament 2004 control server/
+
+# http://www.galaxysys.com/data/docs/SG%20Software%20User%20Guide%20%2810.4%29.pdf
+match gcs-clientgw m|^\x04\0\0\0....$| p/Galaxy Control Systems Client GW/ d/security-misc/
 
 match geovision-mobile m|^D3\x22\x11\0\0\0\0\xc6\x11\0\0\xae\x15\0\0$| p/Geovision mobile device support/
 
@@ -1683,7 +1693,7 @@ match iss-realsecure m|^\0\0\0.\x08\x01\x04\x01\0..\0\0..\0\0.\0\0\0..\0\0\x80\x
 # I've only seen 1 example of the following. Probably not general enough
 match iss-realsecure m|^\0\0\x01/\x08\x01\x03\x01\x01'\x04\0\0\0\x18\0\0\xa4\0\0\0f\x02\0\0\x80\x04\x06\0\0\x80\0\xa05Microsoft Enhanced RSA and AES Cryptographic Provider|s p/ISS Realsecure Workgroup Manager/ o/Windows/ cpe:/o:microsoft:windows/a
 
-match isymphony m|^iSymphony/SERVER # $| p/iSymphony call manager CLI/
+match isymphony-cli m|^iSymphony/SERVER # $| p/iSymphony call manager CLI/
 
 match ixia-unknown m|^Enter port cpu supported card port number and hit Enter\. For example \"3 4\"\r\n| p/Ixia 400T traffic QA/
 match ixia-unknown m|^.*\0\x18Ixia Hardware I/O Server\x13Ixia Communications\x18Ixia Hardware I/O Server\x0b([\d.]+)|s p/Ixia 400T traffic QA/ v/$1/
@@ -2360,7 +2370,8 @@ match pop3 m|^\+OK Citadel POP3 server ready\.\r\n$| p/Citadel pop3d/
 match pop3 m|^\+OK POP3 Mail server\r\n| p/MailEnable pop3d/ o/Windows/
 match pop3 m|^\+OK 200\r\n| p/Brother MFC-7360N pop3d/ d/printer/
 match pop3 m|^\+OK Welcome to the SLnet POP3 Service\r\n| p/SeattleLab SLMail pop3d/ o/Windows/
-match pop3 m|^\+OK webmail\.reint\.mg\.gov\.br POP3 server \(DeskNow\) ready \r\n| p/DeskNow pop3d/
+match pop3 m|^\+OK ([\w.-]+) POP3 server \(DeskNow\) ready \r\n| p/DeskNow pop3d/ h/$1/
+match pop3 m|^\+OK ([\w.-]+) Service ready <\d+\.\d+@[\w.-]+>\r\n| p/Gattaca pop3d/ h/$1/
 
 match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 match pop3-proxy m|^\+OK CCProxy (\S+) POP3 Service Ready\r\n| p/CCProxy pop3d/ v/$1/
@@ -2525,6 +2536,8 @@ match rifa-dvr m|^RIFA\0\0\0\0| p/Rifatron DVR/ d/webcam/
 
 match righteous-backup m|^\xe1\xe7\xef\xf0\0\0\x00.\(Righteous Backup Linux Agent\) ([^\xe1]+)\xe1\xe7\xe6\x07\0\x01\0 $| p/R1Soft Righteous Backup Linux Agent/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match righteous-backup m|^\xe1\xe7\xe6\x07\0\x01\0 $| p/R1Soft Righteous Backup/
+
+match rmmd m|^100 Rmmd version ([\w._ -]+?)\. *\r\n101 [\da-f]{32}\r\n| p/Rmmd trojan/ v/$1/
 
 match roku m|^roku: ready\r\n| p/Roku SoundBridge/ d/media device/
 
@@ -4296,6 +4309,7 @@ match telnet m|^\xff\xfb\x03\xff\xfd\x18\xff\xfb\x01\xff\xfd\x1f\xff\xfd!\x1b\[2
 # fingerprint was truncated.
 match telnet m|^Welcome to the Frampton Debug Terminal\.\n\rType 'help' for help\.\n\rESN | p/Roku debug terminal/ d/media device/
 match telnet m|^\xff\xfb\x05\n\r\nNickname\.\r\n| p/Eggdrop IRC bot DCC/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\rNVS\r\n\rLinux (2\.\d+\.\d+)(?:[\w._-]+)? on a armv\w+ \(\d\d:\d\d:\d\d\)\r\n\r([\w._-]+) login: | p/Network Video Streamer telnetd/ i/model: $2/ d/media device/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 
 #(insert telnet)
 
@@ -8944,6 +8958,7 @@ match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: http://null/console/i
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Type: text/html; charset=UTF-8\r\nServer: gvs ([\d.]+)\r\n.* <title>Error 404 \(Not Found\)!!1</title>|s p/Google Video Server/ v/$1/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\nDate: .*\r\nServer: HP-iLO-Server/([\w._-]+)\r\nContent-Length: 0\r\n\r\n| p/HP iLO web interface/ v/$1/
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: Brazil/([\d.]+)\r\nConnection: close\r\nContent-Length: 135\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Error: 404</title>\n<body>\nGot the error: <b>Not Found</b><br>\nwhile trying to obtain <b>/</b><br>\n\n</body>\n</html>| p/Sun Labs Brazil httpd/ v/$1/ o/Android/
+match http m|^HTTP/1\.1 403 Forbidden\r\nServer: Norman Security/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: 83\r\n\r\n<html><title>Security Error</title><body><br><h2>403 - Forbidden</h2></body></html>| p/Norman Security Suite http config/ v/$1/
 
 #(insert http)
 
@@ -9775,6 +9790,7 @@ match upnp m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r
 match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: Roteador Wireless (WR\w+), UPnP/([\d.]+)\r\n| p/Intelbras $1 upnpd/ i/UPnP $2/ d/WAP/
 match upnp m|^HTTP/1\.0 500 Internal Server Error\r\nContent-Type: text/xml\r\nContent-Language: en\r\nServer: WinRoute ([\w._-]+) UPnP/([\w._-]+) module\r\n| p/Kerio WinRoute UPnP module/ v/$1/ i/UPnP $2/ o/Windows/
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: IPI/([\w._-]+) UPnP/([\w._-]+) DLNADOC/([\w._-]+)\r\n|s p/IPI Media Renderer upnpd/ v/$1/ i/UPnP $2; DLNADOC $3/
+match upnp m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nDate: .*\r\nX-AV-Client-Info: av=5\.0; cn=\"Sony Ericsson\"; mn=\"([^"]+)\"; mv=\"2\.0\";\r\n\r\n| p/Sony Ericsson $1 UPnP AV client/ d/phone/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -9792,6 +9808,9 @@ match netbackup m|^1000      2\n43\nunexpected message received\n$| p/Veritas Ne
 match ndmp m|^\x80\0\0\$\0\0\0\x01....\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03\0\0\0\0|s p/Veritas Backup Exec ndmp/ v/9.0/
 # Possibly a different version? -Doug
 match ndmp m|^\x80\0\0\$\0\0\0\x01....\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02\0\0\0\0|s p/Veritas Backup Exec ndmp/
+
+# DAZ Studio 4.5, port 27997
+match valentinadb m|^dddd\0\0\0\0\0\0\0\x0b\xf2\xf2\xf2\xf2\0\0\0_\0\0\0\0\0\0\0\0\0\0\0\0\0F\0\0\0\x02\0\0\0=\0\x08%\x15\0\0\0\x1a\0R\0e\0c\0e\0i\0v\0e\0d\0 \0p\0a\0c\0k\0e\0t\0 \0i\0s\0 \0b\0r\0o\0k\0e\0n\0\.\0\xf4\xf4\xf4\xf4| p/Valentina DB/
 
 match vnc-http m|^HTTP/1\.1 200 OK\r\nServer: RealVNC/([-.\w]+)\r\n.*<APPLET CODE="?vncviewer/VNCViewer\.class"? ARCHIVE="?vncviewer\.jar"?\r?\n *WIDTH="?(\d+)"? HEIGHT="?(\d+)"?>\r?\n<PARAM name=\"port\" value=\"(\d+)\">\r?\n</APPLET>|si p/RealVNC/ v/$1/ i/resolution: $2x$3; VNC TCP port: $4/
 # Sometimes extra HTTP crap pushes the extra info out of the header we capture:
@@ -11089,6 +11108,8 @@ match laserfiche m|^HLO 0 0 \. 0 71\r\nContent-type: application/vnd\.laserfiche
 match nntp m|^200 NNTP server ready\r\n100 Avaliable commands:\r\nARTICLE\r\nAUTHINFO\r\nBODY\r\nGROUP\r\nHEAD\r\nHELP\r\nIHAVE\r\nLAST\r\nLIST\r\nNEWGROUPS\r\nNEWNEWS\r\nNEXT\r\nPOST\r\nQUIT\r\nSLAVE\r\nSTAT\r\nXHDR\r\n\.\r\n| p|Hamster Playground/Kerio nntpd|
 match nntp m|^200 ([\w._-]+) news server ready - posting ok\r\n100 Help text follows\r\n$| p/Intersquish nntpd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 
+match pop3pw m|^200 Welcome to ([\w.-]+) password daemon\.\r\n214-Commands:\r\n214-\tUSER\tPASS\tNEWPASS\tQUIT\tHELP\r\n214-\r\n214-For more info use \"HELP <topic>\"\r\n214 End of HELP info\r\n$| p/Gattaca PASS Server/ o/Windows/ h/$1/
+
 match printer m|^([-\w_.]+): lpd: Illegal service request\n$| p/lpd/ h/$1/
 match printer m|^\x01Socket \d+ received unknown command 0x48 with arguments ELP$| p/RPM Print Manager lpd/ o/Windows/ cpe:/o:microsoft:windows/a
 
@@ -11584,7 +11605,8 @@ match netbios-ssn m|^\0\0\0G\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 match netbios-ssn m|^\0\0\0G\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\r\x04\0\0\0\xa0\x05\x02\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Kyocera Mita KM-1530 printer smbd/ d/printer/
 match netbios-ssn m|^\x82\0\0\0$| p/Konica Minolta bizhub C452 printer smbd/ d/printer/ cpe:/h:konicaminolta:bizhub_c452/
 
-softmatch netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88[\x01\x03].\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0|
+softmatch microsoft-ds m|^\0\0..\xffSMBr\0\0\0\0[\x80-\xff]..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11[\x01-\x07]\0[\0-\x0f].{41}(.*)\0\0(.*)\0\0$|s i/primary domain: $P(1)/ h/$P(2)/
+softmatch microsoft-ds m|^\0\0..\xffSMBr\0\0\0\0[\x80-\xff]..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11[\x01-\x07]\0|s
 
 match nightwatchman m|^ACKDONEV\$\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0([\d.]+)\0\0\0| p/1E NightWatchman WakeUp Server/ v/$1/
 
@@ -11603,7 +11625,7 @@ match ouman-trend m|^\0\0\0\x05\xffSMBr$| p/Ouman Trend environmental sensor/
 # or from git (faster!):
 # git tag -l 'REL*' | while read tag; do git checkout $tag -- postmaster.c; echo $tag:$(grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))));" postmaster.c) >> lines.txt; done
 # 7.4 - 9.4 done, minus betas and RCs
-# 2015.01.01 - The following currently works - 
+# 2015.01.01 - The following currently works -
 #   for ver in 9.3.4 9.3.5 9.4.0; do echo -n "$ver "; wget -q -O - https://ftp.postgresql.org/pub/source/v$ver/postgresql-$ver.tar.bz2 | tar -xjf - --wildcards '*postmaster.c' -O | grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))));"; done
 
 # The line numbers need to be updated in both the non-Windows and Windows sections
@@ -12075,6 +12097,7 @@ match http m|^HTTP/1\.1 501 Unimplimented\r\nConnection: close\r\nContent-Length
 match imsp m|^VIA: BAD IMSP busy\r\nFROM: BAD IMSP busy\r\nTO: BAD IMSP busy\r\n|
 
 match rtsp m|^RTSP/1\.0 405 Method Not Allowed\r\nCSeq: 42\r\n\r\n| p/Lotus Domino Sametime RTSP/
+match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 42 OPTIONS\r\nPublic: OPTIONS, DESCRIBE, PLAY, PAUSE, SETUP, TEARDOWN, SET_PARAMETER, GET_PARAMETER\r\nDate: .*\r\n\r\n| p/Hikvision 7513 POE IP camera rtspd/ d/webcam/
 
 match telnet m|^login: Login incorrect\nlogin: Login incorrect\nlogin: Login incorrect\nlogin: Login incorrect\nlogin: Login incorrect\n| p/McAfee firewall telnetd/
 
@@ -12355,6 +12378,7 @@ match routeros-api m|^\x06!fatal\rnot logged in\0| p/MikroTik RouterOS API/
 match rpcbind m|^\x18\0\x01\x02Invalid packet length\0| p/Amanda voicemail system/ d/telecom-misc/
 # Moved this from SSLSessionReq because it seems more reliable.
 match svrloc m|^\x02\x02\0\0\x12\0\0\0\0\0\0\0\0\x02en\0\x02$| p/Apple slpd/ o/Mac OS/ cpe:/o:apple:mac_os/a
+match thrift-binary m|^\x04\0\0\0\x11Invalid status 58$| p/Hadoop Hive 2/
 match tibia m|^V\0\x02\0Your terminal version is too old\.\nPlease get a new version at\nhttp://www\.tibia\.com\.\0$| p/Tibia graphical MUD/
 
 match xplorer m|Access violation at address \w+ in module 'Xplorer\.exe'\. Read of address| p/SoftOne Business Xplorer/ o/Windows/ cpe:/o:microsoft:windows/a
