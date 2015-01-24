@@ -13613,5 +13613,6 @@ match tor-orport m|^\x00\x00\x07\x00\x02\x00\x03| p/Tor/ v/0.2.3.7 - 0.2.4.11/ i
 # An independent implementation that "only returns the highest
 # understood version matching what the server supports, instead of a
 # list of all supported versions."
+# https://github.com/tvdw/gotor
 # https://lists.torproject.org/pipermail/tor-dev/2015-January/008135.html
-match tor-orport m|^\x00\x00\x07\x00\x02\x00\x04| p/Tor/ i/supported protocol versions: 4/
+match tor-orport m|^\x00\x00\x07\x00\x02\x00\x04| p/GoTor/ i/supported protocol versions: 4/
