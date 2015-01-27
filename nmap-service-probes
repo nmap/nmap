@@ -3332,8 +3332,8 @@ match kvm m|^LFB 1\.0[56]$| p/IBM BladeCenter KVM/
 # Encrypted, very general fingerprint must come after more-specific plaintext matches
 match synergy m|^\0\0\0\x0b.{11}$| p/Synergy KVM switch/ v/>1.4.11/ i/encrypted/
 
-match RemoteMouse m|^SIN 17osx nop nopwd \d+$|s p/Remote Mouse/ i/OS X/
-match RemoteMouse m|^SIN 17win nop nopwd \d+$|s p/Remote Mouse/ i/Windows/
+match RemoteMouse m|^SIN 17osx nop nopwd \d+$|s p/Remote Mouse/ o/Mac OS X/
+match RemoteMouse m|^SIN 17win nop nopwd \d+$|s p/Remote Mouse/ o/Windows/
 
 # Redhat Linux 7.1 - HAHAHAHAHAHA!!!! I love this service :)
 match systat m|^USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND\n| p/Linux systat/ o/Linux/ cpe:/o:linux:linux_kernel/a
@@ -3571,7 +3571,7 @@ match telnet m=^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[H\x1b\[2J\x1b\[0m\x1b\
 match telnet m|^rsconfig: port rose not active\n\xff\xfd\"\r\nLinuxNode v([\d.]+) \(([-\w_.]+)\)\r\n\r\nlogin: | p/LinuxNode telnetd/ v/$1/ o/Linux/ h/$2/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\"\r\nLinuxNode v([\d.]+) \(([-\w_.]+)\)\r\n\r\nlogin: | p/LinuxNode telnetd/ v/$1/ o/Linux/ h/$2/ cpe:/o:linux:linux_kernel/a
 
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r\nBusyBox v([-\w.]+) \(.*\) Built-in shell \(ash\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n.*root@OpenWrt:/# |s p/Busybox telnetd/ v/$1/ i/open; OpenWrt/ cpe:/a:busybox:telnetd:$1/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r\nBusyBox v([-\w.]+) \(.*\) Built-in shell \(ash\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n.*root@OpenWrt:/# |s p/BusyBox telnetd/ v/$1/ i/open; OpenWrt/ cpe:/a:busybox:telnetd:$1/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r\nBusyBox v([-\w_.]+) \([^)]+\) Built-in shell \(ash\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n# | p/BusyBox telnetd/ v/$1/ i/MacSense HomePod Wireless MP3 Player/ d/media device/ cpe:/a:busybox:telnetd:$1/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\nBusyBox v([-\w_.]+) \([^)]+\) Built-in shell \(ash\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n# | p/BusyBox telnetd/ v/$1/ i/Netgear DG834G/ d/router/ cpe:/a:busybox:telnetd:$1/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\nBusyBox v([-\w_.]+) \([^)]+\) Built-in shell \(ash\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n/bin # | p/BusyBox telnetd/ v/$1/ i/Syabas Popcorn Hour media player telnetd/ d/media device/ cpe:/a:busybox:telnetd:$1/ cpe:/h:syabas:popcorn_hour/
@@ -3683,11 +3683,11 @@ match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n Disconnecting\.\.\.\r\n\n$| p/HP La
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\x1b\[2J\x1b\[0;0H\x1b\[K\x1b\[7mTelnet configuration                          RELEASE ([\d.]+)\x1b| p/Pirelli Age UB router telnetd/ v/$1/ d/router/
 match telnet m|^Telnet server disabled\r\n$| p/F5 BIG-IP load balancer telnetd/ i/telnet disabled/ d/load balancer/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n login: | p/Linksys WRT54G telnetd/ i/Sveasoft firmware/ d/WAP/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03([\w._-]+) login: | p/Busybox telnetd/ h/$1/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03login: | p/Busybox telnetd/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n([\w._-]+) login: | p/Busybox telnetd/ h/$1/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03([\w._-]+) login: | p/Busybox telnetd/ h/$1/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03Fritz!Box user: | p/Busybox telnetd/ o/FritzOS/ cpe:/o:avm:fritzos/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03([\w._-]+) login: | p/BusyBox telnetd/ h/$1/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03login: | p/BusyBox telnetd/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\n([\w._-]+) login: | p/BusyBox telnetd/ h/$1/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03([\w._-]+) login: | p/BusyBox telnetd/ h/$1/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03Fritz!Box user: | p/BusyBox telnetd/ o/FritzOS/ cpe:/o:avm:fritzos/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\(none\) login: | p/BusyBox telnetd/ cpe:/a:busybox:telnetd/
 match telnet m|^\xff\xfb\x01Copyright \(C\) \d+ by Compaq Computer Corp\. \r\n\rlogin: | p/Compaq 5450 switch telnetd/ d/switch/
 match telnet m|^\n\r\n\rTHIS IS A MUD BASED ON\.\.\.\.\.\n\r\n\r                                ROM Version (.*)\n| p/ROM-based MUD/ v/$1/
@@ -3709,7 +3709,7 @@ match telnet m|^\r\nSorry, this system is engaged\.\r\n$| p/DirecWay satellite r
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nBusyBox on \(none\) login: | p/BusyBox telnetd/ cpe:/a:busybox:telnetd/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nBusyBox on ([-\w_.]+) login: | p/BusyBox telnetd/ h/$1/ cpe:/a:busybox:telnetd/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\nBusyBox v([-\w_.]+) \(| p/BusyBox telnetd/ v/$1/ cpe:/a:busybox:telnetd:$1/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r\nBusyBox v(.*) Built-in shell \(ash\)\r\n| p/Busybox telnetd/ v/$1/ cpe:/a:busybox:telnetd:$1/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r\nBusyBox v(.*) Built-in shell \(ash\)\r\n| p/BusyBox telnetd/ v/$1/ cpe:/a:busybox:telnetd:$1/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\(none\) login: | p/utelnetd/ i/FetchTV DVR/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\(B\x1b\)0\x1b\[2J\x1b\[H\x1b\[m\x0f\x1b\[10;32H\x0e                 \x1b\[11;32H lq\x0f\x1b\[1mLogin\x0e\x1b\[mqqqqqqqqk\x1b\[12;32H x\x1b\[13C x\x1b\[13;32H mqqqqqqqqqqqqqqj\x1b\[12;34H| p/Adtran Atlass 500 T1 router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfd\x1fHummingbird Ltd\., Windows NT, Telnetd \((\w+) Version ([\d.]+)\)\r\n\r\nlogin: | p/Hummingbird windows telnetd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -3721,9 +3721,9 @@ match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\x1b\[\?3l\x1
 match telnet m|^\xff\xfb\x01\r\nD-Link Access Point login: | p/D-Link Access Point telnetd/ d/router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03.*\r\n([-\w_.]+) login: |s p/utelnetd/ o/Unix/ h/$1/
 match telnet m|^\xff\xfb\x01Select access level \(read, write, administer\): | p/3Com SuperStack II Switch telnetd/ d/switch/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Login failed\.\r\n| p/Busybox telnetd/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\(none\) login: | p/Busybox telnetd/ v/1.0/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nGET / HTTP/1\.0\r\n\r\n\r\nPartedMagic login: login: loginprompt\.c:164: login_prompt: Assertion `wlen == \(int\) len -1' failed\.\r\n| p/Busybox telnetd/ v/1.19.4/ i/Parted Magic pkg-shadow login/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Login failed\.\r\n| p/BusyBox telnetd/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\(none\) login: | p/BusyBox telnetd/ v/1.0/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nGET / HTTP/1\.0\r\n\r\n\r\nPartedMagic login: login: loginprompt\.c:164: login_prompt: Assertion `wlen == \(int\) len -1' failed\.\r\n| p/BusyBox telnetd/ v/1.19.4/ i/Parted Magic pkg-shadow login/
 match telnet m|^\r\nEfficient 5851 SDSL \[CM\] Router \((5851-\d+)\) v([\d.]+) Ready\r\n\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfe\x01Login: | p/Efficient Networks $1 SDSL router telnetd/ v/$2/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n\nLantronix LPS1 Version V(\d[\w/-_+.]+)\((\d+)\)\n\r\nType HELP at the 'Local_3> ' prompt for assistance\.\n\r\nUsername> | p/Lantronix LPS1 telnetd/ v/$1/ i/Released $2/ d/print server/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n(TA \w+)\r\n\n\n\ruser: | p/Adtran $1 router telnetd/ d/router/
@@ -4431,9 +4431,9 @@ match websm m|^\+ find /var/websm/data/wservers/ -type f -print -name \[0-9\]\*\
 
 match weprint m|^\0\0\x26\xa1\0\0\x26\x99<header><type>hello</type><version>1</version><envVersion>2</envVersion><seq>[0-9a-f]+</seq><info>\(c\) 2008, EuroSmartz Ltd\. Only for use with EuroSmartz approved software\.</info><model>wep/([\w._-]+)</model><id>\d+</id><serverName>([\w._-]+)</serverName>| p/WePrint printer sharing server/ v/$1/ h/$2/
 
-match wifi-mouse m|^system\x20mac\x2010\.9\nversion\x201\.5\.0\.0\n$|s p/WiFi Mouse/ i/OS X/
-match wifi-mouse m|^system\x20windows\x206\.1\nversion\x201\.\x205\.\x200\.\x200\n$|s p/WiFi Mouse/ i/Windows/
-match wifi-mouse m|^system\x20linux\x2010\.0\.4\nversion\x201\.\x205\.\x200\.\x200\n$|s p/WiFi Mouse/ i/Linux/
+match wifi-mouse m|^system\x20mac\x2010\.9\nversion\x201\.5\.0\.0\n$|s p/WiFi Mouse/ o/Mac OS X/
+match wifi-mouse m|^system\x20windows\x206\.1\nversion\x201\.\x205\.\x200\.\x200\n$|s p/WiFi Mouse/ o/Windows/
+match wifi-mouse m|^system\x20linux\x2010\.0\.4\nversion\x201\.\x205\.\x200\.\x200\n$|s p/WiFi Mouse/ o/Linux/
 
 # "1.0" is not a version
 match wikidpad m|^WikidPad_command_server 1\.0\n| p/WikidPad command server/
@@ -7940,7 +7940,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On</t
 match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On \x7c LSM - Device \(tp\)</title>\r\n\r\n<meta http-equiv=\"Cache-Control\" content=\"no-store\" />.*<!--\r\n////////////////////////////////////////////\r\n// Copyright TippingPoint 2002, 2003, 2004 and 2005\r\n|s p/HP TippingPoint 10 IPS http config/ d/firewall/
 match http m|^HTTP/1\.0 200 OK\r\nServer: SpaceMon/([\d.]+)\r\n.*<TITLE>SpaceMon</TITLE>.*SpaceMon Administrator: ([^<]*)<BR>|s p/IPWorx SpaceMon storage monitor httpd/ v/$1/ i/administrator: $2/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: CloudFront\r\n| p/CloudFront httpd/
-match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Freetz \(([\w._-]+):([\w._-]+)\)\"\r\n.*<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY><H1>401 Unauthorized</H1>\n\n</BODY></HTML>\n|s p/Busybox httpd/ i/Freetz firmware for AVM FRITZ!Box; login $1:$2/ d/WAP/
+match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Freetz \(([\w._-]+):([\w._-]+)\)\"\r\n.*<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY><H1>401 Unauthorized</H1>\n\n</BODY></HTML>\n|s p/BusyBox httpd/ i/Freetz firmware for AVM FRITZ!Box; login $1:$2/ d/WAP/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-type: text/html\r\nAccept-Ranges: bytes\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"GeneralUser/Administrator\"\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H2>401 Unauthorized</H2>\n<HR>\nAuthorization required for the URL '/'\.\n</BODY></HTML>\n$| p/thttpd/ i/Panasonic BB-HCM511A Network camera http config/ d/webcam/ cpe:/a:acme:thttpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"router\"\r\n.*<h2>401 Unauthorized<h2>\n  <p>\n  Authorization required for the URL\.\n</body>\n</html>\n|s p/thttpd/ i/Linksys RV082 WAP http config/ d/WAP/ cpe:/a:acme:thttpd/ cpe:/h:linksys:rv082/
 match http m|^HTTP/1\.0 200 Document follows\r\n.*Server: Unknown\r\n.*<TITLE> Guardian Digital WebTool Login </TITLE>|s p/EnGuarde Linux Guardian Digital Webtool http admin/ o/Linux/ cpe:/o:linux:linux_kernel/a
@@ -8491,7 +8491,7 @@ match http m|^HTTP/1\.0 200 OK\n.*Server: SAINT/([\w._-]+)\n.*<title>SAINT Login
 match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nCache-Control: no-cache\r\n\r\n<BODY><CENTER><H2><BR><BR>LevelOne (GSW-\w+)| p/LevelOne $1 switch http config/ d/switch/ cpe:/h:levelone:$1/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<html><body bgcolor='#FFFFFF' link='#FFFFFF' vlink='#FFFFFF' alink='#FFFFFF' text='#003031'>\n<table BORDER='1' WIDTH='100%' HEIGHT='100%' CELLSPACING='0' CELLPADDING='0' bordercolor='#003031'>\n<tr><td ALIGN=CENTER>| p/Cisco 7912G IP Phone/ d/VoIP phone/ cpe:/h:cisco:7912g/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"[\d.]+\",  qop=\"auth\", nonce=\"[0-9a-f]+\"\r\n.*<title>BMC HTTP Server</title>\r\n|s p/BMC HTTP Server/ i/HP Integrated Lights-Out remote management/ d/remote management/ cpe:/a:hp:integrated_lights-out/
-match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\r\nDate: .*\r\nConnection: close\r\nLast-Modified: .*\r\nContent-length: \d+\r\n.*<TITLE>RGB VIA Platform Home Page</TITLE>\r\n|s p/Busybox httpd/ i/RGB Modular Media Converter http config/ d/media device/
+match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\r\nDate: .*\r\nConnection: close\r\nLast-Modified: .*\r\nContent-length: \d+\r\n.*<TITLE>RGB VIA Platform Home Page</TITLE>\r\n|s p/BusyBox httpd/ i/RGB Modular Media Converter http config/ d/media device/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"Web UI Access\", nonce=\"[0-9a-f]{32}\", opaque=\"[0-9a-f]{32}\", stale=\"false\", algorithm=\"MD5\", qop=\"auth\"\r\n\r\n$| p/qBittorrent Web UI/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Transitional//EN\">\r\n<HTML>\r\n<HEAD>\r\n<TITLE></TITLE>\r\n<META content=\"text/html; charset=utf-8\" http-equiv=Content-Type><STYLE type=text/css>BODY {BACKGROUND-COLOR: #3300cc; BACKGROUND-REPEAT: repeat}</STYLE>\r\n<META name=generator content=\"Trellian WebPage\"></HEAD><BODY><FONT color=#ffff00 size=7><P align=center>SDR-IP</P><P align=center>by</P><P align=center>RFSPACE</P></FONT>\r\n</BODY>\r\n</HTML>\r\n$| p/RF-Space SDR-IP software radio http config/ d/specialized/ cpe:/h:rf-space:sdr-ip/
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nConnection: close\r\nContent-type: text/html\r\nServer: Flumotion/([\w._-]+)\r\n| p/Fluendo Flumotion httpd/ v/$1/
@@ -8939,7 +8939,7 @@ match http m|^HTTP/1\.1 300 Multiple Choices\r\nVary: X-Auth-Token\r\nContent-Ty
 match http m|^HTTP/1\.1 200 Ok\r\nServer: ZyXEL Modem\r\n.*<title>\.::Welcome to ZyXEL ([^:<]+?)::\.</title>|s p/ZyXEL $1 modem http config/ d/broadband router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle-Traffic-Director/([\w._-]+)\r\nDate: .*\r\nContent-length: \d+\r\nContent-type: text/html; charset=UTF-8\r\nX-powered-by: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n| p/Oracle Traffic Director/ v/$1/ i/Servlet $2; JSP $3/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle-Traffic-Director/([\w._-]+)\r\n| p/Oracle Traffic Director/ v/$1/
-match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Printopia/([\w._-]+)\r\nLocation: http://www\.ecamm\.com/mac/printopia/instructions\.html\r\nConnection: close\r\n\r\n| p/Printopia for Mac/ v/$1/ o/OS X/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Printopia/([\w._-]+)\r\nLocation: http://www\.ecamm\.com/mac/printopia/instructions\.html\r\nConnection: close\r\n\r\n| p/Printopia for Mac/ v/$1/ o/Mac OS X/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: httpd\r\nDate: .* GMT\r\nWWW-Authenticate: Basic realm=\"(E\d+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n\n| p/Cisco Linksys $1 router config/ d/broadband router/
 # Blackberry 10.2.1
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: \r\n\r\n<html><head><title>404 Not Found</title></head>\n<body><h1>404 Not Found</h1>\nindex\.html: <pre>This item has not been found</pre>\n| p/Blackberry Universal Device Service/ d/phone/
@@ -10847,7 +10847,7 @@ match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 # From a mikrotik router
 match netbios-ns m|^\x80\xf0\x85\x80\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...\d+\.\d+ \0D\0\0\0| p/MikroTik router netbios-ns/ d/router/
 
-match netbios-ns m|^\x80\xf0\x84\x00\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...\x01\x02__MSBROWSE__\x02\x01\x84\0(MACBOOKPRO-[0-9A-F]{4})\0.*\0([\w._ -]+)\x1d|s p/Apple Mac OS X netbios-ns/ i/workgroup: $2/ o/OS X/ h/$1/ cpe:/o:apple:mac_os_x/
+match netbios-ns m|^\x80\xf0\x84\x00\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...\x01\x02__MSBROWSE__\x02\x01\x84\0(MACBOOKPRO-[0-9A-F]{4})\0.*\0([\w._ -]+)\x1d|s p/Apple Mac OS X netbios-ns/ i/workgroup: $2/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/
 
 match netbios-ns m|^\x80\xf0\x85\x80\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]+) *\0\x04\0|s p/Xerox WorkCentre netbios-ns/ d/printer/ h/$1/
 
