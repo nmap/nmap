@@ -503,7 +503,7 @@ match filezilla m|^FZS\0\x04\0A\t\0\0\x04\0\r\x01\0\0\x14\0\0\0\0\x08.{18}| p/Fi
 match finger m|\r\n {4}Line {5,8}User {6,8}Host\(s\) {13,18}Idle +Location\r\n| p/Cisco fingerd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
 match finger m|^OpenLDAP Finger Service\.\.\.\r\n| p/OpenLDAP fingerd/
 match finger m|^No cfingerd\.conf file present\.  Check your setup\.\n$| p/cfingerd/ i/Broken/
-match finger m|^Windows NT Version ([\d.]+) build (\d+), \d+ processors? \(.*\)\r\nFingerDW V([\d.]+) - Hummingbird Ltd\.\n| p/Hummingbird fingerd/ v/$3/ i/WinNT $1 build $2/ o/Windows/ cpe:/o:microsoft:windows/a
+match finger m|^Windows NT Version ([\d.]+) build (\d+), \d+ processors? \(.*\)\r\nFingerDW V([\d.]+) - Hummingbird Ltd\.\n| p/Hummingbird fingerd/ v/$3/ i/WinNT $1 build $2/ o/Windows NT/ cpe:/o:microsoft:windows_nt:$1/
 match finger m|^\r\nIntegrated port\r\nPrinter Type: Lexmark T642\r\nPrint Job Status:| p/Lexmark T642 printer fingerd/ d/printer/
 
 match firewall m|^Your connection to this server has been blocked in this server's firewall\.\r\nYou need to contact the server owner for further information\.\r\nYour blocked IP address is .*\r\nThis server's hostname is ([\w._-]+)\r\n$| p/ConfigServer Security & Firewall/ i/blocked/ h/$1/
@@ -2267,7 +2267,7 @@ match pop3 m|^\+OK ([-\w_.]+) POP3 WorkgroupMail ([\d.]+) .*\r\n| p/WorkgroupMai
 match pop3 m|^\+OK POP3 server ready \(LSMTP v([\w.]+)\) <[\w.]+@([-\w_.]+)>\r\n| p/LSMTP pop3d/ v/$1/ h/$2/
 match pop3 m|^\+OK ([-\w_.]+) Mirapoint POP3 ([\d.]+) server ready\r\n| p/Mirapoint RazorGate pop3d/ v/$2/ h/$1/
 match pop3 m|^\+OK K9 - ([\d.]+) - http://keir\.net ready <[\w.]+>\r\n| p/K9 pop3d from keir.net/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK MERCUR POP3-Server \(v([\d.]+) \w+\) for Windows NT ready <[\d.]+@([-\w_.]+)>\r\n| p/MERCUR pop3d/ v/$1/ i/Windows NT/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
+match pop3 m|^\+OK MERCUR POP3-Server \(v([\d.]+) \w+\) for Windows NT ready <[\d.]+@([-\w_.]+)>\r\n| p/MERCUR pop3d/ v/$1/ o/Windows NT/ h/$2/ cpe:/o:microsoft:windows_nt/a
 match pop3 m|^\+OK POP3 server ready QuickMail Pro Server for MacOS ([\d.]+) <[\w.]+@([-\w_.]+)>\r\n| p/QuickMail Pro pop3d/ v/$1/ o/Mac OS/ h/$2/ cpe:/o:apple:mac_os/a
 match pop3 m|^\+OK ready\r\n| p/602LAN Suite pop3/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK DvISE Mail Access Server Server ready \(Tobit Software, Germany\)\r\n| p/Tobit DvISE pop3d/
@@ -3554,7 +3554,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems, Inc\.
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\nComOS - Livingston PortMaster\r\n\r\nlogin: | p/Livingston Portmaster telnetd/ d/telecom-misc/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\n\r +\*+\n\r +Welcome to DSLink 200 U/E\n\r +\*+\n\r\n\rGlobespanVirata Inc\., Software Release VIK-([\w.]+)\n\r| p/DSLink 200 adsl modem telnetd/ v/Software version $1/ d/router/
 match telnet m|^\xff\xfe\x01\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfd\0\xff\xfb\x03\xff\xfb\x01\xff\xfb\0This copy of the Ataman TCP Remote Logon Services is registered as licensed to:\r\n\t(.*)\r\n\r\nAccount Name: | p/Ataman TCP Remote Logon Service telnetd/ i/Registered to $1/ o/Windows/ cpe:/o:microsoft:windows/a
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x1f\xff\xfd\x18Windows NT Workstation ([\d.]+) \(build \d+\) Service Pack (\d+)\r\nRemotelyAnywhere Telnet Server ([\d.]+)\r\n| p/RemotelyAnywhere telnetd/ v/$3/ i/WinNT $1 SP$2/ o/Windows/ cpe:/o:microsoft:windows/a
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x1f\xff\xfd\x18Windows NT Workstation ([\d.]+) \(build \d+\) Service Pack (\d+)\r\nRemotelyAnywhere Telnet Server ([\d.]+)\r\n| p/RemotelyAnywhere telnetd/ v/$3/ o/Windows NT/ cpe:/o:microsoft:windows_nt:$1:sp$2/
 match telnet m|^\r\nSorry, Access to Telnet is Denied\.\r\n$| p/Motorola VT1000v VOIP Adapter telnetd/ i/Access denied/ d/VoIP adapter/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n\[ORiNOCO-AP-(\d+)[-\d]*\]> Please enter password: | p/Orinoco AP-$1 telnetd/ d/router/
 match telnet m|^\xff\xfb\xfd\xff\xfb\x01\n\r\n\rFabric OS \(tm\)  Release v([\w.]+)\n\r\n\r| p/Brocade SilkWorm switch telnetd/ i/Fabric OS $1/ d/switch/
@@ -6280,7 +6280,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: AnomicHTTPD \(www\.anomic\.de\)\r\n| p
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nPragma: no-cache\r\n.*\n<html lang=\"(..)\">\n<head>\n<title>POPFile |s p/POPFile web control interface/ i/Lang: $1/
 match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n\n\n\n\t\n\n\n\t\n\n\n\n\n\n<!--  -->\n\n\n\n<!-- \$R..file: i_pagestart\.shtm,v \$  -->\n<html>\n<head>\n| p/Axis 5400 print server web config/ d/print server/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/([\w.]+)\r\n\r\n<html>\n\n<head>\n\n<title>  Software de administraci&#243;n de impresora PhaserLink  </title>\n\n| p/Spyglass_MicroServer/ v/$1/ i/Tektronix Phaser printer http config/ d/printer/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/([\d.]+)\r\n| p/ChipPC Extreme httpd/ i/WinCE $1/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/([\d.]+)\r\n| p/ChipPC Extreme httpd/ o/Windows CE/ cpe:/o:microsoft:windows_ce:$1/a
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: Microsoft-WinCE/([\w._-]+)\r\nContent-Type: text/html\r\nContent-Length: 125\r\n\r\n<html><head><title>Access Denied</title></head><body><B>Access denied\.</B><P>The action requested is forbidden\.</body></html>$| p/Crestron TSW-750 touch screen http interface/ d/media device/ o/Windows CE $1/ cpe:/h:crestron:tsw-750/ cpe:/o:microsoft:windows_ce:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\nMIME-version: 1\.0\r\nWWW-Authenticate: Basic realm=\"surgemail| p/Surgemail webmail/ i/DNews based/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\n| p/DNews Web Based Manager/
@@ -6638,7 +6638,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SiteScope/([\d.]+) .*\r\n| p/Mercur
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \r\nDate: .*\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\">\n<html>\n<head>\n<title>OSBRiDGE (\w+) Login Page</title>\n|s p/OSBRiDGE $1 router http config/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SilverStream Server/([\d.]+)\r\n\r\n|s p/SilverStream Application Server httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*<title>Welcome to Squeezebox</title>|s p/Slim Devices Squeezebox http config/ d/media device/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: PicoWebServer\r\n| p/Newmad PicoWebServer/ i/WinCE/ d/PDA/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: PicoWebServer\r\n| p/Newmad PicoWebServer/ d/PDA/ o/Windows CE/ cpe:/o:microsoft:windows_ce/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: tivo-httpd-1:([^\r\n]+)\r\n| p/TiVo To Go httpd/ v/$1/ d/media device/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Dahlia/([\d.]+) \([^)]+\)\r\n.*<title>Sony Library Administration Menu</title>\r\n|s p/Dahlia httpd/ v/$1/ i/Sony Storestation http interface/ d/storage-misc/
 match http m|^HTTP/1\.0 200 OK\r\n.*<th width=\"50%\">TivoWebPlus Project - v([\d.]+)&nbsp;</th>|s p/TiveWebPlus Project httpd/ v/$1/ d/media device/
@@ -9671,7 +9671,7 @@ match utsvc m|^protocolErrorInf error=Missing\\040hw\\040string\\040from\\040:\\
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: (UPnP/[\d.]+ DLNADOC/[\d.]+) Platinum/([\d.]+)\r\n\r\n|s p/Platinum UPnP/ v/$2/ i/$1/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-amd64-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_XP-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows XP $1; UPnP $2/ d/media device/ o/Windows XP/ cpe:/o:microsoft:windows_xp/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_XP-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows XP $1; UPnP $2/ d/media device/ o/Windows XP/ cpe:/o:microsoft:windows_xp:$1/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_Vista-x86-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows Vista $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x32/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_Vista-x86_64-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows Vista $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x64/
 match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_7-x86-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows 7 $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x32/
