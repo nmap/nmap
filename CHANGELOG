@@ -1,6 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added http-shellshock to detect web applications vulnerable to 
+o Fixed a bug that caused Nmap to fail to find any network interface when a
+  Prism interface is in monitor mode. The fix was to define the
+  ARP_HRD_IEEE80211_PRISM header identifier in the libdnet-stripped code.
+  [Brad Johnson]
+
+o [NSE] Added http-shellshock to detect web applications vulnerable to
   Shellshock (CVE2014-6271). [Paulino Calderon]
 
 o Added a version probe for Tor. [David Fifield]
@@ -13,9 +18,9 @@ o [Zenmap] New Chinese-language (zh) translation from Jie Jiang.
 o [NSE] Added snmp-info to get the enterprise number and other information from
   the snmpEngineID in an SNMPv3 response packet. [Daniel Miller]
 
-o [NSE] Add support to citrix-enum-apps-xml for reporting if Citrix 
-   published applications in the list are enforcing/requiring the level 
-   of ICA/session data encryption shown in the script result.  
+o [NSE] Add support to citrix-enum-apps-xml for reporting if Citrix
+   published applications in the list are enforcing/requiring the level
+   of ICA/session data encryption shown in the script result.
    [Tom Sellers]
 
 o [NSE] Added targets-ipv6-wordlist to generate target IPv6 addresses
@@ -34,18 +39,18 @@ o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
   This is similar to Qualys's SSL Labs scanner, and means that we no longer
   maintain a list of scores per ciphersuite. [Daniel Miller]
 
-o [NSE] Add the signature algorithm that was used to sign the target port's 
+o [NSE] Add the signature algorithm that was used to sign the target port's
   x509 certificate to the output of ssl-cert.nse [Tom Sellers]
 
 o [NSE] Fixed a bug in the sslcert.lua library that was triggered against
   certain services when version detection was used. [Tom Sellers]
-  
+
 o [NSE] Added ssl-poodle to detect CVE-2014-3566 [Daniel Miller]
 
-o [NSE] vulns.Report:make_output() now generates XML structured output 
+o [NSE] vulns.Report:make_output() now generates XML structured output
   reports automatically. [Paulino Calderon]
 
-o [NSE] Added http-avaya-ipoffice-users script to enumerate users in Avaya 
+o [NSE] Added http-avaya-ipoffice-users script to enumerate users in Avaya
   IP Office 7.x systems. [Paulino Calderon]
 
 o [NSE] Added docker-version script for detecting Docker [Claudio Criscione]
@@ -72,7 +77,7 @@ o Improve OS detection; If a port is detected to be 'tcpwrapped', then it will
   not be used for OS detection. This helps in cases where a firewall might be
   the port to be 'tcpwrapped' [Jay Bosamiya]
 
-o [Zenmap] Reduce noise generated in Topology View due to anonymous 
+o [Zenmap] Reduce noise generated in Topology View due to anonymous
   hops [Jay Bosamiya]
 
 o --reason is enabled for verbosity > 2
@@ -92,7 +97,7 @@ o Catch badly named output files (such as those unintentionally caused by
 o [NSE] Added the script supermicro-ipmi-conf to exploit Supermicro IPMI/BMC
   controllers. [Paulino Calderon]
 
-o [NSE] Added mikrotik-routeros-brute script to perform password auditing 
+o [NSE] Added mikrotik-routeros-brute script to perform password auditing
   attacks against Mikrotik's RouterOS API. [Paulino Calderon]
 
 o [NSE] Add s7-info script to get device information from Siemens PLCs via the
@@ -220,7 +225,7 @@ o NOTE THAT THE CHANGELOG FOR THIS RELEASE IS INCOMPLETE.  We plan to
 
 o [NSE] Add ssl-heartbleed script to detect the Heartbleed bug in OpenSSL
   CVE-2014-0160 [Patrik Karlsson]
-  
+
 o [NSE] Fixed an error-handling bug in socks-open-proxy that caused it to fail
   when scanning a SOCKS4-only proxy. Reported on IRC by Husky. [Daniel Miller]
 
@@ -307,8 +312,8 @@ o [NSE] Removed a fixed value (28428) which was being set for the Request ID in
   instead. [jah]
 
 o [NSE] Add http-iis-short-name-brute script that detects Microsoft IIS
-  servers vulnerable to a file/folder name disclosure and a denial of 
-  service vulnerability. The script obtains the "shortnames" of the 
+  servers vulnerable to a file/folder name disclosure and a denial of
+  service vulnerability. The script obtains the "shortnames" of the
   files and folders in the webroot folder. [Paulino Calderon]
 
 o Idle scan now supports IPv6. IPv6 packets don't usually come with
@@ -1314,7 +1319,7 @@ o [NSE] Updated mssql.lua library to support additional data types,
   Sellers]
 
 o [Nping] Nping now prints out an error and exists when the user tries to use
-  the -p flag for a scan option where that is meaningless. [Sean Rivera] 
+  the -p flag for a scan option where that is meaningless. [Sean Rivera]
 
 o [NSE] Added spoolss functions and constants to msrpc.lua. [Aleksandar Nikolic]
 
@@ -1339,7 +1344,7 @@ o [NSE] lltd-discovery scripts now parses for hostnames and outputs network
   card manufacturer. [Hani Benhabiles]
 
 o Added protocol specific payloads for IPv6 hop-by-hop (0x00), routing (0x2b),
-  fragment (0x2c), and destination (0x3c). [Sean Rivera] 
+  fragment (0x2c), and destination (0x3c). [Sean Rivera]
 
 o [NSE] Added support for decoding OSPF Hello packets to broadcast-listener.
   [Hani Benhabiles]
@@ -1348,7 +1353,7 @@ o [NSE] Fixed a false positive in http-vuln-cve2011-3192.nse, which detected
   Apache 2.2.22 as vulnerable. [Michael Meyer]
 
 o [NSE] Modified multiple scripts that operated against HTTP based services
-  so as to remove false positives that were generated when the target service 
+  so as to remove false positives that were generated when the target service
   answers with a 200 response to all requests. [Tom Sellers]
 
 o [NSOCK] Fixed an epoll-engine-specific bug. The engine didn't recognized FDs
@@ -1832,7 +1837,7 @@ o [NSE] Added authentication support to the MongoDB library and
 
 o [NSE] Added support to broadcast-listener for extracting address, native VLAN
   and management IP address from CDP packets. [Tom Sellers]
-	
+
 o [NSE] Added RPC Call CALLIT to the RPC library and modified UDP sockets to be
   unconnected in order to support broadcast. [Patrik Karlsson]
 
@@ -2272,7 +2277,7 @@ o [NSE] Added new functionality and fixed some bugs in the brute library:
 o [NSE] Re-enabled support for guessing the username in addition to password
   that was incorrectly removed from the metasploit-xmlrpc-brute in previous
   commit. [Patrik]
-  
+
 o [NSE] Fixed bug that would prevent brute scripts from running if no service
   field was present in the port table. [Patrik]
 
@@ -2643,7 +2648,7 @@ o [NSE] Added more than 100 new signatures to http-enum (many for
   known vulnerabilities). They are in the categories: general,
   attacks, cms, security, management and database [Paulino]
 
-o [NSE] Updated account status text in brute force password discovery 
+o [NSE] Updated account status text in brute force password discovery
   scripts in an effort to make the reporting more consistent across
   all scripts.  This will have an impact on any code that parses these
   values.  [Tom Sellers]
@@ -2676,7 +2681,7 @@ o Fixed a bug that would make Nmap segfault if it failed to open an
   interface using pcap. The bug details and patch are posted at
   http://seclists.org/nmap-dev/2011/q3/365 [Patrik]
 
-o Ncat SCTP mode now supports connection brokering 
+o Ncat SCTP mode now supports connection brokering
   (--sctp --broker). [Shinnok]
 
 o Consolidated a bunch of duplicate code between Ncat's listen
@@ -2710,7 +2715,7 @@ o [NSE] Applied patch from Chris Woodbury that adds the following
   additional information to the output of smb-os-discovery: NetBIOS
   computer name, NetBIOS domain name, FQDN, and forest name.
 
-o [NSE] Updated smb-brute to add detection for valid credentials where the 
+o [NSE] Updated smb-brute to add detection for valid credentials where the
   target account was expired or limited by time or login host constraints.
   [Tom Sellers]
 
@@ -2725,7 +2730,7 @@ o Fixed broken XML output in the case of timed-out hosts; the
 
 o [NSE] Multiple ldap-brute changes by Tom Sellers:
   + Added support for 2008 R2 functional level Active Directory instances
-  + Added detection for valid credentials where the target account was 
+  + Added detection for valid credentials where the target account was
     expired or limited by time or login host constraints.
   + Added support for specifying a UPN suffix to be appended to usernames
     when brute forcing Microsoft Active Directory accounts.
@@ -2735,12 +2740,12 @@ o [NSE] Multiple ldap-brute changes by Tom Sellers:
 
 o [NSE] ldap-search.nse - Added support for saving search results to
   CSV.  This is done by using the ldap.savesearch script argument to
-  specify an output filename prefix.  [Tom Sellers]  
+  specify an output filename prefix.  [Tom Sellers]
 
 o Handle an unconventional IPv6 internal link-local address convention
   used by Mac OS X. See
   http://seclists.org/nmap-dev/2011/q3/906. [David]
-  
+
 o [NSE] Optimized stdnse.format_output (changing the data structures)
   to improve performance for scripts which produce a lot of output. See
   http://seclists.org/nmap-dev/2011/q3/623. [Djalal]
@@ -14030,5 +14035,5 @@ o Changed the makefile 'all' target to use install-sh rather than
 
 o Documentation updated and clarified slightly.
 
-o Added this CHANGELOG file to the distribution. 
+o Added this CHANGELOG file to the distribution.
 
