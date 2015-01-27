@@ -1523,8 +1523,8 @@ match imap m|^\* OK ([-\w_.]+)\s+IdeaImapServer ([^\s]+) ready\r\n| p/IdeaImapSe
 match imap m|^\* OK IMAP4rev1 David\.fx Mail Access Server MA-([\w._]+ \(\w+\))\r\n| p/Tobit David.fx imapd/ v/$1/
 match imap m|^\* OK \[CAPABILITY IMAP4REV1 AUTH=LOGIN[\w._ -]+\] IMAP4rev1 DavMail ([\w._-]+) server ready\r\n| p/DavMail imapd/ v/$1/
 match imap m|^\* OK Welcome to Arvixe IMAP server\.\r\n| p/Arvixe imapd/
-match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN STARTTLS\] Messaging Multiplexor \(Oracle Communications Messaging Exchange Server ([\w._-]+) \(built (\w+ \d+ \d+)\)\)\r\n| p/Oracle Communications Message Exchange imapd/ v/$1 (built $2)/
-match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN\] Messaging Multiplexor \(Oracle Communications Messaging Exchange Server ([\w._-]+) \(built (\w+ \d+ \d+)\)\)\r\n| p/Oracle Communications Message Exchange imapd/ v/$1 (built $2)/
+match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN STARTTLS\] Messaging Multiplexor \(Oracle Communications Messaging Exchange Server ([\w._-]+) \(built (\w+ \d+ \d+)\)\)\r\n| p/Oracle Communications Message Exchange imapd/ v/$1/ i/built $2/
+match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN\] Messaging Multiplexor \(Oracle Communications Messaging Exchange Server ([\w._-]+) \(built (\w+ \d+ \d+)\)\)\r\n| p/Oracle Communications Message Exchange imapd/ v/$1/ i/built $2/
 # Slackware 3.5 running kernel 2.0.34 IMAP2bis Service 7.8(100)
 match imap m|^\* OK ([\w._-]+) IMAP2bis Service ([\w._()-]+) at .* ([-+]\d+)| p/Slackware 3.5 imapd/ v/$2/ i/time zone $3/ h/$1/
 match imap m|^\* OK IceWarp ([\w._-]+) IMAP4rev1 .* ([-+]\d+)\r\n| p/IceWarp imapd/ v/$1/ i/time zone $2/
@@ -6214,7 +6214,7 @@ match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nLocation: /iw/webdesk/login/\r\
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: OpenSA/([\d.]+) / Apache/([\d.]+) \((\w*)\) mod_ssl/([\d.]+) OpenSSL/([\d.]+)\r\n.*<LINK REL=\"SHORTCUT ICON\" HREF=\"http://([\w.-_]+)/iss\.ico\">\r\n<TITLE> System Scanner Vista Welcome Page </TITLE>\r\n|s p/ISS System Scanner Vista/ i|OpenSA/$1 Apache/$2 mod_ssl/$4 OpenSSL/$5| o/$3/ h/$6/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: OpenSA/([\d.]+) / Apache/([\d.]+) \(Win32\) ([^\r\n]+)\r\n| p/OpenSA httpd/ v/$1/ i/Apache $2; $3/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+) edna/([\d.]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Edna Streaming MP3 Server $3; Python $2/
-match http m|^HTTP/1\.1 404 Path not found: /\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*Content-Length: 198\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 404\.\n<p>Message: Path not found: /\.\n<p>Error code explanation: 404 = Nothing matches the given URI\.\n</body>\n$|s p/BaseHTTPServer/ v|$1 (Python/$2)| i/Open ERP XML-RPC/
+match http m|^HTTP/1\.1 404 Path not found: /\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*Content-Length: 198\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 404\.\n<p>Message: Path not found: /\.\n<p>Error code explanation: 404 = Nothing matches the given URI\.\n</body>\n$|s p/BaseHTTPServer/ v/$1/ i/Open ERP XML-RPC; Python $2/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Speed Touch WebServer/([\d.]+)\r\nContent-type: text/html\r\nContent-length: \d*\r\n\r\nHTTP/1\.0 400 Bad Request\r\n: Invalid or incomplete request\.\r\n\r\n| p/Alcatel Speedtouch ADSL router httpd/ v/$1/ d/router/
 match http m|^HTTP/1\.0 302 Found\r\nLocation: http://[\w._-]+:(\d+)\r\n\r\nHTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 112\r\n\r\n<HTML><HEAD><TITLE>HTTP/1\.0 404 Not Found</TITLE></HEAD><BODY>\r\n<H1>HTTP/1\.0 404 Not Found\.</H1>\r\n</BODY></HTML>$| p/Technicolor TG787 VoIP gateway http admin/ i/redirect to port $1/ d/VoIP adapter/
 # Management Interface for Netscape FastTrack web server 2.01
@@ -9533,7 +9533,7 @@ match ormi m|^\xe3\r\n\r\n\0\x01\0\x03\x0b\0vInvalid protocol verification, ille
 match ssl/pop3 m|^-ERR \[SYS/PERM\] Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus pop3sd/
 match ssl/pop3 m|^-ERR Fatal error: pop3s: required OpenSSL options not present\r\n| p/Cyrus pop3sd/
 # Postgresql-server-7.3.2-3
-match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| p/PostgreSQL/ cpe:/a:postgresql:postgresql/
+match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 match postgrey m|^action=dunno\n\n$| p/Postfix Greylist Daemon/
 match powerchute m|^server=&type=0&id=&count=1&oid=[\d.]+&value=&error=4\n| p/APC Powerchute/ d/power-device/
 
@@ -10222,7 +10222,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnectio
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nDate: .*\r\nConnection: close\r\nServer: Apache\r\n\r\n| p/Apache Tomcat httpd/
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nContent-Length: 0\r\n\r\n400 Bad Request\r\n| p/Cisco Wireless LAN Controller httpd/ d/remote management/
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n<html><head><title>505 HTTP Version Not Supported</title></head><body><h1>HTTP Version Not Supported</h1><p>HTTP versions 1\.0 and 1\.1 are supported\.</p></body></html>| p/Mitel SIP DEC VoIP phone http config/ d/VoIP phone/
-match http m|^<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad request version \('RTSP/1\.0'\)\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n| p/Python BaseHTTPServer/
+match http m|^<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad request version \('RTSP/1\.0'\)\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n| p/BaseHTTPServer/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 59\r\nConnection: close\r\n\r\nError 400: Bad Request\nCannot parse HTTP request: \[OPTIONS\]$| p/Mongoose httpd/
 match http m|^HTTP/1\.1 505 HTTP Version not supported\r\nContent-Length: 0\r\nDate: .* GMT\r\nConnection: close\r\n\r\n| p/Konica Minolta bizhub C452 OpenAPI/ d/printer/ cpe:/h:konicaminolta:bizhub_c452/
 
@@ -12635,7 +12635,7 @@ match iscsi m|^\x3f\x80\x04\0\0\0\x00\x30\0\0\0\0\0\0\0\0\xff\xff\xff\xff\0\0\0\
 
 match palm-hotsync m|^\x01.\0\0\0\x14\x11\x01\0\0\0\0\0\0\0\x20\0\0\0\x06\x01\0..\0\0$|s p/Palm Pilot HotSync/
 
-match oracle-tns m|^\0.\0\0[\x02\x04]\0\0\0.*TNSLSNR for ([-.+/ \w]{2,24}): Version ([-\d.]+) - Production|s p/Oracle TNS Listener/ v/$2 (for $1)/
+match oracle-tns m|^\0.\0\0[\x02\x04]\0\0\0.*TNSLSNR for ([-.+/ \w]{2,24}): Version ([-\d.]+) - Production|s p/Oracle TNS Listener/ v/$2/ i/for $1/
 match dbsnmp m|^\0.\0\0\x02\0\0\0.*\(IAGENT = \(AGENT_VERSION = ([\d.]+)\)\(RPC_VERSION = ([\d.]+)\)\)|s p/Oracle Intelligent Agent/ v/$1/ i/RPC v$2/
 match oracle m|^\0\x20\0\0\x02\0\0\0\x016\0\0\x08\0\x7f\xff\x01\0\0\0\0\x20|s p/Oracle Database/ cpe:/a:oracle:database_server/
 match oracle m|^\+\0\0\0$| p/Oracle Database/ cpe:/a:oracle:database_server/
