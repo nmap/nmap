@@ -1,4 +1,9 @@
-# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id: CHANGELOG 33916 2015-01-17 03:01:58Z paulino $); -*-text-*-
+
+o [NSE] Added http-shellshock to detect web applications vulnerable to 
+  Shellshock (CVE2014-6271). [Paulino Calderon]
+
+o Added a version probe for Tor. [David Fifield]
 
 o Fixed a bug that caused Nmap to fail to find any network interface when a
   Prism interface is in monitor mode. The fix was to define the
