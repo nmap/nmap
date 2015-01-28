@@ -323,7 +323,7 @@ match citrix-ima m|^.\0\0\0\x81\0\0\0\x01|s p/Citrix Metaframe XP IMA/ o/Windows
 match citynet m|^CityNetDUTChannel\[AT3V1\]\x04\0\xa5\x0f\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0........|s p/CityNet SV.3/
 
 match clsbd m|^\0\0\0\x10ClsBoolVersion 1$| p/Cadence IC design daemon/
-match cmrcservice m|^\"\0\0\x80 \0S\0T\0A\0R\0T\0_\0H\0A\0N\0D\0S\0H\0A\0K\0E\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/CmRcService.exe/ o/Windows/ cpe:/o:microsoft:windows/a
+match cmrcservice m|^\"\0\0\x80 \0S\0T\0A\0R\0T\0_\0H\0A\0N\0D\0S\0H\0A\0K\0E\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/CmRcService.exe/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:systems_management_server/
 match codeforge m|^CFMSERV\(1\)\n| p/CodeForge IDE/
 match concertosendlog m|^Concerto Software\r\n\r\nEnsemblePro SendLog Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | p/Concerto Software EnsemblePro CRM software SendLog Server/ v/$1/
 match concertotimesync m|^Concerto Software\r\n\r\nContactPro TimeSync Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | p/Concerto Software EnsemblePro CRM software TimeSync Server/ v/$1/
@@ -608,10 +608,10 @@ match ftp m|^220[- ]Roxen FTP server running on Roxen (\d[-.\w]+)/Pike (\d[-.\w]
 match ftp m|^220 Service ready for new user\.\r\n| p/oftpd/ o/Unix/
 # Mac OS X Client 10.2.6 built-in ftpd
 match ftp m|^220[ -].*FTP server \(lukemftpd (\d[-. \w]+)\) ready\.\r\n|s p/LukemFTPD/ v/$1/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
-match ftp m|^220.*Microsoft FTP Service \(Version (\d[^)]+)| p/Microsoft ftpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match ftp m|^220.*Microsoft FTP Service \(Version (\d[^)]+)| p/Microsoft ftpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:ftp_service:$1/
 # This lame version doesn't give a version number
 # Windows 2003
-match ftp m|^220[ -]Microsoft FTP Service\r\n| p/Microsoft ftpd/ o/Windows/ cpe:/o:microsoft:windows/a
+match ftp m|^220[ -]Microsoft FTP Service\r\n| p/Microsoft ftpd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:ftp_service/
 match ftp m|^220[ -]Serv-U FTP[ -]Server v([\w._-]+) | p/Serv-U ftpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220-Serv-U FTP Server for Winsock\r\n| p/Serv-U ftpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220 Serv-U FTP-Server v([-\w_.]+ build \d+) for WinSock ready\.\.\.\r\n| p/Serv-U ftpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -2050,8 +2050,8 @@ softmatch nntp m|^200 [-\[\]\(\)!,/+:<>@.\w ]*nntp[-\[\]\(\)!,/+:<>@.\w ]*\r\n$|
 match novastor-backup m|^\x02\0\0\0\0\0\0#\x01\x80\x01.([\w._-]+)\x02\x13(\d\d/\d\d/\d\d\d\d \d\d:\d\d:\d\d)\0\0|s p/NovaNET-WEB backup/ v/$1/ i/$2/
 
 # Windows 2000 Server Windows Media Unicast Service (NsUnicast) - Nsum.exe
-match nsunicast m|^4\0\0\0V4\x12\0\0\0\0\0\0\0\0\x004\0\0\0\x04\0\xf0\0.\x07.\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0.\0\0\0\x02\0|s p/Microsoft Windows Media Unicast Service/ i/nsum.exe/ o/Windows/ cpe:/o:microsoft:windows/a
-match nsunicast m|^[4f]\0\0\0V4\x12\0\0\0\0\0\0\0\0\x00[4f]\0\0\0.\0\xf0\0\xd3\x07\t\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0..\0\0.\0|s p/Microsoft Windows Media Unicast Service/ i/nsum.exe/ o/Windows/ cpe:/o:microsoft:windows/a
+match nsunicast m|^4\0\0\0V4\x12\0\0\0\0\0\0\0\0\x004\0\0\0\x04\0\xf0\0.\x07.\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0.\0\0\0\x02\0|s p/Microsoft Windows Media Unicast Service/ i/nsum.exe/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:windows_media_services/
+match nsunicast m|^[4f]\0\0\0V4\x12\0\0\0\0\0\0\0\0\x00[4f]\0\0\0.\0\xf0\0\xd3\x07\t\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0..\0\0.\0|s p/Microsoft Windows Media Unicast Service/ i/nsum.exe/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:windows_media_services/
 
 match netsupport m|^.\0\x02\0([^\0]+)\0+.\0\x01\0|s p/NetSupport PC remote control/ i/Name $1/
 
@@ -2525,7 +2525,7 @@ match rgpsp m|^last pid: \d+  <linux><special> rgpsp poller ! ! !\n| p/Remote GP
 match rconj m|^\0.\0\x01\0\0\0\0.*\x0b\0\0\0\0([-\w_]+)\x00437|s p/Novell rconj/ i/Unknown token: $1/ o/Unix/
 match realplayfavs m|^_realplayfavs_::([\w\s]+)::connected\0$| p/RealPlayer Shared Favorites/ i/name: $1/
 match realplayfavs m|^_realplayfavs_::| p/RealPlayer Shared Favorites/
-match resvc m|^\{\w+\} NODEINFO \(\d+\) \{\d+\}Version: (\d[-.\w ]+) Microsoft Routing Server ready\r\n  | p/Microsoft Exchange routing server/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match resvc m|^\{\w+\} NODEINFO \(\d+\) \{\d+\}Version: (\d[-.\w ]+) Microsoft Routing Server ready\r\n  | p/Microsoft Exchange routing server/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 match remoteanything m|^(\d+\.\d+\.\d+) G\0\0\0\xb6\0.\t| p/TWD RemoteAnything/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match rexec m|^/bin/ip/rexexec: auth_proxy: auth_proxy rpc: negotiation failed, no common protocols or keys\n| p/Plan 9 rexexec/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 
@@ -2694,7 +2694,7 @@ match smtp m|^220 Microsoft ESMTP MAIL Service, Version: ([\w._-]+)\r\n| p/Micro
 match smtp m|^220 ([-.+\w]+) ESMTP Server \(Microsoft Exchange Internet Mail Service ([-\w.]+)\) ready| p/Microsoft Exchange smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/a:microsoft:exchange_server/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-\w_.]+) Microsoft Exchange Internet Mail Service ([-\w_.]+) ready\r\n| p/Microsoft Exchange smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/a:microsoft:exchange_server/ cpe:/o:microsoft:windows/a
 match smtp m|^220 \+OK Microsoft Exchange SMTP server version ([\d.]+)| p/Microsoft Exchange smtpd/ v/$1/ o/Windows/ cpe:/a:microsoft:exchange_server/ cpe:/o:microsoft:windows/a
-match smtp m|^421 [\d.]+ Service not available, closing transmission channel\r\n| p/Microsoft Exchange smtpd/ i/disabled/ o/Windows/ cpe:/o:microsoft:windows/a
+match smtp m|^421 [\d.]+ Service not available, closing transmission channel\r\n| p/Microsoft Exchange smtpd/ i/disabled/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 match smtp m|^220[\s-](\S+) E?SMTP Sendmail (\d[^; ]+)| p/Sendmail/ v/$2/ o/Unix/ h/$1/ cpe:/a:sendmail:sendmail:$2/
 match smtp m|^220[\s-](\S+) E?SMTP Sendmail ready | p/Sendmail/ o/Unix/ h/$1/ cpe:/a:sendmail:sendmail/
 match smtp m|^220[\s-](\S+) E?SMTP Sendmail AIX([\d.]+)/(\d[^; ]+)| p/Sendmail/ v/$3/ i/AIX $2/ o/AIX/ h/$1/ cpe:/a:sendmail:sendmail:$3/ cpe:/o:ibm:aix/a
@@ -4405,7 +4405,7 @@ match vnc m|^RFB 004\.000\n| p/RealVNC Personal/ i/protocol 4.0/
 match vnc m|^RFB 004\.001\n| p/RealVNC Enterprise/ i/protocol 4.1/
 match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0:Unable to open license file: No such file or directory \(2\)| p/RealVNC Enterprise Edition/ i/protocol 3.$1/
 match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0jServer license key is missing, invalid or has expired\.\nVisit http://www\.realvnc\.com to purchase a license\.| p/RealVNC Enterprise/ i/protocol 3.$1/
-match vnc m|^RFB 103\.006\n| p/Microsoft Virtual Server remote control/ o/Windows/ cpe:/o:microsoft:windows/a
+match vnc m|^RFB 103\.006\n| p/Microsoft Virtual Server remote control/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:virtual_server/
 match vnc m|^ISD 001\.000\n$| p/iTALC/
 match vnc m|^.{27}\x16\x20\xe4\xb0\x95\x63\x29\x78\xdb\x6e\x35\x92$|s p/Ultr@VNC/
 match vnc m|^RFB 240\.6\n\0\x02$| p/BRemote VNC/
@@ -4559,7 +4559,7 @@ match dlswpn m|(?<=.)IOS\x20\(tm\)\x20([-\d\w.]+).{20,30}\x20Version\x20([-\d\w.
 match tunnelvision m|^HELLO Welcome to Tunnel Vision \(([\d.]+)\)\n| p/Tunnel Vision VPN info/ v/$1/
 
 
-match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows/a
+match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:dns/
 
 match amx-icsp m=^\x02\0\]\x02\0\0\0\0\0\0\x01\0.\0\0\0\x01\x0f\xff\x81\0\x97\0\0\0.\0\x04\0\0\0\x01\x01\+\d+x\d+\0\0\x01\|v([\d.]+)\0NI Master\0AMX Corp\.\0\x06\x0c\xc0\xa8\"D\x05'\0`\x9f....\x02\0U\x02\0\0\0\0\0\0\x01\0.\0\0\0\x01\x0f\xff\x82\0\x97\0\0\0.\0\x04\x01\0\0\x01\x01\+N/A             \x01zv([\d.]+)\0vxWorks Image\0AMX Corp\.\0\0\0.\x02\0O\x02\0\0\0\0\0\0\x01\0.\0\0\0\x01\x0f\xff\x83\0\x97\0\0\0.\0\x04\x02\0\0\x01\x01\+N/A             \x01{v([\d.]+)\0BootROM\0AMX Corp\.\0\0\0.\x02\0\^\x02\0\0\0\0\0\0\x01\0.\0\0\0\x01\x0f\xff\x84\0\x97\0\0\0.\0\x04\x03\0\0\x01\x01\x000000000000000000\x01\x0ev([\d.]+)\0AXLink I/F uController  \0AMX Corp\.\0\x03\0.$= p/AMX ICSP/ v/$1/ i|VxWorks image $2; boot ROM $3; AXLink I/F uController $4| o/VxWorks/ cpe:/o:windriver:vxworks/a
 
@@ -4794,13 +4794,13 @@ match ftp m|^550 Access is denied\.\r\n550 Access is denied\.\r\n220 ProFTPD ([\
 match ftp m|^220 UnleashX FTP ready\.\r\n503 Login with USER first\.\r\n| p/UnleashX Xbox shell ftpd/ d/game console/
 match ftp m|^220 BBPS3FTP ready\r\n500 command not recognized\r\n| p/Blackbox PlayStation 3 ftpd/ d/game console/
 match ftp m|^220 IronPort WSA ready\.\r\n500 Syntax error, command unrecognized\.\r\n| p/IronPort WSA firewall ftpd/ d/firewall/
-match ftp m|^220 \r\n500-'\r\n500  ': command not understood\.\r\n500-'\r\n500  ': command not understood\.\r\n| p/Microsoft FTP Service/ o/Windows/ cpe:/o:microsoft:windows/a
+match ftp m|^220 \r\n500-'\r\n500  ': command not understood\.\r\n500-'\r\n500  ': command not understood\.\r\n| p/Microsoft FTP Service/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:ftp_service/
 match ftp m|^220 ps2ftpd ready\.\r\n500 Not understood\.\r\n| p/ps2ftpd/ d/game console/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfc\"\r\n\r\n\n\rauthentication failed!\n\rpassword: | p/Effekta MH 6000 UPS telnetd/ d/power-device/
 match telnet m|^\xff\xfc\"\xff\xfb\x01\r\nPassword: \r\nbad password\r\n| p|Campbell Scientific NL-100/105 Ethernet-to-serial bridge telnetd| d/bridge/
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01\r\nUsername: \r\nPassword: \r\nAccess Denied\r\n| p/InterSystems CTELNETD/
 match telnet m|^\xff\xfe\x01\xff\xfb\x01\xff\xfb\x1f\xff\xfb\x03\xff\xfd\x03\xff\xfe'\xff\xfc'\xff\xfc\"\xff\xfd\x1f\xff\xfa\x18\x01\xff\xf0\0\r\nWelcome to ([\w._-]+), please identify yourself\r\n\r\nuser:\r\r\npass:\*ReactOS Operating System \[Version ([\w._-]+)\]\r\n\(C\) Copyright [\d-]+ ReactOS Team\.\r\n\r\nC:\\ReactOS\\System32>| p/ReactOS telnetd/ v/$2/ i/no authentication/ h/$1/
-match ftp m|^220-Authenticate for FTP Access\. \r\n220 \r\n500-Syntax error -- unknown command\r\n500 \r\n500-Syntax error -- unknown command\r\n500 \r\n| p/Microsoft TMG firewall ftpd/ d/firewall/
+match ftp m|^220-Authenticate for FTP Access\. \r\n220 \r\n500-Syntax error -- unknown command\r\n500 \r\n500-Syntax error -- unknown command\r\n500 \r\n| p/Microsoft Forefront TMG firewall ftpd/ d/firewall/ o/Windows/ cpe:/a:microsoft:forefront_threat_management_gateway/
 match ftp m|^220 ZBR-79071 Version V([\w._-]+) ready\.\r\n500 Syntax error, command unrecognized or malformed\r\n500 Syntax error, command unrecognized or malformed\r\n| p/Zebra GK420d or GX430T printer ftpd/ v/$1/ d/printer/
 
 # vsftpd (Very Secure FTP Daemon) 1.0.0 on linux with custom ftpd_banner
@@ -6168,8 +6168,8 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Xerox_MicroServer/([-.\w]+)\r\n| p/Xerox MicroServer httpd/ v/$1/ i|usually a printer/copier|
 match http m=^HTTP/1\.1 200 OK\r\n.*<!-- Copyright \(c\) (?:\d+, \d+|\d+-\d+), Fuji Xerox Co\., Ltd\. All Rights Reserved\. -->.*<TITLE>\r\nDocument Centre (\w+) - [\d.]+\r\n</TITLE>=s p/FujiXerox Document Centre $1 http config/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/(\d[-.\w]+)\r\nLast-Modified: .*\r\nExpires: .*\r\nPragma: no-cache\r\n\r\n\n<html> \n<head>\n   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n   <meta name=\"keywords\" content=\"printer; embedded web server; int| p/Spyglass MicroServer/ v/$1/ i/embedded in printer/ d/printer/
-match http m|^HTTP/1\.0 500 Internal Server Error\r\nServer: Cougar (\d[-.\w]+)\r\n\r\n$| p/Microsoft Windows Media Server/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 200 OK\r\nContent-Type: video/x-ms-asf\r\nCache-Control: max-age=0, no-cache\r\nServer: Cougar/(\d[-.\w]+)\r\n| p/Microsoft Windows Media Server/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 500 Internal Server Error\r\nServer: Cougar (\d[-.\w]+)\r\n\r\n$| p/Microsoft Windows Media Services/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:windows_media_services:$1/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: video/x-ms-asf\r\nCache-Control: max-age=0, no-cache\r\nServer: Cougar/(\d[-.\w]+)\r\n| p/Microsoft Windows Media Services/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:windows_media_services:$1/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: NetApp//?(\d[-.\w]+)\r\n|s p/NetApp filer httpd/ v/$1/ o/Data ONTAP/ cpe:/o:netapp:data_ontap/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/(\d[\d.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Frameset//EN\"\r\n\t\t\t\"http://www\.w3\.org/TR/REC-html40/frameset\.dtd\">\r\n<HTML>\r\n<HEAD>\r\n\t<TITLE>Netopia Router Web </TITLE>| p/Netopia RapidLogic admin server/ v/$1/ d/router/ cpe:/a:rapidlogic:httpd:$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WebSTAR/(\d[-.()\w]+) ID/| p/WebSTAR httpd/ v/$1/
@@ -6280,7 +6280,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: AnomicHTTPD \(www\.anomic\.de\)\r\n| p
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nPragma: no-cache\r\n.*\n<html lang=\"(..)\">\n<head>\n<title>POPFile |s p/POPFile web control interface/ i/Lang: $1/
 match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n\n\n\n\t\n\n\n\t\n\n\n\n\n\n<!--  -->\n\n\n\n<!-- \$R..file: i_pagestart\.shtm,v \$  -->\n<html>\n<head>\n| p/Axis 5400 print server web config/ d/print server/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/([\w.]+)\r\n\r\n<html>\n\n<head>\n\n<title>  Software de administraci&#243;n de impresora PhaserLink  </title>\n\n| p/Spyglass_MicroServer/ v/$1/ i/Tektronix Phaser printer http config/ d/printer/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/([\d.]+)\r\n| p/ChipPC Extreme httpd/ o/Windows CE/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/([\d.]+)\r\n| p/ChipPC Extreme httpd/ o/Windows CE $1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: Microsoft-WinCE/([\w._-]+)\r\nContent-Type: text/html\r\nContent-Length: 125\r\n\r\n<html><head><title>Access Denied</title></head><body><B>Access denied\.</B><P>The action requested is forbidden\.</body></html>$| p/Crestron TSW-750 touch screen http interface/ d/media device/ o/Windows CE $1/ cpe:/h:crestron:tsw-750/ cpe:/o:microsoft:windows_ce:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\nMIME-version: 1\.0\r\nWWW-Authenticate: Basic realm=\"surgemail| p/Surgemail webmail/ i/DNews based/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\n| p/DNews Web Based Manager/
@@ -7539,7 +7539,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenti
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"Thomson_cwmp_([\w._-]+)\", nonce=| p/Thomson TR-69 http config/ v/$1/ d/broadband router/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Thomson\"\r\nConnection: close\r\nPragma: no-cache\r\n\r\n<html><head><title>HTTP 401 - Unauthorized</title></head><body><h4>HTTP 401 - Unauthorized</h4><p>Authorization is required to access the configuration server\.<p>You must enter the correct username and/or password\.</body></html>\r\n$| p/Thomson TWG850 router http config/ d/router/ cpe:/h:thomson:twg850/
 match http m|^HTTP/1\.0 200 OK\r\nServer: sks_www/([\w._-]+)\r\n| p/SKS OpenPGP Key Server httpd/ v/$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nCOMMERCE-SERVER-SOFTWARE: Microsoft Commerce Server 2002, Enterprise Edition\r\n| p/Microsoft Commerce Server 2002 httpd/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nCOMMERCE-SERVER-SOFTWARE: Microsoft Commerce Server 2002, Enterprise Edition\r\n| p/Microsoft Commerce Server 2002 httpd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:commerce_server:2002/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n<title>EpsonNet WebManager</title>|s p/EpsonNet WebManager httpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nServer: SilverStream Server/([\w._-]+)\r\nWWW-Authenticate: Basic realm=\"Novell exteNd Application Server\"\r\n| p/SilverStream httpd/ v/$1/ i/Novell exteNd Application Server/
 match http m|^HTTP/1\.0 \d\d\d .*<title>EvoCam</title>\n</head>\n\n<body bgcolor=\"e3e3e3\">\n<center>\n<applet archive=\"evocam\.jar\" code=\"com\.evological\.evocam\.class\"|s p/Evological Evocam http config/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
@@ -9420,7 +9420,7 @@ match ipp m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nConnection: close\r\nConten
 match ipp m|^HTTP/1\.0 405 Method Not Allowed\r\nContent-Type: text/html\r\nCache-Control: public,max-age=86400\r\nPragma: cache\r\nExpires: .*\r\nDate: .*\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\n\r\n| p/Netia Spot ipp/ d/broadband router/
 match ipp m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: HP HTTP Server; HP ([^-]+) - (\w+); Serial Number: (\w+); (?:[\w_]+ )?Built:[^{]+ {\w+, ASIC id 0x[\da-f]+}\r\n\r\n$| p/HP $1 ipp/ i/model $2; serial $3/ d/printer/
 
-match irc m|^:Default-Chat-Community 421 \* GET :Unknown command\r\n| p/Microsoft Exchange 2000 Server Chat Service/ o/Windows/ cpe:/o:microsoft:windows/a
+match irc m|^:Default-Chat-Community 421 \* GET :Unknown command\r\n| p/Microsoft Exchange 2000 Server Chat Service/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2000/
 match irc m|^:([-\w_.]+) 451  :You have not registered your connection\r\n$| p/Wircsrv/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 
 match ingrian-xml m|^<GenericError><Success>false</Success><FatalError>101</FatalError><ErrorString>Could not parse client request</ErrorString></GenericError>| p/Ingrian NAE XML daemon/ d/security-misc/
@@ -9556,10 +9556,10 @@ match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/([\d.]+) \(Build/([\d.]+
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/([\d.]+) \(Build/([\d.]+); Platform/MacOSX\)\r\n| p/Apple QuickTime Streaming Server/ v/$1 build $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/v([\d.]+)\r\nCseq: \r\nConnection: Close\r\n\r\n| p/Apple QuickTime Streaming Server/ v/$1/
 
-match rtsp m|^RTSP/1\.0 505 Protocol Version Not Supported\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Server/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match rtsp m|^RTSP/1\.0 505 Vers\xc3\xa3o do Protocolo sem Suporte\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Server/ v/$1/ i/Portuguese/ o/Windows/ cpe:/o:microsoft:windows/a
-match rtsp m|^RTSP/1\.0 505 Vers\xc3\xa3o de protocolo n\xc3\xa3o suportada\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Server/ v/$1/ i/Portuguese/ o/Windows/ cpe:/o:microsoft:windows/a
-match rtsp m|^RTSP/1\.0 505 Versi\xc3\xb3n del protocolo no compatible\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Server/ v/$1/ i/Spanish/ o/Windows/ cpe:/o:microsoft:windows/a
+match rtsp m|^RTSP/1\.0 505 Protocol Version Not Supported\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Services/ v/$1/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1/a cpe:/o:microsoft:windows/a
+match rtsp m|^RTSP/1\.0 505 Vers\xc3\xa3o do Protocolo sem Suporte\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Services/ v/$1/ i/Portuguese/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1/a cpe:/o:microsoft:windows/a
+match rtsp m|^RTSP/1\.0 505 Vers\xc3\xa3o de protocolo n\xc3\xa3o suportada\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Services/ v/$1/ i/Portuguese/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1/a cpe:/o:microsoft:windows/a
+match rtsp m|^RTSP/1\.0 505 Versi\xc3\xb3n del protocolo no compatible\r\nDate: .*\r\nServer: WMServer/([\w._-]+)\r\n\r\n$| p/Microsoft Windows Media Services/ v/$1/ i/Spanish/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1/a cpe:/o:microsoft:windows/a
 
 match rtsp m|^RTSP/1\.0 505 RTSP Version not supported\r\nCseq: \d+\r\nServer: fbxrtspd/([\d.]+) Freebox minimal RTSP server\r\n\r\n| p/Freebox minimal rtspd/ v/$1/ d/media device/
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nCseq: \d+\r\nServer: fbxrtspd/([\w._-]+) Freebox RTSP server\r\n| p/Freebox rtspd/ v/$1/ d/media device/
@@ -10483,7 +10483,7 @@ match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x85[\x00\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\x05\0..Served by POWERDNS ([\w._-]+) (\$Id: packethandler\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x03\0\x04....$|s p/Netgear ProSafe FVS318v3 firewall named/ d/firewall/
-match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.+)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:dns/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04....|s p/Aruba 3400 Mobility Controller named/
 
 match https-dns m|^\0\x06\x81\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/HTTPS-DNS HTTPS-over-DNS tunnel/
@@ -10568,8 +10568,8 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x0
 # http://www.phys.uu.nl/~rombouts/pdnsd.html
 match domain m|^\0\x1e\0\x06\x81\x84\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/pdnsd/
 # Windows 2000 SP4
-match domain m|^\0\x1e\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows/a
-match domain m|\x07version\x04bind\0.*Microsoft DNS ([-\w_.]+) \(|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match domain m|^\0\x1e\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:dns/
+match domain m|\x07version\x04bind\0.*Microsoft DNS ([-\w_.]+) \(|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:dns/
 
 # Novell 5.1 DNS Server
 # BIND 4.9.7-REL on OpenBSD
@@ -10639,7 +10639,7 @@ match login m|^\0\^A\^@\^@\^@\^@\^@\^@\^Gversion\^Dbind\^@\^@\^P\^@\r\n-> shell 
 match login m|^\x01TCPIP RLOGIN Connection refused\0\0$| p/OpenVMS logind/ o/OpenVMS/ cpe:/o:hp:openvms/a
 match login m|^\0\r\n-> trcStack aborted: error in top frame\r\ntShell restarted\.\r\n\r\n-> !1 echo_recv: -1\.\r\n| p/ACT VoIP wifi phone logind/ d/VoIP phone/
 match login m|^\0\r\nEL-32 EtherLite module\r\n\r\n| p/Digi EtherLite32 logind/
-match login m|^\x01in\.rlogind: Permission denied\.\r\n| p/Microsoft Windows Services For Unix logind/ o/Windows/ cpe:/o:microsoft:windows/a
+match login m|^\x01in\.rlogind: Permission denied\.\r\n| p/Microsoft Windows Services For Unix logind/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:windows_services_for_unix/
 match login m|^\x01rlogind: Host name for your address \([\d.]+\) unknown\.\r\n| p|A/UX logind| o|A/UX|
 # OpenBSD 2.3
 # Solaris 9
@@ -10785,9 +10785,9 @@ rarity 4
 ports 137
 
 # Windows Server 2003
-match domain m|^\x80\xf0\x80\x80\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows_server_2003/
+match domain m|^\x80\xf0\x80\x80\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows_server_2003/ cpe:/a:microsoft:dns/
 # Windows Server 2003
-match domain m|^\x80\xf0\x80\x82\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows_server_2003/
+match domain m|^\x80\xf0\x80\x82\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows_server_2003/ cpe:/a:microsoft:dns/
 # Windows Server 2012 Release Candidate Datacenter running DNS 6.2.8400.0.
 match domain m|^\x80\xf0\x80\x02\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ v/6.2/ o/Windows/ cpe:/a:microsoft:dns:6.2/ cpe:/o:microsoft:windows_server_2012/
 
@@ -11870,7 +11870,7 @@ match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*The X\.Org Group\0|s p|Xvnc X11/VNC pr
 match xfs m|^\0\0\x02\0\0\0\x01\0\x04\0\0\0\0\r([\w._-]+):\d+\0\x07\0\0\0\0 \x10\0,\x1a\0\0X\.Org Foundation\x01\n\x01\0\x05\0\0\0\xe6\xbf\xc0\xb5\0\0\0\0\0\0\0\0$| p/X.Org xfs font server/ h/$1/
 
 match giop m|^GIOP\x01\0\x01\x06\0\0\0\0$| p/omniORB omniNames/ i/Corba naming service/
-match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows/a
+match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Microsoft DNS/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:dns/
 match gadu m|^UDAG$| p/Kadu polish IM client/
 
 # Skype - Protocol seems to spew out 14 random characters upon
@@ -12148,7 +12148,7 @@ match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Aastra (MX-ONE) SN/([\w._-]+)\r\n|
 match sip m|^SIP/2\.0 504 Server time-out\r\nms-user-logon-data: RemoteUser\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nContent-Length: 0\r\n\r\n$| p/Microsoft Outlook Web Access SIP/
 match sip m|^SIP/2\.0 481 Call Leg/Transaction Does Not Exist\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=0-\w+-\w+-\w+-\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;received=[\d.]+;branch=foo\r\nContent-Length: 0\r\n\r\n$| p/Sony PCS-TL50 videoconferencing SIP/ cpe:/h:sony:pcs-tl50/
 match sip m|^SIP/2\.0 404 Not found\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=local-tag\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nContact: <sip:nm@nm>\r\nContent-Length: 0\r\n\r\n$| p/Edgewater Networks Edgemarc 4500 series VoIP gateway SIP/ d/VoIP adapter/
-match sip m|^SIP/2\.0 504 Server time-out\r\nms-user-logon-data: RemoteUser\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nServer: RTC/4\.0\r\nContent-Length: 0\r\n\r\n| p/Microsoft Lync SIP/
+match sip m|^SIP/2\.0 504 Server time-out\r\nms-user-logon-data: RemoteUser\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nServer: RTC/4\.0\r\nContent-Length: 0\r\n\r\n| p/Microsoft Lync SIP/ cpe:/a:microsoft:lync/
 match sip m|^SIP/2\.0 403 Non-self Request-URI\r\n.*Server: Epygi Quadro SIP User Agent/v([\w._-]+) \(QUADRO-([^\)]*)\)\r\n|s p/Epygi Quadro $2 PBX SIP/ v/$1/ d/PBX/ cpe:/h:epygi:$2/
 match sip m|^SIP/2\.0 200 OK\r\n.*Allow: INVITE,ACK,CANCEL,OPTIONS,UPDATE,INFO,NOTIFY,BYE,REFER\r\nAccept: application/sdp,application/media_control\+xml,application/dtmf-relay,application/dtmf,message/sipfrag;version=2\.0\r\n|s p/Cisco TelePresence MCU 4505 videoconference system SIP/ cpe:/h:cisco:telepresence_mcu_4505/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent:Polycom (HDX [\w._ -]+) \(Release - ([\w._-]+)\)\r\n|s p/Polycom $1 videoconference system SIP/ v/$2/ cpe:/h:polycom:$1/
@@ -12308,8 +12308,8 @@ match printer m|^414A_Citizen_CLP(\d+): \xe5\x9f\xf0\x18\xe5\x9f\xf0\x18\xe5\x9f
 # Windows XP Professional
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x12.\0$|s p/Microsoft Terminal Service/ o/Windows/ cpe:/o:microsoft:windows/a
 match ms-wbt-server m|^\x03\0\0\x17\x08\x02\0\0Z~\0\x0b\x05\x05@\x06\0\x08\x91J\0\x02X$| p/Microsoft Terminal Service/ i/Used with Netmeeting, Remote Desktop, Remote Assistance/ o/Windows/ cpe:/o:microsoft:windows/a
-match ms-wbt-server m|^\x03\0\0\x11\x08\x02..}\x08\x03\0\0\xdf\x14\x01\x01$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/ cpe:/o:microsoft:windows/a
-match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x03.\0$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/ cpe:/o:microsoft:windows/a
+match ms-wbt-server m|^\x03\0\0\x11\x08\x02..}\x08\x03\0\0\xdf\x14\x01\x01$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:netmeeting/
+match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x03.\0$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:netmeeting/
 
 # Need more samples!
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\0\0\0| p/xrdp/
@@ -12453,7 +12453,7 @@ match ntp m|^\xe4[\x01-\x0f]..............................................$|s p/
 match ntp m|^\x1c[\x01-\x0f]..............................................$|s p/NTP/ v/v3/
 # This is just unsynchronized NTP v3
 match ntp m|^\xdc[\x00-\x0f]..............................................$|s p/Microsoft NTP/ o/Windows/ cpe:/o:microsoft:windows/a
-match ntp m|^\x5c\x03..............................................$|s p/Microsoft Windows Server 2003 NTP/ v/v3/ o/Windows/ cpe:/o:microsoft:windows/a
+match ntp m|^\x5c\x03..............................................$|s p/Microsoft Windows Server 2003 NTP/ v/v3/ o/Windows 2003/ cpe:/o:microsoft:windows/a
 
 # Solaris Internet Name Server (42/udp), see ien116.txt
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/ cpe:/o:sun:sunos/a
@@ -12620,8 +12620,8 @@ match slingbox m|^\x01\x01\0\xfd\xce\xfa\x0b\xb0\xa0\0\0\0\x0f\0\0\0\0\0\0\0\0\0
 match warcraft m|^\0\0\x09$| p/World of Warcraft game server/
 
 #WMS 4.1.0.3927
-match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\0\.\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Service/ v/$1.$2.$3.$4$5$6$7/ o/Windows/ cpe:/o:microsoft:windows/a
-match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Service/ v/$1.$2$3.$4$5.$6$7$8$9/ o/Windows/ cpe:/o:microsoft:windows/a
+match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\0\.\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Services/ v/$1.$2.$3.$4$5$6$7/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1.$2.$3.$4$5$6$7/a cpe:/o:microsoft:windows/a
+match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Services/ v/$1.$2$3.$4$5.$6$7$8$9/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1.$2$3.$4$5.$6$7$8$9/a cpe:/o:microsoft:windows/a
 
 ##############################NEXT PROBE##############################
 Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
