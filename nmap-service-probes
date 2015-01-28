@@ -4438,7 +4438,8 @@ match wifi-mouse m|^system\x20linux\x2010\.0\.4\nversion\x201\.\x205\.\x200\.\x2
 # "1.0" is not a version
 match wikidpad m|^WikidPad_command_server 1\.0\n| p/WikidPad command server/
 
-match winshell m=^Microsoft Windows( (?:2000|XP|NT 4\.0)|) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n= p/Microsoft Windows$1 $2 cmd.exe/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
+match winshell m=^Microsoft Windows (2000|XP|NT 4\.0) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n= p/Microsoft Windows cmd.exe/ v/$2/ i/**BACKDOOR**/ o/Windows $1/ cpe:/o:microsoft:windows/a
+match winshell m=^Microsoft Windows \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n= p/Microsoft Windows cmd.exe/ v/$1/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match winshell m|^Microsoft Windows \[Version ([\d.]+)\]\r\nCopyright \(c\) 20\d\d Microsoft Corporation\.  All rights reserved\.\r\n\r\n| p/Microsoft Windows $1 cmd.exe/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # Could really be a better regex, but only had one submission
@@ -5328,7 +5329,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\
 match telnet m|^ 105 Access denied\.\r\n 105 Access denied\.\r\n 105 Access denied\.\r\n 105 Access denied\.\r\n| p/ShroudBNC telnet config/
 match telnet m|^User Name: \r\r\nPassword: \r\r\nRemote MAC address: | p/Airaya WAP diagnostics telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x01\r\nAP11G login: \r\n\r\nPassword: | p/OfficeConnect AP11G WAP telnetd/ d/WAP/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to the Windows CE Telnet service on ([-\w_.]+)\r\n\r\nlogin: \n\r\nPassword:| p/Windows CE telnetd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to the Windows CE Telnet service on ([-\w_.]+)\r\n\r\nlogin: \n\r\nPassword:| p/Windows CE telnetd/ o/Windows CE/ h/$1/ cpe:/o:microsoft:windows/a
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[2J\x1b\[H \n\r\0\x1b\[H\x1b\[JPASSaPORT CS-(\d+)  SW V([-\w_.]+) , HW V([-\w_.]+)\r\n\r\n| p/RADLINX PASSaPORT CS terminal server telnetd/ i/$1 ports; SW $2; HW $3/ d/terminal server/
 match telnet m|^\xff\xfb\x01\r\nlogin: \r\npassword: \r\nLogin incorrect!\r\n$| p/Netgear GS108T switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\x1fError2 negotiated with client \d+ and get 1 char is a a d\. \n\r\n\r\*+\n\r\*\* +\*\*\n\r\*\* IP Phone firmware +V([\w._-]+) | p/Thomson VoIP phone telnetd/ v/$1/ d/VoIP phone/
@@ -10451,7 +10452,7 @@ Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\
 rarity 1
 ports 53,1967,2967
 
-match chargen m|^ !\"#\$%&'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefg\r\n!\"#\$%&'\(\)\*\+,-\./0123456789| p/Windows Vista chargen/ o/Windows/ cpe:/o:microsoft:windows/a
+match chargen m|^ !\"#\$%&'\(\)\*\+,-\./0123456789:;<=>\?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefg\r\n!\"#\$%&'\(\)\*\+,-\./0123456789| p/Windows Vista chargen/ o/Windows Vista/ cpe:/o:microsoft:windows/a
 
 # http://packetstormsecurity.com/files/91243/D-Link-DAP-1160-Unauthenticated-Remote-Configuration.html
 match dcc m|^\0\x06\xf5\xff\0\0\x01\0| p/D-Link Click 'n Connect/ d/broadband router/
@@ -10829,9 +10830,9 @@ match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0...*\0([\w\-]{1,15}) *\0D\0.*\0([\w\-]{1,15}) *\0\xc4\0|s p/Microsoft Windows netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0...*\0([\w\-]{1,15}) *\0D\0([\w\-]{1,15}) *\0\xc4\0|s p/Microsoft Windows netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 # Windows NT 4.0 SP6a
-match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\0\x84\0|s p/Microsoft Windows NT netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\0\x84\0|s p/Microsoft Windows NT netbios-ssn/ i/workgroup: $2/ o/Windows NT/ h/$1/ cpe:/o:microsoft:windows/a
 # WinXP
-match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\x04| p/Microsoft Windows XP netbios-ssn/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\x04| p/Microsoft Windows XP netbios-ssn/ o/Windows XP/ h/$1/ cpe:/o:microsoft:windows/a
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0/\x00......\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Microsoft Windows Mobile netbios-ssn/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\x1e\x84\0|s p/Novell NetWare netbios-ns/ i/workgroup: $2/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
@@ -11552,13 +11553,13 @@ match metatrader m|^A$| p/MetaTrader Data Center/
 # Longhorn
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\x03\0|s p/Microsoft Windows Longhorn microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
 # Windows XP SP1
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\0\0|s p/Microsoft Windows XP microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd\xf3\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\0\0|s p/Microsoft Windows XP microsoft-ds/ o/Windows XP/ cpe:/o:microsoft:windows/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd\xf3\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows 2000/ cpe:/o:microsoft:windows/a
 # Microsoft Windows 2003 or 2008
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04.\0\0\0\0\x01\0\0\0\0\0\xfd\xf3\x01\0|s p/Microsoft Windows 2003 or 2008 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
 # Microsoft Windows 2000 Server
 # Microsoft Windows 2000 Server SP4
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows 2000/ cpe:/o:microsoft:windows/a
 
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0|s p|IBM OS/400 microsoft-ds| o|OS/400| cpe:/o:ibm:os_400/a
 
