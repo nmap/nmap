@@ -4,19 +4,10 @@
 # This is a database of custom probes and expected responses that the
 # Nmap Security Scanner ( http://nmap.org ) uses to
 # identify what services (eg http, smtp, dns, etc.) are listening on
-# open ports.  Contributions to this database are welcome.  We hope to
-# create an automated submission system (as with OS fingerprints), but
-# for now you can email fyodor any new probes you develop so that he
-# can include them in the main Nmap distributon.  By sending new
-# probe/matches to Fyodor or one the insecure.org development mailing
-# lists, it is assumed that you are transfering any and all copyright
-# interest in the data to Fyodor so that he can modify it, relicense
-# it, incorporate it into programs, etc. This is important because the
-# inability to relicense code has caused devastating problems for
-# other Free Software projects (such as KDE and NASM).  Nmap will
-# always be available Open Source.  If you wish to specify special
-# license conditions of your contributions, just say so when you send
-# them.
+# open ports.  Contributions to this database are welcome.
+# Instructions for obtaining and submitting service detection fingerprints can
+# be found in the Nmap Network Scanning book and online at
+# http://nmap.org/book/vscan-community.html
 #
 # This collection of probe data is (C) 1998-2010 by Insecure.Com
 # LLC.  It is distributed under the Nmap Open Source license as
