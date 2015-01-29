@@ -2113,6 +2113,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 Fingerprint Broadband router (Allied Data CopperJet, Belkin F5D7632-4, Intracom Jetspeed 500i, or Iskratel Sinope568 or Proteus932); or Adva Optical FSP 150CC-825 router
 Class Allied Data | embedded || broadband router
 Class Adva Optical | embedded || router
+CPE cpe:/h:advaoptical:fsp_150cc-825 auto
 Class Belkin | embedded || WAP
 Class Intracom | embedded || broadband router
 Class Iskratel | embedded || broadband router
@@ -7128,6 +7129,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # AT&T NetGate SG8100 Router
 Fingerprint AT&T NetGate SG8100 router
 Class AT&T | embedded || router
+CPE cpe:/h:att:netgate_sg8100 auto
 SEQ(SP=C5-CF%GCD=1-6%ISR=C6-D0%TI=Z%II=I%TS=7)
 OPS(O1=M507ST11NW0%O2=M507ST11NW0%O3=M507NNT11NW0%O4=M507ST11NW0%O5=M507ST11NW0%O6=M507ST11)
 WIN(W1=13EC%W2=13EC%W3=13EC%W4=13EC%W5=13EC%W6=13EC)
@@ -11229,6 +11231,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Check Point SBox-200, Version: 1.2G, Running: 8.0.34x
 Fingerprint Check Point SBox-200 firewall
 Class Check Point | embedded || firewall
+CPE cpe:/h:checkpoint:sbox-200 auto
 SEQ(SP=C7-D1%GCD=1-6%ISR=CD-D7%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=1A3A%W2=1A3A%W3=1A3A%W4=1A3A%W5=1A3A%W6=1A3A)
@@ -11280,6 +11283,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Zonealarm Z100G Firewall/wireless router. (checkpoint)
 Fingerprint Check Point ZoneAlarm Z100G firewall
 Class Check Point | embedded || firewall
+CPE cpe:/h:checkpoint:zonealarm_z100g auto
 SEQ(SP=BE-C8%GCD=1-6%ISR=D0-DA%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -28961,6 +28965,7 @@ Fingerprint HP ProCurve 2650 switch or Konica Minolta bizhub C450 printer
 Class HP | embedded || switch
 CPE cpe:/h:hp:procurve_switch_2650 auto
 Class Konica Minolta | embedded || printer
+CPE cpe:/h:konicaminolta:bizhub_c450 auto
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=98-A2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -34431,6 +34436,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Model 7035
 Fingerprint Konica Minolta 7035 printer
 Class Konica Minolta | embedded || printer
+CPE cpe:/h:konicaminolta:7035 auto
 SEQ(TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=%O4=%O5=%O6=|M5B4)
 WIN(W1=1000%W2=1000%W3=0%W4=0%W5=0%W6=0|1000)
@@ -34520,6 +34526,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Technichan said Linux is running on the Controller (Fiery X3eTY 35C-KM) of this copy machine - Konica Minolta Bizhub C450 with Fiery Controller
 Fingerprint Konica Minolta bizhub C450 printer with optional Fiery Controller
 Class Konica Minolta | embedded || printer
+CPE cpe:/h:konicaminolta:bizhub_c450 auto
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=98-A2%TI=I%II=I%SS=O%TS=1)
 OPS(O1=M200NW0NNT11%O2=M200NW0NNT11%O3=M200NW0NNT11%O4=M200NW0NNT11%O5=M200NW0NNT11%O6=M200NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -69609,6 +69616,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # BorierGuard 1000  (BG00BAS) "StorageTek BG-DPF1 Console V5.1-1 22-Apr-1999 17:25"
 Fingerprint Network Systems BorderGuard 1000 firewall
 Class Network Systems | embedded || firewall
+CPE cpe:/h:networksystems:borderguard_1000 auto
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -70812,7 +70820,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # The Nut/OS 4.3.2 beta operating system from Egnite, running on an ARM AT91SAM7X evaluation kit board with the HTTP server demo app. (Web site: http://www.ethernut.de/)
 Fingerprint Nut/OS 4.3.2 beta (ARM)
 Class Nut/OS | Nut/OS | 4.X | general purpose
-CPE cpe:/o:nut%2Fos:nut_os:4 auto
+CPE cpe:/o:ethernut:nut_os:4 auto
 SEQ(SP=0-5%GCD=1-6%ISR=14-1E%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=C90%W2=C90%W3=C90%W4=C90%W5=C90%W6=C90)
