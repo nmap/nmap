@@ -1197,7 +1197,7 @@ response. A SYN/ACK indicates the port is listening (open), while a
 RST (reset) is indicative of a non-listener. If no response is
 received after several retransmissions, the port is marked as
 filtered.  The port is also marked filtered if an ICMP unreachable
-error (type 3, code 1, 2, 3, 9, 10, or 13) is received.  The port is also considered open if a SYN packet (without the ACK flag) is received in response.  This can be due to an extremely rare TCP feature known as a simultaneous open or split handshake connection (see <ulink url="http://nmap.org/misc/split-handshake.pdf"/>).</para>
+error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is received.  The port is also considered open if a SYN packet (without the ACK flag) is received in response.  This can be due to an extremely rare TCP feature known as a simultaneous open or split handshake connection (see <ulink url="http://nmap.org/misc/split-handshake.pdf"/>).</para>
 
         </listitem>
       </varlistentry>
@@ -1272,7 +1272,7 @@ empty unless the <option>--data</option>,
 options are specified.
 If an ICMP port unreachable error (type 3, code 3) is
 returned, the port is <literal>closed</literal>.  Other ICMP unreachable errors (type 3,
-codes 1, 2, 9, 10, or 13) mark the port as <literal>filtered</literal>.  Occasionally, a
+codes 0, 1, 2, 9, 10, or 13) mark the port as <literal>filtered</literal>.  Occasionally, a
 service will respond with a UDP packet, proving that it is <literal>open</literal>.  If
 no response is received after retransmissions, the port is classified
 as <literal>open|filtered</literal>.  This means that the port could be open, or perhaps
@@ -1336,7 +1336,7 @@ for a response. An INIT-ACK chunk indicates the port is listening
 (open), while an ABORT chunk is indicative of a non-listener. If no
 response is received after several retransmissions, the port is
 marked as filtered.  The port is also marked filtered if an ICMP
-unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is
+unreachable error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is
 received.</para>
 
         </listitem>
@@ -1390,7 +1390,7 @@ for the TCP flags set in probe packets.  If a RST packet is received,
 the port is considered <literal>closed</literal>, while no response
 means it is <literal>open|filtered</literal>.  The port is marked
 <literal>filtered</literal> if an ICMP unreachable error (type 3, code
-1, 2, 3, 9, 10, or 13) is received.</para>
+0, 1, 2, 3, 9, 10, or 13) is received.</para>
 
 <para>The key advantage to these scan types is that they can sneak
 through certain non-stateful firewalls and packet filtering
@@ -1431,7 +1431,7 @@ return a RST packet.  Nmap then labels them as
 <literal>unfiltered</literal>, meaning that they are reachable by the
 ACK packet, but whether they are <literal>open</literal> or
 <literal>closed</literal> is undetermined.  Ports that don't respond,
-or send certain ICMP error messages back (type 3, code 1, 2, 3, 9, 10,
+or send certain ICMP error messages back (type 3, code 0, 1, 2, 3, 9, 10,
 or 13), are labeled <literal>filtered</literal>.</para>
 
         </listitem>
@@ -1650,8 +1650,9 @@ unreachable messages, protocol scan is on the lookout for ICMP
 any response in any protocol from the target host, Nmap marks that
 protocol as <literal>open</literal>.  An ICMP protocol unreachable
 error (type 3, code 2) causes the protocol to be marked as
-<literal>closed</literal> Other ICMP unreachable errors (type 3, code
-1, 3, 9, 10, or 13) cause the protocol to be marked
+<literal>closed</literal> while port unreachable (type 3, code 3)
+marks the protocol <literal>open</literal>. Other ICMP unreachable errors (type 3, code
+0, 1, 9, 10, or 13) cause the protocol to be marked
 <literal>filtered</literal> (though they prove that ICMP is
 <literal>open</literal> at the same time).  If no response is received
 after retransmissions, the protocol is marked

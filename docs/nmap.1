@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 11/22/2014
+.\"      Date: 01/30/2015
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/22/2014" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/30/2015" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -726,7 +726,7 @@ closed, and
 filtered
 states\&.
 .sp
-This technique is often referred to as half\-open scanning, because you don\*(Aqt open a full TCP connection\&. You send a SYN packet, as if you are going to open a real connection and then wait for a response\&. A SYN/ACK indicates the port is listening (open), while a RST (reset) is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is received\&. The port is also considered open if a SYN packet (without the ACK flag) is received in response\&. This can be due to an extremely rare TCP feature known as a simultaneous open or split handshake connection (see
+This technique is often referred to as half\-open scanning, because you don\*(Aqt open a full TCP connection\&. You send a SYN packet, as if you are going to open a real connection and then wait for a response\&. A SYN/ACK indicates the port is listening (open), while a RST (reset) is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is received\&. The port is also considered open if a SYN packet (without the ACK flag) is received in response\&. This can be due to an extremely rare TCP feature known as a simultaneous open or split handshake connection (see
 \m[blue]\fB\%http://nmap.org/misc/split-handshake.pdf\fR\m[])\&.
 .RE
 .PP
@@ -756,7 +756,7 @@ UDP scan works by sending a UDP packet to every targeted port\&. For some common
 \fB\-\-data\-string\fR, or
 \fB\-\-data\-length\fR
 options are specified\&. If an ICMP port unreachable error (type 3, code 3) is returned, the port is
-closed\&. Other ICMP unreachable errors (type 3, codes 1, 2, 9, 10, or 13) mark the port as
+closed\&. Other ICMP unreachable errors (type 3, codes 0, 1, 2, 9, 10, or 13) mark the port as
 filtered\&. Occasionally, a service will respond with a UDP packet, proving that it is
 open\&. If no response is received after retransmissions, the port is classified as
 open|filtered\&. This means that the port could be open, or perhaps packet filters are blocking the communication\&. Version detection (\fB\-sV\fR) can be used to help differentiate the truly open ports from the filtered ones\&.
@@ -779,7 +779,7 @@ closed, and
 filtered
 states\&.
 .sp
-This technique is often referred to as half\-open scanning, because you don\*(Aqt open a full SCTP association\&. You send an INIT chunk, as if you are going to open a real association and then wait for a response\&. An INIT\-ACK chunk indicates the port is listening (open), while an ABORT chunk is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is received\&.
+This technique is often referred to as half\-open scanning, because you don\*(Aqt open a full SCTP association\&. You send an INIT chunk, as if you are going to open a real association and then wait for a response\&. An INIT\-ACK chunk indicates the port is listening (open), while an ABORT chunk is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is received\&.
 .RE
 .PP
 \fB\-sN\fR; \fB\-sF\fR; \fB\-sX\fR (TCP NULL, FIN, and Xmas scans) .\" -sN .\" -sF .\" -sX .\" NULL scan .\" FIN scan .\" Xmas scan
@@ -818,7 +818,7 @@ These three scan types are exactly the same in behavior except for the TCP flags
 closed, while no response means it is
 open|filtered\&. The port is marked
 filtered
-if an ICMP unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is received\&.
+if an ICMP unreachable error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is received\&.
 .sp
 The key advantage to these scan types is that they can sneak through certain non\-stateful firewalls and packet filtering routers\&. Another advantage is that these scan types are a little more stealthy than even a SYN scan\&. Don\*(Aqt count on this though\(emmost modern IDS products can be configured to detect them\&. The big downside is that not all systems follow RFC 793 to the letter\&. A number of systems send RST responses to the probes regardless of whether the port is open or not\&. This causes all of the ports to be labeled
 closed\&. Major operating systems that do this are Microsoft Windows, many Cisco devices, BSDI, and IBM OS/400\&. This scan does work against most Unix\-based systems though\&. Another downside of these scans is that they can\*(Aqt distinguish
@@ -846,7 +846,7 @@ unfiltered, meaning that they are reachable by the ACK packet, but whether they 
 open
 or
 closed
-is undetermined\&. Ports that don\*(Aqt respond, or send certain ICMP error messages back (type 3, code 1, 2, 3, 9, 10, or 13), are labeled
+is undetermined\&. Ports that don\*(Aqt respond, or send certain ICMP error messages back (type 3, code 0, 1, 2, 3, 9, 10, or 13), are labeled
 filtered\&.
 .RE
 .PP
@@ -952,7 +952,8 @@ Protocol scan works in a similar fashion to UDP scan\&. Instead of iterating thr
 unreachable messages\&. If Nmap receives any response in any protocol from the target host, Nmap marks that protocol as
 open\&. An ICMP protocol unreachable error (type 3, code 2) causes the protocol to be marked as
 closed
-Other ICMP unreachable errors (type 3, code 1, 3, 9, 10, or 13) cause the protocol to be marked
+while port unreachable (type 3, code 3) marks the protocol
+open\&. Other ICMP unreachable errors (type 3, code 0, 1, 9, 10, or 13) cause the protocol to be marked
 filtered
 (though they prove that ICMP is
 open
@@ -1681,7 +1682,7 @@ are similar but they only wait 15 seconds and 0\&.4 seconds, respectively, betwe
 is Nmap\*(Aqs default behavior, which includes parallelization\&.
 \fB\-T4\fR
 does the equivalent of
-\fB\-\-max\-rtt\-timeout 1250ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
+\fB\-\-max\-rtt\-timeout 1250ms \-\-min\-rtt\-timeout 100ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
 and sets the maximum TCP scan delay to 10 milliseconds\&.
 \fBT5\fR
 does the equivalent of
