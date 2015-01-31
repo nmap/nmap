@@ -90,13 +90,13 @@ function generate_http_req(host, port, uri, custom_header, cmd)
   local options = {header={}}
   options["no_cache"] = true
   if custom_header == nil then
-    stdnse.debug(1, string.format("Sending '%s' in HTTP headers:User-Agent,Cookie and Referer", cmd))
+    stdnse.debug1("Sending '%s' in HTTP headers:User-Agent,Cookie and Referer", cmd)
     options["header"]["User-Agent"] = cmd
     options["header"]["Referer"] = cmd
     options["header"]["Cookie"] = cmd
     options["header"][cmd] = cmd
   else
-    stdnse.debug(1, string.format("Sending '%s' in HTTP header '%s'", cmd, custom_header))
+    stdnse.debug1("Sending '%s' in HTTP header '%s'", cmd, custom_header)
     options["header"][custom_header] = cmd
   end
   local req = http.get(host, port, uri, options)
@@ -133,7 +133,7 @@ is executing commands injected via malicious HTTP headers.
         disclosure = {year = '2014', month = '09', day = '24'},
       },
     }
-    stdnse.debug(1, string.format("Random pattern '%s' was found in page. Host seems vulnerable.", rnd))
+    stdnse.debug1("Random pattern '%s' was found in page. Host seems vulnerable.", rnd)
     vuln.state = vulns.STATE.EXPLOIT
     if cmd ~= nil then
        req = generate_http_req(host, port, uri, http_header, cmd)
