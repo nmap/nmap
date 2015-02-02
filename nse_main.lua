@@ -958,16 +958,16 @@ local function run (threads_iter, hosts)
 
     local nr, nw = table_size(running), table_size(waiting);
     if cnse.key_was_pressed() then
-      print_verbose(1, "Active NSE Script Threads: %d (%d waiting)\n",
+      print_verbose(1, "Active NSE Script Threads: %d (%d waiting)",
           nr+nw, nw);
       progress("printStats", 1-(nr+nw)/total);
       if debugging() >= 2 then
         for co, thread in pairs(running) do
-          thread:d("Running: %THREAD\n\t%s",
+          thread:d("Running: %THREAD_AGAINST\n\t%s",
               (gsub(traceback(co), "\n", "\n\t")));
         end
         for co, thread in pairs(waiting) do
-          thread:d("Waiting: %THREAD\n\t%s",
+          thread:d("Waiting: %THREAD_AGAINST\n\t%s",
               (gsub(traceback(co), "\n", "\n\t")));
         end
       end
