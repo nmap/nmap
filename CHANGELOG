@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a check for Cisco ASA version disclosure, CVE-2014-3398, to
+  http-enum in the 'security' category [Daniel Miller]
+
 o Fixed a bug that caused Nmap to fail to find any network interface when a
   Prism interface is in monitor mode. The fix was to define the
   ARP_HRD_IEEE80211_PRISM header identifier in the libdnet-stripped code.
