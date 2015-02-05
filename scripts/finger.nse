@@ -33,5 +33,5 @@ action = function(host, port)
   local try = nmap.new_try()
 
   return try(comm.exchange(host, port, "\r\n",
-    {lines=100, proto=port.protocol, timeout=5000}))
+    {lines=100, timeout=5000}))
 end

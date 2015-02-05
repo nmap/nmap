@@ -48,7 +48,7 @@ action = function(host, port)
   if not result then
     -- Have to send the probe ourselves.
     status, result = comm.exchange(host, port,
-      "GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
+      "GET / HTTP/1.0\r\n\r\n", {bytes=26})
 
     if (not status) then
       return nil
@@ -62,7 +62,7 @@ action = function(host, port)
   -- So far so good, now see if we get random data for another request
   if not rand then
     status, rand = comm.exchange(host, port,
-      "random data\r\n\r\n", {bytes=15, proto=port.protocol})
+      "random data\r\n\r\n", {bytes=15})
 
     if (not status) then
       return

@@ -98,7 +98,7 @@ action = function(host, port)
   local rlreq = string.char(0x16, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
                             0x00, 0x00, 0x00, 0x00)
 
-  status, buftres = comm.exchange(host, port, treq, {proto=port.protocol, timeout=TIMEOUT})
+  status, buftres = comm.exchange(host, port, treq, {timeout=TIMEOUT})
   if status then
     local _, sec, frac, tstamp
 
@@ -111,7 +111,7 @@ action = function(host, port)
     output["receive time stamp"] = stdnse.format_timestamp(tstamp)
   end
 
-  status, bufrlres = comm.exchange(host, port, rlreq, {proto=port.protocol, timeout=TIMEOUT})
+  status, bufrlres = comm.exchange(host, port, rlreq, {timeout=TIMEOUT})
 
   if status then
     -- This only looks at the first fragment of what can possibly be several

@@ -25,7 +25,7 @@ categories = {"discovery", "safe", "version"}
 portrule = shortport.version_port_or_service(37, "time", {"tcp", "udp"})
 
 action = function(host, port)
-  local status, result = comm.exchange(host, port, "", {bytes=4, proto=port.protocol})
+  local status, result = comm.exchange(host, port, "", {bytes=4})
 
   if status then
     local _, stamp
