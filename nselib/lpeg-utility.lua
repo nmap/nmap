@@ -10,6 +10,8 @@ local assert = assert
 local lpeg = require "lpeg"
 local stdnse = require "stdnse"
 local pairs = pairs
+local string = require "string"
+local tonumber = tonumber
 
 _ENV = {}
 
@@ -116,6 +118,36 @@ function debug (grammar, printer)
       printer("---%s---", k) printer("pos: %d, [%s]", p, s:sub(1, p-1)) return p end)
   end
   return grammar
+end
+
+do
+  -- Cache the returned pattern
+  local getquote = escaped_quote()
+
+  -- Substitution pattern to unescape a string
+  local unescape = lpeg.P {
+    -- Substitute captures
+    lpeg.Cs((lpeg.V "simple_char" + lpeg.V "unesc")^0),
+    -- Escape char is '\'
+    esc = lpeg.P "\\",
+    -- Simple char is anything but escape char
+    simple_char = lpeg.P(1) - lpeg.V "esc",
+    -- If we hit an escape, process specials or hex code, otherwise remove the escape
+    unesc = (lpeg.V "esc" * lpeg.Cs( lpeg.V "specials" + lpeg.V "code" + lpeg.P(1) ))/"%1",
+    -- single-char escapes. These are the only ones service_scan uses
+    specials = lpeg.S "trn0" / {t="\t", r="\r", n="\n", ["0"]="\0"},
+    -- hex escape: convert to char
+    code = (lpeg.P "x" * lpeg.C(lpeg.S "0123456789abcdefABCDEF"^-2))/function(c)
+    return string.char(tonumber(c,16)) end,
+  }
+
+  --- Turn the service fingerprint reply to a probe into a binary blob
+  function get_response (fp, probe)
+    fp = string.gsub(fp, "\nSF:", "")
+    local i, e = string.find(fp, string.format("%s,%%x+,", probe))
+    if i == nil then return nil end
+    return unescape:match(getquote:match(fp, e+1))
+  end
 end
 
 return _ENV
