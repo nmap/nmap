@@ -52,9 +52,9 @@ categories = { "default", "discovery", "safe", "version" }
 portrule = shortport.version_port_or_service({2302}, "freelancer", "udp")
 
 action = function(host, port)
-  local status, data = comm.exchange(host, port.number,
+  local status, data = comm.exchange(host, port,
     "\x00\x02\xf1\x26\x01\x26\xf0\x90\xa6\xf0\x26\x57\x4e\xac\xa0\xec\xf8\x68\xe4\x8d\x21",
-    { proto = "udp", timeout = 3000 })
+    { timeout = 3000 })
   if not status then
     return
   end

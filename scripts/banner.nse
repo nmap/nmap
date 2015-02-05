@@ -65,9 +65,8 @@ function grab_banner(host, port)
   local opts = {}
   opts.timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
   opts.timeout = (opts.timeout or 5) * 1000
-  opts.proto = port.protocol
 
-  local status, response = comm.get_banner(host.ip, port.number, opts)
+  local status, response = comm.get_banner(host, port, opts)
 
   if not status then
     local errlvl = { ["EOF"]=3,["TIMEOUT"]=3,["ERROR"]=2 }

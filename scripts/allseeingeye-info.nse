@@ -146,7 +146,7 @@ end
 portrule = shortport.version_port_or_service({1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138}, "allseeingeye", "udp")
 
 action = function(host, port)
-  local status, data = comm.exchange(host, port.number, "s", { proto = "udp", timeout = 3000 })
+  local status, data = comm.exchange(host, port, "s", { timeout = 3000 })
   if not status then
     return
   end
