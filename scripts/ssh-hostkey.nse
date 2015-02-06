@@ -7,6 +7,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local base64 = require "base64"
+local comm = require "comm"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -265,9 +266,20 @@ end
 --@param host nmap host table
 --@param port nmap port table of the currently probed port
 local function portaction(host, port)
+  if port.version.name_confidence < 8 or port.version.name ~= "ssh" then
+    -- additional check if version scan was not done or if it doesn't think it's SSH.
+    -- Since the fetch_host_key functions don't indicate what failed, we could
+    -- waste a lot of time on e.g. tcpwrapped port 22
+    -- Using opencon instead of get_banner to avoid trying SSL first in some cases
+    local status, banner = comm.opencon(host, port, nil, {recv_before=true})
+    if not string.match(banner, "^SSH") then
+      stdnse.debug1("Service does not appear to be SSH: quitting.")
+      return nil
+    end
+  end
   local output_tab = {}
   local keys = {}
-  local _,key
+  local key
   local format = nmap.registry.args.ssh_hostkey or "hex"
   local all_formats = format:find( 'all', 1, true )
 
