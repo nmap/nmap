@@ -6524,6 +6524,9 @@ table.insert(fingerprints, {
         method = 'GET'
       },
       {
+        path = '/postinfo.html'
+      },
+      {
         path = '/_vti_bin/_vti_aut/author.dll'
       },
       {
