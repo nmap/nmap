@@ -239,8 +239,8 @@ Entry { filename = "http-vuln-wnr1000-creds.nse", categories = { "exploit", "int
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-waf-fingerprint.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
-Entry { filename = "http-wordpress-enum.nse", categories = { "auth", "intrusive", "vuln", } }
-Entry { filename = "http-wordpress-plugins.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-wordpress-enum.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-wordpress-users.nse", categories = { "auth", "intrusive", "vuln", } }
 Entry { filename = "http-xssed.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
