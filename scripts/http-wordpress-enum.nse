@@ -36,7 +36,8 @@ TODO:
 --                                installation or fall back to '/'.
 -- @args http-wordpress-enum.search-limit Number of entries or the string "all". Default:100.
 -- @args http-wordpress-enum.type Search type. Available options:plugins, themes or all. Default:all.
--- @args http-wordpress-enum.check-latest Enables version check. Default:false.
+-- @args http-wordpress-enum.check-latest Retrieves latest plugin version information from wordpress.org. 
+--                                        Default:false.
 -- 
 -- @output
 -- PORT   STATE SERVICE
