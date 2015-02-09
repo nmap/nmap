@@ -1,11 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added a new version of http-wordpress-enum, it now enumerates 
-  plugins and themes of Wordpress installations. It also attempts to obtain 
+o [Zenmap] Added new Hindi (hi) translation by Gyanendra Mishra.
+
+o [NSE] Added a new version of http-wordpress-enum, it now enumerates
+  plugins and themes of Wordpress installations. It also attempts to obtain
   version information to detect outdated plugins. [Paulino Calderon]
 
-o [NSE] Renamed http-wordpress-enum to http-wordpress-users in favor of 
-  the new version of the script http-wordpress-enum which enumerates  
+o [NSE] Renamed http-wordpress-enum to http-wordpress-users in favor of
+  the new version of the script http-wordpress-enum which enumerates
   plugins and themes of Wordpress installations. [Paulino Calderon]
 
 o [NSE] Added a check for Cisco ASA version disclosure, CVE-2014-3398, to
