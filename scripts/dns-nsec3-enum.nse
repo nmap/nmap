@@ -177,16 +177,16 @@ end
 local function generate_hash(domain, iter, salt)
   local rand_str = random_string()
   local random_domain = rand_str .. "." .. domain
-  local packed_domain = ""
-  for word in string.gmatch(domain,"[^%.]+") do
-    packed_domain = packed_domain .. bin.pack("c",string.len(word)) .. word
+  local packed_domain = {}
+  for word in string.gmatch(random_domain, "[^%.]+") do
+    packed_domain[#packed_domain+1] = bin.pack("p", word)
   end
-  local to_hash = bin.pack("c",string.len(rand_str)) .. rand_str .. packed_domain .. bin.pack("c",0) .. bin.pack("H",salt)
+  salt = bin.pack("H", salt)
+  local to_hash = bin.pack("AxA", table.concat(packed_domain), salt)
   iter = iter - 1
   local hash = openssl.sha1(to_hash)
   for i=0,iter do
-    hash = hash .. bin.pack("H",salt)
-    hash = openssl.sha1(hash)
+    hash = openssl.sha1(hash .. salt)
   end
   return string.lower(base32.enc(hash,true)), random_domain
 end
