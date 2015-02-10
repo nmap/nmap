@@ -39,6 +39,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local base32 = require "base32"
+local unittest = require "unittest"
 _ENV = stdnse.module("dns", stdnse.seeall)
 
 get_servers = nmap.get_dns_servers
@@ -801,15 +802,14 @@ end
 -- @param fqdn containing the fully qualified domain name
 -- @return encQ containing the encoded value
 local function encodeFQDN(fqdn)
-  if ( not(fqdn) or #fqdn == 0 ) then return string.char(0) end
+  if ( not(fqdn) or #fqdn == 0 ) then return "\0" end
 
-  local parts = stdnse.strsplit("%.", fqdn)
-  local encQ = ""
-  for _, part in ipairs(parts) do
-    encQ = encQ .. bin.pack("p", part)
+  local encQ = {}
+  for part in string.gmatch(fqdn, "[^%.]+") do
+    encQ[#encQ+1] = bin.pack("p", part)
   end
-  encQ = encQ .. string.char(0)
-  return encQ
+  encQ[#encQ+1] = "\0"
+  return table.concat(encQ)
 end
 
 ---
@@ -818,12 +818,12 @@ end
 -- @return Encoded question string.
 local function encodeQuestions(questions)
   if type(questions) ~= "table" then return nil end
-  local encQ = ""
+  local encQ = {}
   for _, v in ipairs(questions) do
-    encQ = encQ .. encodeFQDN(v.dname)
-    encQ = encQ .. bin.pack(">SS", v.dtype, v.class)
+    encQ[#encQ+1] = encodeFQDN(v.dname)
+    encQ[#encQ+1] = bin.pack(">SS", v.dtype, v.class)
   end
-  return encQ
+  return table.concat(encQ)
 end
 
 ---
@@ -836,12 +836,12 @@ end
 
 local function encodeUpdates(updates)
   if type(updates) ~= "table" then return nil end
-  local encQ = ""
+  local encQ = {}
   for _, v in ipairs(updates) do
-    encQ = encQ .. encodeFQDN(v.dname)
-    encQ = encQ .. bin.pack(">SSISA", v.dtype, v.class, v.ttl, #v.data, v.data)
+    encQ[#encQ+1] = encodeFQDN(v.dname)
+    encQ[#encQ+1] = bin.pack(">SSISA", v.dtype, v.class, v.ttl, #v.data, v.data)
   end
-  return encQ
+  return table.concat(encQ)
 end
 
 ---
@@ -852,11 +852,11 @@ end
 -- @return Encoded additional string.
 local function encodeAdditional(additional)
   if type(additional) ~= "table" then return nil end
-  local encA = ""
+  local encA = {}
   for _, v in ipairs(additional) do
-    encA = encA .. bin.pack(">xSSISA",  v.type, v.class, v.ttl, v.rdlen, v.rdata)
+    encA[#encA+1] = bin.pack(">xSSISA",  v.type, v.class, v.ttl, v.rdlen, v.rdata)
   end
-  return encA
+  return table.concat(encA)
 end
 
 ---
@@ -1581,4 +1581,12 @@ function update(dname, options)
   return false
 end
 
+if not unittest.testing() then
+  return _ENV
+end
+
+-- Self test
+test_suite = unittest.TestSuite:new()
+
+test_suite:add_test(unittest.equal(encodeFQDN("test.me.com"), "\x04test\x02me\x03com\0"), "encodeFQDN")
 return _ENV;
