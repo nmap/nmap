@@ -2792,7 +2792,7 @@ match smtp m|^220 (\S+) -- Server ESMTP \(Sun Java System Messaging Server (\d[^
 match smtp m|^220 jMailer SMTP Server\r\n$| p/jMailer smtpd/
 match smtp m|^220[- ][^ ]+ Smail-([^ ]+) .*ESMTP|s p/Smail-ESMTP/ v/$1/
 match smtp m|^220[- ][^ ]+ Smail-([^ ]+) | p/Smail/ v/$1/
-match smtp m|^220 \[([-\w_.]+)\] ESMTP amavisd-new service ready\r\n| p/amavisd-new smtpd/ h/$1/
+match smtp m|^220 \[([-\w_.]+)\] ESMTP amavisd-new service ready\r\n| p/amavisd-new smtpd/ h/$1/ cpe:/a:ijs:amavisd_new/
 match smtp m=^220 SMTP-Server Classic Hamster (?:Vr\.|Version) [\d.]+ \(Build ([\d.]+)\)\r\n= p/Classic Hamster smtpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220-Stalker Internet Mail Server V.([\w.]+) is ready\.\r\n| p/Stalker smtpd/ v/$1/ o/Mac OS/ cpe:/o:apple:mac_os/a
 match smtp m|^220-([-\w_.]+) Stalker Internet Mail Server V\.([\w.]+) is ready\.\r\n| p/Stalker smtpd/ v/$2/ o/Mac OS/ h/$1/ cpe:/o:apple:mac_os/a
@@ -3204,7 +3204,7 @@ match ssh m|^SSH-2\.0-FrSAR ([\d.]+) TRUEX COMPT 32/64\r?\n| p/FrSAR truex compt
 match ssh m|^SSH-2\.0-(\d{8,12})\r?\n| p/Netpilot config access/ v/$1/ i/protocol 2.0/
 match ssh m|^SSH-([\d.]+)-RomCliSecure_([\d.]+)\r?\n| p/Adtran Netvanta RomCliSecure sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-2\.0-APSSH_([\w.]+)\r?\n| p/APSSHd/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-Twisted\r?\n| p/Kojoney SSH honeypot/ i/protocol 2.0/
+match ssh m|^SSH-2\.0-Twisted\r?\n| p/Kojoney SSH honeypot/ i/protocol 2.0/ cpe:/a:twistedmatrix:twisted/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\r?\n.*aes256|s p/Kojoney SSH honeypot/ i/Pretending to be $2; protocol $1/
 match ssh m|^SSH-2\.0-Mocana SSH\r\n| p/Mocana embedded SSH/ i/protocol 2.0/
 match ssh m|^SSH-2\.0-Mocana SSH \r?\n| p/Mocana embedded SSH/ i/protocol 2.0/
@@ -5502,7 +5502,7 @@ match as2 m|^HTTP/1\.1 404 Not Found\r\nServer: Cleo LexiCom/([\w._-]+) \(([^)]+
 # Kerio PF 4.0.11 unregistered - Service process (Port 44xxx?) on MS W2K SP4+
 match keriopfservice m|^(HTTP/1\.0) 200 OK\r\nServer: Kerio Personal Firewall\r\n| p/Kerio PF 4 Service/ i/$1/
 
-match backupexec-remote m|^\xf6\xff\xff\xff\x10\0\0\0\0\0\0\0\0\0\0\0$| p/Veritas BackupExec Remote Agent/
+match backupexec-remote m|^\xf6\xff\xff\xff\x10\0\0\0\0\0\0\0\0\0\0\0$| p/Veritas Backup Exec Remote Agent/ cpe:/a:symantec:veritas_backup_exec/
 
 match backdoor m|^:[-\w_.]+ 451 GET :\r\n| p/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match backdoor m|^<HTML>\n<HEAD>\n<TITLE>Directory /</TITLE>\n<BASE HREF=\"file:/\">\n</HEAD>\n<BODY>\n<H1>Directory listing of /</H1>| p/No-auth shell/ i/**BACKDOOR**/ o/Unix/
@@ -5519,11 +5519,11 @@ match bluecoat-logd m|^\x03\0\0\x01$| p/Blue Coat Reporter log server/
 
 match brio m|^com\.sqribe\.null\0java\.lang\.String\0com\.sqribe\.transformer\.TransformerException\0java\.lang\.String\0TRCP version mismatch: Current version: (\d+) Client version: unknown\0$| p/Brio 8 business intelligence tool/ v/$1/
 
-match caldav m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: negotiate \r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n|s p/TwistedWeb httpd/ v/$2/ i/Apple iCal Server; Twisted $1/ cpe:/a:twistedmatrix:twistedweb:$2/a
+match caldav m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: negotiate \r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n|s p/TwistedWeb httpd/ v/$2/ i/Apple iCal Server; Twisted $1/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:$2/a
 match caldav m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Zarafa CalDav Gateway\"\r\nContent-Length: 0\r\nServer: Zarafa\r\n| p/Zarafa CalDav Gateway/ cpe:/a:zarafa:zarafa/
-match caldav m|^HTTP/1\.1 \d\d\d .*\r\nServer: CalendarServer/([\w._-]+)\(iCalServerv([\w._-]+)\) Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*DAV: 1|s p/TwistedWeb httpd/ v/$4/ i/Calendar and Contacts Server $1; iCalServer $2; Twisted $3/ o/Mac OS X/ cpe:/a:twistedmatrix:twistedweb:$4/a cpe:/o:apple:mac_os_x/a
-match caldav m|^HTTP/1\.1 \d\d\d .*\r\nServer: CalendarServer/([\w._()-]+) Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*DAV: 1|s p/TwistedWeb httpd/ v/$3/ i/Calendar and Contacts Server $1; Twisted $2/ cpe:/a:twistedmatrix:twistedweb:$3/a
-match caldav m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: WSGIServer/([\w._-]+) Python/([\w._-]+)\r\nContent-Length: \d+\r\nContent-type: text/html\r\n\r\n<!DOCTYPE html>\n<title>Radicale</title>Radicale works!| p/Radicale CalDAV CardDAV/ i/WSGIServer $1; Python $2/
+match caldav m|^HTTP/1\.1 \d\d\d .*\r\nServer: CalendarServer/([\w._-]+)\(iCalServerv([\w._-]+)\) Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*DAV: 1|s p/TwistedWeb httpd/ v/$4/ i/Calendar and Contacts Server $1; iCalServer $2; Twisted $3/ o/Mac OS X/ cpe:/a:twistedmatrix:twisted:$3/ cpe:/a:twistedmatrix:twistedweb:$4/a cpe:/o:apple:mac_os_x/a
+match caldav m|^HTTP/1\.1 \d\d\d .*\r\nServer: CalendarServer/([\w._()-]+) Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*DAV: 1|s p/TwistedWeb httpd/ v/$3/ i/Calendar and Contacts Server $1; Twisted $2/ cpe:/a:twistedmatrix:twisted:$2/ cpe:/a:twistedmatrix:twistedweb:$3/a
+match caldav m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: WSGIServer/([\w._-]+) Python/([\w._-]+)\r\nContent-Length: \d+\r\nContent-type: text/html\r\n\r\n<!DOCTYPE html>\n<title>Radicale</title>Radicale works!| p/Radicale CalDAV CardDAV/ i/WSGIServer $1; Python $2/ cpe:/a:python:python:$2/
 
 match csta m|^<HTML>\r\n<HEAD>\r\n<TITLE>CSTA-Mono Server Home Page </TITLE>\r\n| p/Alcatel OmniPCX Enterprise/ d/PBX/ cpe:/a:alcatel-lucent:omnipcx/
 
@@ -5642,11 +5642,11 @@ match hp-logic-analyzer m|^\r\n\r0\.1/PTTH / TEG.\r\n$| p/HP 1662C logic analyze
 # Needs to go before the Apache match lines -Doug
 match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache\r\n.*X-orenosp-filt:|s p/Orenosp reverse http proxy/
 # Needs to go before BaseHTTPServer match lines.
-match ovs-agent m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<title>Python: OVSAgentServer Document</title>|s p/Oracle OVSAgentServer/ v/22/ i/BaseHTTPServer $1; Python SimpleXMLRPCServer; Python $2/
-match http m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\w._+-]+) Python/([\w._+-]+)\r\n.*<title>Supybot Web server index</title>|s p/BaseHTTPServer/ v/$1/ i/Supybot IRC bot HTTP stats; Python $2/ cpe:/a:python:basehttpserver:$1/a
-match http m|^HTTP/1\.1 200 Script output follows\r\nServer: BaseHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*<title>Mercurial repositories index</title>|s p/BaseHTTPServer/ v/$1/ i/Mercurial hg serve; Python $2/ cpe:/a:python:basehttpserver:$1/a
-match http m|^HTTP/1\.1 200 Script output follows\r\nServer: BaseHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*<title>: Mercurial repositories index</title>|s p/BaseHTTPServer/ v/$1/ i/Mercurial hg serve; Python $2/ cpe:/a:python:basehttpserver:$1/a
-match http m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<tt>This&nbsp;server&nbsp;exports&nbsp;the&nbsp;following&nbsp;methods&nbsp;through&nbsp;the&nbsp;XML-RPC&nbsp;protocol.</tt>|s p/BaseHTTPServer/ v/$1/ i/Python SimpleXMLRPCServer; Python $2/ cpe:/a:python:basehttpserver:$1/a
+match ovs-agent m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<title>Python: OVSAgentServer Document</title>|s p/Oracle OVSAgentServer/ v/22/ i/BaseHTTPServer $1; Python SimpleXMLRPCServer; Python $2/ cpe:/a:python:basehttpserver:$1/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\w._+-]+) Python/([\w._+-]+)\r\n.*<title>Supybot Web server index</title>|s p/BaseHTTPServer/ v/$1/ i/Supybot IRC bot HTTP stats; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
+match http m|^HTTP/1\.1 200 Script output follows\r\nServer: BaseHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*<title>Mercurial repositories index</title>|s p/BaseHTTPServer/ v/$1/ i/Mercurial hg serve; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
+match http m|^HTTP/1\.1 200 Script output follows\r\nServer: BaseHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*<title>: Mercurial repositories index</title>|s p/BaseHTTPServer/ v/$1/ i/Mercurial hg serve; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<tt>This&nbsp;server&nbsp;exports&nbsp;the&nbsp;following&nbsp;methods&nbsp;through&nbsp;the&nbsp;XML-RPC&nbsp;protocol.</tt>|s p/BaseHTTPServer/ v/$1/ i/Python SimpleXMLRPCServer; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:.*\r\n)?Server: MochiWeb/(\d[-.\w]+) \([-.'\w\s]+\)\r\n| p/MochiWeb Erlang HTTP library/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:.*\r\n)?Server: MochiWeb/(\d[-.\w]+) WebMachine/([.\d]*) \(.*\)\r\n| p/MochiWeb Erlang HTTP library/ v/$1/ i/WebMachine $2/
@@ -6206,8 +6206,8 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: ArGoSoft Mail Server Pro for WinNT/200
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nLocation: /iw/webdesk/login/\r\nX-Cache: MISS from .*\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n| p/Interwoven TeamSite/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: OpenSA/([\d.]+) / Apache/([\d.]+) \((\w*)\) mod_ssl/([\d.]+) OpenSSL/([\d.]+)\r\n.*<LINK REL=\"SHORTCUT ICON\" HREF=\"http://([\w.-_]+)/iss\.ico\">\r\n<TITLE> System Scanner Vista Welcome Page </TITLE>\r\n|s p/ISS System Scanner Vista/ i|OpenSA/$1 Apache/$2 mod_ssl/$4 OpenSSL/$5| o/$3/ h/$6/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: OpenSA/([\d.]+) / Apache/([\d.]+) \(Win32\) ([^\r\n]+)\r\n| p/OpenSA httpd/ v/$1/ i/Apache $2; $3/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+) edna/([\d.]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Edna Streaming MP3 Server $3; Python $2/ cpe:/a:python:basehttpserver:$1/a
-match http m|^HTTP/1\.1 404 Path not found: /\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*Content-Length: 198\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 404\.\n<p>Message: Path not found: /\.\n<p>Error code explanation: 404 = Nothing matches the given URI\.\n</body>\n$|s p/BaseHTTPServer/ v/$1/ i/Open ERP XML-RPC; Python $2/ cpe:/a:python:basehttpserver:$1/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+) edna/([\d.]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Edna Streaming MP3 Server $3; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
+match http m|^HTTP/1\.1 404 Path not found: /\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*Content-Length: 198\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 404\.\n<p>Message: Path not found: /\.\n<p>Error code explanation: 404 = Nothing matches the given URI\.\n</body>\n$|s p/BaseHTTPServer/ v/$1/ i/Open ERP XML-RPC; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Speed Touch WebServer/([\d.]+)\r\nContent-type: text/html\r\nContent-length: \d*\r\n\r\nHTTP/1\.0 400 Bad Request\r\n: Invalid or incomplete request\.\r\n\r\n| p/Alcatel Speedtouch ADSL router httpd/ v/$1/ d/router/
 match http m|^HTTP/1\.0 302 Found\r\nLocation: http://[\w._-]+:(\d+)\r\n\r\nHTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 112\r\n\r\n<HTML><HEAD><TITLE>HTTP/1\.0 404 Not Found</TITLE></HEAD><BODY>\r\n<H1>HTTP/1\.0 404 Not Found\.</H1>\r\n</BODY></HTML>$| p/Technicolor TG787 VoIP gateway http admin/ i/redirect to port $1/ d/VoIP adapter/
 # Management Interface for Netscape FastTrack web server 2.01
@@ -6219,8 +6219,8 @@ match http m|^HTTP/1\.0 200 OK.*\r\nServer: ZOT-PS-11/([\d.]+)\r\n.*\n<head><!--
 match http m|^HTTP/1\.0 401 Unauthorized\r\n.*\r\nServer: (ZOT-PS-[\d]+/[\d.]+)\r\n|s p/print server http config/ v/$1/ d/print server/
 match http m|^HTTP/1\.0 302 Temporarily Moved\nLocation: /winamp\?page=main\nConnection: close\nContent-type: text/html\n\n<html>\n<head>\n<title>Winamp Web Interface</title>| p/Winamp Web Interface/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: Lasso/([\d.]+)\r\n\r\n|s p/Lasso httpd/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\nDate: .*<title>Roundup trackers index</title></head>\n<body><h1>Roundup trackers index</h1>|s p/BaseHTTPServer/ v/$1/ i/Roundup issue tracker; Python $2/ cpe:/a:python:basehttpserver:$1/a
-match http m|^HTTP/1\.1 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<title>Ajaxterm</title>|s p/BaseHTTPServer/ v/$1/ i/Ajaxterm; Python $2/ cpe:/a:python:basehttpserver:$1/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\nDate: .*<title>Roundup trackers index</title></head>\n<body><h1>Roundup trackers index</h1>|s p/BaseHTTPServer/ v/$1/ i/Roundup issue tracker; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
+match http m|^HTTP/1\.1 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<title>Ajaxterm</title>|s p/BaseHTTPServer/ v/$1/ i/Ajaxterm; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: fwlogwatch[ /]([\d.]+) 200\d/\d\d/\d\d \(C\) Boris Wesslowski| p/fwlogwatch/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: GNUMP3d ([-\w_.]+)\r\n| p/GNUMP3d streaming server/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: ([\d.]+)\r\nContent-type: text/html; charset=utf-8\r\nSet-Cookie: theme=Tabular;path=/; expires=.*;\r\nConnection: close\r\n\r\n| p/GNUMP3d/ v/$1/
@@ -6252,12 +6252,12 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Agent-ListenServer-HttpSvr/([\d.]+)
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nMIME-version: 1\.0\r\nServer: ZOT-PS-19/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"PrnServr\"\r\nContent-Type: text/html\r\n\r\n<TITLE>AUTH</TITLE><H1>401 Unauthorized\.</H1>| p/IOGear USB Print Server/ i/ZOT-PS-19 $1/ d/print server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nDate: .*\r\nServer: RMC Webserver ([\d.]+)\r\n| p/RMC httpd/ v/$1/ i/Dell Embedded Remote Access Card/ d/remote management/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: TwistedWeb/([\w.]+)\r\n|s p/TwistedWeb httpd/ v/$1/ cpe:/a:twistedmatrix:twistedweb:$1/a
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([\d.]+) TwistedWeb/SVN-Trunk\r\n|s p/TwistedWeb httpd/ v/SVN-Trunk/ i/Twisted $1/ cpe:/a:twistedmatrix:twistedweb:svn-trunk/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([-\w_.+]+) TwistedWeb/\[twisted\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/ cpe:/a:twistedmatrix:twistedweb:$2/a
-match http m|^HTTP/1\.1 200 OK\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/\[OPSI\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1; OPSI client management system/ cpe:/a:twistedmatrix:twistedweb:$2/a
-match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 141\r\nServer: Twisted/([\w._+-]+) TwistedWeb/([\w._+-]+)\r\nDAV: 1, access-control\r\nDate: .*\r\nContent-Type: text/html\r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\nConnection: close\r\n\r\n<html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1><p>You are not authorized to access this resource\.</p></body></html>$| p/TwistedWeb httpd/ v/$2/ i/Twisted $1; Mac OS X teamsserver/ o/Mac OS X/ cpe:/a:twistedmatrix:twistedweb:$2/a cpe:/o:apple:mac_os_x/a
-match http m|^HTTP/1\.1 404 Not Found\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*<meta name=\"generator\" content=\"\">\n<meta name=\"apple_required_ui_revision\" content=\"\">\n<meta name=\"apple_collab_uid\" content=\"\">\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1; Mac OS X teamsserver/ o/Mac OS X/ cpe:/a:twistedmatrix:twistedweb:$2/a cpe:/o:apple:mac_os_x/a
-match http m|^HTTP/1\.[01].*\r\nServer: Twisted/([\.\d]+) TwistedWeb/([\.\d]+)|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/ o/Mac OS X/ cpe:/a:twistedmatrix:twistedweb:$2/a cpe:/o:apple:mac_os_x/a
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([\d.]+) TwistedWeb/SVN-Trunk\r\n|s p/TwistedWeb httpd/ v/SVN-Trunk/ i/Twisted $1/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:svn-trunk/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([-\w_.+]+) TwistedWeb/\[twisted\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:$2/a
+match http m|^HTTP/1\.1 200 OK\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/\[OPSI\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1; OPSI client management system/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:$2/a
+match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 141\r\nServer: Twisted/([\w._+-]+) TwistedWeb/([\w._+-]+)\r\nDAV: 1, access-control\r\nDate: .*\r\nContent-Type: text/html\r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\nConnection: close\r\n\r\n<html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1><p>You are not authorized to access this resource\.</p></body></html>$| p/TwistedWeb httpd/ v/$2/ i/Twisted $1; Mac OS X teamsserver/ o/Mac OS X/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:$2/a cpe:/o:apple:mac_os_x/a
+match http m|^HTTP/1\.1 404 Not Found\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*<meta name=\"generator\" content=\"\">\n<meta name=\"apple_required_ui_revision\" content=\"\">\n<meta name=\"apple_collab_uid\" content=\"\">\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1; Mac OS X teamsserver/ o/Mac OS X/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:$2/a cpe:/o:apple:mac_os_x/a
+match http m|^HTTP/1\.[01].*\r\nServer: Twisted/([\.\d]+) TwistedWeb/([\.\d]+)|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/ o/Mac OS X/ cpe:/a:twistedmatrix:twisted:$1/ cpe:/a:twistedmatrix:twistedweb:$2/a cpe:/o:apple:mac_os_x/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html.*\r\n\r\n<!DOCTYPE html\nPUBLIC.*\n<title>MikroTik RouterOS Managing Webpage</title>\n|s p/MikroTik router config httpd/ d/router/ cpe:/o:mikrotik:routeros/
 match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: text/html.*\r\n\r\n<!DOCTYPE html PUBLIC.*<title>RouterOS router configuration page</title>|s p/MikroTik router config httpd/ d/router/ o/RouterOS/ cpe:/o:mikrotik:routeros/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Azureus ([\d.]+)\r\n|s p/Azureus Bittorrent tracker httpd/ v/$1/
@@ -6534,7 +6534,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-type: text/html\r\nContent-Length: 
 # Wow! Temperature of the device! The Java version seems to be incorrect, though, so I'm excluding it
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: Java/[\d.]+\r\nContent-type: text/html\r\nContent-length: \d+\r\n\r\n.*<TITLE>TINIWebServer</TITLE>.*Current temperature ([\d.]+) F<BR>|s p/TINIWebServer Java httpd/ i/Device temperature $1F/ o/TiniOS/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\nThe requested URL '' was not found on the Divar\.<p>\nReturn to|s p/Bosch Divar closed circuit camera http config/ d/webcam/
-match http m|^HTTP/1\.0 501 Unsupported method \('GET'\)\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Python SimpleXMLRPCServer; Python $2/ cpe:/a:python:basehttpserver:$1/a
+match http m|^HTTP/1\.0 501 Unsupported method \('GET'\)\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Python SimpleXMLRPCServer; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Cable Modem\"\r\nContent-length: \d+\r\nContent-type: text/html\r\nConnect: Keep-Alive\r\n\r\n<html>\r\n<head><title>401 Unauthorized</title></head>\r\n<body><h1>401 Unauthorized</h1>\r\n<p>Access to this resource is denied; your client has not supplied the correct authentication\.</p></body>\r\n</html>\r\n| p|Coresma/Belkin Cable Modem httpd| d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"NETGEAR (WGR\w+)\"\r\nContent-type: text/html\r\n\r\n<html>\r\n<head><title>401 Unauthorized</title></head>\r\n<body><h1>401 Unauthorized</h1>\r\n<p>Access to this resource is denied; your client has not supplied the correct authentication\.</p></body>\r\n</html>\r\n$| p/Netgear $1 WAP http config/ d/WAP/ cpe:/h:netgear:$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<!-- Begin Hiding\n         netscapeVersion =|s p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/HP Deskjet 5800 http config/ d/printer/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a
@@ -6678,7 +6678,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Simple java\r\n.*<title>hp OpenView
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Micro-Web\r\nContent-type: text/html\r\n\r\n<html>\r\n<head>\r\n<TITLE> HP StorageWorks MSL Tape Library Management Console </TITLE>\n| p/Micro-Web/ i/HP StorageWorks MSL Tape Library http config/ d/storage-misc/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: RapidLogic/([\d.]+)\r\n.*<HTML>\n<HEAD>\n<TITLE>Switch Explorer</TITLE>\n|s p/RapidLogic httpd/ v/$1/ i/Fabric switch http config/ d/switch/ cpe:/a:rapidlogic:httpd:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Mono-XSP Server/([\d.]+) Unix\r\n| p/Mono-XSP .NET httpd/ v/$1/ o/Unix/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n| p/Karrigell Python httpd/ i/SimpleHTTP $1; Python $2/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n| p/Karrigell Python httpd/ i/SimpleHTTP $1; Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cougar ([\d.]+)\r\n|s p/VideoLAN Server streaming media/ i/Cougar $1/
 match http m|^HTTP/1\.0 404 Not found\r\n.*<title>Error 404</title>.*<a href=\"http://www\.videolan\.org\">VideoLAN</a>|s p/VideoLAN Server streaming media/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-type: text/html; charset=UTF-8\r\nCache-Control: no-cache\r\nContent-Length: \d+\r\n.* - - - - >\r?\n<  index\.html: VLC media player web interface\r?\n|s p/VLC media player http interface/ cpe:/a:videolan:vlc_media_player/
@@ -6752,7 +6752,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SmarterTools/([\d.]+)\r\n.*SmarterS
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Project Engine Server\r\n| p/Project Engine Server httpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Indy/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"NetStatus Professional\"\r\n|s p/Indy httpd/ v/$1/ i/NetStatus Professional/ o/Windows/ cpe:/a:indy:httpd:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: McAfee-Agent-HttpSvr/([\d.]+)\r\n| p/McAfee Agent httpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: HoneydHTTP/([\d.]+) Python/([\d.]+)\r\n| p/Honeyd httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: HoneydHTTP/([\d.]+) Python/([\d.]+)\r\n| p/Honeyd httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 3ware/([\d.]+)\r\n.*<title>3ware 3DM2 - ([-\w_.]+) - Summary</title>|s p/3ware 3DM2 Serial RAID http config/ v/$1/ d/storage-misc/ h/$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 3ware/([\d.]+)\r\n.*<title>3DM2 - ([-\w_.]+) - Summary</title>|s p/3ware 3DM2 Serial RAID http config/ v/$1/ d/storage-misc/ h/$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: unknown\r\nLocation: https://xweb-ext/__extraweb__/\r\nSet-Cookie: EXTRAWEB_REFERER=| p/Aventail SSL VPN Concentrator http config/ d/security-misc/
@@ -6788,7 +6788,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"VoIP
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Thunderstone-Texis/([\d.]+)\r\n| p/Thunderstone Texis search appliance http config/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"B49G\"\r\n| p/Gigabyte B49G WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WoWEmu\r\n| p/WoWEmu httpd/ i/World of Warcraft emulated server/
-match http m=^HTTP/1\.1 \d\d\d .*\r\nServer: InkHTTP/([\d.]+) Python/([\d.]+)\r\nDate: .*<title>Wirehog \| =s p/Wirehog http transfer interface/ i/InkHTTP $1; Python $2/
+match http m=^HTTP/1\.1 \d\d\d .*\r\nServer: InkHTTP/([\d.]+) Python/([\d.]+)\r\nDate: .*<title>Wirehog \| =s p/Wirehog http transfer interface/ i/InkHTTP $1; Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>   IP PHONE 2 V([\d.]+)         </TITLE>| p/NG VoIP Phone 2 http config/ v/$1/ d/VoIP phone/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\nConnection: close\r\n\r\n<!DOCTYPE html.*\n<title>WikiHome</title>\n</head>\n<body>\n<div id='header'>\n<form method='get' action='/?Search'>\n<table border='0' width='100%'>\n<tr>\n<td align='left' ><strong>WikiHome</strong>  \( <a href='\?edit' title='Edit this wiki page contents\. \[alt-j\]' accesskey='j'>Edit</a> \)|s p/Didiwiki httpd/
 match http m|^HTTP/1\.0 400 Wrong Port\r\nServer: ConferenceRoom/IRC\r\nConnection: Close\r\nContent-type: text/html\r\n\r\n<HTML><HEAD><TITLE>Connection to Wrong Port</TITLE></HEAD>\r\n<BODY>You have connected to an IRC server as if it were a web server</BODY>\r\n</HTML>\r\n| p/ConferenceRoom ircd/
@@ -6948,7 +6948,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: Agranat-EmWeb/R(
 match http m|^HTTP/1\.0 200 OK\r\nAllow:GET\r\nContent-Type:text/html\r\nExpires: .*\r\nContent-Length:\d+\r\n\r\n<HTML><HEAD><TITLE>Ringdale Printserver </TITLE>| p/Ringdale print server http config/ d/print server/
 match http m|^HTTP/1\.0 302 Found\nLocation: /login\.ews\r\nCache-Control: no-store\nContent-Type: text/html\r\n\r\n| p/Emerald Management Suite httpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FXO Configuration Web Server\"\r\nContent-type: text/html\r\n\r\n<html>\r\n<body><h1>401 Unauthorized</h1></body></html>\r\n| p/Tandem NSK D40 http config/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: glass/([\d.]+) Python/([-\w.]+)\r\n| p/IronPort AsyncOS http config/ i/glass $1; Python $2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: glass/([\d.]+) Python/([-\w.]+)\r\n| p/IronPort AsyncOS http config/ i/glass $1; Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=iso-8859-1\r\nPragma: No-cache\r\nServer: ACOS HTTPD/([\d.]+)\r\nCache-Control: no-cache\r\n.*\r\n\r\n<html>\r\n<head>\r\n<title>neuf telecom</title>\r\n|s p/ACOS httpd/ v/$1/ i/Neuf Box router http config/ d/router/
 match http m|^HTTP/1\.0 200 OK\r\nServer: U S Software Web Server\r\n.*<html>\n<head>\n<title>StorageLoader</title>\n|s p/Tandberg Data StorageLoader http config/ d/storage-misc/
 match http m|^HTTP/1\.0 200 OK\r\nServer: U S Software Web Server\r\n.*<html>\r\n<head>\r\n<title>StorageLoader</title>\r\n|s p/Tandberg Data StorageLoader Ultrium LTO http config/ d/storage-misc/
@@ -6990,7 +6990,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: (EWS-NIC\w+)/([\d.]+)\r\n.*<title>(
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (EWS-NIC\w+)/([\d.]+)\r\n.*<title>(WorkCentre \w+)</title>|s p/$1/ v/$2/ i/Xerox $3 printer http config/ d/printer/ cpe:/h:xerox:$3/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (EWS-NIC\w+)/([\d.]+)\r\n|s p/$1/ v/$2/ i/Xerox printer http config/ d/printer/
 
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: tracd/([-\w_.]+) Python/([-\w_.]+)\r\n| p/Tracd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: tracd/([-\w_.]+) Python/([-\w_.]+)\r\n| p/Tracd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Sametime Server \(Meeting Services\) ([\d.]+)\r\n\r\n| p/IBM Lotus Sametime httpd/ v/$1/ cpe:/a:ibm:lotus_sametime:$1/
 # Not sure if this is used anywhere other than the debian
 # apt caching server "approx"...
@@ -7083,7 +7083,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: Close\r\nContent-Type: text/htm
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: BigFixHTTPServer/([\d.]+)\r\n| p/BigFix enterprise patch management httpd/ v/$1/
 match http m|^HTTP/1\.0 200\r\nContent-Type:text/html\r\n\r\n<!--SELECTserver Full Page Header-->\r\n<html>\r\n\r\n<head>\r\n<title>\r\nSELECTserver: License Manager\r\n| p/Bentley SELECTserver license manager/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*X-Catalyst: ([\d.]+)\r\n\r\n|s p/Catalyst Framework httpd/ v/$1/
-match http m|^HTTP/1\.0 301 moved \(redirection follows\)\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\nDate: .*\r\nContent-type: text/html\r\nLocation: http://([-\w_.:]+)/viewcvs/\r\n\r\n| p/BaseHTTPServer/ v/$1/ i/ViewCVS http interface; Python $2/ h/$3/ cpe:/a:python:basehttpserver:$1/a
+match http m|^HTTP/1\.0 301 moved \(redirection follows\)\r\nServer: BaseHTTP/([\d.]+) Python/([\w.]+)\r\nDate: .*\r\nContent-type: text/html\r\nLocation: http://([-\w_.:]+)/viewcvs/\r\n\r\n| p/BaseHTTPServer/ v/$1/ i/ViewCVS http interface; Python $2/ h/$3/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"DCM-202\"\r\n| p/GoAhead WebServer/ i/D-Link DCM-202 Docsis Cable Modem http config/ d/router/ cpe:/a:goahead:goahead_webserver/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: micro_httpd\r\n.*\r\n<title>Belkin Wireless DSL Router</title>\r\n|s p/micro_httpd/ i/Belkin Wireless ADSL http config/ d/broadband router/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>VPAD01 V([\d.]+) *</TITLE>| p/E-Tech VPAD01 http config/ v/$1/ d/VoIP adapter/
@@ -7100,7 +7100,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html.*\n<meta name
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\d.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\n\r\n<HTML>\n<HEAD>\n  <TITLE>WireSpeed Dual Connect</TITLE>\n\n| p/RapidLogic httpd/ v/$1/ i/Westell WireSpeed Dual Connect ADSL router http config/ d/router/ cpe:/a:rapidlogic:httpd:$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\n.* This is a WebSEAL error message template file\.|s p/Tivoli Access Manager WebSEAL httpd/ cpe:/a:ibm:tivoli_access_manager_for_e-business/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Frameset//EN\">\n<html>\n\n<head>\n<title>Web Smart Switch</title>| p/3Com Baseline 2816 switch http config/ d/switch/ cpe:/h:3com:baseline_2816/a
-match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\nDate:.*<title>AmaroK playlist</title>\n\n|s p/AmaroK media player http interface/ i/SimpleHTTP $1; Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\nDate:.*<title>AmaroK playlist</title>\n\n|s p/AmaroK media player http interface/ i/SimpleHTTP $1; Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: LANDesk Management Agent/([\d.]+)\r\n| p|LANDesk/Intel Management Agent http config| v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: PowerSchool\r\n| p/PowerSchool student information system httpd/
 match http m|^HTTP/1\.0 .*Server: NetWare GroupWise POA ([\d.]+)\r\n|s p/NetWare GroupWise POA httpd/ v/$1/ o/NetWare/ cpe:/a:novell:groupwise:$1/ cpe:/o:novell:netware/a
@@ -7126,7 +7126,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Medusa/([\w.]+)\r\n.*\n<head>\n<met
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Medusa/([\w.]+)\r\n.*<title>Sophos Anti-Virus - Home</title>\n\n|s p/Medusa httpd/ v/$1/ i/Sophos Anti-Virus Home http config/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*Server: Medusa/([\w._-]+)\r\n.*<title>Supervisor Status</title>\n  <link href=\"stylesheets/supervisor\.css\" rel=\"stylesheet\" type=\"text/css\" />|s p/Medusa httpd/ v/$1/ i/Supervisor process manager/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n.*Server: Medusa/([\w._-]+)\r\n|s p/Medusa httpd/ v/$1/ i/Supervisor process manager/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .* GMT\r\nServer: WSGIServer/([\w._-]+) Python/([\w._+-]+)\r\n| p/WSGIServer/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .* GMT\r\nServer: WSGIServer/([\w._-]+) Python/([\w._+-]+)\r\n| p/WSGIServer/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nServer: Agranat-EmWeb/R([\d_]+)\r\nWWW-Authenticate: Basic realm=\"Nortel p-Class GbE2 Switch@[\d.]+\"\r\n\r\n401 Unauthorized\r\n| p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ i/Nortel p-Class GbE2 switch http config/ d/switch/ cpe:/a:agranat:emweb:$SUBST(1,"_",".")/a
 match http m|^HTTP/1\.1 200 OK\r\nConnection: Keep-Alive\r\nAccept-Ranges: bytes\r\nKeep-Alive: timeout=15, max=100\r\nContent-Type: text/html\r\nExpires: 0\r\n\r\n\n<html>\n<title>Apt-cacher version ([\d.]+)\n| p|apt-cache/apt-proxy httpd| v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 200 Ok\nDate: .*\nContent-type: text/html\n\n<font size=\"-4\">\nIf you can read this, you are sitting too close to the monitor\.\n</font>\n| p/Unknown trojan/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -7341,9 +7341,9 @@ match http m|^HTTP/1\.0 \d\d\d .*\nServer: SCO I2O Dialogue Daemon ([-\w_.]+) \n
 match http m|^HTTP/1\.1 404 OK\r\nServer: Lotus Expeditor Web Container/([-\w_.]+)\r\n| p/Lotus Notes Expeditor httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Cpanel::Httpd like Apache\r\n.*\r\nWWW-Authenticate: Basic realm=\"cPanel WebDisk\"\r\n\r\n|s p/cPanel WebDisk httpd/ o/Linux/ cpe:/o:linux:linux_kernel/a
 
-match http m|^HTTP/1\.0 302 FOUND\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\nDate: .*location: /login/login\r\npragma: no-cache\r\ncache-control: no-cache\r\nset-cookie:  hellahella=|s p/PasteWSGIServer/ v/$1/ i/HellaHella httpd; Python $2/
-match http m|^HTTP/1\.0 200 OK\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\n.*<title>Welcome to Pylons!</title>|s p/PasteWSGIServer/ v/$1/ i/Pylons web framework; Python $2/
-match http m|^HTTP/1\.0 200 OK\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\n.*<div id=\"loggerheadCont\">|s p/PasteWSGIServer/ v/$1/ i/Bazaar loggerhead httpd; Python $2/
+match http m|^HTTP/1\.0 302 FOUND\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\nDate: .*location: /login/login\r\npragma: no-cache\r\ncache-control: no-cache\r\nset-cookie:  hellahella=|s p/PasteWSGIServer/ v/$1/ i/HellaHella httpd; Python $2/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\n.*<title>Welcome to Pylons!</title>|s p/PasteWSGIServer/ v/$1/ i/Pylons web framework; Python $2/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\n.*<div id=\"loggerheadCont\">|s p/PasteWSGIServer/ v/$1/ i/Bazaar loggerhead httpd; Python $2/ cpe:/a:python:python:$2/
 
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: NessusWWW\r\n.*Content-Length: 5955\r\n.*ETag: \"e6f27b4d0bc325a6ddf5125b5f86e585\"\r\n.*<!-- saved from url=\(0016\)http://localhost -->\n<html lang=\"en\">\n\n<!-- \nSmart developers always View Source\. \n\nThis application was built using Adobe Flex.*<title>Nessus</title>|s p/NessusWWW/ i/Nessus vulnerability scanner http UI/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: NessusWWW\r\n.*Content-Length: 6518\r\n.*ETag: \"186071cd1807c2c4b2d058d0aad65e63\"\r\n.*<!-- saved from url=\(0016\)http://localhost -->\n<html lang=\"en\">\n\n<!-- \nSmart developers always View Source\. \n\nThis application was built using Adobe Flex.*<title>Nessus</title>|s p/NessusWWW/ i/Nessus vulnerability scanner http UI/
@@ -7397,7 +7397,7 @@ match http m|^HTTP/1\.0 200 Ok\r\nServer: \r\n.*<title>RWO-CPE-PLUS-G Login Page
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>Netgear System Login</TITLE>.*<IMG SRC = \"/base/images/Netgear_fsm(\w+)_banner\.gif\"|s p/Netgear FSM$1 switch http config/ d/switch/
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>NetGear FSM7352S</TITLE>|s p/Netgear FSM7352S switch http config/ d/switch/ cpe:/h:netgear:fsm7352s/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: FM Web Publishing\r\n|s p/FileMaker Web Publishing httpd/
-match http m|^HTTP/1\.1 \d\d\d Snakelet output follows\r\nServer: Snakelets/([-\w_.]+) Python/([-\w_.]+)\r\n| p/Snakelets httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.1 \d\d\d Snakelet output follows\r\nServer: Snakelets/([-\w_.]+) Python/([-\w_.]+)\r\n| p/Snakelets httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDocuCentre Color (\d+) -|s p/Fuji Xerox DocuCentre Color $1 http config/ d/printer/
 match http m|^HTTP/1\.1 \d\d\d .*Fuji Xerox Co\..*\r\n<TITLE>B6300 -|s p/Fuji Xerox B6300 printer http config/ d/printer/ cpe:/h:xerox:b6300/a
 match http m|^HTTP/1\.0 \d\d\d .*Server: Boa/([-\w_.]+) \(with Intersil Extensions\)\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"CONNECT2AIR AP-600RP-USB LOGIN Enter Password \(default is connect\)\"\r\n|s p/Boa/ v/$1/ i/Fujitsu Siemens CONNECT2AIR AP-600RP-USB WAP http config; default password "connect"/ d/WAP/ cpe:/h:fujitsu:siemens_connect2air_ap-600rp-usb/a
@@ -7445,7 +7445,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: must
 match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: OKIDATA-HTTPD/([\w._-]+)\r\n.*<title>([^<]+)</title>|s p/OKIDATA httpd/ v/$1/ i/Oki $2 printer http config/ d/printer/ cpe:/h:oki:$2/a
 match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w._-]+)\r\n.*<title>([^-<\r\n]+) - VSX 8000</title>\n<link rel=\"stylesheet\" href=\"sabrestyle\.css\"|s p/NetPort httpd/ v/$1/ i/Polycom VSX 8000 http config $2/ d/webcam/
 match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w._-]+)\r\n.*<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"no-cache\">\n    <link rel=\"stylesheet\" href=\"sabre\.css\"|s p/NetPort httpd/ v/$1/ i/Polycom VSX 8000 http config/ d/webcam/
-match http m|^HTTP/1\.0 303 Redirecting\r\nServer: httpd/[\d.]+ Python/([\d.]+)\r\n.*Cache-Control: no-store,no-cache,must-revalidate,max-age=0,post-check=0,pre-check=0\r\n.*<title>: Redirecting\n</title>\n<meta http-equiv=\"Refresh\" content=\"0; URL=http://([\w._-]+):\d+/login\"|s p/IronPort Mailflow http config/ i/Python $1/ d/specialized/ h/$2/
+match http m|^HTTP/1\.0 303 Redirecting\r\nServer: httpd/[\d.]+ Python/([\d.]+)\r\n.*Cache-Control: no-store,no-cache,must-revalidate,max-age=0,post-check=0,pre-check=0\r\n.*<title>: Redirecting\n</title>\n<meta http-equiv=\"Refresh\" content=\"0; URL=http://([\w._-]+):\d+/login\"|s p/IronPort Mailflow http config/ i/Python $1/ d/specialized/ h/$2/ cpe:/a:python:python:$1/
 match http m|^<html><head><title>Task Manager Server Report</title></head>| p/Dolbey Fusion Focus Task Manager httpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: XGATE-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NB(\w+) Wireless Router\"\r\n| p/NetComm NB$1 WAP http config/ i/XGATE-Webs/ d/WAP/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: XGATE-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"XG6546p2 Wireless Router\"\r\n| p/XAVi XG6546p Wireless Gateway/ i/XGATE-Webs/ d/WAP/
@@ -7457,7 +7457,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\w._-]+)\r\n.*<SCRIPT LANGUA
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: WindWeb/([\w._-]+)\r\n.*<title>TrueTime - NTS-200 Web Interface -|s p/WindWeb/ v/$1/ i/TrueTime NTS-200 http config/ d/specialized/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.1 302 Found\r\nConnection: Keep-Alive\r\nServer: \r\n.*<!-- this page must have 520 bytes or more, ie is a wonderfull program -->.*<html>\r\n<head>\r\n<title>302-Found</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n</head>\r\n<body>\r\n<h1>302-Found</h1>\r\n<a href='/login\.html\?id=\d+'>/login\.html</a>|s p|Siemens Gigaset PBX/TARGA DIP VoIP phone http config|
 match http m|^HTTP/1\.1 302 Found\r\nConnection: Close\r\nServer: \r\n.*<!-- this page must have 520 bytes or more, ie is a wonderfull program -->.*<html>\r\n<head>\r\n<title>302-Found</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n</head>\r\n<body>\r\n<h1>302-Found</h1>\r\n<a href='/login\.html\?id=\d+'>/login\.html</a>|s p/Siemens Gigaset A580, DX800A, or S450 VoIP phone http config/ d/VoIP phone/
-match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n.*<HTML>\n<TITLE>WifiZoo v([\w._-]+) - Control Panel</TITLE>|s p/WifiZoo http control panel/ v/$3/ i/SimpleHTTP $1; Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n.*<HTML>\n<TITLE>WifiZoo v([\w._-]+) - Control Panel</TITLE>|s p/WifiZoo http control panel/ v/$3/ i/SimpleHTTP $1; Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*\n\n\t\t<title>PGP Universal - Page Not Found</title>\n|s p/PGP Universal httpd/ cpe:/a:pgp:universal_server/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: PWS/([\w._-]+)\r\n| p/PWS httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Wireless ADSL2\+ Router\"\r\n| p/micro_httpd/ i/Dynalink RTA1025W WAP http config/ d/WAP/ cpe:/a:acme:micro_httpd/
@@ -7526,7 +7526,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nServer: WYM/([\w._-]+)\r
 match http m|^HTTP/1\.0 404 Error 404 : Domain Not Found.*\r\nServer: MMM BosServer/([\w._-]+)\r\n|s p/MMM BosServer httpd/ v/$1/
 match http m|^HTTP/1\.0 200 CREATED\r\nDate: .*\r\nExpires: .*\r\nServer: WhatsUp_Gold/([\w._-]+)\r\n| p/WhatsUp Gold httpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 200 OK\r\nServer: SNARE/([\w._-]+)\r\nMIME-version: [\d.]+\r\nContent-type: text/html\r\n\r\n<HTML><head><title>InterSect Alliance - Information Technology Security</title>| p/InterSect Alliance SNARE httpd/ v/$1/ cpe:/a:intersectalliance:system_intrusion_analysis_and_reporting_environment:$1/
-match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*<title>NPAD Diagnostics|s p/NPAD Diagnostics httpd/ i/SimpleHTTP $1; Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*<title>NPAD Diagnostics|s p/NPAD Diagnostics httpd/ i/SimpleHTTP $1; Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 match http m|^HTTP/1\.1 401 Unathorized\r\nWWW-Authenticate: BASIC realm=\"PY Software Active WebCam\"\r\n| p/PY Software Active webcam httpd/ d/webcam/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Linksys WAG200G \"\r\n| p/Linksys WAG200G http config/ d/WAP/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"Thomson_cwmp_([\w._-]+)\", nonce=| p/Thomson TR-69 http config/ v/$1/ d/broadband router/
@@ -7691,7 +7691,7 @@ match http m|^HTTP/1\.1 303 See Other\r\nContent-Type: text/html\r\nContent-Leng
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nExpires: -1\r\n Cache-Control: no-cache\r\n.*<title>Contivity VPN Client</title>|s p/Contivity VPN Client httpd/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*<title>RemoteView</title>.*<frame name=\"menu\" src=\"Menu_main\.htm\" target=\"parent\.work\"|s p/Kguard Security DVR http config/ d/webcam/
 match http m|^HTTP/1\.0 200 OK\r\n.*<title>LaCie Network Space NAS</title>.*<meta http-equiv=\"refresh\" content=\"0;url=/cgi-bin/public/login\">|s p/LaCie Network Space NAS http config/ d/storage-misc/
-match http m|^HTTP/1\.0 200 OK\r\nServer: Development/([\w._-]+) Python/([\w._-]+)\r\n| p/Google App Engine httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: Development/([\w._-]+) Python/([\w._-]+)\r\n| p/Google App Engine httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Development/([\w._-]+)\r\n| p/Google App Engine httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n<html><head><title>APC Back-UPS HS 500\(BackUPS500\0\)</title>| p/APC Back-UPS HS 500 http config/ d/power-device/
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 16\r\n\r\nEAccessViolation$| p/TiVo Desktop Server http config/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -7955,7 +7955,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*<meta name=\"description\" content=\"VMware 
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 273\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Root Index</TITLE></HEAD><BODY><UL><LI><A HREF=\"/ccm-notify\">/ccm-notify</A></LI>\r\n<LI><A HREF=\"/ccm-proxy\">/ccm-proxy</A></LI>\r\n<LI><A HREF=\"/ccm-update\">/ccm-update</A></LI>\r\n<LI><A HREF=\"/config_public/\">/config_public/</A></LI>\r\n</UL></BODY></HTML>\r\n$| p/RSA SecurID 2.0 RADIUS http config/ d/security-misc/ cpe:/h:rsa:securid:2.0/
 match http m|^HTTP/1\.1 400 Bad Request\r\n.*Server: LapLink ([\d.]+)\r\n|s p/Laplink file transfer httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\n\n<HTML>\n<HEAD>\n<TITLE>[\w._-]+ - Hallo!</TITLE>| p/Xrelayd SSL engine httpd/ i/OpenWrt/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match http m|^HTTP/1\.0 200 OK\r\nServer: jToolkitHTTP/([\w._-]+) Python/([\d.]+)\r\n| p/jToolkit web framework httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: jToolkitHTTP/([\w._-]+) Python/([\d.]+)\r\n| p/jToolkit web framework httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 200 Document follows\r\n.*Server: PureMessage Web Server\r\n|s p/Sophos PureMessage spam filter http interface/
 match http m|^HTTP/1\.0 200 OK\r\nServer: iCanWebServer/([\d.]+)\r\n.*<TITLE>Network Camera Viewer</TITLE>|s p/iCanWebServer/ v/$1/ d/webcam/
 match http m|^HTTP/1\.1 302 Found\r\n.*Location: https://([\w._-]+):(\d+)/zimbra/\r\n|s p/Zimbra http config/ i/redirect to https on port $2/ h/$1/
@@ -8174,7 +8174,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*ETag: W/\"[\d-]+\"\r\n.*Server: Undefined\r\
 match http m|^HTTP/1\.1 200 OK\r\n.*ETag: W/\"[\d-]+\"\r\n.*Server: Undefined\r\n.*<meta http-equiv=\"refresh\" content=\"0;URL=/core/orionSplashScreen\.do\" />|s p/McAfee ePolicy Orchestrator http interface/ cpe:/a:mcafee:epolicy_orchestrator/
 match http m|^HTTP/1\.1 401 \r\nDate: Sat, 21 Dec 1996 12:00:00 GMT\r\nWWW-Authenticate: Basic realm=\"Default password:1234\"\r\n\r\n401 Unauthorized - User authentication is required\.$| p/Edimax PS-1206P print server/ d/print server/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\n.*Server: Noelios-Restlet-Engine/([\w._-]+)\r\nLocation: http://([\w._-]+)/index\.html\r\nVary: Accept-Charset,Accept-Encoding,Accept-Language,Accept,User-Agent\r\nContent-Length: 0\r\nConnection: close\r\nContent-Type: text/plain\r\n\r\n$|s p/Noelios Restlet Framework/ v/$1/ i/Sonatype Nexus Maven Repository Manager/ h/$2/
-match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*Content-Type: text/html\r\nConnection: close\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 501\.\n<p>Message: Not Implemented\.\n<p>Error code explanation: 501 = Server does not support this operation\.\n</body>\n$|s p/SimpleHTTPServer/ v/$1/ i/rPath Appliance Platform Agent; Python $2/
+match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._-]+)\r\n.*Content-Type: text/html\r\nConnection: close\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 501\.\n<p>Message: Not Implemented\.\n<p>Error code explanation: 501 = Server does not support this operation\.\n</body>\n$|s p/SimpleHTTPServer/ v/$1/ i/rPath Appliance Platform Agent; Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: CMSHTTPD/([\w._-]+) z_VM/([\w._-]+) ([^\r\n]+)\r\n|s p/CMSHTTPD/ v/$1/ i|z/VM $2; $3| o|z/VM|
 match http m|^HTTP/1\.0 200 OK\nServer: Cardax Embedded Interface\n.*<H1>CardaxFT Controller #  (\d+)  \(ETS\)</H1>.*<br>Version: v([\w._/-]+) BootMon-([\w._-]+)</body>\n$|s p/Cardax FT security system http interface/ v/$2/ i/Controller #$1; BootMon $3/ d/security-misc/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nAllow: GET,POST,HEAD\r\nMIME-Version: 1\.0\r\nServer: (MA\w+) Server ([\w._-]+)\r\nLocation: http://0\.0\.0\.0\r\n\r\n$| p/Huawei $1 WAP http config/ v/$2/ cpe:/h:huawei:$1/a
@@ -8192,7 +8192,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Server: HyNetOS/([\w._-]+)\r\n.*<title>(CS\d
 match http m|^HTTP/1\.1 200 OK\r\nX-Cocoon-Version: ([\w._-]+)\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*<title>F-Secure Policy Manager Web Reporting</title>|s p/F-Secure Policy Manager http interface/ i/Apache Cocoon $1/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: ShellHTTPD/([\w._-]+)\r\n.*<title>Dachstein LEAF Firewall</title>|s p/ShellHTTPD/ v/$1/ i/Dachstein LEAF firewall/ d/firewall/ o/Linux 2.2/ cpe:/o:linux:linux_kernel:2.2/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: Thu, 01 Jan 1970 00:00:00 GMT\r\nnServer: avtech/([\w._-]+)\.\.Expires: 0\r\nPragma:  no-cache\r\nCache-Control:  no-cache\r\nConnection: close\r\nContent-type: text/html;charset=ISO-8859-1\r\nWWW-Authenticate: Basic realm=server\r\nContent-Length: 163\r\n| p/avtech httpd/ v/$1/ i/Postef-8840 ADSL router/ d/broadband router/
-match http m|^HTTP/1\.0 200 Script output follows\r\nServer: shinGETsu/([\w._-]+) \(Saku/([\w._-]+)\) Python/([\w._-]+)\r\n| p/Saku/ v/$2/ i/client for shinGETsu $1 BBS; Python $3/
+match http m|^HTTP/1\.0 200 Script output follows\r\nServer: shinGETsu/([\w._-]+) \(Saku/([\w._-]+)\) Python/([\w._-]+)\r\n| p/Saku/ v/$2/ i/client for shinGETsu $1 BBS; Python $3/ cpe:/a:python:python:$3/
 match http m|^HTTP/1\.1 503 HTTP is not licensed\.<p>To set up this filer, use <a href=/api>/api</a> \.\r\nServer: Data ONTAP/([\w._-]+)\r\n| p/NetApp http vFiler/ o/Data ONTAP $1/ cpe:/a:netapp:data_ontap:$1/
 match http m|^HTTP/1\.1 503 HTTP is not licensed\.<p>To administer this filer, use <a href=/na_admin/>/na_admin/</a> \.\r\nServer: NetApp//([\w._-]+)\r\n| p/NetApp http vFiler/ v/$1/ o/Data ONTAP/ cpe:/a:netapp:data_ontap/ cpe:/o:netapp:data_ontap/a
 match http m|^HTTP/1\.1 503 HTTP is not enabled \(the value of option httpd\.enable is off\)\.<p>To administer this filer, use <a href=/na_admin/>/na_admin/</a> \.\r\nServer: NetApp//([\w._-]+)\r\n| p/NetApp http vFiler/ v/$1/ o/Data ONTAP/ cpe:/a:netapp:data_ontap/ cpe:/o:netapp:data_ontap/a
@@ -8248,11 +8248,11 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 227
 match http m|^HTTP/1\.0 501 Method Not Implemented\r\nContent-Length: 0\r\n\r\n$| p/Zotero httpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Schleifenbauer SPbus gateway\r\n.*<!-- seinclude basicpagehead\.txt -->\r\n|s p/Schleifenbauer SPbus gateway http config/ d/power-device/
 match http m|^HTTP/1\.1 200 OK\r\nServer: ExtremeZ-IP/([\w._-]+)\r\n.*<title>ExtremeZ-IP HTTP Service</title>|s p/ExtremeZ-IP httpd/ v/$1/
-match http m|^HTTP/1\.0 302 FOUND\r\nContent-Type: text/html; charset=utf-8\r\nLocation: http://([\w._-]+):\d+/login\?next=%2F\r\n.*Server: Werkzeug/([\w._-]+) Python/([\w._-]+)\r\n|s p/Werkzeug httpd/ v/$2/ i/Flask web framework; Python $3/ h/$1/
-match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n.*Server: Werkzeug/([\w._-]+) Python/([\w._+-]+)\r\n|s p/Werkzeug httpd/ v/$1/ i/Python $2/
-match http m|^HTTP/1\.0 301 MOVED PERMANENTLY\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \d+\r\nLocation: http://0\.0\.0\.0:\d+/web/webclient/home\r\nServer: Werkzeug/([\w._-]+) Python/([\w._+-]+)\r\n| p/Werkzeug httpd/ v/$1/ i/OpenERP XML-RPC; Python $2/ o/Unix/
-match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nVary: Cookie, User-Agent, Accept-Language\r\nConnection: close\r\nServer: MoinMoin ([\w._-]+) release Python/([\w._~+-]+)\r\n| p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/
-match http m|^HTTP/1\.0 200 OK\r\nServer: MoinMoin ([\w._-]+) release ThreadPoolServer Python/([\w._~+-]+)\r\n| p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 302 FOUND\r\nContent-Type: text/html; charset=utf-8\r\nLocation: http://([\w._-]+):\d+/login\?next=%2F\r\n.*Server: Werkzeug/([\w._-]+) Python/([\w._-]+)\r\n|s p/Werkzeug httpd/ v/$2/ i/Flask web framework; Python $3/ h/$1/ cpe:/a:python:python:$3/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n.*Server: Werkzeug/([\w._-]+) Python/([\w._+-]+)\r\n|s p/Werkzeug httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 301 MOVED PERMANENTLY\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \d+\r\nLocation: http://0\.0\.0\.0:\d+/web/webclient/home\r\nServer: Werkzeug/([\w._-]+) Python/([\w._+-]+)\r\n| p/Werkzeug httpd/ v/$1/ i/OpenERP XML-RPC; Python $2/ o/Unix/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nVary: Cookie, User-Agent, Accept-Language\r\nConnection: close\r\nServer: MoinMoin ([\w._-]+) release Python/([\w._~+-]+)\r\n| p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: MoinMoin ([\w._-]+) release ThreadPoolServer Python/([\w._~+-]+)\r\n| p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 77\r\nServer: Indy/([\w._-]+)\r\nWWW-Authenticate: Basic realm=\"Delta Server Management Interface\"\r\n| p/Indy httpd/ v/$1/ i/Avaya IP Office Delta Server/ d/PBX/ cpe:/a:indy:httpd:$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*<!--\r\n#\r\n# If you have a 'split' directory installation, with configuration\r\n# files in ~/\.i2p \(Linux\) or %APPDATA%\\I2P \(Windows\), be sure to\r\n# edit the file in the configuration directory, NOT the install directory\.\r\n#\r\n--><title>I2P Anonymous Webserver</title>|s p/I2P anonymous httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Sun-Java-System-Web-Proxy-Server/([\w._-]+)\r\n.*WWW-authenticate: basic realm=\"Web Proxy Server Administration\"\r\n|s p/Sun Java System Web Proxy http admin/ v/$1/ cpe:/a:sun:java_system_web_proxy_server:$1/
@@ -8987,14 +8987,14 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\d.]+)\r\n| p/RapidLogic 
 # also cisco SRPC utility
 #match http m|^HTTP/1\.0 200 Ok\r\n.*Server: httpd\r\n|s p/DD-WRT milli_httpd/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: GoAhead-Webs\r\n| p/GoAhead WebServer/ cpe:/a:goahead:goahead_webserver/
-match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n| p/SimpleHTTPServer/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n| p/SimpleHTTPServer/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 match http m|^HTTP/1\.0 \d\d\d .*Server: Mbedthis-App[Ww]eb/([\d.]+)\r\n|s p/Mbedthis-Appweb/ v/$1/ cpe:/a:mbedthis:appweb:$1/
 match http m|^UnknownMethod 404 Not Found\r\n.*Server: Mbedthis-Appweb/([\w._-]+)\r\n|s p/Mbedthis-Appweb/ v/$1/ cpe:/a:mbedthis:appweb:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Tntnet/([\w._-]+)\r\n|s p/Tntnet/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PasteWSGIServer/([-\w_+.]+) Python/([-\w_+.]+)\r\n| p/PasteWSGIServer/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PasteWSGIServer/([-\w_+.]+) Python/([-\w_+.]+)\r\n| p/PasteWSGIServer/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Quickserve/([\w._-]+)\r\n| p/Quickserve httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Allegro-Software-RomPager/([\d.]+)\r\n|s p/Allegro RomPager/ v/$1/ cpe:/a:allegro:rompager:$1/
-match http m|^HTTP/1\.[01] 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w._+-]+)\r\n|s p/BaseHTTPServer/ v/$1/ i/Python $2/ cpe:/a:python:basehttpserver:$1/a
+match http m|^HTTP/1\.[01] 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w._+-]+)\r\n|s p/BaseHTTPServer/ v/$1/ i/Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nConnection: Keep-Alive\r\nServer: FlashCom/([\w._-]+)\r\nCache-Control: no-cache\r\nContent-Length: 0\r\n\r\n$| p/FlashCom httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*Server: thin ([\w._-]+) codename ([\w\s]+)\r\n|s p/Thin/ v/$1/ i/codename $2/
 match http m|^HTTP/1\.0 \d\d\d .*Server: WYM/([\d\.]+)\r\n|s p/WYM httpd/ v/$1/
@@ -9013,7 +9013,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: OmikronHTTPOrigin/([\w.
 match http m|^HTTP/1\.[01] \d\d\d .*Server: Zope/\((?:Zope )?([\d\w][^\,\)]+),?\s*([^\)]+)\)\S*\s+([^\r]+)\r\n|s p/Zope httpd/ v/$1/ i/$2; $3/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: zope\.server\.http \(zope\.server\.http\)\r\n|s p/Zope httpd/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: zope\.server\.http \(HTTP\)\r\n|s p/Zope httpd/
-match http m|^HTTP/1\.[01] \d\d\d .*X-Powered-By: Zope \(www\.zope\.org\), Python \(www\.python\.org\)\r\n|s p/Zope httpd/
+match http m|^HTTP/1\.[01] \d\d\d .*X-Powered-By: Zope \(www\.zope\.org\), Python \(www\.python\.org\)\r\n|s p/Zope httpd/ cpe:/a:python:python/
 # src/connections.c
 match http m|^HTTP/1\.0 \d\d\d .*Server: lighttpd/([\w._-]+).*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/ v/$1/ cpe:/a:lighttpd:lighttpd:$1/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Optenet Web Server\r\n| p/Optenet httpd/
@@ -9033,7 +9033,7 @@ match http m|^HTTP/1\.1 200 OK\r.*\nServer: Node v([\d.]+)\r\n|s p/Node.js httpd
 match http m|^HTTP/1\.1 200 OK\r.*\nServer: GHC\r\n|s p/Gemius Hit Counter/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Pegasus/Plan9\r\n|s p/Pegasus httpd/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Tengine\r\n|s p/Tengine httpd/
-match http m|^HTTP/1\.0 \d\d\d [A-Z ]*\r.*\nServer: Werkzeug/([\w._-]+) Python/([\w._-]+)\r\n|s p/Werkzeug httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 \d\d\d [A-Z ]*\r.*\nServer: Werkzeug/([\w._-]+) Python/([\w._-]+)\r\n|s p/Werkzeug httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Webduino/([\w._-]+)\r\n| p/Webduino httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Restlet-Framework/([\w._-]+)\r\n|s p/Restlet Java web framework/ v/$1/
 # version is always 1.0. QUIP is configurable
@@ -9230,7 +9230,7 @@ match http-proxy m|^HTTP/1\.0 403 Forbidden\r\n.*<TITLE>\r\nFEHLER: Der Zugriff 
 match http-proxy m|^HTTP/1\.0 404 Not Found\r\n.*<title>HINWEIS: Der Zugriff auf die angeforderte URL war nicht erfolgreich</title>|s p/AVM FRITZ!Box Fon WAP http proxy/ d/WAP/
 match http-proxy m|^HTTP/1\.0 404 Not Found\r\n.*<title>HINWEIS: Die Internetnutzung ist gesperrt\.</title>|s p/AVM FRITZ!Box Fon WLAN 7100-series http proxy/ d/WAP/
 match http-proxy m|^HTTP/1\.0 407 Proxy access denied\r\nProxy-Authenticate: NTLM\r\nProxy-Connection: keep-alive\r\nContent-Length: 0\r\n\r\n$| p/ScanSafe http proxy/
-match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w._-]+)\r\n.*<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad Request\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n$|s p/BaseHTTPServer/ v/$1/ i/GAppProxy Google App Engine proxy; Python $2/ cpe:/a:python:basehttpserver:$1/a
+match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w._-]+)\r\n.*<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad Request\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n$|s p/BaseHTTPServer/ v/$1/ i/GAppProxy Google App Engine proxy; Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 # Etisalat - United Arab Emirates telecom company.
 match http-proxy m|^HTTP/1\.1 501 Not Implemented\r\n.*<title>This site is blocked</title>.*<img border=\"0\" src=\"http://([\w._-]+)/images-ip/ipblocked\.jpg\" \nuseMap=#links2 border=0>.*<area title=\"\" shape=RECT alt=\"\" coords=\"494, 20, 580, 105\" href=\"http://www\.etisalat\.ae\">|s p/Etisalat censorship http proxy/ i/site blocked/ h/$1/
 match http-proxy m|^HTTP/1\.1 403 Forbidden\r\n.*<title>This site is blocked</title>.*<img border=\"0\" src=\"http://([\w._-]+)/images-ip/siteblocked\.jpg\" useMap=#links border=0>.*<area title=\"\" shape=RECT alt=\"\" coords=\"154, 449, 254, 463\" href=\"http://www\.etisalat\.ae/proxy\">|s p/Etisalat censorship http proxy/ i/site blocked/ h/$1/
@@ -10070,7 +10070,7 @@ match http m|^HTTP/1\.0 400 Bad Request\r\nServer: \r\nContent-Type: text/html\r
 match http m|^HTTP/1\.1 501 Not Implemented\r\nDate: .* GMT\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 54\r\n\r\n<HTML><BODY><H1>501 Not Implemented</H1></BODY></HTML>$| p/VMware ESXi 4.1 Server httpd/
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nServer: Membase Server ([\w.-]+)\r\nPragma:| p/Membase Admin httpd/ v/$1/
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nServer: Couchbase Server ([\w.-]+)\r\nPragma:| p/Couchbase Admin httpd/ v/$1/
-match http m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: BaseHTTP/([\w._-]+) Python/([\w._+-]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Python $2/ cpe:/a:python:basehttpserver:$1/a
+match http m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: BaseHTTP/([\w._-]+) Python/([\w._+-]+)\r\n| p/BaseHTTPServer/ v/$1/ i/Python $2/ cpe:/a:python:basehttpserver:$1/a cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: 148\r\nDate: .* GMT\r\nConnection: close\r\n\r\n500 Internal Server Error\n\nThe server has either erred or is incapable of performing the requested operation\. \n\n 'NoneType' object is not iterable  $| p/Nicira bridge http admin/ d/bridge/
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: \r\n\r\n<html><head><title>404 Not Found</title></head>\n<body><h1>404 Not Found</h1>\n/: <pre>This item has not been found</pre>\n<hr><address><a href=\"http://(BLACKBERRY-[\w._-]+):\d+/\">[\w._-]+:\d+</a></address>\n</body></html>\n$| p/BlackBerry PlayBook QConnDoor httpd/ h/$1/ cpe:/h:rim:blackberry_playbook_tablet/ cpe:/o:rim:blackberry_playbook_os:2.0/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Router\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"Roteador Intelbras Wireless N 150Mbps\"\r\n| p/Intelbras router httpd/ d/WAP/
@@ -10084,7 +10084,7 @@ match http m|^HTTP/1\.1 403 Forbidden\r\nPragma: No-cache\r\nCache-Control: no-c
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*? UTC\r\nContent-type: text/html\r\nExpires: Thu, 16 Feb 1989 00:00:00 GMT\r\n\r\n<H1>501 Not Implemented</H1>\r\n\r\n\r\n| p/Cisco IOS httpd/ o/IOS/ cpe:/o:cisco:ios/a
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Origin: \r\nAccess-Control-Allow-Credentials: true\r\nAccess-Control-Max-Age: 86400\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nServer: nzbget-([\w._-]+)\r\n\r\n| p/NZBGet httpd/ v/$1/
 match http m|^HTTP/1\.1 501 Not Implemented\r\nContent-Length: 0\r\nConnection: close\r\n\r\nHTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Securesphere Gateway Authentication\"\r\nContent-Length: 0\r\nConnection: close\r\nSet-Cookie: session_id=\d+; Path=/\r\n\r\n| p/Imperva SecureSphere WAF http admin/
-match http m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: JiffyServer/([\w._-]+) Python/([\w._-]+)\r\nDate: .*\r\nContent-Type: text/html;charset=utf-8\r\nConnection: close\r\n\r\n| p/Jiffy secure messaging httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: JiffyServer/([\w._-]+) Python/([\w._-]+)\r\nDate: .*\r\nContent-Type: text/html;charset=utf-8\r\nConnection: close\r\n\r\n| p/Jiffy secure messaging httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 405 Method not allowed\r\nCache-Control: no-cache\r\nConnection: close\r\nPragma: no-cache\r\nContent-Length: 8\r\nContent-Type: text/html\r\nAccept-Ranges: bytes\r\n\r\nERROR=0\n| p/ACTi NVR3 httpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*\r\nServer: GateOne\r\nX-Ua-Compatible: IE=edge\r\nAllow: HEAD,GET,POST,OPTIONS\r\nDate: .*\r\nAccess-Control-Allow-Origin: \*\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n{\"applications\": \[([^]]+)\]|s p/Gate One http terminal emulator/ i/apps: $1/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/plain\r\nDate: .*\r\nConnection: close\r\n\r\nCannot OPTIONS /$| p/Express.js httpd/
@@ -10123,7 +10123,7 @@ softmatch caldav m|^HTTP/1\.[01] 200 OK\r\n.*DAV: [^\r\n]*calendar.*\r\nAllow:|s
 softmatch webdav m|^HTTP/1\.[01] 200 OK\r\n.*DAV: *1.*\r\nAllow:[^\r\n]* PROPFIND|s
 
 # https://github.com/kanaka/websockify
-match websocket m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._+-]+)\r\nDate: .* GMT\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 501\.\n<p>Message: Unsupported method \('OPTIONS'\)\.\n<p>Error code explanation: 501 = Server does not support this operation\.\n</body>\n$| p/websockify/ i/SimpleHTTP $1; Python $2/
+match websocket m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._+-]+)\r\nDate: .* GMT\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 501\.\n<p>Message: Unsupported method \('OPTIONS'\)\.\n<p>Error code explanation: 501 = Server does not support this operation\.\n</body>\n$| p/websockify/ i/SimpleHTTP $1; Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:simplehttpserver:$1/
 
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
