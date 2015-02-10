@@ -1304,15 +1304,19 @@ function format_data_for_output( data )
 
         elseif type( field_name ) == "table" then
 
-          output[#output+1] = "\n"
+          local first_in_line = true
 
           for _, field_name_sameline in ipairs( field_name ) do
             if type( field_name_sameline ) == "string" and data[object_name][field_name_sameline] then
-
+              if first_in_line then
+                first_in_line = false
+                output[#output+1] = "\n"
+              else
+                output[#output+1] = " " -- the space between items on a line
+              end
               output[#output+1] = field_name_sameline
               output[#output+1] = ": "
               output[#output+1] = data[object_name][field_name_sameline]
-              output[#output+1] = " "
 
             end
           end
