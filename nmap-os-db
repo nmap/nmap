@@ -20464,6 +20464,7 @@ IE(DFI=N%T=3B-3D%TG=40%CD=Z)
 # Draytek Vigor 2930n, Version: v3.3.1 English, Revision: 30467 2930FW
 Fingerprint DrayTek Vigor 2930n wireless router
 Class DrayTek | embedded || WAP
+CPE cpe:/h:draytek:vigor_2930n auto
 SEQ(SP=81-8B%GCD=2|4|6|8|A%ISR=EC-F6%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=1068%W2=1068%W3=1068%W4=1068%W5=1068%W6=1068)
@@ -20564,6 +20565,7 @@ IE(R=N)
 # Efficient 5930 DMT Router (5930-001) v6.1.020
 Fingerprint Efficient Networks 5930 ADSL router
 Class Efficient Networks | embedded || broadband router
+CPE cpe:/h:efficientnetworks:5930 auto
 SEQ(R=N)
 OPS(O1=M400%O2=|M400%O3=|M400%O4=%O5=%O6=)
 WIN(W1=1000%W2=0|1000%W3=0|1000%W4=0%W5=0%W6=0)
@@ -73261,6 +73263,7 @@ IE(DFI=N%T=7F%TG=80%CD=S)
 # Pirelli PRG AV4202N(2) with Software-Version E_3.0.11 it runs with OpenRG
 Fingerprint Pirelli AV4202N wireless ADSL modem
 Class Pirelli | embedded || WAP
+CPE cpe:/h:pirelli:av4202n auto
 SEQ(SP=C7-D1%GCD=1-6%ISR=C7-D1%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW1%O2=M5B4NNSNW1%O3=M5B4NW1%O4=M5B4NNSNW1%O5=M5B4NNSNW1%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -81277,6 +81280,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Thomson TG712 DSL router
 Fingerprint Thomson TG712 DSL router
 Class Thomson | embedded || broadband router
+CPE cpe:/h:thomson:tg712 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=107-111%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(R=N)
 WIN(R=N)
