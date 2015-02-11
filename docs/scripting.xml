@@ -1953,8 +1953,8 @@ host.os = {
 	      <para>
 		Contains a string representation of the service running on
 		<literal>port.number</literal> as detected by the Nmap service
-		detection. If the <literal>port.version</literal> field is
-		<literal>nil</literal>, Nmap has guessed the service based
+		detection. If the <literal>port.version.service_dtype</literal> field is
+		<literal>"table"</literal>, Nmap has guessed the service based
 		on the port number. Otherwise version detection was able to determine the listening service and this field is equal to
 		<literal>port.version.name</literal>.
 	      </para>
@@ -2017,7 +2017,10 @@ host.os = {
 
    <row>
     <entry align="left"><literal>name_confidence</literal></entry>
-    <entry>Evaluates how confident Nmap is about the accuracy of <literal>name</literal>, from 1 (least confident) to 10.</entry>
+    <entry>Evaluates how confident Nmap is about the accuracy of
+      <literal>name</literal>, from 1 (least confident) to 10. If
+      <literal>port.version.service_dtype</literal> is
+      <literal>"table"</literal>, this is 3.</entry>
    </row>
 
    <row>
@@ -2036,6 +2039,15 @@ host.os = {
     <entry>The service fingerprint, if any, is provided in this value.  This is described in 
 <xref linkend="vscan-community"/>.
 </entry>
+   </row>
+
+   <row>
+    <entry align="left"><literal>service_dtype</literal></entry>
+    <entry>Contains the string <literal>"table"</literal> or
+      <literal>"probed"</literal> based on whether or not Nmap deduced
+      <literal>port.version.name</literal> from the
+      <filename>nmap-services</filename> file or from a service probe match.
+    </entry>
    </row>
 
    <row>
