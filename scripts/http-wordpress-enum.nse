@@ -175,6 +175,7 @@ action = function(host, port)
     end  
   end         
     
+  local resource_search
   if resource_search_arg == "all" then
     resource_search = nil
   else
@@ -259,7 +260,7 @@ action = function(host, port)
          bfqueries[i].installation_version = version
          --Right now we can only get the version number of plugins through api.wordpress.org
          if apicheck == "true" and key=="plugins" then
-           latestversion = get_latest_plugin_version(bfqueries[i].name)
+           local latestversion = get_latest_plugin_version(bfqueries[i].name)
            if latestversion then
              output = output .. " (latest version:" .. latestversion .. ")"
              bfqueries[i].latest_version = latestversion
