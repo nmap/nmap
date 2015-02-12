@@ -241,7 +241,7 @@ end
 -- of the first receive (before sending data)
 function tryssl(host, port, data, opts)
   opts = opts or {}
-  if not data or opts.recv_before then
+  if not data and not opts.recv_before then
     stdnse.debug1(
       "Using comm.tryssl without either first data payload or opts.recv_before.\n\z
       Impossible to test the connection for the correct protocol!"
