@@ -872,7 +872,7 @@ void printportoutput(Target *currenths, PortList *plist) {
     log_write(LOG_PLAIN, "%d service%s unrecognized despite returning data."
               " If you know the service/version, please submit the following"
               " fingerprint%s at"
-              " http://www.insecure.org/cgi-bin/servicefp-submit.cgi :\n",
+              " https://nmap.org/cgi-bin/submit.cgi?new-service :\n",
               numfps, (numfps > 1) ? "s" : "", (numfps > 1) ? "s" : "");
     for (i = 0; i < numfps; i++) {
       if (numfps > 1)
@@ -1943,7 +1943,7 @@ void printosscanoutput(Target *currenths) {
 
       if (!reason) {
         log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
-                  "No exact OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\n");
+                  "No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).\n");
         write_merged_fpr(FPR, currenths, true, true);
       } else {
         log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
@@ -1956,7 +1956,7 @@ void printosscanoutput(Target *currenths) {
     /* No matches at all. */
     if (!reason) {
       log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
-                "No OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\n");
+                "No OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).\n");
       write_merged_fpr(FPR, currenths, true, true);
     } else {
       log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
@@ -2515,11 +2515,11 @@ void printfinaloutput() {
     log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn\n");
   else if (o.numhosts_up > 0) {
     if (o.osscan && o.servicescan)
-      log_write(LOG_PLAIN, "OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .\n");
+      log_write(LOG_PLAIN, "OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .\n");
     else if (o.osscan)
-      log_write(LOG_PLAIN, "OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .\n");
+      log_write(LOG_PLAIN, "OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .\n");
     else if (o.servicescan)
-      log_write(LOG_PLAIN, "Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .\n");
+      log_write(LOG_PLAIN, "Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .\n");
   }
 
   log_write(LOG_STDOUT | LOG_SKID,

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Change the URI for the fingerprint submitter to its new location at
+  https://nmap.org/cgi-bin/submit.cgi
+
 o [Zenmap] Added new Hindi (hi) translation by Gyanendra Mishra.
 
 o [NSE] Added a new version of http-wordpress-enum, it now enumerates
