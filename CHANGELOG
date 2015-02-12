@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Solve a crash on Windows 8.1 on Surface Pro 3 caused by WinPcap trying to
+  write an error message to a NULL pointer. [Peter Malecka]
+
 o Change the URI for the fingerprint submitter to its new location at
   https://nmap.org/cgi-bin/submit.cgi
 

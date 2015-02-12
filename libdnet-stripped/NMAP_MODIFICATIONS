@@ -2007,3 +2007,28 @@ index 8953b5b..05a0692 100644
  	case ARP_HRD_IEEE80211_RADIOTAP: /* IEEE 802.11 + radiotap header */
  		a->addr_type = ADDR_TYPE_ETH;
  		a->addr_bits = ETH_ADDR_BITS;
+
+o Fix a crash when pcap_findalldevs encounters errors and tries to write to
+  errbuf. As demonstrated by WinPcap crashing on Surface Pro 3
+
+diff --git a/libdnet-stripped/src/intf-win32.c b/libdnet-stripped/src/intf-win32.c
+index 22c2d59..22c1e6a 100644
+--- a/libdnet-stripped/src/intf-win32.c
++++ b/libdnet-stripped/src/intf-win32.c
+@@ -425,6 +425,7 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+ 	pcap_if_t *pcapdevs;
+ 	pcap_if_t *pdev, *selected;
+ 	intf_t *intf;
++	char errbuf[PCAP_ERRBUF_SIZE];
+ 
+ 	if ((intf = intf_open()) == NULL)
+ 		return (-1);
+@@ -439,7 +440,7 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+ 		return (-1);
+ 	}
+ 
+-	if (pcap_findalldevs(&pcapdevs, NULL) == -1) {
++	if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
+ 		intf_close(intf);
+ 		return (-1);
+ 	}

@@ -425,6 +425,7 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 	pcap_if_t *pcapdevs;
 	pcap_if_t *pdev, *selected;
 	intf_t *intf;
+	char errbuf[PCAP_ERRBUF_SIZE];
 
 	if ((intf = intf_open()) == NULL)
 		return (-1);
@@ -439,7 +440,7 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 		return (-1);
 	}
 
-	if (pcap_findalldevs(&pcapdevs, NULL) == -1) {
+	if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
 		intf_close(intf);
 		return (-1);
 	}
