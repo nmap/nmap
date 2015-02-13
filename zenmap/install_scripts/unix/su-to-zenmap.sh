@@ -5,7 +5,13 @@
 #Bill Allombert <ballombe@debian.org>
 
 PRIV=root
-COMMAND="zenmap $@"
+COMMAND="zenmap"
+
+quote () { printf %s\\n "$1" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/'/" ; }
+
+for i in "$@"; do
+  COMMAND="$COMMAND $(quote "$i")"
+done
 
 euid=$(id -u)
 privid=$(id -u $PRIV)
