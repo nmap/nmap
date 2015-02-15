@@ -1110,7 +1110,7 @@ match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n| p/Stupid-FTPd/
 match ftp m|^220 FTP v([\d.]+) at ([\w.-]+) ready\.\r\n| p/OpenRG ftpd/ v/$1/ d/broadband router/ h/$2/
 match ftp m|^220 FRITZ!Box(\w+)\(kdg\) FTP server ready\.\r\n| p/AVM FRITZ!Box ftpd/ i/model: $1; Kabel Deutschland/ d/broadband router/
 match ftp m|^220-Welcome to cc-ftpd\.\r\n220-You are user number (\d+ of \d+) allowed\.\r\n220-Local time is now ([\d:]+)\. Server port: \d+\.\r\n220-This is a private system - No anonymous login\r\n220-IPv6 connections are also welcome on this server\.\r\n220 You will be disconnected after 15 minutes of inactivity\.\r\n| p/Centova Cast ftpd/ i/user $1; local time $2/
-match ftp m|^220 ([\w.-]+) FTP server \(QNXNTO-ftpd (\d{8})\) ready\.\r\n| p/QNX ftpd/ v/$2/ h/$1/
+match ftp m|^220 ([\w.-]+) FTP server \(QNXNTO-ftpd (\d{8})\) ready\.\r\n| p/QNX ftpd/ v/$2/ o/QNX/ h/$1/ cpe:/o:qnx:qnx/a
 match ftp m|^220-Cerberus FTP Server - Home Edition\r\n220-This is the UNLICENSED Home Edition and may be used for home, personal use only\r\n220-Welcome to Cerberus FTP Server\r\n220 Created by Cerberus, LLC\r\n| p/Cerberus FTP Server/ i/Home Edition/ o/Windows/ cpe:/a:cerberusftp:ftp_server/ cpe:/o:microsoft:windows/a
 match ftp m|^220-220-Welcome to Cerberus FTP Server\r\n220 220 Created by Cerberus, LLC\r\n| p/Cerberus FTP Server/ o/Windows/ cpe:/a:cerberusftp:ftp_server/ cpe:/o:microsoft:windows/a
 match ftp m|^220-Welcome to my Server\r\n220-\r\n220 ICS FTP Server ready\.\r\n| p/Overbyte Internet Component Suite ftpd/
@@ -2713,7 +2713,7 @@ match smtp m|^220 ([-.+\w]+) ESMTP CPMTA-([-.+\w]+) - NO UCE\r\n| p/CPMTA/ v/$2/
 match smtp m|^220 ([-.+\w]+) SMTP/smap Ready\.\r\n| p/Smap/ i/from firewall toolkit/ h/$1/
 match smtp m|^220 ([-.+\w]+) ESMTP service \(Netscape Messaging Server ([-.+ \w]+) \(built| p/Netscape Messaging Server/ v/$2/ h/$1/ cpe:/a:netscape:messaging_server:$2/
 match smtp m|^220-InterScan Version (\S+) .*Ready\r\n220 ([-.+\w]+) NTMail \(v([-.+\w]+)/.* ready| p/Trend Micro InterScan/ v/$1/ i/on NTMail $3/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match smtp m|^220-InterScan Version (\S+) .*Ready\r\n220 ([-.+\w]+) ESMTP Postfix\r\n| p/Trend Micro InterScan/ v/$1/ i/on Postfix/ o/Unix/ h/$2/
+match smtp m|^220-InterScan Version (\S+) .*Ready\r\n220 ([-.+\w]+) ESMTP Postfix\r\n| p/Trend Micro InterScan/ v/$1/ i/on Postfix/ o/Unix/ h/$2/ cpe:/a:postfix:postfix/
 match smtp m|^220-InterScan Version (\S+) .*Ready\r\n220 ([-.+\w]+) Microsoft ESMTP MAIL Service, Version: ([\d.]+) ready at| p/Trend Micro InterScan/ v/$1/ i/on Microsoft ESMTP $3/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
 match smtp m|^220-InterScan Version (\S+) .*Ready\r\n| p/Trend Micro InterScan/ v/$1/
 match smtp m|^220 ([-.\w]+) InterScan VirusWall NT ESMTP (\d[-.\w]+) \(build (\d+)\) ready at | p/Trend Micro InterScan VirusWall SMTP/ v/$2 build $3/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -2751,7 +2751,7 @@ match smtp m|^220  ESMTP Service \(Lotus Domino Release (\d[-.\w ]+)\) ready at 
 match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Build V([\w_]+) Beta (\w+)\) ready at | p/Lotus Domino smtpd/ v/$2 Beta $3/ h/$1/ cpe:/a:ibm:lotus_domino:$2:beta$3/
 match smtp m|^220  ESMTP Service \(Lotus Domino Build V([\w_]+) Beta (\w+)\) ready at | p/Lotus Domino smtpd/ v/$1 Beta $2/ cpe:/a:ibm:lotus_domino:$1:beta$2/
 match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Versione ([\w._ -]+)\) ready| p/Lotus Domino smtpd/ v/$2/ i/Italian/ h/$1/ cpe:/a:ibm:lotus_domino:$2:::it/
-match smtp m|^220 ([-.\w]+) Lotus SMTP MTA Service Ready\r\n$| p/Lotus Notes SMTP/ h/$1/
+match smtp m|^220 ([-.\w]+) Lotus SMTP MTA Service Ready\r\n$| p/Lotus Notes SMTP/ h/$1/ cpe:/a:ibm:lotus_domino/
 match smtp m|^220 ([-.\w]+) WebSTAR Mail Simple Mail Transfer Service Ready\r\n| p/WebSTAR SMTP server/ h/$1/
 match smtp m|^220 ([-.\w]+) SMTP NAVGW (\d[-.\w]+);| p/Norton Antivirus Gateway NAVGW/ v/$2/ h/$1/
 match smtp m|^220 ([-.\w]+) Kerio MailServer (\d[-.\w]+) ESMTP ready\r\n| p/Kerio MailServer/ v/$2/ h/$1/
@@ -2967,7 +2967,7 @@ match smtp m|^220 ([\w._-]+) SMTP IceWarp ([\w._-]+);| p/IceWarp smtpd/ v/$2/ h/
 match smtp m|^554-([\w._-]+) \(\w+\) Nemesis ESMTP Service not available\r\n| p/Nemesis smtpd/ i/blacklisted/ h/$1/
 match smtp m|^421 4\.3\.2 Server license expired\r\n| p/Kerio Connect or MailServer smtpd/ i/license expired/
 match smtp m|^220 totemomail SMTP Server ready [\w, :]+ ([+-]\d\d\d\d) \([A-Z]*\)\r\n| p/totemomail Encryption Gateway smtpd/ i/time zone: $1/
-match smtp m|^220 ([\w._-]+) ESMTP Service \(IBM Domino Release ([ \w._-]+)\) ready at .* ([-+]\d+)\r\n| p/IBM Domino smtpd/ v/$2/ i/time zone: $3/ h/$1/
+match smtp m|^220 ([\w._-]+) ESMTP Service \(IBM Domino Release ([ \w._-]+)\) ready at .* ([-+]\d+)\r\n| p/IBM Domino smtpd/ v/$2/ i/time zone: $3/ h/$1/ cpe:/a:ibm:lotus_domino:$2/
 
 #(insert smtp)
 
@@ -6081,7 +6081,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Lotus-Domino/Release-(\d[-.\w]+)
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Lotus-Domino/Release\r\n|s p/Lotus Domino httpd/ cpe:/a:ibm:lotus_domino_web_server/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Lotus-Domino/(\d[-.\w]+)\r\n|s p/Lotus Domino httpd/ v/$1/ cpe:/a:ibm:lotus_domino_web_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Lotus-Domino(?:/0)?\r\n|s p/Lotus Domino httpd/ cpe:/a:ibm:lotus_domino_web_server/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Domino-Go-Webserver/([\d.]+)\r\n|s p/Lotus Domino Go httpd/ v/$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Domino-Go-Webserver/([\d.]+)\r\n|s p/Lotus Domino Go httpd/ v/$1/ cpe:/a:ibm:lotus_domino:$1/
 
 # G-Net BB0060 ADSL Modem (I'm not sure this is GlobespanVirata, but that is
 # what the t3lnetd on this device said).
@@ -7339,7 +7339,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Server: Web Server\r\n.*<title>Dell OpenMana
 match http m|^HTTP/1\.0 \d\d\d .*<SCRIPT language=JavaScript>\r\n\tvar PIN_change_attempted = false;\r\n\tvar Login_failed = false;\r\n\tvar password_label = \"\";\r\n</SCRIPT>\r\n<!--\r?\nNote: the opening and closing HTML tags are deliberately omitted from\r?\nthis file\.|s p/Citrix Access Gateway httpd/ o/Windows/ cpe:/a:citrix:access_gateway/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 200 OK\r\nServer: Micro Focus DSD ([-\w_.]+)\r\n| p/Micro Focus Directory Server httpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*\nServer: SCO I2O Dialogue Daemon ([-\w_.]+) \n|s p/SCO I2O Dialogue Daemon httpd/ v/$1/
-match http m|^HTTP/1\.1 404 OK\r\nServer: Lotus Expeditor Web Container/([-\w_.]+)\r\n| p/Lotus Notes Expeditor httpd/ v/$1/
+match http m|^HTTP/1\.1 404 OK\r\nServer: Lotus Expeditor Web Container/([-\w_.]+)\r\n| p/Lotus Notes Expeditor httpd/ v/$1/ cpe:/a:ibm:lotus_expeditor:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Cpanel::Httpd like Apache\r\n.*\r\nWWW-Authenticate: Basic realm=\"cPanel WebDisk\"\r\n\r\n|s p/cPanel WebDisk httpd/ o/Linux/ cpe:/o:linux:linux_kernel/a
 
 match http m|^HTTP/1\.0 302 FOUND\r\nServer: PasteWSGIServer/([-\w_.]+) Python/([-\w_.]+)\r\nDate: .*location: /login/login\r\npragma: no-cache\r\ncache-control: no-cache\r\nset-cookie:  hellahella=|s p/PasteWSGIServer/ v/$1/ i/HellaHella httpd; Python $2/ cpe:/a:python:python:$2/
@@ -10725,7 +10725,7 @@ Probe UDP DNSStatusRequest q|\0\0\x10\0\0\0\0\0\0\0\0\0|
 rarity 5
 ports 53,69,135,1761
 
-match iodine m|^\x80\xa7\x84\0\0\x01\0\x01\0\0\0\0.*\0\0\x0a\0\x01\xc0\x0c\0\n\0\x01\0\0\0\0\0\x05BADIP$| p/iodine IP-over-DNS tunnel/
+match iodine m|^\x80\xa7\x84\0\0\x01\0\x01\0\0\0\0.*\0\0\x0a\0\x01\xc0\x0c\0\n\0\x01\0\0\0\0\0\x05BADIP$| p/iodine IP-over-DNS tunnel/ cpe:/a:kryo:iodine/
 
 match domain m|^\0\0\x90\x04\0\0\0\0\0\0\0\0|
 match domain m|^\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/Encore ENDSL-AR4 DSL router named/ d/broadband router/ cpe:/h:encore:endsl-ar4/a
@@ -10735,14 +10735,14 @@ match msrpc m|^\x04\x06\0\0\x10\0\0\0\0\0\0\0|
 
 match netprobe m|^\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Mega System Technologies NetProbe Lite environmental sensor/ d/specialized/
 
-match tftp m|^\0\x05\0\x02\0The IP address is not in the range of allowable addresses\.\0| p/SolarWinds tftpd/ i/IP disallowed/ o/Windows/ cpe:/o:microsoft:windows/a
-match tftp m|^\0\x05\0\0Invalid TFTP Opcode| p/Cisco tftpd/
+match tftp m|^\0\x05\0\x02\0The IP address is not in the range of allowable addresses\.\0| p/SolarWinds tftpd/ i/IP disallowed/ o/Windows/ cpe:/a:solarwinds:tftp_server/ cpe:/o:microsoft:windows/a
+match tftp m|^\0\x05\0\0Invalid TFTP Opcode| p/Cisco tftpd/ cpe:/a:cisco:tftp_server/
 match tftp m|^\0\x05\0\x04Illegal TFTP operation\0| p/Plan 9 tftpd/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 match tftp m|^\0\x05\0\x04Error: Illegal TFTP Operation\0\0\0\0\0| p/Zoom X5 ADSL modem tftpd/ d/broadband router/ cpe:/h:zoom:x5/a
-match tftp m|^\0\x05\0\x04Illegal operation\0$| p/Cisco router tftpd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
+match tftp m|^\0\x05\0\x04Illegal operation\0$| p/Cisco router tftpd/ d/router/ o/IOS/ cpe:/a:cisco:tftp_server/ cpe:/o:cisco:ios/a
 match tftp m|^\0\x05\0\x04Illegal operation error\.\0$| p/Microsoft Windows Deployment Services tftpd/ o/Windows/ cpe:/o:microsoft:windows/
 # version 10.9.0.25
-match tftp m|^\0\x05\0\x04Unknown operatation code: 0 received from [\d.]+:\d+\0| p/Solarwinds Free tftpd/
+match tftp m|^\0\x05\0\x04Unknown operatation code: 0 received from [\d.]+:\d+\0| p/SolarWinds Free tftpd/ cpe:/a:solarwinds:tftp_server/
 
 # TFTP error
 softmatch tftp m|^\0\x05\0[\0-\x07][^\0]+\0$|
@@ -10760,13 +10760,13 @@ match domain m|^\0\x0c\0\0\x90\x84\0\0\0\0\0\0\0\0$| p/OpenDNS Updater/
 # Fortigate v4.0,build0511,120110 (MR3 Patch 4)
 match domain m|^\0\x0c\0\0\x90\x01\0\0\0\0\0\0\0\0$| p/Fortinet FortiGate named/
 # ARCserve Client Agent v4.0d for Solaris 2.x(Running on SunOS 5.8Generic_108528-13 sun4u)
-match arcserve m|^\0\0s\0\0\0\0\0$| p/ARCserve Client Agent/ i/backup software/
+match arcserve m|^\0\0s\0\0\0\0\0$| p/ARCserve Client Agent/ i/backup software/ cpe:/a:ca:arcserve_client_agent/
 # ARCServe Win32 Client Agent v4.0
-match arcserve m|^h\0\0\0\0\0\0\0$| p/ARCserve Client Agent/ i/backup software/
+match arcserve m|^h\0\0\0\0\0\0\0$| p/ARCserve Client Agent/ i/backup software/ cpe:/a:ca:arcserve_client_agent/
 # ARCserver Client Agent Discovery service on W2K3
-match arcserve m|^([\w\d_-]+)\0$| p/ARCserve Discovery/ h/$1/
+match arcserve m|^([\w\d_-]+)\0$| p/ARCserve Discovery/ h/$1/ cpe:/a:ca:arcserve_client_agent/
 match login m|^\0\r\n\nIQinVision IQeye3 Version ([vV].*)\n\r\nType HELP| p/IQinVision IQeye3 logind/ v/version $1/ d/webcam/
-match login m|^\0\r\n\nLantronix ETS16 Version V([\d.]+)/\d+\(\d+\)\n\r\nType HELP at the 'BRTR-ETS16>' prompt for assistance\.\n\r\nUsername> | p/Lantronix ETS16 logind/ v/$1/ d/terminal server/
+match login m|^\0\r\n\nLantronix ETS16 Version V([\d.]+)/\d+\(\d+\)\n\r\nType HELP at the 'BRTR-ETS16>' prompt for assistance\.\n\r\nUsername> | p/Lantronix ETS16 logind/ v/$1/ d/terminal server/ cpe:/h:lantronix:ets16:$1/
 # Craftbukkit server build 860 (Minecraft v 1.6.6) http://bukkit.org
 match minecraft m|^\xff\0\x0e\0P\0r\0o\0t\0o\0c\0o\0l\0 \0e\0r\0r\0o\0r$| p/Minecraft game server/
 match shell m|^\0rsh: \x10: Command not supported\n| p/Ricoh rshd/ d/printer/
@@ -10837,7 +10837,7 @@ match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\0([\w\-]{1,15}) *|s p/Samba nmbd/ i/workgroup: $2/ h/$1/ cpe:/a:samba:samba/
 
 # From an acer PDA
-match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...\0\x80H'y\x86\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/WinCE netbios-ns/ o/Windows/ cpe:/o:microsoft:windows/a
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...\0\x80H'y\x86\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/WinCE netbios-ns/ o/Windows CE/ cpe:/o:microsoft:windows_ce/a
 
 # From a mikrotik router
 match netbios-ns m|^\x80\xf0\x85\x80\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...\d+\.\d+ \0D\0\0\0| p/MikroTik router netbios-ns/ d/router/
@@ -10886,7 +10886,7 @@ match exalead m|^\? 1 illegal command\n\0| p/Exalead search appliance/
 
 match smtp m|^220\s+(DP-\d+)\r\n250-Hello\r\n250-DSN\r\n| p/Panasonic smtpd/ v/$1/ i/Panasonic printer/ d/printer/
 match smtp m|^220 ESMTP service ready\r\n250\x20ok\r\n| p/Rustock smtp backdoor/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
-match smtp m|^220 Hello [A-Z][a-z]{2}, .*\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Notes smtpd/
+match smtp m|^220 Hello [A-Z][a-z]{2}, .*\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Notes smtpd/ cpe:/a:ibm:lotus_notes/
 match smtp m|^220 ([\w_.-]+) ESMTP\r\n250-[-\w_.]+\r\n250-AUTH LOGIN CRAM-MD5 PLAIN\r\n250-AUTH=LOGIN CRAM-MD5 PLAIN\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/Access Remote PC smtpd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 \[[\w_.-]+\] FTGate Server Ready\r\n250-([\w._-]+)\r\n| p/Floosietek FTGate smtpd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 # NetWare GroupWise Internet Agent 7 SP3 beta
@@ -10902,8 +10902,8 @@ match smtp m|^220 \r\n501 \r\n| p/Konica Minolta bizhub 350 printer smtpd/ d/pri
 match smtp m|^220 ([\w_.-]+) ESMTP SonicWALL \(([\d.]+)\)\r\n| p/SonicWALL Email Security smtpd/ v/$2/ d/security-misc/ h/$1/
 match smtp m|^220 ([\w_.-]+) ready\r\n250-[\w_.-]+\r\n250 AUTH LOGIN PLAIN \r\n$| p/Freemail smtpd/ h/$1/
 match smtp m|^554 SMTP synchronization error\r\n| p/Exim smtpd/ cpe:/a:exim:exim/
-match smtp m|^220 ([\w._-]+)  ESMTP\r\n501 Syntax: EHLO hostname\r\n| p/Postfix/ h/$1/
-match smtp m|^220 ESMTP Postfix\r\n501 Syntax: EHLO hostname\r\n| p/Postfix/
+match smtp m|^220 ([\w._-]+)  ESMTP\r\n501 Syntax: EHLO hostname\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
+match smtp m|^220 ESMTP Postfix\r\n501 Syntax: EHLO hostname\r\n| p/Postfix smtpd/ cpe:/a:postfix:postfix/a
 match smtp m|^220-\*{89}\r\n220 \*{32}\r\n250-Welcome [\w._-]+, nice to meet you\.\.\.\r\n250-AUTH=(?:\w+ ?)+\r\n250-AUTH(?: \w+)+\r\n250-SIZE \d+\r\n250-DSN\r\n250-ETRN\r\n250 XXXA\r\n| p/ArGoSoft smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ESMTP Ready\r\n250-([\w._-]+) Hello \[[\d.]+\]\r\n250-SIZE\r\n250-PIPELINING\r\n250-DSN\r\n250-ENHANCEDSTATUSCODES\r\n250-STARTTLS\r\n250-X-ANONYMOUSTLS\r\n250-AUTH NTLM\r\n250-X-EXPS GSSAPI NTLM\r\n250-8BITMIME\r\n250-BINARYMIME\r\n250-CHUNKING\r\n250-XEXCH50\r\n250 XRDST\r\n| p/Microsoft Outlook Web Access smtpd/ h/$1/
 match smtp m|^220 ([\w._-]+) ESMTP\r\n250-\1\r\n250-STARTTLS\r\n250-SIZE 50000000\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/qmail smtpd/ h/$1/
@@ -10913,7 +10913,7 @@ match smtp m|^220 $| p/OpenBSD spamd/
 
 match smtp-proxy m|^220 ([-\w_.]+) .*\r\n250-[-\w_.]+ supports the following ESMTP extensions:\r\n250-SIZE \d+\r\n250-DSN\r\n250-8bitmime\r\n250 OK\r\n| p/Trend Micro IMSS smtp proxy/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 ([\w._-]+) ESMTP [\w._-]+\r\n501 5\.5\.2 HELO requires domain address\r\n| p/SonicWALL Email Security Appliance smtp proxy/ d/proxy server/ h/$1/
-match smtp-proxy m|^220 Ready to receive mail -=- ESMTP\r\n250-Ready to receive mail -=-\r\n250-AUTH LOGIN PLAIN\r\n250-AUTH=LOGIN PLAIN\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/PineApp Mail-SeCure smtp proxy/
+match smtp-proxy m|^220 Ready to receive mail -=- ESMTP\r\n250-Ready to receive mail -=-\r\n250-AUTH LOGIN PLAIN\r\n250-AUTH=LOGIN PLAIN\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/PineApp Mail-SeCure smtp proxy/ cpe:/a:pineapp:mail-secure/
 match smtp-proxy m|^220 MailStore SMTP Proxy Server\r\n250-([\w._-]+)\r\n250-STARTTLS\r\n250 MAILSTORE\r\n| p/MailStore smtp proxy/ h/$1/
 
 ##############################NEXT PROBE##############################
@@ -10934,9 +10934,9 @@ match chat m|^\r\n>STATUS\tset status\r\nINVISIBLE\tset invisible mode\r\nMAINWI
 # CVS 1.11.5 pserver
 match cvspserver m|^cvs \[pserver aborted\]: bad auth protocol start: HELP\r\n\n?$| p/cvs pserver/
 # CVSNT pserver
-match cvspserver m|^cvs \[server aborted\]: bad auth protocol start: HELP\r\n$| p/CVSNT cvs pserver/
-match cvspserver m|^cvs \[server aborted\]: bad auth protocol start: HELP\r\nerror  \n$| p/CVSNT cvs pserver/
-match cvspserver m|^cvsnt \[server aborted\]: bad auth protocol start: HELP\r\nerror  \n$| p/CVSNT cvs pserver/
+match cvspserver m|^cvs \[server aborted\]: bad auth protocol start: HELP\r\n$| p/CVSNT cvs pserver/ cpe:/a:march-hare:cvsnt/
+match cvspserver m|^cvs \[server aborted\]: bad auth protocol start: HELP\r\nerror  \n$| p/CVSNT cvs pserver/ cpe:/a:march-hare:cvsnt/
+match cvspserver m|^cvsnt \[server aborted\]: bad auth protocol start: HELP\r\nerror  \n$| p/CVSNT cvs pserver/ cpe:/a:march-hare:cvsnt/
 # Concurrent Versions System (CVS) 1.10.7 (client/server)
 match cvspserver m|^cvs-pserver \[pserver aborted\]: bad auth protocol start: HELP\r\n\n| p/cvs pserver/
 
@@ -10979,7 +10979,7 @@ match ftp m|^220 .*\r\n530 Please login with USER and PASS first\.\r\n$| p/Bulle
 match ftp m|^220 ([-.\w]+) FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   PASS    PASV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n   ACCT\*   TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   SMNT\*   STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   REIN\*   MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   QUIT    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n214 Direct comments to | p/SGI IRIX ftpd/ o/IRIX/ h/$1/ cpe:/o:sgi:irix/a
 match ftp m|^421 Server is temporarily unavailable - please try again later\.\r\n421 Service closing control connection\.\r\n| p/Serv-U ftpd/ i/Server temporarily unavailable/ o/Windows/ cpe:/a:serv-u:serv-u/ cpe:/o:microsoft:windows/a
 # FreeBSD 4.10 ftpd
-match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   PASS    LPRT    STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   ACCT\*   EPRT    MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   SMNT\*   PASV    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   QUIT    EPSV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n214 End\.\r\n| p/FreeBSD ftpd/
+match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   PASS    LPRT    STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   ACCT\*   EPRT    MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   SMNT\*   PASV    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   QUIT    EPSV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n214 End\.\r\n| p/FreeBSD ftpd/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a
 match ftp m|^220 .*\r\n214-CesarFTP server ([\w.]+) supports the following commands:\r\n| p/ACLogic CesarFTPd/ v/$1/ o/Windows/ cpe:/a:aclogic:cesarftpd:$1/ cpe:/o:microsoft:windows/
 match ftp m|^220 Private ftp server, anonymous login not allowed\.\r\n214-The following commands are recognized:\r\n   USER   PASS   QUIT   CWD    PWD    PORT   PASV   TYPE\r\n   LIST   REST   CDUP   RETR   STOR   SIZE   DELE   RMD \r\n   MKD    RNFR   RNTO   ABOR   SYST   NOOP   APPE   NLST\r\n   MDTM   XPWD   XCUP   XMKD   XRMD   NOP    EPSV   EPRT\r\n   AUTH   ADAT   PBSZ   PROT   FEAT   MODE   OPTS   HELP\r\n214 Have a nice day\.\r\n| p/FileZilla ftpd/ i/No anon login/ o/Windows/ cpe:/a:filezilla-project:filezilla:ftpd/ cpe:/o:microsoft:windows/a
 match ftp m|^220.*\r\n214-The following commands are recognized:\r\n   USER   PASS   QUIT   CWD    PWD    PORT   PASV   TYPE\r\n   LIST   REST   CDUP   RETR   STOR   SIZE   DELE   RMD \r\n   MKD    RNFR   RNTO   ABOR   SYST   NOOP   APPE   NLST\r\n   MDTM   XPWD   XCUP   XMKD   XRMD   NOP    EPSV   EPRT\r\n   AUTH   ADAT   PBSZ   PROT   FEAT   MODE   OPTS   HELP\r\n   ALLO   MLST   MLSD\r\n214 Have a nice day\.\r\n| p/FileZilla ftpd/ o/Windows/ cpe:/a:filezilla-project:filezilla:ftpd/ cpe:/o:microsoft:windows/a
@@ -10990,12 +10990,12 @@ match ftp m|^220 SMTP service ready\r\n214-Commands:\r\r\n214-\tDATA\tRCPT\tMAIL
 match ftp m|^220 Speak friend, and enter\r\n214-\r\n  ftpd\.bin - Round-robin File Transfer Server, version ([\w.]+)\r\n| p/ftpd.bin round-robin file server/ v/$1/
 match ftp m|^220 FTP server ready\.  \r\n214-Ethernet Interface\r\n    \r\n    To access help, cd to the help directory then enter a \"dir\" command\.\r\n    \r\n    \r\n| p|QMS/Minolta Magicolor 2200 DeskLaser printer ftpd| d/printer/
 match ftp m|^220 FTPU ready\.\r\n500 Sorry, no such command\.\r\n| p/Netgear DG632 router ftpd/ d/router/ cpe:/h:netgear:dg632/a
-match ftp m|^220 ([-\w_.]+) FTP server \(UNIX_SV ([\d.]+)\) ready\.\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   PASS    PASV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n   ACCT\*   TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   SMNT\*   STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   REIN\*   MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   QUIT    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n| p/WU-FTPd/ i/UNIX_SV $2/ o/Unix/ h/$1/
+match ftp m|^220 ([-\w_.]+) FTP server \(UNIX_SV ([\d.]+)\) ready\.\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   PASS    PASV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n   ACCT\*   TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   SMNT\*   STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   REIN\*   MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   QUIT    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n| p/WU-FTPd/ i/UNIX_SV $2/ o/Unix/ h/$1/ cpe:/a:redhat:wu_ftpd/
 match ftp m|^220 server ready\r\n530 Please login with USER and PASS\r\n$| p/Extreme FTPd/
 match ftp m|^220 FTP server ready\.\r\n502 Command not implemented\.\r\n$| p/Aruba router ftpd/ d/router/
 match ftp m|^220 Type 'site help' or 'quote site help'\.\r\n220-| p/RaidenFTPd/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220-\r\n220 Features p a \.\r\n214 Please refer to FTP documentation\.\r\n| p/Sami ftpd/ o/Windows/ cpe:/o:microsoft:windows/a
-match ftp m|^220 FTP server at \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} ready\.\r\n503 USER expected\.\r\n| p/Linksys NSLU2 ftpd/ d/storage-misc/
+match ftp m|^220 FTP server at \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} ready\.\r\n503 USER expected\.\r\n| p/Linksys NSLU2 ftpd/ d/storage-misc/ cpe:/h:linksys:nslu2/
 match ftp m|^220[ -].*\r\n214-The following commands are recognized:\r\n.*\r\n214 Have a nice day\.\r\n|s p/FileZilla ftpd/ o/Windows/ cpe:/a:filezilla-project:filezilla:ftpd/ cpe:/o:microsoft:windows/a
 match ftp m|^220 ([-\w_.]+)\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n.*\r\n214 Direct comments to|s p/ProFTPD/ h/$1/ cpe:/a:proftpd:proftpd/a
 match ftp m|^220 Please enter your login name now\.\r\n502 help is not implemented\.\r\n| p/EvolutionX ftpd/ d/game console/
@@ -11020,7 +11020,7 @@ match ftp m|^220 Connection established\.\r\n214-The following commands are supp
 match ftp m|^200 1500\r\nf\0\x18\0\0\0x\xda\x0b\xcd\xcb\xce\xcb/\xcfSH\xce\xcf\xcdM\xccK\xd1\x03\x005\x93\x06\x1e| p/Gene6 ftpd/
 match ftp m|^220 Welcome to connection\.\r\n214 FTP Server Help\.\r\n  HUMAX PVR FTP Server\. \r\n214 End\r\n| p/Humax iHDR-5050C DVR ftpd/ d/media device/
 match ftp m|^220 Service ready for new user\r\n214-The following commands are recognized\r\n   ABOR\r\n   ALLO\r\n   APPE\r\n   CDUP\r\n   CWD\r\n   DELE\r\n   LIST\r\n   MKD\r\n   MODE\r\n   NLST\r\n   NOOP\r\n   PASS\r\n   PORT\r\n   PWD\r\n   QUIT\r\n   RETR\r\n   RMD\r\n   RNFR\r\n   RNTO\r\n   SIZE\r\n   SMNT\r\n   STOR\r\n   STRU\r\n   SYST\r\n   TYPE\r\n   USER\r\n   XCUP\r\n   XCWD\r\n   XMKD\r\n   XPWD\r\n   XRMD\r\n214 HELP command successful\r\n| p/Lumetrix Imaging Photometer ftpd/
-match ftp m|^220 ([\w._-]+) FTP server ready\.\r\n214-\r\n    The following commands are recognized\.\r\n    \(`-' = not implemented, `\+' = supports options\)\r\n    USER    REIN-   TYPE    ALLO    MKD     HELP    MIC     MLST\+   MSND-\r\n    PASS    PORT    STRU    REST    PWD     NOOP\+   CONF    MLSD    MSOM-\r\n    ACCT-   LPRT    MODE    RNFR    LIST    AUTH    ENC     MAIL-   XCUP\r\n    CWD     EPRT    RETR    RNTO    NLST    ADAT    FEAT    MLFL-   XCWD\r\n    CDUP    PASV    STOR    ABOR    SITE    PROT    OPTS    MRCP-   XMKD\r\n    SMNT-   LPSV    STOU    DELE    SYST    PBSZ    MDTM    MRSQ-   XPWD\r\n    QUIT    EPSV    APPE    RMD     STAT    CCC     SIZE    MSAM-   XRMD\r\n214 Direct comments to ftp-bugs@| p/QNX ftpd/ v/$1/
+match ftp m|^220 ([\w._-]+) FTP server ready\.\r\n214-\r\n    The following commands are recognized\.\r\n    \(`-' = not implemented, `\+' = supports options\)\r\n    USER    REIN-   TYPE    ALLO    MKD     HELP    MIC     MLST\+   MSND-\r\n    PASS    PORT    STRU    REST    PWD     NOOP\+   CONF    MLSD    MSOM-\r\n    ACCT-   LPRT    MODE    RNFR    LIST    AUTH    ENC     MAIL-   XCUP\r\n    CWD     EPRT    RETR    RNTO    NLST    ADAT    FEAT    MLFL-   XCWD\r\n    CDUP    PASV    STOR    ABOR    SITE    PROT    OPTS    MRCP-   XMKD\r\n    SMNT-   LPSV    STOU    DELE    SYST    PBSZ    MDTM    MRSQ-   XPWD\r\n    QUIT    EPSV    APPE    RMD     STAT    CCC     SIZE    MSAM-   XRMD\r\n214 Direct comments to ftp-bugs@| p/QNX ftpd/ v/$1/ o/QNX/ cpe:/o:qnx:qnx/a
 # DS210j, DS207+
 match ftp m|^220 ([\w._-]+) FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    LPRT    MODE    MSOM\*   RNTO    SITE    RMD     SIZE    PROT \r\n   PASS    EPRT    RETR    MSAM\*   ABOR    SYST    XRMD    MDTM \r\n   ACCT\*   PASV    STOR    MRSQ\*   DELE    STAT    PWD     MFMT \r\n   SMNT\*   LPSV    APPE    MRCP\*   CWD     HELP    XPWD    FEAT \r\n   REIN\*   EPSV    MLFL\*   ALLO    XCWD    NOOP    CDUP    OPTS \r\n   QUIT    TYPE    MAIL\*   REST    LIST    MKD     XCUP    AUTH \r\n   PORT    STRU    MSND\*   RNFR    NLST    XMKD    STOU    PBSZ \r\n214 Direct comments to ftp-bugs@| p/Synology DS200-series NAS device ftpd/ d/storage-misc/ h/$1/
 match ftp m|^220 Hi there!\r\n214-This is gatling \(www\.fefe\.de/gatling/\); No help available\.\r\n214 See http://cr\.yp\.to/ftp\.html for FTP help\.\r\n| p/gatling ftpd/
@@ -11059,11 +11059,11 @@ match http m|^HTTP/1\.1 400 Page not found\r\nServer: GoAhead-Webs\r\nDate: .*\r
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: RealVNC/([-.\w]+)\r\nDate: Mon, 27 Jul 2009 08:06:03 GMT\r\nLast-Modified: Mon, 27 Jul 2009 08:06:03 GMT\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n| p/RealVNC/ v/$1/ i/unauthorized/ cpe:/a:realvnc:realvnc:$1/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: httpd\r\n.*<HTML>\n<HEAD>\n<TITLE>400 Bad Request</TITLE>\n<script language=\"javascript\">\n<!--\n\tvar xmlhttp = false;.*<BODY BGCOLOR=\"#cc9999\">\n<H4>400 Bad Request</H4>\n<script language=\"javascript\">\n<!--\n\tif\(xmlhttp\) {\n\t\talert\('Unauthorizationed'\);|s p/Linksys 4400N WAP http config/ d/WAP/ cpe:/h:linksys:4400n/a
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: httpd\r\n.*<HTML>\n<HEAD>\n<TITLE>400 Bad Request</TITLE>\n<script language=\"javascript\">\n<!--\n\tvar xmlhttp = false;.*<BODY BGCOLOR=\"#cc9999\">\n<H4>400 Bad Request</H4>\n<script language=\"javascript\">\n<!--\n\tif\(xmlhttp\) {\n  \t\talert\('Unauthorizationed'\);|s p/Cisco WAP2000 WAP http config/ d/WAP/ cpe:/h:cisco:wap2000/a
-match http m|^HTTP/0\.9 400 Bad Request\r\n\r\n$| p/Ganeti httpd/
+match http m|^HTTP/0\.9 400 Bad Request\r\n\r\n$| p/Ganeti httpd/ cpe:/a:ganeti_project:ganeti/
 match http m|^UnknownMethod 400 Bad Request\r\nServer: httpd\r\nDate: .*\r\nConnection: keep-alive\r\nKeep-Alive: timeout=60, max=2000\r\nContent-Type: text/html\r\nContent-length: 130\r\n\r\n<HTML><HEAD><TITLE>Document Error: Bad Request</TITLE></HEAD>\r\n<BODY><H2>Access Error: 400 -- Bad Request</H2>\r\n</BODY></HTML>\r\n\r\n| p/Mbedthis-Appweb/ i/Dell iDRAC6 http config/ d/remote management/ cpe:/a:mbedthis:appweb/ cpe:/h:dell:idrac6/
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nFailure: 500 Internal Server Error\r\n$| p/PS3 Media Server httpd/
-match http m|^HTTP/1\.1 200 Ignoring bad request from client\r\nServer: Lotus Expeditor Web Container/([\d.]+)\r\nContent-Type: text/html\r\nContent-Length: 122\r\n\r\n<HTML><TITLE>200 Ignoring bad request from client</TITLE><BODY><h1>200 Ignoring bad request from client</h1></BODY></HTML>| p/Lotus Expeditor Web Container/ v/$1/
-match http m|^HTTP/1\.1 200 Ignoring bad request from client\r\nServer: Lotus Expeditor Web Container\r\nContent-Type: text/html\r\nContent-Length: 122\r\n\r\n<HTML><TITLE>200 Ignoring bad request from client</TITLE><BODY><h1>200 Ignoring bad request from client</h1></BODY></HTML>| p/Lotus Expeditor Web Container/
+match http m|^HTTP/1\.1 200 Ignoring bad request from client\r\nServer: Lotus Expeditor Web Container/([\d.]+)\r\nContent-Type: text/html\r\nContent-Length: 122\r\n\r\n<HTML><TITLE>200 Ignoring bad request from client</TITLE><BODY><h1>200 Ignoring bad request from client</h1></BODY></HTML>| p/Lotus Expeditor Web Container/ v/$1/ cpe:/a:ibm:lotus_expeditor:$1/
+match http m|^HTTP/1\.1 200 Ignoring bad request from client\r\nServer: Lotus Expeditor Web Container\r\nContent-Type: text/html\r\nContent-Length: 122\r\n\r\n<HTML><TITLE>200 Ignoring bad request from client</TITLE><BODY><h1>200 Ignoring bad request from client</h1></BODY></HTML>| p/Lotus Expeditor Web Container/ cpe:/a:ibm:lotus_expeditor/
 # Switched from HTTP 1.0 to 1.1 in 516a5825 (3.6.0)
 match http m|^HTTP/1\.0 400 Bad Request \r\nContent-Type: text/plain\r\nDate: .*\r\n\r\nBAD REQUEST: Missing URI\. Usage: GET /example/file\.html$| p/Bukkit JSONAPI httpd for Minecraft game server/ v/3.6.0 or older/
 match http m|^HTTP/1\.1 400 Bad Request \r\nContent-Type: text/plain\r\nDate: .*\r\n\r\nBAD REQUEST: Missing URI\. Usage: GET /example/file\.html$| p/Bukkit JSONAPI httpd for Minecraft game server/ v/3.6.0 or later/
@@ -11077,8 +11077,8 @@ match http-proxy m|^HTTP/1\.0 503\r\nServer: Charles\r\n| p/Charles http proxy/
 match http-proxy m|^ 400 badrequest\r\n.*<title>McAfee Web Gateway - Notification - </title>|s p/McAfee Web Gateway http proxy/ d/proxy server/ cpe:/a:mcafee:web_gateway/
 
 match ident m|^0 , 0 : ERROR : UNKNOWN-ERROR\r\n$| p/WatchGuard Firebox firewall identd/ d/firewall/
-match ident m|^HELP : USERID : UNIX : trilluser\r\n$| p/Trillian identd/
-match ident m|^HELP : USERID : UNIX : ([-\w_.]+)\r\n$| p/Trillian identd/ i/Name $1/
+match ident m|^HELP : USERID : UNIX : trilluser\r\n$| p/Trillian identd/ cpe:/a:trillian:trillian/
+match ident m|^HELP : USERID : UNIX : ([-\w_.]+)\r\n$| p/Trillian identd/ i/Name $1/ cpe:/a:trillian:trillian/
 # Internet Rex v2.29
 match ident m|^\d+, \d+ : USERID : UNIX : [-.@\w]+\r\n| p/Internet Rex identd/
 match ident m|^0, 0 : ERROR : UNKNOWN-ERROR$| p/Windows NT identd/ o/Windows/ cpe:/o:microsoft:windows_nt/a
@@ -11092,7 +11092,7 @@ match irc m|^:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd inter-server
 match irc m|^:([-\w_.]+) 451 HELP :You have not registered\r\n| p/ircu ircd/ h/$1/ cpe:/a:undernet:ircu/
 match irc m|^:([-\w_.]+) 451  HELP :Register first\.\r\n| p/ircu ircd/ h/$1/ cpe:/a:undernet:ircu/
 match irc m|^NOTICE AUTH :\*\*\* Checking Ident\r\n:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd/ h/$1/ cpe:/a:undernet:ircu/
-match irc m|^:([\w._-]+) 451 \* :Connection not registered\r\n| p/ngircd/ h/$1/
+match irc m|^:([\w._-]+) 451 \* :Connection not registered\r\n| p/ngircd/ h/$1/ cpe:/a:barton:ngircd/
 
 match irc m|^:([-\w_.]+) 290  :\.-----------------=#\[ euIRCd HelpSystem \]#=----------------\.\n| p/euIRCd/ h/$1/
 
@@ -11120,7 +11120,7 @@ match slurm m|^\0\0\0.\x1b\0\0\0\x1fA\0\0\0\x04\0\0\0\0......\0\0\0\x0bauth/mung
 # Symantec Enterprise Firewall 6.5.2 SMTP proxy on Windows 2000
 match smtp m|^220 ([-.+\w]+) Generic SMTP handler\r\n214 Help not supported by this implementation\r\n$| p/Symantec Enterprise Firewall smtp proxy/ h/$1/ cpe:/a:symantec:enterprise_firewall/
 # Lotus Notes Domino 6.1 smtp server on Win2K
-match smtp m|^220 Welcome to ([-.+\w]+) ESMTP Server at .*\r\n214-Enter one of the following commands:\r\n214-HELO EHLO MAIL RCPT DATA RSET NOOP QUIT\r\n214 HELP VRFY EXPN STARTTLS \r\n$| p/Lotus Notes Domino smtpd/ h/$1/
+match smtp m|^220 Welcome to ([-.+\w]+) ESMTP Server at .*\r\n214-Enter one of the following commands:\r\n214-HELO EHLO MAIL RCPT DATA RSET NOOP QUIT\r\n214 HELP VRFY EXPN STARTTLS \r\n$| p/Lotus Notes Domino smtpd/ h/$1/ cpe:/a:ibm:lotus_domino/
 match smtp m|^220.*?\n214-Commands supported:\r\n214-    HELO EHLO MAIL RCPT DATA(?: ETRN)?(?: AUTH)?\r\n214     NOOP QUIT RSET HELP \r\n$| p/Exim smtpd/ v/3.X/ cpe:/a:exim:exim:3/
 match smtp m|^220.*?\r?\n214-Commands supported:\r\n214 AUTH (?:STARTTLS )?HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP(?: VRFY)?\r\n$|s p/Exim smtpd/ v/4.X/ cpe:/a:exim:exim:4/
 match smtp m|^220[\s-](\S+) ESMTP ?\r\n214[- ]qmail home page: http://pobox\.com/~djb/qmail\.html\r\n214[- ]qmail-ldap patch home page: http://www\.nrg4u\.com\r\n| p/qmail-ldap smtpd/ o/Unix/ h/$1/
@@ -11203,13 +11203,13 @@ match smtp m|^220 ([-\w_.]+) ESMTP Generic Ready\r\n502 Command not implemented\
 match smtp m|^220 ([-\w_.]+) ESMTP SubEthaSMTP\r\n214-This is the SubEthaSMTP ([\w._-]+) server| p/SubEtha smtpd/ v/$2/ h/$1/
 match smtp m|^220 ([\w_.-]+) ESMTP.*information about Email Mx, please see http://www\.openwave\.com\r\n|s p/Openwave Email Mx smtpd/ h/$1/
 match smtp m|^220 ([\w_.-]+) Welcome\r\n214-ESMTP Mail Server\r\n214-Available commands:\r\n214-    HELO    EHLO    MAIL    RCPT    DATA\r\n214-    RSET    NOOP    QUIT    HELP    VRFY\r\n214-    AUTH    ETRN\r\n214-For information on a specific command, type \"HELP <command>\"\.\r\n214 OK\r\n| p/SurgeMail smtpd/ h/$1/
-match smtp m|^220 ([\w_.-]+) ESMTP\r\n214-Run 'info anubis' or visit http://www\.gnu\.org/software/anubis/manual/\r\n214 End of HELP info\r\n$| p/GNU Anubis/ h/$1/
+match smtp m|^220 ([\w_.-]+) ESMTP\r\n214-Run 'info anubis' or visit http://www\.gnu\.org/software/anubis/manual/\r\n214 End of HELP info\r\n$| p/GNU Anubis/ h/$1/ cpe:/a:gnu:anubis/
 # hMailServer 4.4.1-B273
 match smtp m|^220 ([\w_.-]+)\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n| p/hMailServer/ h/$1/
 # Maybe too general, but the greeting was unique.
 match smtp m|^220 .+\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n\r\n| p/hMailServer/
-match smtp m|^220 ([\w._-]+) -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/ h/$1/
-match smtp m|^220 Ready to receive mail2 -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/
+match smtp m|^220 ([\w._-]+) -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/ h/$1/ cpe:/a:pineapp:mail-secure/
+match smtp m|^220 Ready to receive mail2 -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/ cpe:/a:pineapp:mail-secure/
 match smtp m|^220 ([\w._-]+) ESMTP service ready\r\n214 2\.0\.0 try reading the RFCs: http://www\.imc\.org/rfcs\.html\r\n| p/PowerMTA smtpd/ h/$1/
 match smtp m|^220 SMTP\r\n214-Usage: HELP <topic>\r\n214-Topics:\r\n214-\tHELO EHLO MAIL RCPT DATA\r\n214-\tVRFY EXPN RSET NOOP QUIT\r\n214 End of HELP info\r\n| p/Trend Micro IMSS smtpd/ v/7.0/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([\w._-]+) ESMTP\r\n214-2\.0\.0 These commands are recognised:\r\n214 2\.0\.0     DATA EHLO HELO HELP MAIL NOOP QUIT RCPT RSET\r\n| p/Koto Internet Services smtpd/ h/$1/
@@ -11229,7 +11229,7 @@ match smtp-proxy m|^220 SMTP SDC Ready\r\n250 \+OK entry follows, ends in \.\r\n
 match smtp-proxy m|^220 ([-\w_.]+) SMTP; .* \+\d{4}\r\n500 Syntax error, command unrecognized\r\n| p/Symantec Mail Security smtp proxy/ o/Windows/ h/$1/ cpe:/a:symantec:mail_security/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 ([\w._-]+) Symantec Mail Security | p/Symantec Mail Security smtp proxy/ o/Windows/ h/$1/ cpe:/a:symantec:mail_security/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 ([-\w_.]+) ESMTP smtprelay service ready\.\r\n214-This is smtprelay\r\n214-Topics:| p/Genua smtprelay/ d/security-misc/ h/$1/
-match smtp-proxy m|^220 SMTP ESMTP ready at .*0\r\n214-\r\n214 End of HELP info\r\n| p/Surf Control smtp proxy/ o/Windows/ cpe:/o:microsoft:windows/a
+match smtp-proxy m|^220 SMTP ESMTP ready at .*0\r\n214-\r\n214 End of HELP info\r\n| p/SurfControl smtp proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 ([-\w_.]+)\r\n214-HELO domain\r\n214-EHLO domain\r\n214-QUIT\r\n214-MAIL FROM:<reverse-path> \[options\]\r\n| p/RedCondor smtp proxy/ h/$1/
 match smtp-proxy m|^220 ([-\w_.]+) ESMTP Ready\r\n211 Help:->Supported Commands: HELO,EHLO,QUIT,HELP,RCPT,MAIL,DATA,RSET,NOOP\r\n| p/NoSpamToday! smtp proxy/ h/$1/
 match smtp-proxy m|^220 ([-\w_.]+) SMTP Relay Service ready\r\n500 Syntax error, command unrecognized\r\n| p/Tumbleweed Email Firewall smtp proxy/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -11272,17 +11272,17 @@ match adabas m|^,\0,\0\x03\x02\0\0G\xd7\xf7\xbaO\x03\0\?\x05\0\0\0\0\x02\x18\0\x
 # These are mostly sorted by the flags field.
 
 # Flags \x80\xfb.
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x80\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x05\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 2.2; Mac OS X 10.1.*/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x80\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x05\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 2.2; Mac OS X 10.1.*/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.1/
 
 # Flags \x83\xfb.
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.2/
 
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\x06Recon1\rClient Krb v20\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\x06Recon1\rClient Krb v20\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.2/
 
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.3/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.3/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.3/
 
 # Flags \x8f\xfa.
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfa.([^\0\x01]+)[\0\x01].*\tMacintosh\x01\x06AFP3\.1.\tDHCAST128|s p/Apple Airport Extreme AFP/ i/name: $1; protocol 3.1/ d/WAP/ cpe:/h:apple:airport_extreme/
@@ -11292,37 +11292,20 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.2; Mac OS X 10.3 - 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.2; Mac OS X 10.3 - 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\x06Recon1\rClient Krb v2\x0fNo User Authent\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([-\w_.@]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.2; Mac OS X 10.5 Server/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\x06Recon1\rClient Krb v2\x0fNo User Authent\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([-\w_.@]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.2; Mac OS X 10.5 Server/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x_server:10.5/
 
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/
 
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; MacBook Pro/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*Xserve\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; Xserve/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacPro\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; MacPro/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBookAir\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; MacBook Air/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; iMac/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBook\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; MacBook/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/ cpe:/o:apple:mac_os_x:10.6/
 
 # Patched version of OS X 10.5 may match these too... wait for corrections
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; MacBook Pro/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBookAir\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; MacBook Air/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacPro\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; MacPro/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; iMac/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBook\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; MacBook/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*Macmini\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; Mac Mini/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*TimeCapsule\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0|s p/Apple Time Capsule AFP/ i/name: $1; protocol 3.3/ h/$2/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/
 
-match afp m|^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacPro\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; MacPro/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m=^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/ cpe:/o:apple:mac_os_x:10.6/
+match afp m|^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/
 
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBook\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; MacBook/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*Macmini\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; Mac mini/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-
-match afp m|^\x01\x03\0\0Q\xec\xff\xff....\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*MacBook\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x04\tDHCAST128.*\x04([\w._-]+)|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; MacBook/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-
-match afp m|^\x01\x03\0\0Q\xec\xff\xff....\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x04\tDHCAST128.*\x04([\w._-]+)\x01oafpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X; iMac/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0Q\xec\xff\xff....\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128.*\x04([\w._-]+)\x01oafpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; iMac/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/
 
 # Flags \x8f\xfb.
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*AirPort.*AFP3\.2|s p|Apple Airport Extreme/Time Capsule AFP| i/name: $1; protocol 3.2 WAP/ cpe:/h:apple:airport_extreme/
@@ -11337,11 +11320,10 @@ match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+)[\0\x01].*
 
 # Flags \x9f\xfb.
 match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.7 - 10.8; MacBook Pro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacPro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Xserve\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Xserve/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*iMac\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent| p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.8; iMac/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?))\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
 
 softmatch afp m|^\x01\x03\0\0........\0\0\0\0.*AFP|s
 
@@ -11364,7 +11346,7 @@ match login m|^\0\r\nlogin: \^W\^@\^@\^@\^| p/VxWorks logind/ o/VxWorks/ cpe:/o:
 
 match maxdb m|^.Rejected bad connect packet\0$|s p/SAP MaxDB/
 
-match msexchange-logcopier m|^\x15\x01\0\0\x08\0\0\0\0\x80\t\x03\x08$| p/Microsoft Exchange 2010 log copier/
+match msexchange-logcopier m|^\x15\x01\0\0\x08\0\0\0\0\x80\t\x03\x08$| p/Microsoft Exchange 2010 log copier/ cpe:/a:microsoft:exchange_server:2010/
 
 match modbus m|^\x16\x03\0\0\0\x03\0\x80\x01| p/Modbus TCP/
 
@@ -11386,7 +11368,7 @@ match postx-reporting m|^OPTIONS / RTSP/1\.0| p/PostX IP Reporting alarm system/
 
 match remoting m|^\.NET\x01\0\x02\0\0\0\0\0\0\0\x02\0\x03\x01\0\x03\0\x01\x01..\0\0System\.Runtime\.Remoting\.RemotingException: |s p/MS .NET Remoting services/ cpe:/a:microsoft:.net_framework/
 
-match siebel m|^\0\0\0\x40\0\0\0\0\0\0\0\x01\0\0\0\0\0\0..\0\0\0\x05\0\0\0\0\0\0\0\0\x4e...\0...\0\0\0\0\0\0\0\0\0\0\0\x05\0\0\0\x0c\0\0\0\x08\0\x12\0\x68\0\0\0\0$| p/Siebel Gateway Name Server/
+match siebel m|^\0\0\0\x40\0\0\0\0\0\0\0\x01\0\0\0\0\0\0..\0\0\0\x05\0\0\0\0\0\0\0\0\x4e...\0...\0\0\0\0\0\0\0\0\0\0\0\x05\0\0\0\x0c\0\0\0\x08\0\x12\0\x68\0\0\0\0$| p/Siebel Gateway Name Server/ cpe:/a:oracle:siebel_suite/
 
 # OpenSSL/0.9.7aa, 0.9.8e
 match ssl m|^\x16\x03\0\0J\x02\0\0F\x03\0| p/OpenSSL/ i/SSLv3/ cpe:/a:openssl:openssl/
@@ -11415,7 +11397,7 @@ match ssl m|^20928:error:140760FC:SSL routines:SSL23_GET_CLIENT_HELLO:unknown pr
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0B| p/Tor over SSL/ cpe:/a:torproject:tor/
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*IOS-Self-Signed-Certificate|s p/Cisco IOS ssl/ d/router/
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*\nCalifornia.*\tPalo Alto.*\x0cVMware, Inc\..*\x1bVMware Management Interface|s p/VMware management interface SSLv3/
-match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*\x0edropbox-client0|s p/Dropbox client SSLv3/
+match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*\x0edropbox-client0|s p/Dropbox client SSLv3/ cpe:/a:dropbox:dropbox/
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*vCenterServer_([\w._-]+)|s p/VMware ESXi Server httpd/ v/$1/ cpe:/o:vmware:esxi:$1/
 
 # Alert (Level: Fatal, Description: Protocol Version)
@@ -12091,7 +12073,7 @@ match http m|^HTTP/1\.1 501 Unimplimented\r\nConnection: close\r\nContent-Length
 
 match imsp m|^VIA: BAD IMSP busy\r\nFROM: BAD IMSP busy\r\nTO: BAD IMSP busy\r\n|
 
-match rtsp m|^RTSP/1\.0 405 Method Not Allowed\r\nCSeq: 42\r\n\r\n| p/Lotus Domino Sametime RTSP/
+match rtsp m|^RTSP/1\.0 405 Method Not Allowed\r\nCSeq: 42\r\n\r\n| p/Lotus Domino Sametime RTSP/ cpe:/a:ibm:lotus_domino/
 match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 42 OPTIONS\r\nPublic: OPTIONS, DESCRIBE, PLAY, PAUSE, SETUP, TEARDOWN, SET_PARAMETER, GET_PARAMETER\r\nDate: .*\r\n\r\n| p/Hikvision 7513 POE IP camera rtspd/ d/webcam/
 
 match telnet m|^login: Login incorrect\nlogin: Login incorrect\nlogin: Login incorrect\nlogin: Login incorrect\nlogin: Login incorrect\n| p/McAfee firewall telnetd/
@@ -12323,7 +12305,7 @@ match rtmp m|^\x03.{899,1536}$|s p/Real-Time Messaging Protocol/
 
 match sybase-monitor m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Monitor Server/ o/Windows/ cpe:/a:sybase:monitor_server/ cpe:/o:microsoft:windows/a
 
-match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o/Windows/ cpe:/o:microsoft:windows/a
+match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o/Windows/ cpe:/a:trillian:trillian/ cpe:/o:microsoft:windows/a
 
 # Netware Create Connection Service request
 ##############################NEXT PROBE##############################
