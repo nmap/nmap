@@ -366,6 +366,48 @@ table.insert(fingerprints, {
 })
 
 ---
+--Printers
+---
+table.insert(fingerprints, {
+  name = "Zebra Printer",
+  category = "printer",
+  paths = {
+    {path = "/setgen"}
+  },
+  target_check = function (host, port, path, response)
+    return response.body
+           and response.body:lower():find("<h1>zebra technologies<br>", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = "1234"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {}
+    form["0"] = pass
+    return try_http_post_login(host, port, path, "authorize", "incorrect password", form)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Zebra Print Server",
+  category = "printer",
+  paths = {
+    {path = "/server/TCPIPGEN.htm"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "Network Print Server"
+           and response.header["server"]
+           and response.header["server"] == "Micro-Web"
+  end,
+  login_combos = {
+    {username = "admin", password = "1234"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+---
 --Remote consoles
 ---
 table.insert(fingerprints, {
