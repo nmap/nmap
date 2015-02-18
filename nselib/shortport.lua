@@ -162,12 +162,12 @@ Apache Tomcat HTTP server default ports: 8180 and 8000
 Litespeed webserver default ports: 8088 and 7080
 --]]
 LIKELY_HTTP_PORTS = {
-  80, 443, 631, 7080, 8080, 8088, 5800, 3872, 8180, 8000
+  80, 443, 631, 7080, 8080, 8443, 8088, 5800, 3872, 8180, 8000
 }
 
 LIKELY_HTTP_SERVICES = {
-  "http", "https", "ipp", "http-alt", "vnc-http", "oem-agent", "soap",
-  "http-proxy",
+  "http", "https", "ipp", "http-alt", "https-alt", "vnc-http", "oem-agent",
+  "soap", "http-proxy",
 }
 
 ---
