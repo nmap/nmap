@@ -44,7 +44,7 @@ portrule = shortport.port_or_service( {5900, 5901, 5902} , "vnc", "tcp", "open")
 
 action = function(host, port)
 
-  local vnc = vnc.VNC:new( host.ip, port.number )
+  local vnc = vnc.VNC:new( host, port )
   local status, data
   local result = stdnse.output_table()
 

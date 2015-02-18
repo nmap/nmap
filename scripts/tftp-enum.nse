@@ -104,7 +104,7 @@ local check_file_present = function(host, port, filename)
 
 
   local socket = nmap.new_socket()
-  socket:connect(host.ip, port.number, "udp")
+  socket:connect(host, port)
   local status, lhost, lport, rhost, rport = socket:get_info()
 
 

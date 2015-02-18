@@ -34,7 +34,7 @@ portrule = shortport.portnumber({8080,80,443}, "tcp")
 
 action = function(host, port)
 
-  local xmldata = citrixxml.request_server_data(host.ip, port.number)
+  local xmldata = citrixxml.request_server_data(host, port)
   local servers = citrixxml.parse_server_data_response(xmldata)
   local response = {}
 

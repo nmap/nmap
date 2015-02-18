@@ -106,7 +106,7 @@ local backorifice =
 
     encrypted_ping = self:BOcrypt(PING_PACKET,seed)
 
-    status, response = self.socket:sendto(self.host.ip, self.port.number, encrypted_ping)
+    status, response = self.socket:sendto(self.host, self.port, encrypted_ping)
     if not(status) then
       return false, response
     end

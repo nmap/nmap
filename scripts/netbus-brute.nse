@@ -29,7 +29,7 @@ action = function( host, port )
   local try = nmap.new_try()
   local passwords = try(unpwdb.passwords())
   local socket = nmap.new_socket()
-  local status, err = socket:connect(host.ip, port.number)
+  local status, err = socket:connect(host, port)
   if not status then
     return
   end

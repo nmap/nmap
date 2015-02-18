@@ -144,7 +144,7 @@ end
 
 action = function(host,port)
 
-  local response = citrixxml.request_appdata(host.ip, port.number, {ServerAddress="",attr={addresstype="dot"},DesiredDetails={"all","access-list"} })
+  local response = citrixxml.request_appdata(host, port, {ServerAddress="",attr={addresstype="dot"},DesiredDetails={"all","access-list"} })
   local appdata = citrixxml.parse_appdata_response(response)
 
   local response = format_output(appdata, (nmap.verbosity() > 1 and "long" or "short"))

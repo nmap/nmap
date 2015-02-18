@@ -50,7 +50,7 @@ portrule = shortport.port_or_service({
   });
 
 action = function (host, port)
-  local registry = rmi.Registry:new(host.ip, port.number);
+  local registry = rmi.Registry:new(host, port);
   registry:_handshake();
   local rmiArgs = rmi.Arguments:new();
   local argsRaw = "75" ..  --TC_ARRAY

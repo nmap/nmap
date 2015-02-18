@@ -42,8 +42,8 @@ portrule = shortport.portnumber({8080,80,443}, "tcp")
 
 --- Verifies if the credentials (username, password and domain) are valid
 --
--- @param host string, the ip against which to perform
--- @param port number, the port number of the XML service
+-- @param host string or host table against which to perform
+-- @param port number or port table of the XML service
 -- @param username string, the username to authenticate as
 -- @param password string, the password to authenticate with
 -- @param domain string, the Windows domain to authenticate against
@@ -139,7 +139,7 @@ action = function(host, port)
     -- iterate over passwordlist
     while password do
       local result = "Trying " .. username .. "/" .. password .. " "
-      local account = verify_password(host.ip, port.number, username, password, ntdomain)
+      local account = verify_password(host, port, username, password, ntdomain)
 
       if account.valid then
 

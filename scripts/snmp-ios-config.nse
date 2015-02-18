@@ -85,7 +85,7 @@ action = function(host, port)
   try = nmap.new_try(catch)
 
   -- connect to the potential SNMP system
-  try(socket:connect(host.ip, port.number, "udp"))
+  try(socket:connect(host, port))
 
   local status, tftpserver, _, _, _ = socket:get_info()
   if( not(status) ) then

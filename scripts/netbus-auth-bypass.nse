@@ -32,7 +32,7 @@ portrule = shortport.port_or_service (12345, "netbus", {"tcp"})
 action = function( host, port )
 
   local socket = nmap.new_socket()
-  local status, err = socket:connect(host.ip, port.number)
+  local status, err = socket:connect(host, port)
   if not status then
     return
   end

@@ -141,7 +141,7 @@ action = function(host, port)
     local try = nmap.new_try(catch)
 
     -- connect to the potential service tags discoverer
-    try(socket:connect(host.ip, port.number, "udp"))
+    try(socket:connect(host, port))
 
     local payload
 
