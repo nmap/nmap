@@ -35,6 +35,10 @@ action = function( host, port )
   end
   local buffer, err = stdnse.make_buffer(socket, "\r")
   local _ = buffer() --skip the banner
+  if not (_ and _:match("^NetBus")) then
+    stdnse.debug1("Not NetBus")
+    return nil
+  end
   for password in passwords do
     local foo = string.format("Password;0;%s\r", password)
     socket:send(foo)

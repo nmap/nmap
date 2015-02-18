@@ -30,7 +30,11 @@ action = function( host, port )
     return
   end
   local buffer, _ = stdnse.make_buffer(socket, "\r")
-  buffer() --discard banner
+  _ = buffer()
+  if not (_ and _:match("^NetBus")) then
+    stdnse.debug1("Not NetBus")
+    return nil
+  end
   socket:send("Password;0;\r")
 
   --NetBus answers to auth

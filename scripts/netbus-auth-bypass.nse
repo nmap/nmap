@@ -37,7 +37,11 @@ action = function( host, port )
     return
   end
   local buffer, _ = stdnse.make_buffer(socket, "\r")
-  buffer() --discard banner
+  _ = buffer()
+  if not (_ and _:match("^NetBus")) then
+    stdnse.debug1("Not NetBus")
+    return nil
+  end
 
   -- The first argument of Password is the super-login bit.
   -- On vulnerable servers any password will do as long as
