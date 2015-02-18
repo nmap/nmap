@@ -3248,7 +3248,8 @@ match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n\n\rNo connection is available now
 match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n| p/DrayTek Vigor 2820n ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/ cpe:/h:draytek:vigor_2820n/a
 match ssh m|^SSH-([\d.]+)-Pragma FortressSSH ([\d.]+)\n| p/Pragma Fortress SSH Server/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:pragmasys:fortress_ssh_server:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-SysaxSSH_([\d.]+)\r\n| p/Sysax Multi Server sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:sysax:multi_server:$2/ cpe:/o:microsoft:windows/a
-match ssh m|^SSH-([\d.]+)-1\.00\r\n$| p/Cisco IP Phone CP-7900G-series sshd/ i/protocol $1/ d/VoIP phone/
+# CP-7900G and 8961
+match ssh m|^SSH-([\d.]+)-1\.00\r\n$| p/Cisco IP Phone sshd/ i/protocol $1/ d/VoIP phone/
 match ssh m|^SSH-([\d.]+)-Foxit-WAC-Server-([\d.]+ Build \d+)\n| p/Foxit WAC Server sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-ROSSSH\r\n| p/MikroTik RouterOS sshd/ i/protocol $1/ d/router/ o/Linux/ cpe:/o:linux:linux_kernel/a cpe:/o:mikrotik:routeros/
 match ssh m|^SSH-([\d.]+)-3Com OS-([\w._-]+ Release \w+)\n| p/3Com switch sshd/ v/$2/ i/protocol $1/ d/switch/ o/Comware/ cpe:/o:3com:comware/
@@ -6110,10 +6111,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Aut
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"SimpleShare \(default user name is admin and password is simple\)\"\r\n| p/SimpleShare WAP http config/ d/WAP/
 
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Alcatel Lucent ([\w._-]+) ([\w._-]+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n$| p/Alcatel-Lucent $1 WAP http config/ v/$2/ d/WAP/ cpe:/h:alcatel-lucent:$1/
-# This might be too general, but this is probably the most common device
-# this will match. I'm leaving it -Doug
-# Also matches Mapower KC31N NAS device http config.
-match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"([^"]+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/Linksys WAP http config/ i/Name $1/ d/WAP/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"(RT-[^"]+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/Asus $1 WAP http config/ d/WAP/ cpe:/h:asus:$1/a
 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Insight Manager (\d)\r\n\r\n|s p/Compaq Insight Manager/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store, must-revalidate\r\nExpires: 0\r\nContent-Type: text/html\r\n\r\n| p/GNU Httptunnel/
@@ -7393,7 +7391,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: D-Link Internet Camera\r\n.*<title>
 match http m|^HTTP/1\.0 200 Ok\r\nServer: micro_httpd\r\n.*var isRouter\t='1' \? '1' : '0';\r\nvar\tisPS\t\t='' \? '' : '0';\r\nvar isAPmode\r\nif\('vlan1' =='' .. '1'=='0'\)\r\n\tisAPmode='1';\r\nelse\tisAPmode='0';\r\nvar bssid = '([\w:]+)';|s p/micro_httpd/ i/Belkin WAP http config; BSSID $1/ d/WAP/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.0 200 OK\n.*Server: SWILL/([-\w_.]+)\n|s p/SWILL httpd/ v/$1/
 match http m|^HTTP/1\.1 .*<p:Type>GatewayWithWiFi</p:Type><p:DeviceName>D-Link DGL-4300</p:DeviceName>|s p/D-Link DGL-4300 WAP http config/ d/WAP/ cpe:/h:dlink:dgl-4300/a
-match http m|^HTTP/1\.1 200 OK.*\r\nServer: IPL T S2/([-\w_.]+)\r\n|s p/Exton IPL T S2 http config/ v/$1/ d/media device/
+match http m|^HTTP/1\.1 200 OK.*\r\nServer: IPL T S2/([-\w_.]+)\r\n|s p/Extron IPL T S2 http config/ v/$1/ d/media device/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: \r\n.*<title>RWO-CPE-PLUS-G Login Page</title>|s p/mini_httpd/ i/Demarc RWO WAP http config/ d/WAP/ cpe:/a:acme:mini_httpd/
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>Netgear System Login</TITLE>.*<IMG SRC = \"/base/images/Netgear_fsm(\w+)_banner\.gif\"|s p/Netgear FSM$1 switch http config/ d/switch/
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>NetGear FSM7352S</TITLE>|s p/Netgear FSM7352S switch http config/ d/switch/ cpe:/h:netgear:fsm7352s/a
@@ -8953,6 +8951,7 @@ match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Type: text/html; ch
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\nDate: .*\r\nServer: HP-iLO-Server/([\w._-]+)\r\nContent-Length: 0\r\n\r\n| p/HP Integrated Lights-Out web interface/ v/$1/ cpe:/h:hp:integrated_lights-out:$1/
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: Brazil/([\d.]+)\r\nConnection: close\r\nContent-Length: 135\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Error: 404</title>\n<body>\nGot the error: <b>Not Found</b><br>\nwhile trying to obtain <b>/</b><br>\n\n</body>\n</html>| p/Sun Labs Brazil httpd/ v/$1/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 403 Forbidden\r\nServer: Norman Security/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: 83\r\n\r\n<html><title>Security Error</title><body><br><h2>403 - Forbidden</h2></body></html>| p/Norman Security Suite http config/ v/$1/ cpe:/a:norman:security_suite:$1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"Tadiran MGCP Phone\"\r\nContent-Type: text/html\r\n\r\n<html>| p/Tadiran MGCP phone http config/ d/VoIP phone/
 
 #(insert http)
 

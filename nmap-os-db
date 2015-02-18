@@ -3691,10 +3691,12 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Apple TV Software 5.2.1 (6025)
-Fingerprint Apple TV (iOS 5.2.1)
-Class Apple | iOS | 5.X | media device
-CPE cpe:/o:apple:iphone_os:5.2.1
-SEQ(SP=102-10C%GCD=1-6%ISR=101-10B%TI=RD%CI=RD|RI%II=RI%TS=A)
+# Apple TV 5.3
+Fingerprint Apple TV 5.2.1 or 5.3
+Class Apple | Apple TV | 5.X | media device
+CPE cpe:/a:apple:apple_tv:5.2.1
+CPE cpe:/a:apple:apple_tv:5.3
+SEQ(SP=F3-10C%GCD=1-6%ISR=101-10B%TI=RD%CI=RD|RI%II=RI%TS=A)
 OPS(R=N)
 WIN(R=N)
 ECN(R=N)
