@@ -233,6 +233,17 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
   struct sockaddr_storage remote;
   size_t remote_len;
 
+  if (hss->target->TargetSockAddr(&remote, &remote_len) != 0) {
+    fatal("Failed to get target socket address in %s", __func__);
+  }
+  if (remote.ss_family == AF_INET)
+    ((struct sockaddr_in *) &remote)->sin_port = htons(probe->dport());
+#if HAVE_IPV6
+  else
+    ((struct sockaddr_in6 *) &remote)->sin6_port = htons(probe->dport());
+#endif
+  PacketTrace::traceConnect(IPPROTO_TCP, (sockaddr *) &remote, remote_len,
+      connect_errno, connect_errno, &USI->now);
   switch (connect_errno) {
     case 0:
       newhoststate = HOST_UP;
@@ -315,8 +326,7 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
      */
     if (newportstate == PORT_OPEN) {
       /* Check for self-connected probe */
-      if (getsockname(probe->CP()->sd, (struct sockaddr*)&local, &local_len) == 0
-          && hss->target->TargetSockAddr(&remote, &remote_len) == 0) {
+      if (getsockname(probe->CP()->sd, (struct sockaddr*)&local, &local_len) == 0) {
         if (sockaddr_storage_cmp(&local, &remote) == 0 && (
               (local.ss_family == AF_INET &&
                ((struct sockaddr_in*)&local)->sin_port == htons(dport))
@@ -433,8 +443,6 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   gettimeofday(&USI->now, NULL);
   if (rc == -1)
     connect_errno = socket_errno();
-  PacketTrace::traceConnect(IPPROTO_TCP, (sockaddr *) &sock, socklen, rc,
-                            connect_errno, &USI->now);
   /* This counts as probe being sent, so update structures */
   hss->probes_outstanding.push_back(probe);
   probeI = hss->probes_outstanding.end();
@@ -447,6 +455,8 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
      elsewhere.  But the reality is that connect() MAY be finished now. */
 
   if (rc == -1 && (connect_errno == EINPROGRESS || connect_errno == EAGAIN)) {
+    PacketTrace::traceConnect(IPPROTO_TCP, (sockaddr *) &sock, socklen, rc,
+        connect_errno, &USI->now);
     USI->gstats->CSI->watchSD(CP->sd);
   } else {
     handleConnectResult(USI, hss, probeI, connect_errno, true);
