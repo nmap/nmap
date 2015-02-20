@@ -298,7 +298,7 @@ table.insert(fingerprints, {
                     local _, hex = bin.unpack("H" .. str:len(), str)
                     return hex:lower()
                   end
-    local login = string.format("J20K34NMMT89XPIJ34S login %s %s", tohex(user), tohex(pass))
+    local login = ("J20K34NMMT89XPIJ34S login %s %s"):format(tohex(user), tohex(pass))
     local lpath = url.absolute(path, "usmCgi.cgi/?" .. url.escape(login))
     local req = http.get(host, port, lpath, {no_cache=true, redirect_ok = false})
     return req
