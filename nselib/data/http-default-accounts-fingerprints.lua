@@ -167,6 +167,23 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Adobe LiveCycle Management Console",
+  category = "web",
+  paths = {
+    {path = "/lc/system/console"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "OSGi Management Console"
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
   name = "Apache Axis2",
   category = "web",
   paths = {
