@@ -5145,7 +5145,7 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'OSGi Mangement Console',
+        match = 'OSGi Management Console',
         output = 'Adobe LiveCycle Managment Console'
       }
     }
