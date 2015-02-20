@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix ICMP Echo (-PE) host discovery for IPv6, broken since 6.45, caused by
+  failing to set the ICMP ID for outgoing packets which is used to match
+  incoming responses. [Andrew Waters]
+
 o Solve a crash on Windows 8.1 on Surface Pro 3 caused by WinPcap trying to
   write an error message to a NULL pointer. [Peter Malecka]
 

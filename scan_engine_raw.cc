@@ -193,7 +193,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
     sctp = (struct sctp_hdr *) data;
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
     probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
-  } else if (hdr == IPPROTO_ICMP) {
+  } else if (hdr == IPPROTO_ICMP || hdr == IPPROTO_ICMPV6) {
     icmp = (struct ppkt *) data;
     probes.IP.pd.icmp.ident = ntohs(icmp->id);
   }
