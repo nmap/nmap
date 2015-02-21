@@ -347,11 +347,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
 #endif
 #endif
     {
-      if (pinfo->max_fd > -1)
-        results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
-      else
-        results_left = 0;
-
+      results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
       if (results_left == -1)
         sock_err = socket_errno();
     }
