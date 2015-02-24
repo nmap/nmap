@@ -854,6 +854,39 @@ function set_nmap(host, port)
 
 end
 
+--- Sends a query for Property Identifier id (a number) on socket
+local function send_query(socket, id)
+  -- Wireshark dissection:
+  local query = bin.pack(">C2SC7ICC",
+    0x81, -- Type: BACnet/IP (Annex J)
+    0x0a, -- Function: Original-Unicast-NPDU
+    0x0011, -- BVLC-Length: 4 of 17 bytes
+    -- BACnet NPDU
+    0x01, -- Version: 0x01 (ASHRAE 135-1995)
+    0x04, -- Control (expecting reply)
+    -- BACnet APDU
+    0x00, -- APDU Type: Confirmed-REQ, PDU flags: 0x0
+    0x05, -- Max response segments unspecified, Max APDU size: 1476 octets
+    0x01, -- Invoke ID: 1
+    0x0c, -- Service Choice: readProperty
+    0x0c, -- Context-specific tag, number 0, Length Value Type 4
+    0x023fffff, -- Object Type: device; instance number 4194303
+    0x19, -- Context-specific tag, number 1, Length Value Type 1
+    id)
+  return socket:send(query)
+end
+
+local query_codes = {
+  firmware = 0x2c,
+  application = 0x0c,
+  model = 0x46,
+  object = 0x4d,
+  object_id = 0x4b,
+  description = 0x1c,
+  location = 0x3a,
+  vendor = 0x79,
+  vendor_id = 0x78
+}
 ---
 --  Function to send a query to the discovered BACNet devices. This will pull extra
 --  information to help identify the device. Information such as firmware, application software
@@ -863,43 +896,12 @@ end
 -- @param type Type is the type of packet to send, this can be firmware, application, object, description, or location
 function standard_query(socket, type)
 
-
-  -- set the query for vendor name
-  local vendor_query = bin.pack("H","810a001101040005010c0c023FFFFF1979")
-  -- set the firmware version query data for sending
-  local firmware_query = bin.pack( "H","810a001101040005010c0c023FFFFF192c")
-  -- set the application version query data for sending
-  local appsoft_query = bin.pack( "H","810a001101040005010c0c023FFFFF190c")
-  -- set the object name query data for sending
-  local object_query = bin.pack("H","810a001101040005010c0c023FFFFF194d")
-  -- set the model name query data for sending
-  local model_query = bin.pack("H","810a001101040005010c0c023FFFFF1946")
-  -- set the desc name query data for sending
-  local desc_query = bin.pack("H","810a001101040005010c0c023FFFFF191c")
-  -- set the location name query data for sending
-  local location_query = bin.pack("H","810a001101040005010c0c023FFFFF193A")
-  local query
-
-  --
   -- determine what type of packet to send
-  if (type == "firmware") then
-    query = firmware_query
-  elseif (type == "application") then
-    query = appsoft_query
-  elseif (type == "model") then
-    query = model_query
-  elseif (type == "object") then
-    query = object_query
-  elseif (type == "description") then
-    query = desc_query
-  elseif (type == "location") then
-    query = location_query
-  elseif (type == "vendor") then
-    query = vendor_query
-  end
+  local query = query_codes[type]
+  assert(query) -- table lookup must not fail.
 
   --try to pull the  information
-  local status, result = socket:send(query)
+  local status, result = send_query(socket, query)
   if(status == false) then
     stdnse.debug1("Socket error sending query: %s", result)
     return nil
@@ -939,11 +941,11 @@ end
 function vendornum_query(socket)
 
   -- set the vendor query data for sending
-  local vendor_query = bin.pack( "H","810a001101040005010c0c023FFFFF1978")
-
+  local vendor_query = query_codes.vendor_id
+  assert(vendor_query)
 
   --send the vendor information
-  local status, result = socket:send(vendor_query)
+  local status, result = send_query(socket, vendor_query)
   if(status == false) then
     stdnse.debug1("Socket error sending vendor query: %s", result)
     return nil
@@ -997,7 +999,8 @@ end
 -- @param port port that was scanned via nmap
 action = function(host, port)
   --set the first query data for sending
-  local orig_query = bin.pack( "H","810a001101040005010c0c023FFFFF194b" )
+  local orig_query = query_codes.object_id
+  assert(orig_query)
   local to_return = nil
 
   -- create new socket
@@ -1016,7 +1019,7 @@ action = function(host, port)
     return nil
   end
   -- send the original query to see if it is a valid BACNet Device
-  local sendstatus, senderr = sock:send(orig_query)
+  local sendstatus, senderr = send_query(sock, orig_query)
   if not sendstatus then
     stdnse.debug1('Error sending BACNet request to %s:%d - %s', host.ip, port.number, senderr)
     return nil
