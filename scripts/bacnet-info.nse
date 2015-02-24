@@ -27,6 +27,7 @@ http://digitalbond.com
 --47808/udp open  bacnet
 --| bacnet-discover:
 --|   Vendor ID: BACnet Stack at SourceForge (260)
+--|   Vendor Name: BACnet Stack at SourceForge
 --|   Instance Number: 260001
 --|   Firmware: 0.8.2
 --|   Application Software: 1.0
@@ -37,6 +38,7 @@ http://digitalbond.com
 --
 -- @xmloutput
 --<elem key="Vendor ID">BACnet Stack at SourceForge (260)</elem>
+--<elem key="Vendor Name">BACnet Stack at SourceForge</elem>
 --<elem key="Object-identifier">260001</elem>
 --<elem key="Firmware">0.8.2</elem>
 --<elem key="Application Software">1.0</elem>
@@ -861,6 +863,9 @@ end
 -- @param type Type is the type of packet to send, this can be firmware, application, object, description, or location
 function standard_query(socket, type)
 
+
+  -- set the query for vendor name
+  local vendor_query = bin.pack("H","810a001101040005010c0c023FFFFF1979")
   -- set the firmware version query data for sending
   local firmware_query = bin.pack( "H","810a001101040005010c0c023FFFFF192c")
   -- set the application version query data for sending
@@ -889,6 +894,8 @@ function standard_query(socket, type)
     query = desc_query
   elseif (type == "location") then
     query = location_query
+  elseif (type == "vendor") then
+    query = vendor_query
   end
 
   --try to pull the  information
@@ -1041,6 +1048,9 @@ action = function(host, port)
 
       -- Vendor Number to Name lookup
       to_return["Vendor ID"] = vendornum_query(sock)
+
+      -- vendor name
+      to_return["Vendor Name"] = standard_query(sock, "vendor")
 
       -- Instance Number (object number)
       local instance_upper, instance
