@@ -5083,21 +5083,4 @@ function get_pad(data, align, pad_byte)
   return string.rep(pad_byte, (align-#data%align)%align)
 end
 
---####################################################################--
----Generates a random string of the requested length.
---@param length The length of the string to return.
---@param charset    The set of letters to choose from. Default: ASCII letters and numbers
---@return The random string.
---####################################################################--
-function random_crap(length, charset)
-  charset = charset or "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY"
-  local random_str = ""
-  for i = 1, length, 1 do
-    local random = math.random(#charset)
-    random_str = random_str .. string.sub(charset, random, random)
-  end
-  return random_str
-end
-
-
 return _ENV;

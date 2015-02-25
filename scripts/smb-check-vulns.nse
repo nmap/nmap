@@ -474,9 +474,9 @@ function check_ms06_025(host)
   end
   local req, buff, sr_result
   req = msrpc.RRAS_marshall_RequestBuffer(
-  0x01,
-  msrpc.RRAS_RegTypes['GETDEVCONFIG'],
-  msrpc.random_crap(3000))
+    0x01,
+    msrpc.RRAS_RegTypes['GETDEVCONFIG'],
+    stdnse.generate_random_string(3000, "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY"))
   status, sr_result = msrpc.RRAS_SubmitRequest(smbstate, req)
   msrpc.stop_smb(smbstate)
   --sanity check

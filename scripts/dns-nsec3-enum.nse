@@ -168,14 +168,10 @@ local function empty(t)
   return not next(t)
 end
 
-local function random_string()
-  return msrpc.random_crap(8,"etaoinshrdlucmfw")
-end
-
 -- generate a random hash with domains suffix
 -- return both domain and its hash
 local function generate_hash(domain, iter, salt)
-  local rand_str = random_string()
+  local rand_str = stdnse.generate_random_string(8, "etaoinshrdlucmfw")
   local random_domain = rand_str .. "." .. domain
   local packed_domain = {}
   for word in string.gmatch(random_domain, "[^%.]+") do
@@ -239,7 +235,7 @@ local function enum(host, port, domain)
   local todo = {}
   local dnssec, status, result = false, false, "No Answer"
   local result = {}
-  local subdomain = msrpc.random_crap(8,"etaoinshrdlucmfw")
+  local subdomain = stdnse.generate_random_string(8, "etaoinshrdlucmfw")
   local full_domain = join({subdomain, domain})
   local iter
   local salt
