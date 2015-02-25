@@ -375,13 +375,13 @@ local function postaction()
   for key, hosts in pairs(hostkeys) do
     if #hostkeys[key] > 1 then
       table.sort(hostkeys[key], function(a, b) return ipOps.compare_ip(a, "lt", b) end)
-      local str = 'Key ' .. key .. ' used by:'
+      local str = {'Key ' .. key .. ' used by:'}
       local tab = {key=revmap[key], hosts={}}
       for _, host in ipairs(hostkeys[key]) do
-        str = str .. '\n  ' .. host
+        str[#str+1] = host
         table.insert(tab.hosts, host)
       end
-      table.insert(output, str)
+      table.insert(output, table.concat(str, "\n  "))
       table.insert(output_tab, tab)
     end
   end

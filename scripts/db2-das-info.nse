@@ -417,7 +417,7 @@ action = function(host, port)
 
   if (db2profile ~= nil ) then
     result = "DB2 Administration Server Settings\r\n"
-    result = result .. extract_server_profile( db2response.info )
+    .. extract_server_profile( db2response.info )
 
     -- Set port information
     port.version.name = "ibm-db2"

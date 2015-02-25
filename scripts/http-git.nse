@@ -271,11 +271,7 @@ function action(host, port)
 
     -- Show what patterns matched what files
     for name, matches in pairs(info["interesting-matches"] or {}) do
-      local temp = name .. " matched patterns"
-      for _, matched in ipairs(matches) do
-        temp = temp .. " '" .. matched .. "'"
-      end
-      table.insert(new, temp)
+      table.insert(new, ("%s matched patterns '%s'"):format(name, table.concat(matches, "' '")))
     end
 
     if info["repository-description"] then

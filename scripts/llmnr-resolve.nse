@@ -55,16 +55,16 @@ categories = {"discovery", "safe", "broadcast"}
 -- @param hostname Hostname to query for.
 -- @return query Raw llmnr query.
 local llmnrQuery = function(hostname)
-  local query = bin.pack(">S", math.random(0,65535)) -- transaction ID
-  query = query .. bin.pack(">S", 0x0000) -- Flags: Standard Query
-  query = query .. bin.pack(">S", 0x0001) -- Questions = 1
-  query = query .. bin.pack(">S", 0x0000) -- Answer RRs = 0
-  query = query .. bin.pack(">S", 0x0000) -- Authority RRs = 0
-  query = query .. bin.pack(">S", 0x0000) -- Additional RRs = 0
-  query = query .. bin.pack(">CAC", #hostname, hostname, 0x00) -- Hostname
-  query = query .. bin.pack(">S", 0x0001) -- Type: Host Address
-  query = query .. bin.pack(">S", 0x0001) -- Class: IN
-  return query
+  return bin.pack(">S6pCS2",
+    math.random(0,65535), -- transaction ID
+    0x0000, -- Flags: Standard Query
+    0x0001, -- Questions = 1
+    0x0000, -- Answer RRs = 0
+    0x0000, -- Authority RRs = 0
+    0x0000, -- Additional RRs = 0
+    hostname, 0x00, -- Hostname
+    0x0001, -- Type: Host Address
+    0x0001) -- Class: IN
 end
 
 --- Sends a llmnr query.

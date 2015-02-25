@@ -44,11 +44,11 @@ local arg_nodhcp = stdnse.get_script_args(SCRIPT_NAME .. ".nodhcp")
 local arg_getwpad= stdnse.get_script_args(SCRIPT_NAME .. ".getwpad")
 
 local function createRequestList(req_list)
-  local output = ""
-  for _, v in ipairs(req_list) do
-    output = output .. string.char(v)
+  local output = {}
+  for i, v in ipairs(req_list) do
+    output[i] = string.char(v)
   end
-  return output
+  return table.concat(output)
 end
 
 

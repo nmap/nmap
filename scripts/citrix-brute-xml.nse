@@ -96,14 +96,13 @@ end
 -- @param accounts table containing accounts (tables)
 -- @return string containing the result
 function create_result_from_table(accounts)
+  local result = {}
 
-  local result = ""
-
-  for _, account in ipairs(accounts) do
-    result = result .. "  " .. account.username .. ":" .. account.password .. " => " .. account.message .. "\n"
+  for i, account in ipairs(accounts) do
+    result[i] = ("\n  %s:%s => %s"):format(account.username, account.password, account.message)
   end
 
-  return "\n" .. result
+  return table.concat(result)
 end
 
 action = function(host, port)

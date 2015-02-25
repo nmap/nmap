@@ -84,8 +84,7 @@ action = function(host, port)
     end
 
     for _, v in ipairs( mounts ) do
-        local entry = v.name
-        entry = entry .. " " .. stdnse.strjoin(" ", v)
+        local entry = v.name .. " " .. stdnse.strjoin(" ", v)
         table.insert( result, entry )
     end
 

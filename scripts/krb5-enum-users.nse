@@ -163,13 +163,13 @@ KRB5 = {
   -- @param names table containing a list of names to encode
   -- @return princ string containing an encoded principal
   encodePrincipal = function(self, encoder, name_type, names )
-    local princ = ""
+    local princ = {}
 
-    for _, n in ipairs(names) do
-      princ = princ .. encoder:encode( { _type = 'GeneralString', n } )
+    for i, n in ipairs(names) do
+      princ[i] = encoder:encode( { _type = 'GeneralString', n } )
     end
 
-    princ = self:encodeSequence(encoder, 0x30, princ)
+    princ = self:encodeSequence(encoder, 0x30, table.concat(princ))
     princ = self:encodeSequence(encoder, 0xa1, princ)
     princ = encoder:encode( name_type ) .. princ
 
@@ -193,16 +193,16 @@ KRB5 = {
     local encoder = asn1.ASN1Encoder:new()
     encoder:registerTagEncoders(KRB5.tagEncoder)
 
-    local data = ""
+    local data = {}
 
     -- encode encryption types
     for _,enctype in ipairs(KRB5.EncryptionTypes) do
       for k, v in pairs( enctype ) do
-        data = data .. encoder:encode(v)
+        data[#data+1] = encoder:encode(v)
       end
     end
 
-    data = self:encodeSequence(encoder, 0x30, data )
+    data = self:encodeSequence(encoder, 0x30, table.concat(data) )
     data = self:encodeSequence(encoder, 0xA8, data )
 
     -- encode nonce

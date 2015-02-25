@@ -457,9 +457,7 @@ local function p2p_create_packet(protocol, do_encryption)
   end
 
   -- Add the key and flags that are always present (and skip over the boring stuff)
-  local packet = ""
-  packet = packet .. bin.pack("<II", key1, key2)
-  packet = packet .. bin.pack("<S", flags)
+  local packet = bin.pack("<IIS", key1, key2, flags)
 
   -- Generate the checksum for the packet
   local hash = p2p_checksum(packet)
@@ -470,7 +468,7 @@ local function p2p_create_packet(protocol, do_encryption)
 
   -- Add the length in front if it's TCP
   if(protocol == "tcp") then
-    packet = bin.pack("<SA", #packet, packet)
+    packet = bin.pack("<P", packet)
   end
 
   return true, packet
