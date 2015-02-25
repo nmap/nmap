@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a benign TOCTOU race between stat() and open() in mmapfile().
+  Reported by Camille Mougey. [Henri Doreau]
+
 o Reduce CPU consumption when using nsock poll engine with no registered FD,
   by actually calling Poll() for the time until timeout, instead of directly
   returning zero and entering the loop again. [Henri Doreau]
