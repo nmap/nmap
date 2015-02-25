@@ -89,11 +89,7 @@ local function request(comm, procedure, data)
 end
 
 local function stripnull(str)
-  local e = -1
-  while str:byte(e) == 0 do
-    e = e - 1
-  end
-  return str:sub(1,e)
+  return (str:gsub("\0*$",""))
 end
 
 local function decode_reply(data, pos)
