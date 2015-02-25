@@ -175,22 +175,8 @@ local special_passwords = { USERNAME, USERNAME_REVERSED }
 --@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore.
 --@return The random string.
 local function get_random_string(length, set)
-  if(length == nil) then
-    length = 8
-  end
-
-  if(set == nil) then
-    set = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
-  end
-
-  local str = ""
-
-  for i = 1, length, 1 do
-    local random = math.random(#set)
-    str = str .. string.sub(set, random, random)
-  end
-
-  return str
+  return stdnse.generate_random_string(length or 8,
+    set or "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
 end
 
 ---Splits a string in the form "domain\user" into domain and user.

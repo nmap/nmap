@@ -51,11 +51,7 @@ portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
 local banner_timeout = 60
 
 local function random_nick ()
-  local t = {}
-  for i = 1, 9 do -- minimum 9 char nick
-    t[i] = math.random(97, 122) -- lowercase ascii
-  end
-  return ("%c"):rep(#t):format(table.unpack(t))
+  return stdnse.generate_random_string(9, "abcdefghijklmnopqrstuvwxyz")
 end
 
 function action (host, port)

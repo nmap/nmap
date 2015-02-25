@@ -137,12 +137,7 @@ end
 -- generate a random hex-string of length 'length'
 --
 local function generate_random(length)
-  local rnd = ""
-
-  for i=1, length do
-    rnd = rnd .. string.format("%.2X", math.random(255))
-  end
-  return rnd
+  return stdnse.generate_random_string(length * 2, '0123456789ABCDEF')
 end
 
 

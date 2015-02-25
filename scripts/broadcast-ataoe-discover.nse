@@ -52,7 +52,7 @@ ATAoE = {
         minor = 0xff,
         error = 0,
         cmd = ATAoE.Cmd.QUERY_CONFIG_INFORMATION,
-        tag = tag or createRandomTag(),
+        tag = tag or math.random(0,0xffffffff),
       }
       setmetatable(o, self)
       self.__index = self
@@ -97,13 +97,6 @@ ATAoE = {
     end,
   }
 }
-
--- Creates a random AoE header tag
-function createRandomTag()
-  local str = ""
-  for i=1, 4 do str = str .. string.char(math.random(255)) end
-  return select(2, bin.unpack(">I", str))
-end
 
 -- Send a Config Info Request to the ethernet broadcast address
 -- @param iface table as returned by nmap.get_interface_info()
