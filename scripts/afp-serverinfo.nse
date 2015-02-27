@@ -1,5 +1,4 @@
 local afp = require "afp"
-local format = require "format"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -90,6 +89,12 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service(548, "afp")
 
+local commasep = {
+  __tostring = function (t)
+    return table.concat(t, ", ")
+  end
+}
+
 action = function(host, port)
 
   local socket = nmap.new_socket()
@@ -143,12 +148,12 @@ action = function(host, port)
   result["Machine Type"] = response.machine_type
 
   -- list the supported AFP versions
-  format.as_horizontal(response.afp_versions)
   result["AFP Versions"] = response.afp_versions
+  setmetatable(result["AFP Versions"], commasep)
 
   -- list the supported UAMs (User Authentication Modules)
-  format.as_horizontal(response.uams)
   result["UAMs"] = response.uams
+  setmetatable(result["UAMs"], commasep)
 
   -- server signature, not sure of the format here so just showing a hex string
   if response.flags.ServerSignature then
