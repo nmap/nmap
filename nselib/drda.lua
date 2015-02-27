@@ -751,13 +751,10 @@ StringUtil =
   -- @param ascii string containing the ASCII value
   -- @return string containing the EBCDIC value
   toEBCDIC = function( ascii )
-    local ret = ""
-
-    for i=1, #ascii do
-      local val = ascii.byte(ascii,i) + 1
-      ret = ret .. a2e_tbl:sub(val, val)
-    end
-    return ret
+    return string.gsub(ascii, ".", function(a)
+        local val = a:byte() + 1
+        return a2e_tbl:sub(val, val)
+      end)
   end,
 
   --- Converts an EBCDIC string to ASCII
@@ -765,13 +762,10 @@ StringUtil =
   -- @param ebcdic string containing EBCDIC value
   -- @return string containing ASCII value
   toASCII = function( ebcdic )
-    local ret = ""
-
-    for i=1, #ebcdic do
-      local val = ebcdic.byte(ebcdic,i) + 1
-      ret = ret .. e2a_tbl:sub(val, val)
-    end
-    return ret
+    return string.gsub(ebcdic, ".", function(e)
+        local val = e:byte() + 1
+        return e2a_tbl:sub(val, val)
+      end)
   end,
 
   --- Pads a string with a character

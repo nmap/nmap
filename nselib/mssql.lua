@@ -3064,15 +3064,13 @@ Auth = {
   -- @return string containing the encrypted password
   TDS7CryptPass = function(password)
     local xormask = 0x5a5a
-    local result = ""
 
-    for i=1, password:len() do
-      local c = bit.bxor( string.byte( password:sub( i, i ) ), xormask )
+    return password:gsub(".", function(i)
+      local c = bit.bxor( string.byte( i ), xormask )
       local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
       local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-      result = result .. bin.pack("S", bit.bor( m1, m2 ) )
-    end
-    return result
+      return bin.pack("S", bit.bor( m1, m2 ) )
+    end)
   end,
 
   LmResponse = function( password, nonce )

@@ -1156,16 +1156,9 @@ end
 -- returns the string with all non-printable chars
 -- coded as hex
 function makeStringReadable(data)
-  local r = ""
-  for i=1,#data,1 do
-    local x = data:byte(i)
-    if x > 31 and x <127 then
-      r = r .. data:sub(i,i)
-    else
-      r = r .. ("\\x%x"):format(x)
-    end
-  end
-  return r
+  return data:gsub("[\x00-\x1f\x7f-\xff]", function (x)
+      return ("\\x%02x"):format(x:byte())
+    end)
 end
 
 function readNonProxyDesc(dis)
