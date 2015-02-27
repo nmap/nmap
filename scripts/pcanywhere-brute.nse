@@ -121,14 +121,14 @@ Driver = {
     stdnse.debug1( "Trying %s/%s ...", user, pass )
     -- send username and password
     -- both are prefixed with 0x06, size and are encrypted
-    status, err = self.socket:send(bin.pack("C",0x06) .. bin.pack("C",string.len(user)) .. encrypt(user) ) -- send username
+    status, err = self.socket:send("\x06" .. bin.pack("C",string.len(user)) .. encrypt(user) ) -- send username
     status, response = self.socket:receive_bytes(0)
     if not status or string.find(response,"Enter password") == nil then
       stdnse.debug1("Sending username failed")
       return false, brute.Error:new( "Sending username failed." )
     end
     -- send password
-    status, err = self.socket:send(bin.pack("C",0x06) .. bin.pack("C",string.len(pass)) .. encrypt(pass) ) -- send password
+    status, err = self.socket:send("\x06" .. bin.pack("C",string.len(pass)) .. encrypt(pass) ) -- send password
     status, response = self.socket:receive_bytes(0)
     if not status or string.find(response,"Login unsuccessful") or string.find(response,"Invalid login.")then
       stdnse.debug1("Incorrect username or password")

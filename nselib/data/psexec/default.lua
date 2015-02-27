@@ -2,6 +2,7 @@
 -- programs to gather information about the remote system. It's intended to be
 -- simple, demonstrate some of the concepts, and not break/alte anything.
 
+local table = require "table"
 
 -- Any variable in the 'config' table in smb-psexec.nse can be overriden in the
 -- 'overrides' table. Most of them are not really recommended, such as the host,
@@ -137,7 +138,7 @@ mod.upload           = false
 mod.name             = "Drive list (for more info, try adding --script-args=config=drives,drive=C:)"
 mod.program          = "fsutil"
 mod.args             = "fsinfo drives"
-mod.replace          = {{string.char(0), " "}}
+mod.replace          = {{"\0", " "}}
 mod.maxtime          = 1
 table.insert(modules, mod)
 

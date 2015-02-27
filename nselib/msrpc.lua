@@ -5018,7 +5018,7 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
   if(zone == nil) then
     req_blob = bin.pack("<I", 0x00000000)
   else
-    zone_ascii = zone .. string.char(0x00)
+    zone_ascii = zone .. '\0'
     req_blob = req_blob .. bin.pack("<IIIIAA",
       unique_ptr + 1,
       #zone_ascii,
@@ -5028,7 +5028,7 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
       get_pad(zone_ascii, 4))
   end
   --[in, unique, string] LPCSTR pszOperation,
-  operation_ascii = operation .. string.char(0x00)
+  operation_ascii = operation .. '\0'
   req_blob = req_blob .. bin.pack("<IIIIAA",
     unique_ptr+2,
     #operation_ascii,

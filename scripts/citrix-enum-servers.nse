@@ -126,7 +126,7 @@ action = function(host, port)
   -- if it is set to zero (0) we have more response packets to process
   -- if it is set to one (1) we have arrived at the last packet of our journey
   --
-  while packet:sub(31,31) ~= string.char(0x01) do
+  while packet:sub(31,31) ~= "\x01" do
     packet = try( socket:receive() )
     local tmp_table = process_server_response( packet )
 

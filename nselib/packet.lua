@@ -168,8 +168,8 @@ ND_OPT_MTU = 5
 ND_OPT_RTR_ADV_INTERVAL = 7
 ND_OPT_HOME_AGENT_INFO = 8
 
-ETHER_TYPE_IPV4 = string.char(0x08, 0x00)
-ETHER_TYPE_IPV6 = string.char(0x86, 0xdd)
+ETHER_TYPE_IPV4 = "\x08\x00"
+ETHER_TYPE_IPV6 = "\x86\xdd"
 
 ----------------------------------------------------------------------------------------------------------------
 -- Frame is a class
@@ -329,7 +329,7 @@ end
 --- Count IPv6 checksum.
 -- @return the checksum.
 function Packet:count_ipv6_pseudoheader_cksum()
-  local pseudoheader = self.ip_bin_src .. self.ip_bin_dst .. numtostr16(#self.l4_packet) .. string.char(0x0,0x0,0x0) .. string.char(self.ip6_nhdr)
+  local pseudoheader = self.ip_bin_src .. self.ip_bin_dst .. numtostr16(#self.l4_packet) .. "\0\0\0" .. string.char(self.ip6_nhdr)
   local ck_content = pseudoheader .. self.l4_packet
   return in_cksum(ck_content)
 end
@@ -353,7 +353,7 @@ function Packet:build_icmpv6_header(icmpv6_type, icmpv6_code, icmpv6_payload, ip
 
   self.l4_packet =
     string.char(self.icmpv6_type,self.icmpv6_code) ..
-    string.char(0x00,0x00) .. --checksum
+    "\0\0" .. --checksum
     (self.icmpv6_payload or "")
   local check_sum = self:count_ipv6_pseudoheader_cksum()
   self:set_icmp6_cksum(check_sum)
@@ -446,7 +446,7 @@ function Packet:build_icmp_header(icmp_type, icmp_code, icmp_payload, ip_bin_src
 
   self.l3_packet =
   string.char(self.icmp_type,self.icmp_code) ..
-  string.char(0x00,0x00) .. --checksum
+  "\0\0" .. --checksum
   (self.icmp_payload or "")
   self.l3_packet = set_u16(self.l3_packet, 2, in_cksum(self.l3_packet))
 end
@@ -501,7 +501,7 @@ function mac_to_lladdr(mac)
   if not mac then
     return nil, "MAC was not specified."
   end
-  local interfier = string.char(bit.bor(string.byte(mac,1),0x02))..string.sub(mac,2,3)..string.char(0xff,0xfe)..string.sub(mac,4,6)
+  local interfier = string.char(bit.bor(string.byte(mac,1),0x02))..string.sub(mac,2,3).."\xff\xfe"..string.sub(mac,4,6)
   local ll_prefix = ipOps.ip_to_str("fe80::")
   return string.sub(ll_prefix,1,8)..interfier
 end
@@ -935,7 +935,7 @@ function Packet:tcp_count_checksum()
   local length = self.buf:len() - self.tcp_offset
   local b = self.ip_bin_src ..
     self.ip_bin_dst ..
-    string.char(0) ..
+    "\0" ..
     string.char(proto) ..
     set_u16("..", 0, length) ..
     self.buf:sub(self.tcp_offset+1)
@@ -1074,7 +1074,7 @@ function Packet:udp_count_checksum()
   local length = self.buf:len() - self.udp_offset
   local b = self.ip_bin_src ..
     self.ip_bin_dst ..
-    string.char(0) ..
+    "\0" ..
     string.char(proto) ..
     set_u16("..", 0, length) ..
     self.buf:sub(self.udp_offset+1)

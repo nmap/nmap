@@ -1,10 +1,8 @@
-local bin = require('bin')
 local match = require('match')
 local nmap = require('nmap')
 local shortport = require('shortport')
 local sslcert = require('sslcert')
 local stdnse = require('stdnse')
-local string = require('string')
 local table = require('table')
 local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
@@ -201,7 +199,7 @@ local function test_ccs_injection(host, port, version)
 
   -- change_cipher_spec message
   local ccs = tls.record_write(
-    "change_cipher_spec", version, bin.pack("C", 0x01))
+    "change_cipher_spec", version, "\x01")
 
   -- Send the first ccs message
   status, err = s:send(ccs)

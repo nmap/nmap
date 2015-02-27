@@ -165,8 +165,8 @@ result_strings[results.INVALID_WORKSTATION]  = "Valid credentials, account canno
 
 ---Constants for special passwords. These each contain a null character, which is illegal in
 -- actual passwords.
-local USERNAME          = string.char(0) .. "username"
-local USERNAME_REVERSED = string.char(0) .. "username reversed"
+local USERNAME          = "\0username"
+local USERNAME_REVERSED = "\0username reversed"
 local special_passwords = { USERNAME, USERNAME_REVERSED }
 
 ---Generates a random string of the requested length. This can be used to check how hosts react to

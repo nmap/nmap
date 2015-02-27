@@ -1102,7 +1102,7 @@ local function service_file_is_xor_encoded(filename)
     return nil, "Can't read from service file"
   end
   -- This is the XOR-inverse of "MZ".
-  return bytes == string.char(0xb2, 0xa5)
+  return bytes == "\xb2\xa5"
 end
 
 ---Upload all of the uploadable files to the remote system.

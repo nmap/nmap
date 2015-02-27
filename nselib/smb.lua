@@ -647,7 +647,7 @@ function smb_encode_header(smb, command, overrides)
   overrides = overrides or {}
 
   -- Used for the header
-  local sig = string.char(0xFF) .. "SMB"
+  local sig = "\xFFSMB"
 
   -- Pretty much every flags is deprecated. We set these two because they're required to be on.
   local flags  = bit.bor(0x10, 0x08) -- SMB_FLAGS_CANONICAL_PATHNAMES | SMB_FLAGS_CASELESS_PATHNAMES
@@ -1017,7 +1017,7 @@ function negotiate_protocol(smb, overrides)
 
   -- Get the protocol version
   local protocol_version = string.char(header1, header2, header3, header4)
-  if(protocol_version == (string.char(0xFE) .. "SMB")) then
+  if(protocol_version == ("\xFESMB")) then
     return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
   end
 

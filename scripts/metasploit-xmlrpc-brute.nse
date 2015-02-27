@@ -51,7 +51,7 @@ Driver =
   end,
 
   login = function( self, username, password )
-    local xmlreq='<?xml version="1.0" ?><methodCall><methodName>auth.login</methodName><params><param><value><string>'..username..'</string></value></param><param><value><string>'..password.."</string></value></param></params></methodCall>\n"..string.char(0)
+    local xmlreq='<?xml version="1.0" ?><methodCall><methodName>auth.login</methodName><params><param><value><string>'..username..'</string></value></param><param><value><string>'..password.."</string></value></param></params></methodCall>\n\0"
     local status, err = self.socket:send(xmlreq)
 
     if ( not ( status ) ) then
@@ -84,7 +84,7 @@ Driver =
 action = function(host, port)
 
   -- first determine whether we need SSL or not
-  local xmlreq='<?xml version="1.0" ?><methodCall><methodName>core.version</methodName></methodCall>\n'..string.char(0)
+  local xmlreq='<?xml version="1.0" ?><methodCall><methodName>core.version</methodName></methodCall>\n\0'
   local socket, _, opts = comm.tryssl(host, port, xmlreq, { recv_first = false } )
   if ( not(socket) ) then
     return "\n  ERROR: Failed to determine whether SSL was needed or not"

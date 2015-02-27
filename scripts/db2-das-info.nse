@@ -183,7 +183,7 @@ function read_db2_packet(socket)
 
   packet.header.raw = buf:sub(1, header_len)
 
-  if packet.header.raw:sub(1, 10) == string.char(0x00, 0x00, 0x00, 0x00, 0x44, 0x42, 0x32, 0x44, 0x41, 0x53) then
+  if packet.header.raw:sub(1, 10) == "\x00\x00\x00\x00\x44\x42\x32\x44\x41\x53" then
 
     stdnse.debug1("Got DB2DAS packet")
 

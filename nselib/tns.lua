@@ -1216,7 +1216,7 @@ Marshaller = {
       else
         -- Otherwise, it's a bit more involved:
         -- First, write the multiple-chunk indicator
-        result = result .. bin.pack( "C", 0xFE )
+        result = result .. "\xFE"
 
         -- Loop through the string, chunk by chunk
         while ( #value > 0 ) do
@@ -1235,7 +1235,7 @@ Marshaller = {
         end
 
         -- put a null byte at the end
-        result = result .. bin.pack( "C", 0 )
+        result = result .. '\0'
       end
     end
 

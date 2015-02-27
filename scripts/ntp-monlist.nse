@@ -255,7 +255,7 @@ function getPrivateMode(impl, requestCode)
     0x00, 0x00, 0x00, 0x00
   )
   -- Data 40 Octets: 0
-  .. string.char(0x00):rep(40)
+  .. ("\x00"):rep(40)
   -- The following are optional if the Authenticated bit is set:
   -- Encryption Keyid 4 Octets: 0
   -- Message Authentication Code 16 Octets (MD5): 0

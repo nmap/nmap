@@ -64,8 +64,8 @@ action = function(host, port)
     0x00, 0x00, -- Authority RRs
     0x00, 0x00, -- Additional RRs
     0x08) .. "txidtest" ..
-  string.char(    0x08) .. "dns-oarc" ..
-  string.char(    0x03) .. "net" ..
+  "\x08" .. "dns-oarc" ..
+  "\x03" .. "net" ..
   string.char(    0x00, -- Name terminator
     0x00, 0x10, -- Type (TXT)
     0x00, 0x01) -- Class (IN)

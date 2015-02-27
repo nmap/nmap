@@ -151,7 +151,7 @@ end
 --@return the remaining data (*without* null-char)
 local function get_c_string(data,length)
   if not length then
-    local index = data:find(string.char(0))
+    local index = data:find('\0')
     if index == nil then
       error({code="C-string did not contain NULL char"})
     end

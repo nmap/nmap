@@ -429,9 +429,9 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   packet = packet .. bin.pack("<I", overrides['yiaddr'] or 0)                                  -- yiaddr
   packet = packet .. bin.pack("<I", overrides['siaddr'] or 0)                                  -- siaddr
   packet = packet .. bin.pack("<I", overrides['giaddr'] or 0)                                  -- giaddr
-  packet = packet .. mac_address .. string.rep(string.char(0), 16 - #mac_address)              -- chaddr (MAC address)
-  packet = packet .. (overrides['sname'] or string.rep(string.char(0), 64))                    -- sname
-  packet = packet .. (overrides['file'] or string.rep(string.char(0), 128))                    -- file
+  packet = packet .. mac_address .. string.rep('\0', 16 - #mac_address)                        -- chaddr (MAC address)
+  packet = packet .. (overrides['sname'] or string.rep('\0', 64))                              -- sname
+  packet = packet .. (overrides['file'] or string.rep('\0', 128))                              -- file
   packet = packet .. bin.pack(">I", overrides['cookie'] or 0x63825363)                         -- Magic cookie
 
   -- Options

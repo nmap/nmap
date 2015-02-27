@@ -1,4 +1,3 @@
-local bin = require "bin"
 local datafiles = require "datafiles"
 local math = require "math"
 local nmap = require "nmap"
@@ -94,7 +93,7 @@ end
 
 
 local create_tftp_file_request = function(filename)
-  return bin.pack('CC', 0x00, 0x01) .. filename .. bin.pack('C', 0x00) .. 'octet' .. bin.pack('C', 0x00)
+  return "\0\x01" .. filename .. "\0octet\0"
 end
 
 local check_file_present = function(host, port, filename)

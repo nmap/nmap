@@ -8,7 +8,6 @@ local base64 = require "base64"
 local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
-local string = require "string"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh2", stdnse.seeall)
 
@@ -61,7 +60,7 @@ transport.pack_mpint = function( bn )
   packed = bn:tobin()
   if bytes % 8 == 0 then
     bytes = bytes + 1
-    packed = string.char(0) .. packed
+    packed = '\0' .. packed
   end
   return bin.pack( ">IA", bytes, packed )
 end

@@ -231,7 +231,7 @@ KRB5 = {
     data = bin.pack(">I", kdc_options) .. data
 
     -- add padding
-    data = bin.pack("C", 0) .. data
+    data = '\0' .. data
 
     -- hmm, wonder what this is
     data = bin.pack("H", "A0070305") .. data

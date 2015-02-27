@@ -96,7 +96,7 @@ local NTLMSSP_NEGOTIATE = 0x00000001
 local NTLMSSP_CHALLENGE = 0x00000002
 local NTLMSSP_AUTH      = 0x00000003
 
-local session_key = string.rep(string.char(0x00), 16)
+local session_key = string.rep("\0", 16)
 
 -- Types of accounts (ordered by how useful they are
 local ACCOUNT_TYPES = {
@@ -366,9 +366,7 @@ local function lm_create_hash(password)
   end
 
   -- If password is under 14 characters, pad it to 14
-  if(#password < 14) then
-    password = password .. string.rep(string.char(0), 14 - #password)
-  end
+  password = password .. string.rep('\0', 14 - #password)
 
   -- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
   str1 = string.sub(password, 1, 7)
@@ -421,7 +419,7 @@ function lm_create_response(lanman, challenge)
   local result
 
   -- Pad the hash to 21 characters
-  lanman = lanman .. string.rep(string.char(0), 21 - #lanman)
+  lanman = lanman .. string.rep('\0', 21 - #lanman)
 
   -- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
   str1 = string.sub(lanman, 1,  7)
@@ -501,9 +499,9 @@ function lm_create_mac_key(lm_hash, lm_response, is_extended)
   end
 
   if(is_extended) then
-    return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8)
+    return string.sub(lm_hash, 1, 8) .. string.rep('\0', 8)
   else
-    return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8) .. lm_response
+    return string.sub(lm_hash, 1, 8) .. string.rep('\0', 8) .. lm_response
   end
 end
 
@@ -631,7 +629,7 @@ function get_password_response(ip, username, domain, password, password_hash, ha
 
   -- The anonymous user requires a single 0-byte instead of a LANMAN hash (don't ask me why, but it doesn't work without)
   if(hash_type == 'none') then
-    return string.char(0), '', nil
+    return '\0', '', nil
   end
 
   -- If we got a password, hash it
@@ -763,7 +761,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
     username = unicode.utf8to16(username)
     domain   = (#username > 0 ) and unicode.utf8to16(domain) or ""
     ntlm     = (#username > 0 ) and ntlm or ""
-    lanman   = (#username > 0 ) and lanman or string.char(0)
+    lanman   = (#username > 0 ) and lanman or '\0'
 
     local domain_offset = 0x40
     local username_offset = domain_offset + #domain
@@ -916,7 +914,7 @@ function calculate_signature(mac_key, data)
   if(have_ssl) then
     return string.sub(openssl.md5(mac_key .. data), 1, 8)
   else
-    return string.rep(string.char(0), 8)
+    return string.rep('\0', 8)
   end
 end
 

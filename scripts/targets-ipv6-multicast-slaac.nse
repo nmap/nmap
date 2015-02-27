@@ -87,7 +87,7 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
   local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
     packet.set_u32("....",0,valid_time) ..
     packet.set_u32("....",0,preferred_time) ..
-    string.char(0,0,0,0) .. --unknown
+    "\0\0\0\0" .. --unknown
     prefix
   local icmpv6_prefix_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_PREFIX_INFORMATION,prefix_option_msg)
   local icmpv6_src_link_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_SOURCE_LINKADDR,mac_src)

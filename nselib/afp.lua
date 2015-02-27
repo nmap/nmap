@@ -911,9 +911,7 @@ Proto = {
       local username = username or ""
       local password = password or ""
 
-      if ( bit.mod(username:len(), 2) == 0 ) then
-        username = username .. string.char(0)
-      end
+      username = username .. string.rep('\0', (#username + 1) % 2)
 
       p = openssl.bignum_hex2bn("BA2873DFB06057D43F2024744CEEE75B")
       g = openssl.bignum_dec2bn("7")

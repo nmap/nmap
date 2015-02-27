@@ -600,7 +600,7 @@ Helper = {
     local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
     local drda_accsec = Command.ACCSEC( secmec, database )
     local drda_secchk = Command.SECCHK( secmec, database, username, password )
-    local drda_accrdb = Command.ACCRDB( database, string.char(0x24,0x07), "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
+    local drda_accrdb = Command.ACCRDB( database, "\x24\x07", "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
 
     local status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
     if( not(status) ) then return false, packet end

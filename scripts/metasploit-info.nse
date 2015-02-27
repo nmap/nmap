@@ -55,31 +55,31 @@ local get_prefix = function(data)
   if string.len(data) <= 31 then
     return bin.pack("C",0xa0 + string.len(data))
   else
-    return bin.pack("C",0xda)  .. bin.pack("s",string.len(data))
+    return "\xda"  .. bin.pack("s",string.len(data))
   end
 
 end
 
 -- returns a msgpacked data for console.read
 local encode_console_read = function(method,token, console_id)
-  return bin.pack("C",0x93) .. get_prefix(method) .. method .. bin.pack("H","da0020") .. token .. get_prefix(console_id) .. console_id
+  return "\x93" .. get_prefix(method) .. method .. "\xda\x00\x20" .. token .. get_prefix(console_id) .. console_id
 end
 
 -- returns a msgpacked data for console.write
 local encode_console_write = function(method, token, console_id, command)
-  return bin.pack("C",0x94) .. get_prefix(method) .. method .. bin.pack("H","da0020") .. token .. get_prefix(console_id) .. console_id .. get_prefix(command) .. command
+  return "\x94" .. get_prefix(method) .. method .. "\xda\x00\x20" .. token .. get_prefix(console_id) .. console_id .. get_prefix(command) .. command
 end
 
 -- returns a msgpacked data for auth.login
 local encode_auth = function(username, password)
   local method = "auth.login"
-  return bin.pack("C",0x93) .. bin.pack("C",0xaa) .. method .. get_prefix(username) .. username .. get_prefix(password) .. password
+  return "\x93\xaa" .. method .. get_prefix(username) .. username .. get_prefix(password) .. password
 end
 
 -- returns a msgpacked data for any method without extra parameters
 local encode_noparam = function(token,method)
   -- token is always the same length
-  return bin.pack("C",0x92) .. get_prefix(method) .. method .. bin.pack("H","da0020") .. token
+  return "\x92" .. get_prefix(method) .. method .. "\xda\x00\x20" .. token
 end
 
 -- does the actual call with specified, pre-packed data

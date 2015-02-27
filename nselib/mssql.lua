@@ -3080,9 +3080,7 @@ Auth = {
       return
     end
 
-    if(#password < 14) then
-      password = password .. string.rep(string.char(0), 14 - #password)
-    end
+    password = password .. string.rep('\0', 14 - #password)
 
     password = password:upper()
 
@@ -3096,9 +3094,7 @@ Auth = {
 
     local result = openssl.encrypt("DES", key1, nil, nonce) .. openssl.encrypt("DES", key2, nil, nonce)
 
-    if(#result < 21) then
-      result = result .. string.rep(string.char(0), 21 - #result)
-    end
+    result = result .. string.rep('\0', 21 - #result)
 
     str1 = string.sub(result, 1, 7)
     str2 = string.sub(result, 8, 14)
@@ -3135,7 +3131,7 @@ Util =
   -- @return string containing a two byte representation of str where a zero
   --         byte character has been tagged on to each character.
   ToWideChar = function( str )
-    return str:gsub("(.)", "%1" .. string.char(0x00) )
+    return str:gsub("(.)", "%1\0" )
   end,
 
 

@@ -1087,7 +1087,7 @@ Util =
   -- @return string containing a two byte representation of str where a zero
   --         byte character has been tagged on to each character.
   ToWideChar = function( str )
-    return str:gsub("(.)", "%1" .. string.char(0x00) )
+    return str:gsub("(.)", "%1\0" )
   end,
 
 

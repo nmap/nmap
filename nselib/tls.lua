@@ -1248,7 +1248,7 @@ function client_hello(t)
   table.insert(b, stdnse.generate_random_string(28))
 
   -- Set the session ID.
-  table.insert(b, bin.pack("C", 0))
+  table.insert(b, '\0')
 
   -- Cipher suites.
   ciphers = {}

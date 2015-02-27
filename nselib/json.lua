@@ -205,14 +205,14 @@ local ESCAPE_TABLE = {}
 local REVERSE_ESCAPE_TABLE = {}
 do
   local escapes = {
-    [string.char(0x22)] = "\"",
-    [string.char(0x5C)] = "\\",
-    [string.char(0x2F)] = "/",
-    [string.char(0x08)] = "b",
-    [string.char(0x0C)] = "f",
-    [string.char(0x0A)] = "n",
-    [string.char(0x0D)] = "r",
-    [string.char(0x09)] = "t",
+    ["\x22"] = "\"",
+    ["\x5C"] = "\\",
+    ["\x2F"] = "/",
+    ["\x08"] = "b",
+    ["\x0C"] = "f",
+    ["\x0A"] = "n",
+    ["\x0D"] = "r",
+    ["\x09"] = "t",
   }
   for k, v in pairs(escapes) do
     ESCAPE_TABLE[k] = "\\" .. v

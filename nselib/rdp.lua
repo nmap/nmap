@@ -75,7 +75,7 @@ Packet = {
       )
 
       if ( self.code == 0xF0 ) then
-        data = data .. bin.pack("C", 0x80) -- EOT
+        data = data .. "\x80" -- EOT
       end
 
       return data .. self.data
