@@ -5,6 +5,7 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local bit = require "bit"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -480,82 +481,6 @@ end
 -- Helpers
 
 
---- Convert a dotted-quad IP address string (like <code>"1.2.3.4"</code>) to a
--- raw string four bytes long.
--- @param str IP address string.
--- @return Four-byte string.
-function iptobin(str)
-  local ret = ""
-  for c in string.gmatch(str, "[0-9]+") do
-    ret = ret .. string.char(c+0) -- automatic conversion to int
-  end
-  return ret
-end
---- Convert an IPv6 address string (like <code>"fe80:21::1"</code>) to a raw
--- string 16 bytes long (big-endian).
--- @param str  IPv6 address string.
--- @return 16-byte string.
-function ip6tobin(str)
-  if not str then
-    return nil
-  end
-  -- Handle IPv4-compatible IPv6 address.
-  local ipv6_size = 8 -- An IPv6 address is 8*16bits long. But for IPv4-compatible address, the IPv6-style part is 6*16bits long.
-  local ip4_bin = ""
-  local dot_count = stdnse.strsplit("%.", str)
-  if #dot_count == 4 then -- It might be IPv4-compatible IPv6 address.
-    local ip64 = stdnse.strsplit(":", str)
-    local ip4_str = ip64[#ip64] -- Get the embedded IPv4 address string.
-    ip4_bin = iptobin(ip4_str)
-    if not ip4_bin then
-      return nil
-    end
-    ipv6_size = 6
-    str = string.sub(str, 1, -#ip4_str-1)
-  elseif #dot_count ~= 1 then
-    return nil
-  end
-  -- Handle the left IPv6-style part.
-  local sides = stdnse.strsplit("::", str)
-  if #sides > 2 then
-    return nil
-  end
-  local head = stdnse.strsplit(":", sides[1])
-  if #sides > 1 then
-    local tail = stdnse.strsplit(":", sides[2])
-    if tail[#tail] == "" then
-      table.remove(tail, #tail)
-    end
-    local missing = ipv6_size - #head - #tail
-    while missing > 0 do
-      table.insert(head, "0")
-      missing = missing - 1
-    end
-    for _, e in ipairs(tail) do
-      table.insert(head, e)
-    end
-  end
-  if #head ~= ipv6_size then
-    return nil
-  end
-  -- Transfer the 16-bit units to raw string.
-  local unit16
-  local addr_hex = ""
-  for _, unit16 in ipairs(head) do
-    local h8 = string.sub(unit16,-4,-3)
-    local l8 = string.sub(unit16,-2,-1)
-    local unit8
-    for _,unit8 in pairs({h8,l8}) do
-      if (unit8 == "") then
-        addr_hex = addr_hex .. string.char(0x00)
-      else
-        addr_hex = addr_hex .. string.char("0x"..unit8)
-      end
-    end
-  end
-
-  return addr_hex .. ip4_bin
-end
 --- Convert a MAC address string (like <code>"00:23:ae:5d:3b:10"</code>) to
 -- a raw six-byte long.
 -- @param str MAC address string.
@@ -564,37 +489,11 @@ function mactobin(str)
   if not str then
     return nil, "MAC was not specified."
   end
-  local unit8
-  local addr_hex = ""
-  for unit8 in string.gmatch(str,"%x+") do
-    addr_hex = addr_hex .. string.char("0x"..unit8)
-  end
-  return addr_hex
+  return (str:gsub("(%x%x)[^%x]?", function (x)
+        return string.char(tonumber(x, 16))
+    end))
 end
---- Convert a four-byte raw string to a dotted-quad IP address string.
--- @param raw_ip_addr Four-byte string.
--- @return IP address string.
-function toip(raw_ip_addr)
-  if not raw_ip_addr then
-    return "?.?.?.?"
-  end
-  return string.format("%i.%i.%i.%i", string.byte(raw_ip_addr,1,4))
-end
---- Convert a 16-byte raw string to an IPv6 address string.
--- @param raw_ipv6_addr  16-byte string.
--- @return IPv6 address string.
-function toipv6(raw_ipv6_addr)
-  local long_addr_str
-  local status, addrs
 
-  if not raw_ipv6_addr then
-    return nil, "IPv6 address was not specified."
-  end
-  long_addr_str = stdnse.tohex(raw_ipv6_addr, {separator=":", group=4})
-  status, addrs = nmap.resolve(long_addr_str, "inet6")
-
-  return (status and addrs[1]) or long_addr_str
-end
 --- Generate the link-local IPv6 address from the MAC address.
 -- @param mac  MAC address string.
 -- @return Link-local IPv6 address string.
@@ -603,7 +502,7 @@ function mac_to_lladdr(mac)
     return nil, "MAC was not specified."
   end
   local interfier = string.char(bit.bor(string.byte(mac,1),0x02))..string.sub(mac,2,3)..string.char(0xff,0xfe)..string.sub(mac,4,6)
-  local ll_prefix = ip6tobin("fe80::")
+  local ll_prefix = ipOps.ip_to_str("fe80::")
   return string.sub(ll_prefix,1,8)..interfier
 end
 --- Get an 8-bit integer at a 0-based byte offset in the packet.
@@ -690,8 +589,8 @@ function Packet:ip_parse(force_continue)
   self.ip_sum = self:u16(self.ip_offset + 10)
   self.ip_bin_src = self:raw(self.ip_offset + 12,4) -- raw 4-bytes string
   self.ip_bin_dst = self:raw(self.ip_offset + 16,4)
-  self.ip_src = toip(self.ip_bin_src) -- formatted string
-  self.ip_dst = toip(self.ip_bin_dst)
+  self.ip_src = ipOps.str_to_ip(self.ip_bin_src) -- formatted string
+  self.ip_dst = ipOps.str_to_ip(self.ip_bin_dst)
   self.ip_opt_offset = self.ip_offset + 20
   self.ip_options = self:parse_options(self.ip_opt_offset, ((self.ip_hl*4)-20))
   self.ip_data_offset = self.ip_offset + self.ip_hl*4
@@ -717,8 +616,8 @@ function Packet:ip6_parse(force_continue)
   self.ip6_hlimt = self:u8(self.ip6_offset + 7)
   self.ip_bin_src = self:raw(self.ip6_offset + 8, 16)
   self.ip_bin_dst = self:raw(self.ip6_offset + 24, 16)
-  self.ip_src = toipv6(self.ip_bin_src)
-  self.ip_dst = toipv6(self.ip_bin_dst)
+  self.ip_src = ipOps.str_to_ip(self.ip_bin_src)
+  self.ip_dst = ipOps.str_to_ip(self.ip_bin_dst)
   self.ip6_data_offset = 40
   return true
 end

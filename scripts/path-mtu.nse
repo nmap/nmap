@@ -1,4 +1,5 @@
 local bin = require "bin"
+local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
@@ -300,8 +301,8 @@ action = function(host)
   local pcap = nmap.new_socket()
   local proto = host.registry['pathmtuprobe']['proto']
   local port = host.registry['pathmtuprobe']['port']
-  local saddr = packet.toip(host.bin_ip_src)
-  local daddr = packet.toip(host.bin_ip)
+  local saddr = ipOps.str_to_ip(host.bin_ip_src)
+  local daddr = ipOps.str_to_ip(host.bin_ip)
   local try = nmap.new_try()
   local status, pkt, ip
 

@@ -1,5 +1,6 @@
 local bin = require "bin"
 local coroutine = require "coroutine"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
@@ -124,8 +125,8 @@ local icmp_packet = function(srcIP, dstIP, ttl, data_length, mtu, seqNo, icmp_id
   local icmp = packet.Packet:new(icmp_bin,#icmp_bin)
   assert(icmp,"Mistake during ICMP packet parsing")
 
-  icmp:ip_set_bin_src(packet.iptobin(srcIP))
-  icmp:ip_set_bin_dst(packet.iptobin(dstIP))
+  icmp:ip_set_bin_src(ipOps.ip_to_str(srcIP))
+  icmp:ip_set_bin_dst(ipOps.ip_to_str(dstIP))
   icmp:ip_count_checksum()
 
   return icmp
