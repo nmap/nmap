@@ -107,18 +107,11 @@ _ENV = stdnse.module("bittorrent", stdnse.seeall)
 -- a bencoded string there and returns it as a normal lua string, as well as
 -- the position after the string
 local bdec_string = function(buf, pos)
-  local len = ""
-  local tmp_pos = pos
-  while tonumber(string.char(buf:byte(pos))) do
-    len = len .. tonumber(string.char(buf:byte(pos)))
-    pos = pos + 1
+  local len = tonumber(string.match(buf, "^(%d+):", pos) or "nil", 10)
+  if not len then
+    return nil, pos
   end
-  len = tonumber(len)
-
-  if string.char(buf:byte(pos)) ~= ":" then
-    return nil, tmp_pos
-  end
-  pos = pos+1
+  pos = string.find(buf, ":", pos, true) + 1
 
   local str = buf:sub(pos,pos+len-1)
   pos = pos+len
@@ -1046,21 +1039,9 @@ Torrent =
     -- which client they give peers to
     local fingerprint = "-KT4110-"
     local chars = {}
-    local peer_id = fingerprint
     -- the full length of a peer_id is 20 bytes but we already have 8 from the fingerprint
-    for i = 1,12 do
-      local n = math.random(1,3)
-
-      if n == 1 then
-        peer_id = peer_id .. string.char( math.random( string.byte("a") , string.byte("z") ) )
-      elseif n==2 then
-        peer_id = peer_id .. string.char( math.random( string.byte("A") , string.byte("Z") ) )
-      else
-        peer_id = peer_id .. string.char( math.random( string.byte("0") , string.byte("9") ) )
-      end
-    end
-
-    return peer_id
+    return fingerprint .. stdnse.generate_random_string(12,
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
   end,
 
   --- Gets the peers from a http tracker when supplied the URL of the tracker
