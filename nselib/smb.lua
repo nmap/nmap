@@ -2381,10 +2381,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe, overrides)
     priority                         -- Handle to open file
     )
 
-  while(((#pipe + 1 + #padding) % 4) ~= 0) do
-    padding = padding .. string.char(0)
-  end
-  data = bin.pack("<zA", pipe, padding);
+  data = bin.pack("zA", pipe, string.rep('\0', (4 - ((#pipe+1) % 4)) % 4))
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
@@ -2763,17 +2760,12 @@ function find_files(smbstate, fname, options)
   local loi   = 260 -- Level of interest, return SMB_FIND_FILE_BOTH_DIRECTORY_INFO
   local storage_type = 0 -- despite the documentation of having to be either 0x01 or 0x40, wireshark reports 0
 
-  local function_parameters = bin.pack("<SSSSIA", nattrs, srch_count, flags, loi, storage_type, fname)
-
   -- SMB header: 32
   -- trans2 header: 36
-  -- FIND_FIRST2 parameters: #function_parameters
-  local pad = ( 32 + 36 + #function_parameters ) % 4
-  if ( pad > 0 ) then
-    for i=1, ( 4-pad ) do
-      function_parameters = function_parameters .. "\0"
-    end
-  end
+  -- FIND_FIRST2 parameters: 12 + #fname
+  local pad = ( 32 + 36 + 12 + #fname ) % 4
+  local function_parameters = bin.pack("<SSSSIAA",
+    nattrs, srch_count, flags, loi, storage_type, fname, string.rep('\0', (4 - pad) % 4))
 
 
   local function next_item()

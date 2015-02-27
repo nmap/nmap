@@ -775,13 +775,7 @@ StringUtil =
   -- @param len the total length of the finished string
   -- @return str string containing the padded string
   padWithChar = function( str, chr, len )
-    if ( len < #str ) then
-      return str
-    end
-    for i=1, (len - #str) do
-      str = str .. chr
-    end
-    return str
+    return str .. string.rep(chr, len - #str)
   end,
 }
 

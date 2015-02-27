@@ -1456,11 +1456,7 @@ Crypt = {
     local key = bin.pack("H", "0123456789abcdef")
 
     -- do padding
-    if ( #uspw % 8 > 0 ) then
-      for i=1,(8-(#uspw % 8)) do
-        uspw = uspw .. "\0"
-      end
-    end
+    uspw = uspw .. string.rep('\0', (8 - (#uspw % 8)) % 8)
 
     local iv2 = openssl.encrypt( "DES-CBC", key, nil, uspw, false ):sub(-8)
     local enc = openssl.encrypt( "DES-CBC", iv2, nil, uspw, false ):sub(-8)

@@ -1846,15 +1846,7 @@ Util =
   -- @param len number containing the length of the new string
   -- @return str string containing the new string
   ZeroPad = function( str, len )
-    if len < str:len() then
-      return
-    end
-
-    for i=1, len - str:len() do
-      str = str .. string.char(0)
-    end
-
-    return str
+    return str .. string.rep('\0', len - str:len())
   end,
 
   --- Splits a path into two pieces, directory and file

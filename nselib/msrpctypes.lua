@@ -589,7 +589,6 @@ end
 function marshall_ascii(str, max_length)
   local buffer_length
   local result
-  local padding = ""
 
   buffer_length = #str + 1
 
@@ -597,9 +596,7 @@ function marshall_ascii(str, max_length)
     max_length = buffer_length
   end
 
-  while((#(str .. string.char(0 .. padding)) % 4) ~= 0) do
-    padding = padding .. string.char(0)
-  end
+  local padding = string.rep('\0', (4 - (buffer_length % 4)) % 4)
 
   result = bin.pack("<IIIzA",
     max_length,

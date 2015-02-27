@@ -51,9 +51,7 @@ function name_encode(name, scope)
       padding = "\0"
     end
 
-    repeat
-      name = name .. padding
-    until #name == 16
+    name = name .. string.rep(padding, 16 - #name)
   end
 
   -- Convert to uppercase
