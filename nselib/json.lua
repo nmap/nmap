@@ -15,7 +15,6 @@
 -- @author Martin Holst Swende (originally), David Fifield, Patrick Donnelly
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
--- TODO: Unescape/escape unicode
 -- Version 0.4
 -- Created 01/25/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Heavily modified 02/22/2010 - v0.3. Rewrote the parser into an OO-form, to not have to handle
@@ -29,6 +28,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
+local unittest = require "unittest"
 _ENV = stdnse.module("json", stdnse.seeall)
 
 local lpeg = require "lpeg";
@@ -55,57 +55,43 @@ end
 local NULL = {};
 _M.NULL = NULL;
 
--- Encode a Unicode code point to UTF-8. See RFC 3629.
--- Does not check that cp is a real charaacter; that is, doesn't exclude the
--- surrogate range U+D800 - U+DFFF and a handful of others.
-local function utf8_enc (cp)
-  local result = {};
-  local n, mask;
+--- Makes a table be treated as a JSON Array when generating JSON
+--
+-- A table treated as an Array has all non-number indices ignored.
+-- @param t a table to be treated as an array
+function make_array(t)
+  local mt = getmetatable(t) or {}
+  mt["json"] = "array"
+  setmetatable(t, mt)
+  return t
+end
 
-  if cp % 1.0 ~= 0.0 or cp < 0 then
-    -- Only defined for nonnegative integers.
-    error("utf code point defined only for non-negative integers");
-  elseif cp <= 0x7F then
-    -- Special case of one-byte encoding.
-    return string.char(cp);
-  elseif cp <= 0x7FF then
-    n = 2;
-    mask = 0xC0;
-  elseif cp <= 0xFFFF then
-    n = 3;
-    mask = 0xE0;
-  elseif cp <= 0x10FFFF then
-    n = 4;
-    mask = 0xF0;
-  else
-    assert(false);
-  end
-
-  while n > 1 do
-    result[n] = 0x80 + bit.band(cp, 0x3F);
-    cp = bit.rshift(cp, 6);
-    n = n - 1;
-  end
-  result[1] = mask + cp;
-
-  return string.char(unpack(result));
+--- Makes a table be treated as a JSON Object when generating JSON
+--
+-- A table treated as an Object has all non-number indices ignored.
+-- @param t a table to be treated as an object
+function make_object(t)
+  local mt = getmetatable(t) or {}
+  mt["json"] = "object"
+  setmetatable(t, mt)
+  return t
 end
 
 -- Decode a Unicode escape, assuming that self.pos starts just after the
 -- initial \u. May consume an additional escape in the case of a UTF-16
 -- surrogate pair. See RFC 2781 for UTF-16.
-local unicode = P [[\u]] * C(locale().xdigit * locale().xdigit * locale().xdigit * locale().xdigit);
+local unicode_esc = P [[\u]] * C(locale().xdigit * locale().xdigit * locale().xdigit * locale().xdigit);
 local function unicode16 (subject, position, hex)
   local cp = assert(tonumber(hex, 16));
 
   if cp < 0xD800 or cp > 0xDFFF then
-    return position, utf8_enc(cp);
+    return position, unicode.utf8_enc(cp);
   elseif cp >= 0xDC00 and cp <= 0xDFFF then
     error(("Not a Unicode character: U+%04X"):format(cp));
   end
 
   -- Beginning of a UTF-16 surrogate.
-  local lowhex = unicode:match(subject, position);
+  local lowhex = unicode_esc:match(subject, position);
 
   if not lowhex then
     error(("Bad unicode escape \\u%s (missing low surrogate)"):format(hex))
@@ -114,9 +100,9 @@ local function unicode16 (subject, position, hex)
     if not (cp2 >= 0xDC00 and cp2 <= 0xDFFF) then
       error(("Bad unicode escape \\u%s\\u%s (bad low surrogate)"):format(hex, lowhex))
     end
-    position = position+4;
+    position = position+6 -- consume '\uXXXX'
     cp = 0x10000 + bit.band(cp, 0x3FF) * 0x400 + bit.band(cp2, 0x3FF)
-    return position, utf8_enc(cp);
+    return position, unicode.utf8_enc(cp);
   end
 end
 
@@ -134,11 +120,11 @@ local json = locale {
           K "false" * Cc(false)+
           K "null" * Cc(NULL);
 
-  object = Cf(Ct "" * P "{" * V "space"^0 * (V "members")^-1 * V "space"^0 * P "}", rawset);
+  object = Cf(Ct "" * P "{" * V "space"^0 * (V "members")^-1 * V "space"^0 * P "}", rawset) / make_object;
   members = V "pair" * (V "space"^0 * P "," * V "space"^0 * V "pair")^0;
   pair = Cg(V "string" * V "space"^0 * P ":" * V "space"^0 * V "value");
 
-  array = Ct(P "[" * V "space"^0 * (V "elements")^-1 * V "space"^0 * P "]");
+  array = Ct(P "[" * V "space"^0 * (V "elements")^-1 * V "space"^0 * P "]") / make_array;
   elements = V "value" * V "space"^0 * (P "," * V "space"^0 * V "value")^0;
 
   string = Ct(P [["]] * (V "char")^0 * P [["]]) / table.concat;
@@ -227,26 +213,6 @@ local function escape(str)
   return "\"" .. string.gsub(str, ".", ESCAPE_TABLE) .. "\""
 end
 
---- Makes a table be treated as a JSON Array when generating JSON
---
--- A table treated as an Array has all non-number indices ignored.
--- @param t a table to be treated as an array
-function make_array(t)
-  local mt = getmetatable(t) or {}
-  mt["json"] = "array"
-  setmetatable(t, mt)
-end
-
---- Makes a table be treated as a JSON Object when generating JSON
---
--- A table treated as an Object has all non-number indices ignored.
--- @param t a table to be treated as an object
-function make_object(t)
-  local mt = getmetatable(t) or {}
-  mt["json"] = "object"
-  setmetatable(t, mt)
-end
-
 --- Checks what JSON type a variable will be treated as when generating JSON
 -- @param var a variable to inspect
 -- @return a string containing the JSON type. Valid values are "array",
@@ -304,55 +270,169 @@ function generate(obj)
   error("Unknown data type in generate")
 end
 
+if not unittest.testing() then
+  return _ENV
+end
+
 ----------------------------------------------------------------------------------
 -- Test-code for debugging purposes below
 ----------------------------------------------------------------------------------
 
 local TESTS = {
-  '{"a":1}',
-  '{"a":true}',
-  '{"a":     false}',
-  '{"a":     null     \r\n, \t "b"  \f:"ehlo"}',
-  '{"a\\"a":"a\\"b\\"c\\"d"}',
-  '{"foo":"gaz\\"onk", "pi":3.14159,"hello":{ "wo":"rld"}}',
-  '{"a":1, "b":2}',
-  '{"foo":"gazonk", "pi":3.14159,"hello":{ "wo":"rl\\td"}}',
-  '[1,2,3,4,5,null,false,true,"\195\164\195\165\195\182\195\177","bar"]',
-  '[]',-- This will yield {} in toJson, since in lua there is only one basic datatype - and no difference when empty
-  '{}',
-  '',			-- error
-  'null',			-- error
-  '"abc"',		-- error
-  '{a":1}', -- error
-  '{"a" bad :1}', -- error
-  '["a\\\\t"]',  -- Should become Lua {"a\\t"}
-  '[0.0.0]',  -- error
-  '[-1]',
-  '[-1.123e-2]',
-  '[5e3]',
-  '[5e+3]',
-  '[5E-3]',
-  '[5.5e3]',
-  '["a\\\\"]',  -- Should become Lua {"a\\"}
-  '{"a}": 1}',  -- Should become Lua {"a}" = 1}
-  '["key": "value"]',  -- error
-  '["\\u0041"]',  -- Should become Lua {"A"}
-  '["\\uD800"]',  -- error
-  '["\\uD834\\uDD1EX"]',  -- Should become Lua {"\240\157\132\158X"}
+  {
+    '{"a":1}',
+    generates = '{"a": 1}',
+    is = "object",
+    test = function(o) return o["a"] == 1 end
+  },
+  {
+    '{"a":true}',
+    generates = '{"a": true}',
+    is = "object",
+    test = function(o) return o["a"] == true end
+  },
+  {
+    '{"a":     false}',
+    generates = '{"a": false}',
+    is = "object",
+    test = function(o) return o["a"] == false end
+  },
+  {
+    '{"a":     null     \r\n, \t "b"  \f:"ehlo"}',
+    is = "object",
+    test = function(o) return o["a"] == NULL end
+  },
+  {
+    '{"a\\"a":"a\\"b\\"c\\"d"}',
+    generates = '{"a\\"a": "a\\"b\\"c\\"d"}',
+    is = "object",
+    test = function(o) return o['a"a'] == 'a"b"c"d' end
+  },
+  {
+    '{"foo":"gaz\\"onk", "pi":3.14159,"hello":{ "wo":"rl\\td"}}',
+    is = "object",
+    test = function(o) return (
+        o["foo"] == 'gaz"onk' and
+        o["pi"] == 3.14159 and
+        o["hello"]["wo"] == "rl\td"
+      ) end
+  },
+  {
+    '{"a":1, "b":2}',
+    is = "object",
+    test = function(o)
+      local j = generate(o)
+      return ( -- order is random
+        j == '{"a": 1, "b": 2}' or
+        j == '{"b": 2, "a": 1}'
+      ) end
+  },
+  {
+    '[1,2,3,4,5,null,false,true,"\195\164\195\165\195\182\195\177","bar"]',
+    generates = '[1, 2, 3, 4, 5, null, false, true, "\195\164\195\165\195\182\195\177", "bar"]',
+    is = "array",
+    test = function(o) return #o == 10 end
+  },
+  {
+    '[]',
+    generates = '[]',
+    is = "array",
+    test = function(o) return not next(o) end
+  },
+  {
+    '{}',
+    generates = '{}',
+    is = "object",
+    test = function(o) return not next(o) end
+  },
+  {'', valid=false},
+  {'null', valid=false},			-- error
+  {'"abc"', valid=false},		-- error
+  {'{a":1}', valid=false}, -- error
+  {'{"a" bad :1}', valid=false}, -- error
+  {
+    '["a\\\\t"]',
+    generates = '["a\\\\t"]',
+    is = "array",
+    test = function(o) return o[1] == "a\\t" end
+  },  -- Should become Lua {"a\\t"}
+  {'[0.0.0]', valid=false},  -- error
+  {
+    '[-1]',
+    generates = '[-1]',
+    is = "array",
+  },
+  {
+    '[-1.123e-2]',
+    generates = '[-0.01123]',
+    is = "array",
+  },
+  {
+    '[5e3]',
+    generates = '[5000]',
+    is = "array",
+  },
+  {
+    '[5e+3]',
+    generates = '[5000]',
+    is = "array",
+  },
+  {
+    '[5E-3]',
+    generates = '[0.005]',
+    is = "array",
+  },
+  {
+    '[5.5e3]',
+    generates = '[5500]',
+    is = "array",
+  },
+  {
+    '["a\\\\"]',
+    generates = '["a\\\\"]',
+    is = "array",
+  },  -- Should become Lua {"a\\"}
+  {
+    ' {"a}": 1} ',
+    generates = '{"a}": 1}',
+    is = "object",
+    test = function(o) return o["a}"] == 1 end
+  },  -- Should become Lua {"a}" = 1}
+  {'["key": "value"]', valid=false},  -- error
+  {
+    '["\\u0041"]',
+    generates = '["A"]',
+    is = "array",
+  },  -- Should become Lua {"A"}
+  {'["\\uD800"]', valid=false},  -- error
+  {
+    '["\\uD834\\uDD1EX"]',
+    generates = '["\240\157\132\158X"]',
+    is = "array",
+  },  -- Should become Lua {"\240\157\132\158X"}
 }
-function test()
-  print("Tests running")
-  local i,v,res,status
-  for i,v in pairs(TESTS) do
-    print("----------------------------")
-    print(("%q"):format(v))
-    status,res = parse(v)
-    if not status then print( res) end
-    if(status) then
-		  print(("%q"):format(generate(res)))
-    else
-      print("Error:".. res)
-    end
+
+test_suite = unittest.TestSuite:new()
+
+local equal = unittest.equal
+local is_false = unittest.is_false
+local is_true = unittest.is_true
+
+for _, test in ipairs(TESTS) do
+  local status, val = parse(test[1])
+  if test.valid == false then
+    test_suite:add_test(is_false(status), "Syntax error status is false")
+    test_suite:add_test(equal(val, "syntax error"), "Syntax error")
+    break
+  end
+  if test.generates then
+    test_suite:add_test(equal(generate(val), test.generates), "Generate")
+  end
+  if test.is then
+    test_suite:add_test(equal(typeof(val), test.is), "JSON type")
+  end
+  if test.test then
+    test_suite:add_test(is_true(test.test(val)), "Extra test")
   end
 end
 
