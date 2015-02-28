@@ -11,7 +11,6 @@ local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 _ENV = stdnse.module("cassandra", stdnse.seeall)
 
 --[[

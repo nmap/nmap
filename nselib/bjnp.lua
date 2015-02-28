@@ -9,11 +9,9 @@
 --
 
 local bin = require("bin")
-local bit = require("bin")
 local nmap = require("nmap")
 local os = require("os")
 local stdnse = require("stdnse")
-local string = require("string")
 local table = require("table")
 
 _ENV = stdnse.module("bjnp", stdnse.seeall)

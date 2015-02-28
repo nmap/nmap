@@ -4,7 +4,6 @@ local stdnse = require "stdnse"
 local string = require "string"
 local target = require "target"
 local datafiles = require "datafiles"
-local bin = require "bin"
 local table = require "table"
 local math = require "math"
 

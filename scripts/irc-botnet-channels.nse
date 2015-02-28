@@ -1,5 +1,4 @@
 local comm = require "comm"
-local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"

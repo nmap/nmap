@@ -1,7 +1,6 @@
 local http = require("http")
 local shortport = require("shortport")
 local stdnse = require("stdnse")
-local strbuf = require("strbuf")
 local string = require("string")
 local table = require("table")
 

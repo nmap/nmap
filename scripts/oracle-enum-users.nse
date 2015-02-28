@@ -1,8 +1,6 @@
-local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 local tns = require "tns"
 local unpwdb = require "unpwdb"

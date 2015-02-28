@@ -37,7 +37,6 @@
 -- Created 2011/03/30 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
-local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"

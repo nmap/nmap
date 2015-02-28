@@ -1,7 +1,6 @@
 local iscsi = require "iscsi"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Collects and displays information from remote iSCSI targets.

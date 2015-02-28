@@ -3,7 +3,6 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"
-local os = require "os"
 local tls = require "tls"
 
 description = [[

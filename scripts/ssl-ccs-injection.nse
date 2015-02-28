@@ -1,4 +1,3 @@
-local match = require('match')
 local nmap = require('nmap')
 local shortport = require('shortport')
 local sslcert = require('sslcert')

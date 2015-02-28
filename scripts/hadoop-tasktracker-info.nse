@@ -2,7 +2,6 @@ local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Retrieves information from an Apache Hadoop TaskTracker HTTP status page.

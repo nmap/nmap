@@ -1,6 +1,5 @@
 local bit = require "bit"
 local os = require "os"
-local package = require "package"
 local stdnse = require "stdnse"
 local string = require "string"
 _ENV = stdnse.module("gps", stdnse.seeall)

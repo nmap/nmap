@@ -2,7 +2,6 @@ local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Discovers information such as log directories from an Apache Hadoop DataNode HTTP status page.

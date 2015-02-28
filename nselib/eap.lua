@@ -34,7 +34,6 @@
 local bin = require "bin"
 local math = require "math"
 local nmap = require "nmap"
-local package = require "package"
 local packet = require "packet"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("eap", stdnse.seeall)

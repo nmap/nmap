@@ -4,7 +4,6 @@ local jdwp = require "jdwp"
 local stdnse = require "stdnse"
 local nmap = require "nmap"
 local shortport = require "shortport"
-local string = require "string"
 
 description = [[
 Attempts to exploit java's remote debugging port. When remote debugging

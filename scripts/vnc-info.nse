@@ -1,6 +1,5 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 local vnc = require "vnc"
 
 description = [[

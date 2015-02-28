@@ -1,7 +1,5 @@
 local datafiles = require "datafiles"
-local math = require "math"
 local nmap = require "nmap"
-local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"

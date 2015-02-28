@@ -1,5 +1,4 @@
 local anyconnect = require('anyconnect')
-local stdnse = require('stdnse')
 local shortport = require('shortport')
 local vulns = require('vulns')
 local sslcert = require('sslcert')

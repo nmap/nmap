@@ -1,7 +1,6 @@
 local natpmp = require "natpmp"
 local nmap = require "nmap"
 local shortport = require "shortport"
-local stdnse = require "stdnse"
 
 description = [[
 Gets the routers WAN IP using the NAT Port Mapping Protocol (NAT-PMP).

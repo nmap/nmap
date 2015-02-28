@@ -1,10 +1,8 @@
 local brute = require "brute"
 local comm = require "comm"
 local creds = require "creds"
-local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 
 description=[[
 Performs brute force password auditing against IRC (Internet Relay Chat) servers.

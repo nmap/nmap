@@ -4,7 +4,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 
 description = [[
 This NSE script is used to send a EtherNet/IP packet to a remote device that

@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local snmp = require "snmp"
-local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[

@@ -1,7 +1,6 @@
 local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
-local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"

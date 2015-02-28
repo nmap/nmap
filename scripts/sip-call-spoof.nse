@@ -2,7 +2,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local sip = require "sip"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Spoofs a call to a SIP phone and detects the action taken by the target (busy, declined, hung up, etc.)

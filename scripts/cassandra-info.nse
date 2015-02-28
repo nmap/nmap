@@ -2,7 +2,6 @@ local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
 
 local cassandra = stdnse.silent_require "cassandra"
 

@@ -1,5 +1,4 @@
 local nmap = require "nmap"
-local os = require "os"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"

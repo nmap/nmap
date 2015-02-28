@@ -4,8 +4,6 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-local math = require "math"
-local io = require "io"
 
 
 description = [[

@@ -1,5 +1,4 @@
 local coroutine = require "coroutine"
-local io = require "io"
 local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"

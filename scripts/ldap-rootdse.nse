@@ -3,7 +3,6 @@ local ldap = require "ldap"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 
 description = [[
 Retrieves the LDAP root DSA-specific Entry (DSE)
