@@ -667,24 +667,8 @@ function clock_us()
 end
 
 ---Get the indentation symbols at a given level.
-local function format_get_indent(indent, at_end)
-  local str = ""
-  local had_continue = false
-
-  if(not(at_end)) then
-    str = rep('  ', #indent) -- Was: "|  "
-  else
-    for i = #indent, 1, -1 do
-      if(indent[i] and not(had_continue)) then
-        str = str .. "  " -- Was: "|_ "
-      else
-        had_continue = true
-        str = str .. "  " -- Was: "|  "
-      end
-    end
-  end
-
-  return str
+local function format_get_indent(indent)
+  return rep("  ", #indent)
 end
 
 local function splitlines(s)
@@ -775,7 +759,7 @@ local function format_output_sub(status, data, indent)
 
       for j, line in ipairs(lines) do
         insert(output, format("%s  %s%s\n",
-          format_get_indent(indent, i == #data and j == #lines),
+          format_get_indent(indent),
           prefix, line))
       end
     end
