@@ -80,22 +80,11 @@ local function debug (level, ...)
   end
   local current = nmap.debugging()
   if level <= current then
-    local prefix = "["
-    if current >= 2 then
-      prefix = prefix .. (getinfo() or "")
-    else
-      prefix = prefix .. (getid() or "")
-    end
     local host, port = gethostport()
-    if host and host.ip then
-      prefix = prefix .. " " .. host.ip
-    end
-    if port and port.number then
-      prefix = prefix .. ":" .. port.number
-    end
-    prefix = prefix .. "] "
-    if prefix ~= "[] " then
-      nmap.log_write("stdout", prefix..format(...))
+    local prefix = ( (current >= 2 and getinfo or getid)() or "")
+    .. (host and " "..host.ip .. (port and ":"..port.number or "") or "")
+    if prefix ~= "" then
+      nmap.log_write("stdout", "[" .. prefix .. "] " .. format(...))
     else
       nmap.log_write("stdout", format(...))
     end
@@ -148,19 +137,16 @@ local function verbose (level, ...)
   end
   local current = nmap.verbosity()
   if level <= current then
-    local prefix = "[" .. (getid() or "")
+    local prefix
     if current >= 2 then
       local host, port = gethostport()
-      if host and host.ip then
-        prefix = prefix .. " " .. host.ip
-      end
-      if port and port.number then
-        prefix = prefix .. ":" .. port.number
-      end
+      prefix = (getid() or "")
+      .. (host and " "..host.ip .. (port and ":"..port.number or "") or "")
+    else
+      prefix = getid() or ""
     end
-    prefix = prefix .. "] "
-    if prefix ~= "[] " then
-      nmap.log_write("stdout", prefix..format(...))
+    if prefix ~= "" then
+      nmap.log_write("stdout", "[" .. prefix .. "] " .. format(...))
     else
       nmap.log_write("stdout", format(...))
     end
