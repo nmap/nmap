@@ -110,11 +110,11 @@ transport.kex_init = function( options )
   local languages = options['languages'] or ""
 
   local payload = bin.pack( ">cAaa", SSH2.SSH_MSG_KEXINIT, cookie, kex_algorithms, host_key_algorithms )
-  payload = payload .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )
-  payload = payload .. bin.pack( ">aa", mac_algorithms, mac_algorithms )
-  payload = payload .. bin.pack( ">aa", compression_algorithms, compression_algorithms )
-  payload = payload .. bin.pack( ">aa", languages, languages )
-  payload = payload .. bin.pack( ">cI", 0, 0 )
+  .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )
+  .. bin.pack( ">aa", mac_algorithms, mac_algorithms )
+  .. bin.pack( ">aa", compression_algorithms, compression_algorithms )
+  .. bin.pack( ">aa", languages, languages )
+  .. bin.pack( ">cI", 0, 0 )
 
   return payload
 end

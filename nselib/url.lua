@@ -81,7 +81,7 @@ end
 local function absolute_path(base_path, relative_path)
   if string.sub(relative_path, 1, 1) == "/" then return relative_path end
   local path = string.gsub(base_path, "[^/]*$", "")
-  path = path .. relative_path
+  .. relative_path
   path = string.gsub(path, "([^/]*%./)", function (s)
     if s ~= "./" then return s else return "" end
   end)

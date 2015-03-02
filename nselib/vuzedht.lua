@@ -122,7 +122,7 @@ Request = {
     -- Converts a FindNode Request to a string
     __tostring = function(self)
       local data = tostring(self.header)
-      data = data .. bin.pack(">CAII", self.id_length, self.node_id, self.status, self.dht_size)
+      .. bin.pack(">CAII", self.id_length, self.node_id, self.status, self.dht_size)
       return data
     end,
   }

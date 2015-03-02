@@ -143,14 +143,14 @@ if HAVE_SSL then
       end
 
       local response = "username=\"" .. self.username .. "\""
-      response = response .. (",%s=\"%s\""):format("realm", realm)
-      response = response .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
-      response = response .. (",%s=\"%s\""):format("cnonce", cnonce)
-      response = response .. (",%s=%08d"):format("nc", self.nc)
-      response = response .. (",%s=%s"):format("qop", "auth")
-      response = response .. (",%s=\"%s\""):format("digest-uri", uri)
-      response = response .. (",%s=%s"):format("response", digest)
-      response = response .. (",%s=%s"):format("charset", "utf-8")
+      .. (",%s=\"%s\""):format("realm", realm)
+      .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
+      .. (",%s=\"%s\""):format("cnonce", cnonce)
+      .. (",%s=%08d"):format("nc", self.nc)
+      .. (",%s=%s"):format("qop", "auth")
+      .. (",%s=\"%s\""):format("digest-uri", uri)
+      .. (",%s=%s"):format("response", digest)
+      .. (",%s=%s"):format("charset", "utf-8")
 
       -- response_table is used in http library because the request should
       -- be a little bit different then the string generated above

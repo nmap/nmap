@@ -1034,15 +1034,13 @@ end
 --       <code>data</code>.
 --@return A string representing the marshalled data.
 function marshall_int8_array(data, max_length)
-  local result = ""
-
   stdnse.debug4("MSRPC: Entering marshall_int8_array()")
 
   if(max_length == nil) then
     max_length = #data
   end
 
-  result = result .. bin.pack("<IIIA", max_length, 0, #data, data)
+  local result = bin.pack("<IIa", max_length, 0, data)
 
   stdnse.debug4("MSRPC: Leaving marshall_int8_array()")
 
@@ -1797,8 +1795,8 @@ function marshall_lsa_String_array2(strings)
   end
 
   result = marshall_int32(1000) -- Max length
-  result = result .. marshall_int32(0) -- Offset
-  result = result .. marshall_array(array)
+  .. marshall_int32(0) -- Offset
+  .. marshall_array(array)
 
   --require 'nsedebug'
   --nsedebug.print_hex(result)
@@ -1977,10 +1975,10 @@ local function marshall_lsa_TranslatedSid2(location, sid_type, rid, sid_index, u
   if(unknown == nil)   then unknown   = 0 end
 
   if(location == HEAD or location == ALL) then
-    result = result .. marshall_lsa_SidType(sid_type)
-    result = result .. marshall_int32(rid)
-    result = result .. marshall_int32(sid_index)
-    result = result .. marshall_int32(unknown)
+    result = marshall_lsa_SidType(sid_type)
+    .. marshall_int32(rid)
+    .. marshall_int32(sid_index)
+    .. marshall_int32(unknown)
   end
 
   if(location == BODY or location == ALL) then
@@ -2062,10 +2060,10 @@ local function marshall_lsa_TranslatedName2(location, sid_type, name, sid_index,
   if(unknown == nil)   then unknown   = 0 end
 
   if(location == HEAD or location == ALL) then
-    result = result .. marshall_lsa_SidType(sid_type)
-    result = result .. marshall_lsa_String_internal(HEAD, name)
-    result = result .. marshall_int32(sid_index)
-    result = result .. marshall_int32(unknown)
+    result = marshall_lsa_SidType(sid_type)
+    .. marshall_lsa_String_internal(HEAD, name)
+    .. marshall_int32(sid_index)
+    .. marshall_int32(unknown)
   end
 
   if(location == BODY or location == ALL) then
@@ -2122,11 +2120,9 @@ end
 --@param sids An array of SIDs to translate (as strings)
 --@return A string representing the marshalled data.
 function marshall_lsa_TransSidArray2(sids)
-  local result = ""
   local array = {}
   stdnse.debug4("MSRPC: Entering marshall_lsa_TransSidArray2()")
 
-  result = result .. marshall_int32(#sids)
 
   for i = 1, #sids, 1 do
     array[i] = {}
@@ -2134,7 +2130,8 @@ function marshall_lsa_TransSidArray2(sids)
     array[i]['args'] = {sids[i]['sid_type'], sids[i]['rid'], sids[i]['sid_index'], sids[i]['unknown']}
   end
 
-  result = result .. marshall_ptr(ALL, marshall_array, {array}, array)
+  local result = marshall_int32(#sids)
+  .. marshall_ptr(ALL, marshall_array, {array}, array)
 
   stdnse.debug4("MSRPC: Leaving marshall_lsa_TransSidArray2()")
   return result
@@ -2305,13 +2302,12 @@ end
 --
 --@return A string representing the marshalled data.
 function marshall_lsa_QosInfo()
-  local result = ""
   stdnse.debug4("MSRPC: Entering marshall_lsa_QosInfo()")
 
-  result = result .. marshall_int32(12)
-  result = result .. marshall_int16(2, false)
-  result = result .. marshall_int8(1, false)
-  result = result .. marshall_int8(0, false)
+  local result = marshall_int32(12)
+  .. marshall_int16(2, false)
+  .. marshall_int8(1, false)
+  .. marshall_int8(0, false)
 
   stdnse.debug4("MSRPC: Leaving marshall_lsa_QosInfo()")
   return result
@@ -2335,15 +2331,14 @@ end
 --
 --@return A string representing the marshalled data.
 function marshall_lsa_ObjectAttribute()
-  local result = ""
   stdnse.debug4("MSRPC: Entering marshall_lsa_ObjectAttribute()")
 
-  result = result .. marshall_int32(24)
-  result = result .. marshall_int32(0)  -- Null'ing out these pointers for now. Maybe we'll need them in the future...
-  result = result .. marshall_int32(0)
-  result = result .. marshall_int32(0)
-  result = result .. marshall_int32(0)
-  result = result .. marshall_ptr(ALL, marshall_lsa_QosInfo, {})
+  local result = marshall_int32(24)
+  .. marshall_int32(0)  -- Null'ing out these pointers for now. Maybe we'll need them in the future...
+  .. marshall_int32(0)
+  .. marshall_int32(0)
+  .. marshall_int32(0)
+  .. marshall_ptr(ALL, marshall_lsa_QosInfo, {})
 
   stdnse.debug4("MSRPC: Leaving marshall_lsa_ObjectAttribute()")
   return result
@@ -2385,10 +2380,7 @@ end
 --@param sids The array of SIDs to marshall (as strings).
 --@return A string representing the marshalled data.
 function marshall_lsa_SidArray(sids)
-  local result = ""
   local array = {}
-
-  result = result .. marshall_int32(#sids)
 
   for i = 1, #sids, 1 do
     array[i] = {}
@@ -2396,7 +2388,8 @@ function marshall_lsa_SidArray(sids)
     array[i]['args'] = {sids[i]}
   end
 
-  result = result .. marshall_ptr(ALL, marshall_array, {array}, array)
+  local result = marshall_int32(#sids)
+  .. marshall_ptr(ALL, marshall_array, {array}, array)
 
   return result
 end
@@ -4653,14 +4646,12 @@ end
 --               file.
 --@param time The time at which to run the job, in milliseconds from midnight.
 function marshall_atsvc_JobInfo(command, time)
-  local result = ""
-
-  result = result .. marshall_int32(time)                       -- Job time
-  result = result .. marshall_int32(0)                          -- Day of month
-  result = result .. marshall_int8(0, false)                    -- Day of week
-  result = result .. marshall_atsvc_Flags("JOB_NONINTERACTIVE") -- Flags
-  result = result .. marshall_int16(0, false)                   -- Padding
-  result = result .. marshall_unicode_ptr(command, true)        -- Command
+  local result = marshall_int32(time)                       -- Job time
+  .. marshall_int32(0)                          -- Day of month
+  .. marshall_int8(0, false)                    -- Day of week
+  .. marshall_atsvc_Flags("JOB_NONINTERACTIVE") -- Flags
+  .. marshall_int16(0, false)                   -- Padding
+  .. marshall_unicode_ptr(command, true)        -- Command
 
   return result
 end

@@ -1903,15 +1903,15 @@ NTAuthenticationPacket = {
     local sessionkey_offset = hostname_offset + #hostname
 
     local data = bin.pack("<AISSI", ntlmssp, NTLMSSP_AUTH, #lm_response, #lm_response, lm_response_offset)
-    data = data .. bin.pack("<SSI", #ntlm_response, #ntlm_response, ntlm_response_offset)
-    data = data .. bin.pack("<SSI", #domain, #domain, domain_offset)
-    data = data .. bin.pack("<SSI", #user, #user, username_offset)
-    data = data .. bin.pack("<SSI", #hostname, #hostname, hostname_offset)
-    data = data .. bin.pack("<SSI", #sessionkey, #sessionkey, sessionkey_offset)
-    data = data .. bin.pack("<I", flags)
-    data = data .. bin.pack("A", domain)
-    data = data .. bin.pack("A", user )
-    data = data .. lm_response .. ntlm_response
+    .. bin.pack("<SSI", #ntlm_response, #ntlm_response, ntlm_response_offset)
+    .. bin.pack("<SSI", #domain, #domain, domain_offset)
+    .. bin.pack("<SSI", #user, #user, username_offset)
+    .. bin.pack("<SSI", #hostname, #hostname, hostname_offset)
+    .. bin.pack("<SSI", #sessionkey, #sessionkey, sessionkey_offset)
+    .. bin.pack("<I", flags)
+    .. bin.pack("A", domain)
+    .. bin.pack("A", user )
+    .. lm_response .. ntlm_response
 
     return PacketType.NTAuthentication, data
   end,

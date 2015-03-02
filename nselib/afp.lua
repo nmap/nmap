@@ -1065,7 +1065,7 @@ Proto = {
     local response,records = {}, {}
 
     local data = bin.pack( "CC>S>I>S>S", COMMAND.FPEnumerateExt2, pad, volume_id, did, file_bitmap, dir_bitmap )
-    data = data .. bin.pack( ">S>I>ICCA", req_count, start_index, reply_size, path.type, path.len, path.name )
+    .. bin.pack( ">S>I>ICCA", req_count, start_index, reply_size, path.type, path.len, path.name )
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 
     self:send_fp_packet( packet )

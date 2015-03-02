@@ -259,9 +259,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
     0x00,       -- Padding/alignment
     0x00,       -- Padding/alignment
     0x00        -- Padding/alignment
-    )
-
-  data = data .. bin.pack("<SCCASSAI",
+    ) .. bin.pack("<SCCASSAI",
     0x0000,            -- Context ID
     0x01,              -- Number of transaction items. */
     0x00,              -- Padding/alignment
@@ -606,17 +604,17 @@ function srvsvc_netshareenumall(smbstate, server)
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
 
   -- [in,out]   uint32 level
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   -- [in,out,switch_is(level)] srvsvc_NetShareCtr ctr
-  arguments = arguments .. msrpctypes.marshall_srvsvc_NetShareCtr(0, {array=nil})
+  .. msrpctypes.marshall_srvsvc_NetShareCtr(0, {array=nil})
 
   -- [in]   uint32 max_buffer,
-  arguments = arguments .. msrpctypes.marshall_int32(4096)
+  .. msrpctypes.marshall_int32(4096)
 
   -- [out]  uint32 totalentries
   -- [in,out]   uint32 *resume_handle*
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(0)
+  .. msrpctypes.marshall_int32_ptr(0)
 
 
   -- Do the call
@@ -676,10 +674,10 @@ function srvsvc_netsharegetinfo(smbstate, server, share, level)
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
 
   --    [in]   [string,charset(UTF16)] uint16 share_name[],
-  arguments = arguments .. msrpctypes.marshall_unicode(share, true)
+  .. msrpctypes.marshall_unicode(share, true)
 
   --    [in]   uint32 level,
-  arguments = arguments .. msrpctypes.marshall_int32(level)
+  .. msrpctypes.marshall_int32(level)
 
   --    [out,switch_is(level)] srvsvc_NetShareInfo info
 
@@ -737,23 +735,23 @@ function srvsvc_netsessenum(smbstate, server)
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
 
   --    [in]   [string,charset(UTF16)] uint16 *client,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
+  .. msrpctypes.marshall_unicode_ptr(nil)
 
   --    [in]   [string,charset(UTF16)] uint16 *user,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
+  .. msrpctypes.marshall_unicode_ptr(nil)
 
   --    [in,out]   uint32 level,
-  arguments = arguments .. msrpctypes.marshall_int32(10) -- 10 seems to be the only useful one allowed anonymously
+  .. msrpctypes.marshall_int32(10) -- 10 seems to be the only useful one allowed anonymously
 
   --    [in,out,switch_is(level)]   srvsvc_NetSessCtr ctr,
-  arguments = arguments .. msrpctypes.marshall_srvsvc_NetSessCtr(10, {array=nil})
+  .. msrpctypes.marshall_srvsvc_NetSessCtr(10, {array=nil})
 
   --    [in]   uint32 max_buffer,
-  arguments = arguments .. msrpctypes.marshall_int32(0xFFFFFFFF)
+  .. msrpctypes.marshall_int32(0xFFFFFFFF)
 
   --    [out]   uint32 totalentries,
   --    [in,out]   uint32 *resume_handle
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(0)
+  .. msrpctypes.marshall_int32_ptr(0)
 
 
   -- Do the call
@@ -844,13 +842,13 @@ function srvsvc_netservergetstatistics(smbstate, server)
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
 
   --    [in]      [string,charset(UTF16)] uint16 *service,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(service, true)
+  .. msrpctypes.marshall_unicode_ptr(service, true)
 
   --    [in]      uint32 level,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in]      uint32 options,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [out]     srvsvc_Statistics stat
 
@@ -915,16 +913,16 @@ function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathfla
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
 
   --    [in]   [string,charset(UTF16)] uint16 path1[],
-  arguments = arguments .. msrpctypes.marshall_unicode(path1, true)
+  .. msrpctypes.marshall_unicode(path1, true)
 
   --    [in]   [string,charset(UTF16)] uint16 path2[],
-  arguments = arguments .. msrpctypes.marshall_unicode(path2, true)
+  .. msrpctypes.marshall_unicode(path2, true)
 
   --    [in]  uint32 pathtype,
-  arguments = arguments .. msrpctypes.marshall_int32(pathtype)
+  .. msrpctypes.marshall_int32(pathtype)
 
   --    [in]  uint32 pathflags
-  arguments = arguments .. msrpctypes.marshall_int32(pathflags)
+  .. msrpctypes.marshall_int32(pathflags)
 
   -- Do the call
   status, result = call_function(smbstate, 0x20, arguments)
@@ -977,18 +975,18 @@ function srvsvc_netpathcanonicalize(smbstate, server, path)
   --        [in]   [string,charset(UTF16)] uint16 *server_unc,
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
   --        [in]   [string,charset(UTF16)] uint16 path[],
-  arguments = arguments .. msrpctypes.marshall_unicode(path, true)
+  .. msrpctypes.marshall_unicode(path, true)
   --        [out]  [size_is(maxbuf)] uint8 can_path[],
   --        [in]   uint32 maxbuf,
-  arguments = arguments .. msrpctypes.marshall_int32(2)
+  .. msrpctypes.marshall_int32(2)
 
   --        [in]   [string,charset(UTF16)] uint16 prefix[],
-  arguments = arguments .. msrpctypes.marshall_unicode("\\", true)
+  .. msrpctypes.marshall_unicode("\\", true)
 
   --        [in,out] uint32 pathtype,
-  arguments = arguments .. msrpctypes.marshall_int32(1)
+  .. msrpctypes.marshall_int32(1)
   --        [in]    uint32 pathflags
-  arguments = arguments .. msrpctypes.marshall_int32(1)
+  .. msrpctypes.marshall_int32(1)
 
 
   -- Do the call
@@ -1042,30 +1040,28 @@ function spoolss_open_printer(smbstate,printer)
   local user = msrpctypes.marshall_unicode_ptr("",true)
 
   local arguments = msrpctypes.marshall_unicode_ptr(printer,true)
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
   --devmod container
-  arguments = arguments .. msrpctypes.marshall_int32(0)
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
   --access we require
-  arguments = arguments .. msrpctypes.marshall_int32(0x02020000)
+  .. msrpctypes.marshall_int32(0x02020000)
   -- spool client container
-  arguments = arguments .. msrpctypes.marshall_int32(1)
-  arguments = arguments .. msrpctypes.marshall_int32(1)
-  arguments = arguments .. msrpctypes.marshall_int32(12345135)
+  .. msrpctypes.marshall_int32(1)
+  .. msrpctypes.marshall_int32(1)
+  .. msrpctypes.marshall_int32(12345135)
 
   local arguments2 =  string.sub(machine,1,4)
-  arguments2 = arguments2 ..  string.sub(user,1,4)
-  arguments2 = arguments2 .. msrpctypes.marshall_int32(7600)
-  arguments2 = arguments2 .. msrpctypes.marshall_int32(3)
-  arguments2 = arguments2 .. msrpctypes.marshall_int32(0)
-  arguments2 = arguments2 .. msrpctypes.marshall_int32(9)
-  arguments2 = arguments2 .. string.sub(machine,5,#machine)
-  arguments2 = arguments2 .. string.sub(user,5,#user)
+  ..  string.sub(user,1,4)
+  .. msrpctypes.marshall_int32(7600)
+  .. msrpctypes.marshall_int32(3)
+  .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(9)
+  .. string.sub(machine,5,#machine)
+  .. string.sub(user,5,#user)
   arguments2 = msrpctypes.marshall_int32(#arguments2+4) .. arguments2
 
-  arguments = arguments .. arguments2
-
-  local status, result = call_function(smbstate, 69, arguments)
+  local status, result = call_function(smbstate, 69, arguments .. arguments2)
   if not status then
     stdnse.debug1("MSRPC spoolss_open_printer(): %s ",result)
   end
@@ -1081,25 +1077,22 @@ end
 --@param filename         Name of the file to print to
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a print job id.
 function spoolss_start_doc_printer(smbstate,printer_handle,filename)
-  local arguments = printer_handle
   local document_name = msrpctypes.marshall_unicode_ptr("nmap_test",true)
   local fname = msrpctypes.marshall_unicode_ptr(filename,true)
   local dtype = msrpctypes.marshall_int32(0)
+
+  local arguments = printer_handle .. msrpctypes.marshall_int32(1)
+
   local document_container = msrpctypes.marshall_int32(1)
+  .. msrpctypes.marshall_int32(12332131)
+  .. string.sub(document_name,1,4)
+  .. string.sub(fname,1,4)
+  .. string.sub(dtype,1,4)
+  .. string.sub(document_name,5,#document_name)
+  .. string.sub(fname,5,#fname)
+  .. string.sub(dtype,5,#dtype)
 
-  arguments = arguments .. msrpctypes.marshall_int32(1)
-
-  document_container = document_container .. msrpctypes.marshall_int32(12332131)
-  document_container = document_container .. string.sub(document_name,1,4)
-  document_container = document_container .. string.sub(fname,1,4)
-  document_container = document_container .. string.sub(dtype,1,4)
-  document_container = document_container .. string.sub(document_name,5,#document_name)
-  document_container = document_container .. string.sub(fname,5,#fname)
-  document_container = document_container .. string.sub(dtype,5,#dtype)
-
-  arguments = arguments .. document_container
-
-  local status, result = call_function(smbstate, 17, arguments)
+  local status, result = call_function(smbstate, 17, arguments .. document_container)
   if not status then
     stdnse.debug1("MSRPC spoolss_start_doc_printer(): %s",result)
   end
@@ -1114,17 +1107,16 @@ end
 --@param data              Actual data to write to a file
 --@return (status, result) If status is false, result is an error message. Otherwise, result is number of bytes written.
 function spoolss_write_printer(smbstate,printer_handle,data)
-  stdnse.debug1("len %d", #data)
   local padding_len = 4 - math.fmod(#data,4)
   local data_padding = nil
   if not (padding_len == 4) then
     data_padding = string.rep(bin.pack("H","00"),padding_len)
   end
   local arguments = printer_handle ..  msrpctypes.marshall_int32(#data)
-  --arguments = arguments ..  msrpctypes.marshall_int32(#data)
-  arguments = arguments .. data
-  if data_padding then arguments = arguments .. data_padding end
-  arguments = arguments ..  msrpctypes.marshall_int32(#data)
+  --..  msrpctypes.marshall_int32(#data)
+  .. data
+  .. (data_padding or "")
+  .. msrpctypes.marshall_int32(#data)
   local status,result = call_function(smbstate, 19, arguments)
   if not status then
     stdnse.debug1("MSRPC spoolss_write_printer(): %s",result)
@@ -1213,7 +1205,7 @@ function epmapper_lookup(smbstate,handle)
   -- [out]           error_status_t      *status
   -- );
   local params = msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0)
-  params = params .. handle .. msrpctypes.marshall_int32(1)
+  .. handle .. msrpctypes.marshall_int32(1)
 
   local status,result = call_function(smbstate,2,params)
   if not status then
@@ -1352,10 +1344,10 @@ function samr_connect4(smbstate, server)
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
 
   -- [in] uint32 unknown,
-  arguments = arguments .. msrpctypes.marshall_int32(0x02)
+  .. msrpctypes.marshall_int32(0x02)
 
   -- [in] samr_ConnectAccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_samr_ConnectAccessMask("SAMR_ACCESS_ENUM_DOMAINS|SAMR_ACCESS_OPEN_DOMAIN")
+  .. msrpctypes.marshall_samr_ConnectAccessMask("SAMR_ACCESS_ENUM_DOMAINS|SAMR_ACCESS_OPEN_DOMAIN")
   -- [out,ref]  policy_handle *connect_handle
 
 
@@ -1406,10 +1398,10 @@ function samr_enumdomains(smbstate, connect_handle)
   arguments = msrpctypes.marshall_policy_handle(connect_handle)
 
   --    [in,out,ref]  uint32 *resume_handle,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in]          uint32 buf_size,
-  arguments = arguments .. msrpctypes.marshall_int32(0x2000)
+  .. msrpctypes.marshall_int32(0x2000)
 
   --    [out]         samr_SamArray *sam,
   --    [out]         uint32 num_entries
@@ -1469,7 +1461,7 @@ function samr_lookupdomain(smbstate, connect_handle, domain)
   arguments = msrpctypes.marshall_policy_handle(connect_handle)
 
   --    [in,ref]  lsa_String *domain_name,
-  arguments = arguments .. msrpctypes.marshall_lsa_String(domain)
+  .. msrpctypes.marshall_lsa_String(domain)
 
   --    [out]     dom_sid2 *sid
 
@@ -1522,10 +1514,10 @@ function samr_opendomain(smbstate, connect_handle, sid)
   arguments = msrpctypes.marshall_policy_handle(connect_handle)
 
   --    [in]          samr_DomainAccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_samr_DomainAccessMask("DOMAIN_ACCESS_LOOKUP_INFO_1|DOMAIN_ACCESS_LOOKUP_INFO_2|DOMAIN_ACCESS_ENUM_ACCOUNTS|DOMAIN_ACCESS_OPEN_ACCOUNT")
+  .. msrpctypes.marshall_samr_DomainAccessMask("DOMAIN_ACCESS_LOOKUP_INFO_1|DOMAIN_ACCESS_LOOKUP_INFO_2|DOMAIN_ACCESS_ENUM_ACCOUNTS|DOMAIN_ACCESS_OPEN_ACCOUNT")
 
   --    [in,ref]      dom_sid2 *sid,
-  arguments = arguments .. msrpctypes.marshall_dom_sid2(sid)
+  .. msrpctypes.marshall_dom_sid2(sid)
 
   --    [out,ref]     policy_handle *domain_handle
 
@@ -1578,13 +1570,13 @@ function samr_enumdomainusers(smbstate, domain_handle)
   arguments = msrpctypes.marshall_policy_handle(domain_handle)
 
   --    [in,out,ref]  uint32 *resume_handle,
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(nil)
+  .. msrpctypes.marshall_int32_ptr(nil)
 
   --    [in]          samr_AcctFlags acct_flags,
-  arguments = arguments .. msrpctypes.marshall_samr_AcctFlags("ACB_NONE")
+  .. msrpctypes.marshall_samr_AcctFlags("ACB_NONE")
 
   --    [in]          uint32 max_size,
-  arguments = arguments .. msrpctypes.marshall_int32(0x0400)
+  .. msrpctypes.marshall_int32(0x0400)
 
   --    [out]         samr_SamArray *sam,
   --    [out]         uint32 num_entries
@@ -1659,16 +1651,16 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
   arguments = msrpctypes.marshall_policy_handle(domain_handle)
 
   --    [in]        uint16 level,
-  arguments = arguments .. msrpctypes.marshall_int16(1) -- Level (1 = users, 3 = groups, 4 = usernames only)
+  .. msrpctypes.marshall_int16(1) -- Level (1 = users, 3 = groups, 4 = usernames only)
 
   --    [in]        uint32 start_idx,
-  arguments = arguments .. msrpctypes.marshall_int32(index)
+  .. msrpctypes.marshall_int32(index)
 
   --    [in]        uint32 max_entries,
-  arguments = arguments .. msrpctypes.marshall_int32(count)
+  .. msrpctypes.marshall_int32(count)
 
   --    [in]        uint32 buf_size,
-  arguments = arguments .. msrpctypes.marshall_int32(0x7FFFFFFF)
+  .. msrpctypes.marshall_int32(0x7FFFFFFF)
 
   --    [out]       uint32 total_size,
   --    [out]       uint32 returned_size,
@@ -1749,7 +1741,7 @@ function samr_querydomaininfo2(smbstate, domain_handle, level)
   arguments = msrpctypes.marshall_policy_handle(domain_handle)
 
   --    [in]          uint16 level,
-  arguments = arguments .. msrpctypes.marshall_int32(level)
+  .. msrpctypes.marshall_int32(level)
 
   --    [out,switch_is(level)] samr_DomainInfo *info
 
@@ -1798,14 +1790,14 @@ function samr_enumdomainaliases(smbstate, domain_handle)
   arguments = ''
 
   --        [in]          policy_handle *domain_handle,
-  arguments = arguments .. msrpctypes.marshall_policy_handle(domain_handle)
+  .. msrpctypes.marshall_policy_handle(domain_handle)
 
   --        [in,out,ref]  uint32 *resume_handle,
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(nil)
+  .. msrpctypes.marshall_int32_ptr(nil)
 
   --        [out,ref]     samr_SamArray **sam,
   --        [in]          uint32 max_size, (note: Wireshark says this is flags. Either way..)
-  arguments = arguments .. msrpctypes.marshall_int32(0x400)
+  .. msrpctypes.marshall_int32(0x400)
 
   --        [out,ref]     uint32 *num_entries
 
@@ -1856,13 +1848,13 @@ function samr_lookupnames(smbstate, domain_handle, names)
   arguments = ''
 
   --        [in,ref]      policy_handle *domain_handle,
-  arguments = arguments .. msrpctypes.marshall_policy_handle(domain_handle)
+  .. msrpctypes.marshall_policy_handle(domain_handle)
 
   --        [in,range(0,1000)] uint32 num_names,
-  arguments = arguments .. msrpctypes.marshall_int32(#names)
+  .. msrpctypes.marshall_int32(#names)
 
   --        [in,size_is(1000),length_is(num_names)] lsa_String names[],
-  arguments = arguments .. msrpctypes.marshall_lsa_String_array2(names)
+  .. msrpctypes.marshall_lsa_String_array2(names)
 
   --        [out,ref]     samr_Ids *rids,
   --        [out,ref]     samr_Ids *types
@@ -1917,13 +1909,13 @@ function samr_openalias(smbstate, domain_handle, rid)
   arguments = ''
 
   --        [in,ref]      policy_handle *domain_handle,
-  arguments = arguments .. msrpctypes.marshall_policy_handle(domain_handle)
+  .. msrpctypes.marshall_policy_handle(domain_handle)
 
   --        [in]          samr_AliasAccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_int32(0x0002000c) -- Full read permission
+  .. msrpctypes.marshall_int32(0x0002000c) -- Full read permission
 
   --        [in]          uint32 rid,
-  arguments = arguments .. msrpctypes.marshall_int32(rid)
+  .. msrpctypes.marshall_int32(rid)
 
   --        [out,ref]     policy_handle *alias_handle
 
@@ -1964,11 +1956,7 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_getaliasmembership(smbstate, alias_handle,args)
   local status, result
-  local arguments
-
-  arguments = ''
-
-  arguments = arguments .. alias_handle .. args
+  local arguments = alias_handle .. args
   -- Do the call
   status, result = call_function(smbstate, 0x10, arguments)
   if(status ~= true) then
@@ -1993,7 +1981,7 @@ function samr_getmembersinalias(smbstate, alias_handle)
   arguments = ''
 
   --        [in,ref]   policy_handle *alias_handle,
-  arguments = arguments .. msrpctypes.marshall_policy_handle(alias_handle)
+  .. msrpctypes.marshall_policy_handle(alias_handle)
   --        [out,ref]  lsa_SidArray    *sids
 
 
@@ -2143,10 +2131,10 @@ function lsa_openpolicy2(smbstate, server)
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
 
   --    [in]  lsa_ObjectAttribute *attr,
-  arguments = arguments .. msrpctypes.marshall_lsa_ObjectAttribute()
+  .. msrpctypes.marshall_lsa_ObjectAttribute()
 
   --    [in]      uint32 access_mask,
-  arguments = arguments .. msrpctypes.marshall_int32(0x00000800)
+  .. msrpctypes.marshall_int32(0x00000800)
 
   --    [out] policy_handle *handle
 
@@ -2202,26 +2190,26 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
   arguments = msrpctypes.marshall_policy_handle(policy_handle)
 
   --    [in,range(0,1000)] uint32 num_names,
-  arguments = arguments .. msrpctypes.marshall_int32(#names)
+  .. msrpctypes.marshall_int32(#names)
 
   --    [in,size_is(num_names)]  lsa_String names[],
-  arguments = arguments .. msrpctypes.marshall_lsa_String_array(names)
+  .. msrpctypes.marshall_lsa_String_array(names)
 
   --    [out,unique]        lsa_RefDomainList *domains,
   --    [in,out] lsa_TransSidArray2 *sids,
-  arguments = arguments .. msrpctypes.marshall_lsa_TransSidArray2({nil})
+  .. msrpctypes.marshall_lsa_TransSidArray2({nil})
 
   --    [in]         lsa_LookupNamesLevel level,
-  arguments = arguments .. msrpctypes.marshall_lsa_LookupNamesLevel("LOOKUP_NAMES_ALL")
+  .. msrpctypes.marshall_lsa_LookupNamesLevel("LOOKUP_NAMES_ALL")
 
   --    [in,out] uint32 *count,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in]         uint32 unknown1,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in]         uint32 unknown2
-  arguments = arguments .. msrpctypes.marshall_int32(2)
+  .. msrpctypes.marshall_int32(2)
 
 
 
@@ -2293,23 +2281,23 @@ function lsa_lookupsids2(smbstate, policy_handle, sids)
   arguments = msrpctypes.marshall_policy_handle(policy_handle)
 
   --    [in]     lsa_SidArray *sids,
-  arguments = arguments .. msrpctypes.marshall_lsa_SidArray(sids)
+  .. msrpctypes.marshall_lsa_SidArray(sids)
 
   --    [out,unique]        lsa_RefDomainList *domains,
   --    [in,out] lsa_TransNameArray2 *names,
-  arguments = arguments .. msrpctypes.marshall_lsa_TransNameArray2(nil)
+  .. msrpctypes.marshall_lsa_TransNameArray2(nil)
 
   --    [in]         uint16 level,
-  arguments = arguments .. msrpctypes.marshall_int16(1)
+  .. msrpctypes.marshall_int16(1)
 
   --    [in,out] uint32 *count,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in]         uint32 unknown1,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in]         uint32 unknown2
-  arguments = arguments .. msrpctypes.marshall_int32(2)
+  .. msrpctypes.marshall_int32(2)
 
 
   -- Do the call
@@ -2421,7 +2409,7 @@ function winreg_openhku(smbstate)
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
 
   --    [in]      winreg_AccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
+  .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
 
   --    [out,ref] policy_handle *handle
 
@@ -2471,7 +2459,7 @@ function winreg_openhklm(smbstate)
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
 
   --    [in]      winreg_AccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
+  .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
 
   --    [out,ref] policy_handle *handle
 
@@ -2520,7 +2508,7 @@ function winreg_openhkpd(smbstate)
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
 
   --    [in]      winreg_AccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
+  .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
 
   --    [out,ref] policy_handle *handle
 
@@ -2569,7 +2557,7 @@ function winreg_openhkcu(smbstate)
   arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
 
   --    [in]      winreg_AccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
+  .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
 
   --    [out,ref] policy_handle *handle
 
@@ -2627,18 +2615,18 @@ function winreg_enumkey(smbstate, handle, index, name)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --    [in]            uint32           enum_index,
-  arguments = arguments .. msrpctypes.marshall_int32(index)
+  .. msrpctypes.marshall_int32(index)
 
   --    [in,out,ref]    winreg_StringBuf *name,
   -- NOTE: if the 'name' parameter here is set to 'nil', the service on a fully patched Windows 2000 system
   -- may crash.
-  arguments = arguments .. msrpctypes.marshall_winreg_StringBuf({name=""}, 520)
+  .. msrpctypes.marshall_winreg_StringBuf({name=""}, 520)
 
   --    [in,out,unique] winreg_StringBuf *keyclass,
-  arguments = arguments .. msrpctypes.marshall_winreg_StringBuf_ptr({name=nil})
+  .. msrpctypes.marshall_winreg_StringBuf_ptr({name=nil})
 
   --    [in,out,unique] NTTIME           *last_changed_time
-  arguments = arguments .. msrpctypes.marshall_NTTIME_ptr(0)
+  .. msrpctypes.marshall_NTTIME_ptr(0)
 
   -- Do the call
   status, result = call_function(smbstate, 0x09, arguments)
@@ -2697,13 +2685,13 @@ function winreg_openkey(smbstate, handle, keyname)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --    [in] winreg_String keyname,
-  arguments = arguments .. msrpctypes.marshall_winreg_String({name=keyname})
+  .. msrpctypes.marshall_winreg_String({name=keyname})
 
   --    [in] uint32 unknown,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --    [in] winreg_AccessMask access_mask,
-  arguments = arguments .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
+  .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
 
   --    [out,ref] policy_handle *handle
 
@@ -2757,7 +2745,7 @@ function winreg_queryinfokey(smbstate, handle)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --    [in,out,ref] winreg_String *classname,
-  arguments = arguments .. msrpctypes.marshall_winreg_String({name=""}, 2048)
+  .. msrpctypes.marshall_winreg_String({name=""}, 2048)
 
   --    [out,ref] uint32 *num_subkeys,
   --    [out,ref] uint32 *max_subkeylen,
@@ -2843,19 +2831,19 @@ function winreg_queryvalue(smbstate, handle, value)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --    [in] winreg_String value_name,
-  arguments = arguments .. msrpctypes.marshall_winreg_String({name=value})
+  .. msrpctypes.marshall_winreg_String({name=value})
 
   --    [in,out] winreg_Type *type,
-  arguments = arguments .. msrpctypes.marshall_winreg_Type_ptr("REG_NONE")
+  .. msrpctypes.marshall_winreg_Type_ptr("REG_NONE")
 
   --    [in,out,size_is(*size),length_is(*length)] uint8 *data,
-  arguments = arguments .. msrpctypes.marshall_int8_array_ptr("", 1000000)
+  .. msrpctypes.marshall_int8_array_ptr("", 1000000)
 
   --    [in,out] uint32 *size,
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(1000000)
+  .. msrpctypes.marshall_int32_ptr(1000000)
 
   --    [in,out] uint32 *length
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(0)
+  .. msrpctypes.marshall_int32_ptr(0)
 
   -- Do the call
   status, result = call_function(smbstate, 0x11, arguments)
@@ -2981,11 +2969,11 @@ function svcctl_openscmanagera(smbstate, machinename)
   arguments = msrpctypes.marshall_ascii_ptr("\\\\" .. machinename)
 
   --        [in] [string,charset(UTF16)] uint16 *DatabaseName,
-  arguments = arguments .. msrpctypes.marshall_ascii_ptr(nil)
+  .. msrpctypes.marshall_ascii_ptr(nil)
 
   --        [in] uint32 access_mask,
-  -- arguments = arguments .. msrpctypes.marshall_int32(0x000f003f)
-  arguments = arguments .. msrpctypes.marshall_int32(0x00000002)
+  -- .. msrpctypes.marshall_int32(0x000f003f)
+  .. msrpctypes.marshall_int32(0x00000002)
 
   --        [out,ref] policy_handle *handle
 
@@ -3042,11 +3030,11 @@ function svcctl_openscmanagerw(smbstate, machinename)
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. machinename, true)
 
   --        [in] [string,charset(UTF16)] uint16 *DatabaseName,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil, true)
+  .. msrpctypes.marshall_unicode_ptr(nil, true)
 
   --        [in] uint32 access_mask,
-  -- arguments = arguments .. msrpctypes.marshall_int32(0x000f003f)
-  arguments = arguments .. msrpctypes.marshall_int32(0x02000000)
+  -- .. msrpctypes.marshall_int32(0x000f003f)
+  .. msrpctypes.marshall_int32(0x02000000)
 
   --        [out,ref] policy_handle *handle
 
@@ -3143,46 +3131,46 @@ function svcctl_createservicew(smbstate, handle, service_name, display_name, pat
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --        [in] [string,charset(UTF16)] uint16 ServiceName[],
-  arguments = arguments .. msrpctypes.marshall_unicode(service_name, true)
+  .. msrpctypes.marshall_unicode(service_name, true)
 
   --        [in] [string,charset(UTF16)] uint16 *DisplayName,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(display_name, true)
+  .. msrpctypes.marshall_unicode_ptr(display_name, true)
 
   --        [in] uint32 desired_access,
-  arguments = arguments .. msrpctypes.marshall_int32(0x000f01ff) -- Access: Max
+  .. msrpctypes.marshall_int32(0x000f01ff) -- Access: Max
 
   --        [in] uint32 type,
-  arguments = arguments .. msrpctypes.marshall_int32(0x00000010) -- Type: own process
+  .. msrpctypes.marshall_int32(0x00000010) -- Type: own process
 
   --        [in] uint32 start_type,
-  arguments = arguments .. msrpctypes.marshall_int32(0x00000003) -- Start: Demand
+  .. msrpctypes.marshall_int32(0x00000003) -- Start: Demand
 
   --        [in] uint32 error_control,
-  arguments = arguments .. msrpctypes.marshall_int32(0x00000000) -- Error: Ignore
+  .. msrpctypes.marshall_int32(0x00000000) -- Error: Ignore
 
   --        [in] [string,charset(UTF16)] uint16 binary_path[],
-  arguments = arguments .. msrpctypes.marshall_unicode(path, true)
+  .. msrpctypes.marshall_unicode(path, true)
 
   --        [in] [string,charset(UTF16)] uint16 *LoadOrderGroupKey,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
+  .. msrpctypes.marshall_unicode_ptr(nil)
 
   --        [in,out] uint32 *TagId,
-  arguments = arguments .. msrpctypes.marshall_int32_ptr(nil)
+  .. msrpctypes.marshall_int32_ptr(nil)
 
   --        [in,size_is(dependencies_size)] uint8 *dependencies,
-  arguments = arguments .. msrpctypes.marshall_int8_ptr(nil)
+  .. msrpctypes.marshall_int8_ptr(nil)
 
   --        [in] uint32 dependencies_size,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --        [in] [string,charset(UTF16)] uint16 *service_start_name,
-  arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
+  .. msrpctypes.marshall_unicode_ptr(nil)
 
   --        [in,size_is(password_size)] uint8 *password,
-  arguments = arguments .. msrpctypes.marshall_int8_ptr(nil)
+  .. msrpctypes.marshall_int8_ptr(nil)
 
   --        [in] uint32 password_size,
-  arguments = arguments .. msrpctypes.marshall_int32(0)
+  .. msrpctypes.marshall_int32(0)
 
   --        [out,ref] policy_handle *handle
 
@@ -3297,10 +3285,10 @@ function svcctl_openservicew(smbstate, handle, name)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --        [in] [string,charset(UTF16)] uint16 ServiceName[],
-  arguments = arguments .. msrpctypes.marshall_unicode(name, true)
+  .. msrpctypes.marshall_unicode(name, true)
 
   --        [in] uint32 access_mask,
-  arguments = arguments .. msrpctypes.marshall_int32(0x000f01ff)
+  .. msrpctypes.marshall_int32(0x000f01ff)
   --        [out,ref] policy_handle *handle
 
 
@@ -3352,14 +3340,10 @@ function svcctl_startservicew(smbstate, handle, args)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --        [in] uint32 NumArgs,
-  if(args == nil) then
-    arguments = arguments .. msrpctypes.marshall_int32(0)
-  else
-    arguments = arguments .. msrpctypes.marshall_int32(#args)
-  end
+  .. (args and msrpctypes.marshall_int32(#args) or msrpctypes.marshall_int32(0))
 
   --        [in/*FIXME:,length_is(NumArgs)*/] [string,charset(UTF16)] uint16 *Arguments
-  arguments = arguments .. msrpctypes.marshall_unicode_array_ptr(args, true)
+  .. msrpctypes.marshall_unicode_array_ptr(args, true)
 
   -- Do the call
   status, result = call_function(smbstate, 0x13, arguments)
@@ -3408,7 +3392,7 @@ function svcctl_controlservice(smbstate, handle, control)
   arguments = msrpctypes.marshall_policy_handle(handle)
 
   --        [in] uint32 control,
-  arguments = arguments .. msrpctypes.marshall_svcctl_ControlCode(control)
+  .. msrpctypes.marshall_svcctl_ControlCode(control)
 
   --        [out,ref] SERVICE_STATUS *service_status
 
@@ -3520,7 +3504,7 @@ function atsvc_jobadd(smbstate, server, command, time)
   arguments = msrpctypes.marshall_unicode_ptr(server, true)
 
   --        [in] atsvc_JobInfo *job_info,
-  arguments = arguments .. msrpctypes.marshall_atsvc_JobInfo(command, time)
+  .. msrpctypes.marshall_atsvc_JobInfo(command, time)
   --        [out,ref]    uint32 *job_id
 
 
@@ -4897,7 +4881,7 @@ function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
   --[in, out, unique, size_is(dwcbBufSize) PBYTE pReqBuffer,
   req_blob = bin.pack("<IIAA", 0x20000, dwcbBufSize, pReqBuffer, get_pad(pReqBuffer,4)) --unique pointer see samba:ndr_push_unique_ptr
   --[in] DWORD dwcbBufSize
-  req_blob = req_blob .. msrpctypes.marshall_int32(dwcbBufSize)
+  .. msrpctypes.marshall_int32(dwcbBufSize)
   --call the function
   local status, result
   stdnse.debug(

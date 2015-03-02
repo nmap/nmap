@@ -2150,7 +2150,7 @@ local function send_transaction2(smb, sub_command, function_parameters, function
     )
 
   local data = "\0\0\0" .. (function_parameters or '')
-  data = data .. (function_data or '')
+  .. (function_data or '')
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION2")
@@ -2262,8 +2262,23 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
     data_size         = #function_data
   end
 
+  local setup
+  if(no_setup) then
+    setup = bin.pack("<CC",
+      0x00,                            -- Number of 'setup' words (none)
+      0x00                             -- Reserved.
+      )
+  else
+    setup = bin.pack("<CCSS",
+      0x02,                            -- Number of 'setup' words
+      0x00,                            -- Reserved.
+      0x0026,                          -- Function to call.
+      smb['fid']                       -- Handle to open file
+      )
+  end
+
   -- Parameters are 0x20 bytes long.
-  parameters = bin.pack("<SSSSCCSISSSSS",
+  parameters = bin.pack("<SSSSCCSISSSSSA",
     parameter_size,                  -- Total parameter count.
     data_size,                       -- Total data count.
     0x0008,                          -- Max parameter count.
@@ -2276,28 +2291,14 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
     parameter_size,                  -- Parameter bytes.
     parameter_offset,                -- Parameter offset.
     data_size,                       -- Data bytes.
-    data_offset                      -- Data offset.
+    data_offset,                     -- Data offset.
+    setup
     )
 
-  if(no_setup) then
-    parameters = parameters .. bin.pack("<CC",
-      0x00,                            -- Number of 'setup' words (none)
-      0x00                             -- Reserved.
-      )
-  else
-    parameters = parameters .. bin.pack("<CCSS",
-      0x02,                            -- Number of 'setup' words
-      0x00,                            -- Reserved.
-      0x0026,                          -- Function to call.
-      smb['fid']                       -- Handle to open file
-      )
-  end
-
   data = bin.pack("<z", pipe)
-  data = data .. bin.pack("<I", 0) -- Padding
-
-  data = data .. (function_parameters or '')
-  data = data .. (function_data or '')
+  .. bin.pack("<I", 0) -- Padding
+  .. (function_parameters or '')
+  .. (function_data or '')
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
@@ -2715,12 +2716,10 @@ function find_files(smbstate, fname, options)
     ( options.srch_attrs.archive and 32 or 0 ))
 
   if ( not(fname) ) then
-    fname = '\\*'
+    fname = '\\*\0'
   elseif( fname:sub(1,1) ~= '\\' ) then
-    fname = '\\' .. fname
+    fname = '\\' .. fname .. '\0'
   end
-
-  fname = fname .. '\0'
 
   -- Sends the request and takes care of short/fragmented responses
   local function send_and_receive_find_request(smbstate, trans_type, function_parameters)

@@ -177,10 +177,9 @@ Packet = {
       self.ncp_ip.length or 0, self.ncp_ip.version,
       self.ncp_ip.replybuf, self.type, self.seqno,
       self.conn, self.task, UNKNOWN, self.func )
-
-    if ( self.length ) then data = data .. bin.pack(">S", self.length) end
-    if ( self.subfunc ) then data = data .. bin.pack("C", self.subfunc) end
-    if ( self.data ) then data = data .. bin.pack("A", self.data) end
+    .. (self.length and bin.pack(">S", self.length) or "")
+    .. (self.subfunc and bin.pack("C", self.subfunc) or "")
+    .. (self.data or "")
 
     return data
   end,
@@ -944,10 +943,10 @@ NCP = {
     unknown, iter_handle, entry.id, info_flags )
 
     -- no name filter
-    data = data .. "\0\0\0\0"
+    .. "\0\0\0\0"
 
     -- no class filter
-    data = data .. "\0\0\0\0"
+    .. "\0\0\0\0"
 
     p:setData(data)
     local status, entries = self:Exch( p )

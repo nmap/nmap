@@ -165,9 +165,9 @@ Decoders = {
   -- @return status true on success, false on failure
   -- @return err string containing the error message
   ['error'] = function( data )
-    local response = "Failed to decode response from device: "
     local err = data:match("<SOAP.-ENV:Reason><SOAP.-ENV:Text>(.-)<")
-    response = response .. (err or "Unknown error")
+    local response = "Failed to decode response from device: "
+    .. (err or "Unknown error")
 
     return true, response
   end,
