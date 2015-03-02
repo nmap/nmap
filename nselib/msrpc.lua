@@ -1110,7 +1110,7 @@ function spoolss_write_printer(smbstate,printer_handle,data)
   local padding_len = 4 - math.fmod(#data,4)
   local data_padding = nil
   if not (padding_len == 4) then
-    data_padding = string.rep(bin.pack("H","00"),padding_len)
+    data_padding = string.rep('\0', padding_len)
   end
   local arguments = printer_handle ..  msrpctypes.marshall_int32(#data)
   --..  msrpctypes.marshall_int32(#data)
@@ -1189,7 +1189,7 @@ end
 --@return (status,lookup_result) If status is false, lookup_result contains an error string, otherwise it's a lookup response table.
 function epmapper_lookup(smbstate,handle)
   if handle == nil then -- if it's a first request, send a null handle
-    handle = bin.pack("H","0000000000000000000000000000000000000000")
+    handle = string.rep('\0', 20)
   end
   -- void ept_lookup(
   -- [in]            handle_t            h,

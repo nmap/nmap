@@ -46,7 +46,7 @@ tagEncoder['table'] = function(self, val)
     encVal = encVal .. self:encode(v) -- todo: buffer?
   end
 
-  local tableType = bin.pack("H", "30")
+  local tableType = "\x30"
   if (val["_snmp"]) then
     tableType = bin.pack("H", val["_snmp"])
   end
