@@ -242,19 +242,19 @@ local function processConnection( host, port, data )
     end
   end
 
-  local filecontent = ""
+  local filecontent = {}
 
   -- Make sure we received all the blocks needed to proceed
   for i=1, #blocks do
     if ( not(blocks[i]) ) then
       return false, ("Block #%d was missing in transfer")
     end
-    filecontent = filecontent .. blocks[i]
+    filecontent[#filecontent+1] = blocks[i]
   end
   stdnse.debug1("Finished receiving file \"%s\"", filename)
 
   -- Add  anew file to the global infiles table
-  table.insert( infiles, File:new(filename, filecontent, host) )
+  table.insert( infiles, File:new(filename, table.concat(filecontent), host) )
 
   local condvar = nmap.condvar(infiles)
   condvar "broadcast"

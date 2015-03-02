@@ -403,8 +403,7 @@ function unbindRequest( socket )
   encoder:registerTagEncoders(tagEncoder)
 
   ldapMessageId = ldapMessageId +1
-  ldapMsg = encode( ldapMessageId )
-  ldapMsg = ldapMsg .. encodeLDAPOp( APPNO.UnbindRequest, false, nil)
+  ldapMsg = encode( ldapMessageId ) .. encodeLDAPOp( APPNO.UnbindRequest, false, nil)
   packet = encoder:encodeSeq( ldapMsg )
   try( socket:send( packet ) )
   return true, ""

@@ -150,8 +150,7 @@ Helper = {
 
     status, data = DominoPacket:new():read( self.domsock )
 
-    id_data = id_data:sub(33)
-    id_data = id_data .. data:sub(11, total_len - #id_data + 11)
+    id_data = id_data:sub(33) .. data:sub(11, total_len - #id_data + 11)
 
     return true, id_data
   end,

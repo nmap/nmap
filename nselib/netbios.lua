@@ -299,9 +299,7 @@ function do_nbstat(host)
   0,       -- Answers
   0,       -- Authority
   0        -- Extra
-  )
-
-  query = query .. bin.pack(">zSS",
+  ) .. bin.pack(">zSS",
   encoded_name, -- Encoded name
   0x0021,       -- Query type (0x21 = NBSTAT)
   0x0001        -- Class = IN

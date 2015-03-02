@@ -306,11 +306,7 @@ DRDAParameter = {
   --
   -- @return data string containing the DRDA Parameter
   __tostring = function( self )
-    local data = bin.pack(">SS", self.Length, self.CodePoint )
-    if ( self.Data ) then
-      data = data .. bin.pack("A", self.Data)
-    end
-    return data
+    return bin.pack(">SSA", self.Length, self.CodePoint, self.Data or "" )
   end,
 
   --- Builds a DRDA Parameter from a string

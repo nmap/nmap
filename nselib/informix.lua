@@ -722,8 +722,9 @@ Packet.SQ_INFO =
       end
     end
 
-    data = bin.pack(">SSSSS", Constants.Message.SQ_INFO, 0x0006, #params + 6, 0x000c, 0x0004 )
-    data = data .. params .. bin.pack(">SSS", 0x0000, 0x0000, Constants.Message.SQ_EOT)
+    data = bin.pack(">SSSSSASSS", Constants.Message.SQ_INFO, 0x0006,
+      #params + 6, 0x000c, 0x0004, params, 0x0000, 0x0000,
+      Constants.Message.SQ_EOT)
     return data
   end
 }

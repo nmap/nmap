@@ -68,15 +68,19 @@ Packet = {
     end,
 
     __tostring = function(self)
-      local len = (self.code ~= 0xF0 and #self.data + 1 or 2)
-      local data = bin.pack("CC",
-        len,
-        self.code or 0
-      )
-
-      if ( self.code == 0xF0 ) then
-        data = data .. "\x80" -- EOT
+      local len, eot
+      if self.code == 0xF0 then
+        eot = "\x80"
+        len = 2
+      else
+        eot = ""
+        len = #self.data + 1
       end
+      local data = bin.pack("CCA",
+        len,
+        self.code or 0,
+        eot
+      )
 
       return data .. self.data
     end,

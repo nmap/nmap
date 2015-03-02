@@ -689,9 +689,8 @@ local l_update_id = function(fid_table, id_type, id, vuln_table)
   local push_table = fid_table[id_type][id]['ENTRIES']
 
   if vuln_table.host and next(vuln_table.host) then
-    local host_info = string_format(" (host:%s", vuln_table.host.ip)
     local target_key = l_get_host_port_key(vuln_table)
-    host_info = host_info..string_format(" %s)", target_key)
+    local host_info = string_format(" (host:%s %s)", vuln_table.host.ip, target_key)
 
     debug(5,
       "vulns.lua: Updating VULNS.FILTERS_IDS{} with '%s' ID:%s:%s %s",
@@ -1006,10 +1005,8 @@ local l_add = function(vulndb, vuln_table)
 
   local host_info, target_key = "", ""
   if vuln_table.host and next(vuln_table.host) then
-    host_info = string_format(" (host:%s", vuln_table.host.ip)
-
     target_key = l_get_host_port_key(vuln_table)
-    host_info = host_info..string_format(" %s)", target_key)
+    host_info = string_format(" (host:%s %s)", vuln_table.host.ip, target_key)
   end
 
   -- Search the Filters IDS for the vulnerability
@@ -1817,18 +1814,16 @@ local format_vuln_base = function(vuln_table, showall)
       string_format("  State: %s", STATE_MSG[vuln_table.state]))
 
   if vuln_table.IDS and next(vuln_table.IDS) then
-    local ids_str = ""
     local ids_t = {}
     for id_type, id in pairs(vuln_table.IDS) do
       -- ignore internal NMAP IDs
       if id_type ~= 'NMAP_ID' then
-        ids_str = ids_str .. string_format("  %s:%s", id_type, id)
         table.insert(ids_t, string_format("%s:%s", id_type, id))
       end
     end
 
-    if ids_str:len() > 0 then
-      insert(out, string_format("  IDs:%s", ids_str))
+    if next(ids_t) then
+      insert(out, string_format("  IDs:  %s", table.concat(ids_t, "  ")))
       output_table.ids = ids_t
     end
   end
@@ -1852,10 +1847,8 @@ local format_vuln_base = function(vuln_table, showall)
     if vuln_table.description then
       local desc = format_vuln_special_fields(vuln_table.description)
       if desc then
-        local desc_str = ""
         for _, line in ipairs(desc) do
           insert(out, string_format("    %s", line))
-          desc_str = desc_str .. line
         end
         output_table.description = vuln_table.description
       end
