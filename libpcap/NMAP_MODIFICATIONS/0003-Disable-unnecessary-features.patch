@@ -1,7 +1,29 @@
+The following features are disabled:
+
+* monitor-mode sniffing of wireless interfaces on Linux, via libnl
+* building shared libraries
+* Bluetooth support
+* canusb support
+* CAN support
+* dbus capture support
+
 diff --git a/libpcap/configure.in b/libpcap/configure.in
 index 5386062..8ceddd7 100644
 --- a/libpcap/configure.in
 +++ b/libpcap/configure.in
+@@ -441,10 +441,10 @@ linux)
+ 	# Do we have libnl?
+ 	#
+ 	AC_ARG_WITH(libnl,
+-	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
++	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
+ 		with_libnl=$withval,,)
+ 
+-	if test x$with_libnl != xno ; then
++	if test x$with_libnl = xyes ; then
+ 		have_any_nl="no"
+ 
+ 		#
 @@ -1285,8 +1285,8 @@ solaris*)
  esac
  
