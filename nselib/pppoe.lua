@@ -448,7 +448,7 @@ PPPoE = {
         header = PPPoE.Header:new(PPPoE.Code.PADI),
         tags = tags or {
           PPPoE.Tag:new(PPPoE.TagType.SERVICE_NAME),
-          PPPoE.Tag:new(PPPoE.TagType.HOST_UNIQUE,  bin.pack("A", c))
+          PPPoE.Tag:new(PPPoE.TagType.HOST_UNIQUE, c)
         }
       }
       setmetatable(o, self)
@@ -950,7 +950,7 @@ Helper = {
     local auth_proposed = config_req.options:getById(LCP.ConfigOption.AUTH_PROTO)
 
     if ( auth_proposed.raw ~= auth_data ) then
-      local options = { LCP.ConfigOption:new(LCP.ConfigOption.AUTH_PROTO, nil, bin.pack("A", auth_data)) }
+      local options = { LCP.ConfigOption:new(LCP.ConfigOption.AUTH_PROTO, nil, auth_data) }
       local lcp_req = LCP.ConfigNak:new(self.identifier, options)
       local sess_req = PPPoE.SessionData:new(self.session, tostring(lcp_req))
       local status, resp = self.comm:exch(sess_req)

@@ -1945,9 +1945,8 @@ NFS = {
       return false, "FsStat: No filehandle received"
     end
 
-    data = bin.pack("A", file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSSTAT,
-      {type = Portmap.AuthType.UNIX}, data)
+      {type = Portmap.AuthType.UNIX}, file_handle)
 
     if (not(comm:SendPacket(packet))) then
       return false, "FsStat: Failed to send data"

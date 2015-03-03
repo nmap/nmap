@@ -203,7 +203,7 @@ function encodeLDAPOp( appno, isConstructed, data )
   local encoded_str = ""
   local asn1_type = asn1.BERtoInt( asn1.BERCLASS.Application, isConstructed, appno )
 
-  encoded_str = encode( { _ldaptype = bin.pack("A", string.format("%X", asn1_type)), data } )
+  encoded_str = encode( { _ldaptype = string.format("%X", asn1_type), data } )
   return encoded_str
 end
 
@@ -512,7 +512,7 @@ function createFilter( filter )
     filter_str = filter_str .. obj .. val
 
   end
-  return encode( { _ldaptype=bin.pack("A", string.format("%X", asn1_type)), filter_str } )
+  return encode( { _ldaptype=string.format("%X", asn1_type), filter_str } )
 end
 
 --- Converts a search result as received from searchRequest to a "result" table

@@ -154,7 +154,7 @@ end
 -- different hosts
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return bin.pack('A', ip.ip_bin_dst)
+  return ip.ip_bin_dst
 end
 
 -- Updates a packet's info and calculates checksum
@@ -341,7 +341,7 @@ action = function(host)
         end
       end
 
-      local test = bin.pack('A', pkt.ip_bin_src)
+      local test = pkt.ip_bin_src
       local status, length, _, layer3 = pcap:pcap_receive()
       while status and test ~= check(layer3) do
         status, length, _, layer3 = pcap:pcap_receive()

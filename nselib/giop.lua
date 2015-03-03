@@ -295,8 +295,7 @@ Packet.GIOP.get = {
     local pad = 0
 
     for i=1, #self.sc do
-      local tmp = tostring( self.sc[i])
-      data = data .. bin.pack("A", tmp )
+      data = data .. tostring( self.sc[i])
     end
 
     data = data .. bin.pack( ">ICCCCIIIAIA", self.id, self.resp_expected, pad, pad, pad,
@@ -347,8 +346,7 @@ Packet.GIOP._is_a =
     UNKNOWN, #self.key_addr, self.key_addr, #self.op, self.op, UNKNOWN2, #self.sc )
 
     for i=1, #self.sc do
-      local tmp = tostring( self.sc[i])
-      data = data .. bin.pack("A", tmp )
+      data = data .. tostring( self.sc[i])
     end
 
     data = data .. bin.pack(">IA", #TYPE_ID, TYPE_ID)
@@ -403,8 +401,7 @@ Packet.GIOP.list =
       #self.op, self.op, RESERVED, RESERVED, UNKNOWN2, #self.sc )
 
     for i=1, #self.sc do
-      local tmp = tostring( self.sc[i])
-      data = data .. bin.pack("A", tmp )
+      data = data .. tostring( self.sc[i])
     end
 
     data = data .. bin.pack(">II", UNKNOWN3, self.how_many )
