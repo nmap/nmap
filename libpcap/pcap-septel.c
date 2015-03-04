@@ -55,7 +55,7 @@ static int septel_setnonblock(pcap_t *p, int nonblock, char *errbuf);
  */
 struct pcap_septel {
 	struct pcap_stat stat;
-}
+};
 
 /*
  *  Read at most max_packets from the capture queue and call the callback
