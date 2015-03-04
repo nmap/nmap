@@ -2,12 +2,12 @@
 .\"     Title: nping
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/22/2014
+.\"      Date: 03/03/2015
 .\"    Manual: Nping Reference Guide
 .\"    Source: Nping
 .\"  Language: English
 .\"
-.TH "NPING" "1" "10/22/2014" "Nping" "Nping Reference Guide"
+.TH "NPING" "1" "03/03/2015" "Nping" "Nping Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -222,8 +222,7 @@ SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
 .PP
 Everything on the Nping command line that isn\*(Aqt an option or an option argument is treated as a target host specification\&. Nping uses the same syntax for target specifications that Nmap does\&. The simplest case is a single target given by IP address or hostname\&.
 .PP
-Nping supports CIDR\-style
-.\" CIDR (Classless Inter-Domain Routing)
+Nping supports CIDR\-style.\" CIDR (Classless Inter-Domain Routing)
 addressing\&. You can append
 /\fInumbits\fR
 to an IPv4 address or hostname and Nping will send probes to every IP address for which the first
@@ -234,8 +233,7 @@ would send probes to the 256 hosts between 192\&.168\&.10\&.0 (binary:
 11000000 10101000 00001010 00000000) and 192\&.168\&.10\&.255 (binary:
 11000000 10101000 00001010 11111111), inclusive\&.
 192\&.168\&.10\&.40/24
-would ping exactly the same targets\&. Given that the host scanme\&.nmap\&.org
-.\" scanme.nmap.org
+would ping exactly the same targets\&. Given that the host scanme\&.nmap\&.org.\" scanme.nmap.org
 is at the IP address 64\&.13\&.134\&.52, the specification
 scanme\&.nmap\&.org/16
 would send probes to the 65,536 IP addresses between 64\&.13\&.0\&.0 and 64\&.13\&.255\&.255\&. The smallest allowed value is
@@ -392,8 +390,7 @@ TCP is the mode that lets users create and send any kind of TCP packet\&. TCP pa
 .RS 4
 UDP mode can have two different behaviours\&. Under normal circumstances, it lets users create custom IP/UDP packets\&. However, if Nping is run by a user without raw packet privileges and no changes to the default protocol headers are requested, then Nping enters the unprivileged UDP mode which basically sends UDP packets to the specified target hosts and ports using the
 sendto
-system call\&. Note that in this unprivileged mode it is not possible to see low\-level header information of the packets on the wire but only status information about the amount of bytes that are being transmitted and received\&. UDP mode can be used to interact with any UDP\-based server\&. Examples are DNS servers, streaming servers, online gaming servers, and port knocking/single\-packet
-.\" port knocking
+system call\&. Note that in this unprivileged mode it is not possible to see low\-level header information of the packets on the wire but only status information about the amount of bytes that are being transmitted and received\&. UDP mode can be used to interact with any UDP\-based server\&. Examples are DNS servers, streaming servers, online gaming servers, and port knocking/single\-packet.\" port knocking
 authorization daemons\&.
 .RE
 .PP
@@ -519,8 +516,7 @@ Set by an ECN\-Capable sender when it reduces its congestion window (due to a re
 .PP
 ECN (Explicit Congestion Notification) .\" ECN (TCP flag)
 .RS 4
-During the three\-way handshake it indicates that sender is capable of performing explicit congestion notification\&. Normally it means that a packet with the IP Congestion Experienced flag set was received during normal transmission\&. See RFC 3168
-.\" RFC 3168
+During the three\-way handshake it indicates that sender is capable of performing explicit congestion notification\&. Normally it means that a packet with the IP Congestion Experienced flag set was received during normal transmission\&. See RFC 3168.\" RFC 3168
 for more information\&.
 .RE
 .PP
@@ -694,8 +690,7 @@ is as with
 .\" ICMP types: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the ICMP type numbers given to the
-\fB\-\-icmp\-type\fR
-.\" --icmp-type (Nping option)
+\fB\-\-icmp\-type\fR.\" --icmp-type (Nping option)
 option\&. In general there are three forms of each identifier: the full name (e\&.g\&.
 destination\-unreachable), the short name (e\&.g\&.
 dest\-unr), or the initials (e\&.g\&.
@@ -787,8 +782,7 @@ Address Mask Reply (type 18)\&. This message contains a subnet mask and is sent 
 .PP
 traceroute, trace, tc
 .RS 4
-Traceroute (type 30)\&. This message is normally sent by an intermediate device when it receives an IP datagram with a traceroute option\&. ICMP Traceroute messages are still experimental, see RFC 1393
-.\" RFC 1393
+Traceroute (type 30)\&. This message is normally sent by an intermediate device when it receives an IP datagram with a traceroute option\&. ICMP Traceroute messages are still experimental, see RFC 1393.\" RFC 1393
 for more information\&.
 .RE
 .\" 
@@ -796,8 +790,7 @@ for more information\&.
 .\" ICMP codes: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the ICMP code numbers given to the
-\fB\-\-icmp\-code\fR
-.\" --icmp-code (Nping option)
+\fB\-\-icmp\-code\fR.\" --icmp-code (Nping option)
 option\&. They are listed by the ICMP type they correspond to\&.
 .sp
 .it 1 an-trap
@@ -899,8 +892,7 @@ Code 15\&. Precedence value in the IP TOS field is lower than the minimum allowe
 .PP
 redirect\-network, redi\-net, net
 .RS 4
-Code 0\&. Redirect all future datagrams with the same destination network as the original datagram, to the router specified in the Address field\&. The use of this code is prohibited by RFC 1812\&.
-.\" RFC 1812
+Code 0\&. Redirect all future datagrams with the same destination network as the original datagram, to the router specified in the Address field\&. The use of this code is prohibited by RFC 1812\&..\" RFC 1812
 .RE
 .PP
 redirect\-host, redi\-host, host
@@ -1026,8 +1018,7 @@ This option sets the Target IP field of the ARP header\&.
 .\" ARP types: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the ARP type numbers given to the
-\fB\-\-arp\-type\fR
-.\" --arp-type (Nping option)
+\fB\-\-arp\-type\fR.\" --arp-type (Nping option)
 option\&.
 .PP
 arp\-request, arp, a
@@ -1042,8 +1033,7 @@ ARP Reply (type 2)\&. An ARP reply is a message that a host sends in response to
 .PP
 rarp\-request, rarp, r
 .RS 4
-RARP Requests (type 3)\&. RARP requests are used to translate a link layer address (normally a MAC address) to a network layer address (usually an IP address)\&. Basically a RARP request is a broadcasted message sent by a host that wants to know his own IP address because it doesn\*(Aqt have any\&. It was the first protocol designed to solve the bootstrapping problem\&. However, RARP is now obsolete and DHCP is used instead\&. For more information about RARP see RFC 903\&.
-.\" RFC 903
+RARP Requests (type 3)\&. RARP requests are used to translate a link layer address (normally a MAC address) to a network layer address (usually an IP address)\&. Basically a RARP request is a broadcasted message sent by a host that wants to know his own IP address because it doesn\*(Aqt have any\&. It was the first protocol designed to solve the bootstrapping problem\&. However, RARP is now obsolete and DHCP is used instead\&. For more information about RARP see RFC 903\&..\" RFC 903
 .RE
 .PP
 rarp\-reply, rarp\-rep, rr
@@ -1053,8 +1043,7 @@ RARP Reply (type 4)\&. A RARP reply is a message sent in response to a RARP requ
 .PP
 drarp\-request, drarp, d
 .RS 4
-Dynamic RARP Request (type 5)\&. Dynamic RARP is an extension to RARP used to obtain or assign a network layer address from a fixed link layer address\&. DRARP was used mainly in Sun Microsystems platforms in the late 90\*(Aqs but now it\*(Aqs no longer used\&. See RFC 1931
-.\" RFC 1931
+Dynamic RARP Request (type 5)\&. Dynamic RARP is an extension to RARP used to obtain or assign a network layer address from a fixed link layer address\&. DRARP was used mainly in Sun Microsystems platforms in the late 90\*(Aqs but now it\*(Aqs no longer used\&. See RFC 1931.\" RFC 1931
 for more information\&.
 .RE
 .PP
@@ -1070,8 +1059,7 @@ DRARP Error (type 7)\&. DRARP Error messages are usually sent in response to DRA
 .PP
 inarp\-request, inarp, i
 .RS 4
-Inverse ARP Request (type 8)\&. InARP requests are used to translate a link layer address to a network layer address\&. It is similar to RARP request but in this case, the sender of the InARP request wants to know the network layer address of another node, not its own address\&. InARP is mainly used in Frame Relay and ATM networks\&. For more information see RFC 2390\&.
-.\" RFC 2390
+Inverse ARP Request (type 8)\&. InARP requests are used to translate a link layer address to a network layer address\&. It is similar to RARP request but in this case, the sender of the InARP request wants to know the network layer address of another node, not its own address\&. InARP is mainly used in Frame Relay and ATM networks\&. For more information see RFC 2390\&..\" RFC 2390
 .RE
 .PP
 inarp\-reply, inarp\-rep, ir
@@ -1081,8 +1069,7 @@ Inverse ARP Reply (type 9)\&. InARP reply messages are sent in response to InARP
 .PP
 arp\-nak, an
 .RS 4
-ARP NAK (type 10)\&. ARP NAK messages are an extension to the ATMARP protocol and they are used to improve the robustness of the ATMARP server mechanism\&. With ARP NAK, a client can determine the difference between a catastrophic server failure and an ATMARP table lookup failure\&. See RFC 1577
-.\" RFC 1577
+ARP NAK (type 10)\&. ARP NAK messages are an extension to the ATMARP protocol and they are used to improve the robustness of the ATMARP server mechanism\&. With ARP NAK, a client can determine the difference between a catastrophic server failure and an ATMARP table lookup failure\&. See RFC 1577.\" RFC 1577
 for more information\&.
 .RE
 .\" 
@@ -1103,8 +1090,7 @@ the section called \(lqTARGET SPECIFICATION\(rq\&.
 .PP
 \fB\-\-tos \fR\fB\fItos\fR\fR (Type of Service) .\" --tos (Nping option)
 .RS 4
-Sets the IP TOS field\&. The TOS field is used to carry information to provide quality of service features\&. It is normally used to support a technique called Differentiated Services\&. See RFC 2474
-.\" RFC 2474
+Sets the IP TOS field\&. The TOS field is used to carry information to provide quality of service features\&. It is normally used to support a technique called Differentiated Services\&. See RFC 2474.\" RFC 2474
 for more information\&.
 \fItos\fR
 must be a number in the range [0\(en255]\&.
@@ -1200,8 +1186,7 @@ the section called \(lqTARGET SPECIFICATION\(rq\&.
 .PP
 \fB\-\-flow \fR\fB\fIlabel\fR\fR (Flow Label) .\" --flow (Nping option)
 .RS 4
-Sets the IPv6 Flow Label\&. The Flow Label field is 20 bits long and is intended to provide certain quality\-of\-service properties for real\-time datagram delivery\&. However, it has not been widely adopted, and not all routers or endpoints support it\&. Check RFC 2460
-.\" RFC 2560
+Sets the IPv6 Flow Label\&. The Flow Label field is 20 bits long and is intended to provide certain quality\-of\-service properties for real\-time datagram delivery\&. However, it has not been widely adopted, and not all routers or endpoints support it\&. Check RFC 2460.\" RFC 2560
 for more information\&.
 \fIlabel\fR
 must be an integer in the range [0\(en1048575]\&.
@@ -1209,8 +1194,7 @@ must be an integer in the range [0\(en1048575]\&.
 .PP
 \fB\-\-traffic\-class \fR\fB\fIclass\fR\fR (Traffic Class) .\" --traffic-class (Nping option)
 .RS 4
-Sets the IPv6 Traffic Class\&. This field is similar to the TOS field in IPv4, and is intended to provide the Differentiated Services method, enabling scalable service discrimination in the Internet without the need for per\-flow state and signaling at every hop\&. Check RFC 2474
-.\" RFC 2474
+Sets the IPv6 Traffic Class\&. This field is similar to the TOS field in IPv4, and is intended to provide the Differentiated Services method, enabling scalable service discrimination in the Internet without the need for per\-flow state and signaling at every hop\&. Check RFC 2474.\" RFC 2474
 for more information\&.
 \fIclass\fR
 must be an integer in the range [0\(en255]\&.
@@ -1262,8 +1246,7 @@ the section called \(lqEthernet Types\(rq\&.
 .\" Ethernet types: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the Ethertype numbers given to the
-\fB\-\-arp\-type\fR
-.\" --arp-type (Nping option)
+\fB\-\-arp\-type\fR.\" --arp-type (Nping option)
 option\&.
 .PP
 ipv4, ip, 4
@@ -1616,8 +1599,7 @@ must be the name of an existing network interface with an assigned IP address\&.
 \fB\-\-privileged\fR (Assume that the user is fully privileged) .\" --privileged (Nping option)
 .RS 4
 Tells Nping to simply assume that it is privileged enough to perform raw socket sends, packet sniffing, and similar operations that usually require special privileges\&. By default Nping quits if such operations are requested by a user that has no root or administrator privileges\&. This option may be useful on Linux, BSD or similar systems that can be configured to allow unprivileged users to perform raw\-packet transmissions\&. The
-\fBNPING_PRIVILEGED\fR
-.\" NPING_PRIVILEGED environment variable
+\fBNPING_PRIVILEGED\fR.\" NPING_PRIVILEGED environment variable
 environment variable may be set as an alternative to using
 \fB\-\-privileged\fR\&.
 .RE
@@ -1626,8 +1608,7 @@ environment variable may be set as an alternative to using
 .RS 4
 This option is the opposite of
 \fB\-\-privileged\fR\&. It tells Nping to treat the user as lacking network raw socket and sniffing privileges\&. This is useful for testing, debugging, or when the raw network functionality of your operating system is somehow broken\&. The
-\fBNPING_UNPRIVILEGED\fR
-.\" NPING_UNPRIVILEGED environment variable
+\fBNPING_UNPRIVILEGED\fR.\" NPING_UNPRIVILEGED environment variable
 environment variable may be set as an alternative to using
 \fB\-\-unprivileged\fR\&.
 .RE
@@ -1646,8 +1627,7 @@ option\&.
 .PP
 \fB\-\-bpf\-filter \fR\fB\fIfilter spec\fR\fR \fB\-\-filter \fR\fB\fIfilter spec\fR\fR (Set custom BPF filter) .\" --bpf-filter (Nping option) .\" --filter (Nping option)
 .RS 4
-This option lets you use a custom BPF filter\&. By default Nping chooses a filter that is intended to capture most common responses to the particular probes that are sent\&. For example, when sending TCP packets, the filter is set to capture packets whose destination port matches the probe\*(Aqs source port or ICMP error messages that may be generated by the target or any intermediate device as a result of the probe\&. If for some reason you expect strange packets in response to sent probes or you just want to sniff a particular kind of traffic, you can specify a custom filter using the BPF syntax used by tools like tcpdump\&.
-.\" tcpdump
+This option lets you use a custom BPF filter\&. By default Nping chooses a filter that is intended to capture most common responses to the particular probes that are sent\&. For example, when sending TCP packets, the filter is set to capture packets whose destination port matches the probe\*(Aqs source port or ICMP error messages that may be generated by the target or any intermediate device as a result of the probe\&. If for some reason you expect strange packets in response to sent probes or you just want to sniff a particular kind of traffic, you can specify a custom filter using the BPF syntax used by tools like tcpdump\&..\" tcpdump
 See the documentation at
 \m[blue]\fB\%http://www.tcpdump.org/\fR\m[]
 for more information\&.
@@ -1782,8 +1762,7 @@ Like level 3 but also displays messages only a real Nping freak would want to se
 .PP
 Level 5
 .RS 4
-Like level 4 but it enables basic debug information related to external libraries like Nsock\&.
-.\" Nsock
+Like level 4 but it enables basic debug information related to external libraries like Nsock\&..\" Nsock
 .RE
 .PP
 Level 6
@@ -1800,8 +1779,7 @@ Like its author, Nping isn\*(Aqt perfect\&. But you can help make it better by s
 or at Google\&. Also try browsing the
 nmap\-dev
 archives at
-\m[blue]\fB\%http://seclists.org/\fR\m[]
-.\" nmap-dev mailing list
+\m[blue]\fB\%http://seclists.org/\fR\m[].\" nmap-dev mailing list
 Read this full manual page as well\&. If nothing comes out of this, mail a bug report to
 <dev@nmap\&.org>\&. Please include everything you have learned about the problem, as well as what version of Nping you are running and what operating system version it is running on\&. Problem reports and Nping usage questions sent to
 <dev@nmap\&.org>
