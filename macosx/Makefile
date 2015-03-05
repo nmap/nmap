@@ -80,14 +80,14 @@ export-%:
 	svn export ..@BASE $*
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update $(CONFIGURE_ARGS)
-	make -C $(NMAP_BUILD_DIR)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a"
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
-	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update $(CONFIGURE_ARGS)
-	make -C $(NCAT_BUILD_DIR)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NCAT_BUILD_DIR) OPENSSL_LIBS="$(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a"
 	rm -rf $(NCAT_STAGING_DIR)
 	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
 
@@ -101,8 +101,8 @@ stage-nping: export-$(NPING_BUILD_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
-	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
-	make -C $(NMAP_UPDATE_BUILD_DIR)
+	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NMAP_UPDATE_BUILD_DIR) OPENSSL_LIBS="$(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a"
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
 
