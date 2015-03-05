@@ -262,7 +262,8 @@ _find_adapter_address(intf_t *intf, const char *device)
 	n = atoi(p);
 
 	for (a = intf->iftable; a != NULL; a = a->Next) {
-		if (intf->ifcombo[type].idx[n].ipv4 == a->IfIndex &&
+		if ( intf->ifcombo[type].idx != NULL &&
+		    intf->ifcombo[type].idx[n].ipv4 == a->IfIndex &&
 		    intf->ifcombo[type].idx[n].ipv6 == a->Ipv6IfIndex) {
 			return a;
 		}

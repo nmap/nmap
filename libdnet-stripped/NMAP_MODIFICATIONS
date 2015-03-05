@@ -2032,3 +2032,21 @@ index 22c2d59..22c1e6a 100644
  		intf_close(intf);
  		return (-1);
  	}
+
+o Fix a crash on Windows 8.1 with certain down interfaces:
+  http://seclists.org/nmap-dev/2015/q1/282
+
+diff --git a/libdnet-stripped/src/intf-win32.c b/libdnet-stripped/src/intf-win32.c
+index 22c1e6a..3c09f9c 100644
+--- a/libdnet-stripped/src/intf-win32.c
++++ b/libdnet-stripped/src/intf-win32.c
+@@ -262,7 +262,8 @@ _find_adapter_address(intf_t *intf, const char *device)
+ 	n = atoi(p);
+ 
+ 	for (a = intf->iftable; a != NULL; a = a->Next) {
+-		if (intf->ifcombo[type].idx[n].ipv4 == a->IfIndex &&
++		if ( intf->ifcombo[type].idx != NULL &&
++		    intf->ifcombo[type].idx[n].ipv4 == a->IfIndex &&
+ 		    intf->ifcombo[type].idx[n].ipv6 == a->Ipv6IfIndex) {
+ 			return a;
+ 		}
