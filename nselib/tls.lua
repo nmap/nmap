@@ -1323,7 +1323,8 @@ function client_hello(t)
 
   table.insert(h, b)
 
-  return record_write("handshake", t["protocol"], table.concat(h))
+  -- Record layer version should be SSLv3 (lowest compatible record version)
+  return record_write("handshake", "SSLv3", table.concat(h))
 end
 
 local function read_atleast(s, n)
