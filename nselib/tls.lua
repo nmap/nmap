@@ -20,6 +20,7 @@ PROTOCOLS = {
   ["TLSv1.1"]     = 0x0302,
   ["TLSv1.2"]     = 0x0303
 }
+HIGHEST_PROTOCOL = "TLSv1.2"
 
 --
 -- TLS Record Types
@@ -581,6 +582,14 @@ CIPHERS = {
 ["TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]      =  0xCC15,
 ["SSL_RSA_FIPS_WITH_DES_CBC_SHA"]                  =  0xFEFE,
 ["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]             =  0xFEFF,
+}
+
+DEFAULT_CIPHERS = {
+  "TLS_RSA_WITH_AES_128_CBC_SHA", -- mandatory TLSv1.2
+  "TLS_RSA_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.1
+  "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.0
+  "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", -- DHE with strong AES
+  "TLS_RSA_WITH_RC4_128_MD5", -- Weak and old, but likely supported on old stuff
 }
 
 local function find_key(t, value)
@@ -1232,6 +1241,7 @@ end
 -- @return The client_hello record as a string
 function client_hello(t)
   local b, ciphers, compressor, compressors, h, len
+  t = t or {}
 
   ----------
   -- Body --
@@ -1239,7 +1249,8 @@ function client_hello(t)
 
   b = {}
   -- Set the protocol.
-  table.insert(b, bin.pack(">S", PROTOCOLS[t["protocol"]]))
+  local protocol = t["protocol"] or HIGHEST_PROTOCOL
+  table.insert(b, bin.pack(">S", PROTOCOLS[protocol]))
 
   -- Set the random data.
   table.insert(b, bin.pack(">I", os.time()))
@@ -1252,21 +1263,16 @@ function client_hello(t)
 
   -- Cipher suites.
   ciphers = {}
-  if t["ciphers"] ~= nil then
-    -- Add specified ciphers.
-    for _, cipher in pairs(t["ciphers"]) do
-      if type(cipher) == "string" then
-        cipher = CIPHERS[cipher] or SCSVS[cipher]
-      end
-      if type(cipher) == "number" and cipher >= 0 and cipher <= 0xffff then
-        table.insert(ciphers, bin.pack(">S", cipher))
-      else
-        stdnse.debug1("Unknown cipher in client_hello: %s", cipher)
-      end
+  -- Add specified ciphers.
+  for _, cipher in pairs(t["ciphers"] or DEFAULT_CIPHERS) do
+    if type(cipher) == "string" then
+      cipher = CIPHERS[cipher] or SCSVS[cipher]
     end
-  else
-    -- Use NULL cipher
-    table.insert(ciphers, bin.pack(">S", CIPHERS["TLS_NULL_WITH_NULL_NULL"]))
+    if type(cipher) == "number" and cipher >= 0 and cipher <= 0xffff then
+      table.insert(ciphers, bin.pack(">S", cipher))
+    else
+      stdnse.debug1("Unknown cipher in client_hello: %s", cipher)
+    end
   end
   table.insert(b, bin.pack(">P", table.concat(ciphers)))
 
@@ -1285,8 +1291,7 @@ function client_hello(t)
   table.insert(b, bin.pack(">p", table.concat(compressors)))
 
   -- TLS extensions
-  if PROTOCOLS[t["protocol"]] and
-      PROTOCOLS[t["protocol"]] ~= PROTOCOLS["SSLv3"] then
+  if PROTOCOLS[protocol] and protocol ~= "SSLv3" then
     local extensions = {}
     if t["extensions"] ~= nil then
       -- Add specified extensions.
