@@ -63,17 +63,7 @@ local client_hello = function(host, port)
   local sock, status, response, err, cli_h
 
   -- Craft Client Hello
-  cli_h = tls.client_hello({
-    ["protocol"] = "TLSv1.0",
-    ["ciphers"] = {
-      "TLS_RSA_WITH_AES_128_CBC_SHA",
-      "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
-      "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-      "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-      "TLS_RSA_WITH_RC4_128_MD5",
-    },
-    ["compressors"] = {"NULL"},
-  })
+  cli_h = tls.client_hello()
 
   -- Connect to the target server
   local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
