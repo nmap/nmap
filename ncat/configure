@@ -4672,12 +4672,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_BIO_int_ctrl" >&5
 $as_echo "$ac_cv_lib_crypto_BIO_int_ctrl" >&6; }
 if test "x$ac_cv_lib_crypto_BIO_int_ctrl" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCRYPTO 1
-_ACEOF
-
-  LIBS="-lcrypto $LIBS"
-
+   use_openssl="yes"
 else
    use_openssl="no"
 	   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to find libcrypto so OpenSSL will not be used.
@@ -4726,12 +4721,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssl_SSL_new" >&5
 $as_echo "$ac_cv_lib_ssl_SSL_new" >&6; }
 if test "x$ac_cv_lib_ssl_SSL_new" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBSSL 1
-_ACEOF
-
-  LIBS="-lssl $LIBS"
-
+   use_openssl="yes"
 else
    use_openssl="no"
 	   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Failed to find libssl so OpenSSL will not be used.

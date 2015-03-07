@@ -86,7 +86,7 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
 
 	if test "$use_openssl" = "yes"; then
 	 AC_CHECK_LIB(crypto, BIO_int_ctrl,
-	   [],
+	   [ use_openssl="yes"],
 	   [ use_openssl="no"
 	   AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used.
 	    If it is installed you can try the --with-openssl=DIR argument]) ])
@@ -94,7 +94,7 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
 										     
 	if test "$use_openssl" = "yes"; then
 	   AC_CHECK_LIB(ssl, SSL_new,
-	   [],
+	   [ use_openssl="yes"],
 	   [ use_openssl="no"
 	   AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. 
 If it is installed you can try the --with-openssl=DIR argument]) ])
@@ -111,7 +111,7 @@ if test "$use_openssl" = "yes"; then
   AC_SUBST(HAVE_OPENSSL)
 fi
 
-AC_SUBST(OPENSSL_LIBS)    
+AC_SUBST(OPENSSL_LIBS)
 
 libpcapdir=../libpcap
 AC_SUBST(libpcapdir)
