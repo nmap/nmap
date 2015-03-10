@@ -5183,7 +5183,7 @@ if test "${with_liblua+set}" = set; then :
   included)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="lua_build \$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
