@@ -471,4 +471,4 @@ zoneTrans db2-info db2-brute html-title robots.txt xmpp sql-injection \
 http-robtex-reverse-ip http-vuln-zimbra-lfi http-vuln-0-day-lfi-zimbra \
 whois db2-discover )
 
-.PHONY: lua-format
+.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web my_clean distclean lua-format
