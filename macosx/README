@@ -1,6 +1,6 @@
 Nmap is a free and open source utility for network exploration and security auditing. Zenmap is a multi-platform graphical frontend and results viewer for Nmap. Ncat is a general-purpose network sending and receiving utility, a reimplementation of Netcat. Ndiff is a an Nmap scan comparison utility. Nping is a tool for packet generation and sending.
 
-This package contains Nmap, Zenmap, Ncat, Ndiff, and Nping. It is intended to work on Intel Macs running Mac OS X 10.6 or later.
+This package contains Nmap, Zenmap, Ncat, Ndiff, and Nping. It is intended to work on Intel Macs running Mac OS X 10.8 or later.
 
 Installation of all packages is optional. Unselect Zenmap to get just the command-line tool. Unselect Nmap if you prefer to use a copy of Nmap that is already installed. Zenmap will not work without Nmap.
 
