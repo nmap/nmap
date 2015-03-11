@@ -1426,14 +1426,17 @@ void write_host_header(Target *currenths) {
   write_host_status(currenths);
   if (currenths->TargetName() != NULL
       && currenths->resolved_addrs.size() > 1) {
-    std::list<struct sockaddr_storage>::iterator it;
+    const struct sockaddr_storage *hs_ss = currenths->TargetSockAddr();
 
     log_write(LOG_PLAIN, "Other addresses for %s (not scanned):",
       currenths->TargetName());
-    it = currenths->resolved_addrs.begin();
-    it++;
-    for (; it != currenths->resolved_addrs.end(); it++)
-      log_write(LOG_PLAIN, " %s", inet_ntop_ez(&*it, sizeof(*it)));
+    for (std::list<struct sockaddr_storage>::const_iterator it = currenths->resolved_addrs.begin(), end = currenths->resolved_addrs.end();
+        it != end; it++) {
+      struct sockaddr_storage ss = *it;
+      if (!sockaddr_storage_equal(&ss, hs_ss)) {
+        log_write(LOG_PLAIN, " %s", inet_ntop_ez(&ss, sizeof(ss)));
+      }
+    }
     log_write(LOG_PLAIN, "\n");
   }
   /* Print reverse DNS if it differs. */

@@ -294,10 +294,20 @@ bail:
   return NULL;
 }
 
+/* Returns the first address which matches the address family af */
+static const struct sockaddr_storage *first_af_address(const std::list<struct sockaddr_storage> *addrs, int af) {
+  for (std::list<struct sockaddr_storage>::const_iterator it = addrs->begin(), end = addrs->end(); it != end; ++it) {
+    if (it->ss_family == af) {
+      return &*it;
+    }
+  }
+  return NULL;
+}
+
 bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
   if (this->resolvedaddrs.empty())
     return false;
-  return sockaddr_storage_equal(&*this->resolvedaddrs.begin(), ss);
+  return sockaddr_storage_equal(first_af_address(&this->resolvedaddrs, ss->ss_family), ss);
 }
 
 NetBlockIPv4Ranges::NetBlockIPv4Ranges() {
@@ -610,10 +620,11 @@ NetBlock *NetBlockHostname::resolve() const {
   struct addrinfo *addrs, *addr;
   std::list<struct sockaddr_storage> resolvedaddrs;
   NetBlock *netblock;
+  const struct sockaddr_storage *sp = NULL;
   struct sockaddr_storage ss;
   size_t sslen;
 
-  addrs = resolve_all(this->hostname.c_str(), this->af);
+  addrs = resolve_all(this->hostname.c_str(), AF_UNSPEC);
   for (addr = addrs; addr != NULL; addr = addr->ai_next) {
     if (addr->ai_addrlen < sizeof(ss)) {
       memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
@@ -626,7 +637,22 @@ NetBlock *NetBlockHostname::resolve() const {
   if (resolvedaddrs.empty())
     return NULL;
 
-  ss = *resolvedaddrs.begin();
+  sp = first_af_address(&resolvedaddrs, this->af);
+  if (sp == NULL or sp->ss_family != this->af) {
+    switch (this->af) {
+      case AF_INET:
+        error("Warning: Hostname %s resolves, but not to any IPv4 address. Try scanning with -6", this->hostname.c_str());
+        break;
+      case AF_INET6:
+        error("Warning: Hostname %s resolves, but not to any IPv6 address. Try scanning without -6", this->hostname.c_str());
+        break;
+      default:
+        error("Warning: Unknown address family: %d", this->af);
+        break;
+    }
+    return NULL;
+  }
+  ss = *sp;
   sslen = sizeof(ss);
 
   if (resolvedaddrs.size() > 1 && o.verbose > 1) {
