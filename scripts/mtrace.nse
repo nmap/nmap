@@ -119,15 +119,17 @@ end
 --@param receiver Receiver of the response.
 --@return data Raw Traceroute Query.
 local traceRaw = function(fromip, toip, group, receiver)
-  local data = bin.pack(">C", 0x1f) -- Type: Traceroute Query
-  local data = data .. bin.pack(">C", 0x20) -- Hops: 32
-  local data = data .. bin.pack(">S", 0x0000) -- Checksum: To be set later
-  local data = data .. bin.pack(">I", ipOps.todword(group)) -- Multicast group
-  local data = data .. bin.pack(">I", ipOps.todword(fromip)) -- Source
-  local data = data .. bin.pack(">I", ipOps.todword(toip)) -- Destination
-  local data = data .. bin.pack(">I", ipOps.todword(receiver)) -- Receiver
-  local data = data .. bin.pack(">C", 0x40) -- TTL
-  local data = data .. bin.pack(">CS", 0x00, math.random(123456)) -- Query ID
+  local data = bin.pack(">CCSIIIICCS",
+    0x1f, -- Type: Traceroute Query
+    0x20, -- Hops: 32
+    0x0000, -- Checksum: To be set later
+    ipOps.todword(group), -- Multicast group
+    ipOps.todword(fromip), -- Source
+    ipOps.todword(toip), -- Destination
+    ipOps.todword(receiver), -- Receiver
+    0x40, -- TTL
+    0x00, math.random(123456) -- Query ID
+    )
 
   -- We calculate checksum
   data = data:sub(1,2) .. bin.pack(">S", packet.in_cksum(data)) .. data:sub(5)

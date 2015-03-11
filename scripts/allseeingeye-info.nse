@@ -2,6 +2,7 @@ local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local string = require "string"
+local bin = require "bin"
 local bit = require "bit"
 local stdnse = require "stdnse"
 
@@ -131,22 +132,10 @@ author = "Marin Maržić"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "discovery", "safe", "version" }
 
--- Unpacks a string preceded by a 1-byte integer length
--- (+1 for the length byte) from another string, starting
--- at the given position.
--- @param str the string from which to unpack
--- @param pos the position in the string from which to start unpacking (position of the length byte)
--- @return ret_pos the position after the last unpacked byte
--- @return string the unpacked string
-local unpack_str = function(str, pos)
-  local ret_pos = pos + str:byte(pos)
-  return ret_pos, string.sub(str, pos + 1, ret_pos - 1)
-end
-
 portrule = shortport.version_port_or_service({1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138}, "allseeingeye", "udp")
 
 action = function(host, port)
-  local status, data = comm.exchange(host, port.number, "s", { proto = "udp", timeout = 3000 })
+  local status, data = comm.exchange(host, port, "s", { timeout = 3000 })
   if not status then
     return
   end
@@ -162,23 +151,22 @@ action = function(host, port)
   local o = stdnse.output_table()
   local pos = 5
 
-  pos, o["game"] = unpack_str(data, pos)
-  pos, o["port"] = unpack_str(data, pos)
-  pos, o["server name"] = unpack_str(data, pos)
-  pos, o["game type"] = unpack_str(data, pos)
-  pos, o["map"] = unpack_str(data, pos)
-  pos, o["version"] = unpack_str(data, pos)
-  pos, o["passworded"] = unpack_str(data, pos)
-  pos, o["num players"] = unpack_str(data, pos)
-  pos, o["max players"] = unpack_str(data, pos)
+  pos, o["game"] = bin.unpack("p", data, pos)
+  pos, o["port"] = bin.unpack("p", data, pos)
+  pos, o["server name"] = bin.unpack("p", data, pos)
+  pos, o["game type"] = bin.unpack("p", data, pos)
+  pos, o["map"] = bin.unpack("p", data, pos)
+  pos, o["version"] = bin.unpack("p", data, pos)
+  pos, o["passworded"] = bin.unpack("p", data, pos)
+  pos, o["num players"] = bin.unpack("p", data, pos)
+  pos, o["max players"] = bin.unpack("p", data, pos)
 
   -- extract the key-value pairs
   local kv = stdnse.output_table()
   o["settings"] = kv
   while data:byte(pos) ~= 1 do
     local key, value
-    pos, key = unpack_str(data, pos)
-    pos, value = unpack_str(data, pos)
+    pos, key, value = bin.unpack("pp", data, pos)
     kv[key] = value
   end
   pos = pos + 1
@@ -193,22 +181,22 @@ action = function(host, port)
 
     local player = stdnse.output_table()
     if bit.band(flags, 1) ~= 0 then
-      pos, player.name = unpack_str(data, pos)
+      pos, player.name = bin.unpack("p", data, pos)
     end
     if bit.band(flags, 2) ~= 0 then
-      pos, player.team = unpack_str(data, pos)
+      pos, player.team = bin.unpack("p", data, pos)
     end
     if bit.band(flags, 4) ~= 0 then
-      pos, player.skin = unpack_str(data, pos)
+      pos, player.skin = bin.unpack("p", data, pos)
     end
     if bit.band(flags, 8) ~= 0 then
-      pos, player.score = unpack_str(data, pos)
+      pos, player.score = bin.unpack("p", data, pos)
     end
     if bit.band(flags, 16) ~= 0 then
-      pos, player.ping = unpack_str(data, pos)
+      pos, player.ping = bin.unpack("p", data, pos)
     end
     if bit.band(flags, 32) ~= 0 then
-      pos, player.time = unpack_str(data, pos)
+      pos, player.time = bin.unpack("p", data, pos)
     end
 
     players["player " .. playernum] = player

@@ -1102,7 +1102,7 @@ local function service_file_is_xor_encoded(filename)
     return nil, "Can't read from service file"
   end
   -- This is the XOR-inverse of "MZ".
-  return bytes == string.char(0xb2, 0xa5)
+  return bytes == "\xb2\xa5"
 end
 
 ---Upload all of the uploadable files to the remote system.
@@ -1348,22 +1348,7 @@ end
 local function do_replacements(mod, line)
   if(mod.replace) then
     for _, v in pairs(mod.replace) do
-
-      -- It looks like Lua doesn't like replacing the null character, so have a sidecase for it
-      if(v[1] == string.char(0)) then
-        local newline = ""
-        for i = 1, #line, 1 do
-          local char = string.sub(line, i, i)
-          if(string.byte(char) == 0) then
-            newline = newline .. v[2]
-          else
-            newline = newline .. char
-          end
-        end
-        line = newline
-      else
-        line = string.gsub(line, v[1], v[2])
-      end
+      line = string.gsub(line, v[1], v[2])
     end
   end
 

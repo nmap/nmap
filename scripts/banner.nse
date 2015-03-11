@@ -2,6 +2,7 @@ local comm = require "comm"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
+local U = require "lpeg-utility"
 
 description = [[
 A simple banner grabber which connects to an open TCP port and prints out anything sent by the listening service within five seconds.
@@ -61,13 +62,19 @@ end
 -- @param port  Port Table.
 -- @return      String or nil if data was not received.
 function grab_banner(host, port)
+  -- Did the service engine already do the hard work?
+  if port.version and port.version.service_fp then
+    local response = U.get_response(port.version.service_fp, "NULL")
+    if response then
+      return response:match("^%s*(.-)%s*$");
+    end
+  end
 
   local opts = {}
   opts.timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
   opts.timeout = (opts.timeout or 5) * 1000
-  opts.proto = port.protocol
 
-  local status, response = comm.get_banner(host.ip, port.number, opts)
+  local status, response = comm.get_banner(host, port, opts)
 
   if not status then
     local errlvl = { ["EOF"]=3,["TIMEOUT"]=3,["ERROR"]=2 }

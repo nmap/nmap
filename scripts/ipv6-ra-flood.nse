@@ -1,3 +1,4 @@
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
@@ -66,7 +67,7 @@ local function get_interface()
 
   local if_table = nmap.get_interface_info(arg_interface)
 
-  if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+  if if_table and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
     return if_table.device
   else
     stdnse.debug1("Interface %s not supported or not properly configured, exiting...", arg_interface)
@@ -105,13 +106,13 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
   0x00,0x00,0x00,0x00, --reachable time
   0x00,0x00,0x00,0x00) --retrans timer
 
-  local mtu_option_msg = string.char(0x00, 0x00) .. -- reserved
+  local mtu_option_msg = "\0\0" .. -- reserved
   packet.numtostr32(mtu) -- MTU
 
   local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
   packet.set_u32("....", 0, valid_time) .. -- valid lifetime
   packet.set_u32("....", 0, preferred_time) .. -- preferred lifetime
-  string.char(0,0,0,0) .. --unknown
+  "\0\0\0\0" .. --unknown
   prefix
 
   local icmpv6_mtu_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_MTU, mtu_option_msg)
@@ -139,7 +140,7 @@ local function broadcast_on_interface(iface)
   try(dnet:ethernet_open(iface))
 
   local dst_mac = packet.mactobin("33:33:00:00:00:01")
-  local dst_ip6_addr = packet.ip6tobin("ff02::1")
+  local dst_ip6_addr = ipOps.ip_to_str("ff02::1")
 
   local prefix_len = 64
 
@@ -156,7 +157,7 @@ local function broadcast_on_interface(iface)
     local src_mac = packet.mactobin(random_mac())
     local src_ip6_addr = packet.mac_to_lladdr(src_mac)
 
-    local prefix = packet.ip6tobin(get_random_prefix())
+    local prefix = ipOps.ip_to_str(get_random_prefix())
 
     local packet = packet.Frame:new()
 

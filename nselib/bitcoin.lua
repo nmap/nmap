@@ -136,7 +136,7 @@ Request = {
       local header = bin.pack("<IAI", magic, cmd, len)
 
       -- After 2012-02-20, version messages require checksums
-      header = header .. bin.pack("A", checksum:sub(1,4))
+      header = header .. checksum:sub(1,4)
 
       return header .. payload
     end,

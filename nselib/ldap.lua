@@ -108,7 +108,7 @@ tagEncoder['table'] = function(self, val)
   for _, v in ipairs(val) do
     encVal = encVal .. encode(v) -- todo: buffer?
   end
-  local tableType = bin.pack("H", "30")
+  local tableType = "\x30"
   if (val["_snmp"]) then
     tableType = bin.pack("H", val["_snmp"])
   end
@@ -203,7 +203,7 @@ function encodeLDAPOp( appno, isConstructed, data )
   local encoded_str = ""
   local asn1_type = asn1.BERtoInt( asn1.BERCLASS.Application, isConstructed, appno )
 
-  encoded_str = encode( { _ldaptype = bin.pack("A", string.format("%X", asn1_type)), data } )
+  encoded_str = encode( { _ldaptype = string.format("%X", asn1_type), data } )
   return encoded_str
 end
 
@@ -403,8 +403,7 @@ function unbindRequest( socket )
   encoder:registerTagEncoders(tagEncoder)
 
   ldapMessageId = ldapMessageId +1
-  ldapMsg = encode( ldapMessageId )
-  ldapMsg = ldapMsg .. encodeLDAPOp( APPNO.UnbindRequest, false, nil)
+  ldapMsg = encode( ldapMessageId ) .. encodeLDAPOp( APPNO.UnbindRequest, false, nil)
   packet = encoder:encodeSeq( ldapMsg )
   try( socket:send( packet ) )
   return true, ""
@@ -513,7 +512,7 @@ function createFilter( filter )
     filter_str = filter_str .. obj .. val
 
   end
-  return encode( { _ldaptype=bin.pack("A", string.format("%X", asn1_type)), filter_str } )
+  return encode( { _ldaptype=string.format("%X", asn1_type), filter_str } )
 end
 
 --- Converts a search result as received from searchRequest to a "result" table

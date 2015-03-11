@@ -1,5 +1,4 @@
 local srvloc = require "srvloc"
-local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[

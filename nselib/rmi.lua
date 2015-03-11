@@ -553,12 +553,11 @@ JavaField = {
   getValue = function( self ) return self.value end,
 
   __tostring = function( self )
-    local data = tostring(self.type) .. " " .. tostring(self.name)
     if self.value ~= nil then
-      data = data .." = " .. tostring(self.value)
+      return string.format("%s %s = %s", self.type, self.name, self.value)
+    else
+      return string.format("%s %s", self.type, self.name)
     end
-
-    return data
   end,
   toTable = function(self)
     local data = {tostring(self.type) .. " " .. tostring(self.name)}
@@ -571,8 +570,7 @@ JavaField = {
           table.insert(data, self.value)
         end
       else
-        --TODO: FIXME This is illegal, but I don't know what the intent was:
-        data = data .." = " .. tostring(self.value) --FIXME
+        table.insert(data, self.value)
       end
     end
     return data
@@ -1156,16 +1154,9 @@ end
 -- returns the string with all non-printable chars
 -- coded as hex
 function makeStringReadable(data)
-  local r = ""
-  for i=1,#data,1 do
-    local x = data:byte(i)
-    if x > 31 and x <127 then
-      r = r .. data:sub(i,i)
-    else
-      r = r .. ("\\x%x"):format(x)
-    end
-  end
-  return r
+  return data:gsub("[\x00-\x1f\x7f-\xff]", function (x)
+      return ("\\x%02x"):format(x:byte())
+    end)
 end
 
 function readNonProxyDesc(dis)

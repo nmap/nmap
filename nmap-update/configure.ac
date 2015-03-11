@@ -24,7 +24,8 @@ if test "$apr_found" = "no"; then
   AC_MSG_ERROR([libapr is required to build nmap-update.])
 fi
 CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
-LIBS="$LIBS $($apr_config --link-ld)"
+APR_LIBS="$($apr_config --link-ld)"
+AC_SUBST(APR_LIBS)
 
 AC_ARG_WITH(subversion,
 AC_HELP_STRING([--with-subversion=DIR], [Look for libsvn1 in DIR/include and DIR/libs.]),
@@ -43,9 +44,23 @@ case "$with_subversion" in
 ])
 
 # Checks for libraries.
-AC_CHECK_LIB([svn_client-1], [svn_client_create_context])
-AC_CHECK_LIB([svn_subr-1], [svn_handle_error2])
-AC_CHECK_LIB([apr-1], [apr_pool_destroy])
+SVN_LIBS=""
+AC_CHECK_LIB([svn_client-1], [svn_client_create_context],
+             [ SVN_LIBS="$SVN_LIBS -lsvn_client-1"],
+             [
+              AC_MSG_ERROR([Could not find required libsvn_client-1])
+              ])
+AC_CHECK_LIB([svn_subr-1], [svn_handle_error2],
+             [ SVN_LIBS="$SVN_LIBS -lsvn_subr-1"],
+             [
+              AC_MSG_ERROR([Could not find required libsvn_subr-1])
+              ])
+AC_CHECK_LIB([apr-1], [apr_pool_destroy],
+             [ SVN_LIBS="$SVN_LIBS -lapr-1"],
+             [
+              AC_MSG_ERROR([Could not find required libapr-1])
+              ])
+AC_SUBST(SVN_LIBS)
 
 # Checks for header files.
 AC_CHECK_HEADERS([svn_client.h subversion-1/svn_client.h])

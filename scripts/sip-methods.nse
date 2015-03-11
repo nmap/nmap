@@ -2,7 +2,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local sip = require "sip"
 local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Enumerates a SIP Server's allowed methods (INVITE, OPTIONS, SUBSCRIBE, etc.)

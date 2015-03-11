@@ -40,7 +40,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
-local string = require "string"
 local httpspider = require "httpspider"
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")

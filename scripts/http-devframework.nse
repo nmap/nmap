@@ -44,8 +44,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local table = require "table"
-local string = require "string"
 local httpspider = require "httpspider"
 local _G = require "_G"
 

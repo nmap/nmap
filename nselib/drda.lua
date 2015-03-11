@@ -306,11 +306,7 @@ DRDAParameter = {
   --
   -- @return data string containing the DRDA Parameter
   __tostring = function( self )
-    local data = bin.pack(">SS", self.Length, self.CodePoint )
-    if ( self.Data ) then
-      data = data .. bin.pack("A", self.Data)
-    end
-    return data
+    return bin.pack(">SSA", self.Length, self.CodePoint, self.Data or "" )
   end,
 
   --- Builds a DRDA Parameter from a string
@@ -600,7 +596,7 @@ Helper = {
     local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
     local drda_accsec = Command.ACCSEC( secmec, database )
     local drda_secchk = Command.SECCHK( secmec, database, username, password )
-    local drda_accrdb = Command.ACCRDB( database, string.char(0x24,0x07), "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
+    local drda_accrdb = Command.ACCRDB( database, "\x24\x07", "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
 
     local status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
     if( not(status) ) then return false, packet end
@@ -751,13 +747,10 @@ StringUtil =
   -- @param ascii string containing the ASCII value
   -- @return string containing the EBCDIC value
   toEBCDIC = function( ascii )
-    local ret = ""
-
-    for i=1, #ascii do
-      local val = ascii.byte(ascii,i) + 1
-      ret = ret .. a2e_tbl:sub(val, val)
-    end
-    return ret
+    return string.gsub(ascii, ".", function(a)
+        local val = a:byte() + 1
+        return a2e_tbl:sub(val, val)
+      end)
   end,
 
   --- Converts an EBCDIC string to ASCII
@@ -765,13 +758,10 @@ StringUtil =
   -- @param ebcdic string containing EBCDIC value
   -- @return string containing ASCII value
   toASCII = function( ebcdic )
-    local ret = ""
-
-    for i=1, #ebcdic do
-      local val = ebcdic.byte(ebcdic,i) + 1
-      ret = ret .. e2a_tbl:sub(val, val)
-    end
-    return ret
+    return string.gsub(ebcdic, ".", function(e)
+        local val = e:byte() + 1
+        return e2a_tbl:sub(val, val)
+      end)
   end,
 
   --- Pads a string with a character
@@ -781,13 +771,7 @@ StringUtil =
   -- @param len the total length of the finished string
   -- @return str string containing the padded string
   padWithChar = function( str, chr, len )
-    if ( len < #str ) then
-      return str
-    end
-    for i=1, (len - #str) do
-      str = str .. chr
-    end
-    return str
+    return str .. string.rep(chr, len - #str)
   end,
 }
 

@@ -5,8 +5,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local stdnse = require "stdnse"
-local string = require "string"
-local lpeg = require "lpeg"
 local U = require "lpeg-utility"
 local comm = require "comm"
 
@@ -40,36 +38,6 @@ categories = {"default", "version", "safe"}
 
 portrule = shortport.version_port_or_service(161, "snmp", "udp")
 
--- XXX This section copied from http-server-header. Should be moved to a library.
--- Cache the returned pattern
-local getquote = U.escaped_quote()
-
--- Substitution pattern to unescape a string
-local unescape = lpeg.P {
-  -- Substitute captures
-  lpeg.Cs((lpeg.V "simple_char" + lpeg.V "unesc")^0),
-  -- Escape char is '\'
-  esc = lpeg.P "\\",
-  -- Simple char is anything but escape char
-  simple_char = lpeg.P(1) - lpeg.V "esc",
-  -- If we hit an escape, process specials or hex code, otherwise remove the escape
-  unesc = (lpeg.V "esc" * lpeg.Cs( lpeg.V "specials" + lpeg.V "code" + lpeg.P(1) ))/"%1",
-  -- single-char escapes. These are the only ones service_scan uses
-  specials = lpeg.S "trn0" / {t="\t", r="\r", n="\n", ["0"]="\0"},
-  -- hex escape: convert to char
-  code = (lpeg.P "x" * lpeg.C(lpeg.S "0123456789abcdefABCDEF"^-2))/function(c)
-  return string.char(tonumber(c,16)) end,
-}
-
--- Turn the service fingerprint reply to a probe into a binary blob
-local function get_response (fp, probe)
-  local i, e = string.find(fp, string.format("%s,%%x+,", probe))
-  if i == nil then return nil end
-  return unescape:match(getquote:match(fp, e+1))
-end
-
--- XXX End copy-paste.
-
 local ENTERPRISE_NUMS
 do
   local status
@@ -91,9 +59,8 @@ action = function (host, port)
   local response
   -- Did the service engine already do the hard work?
   if port.version and port.version.service_fp then
-    -- Probes sent, replies received, but no match. Unwrap the fingerprint:
-    local fp = string.gsub(port.version.service_fp, "\nSF:", "")
-    response = get_response(fp, "SNMPv3GetRequest")
+    -- Probes sent, replies received, but no match.
+    response = U.get_response(port.version.service_fp, "SNMPv3GetRequest")
   end
 
   if not response then

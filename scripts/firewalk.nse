@@ -1,4 +1,5 @@
 local bin = require "bin"
+local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
@@ -127,19 +128,6 @@ local proto_vtable = {}
 -- Layer 3 specific function tables for the scanner
 local Firewalk = {}
 
-
---- Printable representation of a v4 or v6 IP address.
--- @param addr Binary representation of the address
--- @return the printable representation of the address, as a string.
-local function toip(addr)
-  -- XXX Beware this function uses nmap.address_family() to format the result.
-
-  if nmap.address_family() == "inet" then
-    return packet.toip(addr)
-  else
-    return packet.toipv6(addr)
-  end
-end
 
 --- lookup for TTL of a given gateway in a traceroute results table
 -- @param traceroute a host traceroute results table
@@ -444,7 +432,7 @@ local Firewalk_v4 = {
   --- IPv4 initialization function. Open injection and reception sockets.
   -- @param scanner the scanner handle
   init = function(scanner)
-    local saddr = packet.toip(scanner.target.bin_ip_src)
+    local saddr = ipOps.str_to_ip(scanner.target.bin_ip_src)
 
     scanner.sock = nmap.new_dnet()
     scanner.pcap = nmap.new_socket()
@@ -510,7 +498,7 @@ local Firewalk_v6 = {
   --- IPv6 initialization function. Open injection and reception sockets.
   -- @param scanner the scanner handle
   init = function(scanner)
-    local saddr = packet.toipv6(scanner.target.bin_ip_src)
+    local saddr = ipOps.str_to_ip(scanner.target.bin_ip_src)
 
     scanner.sock = nmap.new_dnet()
     scanner.pcap = nmap.new_socket()
@@ -821,7 +809,7 @@ local function report(scanner)
   -- duplicate traceroute results and add localhost at the beginning
   local path = {
     -- XXX 'localhost' might be a better choice?
-    {ip = toip(scanner.target.bin_ip_src)}
+    {ip = ipOps.str_to_ip(scanner.target.bin_ip_src)}
   }
 
   for _, v in pairs(scanner.target.traceroute) do

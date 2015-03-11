@@ -55,21 +55,16 @@ end
 -- Generates a raw PIM Hello message.
 --@return hello Raw PIM Hello message
 local helloRaw = function()
-  -- Version: 2, Type: Hello (0)
-  local hello_raw = bin.pack(">C", 0x20)
-  -- Reserved
-  hello_raw = hello_raw.. bin.pack(">C", 0x00)
-  -- Checksum: Calculated later
-  hello_raw = hello_raw.. bin.pack(">S", 0x0000)
-  -- Options (TLVs)
-  -- Hold time 1 second
-  hello_raw = hello_raw.. bin.pack(">SSS", 0x01, 0x02, 0x01)
-  -- Generation ID: Random
-  hello_raw = hello_raw.. bin.pack(">SSI", 0x14, 0x04, math.random(23456))
-  -- DR Priority: 1
-  hello_raw = hello_raw.. bin.pack(">SSI", 0x13, 0x04, 0x01)
-  -- State fresh capable: Version = 1, interval = 0, Reserved
-  hello_raw = hello_raw.. bin.pack(">SSCCS", 0x15, 0x04, 0x01, 0x00, 0x00)
+  local hello_raw = bin.pack(">CCSAAAA",
+    0x20, -- Version: 2, Type: Hello (0)
+    0x00, -- Reserved
+    0x0000, -- Checksum: Calculated later
+    -- Options (TLVs)
+    bin.pack(">SSS", 0x01, 0x02, 0x01), -- Hold time 1 second
+    bin.pack(">SSI", 0x14, 0x04, math.random(23456)), -- Generation ID: Random
+    bin.pack(">SSI", 0x13, 0x04, 0x01), -- DR Priority: 1
+    bin.pack(">SSCCS", 0x15, 0x04, 0x01, 0x00, 0x00) -- State fresh capable: Version = 1, interval = 0, Reserved
+    )
   -- Calculate checksum
   hello_raw = hello_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(hello_raw)) .. hello_raw:sub(5)
 

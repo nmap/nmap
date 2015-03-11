@@ -25,8 +25,8 @@
 # environment. You need to have installed the packages py26-gtk and
 # py26-py2app.
 
-LIBPREFIX=$HOME/macports-10.5
-PYTHON=$LIBPREFIX/bin/python2.6
+LIBPREFIX=$HOME/macports-10.8
+PYTHON=$LIBPREFIX/bin/python2.7
 PKG_CONFIG=$LIBPREFIX/bin/pkg-config
 APP_NAME=Zenmap
 BASE=dist/$APP_NAME.app/Contents

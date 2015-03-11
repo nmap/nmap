@@ -29,7 +29,6 @@ local target = require "target"
 local shortport = require "shortport"
 local httpspider = require "httpspider"
 local stdnse = require "stdnse"
-local table = require "table"
 
 getLastLoc = function(host, port, useragent)
 

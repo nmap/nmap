@@ -29,7 +29,7 @@ action = function(host, port)
   -- see http://www.cornfed.com/iax.pdf for all options.
   local poke = "\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x1e"
 
-  local status, recv = comm.exchange(host, port, poke, {proto=port.protocol,timeout=10000})
+  local status, recv = comm.exchange(host, port, poke, {timeout=10000})
 
   if not status then
     return

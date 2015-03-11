@@ -4,7 +4,6 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 
 description = [[
 Retrieves information from a DNS nameserver by requesting

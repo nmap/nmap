@@ -12,7 +12,6 @@ local stdnse = require "stdnse"
 local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
-local package = require "package"
 local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("versant", stdnse.seeall)

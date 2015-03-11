@@ -60,7 +60,7 @@ SocketPool = {
       end
       if ( #self.pool < self.max_sockets ) then
         local socket = nmap.new_socket()
-        local status = socket:connect( host.ip, port.number, "tcp")
+        local status = socket:connect( host, port )
 
         if ( status ) then
           socket:reconnect_ssl()

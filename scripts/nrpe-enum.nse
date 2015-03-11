@@ -139,22 +139,17 @@ end
 
 local nrpe_write = function(cmd)
   -- Create request packet, before checksum.
-  local pkt = ""
-  pkt = pkt .. bin.pack(">S", 2)
-  pkt = pkt .. bin.pack(">S", 1)
-  pkt = pkt .. bin.pack(">I", 0)
-  pkt = pkt .. bin.pack(">S", 0)
-  pkt = pkt .. bin.pack("A", cmd)
-  pkt = pkt .. string.char(0x00):rep(1024 - #cmd)
-  pkt = pkt .. bin.pack(">S", 0)
+  local pkt = bin.pack(">SSISAAS",
+   2,
+   1,
+   0,
+   0,
+   cmd,
+   string.rep("\0", 1024 - #cmd),
+   0)
 
   -- Calculate the checksum, and insert it into the packet.
-  pkt = bin.pack(
-  "A>IA",
-  string.char(pkt:byte(1, 4)),
-  crc32(pkt),
-  string.char(pkt:byte(9, #pkt))
-  )
+  pkt = pkt:sub(1,4) .. bin.pack(">I", crc32(pkt)) .. pkt:sub(9)
 
   return pkt
 end

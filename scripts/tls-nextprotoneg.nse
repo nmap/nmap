@@ -3,7 +3,6 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"
-local os = require "os"
 local tls = require "tls"
 
 description = [[
@@ -53,15 +52,6 @@ local client_hello = function(host, port)
   local sock, status, response, err, cli_h
 
   cli_h = tls.client_hello({
-    ["protocol"] = "TLSv1.0",
-    ["ciphers"] = {
-      "TLS_RSA_WITH_AES_128_CBC_SHA",
-      "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
-      "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-      "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-      "TLS_RSA_WITH_RC4_128_MD5",
-    },
-    ["compressors"] = {"NULL"},
     ["extensions"] = {
       ["next_protocol_negotiation"] = "",
     },

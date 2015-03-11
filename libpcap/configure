@@ -1388,8 +1388,7 @@ Optional Packages:
   --without-gcc           don't use gcc
   --with-sita             include SITA support
   --with-pcap=TYPE        use packet capture TYPE
-  --without-libnl         disable libnl support [default=yes, on Linux, if
-                          present]
+  --without-libnl         disable libnl support [default=disabled]
   --with-dag[=DIR]        include Endace DAG support ["yes", "no" or DIR;
                           default="yes" on BSD and Linux if present]
   --with-dag-includes=DIR Endace DAG include directory
@@ -5500,7 +5499,7 @@ if test "${with_libnl+set}" = set; then :
 fi
 
 
-	if test x$with_libnl != xno ; then
+	if test x$with_libnl = xyes ; then
 		have_any_nl="no"
 
 		#

@@ -8,6 +8,7 @@
 local bin = require "bin"
 local table = require "table"
 local stdnse = require "stdnse"
+local strbuf = require "strbuf"
 local ipOps = require "ipOps"
 local packet = require "packet"
 _ENV = stdnse.module("eigrp", stdnse.seeall)
@@ -308,7 +309,8 @@ EIGRP = {
     --- Converts the request to a string suitable to be sent over a socket.
     -- @return data string containing the complete request to send over the socket
     __tostring = function(self)
-      local data = bin.pack(">C", self.ver) -- Version 2
+      local data = strbuf.new()
+      data = data .. bin.pack(">C", self.ver) -- Version 2
       data = data .. bin.pack(">C", self.opcode) -- Opcode: Hello
 
       -- If checksum not manually.
@@ -378,6 +380,7 @@ EIGRP = {
           stdnse.debug1("eigrp.lua: TLV type %d unknown.", tlv.type)
         end
       end
+      data = strbuf.dump(data)
       -- In the end, correct the checksum if not manually set
       if not self.checksum then
         data = data:sub(1,2) .. bin.pack(">S", packet.in_cksum(data)) .. data:sub(5)

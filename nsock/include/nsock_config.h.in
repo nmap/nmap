@@ -80,6 +80,7 @@
 
 #undef HAVE_NETDB_H
 
+#undef HAVE_OPENSSL
 #undef HAVE_SSL_SET_TLSEXT_HOST_NAME
 
 #undef HAVE_EPOLL

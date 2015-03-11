@@ -2,8 +2,6 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local dns = require "dns"
 local base32 = require "base32"
-local msrpc = require "msrpc" -- just for random string generation
-local math = require "math"
 local bin = require "bin"
 local nmap = require "nmap"
 local string = require "string"
@@ -168,25 +166,21 @@ local function empty(t)
   return not next(t)
 end
 
-local function random_string()
-  return msrpc.random_crap(8,"etaoinshrdlucmfw")
-end
-
 -- generate a random hash with domains suffix
 -- return both domain and its hash
 local function generate_hash(domain, iter, salt)
-  local rand_str = random_string()
+  local rand_str = stdnse.generate_random_string(8, "etaoinshrdlucmfw")
   local random_domain = rand_str .. "." .. domain
-  local packed_domain = ""
-  for word in string.gmatch(domain,"[^%.]+") do
-    packed_domain = packed_domain .. bin.pack("c",string.len(word)) .. word
+  local packed_domain = {}
+  for word in string.gmatch(random_domain, "[^%.]+") do
+    packed_domain[#packed_domain+1] = bin.pack("p", word)
   end
-  local to_hash = bin.pack("c",string.len(rand_str)) .. rand_str .. packed_domain .. bin.pack("c",0) .. bin.pack("H",salt)
+  salt = bin.pack("H", salt)
+  local to_hash = bin.pack("AxA", table.concat(packed_domain), salt)
   iter = iter - 1
   local hash = openssl.sha1(to_hash)
   for i=0,iter do
-    hash = hash .. bin.pack("H",salt)
-    hash = openssl.sha1(hash)
+    hash = openssl.sha1(hash .. salt)
   end
   return string.lower(base32.enc(hash,true)), random_domain
 end
@@ -239,7 +233,7 @@ local function enum(host, port, domain)
   local todo = {}
   local dnssec, status, result = false, false, "No Answer"
   local result = {}
-  local subdomain = msrpc.random_crap(8,"etaoinshrdlucmfw")
+  local subdomain = stdnse.generate_random_string(8, "etaoinshrdlucmfw")
   local full_domain = join({subdomain, domain})
   local iter
   local salt

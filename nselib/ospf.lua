@@ -98,15 +98,17 @@ OSPF = {
     end,
 
     __tostring = function(self)
-      local hdr = bin.pack(">CCS", self.ver, self.type, self.length )
-      hdr = hdr .. bin.pack(">IISS", ipOps.todword(self.router_id), self.area_id, self.chksum, self.auth_type)
+      local auth
       if self.auth_type == 0x00 then
-        hdr = hdr .. bin.pack(">L", 0x00)
+        auth = bin.pack(">L", 0x00)
       elseif self.auth_type == 0x01 then
-        hdr = hdr .. bin.pack(">A8", self.auth_data.password)
+        auth = bin.pack(">A8", self.auth_data.password)
       elseif self.auth_type == 0x02 then
-        hdr = hdr .. bin.pack(">A".. self.auth_data.length, self.auth_data.hash)
+        auth = bin.pack(">A".. self.auth_data.length, self.auth_data.hash)
       end
+      local hdr = bin.pack(">CCS", self.ver, self.type, self.length )
+      .. bin.pack(">IISS", ipOps.todword(self.router_id), self.area_id, self.chksum, self.auth_type)
+      .. auth
       return hdr
     end,
 

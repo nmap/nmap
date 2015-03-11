@@ -1,6 +1,7 @@
 top_srcdir = @top_srcdir@
 srcdir = @srcdir@
 prefix = @prefix@
+datarootdir = @datarootdir@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
 mandir = @mandir@
@@ -11,6 +12,8 @@ CPPFLAGS = @CPPFLAGS@ $(DEFS) -I$(NBASEDIR)
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@ $(NBASELIB)
 DEFS = @DEFS@ -D_FORTIFY_SOURCE=2
+APR_LIBS = @APR_LIBS@
+SVN_LIBS = @SVN_LIBS@
 
 INSTALL = @INSTALL@
 STRIP = @STRIP@
@@ -27,8 +30,8 @@ NBASELIB = $(NBASEDIR)/libnbase.a
 
 all: nmap-update
 
-nmap-update: $(O_FILES)
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS)
+nmap-update: $(O_FILES) $(NBASELIB)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(APR_LIBS) $(SVN_LIBS) $(LIBS)
 
 %.o: %.c
 	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<

@@ -441,10 +441,10 @@ linux)
 	# Do we have libnl?
 	#
 	AC_ARG_WITH(libnl,
-	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
+	AC_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
 		with_libnl=$withval,,)
 
-	if test x$with_libnl != xno ; then
+	if test x$with_libnl = xyes ; then
 		have_any_nl="no"
 
 		#

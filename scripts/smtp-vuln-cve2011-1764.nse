@@ -101,20 +101,19 @@ local function check_dkim(socket, smtp_opts)
     return status, response
   end
 
-  local message = "MIME-Version: 1.0\r\n"
-  message = message..string.format("From: <%s>\r\nTo: <%s>\r\n",
-                                   smtp_opts.mailfrom,
-                                   smtp_opts.mailto)
-  message = message.."Subject: Nmap Exim DKIM Format String check\r\n"
-
-  -- use a fake DKIM-Signature header.
-  message = message.."DKIM-Signature: v=1; a=%s%s%s%s;"
-  message = message.." c=%s%s%s%s; q=dns/txt;\r\n"
-  message = message.." d=%s%s%s%s; s=%s%s%s%s;\r\n"
-  message = message.." h=mime-version:from:to:subject;\r\n"
-  message = message.." bh=MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=;\r\n"
-  message = message.." b=DyE0uKynaea3Y66zkrnMaBqtYPYVXhazCKGBiZKMNywclgbj0MkREPH3t2EWByev9g="
-  status, response = socket:send(message.."\r\n")
+  local message = (
+    string.format( "MIME-Version: 1.0\r\nFrom: <%s>\r\nTo: <%s>\r\n",
+      smtp_opts.mailfrom, smtp_opts.mailto)
+    .."Subject: Nmap Exim DKIM Format String check\r\n"
+    -- use a fake DKIM-Signature header.
+    .."DKIM-Signature: v=1; a=%s%s%s%s;"
+    .." c=%s%s%s%s; q=dns/txt;\r\n"
+    .." d=%s%s%s%s; s=%s%s%s%s;\r\n"
+    .." h=mime-version:from:to:subject;\r\n"
+    .." bh=MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=;\r\n"
+    .." b=DyE0uKynaea3Y66zkrnMaBqtYPYVXhazCKGBiZKMNywclgbj0MkREPH3t2EWByev9g=\r\n"
+    )
+  status, response = socket:send(message)
   if not status then
     return status, "failed to send the message."
   end

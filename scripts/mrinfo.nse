@@ -166,19 +166,15 @@ end
 
 -- Function that generates a raw DVMRP Ask Neighbors 2 request.
 local mrinfoRaw = function()
-  -- Type: DVMRP
-  local mrinfo_raw = bin.pack(">C", 0x13)
-  -- Code: Ask Neighbor v2
-  mrinfo_raw = mrinfo_raw.. bin.pack(">C", 0x05)
-  -- Checksum: Calculated later
-  mrinfo_raw = mrinfo_raw.. bin.pack(">S", 0x0000)
-  -- Reserved
-  mrinfo_raw = mrinfo_raw.. bin.pack(">S", 0x000a)
-  -- Version == Cisco IOS 12.4
-  -- Minor version: 4
-  mrinfo_raw = mrinfo_raw.. bin.pack(">C", 0x04)
-  -- Major version: 12
-  mrinfo_raw = mrinfo_raw.. bin.pack(">C", 0x0c)
+  local mrinfo_raw = bin.pack(">CCSSCC",
+    0x13, -- Type: DVMRP
+    0x05, -- Code: Ask Neighbor v2
+    0x0000, -- Checksum: Calculated later
+    0x000a, -- Reserved
+    -- Version == Cisco IOS 12.4
+    0x04, -- Minor version: 4
+    0x0c) -- Major version: 12
+
   -- Calculate checksum
   mrinfo_raw = mrinfo_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(mrinfo_raw)) .. mrinfo_raw:sub(5)
 

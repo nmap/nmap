@@ -76,7 +76,7 @@ cleanup_all() {
 main() {
   setup_echo_udp $PORT_UDP
   setup_echo_tcp $PORT_TCP
-  setup_echo_tcpssl $PORT_TCPSSL
+  $EXEC_MAIN --ssl && setup_echo_tcpssl $PORT_TCPSSL
 
   $TRACER $EXEC_MAIN
 

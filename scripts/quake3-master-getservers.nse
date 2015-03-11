@@ -73,7 +73,7 @@ local KNOWN_PROTOCOLS = {
 local function getservers(host, port, q3protocol)
   local socket = nmap.new_socket()
   socket:set_timeout(10000)
-  local status, err = socket:connect(host.ip, port.number, "udp")
+  local status, err = socket:connect(host, port)
   if not status then
     return {}
   end

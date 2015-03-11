@@ -42,7 +42,7 @@ categories = {"default", "discovery", "safe", "version"}
 portrule = shortport.version_port_or_service(5672, "amqp", "tcp", "open")
 
 action = function(host, port)
-  local cli = amqp.AMQP:new( host.ip, port.number )
+  local cli = amqp.AMQP:new( host, port )
 
   local status, data = cli:connect()
   if not status then return "Unable to open connection: " .. data end

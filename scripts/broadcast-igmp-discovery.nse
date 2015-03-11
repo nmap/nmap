@@ -214,28 +214,23 @@ local igmpRaw = function(interface, version)
   end
 
   -- Let's craft an IGMP Membership Query
-  local igmp_raw = bin.pack(">C", 0x11) -- Membership Query, same for all versions
-  if version == 1 then
-    igmp_raw = igmp_raw .. bin.pack(">C", 0x00) -- Unused, 0x00 for version 1 only
-  else
-    igmp_raw = igmp_raw .. bin.pack(">C", 0x16) -- Max response time: 10 Seconds, for version 2 and 3
-  end
-
-  igmp_raw = igmp_raw .. bin.pack(">S", 0x00) -- Checksum, calculated later
-  igmp_raw = igmp_raw .. bin.pack(">I", 0x00) -- Multicast Address: 0.0.0.0
+  local igmp_raw = bin.pack(">CCSI",
+    0x11, -- Membership Query, same for all versions
+    version == 1 and 0 or 0x16, -- Max response time: 10 Seconds, for version 2 and 3
+    0, -- Checksum, calculated later
+    0  -- Multicast Address: 0.0.0.0
+    )
 
   if version == 3 then
-    -- Reserved = 4 bits (Should be zeroed)
-    -- Supress Flag = 1 bit
-    -- QRV (Querier's Robustness Variable) = 3 bits
-    -- all are set to 0
-    igmp_raw = igmp_raw .. bin.pack(">C", 0x00)
-    -- QQIC (Querier's Query Interval Code) in seconds = Set to 0 to get insta replies.
-    igmp_raw = igmp_raw .. bin.pack(">C", 0x10)
-    -- Number of sources (in the next arrays) = 1 ( Our IP only)
-    igmp_raw = igmp_raw .. bin.pack(">S", 0x01)
-    -- Source = Our IP address
-    igmp_raw = igmp_raw .. bin.pack(">I", ipOps.todword(interface.address))
+    igmp_raw = bin.pack(">ACCSI", igmp_raw,
+      0, -- Reserved = 4 bits (Should be zeroed)
+      -- Supress Flag = 1 bit
+      -- QRV (Querier's Robustness Variable) = 3 bits
+      -- all are set to 0
+      0x10, -- QQIC (Querier's Query Interval Code) in seconds = Set to 0 to get insta replies.
+      0x0001, -- Number of sources (in the next arrays) = 1 ( Our IP only)
+      ipOps.todword(interface.address) -- Source = Our IP address
+      )
   end
 
   igmp_raw = igmp_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(igmp_raw)) .. igmp_raw:sub(5)

@@ -11,7 +11,6 @@ local string = require "string"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
-local packet = require "packet"
 
 description = [[
 Requests a zone transfer (AXFR) from a DNS server.
@@ -258,7 +257,7 @@ end
 --- Retrieve type specific data (rdata) from dns packets
 local RD = {
   A = function(data, offset)
-    return offset+4, packet.toip(data:sub(offset, offset+3))
+    return offset+4, ipOps.str_to_ip(data:sub(offset, offset+3))
   end,
   NS = parse_domain,
   MD = parse_domain, -- obsolete per rfc1035, use MX
@@ -284,7 +283,7 @@ local RD = {
   WKS = function(data, offset)
     local len, ip, proto, svcs
     len = bto16(data, offset-2) - 5 -- length of bit field
-    ip = packet.toip(data:sub(offset, offset+3))
+    ip = ipOps.str_to_ip(data:sub(offset, offset+3))
     proto = string.byte(data, offset+4)
     offset = offset + 5
     svcs = {}
@@ -356,7 +355,7 @@ local RD = {
     return offset, string.format("%s %s %s", lat, long, alt)
   end,
   AAAA = function(data, offset)
-    return offset+16, packet.toipv6(data:sub(offset, offset+15))
+    return offset+16, ipOps.str_to_ip(data:sub(offset, offset+15))
   end,
   LOC = function(data, offset)
     local version, siz, hp, vp, lat, lon, alt
@@ -419,7 +418,7 @@ local RD = {
     local prefix, addr, name
     prefix = string.byte(data, offset)
     local pbytes = bit.rshift(prefix,3)
-    addr = packet.toipv6(string.rep("\000", pbytes) .. data:sub(offset+1, 16-pbytes))
+    addr = ipOps.str_to_ip(string.rep("\000", pbytes) .. data:sub(offset+1, 16-pbytes))
     offset, name = parse_domain(data, offset + 17 - pbytes)
     return offset, string.format("%d %s %s", prefix, addr, name)
   end,

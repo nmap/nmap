@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Checks if a target on a local Ethernet has its network card in promiscuous mode.
@@ -117,10 +118,11 @@ action = function(host)
     "\x01\x00\x5e\x00\x00\x03", -- M3
   }
   local v
-  local out = ""
+  local out = {}
   for _, v in ipairs(t) do
-    out = out .. do_test(dnet, pcap, host, v .. test_static)
+    out[#out+1] = do_test(dnet, pcap, host, v .. test_static)
   end
+  out = table.concat(out)
 
   dnet:ethernet_close()
   pcap:pcap_close()

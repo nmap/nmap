@@ -2,7 +2,6 @@ local anyconnect = require('anyconnect')
 local stdnse = require('stdnse')
 local shortport = require('shortport')
 local nmap = require('nmap')
-local sslcert = require('sslcert')
 
 description = [[
 Connect as Cisco AnyConnect client to a Cisco SSL VPN and retrieves version
@@ -36,7 +35,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) and shortport.http(host, port)
 end
 
 action = function(host, port)

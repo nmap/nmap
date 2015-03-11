@@ -1,9 +1,6 @@
-local base64 = require "base64"
-local bin = require "bin"
 local datafiles = require "datafiles"
 local http = require "http"
 local nmap = require "nmap"
-local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -145,26 +142,4 @@ function init()
   nmap.registry.userdir = usernames
   stdnse.debug1("Testing %d usernames.", #usernames)
   return nil
-end
-
-
-
----
--- Uses openssl.rand_pseudo_bytes (if available, os.time() if not) and base64.enc
--- to produce a randomish string of at least 11 alphanumeric chars.
--- @return String
-
-function randomstring()
-  local rnd, s, l, _
-  local status, openssl = pcall(require, "openssl")
-  if status then
-    rnd = openssl.rand_pseudo_bytes
-  end
-  s = rnd and rnd(8) or tostring( os.time() )
-  -- increase the length of the string by 0 to 7 chars
-  _, l = bin.unpack(">C", s, 8) -- eighth byte should be safe for os.time() too
-  s = l%8 > 0 and s .. s:sub(1,l%8) or s
-  -- base 64 encode and replace any non alphanum chars (with 'n' for nmap!)
-  s = base64.enc(s):sub(1,-2):gsub("%W", "n")
-  return s
 end

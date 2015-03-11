@@ -647,7 +647,7 @@ function smb_encode_header(smb, command, overrides)
   overrides = overrides or {}
 
   -- Used for the header
-  local sig = string.char(0xFF) .. "SMB"
+  local sig = "\xFFSMB"
 
   -- Pretty much every flags is deprecated. We set these two because they're required to be on.
   local flags  = bit.bor(0x10, 0x08) -- SMB_FLAGS_CANONICAL_PATHNAMES | SMB_FLAGS_CASELESS_PATHNAMES
@@ -1017,7 +1017,7 @@ function negotiate_protocol(smb, overrides)
 
   -- Get the protocol version
   local protocol_version = string.char(header1, header2, header3, header4)
-  if(protocol_version == (string.char(0xFE) .. "SMB")) then
+  if(protocol_version == ("\xFESMB")) then
     return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
   end
 
@@ -2150,7 +2150,7 @@ local function send_transaction2(smb, sub_command, function_parameters, function
     )
 
   local data = "\0\0\0" .. (function_parameters or '')
-  data = data .. (function_data or '')
+  .. (function_data or '')
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION2")
@@ -2262,8 +2262,23 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
     data_size         = #function_data
   end
 
+  local setup
+  if(no_setup) then
+    setup = bin.pack("<CC",
+      0x00,                            -- Number of 'setup' words (none)
+      0x00                             -- Reserved.
+      )
+  else
+    setup = bin.pack("<CCSS",
+      0x02,                            -- Number of 'setup' words
+      0x00,                            -- Reserved.
+      0x0026,                          -- Function to call.
+      smb['fid']                       -- Handle to open file
+      )
+  end
+
   -- Parameters are 0x20 bytes long.
-  parameters = bin.pack("<SSSSCCSISSSSS",
+  parameters = bin.pack("<SSSSCCSISSSSSA",
     parameter_size,                  -- Total parameter count.
     data_size,                       -- Total data count.
     0x0008,                          -- Max parameter count.
@@ -2276,28 +2291,14 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
     parameter_size,                  -- Parameter bytes.
     parameter_offset,                -- Parameter offset.
     data_size,                       -- Data bytes.
-    data_offset                      -- Data offset.
+    data_offset,                     -- Data offset.
+    setup
     )
 
-  if(no_setup) then
-    parameters = parameters .. bin.pack("<CC",
-      0x00,                            -- Number of 'setup' words (none)
-      0x00                             -- Reserved.
-      )
-  else
-    parameters = parameters .. bin.pack("<CCSS",
-      0x02,                            -- Number of 'setup' words
-      0x00,                            -- Reserved.
-      0x0026,                          -- Function to call.
-      smb['fid']                       -- Handle to open file
-      )
-  end
-
   data = bin.pack("<z", pipe)
-  data = data .. bin.pack("<I", 0) -- Padding
-
-  data = data .. (function_parameters or '')
-  data = data .. (function_data or '')
+  .. bin.pack("<I", 0) -- Padding
+  .. (function_parameters or '')
+  .. (function_data or '')
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
@@ -2381,10 +2382,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe, overrides)
     priority                         -- Handle to open file
     )
 
-  while(((#pipe + 1 + #padding) % 4) ~= 0) do
-    padding = padding .. string.char(0)
-  end
-  data = bin.pack("<zA", pipe, padding);
+  data = bin.pack("zA", pipe, string.rep('\0', (4 - ((#pipe+1) % 4)) % 4))
 
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
@@ -2718,12 +2716,10 @@ function find_files(smbstate, fname, options)
     ( options.srch_attrs.archive and 32 or 0 ))
 
   if ( not(fname) ) then
-    fname = '\\*'
+    fname = '\\*\0'
   elseif( fname:sub(1,1) ~= '\\' ) then
-    fname = '\\' .. fname
+    fname = '\\' .. fname .. '\0'
   end
-
-  fname = fname .. '\0'
 
   -- Sends the request and takes care of short/fragmented responses
   local function send_and_receive_find_request(smbstate, trans_type, function_parameters)
@@ -2763,17 +2759,12 @@ function find_files(smbstate, fname, options)
   local loi   = 260 -- Level of interest, return SMB_FIND_FILE_BOTH_DIRECTORY_INFO
   local storage_type = 0 -- despite the documentation of having to be either 0x01 or 0x40, wireshark reports 0
 
-  local function_parameters = bin.pack("<SSSSIA", nattrs, srch_count, flags, loi, storage_type, fname)
-
   -- SMB header: 32
   -- trans2 header: 36
-  -- FIND_FIRST2 parameters: #function_parameters
-  local pad = ( 32 + 36 + #function_parameters ) % 4
-  if ( pad > 0 ) then
-    for i=1, ( 4-pad ) do
-      function_parameters = function_parameters .. "\0"
-    end
-  end
+  -- FIND_FIRST2 parameters: 12 + #fname
+  local pad = ( 32 + 36 + 12 + #fname ) % 4
+  local function_parameters = bin.pack("<SSSSIAA",
+    nattrs, srch_count, flags, loi, storage_type, fname, string.rep('\0', (4 - pad) % 4))
 
 
   local function next_item()

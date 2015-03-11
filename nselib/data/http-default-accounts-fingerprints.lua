@@ -167,6 +167,23 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Adobe LiveCycle Management Console",
+  category = "web",
+  paths = {
+    {path = "/lc/system/console"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "OSGi Management Console"
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
   name = "Apache Axis2",
   category = "web",
   paths = {
@@ -298,7 +315,7 @@ table.insert(fingerprints, {
                     local _, hex = bin.unpack("H" .. str:len(), str)
                     return hex:lower()
                   end
-    local login = string.format("J20K34NMMT89XPIJ34S login %s %s", tohex(user), tohex(pass))
+    local login = ("J20K34NMMT89XPIJ34S login %s %s"):format(tohex(user), tohex(pass))
     local lpath = url.absolute(path, "usmCgi.cgi/?" .. url.escape(login))
     local req = http.get(host, port, lpath, {no_cache=true, redirect_ok = false})
     return req
@@ -362,6 +379,48 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, true)
+  end
+})
+
+---
+--Printers
+---
+table.insert(fingerprints, {
+  name = "Zebra Printer",
+  category = "printer",
+  paths = {
+    {path = "/setgen"}
+  },
+  target_check = function (host, port, path, response)
+    return response.body
+           and response.body:lower():find("<h1>zebra technologies<br>", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = "1234"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {}
+    form["0"] = pass
+    return try_http_post_login(host, port, path, "authorize", "incorrect password", form)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "Zebra Print Server",
+  category = "printer",
+  paths = {
+    {path = "/server/TCPIPGEN.htm"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "Network Print Server"
+           and response.header["server"]
+           and response.header["server"] == "Micro-Web"
+  end,
+  login_combos = {
+    {username = "admin", password = "1234"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
   end
 })
 

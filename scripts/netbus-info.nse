@@ -161,9 +161,13 @@ action = function( host, port )
   end
   local socket = nmap.new_socket()
   socket:set_timeout(5000)
-  local status, err = socket:connect(host.ip, port.number)
+  local status, err = socket:connect(host, port)
   local buffer, err = stdnse.make_buffer(socket, "\r")
   local _ = buffer()
+  if not (_ and _:match("^NetBus")) then
+    stdnse.debug1("Not NetBus")
+    return nil
+  end
   socket:send(string.format("Password;1;%s\r", password))
   local gotin = buffer()
   if gotin == "Access;0" then

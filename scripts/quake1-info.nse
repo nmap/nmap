@@ -135,8 +135,7 @@ local function get_player_info(host, port, id)
     id - 1)            -- player number (0 indexed)
   -- iptables -m u32 --u32 '0x1c=0x80000006&&0x1d&0xff=0x03'
 
-  local status, rep_pl = comm.exchange(host, port, req_pl,
-    { proto = port.protocol })
+  local status, rep_pl = comm.exchange(host, port, req_pl)
   assert_w_table(status, "No response to request for player info")
 
   player_info.player_ratio = string.format("%d/%d=%f",
@@ -201,8 +200,7 @@ local function get_server_info(host, port)
     net_protocol_released)     -- net protocol version
   -- iptables -m u32 --u32 '0x1c=0x8000000c&&0x20=0x02515541&&0x24=0x4b450003'
 
-  local status, rep_pl = comm.exchange(host, port, req_pl,
-    { proto = port.protocol })
+  local status, rep_pl = comm.exchange(host, port, req_pl)
   assert_w_table(status, "No response to request for server info")
 
   nmap.set_port_state(host, port, 'open')

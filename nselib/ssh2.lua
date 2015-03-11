@@ -8,7 +8,6 @@ local base64 = require "base64"
 local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
-local string = require "string"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh2", stdnse.seeall)
 
@@ -61,7 +60,7 @@ transport.pack_mpint = function( bn )
   packed = bn:tobin()
   if bytes % 8 == 0 then
     bytes = bytes + 1
-    packed = string.char(0) .. packed
+    packed = '\0' .. packed
   end
   return bin.pack( ">IA", bytes, packed )
 end
@@ -111,11 +110,11 @@ transport.kex_init = function( options )
   local languages = options['languages'] or ""
 
   local payload = bin.pack( ">cAaa", SSH2.SSH_MSG_KEXINIT, cookie, kex_algorithms, host_key_algorithms )
-  payload = payload .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )
-  payload = payload .. bin.pack( ">aa", mac_algorithms, mac_algorithms )
-  payload = payload .. bin.pack( ">aa", compression_algorithms, compression_algorithms )
-  payload = payload .. bin.pack( ">aa", languages, languages )
-  payload = payload .. bin.pack( ">cI", 0, 0 )
+  .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )
+  .. bin.pack( ">aa", mac_algorithms, mac_algorithms )
+  .. bin.pack( ">aa", compression_algorithms, compression_algorithms )
+  .. bin.pack( ">aa", languages, languages )
+  .. bin.pack( ">cI", 0, 0 )
 
   return payload
 end

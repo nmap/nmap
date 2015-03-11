@@ -79,11 +79,8 @@ author = "George Chatzisofroniou"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
-local io = require "io"
 local ipOps = require "ipOps"
-local math = require "math"
 local nmap = require "nmap"
-local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"

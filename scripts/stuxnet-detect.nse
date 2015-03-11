@@ -2,7 +2,6 @@ local io = require "io"
 local msrpc = require "msrpc"
 local smb = require "smb"
 local stdnse = require "stdnse"
-local string = require "string"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :

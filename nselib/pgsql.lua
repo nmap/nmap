@@ -53,15 +53,7 @@ v2 =
   -- @param len number containing the wanted length
   -- @return string containing the padded string value
   zeroPad = function(str, len)
-    local padding = len - str:len()
-
-    if ( padding < 0 ) then
-      return str
-    end
-    for i=1,padding do
-      str = str .. string.char(0x00)
-    end
-    return str
+    return str .. string.rep('\0', len - #str)
   end,
 
   messageDecoder = {

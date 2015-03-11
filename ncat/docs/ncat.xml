@@ -381,6 +381,20 @@
           use its default certificates.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-ciphers <replaceable>cipherlist</replaceable></option> (Specify SSL ciphersuites)
+          <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This option sets the list of ciphersuites that Ncat will use
+            when connecting to servers or when accepting SSL connections from
+            clients. The syntax is described in the OpenSSL ciphers(1) man
+            page, and defaults to
+            <literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal></para>
+        </listitem>
+      </varlistentry>
     </variablelist>
 
   </refsect1>

@@ -2033,9 +2033,10 @@ pcap_if_t *getpcapinterfaces() {
   return NULL;
 #endif
   pcap_if_t *p_ifaces;
+  char errbuf[PCAP_ERRBUF_SIZE];
 
-  if ((pcap_findalldevs(&p_ifaces, NULL)) == -1) {
-    fatal("pcap_findalldevs() : Cannot retrieve pcap interfaces");
+  if ((pcap_findalldevs(&p_ifaces, errbuf)) == -1) {
+    fatal("pcap_findalldevs(): Cannot retrieve pcap interfaces: %s", errbuf);
     return NULL;
   }
   return p_ifaces;

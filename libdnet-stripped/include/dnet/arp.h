@@ -42,6 +42,7 @@ struct arp_hdr {
 #define ARP_HRD_INFINIBAND 0x0020 /* InfiniBand */
 #define ARP_HRD_APPLETALK 0x0309 /* AppleTalk DDP */
 #define ARP_HDR_IEEE80211 0x0321  /* IEEE 802.11 */
+#define ARP_HRD_IEEE80211_PRISM 0x0322  /* IEEE 802.11 + prism header */
 #define ARP_HRD_IEEE80211_RADIOTAP 0x0323  /* IEEE 802.11 + radiotap header */
 #define ARP_HRD_VOID 0xFFFF			/* Void type, nothing is known */
 

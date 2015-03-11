@@ -151,6 +151,8 @@
 
 #ifdef WIN32
 #include "winfix.h"
+/* This name collides in the following include. */
+#undef PS_NONE
 #include <shlobj.h>
 #endif
 
@@ -1222,7 +1224,7 @@ void parse_options(int argc, char **argv) {
           assert(ports.proto_ping_count > 0);
         }
       } else {
-        fatal("Illegal Argument to -P, use -Pn, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, -PY, or -PT80 (or whatever number you want for the TCP probe destination port)");
+        fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, -PR, or -PO");
       }
       break;
     case 'p':

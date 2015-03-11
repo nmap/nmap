@@ -374,7 +374,7 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #if defined(__GNUC__)
 #define NORETURN __attribute__((noreturn))
 #elif defined(_MSC_VER)
-#define NORETURN __declspec((noreturn))
+#define NORETURN __declspec(noreturn)
 #else
 #define NORETURN
 #endif

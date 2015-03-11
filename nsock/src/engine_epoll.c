@@ -297,11 +297,7 @@ int epoll_loop(struct npool *nsp, int msec_timeout) {
 #endif
 #endif
     {
-      if (einfo->evlen)
-        results_left = epoll_wait(einfo->epfd, einfo->events, einfo->evlen, combined_msecs);
-      else
-        results_left = 0;
-
+      results_left = epoll_wait(einfo->epfd, einfo->events, einfo->evlen, combined_msecs);
       if (results_left == -1)
         sock_err = socket_errno();
     }

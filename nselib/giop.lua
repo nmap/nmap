@@ -57,7 +57,6 @@ local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("giop", stdnse.seeall)
 
@@ -296,8 +295,7 @@ Packet.GIOP.get = {
     local pad = 0
 
     for i=1, #self.sc do
-      local tmp = tostring( self.sc[i])
-      data = data .. bin.pack("A", tmp )
+      data = data .. tostring( self.sc[i])
     end
 
     data = data .. bin.pack( ">ICCCCIIIAIA", self.id, self.resp_expected, pad, pad, pad,
@@ -348,8 +346,7 @@ Packet.GIOP._is_a =
     UNKNOWN, #self.key_addr, self.key_addr, #self.op, self.op, UNKNOWN2, #self.sc )
 
     for i=1, #self.sc do
-      local tmp = tostring( self.sc[i])
-      data = data .. bin.pack("A", tmp )
+      data = data .. tostring( self.sc[i])
     end
 
     data = data .. bin.pack(">IA", #TYPE_ID, TYPE_ID)
@@ -404,8 +401,7 @@ Packet.GIOP.list =
       #self.op, self.op, RESERVED, RESERVED, UNKNOWN2, #self.sc )
 
     for i=1, #self.sc do
-      local tmp = tostring( self.sc[i])
-      data = data .. bin.pack("A", tmp )
+      data = data .. tostring( self.sc[i])
     end
 
     data = data .. bin.pack(">II", UNKNOWN3, self.how_many )
@@ -555,8 +551,8 @@ Helper = {
     local packet = Packet.GIOP.get:new( 5, 0x494e4954, bin.pack(">IA", #Constants.NAMESERVICE, Constants.NAMESERVICE) )
     local status, ctx, lhost, pos, len, bo, tmp
 
-    packet:addServiceContext( 17, string.char(0x00, 0x02), 0)
-    packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, string.char(0x00, 0x14), 0)
+    packet:addServiceContext( 17, "\0\x02", 0)
+    packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, "\0\x14", 0)
     packet:addServiceContext( Constants.ServiceContext.SENDING_CONTEXT_RUNTIME, tostring(SendingContextRuntime:new( self.lhost )), 0 )
 
     status, packet = self.comm:exchGIOPPacket( packet )
@@ -575,7 +571,7 @@ Helper = {
 
     packet:addServiceContext( 17, "\0\2", 0x000d)
     packet:addServiceContext( Constants.ServiceContext.CODESETS, "\0\0\0\0\0\1\0\1\0\1\1\9" )
-    packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, string.char(0x00, 0x14), 0x5d69)
+    packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, "\0\x14", 0x5d69)
     packet:addServiceContext( Constants.ServiceContext.SENDING_CONTEXT_RUNTIME, tostring(SendingContextRuntime:new( self.lhost )), 0 )
 
     status, packet = self.comm:exchGIOPPacket( packet )
@@ -584,7 +580,7 @@ Helper = {
     packet = Packet.GIOP.list:new( Constants.ServiceContext.SENDING_CONTEXT_RUNTIME, Constants.SyncScope.WITH_TARGET, keyaddr, 1000 )
     packet:addServiceContext( 17, "\0\2", 0x000d)
     packet:addServiceContext( Constants.ServiceContext.CODESETS, "\0\0\0\0\0\1\0\1\0\1\1\9" )
-    packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, string.char(0x00, 0x14), 0x9c9b)
+    packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, "\0\x14", 0x9c9b)
 
     status, packet = self.comm:exchGIOPPacket( packet )
     if( not(status) ) then return status, packet end

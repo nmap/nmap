@@ -130,20 +130,14 @@ JDWPCommandPacket = {
   -- Packs command packet as a string od bytes, ready to be sent
   -- to the target debuggee.
   pack = function(self)
-    local packed_packet
-    if self.data == nil then
-      packed_packet = bin.pack(">I",11) -- length - minimal header is 11 bytes
-    else
-      packed_packet = bin.pack(">I",11 + #self.data) -- length with data
-    end
-    packed_packet = packed_packet .. bin.pack(">I",self.id)
-    packed_packet = packed_packet .. bin.pack(">C",0) -- flag
-    packed_packet = packed_packet .. bin.pack(">C",self.command_set)
-    packed_packet = packed_packet .. bin.pack(">C",self.command)
-    if self.data then
-      packed_packet = packed_packet .. self.data
-    end
-    return packed_packet
+    local data = self.data or ""
+    return bin.pack(">IICCC",
+      11 + #data, -- length - minimal header is 11 bytes
+      self.id,
+      0, -- flag
+      self.command_set,
+      self.command,
+      data)
   end
 }
 

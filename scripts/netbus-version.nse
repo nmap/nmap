@@ -25,12 +25,16 @@ action = function( host, port )
 
   local socket = nmap.new_socket()
   socket:set_timeout(5000)
-  local status, err = socket:connect(host.ip, port.number)
+  local status, err = socket:connect(host, port)
   if not status then
     return
   end
   local buffer, _ = stdnse.make_buffer(socket, "\r")
-  buffer() --discard banner
+  _ = buffer()
+  if not (_ and _:match("^NetBus")) then
+    stdnse.debug1("Not NetBus")
+    return nil
+  end
   socket:send("Password;0;\r")
 
   --NetBus answers to auth

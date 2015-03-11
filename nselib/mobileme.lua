@@ -1,6 +1,5 @@
 local http = require "http"
 local json = require "json"
-local package = require "package"
 local stdnse = require "stdnse"
 local table = require "table"
 _ENV = stdnse.module("mobileme", stdnse.seeall)

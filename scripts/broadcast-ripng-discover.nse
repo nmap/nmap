@@ -107,11 +107,11 @@ RIPng = {
     -- Converts the whole request to a string
     __tostring = function(self)
       local RESERVED = 0
-      local str = bin.pack(">CCS", self.command, self.version, RESERVED)
+      local str = {bin.pack(">CCS", self.command, self.version, RESERVED)}
       for _, rte in ipairs(self.entries) do
-        str = str .. tostring(rte)
+        str[#str+1] = tostring(rte)
       end
-      return str
+      return table.concat(str)
     end,
 
   },

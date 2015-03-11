@@ -73,12 +73,12 @@ ftp_helper = {
       bit.band(bit.rshift(targetport, 8), 0xff) ..
       "," .. bit.band(targetport, 0xff) ..
       ")\r\n"
-      ethertype = string.char(0x08, 0x00) -- Ethernet Type: IPv4
+      ethertype = "\x08\0" -- Ethernet Type: IPv4
 
     else
       -- IPv6 payload
       payload = "229 Extended Passive Mode OK (|||" .. targetport .. "|)\r\n"
-      ethertype = string.char(0x86, 0xdd) -- Ethernet Type: IPv6
+      ethertype = "\x86\xdd" -- Ethernet Type: IPv6
     end
 
     helperport = helperport or 21

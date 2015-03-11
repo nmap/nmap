@@ -113,11 +113,7 @@ end
 --@return String description for output
 local output = function(passwd, dir)
   local trunc, len = truncatePasswd(passwd)
-  local out = ""
-  out = out .. "Directory traversal found.\nPayload: \"" .. dir .. "\"\n"
-  out = out .. "Printing first " .. len .. " bytes:\n"
-  out = out .. trunc
-  return out
+  return ('Directory traversal found.\nPayload: "%s"\nPrinting first %d bytes:\n%s'):format(dir, len, trunc)
 end
 
 portrule = shortport.http

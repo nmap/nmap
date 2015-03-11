@@ -1903,15 +1903,15 @@ NTAuthenticationPacket = {
     local sessionkey_offset = hostname_offset + #hostname
 
     local data = bin.pack("<AISSI", ntlmssp, NTLMSSP_AUTH, #lm_response, #lm_response, lm_response_offset)
-    data = data .. bin.pack("<SSI", #ntlm_response, #ntlm_response, ntlm_response_offset)
-    data = data .. bin.pack("<SSI", #domain, #domain, domain_offset)
-    data = data .. bin.pack("<SSI", #user, #user, username_offset)
-    data = data .. bin.pack("<SSI", #hostname, #hostname, hostname_offset)
-    data = data .. bin.pack("<SSI", #sessionkey, #sessionkey, sessionkey_offset)
-    data = data .. bin.pack("<I", flags)
-    data = data .. bin.pack("A", domain)
-    data = data .. bin.pack("A", user )
-    data = data .. lm_response .. ntlm_response
+    .. bin.pack("<SSI", #ntlm_response, #ntlm_response, ntlm_response_offset)
+    .. bin.pack("<SSI", #domain, #domain, domain_offset)
+    .. bin.pack("<SSI", #user, #user, username_offset)
+    .. bin.pack("<SSI", #hostname, #hostname, hostname_offset)
+    .. bin.pack("<SSI", #sessionkey, #sessionkey, sessionkey_offset)
+    .. bin.pack("<I", flags)
+    .. bin.pack("A", domain)
+    .. bin.pack("A", user )
+    .. lm_response .. ntlm_response
 
     return PacketType.NTAuthentication, data
   end,
@@ -3064,15 +3064,13 @@ Auth = {
   -- @return string containing the encrypted password
   TDS7CryptPass = function(password)
     local xormask = 0x5a5a
-    local result = ""
 
-    for i=1, password:len() do
-      local c = bit.bxor( string.byte( password:sub( i, i ) ), xormask )
+    return password:gsub(".", function(i)
+      local c = bit.bxor( string.byte( i ), xormask )
       local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
       local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-      result = result .. bin.pack("S", bit.bor( m1, m2 ) )
-    end
-    return result
+      return bin.pack("S", bit.bor( m1, m2 ) )
+    end)
   end,
 
   LmResponse = function( password, nonce )
@@ -3082,9 +3080,7 @@ Auth = {
       return
     end
 
-    if(#password < 14) then
-      password = password .. string.rep(string.char(0), 14 - #password)
-    end
+    password = password .. string.rep('\0', 14 - #password)
 
     password = password:upper()
 
@@ -3098,9 +3094,7 @@ Auth = {
 
     local result = openssl.encrypt("DES", key1, nil, nonce) .. openssl.encrypt("DES", key2, nil, nonce)
 
-    if(#result < 21) then
-      result = result .. string.rep(string.char(0), 21 - #result)
-    end
+    result = result .. string.rep('\0', 21 - #result)
 
     str1 = string.sub(result, 1, 7)
     str2 = string.sub(result, 8, 14)
@@ -3137,7 +3131,7 @@ Util =
   -- @return string containing a two byte representation of str where a zero
   --         byte character has been tagged on to each character.
   ToWideChar = function( str )
-    return str:gsub("(.)", "%1" .. string.char(0x00) )
+    return str:gsub("(.)", "%1\0" )
   end,
 
 

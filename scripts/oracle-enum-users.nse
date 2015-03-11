@@ -1,8 +1,6 @@
-local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 local tns = require "tns"
 local unpwdb = require "unpwdb"
@@ -27,8 +25,6 @@ servers (this bug was fixed in Oracle's October 2009 Critical Patch Update).
 -- |   haxxor is a valid user account
 -- |   noob is a valid user account
 -- |_  patrik is a valid user account
---
--- The get_random_string function was stolen from Ron's smb code
 --
 -- @args oracle-enum-users.sid the instance against which to attempt user
 --       enumeration
@@ -70,32 +66,6 @@ local function checkAccount( host, port, user )
   return true, auth["AUTH_VFR_DATA"]
 end
 
----Generates a random string of the requested length. This can be used to check how hosts react to
--- weird username/password combinations.
---@param length (optional) The length of the string to return. Default: 8.
---@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore.
---@return The random string.
-local function get_random_string(length, set)
-  if(length == nil) then
-    length = 8
-  end
-
-  if(set == nil) then
-    set = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
-  end
-
-  local str = ""
-
-  for i = 1, length, 1 do
-    local random = math.random(#set)
-    str = str .. string.sub(set, random, random)
-  end
-
-  return str
-end
-
-
-
 action = function( host, port )
 
   local known_good_accounts = { "system", "sys", "dbsnmp", "scott" }
@@ -131,7 +101,8 @@ action = function( host, port )
   -- Check for some known bad accounts
   count = 0
   for i=1, 10 do
-    local user = get_random_string(10)
+    local user = stdnse.generate_random_string(10,
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
     status, salt = checkAccount(host, port, user)
     if( not(status) ) then return salt  end
     if ( salt ) then

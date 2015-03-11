@@ -62,7 +62,7 @@ action = function(host, port)
       local _, _, name = string.find(user_block, '<name>(.-)</name>')
       local _,_, fName = string.find(user_block, '<fname>(.-)</fname>')
       local _,_, ext = string.find(user_block, '<extn>(.-)</extn>')
-      stdnse.debug(1, string.format("User found!\nName: %s\nFull name: %s\nExt:%s", name, fName, ext))
+      stdnse.debug1("User found!\nName: %s\nFull name: %s\nExt:%s", name, fName, ext)
       if name ~= nil or fName ~= nil or ext ~= nil then 
         local user = {}
         user.name = name

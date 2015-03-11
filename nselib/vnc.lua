@@ -196,11 +196,7 @@ VNC = {
   -- @param password string containing the password to process
   -- @return password string containing the processed password
   createVNCDESKey = function( self, password )
-    if ( #password < 8 ) then
-      for i=1, (8 - #password) do
-        password = password .. string.char(0x00)
-      end
-    end
+    password = password .. string.rep('\0', 8 - #password)
 
     local newpass = ""
     for i=1, 8 do

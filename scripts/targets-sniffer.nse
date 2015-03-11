@@ -1,3 +1,4 @@
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
@@ -61,11 +62,7 @@ end
 -- Returns an array of address strings.
 local function get_ip_addresses(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  if ip.ip_v == 4 then
-    return { packet.toip(ip.ip_bin_src), packet.toip(ip.ip_bin_dst) }
-  elseif ip.ip_v == 6 then
-    return { packet.toipv6(ip.ip_bin_src), packet.toipv6(ip.ip_bin_dst) }
-  end
+  return { ipOps.str_to_ip(ip.ip_bin_src), ipOps.str_to_ip(ip.ip_bin_dst) }
 end
 
 prerule =  function()

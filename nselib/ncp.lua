@@ -177,10 +177,9 @@ Packet = {
       self.ncp_ip.length or 0, self.ncp_ip.version,
       self.ncp_ip.replybuf, self.type, self.seqno,
       self.conn, self.task, UNKNOWN, self.func )
-
-    if ( self.length ) then data = data .. bin.pack(">S", self.length) end
-    if ( self.subfunc ) then data = data .. bin.pack("C", self.subfunc) end
-    if ( self.data ) then data = data .. bin.pack("A", self.data) end
+    .. (self.length and bin.pack(">S", self.length) or "")
+    .. (self.subfunc and bin.pack("C", self.subfunc) or "")
+    .. (self.data or "")
 
     return data
   end,
@@ -944,10 +943,10 @@ NCP = {
     unknown, iter_handle, entry.id, info_flags )
 
     -- no name filter
-    data = data .. "\0\0\0\0"
+    .. "\0\0\0\0"
 
     -- no class filter
-    data = data .. "\0\0\0\0"
+    .. "\0\0\0\0"
 
     p:setData(data)
     local status, entries = self:Exch( p )
@@ -1087,7 +1086,7 @@ Util =
   -- @return string containing a two byte representation of str where a zero
   --         byte character has been tagged on to each character.
   ToWideChar = function( str )
-    return str:gsub("(.)", "%1" .. string.char(0x00) )
+    return str:gsub("(.)", "%1\0" )
   end,
 
 
@@ -1108,9 +1107,7 @@ Util =
   -- @param len number containing the length of the new string
   -- @return str string containing the new string
   ZeroPad = function( str, len )
-    if len < str:len() then return end
-    for i=1, len - str:len() do str = str .. string.char(0) end
-    return str
+    return str .. string.rep('\0', len - #str)
   end,
 
   -- Removes trailing nulls

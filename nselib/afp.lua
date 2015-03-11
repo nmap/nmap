@@ -583,9 +583,9 @@ Proto = {
     local new_name = new_name or ""
 
     data = bin.pack(">CCSISI", COMMAND.FPCopyFile, pad, src_vol, src_did, dst_vol, dst_did )
-    data = data .. bin.pack(">CIP", unicode_names, unicode_hint, src_path )
-    data = data .. bin.pack(">CIP", unicode_names, unicode_hint, dst_path )
-    data = data .. bin.pack(">CIP", unicode_names, unicode_hint, new_name )
+    .. bin.pack(">CIP", unicode_names, unicode_hint, src_path )
+    .. bin.pack(">CIP", unicode_names, unicode_hint, dst_path )
+    .. bin.pack(">CIP", unicode_names, unicode_hint, new_name )
 
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
     self:send_fp_packet( packet )
@@ -744,39 +744,28 @@ Proto = {
         -- not tested, but should work (next tag is
         -- tested)
         local octet = {}
-        local j
-        local addr
 
         for j = 1, 8 do
-          pos, octet[j] = bin.unpack(">S", packet.data, pos)
+          local o
+          pos, o = bin.unpack(">S", packet.data, pos)
+          octet[j] = string.format("%04x", o)
         end
 
-        for j = 1, 7 do
-          addr = addr .. string.format("%04x:", octet[j])
-        end
-        addr = addr .. string.format("%04x", octet[8])
-
-        table.insert(result.network_addresses, addr)
+        table.insert(result.network_addresses, table.concat(octet, ':'))
       elseif tag == 0x07 then
         -- 16 byte ipv6 and two byte port
         local octet = {}
         local port
-        local j
-        local addr
 
         for j = 1, 8 do
-          pos, octet[j] = bin.unpack(">S", packet.data, pos)
+          local o
+          pos, o = bin.unpack(">S", packet.data, pos)
+          octet[j] = string.format("%04x", o)
         end
         pos, port = bin.unpack(">S", packet.data, pos)
 
-        addr = "["
-
-        for j = 1, 7 do
-          addr = addr .. string.format("%04x:", octet[j])
-        end
-        addr = addr .. string.format("%04x]:%d", octet[8], port)
-
-        table.insert(result.network_addresses, addr)
+        table.insert(result.network_addresses,
+          string.format("[%s]:%d", table.concat(octet, ':'), port))
       end
     end
 
@@ -911,9 +900,7 @@ Proto = {
       local username = username or ""
       local password = password or ""
 
-      if ( bit.mod(username:len(), 2) == 0 ) then
-        username = username .. string.char(0)
-      end
+      username = username .. string.rep('\0', (#username + 1) % 2)
 
       p = openssl.bignum_hex2bn("BA2873DFB06057D43F2024744CEEE75B")
       g = openssl.bignum_dec2bn("7")
@@ -1067,7 +1054,7 @@ Proto = {
     local response,records = {}, {}
 
     local data = bin.pack( "CC>S>I>S>S", COMMAND.FPEnumerateExt2, pad, volume_id, did, file_bitmap, dir_bitmap )
-    data = data .. bin.pack( ">S>I>ICCA", req_count, start_index, reply_size, path.type, path.len, path.name )
+    .. bin.pack( ">S>I>ICCA", req_count, start_index, reply_size, path.type, path.len, path.name )
     packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 
     self:send_fp_packet( packet )
@@ -1846,15 +1833,7 @@ Util =
   -- @param len number containing the length of the new string
   -- @return str string containing the new string
   ZeroPad = function( str, len )
-    if len < str:len() then
-      return
-    end
-
-    for i=1, len - str:len() do
-      str = str .. string.char(0)
-    end
-
-    return str
+    return str .. string.rep('\0', len - str:len())
   end,
 
   --- Splits a path into two pieces, directory and file

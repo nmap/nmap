@@ -40,14 +40,14 @@ The following instructions show how to make a 10.5-compatible
 environment suitable for building Zenmap packages. It will be a separate
 installation in $HOME/macports-10.5 that won't interfere with your
 normal MacPorts installation in /opt/local. These instructions were done
-with MacPorts 2.0.3 on Mac OS X 10.6.8.
+with MacPorts 2.3.3 on Mac OS X 10.9.5.
 
 1. Install MacPorts.
 	export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-	export PREFIX=$HOME/macports-10.5
-	tar xzvf MacPorts-2.1.1.tar.gz
-	cd MacPorts-2.1.1
-	./configure --with-no-root-privileges --prefix=$PREFIX --with-tclpackage=$PREFIX/Library/Tcl --with-applications-dir=$PREFIX/Applications
+	export PREFIX=$HOME/macports-10.8
+	tar xzvf MacPorts-2.3.3.tar.gz
+	cd MacPorts-2.3.3
+	./configure --with-no-root-privileges --prefix=$PREFIX --with-applications-dir=$PREFIX/Applications
 	make
 	make install
 2. Update the ports tree.
@@ -56,7 +56,7 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
    Uncomment the line
 	build_arch			i386
    Add this line at the bottom:
-	macosx_deployment_target	10.5
+	macosx_deployment_target	10.8
 4. Make a local patched ports tree.
 	cd $PREFIX
 	mkdir ports
@@ -71,14 +71,14 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
 	$PREFIX/bin/portindex
 6. Edit the file $PREFIX/etc/macports/sources.conf.
    Add a line
-	file:///Users/user/macports-10.5/ports
+	file:///Users/user/macports-10.8/ports
    above the rsync line. (Replace "user" with your user name.)
 7. Install the dependencies of Zenmap.
 	$PREFIX/bin/port install py26-pygtk py26-py2app apr apr-util
 
 Here are instructions for updating the patch to keep up with MacPorts
 changes. First, sync the original ports tree.
-	$PREFIX/bin/port sync
+	$PREFIX/bin/port selfupdate -v
 Restore a pristine partial ports tree:
 	cd $PREFIX
 	rsync -rv --existing --delete --exclude=PortIndex ports.orig/ ports/

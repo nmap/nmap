@@ -271,7 +271,7 @@ action = function( host, port )
     --send command
     local data = BOpack( cmds[i].p_code, cmds[i].arg1, cmds[i].arg2 )
     data = BOcrypt(data, password, initial_seed)
-    try(socket:sendto(host.ip, port.number, data))
+    try(socket:sendto(host, port, data))
 
     --receive info
     local output, response, p_type, multi_flag

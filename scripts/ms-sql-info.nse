@@ -2,8 +2,6 @@ local mssql = require "mssql"
 local nmap = require "nmap"
 local smb = require "smb"
 local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :

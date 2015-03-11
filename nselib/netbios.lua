@@ -51,9 +51,7 @@ function name_encode(name, scope)
       padding = "\0"
     end
 
-    repeat
-      name = name .. padding
-    until #name == 16
+    name = name .. string.rep(padding, 16 - #name)
   end
 
   -- Convert to uppercase
@@ -101,13 +99,12 @@ function name_decode(encoded_name)
 
   stdnse.debug3("Decoding name '%s'", encoded_name)
 
-  for i = 2, len + 1, 2 do
-    local ch = 0
-    ch = bit.bor(ch, bit.lshift(string.byte(encoded_name, i)     - 0x41, 4))
-    ch = bit.bor(ch, bit.lshift(string.byte(encoded_name, i + 1) - 0x41, 0))
-
-    name = name .. string.char(ch)
-  end
+  name = name:gsub("(.)(.)", function (a, b)
+      local ch = 0
+      ch = bit.bor(ch, bit.lshift(string.byte(a) - 0x41, 4))
+      ch = bit.bor(ch, bit.lshift(string.byte(b) - 0x41, 0))
+      return string.char(ch)
+    end)
 
   -- Decode the scope
   local pos = 34
@@ -302,9 +299,7 @@ function do_nbstat(host)
   0,       -- Answers
   0,       -- Authority
   0        -- Extra
-  )
-
-  query = query .. bin.pack(">zSS",
+  ) .. bin.pack(">zSS",
   encoded_name, -- Encoded name
   0x0021,       -- Query type (0x21 = NBSTAT)
   0x0001        -- Class = IN

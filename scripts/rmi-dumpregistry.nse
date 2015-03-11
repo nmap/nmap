@@ -201,7 +201,7 @@ end
 
 function action(host,port, args)
 
-  local registry= rmi.Registry:new( host.ip, port.number)
+  local registry= rmi.Registry:new( host, port )
 
 
   local status, j_array = registry:list()

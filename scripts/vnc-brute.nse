@@ -52,7 +52,7 @@ Driver =
 
   connect = function( self )
     local status, data
-    self.vnc = vnc.VNC:new( self.host.ip, self.port.number )
+    self.vnc = vnc.VNC:new( self.host, self.port )
     status, data = self.vnc:connect()
     if ( not(status) ) then
       local err = brute.Error:new( "VNC connect failed" )
@@ -104,7 +104,7 @@ Driver =
   end,
 
   check = function( self )
-    local vnc = vnc.VNC:new( self.host.ip, self.port.number )
+    local vnc = vnc.VNC:new( self.host, self.port )
     local status, data
 
     status, data = vnc:connect()

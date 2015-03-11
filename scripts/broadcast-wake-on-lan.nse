@@ -1,6 +1,7 @@
 local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 Wakes a remote system up from sleep by sending a Wake-On-Lan packet.
@@ -35,11 +36,7 @@ end
 -- @param mac string containing the MAC without delimiters
 -- @return packet string containing the raw packet
 local function createWOLPacket(mac)
-  local packet = bin.pack("H", "FFFFFFFFFFFF")
-  for i=1, 16 do
-    packet = packet .. bin.pack("H", mac)
-  end
-  return packet
+  return "\xff\xff\xff\xff\xff\xff" .. string.rep(bin.pack("H", mac), 16)
 end
 
 

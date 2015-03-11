@@ -1,5 +1,4 @@
 local comm = require "comm"
-local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -162,13 +161,7 @@ local function irc_compose_message(prefix, command, ...)
 end
 
 local function random_nick()
-  local nick = {}
-
-  for i = 1, 9 do
-    nick[#nick + 1] = string.char(math.random(string.byte("a"), string.byte("z")))
-  end
-
-  return table.concat(nick)
+  return stdnse.generate_random_string(9, "abcdefghijklmnopqrstuvwxyz")
 end
 
 local function splitlines(s)

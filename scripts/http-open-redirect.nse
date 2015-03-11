@@ -2,7 +2,6 @@ local http = require "http"
 local httpspider = require "httpspider"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 local url = require "url"
 

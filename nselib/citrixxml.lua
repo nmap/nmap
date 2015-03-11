@@ -55,8 +55,8 @@ end
 
 --- Sends the request to the server using the http lib
 --
--- @param host string, the ip of the remote server
--- @param port number, the port of the remote server
+-- @param host string or host table of the remote server
+-- @param port number or port table of the remote server
 -- @param xmldata string, the HTTP data part of the request as XML
 --
 -- @return string with the response body
@@ -78,8 +78,8 @@ end
 -- This function implements all the supported parameters described in:
 -- Version 5.0 (draft 1)   24 January 2008
 --
--- @param host string, the ip of the remote server
--- @param port number, the port of the remote server
+-- @param host string or host table of the remote server
+-- @param port number or port table of the remote server
 -- @return string HTTP response data
 --
 function request_server_farm_data( host, port )
@@ -117,8 +117,8 @@ end
 --
 -- Supported parameters are Scope, ServerType, ClientType, DesiredDetails
 --
--- @param host string the host which is to be queried
--- @param port number the port number of the XML service
+-- @param host string or host table which is to be queried
+-- @param port number or port table of the XML service
 -- @param params table with parameters
 -- @return string HTTP response data
 --
@@ -302,8 +302,8 @@ end
 -- This function implements all the supported parameters described in:
 -- Version 5.0 (draft 1)   24 January 2008
 --
--- @param host string the host which is to be queried
--- @param port number the port number of the XML service
+-- @param host string or host table which is to be queried
+-- @param port number or port table of the XML service
 -- @param params table with parameters
 -- @return string HTTP response data
 --
@@ -355,8 +355,8 @@ end
 -- This function implements all the supported parameters described in:
 -- Version 5.0 (draft 1)   24 January 2008
 --
--- @param host string the host which is to be queried
--- @param port number the port number of the XML service
+-- @param host string or host table which is to be queried
+-- @param port number or port table of the XML service
 -- @param params table with parameters
 -- @return string HTTP response data
 --
@@ -387,8 +387,8 @@ end
 -- This function implements all the supported parameters described in:
 -- Version 5.0 (draft 1)   24 January 2008
 --
--- @param host string the host which is to be queried
--- @param port number the port number of the XML service
+-- @param host string or host table which is to be queried
+-- @param port number or port table of the XML service
 -- @return string HTTP response data
 --
 function request_capabilities( host, port )
@@ -425,8 +425,8 @@ end
 -- Version 5.0 (draft 1)   24 January 2008
 --
 --
--- @param host string the host which is to be queried
--- @param port number the port number of the XML service
+-- @param host string or host table which is to be queried
+-- @param port number or port table of the XML service
 -- @param params table with parameters
 -- @return string HTTP response data
 --
@@ -481,8 +481,8 @@ end
 -- Consult the NFuse.DTD for a complete list of supported parameters
 -- This function does NOT implement all the supported parameters
 ----
--- @param host string the host which is to be queried
--- @param port number the port number of the XML service
+-- @param host string or host table which is to be queried
+-- @param port number or port table of the XML service
 -- @param params table with parameters
 --
 function request_reconnect_session_data(host, port, params)

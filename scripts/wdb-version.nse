@@ -47,7 +47,7 @@ categories = {"default", "version", "discovery", "vuln"}
 -- http://www.vxdev.com/docs/vx55man/tornado-api/wdbpcl/wdb.html
 -- http://www.verysource.com/code/2817990_1/wdb.h.html
 -- Metasploit scanner module
--- http://www.metasploit.com/redmine/projects/framework/repository/entry/lib/msf/core/exploit/wdbrpc.rb
+-- https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/wdbrpc.rb
 
 portrule = shortport.version_port_or_service(17185, "wdbrpc", {"udp"} )
 
@@ -89,11 +89,7 @@ local function request(comm, procedure, data)
 end
 
 local function stripnull(str)
-  local e = -1
-  while str:byte(e) == 0 do
-    e = e - 1
-  end
-  return str:sub(1,e)
+  return (str:gsub("\0*$",""))
 end
 
 local function decode_reply(data, pos)

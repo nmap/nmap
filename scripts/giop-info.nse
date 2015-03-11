@@ -1,7 +1,5 @@
 local giop = require "giop"
 local shortport = require "shortport"
-local stdnse = require "stdnse"
-local table = require "table"
 
 description = [[
 Queries a CORBA naming server for a list of objects.

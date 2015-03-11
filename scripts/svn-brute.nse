@@ -70,7 +70,7 @@ svn =
     self.socket = nmap.new_socket()
 
     local result
-    status, result = self.socket:connect(self.host.ip, self.port.number, "tcp")
+    status, result = self.socket:connect(self.host, self.port)
     if( not(status) ) then
       return false, result
     end

@@ -255,7 +255,7 @@ function getPrivateMode(impl, requestCode)
     0x00, 0x00, 0x00, 0x00
   )
   -- Data 40 Octets: 0
-  .. string.char(0x00):rep(40)
+  .. ("\x00"):rep(40)
   -- The following are optional if the Authenticated bit is set:
   -- Encryption Keyid 4 Octets: 0
   -- Message Authentication Code 16 Octets (MD5): 0
@@ -570,8 +570,8 @@ function parse_monlist_1(pkt, recs)
     -- src and dst addresses
     -- IPv4 if impl == 2 or v6 flag is not set
     if isize == 32 or pkt:u8(pos+32) ~= 1 then -- IPv4
-      local saddr = packet.toip(pkt:raw(pos+16, 4))
-      local daddr = packet.toip(pkt:raw(pos+20, 4))
+      local saddr = ipOps.str_to_ip(pkt:raw(pos+16, 4))
+      local daddr = ipOps.str_to_ip(pkt:raw(pos+20, 4))
       t.saddr = saddr
       t.daddr = daddr
     else -- IPv6
@@ -638,7 +638,7 @@ function parse_peerlist(pkt, recs)
     -- src address
     -- IPv4 if impl == 2 or v6 flag is not set
     if isize == 8 or pkt:u8(pos+8) ~= 1 then
-      local saddr = packet.toip(pkt:raw(pos, 4))
+      local saddr = ipOps.str_to_ip(pkt:raw(pos, 4))
       t.saddr = saddr
     else -- IPv6
       local saddr = {}

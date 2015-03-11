@@ -86,11 +86,8 @@ Util = {
       182,128,158,208,162,132,167,209,149,241,153,251,237,236,171,195,
       243,233,253,240,194,250,191,155,142,137,245,235,163,242,178,152 };
 
-    local result = ""
-    for i = 1, #password do
-      result = result .. string.char(shifts[password:byte(i)+1])
-    end
-    return 'A' .. result
+    return 'A' .. string.gsub(password, ".",
+      function(c) return string.char(shifts[c:byte()+1]) end)
   end
 
 }

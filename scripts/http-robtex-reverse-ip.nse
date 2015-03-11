@@ -1,7 +1,6 @@
 local http = require "http"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 
 description = [[

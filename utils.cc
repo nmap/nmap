@@ -584,16 +584,28 @@ int cpe_get_part(const char *cpe) {
 }
 
 
+#ifndef WIN32
+static int open2mmap_flags(int open_flags)
+{
+  switch (open_flags) {
+    case O_RDONLY: return PROT_READ;
+    case O_RDWR:   return PROT_READ | PROT_WRITE;
+    case O_WRONLY: return PROT_WRITE;
+    default:
+      return -1;
+  }
+}
+
 /* mmap() an entire file into the address space. Returns a pointer to the
    beginning of the file. The mmap'ed length is returned inside the length
    parameter. If there is a problem, NULL is returned, the value of length is
    undefined, and errno is set to something appropriate. The user is responsible
    for doing an munmap(ptr, length) when finished with it. openflags should be
    O_RDONLY or O_RDWR, or O_WRONLY. */
-#ifndef WIN32
 char *mmapfile(char *fname, int *length, int openflags) {
   struct stat st;
   int fd;
+  int mmap_flags;
   char *fileptr;
 
   if (!length || !fname) {
@@ -603,8 +615,9 @@ char *mmapfile(char *fname, int *length, int openflags) {
 
   *length = -1;
 
-  if (stat(fname, &st) == -1) {
-    errno = ENOENT;
+  mmap_flags = open2mmap_flags(openflags);
+  if (mmap_flags == -1) {
+    errno = EINVAL;
     return NULL;
   }
 
@@ -613,9 +626,12 @@ char *mmapfile(char *fname, int *length, int openflags) {
     return NULL;
   }
 
-  fileptr = (char *)mmap(0, st.st_size, (openflags == O_RDONLY) ? PROT_READ :
-                         (openflags == O_RDWR) ? (PROT_READ | PROT_WRITE)
-                         : PROT_WRITE, MAP_SHARED, fd, 0);
+  if (fstat(fd, &st) == -1) {
+    close(fd);
+    return NULL;
+  }
+
+  fileptr = (char *)mmap(0, st.st_size, mmap_flags, MAP_SHARED, fd, 0);
 
   close(fd);
 

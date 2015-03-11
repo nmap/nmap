@@ -401,7 +401,7 @@ ASN1Encoder = {
         val = math.floor(val/256)
       end
       if lsb > 127 then -- two's complement collision
-        valStr = valStr .. bin.pack("H", "00")
+        valStr = valStr .. "\0"
       end
 
       return string.reverse(valStr)

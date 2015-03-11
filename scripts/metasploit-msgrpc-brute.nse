@@ -48,15 +48,15 @@ local encode = function(username, password)
   if string.len(username) <= 31 then -- http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-fixraw
     username_prefix = bin.pack("C",0xa0 + string.len(username))
   else -- http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-raw16
-    username_prefix = bin.pack("C",0xda)  .. bin.pack("s",string.len(username))
+    username_prefix = "\xda"  .. bin.pack("s",string.len(username))
   end
   if string.len(password) <= 31 then
     password_prefix = bin.pack("C",0xa0 + string.len(password))
   else
-    password_prefix = bin.pack("C",0xda)  .. bin.pack("s",string.len(password))
+    password_prefix = "\xda"  .. bin.pack("s",string.len(password))
   end
 
-  return bin.pack("C",0x93) .. bin.pack("C",0xaa) .. method .. username_prefix .. username .. password_prefix .. password
+  return "\x93\xaa" .. method .. username_prefix .. username .. password_prefix .. password
 end
 
 Driver = {

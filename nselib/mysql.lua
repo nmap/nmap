@@ -351,7 +351,7 @@ function decodeQueryResponse( socket )
   rs.header = data:sub( 1, HEADER_SIZE + header.len )
 
   -- abort on MySQL error
-  if rs.header:sub(HEADER_SIZE + 1, HEADER_SIZE + 1) == string.char(0xFF) then
+  if rs.header:sub(HEADER_SIZE + 1, HEADER_SIZE + 1) == "\xFF" then
     -- is this a 4.0 or 4.1 error message
     if rs.header:find("#") then
       return false, rs.header:sub(HEADER_SIZE+10)

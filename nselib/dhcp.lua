@@ -20,6 +20,7 @@ local math = require "math"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local strbuf = require "strbuf"
 local table = require "table"
 _ENV = stdnse.module("dhcp", stdnse.seeall)
 
@@ -400,7 +401,7 @@ end
 --@return status (true or false)
 --@return The parsed response, as a table.
 function dhcp_build(request_type, ip_address, mac_address, options, request_options, overrides, lease_time, transaction_id)
-  local packet = ''
+  local packet = strbuf.new()
 
   -- Set up the default overrides
   if(overrides == nil) then
@@ -429,9 +430,9 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   packet = packet .. bin.pack("<I", overrides['yiaddr'] or 0)                                  -- yiaddr
   packet = packet .. bin.pack("<I", overrides['siaddr'] or 0)                                  -- siaddr
   packet = packet .. bin.pack("<I", overrides['giaddr'] or 0)                                  -- giaddr
-  packet = packet .. mac_address .. string.rep(string.char(0), 16 - #mac_address)              -- chaddr (MAC address)
-  packet = packet .. (overrides['sname'] or string.rep(string.char(0), 64))                    -- sname
-  packet = packet .. (overrides['file'] or string.rep(string.char(0), 128))                    -- file
+  packet = packet .. mac_address .. string.rep('\0', 16 - #mac_address)                        -- chaddr (MAC address)
+  packet = packet .. (overrides['sname'] or string.rep('\0', 64))                              -- sname
+  packet = packet .. (overrides['file'] or string.rep('\0', 128))                              -- file
   packet = packet .. bin.pack(">I", overrides['cookie'] or 0x63825363)                         -- Magic cookie
 
   -- Options
@@ -451,7 +452,7 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
 
   packet = packet .. bin.pack(">C", 0xFF)                                                      -- Termination
 
-  return true, packet
+  return true, strbuf.dump(packet)
 end
 
 ---Parse a DHCP packet (either a request or a response) and return the results

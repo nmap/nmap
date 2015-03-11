@@ -68,28 +68,23 @@ _ENV = require "strict" {};
 -- @usage stdnse.sleep(1.5)
 _ENV.sleep = nmap.socket.sleep;
 
+-- These stub functions get overwritten by the script run loop in nse_main.lua
+-- These empty stubs will be used if a library calls stdnse.debug while loading
+_ENV.getid = function () return end
+_ENV.getinfo = function () return end
+_ENV.gethostport = function () return end
+
 local function debug (level, ...)
   if type(level) ~= "number" then
     return debug(1, level, ...)
   end
   local current = nmap.debugging()
   if level <= current then
-    local prefix = "["
-    if current >= 2 then
-      prefix = prefix .. (getinfo() or "")
-    else
-      prefix = prefix .. (getid() or "")
-    end
     local host, port = gethostport()
-    if host and host.ip then
-      prefix = prefix .. " " .. host.ip
-    end
-    if port and port.number then
-      prefix = prefix .. ":" .. port.number
-    end
-    prefix = prefix .. "] "
-    if prefix ~= "[] " then
-      nmap.log_write("stdout", prefix..format(...))
+    local prefix = ( (current >= 2 and getinfo or getid)() or "")
+    .. (host and " "..host.ip .. (port and ":"..port.number or "") or "")
+    if prefix ~= "" then
+      nmap.log_write("stdout", "[" .. prefix .. "] " .. format(...))
     else
       nmap.log_write("stdout", format(...))
     end
@@ -142,19 +137,16 @@ local function verbose (level, ...)
   end
   local current = nmap.verbosity()
   if level <= current then
-    local prefix = "[" .. (getid() or "")
+    local prefix
     if current >= 2 then
       local host, port = gethostport()
-      if host and host.ip then
-        prefix = prefix .. " " .. host.ip
-      end
-      if port and port.number then
-        prefix = prefix .. ":" .. port.number
-      end
+      prefix = (getid() or "")
+      .. (host and " "..host.ip .. (port and ":"..port.number or "") or "")
+    else
+      prefix = getid() or ""
     end
-    prefix = prefix .. "] "
-    if prefix ~= "[] " then
-      nmap.log_write("stdout", prefix..format(...))
+    if prefix ~= "" then
+      nmap.log_write("stdout", "[" .. prefix .. "] " .. format(...))
     else
       nmap.log_write("stdout", format(...))
     end
@@ -246,7 +238,7 @@ end
 -- You can either provide your own charset or the function will use
 -- a default one which is [A-Z].
 -- @param len Length of the string we want to generate.
--- @param charset Charset that will be used to generate the string.
+-- @param charset Charset that will be used to generate the string. String or table
 -- @return A random string of length <code>len</code> consisting of
 -- characters from <code>charset</code> if one was provided, otherwise
 -- <code>charset</code> defaults to [A-Z] letters.
@@ -255,8 +247,15 @@ function generate_random_string(len, charset)
   local ascii_A = 65
   local ascii_Z = 90
   if charset then
-    for i=1,len do
-      t[i]=charset[random(#charset)]
+    if type(charset) == "string" then
+      for i=1,len do
+        local r = random(#charset)
+        t[i] = sub(charset, r, r)
+      end
+    else
+      for i=1,len do
+        t[i]=charset[random(#charset)]
+      end
     end
   else
     for i=1,len do
@@ -654,24 +653,8 @@ function clock_us()
 end
 
 ---Get the indentation symbols at a given level.
-local function format_get_indent(indent, at_end)
-  local str = ""
-  local had_continue = false
-
-  if(not(at_end)) then
-    str = rep('  ', #indent) -- Was: "|  "
-  else
-    for i = #indent, 1, -1 do
-      if(indent[i] and not(had_continue)) then
-        str = str .. "  " -- Was: "|_ "
-      else
-        had_continue = true
-        str = str .. "  " -- Was: "|  "
-      end
-    end
-  end
-
-  return str
+local function format_get_indent(indent)
+  return rep("  ", #indent)
 end
 
 local function splitlines(s)
@@ -762,7 +745,7 @@ local function format_output_sub(status, data, indent)
 
       for j, line in ipairs(lines) do
         insert(output, format("%s  %s%s\n",
-          format_get_indent(indent, i == #data and j == #lines),
+          format_get_indent(indent),
           prefix, line))
       end
     end

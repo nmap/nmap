@@ -4,6 +4,7 @@ export NMAP_UPDATE_CHANNEL := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_UPDATE_CH
 NMAP_NAME= Nmap
 NMAP_URL= http://nmap.org
 NMAP_PLATFORM=@host@
+datarootdir = @datarootdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
@@ -429,6 +430,20 @@ Makefile: Makefile.in config.status
 config.status: configure
 	./config.status --recheck
 
+config.guess:
+	wget -O $@ 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+
+%/config.guess: config.guess
+	cp $^ $@
+
+config.sub:
+	wget -O $@ 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+
+%/config.sub: config.sub
+	cp $^ $@
+
+configfiles-update: config.guess config.sub nping/config.guess nping/config.sub ncat/config.guess ncat/config.sub
+
 # Run the lua-format program to fix formatting of NSE files.
 lua-format:
 	./docs/style/lua-format -i scripts/*.nse
@@ -457,4 +472,4 @@ zoneTrans db2-info db2-brute html-title robots.txt xmpp sql-injection \
 http-robtex-reverse-ip http-vuln-zimbra-lfi http-vuln-0-day-lfi-zimbra \
 whois db2-discover )
 
-.PHONY: lua-format
+.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web my_clean distclean lua-format

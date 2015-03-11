@@ -4637,6 +4637,23 @@ table.insert(fingerprints, {
     }
   });
 
+-- http://carnal0wnage.attackresearch.com/2015/02/cisco-asa-version-grabber-cve-2014-3398.html
+table.insert(fingerprints, {
+    category = 'security',
+    probes = {
+      {
+        path = '/CSCOSSLC/config-auth',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<version who="sg">([^<]+)</version>',
+        output = 'Cisco ASA, firmware \\1'
+      },
+    }
+  });
+
 ------------------------------------------------
 ----        MANAGEMENT SOFTWARE             ----
 ------------------------------------------------
@@ -5114,6 +5131,22 @@ table.insert(fingerprints, {
       {
         match = '',
         output = 'XAMPP'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/lc/system/console',
+        method = 'HEAD'
+      },
+    },
+    matches = {
+      {
+        match = 'OSGi Management Console',
+        output = 'Adobe LiveCycle Management Console'
       }
     }
   });
@@ -6505,6 +6538,9 @@ table.insert(fingerprints, {
       {
         path = '/_vti_txt/',
         method = 'GET'
+      },
+      {
+        path = '/postinfo.html'
       },
       {
         path = '/_vti_bin/_vti_aut/author.dll'

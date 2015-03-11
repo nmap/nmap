@@ -11,7 +11,6 @@ local ipOps = require "ipOps"
 local match = require "match"
 local math = require "math"
 local nmap = require "nmap"
-local package = require "package"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -286,9 +285,9 @@ Util = {
   -- @param len number containing the length of the generated random string
   -- @return str containing the random string
   randomString = function(len)
-    local str = ""
-    for i=1, len do str = str .. string.char(math.random(255)) end
-    return str
+    local str = {}
+    for i=1, len do str[i] = string.char(math.random(255)) end
+    return table.concat(str)
   end
 
 }

@@ -108,7 +108,7 @@ local give_n_bytes = function(idx, n, str)
   -- returns the next n bytes of a string
 
   if (idx + (n - 1) > #str) then
-    return (idx + n), string.rep(string.char(0x00), n);
+    return (idx + n), string.rep("\0", n);
   end
 
   return (idx + n), string.sub(str, idx, (idx + (n - 1)) );
@@ -214,11 +214,11 @@ action = function(host, port)
 
   -- some sanity checks:
   -- is response a server hello?
-  if (message_type ~= string.char(0x04)) then
+  if (message_type ~= "\x04") then
     return;
   end
   -- is certificate in X.509 format?
-  if (certificate_type ~= string.char(0x01)) then
+  if (certificate_type ~= "\x01") then
     return;
   end
 
@@ -227,7 +227,7 @@ action = function(host, port)
 
   -- actually run some tests:
   local o = stdnse.output_table()
-  if (ssl_version == string.char(0x00, 0x02)) then
+  if (ssl_version == "\0\x02") then
     table.insert(o, "SSLv2 supported")
     o["ciphers"] = available_ciphers
   end

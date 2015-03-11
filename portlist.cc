@@ -721,8 +721,6 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
   state_counts_proto[protocol][answer->state]--;
   state_counts_proto[protocol][default_port_state[protocol].state]++;
 
-  delete answer;
-
   port_list[protocol][portno] = NULL;
 
   if (o.verbose) {
@@ -732,6 +730,7 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
     log_flush(LOG_STDOUT);
   }
 
+  delete answer;
   return 0;
 }
 

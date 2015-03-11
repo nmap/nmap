@@ -89,7 +89,7 @@ SetCompressor /SOLID /FINAL lzma
 
 Var zenmapset
 Var addremoveset
-Var vcredist2010set
+Var vcredist2013set
 Var vcredist2008set
 
 ;--------------------------------
@@ -209,7 +209,7 @@ Section "Nmap Core Files" SecCore
   ;Store installation folder 
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR 
 
-  Call vcredist2010installer
+  Call vcredist2013installer
   Call create_uninstaller
    
 SectionEnd 
@@ -267,7 +267,7 @@ Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOverwrite on
   File ..\nmap-${VERSION}\ncat.exe
   File ..\nmap-${VERSION}\ca-bundle.crt
-  Call vcredist2010installer
+  Call vcredist2013installer
   Call create_uninstaller
 SectionEnd
 
@@ -286,7 +286,7 @@ Section "Nping (Packet generator)" SecNping
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
   File ..\nmap-${VERSION}\nping.exe
-  Call vcredist2010installer
+  Call vcredist2013installer
   Call create_uninstaller
 SectionEnd
 
@@ -294,45 +294,45 @@ Section "nmap-update (updater for architecture-independent files)" SecNmapUpdate
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
   File ..\nmap-${VERSION}\nmap-update.exe
-  Call vcredist2010installer
+  Call vcredist2013installer
   Call create_uninstaller
 SectionEnd
 
-Function vcredist2010installer
-  StrCmp $vcredist2010set "" 0 vcredist_done
-  StrCpy $vcredist2010set "true"
-  ;Check if VC++ 2010 runtimes are already installed.
+Function vcredist2013installer
+  StrCmp $vcredist2013set "" 0 vcredist_done
+  StrCpy $vcredist2013set "true"
+  ;Check if VC++ 2013 runtimes are already installed.
   ;This version creates a registry key that makes it easy to check whether a version (not necessarily the 
-  ;one we may be about to install) of the VC++ 2010 redistributables have been installed. On x64 systems we need to check
+  ;one we may be about to install) of the VC++ 2013 redistributables have been installed. On x64 systems we need to check
   ;the Wow6432Node registry key instead.
   ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
-  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
   StrCmp $0 "1" vcredist_done vcredist_check_wow6432node
   vcredist_check_wow6432node:
-    ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+    ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
     StrCmp $0 "1" vcredist_done vcredist_silent_install
 
-  ;If VC++ 2010 runtimes are not installed...
+  ;If VC++ 2013 runtimes are not installed...
   vcredist_silent_install:
-    DetailPrint "Installing Microsoft Visual C++ 2010 Redistributable"
+    DetailPrint "Installing Microsoft Visual C++ 2013 Redistributable"
     File ..\nmap-${VERSION}\vcredist_x86.exe
     ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
     ;Check for successful installation of our vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
     StrCmp $0 "1" vcredist_success vcredist_not_present_check_wow6432node
     vcredist_not_present_check_wow6432node:
-      ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+      ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Install"
       StrCmp $0 "1" vcredist_success vcredist_not_present
 
     vcredist_not_present:
-      DetailPrint "Microsoft Visual C++ 2010 Redistributable failed to install"
+      DetailPrint "Microsoft Visual C++ 2013 Redistributable failed to install"
       IfSilent vcredist_done vcredist_messagebox
       vcredist_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2010 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        MessageBox MB_OK "Microsoft Visual C++ 2013 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
         Goto vcredist_done
     vcredist_success:
       Delete "$INSTDIR\vcredist_x86.exe" 
-      DetailPrint "Microsoft Visual C++ 2010 Redistributable was successfully installed"
+      DetailPrint "Microsoft Visual C++ 2013 Redistributable was successfully installed"
   vcredist_done:
 FunctionEnd
 
@@ -420,7 +420,7 @@ FunctionEnd
 ;Descriptions 
  
   ;Component strings 
-  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2010 runtime components"
+  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2013 runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1.3 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 

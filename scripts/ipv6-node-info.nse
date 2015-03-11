@@ -1,6 +1,7 @@
 local bin = require "bin"
 local bit = require "bit"
 local dns = require "dns"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
@@ -190,7 +191,7 @@ local function stringify_nodeaddresses(flags, data)
     if not ttl then
       break
     end
-    addrs[#addrs + 1] = packet.toipv6(binaddr)
+    addrs[#addrs + 1] = ipOps.str_to_ip(binaddr)
   end
   if empty(addrs) then
     return
@@ -232,7 +233,7 @@ local function stringify_nodeipv4addresses(flags, data)
     if not ttl then
       break
     end
-    addrs[#addrs + 1] = packet.toip(binaddr)
+    addrs[#addrs + 1] = ipOps.str_to_ip(binaddr)
   end
   if empty(addrs) then
     return

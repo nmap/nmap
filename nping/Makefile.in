@@ -4,6 +4,7 @@ NPING_NAME= Nping
 NPING_URL= http://nmap.org/nping
 NPING_PLATFORM=@host@
 prefix = @prefix@
+datarootdir = @datarootdir@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
 sbindir = @sbindir@

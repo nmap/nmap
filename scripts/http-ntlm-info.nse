@@ -5,7 +5,6 @@ local stdnse = require "stdnse"
 local base64 = require "base64"
 local smbauth = require "smbauth"
 local string = require "string"
-local table = require "table"
 
 
 description = [[
