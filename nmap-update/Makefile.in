@@ -1,6 +1,7 @@
 top_srcdir = @top_srcdir@
 srcdir = @srcdir@
 prefix = @prefix@
+datarootdir = @datarootdir@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
 mandir = @mandir@

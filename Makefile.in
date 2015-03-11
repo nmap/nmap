@@ -4,6 +4,7 @@ export NMAP_UPDATE_CHANNEL := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_UPDATE_CH
 NMAP_NAME= Nmap
 NMAP_URL= http://nmap.org
 NMAP_PLATFORM=@host@
+datarootdir = @datarootdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@

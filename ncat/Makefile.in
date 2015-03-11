@@ -16,6 +16,7 @@
 SHELL = @SHELL@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
+datarootdir = @datarootdir@
 libexecdir = @libexecdir@
 datadir = @datadir@
 sysconfdir = @sysconfdir@
