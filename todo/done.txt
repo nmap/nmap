@@ -1,5 +1,15 @@
 DONE:
 
+o Adopt an issue tracking system for Nmap and related tools.  We
+  should probably look at our needs and options and then decide on and
+  either install it on our own infrastructure or use it hosted elsewhere.
+  - David notes that Trac seems to work well for Tor -- see
+  https://trac.torproject.org/projects/tor
+  - One thing which can be nice is being able to interact with the
+    system through email.  Like for bugs people file on the Nmap package
+    in Debian, I can just reply to the mail and it gets added in the tracker.
+  - This is now live at http://issues.nmap.org/
+
 o Update OpenSSL library to 1.0.1j
 
 o Our "make uninstall" should uninstall ndiff if it was installed too.
