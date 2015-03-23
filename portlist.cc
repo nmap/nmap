@@ -897,17 +897,23 @@ bool PortList::isTCPwrapped(u16 portno) const {
   const Port *port = lookupPort(portno, IPPROTO_TCP);
   if (port == NULL) {
     if (o.debugging > 1) {
-      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but port not in list", portno);
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but port not in list\n", portno);
     }
     return false;
   } else if (!o.servicescan) {
     if (o.debugging > 1) {
-      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but service scan was never asked to be done", portno);
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but service scan was never asked to be done\n", portno);
     }
     return false;
   } else if (port->service == NULL) {
     if (o.debugging > 1) {
-      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but port has not been service scanned yet", portno);
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but port has not been service scanned yet\n", portno);
+    }
+    return false;
+  } else if (port->service->name == NULL) {
+    // no service match and port not listed in services file
+    if (o.debugging > 1) {
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but service has no name\n", portno);
     }
     return false;
   } else {
