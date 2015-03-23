@@ -2813,7 +2813,7 @@ function find_files(smbstate, fname, options)
         last_name = fe.fname
 
         coroutine.yield(fe)
-      until ( ne == 0 )
+      until ( ne == 0 or pos > response.data:len() )
       first = false
     until(stop_loop)
     return
