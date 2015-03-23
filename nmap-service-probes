@@ -4807,6 +4807,7 @@ match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login
 
 match flashconnect m|^FlashCONNECT ([\d.]+) invalid message\.\n$| p/Raining Data FlashCONNECT/ v/$1/
 
+match gearman m|^ERR UNKNOWN_COMMAND Unknown\+server\+command\r\nERR UNKNOWN_COMMAND Unknown\+server\+command\r\n$| p/Gearman Job Queue System/
 match geovision-control m|^..\0\0\xff\xff\xff\xff$|s p/Geovision webcam control/ d/webcam/
 match geovision-audio m|^\$\0\0\0\xd4\x17\0\0\x01\0\0\0\x05\0\0\0\x01\0\0\0\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Geovision webcam audio/ d/webcam/
 
