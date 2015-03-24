@@ -153,6 +153,24 @@ EC_POINT_FORMATS = {
 }
 
 ---
+-- RFC 5246 section 7.4.1.4.1. Signature Algorithms
+HashAlgorithms = {
+  none = 0,
+  md5 = 1,
+  sha1 = 2,
+  sha224 = 3,
+  sha256 = 4,
+  sha384 = 5,
+  sha512 = 6,
+}
+SignatureAlgorithms = {
+  anonymous = 0,
+  rsa = 1,
+  dsa = 2,
+  ecdsa = 3,
+}
+
+---
 -- Extensions
 -- RFC 6066, draft-agl-tls-nextprotoneg-03
 -- https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml
@@ -212,6 +230,16 @@ EXTENSION_HELPERS = {
       list[#list+1] = bin.pack(">C", EC_POINT_FORMATS[format])
     end
     return bin.pack(">p", table.concat(list))
+  end,
+  ["signature_algorithms"] = function(signature_algorithms)
+    local list = {}
+    for _, pair in ipairs(signature_algorithms) do
+      list[#list+1] = bin.pack(">CC",
+        HashAlgorithms[pair[1]] or pair[1],
+        SignatureAlgorithms[pair[2]] or pair[2]
+        )
+    end
+    return bin.pack(">P", table.concat(list))
   end,
   ["next_protocol_negotiation"] = tostring,
 }

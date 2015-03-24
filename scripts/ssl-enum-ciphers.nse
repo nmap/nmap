@@ -328,12 +328,21 @@ local function remove_high_byte_ciphers(t)
   return output
 end
 
+-- Claim to support every hash and signature algorithm combination (TLSv1.2 only)
+local sigalgs = {}
+for hash, _ in pairs(tls.HashAlgorithms) do
+  for sig, _ in pairs(tls.SignatureAlgorithms) do
+    sigalgs[#sigalgs+1] = {hash, sig}
+  end
+end
+
 -- Claim to support every elliptic curve and EC point format
 local base_extensions = {
   -- Claim to support every elliptic curve
   ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
   -- Claim to support every EC point format
   ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
+  ["signature_algorithms"] = tls.EXTENSION_HELPERS["signature_algorithms"](sigalgs)
 }
 
 -- Recursively copy a table.
