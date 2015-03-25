@@ -1257,6 +1257,19 @@ function record_write(type, protocol, b)
   })
 end
 
+-- Claim to support every hash and signature algorithm combination (TLSv1.2 only)
+--
+local signature_algorithms_all
+do
+  local sigalgs = {}
+  for hash, _ in pairs(HashAlgorithms) do
+    for sig, _ in pairs(SignatureAlgorithms) do
+      sigalgs[#sigalgs+1] = {hash, sig}
+    end
+  end
+  signature_algorithms_all = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
+end
+
 ---
 -- Build a client_hello message
 --
@@ -1322,14 +1335,23 @@ function client_hello(t)
   if PROTOCOLS[protocol] and protocol ~= "SSLv3" then
     local extensions = {}
     if t["extensions"] ~= nil then
+      -- Do we need to add the signature_algorithms extension?
+      local need_sigalg = (protocol == "TLSv1.2")
       -- Add specified extensions.
       for extension, data in pairs(t["extensions"]) do
         if type(extension) == "number" then
           table.insert(extensions, bin.pack(">S", extension))
         else
+          if extension == "signature_algorithms" then
+            need_sigalg = false
+          end
           table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
         end
         table.insert(extensions, bin.pack(">P", data))
+      end
+      if need_sigalg then
+        table.insert(extensions, bin.pack(">S", EXTENSIONS["signature_algorithms"]))
+        table.insert(extensions, bin.pack(">P", signature_algorithms_all))
       end
     end
     -- Extensions are optional
