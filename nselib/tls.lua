@@ -1134,7 +1134,7 @@ function record_read(buffer, i)
   h["type"] = name
   name = find_key(PROTOCOLS, proto)
   if name == nil then
-    stdnse.debug1("Unknown TLS Protocol: 0x%x", typ)
+    stdnse.debug1("Unknown TLS Protocol: 0x%04x", proto)
     return j, nil
   end
   h["protocol"] = name
