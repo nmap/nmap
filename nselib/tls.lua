@@ -1264,7 +1264,12 @@ do
   local sigalgs = {}
   for hash, _ in pairs(HashAlgorithms) do
     for sig, _ in pairs(SignatureAlgorithms) do
-      sigalgs[#sigalgs+1] = {hash, sig}
+      -- RFC 5246 7.4.1.4.1.
+      -- The "anonymous" value is meaningless in this context but used in
+      -- Section 7.4.3.  It MUST NOT appear in this extension.
+      if sig ~= "anonymous" then
+        sigalgs[#sigalgs+1] = {hash, sig}
+      end
     end
   end
   signature_algorithms_all = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
