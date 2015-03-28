@@ -37,6 +37,7 @@ The output is intended to resemble the output of the UNIX <code>ls</code> comman
 -- @args smb-ls.maxdepth [optional] the maximum depth to recurse into a directory (default: no recursion)
 -- @args smb-ls.maxfiles [optional] return only a certain amount of files
 -- @args smb-ls.checksum [optional] download each file and calculate a SHA1 checksum
+-- @args smb-ls.errors [optional] report connection errors
 --
 
 author = "Patrik Karlsson"
@@ -51,6 +52,7 @@ local arg_pattern  = stdnse.get_script_args(SCRIPT_NAME .. '.pattern') or '*'
 local arg_maxfiles = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.maxfiles'))
 local arg_maxdepth = stdnse.get_script_args(SCRIPT_NAME .. '.maxdepth')
 local arg_checksum = stdnse.get_script_args(SCRIPT_NAME .. '.checksum')
+local arg_errors   = stdnse.get_script_args(SCRIPT_NAME .. '.errors')
 
 hostrule = function(host)
    return ( smb.get_port(host) ~= nil and
@@ -89,10 +91,12 @@ action = function(host)
      local status, smbstate = smb.start_ex(host, true, true, share,
 					   nil, nil, nil)
      if ( not(status) ) then
-	table.insert(
-	   output,
-	   ("Failed to authenticate to server (%s) for directory of \\\\%s\\%s%s"):format(smbstate, stdnse.get_hostname(host), share, arg_path))
-	table.insert(output, "")
+	if arg_errors then
+	   table.insert(
+	      output,
+	      ("Failed to authenticate to server (%s) for directory of \\\\%s\\%s%s"):format(smbstate, stdnse.get_hostname(host), share, arg_path))
+	   table.insert(output, "")
+	end
      else
 
 	table.insert(output, "")
