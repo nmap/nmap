@@ -2507,12 +2507,31 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
         startNextProbe(nsp, nsi, SG, svc, true);
       }
       break;
+#ifdef EHOSTDOWN
+    case EHOSTDOWN: // ICMP_HOST_UNKNOWN
+#endif
+#ifdef ENONET
+    case ENONET: // ICMP_HOST_ISOLATED
+#endif
+    /* EHOSTDOWN and ENONET can be the result of forged ICMP responses.
+     * We should probably give up on this port.
+     */
     case ENETUNREACH:
     case EHOSTUNREACH:
       // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
       // something else nasty during the scan.  Shrug.  I'll give up on this port
       end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
       break;
+#ifdef ENOPROTOOPT
+    case ENOPROTOOPT: // ICMP_PROT_UNREACH
+#endif
+    case EMSGSIZE: // ICMP_FRAG_NEEDED
+    case EOPNOTSUPP: // ICMP_SR_FAILED
+    /* EPROTOOPT has been reported in the wild. EMSGSIZE and EOPNOTSUPP are theoretically
+     * possible responses due to forged ICMP responses.
+     * These seem packet-specific, not a result of the host shutting us out completely.
+     * We'll try some other probes.
+     */
 #ifndef WIN32
     case EPIPE:
 
