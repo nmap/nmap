@@ -185,12 +185,25 @@ LIKELY_HTTP_SERVICES = {
 http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 
 local LIKELY_SSL_PORTS = {
-  443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
-  9001,
+  443, -- https
+  465, -- smtps
+  636, -- ldapssl
+  989, -- ftps-data
+  990, -- ftps-control
+  992, -- telnets
+  993, -- imaps
+  994, -- ircs
+  995, -- pop3s
+  3389, -- ms-wbt-server
+  5061, -- sip-tls
+  6679,
+  6697,
+  8443, -- https-alt
+  9001, -- tor-orport
 }
 local LIKELY_SSL_SERVICES = {
-  "ftps", "ftps-data", "https", "https-alt", "imaps", "ircs",
-  "ldapssl", "pop3s", "sip-tls", "smtps", "telnets", "tor-orport",
+  "ftps", "ftps-data", "ftps-control", "https", "https-alt", "imaps", "ircs",
+  "ldapssl", "ms-wbt-server", "pop3s", "sip-tls", "smtps", "telnets", "tor-orport",
 }
 
 ---
