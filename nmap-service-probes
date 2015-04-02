@@ -4600,6 +4600,7 @@ softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
 Probe TCP GenericLines q|\r\n\r\n|
 rarity 1
 ports 21,23,35,43,79,98,110,113,119,199,214,264,449,505,510,540,587,616,628,666,731,771,782,1000,1010,1040-1043,1080,1212,1220,1248,1302,1400,1432,1467,1501,1505,1666,1687-1688,2010,2024,2600,3000,3005,3128,3310,3333,3940,4155,5000,5400,5432,5555,5570,6112,6667-6670,7144,7145,7200,7780,8000,8138,9000-9003,9801,11371,11965,13720,15000-15002,18086,19150,26214,26470,31416,30444,34012,56667
+sslports 989,990,992,995
 
 # Library as in books: http://solutions.3m.com/wps/portal/3M/en_US/library/home/resources/protocols/
 match 3m-sip m|^Invalid request string: Request string is: \"\r\"$| p/Standard Interchange Prototol 2.0/ i/Integrated Library System authentication; Civica Spydus 7/
@@ -5468,8 +5469,8 @@ match zmodem m|^\*\*\x18B0100000023be50\r\x8a\x11$| p/ZMODEM/
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
-ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1042,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,3872,4000,4444,4567,4660,4711,5000,5427,5060,5222,5269,5280,5432,5800-5803,5900,5985,6103,6346,6544,6600,6699,6969,7002,7007,7070,7100,7402,7776,8000-8010,8080-8085,8088,8118,8181,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10001,10005,11371,13013,13666,13722,14534,15000,17988,18264,31337,40193,50000,55555
-sslports 443,4443,8443
+ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,1026,1080,1042,1214,1220,1234,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,3872,4000,4444,4567,4660,4711,5000,5427,5060,5222,5269,5280,5432,5800-5803,5900,5985,6103,6346,6544,6600,6699,6969,7002,7007,7070,7100,7402,7776,8000-8010,8080-8085,8088,8118,8181,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10001,10005,11371,13013,13666,13722,14534,15000,17988,18264,31337,40193,50000,55555
+sslports 443,993,995,1311,4443,5061,8443
 
 match adobe-crossdomain m|^<\?xml version=\"1\.0\"\?>\r\n<!DOCTYPE cross-domain-policy SYSTEM \"/xml/dtds/cross-domain-policy\.dtd\">\r\n<cross-domain-policy>\r\n    <!-- This is a master socket policy file -->\r\n    <!-- No other socket policies on the host will be permitted -->\r\n    <site-control permitted-cross-domain-policies=\"master-only\"/>\r\n    <!-- This will allow access to port 1800 -->\r\n    <allow-access-from domain=\"([^\"]*)\" to-ports=\"([^\"]*)\"/>\r\n</cross-domain-policy>\r\n| p/Adobe cross-domain policy/ i/Snom 870 VoIP phone; domain: $1; ports: $2/ d/VoIP phone/ cpe:/h:snom:870/
 
@@ -9949,7 +9950,7 @@ softmatch rtsp m|^RTSP/1.0 .*\r\n|
 Probe TCP HTTPOptions q|OPTIONS / HTTP/1.0\r\n\r\n|
 rarity 4
 ports 80-85,2301,631,641,3128,5232,6000,8080,8888,9999,10000,10031,37435,49400
-sslports 443
+sslports 443,4443,8443
 fallback GetRequest
 
 match apollo-server m=^0000000001(?:3C|C0)0000$= p/Apollo Server database access/
@@ -11438,8 +11439,9 @@ match xamarin m|^ERROR: Another instance is running\n| p/Xamarin MonoTouch/
 # matches here, we can continue to upgrade it (bytes 10 and 11 and the ranges
 # in the match lines)
 Probe TCP TLSSessionReq q|\x16\x03\0\x00g\x01\0\x001\x03\x03U\x1c\xa7\xe4random1random2random3random4\0\x00\x0a\0/\0\x0a\0\x13\x009\0\x04\x01\0\0\x30\0\x0d\0,\0*\0\x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\x05\x03\x05\x02|
-rarity 2
+rarity 7
 ports 443,444,465,636,989,990,992,993,994,995,1241,1311,3389,4444,5061,6679,6697,8443,9001
+fallback GetRequest
 
 # SSLv3 - TLSv1.2 ServerHello
 match ssl m|^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03]|s
@@ -11455,7 +11457,7 @@ match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
 Probe TCP SSLv23SessionReq q|\x80\x9e\x01\x03\x01\x00u\x00\x00\x00 \x00\x00f\x00\x00e\x00\x00d\x00\x00c\x00\x00b\x00\x00:\x00\x009\x00\x008\x00\x005\x00\x004\x00\x003\x00\x002\x00\x00/\x00\x00\x1b\x00\x00\x1a\x00\x00\x19\x00\x00\x18\x00\x00\x17\x00\x00\x16\x00\x00\x15\x00\x00\x14\x00\x00\x13\x00\x00\x12\x00\x00\x11\x00\x00\n\x00\x00\t\x00\x00\x08\x00\x00\x06\x00\x00\x05\x00\x00\x04\x00\x00\x03\x07\x00\xc0\x06\x00@\x04\x00\x80\x03\x00\x80\x02\x00\x80\x01\x00\x80\x00\x00\x02\x00\x00\x01\xe4i<+\xf6\xd6\x9b\xbb\xd3\x81\x9f\xbf\x15\xc1@\xa5o\x14,M \xc4\xc7\xe0\xb6\xb0\xb2\x1f\xf9)\xe8\x98|
 
 rarity 8
-ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,8194,8443,9001
+ports 443,444,465,548,636,989,990,992,993,994,995,1241,1311,2000,4444,5550,7210,7272,8009,8194,8443,9001
 fallback GetRequest
 
 # SSLv2 ServerHello
@@ -11875,6 +11877,7 @@ match gadu m|^UDAG$| p/Kadu polish IM client/ cpe:/a:kadu:kadu/
 Probe TCP FourOhFourRequest q|GET /nice%20ports%2C/Tri%6Eity.txt%2ebak HTTP/1.0\r\n\r\n|
 rarity 6
 ports 80-85,88,2100,8000-8010,8080-8085,8880-8888,9999,49152
+sslports 443,4443,8443
 fallback GetRequest
 
 match bittorrent-tracker m|^HTTP/1\.0 404 Not Found\r\nContent-Length: 65\r\nContent-Type: text/plain\r\nPragma: no-cache\r\n\r\nyour file may exist elsewhere in the universe\nbut alas, not here\n$|
@@ -13247,7 +13250,7 @@ match gkrellm m|^<gkrellmd_setup>\n<version>\ngkrellmd ([\w._-]+)\n| p/GKrellM S
 
 ##############################NEXT PROBE##############################
 Probe TCP vmware-esx q|<soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Header><operationID>00000001-00000001</operationID></soap:Header><soap:Body><RetrieveServiceContent xmlns="urn:internalvim25"><_this xsi:type="ManagedObjectReference" type="ServiceInstance">ServiceInstance</_this></RetrieveServiceContent></soap:Body></soap:Envelope>|
-ports 443
+sslports 443
 rarity 9
 
 ##############################NEXT PROBE##############################
