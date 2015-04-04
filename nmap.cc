@@ -321,7 +321,6 @@ static void printusage(int rc) {
          "  --open: Only show open (or possibly open) ports\n"
          "  --packet-trace: Show all packets sent and received\n"
          "  --iflist: Print host interfaces and routes (for debugging)\n"
-         "  --log-errors: Log errors/warnings to the normal-format output file\n"
          "  --append-output: Append to rather than clobber specified output files\n"
          "  --resume <filename>: Resume an aborted scan\n"
          "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
