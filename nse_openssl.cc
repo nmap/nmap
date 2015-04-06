@@ -97,7 +97,6 @@ static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM
   bignum_data_t * m = (bignum_data_t *) luaL_checkudata(L, 3, "BIGNUM");
   BIGNUM * result = BN_new();
   BN_CTX * ctx = BN_CTX_new();
-  BN_CTX_init( ctx );
   BN_mod_exp( result, a->bn, p->bn, m->bn, ctx );
   BN_CTX_free( ctx );
   bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
