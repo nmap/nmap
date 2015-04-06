@@ -638,7 +638,7 @@ NetBlock *NetBlockHostname::resolve() const {
     return NULL;
 
   sp = first_af_address(&resolvedaddrs, this->af);
-  if (sp == NULL or sp->ss_family != this->af) {
+  if (sp == NULL || sp->ss_family != this->af) {
     switch (this->af) {
       case AF_INET:
         error("Warning: Hostname %s resolves, but not to any IPv4 address. Try scanning with -6", this->hostname.c_str());
