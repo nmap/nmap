@@ -467,7 +467,7 @@ do
       co = co,
       env = env,
       identifier = tostring(co),
-      info = format("%s M:%s", self.id, match(tostring(co), "0x(.*)"));
+      info = format("%s M:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = nil, -- placeholder
       script = self,
       type = script_type,
@@ -485,7 +485,7 @@ do
       args = pack(...),
       close_handlers = {},
       co = co,
-      info = format("%s W:%s", self.id, match(tostring(co), "0x(.*)"));
+      info = format("%s W:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = self,
       worker = true,
     };
