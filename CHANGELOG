@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Add IPv6 Hop Limit (similar to IPv4 TTL) as a feature for the IPv6 OS
+  fingerprinting engine. [Alexandru Geana]
+
 o Handle a bunch of socket errors that can result from odd ICMP Type 3
   Destination Unreachable messages received during service scanning. The crash
   reported was "Unexpected error in NSE_TYPE_READ callback.  Error code: 92
