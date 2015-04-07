@@ -130,6 +130,7 @@
 #include "nmap_error.h"
 #include "osscan.h"
 #include "linear.h"
+#include "FPModel.h"
 extern NmapOps o;
 
 
@@ -697,14 +698,6 @@ FPEngine6::~FPEngine6() {
 
 }
 
-
-/* From FPModel.cc. */
-extern struct model FPModel;
-extern double FPscale[][2];
-extern double FPmean[][659];
-extern double FPvariance[][659];
-extern FingerMatch FPmatches[];
-
 /* Not all operating systems allow setting the flow label in outgoing packets;
    notably all Unixes other than Linux when using raw sockets. This function
    finds out whether the flow labels we set are likely really being sent.
@@ -784,6 +777,43 @@ static double vectorize_tc(const PacketElement *pe) {
     return ipv6->getTrafficClass();
 }
 
+/* For reference, the dev@nmap.org email thread which contains the explanations for the
+ * design decisions of this vectorization method:
+ * http://seclists.org/nmap-dev/2015/q1/218
+ */
+static int vectorize_hlim(const PacketElement *pe, int target_distance, enum dist_calc_method method) {
+  const IPv6Header *ipv6;
+  int hlim;
+  int er_lim;
+
+  ipv6 = find_ipv6(pe);
+  if (ipv6 == NULL)
+    return -1;
+  hlim = ipv6->getHopLimit();
+
+  if (method != DIST_METHOD_NONE) {
+      if (method == DIST_METHOD_TRACEROUTE || method == DIST_METHOD_ICMP) {
+        if (target_distance > 0)
+          hlim += target_distance - 1;
+      }
+      er_lim = 5;
+  } else
+    er_lim = 20;
+
+  if (32 - er_lim <= hlim && hlim <= 32)
+    hlim = 32;
+  else if (64 - er_lim <= hlim && hlim <= 64)
+    hlim = 64;
+  else if (128 - er_lim <= hlim && hlim <= 128)
+    hlim = 128;
+  else if (255 - er_lim <= hlim && hlim <= 255)
+    hlim = 255;
+  else
+    hlim = -1;
+
+  return hlim;
+}
+
 static double vectorize_isr(std::map<std::string, FPPacket>& resps) {
   const char * const SEQ_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6"};
   u32 seqs[NELEMS(SEQ_PROBE_NAMES)];
@@ -857,6 +887,7 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     probe_name = IPV6_PROBE_NAMES[i];
     features[idx++].value = vectorize_plen(resps[probe_name].getPacket());
     features[idx++].value = vectorize_tc(resps[probe_name].getPacket());
+    features[idx++].value = vectorize_hlim(resps[probe_name].getPacket(), FPR->distance, FPR->distance_calculation_method);
   }
   /* TCP features */
   features[idx++].value = vectorize_isr(resps);
@@ -1539,7 +1570,9 @@ void FPHost6::finish() {
   }
 
   this->target_host->distance = this->target_host->FPR->distance = distance;
-  this->target_host->distance_calculation_method = distance_calculation_method;
+  this->target_host->distance_calculation_method =
+    this->target_host->FPR->distance_calculation_method =
+    distance_calculation_method;
 }
 
 struct tcp_desc {

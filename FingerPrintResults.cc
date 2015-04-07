@@ -137,6 +137,7 @@ FingerPrintResults::FingerPrintResults() {
   osscan_opentcpport = osscan_closedtcpport = osscan_closedudpport = -1;
   distance = -1;
   distance_guess = -1;
+  distance_calculation_method = DIST_METHOD_NONE;
   maxTimingRatio = 0;
   incomplete = false;
 }

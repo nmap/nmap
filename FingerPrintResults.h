@@ -143,6 +143,16 @@ struct OS_Classification_Results {
   int overall_results; /* OSSCAN_TOOMANYMATCHES, OSSCAN_NOMATCHES, OSSCAN_SUCCESS, etc */
 };
 
+/* The method used to calculate the Target::distance, included in OS
+   fingerprints. */
+enum dist_calc_method {
+        DIST_METHOD_NONE,
+        DIST_METHOD_LOCALHOST,
+        DIST_METHOD_DIRECT,
+        DIST_METHOD_ICMP,
+        DIST_METHOD_TRACEROUTE
+};
+
 class FingerPrintResults {
  public: /* For now ... a lot of the data members should be made private */
   FingerPrintResults();
@@ -173,6 +183,7 @@ class FingerPrintResults {
                             otherwise -1) */
   int distance; /* How "far" is this FP gotten from? */
   int distance_guess; /* How "far" is this FP gotten from? by guessing based on ttl. */
+  enum dist_calc_method distance_calculation_method;
 
   /* The largest ratio we have seen of time taken vs. target time
      between sending 1st tseq probe and sending first ICMP echo probe.
