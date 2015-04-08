@@ -58,7 +58,7 @@ References:
 -- @args http-crossdomainxml.domain-lookup Boolean to check domain availability. Default:false
 ---
 
-author = {"Seth Arh <sethsec()gmail>", "Paulino Calderon <calderon()websec.mx>"}
+author = {"Seth Art <sethsec()gmail>", "Paulino Calderon <calderon()websec.mx>"}
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "external", "vuln"}
 
