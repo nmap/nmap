@@ -570,11 +570,11 @@ dialog where you can start NPF if you have administrator privileges.";
   }
 
   if (af() == AF_INET6 && (generate_random_ips|numdecoys|bouncescan|fragscan)) {
-    fatal("Sorry -- IPv6 support is currently only available for TCP, UDP, and SCTP port scans and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
+    fatal("Random targets, decoys, FTP bounce scan, and fragmentation are not supported with IPv6.");
   }
 
   if(ipoptions && osscan)
-    error("WARNING: Ip options are NOT used while OS scanning!");
+    error("WARNING: IP options are NOT used while OS scanning!");
 
 #ifndef NOLUA
   /* Make sure nmap.registry.args is available (even if it's empty) */
