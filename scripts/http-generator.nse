@@ -46,20 +46,6 @@ categories = {"default", "discovery", "safe"}
 -- 2014-07-29 Fabian Affolter <fabian@affolter-engineering.ch>:
 --   + update generator pattern
 
--- Helper function
-local follow_redirects = function(host, port, path, n)
-  local pattern = "^[hH][tT][tT][pP]/1.[01] 30[12]"
-  local response = http.get(host, port, path)
-
-  while (response['status-line'] or ""):match(pattern) and n > 0 do
-    n = n - 1
-    local loc = response.header['location']
-    response = http.get_url(loc)
-  end
-
-  return response
-end
-
 portrule = shortport.http
 
 action = function(host, port)
@@ -76,7 +62,7 @@ action = function(host, port)
         string.upper(c))
     end)
 
-  response = follow_redirects(host, port, path, redirects)
+  response = http.get(host, port, path, {redirect_ok=redirects})
   if ( response and response.body ) then
     return response.body:match(pattern)
   end
