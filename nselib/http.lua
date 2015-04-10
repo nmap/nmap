@@ -75,8 +75,8 @@
 -- * <code>bypass_cache</code>: Do not perform a lookup in the local HTTP cache.
 -- * <code>no_cache</code>: Do not save the result of this request to the local HTTP cache.
 -- * <code>no_cache_body</code>: Do not save the body of the response to the local HTTP cache.
--- * <code>redirect_ok</code>: Closure that overrides the default redirect_ok used to validate whether to follow HTTP redirects or not. False, if no HTTP redirects should be followed.
---   The following example shows how to write a custom closure that follows 5 consecutive redirects:
+-- * <code>redirect_ok</code>: Closure that overrides the default redirect_ok used to validate whether to follow HTTP redirects or not. False, if no HTTP redirects should be followed. Alternatively, a number may be passed to change the number of redirects to follow.
+--   The following example shows how to write a custom closure that follows 5 consecutive redirects, without the safety checks in the default redirect_ok:
 --   <code>
 --   redirect_ok = function(host,port)
 --     local c = 5
@@ -343,8 +343,8 @@ local function validate_options(options)
         bad = true
       end
     elseif(key == 'redirect_ok') then
-      if(type(value)~= 'function' and type(value)~='boolean') then
-        stdnse.debug1("http: options.redirect_ok must be a function or boolean")
+      if(type(value)~= 'function' and type(value)~='boolean' and type(value) ~= 'number') then
+        stdnse.debug1("http: options.redirect_ok must be a function or boolean or number")
         bad = true
       end
     else
@@ -1303,75 +1303,81 @@ function put(host, port, path, options, putdata)
   return generic_request(host, port, "PUT", path, mod_options)
 end
 
--- Check if the given URL is okay to redirect to. Return a table with keys
+-- A battery of tests a URL is subjected to in order to decide if it may be
+-- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
+local redirect_ok_rules = {
+
+  -- Check if there's any credentials in the url
+  function (url, host, port)
+    -- bail if userinfo is present
+    return ( url.userinfo and false ) or true
+  end,
+
+  -- Check if the location is within the domain or host
+  function (url, host, port)
+    local hostname = stdnse.get_hostname(host)
+    if ( hostname == host.ip and host.ip == url.host.ip ) then
+      return true
+    end
+    local domain = hostname:match("^[^%.]-%.(.*)") or hostname
+    local match = ("^.*%s$"):format(domain)
+    if ( url.host:match(match) ) then
+      return true
+    end
+    return false
+  end,
+
+  -- Check whether the new location has the same port number
+  function (url, host, port)
+    -- port fixup, adds default ports 80 and 443 in case no url.port was
+    -- defined, we do this based on the url scheme
+    local url_port = url.port
+    if ( not(url_port) ) then
+      if ( url.scheme == "http" ) then
+        url_port = 80
+      elseif( url.scheme == "https" ) then
+        url_port = 443
+      end
+    end
+    if (not url_port) or tonumber(url_port) == port.number then
+      return true
+    end
+    return false
+  end,
+
+  -- Check whether the url.scheme matches the port.service
+  function (url, host, port)
+    -- if url.scheme is present then it must match the scanned port
+    if url.scheme and url.port then return true end
+    if url.scheme and url.scheme ~= port.service then return false end
+    return true
+  end,
+
+  -- make sure we're actually being redirected somewhere and not to the same url
+  function (url, host, port)
+    -- path cannot be unchanged unless host has changed
+    -- loc.path must be set if returning true
+    if ( not url.path or url.path == "/" ) and url.host == ( host.targetname or host.ip) then return false end
+    if not url.path then return true end
+    return true
+  end,
+}
+
+--- Check if the given URL is okay to redirect to. Return a table with keys
 -- "host", "port", and "path" if okay, nil otherwise.
+--
+-- Redirects will be followed unless they:
+-- * contain credentials
+-- * are on a different domain or host
+-- * have a different port number or URI scheme
+-- * redirect to the same URI
+-- * exceed the maximum number of redirects specified
 -- @param url table as returned by url.parse
 -- @param host table as received by the action function
 -- @param port table as received by the action function
+-- @param counter number of redirects to follow.
 -- @return loc table containing the new location
-function redirect_ok(host, port)
-
-  -- A battery of tests a URL is subjected to in order to decide if it may be
-  -- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
-  local rules = {
-
-    -- Check if there's any credentials in the url
-    function (url, host, port)
-      -- bail if userinfo is present
-      return ( url.userinfo and false ) or true
-    end,
-
-    -- Check if the location is within the domain or host
-    function (url, host, port)
-      local hostname = stdnse.get_hostname(host)
-      if ( hostname == host.ip and host.ip == url.host.ip ) then
-        return true
-      end
-      local domain = hostname:match("^[^%.]-%.(.*)") or hostname
-      local match = ("^.*%s$"):format(domain)
-      if ( url.host:match(match) ) then
-        return true
-      end
-      return false
-    end,
-
-    -- Check whether the new location has the same port number
-    function (url, host, port)
-      -- port fixup, adds default ports 80 and 443 in case no url.port was
-      -- defined, we do this based on the url scheme
-      local url_port = url.port
-      if ( not(url_port) ) then
-        if ( url.scheme == "http" ) then
-          url_port = 80
-        elseif( url.scheme == "https" ) then
-          url_port = 443
-        end
-      end
-      if (not url_port) or tonumber(url_port) == port.number then
-        return true
-      end
-      return false
-    end,
-
-    -- Check whether the url.scheme matches the port.service
-    function (url, host, port)
-      -- if url.scheme is present then it must match the scanned port
-      if url.scheme and url.port then return true end
-      if url.scheme and url.scheme ~= port.service then return false end
-      return true
-    end,
-
-    -- make sure we're actually being redirected somewhere and not to the same url
-    function (url, host, port)
-      -- path cannot be unchanged unless host has changed
-      -- loc.path must be set if returning true
-      if ( not url.path or url.path == "/" ) and url.host == ( host.targetname or host.ip) then return false end
-      if not url.path then return true end
-      return true
-    end,
-  }
-
-  local counter = MAX_REDIRECT_COUNT
+function redirect_ok(host, port, counter)
   -- convert a numeric port to a table
   if ( "number" == type(port) ) then
     port = { number = port }
@@ -1379,7 +1385,7 @@ function redirect_ok(host, port)
   return function(url)
     if ( counter == 0 ) then return false end
     counter = counter - 1
-    for i, rule in ipairs( rules ) do
+    for i, rule in ipairs( redirect_ok_rules ) do
       if ( not(rule( url, host, port )) ) then
         --stdnse.debug1("Rule failed: %d", i)
         return false
@@ -1435,11 +1441,13 @@ local function get_redirect_ok(host, port, options)
       return function() return false end
     elseif( "function" == type(options.redirect_ok) ) then
       return options.redirect_ok(host, port)
+    elseif( type(options.redirect_ok) == "number") then
+      return redirect_ok(host, port, options.redirect_ok)
     else
-      return redirect_ok(host, port)
+      return redirect_ok(host, port, MAX_REDIRECT_COUNT)
     end
   else
-    return redirect_ok(host, port)
+    return redirect_ok(host, port, MAX_REDIRECT_COUNT)
   end
 end
 
