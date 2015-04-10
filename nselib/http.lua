@@ -51,12 +51,13 @@
 -- for them.
 --
 -- The response to each function is typically a table with the following keys:
--- <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline). In case of an error, a description will be provided in this line.
--- <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
--- <code>header</code>: A table of header values, where the keys are lowercase and the values are exactly what the server sent
--- <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
--- <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
--- <code>body</code>: The body of the response
+-- * <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline). In case of an error, a description will be provided in this line.
+-- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
+-- * <code>header</code>: A table of header values, where the keys are lowercase and the values are exactly what the server sent
+-- * <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
+-- * <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
+-- * <code>body</code>: The body of the response
+-- * <code>location</code>: a list of the locations of redirects that were followed.
 --
 -- Many of the functions optionally allow an 'options' table. This table can alter the HTTP headers
 -- or other values like the timeout. The following are valid values in 'options' (note: not all

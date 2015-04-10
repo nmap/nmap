@@ -7,10 +7,8 @@ local string = require "string"
 description = [[
 Shows the title of the default page of a web server.
 
-The script will follow no more than one HTTP redirect, and only if the
-redirection leads to the same host. The script may send a DNS query to
-determine whether the host the redirect leads to has the same IP address as the
-original target.
+The script will follow up to 5 HTTP redirects, using the default rules in the
+http library.
 ]]
 
 ---
