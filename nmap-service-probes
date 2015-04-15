@@ -8345,6 +8345,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 17\
 # http://hg.barrelfish.org/file/tip/usr/webserver/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Barrelfish\r\n| p/Barrelfish httpd/ o/Barrelfish/ cpe:/o:barrelfish:barrelfish/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nConnection: close\r\nPragma: no-cache\r\nWWW-Authenticate: Basic realm=\"netcam\"\r\nContent-Length: 17\r\n\r\n401 Unauthorized\n$| p/TRENDnet TV-IP100 or TV-IP110 webcam display httpd/ d/webcam/ cpe:/h:trendnet:tv-ip100/ cpe:/h:trendnet:tv-ip110/
+# False positives reported for EMC VNX 5200 - SAN device:
 match http m|^HTTP/1\.1 403 Forbidden\r\nContent-Length: 0\r\n\r\n$| p/TRENDnet TV-IP110W webcam display httpd/ d/webcam/ cpe:/h:trendnet:tv-ip110w/
 # Trendnet TV-IP110w
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"netcam\"\r\nContent-Length: 17\r\n\r\n401 Unauthorized\n$| p/TRENDnet TV-IP110w or TV-IP422W webcam display httpd/ d/webcam/ cpe:/h:trendnet:tv-ip110w/ cpe:/h:trendnet:tv-ip422w/
