@@ -436,7 +436,7 @@ end
 -- construct and return the correct links.
 local POPULAR_IDS_LINKS = {
   CVE = function(id)
-          local link = 'http://cve.mitre.org/cgi-bin/cvename.cgi?name='
+          local link = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name='
           return string_format("%s%s", link, id)
         end,
   OSVDB = function(id)
