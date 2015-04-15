@@ -81,6 +81,13 @@ end
 function new_listing()
   local output = {}
   output['curvol'] = nil
+  output['volumes'] = {}
+  output['errors'] = {}
+  output['info'] = {}
+  output['total'] = {
+    ['files'] = 0,
+    ['bytes'] = 0,
+  }
   return output
 end
 
@@ -104,7 +111,10 @@ function new_vol(output, name, hasperms)
   curvol['files'] = files
   curvol['name'] = name
   curvol['count'] = 0
+  curvol['bytes'] = 0
   curvol['errors'] = {}
+  curvol['info'] = {}
+  curvol['hasperms'] = hasperms
   output['curvol'] = curvol
 end
 
@@ -112,9 +122,9 @@ function report_error(output, err)
   stdnse.debug1(err)
   if config('errors') then
     if output["curvol"] == nil then
-      table.insert(output, err)
+      table.insert(output["errors"], err)
     else
-       table.insert(output["curvol"]["errors"], err)
+      table.insert(output["curvol"]["errors"], err)
     end
   end
 end
@@ -122,20 +132,48 @@ end
 function report_info(output, info)
   stdnse.debug1(info)
   if output["curvol"] == nil then
-    table.insert(output, info)
+    table.insert(output["info"], info)
   else
     table.insert(output["curvol"]["info"], info)
   end
 end
 
+local units = {
+  ["k"] = 1024,
+  ["m"] = 1048576,
+  ["g"] = 1073741824,
+  ["t"] = 1099511627776,
+}
+
 function add_file(output, file)
   -- returns true iff script should continue
   local files = output["curvol"]["files"]
+  local size, bsize
   for i, info in ipairs(file) do
-    tab.add(files, i, info)
+    if type(info) == "number" then
+      tab.add(files, i, tostring(info))
+    else
+      tab.add(files, i, info)
+    end
   end
-  output["curvol"]["count"] = output["curvol"]["count"] + 1
   tab.nextrow(files)
+  output["curvol"]["count"] = output["curvol"]["count"] + 1
+  if output["curvol"]["hasperms"] then
+    size = file[4]
+  else
+    size = file[1]
+  end
+  bsize = tonumber(size)
+  if bsize == nil then
+    local unit = string.lower(string.sub(size, -1, -1))
+    bsize = tonumber(string.sub(size, 0, -2))
+    if units[unit] ~= nil and bsize ~= nil then
+      bsize = bsize * units[unit]
+    else
+      bsize = 0
+    end
+  end
+  output["curvol"]["bytes"] = output["curvol"]["bytes"] + bsize
   return (config("maxfiles") == 0 or config("maxfiles") == nil
 	    or config("maxfiles") > output["curvol"]["count"])
 end
@@ -144,13 +182,24 @@ function end_vol(output)
   local vol = {volume = output["curvol"]["name"],
 	       files = "\n" .. tab.dump(output["curvol"]["files"])}
   if #output["curvol"]["errors"] ~= 0 then
-    vol["error"] = output["curvol"]["errors"]
+    vol["errors"] = output["curvol"]["errors"]
   end
   if #output["curvol"]["info"] ~= 0 then
     vol["info"] = output["curvol"]["info"]
   end
-  table.insert(output, vol)
+  table.insert(output["volumes"], vol)
+  output["total"]["files"] = output["total"]["files"] + output["curvol"]["count"]
+  output["total"]["bytes"] = output["total"]["bytes"] + output["curvol"]["bytes"]
   output["curvol"] = nil
+end
+
+function end_listing(output)
+  if #output["errors"] == 0 then
+    output["errors"] = nil
+  end
+  if #output["info"] == 0 then
+    output["info"] = nil
+  end
 end
 
 return _ENV

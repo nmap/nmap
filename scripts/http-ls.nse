@@ -62,19 +62,12 @@ local function list_files(host, port, url, output, maxdepth, basedir)
 
   resp = http.get(host, port, url)
 
-  -- stolen from http-title.nse
-
-  -- check for a redirect
-  if resp.location then
-    return
-  end
-
-  if not resp.body then
-    return
+  if resp.location or not resp.body then
+    return true
   end
 
   if not string.match(resp.body, "<[Tt][Ii][Tt][Ll][Ee][^>]*> *[Ii][Nn][Dd][Ee][Xx] +[Oo][Ff]") then
-    return
+    return true
   end
 
   local patterns, pattern, directory, continue
@@ -132,5 +125,6 @@ action = function(host, port)
       string.format("maxfiles limit reached (%d)", ls.config('maxfiles')))
   end
   ls.end_vol(output)
+  ls.end_listing(output)
   return output
 end
