@@ -2,8 +2,7 @@ local afp = require "afp"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local tab = require "tab"
-local table = require "table"
+local ls = require "ls"
 
 description = [[
 Attempts to get useful information about files from AFP volumes.
@@ -59,34 +58,17 @@ The output is intended to resemble the output of <code>ls</code>.
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
-
-
 dependencies = {"afp-brute"}
 
 portrule = shortport.portnumber(548, "tcp")
-
-local function createFileTable()
-  local filetab = tab.new()
-
-  tab.add(filetab, 1, "PERMISSION")
-  tab.add(filetab, 2, "UID")
-  tab.add(filetab, 3, "GID")
-  tab.add(filetab, 4, "SIZE")
-  tab.add(filetab, 5, "TIME")
-  tab.add(filetab, 6, "FILENAME")
-  tab.nextrow(filetab)
-
-  return filetab
-end
-
 
 action = function(host, port)
 
   local afpHelper = afp.Helper:new()
   local args = nmap.registry.args
   local users = nmap.registry.afp or { ['nil'] = 'nil' }
-  local maxfiles = tonumber(stdnse.get_script_args("afp-ls.maxfiles") or 10)
-  local output = {}
+  local maxfiles = ls.config("maxfiles")
+  local output = ls.new_listing()
 
   if ( args['afp.username'] ) then
     users = {}
@@ -122,40 +104,40 @@ action = function(host, port)
       for _, vol in ipairs( vols ) do
         local status, tbl = afpHelper:Dir( vol )
         if ( not(status) ) then
-          table.insert(
+          ls.report_error(
             output,
             ("ERROR: Failed to list the contents of %s"):format(vol))
         else
-          local file_tab = createFileTable()
-          local counter = maxfiles or 10
+          ls.new_vol(output, vol, true)
+          local continue = true
           for _, item in ipairs(tbl[1]) do
             if ( item and item.name ) then
               local status, result = afpHelper:GetFileUnixPermissions(
-                vol, item.name)
+                 vol, item.name)
               if ( status ) then
                 local status, fsize = afpHelper:GetFileSize( vol, item.name)
                 if ( not(status) ) then
-                  table.insert(
+                  ls.report_error(
                     output,
-                    ("\n\nERROR: Failed to retrieve file size for %/%s"):format(vol, item.name))
+                    ("ERROR: Failed to retrieve file size for %/%s"):format(vol, item.name))
                 else
                   local status, date = afpHelper:GetFileDates( vol, item.name)
                   if ( not(status) ) then
-                    table.insert(
+                    ls.report_error(
                       output,
                       ("\n\nERROR: Failed to retrieve file dates for %/%s"):format(vol, item.name))
                   else
-                    tab.addrow(file_tab, result.privs, result.uid, result.gid, fsize, date.create, item.name)
-                    counter = counter - 1
+                    continue = ls.add_file(output,
+                                           {result.privs, result.uid,
+                                            result.gid, fsize, date.create,
+                                            item.name})
                   end
                 end
               end
             end
-            if ( counter == 0 ) then break end
+            if not continue then break end
           end
-          local result_part = { name = vol }
-          table.insert(result_part, tab.dump(file_tab))
-          table.insert(output, result_part)
+          ls.end_vol(output)
         end
       end
     end
@@ -164,13 +146,10 @@ action = function(host, port)
     status, response = afpHelper:CloseSession()
 
     -- stop after first successful attempt
-    if ( output and #output > 0 ) then
-      table.insert(output, "")
-      table.insert(output, ("Information retrieved as: %s"):format(username))
-      if ( maxfiles > 0 ) then
-        table.insert(output, ("Output restricted to %d entries per volume. (See afp-ls.maxfiles)"):format(maxfiles))
-      end
-      return stdnse.format_output(true, output)
+    if #output["volumes"] > 0 then
+      ls.end_listing(output)
+      ls.report_info(output, ("information retrieved as %s"):format(username))
+      return output
     end
   end
   return
