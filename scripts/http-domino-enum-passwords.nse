@@ -1,3 +1,4 @@
+local creds = require "creds"
 local http = require "http"
 local io = require "io"
 local nmap = require "nmap"
@@ -81,10 +82,11 @@ also download any Domino ID Files attached to the Person document.
 -- @args domino-enum-passwords.password Password for HTTP auth, if required
 
 --
--- Version 0.2
+-- Version 0.4
 -- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/31/2010 - v0.2 - add support for downloading ID files
 -- Revised 11/25/2010 - v0.3 - added support for separating hash-type <martin@swende.se>
+-- Revised 04/16/2015 - v0.4 - switched to 'creds' credential repository <nnposter>
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -219,45 +221,41 @@ action = function(host, port)
   local vhost= stdnse.get_script_args('domino-enum-passwords.hostname')
   local user = stdnse.get_script_args('domino-enum-passwords.username')
   local pass = stdnse.get_script_args('domino-enum-passwords.password')
-  local creds, pos, pager
+  local pos, pager
   local links, result, hashes,legacyHashes, id_files = {}, {}, {}, {},{}
   local chunk_size = 30
   local max_fetch = tonumber(stdnse.get_script_args('domino-enum-passwords.count')) or 10
   local http_response
-
-  if ( nmap.registry['credentials'] and nmap.registry['credentials']['http'] ) then
-    creds = nmap.registry['credentials']['http']
-  end
-
+  local has_creds = false
   -- authentication required?
   if ( requiresAuth( vhost or host, port, path ) ) then
-    if ( not(user) and not(creds) ) then
-      return "  \n  ERROR: No credentials supplied (see domino-enum-passwords.username and domino-enum-passwords.password)"
-    end
-
-    -- A user was provided, attempt to authenticate
+   -- A user was provided, attempt to authenticate
     if ( user ) then
       if (not(isValidCredential( vhost or host, port, path, user, pass )) ) then
         return "  \n  ERROR: The provided credentials where invalid"
       end
-    elseif ( creds ) then
-      for _, cred in pairs(creds) do
-        if ( isValidCredential( vhost or host, port, path, cred.username, cred.password ) ) then
-          user = cred.username
-          pass = cred.password
+    else
+      local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+      for cred in c:getCredentials(creds.State.VALID) do
+        has_creds = true
+        if (isValidCredential(vhost or host, port, path, cred.user, cred.pass)) then
+          user = cred.user
+          pass = cred.pass
           break
         end
+      end
+      if not pass then
+        local msg = has_creds and "No valid credentials were found" or "No credentials supplied"
+        return string.format("  \n  ERROR: %s (see domino-enum-passwords.username and domino-enum-passwords.password)", msg)
       end
     end
   end
 
-  if ( not(user) and not(pass) ) then
-    return "  \n  ERROR: No valid credentials were found (see domino-enum-passwords.username and domino-enum-passwords.password)"
-  end
-
   path = "/names.nsf/People?OpenView"
   http_response = http.get( vhost or host, port, path, { auth = { username = user, password = pass }, no_cache = true })
-  pager = getPager( http_response.body )
+  if http_response.status and http_response.status ==200 then
+    pager = getPager( http_response.body )
+  end
   if ( not(pager) ) then
     if ( http_response.body and
       http_response.body:match(".*<input type=\"submit\".* value=\"Sign In\">.*" ) ) then

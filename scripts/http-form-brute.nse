@@ -12,8 +12,8 @@ description = [[
 Performs brute force password auditing against http form-based authentication.
 
 This script uses the unpwdb and brute libraries to perform password
-guessing. Any successful guesses are stored in the nmap registry, under
-the nmap.registry.credentials.http key for other scripts to use.
+guessing. Any successful guesses are stored in the nmap registry, using 
+the creds library, for other scripts to use.
 
 The script automatically attempts to discover the form method, action, and
 field names to use in order to perform password guessing. (Use argument
@@ -234,9 +234,6 @@ Driver = {
     if not success then
       return false, brute.Error:new("Incorrect password")
     end
-    nmap.registry['credentials'] = nmap.registry['credentials'] or {}
-    nmap.registry.credentials['http'] = nmap.registry.credentials['http'] or {}
-    table.insert(nmap.registry.credentials.http, {username = username, password = password})
     return true, creds.Account:new(username, password, creds.State.VALID)
   end,
 

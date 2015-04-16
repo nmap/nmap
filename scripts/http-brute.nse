@@ -16,8 +16,8 @@ Performs brute force password auditing against http basic authentication.
 -- nmap --script http-brute -p 80 <host>
 --
 -- This script uses the unpwdb and brute libraries to perform password
--- guessing. Any successful guesses are stored in the nmap registry, under
--- the nmap.registry.credentials.http key for other scripts to use.
+-- guessing. Any successful guesses are stored in the nmap registry, using
+-- the creds library, for other scripts to use.
 --
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -90,13 +90,6 @@ Driver = {
     -- but gave me a number of false positives last time I tried.
     -- We decided to change it to ~= 4xx.
     if ( response.status < 400 or response.status > 499 ) then
-      if ( not( nmap.registry['credentials'] ) ) then
-        nmap.registry['credentials'] = {}
-      end
-      if ( not( nmap.registry.credentials['http'] ) ) then
-        nmap.registry.credentials['http'] = {}
-      end
-      table.insert( nmap.registry.credentials.http, { username = username, password = password } )
       return true, creds.Account:new( username, password, creds.State.VALID)
     end
     return false, brute.Error:new( "Incorrect password" )
