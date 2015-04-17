@@ -317,15 +317,17 @@ end
 -- @param filter Function that returns bool, which serves as a filter
 -- @return function The filtered iterator.
 function filter_iterator (iterator, filter)
-  local function helper (...)
-    if filter(...) then
-      return ...
+  return function (command)
+    if command == "reset" then
+      iterator "reset"
+    else
+      local val = iterator(command)
+      while val and not filter(val) do
+        val = iterator(command)
+      end
+      return val
     end
   end
-  local function filter (command)
-    return helper(iterator(command))
-  end
-  return filter
 end
 
 return _ENV;
