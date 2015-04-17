@@ -175,7 +175,6 @@ int main(int argc, char *argv[]) {
   char *cptr;
   int ret;
   int i;
-  int resume;
 
   set_program_name(argv[0]);
 
@@ -217,22 +216,14 @@ int main(int argc, char *argv[]) {
     return ret;
   }
 
-  /* Don't allow users to use --resume with other options */
-  for (i=0; i<argc; i++) {
-    if ( strcmp("--resume", argv[i]) == 0) {
-      resume = 1;
-      if(argc!=3) {
-        fatal("Cannot use --resume with other options. Usage: nmap --resume <filename>");
-      }
-      if (gather_logfile_resumption_state(argv[i+1], &myargc, &myargv) == -1) {
-        fatal("Cannot resume from (supposed) log file %s", argv[i+1]);
-      }
+  if (argc == 3 && strcmp("--resume", argv[1]) == 0) {
+    /* OK, they want to resume an aborted scan given the log file specified.
+       Lets gather our state from the log file */
+    if (gather_logfile_resumption_state(argv[2], &myargc, &myargv) == -1) {
+      fatal("Cannot resume from (supposed) log file %s", argv[2]);
     }
+    return nmap_main(myargc, myargv);
   }
 
-  if (resume == 1) {
-    return nmap_main(myargc, myargv);
-  } else {
-    return nmap_main(argc, argv);
-  }
+  return nmap_main(argc, argv);
 }
