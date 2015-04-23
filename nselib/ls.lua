@@ -11,7 +11,9 @@
 --                   (default: 1, no recursion).
 -- @args ls.pattern  [optional] return only files that match the given pattern
 -- @args ls.checksum [optional] download each file and calculate a SHA1 checksum
--- @args ls.errors   [optional] report connection errors
+-- @args ls.errors   [optional] report errors
+-- @args ls.empty    [optional] report empty volumes (with no information
+--                   or error)
 --
 -- These arguments can either be set for all the scripts using this
 -- module (--script-args ls.arg=value) or for one particular script
@@ -36,13 +38,8 @@ local config_values = {
   ["pattern"] = "*",
   ["checksum"] = false,
   ["errors"] = false,
-}
-local config_types = {
-  ["pattern"] = "string",
-  ["maxdepth"] = "number",
-  ["maxfiles"] = "number",
-  ["checksum"] = "boolean",
-  ["errors"] = "boolean",
+  ["empty"] = false,
+  ["human"] = false,
 }
 
 local function convert_arg(argval, argtype)
@@ -58,10 +55,10 @@ local function convert_arg(argval, argtype)
   return argval
 end
 
-for argname, argtype in pairs(config_types) do
+for argname, argvalue in pairs(config_values) do
   local argval = stdnse.get_script_args(LIBRARY_NAME .. "." .. argname)
   if argval ~= nil then
-    config_values[argname] = convert_arg(argval, argtype)
+    config_values[argname] = convert_arg(argval, type(argvalue))
   end
 end
 
@@ -74,7 +71,7 @@ function config(argname)
   if argval == nil then
     return config_values[argname]
   else
-    return convert_arg(argval, config_types[argname])
+    return convert_arg(argval, type(config_values[argname]))
   end
 end
 
@@ -119,7 +116,11 @@ function new_vol(output, name, hasperms)
 end
 
 function report_error(output, err)
-  stdnse.debug1(err)
+  if output["curvol"] == nil then
+    stdnse.debug1("error: " .. err)
+  else
+    stdnse.debug1("error [" .. output["curvol"]["name"] .. "]: " .. err)
+  end
   if config('errors') then
     if output["curvol"] == nil then
       table.insert(output["errors"], err)
@@ -130,10 +131,11 @@ function report_error(output, err)
 end
 
 function report_info(output, info)
-  stdnse.debug1(info)
   if output["curvol"] == nil then
+    stdnse.debug1("info: " .. info)
     table.insert(output["info"], info)
   else
+    stdnse.debug1("info [" .. output["curvol"]["name"] .. "]: " .. info)
     table.insert(output["curvol"]["info"], info)
   end
 end
@@ -179,15 +181,23 @@ function add_file(output, file)
 end
 
 function end_vol(output)
-  local vol = {volume = output["curvol"]["name"],
-	       files = "\n" .. tab.dump(output["curvol"]["files"])}
+  local vol = {["volume"] = output["curvol"]["name"]}
+  local empty = true
+  if #output["curvol"]["files"] ~= 1 then
+    vol["files"] = "\n" .. tab.dump(output["curvol"]["files"])
+    empty = false
+  end
   if #output["curvol"]["errors"] ~= 0 then
     vol["errors"] = output["curvol"]["errors"]
+    empty = false
   end
   if #output["curvol"]["info"] ~= 0 then
     vol["info"] = output["curvol"]["info"]
+    empty = false
   end
-  table.insert(output["volumes"], vol)
+  if config("empty") or not empty then
+    table.insert(output["volumes"], vol)
+  end
   output["total"]["files"] = output["total"]["files"] + output["curvol"]["count"]
   output["total"]["bytes"] = output["total"]["bytes"] + output["curvol"]["bytes"]
   output["curvol"] = nil

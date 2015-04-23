@@ -2,7 +2,7 @@ local rpc = require "rpc"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local tab = require "tab"
+local ls = require "ls"
 local table = require "table"
 local nmap = require "nmap"
 
@@ -185,14 +185,12 @@ local function table_dirlist(nfs, mount, dirlist)
       break
     end
 
-    if v.name ~= ".." and v.name ~= "." then
-      if v.attributes then
-        table.insert(files, v.name)
-        attrs[files[idx]] = table_attributes(nfs, v.name, v.attributes)
-        idx = idx + 1
-      else
-        stdnse.debug1("ERROR attributes:  %s", v.name)
-      end
+    if v.attributes then
+      table.insert(files, v.name)
+      attrs[files[idx]] = table_attributes(nfs, v.name, v.attributes)
+      idx = idx + 1
+    else
+      stdnse.debug1("ERROR attributes:  %s", v.name)
     end
   end
 
@@ -210,53 +208,59 @@ local function unmount_nfs(mount, mnt_obj, nfs_obj)
   rpc.Helper.UnmountPath(mnt_obj, mount)
 end
 
-local function nfs_ls(nfs, mount, results, access)
+local function nfs_ls(nfs, mount, output)
   local dirs, attr, acs = {}, {}, {}
   local nfsobj = rpc.NFS:new()
   local mnt_comm, nfs_comm, fhandle
 
   mnt_comm, fhandle = procedures.MountPath(nfs.host, mount)
   if mnt_comm == nil then
-    return false, fhandle
+    ls.report_error(output, fhandle)
+    return false
   end
 
   local nfs_comm, status = procedures.NfsOpen(nfs.host)
   if nfs_comm == nil then
     rpc.Helper.UnmountPath(mnt_comm, mount)
-    return false, status
+    ls.report_error(output, status)
+    return false
   end
 
   -- check if NFS and Mount versions are compatible
   -- RPC library will check if the Mount and NFS versions are supported
   if (nfs_comm.version == 1) then
       unmount_nfs(mount, mnt_comm, nfs_comm)
-      return false, string.format("NFS v%d not supported", nfs_comm.version)
+      ls.report_error(output,
+		      string.format("NFS v%d not supported", nfs_comm.version))
+      return false
   elseif ((nfs_comm.version == 2 and mnt_comm.version > 2) or
     (nfs_comm.version == 3 and mnt_comm.version ~= 3)) then
       unmount_nfs(mount, mnt_comm, nfs_comm)
-      return false, string.format("versions mismatch, NFS v%d - Mount v%d",
-                                  nfs_comm.version, mnt_comm.version)
+      ls.report_error(output,
+		      string.format("versions mismatch, NFS v%d - Mount v%d",
+				    nfs_comm.version, mnt_comm.version))
+      return false
   end
 
   status, attr = nfsobj:GetAttr(nfs_comm, fhandle)
   if not status then
     unmount_nfs(mount, mnt_comm, nfs_comm)
-    return status, attr
+    ls.report_error(output, attr)
+    return status
   end
-
-  table.insert(results, table_attributes(nfs, mount, attr))
 
   if nfs_comm.version == 3 then
     status, acs = nfsobj:Access(nfs_comm, fhandle, 0x0000003F)
     if status then
       acs.str = rpc.Util.format_access(acs.mask, nfs_comm.version)
-      table.insert(access, acs.str)
+      ls.report_info(output, string.format("access: %s", acs.str))
     end
 
     status, dirs = nfsobj:ReadDirPlus(nfs_comm, fhandle)
     if status then
       for _,v in ipairs(table_dirlist(nfs, mount, dirs.entries)) do
-        table.insert(results, v)
+	ls.add_file(output, {v.type .. v.mode, v.uid, v.gid, v.size,
+			     v.time, v.filename})
       end
     end
   elseif nfs_comm.version == 2 then
@@ -268,64 +272,36 @@ local function nfs_ls(nfs, mount, results, access)
            break
         end
 
-        if v.name ~= ".." and v.name ~= "." then
-          local f = {}
-          status, f = nfsobj:LookUp(nfs_comm, fhandle, v.name)
-          f.name = v.name
-          table.insert(lookup, f)
-        end
+	local f = {}
+	status, f = nfsobj:LookUp(nfs_comm, fhandle, v.name)
+	f.name = v.name
+	table.insert(lookup, f)
       end
 
       for _, v in ipairs(table_dirlist(nfs, mount, lookup)) do
-        table.insert(results, v)
+	ls.add_file(output, {v.type .. v.mode, v.uid, v.gid, v.size,
+			     v.time, v.filename})
       end
     end
   end
 
   unmount_nfs(mount, mnt_comm, nfs_comm)
-  return status, dirs
-end
-
-local function report(nfs, table)
-  local outtab, time = tab.new(), ""
-
-  if nfs.time == "mtime" then
-    time = "MODIFICATION TIME"
-  elseif nfs.time == "atime" then
-    time = "ACCESS TIME"
-  elseif nfs.time == "ctime" then
-    time = "CHANGE TIME"
-  end
-
-  tab.add(outtab, 1, "PERMISSION")
-  tab.add(outtab, 2, "UID")
-  tab.add(outtab, 3, "GID")
-  tab.add(outtab, 4, "SIZE")
-  tab.add(outtab, 5, time)
-  tab.add(outtab, 6, "FILENAME")
-  tab.nextrow(outtab)
-
-  for _,f in pairs(table) do
-    local perm = f.type .. f.mode
-    tab.addrow(outtab, perm, f.uid, f.gid,
-               f.size, f.time, f.filename)
-  end
-  return tab.dump(outtab)
+  return status
 end
 
 local mainaction = function(host)
-  local o, results, mounts, status = {}, {}, {}
+  local results, mounts, status = {}, {}
   local nfs_info =
   {
     host      = host,
     --recurs    = tonumber(nmap.registry.args['nfs-ls.recurs']) or 1,
   }
+  local output = ls.new_listing()
 
-  nfs_info.version, nfs_info.maxfiles, nfs_info.time,
-  nfs_info.human = stdnse.get_script_args('nfs.version',
-                      'nfs-ls.maxfiles','nfs-ls.time','nfs-ls.human')
-
-  nfs_info.maxfiles = tonumber(nfs_info.maxfiles) or 10
+  nfs_info.version, nfs_info.time = stdnse.get_script_args('nfs.version',
+							   'nfs-ls.time')
+  nfs_info.maxfiles = ls.config('maxfiles')
+  nfs_info.human = ls.config('human')
 
   if nfs_info.time == "a" or nfs_info.time == "A" then
     nfs_info.time = "atime"
@@ -333,15 +309,6 @@ local mainaction = function(host)
     nfs_info.time = "ctime"
   else
     nfs_info.time = "mtime"
-  end
-
-  if nfs_info.maxfiles > 0 then
-    local args = {}
-    args['name'] = 'Arguments:'
-    table.insert(args,
-          string.format("maxfiles: %d (file listing output limited)",
-                nfs_info.maxfiles))
-    table.insert(o, args)
   end
 
   status, mounts = procedures.ShowMounts(nfs_info.host)
@@ -354,22 +321,14 @@ local mainaction = function(host)
   end
 
   for _, v in ipairs(mounts) do
-    local results, access, err = {}, {}
-    status, err = nfs_ls(nfs_info, v.name, results, access)
-    if not status then
-      table.insert(o, string.format("\nNFS Export %s", v.name))
-      table.insert(o, string.format("ERROR: %s", err))
-    else
-      table.insert(o,
-            string.format("\nNFS Export: %s", results[1].filename))
-      if #access ~= 0 then
-        table.insert(o, string.format("NFS Access: %s", access[1]))
-      end
-      table.insert(o, {report(nfs_info, results)})
-    end
+    local err
+    ls.new_vol(output, v.name, true)
+    status = nfs_ls(nfs_info, v.name, output)
+    ls.end_vol(output)
   end
 
-  return stdnse.format_output(true, o)
+  ls.end_listing(output)
+  return output
 end
 
 hostaction = function(host)
