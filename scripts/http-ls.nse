@@ -125,6 +125,5 @@ action = function(host, port)
       string.format("maxfiles limit reached (%d)", ls.config('maxfiles')))
   end
   ls.end_vol(output)
-  ls.end_listing(output)
-  return output
+  return ls.end_listing(output)
 end

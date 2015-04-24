@@ -147,9 +147,8 @@ action = function(host, port)
 
     -- stop after first successful attempt
     if #output["volumes"] > 0 then
-      ls.end_listing(output)
       ls.report_info(output, ("information retrieved as %s"):format(username))
-      return output
+      return ls.end_listing(output)
     end
   end
   return

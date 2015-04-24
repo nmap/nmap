@@ -327,8 +327,7 @@ local mainaction = function(host)
     ls.end_vol(output)
   end
 
-  ls.end_listing(output)
-  return output
+  return ls.end_listing(output)
 end
 
 hostaction = function(host)

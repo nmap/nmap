@@ -163,6 +163,5 @@ action = function(host)
      end
   end
 
-  ls.end_listing(output)
-  return output
+  return ls.end_listing(output)
 end

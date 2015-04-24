@@ -195,7 +195,7 @@ function end_vol(output)
     vol["info"] = output["curvol"]["info"]
     empty = false
   end
-  if config("empty") or not empty then
+  if not empty or config("empty") then
     table.insert(output["volumes"], vol)
   end
   output["total"]["files"] = output["total"]["files"] + output["curvol"]["count"]
@@ -204,11 +204,27 @@ function end_vol(output)
 end
 
 function end_listing(output)
+  local empty = true
   if #output["errors"] == 0 then
     output["errors"] = nil
+  else
+    empty = false
   end
   if #output["info"] == 0 then
     output["info"] = nil
+  else
+    empty = false
+  end
+  if #output["volumes"] == 0 then
+    output["volumes"] = nil
+    output["total"] = nil
+  else
+    empty = false
+  end
+  if empty then
+    return nil
+  else
+    return output
   end
 end
 
