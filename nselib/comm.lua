@@ -12,7 +12,7 @@
 -- * <code>proto</code> - string, protocol to use. Default <code>"tcp"</code>
 -- * <code>timeout</code> - override timeout in milliseconds. This overrides all other timeout defaults, but can be overridden by specific connect and request timeouts (below)
 -- * <code>connect_timeout</code> - socket timeout for connection. Default: same as <code>stdnse.get_timeout</code>
--- * <code>request_timeout</code> - additional socket timeout for requests. This is added to the connect_timeout to get a total time for a request to receive a response. Default: 5000ms
+-- * <code>request_timeout</code> - additional socket timeout for requests. This is added to the connect_timeout to get a total time for a request to receive a response. Default: 6000ms
 -- * <code>recv_before</code> - boolean, receive data before sending first payload
 --
 -- If both <code>"bytes"</code> and <code>"lines"</code> are provided,
@@ -43,7 +43,7 @@ local function get_timeouts(host, opts)
     connect_timeout = stdnse.get_timeout(host)
   end
 
-  -- request_timeout based on options or READ_TIMEOUT + connect_timeout
+  -- request_timeout based on options or REQUEST_TIMEOUT + connect_timeout
   if opts and opts.request_timeout then
     request_timeout = opts.request_timeout
   elseif opts and opts.timeout then
