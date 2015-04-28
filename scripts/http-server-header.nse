@@ -77,9 +77,10 @@ action = function(host, port)
       -- Avoid setting version info if -sV scan already got a match
       if port.version.product == nil and (port.version.name_confidence or 0) <= 3 then
         port.version.product = http_server
-        -- Setting "softmatched" allows the service fingerprint to be printed
-        nmap.set_port_version(host, port, "softmatched")
       end
+
+      -- Setting "softmatched" allows the service fingerprint to be printed
+      nmap.set_port_version(host, port, "softmatched")
 
       if http_server then
         headers[http_server] = true
