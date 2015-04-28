@@ -8,7 +8,8 @@ This allows the creation of 32-bit binaries that are compatible with
 ---
  configure.in |   18 ++++++++++++++++++
  pcap-linux.c |   18 ++++++++++--------
- 2 files changed, 28 insertions(+), 8 deletions(-)
+ config.h.in  |    3 +++
+ 3 files changed, 31 insertions(+), 8 deletions(-)
 
 diff --git configure.in configure.in
 index 24097b2..5eca6ab 100644
@@ -74,6 +75,15 @@ index 17bd0f5..bd2457d 100644
  #endif /* PF_PACKET */
  
  #ifdef SO_ATTACH_FILTER
--- 
-1.7.9.5
-
+--- config.h.in
++++ config.h.in
+@@ -271,6 +271,9 @@
+ /* target host supports USB sniffing */
+ #undef PCAP_SUPPORT_USB
+ 
++/* target host supports packet ring capture */
++#undef PCAP_SUPPORT_PACKET_RING
++
+ /* include ACN support */
+ #undef SITA
+ 
