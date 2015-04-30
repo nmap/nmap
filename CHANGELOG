@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Make smb-ls able to leverage results from smb-enum-shares or list of
+  shares specified on command line. [Pierre Lalet]
+
 o [NSE] Fix X509 cert date parsing for dates after 2049. Reported by Teppo
   Turtiainen. [Daniel Miller]
 

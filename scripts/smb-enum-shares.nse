@@ -126,6 +126,10 @@ action = function(host)
   end
   response.account_used = string.format("%s%s", domain, stdnse.string_or_blank(username, '<blank>'))
 
+  if host.registry['smb_shares'] == nil then
+     host.registry['smb_shares'] = {}
+  end
+
   for i = 1, #shares, 1 do
     local share = shares[i]
     local share_output = stdnse.output_table()
@@ -135,6 +139,8 @@ action = function(host)
       -- A share of 'NT_STATUS_OBJECT_NAME_NOT_FOUND' indicates this isn't a fileshare
       if(share['user_can_write'] == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
         share_output["Type"] = "Not a file share"
+      else
+	 table.insert(host.registry['smb_shares'], share.name)
       end
     else
       local details = share['details']
@@ -144,6 +150,12 @@ action = function(host)
       share_output["Users"] = details.current_users
       share_output["Max Users"] = details.max_users
       share_output["Path"] = details.path
+
+      if (share_output["Type"] == "STYPE_DISKTREE" or
+	  share_output["Type"] == "STYPE_DISKTREE_TEMPORARY" or
+	  share_output["Type"] == "STYPE_DISKTREE_HIDDEN") then
+	 table.insert(host.registry['smb_shares'], share.name)
+      end
     end
     -- Print details for a file share
     if(share['anonymous_can_read'] and share['anonymous_can_write']) then
@@ -170,6 +182,10 @@ action = function(host)
     end
 
     response[share.name] = share_output
+  end
+
+  if next(host.registry['smb_shares']) == nil then
+     host.registry['smb_shares'] = nil
   end
 
   return response
