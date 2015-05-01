@@ -1,5 +1,3 @@
-@(#) $Header: /tcpdump/master/libpcap/README,v 1.34 2008-12-14 19:44:14 guy Exp $ (LBL)
-
 LIBPCAP 1.x.y
 
 www.tcpdump.org
@@ -78,15 +76,15 @@ information on configuring that option.
 
 Note to Linux distributions and *BSD systems that include libpcap:
 
-There's now a rule to make a shared library, which should work on Linux 
+There's now a rule to make a shared library, which should work on Linux
 and *BSD, among other platforms.
 
-It sets the soname of the library to "libpcap.so.1"; this is what it 
-should be, *NOT* libpcap.so.1.x or libpcap.so.1.x.y or something such as 
+It sets the soname of the library to "libpcap.so.1"; this is what it
+should be, *NOT* libpcap.so.1.x or libpcap.so.1.x.y or something such as
 that.
 
-We've been maintaining binary compatibility between libpcap releases for 
-quite a while; there's no reason to tie a binary linked with libpcap to 
+We've been maintaining binary compatibility between libpcap releases for
+quite a while; there's no reason to tie a binary linked with libpcap to
 a particular release of libpcap.
 
 Problems, bugs, questions, desirable enhancements, etc. should be sent

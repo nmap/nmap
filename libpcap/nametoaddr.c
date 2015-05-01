@@ -22,11 +22,6 @@
  * These functions are not time critical.
  */
 
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/nametoaddr.c,v 1.83 2008-02-06 10:21:30 guy Exp $ (LBL)";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

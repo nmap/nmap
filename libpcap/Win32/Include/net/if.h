@@ -36,7 +36,7 @@
 
 #ifndef _NET_IF_H_
 #define	_NET_IF_H_
- 
+
 /*
  * <net/if.h> does not depend on <sys/time.h> on most other systems.  This
  * helps userland compatability.  (struct timeval ifi_lastchange)

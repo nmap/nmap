@@ -14,8 +14,6 @@
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- *
- * @(#) $Header: /tcpdump/master/libpcap/nlpid.h,v 1.2 2002-12-06 00:01:34 hannes Exp $ (Juniper)
  */
 
 /* Types missing from some systems */

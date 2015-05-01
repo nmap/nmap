@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1995, 1996, 1997, 1998, and 1999 WIDE Project.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -13,7 +13,7 @@
  * 3. Neither the name of the project nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,8 +26,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
-/* $Id: addrinfo.h,v 1.1 2002-08-01 08:33:05 risso Exp $ */
 
 #ifndef HAVE_ADDRINFO
 
@@ -94,13 +92,13 @@ extern const char *inet_ntop (int, const void *, char *, size_t);
 
 #ifndef EAI_BADHINTS
 #define EAI_BADHINTS	12
-#endif 
+#endif
 
-#ifndef EAI_PROTOCOL	
+#ifndef EAI_PROTOCOL
 #define EAI_PROTOCOL	13
 #endif
 
-#ifndef EAI_MAX	
+#ifndef EAI_MAX
 #define EAI_MAX		14
 #endif
 

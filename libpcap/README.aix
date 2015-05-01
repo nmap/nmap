@@ -11,6 +11,11 @@ Using BPF:
     same, and the configure script should detect that it's on an AIX
     system and choose BPF even if the devices aren't there.
 
+    Also note that tcpdump _binary_ compiled on AIX 4 may have a problem
+    doing the initial loading of the BPF driver if copied to AIX 5 and
+    run there (GH #52). tcpdump binary natively compiled on AIX 5 should
+    not have this issue.
+
 (2) If libpcap doesn't compile on your machine when configured to use
     BPF, or if the workarounds fail to make it work correctly, you
     should send to tcpdump-workers@lists.tcpdump.org a detailed bug
@@ -71,8 +76,8 @@ If you use DLPI:
     Then you need to type:
 
 	    strload -f /etc/dlpi.conf
- 
-    Check again with strload -q -d dlpi that the dlpi driver is loaded.  
+
+    Check again with strload -q -d dlpi that the dlpi driver is loaded.
 
     Alternatively, you can uncomment the lines for DLPI in
     /etc/pse.conf and reboot the machine; this way DLPI will always

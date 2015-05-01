@@ -48,7 +48,7 @@ use options
 .B PCAP_TSTAMP_PRECISION_NANO
 to request desired precision. By default, time stamps are in microseconds.
 .SH RETURN VALUE
-.B pcap_set_tstamp_type()
+.B pcap_set_tstamp_precision()
 returns 0 on success if the specified time stamp precision is expected to be
 supported by the operating system,
 .B PCAP_ERROR_TSTAMP_PRECISION_NOTSUP

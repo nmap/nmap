@@ -19,7 +19,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-TSTAMP @MAN_MISC_INFO@ "22 August 2010"
+.TH PCAP-TSTAMP @MAN_MISC_INFO@ "21 December 2013"
 .SH NAME
 pcap-tstamp \- packet time stamps in libpcap
 .SH DESCRIPTION
@@ -95,7 +95,7 @@ The time stamp types are listed here; the first value is the #define to
 use in code, the second value is the value returned by
 .B pcap_tstamp_type_val_to_name()
 and accepted by
-.BR pcap_tstamp_name_to_val() .
+.BR pcap_tstamp_type_name_to_val() .
 .RS 5
 .TP 5
 .BR PCAP_TSTAMP_HOST " - " host
@@ -104,12 +104,12 @@ precision of this time stamp is unspecified; it might or might not be
 synchronized with the host operating system's clock.
 .TP 5
 .BR PCAP_TSTAMP_HOST_LOWPREC " - " host_lowprec
-Time stamp provided by the host on which the capture is being done. 
+Time stamp provided by the host on which the capture is being done.
 This is a low-precision time stamp, synchronized with the host operating
 system's clock.
 .TP 5
 .BR PCAP_TSTAMP_HOST_HIPREC " - " host_hiprec
-Time stamp provided by the host on which the capture is being done. 
+Time stamp provided by the host on which the capture is being done.
 This is a high-precision time stamp; it might or might not be
 synchronized with the host operating system's clock.  It might be more
 expensive to fetch than
@@ -125,8 +125,51 @@ Time stamp provided by the network adapter on which the capture is being
 done.  This is a high-precision time stamp; it is not synchronized with
 the host operating system's clock.
 .RE
+.LP
+By default, when performing a live capture or reading from a savefile,
+time stamps are supplied as seconds since January 1, 1970, 00:00:00 UTC,
+and microseconds since that seconds value, even if higher-resolution
+time stamps are available from the capture device or in the savefile.
+If, when reading a savefile, the time stamps in the file have a higher
+resolution than one microsecond, the additional digits of resolution are
+discarded.
+.LP
+The
+.BR pcap_set_tstamp_precision (3PCAP)
+routine can be used after a
+.B pcap_create()
+call and after a
+.B pcap_activate()
+call to specify the resolution of the time stamps to get for the device.
+If the hardware or software cannot supply a higher-resolution time
+stamp, the
+.B pcap_set_tstamp_precision()
+call will fail, and the time stamps supplied after the
+.B pcap_activate()
+call will have microsecond resolution.
+.LP
+When opening a savefile, the
+.BR pcap_open_offline_with_tstamp_precision (3PCAP)
+and
+.BR pcap_fopen_offline_with_tstamp_precision (3PCAP)
+routines can be used to specify the resolution of time stamps to be read
+from the file; if the time stamps in the file have a lower resolution,
+the fraction-of-a-second portion of the time stamps will be scaled to
+the specified resolution.
+.LP
+The
+.BR pcap_get_tstamp_precision (3PCAP)
+routine returns the resolution of time stamps that will be supplied;
+when capturing packets, this does not reflect the actual precision of
+the time stamp supplied by the hardware or operating system and, when
+reading a savefile, this does not indicate the actual precision of time
+stamps in the file.
 .SH SEE ALSO
 pcap_set_tstamp_type(3PCAP),
 pcap_list_tstamp_types(3PCAP),
 pcap_tstamp_type_val_to_name(3PCAP),
-pcap_tstamp_name_to_val(3PCAP)
+pcap_tstamp_type_name_to_val(3PCAP),
+pcap_set_tstamp_precision(3PCAP),
+pcap_open_offline_with_tstamp_precision(3PCAP),
+pcap_fopen_offline_with_tstamp_precision(3PCAP),
+pcap_get_tstamp_precision(3PCAP)

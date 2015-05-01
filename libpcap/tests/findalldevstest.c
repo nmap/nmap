@@ -11,7 +11,7 @@
 
 #include <pcap.h>
 
-static void ifprint(pcap_if_t *d);
+static int ifprint(pcap_if_t *d);
 static char *iptos(bpf_u_int32 in);
 
 int main(int argc, char **argv)
@@ -20,7 +20,8 @@ int main(int argc, char **argv)
   pcap_if_t *d;
   char *s;
   bpf_u_int32 net, mask;
-  
+  int exit_status = 0;
+
   char errbuf[PCAP_ERRBUF_SIZE+1];
   if (pcap_findalldevs(&alldevs, errbuf) == -1)
   {
@@ -29,12 +30,14 @@ int main(int argc, char **argv)
   }
   for(d=alldevs;d;d=d->next)
   {
-    ifprint(d);
+    if (!ifprint(d))
+      exit_status = 2;
   }
 
   if ( (s = pcap_lookupdev(errbuf)) == NULL)
   {
     fprintf(stderr,"Error in pcap_lookupdev: %s\n",errbuf);
+    exit_status = 2;
   }
   else
   {
@@ -44,21 +47,23 @@ int main(int argc, char **argv)
   if (pcap_lookupnet(s, &net, &mask, errbuf) < 0)
   {
     fprintf(stderr,"Error in pcap_lookupnet: %s\n",errbuf);
+    exit_status = 2;
   }
   else
   {
     printf("Preferred device is on network: %s/%s\n",iptos(net), iptos(mask));
   }
-  
-  exit(0);
+
+  exit(exit_status);
 }
 
-static void ifprint(pcap_if_t *d)
+static int ifprint(pcap_if_t *d)
 {
   pcap_addr_t *a;
 #ifdef INET6
   char ntop_buf[INET6_ADDRSTRLEN];
 #endif
+  int status = 1; /* success */
 
   printf("%s\n",d->name);
   if (d->description)
@@ -66,8 +71,8 @@ static void ifprint(pcap_if_t *d)
   printf("\tLoopback: %s\n",(d->flags & PCAP_IF_LOOPBACK)?"yes":"no");
 
   for(a=d->addresses;a;a=a->next) {
-    switch(a->addr->sa_family)
-    {
+    if (a->addr != NULL)
+      switch(a->addr->sa_family) {
       case AF_INET:
         printf("\tAddress Family: AF_INET\n");
         if (a->addr)
@@ -111,9 +116,15 @@ static void ifprint(pcap_if_t *d)
       default:
         printf("\tAddress Family: Unknown (%d)\n", a->addr->sa_family);
         break;
+      }
+    else
+    {
+      fprintf(stderr, "\tWarning: a->addr is NULL, skipping this address.\n");
+      status = 0;
     }
   }
   printf("\n");
+  return status;
 }
 
 /* From tcptraceroute */

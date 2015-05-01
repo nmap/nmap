@@ -1,5 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_next_ex.3pcap,v 1.3 2008-04-06 02:53:22 guy Exp $
-.\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -19,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_NEXT_EX 3PCAP "5 April 2008"
+.TH PCAP_NEXT_EX 3PCAP "13 October 2013"
 .SH NAME
 pcap_next_ex, pcap_next \- read the next packet from a pcap_t
 .SH SYNOPSIS
@@ -115,9 +113,9 @@ for Ethernet.
 .SH RETURN VALUE
 .B pcap_next_ex()
 returns 1 if the packet was read without problems, 0
-if packets are being read from a live capture, and the timeout expired,
+if packets are being read from a live capture and the timeout expired,
 \-1 if an error occurred while reading the packet, and \-2 if
-packets are being read from a ``savefile'', and there are no more
+packets are being read from a ``savefile'' and there are no more
 packets to read from the savefile.
 If \-1 is returned,
 .B pcap_geterr()

@@ -18,10 +18,6 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-bpf.c,v 1.116 2008-09-16 18:42:29 guy Exp $ (LBL)";
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -239,7 +235,7 @@ static int pcap_set_datalink_bpf(pcap_t *p, int dlt);
  */
 static int
 pcap_getnonblock_bpf(pcap_t *p, char *errbuf)
-{ 
+{
 #ifdef HAVE_ZEROCOPY_BPF
 	struct pcap_bpf *pb = p->priv;
 
@@ -251,7 +247,7 @@ pcap_getnonblock_bpf(pcap_t *p, char *errbuf)
 
 static int
 pcap_setnonblock_bpf(pcap_t *p, int nonblock, char *errbuf)
-{   
+{
 #ifdef HAVE_ZEROCOPY_BPF
 	struct pcap_bpf *pb = p->priv;
 
@@ -1480,6 +1476,9 @@ pcap_activate_bpf(pcap_t *p)
 {
 	struct pcap_bpf *pb = p->priv;
 	int status = 0;
+#ifdef HAVE_BSD_IEEE80211
+	int retv;
+#endif
 	int fd;
 #ifdef LIFNAMSIZ
 	char *zonesep;
@@ -1539,22 +1538,43 @@ pcap_activate_bpf(pcap_t *p)
 
 #if defined(LIFNAMSIZ) && defined(ZONENAME_MAX) && defined(lifr_zoneid)
 	/*
-	 * Check if the given source network device has a '/' separated
-	 * zonename prefix string. The zonename prefixed source device
-	 * can be used by libpcap consumers to capture network traffic
-	 * in non-global zones from the global zone on Solaris 11 and
-	 * above. If the zonename prefix is present then we strip the
-	 * prefix and pass the zone ID as part of lifr_zoneid.
+	 * Retrieve the zoneid of the zone we are currently executing in.
+	 */
+	if ((ifr.lifr_zoneid = getzoneid()) == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "getzoneid(): %s",
+		    pcap_strerror(errno));
+		status = PCAP_ERROR;
+		goto bad;
+	}
+	/*
+	 * Check if the given source datalink name has a '/' separated
+	 * zonename prefix string.  The zonename prefixed source datalink can
+	 * be used by pcap consumers in the Solaris global zone to capture
+	 * traffic on datalinks in non-global zones.  Non-global zones
+	 * do not have access to datalinks outside of their own namespace.
 	 */
 	if ((zonesep = strchr(p->opt.source, '/')) != NULL) {
-		char zonename[ZONENAME_MAX];
+		char path_zname[ZONENAME_MAX];
 		int  znamelen;
 		char *lnamep;
 
+		if (ifr.lifr_zoneid != GLOBAL_ZONEID) {
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			    "zonename/linkname only valid in global zone.");
+			status = PCAP_ERROR;
+			goto bad;
+		}
 		znamelen = zonesep - p->opt.source;
-		(void) strlcpy(zonename, p->opt.source, znamelen + 1);
+		(void) strlcpy(path_zname, p->opt.source, znamelen + 1);
+		ifr.lifr_zoneid = getzoneidbyname(path_zname);
+		if (ifr.lifr_zoneid == -1) {
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			    "getzoneidbyname(%s): %s", path_zname,
+			pcap_strerror(errno));
+			status = PCAP_ERROR;
+			goto bad;
+		}
 		lnamep = strdup(zonesep + 1);
-		ifr.lifr_zoneid = getzoneidbyname(zonename);
 		free(p->opt.source);
 		p->opt.source = lnamep;
 	}
@@ -1683,6 +1703,7 @@ pcap_activate_bpf(pcap_t *p)
 		if (ioctl(fd, BIOCGETZMAX, (caddr_t)&zbufmax) < 0) {
 			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "BIOCGETZMAX: %s",
 			    pcap_strerror(errno));
+			status = PCAP_ERROR;
 			goto bad;
 		}
 
@@ -1709,6 +1730,7 @@ pcap_activate_bpf(pcap_t *p)
 		if (pb->zbuf1 == MAP_FAILED || pb->zbuf2 == MAP_FAILED) {
 			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "mmap: %s",
 			    pcap_strerror(errno));
+			status = PCAP_ERROR;
 			goto bad;
 		}
 		memset(&bz, 0, sizeof(bz)); /* bzero() deprecated, replaced with memset() */
@@ -1718,12 +1740,14 @@ pcap_activate_bpf(pcap_t *p)
 		if (ioctl(fd, BIOCSETZBUF, (caddr_t)&bz) < 0) {
 			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "BIOCSETZBUF: %s",
 			    pcap_strerror(errno));
+			status = PCAP_ERROR;
 			goto bad;
 		}
 		(void)strncpy(ifrname, p->opt.source, ifnamsiz);
 		if (ioctl(fd, BIOCSETIF, (caddr_t)&ifr) < 0) {
 			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "BIOCSETIF: %s: %s",
 			    p->opt.source, pcap_strerror(errno));
+			status = PCAP_ERROR;
 			goto bad;
 		}
 		v = pb->zbufsize - sizeof(struct bpf_zbuf_header);
@@ -1977,11 +2001,12 @@ pcap_activate_bpf(pcap_t *p)
 		/*
 		 * Try to put the interface into monitor mode.
 		 */
-		status = monitor_mode(p, 1);
-		if (status != 0) {
+		retv = monitor_mode(p, 1);
+		if (retv != 0) {
 			/*
 			 * We failed.
 			 */
+			status = retv;
 			goto bad;
 		}
 

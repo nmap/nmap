@@ -76,11 +76,17 @@
 /* Define to 1 if you have the <linux/ethtool.h> header file. */
 #undef HAVE_LINUX_ETHTOOL_H
 
+/* Define to 1 if you have the <linux/if_bonding.h> header file. */
+#undef HAVE_LINUX_IF_BONDING_H
+
 /* Define to 1 if you have the <linux/if_packet.h> header file. */
 #undef HAVE_LINUX_IF_PACKET_H
 
 /* Define to 1 if you have the <linux/net_tstamp.h> header file. */
 #undef HAVE_LINUX_NET_TSTAMP_H
+
+/* Define to 1 if you have the <linux/sockios.h> header file. */
+#undef HAVE_LINUX_SOCKIOS_H
 
 /* if tp_vlan_tci exists */
 #undef HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI
@@ -256,6 +262,9 @@
 /* target host supports Bluetooth sniffing */
 #undef PCAP_SUPPORT_BT
 
+/* target host supports Bluetooth Monitor */
+#undef PCAP_SUPPORT_BT_MONITOR
+
 /* target host supports CAN sniffing */
 #undef PCAP_SUPPORT_CAN
 
@@ -268,11 +277,11 @@
 /* target host supports netfilter sniffing */
 #undef PCAP_SUPPORT_NETFILTER
 
+/* use Linux packet ring capture if available */
+#undef PCAP_SUPPORT_PACKET_RING
+
 /* target host supports USB sniffing */
 #undef PCAP_SUPPORT_USB
-
-/* target host supports packet ring capture */
-#undef PCAP_SUPPORT_PACKET_RING
 
 /* include ACN support */
 #undef SITA

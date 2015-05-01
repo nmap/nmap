@@ -1,5 +1,3 @@
-@(#) $Header: /tcpdump/master/libpcap/INSTALL.txt,v 1.29 2008-06-12 20:21:51 guy Exp $ (LBL)
-
 To build libpcap, run "./configure" (a shell script). The configure
 script will determine your system attributes and generate an
 appropriate Makefile from Makefile.in. Next run "make". If everything
@@ -31,19 +29,14 @@ where the configure scripts fails to detect it.
 
 You will need an ANSI C compiler to build libpcap. The configure script
 will abort if your compiler is not ANSI compliant. If this happens, use
-the GNU C compiler, available via anonymous ftp:
-
-	ftp://ftp.gnu.org/pub/gnu/gcc/
+the generally available GNU C compiler (GCC).
 
 If you use flex, you must use version 2.4.6 or higher. The configure
 script automatically detects the version of flex and will not use it
 unless it is new enough. You can use "flex -V" to see what version you
 have (unless it's really old). The current version of flex is available
-via anonymous ftp:
-
-	ftp://ftp.ee.lbl.gov/flex-*.tar.Z
-
-As of this writing, the current version is 2.5.4.
+at flex.sourceforge.net and often comes packaged by means of the OS.
+As of this writing, the current version is 2.5.37.
 
 If you use bison, you must use flex (and visa versa). The configure
 script automatically falls back to lex and yacc if both flex and bison
@@ -185,14 +178,14 @@ packet timestamps aren't very good.  This appears to be due to haphazard
 handling of the timestamp in the kernel.
 
 Note well: there is rumoured to be a version of tcpdump floating around
-called 3.0.3 that includes libpcap and is supposed to support Linux. 
+called 3.0.3 that includes libpcap and is supposed to support Linux.
 You should be advised that neither the Network Research Group at LBNL
-nor the Tcpdump Group ever generated a release with this version number. 
+nor the Tcpdump Group ever generated a release with this version number.
 The LBNL Network Research Group notes with interest that a standard
 cracker trick to get people to install trojans is to distribute bogus
-packages that have a version number higher than the current release. 
+packages that have a version number higher than the current release.
 They also noted with annoyance that 90% of the Linux related bug reports
-they got are due to changes made to unofficial versions of their page. 
+they got are due to changes made to unofficial versions of their page.
 If you are having trouble but aren't using a version that came from
 tcpdump.org, please try that before submitting a bug report!
 
@@ -352,7 +345,6 @@ nametoaddr.c	- hostname to address routines
 nlpid.h		- OSI network layer protocol identifier definitions
 net		- symlink to bpf/net
 optimize.c	- BPF optimization routines
-packaging	- packaging information for building libpcap RPMs
 pcap/bluetooth.h - public definition of DLT_BLUETOOTH_HCI_H4_WITH_PHDR header
 pcap/bpf.h	- BPF definitions
 pcap/namedb.h	- public libpcap name database definitions

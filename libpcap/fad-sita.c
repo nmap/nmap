@@ -24,8 +24,6 @@
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
- /* $Id: fad-sita.c */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

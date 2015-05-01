@@ -25,18 +25,20 @@ static const char copyright[] =
 The Regents of the University of California.  All rights reserved.\n";
 #endif
 
-#include <pcap.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <limits.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/select.h>
 #include <poll.h>
 
-char *program_name;
+#include <pcap.h>
+
+static char *program_name;
 
 /* Forwards */
 static void countme(u_char *, const struct pcap_pkthdr *, const u_char *);
@@ -55,8 +57,13 @@ int
 main(int argc, char **argv)
 {
 	register int op;
-	bpf_u_int32 localnet, netmask;
 	register char *cp, *cmdbuf, *device;
+	long longarg;
+	char *p;
+	int timeout = 1000;
+	int immediate = 0;
+	int nonblock = 0;
+	bpf_u_int32 localnet, netmask;
 	struct bpf_program fcode;
 	char ebuf[PCAP_ERRBUF_SIZE];
 	int status;
@@ -69,11 +76,38 @@ main(int argc, char **argv)
 		program_name = argv[0];
 
 	opterr = 0;
-	while ((op = getopt(argc, argv, "i:")) != -1) {
+	while ((op = getopt(argc, argv, "i:mnt:")) != -1) {
 		switch (op) {
 
 		case 'i':
 			device = optarg;
+			break;
+
+		case 'm':
+			immediate = 1;
+			break;
+
+		case 'n':
+			nonblock = 1;
+			break;
+
+		case 't':
+			longarg = strtol(optarg, &p, 10);
+			if (p == optarg || *p != '\0') {
+				error("Timeout value \"%s\" is not a number",
+				    optarg);
+				/* NOTREACHED */
+			}
+			if (longarg < 0) {
+				error("Timeout value %ld is negative", longarg);
+				/* NOTREACHED */
+			}
+			if (longarg > INT_MAX) {
+				error("Timeout value %ld is too large (> %d)",
+				    longarg, INT_MAX);
+				/* NOTREACHED */
+			}
+			timeout = (int)longarg;
 			break;
 
 		default:
@@ -88,11 +122,38 @@ main(int argc, char **argv)
 			error("%s", ebuf);
 	}
 	*ebuf = '\0';
-	pd = pcap_open_live(device, 65535, 0, 1000, ebuf);
+	pd = pcap_create(device, ebuf);
 	if (pd == NULL)
 		error("%s", ebuf);
-	else if (*ebuf)
-		warning("%s", ebuf);
+	status = pcap_set_snaplen(pd, 65535);
+	if (status != 0)
+		error("%s: pcap_set_snaplen failed: %s",
+			    device, pcap_statustostr(status));
+	if (immediate) {
+		status = pcap_set_immediate_mode(pd, 1);
+		if (status != 0)
+			error("%s: pcap_set_immediate_mode failed: %s",
+			    device, pcap_statustostr(status));
+	}
+	status = pcap_set_timeout(pd, timeout);
+	if (status != 0)
+		error("%s: pcap_set_timeout failed: %s",
+		    device, pcap_statustostr(status));
+	status = pcap_activate(pd);
+	if (status < 0) {
+		/*
+		 * pcap_activate() failed.
+		 */
+		error("%s: %s\n(%s)", device,
+		    pcap_statustostr(status), pcap_geterr(pd));
+	} else if (status > 0) {
+		/*
+		 * pcap_activate() succeeded, but it's warning us
+		 * of a problem it had.
+		 */
+		warning("%s: %s\n(%s)", device,
+		    pcap_statustostr(status), pcap_geterr(pd));
+	}
 	if (pcap_lookupnet(device, &localnet, &netmask, ebuf) < 0) {
 		localnet = 0;
 		netmask = 0;
@@ -105,7 +166,7 @@ main(int argc, char **argv)
 
 	if (pcap_setfilter(pd, &fcode) < 0)
 		error("%s", pcap_geterr(pd));
-	if (pcap_setnonblock(pd, 1, ebuf) == -1)
+	if (pcap_setnonblock(pd, nonblock, ebuf) == -1)
 		error("pcap_setnonblock failed: %s", ebuf);
 	printf("Listening on %s\n", device);
 	for (;;) {
@@ -150,7 +211,7 @@ countme(u_char *user, const struct pcap_pkthdr *h, const u_char *sp)
 static void
 usage(void)
 {
-	(void)fprintf(stderr, "Usage: %s [ -sptn ] [ -i interface ] [expression]\n",
+	(void)fprintf(stderr, "Usage: %s [ -mn ] [ -i interface ] [ -t timeout] [expression]\n",
 	    program_name);
 	exit(1);
 }

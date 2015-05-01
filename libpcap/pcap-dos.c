@@ -4,8 +4,6 @@
  *
  *  pcap-dos.c: Interface to PKTDRVR, NDIS2 and 32-bit pmode
  *              network drivers.
- *
- * @(#) $Header: /tcpdump/master/libpcap/pcap-dos.c,v 1.7 2008-04-22 17:16:30 guy Exp $ (LBL)
  */
 
 #include <stdio.h>
@@ -168,7 +166,7 @@ pcap_t *pcap_create_interface (const char *device, char *ebuf)
  * network packets.
  */
 static int pcap_activate_dos (pcap_t *pcap)
-{ 
+{
   struct pcap_dos *pcapd = pcap->priv;
 
   if (pcap->opt.rfmon) {
@@ -199,7 +197,7 @@ static int pcap_activate_dos (pcap_t *pcap)
         !first_init(pcap->opt.source, pcap->errbuf, pcap->opt.promisc))
     {
       return (PCAP_ERROR);
-    } 
+    }
     atexit (close_driver);
   }
   else if (stricmp(active_dev->name,pcap->opt.source))
@@ -403,7 +401,7 @@ int pcap_stats_ex (pcap_t *p, struct pcap_stat_ex *se)
     strlcpy (p->errbuf, "pktdrvr doesn't have detailed statistics",
              PCAP_ERRBUF_SIZE);
     return (-1);
-  }             
+  }
   memcpy (se, (*dev->get_stats)(dev), sizeof(*se));
   return (0);
 }
@@ -522,7 +520,7 @@ int pcap_lookupnet (const char *device, bpf_u_int32 *localnet,
   }
   ARGSUSED (device);
   return (0);
-}      
+}
 
 /*
  * Get a list of all interfaces that are present and that we probe okay.
@@ -962,7 +960,7 @@ static int init_watt32 (struct pcap *pcap, const char *dev_name, char *err_buf)
    *            have default values. Should be taken from another
    *            ini-file/environment in any case (ref. tcpdump.ini)
    */
-  _watt_is_init = 1;  
+  _watt_is_init = 1;
 
   if (!using_pktdrv || !has_ip_addr)  /* for now .... */
   {
@@ -1094,7 +1092,7 @@ static int pkt_open (struct device *dev)
 
   if (!PktInitDriver(mode))
      return (0);
- 
+
   PktResetStatistics (pktInfo.handle);
   PktQueueBusy (FALSE);
   return (1);
@@ -1292,7 +1290,7 @@ struct device rtl8139_dev LOCKED_VAR = {
               0,0,0,0,0,0,
               &cs89_dev,
               rtl8139_probe     /* dev->probe routine */
-            };            
+            };
 
 /*
  * Dequeue routine is called by polling.

@@ -85,7 +85,7 @@ again:
 	net.n_net = inet_network(cp);
 	net.n_addrtype = AF_INET;
 	q = net.n_aliases = net_aliases;
-	if (p != NULL) 
+	if (p != NULL)
 		cp = p;
 	while (cp && *cp) {
 		if (*cp == ' ' || *cp == '\t') {

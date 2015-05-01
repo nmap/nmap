@@ -14,7 +14,7 @@ where DIR is the root of the Septel software distribution, for example
 /var/src/septel.
 
 By default (if you write only ./configure --with-septel) it takes
-./../septel as argument for DIR. 
+./../septel as argument for DIR.
 
 If the Septel software is correctly detected 'configure' will
 report:

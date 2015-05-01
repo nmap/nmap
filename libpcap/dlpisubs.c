@@ -10,10 +10,6 @@
  * This file contains dlpi/libdlpi related common functions used
  * by pcap-[dlpi,libdlpi].c.
  */
-#ifndef lint
-static const char rcsid[] _U_ =
-	"@(#) $Header: /tcpdump/master/libpcap/dlpisubs.c,v 1.3 2008-12-02 16:40:19 guy Exp $ (LBL)";
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

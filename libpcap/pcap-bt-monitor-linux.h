@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Paolo Abeni (Italy)
+ * Copyright (c) 2014 Michal Labedzki for Tieto Corporation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * bluetooth data struct
- * By Paolo Abeni <paolo.abeni@email.it>
  */
 
-#ifndef _PCAP_BLUETOOTH_STRUCTS_H__
-#define _PCAP_BLUETOOTH_STRUCTS_H__
-
-/*
- * Header prepended libpcap to each bluetooth h4 frame,
- * fields are in network byte order
- */
-typedef struct _pcap_bluetooth_h4_header {
-	u_int32_t direction; /* if first bit is set direction is incoming */
-} pcap_bluetooth_h4_header;
-
-/*
- * Header prepended libpcap to each bluetooth linux monitor frame,
- * fields are in network byte order
- */
-typedef struct _pcap_bluetooth_linux_monitor_header {
-	u_int16_t adapter_id;
-	u_int16_t opcode;
-} pcap_bluetooth_linux_monitor_header;
-
-
-#endif
+int bt_monitor_findalldevs(pcap_if_t **alldevsp, char *err_str);
+pcap_t *bt_monitor_create(const char *device, char *ebuf, int *is_ours);

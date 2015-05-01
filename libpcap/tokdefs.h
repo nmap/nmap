@@ -117,52 +117,53 @@ extern int pcap_debug;
     MPLS = 327,
     PPPOED = 328,
     PPPOES = 329,
-    ISO = 330,
-    ESIS = 331,
-    CLNP = 332,
-    ISIS = 333,
-    L1 = 334,
-    L2 = 335,
-    IIH = 336,
-    LSP = 337,
-    SNP = 338,
-    CSNP = 339,
-    PSNP = 340,
-    STP = 341,
-    IPX = 342,
-    NETBEUI = 343,
-    LANE = 344,
-    LLC = 345,
-    METAC = 346,
-    BCC = 347,
-    SC = 348,
-    ILMIC = 349,
-    OAMF4EC = 350,
-    OAMF4SC = 351,
-    OAM = 352,
-    OAMF4 = 353,
-    CONNECTMSG = 354,
-    METACONNECT = 355,
-    VPI = 356,
-    VCI = 357,
-    RADIO = 358,
-    FISU = 359,
-    LSSU = 360,
-    MSU = 361,
-    HFISU = 362,
-    HLSSU = 363,
-    HMSU = 364,
-    SIO = 365,
-    OPC = 366,
-    DPC = 367,
-    SLS = 368,
-    HSIO = 369,
-    HOPC = 370,
-    HDPC = 371,
-    HSLS = 372,
-    OR = 373,
-    AND = 374,
-    UMINUS = 375
+    GENEVE = 330,
+    ISO = 331,
+    ESIS = 332,
+    CLNP = 333,
+    ISIS = 334,
+    L1 = 335,
+    L2 = 336,
+    IIH = 337,
+    LSP = 338,
+    SNP = 339,
+    CSNP = 340,
+    PSNP = 341,
+    STP = 342,
+    IPX = 343,
+    NETBEUI = 344,
+    LANE = 345,
+    LLC = 346,
+    METAC = 347,
+    BCC = 348,
+    SC = 349,
+    ILMIC = 350,
+    OAMF4EC = 351,
+    OAMF4SC = 352,
+    OAM = 353,
+    OAMF4 = 354,
+    CONNECTMSG = 355,
+    METACONNECT = 356,
+    VPI = 357,
+    VCI = 358,
+    RADIO = 359,
+    FISU = 360,
+    LSSU = 361,
+    MSU = 362,
+    HFISU = 363,
+    HLSSU = 364,
+    HMSU = 365,
+    SIO = 366,
+    OPC = 367,
+    DPC = 368,
+    SLS = 369,
+    HSIO = 370,
+    HOPC = 371,
+    HDPC = 372,
+    HSLS = 373,
+    OR = 374,
+    AND = 375,
+    UMINUS = 376
   };
 #endif
 /* Tokens.  */
@@ -238,59 +239,60 @@ extern int pcap_debug;
 #define MPLS 327
 #define PPPOED 328
 #define PPPOES 329
-#define ISO 330
-#define ESIS 331
-#define CLNP 332
-#define ISIS 333
-#define L1 334
-#define L2 335
-#define IIH 336
-#define LSP 337
-#define SNP 338
-#define CSNP 339
-#define PSNP 340
-#define STP 341
-#define IPX 342
-#define NETBEUI 343
-#define LANE 344
-#define LLC 345
-#define METAC 346
-#define BCC 347
-#define SC 348
-#define ILMIC 349
-#define OAMF4EC 350
-#define OAMF4SC 351
-#define OAM 352
-#define OAMF4 353
-#define CONNECTMSG 354
-#define METACONNECT 355
-#define VPI 356
-#define VCI 357
-#define RADIO 358
-#define FISU 359
-#define LSSU 360
-#define MSU 361
-#define HFISU 362
-#define HLSSU 363
-#define HMSU 364
-#define SIO 365
-#define OPC 366
-#define DPC 367
-#define SLS 368
-#define HSIO 369
-#define HOPC 370
-#define HDPC 371
-#define HSLS 372
-#define OR 373
-#define AND 374
-#define UMINUS 375
+#define GENEVE 330
+#define ISO 331
+#define ESIS 332
+#define CLNP 333
+#define ISIS 334
+#define L1 335
+#define L2 336
+#define IIH 337
+#define LSP 338
+#define SNP 339
+#define CSNP 340
+#define PSNP 341
+#define STP 342
+#define IPX 343
+#define NETBEUI 344
+#define LANE 345
+#define LLC 346
+#define METAC 347
+#define BCC 348
+#define SC 349
+#define ILMIC 350
+#define OAMF4EC 351
+#define OAMF4SC 352
+#define OAM 353
+#define OAMF4 354
+#define CONNECTMSG 355
+#define METACONNECT 356
+#define VPI 357
+#define VCI 358
+#define RADIO 359
+#define FISU 360
+#define LSSU 361
+#define MSU 362
+#define HFISU 363
+#define HLSSU 364
+#define HMSU 365
+#define SIO 366
+#define OPC 367
+#define DPC 368
+#define SLS 369
+#define HSIO 370
+#define HOPC 371
+#define HDPC 372
+#define HSLS 373
+#define OR 374
+#define AND 375
+#define UMINUS 376
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 242 "grammar.y" /* yacc.c:1909  */
+#line 256 "grammar.y" /* yacc.c:1909  */
 
 	int i;
 	bpf_u_int32 h;
@@ -306,7 +308,7 @@ union YYSTYPE
 	} blk;
 	struct block *rblk;
 
-#line 310 "y.tab.h" /* yacc.c:1909  */
+#line 312 "y.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

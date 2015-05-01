@@ -11,8 +11,8 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote 
- * products derived from this software without specific prior written 
+ * 3. The name of the author may not be used to endorse or promote
+ * products derived from this software without specific prior written
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -122,7 +122,7 @@ dbus_write(pcap_t *handle, const void *buf, size_t size)
 
 	dbus_message_unref(msg);
 	return 0;
-}                           
+}
 
 static int
 dbus_stats(pcap_t *handle, struct pcap_stat *stats)
@@ -250,8 +250,8 @@ dbus_create(const char *device, char *ebuf, int *is_ours)
 {
 	pcap_t *p;
 
-	if (strcmp(device, "dbus-system") && 
-		strcmp(device, "dbus-session") && 
+	if (strcmp(device, "dbus-system") &&
+		strcmp(device, "dbus-session") &&
 		strncmp(device, "dbus://", 7))
 	{
 		*is_ours = 0;
@@ -267,7 +267,7 @@ dbus_create(const char *device, char *ebuf, int *is_ours)
 	return (p);
 }
 
-int 
+int
 dbus_findalldevs(pcap_if_t **alldevsp, char *err_str)
 {
 	if (pcap_add_if(alldevsp, "dbus-system", 0, "D-Bus system bus", err_str) < 0)

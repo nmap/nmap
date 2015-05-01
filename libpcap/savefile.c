@@ -28,11 +28,6 @@
  * dependent values so we can print the dump file on any architecture.
  */
 
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/savefile.c,v 1.183 2008-12-23 20:13:29 guy Exp $ (LBL)";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -223,14 +218,14 @@ pcap_t* pcap_hopen_offline_with_tstamp_precision(intptr_t osfd, u_int precision,
 	FILE *file;
 
 	fd = _open_osfhandle(osfd, _O_RDONLY);
-	if ( fd < 0 ) 
+	if ( fd < 0 )
 	{
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, pcap_strerror(errno));
 		return NULL;
 	}
 
 	file = _fdopen(fd, "rb");
-	if ( file == NULL ) 
+	if ( file == NULL )
 	{
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, pcap_strerror(errno));
 		return NULL;
@@ -348,6 +343,11 @@ found:
 	 * be used for pcap_next()/pcap_next_ex().
 	 */
 	p->oneshot_callback = pcap_oneshot;
+
+	/*
+	 * Savefiles never require special BPF code generation.
+	 */
+	p->bpf_codegen_flags = 0;
 
 	p->activated = 1;
 

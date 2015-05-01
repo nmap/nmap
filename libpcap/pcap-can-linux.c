@@ -171,7 +171,7 @@ can_activate(pcap_t* handle)
 
 	/* get interface index */
 	memset(&ifr, 0, sizeof(ifr));
-	strncpy(ifr.ifr_name, handle->opt.source, sizeof(ifr.ifr_name));
+	strlcpy(ifr.ifr_name, handle->opt.source, sizeof(ifr.ifr_name));
 	if (ioctl(handle->fd, SIOCGIFINDEX, &ifr) < 0)
 	{
 		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
@@ -243,7 +243,7 @@ can_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_char *u
 		}
 	} while ((pkth.caplen == -1) && (errno == EINTR));
 
-	if (pkth.caplen < 0)
+	if (pkth.caplen == -1)
 	{
 		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Can't receive packet %d:%s",
 			errno, strerror(errno));

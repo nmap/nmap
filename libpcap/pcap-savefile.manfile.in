@@ -1,6 +1,3 @@
-'\" t
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap-savefile.manfile.in,v 1.2 2008-10-24 07:33:50 guy Exp $
-.\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -20,12 +17,12 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "21 October 2008"
+.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "29 July 2013"
 .SH NAME
 pcap-savefile \- libpcap savefile format
 .SH DESCRIPTION
 NOTE: applications and libraries should, if possible, use libpcap to
-read savefiles, rather than having their own code to read savefiles. 
+read savefiles, rather than having their own code to read savefiles.
 If, in the future, a new file format is supported by libpcap,
 applications and libraries using libpcap to read savefiles will be able
 to read the new format of savefiles, but applications and libraries

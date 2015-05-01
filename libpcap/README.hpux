@@ -5,14 +5,14 @@ HP-UX and cannot upgrade, please continue reading.
 HP-UX patches to fix packet capture problems
 
 Note that packet-capture programs such as tcpdump may, on HP-UX, not be
-able to see packets sent from the machine on which they're running. 
+able to see packets sent from the machine on which they're running.
 Some articles on groups.google.com discussing this are:
 
 	http://groups.google.com/groups?selm=82ld3v%2480i%241%40mamenchi.zrz.TU-Berlin.DE
 
 which says:
 
-  Newsgroups: comp.sys.hp.hpux 
+  Newsgroups: comp.sys.hp.hpux
   Subject:  Re: Did someone made tcpdump working on 10.20 ?
   Date: 12/08/1999
   From: Lutz Jaenicke <jaenicke@emserv1.ee.TU-Berlin.DE>
@@ -27,14 +27,14 @@ which says:
    >must me "patched" (poked) in order to see outbound data in promiscuous mode.
    >Many things to do .... So the question is : did someone has already this
    >"ready to use" PHNE_**** patch ?
-  
+
    Two things:
    1. You do need a late "LAN products cumulative patch" (e.g.  PHNE_18173
   for   s700/10.20).
    2. You must use
 echo 'lanc_outbound_promisc_flag/W1' | /usr/bin/adb -w /stand/vmunix /dev/kmem
      You can insert this e.g. into /sbin/init.d/lan
-  
+
    Best regards,
    Lutz
 
@@ -44,7 +44,7 @@ and
 
 which says:
 
-  Newsgroups: comp.sys.hp.hpux 
+  Newsgroups: comp.sys.hp.hpux
   Subject: Re: tcpdump only shows incoming packets
   Date: 02/15/2000
   From: Rick Jones <foo@bar.baz.invalid>
@@ -56,12 +56,12 @@ which says:
   > outgoing. I have tried tcpflow-0.12 which also uses libpcap and the
   > same thing happens.  Could someone please give me a hint on how to
   > get this right?
-  
+
   Search/Read the archives ?-)
-  
+
   What you are seeing is expected, un-patched, behaviour for an HP-UX
   system.  On 11.00, you need to install the latest lancommon/DLPI
-  patches, and then the latest driver patch for the interface(s) in use. 
+  patches, and then the latest driver patch for the interface(s) in use.
   At that point, a miracle happens and you should start seeing outbound
   traffic.
 
@@ -79,7 +79,7 @@ which says:
   From: Harald Skotnes <harald@cc.uit.no>
 
   Rick Jones wrote:
-  
+
 	...
 
   > What you are seeing is expected, un-patched, behaviour for an HP-UX
@@ -87,7 +87,7 @@ which says:
   > patches, and then the latest driver patch for the interface(s) in
   > use. At that point, a miracle happens and you should start seeing
   > outbound traffic.
-  
+
   Thanks a lot.  I have this problem on several machines running HPUX
   10.20 and 11.00.  The machines where patched up before y2k so did not
   know what to think.  Anyway I have now installed PHNE_19766,
@@ -101,7 +101,7 @@ And another message to tcpdump-workers@tcpdump.org, from Rick Jones:
 
   Date: Mon, 29 Apr 2002 15:59:55 -0700
   From: Rick Jones
-  To: tcpdump-workers@tcpdump.org 
+  To: tcpdump-workers@tcpdump.org
   Subject: Re: [tcpdump-workers] I Can't Capture the Outbound Traffic
 
 	...
@@ -130,21 +130,21 @@ captures on HP-UX 9.x:
 
   Dave Barr (barr@cis.ohio-state.edu) wrote:
   : Has anyone ported tcpdump (or something similar) to HP/UX 9.x?
-  
+
   I'm reasonably confident that any port of tcpdump to 9.X would require
   the (then optional) STREAMS product.  This would bring DLPI, which is
   what one uses to access interfaces in promiscuous mode.
-  
+
   I'm not sure that HP even sells the 9.X STREAMS product any longer,
   since HP-UX 9.X is off the pricelist (well, maybe 9.10 for the old 68K
-  devices). 
-  
+  devices).
+
   Your best bet is to be up on 10.20 or better if that is at all
-  possible.  If your hardware is supported by it, I'd go with HP-UX 11. 
+  possible.  If your hardware is supported by it, I'd go with HP-UX 11.
   If you want to see the system's own outbound traffic, you'll never get
   that functionality on 9.X, but it might happen at some point for 10.20
-  and 11.X. 
-  
+  and 11.X.
+
   rick jones
 
 (as per other messages cited here, the ability to see the system's own
@@ -178,12 +178,12 @@ An additional note, from Jost Martin, for HP-UX 10.20:
 	(thanks to hildeb@www.stahl.bau.tu-bs.de (Ralf Hildebrandt) who
 	posted the security-part some time ago)
 
-		 <<hack_ip_stack>> 
+		 <<hack_ip_stack>>
 
 		(Don't switch IP-forwarding off, if you need it !)
 		Install the hack as /sbin/init.d/hacl_ip_stack (adjust
 	permissions !) and make a sequencing-symlink
-	/sbin/rc2.d/S350hack_ip_stack pointing to this script. 
+	/sbin/rc2.d/S350hack_ip_stack pointing to this script.
 		Now all this is done on every reboot.
 
 According to Rick Jones, the global promiscuous switch also has to be

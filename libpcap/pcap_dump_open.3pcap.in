@@ -1,5 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_dump_open.3pcap.in,v 1.1 2008-10-23 05:56:59 guy Exp $
-.\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -31,6 +29,7 @@ pcap_dump_open, pcap_dump_fopen \- open a file to which to write packets
 .LP
 .ft B
 pcap_dumper_t *pcap_dump_open(pcap_t *p, const char *fname);
+pcap_dumper_t *pcap_dump_open_append(pcap_t *p, const char *fname);
 pcap_dumper_t *pcap_dump_fopen(pcap_t *p, FILE *fp);
 .ft
 .fi
@@ -43,7 +42,7 @@ the same format as those used by
 .BR tcpdump (1)
 and
 .BR tcpslice (1).
-The name "-" in a synonym
+The name "-" is a synonym
 for
 .BR stdout .
 .PP
@@ -62,9 +61,19 @@ or returned by an earlier call to
 .BR pcap_open_live() ,
 or
 .BR pcap_open_dead() .
-The link-layer type and snapshot length from
+The time stamp precision, link-layer type, and snapshot length from
 .I p
 are used as the link-layer type and snapshot length of the output file.
+.PP
+.B pcap_dump_open_append()
+is like
+.B pcap_dump_open
+but does not create the file if it does not exist and, if it does
+already exist, and is a pcap file with the same byte order as the host
+opening the file, and has the same time stamp precision, link-layer
+header type, and snapshot length as
+.IR p ,
+it will write new packets at the end of the file.
 .SH RETURN VALUES
 A pointer to a
 .B pcap_dumper_t

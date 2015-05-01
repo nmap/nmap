@@ -19,11 +19,6 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/bpf_image.c,v 1.28 2008-01-02 04:16:46 guy Exp $ (LBL)";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -216,6 +211,11 @@ bpf_image(p, n)
 		fmt = "x";
 		break;
 
+	case BPF_ALU|BPF_MOD|BPF_X:
+		op = "mod";
+		fmt = "x";
+		break;
+
 	case BPF_ALU|BPF_AND|BPF_X:
 		op = "and";
 		fmt = "x";
@@ -223,6 +223,11 @@ bpf_image(p, n)
 
 	case BPF_ALU|BPF_OR|BPF_X:
 		op = "or";
+		fmt = "x";
+		break;
+
+	case BPF_ALU|BPF_XOR|BPF_X:
+		op = "xor";
 		fmt = "x";
 		break;
 
@@ -256,6 +261,11 @@ bpf_image(p, n)
 		fmt = "#%d";
 		break;
 
+	case BPF_ALU|BPF_MOD|BPF_K:
+		op = "mod";
+		fmt = "#%d";
+		break;
+
 	case BPF_ALU|BPF_AND|BPF_K:
 		op = "and";
 		fmt = "#0x%x";
@@ -263,6 +273,11 @@ bpf_image(p, n)
 
 	case BPF_ALU|BPF_OR|BPF_K:
 		op = "or";
+		fmt = "#0x%x";
+		break;
+
+	case BPF_ALU|BPF_XOR|BPF_K:
+		op = "xor";
 		fmt = "#0x%x";
 		break;
 

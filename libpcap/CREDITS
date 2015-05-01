@@ -2,11 +2,12 @@ This file lists people who have contributed to libpcap:
 
 The current maintainers:
     Bill Fenner                   <fenner at research dot att dot com>
-    Denis Ovsienko                <infrastation at yandex dot ru>
+    Denis Ovsienko                <denis at ovsienko dot info>
     Fulvio Risso                  <risso at polito dot it>
     Guy Harris                    <guy at alum dot mit dot edu>
     Hannes Gredler                <hannes at juniper dot net>
     Michael Richardson            <mcr at sandelman dot ottawa dot on dot ca>
+    Francois-Xavier Le Bail       <fx dot lebail at yahoo dot com>
 
 Additional people who have contributed patches:
 
@@ -45,7 +46,7 @@ Additional people who have contributed patches:
     David Young                   <dyoung at ojctech dot com>
     Dean Gaudet                   <dean at arctic dot org>
     dhruv                         <rsrivat at sourceforge dot net>
-    Don Ebright                   <Don dot Ebright at compuware dot com> 
+    Don Ebright                   <Don dot Ebright at compuware dot com>
     Dug Song                      <dugsong at monkey dot org>
     Dustin Spicuzza               <dustin at virtualroadside dot com>
     dzejarczech                   <dzejarczech at sourceforge dot net>
@@ -83,6 +84,7 @@ Additional people who have contributed patches:
     Jefferson Ogata               <jogata at nodc dot noaa dot gov>
     Jesper Dangaard Brouer        <hawk at comx dot dk>
     Jesper Peterson               <jesper at endace dot com>
+    Jesse Gross                   <jesse at nicira dot com>
     Jiri Slaby                    <jirislaby at gmail dot com>
     Joerg Mayer                   <jmayer at loplof dot de>
     John Bankier                  <jbankier at rainfinity dot com>
@@ -105,13 +107,14 @@ Additional people who have contributed patches:
     Mansour Behabadi              <mansour at oxplot dot com>
     Marcus Felipe Pereira         <marcus at task dot com dot br>
     Mark C. Brown                 <mbrown at hp dot com>
+    Mark Johnston                 <markjdb at gmail dot com>
     Mark Pizzolato                <List-tcpdump-workers at subscriptions dot pizzolato dot net>
     Markus Mayer                  <markus_mayer at sourceforge dot net>
     Martin Husemann               <martin at netbsd dot org>
     Márton Németh                 <nm127 at freemail dot hu>
     Matthew Luckie                <mjl at luckie dot org dot nz>
     Max Laier                     <max at love2party dot net>
-    Michal Labedzki               
+    Michal Labedzki               <michal dot labedzki at tieto dot com>
     Michal Sekletar               <msekleta at redhat dot com>
     Mike Frysinger                <vapier at gmail dot com>
     Mike Kershaw                  <dragorn at kismetwireless dot net>

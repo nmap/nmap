@@ -1,7 +1,6 @@
 #
 # Common defines for libpcap and 16/32-bit network drivers (djgpp)
 #
-# @(#) $Header: /tcpdump/master/libpcap/msdos/common.dj,v 1.2 2004-12-19 19:36:33 guy Exp $ (LBL)
 
 .SUFFIXES: .exe .wlm .dxe .l .y
 .PHONY:    check_gcclib

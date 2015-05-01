@@ -6,7 +6,6 @@
 #
 #  c:\net\pcap> make -f msdos/makefile.dj
 #
-# @(#) $Header: /tcpdump/master/libpcap/msdos/makefile.dj,v 1.2 2004-12-19 19:41:06 guy Exp $ (LBL)
 
 VPATH = missing msdos
 
@@ -105,7 +104,7 @@ depend: $(PREREQUISITES)
 
 #
 # Manually generated dependencies
-#             
+#
 msdos/pktdrvr.c: msdos/pkt_stub.inc
 scanner.c: scanner.l
 grammar.c tokdefs.h: grammar.y

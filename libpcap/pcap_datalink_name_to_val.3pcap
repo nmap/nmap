@@ -1,5 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_datalink_name_to_val.3pcap,v 1.3 2008-04-06 02:53:21 guy Exp $
-.\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -43,6 +41,6 @@ removed, to the corresponding link-layer header type value.  The
 translation is case-insensitive.
 .SH RETURN VALUE
 .B pcap_datalink_name_to_val()
-returns 0 on success and \-1 on failure.
+returns type value on success and \-1 on failure.
 .SH SEE ALSO
 pcap(3PCAP)

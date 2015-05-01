@@ -67,7 +67,7 @@ static char *ai_errlist[] = {
 #define EAI_MAX (sizeof(ai_errlist)/sizeof(ai_errlist[0]))
 #endif
 
-/* on MingW, gai_strerror is available. 
+/* on MingW, gai_strerror is available.
    We need to compile gai_strerrorA only for Cygwin
  */
 #ifndef gai_strerror

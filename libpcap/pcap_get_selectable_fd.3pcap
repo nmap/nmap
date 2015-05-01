@@ -1,5 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_get_selectable_fd.3pcap,v 1.3 2008-04-06 02:53:22 guy Exp $
-.\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -19,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_GET_SELECTABLE_FD 3PCAP "5 April 2008"
+.TH PCAP_GET_SELECTABLE_FD 3PCAP "22 July 2011"
 .SH NAME
 pcap_get_selectable_fd \- get a file descriptor on which a select() can
 be done for a live capture
@@ -38,9 +36,9 @@ int pcap_get_selectable_fd(pcap_t *p);
 returns, on UNIX, a file descriptor number for a file descriptor on
 which one can
 do a
-.B select()
-or
-.B poll()
+.BR select() ,
+.BR poll() ,
+or other such call
 to wait for it to be possible to read packets without blocking, if such
 a descriptor exists, or \-1, if no such descriptor exists.  Some network
 devices opened with
@@ -55,6 +53,12 @@ or
 .B poll()
 (for example, regular network devices on FreeBSD 4.3 and 4.4, and Endace
 DAG devices), so \-1 is returned for those devices.
+.PP
+Note that a descriptor on which a read can be done without blocking may,
+on some platforms, not have any packets to read if the read timeout has
+expired.  A call to
+.B pcap_dispatch()
+will return 0 in this case, but will not block.
 .PP
 Note that in:
 .IP

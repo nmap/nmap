@@ -18,10 +18,6 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-snoop.c,v 1.59 2008-12-02 16:25:14 guy Exp $ (LBL)";
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -118,7 +114,7 @@ again:
 	caplen = (datalen < p->snapshot) ? datalen : p->snapshot;
 	cp = (u_char *)(sh + 1) + p->offset;		/* XXX */
 
-	/* 
+	/*
 	 * XXX unfortunately snoop loopback isn't exactly like
 	 * BSD's.  The address family is encoded in the first 2
 	 * bytes rather than the first 4 bytes!  Luckily the last
@@ -159,7 +155,7 @@ pcap_inject_snoop(pcap_t *p, const void *buf, size_t size)
 		return (-1);
 	}
 	return (ret);
-}                           
+}
 
 static int
 pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)

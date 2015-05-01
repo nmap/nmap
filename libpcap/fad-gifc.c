@@ -32,11 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/fad-gifc.c,v 1.12 2008-08-06 07:34:09 guy Exp $ (LBL)";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -222,12 +217,12 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 		/*
 		 * XXX - The 32-bit compatibility layer for Linux on IA-64
 		 * is slightly broken. It correctly converts the structures
-		 * to and from kernel land from 64 bit to 32 bit but 
-		 * doesn't update ifc.ifc_len, leaving it larger than the 
-		 * amount really used. This means we read off the end 
-		 * of the buffer and encounter an interface with an 
-		 * "empty" name. Since this is highly unlikely to ever 
-		 * occur in a valid case we can just finish looking for 
+		 * to and from kernel land from 64 bit to 32 bit but
+		 * doesn't update ifc.ifc_len, leaving it larger than the
+		 * amount really used. This means we read off the end
+		 * of the buffer and encounter an interface with an
+		 * "empty" name. Since this is highly unlikely to ever
+		 * occur in a valid case we can just finish looking for
 		 * interfaces if we see an empty name.
 		 */
 		if (!(*ifrp->ifr_name))
@@ -242,8 +237,7 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 			continue;
 
 		/*
-		 * Get the flags for this interface, and skip it if it's
-		 * not up.
+		 * Get the flags for this interface.
 		 */
 		strncpy(ifrflags.ifr_name, ifrp->ifr_name,
 		    sizeof(ifrflags.ifr_name));
@@ -258,8 +252,6 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 			ret = -1;
 			break;
 		}
-		if (!(ifrflags.ifr_flags & IFF_UP))
-			continue;
 
 		/*
 		 * Get the netmask for this address on this interface.

@@ -6,8 +6,6 @@
  * at the same time as another type of device.
  *
  * Author: Richard Littin, Sean Irvine ({richard,sean}@reeltwo.com)
- *
- * @(#) $Header: /tcpdump/master/libpcap/pcap-dag.h,v 1.7 2008-04-04 19:37:45 guy Exp $ (LBL)
  */
 
 pcap_t *dag_create(const char *, char *, int *);

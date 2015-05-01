@@ -23,11 +23,6 @@
  * This module now handles the STREAMS based NIT.
  */
 
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-snit.c,v 1.77 2008-04-14 20:40:58 guy Exp $ (LBL)";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -216,7 +211,7 @@ static int
 pcap_inject_snit(pcap_t *p, const void *buf, size_t size)
 {
 	struct strbuf ctl, data;
-	
+
 	/*
 	 * XXX - can we just do
 	 *

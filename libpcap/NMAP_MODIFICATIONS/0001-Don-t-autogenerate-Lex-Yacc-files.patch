@@ -1,18 +1,18 @@
-From 0198a593ef29d7af319b02dd33f251b58d117827 Mon Sep 17 00:00:00 2001
-From: David Fifield <david@bamsoftware.com>
-Date: Mon, 9 Apr 2012 16:55:51 -0700
+From f38b1fc263d65a53746108e2c9afacf1dc6a058a Mon Sep 17 00:00:00 2001
+From: Daniel Miller <daniel@bonsaiviking.com>
+Date: Fri, 1 May 2015 14:44:28 +0000
 Subject: [PATCH 1/2] Don't autogenerate Lex/Yacc files.
 
 ---
- Makefile.in  |   30 ++++++++++--------------------
- configure.in |   20 --------------------
- 2 files changed, 10 insertions(+), 40 deletions(-)
+ libpcap/Makefile.in  | 33 ++++++++++-----------------------
+ libpcap/configure.in | 20 --------------------
+ 2 files changed, 10 insertions(+), 43 deletions(-)
 
-diff --git Makefile.in Makefile.in
-index 912b7e3..0db12a4 100644
---- Makefile.in
-+++ Makefile.in
-@@ -67,14 +67,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+diff --git a/libpcap/Makefile.in b/libpcap/Makefile.in
+index f317973..577b848 100644
+--- a/libpcap/Makefile.in
++++ b/libpcap/Makefile.in
+@@ -69,14 +69,6 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
  INSTALL_DATA = @INSTALL_DATA@
  RANLIB = @RANLIB@
  
@@ -27,7 +27,7 @@ index 912b7e3..0db12a4 100644
  # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
  # Also, gcc does not remove the .o before forking 'as', which can be a
  # problem if you don't own the file but can write to the directory.
-@@ -147,7 +139,7 @@ TAGFILES = \
+@@ -152,7 +144,7 @@ TAGFILES = \
  	$(SRC) $(HDR)
  
  CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
@@ -36,7 +36,7 @@ index 912b7e3..0db12a4 100644
  	lex.yy.c pcap-config
  
  MAN1 = pcap-config.1
-@@ -345,6 +337,15 @@ EXTRA_DIST = \
+@@ -360,6 +352,15 @@ EXTRA_DIST = \
  
  all: libpcap.a shared pcap-config
  
@@ -52,13 +52,16 @@ index 912b7e3..0db12a4 100644
  libpcap.a: $(OBJ)
  	@rm -f $@
  	$(AR) rc $@ $(OBJ) $(ADDLARCHIVEOBJS)
-@@ -428,22 +429,11 @@ libpcap.shareda: $(OBJ)
+@@ -443,25 +444,11 @@ libpcap.shareda: $(OBJ)
  #
  libpcap.none:
  
 -scanner.c: $(srcdir)/scanner.l
--	@rm -f $@
+-	@rm -f $@ $@.bottom
 -	$(srcdir)/runlex.sh $(LEX) -o$@ $<
+-	mv $@ $@.bottom
+-	cat $@.top $@.bottom > $@
+-	@rm $@.bottom
 -
  scanner.o: scanner.c tokdefs.h
  	$(CC) $(FULL_CFLAGS) -c scanner.c
@@ -75,11 +78,11 @@ index 912b7e3..0db12a4 100644
  grammar.o: grammar.c
  	@rm -f $@
  	$(CC) $(FULL_CFLAGS) -Dyylval=pcap_lval -c grammar.c
-diff --git configure.in configure.in
-index 6a146ca..24097b2 100644
---- configure.in
-+++ configure.in
-@@ -998,24 +998,6 @@ if test "$V_PCAP" = snf -a "$ac_cv_lbl_snf_api" = no; then
+diff --git a/libpcap/configure.in b/libpcap/configure.in
+index be4b29e..ec87283 100644
+--- a/libpcap/configure.in
++++ b/libpcap/configure.in
+@@ -1051,24 +1051,6 @@ if test "$V_PCAP" = snf -a "$ac_cv_lbl_snf_api" = no; then
  	AC_MSG_ERROR(Specifying the capture type as 'snf' requires the Myricom Sniffer API to be present; use --with-snf=DIR)
  fi
  
@@ -104,7 +107,7 @@ index 6a146ca..24097b2 100644
  #
  # Assume, by default, no support for shared libraries and V7/BSD convention
  # for man pages (file formats in section 5, miscellaneous info in section 7).
-@@ -1250,13 +1232,11 @@ AC_SUBST(V_CCOPT)
+@@ -1351,13 +1333,11 @@ AC_SUBST(V_CCOPT)
  AC_SUBST(V_DEFS)
  AC_SUBST(V_FINDALLDEVS)
  AC_SUBST(V_INCLS)
@@ -119,5 +122,5 @@ index 6a146ca..24097b2 100644
  AC_SUBST(ADDLARCHIVEOBJS)
  AC_SUBST(SSRC)
 -- 
-1.7.9.5
+1.9.1
 

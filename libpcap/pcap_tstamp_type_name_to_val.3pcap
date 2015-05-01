@@ -38,7 +38,7 @@ translates a time stamp type name to the corresponding time stamp type
 value.  The translation is case-insensitive.
 .SH RETURN VALUE
 .B pcap_tstamp_type_name_to_val()
-returns 0 on success and
+returns time stamp type value on success and
 .B PCAP_ERROR
 on failure.
 .SH SEE ALSO

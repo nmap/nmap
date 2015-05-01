@@ -1,5 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_setdirection.3pcap,v 1.3 2008-04-06 02:53:22 guy Exp $
-.\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -39,7 +37,7 @@ is used to specify a direction that packets will be captured.
 is one of the constants
 .BR PCAP_D_IN ,
 .B PCAP_D_OUT
-or 
+or
 .BR PCAP_D_INOUT .
 .B PCAP_D_IN
 will only capture packets received by the device,

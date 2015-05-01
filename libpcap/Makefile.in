@@ -16,8 +16,6 @@
 #  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
 #  WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 #  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-#
-# @(#) $Header: /tcpdump/master/libpcap/Makefile.in,v 1.142 2008-11-22 17:30:24 guy Exp $ (LBL)
 
 #
 # Various configurable paths (remember to edit Makefile.in, not Makefile)
@@ -55,8 +53,9 @@ DEFS = @DEFS@ @V_DEFS@
 ADDLOBJS = @ADDLOBJS@
 ADDLARCHIVEOBJS = @ADDLARCHIVEOBJS@
 LIBS = @LIBS@
-CFLAGS = @CFLAGS@
-LDFLAGS = @LDFLAGS@
+CROSSFLAGS=
+CFLAGS = @CFLAGS@   ${CROSSFLAGS}
+LDFLAGS = @LDFLAGS@ ${CROSSFLAGS}
 DYEXT = @DYEXT@
 V_RPATH_OPT = @V_RPATH_OPT@
 DEPENDENCY_CFLAG = @DEPENDENCY_CFLAG@
@@ -77,7 +76,7 @@ RANLIB = @RANLIB@
 	@rm -f $@
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/$*.c
 
-PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @CAN_SRC@ @NETFILTER_SRC@ @CANUSB_SRC@ @DBUS_SRC@
+PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @BT_MONITOR_SRC@ @CAN_SRC@ @NETFILTER_SRC@ @CANUSB_SRC@ @DBUS_SRC@
 FSRC =  fad-@V_FINDALLDEVS@.c
 SSRC =  @SSRC@
 CSRC =	pcap.c inet.c gencode.c optimize.c nametoaddr.c etherent.c \
@@ -99,6 +98,7 @@ PUBHDR = \
 	pcap/bluetooth.h \
 	pcap/ipnet.h \
 	pcap/namedb.h \
+	pcap/nflog.h \
 	pcap/pcap.h \
 	pcap/sll.h \
 	pcap/vlan.h \
@@ -121,17 +121,17 @@ HDR = $(PUBHDR) \
 	sunatmpos.h
 
 TESTS = \
+	capturetest \
 	filtertest \
 	findalldevstest \
-	nonblocktest \
 	opentest \
 	selpolltest \
 	valgrindtest
 
 TESTS_SRC = \
+	tests/capturetest.c \
 	tests/filtertest.c \
 	tests/findalldevstest.c \
-	tests/nonblocktest.c \
 	tests/opentest.c \
 	tests/reactivatetest.c \
 	tests/selpolltest.c \
@@ -284,10 +284,11 @@ EXTRA_DIST = \
 	msdos/pktdrvr.h \
 	msdos/readme.dos \
 	org.tcpdump.chmod_bpf.plist \
-	packaging/pcap.spec.in \
 	pcap-bpf.c \
 	pcap-bt-linux.c \
 	pcap-bt-linux.h \
+	pcap-bt-monitor-linux.c \
+	pcap-bt-monitor-linux.h \
 	pcap-can-linux.c \
 	pcap-can-linux.h \
 	pcap-canusb-linux.c \
@@ -323,6 +324,7 @@ EXTRA_DIST = \
 	pcap-usb-linux.h \
 	pcap-win32.c \
 	runlex.sh \
+	scanner.c.top \
 	scanner.l \
 	Win32/Include/Gnuc.h \
 	Win32/Include/addrinfo.h \
@@ -516,14 +518,14 @@ pcap-config: $(srcdir)/pcap-config.in ./config.status
 #
 tests: $(TESTS)
 
+capturetest: tests/capturetest.c libpcap.a
+	$(CC) $(FULL_CFLAGS) -I. -L. -o capturetest $(srcdir)/tests/capturetest.c libpcap.a $(LIBS)
+
 filtertest: tests/filtertest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o filtertest $(srcdir)/tests/filtertest.c libpcap.a $(LIBS)
 
 findalldevstest: tests/findalldevstest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o findalldevstest $(srcdir)/tests/findalldevstest.c libpcap.a $(LIBS)
-
-nonblocktest: tests/nonblocktest.c libpcap.a
-	$(CC) $(FULL_CFLAGS) -I. -L. -o nonblocktest $(srcdir)/tests/nonblocktest.c libpcap.a $(LIBS)
 
 opentest: tests/opentest.c libpcap.a
 	$(CC) $(FULL_CFLAGS) -I. -L. -o opentest $(srcdir)/tests/opentest.c libpcap.a $(LIBS)
@@ -595,6 +597,8 @@ install: install-shared install-archive pcap-config
 	$(LN_S) pcap_open_offline.3pcap pcap_fopen_offline.3pcap && \
 	rm -f pcap_fopen_offline_with_tstamp_precision.3pcap && \
 	$(LN_S) pcap_open_offline.3pcap pcap_fopen_offline_with_tstamp_precision.3pcap && \
+	rm -f pcap_tstamp_type_val_to_description.3pcap && \
+	$(LN_S) pcap_tstamp_type_val_to_name.3pcap pcap_tstamp_type_val_to_description.3pcap && \
 	rm -f pcap_getnonblock.3pcap && \
 	$(LN_S) pcap_setnonblock.3pcap pcap_getnonblock.3pcap)
 	for i in $(MANFILE); do \
@@ -678,6 +682,7 @@ uninstall: uninstall-shared
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_fopen_offline_with_tstamp_precision.3pcap
 	rm -f $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
+	rm -f $(DESTDIR)$(mandir)/man3/pcap_tstamp_type_val_to_description.3pcap
 	for i in $(MANFILE); do \
 		rm -f $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@/`echo $$i | sed 's/.manfile.in/.@MAN_FILE_FORMATS@/'`; done
 	for i in $(MANMISC); do \
@@ -717,10 +722,6 @@ distclean: clean
 tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)
 
-packaging/pcap.spec: packaging/pcap.spec.in VERSION
-	RPMVERSION=`cat VERSION | sed s/-.*//g`; \
-		sed -e s/@VERSION@/$$RPMVERSION/ -e s/@NAME@/libpcap-`cat VERSION`/ $<   > $@
-
 releasetar:
 	@cwd=`pwd` ; dir=`basename $$cwd` ; name=$(PROG)-`cat VERSION` ; \
 	   mkdir $$name; \
@@ -731,4 +732,4 @@ releasetar:
 	   rm -rf $$name
 
 depend:	$(GENSRC) $(GENHDR) bpf_filter.c
-	$(MKDEP) -c $(CC) -m $(DEPENDENCY_CFLAG) $(DEFS) $(INCLS) $(SRC)
+	$(MKDEP) -c $(CC) -m $(CFLAGS) $(DEPENDENCY_CFLAG) $(DEFS) $(INCLS) $(SRC)

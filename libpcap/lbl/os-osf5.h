@@ -17,8 +17,6 @@
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- *
- * @(#) $Header: /tcpdump/master/libpcap/lbl/os-osf5.h,v 1.2 2002-08-02 03:24:15 guy Exp $ (LBL)
  */
 
 /*
@@ -29,4 +27,4 @@
 int	snprintf(char *, size_t, const char *, ...);
 int	vsnprintf(char *, size_t, const char *, va_list);
 int	pfopen(char *, int);
-   
+

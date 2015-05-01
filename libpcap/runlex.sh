@@ -7,8 +7,6 @@
 # means that neither Flex nor Lex was found, so we report an error and
 # quit.
 #
-# @(#) $Header: /tcpdump/master/libpcap/runlex.sh,v 1.4 2007-12-31 03:38:39 guy Exp $
-#
 
 #
 # Get the name of the command to run, and then shift to get the arguments.
@@ -179,7 +177,7 @@ else
 	#
 	# OK, rename lex.yy.c to the right output file.
 	#
-	mv lex.yy.c "$outfile" 
+	mv lex.yy.c "$outfile"
 
 	#
 	# Did that succeed?
@@ -230,6 +228,6 @@ cat <<EOF >$header_file
 $prefixline
 #ifndef YY_DECL
 #define YY_DECL int yylex(void)
-#endif  
+#endif
 YY_DECL;
 EOF

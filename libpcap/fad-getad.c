@@ -32,11 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/fad-getad.c,v 1.12 2007-09-14 00:44:55 guy Exp $ (LBL)";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -146,7 +141,7 @@ get_sa_len(struct sockaddr *addr)
  * Get a list of all interfaces that are up and that we can open.
  * Returns -1 on error, 0 otherwise.
  * The list, as returned through "alldevsp", may be null if no interfaces
- * were up and could be opened.
+ * could be opened.
  */
 int
 pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
@@ -162,10 +157,10 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 	 * Get the list of interface addresses.
 	 *
 	 * Note: this won't return information about interfaces
-	 * with no addresses; are there any such interfaces
-	 * that would be capable of receiving packets?
-	 * (Interfaces incapable of receiving packets aren't
-	 * very interesting from libpcap's point of view.)
+	 * with no addresses, so, if a platform has interfaces
+	 * with no interfaces on which traffic can be captured,
+	 * we must check for those interfaces as well (see, for
+	 * example, what's done on Linux).
 	 *
 	 * LAN interfaces will probably have link-layer
 	 * addresses; I don't know whether all implementations
@@ -179,34 +174,11 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 	}
 	for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
 		/*
-		 * Is this interface up?
-		 */
-		if (!(ifa->ifa_flags & IFF_UP)) {
-			/*
-			 * No, so don't add it to the list.
-			 */
-			continue;
-		}
-
-		/*
 		 * "ifa_addr" was apparently null on at least one
-		 * interface on some system.
-		 *
-		 * "ifa_broadaddr" may be non-null even on
-		 * non-broadcast interfaces, and was null on
-		 * at least one OpenBSD 3.4 system on at least
-		 * one interface with IFF_BROADCAST set.
-		 *
-		 * "ifa_dstaddr" was, on at least one FreeBSD 4.1
-		 * system, non-null on a non-point-to-point
-		 * interface.
-		 *
-		 * Therefore, we supply the address and netmask only
-		 * if "ifa_addr" is non-null (if there's no address,
-		 * there's obviously no netmask), and supply the
-		 * broadcast and destination addresses if the appropriate
-		 * flag is set *and* the appropriate "ifa_" entry doesn't
-		 * evaluate to a null pointer.
+		 * interface on some system.  Therefore, we supply
+		 * the address and netmask only if "ifa_addr" is
+		 * non-null (if there's no address, there's obviously
+		 * no netmask).
 		 */
 		if (ifa->ifa_addr != NULL) {
 			addr = ifa->ifa_addr;
@@ -217,6 +189,22 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 			addr_size = 0;
 			netmask = NULL;
 		}
+
+		/*
+		 * Note that, on some platforms, ifa_broadaddr and
+		 * ifa_dstaddr could be the same field (true on at
+		 * least some versions of *BSD and OS X), so we
+		 * can't just check whether the broadcast address
+		 * is null and add it if so and check whether the
+		 * destination address is null and add it if so.
+		 *
+		 * Therefore, we must also check the IFF_BROADCAST
+		 * flag, and only add a broadcast address if it's
+		 * set, and check the IFF_POINTTOPOINT flag, and
+		 * only add a destination address if it's set (as
+		 * per man page recommendations on some of those
+		 * platforms).
+		 */
 		if (ifa->ifa_flags & IFF_BROADCAST &&
 		    ifa->ifa_broadaddr != NULL) {
 			broadaddr = ifa->ifa_broadaddr;

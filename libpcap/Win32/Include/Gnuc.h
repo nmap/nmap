@@ -1,5 +1,3 @@
-/* @(#) $Header: /tcpdump/master/libpcap/Win32/Include/Gnuc.h,v 1.1 2002-08-01 08:33:05 risso Exp $ (LBL) */
-
 /* Define __P() macro, if necessary */
 
 #ifndef __P

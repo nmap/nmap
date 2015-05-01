@@ -20,10 +20,6 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/grammar.y,v 1.101 2007-11-18 02:03:52 guy Exp $ (LBL)";
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -58,6 +54,7 @@ struct rtentry;
 #include <net/pfvar.h>
 #include <net/if_pflog.h>
 #endif
+#include "llc.h"
 #include "ieee80211.h"
 #include <pcap/namedb.h>
 
@@ -130,6 +127,23 @@ static const struct tok ieee80211_data_subtypes[] = {
 	{ IEEE80211_FC0_SUBTYPE_QOS|IEEE80211_FC0_SUBTYPE_NODATA, "qos" },
 	{ IEEE80211_FC0_SUBTYPE_QOS|IEEE80211_FC0_SUBTYPE_NODATA_CF_POLL, "qos-cf-poll" },
 	{ IEEE80211_FC0_SUBTYPE_QOS|IEEE80211_FC0_SUBTYPE_NODATA_CF_ACPL, "qos-cf-ack-poll" },
+	{ 0, NULL }
+};
+static const struct tok llc_s_subtypes[] = {
+	{ LLC_RR, "rr" },
+	{ LLC_RNR, "rnr" },
+	{ LLC_REJ, "rej" },
+	{ 0, NULL }
+};
+static const struct tok llc_u_subtypes[] = {
+	{ LLC_UI, "ui" },
+	{ LLC_UA, "ua" },
+	{ LLC_DISC, "disc" },
+	{ LLC_DM, "dm" },
+	{ LLC_SABME, "sabme" },
+	{ LLC_TEST, "test" },
+	{ LLC_XID, "xid" },
+	{ LLC_FRMR, "frmr" },
 	{ 0, NULL }
 };
 struct type2tok {
@@ -261,7 +275,7 @@ pfaction_to_num(const char *action)
 %type	<a>	arth narth
 %type	<i>	byteop pname pnum relop irelop
 %type	<blk>	and or paren not null prog
-%type	<rblk>	other pfvar p80211
+%type	<rblk>	other pfvar p80211 pllc
 %type	<i>	atmtype atmmultitype
 %type	<blk>	atmfield
 %type	<blk>	atmfieldvalue atmvalue atmlistvalue
@@ -285,8 +299,8 @@ pfaction_to_num(const char *action)
 %token  LEN
 %token  IPV6 ICMPV6 AH ESP
 %token	VLAN MPLS
-%token	PPPOED PPPOES
-%token  ISO ESIS CLNP ISIS L1 L2 IIH LSP SNP CSNP PSNP 
+%token	PPPOED PPPOES GENEVE
+%token  ISO ESIS CLNP ISIS L1 L2 IIH LSP SNP CSNP PSNP
 %token  STP
 %token  IPX
 %token  NETBEUI
@@ -296,7 +310,7 @@ pfaction_to_num(const char *action)
 %token	RADIO
 %token	FISU LSSU MSU HFISU HLSSU HMSU
 %token	SIO OPC DPC SLS HSIO HOPC HDPC HSLS
- 
+
 
 %type	<s> ID
 %type	<e> EID
@@ -372,7 +386,7 @@ nid:	  ID			{ $$.b = gen_scode($1, $$.q = $<blk>0.q); }
 					"in this configuration");
 #endif /*INET6*/
 				}
-	| EID			{ 
+	| EID			{
 				  $$.b = gen_ecode($1, $$.q = $<blk>0.q);
 				  /*
 				   * $1 was allocated by "pcap_ether_aton()",
@@ -509,8 +523,11 @@ other:	  pqual TK_BROADCAST	{ $$ = gen_broadcast($1); }
 	| PPPOED		{ $$ = gen_pppoed(); }
 	| PPPOES pnum		{ $$ = gen_pppoes($2); }
 	| PPPOES		{ $$ = gen_pppoes(-1); }
+	| GENEVE pnum		{ $$ = gen_geneve($2); }
+	| GENEVE		{ $$ = gen_geneve(-1); }
 	| pfvar			{ $$ = $1; }
 	| pqual p80211		{ $$ = $2; }
+	| pllc			{ $$ = $1; }
 	;
 
 pfvar:	  PF_IFNAME ID		{ $$ = gen_pf_ifname($2); }
@@ -580,6 +597,31 @@ type_subtype:	ID		{ int i;
 				}
 		;
 
+pllc:	LLC			{ $$ = gen_llc(); }
+	| LLC ID		{ if (pcap_strcasecmp($2, "i") == 0)
+					$$ = gen_llc_i();
+				  else if (pcap_strcasecmp($2, "s") == 0)
+					$$ = gen_llc_s();
+				  else if (pcap_strcasecmp($2, "u") == 0)
+					$$ = gen_llc_u();
+				  else {
+				  	u_int subtype;
+
+					subtype = str2tok($2, llc_s_subtypes);
+					if (subtype != -1)
+						$$ = gen_llc_s_subtype(subtype);
+					else {
+						subtype = str2tok($2, llc_u_subtypes);
+						if (subtype == -1)
+					  		bpf_error("unknown LLC type name \"%s\"", $2);
+						$$ = gen_llc_u_subtype(subtype);
+					}
+				  }
+				}
+				/* sigh, "rnr" is already a keyword for PF */
+	| LLC PF_RNR		{ $$ = gen_llc_s_subtype(LLC_RNR); }
+	;
+
 dir:	  NUM
 	| ID			{ if (pcap_strcasecmp($1, "nods") == 0)
 					$$ = IEEE80211_FC1_DIR_NODS;
@@ -618,8 +660,10 @@ narth:	  pname '[' arth ']'		{ $$ = gen_load($1, $3, 1); }
 	| arth '-' arth			{ $$ = gen_arth(BPF_SUB, $1, $3); }
 	| arth '*' arth			{ $$ = gen_arth(BPF_MUL, $1, $3); }
 	| arth '/' arth			{ $$ = gen_arth(BPF_DIV, $1, $3); }
+	| arth '%' arth			{ $$ = gen_arth(BPF_MOD, $1, $3); }
 	| arth '&' arth			{ $$ = gen_arth(BPF_AND, $1, $3); }
 	| arth '|' arth			{ $$ = gen_arth(BPF_OR, $1, $3); }
+	| arth '^' arth			{ $$ = gen_arth(BPF_XOR, $1, $3); }
 	| arth LSH arth			{ $$ = gen_arth(BPF_LSH, $1, $3); }
 	| arth RSH arth			{ $$ = gen_arth(BPF_RSH, $1, $3); }
 	| '-' arth %prec UMINUS		{ $$ = gen_neg($2); }
@@ -636,7 +680,6 @@ pnum:	  NUM
 	| paren pnum ')'	{ $$ = $2; }
 	;
 atmtype: LANE			{ $$ = A_LANE; }
-	| LLC			{ $$ = A_LLC; }
 	| METAC			{ $$ = A_METAC;	}
 	| BCC			{ $$ = A_BCC; }
 	| OAMF4EC		{ $$ = A_OAMF4EC; }

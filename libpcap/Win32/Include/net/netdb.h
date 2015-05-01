@@ -57,7 +57,9 @@
 #ifndef _NETDB_H_
 #define _NETDB_H_
 
-#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) || defined(_REENTRANT)
+/* MingW64 defines _POSIX_THREAD_SAFE_FUNCTIONS.
+ */
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) || defined(_REENTRANT) && !defined(__MINGW64_VERSION_MAJOR)
 #include <stdio.h>
 #include <netinet/in.h>
 #endif

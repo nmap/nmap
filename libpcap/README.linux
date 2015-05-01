@@ -19,13 +19,13 @@ the 2.0[.x] kernel:
 	  The Packet protocol is used by applications which communicate
 	  directly with network devices without an intermediate network
 	  protocol implemented in the kernel, e.g. tcpdump. If you want them
-	  to work, choose Y. 
+	  to work, choose Y.
 
 	  This driver is also available as a module called af_packet.o ( =
 	  code which can be inserted in and removed from the running kernel
 	  whenever you want). If you want to compile it as a module, say M
 	  here and read Documentation/modules.txt; if you use modprobe or
-	  kmod, you may also want to add "alias net-pf-17 af_packet" to 
+	  kmod, you may also want to add "alias net-pf-17 af_packet" to
 	  /etc/modules.conf.
 
 and the note for the 2.2[.x] kernel says:
@@ -47,7 +47,7 @@ In addition, there is an option that, in 2.2 and later kernels, will
 allow packet capture filters specified to programs such as tcpdump to be
 executed in the kernel, so that packets that don't pass the filter won't
 be copied from the kernel to the program, rather than having all packets
-copied to the program and libpcap doing the filtering in user mode. 
+copied to the program and libpcap doing the filtering in user mode.
 
 Copying packets from the kernel to the program consumes a significant
 amount of CPU, so filtering in the kernel can reduce the overhead of

@@ -20,10 +20,6 @@
  *
  *  Optimization module for tcpdump intermediate representation.
  */
-#ifndef lint
-static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/optimize.c,v 1.91 2008-01-02 04:16:46 guy Exp $ (LBL)";
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -610,12 +606,22 @@ fold_op(struct stmt *s, int v0, int v1)
 		a /= b;
 		break;
 
+	case BPF_MOD:
+		if (b == 0)
+			bpf_error("modulus by zero");
+		a %= b;
+		break;
+
 	case BPF_AND:
 		a &= b;
 		break;
 
 	case BPF_OR:
 		a |= b;
+		break;
+
+	case BPF_XOR:
+		a ^= b;
 		break;
 
 	case BPF_LSH:
@@ -978,8 +984,10 @@ opt_stmt(struct stmt *s, int val[], int alter)
 	case BPF_ALU|BPF_SUB|BPF_K:
 	case BPF_ALU|BPF_MUL|BPF_K:
 	case BPF_ALU|BPF_DIV|BPF_K:
+	case BPF_ALU|BPF_MOD|BPF_K:
 	case BPF_ALU|BPF_AND|BPF_K:
 	case BPF_ALU|BPF_OR|BPF_K:
+	case BPF_ALU|BPF_XOR|BPF_K:
 	case BPF_ALU|BPF_LSH|BPF_K:
 	case BPF_ALU|BPF_RSH|BPF_K:
 		op = BPF_OP(s->code);
@@ -990,7 +998,7 @@ opt_stmt(struct stmt *s, int val[], int alter)
 				 * fixup the generated math code */
 				if (op == BPF_ADD ||
 				    op == BPF_LSH || op == BPF_RSH ||
-				    op == BPF_OR) {
+				    op == BPF_OR || op == BPF_XOR) {
 					s->code = NOP;
 					break;
 				}
@@ -1013,8 +1021,10 @@ opt_stmt(struct stmt *s, int val[], int alter)
 	case BPF_ALU|BPF_SUB|BPF_X:
 	case BPF_ALU|BPF_MUL|BPF_X:
 	case BPF_ALU|BPF_DIV|BPF_X:
+	case BPF_ALU|BPF_MOD|BPF_X:
 	case BPF_ALU|BPF_AND|BPF_X:
 	case BPF_ALU|BPF_OR|BPF_X:
+	case BPF_ALU|BPF_XOR|BPF_X:
 	case BPF_ALU|BPF_LSH|BPF_X:
 	case BPF_ALU|BPF_RSH|BPF_X:
 		op = BPF_OP(s->code);
@@ -1041,12 +1051,12 @@ opt_stmt(struct stmt *s, int val[], int alter)
 		 */
 		if (alter && vmap[val[A_ATOM]].is_const
 		    && vmap[val[A_ATOM]].const_val == 0) {
-			if (op == BPF_ADD || op == BPF_OR) {
+			if (op == BPF_ADD || op == BPF_OR || op == BPF_XOR) {
 				s->code = BPF_MISC|BPF_TXA;
 				vstore(s, &val[A_ATOM], val[X_ATOM], alter);
 				break;
 			}
-			else if (op == BPF_MUL || op == BPF_DIV ||
+			else if (op == BPF_MUL || op == BPF_DIV || op == BPF_MOD ||
 				 op == BPF_AND || op == BPF_LSH || op == BPF_RSH) {
 				s->code = BPF_LD|BPF_IMM;
 				s->k = 0;
@@ -2234,7 +2244,92 @@ install_bpf_program(pcap_t *p, struct bpf_program *fp)
 
 #ifdef BDEBUG
 static void
-opt_dump(struct block *root)
+dot_dump_node(struct block *block, struct bpf_program *prog, FILE *out)
+{
+	int icount, noffset;
+	int i;
+
+	if (block == NULL || isMarked(block))
+		return;
+	Mark(block);
+
+	icount = slength(block->stmts) + 1 + block->longjt + block->longjf;
+	noffset = min(block->offset + icount, (int)prog->bf_len);
+
+	fprintf(out, "\tblock%d [shape=ellipse, id=\"block-%d\" label=\"BLOCK%d\\n", block->id, block->id, block->id);
+	for (i = block->offset; i < noffset; i++) {
+		fprintf(out, "\\n%s", bpf_image(prog->bf_insns + i, i));
+	}
+	fprintf(out, "\" tooltip=\"");
+	for (i = 0; i < BPF_MEMWORDS; i++)
+		if (block->val[i] != 0)
+			fprintf(out, "val[%d]=%d ", i, block->val[i]);
+	fprintf(out, "val[A]=%d ", block->val[A_ATOM]);
+	fprintf(out, "val[X]=%d", block->val[X_ATOM]);
+	fprintf(out, "\"");
+	if (JT(block) == NULL)
+		fprintf(out, ", peripheries=2");
+	fprintf(out, "];\n");
+
+	dot_dump_node(JT(block), prog, out);
+	dot_dump_node(JF(block), prog, out);
+}
+static void
+dot_dump_edge(struct block *block, FILE *out)
+{
+	if (block == NULL || isMarked(block))
+		return;
+	Mark(block);
+
+	if (JT(block)) {
+		fprintf(out, "\t\"block%d\":se -> \"block%d\":n [label=\"T\"]; \n",
+				block->id, JT(block)->id);
+		fprintf(out, "\t\"block%d\":sw -> \"block%d\":n [label=\"F\"]; \n",
+			   block->id, JF(block)->id);
+	}
+	dot_dump_edge(JT(block), out);
+	dot_dump_edge(JF(block), out);
+}
+/* Output the block CFG using graphviz/DOT language
+ * In the CFG, block's code, value index for each registers at EXIT,
+ * and the jump relationship is show.
+ *
+ * example DOT for BPF `ip src host 1.1.1.1' is:
+    digraph BPF {
+    	block0 [shape=ellipse, id="block-0" label="BLOCK0\n\n(000) ldh      [12]\n(001) jeq      #0x800           jt 2	jf 5" tooltip="val[A]=0 val[X]=0"];
+    	block1 [shape=ellipse, id="block-1" label="BLOCK1\n\n(002) ld       [26]\n(003) jeq      #0x1010101       jt 4	jf 5" tooltip="val[A]=0 val[X]=0"];
+    	block2 [shape=ellipse, id="block-2" label="BLOCK2\n\n(004) ret      #68" tooltip="val[A]=0 val[X]=0", peripheries=2];
+    	block3 [shape=ellipse, id="block-3" label="BLOCK3\n\n(005) ret      #0" tooltip="val[A]=0 val[X]=0", peripheries=2];
+    	"block0":se -> "block1":n [label="T"];
+    	"block0":sw -> "block3":n [label="F"];
+    	"block1":se -> "block2":n [label="T"];
+    	"block1":sw -> "block3":n [label="F"];
+    }
+ *
+ *  After install graphviz on http://www.graphviz.org/, save it as bpf.dot
+ *  and run `dot -Tpng -O bpf.dot' to draw the graph.
+ */
+static void
+dot_dump(struct block *root)
+{
+	struct bpf_program f;
+	FILE *out = stdout;
+
+	memset(bids, 0, sizeof bids);
+	f.bf_insns = icode_to_fcode(root, &f.bf_len);
+
+	fprintf(out, "digraph BPF {\n");
+	unMarkAll();
+	dot_dump_node(root, &f, out);
+	unMarkAll();
+	dot_dump_edge(root, out);
+	fprintf(out, "}\n");
+
+	free((char *)f.bf_insns);
+}
+
+static void
+plain_dump(struct block *root)
 {
 	struct bpf_program f;
 
@@ -2244,4 +2339,17 @@ opt_dump(struct block *root)
 	putchar('\n');
 	free((char *)f.bf_insns);
 }
+static void
+opt_dump(struct block *root)
+{
+	/* if optimizer debugging is enabled, output DOT graph
+	 * `dflag=4' is equivalent to -dddd to follow -d/-dd/-ddd
+     * convention in tcpdump command line
+	 */
+	if (dflag > 3)
+		dot_dump(root);
+	else
+		plain_dump(root);
+}
+
 #endif

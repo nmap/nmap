@@ -1,5 +1,3 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap-filter.manmisc.in,v 1.1 2008-10-21 07:33:01 guy Exp $ (LBL)
-.\"
 .\" Copyright (c) 1987, 1988, 1989, 1990, 1991, 1992, 1994, 1995, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
 .\" All rights reserved.
@@ -20,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-FILTER @MAN_MISC_INFO@ "6 January 2008"
+.TH PCAP-FILTER @MAN_MISC_INFO@ "17 May 2013"
 .SH NAME
 pcap-filter \- packet filter syntax
 .br
@@ -332,8 +330,9 @@ The packet may contain, for example,
 authentication header, routing header, or hop-by-hop option header,
 between IPv6 header and TCP header.
 The BPF code emitted by this primitive is complex and
-cannot be optimized by the BPF optimizer code, so this can be somewhat
-slow.
+cannot be optimized by the BPF optimizer code, and is not supported by
+filter engines in the kernel, so this can be somewhat slow, and may
+cause more packets to be dropped.
 .IP "\fBip protochain \fIprotocol\fR"
 Equivalent to \fBip6 protochain \fIprotocol\fR, but this is for IPv4.
 .IP "\fBprotochain \fIprotocol\fR"
@@ -453,6 +452,67 @@ True if the DECNET destination address is
 .IP "\fBdecnet host \fIhost\fR"
 True if either the DECNET source or destination address is
 .IR host .
+.IP \fBllc\fP
+True if the packet has an 802.2 LLC header.  This includes:
+.IP
+Ethernet packets with a length field rather than a type field that
+aren't raw NetWare-over-802.3 packets;
+.IP
+IEEE 802.11 data packets;
+.IP
+Token Ring packets (no check is done for LLC frames);
+.IP
+FDDI packets (no check is done for LLC frames);
+.IP
+LLC-encapsulated ATM packets, for SunATM on Solaris.
+.IP
+
+.IP "\fBllc\fP \Fitype\fR"
+True if the packet has an 802.2 LLC header and has the specified
+.IR type .
+.I type
+can be one of:
+.RS
+.TP
+\fBi\fR
+Information (I) PDUs
+.TP
+\fBs\fR
+Supervisory (S) PDUs
+.TP
+\fBu\fR
+Unnumbered (U) PDUs
+.TP
+\fBrr\fR
+Receiver Ready (RR) S PDUs
+.TP
+\fBrnr\fR
+Receiver Not Ready (RNR) S PDUs
+.TP
+\fBrej\fR
+Reject (REJ) S PDUs
+.TP
+\fBui\fR
+Unnumbered Information (UI) U PDUs
+.TP
+\fBua\fR
+Unnumbered Acknowledgment (UA) U PDUs
+.TP
+\fBdisc\fR
+Disconnect (DISC) U PDUs
+.TP
+\fBsabme\fR
+Set Asynchronous Balanced Mode Extended (SABME) U PDUs
+.TP
+\fBtest\fR
+Test (TEST) U PDUs
+.TP
+\fBxid\fR
+Exchange Identification (XID) U PDUs
+.TP
+\fBfrmr\fR
+Frame Reject (FRMR) U PDUs
+.RE
 .IP "\fBifname \fIinterface\fR"
 True if the packet was logged as coming from the specified interface (applies
 only to packets logged by OpenBSD's or FreeBSD's
@@ -487,7 +547,7 @@ name of an anchored ruleset (applies only to packets logged by OpenBSD's
 or FreeBSD's
 .BR pf (4)).
 .IP "\fBruleset \fIname\fR"
-Synonomous with the
+Synonymous with the
 .B rset
 modifier.
 .IP "\fBsrnr \fInum\fR"
@@ -496,7 +556,7 @@ of an anchored ruleset (applies only to packets logged by OpenBSD's or
 FreeBSD's
 .BR pf (4)).
 .IP "\fBsubrulenum \fInum\fR"
-Synonomous with the
+Synonymous with the
 .B srnr
 modifier.
 .IP "\fBaction \fIact\fR"
@@ -637,7 +697,7 @@ changes the decoding offsets for the remainder of \fIexpression\fR on
 the assumption that the packet is a MPLS-encapsulated IP packet.  The
 \fBmpls \fI[label_num]\fR expression may be used more than once, to
 filter on MPLS hierarchies.  Each use of that expression increments the
-filter offsets by 4. 
+filter offsets by 4.
 .IP
 For example:
 .in +.5i
@@ -673,6 +733,22 @@ For example:
 .fi
 .in -.5i
 filters IPv4 protocols encapsulated in PPPoE session id 0x27.
+.IP "\fBgeneve \fI[vni]\fR"
+True if the packet is a Geneve packet (UDP port 6081). If \fI[vni]\fR
+is specified, only true if the packet has the specified \fIvni\fR.
+Note that when the \fBgeneve\fR keyword is encountered in
+\fIexpression\fR, it changes the decoding offsets for the remainder of
+\fIexpression\fR on the assumption that the packet is a Geneve packet.
+.IP
+For example:
+.in +.5i
+.nf
+\fBgeneve 0xb && ip\fR
+.fi
+.in -.5i
+filters IPv4 protocols encapsulated in Geneve with VNI 0xb. This will
+match both IP directly encapsulated in Geneve as well as IP contained
+inside an Ethernet frame.
 .IP "\fBiso proto \fIprotocol\fR"
 True if the packet is an OSI packet of protocol type \fIprotocol\fP.
 \fIProtocol\fP can be a number or one of the names
@@ -704,9 +780,6 @@ on the assumption that the packet is either a LANE emulated Ethernet
 packet or a LANE LE Control packet.  If \fBlane\fR isn't specified, the
 tests are done under the assumption that the packet is an
 LLC-encapsulated packet.
-.IP \fBllc\fP
-True if the packet is an ATM packet, for SunATM on Solaris, and is
-an LLC-encapsulated packet.
 .IP \fBoamf4s\fP
 True if the packet is an ATM packet, for SunATM on Solaris, and is
 a segment OAM F4 flow cell (VPI=0 & VCI=3).
@@ -743,11 +816,17 @@ Release, or Release Done message.
 True if the relation holds, where \fIrelop\fR is one of >, <, >=, <=, =,
 !=, and \fIexpr\fR is an arithmetic expression composed of integer
 constants (expressed in standard C syntax), the normal binary operators
-[+, -, *, /, &, |, <<, >>], a length operator, and special packet data
+[+, -, *, /, %, &, |, ^, <<, >>], a length operator, and special packet data
 accessors.  Note that all comparisons are unsigned, so that, for example,
 0x80000000 and 0xffffffff are > 0.
-To access
-data inside the packet, use the following syntax:
+.IP
+The % and ^ operators are currently only supported for filtering in the
+kernel on Linux with 3.7 and later kernels; on all other systems, if
+those operators are used, filtering will be done in user mode, which
+will increase the overhead of capturing packets and may cause more
+packets to be dropped.
+.IP
+To access data inside the packet, use the following syntax:
 .in +.5i
 .nf
 \fIproto\fB [ \fIexpr\fB : \fIsize\fB ]\fR

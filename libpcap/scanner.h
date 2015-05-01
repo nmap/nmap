@@ -2,5 +2,5 @@
 
 #ifndef YY_DECL
 #define YY_DECL int yylex(void)
-#endif  
+#endif
 YY_DECL;

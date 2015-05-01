@@ -1,3 +1,50 @@
+Friday Apr. 10, 2015 guy@alum.mit.edu
+  Summary for 1.7.3 libpcap release
+	Work around a Linux bonding driver bug.
+
+Thursday Feb. 12, 2015 guy@alum.mit.edu/mcr@sandelman.ca
+  Summary for 1.7.2 libpcap release
+	Support for filtering Geneve encapsulated packets.
+	Generalize encapsulation handling, fixing some bugs.
+	Don't add null addresses to address lists.
+	Add pcap_dump_open_append() to open for appending.
+	Fix the swapping of isochronous descriptors in Linux USB.
+	Attempt to handle TPACKET_V1 with 32-bit userland and 64-bit kernel.
+
+Wednesday Nov. 12, 2014 guy@alum.mit.edu/mcr@sandelman.ca
+  Summary for 1.7.0 libpcap release
+	Fix handling of zones for BPF on Solaris
+	new DLT for ZWAVE
+	clarifications for read timeouts.
+	Use BPF extensions in compiled filters, fixing VLAN filters
+	some fixes to compilation without stdint.h
+	EBUSY can now be returned by SNFv3 code.
+	Fix the range checks in BPF loads
+	Various DAG fixes.
+	Various Linux fixes.
+
+Monday Aug. 12, 2014 guy@alum.mit.edu
+  Summary for 1.6.2 libpcap release
+	Don't crash on filters testing a non-existent link-layer type
+	    field.
+	Fix sending in non-blocking mode on Linux with memory-mapped
+	    capture.
+	Fix timestamps when reading pcap-ng files on big-endian
+	    machines.
+
+Saturday  Jul. 19, 2014 mcr@sandelman.ca
+  Summary for 1.6.1 libpcap release
+	some fixes for the any device
+	changes for how --enable-XXX (--enable-sniffing, --enable-can) works
+
+Wednesday Jul. 2, 2014 mcr@sandelman.ca
+  Summary for 1.6.0 libpcap release
+        Don't support D-Bus sniffing on OS X
+        fixes for byte order issues with NFLOG captures
+        Handle using cooked mode for DLT_NETLINK in activate_new().
+        on platforms where you can not capture on down interfaces, do not list them
+        but: do list interfaces which are down, if you can capture on them!
+
 Wednesday December 18, 2013 guy@alum.mit.edu
 Summary for 1.5.3 libpcap release
 	Don't let packets that don't match the current filter get to the
@@ -244,7 +291,7 @@ Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap rele
 	DLT: Add JUNIPER_ST
 	802.15.4 support
 	Variable length 802.11 header support
-	X2E data type support 
+	X2E data type support
 	SITA ACN Interface support - see README.sita
 	Support for memory-mapped capture on Linux
 	Support for zerocopy BPF on platforms that support it
@@ -256,7 +303,7 @@ Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap rele
 	 can print better diagnostic information
 	Return PCAP_ERROR_PERM_DENIED if we don't have permission to open a device, so
 	 applications can tell the user they need to go play with permissions
-	On Linux, ignore ENETDOWN so we can continue to capture packets if the 
+	On Linux, ignore ENETDOWN so we can continue to capture packets if the
 	 interface goes down and comes back up again.
 	On Linux, support new tpacket frame headers (2.6.27+)
 	On Mac OS X, add scripts for changing permissions on /dev/bpf* and launchd plist
@@ -269,14 +316,14 @@ Mon.    September 10, 2007.  ken@xelerance.com.  Summary for 0.9.8 libpcap relea
         Change build process to put public libpcap headers into pcap subir
         DLT: Add value for IPMI IPMB packets
         DLT: Add value for u10 Networks boards
-        Require <net/pfvar.h> for pf definitions - allows reading of pflog formatted 
+        Require <net/pfvar.h> for pf definitions - allows reading of pflog formatted
          libpcap files on an OS other than where the file was generated
 
 Wed.	April 25, 2007.  ken@xelerance.com.  Summary for 0.9.6 libpcap release
 
 	Put the public libpcap headers into a pcap subdirectory in both the
 	 source directory and the target include directory, and have include
-	 files at the top-level directory to include those headers, for 
+	 files at the top-level directory to include those headers, for
 	 backwards compatibility.
 	Add Bluetooth support
 	Add USB capturing support on Linux
@@ -284,30 +331,30 @@ Wed.	April 25, 2007.  ken@xelerance.com.  Summary for 0.9.6 libpcap release
 	Add support for new FreeBSD BIOCSDIRECTION ioctl
 	Add additional filter operations for 802.11 frame types
 	Add support for filtering on MTP2 frame types
-	Propagate some changes from the main branch, so the x.9 branch has 
+	Propagate some changes from the main branch, so the x.9 branch has
 	 all the DLT_ and LINKTYPE_ values that the main branch does
-	Reserved a DLT_ and SAVEFILE_ value for PPI (Per Packet Info) 
+	Reserved a DLT_ and SAVEFILE_ value for PPI (Per Packet Info)
 	 encapsulated packets
-	Add LINKTYPE_ for IEEE 802.15.4, with address fields padded as done 
+	Add LINKTYPE_ for IEEE 802.15.4, with address fields padded as done
 	 by Linux drivers
 	Add LINKTYPE_ value corresponding to DLT_IEEE802_16_MAC_CPS.
 	Add DLT for IEEE 802.16 (WiMAX) MAC Common Part Sublayer
 	Add DLT for Bluetooth HCI UART transport layer
 	When building a shared library, build with "-fPIC" on Linux to support x86_64
-	Link with "$(CC) -shared" rather than "ld -shared" when building a 
+	Link with "$(CC) -shared" rather than "ld -shared" when building a
 	 ".so" shared library
 	Add support for autoconf 2.60
 	Fixes to discard unread packets when changing filters
-	Changes to handle name changes in the DAG library resulting from 
+	Changes to handle name changes in the DAG library resulting from
 	 switching to libtool.
 	Add support for new DAG ERF types.
-        Add an explicit "-ldag" when building the shared library, so the DAG 
+        Add an explicit "-ldag" when building the shared library, so the DAG
 	 library dependency is explicit.
 	Mac OSX fixes for dealing with "wlt" devices
 	Fixes in add_or_find_if() & pcap_findalldevs() to optimize generating
 	 device lists
 	Fixed a bug in pcap_open_live(). The return value of PacketSetHwFilter
-	 was not checked. 
+	 was not checked.
 
 Tue.	September 19, 2006. ken@xelerance.com. Summary for 0.9.5 libpcap release
 
@@ -319,19 +366,19 @@ Tue.	September 19, 2006. ken@xelerance.com. Summary for 0.9.5 libpcap release
 	OP_PACKET now matches the beginning of the packet, instead of
 	 beginning+link-layer
 	Add DLT/LINKTYPE for carrying FRF.16 Multi-link Frame Relay
-	Fix allocation of buffer for list of link-layer types  
+	Fix allocation of buffer for list of link-layer types
 	Added a new DLT and LINKTYPE value for ARINC 653 Interpartition Communcation Messages
 	Fixed a typo in a DLT value: it should start with DLT_ and not LINKTYPE_
 	Redefined DLT_CAN20B and LINKTYPE_CAN20B as #190 (as this is the right value for CAN).
 	Added definition for DLT_A429 and LINKTYPE_A429 as #184.
 	Added a new DLT and LINKTYPE value for CAN v2.0B frames.
 	Add support for DLT_JUNIPER_VP.
-	Don't double-count received packets on Linux systems that 
-	 support the PACKET_STATISTICS getsockopt() argument on 
+	Don't double-count received packets on Linux systems that
+	 support the PACKET_STATISTICS getsockopt() argument on
 	 PF_PACKET sockets.
-	Add support for DLT_IEEE802_11 and DLT_IEEE802_11_RADIO link 
+	Add support for DLT_IEEE802_11 and DLT_IEEE802_11_RADIO link
 	 layers in Windows
-	Add support to build libpcap.lib and wpcap.dll under Cygnus and 
+	Add support to build libpcap.lib and wpcap.dll under Cygnus and
 	 MingW32.
 
 Mon. 	September 5, 2005.  ken@xelerance.com. Summary for 0.9.4 libpcap release
