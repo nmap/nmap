@@ -800,13 +800,13 @@ static int vectorize_hlim(const PacketElement *pe, int target_distance, enum dis
   } else
     er_lim = 20;
 
-  if (32 - er_lim <= hlim && hlim <= 32)
+  if (32 - er_lim <= hlim && hlim <= 32+ 5 )
     hlim = 32;
-  else if (64 - er_lim <= hlim && hlim <= 64)
+  else if (64 - er_lim <= hlim && hlim <= 64+ 5 )
     hlim = 64;
-  else if (128 - er_lim <= hlim && hlim <= 128)
+  else if (128 - er_lim <= hlim && hlim <= 128+ 5 )
     hlim = 128;
-  else if (255 - er_lim <= hlim && hlim <= 255)
+  else if (255 - er_lim <= hlim && hlim <= 255+ 5 )
     hlim = 255;
   else
     hlim = -1;
