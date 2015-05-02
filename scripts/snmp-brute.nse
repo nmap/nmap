@@ -283,7 +283,7 @@ action = function(host, port)
     end
 
     -- return output
-    return tostring(c)
+    return c:getTable()
   else
     stdnse.debug1("An error occurred: "..result.msg)
   end
