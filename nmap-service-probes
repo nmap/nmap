@@ -472,7 +472,10 @@ match enistic-manager m|^WZ=AAAAAAAAAAByAAE=73\r0E0000000000cgAD83\r$| p/Enistic
 
 match envisalink m|^5053CD\r\n| p/EyezOn EnvisaLink/ d/security-misc/
 
-match epp m|^\x00\x00\x03\x72<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\" \?>\n<epp xmlns=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0\" xmlns:xsi=\"http://www\.w3\.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0 epp-1\.0\.xsd\">\n\n  <greeting>\n    <svID>([^<]+)</svID>\n    <svDate>.*</svDate>\n    <svcMenu>\n      <version>([\w._-]+)</version>\n| p/Extensible Provisioning Protocol/ v/$2/ i/server name: $1/
+match epp m|^\x00\x00..<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\" \?>\n<epp xmlns=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0\" xmlns:xsi=\"http://www\.w3\.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0 epp-1\.0\.xsd\">\n\n  <greeting>\n    <svID>([^<]+)</svID>\n    <svDate>.*</svDate>\n    <svcMenu>\n      <version>([\w._-]+)</version>\n|s p/Extensible Provisioning Protocol/ v/$2/ h/$1/
+softmatch epp m|^\0...<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\"\?><epp xmlns=\"urn:ietf:params:xml:ns:epp-1\.0\".*<svID>([^<]+)</svID>|s p/Extensible Provisioning Protocol/ h/$1/
+# RFC 5730
+softmatch epp m|^\0...<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\"\?><epp xmlns=\"urn:ietf:params:xml:ns:epp-1\.0\"|s
 
 match eve-online m|^7\0\0\0~\0\0\0\0\x14\x06\x04\xe8\x99\x02\0\x05\xeb\0\x04\xdf\x92\0\0\n\xd7\xa3p=\n\xd7\x18@\x04\x95\xf1\x01\0\x13\x13EVE-EVE-RELEASE@ccp$| p/EVE Online game server/
 match eve-online m|^:\0\0\0~\0\0\0\0\x14\x07\x04\xe8\x99\x02\0\x05\x3b\x01\x05\x03k\n333333\x1d@\x04\re\x05\0\x13\x17EVE-EVE-TRANQUILITY@ccp\x01$| p/EVE Online game server/ i/Tranquility server/
@@ -1079,7 +1082,8 @@ match ftp m|^220-Welcome to the Ascotel FTP server\r\n220 \r\n| p/Aastra A150 Vo
 match ftp m|^220 \(none\) FTP server \(Version ([\w._-]+/OpenBSD/Linux-ftpd-[\w._-]+)\) ready\.\r\n| p/Topfield TF7100HDPVRt DVR ftpd/ v/$1/ d/media device/
 match ftp m|^220 EthernetBoard OkiLAN ([\w._-]+) Ver ([\w._-]+) FTP server\.\r\n| p/OkiDATA OkiLAN $1 print server ftpd/ v/$2/ d/print server/
 match ftp m|^220 Comtrend FTP firmware update utility\r\n| p/Comtrend FTP firmware update utility/
-match ftp m|^220 Wing FTP Server ([\w._-]+) ready\.\.\.\r\n| p/Wing FTP Server/ v/$1/
+match ftp m|^220 Wing FTP Server ([\w._-]+) ready\.\.\.\r\n| p/Wing FTP Server/ v/$1/ cpe:/a:wingftp:wing_ftp_server:$1/
+match ftp m|^220 Wing FTP Server ready\.\.\. \(UNREGISTERED WING FTP SERVER\)\r\n| p/Wing FTP Server/ i/unregistered/ cpe:/a:wingftp:wing_ftp_server/
 match ftp m|^220-\xa1\xee Sonic FTP Server \(Version ([\w._-]+)\)\.\r\n220-\xa1\xee | p/Sonic FTP Server/ v/$1/
 match ftp m|^220 Aos FTP Server ready\.\r\n| p/A2 ftpd/ o/A2/ cpe:/o:eth:a2/
 match ftp m|^220 Serveur FTP ::ffff:[\d.]+ pr\xc3\xaat\r\n| p/ProFTPD/ i/French/ cpe:/a:proftpd:proftpd::::fr/
@@ -1141,6 +1145,14 @@ match ftp m|^220 IPCamera FtpServer\(www\.maygion\.com\),do NOT change firmware 
 match ftp m|^220 AXIS ([\w._-]+) Video Encoder ([\w._-]+) \(\d\d\d\d\) ready\.\r\n| p/AXIS $1 video encoder ftpd/ v/$2/ d/media device/
 match ftp m|^220 Star (IFBD-HE[\d/]+) FTP Server\.\r\n| p/Star $1 ftpd/ d/print server/
 match ftp m|^220 Welcome to the HomeWorks Processor\r\n| p/Lutron HomeWorks ftpd/
+# http://sourceforge.net/projects/open-ftpd/
+match ftp m|^220- \*{29}\r\n {5}\*\* {8}Welcome on {7}\*\*\r\n {5}\* {5}Gabriel's FTP Server  \*\r\n {5}\*\* {6}([\w./_-]+) Release    \*\*\r\n220  \*{29}\r\n| p/Open-FTPD/ v/$1/ cpe:/a:gabmuf:open-ftpd:$1/
+match ftp m|^220-Debian GNU/Linux (\d+)\r\n220 ProFTPD ([\w._-]+) Server | p/ProFTPD/ v/$2/ i/Debian $1/ o/Linux/ cpe:/a:proftpd:proftpd:$2/a cpe:/o:debian:debian_linux:$1/ cpe:/o:linux:linux_kernel/a
+match ftp m|^220 Praim Srl, ([\w._-]+) Ftp Server \(Version ([\w._-]+) \[[\w :]+\]\)\.\r\n| p/Praim thin terminal ftpd/ v/$2/ i/model: $1/ d/terminal/ cpe:/h:praim:$1/
+match ftp m|^220 Harris BCD FTP Ready\r\n$| p/Harris FlexStar radio broadcast exciter ftpd/ d/specialized/
+# http://www.foxgate.ua/downloads/FoxGate%20S6224-S2%20user%20manual.pdf
+match ftp m|^220 welcome your using  ftp server\.\.\.\r\n| p/FoxGate switch ftpd/ d/switch/
+match ftp m|^220 DSC ftpd 1\.0 FTP Server ready\.\r\n| p/Ricoh DC SR-10 ftpd/ o/Windows/ cpe:/a:ricoh:dc_software/ cpe:/o:microsoft:windows/a
 
 #(insert ftp)
 
@@ -2474,7 +2486,7 @@ match qsp-proxy m|^\x01\x01\0\x08\x1c\xee\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 
 # Windows QOTD service only has 12 quotes.  Found on Windows XP in
 # %systemroot%\system32\drivers\etc\quotes
-match qotd m=^"(?:My spelling is Wobbly\.|Man can climb to the highest summits,|In Heaven an angel is nobody in particular\.|Assassination is the extreme form of censorship\.|When a stupid man is doing|We have no more right to consume happiness without|We want a few mad people now.|The secret of being miserable is to have leisure to|Here's the rule for bargains:|Oh the nerves, the nerves; the mysteries of this machine called man|A wonderful fact to reflect upon,|It was as true as taxes is\.)= p/Windows qotd/ i/English/ o/Windows/ cpe:/a:microsoft:qotd::::en/ cpe:/o:microsoft:windows/a
+match qotd m=^"?(?:My spelling is Wobbly\.|Man can climb to the highest summits,|In Heaven an angel is nobody in particular\.|Assassination is the extreme form of censorship\.|When a stupid man is doing|We have no more right to consume happiness without|We want a few mad people now.|The secret of being miserable is to have leisure to|Here's the rule for bargains:|Oh the nerves, the nerves; the mysteries of this machine called man|A wonderful fact to reflect upon,|It was as true as taxes is\.)= p/Windows qotd/ i/English/ o/Windows/ cpe:/a:microsoft:qotd::::en/ cpe:/o:microsoft:windows/a
 match qotd m=^"(?:Mi ortograf\xeda tiembla\. Es bueno revisarla,|un hombre puede escalar a las m\xe1s altas cumbre|Algo maravilloso a poner de manifiesto:|Cuando un necio hace algo de lo que se aveg\xfcenza,|En el cielo, un \xe1ngel no es nadie en concreto|Traigamos unos cuantos locos ahora\.|Era tan verdad como los impuestos\. Y no|Hay libros cortos que, para entenderlos como se merecen,|La prosperidad hace amistades, y la adversidad las|El uso principal de un PC es confirmar la ley de|Quedarse en lo conocido por miedo a lo desconocido,|Cuando las leyes son injustas, no obligan en el fuero|Magia equivale a cualquier avance en la ciencia\.|Vale mejor consumir vanidades de la vida,)= p/Windows qotd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:qotd::::es/ cpe:/o:microsoft:windows/a
 # Some Italian qotds start with a space instead of a "
 match qotd m=^.(?:Voce dal sen fuggita|Semel in anno licet insanire|Cosa bella e mortal passa e non dura|Quando uno stupido compie qualcosa di cui si vergogna,|Se tu pagare come dici tu,|Fatti non foste a viver come bruti,|Sperare senza far niente e` come)= p/Windows qotd/ i/Italian/ o/Windows/ cpe:/a:microsoft:qotd::::it/ cpe:/o:microsoft:windows/a
@@ -4727,6 +4739,7 @@ match finger m|^Debian GNU/Linux      Copyright \(C\) 1993-1999 Software in the 
 match finger m|^\r\nPrinter Type: Lexmark Optra LaserPrinter\r\n| p/Lexmark Optra LaserPrinter fingerd/ d/printer/
 match finger m|^MSS485 Version V([\w._/-]+)\(([\w._-]+)\) - Time Since Boot:| p/Lantronix MSS485 serial to ethernet bridge fingerd/ v/$1 $2/ d/bridge/
 match finger m|^Login     Name                Tty      Idle  Login Time   Office     Office Phone\n| p/xfingerd/
+match finger m|^Please supply a username\r\n$| p/BSD fingerd/ cpe:/a:bsd:fingerd/
 
 match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n422 Too busy to play with you\.\r\n| p/stupid-ftpd/
 match ftp m|^220 Service ready\.\r\n501 Syntax Error\.\r\n| p/Hay Systems HSL 2.75G Femtocell ftpd/ d/WAP/ cpe:/o:hay_systems:hsl_2.75g_femtocell/
@@ -4972,6 +4985,8 @@ match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\
 match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain;charset=utf-8\r\n\r\nnot allowed\n$| p/Mongodb simple REST interface/ v/1.9.0 or later/ cpe:/a:mongodb:mongodb/
 match http m|^HTTP/1\.1 \d\d\d .*Server: thin ([\w._-]+) codename ([\w\s]+)\r\n|s p/Thin/ v/$1/ i/codename $2/
 match http m|^ 400 Invalid request\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Length: 15\r\n\r\nInvalid request| p/Acutenix WVS Scheduler/
+match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nContent-length: 0\r\n\r\n$| p/Ajenti http control panel/ cpe:/a:ajenti:ajenti/
+match http m|^HTTP/1\.0 200 OK\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\ncharset: UTF8\r\nContent-Type: text/html\r\n\r\n{\"STATUS\": \"REDIRECT\", \"RESPONSE\": \"mlicense\.html\"}| p/MONyog MySQL Monitor and Advisor/ cpe:/a:webyog:monyog/
 
 match http-proxy m%^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html; charset=(?:utf-8|us-ascii)\r\n\r\n<html><body>Invalid request<P><HR><i>This message was created by WinRoute Proxy</i></body></html>% p/WinRoute http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*<html><body>\t\t<i><h2>Invalid request:</h2></i><p><pre>Bad request format\.\n</pre><b>\t\t</b><p>Please, check URL\.<p>\t\t<hr>\t\tGenerated by Oops\.\t\t</body>\t\t</html>$|s p/Oops! http proxy/ d/proxy server/
@@ -5367,6 +5382,7 @@ match upnp m|^ 501 Not Implemented\r\n.*Server: neufbox/neufbox UPnP/([\w._-]+) 
 match upnp m|^ 501 Not Implemented\r\n.*Server: ASUSTeK UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n\r\n|s p/MiniUPnP/ v/$2/ i/Asus; UPnP $1/ d/broadband router/ cpe:/a:miniupnp_project:miniupnpd:$2/a
 match upnp m|^ 501 Not Implemented\r\n.*Server: Debian/(\w+) UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/Debian $1; UPnP $2/ cpe:/a:miniupnp_project:miniupnpd:$3/a cpe:/o:debian:debian_linux:$1/
 match upnp m|^ 501 Not Implemented\r\n.*Server: UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/UPnP $1/ cpe:/a:miniupnp_project:miniupnpd:$2/a
+match upnp m|^ 501 Not Implemented\r\n.*Server: Tenda UPnP/([\w._-]+) miniupnpd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/Tenda broadband router; UPnP $1/ d/broadband router/ cpe:/a:miniupnp_project:miniupnpd:$2/a
 
 # MiniDLNA
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n| p/MiniDLNA/ cpe:/a:minidlna:minidlna/a
@@ -5594,6 +5610,7 @@ match finger m|^\r\nIntegrated port\r\nPrinter Type: IBM Infoprint (.*)\r\n| p/I
 match finger m|^Login name: HTTP/1\.0       In real life: \?\?\?\r\n| p/OpenVMS fingerd/ o/OpenVMS/ cpe:/o:hp:openvms/a
 match finger m|^No information available\r\n$| p/Post.Office fingerd/
 match finger m|^finger: sorry, no such user\.\n$| p/xfingerd/
+match finger m|^finger: HTTP/1\.0: no such user\.\r\n| p/BSD fingerd/ cpe:/a:bsd:fingerd/
 
 match git m|^0077ERR \n  Your Git client has made an invalid request:\n  GET / HTTP/1\.0\r\n\r\n\n  Visit http://support\.github\.com for help$| p/Git/ i/GitHub/
 
@@ -5695,11 +5712,7 @@ match http m%^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-T
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<title>HP LaserJet (\w+)&nbsp;&nbsp;&nbsp;|s p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/HP LaserJet $2 printer http config/ d/printer/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a cpe:/h:hp:laserjet_$2/a
 match http m|^HTTP/1\.0 \d\d\d .*Server: \$ProjectRevision: ([\w._-]+) \$\r\n.*<title>HP LaserJet (\w+)&nbsp;&nbsp;&nbsp|s p/HP LaserJet $2 printer http config/ v/$1/ d/printer/ cpe:/h:hp:laserjet_$2/a
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<title>HP Photosmart ([\w._+-]+) series</title>|s p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/HP Photosmart $2 series printer http config/ d/printer/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a
-match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nServer: HP HTTP Server; HP Photosmart ([\w._+-]+) series - \w+; Serial Number: (\w+);| p/HP Photosmart $1 series printer http config/ i/Serial $2/ d/printer/ cpe:/h:hp:photosmart_$1/
-match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: HP HTTP Server; HP Officejet ([\w._ +-]+) - [\w._-]+; Serial Number: (\w+);| p/HP Officejet $1 printer http config/ i/Serial $2/ d/printer/ cpe:/h:hp:officejet_$1/
-match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nServer: HP HTTP Server; HP Officejet ([\w._ +-]+) - [\w._-]+; Serial Number: (\w+);| p/HP Officejet $1 printer http config/ i/Serial $2/ d/printer/ cpe:/h:hp:officejet_$1/
-match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: HP HTTP Server; HP Deskjet ([\w._ +-]+) \w+ series - \w+; Serial Number: (\w+);| p/HP Deskjet $1 series printer http config/ i/Serial $2/ d/printer/ cpe:/h:hp:deskjet_$1/
-match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: HP HTTP Server; HP Photosmart ([\w._ +-]+) series - \w+; Serial Number: (\w+);| p/HP Photosmart $1 series printer http config/ i/Serial $2/ d/printer/ cpe:/h:hp:photosmart_$1/
+match http m|^HTTP/1\.1 [45]\d\d .*\r\nServer: HP HTTP Server; HP (\w+) ([\w._ +-]+) series - \w+; Serial Number: (\w+);|s p/HP $1 $2 series printer http config/ i/Serial $3/ d/printer/ cpe:/h:hp:$1_$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \$ProjectRevision: ([\w._-]+) \$\r\n.*<title>HP LaserJet (\w+)</title>|s p/HP LaserJet $2 printer http config/ v/$1/ d/printer/ cpe:/h:hp:laserjet_$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \$ProjectRevision: ([\w._-]+) \$\r\n.*<title>HP Color LaserJet (\w+)</title>|s p/HP Color LaserJet $2 http config/ v/$1/ d/printer/ cpe:/h:hp:laserjet_$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \$ProjectRevision: ([\w._-]+) \$\r\n.*<title>HP LaserJet (\w+)(?: MFP)&nbsp;&nbsp;&nbsp;[\d.]+</title>|s p/HP LaserJet $2 printer http config/ v/$1/ d/printer/ cpe:/h:hp:laserjet_$2/
@@ -8304,7 +8317,7 @@ match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .*\r\nServer: Mbedthis-Ap
 match http m|^HTTP/2\.0 302 Found\r\nServer: SmarterTools/([\w._-]+)\r\n.*X-AspNet-Version: ([\w._-]+)\r\n.*Location: /Login\.aspx\r\n|s p/SmarterTools httpd/ v/$1/ i/ASP.NET $2/ o/Windows/ cpe:/a:microsoft:asp.net:$2/ cpe:/a:smartertools:smartertools_web:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 200 OK\r\n.*Set-Cookie: _sonar_session=[\w+%-]+|s p/Sonar code quality management httpd/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/html\r\nConnection: close\r\nServer: OpenEJB/\?\?\? \(unknown os\)\r\n\r\n$| p/OpenEJB httpd/
-match http m|^HTTP/1\.0 302 Found\r\n.*Location: /index\.ds\r\n.*Server: DrWebAV-DeskServer/(REL-500-[\w._-]+) Linux/i686 Lua/([\w._-]+) OpenSSL/([\w._-]+)\r\n\r\n$|s p/Dr. Web AV-Desk httpd/ v/$1/ i/i686; Lua $2; OpenSSL $3/ o/Linux/ cpe:/a:openssl:openssl:$3/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.0 302 Found\r\n.*Location: /index\.ds\r\n.*Server: DrWebAV-DeskServer/(REL-500-[\w._-]+) Linux/i686 Lua/([\w._-]+) OpenSSL/([\w._-]+)\r\n\r\n$|s p/Dr. Web AV-Desk httpd/ v/$1/ i/i686; Lua $2; OpenSSL $3/ o/Linux/ cpe:/a:openssl:openssl:$3/ cpe:/a:puc-rio:lua:$2/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*Server: vdradmind/([\w._-]+)\r\n|s p/VDR-Admin httpd/ v/$1/
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: unknown\r\nLocation: https?://([\w._-]+)/workplace/access/home\r\n| p/SonicWALL SSL-VPN http proxy auth/ h/$1/
 match http m|^HTTP/1\.0 200 OK\r\nServer: webserver/([\w._-]+)\r\n.*<TITLE>OSCAM ([\w._-]+ build #\d+)</TITLE>|s p/webserver/ v/$1/ i/OSCAM $2 card sharing system/
@@ -8446,7 +8459,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Secu
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nExpires: .*\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD><TITLE>Welcome to (963)</TITLE>| p/Trend $1 building control system httpd/ d/security-misc/ cpe:/h:trend:$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWww-Authenticate: Basic REALM=\"elmeg\"\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nUnauthorized request\r\n$| p/Elmeg IP 290 VoIP phone http config/ d/VoIP phone/ cpe:/h:elmeg:ip_290/
 match http m|^HTTP/1\.1 401 Authorization Required\nDate: .* ([-+]\d+)\nServer: WebPidginZ \n([\w._-]+)\nWWW-Authenticate: Digest realm=\"WebPidginZLoginDigest\", nonce=\"[0-9a-f]+\", opaque=\"0000000000000000\", stale=false, algorithm=MD5, qop=\"auth\"\nConnection: close\nContent-type: text/html\n\n\n\n$| p/WebPidgin-Z instant messaging interface/ v/$2/ i/time zone: $1/
-match http m|^HTTP/1\.0 \d\d\d [\w ]+\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\"name\" : \"([^"]+)\",\n  \"version\" : {\n    \"number\" : \"([^"]+)\",.*\"lucene_version\" : \"([^"]+)\"\n  },\n  \"tagline\" : \"You Know, for Search\"\n}|s p/Elasticsearch REST API/ v/$2/ i/name: $1; Lucene version: $3/
+match http m|^HTTP/1\.0 \d\d\d [\w ]+\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\"name\" : \"([^"]+)\",\r?\n  \"version\" : {\r?\n    \"number\" : \"([^"]+)\",.*\"lucene_version\" : \"([^"]+)\"\r?\n  },\r?\n  \"tagline\" : \"You Know, for Search\"\r?\n}|s p/Elasticsearch REST API/ v/$2/ i/name: $1; Lucene version: $3/
 match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{\n  \"ok\" : true,\n  \"name\" : \"[\w._ -]+\",\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"date\" : \"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)\",\n    \"snapshot_build\" : \w+\n  },\n|s p/ElasticSearch/ v/$1 $2/
 match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\n  \"name\" : \"([^"]+)\",.*\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"snapshot_build\" : false\n  },|s p/ElasticSearch/ v/$2/ i/name: $1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3\.org/TR/html4/loose\.dtd\">\n<!--\nCopyright 2004-2011 H2 Group\.\n| p/H2 database http console/
@@ -8529,7 +8542,8 @@ match http m|^HTTP/1\.[01] 200 OK\r\nContent-Type: text/html\r\nX-Ajenti-Auth: s
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: DebTorrent/([\w._-]+)\r\n|s p/DebTorrent httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: application/xml; charset=UTF-8\r\nContent-Length: 154\r\nDate: .* GMT\r\nConnection: close\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<ListAllMyBucketsResult xmlns=\"http://doc\.s3\.amazonaws\.com/2006-03-01\"><Buckets></Buckets></ListAllMyBucketsResult>$| p/Amazon S3 httpd/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nx-amz-error-code: WebsiteRedirect\r\nx-amz-error-message: Request does not contain a bucket name\.\r\n| p/Amazon S3 httpd/
-match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\n\r\n$| p/ADB P.DG A4001N WAP, Cisco Telepresence MCU 4505, or Digifort Enterprise 6.5 httpd/
+match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\n\r\n$| p/ADB P.DG A4001N WAP, Cisco Telepresence MCU 4505, Digifort Enterprise 6.5, or Telekom Speedport W723V httpd/
+# Also  with USB-Printer
 # Digifort port 80.
 match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\n.*WWW-Authenticate: Basic realm=\"Servidor HTTP Digifort\"\r\n|s p/Digifort Enterprise 6.5 httpd/ o/Windows/ cpe:/a:digifort:digifort:6.5.0_final/ cpe:/o:microsoft:windows/a
 # Cisco IP Phone 7941 also?
@@ -8656,6 +8670,7 @@ match http m|^HTTP/1\.0 200 OK \r\nContent-Type: text/html\r\nDate: .* GMT\r\n\r
 match http m|^HTTP/1\.1 200 OK\r\nServer: X10 Control ([\w._-]+)\r\n| p/X10 ActivePhone remote control httpd/ v/$1/ d/phone/
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><head><title>Page Not Found</title></head><body>Not here :\(</body></html>$| p/Prosody XMPP BOSH/ cpe:/a:prosody:prosody/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>Endpoint Security Required</title>\n.*div\.header { background: url\(/XX/YY/ZZ/CI/MGPGHGPGPFGHCDPFGGOGFGEH\) 0 0 repeat-x; height: 82px; }\n|s p/FortiGate Endpoint Control httpd/
+match http-proxy m|^HTTP/1\.1 200 OK\r\n.*<title>Web Filter Block Override</title>\n.*div\.header { background: url\(https://:8010/XX/YY/ZZ/CI/MGPGHGPGPFGHCDPFGGOGFGEH\) 0 0 repeat-x; height: 82px; }\n|s p/FortiGate Web Filtering Service/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n.*Server: TornadoServer/([\w._-]+)\r\n.*<link rel=\"stylesheet\" href=\"/api/[\da-f]{32}/file\.cache/minified_front\.css\?\d+\"|s p/Tornado httpd/ v/$1/ i/CouchPotato downloader/ cpe:/a:tornadoweb:tornado:$1/a
 match http m|^HTTP/1\.1 401 UNAUTHORIZED\r\nWWW-Authenticate: Basic realm=\"CouchPotato Login\"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 54\r\nServer: TornadoServer/([\w._-]+)\r\n\r\nThis is not the page you are looking for\. \*waves hand\*$| p/Tornado httpd/ v/$1/ i/CouchPotato downloader/ cpe:/a:tornadoweb:tornado:$1/a
 match http m|^HTTP/1\.1 404 Not Found\r\n.*Access-Control-Allow-Origin: \*\r\n.*Server: xmpp-share-server/([\w._-]+)\r\n|s p/xmpp-share-server httpd/ v/$1/
@@ -8827,7 +8842,7 @@ match http m|^HTTP/1\.0 401 Authorization Required\r\nServer: alphapd\r\nDate: .
 #example $2 = "MediaCloset\0"
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n<html><head><title>APC Back-UPS ([^(]+)\(([^)]+)\)</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>| p/APC Back-UPS $1 http admin/ i/$P(2)/
 match http m|^HTTP/1\.1 401 UNAUTHORIZED\r\nWWW-Authenticate: Basic realm=\"Login Required\"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 90\r\nDate: .*\r\nServer: ([\w._-]+)\r\n\r\nCould not verify your access level for that URL\.\nYou have to login with proper credentials| p/Maraschino XBMC http interface/ h/$1/
-match http m|^HTTP/1\.0 200 OK\r\nSet-Cookie: session=[0-9a-f]{40}; Path=/; HttpOnly\r\nX-Auth-Status: none\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n.* href=\"/ajenti:static/|s p/Ajenti http control panel/
+match http m|^HTTP/1\.0 200 OK\r\nSet-Cookie: session=[0-9a-f]{40}; Path=/; HttpOnly\r\nX-Auth-Status: none\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n.* href=\"/ajenti:static/|s p/Ajenti http control panel/ cpe:/a:ajenti:ajenti/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: Hydra/([\w._-]+)\r\nAccept-Ranges: bytes\r\nConnection: close\r\nContent-Length: \d+\r\nLast-Modified: .*\r\nETag: \"[^"]+\"\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Intelligent Switch</title>>\n| p/Hydra httpd/ v/$1/ i/ZyXEL GS1600 switch/ d/switch/ cpe:/h:zyxel:gs1600/a
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\nContent-Length: \d+\r\nLast-Modified: .*\r\nETag: \"[^"]+\"\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Intelligent Switch</title>>\n| p/ZyXEL GS1600 switch http admin/ d/switch/ cpe:/h:zyxel:gs1600/a
 match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: JSESSIONID=[0-9A-F]{32}; Path=/\r\nContent-Type: text/html;charset=utf-8\r\nContent-Length: \d+\r\nDate: .*\r\nConnection: close\r\nServer:  \r\n\r\n<!-- default page when just a URL is entered \(e\.g\. - http://ipaddress\) -->| p/Cisco Unified Communications Manager httpd/ cpe:/a:cisco:unified_communications_manager/
@@ -8955,6 +8970,19 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnectio
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: Brazil/([\d.]+)\r\nConnection: close\r\nContent-Length: 135\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>Error: 404</title>\n<body>\nGot the error: <b>Not Found</b><br>\nwhile trying to obtain <b>/</b><br>\n\n</body>\n</html>| p/Sun Labs Brazil httpd/ v/$1/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 403 Forbidden\r\nServer: Norman Security/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: 83\r\n\r\n<html><title>Security Error</title><body><br><h2>403 - Forbidden</h2></body></html>| p/Norman Security Suite http config/ v/$1/ cpe:/a:norman:security_suite:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"Tadiran MGCP Phone\"\r\nContent-Type: text/html\r\n\r\n<html>| p/Tadiran MGCP phone http config/ d/VoIP phone/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Cosminexus HTTP Server\r\n| p/Hitachi Cosminexus httpd/ cpe:/a:hitachi:cosminexus_application_server/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Intel\(R\) Small Business Technology ([\w._-]+)\r\n|s p/Intel Small Business Technology Platform/ v/$1/ d/remote management/ cpe:/a:intel:small_business_technology_platform:$1/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\n.*<meta name=\"DC\.Title\" content=\"WebSphere Application Server Version V([\w._-]+) Liberty Profile Welcome\" />|s p/IBM WebSphere Application Server/ v/$1/ i/Liberty Profile/ cpe:/a:ibm:websphere_application_server:$1:-:liberty_profile/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DrWebServer/REL-1000-([\w._-]+) ([^/]+)/(\w+) Lua/([\w._-]+) OpenSSL/([\w._-]+) zlib/([\w._-]+) UNICODE/[\d.]+\r\n|s p/Dr.Web Enterprise Security Suite httpd/ v/$1/ i/arch: $3; Lua $4; OpenSSL $5; zlib $6/ o/$SUBST(2,"_"," ")/ cpe:/a:drweb:enterprise_security_suite:$1/ cpe:/a:gnu:zlib:$6/ cpe:/a:openssl:openssl:$5/ cpe:/a:puc-rio:lua:$4/
+# aviosys 9060 webcam
+match http m|^HTTP/1\.0 401 NG \r\nWWW-Authenticate: Basic realm=Camera Name : (.*)\r\n\r\nUnauthorized$| p/Aviosys webcam httpd/ i/camera name: $1/ d/webcam/
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Length: 80\r\n\r\n<html><head><title>400 Bad request</title></head><body>Bad request</body></html>| p/Cockpit management console/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.1 404 Not Found\r\nServer: CPE-SERVER/([\w._-]+) Supports only GET\r\n\r\n| p/CPE Server TR-069 remote access/ v/$1/ d/broadband router/
+match http m|^HTTP/1\.1 200 OK\r\nServer: IPCamera HTTP/ONVIF/P2P/RTSP/VOD Multi-Server\r\n| p|DB Power IP Camera HTTP/ONVIF/P2P/RTSP/VOD multi-server| d/webcam/
+match http m|^HTTP/1\.1 200 OK\r\nServer: WebServer\(ipcamera\)\r\n| p|DB Power IP Camera HTTP/ONVIF/P2P/RTSP/VOD multi-server| d/webcam/
+# Amazon Fire TV
+match http m|^HTTP/1\.1 \d\d\d [\w ]+ \r\nContent-Type: text/plain\r\nDate: .*\r\nConnection: keep-alive\r\nContent-Length: \d+\r\n\r\nError \d\d\d, [\w ]+\.$| p/Amazon Whisperplay DIAL REST service/ d/media device/ cpe:/a:amazon:whisperplay/
+match http m|^HTTP/1\.1 403 HTTP_FORBIDDEN\r\nCache-Control: no-cache\r\nConnection: close\r\nDate: .* \d\d:\d\d:\d\d\r\n\r\n| p/Folding@Home FAHClient/ cpe:/a:stanford:fahclient/
 
 #(insert http)
 
@@ -9053,6 +9081,9 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: GateOne\r\n|s p/Gate One http termi
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Warp/([\w._-]+)\r\n|s p/Warp Haskell httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Vorlon SR ([\w._-]+)\r\n|s p/Hummingbird Vorlon Servlet Runner/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Indy/([\w._-]+)\r\n|s p/Indy httpd/ v/$1/ cpe:/a:indy:httpd:$1/a
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Rocket ([\w._-]+) Python/([\w._-]+)\r\n|s p/Rocket httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/ cpe:/a:timothy_farrell:rocket:$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Debian Apt-Cacher NG/([\w._-]+)\r\n|s p/Debian Apt-Cacher NG httpd/ v/$1/ cpe:/a:debian:apt-cacher:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Boa/([\w._-]+)\r\n|s p/Boa/ v/$1/ cpe:/a:boa:boa:$1/
 
 # Also matches Swift?
 match http m|^HTTP/1\.0 \d\d\d .*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/ cpe:/a:lighttpd:lighttpd/
@@ -9256,9 +9287,7 @@ match http-proxy m|^HTTP/1\.0 403 Access Denied\r\nConnection: close\r\n\r\n<htm
 match http-proxy m|^HTTP/1\.0 503\r\nServer: Charles\r\n| p/Charles http proxy/
 match http-proxy m|^HTTP/1\.0 400 Host Header Required\r\n.*Server: ATS/([\w._-]+)\r\n|s p/Apache Traffic Server/ v/$1/
 match http-proxy m|^HTTP/1\.0 200 OK\r\nACCEPT-RANGES: none\r\n\r\n<html><head><Title>SecTitan&#153; Reverse Proxy</title></head><body><center><h1>Error 107</h1>Invalid Request!<br><b>SecTitan&#153; Reverse Proxy ([\w._-]+)</b><br>Copyright &copy; \d+ Bestellen Software, LLC All rights reserved\.</center></body></html>| p/Bestellen SecTitan reverse http proxy/ v/$1/
-match http-proxy m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Varnish\r\n| p/Varnish/ cpe:/a:varnish-cache:varnish/
-match http-proxy m|^HTTP/1\.1 404 Unknown host\.\r\nServer: Varnish\r\n| p/Varnish/ cpe:/a:varnish-cache:varnish/
-match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\nServer: Varnish\r\n| p/Varnish/ cpe:/a:varnish-cache:varnish/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: Varnish\r\n| p/Varnish/ cpe:/a:varnish-cache:varnish/
 match http-proxy m|^HTTP/1\.0 503 Internal Error\r\nServer: awarrenhttp/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD>\n<TITLE>ERROR: The requested URL could not be retrieved</TITLE>\n</HEAD><BODY>\n<H1>ERROR</H1>\n<H2>The requested URL could not be retrieved</H2>| p/awarrenhttp http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.0 404 No service found\r\nDate: .*\r\nServer: ACE XML Gateway\r\nContent-Type: text/plain\r\nConnection: close\r\nContent-Length: 30\r\n\r\nNo service matched the request| p/Cisco Application Control Engine XML gateway/ d/load balancer/ cpe:/a:cisco:application_control_engine_software/
 match http-proxy m|^HTTP/1\.0 403 Request error by HTTP PROXY\r\nContent-Type: text/html\r\nProxy-Connection: close\r\nConnection: close\r\n\r\n<html><head><meta http-equiv=\"Content-Language\" content=\"en-us\"><title>Cisco ([\w._-]+)</title>| p/Cisco $1 http proxy/ d/firewall/
@@ -9272,7 +9301,6 @@ match http-proxy m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: 
 match http-proxy m|^HTTP/1\.1 200 I'm sorry, Dave\. I'm afraid I can't work without a host header\.\r.*\nServer: Haste\r\n|s p/Haste http proxy/ v/2.0/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: smartcds/([\w.]+)\r\n| p/SmartCDS http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.0 400 Bad request: request-line invalid\r\nContent-type: text/html; charset=\"utf-8\"\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\r\n<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www\.w3\.org/1999/xhtml\">\r\n  <head>\r\n    <title>Request denied by WatchGuard HTTP Proxy</title>| p/WatchGuard http proxy/
-match http-proxy m|^HTTP/1\.1 301 Unknown Error\r\nServer: Varnish\r.*\nX-Varnish: \d+\r\nAge: 0\r\nVia: 1\.1 varnish\r\n|s p/Varnish http accelerator/ cpe:/a:varnish-cache:varnish/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nX-Varnish: \d+\r.*\nVia: 1\.1 varnish\r\n|s p/Varnish http accelerator/ cpe:/a:varnish-cache:varnish/
 match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: Microdasys-SCIP\r\nContent-Type: text/html\r\nContent-Length: 240\r\nConnection: close\r\n\r\n<HTML>.*<ADDRESS><A HREF=\"http://www\.websense\.com/\">Websense Content Gateway Proxy v([\w._-]+)</A>| p/Websense Content Gateway http proxy/ v/$1/ i/Microdasys SCIP ssl proxy/ cpe:/a:websense:websense_content_content_gateway:$1/
 match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: Microdasys-SCIP\r\n| p/Microdasys SCIP ssl proxy/
@@ -9788,6 +9816,7 @@ match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: Roteador Wireless (WR\w+), UPnP
 match upnp m|^HTTP/1\.0 500 Internal Server Error\r\nContent-Type: text/xml\r\nContent-Language: en\r\nServer: WinRoute ([\w._-]+) UPnP/([\w._-]+) module\r\n| p/Kerio WinRoute UPnP module/ v/$1/ i/UPnP $2/ o/Windows/ cpe:/o:microsoft:windows/a
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: IPI/([\w._-]+) UPnP/([\w._-]+) DLNADOC/([\w._-]+)\r\n|s p/IPI Media Renderer upnpd/ v/$1/ i/UPnP $2; DLNADOC $3/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nDate: .*\r\nX-AV-Client-Info: av=5\.0; cn=\"Sony Ericsson\"; mn=\"([^"]+)\"; mv=\"2\.0\";\r\n\r\n| p/Sony Ericsson $1 UPnP AV client/ d/phone/
+match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: Wireless [\w+] Router ([\w._-]+), UPnP/1\.0\r\n| p/TP-LINK $1 upnpd/ d/WAP/ cpe:/h:tp-link:$1/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -10098,6 +10127,8 @@ match http m|^HTTP/1\.0 501 not implemented\r\nConnection: close\r\nContent-Leng
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
 match http-proxy m|^HTTP/1\.0 \d\d\d.*\r\nServer: B[iI][gG]-?IP\r\n|s p/F5 BIG-IP load balancer http proxy/ d/load balancer/
+match http-proxy m|^HTTP/1\.1 200 OK\r.*\nAllow: GET,HEAD,POST,OPTIONS\r.*\nServer: Oracle-Application-Server-(\w+) Oracle-Web-Cache \(|s p/Oracle Web Cache http proxy/ v/$1/ cpe:/a:oracle:application_server_web_cache:$1/
+
 
 match monsoon m|^\0\x14\0\x01\xff\xff\xff\xfd\0\0\0\0\0\0\0\0\0\0\0\0$| p/Monsoon HAVA media streaming/ d/media device/
 
@@ -11070,6 +11101,8 @@ match http m|^HTTP/1\.1 200 Ignoring bad request from client\r\nServer: Lotus Ex
 # Switched from HTTP 1.0 to 1.1 in 516a5825 (3.6.0)
 match http m|^HTTP/1\.0 400 Bad Request \r\nContent-Type: text/plain\r\nDate: .*\r\n\r\nBAD REQUEST: Missing URI\. Usage: GET /example/file\.html$| p/Bukkit JSONAPI httpd for Minecraft game server/ v/3.6.0 or older/
 match http m|^HTTP/1\.1 400 Bad Request \r\nContent-Type: text/plain\r\nDate: .*\r\n\r\nBAD REQUEST: Missing URI\. Usage: GET /example/file\.html$| p/Bukkit JSONAPI httpd for Minecraft game server/ v/3.6.0 or later/
+match http m|^INV 501 Not Implemented\r\nDate: .*\r\nServer: Intel\(R\) Small Business Technology ([\w._-]+)\r\nContent-Length: 0\r\n\r\n| p/Intel Small Business Technology Platform/ v/$1/ d/remote management/ cpe:/a:intel:small_business_technology_platform:$1/
+match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .* GMT\r\nConnection: close\r\nServer: blaze\r\n\r\n$| p/Cisco CSP Collector/ cpe:/a:cisco:common_services_platform_collector/
 
 # Seen a couple times for just Help probe... -Doug
 match http-proxy m|^HTTP/1\.0 200 OK\r\nCache-Control: no-store\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nX-Bypass-Cache: Application and Content Networking System Software ([\d.]+)\r\n| p/Cisco ACNS outbound proxying/ v/$1/ cpe:/a:cisco:application_and_content_networking_system_software:$1/
@@ -11403,8 +11436,8 @@ match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*\nCalifornia.*\tPalo Alto.*\x0cVMware,
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*\x0edropbox-client0|s p/Dropbox client SSLv3/ cpe:/a:dropbox:dropbox/
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*vCenterServer_([\w._-]+)|s p/VMware ESXi Server httpd/ v/$1/ cpe:/o:vmware:esxi:$1/
 
-# Alert (Level: Fatal, Description: Protocol Version)
-match ssl m|^\x15\x03[\x00-\x02]\0\x02\x02F|
+# Alert (Level: Fatal, Description: Protocol Version|Handshake Failure)
+match ssl m|^\x15\x03[\x00-\x03]\0\x02\x02[F\x28]|
 
 match xtel m|^\x15Annuaire \xe9lectronique| p/xteld/ i/French/
 
@@ -11627,88 +11660,88 @@ match ouman-trend m|^\0\0\0\x05\xffSMBr$| p/Ouman Trend environmental sensor/
 # The line numbers need to be updated in both the non-Windows and Windows sections
 
 # PostgreSQL - Non-Windows platforms
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ cpe:/a:postgresql:postgresql:7.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1293\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.2 - 7.4.30/ cpe:/a:postgresql:postgresql:7.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1408\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.0 - 8.0.1/ cpe:/a:postgresql:postgresql:8.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1431\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.2 - 8.0.4/ cpe:/a:postgresql:postgresql:8.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1439\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.7 - 8.0.8/ cpe:/a:postgresql:postgresql:8.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1443\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.9 - 8.0.13/ cpe:/a:postgresql:postgresql:8.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1445\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.6 or 8.0.14 - 8.0.26/ cpe:/a:postgresql:postgresql:8.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1449\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.0/ cpe:/a:postgresql:postgresql:8.1.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1450\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.1/ cpe:/a:postgresql:postgresql:8.1.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1448\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.3 - 8.1.4/ cpe:/a:postgresql:postgresql:8.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1452\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.5 - 8.1.9/ cpe:/a:postgresql:postgresql:8.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1454\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.2 or 8.1.10 - 8.1.23/ cpe:/a:postgresql:postgresql:8.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1432\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.0/ cpe:/a:postgresql:postgresql:8.2.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1437\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.1 - 8.2.4/ cpe:/a:postgresql:postgresql:8.2/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1440\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.5 - 8.2.19/ cpe:/a:postgresql:postgresql:8.2/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1441\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.5 or 8.2.20 - 8.2.23/ cpe:/a:postgresql:postgresql:8.0.5/ cpe:/a:postgresql:postgresql:8.2/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1497\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.0 - 8.3.7/ cpe:/a:postgresql:postgresql:8.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1507\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.8 - 8.3.13/ cpe:/a:postgresql:postgresql:8.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1508\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.14 - 8.3.18/ cpe:/a:postgresql:postgresql:8.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1514\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.19/ cpe:/a:postgresql:postgresql:8.3.19/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1515\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.20 - 8.3.23/ cpe:/a:postgresql:postgresql:8.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1570\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.0/ cpe:/a:postgresql:postgresql:8.4.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ cpe:/a:postgresql:postgresql:8.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1626\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.12/ cpe:/a:postgresql:postgresql:8.4.12/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1627\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.13 - 8.4.19/ cpe:/a:postgresql:postgresql:8.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1622\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.20 - 8.4.22/ cpe:/a:postgresql:postgresql:8.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1666\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.0 - 9.0.7/ cpe:/a:postgresql:postgresql:9.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ cpe:/a:postgresql:postgresql:9.0.8/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ cpe:/a:postgresql:postgresql:9.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ cpe:/a:postgresql:postgresql:9.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ cpe:/a:postgresql:postgresql:9.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ cpe:/a:postgresql:postgresql:9.1.4/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ cpe:/a:postgresql:postgresql:9.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ cpe:/a:postgresql:postgresql:9.1/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ cpe:/a:postgresql:postgresql:9.2/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ cpe:/a:postgresql:postgresql:9.2/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ cpe:/a:postgresql:postgresql:9.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ cpe:/a:postgresql:postgresql:9.3/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ cpe:/a:postgresql:postgresql:7.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1293\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.2 - 7.4.30/ cpe:/a:postgresql:postgresql:7.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1408\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.0 - 8.0.1/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1431\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.2 - 8.0.4/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1439\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.7 - 8.0.8/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1443\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.9 - 8.0.13/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1445\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.6 or 8.0.14 - 8.0.26/ cpe:/a:postgresql:postgresql:8.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1449\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.0/ cpe:/a:postgresql:postgresql:8.1.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1450\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.1/ cpe:/a:postgresql:postgresql:8.1.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1448\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.3 - 8.1.4/ cpe:/a:postgresql:postgresql:8.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1452\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.5 - 8.1.9/ cpe:/a:postgresql:postgresql:8.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1454\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.2 or 8.1.10 - 8.1.23/ cpe:/a:postgresql:postgresql:8.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1432\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.0/ cpe:/a:postgresql:postgresql:8.2.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1437\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.1 - 8.2.4/ cpe:/a:postgresql:postgresql:8.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1440\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.5 - 8.2.19/ cpe:/a:postgresql:postgresql:8.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1441\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.5 or 8.2.20 - 8.2.23/ cpe:/a:postgresql:postgresql:8.0.5/ cpe:/a:postgresql:postgresql:8.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1497\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.0 - 8.3.7/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1507\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.8 - 8.3.13/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1508\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.14 - 8.3.18/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1514\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.19/ cpe:/a:postgresql:postgresql:8.3.19/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1515\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.20 - 8.3.23/ cpe:/a:postgresql:postgresql:8.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1570\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.0/ cpe:/a:postgresql:postgresql:8.4.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ cpe:/a:postgresql:postgresql:8.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1626\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.12/ cpe:/a:postgresql:postgresql:8.4.12/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1627\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.13 - 8.4.19/ cpe:/a:postgresql:postgresql:8.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1622\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.20 - 8.4.22/ cpe:/a:postgresql:postgresql:8.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1666\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.0 - 9.0.7/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ cpe:/a:postgresql:postgresql:9.0.8/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ cpe:/a:postgresql:postgresql:9.1.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ cpe:/a:postgresql:postgresql:9.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ cpe:/a:postgresql:postgresql:9.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ cpe:/a:postgresql:postgresql:9.4/
 
 # PostgreSQL - Windows platforms
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1293\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.2 - 7.4.30/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1408\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.0 - 8.0.1/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1431\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.2 - 8.0.4/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1439\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.7 - 8.0.8/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1443\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.9 - 8.0.13/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1445\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.6 or 8.0.14 - 8.0.26/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1449\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.0/ o/Windows/ cpe:/a:postgresql:postgresql:8.1.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1450\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.1/ o/Windows/ cpe:/a:postgresql:postgresql:8.1.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1448\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.3 - 8.1.4/ o/Windows/ cpe:/a:postgresql:postgresql:8.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1452\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.5 - 8.1.9/ o/Windows/ cpe:/a:postgresql:postgresql:8.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1454\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.2 or 8.1.10 - 8.1.23/ o/Windows/ cpe:/a:postgresql:postgresql:8.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1432\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.0/ o/Windows/ cpe:/a:postgresql:postgresql:8.2.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1437\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.1 - 8.2.4/ o/Windows/ cpe:/a:postgresql:postgresql:8.2/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1440\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.5 - 8.2.19/ o/Windows/ cpe:/a:postgresql:postgresql:8.2/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1441\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.5 or 8.2.20 - 8.2.23/ o/Windows/ cpe:/a:postgresql:postgresql:8.0.5/ cpe:/a:postgresql:postgresql:8.2/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1497\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.0 - 8.3.7/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1507\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.8 - 8.3.13/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1508\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.14 - 8.3.18/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1514\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.19/ o/Windows/ cpe:/a:postgresql:postgresql:8.3.19/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1515\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.20 - 8.3.23/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1570\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:8.4.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1621\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1626\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.12/ o/Windows/ cpe:/a:postgresql:postgresql:8.4.12/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1627\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.13 - 8.4.19/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1622\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.20 - 8.4.22/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1666\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.0 - 9.0.7/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ o/Windows/ cpe:/a:postgresql:postgresql:9.0.8/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.1.4/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1293\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.2 - 7.4.30/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1408\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.0 - 8.0.1/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1431\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.2 - 8.0.4/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1439\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.7 - 8.0.8/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1443\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.9 - 8.0.13/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1445\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.6 or 8.0.14 - 8.0.26/ o/Windows/ cpe:/a:postgresql:postgresql:8.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1449\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.0/ o/Windows/ cpe:/a:postgresql:postgresql:8.1.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1450\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.1/ o/Windows/ cpe:/a:postgresql:postgresql:8.1.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1448\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.3 - 8.1.4/ o/Windows/ cpe:/a:postgresql:postgresql:8.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1452\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.5 - 8.1.9/ o/Windows/ cpe:/a:postgresql:postgresql:8.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1454\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.1.2 or 8.1.10 - 8.1.23/ o/Windows/ cpe:/a:postgresql:postgresql:8.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1432\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.0/ o/Windows/ cpe:/a:postgresql:postgresql:8.2.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1437\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.1 - 8.2.4/ o/Windows/ cpe:/a:postgresql:postgresql:8.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1440\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.2.5 - 8.2.19/ o/Windows/ cpe:/a:postgresql:postgresql:8.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1441\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.0.5 or 8.2.20 - 8.2.23/ o/Windows/ cpe:/a:postgresql:postgresql:8.0.5/ cpe:/a:postgresql:postgresql:8.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1497\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.0 - 8.3.7/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1507\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.8 - 8.3.13/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1508\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.14 - 8.3.18/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1514\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.19/ o/Windows/ cpe:/a:postgresql:postgresql:8.3.19/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1515\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.3.20 - 8.3.23/ o/Windows/ cpe:/a:postgresql:postgresql:8.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1570\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:8.4.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1621\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.1 - 8.4.11/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1626\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.12/ o/Windows/ cpe:/a:postgresql:postgresql:8.4.12/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1627\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.13 - 8.4.19/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1622\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/8.4.20 - 8.4.22/ o/Windows/ cpe:/a:postgresql:postgresql:8.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1666\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.0 - 9.0.7/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ o/Windows/ cpe:/a:postgresql:postgresql:9.0.8/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.1.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
@@ -11896,8 +11929,6 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nWWW-Authe
 match http m|^HTTP/1\.1 404 Not Found\r\n\r\n404 Not Found: \[/nice ports,/Trinity\.txt\.bak\]$| p/SHTTPD/
 match http m|^HTTP/1\.0 404 Not Found\r\n.*<LINK REL=\"stylesheet\" HREF=\"/style\.css\" TYPE=\"text/css\"></HEAD>\r\n<BODY><H2>URL demand\xe9e introuvable\.</H2>|s p/Lexmark Optra T610 printer http config/ i/French/ d/printer/ cpe:/h:lexmark:optra_t610/a
 match http m|^HTTP/1\.0 403 File not found - unknown extension\r\n\r\n| p|apt-cache/apt-proxy httpd| o/Linux/ cpe:/o:linux:linux_kernel/a
-match http m|^HTTP/1\.1 403 Forbidden file type or location\r\n.*Server: Debian Apt-Cacher NG/([\w._-]+)\r\n|s p/Debian Apt-Cacher NG httpd/ v/$1/ cpe:/a:debian:apt-cacher:$1/
-match http m|^HTTP/1\.0 400 Bad Request\r\n.*Server: Debian Apt-Cacher NG/([\w._-]+)\r\n|s p/Debian Apt-Cacher NG httpd/ v/$1/ cpe:/a:debian:apt-cacher:$1/
 match http m|^HTTP/1\.1 403 Sorry, not allowed to fetch that type of file: Tri%6Eity\.txt%2ebak\r\n\r\n| p/apt-cache httpd/
 match http m|^HTTP/1\.0 304 Not Modified\r\nContent-Length: 0\r\nServer: Unknown\r\n\r\n| p/McData 4500 fibre switch http config/ d/switch/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: KM-httpd/([-\w_.]+)\r\n.*<em>HTTP Response Code: </em> 404<br><em>From server at: </em> ([-\w_.]+)<br><em>|s p/Konica Minolta printer http config/ v/$1/ d/printer/ h/$2/
@@ -12007,6 +12038,7 @@ match printer m|^VSE Line Printer Daemon has rejected this request\.\0\0| p/VSE 
 match printer m|^no queue to check\n\0$| p/Wyse Winterm 1200 LE terminal lpd/ d/terminal/
 match printer m|^/usr/local/helios/sbin/lpd Printer default doesn't exist! \n$| p/Helios lpd/
 match printer m|^\0\x01\r\n                     Century LPD Service\r\nUnknown printer 'default'\n$| p/Century TinyTERM lpd/
+match printer m|^Cirrato printing service \(with PayEx support\)\0| p/Cirrato lpd/ i/with PayEx support/ cpe:/a:cirrato:cirrato/
 match rbnb m|^EXM {EXC \0\x1fcom\.rbnb\.api\.SerializeExceptionMSG \0JUnrecognizable parameter read from input stream\.\nElement read was \x01default}\r\nPNG {}\r\n| p/Ring Buffered Network Bus/ i|http://outlet.creare.com/rbnb/|
 match rfactor-monitor m|^\x02rFactorMonitor\x000400\0$| p/rFactor game monitor/
 match gpsd m|^GPSD,D=\?,E=\?,F=([-\w_./]+),A=\?,U=\?,L=\d ([-\w_.]+) abcdefgiklmnopqrstuvwxyz,T=\?\r\n| p/gpsd/ v/$2/ i/Serial port $1/ cpe:/a:gpsd_project:gpsd:$2/
@@ -12162,6 +12194,7 @@ match sip m|^SIP/2\.0 200 OK\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;
 match sip m|^SIP/2\.0 403 Forbidden\r\nAllow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY\r\n.*User-Agent: Wowza Streaming Engine ([\w._-]+) build(\d+)\r\n|s p/Wowza Streaming Engine sipd/ v/$1 build $2/
 match sip m|^SIP/2\.0 400 Invalid Contact information\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=[0-9A-F]{32}\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo;received=[\d.]+;ms-received-port=\d+;ms-received-cid=[0-9A-F]+\r\nms-diagnostics: 1018;reason=\"Parsing failure\";source=\"([\w._-]+)\"\r\nContent-Length: 0\r\n\r\n| p/Microsoft Office Communications Server sipd/ v/2007 R2/ h/$1/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*User-Agent: AVM FRITZ!Box ([\w._-]+) Cable \(um\) ([\w._-]+) \([\w ]+\)\r\n|s p/AVM FRITZ!Box $1 sipd/ v/$2/ d/broadband router/
+match sip m|^SIP/2\.0 \d\d\d .*\r\nUser-Agent: TAU-1M\.IP/([\w._-]+) SN/\w+ sofia-sip/([\w._-]+)\r\n|s p/sofia-sip/ v/$2/ i/Eltex TAU-1M.IP VoIP gateway, version $1/ d/VoIP adapter/ cpe:/a:sofia-sip:sofia-sip:$2/ cpe:/h:eltex:tau-1m.ip:$1/
 
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX ([\w._+-]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/ cpe:/a:digium:asterisk:$1/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
