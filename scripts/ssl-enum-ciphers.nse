@@ -501,7 +501,14 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 kex_strength = 512
               end
             else
-              if kex.pubkey then
+              -- This block relies on sslcert.parse_ssl_certificate (an OpenSSL dependancy that is causing problems)
+              local has_parse_ssl_certificate = false;
+              for member in pairs(sslcert) do
+                if member == "parse_ssl_certificate" then
+                  has_parse_ssl_certificate = true;
+                 end
+              end
+              if has_parse_ssl_certificate and kex.pubkey then
                 local certs = get_body(handshake, "type", "certificate")
                 -- Assume RFC compliance:
                 -- "The sender's certificate MUST come first in the list."
