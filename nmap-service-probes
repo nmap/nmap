@@ -5024,7 +5024,7 @@ match http-proxy m|^<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD>\n<BODY
 match http-proxy m|^HTTP/1\.[01] .*\r\nServer: Mikrotik HttpProxy\r\n|s p/MikroTik http proxy/
 # Actually got over 600 spaces at the end of this, but that could be a fluke?
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<html><body>Invalid request<P><HR><i>This message was created by Kerio Control Proxy</i></body></html> {100}| p/Kerio Control http proxy/ cpe:/a:kerio:control/
-match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n\r\n$| p/sslstrip/
+softmatch http-proxy m|^HTTP/1\.1 400 Bad Request\r\n\r\n$| p/sslstrip/
 
 match hp-problemdiagnostics m|^<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<NETPATH_PROBE version=\"[\w._-]+\">\n\t<SOURCE device_type=\"HOST\">\n\t\t<DNS>([\w._-]+)</DNS>\n\t\t<IP_OUT>[\d.]+</IP_OUT>\n\t</SOURCE>\n\t<DESTINATION name=\"\" arguments=\"\">\n\t\t<ERROR code=\"3\">\n\t\t\t<MESSAGE>No destination specified</MESSAGE>\n\t\t</ERROR>\n\t</DESTINATION>\n</NETPATH_PROBE>\n\n$| p/HP Problem Diagnostics/ h/$1/
 
