@@ -248,3 +248,7 @@ video-integration.cfg
 video.cfg
 vip-confg
 voip-confg
+boot.ini
+..\..\..\..\..\..\..\boot.ini
+etc/passwd
+../../../../../../../etc/passwd
