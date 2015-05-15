@@ -478,7 +478,18 @@ static int l_connect (lua_State *L)
     return nseU_safeerror(L, "sorry, you don't have OpenSSL");
 #endif
 
-  error_id = getaddrinfo(addr, NULL, NULL, &dest);
+  /* If we're connecting by name, we should use the same AF as our scan */
+  struct addrinfo hints = {0};
+  /* First check if it's a numeric address */
+  hints.ai_flags = AI_NUMERICHOST;
+  error_id = getaddrinfo(addr, NULL, &hints, &dest);
+  if (error_id == EAI_NONAME) {
+    /* Nope, let's resolve it for the proper AF */
+    hints.ai_flags = 0;
+    hints.ai_family = o.af();
+    error_id = getaddrinfo(addr, NULL, &hints, &dest);
+  }
+
   if (error_id)
     return nseU_safeerror(L, gai_strerror(error_id));
 
