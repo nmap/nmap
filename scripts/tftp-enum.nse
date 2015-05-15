@@ -171,6 +171,7 @@ action = function(host, port)
 
   stdnse.debug1("tftp detected")
 
+  port.service = "tftp"
   nmap.set_port_state(host, port, "open")
 
   local results = {}
