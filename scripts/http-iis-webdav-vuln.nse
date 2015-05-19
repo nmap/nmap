@@ -54,9 +54,7 @@ local function get_response(host, port, folder)
 
   local options = {
     header = {
-      Host = host.ip,
       Connection = "close",
-      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)",
       ["Content-Type"] = "application/xml",
     },
     content = webdav_req
