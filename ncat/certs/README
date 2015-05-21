@@ -1,15 +1,18 @@
-The file ca-bundle.crt contains certificates extracted from Microsoft
-Windows.  These are installed and used as the default trusted root
+The file ca-bundle.crt contains root certificates.
+These are installed and used as the default trusted root
 certificates when SSL certificate verification is requested with
 --ssl-verify. On some platforms (some Unixes), these certificates are
 used in addition to any certificates installed by the operating system.
 
+Originally, these certificates were extracted from Windows' certificate store.
 Microsoft's bundle was preferred over Mozilla's because Microsoft may be
 more selective in the organizations it trusts. When this bundle was
 created, Microsoft's store had 107 certificates while Mozilla's had 126.
-See below for how to use an alternative trust store.
 
-== How to extract the trusted root CA certificates on Windows
+Unfortunately for us, Windows' certificate trust store is not accessible in this
+way any longer. Therefore we have migrated to the Mozilla trust store.
+
+== How to extract the trusted root CA certificates on Windows (obsolete)
 
 These instructions require the openssl command-line utility.
 
@@ -34,7 +37,7 @@ the command
 That will create a file ca-bundle.crt containing all the certificates,
 each preceded by its subject and issuer.
 
-== Alternative sources for a certificate bundle
+== Retrieving the Mozilla trust store.
 
 Another commonly used trust store is the one provided by Mozilla. The
 cURL package includes a script that automatically creates a suitable PEM
