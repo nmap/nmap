@@ -8,7 +8,7 @@ local base64 = require "base64"
 local nmap = require "nmap"
 
 description = [[
- This script attempts to detect a vulnerability, CVE-2015-1427, which  allows attackers
+This script attempts to detect a vulnerability, CVE-2015-1427, which  allows attackers
  to leverage features of this API to gain unauthenticated remote code execution (RCE).
 
  Elasticsearch versions 1.3.0-1.3.7 and 1.4.0-1.4.2 have a vulnerability in the Groovy scripting engine. 
