@@ -8,19 +8,21 @@ local base64 = require "base64"
 local nmap = require "nmap"
 
 description = [[
-A simple script based on the exploit mentioned here :
-http://carnal0wnage.attackresearch.com/2015/03/elasticsearch-cve-2015-1427-rce-exploit.html
-The vulnerability allows an attacker to construct Groovy scripts that escape the sandbox and
-execute shell commands as the user running the Elasticsearch Java VM.
-]]
+ This script attempts to detect a vulnerability, CVE-2015-1427, which  allows attackers
+ to leverage features of this API to gain unauthenticated remote code execution (RCE).
+
+ Elasticsearch versions 1.3.0-1.3.7 and 1.4.0-1.4.2 have a vulnerability in the Groovy scripting engine. 
+ The vulnerability allows an attacker to construct Groovy scripts that escape the sandbox and execute shell 
+ commands as the user running the Elasticsearch Java VM.
+ ]]
 
 ---
--- @args command enter the shell command to be executed
--- tries to fetch the os details by default
--- @args invasive if set to true then creates an index incase one is not present.
+-- @args command Enter the shell comannd to be executed. The script outputs the Java
+-- and Elasticsearch versions by default.
+-- @args invasive If set to true then it creates an index if there are no indices.
 -- 
 -- @usage
--- nmap --script=http-vuln-cve2015-1427 --script-args command=' ls' <targets>
+-- nmap --script=http-vuln-cve2015-1427 --script-args command= 'ls' <targets>
 --
 --@output
 -- | http-vuln-cve2015-1427: 
