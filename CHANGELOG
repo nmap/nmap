@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-vuln-cve2015-1427 to detect Elasticsearch servers
+  vulnerable to remote code execution. [Gyanendra Mishra]
+
 o [NSE] Added http-vuln-cve2015-1635 to detect Microsoft Windows systems 
   vulnerable to MS15-034. [Paulino Calderon]
 
