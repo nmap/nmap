@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-vuln-cve2015-1635 to detect Microsoft Windows systems 
+  vulnerable to MS15-034. [Paulino Calderon]
+
 o [NSE] Make smb-ls able to leverage results from smb-enum-shares or list of
   shares specified on command line. [Pierre Lalet]
 
