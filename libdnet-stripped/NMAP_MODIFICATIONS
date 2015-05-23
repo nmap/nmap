@@ -2050,3 +2050,40 @@ index 22c1e6a..3c09f9c 100644
  		    intf->ifcombo[type].idx[n].ipv6 == a->Ipv6IfIndex) {
  			return a;
  		}
+
+o Fix address detection on Solaris due to SIOCGLIFFLAGS ioctl overwriting the
+  lifreq that _intf_get_aliases expects to be holding the output of
+  SIOCGLIFCONF ioctl. http://seclists.org/nmap-dev/2015/q2/1
+
+diff --git a/libdnet-stripped/src/intf.c b/libdnet-stripped/src/intf.c
+index 2df6a4d..b71fb82 100644
+--- a/libdnet-stripped/src/intf.c
++++ b/libdnet-stripped/src/intf.c
+@@ -953,6 +953,8 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
+ 	struct lifreq *lifr, *llifr, *plifr;
+ 	char *p, ebuf[BUFSIZ];
+ 	int ret;
++	struct lifreq lifrflags;
++	memset(&lifrflags, 0, sizeof(struct lifreq));
+ 
+ 	entry = (struct intf_entry *)ebuf;
+ 
+@@ -996,14 +998,15 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
+ 		 * underlying physical interfaces instead. This works as long as
+ 		 * the physical interface's test address is on the same subnet
+ 		 * as the IPMP interface's address. */
+-		if (ioctl(intf->fd, SIOCGLIFFLAGS, lifr) >= 0)
++		strlcpy(lifrflags.lifr_name, lifr->lifr_name, sizeof(lifrflags.lifr_name));
++		if (ioctl(intf->fd, SIOCGLIFFLAGS, &lifrflags) >= 0)
+ 			;
+-		else if (intf->fd6 != -1 && ioctl(intf->fd6, SIOCGLIFFLAGS, lifr) >= 0)
++		else if (intf->fd6 != -1 && ioctl(intf->fd6, SIOCGLIFFLAGS, &lifrflags) >= 0)
+ 			;
+ 		else
+ 			return (-1);
+ #ifdef IFF_IPMP
+-		if (lifr->lifr_flags & IFF_IPMP) {
++		if (lifrflags.lifr_flags & IFF_IPMP) {
+ 			continue;
+ 		}
+ #endif

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix a bug in libdnet-stripped on Solaris that resulted in the wrong MAC
+  address being detected for all interfaces.
+  http://seclists.org/nmap-dev/2015/q2/1 [Daniel Miller]
+
 o [NSE] Added http-vuln-cve2015-1427 to detect Elasticsearch servers
   vulnerable to remote code execution. [Gyanendra Mishra]
 

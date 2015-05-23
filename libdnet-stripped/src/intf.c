@@ -953,6 +953,8 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 	struct lifreq *lifr, *llifr, *plifr;
 	char *p, ebuf[BUFSIZ];
 	int ret;
+	struct lifreq lifrflags;
+	memset(&lifrflags, 0, sizeof(struct lifreq));
 
 	entry = (struct intf_entry *)ebuf;
 
@@ -996,14 +998,15 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 		 * underlying physical interfaces instead. This works as long as
 		 * the physical interface's test address is on the same subnet
 		 * as the IPMP interface's address. */
-		if (ioctl(intf->fd, SIOCGLIFFLAGS, lifr) >= 0)
+		strlcpy(lifrflags.lifr_name, lifr->lifr_name, sizeof(lifrflags.lifr_name));
+		if (ioctl(intf->fd, SIOCGLIFFLAGS, &lifrflags) >= 0)
 			;
-		else if (intf->fd6 != -1 && ioctl(intf->fd6, SIOCGLIFFLAGS, lifr) >= 0)
+		else if (intf->fd6 != -1 && ioctl(intf->fd6, SIOCGLIFFLAGS, &lifrflags) >= 0)
 			;
 		else
 			return (-1);
 #ifdef IFF_IPMP
-		if (lifr->lifr_flags & IFF_IPMP) {
+		if (lifrflags.lifr_flags & IFF_IPMP) {
 			continue;
 		}
 #endif
