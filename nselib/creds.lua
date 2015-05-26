@@ -266,11 +266,11 @@ Account = {
   --
   -- Lexicographic comparison by user, pass, and state
   __lt = function (a, b)
-    if a.user >= b.user then
+    if a.user and b.user and a.user >= b.user then
       return false
-    elseif a.pass >= b.pass then
+    elseif a.pass and b.pass and a.pass >= b.pass then
       return false
-    elseif a.state >= b.state then
+    elseif a.state and b.state and a.state >= b.state then
       return false
     end
     return true
