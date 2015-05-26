@@ -54,6 +54,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 AC_PROG_INSTALL
+AC_PROG_AWK
 
 dnl For nse_fs.cc
 dnl LARGE_FILES_IF_NOT_BROKEN
@@ -961,7 +962,7 @@ AC_OUTPUT(Makefile libnetutil/Makefile)
 
 # Krad ASCII ART#!#@$!@#$
 # Randomly store the name of one of the ASCII Art files in FILENAME
-FILENAME=`ls $srcdir/docs/leet-nmap-ascii-art*.txt 2>/dev/null | awk '
+FILENAME=`ls $srcdir/docs/leet-nmap-ascii-art*.txt 2>/dev/null | $AWK '
     BEGIN {
         srand();
     }
