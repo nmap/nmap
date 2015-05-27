@@ -980,5 +980,6 @@ FILENAME=`ls $srcdir/docs/leet-nmap-ascii-art*.txt 2>/dev/null | $AWK '
 if test "$FILENAME"; then
   cat "$FILENAME"
 fi
+echo "  NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND RESPONSIBLY"
 
 echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."

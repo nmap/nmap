@@ -11,4 +11,3 @@
     /  /  _/ /    +                                       |           \   /
    '  (__/                                               /              \/
                                                        /                  \
-             NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND RESPONSIBLY

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Add 2 more ASCII-art configure splash images to be rotated randomly with the
+  traditional dragon image. New ideas for other images to use here may be sent
+  to dev@nmap.org. [Jay Bosamiya, Daniel Miller]
+
 o Fix a bug in libdnet-stripped on Solaris that resulted in the wrong MAC
   address being detected for all interfaces.
   http://seclists.org/nmap-dev/2015/q2/1 [Daniel Miller]
@@ -7,7 +11,7 @@ o Fix a bug in libdnet-stripped on Solaris that resulted in the wrong MAC
 o [NSE] Added http-vuln-cve2015-1427 to detect Elasticsearch servers
   vulnerable to remote code execution. [Gyanendra Mishra]
 
-o [NSE] Added http-vuln-cve2015-1635 to detect Microsoft Windows systems 
+o [NSE] Added http-vuln-cve2015-1635 to detect Microsoft Windows systems
   vulnerable to MS15-034. [Paulino Calderon]
 
 o [NSE] Make smb-ls able to leverage results from smb-enum-shares or list of
