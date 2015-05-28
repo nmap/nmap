@@ -77,6 +77,8 @@ make
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
+# Don't package the Ndiff uninstaller with the RPM.
+rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_ndiff
 strip $RPM_BUILD_ROOT%{_bindir}/* || :
 gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
