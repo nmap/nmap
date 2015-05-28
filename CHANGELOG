@@ -287,8 +287,98 @@ Nmap 6.45 [2014-04-11]
 o NOTE THAT THE CHANGELOG FOR THIS RELEASE IS INCOMPLETE.  We plan to
   finish it soon.
 
-o [NSE] Add ssl-heartbleed script to detect the Heartbleed bug in OpenSSL
-  CVE-2014-0160 [Patrik Karlsson]
+o Idle scan now supports IPv6. IPv6 packets don't usually come with
+  fragments identifiers like IPv4 packets do, so new techniques had to
+  be developed to make idle scan possible. The implementation is by
+  Mathias Morbitzer, who made it the subject of his master's thesis.
+
+o When doing a ping scan (-sn), the --open option will prevent down hosts from
+  being shown when -v is specified. This aligns with similar output for other
+  scan types. [Daniel Miller]
+
+o [NSE] Added 24 NSE scripts from 12 authors, bringing the total up to 470.
+  They are all listed at http://nmap.org/nsedoc/, and the summaries are
+  below (authors are listed in brackets):
+
+  + ssl-heartbleed detects the Heartbleed bug in OpenSSL CVE-2014-0160 [Patrik
+    Karlsson]
+
+  + quake1-info retrieves server and player information from Quake 1 game
+    servers. Reports potential DoS amplification factor.  [Ulrik Haugen]
+
+  + http-ntlm-info gets server information from Web servers that require NTLM
+    authentication. [Justin Cacak]
+
+  + sstp-discover discovers Microsoft's Secure Socket Tunnelling Protocol
+    (http://msdn.microsoft.com/en-us/library/cc247338.aspx) [Niklaus Schiess]
+
+  + unittest runs unit tests found in NSE libraries. The corresponding
+    unittest.lua library has examples. Run `nmap --script=unittest
+    --script-args=unittest.run -d` to run the tests. [Daniel Miller]
+
+  + allseeingeye-info gathers information from games using this query protocol.
+    A version detection probe was also added. [Marin Maržić]
+
+  + freelancer-info gathers information about the Freelancer game server. Also
+    added a related version detection probe and UDP protocol payload for
+    detecting the service. [Marin Maržić]
+
+  + http-server-header grabs the Server header as a last-ditch effort to get a
+    software version. This can't be done as a softmatch because of the need to
+    match non-HTTP services that obey some HTTP requests. [Daniel Miller]
+
+  + rfc868-time gets the date and time from an RFC 868 Time server. [Daniel
+    Miller]
+
+  + weblogic-t3-info detects the T3 RMI protocol used by Oracle/BEA Weblogic
+    and extracts the Weblogic version. [Alessandro Zanni, Daniel Miller]
+
+  + http-iis-short-name-brute detects Microsoft IIS servers vulnerable to a
+    file/folder name disclosure and a denial of service vulnerability. The
+    script obtains the "shortnames" of the files and folders in the webroot
+    folder. [Paulino Calderon]
+
+  + http-dlink-backdoor detects DLink routers with firmware backdoor allowing
+    admin access over HTTP interface. [Patrik Karlsson]
+
+  + qconn-exec tests the QNX QCONN service for remote command execution.
+    [Brendan Coles]
+
+  + http-csrf detects Cross Site Request Forgeries (CSRF) vulnerabilities by
+    searching for CSRF tokens in HTML forms. [George Chatzisofroniou]
+
+  + whois-ip and whois-domain replace the whois script, which previously could
+    only collect whois info for IP addresses. [George Chatzisofroniou]
+
+  + http-devframework finds out the technology behind the target website based
+    on HTTP headers, static URLs, and other content and resources. [George
+    Chatzisofroniou]
+
+  + http-dombased-xss finds potential DOM-based Cross-site Scripting (XSS)
+    vulnerabilities by searching for specific patterns in JavaScript resources.
+    [George Chatzisofroniou]
+
+  + http-errors crawls for URIs that return error status codes (HTTP 400 and
+    above). [George Chatzisofroniou]
+
+  + http-feed crawls a web site for Atom and RSS feeds. [George Chatzisofroniou]
+
+  + http-mobileversion-checker checks for mobile versions of web pages by
+    setting an Android User-Agent header and checking for HTTP redirects.
+    [George Chatzisofroniou]
+
+  + http-referer-checker finds JavaScript resources that are included from other
+    domains, increasing a website's attack surface. [George Chatzisofroniou]
+
+  + http-useragent-tester checks for sites that redirect common Web spider
+    User-Agents to a different page than browsers get. [George Chatzisofroniou]
+
+  + http-vuln-cve2013-7091 (released as http-vuln-zimbra-lfi) looks for
+    CVE-2013-7091, a LFI vulnerability in Zimbra. [Paul AMAR, Ron Bowes]
+
+  + http-xssed searches the xssed.com database of Cross-site Scripting
+    vulnerabilities for previously-reported XSS vulnerabilities in the target.
+    [George Chatzisofroniou]
 
 o [NSE] Fixed an error-handling bug in socks-open-proxy that caused it to fail
   when scanning a SOCKS4-only proxy. Reported on IRC by Husky. [Daniel Miller]
@@ -296,24 +386,13 @@ o [NSE] Fixed an error-handling bug in socks-open-proxy that caused it to fail
 o [NSE] Improved ntp-info script to handle underscores in returned
   data. [nnposter]
 
-o [NSE] Add quake1-info script for retrieving server and player information
-  from Quake 1 game servers. Reports potential DoS amplification factor.
-  [Ulrik Haugen]
-
 o [NSE] Add unicode library for decoding and encoding UTF-8, UTF-16, CP437 and
   other character sets to Unicode code points. Scripts that previously just
   added or skipped nulls in UTF-16 data can use this to support non-ASCII
   characters. [Daniel Miller]
 
-o When doing a ping scan (-sn), the --open option will prevent down hosts from
-  being shown when -v is specified. This aligns with similar output for other
-  scan types. [Daniel Miller]
-
 o [Ncat] Added support for socks5 and corresponding regression tests.
   [Marek Lucaszuk, Petr Stodulka]
-
-o [NSE] Add http-ntlm-info script for getting server information from Web
-  servers that require NTLM authentication. [Justin Cacak]
 
 o Added TCP support to dns.lua. [John Bond]
 
@@ -325,42 +404,14 @@ o [NSE] Added tls library for functions related to SSLv3 and TLS messages.
   Existing ssl-enum-ciphers, ssl-date, and tls-nextprotoneg scripts were
   updated to use this library. [Daniel Miller]
 
-o [NSE] Add sstp-discover script to discover Microsoft's Secure Socket
-  Tunnelling Protocol (http://msdn.microsoft.com/en-us/library/cc247338.aspx)
-  [Niklaus Schiess]
-
-o [NSE] Added unittest library and NSE script for adding unit tests to NSE
-  libraries. See unittest.lua for examples, and run `nmap --script=unittest
-  --script-args=unittest.run -d` to run the tests. [Daniel Miller]
-
 o Updated bundled liblua from 5.2.2 to 5.2.3 (bugfix release) [Daniel Miller]
 
 o Added version detection signatures and probes for a bunch of Android
   remote mouse/keyboard servers, including AndroMouse, AirHID,
   Wifi-mouse, and RemoteMouse. [Paul Hemberger]
 
-o [NSE] Added allseeingeye-info for gathering information from games
-  using this query protocol.  A version detection probe was also
-  added. [Marin Maržić]
-
-o [NSE] Add freelancer-info to gather information about the Freelancer
-  game server. Also added a related version detection probe and UDP
-  protocol payload for detecting the service. [Marin Maržić]
-
 o [Ncat] Fixed compilation when --without-liblua is specified in
   configure (an #include needed an ifdef guard). [Quentin Glidic]
-
-o [NSE] Add http-server-header script to grab the Server header as a last-ditch
-  effort to get a software version. This can't be done as a softmatch because
-  of the need to match non-HTTP services that obey some HTTP requests. [Daniel
-  Miller]
-
-o [NSE] Add rfc868-time script to get the date and time from an RFC 868 Time
-  server. [Daniel Miller]
-
-o [NSE] Add weblogic-t3-info script that detects the T3 RMI protocol used by
-  Oracle/BEA Weblogic. Extracts the Weblogic version, as well [Alessandro
-  Zanni, Daniel Miller]
 
 o Fixed a bug in libdnet with handling interfaces with AF_LINK addresses on
   FreeBSD >9 reported by idwer on IRC. Likely affected other *BSDs. Handled by
@@ -374,19 +425,6 @@ o Fixed a bug with UDP checksum calculation. When the UDP checksum is zero
 o [NSE] Removed a fixed value (28428) which was being set for the Request ID in
   the snmpWalk library function; a value based on nmap.clock_ms will now be set
   instead. [jah]
-
-o [NSE] Add http-iis-short-name-brute script that detects Microsoft IIS
-  servers vulnerable to a file/folder name disclosure and a denial of
-  service vulnerability. The script obtains the "shortnames" of the
-  files and folders in the webroot folder. [Paulino Calderon]
-
-o Idle scan now supports IPv6. IPv6 packets don't usually come with
-  fragments identifiers like IPv4 packets do, so new techniques had to
-  be developed to make idle scan possible. The implementation is by
-  Mathias Morbitzer, who made it the subject of his master's thesis.
-
-o [NSE] Add http-dlink-backdoor script that detects DLink routers with firmware
-  backdoor allowing admin access over HTTP interface. [Patrik Karlsson]
 
 o The ICMP ID of ICMP probes is now matched against the sent ICMP ID,
   to reduce the chance of false matches. Patch by Chris Johnson.
@@ -407,9 +445,6 @@ o [Nsock] Handle timers and timeouts via a priority queue (using a heap)
 
 o [NSE] Update dns-cache-snoop script to use a new list of top 50
   domains rather than a 2010 list. [Nicolle Neulist]
-
-o [NSE] Added the qconn-exec script by Brendan Coles, which tests the
-  QNX QCONN service for remote command execution.
 
 o [Zenmap] Fixed a crash that would happen when you entered a search
   term starting with a colon: "AttributeError:
