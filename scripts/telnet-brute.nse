@@ -2,25 +2,11 @@ local comm = require "comm"
 local coroutine = require "coroutine"
 local creds = require "creds"
 local nmap = require "nmap"
-local re = require "re"
-local U = require "lpeg-utility"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
 local brute = require "brute"
-local lpeg = require "lpeg"
-
-local P = lpeg.P;
-local R = lpeg.R;
-local S = lpeg.S;
-local V = lpeg.V;
-local C = lpeg.C;
-local Cb = lpeg.Cb;
-local Cc = lpeg.Cc;
-local Cf = lpeg.Cf;
-local Cg = lpeg.Cg;
-local Ct = lpeg.Ct;
 
 description = [[
 Performs brute-force password auditing against telnet servers.
@@ -46,7 +32,7 @@ Performs brute-force password auditing against telnet servers.
 --                              count based on the behavior of the target
 --                              (default: "true")
 
-author = "nnposter, Patrick Donnelly"
+author = "nnposter"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'brute', 'intrusive'}
 
@@ -69,34 +55,10 @@ local detail_debug = 3    -- debug level for printing individual login steps
 ---
 -- Print debug messages, prepending them with the script name
 --
--- @param level Verbosity level (mandatory, unlike stdnse.debug).
+-- @param level Verbosity level
 -- @param fmt Format string.
 -- @param ... Arguments to format.
 local debug = stdnse.debug
-
-local patt_login = U.atwordboundary(re.compile [[([uU][sS][eE][rR][nN][aA][mM][eE] / [lL][oO][gG][iI][nN]) %s* ':' %s* !.]])
-
-local patt_password = U.atwordboundary(re.compile [[[pP][aA][sS][sS] ([wW][oO][rR][dD] / [cC][oO][dD][eE]) %s* ':' %s* !.]])
-
-local patt_login_success = re.compile([[
-  prompt <- [/>%$#] / -- general prompt
-            [lL][aA][sS][tT] %s+ [lL][oO][gG][iI][nN] %s* ':' / -- linux telnetd
-            [A-Z] ':\\' / -- Windows telnet
-            [mM][aA][iI][nN] (%s / %ESC '[' %d+ ';' %d+ 'H') [mM][eE][nN][uU] ! %a / -- Netgear RM356
-            [eE][nN][tT][eE][rR] %s+ [tT][eE][rR][mM][iI][nN][aA][lL] %s+ [eE][mM][uU][lL][aA][tT][iI][oO][nN] %s* ':' -- Hummingbird telnetd
-]], {ESC = "\x1B"})
-
--- basic tests
-assert(patt_login_success:match "$");
-assert(patt_login_success:match "/");
-assert(patt_login_success:match "last login:");
-assert(patt_login_success:match "C:\\\\");
-assert(patt_login_success:match "MaIn Menu:");
-assert(patt_login_success:match "MaIn Menu");
-assert(patt_login_success:match "MaIn\x1B[12;31HMenu");
-assert(patt_login_success:match "enter terminaL\temulation:");
-
-local patt_login_failure = U.atwordboundary(U.caseless "incorrect" + U.caseless "failed" + U.caseless "denied" + U.caseless "invalid" + U.caseless "bad")
 
 ---
 -- Decide whether a given string (presumably received from a telnet server)
@@ -105,7 +67,9 @@ local patt_login_failure = U.atwordboundary(U.caseless "incorrect" + U.caseless 
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_username_prompt = function (str)
-  return not not patt_login:match(str)
+  local lcstr = str:lower()
+  return lcstr:find("%f[%w]username%s*:%s*$")
+      or lcstr:find("%f[%w]login%s*:%s*$")
 end
 
 
@@ -116,7 +80,9 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_password_prompt = function (str)
-  return not not patt_password:match(str)
+  local lcstr = str:lower()
+  return lcstr:find("%f[%w]password%s*:%s*$")
+      or lcstr:find("%f[%w]passcode%s*:%s*$")
 end
 
 
@@ -127,7 +93,15 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_success = function (str)
-  return not not patt_login_success:match(str)
+  if str:find("^[A-Z]:\\") then                         -- Windows telnet
+    return true
+  end
+  local lcstr = str:lower()
+  return lcstr:find("[/>%%%$#]%s*$")                    -- general prompt
+      or lcstr:find("^last login%s*:")                  -- linux telnetd
+      or lcstr:find("main%smenu%f[^%w]")                -- Netgear RM356
+      or lcstr:find("main\x1B%[%d+;%d+hmenu%f[^%w]")    -- Netgear RM356
+      or lcstr:find("^enter terminal emulation:%s*$")   -- Hummingbird telnetd
 end
 
 
@@ -138,7 +112,12 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_failure = function (str)
-  return not not patt_login_failure:match(str)
+  local lcstr = str:lower()
+  return lcstr:find("%f[%w]incorrect%f[^%w]")
+      or lcstr:find("%f[%w]failed%f[^%w]")
+      or lcstr:find("%f[%w]denied%f[^%w]")
+      or lcstr:find("%f[%w]invalid%f[^%w]")
+      or lcstr:find("%f[%w]bad%f[^%w]")
 end
 
 
