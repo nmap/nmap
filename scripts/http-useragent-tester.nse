@@ -91,7 +91,9 @@ action = function(host, port)
   -- We don't crawl any site. We initialize a crawler to use its iswithinhost method.
   local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
 
-  local HTTPlibs = {"libwww",
+  local HTTPlibs = {
+    http.USER_AGENT,
+    "libwww",
     "lwp-trivial",
     "libcurl-agent/1.0",
     "PHP/",
