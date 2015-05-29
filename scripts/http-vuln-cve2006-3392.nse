@@ -4,7 +4,7 @@ local stdnse = require "stdnse"
 local vulns = require "vulns"
 
 description = [[
-Exploits a file disclosure vulnerability in Webmin (CVE-2010-0738)
+Exploits a file disclosure vulnerability in Webmin (CVE-2006-3392)
 
 Webmin before 1.290 and Usermin before 1.220 calls the simplify_path function before decoding HTML.
 This allows arbitrary files to be read, without requiring authentication, using "..%01" sequences

@@ -6,10 +6,12 @@ local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[
-Enumerates usernames in Wordpress blog/CMS installations by exploiting an information disclosure vulnerability existing in versions 2.6, 3.1, 3.1.1, 3.1.3 and 3.2-beta2 and possibly others.
+Enumerates usernames in Wordpress blog/CMS installations by exploiting an
+information disclosure vulnerability existing in versions 2.6, 3.1, 3.1.1,
+3.1.3 and 3.2-beta2 and possibly others.
 
 Original advisory:
-* http://www.talsoft.com.ar/index.php/research/security-advisories/wordpress-user-id-and-user-name-disclosure
+* http://www.talsoft.com.ar/site/research/security-advisories/wordpress-user-id-and-user-name-disclosure/
 ]]
 
 ---
