@@ -4,24 +4,87 @@ o Add 2 more ASCII-art configure splash images to be rotated randomly with the
   traditional dragon image. New ideas for other images to use here may be sent
   to dev@nmap.org. [Jay Bosamiya, Daniel Miller]
 
+o [NSE] Added 23 NSE scripts from 16 authors, bringing the total up to 493.
+  They are all listed at http://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + bacnet-info gets device information from SCADA/ICS devices via BACnet
+    (Building Automation and Control Networks) [Stephen Hilt, Michael Toecker]
+
+  + docker-version detects and fingerprints Docker [Claudio Criscione]
+
+  + enip-info gets device information from SCADA/ICS devices via EtherNet/IP
+    [Stephen Hilt]
+
+  + fcrdns performs a Forward-confirmed Reverse DNS lookup and reports
+    anomalous results. [Daniel Miller]
+
+  + http-avaya-ipoffice-users enumerates users in Avaya IP Office 7.x systems.
+    [Paulino Calderon]
+
+  + http-cisco-anyconnect gets version and tunnel information from Cisco SSL
+    VPNs. [Patrik Karlsson]
+
+  + http-crossdomainxml detects overly permissive crossdomain policies and
+    finds trusted domain names available for purchase. [Paulino Calderon]
+
+  + http-shellshock detects web applications vulnerable to Shellshock
+    (CVE-2014-6271). [Paulino Calderon]
+
+  + http-vuln-cve2006-3392 exploits a file disclosure vulnerability in Webmin.
+    [Paul AMAR]
+
+  + http-vuln-cve2014-2126, http-vuln-cve2014-2127, http-vuln-cve2014-2128 and
+    http-vuln-cve2014-2129 detect specific vulnerabilities in Cisco AnyConnect
+    SSL VPNs. [Patrik Karlsson]
+
+  + http-vuln-cve2015-1427 detects Elasticsearch servers vulnerable to remote
+    code execution. [Gyanendra Mishra]
+
+  + http-vuln-cve2015-1635 detects Microsoft Windows systems vulnerable to
+    MS15-034. [Paulino Calderon]
+
+  + http-wordpress-plugins was renamed http-wordpress-enum and extended to
+    enumerate both plugins and themes of Wordpress installations and their
+    versions. http-wordpress-enum is now http-wordpress-users. [Paulino Calderon]
+
+  + mikrotik-routeros-brute performs password auditing attacks against
+    Mikrotik's RouterOS API. [Paulino Calderon]
+
+  + s7-info gets device information from Siemens PLCs via the S7 service,
+    tunneled over ISO-TSAP on TCP port 102. [Stephen Hilt]
+
+  + snmp-info gets the enterprise number and other information from the
+    snmpEngineID in an SNMPv3 response packet. [Daniel Miller]
+
+  + ssl-ccs-injection detects whether a server is vulnerable to the SSL/TLS
+    CCS Injection vulnerability (CVE-2014-0224) [Claudiu Perta]
+
+  + ssl-poodle detects the POODLE bug in SSLv3 (CVE-2014-3566) [Daniel Miller]
+
+  + supermicro-ipmi-conf exploits Supermicro IPMI/BMC controllers. [Paulino
+    Calderon]
+
+  + targets-ipv6-map4to6 generates target IPv6 addresses which correspond to
+    IPv4 addresses mapped within a particular IPv6 subnet. [Raúl Fuentes]
+
+  + targets-ipv6-wordlist generates target IPv6 addresses from a wordlist made
+    of hexadecimal characters. [Raúl Fuentes]
+
+o [NSE] Remove db2-discover, as its functionality was performed by service
+  version detection since the broadcast portion was separated into
+  broadcast-db2-discover. http://seclists.org/nmap-dev/2014/q3/415 [Daniel
+  Miller]
+
 o Fix a bug in libdnet-stripped on Solaris that resulted in the wrong MAC
   address being detected for all interfaces.
   http://seclists.org/nmap-dev/2015/q2/1 [Daniel Miller]
-
-o [NSE] Added http-vuln-cve2015-1427 to detect Elasticsearch servers
-  vulnerable to remote code execution. [Gyanendra Mishra]
-
-o [NSE] Added http-vuln-cve2015-1635 to detect Microsoft Windows systems
-  vulnerable to MS15-034. [Paulino Calderon]
 
 o [NSE] Make smb-ls able to leverage results from smb-enum-shares or list of
   shares specified on command line. [Pierre Lalet]
 
 o [NSE] Fix X509 cert date parsing for dates after 2049. Reported by Teppo
   Turtiainen. [Daniel Miller]
-
-o [NSE] Added http-crossdomainxml to detect overly permissive crossdomain
-  policies and find trusted domain names available for purchase. [Paulino Calderon]
 
 o Add IPv6 Hop Limit (similar to IPv4 TTL) as a feature for the IPv6 OS
   fingerprinting engine. [Alexandru Geana]
@@ -53,14 +116,6 @@ o Change the URI for the fingerprint submitter to its new location at
 
 o [Zenmap] Added new Hindi (hi) translation by Gyanendra Mishra.
 
-o [NSE] Added a new version of http-wordpress-enum, it now enumerates
-  plugins and themes of Wordpress installations. It also attempts to obtain
-  version information to detect outdated plugins. [Paulino Calderon]
-
-o [NSE] Renamed http-wordpress-enum to http-wordpress-users in favor of
-  the new version of the script http-wordpress-enum which enumerates
-  plugins and themes of Wordpress installations. [Paulino Calderon]
-
 o [NSE] Added a check for Cisco ASA version disclosure, CVE-2014-3398, to
   http-enum in the 'security' category [Daniel Miller]
 
@@ -69,9 +124,6 @@ o Fixed a bug that caused Nmap to fail to find any network interface when a
   ARP_HRD_IEEE80211_PRISM header identifier in the libdnet-stripped code.
   [Brad Johnson]
 
-o [NSE] Added http-shellshock to detect web applications vulnerable to
-  Shellshock (CVE2014-6271). [Paulino Calderon]
-
 o Added a version probe for Tor. [David Fifield]
 
 o [Zenmap] Updated translations for German (de, Chris Leick), Italian (it, Jan
@@ -79,23 +131,13 @@ o [Zenmap] Updated translations for German (de, Chris Leick), Italian (it, Jan
 
 o [Zenmap] New Chinese-language (zh) translation from Jie Jiang.
 
-o [NSE] Added snmp-info to get the enterprise number and other information from
-  the snmpEngineID in an SNMPv3 response packet. [Daniel Miller]
-
 o [NSE] Add support to citrix-enum-apps-xml for reporting if Citrix
    published applications in the list are enforcing/requiring the level
    of ICA/session data encryption shown in the script result.
    [Tom Sellers]
 
-o [NSE] Added targets-ipv6-wordlist to generate target IPv6 addresses
-  from a wordlist made of hexadecimal characters.  [Raúl Fuentes]
-
-o [NSE] Added targets-ipv6-map4to6 to generate target IPv6 addresses
-  which correspond to IPv4 addresses mapped within a particular IPv6 subnet.
-  [Raúl Fuentes]
-
 o [NSE] Updated our Wordpress plugin list to improve the
-  http-wordpress-plugins NSE script. We can now detect 34,077 plugins,
+  http-wordpress-enum NSE script. We can now detect 34,077 plugins,
   up from 18,570. [Danila Poyarkov]
 
 o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
@@ -109,15 +151,8 @@ o [NSE] Add the signature algorithm that was used to sign the target port's
 o [NSE] Fixed a bug in the sslcert.lua library that was triggered against
   certain services when version detection was used. [Tom Sellers]
 
-o [NSE] Added ssl-poodle to detect CVE-2014-3566 [Daniel Miller]
-
 o [NSE] vulns.Report:make_output() now generates XML structured output
   reports automatically. [Paulino Calderon]
-
-o [NSE] Added http-avaya-ipoffice-users script to enumerate users in Avaya
-  IP Office 7.x systems. [Paulino Calderon]
-
-o [NSE] Added docker-version script for detecting Docker [Claudio Criscione]
 
 o [NSE] Improved http-form-brute autodetection and behavior to handle more
   unusual-but-valid HTML syntax, non-POST forms, success/failure testing on
@@ -158,15 +193,6 @@ o [Zenmap] Catch the MemoryError caused in Zenmap due to large Nmap Output,
 o Catch badly named output files (such as those unintentionally caused by
   "-oX -sV logfile.xml") [Jay Bosamiya]
 
-o [NSE] Added the script supermicro-ipmi-conf to exploit Supermicro IPMI/BMC
-  controllers. [Paulino Calderon]
-
-o [NSE] Added mikrotik-routeros-brute script to perform password auditing
-  attacks against Mikrotik's RouterOS API. [Paulino Calderon]
-
-o [NSE] Add s7-info script to get device information from Siemens PLCs via the
-  S7 service, tunnelled over ISO-TSAP on TCP port 102. [Stephen Hilt]
-
 o Added options --data <hex string> and --data-string <string> to send custom
   payloads in scan packet data. [Jay Bosamiya]
 
@@ -181,17 +207,6 @@ o Updated the bundled libpcap from 1.2.1 to 1.5.3 [Jay Bosamiya]
 
 o Correct the Target MAC Address in Nmap's ARP discovery to conform to what IP
   stacks in currently popular operating systems use. [Jay Bosamiya]
-
-o [NSE] Add bacnet-info script to get device information from SCADA/ICS devices
-  via BACnet (Building Automation and Control Networks) [Stephen Hilt, Michael
-  Toecker]
-
-o [NSE] Add Cisco Anyconnect library and scripts http-cisco-anyconnect,
-  http-vuln-cve2014-2126, http-vuln-cve2014-2127, http-vuln-cve2014-2128 and
-  http-vuln-cve2014-2129. [Patrik Karlsson]
-
-o [NSE] Add enip-info script to get device information from SCADA/ICS devices
-  via EtherNet/IP [Stephen Hilt]
 
 o Fixed a bug which caused Nmap to be unable to have any runtime interaction
   when called from sudo or from a shell script. [Jay Bosamiya]
@@ -309,22 +324,6 @@ o [NSE] Added 24 NSE scripts from 12 authors, bringing the total up to 470.
   They are all listed at http://nmap.org/nsedoc/, and the summaries are
   below (authors are listed in brackets):
 
-  + ssl-heartbleed detects the Heartbleed bug in OpenSSL CVE-2014-0160 [Patrik
-    Karlsson]
-
-  + quake1-info retrieves server and player information from Quake 1 game
-    servers. Reports potential DoS amplification factor.  [Ulrik Haugen]
-
-  + http-ntlm-info gets server information from Web servers that require NTLM
-    authentication. [Justin Cacak]
-
-  + sstp-discover discovers Microsoft's Secure Socket Tunnelling Protocol
-    (http://msdn.microsoft.com/en-us/library/cc247338.aspx) [Niklaus Schiess]
-
-  + unittest runs unit tests found in NSE libraries. The corresponding
-    unittest.lua library has examples. Run `nmap --script=unittest
-    --script-args=unittest.run -d` to run the tests. [Daniel Miller]
-
   + allseeingeye-info gathers information from games using this query protocol.
     A version detection probe was also added. [Marin Maržić]
 
@@ -332,36 +331,15 @@ o [NSE] Added 24 NSE scripts from 12 authors, bringing the total up to 470.
     added a related version detection probe and UDP protocol payload for
     detecting the service. [Marin Maržić]
 
-  + http-server-header grabs the Server header as a last-ditch effort to get a
-    software version. This can't be done as a softmatch because of the need to
-    match non-HTTP services that obey some HTTP requests. [Daniel Miller]
-
-  + rfc868-time gets the date and time from an RFC 868 Time server. [Daniel
-    Miller]
-
-  + weblogic-t3-info detects the T3 RMI protocol used by Oracle/BEA Weblogic
-    and extracts the Weblogic version. [Alessandro Zanni, Daniel Miller]
-
-  + http-iis-short-name-brute detects Microsoft IIS servers vulnerable to a
-    file/folder name disclosure and a denial of service vulnerability. The
-    script obtains the "shortnames" of the files and folders in the webroot
-    folder. [Paulino Calderon]
-
-  + http-dlink-backdoor detects DLink routers with firmware backdoor allowing
-    admin access over HTTP interface. [Patrik Karlsson]
-
-  + qconn-exec tests the QNX QCONN service for remote command execution.
-    [Brendan Coles]
-
   + http-csrf detects Cross Site Request Forgeries (CSRF) vulnerabilities by
     searching for CSRF tokens in HTML forms. [George Chatzisofroniou]
-
-  + whois-ip and whois-domain replace the whois script, which previously could
-    only collect whois info for IP addresses. [George Chatzisofroniou]
 
   + http-devframework finds out the technology behind the target website based
     on HTTP headers, static URLs, and other content and resources. [George
     Chatzisofroniou]
+
+  + http-dlink-backdoor detects DLink routers with firmware backdoor allowing
+    admin access over HTTP interface. [Patrik Karlsson]
 
   + http-dombased-xss finds potential DOM-based Cross-site Scripting (XSS)
     vulnerabilities by searching for specific patterns in JavaScript resources.
@@ -372,12 +350,24 @@ o [NSE] Added 24 NSE scripts from 12 authors, bringing the total up to 470.
 
   + http-feed crawls a web site for Atom and RSS feeds. [George Chatzisofroniou]
 
+  + http-iis-short-name-brute detects Microsoft IIS servers vulnerable to a
+    file/folder name disclosure and a denial of service vulnerability. The
+    script obtains the "shortnames" of the files and folders in the webroot
+    folder. [Paulino Calderon]
+
   + http-mobileversion-checker checks for mobile versions of web pages by
     setting an Android User-Agent header and checking for HTTP redirects.
     [George Chatzisofroniou]
 
+  + http-ntlm-info gets server information from Web servers that require NTLM
+    authentication. [Justin Cacak]
+
   + http-referer-checker finds JavaScript resources that are included from other
     domains, increasing a website's attack surface. [George Chatzisofroniou]
+
+  + http-server-header grabs the Server header as a last-ditch effort to get a
+    software version. This can't be done as a softmatch because of the need to
+    match non-HTTP services that obey some HTTP requests. [Daniel Miller]
 
   + http-useragent-tester checks for sites that redirect common Web spider
     User-Agents to a different page than browsers get. [George Chatzisofroniou]
@@ -388,6 +378,31 @@ o [NSE] Added 24 NSE scripts from 12 authors, bringing the total up to 470.
   + http-xssed searches the xssed.com database of Cross-site Scripting
     vulnerabilities for previously-reported XSS vulnerabilities in the target.
     [George Chatzisofroniou]
+
+  + qconn-exec tests the QNX QCONN service for remote command execution.
+    [Brendan Coles]
+
+  + quake1-info retrieves server and player information from Quake 1 game
+    servers. Reports potential DoS amplification factor.  [Ulrik Haugen]
+
+  + rfc868-time gets the date and time from an RFC 868 Time server. [Daniel
+    Miller]
+
+  + ssl-heartbleed detects the Heartbleed bug in OpenSSL CVE-2014-0160 [Patrik
+    Karlsson]
+
+  + sstp-discover discovers Microsoft's Secure Socket Tunnelling Protocol
+    (http://msdn.microsoft.com/en-us/library/cc247338.aspx) [Niklaus Schiess]
+
+  + unittest runs unit tests found in NSE libraries. The corresponding
+    unittest.lua library has examples. Run `nmap --script=unittest
+    --script-args=unittest.run -d` to run the tests. [Daniel Miller]
+
+  + weblogic-t3-info detects the T3 RMI protocol used by Oracle/BEA Weblogic
+    and extracts the Weblogic version. [Alessandro Zanni, Daniel Miller]
+
+  + whois-ip and whois-domain replace the whois script, which previously could
+    only collect whois info for IP addresses. [George Chatzisofroniou]
 
 o [NSE] Fixed an error-handling bug in socks-open-proxy that caused it to fail
   when scanning a SOCKS4-only proxy. Reported on IRC by Husky. [Daniel Miller]
