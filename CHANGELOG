@@ -4,6 +4,24 @@ o Add 2 more ASCII-art configure splash images to be rotated randomly with the
   traditional dragon image. New ideas for other images to use here may be sent
   to dev@nmap.org. [Jay Bosamiya, Daniel Miller]
 
+o Integrated all of your IPv6 OS fingerprint submissions from June 2013 to
+  April 2015 (only 97 of them!). We are steadily improving the IPv6 database,
+  but we need your submissions. The classifier added 9 new groups, bringing the
+  new total to 90. Highlights: http://seclists.org/nmap-dev/2015/q2/170 [Daniel
+  Miller]
+
+o Integrated all of your IPv4 OS fingerprint submissions from May 2014 to
+  February 2015 (1900+ of them). Added 281 fingerprints, bringing the new total
+  to 4766. Addtions include Linux 3.18, Windows 8.1, OS X 10.10, Android 5.0,
+  FreeBSD 10.1, OpenBSD 5.6, and more. Highlights:
+  http://seclists.org/nmap-dev/2015/q2/169 [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  June 2013 to February 2015 (2500+ of them). The signature count soared over
+  the 10000 mark, a 12% increase. We now detect 1062 protocols, from http,
+  telnet, and ftp to jute, bgp, and slurm. Highlights:
+  http://seclists.org/nmap-dev/2015/q2/171 [Daniel Miller]
+
 o [NSE] Added 23 NSE scripts from 16 authors, bringing the total up to 493.
   They are all listed at http://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
