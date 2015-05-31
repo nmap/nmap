@@ -5503,19 +5503,7 @@ $as_echo "no" >&6; }
   esac
 
 
-NDIFFDIR=ndiff
 
-# Do they want Ndiff?
-
-# Check whether --with-ndiff was given.
-if test "${with_ndiff+set}" = set; then :
-  withval=$with_ndiff;
-else
-  with_ndiff=check
-fi
-
-
-if test "$with_ndiff" != "no"; then
 
 
 
@@ -5555,7 +5543,7 @@ if ${am_cv_pathless_PYTHON+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python python2 python3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
+	for am_cv_pathless_PYTHON in python2 python2.7 python2.6 python2.5 python2.4 python none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
 	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
@@ -5627,16 +5615,7 @@ fi
 
 
   if test "$PYTHON" = :; then
-      if test "$with_ndiff" = "check"; then
-     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python 2.4 or later was not found" >&5
-$as_echo "$as_me: WARNING: Not building Ndiff because Python 2.4 or later was not found" >&2;}
-   else
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-ndiff requires Python 2.4 or later
-See \`config.log' for more details" "$LINENO" 5; }
-   fi
-   with_ndiff=no
+      HAVE_PYTHON=false
   else
 
 
@@ -5747,10 +5726,38 @@ $as_echo "$am_cv_python_pyexecdir" >&6; }
   pkgpyexecdir=\${pyexecdir}/$PACKAGE
 
 
-
+    HAVE_PYTHON=true
   fi
 
 
+HAVE_PYTHON2=false
+if test $HAVE_PYTHON && test "x${PYTHON_VERSION%%.*}" = "x2"; then
+    HAVE_PYTHON2=true
+fi
+
+NDIFFDIR=ndiff
+
+# Do they want Ndiff?
+
+# Check whether --with-ndiff was given.
+if test "${with_ndiff+set}" = set; then :
+  withval=$with_ndiff;
+else
+  with_ndiff=check
+fi
+
+if $HAVE_PYTHON2 ; then : ;
+else
+  if test "$with_ndiff" = "check" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python 2.x with x>=4 was not found" >&5
+$as_echo "$as_me: WARNING: Not building Ndiff because Python 2.x with x>=4 was not found" >&2;}
+  else
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--with-ndiff requires Python 2.x with x>=4
+See \`config.log' for more details" "$LINENO" 5; }
+  fi
+   with_ndiff=no
 fi
 if test "$with_ndiff" = "no"; then
   BUILDNDIFF=""
@@ -5787,242 +5794,18 @@ else
 fi
 
 
-if test "$with_zenmap" != "no"; then
-
-
-
-
-
-
-        if test -n "$PYTHON"; then
-      # If the user set $PYTHON, use it and don't search something else.
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $PYTHON version >= 2.4" >&5
-$as_echo_n "checking whether $PYTHON version >= 2.4... " >&6; }
-      prog="import sys
-# split strings by '.' and convert to numeric.  Append some zeros
-# because we need at least 4 digits for the hex conversion.
-# map returns an iterator in Python 3.0 and a list in 2.x
-minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
-minverhex = 0
-# xrange is not present in Python 3.0 and range returns an iterator
-for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
-sys.exit(sys.hexversion < minverhex)"
-  if { echo "$as_me:$LINENO: $PYTHON -c "$prog"" >&5
-   ($PYTHON -c "$prog") >&5 2>&5
-   ac_status=$?
-   echo "$as_me:$LINENO: \$? = $ac_status" >&5
-   (exit $ac_status); }; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
+if $HAVE_PYTHON2 ; then : ;
 else
-  as_fn_error $? "too old" "$LINENO" 5
-fi
-      am_display_PYTHON=$PYTHON
-    else
-      # Otherwise, try each interpreter until we find one that satisfies
-      # VERSION.
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a Python interpreter with version >= 2.4" >&5
-$as_echo_n "checking for a Python interpreter with version >= 2.4... " >&6; }
-if ${am_cv_pathless_PYTHON+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-	for am_cv_pathless_PYTHON in python python2 python3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
-	  test "$am_cv_pathless_PYTHON" = none && break
-	  prog="import sys
-# split strings by '.' and convert to numeric.  Append some zeros
-# because we need at least 4 digits for the hex conversion.
-# map returns an iterator in Python 3.0 and a list in 2.x
-minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
-minverhex = 0
-# xrange is not present in Python 3.0 and range returns an iterator
-for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
-sys.exit(sys.hexversion < minverhex)"
-  if { echo "$as_me:$LINENO: $am_cv_pathless_PYTHON -c "$prog"" >&5
-   ($am_cv_pathless_PYTHON -c "$prog") >&5 2>&5
-   ac_status=$?
-   echo "$as_me:$LINENO: \$? = $ac_status" >&5
-   (exit $ac_status); }; then :
-  break
-fi
-	done
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_pathless_PYTHON" >&5
-$as_echo "$am_cv_pathless_PYTHON" >&6; }
-      # Set $PYTHON to the absolute path of $am_cv_pathless_PYTHON.
-      if test "$am_cv_pathless_PYTHON" = none; then
-	PYTHON=:
-      else
-        # Extract the first word of "$am_cv_pathless_PYTHON", so it can be a program name with args.
-set dummy $am_cv_pathless_PYTHON; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_PYTHON+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $PYTHON in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PYTHON="$PYTHON" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PYTHON="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PYTHON=$ac_cv_path_PYTHON
-if test -n "$PYTHON"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON" >&5
-$as_echo "$PYTHON" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-      fi
-      am_display_PYTHON=$am_cv_pathless_PYTHON
-    fi
-
-
-  if test "$PYTHON" = :; then
-      if test "$with_zenmap" = "check"; then
-     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python 2.4 or later was not found" >&5
-$as_echo "$as_me: WARNING: Not building Zenmap because Python 2.4 or later was not found" >&2;}
-   else
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-zenmap requires Python 2.4 or later
-See \`config.log' for more details" "$LINENO" 5; }
-   fi
-   with_zenmap=no
+  if test "$with_zenmap" = "check"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python 2.x with x>=4 was not found" >&5
+$as_echo "$as_me: WARNING: Not building Zenmap because Python 2.x with x>=4 was not found" >&2;}
   else
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON version" >&5
-$as_echo_n "checking for $am_display_PYTHON version... " >&6; }
-if ${am_cv_python_version+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  am_cv_python_version=`$PYTHON -c "import sys; sys.stdout.write(sys.version[:3])"`
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_version" >&5
-$as_echo "$am_cv_python_version" >&6; }
-  PYTHON_VERSION=$am_cv_python_version
-
-
-
-  PYTHON_PREFIX='${prefix}'
-
-  PYTHON_EXEC_PREFIX='${exec_prefix}'
-
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON platform" >&5
-$as_echo_n "checking for $am_display_PYTHON platform... " >&6; }
-if ${am_cv_python_platform+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  am_cv_python_platform=`$PYTHON -c "import sys; sys.stdout.write(sys.platform)"`
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_platform" >&5
-$as_echo "$am_cv_python_platform" >&6; }
-  PYTHON_PLATFORM=$am_cv_python_platform
-
-
-
-
-            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON script directory" >&5
-$as_echo_n "checking for $am_display_PYTHON script directory... " >&6; }
-if ${am_cv_python_pythondir+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test "x$prefix" = xNONE
-     then
-       am_py_prefix=$ac_default_prefix
-     else
-       am_py_prefix=$prefix
-     fi
-     am_cv_python_pythondir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(0,0,prefix='$am_py_prefix'))" 2>/dev/null`
-     case $am_cv_python_pythondir in
-     $am_py_prefix*)
-       am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
-       am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,$PYTHON_PREFIX,"`
-       ;;
-     *)
-       case $am_py_prefix in
-         /usr|/System*) ;;
-         *)
-	  am_cv_python_pythondir=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
-	  ;;
-       esac
-       ;;
-     esac
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_pythondir" >&5
-$as_echo "$am_cv_python_pythondir" >&6; }
-  pythondir=$am_cv_python_pythondir
-
-
-
-  pkgpythondir=\${pythondir}/$PACKAGE
-
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON extension module directory" >&5
-$as_echo_n "checking for $am_display_PYTHON extension module directory... " >&6; }
-if ${am_cv_python_pyexecdir+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test "x$exec_prefix" = xNONE
-     then
-       am_py_exec_prefix=$am_py_prefix
-     else
-       am_py_exec_prefix=$exec_prefix
-     fi
-     am_cv_python_pyexecdir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(1,0,prefix='$am_py_exec_prefix'))" 2>/dev/null`
-     case $am_cv_python_pyexecdir in
-     $am_py_exec_prefix*)
-       am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
-       am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,$PYTHON_EXEC_PREFIX,"`
-       ;;
-     *)
-       case $am_py_exec_prefix in
-         /usr|/System*) ;;
-         *)
-	   am_cv_python_pyexecdir=$PYTHON_EXEC_PREFIX/lib/python$PYTHON_VERSION/site-packages
-	   ;;
-       esac
-       ;;
-     esac
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_pyexecdir" >&5
-$as_echo "$am_cv_python_pyexecdir" >&6; }
-  pyexecdir=$am_cv_python_pyexecdir
-
-
-
-  pkgpyexecdir=\${pyexecdir}/$PACKAGE
-
-
-
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--with-zenmap requires Python 2.x with x>=4
+See \`config.log' for more details" "$LINENO" 5; }
   fi
-
-
+    with_zenmap=no
 fi
 if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""

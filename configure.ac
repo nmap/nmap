@@ -216,19 +216,25 @@ AC_SEARCH_LIBS(gethostbyname, nsl)
 dnl Check IPv6 raw sending flavor.
 CHECK_IPV6_IPPROTO_RAW
 
+m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python2 python2.7 python2.6 python2.5 python2.4 python])
+AM_PATH_PYTHON([2.4], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
+HAVE_PYTHON2=false
+if test $HAVE_PYTHON && test "x${PYTHON_VERSION%%.*}" = "x2"; then
+    HAVE_PYTHON2=true
+fi
+
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
 AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
-
-if test "$with_ndiff" != "no"; then
-  AM_PATH_PYTHON([2.4], [],
-  [if test "$with_ndiff" = "check"; then
-     AC_MSG_WARN([Not building Ndiff because Python 2.4 or later was not found])
-   else
-     AC_MSG_FAILURE([--with-ndiff requires Python 2.4 or later])
-   fi
-   with_ndiff=no])
+if $HAVE_PYTHON2 ; then : ;
+else
+  if test "$with_ndiff" = "check" ; then
+    AC_MSG_WARN([Not building Ndiff because Python 2.x with x>=4 was not found])
+  else
+    AC_MSG_FAILURE([--with-ndiff requires Python 2.x with x>=4])
+  fi
+   with_ndiff=no
 fi
 if test "$with_ndiff" = "no"; then
   BUILDNDIFF=""
@@ -258,14 +264,14 @@ ZENMAPDIR=zenmap
 # Do they want Zenmap?
 AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
 
-if test "$with_zenmap" != "no"; then
-  AM_PATH_PYTHON([2.4], [],
-  [if test "$with_zenmap" = "check"; then
-     AC_MSG_WARN([Not building Zenmap because Python 2.4 or later was not found])
-   else
-     AC_MSG_FAILURE([--with-zenmap requires Python 2.4 or later])
-   fi
-   with_zenmap=no])
+if $HAVE_PYTHON2 ; then : ;
+else
+  if test "$with_zenmap" = "check"; then
+    AC_MSG_WARN([Not building Zenmap because Python 2.x with x>=4 was not found])
+  else
+    AC_MSG_FAILURE([--with-zenmap requires Python 2.x with x>=4])
+  fi
+    with_zenmap=no
 fi
 if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""
