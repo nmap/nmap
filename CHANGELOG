@@ -1,8 +1,33 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now has an official bug tracker! We are using Github Issues, which you
+  can reach from http://issues.nmap.org/. We welcome your bug reports,
+  enhancement requests, and code submissions via the Issues and Pull Request
+  features of Github (https://github.com/nmap/nmap), though the repository
+  itself is just a mirror of our authoritative Subversion repository.
+
 o Add 2 more ASCII-art configure splash images to be rotated randomly with the
   traditional dragon image. New ideas for other images to use here may be sent
   to dev@nmap.org. [Jay Bosamiya, Daniel Miller]
+
+o [Zenmap] New Chinese-language (zh) translation from Jie Jiang, new Hindi (hi)
+  translation by Gyanendra Mishra, and updated translations for German (de,
+  Chris Leick), Italian (it, Jan Reister), Polish (pl, Jacek Wielemborek), and
+  French (fr, MaZ)
+
+o Added options --data <hex string> and --data-string <string> to send custom
+  payloads in scan packet data. [Jay Bosamiya]
+
+o --reason is enabled for verbosity > 2, and now includes the TTL of received
+  packets in Normal output (this was already present in XML) [Jay Bosamiya]
+
+o Fix ICMP Echo (-PE) host discovery for IPv6, broken since 6.45, caused by
+  failing to set the ICMP ID for outgoing packets which is used to match
+  incoming responses. [Andrew Waters]
+
+o Solve a crash on Windows (reported on Windows 8.1 on Surface Pro 3) caused by
+  passing a NULL pointer to a WinPcap function that then tries to write an
+  error message to it. [Peter Malecka]
 
 o Integrated all of your IPv6 OS fingerprint submissions from June 2013 to
   April 2015 (only 97 of them!). We are steadily improving the IPv6 database,
@@ -89,23 +114,49 @@ o [NSE] Added 23 NSE scripts from 16 authors, bringing the total up to 493.
   + targets-ipv6-wordlist generates target IPv6 addresses from a wordlist made
     of hexadecimal characters. [Raúl Fuentes]
 
-o [NSE] Remove db2-discover, as its functionality was performed by service
-  version detection since the broadcast portion was separated into
-  broadcast-db2-discover. http://seclists.org/nmap-dev/2014/q3/415 [Daniel
-  Miller]
+o Update our Windows build system to VS 2013 on Windows 8.1. Also, we now build
+  our included OpenSSL with DEP, ASLR, and SafeSEH enabled. [Daniel Miller]
+
+o Our OS X installer is now built for a minimum supported version of 10.8
+  (Mountain Lion), a much-needed update from 10.5 (Leopard). Additionally,
+  OpenSSL is now statically linked, allowing us to distribute the latest from
+  Macports instead of being subjected to the 0.9.8 branch still in use as of
+  10.9. [Daniel Miller]
+
+o Fix compilation and several bugs on AIX. [Daniel Miller]
 
 o Fix a bug in libdnet-stripped on Solaris that resulted in the wrong MAC
   address being detected for all interfaces.
   http://seclists.org/nmap-dev/2015/q2/1 [Daniel Miller]
+
+o New features for the IPv6 OS detection engine allow for better classification
+  of systems: IPv6 guessed initial hop limit (TTL) and ratio of TCP initial
+  window size to maximum segment size. [Alexandru Geana]
+
+o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
+  handshake, including certificate key size and DH parameters if applicable.
+  This is similar to Qualys's SSL Labs scanner, and means that we no longer
+  maintain a list of scores per ciphersuite. [Daniel Miller]
+
+o [NSE] Improved http-form-brute autodetection and behavior to handle more
+  unusual-but-valid HTML syntax, non-POST forms, success/failure testing on
+  HTTP headers, and more. [nnposter]
+
+o [NSE] Reduce many NSE default timeouts and base them on Nmap's detected
+  timeouts for those hosts from the port scan phase. Scripts which take timeout
+  script-args can now handle 's' and 'ms' suffixes, just like Nmap's own
+  options. [Daniel Miller]
+
+o [NSE] Remove db2-discover, as its functionality was performed by service
+  version detection since the broadcast portion was separated into
+  broadcast-db2-discover. http://seclists.org/nmap-dev/2014/q3/415 [Daniel
+  Miller]
 
 o [NSE] Make smb-ls able to leverage results from smb-enum-shares or list of
   shares specified on command line. [Pierre Lalet]
 
 o [NSE] Fix X509 cert date parsing for dates after 2049. Reported by Teppo
   Turtiainen. [Daniel Miller]
-
-o Add IPv6 Hop Limit (similar to IPv4 TTL) as a feature for the IPv6 OS
-  fingerprinting engine. [Alexandru Geana]
 
 o Handle a bunch of socket errors that can result from odd ICMP Type 3
   Destination Unreachable messages received during service scanning. The crash
@@ -122,17 +173,8 @@ o Reduce CPU consumption when using nsock poll engine with no registered FD,
   by actually calling Poll() for the time until timeout, instead of directly
   returning zero and entering the loop again. [Henri Doreau]
 
-o Fix ICMP Echo (-PE) host discovery for IPv6, broken since 6.45, caused by
-  failing to set the ICMP ID for outgoing packets which is used to match
-  incoming responses. [Andrew Waters]
-
-o Solve a crash on Windows 8.1 on Surface Pro 3 caused by WinPcap trying to
-  write an error message to a NULL pointer. [Peter Malecka]
-
 o Change the URI for the fingerprint submitter to its new location at
   https://nmap.org/cgi-bin/submit.cgi
-
-o [Zenmap] Added new Hindi (hi) translation by Gyanendra Mishra.
 
 o [NSE] Added a check for Cisco ASA version disclosure, CVE-2014-3398, to
   http-enum in the 'security' category [Daniel Miller]
@@ -144,11 +186,6 @@ o Fixed a bug that caused Nmap to fail to find any network interface when a
 
 o Added a version probe for Tor. [David Fifield]
 
-o [Zenmap] Updated translations for German (de, Chris Leick), Italian (it, Jan
-  Reister), Polish (pl, Jacek Wielemborek), and French (fr, MaZ)
-
-o [Zenmap] New Chinese-language (zh) translation from Jie Jiang.
-
 o [NSE] Add support to citrix-enum-apps-xml for reporting if Citrix
    published applications in the list are enforcing/requiring the level
    of ICA/session data encryption shown in the script result.
@@ -158,11 +195,6 @@ o [NSE] Updated our Wordpress plugin list to improve the
   http-wordpress-enum NSE script. We can now detect 34,077 plugins,
   up from 18,570. [Danila Poyarkov]
 
-o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
-  handshake, including certificate key size and DH parameters if applicable.
-  This is similar to Qualys's SSL Labs scanner, and means that we no longer
-  maintain a list of scores per ciphersuite. [Daniel Miller]
-
 o [NSE] Add the signature algorithm that was used to sign the target port's
   x509 certificate to the output of ssl-cert.nse [Tom Sellers]
 
@@ -171,10 +203,6 @@ o [NSE] Fixed a bug in the sslcert.lua library that was triggered against
 
 o [NSE] vulns.Report:make_output() now generates XML structured output
   reports automatically. [Paulino Calderon]
-
-o [NSE] Improved http-form-brute autodetection and behavior to handle more
-  unusual-but-valid HTML syntax, non-POST forms, success/failure testing on
-  HTTP headers, and more. [nnposter]
 
 o [NSE] Add port.reason_ttl, host.reason, host.reason_ttl for use in scripts
   [Jay Bosamiya]
@@ -197,11 +225,6 @@ o Improve OS detection; If a port is detected to be 'tcpwrapped', then it will
 o [Zenmap] Reduce noise generated in Topology View due to anonymous
   hops [Jay Bosamiya]
 
-o --reason is enabled for verbosity > 2
-
-o When --reason is asked for, show TTL information too in default output
-  mode [Jay Bosamiya]
-
 o Added option --exclude-ports to Nmap so that some ports can be excluded from
   scanning (for example, due to policy) [Jay Bosamiya]
 
@@ -210,9 +233,6 @@ o [Zenmap] Catch the MemoryError caused in Zenmap due to large Nmap Output,
 
 o Catch badly named output files (such as those unintentionally caused by
   "-oX -sV logfile.xml") [Jay Bosamiya]
-
-o Added options --data <hex string> and --data-string <string> to send custom
-  payloads in scan packet data. [Jay Bosamiya]
 
 o [Zenmap] Improved NmapParser to increase speed in opening scans. Large scans
   now open in seconds instead of hours. [Jay Bosamiya]
