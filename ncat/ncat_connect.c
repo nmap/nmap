@@ -210,20 +210,22 @@ static int verify_callback(int ok, X509_STORE_CTX *store)
 
 static void set_ssl_ctx_options(SSL_CTX *ctx)
 {
+    if (o.ssltrustfile == NULL) {
+        ssl_load_default_ca_certs(ctx);
+    } else {
+        if (o.debug)
+            logdebug("Using trusted CA certificates from %s.\n", o.ssltrustfile);
+        if (SSL_CTX_load_verify_locations(ctx, o.ssltrustfile, NULL) != 1) {
+            bye("Could not load trusted certificates from %s.\n%s",
+                o.ssltrustfile, ERR_error_string(ERR_get_error(), NULL));
+        }
+    }
+
     if (o.sslverify) {
         SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, verify_callback);
-
-        if (o.ssltrustfile == NULL) {
-            ssl_load_default_ca_certs(ctx);
-        } else {
-            if (o.debug)
-                logdebug("Using trusted CA certificates from %s.\n", o.ssltrustfile);
-            if (SSL_CTX_load_verify_locations(ctx, o.ssltrustfile, NULL) != 1) {
-                bye("Could not load trusted certificates from %s.\n%s",
-                    o.ssltrustfile, ERR_error_string(ERR_get_error(), NULL));
-            }
-        }
     } else {
+        /* Still check verification status and report it */
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, verify_callback);
         if (o.ssl && o.debug)
             logdebug("Not doing certificate verification.\n");
     }
