@@ -93,7 +93,6 @@ OUTPUT:
   --open: Only show open (or possibly open) ports
   --packet-trace: Show all packets sent and received
   --iflist: Print host interfaces and routes (for debugging)
-  --log-errors: Log errors/warnings to the normal-format output file
   --append-output: Append to rather than clobber specified output files
   --resume <filename>: Resume an aborted scan
   --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
