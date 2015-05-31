@@ -831,12 +831,18 @@ class ScanInterface(HIGVBox):
         """Sets the comment on a host from the contents of the comment text
         entry."""
         buff = widget.get_buffer()
-        host.comment = buff.get_text(
+        comment = buff.get_text(
                 buff.get_start_iter(), buff.get_end_iter())
+        if host.comment == comment:
+            # no change, ignore
+            return
+        host.comment = comment
         for scan in self.inventory.get_scans():
-            if host in scan.get_hosts():
-                scan.unsaved = True
-                break
+            for h in scan.get_hosts():
+                if h.get_ip() == host.get_ip() and h.get_ipv6() == host.get_ipv6():
+                    h.set_comment(host.comment)
+                    scan.unsaved = True
+                    break
 
     def build_host_details(self, hosts):
         """Builds and returns a list of "Host Details" pages corresponding to
