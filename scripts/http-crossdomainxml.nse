@@ -7,12 +7,12 @@ local table = require "table"
 local string = require "string"
 
 description = [[
-Checks the cross-domain policy file (/crossdomain.xml) in web applications and lists the trusted 
+Checks the cross-domain policy file (/crossdomain.xml) in web applications and lists the trusted
 domains. Overly permissive settings enable Cross Site Request Forgery attacks and may allow attackers
- to access sensitive data. This script is useful to detect permissive configurations and possible 
+ to access sensitive data. This script is useful to detect permissive configurations and possible
 domain names available for purchase to exploit the application.
 
-The script queries instantdomainsearch.com to lookup the domains. This functionality is 
+The script queries instantdomainsearch.com to lookup the domains. This functionality is
 turned off by default, to enable it set the script argument http-crossdomainxml.domain-lookup.
 
 References:
@@ -26,16 +26,16 @@ References:
 ---
 -- @usage nmap --script http-crossdomainxml <target>
 -- @usage nmap -p80 --script http-crossdomainxml --script-args domain-lookup=true <target>
--- 
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack ttl 40
--- | http-crossdomainxml: 
+-- | http-crossdomainxml:
 -- |   VULNERABLE:
 -- |   Cross-domain policy file (crossdomain.xml)
 -- |     State: VULNERABLE (Exploitable)
--- |       A cross-domain policy file specifies the permissions that a web client such as Java, Adobe Flash, Adobe Reader, 
--- |       etc. use to access data across different domains. Overly permissive configurations enables Cross-site Request 
+-- |       A cross-domain policy file specifies the permissions that a web client such as Java, Adobe Flash, Adobe Reader,
+-- |       etc. use to access data across different domains. Overly permissive configurations enables Cross-site Request
 -- |       Forgery attacks, and may allow third parties to access sensitive data meant for the user.
 -- |     Check results:
 -- |        <?xml version="1.0"?>
@@ -43,10 +43,10 @@ References:
 -- |       <allow-access-from domain="*.0xdeadbeefcafe2.com" />
 -- |       <allow-access-from domain="*.0xdeadbeefcafe.com" />
 -- |       </cross-domain-policy>
--- |       
+-- |
 -- |     Extra information:
 -- |       Trusted domains:0xdeadbeefcafe2.com, 0xdeadbeefcafe.com
--- |   
+-- |
 -- |   [!]Trusted domains available for purchase:0xdeadbeefcafe2.com
 -- |     References:
 -- |       http://gursevkalra.blogspot.com/2013/08/bypassing-same-origin-policy-with-flash.html
@@ -54,7 +54,7 @@ References:
 -- |       https://www.owasp.org/index.php/Test_RIA_cross_domain_policy_%28OTG-CONFIG-008%29
 -- |       https://www.adobe.com/devnet-docs/acrobatetk/tools/AppSec/CrossDomain_PolicyFile_Specification.pdf
 -- |_      http://sethsec.blogspot.com/2014/03/exploiting-misconfigured-crossdomainxml.html
--- 
+--
 -- @args http-crossdomainxml.domain-lookup Boolean to check domain availability. Default:false
 ---
 
@@ -87,11 +87,11 @@ function check_domain (domain)
   end
 
   stdnse.print_debug(1, "Checking availability of domain %s with tld:%s ", name, tld)
-  local path = string.format("/all/%s?/tlds=%s&limit=1", name, tld) 
-  local response = http.get("instantdomainsearch.com", 443, path) 
-  if ( not(response) or (response.status and response.status ~= 200) ) then 
-    return nil 
-  end 
+  local path = string.format("/all/%s?/tlds=%s&limit=1", name, tld)
+  local response = http.get("instantdomainsearch.com", 443, path)
+  if ( not(response) or (response.status and response.status ~= 200) ) then
+    return nil
+  end
   local _, _, registered = response.body:find('"isRegistered":(.-),"isBid":')
   return registered
 end
@@ -122,11 +122,11 @@ function check_crossdomain(host, port, lookup)
         --Parse domains
         line = line:match("domain%=\"(.-)\""):gsub("%*%.", "")
         stdnse.debug(1, "Extracted line: %s", line)
-        
+
         local domain  = line:match("(%w*%.*%w+%.%w+)$")
         if domain ~= nil then
           --Deals with tlds with double extension
-          local tld = domain:match("%w*(%.%w*)%.%w+$") 
+          local tld = domain:match("%w*(%.%w*)%.%w+$")
           if tld ~= nil and not(stdnse.contains(tlds_instantdomainsearch, tld)) then
             domain = domain:match("%w*%.(.*)$")
           end
@@ -141,10 +141,10 @@ function check_crossdomain(host, port, lookup)
                 table.insert(trusted_domains_available, domain)
               end
             end
-          
+
           end
         end
-        stdnse.debug(1, "Extracted domain: %s", domain)     
+        stdnse.debug(1, "Extracted domain: %s", domain)
       end
     end
 
@@ -162,8 +162,8 @@ action = function(host, port)
        title = 'Cross-domain policy file (crossdomain.xml)',
        state = vulns.STATE.NOT_VULN,
        description = [[
-A cross-domain policy file specifies the permissions that a web client such as Java, Adobe Flash, Adobe Reader, 
-etc. use to access data across different domains. Overly permissive configurations enables Cross-site Request 
+A cross-domain policy file specifies the permissions that a web client such as Java, Adobe Flash, Adobe Reader,
+etc. use to access data across different domains. Overly permissive configurations enables Cross-site Request
 Forgery attacks, and may allow third parties to access sensitive data meant for the user.]],
        references = {
           'http://sethsec.blogspot.com/2014/03/exploiting-misconfigured-crossdomainxml.html',
@@ -179,7 +179,7 @@ Forgery attacks, and may allow third parties to access sensitive data meant for 
   if check then
     if stdnse.contains(domains, "*") then
       vuln.state = vulns.STATE.EXPLOIT
-    else 
+    else
       vuln.state = vulns.STATE.LIKELY_VULN
     end
     vuln.check_results = content
@@ -190,8 +190,8 @@ Forgery attacks, and may allow third parties to access sensitive data meant for 
     if lookup ~= nil and #domains_available>0 then
       vuln.state = vulns.STATE.EXPLOIT
       vuln.extra_info = vuln.extra_info .. string.format("\n[!]Trusted domains available for purchase:%s",
-                                                        stdnse.strjoin(', ', domains_available))                     
-    end  
+                                                        stdnse.strjoin(', ', domains_available))
+    end
 
   end
 

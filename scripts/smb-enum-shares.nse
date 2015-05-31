@@ -141,7 +141,7 @@ action = function(host)
       if(share['user_can_write'] == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
         share_output["Type"] = "Not a file share"
       else
-	 table.insert(host.registry['smb_shares'], share.name)
+        table.insert(host.registry['smb_shares'], share.name)
       end
     else
       local details = share['details']
@@ -153,9 +153,9 @@ action = function(host)
       share_output["Path"] = details.path
 
       if (share_output["Type"] == "STYPE_DISKTREE" or
-	  share_output["Type"] == "STYPE_DISKTREE_TEMPORARY" or
-	  share_output["Type"] == "STYPE_DISKTREE_HIDDEN") then
-	 table.insert(host.registry['smb_shares'], share.name)
+          share_output["Type"] == "STYPE_DISKTREE_TEMPORARY" or
+          share_output["Type"] == "STYPE_DISKTREE_HIDDEN") then
+        table.insert(host.registry['smb_shares'], share.name)
       end
     end
     -- Print details for a file share
@@ -186,7 +186,7 @@ action = function(host)
   end
 
   if next(host.registry['smb_shares']) == nil then
-     host.registry['smb_shares'] = nil
+    host.registry['smb_shares'] = nil
   end
 
   return response

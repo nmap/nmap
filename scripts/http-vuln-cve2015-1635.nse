@@ -7,8 +7,8 @@ local vulns = require "vulns"
 description = [[
 Checks for a remote code execution vulnerability (MS15-034) in Microsoft Windows systems (CVE2015-2015-1635).
 
-The script sends a specially crafted HTTP request with no impact on the system to detect this vulnerability. 
-The affected versions are Windows 7, Windows Server 2008 R2, Windows 8, Windows Server 2012, Windows 8.1, 
+The script sends a specially crafted HTTP request with no impact on the system to detect this vulnerability.
+The affected versions are Windows 7, Windows Server 2008 R2, Windows 8, Windows Server 2012, Windows 8.1,
 and Windows Server 2012 R2.
 
 References:
@@ -22,15 +22,15 @@ References:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-vuln-cve2015-1635: 
+-- | http-vuln-cve2015-1635:
 -- |   VULNERABLE:
 -- |   Remote Code Execution in HTTP.sys (MS15-034)
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  CVE:CVE-2015-1635
--- |       A remote code execution vulnerability exists in the HTTP protocol stack (HTTP.sys) that is 
--- |       caused when HTTP.sys improperly parses specially crafted HTTP requests. An attacker who 
+-- |       A remote code execution vulnerability exists in the HTTP protocol stack (HTTP.sys) that is
+-- |       caused when HTTP.sys improperly parses specially crafted HTTP requests. An attacker who
 -- |       successfully exploited this vulnerability could execute arbitrary code in the context of the System account.
--- |           
+-- |
 -- |     Disclosure date: 2015-04-14
 -- |     References:
 -- |       https://technet.microsoft.com/en-us/library/security/ms15-034.aspx
@@ -52,10 +52,10 @@ action = function(host, port)
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local vuln = {
     title = 'Remote Code Execution in HTTP.sys (MS15-034)',
-    state = vulns.STATE.NOT_VULN, 
+    state = vulns.STATE.NOT_VULN,
     description = [[
-A remote code execution vulnerability exists in the HTTP protocol stack (HTTP.sys) that is 
-caused when HTTP.sys improperly parses specially crafted HTTP requests. An attacker who 
+A remote code execution vulnerability exists in the HTTP protocol stack (HTTP.sys) that is
+caused when HTTP.sys improperly parses specially crafted HTTP requests. An attacker who
 successfully exploited this vulnerability could execute arbitrary code in the context of the System account.
     ]],
     IDS = {CVE = 'CVE-2015-1635'},

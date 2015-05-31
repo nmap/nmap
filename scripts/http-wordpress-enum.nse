@@ -16,11 +16,11 @@ The databases are sorted by popularity and the script will search only the top 1
 The theme database has around 32,000 entries while the plugin database has around 14,000 entries.
 
 The script determines the version number of a plugin by looking at the readme.txt file inside the plugin
-directory and it uses the file style.css inside a theme directory to determine the theme version. 
-If the script argument check-latest is set to true, the script will query api.wordpress.org to obtain 
+directory and it uses the file style.css inside a theme directory to determine the theme version.
+If the script argument check-latest is set to true, the script will query api.wordpress.org to obtain
 the latest version number available. This check is disabled by default since it queries an external service.
 
-This script is a combination of http-wordpress-plugins.nse and http-wordpress-themes.nse originally 
+This script is a combination of http-wordpress-plugins.nse and http-wordpress-themes.nse originally
 submited by Ange Gutek and Peter Hill.
 
 TODO:
@@ -31,18 +31,18 @@ TODO:
 -- @usage nmap -sV --script http-wordpress-enum <target>
 -- @usage nmap --script http-wordpress-enum --script-args check-latest=true,search-limit=10 <target>
 -- @usage nmap --script http-wordpress-enum --script-args type="themes" <target>
--- 
--- @args http-wordpress-enum.root Base path. By default the script will try to find a WP directory 
+--
+-- @args http-wordpress-enum.root Base path. By default the script will try to find a WP directory
 --                                installation or fall back to '/'.
 -- @args http-wordpress-enum.search-limit Number of entries or the string "all". Default:100.
 -- @args http-wordpress-enum.type Search type. Available options:plugins, themes or all. Default:all.
--- @args http-wordpress-enum.check-latest Retrieves latest plugin version information from wordpress.org. 
+-- @args http-wordpress-enum.check-latest Retrieves latest plugin version information from wordpress.org.
 --                                        Default:false.
--- 
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-wordpress-enum: 
+-- | http-wordpress-enum:
 -- | Search limited to top 100 themes/plugins
 -- |   plugins
 -- |     akismet
@@ -104,24 +104,24 @@ local function existence_check_assign(act_file)
   local temp_file = io.open(act_file,"r")
   if not temp_file then
     return false
-  end  
-  return temp_file   
+  end
+  return temp_file
  end
 
---Obtains version from readme.txt or style.css 
+--Obtains version from readme.txt or style.css
 local function get_version(path, typeof, host, port)
   local pattern, version, versioncheck
 
   if typeof == 'plugins' then
     path = path .. "readme.txt"
-    pattern = 'Stable tag: ([.0-9]*)'     
-  else 
+    pattern = 'Stable tag: ([.0-9]*)'
+  else
     path = path .. "style.css"
     pattern = 'Version: ([.0-9]*)'
-  end 
-  
+  end
+
   stdnse.debug1("Extracting version of path:%s", path)
-  versioncheck = http.get(host, port, path)  
+  versioncheck = http.get(host, port, path)
   if versioncheck.body then
     version = versioncheck.body:match(pattern)
   end
@@ -129,7 +129,7 @@ local function get_version(path, typeof, host, port)
   return version
 end
 
--- check if the plugin is the latest 
+-- check if the plugin is the latest
 local function get_latest_plugin_version(plugin)
   stdnse.debug1("Retrieving the latest version of %s", plugin)
   local apiurl = WORDPRESS_API_URL .. plugin .. ".json"
@@ -138,7 +138,7 @@ local function get_latest_plugin_version(plugin)
   local latestpluginversion = latestpluginapi.body:match(latestpluginpattern)
   stdnse.debug1("Latest version:%s", latestpluginversion)
   return latestpluginversion
-end  
+end
 
 action = function(host, port)
 
@@ -158,23 +158,23 @@ action = function(host, port)
   local wp_themes_file = nmap.fetchfile("nselib/data/wp-themes.lst")
   local wp_plugins_file = nmap.fetchfile("nselib/data/wp-plugins.lst")
 
-  if operation_type_arg == "themes" or operation_type_arg == "all" then 
+  if operation_type_arg == "themes" or operation_type_arg == "all" then
     local theme_db = existence_check_assign(wp_themes_file)
     if not theme_db then
       return false, "Couldn't find wp-themes.lst in /nselib/data/"
     else
       file['themes'] = theme_db
     end
-  end    
+  end
   if operation_type_arg == "plugins" or operation_type_arg == "all" then
     local plugin_db = existence_check_assign(wp_plugins_file)
     if not plugin_db then
       return  false, "Couldn't find wp-plugins.lst in /nselib/data/"
     else
       file['plugins'] = plugin_db
-    end  
-  end         
-    
+    end
+  end
+
   local resource_search
   if resource_search_arg == "all" then
     resource_search = nil
@@ -248,7 +248,7 @@ action = function(host, port)
       local version = get_version(bfqueries[i][1],key,host,port)
       local output  = nil
 
-      --We format the table for XML output 
+      --We format the table for XML output
       bfqueries[i].path = bfqueries[i][1]
       bfqueries[i].category = key
       bfqueries[i].name = bfqueries[i][2]
@@ -265,10 +265,10 @@ action = function(host, port)
              output = output .. " (latest version:" .. latestversion .. ")"
              bfqueries[i].latest_version = latestversion
            end
-         end  
+         end
       else
          output = bfqueries[i].name
-     end       
+     end
        output_table[bfqueries[i].name] = bfqueries[i]
        table.insert(response, output)
     end
@@ -292,6 +292,6 @@ end
       return nil
     end
   end
-    
+
 end
 

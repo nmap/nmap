@@ -222,7 +222,7 @@ function add_account(host, username, domain, password, password_hash, hash_type,
   -- Reset the credentials
   next_account(host, 1)
 
-  --	io.write("\n\n" .. nsedebug.tostr(host.registry['smbaccounts']) .. "\n\n")
+  -- io.write("\n\n" .. nsedebug.tostr(host.registry['smbaccounts']) .. "\n\n")
 end
 
 ---Retrieve the current set of credentials set in the registry.

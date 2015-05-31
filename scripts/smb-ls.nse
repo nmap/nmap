@@ -55,9 +55,9 @@ local arg_checksum = stdnse.get_script_args(SCRIPT_NAME .. '.checksum')
 local arg_errors   = stdnse.get_script_args(SCRIPT_NAME .. '.errors')
 
 hostrule = function(host)
-   return ( smb.get_port(host) ~= nil and
-	       (arg_shares or arg_share
-		   or host.registry['smb_shares'] ~= nil) )
+  return ( smb.get_port(host) ~= nil and
+    (arg_shares or arg_share
+    or host.registry['smb_shares'] ~= nil) )
 end
 
 -- checks whether the file entry is a directory
@@ -71,97 +71,97 @@ action = function(host)
 
   -- give priority to specified shares if specified
   if arg_shares ~= nil then
-     arg_shares = stdnse.strsplit(":", arg_shares)
+    arg_shares = stdnse.strsplit(":", arg_shares)
   elseif arg_share ~= nil then
-     arg_shares = {arg_share}
+    arg_shares = {arg_share}
   else
-     arg_shares = host.registry['smb_shares']
+    arg_shares = host.registry['smb_shares']
   end
 
   -- arg_maxdepth defaults to 1 (no recursion)
   if arg_maxdepth == nil then
-     arg_maxdepth = 1
+    arg_maxdepth = 1
   else
-     arg_maxdepth = tonumber(arg_maxdepth)
+    arg_maxdepth = tonumber(arg_maxdepth)
   end
 
   local output = {}
 
   for _, share in ipairs(arg_shares) do
-     local status, smbstate = smb.start_ex(host, true, true, share,
-					   nil, nil, nil)
-     if ( not(status) ) then
-	if arg_errors then
-	   table.insert(
-	      output,
-	      ("Failed to authenticate to server (%s) for directory of \\\\%s\\%s%s"):format(smbstate, stdnse.get_hostname(host), share, arg_path))
-	   table.insert(output, "")
-	end
-     else
+    local status, smbstate = smb.start_ex(host, true, true, share,
+      nil, nil, nil)
+    if ( not(status) ) then
+      if arg_errors then
+        table.insert(
+          output,
+          ("Failed to authenticate to server (%s) for directory of \\\\%s\\%s%s"):format(smbstate, stdnse.get_hostname(host), share, arg_path))
+        table.insert(output, "")
+      end
+    else
 
-	table.insert(output, "")
+      table.insert(output, "")
 
-	-- remove leading slash
-	arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
+      -- remove leading slash
+      arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
 
-	-- fixup checksum argument
-	arg_checksum = ( arg_checksum == 'true' or arg_checksum == '1' ) and true or false
+      -- fixup checksum argument
+      arg_checksum = ( arg_checksum == 'true' or arg_checksum == '1' ) and true or false
 
-	local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
-	local depth, path, dirs = 0, arg_path, {}
-	local file_count, dir_count, total_bytes = 0, 0, 0
+      local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
+      local depth, path, dirs = 0, arg_path, {}
+      local file_count, dir_count, total_bytes = 0, 0, 0
 
-	repeat
-	   -- we need three columns per row, plus one for checksum if
-	   -- requested
-	   local lstab = tab.new((arg_checksum and 4 or 3))
+      repeat
+        -- we need three columns per row, plus one for checksum if
+        -- requested
+        local lstab = tab.new((arg_checksum and 4 or 3))
 
-	   for fe in smb.find_files(smbstate, path .. '\\' .. arg_pattern, options ) do
-	      if ( arg_checksum and not(is_dir(fe)) ) then
-		 local status, content = smb.file_read(host, share, path .. '\\' .. fe.fname, nil, {file_create_disposition=1})
-		 local sha1 = ( status and stdnse.tohex(openssl.sha1(content)) or "" )
-		 tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname, sha1)
-	      else
-		 tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname)
-	      end
+        for fe in smb.find_files(smbstate, path .. '\\' .. arg_pattern, options ) do
+          if ( arg_checksum and not(is_dir(fe)) ) then
+            local status, content = smb.file_read(host, share, path .. '\\' .. fe.fname, nil, {file_create_disposition=1})
+            local sha1 = ( status and stdnse.tohex(openssl.sha1(content)) or "" )
+            tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname, sha1)
+          else
+            tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname)
+          end
 
-	      arg_maxfiles = ( arg_maxfiles and arg_maxfiles - 1 )
-	      if ( arg_maxfiles == 0 ) then
-		 break
-	      end
+          arg_maxfiles = ( arg_maxfiles and arg_maxfiles - 1 )
+          if ( arg_maxfiles == 0 ) then
+            break
+          end
 
-	      if ( is_dir(fe) ) then
-		 dir_count = dir_count + 1
-		 if ( fe.fname ~= '.' and fe.fname ~= '..' ) then
-		    table.insert(dirs, { depth = depth + 1, path = path .. '\\' .. fe.fname } )
-		 end
-	      else
-		 total_bytes = total_bytes + fe.eof
-		 file_count = file_count + 1
-	      end
-	   end
-	   table.insert(output, { name = ("Directory of %s"):format( '\\\\' .. stdnse.get_hostname(host) .. '\\' .. share .. path), tab.dump(lstab) })
+          if ( is_dir(fe) ) then
+            dir_count = dir_count + 1
+            if ( fe.fname ~= '.' and fe.fname ~= '..' ) then
+              table.insert(dirs, { depth = depth + 1, path = path .. '\\' .. fe.fname } )
+            end
+          else
+            total_bytes = total_bytes + fe.eof
+            file_count = file_count + 1
+          end
+        end
+        table.insert(output, { name = ("Directory of %s"):format( '\\\\' .. stdnse.get_hostname(host) .. '\\' .. share .. path), tab.dump(lstab) })
 
-	   path = nil
-	   if ( #dirs ~= 0 ) then
-	      local dir = table.remove(dirs, 1)
-	      depth = dir.depth
-	      if ( not(arg_maxdepth) or ( dir.depth < arg_maxdepth ) ) then
-		 path = dir.path
-		 table.insert(output, "")
-	      end
-	   end
-	until(not(path) or arg_maxfiles == 0)
+        path = nil
+        if ( #dirs ~= 0 ) then
+          local dir = table.remove(dirs, 1)
+          depth = dir.depth
+          if ( not(arg_maxdepth) or ( dir.depth < arg_maxdepth ) ) then
+            path = dir.path
+            table.insert(output, "")
+          end
+        end
+      until(not(path) or arg_maxfiles == 0)
 
-	smb.stop(smbstate)
+      smb.stop(smbstate)
 
-	local summary = { name = "Total Files Listed:",
-			  ("%8d File(s)\t%d bytes"):format(file_count, total_bytes),
-			  ("%8d Dir(s)"):format(dir_count) }
-	table.insert(output, "")
-	table.insert(output, summary)
-	table.insert(output, "")
-     end
+      local summary = { name = "Total Files Listed:",
+        ("%8d File(s)\t%d bytes"):format(file_count, total_bytes),
+      ("%8d Dir(s)"):format(dir_count) }
+      table.insert(output, "")
+      table.insert(output, summary)
+      table.insert(output, "")
+    end
   end
 
   return stdnse.format_output(true, output)

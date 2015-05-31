@@ -346,8 +346,8 @@ local TESTS = {
     test = function(o) return not next(o) end
   },
   {'', valid=false},
-  {'null', valid=false},			-- error
-  {'"abc"', valid=false},		-- error
+  {'null', valid=false}, -- error
+  {'"abc"', valid=false}, -- error
   {'{a":1}', valid=false}, -- error
   {'{"a" bad :1}', valid=false}, -- error
   {

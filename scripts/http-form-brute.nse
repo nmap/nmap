@@ -12,7 +12,7 @@ description = [[
 Performs brute force password auditing against http form-based authentication.
 
 This script uses the unpwdb and brute libraries to perform password
-guessing. Any successful guesses are stored in the nmap registry, using 
+guessing. Any successful guesses are stored in the nmap registry, using
 the creds library, for other scripts to use.
 
 The script automatically attempts to discover the form method, action, and

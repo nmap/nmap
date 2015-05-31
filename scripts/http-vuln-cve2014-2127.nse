@@ -53,30 +53,30 @@ Cisco Adaptive Security Appliance (ASA) Software 8.x before 8.2(5.48), 8.3 befor
   }
 
   local vuln_versions = {
-  	['8'] = {
-  		['2'] = 5.48,
+    ['8'] = {
+      ['2'] = 5.48,
       ['3'] = 2.40,
-  		['4'] = 7.9,
+      ['4'] = 7.9,
       ['6'] = 1.13,
-  	},
-  	['9'] = {
-  		['0'] = 4.1,
-  		['1'] = 4.3,
-  	},
-	}
+    },
+    ['9'] = {
+      ['0'] = 4.1,
+      ['1'] = 4.3,
+    },
+  }
 
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
-	local ac = anyconnect.Cisco.AnyConnect:new(host, port)
+  local ac = anyconnect.Cisco.AnyConnect:new(host, port)
   local status, err = ac:connect()
   if not status then
     return ("\n  ERROR: %s"):format(err)
   else
-  	local ver = ac:get_version()
-		if vuln_versions[ver['major']] and vuln_versions[ver['major']][ver['minor']] then
-			if vuln_versions[ver['major']][ver['minor']] > tonumber(ver['rev']) then
-				vuln_table.state = vulns.STATE.VULN
-			end
-		end
+    local ver = ac:get_version()
+    if vuln_versions[ver['major']] and vuln_versions[ver['major']][ver['minor']] then
+      if vuln_versions[ver['major']][ver['minor']] > tonumber(ver['rev']) then
+        vuln_table.state = vulns.STATE.VULN
+      end
+    end
   end
   return report:make_output(vuln_table)
 end

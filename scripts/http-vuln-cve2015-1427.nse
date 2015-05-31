@@ -11,8 +11,8 @@ description = [[
 This script attempts to detect a vulnerability, CVE-2015-1427, which  allows attackers
  to leverage features of this API to gain unauthenticated remote code execution (RCE).
 
- Elasticsearch versions 1.3.0-1.3.7 and 1.4.0-1.4.2 have a vulnerability in the Groovy scripting engine. 
- The vulnerability allows an attacker to construct Groovy scripts that escape the sandbox and execute shell 
+ Elasticsearch versions 1.3.0-1.3.7 and 1.4.0-1.4.2 have a vulnerability in the Groovy scripting engine.
+ The vulnerability allows an attacker to construct Groovy scripts that escape the sandbox and execute shell
  commands as the user running the Elasticsearch Java VM.
  ]]
 
@@ -20,12 +20,12 @@ This script attempts to detect a vulnerability, CVE-2015-1427, which  allows att
 -- @args command Enter the shell comannd to be executed. The script outputs the Java
 -- and Elasticsearch versions by default.
 -- @args invasive If set to true then it creates an index if there are no indices.
--- 
+--
 -- @usage
 -- nmap --script=http-vuln-cve2015-1427 --script-args command= 'ls' <targets>
 --
 --@output
--- | http-vuln-cve2015-1427: 
+-- | http-vuln-cve2015-1427:
 -- |   VULNERABLE:
 -- |   ElasticSearch CVE-2015-1427 RCE Exploit
 -- |     State: VULNERABLE (Exploitable)
@@ -133,7 +133,7 @@ action = function(host, port)
           --check if a vulnerable version is running
           if (tostring(parsed.version.number):find('1.3.[0-7]') or tostring(parsed.version.number):find('1.4.[0-2]')) then
             vuln_table.state = vulns.STATE.LIKELY_VULN
-          end  
+          end
           --help the version/service detection.
           port.version = {
             name = 'elasticsearch',
