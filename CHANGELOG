@@ -52,7 +52,7 @@ o Integrated all of your service/version detection fingerprints submitted from
   telnet, and ftp to jute, bgp, and slurm. Highlights:
   http://seclists.org/nmap-dev/2015/q2/171 [Daniel Miller]
 
-o [NSE] Added 24 NSE scripts from 17 authors, bringing the total up to 494.
+o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 495.
   They are all listed at http://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
 
@@ -102,6 +102,9 @@ o [NSE] Added 24 NSE scripts from 17 authors, bringing the total up to 494.
 
   + mikrotik-routeros-brute performs password auditing attacks against
     Mikrotik's RouterOS API. [Paulino Calderon]
+
+  + omron-info gets device information from Omron PLCs via the FINS service.
+    [Stephen Hilt]
 
   + s7-info gets device information from Siemens PLCs via the S7 service,
     tunneled over ISO-TSAP on TCP port 102. [Stephen Hilt]
