@@ -161,6 +161,9 @@ o [NSE] Remove db2-discover, as its functionality was performed by service
   broadcast-db2-discover. http://seclists.org/nmap-dev/2014/q3/415 [Daniel
   Miller]
 
+o Cache dnet names not found on Windows when enumerating interfaces in the
+  Windows Registry. Reduces startup times. [Elon Natovich]
+
 o [NSE] Make smb-ls able to leverage results from smb-enum-shares or list of
   shares specified on command line. [Pierre Lalet]
 
