@@ -238,7 +238,7 @@ rdc		100143	# Network Storage
 nafo		100144	# Sun Cluster products
 scadmd		100145	# SunCluster 3.0
 amiserv		100146	# AMI Daemon
-amiaux		100147	# AMI Daemon
+amiaux		100147	# BER and DER	# AMI Daemon
 dm		100148	# Delegate Management Server
 rkstat		100149
 ocfserv		100150	# OCF (Smart card) Daemon
@@ -343,6 +343,7 @@ na.hamdstat	100414
 na.neoadmin	100415
 ex1048prog	100416
 rpc.rdmaconfig	100417	# rdmaconfig
+fedfs_admin	100418	# FedFS Administration
 
 # MDMN_COMMD
 mdcommd		100422	# SVM Multi Node Communication Daemon
@@ -1689,6 +1690,16 @@ Oropo		400106	# Oropo
 Oropo		400107	# Oropo
 Oropo		400108	# Oropo
 Oropo		400109	# Oropo
+TintriServices	400111	# Tintri, Inc.
+gss-proxy	400112	# gss-proxy
+inasx		400113	# Extended NFS services
+CohoDataServices	400114	# Coho Data
+CohoDataServices	400115	# Coho Data
+CohoDataServices	400116	# Coho Data
+CohoDataServices	400117	# Coho Data
+CohoDataServices	400118	# Coho Data
+CohoDataServices	400119	# Coho Data
+CohoDataServices	400120	# Coho Data
 # BMC
 EnsignAgent	450000	# Ensign Agent
 #
