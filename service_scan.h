@@ -141,6 +141,7 @@
 
 /**********************  DEFINES/ENUMS ***********************************/
 #define DEFAULT_SERVICEWAITMS 5000
+#define DEFAULT_TCPWRAPPEDMS 2000   // connections closed after this timeout are not considered "tcpwrapped"
 #define DEFAULT_CONNECT_TIMEOUT 5000
 #define DEFAULT_CONNECT_SSL_TIMEOUT 8000  // includes connect() + ssl negotiation
 #define SERVICEMATCH_REGEX 1
@@ -264,6 +265,8 @@ class ServiceProbe {
                                    // probe (e.g. an SMTP probe would commonly identify port 25)
 // Amount of time to wait after a connection succeeds (or packet sent) for a responses.
   int totalwaitms;
+  // If the connection succeeds but closes before this time, it's tcpwrapped.
+  int tcpwrappedms;
 
   // Parses the "probe " line in the nmap-service-probes file.  Pass the rest of the line
   // after "probe ".  The format better be:

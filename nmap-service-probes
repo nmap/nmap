@@ -35,6 +35,9 @@ Probe TCP NULL q||
 # smtp services have lately been instituting an artificial pause (see
 # FEATURE('greet_pause') in Sendmail, for example)
 totalwaitms 6000
+# If the service closes the connection before 3 seconds, it's probably
+# tcpwrapped. Adjust up or down depending on your false-positive rate.
+tcpwrappedms 3000
 
 match 1c-server m|^S\xf5\xc6\x1a{| p/1C:Enterprise business management server/
 

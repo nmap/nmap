@@ -29,6 +29,11 @@ o Solve a crash on Windows (reported on Windows 8.1 on Surface Pro 3) caused by
   passing a NULL pointer to a WinPcap function that then tries to write an
   error message to it. [Peter Malecka]
 
+o Enhance Nmap's tcpwrapped service detection by using a shorter timeout for
+  the tcpwrapped designation. This prevents falsely labeling services as
+  tcpwrapped which merely have a read timeout shorter than 6 seconds. Full
+  discussion: http://issues.nmap.org/39 [nnposter, Daniel Miller]
+
 o Integrated all of your IPv6 OS fingerprint submissions from June 2013 to
   April 2015 (only 97 of them!). We are steadily improving the IPv6 database,
   but we need your submissions. The classifier added 9 new groups, bringing the
