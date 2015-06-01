@@ -19,13 +19,12 @@ correctly.
 --
 -- PORT   STATE SERVICE VERSION
 -- 80/tcp open  http    Unidentified Server 1.0
--- | http-server-header:
--- | Server:
--- |_   Unidentified Server 1.0
+-- |_ http-server-header: Unidentified Server 1.0
 --
 --@xmloutput
 --<table key="Server">
 --  <elem>Unidentified Server 1.0</elem>
+--  <elem>SomeOther Server</elem>
 --</table>
 
 author = "Daniel Miller"
@@ -95,8 +94,8 @@ action = function(host, port)
     out_s[#out_s+1] = s == "" and "<empty>" or s
   end
   if next(out) then
+    table.sort(out)
     table.sort(out_s)
-    table.insert(out_s, 1, "\nServer:")
-    return {Server=out}, table.concat(out_s, "\n  ")
+    return out, ((#out > 1) and "\n  " or "") .. table.concat(out_s, "\n  ")
   end
 end
