@@ -52,7 +52,7 @@ o Integrated all of your service/version detection fingerprints submitted from
   telnet, and ftp to jute, bgp, and slurm. Highlights:
   http://seclists.org/nmap-dev/2015/q2/171 [Daniel Miller]
 
-o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 495.
+o [NSE] Added 26 NSE scripts from 17 authors, bringing the total up to 495.
   They are all listed at http://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
 
@@ -89,6 +89,8 @@ o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 495.
   + http-vuln-cve2015-1427 detects Elasticsearch servers vulnerable to remote
     code execution. [Gyanendra Mishra]
 
+  + http-webdav-scan detects WebDAV installations. [Gyanendra Mishra]
+  
   + http-vuln-cve2015-1635 detects Microsoft Windows systems vulnerable to
     MS15-034. [Paulino Calderon]
 

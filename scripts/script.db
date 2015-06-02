@@ -242,6 +242,7 @@ Entry { filename = "http-vuln-misfortune-cookie.nse", categories = { "intrusive"
 Entry { filename = "http-vuln-wnr1000-creds.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-waf-fingerprint.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-webdav-scan.nse", categories = { "default", "discovery", "safe" } }
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-wordpress-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-users.nse", categories = { "auth", "intrusive", "vuln", } }
