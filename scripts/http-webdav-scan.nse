@@ -18,8 +18,10 @@ This script takes inspiration from the various scripts listed here:
 ]]
 
 ---
--- @usage
+-- @usage 
 -- nmap --script http-webdav-scan -p80,8080 <target>
+--
+-- @args path The path to start in; eg, <code>"/web/"</code> will try <code>"/web/xxx"</code>.
 --
 -- @output
 -- PORT     STATE SERVICE
@@ -34,9 +36,7 @@ This script takes inspiration from the various scripts listed here:
 -- |     http://localhost:8008/WebDAVTest_b1tqTWeyRR
 -- |     http://localhost:8008/WebDAVTest_A0QWJb7hcK
 -- |     http://localhost:8008/WebDAVTest_hf9Mqqpi1M
--- |     http://localhost:8008/WebDAVTest_Ds5KBFywDq
---
--- @args path The path to start in; eg, <code>"/web/"</code> will try <code>"/web/xxx"</code>.
+-- |_    http://localhost:8008/WebDAVTest_Ds5KBFywDq
 --
 -- @xmloutput
 -- <elem key="Allowed Methods">GET, HEAD, COPY, MOVE, POST, PUT,
@@ -51,8 +51,6 @@ This script takes inspiration from the various scripts listed here:
 --   <elem>http://localhost:8008/WebDAVTest_hf9Mqqpi1M</elem>
 --   <elem>http://localhost:8008/WebDAVTest_Ds5KBFywDq</elem>
 -- </table>
-
------------------------------------------------------------------------
 
 author = "Gyanendra Mishra"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
