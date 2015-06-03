@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Remove ahbl.org checks from dnsbl.lua, since the service was shut down.
+  [Forrest B.]
+
 o Nmap now has an official bug tracker! We are using Github Issues, which you
   can reach from http://issues.nmap.org/. We welcome your bug reports,
   enhancement requests, and code submissions via the Issues and Pull Request

@@ -179,20 +179,6 @@ SERVICES = {
       end,
     },
 
-    ["dnsbl.ahbl.org"] = {
-      new = service_new,
-      resp_parser = function(self, r)
-        local responses = {
-          ["127.0.0.4"] = "SPAM",
-          ["127.0.0.5"] = "SPAM",
-          ["127.0.0.6"] = "SPAM",
-          ["127.0.0.7"] = "SPAM",
-          ["127.0.0.8"] = "SPAM",
-        }
-        return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-      end,
-    },
-
     ["l2.apews.org"] = {
       new = service_new,
       resp_parser = function(self, r)
@@ -308,16 +294,6 @@ SERVICES = {
 
           return { state = "PROXY", details = result }
         end
-      end,
-    },
-
-    ["dnsbl.ahbl.org"] = {
-      new = service_new,
-      resp_parser = function(self, r)
-        local responses = {
-          ["127.0.0.3"] = "PROXY",
-        }
-        return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
       end,
     },
 
