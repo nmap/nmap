@@ -7,39 +7,108 @@ local ls = require "ls"
 description = [[
 Shows the content of an "index" Web page.
 
-Example:
-
-    $ nmap -n -p 80 --script http-ls test-debit.free.fr
-
-    Starting Nmap 6.47SVN ( http://nmap.org ) at 2015-05-01 16:43 CEST
-    Nmap scan report for test-debit.free.fr (212.27.42.153)
-    Host is up (0.019s latency).
-    PORT   STATE SERVICE
-    80/tcp open  http
-    | http-ls:
-    | Volume /
-    | maxfiles limit reached (10)
-    | SIZE        TIME               FILENAME
-    | 524288      02-Oct-2013 18:26  512.rnd
-    | 1048576     02-Oct-2013 18:26  1024.rnd
-    | 2097152     02-Oct-2013 18:26  2048.rnd
-    | 4194304     02-Oct-2013 18:26  4096.rnd
-    | 8388608     02-Oct-2013 18:26  8192.rnd
-    | 16777216    02-Oct-2013 18:26  16384.rnd
-    | 33554432    02-Oct-2013 18:26  32768.rnd
-    | 67108864    02-Oct-2013 18:26  65536.rnd
-    | 1073741824  03-Oct-2013 16:46  1048576.rnd
-    | 188         03-Oct-2013 17:15  README.html
-    |_
-
 TODO:
-  - support more page formats
-
+  - add support for more page formats
 ]]
 
 author = "Pierre Lalet"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
+
+---
+-- @usage
+-- nmap -n -p 80 --script http-ls test-debit.free.fr
+--
+-- @args http-ls.checksum compute a checksum for each listed file
+--       (default: false)
+-- @args http-ls.maxdepth maximum recursion level (default: no recursion)
+-- @args http-ls.maxfiles maximum number of files to report (default: 10)
+-- @args http-ls.url base URL path to use (default: /)
+--
+-- @output
+-- PORT   STATE SERVICE
+-- 80/tcp open  http
+-- | http-ls:
+-- | Volume /
+-- | maxfiles limit reached (10)
+-- | SIZE        TIME               FILENAME
+-- | 524288      02-Oct-2013 18:26  512.rnd
+-- | 1048576     02-Oct-2013 18:26  1024.rnd
+-- | 2097152     02-Oct-2013 18:26  2048.rnd
+-- | 4194304     02-Oct-2013 18:26  4096.rnd
+-- | 8388608     02-Oct-2013 18:26  8192.rnd
+-- | 16777216    02-Oct-2013 18:26  16384.rnd
+-- | 33554432    02-Oct-2013 18:26  32768.rnd
+-- | 67108864    02-Oct-2013 18:26  65536.rnd
+-- | 1073741824  03-Oct-2013 16:46  1048576.rnd
+-- | 188         03-Oct-2013 17:15  README.html
+-- |_
+--
+-- @xmloutput
+-- <table key="volumes">
+--   <table>
+--     <elem key="volume">/</elem>
+--     <table key="files">
+--       <table>
+--         <elem key="size">524288</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">512.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">1048576</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">1024.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">2097152</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">2048.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">4194304</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">4096.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">8388608</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">8192.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">16777216</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">16384.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">33554432</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">32768.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">67108864</elem>
+--         <elem key="time">02-Oct-2013 18:26</elem>
+--         <elem key="filename">65536.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">1073741824</elem>
+--         <elem key="time">03-Oct-2013 16:46</elem>
+--         <elem key="filename">1048576.rnd</elem>
+--       </table>
+--       <table>
+--         <elem key="size">188</elem>
+--         <elem key="time">03-Oct-2013 17:15</elem>
+--         <elem key="filename">README.html</elem>
+--       </table>
+--     </table>
+--     <table key="info">
+--       <elem>maxfiles limit reached (10)</elem>
+--     </table>
+--   </table>
+-- </table>
+-- <table key="total">
+--   <elem key="files">10</elem>
+--   <elem key="bytes">1207435452</elem>
+-- </table>
 
 portrule = shortport.http
 
