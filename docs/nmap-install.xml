@@ -761,9 +761,9 @@ be reused.  Most people simply check the box to apply these changes in the execu
 
 <variablelist>
   <varlistentry><term>MaxUserPort</term>
-     <listitem><para>Set a large value such as 65534 (0x0000fffe).  See <ulink url="http://support.microsoft.com/kb/Q196271">MS KB Q196271</ulink>.</para></listitem></varlistentry>
+     <listitem><para>Set a large value such as 65534 (0x0000fffe).  See <ulink url="https://support.microsoft.com/kb/196271">MS KB 196271</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>TCPTimedWaitDelay</term>
-     <listitem><para>Set the minimum value (0x0000001e). See <ulink url="http://support.microsoft.com/kb/Q149532">MS KB Q149532</ulink>.</para></listitem></varlistentry>
+     <listitem><para>Set the minimum value (0x0000001e). See <ulink url="https://support.microsoft.com/kb/149532">MS KB 149532</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>StrictTimeWaitSeqCheck</term>
      <listitem><para>Set to 1 so TCPTimedWaitDelay is checked.</para></listitem></varlistentry>
 </variablelist>
