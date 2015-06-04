@@ -161,6 +161,7 @@ struct options {
     int keepopen;
     int sendonly;
     int recvonly;
+    int noshutdown;
     int telnet;
     int linedelay;
     int chat;

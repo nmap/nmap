@@ -168,6 +168,7 @@ void options_init(void)
     o.keepopen = 0;
     o.sendonly = 0;
     o.recvonly = 0;
+    o.noshutdown = 0;
     o.telnet = 0;
     o.linedelay = 0;
     o.chat = 0;
