@@ -32,10 +32,6 @@ o Nmap now has an official bug tracker! We are using Github Issues, which you
   features of Github (https://github.com/nmap/nmap), though the repository
   itself is just a mirror of our authoritative Subversion repository.
 
-o Add 2 more ASCII-art configure splash images to be rotated randomly with the
-  traditional dragon image. New ideas for other images to use here may be sent
-  to dev@nmap.org. [Jay Bosamiya, Daniel Miller]
-
 o [Zenmap] New Chinese-language (zh) translation from Jie Jiang, new Hindi (hi)
   translation by Gyanendra Mishra, and updated translations for German (de,
   Chris Leick), Italian (it, Jan Reister), Polish (pl, Jacek Wielemborek), and
@@ -64,6 +60,12 @@ o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
   handshake, including certificate key size and DH parameters if applicable.
   This is similar to Qualys's SSL Labs scanner, and means that we no longer
   maintain a list of scores per ciphersuite. [Daniel Miller]
+
+o All nmap.org pages are now available SSL-secured to improve privacy
+  and ensure your binaries can't be tampered with in transit. So be
+  sure to download from https://nmap.org/download.html. We will soon
+  remove the non-SSL version of the site. We still offer GPG-signed
+  binaries as well: https://nmap.org/book/install.html#inst-integrity
 
 o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 494!
   They are all listed at http://nmap.org/nsedoc/, and the summaries are below
@@ -147,6 +149,10 @@ o Enhance Nmap's tcpwrapped service detection by using a shorter timeout for
 o Fix ICMP Echo (-PE) host discovery for IPv6, broken since 6.45, caused by
   failing to set the ICMP ID for outgoing packets which is used to match
   incoming responses. [Andrew Waters]
+
+o Add 2 more ASCII-art configure splash images to be rotated randomly with the
+  traditional dragon image. New ideas for other images to use here may be sent
+  to dev@nmap.org. [Jay Bosamiya, Daniel Miller]
 
 o Solve a crash on Windows (reported on Windows 8.1 on Surface Pro 3) caused by
   passing a NULL pointer to a WinPcap function that then tries to write an
