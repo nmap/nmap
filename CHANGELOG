@@ -1,7 +1,30 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-webdav-scan, which detects WebDAV installations. [Gyanendra Mishra]
+  
+
 o [NSE] Remove ahbl.org checks from dnsbl.lua, since the service was shut down.
   [Forrest B.]
+
+Nmap 6.49BETA1 [2015-06-03]
+
+o Integrated all of your IPv4 OS fingerprint submissions from May 2014 to
+  February 2015 (1900+ of them). Added 281 fingerprints, bringing the new total
+  to 4766. Addtions include Linux 3.18, Windows 8.1, OS X 10.10, Android 5.0,
+  FreeBSD 10.1, OpenBSD 5.6, and more. Highlights:
+  http://seclists.org/nmap-dev/2015/q2/169 [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  June 2013 to February 2015 (2500+ of them). The signature count soared over
+  the 10000 mark, a 12% increase. We now detect 1062 protocols, from http,
+  telnet, and ftp to jute, bgp, and slurm. Highlights:
+  http://seclists.org/nmap-dev/2015/q2/171 [Daniel Miller]
+
+o Integrated all of your IPv6 OS fingerprint submissions from June 2013 to
+  April 2015 (only 97 of them!). We are steadily improving the IPv6 database,
+  but we need your submissions. The classifier added 9 new groups, bringing the
+  new total to 90. Highlights: http://seclists.org/nmap-dev/2015/q2/170 [Daniel
+  Miller]
 
 o Nmap now has an official bug tracker! We are using Github Issues, which you
   can reach from http://issues.nmap.org/. We welcome your bug reports,
@@ -24,38 +47,25 @@ o Added options --data <hex string> and --data-string <string> to send custom
 o --reason is enabled for verbosity > 2, and now includes the TTL of received
   packets in Normal output (this was already present in XML) [Jay Bosamiya]
 
-o Fix ICMP Echo (-PE) host discovery for IPv6, broken since 6.45, caused by
-  failing to set the ICMP ID for outgoing packets which is used to match
-  incoming responses. [Andrew Waters]
+o Update our Windows build system to VS 2013 on Windows 8.1. Also, we now build
+  our included OpenSSL with DEP, ASLR, and SafeSEH enabled. [Daniel Miller]
 
-o Solve a crash on Windows (reported on Windows 8.1 on Surface Pro 3) caused by
-  passing a NULL pointer to a WinPcap function that then tries to write an
-  error message to it. [Peter Malecka]
+o Our OS X installer is now built for a minimum supported version of 10.8
+  (Mountain Lion), a much-needed update from 10.5 (Leopard). Additionally,
+  OpenSSL is now statically linked, allowing us to distribute the latest from
+  Macports instead of being subjected to the 0.9.8 branch still in use as of
+  10.9. [Daniel Miller]
 
-o Enhance Nmap's tcpwrapped service detection by using a shorter timeout for
-  the tcpwrapped designation. This prevents falsely labeling services as
-  tcpwrapped which merely have a read timeout shorter than 6 seconds. Full
-  discussion: http://issues.nmap.org/39 [nnposter, Daniel Miller]
+o New features for the IPv6 OS detection engine allow for better classification
+  of systems: IPv6 guessed initial hop limit (TTL) and ratio of TCP initial
+  window size to maximum segment size. [Alexandru Geana]
 
-o Integrated all of your IPv6 OS fingerprint submissions from June 2013 to
-  April 2015 (only 97 of them!). We are steadily improving the IPv6 database,
-  but we need your submissions. The classifier added 9 new groups, bringing the
-  new total to 90. Highlights: http://seclists.org/nmap-dev/2015/q2/170 [Daniel
-  Miller]
+o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
+  handshake, including certificate key size and DH parameters if applicable.
+  This is similar to Qualys's SSL Labs scanner, and means that we no longer
+  maintain a list of scores per ciphersuite. [Daniel Miller]
 
-o Integrated all of your IPv4 OS fingerprint submissions from May 2014 to
-  February 2015 (1900+ of them). Added 281 fingerprints, bringing the new total
-  to 4766. Addtions include Linux 3.18, Windows 8.1, OS X 10.10, Android 5.0,
-  FreeBSD 10.1, OpenBSD 5.6, and more. Highlights:
-  http://seclists.org/nmap-dev/2015/q2/169 [Daniel Miller]
-
-o Integrated all of your service/version detection fingerprints submitted from
-  June 2013 to February 2015 (2500+ of them). The signature count soared over
-  the 10000 mark, a 12% increase. We now detect 1062 protocols, from http,
-  telnet, and ftp to jute, bgp, and slurm. Highlights:
-  http://seclists.org/nmap-dev/2015/q2/171 [Daniel Miller]
-
-o [NSE] Added 26 NSE scripts from 17 authors, bringing the total up to 495.
+o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 494!
   They are all listed at http://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
 
@@ -92,8 +102,6 @@ o [NSE] Added 26 NSE scripts from 17 authors, bringing the total up to 495.
   + http-vuln-cve2015-1427 detects Elasticsearch servers vulnerable to remote
     code execution. [Gyanendra Mishra]
 
-  + http-webdav-scan detects WebDAV installations. [Gyanendra Mishra]
-  
   + http-vuln-cve2015-1635 detects Microsoft Windows systems vulnerable to
     MS15-034. [Paulino Calderon]
 
@@ -131,29 +139,24 @@ o [NSE] Added 26 NSE scripts from 17 authors, bringing the total up to 495.
   + targets-ipv6-wordlist generates target IPv6 addresses from a wordlist made
     of hexadecimal characters. [Raúl Fuentes]
 
-o Update our Windows build system to VS 2013 on Windows 8.1. Also, we now build
-  our included OpenSSL with DEP, ASLR, and SafeSEH enabled. [Daniel Miller]
+o Enhance Nmap's tcpwrapped service detection by using a shorter timeout for
+  the tcpwrapped designation. This prevents falsely labeling services as
+  tcpwrapped which merely have a read timeout shorter than 6 seconds. Full
+  discussion: http://issues.nmap.org/39 [nnposter, Daniel Miller]
 
-o Our OS X installer is now built for a minimum supported version of 10.8
-  (Mountain Lion), a much-needed update from 10.5 (Leopard). Additionally,
-  OpenSSL is now statically linked, allowing us to distribute the latest from
-  Macports instead of being subjected to the 0.9.8 branch still in use as of
-  10.9. [Daniel Miller]
+o Fix ICMP Echo (-PE) host discovery for IPv6, broken since 6.45, caused by
+  failing to set the ICMP ID for outgoing packets which is used to match
+  incoming responses. [Andrew Waters]
+
+o Solve a crash on Windows (reported on Windows 8.1 on Surface Pro 3) caused by
+  passing a NULL pointer to a WinPcap function that then tries to write an
+  error message to it. [Peter Malecka]
 
 o Fix compilation and several bugs on AIX. [Daniel Miller]
 
 o Fix a bug in libdnet-stripped on Solaris that resulted in the wrong MAC
   address being detected for all interfaces.
   http://seclists.org/nmap-dev/2015/q2/1 [Daniel Miller]
-
-o New features for the IPv6 OS detection engine allow for better classification
-  of systems: IPv6 guessed initial hop limit (TTL) and ratio of TCP initial
-  window size to maximum segment size. [Alexandru Geana]
-
-o [NSE] Rework ssl-enum-ciphers to actually score the strength of the SSL/TLS
-  handshake, including certificate key size and DH parameters if applicable.
-  This is similar to Qualys's SSL Labs scanner, and means that we no longer
-  maintain a list of scores per ciphersuite. [Daniel Miller]
 
 o [NSE] Improved http-form-brute autodetection and behavior to handle more
   unusual-but-valid HTML syntax, non-POST forms, success/failure testing on
