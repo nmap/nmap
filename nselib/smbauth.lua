@@ -522,8 +522,6 @@ function ntlmv2_create_hash(ntlm, username, domain)
     return false, "SMB: OpenSSL not present"
   end
 
-  local unicode = ""
-
   username = unicode.utf8to16(string.upper(username))
   domain   = unicode.utf8to16(string.upper(domain))
 
