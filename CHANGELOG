@@ -68,7 +68,7 @@ o All nmap.org pages are now available SSL-secured to improve privacy
   binaries as well: https://nmap.org/book/install.html#inst-integrity
 
 o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 494!
-  They are all listed at http://nmap.org/nsedoc/, and the summaries are below
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
 
   + bacnet-info gets device information from SCADA/ICS devices via BACnet
