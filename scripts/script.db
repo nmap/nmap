@@ -242,7 +242,7 @@ Entry { filename = "http-vuln-misfortune-cookie.nse", categories = { "intrusive"
 Entry { filename = "http-vuln-wnr1000-creds.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-waf-fingerprint.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "http-webdav-scan.nse", categories = { "default", "discovery", "safe" } }
+Entry { filename = "http-webdav-scan.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-wordpress-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-users.nse", categories = { "auth", "intrusive", "vuln", } }
@@ -347,6 +347,7 @@ Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "omp2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "omp2-enum-targets.nse", categories = { "discovery", "safe", } }
+Entry { filename = "omron-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "openlookup-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "openvas-otp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "oracle-brute-stealth.nse", categories = { "brute", "intrusive", } }
@@ -472,6 +473,7 @@ Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "tor-consensus-checker.nse", categories = { "external", "safe", } }
 Entry { filename = "traceroute-geolocation.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "unittest.nse", categories = { "safe", } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
