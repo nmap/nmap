@@ -652,7 +652,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
               sockaddr_storage_cmp(&target_src, &hdr.dst) != 0 ||
               sockaddr_storage_cmp(&target_src, &encaps_hdr.src) != 0 ||
               sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0 ||
-              ntohs(ping->id) != probe->icmpid())
+              ((probe->protocol() == IPPROTO_ICMP || probe->protocol() == IPPROTO_ICMPV6) &&
+               ntohs(ping->id) != probe->icmpid()))
             continue;
 
           if ((encaps_hdr.proto == IPPROTO_ICMP || encaps_hdr.proto == IPPROTO_ICMPV6)
