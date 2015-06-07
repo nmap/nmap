@@ -339,7 +339,7 @@
 /* General tunable defines  **************************************************/
 #define NPING_NAME "Nping"
 #define NPING_URL "http://nmap.org/nping"
-#define NPING_VERSION "0.6.47SVN"
+#define NPING_VERSION "0.6.49SVN"
 
 
 #define DEFAULT_VERBOSITY VB_0

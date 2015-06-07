@@ -261,13 +261,13 @@ void *realloc();
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "6.47SVN"
-#define NMAP_NUM_VERSION "6.0.47.0"
+#define NMAP_VERSION "6.49SVN"
+#define NMAP_NUM_VERSION "6.0.49.0"
 #endif
 /* The version number of updates retrieved by the nmap-update
    program. It can be different (but should always be the same or
    earlier) than NMAP_VERSION. */
-#define NMAP_UPDATE_CHANNEL "6.00"
+#define NMAP_UPDATE_CHANNEL "6.49"
 
 #define NMAP_XMLOUTPUTVERSION "1.04"
 
