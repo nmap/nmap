@@ -5751,13 +5751,13 @@ else
   if test "$with_ndiff" = "check" ; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python 2.x with x>=4 was not found" >&5
 $as_echo "$as_me: WARNING: Not building Ndiff because Python 2.x with x>=4 was not found" >&2;}
-  else
+  elif test "$with_ndiff" = "yes"; then
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "--with-ndiff requires Python 2.x with x>=4
 See \`config.log' for more details" "$LINENO" 5; }
   fi
-   with_ndiff=no
+  with_ndiff=no
 fi
 if test "$with_ndiff" = "no"; then
   BUILDNDIFF=""
@@ -5799,13 +5799,13 @@ else
   if test "$with_zenmap" = "check"; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python 2.x with x>=4 was not found" >&5
 $as_echo "$as_me: WARNING: Not building Zenmap because Python 2.x with x>=4 was not found" >&2;}
-  else
+  elif test "$with_zenmap" = "yes"; then
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "--with-zenmap requires Python 2.x with x>=4
 See \`config.log' for more details" "$LINENO" 5; }
   fi
-    with_zenmap=no
+  with_zenmap=no
 fi
 if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""

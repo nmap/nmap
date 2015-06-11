@@ -231,10 +231,10 @@ if $HAVE_PYTHON2 ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
     AC_MSG_WARN([Not building Ndiff because Python 2.x with x>=4 was not found])
-  else
+  elif test "$with_ndiff" = "yes"; then
     AC_MSG_FAILURE([--with-ndiff requires Python 2.x with x>=4])
   fi
-   with_ndiff=no
+  with_ndiff=no
 fi
 if test "$with_ndiff" = "no"; then
   BUILDNDIFF=""
@@ -268,10 +268,10 @@ if $HAVE_PYTHON2 ; then : ;
 else
   if test "$with_zenmap" = "check"; then
     AC_MSG_WARN([Not building Zenmap because Python 2.x with x>=4 was not found])
-  else
+  elif test "$with_zenmap" = "yes"; then
     AC_MSG_FAILURE([--with-zenmap requires Python 2.x with x>=4])
   fi
-    with_zenmap=no
+  with_zenmap=no
 fi
 if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""
