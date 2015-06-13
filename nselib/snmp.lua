@@ -1,12 +1,15 @@
 ---
--- SNMP functions.
+-- SNMP library.
 --
--- @args snmpcommunity The community string to use. If not given, it is
--- <code>"public"</code>, or whatever is passed to <code>buildPacket</code>.
+-- @author Patrik Karlsson <patrik@cqure.net>
+-- @author Gioacchino Mazzurco <gmazzurco89@gmail.com>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+
+-- 2015-06-11 Gioacchino Mazzurco - Use creds library to handle SNMP community
 
 local asn1 = require "asn1"
 local bin = require "bin"
+local creds = require "creds"
 local math = require "math"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -137,36 +140,15 @@ function decode(encStr, pos)
 end
 
 ---
--- Get the best community string for a host
--- Tries the following in order:
--- * host.registry.snmpcommunity
--- * snmpcommunity script-arg
--- * The fallback parameter
--- * "public"
--- @param host The host table to check.
--- @param fallback An alternate default to use instead of "public"
--- @return The best-guess SNMP community string to use
-function best_community(host, fallback)
-  if host and host.registry and host.registry.snmpcommunity then
-    return host.registry.snmpcommunity
-  else
-    return nmap.registry.args.snmpcommunity or fallback or "public"
-  end
-end
-
----
 -- Create an SNMP packet.
 -- @param PDU SNMP Protocol Data Unit to be encapsulated in the packet.
 -- @param version SNMP version, default <code>0</code> (SNMP V1).
--- @param commStr community string, if not already supplied in registry or as
--- the <code>snmpcommunity</code> script argument.
+-- @param commStr community string.
 function buildPacket(PDU, version, commStr)
-  local comm = commStr or best_community()
-
   if (not version) then version = 0 end
   local packet = {}
   packet[1] = version
-  packet[2] = comm
+  packet[2] = commStr
   packet[3] = PDU
   return packet
 end
@@ -218,11 +200,10 @@ end
 -- @param ... Object identifiers to be queried.
 -- @return Table representing PDU.
 function buildGetNextRequest(options, ...)
-  if not options then options = {} end
-
-  if not options.reqId then options.reqId = math.fmod(nmap.clock_ms(), 65000) end
-  if not options.err then options.err = 0 end
-  if not options.errIdx then options.errIdx = 0 end
+  options = options or {}
+  options.reqId = options.reqId or math.fmod(nmap.clock_ms(), 65000)
+  options.err = options.err or 0
+  options.errIdx = options.errIdx or 0
 
   local req = {}
   req._snmp = 'A1'
@@ -414,7 +395,7 @@ function fetchResponseValues(resp)
   local varBind
   if (resp._snmp and resp._snmp == 'A2') then
     varBind = resp[4]
-  elseif (resp[3]._snmp and resp[3]._snmp == 'A2') then
+  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == 'A2') then
     varBind = resp[3][4]
   end
 
@@ -443,21 +424,6 @@ function fetchResponseValues(resp)
 end
 
 
----
--- Fetches the first value from a SNMP response.
--- @param response SNMP Response (will be decoded if necessary).
--- @return First decoded value of the response.
-function fetchFirst(response)
-  local result = fetchResponseValues(response)
-
-  if type(result) == "table" and result[1] and result[1][1] then
-    return result[1][1]
-  else
-    return nil
-  end
-end
-
-
 --- SNMP Helper class
 --
 -- Handles socket communication, parsing, and setting of community strings
@@ -467,20 +433,35 @@ Helper = {
   --
   -- @param host string containing the host name or ip
   -- @param port number containing the port to connect to
+  -- @param community string containing SNMP community
   -- @param options A table with appropriate options:
   --  * timeout - the timeout in milliseconds (Default: 5000)
   --  * version - the SNMP version code (Default: 0 (SNMP V1))
   -- @return o a new instance of Helper
-  new = function( self, host, port, options )
+  new = function( self, host, port, community, options )
     local o = {}
     setmetatable(o, self)
     self.__index = self
     o.host = host
     o.port = port
+    
+    o.community = community or "public"
+    if community == nil then
+      local creds_store = creds.Credentials:new(creds.ALL_DATA, host, port)
+      for _,cs in ipairs({creds.State.PARAM, creds.State.VALID}) do
+        local account = creds_store:getCredentials(cs)()
+        if (account and account.pass) then
+          o.community = account.pass == "<empty>" and "" or account.pass
+          break
+        end
+      end
+    end
+
     o.options = options or {
       timeout = 5000,
       version = 0
     }
+    
     return o
   end,
 
@@ -490,7 +471,7 @@ Helper = {
   -- @return status true on success, false on failure
   connect = function( self )
     self.socket = nmap.new_socket()
-    self.socket:set_timeout(self.timeout)
+    self.socket:set_timeout(self.options.timeout)
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then return false, err end
 
@@ -503,20 +484,19 @@ Helper = {
   -- @return status False if there was an error, true otherwise.
   -- @return response The raw response read from the socket.
   request = function (self, message)
-      local payload = encode( buildPacket(
-          message,
-          self.version,
-          self.community or self.host.registry.snmpcommunity
-        ) )
+    local payload = encode( buildPacket(
+        message,
+        self.version,
+        self.community
+      ) )
 
-      local status, err = self.socket:send(payload)
-      if not status then
-        stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
-        return false, err
-      end
+    local status, err = self.socket:send(payload)
+    if not status then
+      stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
+      return false, err
+    end
 
-      local response
-      status, response = self.socket:receive_bytes(1)
+    return self.socket:receive_bytes(1)
   end,
 
   --- Sends an SNMP Get Next request
@@ -570,30 +550,21 @@ Helper = {
   -- @return table containing <code>oid</code> and <code>value</code>
   walk = function (self, base_oid)
 
-    local snmp_table = {}
+    local snmp_table = { baseoid = base_oid }
     local oid = base_oid
     local options = {}
 
-    while ( true ) do
-      local status, response = self:getnext(options, oid)
-
-      local snmpdata = fetchResponseValues( response )
-
-      local value = snmpdata[1][1]
+    local status, snmpdata = self:getnext(options, oid)
+    while ( snmpdata and snmpdata[1] and snmpdata[1][1] and snmpdata[1][2] ) do
       oid  = snmpdata[1][2]
-
-      if not oid:match( base_oid ) or base_oid == oid then
-        break
-      end
-
-      table.insert(snmp_table, { oid = oid, value = value })
-
+      if not oid:match(base_oid) or base_oid == oid then break end
+      
+      table.insert(snmp_table, { oid = oid, value = snmpdata[1][1] })
+      local _ -- NSE don't want you to use global even if it is _
+      _, snmpdata = self:getnext(options, oid)
     end
 
-    snmp_table.baseoid = base_oid
-
-    return true, snmp_table
-
+    return status, snmp_table
   end
 }
 

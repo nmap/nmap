@@ -174,6 +174,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
   pcap:set_timeout(host.times.timeout * 1000 * 3)
   pcap:pcap_open(host.interface, 300, false, "src host ".. host.ip .." and udp and src port 161 and dst port "..lport)
 
+  local communities = creds.Credentials:new(SCRIPT_NAME, host, port)
 
   -- last_run indicated whether there will be only one more receive
   local last_run = false
@@ -197,7 +198,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
       _, res = snmp.decode(response)
 
       if type(res) == "table" then
-        result.communities[ #(result.communities) + 1 ] = res[2]
+        communities:add(nil, res[2], creds.State.VALID)
       else
         result.status = false
         result.msg = "Wrong type of SNMP response received"
@@ -233,7 +234,6 @@ action = function(host, port)
   local condvar = nmap.condvar(result)
 
   result.sent = false --whether the probes are sent
-  result.communities = {} -- list of valid community strings
   result.msg = "" -- Error/Status msg
   result.status = true -- Status (is everything ok)
 
@@ -263,27 +263,7 @@ action = function(host, port)
   socket:close()
 
   if result.status then
-    -- add the community strings to the creds database
-    local c = creds.Credentials:new(SCRIPT_NAME, host, port)
-    for _, community_string in ipairs(result.communities) do
-      c:add("",community_string, creds.State.VALID)
-    end
-
-    -- insert the first community string as a snmpcommunity registry field
-    local creds_iter = c:getCredentials()
-    if creds_iter then
-      local account = creds_iter()
-      if account then
-        if account.pass == "<empty>" then
-          host.registry.snmpcommunity = ""
-        else
-          host.registry.snmpcommunity = account.pass
-        end
-      end
-    end
-
-    -- return output
-    return c:getTable()
+    return creds.Credentials:new(SCRIPT_NAME, host, port):getTable()
   else
     stdnse.debug1("An error occurred: "..result.msg)
   end

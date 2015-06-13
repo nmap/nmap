@@ -141,8 +141,7 @@ action = function(host, port)
     return "\n  ERROR: Failed to receive cisco configuration file"
   end
 
-  local result
-  result = snmp.fetchFirst(response)
+  local result = response and response[1] and response[1][1]
   if not result then
     return
   end

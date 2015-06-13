@@ -46,7 +46,7 @@ action = function(host, port)
   -- since we got something back, the port is definitely open
   nmap.set_port_state(host, port, "open")
 
-  local result = snmp.fetchFirst(response)
+  local result = response and response[1] and response[1][1]
 
   -- build a SNMP v1 packet
   -- copied from packet capture of snmpget exchange
@@ -57,7 +57,7 @@ action = function(host, port)
     return result
   end
 
-  local uptime = snmp.fetchFirst(response)
+  local uptime = response and response[1] and response[1][1]
   if not uptime then
     return
   end
