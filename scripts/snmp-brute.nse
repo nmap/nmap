@@ -34,6 +34,8 @@ No output is reported if no valid account is found.
 -- 2011-12-29 Patrik Karlsson - Added lport to sniff_snmp_responses to fix
 --                              bug preventing multiple scripts from working
 --                              properly.
+-- 2015-05-31 Gioacchino Mazzurco - Add IPv6 support by making the script IP
+--                              version agnostic
 
 ---
 -- @usage
@@ -273,9 +275,9 @@ action = function(host, port)
       local account = creds_iter()
       if account then
         if account.pass == "<empty>" then
-          nmap.registry.snmpcommunity = ""
+          host.registry.snmpcommunity = ""
         else
-          nmap.registry.snmpcommunity = account.pass
+          host.registry.snmpcommunity = account.pass
         end
       end
     end

@@ -103,23 +103,19 @@ end
 
 action = function(host, port)
 
-  local socket = nmap.new_socket()
-  local catch = function() socket:close() end
-  local try = nmap.new_try(catch)
   local tcp_oid = "1.3.6.1.2.1.6.13.1.1"
   local udp_oid = "1.3.6.1.2.1.7.5.1.1"
   local netstat = {}
   local status, tcp, udp
 
-  socket:set_timeout(5000)
-  try(socket:connect(host, port))
+  local snmpHelper = snmp.Helper:new(host, port)
+  snmpHelper:connect()
 
-  status, tcp = snmp.snmpWalk( socket, tcp_oid )
+  status, tcp = snmpHelper:walk( tcp_oid )
   if ( not(status) ) then return end
 
-  status, udp = snmp.snmpWalk( socket, udp_oid )
+  status, udp = snmpHelper:walk( udp_oid )
   if ( not(status) ) then return end
-  socket:close()
 
   if ( tcp == nil ) or ( #tcp == 0 ) or ( udp==nil ) or ( #udp == 0 ) then
     return
@@ -136,7 +132,6 @@ action = function(host, port)
   netstat = table_merge( tcp, udp )
 
   nmap.set_port_state(host, port, "open")
-  socket:close()
 
   return stdnse.format_output( true, netstat )
 end

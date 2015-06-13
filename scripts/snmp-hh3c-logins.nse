@@ -122,27 +122,18 @@ end
 
 action = function(host, port)
 
-  local socket = nmap.new_socket()
-  local catch = function() socket:close() end
-  local try = nmap.new_try(catch)
-  local data, oldsnmpoid = nil, "1.3.6.1.4.1.2011.10.2.12.1.1.1"
-  local data, newsnmpoid = nil, "1.3.6.1.4.1.25506.2.12.1.1.1"
-  local users = {}
-  local status
+  local oldsnmpoid = "1.3.6.1.4.1.2011.10.2.12.1.1.1"
+  local newsnmpoid = "1.3.6.1.4.1.25506.2.12.1.1.1"
 
-  socket:set_timeout(5000)
-  try(socket:connect(host, port))
+  local snmpHelper = snmp.Helper:new(host, port)
+  snmpHelper:connect()
 
-  status, users = snmp.snmpWalk( socket, oldsnmpoid )
-  socket:close()
+  local status, users = snmpHelper:walk( oldsnmpoid )
 
   if (not(status)) or ( users == nil ) or ( #users == 0 ) then
 
     -- no status? try new snmp oid
-    socket:set_timeout(5000)
-    try(socket:connect(host, port))
-    status, users = snmp.snmpWalk( socket, newsnmpoid )
-    socket:close()
+    status, users = snmpHelper:walk( newsnmpoid )
 
     if (not(status)) or ( users == nil ) or ( #users == 0 ) then
       return users

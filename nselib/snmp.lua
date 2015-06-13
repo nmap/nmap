@@ -137,16 +137,31 @@ function decode(encStr, pos)
 end
 
 ---
+-- Get the best community string for a host
+-- Tries the following in order:
+-- * host.registry.snmpcommunity
+-- * snmpcommunity script-arg
+-- * The fallback parameter
+-- * "public"
+-- @param host The host table to check.
+-- @param fallback An alternate default to use instead of "public"
+-- @return The best-guess SNMP community string to use
+function best_community(host, fallback)
+  if host and host.registry and host.registry.snmpcommunity then
+    return host.registry.snmpcommunity
+  else
+    return nmap.registry.args.snmpcommunity or fallback or "public"
+  end
+end
+
+---
 -- Create an SNMP packet.
 -- @param PDU SNMP Protocol Data Unit to be encapsulated in the packet.
 -- @param version SNMP version, default <code>0</code> (SNMP V1).
 -- @param commStr community string, if not already supplied in registry or as
 -- the <code>snmpcommunity</code> script argument.
 function buildPacket(PDU, version, commStr)
-  local comm = nmap.registry.args.snmpcommunity
-  if (not comm) then comm = nmap.registry.snmpcommunity end
-  if (not comm) then comm = commStr end
-  if (not comm) then comm = "public" end
+  local comm = commStr or best_community()
 
   if (not version) then version = 0 end
   local packet = {}
@@ -156,13 +171,17 @@ function buildPacket(PDU, version, commStr)
   return packet
 end
 
+--- SNMP options table
+-- @class table
+-- @name snmp.options
+-- @field reqId Request ID.
+-- @field err Error.
+-- @field errIdx Error index.
 
 ---
 -- Create an SNMP Get Request PDU.
--- @param options A table containing the following fields:
--- * <code>"reqId"</code>: Request ID.
--- * <code>"err"</code>: Error.
--- * <code>"errIdx"</code>: Error index.
+-- @param options SNMP options table
+-- @see snmp.options
 -- @param ... Object identifiers to be queried.
 -- @return Table representing PDU.
 function buildGetRequest(options, ...)
@@ -194,10 +213,8 @@ end
 
 ---
 -- Create an SNMP Get Next Request PDU.
--- @param options A table containing the following fields:
--- * <code>"reqId"</code>: Request ID.
--- * <code>"err"</code>: Error.
--- * <code>"errIdx"</code>: Error index.
+-- @param options SNMP options table
+-- @see snmp.options
 -- @param ... Object identifiers to be queried.
 -- @return Table representing PDU.
 function buildGetNextRequest(options, ...)
@@ -230,10 +247,8 @@ end
 -- Create an SNMP Set Request PDU.
 --
 -- Takes one OID/value pair or an already prepared table.
--- @param options A table containing the following keys and values:
--- * <code>"reqId"</code>: Request ID.
--- * <code>"err"</code>: Error.
--- * <code>"errIdx"</code>: Error index.
+-- @param options SNMP options table
+-- @see snmp.options
 -- @param oid Object identifiers of object to be set.
 -- @param value To which value object should be set. If given a table, use the
 -- table instead of OID/value pair.
@@ -299,10 +314,8 @@ end
 -- Create an SNMP Get Response PDU.
 --
 -- Takes one OID/value pair or an already prepared table.
--- @param options A table containing the following keys and values:
--- * <code>"reqId"</code>: Request ID.
--- * <code>"err"</code>: Error.
--- * <code>"errIdx"</code>: Error index.
+-- @param options SNMP options table
+-- @see snmp.options
 -- @param oid Object identifiers of object to be sent back.
 -- @param value If given a table, use the table instead of OID/value pair.
 -- @return Table representing PDU.
@@ -445,59 +458,143 @@ function fetchFirst(response)
 end
 
 
---- Walks the MIB Tree
+--- SNMP Helper class
 --
--- @param socket socket already connected to the server
--- @param base_oid string containing the base object ID to walk
--- @return status true on success, false on failure
--- @return table containing <code>oid</code> and <code>value</code>
-function snmpWalk( socket, base_oid )
+-- Handles socket communication, parsing, and setting of community strings
+Helper = {
 
-  local snmp_table = {}
-  local oid = base_oid
-  local status, err, payload
+  --- Creates a new Helper instance
+  --
+  -- @param host string containing the host name or ip
+  -- @param port number containing the port to connect to
+  -- @param options A table with appropriate options:
+  --  * timeout - the timeout in milliseconds (Default: 5000)
+  --  * version - the SNMP version code (Default: 0 (SNMP V1))
+  -- @return o a new instance of Helper
+  new = function( self, host, port, options )
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.host = host
+    o.port = port
+    o.options = options or {
+      timeout = 5000,
+      version = 0
+    }
+    return o
+  end,
 
-  while ( true ) do
+  --- Connect to the server
+  -- For UDP ports, this doesn't send any packets, but it creates the
+  -- socket and locks in the timeout.
+  -- @return status true on success, false on failure
+  connect = function( self )
+    self.socket = nmap.new_socket()
+    self.socket:set_timeout(self.timeout)
+    local status, err = self.socket:connect(self.host, self.port)
+    if ( not(status) ) then return false, err end
 
-    local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
-    payload = encode( buildPacket( buildGetNextRequest(options, oid) ) )
+    return true
+  end,
 
-    status, err = socket:send(payload)
-    if ( not( status ) ) then
-      stdnse.debug1("snmp.snmpWalk: Send failed")
-      return false, err
-    end
+  --- Communications helper
+  -- Sends an SNMP message and receives a response.
+  -- @param message the result of one of the build*Request functions
+  -- @return status False if there was an error, true otherwise.
+  -- @return response The raw response read from the socket.
+  request = function (self, message)
+      local payload = encode( buildPacket(
+          message,
+          self.version,
+          self.community or self.host.registry.snmpcommunity
+        ) )
 
-    status, response = socket:receive_bytes(1)
-    if ( not( status ) ) then
-      -- Unless we have a useful error message, don't report it
-      if ( response ~= "ERROR" ) then
-        stdnse.debug1("snmp.snmpWalk: Received no answer (%s)", response)
-        return false, response
+      local status, err = self.socket:send(payload)
+      if not status then
+        stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
+        return false, err
       end
-      return false, nil
+
+      local response
+      status, response = self.socket:receive_bytes(1)
+  end,
+
+  --- Sends an SNMP Get Next request
+  -- @param options SNMP options table
+  -- @see snmp.options
+  -- @param ... Object identifiers to be queried.
+  -- @return status False if error, true otherwise
+  -- @return Table with all decoded responses and their OIDs.
+  getnext = function (self, options, ...)
+    local status, response = self:request(buildGetNextRequest(options or {}, ...))
+    if not status then
+      return status, response
+    end
+    return status, fetchResponseValues(response)
+  end,
+
+  --- Sends an SNMP Get request
+  -- @param options SNMP options table
+  -- @see snmp.options
+  -- @param ... Object identifiers to be queried.
+  -- @return status False if error, true otherwise
+  -- @return Table with all decoded responses and their OIDs.
+  get = function (self, options, ...)
+    local status, response = self:request(buildGetRequest(options or {}, ...))
+    if not status then
+      return status, response
+    end
+    return status, fetchResponseValues(response)
+  end,
+
+  --- Sends an SNMP Set request
+  -- @param options SNMP options table
+  -- @see snmp.options
+  -- @param oid Object identifiers of object to be set.
+  -- @param value To which value object should be set. If given a table,
+  --              use the table instead of OID/value pair.
+  -- @return status False if error, true otherwise
+  -- @return Table with all decoded responses and their OIDs.
+  set = function (self, options, oid, setparam)
+    local status, response = self:request(buildSetRequest(options or {}, oid, setparam))
+    if not status then
+      return status, response
+    end
+    return status, fetchResponseValues(response)
+  end,
+
+  --- Walks the MIB Tree
+  --
+  -- @param base_oid string containing the base object ID to walk
+  -- @return status true on success, false on failure
+  -- @return table containing <code>oid</code> and <code>value</code>
+  walk = function (self, base_oid)
+
+    local snmp_table = {}
+    local oid = base_oid
+    local options = {}
+
+    while ( true ) do
+      local status, response = self:getnext(options, oid)
+
+      local snmpdata = fetchResponseValues( response )
+
+      local value = snmpdata[1][1]
+      oid  = snmpdata[1][2]
+
+      if not oid:match( base_oid ) or base_oid == oid then
+        break
+      end
+
+      table.insert(snmp_table, { oid = oid, value = value })
+
     end
 
-    snmpdata = fetchResponseValues( response )
+    snmp_table.baseoid = base_oid
 
-    value = snmpdata[1][1]
-    oid  = snmpdata[1][2]
-
-    if not oid:match( base_oid ) or base_oid == oid then
-      break
-    end
-
-    item.oid = oid
-    item.value = value
-
-    table.insert( snmp_table, item )
+    return true, snmp_table
 
   end
-
-  snmp_table.baseoid = base_oid
-
-  return true, snmp_table
-
-end
+}
 
 return _ENV;

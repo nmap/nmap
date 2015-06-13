@@ -31,66 +31,31 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 -- Sends SNMP packets to host and reads responses
 action = function(host, port)
 
-  -- create the socket used for our connection
-  local socket = nmap.new_socket()
-
-  -- set a reasonable timeout value
-  socket:set_timeout(5000)
-
-  -- do some exception handling / cleanup
-  local catch = function()
-    socket:close()
-  end
-
-  local try = nmap.new_try(catch)
-
-  -- connect to the potential SNMP system
-  try(socket:connect(host, port))
-
-  local payload
+  local snmpHelper = snmp.Helper:new(host, port)
+  snmpHelper:connect()
 
   -- build a SNMP v1 packet
   -- copied from packet capture of snmpget exchange
   -- get value: 1.3.6.1.2.1.1.1.0 (SNMPv2-MIB::sysDescr.0)
-  local options = {}
-  options.reqId = 28428 -- unnecessary?
-  payload = snmp.encode(snmp.buildPacket(snmp.buildGetRequest(options, "1.3.6.1.2.1.1.1.0")))
+  local status, response = snmpHelper:get({reqId=28428}, "1.3.6.1.2.1.1.1.0")
 
-  try(socket:send(payload))
-
-  local status
-  local response
-
-  -- read in any response we might get
-  status, response = socket:receive_bytes(1)
-
-  if (not status) or (response == "TIMEOUT") then
+  if not status then
     return
   end
 
   -- since we got something back, the port is definitely open
   nmap.set_port_state(host, port, "open")
 
-  local result
-  result = snmp.fetchFirst(response)
+  local result = snmp.fetchFirst(response)
 
   -- build a SNMP v1 packet
   -- copied from packet capture of snmpget exchange
   -- get value: 1.3.6.1.2.1.1.3.0 (SNMPv2-MIB::sysUpTime.0)
-  local options = {}
-  options.reqId = 28428
-  payload = snmp.encode(snmp.buildPacket(snmp.buildGetRequest(options, "1.3.6.1.2.1.1.3.0")))
+  status, response = snmpHelper:get({reqId=28428}, "1.3.6.1.2.1.1.3.0")
 
-  try(socket:send(payload))
-
-  -- read in any response we might get
-  status, response = socket:receive_bytes(1)
-
-  if (not status) or (response == "TIMEOUT") then
+  if not status then
     return result
   end
-
-  try(socket:close())
 
   local uptime = snmp.fetchFirst(response)
   if not uptime then

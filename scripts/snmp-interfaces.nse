@@ -390,9 +390,6 @@ end
 
 action = function(host, port)
 
-  local socket = nmap.new_socket()
-  local catch = function() socket:close() end
-  local try = nmap.new_try(catch)
   -- IF-MIB - used to look up network interfaces
   local if_oid = "1.3.6.1.2.1.2.2.1"
   -- IP-MIB - used to determine IP address information
@@ -411,21 +408,20 @@ action = function(host, port)
 
     srvport = stdnse.get_script_args({"snmp-interfaces.port", "port"})
     if srvport then
-      srvport = tonumber(srvport)
+      srvport = { number=tonumber(srvport), protocol="udp" }
     else
-      srvport = 161
+      srvport = { number=tonumber(srvport), protocol="udp" }
     end
   else
     srvhost = host.ip
     srvport = port.number
   end
 
-  socket:set_timeout(5000)
-  try(socket:connect(srvhost, srvport, "udp"))
+  local snmpHelper = snmp.Helper:new(host, port)
+  snmpHelper:connect()
 
   -- retrieve network interface information from IF-MIB
-  status, interfaces = snmp.snmpWalk( socket, if_oid )
-  socket:close()
+  status, interfaces = snmpHelper:walk(if_oid)
 
   if (not(status)) or ( interfaces == nil ) or ( #interfaces == 0 ) then
     return
@@ -437,8 +433,7 @@ action = function(host, port)
   interfaces = process_interfaces( interfaces )
 
   -- retrieve IP address information from IP-MIB
-  try(socket:connect(srvhost, srvport, "udp"))
-  status, ips = snmp.snmpWalk( socket, ip_oid )
+  status, ips = snmpHelper:walk( ip_oid )
 
   -- associate that IP address information with the correct interface
   if (not(status)) or ( ips ~= nil ) and ( #ips ~= 0 ) then

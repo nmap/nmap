@@ -74,18 +74,14 @@ end
 
 action = function(host, port)
 
-  local socket = nmap.new_socket()
-  local catch = function() socket:close() end
-  local try = nmap.new_try(catch)
   local snmpoid = "1.3.6.1.4.1.77.1.2.3.1.1"
   local services = {}
   local status
 
-  socket:set_timeout(5000)
-  try(socket:connect(host, port))
+  local snmpHelper = snmp.Helper:new(host, port)
+  snmpHelper:connect()
 
-  status, services = snmp.snmpWalk( socket, snmpoid )
-  socket:close()
+  status, services = snmpHelper:walk( snmpoid )
 
   if ( not(status) ) or ( services == nil ) or ( #services == 0 ) then
     return
