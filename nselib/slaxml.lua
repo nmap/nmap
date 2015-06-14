@@ -37,51 +37,56 @@
 -- DOM Table Features
 --
 -- Document - the root table returned from the parseDOM() method.
--- <code>doc.type</code> : the string "document"
--- <code>doc.name</code> : the string "#doc"
--- <code>doc.kids</code> : an array table of child processing instructions, the root element, and comment nodes.
--- <code>doc.root</code> : the root element for the document
+--
+-- * <code>doc.type</code> : the string "document"
+-- * <code>doc.name</code> : the string "#doc"
+-- * <code>doc.kids</code> : an array table of child processing instructions, the root element, and comment nodes.
+-- * <code>doc.root</code> : the root element for the document
 --
 -- Element
 --
--- <code>someEl.type</code> : the string "element"
--- <code>someEl.name</code> : the string name of the element (without any namespace prefix)
--- <code>someEl.nsURI</code> : the namespace URI for this element; nil if no namespace is applied
--- <code>someEl.attr</code> : a table of attributes, indexed by name and index
+-- * <code>someEl.type</code> : the string "element"
+-- * <code>someEl.name</code> : the string name of the element (without any namespace prefix)
+-- * <code>someEl.nsURI</code> : the namespace URI for this element; nil if no namespace is applied
+-- * <code>someEl.attr</code> : a table of attributes, indexed by name and index
+--
 -- <code>local value = someEl.attr['attribute-name']</code> : any namespace prefix of the attribute is not part of the name
+--
 -- <code>local someAttr = someEl.attr[1]</code> : an single attribute table (see below); useful for iterating all 
 -- attributes of an element, or for disambiguating attributes with the same name in different namespaces
--- <code>someEl.kids</code> : an array table of child elements, text nodes, comment nodes, and processing instructions
--- <code>someEl.el</code> : an array table of child elements only
--- <code>someEl.parent</code> : reference to the parent element or document table
+--
+-- * <code>someEl.kids</code> : an array table of child elements, text nodes, comment nodes, and processing instructions
+-- * <code>someEl.el</code> : an array table of child elements only
+-- * <code>someEl.parent</code> : reference to the parent element or document table
 --
 -- Attribute
 --
--- <code>someAttr.type</code> : the string "attribute"
--- <code>someAttr.name</code> : the name of the attribute (without any namespace prefix)
--- <code>someAttr.value</code> : the string value of the attribute (with XML and numeric entities unescaped)
--- <code>someAttr.nsURI</code> : the namespace URI for the attribute; nil if no namespace is applied
--- <code>someAttr.parent</code> : reference to the owning element table
+-- * <code>someAttr.type</code> : the string "attribute"
+-- * <code>someAttr.name</code> : the name of the attribute (without any namespace prefix)
+-- * <code>someAttr.value</code> : the string value of the attribute (with XML and numeric entities unescaped)
+-- * <code>someAttr.nsURI</code> : the namespace URI for the attribute; nil if no namespace is applied
+-- * <code>someAttr.parent</code> : reference to the owning element table
 --
 -- Text - for both CDATA and normal text nodes
--- <code>someText.type</code> : the string "text"
--- <code>someText.name</code> : the string "#text"
--- <code>someText.value</code> : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
--- <code>someText.parent</code> : reference to the parent element table
+--
+-- * <code>someText.type</code> : the string "text"
+-- * <code>someText.name</code> : the string "#text"
+-- * <code>someText.value</code> : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
+-- * <code>someText.parent</code> : reference to the parent element table
 --
 -- Comment
 --
--- <code>someComment.type</code> : the string "comment"
--- <code>someComment.name</code> : the string "#comment"
--- <code>someComment.value</code> : the string content of the attribute
--- <code>someComment.parent</code> : reference to the parent element or document table
+-- * <code>someComment.type</code> : the string "comment"
+-- * <code>someComment.name</code> : the string "#comment"
+-- * <code>someComment.value</code> : the string content of the attribute
+-- * <code>someComment.parent</code> : reference to the parent element or document table
 --
 -- Processing Instruction
 --
--- <code>someComment.type</code> : the string "pi"
--- <code>someComment.name</code> : the string name of the PI, e.g. <?foo …?> has a name of "foo"
--- <code>someComment.value</code> : the string content of the PI, i.e. everything but the name
--- <code>someComment.parent</code> : reference to the parent element or document table
+-- * <code>someComment.type</code> : the string "pi"
+-- * <code>someComment.name</code> : the string name of the PI, e.g. <?foo …?> has a name of "foo"
+-- * <code>someComment.value</code> : the string content of the PI, i.e. everything but the name
+-- * <code>someComment.parent</code> : reference to the parent element or document table
 --
 -- @author {"Gavin Kistner<original pure lua implemetation>", "Gyanendra Mishra<NSE specific implementation>"}
 
