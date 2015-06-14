@@ -88,7 +88,8 @@
 -- * <code>someComment.value</code> : the string content of the PI, i.e. everything but the name
 -- * <code>someComment.parent</code> : reference to the parent element or document table
 --
--- @author {"Gavin Kistner<original pure lua implemetation>", "Gyanendra Mishra<NSE specific implementation>"}
+-- @author Gavin Kistner <original pure lua implemetation>
+-- @author Gyanendra Mishra <NSE specific implementation>
 
 --[=====================================================================[
 v0.7 Copyright © 2013-2014 Gavin Kistner <!@phrogz.net>; MIT Licensed
