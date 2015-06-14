@@ -96,7 +96,7 @@ function action (host, port)
       closeElement = function(name) parser._call.text = function() return nil end end
     }
     parser:parseSAX(response.body, {stripWhitespace=true})
-    
+
     -- set the port verson
     port.version.name = "hnap"
     port.version.name_confidence = 10
@@ -104,12 +104,12 @@ function action (host, port)
     port.version.version = output["Model"] or nil
     port.version.devicetype = output["Type"] and output["Type"][1] or nil
     port.version.cpe = port.version.cpe or {}
-    
+
     if output["Vendor"] and output["Model"] then
       table.insert(port.version.cpe, "cpe:/h:".. output["Vendor"]:lower() .. ":" .. output["Model"]:lower())
     end
     nmap.set_port_version(host, port, "hardmatched")
-    
+
     if #output >0 then return output end
   end
 end
