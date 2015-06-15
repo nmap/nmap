@@ -105,6 +105,12 @@ function make_cpe(result)
     parts = {"o", "microsoft", "windows_server_2008"}
   elseif string.match(os, "^Windows 7") then
     parts = {"o", "microsoft", "windows_7"}
+  elseif string.match(os, "^Windows 8%f[^%d.]") then
+    parts = {"o", "microsoft", "windows_8"}
+  elseif string.match(os, "^Windows 8.1") then
+    parts = {"o", "microsoft", "windows_8.1"}
+  elseif string.match(os, "^Windows 10%f[^%d.]") then
+    parts = {"o", "microsoft", "windows_10"}
   elseif string.match(os, "^Windows Server.*2012") then
     parts = {"o", "microsoft", "windows_server_2012"}
   end
