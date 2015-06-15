@@ -143,6 +143,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
 end
 
 local lpeg = require "lpeg";
+local U = require "lpeg-utility"
 local locale = lpeg.locale;
 local P = lpeg.P;
 local R = lpeg.R;
@@ -1192,8 +1193,7 @@ do
       av = Cg(V "value");
       value = V "table" + V "string";
       string = V "qstring" + V "uqstring";
-      qstring = P "'" * C((-P "'" * (P "\\'" + P(1)))^0) * P "'" +
-                P '"' * C((-P '"' * (P '\\"' + P(1)))^0) * P '"';
+      qstring = U.escaped_quote('"') + U.escaped_quote("'");
       uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",}=")^0) * V "space"^0; -- everything but ',}=', do not capture final space
     };
     parser = assert(P(parser));
