@@ -33,7 +33,7 @@ BASE=dist/$APP_NAME.app/Contents
 SCRIPT_DIR=`dirname "$0"`
 
 CC=${CC:-gcc}
-CFLAGS=${CFLAGS:--Wall}
+CFLAGS=${CFLAGS:--Wall -arch i386}
 
 echo "Running $0."
 
@@ -41,7 +41,7 @@ echo "Removing old build."
 rm -rf build dist
 
 echo "Compiling using py2app."
-$PYTHON setup.py py2app --no-strip
+$PYTHON setup.py py2app --arch=i386 --no-strip
 
 # Delete a library that causes compatibility problems with OS X 10.9.
 # http://seclists.org/nmap-dev/2013/q4/85
