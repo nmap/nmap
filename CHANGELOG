@@ -1,7 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix Diffie-Hellman parameter extraction in tls.lua. [Jacob Gajek]
+
 o [NSE] Added http-webdav-scan, which detects WebDAV installations. [Gyanendra Mishra]
-  
 
 o [NSE] Remove ahbl.org checks from dnsbl.lua, since the service was shut down.
   [Forrest B.]

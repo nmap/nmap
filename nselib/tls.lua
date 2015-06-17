@@ -690,7 +690,7 @@ local cipher_info_cache = {
 -- A couple helpers for server_key_exchange parsing
 local function unpack_dhparams (blob, pos)
   local p, g, y
-  pos, p, g, y = bin.unpack(">PPP", blob)
+  pos, p, g, y = bin.unpack(">PPP", blob, pos)
   return pos, {p=p, g=g, y=y}, #p
 end
 
@@ -941,7 +941,7 @@ KEX_ALGORITHMS.DHE_PSK = {
     local pos
     local ret = {}
     pos, ret.psk_identity_hint = bin.unpack(">P", blob)
-    pos, ret.dhparams, ret.strength = unpack_dhparams(blob)
+    pos, ret.dhparams, ret.strength = unpack_dhparams(blob, pos)
     return ret
   end
 }
@@ -955,7 +955,7 @@ KEX_ALGORITHMS.ECDHE_PSK={
     local pos
     local ret = {}
     pos, ret.psk_identity_hint = bin.unpack(">P", blob)
-    pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob)
+    pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob, pos)
     return ret
   end
 }
