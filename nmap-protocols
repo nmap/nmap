@@ -2,18 +2,18 @@
 # Nmap Security Scanner ( http://nmap.org )
 #
 # This list is based on IEEE data at
-# http://www.iana.org/assignments/protocol-numbers and was last updated
-# by Fyodor on January 26, 2006
+# http://www.iana.org/assignments/protocol-numbers
+# Last updated: 2015-06-17
 hopopt            0  # IPv6 Hop-by-Hop Option
 icmp              1  # Internet Control Message
 igmp              2  # Internet Group Management
 ggp               3  # Gateway-to-Gateway
-ip                4  # IP in IP (encapsulation)
+ipv4              4  # IP in IP (encapsulation)
 st                5  # Stream
 tcp               6  # Transmission Control
 cbt               7  # CBT
 egp               8  # Exterior Gateway Protocol
-igp               9  # any private interior gateway (
+igp               9  # any private interior gateway
 bbn-rcc-mon      10  # BBN RCC Monitoring
 nvp-ii           11  # Network Voice Protocol
 pup              12  # PARC universal packet protocol
@@ -52,7 +52,7 @@ ipv6-frag        44  # Fragment Header for IPv6
 idrp             45  # Inter-Domain Routing Protocol
 rsvp             46  # Reservation Protocol
 gre              47  # General Routing Encapsulation
-mhrp             48  # Mobile Host Routing Protocol
+dsp              48  # Dynamic Source Routing Protocol. Historically MHRP
 bna              49  # BNA
 esp              50  # Encap Security Payload
 ah               51  # Authentication Header
@@ -88,7 +88,7 @@ iso-ip           80  # ISO Internet Protocol
 vmtp             81  # VMTP
 secure-vmtp      82  # SECURE-VMTP
 vines            83  # VINES
-ttp              84  # TTP
+iptm             84  # Internet Protocol Traffic Manager. Historically TTP
 nsfnet-igp       85  # NSFNET-IGP
 dgp              86  # Dissimilar Gateway Protocol
 tcf              87  # TCF
@@ -126,7 +126,7 @@ stp             118  # Schedule Transfer Protocol
 srp             119  # SpectraLink Radio Protocol
 uti             120  # UTI
 smp             121  # Simple Message Protocol
-sm              122
+sm              122  # Simple Multicast Protocol
 ptp             123  # Performance Transparency Protocol
 isis-ipv4       124  # ISIS over IPv4
 fire            125
