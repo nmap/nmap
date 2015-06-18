@@ -830,6 +830,8 @@ end
 
 portrule = function (host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+  -- selected by name
+  or nmap.version_intensity() == 9
 end
 
 --- Return a table that yields elements sorted by key when iterated over with pairs()
@@ -852,7 +854,25 @@ function sorted_by_key(t)
   return out
 end
 
+local comm = require "comm"
 action = function(host, port)
+
+  -- If we're selected by name, we might have to check whether it's even an SSL port
+  if not (shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)) then
+    stdnse.verbose1("Sending confirmation probe")
+    -- SSLSessionReq probe from nmap-service-probes
+    local status, resp = comm.exchange(host, port,
+      "\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\z
+      \x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\z
+      \0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\z
+      \x08\0\x06\0\x03\x01\0")
+    if not status or not resp or not (
+        resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]") or
+        resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]")
+        ) then
+      return nil
+    end
+  end
 
   local results = {}
 

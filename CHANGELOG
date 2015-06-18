@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Allow ssl-enum-ciphers to run on non-typical ports when it is selected
+  by name. It will now send a service detection probe if the port is not a
+  typical SSL port and version scan (-sV) was not used. [Daniel Miller]
+
 o Fix Ncat listen mode on Solaris and other platforms where struct sockaddr
   does not have a sa_len member. This also affected use of the -p and -s
   options. Brandon Haberfeld reported the crash. [Daniel Miller]
