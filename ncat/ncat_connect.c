@@ -922,8 +922,26 @@ int ncat_connect(void)
         }
         else
 #endif
-        if (srcaddr.storage.ss_family != AF_UNSPEC)
+        switch (srcaddr.storage.ss_family) {
+          case AF_UNSPEC:
+            break;
+          case AF_INET:
+            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.in));
+            break;
+#ifdef AF_INET6
+          case AF_INET6:
+            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.in6));
+            break;
+#endif
+#if HAVE_SYS_UN_H
+          case AF_UNIX:
+            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+            break;
+#endif
+          default:
             nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.storage));
+            break;
+        }
 
         if (o.numsrcrtes) {
             unsigned char *ipopts = NULL;

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix Ncat listen mode on Solaris and other platforms where struct sockaddr
+  does not have a sa_len member. This also affected use of the -p and -s
+  options. Brandon Haberfeld reported the crash. [Daniel Miller]
+
 o [NSE] Fix Diffie-Hellman parameter extraction in tls.lua. [Jacob Gajek]
 
 o [NSE] Added http-webdav-scan, which detects WebDAV installations. [Gyanendra Mishra]
