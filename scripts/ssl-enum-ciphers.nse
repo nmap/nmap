@@ -830,8 +830,8 @@ end
 
 portrule = function (host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
-  -- selected by name
-  or nmap.version_intensity() == 9
+  -- selected by name and we didn't detect something *not* SSL
+  or (port.version.name_confidence <= 3 and nmap.version_intensity() == 9)
 end
 
 --- Return a table that yields elements sorted by key when iterated over with pairs()
@@ -859,7 +859,6 @@ action = function(host, port)
 
   -- If we're selected by name, we might have to check whether it's even an SSL port
   if not (shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)) then
-    stdnse.verbose1("Sending confirmation probe")
     -- SSLSessionReq probe from nmap-service-probes
     local status, resp = comm.exchange(host, port,
       "\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\z
@@ -870,6 +869,7 @@ action = function(host, port)
         resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]") or
         resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]")
         ) then
+      stdnse.debug1("Not an SSL service.")
       return nil
     end
   end
