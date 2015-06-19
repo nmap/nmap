@@ -30,6 +30,7 @@
 /channel1
 /h264
 /h264/media.amp
+/HighResolutionVideo
 /image.mpg
 /img/media.sav
 /img/video.asf
@@ -43,6 +44,7 @@
 /live_mpeg4.sdp
 /livestream
 /livestream/
+/LowResolutionVideo
 /media/media.amp
 /media/video1
 /mjpeg/media.smp
