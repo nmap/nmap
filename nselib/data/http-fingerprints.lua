@@ -6434,6 +6434,24 @@ table.insert(fingerprints, {
       }
     }
   });
+
+-- HNAP Devices
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/HNAP1/',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '<ModelDescription>(.-)</ModelDescription>',
+        output = '\\1'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----               ATTACKS                  ----
 ------------------------------------------------
@@ -6923,6 +6941,29 @@ table.insert(fingerprints, {
         match = '200',
         output = 'Seagate BlackArmorNAS 110/220/440 Administrator Password Reset Vulnerability'
       }
+    }
+  });
+
+-- HNAP Authentication Bypass
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/bsc_lan.php?NO_NEED_AUTH=1&AUTH_GROUP=0',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        dontmatch = '<a href="http://www%.dlink%.com"',
+        match = '^HTTP/1.[01] 200 OK\r\n.*Server: Embedded HTTP Server',
+        output = 'D-Link Router Vulnerable to Authentication Bypass',
+      },
+      {
+        dontmatch = '<a href="http://www%.dlink%.com"',
+        match = '^HTTP/1.[01] 200 OK\r\n.*Server: Virtual Web 0.9',
+        output = 'D-Link Router Vulnerable to Authentication Bypass',
+      },
     }
   });
 
@@ -8327,7 +8368,6 @@ table.insert(fingerprints, {
       }
     }
   });
-
 
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
