@@ -204,7 +204,7 @@ parser = {
 
 
     local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
-    local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and utf8_enc(tonumber('0'..s)) or orig end
+    local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and unicode.utf8_enc(tonumber('0'..s)) or orig end
     local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
 
     local function finishText()
