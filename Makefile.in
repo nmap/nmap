@@ -2,7 +2,7 @@
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export NMAP_UPDATE_CHANNEL := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_UPDATE_CHANNEL' nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NAME= Nmap
-NMAP_URL= http://nmap.org
+NMAP_URL= https://nmap.org
 NMAP_PLATFORM=@host@
 datarootdir = @datarootdir@
 prefix = @prefix@
