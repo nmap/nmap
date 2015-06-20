@@ -462,8 +462,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
       default:
         sa_len = sizeof(*srcaddr_u);
         break;
-    }
 #endif
+    }
 
     if (bind(sock, &srcaddr_u->sockaddr, sa_len) < 0) {
 #ifdef HAVE_SYS_UN_H
