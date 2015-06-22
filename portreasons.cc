@@ -133,7 +133,6 @@
 #ifdef WIN32
 #include "winfix.h"
 #endif
-#include <iostream>
 
 extern NmapOps o;
 class PortList;

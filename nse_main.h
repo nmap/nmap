@@ -5,7 +5,6 @@
 #include <list>
 #include <string>
 #include <string.h>
-#include <iostream>
 
 extern "C" {
   #include "lua.h"
