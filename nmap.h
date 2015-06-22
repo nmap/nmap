@@ -183,8 +183,6 @@ void *realloc();
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-#include <stdio.h>
-
 #if HAVE_RPC_TYPES_H
 #include <rpc/types.h>
 #endif

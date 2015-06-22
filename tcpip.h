@@ -166,8 +166,6 @@ void *realloc();
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-#include <stdio.h>
-
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
