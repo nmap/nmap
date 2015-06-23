@@ -134,7 +134,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 
--- Test this many ciphersuites at a time.
+-- Test at most this many ciphersuites at a time.
 -- http://seclists.org/nmap-dev/2012/q3/156
 -- http://seclists.org/nmap-dev/2010/q1/859
 local CHUNK_SIZE = 64
@@ -240,6 +240,7 @@ local function sorted_keys(t)
 end
 
 local function in_chunks(t, size)
+  size = math.floor(size)
   local ret = {}
   for i = 1, #t, size do
     local chunk = {}
@@ -558,11 +559,31 @@ local function find_ciphers_group(host, port, protocol, group, scores)
   return results, protocol_worked
 end
 
+local function get_chunk_size(host, protocol)
+  -- Try to make sure we don't send too big of a handshake
+  -- https://github.com/ssllabs/research/wiki/Long-Handshake-Intolerance
+  local len_t = {
+    protocol = protocol,
+    ciphers = {},
+    extensions = tcopy(base_extensions),
+  }
+  if host.targetname then
+    len_t.extensions.server_name = tls.EXTENSION_HELPERS.server_name(host.targetname)
+  end
+  local cipher_len_remaining = 255 - #tls.client_hello(len_t)
+  -- if we're over 255 anyway, just go for it.
+  -- Each cipher adds 2 bytes
+  local max_chunks = cipher_len_remaining > 0 and cipher_len_remaining / 2 or CHUNK_SIZE
+  -- otherwise, use the min
+  return max_chunks < CHUNK_SIZE and max_chunks or CHUNK_SIZE
+end
+
 -- Break the cipher list into chunks of CHUNK_SIZE (for servers that can't
 -- handle many client ciphers at once), and then call find_ciphers_group on
 -- each chunk.
 local function find_ciphers(host, port, protocol)
-  local ciphers = in_chunks(sorted_keys(tls.CIPHERS), CHUNK_SIZE)
+
+  local ciphers = in_chunks(sorted_keys(tls.CIPHERS), get_chunk_size(host, protocol))
 
   local results = {}
   local scores = {warnings={}}
@@ -722,7 +743,7 @@ end
 -- Sort ciphers according to server preference with a modified merge sort
 local function sort_ciphers(host, port, protocol, ciphers)
   local chunks = {}
-  for _, group in ipairs(in_chunks(ciphers, CHUNK_SIZE)) do
+  for _, group in ipairs(in_chunks(ciphers, get_chunk_size(host, protocol))) do
     local size = #group
     local chunk = find_ciphers_group(host, port, protocol, group)
     if not chunk then
@@ -768,7 +789,8 @@ local function try_protocol(host, port, protocol, upresults)
   end
   -- Find all valid compression methods.
   local compressors
-  for _, c in ipairs(in_chunks(ciphers, CHUNK_SIZE)) do
+  -- Reduce chunk size by 1 to allow extra room for the extra compressors (2 bytes)
+  for _, c in ipairs(in_chunks(ciphers, get_chunk_size(host, protocol) - 1)) do
     compressors = find_compressors(host, port, protocol, c)
     -- I observed a weird interaction between ECDSA ciphers and DEFLATE compression.
     -- Some servers would reject the handshake if no non-ECDSA ciphers were available.
