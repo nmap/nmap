@@ -129,57 +129,6 @@
 
 #include <vector>
 
-class TargetGroup;
-class Target;
-
-/* Stores "port info" which is TCP/UDP/SCTP ports or RPC program ids */
-struct portinfo {
-   unsigned long portno; /* TCP/UDP/SCTP port or RPC program id or IP protocool */
-   short trynum;
-   int sd[3]; /* Socket descriptors for connect_scan */
-   struct timeval sent[3];
-   int state;
-   int next; /* not struct portinfo * for historical reasons */
-   int prev;
-};
-
-struct portinfolist {
-   struct portinfo *openlist;
-   struct portinfo *firewalled;
-   struct portinfo *testinglist;
-};
-
-struct udpprobeinfo {
-  u16 iptl;
-  u16 ipid;
-  u16 ipck;
-  u16 sport;
-  u16 dport;
-  u16 udpck;
-  u16 udplen;
-  u8 patternbyte;
-  struct in_addr target;
-};
-
-/* The runtime statistics used to decide how fast to proceed and how
-   many ports we can try at once */
-struct scanstats {
-  int packet_incr;
-  int initial_packet_width; /* Number of queries in parallel we should
-                               start with */
-  double fallback_percent;
-  int numqueries_outstanding; /* How many unexpired queries are on the 'net
-                                 right now? */
-  double numqueries_ideal; /* How many do we WANT to be on the 'net right now? */
-  int max_width; /* What is the MOST we will tolerate at once.  Can be
-                    modified via --max_parallelism */
-  int min_width; /* We must always allow at least this many at once.  Can
-                    be modified via --min_parallelism*/
-  int ports_left;
-  int changed; /* Has anything changed since last round? */
-  int alreadydecreasedqueries;
-};
-
 struct AVal {
   const char *attribute;
   const char *value;

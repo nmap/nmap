@@ -164,6 +164,17 @@ class Target;
  * TYPE AND STRUCTURE DEFINITIONS                                             *
  ******************************************************************************/
 
+struct udpprobeinfo {
+  u16 iptl;
+  u16 ipid;
+  u16 ipck;
+  u16 sport;
+  u16 dport;
+  u16 udpck;
+  u16 udplen;
+  u8 patternbyte;
+  struct in_addr target;
+};
 
 typedef enum OFProbeType {
   OFP_UNSET,
