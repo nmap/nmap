@@ -172,8 +172,8 @@ int netrun(struct fdinfo *fdn, char *cmdexec)
 
     pid = start_subprocess(cmdexec, info);
     if (pid == -1) {
-        free(info);
         close(info->fdn.fd);
+        free(info);
         return -1;
     }
 
