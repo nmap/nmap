@@ -372,20 +372,23 @@ int main(int argc, char *argv[])
             o.execmode = EXEC_PLAIN;
             break;
         case 'g': {
-            char *a = strtok(optarg, ",");
-            do {
+            char *from = optarg;
+            char *a = NULL;
+            while (o.numsrcrtes < 8 && (a = strtok(from, ",")))
+            {
                 union sockaddr_u addr;
                 size_t sslen;
                 int rc;
+                from = NULL;
 
                 rc = resolve(a, 0, &addr.storage, &sslen, AF_INET);
                 if (rc != 0) {
                     bye("Sorry, could not resolve source route hop \"%s\": %s.",
                     a, gai_strerror(rc));
                 }
-                o.srcrtes[o.numsrcrtes] = addr.in.sin_addr;
-            } while (++o.numsrcrtes < 8 && (a = strtok(NULL, ",")));
-            if (strtok(NULL, ","))
+                o.srcrtes[o.numsrcrtes++] = addr.in.sin_addr;
+            }
+            if (strtok(from, ","))
                 bye("Sorry, you gave too many source route hops.");
             break;
         }
