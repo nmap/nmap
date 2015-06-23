@@ -656,28 +656,28 @@ local cipher_info_cache = {
     hash = "SHA",
     draft = true
   },
-  ["TLS_GOSTR341094_WITH_28147_CNT_IMIT"] = {
+  ["TLS_GOSTR341094_WITH_28147_CNT_IMIT-draft"] = {
     kex = "GOSTR341094",
     server_auth = "GOSTR341094",
     cipher = "GOST28147",
     hash = "IMIT_GOST28147",
     draft = true
   },
-  ["TLS_GOSTR341001_WITH_28147_CNT_IMIT"] = {
+  ["TLS_GOSTR341001_WITH_28147_CNT_IMIT-draft"] = {
     kex = "GOSTR341001",
     server_auth = "GOSTR341001",
     cipher = "GOST28147",
     hash = "IMIT_GOST28147",
     draft = true
   },
-  ["TLS_GOSTR341094_WITH_NULL_GOSTR3411"] = {
+  ["TLS_GOSTR341094_WITH_NULL_GOSTR3411-draft"] = {
     kex = "GOSTR341094",
     server_auth = "GOSTR341094",
     cipher = "NULL",
     hash = "HMAC_GOSTR3411",
     draft = true
   },
-  ["TLS_GOSTR341001_WITH_NULL_GOSTR3411"] = {
+  ["TLS_GOSTR341001_WITH_NULL_GOSTR3411-draft"] = {
     kex = "GOSTR341001",
     server_auth = "GOSTR341001",
     cipher = "NULL",
