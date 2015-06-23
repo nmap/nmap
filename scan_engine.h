@@ -127,6 +127,8 @@
 #ifndef SCAN_ENGINE_H
 #define SCAN_ENGINE_H
 
+#include "nmap.h" /* stype */
+
 #include "timing.h"
 #include "tcpip.h"
 #include <list>

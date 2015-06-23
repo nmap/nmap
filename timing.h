@@ -128,8 +128,76 @@
 #ifndef NMAP_TIMING_H
 #define NMAP_TIMING_H
 
-#include "nmap.h"
-#include "global_structures.h"
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include <nbase.h> /* u32 */
+
+/* Based on TCP congestion control techniques from RFC2581. */
+struct ultra_timing_vals {
+  double cwnd; /* Congestion window - in probes */
+  int ssthresh; /* The threshold above which mode is changed from slow start
+                   to congestion avoidance */
+  /* The number of replies we would expect if every probe produced a reply. This
+     is almost like the total number of probes sent but it is not incremented
+     until a reply is received or a probe times out. This and
+     num_replies_received are used to scale congestion window increments. */
+  int num_replies_expected;
+  /* The number of replies we've received to probes of any type. */
+  int num_replies_received;
+  /* Number of updates to this timing structure (generally packet receipts). */
+  int num_updates;
+  /* Last time values were adjusted for a drop (you usually only want
+     to adjust again based on probes sent after that adjustment so a
+     sudden batch of drops doesn't destroy timing.  Init to now */
+  struct timeval last_drop;
+
+  double cc_scale(const struct scan_performance_vars *perf);
+  void ack(const struct scan_performance_vars *perf, double scale = 1.0);
+  void drop(unsigned in_flight,
+    const struct scan_performance_vars *perf, const struct timeval *now);
+  void drop_group(unsigned in_flight,
+    const struct scan_performance_vars *perf, const struct timeval *now);
+};
+
+/* These are mainly initializers for ultra_timing_vals. */
+struct scan_performance_vars {
+  int low_cwnd;  /* The lowest cwnd (congestion window) allowed */
+  int host_initial_cwnd; /* Initial congestion window for ind. hosts */
+  int group_initial_cwnd; /* Initial congestion window for all hosts as a group */
+  int max_cwnd; /* I should never have more than this many probes
+                   outstanding */
+  int slow_incr; /* How many probes are incremented for each response
+                    in slow start mode */
+  int ca_incr; /* How many probes are incremented per (roughly) rtt in
+                  congestion avoidance mode */
+  int cc_scale_max; /* The maximum scaling factor for congestion window
+                       increments. */
+  int initial_ssthresh;
+  double group_drop_cwnd_divisor; /* all-host group cwnd divided by this
+                                     value if any packet drop occurs */
+  double group_drop_ssthresh_divisor; /* used to drop the group ssthresh when
+                                         any drop occurs */
+  double host_drop_ssthresh_divisor; /* used to drop the host ssthresh when
+                                         any drop occurs */
+
+  /* Do initialization after the global NmapOps table has been filled in. */
+  void init();
+};
+
+struct timeout_info {
+  int srtt; /* Smoothed rtt estimate (microseconds) */
+  int rttvar; /* Rout trip time variance */
+  int timeout; /* Current timeout threshold (microseconds) */
+};
 
 /* Call this function on a newly allocated struct timeout_info to
    initialize the values appropriately */

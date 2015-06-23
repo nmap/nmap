@@ -130,6 +130,7 @@
 #include "nbase.h"
 #include <vector>
 #include <list>
+#include "timing.h"
 #include "Target.h"
 class Target;
 
