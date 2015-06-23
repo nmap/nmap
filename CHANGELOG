@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#164] Remove the DYLD_LIBRARY_PATH environment variable from
+  zenmap_wrapper.py, addressing a crash with the error
+  "dyld: Symbol not found: _iconv Referenced from: /usr/lib/libcups.2.dylib"
+  Reported by Robert Strom. [Daniel Miller]
+
 o [NSE] Added additional checks for succesful put request in http-put. [Oleg Mitrofanov]
 
 o [NSE] Added an update for http-methods that checks all possible methods not in Allow

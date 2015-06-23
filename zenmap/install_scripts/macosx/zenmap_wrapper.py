@@ -131,11 +131,6 @@ if __name__ == "__main__":
     # bundle to allow running from a read-only filesystem.
     etcdir = os.path.join(HOME, ".zenmap-etc")
 
-    # Override the dynamic library search path. This makes the various GTK+ and
-    # Pango shared objects look at the bundled copies of the libraries.  py2app
-    # puts .dylibs in Contents/Frameworks.
-    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(parentdir, "Frameworks")
-
     # See http://library.gnome.org/devel/gtk/2.12/gtk-running.html for the
     # meaning of the GTK+ environment variables. These files are static and
     # live inside the application bundle.
