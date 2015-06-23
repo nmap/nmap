@@ -215,7 +215,6 @@ void *realloc();
 #endif
 
 #include <fcntl.h>
-#include <stdarg.h>
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>

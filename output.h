@@ -165,6 +165,7 @@
 #include "portlist.h"
 #include <nsock.h>
 
+#include <stdarg.h>
 #include <string>
 
 #ifdef WIN32

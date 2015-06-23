@@ -126,7 +126,6 @@
 #define UTILS_H
 
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
