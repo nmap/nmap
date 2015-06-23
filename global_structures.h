@@ -128,24 +128,6 @@
 #define GLOBAL_STRUCTURES_H
 
 
-struct seq_info {
-  int responses;
-  int ts_seqclass; /* TS_SEQ_* defines in nmap.h */
-  int ipid_seqclass; /* IPID_SEQ_* defines in nmap.h */
-  u32 seqs[NUM_SEQ_SAMPLES];
-  u32 timestamps[NUM_SEQ_SAMPLES];
-  int index;
-  u16 ipids[NUM_SEQ_SAMPLES];
-  long lastboot; /* 0 means unknown */
-};
-
-/* Different kinds of Ipids. */
-struct ipid_info {
-  u32 tcp_ipids[NUM_SEQ_SAMPLES];
-  u32 tcp_closed_ipids[NUM_SEQ_SAMPLES];
-  u32 icmp_ipids[NUM_SEQ_SAMPLES];
-};
-
 /* The various kinds of port/protocol scans we can have
  * Each element is to point to an array of port/protocol numbers
  */

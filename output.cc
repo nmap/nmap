@@ -130,6 +130,7 @@
 #include "nmap.h"
 #include "output.h"
 #include "osscan.h"
+#include "osscan2.h"
 #include "NmapOps.h"
 #include "NmapOutputTable.h"
 #include "MACLookup.h"
@@ -2030,7 +2031,7 @@ void printosscanoutput(Target *currenths) {
     xml_close_empty_tag();
     xml_newline();
     if (o.verbose)
-      log_write(LOG_PLAIN, "%s", seqreport(&(currenths->seq)));
+      log_write(LOG_PLAIN, "TCP Sequence Prediction: Difficulty=%d (%s)\n", currenths->seq.index, seqidx2difficultystr(currenths->seq.index));
 
     log_write(LOG_MACHINE, "\tSeq Index: %d", currenths->seq.index);
   }

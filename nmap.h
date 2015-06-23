@@ -375,32 +375,9 @@ void *realloc();
 /* For nonroot. */
 #define DEFAULT_PING_CONNECT_PORT_SPEC "80,443"
 
-/* How many syn packets do we send to TCP sequence a host? */
-#define NUM_SEQ_SAMPLES 6
-
 /* The max length of each line of the subject fingerprint when
    wrapped. */
 #define FP_RESULT_WRAP_LINE_LEN 74
-
-/* TCP Timestamp Sequence */
-#define TS_SEQ_UNKNOWN 0
-#define TS_SEQ_ZERO 1 /* At least one of the timestamps we received back was 0 */
-#define TS_SEQ_2HZ 2
-#define TS_SEQ_100HZ 3
-#define TS_SEQ_1000HZ 4
-#define TS_SEQ_OTHER_NUM 5
-#define TS_SEQ_UNSUPPORTED 6 /* System didn't send back a timestamp */
-
-#define IPID_SEQ_UNKNOWN 0
-#define IPID_SEQ_INCR 1  /* simple increment by one each time */
-#define IPID_SEQ_BROKEN_INCR 2 /* Stupid MS -- forgot htons() so it
-                                  counts by 256 on little-endian platforms */
-#define IPID_SEQ_RPI 3 /* Goes up each time but by a "random" positive
-                          increment */
-#define IPID_SEQ_RD 4 /* Appears to select IPID using a "random" distributions (meaning it can go up or down) */
-#define IPID_SEQ_CONSTANT 5 /* Contains 1 or more sequential duplicates */
-#define IPID_SEQ_ZERO 6 /* Every packet that comes back has an IP.ID of 0 (eg Linux 2.4 does this) */
-#define IPID_SEQ_INCR_BY_2 7 /* simple increment by two each time */
 
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
@@ -443,13 +420,7 @@ void nmap_free_mem();
 const char *statenum2str(int state);
 const char *scantype2str(stype scantype);
 void reaper(int signo);
-char *seqreport(struct seq_info *seq);
-const char *ipidclass2ascii(int seqclass);
-const char *tsseqclass2ascii(int seqclass);
 
-/* Convert a TCP sequence prediction difficulty index like 1264386
-   into a difficulty string like "Worthy Challenge */
-const char *seqidx2difficultystr(unsigned long idx);
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file);
 int nmap_fileexistsandisreadable(const char* pathname);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);

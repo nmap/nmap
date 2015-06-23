@@ -138,6 +138,7 @@
 #include "portlist.h"
 #include "tcpip.h"
 #include "scan_engine.h"
+#include "osscan2.h"
 
 #include <list>
 #include <string>
