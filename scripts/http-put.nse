@@ -20,8 +20,8 @@ Uploads a local file to a remote web server using the HTTP PUT method. You must 
 -- @args http-put.file - The full path to the local file that should be uploaded to the server
 -- @args http-put.url  - The remote directory and filename to store the file to e.g. (/uploads/file.txt)
 --
-
---
+-- @xmloutput
+-- <elem key="result">/HNAP1 was successfully created</elem>
 --
 -- Version 0.1
 -- Created 10/15/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -33,10 +33,10 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 action = function( host, port )
-
+  local output = stdnse.output_table()
   local fname, url = stdnse.get_script_args('http-put.file', 'http-put.url')
   if ( not(fname) or not(url) ) then
     return
@@ -44,16 +44,18 @@ action = function( host, port )
 
   local f = io.open(fname, "r")
   if ( not(f) ) then
-    return stdnse.format_output(true, ("ERROR: Failed to open file: %s"):format(fname))
+    output.error = ("ERROR: Failed to open file: %s"):format(fname)
+    return output, output.error
   end
   local content = f:read("*all")
   f:close()
 
   local response = http.put(host, port, url,  nil, content)
-
-  if ( response.status == 200 or response.status == 204 ) then
-    return stdnse.format_output(true, ("%s was successfully created"):format(url))
+  if ( 200 <= response.status and response.status < 210 ) then
+    output.result = ("%s was successfully created"):format(url)
+    return output, output.result
   end
 
-  return stdnse.format_output(true, ("ERROR: %s could not be created"):format(url))
+  output.error = ("ERROR: %s could not be created"):format(url)
+  return output, output.error
 end

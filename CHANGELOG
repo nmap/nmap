@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added additional checks for succesful put request in http-put. [Oleg Mitrofanov]
+
+o [NSE] Added an update for http-methods that checks all possible methods not in Allow
+  or Public header of OPTIONS response. [Gyanendra Mishra]
+
+o [NSE] Added SLAXML, an XML Parser in lua Originally written by Gavin Kistner
+  or Phrogz. [Gyanendra Mishra]
+
+o [NSE] Added hnap-info, detects and outputs info for hnap devices. [Gyanendra Mishra]
+
 o [NSE] Allow ssl-enum-ciphers to run on non-typical ports when it is selected
   by name. It will now send a service detection probe if the port is not a
   typical SSL port and version scan (-sV) was not used. [Daniel Miller]
