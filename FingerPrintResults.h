@@ -141,16 +141,6 @@ struct OS_Classification_Results {
   int overall_results; /* OSSCAN_TOOMANYMATCHES, OSSCAN_NOMATCHES, OSSCAN_SUCCESS, etc */
 };
 
-/* The method used to calculate the Target::distance, included in OS
-   fingerprints. */
-enum dist_calc_method {
-        DIST_METHOD_NONE,
-        DIST_METHOD_LOCALHOST,
-        DIST_METHOD_DIRECT,
-        DIST_METHOD_ICMP,
-        DIST_METHOD_TRACEROUTE
-};
-
 class FingerPrintResults {
  public: /* For now ... a lot of the data members should be made private */
   FingerPrintResults();

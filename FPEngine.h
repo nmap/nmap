@@ -129,7 +129,7 @@
 
 #include "nsock.h"
 #include <vector>
-#include "nmap.h"
+#include "osscan.h"
 #include "libnetutil/npacket.h"
 
 /* Mention some classes here so we don't have to place the declarations in

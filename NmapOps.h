@@ -126,6 +126,7 @@
 #ifndef NMAP_OPS_H
 #define NMAP_OPS_H
 
+#include "osscan.h" /* FingerPrintDB */
 #include "output.h"
 #include <nsock.h>
 #include <string>
