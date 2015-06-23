@@ -125,7 +125,8 @@
 #ifndef NMAP_FTP_H
 #define NMAP_FTP_H
 
-#include "nmap.h" /* u16 */
+#include "nbase.h" /* u16 */
+class Target;
 
 /* How do we want to log into ftp sites for */
 #define FTPUSER "anonymous"
