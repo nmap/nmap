@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# This is a wrapper script around the zenmap executable, used in a Mac OS X .app
-# bundle. It sets environment variables, fills in template configuration files,
-# starts X11 if necessary, and execs the real zenmap executable.
+# This is a wrapper script around the zenmap executable, used in a Mac OS X
+# .app bundle. It sets environment variables, fills in template configuration
+# files, starts X11 if necessary, and execs the real zenmap executable.
 #
 # This program is the second link in the chain
 #     zenmap_auth -> zenmap_wrapper.py -> zenmap.bin
@@ -13,6 +13,7 @@ import os.path
 import sys
 
 HOME = os.path.expanduser("~")
+
 
 def create_dir(path):
     """Create a directory with os.makedirs without raising an error if the
@@ -30,6 +31,7 @@ def create_dir(path):
 
 # The format of pango/pangorc is called "key file." It's described at
 # http://library.gnome.org/devel/glib/stable/glib-Key-value-file-parser.
+
 
 # Escape a string as appropriate for a "key file."
 def escape_key_file_value(value):
@@ -49,10 +51,12 @@ def escape_key_file_value(value):
     result = "".join(result)
     return result
 
+
 def substitute_key_file_line(line, replacements):
     for text, rep in replacements.items():
         line = line.replace(text, escape_key_file_value(rep))
     return line
+
 
 # Substitute a dict of replacements into a "key file."
 def substitute_key_file(in_file_name, out_file_name, replacements):
@@ -63,6 +67,7 @@ def substitute_key_file(in_file_name, out_file_name, replacements):
     in_file.close()
     out_file.close()
 
+
 def escape_shell(arg):
     """Escape a string to be a shell argument."""
     result = []
@@ -71,6 +76,7 @@ def escape_shell(arg):
             c = "\\" + c
         result.append(c)
     return "\"" + "".join(result) + "\""
+
 
 def hack_xinitrc(system_xinitrc_filename, home_xinitrc_filename):
     """Hack the system xinitrc file and put the modified contents into another
@@ -99,16 +105,18 @@ def hack_xinitrc(system_xinitrc_filename, home_xinitrc_filename):
     system_xinitrc.close()
     home_xinitrc.close()
 
+
 def start_x11():
     """Start the X11 server if necessary and set the DISPLAY environment as
     appropriate. If the user hasn't set up a custom ~/.xinitrc, call
     hack_xinitrc to make a ~/.xinitrc that will not start an xterm along with
     the application. A similar approach is taken by Wireshark and Inkscape."""
-    if os.environ.has_key("DISPLAY"):
+    if "DISPLAY" in os.environ:
         return
     system_xinitrc_filename = "/usr/X11R6/lib/X11/xinit/xinitrc"
     home_xinitrc_filename = os.path.join(HOME, ".xinitrc")
-    if os.path.exists(system_xinitrc_filename) and not os.path.exists(home_xinitrc_filename):
+    if (os.path.exists(system_xinitrc_filename) and not
+            os.path.exists(home_xinitrc_filename)):
         hack_xinitrc(system_xinitrc_filename, home_xinitrc_filename)
     os.system("open -a X11")
     os.environ["DISPLAY"] = ":0"
@@ -140,7 +148,8 @@ if __name__ == "__main__":
     os.environ["FONTCONFIG_PATH"] = os.path.join(resourcedir, "etc", "fonts")
     # Use the packaged gtkrc only if the user doesn't have a custom one.
     if not os.path.exists(os.path.expanduser("~/.gtkrc-2.0")):
-        os.environ["GTK2_RC_FILES"] = os.path.join(resourcedir, "etc", "gtk-2.0", "gtkrc")
+        os.environ["GTK2_RC_FILES"] = os.path.join(
+            resourcedir, "etc", "gtk-2.0", "gtkrc")
 
     # The following environment variables refer to files within ~/.zenmap-etc
     # that are automatically generated from templates.
@@ -166,4 +175,7 @@ if __name__ == "__main__":
     start_x11()
 
     # exec the real program.
-    os.execl(os.path.join(os.path.dirname(sys.argv[0]), "zenmap.bin"), *sys.argv)
+    os.execl(
+        os.path.join(os.path.dirname(sys.argv[0]), "zenmap.bin"),
+        *sys.argv
+        )
