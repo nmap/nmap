@@ -233,7 +233,6 @@ void *realloc();
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 
-#include <math.h>
 #include <assert.h>
 
 #if HAVE_SYS_RESOURCE_H

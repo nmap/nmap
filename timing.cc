@@ -130,6 +130,8 @@
 #include "utils.h"
 #include "xml.h"
 
+#include <math.h>
+
 extern NmapOps o;
 
 /* Call this function on a newly allocated struct timeout_info to

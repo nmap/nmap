@@ -133,6 +133,8 @@
 #include "FPModel.h"
 extern NmapOps o;
 
+#include <math.h>
+
 
 /******************************************************************************
  * Globals.                                                                   *

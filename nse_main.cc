@@ -21,6 +21,8 @@
 #include "nse_debug.h"
 #include "nse_lpeg.h"
 
+#include <math.h>
+
 #define NSE_MAIN "NSE_MAIN" /* the main function */
 
 /* Script Scan phases */
