@@ -142,7 +142,6 @@
 #include <stdlib.h>
 
 #include "nmap_tty.h"
-#include "utils.h"
 #include "NmapOps.h"
 
 extern NmapOps o;

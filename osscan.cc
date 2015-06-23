@@ -131,7 +131,6 @@
 #include "charpool.h"
 #include "Target.h"
 #include "nmap_error.h"
-#include "utils.h"
 
 #include <stdarg.h>
 #if TIME_WITH_SYS_TIME

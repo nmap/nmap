@@ -185,7 +185,7 @@
 #include "NmapOps.h"
 #include "nmap_dns.h"
 #include "nsock.h"
-#include "utils.h"
+#include "nmap_error.h"
 #include "nmap_tty.h"
 #include "timing.h"
 #include "Target.h"

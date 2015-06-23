@@ -158,7 +158,7 @@
 #include "NmapOps.h"
 #include "services.h"
 #include "Target.h"
-#include "utils.h"
+#include "nmap_error.h"
 #include "output.h"
 
 #include "struct_ip.h"

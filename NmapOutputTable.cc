@@ -128,7 +128,7 @@
 #endif
 
 #include "NmapOutputTable.h"
-#include "utils.h"
+#include "nmap_error.h"
 
 #include <stdlib.h>
 

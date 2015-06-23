@@ -126,7 +126,7 @@
 #include "nbase.h"
 #include "NmapOps.h"
 #include "services.h"
-#include "utils.h"
+#include "nmap_error.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif

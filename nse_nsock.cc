@@ -1,7 +1,6 @@
 #include "nsock.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
-#include "utils.h"
 #include "tcpip.h"
 #include "protocols.h"
 #include "libnetutil/netutil.h"
