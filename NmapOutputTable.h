@@ -128,8 +128,9 @@
 
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
-
 #include <assert.h>
+
+#include "nbase.h" /* __attribute__ */
 
 /**********************  DEFINES/ENUMS ***********************************/
 
