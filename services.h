@@ -132,8 +132,6 @@
 #else
 #include <netdb.h>
 #endif
-#include "nmap.h"
-#include "global_structures.h"
 
 #include "nbase.h"
 

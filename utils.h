@@ -130,7 +130,6 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include "nmap.h"
 #ifdef WIN32
 #include "mswin32\winclude.h"
 #else
@@ -162,7 +161,6 @@
 #include "nbase.h"
 
 #include "nmap_error.h"
-#include "global_structures.h"
 
 /* Arithmatic difference modulo 2^32 */
 #ifndef MOD_DIFF

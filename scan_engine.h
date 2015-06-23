@@ -127,8 +127,6 @@
 #ifndef SCAN_ENGINE_H
 #define SCAN_ENGINE_H
 
-#include "nmap.h"
-#include "global_structures.h"
 #include "timing.h"
 #include "tcpip.h"
 #include <list>

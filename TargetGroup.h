@@ -135,8 +135,6 @@
 #include <set>
 #include <string>
 
-#include "nmap.h"
-
 /* We use bit vectors to represent what values are allowed in an IPv4 octet.
    Each vector is built up of an array of bitvector_t (any convenient integer
    type). */

@@ -127,7 +127,7 @@
 #ifndef REASON_H
 #define REASON_H
 
-#include "nmap.h"
+#include "nbase.h"
 
 #ifdef WIN32
 #include "winsock2.h"

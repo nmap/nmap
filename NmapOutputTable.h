@@ -126,7 +126,10 @@
 #ifndef NMAPOUTPUTTABLE_H
 #define NMAPOUTPUTTABLE_H
 
-#include "nmap.h"
+/* Keep assert() defined for security reasons */
+#undef NDEBUG
+
+#include <assert.h>
 
 /**********************  DEFINES/ENUMS ***********************************/
 

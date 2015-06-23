@@ -147,9 +147,9 @@
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-#include "nmap.h"
-#include "global_structures.h"
 #include "TargetGroup.h"
+
+class Target;
 
 class TargetGroup {
 public:

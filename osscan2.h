@@ -127,8 +127,6 @@
 #ifndef OSSCAN2_H
 #define OSSCAN2_H
 
-#include "nmap.h"
-#include "global_structures.h"
 #include "nbase.h"
 #include <vector>
 #include <list>

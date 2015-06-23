@@ -127,7 +127,6 @@
 #ifndef TARGET_H
 #define TARGET_H
 
-#include "nmap.h"
 #include "FingerPrintResults.h"
 #include "libnetutil/netutil.h"
 

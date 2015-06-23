@@ -126,8 +126,6 @@
 #ifndef OSSCAN_H
 #define OSSCAN_H
 
-#include "nmap.h"
-#include "global_structures.h"
 #include "FingerPrintResults.h"
 #include "Target.h"
 

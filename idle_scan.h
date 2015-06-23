@@ -130,8 +130,6 @@
 #ifndef IDLE_SCAN_H
 #define IDLE_SCAN_H
 
-#include "nmap.h"
-#include "global_structures.h"
 #include <nbase.h>
 
 class Target;

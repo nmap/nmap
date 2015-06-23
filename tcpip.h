@@ -219,10 +219,7 @@ extern "C" {
 #include <signal.h>
 #include <dnet.h>
 
-
-
-#include "nmap.h"
-#include "global_structures.h"
+class Target;
 
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16
