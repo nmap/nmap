@@ -21,7 +21,7 @@ Uploads a local file to a remote web server using the HTTP PUT method. You must 
 -- @args http-put.url  - The remote directory and filename to store the file to e.g. (/uploads/file.txt)
 --
 -- @xmloutput
--- <elem key="result">/HNAP1 was successfully created</elem>
+-- <elem key="result">/uploads/rootme.php was successfully created</elem>
 --
 -- Version 0.1
 -- Created 10/15/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
