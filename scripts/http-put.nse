@@ -51,7 +51,7 @@ action = function( host, port )
 
   local response = http.put(host, port, url,  nil, content)
 
-  if ( response.status == 200 or response.status == 204 ) then
+  if ( response.status == 200 or response.status == 201 or response.status == 204 ) then
     return stdnse.format_output(true, ("%s was successfully created"):format(url))
   end
 
