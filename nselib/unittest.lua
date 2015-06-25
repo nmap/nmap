@@ -159,13 +159,17 @@ run_tests = function(to_test)
   local fails = stdnse.output_table()
   for _,lib in ipairs(to_test) do
     stdnse.debug1("Testing %s", lib)
-    local thelib = require(lib)
-    local failed = 0
-    if rawget(thelib,"test_suite") ~= nil then
-      failed = thelib.test_suite()
-    end
-    if failed ~= 0 then
-      fails[lib] = failed
+    local status, thelib = pcall(require, lib)
+    if not status then
+      stdnse.debug1("Failed to load %s", lib)
+    else
+      local failed = 0
+      if rawget(thelib,"test_suite") ~= nil then
+        failed = thelib.test_suite()
+      end
+      if failed ~= 0 then
+        fails[lib] = failed
+      end
     end
   end
   return fails

@@ -921,6 +921,7 @@ if not unittest.testing() then
 end
 
 test_suite = unittest.TestSuite:new()
+if have_ssl then
 test_suite:add_test(unittest.equal(
     stdnse.tohex(select(-1, lm_create_hash("passphrase"))),
     "855c3697d9979e78ac404c4ba2c66533"
@@ -945,5 +946,9 @@ test_suite:add_test(unittest.equal(
     ),
   "ntlm_create_hash"
   )
+else
+  test_suite:add_test(unittest.is_false(lm_create_hash("a"), "lm_create_hash"))
+  test_suite:add_test(unittest.is_false(ntlm_create_hash("a"), "ntlm_create_hash"))
+end
 
 return _ENV;
