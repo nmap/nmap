@@ -230,13 +230,24 @@ void nsock_pool_set_device(nsock_pool nsp, const char *device);
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
  * SSL_CTX, which is like a template that sets options for all connections that
- * are made from it. Returns the SSL_CTX so you can set your own options. */
-nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool);
-
-/* Initializes an Nsock pool to create SSL connections that emphasize speed over
- * security. Insecure ciphers are used when they are faster and no certificate
- * verification is done. Returns the SSL_CTX so you can set your own options. */
-nsock_ssl_ctx nsock_pool_ssl_init_max_speed(nsock_pool ms_pool);
+ * are made from it. Returns the SSL_CTX so you can set your own options.
+ *
+ * Use the NSOCK_SSL_MAX_SPEED to emphasize speed over security.
+ * Insecure ciphers are used when they are faster and no certificate
+ * verification is done.
+ *
+ * Returns the SSL_CTX so you can set your own options.
+ * By default, do no server certificate verification. To enable it, do
+ * something like:
+ *    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+ *
+ *  on the SSL_CTX returned. If you do, it is then up to the application to
+ *  load trusted certificates with SSL_CTX_load_verify_locations or
+ *  SSL_CTX_set_default_verify_paths, or else every connection will fail. It
+ *  is also up to the application to do any further checks such as domain name
+ *  validation. */
+#define NSOCK_SSL_MAX_SPEED (1 << 0)
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags);
 
 /* Enforce use of a given IO engine.
  * The engine parameter is a zero-terminated string that will be

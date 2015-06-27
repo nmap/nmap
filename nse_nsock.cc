@@ -1110,7 +1110,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 
 #if HAVE_OPENSSL
   /* Value speed over security in SSL connections. */
-  nsock_pool_ssl_init_max_speed(nsp);
+  nsock_pool_ssl_init(nsp, NSOCK_SSL_MAX_SPEED);
 #endif
 
   luaL_newlibtable(L, l_nsock);

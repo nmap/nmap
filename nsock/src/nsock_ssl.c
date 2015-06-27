@@ -80,8 +80,7 @@
 
 extern struct timeval nsock_tod;
 
-/* Create an SSL_CTX and do initialization that is common to nsock_pool_ssl_init and
- * nsock_pool_ssl_init_max_speed. */
+/* Create an SSL_CTX and do initialization that is common to all init modes. */
 static SSL_CTX *ssl_init_common() {
   SSL_CTX *ctx;
 
@@ -109,65 +108,38 @@ static SSL_CTX *ssl_init_common() {
  * are made from it. The connections made from this context will use only secure
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
-nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool) {
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
   struct npool *ms = (struct npool *)ms_pool;
   char rndbuf[128];
 
   if (ms->sslctx == NULL)
     ms->sslctx = ssl_init_common();
 
-  /* get_random_bytes may or may not provide high-quality randomness. Add it to
+  /* Get_random_bytes may or may not provide high-quality randomness. Add it to
    * the entropy pool without increasing the entropy estimate (third argument of
    * RAND_add is 0). We rely on OpenSSL's entropy gathering, called implicitly
    * by RAND_status, to give us what we need, or else bail out if it fails. */
   get_random_bytes(rndbuf, sizeof(rndbuf));
   RAND_add(rndbuf, sizeof(rndbuf), 0);
-  if (!RAND_status())
-    fatal("nsock_pool_ssl_init: Failed to seed OpenSSL PRNG (RAND_status returned false).");
 
-  /* By default, do no server certificate verification. To enable it, do
-   * something like:
-   *    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
-   *
-   *  on the SSL_CTX returned. If you do, it is then up to the application to
-   *  load trusted certificates with SSL_CTX_load_verify_locations or
-   *  SSL_CTX_set_default_verify_paths, or else every connection will fail. It
-   *  is also up to the application to do any further checks such as domain name
-   *  validation. */
-  SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
+  if (!(flags & NSOCK_SSL_MAX_SPEED)) {
+    if (!RAND_status())
+      fatal("%s: Failed to seed OpenSSL PRNG"
+            " (RAND_status returned false).", __func__);
+  }
 
   /* SSL_OP_ALL sets bug-compatibility for pretty much everything.
    * SSL_OP_NO_SSLv2 disables the less-secure SSLv2 while allowing us to use the
    * SSLv2-compatible SSLv23_client_method. */
-  SSL_CTX_set_options(ms->sslctx, SSL_OP_ALL|SSL_OP_NO_SSLv2);
-
-  if (!SSL_CTX_set_cipher_list(ms->sslctx, CIPHERS_SECURE)) {
-    fatal("Unable to set OpenSSL cipher list: %s",
-          ERR_error_string(ERR_get_error(), NULL));
-  }
-  return ms->sslctx;
-}
-
-/* Initializes an Nsock pool to create SSL connections that emphasize speed over
- * security. Insecure ciphers are used when they are faster and no certificate
- * verification is done. Returns the SSL_CTX so you can set your own options. */
-nsock_ssl_ctx nsock_pool_ssl_init_max_speed(nsock_pool ms_pool) {
-  struct npool *ms = (struct npool *)ms_pool;
-  char rndbuf[128];
-
-  if (ms->sslctx == NULL)
-    ms->sslctx = ssl_init_common();
-
-  /* get_random_bytes may or may not provide high-quality randomness. */
-  get_random_bytes(rndbuf, sizeof(rndbuf));
-  RAND_seed(rndbuf, sizeof(rndbuf));
-
   SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
-  SSL_CTX_set_options(ms->sslctx, SSL_OP_ALL);
-  if (!SSL_CTX_set_cipher_list(ms->sslctx, CIPHERS_FAST)) {
+  SSL_CTX_set_options(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
+                                  SSL_OP_ALL : SSL_OP_ALL|SSL_OP_NO_SSLv2);
+
+  if (!SSL_CTX_set_cipher_list(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
+                                           CIPHERS_FAST : CIPHERS_SECURE))
     fatal("Unable to set OpenSSL cipher list: %s",
           ERR_error_string(ERR_get_error(), NULL));
-  }
+
   return ms->sslctx;
 }
 
@@ -201,11 +173,7 @@ int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
 
 #else /* NOT HAVE_OPENSSL */
 
-nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool) {
-  fatal("%s called with no OpenSSL support", __func__);
-}
-
-nsock_ssl_ctx nsock_pool_ssl_init_max_speed(nsock_pool ms_pool) {
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
   fatal("%s called with no OpenSSL support", __func__);
 }
 

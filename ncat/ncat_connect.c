@@ -889,7 +889,7 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-    set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool));
+    set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
 #endif
 
     if (!o.proxytype) {

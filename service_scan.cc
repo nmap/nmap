@@ -2766,7 +2766,7 @@ int service_scan(std::vector<Target *> &Targets) {
 
 #if HAVE_OPENSSL
   /* We don't care about connection security in version detection. */
-  nsock_pool_ssl_init_max_speed(nsp);
+  nsock_pool_ssl_init(nsp, NSOCK_SSL_MAX_SPEED);
 #endif
 
   launchSomeServiceProbes(nsp, SG);

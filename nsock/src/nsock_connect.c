@@ -397,7 +397,7 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   struct nevent *nse;
 
   if (!ms->sslctx)
-    nsock_pool_ssl_init(ms);
+    nsock_pool_ssl_init(ms, 0);
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
@@ -435,7 +435,7 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   struct nevent *nse;
 
   if (!ms->sslctx)
-    nsock_pool_ssl_init(ms);
+    nsock_pool_ssl_init(ms, 0);
 
   nse = event_new(ms, NSE_TYPE_CONNECT_SSL, nsi, timeout_msecs, handler, userdata);
   assert(nse);
