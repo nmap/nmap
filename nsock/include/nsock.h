@@ -200,7 +200,7 @@ void nsock_loop_quit(nsock_pool nsp);
 
 /* This next function returns the errno style error code -- which is only valid
  * if the status is NSOCK_LOOP_ERROR was returned by nsock_loop() */
-int nsp_geterrorcode(nsock_pool nsp);
+int nsock_pool_get_errorcode(nsock_pool nsp);
 
 nsock_ssl nsi_getssl(nsock_iod nsockiod);
 
@@ -214,34 +214,34 @@ nsock_ssl_session nsi_get0_ssl_session(nsock_iod nsockiod);
 
 /* Sometimes it is useful to store a pointer to information inside the NSP so
  * you can retrieve it during a callback. */
-void nsp_setud(nsock_pool nsp, void *data);
+void nsock_pool_set_udata(nsock_pool nsp, void *data);
 
 /* And the function above wouldn't make much sense if we didn't have a way to
  * retrieve that data ... */
-void *nsp_getud(nsock_pool nsp);
+void *nsock_pool_get_udata(nsock_pool nsp);
 
 /* Turns on or off broadcast support on new sockets. Default is off (0, false)
- * set in nsp_new(). Any non-zero (true) value sets SO_BROADCAST on all new
- * sockets (value of optval will be used directly in the setsockopt() call). */
-void nsp_setbroadcast(nsock_pool nsp, int optval);
+ * set in nsock_pool_new(). Any non-zero (true) value sets SO_BROADCAST on all
+ * new sockets (value of optval will be used directly in the setsockopt() call). */
+void nsock_pool_set_broadcast(nsock_pool nsp, int optval);
 
 /* Sets the name of the interface for new sockets to bind to. */
-void nsp_setdevice(nsock_pool nsp, const char *device);
+void nsock_pool_set_device(nsock_pool nsp, const char *device);
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
  * SSL_CTX, which is like a template that sets options for all connections that
  * are made from it. Returns the SSL_CTX so you can set your own options. */
-nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool);
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool);
 
 /* Initializes an Nsock pool to create SSL connections that emphasize speed over
  * security. Insecure ciphers are used when they are faster and no certificate
  * verification is done. Returns the SSL_CTX so you can set your own options. */
-nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool);
+nsock_ssl_ctx nsock_pool_ssl_init_max_speed(nsock_pool ms_pool);
 
 /* Enforce use of a given IO engine.
  * The engine parameter is a zero-terminated string that will be
  * strup()'ed by the library. No validity check is performed by this function,
- * beware nsp_new() will fatal() if an invalid/unavailable engine name was
+ * beware nsock_pool_new() will fatal() if an invalid/unavailable engine name was
  * supplied before.
  * Pass NULL to reset to default (use most efficient engine available).
  *
@@ -255,13 +255,13 @@ const char *nsock_list_engines(void);
  * returns an nsock_pool event aggregator.  In the case of error, NULL will be
  * returned.  If you do not wish to immediately associate any userdata, pass in
  * NULL. */
-nsock_pool nsp_new(void *userdata);
+nsock_pool nsock_pool_new(void *udata);
 
-/* If nsp_new returned success, you must free the nsp when you are done with it
+/* If nsock_pool_new returned success, you must free the nsp when you are done with it
  * to conserve memory (and in some cases, sockets).  After this call, nsp may no
  * longer be used.  Any pending events are sent an NSE_STATUS_KILL callback and
  * all outstanding iods are deleted. */
-void nsp_delete(nsock_pool nsp);
+void nsock_pool_delete(nsock_pool nsp);
 
 /* Logging subsystem: set custom logging function.
  * (See nsock_logger_t type definition). */
@@ -273,8 +273,8 @@ void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel);
 /* Parse a proxy chain description string and build a nsock_proxychain object
  * accordingly. If the optional nsock_pool parameter is passed in, it gets
  * associated to the chain object. The alternative is to pass nsp=NULL and call
- * nsp_set_proxychain() manually. Whatever is done, the chain object has to be
- * deleted by the caller, using proxychain_delete(). */
+ * nsock_pool_set_proxychain() manually. Whatever is done, the chain object has
+ * to be deleted by the caller, using proxychain_delete(). */
 int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool);
 
 /* If nsock_proxychain_new() returned success, caller has to free the chain
@@ -284,7 +284,7 @@ void nsock_proxychain_delete(nsock_proxychain chain);
 /* Assign a previously created proxychain object to a nsock pool. After this,
  * new connections requests will be issued through the chain of proxies (if
  * possible). */
-int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain);
+int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain);
 
 /* nsock_event handles a single event.  Its ID is generally returned when the
  * event is created, and the event itself is included in callbacks

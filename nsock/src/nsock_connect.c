@@ -288,7 +288,7 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
                  get_unixsock_path(ss), nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, 0);
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 
@@ -314,7 +314,7 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
                  get_unixsock_path(ss), nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_DGRAM, 0, ss, sslen, 0);
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }
@@ -343,7 +343,7 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, ss, sslen, port);
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }
@@ -371,7 +371,7 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_SCTP, ss, sslen, port);
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }
@@ -397,7 +397,7 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   struct nevent *nse;
 
   if (!ms->sslctx)
-    nsp_ssl_init(ms);
+    nsock_pool_ssl_init(ms);
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
@@ -413,7 +413,7 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, proto, ss, sslen, port);
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 #endif /* HAVE_OPENSSL */
@@ -435,7 +435,7 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   struct nevent *nse;
 
   if (!ms->sslctx)
-    nsp_ssl_init(ms);
+    nsock_pool_ssl_init(ms);
 
   nse = event_new(ms, NSE_TYPE_CONNECT_SSL, nsi, timeout_msecs, handler, userdata);
   assert(nse);
@@ -449,7 +449,7 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   /* Do the actual connect() */
   nse->event_done = 0;
   nse->status = NSE_STATUS_SUCCESS;
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 #endif /* HAVE_OPENSSL */
@@ -486,7 +486,7 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
                  inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_DGRAM, IPPROTO_UDP, ss, sslen, port);
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }

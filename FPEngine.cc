@@ -165,7 +165,7 @@ FPNetworkControl::FPNetworkControl() {
 FPNetworkControl::~FPNetworkControl() {
   if (this->nsock_init) {
     nsock_event_cancel(this->nsp, this->pcap_ev_id, 0);
-    nsp_delete(this->nsp);
+    nsock_pool_delete(this->nsp);
     this->nsock_init = false;
   }
 }
@@ -184,23 +184,23 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   }
   if (this->nsock_init) {
     nsock_event_cancel(this->nsp, this->pcap_ev_id, 0);
-    nsp_delete(this->nsp);
+    nsock_pool_delete(this->nsp);
   }
 
   /* Create a new nsock pool */
-  if ((this->nsp = nsp_new(NULL)) == NULL)
+  if ((this->nsp = nsock_pool_new(NULL)) == NULL)
     fatal("Unable to obtain an Nsock pool");
 
   nsock_set_log_function(this->nsp, nmap_nsock_stderr_logger);
   nmap_adjust_loglevel(this->nsp, o.packetTrace());
 
-  nsp_setdevice(nsp, o.device);
+  nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain)
-    nsp_set_proxychain(this->nsp, o.proxy_chain);
+    nsock_pool_set_proxychain(this->nsp, o.proxy_chain);
 
   /* Allow broadcast addresses */
-  nsp_setbroadcast(this->nsp, 1);
+  nsock_pool_set_broadcast(this->nsp, 1);
 
   /* Allocate an NSI for packet capture */
   this->pcap_nsi = nsi_new(this->nsp, NULL);
@@ -411,7 +411,7 @@ int FPNetworkControl::setup_sniffer(const char *iface, const char *bpf_filter) {
     fatal("Error opening capture device %s\n", pcapdev);
 
   /* Store the pcap NSI inside the pool so we can retrieve it inside a callback */
-  nsp_setud(this->nsp, (void *)&(this->pcap_nsi));
+  nsock_pool_set_udata(this->nsp, (void *)&(this->pcap_nsi));
 
   return OP_SUCCESS;
 }
@@ -440,8 +440,8 @@ int FPNetworkControl::scheduleProbe(FPProbe *pkt, int in_msecs_time) {
  * The reason for that is because C++ does not allow to use class methods as callback
  * functions, so this is a small hack to make that happen. */
 void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event nse, void *arg) {
-  assert(nsp_getud(nsp) != NULL);
-  nsock_iod nsi_pcap = *((nsock_iod *)nsp_getud(nsp));
+  assert(nsock_pool_get_udata(nsp) != NULL);
+  nsock_iod nsi_pcap = *((nsock_iod *)nsock_pool_get_udata(nsp));
   enum nse_status status = nse_status(nse);
   enum nse_type type = nse_type(nse);
   FPProbe *myprobe = (FPProbe *)arg;

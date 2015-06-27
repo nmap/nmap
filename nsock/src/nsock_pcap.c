@@ -370,7 +370,7 @@ nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod,
 
   nsock_log_info(ms, "Pcap read request from IOD #%li  EID %li", nsi->id, nse->id);
 
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }

@@ -117,7 +117,7 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
 
   fs_cat(&nse->iobuf, data, datalen);
 
-  nsp_add_event(nsp, nse);
+  nsock_pool_add_event(nsp, nse);
 
   return nse->id;
 }
@@ -155,7 +155,7 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
 
   fs_cat(&nse->iobuf, data, datalen);
 
-  nsp_add_event(nsp, nse);
+  nsock_pool_add_event(nsp, nse);
 
   return nse->id;
 }
@@ -224,7 +224,7 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
   if (buf2 != buf)
     free(buf2);
 
-  nsp_add_event(nsp, nse);
+  nsock_pool_add_event(nsp, nse);
 
   return nse->id;
 }

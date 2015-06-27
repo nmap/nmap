@@ -1445,7 +1445,7 @@ int EchoServer::start() {
   int rc;
 
   /* Create a new nsock pool */
-  if ((nsp = nsp_new(NULL)) == NULL)
+  if ((nsp = nsock_pool_new(NULL)) == NULL)
     nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
 
   /* Set nsock trace level */

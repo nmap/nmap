@@ -109,7 +109,7 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
   }
 
   if (nsp) {
-    if (nsp_set_proxychain(nspool, pxc) < 0) {
+    if (nsock_pool_set_proxychain(nspool, pxc) < 0) {
       nsock_proxychain_delete(pxc);
       return -1;
     }
@@ -137,7 +137,7 @@ void nsock_proxychain_delete(nsock_proxychain chain) {
   }
 }
 
-int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
+int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   struct npool *nsp = (struct npool *)nspool;
 
   if (nsp && nsp->px_chain) {

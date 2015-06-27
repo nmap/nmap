@@ -2272,7 +2272,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
   enum nse_type type = nse_type(nse);
   ServiceNFO *svc = (ServiceNFO *) mydata;
   ServiceProbe *probe = svc->currentProbe();
-  ServiceGroup *SG = (ServiceGroup *) nsp_getud(nsp);
+  ServiceGroup *SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
 
   assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
@@ -2341,7 +2341,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
   ServiceGroup *SG;
   int err;
 
-  SG = (ServiceGroup *) nsp_getud(nsp);
+  SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
   nsi = nse_iod(nse);
 
   // Check if a status message was requested
@@ -2390,7 +2390,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
   enum nse_type type = nse_type(nse);
   ServiceNFO *svc = (ServiceNFO *) mydata;
   ServiceProbe *probe = svc->currentProbe();
-  ServiceGroup *SG = (ServiceGroup *) nsp_getud(nsp);
+  ServiceGroup *SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
   const u8 *readstr;
   int readstrlen;
   const struct MatchDetails *MD;
@@ -2752,21 +2752,21 @@ int service_scan(std::vector<Target *> &Targets) {
 
   // Lets create a nsock pool for managing all the concurrent probes
   // Store the servicegroup in there for availability in callbacks
-  if ((nsp = nsp_new(SG)) == NULL) {
+  if ((nsp = nsock_pool_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
   nsock_set_log_function(nsp, nmap_nsock_stderr_logger);
   nmap_adjust_loglevel(nsp, o.versionTrace());
 
-  nsp_setdevice(nsp, o.device);
+  nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain) {
-    nsp_set_proxychain(nsp, o.proxy_chain);
+    nsock_pool_set_proxychain(nsp, o.proxy_chain);
   }
 
 #if HAVE_OPENSSL
   /* We don't care about connection security in version detection. */
-  nsp_ssl_init_max_speed(nsp);
+  nsock_pool_ssl_init_max_speed(nsp);
 #endif
 
   launchSomeServiceProbes(nsp, SG);
@@ -2778,11 +2778,11 @@ int service_scan(std::vector<Target *> &Targets) {
   // OK!  Lets start our main loop!
   looprc = nsock_loop(nsp, timeout);
   if (looprc == NSOCK_LOOP_ERROR) {
-    int err = nsp_geterrorcode(nsp);
+    int err = nsock_pool_get_errorcode(nsp);
     fatal("Unexpected nsock_loop error.  Error code %d (%s)", err, socket_strerror(err));
   }
 
-  nsp_delete(nsp);
+  nsock_pool_delete(nsp);
 
   if (o.verbose) {
     char additional_info[128];

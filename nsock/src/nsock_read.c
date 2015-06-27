@@ -81,7 +81,7 @@ nsock_event_id nsock_readlines(nsock_pool nsp, nsock_iod ms_iod,
   nse->readinfo.read_type = NSOCK_READLINES;
   nse->readinfo.num = nlines;
 
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }
@@ -104,7 +104,7 @@ nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod,
   nse->readinfo.read_type = NSOCK_READBYTES;
   nse->readinfo.num = nbytes;
 
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }
@@ -127,7 +127,7 @@ nsock_event_id nsock_read(nsock_pool nsp, nsock_iod ms_iod,
 
   nse->readinfo.read_type = NSOCK_READ;
 
-  nsp_add_event(ms, nse);
+  nsock_pool_add_event(ms, nse);
 
   return nse->id;
 }

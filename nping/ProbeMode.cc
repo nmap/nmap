@@ -152,12 +152,12 @@ int ProbeMode::init_nsock(){
   struct timeval now;
   if( nsock_init==false ){
       /* Create a new nsock pool */
-      if ((nsp = nsp_new(NULL)) == NULL)
+      if ((nsp = nsock_pool_new(NULL)) == NULL)
         nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
-      nsp_setdevice(nsp, o.getDevice());
+      nsock_pool_set_device(nsp, o.getDevice());
 
       /* Allow broadcast addresses */
-      nsp_setbroadcast(nsp, 1);
+      nsock_pool_set_broadcast(nsp, 1);
 
       /* Set nsock trace level */
       gettimeofday(&now, NULL);
@@ -175,7 +175,7 @@ int ProbeMode::init_nsock(){
 /** Cleans up the internal nsock pool and any other internal data that
   * needs to be taken care of before destroying the object. */
 int ProbeMode::cleanup(){
-  nsp_delete(this->nsp);
+  nsock_pool_delete(this->nsp);
   return OP_SUCCESS;
 } /* End of cleanup() */
 

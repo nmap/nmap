@@ -416,7 +416,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 
   /* At this point the TCP connection is done, whether successful or not.
    * Therefore decrease the read/write listen counts that were incremented in
-   * nsp_add_event. In the SSL case, we may increase one of the counts depending
+   * nsock_pool_add_event. In the SSL case, we may increase one of the counts depending
    * on whether SSL_connect returns an error of SSL_ERROR_WANT_READ or
    * SSL_ERROR_WANT_WRITE. In that case we will re-enter this function, but we
    * don't want to execute this block again. */
@@ -477,7 +477,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 
         /* SSLv3-only and TLSv1-only servers can't be connected to when the
          * SSL_OP_NO_SSLv2 option is not set, which is the case when the pool
-         * was initialized with nsp_ssl_init_max_speed. Try reconnecting with
+         * was initialized with nsock_pool_ssl_init_max_speed. Try reconnecting with
          * SSL_OP_NO_SSLv2. Never downgrade a NO_SSLv2 connection to one that
          * might use SSLv2. */
         nsock_log_info(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
@@ -1237,7 +1237,7 @@ const struct timeval *nsock_gettimeofday() {
 /* Adds an event to the appropriate nsp event list, handles housekeeping such as
  * adjusting the descriptor select/poll lists, registering the timeout value,
  * etc. */
-void nsp_add_event(struct npool *nsp, struct nevent *nse) {
+void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
   nsock_log_debug(nsp, "NSE #%lu: Adding event (timeout in %ldms)",
                   nse->id,
                   (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));

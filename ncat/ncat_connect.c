@@ -873,7 +873,7 @@ int ncat_connect(void)
         nsock_set_default_engine("select");
 
     /* Create an nsock pool */
-    if ((mypool = nsp_new(NULL)) == NULL)
+    if ((mypool = nsock_pool_new(NULL)) == NULL)
         bye("Failed to create nsock_pool.");
 
     if (o.debug >= 6)
@@ -886,10 +886,10 @@ int ncat_connect(void)
         nsock_set_loglevel(mypool, NSOCK_LOG_ERROR);
 
     /* Allow connections to broadcast addresses. */
-    nsp_setbroadcast(mypool, 1);
+    nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-    set_ssl_ctx_options((SSL_CTX *) nsp_ssl_init(mypool));
+    set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool));
 #endif
 
     if (!o.proxytype) {
@@ -1055,7 +1055,7 @@ int ncat_connect(void)
     }
 #endif
 
-    nsp_delete(mypool);
+    nsock_pool_delete(mypool);
 
     return rc == NSOCK_LOOP_ERROR ? 1 : 0;
 }

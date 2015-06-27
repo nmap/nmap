@@ -80,8 +80,8 @@
 
 extern struct timeval nsock_tod;
 
-/* Create an SSL_CTX and do initialization that is common to nsp_ssl_init and
- * nsp_ssl_init_max_speed. */
+/* Create an SSL_CTX and do initialization that is common to nsock_pool_ssl_init and
+ * nsock_pool_ssl_init_max_speed. */
 static SSL_CTX *ssl_init_common() {
   SSL_CTX *ctx;
 
@@ -109,7 +109,7 @@ static SSL_CTX *ssl_init_common() {
  * are made from it. The connections made from this context will use only secure
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
-nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool) {
   struct npool *ms = (struct npool *)ms_pool;
   char rndbuf[128];
 
@@ -123,7 +123,7 @@ nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
   get_random_bytes(rndbuf, sizeof(rndbuf));
   RAND_add(rndbuf, sizeof(rndbuf), 0);
   if (!RAND_status())
-    fatal("nsp_ssl_init: Failed to seed OpenSSL PRNG (RAND_status returned false).");
+    fatal("nsock_pool_ssl_init: Failed to seed OpenSSL PRNG (RAND_status returned false).");
 
   /* By default, do no server certificate verification. To enable it, do
    * something like:
@@ -151,7 +151,7 @@ nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
 /* Initializes an Nsock pool to create SSL connections that emphasize speed over
  * security. Insecure ciphers are used when they are faster and no certificate
  * verification is done. Returns the SSL_CTX so you can set your own options. */
-nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
+nsock_ssl_ctx nsock_pool_ssl_init_max_speed(nsock_pool ms_pool) {
   struct npool *ms = (struct npool *)ms_pool;
   char rndbuf[128];
 
@@ -201,11 +201,11 @@ int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
 
 #else /* NOT HAVE_OPENSSL */
 
-nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool) {
   fatal("%s called with no OpenSSL support", __func__);
 }
 
-nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
+nsock_ssl_ctx nsock_pool_ssl_init_max_speed(nsock_pool ms_pool) {
   fatal("%s called with no OpenSSL support", __func__);
 }
 

@@ -73,7 +73,7 @@ nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
   nsock_log_info(nsp, "Timer created - %dms from now.  EID %li", timeout_msecs,
                  nse->id);
 
-  nsp_add_event(nsp, nse);
+  nsock_pool_add_event(nsp, nse);
   
   return nse->id;
 }

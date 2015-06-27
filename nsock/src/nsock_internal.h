@@ -209,7 +209,7 @@ struct npool {
 #endif
 
   /* Optional proxy chain (NULL is not set). Can only be set once per NSP (using
-   * nsock_proxychain_new() or nsp_set_proxychain(). */
+   * nsock_proxychain_new() or nsock_pool_set_proxychain(). */
   struct proxy_chain *px_chain;
 
 };
@@ -458,7 +458,7 @@ void event_delete(struct npool *nsp, struct nevent *nse);
 /* Add an event to the appropriate nsp event list, handles housekeeping such as
  * adjusting the descriptor select/poll lists, registering the timeout value,
  * etc. */
-void nsp_add_event(struct npool *nsp, struct nevent *nse);
+void nsock_pool_add_event(struct npool *nsp, struct nevent *nse);
 
 void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen, unsigned short port);
 

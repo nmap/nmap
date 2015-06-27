@@ -1213,16 +1213,16 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   // And finally, do it!
 
-  if ((dnspool = nsp_new(NULL)) == NULL)
+  if ((dnspool = nsock_pool_new(NULL)) == NULL)
     fatal("Unable to create nsock pool in %s()", __func__);
 
   nsock_set_log_function(dnspool, nmap_nsock_stderr_logger);
   nmap_adjust_loglevel(dnspool, o.packetTrace());
 
-  nsp_setdevice(dnspool, o.device);
+  nsock_pool_set_device(dnspool, o.device);
 
   if (o.proxy_chain)
-    nsp_set_proxychain(dnspool, o.proxy_chain);
+    nsock_pool_set_proxychain(dnspool, o.proxy_chain);
 
   connect_dns_servers();
 
@@ -1251,7 +1251,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   close_dns_servers();
 
-  nsp_delete(dnspool);
+  nsock_pool_delete(dnspool);
 
   if (cname_reqs.size() && o.debugging)
     log_write(LOG_STDOUT, "Performing system-dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());

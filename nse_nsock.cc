@@ -70,26 +70,26 @@ static int gc_pool (lua_State *L)
 {
   nsock_pool *nsp = (nsock_pool *) lua_touserdata(L, 1);
   assert(*nsp != NULL);
-  nsp_delete(*nsp);
+  nsock_pool_delete(*nsp);
   *nsp = NULL;
   return 0;
 }
 
 static nsock_pool new_pool (lua_State *L)
 {
-  nsock_pool nsp = nsp_new(NULL);
+  nsock_pool nsp = nsock_pool_new(NULL);
   nsock_pool *nspp;
 
   /* configure logging */
   nsock_set_log_function(nsp, nmap_nsock_stderr_logger);
   nmap_adjust_loglevel(nsp, o.scriptTrace());
 
-  nsp_setdevice(nsp, o.device);
+  nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain)
-    nsp_set_proxychain(nsp, o.proxy_chain);
+    nsock_pool_set_proxychain(nsp, o.proxy_chain);
 
-  nsp_setbroadcast(nsp, true);
+  nsock_pool_set_broadcast(nsp, true);
 
   nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
   *nspp = nsp;
@@ -1110,7 +1110,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 
 #if HAVE_OPENSSL
   /* Value speed over security in SSL connections. */
-  nsp_ssl_init_max_speed(nsp);
+  nsock_pool_ssl_init_max_speed(nsp);
 #endif
 
   luaL_newlibtable(L, l_nsock);
