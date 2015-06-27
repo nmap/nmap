@@ -152,10 +152,6 @@ struct writeinfo {
 /* Remember that callers of this library should NOT be accessing these
  * fields directly */
 struct npool {
-
-  /* Every msp has a unique (across the program execution) id */
-  unsigned long id;
-
   /* User data, NULL if unset */
   void *userdata;
 

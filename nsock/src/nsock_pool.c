@@ -74,8 +74,6 @@
 
 extern struct timeval nsock_tod;
 
-unsigned long nsp_next_id = 2;
-
 /* To use this library, the first thing they must do is create a pool
  * so we do the initialization during the first pool creation */
 static int nsocklib_initialized = 0;
@@ -89,15 +87,8 @@ static void nsock_library_initialize(void);
 /* --------------------------------------- */
 
 
-/* Every mst has an ID that is unique across the program execution */
-unsigned long nsp_getid(nsock_pool nsp) {
-  struct npool *mt = (struct npool *)nsp;
-  return mt->id;
-}
-
 /* This next function returns the errno style error code -- which is only
  * valid if the status NSOCK_LOOP_ERROR was returned by nsock_loop() */
-
 int nsp_geterrorcode(nsock_pool nsp) {
   struct npool *mt = (struct npool *)nsp;
   return mt->errnum;
@@ -161,8 +152,6 @@ nsock_pool nsp_new(void *userdata) {
 
   nsp->loglevel = NSOCK_LOG_ERROR;
   nsp->logger   = (nsock_logger_t)nsock_stderr_logger;
-
-  nsp->id = nsp_next_id++;
 
   nsp->userdata = userdata;
 

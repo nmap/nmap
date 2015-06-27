@@ -202,9 +202,6 @@ void nsock_loop_quit(nsock_pool nsp);
  * if the status is NSOCK_LOOP_ERROR was returned by nsock_loop() */
 int nsp_geterrorcode(nsock_pool nsp);
 
-/* Every nsp has an ID that is unique across the program execution */
-unsigned long nsp_getid(nsock_pool nsp);
-
 nsock_ssl nsi_getssl(nsock_iod nsockiod);
 
 /* Note that nsi_get1_ssl_session will increment the usage count of the
