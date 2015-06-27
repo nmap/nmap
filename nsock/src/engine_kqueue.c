@@ -161,8 +161,8 @@ int kqueue_iod_register(struct npool *nsp, struct niod *iod, int ev) {
   
   kqueue_iod_modify(nsp, iod, ev, EV_NONE);
 
-  if (nsi_getsd(iod) > kinfo->maxfd)
-    kinfo->maxfd = nsi_getsd(iod);
+  if (nsock_iod_get_sd(iod) > kinfo->maxfd)
+    kinfo->maxfd = nsock_iod_get_sd(iod);
 
   return 1;
 }
@@ -176,7 +176,7 @@ int kqueue_iod_unregister(struct npool *nsp, struct niod *iod) {
     kqueue_iod_modify(nsp, iod, EV_NONE, EV_READ|EV_WRITE);
     IOD_PROPCLR(iod, IOD_REGISTERED);
 
-    if (nsi_getsd(iod) == kinfo->maxfd)
+    if (nsock_iod_get_sd(iod) == kinfo->maxfd)
       kinfo->maxfd--;
   }
   iod->watched_events = EV_NONE;
@@ -202,11 +202,11 @@ int kqueue_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_cl
 
   i = 0;
   if ((ev_set ^ ev_clr) & EV_READ) {
-    EV_SET(&kev[i], nsi_getsd(iod), EVFILT_READ, EV_SETFLAG(ev_set, EV_READ), 0, 0, (void *)iod);
+    EV_SET(&kev[i], nsock_iod_get_sd(iod), EVFILT_READ, EV_SETFLAG(ev_set, EV_READ), 0, 0, (void *)iod);
     i++;
   }
   if ((ev_set ^ ev_clr) & EV_WRITE) {
-    EV_SET(&kev[i], nsi_getsd(iod), EVFILT_WRITE, EV_SETFLAG(ev_set, EV_WRITE), 0, 0, (void *)iod);
+    EV_SET(&kev[i], nsock_iod_get_sd(iod), EVFILT_WRITE, EV_SETFLAG(ev_set, EV_WRITE), 0, 0, (void *)iod);
     i++;
   }
 

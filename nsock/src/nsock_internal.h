@@ -120,7 +120,7 @@ enum iod_state {
   NSIOD_STATE_DELETED,
   NSIOD_STATE_INITIAL,
 
-  /* sd was provided to us in nsi_new2 (see nsock_pool.c) */
+  /* sd was provided to us in nsock_iod_new2 (see nsock_iod.c) */
   NSIOD_STATE_UNKNOWN,
 
   NSIOD_STATE_CONNECTED_TCP,

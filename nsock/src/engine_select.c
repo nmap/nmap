@@ -205,7 +205,7 @@ int select_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_cl
   iod->watched_events |= ev_set;
   iod->watched_events &= ~ev_clr;
 
-  sd = nsi_getsd(iod);
+  sd = nsock_iod_get_sd(iod);
 
   /* -- set events -- */
   if (ev_set & EV_READ)

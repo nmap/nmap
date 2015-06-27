@@ -180,7 +180,7 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
 
    /* If there was a previous nsock pool, delete it */
   if (this->pcap_nsi) {
-    nsi_delete(this->pcap_nsi, NSOCK_PENDING_SILENT);
+    nsock_iod_delete(this->pcap_nsi, NSOCK_PENDING_SILENT);
   }
   if (this->nsock_init) {
     nsock_event_cancel(this->nsp, this->pcap_ev_id, 0);
@@ -203,7 +203,7 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   nsock_pool_set_broadcast(this->nsp, 1);
 
   /* Allocate an NSI for packet capture */
-  this->pcap_nsi = nsi_new(this->nsp, NULL);
+  this->pcap_nsi = nsock_iod_new(this->nsp, NULL);
   this->first_pcap_scheduled = false;
 
   /* Flag it as already initialized so we free this nsp next time */

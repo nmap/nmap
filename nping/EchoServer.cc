@@ -180,7 +180,7 @@ NEPContext *EchoServer::getClientContext(clientid_t clnt){
 NEPContext *EchoServer::getClientContext(nsock_iod iod){
   nping_print(DBG_4, "%s()", __func__);
   clientid_t *id=NULL;
-  if( (id=(clientid_t *)nsi_getud(iod))==NULL )
+  if( (id=(clientid_t *)nsock_iod_get_udata(iod))==NULL )
     return NULL;
   else
     return this->getClientContext(*id);
@@ -1088,7 +1088,7 @@ int EchoServer::nep_session_ended_handler(nsock_pool nsp, nsock_event nse, void 
     else
         nping_print(DBG_2, "Deleted client #%d context.", clnt);
   }
-  nsi_delete(nsi, NSOCK_PENDING_SILENT);
+  nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
 
   /* Exit the server if --once has been set */
   if(o.once()){
@@ -1456,7 +1456,7 @@ int EchoServer::start() {
     nsock_set_loglevel(nsp, NSOCK_LOG_DBG_ALL);
 
   /* Create new IOD for pcap */
-  if ((pcap_nsi = nsi_new(nsp, NULL)) == NULL)
+  if ((pcap_nsi = nsock_iod_new(nsp, NULL)) == NULL)
     nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
 
   /* Open pcap */
@@ -1486,11 +1486,11 @@ int EchoServer::start() {
                 return OP_FAILURE;
             }
             *idpnt=this->getNewClientID();
-            if( (client_nsi=nsi_new2(nsp, client_sd, idpnt))==NULL ){
+            if( (client_nsi=nsock_iod_new2(nsp, client_sd, idpnt))==NULL ){
                 nping_warning(QT_2, "Not enough memory for new clients.");
                 return OP_FAILURE;
             }else{
-                close(client_sd); /* nsi_new2() dups the socket */
+                close(client_sd); /* nsock_iod_new2() dups the socket */
             }
 
             /* Stop listening if --once is enabled */

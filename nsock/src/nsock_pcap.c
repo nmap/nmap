@@ -476,16 +476,16 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
   return;
 }
 
-int nsi_pcap_linktype(nsock_iod nsiod) {
-  struct niod *nsi = (struct niod *)nsiod;
+int nsock_iod_linktype(nsock_iod iod) {
+  struct niod *nsi = (struct niod *)iod;
   mspcap *mp = (mspcap *)nsi->pcap;
 
   assert(mp);
   return (mp->datalink);
 }
 
-int nsi_is_pcap(nsock_iod nsiod) {
-  struct niod *nsi = (struct niod *)nsiod;
+int nsock_iod_is_pcap(nsock_iod iod) {
+  struct niod *nsi = (struct niod *)iod;
   mspcap *mp = (mspcap *)nsi->pcap;
 
   return (mp != NULL);

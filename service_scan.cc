@@ -2025,19 +2025,20 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     if (probe) {
       // For a TCP probe, we start by requesting a new connection to the target
       if (svc->proto == IPPROTO_TCP) {
-        nsi_delete(nsi, NSOCK_PENDING_SILENT);
-        if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
+        nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
+        if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
           fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
         }
         if (o.spoofsource) {
           o.SourceSockAddr(&ss, &ss_len);
-          nsi_set_localaddr(svc->niod, &ss, ss_len);
+          nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
         }
         if (o.ipoptionslen)
-          nsi_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
+          nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
         if (svc->target->TargetName()) {
-          if (nsi_set_hostname(svc->niod, svc->target->TargetName()) == -1)
-            fatal("nsi_set_hostname(\"%s\" failed in %s()", svc->target->TargetName(), __func__);
+          if (nsock_iod_set_hostname(svc->niod, svc->target->TargetName()) == -1)
+            fatal("nsock_iod_set_hostname(\"%s\" failed in %s()",
+                  svc->target->TargetName(), __func__);
         }
         svc->target->TargetSockAddr(&ss, &ss_len);
         if (svc->tunnel == SERVICE_TUNNEL_NONE) {
@@ -2063,8 +2064,10 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       }
     } else {
       // No more probes remaining!  Failed to match
-      nsi_delete(nsi, NSOCK_PENDING_SILENT);
-      end_svcprobe(nsp, (svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED : PROBESTATE_FINISHED_NOMATCH, SG, svc, NULL);
+      nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
+      end_svcprobe(nsp, (svc->softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED :
+                                               PROBESTATE_FINISHED_NOMATCH,
+                   SG, svc, NULL);
     }
   }
   return;
@@ -2195,9 +2198,8 @@ static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, Ser
 
   considerPrintingStats(nsp, SG);
 
-  if (nsi) {
-    nsi_delete(nsi, NSOCK_PENDING_SILENT);
-  }
+  if (nsi)
+    nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
 
   handleHostIfDone(SG, target);
   return;
@@ -2233,7 +2235,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
     }
 
     // We start by requesting a connection to the target
-    if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
+    if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
       fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
     }
     if (o.debugging > 1) {
@@ -2241,10 +2243,10 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
     }
     if (o.spoofsource) {
       o.SourceSockAddr(&ss, &ss_len);
-      nsi_set_localaddr(svc->niod, &ss, ss_len);
+      nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
     }
     if (o.ipoptionslen)
-      nsi_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
+      nsock_iod_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
     svc->target->TargetSockAddr(&ss, &ss_len);
     if (svc->proto == IPPROTO_TCP)
       nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler,
@@ -2282,16 +2284,16 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
 
 #if HAVE_OPENSSL
     // Snag our SSL_SESSION from the nsi for use in subsequent connections.
-    if (nsi_checkssl(nsi)) {
-      if (svc->ssl_session ) {
-        if (svc->ssl_session == (SSL_SESSION *)(nsi_get0_ssl_session(nsi))) {
+    if (nsock_iod_check_ssl(nsi)) {
+      if (svc->ssl_session) {
+        if (svc->ssl_session == (SSL_SESSION *)(nsock_iod_get_ssl_session(nsi, 0))) {
           //nada
         } else {
           SSL_SESSION_free((SSL_SESSION*)svc->ssl_session);
-          svc->ssl_session = (SSL_SESSION *)(nsi_get1_ssl_session(nsi));
+          svc->ssl_session = (SSL_SESSION *)(nsock_iod_get_ssl_session(nsi, 1));
         }
       } else {
-        svc->ssl_session = (SSL_SESSION *)(nsi_get1_ssl_session(nsi));
+        svc->ssl_session = (SSL_SESSION *)(nsock_iod_get_ssl_session(nsi, 1));
       }
     }
 #endif

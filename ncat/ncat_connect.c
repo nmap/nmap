@@ -248,20 +248,20 @@ static void connect_report(nsock_iod nsi)
     union sockaddr_u peer;
     zmem(&peer, sizeof(peer.storage));
 
-    nsi_getlastcommunicationinfo(nsi, NULL, NULL, NULL,
-        &peer.sockaddr, sizeof(peer.storage));
-
+    nsock_iod_get_communication_info(nsi, NULL, NULL, NULL, &peer.sockaddr,
+                                     sizeof(peer.storage));
     if (o.verbose) {
 #ifdef HAVE_OPENSSL
-        if (nsi_checkssl(nsi)) {
+        if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
             X509_NAME *subject;
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
-            loguser("SSL connection to %s:%hu.", inet_socktop(&peer), nsi_peerport(nsi));
+            loguser("SSL connection to %s:%hu.", inet_socktop(&peer),
+                    nsock_iod_get_peerport(nsi));
 
-            cert = SSL_get_peer_certificate((SSL *) nsi_getssl(nsi));
+            cert = SSL_get_peer_certificate((SSL *)nsock_iod_get_ssl(nsi));
             ncat_assert(cert != NULL);
 
             subject = X509_get_subject_name(cert);
@@ -285,7 +285,8 @@ static void connect_report(nsock_iod nsi)
                 loguser("Connected to %s.\n", peer.un.sun_path);
             else
 #endif
-                loguser("Connected to %s:%hu.\n", inet_socktop(&peer), nsi_peerport(nsi));
+                loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+                        nsock_iod_get_peerport(nsi));
         }
 #else
 #if HAVE_SYS_UN_H
@@ -293,7 +294,8 @@ static void connect_report(nsock_iod nsi)
             loguser("Connected to %s.\n", peer.un.sun_path);
         else
 #endif
-            loguser("Connected to %s:%hu.\n", inet_socktop(&peer), nsi_peerport(nsi));
+            loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+                    nsock_iod_get_peerport(nsi));
 #endif
     }
 }
@@ -894,11 +896,11 @@ int ncat_connect(void)
 
     if (!o.proxytype) {
         /* A non-proxy connection. Create an iod for a new socket. */
-        cs.sock_nsi = nsi_new(mypool, NULL);
+        cs.sock_nsi = nsock_iod_new(mypool, NULL);
         if (cs.sock_nsi == NULL)
             bye("Failed to create nsock_iod.");
 
-        if (nsi_set_hostname(cs.sock_nsi, o.target) == -1)
+        if (nsock_iod_set_hostname(cs.sock_nsi, o.target) == -1)
             bye("Failed to set hostname on iod.");
 
 #if HAVE_SYS_UN_H
@@ -915,7 +917,8 @@ int ncat_connect(void)
                 strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
                 free (tmp_name);
             }
-            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
+                                SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
 
             if (o.verbose)
                 loguser("[%s] used as source DGRAM Unix domain socket.\n", srcaddr.un.sun_path);
@@ -926,20 +929,24 @@ int ncat_connect(void)
           case AF_UNSPEC:
             break;
           case AF_INET:
-            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.in));
+            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
+                                    sizeof(srcaddr.in));
             break;
 #ifdef AF_INET6
           case AF_INET6:
-            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.in6));
+            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
+                                    sizeof(srcaddr.in6));
             break;
 #endif
 #if HAVE_SYS_UN_H
           case AF_UNIX:
-            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
+                                    SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
             break;
 #endif
           default:
-            nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.storage));
+            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
+                                    sizeof(srcaddr.storage));
             break;
         }
 
@@ -951,7 +958,7 @@ int ncat_connect(void)
                 bye("Sorry, -g can only currently be used with IPv4.");
             ipopts = buildsrcrte(targetss.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
 
-            nsi_set_ipoptions(cs.sock_nsi, ipopts, ipoptslen);
+            nsock_iod_set_ipoptions(cs.sock_nsi, ipopts, ipoptslen);
             free(ipopts); /* Nsock has its own copy */
         }
 
@@ -1025,10 +1032,10 @@ int ncat_connect(void)
 
         /* Once the proxy negotiation is done, Nsock takes control of the
            socket. */
-        cs.sock_nsi = nsi_new2(mypool, connect_socket, NULL);
+        cs.sock_nsi = nsock_iod_new2(mypool, connect_socket, NULL);
 
         /* Create IOD for nsp->stdin */
-        if ((cs.stdin_nsi = nsi_new2(mypool, 0, NULL)) == NULL)
+        if ((cs.stdin_nsi = nsock_iod_new2(mypool, 0, NULL)) == NULL)
             bye("Failed to create stdin nsiod.");
 
         post_connect(mypool, cs.sock_nsi);
@@ -1043,8 +1050,8 @@ int ncat_connect(void)
         gettimeofday(&end_time, NULL);
         time = TIMEVAL_MSEC_SUBTRACT(end_time, start_time) / 1000.0;
         loguser("%lu bytes sent, %lu bytes received in %.2f seconds.\n",
-            nsi_get_write_count(cs.sock_nsi),
-            nsi_get_read_count(cs.sock_nsi), time);
+            nsock_iod_get_write_count(cs.sock_nsi),
+            nsock_iod_get_read_count(cs.sock_nsi), time);
     }
 
 #if HAVE_SYS_UN_H
@@ -1078,10 +1085,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 
 #ifdef HAVE_OPENSSL
-    if (nsi_checkssl(cs.sock_nsi)) {
+    if (nsock_iod_check_ssl(cs.sock_nsi)) {
         /* Check the domain name. ssl_post_connect_check prints an
            error message if appropriate. */
-        if (!ssl_post_connect_check((SSL *) nsi_getssl(cs.sock_nsi), o.target))
+        if (!ssl_post_connect_check((SSL *)nsock_iod_get_ssl(cs.sock_nsi), o.target))
             bye("Certificate verification error.");
     }
 #endif
@@ -1089,7 +1096,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     connect_report(cs.sock_nsi);
 
     /* Create IOD for nsp->stdin */
-    if ((cs.stdin_nsi = nsi_new2(nsp, 0, NULL)) == NULL)
+    if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
         bye("Failed to create stdin nsiod.");
 
     post_connect(nsp, nse_iod(evt));
@@ -1103,9 +1110,9 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
     if (o.cmdexec) {
         struct fdinfo info;
 
-        info.fd = nsi_getsd(iod);
+        info.fd = nsock_iod_get_sd(iod);
 #ifdef HAVE_OPENSSL
-        info.ssl = (SSL *) nsi_getssl(iod);
+        info.ssl = (SSL *)nsock_iod_get_ssl(iod);
 #endif
         /* Convert Nsock's non-blocking socket to an ordinary blocking one. It's
            possible for a program to write fast enough that it will get an
@@ -1141,7 +1148,7 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_READ);
 
     if (status == NSE_STATUS_EOF) {
-        shutdown(nsi_getsd(cs.sock_nsi), SHUT_WR);
+        shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
         /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
             nsock_loop_quit(nsp);
@@ -1211,7 +1218,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         ncat_delay_timer(o.linedelay);
 
     if (o.telnet)
-        dotelnet(nsi_getsd(nse_iod(evt)), (unsigned char *) buf, nbytes);
+        dotelnet(nsock_iod_get_sd(nse_iod(evt)), (unsigned char *) buf, nbytes);
 
     /* Write socket data to stdout */
     Write(STDOUT_FILENO, buf, nbytes);

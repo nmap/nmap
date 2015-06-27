@@ -220,7 +220,7 @@ int poll_iod_register(struct npool *nsp, struct niod *iod, int ev) {
 
   iod->watched_events = ev;
 
-  sd = nsi_getsd(iod);
+  sd = nsock_iod_get_sd(iod);
   while (pinfo->capacity < sd + 1)
     evlist_grow(pinfo);
 
@@ -252,7 +252,7 @@ int poll_iod_unregister(struct npool *nsp, struct niod *iod) {
     struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
     int sd;
 
-    sd = nsi_getsd(iod);
+    sd = nsock_iod_get_sd(iod);
     pinfo->events[sd].fd = -1;
     pinfo->events[sd].events = 0;
     pinfo->events[sd].revents = 0;
@@ -282,7 +282,7 @@ int poll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr)
 
   iod->watched_events = new_events;
 
-  sd = nsi_getsd(iod);
+  sd = nsock_iod_get_sd(iod);
 
   pinfo->events[sd].fd = sd;
   pinfo->events[sd].events = 0;

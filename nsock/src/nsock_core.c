@@ -477,16 +477,16 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 
         /* SSLv3-only and TLSv1-only servers can't be connected to when the
          * SSL_OP_NO_SSLv2 option is not set, which is the case when the pool
-         * was initialized with nsock_pool_ssl_init_max_speed. Try reconnecting with
-         * SSL_OP_NO_SSLv2. Never downgrade a NO_SSLv2 connection to one that
-         * might use SSLv2. */
+         * was initialized with nsock_pool_ssl_init_max_speed. Try reconnecting
+         * with SSL_OP_NO_SSLv2. Never downgrade a NO_SSLv2 connection to one
+         * that might use SSLv2. */
         nsock_log_info(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
 
         saved_ev = iod->watched_events;
         nsock_engine_iod_unregister(ms, iod);
         close(iod->sd);
         nsock_connect_internal(ms, nse, SOCK_STREAM, iod->lastproto, &iod->peer,
-                               iod->peerlen, nsi_peerport(iod));
+                               iod->peerlen, nsock_iod_get_peerport(iod));
         nsock_engine_iod_register(ms, iod, saved_ev);
 
         SSL_clear(iod->ssl);

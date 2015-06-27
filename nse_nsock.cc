@@ -295,7 +295,7 @@ static void trace (nsock_iod nsiod, const char *message, const char *dir)
 {
   if (o.scriptTrace())
   {
-    if (!nsi_is_pcap(nsiod))
+    if (!nsock_iod_is_pcap(nsiod))
     {
       int protocol;
       int af;
@@ -304,7 +304,7 @@ static void trace (nsock_iod nsiod, const char *message, const char *dir)
       struct sockaddr_storage local;
       struct sockaddr_storage remote;
 
-      nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
+      nsock_iod_get_communication_info(nsiod, &protocol, &af,
           (sockaddr *) &local, (sockaddr *) &remote, sizeof(sockaddr_storage));
       log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n",
           SCRIPT_ENGINE,
@@ -381,17 +381,17 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, bool open)
       nsock_pool nsp;
 
       nsp = get_pool(L);
-      nu->nsiod = nsi_new(nsp, NULL);
+      nu->nsiod = nsock_iod_new(nsp, NULL);
       if (nu->source_addr.ss_family != AF_UNSPEC) {
-        nsi_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
+        nsock_iod_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
       } else if (o.spoofsource) {
         struct sockaddr_storage ss;
         size_t sslen;
         o.SourceSockAddr(&ss, &sslen);
-        nsi_set_localaddr(nu->nsiod, &ss, sslen);
+        nsock_iod_set_localaddr(nu->nsiod, &ss, sslen);
       }
       if (o.ipoptionslen)
-        nsi_set_ipoptions(nu->nsiod, o.ipoptions, o.ipoptionslen);
+        nsock_iod_set_ipoptions(nu->nsiod, o.ipoptions, o.ipoptionslen);
 
       if (nsock_setup_udp(nsp, nu->nsiod, nu->af) == -1) {
         luaL_error(L, "Error in setup of iod with proto %d and af %d: %s (%d)",
@@ -497,21 +497,21 @@ static int l_connect (lua_State *L)
 
   if (nu->nsiod != NULL)
     close_internal(L, nu);
-  nu->nsiod = nsi_new(nsp, NULL);
+  nu->nsiod = nsock_iod_new(nsp, NULL);
   if (nu->source_addr.ss_family != AF_UNSPEC) {
-    nsi_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
+    nsock_iod_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
   } else if (o.spoofsource) {
     struct sockaddr_storage ss;
     size_t sslen;
 
     o.SourceSockAddr(&ss, &sslen);
-    nsi_set_localaddr(nu->nsiod, &ss, sslen);
+    nsock_iod_set_localaddr(nu->nsiod, &ss, sslen);
   }
   if (o.ipoptionslen)
-    nsi_set_ipoptions(nu->nsiod, o.ipoptions, o.ipoptionslen);
+    nsock_iod_set_ipoptions(nu->nsiod, o.ipoptions, o.ipoptionslen);
   if (targetname != NULL) {
-    if (nsi_set_hostname(nu->nsiod, targetname) == -1)
-      fatal("nsi_set_hostname(\"%s\" failed in %s()", targetname, __func__);
+    if (nsock_iod_set_hostname(nu->nsiod, targetname) == -1)
+      fatal("nsock_iod_set_hostname(\"%s\" failed in %s()", targetname, __func__);
   }
 
   nu->af = dest->ai_addr->sa_family;
@@ -705,7 +705,7 @@ static int l_get_info (lua_State *L)
   char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
   char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
 
-  nsi_getlastcommunicationinfo(nu->nsiod, &protocol, &af,
+  nsock_iod_get_communication_info(nu->nsiod, &protocol, &af,
       (struct sockaddr*)&local, (struct sockaddr*)&remote,
       sizeof(struct sockaddr_storage));
 
@@ -774,10 +774,10 @@ SSL *nse_nsock_get_ssl (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
 
-  if (nu->nsiod == NULL || !nsi_checkssl(nu->nsiod))
+  if (nu->nsiod == NULL || !nsock_iod_check_ssl(nu->nsiod))
     luaL_argerror(L, 1, "not a SSL socket");
 
-  return (SSL *) nsi_getssl(nu->nsiod);
+  return (SSL *) nsock_iod_get_ssl(nu->nsiod);
 }
 #else
 /* If HAVE_OPENSSL is defined, these come from nse_ssl_cert.cc. */
@@ -828,8 +828,8 @@ static int l_bind (lua_State *L)
   }
 
   /* We ignore any results after the first. */
-  /* We would just call nsi_set_localaddr here, but nu->nsiod is not created
-     until connect. So store the address in the userdatum. */
+  /* We would just call nsock_iod_set_localaddr here, but nu->nsiod is not
+   * created until connect. So store the address in the userdatum. */
   nu->source_addrlen = results->ai_addrlen;
   memcpy(&nu->source_addr, results->ai_addr, nu->source_addrlen);
 
@@ -898,7 +898,7 @@ static void close_internal (lua_State *L, nse_nsock_udata *nu)
     SSL_SESSION_free((SSL_SESSION *) nu->ssl_session);
 #endif
   if (!nu->is_pcap) { /* pcap sockets are closed by pcap_gc */
-    nsi_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
+    nsock_iod_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
     nu->nsiod = NULL;
   }
 }
@@ -947,7 +947,7 @@ static void dnet_to_pcap_device_name (lua_State *L, const char *device)
 static int pcap_gc (lua_State *L)
 {
   nsock_iod *nsiod = (nsock_iod *) lua_touserdata(L, 1);
-  nsi_delete(*nsiod, NSOCK_PENDING_NOTIFY);
+  nsock_iod_delete(*nsiod, NSOCK_PENDING_NOTIFY);
   *nsiod = NULL;
   return 0;
 }
@@ -984,7 +984,7 @@ static int l_pcap_open (lua_State *L)
     nsiod = (nsock_iod *) lua_newuserdata(L, sizeof(nsock_iod));
     lua_pushvalue(L, PCAP_SOCKET);
     lua_setmetatable(L, -2);
-    *nsiod = nsi_new(nsp, nu);
+    *nsiod = nsock_iod_new(nsp, nu);
     lua_pushvalue(L, 7); /* the pcap socket key */
     lua_pushvalue(L, -2); /* the pcap socket nsiod */
     lua_rawset(L, KEY_PCAP); /* KEY_PCAP["dev|snap|promis|bpf"] = pcap_nsiod */

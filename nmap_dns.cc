@@ -361,7 +361,7 @@ static void close_dns_servers() {
 
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
     if (serverI->connected) {
-      nsi_delete(serverI->nsd, NSOCK_PENDING_SILENT);
+      nsock_iod_delete(serverI->nsd, NSOCK_PENDING_SILENT);
       serverI->connected = 0;
       serverI->to_process.clear();
       serverI->in_process.clear();
@@ -870,15 +870,15 @@ static void add_dns_server(char *ipaddrs) {
 static void connect_dns_servers() {
   std::list<dns_server>::iterator serverI;
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    serverI->nsd = nsi_new(dnspool, NULL);
+    serverI->nsd = nsock_iod_new(dnspool, NULL);
     if (o.spoofsource) {
       struct sockaddr_storage ss;
       size_t sslen;
       o.SourceSockAddr(&ss, &sslen);
-      nsi_set_localaddr(serverI->nsd, &ss, sslen);
+      nsock_iod_set_localaddr(serverI->nsd, &ss, sslen);
     }
     if (o.ipoptionslen)
-      nsi_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
+      nsock_iod_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
     serverI->reqs_on_wire = 0;
     serverI->capacity = CAPACITY_MIN;
     serverI->write_busy = 0;

@@ -174,7 +174,7 @@ int EchoClient::start(NpingTarget *target, u16 port){
   }else{
     /* Extract the nsock pool handler and store it here */
     this->nsp=this->probe.getNsockPool();
-    this->nsi=nsi_new(this->nsp, NULL);
+    this->nsi=nsock_iod_new(this->nsp, NULL);
   }
 
   /* Schedule a TCP connection attempt */
@@ -241,7 +241,7 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
     #endif
 
    /* Try to bind the IOD to the IP address supplied by the user */
-   nsi_set_localaddr(this->nsi, o.getSourceSockAddr(&src), sizeof(sockaddr_in6));
+   nsock_iod_set_localaddr(this->nsi, o.getSourceSockAddr(&src), sizeof(sockaddr_in6));
 
    /* Schedule a connect event */
    nsock_connect_tcp(this->nsp, this->nsi, connect_done_handler, ECHO_CONNECT_TIMEOUT,
@@ -258,7 +258,7 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
 #endif
 
    /* Try to bind the IOD to the IP address supplied by the user */
-   nsi_set_localaddr(this->nsi, o.getSourceSockAddr(&src), sizeof(sockaddr_in));
+   nsock_iod_set_localaddr(this->nsi, o.getSourceSockAddr(&src), sizeof(sockaddr_in));
 
    /* Schedule a connect event */
    nsock_connect_tcp(this->nsp, this->nsi, connect_done_handler, ECHO_CONNECT_TIMEOUT,

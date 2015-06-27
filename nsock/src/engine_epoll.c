@@ -179,7 +179,7 @@ int epoll_iod_register(struct npool *nsp, struct niod *iod, int ev) {
   if (ev & EV_EXCEPT)
     epev.events |= EPOLL_X_FLAGS;
 
-  sd = nsi_getsd(iod);
+  sd = nsock_iod_get_sd(iod);
   if (epoll_ctl(einfo->epfd, EPOLL_CTL_ADD, sd, &epev) < 0)
     fatal("Unable to register IOD #%lu: %s", iod->id, strerror(errno));
 
@@ -196,7 +196,7 @@ int epoll_iod_unregister(struct npool *nsp, struct niod *iod) {
     struct epoll_engine_info *einfo = (struct epoll_engine_info *)nsp->engine_data;
     int sd;
 
-    sd = nsi_getsd(iod);
+    sd = nsock_iod_get_sd(iod);
     epoll_ctl(einfo->epfd, EPOLL_CTL_DEL, sd, NULL);
 
     IOD_PROPCLR(iod, IOD_REGISTERED);
@@ -234,7 +234,7 @@ int epoll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr
   if (iod->watched_events & EV_EXCEPT)
     epev.events |= EPOLL_X_FLAGS;
 
-  sd = nsi_getsd(iod);
+  sd = nsock_iod_get_sd(iod);
 
   if (epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev) < 0)
     fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));

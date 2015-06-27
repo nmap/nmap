@@ -503,12 +503,13 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
  * address space.  The sockaddr members should actually be sockaddr_storage,
  * sockaddr_in6, or sockaddr_in with the socklen of them set appropriately (eg
  * sizeof(sockaddr_storage) if that is what you are passing). */
-int nsi_getlastcommunicationinfo(nsock_iod ms_iod, int *protocol, int *af, struct sockaddr *local,
-                                 struct sockaddr *remote, size_t socklen) {
-  struct niod *nsi = (struct niod *)ms_iod;
+int nsock_iod_get_communication_info(nsock_iod iod, int *protocol, int *af,
+                                     struct sockaddr *local,
+                                     struct sockaddr *remote, size_t socklen) {
+  struct niod *nsi = (struct niod *)iod;
   int ret = 1;
-  struct sockaddr_storage sock;
-  socklen_t slen = sizeof(struct sockaddr_storage);
+  struct sockaddr_storage ss;
+  socklen_t slen = sizeof(ss);
   int res;
 
   assert(socklen > 0);
@@ -525,13 +526,13 @@ int nsi_getlastcommunicationinfo(nsock_iod ms_iod, int *protocol, int *af, struc
     }
     if (local) {
       if (nsi->sd >= 0) {
-        res = getsockname(nsi->sd, (struct sockaddr *)&sock, &slen);
+        res = getsockname(nsi->sd, (struct sockaddr *)&ss, &slen);
         if (res == -1) {
           memset(local, 0, socklen);
           ret = 0;
         } else {
           assert(slen > 0);
-          memcpy(local, &sock, MIN((unsigned)slen, socklen));
+          memcpy(local, &ss, MIN((unsigned)slen, socklen));
         }
       } else {
         memset(local, 0, socklen);

@@ -265,7 +265,7 @@ void nsock_pool_delete(nsock_pool ms_pool) {
     next = gh_lnode_next(current);
     nsi = container_of(current, struct niod, nodeq);
 
-    nsi_delete(nsi, NSOCK_PENDING_ERROR);
+    nsock_iod_delete(nsi, NSOCK_PENDING_ERROR);
 
     gh_list_remove(&nsp->active_iods, current);
     gh_list_prepend(&nsp->free_iods, &nsi->nodeq);
