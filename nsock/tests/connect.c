@@ -16,7 +16,7 @@ struct connect_test_data {
 static void connect_handler(nsock_pool nsp, nsock_event nse, void *udata) {
   struct connect_test_data *ctd;
 
-  ctd = (struct connect_test_data *)nsp_getud(nsp);
+  ctd = (struct connect_test_data *)nsock_pool_get_udata(nsp);
 
   switch(nse_status(nse)) {
     case NSE_STATUS_SUCCESS:
@@ -44,10 +44,10 @@ static int connect_setup(void **tdata) {
   if (ctd == NULL)
     return -ENOMEM;
 
-  ctd->nsp = nsp_new(ctd);
+  ctd->nsp = nsock_pool_new(ctd);
   AssertNonNull(ctd->nsp);
 
-  ctd->nsi = nsi_new(ctd->nsp, NULL);
+  ctd->nsi = nsock_iod_new(ctd->nsp, NULL);
   AssertNonNull(ctd->nsi);
 
   *tdata = ctd;
@@ -58,8 +58,8 @@ static int connect_teardown(void *tdata) {
   struct connect_test_data *ctd = (struct connect_test_data *)tdata;
 
   if (tdata) {
-    nsi_delete(ctd->nsi, NSOCK_PENDING_SILENT); /* nsp_delete would also handle it */
-    nsp_delete(ctd->nsp);
+    nsock_iod_delete(ctd->nsi, NSOCK_PENDING_SILENT); /* nsock_pool_delete would also handle it */
+    nsock_pool_delete(ctd->nsp);
     free(tdata);
   }
   return 0;

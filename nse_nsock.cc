@@ -81,8 +81,8 @@ static nsock_pool new_pool (lua_State *L)
   nsock_pool *nspp;
 
   /* configure logging */
-  nsock_set_log_function(nsp, nmap_nsock_stderr_logger);
-  nmap_adjust_loglevel(nsp, o.scriptTrace());
+  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(o.scriptTrace());
 
   nsock_pool_set_device(nsp, o.device);
 
@@ -418,7 +418,7 @@ static int l_loop (lua_State *L)
 
   socket_unlock(L); /* clean up old socket locks */
 
-  nmap_adjust_loglevel(nsp, o.scriptTrace());
+  nmap_adjust_loglevel(o.scriptTrace());
   if (nsock_loop(nsp, tout) == NSOCK_LOOP_ERROR)
     return luaL_error(L, "a fatal error occurred in nsock_loop");
   return 0;

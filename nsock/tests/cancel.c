@@ -25,7 +25,7 @@ static int cancel_setup(void **tdata) {
   if (btd == NULL)
     return -ENOMEM;
 
-  btd->nsp = nsp_new(NULL);
+  btd->nsp = nsock_pool_new(NULL);
 
   *tdata = btd;
   return 0;
@@ -35,7 +35,7 @@ static int cancel_teardown(void *tdata) {
   struct basic_test_data *btd = (struct basic_test_data *)tdata;
 
   if (tdata) {
-    nsp_delete(btd->nsp);
+    nsock_pool_delete(btd->nsp);
     free(tdata);
   }
   return 0;
@@ -48,7 +48,7 @@ static int cancel_tcp_run(void *tdata) {
   nsock_event_id id;
   int done = 0;
 
-  iod = nsi_new(btd->nsp, NULL);
+  iod = nsock_iod_new(btd->nsp, NULL);
   AssertNonNull(iod);
 
   memset(&peer, 0, sizeof(peer));
@@ -59,7 +59,7 @@ static int cancel_tcp_run(void *tdata) {
                          (struct sockaddr *)&peer, sizeof(peer), PORT_TCP);
   nsock_event_cancel(btd->nsp, id, 1);
 
-  nsi_delete(iod, NSOCK_PENDING_SILENT);
+  nsock_iod_delete(iod, NSOCK_PENDING_SILENT);
 
   return (done == 1) ? 0 : -ENOEXEC;
 }
@@ -71,7 +71,7 @@ static int cancel_udp_run(void *tdata) {
   nsock_event_id id;
   int done = 0;
 
-  iod = nsi_new(btd->nsp, NULL);
+  iod = nsock_iod_new(btd->nsp, NULL);
   AssertNonNull(iod);
 
   memset(&peer, 0, sizeof(peer));
@@ -82,7 +82,7 @@ static int cancel_udp_run(void *tdata) {
                          (struct sockaddr *)&peer, sizeof(peer), PORT_UDP);
   nsock_event_cancel(btd->nsp, id, 1);
 
-  nsi_delete(iod, NSOCK_PENDING_SILENT);
+  nsock_iod_delete(iod, NSOCK_PENDING_SILENT);
 
   return (done == 1) ? 0 : -ENOEXEC;
 }
@@ -94,7 +94,7 @@ static int cancel_ssl_run(void *tdata) {
   nsock_event_id id;
   int done = 0;
 
-  iod = nsi_new(btd->nsp, NULL);
+  iod = nsock_iod_new(btd->nsp, NULL);
   AssertNonNull(iod);
 
   memset(&peer, 0, sizeof(peer));
@@ -106,7 +106,7 @@ static int cancel_ssl_run(void *tdata) {
                          PORT_TCPSSL, NULL);
   nsock_event_cancel(btd->nsp, id, 1);
 
-  nsi_delete(iod, NSOCK_PENDING_SILENT);
+  nsock_iod_delete(iod, NSOCK_PENDING_SILENT);
 
   return (done == 1) ? 0 : -ENOEXEC;
 }

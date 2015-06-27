@@ -185,7 +185,7 @@ static int handle_state_tcp_connected(struct npool *nsp, struct nevent *nse, voi
   if (!(reslen == 8 && res[1] == 90)) {
     struct proxy_node *node = px_ctx->px_current;
 
-    nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
+    nsock_log_debug("Ignoring invalid socks4 reply from proxy %s",
                     node->nodestr);
     return -EINVAL;
   }

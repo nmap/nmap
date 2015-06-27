@@ -191,8 +191,8 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   if ((this->nsp = nsock_pool_new(NULL)) == NULL)
     fatal("Unable to obtain an Nsock pool");
 
-  nsock_set_log_function(this->nsp, nmap_nsock_stderr_logger);
-  nmap_adjust_loglevel(this->nsp, o.packetTrace());
+  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(o.packetTrace());
 
   nsock_pool_set_device(nsp, o.device);
 
@@ -420,7 +420,7 @@ int FPNetworkControl::setup_sniffer(const char *iface, const char *bpf_filter) {
 /* This method makes the controller process pending events (like packet
  * transmissions or packet captures). */
 void FPNetworkControl::handle_events() {
-  nmap_adjust_loglevel(nsp, o.packetTrace());
+  nmap_adjust_loglevel(o.packetTrace());
   nsock_loop(nsp, 50);
 }
 

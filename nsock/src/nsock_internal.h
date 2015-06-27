@@ -189,10 +189,6 @@ struct npool {
    * error (errnum fashion) */
   int errnum;
 
-  /* Logging information. */
-  nsock_logger_t logger;
-  nsock_loglevel_t loglevel;
-
   /* If true, new sockets will have SO_BROADCAST set */
   int broadcast;
 

@@ -171,7 +171,7 @@ struct nsock_log_rec {
 /* Nsock logging function. This function receives all nsock log records whose
  * level is greater than or equal to nsp loglevel. The rec structure is
  * allocated and freed by nsock. */
-typedef void (*nsock_logger_t)(nsock_pool nsp, const struct nsock_log_rec *rec);
+typedef void (*nsock_logger_t)(const struct nsock_log_rec *rec);
 
 
 /* ------------------- PROTOTYPES ------------------- */
@@ -200,7 +200,7 @@ void nsock_loop_quit(nsock_pool nsp);
 
 /* This next function returns the errno style error code -- which is only valid
  * if the status is NSOCK_LOOP_ERROR was returned by nsock_loop() */
-int nsock_pool_get_errorcode(nsock_pool nsp);
+int nsock_pool_get_error(nsock_pool nsp);
 
 nsock_ssl nsock_iod_get_ssl(nsock_iod nsockiod);
 
@@ -274,11 +274,12 @@ nsock_pool nsock_pool_new(void *udata);
 void nsock_pool_delete(nsock_pool nsp);
 
 /* Logging subsystem: set custom logging function.
+ * A NULL logger will reset the default (stderr) logger.
  * (See nsock_logger_t type definition). */
-void nsock_set_log_function(nsock_pool nsp, nsock_logger_t logger);
+void nsock_set_log_function(nsock_logger_t logger);
 
-nsock_loglevel_t nsock_get_loglevel(nsock_pool nsp);
-void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel);
+nsock_loglevel_t nsock_get_loglevel(void);
+void nsock_set_loglevel(nsock_loglevel_t loglevel);
 
 /* Parse a proxy chain description string and build a nsock_proxychain object
  * accordingly. If the optional nsock_pool parameter is passed in, it gets

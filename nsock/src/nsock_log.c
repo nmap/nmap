@@ -66,35 +66,38 @@
 #include "nsock_internal.h"
 #include "nsock_log.h"
 
+static void nsock_stderr_logger(const struct nsock_log_rec *rec);
+
 extern struct timeval nsock_tod;
 
+nsock_loglevel_t    NsockLogLevel = NSOCK_LOOP_ERROR;
+nsock_logger_t      NsockLogger   = nsock_stderr_logger;
 
-void nsock_set_log_function(nsock_pool nsp, nsock_logger_t logger) {
-  struct npool *ms = (struct npool *)nsp;
 
-  ms->logger = logger;
-  nsock_log_debug(ms, "Registered external logging function: %p", logger);
+void nsock_set_log_function(nsock_logger_t logger) {
+  if (logger != NULL)
+      NsockLogger = logger;
+  else
+      NsockLogger = nsock_stderr_logger;
+
+  nsock_log_debug("Registered external logging function: %p", NsockLogger);
 }
 
-nsock_loglevel_t nsock_get_loglevel(nsock_pool nsp) {
-  struct npool *ms = (struct npool *)nsp;
-
-  return ms->loglevel;
+nsock_loglevel_t nsock_get_loglevel(void) {
+  return NsockLogLevel;
 }
 
-void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel) {
-  struct npool *ms = (struct npool *)nsp;
-
-  ms->loglevel = loglevel;
+void nsock_set_loglevel(nsock_loglevel_t loglevel) {
+  NsockLogLevel = loglevel;
+  nsock_log_debug("Set log level to %s", nsock_loglevel2str(loglevel));
 }
 
-void nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec) {
+void nsock_stderr_logger(const struct nsock_log_rec *rec) {
   fprintf(stderr, "libnsock %s(): %s\n", rec->func, rec->msg);
 }
 
-void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
-                          const char *file, int line, const char *func,
-                          const char *format, ...) {
+void __nsock_log_internal(nsock_loglevel_t loglevel, const char *file, int line,
+                          const char *func, const char *format, ...) {
   struct nsock_log_rec rec;
   va_list args;
   int rc;
@@ -109,9 +112,7 @@ void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
 
   rc = vasprintf(&rec.msg, format, args);
   if (rc >= 0) {
-    struct npool *ms = (struct npool *)nsp;
-
-    ms->logger(nsp, &rec);
+    NsockLogger(&rec);
     free(rec.msg);
   }
   va_end(args);

@@ -32,7 +32,7 @@ static void timer_handler(nsock_pool nsp, nsock_event nse, void *tdata) {
   int rnd, rnd2;
 
   if (nse_status(nse) != NSE_STATUS_SUCCESS) {
-    ttd->stop = -nsp_geterrorcode(nsp);
+    ttd->stop = -nsock_pool_get_error(nsp);
     return;
   }
 
@@ -74,7 +74,7 @@ static int timer_setup(void **tdata) {
   if (ttd == NULL)
     return -ENOMEM;
 
-  ttd->nsp = nsp_new(NULL);
+  ttd->nsp = nsock_pool_new(NULL);
   AssertNonNull(ttd->nsp);
 
   *tdata = ttd;
@@ -85,7 +85,7 @@ static int timer_teardown(void *tdata) {
   struct timer_test_data *ttd = (struct timer_test_data *)tdata;
 
   if (tdata) {
-    nsp_delete(ttd->nsp);
+    nsock_pool_delete(ttd->nsp);
     free(tdata);
   }
   return 0;
@@ -114,7 +114,7 @@ static int timer_totalmess(void *tdata) {
         return 0;
 
       default:
-        return -(nsp_geterrorcode(ttd->nsp));
+        return -(nsock_pool_get_error(ttd->nsp));
     }
   }
   return ttd->stop;

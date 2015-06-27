@@ -153,7 +153,7 @@ nsock_iod nsock_iod_new2(nsock_pool nsockp, int sd, void *userdata) {
   /* The nsp keeps track of active iods so it can delete them if it is deleted */
   gh_list_append(&nsp->active_iods, &nsi->nodeq);
 
-  nsock_log_info(nsp, "nsock_iod_new (IOD #%lu)", nsi->id);
+  nsock_log_info("nsock_iod_new (IOD #%lu)", nsi->id);
 
   return (nsock_iod)nsi;
 }
@@ -184,7 +184,7 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
     return;
   }
 
-  nsock_log_info(nsi->nsp, "nsock_iod_delete (IOD #%lu)", nsi->id);
+  nsock_log_info("nsock_iod_delete (IOD #%lu)", nsi->id);
 
   if (nsi->events_pending > 0) {
     /* shit -- they killed the struct niod while an event was still pending on it.
@@ -242,7 +242,7 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
 #endif
 
     if (SSL_shutdown(nsi->ssl) == -1) {
-      nsock_log_info(nsi->nsp, "nsock_iod_delete: SSL shutdown failed (%s) on NSI %li",
+      nsock_log_info("nsock_iod_delete: SSL shutdown failed (%s) on NSI %li",
                      ERR_reason_error_string(SSL_get_error(nsi->ssl, -1)), nsi->id);
     }
 

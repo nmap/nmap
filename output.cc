@@ -2677,7 +2677,7 @@ static inline const char *nslog2str(nsock_loglevel_t loglevel) {
   };
 }
 
-void nmap_adjust_loglevel(nsock_pool nsp, bool trace) {
+void nmap_adjust_loglevel(bool trace) {
   nsock_loglevel_t nsock_loglevel;
 
   if (o.debugging >= 7)
@@ -2689,10 +2689,10 @@ void nmap_adjust_loglevel(nsock_pool nsp, bool trace) {
   else
     nsock_loglevel = NSOCK_LOG_ERROR;
 
-  nsock_set_loglevel(nsp, nsock_loglevel);
+  nsock_set_loglevel(nsock_loglevel);
 }
 
-void nmap_nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec) {
+void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec) {
   int elapsed_time;
 
   elapsed_time = TIMEVAL_MSEC_SUBTRACT(rec->time, *(o.getStartTime()));

@@ -60,43 +60,60 @@
 
 #include "nsock.h"
 
+extern nsock_loglevel_t NsockLogLevel;
+extern nsock_logger_t   NsockLogger;
 
-#define NSOCK_LOG_WRAP(nsp, lvl, ...)  \
+
+#define NSOCK_LOG_WRAP(lvl, ...)  \
     do { \
-        if ((nsp)->logger && (lvl) >= (nsp)->loglevel) { \
-            __nsock_log_internal((nsp), (lvl), __FILE__, __LINE__, __func__, __VA_ARGS__); \
+        if (NsockLogger && (lvl) >= NsockLogLevel) { \
+            __nsock_log_internal((lvl), __FILE__, __LINE__, __func__, __VA_ARGS__); \
         } \
     } while (0)
 
+
+static inline const char *nsock_loglevel2str(nsock_loglevel_t level)
+{
+  switch (level) {
+    case NSOCK_LOG_DBG_ALL:
+      return "FULL DEBUG";
+    case NSOCK_LOG_DBG:
+      return "DEBUG";
+    case NSOCK_LOG_INFO:
+      return "INFO";
+    case NSOCK_LOG_ERROR:
+      return "ERROR";
+    default:
+      return "???";
+  }
+}
 
 /* -- Internal logging macros -- */
 /**
  * Most detailed debug messages, like allocating or moving objects.
  */
-#define nsock_log_debug_all(nsp, ...) NSOCK_LOG_WRAP(nsp, NSOCK_LOG_DBG_ALL, __VA_ARGS__)
+#define nsock_log_debug_all(...) NSOCK_LOG_WRAP(NSOCK_LOG_DBG_ALL, __VA_ARGS__)
 
 /**
  * Detailed debug messages, describing internal operations.
  */
-#define nsock_log_debug(nsp, ...)     NSOCK_LOG_WRAP(nsp, NSOCK_LOG_DBG, __VA_ARGS__)
+#define nsock_log_debug(...)     NSOCK_LOG_WRAP(NSOCK_LOG_DBG, __VA_ARGS__)
 
 /**
  * High level debug messages, describing top level operations and external
  * requests.
  */
-#define nsock_log_info(nsp, ...)      NSOCK_LOG_WRAP(nsp, NSOCK_LOG_INFO, __VA_ARGS__)
+#define nsock_log_info(...)      NSOCK_LOG_WRAP(NSOCK_LOG_INFO, __VA_ARGS__)
 
 /**
  * Error messages.
  */
-#define nsock_log_error(nsp, ...)     NSOCK_LOG_WRAP(nsp, NSOCK_LOG_ERROR, __VA_ARGS__)
+#define nsock_log_error(...)     NSOCK_LOG_WRAP(NSOCK_LOG_ERROR, __VA_ARGS__)
 
 
-void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
-                          const char *file, int line, const char *func,
-                          const char *format, ...) __attribute__((format (printf, 6, 7)));
-
-void nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec);
+void __nsock_log_internal(nsock_loglevel_t loglevel, const char *file, int line,
+                          const char *func, const char *format, ...)
+                          __attribute__((format (printf, 5, 6)));
 
 #endif /* NSOCK_LOG_H */
 

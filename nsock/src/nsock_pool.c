@@ -89,7 +89,7 @@ static void nsock_library_initialize(void);
 
 /* This next function returns the errno style error code -- which is only
  * valid if the status NSOCK_LOOP_ERROR was returned by nsock_loop() */
-int nsock_pool_get_errorcode(nsock_pool nsp) {
+int nsock_pool_get_error(nsock_pool nsp) {
   struct npool *mt = (struct npool *)nsp;
   return mt->errnum;
 }
@@ -149,9 +149,6 @@ nsock_pool nsock_pool_new(void *userdata) {
   memset(nsp, 0, sizeof(*nsp));
 
   gettimeofday(&nsock_tod, NULL);
-
-  nsp->loglevel = NSOCK_LOG_ERROR;
-  nsp->logger   = (nsock_logger_t)nsock_stderr_logger;
 
   nsp->userdata = userdata;
 

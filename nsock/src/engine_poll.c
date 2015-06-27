@@ -315,7 +315,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
   do {
     struct nevent *nse;
 
-    nsock_log_debug_all(nsp, "wait for events");
+    nsock_log_debug_all("wait for events");
 
     nse = next_expirable_event(nsp);
     if (!nse)
@@ -356,7 +356,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
-    nsock_log_error(nsp, "nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+    nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
     nsp->errnum = sock_err;
     return -1;
   }

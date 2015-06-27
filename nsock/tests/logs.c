@@ -17,45 +17,41 @@ struct log_test_data {
   int errcode;
 };
 
+static struct log_test_data *GlobalLTD;
 
-static void log_handler(nsock_pool nsp, const struct nsock_log_rec *rec) {
-  struct log_test_data *ltd;
-
-  ltd = (struct log_test_data *)nsp_getud(nsp);
-  ltd->total++;
-
+static void log_handler(const struct nsock_log_rec *rec) {
+  GlobalLTD->total++;
   switch(rec->level) {
     case NSOCK_LOG_DBG_ALL:
-      ltd->got_dbgfull = 1;
+      GlobalLTD->got_dbgfull = 1;
       break;
 
     case NSOCK_LOG_DBG:
-      ltd->got_dbg = 1;
+      GlobalLTD->got_dbg = 1;
       break;
 
     case NSOCK_LOG_INFO:
-      ltd->got_info = 1;
+      GlobalLTD->got_info = 1;
       break;
 
     case NSOCK_LOG_ERROR:
-      ltd->got_error = 1;
+      GlobalLTD->got_error = 1;
       break;
 
     default:
       fprintf(stderr, "UNEXPECTED LOG LEVEL (%d)!\n", (int)rec->level);
-      ltd->errcode = -EINVAL;
+      GlobalLTD->errcode = -EINVAL;
   }
 }
 
 static void nop_handler(nsock_pool nsp, nsock_event nse, void *udata) {
-  return;
 }
 
 static int check_loglevel(struct log_test_data *ltd, nsock_loglevel_t level) {
   int rc = 0;
   nsock_event_id id;
 
-  nsock_set_loglevel(ltd->nsp, level);
+  nsock_set_loglevel(level);
 
   ltd->current_level = level;
 
@@ -82,7 +78,7 @@ static int check_loglevel(struct log_test_data *ltd, nsock_loglevel_t level) {
 static int check_errlevel(struct log_test_data *ltd, nsock_loglevel_t level) {
   nsock_event_id id;
 
-  nsock_set_loglevel(ltd->nsp, level);
+  nsock_set_loglevel(level);
 
   ltd->current_level = level;
 
@@ -113,10 +109,10 @@ static int log_setup(void **tdata) {
   if (ltd == NULL)
     return -ENOMEM;
 
-  ltd->nsp = nsp_new(ltd);
+  ltd->nsp = nsock_pool_new(ltd);
   AssertNonNull(ltd->nsp);
 
-  *tdata = ltd;
+  *tdata = GlobalLTD = ltd;
   return 0;
 }
 
@@ -124,9 +120,10 @@ static int log_teardown(void *tdata) {
   struct log_test_data *ltd = (struct log_test_data *)tdata;
 
   if (tdata) {
-    nsp_delete(ltd->nsp);
+    nsock_pool_delete(ltd->nsp);
     free(tdata);
   }
+  GlobalLTD = NULL;
   return 0;
 }
 
@@ -135,7 +132,7 @@ static int log_check_std_levels(void *tdata) {
   nsock_loglevel_t lvl;
   int rc = 0;
 
-  nsock_set_log_function(ltd->nsp, log_handler);
+  nsock_set_log_function(log_handler);
 
   for (lvl = NSOCK_LOG_DBG_ALL; lvl < NSOCK_LOG_ERROR; lvl++) {
     rc = check_loglevel(ltd, lvl);
@@ -151,7 +148,7 @@ static int log_check_err_levels(void *tdata) {
   nsock_loglevel_t lvl;
   int rc = 0;
 
-  nsock_set_log_function(ltd->nsp, log_handler);
+  nsock_set_log_function(log_handler);
 
   for (lvl = NSOCK_LOG_ERROR; lvl <= NSOCK_LOG_NONE; lvl++) {
     rc = check_errlevel(ltd, NSOCK_LOG_ERROR);

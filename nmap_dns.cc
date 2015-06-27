@@ -1216,8 +1216,8 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   if ((dnspool = nsock_pool_new(NULL)) == NULL)
     fatal("Unable to create nsock pool in %s()", __func__);
 
-  nsock_set_log_function(dnspool, nmap_nsock_stderr_logger);
-  nmap_adjust_loglevel(dnspool, o.packetTrace());
+  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(o.packetTrace());
 
   nsock_pool_set_device(dnspool, o.device);
 
@@ -1241,7 +1241,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     if (total_reqs <= 0) break;
 
     /* Because this can change with runtime interaction */
-    nmap_adjust_loglevel(dnspool, o.packetTrace());
+    nmap_adjust_loglevel(o.packetTrace());
 
     nsock_loop(dnspool, timeout);
   }

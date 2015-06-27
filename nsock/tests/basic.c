@@ -17,7 +17,7 @@ static int basic_setup(void **tdata) {
   if (btd == NULL)
     return -ENOMEM;
 
-  btd->nsp = nsp_new(NULL);
+  btd->nsp = nsock_pool_new(NULL);
 
   *tdata = btd;
   return 0;
@@ -27,7 +27,7 @@ static int basic_teardown(void *tdata) {
   struct basic_test_data *btd = (struct basic_test_data *)tdata;
 
   if (tdata) {
-    nsp_delete(btd->nsp);
+    nsock_pool_delete(btd->nsp);
     free(tdata);
   }
   return 0;
@@ -36,9 +36,9 @@ static int basic_teardown(void *tdata) {
 static int basic_udata(void *tdata) {
   struct basic_test_data *btd = (struct basic_test_data *)tdata;
 
-  AssertEqual(nsp_getud(btd->nsp), NULL);
-  nsp_setud(btd->nsp, btd);
-  AssertEqual(nsp_getud(btd->nsp), btd);
+  AssertEqual(nsock_pool_get_udata(btd->nsp), NULL);
+  nsock_pool_set_udata(btd->nsp, btd);
+  AssertEqual(nsock_pool_get_udata(btd->nsp), btd);
   return 0;
 }
 

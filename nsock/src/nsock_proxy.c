@@ -141,7 +141,7 @@ int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   struct npool *nsp = (struct npool *)nspool;
 
   if (nsp && nsp->px_chain) {
-    nsock_log_error(nsp, "Invalid call. Existing proxychain on this nsock_pool");
+    nsock_log_error("Invalid call. Existing proxychain on this nsock_pool");
     return -1;
   }
 
@@ -426,7 +426,7 @@ void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
   if (nse->status != NSE_STATUS_SUCCESS)
     nse->status = NSE_STATUS_PROXYERROR;
 
-  nsock_log_info(nsp, "Forwarding event upstream: TCP connect %s (IOD #%li) EID %li",
+  nsock_log_info("Forwarding event upstream: TCP connect %s (IOD #%li) EID %li",
                  nse_status2str(nse->status), nse->iod->id, nse->id);
 
   nse->iod->px_ctx->target_handler(nsp, nse, udata);

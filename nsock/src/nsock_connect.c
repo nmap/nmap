@@ -73,16 +73,16 @@ static int mksock_bind_addr(struct npool *ms, struct niod *iod) {
   if (rc == -1) {
     int err = socket_errno();
 
-    nsock_log_error(ms, "Setting of SO_REUSEADDR failed (#%li): %s (%d)", iod->id,
+    nsock_log_error("Setting of SO_REUSEADDR failed (#%li): %s (%d)", iod->id,
                     socket_strerror(err), err);
   }
 
-  nsock_log_info(ms, "Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
+  nsock_log_info("Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
   rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
   if (rc == -1) {
     int err = socket_errno();
 
-    nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s (%d)",
+    nsock_log_error("Bind to %s failed (IOD #%li): %s (%d)",
                     get_localaddr_string(iod), iod->id,
                     socket_strerror(err), err);
   }
@@ -98,7 +98,7 @@ static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
   if (rc == -1) {
     int err = socket_errno();
 
-    nsock_log_error(ms, "Setting of IP options failed (IOD #%li): %s (%d)",
+    nsock_log_error("Setting of IP options failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
   return 0;
@@ -112,10 +112,10 @@ static int mksock_bind_device(struct npool *ms, struct niod *iod) {
     int err = socket_errno();
 
     if (err != EPERM)
-      nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
+      nsock_log_error("Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
                       iod->id, socket_strerror(err), err);
     else
-      nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
+      nsock_log_debug_all("Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
                           iod->id, socket_strerror(err), err);
   }
   return 0;
@@ -130,7 +130,7 @@ static int mksock_set_broadcast(struct npool *ms, struct niod *iod) {
   if (rc == -1) {
     int err = socket_errno();
 
-    nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li): %s (%d)",
+    nsock_log_error("Setting of SO_BROADCAST failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
   return 0;
@@ -145,7 +145,7 @@ static int nsock_make_socket(struct npool *ms, struct niod *iod, int family, int
   /* inheritable_socket is from nbase */
   iod->sd = (int)inheritable_socket(family, type, proto);
   if (iod->sd == -1) {
-    nsock_log_error(ms, "Socket trouble: %s", socket_strerror(socket_errno()));
+    nsock_log_error("Socket trouble: %s", socket_strerror(socket_errno()));
     return -1;
   }
 
@@ -176,7 +176,7 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  nsock_log_info(ms, "UDP unconnected socket (IOD #%li)", nsi->id);
+  nsock_log_info("UDP unconnected socket (IOD #%li)", nsi->id);
 
   if (nsock_make_socket(ms, nsi, af, SOCK_DGRAM, IPPROTO_UDP) == -1)
     return -1;
@@ -200,7 +200,7 @@ void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int 
       && (nse->handler != nsock_proxy_ev_dispatch)) {   /* for reentrancy */
     struct proxy_node *current;
 
-    nsock_log_debug_all(ms, "TCP connection request (EID %lu) redirected through proxy chain",
+    nsock_log_debug_all("TCP connection request (EID %lu) redirected through proxy chain",
                         (long)nse->id);
 
     current = iod->px_ctx->px_current;
@@ -284,7 +284,7 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info(ms, "UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
+  nsock_log_info("UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
                  get_unixsock_path(ss), nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, 0);
@@ -310,7 +310,7 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);
 
-  nsock_log_info(ms, "UNIX domain socket (DGRAM) connection requested to %s (IOD #%li) EID %li",
+  nsock_log_info("UNIX domain socket (DGRAM) connection requested to %s (IOD #%li) EID %li",
                  get_unixsock_path(ss), nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_DGRAM, 0, ss, sslen, 0);
@@ -338,7 +338,7 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info(ms, "TCP connection requested to %s:%hu (IOD #%li) EID %li",
+  nsock_log_info("TCP connection requested to %s:%hu (IOD #%li) EID %li",
                  inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   /* Do the actual connect() */
@@ -366,7 +366,7 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info(ms, "SCTP association requested to %s:%hu (IOD #%li) EID %li",
+  nsock_log_info("SCTP association requested to %s:%hu (IOD #%li) EID %li",
                  inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   /* Do the actual connect() */
@@ -407,7 +407,7 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
   nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
-  nsock_log_info(ms, "SSL connection requested to %s:%hu/%s (IOD #%li) EID %li",
+  nsock_log_info("SSL connection requested to %s:%hu/%s (IOD #%li) EID %li",
                  inet_ntop_ez(ss, sslen), port, (proto == IPPROTO_TCP ? "tcp" : "sctp"),
                  nsi->id, nse->id);
 
@@ -443,7 +443,7 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
   nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
-  nsock_log_info(ms, "SSL reconnection requested (IOD #%li) EID %li",
+  nsock_log_info("SSL reconnection requested (IOD #%li) EID %li",
                  nsi->id, nse->id);
 
   /* Do the actual connect() */
@@ -482,7 +482,7 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);
 
-  nsock_log_info(ms, "UDP connection requested to %s:%hu (IOD #%li) EID %li",
+  nsock_log_info("UDP connection requested to %s:%hu (IOD #%li) EID %li",
                  inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_DGRAM, IPPROTO_UDP, ss, sslen, port);

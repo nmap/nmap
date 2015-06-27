@@ -2127,7 +2127,7 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 static void considerPrintingStats(nsock_pool nsp, ServiceGroup *SG) {
    /* Check for status requests */
    if (keyWasPressed()) {
-      nmap_adjust_loglevel(nsp, o.versionTrace());
+      nmap_adjust_loglevel(o.versionTrace());
       SG->SPM->printStats(SG->services_finished.size() /
                           ((double)SG->services_remaining.size() + SG->services_in_progress.size() +
                            SG->services_finished.size()), nsock_gettimeofday());
@@ -2757,8 +2757,8 @@ int service_scan(std::vector<Target *> &Targets) {
   if ((nsp = nsock_pool_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
-  nsock_set_log_function(nsp, nmap_nsock_stderr_logger);
-  nmap_adjust_loglevel(nsp, o.versionTrace());
+  nsock_set_log_function(nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(o.versionTrace());
 
   nsock_pool_set_device(nsp, o.device);
 
@@ -2780,7 +2780,7 @@ int service_scan(std::vector<Target *> &Targets) {
   // OK!  Lets start our main loop!
   looprc = nsock_loop(nsp, timeout);
   if (looprc == NSOCK_LOOP_ERROR) {
-    int err = nsock_pool_get_errorcode(nsp);
+    int err = nsock_pool_get_error(nsp);
     fatal("Unexpected nsock_loop error.  Error code %d (%s)", err, socket_strerror(err));
   }
 

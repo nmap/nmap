@@ -284,8 +284,8 @@ void printfinaloutput();
 void printdatafilepaths();
 
 /* nsock logging interface */
-void nmap_adjust_loglevel(nsock_pool nsp, bool trace);
-void nmap_nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec);
+void nmap_adjust_loglevel(bool trace);
+void nmap_nsock_stderr_logger(const struct nsock_log_rec *rec);
 
 #endif /* OUTPUT_H */
 
