@@ -121,20 +121,20 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
 
 void nsock_proxychain_delete(nsock_proxychain chain) {
   struct proxy_chain *pchain = (struct proxy_chain *)chain;
+  gh_lnode_t *lnode;
 
-  if (pchain) {
-    gh_lnode_t *lnode;
+  if (!pchain)
+    return;
 
-    while ((lnode = gh_list_pop(&pchain->nodes)) != NULL) {
-      struct proxy_node *node;
+  while ((lnode = gh_list_pop(&pchain->nodes)) != NULL) {
+    struct proxy_node *node;
 
-      node = container_of(lnode, struct proxy_node, nodeq);
-      node->spec->ops->node_delete(node);
-    }
-
-    gh_list_free(&pchain->nodes);
-    free(pchain);
+    node = container_of(lnode, struct proxy_node, nodeq);
+    node->spec->ops->node_delete(node);
   }
+
+  gh_list_free(&pchain->nodes);
+  free(pchain);
 }
 
 int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
@@ -163,21 +163,15 @@ struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
 }
 
 void proxy_chain_context_delete(struct proxy_chain_context *ctx) {
-  if (ctx)
-    free(ctx);
+  free(ctx);
 }
 
 static void uri_free(struct uri *uri) {
-  if (uri->scheme)
-    free(uri->scheme);
-  if (uri->user)
-    free(uri->user);
-  if (uri->pass)
-    free(uri->pass);
-  if (uri->host)
-    free(uri->host);
-  if (uri->path)
-    free(uri->path);
+  free(uri->scheme);
+  free(uri->user);
+  free(uri->pass);
+  free(uri->host);
+  free(uri->path);
 }
 
 static int lowercase(char *s) {
