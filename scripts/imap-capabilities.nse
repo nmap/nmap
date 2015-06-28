@@ -23,7 +23,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 
-portrule = shortport.port_or_service({143}, "imap")
+portrule = shortport.port_or_service({143, 993}, {"imap", "imaps"})
 
 action = function(host, port)
   local helper = imap.Helper:new(host, port)
