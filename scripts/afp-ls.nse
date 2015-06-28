@@ -105,7 +105,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"afp-brute"}
 
-portrule = shortport.portnumber(548, "tcp")
+portrule = shortport.port_or_service(548, {"afp"})
 
 action = function(host, port)
 
