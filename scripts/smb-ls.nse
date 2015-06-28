@@ -13,32 +13,101 @@ The output is intended to resemble the output of the UNIX <code>ls</code> comman
 ---
 -- @usage
 -- nmap -p 445 <ip> --script smb-ls --script-args 'share=c$,path=\temp'
+-- nmap -p 445 <ip> --script smb-enum-shares,smb-ls
+--
+-- @args smb-ls.share (or smb-ls.shares) the share (or a colon-separated list
+--       of shares) to connect to (default: use shares found by smb-enum-shares)
+-- @args smb-ls.path the path, relative to the share to list the contents from
+--       (default: root of the share)
+-- @args smb-ls.pattern the search pattern to execute (default: *)
+-- @args smb-ls.maxdepth the maximum depth to recurse into a directory
+--       (default: no recursion)
+-- @args smb-ls.maxfiles maximum number of files to report (default 10)
+-- @args smb-ls.checksum download each file and calculate a checksum
+--       (default: false)
+-- @args smb-ls.errors report connection errors
 --
 -- @output
 -- Host script results:
 -- | smb-ls:
--- |   Directory of \\192.168.56.101\c$\
--- |     2007-12-02 00:20:09  0      AUTOEXEC.BAT
--- |     2007-12-02 00:20:09  0      CONFIG.SYS
--- |     2007-12-02 00:53:39  <DIR>  Documents and Settings
--- |     2009-09-08 13:26:10  <DIR>  e5a6b742d36facb19c5192852c43
--- |     2008-12-01 02:06:29  <DIR>  Inetpub
--- |     2007-02-18 00:31:38  94720  msizap.exe
--- |     2007-12-02 00:55:01  <DIR>  Program Files
--- |     2008-12-01 02:05:52  <DIR>  temp
--- |     2011-12-16 14:40:18  <DIR>  usr
--- |     2007-12-02 00:42:40  <DIR>  WINDOWS
--- |_    2007-12-02 00:22:38  <DIR>  wmpub
+-- |   Volume \\192.168.56.101\c$\
+-- |   SIZE   TIME                 FILENAME
+-- |   0      2007-12-02 00:20:09  AUTOEXEC.BAT
+-- |   0      2007-12-02 00:20:09  CONFIG.SYS
+-- |   <DIR>  2007-12-02 00:53:39  Documents and Settings
+-- |   <DIR>  2009-09-08 13:26:10  e5a6b742d36facb19c5192852c43
+-- |   <DIR>  2008-12-01 02:06:29  Inetpub
+-- |   94720  2007-02-18 00:31:38  msizap.exe
+-- |   <DIR>  2007-12-02 00:55:01  Program Files
+-- |   <DIR>  2008-12-01 02:05:52  temp
+-- |   <DIR>  2011-12-16 14:40:18  usr
+-- |   <DIR>  2007-12-02 00:42:40  WINDOWS
+-- |   <DIR>  2007-12-02 00:22:38  wmpub
+-- |_
 --
--- @args smb-ls.share [optional] the share to connect to
--- @args smb-ls.shares [optional] a colon-separated list of shares to connect to
--- @args smb-ls.path [optional] the path, relative to the share to list the contents from
--- @args smb-ls.pattern [optional] the search pattern to execute (default: *)
--- @args smb-ls.maxdepth [optional] the maximum depth to recurse into a directory (default: no recursion)
--- @args smb-ls.maxfiles [optional] return only a certain amount of files
--- @args smb-ls.checksum [optional] download each file and calculate a SHA1 checksum
--- @args smb-ls.errors [optional] report connection errors
---
+-- @xmloutput
+-- <table key="volumes">
+--   <table>
+--     <table key="files">
+--       <table>
+--         <elem key="size">0</elem>
+--         <elem key="time">2007-12-02 00:20:09</elem>
+--         <elem key="filename">AUTOEXEC.BAT</elem>
+--       </table>
+--       <table>
+--         <elem key="size">0</elem>
+--         <elem key="time">2007-12-02 00:20:09</elem>
+--         <elem key="filename">CONFIG.SYS</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2007-12-02 00:53:39</elem>
+--         <elem key="filename">Documents and Settings</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2009-09-08 13:26:10</elem>
+--         <elem key="filename">e5a6b742d36facb19c5192852c43</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2008-12-01 02:06:29</elem>
+--         <elem key="filename">Inetpub</elem>
+--       </table>
+--       <table>
+--         <elem key="size">94720</elem>
+--         <elem key="time">2007-02-18 00:31:38</elem>
+--         <elem key="filename">msizap.exe</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2007-12-02 00:55:01</elem>
+--         <elem key="filename">Program Files</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2008-12-01 02:05:52</elem>
+--         <elem key="filename">temp</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2011-12-16 14:40:18</elem>
+--         <elem key="filename">usr</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2007-12-02 00:42:40</elem>
+--         <elem key="filename">WINDOWS</elem>
+--       </table>
+--       <table>
+--         <elem key="size">&lt;DIR&gt;</elem>
+--         <elem key="time">2007-12-02 00:22:38</elem>
+--         <elem key="filename">wmpub</elem>
+--       </table>
+--     </table>
+--     <elem key="volume">\\192.168.1.2\Downloads</elem>
+--   </table>
+-- </table>
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
