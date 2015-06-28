@@ -35,32 +35,9 @@ These access permissions are shown only with NFSv3:
 -- @usage
 -- nmap -p 111 --script=nfs-ls <target>
 -- nmap -sV --script=nfs-ls <target>
--- @output
--- PORT    STATE SERVICE
--- 111/tcp open  rpcbind
--- | nfs-ls:
--- |   Arguments:
--- |     maxfiles: 10 (file listing output limited)
--- |
--- |   NFS Export: /mnt/nfs/files
--- |   NFS Access: Read Lookup NoModify NoExtend NoDelete NoExecute
--- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
--- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
--- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
--- |     -rw-------  1000  1002  23606    2010-06-17 12:28   notes
--- |
--- |   NFS Export: /home/storage/backup
--- |   NFS Access: Read Lookup Modify Extend Delete NoExecute
--- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
--- |     drwxr-xr-x  1000  100   4096     2010-06-11 22:31   /home/storage/backup
--- |     -rw-r--r--  1000  1002  0        2010-06-10 08:34   filetest
--- |     drwx------  1000  100   16384    2010-02-05 17:05   lost+found
--- |     -rw-r--r--  0     0     5        2010-06-10 11:32   rootfile
--- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34   symlink
 --
 -- @args nfs-ls.maxfiles If set, limits the amount of files returned by
---       the script. If set to 0
---       or less, all files are shown. The default value is 10.
+--       the script. If set to 0 or less, all files are shown. (default: 10)
 -- @args nfs-ls.human If set to <code>1</code> or <code>true</code>,
 --       shows file sizes in a human readable format with suffixes like
 --       <code>KB</code> and <code>MB</code>.
@@ -70,6 +47,84 @@ These access permissions are shown only with NFSv3:
 -- * <code>a</code>: last access time (atime)
 -- * <code>c</code>: last change time (ctime)
 -- The default value is <code>m</code> (mtime).
+-- @args nfs.version The NFS protocol version to use
+--
+-- @output
+-- PORT    STATE SERVICE
+-- 111/tcp open  rpcbind
+-- | nfs-ls:
+-- |   Volume /mnt/nfs/files
+-- |   access: Read Lookup NoModify NoExtend NoDelete NoExecute
+-- |   PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
+-- |   drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
+-- |   drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
+-- |   -rw-------  1000  1002  23606    2010-06-17 12:28   notes
+-- |
+-- |   Volume /home/storage/backup
+-- |   access: Read Lookup Modify Extend Delete NoExecute
+-- |   PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
+-- |   drwxr-xr-x  1000  100   4096     2010-06-11 22:31   /home/storage/backup
+-- |   -rw-r--r--  1000  1002  0        2010-06-10 08:34   filetest
+-- |   drwx------  1000  100   16384    2010-02-05 17:05   lost+found
+-- |   -rw-r--r--  0     0     5        2010-06-10 11:32   rootfile
+-- |   lrwxrwxrwx  1000  1002  8        2010-06-10 08:34   symlink
+-- |_
+--
+-- @xmloutput
+-- <table key="volumes">
+--   <table>
+--     <elem key="volume">/mnt/nfs/files</elem>
+--     <table key="files">
+--       <table>
+--         <elem key="permission">drwxr-xr-x</elem>
+--         <elem key="uid">1000</elem>
+--         <elem key="gid">100</elem>
+--         <elem key="size">4096</elem>
+--         <elem key="time">2010-06-11 22:31</elem>
+--         <elem key="filename">/mnt/nfs/files</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">-rw-r-&#45;r-&#45;</elem>
+--         <elem key="uid">1000</elem>
+--         <elem key="gid">1002</elem>
+--         <elem key="size">0</elem>
+--         <elem key="time">2010-06-10 08:34</elem>
+--         <elem key="filename">filetest</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">drwx-&#45;&#45;&#45;&#45;&#45;</elem>
+--         <elem key="uid">0</elem>
+--         <elem key="gid">0</elem>
+--         <elem key="size">16384</elem>
+--         <elem key="time">2010-02-05 17:05</elem>
+--         <elem key="filename">lost+found</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">-rw-r-&#45;r-&#45;</elem>
+--         <elem key="uid">0</elem>
+--         <elem key="gid">0</elem>
+--         <elem key="size">5</elem>
+--         <elem key="time">2010-06-10 11:32</elem>
+--         <elem key="filename">rootfile</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">lrwxrwxrwx</elem>
+--         <elem key="uid">1000</elem>
+--         <elem key="gid">1002</elem>
+--         <elem key="size">8</elem>
+--         <elem key="time">2010-06-10 08:34</elem>
+--         <elem key="filename">symlink</elem>
+--       </table>
+--     </table>
+--     <table key="info">
+--       <elem>access: Read Lookup NoModify NoExtend NoDelete NoExecute</elem>
+--     </table>
+--   </table>
+-- </table>
+-- <table key="total">
+--   <elem key="files">5</elem>
+--   <elem key="bytes">20493</elem>
+-- </table>
 
 -- Created 05/28/2010 - v0.1 - combined nfs-dirlist and nfs-acls scripts
 -- Revised 06/04/2010 - v0.2 - make NFS exports listing with their acls
