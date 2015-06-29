@@ -1321,8 +1321,8 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
         if (waitms < 100 || waitms > 300000)
           fatal("Error on line %d of nmap-service-probes file (%s): bad totalwaitms value.  Must be between 100 and 300000 milliseconds", lineno, filename);
         newProbe->totalwaitms = waitms;
-      } else if (strncmp(line, "tcpwrappedms ", 12) == 0) {
-        long waitms = strtol(line + 12, NULL, 10);
+      } else if (strncmp(line, "tcpwrappedms ", 13) == 0) {
+        long waitms = strtol(line + 13, NULL, 10);
         if (waitms < 100 || waitms > 300000)
           fatal("Error on line %d of nmap-service-probes file (%s): bad tcpwrappedms value.  Must be between 100 and 300000 milliseconds", lineno, filename);
         newProbe->tcpwrappedms = waitms;
