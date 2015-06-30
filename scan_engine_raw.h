@@ -127,8 +127,9 @@
 #define SCAN_ENGINE_RAW_H
 
 #include "scan_engine.h"
-#include "Target.h"
 #include <vector>
+
+class Target;
 
 void increment_base_port();
 int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime);

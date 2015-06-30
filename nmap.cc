@@ -139,6 +139,7 @@
 #include "protocols.h"
 #include "targets.h"
 #include "TargetGroup.h"
+#include "Target.h"
 #include "service_scan.h"
 #include "charpool.h"
 #include "nmap_error.h"

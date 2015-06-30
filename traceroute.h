@@ -125,9 +125,9 @@
 #ifndef NMAP_TRACEROUTE_H
 #define NMAP_TRACEROUTE_H
 
-#include "Target.h"
-
 #include <vector>
+
+class Target;
 
 int traceroute(std::vector<Target *> &Targets);
 

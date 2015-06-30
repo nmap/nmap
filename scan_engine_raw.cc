@@ -125,6 +125,7 @@
 
 #include "nmap_error.h"
 #include "NmapOps.h"
+#include "Target.h"
 #include "payload.h"
 #include "scan_engine_raw.h"
 #include "struct_ip.h"
