@@ -372,6 +372,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     this->netblock = netblock_hostname->resolve();
     if (this->netblock == NULL) {
       error("Failed to resolve \"%s\".", netblock_hostname->hostname.c_str());
+      delete netblock_hostname;
       return -1;
     }
     delete netblock_hostname;
