@@ -129,6 +129,7 @@
 #endif
 
 #include "Target.h"
+#include "FingerPrintResults.h" /* for ~FingerPrintResults() */
 #include <dnet.h>
 #include "nbase.h"
 #include "NmapOps.h"

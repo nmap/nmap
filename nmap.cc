@@ -127,6 +127,7 @@
 #include "osscan.h"
 #include "osscan2.h"
 #include "scan_engine.h"
+#include "FPEngine.h"
 #include "idle_scan.h"
 #include "timing.h"
 #include "NmapOps.h"

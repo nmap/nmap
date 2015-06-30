@@ -126,6 +126,7 @@
 
 #include "FPEngine.h"
 #include "Target.h"
+#include "FingerPrintResults.h"
 #include "NmapOps.h"
 #include "nmap_error.h"
 #include "osscan.h"

@@ -127,7 +127,6 @@
 #ifndef TARGET_H
 #define TARGET_H
 
-#include "FingerPrintResults.h"
 #include "libnetutil/netutil.h"
 
 #ifndef NOLUA
@@ -139,6 +138,7 @@
 #include "tcpip.h"
 #include "scan_engine.h"
 #include "osscan2.h"
+class FingerPrintResults;
 
 #include <list>
 #include <string>

@@ -151,6 +151,8 @@
         Windows 8 Enterprise 32 bit | Global, incremental by 2
 */
 
+#include "libnetutil/npacket.h"
+
 #include "idle_scan.h"
 #include "timing.h"
 #include "osscan2.h"

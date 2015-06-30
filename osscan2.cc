@@ -131,6 +131,7 @@
 #include "Target.h"
 #include "utils.h"
 #include "FPEngine.h"
+#include "FingerPrintResults.h"
 #include <dnet.h>
 
 #include "struct_ip.h"

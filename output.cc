@@ -136,6 +136,7 @@
 #include "MACLookup.h"
 #include "portreasons.h"
 #include "protocols.h"
+#include "FingerPrintResults.h"
 #include "Target.h"
 #include "utils.h"
 #include "xml.h"

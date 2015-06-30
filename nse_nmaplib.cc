@@ -10,6 +10,7 @@ extern "C" {
 #include "nmap.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
+#include "FingerPrintResults.h"
 #include "Target.h"
 #include "TargetGroup.h"
 #include "portlist.h"
