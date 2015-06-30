@@ -70,7 +70,7 @@ static void nsock_stderr_logger(const struct nsock_log_rec *rec);
 
 extern struct timeval nsock_tod;
 
-nsock_loglevel_t    NsockLogLevel = NSOCK_LOOP_ERROR;
+nsock_loglevel_t    NsockLogLevel = NSOCK_LOG_ERROR;
 nsock_logger_t      NsockLogger   = nsock_stderr_logger;
 
 
