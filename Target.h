@@ -127,6 +127,8 @@
 #ifndef TARGET_H
 #define TARGET_H
 
+#include "nbase.h"
+
 #include "libnetutil/netutil.h"
 
 #ifndef NOLUA
