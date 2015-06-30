@@ -129,6 +129,8 @@
 
 #include "nmap.h" /* stype */
 
+#include <dnet.h>
+
 #include "timing.h"
 #include "tcpip.h"
 #include <list>

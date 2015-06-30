@@ -128,6 +128,8 @@
 #define OSSCAN2_H
 
 #include "nbase.h"
+#include <dnet.h>
+
 #include <vector>
 #include <list>
 #include "timing.h"
