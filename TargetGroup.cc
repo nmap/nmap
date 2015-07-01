@@ -133,6 +133,7 @@
 #include "libnetutil/netutil.h"
 
 #include <sstream>
+#include <errno.h>
 
 #define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
 #define BIT_SET(v, n) ((v)[(n) / BITVECTOR_BITS] |= 1UL << ((n) % BITVECTOR_BITS))

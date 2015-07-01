@@ -126,6 +126,9 @@
 #include "utils.h"
 #include "NmapOps.h"
 
+#include <fcntl.h>
+#include <errno.h>
+
 extern NmapOps o;
 
 /* Test a wildcard mask against a test string. Wildcard mask can include '*' and

@@ -133,6 +133,7 @@
 #include "Target.h"
 #include "nmap_error.h"
 
+#include <errno.h>
 #include <stdarg.h>
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

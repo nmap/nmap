@@ -151,77 +151,17 @@
 #include <unistd.h>
 #endif
 
-#ifdef STDC_HEADERS
-#include <stdlib.h>
-#else
-void *malloc();
-void *realloc();
-#endif
-
-#if STDC_HEADERS || HAVE_STRING_H
-#include <string.h>
-#if !STDC_HEADERS && HAVE_MEMORY_H
-#include <memory.h>
-#endif
-#endif
-#if HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
 #ifdef HAVE_BSTRING_H
 #include <bstring.h>
 #endif
-
-#include <ctype.h>
-#include <sys/types.h>
-
-#ifndef WIN32	/* from nmapNT -- seems to work */
-#include <sys/wait.h>
-#endif /* !WIN32 */
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
 #if HAVE_RPC_TYPES_H
+/* Is this needed any more since rpcgrind was converted to NSE? */
 #include <rpc/types.h>
-#endif
-
-#if HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#include <sys/stat.h>
-
-#if HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#include <errno.h>
-
-#if HAVE_NETDB_H
-#include <netdb.h>
-#endif
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <fcntl.h>
-
-#ifdef HAVE_PWD_H
-#include <pwd.h>
-#endif
-
-#if HAVE_ARPA_INET_H
-#include <arpa/inet.h>
 #endif
 
 /* For systems without SCTP in netinet/in.h, such as MacOS X */
@@ -233,10 +173,6 @@ void *realloc();
 #undef NDEBUG
 
 #include <assert.h>
-
-#if HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
-#endif
 
 /*#include <net/if_arp.h> *//* defines struct arphdr needed for if_ether.h */
 // #if HAVE_NET_IF_H

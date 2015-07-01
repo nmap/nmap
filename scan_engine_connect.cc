@@ -129,6 +129,8 @@
 #include "libnetutil/netutil.h" /* for max_sd() */
 #include "NmapOps.h"
 
+#include <errno.h>
+
 extern NmapOps o;
 
 /* Sets this UltraProbe as type UP_CONNECT, preparing to connect to given

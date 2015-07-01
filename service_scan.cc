@@ -135,6 +135,8 @@
 
 #include "nmap_tty.h"
 
+#include <errno.h>
+
 #if HAVE_OPENSSL
 /* OpenSSL 1.0.0 needs _WINSOCKAPI_ to be defined, otherwise it loads
    <windows.h> (through openssl/dtls1.h), which is incompatible with the
