@@ -151,6 +151,10 @@
 #include "nse_main.h"
 #endif
 
+#ifdef HAVE_SIGNAL
+#include <signal.h>
+#endif
+
 #ifdef WIN32
 #include "winfix.h"
 /* This name collides in the following include. */
