@@ -129,7 +129,7 @@
 #include "TargetGroup.h"
 #include "NmapOps.h"
 #include "nmap_error.h"
-#include "global_structures.h"
+#include "nmap.h"
 #include "libnetutil/netutil.h"
 
 #include <sstream>

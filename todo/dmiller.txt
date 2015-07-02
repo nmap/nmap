@@ -3,13 +3,8 @@
 
 * Make sure Ndiff, Zenmap are 2to3 compatible with python -3
 
-* make build process detect Python major version (2 or 3). Breaks on Arch Linux,
-  which uses Python 3 by default.
-
 * Script to check for updated versions of included libs. Have shell for libpcap,
   but should convert to python.
-
-* Get rid of global_structures.h (integrate into more-specific header files)
 
 * NSE stuff
   * broadcast-srvloc-info - test

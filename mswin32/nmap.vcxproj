@@ -192,7 +192,6 @@
     <ClInclude Include="..\charpool.h" />
     <ClInclude Include="..\FingerPrintResults.h" />
     <ClInclude Include="..\FPEngine.h" />
-    <ClInclude Include="..\global_structures.h" />
     <ClInclude Include="..\idle_scan.h" />
     <ClInclude Include="..\MACLookup.h" />
     <ClInclude Include="..\nmap.h" />
