@@ -162,8 +162,12 @@
  "think Solaris can support advanced localhost scans.  You can probably "\
  "use \"-Pn -sT localhost\" though.\n\n"
 
-#include "portlist.h"
+#include "nmap.h"
+#ifndef NOLUA
+#include "nse_main.h"
+#endif
 #include <nsock.h>
+class PortList;
 
 #include <stdarg.h>
 #include <string>

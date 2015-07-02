@@ -129,7 +129,6 @@
 
 #include "nsock.h"
 #include <vector>
-#include "osscan.h"
 #include "libnetutil/npacket.h"
 
 /* Mention some classes here so we don't have to place the declarations in
@@ -140,6 +139,7 @@ class FPProbe;
 
 class Target;
 class FingerPrintResultsIPv6;
+class FingerMatch;
 
 /******************************************************************************
  * CONSTANT DEFINITIONS                                                       *

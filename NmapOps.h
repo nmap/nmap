@@ -126,10 +126,14 @@
 #ifndef NMAP_OPS_H
 #define NMAP_OPS_H
 
-#include "osscan.h" /* FingerPrintDB */
+#include "nmap.h"
 #include "output.h"
 #include <nsock.h>
 #include <string>
+#include <map>
+
+class FingerPrintDB;
+class FingerMatch;
 
 class NmapOps {
  public:

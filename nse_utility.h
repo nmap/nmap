@@ -1,7 +1,8 @@
 #ifndef NMAP_NSE_UTILITY_H
 #define NMAP_NSE_UTILITY_H
 
-#include "portlist.h"
+class Port;
+class Target;
 
 #if HAVE_STDINT_H
 #include <stdint.h>

@@ -129,6 +129,7 @@
 class FingerPrintResults;
 
 #include "FPEngine.h"
+#include "osscan.h"
 
 /* Maximum number of results allowed in one of these things ... */
 #define MAX_FP_RESULTS 36

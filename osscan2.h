@@ -133,8 +133,10 @@
 #include <vector>
 #include <list>
 #include "timing.h"
-#include "osscan.h"
 #include "tcpip.h"
+class FingerPrint;
+class FingerTest;
+class FingerPrintResultsIPv4;
 class Target;
 
 

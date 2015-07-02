@@ -137,8 +137,8 @@
 
 #include "portreasons.h"
 #include "portlist.h"
-#include "tcpip.h"
 #include "scan_engine.h"
+#include "osscan.h"
 #include "osscan2.h"
 class FingerPrintResults;
 

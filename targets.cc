@@ -340,6 +340,11 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
   return false;
 }
 
+TargetGroup::~TargetGroup() {
+  if (this->netblock != NULL)
+    delete this->netblock;
+}
+
 /* Initializes (or reinitializes) the object with a new expression, such
    as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
    Returns 0 for success */

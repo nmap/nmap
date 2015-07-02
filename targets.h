@@ -126,8 +126,8 @@
 #ifndef TARGETS_H
 #define TARGETS_H
 
-#include "TargetGroup.h"
-
+#include <list>
+class NetBlock;
 class Target;
 
 class TargetGroup {
@@ -138,10 +138,7 @@ public:
     this->netblock = NULL;
   }
 
-  ~TargetGroup() {
-    if (this->netblock != NULL)
-      delete this->netblock;
-  }
+  ~TargetGroup();
 
   /* Initializes (or reinitializes) the object with a new expression,
      such as 192.168.0.0/16 , 10.1.0-5.1-254 , or
