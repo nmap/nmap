@@ -1,9 +1,9 @@
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/archivers/xz/Portfile ports/archivers/xz/Portfile
---- ports.orig/archivers/xz/Portfile	2013-08-02 08:00:22.000000000 -0700
-+++ ports/archivers/xz/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -23,9 +23,9 @@
- checksums       sha1    166b228efae6bfadbbf831e9982510209d74240e \
-                 rmd160  16c0a0b4a72023342b1ece8151c8d0bdf8b40968
+--- ports.orig/archivers/xz/Portfile	2015-03-09 01:01:51.000000000 -0700
++++ ports/archivers/xz/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -26,9 +26,9 @@
+ checksums       rmd160  d53db9cb078fa51ad2c1363141e464fd6bdfcfb9 \
+                 sha256  679148f497e0bff2c1adce42dee5a23f746e71321c33ebb0f641a302e30c2a80
  
 -depends_lib     port:libiconv port:gettext
 +depends_lib     port:gettext
@@ -14,10 +14,10 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/archivers/xz/Portf
  # document that we always need legacy symlinks now that "lzmautils" refers here
  configure.args-append --enable-lzma-links
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/apr-util/Portfile ports/devel/apr-util/Portfile
---- ports.orig/devel/apr-util/Portfile	2014-01-23 08:00:39.000000000 -0800
-+++ ports/devel/apr-util/Portfile	2014-08-17 19:23:51.000000000 -0700
+--- ports.orig/devel/apr-util/Portfile	2014-09-29 09:30:23.000000000 -0700
++++ ports/devel/apr-util/Portfile	2015-07-02 05:10:12.000000000 -0700
 @@ -21,13 +21,13 @@
- 		rmd160	ec75523770f5e951c201d65ba313fa746546cc9a
+ 		rmd160	9710ffbffea60750b2c1f75532c607bda87ecb71
  
  depends_lib	port:apr port:expat \
 -		port:libiconv port:db46 \
@@ -33,20 +33,22 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/apr-util/Por
  
  test.run	yes
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/atk/Portfile ports/devel/atk/Portfile
---- ports.orig/devel/atk/Portfile	2014-04-02 14:31:05.000000000 -0700
-+++ ports/devel/atk/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -28,7 +28,6 @@
+--- ports.orig/devel/atk/Portfile	2015-05-11 11:30:44.000000000 -0700
++++ ports/devel/atk/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -28,8 +28,7 @@
+ depends_build       port:pkgconfig
  
- depends_lib             path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                         port:gettext \
--                        port:libiconv \
-                         port:gobject-introspection
+ depends_lib         path:lib/pkgconfig/glib-2.0.pc:glib2 \
+-                    port:gettext \
+-                    port:libiconv
++                    port:gettext
  
- configure.args          --enable-static \
+ gobject_introspection yes
+ 
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/gettext/Portfile ports/devel/gettext/Portfile
---- ports.orig/devel/gettext/Portfile	2014-07-15 09:01:13.000000000 -0700
-+++ ports/devel/gettext/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -55,7 +55,6 @@
+--- ports.orig/devel/gettext/Portfile	2014-12-24 16:31:01.000000000 -0800
++++ ports/devel/gettext/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -51,7 +51,6 @@
                          --without-xz
  
  depends_lib             port:expat \
@@ -55,25 +57,25 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/gettext/Port
  
  test.run                yes
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/glib2/Portfile ports/devel/glib2/Portfile
---- ports.orig/devel/glib2/Portfile	2014-05-18 05:31:06.000000000 -0700
-+++ ports/devel/glib2/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -49,7 +49,6 @@
+--- ports.orig/devel/glib2/Portfile	2015-06-25 18:00:18.000000000 -0700
++++ ports/devel/glib2/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -52,7 +52,6 @@
  depends_build               bin:xmllint:libxml2
  
  depends_lib                 port:gettext \
 -                            port:libiconv \
                              port:zlib \
-                             port:libffi \
-                             path:bin/perl:perl5
+                             port:libffi
+ 
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/devel/glib2/work/.macports.glib2.state ports/devel/glib2/work/.macports.glib2.state
 --- ports.orig/devel/glib2/work/.macports.glib2.state	1969-12-31 16:00:00.000000000 -0800
-+++ ports/devel/glib2/work/.macports.glib2.state	2014-08-17 19:23:51.000000000 -0700
++++ ports/devel/glib2/work/.macports.glib2.state	2015-07-02 05:10:12.000000000 -0700
 @@ -0,0 +1 @@
 +target: org.macports.archivefetch
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/editors/vim/Portfile ports/editors/vim/Portfile
---- ports.orig/editors/vim/Portfile	2014-04-22 09:00:03.000000000 -0700
-+++ ports/editors/vim/Portfile	2014-08-17 19:27:39.000000000 -0700
-@@ -302,8 +302,7 @@
+--- ports.orig/editors/vim/Portfile	2015-05-29 14:00:47.000000000 -0700
++++ ports/editors/vim/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -774,8 +774,7 @@
  
  depends_build       bin:grep:grep
  depends_lib         port:ncurses \
@@ -84,9 +86,9 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/editors/vim/Portfi
  patchfiles-append patch-compat-sigaltstack.diff
  
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/gnome/gtk2/Portfile ports/gnome/gtk2/Portfile
---- ports.orig/gnome/gtk2/Portfile	2014-06-23 16:02:21.000000000 -0700
-+++ ports/gnome/gtk2/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -49,14 +49,24 @@
+--- ports.orig/gnome/gtk2/Portfile	2015-05-24 08:31:20.000000000 -0700
++++ ports/gnome/gtk2/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -45,8 +45,13 @@
  # indirectly depends on gtk2, so we can not list it as a dependency here.
  #                    port:librsvg
  
@@ -100,7 +102,9 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/gnome/gtk2/Portfil
 +# depends_run         port:shared-mime-info
 +depends_run         port:hicolor-icon-theme
  
- # autoreconf to deal with stupid issues during install (install: .libs/libferret.lai: No such file or directory)
+ patchfiles-append   patch-aliases.diff
+ patchfiles-append   patch-gtk-builder-convert.diff
+@@ -55,7 +60,12 @@
  use_autoreconf      yes
  autoreconf.args     -fvi
  
@@ -113,7 +117,7 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/gnome/gtk2/Portfil
                      --disable-glibtest \
                      --enable-introspection \
                      gio_can_sniff=yes
-@@ -101,21 +111,6 @@
+@@ -100,21 +110,6 @@
      xinstall -d ${destroot}${docdir}
      xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING HACKING NEWS README \
          ${destroot}${docdir}
@@ -135,18 +139,9 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/gnome/gtk2/Portfil
  }
  
  platform darwin 8 {
-@@ -136,7 +131,7 @@
- }
- 
- if {[variant_isset universal]} {
--    set cups /usr/bin/cups-config
-+    set cups /Developer/SDKs/MacOSX10.5.sdk/usr/bin/cups-config
-     if {[info exists universal_sysroot]} {
-         set cups ${universal_sysroot}${cups}
-     }
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/graphics/fontconfig/Portfile ports/graphics/fontconfig/Portfile
 --- ports.orig/graphics/fontconfig/Portfile	2014-04-07 20:00:05.000000000 -0700
-+++ ports/graphics/fontconfig/Portfile	2014-08-17 19:23:51.000000000 -0700
++++ ports/graphics/fontconfig/Portfile	2015-07-02 05:10:12.000000000 -0700
 @@ -26,8 +26,7 @@
  
  depends_build               port:pkgconfig
@@ -158,27 +153,39 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/graphics/fontconfi
  
  if {${os.platform} eq "darwin" && ${os.major} < 9} {
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/graphics/gdk-pixbuf2/Portfile ports/graphics/gdk-pixbuf2/Portfile
---- ports.orig/graphics/gdk-pixbuf2/Portfile	2014-05-27 11:01:19.000000000 -0700
-+++ ports/graphics/gdk-pixbuf2/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -34,7 +34,12 @@
-                             port:tiff \
-                             port:gobject-introspection
+--- ports.orig/graphics/gdk-pixbuf2/Portfile	2015-05-15 04:04:22.000000000 -0700
++++ ports/graphics/gdk-pixbuf2/Portfile	2015-07-02 06:45:22.000000000 -0700
+@@ -29,7 +29,6 @@
+ depends_build       port:pkgconfig
  
+ depends_lib         path:lib/pkgconfig/glib-2.0.pc:glib2 \
+-                    port:shared-mime-info \
+                     port:libpng \
+                     port:jasper \
+                     port:jpeg \
+@@ -43,7 +42,15 @@
+ use_autoreconf      yes
+ autoreconf.args     -fvi
+ 
+-configure.args      --with-libjasper
 +# Don't have the GDK image loaders as loadable modules. This would
 +# require running install_name_tool on the .so files to make the
 +# libraries they depend on relative to @executable_path, not the
 +# MacPorts installation directory.
- configure.args              --with-libjasper \
-+                            --with-included-loaders \
-                             --enable-introspection=yes
++# See also https://trac.macports.org/ticket/45354
++configure.args      --with-libjasper \
++                    --disable-modules \
++                    --disable-gio-sniffing \
++                    --with-included-loaders=yes
  
- # The rules enabled by gobject-introspection require GNU make 3.81+, #35202
+ test.run            yes
+ test.target         check
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/mail/libidn/Portfile ports/mail/libidn/Portfile
---- ports.orig/mail/libidn/Portfile	2013-07-15 09:03:03.000000000 -0700
-+++ ports/mail/libidn/Portfile	2014-08-17 19:20:10.000000000 -0700
+--- ports.orig/mail/libidn/Portfile	2015-05-30 14:30:57.000000000 -0700
++++ ports/mail/libidn/Portfile	2015-07-02 05:10:12.000000000 -0700
 @@ -26,7 +26,7 @@
- checksums           rmd160  a047e5ae640498df810dd32675758d582672ee87 \
-                     sha256  0a2f4c71c80f8f389a99d5a26539a9be4a4ac42cd7f375aa41046660f63cc53c
+ checksums           rmd160  8fb47a04c456ed586e7a3b2fe0b45bb15943770d \
+                     sha256  39b9fc94d74081c185757b12e0891ce5a22db55268e7d1bb24533ff4432eb053
  
 -depends_lib		port:libiconv port:gettext
 +depends_lib		port:gettext
@@ -186,8 +193,8 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/mail/libidn/Portfi
  # nawk: syntax error at source line 1 source file
  conflicts_build         nawk
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/perl/p5-locale-gettext/Portfile ports/perl/p5-locale-gettext/Portfile
---- ports.orig/perl/p5-locale-gettext/Portfile	2014-08-13 16:01:30.000000000 -0700
-+++ ports/perl/p5-locale-gettext/Portfile	2014-08-17 19:23:51.000000000 -0700
+--- ports.orig/perl/p5-locale-gettext/Portfile	2014-12-27 03:30:47.000000000 -0800
++++ ports/perl/p5-locale-gettext/Portfile	2015-07-02 05:10:12.000000000 -0700
 @@ -24,7 +24,7 @@
                      rmd160 767adfce05b8fe77ddd7d3814951822746cf6e4b
  
@@ -198,8 +205,8 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/perl/p5-locale-get
  # The first patch below corrects a typo in the documentation. The last two
  # correct a bug discovered by the Debian Project; they come from the CPAN RT
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/python/py-libxml2/files/patch-setup.py.diff ports/python/py-libxml2/files/patch-setup.py.diff
---- ports.orig/python/py-libxml2/files/patch-setup.py.diff	2013-07-15 09:02:01.000000000 -0700
-+++ ports/python/py-libxml2/files/patch-setup.py.diff	2014-08-17 19:23:51.000000000 -0700
+--- ports.orig/python/py-libxml2/files/patch-setup.py.diff	2014-10-20 22:05:02.000000000 -0700
++++ ports/python/py-libxml2/files/patch-setup.py.diff	2015-07-02 05:10:12.000000000 -0700
 @@ -13,8 +13,20 @@
   ];
   
@@ -236,10 +243,10 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/python/py-libxml2/
 + macros  = []
 + if with_threads:
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/textproc/help2man/Portfile ports/textproc/help2man/Portfile
---- ports.orig/textproc/help2man/Portfile	2014-07-27 09:00:45.000000000 -0700
-+++ ports/textproc/help2man/Portfile	2014-08-17 19:23:51.000000000 -0700
+--- ports.orig/textproc/help2man/Portfile	2015-05-05 06:30:42.000000000 -0700
++++ ports/textproc/help2man/Portfile	2015-07-02 05:10:12.000000000 -0700
 @@ -24,7 +24,7 @@
-                 sha256  3dfd02a026149aad06887c1cb6062471779c100e00aecb79b8f9d01cf1581c47
+                 sha256  615ff5ac38369ddb3707c5fd71672ab122639fd9cf6870de172e0127ed632caf
  
  depends_lib     port:perl5.16 port:p5.16-locale-gettext \
 -                port:gettext port:libiconv
@@ -248,23 +255,24 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/textproc/help2man/
  configure.perl  ${prefix}/bin/perl5.16
  
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/textproc/libxml2/Portfile ports/textproc/libxml2/Portfile
---- ports.orig/textproc/libxml2/Portfile	2014-06-06 14:00:41.000000000 -0700
-+++ ports/textproc/libxml2/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -21,7 +21,7 @@
- checksums             rmd160  257285d9ac070ed9f58666b7bd7c4653651c871b \
-                       sha256  fd3c64cb66f2c4ea27e934d275904d92cec494a8e8405613780cbc8a71680fdb
+--- ports.orig/textproc/libxml2/Portfile	2015-03-10 04:00:55.000000000 -0700
++++ ports/textproc/libxml2/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -20,8 +20,7 @@
+                     available in other environments.
+ homepage            http://xmlsoft.org/
  
--depends_lib           port:libiconv port:zlib port:xz
-+depends_lib           port:zlib port:xz
+-depends_lib         port:libiconv \
+-                    port:xz \
++depends_lib         port:xz \
+                     port:zlib
  
- post-extract {
-     reinplace -locale C "s|/etc|${prefix}/etc|g" \
+ master_sites        ftp://gd.tuwien.ac.at/pub/libxml/ \
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/textproc/libxslt/Portfile ports/textproc/libxslt/Portfile
---- ports.orig/textproc/libxslt/Portfile	2013-12-02 20:30:22.000000000 -0800
-+++ ports/textproc/libxslt/Portfile	2014-08-17 19:23:51.000000000 -0700
+--- ports.orig/textproc/libxslt/Portfile	2015-06-03 12:01:19.000000000 -0700
++++ ports/textproc/libxslt/Portfile	2015-07-02 05:10:12.000000000 -0700
 @@ -38,8 +38,7 @@
  if {${name} eq ${subport}} {
-     revision            0
+     revision            1
  
 -    depends_lib-append  port:libiconv \
 -                        port:libxml2 \
@@ -273,13 +281,13 @@ diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/textproc/libxslt/P
  
  pre-configure {
 diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig/x11/pango/Portfile ports/x11/pango/Portfile
---- ports.orig/x11/pango/Portfile	2014-06-25 15:30:27.000000000 -0700
-+++ ports/x11/pango/Portfile	2014-08-17 19:23:51.000000000 -0700
-@@ -92,6 +92,7 @@
+--- ports.orig/x11/pango/Portfile	2015-01-19 17:01:12.000000000 -0800
++++ ports/x11/pango/Portfile	2015-07-02 05:10:12.000000000 -0700
+@@ -79,6 +79,7 @@
  }
  
  configure.args          --enable-static \
 +                        --with-included-modules \
-                         --enable-introspection \
                          --disable-silent-rules \
                          --without-x
+ 
