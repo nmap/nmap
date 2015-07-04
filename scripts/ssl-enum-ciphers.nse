@@ -138,6 +138,7 @@ categories = {"discovery", "intrusive"}
 -- http://seclists.org/nmap-dev/2012/q3/156
 -- http://seclists.org/nmap-dev/2010/q1/859
 local CHUNK_SIZE = 64
+local have_ssl, _ = pcall(require,'openssl')
 
 -- Add additional context (protocol) to debug output
 local function ctx_log(level, protocol, fmt, ...)
@@ -503,15 +504,13 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 kex_strength = 512
               end
             else
-              if kex.pubkey then
+              if have_ssl and kex.pubkey then
                 local certs = get_body(handshake, "type", "certificate")
                 -- Assume RFC compliance:
                 -- "The sender's certificate MUST come first in the list."
                 -- This may not always be the case, so
                 -- TODO: reorder certificates and validate entire chain
                 -- TODO: certificate validation (date, self-signed, etc)
-                -- TODO: Handle this gracefully when OpenSSL is not compiled in
-                --       (throws error otherwise)
                 local c = sslcert.parse_ssl_certificate(certs.certificates[1])
                 if c.pubkey.type == kex.pubkey then
                   local sigalg = c.sig_algorithm:match("([mM][dD][245])")
@@ -587,7 +586,6 @@ local function find_ciphers(host, port, protocol)
 
   local results = {}
   local scores = {warnings={}}
-
   -- Try every cipher.
   for _, group in ipairs(ciphers) do
     local chunk, protocol_worked = find_ciphers_group(host, port, protocol, group, scores)
@@ -819,7 +817,6 @@ local function try_protocol(host, port, protocol, upresults)
   end
 
   -- Add rankings to ciphers
-  local cipherstr
   for i, name in ipairs(ciphers) do
     local outcipher = {name=name, kex_info=scores[name].extra, strength=scores[name].letter_grade}
     setmetatable(outcipher,{
@@ -908,6 +905,11 @@ function sorted_by_key(t)
 end
 
 action = function(host, port)
+
+  if not have_ssl then
+    stdnse.verbose("OpenSSL not available; some cipher scores will be unkown.")
+  end
+
   local results = {}
 
   local condvar = nmap.condvar(results)
