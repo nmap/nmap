@@ -1,5 +1,21 @@
 # Nmap Changelog ($Id: CHANGELOG 34742 2015-06-25 19:37:51Z dmiller $); -*-text-*-
 
+o [NSE] Added NTLM brute support to http-brute. [Gyanendra Mishra]
+
+o [NSE] Added NTLM authentication support to http.lua and a related function to create
+  an ntlm v2 session response in smbauth.lua. [Gyanendra Mishra]
+
+o [NSE] ssl-enum-ciphers now marks cipher scores as unkown for ciphers requiring
+  the use of openssl when openssl is missing. [jrchamp]
+
+o [NSE] Added builtin pattern and multiple pattern search to http-grep. [Gyanendra Mishra]
+
+o [NSE] http-crossdomainxml is now http-cross-domain-policy and supports client access
+  policies and uses the new SLAXML parser. [Gyanendra Mishra]
+
+o [NSE] Added a patch for vulns lib that allows list of tables to be submitted
+  to fields in the vulns report. [Jacob Gajek]
+
 o [NSE] Added additional checks for successful PUT request in http-put.
   [Oleg Mitrofanov]
 
