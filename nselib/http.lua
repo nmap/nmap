@@ -1270,7 +1270,7 @@ function generic_request(host, port, method, path, options)
   local ntlm_auth = options and options.auth and options.auth.ntlm
 
   if (digest_auth or ntlm_auth) and not have_ssl then
-    stdnse.debug1("http: digest auth requires openssl.")
+    stdnse.debug1("http: digest and ntlm auth require openssl.")
   end
 
   if digest_auth and have_ssl then
