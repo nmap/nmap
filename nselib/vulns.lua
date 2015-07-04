@@ -1767,7 +1767,11 @@ local format_vuln_special_fields = function(vuln_field)
   if vuln_field then
     if type(vuln_field) == "table" then
       for _, line in ipairs(vuln_field) do
-        tadd(out, stdnse.strsplit("\r?\n", line))
+				if type(line) == "string" then
+          tadd(out, stdnse.strsplit("\r?\n", line))
+				else
+					insert(out, line)
+				end
       end
     elseif type(vuln_field) == "string" then
       out = stdnse.strsplit("\r?\n", vuln_field)
