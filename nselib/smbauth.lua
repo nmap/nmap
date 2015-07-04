@@ -589,6 +589,26 @@ function ntlmv2_create_response(ntlm, username, domain, challenge, client_challe
   return true, openssl.hmac("MD5", ntlmv2_hash, challenge .. client_challenge) .. client_challenge
 end
 
+
+--- Generates the ntlmv2 session response.
+-- It starts by generatng an 8 byte random client nonce, it is padded to 24 bytes.
+-- The padded value is the lanman response. A session nonce is made by
+-- concatenating the server challenge and the client nonce. The ntlm session hash
+-- is first 8 bytes of the md5 hash of the session nonce.
+-- The ntlm response is the lm response with session hash as challenge.
+-- @param ntlm_passsword_hash The md4 hash of the utf-16 password.
+-- @param challenge The challenge sent by the server.
+function ntlmv2_session_response(ntlm_password_hash, challenge)
+  local client_nonce = openssl.rand_bytes(8)
+
+  local lm_response = client_nonce .. string.rep('\0', 24 - #client_nonce)
+  local session_nonce = challenge .. client_nonce
+  local ntlm_session_hash  = openssl.md5(session_nonce):sub(1,8)
+
+  local status, ntlm_response =  lm_create_response(ntlm_password_hash, ntlm_session_hash)
+
+  return status, lm_response, ntlm_response
+end
 ---Generate the Lanman and NTLM password hashes.
 --
 -- The password itself is taken from the function parameters, the script
@@ -703,6 +723,9 @@ function get_password_response(ip, username, domain, password, password_hash, ha
     status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
     ntlm_response = ""
 
+  elseif(hash_type == "ntlmv2_session") then
+    stdnse.debug2("SMB: Creating nltmv2 session response")
+    status, lm_response, ntlm_response = ntlmv2_session_response(ntlm_hash, challenge)
   else
     -- Default to NTLMv1
     if(hash_type ~= nil) then
@@ -921,7 +944,6 @@ if not unittest.testing() then
 end
 
 test_suite = unittest.TestSuite:new()
-if have_ssl then
 test_suite:add_test(unittest.equal(
     stdnse.tohex(select(-1, lm_create_hash("passphrase"))),
     "855c3697d9979e78ac404c4ba2c66533"
@@ -946,9 +968,5 @@ test_suite:add_test(unittest.equal(
     ),
   "ntlm_create_hash"
   )
-else
-  test_suite:add_test(unittest.is_false(lm_create_hash("a"), "lm_create_hash"))
-  test_suite:add_test(unittest.is_false(ntlm_create_hash("a"), "ntlm_create_hash"))
-end
 
 return _ENV;
