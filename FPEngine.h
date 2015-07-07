@@ -139,7 +139,7 @@ class FPProbe;
 
 class Target;
 class FingerPrintResultsIPv6;
-class FingerMatch;
+struct FingerMatch;
 
 /******************************************************************************
  * CONSTANT DEFINITIONS                                                       *
