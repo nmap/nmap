@@ -157,7 +157,7 @@
    Second, because <errno.h> is not defined, the C++0x header
    <system_error> doesn't compile, so we pretend not to have C++0x to
    avoid it. */
-#if _MSC_VER < 1800 /* Breaks on VS2013 */
+#if _MSC_VER < 1600 /* Breaks on VS2010 and later */
 #define _INC_ERRNO  /* suppress errno.h */
 #define _ERRNO_H_ /* Also for errno.h suppression */
 #define _SYSTEM_ERROR_
@@ -246,6 +246,8 @@
 #define ENOMEM          WSAENOBUFS
 #undef  ENOTSOCK
 #define ENOTSOCK        WSAENOTSOCK
+#undef  EOPNOTSUPP
+#define EOPNOTSUPP      WSAEOPNOTSUPP
 #undef  EIO
 #define EIO             WSASYSCALLFAILURE
 
