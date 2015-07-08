@@ -132,7 +132,7 @@
 #include <string>
 #include <map>
 
-class FingerPrintDB;
+struct FingerPrintDB;
 struct FingerMatch;
 
 class NmapOps {

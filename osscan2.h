@@ -134,8 +134,8 @@
 #include <list>
 #include "timing.h"
 #include "tcpip.h"
-class FingerPrint;
-class FingerTest;
+struct FingerPrint;
+struct FingerTest;
 class FingerPrintResultsIPv4;
 class Target;
 
