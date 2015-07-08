@@ -3306,36 +3306,36 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            <indexterm><primary>verbosity levels of Nping</primary></indexterm>
            <variablelist>
             <varlistentry>
-              <term>Level &minus;4</term>
+              <term>Level -4</term>
               <listitem>
            <para>
            No output at all. In some circumstances you may not want
            Nping to produce any output (like when one of your work mates is
-           watching over your shoulder). In that case level &minus;4 can be useful
+           watching over your shoulder). In that case level -4 can be useful
            because although you won't see any response packets, probes will
            still be sent.
            </para>
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>Level &minus;3</term>
+              <term>Level -3</term>
               <listitem>
            <para>
-           Like level &minus;4 but displays fatal error messages so you can
+           Like level -4 but displays fatal error messages so you can
            actually see if Nping is running or it failed due to some error.
            </para>
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>Level &minus;2</term>
+              <term>Level -2</term>
               <listitem>
            <para>
-           Like level &minus;3 but also displays warnings and recoverable errors.
+           Like level -3 but also displays warnings and recoverable errors.
            </para>
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>Level &minus;1</term>
+              <term>Level -1</term>
               <listitem>
            <para>
            Displays traditional run-time information (version, start time,
@@ -3347,7 +3347,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
               <term>Level 0</term>
               <listitem>
            <para>
-           This is the default verbosity level. It behaves like level &minus;1 but
+           This is the default verbosity level. It behaves like level -1 but
            also displays sent and received packets and some other important information.
            </para>
               </listitem>
