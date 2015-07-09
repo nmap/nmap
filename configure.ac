@@ -989,3 +989,7 @@ fi
 echo "  NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND RESPONSIBLY"
 
 echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."
+
+if test "x$use_openssl" = "xno" && test "x$with_openssl" != "xno"; then
+  echo "WARNING: You are compiling without OpenSSL"
+fi
