@@ -177,13 +177,10 @@ const char *inet_ntop(int af, const void *src, char *dst, size_t size);
 #endif /* HAVE_INET_NTOP */
 
 #ifndef HAVE_SOCKADDR_STORAGE
-     /* Just needs to be big enough to hold sockaddr_in or
-        sockaddr_in6.  I should really align it at 64 bits, but 32 is
-        probably fine as hosts that actually want to store a
-        sockaddr_in6 in here should already have this defined (see
-        RFC2355). */
 struct sockaddr_storage {
-    u32 padding[32];
+  u16 ss_family;
+  u16 __align_to_64[3];
+  u64 __padding[16];
 };
 #endif /* SOCKADDR_STORAGE */
 
