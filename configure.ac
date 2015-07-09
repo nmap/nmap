@@ -8,6 +8,9 @@ dnl Give us the --enable-nls option, to choose which translated man pages get
 dnl installed. This gets replaced with AM_GNU_GETTEXT for full gettext support.
 AM_NLS
 
+trace_use=""
+trace_no_use=""
+
 AC_ARG_WITH(localdirs,
 AC_HELP_STRING([--with-localdirs], [Explicitly ask compiler to use /usr/local/{include,libs} if they exist ]),
   [ case "$with_localdirs" in
@@ -22,12 +25,15 @@ AC_HELP_STRING([--with-localdirs], [Explicitly ask compiler to use /usr/local/{i
   [ user_localdirs=0 ] )
 
 if test "$user_localdirs" = 1; then
+  trace_use="$trace_use localdirs"
    if test -d /usr/local/lib; then
      LDFLAGS="$LDFLAGS -L/usr/local/lib"
      fi
    if test -d /usr/local/include; then
      CPPFLAGS="$CPPFLAGS -I/usr/local/include"
    fi
+else
+  trace_no_use="$trace_no_use localdirs"
 fi
 
 dnl Let subdirs configure scripts find the Nmap source dir
@@ -237,6 +243,7 @@ else
   with_ndiff=no
 fi
 if test "$with_ndiff" = "no"; then
+  trace_no_use="$trace_no_use ndiff"
   BUILDNDIFF=""
   INSTALLNDIFF=""
   UNINSTALLNDIFF=""
@@ -244,6 +251,7 @@ if test "$with_ndiff" = "no"; then
   NDIFF_CLEAN=""
   NDIFF_DIST_CLEAN=""
 else
+  trace_use="$trace_use ndiff"
   BUILDNDIFF=build-ndiff
   INSTALLNDIFF=install-ndiff
   UNINSTALLNDIFF=uninstall-ndiff
@@ -274,6 +282,7 @@ else
   with_zenmap=no
 fi
 if test "$with_zenmap" = "no"; then
+  trace_no_use="$trace_no_use zenmap"
   BUILDZENMAP=""
   INSTALLZENMAP=""
   UNINSTALLZENMAP=""
@@ -281,6 +290,7 @@ if test "$with_zenmap" = "no"; then
   ZENMAP_CLEAN=""
   ZENMAP_DIST_CLEAN=""
 else
+  trace_use="$trace_use zenmap"
   BUILDZENMAP=build-zenmap
   INSTALLZENMAP=install-zenmap
   UNINSTALLZENMAP=uninstall-zenmap
@@ -302,12 +312,14 @@ NPINGDIR=nping
 AC_ARG_WITH(nping, AC_HELP_STRING([--without-nping], [Skip installation of the Nping utility]), [], [with_nping=check])
 
 if test "$with_nping" = "no"; then
+  trace_no_use="$trace_no_use nping"
   BUILDNPING=""
   INSTALLNPING=""
   UNINSTALLNPING=""
   NPING_CLEAN=""
   NPING_DIST_CLEAN=""
 else
+  trace_use="$trace_use nping"
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
@@ -377,8 +389,11 @@ fi
 
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
+  trace_use="$trace_use openssl"
   AC_DEFINE(HAVE_OPENSSL, 1, [Have OpenSSL library])
   OPENSSL_LIBS="-lssl -lcrypto"
+else
+  trace_no_use="$trace_no_use openssl"
 fi
 
 AC_SUBST(OPENSSL_LIBS)
@@ -617,6 +632,7 @@ AC_SEARCH_LIBS(dlopen, dl)
 
 # They don't want lua
 if test "$no_lua" = "yes"; then
+  trace_no_use="$trace_no_use lua"
   CPPFLAGS="-DNOLUA $CPPFLAGS"
   LIBLUA_LIBS=""
   LUA_DEPENDS=""
@@ -626,6 +642,7 @@ if test "$no_lua" = "yes"; then
   INSTALLNSE=""
 
 else
+  trace_use="$trace_use lua"
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
@@ -868,6 +885,7 @@ AC_ARG_WITH(ncat,
   AC_HELP_STRING([--without-ncat], [Skip build and installation of Ncat]), [], [with_ncat=check])
 
 if test "$with_ncat" = "no"; then
+  trace_no_use="$trace_no_use ncat"
   NCAT_BUILD=""
   NCAT_CHECK=""
   NCAT_INSTALL=""
@@ -875,6 +893,7 @@ if test "$with_ncat" = "no"; then
   NCAT_CLEAN=""
   NCAT_DIST_CLEAN=""
 else
+  trace_use="$trace_use ncat"
   NCAT_BUILD="ncat_build"
   NCAT_CHECK="ncat_check"
   NCAT_INSTALL="install-ncat"
@@ -943,12 +962,14 @@ if test "$with_nmap_update" != "no"; then
 fi
 
 if test "$with_nmap_update" = "no"; then
+  trace_no_use="$trace_no_use nmap-update"
   NMAP_UPDATE_BUILD=""
   NMAP_UPDATE_INSTALL=""
   NMAP_UPDATE_UNINSTALL=""
   NMAP_UPDATE_CLEAN=""
   NMAP_UPDATE_DIST_CLEAN=""
 else
+  trace_use="$trace_use nmap-update"
   AC_CONFIG_SUBDIRS(nmap-update)
   NMAP_UPDATE_BUILD="build-nmap-update"
   NMAP_UPDATE_INSTALL="install-nmap-update"
@@ -988,7 +1009,9 @@ if test "$FILENAME"; then
 fi
 echo "  NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND RESPONSIBLY"
 
-echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."
+echo "Configured with:$trace_use"
+echo "Configured without:$trace_no_use"
+echo "Type make (or gmake on some *BSD machines) to compile."
 
 if test "x$use_openssl" = "xno" && test "x$with_openssl" != "xno"; then
   echo "WARNING: You are compiling without OpenSSL"
