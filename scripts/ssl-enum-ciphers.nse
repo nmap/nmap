@@ -907,7 +907,7 @@ end
 action = function(host, port)
 
   if not have_ssl then
-    stdnse.verbose("OpenSSL not available; some cipher scores will be unkown.")
+    stdnse.verbose("OpenSSL not available; some cipher scores will be marked as unknown.")
   end
 
   local results = {}
