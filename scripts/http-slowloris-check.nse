@@ -9,17 +9,18 @@ local http = require "http"
 
 
 description = [[
-Tests a web server for vulnerability to the Slowloris DoS attack without actually launching a DoS attack.
+Tests a web server for vulnerability to the Slowloris DoS attack without
+actually launching a DoS attack.
 
 Slowloris was described at Defcon 17 by RSnake
 (see http://ha.ckers.org/slowloris/).
 
-This script opens two connections to the server, each without
-the final CRLF. After 10 seconds, second connection sends
-additional header. Both connections then wait for server timeout.
-If second connection gets a timeout 10 or more seconds after the
-first one, we can conclude that sending additional header prolonged
-its timeout and that the server is vulnerable to slowloris DoS attack.
+This script opens two connections to the server, each without the final CRLF.
+After 10 seconds, second connection sends additional header. Both connections
+then wait for server timeout.  If second connection gets a timeout 10 or more
+seconds after the first one, we can conclude that sending additional header
+prolonged its timeout and that the server is vulnerable to slowloris DoS
+attack.
 
 A "LIKELY VULNERABLE" result means a server is subject to timeout-extension
 attack, but depending on the http server's architecture and resource limits, a
@@ -30,15 +31,13 @@ You can specify custom http User-agent field with <code>http.useragent</code>
 script argument.
 
 Idea from Qualys blogpost:
- * https://community.qualys.com/blogs/securitylabs/2011/07/07/identifying-slow-http-attack-vulnerabilities-on-web-applications
+* https://community.qualys.com/blogs/securitylabs/2011/07/07/identifying-slow-http-attack-vulnerabilities-on-web-applications
 
 ]]
 
 ---
 -- @usage
 -- nmap --script http-slowloris-check  <target>
---
--- @args http.useragent Specifies custom user agent string.
 --
 -- @output
 -- PORT   STATE SERVICE REASON

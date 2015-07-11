@@ -4,7 +4,8 @@ local vulns = require('vulns')
 local sslcert = require('sslcert')
 
 description = [[
-Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SIP Denial of Service Vulnerability (CVE-2014-2129).
+Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SIP
+Denial of Service Vulnerability (CVE-2014-2129).
 ]]
 
 ---

@@ -5,16 +5,21 @@ local string = require "string"
 local packet = require "packet"
 
 description = [[
-Detects a vulnerability in netfilter and other firewalls that use helpers to dynamically open ports for protocols such as ftp and sip.
+Detects a vulnerability in netfilter and other firewalls that use helpers to
+dynamically open ports for protocols such as ftp and sip.
 
-The script works by spoofing a packet from the target server asking for opening a related connection to a target port which will be
-fulfilled by the firewall through the adequate protocol helper port. The attacking machine should be on the same network segment as the
-firewall for this to work. The script supports ftp helper on both IPv4 and IPv6. Real path filter is used to prevent such attacks.
+The script works by spoofing a packet from the target server asking for opening
+a related connection to a target port which will be fulfilled by the firewall
+through the adequate protocol helper port. The attacking machine should be on
+the same network segment as the firewall for this to work. The script supports
+ftp helper on both IPv4 and IPv6. Real path filter is used to prevent such
+attacks.
 
 Based on work done by Eric Leblond.
 
 For more information, see:
-    * http://home.regit.org/2012/03/playing-with-network-layers-to-bypass-firewalls-filtering-policy/
+
+* http://home.regit.org/2012/03/playing-with-network-layers-to-bypass-firewalls-filtering-policy/
 ]]
 
 ---

@@ -1,17 +1,17 @@
 description = [[
-Detects Ruby on Rails servers vulnerable to object injection, remote command executions and denial of service attacks. (CVE-2013-0156)
+Detects Ruby on Rails servers vulnerable to object injection, remote command
+executions and denial of service attacks. (CVE-2013-0156)
 
-All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable. This script
-sends 3 harmless yaml payloads to detect vulnerable installations. If the malformed object receives a status 500 response, the server
-is processing YAML objects and therefore is likely vulnerable.
+All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before
+3.1.10, and 3.2.x before 3.2.11 are vulnerable. This script sends 3 harmless
+YAML payloads to detect vulnerable installations. If the malformed object
+receives a status 500 response, the server is processing YAML objects and
+therefore is likely vulnerable.
 
 References:
 * https://community.rapid7.com/community/metasploit/blog/2013/01/10/exploiting-ruby-on-rails-with-metasploit-cve-2013-0156',
 * https://groups.google.com/forum/?fromgroups=#!msg/rubyonrails-security/61bkgvnSGTQ/nehwjA8tQ8EJ',
 * http://cvedetails.com/cve/2013-0156/
-
-TODO:
-* Add argument to exploit cmd exec vuln
 ]]
 
 ---
@@ -38,6 +38,9 @@ TODO:
 --
 -- @args http-vuln-cve2013-0156.uri Basepath URI (default: /).
 ---
+
+-- TODO:
+-- * Add argument to exploit cmd exec vuln
 
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

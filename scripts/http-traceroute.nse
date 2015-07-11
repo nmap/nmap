@@ -7,22 +7,23 @@ local table = require "table"
 description = [[
 Exploits the Max-Forwards HTTP header to detect the presence of reverse proxies.
 
-The script works by sending HTTP requests with values of the Max-Forwards HTTP header varying
-from 0 to 2 and checking for any anomalies in certain response values such as the status code,
-Server, Content-Type and Content-Length HTTP headers and body values such as the html title.
+The script works by sending HTTP requests with values of the Max-Forwards HTTP
+header varying from 0 to 2 and checking for any anomalies in certain response
+values such as the status code, Server, Content-Type and Content-Length HTTP
+headers and body values such as the HTML title.
 
 Based on the work of:
 * Nicolas Gregoire (nicolas.gregoire@agarri.fr)
 * Julien Cayssol (tools@aqwz.com)
 
 For more information, see:
-    * http://www.agarri.fr/kom/archives/2011/11/12/traceroute-like_http_scanner/index.html
+* http://www.agarri.fr/kom/archives/2011/11/12/traceroute-like_http_scanner/index.html
 ]]
 
 ---
 -- @args http-traceroute.path The path to send requests to. Defaults to <code>/</code>.
 -- @args http-traceroute.method HTTP request method to use. Defaults to <code>GET</code>.
--- among other values, TRACE is probably the most interesting.
+-- Among other values, TRACE is probably the most interesting.
 --
 -- @usage
 -- nmap --script=http-traceroute <targets>

@@ -4,7 +4,8 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
-Sends an HTTP TRACE request and shows if the method TRACE is enabled. If debug is enabled, it returns the header fields that were modified in the response.
+Sends an HTTP TRACE request and shows if the method TRACE is enabled. If debug
+is enabled, it returns the header fields that were modified in the response.
 ]]
 
 ---

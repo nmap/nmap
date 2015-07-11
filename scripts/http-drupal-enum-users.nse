@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Enumerates Drupal users by exploiting a an information disclosure vulnerability
+Enumerates Drupal users by exploiting an information disclosure vulnerability
 in Views, Drupal's most popular module.
 
 Requests to admin/views/ajax/autocomplete/user/STRING return all usernames that
@@ -13,7 +13,7 @@ begin with STRING. The script works by iterating STRING over letters to extract
 all usernames.
 
 For more information,see:
- * http://www.madirish.net/node/465
+* http://www.madirish.net/node/465
 ]]
 
 ---

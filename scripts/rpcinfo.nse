@@ -4,7 +4,9 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Connects to portmapper and fetches a list of all registered programs.  It then prints out a table including (for each program) the RPC program number, supported version numbers, port number and protocol, and program name.
+Connects to portmapper and fetches a list of all registered programs.  It then
+prints out a table including (for each program) the RPC program number,
+supported version numbers, port number and protocol, and program name.
 ]]
 
 ---

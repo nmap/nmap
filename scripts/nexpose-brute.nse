@@ -7,7 +7,13 @@ local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
 
 description=[[
-Performs brute force password auditing against a Nexpose vulnerability scanner using the API 1.1.  By default it only tries three guesses per username to avoid target account lockout.
+Performs brute force password auditing against a Nexpose vulnerability scanner
+using the API 1.1.
+
+As the Nexpose application enforces account lockout after 4 incorrect login
+attempts, the script performs only 3 guesses per default. This can be
+altered by supplying the <code>brute.guesses</code> argument a different
+value or 0 (zero) to guess the whole dictionary.
 ]]
 
 ---
@@ -23,10 +29,6 @@ Performs brute force password auditing against a Nexpose vulnerability scanner u
 -- |   Statistics
 -- |_    Performed 5 guesses in 1 seconds, average tps: 5
 --
--- As the Nexpose application enforces account lockout after 4 incorrect login
--- attempts, the script performs only 3 guesses per default. This can be
--- altered by supplying the <code>brute.guesses</code> argument a different
--- value or 0 (zero) to guess the whole dictionary.
 
 author = "Vlatko Kosturjak"
 

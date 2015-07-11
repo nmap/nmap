@@ -10,7 +10,8 @@ local tab = require "tab"
 -- vim: set filetype=lua :
 
 description = [[
-Queries Nagios Remote Plugin Executor (NRPE) daemons to obtain information such as load averages, process counts, logged in user information, etc.
+Queries Nagios Remote Plugin Executor (NRPE) daemons to obtain information such
+as load averages, process counts, logged in user information, etc.
 
 This script attempts to execute the stock list of commands that are
 enabled. User-supplied arguments are not supported.

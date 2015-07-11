@@ -12,16 +12,17 @@ and allowed methods. It then sends a PROPFIND request and tries to fetch exposed
 directories and internal ip addresses by doing pattern matching in the response body.
 
 This script takes inspiration from the various scripts listed here:
-  *http://carnal0wnage.attackresearch.com/2010/05/more-with-metasploit-and-webdav.html
-  *https://github.com/sussurro/Metasploit-Tools/blob/master/modules/auxiliary/scanner/http/webdav_test.rb
-  *http://code.google.com/p/davtest/
+* http://carnal0wnage.attackresearch.com/2010/05/more-with-metasploit-and-webdav.html
+* https://github.com/sussurro/Metasploit-Tools/blob/master/modules/auxiliary/scanner/http/webdav_test.rb
+* http://code.google.com/p/davtest/
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap --script http-webdav-scan -p80,8080 <target>
 --
--- @args path The path to start in; eg, <code>"/web/"</code> will try <code>"/web/xxx"</code>.
+-- @args http-webdav-scan.path The path to start in; e.g. <code>"/web/"</code>
+--                             will try <code>"/web/xxx"</code>.
 --
 -- @output
 -- PORT     STATE SERVICE

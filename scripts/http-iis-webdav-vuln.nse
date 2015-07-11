@@ -6,11 +6,18 @@ local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[
-Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access secured WebDAV folders by searching for a password-protected folder and attempting to access it. This vulnerability was patched in Microsoft Security Bulletin MS09-020, http://nmap.org/r/ms09-020.
+Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access
+secured WebDAV folders by searching for a password-protected folder and
+attempting to access it. This vulnerability was patched in Microsoft Security
+Bulletin MS09-020, http://nmap.org/r/ms09-020.
 
-A list of well known folders (almost 900) is used by default. Each one is checked, and if returns an authentication request (401), another attempt is tried with the malicious encoding. If that attempt returns a successful result (207), then the folder is marked as vulnerable.
+A list of well known folders (almost 900) is used by default. Each one is
+checked, and if returns an authentication request (401), another attempt is
+tried with the malicious encoding. If that attempt returns a successful result
+(207), then the folder is marked as vulnerable.
 
-This script is based on the Metasploit modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb auxiliary module.
+This script is based on the Metasploit auxiliary module
+auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass
 
 For more information on this vulnerability and script, see:
 * http://blog.zoller.lu/2009/05/iis-6-webdac-auth-bypass-and-data.html

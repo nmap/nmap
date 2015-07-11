@@ -3,7 +3,9 @@ local string = require "string"
 local target = require "target"
 
 description = [[
-Inserts traceroute hops into the Nmap scanning queue. It only functions if Nmap's <code>--traceroute</code> option is used and the <code>newtargets</code> script argument is given.
+Inserts traceroute hops into the Nmap scanning queue. It only functions if
+Nmap's <code>--traceroute</code> option is used and the <code>newtargets</code>
+script argument is given.
 ]]
 
 ---

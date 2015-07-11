@@ -1,17 +1,20 @@
 description = [[
-Detects Huawei modems models HG530x, HG520x, HG510x (and possibly
-others...) vulnerable to a remote credential and information
-disclosure vulnerability. It also extracts the PPPoE credentials and
-other interesting configuration values.
+Detects Huawei modems models HG530x, HG520x, HG510x (and possibly others...)
+vulnerable to a remote credential and information disclosure vulnerability. It
+also extracts the PPPoE credentials and other interesting configuration values.
 
-Attackers can query the URIs "/Listadeparametros.html" and "/wanfun.js" to extract sensitive information
-including PPPoE credentials, firmware version, model, gateway, dns servers and active connections among other values.
+Attackers can query the URIs "/Listadeparametros.html" and "/wanfun.js" to
+extract sensitive information including PPPoE credentials, firmware version,
+model, gateway, dns servers and active connections among other values.
 
-This script exploits two vulnerabilities. One was discovered and reported by Adiaz from Comunidad Underground de Mexico (http://underground.org.mx) and it allows attackers to extract the pppoe password. The configuration disclosure vulnerability was discovered by Pedro Joaquin (http://hakim.ws).
+This script exploits two vulnerabilities. One was discovered and reported by
+Adiaz from Comunidad Underground de Mexico (http://underground.org.mx) and it
+allows attackers to extract the pppoe password. The configuration disclosure
+vulnerability was discovered by Pedro Joaquin (http://hakim.ws).
 
 References:
-*http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure
-*http://routerpwn.com/#huawei
+* http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure
+* http://routerpwn.com/#huawei
 ]]
 
 ---

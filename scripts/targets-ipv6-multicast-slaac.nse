@@ -149,7 +149,9 @@ local function single_interface_broadcast(if_nfo, results)
 
   -- preferred_lifetime <= valid_lifetime.
   -- Nmap will get the whole IPv6 addresses of each host if the two parameters are both longer than 5 seconds.
-  -- Sometimes it makes sense to regard the several addresses of a host as different hosts, as the host's administrator may apply different firewall configurations on them.
+  -- Sometimes it makes sense to regard the several addresses of a host as
+  -- different hosts, as the host's administrator may apply different firewall
+  -- configurations on them.
   local valid_lifetime = 6
   local preferred_lifetime = 6
 
@@ -191,7 +193,9 @@ local function single_interface_broadcast(if_nfo, results)
           local ula_target_addr_str = ipOps.str_to_ip(reply.ns_target)
           local identifier = get_identifier(reply.ns_target)
           --Filter out the reduplicative identifiers.
-          --A host will send several NS packets with the same interface identifier if it receives several RA packets with different prefix during the discovery phase.
+          --A host will send several NS packets with the same interface
+          --identifier if it receives several RA packets with different prefix
+          --during the discovery phase.
           local actual_addr_str = ipOps.str_to_ip(actual_prefix .. identifier)
           if not results[actual_addr_str] then
             if target.ALLOW_NEW_TARGETS then

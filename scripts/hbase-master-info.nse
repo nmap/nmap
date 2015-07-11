@@ -10,19 +10,14 @@ description = [[
 Retrieves information from an Apache HBase (Hadoop database) master HTTP status page.
 
 Information gathered:
- * Hbase version
- * Hbase compile date
- * Hbase root directory
- * Hadoop version
- * Hadoop compile date
- * Average load
- * Zookeeper quorum server
- * Associated region servers
-
-For more information about Hbase, see:
- * http://hbase.apache.org/
- * http://wiki.apache.org/hadoop/Hbase
- * http://wiki.apache.org/hadoop/TaskTracker
+* Hbase version
+* Hbase compile date
+* Hbase root directory
+* Hadoop version
+* Hadoop compile date
+* Average load
+* Zookeeper quorum server
+* Associated region servers
 ]]
 
 ---

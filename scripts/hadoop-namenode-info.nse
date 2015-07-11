@@ -11,18 +11,13 @@ description = [[
 Retrieves information from an Apache Hadoop NameNode HTTP status page.
 
 Information gathered:
- * Date/time the service was started
- * Hadoop version
- * Hadoop compile date
- * Upgrades status
- * Filesystem directory (relative to http://host:port/)
- * Log directory (relative to http://host:port/)
- * Associated DataNodes.
-
-For more information about Hadoop, see:
- * http://hadoop.apache.org/
- * http://en.wikipedia.org/wiki/Apache_Hadoop
- * http://wiki.apache.org/hadoop/NameNode
+* Date/time the service was started
+* Hadoop version
+* Hadoop compile date
+* Upgrades status
+* Filesystem directory (relative to http://host:port/)
+* Log directory (relative to http://host:port/)
+* Associated DataNodes.
 ]]
 
 ---

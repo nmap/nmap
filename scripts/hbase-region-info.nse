@@ -8,14 +8,10 @@ description = [[
 Retrieves information from an Apache HBase (Hadoop database) region server HTTP status page.
 
 Information gathered:
- * HBase version
- * HBase compile date
- * A bunch of metrics about the state of the region server
- * Zookeeper quorum server
-
-For more information about Hbase, see:
- * http://hbase.apache.org/
- * http://wiki.apache.org/hadoop/Hbase
+* HBase version
+* HBase compile date
+* A bunch of metrics about the state of the region server
+* Zookeeper quorum server
 ]]
 
 ---

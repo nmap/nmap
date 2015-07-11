@@ -6,9 +6,9 @@ local ike = require "ike"
 
 
 description=[[
-
-Obtains information (such as vendor and device type where available) from an IKE service by sending four packets to the host.  This scripts tests with both Main and Aggressive Mode and sends multiple transforms per request.
-
+Obtains information (such as vendor and device type where available) from an
+IKE service by sending four packets to the host.  This scripts tests with both
+Main and Aggressive Mode and sends multiple transforms per request.
 ]]
 
 

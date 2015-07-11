@@ -5,26 +5,30 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Attempts to determine whether a web server is protected by an IPS (Intrusion Prevention System), IDS (Intrusion Detection System) or WAF (Web Application Firewall) by probing the web server with malicious payloads and detecting changes in the response code and body.
+Attempts to determine whether a web server is protected by an IPS (Intrusion
+Prevention System), IDS (Intrusion Detection System) or WAF (Web Application
+Firewall) by probing the web server with malicious payloads and detecting
+changes in the response code and body.
 
-To do this the script will send a "good" request and record the response, afterwards it will match this response against new requests containing
-malicious payloads. In theory, web applications shouldn't react to malicious requests because we are storing the payloads in a variable that is
-not used by the script/file and only WAF/IDS/IPS should react to it.
-If aggro mode is set, the script will try all attack vectors (More noisy)
+To do this the script will send a "good" request and record the response,
+afterwards it will match this response against new requests containing
+malicious payloads. In theory, web applications shouldn't react to malicious
+requests because we are storing the payloads in a variable that is not used by
+the script/file and only WAF/IDS/IPS should react to it.  If aggro mode is set,
+the script will try all attack vectors (More noisy)
 
-This script can detect numerous IDS, IPS, and WAF products since
-they often protect web applications in the same way.  But it
-won't detect products which don't alter the http traffic.
-Results can vary based on product configuration, but this script
-has been tested to work against various configurations of the
+This script can detect numerous IDS, IPS, and WAF products since they often
+protect web applications in the same way.  But it won't detect products which
+don't alter the http traffic.  Results can vary based on product configuration,
+but this script has been tested to work against various configurations of the
 following products:
 
- * Apache ModSecurity
- * Barracuda Web Application Firewall
- * PHPIDS
- * dotDefender
- * Imperva Web Firewall
- * Blue Coat SG 400
+* Apache ModSecurity
+* Barracuda Web Application Firewall
+* PHPIDS
+* dotDefender
+* Imperva Web Firewall
+* Blue Coat SG 400
 
 ]]
 
@@ -38,13 +42,12 @@ following products:
 -- 80/tcp open  http
 -- |_http-waf-detect: IDS/IPS/WAF detected
 --
--- @args http-waf-detect.uri Target URI. Use a path that does not redirect to a different page
--- @args http-waf-detect.aggro If aggro mode is set, the script will try all attack vectors to trigger the IDS/IPS/WAF
--- @args http-waf-detect.detectBodyChanges If set it also checks for changes in the document's body
---
--- Other useful args when running this script
--- http.useragent User Agent for HTTP requests
--- http.pipeline Number of requests sent in the single request
+-- @args http-waf-detect.uri Target URI. Use a path that does not redirect to a
+--                           different page
+-- @args http-waf-detect.aggro If aggro mode is set, the script will try all
+--                             attack vectors to trigger the IDS/IPS/WAF
+-- @args http-waf-detect.detectBodyChanges If set it also checks for changes in
+--                                         the document's body
 
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -4,7 +4,10 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
-Compares the detected service on a port against the expected service for that port number (e.g. ssh on 22, http on 80) and reports deviations. The script requires that a version scan has been run in order to be able to discover what service is actually running on each port.
+Compares the detected service on a port against the expected service for that
+port number (e.g. ssh on 22, http on 80) and reports deviations. The script
+requires that a version scan has been run in order to be able to discover what
+service is actually running on each port.
 ]]
 
 ---

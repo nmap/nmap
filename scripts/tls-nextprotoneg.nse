@@ -6,13 +6,14 @@ local bin = require "bin"
 local tls = require "tls"
 
 description = [[
-Enumerates a TLS server's supported protocols by using the next protocol negotiation extension.
+Enumerates a TLS server's supported protocols by using the next protocol
+negotiation extension.
 
-This works by adding the next protocol negotiation extension in the client hello
-packet and parsing the returned server hello's NPN extension data.
+This works by adding the next protocol negotiation extension in the client
+hello packet and parsing the returned server hello's NPN extension data.
 
-For more information , see:
-    * https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-03
+For more information, see:
+* https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-03
 ]]
 
 ---

@@ -6,14 +6,14 @@ local http = require "http"
 local bin = require "bin"
 
 description = [[
-Gathers info from the Metasploit rpc service.
-It requires a valid login pair. After authentication it
-tries to determine Metasploit version and deduce the OS type.
-Then it creates a new console and executes few commands
-to get additional info.
+Gathers info from the Metasploit rpc service.  It requires a valid login pair.
+After authentication it tries to determine Metasploit version and deduce the OS
+type.  Then it creates a new console and executes few commands to get
+additional info.
+
 References:
- * http://wiki.msgpack.org/display/MSGPACK/Format+specification
- *  https://community.rapid7.com/docs/DOC-1516 Metasploit RPC API Guide
+* http://wiki.msgpack.org/display/MSGPACK/Format+specification
+* https://community.rapid7.com/docs/DOC-1516 Metasploit RPC API Guide
 ]]
 
 ---

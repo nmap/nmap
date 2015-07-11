@@ -18,7 +18,7 @@ LLMNR responses that are sent to the local machine with a 5355 UDP source port.
 A hostname to resolve must be provided.
 
 For more information, see:
-    * http://technet.microsoft.com/en-us/library/bb878128.aspx
+* http://technet.microsoft.com/en-us/library/bb878128.aspx
 ]]
 
 ---

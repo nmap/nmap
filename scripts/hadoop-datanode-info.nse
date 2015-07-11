@@ -4,15 +4,11 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
-Discovers information such as log directories from an Apache Hadoop DataNode HTTP status page.
+Discovers information such as log directories from an Apache Hadoop DataNode
+HTTP status page.
 
 Information gathered:
- * Log directory (relative to http://host:port/)
-
-For more information about hadoop, see:
- * http://hadoop.apache.org/
- * http://en.wikipedia.org/wiki/Apache_Hadoop
- * http://wiki.apache.org/hadoop/DataNode
+* Log directory (relative to http://host:port/)
 ]]
 
 ---

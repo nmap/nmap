@@ -33,11 +33,19 @@ for Nmap.
 -- @usage
 -- nmap --script qscan --script-args qscan.confidence=0.95,qscan.delay=200ms,qscan.numtrips=10 target
 --
--- @args confidence Confidence level: <code>0.75</code>, <code>0.9</code>, <code>0.95</code>, <code>0.975</code>, <code>0.99</code>, <code>0.995</code>, or <code>0.9995</code>.
--- @args delay Average delay between packet sends. This is a number followed by <code>ms</code> for milliseconds or <code>s</code> for seconds. (<code>m</code> and <code>h</code> are also supported but are too long for timeouts.) The actual delay will randomly vary between 50% and 150% of the time specified. Default: <code>200ms</code>.
+-- @args confidence Confidence level: <code>0.75</code>, <code>0.9</code>,
+--       <code>0.95</code>, <code>0.975</code>, <code>0.99</code>,
+--       <code>0.995</code>, or <code>0.9995</code>.
+-- @args delay Average delay between packet sends. This is a number followed by
+--       <code>ms</code> for milliseconds or <code>s</code> for seconds.
+--       (<code>m</code> and <code>h</code> are also supported but are too long
+--       for timeouts.) The actual delay will randomly vary between 50% and
+--       150% of the time specified. Default: <code>200ms</code>.
 -- @args numtrips Number of round-trip times to try to get.
--- @args numopen Maximum number of open ports to probe (default 8). A negative number disables the limit.
--- @args numclosed Maximum number of closed ports to probe (default 1). A negative number disables the limit.
+-- @args numopen Maximum number of open ports to probe (default 8). A negative
+--       number disables the limit.
+-- @args numclosed Maximum number of closed ports to probe (default 1). A
+--       negative number disables the limit.
 --
 -- @output
 -- | qscan:

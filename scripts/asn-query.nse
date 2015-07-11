@@ -385,8 +385,12 @@ function get_prefix_length( range )
 end
 
 ---
--- Given an IP address and a prefix length, returns a string representing a valid IP address assignment (size is not checked) which contains
--- the supplied IP address.  For example, with <code>ip</code> = <code>"192.168.1.187"</code> and <code>prefix</code> = <code>24</code> the return value will be <code>"192.168.1.1-192.168.1.255"</code>
+-- Given an IP address and a prefix length, returns a string representing a
+-- valid IP address assignment (size is not checked) which contains the
+-- supplied IP address.  For example, with
+-- <code>ip</code> = <code>"192.168.1.187"</code> and
+-- <code>prefix</code> = <code>24</code> the return value will be
+-- <code>"192.168.1.1-192.168.1.255"</code>
 -- @param ip      String representing an IP address.
 -- @param prefix  String or number representing a prefix length.  Should be of the same address family as <code>ip</code>.
 -- @return        String representing a range of addresses from the first to the last hosts (or <code>nil</code> in case of an error).

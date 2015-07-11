@@ -6,8 +6,13 @@ local math = require "math"
 local string = require "string"
 local os = require "os"
 
-description = [[ Generates a flood of Router Advertisements (RA) with random source MAC addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration enabled by default (every major OS),
-will start to compute IPv6 suffix and update their routing table to reflect the accepted announcement. This will cause 100% CPU usage on Windows and platforms, preventing to process other application requests.
+description = [[
+Generates a flood of Router Advertisements (RA) with random source MAC
+addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration
+enabled by default (every major OS), will start to compute IPv6 suffix and
+update their routing table to reflect the accepted announcement. This will
+cause 100% CPU usage on Windows and platforms, preventing to process other
+application requests.
 
 Vulnerable platforms:
 * All Cisco IOS ASA with firmware < November 2010
@@ -19,16 +24,17 @@ Vulnerable platforms:
 
 Security advisory: http://www.mh-sec.de/downloads/mh-RA_flooding_CVE-2010-multiple.txt
 
-WARNING: This script is dangerous and is very likely to bring down a server or network appliance.
-It should not be run in a production environment unless you (and, more importantly,
-the business) understand the risks!
+WARNING: This script is dangerous and is very likely to bring down a server or
+network appliance.  It should not be run in a production environment unless you
+(and, more importantly, the business) understand the risks!
 
 Additional documents: https://tools.ietf.org/rfc/rfc6104.txt
 ]]
 
 ---
 -- @args ipv6-ra-flood.interface defines interface we should broadcast on
--- @args ipv6-ra-flood.timeout runs the script until the timeout is reached (default: 30s). If timeout is zero, the script will run forever.
+-- @args ipv6-ra-flood.timeout runs the script until the timeout is reached
+--       (default: 30s). If timeout is zero, the script will run forever.
 --
 -- @usage
 -- nmap -6 --script ipv6-ra-flood.nse

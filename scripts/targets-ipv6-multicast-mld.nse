@@ -9,7 +9,11 @@ local table = require "table"
 local target = require "target"
 
 description = [[
-Attempts to discover available IPv6 hosts on the LAN by sending an MLD (multicast listener discovery) query to the link-local multicast address (ff02::1) and listening for any responses.  The query's maximum response delay set to 0 to provoke hosts to respond immediately rather than waiting for other responses from their multicast group.
+Attempts to discover available IPv6 hosts on the LAN by sending an MLD
+(multicast listener discovery) query to the link-local multicast address
+(ff02::1) and listening for any responses.  The query's maximum response delay
+set to 0 to provoke hosts to respond immediately rather than waiting for other
+responses from their multicast group.
 ]]
 
 ---

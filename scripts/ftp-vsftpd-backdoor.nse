@@ -14,9 +14,10 @@ the <code>exploit.cmd</code> or <code>ftp-vsftpd-backdoor.cmd</code> script
 arguments.
 
 References:
- * http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
- * https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/ftp/vsftpd_234_backdoor.rb
- * http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=CVE-2011-2523
+
+* http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
+* https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/ftp/vsftpd_234_backdoor.rb
+* http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=CVE-2011-2523
 ]]
 
 ---

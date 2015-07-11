@@ -39,9 +39,16 @@ Reference:
 ]]
 
 ---
--- @args irc-unrealircd-backdoor.command An arbitrary command to run on the remote system (note, however, that you won't see the output of your command). This will always be attempted, even if the host isn't vulnerable. The pattern <code>%IP%</code> will be replaced with the ip address of the target host.
--- @args irc-unrealircd-backdoor.kill If set to <code>1</code> or <code>true</code>, kill the backdoored UnrealIRCd running.
--- @args irc-unrealircd-backdoor.wait Wait time in seconds before executing the check. This is recommended to set for more reliable check (100 is good value).
+-- @args irc-unrealircd-backdoor.command An arbitrary command to run on the
+--       remote system (note, however, that you won't see the output of your
+--       command). This will always be attempted, even if the host isn't
+--       vulnerable.  The pattern <code>%IP%</code> will be replaced with the
+--       ip address of the target host.
+-- @args irc-unrealircd-backdoor.kill If set to <code>1</code> or
+--       <code>true</code>, kill the backdoored UnrealIRCd running.
+-- @args irc-unrealircd-backdoor.wait Wait time in seconds before executing the
+--       check. This is recommended to set for more reliable check (100 is good
+--       value).
 --
 -- @output
 -- PORT     STATE SERVICE

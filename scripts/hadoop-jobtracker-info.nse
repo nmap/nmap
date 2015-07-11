@@ -10,19 +10,14 @@ description = [[
 Retrieves information from an Apache Hadoop JobTracker HTTP status page.
 
 Information gathered:
- * State of the JobTracker.
- * Date/time the service was started
- * Hadoop version
- * Hadoop Compile date
- * JobTracker ID
- * Log directory (relative to http://host:port/)
- * Associated TaskTrackers
- * Optionally also user activity history
-
-For more information about Hadoop, see:
- * http://hadoop.apache.org/
- * http://en.wikipedia.org/wiki/Apache_Hadoop
- * http://wiki.apache.org/hadoop/JobTracker
+* State of the JobTracker.
+* Date/time the service was started
+* Hadoop version
+* Hadoop Compile date
+* JobTracker ID
+* Log directory (relative to http://host:port/)
+* Associated TaskTrackers
+* Optionally also user activity history
 ]]
 
 ---
@@ -44,6 +39,7 @@ For more information about Hadoop, see:
 -- |   Userhistory:
 -- |     User: bob (Wed Sep 07 12:14:33 CEST 2011)
 -- |_    User: bob (Wed Sep 07 12:14:33 CEST 2011)
+--
 -- @xmloutput
 -- <elem key="State">RUNNING</elem>
 -- <elem key="Started">Wed May 11 22:33:44 PDT 2011, bob</elem>

@@ -12,8 +12,10 @@ local openssl = stdnse.silent_require "openssl"
 
 description = [[
 Sends broadcast pings on a selected interface using raw ethernet packets and
-outputs the responding hosts' IP and MAC addresses or (if requested) adds them as targets.  Root privileges on UNIX are required to run this script since it uses raw sockets.  Most operating systems don't respond to broadcast-ping probes,
-but they can be configured to do so.
+outputs the responding hosts' IP and MAC addresses or (if requested) adds them
+as targets.  Root privileges on UNIX are required to run this script since it
+uses raw sockets.  Most operating systems don't respond to broadcast-ping
+probes, but they can be configured to do so.
 
 The interface on which is broadcasted can be specified using the -e Nmap option
 or the <code>broadcast-ping.interface</code> script-arg. If no interface is

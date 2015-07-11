@@ -5,9 +5,13 @@ local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[
-Exploits a null-byte poisoning vulnerability in Litespeed Web Servers 4.0.x before 4.0.15 to retrieve the target script's source code by sending a HTTP request with a null byte followed by a .txt file extension (CVE-2010-2333).
+Exploits a null-byte poisoning vulnerability in Litespeed Web Servers 4.0.x
+before 4.0.15 to retrieve the target script's source code by sending a HTTP
+request with a null byte followed by a .txt file extension (CVE-2010-2333).
 
-If the server is not vulnerable it returns an error 400. If index.php is not found, you may try /phpinfo.php which is also shipped with LiteSpeed Web Server. The attack payload looks like this:
+If the server is not vulnerable it returns an error 400. If index.php is not
+found, you may try /phpinfo.php which is also shipped with LiteSpeed Web
+Server. The attack payload looks like this:
 * <code>/index.php\00.txt</code>
 
 References:

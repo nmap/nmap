@@ -1,7 +1,10 @@
 description = [[
-Attempts to download an unprotected configuration file containing plain-text user credentials in vulnerable Supermicro Onboard IPMI controllers.
+Attempts to download an unprotected configuration file containing plain-text
+user credentials in vulnerable Supermicro Onboard IPMI controllers.
 
-The script connects to port 49152 and issues a request for "/PSBlock" to download the file. This configuration file contains users with their passwords in plain text.
+The script connects to port 49152 and issues a request for "/PSBlock" to
+download the file. This configuration file contains users with their passwords
+in plain text.
 
 References:
 * http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/

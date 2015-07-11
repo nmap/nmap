@@ -6,7 +6,9 @@ local string = require "string"
 description = [[
 Detects the UDP IAX2 service.
 
-The script sends an Inter-Asterisk eXchange (IAX) Revision 2 Control Frame POKE request and checks for a proper response.  This protocol is used to enable VoIP connections between servers as well as client-server communication.
+The script sends an Inter-Asterisk eXchange (IAX) Revision 2 Control Frame POKE
+request and checks for a proper response.  This protocol is used to enable VoIP
+connections between servers as well as client-server communication.
 ]]
 
 ---

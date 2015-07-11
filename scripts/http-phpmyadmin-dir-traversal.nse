@@ -6,7 +6,8 @@ local io = require "io"
 local vulns = require "vulns"
 
 description = [[
-Exploits a directory traversal vulnerability in phpMyAdmin 2.6.4-pl1 (and possibly other versions) to retrieve remote files on the web server.
+Exploits a directory traversal vulnerability in phpMyAdmin 2.6.4-pl1 (and
+possibly other versions) to retrieve remote files on the web server.
 
 Reference:
 * http://www.exploit-db.com/exploits/1244/
@@ -21,9 +22,6 @@ Reference:
 -- @args http-phpmyadmin-dir-traversal.outfile Output file
 -- @args http-phpmyadmin-dir-traversal.dir Basepath to the services page. Default: <code>/phpMyAdmin-2.6.4-pl1/</code>
 --
--- Other useful arguments for this script:
--- @args http.useragent User Agent used in the GET requests
----
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
