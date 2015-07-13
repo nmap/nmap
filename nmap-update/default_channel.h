@@ -1,1 +1,1 @@
-#define DEFAULT_CHANNEL "6.00"
+#define DEFAULT_CHANNEL "6.49"
