@@ -1307,8 +1307,8 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       seq = seq32_encode(USI, tryno, pingseq);
 
     if (pspec->pd.tcp.flags & TH_SYN) {
-      tcpops = (u8 *) "\x02\x04\x05\xb4";
-      tcpopslen = 4;
+      tcpops = (u8 *) TCP_SYN_PROBE_OPTIONS;
+      tcpopslen = TCP_SYN_PROBE_OPTIONS_LEN;
     }
 
     if (hss->target->af() == AF_INET) {

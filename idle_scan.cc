@@ -282,7 +282,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
                   o.ipoptions, o.ipoptionslen,
                   base_port + tries, proxy->probe_port,
                   seq_base + (packet_send_count++ * 500) + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                  (u8 *) "\x02\x04\x05\xb4", 4,
+                  (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                   NULL, 0);
     else {
       ipv6_packet = build_tcp_raw_ipv6(proxy->host.v6sourceip(), proxy->host.v6hostip(),
@@ -290,7 +290,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
                         o.ttl,
                         base_port + tries, proxy->probe_port,
                         seq_base + (packet_send_count++ * 500) + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                        (u8 *) "\x02\x04\x05\xb4", 4,
+                        (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                         NULL, 0,
                         &packetlen);
       proxy->host.TargetSockAddr(&ss, &sslen);
@@ -728,7 +728,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                    o.ipoptions, o.ipoptionslen,
                    o.magic_port + probes_sent + 1, proxy->probe_port,
                    sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                   (u8 *) "\x02\x04\x05\xb4", 4,
+                   (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                    NULL, 0);
     else if (o.af() == AF_INET6) {
       ipv6_packet = build_tcp_raw_ipv6(proxy->host.v6sourceip(), proxy->host.v6hostip(),
@@ -736,7 +736,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                                        o.ttl,
                                        o.magic_port + probes_sent + 1, proxy->probe_port,
                                        sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                                       (u8 *) "\x02\x04\x05\xb4", 4,
+                                       (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                                        NULL, 0,
                                        &packetlen);
       res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
@@ -922,16 +922,16 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                     o.ipoptions, o.ipoptionslen,
                     o.magic_port, proxy->probe_port,
                     sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                    (u8 *) "\x02\x04\x05\xb4",
-                    4, NULL, 0);
+                    (u8 *) TCP_SYN_PROBE_OPTIONS,
+                    TCP_SYN_PROBE_OPTIONS_LEN, NULL, 0);
       } else {
         ipv6_packet = build_tcp_raw_ipv6(target->v6hostip(), proxy->host.v6hostip(),
                                          0x00, 0x0000,
                                          o.ttl,
                                          o.magic_port, proxy->probe_port,
                                          sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                                         (u8 *) "\x02\x04\x05\xb4",
-                                         4, NULL, 0,
+                                         (u8 *) TCP_SYN_PROBE_OPTIONS,
+                                         TCP_SYN_PROBE_OPTIONS_LEN, NULL, 0,
                                          &packetlen);
         res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
         if (res == -1)
@@ -1096,14 +1096,14 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
                    o.ttl, false,
                    o.ipoptions, o.ipoptionslen,
                    proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
-                   (u8 *) "\x02\x04\x05\xb4", 4,
+                   (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                    o.extra_payload, o.extra_payload_length);
    } else {
         packet = build_tcp_raw_ipv6(proxy->host.v6hostip(), target->v6hostip(),
                                     0x00, 0x0000,
                                     o.ttl,
                                     proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
-                                    (u8 *) "\x02\x04\x05\xb4", 4,
+                                    (u8 *) TCP_SYN_PROBE_OPTIONS, TCP_SYN_PROBE_OPTIONS_LEN,
                                     o.extra_payload, o.extra_payload_length,
                                     &packetlen);
         res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, &ss, packet, packetlen);
