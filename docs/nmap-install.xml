@@ -706,12 +706,11 @@ described in <xref linkend="inst-source" />.
 released in 2000 and has since become the second most popular Nmap
 platform (behind Linux). Because of this popularity and the fact that
 many Windows users do not have a compiler, binary executables are
-distributed for each major Nmap release.  Nmap supports Windows 7,
-Windows Server 2008 and 2003, Windows Vista, and Windows XP SP1 and
-later.  We also have a <ulink
-url="https://secwiki.org/w/Nmap/Old_Windows_Releases">help
-page</ulink> for users who must run Nmap on earlier versions of
-Windows.  While it has improved dramatically, the Windows port is not
+distributed for each major Nmap release.  We support Nmap on Windows 7
+and newer, as well as Windows Server 2008 and newer.  We also maintain
+a  <ulink
+url="https://secwiki.org/w/Nmap/Old_Windows_Releases">guide for users
+who must run Nmap on earlier Windows releases</ulink>.  While it has improved dramatically, the Windows port is not
 quite as efficient as on Unix.  Here are the known limitations:
 </para>
 
