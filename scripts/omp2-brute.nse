@@ -14,7 +14,7 @@ Performs brute force password auditing against the OpenVAS manager using OMPv2.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 9390/tcp open  openvas syn-ack
--- | svn-brute:
+-- | omp2-brute:
 -- |   Accounts
 -- |_    admin:secret => Valid credentials
 --
