@@ -48,6 +48,17 @@ database can specify their own criteria for accepting a page as valid.
 -- @args http-enum.fingerprintfile  Specify a different file to read fingerprints from.
 -- @args http-enum.category         Set to a category (as defined in the fingerprints file). Some options are 'attacks',
 --                                  'database', 'general', 'microsoft', 'printer', etc.
+-- @args http-fingerprints.nikto-db-path Looks at the given path for nikto database.
+--       It then converts the records in nikto's database into our Lua table format
+--       and adds them to our current fingerprints if they don't exist already.
+--       Unfortunately, our current implementation has some limitations:
+--          * It doesn't support records with more than one 'dontmatch' patterns for
+--            a probe.
+--          * It doesn't support logical AND for the 'match' patterns.
+--          * It doesn't support sending additional headers for a probe.
+--       That means, if a nikto fingerprint needs one of the above features, it
+--       won't be loaded. At the time of writing this, 6546 out of the 6573 Nikto
+--       fingerprints are being loaded successfully.  This runtime Nikto fingerprint integration was suggested by Nikto co-author Chris Sullo as described at http://seclists.org/nmap-dev/2013/q4/292
 --
 -- @output
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
