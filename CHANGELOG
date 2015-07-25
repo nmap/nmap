@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
+  repostory by examinning commit logs. [Gyanendra Mishra]
+
+o [NSE] Added script http-svn-info. Requests information from a
+  Subversion repository.[Gyanendra Mishra]
+
 o [NSE] Added NTLM brute support to http-brute. [Gyanendra Mishra]
 
 o [NSE] Added NTLM authentication support to http.lua and a related function to create
@@ -34,7 +40,7 @@ o [NSE] Allow ssl-enum-ciphers to run on non-typical ports when it is selected
 
 o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
 
-o [NSE] Added tor-consensus-checker, which checks if a target is a 
+o [NSE] Added tor-consensus-checker, which checks if a target is a
   known Tor node. [Jiayi Ye]
 
 

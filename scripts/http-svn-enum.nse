@@ -54,7 +54,7 @@ author = "Gyanendra Mishra"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "safe", "discovery"}
+categories = {"default", "discovery", "safe"}
 
 local function get_callback(name, unames, temp)
   if name == "creator-displayname" then
