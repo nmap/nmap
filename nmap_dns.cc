@@ -1514,7 +1514,7 @@ size_t DNS::Factory::parseDomainName(std::string &name, const char *buf, size_t 
       u16 real_offset;
       DNS_CHECK_ACCUMLATE(ret, tmp, parseUnsignedShort(real_offset, buf, offset+ret, maxlen));
       real_offset -= COMPRESSED_NAME<<8;
-      if( real_offset < maxlen)
+      if( real_offset < offset)
       {
         std::string val;
         DNS_CHECK_ACCUMLATE(tmp, tmp, parseDomainName(val, buf, real_offset, maxlen));
