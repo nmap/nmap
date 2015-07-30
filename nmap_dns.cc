@@ -1567,8 +1567,7 @@ size_t DNS::Answer::parseFromBuffer(const char * buf, size_t offset, size_t maxl
     DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(ttl, buf, offset+ret, maxlen));
     DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(length, buf, offset+ret, maxlen));
 
-    DNS_CHECK_UPPER_BOUND(offset+ret, maxlen);
-    length=buf[offset+ret];
+    DNS_CHECK_UPPER_BOUND(offset+ret+length, maxlen);
 
     switch(record_type)
     {
