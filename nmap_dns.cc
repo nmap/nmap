@@ -162,9 +162,7 @@
 //     --see http://accs-net.com/hosts/how_to_use_hosts.html
 //
 //
-// Created by Doug Hoyte
-// doug at hcsw.org
-// http://www.hcsw.org
+// Created by Doug Hoyte <doug at hcsw.org> http://www.hcsw.org
 // DNS Caching and aging added by Eddie Bell ejlbell@gmail.com 2007
 // IPv6 and improved DNS cache by Gioacchino Mazzurco <gmazzurco89@gmail.com> 2015
 
@@ -263,6 +261,10 @@ static int read_timeouts[][4] = {
 
 
 //------------------- Internal Structures ---------------------
+#define CHECK_ACCUMLATE(accumulator, tmp, exp) \
+  tmp = exp; \
+  if(tmp < 1) return 0 ; \
+  accumulator += tmp
 
 struct dns_server;
 struct request;
@@ -349,7 +351,7 @@ public:
   {
     if(he.cache_hits)
     {
-      he.cache_hits /= 2;
+      he.cache_hits >>= 1;
       return false;
     }
 
@@ -478,6 +480,151 @@ protected:
   u32 elements_count;
 };
 
+class DnsPacketFactory
+{
+public:
+  enum HEADER_OFFSET
+  {
+    ID = 0,
+    FLAGS = 2,
+    QDCOUNT = 4,
+    ANCOUNT = 6,
+    NSCOUNT = 8,
+    ARCOUNT = 10,
+    DATA = 12
+  };
+  enum FLAGS
+  {
+    ERR_NO = 0x0000,
+    ERR_FORMAT = 0x0001,
+    ERR_SERVFAIL = 0x0002,
+    ERR_NAME = 0x0003,
+    ERR_NOT_IMPLEMENTED = 0x0004,
+    ERR_REFUSED = 0x0005,
+    CHECKING_DISABLED = 0x0010,
+    AUTHENTICATED_DATA = 0x0020,
+    RECURSION_AVAILABLE = 0x0080,
+    RECURSION_DESIRED = 0x0100,
+    TRUNCATED = 0x0200,
+    AUTHORITATIVE_ANSWER = 0x0400,
+    OP_STANDARD_QUERY = 0x0000,
+    OP_INVERSE_QUERY = 0x0800, // Obsoleted in RFC 3425
+    OP_SERVER_STATUS = 0x1000,
+    RESPONSE = 0x8000
+  };
+  enum RECORD_TYPE
+  {
+    A = 1,
+    PTR = 12,
+    AAAA = 28,
+  };
+  enum RECORD_CLASS
+  {
+    IN = 1
+  };
+
+  static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, char *buf, size_t maxlen)
+  {
+    std::cout << "DnsPacketFactory::buildSimpleRequest(" << name << ")" << std::endl;
+    size_t ret=0 , tmp=0;
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(++progressiveId, buf, ID, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(1, buf, QDCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ANCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, NSCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ARCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putDomainName(name, buf, DATA, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(rt, buf, ret, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(IN, buf, ret, maxlen));
+
+    return ret;
+  }
+  static size_t buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
+  {
+    std::cout << "DnsPacketFactory::buildReverseRequest(" << sockaddr_storage_iptostring(ip) << ")" <<std::endl;
+    std::string name;
+    switch (ip.ss_family) {
+      case AF_INET:
+      {
+        std::string ipv4 = sockaddr_storage_iptostring(ip);
+        std::string octet;
+        for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
+          if((*c)=='.')
+          {
+            name += octet + ".";
+            octet.clear();
+          }
+          else
+            octet = (*c) + octet;
+
+        name += octet + ".in-addr.arpa";
+
+        break;
+      }
+      case AF_INET6:
+      {
+        std::string ipv6 = sockaddr_storage_iptostring(ip);
+        for (std::string::const_reverse_iterator c=ipv6.rbegin(); c != ipv6.rend(); ++c)
+          if((*c)!=':') name += (*c) + ".";
+        name += "ip6.arpa";
+        break;
+      }
+      default:
+        return 0;
+    }
+
+    return buildSimpleRequest(name, PTR, buf, maxlen);
+  }
+
+private:
+  static u16 progressiveId;
+
+  static size_t putUnsignedShort(u16 num, char *buf, size_t offset, size_t maxlen)
+  {
+    size_t max_access = offset+1;
+    if(buf && (maxlen > max_access))
+    {
+      buf[offset] = (num >> 8) & 0xFF;
+      buf[max_access] = num & 0xFF;
+      return 2;
+    }
+
+    return 0;
+  }
+  static size_t putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen) // TODO: input check
+  {
+    std::cout << "putDomainName name: " << name << " offset:" << offset << std::endl;
+
+    size_t ret=0;
+    if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
+
+    std::string namew = name + ".";
+    std::string accumulator;
+    for (std::string::const_iterator c=namew.begin(); c != namew.end(); ++c)
+    {
+      if((*c)=='.')
+      {
+        u8 lenght = accumulator.length();
+        *(buf+offset+ret) = lenght;
+        ret += 1;
+
+        ret += 1;
+        memcpy(buf+offset+ret, accumulator.c_str(), lenght);
+        ret += lenght;
+        accumulator.clear();
+      }
+      else
+        accumulator += (*c);
+    }
+
+    *(buf+offset+ret) = 0;
+    ret += 1;
+
+    return ret;
+  }
+};
+u16 DnsPacketFactory::progressiveId = 0;
+
 //------------------- Globals ---------------------
 
 static std::list<dns_server> servs;
@@ -542,20 +689,6 @@ static void close_dns_servers() {
 }
 
 
-// Inserts an integer (endian non-specifically) into a DNS packet.
-// Returns number of bytes written
-static int add_integer_to_dns_packet(char *packet, int c) {
-  char tpnum[4];
-  int tplen;
-
-  sprintf(tpnum, "%d", c);
-  tplen = strlen(tpnum);
-  packet[0] = (char) tplen;
-  memcpy(packet+1, tpnum, tplen);
-
-  return tplen+1;
-}
-
 // Puts as many packets on the line as capacity will allow
 static void do_possible_writes() {
   std::list<dns_server>::iterator servI;
@@ -597,11 +730,12 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
 static void put_dns_packet_on_wire(request *req) {
-  char packet[512];
-  int plen=0;
-  u32 ip;
-  struct timeval now, timeout;
+  const size_t maxlen = 512;
+  char packet[maxlen];
+  size_t plen=0;
 
+  struct timeval now, timeout;
+#if 0
   ip = (u32) ntohl(req->targ->v4host().s_addr);
   packet[0] = (req->id >> 8) & 0xFF;
   packet[1] = req->id & 0xFF;
@@ -617,6 +751,10 @@ static void put_dns_packet_on_wire(request *req) {
 
   memcpy(packet+plen, "\x07in-addr\004arpa\x00\x00\x0c\x00\x01", 18);
   plen += 18;
+#endif
+
+  //static size_t buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
+  plen = DnsPacketFactory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
 
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
@@ -792,6 +930,14 @@ static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
   return ntohl(ip);
 }
 
+static bool parse_arpa(u8 *buf, int maxlen, sockaddr_storage &ip)
+{
+  std::cout << "static bool parse_arpa(u8 *buf, int maxlen, sockaddr_storage &ip)" << std::endl;
+  if (maxlen < 14) return false;
+  for (int i=0; i<maxlen; ++i)
+    std::cout << i << ":" << buf[i] << std::endl;
+  return false;
+}
 
 // Turns a DNS packet encoded name (see the RFC) and turns it into
 // a normal decimal separated hostname.
@@ -865,7 +1011,7 @@ static int advance_past_dns_name(u8 *buf, int buflen, int curbuf,
 
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
-static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
+static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   u8 *buf;
   int buflen, curbuf=0;
   int i, nameloc, rdlen, atype, aclass;
@@ -942,7 +1088,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
     // Make sure we have the QTYPE and QCLASS fields
     if (curbuf + 4 >= buflen) return;
     curbuf += 4;
-      }
+  }
 
   // We're now at the ANSWER section
 
@@ -961,12 +1107,13 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
 
     if (atype == 12 && aclass == 1) {
       // TYPE 12 is PTR
-      struct in_addr ia;
+      sockaddr_storage ia;
       char outbuf[512];
 
-      ia.s_addr = parse_inaddr_arpa(buf+nameloc, buflen-nameloc);
-      if (ia.s_addr == 0) return;
-
+      //ia.s_addr = parse_inaddr_arpa(buf+nameloc, buflen-nameloc);
+      //if (ia.s_addr == 0) return;
+      if(!parse_arpa(buf+nameloc, buflen-nameloc, ia)) return;
+#if 0
       curbuf = advance_past_dns_name(buf, buflen, curbuf, &nameloc);
       if (curbuf == -1 || curbuf > buflen) return;
 
@@ -989,11 +1136,11 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
     } else {
       if (rdlen < 0 || rdlen + curbuf >= buflen) return;
       curbuf += rdlen;
+#endif //0
     }
 
     if (curbuf >= buflen) return;
   }
-
 }
 
 
@@ -1148,7 +1295,7 @@ void win32_read_registry() {
   }
 
 }
-#endif
+#endif // WIN32
 
 
 
@@ -1219,11 +1366,15 @@ static void parse_etchosts(const char *fname) {
 }
 
 /* External interface to dns cache */
-const char *lookup_cached_host(const sockaddr_storage * ip) {
-  std::string name;
-  if (host_cache.lookup(*ip, name))
-    return name.c_str();
-  return NULL;
+int lookup_cached_host(const struct sockaddr_storage * ip, char *name, size_t maxlen = HOST_NAME_MAX)
+{
+  std::string str_name;
+  if (host_cache.lookup(*ip, str_name))
+  {
+    strncpy(name, str_name.c_str(), maxlen);
+    return 1;
+  }
+  return 0;
 }
 
 static void etchosts_init(void) {
@@ -1252,7 +1403,7 @@ static void etchosts_init(void) {
 
 #else
   parse_etchosts("/etc/hosts");
-#endif
+#endif // WIN32
 }
 
 /* Initialize the global servs list of DNS servers. If the --dns-servers option
@@ -1317,7 +1468,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   {
     if (!((*hostI)->flags & HOST_UP) && !o.resolve_all) continue;
 
-    // See if it's in /etc/hosts or cached
+    // See if it's cached
     std::string res;
     if (host_cache.lookup(*(*hostI)->TargetSockAddr(), res)) {
       tpname = res.c_str();
