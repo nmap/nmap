@@ -102,7 +102,7 @@ export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan
 
 export HDRS = charpool.h FingerPrintResults.h FPEngine.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h nmap_ftp.h NmapOps.h NmapOutputTable.h nmap_tty.h nmap_winconfig.h osscan2.h osscan.h output.h payload.h portlist.h portreasons.h protocols.h scan_engine.h scan_engine_connect.h scan_engine_raw.h service_scan.h services.h TargetGroup.h Target.h targets.h tcpip.h timing.h traceroute.h utils.h xml.h $(NSE_HDRS)
 
-OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o main.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o service_scan.o services.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS)
+OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o service_scan.o services.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS)
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
@@ -116,10 +116,10 @@ FPModel.o: CXXFLAGS += -g0
 all: @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ @NMAP_UPDATE_BUILD@ netutil_build
 	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
-$(TARGET): @LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS)
+$(TARGET): @LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS) main.o
 	@echo Compiling nmap
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) main.o $(LIBS)
 
 build-%: %/Makefile
 	cd $* && $(MAKE)
@@ -297,6 +297,9 @@ nmap-update/default_channel.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+DEFAULT_CHANNEL[ \t]\+\(".*"\)/#define DEFAULT_CHANNEL "$(NMAP_UPDATE_CHANNEL)"/' $@ > $@.tmp
 	mv -f $@.tmp $@
 
+tests/check_dns: $(OBJS)
+	 $(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) tests/nmap_dns_test.cc
+
 # By default distutils rewrites installed scripts to hardcode the
 # location of the Python interpreter they were built with (something
 # like #!/usr/bin/python2.4). This is the wrong thing to do when
@@ -408,7 +411,10 @@ nsock_check:
 zenmap_check:
 	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@
+dns_check: tests/check_dns
+	$<
+
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ dns_check
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
