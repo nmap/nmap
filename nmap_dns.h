@@ -305,7 +305,6 @@ public:
 }
 
 void nmap_mass_rdns(Target ** targets, int num_targets);
-int lookup_cached_host(const struct sockaddr_storage * ip, char * name, size_t maxlen);
 
 std::list<std::string> get_dns_servers();
 

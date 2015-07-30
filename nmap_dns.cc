@@ -1016,18 +1016,6 @@ static void parse_etchosts(const char *fname) {
   fclose(fp);
 }
 
-/* External interface to dns cache */
-int lookup_cached_host(const struct sockaddr_storage * ip, char *name, size_t maxlen = HOST_NAME_MAX)
-{
-  std::string str_name;
-  if (host_cache.lookup(*ip, str_name))
-  {
-    strncpy(name, str_name.c_str(), maxlen);
-    return 1;
-  }
-  return 0;
-}
-
 static void etchosts_init(void) {
   static int initialized = 0;
   if (initialized) return;
@@ -1365,6 +1353,7 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
   }
   return true;
 }
+
 bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 {
   std::string ip_str;
@@ -1415,6 +1404,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
   return true;
 }
+
 size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)
 {
   size_t ret=0 , tmp=0;
@@ -1430,6 +1420,7 @@ size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt,
 
   return ret;
 }
+
 size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen)
 {
   std::string name;
@@ -1437,6 +1428,7 @@ size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, u8 *buf, si
     return buildSimpleRequest(name, PTR, buf, maxlen);
   return 0;
 }
+
 size_t DNS::Factory::putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+1;
@@ -1449,6 +1441,7 @@ size_t DNS::Factory::putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t ma
 
   return 0;
 }
+
 size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
@@ -1477,6 +1470,7 @@ size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offs
 
   return ret;
 }
+
 size_t DNS::Factory::parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+1;
@@ -1489,6 +1483,7 @@ size_t DNS::Factory::parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, 
 
   return 0;
 }
+
 size_t DNS::Factory::parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+3;
@@ -1501,6 +1496,7 @@ size_t DNS::Factory::parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, si
 
   return 0;
 }
+
 size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t tmp, ret = 0;
@@ -1609,6 +1605,7 @@ size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
 
   return ret;
 }
+
 DNS::Answer& DNS::Answer::operator=(const Answer &r)
 {
   name = r.name;
