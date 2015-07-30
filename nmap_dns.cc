@@ -525,10 +525,11 @@ static void put_dns_packet_on_wire(request *req) {
 
   struct timeval now, timeout;
 
-  plen = DNS::Factory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
-
+  req->id = DNS::Factory::progressiveId;
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
+
+  plen = DNS::Factory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
 
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
   TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
@@ -1118,7 +1119,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     tpreq->targ = *hostI;
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
-    tpreq->id = DNS::Factory::progressiveId;
 
     new_reqs.push_back(tpreq);
 
