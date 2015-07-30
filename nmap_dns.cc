@@ -261,10 +261,6 @@ static int read_timeouts[][4] = {
 
 
 //------------------- Internal Structures ---------------------
-#define CHECK_ACCUMLATE(accumulator, tmp, exp) \
-  tmp = exp; \
-  if(tmp < 1) return 0 ; \
-  accumulator += tmp
 
 struct dns_server;
 struct request;
@@ -374,17 +370,6 @@ public:
   {}
   ~HostCache()
   {
-    for (u32 i = 0; i < lines_count; ++i)
-    {
-      std::cout << "line " << i << ")";
-      std::list<HostElem>::iterator hostI;
-      for( hostI = hosts_storage[i].begin();
-           hostI != hosts_storage[i].end();
-           ++hostI)
-        std::cout << "(" << sockaddr_storage_iptostring(hostI->addr) << ", " << hostI->name << ", " << (u32) hostI->cache_hits << "), ";
-      std::cout << std::endl;
-
-    }
     delete[] hosts_storage;
   }
 
@@ -411,7 +396,6 @@ public:
       }
     }
 
-    std::cout << "HostCache::hash(" << sockaddr_storage_iptostring(ip) << ") " << "return " << (ret & hash_mask) << "<-" << ret <<  std::endl;
     return ret & hash_mask;
   }
 
@@ -420,7 +404,6 @@ public:
    * make more space. */
   bool add( const sockaddr_storage & ip, const std::string & hname)
   {
-    std::cout << "HostCache::add( " << sockaddr_storage_iptostring(ip) << ", " << hname << " )" << std::endl;
     std::string discard;
     if(lookup(ip, discard)) return false;
 
@@ -455,7 +438,6 @@ public:
    * its cache hit counter if found */
   bool lookup(const sockaddr_storage & ip, std::string & name)
   {
-    std::cout << "HostCache::lookup( " << sockaddr_storage_iptostring(ip) << ", ->name )" << std::endl;
     std::list<HostElem>::iterator hostI;
     uint ip_hash = hash(ip);
     for( hostI = hosts_storage[ip_hash].begin();
@@ -480,55 +462,167 @@ protected:
   u32 elements_count;
 };
 
-class DnsPacketFactory
+namespace DNS
+{
+
+#define CHECK_ACCUMLATE(accumulator, tmp, exp) \
+  do { tmp = exp; if(tmp < 1) return 0 ; accumulator += tmp;} while(0)
+
+#define CHECK_UPPER_BOUND(accumulator, max)\
+  do { if(accumulator > max) return 0; } while(0)
+
+#define HAS_FLAG(v,flag) ((v&flag)==flag)
+
+typedef enum
+{
+  ID = 0,
+  FLAGS_OFFSET = 2,
+  QDCOUNT = 4,
+  ANCOUNT = 6,
+  NSCOUNT = 8,
+  ARCOUNT = 10,
+  DATA = 12
+} HEADER_OFFSET;
+
+typedef enum {
+  ERR_NO = 0x0000,
+  ERR_FORMAT = 0x0001,
+  ERR_SERVFAIL = 0x0002,
+  ERR_NAME = 0x0003,
+  ERR_NOT_IMPLEMENTED = 0x0004,
+  ERR_REFUSED = 0x0005,
+  CHECKING_DISABLED = 0x0010,
+  AUTHENTICATED_DATA = 0x0020,
+  ZERO = 0x0070,
+  RECURSION_AVAILABLE = 0x0080,
+  RECURSION_DESIRED = 0x0100,
+  TRUNCATED = 0x0200,
+  AUTHORITATIVE_ANSWER = 0x0400,
+  OP_STANDARD_QUERY = 0x0000,
+  OP_INVERSE_QUERY = 0x0800, // Obsoleted in RFC 3425
+  OP_SERVER_STATUS = 0x1000,
+  RESPONSE = 0x8000
+} FLAGS;
+
+typedef enum {
+  A = 1,
+  CNAME = 5,
+  PTR = 12,
+  AAAA = 28,
+} RECORD_TYPE;
+
+typedef enum {
+  IN = 1
+} RECORD_CLASS;
+
+u8 COMPRESSED_NAME = 0xc0;
+
+const std::string IPV4_PTR_DOMAIN = ".in-addr.arpa";
+const std::string IPV6_PTR_DOMAIN = ".ip6.arpa";
+
+class Factory
 {
 public:
-  enum HEADER_OFFSET
+  static u16 progressiveId;
+  static bool ipToPtr(const sockaddr_storage &ip, std::string &ptr)
   {
-    ID = 0,
-    FLAGS = 2,
-    QDCOUNT = 4,
-    ANCOUNT = 6,
-    NSCOUNT = 8,
-    ARCOUNT = 10,
-    DATA = 12
-  };
-  enum FLAGS
-  {
-    ERR_NO = 0x0000,
-    ERR_FORMAT = 0x0001,
-    ERR_SERVFAIL = 0x0002,
-    ERR_NAME = 0x0003,
-    ERR_NOT_IMPLEMENTED = 0x0004,
-    ERR_REFUSED = 0x0005,
-    CHECKING_DISABLED = 0x0010,
-    AUTHENTICATED_DATA = 0x0020,
-    RECURSION_AVAILABLE = 0x0080,
-    RECURSION_DESIRED = 0x0100,
-    TRUNCATED = 0x0200,
-    AUTHORITATIVE_ANSWER = 0x0400,
-    OP_STANDARD_QUERY = 0x0000,
-    OP_INVERSE_QUERY = 0x0800, // Obsoleted in RFC 3425
-    OP_SERVER_STATUS = 0x1000,
-    RESPONSE = 0x8000
-  };
-  enum RECORD_TYPE
-  {
-    A = 1,
-    PTR = 12,
-    AAAA = 28,
-  };
-  enum RECORD_CLASS
-  {
-    IN = 1
-  };
+    switch (ip.ss_family) {
+      case AF_INET:
+      {
+        ptr.clear();
+        std::string ipv4 = sockaddr_storage_iptostring(ip);
+        std::string octet;
+        for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
+          if((*c)=='.')
+          {
+            ptr += octet + ".";
+            octet.clear();
+          }
+          else
+            octet = (*c) + octet;
 
+        ptr += octet + IPV4_PTR_DOMAIN;
+
+        break;
+      }
+      case AF_INET6:
+      {
+        ptr.clear();
+        const struct sockaddr_in6 &s6 = (const struct sockaddr_in6 &) ip;
+        const u8 * ipv6 = s6.sin6_addr.__in6_u.__u6_addr8;
+        for (short i=15; i>=0; --i)
+        {
+          char tmp[3];
+          sprintf(tmp, "%02x", ipv6[i]);
+          ptr += '.';
+          ptr += tmp[1];
+          ptr += '.';
+          ptr += tmp[0];
+        }
+        ptr.erase(ptr.begin());
+        ptr += IPV6_PTR_DOMAIN;
+        break;
+      }
+      default:
+        return false;
+    }
+    return true;
+  }
+  static bool ptrToIp(const std::string &ptr, sockaddr_storage &ip)
+  {
+    std::string ip_str;
+
+    size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
+    if(pos != std::string::npos)
+    {
+      u8 counter = 0;
+      for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
+      {
+        const char &c = *it;
+        if(c != '.')
+        {
+          ip_str += c;
+          if(++counter==4) counter=0, ip_str+=':';
+        }
+      }
+
+      std::string::iterator it = ip_str.end()-1;
+      if( *it == ':') ip_str.erase(it);
+    }
+
+    std::string mptr = '.' + ptr;
+    pos = mptr.rfind(IPV4_PTR_DOMAIN);
+    if(pos != std::string::npos)
+    {
+
+      std::string octet;
+      for (std::string::const_reverse_iterator it = mptr.rend()-pos; it != mptr.rend(); ++it)
+      {
+        const char &c = *it;
+        if(c == '.')
+        {
+          std::reverse(octet.begin(), octet.end());
+          ip_str += octet + '.';
+          octet.clear();
+        }
+        else octet += c;
+      }
+
+      std::string::iterator it = ip_str.end()-1;
+      if( *it == '.') ip_str.erase(it);
+    }
+
+    if(ip_str.empty())
+      return false;
+
+    sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
+    return true;
+  }
   static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, char *buf, size_t maxlen)
   {
-    std::cout << "DnsPacketFactory::buildSimpleRequest(" << name << ")" << std::endl;
     size_t ret=0 , tmp=0;
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(++progressiveId, buf, ID, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(progressiveId++, buf, ID, maxlen)); // Postincrement inmportant here
+    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS_OFFSET, maxlen));
     CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(1, buf, QDCOUNT, maxlen));
     CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ANCOUNT, maxlen));
     CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, NSCOUNT, maxlen));
@@ -541,44 +635,11 @@ public:
   }
   static size_t buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
   {
-    std::cout << "DnsPacketFactory::buildReverseRequest(" << sockaddr_storage_iptostring(ip) << ")" <<std::endl;
     std::string name;
-    switch (ip.ss_family) {
-      case AF_INET:
-      {
-        std::string ipv4 = sockaddr_storage_iptostring(ip);
-        std::string octet;
-        for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
-          if((*c)=='.')
-          {
-            name += octet + ".";
-            octet.clear();
-          }
-          else
-            octet = (*c) + octet;
-
-        name += octet + ".in-addr.arpa";
-
-        break;
-      }
-      case AF_INET6:
-      {
-        std::string ipv6 = sockaddr_storage_iptostring(ip);
-        for (std::string::const_reverse_iterator c=ipv6.rbegin(); c != ipv6.rend(); ++c)
-          if((*c)!=':') name += (*c) + ".";
-        name += "ip6.arpa";
-        break;
-      }
-      default:
-        return 0;
-    }
-
-    return buildSimpleRequest(name, PTR, buf, maxlen);
+    if(ipToPtr(ip,name))
+      return buildSimpleRequest(name, PTR, buf, maxlen);
+    return 0;
   }
-
-private:
-  static u16 progressiveId;
-
   static size_t putUnsignedShort(u16 num, char *buf, size_t offset, size_t maxlen)
   {
     size_t max_access = offset+1;
@@ -591,10 +652,8 @@ private:
 
     return 0;
   }
-  static size_t putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen) // TODO: input check
+  static size_t putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen)
   {
-    std::cout << "putDomainName name: " << name << " offset:" << offset << std::endl;
-
     size_t ret=0;
     if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
 
@@ -608,7 +667,6 @@ private:
         *(buf+offset+ret) = lenght;
         ret += 1;
 
-        ret += 1;
         memcpy(buf+offset+ret, accumulator.c_str(), lenght);
         ret += lenght;
         accumulator.clear();
@@ -622,8 +680,241 @@ private:
 
     return ret;
   }
+  static size_t parseUnsignedShort(u16 &num, char *buf, size_t offset, size_t maxlen)
+  {
+    size_t max_access = offset+1;
+    if(buf && (maxlen > max_access))
+    {
+      num = buf[max_access] + (buf[offset]<<8);
+      return 2;
+    }
+
+    return 0;
+  }
+  static size_t parseUnsignedInt(u32 &num, char *buf, size_t offset, size_t maxlen)
+  {
+    size_t max_access = offset+3;
+    if(buf && (maxlen > max_access))
+    {
+      num = buf[offset+3] + (buf[offset+2]<<8) + (buf[offset+1]<<16) + (buf[offset]<<24);
+      return 4;
+    }
+
+    return 0;
+  }
+  static size_t parseDomainName(std::string &name, char *buf, size_t offset, size_t maxlen)
+  {
+    size_t tmp, ret = 0;
+
+    name.clear();
+    while(u8 label_length = buf[offset+ret++]) // Postincrement important here
+    {
+      if((label_length & COMPRESSED_NAME) == COMPRESSED_NAME)
+      {
+        --ret; // The byte it's part of the pointer, wasn't really consumed yet
+        u16 real_offset;
+        CHECK_ACCUMLATE(ret, tmp, parseUnsignedShort(real_offset, buf, offset+ret, maxlen));
+        real_offset -= COMPRESSED_NAME<<8;
+        if( real_offset < maxlen)
+        {
+          std::string val;
+          CHECK_ACCUMLATE(tmp, tmp, parseDomainName(val, buf, real_offset, maxlen));
+          name+=val;
+          return ret;
+        }
+        else return 0;
+      }
+
+      for(u8 i=0; i<label_length; ++i)
+      {
+        size_t index = offset+ret++;  // Postincrement important here
+        CHECK_UPPER_BOUND(index, maxlen);
+        name += buf[index];
+      }
+      name += '.';
+    }
+
+    std::string::iterator it = name.end()-1;
+    if( *it == '.') name.erase(it);
+
+    return ret;
+  }
 };
-u16 DnsPacketFactory::progressiveId = 0;
+
+class Record
+{
+public:
+  virtual Record * clone() = 0;
+  virtual ~Record() {}
+  virtual size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen) = 0;
+};
+
+class PTR_Record : public Record
+{
+public:
+  std::string value;
+  Record * clone() { return new PTR_Record(*this); }
+  ~PTR_Record() {}
+  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+  {
+    return Factory::parseDomainName(value, buf, offset, maxlen);
+  }
+};
+
+class CNAME_Record : public Record
+{
+public:
+  std::string value;
+  Record * clone() { return new CNAME_Record(*this); }
+  ~CNAME_Record() {}
+  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+  {
+    return Factory::parseDomainName(value, buf, offset, maxlen);
+  }
+};
+
+class Query
+{
+public:
+  std::string name;
+  u16 record_type;
+  u16 record_class;
+
+  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+  {
+    size_t ret=0;
+
+    if (buf && ((maxlen - offset) > 5))
+    {
+      size_t tmp=0;
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseDomainName(name, buf, offset+ret, maxlen));
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_type, buf, offset+ret, maxlen));
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
+    }
+
+    return ret;
+  }
+};
+
+class Answer
+{
+public:
+  Answer() : record(NULL) {}
+  Answer(const Answer &c) : name(c.name), record_type(c.record_type),
+    record_class(c.record_class), ttl(c.ttl), length(c.length),
+    record(c.record->clone()) {}
+  ~Answer() { delete record; }
+
+  std::string name;
+  u16 record_type;
+  u16 record_class;
+  u32 ttl;
+  u16 length;
+  Record * record;
+
+  // Populate the object reading from buffer and returns "consumed" bytes
+  size_t parseFromBuffer(char * buf, size_t offset, size_t maxlen)
+  {
+    size_t ret=0;
+
+    if (buf && ((maxlen - offset) > 7))
+    {
+      size_t tmp;
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseDomainName(name, buf, offset+ret, maxlen));
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_type, buf, offset+ret, maxlen));
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(ttl, buf, offset+ret, maxlen));
+      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(length, buf, offset+ret, maxlen));
+
+      CHECK_UPPER_BOUND(offset+ret, maxlen);
+      length=buf[offset+ret];
+
+      switch(record_type)
+      {
+        case CNAME:
+        {
+          record = new CNAME_Record();
+          CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
+          break;
+        }
+        case PTR:
+        {
+          record = new PTR_Record();
+          CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
+          break;
+        }
+        default:
+          return 0;
+      }
+    }
+
+    return ret;
+  }
+  Answer& operator=(const Answer &r)
+  {
+    name = r.name;
+    record_type = r.record_type;
+    record_class = r.record_class;
+    ttl = r.ttl;
+    length = r.length;
+    record = r.record->clone();
+    return *this;
+  }
+};
+
+class Packet
+{
+public:
+  Packet() : id(0), flags(0) {}
+  ~Packet() {}
+
+  void addFlags(FLAGS fl){ flags |= fl; }
+  void removeFlags(FLAGS fl){ flags &= ~fl; }
+  void resetFlags() { flags = 0; }
+  size_t writeToBuffer(char *buf, size_t maxlen) { return 0; }
+  size_t parseFromBuffer(char *buf, size_t maxlen)
+  {
+    if( !buf || maxlen < DATA) return 0;
+
+    size_t tmp, ret = 0;
+    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(id, buf, ID, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(flags, buf, FLAGS_OFFSET, maxlen));
+
+    u16 queries_counter, answers_counter, authorities_counter, additionals_counter;
+    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(queries_counter, buf, QDCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(answers_counter, buf, ANCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(authorities_counter, buf, NSCOUNT, maxlen));
+    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(additionals_counter, buf, ARCOUNT, maxlen));
+
+    queries.clear();
+    for(u16 i=0; i<queries_counter; ++i)
+    {
+      Query q;
+      CHECK_ACCUMLATE(ret, tmp, q.parseFromBuffer(buf, ret, maxlen));
+      queries.push_back(q);
+    }
+
+    answers.clear();
+    for(u16 i=0; i<answers_counter; ++i)
+    {
+      Answer a;
+      CHECK_ACCUMLATE(ret, tmp, a.parseFromBuffer(buf, ret, maxlen));
+      answers.push_back(a);
+    };
+
+    return ret;
+  }
+
+  u16 id;
+  u16 flags;
+  std::list<Query> queries;
+  std::list<Answer> answers;
+};
+
+}
+
+
+u16 DNS::Factory::progressiveId = 0; // TODO: Initialize to random when in production
 
 //------------------- Globals ---------------------
 
@@ -639,7 +930,6 @@ static HostCache host_cache;
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
 static struct timeval starttv;
 static int read_timeout_index;
-static u16 id_counter;
 
 static int firstrun=1;
 static ScanProgressMeter *SPM;
@@ -735,26 +1025,8 @@ static void put_dns_packet_on_wire(request *req) {
   size_t plen=0;
 
   struct timeval now, timeout;
-#if 0
-  ip = (u32) ntohl(req->targ->v4host().s_addr);
-  packet[0] = (req->id >> 8) & 0xFF;
-  packet[1] = req->id & 0xFF;
-  plen += 2;
 
-  memcpy(packet+plen, "\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00", 10);
-  plen += 10;
-
-  plen += add_integer_to_dns_packet(packet+plen, ip & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>8) & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>16) & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>24) & 0xFF);
-
-  memcpy(packet+plen, "\x07in-addr\004arpa\x00\x00\x0c\x00\x01", 18);
-  plen += 18;
-#endif
-
-  //static size_t buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
-  plen = DnsPacketFactory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
+  plen = DNS::Factory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
 
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
@@ -852,37 +1124,48 @@ static int deal_with_timedout_reads() {
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 // Returns non-zero if this matches a query we're looking for
-static int process_result(u32 ia, char *result, int action, u16 id) {
+static int process_result(const sockaddr_storage &ip, const std::string &result, int action, u16 id)
+{
   std::list<dns_server>::iterator servI;
   std::list<request *>::iterator reqI;
   request *tpreq;
 
-  for(servI = servs.begin(); servI != servs.end(); servI++) {
-    for(reqI = servI->in_process.begin(); reqI != servI->in_process.end(); reqI++) {
+  for(servI = servs.begin(); servI != servs.end(); servI++)
+  {
+    /* TODO: This is higly inefficent we do on average
+     * (0.5 * servs.size() * in_process.size())
+     * iterations to find a a request, we should use a map
+     * to do this efficiently
+     */
+    for(reqI = servI->in_process.begin(); reqI != servI->in_process.end(); reqI++)
+    {
       tpreq = *reqI;
-
-      if (id == tpreq->id) {
-
-        if (ia != 0 && tpreq->targ->v4host().s_addr != ia)
+      if (id == tpreq->id)
+      {
+        if(!sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()))
           continue;
 
-        if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED) {
-        servI->capacity += CAPACITY_UP_STEP;
-        check_capacities(&*servI);
+        if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED)
+        {
+          servI->capacity += CAPACITY_UP_STEP;
+          check_capacities(&*servI);
 
-        if (result) {
-          tpreq->targ->setHostName(result);
-          host_cache.add(* tpreq->targ->TargetSockAddr(), result);
-        }
+          if(!result.empty())
+          {
+            tpreq->targ->setHostName(result.c_str());
+            host_cache.add(* tpreq->targ->TargetSockAddr(), result);
+          }
 
-        servI->in_process.remove(tpreq);
-        servI->reqs_on_wire--;
+          servI->in_process.remove(tpreq);
+          servI->reqs_on_wire--;
 
-        total_reqs--;
+          total_reqs--;
 
           if (action == ACTION_CNAME_LIST) cname_reqs.push_back(tpreq);
           if (action == ACTION_FINISHED) delete tpreq;
-        } else {
+        }
+        else
+        {
           memcpy(&tpreq->timeout, nsock_gettimeofday(), sizeof(struct timeval));
           deal_with_timedout_reads();
         }
@@ -901,123 +1184,12 @@ static int process_result(u32 ia, char *result, int action, u16 id) {
   return 0;
 }
 
-
-// Gets an IP address from a X.X.X.X.in-addr.arpa DNS
-// encoded string inside a packet.
-// maxlen is the very maximum length (in total bytes)
-// that should be processed
-static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
-  u32 ip=0;
-  int i, j;
-
-  if (maxlen <= 0) return 0;
-
-  for (i=0; i<=3; i++) {
-    if (buf[0] < 1 || buf[0] > 3) return 0;
-
-    maxlen -= buf[0] + 1;
-    if (maxlen <= 0) return 0;
-
-    for (j=1; j<=buf[0]; j++) if (!isdigit((int) buf[j])) return 0;
-
-    ip |= atoi((char *) buf+1) << (8*i);
-    buf += buf[0] + 1;
-  }
-
-  if (maxlen < 14) return 0; // length of the following string
-  if (strcasecmp((char *) buf, "\x07in-addr\004arpa\0")) return 0;
-
-  return ntohl(ip);
-}
-
-static bool parse_arpa(u8 *buf, int maxlen, sockaddr_storage &ip)
-{
-  std::cout << "static bool parse_arpa(u8 *buf, int maxlen, sockaddr_storage &ip)" << std::endl;
-  if (maxlen < 14) return false;
-  for (int i=0; i<maxlen; ++i)
-    std::cout << i << ":" << buf[i] << std::endl;
-  return false;
-}
-
-// Turns a DNS packet encoded name (see the RFC) and turns it into
-// a normal decimal separated hostname.
-// ASSUMES NAME LENGTH/VALIDITY HAS ALREADY BEEN VERIFIED
-static int encoded_name_to_normal(const unsigned char *buf, char *output, int outputsize) {
-  int len;
-  char *p;
-
-  p = output;
-
-  /* Special case: keep the trailing dot only for the name ".". */
-  if (buf[0] == 0) {
-    if (p + 2 > output + outputsize)
-      return -1;
-    *p++ = '.';
-    *p++ = '\0';
-    return 0;
-  }
-
-  while ((len = buf[0]) != 0) {
-    /* Add a dot before every component but the first. */
-    if (p > output) {
-      if (p + 1 > output + outputsize)
-        return -1;
-      *p++ = '.';
-    }
-
-    if (p + len > output + outputsize)
-      return -1;
-    memcpy(p, buf + 1, len);
-    p += len;
-    buf += 1 + len;
-  }
-
-  if (p + 1 > output + outputsize)
-    return -1;
-  *p++ = '\0';
-
-  return 0;
-}
-
-
-// Takes a pointer to the start of a DNS name inside a packet. It makes
-// sure that there is enough space in the name, deals with compression, etc.
-static int advance_past_dns_name(u8 *buf, int buflen, int curbuf,
-                          int *nameloc) {
-  int compression=0;
-
-  if (curbuf <= 0 || curbuf >= buflen) return -1;
-
-  if ((buf[curbuf] & 0xc0)) {
-    // Need 2 bytes for compression info
-    if (curbuf + 1 >= buflen) return -1;
-
-    // Compression is OK
-    compression = curbuf+2;
-    curbuf = (buf[curbuf+1] + (buf[curbuf] << 8)) & 0x3FFF;
-    if (curbuf < 0 || curbuf >= buflen) return -1;
-  }
-
-  if (nameloc != NULL) *nameloc = curbuf;
-
-  while(buf[curbuf]) {
-    if (curbuf + buf[curbuf] >= buflen || buf[curbuf] <= 0) return -1;
-    curbuf += buf[curbuf] + 1;
-  }
-
-  if (compression) return compression;
-  else return curbuf+1;
-}
-
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
 static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   u8 *buf;
-  int buflen, curbuf=0;
-  int i, nameloc, rdlen, atype, aclass;
+  int buflen;
   int errcode=0;
-  int queries, answers;
-  u16 packet_id;
 
   if (total_reqs >= 1)
     nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
@@ -1032,114 +1204,83 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
   buf = (unsigned char *) nse_readbuf(evt, &buflen);
 
-  // Size of header is 12, and we must have additional data as well
-  if (buflen <= 12) return;
+  DNS::Packet p;
+  size_t readed_bytes = p.parseFromBuffer((char*)buf, buflen);
+  if(readed_bytes < DNS::DATA) return;
 
-  packet_id = buf[1] + (buf[0] << 8);
+  // We should have 1+ queries:
+  u16 &f = p.flags;
+  if(p.queries.empty() || !HAS_FLAG(f, DNS::RESPONSE) ||
+     HAS_FLAG(f, DNS::TRUNCATED) || !HAS_FLAG(f, DNS::OP_STANDARD_QUERY) ||
+     (f & DNS::ZERO) || HAS_FLAG(f, DNS::ERR_FORMAT) ||
+     HAS_FLAG(f, DNS::ERR_NOT_IMPLEMENTED) || HAS_FLAG(f, DNS::ERR_REFUSED))
+    return;
 
-  // Check that this is a response, standard query, and that no truncation was performed
-  // 0xFA == 11111010 (we're not concerned with AA or RD bits)
-  if ((buf[2] & 0xFA) != 0x80) return;
-
-  // Check that the zero field is all zeros and there is no error condition.
-  // We don't care if recursion is available or not since we might be querying
-  // an authoritative DNS server.
-  if (buf[3] != 0x80 && buf[3] != 0) {
-    if ((buf[3] & 0xF) == 2) errcode = 2;
-    else if ((buf[3] & 0xF) == 3) errcode = 3;
-    else return;
-  }
-
-  queries = buf[5] + (buf[4] << 8);
-  answers = buf[7] + (buf[6] << 8);
-
-  // With a normal resolution, we should have 1+ queries and 1+ answers.
-  // If the domain doesn't resolve (NXDOMAIN or SERVFAIL) we should have
-  // 1+ queries and 0 answers:
-  if (errcode) {
-    int found;
-
+  errcode = p.flags & (DNS::ERR_SERVFAIL|DNS::ERR_NAME);
+  if (errcode)
+  {
+    // With NXDomain or ServFail, we should have 0 answers.
+    if(!p.answers.empty()) return;
     // NXDomain means we're finished (doesn't exist for sure)
     // but SERVFAIL might just mean a server timeout
-    found = process_result(0, NULL, errcode == 3 ? ACTION_FINISHED : ACTION_TIMEOUT, packet_id);
+    sockaddr_storage discard;
+    int found = process_result(discard, "", errcode == 3 ? ACTION_FINISHED : ACTION_TIMEOUT, p.id);
 
-    if (errcode == 2 && found) {
-      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", packet_id);
+    if (errcode == 2 && found)
+    {
+      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", p.id);
       stat_sf++;
-    } else if (errcode == 3 && found) {
-      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", packet_id);
+    }
+    else if (errcode == 3 && found)
+    {
+      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", p.id);
       output_summary();
       stat_nx++;
-  }
+    }
 
     return;
   }
 
-  if (queries <= 0 || answers <= 0) return;
+  // If there is no errors and no answhere stop processing the event
+  if(p.answers.empty()) return;
 
-  curbuf = 12;
+  for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
+      it != p.answers.end(); ++it )
+  {
+    const DNS::Answer &a = *it;
+    if(a.record_class == DNS::IN)
+    {
+      switch(a.record_type)
+      {
+        case DNS::PTR:
+        {
+          DNS::PTR_Record * ptr = static_cast<DNS::PTR_Record *>(a.record);
 
-  // Need to safely skip past QUERY section
-
-  for (i=0; i<queries; i++) {
-    curbuf = advance_past_dns_name(buf, buflen, curbuf, &nameloc);
-    if (curbuf == -1) return;
-
-    // Make sure we have the QTYPE and QCLASS fields
-    if (curbuf + 4 >= buflen) return;
-    curbuf += 4;
-  }
-
-  // We're now at the ANSWER section
-
-  for (i=0; i<answers; i++) {
-    curbuf = advance_past_dns_name(buf, buflen, curbuf, &nameloc);
-    if (curbuf == -1) return;
-
-    // Make sure we have the TYPE (2), CLASS (2), TTL (4), and
-    // RDLENGTH (2) fields
-    if (curbuf + 10 >= buflen) return;
-
-    atype = buf[curbuf+1] + (buf[curbuf+0] << 8);
-    aclass = buf[curbuf+3] + (buf[curbuf+2] << 8);
-    rdlen = buf[curbuf+9] + (buf[curbuf+8] << 8);
-    curbuf += 10;
-
-    if (atype == 12 && aclass == 1) {
-      // TYPE 12 is PTR
-      sockaddr_storage ia;
-      char outbuf[512];
-
-      //ia.s_addr = parse_inaddr_arpa(buf+nameloc, buflen-nameloc);
-      //if (ia.s_addr == 0) return;
-      if(!parse_arpa(buf+nameloc, buflen-nameloc, ia)) return;
-#if 0
-      curbuf = advance_past_dns_name(buf, buflen, curbuf, &nameloc);
-      if (curbuf == -1 || curbuf > buflen) return;
-
-      if (encoded_name_to_normal(buf+nameloc, outbuf, sizeof(outbuf)) == -1) return;
-
-      if (process_result(ia.s_addr, outbuf, ACTION_FINISHED, packet_id)) {
-        if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: OK MATCHED <%s> to <%s>\n", inet_ntoa(ia), outbuf);
-        output_summary();
-        stat_ok++;
+          sockaddr_storage ip;
+          if(DNS::Factory::ptrToIp(a.name, ip))
+            if (process_result(ip, ptr->value, ACTION_FINISHED, p.id))
+            {
+              if (o.debugging >= TRACE_DEBUG_LEVEL)
+                log_write(LOG_STDOUT, "mass_rdns: OK MATCHED <%s> to <%s>\n", sockaddr_storage_iptostring(ip).c_str(), ptr->value.c_str());
+              output_summary();
+              stat_ok++;
+            }
+          break;
+        }
+        case DNS::CNAME:
+        {
+          sockaddr_storage ip;
+          if(DNS::Factory::ptrToIp(a.name, ip))
+          {
+            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", sockaddr_storage_iptostring(ip).c_str());
+            process_result(ip, "", ACTION_CNAME_LIST, p.id);
+          }
+          break;
+        }
+        default:
+          break;
       }
-    } else if (atype == 5 && aclass == 1) {
-      // TYPE 5 is CNAME
-      struct in_addr ia;
-
-      ia.s_addr = parse_inaddr_arpa(buf+nameloc, buflen-nameloc);
-      if (ia.s_addr == 0) return;
-
-      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", inet_ntoa(ia));
-      process_result(ia.s_addr, NULL, ACTION_CNAME_LIST, packet_id);
-    } else {
-      if (rdlen < 0 || rdlen + curbuf >= buflen) return;
-      curbuf += rdlen;
-#endif //0
     }
-
-    if (curbuf >= buflen) return;
   }
 }
 
@@ -1461,7 +1602,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
 
   total_reqs = 0;
-  id_counter = get_random_u16();
 
   // Set up the request structure
   for(hostI = targets; hostI < targets+num_targets; hostI++)
@@ -1480,7 +1620,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     tpreq->targ = *hostI;
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
-    tpreq->id = id_counter++;
+    tpreq->id = DNS::Factory::progressiveId;
 
     new_reqs.push_back(tpreq);
 
