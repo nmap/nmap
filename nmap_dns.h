@@ -132,6 +132,7 @@ class Target;
 #include <algorithm>
 #include <sstream>
 
+
 namespace DNS
 {
 
@@ -206,9 +207,9 @@ public:
   static size_t buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen);
   static size_t putUnsignedShort(u16 num, char *buf, size_t offset, size_t maxlen);
   static size_t putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen);
-  static size_t parseUnsignedShort(u16 &num, char *buf, size_t offset, size_t maxlen);
-  static size_t parseUnsignedInt(u32 &num, char *buf, size_t offset, size_t maxlen);
-  static size_t parseDomainName(std::string &name, char *buf, size_t offset, size_t maxlen);
+  static size_t parseUnsignedShort(u16 &num, const char *buf, size_t offset, size_t maxlen);
+  static size_t parseUnsignedInt(u32 &num, const char *buf, size_t offset, size_t maxlen);
+  static size_t parseDomainName(std::string &name, const char *buf, size_t offset, size_t maxlen);
 };
 
 class Record
@@ -216,7 +217,28 @@ class Record
 public:
   virtual Record * clone() = 0;
   virtual ~Record() {}
-  virtual size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen) = 0;
+  virtual size_t parseFromBuffer(const char *buf, size_t offset, size_t maxlen) = 0;
+};
+
+class A_Record : public Record
+{
+public:
+  sockaddr_storage value;
+  Record * clone() { return new A_Record(*this); }
+  ~A_Record() {}
+  size_t parseFromBuffer(const char *buf, size_t offset, size_t maxlen)
+  {
+    size_t tmp, ret = 0;
+    u32 num;
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(num, buf, offset, maxlen));
+
+    memset(&value, 0, sizeof(value));
+    struct sockaddr_in * ip4addr = (sockaddr_in *) &value;
+    ip4addr->sin_family = AF_INET;
+    ip4addr->sin_addr.s_addr = htonl(num);
+
+    return ret;
+  }
 };
 
 class PTR_Record : public Record
@@ -225,7 +247,7 @@ public:
   std::string value;
   Record * clone() { return new PTR_Record(*this); }
   ~PTR_Record() {}
-  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const char *buf, size_t offset, size_t maxlen)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -237,7 +259,7 @@ public:
   std::string value;
   Record * clone() { return new CNAME_Record(*this); }
   ~CNAME_Record() {}
-  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const char *buf, size_t offset, size_t maxlen)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -250,7 +272,7 @@ public:
   u16 record_type;
   u16 record_class;
 
-  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen);
+  size_t parseFromBuffer(const char *buf, size_t offset, size_t maxlen);
 };
 
 class Answer
@@ -270,7 +292,7 @@ public:
   Record * record;
 
   // Populate the object reading from buffer and returns "consumed" bytes
-  size_t parseFromBuffer(char * buf, size_t offset, size_t maxlen);
+  size_t parseFromBuffer(const char *buf, size_t offset, size_t maxlen);
   Answer& operator=(const Answer &r);
 };
 
@@ -284,7 +306,7 @@ public:
   void removeFlags(FLAGS fl){ flags &= ~fl; }
   void resetFlags() { flags = 0; }
   size_t writeToBuffer(char *buf, size_t maxlen);
-  size_t parseFromBuffer(char *buf, size_t maxlen);
+  size_t parseFromBuffer(const char *buf, size_t maxlen);
 
   u16 id;
   u16 flags;

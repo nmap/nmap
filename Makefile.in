@@ -185,7 +185,7 @@ release-rpms:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@ @NMAP_UPDATE_CLEAN@ @NDIFF_CLEAN@
+clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@ @NMAP_UPDATE_CLEAN@ @NDIFF_CLEAN@ tests/clean
 
 my_clean:
 	rm -f dependencies.mk
@@ -299,6 +299,9 @@ nmap-update/default_channel.h: nmap.h
 
 tests/check_dns: $(OBJS)
 	 $(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) tests/nmap_dns_test.cc
+
+tests/clean:
+	@rm -f tests/check_dns
 
 # By default distutils rewrites installed scripts to hardcode the
 # location of the Python interpreter they were built with (something

@@ -126,6 +126,9 @@
 
 int main()
 {
+  std::cout << "Testing nmap_dns" << std::endl;
+
+  int ret = 0;
   std::string target = "scanme.nmap.org";
   DNS::RECORD_TYPE rt = DNS::A;
   const size_t buflen = 1500;
@@ -135,5 +138,120 @@ int main()
   DNS::Packet p;
   size_t plen = p.parseFromBuffer(buf, buflen);
 
-  return (reqlen - plen); // 0 means ok
+  if (reqlen != plen)
+  {
+    std::cout << "ERROR: plen doesn't match reqplen" << std::endl;
+    ++ret;
+  }
+
+  DNS::Query * q = &*p.queries.begin();
+  if ( q->name != target )
+  {
+    std::cout << "ERROR: q.name doesn't match target" << std::endl;
+    ++ret;
+  }
+
+  if ( q->record_class != DNS::IN )
+  {
+    std::cout << "ERROR: q.record_class doesn't match IN" << std::endl;
+    ++ret;
+  }
+
+  if ( q->record_type != rt )
+  {
+    std::cout << "ERROR: q.record_type doesn't match rt" << std::endl;
+    ++ret;
+  }
+
+  // This is a possible answere for an A query for scanme.nmap.org
+  const char ipp[] = "45.33.32.156";
+  const size_t answere_len = 49;
+  u8 answere_buf[] = { 0x92, 0xdc, // Trsnsaction ID
+                       0x81, 0x80, // Flags
+                       0x00, 0x01, // Questions count
+                       0x00, 0x01, // Answers RRs count
+                       0x00, 0x00, // Authorities RRs count
+                       0x00, 0x00, // Additionals RRs count
+                       0x06, // Label lenght <-- [12]
+                       0x73, 0x63, 0x61, 0x6e, 0x6d, 0x65, // "scanme"
+                       0x04, // Label lenght
+                       0x6e, 0x6d, 0x61, 0x70, // "nmap"
+                       0x03, // Label lenght
+                       0x6f, 0x72, 0x67, // "org"
+                       0x00, // Name terminator
+                       0x00, 0x01, // A
+                       0x00, 0x01, // IN
+                       0xc0, 0x0c, // Compressed name pointer to offset 12
+                       0x00, 0x01, // A
+                       0x00, 0x01, // IN
+                       0x00, 0x00, 0x0e, 0x0f, // TTL 3599
+                       0x00, 0x04, // Record Lenght
+                       0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
+
+  plen = p.parseFromBuffer((char*)answere_buf, 49);
+
+  if (answere_len != plen)
+  {
+    std::cout << "ERROR: plen doesn't match answere_len " << plen << std::endl;
+    ++ret;
+  }
+
+  q = &*p.queries.begin();
+  if ( q->name != target )
+  {
+    std::cout << "ERROR: q.name doesn't match target" << std::endl;
+    ++ret;
+  }
+
+
+  if ( q->record_class != DNS::IN )
+  {
+    std::cout << "ERROR: q.record_class doesn't match IN" << std::endl;
+    ++ret;
+  }
+
+  if ( q->record_type != rt )
+  {
+    std::cout << "ERROR: q.record_type doesn't match rt" << std::endl;
+    ++ret;
+  }
+
+  DNS::Answer * a = &*p.answers.begin();
+  if ( a->name != target )
+  {
+    std::cout << "ERROR: a.name doesn't match target" << std::endl;
+    ++ret;
+  }
+
+  if ( a->record_class != DNS::IN )
+  {
+    std::cout << "ERROR: a.record_class doesn't match IN" << std::endl;
+    ++ret;
+  }
+
+  if ( a->record_type != DNS::A )
+  {
+    std::cout << "ERROR: a.record_type doesn't match rt" << std::endl;
+    ++ret;
+  }
+
+  if (a->ttl != 3599 )
+  {
+    std::cout << "ERROR: a.ttl doesn't match 3599 " << a->ttl << std::endl;
+    ++ret;
+  }
+
+  DNS::A_Record * ar = static_cast<DNS::A_Record *>(a->record);
+  char ar_ipp[INET6_ADDRSTRLEN];
+  sockaddr_storage_iptop(&ar->value, ar_ipp);
+  if(strcmp(ipp, ar_ipp))
+  {
+    std::cout << "ERROR: ar_ipp doesn't match ipp " << std::endl;
+    ++ret;
+  }
+
+  if(ret) std::cout << "Testing nmap_dns finished with errors" << std::endl;
+  else std::cout << "Testing nmap_dns finished without errors" << std::endl;
+
+  return ret; // 0 means ok
 }

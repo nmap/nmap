@@ -1477,29 +1477,31 @@ size_t DNS::Factory::putDomainName(const std::string &name, char *buf, size_t of
 
   return ret;
 }
-size_t DNS::Factory::parseUnsignedShort(u16 &num, char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::parseUnsignedShort(u16 &num, const char *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+1;
   if(buf && (maxlen > max_access))
   {
-    num = buf[max_access] + (buf[offset]<<8);
+    const u8 * n = reinterpret_cast<const u8 *>(buf+offset);
+    num = n[1] + (n[0]<<8);
     return 2;
   }
 
   return 0;
 }
-size_t DNS::Factory::parseUnsignedInt(u32 &num, char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::parseUnsignedInt(u32 &num, const char *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+3;
   if(buf && (maxlen > max_access))
   {
-    num = buf[offset+3] + (buf[offset+2]<<8) + (buf[offset+1]<<16) + (buf[offset]<<24);
+    const u8 * n = reinterpret_cast<const u8 *>(buf + offset);
+    num = n[3] + (n[2]<<8) + (n[1]<<16) + (n[0]<<24);
     return 4;
   }
 
   return 0;
 }
-size_t DNS::Factory::parseDomainName(std::string &name, char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::parseDomainName(std::string &name, const char *buf, size_t offset, size_t maxlen)
 {
   size_t tmp, ret = 0;
 
@@ -1537,7 +1539,7 @@ size_t DNS::Factory::parseDomainName(std::string &name, char *buf, size_t offset
   return ret;
 }
 
-size_t DNS::Query::parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+size_t DNS::Query::parseFromBuffer(const char *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
 
@@ -1552,7 +1554,7 @@ size_t DNS::Query::parseFromBuffer(char *buf, size_t offset, size_t maxlen)
   return ret;
 }
 
-size_t DNS::Answer::parseFromBuffer(char * buf, size_t offset, size_t maxlen)
+size_t DNS::Answer::parseFromBuffer(const char * buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
 
@@ -1570,21 +1572,26 @@ size_t DNS::Answer::parseFromBuffer(char * buf, size_t offset, size_t maxlen)
 
     switch(record_type)
     {
+    case A:
+    {
+      record = new A_Record();
+      break;
+    }
     case CNAME:
     {
       record = new CNAME_Record();
-      DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
       break;
     }
     case PTR:
     {
       record = new PTR_Record();
-      DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
       break;
     }
     default:
       return 0;
     }
+
+    DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
   }
 
   return ret;
@@ -1600,7 +1607,7 @@ DNS::Answer& DNS::Answer::operator=(const Answer &r)
   return *this;
 }
 
-size_t DNS::Packet::parseFromBuffer(char *buf, size_t maxlen)
+size_t DNS::Packet::parseFromBuffer(const char *buf, size_t maxlen)
 {
   if( !buf || maxlen < DATA) return 0;
 
