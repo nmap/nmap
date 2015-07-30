@@ -877,7 +877,7 @@ public:
 }
 
 
-u16 DNS::Factory::progressiveId = 0; // TODO: Initialize to random when in production
+u16 DNS::Factory::progressiveId = get_random_u16();
 
 //------------------- Globals ---------------------
 
