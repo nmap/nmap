@@ -520,7 +520,7 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
 // the time for the timeout.
 static void put_dns_packet_on_wire(request *req) {
   const size_t maxlen = 512;
-  char packet[maxlen];
+  u8 packet[maxlen];
   size_t plen=0;
 
   struct timeval now, timeout;
@@ -536,7 +536,7 @@ static void put_dns_packet_on_wire(request *req) {
 
   req->tries++;
 
-  nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, packet, plen);
+  nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, reinterpret_cast<const char *>(packet), plen);
 }
 
 // Processes DNS packets that have timed out
@@ -703,7 +703,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   buf = (unsigned char *) nse_readbuf(evt, &buflen);
 
   DNS::Packet p;
-  size_t readed_bytes = p.parseFromBuffer((char*)buf, buflen);
+  size_t readed_bytes = p.parseFromBuffer(buf, buflen);
   if(readed_bytes < DNS::DATA) return;
 
   // We should have 1+ queries:
@@ -1415,7 +1415,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
   return true;
 }
-size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, char *buf, size_t maxlen)
+size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)
 {
   size_t ret=0 , tmp=0;
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(progressiveId++, buf, ID, maxlen)); // Postincrement inmportant here
@@ -1430,14 +1430,14 @@ size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt,
 
   return ret;
 }
-size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
+size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen)
 {
   std::string name;
   if(ipToPtr(ip,name))
     return buildSimpleRequest(name, PTR, buf, maxlen);
   return 0;
 }
-size_t DNS::Factory::putUnsignedShort(u16 num, char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+1;
   if(buf && (maxlen > max_access))
@@ -1449,7 +1449,7 @@ size_t DNS::Factory::putUnsignedShort(u16 num, char *buf, size_t offset, size_t 
 
   return 0;
 }
-size_t DNS::Factory::putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
   if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
@@ -1477,31 +1477,31 @@ size_t DNS::Factory::putDomainName(const std::string &name, char *buf, size_t of
 
   return ret;
 }
-size_t DNS::Factory::parseUnsignedShort(u16 &num, const char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+1;
   if(buf && (maxlen > max_access))
   {
-    const u8 * n = reinterpret_cast<const u8 *>(buf+offset);
+    const u8 * n = buf + offset;
     num = n[1] + (n[0]<<8);
     return 2;
   }
 
   return 0;
 }
-size_t DNS::Factory::parseUnsignedInt(u32 &num, const char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+3;
   if(buf && (maxlen > max_access))
   {
-    const u8 * n = reinterpret_cast<const u8 *>(buf + offset);
+    const u8 * n = buf + offset;
     num = n[3] + (n[2]<<8) + (n[1]<<16) + (n[0]<<24);
     return 4;
   }
 
   return 0;
 }
-size_t DNS::Factory::parseDomainName(std::string &name, const char *buf, size_t offset, size_t maxlen)
+size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t tmp, ret = 0;
 
@@ -1539,7 +1539,21 @@ size_t DNS::Factory::parseDomainName(std::string &name, const char *buf, size_t 
   return ret;
 }
 
-size_t DNS::Query::parseFromBuffer(const char *buf, size_t offset, size_t maxlen)
+size_t DNS::A_Record::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+{
+  size_t tmp, ret = 0;
+  u32 num;
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(num, buf, offset, maxlen));
+
+  memset(&value, 0, sizeof(value));
+  struct sockaddr_in * ip4addr = (sockaddr_in *) &value;
+  ip4addr->sin_family = AF_INET;
+  ip4addr->sin_addr.s_addr = htonl(num);
+
+  return ret;
+}
+
+size_t DNS::Query::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
 
@@ -1554,7 +1568,7 @@ size_t DNS::Query::parseFromBuffer(const char *buf, size_t offset, size_t maxlen
   return ret;
 }
 
-size_t DNS::Answer::parseFromBuffer(const char * buf, size_t offset, size_t maxlen)
+size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
 
@@ -1606,7 +1620,7 @@ DNS::Answer& DNS::Answer::operator=(const Answer &r)
   return *this;
 }
 
-size_t DNS::Packet::parseFromBuffer(const char *buf, size_t maxlen)
+size_t DNS::Packet::parseFromBuffer(const u8 *buf, size_t maxlen)
 {
   if( !buf || maxlen < DATA) return 0;
 

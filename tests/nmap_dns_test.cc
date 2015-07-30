@@ -139,7 +139,7 @@ int main()
   std::string target = "scanme.nmap.org";
   DNS::RECORD_TYPE rt = DNS::A;
   const size_t buflen = 1500;
-  char buf[buflen];
+  u8 buf[buflen];
   size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
   
   DNS::Packet p;
@@ -177,7 +177,7 @@ int main()
                        0x00, 0x04, // Record Lenght
                        0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
 
-  plen = p.parseFromBuffer((const char*)answere_buf, 49);
+  plen = p.parseFromBuffer(answere_buf, answere_len);
   TEST_INCR(answere_len == plen, ret);
 
   q = &*p.queries.begin();
@@ -234,7 +234,7 @@ int main()
                                0x6f, 0x72, 0x67, // "org"
                                0x00 };  // Name terminator
 
-  plen = p.parseFromBuffer((const char*)ptr_answere, ptr_answere_len);
+  plen = p.parseFromBuffer(ptr_answere, ptr_answere_len);
   TEST_INCR(plen == ptr_answere_len, ret);
   TEST_INCR(p.id == 0x08f2, ret);
   TEST_INCR(p.flags == 0x8180, ret);
