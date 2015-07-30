@@ -191,8 +191,6 @@
 #include <limits.h>
 #include <list>
 #include <vector>
-#include <algorithm>
-#include <sstream>
 
 extern NmapOps o;
 
@@ -416,471 +414,9 @@ protected:
   u32 elements_count;
 };
 
-namespace DNS
-{
-
-#define CHECK_ACCUMLATE(accumulator, tmp, exp) \
-  do { tmp = exp; if(tmp < 1) return 0 ; accumulator += tmp;} while(0)
-
-#define CHECK_UPPER_BOUND(accumulator, max)\
-  do { if(accumulator > max) return 0; } while(0)
-
-#define HAS_FLAG(v,flag) ((v&flag)==flag)
-
-#define HAS_ERR(v, err) ((v&DNS::ERR_ALL)==err)
-
-typedef enum
-{
-  ID = 0,
-  FLAGS_OFFSET = 2,
-  QDCOUNT = 4,
-  ANCOUNT = 6,
-  NSCOUNT = 8,
-  ARCOUNT = 10,
-  DATA = 12
-} HEADER_OFFSET;
-
-typedef enum {
-  ERR_ALL = 0x0007,
-  CHECKING_DISABLED = 0x0010,
-  AUTHENTICATED_DATA = 0x0020,
-  ZERO = 0x0070,
-  RECURSION_AVAILABLE = 0x0080,
-  RECURSION_DESIRED = 0x0100,
-  TRUNCATED = 0x0200,
-  AUTHORITATIVE_ANSWER = 0x0400,
-  OP_STANDARD_QUERY = 0x0000,
-  OP_INVERSE_QUERY = 0x0800, // Obsoleted in RFC 3425
-  OP_SERVER_STATUS = 0x1000,
-  RESPONSE = 0x8000
-} FLAGS;
-
-typedef enum {
-  ERR_NO = 0x0000,
-  ERR_FORMAT = 0x0001,
-  ERR_SERVFAIL = 0x0002,
-  ERR_NAME = 0x0003,
-  ERR_NOT_IMPLEMENTED = 0x0004,
-  ERR_REFUSED = 0x0005,
-} ERRORS;
-
-typedef enum {
-  A = 1,
-  CNAME = 5,
-  PTR = 12,
-  AAAA = 28,
-} RECORD_TYPE;
-
-typedef enum {
-  IN = 1
-} RECORD_CLASS;
-
-u8 COMPRESSED_NAME = 0xc0;
-
-const std::string IPV4_PTR_DOMAIN = ".in-addr.arpa";
-const std::string IPV6_PTR_DOMAIN = ".ip6.arpa";
-
-class Factory
-{
-public:
-  static u16 progressiveId;
-  static bool ipToPtr(const sockaddr_storage &ip, std::string &ptr)
-  {
-    switch (ip.ss_family) {
-      case AF_INET:
-      {
-        ptr.clear();
-        char ipv4_c[INET_ADDRSTRLEN];
-        if(!sockaddr_storage_iptop(&ip, ipv4_c)) return false;
-
-        std::string ipv4 = ipv4_c;
-        std::string octet;
-        for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
-          if((*c)=='.')
-          {
-            ptr += octet + ".";
-            octet.clear();
-          }
-          else
-            octet = (*c) + octet;
-
-        ptr += octet + IPV4_PTR_DOMAIN;
-
-        break;
-      }
-      case AF_INET6:
-      {
-        ptr.clear();
-        const struct sockaddr_in6 &s6 = (const struct sockaddr_in6 &) ip;
-        const u8 * ipv6 = s6.sin6_addr.__in6_u.__u6_addr8;
-        for (short i=15; i>=0; --i)
-        {
-          char tmp[3];
-          sprintf(tmp, "%02x", ipv6[i]);
-          ptr += '.';
-          ptr += tmp[1];
-          ptr += '.';
-          ptr += tmp[0];
-        }
-        ptr.erase(ptr.begin());
-        ptr += IPV6_PTR_DOMAIN;
-        break;
-      }
-      default:
-        return false;
-    }
-    return true;
-  }
-  static bool ptrToIp(const std::string &ptr, sockaddr_storage &ip)
-  {
-    std::string ip_str;
-
-    size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
-    if(pos != std::string::npos)
-    {
-      u8 counter = 0;
-      for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
-      {
-        const char &c = *it;
-        if(c != '.')
-        {
-          ip_str += c;
-          if(++counter==4) counter=0, ip_str+=':';
-        }
-      }
-
-      std::string::iterator it = ip_str.end()-1;
-      if( *it == ':') ip_str.erase(it);
-    }
-
-    std::string mptr = '.' + ptr;
-    pos = mptr.rfind(IPV4_PTR_DOMAIN);
-    if(pos != std::string::npos)
-    {
-
-      std::string octet;
-      for (std::string::const_reverse_iterator it = mptr.rend()-pos; it != mptr.rend(); ++it)
-      {
-        const char &c = *it;
-        if(c == '.')
-        {
-          std::reverse(octet.begin(), octet.end());
-          ip_str += octet + '.';
-          octet.clear();
-        }
-        else octet += c;
-      }
-
-      std::string::iterator it = ip_str.end()-1;
-      if( *it == '.') ip_str.erase(it);
-    }
-
-    if(ip_str.empty())
-      return false;
-
-    sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
-    return true;
-  }
-  static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, char *buf, size_t maxlen)
-  {
-    size_t ret=0 , tmp=0;
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(progressiveId++, buf, ID, maxlen)); // Postincrement inmportant here
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS_OFFSET, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(1, buf, QDCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ANCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, NSCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ARCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putDomainName(name, buf, DATA, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(rt, buf, ret, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(IN, buf, ret, maxlen));
-
-    return ret;
-  }
-  static size_t buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
-  {
-    std::string name;
-    if(ipToPtr(ip,name))
-      return buildSimpleRequest(name, PTR, buf, maxlen);
-    return 0;
-  }
-  static size_t putUnsignedShort(u16 num, char *buf, size_t offset, size_t maxlen)
-  {
-    size_t max_access = offset+1;
-    if(buf && (maxlen > max_access))
-    {
-      buf[offset] = (num >> 8) & 0xFF;
-      buf[max_access] = num & 0xFF;
-      return 2;
-    }
-
-    return 0;
-  }
-  static size_t putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen)
-  {
-    size_t ret=0;
-    if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
-
-    std::string namew = name + ".";
-    std::string accumulator;
-    for (std::string::const_iterator c=namew.begin(); c != namew.end(); ++c)
-    {
-      if((*c)=='.')
-      {
-        u8 lenght = accumulator.length();
-        *(buf+offset+ret) = lenght;
-        ret += 1;
-
-        memcpy(buf+offset+ret, accumulator.c_str(), lenght);
-        ret += lenght;
-        accumulator.clear();
-      }
-      else
-        accumulator += (*c);
-    }
-
-    *(buf+offset+ret) = 0;
-    ret += 1;
-
-    return ret;
-  }
-  static size_t parseUnsignedShort(u16 &num, char *buf, size_t offset, size_t maxlen)
-  {
-    size_t max_access = offset+1;
-    if(buf && (maxlen > max_access))
-    {
-      num = buf[max_access] + (buf[offset]<<8);
-      return 2;
-    }
-
-    return 0;
-  }
-  static size_t parseUnsignedInt(u32 &num, char *buf, size_t offset, size_t maxlen)
-  {
-    size_t max_access = offset+3;
-    if(buf && (maxlen > max_access))
-    {
-      num = buf[offset+3] + (buf[offset+2]<<8) + (buf[offset+1]<<16) + (buf[offset]<<24);
-      return 4;
-    }
-
-    return 0;
-  }
-  static size_t parseDomainName(std::string &name, char *buf, size_t offset, size_t maxlen)
-  {
-    size_t tmp, ret = 0;
-
-    name.clear();
-    while(u8 label_length = buf[offset+ret++]) // Postincrement important here
-    {
-      if((label_length & COMPRESSED_NAME) == COMPRESSED_NAME)
-      {
-        --ret; // The byte it's part of the pointer, wasn't really consumed yet
-        u16 real_offset;
-        CHECK_ACCUMLATE(ret, tmp, parseUnsignedShort(real_offset, buf, offset+ret, maxlen));
-        real_offset -= COMPRESSED_NAME<<8;
-        if( real_offset < maxlen)
-        {
-          std::string val;
-          CHECK_ACCUMLATE(tmp, tmp, parseDomainName(val, buf, real_offset, maxlen));
-          name+=val;
-          return ret;
-        }
-        else return 0;
-      }
-
-      for(u8 i=0; i<label_length; ++i)
-      {
-        size_t index = offset+ret++;  // Postincrement important here
-        CHECK_UPPER_BOUND(index, maxlen);
-        name += buf[index];
-      }
-      name += '.';
-    }
-
-    std::string::iterator it = name.end()-1;
-    if( *it == '.') name.erase(it);
-
-    return ret;
-  }
-};
-
-class Record
-{
-public:
-  virtual Record * clone() = 0;
-  virtual ~Record() {}
-  virtual size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen) = 0;
-};
-
-class PTR_Record : public Record
-{
-public:
-  std::string value;
-  Record * clone() { return new PTR_Record(*this); }
-  ~PTR_Record() {}
-  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
-  {
-    return Factory::parseDomainName(value, buf, offset, maxlen);
-  }
-};
-
-class CNAME_Record : public Record
-{
-public:
-  std::string value;
-  Record * clone() { return new CNAME_Record(*this); }
-  ~CNAME_Record() {}
-  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
-  {
-    return Factory::parseDomainName(value, buf, offset, maxlen);
-  }
-};
-
-class Query
-{
-public:
-  std::string name;
-  u16 record_type;
-  u16 record_class;
-
-  size_t parseFromBuffer(char *buf, size_t offset, size_t maxlen)
-  {
-    size_t ret=0;
-
-    if (buf && ((maxlen - offset) > 5))
-    {
-      size_t tmp=0;
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseDomainName(name, buf, offset+ret, maxlen));
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_type, buf, offset+ret, maxlen));
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
-    }
-
-    return ret;
-  }
-};
-
-class Answer
-{
-public:
-  Answer() : record(NULL) {}
-  Answer(const Answer &c) : name(c.name), record_type(c.record_type),
-    record_class(c.record_class), ttl(c.ttl), length(c.length),
-    record(c.record->clone()) {}
-  ~Answer() { delete record; }
-
-  std::string name;
-  u16 record_type;
-  u16 record_class;
-  u32 ttl;
-  u16 length;
-  Record * record;
-
-  // Populate the object reading from buffer and returns "consumed" bytes
-  size_t parseFromBuffer(char * buf, size_t offset, size_t maxlen)
-  {
-    size_t ret=0;
-
-    if (buf && ((maxlen - offset) > 7))
-    {
-      size_t tmp;
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseDomainName(name, buf, offset+ret, maxlen));
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_type, buf, offset+ret, maxlen));
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(ttl, buf, offset+ret, maxlen));
-      CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(length, buf, offset+ret, maxlen));
-
-      CHECK_UPPER_BOUND(offset+ret, maxlen);
-      length=buf[offset+ret];
-
-      switch(record_type)
-      {
-        case CNAME:
-        {
-          record = new CNAME_Record();
-          CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
-          break;
-        }
-        case PTR:
-        {
-          record = new PTR_Record();
-          CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
-          break;
-        }
-        default:
-          return 0;
-      }
-    }
-
-    return ret;
-  }
-  Answer& operator=(const Answer &r)
-  {
-    name = r.name;
-    record_type = r.record_type;
-    record_class = r.record_class;
-    ttl = r.ttl;
-    length = r.length;
-    record = r.record->clone();
-    return *this;
-  }
-};
-
-class Packet
-{
-public:
-  Packet() : id(0), flags(0) {}
-  ~Packet() {}
-
-  void addFlags(FLAGS fl){ flags |= fl; }
-  void removeFlags(FLAGS fl){ flags &= ~fl; }
-  void resetFlags() { flags = 0; }
-  size_t writeToBuffer(char *buf, size_t maxlen) { return 0; }
-  size_t parseFromBuffer(char *buf, size_t maxlen)
-  {
-    if( !buf || maxlen < DATA) return 0;
-
-    size_t tmp, ret = 0;
-    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(id, buf, ID, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(flags, buf, FLAGS_OFFSET, maxlen));
-
-    u16 queries_counter, answers_counter, authorities_counter, additionals_counter;
-    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(queries_counter, buf, QDCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(answers_counter, buf, ANCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(authorities_counter, buf, NSCOUNT, maxlen));
-    CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(additionals_counter, buf, ARCOUNT, maxlen));
-
-    queries.clear();
-    for(u16 i=0; i<queries_counter; ++i)
-    {
-      Query q;
-      CHECK_ACCUMLATE(ret, tmp, q.parseFromBuffer(buf, ret, maxlen));
-      queries.push_back(q);
-    }
-
-    answers.clear();
-    for(u16 i=0; i<answers_counter; ++i)
-    {
-      Answer a;
-      CHECK_ACCUMLATE(ret, tmp, a.parseFromBuffer(buf, ret, maxlen));
-      answers.push_back(a);
-    };
-
-    return ret;
-  }
-
-  u16 id;
-  u16 flags;
-  std::list<Query> queries;
-  std::list<Answer> answers;
-};
-
-}
-
-
-u16 DNS::Factory::progressiveId = get_random_u16();
-
 //------------------- Globals ---------------------
 
+u16 DNS::Factory::progressiveId = get_random_u16();
 static std::list<dns_server> servs;
 static std::list<request *> new_reqs;
 static std::list<request *> cname_reqs;
@@ -1172,13 +708,13 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
   // We should have 1+ queries:
   u16 &f = p.flags;
-  if(p.queries.empty() || !HAS_FLAG(f, DNS::RESPONSE) ||
-     !HAS_FLAG(f, DNS::OP_STANDARD_QUERY) ||
-     (f & DNS::ZERO) || HAS_ERR(f, DNS::ERR_FORMAT) ||
-     HAS_ERR(f, DNS::ERR_NOT_IMPLEMENTED) || HAS_ERR(f, DNS::ERR_REFUSED))
+  if(p.queries.empty() || !DNS_HAS_FLAG(f, DNS::RESPONSE) ||
+     !DNS_HAS_FLAG(f, DNS::OP_STANDARD_QUERY) ||
+     (f & DNS::ZERO) || DNS_HAS_ERR(f, DNS::ERR_FORMAT) ||
+     DNS_HAS_ERR(f, DNS::ERR_NOT_IMPLEMENTED) || DNS_HAS_ERR(f, DNS::ERR_REFUSED))
     return;
 
-  if (HAS_ERR(f, DNS::ERR_NAME))
+  if (DNS_HAS_ERR(f, DNS::ERR_NAME))
   {
     sockaddr_storage discard;
     if(process_result(discard, "", ACTION_FINISHED, p.id))
@@ -1192,7 +728,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
-  if (HAS_ERR(f, DNS::ERR_SERVFAIL))
+  if (DNS_HAS_ERR(f, DNS::ERR_SERVFAIL))
   {
     sockaddr_storage discard;
     if (process_result(discard, "", ACTION_TIMEOUT, p.id))
@@ -1261,8 +797,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
 
 // nsock connect handler - Empty because it doesn't really need to do anything...
-static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *servers) {
-}
+static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
 
 
 // Adds DNS servers to the dns_server list. They can be separated by
@@ -1781,4 +1316,319 @@ std::list<std::string> get_dns_servers() {
     serverList.push_back(inet_socktop((struct sockaddr_storage *) &servI->addr));
   }
   return serverList;
+}
+
+bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
+{
+  switch (ip.ss_family) {
+    case AF_INET:
+    {
+      ptr.clear();
+      char ipv4_c[INET_ADDRSTRLEN];
+      if(!sockaddr_storage_iptop(&ip, ipv4_c)) return false;
+
+      std::string ipv4 = ipv4_c;
+      std::string octet;
+      for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
+        if((*c)=='.')
+        {
+          ptr += octet + ".";
+          octet.clear();
+        }
+        else
+          octet = (*c) + octet;
+
+      ptr += octet + IPV4_PTR_DOMAIN;
+
+      break;
+    }
+    case AF_INET6:
+    {
+      ptr.clear();
+      const struct sockaddr_in6 &s6 = (const struct sockaddr_in6 &) ip;
+      const u8 * ipv6 = s6.sin6_addr.__in6_u.__u6_addr8;
+      for (short i=15; i>=0; --i)
+      {
+        char tmp[3];
+        sprintf(tmp, "%02x", ipv6[i]);
+        ptr += '.';
+        ptr += tmp[1];
+        ptr += '.';
+        ptr += tmp[0];
+      }
+      ptr.erase(ptr.begin());
+      ptr += IPV6_PTR_DOMAIN;
+      break;
+    }
+    default:
+      return false;
+  }
+  return true;
+}
+bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
+{
+  std::string ip_str;
+
+  size_t pos = ptr.rfind(IPV6_PTR_DOMAIN);
+  if(pos != std::string::npos)
+  {
+    u8 counter = 0;
+    for (std::string::const_reverse_iterator it = ptr.rend()-pos; it != ptr.rend(); ++it)
+    {
+      const char &c = *it;
+      if(c != '.')
+      {
+        ip_str += c;
+        if(++counter==4) counter=0, ip_str+=':';
+      }
+    }
+
+    std::string::iterator it = ip_str.end()-1;
+    if( *it == ':') ip_str.erase(it);
+  }
+
+  std::string mptr = '.' + ptr;
+  pos = mptr.rfind(IPV4_PTR_DOMAIN);
+  if(pos != std::string::npos)
+  {
+
+    std::string octet;
+    for (std::string::const_reverse_iterator it = mptr.rend()-pos; it != mptr.rend(); ++it)
+    {
+      const char &c = *it;
+      if(c == '.')
+      {
+        std::reverse(octet.begin(), octet.end());
+        ip_str += octet + '.';
+        octet.clear();
+      }
+      else octet += c;
+    }
+
+    std::string::iterator it = ip_str.end()-1;
+    if( *it == '.') ip_str.erase(it);
+  }
+
+  if(ip_str.empty())
+    return false;
+
+  sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
+  return true;
+}
+size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, char *buf, size_t maxlen)
+{
+  size_t ret=0 , tmp=0;
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(progressiveId++, buf, ID, maxlen)); // Postincrement inmportant here
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS_OFFSET, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(1, buf, QDCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ANCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, NSCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ARCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putDomainName(name, buf, DATA, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(rt, buf, ret, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(IN, buf, ret, maxlen));
+
+  return ret;
+}
+size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, char *buf, size_t maxlen)
+{
+  std::string name;
+  if(ipToPtr(ip,name))
+    return buildSimpleRequest(name, PTR, buf, maxlen);
+  return 0;
+}
+size_t DNS::Factory::putUnsignedShort(u16 num, char *buf, size_t offset, size_t maxlen)
+{
+  size_t max_access = offset+1;
+  if(buf && (maxlen > max_access))
+  {
+    buf[offset] = (num >> 8) & 0xFF;
+    buf[max_access] = num & 0xFF;
+    return 2;
+  }
+
+  return 0;
+}
+size_t DNS::Factory::putDomainName(const std::string &name, char *buf, size_t offset, size_t maxlen)
+{
+  size_t ret=0;
+  if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
+
+  std::string namew = name + ".";
+  std::string accumulator;
+  for (std::string::const_iterator c=namew.begin(); c != namew.end(); ++c)
+  {
+    if((*c)=='.')
+    {
+      u8 lenght = accumulator.length();
+      *(buf+offset+ret) = lenght;
+      ret += 1;
+
+      memcpy(buf+offset+ret, accumulator.c_str(), lenght);
+      ret += lenght;
+      accumulator.clear();
+    }
+    else
+      accumulator += (*c);
+  }
+
+  *(buf+offset+ret) = 0;
+  ret += 1;
+
+  return ret;
+}
+size_t DNS::Factory::parseUnsignedShort(u16 &num, char *buf, size_t offset, size_t maxlen)
+{
+  size_t max_access = offset+1;
+  if(buf && (maxlen > max_access))
+  {
+    num = buf[max_access] + (buf[offset]<<8);
+    return 2;
+  }
+
+  return 0;
+}
+size_t DNS::Factory::parseUnsignedInt(u32 &num, char *buf, size_t offset, size_t maxlen)
+{
+  size_t max_access = offset+3;
+  if(buf && (maxlen > max_access))
+  {
+    num = buf[offset+3] + (buf[offset+2]<<8) + (buf[offset+1]<<16) + (buf[offset]<<24);
+    return 4;
+  }
+
+  return 0;
+}
+size_t DNS::Factory::parseDomainName(std::string &name, char *buf, size_t offset, size_t maxlen)
+{
+  size_t tmp, ret = 0;
+
+  name.clear();
+  while(u8 label_length = buf[offset+ret++]) // Postincrement important here
+  {
+    if((label_length & COMPRESSED_NAME) == COMPRESSED_NAME)
+    {
+      --ret; // The byte it's part of the pointer, wasn't really consumed yet
+      u16 real_offset;
+      DNS_CHECK_ACCUMLATE(ret, tmp, parseUnsignedShort(real_offset, buf, offset+ret, maxlen));
+      real_offset -= COMPRESSED_NAME<<8;
+      if( real_offset < maxlen)
+      {
+        std::string val;
+        DNS_CHECK_ACCUMLATE(tmp, tmp, parseDomainName(val, buf, real_offset, maxlen));
+        name+=val;
+        return ret;
+      }
+      else return 0;
+    }
+
+    for(u8 i=0; i<label_length; ++i)
+    {
+      size_t index = offset+ret++;  // Postincrement important here
+      DNS_CHECK_UPPER_BOUND(index, maxlen);
+      name += buf[index];
+    }
+    name += '.';
+  }
+
+  std::string::iterator it = name.end()-1;
+  if( *it == '.') name.erase(it);
+
+  return ret;
+}
+
+size_t DNS::Query::parseFromBuffer(char *buf, size_t offset, size_t maxlen)
+{
+  size_t ret=0;
+
+  if (buf && ((maxlen - offset) > 5))
+  {
+    size_t tmp=0;
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseDomainName(name, buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_type, buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
+  }
+
+  return ret;
+}
+
+size_t DNS::Answer::parseFromBuffer(char * buf, size_t offset, size_t maxlen)
+{
+  size_t ret=0;
+
+  if (buf && ((maxlen - offset) > 7))
+  {
+    size_t tmp;
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseDomainName(name, buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_type, buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(ttl, buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(length, buf, offset+ret, maxlen));
+
+    DNS_CHECK_UPPER_BOUND(offset+ret, maxlen);
+    length=buf[offset+ret];
+
+    switch(record_type)
+    {
+    case CNAME:
+    {
+      record = new CNAME_Record();
+      DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
+      break;
+    }
+    case PTR:
+    {
+      record = new PTR_Record();
+      DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
+      break;
+    }
+    default:
+      return 0;
+    }
+  }
+
+  return ret;
+}
+DNS::Answer& DNS::Answer::operator=(const Answer &r)
+{
+  name = r.name;
+  record_type = r.record_type;
+  record_class = r.record_class;
+  ttl = r.ttl;
+  length = r.length;
+  record = r.record->clone();
+  return *this;
+}
+
+size_t DNS::Packet::parseFromBuffer(char *buf, size_t maxlen)
+{
+  if( !buf || maxlen < DATA) return 0;
+
+  size_t tmp, ret = 0;
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(id, buf, ID, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(flags, buf, FLAGS_OFFSET, maxlen));
+
+  u16 queries_counter, answers_counter, authorities_counter, additionals_counter;
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(queries_counter, buf, QDCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(answers_counter, buf, ANCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(authorities_counter, buf, NSCOUNT, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(additionals_counter, buf, ARCOUNT, maxlen));
+
+  queries.clear();
+  for(u16 i=0; i<queries_counter; ++i)
+  {
+    Query q;
+    DNS_CHECK_ACCUMLATE(ret, tmp, q.parseFromBuffer(buf, ret, maxlen));
+    queries.push_back(q);
+  }
+
+  answers.clear();
+  for(u16 i=0; i<answers_counter; ++i)
+  {
+    Answer a;
+    DNS_CHECK_ACCUMLATE(ret, tmp, a.parseFromBuffer(buf, ret, maxlen));
+    answers.push_back(a);
+  };
+
+  return ret;
 }
