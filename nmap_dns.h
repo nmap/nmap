@@ -130,7 +130,7 @@ class Target;
 #include <list>
 
 void nmap_mass_rdns(Target ** targets, int num_targets);
-const char *lookup_cached_host(u32 ip);
+const char * lookup_cached_host(const struct sockaddr_storage * ip);
 
 std::list<std::string> get_dns_servers();
 

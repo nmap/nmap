@@ -165,10 +165,9 @@
 // Created by Doug Hoyte
 // doug at hcsw.org
 // http://www.hcsw.org
+// DNS Caching and aging added by Eddie Bell ejlbell@gmail.com 2007
+// IPv6 and improved DNS cache by Gioacchino Mazzurco <gmazzurco89@gmail.com> 2015
 
-/*
- * DNS Caching and aging added by Eddie Bell ejlbell@gmail.com 2007
- */
 
 // TODO:
 //
@@ -195,6 +194,7 @@
 #include <list>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 extern NmapOps o;
 
@@ -261,18 +261,12 @@ static int read_timeouts[][4] = {
 // retransmission. This should almost never happen. (in milliseconds)
 #define WRITE_TIMEOUT 100
 
-// Size of hash table used to hold the hosts from /etc/hosts
-#define HASH_TABLE_SIZE 256
-
-// Hash macro for etchosts
-#define IP_HASH(x) (ntohl(x)%HASH_TABLE_SIZE)
-
 
 //------------------- Internal Structures ---------------------
 
 struct dns_server;
 struct request;
-struct host_elem;
+typedef struct sockaddr_storage sockaddr_storage;
 
 struct dns_server {
   std::string hostname;
@@ -297,12 +291,192 @@ struct request {
   u16 id;
 };
 
-struct host_elem {
-  std::string name;
-  u32 addr;
+std::string sockaddr_storage_iptostring(const struct sockaddr_storage & addr)
+{
+  std::string output;
+
+  switch (addr.ss_family){
+  case AF_INET:
+  {
+    const struct sockaddr_in *ipv4_ptr = (const struct sockaddr_in *) &addr;
+    output = inet_ntoa(ipv4_ptr->sin_addr);
+    break;
+  }
+  case AF_INET6:
+  {
+    char addrStr[INET6_ADDRSTRLEN+1];
+    struct sockaddr_in6 * addrv6p = (struct sockaddr_in6 *) &addr;
+    inet_ntop(addr.ss_family, &(addrv6p->sin6_addr), addrStr, INET6_ADDRSTRLEN);
+    output = addrStr;
+    break;
+  }
+  default:
+  {
+    output = "INVALID_IP";
+  }}
+
+  return output;
+}
+
+int sockaddr_storage_inet_pton(const char * ip_str, struct sockaddr_storage * addr)
+{
+  struct sockaddr_in6 * addrv6p = (struct sockaddr_in6 *) addr;
+  struct sockaddr_in * addrv4p = (struct sockaddr_in *) addr;
+
+  if ( 1 == inet_pton(AF_INET6, ip_str, &(addrv6p->sin6_addr)) )
+  {
+    addr->ss_family = AF_INET6;
+    return 1;
+  }
+  else if ( 1 == inet_pton(AF_INET, ip_str, &(addrv4p->sin_addr)) )
+  {
+    addr->ss_family = AF_INET;
+    return 1;
+  }
+
+  return 0;
+}
+
+class HostElem
+{
+public:
+  HostElem(const std::string & name_, const sockaddr_storage & ip) :
+    name(name_), addr(ip), cache_hits(0) {}
+  ~HostElem() {}
+
+  /* Ages entries and return true with a cache hit of 0 (the least used) */
+  static bool isTimeToClean(HostElem he)
+  {
+    if(he.cache_hits)
+    {
+      he.cache_hits /= 2;
+      return false;
+    }
+
+    return true;
+  }
+
+  const std::string name;
+  const sockaddr_storage addr;
   u8 cache_hits;
 };
 
+class HostCacheLine : public std::list<HostElem>{};
+
+class HostCache
+{
+public:
+  //            TODO: avoid hardcode this constant
+  HostCache() : lines_count(256), hash_mask(lines_count-1),
+    hosts_storage(new HostCacheLine[lines_count]), elements_count(0)
+  {}
+  ~HostCache()
+  {
+    for (u32 i = 0; i < lines_count; ++i)
+    {
+      std::cout << "line " << i << ")";
+      std::list<HostElem>::iterator hostI;
+      for( hostI = hosts_storage[i].begin();
+           hostI != hosts_storage[i].end();
+           ++hostI)
+        std::cout << "(" << sockaddr_storage_iptostring(hostI->addr) << ", " << hostI->name << ", " << (u32) hostI->cache_hits << "), ";
+      std::cout << std::endl;
+
+    }
+    delete[] hosts_storage;
+  }
+
+  u32 hash(sockaddr_storage ip)
+  {
+    u32 ret = 0;
+
+    switch (ip.ss_family)
+    {
+      case AF_INET:
+      {
+        u8 * ipv4 = (u8 *) &((const struct sockaddr_in *) &ip)->sin_addr;
+        // Shuffle bytes a little so we avoid awful performances in commons
+        // usages patterns like 10.0.1-255.1 and lines_count 256
+        ret = ipv4[0] + (ipv4[1]<<3) + (ipv4[2]<<5) + (ipv4[3]<<7);
+        break;
+      }
+      case AF_INET6:
+      {
+        const struct sockaddr_in6 * sa6 = (const struct sockaddr_in6 *) &ip;
+        u32 * ipv6 = (u32 *) sa6->sin6_addr.s6_addr;
+        ret = ipv6[0] + ipv6[1] + ipv6[2] + ipv6[3];
+        break;
+      }
+    }
+
+    std::cout << "HostCache::hash(" << sockaddr_storage_iptostring(ip) << ") " << "return " << (ret & hash_mask) << "<-" << ret <<  std::endl;
+    return ret & hash_mask;
+  }
+
+  /* Add to the dns cache. If there are too many entries
+   * we age and remove the least frequently used ones to
+   * make more space. */
+  bool add( const sockaddr_storage & ip, const std::string & hname)
+  {
+    std::cout << "HostCache::add( " << sockaddr_storage_iptostring(ip) << ", " << hname << " )" << std::endl;
+    std::string discard;
+    if(lookup(ip, discard)) return false;
+
+    if(elements_count >= lines_count) prune();
+
+    HostElem he(hname, ip);
+    hosts_storage[hash(ip)].push_back(he);
+    ++elements_count;
+    return true;
+  }
+
+  u32 prune()
+  {
+    u32 original_count = elements_count;
+    for(u32 i = 0; i < lines_count; ++i)
+    {
+      std::list<HostElem>::iterator it = find_if(hosts_storage[i].begin(),
+                                                 hosts_storage[i].end(),
+                                                 HostElem::isTimeToClean);
+      while ( it != hosts_storage[i].end() )
+      {
+        hosts_storage[i].erase(it);
+        assert(elements_count > 0);
+        --elements_count;
+      }
+    }
+
+    return original_count - elements_count;
+  }
+
+  /* Search for a hostname in the cache and increment
+   * its cache hit counter if found */
+  bool lookup(const sockaddr_storage & ip, std::string & name)
+  {
+    std::cout << "HostCache::lookup( " << sockaddr_storage_iptostring(ip) << ", ->name )" << std::endl;
+    std::list<HostElem>::iterator hostI;
+    uint ip_hash = hash(ip);
+    for( hostI = hosts_storage[ip_hash].begin();
+         hostI != hosts_storage[ip_hash].end();
+         ++hostI)
+    {
+      if (sockaddr_storage_equal(&hostI->addr, &ip))
+      {
+        if(hostI->cache_hits < UCHAR_MAX)
+          hostI->cache_hits++;
+        name = hostI->name;
+        return true;
+      }
+    }
+    return false;
+  }
+
+protected:
+  const u32 lines_count;
+  const u32 hash_mask;
+  HostCacheLine * const hosts_storage;
+  u32 elements_count;
+};
 
 //------------------- Globals ---------------------
 
@@ -313,7 +487,7 @@ static int total_reqs;
 static nsock_pool dnspool=NULL;
 
 /* The DNS cache, not just for entries from /etc/hosts. */
-static std::list<host_elem> etchosts[HASH_TABLE_SIZE];
+static HostCache host_cache;
 
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
 static struct timeval starttv;
@@ -327,8 +501,6 @@ static ScanProgressMeter *SPM;
 //------------------- Prototypes and macros ---------------------
 
 static void put_dns_packet_on_wire(request *req);
-static const char *lookup_etchosts(u32 ip);
-static void addto_etchosts(u32 ip, const char *hname);
 
 #define ACTION_FINISHED 0
 #define ACTION_CNAME_LIST 1
@@ -562,7 +734,7 @@ static int process_result(u32 ia, char *result, int action, u16 id) {
 
         if (result) {
           tpreq->targ->setHostName(result);
-          addto_etchosts(tpreq->targ->v4hostip()->s_addr, result);
+          host_cache.add(* tpreq->targ->TargetSockAddr(), result);
         }
 
         servI->in_process.remove(tpreq);
@@ -986,7 +1158,7 @@ static void parse_resolvdotconf() {
   FILE *fp;
   char buf[2048], *tp;
   char fmt[32];
-  char ipaddr[INET6_ADDRSTRLEN];
+  char ipaddr[INET6_ADDRSTRLEN+1];
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
@@ -994,7 +1166,7 @@ static void parse_resolvdotconf() {
     return;
   }
 
-  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", INET6_ADDRSTRLEN-1);
+  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", INET6_ADDRSTRLEN);
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;
@@ -1016,8 +1188,8 @@ static void parse_resolvdotconf() {
 
 static void parse_etchosts(const char *fname) {
   FILE *fp;
-  char buf[2048], hname[256], ipaddrstr[16], *tp;
-  struct in_addr ia;
+  char buf[2048], hname[256], ipaddrstr[INET6_ADDRSTRLEN+1], *tp;
+  sockaddr_storage ia;
 
   fp = fopen(fname, "r");
   if (fp == NULL) return; // silently is OK
@@ -1033,74 +1205,25 @@ static void parse_etchosts(const char *fname) {
     // Skip any leading whitespace
     while (*tp == ' ' || *tp == '\t') tp++;
 
-    if (sscanf(tp, "%15s %255s", ipaddrstr, hname) == 2) {
-      if (inet_pton(AF_INET, ipaddrstr, &ia))
-        addto_etchosts(ia.s_addr, hname);
-    }
+    std::stringstream pattern;
+    pattern << "%" << INET6_ADDRSTRLEN << "s %255s";
+    if (sscanf(tp, pattern.str().c_str(), ipaddrstr, hname) == 2)
+      if (sockaddr_storage_inet_pton(ipaddrstr, &ia))
+      {
+        const std::string hname_ = hname;
+        host_cache.add(ia, hname_);
+      }
   }
 
   fclose(fp);
 }
 
-/* Executed when the DNS cache is full, ages entries
- * and removes any with a cache hit of 0 (the least used) */
-bool remove_and_age(host_elem &host) {
-  if(host.cache_hits) {
-     host.cache_hits /=2;
-     return false;
-  } else
-     return true;
-}
-
-/* Add to the dns cache. If there are too many entries
- * we age and remove the least frequently used ones to
- * make more space. */
-static void addto_etchosts(u32 ip, const char *hname) {
-  static u16 total_size = 0;
-  std::list<host_elem>::iterator it;
-  host_elem he;
-  int i;
-
-  if(lookup_etchosts(ip) != NULL)
-    return;
-
-  while(total_size >= HASH_TABLE_SIZE) {
-    for(i = 0; i < HASH_TABLE_SIZE; i++) {
-      while((it = find_if(etchosts[i].begin(), etchosts[i].end(), remove_and_age)) != etchosts[i].end()) {
-        etchosts[i].erase(it);
-        /* We don't want total_size to become out of sync with the actual number
-           of entries. */
-        assert(total_size > 0);
-        total_size--;
-      }
-    }
-  }
-  he.name = hname;
-  he.addr = ip;
-  he.cache_hits = 0;
-  etchosts[IP_HASH(ip)].push_back(he);
-  total_size++;
-}
-
-/* Search for a hostname in the cache and increment
- * its cache hit counter if found */
-static const char *lookup_etchosts(u32 ip) {
-  std::list<host_elem>::iterator hostI;
-  int localIP_Hash = IP_HASH(ip);
-  for(hostI = etchosts[localIP_Hash].begin(); hostI != etchosts[localIP_Hash].end(); hostI++) {
-    if (hostI->addr == ip) {
-      if(hostI->cache_hits < UCHAR_MAX)
-        hostI->cache_hits++;
-      return hostI->name.c_str();
-    }
-  }
-  return NULL;
-}
-
 /* External interface to dns cache */
-const char *lookup_cached_host(u32 ip) {
-  const char *tmp = lookup_etchosts(ip);
-  return tmp;
+const char *lookup_cached_host(const sockaddr_storage * ip) {
+  std::string name;
+  if (host_cache.lookup(*ip, name))
+    return name.c_str();
+  return NULL;
 }
 
 static void etchosts_init(void) {
@@ -1175,10 +1298,14 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   // If necessary, set up the dns server list
   init_servs();
 
-  if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers");
+  if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to "
+                                           "determine any DNS servers. Reverse"
+                                           " DNS is disabled. Try using "
+                                           "--system-dns or specify valid "
+                                           "servers with --dns-servers");
 
 
-  // If necessary, set up the /etc/hosts hashtable
+  // If necessary, read /etc/hosts and put entries into the hashtable
   etchosts_init();
 
 
@@ -1186,13 +1313,14 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   id_counter = get_random_u16();
 
   // Set up the request structure
-  for(hostI = targets; hostI < targets+num_targets; hostI++) {
+  for(hostI = targets; hostI < targets+num_targets; hostI++)
+  {
     if (!((*hostI)->flags & HOST_UP) && !o.resolve_all) continue;
 
     // See if it's in /etc/hosts or cached
-    assert((*hostI)->af() == AF_INET);
-    tpname = lookup_etchosts((u32) (*hostI)->v4hostip()->s_addr);
-    if (tpname) {
+    std::string res;
+    if (host_cache.lookup(*(*hostI)->TargetSockAddr(), res)) {
+      tpname = res.c_str();
       (*hostI)->setHostName(tpname);
       continue;
     }
@@ -1342,8 +1470,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   stat_actual = stat_ok = stat_nx = stat_sf = stat_trans = stat_dropped = stat_cname = 0;
 
-  // mass_dns only supports IPv4.
-  if (o.mass_dns && o.af() == AF_INET)
+  if (o.mass_dns)
     nmap_mass_rdns_core(targets, num_targets);
   else
     nmap_system_rdns_core(targets, num_targets);
@@ -1352,7 +1479,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   if (stat_actual > 0) {
     if (o.debugging || o.verbose >= 3) {
-      if (o.mass_dns && o.af() == AF_INET) {
+      if (o.mass_dns) {
         // #:  Number of DNS servers used
         // OK: Number of fully reverse resolved queries
         // NX: Number of confirmations of 'No such reverse domain eXists'
