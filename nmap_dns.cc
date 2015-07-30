@@ -1173,7 +1173,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   // We should have 1+ queries:
   u16 &f = p.flags;
   if(p.queries.empty() || !HAS_FLAG(f, DNS::RESPONSE) ||
-     HAS_FLAG(f, DNS::TRUNCATED) || !HAS_FLAG(f, DNS::OP_STANDARD_QUERY) ||
+     !HAS_FLAG(f, DNS::OP_STANDARD_QUERY) ||
      (f & DNS::ZERO) || HAS_ERR(f, DNS::ERR_FORMAT) ||
      HAS_ERR(f, DNS::ERR_NOT_IMPLEMENTED) || HAS_ERR(f, DNS::ERR_REFUSED))
     return;
