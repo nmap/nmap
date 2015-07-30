@@ -427,6 +427,8 @@ namespace DNS
 
 #define HAS_FLAG(v,flag) ((v&flag)==flag)
 
+#define HAS_ERR(v, err) ((v&DNS::ERR_ALL)==err)
+
 typedef enum
 {
   ID = 0,
@@ -439,12 +441,7 @@ typedef enum
 } HEADER_OFFSET;
 
 typedef enum {
-  ERR_NO = 0x0000,
-  ERR_FORMAT = 0x0001,
-  ERR_SERVFAIL = 0x0002,
-  ERR_NAME = 0x0003,
-  ERR_NOT_IMPLEMENTED = 0x0004,
-  ERR_REFUSED = 0x0005,
+  ERR_ALL = 0x0007,
   CHECKING_DISABLED = 0x0010,
   AUTHENTICATED_DATA = 0x0020,
   ZERO = 0x0070,
@@ -457,6 +454,15 @@ typedef enum {
   OP_SERVER_STATUS = 0x1000,
   RESPONSE = 0x8000
 } FLAGS;
+
+typedef enum {
+  ERR_NO = 0x0000,
+  ERR_FORMAT = 0x0001,
+  ERR_SERVFAIL = 0x0002,
+  ERR_NAME = 0x0003,
+  ERR_NOT_IMPLEMENTED = 0x0004,
+  ERR_REFUSED = 0x0005,
+} ERRORS;
 
 typedef enum {
   A = 1,
@@ -1099,7 +1105,7 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
       tpreq = *reqI;
       if (id == tpreq->id)
       {
-        if(!sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()))
+        if(!result.empty() && (!sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr())))
           continue;
 
         if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED)
@@ -1146,7 +1152,6 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   u8 *buf;
   int buflen;
-  int errcode=0;
 
   if (total_reqs >= 1)
     nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
@@ -1169,30 +1174,32 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   u16 &f = p.flags;
   if(p.queries.empty() || !HAS_FLAG(f, DNS::RESPONSE) ||
      HAS_FLAG(f, DNS::TRUNCATED) || !HAS_FLAG(f, DNS::OP_STANDARD_QUERY) ||
-     (f & DNS::ZERO) || HAS_FLAG(f, DNS::ERR_FORMAT) ||
-     HAS_FLAG(f, DNS::ERR_NOT_IMPLEMENTED) || HAS_FLAG(f, DNS::ERR_REFUSED))
+     (f & DNS::ZERO) || HAS_ERR(f, DNS::ERR_FORMAT) ||
+     HAS_ERR(f, DNS::ERR_NOT_IMPLEMENTED) || HAS_ERR(f, DNS::ERR_REFUSED))
     return;
 
-  errcode = p.flags & (DNS::ERR_SERVFAIL|DNS::ERR_NAME);
-  if (errcode)
+  if (HAS_ERR(f, DNS::ERR_NAME))
   {
-    // With NXDomain or ServFail, we should have 0 answers.
-    if(!p.answers.empty()) return;
-    // NXDomain means we're finished (doesn't exist for sure)
-    // but SERVFAIL might just mean a server timeout
     sockaddr_storage discard;
-    int found = process_result(discard, "", errcode == 3 ? ACTION_FINISHED : ACTION_TIMEOUT, p.id);
-
-    if (errcode == 2 && found)
+    if(process_result(discard, "", ACTION_FINISHED, p.id))
     {
-      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", p.id);
-      stat_sf++;
-    }
-    else if (errcode == 3 && found)
-    {
-      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", p.id);
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+        log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", p.id);
       output_summary();
       stat_nx++;
+    }
+
+    return;
+  }
+
+  if (HAS_ERR(f, DNS::ERR_SERVFAIL))
+  {
+    sockaddr_storage discard;
+    if (process_result(discard, "", ACTION_TIMEOUT, p.id))
+    {
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+        log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", p.id);
+      stat_sf++;
     }
 
     return;
