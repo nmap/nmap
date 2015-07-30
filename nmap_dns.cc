@@ -289,52 +289,6 @@ struct request {
   u16 id;
 };
 
-std::string sockaddr_storage_iptostring(const struct sockaddr_storage & addr)
-{
-  std::string output;
-
-  switch (addr.ss_family){
-  case AF_INET:
-  {
-    const struct sockaddr_in *ipv4_ptr = (const struct sockaddr_in *) &addr;
-    output = inet_ntoa(ipv4_ptr->sin_addr);
-    break;
-  }
-  case AF_INET6:
-  {
-    char addrStr[INET6_ADDRSTRLEN+1];
-    struct sockaddr_in6 * addrv6p = (struct sockaddr_in6 *) &addr;
-    inet_ntop(addr.ss_family, &(addrv6p->sin6_addr), addrStr, INET6_ADDRSTRLEN);
-    output = addrStr;
-    break;
-  }
-  default:
-  {
-    output = "INVALID_IP";
-  }}
-
-  return output;
-}
-
-int sockaddr_storage_inet_pton(const char * ip_str, struct sockaddr_storage * addr)
-{
-  struct sockaddr_in6 * addrv6p = (struct sockaddr_in6 *) addr;
-  struct sockaddr_in * addrv4p = (struct sockaddr_in *) addr;
-
-  if ( 1 == inet_pton(AF_INET6, ip_str, &(addrv6p->sin6_addr)) )
-  {
-    addr->ss_family = AF_INET6;
-    return 1;
-  }
-  else if ( 1 == inet_pton(AF_INET, ip_str, &(addrv4p->sin_addr)) )
-  {
-    addr->ss_family = AF_INET;
-    return 1;
-  }
-
-  return 0;
-}
-
 class HostElem
 {
 public:
@@ -530,7 +484,10 @@ public:
       case AF_INET:
       {
         ptr.clear();
-        std::string ipv4 = sockaddr_storage_iptostring(ip);
+        char ipv4_c[INET_ADDRSTRLEN];
+        if(!sockaddr_storage_iptop(&ip, ipv4_c)) return false;
+
+        std::string ipv4 = ipv4_c;
         std::string octet;
         for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
           if((*c)=='.')
@@ -1261,7 +1218,13 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
             if (process_result(ip, ptr->value, ACTION_FINISHED, p.id))
             {
               if (o.debugging >= TRACE_DEBUG_LEVEL)
-                log_write(LOG_STDOUT, "mass_rdns: OK MATCHED <%s> to <%s>\n", sockaddr_storage_iptostring(ip).c_str(), ptr->value.c_str());
+              {
+                char ipstr[INET6_ADDRSTRLEN];
+                sockaddr_storage_iptop(&ip, ipstr);
+                log_write(LOG_STDOUT, "mass_rdns: OK MATCHED <%s> to <%s>\n",
+                          ipstr,
+                          ptr->value.c_str());
+              }
               output_summary();
               stat_ok++;
             }
@@ -1272,7 +1235,12 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
           sockaddr_storage ip;
           if(DNS::Factory::ptrToIp(a.name, ip))
           {
-            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", sockaddr_storage_iptostring(ip).c_str());
+            if (o.debugging >= TRACE_DEBUG_LEVEL)
+            {
+              char ipstr[INET6_ADDRSTRLEN];
+              sockaddr_storage_iptop(&ip, ipstr);
+              log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", ipstr);
+            }
             process_result(ip, "", ACTION_CNAME_LIST, p.id);
           }
           break;
