@@ -6,6 +6,10 @@ o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
 o [NSE] Added script http-svn-info. Requests information from a
   Subversion repository.[Gyanendra Mishra]
 
+o [GH#51] Added IPv6 support to nmap_mass_rdns, improved reverse DNS cache,
+  and refactored DNS code to improve readability and extensibility.
+  [Gioacchino Mazzurco]
+
 o [NSE] Added NTLM brute support to http-brute. [Gyanendra Mishra]
 
 o [NSE] Added NTLM authentication support to http.lua and a related function to create
