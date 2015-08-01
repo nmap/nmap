@@ -157,7 +157,13 @@ action = function(host, port)
   end
 
   local random_resp = http.generic_request(host, port, stdnse.generate_random_string(4), path)
-  stdnse.debug1("Response Code to Random Method is %d", random_resp.status or nil)
+
+  if random_resp.status then
+    stdnse.debug1("Response Code to Random Method is %d", random_resp.status)
+  else
+    stdnse.debug1("Random Method %s failed.", path)
+  end
+
   for _, method in pairs(to_test) do
     response = http.generic_request(host, port, method, path)
     if response.status and check_allowed(random_resp, response) then
