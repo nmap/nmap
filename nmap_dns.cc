@@ -1334,7 +1334,7 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
     {
       ptr.clear();
       const struct sockaddr_in6 &s6 = (const struct sockaddr_in6 &) ip;
-      const u8 * ipv6 = s6.sin6_addr.__in6_u.__u6_addr8;
+      const u8 * ipv6 = s6.sin6_addr.s6_addr;
       for (short i=15; i>=0; --i)
       {
         char tmp[3];
