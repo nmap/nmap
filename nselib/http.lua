@@ -65,12 +65,7 @@
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request. For example, <code>options['header']['Content-Type'] = 'text/xml'</code>
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override). This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request).
--- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized:
--- ** <code>name</code>
--- ** <code>value</code>
--- ** <code>path</code>
--- ** <code>expires</code>
---   Only <code>name</code> and <code>value</code> fields are required.
+-- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: <code>name</code>, <code>value</code>, <code>path</code>, <code>expires</code>. Only <code>name</code> and <code>value</code> fields are required.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication.
 --   If a server requires HTTP Digest authentication, then there must also be a key <code>digest</code>, with value <code>true</code>.
 --   If a server requires NTLM authentication, then there must also be a key <code>ntlm</code>, with value <code>true</code>.
