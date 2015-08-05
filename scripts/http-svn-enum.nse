@@ -56,16 +56,21 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
+local ELEMENTS = {
+  ["creator-displayname"] = "author",
+  ["version-name"] = "version",
+  ["date"] = "date",
+}
+
 local function get_callback(name, unames, temp)
-  if name == "creator-displayname" then
+  if ELEMENTS[name] then
     return function(content)
-      unames[content] = unames[content] and {unames[content][1] + 1, temp.revision} or {1, temp.revision}
-      temp.author = content
+      if not content then content = "unknown" end --useful for "nil" authors
+      temp[ELEMENTS[name]] = name == "date" and content:sub(1, 10) or content
+      if temp.date and temp.version and temp.author then
+        unames[temp.author] = {unames[temp.author] and unames[temp.author][1] + 1 or 1, temp.version, temp.date}
+      end
     end
-  elseif name == "version-name" then
-    return function(content) temp.revision = content end
-  elseif name == "date" and temp.author then
-    return function(content) table.insert(unames[temp.author], content:sub(1,10)) end
   end
 end
 
@@ -103,7 +108,7 @@ action = function(host, port)
         header = {
           ["Depth"] = 1,
         },
-        content = content
+        content = content,
       }
 
       local temp = {}
@@ -111,6 +116,7 @@ action = function(host, port)
       if response and response.status == 200 then
 
         parser._call.startElement = function(name) parser._call.text = get_callback(name, unames, temp) end
+        parser._call.closeElement = function(name) if name == "log-item" then temp ={} end parser._call.text = function() return nil end end
         parser:parseSAX(response.body, {stripWhitespace=true})
 
         tab.nextrow(output)
