@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#196] Fix raw packet sending on FreeBSD 10.0 and later. FreeBSD changed
+  byte order of the IPv4 stack, so SYN scan and other raw packet functions were
+  broken. [Edward Napierała] Also reported in [GH#50] by Olli Hauer.
+
 o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
   repostory by examinning commit logs. [Gyanendra Mishra]
 
