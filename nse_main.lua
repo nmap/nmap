@@ -1194,7 +1194,7 @@ do
       value = V "table" + V "string";
       string = V "qstring" + V "uqstring";
       qstring = U.escaped_quote('"') + U.escaped_quote("'");
-      uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",}=")^0) * V "space"^0; -- everything but ',}=', do not capture final space
+      uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",{}=")^0) * V "space"^0; -- everything but ',{}=', do not capture final space
     };
     parser = assert(P(parser));
     nmap.registry.args = parser:match("{"..args.."}");
