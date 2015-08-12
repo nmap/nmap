@@ -278,7 +278,7 @@ end
 -- Return a pattern which matches a "keyword" literal, case insensitive.
 local function K (a)
   local insensitize = Cf((P(1) / function (a) return S(lower(a)..upper(a)) end)^1, function (a, b) return a * b end);
-  return assert(insensitize:match(a)) * -(locale().alnum + P "_"); -- "keyword" token
+  return assert(insensitize:match(a)) * #(V "space" + S"()," + P(-1)); -- "keyword" token
 end
 
 local REQUIRE_ERROR = {};
