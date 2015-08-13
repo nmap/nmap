@@ -119,10 +119,6 @@ local arg_shares   = stdnse.get_script_args(SCRIPT_NAME .. '.shares')
 local arg_share    = stdnse.get_script_args(SCRIPT_NAME .. '.share')
 local arg_path     = stdnse.get_script_args(SCRIPT_NAME .. '.path') or '\\'
 local arg_pattern  = stdnse.get_script_args(SCRIPT_NAME .. '.pattern') or '*'
-local arg_maxfiles = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.maxfiles'))
-local arg_maxdepth = stdnse.get_script_args(SCRIPT_NAME .. '.maxdepth')
-local arg_checksum = stdnse.get_script_args(SCRIPT_NAME .. '.checksum')
-local arg_errors   = stdnse.get_script_args(SCRIPT_NAME .. '.errors')
 
 hostrule = function(host)
   return ( smb.get_port(host) ~= nil and
@@ -160,7 +156,6 @@ local function list_files(host, share, smbstate, path, options, output,
       if is_dir(fe) then
         continue = true
         if maxdepth > 1 then
-          stdnse.debug1("YYY " .. tostring(maxdepth))
           continue = list_files(host, share, smbstate,
 				path .. '\\' .. fe.fname, options,
                                 output, maxdepth - 1,
@@ -191,30 +186,20 @@ action = function(host)
     arg_shares = host.registry['smb_shares']
   end
 
-  -- arg_maxdepth defaults to 1 (no recursion)
-  if arg_maxdepth == nil then
-    arg_maxdepth = 1
-  else
-    arg_maxdepth = tonumber(arg_maxdepth)
-  end
-
   local output = ls.new_listing()
 
   for _, share in ipairs(arg_shares) do
      local status, smbstate = smb.start_ex(host, true, true, share,
                                            nil, nil, nil)
      if ( not(status) ) then
-        if arg_errors then
-           ls.report_error(
-              output,
-              ("Failed to authenticate to server (%s) for directory of \\\\%s\\%s%s"):format(smbstate, stdnse.get_hostname(host), share, arg_path))
-        end
+       ls.report_error(
+	 output,
+	 ("Failed to authenticate to server (%s) for directory of \\\\%s\\%s%s"):format(smbstate, stdnse.get_hostname(host), share, arg_path))
      else
 
         -- remove leading slash
         arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
 
-        -- local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
         local options = {}
         local depth, path, dirs = 0, arg_path, {}
         local file_count, dir_count, total_bytes = 0, 0, 0
