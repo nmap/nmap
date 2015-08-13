@@ -42,6 +42,7 @@ local config_values = {
   ["human"] = false,
 }
 
+--- Convert an argument to its expected type
 local function convert_arg(argval, argtype)
   if argtype == "number" then
     return tonumber(argval)
@@ -55,6 +56,8 @@ local function convert_arg(argval, argtype)
   return argval
 end
 
+--- Update config_values using module arguments ("ls.argname", as
+-- opposed to script-specific arguments, "http-ls.argname")
 for argname, argvalue in pairs(config_values) do
   local argval = stdnse.get_script_args(LIBRARY_NAME .. "." .. argname)
   if argval ~= nil then
@@ -62,11 +65,11 @@ for argname, argvalue in pairs(config_values) do
   end
 end
 
+--- Get a config value from (by order or priority):
+-- 1. a script-specific argument (e.g., http-ls.argname)
+-- 2. a module argument (ls.argname)
+-- 3. the default value
 function config(argname)
-  -- get a config value from (by order or priority):
-  --   1. a script-specific argument (e.g., http-ls.*)
-  --   2. a module argument (ls.*)
-  --   3. the default value
   local argval = stdnse.get_script_args(stdnse.getid() .. "." .. argname)
   if argval == nil then
     return config_values[argname]
@@ -75,6 +78,7 @@ function config(argname)
   end
 end
 
+--- Create a new script output.
 function new_listing()
   local output = stdnse.output_table()
   output['curvol'] = nil
@@ -88,6 +92,7 @@ function new_listing()
   return output
 end
 
+--- Create a new volume within the provided output
 function new_vol(output, name, hasperms)
   local curvol = stdnse.output_table()
   local files = tab.new()
@@ -115,6 +120,8 @@ function new_vol(output, name, hasperms)
   output['curvol'] = curvol
 end
 
+--- Report an error, using stdnse.debug1() and (depending on the
+-- configuration settings) adding the error message to the output.
 function report_error(output, err)
   if output["curvol"] == nil then
     stdnse.debug1("error: " .. err)
@@ -130,6 +137,8 @@ function report_error(output, err)
   end
 end
 
+--- Report information, using stdnse.debug1() and adding the message
+-- to the output.
 function report_info(output, info)
   if output["curvol"] == nil then
     stdnse.debug1("info: " .. info)
@@ -148,6 +157,7 @@ local units = {
   ["p"] = 1125899906842624,
 }
 
+--- Get a size as an integer from a (possibly) human readable input.
 local function get_size(size)
   local bsize
   bsize = tonumber(size)
@@ -163,6 +173,7 @@ local function get_size(size)
   return bsize
 end
 
+--- Add a new file to the current volume.
 function add_file(output, file)
   -- returns true iff script should continue
   local files = output["curvol"]["files"]
@@ -192,6 +203,8 @@ function add_file(output, file)
 	    or config("maxfiles") > output["curvol"]["count"])
 end
 
+--- Close the current volume. It is mandatory to call this function
+-- before calling new_vol() again or before calling end_listing().
 function end_vol(output)
   local vol = {["volume"] = output["curvol"]["name"]}
   local empty = true
@@ -215,6 +228,7 @@ function end_vol(output)
   output["curvol"] = nil
 end
 
+--- Convert a files table to structured data.
 local function files_to_structured(files)
   local result = {}
   local fields = table.remove(files, 1)
@@ -227,6 +241,7 @@ local function files_to_structured(files)
   return result
 end
 
+--- Convert a files table to human readable data.
 local function files_to_readable(files)
   local outtab = tab.new()
   local fields = files[1]
@@ -265,6 +280,8 @@ local function files_to_readable(files)
   return tab.dump(outtab)
 end
 
+--- Close current listing. Return buth the structured and the human
+-- readable outputs.
 function end_listing(output)
   assert(output["curvol"] == nil)
   local line
