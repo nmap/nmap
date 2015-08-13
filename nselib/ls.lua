@@ -125,9 +125,10 @@ end
 -- configuration settings) adding the error message to the output.
 function report_error(output, err)
   if output["curvol"] == nil then
-    stdnse.debug1("error: " .. err)
+    stdnse.debug1(string.format("error: %s", err))
   else
-    stdnse.debug1("error [" .. output["curvol"]["name"] .. "]: " .. err)
+    stdnse.debug1(string.format("error [%s]: %s",
+				output["curvol"]["name"], err))
   end
   if config('errors') then
     if output["curvol"] == nil then
@@ -142,10 +143,11 @@ end
 -- to the output.
 function report_info(output, info)
   if output["curvol"] == nil then
-    stdnse.debug1("info: " .. info)
+    stdnse.debug1(string.format("info: %s", info))
     table.insert(output["info"], info)
   else
-    stdnse.debug1("info [" .. output["curvol"]["name"] .. "]: " .. info)
+    stdnse.debug1(string.format("info [%s]: %s",
+				output["curvol"]["name"],  info))
     table.insert(output["curvol"]["info"], info)
   end
 end
@@ -286,13 +288,13 @@ end
 function end_listing(output)
   assert(output["curvol"] == nil)
   local line
-  local text = "\n"
+  local text = {}
   local empty = true
   if #output["info"] == 0 then
     output["info"] = nil
   else
     for _, line in ipairs(output["info"]) do
-      text = text .. line .. "\n"
+      text[#text + 1] = line
     end
     empty = false
   end
@@ -300,7 +302,7 @@ function end_listing(output)
     output["errors"] = nil
   else
     for _, line in ipairs(output["errors"]) do
-      text = text .. "ERROR: " .. line .. "\n"
+      text[#text + 1] = string.format("ERROR: %s", line)
     end
     empty = false
   end
@@ -309,29 +311,29 @@ function end_listing(output)
     output["total"] = nil
   else
     for _, volume in ipairs(output["volumes"]) do
-      text = text .. "Volume " .. volume["volume"] .. "\n"
+      text[#text + 1] = string.format("Volume %s", volume["volume"])
       if volume["info"] then
 	for _, line in ipairs(volume["info"]) do
-	  text = "  " .. text .. line .. "\n"
+	  text[#text + 1] = string.format("  %s", line)
 	end
       end
       if volume["errors"] then
 	for _, line in ipairs(volume["errors"]) do
-	  text = "  " .. text .. "ERROR: " .. line .. "\n"
+	  text[#text + 1] = string.format("  ERROR: %s", line)
 	end
       end
       if volume["files"] then
-	text = text .. files_to_readable(volume["files"])
+	text[#text + 1] = files_to_readable(volume["files"])
 	volume["files"] = files_to_structured(volume["files"])
       end
-      text = text .. "\n"
+      text[#text + 1] = ""
     end
     empty = false
   end
   if empty then
     return nil
   else
-    return output, text
+    return output, table.concat(text, "\n")
   end
 end
 
