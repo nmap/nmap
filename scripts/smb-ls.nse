@@ -135,7 +135,8 @@ local function is_dir(fe)
   return ( bit.band(fe.attrs, 16) == 16 )
 end
 
-local function list_files(smbstate, path, options, output, maxdepth, basedir)
+local function list_files(host, share, smbstate, path, options, output,
+			  maxdepth, basedir)
   basedir = basedir or ""
   local continue
 
@@ -160,11 +161,13 @@ local function list_files(smbstate, path, options, output, maxdepth, basedir)
         continue = true
         if maxdepth > 1 then
           stdnse.debug1("YYY " .. tostring(maxdepth))
-          continue = list_files(smbstate, path .. '\\' .. fe.fname, options,
+          continue = list_files(host, share, smbstate,
+				path .. '\\' .. fe.fname, options,
                                 output, maxdepth - 1,
                                 basedir .. fe.fname .. '\\')
         elseif maxdepth == 0 then
-          continue = list_files(smbstate, path .. '\\' .. fe.fname, options,
+          continue = list_files(host, share, smbstate,
+				path .. '\\' .. fe.fname, options,
                                 output, 0,
                                 basedir .. fe.fname .. '\\')
         end
@@ -221,7 +224,7 @@ action = function(host)
           output,
           '\\\\' .. stdnse.get_hostname(host) .. '\\' .. share .. path,
           false)
-        continue = list_files(smbstate, path, options,
+        continue = list_files(host, share, smbstate, path, options,
                               output, ls.config('maxdepth'))
         if not continue then
           ls.report_info(
