@@ -140,7 +140,7 @@ local function list_files(host, share, smbstate, path, options, output,
   basedir = basedir or ""
   local continue
 
-  for fe in smb.find_files(smbstate, path .. '\\' .. ls.config("pattern"),
+  for fe in smb.find_files(smbstate, path .. '\\' .. arg_pattern,
                            options) do
     if basedir == "" or (fe.fname ~= "." and fe.fname ~= "..") then
       if ls.config('checksum') and not(is_dir(fe)) then

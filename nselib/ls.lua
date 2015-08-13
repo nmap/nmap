@@ -9,7 +9,6 @@
 --                   (default: no recursion).
 -- @args ls.maxfiles [optional] the maximum number of files to return
 --                   (default: 1, no recursion).
--- @args ls.pattern  [optional] return only files that match the given pattern
 -- @args ls.checksum [optional] download each file and calculate a SHA1 checksum
 -- @args ls.errors   [optional] report errors
 -- @args ls.empty    [optional] report empty volumes (with no information
@@ -36,7 +35,6 @@ _ENV = stdnse.module("ls", stdnse.seeall)
 local config_values = {
   ["maxdepth"] = 1,
   ["maxfiles"] = 10,
-  ["pattern"] = "*",
   ["checksum"] = false,
   ["errors"] = false,
   ["empty"] = false,
