@@ -27,6 +27,7 @@
 local LIBRARY_NAME = "ls"
 
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 

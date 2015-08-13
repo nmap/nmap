@@ -1,5 +1,6 @@
 local bit    = require 'bit'
 local smb    = require 'smb'
+local string = require 'string'
 local stdnse = require 'stdnse'
 local ls     = require 'ls'
 
