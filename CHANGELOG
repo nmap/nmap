@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
+  enumerate both themesa and modules of drupal installaions. [Gyanendra Mishra]
+
 o [GH#196] Fix raw packet sending on FreeBSD 10.0 and later. FreeBSD changed
   byte order of the IPv4 stack, so SYN scan and other raw packet functions were
   broken. [Edward Napierała] Also reported in [GH#50] by Olli Hauer.
