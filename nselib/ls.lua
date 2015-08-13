@@ -70,6 +70,8 @@ end
 -- 1. a script-specific argument (e.g., http-ls.argname)
 -- 2. a module argument (ls.argname)
 -- 3. the default value
+-- @param argname The name of the configuration parameter
+-- @return The configuration value
 function config(argname)
   local argval = stdnse.get_script_args(stdnse.getid() .. "." .. argname)
   if argval == nil then
@@ -80,6 +82,7 @@ function config(argname)
 end
 
 --- Create a new script output.
+-- @return The ls output object to be passed to other functions
 function new_listing()
   local output = stdnse.output_table()
   output['curvol'] = nil
@@ -94,6 +97,9 @@ function new_listing()
 end
 
 --- Create a new volume within the provided output
+-- @param output The ls output object, from new_listing()
+-- @param name The name of the volume
+-- @param hasperms Boolean true if the volume listing will include permissions
 function new_vol(output, name, hasperms)
   local curvol = stdnse.output_table()
   local files = tab.new()
@@ -123,6 +129,8 @@ end
 
 --- Report an error, using stdnse.debug1() and (depending on the
 -- configuration settings) adding the error message to the output.
+-- @param output The ls output object, from new_listing()
+-- @param err The error message to report
 function report_error(output, err)
   if output["curvol"] == nil then
     stdnse.debug1(string.format("error: %s", err))
@@ -141,6 +149,8 @@ end
 
 --- Report information, using stdnse.debug1() and adding the message
 -- to the output.
+-- @param output The ls output object, from new_listing()
+-- @param info The info message to report
 function report_info(output, info)
   if output["curvol"] == nil then
     stdnse.debug1(string.format("info: %s", info))
@@ -177,6 +187,8 @@ local function get_size(size)
 end
 
 --- Add a new file to the current volume.
+-- @param output The ls output object, from new_listing()
+-- @param file A table containing the information about the file
 function add_file(output, file)
   -- returns true iff script should continue
   local files = output["curvol"]["files"]
@@ -208,6 +220,7 @@ end
 
 --- Close the current volume. It is mandatory to call this function
 -- before calling new_vol() again or before calling end_listing().
+-- @param output The ls output object, from new_listing()
 function end_vol(output)
   local vol = {["volume"] = output["curvol"]["name"]}
   local empty = true
@@ -285,6 +298,9 @@ end
 
 --- Close current listing. Return buth the structured and the human
 -- readable outputs.
+-- @param output The ls output object, from new_listing()
+-- @return Structured output
+-- @return Human readable output
 function end_listing(output)
   assert(output["curvol"] == nil)
   local line
