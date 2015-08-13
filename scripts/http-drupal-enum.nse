@@ -31,9 +31,8 @@ If you want to update your themes or module list refer to.
 -- @args http-drupal-enum.modules_path Direct Path for Modules
 -- @args http-drupal-enum.themes_path Direct Path for Themes
 -- @args http-drupal-enum.type default all.choose between "themes" and "modules"
--- @usage
--- nmap -p 80 --script http-drupal-enum --script-args modules_path="sites/all/modules/",themes_path="themes/",number=10 <target>
 --
+-- @usage nmap -p 80 --script http-drupal-enum <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
