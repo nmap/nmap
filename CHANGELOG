@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script http-fetch. This script can be used to fetch all files
+  from the target, specific files from the target or files that match a  given
+  pattern. [Gyanendra Mishra]
+
 o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
   enumerate both themesa and modules of drupal installaions. [Gyanendra Mishra]
 

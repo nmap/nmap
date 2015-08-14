@@ -169,6 +169,7 @@ Entry { filename = "http-errors.nse", categories = { "discovery", "intrusive", }
 Entry { filename = "http-exif-spider.nse", categories = { "intrusive", } }
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-feed.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-fetch.nse", categories = { "safe", } }
 Entry { filename = "http-fileupload-exploiter.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-form-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-form-fuzzer.nse", categories = { "fuzzer", "intrusive", } }
