@@ -9,7 +9,11 @@
 --                   (default: no recursion).
 -- @args ls.maxfiles [optional] the maximum number of files to return
 --                   (default: 1, no recursion).
--- @args ls.checksum [optional] download each file and calculate a SHA1 checksum
+-- @args ls.checksum [optional] download each file and calculate a
+--                   SHA1 checksum. Although this is a module
+--                   argument, the implementation is done in each
+--                   script and is currently only supported by smb-ls
+--                   and http-ls
 -- @args ls.errors   [optional] report errors
 -- @args ls.empty    [optional] report empty volumes (with no information
 --                   or error)
