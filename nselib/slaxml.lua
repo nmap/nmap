@@ -1,10 +1,10 @@
 ---
 -- This is the NSE implementation of SLAXML.
--- SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust 
--- than many (simpler) pattern-based parsers that exist, properly supporting 
--- code like <code><expr test="5 > 7" /></code>, CDATA nodes, comments, 
+-- SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust
+-- than many (simpler) pattern-based parsers that exist, properly supporting
+-- code like <code><expr test="5 > 7" /></code>, CDATA nodes, comments,
 -- namespaces, and processing instructions.
--- It is currently not a truly valid XML parser, however, as it allows certain XML that is 
+-- It is currently not a truly valid XML parser, however, as it allows certain XML that is
 -- syntactically-invalid (not well-formed) to be parsed without reporting an error.
 -- The streaming parser does a simple pass through the input and reports what it sees along the way.
 -- You can optionally ignore white-space only text nodes using the <code>stripWhitespace</code> option.
@@ -52,7 +52,7 @@
 --
 -- <code>local value = someEl.attr['attribute-name']</code> : any namespace prefix of the attribute is not part of the name
 --
--- <code>local someAttr = someEl.attr[1]</code> : an single attribute table (see below); useful for iterating all 
+-- <code>local someAttr = someEl.attr[1]</code> : an single attribute table (see below); useful for iterating all
 -- attributes of an element, or for disambiguating attributes with the same name in different namespaces
 --
 -- * <code>someEl.kids</code> : an array table of child elements, text nodes, comment nodes, and processing instructions
@@ -172,16 +172,22 @@ local DEFAULT_CALLBACKS = {
     end,
   }
 
+local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
+local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and unicode.utf8_enc(tonumber('0'..s)) or orig end
+
 parser = {
 
   new = function(self, callbacks)
-    local o = { 
+    local o = {
     _call = callbacks or DEFAULT_CALLBACKS
     }
     setmetatable(o, self)
     self.__index = self
     return o
   end,
+
+  unescape = function(str) return string.gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end,
+
   --- Parses the xml in sax like manner.
   -- @self The parser object.
   -- @param xml The xml body to be parsed.
@@ -202,11 +208,6 @@ parser = {
     local nsStack = {}
     local anyElement = false
 
-
-    local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
-    local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and unicode.utf8_enc(tonumber('0'..s)) or orig end
-    local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
-
     local function finishText()
       if first>textStart and self._call.text then
         local text = sub(xml,textStart,first-1)
@@ -215,7 +216,7 @@ parser = {
           text = gsub(text,'%s+$','')
           if #text==0 then text=nil end
         end
-        if text then self._call.text(unescape(text)) end
+        if text then self._call.text(parser.unescape(text)) end
       end
     end
 
@@ -279,12 +280,12 @@ parser = {
         first, last, match2 = find( xml, '^"([^<"]*)"', pos2 ) -- FIXME: disallow non-entity ampersands
         if first then
           pos = last+1
-          match2 = unescape(match2)
+          match2 = parser.unescape(match2)
         else
           first, last, match2 = find( xml, "^'([^<']*)'", pos2 ) -- FIXME: disallow non-entity ampersands
           if first then
             pos = last+1
-            match2 = unescape(match2)
+            match2 = parser.unescape(match2)
           end
         end
       end
