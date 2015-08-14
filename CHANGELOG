@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removed http-email-harvest as the the new http-grep does email address
+  scraping by default. [Gyanendra Mishra]
+
 o [NSE] Added script http-fetch. This script can be used to fetch all files
   from the target, specific files from the target or files that match a  given
   pattern. [Gyanendra Mishra]

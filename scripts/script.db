@@ -163,7 +163,6 @@ Entry { filename = "http-dombased-xss.nse", categories = { "exploit", "intrusive
 Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-drupal-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-drupal-enum-users.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "http-email-harvest.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "http-errors.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-exif-spider.nse", categories = { "intrusive", } }
