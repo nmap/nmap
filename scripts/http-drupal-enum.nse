@@ -11,16 +11,17 @@ description = [[
 Enumerates the installed Drupal modules/themes by using a list of known modules and themes.
 
 The script works by iterating over module/theme names and requesting
-MODULES_PATH/MODULE_NAME/LICENSE.txt for modules and THEME_PATH/THEME_NAME/LOGO.png.
-MODULES_PATH is either provided by the user, grepped for in the html body
+MODULE_PATH/MODULE_NAME/LICENSE.txt for modules and THEME_PATH/THEME_NAME/LICENSE.txt.
+MODULE_PATH/THEME_PATH which is either provided by the user, grepped for in the html body
 or defaulting to sites/all/modules/.
 
 If the response status code is 200, it means that the module/theme is installed. By
-default, the script checks for the top 100 modules (by downloads), given the
-huge number of existing modules (~10k).
+default, the script checks for the top 100 modules/themes (by downloads), given the
+huge number of existing modules (~18k) and themes(~1.4k).
 
-If you want to update your themes or module list refer to.
- *https://svn.nmap.org/nmap-exp/gyani/misc/drupal-update.py
+If you want to update your themes or module list refer to the link below.
+
+* https://svn.nmap.org/nmap-exp/gyani/misc/drupal-update.py
 ]]
 
 ---
@@ -204,8 +205,9 @@ function action (host, port)
     end
 
     for i, response in ipairs(pipeline_responses) do
-      -- Module exists if 200 on HEAD
-      -- or contains identification string for GET or key is themes and is image
+      -- Module exists if 200 on HEAD.
+      -- A lot Drupal of instances return 200 for all GET requests,
+      -- hence we check for the identifcation string.
       if response.status == 200 and (method == "HEAD" or (method == "GET" and response.body:match(IDENTIFICATION_STRING))) then
         result[key] = result[key] or {}
         table.insert(result[key], requests[i])
