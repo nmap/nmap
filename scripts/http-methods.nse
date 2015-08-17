@@ -39,7 +39,7 @@ only the potentially risky methods are shown.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-methods: 
+-- | http-methods:
 -- |_  Supported Methods: GET HEAD POST OPTIONS
 --
 -- @usage
@@ -47,7 +47,12 @@ only the potentially risky methods are shown.
 -- nmap --script http-methods --script-args http.url-path='/website' <target>
 --
 -- @xmloutput
--- <elem key="Supported Methods">GET HEAD POST OPTIONS</elem>
+-- <table key="Supported Methods">
+--   <elem>GET</elem>
+--   <elem>HEAD</elem>
+--   <elem>POST</elem>
+--   <elem>OPTIONS</elem>
+-- </table>
 
 
 author = {"Bernd Stroessenreuther <berny1@users.sourceforge.net>", "Gyanendra Mishra"}
@@ -116,6 +121,12 @@ action = function(host, port)
   local output = stdnse.output_table()
   local options_status = true
 
+  local spacesep = {
+    __tostring = function(t)
+      return table.concat(t, " ")
+    end
+  }
+
   -- default values for script-args
   path = stdnse.get_script_args(SCRIPT_NAME .. ".url-path") or '/'
   retest_http_methods = stdnse.get_script_args(SCRIPT_NAME .. ".retest") or false
@@ -174,12 +185,14 @@ action = function(host, port)
   end
 
   if nmap.verbosity() > 0 and #methods > 0 then
-    output["Supported Methods"] = stdnse.strjoin(" ", methods)
+    output["Supported Methods"] = methods
+    setmetatable(output["Supported Methods"], spacesep)
   end
 
   local interesting = filter_out(methods, SAFE_METHODS)
   if #interesting > 0 then
-    output["Potentially risky methods"] = stdnse.strjoin(" ", interesting)
+    output["Potentially risky methods"] = interesting
+    setmetatable(output["Potentially risky methods"], spacesep)
   end
 
   if path ~= '/' then
