@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script xmlrpc-methods. This script perfoms introspection of
+  xmlrpc services and lists methods and their description. [Gyanendra Mishra]
+
 o [NSE] Removed http-email-harvest as the the new http-grep does email address
   scraping by default. [Gyanendra Mishra]
 
