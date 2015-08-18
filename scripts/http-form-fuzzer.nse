@@ -58,8 +58,8 @@ local string = require 'string'
 local table = require 'table'
 local url = require 'url'
 
-local minlen_global = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
-local maxlen_global = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
+local minlen_global
+local maxlen_global
 
 -- generate a charset that will be used for fuzzing
 local function generate_charset(left_bound, right_bound, ...)
@@ -76,12 +76,17 @@ end
 -- check if the response we got indicates that fuzzing was successful
 local function check_response(response)
   if not(response.body) or response.status==500 then
-    return true, response.status
+    return true
   end
   if response.body:find("[Ss][Ee][Rr][Vv][Ee][Rr]%s*[Ee][Rr][Rr][Oo][Rr]") or response.body:find("[Ss][Qq][Ll]%s*[Ee][Rr][Rr][Oo][Rr]") then
-    return true, response.status
+    return true
   end
-  return false, response.status
+  return false
+end
+
+-- check from response if request was too big
+local function request_too_big(response)
+  return response.status==413 or response.status==414
 end
 
 -- checks if a field is of type we want to fuzz
@@ -120,18 +125,16 @@ local function fuzz_field(field, minlen, maxlen, postdata, sending_function)
     postdata[field["name"]] = stdnse.generate_random_string(i, charset_number)
     response_number = sending_function(postdata)
     
-    local success, status_code = check_response(response_string)
-    if success then
+    if check_response(response_string) then
       affected_string[#affected_string+1]=i
-    elseif status_code==413 or status_code==414 then
+    elseif request_too_big(response_string) then
       maxlen_global = i-1
       break
     end
 
-    success, status_code = check_response(response_number)
-    if success then
+    if check_response(response_number) then
       affected_int[#affected_int+1]=i
-    elseif status_code==413 or status_code==414 then
+    elseif request_too_big(response_number) then
       maxlen_global = i-1
       break
     end
@@ -186,6 +189,10 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 function action(host, port)
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
   local return_table = {}
+  
+  minlen_global = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
+  maxlen_global = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
+
 
   for _,target in ipairs(targets) do
     stdnse.debug2("testing path: "..target["path"])
