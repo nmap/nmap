@@ -53,6 +53,7 @@ categories = {"fuzzer", "intrusive"}
 
 local shortport = require 'shortport'
 local http = require 'http'
+local httpspider = require 'httpspider'
 local stdnse = require 'stdnse'
 local string = require 'string'
 local table = require 'table'
@@ -110,7 +111,7 @@ local charset_number = generate_charset(49,57) -- ascii 49 -> 1; 57 -> 9
 local function fuzz_form(form, minlen, maxlen, host, port, path)
   local affected_fields = {}
   local postdata = generate_safe_postdata(form)
-  local action_absolute = string.find(form["action"], "https*://")
+  local action_absolute = httpspider.LinkExtractor.isAbsolute(form["action"])
 
   -- determine the path where the form needs to be submitted
   local form_submission_path
@@ -181,7 +182,7 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
   return affected_fields
 end
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 function action(host, port)
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
