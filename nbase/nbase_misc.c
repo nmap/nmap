@@ -913,6 +913,7 @@ char *executable_path(const char *argv0) {
 
 int sockaddr_storage_inet_pton(const char * ip_str, struct sockaddr_storage * addr)
 {
+  struct sockaddr_in * addrv4p = (struct sockaddr_in *) addr;
 #if HAVE_IPV6
   struct sockaddr_in6 * addrv6p = (struct sockaddr_in6 *) addr;
   if ( 1 == inet_pton(AF_INET6, ip_str, &(addrv6p->sin6_addr)) )
@@ -922,7 +923,6 @@ int sockaddr_storage_inet_pton(const char * ip_str, struct sockaddr_storage * ad
   }
 #endif // HAVE_IPV6
 
-  struct sockaddr_in * addrv4p = (struct sockaddr_in *) addr;
   if ( 1 == inet_pton(AF_INET, ip_str, &(addrv4p->sin_addr)) )
   {
     addr->ss_family = AF_INET;
