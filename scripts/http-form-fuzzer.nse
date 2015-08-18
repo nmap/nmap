@@ -47,7 +47,7 @@ determine if the fuzzing was successful.
 -- defaults to 310000
 --
 
-author = "Piotr Olma"
+author = "Piotr Olma, Gioacchino Mazzurco"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 
@@ -57,6 +57,9 @@ local stdnse = require 'stdnse'
 local string = require 'string'
 local table = require 'table'
 local url = require 'url'
+
+local minlen_global = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
+local maxlen_global = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
 
 -- generate a charset that will be used for fuzzing
 local function generate_charset(left_bound, right_bound, ...)
@@ -73,12 +76,12 @@ end
 -- check if the response we got indicates that fuzzing was successful
 local function check_response(response)
   if not(response.body) or response.status==500 then
-    return true
+    return true, response.status
   end
   if response.body:find("[Ss][Ee][Rr][Vv][Ee][Rr]%s*[Ee][Rr][Rr][Oo][Rr]") or response.body:find("[Ss][Qq][Ll]%s*[Ee][Rr][Rr][Oo][Rr]") then
-    return true
+    return true, response.status
   end
-  return false
+  return false, response.status
 end
 
 -- checks if a field is of type we want to fuzz
@@ -109,19 +112,28 @@ local function fuzz_field(field, minlen, maxlen, postdata, sending_function)
   for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
     local response_string
     local response_number
-
+    
     --first try to fuzz with a string
     postdata[field["name"]] = stdnse.generate_random_string(i, charset)
     response_string = sending_function(postdata)
     --then with a number
     postdata[field["name"]] = stdnse.generate_random_string(i, charset_number)
     response_number = sending_function(postdata)
-
-    if (check_response(response_string)) then
+    
+    local success, status_code = check_response(response_string)
+    if success then
       affected_string[#affected_string+1]=i
+    elseif status_code==413 or status_code==414 then
+      maxlen_global = i-1
+      break
     end
-    if (check_response(response_number)) then
+
+    success, status_code = check_response(response_number)
+    if success then
       affected_int[#affected_int+1]=i
+    elseif status_code==413 or status_code==414 then
+      maxlen_global = i-1
+      break
     end
   end
   postdata[field["name"]] = "sampleString"
@@ -172,8 +184,6 @@ end
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 function action(host, port)
-  local minlen_global = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
-  local maxlen_global = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
   local return_table = {}
 
