@@ -6,7 +6,7 @@ determine if the fuzzing was successful.
 
 ---
 -- @usage
--- nmap --script http-form-fuzzer -p 80 <host>
+-- nmap --script http-form-fuzzer --script-args 'http-form-fuzzer.targets={1={path=/},2={path=/register.html}}' -p 80 <host>
 --
 -- This script attempts to fuzz fields in forms it detects (it fuzzes one field at a time).
 -- In each iteration it first tries to fuzz a field with a string, then with a number.
@@ -58,9 +58,6 @@ local string = require 'string'
 local table = require 'table'
 local url = require 'url'
 
-local minlen_global
-local maxlen_global
-
 -- generate a charset that will be used for fuzzing
 local function generate_charset(left_bound, right_bound, ...)
   local t = ... or {}
@@ -110,39 +107,6 @@ end
 local charset = generate_charset(33,126)
 local charset_number = generate_charset(49,57) -- ascii 49 -> 1; 57 -> 9
 
-local function fuzz_field(field, minlen, maxlen, postdata, sending_function)
-  local affected_string = {}
-  local affected_int = {}
-
-  for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
-    local response_string
-    local response_number
-    
-    --first try to fuzz with a string
-    postdata[field["name"]] = stdnse.generate_random_string(i, charset)
-    response_string = sending_function(postdata)
-    --then with a number
-    postdata[field["name"]] = stdnse.generate_random_string(i, charset_number)
-    response_number = sending_function(postdata)
-    
-    if check_response(response_string) then
-      affected_string[#affected_string+1]=i
-    elseif request_too_big(response_string) then
-      maxlen_global = i-1
-      break
-    end
-
-    if check_response(response_number) then
-      affected_int[#affected_int+1]=i
-    elseif request_too_big(response_number) then
-      maxlen_global = i-1
-      break
-    end
-  end
-  postdata[field["name"]] = "sampleString"
-  return affected_string, affected_int
-end
-
 local function fuzz_form(form, minlen, maxlen, host, port, path)
   local affected_fields = {}
   local postdata = generate_safe_postdata(form)
@@ -164,6 +128,39 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
     sending_function = function(data) return http.post(host, port, form_submission_path, nil, nil, data) end
   else
     sending_function = function(data) return http.get(host, port, form_submission_path.."?"..url.build_query(data), {no_cache=true, bypass_cache=true}) end
+  end
+  
+  local function fuzz_field(field)
+    local affected_string = {}
+    local affected_int = {}
+
+    for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
+      local response_string
+      local response_number
+      
+      --first try to fuzz with a string
+      postdata[field["name"]] = stdnse.generate_random_string(i, charset)
+      response_string = sending_function(postdata)
+      --then with a number
+      postdata[field["name"]] = stdnse.generate_random_string(i, charset_number)
+      response_number = sending_function(postdata)
+      
+      if check_response(response_string) then
+        affected_string[#affected_string+1]=i
+      elseif request_too_big(response_string) then
+        maxlen = i-1
+        break
+      end
+
+      if check_response(response_number) then
+        affected_int[#affected_int+1]=i
+      elseif request_too_big(response_number) then
+        maxlen = i-1
+        break
+      end
+    end
+    postdata[field["name"]] = "sampleString"
+    return affected_string, affected_int
   end
 
   for _,field in ipairs(form["fields"]) do
@@ -189,19 +186,17 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 function action(host, port)
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
   local return_table = {}
-  
-  minlen_global = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
-  maxlen_global = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
+  local minlen = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
+  local maxlen = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
 
-
-  for _,target in ipairs(targets) do
+  for _,target in pairs(targets) do
     stdnse.debug2("testing path: "..target["path"])
     local path = target["path"]
     if path then
       local response = http.get( host, port, path )
       local all_forms = http.grab_forms(response.body)
-      local minlen = target["minlength"] or minlen_global
-      local maxlen = target["maxlength"] or maxlen_global
+      minlen = target["minlength"] or minlen
+      maxlen = target["maxlength"] or maxlen
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
         if form and form.action then
