@@ -5016,8 +5016,8 @@ else
   fi
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
-  PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_distclean"
+  PCAP_CLEAN="clean-pcap"
+  PCAP_DIST_CLEAN="distclean-pcap"
 fi
 
 
@@ -5185,8 +5185,8 @@ if test "${with_liblua+set}" = set; then :
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
-    LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_distclean"
+    LUA_CLEAN="clean-lua"
+    LUA_DIST_CLEAN="distclean-lua"
 	have_lua="yes"
 
   ;;
@@ -5664,8 +5664,8 @@ $as_echo "no" >&6; }
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
-    LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_distclean"
+    LUA_CLEAN="clean-lua"
+    LUA_DIST_CLEAN="distclean-lua"
     $as_echo "#define LUA_INCLUDED 1" >>confdefs.h
 
   else
