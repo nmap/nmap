@@ -5015,7 +5015,7 @@ else
     CPPFLAGS="$CPPFLAGS -I$libpcapdir"
   fi
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_BUILD="pcap_build"
+  PCAP_BUILD="build-pcap"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
 fi
@@ -5184,7 +5184,7 @@ if test "${with_liblua+set}" = set; then :
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
+    LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
 	have_lua="yes"
@@ -5663,7 +5663,7 @@ $as_echo "no" >&6; }
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
+    LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
     $as_echo "#define LUA_INCLUDED 1" >>confdefs.h

@@ -3481,7 +3481,7 @@ o [Ncat] We should probably make it work without OpenSSL.  When I try
        ncat_main.c:646: error: ‘struct options’ has no member named ‘sslkey’
        make[2]: *** [ncat_main.o] Error 1
        make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
-       make[1]: *** [ncat_build] Error 2
+       make[1]: *** [build-ncat] Error 2
        make[1]: Leaving directory `/mondo/fyodor/nmap'
        make: *** [static] Error 2
 

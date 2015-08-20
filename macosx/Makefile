@@ -92,7 +92,7 @@ stage-nmap: export-$(NMAP_BUILD_DIR)
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
 	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
-	make -d -C $(NCAT_BUILD_DIR) ncat_build OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	make -d -C $(NCAT_BUILD_DIR) build-ncat OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NCAT_STAGING_DIR)
 	make -d -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
 

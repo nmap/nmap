@@ -461,7 +461,7 @@ if test $have_libpcap != yes; then
   fi
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_BUILD="pcap_build"
+  PCAP_BUILD="build-pcap"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
   AC_DEFINE(PCAP_INCLUDED, 1, [Using included libpcap])
@@ -521,7 +521,7 @@ if test $have_pcre != yes ; then
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
   LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
   PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
-  PCRE_BUILD="pcre_build"
+  PCRE_BUILD="build-pcre"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
   AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
@@ -574,7 +574,7 @@ if test $have_dnet != yes ; then
   CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
   LIBDNET_LIBS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_DEPENDS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_BUILD="dnet_build"
+  DNET_BUILD="build-dnet"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
   AC_DEFINE(DNET_INCLUDED, 1, [Use included libdnet])
@@ -611,7 +611,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
+    LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
       have_lua="yes"
@@ -672,7 +672,7 @@ else
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
+    LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
     AC_DEFINE(LUA_INCLUDED, 1, [Using included liblua])
@@ -838,7 +838,7 @@ AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
     NBASE_BUILD=""
     ;;
   esac],
-NBASE_BUILD="nbase_build"
+NBASE_BUILD="build-nbase"
 NBASEDIR="nbase"
 )
 
@@ -853,7 +853,7 @@ AC_SUBST(LIBNBASE_LIBS)
 AC_CONFIG_SUBDIRS(nbase)
 
 NSOCKDIR="nsock"
-NSOCK_BUILD="nsock_build"
+NSOCK_BUILD="build-nsock"
 NSOCK_CHECK="nsock_check"
 AC_ARG_WITH(libnsock,
 AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
@@ -894,7 +894,7 @@ if test "$with_ncat" = "no"; then
   NCAT_DIST_CLEAN=""
 else
   trace_use="$trace_use ncat"
-  NCAT_BUILD="ncat_build"
+  NCAT_BUILD="build-ncat"
   NCAT_CHECK="ncat_check"
   NCAT_INSTALL="install-ncat"
   NCAT_UNINSTALL="uninstall-ncat"

@@ -5342,7 +5342,7 @@ if test $have_libpcap != yes; then
   fi
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_BUILD="pcap_build"
+  PCAP_BUILD="build-pcap"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
 else

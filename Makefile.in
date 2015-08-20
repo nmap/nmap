@@ -113,10 +113,10 @@ OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLooku
 # large for field of 2 bytes". Disable debugging for this one file.
 FPModel.o: CXXFLAGS += -g0
 
-all: @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ @NMAP_UPDATE_BUILD@ netutil_build
-	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
+all: $(TARGET) @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ @NMAP_UPDATE_BUILD@ build-netutil
+	$(MAKE) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
-$(TARGET): netutil_build @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
+$(TARGET): build-netutil @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
 	@LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ \
 	@DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a \
 	libnetutil/libnetutil.a $(OBJS) main.o
@@ -124,34 +124,31 @@ $(TARGET): netutil_build @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) main.o $(LIBS)
 
-build-%: %/Makefile
-	cd $* && $(MAKE)
-
-pcre_build: $(LIBPCREDIR)/Makefile
+build-pcre: $(LIBPCREDIR)/Makefile
 	@echo Compiling libpcre; cd $(LIBPCREDIR) && $(MAKE)
 
-dnet_build: $(LIBDNETDIR)/Makefile
+build-dnet: $(LIBDNETDIR)/Makefile
 	@echo Compiling libdnet; cd $(LIBDNETDIR) && $(MAKE)
 
-pcap_build: $(LIBPCAPDIR)/Makefile
+build-pcap: $(LIBPCAPDIR)/Makefile
 	@echo Compiling libpcap; cd $(LIBPCAPDIR) && $(MAKE)
 
-nbase_build: $(NBASEDIR)/Makefile
+build-nbase: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)
 
-nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
+build-nsock: $(NSOCKDIR)/src/Makefile build-nbase
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
-netutil_build: libnetutil/Makefile
+build-netutil: libnetutil/Makefile
 	@echo Compiling libnetutil;
 	cd libnetutil && $(MAKE)
 
-ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h @PCAP_BUILD@
+build-ncat: $(NCATDIR)/Makefile build-nbase build-nsock $(NCATDIR)/ncat.h @PCAP_BUILD@
 	cd $(NCATDIR) && $(MAKE)
 
-lua_build: $(LIBLUADIR)/Makefile
+build-lua: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
 
 liblinear_build: $(LIBLINEARDIR)/Makefile
@@ -160,9 +157,9 @@ liblinear_build: $(LIBLINEARDIR)/Makefile
 
 build-nmap-update: nmap-update/default_channel.h
 
-#$(LIBPCAPDIR)/Makefile:
-#	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
-
+# This is the last one to ensure specific build targets are preferred
+build-%: %/Makefile
+	cd $* && $(MAKE)
 
 # Make a statically compiled binary for portability between distributions
 static:
@@ -335,7 +332,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 build-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
-build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build netutil_build $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
+build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:

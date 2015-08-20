@@ -247,7 +247,7 @@ if test $have_libpcap != yes; then
   fi
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_BUILD="pcap_build"
+  PCAP_BUILD="build-pcap"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
 else
@@ -301,7 +301,7 @@ if test $have_dnet != yes ; then
   CPPFLAGS="-I$LIBDNETDIR/include $CPPFLAGS"
   LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_BUILD="dnet_build"
+  DNET_BUILD="build-dnet"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
 else
