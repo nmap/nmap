@@ -5344,7 +5344,7 @@ if test $have_libpcap != yes; then
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
   PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_dist_clean"
+  PCAP_DIST_CLEAN="pcap_distclean"
 else
   $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
 
@@ -5405,7 +5405,7 @@ if test $have_dnet != yes ; then
   DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
-  DNET_DIST_CLEAN="dnet_dist_clean"
+  DNET_DIST_CLEAN="dnet_distclean"
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""

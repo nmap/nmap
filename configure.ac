@@ -257,7 +257,7 @@ else
   UNINSTALLNDIFF=uninstall-ndiff
   NDIFF_CHECK="ndiff_check"
   NDIFF_CLEAN=ndiff_clean
-  NDIFF_DIST_CLEAN=ndiff_dist_clean
+  NDIFF_DIST_CLEAN=ndiff_distclean
 fi
 AC_SUBST(NDIFFDIR)
 AC_SUBST(BUILDNDIFF)
@@ -296,7 +296,7 @@ else
   UNINSTALLZENMAP=uninstall-zenmap
   ZENMAP_CHECK=zenmap_check
   ZENMAP_CLEAN=zenmap_clean
-  ZENMAP_DIST_CLEAN=zenmap_dist_clean
+  ZENMAP_DIST_CLEAN=zenmap_distclean
 fi
 AC_SUBST(ZENMAPDIR)
 AC_SUBST(BUILDZENMAP)
@@ -323,8 +323,8 @@ else
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
-  NPING_CLEAN=nping_clean
-  NPING_DIST_CLEAN=nping_dist_clean
+  NPING_CLEAN=clean-nping
+  NPING_DIST_CLEAN=distclean-nping
   AC_CONFIG_SUBDIRS(nping)
 fi
 AC_SUBST(NPINGDIR)
@@ -462,8 +462,8 @@ if test $have_libpcap != yes; then
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
-  PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_dist_clean"
+  PCAP_CLEAN="clean-pcap"
+  PCAP_DIST_CLEAN="pcap_distclean"
   AC_DEFINE(PCAP_INCLUDED, 1, [Using included libpcap])
 else
   # We assume our included libpcap doesn't need this check-and-define
@@ -523,7 +523,7 @@ if test $have_pcre != yes ; then
   PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="pcre_clean"
-  PCRE_DIST_CLEAN="pcre_dist_clean"
+  PCRE_DIST_CLEAN="pcre_distclean"
   AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
 else
 # We only need to check for and use this if we are NOT using included pcre
@@ -576,7 +576,7 @@ if test $have_dnet != yes ; then
   DNET_DEPENDS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_BUILD="build-dnet"
   DNET_CLEAN="dnet_clean"
-  DNET_DIST_CLEAN="dnet_dist_clean"
+  DNET_DIST_CLEAN="dnet_distclean"
   AC_DEFINE(DNET_INCLUDED, 1, [Use included libdnet])
 else
   LIBDNET_LIBS="-ldnet"
@@ -613,7 +613,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_DIST_CLEAN="lua_distclean"
       have_lua="yes"
 
   ;;
@@ -674,7 +674,7 @@ else
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_DIST_CLEAN="lua_distclean"
     AC_DEFINE(LUA_INCLUDED, 1, [Using included liblua])
   else
     AC_MSG_RESULT(yes)
@@ -711,7 +711,7 @@ AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included 
     LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
     LIBLINEAR_BUILD="liblinear_build"
     LIBLINEAR_CLEAN="liblinear_clean"
-    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+    LIBLINEAR_DIST_CLEAN="liblinear_distclean"
     have_liblinear=yes
   ;;
   *)
@@ -742,7 +742,7 @@ if test $have_liblinear != yes; then
   LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
   LIBLINEAR_BUILD="liblinear_build"
   LIBLINEAR_CLEAN="liblinear_clean"
-  LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+  LIBLINEAR_DIST_CLEAN="liblinear_distclean"
   AC_DEFINE(LIBLINEAR_INCLUDED, 1, [Using included liblinear])
 else
   AC_MSG_RESULT(yes)
@@ -899,7 +899,7 @@ else
   NCAT_INSTALL="install-ncat"
   NCAT_UNINSTALL="uninstall-ncat"
   NCAT_CLEAN="ncat_clean"
-  NCAT_DIST_CLEAN="ncat_dist_clean"
+  NCAT_DIST_CLEAN="ncat_distclean"
   AC_CONFIG_SUBDIRS(ncat)
 fi
 

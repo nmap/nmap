@@ -186,10 +186,10 @@ ncat_clean:
 
 clean: ncat_clean @LUA_CLEAN@
 
-lua_clean:
+clean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 
-lua_dist_clean:
+distclean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 
 distclean: clean @LUA_DIST_CLEAN@

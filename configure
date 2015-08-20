@@ -5780,7 +5780,7 @@ else
   UNINSTALLNDIFF=uninstall-ndiff
   NDIFF_CHECK="ndiff_check"
   NDIFF_CLEAN=ndiff_clean
-  NDIFF_DIST_CLEAN=ndiff_dist_clean
+  NDIFF_DIST_CLEAN=ndiff_distclean
 fi
 
 
@@ -5830,7 +5830,7 @@ else
   UNINSTALLZENMAP=uninstall-zenmap
   ZENMAP_CHECK=zenmap_check
   ZENMAP_CLEAN=zenmap_clean
-  ZENMAP_DIST_CLEAN=zenmap_dist_clean
+  ZENMAP_DIST_CLEAN=zenmap_distclean
 fi
 
 
@@ -5864,8 +5864,8 @@ else
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
-  NPING_CLEAN=nping_clean
-  NPING_DIST_CLEAN=nping_dist_clean
+  NPING_CLEAN=clean-nping
+  NPING_DIST_CLEAN=distclean-nping
 
 
 subdirs="$subdirs nping"
@@ -6291,8 +6291,8 @@ if test $have_libpcap != yes; then
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
-  PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_dist_clean"
+  PCAP_CLEAN="clean-pcap"
+  PCAP_DIST_CLEAN="pcap_distclean"
 
 $as_echo "#define PCAP_INCLUDED 1" >>confdefs.h
 
@@ -6482,7 +6482,7 @@ if test $have_pcre != yes ; then
   PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="pcre_clean"
-  PCRE_DIST_CLEAN="pcre_dist_clean"
+  PCRE_DIST_CLEAN="pcre_distclean"
 
 $as_echo "#define PCRE_INCLUDED 1" >>confdefs.h
 
@@ -6551,7 +6551,7 @@ if test $have_dnet != yes ; then
   DNET_DEPENDS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_BUILD="build-dnet"
   DNET_CLEAN="dnet_clean"
-  DNET_DIST_CLEAN="dnet_dist_clean"
+  DNET_DIST_CLEAN="dnet_distclean"
 
 $as_echo "#define DNET_INCLUDED 1" >>confdefs.h
 
@@ -6589,7 +6589,7 @@ if test "${with_liblua+set}" = set; then :
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_DIST_CLEAN="lua_distclean"
       have_lua="yes"
 
   ;;
@@ -6868,7 +6868,7 @@ $as_echo "no" >&6; }
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
     LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_DIST_CLEAN="lua_distclean"
 
 $as_echo "#define LUA_INCLUDED 1" >>confdefs.h
 
@@ -6908,7 +6908,7 @@ if test "${with_liblinear+set}" = set; then :
     LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
     LIBLINEAR_BUILD="liblinear_build"
     LIBLINEAR_CLEAN="liblinear_clean"
-    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+    LIBLINEAR_DIST_CLEAN="liblinear_distclean"
     have_liblinear=yes
   ;;
   *)
@@ -6991,7 +6991,7 @@ $as_echo "no" >&6; }
   LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
   LIBLINEAR_BUILD="liblinear_build"
   LIBLINEAR_CLEAN="liblinear_clean"
-  LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+  LIBLINEAR_DIST_CLEAN="liblinear_distclean"
 
 $as_echo "#define LIBLINEAR_INCLUDED 1" >>confdefs.h
 
@@ -7557,7 +7557,7 @@ else
   NCAT_INSTALL="install-ncat"
   NCAT_UNINSTALL="uninstall-ncat"
   NCAT_CLEAN="ncat_clean"
-  NCAT_DIST_CLEAN="ncat_dist_clean"
+  NCAT_DIST_CLEAN="ncat_distclean"
   subdirs="$subdirs ncat"
 
 fi

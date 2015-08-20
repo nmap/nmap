@@ -248,8 +248,8 @@ if test $have_libpcap != yes; then
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
-  PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_dist_clean"
+  PCAP_CLEAN="clean-pcap"
+  PCAP_DIST_CLEAN="distclean-pcap"
 else
   AC_DEFINE(HAVE_LIBPCAP)
   LIBPCAP_LIBS="-lpcap"
@@ -302,8 +302,8 @@ if test $have_dnet != yes ; then
   LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_BUILD="build-dnet"
-  DNET_CLEAN="dnet_clean"
-  DNET_DIST_CLEAN="dnet_dist_clean"
+  DNET_CLEAN="clean-dnet"
+  DNET_DIST_CLEAN="distclean-dnet"
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
