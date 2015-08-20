@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#75] Normalize check targets to standard format check-*.
+  [Gioacchino Mazzurco]
+
+o [GH#75] Normalize clean and distclean targets to standard format clean-* and
+  distclean-*. [Gioacchino Mazzurco]
+
+o [GH#75] Normalize build targets to standard format build-*.
+  [Gioacchino Mazzurco]
+
 o [NSE] Added script xmlrpc-methods. This script perfoms introspection of
   xmlrpc services and lists methods and their description. [Gyanendra Mishra]
 
