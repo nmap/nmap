@@ -681,7 +681,7 @@ else
   fi
 
   INSTALLNSE="install-nse"
-  NSE_CHECK="nse_check"
+  NSE_CHECK="check-nse"
 fi
 
 AC_SUBST(LIBLUA_LIBS)
