@@ -113,8 +113,7 @@ OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLooku
 # large for field of 2 bytes". Disable debugging for this one file.
 FPModel.o: CXXFLAGS += -g0
 
-all: $(TARGET) @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ @NMAP_UPDATE_BUILD@ build-netutil
-	$(MAKE) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
+all: $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING) @NMAP_UPDATE_BUILD@
 
 $(TARGET): build-netutil @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
 	@LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ \
