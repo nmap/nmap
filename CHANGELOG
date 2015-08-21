@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix Nmap's DTD, which did not recognize that the script element could contain
+  character data when a script returns a number or a boolean.
+  [Jonathan Daugherty]
+
 o [GH#75] Normalize check targets to standard format check-*.
   [Gioacchino Mazzurco]
 
