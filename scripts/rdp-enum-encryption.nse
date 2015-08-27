@@ -40,6 +40,8 @@ categories = {"safe", "discovery"}
 
 portrule = shortport.port_or_service(3389, "ms-wbt-server")
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 local function enum_protocols(host, port)
   local PROTOCOLS = {
     ["Native RDP"] = 0,
@@ -60,7 +62,7 @@ local function enum_protocols(host, port)
   for k, v in pairs(PROTOCOLS) do
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
-      return false, "ERROR: Failed to connect to server"
+      return false, fail("Failed to connect to server")
     end
     local cr = rdp.Request.ConnectionRequest:new(v)
     local status, response = comm:exch(cr)
@@ -118,7 +120,7 @@ local function enum_ciphers(host, port)
   for k, v in get_ordered_ciphers() do
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
-      return false, "ERROR: Failed to connect to server"
+      return false, fail("Failed to connect to server")
     end
 
     local cr = rdp.Request.ConnectionRequest:new()

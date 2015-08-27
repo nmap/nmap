@@ -43,9 +43,7 @@ prerule = function()
 end
 
 local function fail(err)
-  if ( err ) then
-    return ("\n  ERROR: %s"):format(err)
-  end
+  return stdnse.format_output(false, err)
 end
 
 local function discoverPPPoE(helper)

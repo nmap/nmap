@@ -81,8 +81,6 @@ local function parseSvcList(services)
   end
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 local function parseSrvResponse(resp)
   local i = 1
   if ( resp.answers ) then
@@ -153,7 +151,7 @@ action = function(host)
   }
 
   if ( not(checkFilter(services)) ) then
-    return fail(("Invalid filter (%s) was supplied"):format(arg_filter))
+    return stdnse.format_output(false, ("Invalid filter (%s) was supplied"):format(arg_filter))
   end
 
   local threads, result = {}, {}

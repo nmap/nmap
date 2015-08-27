@@ -51,13 +51,11 @@ local function filter_out(t, filter)
   return result
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
 
   local helper = ajp.Helper:new(host, port)
   if ( not(helper:connect()) ) then
-    return fail("Failed to connect to server")
+    return stdnse.format_output(false, "Failed to connect to server")
   end
 
   local status, response = helper:options(arg_url)

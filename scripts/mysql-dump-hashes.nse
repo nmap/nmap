@@ -40,7 +40,7 @@ portrule = shortport.port_or_service(3306, "mysql")
 local arg_username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
 local arg_password = stdnse.get_script_args(SCRIPT_NAME .. ".password") or ""
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function getCredentials()
   -- first, let's see if the script has any credentials as arguments?

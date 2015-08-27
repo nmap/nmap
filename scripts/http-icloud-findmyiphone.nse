@@ -45,7 +45,7 @@ local function decodeString(str)
   return str:gsub("\226\128\153", "'")
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function()
 

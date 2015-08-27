@@ -2,6 +2,7 @@ local brute = require "brute"
 local creds = require "creds"
 local redis = require "redis"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 
 description = [[
 Performs brute force passwords auditing against a Redis key-value store.
@@ -29,7 +30,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(6379, "redis")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 Driver = {
 

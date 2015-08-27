@@ -52,7 +52,7 @@ local arg_file     = stdnse.get_script_args(SCRIPT_NAME .. ".filename")
 local arg_username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
 local arg_password = stdnse.get_script_args(SCRIPT_NAME .. ".password")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 

@@ -52,7 +52,7 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(19150, "gkrellm", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local long_names = {
   ["fs_mounts"] = "Mounts",

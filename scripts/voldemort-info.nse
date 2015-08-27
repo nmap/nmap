@@ -44,7 +44,7 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(6666, "vp3", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 -- Connect to the server and make sure it supports the vp3 protocol
 -- @param host table as received by the action method

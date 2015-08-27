@@ -31,8 +31,6 @@ categories = {"discovery", "safe"}
 
 local arg_path   = stdnse.get_script_args(SCRIPT_NAME .. '.path') or "/"
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
   local method
   local helper = ajp.Helper:new(host, port)
@@ -42,7 +40,7 @@ action = function(host, port)
   helper:close()
 
   if ( not(status) ) then
-    return fail("Failed to retrieve server headers")
+    return stdnse.format_output(false, "Failed to retrieve server headers")
   end
   return stdnse.format_output(true, response.rawheaders)
 end

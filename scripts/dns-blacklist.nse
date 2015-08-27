@@ -109,17 +109,19 @@ local function formatResult(result)
   return output
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 dnsblAction = function(host)
 
   local helper
   if ( arg_services and ( not(arg_category) or "all" == arg_category:lower() ) ) then
-    return "\n  ERROR: A service filter can't be used without a specific category"
+    return fail("A service filter can't be used without a specific category")
   elseif( "all" ~= arg_category ) then
     helper = dnsbl.Helper:new(arg_category, arg_mode)
     helper:setFilter(arg_services)
     local status, err = helper:validateFilter()
     if ( not(status) ) then
-      return ("\n  ERROR: %s"):format(err)
+      return fail(("%s"):format(err))
     end
   end
 
@@ -153,11 +155,11 @@ end
 action = function(...)
 
   if ( arg_mode ~= "short" and arg_mode ~= "long" ) then
-    return "\n  ERROR: Invalid argument supplied, mode should be either 'short' or 'long'"
+    return fail("Invalid argument supplied, mode should be either 'short' or 'long'")
   end
 
   if ( arg_IP and not(ipOps.todword(arg_IP)) ) then
-    return "\n  ERROR: Invalid IP address was supplied"
+    return fail("Invalid IP address was supplied")
   end
 
   -- if the list argument was given, just list the services and abort

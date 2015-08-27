@@ -60,7 +60,7 @@ local order = {
   "auth_enabled_sasl"
 }
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function mergetab(tab1, tab2)
   for k, v in pairs(tab2) do

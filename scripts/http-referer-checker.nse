@@ -61,7 +61,7 @@ action = function(host, port)
     local status, r = crawler:crawl()
     if (not(status)) then
       if (r.err) then
-        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+        return stdnse.format_output(false, r.reason)
       else
         break
       end

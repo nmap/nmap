@@ -99,6 +99,7 @@ Driver =
 
 }
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
@@ -106,9 +107,9 @@ action = function(host, port)
   -- authentication mechanisms can be determined
   local helper = imap.Helper:new(host, port)
   local status = helper:connect()
-  if (not(status)) then return "\n  ERROR: Failed to connect to the server." end
+  if (not(status)) then return fail("Failed to connect to the server.") end
   local status, capabilities = helper:capabilities()
-  if (not(status)) then return "\n  ERROR: Failed to retrieve capabilities." end
+  if (not(status)) then return fail("Failed to retrieve capabilities.") end
 
   -- check if an authentication mechanism was provided or try
   -- try them in the mech_prio order
@@ -129,7 +130,7 @@ action = function(host, port)
 
   -- if no mechanisms were found, abort
   if ( not(mech) ) then
-    return "\n  ERROR: No suitable authentication mechanism was found"
+    return fail("No suitable authentication mechanism was found")
   end
 
   local engine = brute.Engine:new(Driver, host, port)

@@ -40,7 +40,7 @@ dependencies = {"rpcap-brute"}
 
 portrule = shortport.port_or_service(2002, "rpcap", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function getInfo(host, port, username, password)
 

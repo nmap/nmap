@@ -330,12 +330,10 @@ local get_addresses = function(address, mask, domain, nameserver, port)
   return resp
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
 
   if ( not(argDomain) ) then
-    return fail(SCRIPT_NAME .. ".domain was not specified")
+    return stdnse.format_output(false, SCRIPT_NAME .. ".domain was not specified")
   end
 
   local nameserver = (host and host.ip) or argNS

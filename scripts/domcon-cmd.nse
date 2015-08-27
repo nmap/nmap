@@ -96,6 +96,8 @@ local function readAPIBlock( socket )
 
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
 
   local socket = nmap.new_socket()
@@ -104,9 +106,9 @@ action = function(host, port)
   local pass = stdnse.get_script_args('domcon-cmd.pass')
   local cmd = stdnse.get_script_args('domcon-cmd.cmd')
 
-  if( not(cmd) ) then return "  \n  ERROR: No command supplied (see domcon-cmd.cmd)" end
-  if( not(user)) then return "  \n  ERROR: No username supplied (see domcon-cmd.user)" end
-  if( not(pass)) then return "  \n  ERROR: No password supplied (see domcon-cmd.pass)" end
+  if( not(cmd) ) then return fail("No command supplied (see domcon-cmd.cmd)") end
+  if( not(user)) then return fail("No username supplied (see domcon-cmd.user)") end
+  if( not(pass)) then return fail("No password supplied (see domcon-cmd.pass)") end
 
   cmds = stdnse.strsplit(";%s*", cmd)
 
@@ -128,7 +130,7 @@ action = function(host, port)
       result_part.name = cmds[i]
       table.insert( result, result_part )
     else
-      return "  \n  ERROR: " .. result_part
+      return fail(result_part)
     end
   end
 

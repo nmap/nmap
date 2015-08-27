@@ -207,6 +207,7 @@ local function saveIDFile( filename, data )
   return true
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
@@ -226,7 +227,7 @@ action = function(host, port)
    -- A user was provided, attempt to authenticate
     if ( user ) then
       if (not(isValidCredential( vhost or host, port, path, user, pass )) ) then
-        return "  \n  ERROR: The provided credentials where invalid"
+        return fail("The provided credentials were invalid")
       end
     else
       local c = creds.Credentials:new(creds.ALL_DATA, host, port)
@@ -240,7 +241,7 @@ action = function(host, port)
       end
       if not pass then
         local msg = has_creds and "No valid credentials were found" or "No credentials supplied"
-        return string.format("  \n  ERROR: %s (see domino-enum-passwords.username and domino-enum-passwords.password)", msg)
+        return fail(("%s (see domino-enum-passwords.username and domino-enum-passwords.password)"):format(msg))
       end
     end
   end
@@ -253,9 +254,9 @@ action = function(host, port)
   if ( not(pager) ) then
     if ( http_response.body and
       http_response.body:match(".*<input type=\"submit\".* value=\"Sign In\">.*" ) ) then
-      return "  \n  ERROR: Failed to authenticate"
+      return fail("Failed to authenticate")
     else
-      return "  \n  ERROR: Failed to process results"
+      return fail("Failed to process results")
     end
   end
   pos = 1

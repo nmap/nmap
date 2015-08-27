@@ -39,7 +39,7 @@ action = function()
   for i=1,2 do
     local status = socket:sendto(host, port, "NQ")
     if ( not(status) ) then
-      return "\n  ERROR: Failed to send broadcast request"
+      return stdnse.format_output(false, "Failed to send broadcast request")
     end
   end
 

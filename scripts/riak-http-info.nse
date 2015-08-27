@@ -103,7 +103,7 @@ local order = {
 }
 
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 

@@ -141,6 +141,7 @@ Driver =
 
 }
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
   local DEFAULT_ACCOUNTS = "nselib/data/oracle-default-accounts.lst"
@@ -150,20 +151,20 @@ action = function(host, port)
   local mode = arg_accounts and "accounts" or "default"
 
   if ( not(sid) ) then
-    return "\n  ERROR: Oracle instance not set (see oracle-brute-stealth.sid or tns.sid)"
+    return fail("Oracle instance not set (see oracle-brute-stealth.sid or tns.sid)")
   end
 
   if ( arg_johnfile ) then
     johnfile = io.open(arg_johnfile, "w")
     if ( not(johnfile) ) then
-      return ("\n  ERROR: Failed to open %s for writing"):format(johnfile)
+      return fail(("Failed to open %s for writing"):format(johnfile))
     end
   end
 
   local helper = tns.Helper:new( host, port, sid )
   local status, result = helper:Connect()
   if ( not(status) ) then
-    return "\n  ERROR: Failed to connect to oracle server"
+    return fail("Failed to connect to oracle server")
   end
   helper:Close()
 
@@ -177,12 +178,12 @@ action = function(host, port)
   if ( mode == "default" ) then
     local f = nmap.fetchfile(DEFAULT_ACCOUNTS)
     if ( not(f) ) then
-      return ("\n  ERROR: Failed to find %s"):format(DEFAULT_ACCOUNTS)
+      return fail(("Failed to find %s"):format(DEFAULT_ACCOUNTS))
     end
 
     f = io.open(f)
     if ( not(f) ) then
-      return ("\n  ERROR: Failed to open %s"):format(DEFAULT_ACCOUNTS)
+      return fail(("Failed to open %s"):format(DEFAULT_ACCOUNTS))
     end
 
     engine.iterator = brute.Iterators.credential_iterator(f)

@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stun = require "stun"
+local stdnse = require "stdnse"
 
 description = [[
 Retrieves the external IP address of a NAT:ed host using the STUN protocol.
@@ -24,7 +25,7 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(3478, "stun", "udp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
   local helper = stun.Helper:new(host, port)

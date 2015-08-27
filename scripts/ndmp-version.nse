@@ -1,6 +1,7 @@
 local ndmp = require "ndmp"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 
 description = [[
 Retrieves version information from the remote Network Data Management Protocol
@@ -26,7 +27,7 @@ categories = {"version"}
 
 portrule = shortport.version_port_or_service(10000, "ndmp", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function vendorLookup(vendor)
   if ( vendor:match("VERITAS") ) then

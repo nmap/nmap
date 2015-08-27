@@ -65,7 +65,7 @@ local function is_dir(fe)
   return ( bit.band(fe.attrs, 16) == 16 )
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host)
 

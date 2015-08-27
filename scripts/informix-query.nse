@@ -67,7 +67,7 @@ action = function( host, port )
       user = nmap.registry['informix-brute'][1]["username"]
       pass = nmap.registry['informix-brute'][1]["password"]
     else
-      return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
+      return stdnse.format_output(false, "No credentials specified (see informix-table.username and informix-table.password)")
     end
   end
 

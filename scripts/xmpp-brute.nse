@@ -102,6 +102,7 @@ Driver =
 
 }
 
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
@@ -109,12 +110,12 @@ action = function(host, port)
   local helper = xmpp.Helper:new(host, port, options)
   local status, err = helper:connect()
   if ( not(status) ) then
-    return "\n  ERROR: Failed to connect to XMPP server"
+    return fail("Failed to connect to XMPP server")
   end
 
   local mechs = helper:getAuthMechs()
   if ( not(mechs) ) then
-    return "\n  ERROR: Failed to retrieve authentication mechs from XMPP server"
+    return fail("Failed to retrieve authentication mechs from XMPP server")
   end
 
   local mech_prio = stdnse.get_script_args("xmpp-brute.auth")
@@ -128,7 +129,7 @@ action = function(host, port)
   end
 
   if ( not(mech) ) then
-    return "\n  ERROR: Failed to find suitable authentication mechanism"
+    return fail("Failed to find suitable authentication mechanism")
   end
 
   local engine = brute.Engine:new(Driver, host, port, options)

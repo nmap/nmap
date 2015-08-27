@@ -198,11 +198,7 @@ action = function(host)
   -- Get the process list
   local status, result = msrpcperformance.get_performance_data(host, "230")
   if status == false then
-    if nmap.debugging() > 0 then
-      return "ERROR: " .. result
-    else
-      return nil
-    end
+    return stdnse.format_output(false, result)
   end
 
   -- Get the process table

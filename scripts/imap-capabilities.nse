@@ -25,13 +25,15 @@ categories = {"default", "safe"}
 
 portrule = shortport.port_or_service({143, 993}, {"imap", "imaps"})
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
   local helper = imap.Helper:new(host, port)
   local status = helper:connect()
-  if ( not(status) ) then return "\n  ERROR: Failed to connect to server" end
+  if ( not(status) ) then return fail("Failed to connect to server") end
 
   local status, capa = helper:capabilities(host, port)
-  if( not(status) ) then return "\n  ERROR: Failed to retrieve capabilities" end
+  if( not(status) ) then return fail("Failed to retrieve capabilities") end
   helper:close()
 
   if type(capa) == "table" then

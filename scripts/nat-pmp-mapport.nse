@@ -55,7 +55,7 @@ local arg_protocol= stdnse.get_script_args(SCRIPT_NAME .. ".protocol")
 local arg_lifetime= stdnse.get_script_args(SCRIPT_NAME .. ".lifetime") or 3600
 local arg_op      = stdnse.get_script_args(SCRIPT_NAME .. ".op") or "map"
 
-local function fail(str) return "\n  ERROR: " .. str end
+local function fail(str) return stdnse.format_output(false, str) end
 
 action = function(host, port)
 

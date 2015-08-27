@@ -42,7 +42,7 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(8091, "http", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local filter = {
   ["parsed[1]['nodes'][1]['os']"] = { name = "OS" },

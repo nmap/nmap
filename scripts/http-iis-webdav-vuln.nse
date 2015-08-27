@@ -151,6 +151,8 @@ local function go(host, port)
   return true, results, is_vulnerable
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
   -- Start by checking if '/' is protected -- if it is, we can't do the tests
   local result = go_single(host, port, "/")
@@ -179,7 +181,7 @@ action = function(host, port)
       else
         stdnse.debug1("PROPFIND request failed.")
       end
-      return nmap.verbosity() > 0 and "ERROR: This web server is not supported." or nil
+      return fail("This web server is not supported.")
     end
   end
 
@@ -200,7 +202,7 @@ action = function(host, port)
     local status, results, is_vulnerable = go(host, port)
 
     if(status == false) then
-      return nmap.verbosity() > 0 and "ERROR: " .. results or nil
+      return fail(results)
     else
       if(#results == 0) then
         if(is_vulnerable == false) then

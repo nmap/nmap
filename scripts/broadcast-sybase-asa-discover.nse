@@ -171,7 +171,7 @@ action = function()
   local status, instances = helper:ping()
 
   if ( not(status) ) then
-    return ("\n  ERROR: %s"):format(instances)
+    return stdnse.format_output(false, instances)
   end
 
   -- if we don't have any instances, silently abort

@@ -208,7 +208,7 @@ local function parseScanReport(report)
   return result
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function()
 

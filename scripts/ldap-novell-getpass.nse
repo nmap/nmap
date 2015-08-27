@@ -52,6 +52,8 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 function action(host,port)
 
   local username = stdnse.get_script_args("ldap-novell-getpass.username")
@@ -59,15 +61,14 @@ function action(host,port)
   local account = stdnse.get_script_args("ldap-novell-getpass.account")
 
   if ( not(username) ) then
-    return "\n  ERROR: No username was supplied (ldap-novell-getpass.username)"
+    return fail("No username was supplied (ldap-novell-getpass.username)")
   end
   if ( not(account) ) then
-    return "\n  ERROR: No account was supplied (ldap-novell-getpass.account)"
+    return fail("No account was supplied (ldap-novell-getpass.account)")
   else
     -- do some basic account validation
     if ( not(account:match("^[Cc][Nn]=.*,") ) ) then
-      return "\n  ERROR: The account argument should be specified as:\n" ..
-        "    \"CN=name,OU=orgunit,O=org\""
+      return fail("The account argument should be specified as: \"CN=name,OU=orgunit,O=org\"")
     end
   end
 
@@ -76,7 +77,7 @@ function action(host,port)
   local anon_bind = bin.pack("H", "300c020101600702010304008000" )
   local socket, _, opt = comm.tryssl( host, port, anon_bind, nil )
   if ( not(socket) ) then
-    return "\n  ERROR: Failed to connect to LDAP server"
+    return fail("Failed to connect to LDAP server")
   end
 
   local status, errmsg = ldap.bindRequest( socket, {
@@ -106,7 +107,7 @@ function action(host,port)
   data = ldap.encode( { _ldaptype = '30', bin.pack("H", "020102") .. data } )
 
   status = socket:send(data)
-  if ( not(status) ) then return "ERROR: Failed to send request" end
+  if ( not(status) ) then return fail("Failed to send request") end
 
   status, data = socket:receive()
   if ( not(status) ) then return data end
@@ -120,7 +121,7 @@ function action(host,port)
 
   if ( rescode ~= 0 ) then
     local errmsg = ( #response >= 4 ) and response[4] or "An unknown error occurred"
-    return "\n  ERROR: " .. errmsg
+    return fail(errmsg)
   end
 
   -- make sure we get a NMAS Get Password Response back from the server
@@ -134,6 +135,6 @@ function action(host,port)
     table.insert(output, ("Password: %s"):format(universal_pw))
     return stdnse.format_output(true, output)
   else
-    return "\n  ERROR: No password was found"
+    return fail("No password was found")
   end
 end

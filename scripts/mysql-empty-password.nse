@@ -40,7 +40,7 @@ action = function( host, port )
 
   for _, v in ipairs( users ) do
     local status, response = socket:connect(host, port)
-    if( not(status) ) then return "  \n  ERROR: Failed to connect to mysql server" end
+    if( not(status) ) then return stdnse.format_output(false, "Failed to connect to mysql server") end
 
     status, response = mysql.receiveGreeting( socket )
     if ( not(status) ) then

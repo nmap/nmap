@@ -251,7 +251,7 @@ action = function()
     interface = getInterface(target)
   end
   if not interface then
-    return ("\n ERROR: Couldn't get interface for %s"):format(target)
+    return stdnse.format_output(false, ("Couldn't get interface for %s"):format(target))
   end
 
   stdnse.debug1("will send to %s via %s interface.", target, interface.shortname)

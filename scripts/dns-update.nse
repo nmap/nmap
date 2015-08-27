@@ -100,7 +100,7 @@ action = function(host, port)
     nmap.set_port_state(host, port, "open")
     return stdnse.format_output(true, result)
   elseif ( err ) then
-    return "\n  ERROR: " .. err
+    return stdnse.format_output(false, err)
   end
 
 end

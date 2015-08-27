@@ -133,7 +133,7 @@ local function fetch_recursively(host, port, url, destination, patterns, output)
     local status, r = crawler:crawl()
     if ( not(status) ) then
       if ( r.err ) then
-        return stdnse.format_output(true, "ERROR: %s", r.reason)
+        return stdnse.format_output(false, r.reason)
       else
         break
       end

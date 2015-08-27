@@ -100,7 +100,7 @@ action = function(host, port)
   if ( repofile ) then
     f = io.open( repofile, "r" )
     if ( not(f) ) then
-      return ("\n  ERROR: Failed to open repository file: %s"):format(repofile)
+      return stdnse.format_output(false, ("Failed to open repository file: %s"):format(repofile))
     end
   end
 

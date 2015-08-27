@@ -192,13 +192,15 @@ local function dhcpDiscover()
 
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function()
 
   local status, response, wpad
 
   if ( arg_nodhcp and arg_nodns ) then
-    return "\n  ERROR: Both nodns and nodhcp arguments were supplied"
+    stdnse.verbose1("Both nodns and nodhcp arguments were supplied")
+    return fail("Both nodns and nodhcp arguments were supplied")
   end
 
   if ( nmap.is_privileged() and not(arg_nodhcp) ) then
@@ -213,7 +215,7 @@ action = function()
     status, response = dnsDiscover()
     if ( not(status) ) then
       local services = "DNS" .. ( nmap.is_privileged() and "/DHCP" or "" )
-      return ("\n  ERROR: Could not find WPAD using %s"):format(services)
+      return fail(("Could not find WPAD using %s"):format(services))
     end
     wpad = ("http://%s/wpad.dat"):format( response.name )
   end

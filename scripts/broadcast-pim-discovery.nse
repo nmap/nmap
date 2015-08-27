@@ -159,7 +159,7 @@ action = function()
     interface = getInterface(mcast)
   end
   if not interface then
-    return ("\n ERROR: Couldn't get interface for %s"):format(mcast)
+    return stdnse.format_output(false, ("Couldn't get interface for %s"):format(mcast))
   end
 
   stdnse.debug1("will send via %s interface.", interface.shortname)

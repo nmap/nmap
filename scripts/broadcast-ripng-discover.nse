@@ -147,7 +147,7 @@ RIPng = {
   }
 }
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 -- Parses a RIPng response
 -- @return ret string containing the routing table

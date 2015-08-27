@@ -39,6 +39,7 @@ local function createWOLPacket(mac)
   return "\xff\xff\xff\xff\xff\xff" .. string.rep(bin.pack("H", mac), 16)
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function()
 
@@ -48,7 +49,7 @@ action = function()
   elseif( MAC:match("%x%x%-%x%x%-%x%x%-%x%x%-%x%x%-%x%x") ) then
     MAC_hex = MAC:gsub("-", "")
   else
-    return "\n  ERROR: Failed to process MAC address"
+    return fail("Failed to process MAC address")
   end
 
   local host = { ip = address or "255.255.255.255" }
@@ -60,7 +61,7 @@ action = function()
     local packet = createWOLPacket(MAC_hex)
     local status, err = socket:sendto(host, port, packet)
     if ( not(status) ) then
-      return "\n  ERROR: Failed to send packet"
+      return fail("Failed to send packet")
     end
   end
   return stdnse.format_output(true, ("Sent WOL packet to: %s"):format(MAC))

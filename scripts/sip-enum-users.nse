@@ -120,11 +120,11 @@ end
 local useriterator = function(list)
   local f = nmap.fetchfile(list) or list
   if not f then
-    return false, ("\n ERROR: Couldn't find %s"):format(list)
+    return false, ("Couldn't find %s"):format(list)
   end
   f = io.open(f)
   if ( not(f) ) then
-    return false, ("\n  ERROR: Failed to open %s"):format(list)
+    return false, ("Failed to open %s"):format(list)
   end
   return function()
     for line in f:lines() do
@@ -145,12 +145,12 @@ local test404 = function(host, port)
   session = sip.Session:new(host, port)
   status = session:connect()
   if not status then
-    return false, "ERROR: Failed to connect to the SIP server."
+    return false, "Failed to connect to the SIP server."
   end
 
   status, response = registerext(session, randext)
   if  not status then
-    return false, "ERROR: No response from the SIP server."
+    return false, "No response from the SIP server."
   end
   if response:getErrorCode() ~= 404 then
     return false, "Server not returning 404 for random extension."
@@ -217,6 +217,8 @@ Driver = {
   end,
 }
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
   local result, lthreads = {}, {}
   local status, err
@@ -230,19 +232,19 @@ action = function(host, port)
 
   -- min extension should be less than max extension.
   if minext > maxext then
-    return "ERROR: maxext should be greater or equal than minext."
+    return fail("maxext should be greater or equal than minext.")
   end
   -- If not set to zero, number of digits to pad up to should have less or
   -- equal the number of digits of max extension.
   if padding ~= 0 and #tostring(maxext) > padding then
-    return "ERROR: padding should be greater or equal to number of digits of maxext."
+    return fail("padding should be greater or equal to number of digits of maxext.")
   end
 
   -- We test for false positives by sending a request for a random extension
   -- and checking if it did return a 404.
   status, err = test404(host, port)
   if not status then
-    return err
+    return fail(err)
   end
 
   local engine = brute.Engine:new(Driver, host, port)
@@ -252,7 +254,7 @@ action = function(host, port)
   if users then
     local usernames, err = useriterator(usersfile)
     if not usernames then
-      return err
+      return fail(err)
     end
     -- Concat numbers and users iterators
     iterator = unpwdb.concat_iterators(iterator, usernames)

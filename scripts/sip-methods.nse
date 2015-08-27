@@ -45,7 +45,7 @@ action = function(host, port)
   session = sip.Session:new(host, port)
   status = session:connect()
   if not status then
-    return "ERROR: Failed to connect to the SIP server."
+    return stdnse.format_output(false, "Failed to connect to the SIP server.")
   end
 
   status, response = session:options()

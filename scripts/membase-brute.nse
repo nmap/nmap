@@ -68,7 +68,7 @@ Driver = {
 }
 
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function getMechs(host, port)
   local helper = membase.Helper:new(host, port)

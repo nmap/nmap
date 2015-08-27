@@ -49,7 +49,7 @@ portrule = shortport.port_or_service(3632, "distcc")
 
 local arg_cmd = stdnse.get_script_args(SCRIPT_NAME .. '.cmd') or "id"
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 

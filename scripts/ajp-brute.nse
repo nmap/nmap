@@ -35,7 +35,7 @@ portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 
 local arg_url = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 Driver = {
 

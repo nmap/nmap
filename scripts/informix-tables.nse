@@ -57,6 +57,8 @@ dependencies = { "informix-brute" }
 
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function( host, port )
   local helper
   local status, data
@@ -77,7 +79,7 @@ action = function( host, port )
       user = nmap.registry['informix-brute'][1]["username"]
       pass = nmap.registry['informix-brute'][1]["password"]
     else
-      return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
+      return fail("No credentials specified (see informix-table.username and informix-table.password)")
     end
   end
 
@@ -94,7 +96,7 @@ action = function( host, port )
   local databases
   status, databases = helper:GetDatabases()
   if ( not(status) ) then
-    return "  \n  ERROR: Failed to retrieve a list of databases"
+    return fail("Failed to retrieve a list of databases")
   end
 
   for _, db in ipairs(databases) do

@@ -85,7 +85,7 @@ servers to remote users who send carefully crafted requests.]],
   local bypass_request = http.pipeline_go(host,port, all)
   if ( not(bypass_request) ) then
     stdnse.debug1("got no answers from pipelined queries")
-    return "\n  ERROR: Got no answers from pipelined queries"
+    return stdnse.format_output(false, "Got no answers from pipelined queries")
   end
 
 

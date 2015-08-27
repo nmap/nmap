@@ -29,7 +29,7 @@ categories = {"safe", "discovery"}
 portrule = shortport.port_or_service(177, "xdmcp", "udp")
 
 local mutex = nmap.mutex("xdmcp-discover")
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 
 action = function(host, port)

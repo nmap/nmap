@@ -1,6 +1,7 @@
 local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
@@ -70,6 +71,8 @@ local function processOptions(data)
   return true, { done=( not(#data == pos - 1) ), cmds = result }
 end
 
+local function fail(err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
 
   local socket = nmap.new_socket()
@@ -80,17 +83,17 @@ action = function(host, port)
   socket:set_timeout(7500)
   status, result = socket:send(data)
   if ( not(status) ) then
-    return ("\n  ERROR: Failed to send packet: %s"):format(result)
+    return fail(("Failed to send packet: %s"):format(result))
   end
 
   repeat
     status, data = socket:receive()
     if ( not(status) ) then
-      return ("\n  ERROR: Receiving packet: %s"):format(data)
+      return fail(("Receiving packet: %s"):format(data))
     end
     status, result = processOptions(data)
     if ( not(status) ) then
-      return "\n  ERROR: Failed to process telnet options"
+      return fail("Failed to process telnet options")
     end
   until( result.done or result.cmds['26'] )
 

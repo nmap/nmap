@@ -66,7 +66,7 @@ action = function( host, port )
 
   local target = stdnse.get_script_args('iscsi-brute.target')
   if ( not(target) ) then
-    return "ERROR: No target specified (see iscsi-brute.target)"
+    return stdnse.format_output(false, "No target specified (see iscsi-brute.target)")
   end
 
   local helper = iscsi.Helper:new( host, port )

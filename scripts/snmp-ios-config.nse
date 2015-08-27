@@ -46,6 +46,7 @@ dependencies = {"snmp-brute"}
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
+local function fail (err) return stdnse.format_output(false, err) end
 ---
 -- Sends SNMP packets to host and reads responses
 action = function(host, port)
@@ -53,7 +54,7 @@ action = function(host, port)
   local tftproot = stdnse.get_script_args("snmp-ios-config.tftproot")
 
   if ( tftproot and not( tftproot:match("[\\/]+$") ) ) then
-    return "ERROR: tftproot needs to end with slash"
+    return fail("tftproot needs to end with slash")
   end
 
   local snmpHelper = snmp.Helper:new(host, port)
@@ -61,7 +62,7 @@ action = function(host, port)
 
   local status, tftpserver, _, _, _ = snmpHelper.socket:get_info()
   if( not(status) ) then
-    return "ERROR: Failed to determine local ip"
+    return fail("Failed to determine local ip")
   end
 
   -- build a SNMP v1 packet
@@ -138,7 +139,7 @@ action = function(host, port)
   status, response = snmpHelper:get({reqId=28428}, ".1.3.6.1.4.1.9.9.96.1.1.1.1.10.9999")
 
   if (not status) or (response == "TIMEOUT") then
-    return "\n  ERROR: Failed to receive cisco configuration file"
+    return fail("Failed to receive cisco configuration file")
   end
 
   local result = response and response[1] and response[1][1]
@@ -156,7 +157,7 @@ action = function(host, port)
         file:write(result)
         file:close()
       else
-        return "\n  ERROR: " .. file
+        return fail(file)
       end
       result = ("\n  Configuration saved to (%s)"):format(fname)
     end

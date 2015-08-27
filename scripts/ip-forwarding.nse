@@ -72,7 +72,7 @@ icmpEchoRequest = function(ifname, host, addr)
   return status
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host)
 
@@ -93,7 +93,7 @@ action = function(host)
   end
 
   if ( target == host.ip ) then
-    return ("\n  ERROR: Target can not be the same as the scanned host")
+    return fail("Target can not be the same as the scanned host")
   end
 
   if (icmpEchoRequest(ifname, host, target)) then

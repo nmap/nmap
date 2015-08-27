@@ -258,7 +258,8 @@ action = function(host, port)
   -- Nuclear launch detected!
   results = http.pipeline_go(host, port, requests, nil)
   if results == nil then
-    return "[ERROR] HTTP request table is empty. This should not happen since we at least made one request."
+    return stdnse.format_output(false,
+      "HTTP request table is empty. This should not happen since we at least made one request.")
   end
 
   -- Record 404 response, later it will be used to determine if page exists

@@ -37,7 +37,7 @@ dependencies = {"redis-brute"}
 
 portrule = shortport.port_or_service(6379, "redis")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function cb_parse_version(host, port, val)
   port.version.version = val

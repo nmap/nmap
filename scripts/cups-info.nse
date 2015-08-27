@@ -43,13 +43,11 @@ categories = {"safe", "discovery"}
 
 portrule = shortport.port_or_service(631, "ipp", "tcp", "open")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
 
   local helper = ipp.Helper:new(host, port)
   if ( not(helper:connect()) ) then
-    return fail("Failed to connect to server")
+    return stdnse.format_output(false, "Failed to connect to server")
   end
 
   local status, printers = helper:getPrinters()

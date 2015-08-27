@@ -105,14 +105,14 @@ loadDecoders = function(fname)
   local abs_fname = nmap.fetchfile(fname)
 
   if ( not(abs_fname) ) then
-    return false, ("ERROR: Failed to load decoder definition (%s)"):format(fname)
+    return false, ("Failed to load decoder definition (%s)"):format(fname)
   end
 
   local env = setmetatable({Decoders = {}}, {__index = _G});
   local file = loadfile(abs_fname, "t", env)
   if(not(file)) then
     stdnse.debug1("Couldn't load decoder file: %s", fname)
-    return false, "ERROR: Couldn't load decoder file: " .. fname
+    return false, "Couldn't load decoder file: " .. fname
   end
 
   file()
@@ -120,7 +120,7 @@ loadDecoders = function(fname)
   local d = env.Decoders
 
   if ( d ) then return true, d end
-  return false, "ERROR: Failed to load decoders"
+  return false, "Failed to load decoders"
 end
 
 ---
@@ -223,6 +223,8 @@ getInterfaces = function(link, up)
   return result
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function()
 
   local DECODERFILE = "nselib/data/packetdecoders.lua"
@@ -234,7 +236,7 @@ action = function()
     local iinfo, err = nmap.get_interface_info(iface)
 
     if ( not(iinfo.address) ) then
-      return "\n  ERROR: The IP address of the interface could not be determined ..."
+      return fail("The IP address of the interface could not be determined")
     end
 
     interfaces = { { name = iface, address = iinfo.address } }
@@ -245,12 +247,12 @@ action = function()
 
   -- make sure we have at least one interface to start sniffing
   if ( #interfaces == 0 ) then
-    return "\n  ERROR: Could not determine any valid interfaces"
+    return fail("Could not determine any valid interfaces")
   end
 
   -- load the decoders from file
   local status, Decoders = loadDecoders(DECODERFILE)
-  if ( not(status) ) then return "\n  " .. Decoders end
+  if ( not(status) ) then return fail(Decoders) end
 
   -- create a local table to handle instantiated decoders
   local decodertab = { udp = {}, ether = {} }

@@ -333,7 +333,7 @@ action = function(host, port)
     -- Get the interface information
     interface = nmap.get_interface_info(interface)
     if not interface then
-      return ("ERROR: Failed to retrieve %s interface information."):format(interface)
+      return stdnse.format_output(false, ("Failed to retrieve %s interface information."):format(interface))
     end
     interfaces = {interface}
     stdnse.debug1("Will use %s interface.", interface.shortname)

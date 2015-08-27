@@ -221,11 +221,13 @@ local sniff_snmp_responses = function(host, port, lport, result)
   return
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
   local status, nextcommunity = communities()
 
   if not status then
-    return "\n  ERROR: Failed to read the communities database"
+    return fail("Failed to read the communities database")
   end
 
   local result = {}
@@ -241,12 +243,12 @@ action = function(host, port)
   status = socket:connect(host, port)
 
   if ( not(status) ) then
-    return "\n  ERROR: Failed to connect to server"
+    return fail("Failed to connect to server")
   end
 
   local status, _, lport = socket:get_info()
   if( not(status) ) then
-    return "\n  ERROR: Failed to retrieve local port"
+    return fail("Failed to retrieve local port")
   end
 
   local recv_co = stdnse.new_thread(sniff_snmp_responses, host, port, lport, result)

@@ -1,5 +1,6 @@
 local giop = require "giop"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 
 description = [[
 Queries a CORBA naming server for a list of objects.
@@ -57,6 +58,7 @@ local fmt_meta = {
   end
 }
 
+local function fail (err) return stdnse.format_output(false, err) end
 action = function(host, port)
 
   local helper = giop.Helper:new( host, port )
@@ -66,10 +68,10 @@ action = function(host, port)
   if ( not(status) ) then return err end
 
   status, ctx = helper:GetNamingContext()
-  if ( not(status) ) then return "  \n  ERROR: " .. ctx end
+  if ( not(status) ) then return fail(ctx) end
 
   status, objs = helper:ListObjects(ctx)
-  if ( not(status) ) then return "  \n  ERROR: " .. objs end
+  if ( not(status) ) then return fail(objs) end
 
   for _, obj in ipairs( objs ) do
     setmetatable(obj, fmt_meta)

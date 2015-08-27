@@ -103,7 +103,7 @@ action = function(host, port)
 
   local status, err = checkProxy(host, port, arg_url)
   if ( not(status) ) then
-    return ("\n  ERROR: %s"):format(err)
+    return stdnse.format_output(false, err)
   end
 
   local engine = brute.Engine:new(Driver, host, port)

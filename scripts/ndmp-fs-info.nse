@@ -1,6 +1,7 @@
 local ndmp = require "ndmp"
 local shortport = require "shortport"
 local tab = require "tab"
+local stdnse = require "stdnse"
 
 description = [[
 Lists remote file systems by querying the remote device using the Network
@@ -43,7 +44,7 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(10000, "ndmp", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 

@@ -115,6 +115,7 @@ dependencies = {"ldap-brute"}
 
 portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 
+local function fail (err) return stdnse.format_output(false, err) end
 function action(host,port)
 
   local status
@@ -189,7 +190,7 @@ function action(host,port)
 
     if not status then
       stdnse.debug1("ldap-search failed to bind: %s", errmsg)
-      return "  \n  ERROR: Authentication failed"
+      return fail("Authentication failed")
     end
   -- or if ldap-brute found us something
   elseif ( accounts ) then
@@ -219,7 +220,7 @@ function action(host,port)
 
   elseif qfilter == "custom" then
     if searchAttrib == nil or searchValue == nil then
-      return "\n\nERROR: Please specify both ldap.searchAttrib and ldap.searchValue using using the custom qfilter."
+      return fail("Please specify both ldap.searchAttrib and ldap.searchValue using using the custom qfilter.")
     end
     if string.find(searchValue, '*') == nil then
       filter = { op=ldap.FILTER.equalityMatch, obj=searchAttrib, val=searchValue }
@@ -230,7 +231,7 @@ function action(host,port)
   elseif qfilter == "all" or qfilter == nil then
     filter = nil -- { op=ldap.FILTER}
   else
-    return "  \n\nERROR: Unsupported Quick Filter: " .. qfilter
+    return fail("Unsupported Quick Filter: " .. qfilter)
   end
 
   if type(attribs) == 'string' then
@@ -252,7 +253,7 @@ function action(host,port)
 
     if not status then
       if ( searchResEntries:match("DSID[-]0C090627") and not(username) ) then
-        return "ERROR: Failed to bind as the anonymous user"
+        return fail("Failed to bind as the anonymous user")
       else
         stdnse.debug1("ldap.searchRequest returned: %s", searchResEntries)
         return

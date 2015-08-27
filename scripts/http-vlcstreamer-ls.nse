@@ -54,7 +54,7 @@ portrule = shortport.port_or_service(54340, "vlcstreamer", "tcp")
 
 local arg_dir = stdnse.get_script_args(SCRIPT_NAME .. ".dir") or "/"
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 

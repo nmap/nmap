@@ -41,6 +41,8 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service( {5900, 5901, 5902} , "vnc", "tcp", "open")
 
+local function fail(err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
 
   local vnc = vnc.VNC:new( host, port )
@@ -48,13 +50,13 @@ action = function(host, port)
   local result = stdnse.output_table()
 
   status, data = vnc:connect()
-  if ( not(status) ) then return "  \n  ERROR: " .. data end
+  if ( not(status) ) then return fail(data) end
 
   status, data = vnc:handshake()
-  if ( not(status) ) then return "  \n  ERROR: " .. data end
+  if ( not(status) ) then return fail(data) end
 
   status, data = vnc:getSecTypesAsTable()
-  if ( not(status) ) then return "  \n  ERROR: " .. data end
+  if ( not(status) ) then return fail(data) end
 
   result["Protocol version"] = vnc:getProtocolVersion()
 
