@@ -377,7 +377,7 @@ public:
                                                  HostElem::isTimeToClean);
       while ( it != hosts_storage[i].end() )
       {
-        hosts_storage[i].erase(it);
+        it = hosts_storage[i].erase(it);
         assert(elements_count > 0);
         --elements_count;
       }
