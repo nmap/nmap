@@ -139,7 +139,7 @@ local function list_files(host, port, url, output, maxdepth, basedir)
 
   local patterns = {
     '<[Aa] [Hh][Rr][Ee][Ff]="([^"]+)">[^<]+</[Aa]></[Tt][Dd]><[Tt][Dd][^>]*> *([0-9]+-[A-Za-z0-9]+-[0-9]+ [0-9]+:[0-9]+) *</[Tt][Dd]><[Tt][Dd][^>]*> *([^<]+)</[Tt][Dd]>',
-    '<[Aa] [Hh][Rr][Ee][Ff]="([^"]+)">[^<]+</[Aa]> *([0-9]+-[A-Za-z0-9]+-[0-9]+ [0-9]+:[0-9]+) *([^ \n]+)',
+    '<[Aa] [Hh][Rr][Ee][Ff]="([^"]+)">[^<]+</[Aa]> *([0-9]+-[A-Za-z0-9]+-[0-9]+ [0-9]+:[0-9]+) *([^ \r\n]+)',
   }
   for _, pattern in ipairs(patterns) do
     for fname, date, size in string.gmatch(resp.body, pattern) do
