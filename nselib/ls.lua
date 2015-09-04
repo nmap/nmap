@@ -211,7 +211,7 @@ function add_file(output, file)
       local size = get_size(info)
       if size then
         curvol["bytes"] = curvol["bytes"] + size
-        info = size
+        info = tostring(size)
       end
     end
     tab.add(files, i, info)
