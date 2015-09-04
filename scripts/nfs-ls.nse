@@ -2,7 +2,7 @@ local rpc = require "rpc"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local tab = require "tab"
+local ls = require "ls"
 local table = require "table"
 local nmap = require "nmap"
 
@@ -29,47 +29,99 @@ These access permissions are shown only with NFSv3:
 * Extend:   Write new data or add directory entries.
 * Delete:   Delete an existing directory entry.
 * Execute:  Execute file (no meaning for a directory).
+
+Recursive listing is not implemented.
 ]]
 
 ---
 -- @usage
 -- nmap -p 111 --script=nfs-ls <target>
 -- nmap -sV --script=nfs-ls <target>
--- @output
--- PORT    STATE SERVICE
--- 111/tcp open  rpcbind
--- | nfs-ls:
--- |   Arguments:
--- |     maxfiles: 10 (file listing output limited)
--- |
--- |   NFS Export: /mnt/nfs/files
--- |   NFS Access: Read Lookup NoModify NoExtend NoDelete NoExecute
--- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
--- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
--- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
--- |     -rw-------  1000  1002  23606    2010-06-17 12:28   notes
--- |
--- |   NFS Export: /home/storage/backup
--- |   NFS Access: Read Lookup Modify Extend Delete NoExecute
--- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
--- |     drwxr-xr-x  1000  100   4096     2010-06-11 22:31   /home/storage/backup
--- |     -rw-r--r--  1000  1002  0        2010-06-10 08:34   filetest
--- |     drwx------  1000  100   16384    2010-02-05 17:05   lost+found
--- |     -rw-r--r--  0     0     5        2010-06-10 11:32   rootfile
--- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34   symlink
 --
--- @args nfs-ls.maxfiles If set, limits the amount of files returned by
---       the script. If set to 0
---       or less, all files are shown. The default value is 10.
--- @args nfs-ls.human If set to <code>1</code> or <code>true</code>,
---       shows file sizes in a human readable format with suffixes like
---       <code>KB</code> and <code>MB</code>.
 -- @args nfs-ls.time Specifies which one of the last mac times to use in
 --       the files attributes output. Possible values are:
 -- * <code>m</code>: last modification time (mtime)
 -- * <code>a</code>: last access time (atime)
 -- * <code>c</code>: last change time (ctime)
 -- The default value is <code>m</code> (mtime).
+-- @args nfs.version The NFS protocol version to use
+--
+-- @output
+-- PORT    STATE SERVICE
+-- 111/tcp open  rpcbind
+-- | nfs-ls:
+-- |   Volume /mnt/nfs/files
+-- |   access: Read Lookup NoModify NoExtend NoDelete NoExecute
+-- |   PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
+-- |   drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
+-- |   drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
+-- |   -rw-------  1000  1002  23606    2010-06-17 12:28   notes
+-- |
+-- |   Volume /home/storage/backup
+-- |   access: Read Lookup Modify Extend Delete NoExecute
+-- |   PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
+-- |   drwxr-xr-x  1000  100   4096     2010-06-11 22:31   /home/storage/backup
+-- |   -rw-r--r--  1000  1002  0        2010-06-10 08:34   filetest
+-- |   drwx------  1000  100   16384    2010-02-05 17:05   lost+found
+-- |   -rw-r--r--  0     0     5        2010-06-10 11:32   rootfile
+-- |   lrwxrwxrwx  1000  1002  8        2010-06-10 08:34   symlink
+-- |_
+--
+-- @xmloutput
+-- <table key="volumes">
+--   <table>
+--     <elem key="volume">/mnt/nfs/files</elem>
+--     <table key="files">
+--       <table>
+--         <elem key="permission">drwxr-xr-x</elem>
+--         <elem key="uid">1000</elem>
+--         <elem key="gid">100</elem>
+--         <elem key="size">4096</elem>
+--         <elem key="time">2010-06-11 22:31</elem>
+--         <elem key="filename">/mnt/nfs/files</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">-rw-r-&#45;r-&#45;</elem>
+--         <elem key="uid">1000</elem>
+--         <elem key="gid">1002</elem>
+--         <elem key="size">0</elem>
+--         <elem key="time">2010-06-10 08:34</elem>
+--         <elem key="filename">filetest</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">drwx-&#45;&#45;&#45;&#45;&#45;</elem>
+--         <elem key="uid">0</elem>
+--         <elem key="gid">0</elem>
+--         <elem key="size">16384</elem>
+--         <elem key="time">2010-02-05 17:05</elem>
+--         <elem key="filename">lost+found</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">-rw-r-&#45;r-&#45;</elem>
+--         <elem key="uid">0</elem>
+--         <elem key="gid">0</elem>
+--         <elem key="size">5</elem>
+--         <elem key="time">2010-06-10 11:32</elem>
+--         <elem key="filename">rootfile</elem>
+--       </table>
+--       <table>
+--         <elem key="permission">lrwxrwxrwx</elem>
+--         <elem key="uid">1000</elem>
+--         <elem key="gid">1002</elem>
+--         <elem key="size">8</elem>
+--         <elem key="time">2010-06-10 08:34</elem>
+--         <elem key="filename">symlink</elem>
+--       </table>
+--     </table>
+--     <table key="info">
+--       <elem>access: Read Lookup NoModify NoExtend NoDelete NoExecute</elem>
+--     </table>
+--   </table>
+-- </table>
+-- <table key="total">
+--   <elem key="files">5</elem>
+--   <elem key="bytes">20493</elem>
+-- </table>
 
 -- Created 05/28/2010 - v0.1 - combined nfs-dirlist and nfs-acls scripts
 -- Revised 06/04/2010 - v0.2 - make NFS exports listing with their acls
@@ -185,14 +237,12 @@ local function table_dirlist(nfs, mount, dirlist)
       break
     end
 
-    if v.name ~= ".." and v.name ~= "." then
-      if v.attributes then
-        table.insert(files, v.name)
-        attrs[files[idx]] = table_attributes(nfs, v.name, v.attributes)
-        idx = idx + 1
-      else
-        stdnse.debug1("ERROR attributes:  %s", v.name)
-      end
+    if v.attributes then
+      table.insert(files, v.name)
+      attrs[files[idx]] = table_attributes(nfs, v.name, v.attributes)
+      idx = idx + 1
+    else
+      stdnse.debug1("ERROR attributes:  %s", v.name)
     end
   end
 
@@ -210,53 +260,59 @@ local function unmount_nfs(mount, mnt_obj, nfs_obj)
   rpc.Helper.UnmountPath(mnt_obj, mount)
 end
 
-local function nfs_ls(nfs, mount, results, access)
+local function nfs_ls(nfs, mount, output)
   local dirs, attr, acs = {}, {}, {}
   local nfsobj = rpc.NFS:new()
   local mnt_comm, nfs_comm, fhandle
 
   mnt_comm, fhandle = procedures.MountPath(nfs.host, mount)
   if mnt_comm == nil then
-    return false, fhandle
+    ls.report_error(output, fhandle)
+    return false
   end
 
   local nfs_comm, status = procedures.NfsOpen(nfs.host)
   if nfs_comm == nil then
     rpc.Helper.UnmountPath(mnt_comm, mount)
-    return false, status
+    ls.report_error(output, status)
+    return false
   end
 
   -- check if NFS and Mount versions are compatible
   -- RPC library will check if the Mount and NFS versions are supported
   if (nfs_comm.version == 1) then
-      unmount_nfs(mount, mnt_comm, nfs_comm)
-      return false, string.format("NFS v%d not supported", nfs_comm.version)
+    unmount_nfs(mount, mnt_comm, nfs_comm)
+    ls.report_error(output,
+      string.format("NFS v%d not supported", nfs_comm.version))
+    return false
   elseif ((nfs_comm.version == 2 and mnt_comm.version > 2) or
-    (nfs_comm.version == 3 and mnt_comm.version ~= 3)) then
-      unmount_nfs(mount, mnt_comm, nfs_comm)
-      return false, string.format("versions mismatch, NFS v%d - Mount v%d",
-                                  nfs_comm.version, mnt_comm.version)
+      (nfs_comm.version == 3 and mnt_comm.version ~= 3)) then
+    unmount_nfs(mount, mnt_comm, nfs_comm)
+    ls.report_error(output,
+      string.format("versions mismatch, NFS v%d - Mount v%d",
+      nfs_comm.version, mnt_comm.version))
+    return false
   end
 
   status, attr = nfsobj:GetAttr(nfs_comm, fhandle)
   if not status then
     unmount_nfs(mount, mnt_comm, nfs_comm)
-    return status, attr
+    ls.report_error(output, attr)
+    return status
   end
-
-  table.insert(results, table_attributes(nfs, mount, attr))
 
   if nfs_comm.version == 3 then
     status, acs = nfsobj:Access(nfs_comm, fhandle, 0x0000003F)
     if status then
       acs.str = rpc.Util.format_access(acs.mask, nfs_comm.version)
-      table.insert(access, acs.str)
+      ls.report_info(output, string.format("access: %s", acs.str))
     end
 
     status, dirs = nfsobj:ReadDirPlus(nfs_comm, fhandle)
     if status then
       for _,v in ipairs(table_dirlist(nfs, mount, dirs.entries)) do
-        table.insert(results, v)
+        ls.add_file(output, {v.type .. v.mode, v.uid, v.gid, v.size,
+          v.time, v.filename})
       end
     end
   elseif nfs_comm.version == 2 then
@@ -265,67 +321,39 @@ local function nfs_ls(nfs, mount, results, access)
       local lookup = {}
       for _, v in ipairs(dirs.entries) do
         if ((0 < nfs.maxfiles) and (#lookup >= nfs.maxfiles)) then
-           break
+          break
         end
 
-        if v.name ~= ".." and v.name ~= "." then
-          local f = {}
-          status, f = nfsobj:LookUp(nfs_comm, fhandle, v.name)
-          f.name = v.name
-          table.insert(lookup, f)
-        end
+        local f = {}
+        status, f = nfsobj:LookUp(nfs_comm, fhandle, v.name)
+        f.name = v.name
+        table.insert(lookup, f)
       end
 
       for _, v in ipairs(table_dirlist(nfs, mount, lookup)) do
-        table.insert(results, v)
+        ls.add_file(output, {v.type .. v.mode, v.uid, v.gid, v.size,
+          v.time, v.filename})
       end
     end
   end
 
   unmount_nfs(mount, mnt_comm, nfs_comm)
-  return status, dirs
-end
-
-local function report(nfs, table)
-  local outtab, time = tab.new(), ""
-
-  if nfs.time == "mtime" then
-    time = "MODIFICATION TIME"
-  elseif nfs.time == "atime" then
-    time = "ACCESS TIME"
-  elseif nfs.time == "ctime" then
-    time = "CHANGE TIME"
-  end
-
-  tab.add(outtab, 1, "PERMISSION")
-  tab.add(outtab, 2, "UID")
-  tab.add(outtab, 3, "GID")
-  tab.add(outtab, 4, "SIZE")
-  tab.add(outtab, 5, time)
-  tab.add(outtab, 6, "FILENAME")
-  tab.nextrow(outtab)
-
-  for _,f in pairs(table) do
-    local perm = f.type .. f.mode
-    tab.addrow(outtab, perm, f.uid, f.gid,
-               f.size, f.time, f.filename)
-  end
-  return tab.dump(outtab)
+  return status
 end
 
 local mainaction = function(host)
-  local o, results, mounts, status = {}, {}, {}
+  local results, mounts, status = {}, {}
   local nfs_info =
   {
     host      = host,
     --recurs    = tonumber(nmap.registry.args['nfs-ls.recurs']) or 1,
   }
+  local output = ls.new_listing()
 
-  nfs_info.version, nfs_info.maxfiles, nfs_info.time,
-  nfs_info.human = stdnse.get_script_args('nfs.version',
-                      'nfs-ls.maxfiles','nfs-ls.time','nfs-ls.human')
-
-  nfs_info.maxfiles = tonumber(nfs_info.maxfiles) or 10
+  nfs_info.version, nfs_info.time = stdnse.get_script_args('nfs.version',
+    'nfs-ls.time')
+  nfs_info.maxfiles = ls.config('maxfiles')
+  nfs_info.human = ls.config('human')
 
   if nfs_info.time == "a" or nfs_info.time == "A" then
     nfs_info.time = "atime"
@@ -333,15 +361,6 @@ local mainaction = function(host)
     nfs_info.time = "ctime"
   else
     nfs_info.time = "mtime"
-  end
-
-  if nfs_info.maxfiles > 0 then
-    local args = {}
-    args['name'] = 'Arguments:'
-    table.insert(args,
-          string.format("maxfiles: %d (file listing output limited)",
-                nfs_info.maxfiles))
-    table.insert(o, args)
   end
 
   status, mounts = procedures.ShowMounts(nfs_info.host)
@@ -354,22 +373,13 @@ local mainaction = function(host)
   end
 
   for _, v in ipairs(mounts) do
-    local results, access, err = {}, {}
-    status, err = nfs_ls(nfs_info, v.name, results, access)
-    if not status then
-      table.insert(o, string.format("\nNFS Export %s", v.name))
-      table.insert(o, string.format("ERROR: %s", err))
-    else
-      table.insert(o,
-            string.format("\nNFS Export: %s", results[1].filename))
-      if #access ~= 0 then
-        table.insert(o, string.format("NFS Access: %s", access[1]))
-      end
-      table.insert(o, {report(nfs_info, results)})
-    end
+    local err
+    ls.new_vol(output, v.name, true)
+    status = nfs_ls(nfs_info, v.name, output)
+    ls.end_vol(output)
   end
 
-  return stdnse.format_output(true, o)
+  return ls.end_listing(output)
 end
 
 hostaction = function(host)
