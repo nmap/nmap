@@ -23,7 +23,9 @@
 -- @args ls.empty    (boolean) Report empty volumes (with no information
 --                   or error)
 -- @args ls.human    (boolean) Show file sizes in human-readable format with K,
---                   M, G, T, P suffixes.
+--                   M, G, T, P suffixes. Some services return human-readable
+--                   sizes natively; in these cases, the size is reported as
+--                   given.
 --
 -- @author Pierre Lalet <pierre@droids-corp.org>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -31,6 +33,7 @@
 
 local LIBRARY_NAME = "ls"
 
+local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
 local tab = require "tab"
@@ -52,10 +55,10 @@ local function convert_arg(argval, argtype)
   if argtype == "number" then
     return tonumber(argval)
   elseif argtype == "boolean" then
-    if argval == "true" or argval == "yes" then
-      return true
-    else
+    if argval == "false" or argval == "no" or argval == "0" then
       return false
+    else
+      return true
     end
   end
   return argval
@@ -180,13 +183,21 @@ local units = {
 
 --- Get a size as an integer from a (possibly) human readable input.
 local function get_size(size)
-  local bsize
-  bsize = tonumber(size)
+  local bsize = tonumber(size)
   if bsize == nil then
     local unit = string.lower(string.sub(size, -1, -1))
     bsize = tonumber(string.sub(size, 0, -2))
     if units[unit] ~= nil and bsize ~= nil then
       bsize = bsize * units[unit]
+      local sigfigs = #(string.match(size, "[0-9.]+"))
+      if string.find(size, "%.") then
+        sigfigs = sigfigs - 1
+      end
+      local d = math.ceil(math.log(bsize, 10))
+      local power = sigfigs - d
+      local magnitude = 10^power
+      local shifted = math.floor(bsize * magnitude)
+      bsize = math.floor(shifted / magnitude)
     else
       bsize = nil
     end
@@ -202,19 +213,12 @@ end
 function add_file(output, file)
   local curvol = output.curvol
   local files = curvol["files"]
-  local isize = 1
-  if curvol["hasperms"] then
-    isize = 4
-  end
   for i, info in ipairs(file) do
-    if i == isize then
-      local size = get_size(info)
-      if size then
-        curvol["bytes"] = curvol["bytes"] + size
-        info = tostring(size)
-      end
-    end
     tab.add(files, i, info)
+  end
+  local size = get_size(file[curvol.hasperms and 4 or 1])
+  if size then
+    curvol["bytes"] = curvol["bytes"] + size
   end
   tab.nextrow(files)
   curvol["count"] = curvol["count"] + 1
@@ -286,9 +290,10 @@ local function files_to_readable(files)
     end
     if config("human") then
       local size = tonumber(outfile[isize])
+      -- If tonumber didn't work, it's already in human-readable format
       if size ~= nil then
         local iunit = 0
-        while size > 1024 and units[iunit] do
+        while size > 1024 and units[iunit+1] do
           size = size / 1024
           iunit = iunit + 1
         end
