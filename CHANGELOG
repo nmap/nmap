@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
+  outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
+  scripts have been converted to use this module. [Pierre Lalet]
+
 o Fix Nmap's DTD, which did not recognize that the script element could contain
   character data when a script returns a number or a boolean.
   [Jonathan Daugherty]
