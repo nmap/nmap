@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script http-ls. Parses web server directory index pages with
+  optional recursion. [Pierre Lalet]
+
 o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
   outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
   scripts have been converted to use this module. [Pierre Lalet]
