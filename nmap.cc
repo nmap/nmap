@@ -521,6 +521,8 @@ struct tm *local_time;
 static void test_file_name(const char *filename, const char *option) {
   if (filename[0] == '-' && filename[1] != '\0') {
     fatal("Output filename begins with '-'. Try '-%s ./%s' if you really want it to be named as such.", option, filename);
+  } else if (strcmp(option, "o") == 0 && strchr("NAXGS", filename[0])) {
+    fatal("You are using a deprecated option in a dangerous way. Did you mean: -o%c %s", filename[0], filename + 1);
   } else if (filename[0] == '-' && strcmp(option,"oA") == 0) {
     fatal("Cannot display multiple output types to stdout.");
   }
