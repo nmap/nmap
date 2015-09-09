@@ -1014,6 +1014,7 @@ void traceroute_hop_cache_clear() {
   for (map_iter = hop_cache.begin(); map_iter != hop_cache.end(); map_iter++)
     delete map_iter->second;
   hop_cache.clear();
+  if (!timedout_hops) return;
   for (list_iter = timedout_hops->begin(); list_iter != timedout_hops->end(); list_iter++)
     delete *list_iter;
   timedout_hops->clear();
