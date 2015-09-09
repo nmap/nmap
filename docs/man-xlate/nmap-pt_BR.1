@@ -521,7 +521,7 @@ Embora o Nmap tente produzir resultados precisos, tenha em mente que todas as de
 Esta seção documenta as dezenas de técnicas de escaneamento de portas suportadas pelo Nmap\&. Apenas um método pode ser utilizado de cada vez exceto que um scan UDP (\fB\-sU\fR) pode ser combinado com qualquer um dos tipos de scan TCP\&. Como uma ajuda para a memória, as opções dos tipos de escaneamento de portas estão no formato
 \fB\-s\fR\fB\fIC\fR\fR, onde
 \fIC\fR
-é um caracter proeminente no nome do scan, normalmente o primeiro\&. A única exceção a essa regra é para o scan depreciado FTP bounce (\fB\-b\fR)\&. Por padrão, o Nmap executa um scan SYN, embora ele substitua por um scan connect se o usuário não tiver os privilégios adequados para enviar pacotes em estado bruto (requer acesso de root no UNIX) ou se alvos IPv6 forem especificados\&. Dos scans listados nesta seção, os usuários não privilegiados podem apenas executar os scans connect e ftp bounce\&.
+é um caracter proeminente no nome do scan, normalmente o primeiro\&. A única exceção a essa regra é para o scan deprecado FTP bounce (\fB\-b\fR)\&. Por padrão, o Nmap executa um scan SYN, embora ele substitua por um scan connect se o usuário não tiver os privilégios adequados para enviar pacotes em estado bruto (requer acesso de root no UNIX) ou se alvos IPv6 forem especificados\&. Dos scans listados nesta seção, os usuários não privilegiados podem apenas executar os scans connect e ftp bounce\&.
 .PP
 \fB\-sS\fR (scan TCP SYN)
 .RS 4
@@ -1347,7 +1347,7 @@ A saída script kiddie é como a saída interativa, com a diferença de ser pós
 \fB\-oG <especificaçãodearquivo>\fR (Saída para o grep)
 .RS 4
 .\" -oG
-Este formato de saída é mencionado por último porque está depreciado\&. O formato de saída XML é muito mais poderoso e é bastante adequado para usuário avançados\&. O XML é um padrão para o qual existem dezenas de excelentes interpretadores (parsers) disponíveis, enquanto que a saída para o grep é um quebra\-galho feito por mim\&. O XML é extensível para suportar novas características do Nmap conforme elas forem lançadas, por outro lado, sempre tenho que omitir essas novas características da saída para o grep por falta de onde colocá\-las\&.
+Este formato de saída é mencionado por último porque está deprecado\&. O formato de saída XML é muito mais poderoso e é bastante adequado para usuário avançados\&. O XML é um padrão para o qual existem dezenas de excelentes interpretadores (parsers) disponíveis, enquanto que a saída para o grep é um quebra\-galho feito por mim\&. O XML é extensível para suportar novas características do Nmap conforme elas forem lançadas, por outro lado, sempre tenho que omitir essas novas características da saída para o grep por falta de onde colocá\-las\&.
 .sp
 Apesar disso, a saída para o grep é bastante popular\&. É um formato simples que lista cada host em uma linha e pode ser pesquisado de forma trivial, e interpretado por qualquer ferramenta padrão do Unix, como o grep, awk, cut, sed, diff, e Perl\&. Em mesmo uso\-a para testes rápidos feitos na linha de comando\&. Descobrir todos os hosts com a porta ssh aberta ou que estão rodando o Solaris requer apenas um simples grep para identificá\-los, concatenado via pipe a um comando awk ou cut para mostrar os campos desejados\&.
 .sp

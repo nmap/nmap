@@ -1111,7 +1111,7 @@ EXAMPLES:
       <option>-s<replaceable>C</replaceable></option>, onde
       <replaceable>C</replaceable> é um caracter proeminente no nome do scan,
       normalmente o primeiro. A única exceção a essa regra é para o scan
-      depreciado FTP bounce (<option>-b</option>). Por padrão, o Nmap executa
+      deprecado FTP bounce (<option>-b</option>). Por padrão, o Nmap executa
       um scan SYN, embora ele substitua por um scan connect se o usuário não
       tiver os privilégios adequados para enviar pacotes em estado bruto
       (requer acesso de root no UNIX) ou se alvos IPv6 forem especificados.
@@ -3061,7 +3061,7 @@ EXAMPLES:
             </indexterm>
 
             <para>Este formato de saída é mencionado por último porque está
-            depreciado. O formato de saída XML é muito mais poderoso e é
+            deprecado. O formato de saída XML é muito mais poderoso e é
             bastante adequado para usuário avançados. O XML é um padrão para o
             qual existem dezenas de excelentes interpretadores (parsers)
             disponíveis, enquanto que a saída para o grep é um quebra-galho
