@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Output a warning when deprecated options are used, and suggest the preferred
+  option. Currently deprecated: -i -o -m -sP -P0 -PN -oM -sR. The warning is
+  only visible with -v. [Daniel Miller]
+
 o [NSE] Added script http-ls. Parses web server directory index pages with
   optional recursion. [Pierre Lalet]
 
