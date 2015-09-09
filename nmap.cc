@@ -1133,6 +1133,7 @@ void parse_options(int argc, char **argv) {
         error("Warning: Your max-parallelism (-M) option is extraordinarily high, which can hurt reliability");
       break;
     case 'm':
+      test_file_name(optarg, "oG");
       delayed_options.machinefilename = logfilename(optarg, local_time);
       break;
     case 'n':
@@ -1147,6 +1148,7 @@ void parse_options(int argc, char **argv) {
         fatal("Unknown argument to -O.");
       break;
     case 'o':
+      test_file_name(optarg, "oN");
       delayed_options.normalfilename = logfilename(optarg, local_time);
       break;
     case 'P':
