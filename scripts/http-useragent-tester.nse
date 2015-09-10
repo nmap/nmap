@@ -57,7 +57,7 @@ getLastLoc = function(host, port, useragent)
 
   local options
 
-  options = {header={}, no_cache=true, redirect_ok=function(host,port)
+  options = {header={}, no_cache=true, bypass_cache=true, redirect_ok=function(host,port)
       local c = 3
       return function(url)
         if ( c==0 ) then return false end
