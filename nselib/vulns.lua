@@ -2268,7 +2268,8 @@ Report = {
       for i, vuln_table in ipairs(self.entries.not_vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table, SHOW_ALL)
         if type(out_t) == "table" then
-          local ID = vuln_table.IDS.CVE or vuln_table.IDS[next(vuln_table.IDS)]           output_t2[ID] = out_t
+          local ID = vuln_table.IDS.CVE or vuln_table.IDS[next(vuln_table.IDS)]
+          output_t2[ID] = out_t
         end
         if vuln_out then
           output_table.report = concat(vuln_out, "\n")
