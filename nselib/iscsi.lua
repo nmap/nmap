@@ -306,6 +306,7 @@ Packet = {
 
       repeat
         local status, header = s:receive_buf(match.numbytes(48), true)
+        if not status then return status, header end
         local pos, _, flags, _, _, len = bin.unpack(">CCCCI", header)
         local cont = ( bit.band(flags, 0x40) == 0x40 )
 
