@@ -518,6 +518,8 @@ static Target *setup_target(const HostGroupState *hs,
 
   t = new Target();
 
+  t->setTag(hs->current_group.netblock->tag);
+
   t->setTargetSockAddr(ss, sslen);
 
   /* Special handling for the resolved address (for example whatever

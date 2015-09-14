@@ -1949,7 +1949,11 @@ int nmap_main(int argc, char *argv[]) {
           ) || o.listscan) {
         /* We're done with the hosts */
         if (currenths->flags & HOST_UP || (o.verbose && !o.openOnly())) {
-          xml_start_tag("host");
+          xml_open_start_tag("host");
+          if (!currenths->tag().empty()) {
+            xml_attribute("tag", "%s", currenths->tag().c_str());
+          }
+          xml_close_start_tag();
           write_host_header(currenths);
           printmacinfo(currenths);
           //  if (currenths->flags & HOST_UP)
@@ -1974,7 +1978,11 @@ int nmap_main(int argc, char *argv[]) {
          connected to */
       if (!(currenths->flags & HOST_UP)) {
         if (o.verbose && (!o.openOnly() || currenths->ports.hasOpenPorts())) {
-          xml_start_tag("host");
+          xml_open_start_tag("host");
+          if (!currenths->tag().empty()) {
+            xml_attribute("tag", "%s", currenths->tag().c_str());
+          }
+          xml_close_start_tag();
           write_host_header(currenths);
           xml_end_tag();
           xml_newline();
@@ -2115,6 +2123,9 @@ int nmap_main(int argc, char *argv[]) {
       /* Now I can do the output and such for each host */
       if (currenths->timedOut(NULL)) {
         xml_open_start_tag("host");
+        if (!currenths->tag().empty()) {
+          xml_attribute("tag", "%s", currenths->tag().c_str());
+        }
         xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
         xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
         xml_close_start_tag();
@@ -2131,6 +2142,9 @@ int nmap_main(int argc, char *argv[]) {
           continue;
 
         xml_open_start_tag("host");
+        if (!currenths->tag().empty()) {
+          xml_attribute("tag", "%s", currenths->tag().c_str());
+        }
         xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
         xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
         xml_close_start_tag();

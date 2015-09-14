@@ -212,6 +212,8 @@ class Target {
   const char *targetipstr() const { return targetipstring; }
   /* The IPv4 or IPv6 literal string for the source address */
   const char *sourceipstr() const { return sourceipstring; }
+  const std::string& tag() const { return the_tag; }
+  void setTag(const std::string& t) { the_tag = t; }
   /* Give the name from the last setHostName() call, which should be
    the name obtained from reverse-resolution (PTR query) of the IP (v4
    or v6).  If the name has not been set, or was set to NULL, an empty
@@ -315,6 +317,7 @@ class Target {
   int weird_responses; /* echo responses from other addresses, Ie a network broadcast address */
   unsigned int flags; /* HOST_UNKNOWN, HOST_UP, or HOST_DOWN. */
   struct timeout_info to;
+  std::string the_tag;
   char *hostname; // Null if unable to resolve or unset
   char * targetname; // The name of the target host given on the command line if it is a named host
 
