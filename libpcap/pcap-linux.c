@@ -188,6 +188,10 @@
 # endif /* PACKET_HOST */
 
 
+ /* TPACKET_V3 is broken. Temporarily disabling support here until upstream
+  * libpcap addresses the issue. */
+#undef TPACKET3_HDRLEN
+
  /* check for memory mapped access avaibility. We assume every needed
   * struct is defined if the macro TPACKET_HDRLEN is defined, because it
   * uses many ring related structs and macros */
