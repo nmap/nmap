@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
+  information from multicast and unicast KNX gateways, which connect home
+  automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]
+
 o Disable TPACKET_V3 in our included libpcap. This version of the Linux kernel
   packet ring API has problems that result in lots of lost packets. This patch
   falls back to TPACKET_V2 or earlier versions if available. [nnposter]
