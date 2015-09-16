@@ -8,6 +8,7 @@
 
 local stdnse = require "stdnse"
 local bin = require "bin"
+local math = require "math"
 local os = require "os"
 local table = require "table"
 _ENV = stdnse.module("tls", stdnse.seeall)
@@ -691,7 +692,7 @@ local cipher_info_cache = {
 local function unpack_dhparams (blob, pos)
   local p, g, y
   pos, p, g, y = bin.unpack(">PPP", blob, pos)
-  return pos, {p=p, g=g, y=y}, #p
+  return pos, {p=p, g=g, y=y}, #p * 8
 end
 
 local function unpack_ecdhparams (blob, pos)
@@ -702,7 +703,7 @@ local function unpack_ecdhparams (blob, pos)
   if eccurvetype == 1 then
     local p, a, b, base, order, cofactor
     pos, p, a, b, base, order, cofactor = bin.unpack("pppppp", blob, pos)
-    strength = #p
+    strength = math.log(order, 2)
     ret.curve_params = {
       ec_curve_type = "explicit_prime",
       prime_p=p, curve={a=a, b=b}, base=base, order=order, cofactor=cofactor
@@ -711,7 +712,6 @@ local function unpack_ecdhparams (blob, pos)
     local p = {}
     local m, basis
     pos, m, basis = bin.unpack(">SC", blob, pos)
-    strength = m
     if basis == 1 then -- ec_trinomial
       pos, p.k = bin.unpack("p", blob, pos)
     elseif basis == 2 then -- ec_pentanomial
@@ -719,6 +719,7 @@ local function unpack_ecdhparams (blob, pos)
     end
     local a, b, base, order, cofactor
     pos, a, b, base, order, cofactor = bin.unpack("ppppp", blob, pos)
+    strength = math.log(order, 2)
     ret.curve_params = {
       ec_curve_type = "explicit_char2",
       m=m, basis=basis, field=p, curve={a=a, b=b}, base=base, order=order, cofactor=cofactor
@@ -760,9 +761,9 @@ end
 -- @param bits Size of key in bits
 -- @return Size in bits of RSA key with equivalent strength
 function rsa_equiv (ktype, bits)
-  if ktype == "rsa" or ktype == "dsa" then
+  if ktype == "rsa" or ktype == "dsa" or ktype == "dh" then
     return bits
-  elseif ktype == "ec" or ktype == "dh" then
+  elseif ktype == "ec" then
     if bits < 160 then
       return 512 -- Possibly down to 0, but details not published
     elseif bits < 224 then
@@ -883,7 +884,7 @@ KEX_ALGORITHMS.DH_RSA_EXPORT={
 
 KEX_ALGORITHMS.ECDHE_RSA={
   pubkey="rsa",
-  type = "dh",
+  type = "ec",
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
@@ -894,7 +895,7 @@ KEX_ALGORITHMS.ECDHE_RSA={
 }
 KEX_ALGORITHMS.ECDHE_ECDSA={
   pubkey="ec",
-  type = "dh",
+  type = "ec",
   server_key_exchange = KEX_ALGORITHMS.ECDHE_RSA.server_key_exchange
 }
 KEX_ALGORITHMS.ECDH_ECDSA={
@@ -950,7 +951,7 @@ KEX_ALGORITHMS.PSK_DHE = KEX_ALGORITHMS.DHE_PSK
 
 --rfc5489
 KEX_ALGORITHMS.ECDHE_PSK={
-  type = "dh",
+  type = "ec",
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
