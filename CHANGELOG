@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Enhanced reporting of elliptic curve names and strengths in
+  ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
+  [Brandon Paulsen]
+
 o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
   information from multicast and unicast KNX gateways, which connect home
   automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]

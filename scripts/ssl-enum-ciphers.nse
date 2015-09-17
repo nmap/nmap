@@ -526,7 +526,15 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                       scores.warnings["Weak certificate signature: SHA1"] = true
                     end
                     kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
-                    extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
+                    if c.pubkey.ecdhparams then
+                      if c.pubkey.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
+                        extra = c.pubkey.ecdhparams.curve_params.curve
+                      else
+                        extra = string.format("%s %d", c.pubkey.ecdhparams.curve_params.ec_curve_type, c.pubkey.bits)
+                      end
+                    else
+                      extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
+                    end
                   end
                 end
               end
@@ -540,7 +548,15 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                     scores.warnings["Key exchange parameters of lower strength than certificate key"] = true
                   end
                   kex_strength = kex_strength or rsa_bits
-                  extra = string.format("%s %d", kex.type, kex_info.strength)
+                  if kex_info.ecdhparams then
+                    if kex_info.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
+                      extra = kex_info.ecdhparams.curve_params.curve
+                    else
+                      extra = string.format("%s %d", kex_info.ecdhparams.curve_params.ec_curve_type, kex_info.strength)
+                    end
+                  else
+                    extra = string.format("%s %d", kex.type, kex_info.strength)
+                  end
                 end
               end
             end
