@@ -1666,6 +1666,7 @@ function get_url( u, options )
 
   port.service = parsed.scheme
   port.number = parsed.port
+  port.state = "open"
 
   if not port.number then
     if parsed.scheme == 'https' then
