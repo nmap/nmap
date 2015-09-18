@@ -266,6 +266,13 @@ NpingOps::NpingOps() {
     tcpwin=0;
     tcpwin_set=false;
 
+    tcpopts=NULL;
+    tcpopts_set=false;
+    tcpopts_len=0;
+    tcpopts_use=false;
+    tcpopts_tsuse=false;
+    tcpopts_tsincrement=false;
+
     badsum=false;
     badsum_set=false;
 
@@ -376,6 +383,8 @@ NpingOps::~NpingOps() {
     free(ip_options);
  if ( target_ports!=NULL )
     free(target_ports);
+ if ( tcpopts!=NULL )
+    free(tcpopts);
  return;
 } /* End of ~NpingOps() */
 
@@ -1649,6 +1658,57 @@ bool NpingOps::issetTCPWindow(){
   return this->tcpwin_set;
 } /* End of issetTCPWindow() */
 
+/** Sets the use of TCP Options.  Which TCP options to use are hard-coded with this mode
+ */
+int NpingOps::setGenericTCPOptions(bool val) {
+  this->tcpopts_use = val;
+  return OP_SUCCESS;
+}
+
+bool NpingOps::issetGenericTCPOptions() {
+  return this->tcpopts_use;
+}
+
+int NpingOps::setTCPOptTSIncrement(bool val) {
+  this->tcpopts_tsincrement = val;
+  return OP_SUCCESS;
+}
+
+bool NpingOps::issetTCPOptTSIncrement() {
+  return this->tcpopts_tsincrement;
+}
+
+int NpingOps::setTCPOptTSUse(bool val) {
+  this->tcpopts_tsuse = val;
+  return OP_SUCCESS;
+}
+
+bool NpingOps::issetTCPOptTSUse() {
+  return this->tcpopts_tsuse;
+}
+
+// makes a copy of val
+int NpingOps::setRawTCPOptions(u8 *val, ssize_t len) {
+  this->tcpopts = (u8 *)safe_zalloc( len );
+  memcpy(this->tcpopts, val, len);
+  this->tcpopts_len = len;
+  this->tcpopts_set = true;
+  return OP_SUCCESS;
+}
+
+// val should point to an area at least len bytes long before calling
+int NpingOps::getRawTCPOptions(u8 *val, ssize_t *len) {
+  if(*len < this->tcpopts_len) {
+    nping_fatal(QT_3, "tcp options length buffer too small ");
+  }
+  memcpy(val, this->tcpopts, this->tcpopts_len);
+  *len = this->tcpopts_len;
+  return OP_SUCCESS;
+}
+
+bool NpingOps::issetRawTCPOptions() {
+  return this->tcpopts_set;
+}
 
 /** Sets attribute badsum to "true". (Generate invalid checksums in UDP / TCP
  *  packets)

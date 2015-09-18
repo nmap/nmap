@@ -276,6 +276,12 @@ class NpingOps {
     bool tcpflags_set;
     u16 tcpwin;               /* TCP Window                            */
     bool tcpwin_set;
+    bool tcpopts_use;         /* use standard TCP options?             */
+    bool tcpopts_tsincrement; /* increment TS value?                   */
+    bool tcpopts_tsuse;       /* use TS in TCP options?                */
+    u8 *tcpopts;              /* raw TCP options                       */
+    ssize_t tcpopts_len;
+    bool tcpopts_set;
     bool badsum;              /* Generate invalid TCP/UDP checksums?   */
     bool badsum_set;
 
@@ -561,6 +567,16 @@ class NpingOps {
     int setTCPWindow(u16 val);
     u16 getTCPWindow();
     bool issetTCPWindow();
+
+    int setGenericTCPOptions(bool val);
+    bool issetGenericTCPOptions();
+    int setTCPOptTSIncrement(bool val);
+    bool issetTCPOptTSIncrement();
+    int setTCPOptTSUse(bool val);
+    bool issetTCPOptTSUse();
+    int setRawTCPOptions(u8 *val, ssize_t len);
+    int getRawTCPOptions(u8 *val, ssize_t *len);
+    bool issetRawTCPOptions();
 
     /* ICMP */
     int setICMPType(u8 type);

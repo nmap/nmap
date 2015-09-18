@@ -790,9 +790,16 @@ int ProbeMode::doIPv6ThroughSocket(int rawfd){
 } /* End of doIPv6ThroughSocket() */
 
 
+static void addOption(u8 *tcpOptions, ssize_t *tcpOptions_len, ssize_t tcpOptions_max, const u8 *option, ssize_t option_len) {
+  if(option_len + *tcpOptions_len > tcpOptions_max) {
+    return;
+  }
+  memcpy(tcpOptions+*tcpOptions_len, option, option_len);
+  *tcpOptions_len += option_len;
+}
 
 
-
+#define MAX_TCP_OPTIONS 40
 /** This function handles TCP packet creation. However, the final packet that
   * it produces also includes an IP header.
   * There is one exception. When we are sending IPv6 packet at raw TCP level,
@@ -800,12 +807,18 @@ int ProbeMode::doIPv6ThroughSocket(int rawfd){
   * rawfd socket descriptor is ready to go because some options have been
   * set on it by doIPv6ThroughSocket(). */
 int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
-
  IPv4Header i;
  IPv6Header i6;
  TCPHeader t;
  RawData p;
  struct in_addr tip, sip;
+ u8 opt_mss[] = { TCPOPT_MSS, 4, 0x5, 0xa0, };  // mss 1460
+ u8 opt_sackok[] = { TCPOPT_SACKOK, 2, };         // sackOK
+ u8 opt_tstamp[] = { TCPOPT_TSTAMP, 10, 0x45, 0x56, 0xfb, 0x45, 0x00, 0x00, 0x00, 0x00, }; // TS val 1163328325 ecr 0
+ u8 opt_noop[] = { TCPOPT_NOOP, }; // nop
+ u8 opt_wscale[] = { TCPOPT_WSCALE, 3, 0x7, }; // wscale 7
+ u8 tcpOptions[MAX_TCP_OPTIONS];
+ ssize_t tcpOptions_len = 0;
 
   if( buff==NULL || filledlen==NULL || target==NULL)
     nping_fatal(QT_3,"fillPacketTCP(): NULL pointer supplied.");
@@ -835,6 +848,34 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
   t.setWindow( o.getTCPWindow() );
   t.setUrgPointer(0);
   t.setFlags(0);
+
+  if(o.issetRawTCPOptions()) {
+    tcpOptions_len = MAX_TCP_OPTIONS;
+    o.getRawTCPOptions(tcpOptions, &tcpOptions_len);
+    t.setOptions((const u8 *)tcpOptions, tcpOptions_len);
+  } else if(o.issetGenericTCPOptions()) {
+
+    addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_mss, sizeof(opt_mss));
+    if(o.issetTCPOptTSUse()) {
+      addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_sackok, sizeof(opt_sackok));
+      if(o.issetTCPOptTSIncrement()) {
+        static uint32_t ts_increment = 0;
+        uint32_t ts_increment_network;
+        ts_increment++;
+        ts_increment_network = htonl(ts_increment);
+        memcpy(opt_tstamp+2, &ts_increment_network, 4);
+      }
+      addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_tstamp, sizeof(opt_tstamp));
+    } else {
+      addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_noop, sizeof(opt_noop));
+      addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_noop, sizeof(opt_noop));
+      addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_sackok, sizeof(opt_sackok));
+    }
+    addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_noop, sizeof(opt_noop));
+    addOption(tcpOptions, &tcpOptions_len, MAX_TCP_OPTIONS, opt_wscale, sizeof(opt_wscale));
+
+    t.setOptions((const u8 *)tcpOptions, tcpOptions_len);
+  }
 
   /* Flags */
   if( o.getFlagTCP(FLAG_CWR) == 1 )  t.setCWR();

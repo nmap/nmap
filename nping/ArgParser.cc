@@ -197,6 +197,10 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"ack", required_argument, 0, 0},
   {"win", required_argument, 0, 0},
   {"badsum", no_argument, 0, 0},
+  {"tcp-options", no_argument, 0, 0},
+  {"tcp-ts", no_argument, 0, 0},
+  {"ts-increment", no_argument, 0, 0},
+  {"tcp-options-raw", required_argument, 0, 0},
 
   /* ICMP */ 
   {"icmp-type", required_argument, 0, 0},
@@ -536,6 +540,21 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     /* Set a bad TCP checksum */
     } else if (optcmp(long_options[option_index].name, "badsum") == 0) {
         o.enableBadsum();
+    /* use TCP Options */
+    } else if (optcmp(long_options[option_index].name, "tcp-options") == 0) {
+        o.setGenericTCPOptions(true);
+    } else if (optcmp(long_options[option_index].name, "tcp-ts") == 0) {
+        o.setTCPOptTSUse(true);
+    } else if (optcmp(long_options[option_index].name, "ts-increment") == 0) {
+        o.setTCPOptTSIncrement(true);
+    } else if (optcmp(long_options[option_index].name, "tcp-options-raw") == 0) {
+        u8 *tempbuff=NULL;
+        size_t len=0;
+        if( (tempbuff=parseBufferSpec(optarg, &len))==NULL) 
+            nping_fatal(QT_3,"Invalid hex string specification for raw tcp options\n");
+        else{
+            o.setRawTCPOptions(tempbuff, len);
+        }
 
 /* ICMP OPTIONS **************************************************************/
     /* ICMP Type */
@@ -1220,6 +1239,10 @@ void ArgParser::printUsage(void){
 "   --ack <acknumber>               : Set ACK number.\n"
 "   --win <size>                    : Set window size.\n"
 "   --badsum                        : Use a random invalid checksum. \n"
+"   --tcp-options                   : Include hardcoded TCP Options in packet\n"
+"   --tcp-options-raw <hexstring>   : Use the given hex string as the TCP Options\n"
+"   --tcp-ts                        : Include a timestamp value in the TCP Options\n"
+"   --ts-increment                  : Increment the timestamp value in the TCP Options\n"
 "UDP PROBE MODE:\n"
 "   -g, --source-port <portnumber>  : Set source port.\n"
 "   -p, --dest-port <port spec>     : Set destination port(s).\n"
