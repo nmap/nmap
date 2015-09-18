@@ -61,7 +61,7 @@ prerule = function()
   end
 
   if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
-    stdnse.debug1("No interface was selected, aborting...", SCRIPT_NAME)
+    stdnse.debug1("No interface was selected, aborting...")
     return false
   end
 

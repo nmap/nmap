@@ -170,7 +170,7 @@ JDWPReplyPacket = {
     if flags == 0x80 then
       return true, JDWPReplyPacket:new(length,id,error_code,data)
     end
-    stdnse.debug2("JDWP error parsing reply. Wrong reply packet flag. Raw data: ", stdnse.tohex(reply_packet))
+    stdnse.debug2("JDWP error parsing reply. Wrong reply packet flag. Raw data: %s", stdnse.tohex(reply_packet))
     return false, "JDWP error parsing reply."
   end
 

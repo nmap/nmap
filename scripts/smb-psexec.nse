@@ -948,7 +948,7 @@ local function get_config(host, config)
         enabled = false
         mod.disabled_message = {}
         table.insert(mod.disabled_message, string.format("Configuration error: Required argument(s) ('%s') weren't given.", stdnse.strjoin("', '", missing_args)))
-        table.insert(mod.disabled_message, string.format("Please add --script-args=[arg]=[value] to your commandline to run this module"))
+        table.insert(mod.disabled_message, "Please add --script-args=[arg]=[value] to your commandline to run this module")
         if(#missing_args == 1) then
           table.insert(mod.disabled_message, string.format("For example: --script-args=%s=123", missing_args[1]))
         else
@@ -1188,7 +1188,7 @@ local function create_service(host, config)
     cleanup(host, config)
 
     if(string.find(err, "MARKED_FOR_DELETE")) then
-      return false, string.format("Service is stuck in 'being deleted' phase on remote machine; try setting script-args=randomseed=abc for now", err)
+      return false, "Service is stuck in 'being deleted' phase on remote machine; try setting script-args=randomseed=abc for now"
     else
       return false, string.format("Couldn't create the service on the remote machine: %s", err)
     end
@@ -1278,7 +1278,7 @@ local function get_output_file(host, config)
         stdnse.debug1("Error in remote service: output file was never created!")
         cleanup(host, config)
 
-        return false, string.format("Error in remote service: output file was never created")
+        return false, "Error in remote service: output file was never created"
       end
 
       stdnse.debug1("Output file %s doesn't exist yet, waiting for %d more seconds", config.output_file, i)

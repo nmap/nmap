@@ -125,7 +125,7 @@ local function get_version(path, typeof, host, port)
   if versioncheck.body then
     version = versioncheck.body:match(pattern)
   end
-  stdnse.debug1("Version found:", version)
+  stdnse.debug1("Version found: %s", version)
   return version
 end
 

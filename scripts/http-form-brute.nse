@@ -324,7 +324,7 @@ action = function (host, port)
     return stdnse.format_output(false, string.format("Failed to submit the form to path %q", path))
   end
   if success then
-    return stdnse.format_output(false, string.format("Failed to recognize failed authentication. See http-form-brute.onsuccess and http-form-brute.onfailure"))
+    return stdnse.format_output(false, "Failed to recognize failed authentication. See http-form-brute.onsuccess and http-form-brute.onfailure")
   end
 
   local engine = brute.Engine:new(Driver, host, port, options)

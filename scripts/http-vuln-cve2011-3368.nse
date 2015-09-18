@@ -152,7 +152,7 @@ servers to remote users who send carefully crafted requests.]],
   end
 
   -- TEST 3: The external website test. This does not mean that you can reach a LAN ip, but this is a relevant issue anyway.
-  local external = http.get(host,port, ("@scanme.nmap.org"):format(prefix))
+  local external = http.get(host,port, ("%s@scanme.nmap.org"):format(prefix))
   if ( external.status == 200 and string.match(external.body,"Go ahead and ScanMe") ) then
     vuln.extra_info = "Proxy allows requests to external websites"
   end

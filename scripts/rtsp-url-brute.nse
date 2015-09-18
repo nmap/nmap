@@ -115,7 +115,7 @@ action = function(host, port)
 
   local url_iter = urlIterator(f)
   if ( not(url_iter) ) then
-    return stdnse.format_output(false, ("Could not open the URL dictionary: "):format(f))
+    return stdnse.format_output(false, ("Could not open the URL dictionary: %s"):format(f))
   end
 
   local threads = {}

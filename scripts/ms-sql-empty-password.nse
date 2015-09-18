@@ -81,7 +81,7 @@ local function test_credentials( instance, helper, username, password )
     if ( loginErrorCode == mssql.LoginErrorType.PasswordMustChange ) then passwordIsGood = true end
     if ( loginErrorCode == mssql.LoginErrorType.AccountLockedOut ) then
       stdnse.debug1("Account %s locked out on %s", username, instance:GetName() )
-      table.insert( instance.ms_sql_empty, string.format("'sa' account is locked out.", result ) )
+      table.insert( instance.ms_sql_empty, "'sa' account is locked out." )
     end
     if ( mssql.LoginErrorMessage[ loginErrorCode ] == nil ) then
       stdnse.debug2("Attemping login to %s: Unknown login error number: %s", instance:GetName(), loginErrorCode )

@@ -73,7 +73,7 @@ action = function(host, port)
     end
 
     if ( not status ) then
-      stdnse.debug1("Login failed", response)
+      stdnse.debug1("Login failed")
       stdnse.debug3("Login error: %s", response)
       return
     end

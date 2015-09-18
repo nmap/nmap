@@ -1659,7 +1659,7 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
     return false, result
   end
 
-  stdnse.debug3("MSRPC: QueryDisplayInfo() returned successfully", i)
+  stdnse.debug3("MSRPC: QueryDisplayInfo() returned successfully")
 
   -- Make arguments easier to use
   arguments = result['arguments']
@@ -4313,7 +4313,7 @@ function service_create(host, servicename, path)
   end
 
   -- Create the service
-  stdnse.debug2("Creating the service", servicename)
+  stdnse.debug2("Creating the service")
   status, create_result = svcctl_createservicew(smbstate, open_result['handle'], servicename, servicename, path)
   if(status == false) then
     smb.stop(smbstate)

@@ -201,7 +201,7 @@ local function get_quoted_string(s, offset, crlf)
       c = s:sub(i, i)
       if c == "" then
         -- No character following.
-        error(string.format("\\ escape at end of input while parsing quoted-string."))
+        error("\\ escape at end of input while parsing quoted-string.")
       end
       -- Only CHAR may follow a backslash.
       if c:byte(1) > 127 then
@@ -2543,13 +2543,13 @@ function identify_404(host, port)
       if(clean_body ~= clean_body2) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
+        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response."
       end
 
       if(clean_body ~= clean_body3) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
       end
 
       return true, 200, clean_body

@@ -374,8 +374,7 @@ Comm = {
       local tmp
       status, tmp = self:GetAdditionalBytes( data, pos, HEADER_LEN - ( data:len() - pos ) )
       if not status then
-        stdnse.debug4(
-          string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
+        stdnse.debug4("Comm.DecodeHeader: failed to call GetAdditionalBytes")
         return -1, nil
       end
       data = data .. tmp
@@ -394,8 +393,7 @@ Comm = {
     if header.verifier.length - 8 > 0 then
       status, data = self:GetAdditionalBytes( data, pos, header.verifier.length - 8 )
       if not status then
-        stdnse.debug4(
-          string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
+        stdnse.debug4("Comm.DecodeHeader: failed to call GetAdditionalBytes")
         return -1, nil
       end
       pos, header.verifier.data = bin.unpack("A" .. header.verifier.length - 8, data, pos )

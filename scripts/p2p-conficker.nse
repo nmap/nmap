@@ -605,7 +605,7 @@ action = function(host)
   udp_ports[generated_ports[2]] = true
   udp_ports[generated_ports[4]] = true
 
-  table.insert(response, string.format("Checking for Conficker.C or higher..."))
+  table.insert(response, "Checking for Conficker.C or higher...")
 
   -- Check the TCP ports
   for port in pairs(tcp_ports) do

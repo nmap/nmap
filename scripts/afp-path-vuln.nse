@@ -176,7 +176,7 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
       status, response = afp_helper:Login(nil, nil)
     end
     if ( not(status) ) then
-      stdnse.debug1("Login failed", response)
+      stdnse.debug1("Login failed")
       stdnse.debug3("Login error: %s", response)
       return
     end
