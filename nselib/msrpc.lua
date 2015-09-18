@@ -230,7 +230,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a
 --        table of values, none of which are especially useful.
 function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
-  local i
   local status, result
   local parameters, data
   local pos, align
@@ -379,7 +378,6 @@ end
 --        arguments; however, the rest of the result table will represent the
 --        most recent fragment.
 function call_function(smbstate, opnum, arguments)
-  local i
   local status, result
   local parameters, data
   local pos, align
@@ -590,7 +588,6 @@ end
 --        a table of values, the most useful one being 'shares', which is a
 --        list of the system's shares.
 function srvsvc_netshareenumall(smbstate, server)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -665,7 +662,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'shares', which is a list of the system's shares.
 function srvsvc_netsharegetinfo(smbstate, server, share, level)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -724,7 +720,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is an array of tables.
 --        Each table contains the elements 'user', 'client', 'active', and 'idle'.
 function srvsvc_netsessenum(smbstate, server)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -829,7 +824,6 @@ end
 --  * 'reqbufneed'  The number of times the server required a request buffer but failed to allocate one. This value indicates that the server parameters may need adjustment.
 --  * 'bigbufneed'  The number of times the server required a big buffer but failed to allocate one. This value indicates that the server parameters may need adjustment.
 function srvsvc_netservergetstatistics(smbstate, server)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -902,7 +896,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values containing
 -- 'return'.
 function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathflags)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -965,7 +958,6 @@ end
 --@return (status, result, error_result) If status is false, result is an error message and error_result is
 --        the result table. Otherwise, result is a table of values.
 function srvsvc_netpathcanonicalize(smbstate, server, path)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1333,7 +1325,6 @@ end
 --        a table of values, the most useful one being 'connect_handle', which
 --        is required to call other functions.
 function samr_connect4(smbstate, server)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1386,7 +1377,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'domains', which is a list of the domains.
 function samr_enumdomains(smbstate, connect_handle)
-  local i, j
   local status, result
   local arguments
   local result
@@ -1449,7 +1439,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'sid', which is required to call other functions.
 function samr_lookupdomain(smbstate, connect_handle, domain)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1503,7 +1492,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'domain_handle', which is used to call other functions.
 function samr_opendomain(smbstate, connect_handle, sid)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1559,7 +1547,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'names', which is a list of usernames in that domain.
 function samr_enumdomainusers(smbstate, domain_handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1634,7 +1621,6 @@ end
 --        'name', 'fullname', and 'description' (note that any of them can be nil if the server didn't return a value). Finally,
 --        'flags' is the numeric flags for the user, while 'flags_list' is an array of strings, representing the flags.
 function samr_querydisplayinfo(smbstate, domain_handle, index, count)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1730,7 +1716,6 @@ end
 --         'lockout_window' (in minutes)
 --         'lockout_threshold' (in attempts)
 function samr_querydomaininfo2(smbstate, domain_handle, level)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1782,7 +1767,6 @@ end
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_enumdomainaliases(smbstate, domain_handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1840,7 +1824,6 @@ end
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_lookupnames(smbstate, domain_handle, names)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1901,7 +1884,6 @@ end
 --@param rid            The RID of the alias
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_openalias(smbstate, domain_handle, rid)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -1973,7 +1955,6 @@ end
 --@param alias_handle   The alias_handle, returned by <code>samr_openalias</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_getmembersinalias(smbstate, alias_handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2021,7 +2002,6 @@ end
 --@param rids           An array of RIDs to look up
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 --function samr_lookuprids(smbstate, domain_handle, rids)
---  local i, j
 --  local status, result
 --  local arguments
 --  local pos, align
@@ -2075,7 +2055,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is potentially
 --        a table of values, none of which are likely to be used.
 function samr_close(smbstate, handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2120,7 +2099,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'policy_handle', which is required to call other functions.
 function lsa_openpolicy2(smbstate, server)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2177,7 +2155,6 @@ end
 --        domains, there is a 'name' entry, which is a string, and a 'sid' entry, which is yet another object which
 --        can be passed to functions that understand SIDs.
 function lsa_lookupnames2(smbstate, policy_handle, names)
-  local i, j
   local status, result
   local arguments
   local result
@@ -2269,7 +2246,6 @@ end
 --        a table containing more information about each name, even if the name wasn't found (this one is a 1:1 mapping
 --        with the RIDs).
 function lsa_lookupsids2(smbstate, policy_handle, sids)
-  local i, j
   local status, result
   local arguments
   local result
@@ -2344,7 +2320,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is potentially
 --        a table of values, none of which are likely to be used.
 function lsa_close(smbstate, handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2398,7 +2373,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhku(smbstate)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2448,7 +2422,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhklm(smbstate)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2497,7 +2470,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhkpd(smbstate)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2546,7 +2518,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhkcu(smbstate)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2604,7 +2575,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'name', which is the name of the current key
 function winreg_enumkey(smbstate, handle, index, name)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2674,7 +2644,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is a handle to the newly opened key.
 function winreg_openkey(smbstate, handle, keyname)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2734,7 +2703,6 @@ end
 --        useful one, at least for me, being 'last_changed_time'/'last_changed_date', which are the date and time that the
 --        key was changed.
 function winreg_queryinfokey(smbstate, handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2819,7 +2787,6 @@ end
 --        useful one, at least for me, being 'last_changed_time'/'last_changed_date', which are the date and time that the
 --        key was changed.
 function winreg_queryvalue(smbstate, handle, value)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2914,7 +2881,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, none of
 --                         which are especially useful.
 function winreg_closekey(smbstate, handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -2958,7 +2924,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_openscmanagera(smbstate, machinename)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3015,7 +2980,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_openscmanagerw(smbstate, machinename)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3075,7 +3039,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_closeservicehandle(smbstate, handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3120,7 +3083,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_createservicew(smbstate, handle, service_name, display_name, path)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3227,7 +3189,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_deleteservice(smbstate, handle)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3274,7 +3235,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_openservicew(smbstate, handle, name)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3330,7 +3290,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_startservicew(smbstate, handle, args)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3381,7 +3340,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_controlservice(smbstate, handle, control)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3434,7 +3392,6 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_queryservicestatus(smbstate, handle, control)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3488,7 +3445,6 @@ end
 --@param time [optional] The time at which to run the command. Default: 5
 --            seconds from when the user logged in.
 function atsvc_jobadd(smbstate, server, command, time)
-  local i, j
   local status, result
   local arguments
   local pos, align
@@ -3550,7 +3506,6 @@ end
 -- * source
 -- * flags[]
 function samr_enum_users(host)
-  local i, j
 
   local smbstate
   local bind_result, connect4_result, enumdomains_result
@@ -3622,7 +3577,7 @@ function samr_enum_users(host)
       local domain_handle = opendomain_result['domain_handle']
 
       -- Loop as long as we're getting valid results
-      j = 0
+      local j = 0
       repeat
         -- Call QueryDisplayInfo()
         local status, querydisplayinfo_result = samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
@@ -3676,8 +3631,6 @@ function samr_enum_users(host)
 end
 
 function samr_enum_groups(host)
-  local i, j
-
   stdnse.debug1("MSRPC: Attempting to enumerate groups on %s", host.ip)
   -- Create the SMB session
   local status, smbstate = start_smb(host, SAMR_PATH, true)
@@ -4045,7 +3998,6 @@ function get_user_list(host)
   local status_lsa,  result_lsa
   local response = {}
   local names = {}
-  local i, v
 
   status_lsa,  result_lsa  = lsa_enum_users(host)
   if(status_lsa == false) then
@@ -4254,7 +4206,6 @@ end
 function get_domains(host)
   local result = {}
   local status, smbstate, bind_result, connect4_result, enumdomains_result
-  local i, j
 
   -- Create the SMB session
   status, smbstate  = start_smb(host, SAMR_PATH)
@@ -4695,7 +4646,6 @@ function enum_shares(host)
   local status, smbstate
   local bind_result, netshareenumall_result
   local shares
-  local i, v
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SRVSVC_PATH)
