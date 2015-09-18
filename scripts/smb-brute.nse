@@ -770,7 +770,7 @@ function test_lockouts(hostinfo)
     if(result == results.LOCKED) then
       -- If the canary just became locked, we're one step from locking out every account. Loop through the usernames and invalidate them to
       -- prevent them from being locked out
-      stdnse.debug1("Canary (%s) became locked out -- aborting")
+      stdnse.debug1("Canary (%s) became locked out -- aborting", username)
 
       -- Add it to the locked username list (so it can be reported)
       hostinfo['locked_usernames'][username] = true
