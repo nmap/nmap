@@ -983,8 +983,12 @@ pcap_lookupdev(errbuf)
 {
 	DWORD dwVersion;
 	DWORD dwWindowsMajorVersion;
+  HANDLE pcapMutex;
+  DWORD wait;
 	dwVersion = GetVersion();	/* get the OS version */
 	dwWindowsMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
+  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+  wait = WaitForSingleObject(pcapMutex, INFINITE);
 
 	if (dwVersion >= 0x80000000 && dwWindowsMajorVersion >= 4) {
 		/*
@@ -994,9 +998,21 @@ pcap_lookupdev(errbuf)
 		static char AdaptersName[8192];
 
 		if (PacketGetAdapterNames(AdaptersName,&NameLength) )
+    {
+      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+        ReleaseMutex(pcapMutex);
+      }
+      CloseHandle(pcapMutex);
 			return (AdaptersName);
+    }
 		else
+    {
+      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+        ReleaseMutex(pcapMutex);
+      }
+      CloseHandle(pcapMutex);
 			return NULL;
+    }
 	} else {
 		/*
 		 * Windows NT (NT 4.0, W2K, WXP). Convert the names to UNICODE for backward compatibility
@@ -1016,12 +1032,20 @@ pcap_lookupdev(errbuf)
 
 		if ( !PacketGetAdapterNames((PTSTR)TAdaptersName,&NameLength) )
 		{
+      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+        ReleaseMutex(pcapMutex);
+      }
+      CloseHandle(pcapMutex);
 			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				"PacketGetAdapterNames: %s",
 				pcap_win32strerror());
 			free(TAdaptersName);
 			return NULL;
 		}
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 
 
 		tAstr = (char*)TAdaptersName;
@@ -1056,6 +1080,10 @@ pcap_lookupdev(errbuf)
 		free(TAdaptersName);
 		return (char *)(AdaptersName);
 	}
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 }
 
 
@@ -1073,11 +1101,23 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 	LONG if_addr_size = 1;
 	struct sockaddr_in *t_addr;
 	unsigned int i;
+  HANDLE pcapMutex;
+  DWORD wait;
 
+  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+  wait = WaitForSingleObject(pcapMutex, INFINITE);
 	if (!PacketGetNetInfoEx((void *)device, if_addrs, &if_addr_size)) {
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 		*netp = *maskp = 0;
 		return (0);
 	}
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 
 	for(i=0; i<MAX_NETWORK_ADDRESSES; i++)
 	{
