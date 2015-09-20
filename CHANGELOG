@@ -91,14 +91,35 @@ o [NSE] Added SLAXML, an XML parser in Lua originally written by Gavin Kistner
 o [NSE] Added hnap-info, detects and outputs info for Home Network
   Administration Protocol devices. [Gyanendra Mishra]
 
-o [NSE] Allow ssl-enum-ciphers to run on non-typical ports when it is selected
-  by name. It will now send a service detection probe if the port is not a
-  typical SSL port and version scan (-sV) was not used. [Daniel Miller]
-
 o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
 
 o [NSE] Added tor-consensus-checker, which checks if a target is a
   known Tor node. [Jiayi Ye]
+
+Nmap 6.49BETA4 [2015-07-06]
+
+o Fix a hang on OS X in Zenmap's Topology page with error
+  "zenmap_wrapper.py[857]: GError: Couldn't recognize the image file format for
+  file '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'
+  http://seclists.org/nmap-dev/2015/q3/8 [Daniel Miller]
+
+o Fix a small memory leak for each target specified as a hostname which fails
+  to resolve. [Daniel Miller]
+
+o Allow 'make check' to succeed when Nmap is configured without OpenSSL
+  support. This was broken due to our NSE unittest library expecting to be able
+  to load every library without error. [Daniel Miller]
+
+o [NSE] Enable ssl-enum-ciphers to safely scan servers with a long handshake
+  intolerance issue which resulted in incomplete results when the handshake was
+  greater than 255 bytes. [Jacob Gajek, Daniel Miller]
+
+o [Ncat] Fix a write overrun in Ncat that could cause a segfault if the -g
+  (source route) option was given too many times. [Daniel Miller]
+
+o [NSE] Allow ssl-enum-ciphers to run on non-typical ports when it is selected
+  by name. It will now send a service detection probe if the port is not a
+  typical SSL port and version scan (-sV) was not used. [Daniel Miller]
 
 
 Nmap 6.49BETA3 [2015-06-25]
