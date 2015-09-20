@@ -118,10 +118,10 @@ stage-zenmap: export-$(ZENMAP_BUILD_DIR)
 	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
 
 stage-ndiff: export-$(NDIFF_BUILD_DIR)
-	cd $(NDIFF_BUILD_DIR) && ./configure --without-zenmap --without-ncat --with-ndiff --without-nping $(CONFIGURE_ARGS)
-	make -C $(NDIFF_BUILD_DIR) build-ndiff
-	rm -rf $(NDIFF_STAGING_DIR)
-	make -C $(NDIFF_BUILD_DIR) install-ndiff DESTDIR="`pwd`/$(NDIFF_STAGING_DIR)"
+	mkdir -p $(NDIFF_STAGING_DIR)/usr/local/bin
+	mkdir -p $(NDIFF_STAGING_DIR)/usr/local/share/man/man1
+	cp $(NDIFF_BUILD_DIR)/ndiff/ndiff.py $(NDIFF_STAGING_DIR)/usr/local/bin/ndiff
+	cp $(NDIFF_BUILD_DIR)/ndiff/docs/ndiff.1 $(NDIFF_STAGING_DIR)/usr/local/share/man/man1/
 
 COPYING.formatted:
 # Use the license formatter from the Windows installer.
