@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Use a mutex on Windows to avoid a hang when accessing WinPCAP driver.
+  Reported by multiple users on Windows 8.1 and Windows Server 2012 R2.
+  Nmap hangs when the WinPCAP driver is accessed via OpenServiceA by multiple
+  processes at once. Users report that this change, which uses a mutex to avoid
+  concurrent access, fixes the hang. [Daniel Miller]
+
 o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
   [Brandon Paulsen]

@@ -2087,3 +2087,178 @@ index 2df6a4d..b71fb82 100644
  			continue;
  		}
  #endif
+
+o Avoid a strange hang with the WinPCAP driver when running multiple instances
+  of Nmap concurrently.
+
+diff --git a/libdnet-stripped/src/eth-win32.c b/libdnet-stripped/src/eth-win32.c
+index 9cbb3f9..de0320e 100644
+--- a/libdnet-stripped/src/eth-win32.c
++++ b/libdnet-stripped/src/eth-win32.c
+@@ -35,13 +35,21 @@ eth_open(const char *device)
+ {
+ 	eth_t *eth;
+ 	char pcapdev[128];
++  HANDLE pcapMutex;
++  DWORD wait;
+ 
+ 	if (eth_get_pcap_devname(device, pcapdev, sizeof(pcapdev)) != 0)
+ 		return (NULL);
+ 
+ 	if ((eth = calloc(1, sizeof(*eth))) == NULL)
+ 		return (NULL);
++  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
++  wait = WaitForSingleObject(pcapMutex, INFINITE);
+ 	eth->lpa = PacketOpenAdapter(pcapdev);
++  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++    ReleaseMutex(pcapMutex);
++  }
++  CloseHandle(pcapMutex);
+ 	if (eth->lpa == NULL) {
+ 		eth_close(eth);
+ 		return (NULL);
+@@ -67,11 +75,21 @@ eth_send(eth_t *eth, const void *buf, size_t len)
+ eth_t *
+ eth_close(eth_t *eth)
+ {
++  HANDLE pcapMutex;
++  DWORD wait;
+ 	if (eth != NULL) {
+ 		if (eth->pkt != NULL)
+ 			PacketFreePacket(eth->pkt);
+ 		if (eth->lpa != NULL)
++    {
++      pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
++      wait = WaitForSingleObject(pcapMutex, INFINITE);
+ 			PacketCloseAdapter(eth->lpa);
++      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++        ReleaseMutex(pcapMutex);
++      }
++      CloseHandle(pcapMutex);
++    }
+ 		free(eth);
+ 	}
+ 	return (NULL);
+diff --git a/libdnet-stripped/src/intf-win32.c b/libdnet-stripped/src/intf-win32.c
+index 3c09f9c..77225b6 100644
+--- a/libdnet-stripped/src/intf-win32.c
++++ b/libdnet-stripped/src/intf-win32.c
+@@ -427,6 +427,8 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+ 	pcap_if_t *pdev, *selected;
+ 	intf_t *intf;
+ 	char errbuf[PCAP_ERRBUF_SIZE];
++	HANDLE pcapMutex;
++	DWORD wait;
+ 
+ 	if ((intf = intf_open()) == NULL)
+ 		return (-1);
+@@ -441,10 +443,20 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+ 		return (-1);
+ 	}
+ 
++  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
++  wait = WaitForSingleObject(pcapMutex, INFINITE);
+ 	if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
++    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++      ReleaseMutex(pcapMutex);
++    }
++    CloseHandle(pcapMutex);
+ 		intf_close(intf);
+ 		return (-1);
+ 	}
++  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++    ReleaseMutex(pcapMutex);
++  }
++  CloseHandle(pcapMutex);
+ 
+ 	/* Loop through all the pcap devices until we find a match. */
+ 	selected = NULL;
+
+o Use a mutex on Windows to avoid a hang when accessing WinPCAP driver.
+  Reported by multiple users on Windows 8.1 and Windows Server 2012 R2.
+  Seems to hang when the WinPCAP driver is accessed via OpenServiceA by
+  multiple processes at once. Users report that this change, which uses a
+  mutex to avoid concurrent access, fixes the hang.
+
+diff --git a/libdnet-stripped/src/eth-win32.c b/libdnet-stripped/src/eth-win32.c
+index 9cbb3f9..de0320e 100644
+--- a/libdnet-stripped/src/eth-win32.c
++++ b/libdnet-stripped/src/eth-win32.c
+@@ -35,13 +35,21 @@ eth_open(const char *device)
+ {
+ 	eth_t *eth;
+ 	char pcapdev[128];
++  HANDLE pcapMutex;
++  DWORD wait;
+ 
+ 	if (eth_get_pcap_devname(device, pcapdev, sizeof(pcapdev)) != 0)
+ 		return (NULL);
+ 
+ 	if ((eth = calloc(1, sizeof(*eth))) == NULL)
+ 		return (NULL);
++  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
++  wait = WaitForSingleObject(pcapMutex, INFINITE);
+ 	eth->lpa = PacketOpenAdapter(pcapdev);
++  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++    ReleaseMutex(pcapMutex);
++  }
++  CloseHandle(pcapMutex);
+ 	if (eth->lpa == NULL) {
+ 		eth_close(eth);
+ 		return (NULL);
+@@ -67,11 +75,21 @@ eth_send(eth_t *eth, const void *buf, size_t len)
+ eth_t *
+ eth_close(eth_t *eth)
+ {
++  HANDLE pcapMutex;
++  DWORD wait;
+ 	if (eth != NULL) {
+ 		if (eth->pkt != NULL)
+ 			PacketFreePacket(eth->pkt);
+ 		if (eth->lpa != NULL)
++    {
++      pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
++      wait = WaitForSingleObject(pcapMutex, INFINITE);
+ 			PacketCloseAdapter(eth->lpa);
++      if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++        ReleaseMutex(pcapMutex);
++      }
++      CloseHandle(pcapMutex);
++    }
+ 		free(eth);
+ 	}
+ 	return (NULL);
+diff --git a/libdnet-stripped/src/intf-win32.c b/libdnet-stripped/src/intf-win32.c
+index 3c09f9c..77225b6 100644
+--- a/libdnet-stripped/src/intf-win32.c
++++ b/libdnet-stripped/src/intf-win32.c
+@@ -427,6 +427,8 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+ 	pcap_if_t *pdev, *selected;
+ 	intf_t *intf;
+ 	char errbuf[PCAP_ERRBUF_SIZE];
++	HANDLE pcapMutex;
++	DWORD wait;
+ 
+ 	if ((intf = intf_open()) == NULL)
+ 		return (-1);
+@@ -441,10 +443,20 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+ 		return (-1);
+ 	}
+ 
++  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
++  wait = WaitForSingleObject(pcapMutex, INFINITE);
+ 	if (pcap_findalldevs(&pcapdevs, errbuf) == -1) {
++    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++      ReleaseMutex(pcapMutex);
++    }
++    CloseHandle(pcapMutex);
+ 		intf_close(intf);
+ 		return (-1);
+ 	}
++  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
++    ReleaseMutex(pcapMutex);
++  }
++  CloseHandle(pcapMutex);
+ 
+ 	/* Loop through all the pcap devices until we find a match. */
+ 	selected = NULL;
