@@ -146,9 +146,9 @@ local function do_half_http(host, port, obj)
     end
     stdnse.sleep(SendInterval)
     try(slowloris:send("X-a: b\r\n"))
-    ServerNotice = " (attack against " .. host.ip .. "): Feeding HTTP stream..."
     Queries = Queries + 1
-    ServerNotice = ServerNotice .. "\n(attack against " .. host.ip .. "): " .. Queries .. " queries sent using " .. ThreadCount .. " connections."
+    ServerNotice = ("(attack against %s): Feeding HTTP stream...\n(attack against %s): %d queries sent using %d connections."):format(
+      host.ip, host.ip, Queries, ThreadCount)
   end
   slowloris:close()
   ThreadCount = ThreadCount - 1
