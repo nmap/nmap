@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix http.get_url function when used with https scheme. Previously,
+  plaintext http to port 443 was attempted first. [jah]
+
 o Use a mutex on Windows to avoid a hang when accessing WinPCAP driver.
   Reported by multiple users on Windows 8.1 and Windows Server 2012 R2.
   Nmap hangs when the WinPCAP driver is accessed via OpenServiceA by multiple
