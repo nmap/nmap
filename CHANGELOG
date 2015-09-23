@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix a crash in Zenmap when using Compare Results:
+  AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
+  [Daniel Miller]
+
 o [NSE] Fix http.get_url function when used with https scheme. Previously,
   plaintext http to port 443 was attempted first. [jah]
 
