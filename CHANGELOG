@@ -1847,21 +1847,18 @@ o Most important release since Nmap 5.00 in July 2009! For a list of
   announcement at: http://nmap.org/6
 
 o In XML output, "osclass" elements are now child elements of the
-  "osmatch" they belong to. Old output was thus (we're using square
-  brackets instead of angle brackets in this CHANGELOG entry to avoid
-  html escaping problems:
-    [os][osclass/][osclass/]...[osmatch/][osmatch/]...[/os]
+  "osmatch" they belong to. Old output was thus:
+    <os><osclass/><osclass/>...<osmatch/><osmatch/>...</os>
   New output is:
-    [os][osmatch][osclass/][osclass/]...[/osmatch]...[/os]
+    <os><osmatch><osclass/><osclass/>...</osmatch>...</os>
   The option --deprecated-xml-osclass restores the old output, in case
   you use an Nmap XML parser that doesn't understand the new
   structure. The xmloutputversion has been increased to 1.04.
 
 o Added a new "target" element to XML output that indicates when a
   target specification was ignored, perhaps because of a syntax error
-  or DNS failure. It looks like this (except with angle brackets
-  rather than square):
-    [target specification="1.2.3.4.5" status="skipped" reason="invalid"/]
+  or DNS failure. It looks like this:
+    <target specification="1.2.3.4.5" status="skipped" reason="invalid"/>
   [David Fifield]
 
 o [NSE] Added the script samba-vuln-cve-2012-1182 which detects the
@@ -8451,9 +8448,8 @@ o Fixed the nmap_command_path Zenmap configuration variable so that it
 
 o Nmap now reports scan start and end times for individual hosts
   within a larger scan. The information is added to the XML host
-  element like so: [host starttime="1198292349" endtime="1198292370"]
-  (but of course with angle brackets rather than square ones).  It is
-  also printed in normal output if -d or "-v -v" are
+  element like so: <host starttime="1198292349" endtime="1198292370">
+  It is also printed in normal output if -d or "-v -v" are
   specified. [Brandon, Kris, Fyodor]
 
 o "make uninstall" now uninstalls Zenmap as well as Nmap. The
@@ -9672,16 +9668,16 @@ o The Nmap reference guide (man page) DocBook XML source is now in the
 o NSE now has garbage collection so that if you forget to close a
   socket before exiting a script, it is closed for you. [Stoiko]
 
-o The [portused] tag in XML output now provides the open TCP port used
+o The <portused> tag in XML output now provides the open TCP port used
   for OS detection as well as the closed TCP and UDP ports which were
   reported previously. [Kris]
 
-o XML output now has a [times] tag for reporting final time
+o XML output now has a <times> tag for reporting final time
   information which was already printed in normal output in verbose
   mode (round trip time, rtt variance, timeout, etc.) [Kris]
 
-o Changed the XML output format so that the [extrareasons] tag (part
-  of Eddie's --reason patch) falls within the [extraports] tag. [Kris]
+o Changed the XML output format so that the <extrareasons> tag (part
+  of Eddie's --reason patch) falls within the <extraports> tag. [Kris]
 
 o Nmap now provides more concise OS fingerprints for submission thanks
   to better merging. [David Fifield]
@@ -9735,7 +9731,7 @@ o Performed another big OS detection run.  The DB has grown almost 10%
   to 417 fingerprints.  All submissions up to February 6 have been
   processed.  Please keep them coming!
 
-o Fixed XML output so that the opening [os] tag is printed again.  The
+o Fixed XML output so that the opening <os> tag is printed again.  The
   line which prints this was somehow removed when NSE was integrated.
   Thanks to Joshua Abraham for reporting the problem.
 
@@ -10061,15 +10057,14 @@ o Fixed the 'distclean' make target to be more comprehensive.  Thanks
 Nmap 4.20ALPHA4 [2006-7-4]
 
 o Nmap now provides progress statistics in the XML output in verbose
-  mode.  Here are some examples of the format (etc is "estimated time
-  until completion) and times are in UNIX time_t (seconds since 1970)
-  format. Angle braces have been replaced by square braces:
-  [taskbegin task="SYN Stealth Scan" time="1151384685" /]
-  [taskprogress task="SYN Stealth Scan" time="1151384715"
-                percent="13.85" remaining="187" etc="1151384902" /]
-  [taskend task="SYN Stealth Scan" time="1151384776" /]
-  [taskbegin task="Service scan" time="1151384776" /]
-  [taskend task="Service scan" time="1151384788" /]
+  mode. Here are some examples of the format (etc is "estimated time
+  until completion) and times are in UNIX time_t (seconds since 1970) format.
+  <taskbegin task="SYN Stealth Scan" time="1151384685" />
+  <taskprogress task="SYN Stealth Scan" time="1151384715"
+                percent="13.85" remaining="187" etc="1151384902" />
+  <taskend task="SYN Stealth Scan" time="1151384776" />
+  <taskbegin task="Service scan" time="1151384776" />
+  <taskend task="Service scan" time="1151384788" />
   Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
 
 o Updated the Windows installer to give an option checkbox for
@@ -10203,7 +10198,7 @@ o Nmap now allows multiple ignored port states.  If a 65K-port scan
   filtered ports, 1000 closed ports" or "All 2051 scanned ports on
   192.168.0.69 are closed (1051) or filtered (1000)", and omit all of
   those ports from the table.  Open ports are never ignored.  XML
-  output can now have multiple [extraports] directive (one for each
+  output can now have multiple <extraports> directive (one for each
   ignored state).  The number of ports in a single state before it is
   consolidated defaults to 26 or more, though that number increases as
   you add -v or -d options.  With -d3 or higher, no ports will be
@@ -11195,8 +11190,8 @@ o Fixed an integer overflow that prevented Nmap from scanning
 o Increased the buffer size allocated for fingerprints to prevent Nmap
   from running out and quitting (error message: "Assertion
   `servicefpalloc - servicefplen > 8' failed".  Thanks to Mike Hatz
-  (mhatz(a)blackcat.com) for the report. [ Actually this was done in a
-  previous version, but I forgot which one ]
+  (mhatz(a)blackcat.com) for the report. (Actually this was done in a
+  previous version, but I forgot which one.)
 
 o Changed from CVS to Subversion source control system (which
   rocks!). Neither repository is public (I'm paranoid because both CVS
@@ -11360,10 +11355,8 @@ o Implemented a huge OS fingerprint database update.  The number of
   much more.
 
 o Updated nmap-mac-prefixes with the latest OUIs from the IEEE.
-  [ http://standards.ieee.org/regauth/oui/oui.txt ]
 
 o Updated nmap-protocols with the latest IP protocols from IANA
-  [ http://www.iana.org/assignments/protocol-numbers ]
 
 o Added a few new Nmap version detection signatures thanks to a patch
   from Martin Macok (martin.macok(a)underground.cz).
@@ -11404,8 +11397,8 @@ o Fixed nmap_fetchfile() to better find custom versions of data files
   (nnposter(a)users.sourceforge.net) for reporting the problem and
   sending a patch.
 
-o Changed XML output so that the MAC address [address] element comes
-  right after the IPv4/IPv6 [address] element.  Apparently this is
+o Changed XML output so that the MAC address <address> element comes
+  right after the IPv4/IPv6 <address> element.  Apparently this is
   needed to comply with the DTD ( http://nmap.org/data/nmap.dtd ).
   Thanks to Adam Morgan (adam.morgan(a)Q1Labs.com) and Florian Ebner
   (Florian.Ebner(a)e-bros.de) for the problem reports.
@@ -11664,10 +11657,9 @@ o Added MAC address printing.  If Nmap receives packet from a target
   this capability.  If any Windows developer types are interesting in
   adding it, you just need to implement IPisDirectlyConnected() in
   tcpip.cc and then please send me the patch.  Here are examples from
-  normal and XML output (angle brackets replaced with [] for HTML
-  changelog compatibility):
+  normal and XML output:
   MAC Address: 08:00:20:8F:6B:2F (SUN Microsystems)
-  [address addr="00:A0:CC:63:85:4B" vendor="Lite-on Communications" addrtype="mac" /]
+  <address addr="00:A0:CC:63:85:4B" vendor="Lite-on Communications" addrtype="mac" />
 
 o Updated the XML DTD to support the newly printed MAC addresses.
   Thanks to Thorsten Holz (thorsten.holz(a)mmweg.rwth-aachen.de) for
@@ -12570,7 +12562,7 @@ o Applied some changes from Solar Designer (solar(a)openwall.com)
   which fix some typos and also suggest safer /tmp/ behavior in the
   HACKING file and Lithuanian man page.  These changes are for the
   Nmap package of his Openwall GNU/*/Linux (Owl) distribution.
-  [ http://www.openwall.com/Owl/ ]
+  (http://www.openwall.com/Owl/)
 
 o For Solaris, I now define NET_SIZE_T to size_t rather than socklen_t
   in nmap.h.  Isn't that exciting?!!!  Hopefully this will help
@@ -12929,7 +12921,7 @@ Nmap 3.10ALPHA4 [2002-11-11]
 o Applied patch by Max Schubert (nmap(a)webwizarddesign.com) which adds
   an add-port XML tag whenever a new port is found open when Nmap is
   running in verbose mode.  The new tag looks like:
-  [addport state="open" portid="22" protocol="tcp"/]
+  <addport state="open" portid="22" protocol="tcp"/>
   I also updated docs/nmap.dtd to recognize this new tag.
 
 o Added German translation of Nmap man page by Marc Ruef
