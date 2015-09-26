@@ -4,15 +4,6 @@ o Fix a crash in Zenmap when using Compare Results:
   AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
   [Daniel Miller]
 
-o [NSE] Fix http.get_url function when used with https scheme. Previously,
-  plaintext http to port 443 was attempted first. [jah]
-
-o Use a mutex on Windows to avoid a hang when accessing WinPCAP driver.
-  Reported by multiple users on Windows 8.1 and Windows Server 2012 R2.
-  Nmap hangs when the WinPCAP driver is accessed via OpenServiceA by multiple
-  processes at once. Users report that this change, which uses a mutex to avoid
-  concurrent access, fixes the hang. [Daniel Miller]
-
 o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
   [Brandon Paulsen]
@@ -21,24 +12,12 @@ o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
   information from multicast and unicast KNX gateways, which connect home
   automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]
 
-o Disable TPACKET_V3 in our included libpcap. This version of the Linux kernel
-  packet ring API has problems that result in lots of lost packets. This patch
-  falls back to TPACKET_V2 or earlier versions if available. [nnposter]
-
-o Output a warning when deprecated options are used, and suggest the preferred
-  option. Currently deprecated: -i -o -m -sP -P0 -PN -oM -sR. The warning is
-  only visible with -v. [Daniel Miller]
-
 o [NSE] Added script http-ls. Parses web server directory index pages with
   optional recursion. [Pierre Lalet]
 
 o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
   outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
   scripts have been converted to use this module. [Pierre Lalet]
-
-o Fix Nmap's DTD, which did not recognize that the script element could contain
-  character data when a script returns a number or a boolean.
-  [Jonathan Daugherty]
 
 o [GH#75] Normalize check targets to standard format check-*.
   [Gioacchino Mazzurco]
@@ -62,10 +41,6 @@ o [NSE] Added script http-fetch. This script can be used to fetch all files
 o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
   enumerate both themesa and modules of drupal installaions. [Gyanendra Mishra]
 
-o [GH#196] Fix raw packet sending on FreeBSD 10.0 and later. FreeBSD changed
-  byte order of the IPv4 stack, so SYN scan and other raw packet functions were
-  broken. [Edward Napierała] Also reported in [GH#50] by Olli Hauer.
-
 o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
   repostory by examinning commit logs. [Gyanendra Mishra]
 
@@ -80,9 +55,6 @@ o [NSE] Added NTLM brute support to http-brute. [Gyanendra Mishra]
 
 o [NSE] Added NTLM authentication support to http.lua and a related function to create
   an ntlm v2 session response in smbauth.lua. [Gyanendra Mishra]
-
-o [NSE] ssl-enum-ciphers now marks cipher scores as unkown for ciphers requiring
-  the use of openssl when openssl is missing. [jrchamp]
 
 o [NSE] Added builtin pattern and multiple pattern search to http-grep. [Gyanendra Mishra]
 
@@ -108,6 +80,72 @@ o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
 
 o [NSE] Added tor-consensus-checker, which checks if a target is a
   known Tor node. [Jiayi Ye]
+
+Nmap 6.49BETA5 [2015-09-25]
+
+o Work around a bug which could cause Nmap to hang when running
+  multiple instances at once on Windows. The actual bug appears to be
+  in the WinPCAP driver in that it hanges when accessed via
+  OpenServiceA by multiple processes at once. So for now we have added
+  a mutex to prevent even multiple Nmap processes from making
+  concurrent calls to this part of WinPcap. We've received the reports
+  from multiple users on Windows 8.1 and Windows Server 2012 R2 and
+  this fix seems to resolve the hang for them. [Daniel Miller]
+
+o [GH#212][NSE] Fix http.get_url function which was wrongly attempting
+  non-SSL HTTP requests first when passed https URLs. [jah]
+
+o [GH#201] Fix Ndiff interpreter path problems in the OS X .dmg
+  installer which could prevent Ndiff (and the related Zenmap "compare
+  results" window) from working on OS X in some cases. [Daniel Miller]
+
+o Fix Nmap's DTD, which did not recognize that the script element
+  could contain character data when a script returns a number or a
+  boolean.  [Jonathan Daugherty]
+
+o [GH#172][NSE] Fix reporting of DH parameter sizes by
+  ssl-enum-ciphers. The number shown was the length in bytes, not bits
+  as it should have been.  Reported by Michael Staruch. [Brandon
+  Paulsen]
+
+o Our Windows Nmap packages are now compiled with the older platform
+  toolset (v120_xp rather than v120) and so they may work with Windows
+  XP again for the dwindling number of users still on that operating
+  system.
+
+o [GH#34] Disable TPACKET_V3 in our included libpcap. This version of
+  the Linux kernel packet ring API has problems that result in lots of
+  lost packets. This patch falls back to TPACKET_V2 or earlier
+  versions if available. [nnposter]
+
+o [NSE] Check for socket errors in iscsi.lua. This was causing the
+  iscsi-info script to crash against some services. [Daniel Miller]
+
+o [NSE] Fix http-useragent-tester, which was using cached HTTP
+  responses instead of testing new User-Agent strings. [Daniel Miller]
+
+o Output a warning when deprecated options are used, and suggest the
+  preferred option. Currently deprecated: -i -o -m -sP -P0 -PN -oM
+  -sR. The warning is only visible with -v. [Daniel Miller]
+
+o Add a fatal error for options like -oG- which is interpreted as the
+  deprecated -o option, outputting to a file named "G-", instead of
+  the expected behavior of -oG - (Grepable output to stdout). [Daniel
+  Miller]
+
+o [GH#196] Fix raw packet sending on FreeBSD 10.0 and later. FreeBSD
+  changed byte order of the IPv4 stack, so SYN scan and other raw
+  packet functions were broken. [Edward Napierała] Also reported in
+  [GH#50] by Olli Hauer.
+
+o [GH#183] Fix compilation on Visual Studio 2010, which failed with
+  error: "service_scan.cc(2559): error C2065: 'EOPNOTSUPP' :
+  undeclared identifier" [Daniel Miller]
+
+o [GH#115][NSE] ssl-enum-ciphers will still produce output if OpenSSL
+  (required for certificate parsing) is not available. In cases where
+  handshake strength depends on the certificate, it will be reported
+  as "unknown". [jrchamp]
 
 Nmap 6.49BETA4 [2015-07-06]
 
