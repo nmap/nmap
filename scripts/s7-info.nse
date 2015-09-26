@@ -19,7 +19,7 @@ Thanks to Positive Research, and Dmitry Efanov for creating PLCScan
 
 author = "Stephen Hilt (Digital Bond)"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "intrusive"}
+categories = {"discovery", "version"}
 
 ---
 -- @usage

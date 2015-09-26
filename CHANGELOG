@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] bacnet-info.nse and s7-info.nse were added to the version category.
+  [Paulino Calderon] 
+
+o [NSE] Added 124 new identifiers to bacnet-info.nse vendor database.
+  [Paulino Calderon] 
+
+o [NSE] Fixed bacnet-info.nse to bind to the service port detected 
+  during scan instead of fixed port. [Paulino Calderon] 
+
 o Fix a crash in Zenmap when using Compare Results:
   AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
   [Daniel Miller]

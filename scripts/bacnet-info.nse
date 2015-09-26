@@ -51,7 +51,7 @@ http://digitalbond.com
 
 author = "Stephen Hilt, Michael Toecker (Digital Bond)"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"discovery", "version"}
 
 
 --
@@ -65,7 +65,7 @@ portrule = shortport.port_or_service(47808, "bacnet", {"udp","tcp"})
 ---
 --  Table to look up the Vendor Name based on Vendor ID
 --  Table data from http://www.bacnet.org/VendorID/BACnet%20Vendor%20IDs.htm
---  Fetched on 3/18/2014
+--  Fetched on 9/26/2015
 --
 -- @key vennum Vendor number parsed out of the BACNet packet
 local vendor_id = {
@@ -794,7 +794,130 @@ local vendor_id = {
   [725] = "Bektas Invisible Controls GmbH",
   [726] = "Entelec",
   [727] = "Innexiv",
-  [728] = "Covenant"
+  [728] = "Covenant",
+  [729] = "Davitor AB",
+  [730] = "TongFang Technovator",
+  [731] = "Building Robotics",
+  [732] = "HSS-MSR UG",
+  [733] = "FramTack LLC",
+  [734] = "B. L. Acoustics",
+  [735] = "Traxxon Rock Drills",
+  [736] = "Franke",
+  [737] = "Wurm GmbH & Co",
+  [738] = "AddENERGIE",
+  [739] = "Mirle Automation Corporation",
+  [740] = "Ibis Networks",
+  [741] = "ID-KARTA s.r.o.",
+  [742] = "Anaren",
+  [743] = "Span",
+  [744] = "Bosch Thermotechnology Corp",
+  [745] = "DRC Technology S.A.",
+  [746] = "Shanghai Energy Building Technology Co",
+  [747] = "Fraport AG",
+  [748] = "Flowgroup",
+  [749] = "Skytron Energy",
+  [750] = "ALTEL Wicha",
+  [751] = "Drupal",
+  [752] = "Axiomatic Technology",
+  [753] = "Bohnke + Partner",
+  [754] = "Function 1",
+  [755] = "Optergy Pty",
+  [756] = "LSI Virticus",
+  [757] = "Konzeptpark GmbH",
+  [758] = "Hubbell Building Automation",
+  [759] = "eCurv",
+  [760] = "Agnosys GmbH",
+  [761] = "Shanghai Sunfull Automation Co.",
+  [762] = "Kurz Instruments",
+  [763] = "Cias Elettronica S.r.l.",
+  [764] = "Multiaqua",
+  [765] = "BlueBox",
+  [766] = "Sensidyne",
+  [767] = "Viessmann Elektronik GmbH",
+  [768] = "ADFweb.com srl",
+  [769] = "Gaylord Industries",
+  [770] = "Majur Ltd.",
+  [771] = "Shanghai Huilin Technology Co.",
+  [772] = "Exotronic",
+  [773] = "Safecontrol spol s.r.o.",
+  [774] = "Amatis",
+  [775] = "Universal Electric Corporation",
+  [776] = "iBACnet",
+  [778] = "Smartrise Engineering",
+  [779] = "Miratron",
+  [780] = "SmartEdge",
+  [781] = "Mitsubishi Electric Australia Pty Ltd",
+  [782] = "Triangle Research International Ptd Ltd",
+  [783] = "Produal Oy",
+  [784] = "Milestone Systems A/S",
+  [785] = "Trustbridge",
+  [786] = "Feedback Solutions",
+  [787] = "IES",
+  [788] = "GE Critical Power",
+  [789] = "Riptide IO",
+  [790] = "Messerschmitt Systems AG",
+  [791] = "Dezem Energy Controlling",
+  [792] = "MechoSystems",
+  [793] = "evon GmbH",
+  [794] = "CS Lab GmbH",
+  [795] = "8760 Enterprises",
+  [796] = "Touche Controls",
+  [797] = "Ontrol Teknik Malzeme San. ve Tic. A.S.",
+  [798] = "Uni Control System Sp. Z o.o.",
+  [799] = "Weihai Ploumeter Co.",
+  [800] = "Elcom International Pvt. Ltd",
+  [801] = "Philips Lighting",
+  [802] = "AutomationDirect",
+  [803] = "Paragon Robotics",
+  [804] = "SMT System & Modules Technology AG",
+  [805] = "OS Technology Service and Trading Co.",
+  [806] = "CMR Controls Ltd",
+  [807] = "Innovari",
+  [808] = "ABB Control Products",
+  [809] = "Gesellschaft fur Gebaudeautomation mbH",
+  [810] = "RODI Systems Corp.",
+  [811] = "Nextek Power Systems",
+  [812] = "Creative Lighting",
+  [813] = "WaterFurnace International",
+  [814] = "Mercury Security",
+  [815] = "Hisense (Shandong) Air-Conditioning Co.",
+  [816] = "Layered Solutions",
+  [817] = "Leegood Automatic System",
+  [818] = "Shanghai Restar Technology Co.",
+  [819] = "Reimann Ingenieurburo",
+  [820] = "LynTec",
+  [821] = "HTP",
+  [822] = "Elkor Technologies",
+  [823] = "Bentrol Pty Ltd",
+  [824] = "Team-Control Oy",
+  [825] = "NextDevice",
+  [826] = "GLOBAL CONTROL 5 Sp. z o.o.",
+  [827] = "King I Electronics Co.",
+  [828] = "SAMDAV",
+  [829] = "Next Gen Industries Pvt. Ltd.",
+  [830] = "Entic LLC",
+  [831] = "ETAP",
+  [832] = "Moralle Electronics Limited",
+  [833] = "Leicom AG",
+  [834] = "Watts Regulator Company",
+  [835] = "S.C. Orbtronics S.R.L.",
+  [836] = "Gaussan Technologies",
+  [837] = "WEBfactory GmbH",
+  [838] = "Ocean Controls",
+  [839] = "Messana  Air-Ray Conditioning s.r.l.",
+  [840] = "Hangzhou BATOWN Technology Co. Ltd.",
+  [841] = "Reasonable Controls",
+  [842] = "Servisys",
+  [843] = "halstrup-walcher GmbH",
+  [844] = "SWG Automation Fuzhou Limited",
+  [845] = "KSB Aktiengesellschaft",
+  [846] = "Hybryd Sp. z o.o.",
+  [847] = "Helvatron AG",
+  [848] = "Oderon Sp. Z.O.O.",
+  [849] = "miko",
+  [850] = "Exodraft",
+  [851] = "Hochhuth GmbH",
+  [852] = "Integrated System Technologies Ltd."
 }
 --return vendor information
 function vendor_lookup(vennum)
@@ -1008,9 +1131,9 @@ action = function(host, port)
   -- Bind to port for niceness with BACNet this may need to be commented out if
   -- scanning more than one host at a time, may fix some issues seen on Windows
   --
-  local status, err = sock:bind(nil, 47808)
+  local status, err = sock:bind(nil, port.number)
   if(status == false) then
-    stdnse.debug1("Couldn't bind to 47808/udp. Continuing anyway, results may vary")
+    stdnse.debug1("Couldn't bind to %s/udp. Continuing anyway, results may vary", port.number)
   end
   -- connect to the remote host
   local constatus, conerr = sock:connect(host, port)
