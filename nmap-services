@@ -3,7 +3,7 @@
 # Well known service port numbers -*- mode: fundamental; -*-
 # From the Nmap Security Scanner ( http://nmap.org )
 #
-# $Id: nmap-services 9746 2008-08-26 18:45:24Z fyodor $
+# $Id$
 #
 # Derived from IANA data and our own research
 # 
@@ -762,8 +762,8 @@ isakmp	500/tcp	0.001129
 isakmp	500/udp	0.163742
 stmf	501/tcp	0.000063
 stmf	501/udp	0.001186
-asa-appl-proto	502/tcp	0.000151
-asa-appl-proto	502/udp	0.001318
+mbap	502/tcp	0.000151	# Modbus Application Protocol
+mbap	502/udp	0.001318	# Modbus Application Protocol
 intrinsa	503/udp	0.000708
 citadel	504/udp	0.000758
 mailbox-lm	505/tcp	0.000038
