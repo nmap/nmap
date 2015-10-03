@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Splits smb-check-vulns into smb-vuln-conficker, smb-vuln-cve2009-3103,
+o [NSE] [GH#171] Splits smb-check-vulns into smb-vuln-conficker, smb-vuln-cve2009-3103,
   smb-vuln-ms06-025, smb-vuln-ms07-029, smb-vuln-regsvc-dos and smb-vuln-ms08-067.
   The scripts now support the library vulns and the script arguments "safe" and  
   and "unsafe" were removed in favor of allowing users to control execution by 
