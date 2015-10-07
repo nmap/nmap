@@ -148,7 +148,7 @@ int main()
 
   DNS::Query * q = &*p.queries.begin();
   TEST_INCR(q->name == target, ret);
-  TEST_INCR(q->record_class == DNS::IN, ret);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret);
   TEST_INCR(q->record_type == rt, ret);
 
 
@@ -169,10 +169,10 @@ int main()
                        0x6f, 0x72, 0x67, // "org"
                        0x00, // Name terminator
                        0x00, 0x01, // A
-                       0x00, 0x01, // IN
+                       0x00, 0x01, // CLASS_IN
                        0xc0, 0x0c, // Compressed name pointer to offset 12
                        0x00, 0x01, // A
-                       0x00, 0x01, // IN
+                       0x00, 0x01, // CLASS_IN
                        0x00, 0x00, 0x0e, 0x0f, // TTL 3599
                        0x00, 0x04, // Record Lenght
                        0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
@@ -182,12 +182,12 @@ int main()
 
   q = &*p.queries.begin();
   TEST_INCR(q->name == target, ret);
-  TEST_INCR(q->record_class == DNS::IN, ret);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret);
   TEST_INCR(q->record_type == rt, ret );
 
   DNS::Answer * a = &*p.answers.begin();
   TEST_INCR(a->name == target, ret );
-  TEST_INCR(a->record_class == DNS::IN, ret);
+  TEST_INCR(a->record_class == DNS::CLASS_IN, ret);
   TEST_INCR(a->record_type == DNS::A, ret);
   TEST_INCR(a->ttl == 3599, ret)
 
@@ -220,10 +220,10 @@ int main()
                                0x61, 0x72, 0x70, 0x61, // "arpa"
                                0x00, // Name terminator
                                0x00, 0x0c, // PTR
-                               0x00, 0x01, // IN
+                               0x00, 0x01, // CLASS_IN
                                0xc0, 0x0c, // Compressed name pointer to offset 12
                                0x00, 0x0c, // PTR
-                               0x00, 0x01, // IN
+                               0x00, 0x01, // CLASS_IN
                                0x00, 0x01, 0x51, 0x78, // TTL 86392
                                0x00, 0x11, // Record Lenght
                                0x06, // Label lenght
@@ -243,12 +243,12 @@ int main()
 
   q = &*p.queries.begin();
   TEST_INCR(q->name == ptr_target, ret);
-  TEST_INCR(q->record_class == DNS::IN, ret);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret);
   TEST_INCR(q->record_type == DNS::PTR, ret);
 
   a = &*p.answers.begin();
   TEST_INCR(a->name == ptr_target, ret);
-  TEST_INCR(a->record_class == DNS::IN, ret);
+  TEST_INCR(a->record_class == DNS::CLASS_IN, ret);
   TEST_INCR(a->record_type == DNS::PTR, ret);
   TEST_INCR(a->length == 0x11, ret);
   TEST_INCR(a->ttl == 86392, ret);
