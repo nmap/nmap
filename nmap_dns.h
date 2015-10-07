@@ -189,7 +189,7 @@ typedef enum {
 } RECORD_TYPE;
 
 typedef enum {
-  IN = 1
+  CLASS_IN = 1
 } RECORD_CLASS;
 
 const u8 COMPRESSED_NAME = 0xc0;

@@ -749,7 +749,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
       it != p.answers.end(); ++it )
   {
     const DNS::Answer &a = *it;
-    if(a.record_class == DNS::IN)
+    if(a.record_class == DNS::CLASS_IN)
     {
       switch(a.record_type)
       {
@@ -1416,7 +1416,7 @@ size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt,
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ARCOUNT, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putDomainName(name, buf, DATA, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(rt, buf, ret, maxlen));
-  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(IN, buf, ret, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(CLASS_IN, buf, ret, maxlen));
 
   return ret;
 }
