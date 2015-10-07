@@ -391,7 +391,7 @@ public:
   bool lookup(const sockaddr_storage & ip, std::string & name)
   {
     std::list<HostElem>::iterator hostI;
-    uint ip_hash = hash(ip);
+    u32 ip_hash = hash(ip);
     for( hostI = hosts_storage[ip_hash].begin();
          hostI != hosts_storage[ip_hash].end();
          ++hostI)
