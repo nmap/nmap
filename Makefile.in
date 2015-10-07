@@ -275,7 +275,7 @@ distclean-zenmap: clean-zenmap
 	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/ INSTALLED_FILES
 
 distclean-ndiff: clean-ndiff
-	-cd $(NDIFFDIR) && rm -rf build/ dist/ INSTALLED_FILES
+	-cd $(NDIFFDIR) && rm -rf ndiff.pyc build/ dist/ INSTALLED_FILES
 
 distclean-nping:
 	-cd $(NPINGDIR) && $(MAKE) distclean
