@@ -577,7 +577,7 @@ o [NSE] Fix some bugs which could cause snmp-ios-config and
   snmp-sysdescr scripts to crash
   (http://seclists.org/nmap-dev/2014/q2/120) [Patrik Karlsson]
 
-o [NSE] Improved performance of citrixlua library when handling large XML
+o [NSE] Improved performance of citrix.lua library when handling large XML
   responses containing application lists. [Tom Sellers]
 
 Nmap 6.45 [2014-04-11]
