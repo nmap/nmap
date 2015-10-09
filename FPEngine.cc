@@ -912,8 +912,8 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
 
     tcp = find_tcp(resps[probe_name].getPacket());
     if (tcp == NULL) {
-      /* 48 TCP features. */
-      idx += 48;
+      /* 49 TCP features. */
+      idx += 49;
       continue;
     }
     features[idx++].value = tcp->getWindow();
@@ -951,6 +951,10 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     features[idx++].value = mss;
     features[idx++].value = sackok;
     features[idx++].value = wscale;
+    if (mss != 0 && mss != -1)
+      features[idx++].value = (float)tcp->getWindow() / mss;
+    else
+      features[idx++].value = -1;
   }
   assert(idx == nr_feature);
 
