@@ -760,6 +760,13 @@ static const TCPHeader *find_tcp(const PacketElement *pe) {
   return (TCPHeader *) pe;
 }
 
+static const ICMPv6Header *find_icmpv6(const PacketElement *pe) {
+  while (pe != NULL && pe->protocol_id() != HEADER_TYPE_ICMPv6)
+    pe = pe->getNextElement();
+
+  return (ICMPv6Header *) pe;
+}
+
 static double vectorize_plen(const PacketElement *pe) {
   const IPv6Header *ipv6;
 
@@ -857,9 +864,31 @@ static double vectorize_isr(std::map<std::string, FPPacket>& resps) {
   return sum / t;
 }
 
+static int vectorize_icmpv6_type(const PacketElement *pe) {
+  const ICMPv6Header *icmpv6;
+
+  icmpv6 = find_icmpv6(pe);
+  if (icmpv6 == NULL)
+    return -1;
+
+  return icmpv6->getType();
+}
+
+static int vectorize_icmpv6_code(const PacketElement *pe) {
+  const ICMPv6Header *icmpv6;
+
+  icmpv6 = find_icmpv6(pe);
+  if (icmpv6 == NULL)
+    return -1;
+
+  return icmpv6->getCode();
+}
+
 static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
   const char * const IPV6_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "IE1", "IE2", "NS", "U1", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
   const char * const TCP_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
+  const char * const ICMPV6_PROBE_NAMES[] = {"IE1", "IE2", "NS"};
+
   unsigned int nr_feature, i, idx;
   struct feature_node *features;
   std::map<std::string, FPPacket> resps;
@@ -956,6 +985,15 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     else
       features[idx++].value = -1;
   }
+  /* ICMPv6 features */
+  for (i = 0; i < NELEMS(ICMPV6_PROBE_NAMES); i++) {
+    const char *probe_name;
+
+    probe_name = ICMPV6_PROBE_NAMES[i];
+    features[idx++].value = vectorize_icmpv6_type(resps[probe_name].getPacket());
+    features[idx++].value = vectorize_icmpv6_code(resps[probe_name].getPacket());
+  }
+
   assert(idx == nr_feature);
 
   if (o.debugging > 2) {
@@ -2603,7 +2641,11 @@ bool FPProbe::isResponse(PacketElement *rcvd) {
   if (this->pkt_time.tv_sec == 0 && this->pkt_time.tv_usec == 0)
     return false;
 
-  return PacketParser::is_response(this->pkt, rcvd);
+  bool is_response = PacketParser::is_response(this->pkt, rcvd);
+  if (o.debugging > 2 && is_response)
+    printf("Received response to probe %s\n", this->getProbeID());
+
+  return is_response;
 }
 
 
