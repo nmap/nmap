@@ -1549,7 +1549,7 @@ static int get_encapsulated_hoplimit(const PacketElement *pe) {
 void FPHost6::finish() {
   /* These probes are likely to get an ICMPv6 error (allowing us to calculate
      distance. */
-  const char * const DISTANCE_PROBE_NAMES[] = { "IE2", "NI", "U1" };
+  const char * const DISTANCE_PROBE_NAMES[] = { "IE2", "U1" };
   int distance = -1;
   int hoplimit_distance = -1;
   enum dist_calc_method distance_calculation_method = DIST_METHOD_NONE;
@@ -1836,33 +1836,7 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
   this->total_probes++;
 
-  /* ICMP Probe #3: Node Info Query (IPv4 addresses) */
-  ip6 = new IPv6Header();
-  icmp6 = new ICMPv6Header();
-  this->target_host->SourceSockAddr(&ss, &slen);
-  ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
-  ip6->setDestinationAddress(ss6->sin6_addr);
-  ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
-  ip6->setHopLimit(get_hoplimit());
-  ip6->setNextHeader("ICMPv6");
-  ip6->setNextElement(icmp6);
-  icmp6->setNextElement(payload);
-  payload->store((u8 *) &ss6->sin6_addr, IP6_ADDR_LEN);
-  icmp6->setType(ICMPv6_NODEINFOQUERY);
-  icmp6->setCode(ICMPv6_NODEINFOQUERY_IPv6ADDR);
-  icmp6->setQtype(NI_QTYPE_IPv4ADDRS);
-  icmp6->setA();
-  icmp6->setNonce((u8 *) "\x01\x02\x03\x04\x05\x06\x07\x0a");
-  icmp6->setSum();
-  ip6->setPayloadLength();
-  this->fp_probes[this->total_probes].host = this;
-  this->fp_probes[this->total_probes].setPacket(ip6);
-  this->fp_probes[this->total_probes].setProbeID("NI");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
-  this->total_probes++;
-
-  /* ICMP Probe #4: Neighbor Solicitation. (only sent to on-link targets) */
+  /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
   if (this->target_host->directlyConnected()) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
