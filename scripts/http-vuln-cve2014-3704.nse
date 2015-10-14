@@ -33,7 +33,7 @@ Exploitation technique used to achieve RCE on the target is based on exploit/mul
 -- 80/tcp open  http    syn-ack
 -- | http-vuln-cve2014-3704: 
 -- |   VULNERABLE:
--- |   Code Injection in Wordpress CM Download Manager plugin
+-- |   Drupal - pre Auth SQL Injection Vulnerability
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  CVE:CVE-2014-3704
 -- |       The expandArguments function in the database abstraction API in 
