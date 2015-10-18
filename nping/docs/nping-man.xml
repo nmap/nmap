@@ -3554,7 +3554,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
   <refsect1 id="nping-man-author">
     <title>Authors</title>
 
-    <para>Luis MartinGarcia <email>luis.mgarc@gmail.com</email> (<ulink url="http://aldabaknocking.com" />)</para>
+    <para>Luis MartinGarcia <email>luis.mgarc@gmail.com</email> (<ulink url="http://www.luismg.com" />)</para>
 
     <para>Fyodor <email>fyodor@nmap.org</email> (<ulink url="http://insecure.org" />)</para>
 
