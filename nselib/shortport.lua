@@ -167,7 +167,7 @@ LIKELY_HTTP_PORTS = {
 
 LIKELY_HTTP_SERVICES = {
   "http", "https", "ipp", "http-alt", "https-alt", "vnc-http", "oem-agent",
-  "soap", "http-proxy",
+  "soap", "http-proxy", "caldav", "carddav", "webdav",
 }
 
 ---
