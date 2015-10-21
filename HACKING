@@ -84,23 +84,18 @@ patches if you can.
 Style
 -----
 
-When contributing new code, we suggest using two-space indents with no
-tabs.  This is generally the default in emacs, and Vim users can
-achieve it by adding rules such as the following to .vimrc:
+Code style guidelines and quality checking tools are documented at
+https://secwiki.org/w/Nmap/Code_Standards . The short version is:
 
-if getcwd() =~ '/nmap'
-    set nocindent
-    set expandtab
-    set softtabstop=2
-    set shiftwidth=2
-    set copyindent
-endif
-
+* Indent with 2 spaces, not tabs
+* No trailing whitespace
+* Be consistent
+* Use comments
 
 Credits
 -------
 
-I got the idea for this HACKING file from GNet 
+I got the idea for this HACKING file from GNet
 (http://www.gnetlibrary.org/) and followed the
 general structure of their HACKING file.
 
