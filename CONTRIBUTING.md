@@ -18,8 +18,9 @@ description of what you expect to be the correct behavior.
 
 Nmap welcomes your code contribution in the form of a Github Pull Request. Since
 the Github repository is currently read-only, we cannot merge directly from the
-PR. We will be sure to properly credit you in the CHANGELOG file, and the commit
-message will reference the PR number.
+PR. Instead, we will convert your PR into a patch and apply it to the Subversion
+repository. We will be sure to properly credit you in the CHANGELOG file, and
+the commit message will reference the PR number.
 
 Because not all Nmap committers use Github daily, it is helpful to send a
 notification email to dev@nmap.org referencing the PR and including a short
