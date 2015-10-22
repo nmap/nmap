@@ -484,6 +484,7 @@ match enistic-manager m|^WZ=AAAAAAAAAAByAAE=73\r0E0000000000cgAD83\r$| p/Enistic
 
 match envisalink m|^5053CD\r\n| p/EyezOn EnvisaLink/ d/security-misc/
 
+match epoptes-client m|^\ndie\(\) {\n    echo \"epoptes-client ERROR: \$@\" >&2\n    exit 1\n}\n\ninfo\(\) {\n    local server_ip def_iface\n\n    if \[ -z \"\$cached_info\" \]; then\n        VERSION=\${VERSION:-([\d.]+)}| p/Epoptes LTSPd/ i/compat version $1/ cpe:/a:epoptes:epoptes/
 match epp m|^\x00\x00..<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\" \?>\n<epp xmlns=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0\" xmlns:xsi=\"http://www\.w3\.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www\.yoursrs\.com/xml/epp/epp-1\.0 epp-1\.0\.xsd\">\n\n  <greeting>\n    <svID>([^<]+)</svID>\n    <svDate>.*</svDate>\n    <svcMenu>\n      <version>([\w._-]+)</version>\n|s p/Extensible Provisioning Protocol/ v/$2/ h/$1/
 softmatch epp m|^\0...<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"no\"\?><epp xmlns=\"urn:ietf:params:xml:ns:epp-1\.0\".*<svID>([^<]+)</svID>|s p/Extensible Provisioning Protocol/ h/$1/
 # RFC 5730
@@ -1122,7 +1123,7 @@ match ftp m|^220 [\d.]+ BECO FTP server \(Version ([\w._-]+)\) ready\.\r?\n| p/K
 match ftp m|^220-TiMOS-B-([\w._-]+) both/hops ALCATEL SR ([\w._-]+) Copyright \(c\) \d+-\d+ Alcatel-Lucent\.\r\n220-All rights reserved\. All use subject to applicable license agreements\.\r\n220-Built on (.*) by builder in /rel[\w._-]+/[\w._-]+/[\w._-]+/panos/main\r\n220-\r\n220-This is a Maxcom, system restricted to authorized individuals\. This system is subject to monitoring\. Unauthorized users, access, and/or modification will be prosecuted\.\r\n220 FTP server ready\r\n| p/Alcatel $2 Service Router ftpd/ i/build date: $3/ d/router/ o/TiMOS $1/ cpe:/h:alcatel:$2_service_router/ cpe:/o:alcatel:timos:$1/
 match ftp m|^220 ASTRA-Super FTP server ready\.\r\n$| p/Ishida Astra counter-top scale ftpd/
 match ftp m|^220 ucftpd FTP server ready\.\r\n| p/MontaVista ucftpd/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n| p/Stupid-FTPd/
+match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n| p/Stupid-FTPd/ cpe:/a:cinek:stupid-ftpd/
 match ftp m|^220 FTP v([\d.]+) at ([\w.-]+) ready\.\r\n| p/OpenRG ftpd/ v/$1/ d/broadband router/ h/$2/
 match ftp m|^220 FRITZ!Box(\w+)\(kdg\) FTP server ready\.\r\n| p/AVM FRITZ!Box ftpd/ i/model: $1; Kabel Deutschland/ d/broadband router/
 match ftp m|^220-Welcome to cc-ftpd\.\r\n220-You are user number (\d+ of \d+) allowed\.\r\n220-Local time is now ([\d:]+)\. Server port: \d+\.\r\n220-This is a private system - No anonymous login\r\n220-IPv6 connections are also welcome on this server\.\r\n220 You will be disconnected after 15 minutes of inactivity\.\r\n| p/Centova Cast ftpd/ i/user $1; local time $2/
@@ -1175,6 +1176,9 @@ match ftp m|^220 MinWin FTP server ready\.\r\n| p/Microsoft MinWin ftpd/ o/Windo
 match ftp m|^220 Welcomd to iCatch FTP Server\r\n| p/iCatch DVR ftpd/ d/media device/
 match ftp m|^220 PCMan's FTP Server ([\w._-]+) Ready\.\r\n| p/PCMan's FTP Server/ v/$1/ o/Windows/ cpe:/a:pcman%27s_ftp_server_project:pcman%27s_ftp_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220 FTP Server \((NXC\d+)\) \[::ffff:[\d.]+\]\r\n| p/ZyXEL WLAN controller ftpd/ i/model: $1/ cpe:/h:zyxel:$1/
+match ftp m|^220 IFT DS ([\w-]+) RAID FTP server ready\.\r\n| p/Infortrend EonStor DS iSCSI host ftpd/ i/model: $1/ d/storage-misc/ cpe:/h:infortrend:esds_$1/
+match ftp m|^220 Synology FTP server ready\.\r\n| p/Synology DiskStation ftpd/ d/storage-misc/
+match ftp m|^220-owftpd 1-wire ftp server -- Paul H Alfille\r\n220-Version: (\d[\w._-]*) see http://www\.owfs\.org\r\n220 Service ready for new user\.\r\n| p/OWFS owftpd/ v/$1/ cpe:/a:owfs:owftpd:$1/
 
 #(insert ftp)
 
@@ -1288,6 +1292,9 @@ match telnet m|^\xff\xfe\x01Genetec Integration Service \(STUDENT03\)\r\n\r\n\r\
 
 match goldsync m|^%%QU%%QU%%QU$| p/GoldMine GoldSync synchronization/
 
+# http://gmc.yoyogames.com/index.php?showtopic=657080
+match gms m|^GM:Studio-Connect\0$| p/GMS gaming protocol/
+
 # Probably not general enough...
 match gnatbox m|^GBPK\xfb\xf7n\x93W\xaf\x86\x93x@\xa9\x0e\xca\*\x9bS\0| p/Global Technology Associates Gnat Box firewall administration/ d/firewall/
 
@@ -1395,6 +1402,7 @@ match http-proxy m=^HTTP/1\.[01] \d\d\d .*\r\n(?:Server|Proxy-agent): iPlanet-We
 match http-proxy m|^<h1>\xd5\xca\xba\xc5\xc8\xcf\xd6\xa4\xca\xa7\xb0\xdc \.\.\.</h1>\r\n<h2>IP \xb5\xd8\xd6\xb7: [][\w:.]+<br>\r\nMAC \xb5\xd8\xd6\xb7: <br>\r\n\xb7\xfe\xce\xf1\xb6\xcb\xca\xb1\xbc\xe4: \d+-\d+-\d+ \d+:\d+:\d+<br>\r\n\xd1\xe9\xd6\xa4\xbd\xe1\xb9\xfb: Invalid user\.</h2>$| p/CC Proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html; charset=us-ascii\r\n\r\n<html><body>Invalid request<P><HR><i>This message was created by Kerio Control Proxy</i></body></html> {665}| p/Kerio Control http proxy/ cpe:/a:kerio:control/
 match http-proxy m|^HTTP/HTTP/0\.0 408 Timeout\r\nServer: tinyproxy/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/tinyproxy http proxy/ v/$1/
+match http-proxy m|^<HEAD><TITLE>Invalid HTTP Request</TITLE></HEAD>\n<BODY BGCOLOR=\"white\" FGCOLOR=\"black\"><H1>Invalid HTTP Request</H1><HR>\n<FONT FACE=\"Helvetica,Arial\"><B>\nDescription: Bad request syntax</B></FONT>\n<HR>\n<!-- default \"Invalid HTTP Request\" response \(400\) -->\n</BODY>\n {400}\0| p/unknown transparent proxy/
 
 match hp-gsg m|^220 JetDirect GGW server \(version (\d[\d.]+)\) ready\r\n| p/HP JetDirect Generic Scan Gateway/ v/$1/ d/printer/
 match hp-gsg m|^220 HP GGW server \(version ([\w._-]+)\) ready\r\n\0| p/HP Generic Scan Gateway/ v/$1/ d/printer/
@@ -1431,7 +1439,7 @@ match ipmi-usb m|^IUSB    \0\0\0\x007\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 match imap m|^\* OK ([-/.+\w]+) Solstice \(tm\) Internet Mail Server \(tm\) (\d[-.\w]+) IMAP4 service - at | p/Sun Solstice Internet Mail Server imapd/ v/$2/ o/Unix/ h/$1/
 match imap m|^\* OK GroupWise IMAP4rev1 Server Ready\r\n| p/Novell GroupWise imapd/ o/Unix/ cpe:/a:novell:groupwise/
 match imap m|^\* OK \[CAPABILITY IMAP4rev1 .*\] GroupWise Server Ready\r\n| p/Novell GroupWise imapd/ o/Unix/ cpe:/a:novell:groupwise/
-match imap m|^\* OK dbmail imap \(protocol version 4r1\) server (\d[-.\w]+) ready to run\r\n| p/DBMail imapd/ v/$1/ i/imapd version may differ from overal dbmail version number/
+match imap m|^\* OK dbmail imap \(protocol version 4r1\) server (\d[-.\w]+) ready to run\r\n| p/DBMail imapd/ v/$1/ i/imapd version may differ from overal dbmail version number/ cpe:/a:paul_j_stevens:dbmail:$1/
 match imap m|^\* OK ([-.+\w]+) NetMail IMAP4 Agent server ready | p/Novell NetMail imapd/ o/Unix/ h/$1/ cpe:/a:novell:netmail/
 match imap m|^\* OK IMAP4 Server \(IMail ([-.\w]+)\)| p/IMail imapd/ v/$1/ cpe:/a:ipswitch:imail:$1/
 match imap m|^\* OK Merak (\d[-.\w]+) IMAP4rev1 |i p/Merak Mail Server imapd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -1569,7 +1577,7 @@ match imap m|^\* OK \[CAPABILITY IMAP4REV1[^]]*\] \[[\d.]+\] Panda IMAP ([\w._-]
 match imap m|^\* BYE imap4 connections must use ssl\n$| p/Plan 9 imapd/ i/must use ssl/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 match imap m|^\* OK \[CAPABILITY IMAP4rev1 LITERAL\+ STARTTLS AUTH=PLAIN\] Zarafa IMAP gateway ready\r\n| p/Zarafa imapd/ cpe:/a:zarafa:zarafa/
 match imap m|^\* OK Welcome to the SLnet IMAP Service\r\n| p/SeattleLab SLMail imapd/ o/Windows/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK \[CAPABILITY IMAP4rev1 AUTH=LOGIN AUTH=CRAM-MD5 STARTTLS ID\] dbmail ([\w._-]+) ready\.\r\n| p/DBMail imapd/ v/$1/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 AUTH=LOGIN AUTH=CRAM-MD5 STARTTLS ID\] dbmail ([\w._-]+) ready\.\r\n| p/DBMail imapd/ v/$1/ cpe:/a:paul_j_stevens:dbmail:$1/
 match imap m|^\* OK \[CAPABILITY IMAP4REV1 [^]]+\] \[([\w.-]+)\] IMAP4rev1 (20\w+\.\d+) at [ \w,:]+ ([+-]\d+) \(\w+\)\r\n| p/University of Washington IMAP imapd/ v/$2/ i/time zone: $3/ h/$1/ cpe:/a:uw:uw_imap:$2/
 
 # Fairly General
@@ -1815,15 +1823,17 @@ match lmtp m|^220 ([-.\w]+) LMTP Cyrus v(\d[-.\w]+) ready\r\n| p/Cyrus Imap Daem
 match lmtp m|^220 ([\w._-]+) Cyrus LMTP Murder v([\w._-]+) server ready\r\n| p/Cyrus lmtpd Murder/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 match lmtp m|^220 ([\w._-]+) Cyrus LMTP v([\w._+-]+) server ready\r\n| p/Cyrus Imap Daemon lmtpd/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 match lmtp m|^220 ([-\w_.]+) LMTP Cyrus v([\d.]+)-Red Hat [\d.-]+ ready\r\n| p/Cyrus Imap Daemon lmtpd/ v/$2/ i/on Red Hat/ o/Linux/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/ cpe:/o:linux:linux_kernel/a
-match lmtp m|^220 ([-\w_.]+) DBMail LMTP service ready to rock\r\n| p/DBMail lmtpd/ h/$1/
+match lmtp m|^220 ([-\w_.]+) DBMail LMTP service ready to rock\r\n| p/DBMail lmtpd/ h/$1/ cpe:/a:paul_j_stevens:dbmail/
 match lmtp m|^220 DSPAM LMTP ([-\w_.]+) Ready\r\n| p/DSPAM lmtpd/ v/$1/
 match lmtp m|^220 ([\w._-]+) Zimbra LMTP ready\r\n| p/Zimbra lmtpd/ h/$1/ cpe:/a:zimbra:zimbra_collaboration_suite/
 match lmtp m|^220 ([\w._-]+) Zimbra LMTP (?:server )?ready\r\n| p/Zimbra lmtpd/ h/$1/ cpe:/a:zimbra:zimbra_collaboration_suite/
+match lmtp m|^220 ([\w.-]+) Dovecot \(Ubuntu\) ready\.\r\n| p/Dovecot lmtpd/ i/Ubuntu/ o/Linux/ h/$1/ cpe:/a:dovecot:dovecot/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
 
 match logevent m|^\x01\*Nsure Audit Novell NetWare \[\w+:\w+\]\r\n| p/Nsure Audit logeventd/ o/NetWare/ cpe:/a:novell:nsure_audit/ cpe:/o:novell:netware/a
 
 match lns m|^LNS READY<>$| p/Legalis Intranet legal information server/
 
+match lsx m|^<LSX>\n\t<Event sender=\"EALS\">\n\t\t<Challenge version=\"([\d,]+)\" key=\"[\da-f]{32}\" />\n\t</Event>\n</LSX>\n\0| p/EA Origin/ v/$SUBST(1,",",".")/ cpe:/a:ea:origin:$SUBST(1,",",".")/
 # LSMS VPN Firewall GUI admin port
 # LSMS Redundancy port
 match lucent-fwadm m|^0001;2$| p/Lucent Security Management Server/ cpe:/a:lucent:security_management_server/
@@ -1880,7 +1890,7 @@ match netrek m|^<>==============================================================
 
 # TRENDnet NetUSB - 4-byte-length-prefixed null-terminated strings
 # USB-over-network: https://www.trendnet.com/kb/kbp_viewquestion.asp?ToDo=view&questId=1350&catId=516
-match netusb m|^\0\0\0. connect success c\d+ \n\0\0\0\0. NetUSB ([\w._-]+), 2\d\d\d, \d+ \n\0\0\0\0\x0c AUTH ISOC\n\0\0\0\0\x18 MOVE_HEAD filterAudio\n\0\0\0\0\0| p/TRENDnet NetUSB/ v/$1/
+match netusb m|^\0\0\0. connect success c[\da-f]+ \n\0\0\0\0. NetUSB ([\w._-]+), 2\d\d\d, \d+ \n\0\0\0\0\x0c AUTH ISOC\n\0\0\0\0| p/TRENDnet NetUSB/ v/$1/
 
 # Nping echo mode -- added in Nmap 5.36TEST1
 match nping-echo m|^\x01\x01\0\x18.{8}\0\0\0\0.{32}\0{16}.{32}$|s p/Nping echo/
@@ -1953,6 +1963,9 @@ match loginserver m|^\xba\0.{184}$|s p/L2J loginserver/
 
 match maplestory m|^\x0e\0\x53\0\x01\x001Frz.R0x.\x08$|s p/Maplestory game server/
 
+# Not sure how to read this version. Seen: 318DC8D9.31.32.32, 318DC8D9.32.32.3B, 318DC8D9.31.32.31
+match mentorbs m|^OCCLIENTDATA##MBSDELIM##{\"DATATYPE\":\"424538\",\"CHECKSUM\":\"[\dA-F]+\",\"DATA\":{\"MAJOR\":\"318DC8D9\",\"MINOR\":\"[\dA-F]+\",\"RELEASE\":\"[\dA-F]+\",\"BUILD\":\"[\dA-F]+\"}}##MBSENDDELIM##\r\n| p/Mentor BS On-Call/ cpe:/a:mentorbs:on-call/
+
 match meterpreter m|^\0.\x0b\0MZ\xe8\0\0\0\0\x5b\x52\x45\x55\x89\xe5\x81\xc3..\0\0\xff\xd3\x89\xc3Wh\x04\0\0\0P\xff\xd0h....h\x05\0\0\0P\xff\xd3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0.\0\0\0\x0e\x1f\xba\x0e\0\xb4\t\xcd!\xb8\x01L\xcd!This program cannot be run in DOS mode\.\r\r\n\$\0\0\0\0\0\0\0|s p/Metasploit meterpreter/ i/**BACKDOOR**/
 match meterpreter m|^\x16\x03\0\0\x59\x01\0\0\x55\x03\0................................\0\0\x28\0\x39\0\x38\0\x35\0\x16\0\x13\0\x0a\0\x33\0\x32\0\x2f\0\x07\0\x05\0\x04\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0\0\x04\0\x23\0\0$|s p/Metasploit meterpreter metsvc/ i/**BACKDOOR**/
 match meterpreter m|^\0\0\0\xd3\xca\xfe\xba\xbe\0\x03\0-\0\n\x07\0\x07\x07\0\x08\x01\0\x05start\x01\0E\(Ljava/io/DataInputStream;Ljava/io/OutputStream;\[Ljava/lang/String;\)V\x01\0\nExceptions\x07\0\t\x01\0\x17javapayload/stage/Stage\x01\0\x10java/lang/Object\x01\0\x13java/lang/Exception| p/Metasploit browser_autopwn/
@@ -2014,7 +2027,7 @@ match ncacn_http m|^ncacn_http/([\d.]+)$| p/Microsoft Windows RPC over HTTP/ v/$
 # NCD Thinstar 300 running NCD Software 2.31 build 6
 match ncd-diag m|^WinCE/WBT Diagnostic port\n\rSerial Number: (\w+)  MAC Address: 0000(\w+)\s+.*CPU info: ([ -.+\w/ ]+)\r\n.*(Windows CE Kernel[-.+:\w ]+)\r|s p/NCD Thinster Terminal Diagnostic port/ i/Serial# $1; MAC: $2; CPU: $3; $4/
 
-match ncid m|^200 NCID Server:  ARC_ncidd ([\w._-]+)\r\nCIDLOG: \*DATE\*| p/ARC_ncidd/ v/$1/ i/Network Caller ID/
+match ncid m|^200 NCID Server:  ARC_ncidd ([\w._-]+)\r\n| p/ARC_ncidd/ v/$1/ i/Network Caller ID/
 
 match netdevil m|^pass_pleaz$| p/Net-Devil backdoor/ i/**TROJAN**/ o/Windows/ cpe:/o:microsoft:windows/a
 match netsaint m|^Sorry, you \(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\) are not among the allowed hosts\.\.\.\n$| p/Netsaint status daemon/
@@ -2126,8 +2139,8 @@ softmatch openwebnet m|^\*#\*1##|
 
 match ovhcheckout m|^200 OK [\d.]+ ([\w._-]+) oco-([\w._-]+) \n$| p/OVH OvhCheckOut/ v/$2/ h/$1/
 
-match parallels-server m|^PRLT\x06\0\x00\0([\w._-]+ \(\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d\))\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Parallels Server/ v/$1/
-match parallels-server m|^PRLT\x06\0\x07\0([\w._-]+ \(\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d\))\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Parallels Server/ v/$1/
+# Parallels Server and Desktop, so can't do a CPE?
+match parallels-server m|^PRLT\x06\0.\0([\w._-]+) \((\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d)\)\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0*$| p/Parallels dispatcher service/ v/$1/ i/build date: $2/
 
 # *B1E1 is magic. Protocol implementation at
 # http://www.papouch.com/shop/scripts/soft/tmedotnet/readme.asp
@@ -2151,8 +2164,11 @@ match poweroff m|^201 Welcome to Poweroff ([\d.]+) created by Jorgen Bosman\r\n|
 match prelude-manager m|^\x01\x04\0\0\0\0\0\rD| p/Prelude IDS manager/
 match polycom-mgc m|^NotAuthorized\0\0\0\0\0\0\0\0\0\0\0\0| p/Polycom VSX 8000 MGC Manager/ d/webcam/
 
-# This one is probably too specific... need more submissions
-match pyro m|^PYRO\0\x04\0\x12\0\0\0\x10\0\0\0\0\0\0| p/Python Remote Object Nameserver/
+match pyro m|^PYRO\0\x04\0\x12\0\0\0\x10\0\0\0\0\0\0| p/Python Remote Object Nameserver/ i/protocol version 4/
+match pyro m|^PYRO\0\x05\0\x12\0\0\0\x10\0\0\0\0\0\0| p/Python Remote Object Nameserver/ i/protocol version 5/
+
+# Unfortunately, no authkey comes up tcpwrapped :( Need a good probe or NSE script.
+match python-mp m|^\0\0\0\x1f#CHALLENGE#.{20}| p/Python multiprocessing.connection.Listener/ i/authkey set/ cpe:/a:python:python/
 
 match pksd m|^usage: [/\w]*/etc/pksd\.conf conf_file\n$| p/PGP Public Key Server/ i/broken/ cpe:/a:mit:pgp_public_key_server/
 
@@ -2168,7 +2184,7 @@ match pop2 m|^\+ POP2 ([\w._-]+) ([\w._-]+) server ready\r\n$| p/UW POP2 server/
 match pop3 m|^\+OK GroupWise POP3 server ready\r\n$| p/Novell GroupWise pop3d/ o/Unix/ cpe:/a:novell:groupwise/
 match pop3 m|^\+OK Ready when you are <200\d+\.| p/Hotmail Popper hotmail to pop3 gateway/
 match pop3 m|^\+OK Internet Rex POP3 server ready <| p/Internet Rex Pop3 server/
-match pop3 m|^\+OK DBMAIL pop3 server ready to rock <| p/DBMail pop3d/
+match pop3 m|^\+OK DBMAIL pop3 server ready to rock <| p/DBMail pop3d/ cpe:/a:paul_j_stevens:dbmail/
 match pop3 m|^\+OK POP3 POPFile \(v(\d[-.\w]+)\) server ready\r\n| p/POPFile pop3d/ v/$1/
 # Dots in Revision to prevent MY CVS from screwing it up
 match pop3 m|^\+OK ([-.+\w]+) NetMail POP3 Agent \$Re..sion: ([\d.]+) \$\r\n| p/Novell NetMail pop3d/ v/$2/ o/Unix/ h/$1/ cpe:/a:novell:netmail:$2/
@@ -2462,6 +2478,7 @@ match pop3-proxy m|^\+OK POP3 Proxy Server Ready\r\n| p/IronMail pop3-proxy/ cpe
 match pop3-proxy m|^\+OK avast! POP3 proxy ready\.\r\n| p/Avast! anti-virus pop3 proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3-proxy m|^\+OK O3SIS UMA Proxy POP3 Server ([\w._-]+)\r\n| p/O3SIS UMA pop3 proxy/ v/$1/
 match pop3-proxy m|^\+OK Zarafa POP3 gateway ready\r\n| p/Zarafa pop3 proxy/ o/Unix/ cpe:/a:zarafa:zarafa/
+match pop3-proxy m|^-ERR Not Enrolled\r\rPlease open your internet browser and accept the terms and conditions of use for this service\.\r\n| p/Reivernet captive portal pop3 proxy/
 
 # http://echelon.pl/pubs/poppassd.html
 # you give it username, present password and new password, and
@@ -2648,7 +2665,7 @@ match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved \(Murder\) v([-.\w]+)\"\r\n|
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\w_.]+)-OS X ([^"]+)\"\r\n| p/Cyrus timsieved/ v/$1/ o/Mac OS X $2/ cpe:/a:cmu:cyrus_imap_server:$1/ cpe:/o:apple:mac_os_x:$2/
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v(\d[-.\w]+)\"\r\n| p/Cyrus timsieved/ v/$1/ i|included w/cyrus imap| cpe:/a:cmu:cyrus_imap_server:$1/
 match sieve m|^\"IMPLEMENTATION\" \"dovecot\"\r\n| p/Dovecot timsieved/ cpe:/a:dovecot:dovecot/
-match sieve m|^\"IMPLEMENTATION\" \"DBMail timsieved ([\w._-]+)\"\r\n| p/DBMail timsieved/ v/$1/
+match sieve m|^\"IMPLEMENTATION\" \"DBMail timsieved ([\w._-]+)\"\r\n| p/DBMail timsieved/ v/$1/ cpe:/a:paul_j_stevens:dbmail:$1/
 match sieve m|^\"IMPLEMENTATION\" \"CITADEL Sieve ([\d.]+)\"\r\n| p/Citadel timsieved/ v/$1/ cpe:/a:citadel:ux:$1/
 match sieve m|^/usr/share/pysieved/plugins/dovecot\.py:27: DeprecationWarning: The popen2 module is deprecated\.  Use the subprocess module\.\n  import popen2\n\"IMPLEMENTATION\" \"pysieved ([\w._+-]+)\"\r\n| p/pysieved/ v/$1/
 match sieve m|^\"IMPLEMENTATION\" \"pysieved ([\w._-]+)\"\r\n| p/pysieved/ v/$1/
@@ -3722,7 +3739,7 @@ match telnet m|^NPC Telnet permit one connection\.\r\n But One connection\(\) al
 match telnet m|^\n\r\n\r.*\* MWR Ver ([\d.]+) \*.*SMAUG|s p/SMAUG MUD server/ v/$1/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\x1b\[2J\x1b\[0;0H\x1b<\r\n          \x1b\[7m +\x1b\[0m +\r\n +\x1b\[7m +Welcome to Management Blade ([\d.]+) | p/BX600 Blade Chassis Manager telnetd/ v/$1/ d/remote management/
 match telnet m|^\r\n\r\nWelcome to the SoundBridge Shell version ([\d.]+) Release\r\nType '\?' for help or 'help <command>' for help on <command>\.\r\n\r\nSoundBridge> | p/Roku SoundBridge telnetd/ v/$1/ d/media device/
-match telnet m|^\xff\xfb\x01\r\nWelcome to NetLinx v([\d.]+) Copyright AMX Corp\. \d+-\d+\r\n>| p/AMX NetLinx telnetd/ v/$1/ d/media device/ o/VxWorks/ cpe:/o:windriver:vxworks/a
+match telnet m|^\xff\xfb\x01\r\nWelcome to NetLinx v([\d.]+) Copyright AMX | p/AMX NetLinx telnetd/ v/$1/ d/media device/ o/VxWorks/ cpe:/o:windriver:vxworks/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n\[Dell  TM (\d+) AP 2\]> Please enter password: | p/Dell TrueMobile $1 wireless router telnetd/ d/router/ cpe:/h:dell:truemobile_$1_wireless_broadband_router/
 match telnet m|^\r\nSiemens \d+ T1E1 \[COMBO\] Router \(([-\d]+)\) v([\d.]+) Ready\r\n\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfe\x01Username: | p/Siemens $1 T1E1 router/ v/$2/ d/router/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\n\r\n\r\n\rWelcome to the SIA2410R\n\r| p/Net to Net SIA2410R DSL router telnetd/ d/router/
@@ -4435,6 +4452,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\(Phicomm\) login: 
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\x18\xff\xfa\x18\0VT100\xff\xf0\x1b\[2J\x1b\[H\x1b\[J\n\r\n\rPSNA Web/SNMP Agent Adapter\(V([\d.]+)\)\n\r\n\rCopyright \(c\) 2002-\d\d\d\d, EMERSON Network Power Co\., Ltd\.\n\r\n\r\n\r\n\r> User name \(1-10 chars\): | p/Emerson PSNA card telnetd/ v/$1/ d/power-misc/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03SS_BHUB\(([\d.]+)\) login: | p/Samsung Wireless Audio Multiroom hub telnetd/ v/$1/ d/media device/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03ZyXEL VDSL Router\r\nLogin: | p/ZyXEL VDSL router telnetd/ d/broadband router/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\nBusyBox v([\w._-]+) \([\d.:+-]*\) Built-in shell \(ash\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n# | p/BusyBox telnetd/ v/$1/ i/**BACKDOOR**; unauthenticated root shell/ cpe:/a:busybox:busybox:$1/a
 
 #(insert telnet)
 
@@ -4760,6 +4778,7 @@ match achat m|^ERROR\r\n$| p/AChat chat system/
 
 # http://docs.unity3d.com/Documentation/Manual/SecuritySandbox.html
 match adobe-crossdomain m|^<\?xml version='1\.0'\?>\n<cross-domain-policy>\n        <allow-access-from domain=\"([^\"]*)\" to-ports=\"([^\"]*)\" />\n</cross-domain-policy>\n$| p/Unity3D game engine webplayer cross-domain policy/ i/domain: $1; ports: $2/
+softmatch adobe-crossdomain m|^Goodbye\r\n| p/Unknown Adobe Flash socket policy daemon/
 
 match airdroid m|^#connected,all connect count: 1{\"event\":\"device_status\",\"data\":{\"wifi_name\":\"([^\"]+)\",\"wifi_signal\":\d+,\"battery\":\d+,\"batterycharging\":\w+,\"gsm_signal\":\d+,\"sms_unread\":\d+,\"sdcard\":\d+,\"updateinfo\":null}}| p/AirDroid status port/ i/Android; wi-fi name: $1/ d/phone/ cpe:/a:airdroid:airdroid/ cpe:/o:google:android/
 
@@ -4880,7 +4899,7 @@ match finger m|^MSS485 Version V([\w._/-]+)\(([\w._-]+)\) - Time Since Boot:| p/
 match finger m|^Login     Name                Tty      Idle  Login Time   Office     Office Phone\n| p/xfingerd/
 match finger m|^Please supply a username\r\n$| p/BSD fingerd/ cpe:/a:bsd:fingerd/
 
-match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n422 Too busy to play with you\.\r\n| p/stupid-ftpd/
+match ftp m|^220 Welcome to Stupid-FTPd server\.\r\n422 Too busy to play with you\.\r\n| p/Stupid-FTPd/ cpe:/a:cinek:stupid-ftpd/
 match ftp m|^220 Service ready\.\r\n501 Syntax Error\.\r\n| p/Hay Systems HSL 2.75G Femtocell ftpd/ d/WAP/ cpe:/o:hay_systems:hsl_2.75g_femtocell/
 # Shodan shows lots of brands with varying other services, all seem to be DSL modems?
 match ftp m|^220 Welcome to TBS FTP Server\.\r\n(?:202 Command not implemented, superfluous at this site\.\r\n){2}| p/TBS embedded ftpd/ d/broadband router/
@@ -4967,6 +4986,7 @@ match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login
 match flashconnect m|^FlashCONNECT ([\d.]+) invalid message\.\n$| p/Raining Data FlashCONNECT/ v/$1/
 
 match gearman m|^ERR UNKNOWN_COMMAND Unknown\+server\+command\r\nERR UNKNOWN_COMMAND Unknown\+server\+command\r\n$| p/Gearman Job Queue System/
+match genetec-directory m|^\xde\xad\xad\xde\x0f\x03\0\0\xeed\xab\x99\x01\x05\x06\x05\x07Content}\x02\0\0\x01\0=Genetec\.Net,| p/Genetec Security Center directory connection service/ cpe:/a:genetec:security_center/
 match geovision-control m|^..\0\0\xff\xff\xff\xff$|s p/Geovision webcam control/ d/webcam/
 match geovision-audio m|^\$\0\0\0\xd4\x17\0\0\x01\0\0\0\x05\0\0\0\x01\0\0\0\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Geovision webcam audio/ d/webcam/
 
@@ -5125,9 +5145,10 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Piolink Switch\r\n| p/Piolink
 match http m|^HTTP/1\.1 501\r\nX-AV-Server-Info: av=\"5\.:0\"; cn=\"Sony Corporation\"; mn=\"([^"]+)\"; mv=\"([^"]+)\"\r\nX-AV-Physical-Unit-Info: pa=\"\1\"\r\nConnection: close\r\n| p/Sony $1 AV reciever http info/ v/$2/ d/media device/ cpe:/h:sony:$1:$2/
 match http m|^HTTP/1\.1 200 OK\nContent-Type: text/html; charset=UTF-8\nContent-Length: \d+\n\n<html>\n<!--\n \* WiFi Keyboard - Remote Keyboard for Android\.\n \* Copyright \(C\) 2011 Ivan Volosyuk\n| p/WiFi Keyboard for Android/ d/phone/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: \d+\r\nContent-Type: application/octet-stream\r\nDate: .*\r\nKeep-Alive: timeout=15; max=19\r\n\r\n\0\0\0\x03\0\0\0\x06error\0\0\0\0\0\0\0\x01\0\0\0\x05\0\0\0\x11no_save_password\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x08pencore| p/SoftEther VPN httpd/ cpe:/a:university_of_tsukuba:softether_vpn/
-match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\n\r\nnot allowed\n$| p/Mongodb simple REST interface/ v/1.5.0 or older/ cpe:/a:mongodb:mongodb/
-match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain\r\n\r\nnot allowed\n$| p/Mongodb simple REST interface/ v/1.5.0 - 1.9.0/ cpe:/a:mongodb:mongodb/
-match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain;charset=utf-8\r\n\r\nnot allowed\n$| p/Mongodb simple REST interface/ v/1.9.0 or later/ cpe:/a:mongodb:mongodb/
+match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\n\r\nnot allowed\n$| p/MongoDB simple REST interface/ v/1.5.0 or older/ cpe:/a:mongodb:mongodb/
+match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain\r\n\r\nnot allowed\n$| p/MongoDB simple REST interface/ v/1.5.0 - 1.9.0/ cpe:/a:mongodb:mongodb/
+match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain;charset=utf-8\r\n\r\nnot allowed\n$| p/MongoDB simple REST interface/ v/1.9.0 or later/ cpe:/a:mongodb:mongodb/
+match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain;charset=utf-8\r\nConnection: close\r\nContent-Length: 12\r\n\r\nnot allowed\n| p/MongoDB simple REST interface/ v/3.1.1 or later/ cpe:/a:mongodb:mongodb/
 match http m|^HTTP/1\.1 \d\d\d .*Server: thin ([\w._-]+) codename ([\w\s]+)\r\n|s p/Thin/ v/$1/ i/codename $2/
 match http m|^ 400 Invalid request\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Length: 15\r\n\r\nInvalid request| p/Acutenix WVS Scheduler/
 match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nContent-length: 0\r\n\r\n$| p/Ajenti http control panel/ cpe:/a:ajenti:ajenti/
@@ -5280,6 +5301,7 @@ match pathfinder-xml m|^<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?> <FatalErro
 # http://supercluster.org/torque
 # maui, http://supercluster.org/maui
 match pbs-maui m|^\+2\+15\+15056\+\d+\+\d+| p|PBS/Maui Roll| i/Rocks Cluster/ d/specialized/
+# http://www.adaptivecomputing.com/blog-hpc/torque-protocols/
 # "+2+1" = version 2.1
 # "5+15058" = error 15058, PBSE_DISPROTO
 # "+0" = aux code 0 ?
@@ -5430,6 +5452,7 @@ match telnet m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\xff\xfb\x03\xff\xfd\x01\xff
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03login as: \r\n\r\n's password: \x1b\[H\x1b\[J\r\nLogin failed, please check 'username', 'password' again\. If Caps-Lock enabled\?\r\n\r\nlogin as: | p/EnGenius telnetd/ d/WAP/
 match telnet m|^\r\nRMC Control Console\r\n\r\nQM-RMC>\r\nQM-RMC>| p/Crestron QM-RMC telnetd/ d/media device/
 match telnet m|^LOGIN: \r\nlogin incorrect\r\n\r\nLOGIN: \r\nlogin incorrect\r\n\r\nLOGIN: | p/Lutron HomeWorks telnetd/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfd\x18\r\0\r\nPassword: \x1b\[2J\x1b\[1;1H\x1b\[0m\x1b\[7m {25}\x1b\[0m +DS ([\w-]+) | p/Infortrend EonStor DS iSCSI host telnetd/ i/model: $1/ d/storage-misc/ cpe:/h:infortrend:esds_$1/
 
 match tor-control m|^514 Authentication required\.\r\n$| p/Tor control port/ i/Authentication required/ cpe:/a:torproject:tor/
 
@@ -5524,8 +5547,11 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\nLANIER Maintenance Shell\.   \n\rUser 
 match telnet m|^\xff\xfb\x01\r\nUser Name : \r\nUser Name : \r\nUser Name : | p/APC AP9630 network management telnetd/ d/power-device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nWelcome to VIP-X ([\w._-]+) from [\w._-]+\r\nTLS invalid record length\r\n\r\n\r\n\r\ninvalid username\r\n\r\nTLS version 0300 not supported\r\nenter username  -> | p/Bosch VIP X1 video encoder telnetd/ d/webcam/ h/$1/
 match telnet m|^\r\nUser ID:Password:\r\nUser ID:| p/NEC SL-series debug terminal/ d/VoIP phone/
+match telnet m|^Commands: \n\t\[\x1b\[1;32m:d\x1b\[0m\]isable \[ category \x7c module \x7c all \]\n\t\[\x1b\[1;32m:e\x1b\[0m\]nable \[ category \x7c module \x7c all \]\n\t\[\x1b\[1;32m:s\x1b\[0m\]tatus\n\t\[\x1b\[1;32m:h\x1b\[0m\]elp\n\t\[\x1b\[1;32m:q\x1b\[0m\]uit\n\x1b\[1;31m\[E\]\[EncoderSrv\] /home/leonwang/platform/([\w._-]+)/Application_IPCAM/| p/Climax IP camera text UI/ i/model: $1/ cpe:/h:climax_technology:$1/
 
 match transbase m|^\0\0\+\x04\0\0\0@TransBase Multiplexer error report:\nIllegal request| p/Transbase Database/
+
+match tsd m|^unknown command: \.  Try `help'\.\nunknown command: \.  Try `help'\.\n| p/OpenTSDB TSD/ i/also http/ cpe:/a:opentsdb:opentsdb/
 
 match tsdns m|^[\d.]+:\$PORT$| p/TeamSpeak domain name server/
 
@@ -5562,7 +5588,7 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnec
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Gentoo/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Gentoo $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/a:minidlna:minidlna:$4/a cpe:/o:gentoo:linux:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: SUSE LINUX/n/a DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$3/ i/SUSE Linux; DLNADOC $1; UPnP $2/ o/Linux/ cpe:/a:minidlna:minidlna:$3/a cpe:/o:suse:suse_linux/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/a:minidlna:minidlna:$4/a cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: (?:Linux )?(([23]\.[\d.]+)[\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$5/ i/Linux $1; DLNADOC $3; UPnP $4/ o/Linux/ cpe:/a:minidlna:minidlna:$5/a cpe:/o:linux:linux_kernel:$2/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: (?:Linux )?(([234]\.[\d.]+)[\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$5/ i/Linux $1; DLNADOC $3; UPnP $4/ o/Linux/ cpe:/a:minidlna:minidlna:$5/a cpe:/o:linux:linux_kernel:$2/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: OpenWrt Linux/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/OpenWrt; DLNADOC $2; UPnP $3/ o/Linux $1/ cpe:/a:minidlna:minidlna:$4/a cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: FreeBSD/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/DLNADOC $2; UPnP $3/ o/FreeBSD $1/ cpe:/a:minidlna:minidlna:$4/a cpe:/o:freebsd:freebsd:$1/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer:  ?DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$3/ i/DLNADOC $1; UPnP $2/ cpe:/a:minidlna:minidlna:$3/a
@@ -6698,7 +6724,8 @@ match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: JC-HTTPD/([\d.]+
 match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: JC-HTTPD/([\d.]+)\r\n.*<title>Imagistics\w+ - TOP PAGE -</title>|s p/JC-HTTPD/ v/$1/ i/Sharp Imagistics printer http config/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: JC-HTTPD/([\d.]+)\r\n.*<title>Sharp(AR-\w+) - TOP PAGE -</title>|s p/JC-HTTPD/ v/$1/ i/Sharp $2 network card http config/ d/printer/
 match http m|^HTTP/1\.1 404 Not Found\r\nMIME-Version: 1\.0\r\nServer: JC-HTTPD/([\d.]+)\r\nConnection: close\r\nContent-Type: text/html;\r\nContent-Length: 306\r\nAccept-Ranges: none\r\n\r\n<HTML>\r\n<HEAD><META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=x-sjis\">\r\n<TITLE>HTTP 1\.0/404</TITLE>\r\n|s p/JC-HTTPD/ v/$1/ i/Sharp AR-M550N printer http config/ d/printer/ cpe:/h:sharp:ar-m550n/a
-match http m|^HTTP/1\.1 400 Bad Request\r\nMIME-Version: 1\.0\r\nServer: JC-SHTTPD/([\d.]+)\r\n| p/JC-SHTTPD/ v/$1/ i/Sharp printer/ d/printer/
+# Sharp, Ricoh
+match http m|^HTTP/1\.1 \d\d\d .*\r\nMIME-Version: 1\.0\r\nServer: JC-SHTTPD/([\d.]+)\r\n| p/JC-SHTTPD/ v/$1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: JC-HTTPD/([\w._-]+)\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nAccept-Ranges: none\r\n\r\n<html>\r\n<head>\r\n<title>(SX-\w+)</title>\r\n| p/JC-HTTPD/ v/$1/ i/Silex $2 USB bridge http config/ d/bridge/ cpe:/h:silex:$2/
 match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: JC-HTTPD/([\w._-]+)\r\nConnection: close\r\nContent-Type: text/html;charset=x-sjis\r\nContent-Length: \d+\r\nAccept-Ranges: none\r\n\r\n<HTML><HEAD><TITLE>([\w._-]+/[\w._-]+) HomePage</TITLE>.*<NOFRAMES>This page is only for InternetExplorer3\.0\(or later\) and NetScape Navigator3\.0\(or later\)\.</NOFRAMES>|s p/JC-HTTPD/ v/$1/ i/Star Micronics TSP700 printer/ d/printer/ h/$2/ cpe:/h:starmicronics:tsp700/a
 
@@ -7532,6 +7559,7 @@ match http m|^HTTP/1\.1 302 Found\r\n.*Server: NessusWWW\r\n.*Content-Type: text
 match http m|^HTTP/1\.1 302 Found\r\n.*Server: NessusWWW\r\n.*Content-Type: text/html\r\n.*Location: https://[\w:._-]+/html5\.html\r\nCache-Control: \r\nExpires: 0\r\nPragma : \r\n\r\n|s p/NessusWWW/ v/5.0.3/ i/Nessus vulnerability scanner http UI/ cpe:/a:tenable:nessus:5.0.3/
 match http m|^HTTP/1\.1 302 Found\r\n.*Server: NessusWWW\r\n.*Content-Type: text/html\r\n.*Location: https:///html5\.html\r\nCache-Control: \r\nExpires: 0\r\nPragma: \r\n\r\n|s p/NessusWWW/ v/5.2.6/ i/Nessus vulnerability scanner http UI/ cpe:/a:tenable:nessus:5.2.6/
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: NessusWWW\r\n.*Content-Type: application/json\r\n.*Location: https://[\w:._-]+/nessus6\.html\r\nCache-Control: \r\nExpires: 0\r\nPragma: \r\n\r\n|s p/NessusWWW/ v/6/ i/Nessus vulnerability scanner http UI/ cpe:/a:tenable:nessus:6/
+match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: NessusWWW\r\n.*Content-Type: text/html\r\n.*Location: https://[\w:._-]+/nessus6\.html\r\n|s p/NessusWWW/ v/6/ i/Nessus vulnerability scanner http UI/ cpe:/a:tenable:nessus:6/
 
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure; HttpOnly\r\nDate: .* GMT\r\nLocation: /login\.html\r\nContent-Type: text/html;charset=UTF-8\r\n.*Server: NSC/([\w._-]+) \(JVM\)\r\n\r\n|s p/NSC/ v/$1/ i/Nexpose vulnerability scanner http UI/
 
@@ -8943,6 +8971,7 @@ match http m|^HTTP/1\.0 200 OK\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 
 match http m|^HTTP/1\.1 200 OK\r\nConnection: Close\r\nServer: (BC\d+) WEB SERVER V([\d.]+)\r\nAllow: GET\r\nContent type: text/html\r\nContent-length: \d+\r\ntitle: BC\d+\.htm\r\n\r\n| p/Beckhoff $1 Bus Terminal Controller/ v/$2/ d/specialized/
 match http m|^HTTP/1\.0 404 \r\n.*\r\nserver: CubeCoders-McMyAdmin/IAWS\r\n.*<p id=\"verinfo\">McMyAdmin Personal - Web Backend v([\d.]+)</p>|s p/CubeCoders McMyAdmin Personal Minecraft control panel/ v/$1/
 match http m|^HTTP/1\.0 404 \r\n.*\r\nserver: CubeCoders-McMyAdmin/IAWS\r\n.*<p id=\"verinfo\">McMyAdmin Professional - Web Backend v([\d.]+)</p>|s p/CubeCoders McMyAdmin Professional Minecraft control panel/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d \r\n.*\r\nserver: CubeCoders-McMyAdmin/IAWS\r\n|s p/CubeCoders McMyAdmin Enterprise Minecraft control panel/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: cc-web/([\d.]+)\r\n| p/Centova Cast httpd/ v/$1/
 match http m|^HTTP/1\.1 302 Found\r.*\nServer: WSO2 Carbon Server\r\n|s p/WS02 Carbon middleware/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Linux, HTTP/1\.1, MyNetN(\d\d\d) Ver ([\d.]+)\r\n| p/Western Digital MyNet N$1 admin httpd/ v/$2/ d/WAP/ o/Linux/ cpe:/h:western_digital:n$1/ cpe:/o:linux:linux_kernel/a
@@ -8995,6 +9024,7 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: qHTTPs\r\n| p/AEG Powersol
 match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: sid=[^;]+; path=/; httponly\r\nSet-Cookie: sid\.sig=[^;]+; path=/; httponly\r\nDate: .*\r\nConnection: close\r\n\r\n<!DOCTYPE HTML>.*<h1>Webhook Deployer v([\w._-]+)|s p/Node.js/ i/Webhook Deployer v$1/ cpe:/a:nodejs:node.js/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Type: text/html; charset=ISO-8859-1\r\nContent-Length: \d+\r\nServer: SIMP LIGHT\r\n\r\n<head><title>SIMP Light web server \[ver\. ([\w._-]+)\]</title>| p/SIMP Light SCADA httpd/ v/$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-Length: 91\r\nContent-Type: text/html\r\nX-Plex-Protocol: 1\.0\r\n| p/Plex Media Center httpd/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 91\r\nContent-Type: text/html\r\nConnection: close\r\nX-Plex-Protocol: 1\.0\r\n| p/Plex Media Center httpd/
 match http m|^HTTP/1\.[01] 200 OK\r\nContent-Type: text/xml;charset=utf-8\r\nContent-Length: \d+\r\nConnection: close\r\nX-Plex-Protocol: 1\.0\r\nCache-Control: no-cache\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<MediaContainer size=\"\d+\" [^>]*friendlyName=\"([^"]*)\" [^>]*platform=\"([^"]+)\" platformVersion=\"([^"]+)\" [^>]*version=\"([^"]+)| p/Plex Media Server httpd/ v/$4/ i/friendlyName: $1; OS version $3/ o/$2/ cpe:/a:plex:plex_media_server:$4/
 # Sometimes the version is too far down the page :(
 match http m|^HTTP/1\.[01] 200 OK\r\nContent-Type: text/xml;charset=utf-8\r\nContent-Length: \d+\r\nConnection: close\r\nX-Plex-Protocol: 1\.0\r\nCache-Control: no-cache\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<MediaContainer size=\"\d+\" [^>]*friendlyName=\"([^"]*)\" [^>]*platform=\"([^"]+)\" platformVersion=\"([^"]+)\"| p/Plex Media Server httpd/ i/friendlyName: $1; OS version $3/ o/$2/ cpe:/a:plex:plex_media_server/
@@ -9046,7 +9076,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: HP_Compact_Server\r\nContent-Length: \
 # ntopng <= 1.1 (r7342) had an auth bypass because processing isn't terminated after redirect.
 match http m|^HTTP/1\.1 302 Found\r\nSet-Cookie: session=; path=/; expires=Thu, 01-Jan-1970 00:00:01 GMT; max-age=0; HttpOnly\r\nLocation: /login\.html\r\n\r\nHTTP/1\.1 200 OK\r\nCache-Control: max-age=0, no-cache, no-store\r\nPragma: no-cache\r\nServer: ntopng ([\d.]+) \((r\d*)\)\r\n| p/ntopng http interface/ v/$1/ i/SVN $2; auth bypass/ cpe:/a:ntop:ntopng:$1/
 match http m|^HTTP/1\.1 302 Found\r\nSet-Cookie: session=; path=/; expires=Thu, 01-Jan-1970 00:00:01 GMT; max-age=0; HttpOnly\r\nLocation: /login\.html\r\n\r\n$| p/ntopng http interface/ v/1.2 or later/ cpe:/a:ntop:ntopng/
-match http m|^HTTP/1\.0 200 OK\r\nDate: .*\nServer: owhttpd\r\nLast-Modified: .*\r\nContent-Type: text/html\r\n\r\n| p/OWFS httpd/
+match http m|^HTTP/1\.0 200 OK\r\nDate: .*\nServer: owhttpd\r\nLast-Modified: .*\r\nContent-Type: text/html\r\n\r\n| p/OWFS httpd/ cpe:/a:owfs:owhttpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\nWWW-Authenticate: Digest realm=\"([^"]+)\", domain=\"/\", nonce=\"[\da-f]+\", algorithm=\"MD5\", qop=\"auth\"\r\nWWW-Authenticate: Basic realm=\"\1\"\r\nContent-Type: text/html\r\n.*<HTML>\r\n<HEAD>\r\n<TITLE>Error 401</TITLE>|s p/Tandberg videoconference httpd/ i/"$1"/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=.*<!--- Page\(page_login\)=\[Login\] --->.*<TITLE>(MP\d\w+)</TITLE>|s p/Audiocodes $1 gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\n\r\n<!doctype html>\n<html>\n  <head>\n    <title>rabbit\.js and Socket\.IO publish/subscribe example</title>| p/Node.js/ i/rabbit.js messaging example page/ cpe:/a:nodejs:node.js/
@@ -9243,6 +9273,11 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nExpires: .*\r\nConn
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nContent-Length: 56\r\nDate: .*\r\nConnection: close\r\n\r\nTypeError: Object #<ServerResponse> has no method 'send'| p/Tizen Multiscreen SDK httpd/ d/media device/
 match http m|^HTTP/1\.1 401 Authentication Required\r\nWWW-Authenticate: Basic realm=\"([\d.]+)\"\r\nRefresh: 0;URL=\"/ui/logout\.htm\"\r\nServer: Blue-Coat-CacheFlow-Appliance\r\nCache-Control: no-store\r\nSet-Cookie: BCSI_MC=| p/Blue Coat CacheFlow appliance web ui/ i/IP $1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nDate: .*\r\nServer: KM-MFP-http/V([\d.]+)\r\n| p/Kyocera Mita MFP httpd/ v/$1/ d/printer/
+match http m|^HTTP/1\.1 303 See Other\r\nDate: .*\r\nSet-Cookie: JSESSIONID=[^;]+;Path=/\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nLocation: http://[^:/]+:9000/sessions/new\r\nContent-Length: 0\r\n\r\n| p/Mode Analytics Connector httpd/
+# node.js?
+match http m|^HTTP/1\.1 200 OK\r\nX-Powered-By: NodeBB\r\nX-Frame-Options: SAMEORIGIN\r\n| p/NodeBB web forum/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\"><html><head><meta http-equiv=content-type content=\"text/html;charset=utf-8\"><title>TSD</title>\n| p/OpenTSDB TSD/ i/http response on TSD port/ cpe:/a:opentsdb:opentsdb/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Length: \d+\r\nExpires: .*\r\nLast-Modified: .*\r\nContent-Type: text/html\r\nAccept-Ranges: bytes\r\nDate: .*\r\n\r\n<!DOCTYPE html>\n<html>\n  <head>\n    <title>Kodi</title>\n| p/libmicrohttpd/ i/Kodi OSMC web control/ cpe:/a:gnu:libmicrohttpd/
 
 #(insert http)
 
@@ -9387,8 +9422,10 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Karrigell ([\w._-]+)\r\nDate: |s p/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .* GMT\r\nServer: WSGIServer/([\w._-]+) C?Python/([\w._+-]+)\r\n| p/WSGIServer/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:wsgiref:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: MX4J-HTTPD/1\.0\r\n\r\n|s p/MX4J HTTP Adaptor/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ExtremeWare/([\d.]+)\r\n|s p/Exreme Networks switch admin httpd/ i/ExtremeWare XOS $1/ o/XOS/ cpe:/o:extremenetworks:extremeware_xos:$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: openresty/([\w._-]+)\r\n| p/OpenResty web app server/ v/$1/ cpe:/a:openresty:ngx_openresty:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: openresty/([\w._-]+)\r\n|s p/OpenResty web app server/ v/$1/ cpe:/a:openresty:ngx_openresty:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IntelliJ IDEA (\d[\w._-]*)\r\n|s p/IntelliJ IDEA/ v/$1/ cpe:/a:jetbrains:intellij_idea:$1/
 
+match http m|^HTTP/1\.1 \d\d\d .*\r\n\r\n<html><head><title>Apache Tomcat/(\d[\w._-]*) - Error report</title>|s p/Apache Tomcat/ v/$1/ cpe:/a:apache:tomcat:$1/a
 # Also matches Swift?
 match http m|^HTTP/1\.0 \d\d\d .*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/ cpe:/a:lighttpd:lighttpd/
 
@@ -9756,6 +9793,7 @@ match ipp m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Language: C\r\nUpgra
 match ipp m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><META HTTP-EQUIV=\"REFRESH\" CONTENT=\"0; URL=http://[\d.]+/\"></HEAD><BODY><P>For more printserver info please open the <A HREF=\"http://[\d.]+/\">[\d.]+</A> home page</BODY></HTML>$| p/Kyocera Mita KM-1530 IPP/ d/printer/ cpe:/h:kyocera:mita_km-1530/
 match ipp m|^HTTP/1\.0 405 Method Not Allowed\r\nContent-Type: text/html\r\nCache-Control: public,max-age=86400\r\nPragma: cache\r\nExpires: .*\r\nDate: .*\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\n\r\n| p/Netia Spot ipp/ d/broadband router/
 match ipp m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: HP HTTP Server; HP ([^-]+) - (\w+); Serial Number: (\w+); (?:[\w_]+ )?Built:[^{]+ {\w+, ASIC id 0x[\da-f]+}\r\n\r\n$| p/HP $1 ipp/ i/model $2; serial $3/ d/printer/ cpe:/h:hp:$SUBST(1," ","_")/
+match ipp m|^HTTP/1\.0 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nreturn_code=FCS9015\?error_text=This server does not support this API\.| p/PrinterOn Print Delivery Gateway ipp/ cpe:/a:printeron:print_delivery_gateway/
 
 match irc m|^:Default-Chat-Community 421 \* GET :Unknown command\r\n| p/Microsoft Exchange 2000 Server Chat Service/ o/Windows/ cpe:/a:microsoft:exchange_server:2000/ cpe:/o:microsoft:windows/a
 match irc m|^:([-\w_.]+) 451  :You have not registered your connection\r\n$| p/Wircsrv/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -9781,6 +9819,10 @@ match jabber m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http:
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:client' version='1\.0' id=''><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber client/ cpe:/a:prosody:prosody/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:server' version='1\.0' id=''><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber server/ cpe:/a:prosody:prosody/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xml:lang='en' xmlns:db='jabber:server:dialback' xmlns='jabber:server'><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Prosody Jabber server/ cpe:/a:prosody:prosody/
+# 0.9.8
+match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xml:lang='en' from='' xmlns:db='jabber:server:dialback' to='' xmlns='jabber:server'><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Prosody Jabber server/ cpe:/a:prosody:prosody/
+# 0.10
+match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:db='jabber:server:dialback' xmlns:stream='http://etherx\.jabber\.org/streams' xml:lang='en' id='' xmlns='jabber:server'><stream:error><not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Prosody Jabber server/ cpe:/a:prosody:prosody/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='error-id'><stream:error><invalid-xml xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Isode M-Link Jabber client/ cpe:/a:isode:m-link/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:server' xmlns:db='jabber:server:dialback' xmlns:stream='http://etherx\.jabber\.org/streams' id='error-id'><stream:error><invalid-xml xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/Isode M-Link Jabber server/ cpe:/a:isode:m-link/
 
@@ -10047,7 +10089,7 @@ match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Windows2000/0\.0 UPnP/([\w._+-]+
 
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nCONTENT-TYPE: text/xml\r\nContent-Length: .*<modelName>Xbox 360</modelName>.*<serialNumber>(\w+)</serialNumber>|s p/Xbox 360 XML UPnP/ i/Serial number $1/ d/game console/ o/Xbox 360/ cpe:/h:microsoft:xbox_360_kernel/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-Windows-NT/(\d[-.\w]+) UPnP/(\d[-.\w]+) UPnP-Device-Host/(\d[-.\w]+)\r\n| p/Microsoft Windows UPnP/ v/$2/ i/UPnP Device Host: $3/ o/Windows NT $1/ cpe:/o:microsoft:windows_nt:$1/
-match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Linux/([\w._+-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m=^HTTP/1\.1 200 .*\r\nSERVER: Linux/((2\.[46]\.\d+|\d\.\d+)\S*), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n=s p/MediaTomb UPnP/ v/$4/ i/Linux $1; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel:$2/
 match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Darwin/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/Darwin $1; UPnP $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: FreeBSD/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/FreeBSD $1; UPnP $2/ o/FreeBSD/ cpe:/o:freebsd:freebsd:$1/
 match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: OpenBSD/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/OpenBSD $1; UPnP $2/ o/OpenBSD/ cpe:/o:openbsd:openbsd:$1/
@@ -10143,6 +10185,9 @@ match upnp m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/xml\r\nConnection: c
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nSERVER: HDHomeRun/([\w._-]+) UPnP/([\w._-]+)\r\n| p/SiliconDust HDHomeRun set top box upnpd/ v/$1/ i/UPnP $2/ d/media device/ cpe:/h:silicondust:hdhomerun/
 match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: Linux/([\w._-]+) UPnP/([\d.]+) NDS_MHF DLNADOC/([\d.]+)\r\n\r\n| p/Samsung UPC Horizon TV upnpd/ i/Linux $1; UPnP $2; DLNADOC $3/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/a
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nContent-type: text/html\r\nServer: Linux UPnP/([\d.]+) Sonos/([\w._-]+) \(([\w._-]+)\)\r\nConnection: close\r\n\r\n| p/Sonos upnpd/ v/$2/ i/UPnP $1; model $3/ o/Linux/ cpe:/h:sonos:$3/ cpe:/o:linux:linux_kernel/a
+# formerly XBMC
+match upnp m|^HTTP/1\.1 .*\r\nServer: UPnP/([\d.]+) DLNADOC/([\d.]+) Kodi\r\n|s p/Kodi upnpd/ i/UPnP $1; DLNADOC $2/
+match upnp m=^HTTP/1\.1 404 Not Found\r\nSERVER: Linux/((2\.[46]\.\d+|\d\.\d+)\S*) UPnP/([\d.]+) DiXiM/([\d.]+)\r\n= p/DiXiM upnpd/ v/$4/ i/UPnP $3; Linux $1/ o/Linux/ cpe:/a:digion:dixim_media_player:$4/ cpe:/o:linux:linux_kernel:$2/
 
 softmatch upnp m|^HTTP/1.[01] \d\d\d .*\r\nServer:[^\r\n]*UPnP/1.0|si
 
@@ -11303,6 +11348,7 @@ match smtp m|^220-\*{89}\r\n220 \*{32}\r\n250-Welcome [\w._-]+, nice to meet you
 match smtp m|^220 ESMTP Ready\r\n250-([\w._-]+) Hello \[[\d.]+\]\r\n250-SIZE\r\n250-PIPELINING\r\n250-DSN\r\n250-ENHANCEDSTATUSCODES\r\n250-STARTTLS\r\n250-X-ANONYMOUSTLS\r\n250-AUTH NTLM\r\n250-X-EXPS GSSAPI NTLM\r\n250-8BITMIME\r\n250-BINARYMIME\r\n250-CHUNKING\r\n250-XEXCH50\r\n250 XRDST\r\n| p/Microsoft Outlook Web Access smtpd/ h/$1/
 match smtp m|^220 ([\w._-]+) ESMTP\r\n250-\1\r\n250-STARTTLS\r\n250-SIZE 50000000\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/qmail smtpd/ h/$1/
 match smtp m|^220  ESMTP\r\n501 5\.0\.0 EHLO requires domain address\r\n| p/Sendmail/ cpe:/a:sendmail:sendmail/a
+match smtp m|^552 Invalid domain name in HELO command \(DLH use case\)\.\r\n| p/Lotus Notes smtpd/ cpe:/a:ibm:lotus_domino/
 
 match smtp m|^220 $| p/OpenBSD spamd/
 
@@ -11969,6 +12015,9 @@ match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0
 # Microsoft Windows 2000 Server
 # Microsoft Windows 2000 Server SP4
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows 2000/ cpe:/o:microsoft:windows_2000/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows Server 2008 R2 microsoft-ds/ o/Windows Server 2008 R2/ cpe:/o:microsoft:windows_server_2008:r2/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 7 or 10 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows_7/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 10 microsoft-ds/ o/Windows 10/ cpe:/o:microsoft:windows_10/a
 
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0|s p|IBM OS/400 microsoft-ds| o|OS/400| cpe:/o:ibm:os_400/a
 
@@ -12071,17 +12120,26 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ cpe:/a:postgresql:postgresql:9.0.8/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ cpe:/a:postgresql:postgresql:9.0/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1705\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.19 - 9.0.22/ cpe:/a:postgresql:postgresql:9.0/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1753\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.23/ cpe:/a:postgresql:postgresql:9.0.23/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ cpe:/a:postgresql:postgresql:9.1/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ cpe:/a:postgresql:postgresql:9.1/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ cpe:/a:postgresql:postgresql:9.1.4/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ cpe:/a:postgresql:postgresql:9.1/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1734\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.15 - 9.1.18/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1803\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.19/ cpe:/a:postgresql:postgresql:9.1.19/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ cpe:/a:postgresql:postgresql:9.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1640\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.10 - 9.2.13/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1709\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.14/ cpe:/a:postgresql:postgresql:9.2.14/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ cpe:/a:postgresql:postgresql:9.3/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ cpe:/a:postgresql:postgresql:9.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1872\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.6 - 9.3.9/ cpe:/a:postgresql:postgresql:9.3/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1949\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.10/ cpe:/a:postgresql:postgresql:9.3.10/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ cpe:/a:postgresql:postgresql:9.4.0/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1/ cpe:/a:postgresql:postgresql:9.4.1/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1 - 9.4.4/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ cpe:/a:postgresql:postgresql:9.4.5/
 
 # PostgreSQL - Windows platforms
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
@@ -12114,17 +12172,26 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1671\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.8/ o/Windows/ cpe:/a:postgresql:postgresql:9.0.8/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1677\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.9 - 9.0.15/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1672\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.16 - 9.0.18/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1705\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.19 - 9.0.22/ o/Windows/ cpe:/a:postgresql:postgresql:9.0/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1753\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.0.23/ o/Windows/ cpe:/a:postgresql:postgresql:9.0.23/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1694\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.0 - 9.1.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1695\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.2 - 9.1.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1700\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.1.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1706\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.5 - 9.1.11/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1734\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.15 - 9.1.18/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1803\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.19/ o/Windows/ cpe:/a:postgresql:postgresql:9.1.19/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1640\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.10 - 9.2.13/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1709\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.2.14/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1872\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.6 - 9.3.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1949\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.3.10/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.0/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.1/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1 - 9.4.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.5/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
@@ -12148,8 +12215,9 @@ match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/ cpe:/a:postgresql
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0MProtocole non support.{1,2}e de l'interface 65363| p/PostgreSQL DB/ i/French/ cpe:/a:postgresql:postgresql::::fr/
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mel protocolo 65363| p/PostgreSQL DB/ i/Spanish/ cpe:/a:postgresql:postgresql::::es/
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst.*?Frontend-Protokoll 65363\.19778:|s p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
-softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
-softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
+softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M\xe3\x83\x95\xe3\x83\xad\xe3\x83\xb3\xe3\x83\x88\xe3\x82\xa8\xe3\x83\xb3\xe3\x83\x89\xe3\x83\x97\xe3\x83\xad\xe3\x83\x88\xe3\x82\xb3\xe3\x83\xab|s p/PostgreSQL DB/ i/Japanese/ cpe:/a:postgresql:postgresql::::ja/
+softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0.*?\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
+softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 
 # Teradata Database 13.10
@@ -12385,7 +12453,7 @@ match http m|^HTTP/1\.1 404 Not Found\r\nSet-Cookie: sid=[0-9a-f]{128}; path=/; 
 match http m|^HTTP/1\.0 200 OK\r\nLast-modified: .*\r\nServer: ESERV-10/([\d.]+)\n| p/Viola ESERV-10 httpd/ v/$1/
 match http m|^HTTP/1\.1 503 DNS error for hostname nice%20ports%2C: Name or service not known\. If nice%20ports%2C refers to a configured cache repository, please check the corresponding configuration file\.\r\nContent-Length: 478\r\nContent-Type: text/html\r\nDate: .*\r\nServer: Debian Apt-Cacher NG/([\w._-]+)\r\nConnection: close\r\n\r\n| p/Debian Apt-Cacher NG/ v/$1/ cpe:/a:debian:apt-cacher:$1/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\r\n<head>\r\n<title>(SPA\d\d\d[\w._-]*) Configuration Utility</title>| p/Cisco $1 http config/ d/VoIP phone/ cpe:/h:cisco:$1/a
-match http m|^HTTP/1\.0 403 \r\n.*\r\nserver: CubeCoders-McMyAdmin/IAWS\r\n.*<p id=\"verinfo\">McMyAdmin Enterprise - Web Backend v([\d.]+)</p>|s p/CubeCoders McMyAdmin Enterprise Minecraft control panel/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d \r\n.*\r\nserver: CubeCoders-McMyAdmin/IAWS\r\n.*<p id=\"verinfo\">McMyAdmin Enterprise - Web Backend v([\d.]+)</p>|s p/CubeCoders McMyAdmin Enterprise Minecraft control panel/ v/$1/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/plain\r\nDate: .*\r\nConnection: close\r\n\r\nCannot GET /nice%20ports%2C/Tri%6Eity\.txt%2ebak| p/Express.js httpd/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .* GMT\r\nConnection: Keep-Alive\r\nContent-Type: text/html\r\nCACHE-CONTROL: no-cache\r\nContent-Length: 257\r\n\r\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n<title>replace</title>\n<body>\n<script language=\"JavaScript\" type=\"text/javascript\">\nvar pageName = '/';\nwindow\.location\.replace\(pageName\);\n</script>\n</head>\n</body>\n</html>\n| p/Huawei E5172 router http admin/ d/broadband router/ cpe:/h:huawei:e5172/a
 
@@ -12443,7 +12511,7 @@ rarity 6
 ports 256,257,389,390,1702,3268,3892
 sslports 636,637,3269
 
-match defrag m|^h\0\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0\0\0\0d\0\0\0\0\xd9\$\x01\0\0\0\0\0\0T\0\0\0\0\0\0\xb7x\x01\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xe2\x0b\0\0\0\0\0\0\xb7\xb5p@\^\xa7\x08\0\0\0\0\0| p/O&O Defrag/ o/Windows/ cpe:/o:microsoft:windows/a
+match oo-defrag m|^h\0\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0\0\0\0d\0\0\0\0\xd9\$\x01\0\0\0\0\0\0T\0\0\0\0\0\0\xb7x\x01\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xe2\x0b\0\0\0\0\0\0\xb7\xb5p@\^\xa7\x08\0\0\0\0\0| p/O&O Defrag/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match drobo-dsvc m|^(?:DRIDDSVC\x07\x01.\0\0\0..[^\0]*\0)?DRIDDSVC\x07\x01.\0\0\0..<ESATMUpdate>\r\n\t<mESAUpdateSignature>ESAINFO</mESAUpdateSignature>\r\n\t<mESAUpdateVersion>\d+</mESAUpdateVersion>\r\n\t<mESAUpdateSize>\d+</mESAUpdateSize>\r\n\t<mESAID>\w+</mESAID>\r\n\t<mSerial>\w+</mSerial>\r\n\t<mName>Drobo(?:-FS)?</mName>\r\n\t<mVersion>([][\w._ ]+)</mVersion>\r\n\t<mReleaseDate>([^<]+)</mReleaseDate>\r\n|s p/Drobo-FS DDSVC/ v/$1 ($2)/
 
@@ -13653,6 +13721,8 @@ ports 50000,60000,1526,1527,9088-9100
 
 softmatch drda m|^\0.......\x14\x43..\x11\x5e.*\x11\x47|
 
+match oo-defrag m|^\x10\0\0\0\x01\0\0\0\x03\0\0\0\r\x08\0\0\x02\0{7}j\0\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0{97}\x10\0\0\0\x01\0\0\0\x03\0\0\0\r\x08\0\0\x02\0{7}j\0\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0{97}\x0c\0\0\0\x01\0{7}\xd7\x07\0{6}| p/O&O Defrag/ o/Windows/ cpe:/o:microsoft:windows/a
+
 ##############################NEXT PROBE##############################
 # MQ Initial Packet Queue-manager=nmap-probe; channel=SYSTEM.ADMIN.SRVCONN
 #
@@ -13730,6 +13800,7 @@ rarity 8
 ports 27017
 match mongodb m|^.*version.....([\.\d]+)|s p/MongoDB/ v/$1/ cpe:/a:mongodb:mongodb:$1/
 match mongodb m|^\xcb\0\0\0....:0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\xa7\0\0\0\x01uptime\0\0\0\0\0\0 `@\x03globalLock\09\0\0\0\x01totalTime\0\0\0\0\x7c\xf0\x9a\x9eA\x01lockTime\0\0\0\0\0\0\xac\x9e@\x01ratio\0!\xc6\$G\xeb\x08\xf0>\0\x03mem\0<\0\0\0\x10resident\0\x03\0\0\0\x10virtual\0\xa2\0\0\0\x08supported\0\x01\x12mapped\0\0\0\0\0\0\0\0\0\0\x01ok\0\0\0\0\0\0\0\xf0\?\0$|s p/MongoDB/ cpe:/a:mongodb:mongodb/
+match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\+\0\0\0\x02errmsg\0\x0e\0\0\0need to login\0\x01ok\0\0\0\0\0\0\0\0\0\0|s p/MongoDB/ i/need to login/ cpe:/a:mongodb:mongodb/
 
 ##############################NEXT PROBE##############################
 # Sybase SQL Anywhere Ping Probe
