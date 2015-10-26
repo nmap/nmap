@@ -1,5 +1,47 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
+  information from multicast and unicast KNX gateways, which connect home
+  automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]
+
+o [NSE] Added script http-ls. Parses web server directory index pages with
+  optional recursion. [Pierre Lalet]
+
+o [NSE] Added script xmlrpc-methods. This script perfoms introspection of
+  xmlrpc services and lists methods and their description. [Gyanendra Mishra]
+
+o [NSE] Added script http-fetch. This script can be used to fetch all files
+  from the target, specific files from the target or files that match a  given
+  pattern. [Gyanendra Mishra]
+
+o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
+  repostory by examinning commit logs. [Gyanendra Mishra]
+
+o [NSE] Added script http-svn-info. Requests information from a
+  Subversion repository.[Gyanendra Mishra]
+
+o [NSE] Added hnap-info, detects and outputs info for Home Network
+  Administration Protocol devices. [Gyanendra Mishra]
+
+o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
+
+o [NSE] Added tor-consensus-checker, which checks if a target is a
+  known Tor node. [Jiayi Ye]
+
+o [GH#51] Added IPv6 support to nmap_mass_rdns, improved reverse DNS cache,
+  and refactored DNS code to improve readability and
+  extensibility. All in all, this makes the rDNS portion of IPv6 scans
+  much faster. [Gioacchino Mazzurco]
+
+o [NSE] Added NTLM brute support to http-brute. [Gyanendra Mishra]
+
+o [NSE] Added NTLM authentication support to http.lua and a related function to create
+  an ntlm v2 session response in smbauth.lua. [Gyanendra Mishra]
+
+o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
+  outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
+  scripts have been converted to use this module. [Pierre Lalet]
+
 o [NSE] [GH#171] Splits smb-check-vulns into smb-vuln-conficker, smb-vuln-cve2009-3103,
   smb-vuln-ms06-025, smb-vuln-ms07-029, smb-vuln-regsvc-dos and smb-vuln-ms08-067.
   The scripts now support the library vulns and the script arguments "safe" and  
@@ -23,17 +65,6 @@ o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
   [Brandon Paulsen]
 
-o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
-  information from multicast and unicast KNX gateways, which connect home
-  automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]
-
-o [NSE] Added script http-ls. Parses web server directory index pages with
-  optional recursion. [Pierre Lalet]
-
-o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
-  outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
-  scripts have been converted to use this module. [Pierre Lalet]
-
 o [GH#75] Normalize check targets to standard format check-*.
   [Gioacchino Mazzurco]
 
@@ -43,33 +74,11 @@ o [GH#75] Normalize clean and distclean targets to standard format clean-* and
 o [GH#75] Normalize build targets to standard format build-*.
   [Gioacchino Mazzurco]
 
-o [NSE] Added script xmlrpc-methods. This script perfoms introspection of
-  xmlrpc services and lists methods and their description. [Gyanendra Mishra]
-
 o [NSE] Removed http-email-harvest as the the new http-grep does email address
   scraping by default. [Gyanendra Mishra]
 
-o [NSE] Added script http-fetch. This script can be used to fetch all files
-  from the target, specific files from the target or files that match a  given
-  pattern. [Gyanendra Mishra]
-
 o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
   enumerate both themesa and modules of drupal installaions. [Gyanendra Mishra]
-
-o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
-  repostory by examinning commit logs. [Gyanendra Mishra]
-
-o [NSE] Added script http-svn-info. Requests information from a
-  Subversion repository.[Gyanendra Mishra]
-
-o [GH#51] Added IPv6 support to nmap_mass_rdns, improved reverse DNS cache,
-  and refactored DNS code to improve readability and extensibility.
-  [Gioacchino Mazzurco]
-
-o [NSE] Added NTLM brute support to http-brute. [Gyanendra Mishra]
-
-o [NSE] Added NTLM authentication support to http.lua and a related function to create
-  an ntlm v2 session response in smbauth.lua. [Gyanendra Mishra]
 
 o [NSE] Added builtin pattern and multiple pattern search to http-grep. [Gyanendra Mishra]
 
@@ -87,14 +96,6 @@ o [NSE] Added an update for http-methods that checks all possible methods not in
 
 o [NSE] Added SLAXML, an XML parser in Lua originally written by Gavin Kistner
   (a.k.a. Phrogz). [Gyanendra Mishra]
-
-o [NSE] Added hnap-info, detects and outputs info for Home Network
-  Administration Protocol devices. [Gyanendra Mishra]
-
-o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
-
-o [NSE] Added tor-consensus-checker, which checks if a target is a
-  known Tor node. [Jiayi Ye]
 
 Nmap 6.49BETA5 [2015-09-25]
 
