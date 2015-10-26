@@ -131,6 +131,7 @@
 #include <nsock.h>
 #include <string>
 #include <map>
+#include <vector>
 
 struct FingerPrintDB;
 struct FingerMatch;

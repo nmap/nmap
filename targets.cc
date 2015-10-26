@@ -463,8 +463,6 @@ void HostGroupState::undefer() {
 }
 
 const char *HostGroupState::next_expression() {
-  static char buf[1024];
-
   if (o.max_ips_to_scan == 0 || o.numhosts_scanned + this->current_batch_sz < o.max_ips_to_scan) {
     const char *expr;
     expr = grab_next_host_spec(o.inputfd, o.generate_random_ips, this->argc, this->argv);
@@ -474,6 +472,7 @@ const char *HostGroupState::next_expression() {
 
 #ifndef NOLUA
   /* Add any new NSE discovered targets to the scan queue */
+  static char buf[1024];
 
   NewTargets *new_targets = NewTargets::get();
   if (o.script && new_targets != NULL) {

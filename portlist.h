@@ -132,6 +132,8 @@
 
 #include "portreasons.h"
 
+#include <vector>
+
 /* port states */
 #define PORT_UNKNOWN 0
 #define PORT_CLOSED 1

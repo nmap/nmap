@@ -128,6 +128,7 @@
 #define SERVICE_SCAN_H
 
 #include "portlist.h"
+#include "nmap.h"
 
 #include <vector>
 
