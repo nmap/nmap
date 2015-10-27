@@ -65,14 +65,8 @@ o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
   [Brandon Paulsen]
 
-o [GH#75] Normalize check targets to standard format check-*.
-  [Gioacchino Mazzurco]
-
-o [GH#75] Normalize clean and distclean targets to standard format clean-* and
-  distclean-*. [Gioacchino Mazzurco]
-
-o [GH#75] Normalize build targets to standard format build-*.
-  [Gioacchino Mazzurco]
+o [GH#75] Normalize Makefile targets to use the same verb-project format, e.g.
+  build-ncat, check-zenmap, install-nping, clean-nsock [Gioacchino Mazzurco]
 
 o [NSE] Removed http-email-harvest as the the new http-grep does email address
   scraping by default. [Gyanendra Mishra]
@@ -82,8 +76,8 @@ o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
 
 o [NSE] Added builtin pattern and multiple pattern search to http-grep. [Gyanendra Mishra]
 
-o [NSE] http-crossdomainxml is now http-cross-domain-policy and supports client access
-  policies and uses the new SLAXML parser. [Gyanendra Mishra]
+o [NSE] http-crossdomainxml is now http-cross-domain-policy and supports client
+  access policies and uses the new SLAXML parser. [Gyanendra Mishra]
 
 o [NSE] Added a patch for vulns lib that allows list of tables to be submitted
   to fields in the vulns report. [Jacob Gajek]
@@ -96,6 +90,42 @@ o [NSE] Added an update for http-methods that checks all possible methods not in
 
 o [NSE] Added SLAXML, an XML parser in Lua originally written by Gavin Kistner
   (a.k.a. Phrogz). [Gyanendra Mishra]
+
+o [NSE] [GH#122] Update the snmp-brute and other snmp-* scripts to use the
+  creds library to store brute-forced snmp community strings. This allows Nmap
+  to use the correct brute-forced string for each host. [Gioacchino Mazzurco]
+
+o Several improvements to TLS/SSL detection in nmap-service-probes. A new
+  probe, TLSSessionReq, and improvements to default SSL ports should help speed
+  up -sV scans. http://seclists.org/nmap-dev/2015/q2/17 [Daniel Miller]
+
+o [Nsock] Clean up the API so that nsp_* calls are now nsock_pool_* and nsi_*
+  are nsock_iod_*. Simplify Nsock SSL init API, and make logging global to the
+  library instead of associated with a nspool. [Henri Doreau]
+
+o [GH#181] The configure script now prints a summary of configured options.
+  Most importantly, it warns if OpenSSL was not found, since most users will
+  want this library compiled in. [Gioacchino Mazzurco]
+
+o Define TCP Options for SYN scan in nmap.h instead of literally throughout.
+  This string is used by p0f and other IDS to detect Nmap scans, so having it a
+  compile-time option is a step towards better evasion. [Daniel Miller]
+
+o [GH#51] Nmap's parallel reverse-DNS resolver now handles IPv6 addresses. This
+  should result in faster -6 scans. The old behavior is available with
+  --system-dns. [Gioacchino Mazzurco]
+
+o [NSE] Fix a couple odd bugs in NSE command-line parsing. Most notably,
+  --script broadcast-* will now work (generally, wildcards with scripts whose
+  name begins with a category name were not working properly). [Daniel Miller]
+
+o [NSE] [GH#113] http-form-fuzzer will now stop increasing the size of a
+  request when an HTTP 413 or 414 error indicates the web server will not
+  accept a larger request. [Gioacchino Mazzurco]
+
+o [NSE] [GH#159] Add the ability to tag credentials in the creds library with
+  freeform text for easy retrieval. This gives necessary granularity to track
+  credentials to multiple web apps on a single host+port. [Gioacchino Mazzurco]
 
 Nmap 6.49BETA5 [2015-09-25]
 
@@ -184,10 +214,9 @@ o [NSE] Enable ssl-enum-ciphers to safely scan servers with a long handshake
 o [Ncat] Fix a write overrun in Ncat that could cause a segfault if the -g
   (source route) option was given too many times. [Daniel Miller]
 
-o [NSE] Allow ssl-enum-ciphers to run on non-typical ports when it is selected
-  by name. It will now send a service detection probe if the port is not a
-  typical SSL port and version scan (-sV) was not used. [Daniel Miller]
-
+o [NSE] [GH#168] Allow ssl-enum-ciphers to run on non-typical ports when it is
+  selected by name. It will now send a service detection probe if the port is
+  not a typical SSL port and version scan (-sV) was not used. [Daniel Miller]
 
 Nmap 6.49BETA3 [2015-06-25]
 
