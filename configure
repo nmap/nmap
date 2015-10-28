@@ -644,7 +644,6 @@ NBASEDIR
 LIBLINEAR_DIST_CLEAN
 LIBLINEAR_CLEAN
 LIBLINEAR_BUILD
-LIBLINEAR_DEPENDS
 LIBLINEARDIR
 LIBLINEAR_LIBS
 NSE_CHECK
@@ -652,26 +651,22 @@ INSTALLNSE
 LUA_DIST_CLEAN
 LUA_CLEAN
 LUA_BUILD
-LUA_DEPENDS
 LIBLUADIR
 LIBLUA_LIBS
 DNET_DIST_CLEAN
 DNET_CLEAN
 DNET_BUILD
-DNET_DEPENDS
 LIBDNETDIR
 LIBDNET_LIBS
 PCRE_DIST_CLEAN
 PCRE_CLEAN
 PCRE_BUILD
-PCRE_DEPENDS
 LIBPCREDIR
 LIBPCRE_LIBS
 LIBPCAP_LIBS
 PCAP_DIST_CLEAN
 PCAP_CLEAN
 PCAP_BUILD
-PCAP_DEPENDS
 OPENSSL_LIBS
 NPING_DIST_CLEAN
 NPING_CLEAN
@@ -6289,7 +6284,6 @@ if test $have_libpcap != yes; then
     CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$libpcapdir"
   fi
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
@@ -6340,12 +6334,10 @@ $as_echo "$ac_cv_have_pcap_netmask_unknown" >&6; }
 $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
 
   LIBPCAP_LIBS="-lpcap"
-  PCAP_DEPENDS=""
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
 fi
-
 
 
 
@@ -6479,7 +6471,6 @@ if test $have_pcre != yes ; then
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
   LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
-  PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
@@ -6501,12 +6492,10 @@ fi
 done
 
   LIBPCRE_LIBS="-lpcre"
-  PCRE_DEPENDS=""
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
 fi
-
 
 
 
@@ -6548,7 +6537,6 @@ if test $have_dnet != yes ; then
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
   LIBDNET_LIBS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_DEPENDS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_BUILD="build-dnet"
   DNET_CLEAN="clean-dnet"
   DNET_DIST_CLEAN="distclean-dnet"
@@ -6557,12 +6545,10 @@ $as_echo "#define DNET_INCLUDED 1" >>confdefs.h
 
 else
   LIBDNET_LIBS="-ldnet"
-  DNET_DEPENDS=""
   DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
 fi
-
 
 
 
@@ -6586,7 +6572,6 @@ if test "${with_liblua+set}" = set; then :
   included)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
@@ -6668,7 +6653,6 @@ if test "$no_lua" = "yes"; then
   trace_no_use="$trace_no_use lua"
   CPPFLAGS="-DNOLUA $CPPFLAGS"
   LIBLUA_LIBS=""
-  LUA_DEPENDS=""
   LUA_BUILD=""
   LUA_CLEAN=""
   LUA_DIST_CLEAN=""
@@ -6853,7 +6837,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-    LUA_DEPENDS=""
     LUA_BUILD=""
     LUA_CLEAN=""
     LUA_DIST_CLEAN=""
@@ -6865,7 +6848,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 $as_echo "no" >&6; }
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
     LUA_CLEAN="clean-lua"
     LUA_DIST_CLEAN="distclean-lua"
@@ -6891,7 +6873,6 @@ fi
 
 
 
-
 LIBLINEARDIR=liblinear
 have_liblinear=no
 
@@ -6905,7 +6886,6 @@ if test "${with_liblinear+set}" = set; then :
   included)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
     LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-    LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
     LIBLINEAR_BUILD="build-liblinear"
     LIBLINEAR_CLEAN="clean-liblinear"
     LIBLINEAR_DIST_CLEAN="distclean-liblinear"
@@ -6976,7 +6956,6 @@ fi
 done
 
 
-  LIBLINEAR_DEPENDS=""
   LIBLINEAR_BUILD=""
   LIBLINEAR_CLEAN=""
   LIBLINEAR_DIST_CLEAN=""
@@ -6988,7 +6967,6 @@ if test $have_liblinear != yes; then
 $as_echo "no" >&6; }
   CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
   LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-  LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
   LIBLINEAR_BUILD="build-liblinear"
   LIBLINEAR_CLEAN="clean-liblinear"
   LIBLINEAR_DIST_CLEAN="distclean-liblinear"
@@ -6999,7 +6977,6 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 fi
-
 
 
 
