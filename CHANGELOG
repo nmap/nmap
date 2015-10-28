@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] [GH#193] Fix Ncat listen mode over Unix sockets (named pipes) on OS X.
+  This was crashing with the error:
+    Ncat: getnameinfo failed: Undefined error: 0 QUITTING.
+  Fixed by forcing the name to "localhost" [Michael Wallner]
+
 o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
   information from multicast and unicast KNX gateways, which connect home
   automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]

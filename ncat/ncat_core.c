@@ -569,6 +569,13 @@ void setup_environment(struct fdinfo *info)
     if (getpeername(info->fd, &su.sockaddr, &alen) != 0) {
         bye("getpeername failed: %s", socket_strerror(socket_errno()));
     }
+#ifdef HAVE_SYS_UN_H
+    if (su.sockaddr.sa_family == AF_UNIX) {
+        /* say localhost to keep it backwards compatible */
+        setenv_portable("NCAT_REMOTE_ADDR", "localhost");
+        setenv_portable("NCAT_REMOTE_PORT", "");
+    } else
+#endif
     if (getnameinfo((struct sockaddr *)&su, alen, ip, sizeof(ip),
             port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
         setenv_portable("NCAT_REMOTE_ADDR", ip);
@@ -580,6 +587,13 @@ void setup_environment(struct fdinfo *info)
     if (getsockname(info->fd, (struct sockaddr *)&su, &alen) < 0) {
         bye("getsockname failed: %s", socket_strerror(socket_errno()));
     }
+#ifdef HAVE_SYS_UN_H
+    if (su.sockaddr.sa_family == AF_UNIX) {
+        /* say localhost to keep it backwards compatible, else su.un.sun_path */
+        setenv_portable("NCAT_LOCAL_ADDR", "localhost");
+        setenv_portable("NCAT_LOCAL_PORT", "");
+    } else
+#endif
     if (getnameinfo((struct sockaddr *)&su, alen, ip, sizeof(ip),
             port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
         setenv_portable("NCAT_LOCAL_ADDR", ip);
