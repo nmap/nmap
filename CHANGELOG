@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] [GH#194] Add support for reading fragmented TLS messages to
+  ssl-enum-ciphers. [Jacob Gajek]
+
 o [Ncat] [GH#193] Fix Ncat listen mode over Unix sockets (named pipes) on OS X.
   This was crashing with the error:
     Ncat: getnameinfo failed: Undefined error: 0 QUITTING.
