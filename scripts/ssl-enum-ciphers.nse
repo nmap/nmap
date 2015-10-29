@@ -149,20 +149,22 @@ end
 local function get_record_iter(sock)
   local buffer = ""
   local i = 1
+  local fragment
   return function ()
     local record
-    i, record = tls.record_read(buffer, i)
+    i, record = tls.record_read(buffer, i, fragment)
     if record == nil then
       local status, err
       status, buffer, err = tls.record_buffer(sock, buffer, i)
       if not status then
         return nil, err
       end
-      i, record = tls.record_read(buffer, i)
+      i, record = tls.record_read(buffer, i, fragment)
       if record == nil then
         return nil, "done"
       end
     end
+    fragment = record.fragment
     return record
   end
 end
