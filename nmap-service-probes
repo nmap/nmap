@@ -1612,7 +1612,8 @@ match inetd m|^Can't exec \"([\w._/-]+)\": (.*) at ([\w._/-]+) line \d+\.\n| p/i
 
 match infopark m|^\d+{infopark tcl-Interface-Server} {CM ([\w._-]+)| p/Infopark Fiona TCL interface/ v/$1/
 
-match insight-manager m|^\0\0\0\x01$| p/Consul InSight Manager/
+# Also matches sphinx-search in some cases. Need more samples of either or a better probe.
+#match insight-manager m|^\0\0\0\x01$| p/Consul InSight Manager/
 
 match instrument-manager m|^\r\n\x18\t$| p/Data Innovations Instrument Manager/
 
@@ -2034,6 +2035,7 @@ match ncd-diag m|^WinCE/WBT Diagnostic port\n\rSerial Number: (\w+)  MAC Address
 
 match ncid m|^200 NCID Server:  ARC_ncidd ([\w._-]+)\r\n| p/ARC_ncidd/ v/$1/ i/Network Caller ID/
 
+match netbackup-bpdbm m|^\0\0\0.DONE \d+$| p/Veritas Netbackup database manager/ cpe:/a:symantec:veritas_netbackup/
 match netdevil m|^pass_pleaz$| p/Net-Devil backdoor/ i/**TROJAN**/ o/Windows/ cpe:/o:microsoft:windows/a
 match netsaint m|^Sorry, you \(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\) are not among the allowed hosts\.\.\.\n$| p/Netsaint status daemon/
 match netsaint m|^ERROR Client is not among hosts allowed to connect\.| p/Nagios Statd Server/
@@ -2131,6 +2133,10 @@ match nvidia-update m|^HTTP 400 Bad request\n\nError Nr: 12\n$| p/Nvidia Update 
 match oftp m|^\x10\0\0\x17IODETTE FTP READY \r$| p/ODETTE File Transfer Protocol/
 
 match oo-defrag m|^\x99\0\0\0\x01\0\0\0\x03\0\0\0\xb9\x08\0\0\x02\0\0\0\x01\0\0\0\0\0\0\0N\x06\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\n\x0b\0\0\0\xe8\xff\x01\0\x95\x8a\x01\0\0\0\0\0\0\0\0\0\x12\0\0\0 o\0\0\x13\0\0\0p\0\0\0\xf5\x01\0\0\x8c\x02\0\0\x1c\x01\0\0\x01\0\0\0\x03\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0gM1\x06\0\0\0\0\x01\0\0\0gM1\x06\0\0\0\0\x98\xadm\t\0\0\0\0\x02\0\0\0\xff\xfa\x9e\x0f\0\0\0\0\0\xff\r\x06\0\0\0\0\x99\0\0\0\x01\0\0\0\x03\0\0\0\xb9\x08\0\0\x02\0\0\0\x01\0\0\0\0\0\0\0N\x06\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\x04\x0b\0\0\0\xe8\xff\x01\0\x95\x8a\x01\0\0\0\0\0\0\0\0\0\x12\0\0\0!o\0\0\x13\0\0\0p\0\0\0\xf5\x01\0\0\x8c\x02\0\0\x1c\x01\0\0\0\0\0\0\x03\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0gM1\x06\0\0\0\0\x01\0\0\0gM1\x06\0\0\0\0\x98\xadm\t\0\0\0\0\x02\0\0\0\xff\xfa\x9e\x0f\0\0\0\0\0\xff\r\x06\0\0\0\0\x99\0\0\0\x01\0\0\0\x03\0\0\0\xb9\x08\0\0\x02\0\0\0\x01\0\0\0\0\0\0\0o\x0e\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\n\x0b\0\0\0\xe8\xff\x01\0\x95\x8a\x01\0\0\0\0\0\0\0\0\0\x12\0\0\0 o\0\0\x13\0\0\0p\0\0\0\xf5\x01\0\0\x8c\x02\0\0\x1c\x01\0\0\x01\0\0\0\x03\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0gM1\x06\0\0\0\0\x01\0\0\0gM1\x06\0\0\0\0\x98\xadm\t\0\0\0\0\x02\0\0\0\xff\xfa\x9e\x0f\0\0\0\0\0\xff\r\x06\0\0\0\x006\x01\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0\0\0\x07\x052Q\0\0L\^\x03\0\0\0\0\0\xa2\x88\0\0\0\0\0\0\xd9\xe6\x03\0\0\0\0\0\xb9\x02\0\0\0\0\0\0\x0e\x0b\0\0\0\0\0\0\)\xb8\x02\0\0\0\0\0\xed\x07\x95\?\0\0C\xad/\+i\0t\r\0\0\0\0\0\0{{\x16\x05\0\0\0\0\0\0\0\0\xd0\0\0\0((?:[^\0]\0)+)\0\x006\x01\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0\0\0\x07\x052Q\0\0L\^\x03\0\0\0\0\0\xa2\x88\0\0\0\0\0\0\xd9\xe6\x03\0\0\0\0\0\xb9\x02\0\0\0\0\0\0\x0e\x0b\0\0\0\0\0\0\)\xb8\x02\0\0\0\0\0\xed\x07\x95\?\0\0C\xad/\+i\0t\r\0\0\0\0\0\0{{\x16\x05\0$|s p/O&O Defrag Professional/ v/15/ i/path: $P(1)/
+
+# https://wiki.wireshark.org/OpenFlow
+# 4-byte TXID is random in OpenDaylight, sequential in POX
+softmatch openflow m|^\x01\0\0\x08....$| i/OpenFlow 1.0/
 
 match openfpc m|^OFPC READY\n$| p/OpenFPC packet capture/
 
@@ -3253,7 +3259,8 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) PKIX\r\n| p/OpenSSH/ v/$2/ i/protoc
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)-FIPS\(capable\)\r\n| p/OpenSSH/ v/$2/ i/protocol $1; FIPS capable/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)-sshjail\n| p/OpenSSH/ v/$2/ i/protocol $1; sshjail patch/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Raspbian-(\d+)\r\n| p/OpenSSH/ v/$2 Raspbian $3/ i/protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:linux:linux_kernel/a
-match ssh m|^SSH-([\d.]+)-MS_(\d+\.\d\d\d)\r\n| p/Microsoft Windows IoT sshd/ v/$2/ i/protocol $1/ o/Windows 10 IoT Core/ cpe:/o:microsoft:windows_10:::iot_core/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) OVH-rescue\r\n| p/OpenSSH/ v/$2/ i/protocol $1; OVH hosting rescue/ cpe:/a:openbsd:openssh:$2/a
+
 
 # Choose your destiny:
 # 1) Match all OpenSSHs:
@@ -3420,6 +3427,8 @@ match ssh m|^SSH-([\d.]+)-NA_([\d.]+)\r\n| p/HP Network Automation/ v/$2/ i/prot
 match ssh m|^SSH-([\d.]+)-SSH Server - moto\r\n| p/Ice Cold Apps SSH Server/ i/protocol $1/ o/Android/ cpe:/a:ice_cold_apps:ssh_server/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-Comware-([\d.]+)\n| p/HP Comware switch sshd/ v/$2/ i/protocol $1/ o/Comware/ cpe:/o:hp:comware:$2/
 match ssh m|^SSH-([\d.]+)-SecureLink SSH Server \(Version ([\d.]+)\)\r\n| p/SecureLink sshd/ v/$2/ i/protocol $1/ cpe:/a:securelink:securelink:$2/
+match ssh m|^SSH-([\d.]+)-WeOnlyDo-WingFTP\r\n| p/WingFTP sftpd/ i/protocol $1/ cpe:/a:wftpserver:wing_ftp_server/
+match ssh m|^SSH-([\d.]+)-MS_(\d+\.\d\d\d)\r\n| p/Microsoft Windows IoT sshd/ v/$2/ i/protocol $1/ o/Windows 10 IoT Core/ cpe:/o:microsoft:windows_10:::iot_core/
 
 softmatch ssh m|^SSH-([\d.]+)-| i/protocol $1/
 
@@ -4794,6 +4803,10 @@ match minebuilder m|^\0\0\0\x1a\x01$| p/Minebuilder game server/
 # This is 264 random bytes, probably some sort of shared-key encryption
 match landesk-rc m|^(?!HTTP).{264}$|s p/LANDesk remote management/ cpe:/a:landesk:landesk_management_suite/
 
+# Specific vendor telnet options that should be matched more accurately by prompt, etc.
+softmatch telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f| p/Huawei telnetd/
+
+# General-purpose telnet softmatch
 softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
 # Null probe hack; these seem to come in response to random probes
 softmatch kerberos-sec m|^\0\0\0[\x40-\x90]~[\x3e-\x8e]\x30[\x3c-\x8c]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z|s i/server time: $1-$2-$3 $4:$5:$6Z/
@@ -5192,6 +5205,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .* GMT\r\nConnection: close\r\n
 match http m|^\(null\) 400 Bad Request\r\nServer: \r\n.*<HTML>\n *<HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n *<BODY BGCOLOR=\"#cc9999\" TEXT=\"#000000\" LINK=\"#2020ff\" VLINK=\"#4040cc\">\n *<H4>400 Bad Request</H4>\nCan't parse request\.\n|s p/mini_httpd/ cpe:/a:acme:mini_httpd/
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: ArangoDB\r\nConnection: Close\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 0\r\n\r\n| p/ArangoDB admin httpd/ cpe:/a:arangodb:arangodb/
 match http m|^HTTP/1\.0 400 Bad Request\r\ndate: .*\r\npragma: no-cache\r\nconnection: close\r\ncontent-length: \d+ *\r\ncontent-type: text/html\r\n\r\n<html><head><title>Application Server Error</title>| p/SAP WebDispatcher/ cpe:/a:sap:web_dispatcher/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/plain\r\nCache-Control: no-cache\r\nConnection: \r\nDate: .* GMT\r\nServer: DT-UMESHKAL\r\nAccept-Ranges: None\r\nContent-Length: 4\r\n\r\n\r\n\r\n| p/Seagull BarTender printer driver httpd/ cpe:/a:seagull:bartender/
 
 # Also matches Daylite Server Admin caldav
 #match http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Length: 0\r\nConnection: close\r\nAccept-Ranges: bytes\r\nDate: .* GMT\r\n\r\n| p/1Password Agent/ cpe:/a:agilebits:1password/
@@ -5387,6 +5401,9 @@ match postgresql m|^E\0\0\09SFATAL\0MExpecting a startup message, but received \
 # Port 6509.
 match printer m|^\xff$| p/Panasonic mfpscdl.exe service/
 
+# port 5200
+match printeron m|^\xc4\t$| p/PrinterOn mobile print server/ d/print server/
+
 match priv-print m|^\xc0\0\x12Data field missing$| p/AXIS 560 print server/ d/print server/ cpe:/h:axis:560/a
 
 # Postfix qmqpd on Linux 2.4
@@ -5440,6 +5457,8 @@ match solfe m|^\x02\0\x01\xfb\xff\xfb\xff\xff\xff\xff\xffNOSUP| p/HP PNM Solid F
 match softros-im m|^none\r\n$| p/Softros LAN Messenger instant messaging/
 
 match spamassassin m|^SPAMD/1\.0 76 Bad header line: \r\n| p/SpamAssassin spamd/ cpe:/a:apache:spamassassin/
+
+match sqlmonitor m|^\0\0\0\0\0$| p/Red-Gate SQL Monitor/ o/Windows/ cpe:/a:red-gate:sql_monitor/
 
 match starbound m|^\0\x08\0\0\x02\x9c| p/Starbound game server/
 
@@ -9752,6 +9771,8 @@ match modbus m|^GET \0\x03H\xd4\x02| p/Modbus TCP/
 
 softmatch mongodb m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 116\r\n\r\nYou are trying to access MongoDB on the native driver port\. For http diagnostic access, add 1000 to the port number\n| cpe:/a:mongodb:mongodb/
 
+match motorola-devmgr m|^GET / HT\xff\xff\xff\xff$| p/Motorola Device Manager/ cpe:/a:motorola:device_manager/
+
 match mrtgext-nlm m|^-1\n-1\n-1\n$| p/Novell NetWare MRTGEXT NLM Statistics/ o/NetWare/ cpe:/o:novell:netware/a
 
 match msn m|^{?Syntax Error : GET / HTTP/1\.0}? error\r\n$| p/amsn/
@@ -10363,6 +10384,7 @@ match remoting m|^\.NET\x01\0\x02\0\0\0\0\0\0\0\x02\0\x03\x01\0\x03\0\x01\x01..\
 match wbem m|^HTTP/1\.0 405 Method not allowed: Method not allowed by server: GET\r\nDate: .*\r\nCache-Control: no-cache\r\nServer: / \(CIMOM\)\r\nContent-Length: 0\r\n\r\n| p/OpenWBEM/
 
 match webdav m|^HTTP/1\.0 302 Found\r\nConnection: Close\r\nDate: .*\r\nLocation: /ui/core/index\.html\r\n\r\n$| p/Tonido WebDAV/
+match webdav m|^HTTP/1\.1 \d\d\d .*?\r\nEtag: -?\d+_-?\d+\r\nContent-Length: \d+\r\nDate: [^\r\n]+ GMT\+00:00\r\n\r\n<html><head><script type=\"text/javascript\" language=\"javascript1\.1\">\n    var fNewDoc = false;\n  </script>\n  <script LANGUAGE=\"VBSCRIPT\">\n|s p/The Olive Tree WebDAV Server/ o/Android/ cpe:/a:theolivetree:webdavserver/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 
 match websocket m|^HTTP/1\.1 200 OK\r\n(?:Date: .*\r\n)?Connection: close\r\n\r\nWelcome to socket\.io\.| p/socket.io/
 match websocket m|^HTTP/1\.1 200 OK\r\ncontent-type: text/plain; charset=UTF-8\r\nDate: .*\r\nConnection: close\r\n\r\nWelcome to SockJS!\n| p/SockJS/
@@ -11373,6 +11395,9 @@ match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0
 match nameserver m|^\x03\x03\x02$| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/ cpe:/o:sun:sunos/a
 match nameserver m|^\0\x06\x01\0\0\x01\0\0\x03\x03\x02$| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/ cpe:/o:sun:sunos/a
 
+match valve-steam m|^\xff\xff\xff\xff!L_\xa0.{28}\0\0\0\x08\x06\x10\x06\x18\x9c\xd3\x01\".([\w.-]+)0\x028| p/Valve Steam In-Home Streaming service/ h/$1/
+match valve-steam m|^\xff\xff\xff\xff!L_\xa0| p/Valve Steam In-Home Streaming service/
+
 ##############################NEXT PROBE##############################
 Probe TCP Hello q|EHLO\r\n|
 rarity 8
@@ -11580,6 +11605,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .* GMT\r\nConnection: close\r\n
 # 6.2.Alpha
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 40\r\nContent-Type: text/html\r\n\r\n<h1>400 Bad Request</h1>Bad request line| p/JBoss Enterprise Application Platform/ cpe:/a:redhat:jboss_enterprise_application_platform/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: PhpStorm ([\w._-]+)\r\n| p/PhpStorm IDE httpd/ v/$1/ cpe:/a:jetbrains:phpstorm:$1/
+match http m|^<html><head><title>Metasploitable2 - Linux</title></head><body>\n<pre>| p/Metasploitable 2 welcome page/ o/Linux/
 
 # Seen a couple times for just Help probe... -Doug
 match http-proxy m|^HTTP/1\.0 200 OK\r\nCache-Control: no-store\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nX-Bypass-Cache: Application and Content Networking System Software ([\d.]+)\r\n| p/Cisco ACNS outbound proxying/ v/$1/ cpe:/a:cisco:application_and_content_networking_system_software:$1/
@@ -11771,6 +11797,9 @@ match nut m|^Commands: VER REQ HELP LISTVARS LOGOUT LOGIN PASSWORD LISTRW VARTYP
 match webster m|^DICTIONARY server protocol:\r\n\r\nContact name is| p/Webster dictionary server/
 
 match xmpp-transport m|^\x05\xff$| p/Spectrum XMPP file transfer/
+
+softmatch smtp m|^220[\s-].*smtp[^\r]*\r\n214[\s-]|i
+softmatch ftp m|^220[\s-].*ftp[^\r]*\r\n214[\s-]|i
 
 ##############################NEXT PROBE##############################
 # SSLv3 ClientHello probe. Will be able to reliably identify the SSL version
