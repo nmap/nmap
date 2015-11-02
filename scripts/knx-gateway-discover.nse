@@ -24,7 +24,7 @@ author = "Niklaus Schiess <nschiess@ernw.de>, Dominik Schneider <dschneider@ernw
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "broadcast"}
 
---
+---
 --@args
 -- timeout Max time to wait for a response. (default 3s)
 -- newtargets Add found gateways to target list

@@ -1,38 +1,33 @@
+---
+--A very basic IKE library.
+--
+--The current functionality includes:
+--  1. Generating a Main or Aggressive Mode IKE request packet with a variable amount of transforms and a vpn group.
+--  2. Sending a packet
+--  3. Receiving the response
+--  4. Parsing the response for VIDs
+--  5. Searching for the VIDs in 'ike-fingerprints.lua'
+--  6. returning a parsed info table
+--
+--This library is meant for extension, which could include:
+--  1. complete parsing of the response packet (might allow for better fingerprinting)
+--  2. adding more options to the request packet
+--     vendor field (might give better fingerprinting of services, e.g. Checkpoint)
+--  3. backoff pattern analyses
+--  ...
+--
+--An a implementation resembling 'ike-scan' could be built.
+--
+--@author Jesper Kueckelhahn
+--@license Same as Nmap--See http://nmap.org/book/man-legal.html
+
 local _G = require "_G"
 local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
-
-
-description = [[
-A very basic IKE library.
-
-The current functionality includes:
-  1. Generating a Main or Aggressive Mode IKE request packet with a variable amount of transforms and a vpn group.
-  2. Sending a packet
-  3. Receiving the response
-  4. Parsing the response for VIDs
-  5. Searching for the VIDs in 'ike-fingerprints.lua'
-  6. returning a parsed info table
-
-This library is meant for extension, which could include:
-  1. complete parsing of the response packet (might allow for better fingerprinting)
-  2. adding more options to the request packet
-     vendor field (might give better fingerprinting of services, e.g. Checkpoint)
-  3. backoff pattern analyses
-  ...
-
-An a implementation resembling 'ike-scan' could be built.
-]]
-
-
 _ENV = stdnse.module("ike", stdnse.seeall)
-
-author = "Jesper Kueckelhahn"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
 
 local ENC_METHODS = {
   ["des"]     = 0x80010001,
@@ -305,13 +300,13 @@ local function lookup(vendor_ids)
 end
 
 
+---
 -- Handle a response packet
 -- A very limited response parser
 -- Currently only the VIDs are extracted
 -- This could be made more advanced to
 -- allow for fingerprinting via the order
 -- of the returned headers
----
 function response(packet)
   local resp = { ["mode"] = "", ["info"] = nil, ['vids']={}, ['success'] = false }
 

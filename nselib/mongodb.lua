@@ -4,8 +4,6 @@
 -- @author Martin Holst Swende
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
--- Version 0.2
---
 -- @args mongodb.db - the database to use for authentication
 
 -- Created 01/13/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
