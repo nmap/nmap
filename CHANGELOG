@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ip-https-discover for detecting support for Microsoft's IP over
+  HTTPS tunneling protocol. [Niklaus Schiess]
+
 o [NSE] [GH#229] Improve parsing in http.lua for multiple Set-Cookie headers in
   a single response.  [nnposter]
 

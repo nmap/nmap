@@ -17,7 +17,7 @@ Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
 Entry { filename = "backorifice-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "backorifice-info.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "bacnet-info.nse", categories = { "discovery", } }
+Entry { filename = "bacnet-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
 Entry { filename = "bitcoin-getaddr.nse", categories = { "discovery", "safe", } }
 Entry { filename = "bitcoin-info.nse", categories = { "discovery", "safe", } }
@@ -265,6 +265,7 @@ Entry { filename = "ip-geolocation-geobytes.nse", categories = { "discovery", "e
 Entry { filename = "ip-geolocation-geoplugin.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-maxmind.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "ip-https-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ipv6-node-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ipv6-ra-flood.nse", categories = { "dos", "intrusive", } }
@@ -395,7 +396,7 @@ Entry { filename = "rsync-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rsync-list-modules.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rtsp-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "rtsp-url-brute.nse", categories = { "brute", "intrusive", } }
-Entry { filename = "s7-info.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "s7-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "samba-vuln-cve-2012-1182.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }
