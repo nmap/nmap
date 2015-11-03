@@ -11807,7 +11807,7 @@ softmatch ftp m|^220[\s-].*ftp[^\r]*\r\n214[\s-]|i
 # TLSv1-only servers, based on a failed handshake alert.
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 rarity 1
-ports 443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2443,3443,4443,4444,5061,5443,5550,6443,7210,7272,7443,8009,8181,8194,8443,9001,9443,10443,14443,44443,60443
+ports 443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2252,2443,3443,4443,4444,5061,5443,5550,6443,7210,7272,7443,8009,8181,8194,8443,9001,9443,10443,14443,44443,60443
 fallback GetRequest
 
 match adabas m|^,\0,\0\x03\x02\0\0G\xd7\xf7\xbaO\x03\0\?\x05\0\0\0\0\x02\x18\0\xfd\x0b\0\0<=\xdbo\xef\x10n \xd5\x96\xc8w\x9b\xe6\xc4\xdb$| p/ADABAS database/
@@ -11985,7 +11985,7 @@ match xamarin m|^ERROR: Another instance is running\n| p/Xamarin MonoTouch/
 # in the match lines)
 Probe TCP TLSSessionReq q|\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\x05\x03\x05\x02|
 rarity 1
-ports 443,444,465,636,989,990,992,993,994,995,1241,1311,3389,4444,5061,6679,6697,8443,9001
+ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,3389,4444,5061,6679,6697,8443,9001
 fallback GetRequest
 
 # SSLv3 - TLSv1.2 ServerHello
