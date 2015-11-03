@@ -14273,3 +14273,20 @@ match ssl m=^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03].*\x16\x03[\0-\x03]\0.\x0c
 
 # SSLv3 - TLSv1.2 Alert
 match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
+
+##############################NEXT PROBE##############################
+# Queries z/OS Network Job Entry
+# Sends an NJE Probe with the following information (text is converted to EBCDIC):
+# TYPE        = OPEN
+# OHOST       = FAKE
+# RHOST       = FAKE
+# RIP and OIP = 0.0.0.0
+# R           = 0
+# Based on http://www-01.ibm.com/support/knowledgecenter/SSLTBW_2.1.0/com.ibm.zos.v2r1.hasa600/init.htm
+Probe TCP NJE q|\xd6\xd7\xc5\xd5@@@@\xc6\xc1\xd2\xc5@@@@\0\0\0\0\xc6\xc1\xd2\xc5@@@@\0\0\0\0\0|
+rarity 9
+ports 175
+sslports 2252
+# If the port supports NJE it will respond with either a 'NAK' or 'ACK' in EBCDIC
+match nje m|^\xd5\xc1\xd2| p/IBM Network Job Entry (JES)/
+match nje m|^\xc1\xc3\xd2| p/IBM Network Job Entry (JES)/
