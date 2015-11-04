@@ -726,7 +726,7 @@ end
 -- along with the backwards-compatibility suggestions from its section 10,
 -- "HISTORICAL". Values need not be quoted, but if they start with a quote they
 -- will be interpreted as a quoted string.
-local function parse_set_cookie(s)
+parse_set_cookie = function (s)
   local name, value
   local _
 
