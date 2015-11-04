@@ -2,8 +2,8 @@ local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local openssl = require "openssl"
 local ls = require "ls"
+local have_ssl, openssl = pcall(require,'openssl')
 
 description = [[
 Shows the content of an "index" Web page.
@@ -20,7 +20,7 @@ categories = {"default", "discovery", "safe"}
 -- @usage
 -- nmap -n -p 80 --script http-ls test-debit.free.fr
 --
--- @args http-ls.checksum compute a checksum for each listed file
+-- @args http-ls.checksum compute a checksum for each listed file. Requires OpenSSL.
 --       (default: false)
 -- @args http-ls.url base URL path to use (default: /)
 --
@@ -145,7 +145,7 @@ local function list_files(host, port, url, output, maxdepth, basedir)
     for fname, date, size in string.gmatch(resp.body, pattern) do
       local continue = true
       local directory = isdir(fname, size)
-      if ls.config('checksum') and not directory then
+      if have_ssl and ls.config('checksum') and not directory then
         local checksum = ""
         local resp = http.get(host, port, url .. fname)
         if not resp.location and resp.body then
