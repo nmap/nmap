@@ -6,6 +6,9 @@ local table = require "table"
 
 description = [[
 Attempts to perform a dynamic DNS update without authentication.
+
+Either the <code>test</code> or both the <code>hostname</code> and
+<code>ip</code> script arguments are required.
 ]]
 
 author = "Patrik Karlsson"
@@ -22,8 +25,9 @@ categories = {"vuln", "intrusive"}
 -- |   Successfully added the record "nmap-test.cqure.net"
 -- |_  Successfully deleted the record "nmap-test.cqure.net"
 --
--- @args dns-update.hostname the name of the host to add to the zone
--- @args dns-update.ip the ip address of the host to add to the zone
+-- @args dns-update.hostname The name of the host to add to the zone
+-- @args dns-update.ip The ip address of the host to add to the zone
+-- @args dns-update.test Add and remove 4 records to determine if the target is vulnerable.
 --
 
 --
@@ -82,7 +86,9 @@ action = function(host, port)
   local name, ip = stdnse.get_script_args('dns-update.hostname', 'dns-update.ip')
 
   if ( t ) then return test(host, port) end
-  if ( not(name) or not(ip) ) then return end
+  if ( not(name) or not(ip) ) then
+    return stdnse.format_output(false, "Missing required script args: dns-update.hostname and dns-update.ip")
+  end
 
   -- we really need an ip or name to continue
   -- we could attempt a random name, but we need to know at least the name of the zone
