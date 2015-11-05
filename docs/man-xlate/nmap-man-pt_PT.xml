@@ -1278,7 +1278,7 @@ EXEMPLOS:
             critérios). Este tipo fascinante de rastreio(scan) é complexo demais para se
             descrever completamente aqui neste guia de referência, então eu
             escrevi e postei um trabalho informal com detalhes completos em
-            <ulink url="http://nmap.org/book/idlescan.html" />.</para>
+            <ulink url="https://nmap.org/book/idlescan.html" />.</para>
 
             <para>Além de ser extraordinariamente camuflado (devido à sua
             natureza cega), este tipo de rastreio(scan) permite mapear relações de

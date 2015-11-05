@@ -40,7 +40,7 @@ server (your default DNS server, or whichever one you specified with the
 -- |_     Peer AS: 174 2914 6461
 
 author = "jah, Michael Pattrick"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
 

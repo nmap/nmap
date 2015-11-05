@@ -24,7 +24,7 @@ the <code>xhost +</code> list. In this case, script will display the message:
 -- true
 
 author = "vladz"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "safe", "auth"}
 
 portrule = function(host, port)

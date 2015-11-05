@@ -26,7 +26,7 @@ Queries a Bitcoin server for a list of known Bitcoin nodes
 -- |_  10.10.10.14:8333      11/09/11 17:37:12
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

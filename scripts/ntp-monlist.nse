@@ -10,7 +10,7 @@ local string = require "string"
 local table = require "table"
 
 author = "jah"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 description = [[
 Obtains and prints an NTP server's monitor data.

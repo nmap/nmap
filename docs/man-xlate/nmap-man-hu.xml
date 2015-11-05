@@ -32,8 +32,8 @@
     <title>Leírás</title>
     <web>
     <note><para>Ez a dokumentum az Nmap legfrissebb változatának leírása, mely a
-     <ulink url="http://nmap.org/download.html"></ulink> vagy a  
-     <ulink url="http://nmap.org/dist/?C=M&amp;O=D"></ulink> címekről tölthető le.  
+     <ulink url="https://nmap.org/download.html"></ulink> vagy a  
+     <ulink url="https://nmap.org/dist/?C=M&amp;O=D"></ulink> címekről tölthető le.  
      Mielőtt egy paraméter hibás működését jeleznéd, kérlek győződj meg arról, hogy 
      a legfrissebb változatot használod-e.</para></note>
     </web>
@@ -89,7 +89,7 @@
 <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://nmap.org )
+Starting nmap ( https://nmap.org )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -125,8 +125,8 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </screen>
 </example>
 
-<para>Az Nmap legújabb változata a <ulink url="http://nmap.org"></ulink> címről tölthető le.  A legfrissebb kézikönyv 
-a <ulink url="http://nmap.org/man/"></ulink> címről tölthető le.</para>
+<para>Az Nmap legújabb változata a <ulink url="https://nmap.org"></ulink> címről tölthető le.  A legfrissebb kézikönyv 
+a <ulink url="https://nmap.org/man/"></ulink> címről tölthető le.</para>
 
   </refsect1>
 
@@ -134,7 +134,7 @@ a <ulink url="http://nmap.org/man/"></ulink> címről tölthető le.</para>
     <title>Megjegyzés a fordításhoz</title>
 
   <para>Az Nmap Referencia Útmutató jelen magyar változatát Mlatilik Zsolt készítette 
-  a 6184-es <ulink url="http://nmap.org/book/man.html">eredeti angol változat</ulink> 
+  a 6184-es <ulink url="https://nmap.org/book/man.html">eredeti angol változat</ulink> 
   alapján <email>drmac68@freemail.hu</email>. A fordítást annak reményében készítettem, 
   hogy megkönnyítse a magyar nyelvű felhasználók számára a program használatát. 
   Nem tudom garantálni, hogy ez a leírás olyan teljes vagy naprakész, mint az eredeti 
@@ -146,7 +146,7 @@ a <ulink url="http://nmap.org/man/"></ulink> címről tölthető le.</para>
 
 <para>Ez az összefoglaló akkor jelenik meg, amikor az Nmap programot
 paraméterek nélkül indítjuk el. A legfrissebb változata a
-<ulink url="http://nmap.org/data/nmap.usage.txt"></ulink> címen érhető el.
+<ulink url="https://nmap.org/data/nmap.usage.txt"></ulink> címen érhető el.
 Ez a lista segít emlékezni a legáltalánosabb paraméterekre, de nem helyettesíti
 az útmutatóban található részletes dokumentációt. Néhány rejtett paraméter szintén
 nem található meg ebben a listában.</para>
@@ -154,7 +154,7 @@ nem található meg ebben a listában.</para>
 <para>
 <?dbfo-need height="1in"?>
 <literallayout format="linespecific" class="normal">
-Nmap 4.53 ( http://nmap.org )
+Nmap 4.53 ( https://nmap.org )
 Használat: nmap [Letapogatási típus(ok)] [Paraméterek] {Célpont meghatározások}
 CÉLPONT MEGHATÁROZÁSOK:
   Átadhatók állomásnevek, IP címek, hálózatok, stb.
@@ -1385,7 +1385,7 @@ helyett. Ha nem ad meg alaptípust, a SYN letapogatást fogja használni.</para>
 	  lennie és meg kell felelnie bizonyos követelményeknek). Ez az elbűvölő 
 	  letapogatás túl bonyolult ahhoz, hogy ebben a leírásban részletesen is 
 	  foglalkozhassunk vele, ezért írtam egy részletes leírást róla, mely a 
-	  <ulink url="http://nmap.org/idlescan.html"></ulink> címen olvasható.</para>
+	  <ulink url="https://nmap.org/idlescan.html"></ulink> címen olvasható.</para>
 
           <para>Amellett, hogy különösen rejtett, ezzel a letapogatással kihasználható 
 	  a gépek közötti, IP alapú bizalmi viszony. A nyitott kapuk ebben az 
@@ -1632,7 +1632,7 @@ kihasználni.</para>
     a kapu állapotát. A <literal moreinfo="none">nyitott|szűrt</literal> TCP kapukat 
     hasonló módon kezeli. Jegyezze meg, hogy az Nmap <option>-A</option> paramétere 
     más dolgok mellett a változat érzékelést is engedélyezi. A változat érzékelés 
-    működéséről, használatáról és paraméterezéséről a <ulink url="http://nmap.org/vscan/"></ulink> 
+    működéséről, használatáról és paraméterezéséről a <ulink url="https://nmap.org/vscan/"></ulink> 
     címen talál részletes leírást.</para>
 
     <para>Ha az Nmap kap ugyan választ egy szolgáltatástól, de az adatbázis alapján 
@@ -1817,7 +1817,7 @@ kihasználni.</para>
     támadással szemben.</para>
 
     <para>Az operációs rendszer érzékelésének működésével, használatával és 
-    testreszabásával kapcsolatban a <ulink url="http://nmap.org/osdetect/"></ulink> 
+    testreszabásával kapcsolatban a <ulink url="https://nmap.org/osdetect/"></ulink> 
     címen talál egy leírást.</para>
 
     <para>Az operációs rendszer érzékelése és vezérlése a következő paraméterekkel 
@@ -1904,7 +1904,7 @@ kihasználni.</para>
 	<para> 
 	Az Nmap parancsfájl motor (NSE) egyesíti az Nmap hatékony hálózatkezelését 
 	a <ulink url="http://lua.org">Lua</ulink> könnyűsúlyú parancsnyelv 
-	sokoldalúságával, így kínálva számtalan lehetőséget. A <ulink url="http://nmap.org/nse/"></ulink> 
+	sokoldalúságával, így kínálva számtalan lehetőséget. A <ulink url="https://nmap.org/nse/"></ulink> 
 	címen bőséges dokumentációt talál az NSE-ről (beleértve a programozói 
 	felületet is). Az NSE célja, hogy hatékony környezetet biztosítson az 
 	Nmap képességeinek kiterjesztéséhez és a felhasználók számára egyszerűbbé 
@@ -1975,7 +1975,7 @@ kihasználni.</para>
     egy <literal moreinfo="none">nse</literal> kiterjesztéssel. Bár jelenleg nem 
     szükséges követnie ezt a szokást, ez a jövőben változhat. Az Nmap figyelmeztetni 
     fogja, ha egy fájlnak más a kiterjesztése. Az NSE-ről további bőséges dokumentációt 
-    találhat (beleértve a programozói felület leírását) a <ulink url="http://nmap.org/nse/"></ulink> 
+    találhat (beleértve a programozói felület leírását) a <ulink url="https://nmap.org/nse/"></ulink> 
     címen.
     </para>
    
@@ -2801,7 +2801,7 @@ mértékben támogatja ezt a paramétert.</para>
 	  elküldeni a célpont felé. Mivel elméletileg minden állomás IP verme az 
 	  ilyen csomagokat helyesen eldobja, ezért bármilyen válasz tűzfalra vagy 
 	  IDS rendszerre utal, melyek nem foglalkoznak az ellenőrző összeg 
-	  vizsgálatával. További részletek erről a technikáról a <ulink url="http://nmap.org/p60-12.txt"></ulink> 
+	  vizsgálatával. További részletek erről a technikáról a <ulink url="https://nmap.org/p60-12.txt"></ulink> 
 	  címen.</para>
         </listitem>
       </varlistentry>
@@ -2920,7 +2920,7 @@ felülírná. A paraméterek leírása az alábbiakban található.</para>
 	  készült, de segítséget nyújt az embereknek is az Nmap XML kimenetének 
 	  értelmezésében. A DTD leírja a formátum érvényes elemeit és gyakran 
           felsorolja a tulajdonságokat és azok értékeit is. A legfrissebb változat 
-	  mindig megtalálható a <ulink url="http://nmap.org/data/nmap.dtd"></ulink> 
+	  mindig megtalálható a <ulink url="https://nmap.org/data/nmap.dtd"></ulink> 
 	  címen.</para>
 
           <para>XML egy stabil formátumot kínál, mely programból könnyen 
@@ -3226,7 +3226,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
 	  megjeleníti az eredményeket. Ha más stíluslapot akar használni, adja 
 	  meg azt a <option>--stylesheet</option> kapcsoló után. A teljes útvonalat 
 	  vagy címet meg kell adnia. Egy megszokott hivatkozás a <option>--stylesheet
-          http://nmap.org/data/nmap.xsl</option>. Ez arra utasítja a böngészőt, 
+          https://nmap.org/data/nmap.xsl</option>. Ez arra utasítja a böngészőt, 
 	  hogy az Insecure.org címről töltse be a legfrissebb stíluslapot. A 
 	  <option>--webxml</option> paraméterrel ugyanezt a hatást érheti el, csak 
 	  kevesebbet kell gépelni és megjegyezni. Az Insecure.org címről letöltött 
@@ -3245,7 +3245,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
         </term>
         <listitem>
 
-          <para>Ez egy kényelmesebb megvalósítása a <option>--stylesheet http://nmap.org/data/nmap.xsl</option> 
+          <para>Ez egy kényelmesebb megvalósítása a <option>--stylesheet https://nmap.org/data/nmap.xsl</option> 
 	  kapcsolónak.</para>
         </listitem>
       </varlistentry>
@@ -3656,7 +3656,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
     <para>Akárcsak a program készítője, az Nmap sem tökéletes. De segíthet jobbá 
     tenni, ha elküldi a felfedezett hibák leírását, vagy javítást készít hozzájuk. 
     Ha az Nmap nem az elvárásai szerint működik, először mindig szerezze be a legfrissebb 
-    változatot a <ulink url="http://nmap.org"></ulink> címről. Ha a probléma továbbra 
+    változatot a <ulink url="https://nmap.org"></ulink> címről. Ha a probléma továbbra 
     is fennáll, nézzen utána, hogy felfedezték-e már mások is. Keressen rá a 
     Google-ban a hibaüzenetre vagy böngéssze át az Nmap fejlesztői listát a 
     <ulink url="http://seclists.org/"></ulink> címen. Olvassa végig ezt a leírást 
@@ -3668,7 +3668,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
     azokat közvetlenül a program készítőjének (Fyodor) küldené.</para>
 
     <para>A hibajavítások sokkal hasznosabbak, mint a hibajelentések. A hibajavítások 
-    elkészítésével kapcsolatban tanácsokat kaphat a <ulink url="http://nmap.org/data/HACKING"></ulink> 
+    elkészítésével kapcsolatban tanácsokat kaphat a <ulink url="https://nmap.org/data/HACKING"></ulink> 
     címen. A hibajavítások elküldhetők az nmap-dev listára (ez a javasolt), vagy 
     közvetlenül a készítőnek is.</para>
   </refsect1>
@@ -3683,7 +3683,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
     <para>Az évek során emberek százai járultak hozzá értékes munkájukkal az Nmap 
     programhoz. Ezek részletezése megtalálható a <filename moreinfo="none">CHANGELOG</filename> 
     fájlban, mely az Nmap program terjesztése mellett elérhető a 
-    <ulink url="http://nmap.org/changelog.html"></ulink> címen is.</para>
+    <ulink url="https://nmap.org/changelog.html"></ulink> címen is.</para>
 
   </refsect1>
 
@@ -3734,7 +3734,7 @@ kapcsolatban. Ezek a korlátozások kizárólag akkor érvényesek, ha Ön való
 továbbértékesíti az Nmap programot. Például semmi nem tiltja, hogy Ön kezelő felületet 
 készítsen az Nmap programhoz és azt üzleti céllal forgalmazza. Terjessze a programot 
 önállóan és hívja fel a felhasználók figyelmét, hogy az Nmap programot külön 
-kell letölteniük a <ulink url="http://nmap.org"></ulink> címről.</para>
+kell letölteniük a <ulink url="https://nmap.org"></ulink> címről.</para>
 
 <para>A program készítői nem gondolják, hogy a fentiek további korlátozásokat 
 adnának a GPL-hez, kizárólag annak tisztázására szolgálnak, hogyan értelmezik a 
@@ -3783,14 +3783,14 @@ elsőbbséget élveznek a fentiekkel szemben.</para>
       <title>Unofficial Translation Disclaimer / Nem hivatalos fordítói nyilatkozat</title>
 
       <para>This is an unnofficial translation of the <ulink
-      url="http://nmap.org/book/man-legal.html">Nmap
+      url="https://nmap.org/book/man-legal.html">Nmap
       license details</ulink> into hungarian.  It was not written by
       Insecure.Com LLC, and does not legally state the distribution terms
       for Nmap -- only the original English text does that.  However, we
       hope that this translation helps hungarian speakers understand the
       Nmap license better.</para>
 
-      <para>Ez az <ulink url="http://nmap.org/book/man-legal.html">Nmap licenc 
+      <para>Ez az <ulink url="https://nmap.org/book/man-legal.html">Nmap licenc 
       részletek</ulink> nem hivatalos magyar fordítása. Ezt nem az Insecure.Com LLC 
       készítette és nem tartalmazza az Nmap hivatalos terjesztési irányelveit. 
       Ezeket kizárólag az eredeti angol nyelvű szöveg tartalmazza. Azonban reméljük, 

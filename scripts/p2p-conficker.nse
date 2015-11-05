@@ -86,7 +86,7 @@ who contributed!
 
 author = "Ron Bowes (with research from Symantec Security Response)"
 copyright = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default","safe"}
 
 

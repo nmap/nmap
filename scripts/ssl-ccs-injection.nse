@@ -7,7 +7,7 @@ local vulns = require('vulns')
 local have_tls, tls = pcall(require,'tls')
 
 assert(have_tls,
-  "This script requires tls.lua from http://nmap.org/nsedoc/lib/tls.html")
+  "This script requires tls.lua from https://nmap.org/nsedoc/lib/tls.html")
 
 description = [[
 Detects whether a server is vulnerable to the SSL/TLS "CCS Injection"
@@ -67,7 +67,7 @@ the server is vulnerable.
 -- |_      http://www.openssl.org/news/secadv_20140605.txt
 
 author = "Claudiu Perta <claudiu.perta@gmail.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "safe" }
 
 

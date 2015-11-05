@@ -22,7 +22,7 @@ third-party entities.
 
 categories = {"discovery", "safe"}
 author = "George Chatzisofroniou"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 local shortport = require "shortport"
 local stdnse = require "stdnse"

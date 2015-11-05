@@ -2,7 +2,7 @@
 -- Library methods for handling LDAP.
 --
 -- @author Patrik Karlsson
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- Credit goes out to Martin Swende who provided me with the initial code that got me started writing this.
 --

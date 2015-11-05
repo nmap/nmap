@@ -23,7 +23,7 @@ sent, so the difference includes at least the duration of one RTT.
 
 author = "David Fifield"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 

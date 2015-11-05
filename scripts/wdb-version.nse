@@ -38,7 +38,7 @@ http://www.kb.cert.org/vuls/id/362332
 -- <elem key="Boot line">lanswitchCmm:</elem>
 
 author = "Daniel Miller"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 -- may also be "safe", but need testing to determine
 categories = {"default", "version", "discovery", "vuln"}
 

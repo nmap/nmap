@@ -588,7 +588,7 @@ nmap -v -iR 10000 -P0 -p 80
           <term>
             <option>-sI &lt;zombie host[:probeport]></option>(Scan passif -- idlescan)</term>
           <listitem>
-            <para>Cette méthode de scan avancé permet de faire un véritable scan de port TCP en aveugle, (dans le sens où aucun paquet n'est envoyé directement à la cible depuis votre vraie adresse IP). En effet, la technique employée consiste à récolter des informations sur les ports ouverts de la cible en utilisant un exploit basé sur la prédictibilité de la génération des identifiants de fragmentation IP de l'hôte relais (le zombie). Les systèmes IDS considéreront que le scan provient de la machine zombie que vous avez spécifié (qui doit remplir certains critères). Le mécanisme de cette incroyable technique est trop complexe pour être expliqué en détail dans ce guide; un papier informel a été posté pour rendre compte de tous ces détails:<ulink url="http://nmap.org/book/idlescan.html" />.</para>
+            <para>Cette méthode de scan avancé permet de faire un véritable scan de port TCP en aveugle, (dans le sens où aucun paquet n'est envoyé directement à la cible depuis votre vraie adresse IP). En effet, la technique employée consiste à récolter des informations sur les ports ouverts de la cible en utilisant un exploit basé sur la prédictibilité de la génération des identifiants de fragmentation IP de l'hôte relais (le zombie). Les systèmes IDS considéreront que le scan provient de la machine zombie que vous avez spécifié (qui doit remplir certains critères). Le mécanisme de cette incroyable technique est trop complexe pour être expliqué en détail dans ce guide; un papier informel a été posté pour rendre compte de tous ces détails:<ulink url="https://nmap.org/book/idlescan.html" />.</para>
             <para>En plus de son incroyable furtivité (en raison du caractère aveugle de la technique), ce type de scan permet de déterminer les relations de confiance entre les machines. La liste des ports ouverts est établie <emphasis>du point de vue de l'hôte zombie.</emphasis> Ainsi, vous pouvez essayer de scanner une cible en utilisant différents zombies pour lesquels vous pensez qu'il existe une relation de confiance entre eux et la cible (d'après les règles des dispositifs de filtrage).</para>
             <para>Vous pouvez ajouter les deux points (:) suivis d'un numéro de port de l'hôte zombie si vous souhaitez tester les changements d'identifiants IP sur un port particulier du zombie. Par défaut, Nmap utilisera le port utilisé pour les pings tcp (le port 80).</para>
           </listitem>
@@ -1521,7 +1521,7 @@ le temps supplémentaire que cela suppose.</para>
   les paquets envoyés aux hôtes cibles.  Comme virtuellement toutes  
   les piles IP des hôtes rejettent ces paquets, toute réponse recue 
   doivent venir d'un pare-feu ou d'un IDS qui ne se préoccuppe pas de 
-  vérifier les sommes de contrôle.  Pour plus de détails sur cette technique, voir <ulink url="http://nmap.org/p60-12.txt" />
+  vérifier les sommes de contrôle.  Pour plus de détails sur cette technique, voir <ulink url="https://nmap.org/p60-12.txt" />
             </para>
           </listitem>
         </varlistentry>

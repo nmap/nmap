@@ -21,7 +21,7 @@ Wakes a remote system up from sleep by sending a Wake-On-Lan packet.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 local MAC = stdnse.get_script_args("broadcast-wake-on-lan.MAC")

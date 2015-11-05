@@ -16,7 +16,7 @@ Attempts to extract system information from the point-to-point tunneling protoco
 
 author = "Thomas Buchanan"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 

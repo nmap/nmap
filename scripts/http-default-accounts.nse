@@ -56,7 +56,7 @@ This script was based on http-enum.
 ---
 
 author = "Paulino Calderon <calderon@websec.mx>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "auth", "intrusive"}
 
 portrule = shortport.http

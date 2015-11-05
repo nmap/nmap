@@ -22,7 +22,7 @@ command packet and parses the response.
 
 author = "Patrik Karlsson"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery", "version"}
 

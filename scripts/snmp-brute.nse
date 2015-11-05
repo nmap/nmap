@@ -52,7 +52,7 @@ No output is reported if no valid account is found.
 
 author = "Philip Pickering, Gorjan Petrovski, Patrik Karlsson, Gioacchino Mazzurco"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 

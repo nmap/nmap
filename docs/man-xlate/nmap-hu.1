@@ -113,9 +113,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .\}
 .PP
 Az Nmap legújabb változata a
-\m[blue]\fB\%http://nmap.org\fR\m[]
+\m[blue]\fB\%https://nmap.org\fR\m[]
 címről tölthető le\&. A legfrissebb kézikönyv a
-\m[blue]\fB\%http://nmap.org/man/\fR\m[]
+\m[blue]\fB\%https://nmap.org/man/\fR\m[]
 címről tölthető le\&.
 .SH "MEGJEGYZéS A FORDíTáSHOZ"
 .PP
@@ -128,7 +128,7 @@ alapján szabadon módosítható és terjeszthető\&.
 .SH "PARAMéTER öSSZEFOGLALó"
 .PP
 Ez az összefoglaló akkor jelenik meg, amikor az Nmap programot paraméterek nélkül indítjuk el\&. A legfrissebb változata a
-\m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]
 címen érhető el\&. Ez a lista segít emlékezni a legáltalánosabb paraméterekre, de nem helyettesíti az útmutatóban található részletes dokumentációt\&. Néhány rejtett paraméter szintén nem található meg ebben a listában\&.
 .PP
 .if n \{\
@@ -765,7 +765,7 @@ nyitott|szűrt
 \fB\-sI <zombi állomás[:próbakapu]>\fR (Üresjárati letapogatás) .\" -sI .\" Üresjárati letapogatás
 .RS 4
 Ez a fejlett eljárás egy igazi vakon végzett TCP letapogatást hajt végre a célállomáson (ez azt jelenti, hogy a saját IP címéről semmilyen csomag nem lesz elküldve a célállomásra)\&. Ehelyett kihasználjuk azt, hogy a zombi gépen megjósolható az IP töredezettségmező sorszámgenerátorának következő értéke és ezzel az oldaltámadással szerzünk információt a célgépen lévő nyitott kapukról\&. A behatolásérzékelő rendszerek úgy látják majd, hogy a letapogatás a zombi állomás felől érkezett (melynek élőnek kell lennie és meg kell felelnie bizonyos követelményeknek)\&. Ez az elbűvölő letapogatás túl bonyolult ahhoz, hogy ebben a leírásban részletesen is foglalkozhassunk vele, ezért írtam egy részletes leírást róla, mely a
-\m[blue]\fB\%http://nmap.org/idlescan.html\fR\m[]
+\m[blue]\fB\%https://nmap.org/idlescan.html\fR\m[]
 címen olvasható\&.
 .sp
 Amellett, hogy különösen rejtett, ezzel a letapogatással kihasználható a gépek közötti, IP alapú bizalmi viszony\&. A nyitott kapuk ebben az esetben
@@ -896,7 +896,7 @@ nyitott|szűrt
 TCP kapukat hasonló módon kezeli\&. Jegyezze meg, hogy az Nmap
 \fB\-A\fR
 paramétere más dolgok mellett a változat érzékelést is engedélyezi\&. A változat érzékelés működéséről, használatáról és paraméterezéséről a
-\m[blue]\fB\%http://nmap.org/vscan/\fR\m[]
+\m[blue]\fB\%https://nmap.org/vscan/\fR\m[]
 címen talál részletes leírást\&.
 .PP
 Ha az Nmap kap ugyan választ egy szolgáltatástól, de az adatbázis alapján nem tudja azonosítani, kinyomtat egy különleges ujjlenyomatot és egy URL\-t\&. Ha biztos abban, hogy milyen szolgáltatás fut az adott kapun, a megadott címen az ujjlenyomat segítségével megadhatja a szolgáltatás típusát\&. Szánjon erre pár percet, hogy mindenki élvezhesse az Ön felfedezésének eredményét\&. Ezeknek az adatoknak köszönhetően az Nmap kb\&. 3000 mintát ismer több, mint 350 protokollhoz\&.
@@ -979,7 +979,7 @@ paraméter mellett használja, az IP ID sorszám előállításról is jelentés
 osztályba tartozik, ami azt jelenti, hogy minden egyes elküldött csomagnál növelik az IP fejléc ID mezőjének értékét\&. Ez sebezhetővé teszi őket néhány fejlett információ gyűjtési és megtévesztési támadással szemben\&.
 .PP
 Az operációs rendszer érzékelésének működésével, használatával és testreszabásával kapcsolatban a
-\m[blue]\fB\%http://nmap.org/osdetect/\fR\m[]
+\m[blue]\fB\%https://nmap.org/osdetect/\fR\m[]
 címen talál egy leírást\&.
 .PP
 Az operációs rendszer érzékelése és vezérlése a következő paraméterekkel lehetséges:
@@ -1018,7 +1018,7 @@ Amikor az Nmap operációs rendszer érzékelést végez egy célponton és nem 
 Az Nmap parancsfájl motor (NSE) egyesíti az Nmap hatékony hálózatkezelését a
 \m[blue]\fBLua\fR\m[]\&\s-2\u[8]\d\s+2
 könnyűsúlyú parancsnyelv sokoldalúságával, így kínálva számtalan lehetőséget\&. A
-\m[blue]\fB\%http://nmap.org/nse/\fR\m[]
+\m[blue]\fB\%https://nmap.org/nse/\fR\m[]
 címen bőséges dokumentációt talál az NSE\-ről (beleértve a programozói felületet is)\&. Az NSE célja, hogy hatékony környezetet biztosítson az Nmap képességeinek kiterjesztéséhez és a felhasználók számára egyszerűbbé tegye testreszabott tesztek létrehozását\&. Az NSE felhasználási területei:
 .PP
 \fIKiterjesztett változat érzékelés\fR
@@ -1065,7 +1065,7 @@ vagy
 ssl), a kapu mögött futó szolgáltatás nevéhez és feltételesen a változat érzékeléssel megszerzett információkhoz\&. Az NSE parancsfájlok hagyományosan rendelkeznek egy
 nse
 kiterjesztéssel\&. Bár jelenleg nem szükséges követnie ezt a szokást, ez a jövőben változhat\&. Az Nmap figyelmeztetni fogja, ha egy fájlnak más a kiterjesztése\&. Az NSE\-ről további bőséges dokumentációt találhat (beleértve a programozói felület leírását) a
-\m[blue]\fB\%http://nmap.org/nse/\fR\m[]
+\m[blue]\fB\%https://nmap.org/nse/\fR\m[]
 címen\&.
 .PP
 \fB\-sC\fR .\" -sC
@@ -1494,7 +1494,7 @@ Cisco\&.
 \fB\-\-badsum\fR (Csomagok küldése hamis TCP/UDP ellenőrző összeggel) .\" --badsum
 .RS 4
 Az Nmap a csomagokat hamis TCP vagy UDP ellenőrző összeggel fogja elküldeni a célpont felé\&. Mivel elméletileg minden állomás IP verme az ilyen csomagokat helyesen eldobja, ezért bármilyen válasz tűzfalra vagy IDS rendszerre utal, melyek nem foglalkoznak az ellenőrző összeg vizsgálatával\&. További részletek erről a technikáról a
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 címen\&.
 .RE
 .SH "KIMENET"
@@ -1594,7 +1594,7 @@ interaktív kimenettől\&.
 Ezzel a kéréssel az
 XML kimenet
 a megadott nevű fájlba lesz átirányítva\&. Az Nmap a fájlhoz hozzáfűz egy dokumentum típusmeghatározást si (DTD), így az XML feldolgozók ellenőrizhetik az Nmap XML kimenetét\&. Bár ez elsősorban programbeli felhasználásra készült, de segítséget nyújt az embereknek is az Nmap XML kimenetének értelmezésében\&. A DTD leírja a formátum érvényes elemeit és gyakran felsorolja a tulajdonságokat és azok értékeit is\&. A legfrissebb változat mindig megtalálható a
-\m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]
 címen\&.
 .sp
 XML egy stabil formátumot kínál, mely programból könnyen feldolgozható\&. Ingyenes XML feldolgozók az összes nagyobb programozási nyelvhez elérhetők, beleértve a C/C++, Perl, Python és Java nyelveket\&. Az Nmap kimenetének feldolgozására és működésének vezérlésére a legtöbb nyelvhez már készültek kapcsolódó munkák\&. Perl CPAN példák találhatók a
@@ -1767,7 +1767,7 @@ nmap\&.xsl
 fájlt és megjeleníti az eredményeket\&. Ha más stíluslapot akar használni, adja meg azt a
 \fB\-\-stylesheet\fR
 kapcsoló után\&. A teljes útvonalat vagy címet meg kell adnia\&. Egy megszokott hivatkozás a
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&. Ez arra utasítja a böngészőt, hogy az Insecure\&.org címről töltse be a legfrissebb stíluslapot\&. A
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&. Ez arra utasítja a böngészőt, hogy az Insecure\&.org címről töltse be a legfrissebb stíluslapot\&. A
 \fB\-\-webxml\fR
 paraméterrel ugyanezt a hatást érheti el, csak kevesebbet kell gépelni és megjegyezni\&. Az Insecure\&.org címről letöltött stíluslap segítségével olyan gépen is megtekintheti az eredményeket, melyen nincs telepítve az Nmap (és így az
 nmap\&.xsl
@@ -1779,7 +1779,7 @@ használata\&.
 \fB\-\-webxml\fR (Stíluslap betöltése az Insecure\&.Org oldalról) .\" --webxml
 .RS 4
 Ez egy kényelmesebb megvalósítása a
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR
 kapcsolónak\&.
 .RE
 .PP
@@ -1986,7 +1986,7 @@ Visszhang próbák nélkül letapogat 4096 IP címet webkiszolgáló után kutat
 .SH "HIBáK"
 .PP
 Akárcsak a program készítője, az Nmap sem tökéletes\&. De segíthet jobbá tenni, ha elküldi a felfedezett hibák leírását, vagy javítást készít hozzájuk\&. Ha az Nmap nem az elvárásai szerint működik, először mindig szerezze be a legfrissebb változatot a
-\m[blue]\fB\%http://nmap.org\fR\m[]
+\m[blue]\fB\%https://nmap.org\fR\m[]
 címről\&. Ha a probléma továbbra is fennáll, nézzen utána, hogy felfedezték\-e már mások is\&. Keressen rá a Google\-ban a hibaüzenetre vagy böngéssze át az Nmap fejlesztői listát a
 \m[blue]\fB\%http://seclists.org/\fR\m[]
 címen\&. Olvassa végig ezt a leírást is\&. Ha nem talál semmit, küldjön egy hibajelentést az
@@ -1994,7 +1994,7 @@ címen\&. Olvassa végig ezt a leírást is\&. Ha nem talál semmit, küldjön e
 címre\&. Írjon le mindent, amit a hibával kapcsolatban tapasztalt\&. Adja meg pontosan a használt Nmap változatot és a futtató operációs rendszer változatát is\&. Az dev@nmap\&.org címre küldött hibajelzések és az Nmap használatával kapcsolatos kérdések valószínűleg gyorsabban megválaszolásra kerülnek, mintha azokat közvetlenül a program készítőjének (Fyodor) küldené\&.
 .PP
 A hibajavítások sokkal hasznosabbak, mint a hibajelentések\&. A hibajavítások elkészítésével kapcsolatban tanácsokat kaphat a
-\m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]
 címen\&. A hibajavítások elküldhetők az nmap\-dev listára (ez a javasolt), vagy közvetlenül a készítőnek is\&.
 .SH "SZERZő"
 .PP
@@ -2005,7 +2005,7 @@ Fyodor
 Az évek során emberek százai járultak hozzá értékes munkájukkal az Nmap programhoz\&. Ezek részletezése megtalálható a
 CHANGELOG
 fájlban, mely az Nmap program terjesztése mellett elérhető a
-\m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]
 címen is\&.
 .SH "JOGI NYILATKOZAT"
 .SS "Nmap szerzői jog és licenc.\" szerzői jog .\" licenc .\" GNU GPL"
@@ -2080,7 +2080,7 @@ Kapcsolódik olyan programkönyvtárhoz, vagy futtat olyan programot mely az el�
 Az
 \(lqNmap\(rq
 kifejezés felhasználható az Nmap programból származtatott munkák bármely részére\&. A fenti lista nem kizárólagos, csak néhány példán keresztül megpróbálja tisztázni az Nmap készítőinek értelmezését a származtatott munkákkal kapcsolatban\&. Ezek a korlátozások kizárólag akkor érvényesek, ha Ön valójában továbbértékesíti az Nmap programot\&. Például semmi nem tiltja, hogy Ön kezelő felületet készítsen az Nmap programhoz és azt üzleti céllal forgalmazza\&. Terjessze a programot önállóan és hívja fel a felhasználók figyelmét, hogy az Nmap programot külön kell letölteniük a
-\m[blue]\fB\%http://nmap.org\fR\m[]
+\m[blue]\fB\%https://nmap.org\fR\m[]
 címről\&.
 .PP
 A program készítői nem gondolják, hogy a fentiek további korlátozásokat adnának a GPL\-hez, kizárólag annak tisztázására szolgálnak, hogyan értelmezik a
@@ -2161,7 +2161,7 @@ USA export korlátozás: az Insecure\&.Com LLC úgy véli, hogy az Nmap a US ECC
 .IP " 1." 4
 eredeti angol változat
 .RS 4
-\%http://nmap.org/book/man.html
+\%https://nmap.org/book/man.html
 .RE
 .IP " 2." 4
 Creative Commons Attribution License
@@ -2216,7 +2216,7 @@ Nmap::Parser
 .IP "12." 4
 Nmap license details
 .RS 4
-\%http://nmap.org/book/man-legal.html
+\%https://nmap.org/book/man-legal.html
 .RE
 .IP "13." 4
 Apache Software Foundation

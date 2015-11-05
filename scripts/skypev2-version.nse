@@ -14,7 +14,7 @@ Detects the Skype version 2 service.
 -- 80/tcp open  skype2  Skype
 
 author = "Brandon Enright"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 

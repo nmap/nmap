@@ -48,7 +48,7 @@ get more information.
 -- Revised 10/29/2010 - v0.7 - factored out most of the code to dnssd library
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 

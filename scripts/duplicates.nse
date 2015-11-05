@@ -52,7 +52,7 @@ script to analyze the data.
 --   was for a particular information source.
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe"}
 dependencies = {"ssl-cert", "ssh-hostkey", "nbstat"}
 

@@ -36,7 +36,7 @@ servers (this bug was fixed in Oracle's October 2009 Critical Patch Update).
 -- Revised 21/07/2010 - v0.3 - removed references to smb in get_random_string
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
 

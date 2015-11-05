@@ -2,7 +2,7 @@
 -- Base64 encoding and decoding. Follows RFC 4648.
 --
 -- @author Philip Pickering <pgpickering@gmail.com>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- thanks to Patrick Donnelly for some optimizations
 

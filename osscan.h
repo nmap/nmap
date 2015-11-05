@@ -1,7 +1,7 @@
 /***************************************************************************
  * osscan.h -- Routines used for OS detection via TCP/IP fingerprinting.   *
  * For more information on how this works in Nmap, see my paper at         *
- * http://nmap.org/osdetect/                                               *
+ * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

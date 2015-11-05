@@ -29,7 +29,7 @@ Denial of Service Vulnerability (CVE-2014-2129).
 -- |_      http://cvedetails.com/cve/2014-2129/
 
 author = "Patrik Karlsson <patrik@cqure.net>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = function(host, port)

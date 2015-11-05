@@ -30,7 +30,7 @@ anonymous identity if no argument is passed.
 -- @args eap-info.timeout Maximum time allowed for the scan (default 10s). Methods not tested because of timeout will be listed as "unknown".
 
 author = "Riccardo Cecolin"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = { "broadcast", "safe" }
 

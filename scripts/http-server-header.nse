@@ -28,7 +28,7 @@ correctly.
 --</table>
 
 author = "Daniel Miller"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 portrule = function(host, port)

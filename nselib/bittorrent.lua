@@ -20,7 +20,7 @@
 -- <code>torrent.nodes</code> tables respectively
 --
 -- @author "Gorjan Petrovski"
--- @license "Same as Nmap--See http://nmap.org/book/man-legal.html"
+-- @license "Same as Nmap--See https://nmap.org/book/man-legal.html"
 --
 
 -- The usage of the library would be first to initialize a new Torrent

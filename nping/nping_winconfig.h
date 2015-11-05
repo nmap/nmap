@@ -133,7 +133,7 @@
 
 //#ifndef NPING_NAME
 //	#define NPING_NAME "Nmap"
-//	#define NPING_URL "http://nmap.org"
+//	#define NPING_URL "https://nmap.org"
 //#endif
 
 #ifdef NPING_PLATFORM

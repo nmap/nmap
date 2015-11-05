@@ -24,7 +24,7 @@ Attempts to use the Service Location Protocol to discover Novell NetWare Core Pr
 -- Created 04/26/2011 - v0.1 - created by Patrik Karlsson
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 

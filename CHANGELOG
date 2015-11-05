@@ -319,7 +319,7 @@ o All nmap.org pages are now available SSL-secured to improve privacy
   binaries as well: https://nmap.org/book/install.html#inst-integrity
 
 o [NSE] Added 25 NSE scripts from 17 authors, bringing the total up to 494!
-  They are all listed at http://nmap.org/nsedoc/, and the summaries are below
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
 
   + bacnet-info gets device information from SCADA/ICS devices via BACnet
@@ -648,7 +648,7 @@ o [NSE] Convert many more scripts to emit structured XML output
   (https://nmap.org/book/nse-api.html#nse-structured-output) [Daniel Miller]
 
 o [NSE] Added 24 NSE scripts from 12 authors, bringing the total up to 470.
-  They are all listed at http://nmap.org/nsedoc/, and the summaries are
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are
   below (authors are listed in brackets):
 
   + allseeingeye-info gathers information from games using this query protocol.
@@ -823,7 +823,7 @@ Nmap 6.40 [2013-07-29]
 o [Ncat] Added --lua-exec. This feature is basically the equivalent of 'ncat
   --sh-exec "lua <scriptname>"' and allows you to run Lua scripts with Ncat,
   redirecting all stdin and stdout operations to the socket connection. See
-  http://nmap.org/book/ncat-man-command-options.html [Jacek Wielemborek]
+  https://nmap.org/book/ncat-man-command-options.html [Jacek Wielemborek]
 
 o Integrated all of your IPv4 OS fingerprint submissions since January
   (1,300 of them). Added 91 fingerprints, bringing the new total to 4,118.
@@ -840,7 +840,7 @@ o Integrated all of your service/version detection fingerprints submitted
 
 o Integrated your latest IPv6 OS submissions and corrections. We're still
   low on IPv6 fingerprints, so please scan any IPv6 systems you own or
-  administer and submit them to http://nmap.org/submit/.  Both new
+  administer and submit them to https://nmap.org/submit/.  Both new
   fingerprints (if Nmap doesn't find a good match) and corrections (if Nmap
   guesses wrong) are useful. [David Fifield]
 
@@ -854,7 +854,7 @@ o [Nsock] Added initial proxy support to Nsock. Nmap version detection
   described in the man page. [Henri Doreau]
 
 o [NSE] Added 14 NSE scripts from 6 authors, bringing the total up to 446.
-  They are all listed at http://nmap.org/nsedoc/, and the summaries are
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are
   below (authors are listed in brackets):
 
   + hostmap-ip2hosts finds hostnames that resolve to the target's IP address
@@ -1197,7 +1197,7 @@ o Integrated all of your service/version detection fingerprints
 
 o Integrated your latest IPv6 OS submissions and corrections. We're
   still low on IPv6 fingerprints, so please scan any IPv6 systems you
-  own or administer and submit them to http://nmap.org/submit/.  Both
+  own or administer and submit them to https://nmap.org/submit/.  Both
   new fingerprints (if Nmap doesn't find a good match) and corrections
   (if Nmap guesses wrong) are useful.
 
@@ -1209,7 +1209,7 @@ o Scripts can now return a structured name-value table so that results
   are query-able from XML output. Scripts can return a string as
   before, or a table, or a table and a string. In this last case, the
   table will go to XML output and the string will go to screen output.
-  See http://nmap.org/book/nse-api.html#nse-structured-output [Daniel
+  See https://nmap.org/book/nse-api.html#nse-structured-output [Daniel
   Miller, David Fifield, Patrick Donnelly]
 
 o [Nsock] Added new poll and kqueue I/O engines for improved
@@ -1228,7 +1228,7 @@ o Moved some Windows dependencies, including OpenSSL, libsvn, and the
   reduces the bandwidth and storage required for an svn checkout.
   Folks who build Nmap on Windows will need to check out
   /nmap-mswin32-aux along with /nmap as described at
-  http://nmap.org/book/inst-windows.html#inst-win-source.
+  https://nmap.org/book/inst-windows.html#inst-win-source.
 
 o Many of the great features in this release were created by college
   and grad students generously sponsored by Google's Summer of Code
@@ -1248,7 +1248,7 @@ o Updated our Nmap Scripting Engine to use Lua 5.2 (and then 5.2.1)
   details. [Patrick Donnelly]
 
 o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
-  are all listed at http://nmap.org/nsedoc/, and the summaries are
+  are all listed at https://nmap.org/nsedoc/, and the summaries are
   below (authors are listed in brackets):
 
   + ajp-auth retrieves the authentication scheme and realm of an AJP
@@ -1941,7 +1941,7 @@ Nmap 6.00 [2012-05-21]
 
 o Most important release since Nmap 5.00 in July 2009! For a list of
   the most significant improvements and new features, see the
-  announcement at: http://nmap.org/6
+  announcement at: https://nmap.org/6
 
 o In XML output, "osclass" elements are now child elements of the
   "osmatch" they belong to. Old output was thus:
@@ -2049,7 +2049,7 @@ o Integrated all of your service/version detection fingerprints
 
 o Integrated your latest IPv6 OS submissions and corrections. We're
   still low on IPv6 fingerprints, so please scan any IPv6 systems you
-  own or administer and submit them to http://nmap.org/submit/.  Both
+  own or administer and submit them to https://nmap.org/submit/.  Both
   new fingerprints (if Nmap doesn't find a good match) and corrections
   (if Nmap guesses wrong) are useful.
 
@@ -2058,7 +2058,7 @@ o [NSE] Added a host-based registry which only persists (for the given
   registry saves information until it is deleted or the Nmap scan
   ends. That is a waste of memory for information which doesn't need
   to persist that long. Use the host based registry instead if you
-  can. See http://nmap.org/book/nse-api.html#nse-api-registry. [Patrik
+  can. See https://nmap.org/book/nse-api.html#nse-api-registry. [Patrik
   Karlsson]
 
 o IPv6 OS detection now includes a novelty detection system which
@@ -2076,7 +2076,7 @@ o Refactored the nsock library to add the nsock-engines system. This
   specific Nsock IO engine. [Henri Doreau]
 
 o [NSE] Added 43(!) NSE scripts, bringing the total up to 340.  They
-  are all listed at http://nmap.org/nsedoc/, and the summaries are
+  are all listed at https://nmap.org/nsedoc/, and the summaries are
   below (authors are listed in brackets):
 
   + acarsd-info retrieves information from a listening acarsd
@@ -2261,7 +2261,7 @@ o CPE (Common Platform Enumeration) OS classification is now supported
 
 o [NSE] The host.os table is now a structured array of table that
   include OS class information and CPE. See
-  http://nmap.org/book/nse-api.html for documentation of the new
+  https://nmap.org/book/nse-api.html for documentation of the new
   structure. [Henri Doreau, David]
 
 o [NSE] Service matches can now access CPE through the
@@ -2400,14 +2400,14 @@ o [NSE] Added a new httpspider library which is used for recursively
   crawling web sites for information.  New scripts using this
   functionality include http-backup-finder, http-email-harvest,
   http-grep, http-open-redirect, and http-unsafe-output-escaping. See
-  http://nmap.org/nsedoc/ or the list later in this file for details
+  https://nmap.org/nsedoc/ or the list later in this file for details
   on these. [Patrik]
 
 o Our Mac OS X packages are now x86-only (rather than universal),
   reducing the download size from 30 MB to about 17.  If you still
   need a PowerPC version (Apple stopped selling those machines in
   2006), you can use Nmap 5.51 or 5.61TEST2 from
-  http://nmap.org/dist/?C=M&O=D.
+  https://nmap.org/dist/?C=M&O=D.
 
 o We set up a new SVN server for the Nmap codebase.  This one uses SSL
   for better security, WebDAV rather than svnserve for greater
@@ -2433,11 +2433,11 @@ o [NSE] Added a new script force feature.  You can force scripts to
   run against target ports (even if the "wrong" service is detected)
   by placing a plus in front of the script name passed to --script.
   See
-  http://nmap.org/book/nse-usage.html#nse-script-selection. [Martin
+  https://nmap.org/book/nse-usage.html#nse-script-selection. [Martin
   Swende]
 
 o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
-  are all listed at http://nmap.org/nsedoc/, and the summaries are
+  are all listed at https://nmap.org/nsedoc/, and the summaries are
   below (authors listed in brackets):
 
   + amqp-info gathers information (a list of all server properties)
@@ -2805,11 +2805,11 @@ o Added IPv6 OS detection system! The new system utilizes many tests
   you are certain that you know what the target system is
   running). Usage and results output are basically the same as with
   IPv4, but we will soon document the internal mechanisms at
-  http://nmap.org/book/osdetect.html, just as we have for IPv4. For an
+  https://nmap.org/book/osdetect.html, just as we have for IPv4. For an
   example, try "nmap -6 -O scanme.nmap.org". [David, Luis]
 
 o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
-  more about them at http://nmap.org/nsedoc/. Here they are (authors
+  more about them at https://nmap.org/nsedoc/. Here they are (authors
   listed in brackets):
 
   + lltd-discovery uses the Microsoft LLTD protocol to discover hosts
@@ -2824,7 +2824,7 @@ o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
 o Improved AIX support for raw scans. This includes some patches
   originally written by Peter O'Gorman and Florian Schmid. It also
   involved various build fixes found necessary on AIX 6.1 and 7.1. See
-  http://nmap.org/book/inst-other-platforms.html . [David]
+  https://nmap.org/book/inst-other-platforms.html . [David]
 
 o Fixed Nmap so that it again compiles and runs on Solaris 10,
   including IPv6 support. [David]
@@ -2833,7 +2833,7 @@ o [NSE] Moved our brute force authentication cracking scripts
   (*-brute) from the "auth" category into a new "brute"
   category. Nmap's brute force capabilities have grown tremendously!
   You can see all 32 of them at
-  http://nmap.org/nsedoc/categories/brute.html .  It isn't clear
+  https://nmap.org/nsedoc/categories/brute.html .  It isn't clear
   whether dns-brute should be in the brute category, so for now it
   isn't. [Fyodor]
 
@@ -2880,7 +2880,7 @@ o Integrated your latest (IPv4) OS detection submissions and
   guess wrong.
 
 o [NSE] Added 27 scripts, bringing the total to 243!  You can learn
-  more about any of them at http://nmap.org/nsedoc/. Here are the new
+  more about any of them at https://nmap.org/nsedoc/. Here are the new
   ones (authors listed in brackets):
 
   + address-info shows extra information about IPv6 addresses, such as
@@ -3046,7 +3046,7 @@ o [NSE] Fixed a bug in the ssh2-enum-algos script that would prevent it from
   displaying any output unless run in debug mode. [Patrik]
 
 o [NSE] Added 4 more protocol libraries. You can learn more about any
-  of them at http://nmap.org/nsedoc/. Here are the new ones (authors
+  of them at https://nmap.org/nsedoc/. Here are the new ones (authors
   listed in brackets):
 
   + bittorrent supports the BitTorrent file sharing protocol [Gorjan
@@ -3225,7 +3225,7 @@ o [NSE] Renamed http-wp-plugins to http-wordpress-plugins script for
 Nmap 5.59BETA1 [2011-06-30]
 
 o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
-  more about any of them at http://nmap.org/nsedoc/. Here are the new
+  more about any of them at https://nmap.org/nsedoc/. Here are the new
   ones (authors listed in brackets):
 
   + afp-ls: Lists files and their attributes from Apple Filing
@@ -3419,7 +3419,7 @@ o Nmap now determines the filesystem location it is being run from and
   (such as nmap-services).  This reduces the likelihood of needing to
   specify --datadir or getting data files from a different version of
   Nmap installed on the system.  For full details, see
-  http://nmap.org/book/data-files-replacing-data-files.html .  Thanks
+  https://nmap.org/book/data-files-replacing-data-files.html .  Thanks
   to Solar Designer for implementation advice. [David]
 
 o Created a page on our SecWiki for collecting Nmap script ideas! If
@@ -3434,7 +3434,7 @@ o The development pace has greatly increased because Google (again)
   the team: http://seclists.org/nmap-dev/2011/q2/312
 
 o [NSE] Added 7 new protocol libraries, bringing the total to 66.  You
-  can read about them all at http://nmap.org/nsedoc/. Here are the new
+  can read about them all at https://nmap.org/nsedoc/. Here are the new
   ones (authors listed in brackets):
 
   + creds: Handles storage and retrieval of discovered credentials
@@ -3501,7 +3501,7 @@ o [NSE] Added a credential storage library (creds.lua) and modified
 o [Ncat] Created a portable version of ncat.exe that you can just drop
   onto Microsoft Windows systems without having to run any installer
   or copy over extra library files. See the Ncat page
-  (http://nmap.org/ncat/) for binary downloads and a link to build
+  (https://nmap.org/ncat/) for binary downloads and a link to build
   instructions. [Shinnok]
 
 o Fix a segmentation fault which could occur when running Nmap on
@@ -3679,10 +3679,10 @@ o [Nping] Added echo mode, a novel technique for discovering how your
   try it out against our public Nping echo server using this command:
     nping --echo-client "public" echo.nmap.org'
   Or learn more about echo mode at
-  http://nmap.org/book/nping-man-echo-mode.html . [Luis]
+  https://nmap.org/book/nping-man-echo-mode.html . [Luis]
 
 o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
-  can learn more about any of them at http://nmap.org/nsedoc/. Here
+  can learn more about any of them at https://nmap.org/nsedoc/. Here
   are the new ones (authors listed in brackets):
 
   + broadcast-dns-service-discovery: Attempts to discover hosts'
@@ -3916,7 +3916,7 @@ o [NSE] Nmap has two new NSE script scanning phases. The new pre-scan
   different way. One idea is a reverse index which provides a list of
   services discovered during a network scan, along with a list of IPs
   found to be running each service. See
-  http://nmap.org/book/nse-usage.html#nse-script-types. [Djalal]
+  https://nmap.org/book/nse-usage.html#nse-script-types. [Djalal]
 
 o [NSE] A new --script-help option describes all scripts matching a
   given specification. It accepts the same specification format as
@@ -3937,8 +3937,8 @@ o Dramatically improved nmap.xsl (used for converting Nmap XML output
     closed/filtered ports are shown or not (they are now hidden by
     default if Javascript is enabled).
   Many smaller improvements were made as well. You can find the new
-  file at http://nmap.org/svn/docs/nmap.xsl, and here is an example
-  scan processed through it: http://nmap.org/tmp/newxsl.html . [Tom]
+  file at https://nmap.org/svn/docs/nmap.xsl, and here is an example
+  scan processed through it: https://nmap.org/tmp/newxsl.html . [Tom]
 
 o [NSE] Created a new "broadcast" script category for the broadcast-*
   scripts.  These perform network discovery by broadcasting on the
@@ -3963,7 +3963,7 @@ o XML output now excludes output for down hosts when only doing host
 o Updated the Windows build process to work with (and require) Visual
   C++ 2010 rather than 2008.  If you want to build Zenmap too, you now
   need Python 2.7 (rather than 2.6) and GTK+ 2.22. See
-  http://nmap.org/book/inst-windows.html#inst-win-source [David, Rob
+  https://nmap.org/book/inst-windows.html#inst-win-source [David, Rob
   Nicholls, KX]
 
 o Merged port names in the nmap-services file with allocated names
@@ -4013,11 +4013,11 @@ o [NSE] Added the ability to send and receive on unconnected sockets.
   unconnected UDP sockets. [David, Patrik]
 
 o [Nping] Substantially improved the Nping man page. You can read it
-  online at http://nmap.org/book/nping-man.html . [Luis, David]
+  online at https://nmap.org/book/nping-man.html . [Luis, David]
 
 o Documented the licenses of the third-party software used by Nmap and
   its sibling tools:
-  http://nmap.org/svn/docs/3rd-party-licenses.txt . [David]
+  https://nmap.org/svn/docs/3rd-party-licenses.txt . [David]
 
 o [NSE] Improved the SMB scripts so that they can run in parallel
   rather than using a mutex to force serialization.  This quadrupled
@@ -4025,7 +4025,7 @@ o [NSE] Improved the SMB scripts so that they can run in parallel
   http://seclists.org/nmap-dev/2010/q3/819. [Ron]
 
 o Added a simple Nmap NSE script template to make writing new scripts
-  easier: http://nmap.org/svn/docs/sample-script.nse. [Ron]
+  easier: https://nmap.org/svn/docs/sample-script.nse. [Ron]
 
 o [Zenmap] Made the topology node radiuses grow logarithmically
   instead of linearly, so that hosts with thousands of open ports
@@ -4035,7 +4035,7 @@ o [Zenmap] Made the topology node radiuses grow logarithmically
 
 o [NSE] Added the get_script_args NSE function for parsing script
   arguments in a clean and standardized way
-  (http://nmap.org/nsedoc/lib/stdnse.html#get_script_args). [Djalal]
+  (https://nmap.org/nsedoc/lib/stdnse.html#get_script_args). [Djalal]
 
 o Increased the initial RTT timeout for ARP scans from 100 ms to 200
   ms. Some wireless and VPN links were taking around 300 ms to
@@ -4259,7 +4259,7 @@ o [NSE] Added 17 scripts, bringing the total to 131! They are
   ms-sql-config, ms-sql-empty-password, ms-sql-hasdbaccess,
   ms-sql-query, ms-sql-tables, ms-sql-xp-cmdshell, nfs-ls,
   ntp-monlist .
-  Learn more about any of these at: http://nmap.org/nsedoc/
+  Learn more about any of these at: https://nmap.org/nsedoc/
 
 o Performed a major OS detection integration run. The database has
   grown to 2,608 fingerprints (an increase of 262) and many of the
@@ -4396,7 +4396,7 @@ o David made many improvements to the NSEDoc for individual scripts,
   He also improved the generated HTML with features like
   auto-generating usage strings if the scripts don't include their own
   and allowing the giant sidebar lists of scripts/libraries to expand
-  and contract.  See http://nmap.org/nsedoc/.
+  and contract.  See https://nmap.org/nsedoc/.
 
 o UDP payloads are now stored in an external data file, nmap-payloads,
   instead of being hard-coded in the executable. This makes it easier
@@ -4439,7 +4439,7 @@ o Nmap now works if you specify several target host names which
   machine. [David]
 
 o Made a list of current Nmap SVN committers:
-  http://nmap.org/svn/docs/committers.txt
+  https://nmap.org/svn/docs/committers.txt
 
 o Added a new library, libnetutil, which contains about 2,700 lines of
   networking related code which is now shared between Nmap and Nping
@@ -4625,7 +4625,7 @@ o Updated IANA IP address space assignment list for random IP (-iR)
 
 o Created a new directory for storing todo lists for Nmap and related
   projects.  You can see what we're working on and planning by
-  visiting http://nmap.org/svn/todo/.
+  visiting https://nmap.org/svn/todo/.
 
 o [NSE] Removed explicit time limit checking from ms-sql-brute,
   pgsql-brute, mysql-brute, ldap-brute, and afp-brute. The unpwdb
@@ -4676,29 +4676,29 @@ o [NSE] Added 37 scripts, bringing the total to 117! They are
   snmp-processes snmp-win32-services snmp-win32-shares
   snmp-win32-software snmp-win32-users ssl-enum-ciphers
   .
-  Learn more about any of these at: http://nmap.org/nsedoc/
+  Learn more about any of these at: https://nmap.org/nsedoc/
 
 o [NSE] New script afp-path-vuln detects and can exploit a major Mac
   OS X AFP directory traversal vulnerability (CVE-2010-0533)
   discovered by Nmap developer Patrik Karlsson. See
-  http://nmap.org/nsedoc/scripts/afp-path-vuln.html and
+  https://nmap.org/nsedoc/scripts/afp-path-vuln.html and
   http://bit.ly/nmapafp.
 
 o An ALPHA TEST VERSION of Nping, a packet generator written by Luis
   MartinGarcia and Fyodor last summer, is now included in the Nmap
   distribution. While it works, we consider the application unfinished
   and we hope to improve it greatly as a Summer of Code project this
-  summer and then do an official release. See http://nmap.org/nping/.
+  summer and then do an official release. See https://nmap.org/nping/.
 
 o [NSE] Added RPC library and three new NFS scripts. Modified the
   rpcinfo and nfs-showmount scripts to use the new library. The new
   scripts are:
   - nfs-acls shows the owner and directory mode of NFS exports
-    (http://nmap.org/nsedoc/scripts/nfs-acls.html).
+    (https://nmap.org/nsedoc/scripts/nfs-acls.html).
   - nfs-dirlist lists the contents of NFS exports
-    (http://nmap.org/nsedoc/scripts/nfs-dirlist.html)
+    (https://nmap.org/nsedoc/scripts/nfs-dirlist.html)
   - nfs-statfs shows file system statistics for NFS exports
-    (http://nmap.org/nsedoc/scripts/nfs-statfs.html).
+    (https://nmap.org/nsedoc/scripts/nfs-statfs.html).
   [Patrik]
 
 o [NSE] Added the new dns-service-discovery script which uses DNS-SD
@@ -4706,16 +4706,16 @@ o [NSE] Added the new dns-service-discovery script which uses DNS-SD
   technologies known by names such as Bonjour, Rendezvous, and
   Zeroconf. This one script can provide as much information as a full
   port scan in some cases. See
-  http://nmap.org/nsedoc/scripts/dns-service-discovery.html . [Patrik
+  https://nmap.org/nsedoc/scripts/dns-service-discovery.html . [Patrik
   Karlsson]
 
 o [NSE] New script afp-brute for brute force authentication attempts
   against the Apple AFP filesharing protocol. See
-  http://nmap.org/nsedoc/scripts/afp-brute.html . [Patrik]
+  https://nmap.org/nsedoc/scripts/afp-brute.html . [Patrik]
 
 o [NSE] Added a new script afp-showmount which displays Apple AFP
   shares and their permissions.  See
-  http://nmap.org/nsedoc/scripts/afp-showmount.html . [Patrik]
+  https://nmap.org/nsedoc/scripts/afp-showmount.html . [Patrik]
 
 o [NSE] Added the qscan script to repeatedly probe ports on a host to
   gather round-trip times for each port. The script then uses these
@@ -4723,66 +4723,66 @@ o [NSE] Added the qscan script to repeatedly probe ports on a host to
   trip times.  Ports in different groups could be the result of things
   such as port forwarding to hosts behind a NAT. It is based on work
   by Doug Hoyte. This script also utilizes the new NSE raw IP sending
-  functionality. See http://nmap.org/nsedoc/scripts/qscan.html . [Kris]
+  functionality. See https://nmap.org/nsedoc/scripts/qscan.html . [Kris]
 
 o [NSE] Added a new script, db2-das-info.nse, that connects to the IBM
   DB2 Administration Server (DAS) exports the server profile. No
   authentication is required for this request. The script will also
   set the port product and version if a version scan is requested. See
-  http://nmap.org/nsedoc/scripts/db2-das-info.html . [Patrik Karlsson,
+  https://nmap.org/nsedoc/scripts/db2-das-info.html . [Patrik Karlsson,
   Tom Sellers]
 
 o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP
   library to make use of it. Added 5 SNMP scripts that use the new
   libraries:
   - snmp-netstat shows listening and connected
-    sockets (http://nmap.org/nsedoc/scripts/snmp-netstat.html).
+    sockets (https://nmap.org/nsedoc/scripts/snmp-netstat.html).
   - snmp-processes shows process information including name, pid, path
-    & parameters (http://nmap.org/nsedoc/scripts/snmp-processes.html).
+    & parameters (https://nmap.org/nsedoc/scripts/snmp-processes.html).
   - snmp-win32-services shows the names of running Windows services
-    (http://nmap.org/nsedoc/scripts/snmp-win32-services.html).
+    (https://nmap.org/nsedoc/scripts/snmp-win32-services.html).
   - snmp-win32-shares shows the names and path of Windows shares
-    (http://nmap.org/nsedoc/scripts/snmp-win32-shares.html).
+    (https://nmap.org/nsedoc/scripts/snmp-win32-shares.html).
   - snmp-win32-software shows a list of installed Windows software
-    (http://nmap.org/nsedoc/scripts/snmp-win32-software.html).
+    (https://nmap.org/nsedoc/scripts/snmp-win32-software.html).
   - snmp-win32-users shows a list of local Windows users
-    (http://nmap.org/nsedoc/scripts/snmp-win32-users.html).
+    (https://nmap.org/nsedoc/scripts/snmp-win32-users.html).
   [Patrik]
 
 o [NSE] Added the snmp-interfaces script by Thomas Buchanan, which
   enumerates network interfaces over SNMP. See
-  http://nmap.org/nsedoc/scripts/snmp-interfaces.html .
+  https://nmap.org/nsedoc/scripts/snmp-interfaces.html .
 
 o [NSE] Added http-vmware-path-vuln.nse, which checks for a critical
   and easy to exploit path-traversal vulnerability in VMWare
   (CVE-2009-3733). See
-  http://nmap.org/nsedoc/scripts/http-vmware-path-vuln.html . [Ron]
+  https://nmap.org/nsedoc/scripts/http-vmware-path-vuln.html . [Ron]
 
 o [NSE] Added a new library for LDAP and three new scripts by Patrik:
   - ldap-brute uses the unpwdb library to guess credentials for LDAP
-    (http://nmap.org/nsedoc/scripts/ldap-brute.html).
+    (https://nmap.org/nsedoc/scripts/ldap-brute.html).
   - ldap-rootdse retrieves the LDAP root DSA-specific Entry (DSE)
-    (http://nmap.org/nsedoc/scripts/ldap-rootdse.html).
+    (https://nmap.org/nsedoc/scripts/ldap-rootdse.html).
   - ldap-search queries a LDAP directory for either
     all, or a number of pre-defined object types
-    (http://nmap.org/nsedoc/scripts/ldap-search.html).
+    (https://nmap.org/nsedoc/scripts/ldap-search.html).
 
 o [NSE] Added a new library for PostgreSQL and the script pgsql-brute
   that uses it to guess credentials. See
-  http://nmap.org/nsedoc/scripts/pgsql-brute.html . [Patrik]
+  https://nmap.org/nsedoc/scripts/pgsql-brute.html . [Patrik]
 
 o [NSE] Added 5 new MySQL NSE scripts and a MySQL library by Patrik Karlsson:
   - mysql-brute uses the unpwdb library to guess credentials for MySQL
-    (http://nmap.org/nsedoc/scripts/mysql-brute.html).
+    (https://nmap.org/nsedoc/scripts/mysql-brute.html).
   - mysql-databases queries MySQL for a list of databases
-    (http://nmap.org/nsedoc/scripts/mysql-databases.html).
+    (https://nmap.org/nsedoc/scripts/mysql-databases.html).
   - mysql-empty-password attempts to authenticate anonymously or as
     root with an empty password
-    (http://nmap.org/nsedoc/scripts/mysql-empty-password.html).
+    (https://nmap.org/nsedoc/scripts/mysql-empty-password.html).
   - mysql-users queries MySQL for a list of database users
-    (http://nmap.org/nsedoc/scripts/mysql-users.html).
+    (https://nmap.org/nsedoc/scripts/mysql-users.html).
   - mysql-variables queries MySQL for its variables and their
-    settings (http://nmap.org/nsedoc/scripts/mysql-variables.html).
+    settings (https://nmap.org/nsedoc/scripts/mysql-variables.html).
 
 o Improved the passwords.lst database used by NSE by combining several
   leaked password databases collected by Ron Bowes. The size of the
@@ -4813,43 +4813,43 @@ o [NSE] Added the ipidseq script to classify a host's IP ID sequence
   suitability for Nmap's Idle Scan (-sI), i.e. check if a host is an
   idle zombie.  This is the first script to use the new raw IP sending
   functionality in NSE. See
-  http://nmap.org/nsedoc/scripts/ipidseq.html . [Kris]
+  https://nmap.org/nsedoc/scripts/ipidseq.html . [Kris]
 
 o [NSE] Added the ssl-enum-ciphers script by Mak Kolybabi. It lists
   the ciphers and compressors supported by SSL/TLS servers. See
-  http://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html .
+  https://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html .
 
 o [NSE] Added two new scripts for the MongoDB database from Martin
   Holst Swende. mongodb-info
-  (http://nmap.org/nsedoc/scripts/mongodb-info.html) gets information
+  (https://nmap.org/nsedoc/scripts/mongodb-info.html) gets information
   like the version number, memory use, and operating system, while
   mongodb-databases
-  (http://nmap.org/nsedoc/scripts/mongodb-databases.html) lists the
+  (https://nmap.org/nsedoc/scripts/mongodb-databases.html) lists the
   databases and their size on disk.
 
 o [NSE] Added the scripts couchdb-databases and couchdb-stats, which
   list CouchDB databases and show access statistics, and a new
   json.lua library they depend on. See
-  http://nmap.org/nsedoc/scripts/couchdb-databases.html and
-  http://nmap.org/nsedoc/scripts/couchdb-stats.html [Martin Holst
+  https://nmap.org/nsedoc/scripts/couchdb-databases.html and
+  https://nmap.org/nsedoc/scripts/couchdb-stats.html [Martin Holst
   Swende]
 
 o [NSE] Added the new lexmark-config script that lists product
   information and configuration for Lexmark printers. See
-  http://nmap.org/nsedoc/scripts/lexmark-config.html . [Patrik
+  https://nmap.org/nsedoc/scripts/lexmark-config.html . [Patrik
   Karlsson]
 
 o [NSE] Added the new daap-get-library script which uses the Digital
   Audio Access Protocol to enumerate the contents of a library. The
   contents contain the name of the artist, album and song. See
-  http://nmap.org/nsedoc/scripts/daap-get-library.html . [Patrik]
+  https://nmap.org/nsedoc/scripts/daap-get-library.html . [Patrik]
 
 o [NSE] Added jdwp-version.nse, a script by Michael Schierl that finds
   the version of a Java Debug Wire Protocol server. This is a
   dangerous service to find running as it does not provide any
   security against malicious attackers who can inject their own
   bytecode into the debugged process. See
-  http://nmap.org/nsedoc/scripts/jdwp-version.html .
+  https://nmap.org/nsedoc/scripts/jdwp-version.html .
 
 o [NSE] Added the smtp-enum-users script from Duarte Silva, which
   attempts to find user account names over SMTP by brute force testing
@@ -4863,7 +4863,7 @@ o [NSE] The unpwdb library now has a default time limit on the
   - unpwdb.passlimit  Limit on number of passwords.
   - unpwdb.timelimit  Time limit in seconds.
   Pass 0 for any of these limits to disable it. For more details, see
-  http://nmap.org/nsedoc/lib/unpwdb.html . [David]
+  https://nmap.org/nsedoc/lib/unpwdb.html . [David]
 
 o When --open is used, Nmap no longer prints output for hosts which
   don't have any open ports. All output formats are treated the same
@@ -4875,7 +4875,7 @@ o [NSE] Added the script http-methods from Bernd Stroessenreuther.
   supported by the server, highlights potentially risky methods, and
   optionally tests each method to see if they are restricted by IP
   address or something similar. See
-  http://nmap.org/nsedoc/scripts/http-methods.html .
+  https://nmap.org/nsedoc/scripts/http-methods.html .
 
 o The -v and -d options are now handled in the same way. These three
   forms are equivalent:
@@ -4908,7 +4908,7 @@ o [NSE] Raw packet sending at the IP layer is now supported, in
   addition to the existing Ethernet sending functionality.  Packets to
   send start with an IPv4 header and can be sent to arbitrary
   hosts. For details, see
-  http://nmap.org/book/nse-api.html#nse-api-networkio-raw [Kris]
+  https://nmap.org/book/nse-api.html#nse-api-networkio-raw [Kris]
 
 o Added version detection match line for the Arucer backdoor, which was
   found packaged with drivers for the Energizer USB recharger product
@@ -5105,7 +5105,7 @@ o Removed the nmap_service.exe helper program for smb-psexec, as it
   was still being flagged by malware detection even after the
   bit-flipping in the next release. In fact, the obfuscation backfired
   and caused more false positives! You can now download it from
-  http://nmap.org/psexec/nmap_service.exe. (The script will remind you
+  https://nmap.org/psexec/nmap_service.exe. (The script will remind you
   if you run the script and it's not installed.)
 
 o Added service probes and UDP payloads for games based on the Quake 2
@@ -5219,7 +5219,7 @@ o Dramatically improved the version detection database, integrating
 o [NSE] Added a new script, oracle-sid-brute, which queries the Oracle
   TNS-listener for default instance/sid names. The SID enumeration
   list was prepared by Red Database security. See
-  http://nmap.org/nsedoc/scripts/oracle-sid-brute.html . [Patrik
+  https://nmap.org/nsedoc/scripts/oracle-sid-brute.html . [Patrik
   Karlsson]
 
 o [Ncat] The --ssl, --output, and --hex-dump options now work with
@@ -5251,7 +5251,7 @@ o [NSE] Replaced our runlevel system for managing the order of script
   scripts) and NSE manages the order. Dependencies only enforce
   ordering, they cannot pull in scripts which the user didn't
   specify. See
-  http://nmap.org/book/nse-script-format.html#nse-format-dependencies
+  https://nmap.org/book/nse-script-format.html#nse-format-dependencies
   [Patrick]
 
 o [Ncat] For compatibility with Hobbit's original Netcat, The -p
@@ -5261,7 +5261,7 @@ o [Ncat] For compatibility with Hobbit's original Netcat, The -p
 
 o A new script argument, http.useragent, lets you modify
   the User-Agent header sent by NSE from its default of "Mozilla/5.0
-  (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)".
+  (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)".
   Set it to the empty string to disable the User-Agent
   entirely. [David, Tom Sellers, Jah]
 
@@ -5324,33 +5324,33 @@ o Fixed a bug in the WinPcap installer: If the "Start the WinPcap
 Nmap 5.10BETA2 [2009-12-24]
 
 o Added 7 new NSE scripts for a grand total of 79! You can learn about
-  them all at http://nmap.org/nsedoc/.  Here are the new ones:
+  them all at https://nmap.org/nsedoc/.  Here are the new ones:
 
   * nfs-showmount displays NFS exports like "showmount -e" does. See
-    http://nmap.org/nsedoc/scripts/nfs-showmount.html . [Patrik
+    https://nmap.org/nsedoc/scripts/nfs-showmount.html . [Patrik
     Karlsson]
 
   * ntp-info prints the time and configuration variables provided by
     an NTP service. It may get such interesting information as the
     operating system, server build date, and upstream time server IP
     address. See
-    http://nmap.org/nsedoc/scripts/ntp-info.html . [Richard Sammet]
+    https://nmap.org/nsedoc/scripts/ntp-info.html . [Richard Sammet]
 
   * citrix-brute-xml uses the unpwdb library to guess credentials for
     the Citrix PN Web Agent Service. See
-    http://nmap.org/nsedoc/scripts/citrix-brute-xml.html . [Patrik Karlsson]
+    https://nmap.org/nsedoc/scripts/citrix-brute-xml.html . [Patrik Karlsson]
 
   * citrix-enum-apps and citrix-enum-apps-xml print a list of published
     applications from the Citrix ICA Browser or XML service,
     respectively. See
-    http://nmap.org/nsedoc/scripts/citrix-enum-apps.html and
-    http://nmap.org/nsedoc/scripts/citrix-enum-apps-xml.html . [Patrik Karlsson]
+    https://nmap.org/nsedoc/scripts/citrix-enum-apps.html and
+    https://nmap.org/nsedoc/scripts/citrix-enum-apps-xml.html . [Patrik Karlsson]
 
   * citrix-enum-servers and citrix-enum-servers-xml print a list
     of Citrix servers from the Citrix ICA Browser or XML service,
     respectively. See
-    http://nmap.org/nsedoc/scripts/citrix-enum-servers.html and
-    http://nmap.org/nsedoc/scripts/citrix-enum-servers-xml.html . [Patrik
+    https://nmap.org/nsedoc/scripts/citrix-enum-servers.html and
+    https://nmap.org/nsedoc/scripts/citrix-enum-servers-xml.html . [Patrik
     Karlsson]
 
 o We performed a memory consumption audit and made changes to
@@ -5450,7 +5450,7 @@ o [NSE] Improved db2-info to set port product and state (rather than
 Nmap 5.10BETA1 [2009-11-23]
 
 o Added 14 new NSE scripts for a grand total of 72! You can learn
-  about them all at http://nmap.org/nsedoc/. Here are the new ones:
+  about them all at https://nmap.org/nsedoc/. Here are the new ones:
 
   + smb-psexec implements remote process execution similar to the
     Sysinternals' psexec tool (or Metasploit's psexec "exploit"),
@@ -5458,27 +5458,27 @@ o Added 14 new NSE scripts for a grand total of 72! You can learn
     and read the output. This is great for gathering information about
     servers, running the same tool on a range of system, or even
     installing a backdoor on a collection of computers. See
-    http://nmap.org/nsedoc/scripts/smb-psexec.html [Ron]
+    https://nmap.org/nsedoc/scripts/smb-psexec.html [Ron]
 
   + dhcp-discover sends out DHCP probes on UDP/67 and displays all
     interesting results (or, with verbosity, all results).
     Optionally, multiple probes can be sent and the MAC address can be
     randomized in an attempt to exhaust the DHCP server's address pool
     and potentially create a denial of service condition. See
-    http://nmap.org/nsedoc/scripts/dhcp-discover.html . [Ron]
+    https://nmap.org/nsedoc/scripts/dhcp-discover.html . [Ron]
 
   + http-enum enumerates URLs used by popular web applications and
     servers and reports which ones exist on a target web server. See
-    http://nmap.org/nsedoc/scripts/http-enum.html . [Ron, Andrew Orr,
+    https://nmap.org/nsedoc/scripts/http-enum.html . [Ron, Andrew Orr,
     Rob Nicholls]
 
   + ssl-cert retrieves and prints a target server's SSL
     certificate. See
-    http://nmap.org/nsedoc/scripts/ssl-cert.html . [David]
+    https://nmap.org/nsedoc/scripts/ssl-cert.html . [David]
 
   + x11-access checks whether access to an X11 server is allowed (as
     with "xhost +" for example). See
-    http://nmap.org/nsedoc/scripts/x11-access.html . [jlanthea]
+    https://nmap.org/nsedoc/scripts/x11-access.html . [jlanthea]
 
   + db2-info enhances DB2 database instance detection. It provides
     detection when version probes fail, but will default to the
@@ -5486,44 +5486,44 @@ o Added 14 new NSE scripts for a grand total of 72! You can learn
     detects the server platform and database instance name. The DB2
     version detection port ranges were broadened to 50000-50025 and
     60000-60025 as well. See
-    http://nmap.org/nsedoc/scripts/db2-info.html . [Tom]
+    https://nmap.org/nsedoc/scripts/db2-info.html . [Tom]
 
   + smbv2-enabled checks if the smbv2 protocol is enabled on target
     servers. SMBv2 has already suffered from at least one major
     security vulnerability. See
-    http://nmap.org/nsedoc/scripts/smbv2-enabled.html . [Ron]
+    https://nmap.org/nsedoc/scripts/smbv2-enabled.html . [Ron]
 
   + http-favicon obtains the favicon file (/favicon.ico or whatever is
     specified by the HTML link tag) and tries to identify its source
     (such as a certain web application) using a database lookup. See
-    http://nmap.org/nsedoc/scripts/http-favicon.html . [Vladz]
+    https://nmap.org/nsedoc/scripts/http-favicon.html . [Vladz]
 
   + http-date obtains the Date: header field value from an HTTP server
     then displays it along with how much it differs from local
-    time. See http://nmap.org/nsedoc/scripts/http-date.html . [David]
+    time. See https://nmap.org/nsedoc/scripts/http-date.html . [David]
 
   + http-userdir-enum attempts to enumerate users on a system by
     trying URLs with common usernames in the Apache mod_userdir format
     (e.g. http://target-server.com/~john). See
-    http://nmap.org/nsedoc/scripts/http-userdir-enum.html . [Jah]
+    https://nmap.org/nsedoc/scripts/http-userdir-enum.html . [Jah]
 
   + pjl-ready-message allows viewing and setting the status message on
     printers which support the Printer Job Language (many HP printers
-    do). See http://nmap.org/nsedoc/scripts/pjl-ready-message.html .
+    do). See https://nmap.org/nsedoc/scripts/pjl-ready-message.html .
     [Aaron Leininger]
 
   + http-headers performs a GET request for the root folder ("/") of a
     web server and displays the HTTP headers returned. See
-    http://nmap.org/nsedoc/scripts/http-headers.html . [Ron]
+    https://nmap.org/nsedoc/scripts/http-headers.html . [Ron]
 
   + http-malware-host is designed to discover hosts that are serving
     malware (perhaps because they were compromised), but so far it
     only checks for one specific attack. See
-    http://nmap.org/nsedoc/scripts/http-malware-host.html . [Ron]
+    https://nmap.org/nsedoc/scripts/http-malware-host.html . [Ron]
 
   + smb-enum-groups displays a list of groups on the remote system
     along with their membership (like enum.exe -G). See
-    http://nmap.org/nsedoc/scripts/smb-enum-users.html [Ron]
+    https://nmap.org/nsedoc/scripts/smb-enum-users.html [Ron]
 
 o Nmap's --traceroute has been rewritten for better performance.
   Probes are sent in parallel to individual hosts, not just across all
@@ -5544,7 +5544,7 @@ o [Zenmap] After performing or loading a scan, you can now filter
   This makes it easy to select just Linux hosts, or those running a
   certain version of Apache, or whatever interests you. You can easily
   modify the filter or remove it to see the whole scan again. See
-  http://nmap.org/book/zenmap-filter.html . [Josh Marlow]
+  https://nmap.org/book/zenmap-filter.html . [Josh Marlow]
 
 o For some UDP ports, Nmap will now send a protocol-specific payload
   that is more likely to get a response than an empty packet is. This
@@ -5567,7 +5567,7 @@ o [NSE] For all the services which are commonly tunneled over SSL
   (pop3, http, imap, irc, smtp, etc.), we audited the scripts to
   ensure they can support that tunneling. The com.tryssl function
   was added for easy SSL detection. See
-  http://nmap.org/nsedoc/lib/comm.html [Joao]
+  https://nmap.org/nsedoc/lib/comm.html [Joao]
 
 o Nmap now prefers to display the hostname supplied by the user instead
   of the reverse-DNS name in most places. If a reverse DNS record
@@ -5613,13 +5613,13 @@ o The Nmap source tarball (and RPMs) now included man page
 
 o [NSE] Added a function for scripts to format their output in a
   consistent way. See
-  http://nmap.org/nsedoc/lib/stdnse.html#format_output. [Ron]
+  https://nmap.org/nsedoc/lib/stdnse.html#format_output. [Ron]
 
 o [NSE] Now supports worker threads so that a single script can
   perform multiple network operations concurrently. This patch also
   includes condition variables for synchronization. See
-  http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
-  http://nmap.org/nsedoc/lib/nmap.html#condvar, and
+  https://nmap.org/nsedoc/lib/stdnse.html#new_thread,
+  https://nmap.org/nsedoc/lib/nmap.html#condvar, and
   http://seclists.org/nmap-dev/2009/q4/294.
 
 o Fixed a problem in which the Nmap installer wrongly reported that
@@ -5701,7 +5701,7 @@ o [Ncat] Ncat now prints a message like "Connection refused." by
 o Zenmap no longer displays down hosts in the GUI. [Josh]
 
 o The Ndiff man page was dramatically improved with examples and
-  sample output. See http://nmap.org/ndiff/man.html .
+  sample output. See https://nmap.org/ndiff/man.html .
   [David]
 
 o [NSE] At debug level 2 or higher (-d2), Nmap now prints all active
@@ -5875,7 +5875,7 @@ o Added a check for a SMBv2 vulnerability (CVE-2009-3103) to
   smb-check-vulns. Due to its nature (it performs a DoS, then checks
   if the system is still online), the script isn't run by default and
   requires a special script-arg to work. See
-  http://nmap.org/nsedoc/scripts/smb-check-vulns.html . [Ron]
+  https://nmap.org/nsedoc/scripts/smb-check-vulns.html . [Ron]
 
 o Fixed an integer overflow in uptime calculation which could occur
   when a target with a low TCP timestamp clock frequency uses large
@@ -5913,7 +5913,7 @@ o There is a new OS detection pseudo-test, SCAN.DC, which records how
   and DS=1%DC=D (a true one-hop connection.) [David]
 
 o Canonicalized the list of OS detection device types to a smaller set
-  with descriptions: http://nmap.org/svn/docs/device-types.txt .
+  with descriptions: https://nmap.org/svn/docs/device-types.txt .
   [David, Fyodor, Doug]
 
 o [Ncat] The --idle-timeout option now exits when *both* stdin and the
@@ -6168,21 +6168,21 @@ o [NSE] Added http-iis-webdav-vuln.nse, which detects the recently
   discovered WebDAV unicode bug in MS IIS 5.1/6.0 web server which can
   allow arbitrary users to access password protected folders without
   authentication. See
-  http://nmap.org/svn/scripts/http-iis-webdav-vuln.nse. [Ron]
+  https://nmap.org/svn/scripts/http-iis-webdav-vuln.nse. [Ron]
 
 o The Nmap Reference Guide has been translated to German by Open
   Source Press and Indonesian by Tedi Heriyanto. You can now read it
-  in 16 languages at http://nmap.org/docs.html . We're always looking
+  in 16 languages at https://nmap.org/docs.html . We're always looking
   for more translations of Nmap and its documentation--if you'd like
   to help, see http://seclists.org/nmap-dev/2009/q2/0667.html .
 
 o Open Source Press completed and released the German translation of
   the official Nmap book (Nmap Network Scanning). Learn more at
-  http://nmap.org/book/#translations.
+  https://nmap.org/book/#translations.
 
 o [NSE] Added socks-open-proxy.nse for scanning networks for open
   SOCKS proxy servers. See
-  http://nmap.org/nsedoc/scripts/socks-open-proxy.html . [Joao Correa]
+  https://nmap.org/nsedoc/scripts/socks-open-proxy.html . [Joao Correa]
 
 o [NSE] http-open-proxy.nse has been updated to attempt HEAD and
   CONNECT methods as well as previously supported GET method.  It
@@ -6231,7 +6231,7 @@ o Changed the default UDP ping (-PU) port from 31338 to 40125.  This
 o [NSE] Added the imap-capabilities script, which uses the CAPABILITY
   command to determine the capabilities of a target IMAP mail server.
   A simple supporting IMAP library was added as well. See
-  http://nmap.org/nsedoc/scripts/imap-capabilities.html . [Brandon]
+  https://nmap.org/nsedoc/scripts/imap-capabilities.html . [Brandon]
 
 o [NSE] Brandon Enright from UCSD reports that, thanks to all the NSE
   fixes in this release, he no longer sees any Nmap crashes in his
@@ -6264,10 +6264,10 @@ o The --packet-trace/--version-trace options now shows the names of
 
 o The GPG detached signatures for Nmap releases now use the more
   standard .asc extension rather than .gpg.txt.  They can still be
-  found at http://nmap.org/dist/sigs/ and the .gpg.txt versions for
+  found at https://nmap.org/dist/sigs/ and the .gpg.txt versions for
   previous releases are still available for compatibility reasons. For
   instructions on verifying Nmap package integrity, see
-  http://nmap.org/book/install.html#inst-integrity. [Fyodor]
+  https://nmap.org/book/install.html#inst-integrity. [Fyodor]
 
 o [Zenmap] Fixed two bugs: 1) When two scans are performed in Zenmap
   and aggregated, the first one was being modified in the process,
@@ -6495,7 +6495,7 @@ o [NSE] Added Boolean Operators for --script. You may now use ("and",
   precedence too.  For example, you can now run:
     nmap --script "(default or safe or intrusive) and not http-*" scanme.nmap.org
   For more details, see
-  http://nmap.org/book/nse-usage.html#nse-args. [Patrick]
+  https://nmap.org/book/nse-usage.html#nse-args. [Patrick]
 
 o [Ncat] The HTTP proxy server now works on Windows too. [David]
 
@@ -6567,7 +6567,7 @@ o Fixed a bug in the su-to-zenmap.sh script so that, in the cases
   -C. [Michal Januszewski, Henry Gebhardt]
 
 o Overhaul the NSE documentation "Usage and Examples" section and add
-  many more examples: http://nmap.org/book/nse-usage.html [David]
+  many more examples: https://nmap.org/book/nse-usage.html [David]
 
 o [NSE] Made hexify in nse_nsock.cc take an unsigned char * to work
   around an assertion in Visual C++ in Debug mode. The isprint,
@@ -6626,7 +6626,7 @@ o New Conficker versions eliminate the loophole we were using to
   - Added new p2p-conficker script which detects Conficker using its
     P2P update ports rather than MSRPC.  This is based on some new
     research by Symantec. See
-    http://nmap.org/nsedoc/scripts/p2p-conficker.html [Ron]
+    https://nmap.org/nsedoc/scripts/p2p-conficker.html [Ron]
   - Since new Conficker variants prevent detection by our previous
     MSRPC check in smb-check-vulns, we've added a new check which still
     works. It involves calling netpathcanonicalize on "\" rather than
@@ -6738,15 +6738,15 @@ o Improvements to the Conficker detection script (smb-check-vulns):
     The other improved message is for
     NT_STATUS_OBJECT_NAME_NOT_FOUND. [David]
 
-o The NSEDoc portal at http://nmap.org/nsedoc/ now provides download
+o The NSEDoc portal at https://nmap.org/nsedoc/ now provides download
   links from the script and module pages to browse or download recent versions
   of the code.  It isn't quite as up-to-date as obtaining them from
   svn directly, but may be more convenient. For an example, see
-  http://nmap.org/nsedoc/scripts/smb-check-vulns.html . [David, Fyodor]
+  https://nmap.org/nsedoc/scripts/smb-check-vulns.html . [David, Fyodor]
 
 o A copy of the Nmap public svn repository (/nmap, plus its zenmap,
   nsock, nbase, and ncat externals) is now available at
-  http://nmap.org/svn/.  We'll be updating this regularly, but it may
+  https://nmap.org/svn/.  We'll be updating this regularly, but it may
   be slightly behind the SVN version.  This is particularly useful
   when you need to link to files in the tree, since browsers generally
   don't handle svn:// repository links. [Fyodor]
@@ -6934,7 +6934,7 @@ o Doug performed one of the largest version detection integration runs
 
 o Released the new Ncat guide which contains practical real-life Ncat
   usage examples for Ncat's major features.  It complements the more
-  option-centric man page.  Read it here: http://nmap.org/ncat/guide/
+  option-centric man page.  Read it here: https://nmap.org/ncat/guide/
   [David, Fyodor]
 
 o Ndiff is now included in the Windows zip distribution. For space
@@ -6980,7 +6980,7 @@ o You can now use '-' by itself in a target IP specification to mean
 o Nmap was discovered in another movie!  In the Russian film
   Khottabych, teenage hacker Gena uses Nmap (and telnet) to hack
   Microsoft.  In response, MS sends a pretty female hacker to flush
-  him out.  More details and screenshots: http://nmap.org/movies.html .
+  him out.  More details and screenshots: https://nmap.org/movies.html .
 
 o Improved operating system support for the smb-enum-sessions NSE
   script; previous revisions worked on Windows 2003 or Windows 2000,
@@ -7094,7 +7094,7 @@ o [NSEDoc] Scripts that use modules automatically have the script
   arguments defined by those modules included in their documentation.
   It's no longer necessary to manually supply @args for the arguments
   in the modules you use. For those who haven't seen the NSEDoc portal
-  yet, check out http://nmap.org/nsedoc/. [David]
+  yet, check out https://nmap.org/nsedoc/. [David]
 
 o An integer overflow in the scan progress meter was fixed. It caused
   nonsense output like
@@ -7119,7 +7119,7 @@ o [Zenmap] Fix auto-scroll behavior while Nmap is producing output, as
 o [Zenmap] The network topology feature (Radialnet) has been
   internationalized so its strings will be localized as well (as soon
   as the relevant language's translation files are updated.  To help
-  out, see http://nmap.org/book/zenmap-lang.html . Some remaining search
+  out, see https://nmap.org/book/zenmap-lang.html . Some remaining search
   interface elements were internationalized as well. [David]
 
 o Improved the efficiency of the xml_convert() routine which handles
@@ -7204,7 +7204,7 @@ o Made a few improvements to nmap.xsl (details:
 o [Zenmap] New translation: French (contributed by Gutek)
 
 o Updated the mswin32 installer build guide and posted it to
-  http://nmap.org/data/win32-installer-zenmap-buildguide.txt [Fyodor]
+  https://nmap.org/data/win32-installer-zenmap-buildguide.txt [Fyodor]
 
 o The xampp-default-auth.nse script was renamed to ftp-brute.nse since
   it has become more general.
@@ -7219,7 +7219,7 @@ o Added Ncat, a much-improved reimplementation of the venerable Netcat
   redirection, connection brokering (facilitating connections between
   machines which are behind NAT gateways), and much more.  It is
   cross-platform (Linux, Windows, Mac, etc.) and supports IPv6 as well
-  as standard IPv4.  See http://nmap.org/ncat/ for details.  It is now
+  as standard IPv4.  See https://nmap.org/ncat/ for details.  It is now
   included in our binary packages (Windows, Linux, and Mac OS X), and
   built by default.  You can skip it with the --without-ncat configure
   option.  Thanks to Kris and David for their great work on this!
@@ -7228,7 +7228,7 @@ o Added the Ndiff utility, which compares the results of two Nmap
   scans and describes the new/removed hosts, newly open/closed ports,
   changed operating systems, etc.  This makes it trivial to scan your
   networks on a regular basis and create a report (XML or text format)
-  on all the changes.  See http://nmap.org/ndiff/ and ndiff/README for
+  on all the changes.  See https://nmap.org/ndiff/ and ndiff/README for
   more information. Ndiff is included in our binary packages and built
   by default, though you can prevent it from being built by specifying
   the --without-ndiff configure flag.  Thanks to David and Michael
@@ -7244,7 +7244,7 @@ o Released Nmap Network Scanning: The Official Nmap Project Guide to
   tasks.  It was briefly the #1 selling computer book on Amazon.
   Translations to the German, Korean, and Brazilian Portuguese
   languages are forthcoming.  More than half of the book is already
-  free online.  For more, see http://nmap.org/book/.
+  free online.  For more, see https://nmap.org/book/.
 
 o David spent more than a month working on algorithms to improve port
   scan performance while retaining or improving accuracy.  The changes
@@ -7255,10 +7255,10 @@ o David spent more than a month working on algorithms to improve port
   reduction!
 
 o Introduced the NSE documentation portal, which documents every NSE
-  script and library included with Nmap. See http://nmap.org/nsedoc/.
+  script and library included with Nmap. See https://nmap.org/nsedoc/.
   Script documentation was improved substantially in the process.
   Scripts and libraries must use the new NSEDoc format, which is
-  described at http://nmap.org/book/nsedoc.html .  Thanks to Patrick
+  described at https://nmap.org/book/nsedoc.html .  Thanks to Patrick
   and David for their great work on this.
 
 o The 2nd Generation OS Detection System was dramatically improved for
@@ -7326,7 +7326,7 @@ o Zenmap now runs ndiff to for its "Compare Results" function. This
 
 o Added a Russian translation of the Nmap Reference Guide by Guz
   Alexander. We now have translations in 15 languages available from
-  http://nmap.org/docs.html . More volunteer translators are welcome,
+  https://nmap.org/docs.html . More volunteer translators are welcome,
   as we are still missing some important languages. Translation
   instructions are available from that docs.html page.
 
@@ -7365,7 +7365,7 @@ o [Zenmap] Internationalization has been fixed [David]. Currently
     - Brazilian Portuguese by Adriano Monteiro Marques (partial)
   For details on using an existing translation or localizing Zenmap
   into your own native language, see
-  http://nmap.org/book/zenmap-lang.html . [David]
+  https://nmap.org/book/zenmap-lang.html . [David]
 
 o Zenmap no longer outputs XML elements and attributes that are not in
   the Nmap XML DTD. This was done mostly by removing things from
@@ -7430,7 +7430,7 @@ o [NSE] We now have a canonical way for scripts to check for
   dependency libraries such as OpenSSL.  This allows them to handle
   the issue gracefully (by exiting or doing some of their work if
   possible) rather than flooding the console with error messages as
-  before. See http://nmap.org/nsedoc/modules/openssl.html . [Pattrick,
+  before. See https://nmap.org/nsedoc/modules/openssl.html . [Pattrick,
   David, Fyodor]
 
 o Nmap now reports a proper error message when you combine an IPv6
@@ -7469,7 +7469,7 @@ o Fixed a division by zero error in the packet rate measuring code
   start of a scan. [Jah]
 
 o Substantially updated the Nmap Scripting Engine guide/chapter
-  (http://nmap.org/book/nse.html) so that it is up-to-date with all
+  (https://nmap.org/book/nse.html) so that it is up-to-date with all
   the latest NSE improvements.
 
 o Fixed a bug in the IP validation code which would have let a specially
@@ -7789,7 +7789,7 @@ o [Zenmap] Added a new Scan Topology system. The idea is that if we
   into Zenmap. Joao Medeiros has been developing RadialNet for more
   than a year. For details, complete with some of the most beautiful
   Zenmap screen shots ever, visit
-  http://nmap.org/book/zenmap-topology.html . The integration work was
+  https://nmap.org/book/zenmap-topology.html . The integration work was
   done by SoC student Vladimir Mitrovic and his mentor David Fifield.
 
 o [Zenmap] Another exciting new Zenmap feature is Scan Aggregation.
@@ -7798,7 +7798,7 @@ o [Zenmap] Another exciting new Zenmap feature is Scan Aggregation.
   scan one network, analyze the results a bit, then scan some of the
   machines more intensely or add a completely new subnet to the
   scan. The new results are seamlessly added to the old, as described
-  at http://nmap.org/book/zenmap-scanning.html#aggregation. [David,
+  at https://nmap.org/book/zenmap-scanning.html#aggregation. [David,
   Vladimir]
 
 o Expanded nmap-services to include information on how frequently each
@@ -7841,7 +7841,7 @@ o David integrated all of your OS detection fingerprint and correction
 o Nmap now works with Windows 2000 again, after being broken by our
   IPv6 support improvements in version 4.65. A couple new dependencies
   are required to run on Win2K, as described at
-  http://nmap.org/book/inst-windows.html#inst-win2k .
+  https://nmap.org/book/inst-windows.html#inst-win2k .
 
 o [Zenmap] Added a context-sensitive help system to the Profile
   Editor.  You can now mouse-over options to learn more about what
@@ -7897,7 +7897,7 @@ o Fyodor made a number of performance tweaks, such as:
 o Added a new NSE binlib library, which offers bin.pack() and
   bin.unpack() functions for dealing with storing values in and
   extracting them from binary strings.  For details, see
-  http://nmap.org/book/nse-library.html#nse-binlib . [Philip
+  https://nmap.org/book/nse-library.html#nse-binlib . [Philip
   Pickering]
 
 o Added a new NSE DNS library. See this thread:
@@ -8222,7 +8222,7 @@ o Doug integrated all of your version detection submissions and
 
 o Nmap compilation on Windows is now done with Visual C++ Express 2008
   rather than 2005.  Windows compilation instructions have been
-  updated at http://nmap.org/book/inst-windows.html#inst-win-source .
+  updated at https://nmap.org/book/inst-windows.html#inst-win-source .
   [Kris]
 
 o The Nmap Windows self-installer now automatically installs the MS
@@ -8252,7 +8252,7 @@ o Added a new NSE Comm (common communication) library for common
 
 o The Nmap Scripting Engine now supports mutexes for gracefully
   handling concurrency issues.  Mutexes are documented at
-  http://nmap.org/book/nse-api.html#nse-mutex . [Patrick]
+  https://nmap.org/book/nse-api.html#nse-mutex . [Patrick]
 
 o Added a UDP SNMPv3 probe to version detection, along with 9 vendor
   match lines. The patch was from Tom Sellers, who contributed other
@@ -8282,7 +8282,7 @@ o The robots.nse script has been improved to print output more
 
 o The Nmap NSE scripts have been re-categorized in a more logical
   fashion.  The new categories are described at
-  http://nmap.org/book/nse-usage.html#nse-categories . [Kris]
+  https://nmap.org/book/nse-usage.html#nse-categories . [Kris]
 
 o Improve AIX support by linking against -lodm and -lcfg on that
   platform. [David]
@@ -8406,7 +8406,7 @@ Nmap 4.65 [2008-6-1]
 o A Mac OS X Nmap/Zenmap installer is now available from the Nmap
   download page!  It is rather straightforward, but detailed
   instructions are available anyway at
-  http://nmap.org/book/inst-macosx.html .  As a universal installer,
+  https://nmap.org/book/inst-macosx.html .  As a universal installer,
   it works on both Intel and PPC Macs. It is distributed as a disk
   image file (.dmg) containing an mpkg package.  The installed Nmap
   does include OpenSSL support.  It also supports Authorization
@@ -8513,7 +8513,7 @@ o Nbase now generates pseudo-random numbers itself rather than using
   implementation. [Brandon]
 
 o Made a number of updates and improvements to the Zenmap Users' Guide
-  at http://nmap.org/book/zenmap.html . [David]
+  at https://nmap.org/book/zenmap.html . [David]
 
 o Fixed the way Zenmap handles command-line entry to prevent your
   custom command-line to be overwritten with the current profile's
@@ -8608,7 +8608,7 @@ o Added a new --min-rate option that allows specifying a minimum rate
   congestion control algorithms and request that Nmap try to keep at
   least the rate you specify.  The rate is given in packets per
   second. Read more in the Nmap man page
-  (http://nmap.org/book/man-performance.html) [David]
+  (https://nmap.org/book/man-performance.html) [David]
 
 o Create /nmap/macosx directory in SVN with files necessary to build
   binary Mac OS X Nmap/Zenmap packages.  We are trying to create
@@ -8764,7 +8764,7 @@ o Canonicalize NSE script license text--more than half did not even
   spell license correctly. They all still say that they are under
   Nmap's license, just with consistent capitalization and spelling,
   and now a link to Nmap legal page at
-  http://nmap.org/man/man-legal.html .
+  https://nmap.org/man/man-legal.html .
 
 o Updated ripeQuery.nse to not print extraneous whitespace. [Kris]
 
@@ -8784,7 +8784,7 @@ o Allocate 128 characters for the idle scan ScanProgressMeter
 Nmap 4.60 [2008-3-15]
 
 o Nmap has moved.  Everything at http://insecure.org/nmap/ can now be
-  found at http://nmap.org .  That should save your fingers from a
+  found at https://nmap.org .  That should save your fingers from a
   little bit of typing.  Even though transparent redirectors are in
   place for the old URLs, please update your links and bookmarks. And
   if you don't have a link to Nmap on your web site, now is a good
@@ -8800,7 +8800,7 @@ o All of your OS detection fingerprints up until March 10, 2008 have
   hundreds of broadband routers, VoIP phones, printers, some crazy
   oscilloscope, etc.  We get a ton of new fingerprint submissions, but
   not as many corrections.  Please remember to visit
-  http://nmap.org/submit/ if Nmap gives you bad results, whether they
+  https://nmap.org/submit/ if Nmap gives you bad results, whether they
   are completely wrong or just a slight mistake (like Nmap says Linux
   2.6.20-2.6.23, but you're running 2.6.24).  Of course you need to be
   certain you know exactly what is running on the target before you do
@@ -8811,7 +8811,7 @@ o All of your service fingerprints and corrections submitted until
   documented his adventures at http://hcsw.org/blog.pl/33 .  More than
   a hundred signatures were added, growing the database to 4,645
   signatures for 457 services.  Corrections are welcome for service
-  detection too -- visit http://nmap.org/submit/ if you get incorrect results.
+  detection too -- visit https://nmap.org/submit/ if you get incorrect results.
 
 o Nmap now saves the target name (if any) specified on the command
   line, since this can differ from the reverse DNS results.  It can be
@@ -8930,7 +8930,7 @@ o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
 o The DocBook XML source code to the Nmap Scripting Engine docs
-  (http://nmap.org/nse/) is now in SVN under docs/scripting.xml .
+  (https://nmap.org/nse/) is now in SVN under docs/scripting.xml .
 
 Nmap 4.53 [2008-1-12]
 
@@ -8985,7 +8985,7 @@ o Added a new version detection probe for the Trend Micro OfficeScan
 
 Nmap 4.51BETA [2007-12-21]
 
-o David wrote a detailed Zenmap guide: http://nmap.org/book/zenmap.html
+o David wrote a detailed Zenmap guide: https://nmap.org/book/zenmap.html
 
 o Added rpcinfo.nse script, which contacts a listening RPC portmapper
   and reports the listening services and port information (like
@@ -9028,7 +9028,7 @@ o Fixed a bug that prevented the --resume option from working on
   mflags 000 00006: The parameter is incorrect.(87)
   [Fixed by David, reported by Rob Nicholls]
 
-o Zenmap's new web page (http://nmap.org/zenmap/) is now shown in the
+o Zenmap's new web page (https://nmap.org/zenmap/) is now shown in the
   Zenmap about dialogue.
 
 o On Windows, paths beginning with \ are now considered absolute when
@@ -9883,7 +9883,7 @@ o Changed the IP protocol scan so that it sends proper IGMP headers when
 
 o Improved the algorithm for classifying the TCP timestamp frequency
   for OS detection.  The new algorithm is described at
-  http://nmap.org/osdetect/osdetect-methods.html#osdetect-ts .
+  https://nmap.org/osdetect/osdetect-methods.html#osdetect-ts .
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
@@ -9929,7 +9929,7 @@ o Integrated the Nmap Scripting Engine (NSE) into mainline Nmap.
   accepting (and writing) general purpose scripts to put into Nmap
   proper, and you can also write personal scripts to deal with issues
   specific to your environment.  The system is documented at
-  http://nmap.org/nse/ .
+  https://nmap.org/nse/ .
 
 o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
   (http://standards.ieee.org/regauth/oui/oui.txt) as of December 7.
@@ -10046,7 +10046,7 @@ o Integrated the newly submitted OS fingerprints.  The DB now contains
 
 o Nmap 2nd generation OS detection now has a more sophisticated
   mechanism for guessing a target OS when there is no exact match in the
-  database (see http://nmap.org/osdetect/osdetect-guess.html )
+  database (see https://nmap.org/osdetect/osdetect-guess.html )
 
 o Rewrote mswin32/nmap.rc to remove cruft and hopefully reduce some
   MFC-related compilation problems we've seen.  Thanks to KX
@@ -10095,14 +10095,14 @@ o Worked with Zhao to improve the new OS detection system with
   now ready to start growing the new database!  If Nmap gives you
   fingerprints, please submit them at the given URL.  The DB is still
   extremely small.  The new system is extensively documented at
-  http://nmap.org/osdetect/ .
+  https://nmap.org/osdetect/ .
 
 o Nmap now supports IP options with the new --ip-options flag.  You
   can specify any options in hex, or use "R" (record route), "T"
   (record timestamp), "U") (record route & timestamp), "S [route]"
   (strict source route), or "L [route]" (loose source route).  Specify
   --packet-trace to display IP options of responses.  For further
-  information and examples, see http://nmap.org/man/ and
+  information and examples, see https://nmap.org/man/ and
   http://seclists.org/nmap-dev/2006/q3/0052.html .  Thanks to Marek
   Majkowski for writing and sending the patch.
 
@@ -10216,7 +10216,7 @@ o Added a fix for the crash in the new OS detection which would come
 Nmap 4.20ALPHA1 [2006-6-24]
 
 o Integrated initial 2nd generation OS detection patch!  The system is
-  documented at http://nmap.org/osdetect/ .  Thanks to Zhao Lei
+  documented at https://nmap.org/osdetect/ .  Thanks to Zhao Lei
   for helping with the coding and design.
 
 o portlist.cc was refactored to remove some code duplication.  Thanks
@@ -10315,7 +10315,7 @@ o Nmap now ignores certain ICMP error message rate limiting (rather
   limits when encountered.  For a SYN scan, this may cause closed
   ports to be labeled 'filtered' because Nmap refused to slow down
   enough to correspond to the rate limiting.  Learn more about this
-  new option at http://nmap.org/man/ .  Thanks to Martin
+  new option at https://nmap.org/man/ .  Thanks to Martin
   Macok (martin.macok(a)underground.cz) for writing the patch that
   these changes were based on.
 
@@ -10323,7 +10323,7 @@ o Moved my Nmap development environment to Visual C++ 2005 Express
   edition.  In typical "MS Upgrade Treadmill" fashion, Visual Studio
   2003 users will no longer be able to compile Nmap using the new
   solution files.  The compilation, installation, and execution
-  instructions at http://nmap.org/install/inst-windows.html have been
+  instructions at https://nmap.org/install/inst-windows.html have been
   upgraded.
 
 o Automated my Windows build system so that I just have to type a
@@ -10633,7 +10633,7 @@ o Fixed compilation to again work with gcc-derivatives such as
 Nmap 3.98BETA1 [2006-1-22]
 
 o Added run time interaction as documented at
-  http://nmap.org/man/man-runtime-interaction.html .
+  https://nmap.org/man/man-runtime-interaction.html .
   While Nmap is running, you can now press 'v' to increase verbosity,
   'd' to increase the debugging level, 'p' to enable packet tracing,
   or the capital versions (V,D,P) to do the opposite.  Any other key
@@ -10755,11 +10755,11 @@ o Made a change to libdnet so that Windows interfaces are listed as
 
 o Ceased including foreign translations in the Nmap tarball as they
   take up too much space.  HTML versions can be found at
-  http://nmap.org/docs.html , while XML and NROFF versions
-  are available from http://nmap.org/data/man-xlate/ .
+  https://nmap.org/docs.html , while XML and NROFF versions
+  are available from https://nmap.org/data/man-xlate/ .
 
 o Changed INSTALL and README-WIN32 files to mostly just reference the
-  new Nmap Install Guide at http://nmap.org/install/ .
+  new Nmap Install Guide at https://nmap.org/install/ .
 
 o Included docs/nmap-man.xml in the tarball distribution, which is the
   DocBook XML source for the Nmap man page.  Patches to Nmap that are
@@ -10850,13 +10850,13 @@ Nmap 3.94ALPHA1 [2005-11-27]
 
 o Wrote a new man page from scratch.  It is much more comprehensive
   (more than twice as long) and (IMHO) better organized than the
-  previous one.  Read it online at http://nmap.org/man/
+  previous one.  Read it online at https://nmap.org/man/
   or docs/nmap.1 from the Nmap distribution.  Let me know if you have
   any ideas for improving it.
 
 o Wrote a new "help screen", which you get when running Nmap without
   arguments.  It is also reproduced in the man page and at
-  http://nmap.org/data/nmap.usage.txt .  I gave up trying
+  https://nmap.org/data/nmap.usage.txt .  I gave up trying
   to fit it within a 25-line, 80-column terminal window.  It is now 78
   lines and summarizes all but the most obscure Nmap options.
 
@@ -10877,7 +10877,7 @@ o Made the version detection "ports" directive (in
   bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
 
 o Added the --webxml option, which does the same thing as
-  --stylesheet http://nmap.org/data/nmap.xsl , without
+  --stylesheet https://nmap.org/data/nmap.xsl , without
   requiring you to remember the exact URL or type that whole thing.
 
 o Fixed a crash occurred when the --exclude option was used with
@@ -11055,7 +11055,7 @@ o Nmap distribution signing has changed. Release files are now signed
   generated a new key for himself (KeyID 33599B5F).  The Nmap key has
   been signed by Fyodor's new key, which has been signed by Fyodor's
   old key so that you know they are legit.  The new keys are available
-  at http://nmap.org/data/nmap_gpgkeys.txt , as
+  at https://nmap.org/data/nmap_gpgkeys.txt , as
   docs/nmap_gpgkeys.txt in the Nmap source tarball, and on the public
   keyserver network.  Here are the fingerprints:
     pub  1024D/33599B5F 2005-04-24
@@ -11319,7 +11319,7 @@ o Nmap now ships with and installs (in the same directory as other
   privacy reasons (avoid loading of an external URL when you view
   results), Nmap uses the local file system by default.  If you would
   like the latest version of the stylesheet loaded from the web when
-  rendering, specify --stylesheet http://nmap.org/data/nmap.xsl .
+  rendering, specify --stylesheet https://nmap.org/data/nmap.xsl .
 
 o Fixed fragmentation option (-f).  One -f now sets sends fragments
   with just 8 bytes after the IP header, while -ff sends 16 bytes to
@@ -11495,7 +11495,7 @@ o Fixed nmap_fetchfile() to better find custom versions of data files
 
 o Changed XML output so that the MAC address <address> element comes
   right after the IPv4/IPv6 <address> element.  Apparently this is
-  needed to comply with the DTD ( http://nmap.org/data/nmap.dtd ).
+  needed to comply with the DTD ( https://nmap.org/data/nmap.dtd ).
   Thanks to Adam Morgan (adam.morgan(a)Q1Labs.com) and Florian Ebner
   (Florian.Ebner(a)e-bros.de) for the problem reports.
 
@@ -11778,7 +11778,7 @@ o Modified the mswine32/nmap_performance.reg Windows registry file to
   should apply the new registry changes by clicking on the .reg file.
   Or do it manually as described in README-WIN32.  This file is also
   now available in the data directory at
-  http://nmap.org/data/nmap_performance.reg
+  https://nmap.org/data/nmap_performance.reg
 
 o Applied patch from Gisle Vanem (giva(a)bgnett.no) which allows the
   Windows version of Nmap to work with WinPCAP 3.1BETA (and probably
@@ -12110,7 +12110,7 @@ o Applied a one-line patch from Dmitry V. Levin (ldv(a)altlinux.org)
 Nmap 3.40PVT17 [2003-9-12]
 
 o Wrote and posted a new paper on version scanning to
-  http://nmap.org/versionscan.html .  Updated nmap-service-probes and
+  https://nmap.org/versionscan.html .  Updated nmap-service-probes and
   the Nmap man page to simply refer to this URL.
 
 o Integrated more service signatures from my own scanning as well as
@@ -13022,11 +13022,11 @@ o Applied patch by Max Schubert (nmap(a)webwizarddesign.com) which adds
 
 o Added German translation of Nmap man page by Marc Ruef
   (marc.ruef(a)computec.ch).  It is also available at
-  http://nmap.org/data/nmap_manpage-de.html
+  https://nmap.org/data/nmap_manpage-de.html
 
 o Includes a brand new French translation of the man page by Sebastien
   Blanchet.  You could probably guess that it is available at
-  http://nmap.org/data/nmap_manpage-fr.html
+  https://nmap.org/data/nmap_manpage-fr.html
 
 o Applied some patches from Chad Loder (cloder(a)loder.us) which update
   the random IP allocation pool and improve OpenBSD support.  Some
@@ -14298,7 +14298,7 @@ o Fixed strtol() integer overflow problem found by Renaud Deraison
   (deraison(a)cvs.nessus.org)
 
 o The HTML translation of the Man page at
-  http://nmap.org/nmap_manpage.html should now be
+  https://nmap.org/nmap_manpage.html should now be
   complete (man2html was dropping lines before).
 
 o Added a note in the man page that Nmap 2.0+ is believed to be

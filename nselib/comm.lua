@@ -19,7 +19,7 @@
 -- <code>"lines"</code> takes precedence. If neither are given, the functions
 -- read as many bytes as possible.
 -- @author Kris Katterjohn 04/2008
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local nmap = require "nmap"
 local shortport = require "shortport"

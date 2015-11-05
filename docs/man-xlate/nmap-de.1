@@ -108,13 +108,13 @@ Nmap done: 1 IP address (1 host up) scanned in 17\&.00 seconds
 .\}
 .PP
 Die neueste Version von Nmap erhält man unter
-\m[blue]\fB\%http://nmap.org\fR\m[], und die neueste Version der Manpage ist unter
-\m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]
+\m[blue]\fB\%https://nmap.org\fR\m[], und die neueste Version der Manpage ist unter
+\m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]
 verfügbar\&.
 .SH "ÜBERSICHT DER OPTIONEN"
 .PP
 Diese Übersicht wird ausgegeben, wenn Nmap ohne Argumente aufgerufen wird; die neueste Version davon ist immer unter
-\m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]
 verfügbar\&. Sie hilft dabei, sich die am häufigsten benutzten Optionen zu merken, ist aber kein Ersatz für die detaillierte Dokumentation im Rest dieses Handbuchs\&. Einige obskure Optionen werden hier nicht einmal erwähnt\&.
 .\" Optionsübersicht
 .\" Kommandozeilenoptionen: von Nmap
@@ -228,7 +228,7 @@ EXAMPLES:
   nmap \-v \-A scanme\&.nmap\&.org
   nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-PN \-p 80
-SEE THE MAN PAGE (http://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
+SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
 .fi
 .if n \{\
 .RE
@@ -781,7 +781,7 @@ Port ansieht\&. Nmap verhält sich genauso wie beim Scan\-Basistyp, nur mit dem 
 \fB\-sI \fR\fB\fIzombie host\fR\fR\fB[:\fIprobeport\fR]\fR (Idle\-Scan) .\" -sI .\" Idle-Scan
 .RS 4
 Diese fortgechrittene Scan\-Methode ermöglicht einen wirklich blinden TCP\-Port\-Scan des Ziels, d\&.h\&. es werden keine Pakete von Ihrer wahren IP\-Adresse an das Ziel gesendet\&. Stattdessen wird mit einem Angriff auf einem parallelen Kanal eine vorhersagbare Erzeugung von Folgen von IP\-Fragmentation\-IDs auf dem Zombie\-Host ausgebeutet, um an Information über offene Ports auf dem Ziel zu gelangen\&. IDS\-Systeme zeigen als Urheber des Scans den Zombie\-Rechner an, den Sie angeben (der aktiv sein und einige bestimmte Bedingungen erfüllen muss)\&.
-Da dieser faszinierende Scan\-Typ zu komplex ist, um ihn in diesem Handbuch vollständig zu beschreiben, habe ich einen Artikel mit vollständigen Details dazu geschrieben und unter \m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[] veröffentlicht\&.
+Da dieser faszinierende Scan\-Typ zu komplex ist, um ihn in diesem Handbuch vollständig zu beschreiben, habe ich einen Artikel mit vollständigen Details dazu geschrieben und unter \m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[] veröffentlicht\&.
 .sp
 Dieser Scan\-Typ ist nicht nur extrem unauffällig (wegen seiner Blindheit), sondern erlaubt auch, IP\-basierte Vetrauensbeziehungen zwischen Rechnern festzustellen\&. Die Portliste zeigt offene Ports
 \fIaus der Sicht des Zombie\-Hosts\fR
@@ -939,7 +939,7 @@ Offene|gefilterte
 TCP\-Ports werden genauso behandelt\&. Beachten Sie, dass die Nmap\-Option
 \fB\-A\fR
 unter anderem auch die Versionserkennung einschaltet\&.
-A paper documenting the workings, usage, and customization of version detection is available at \m[blue]\fB\%http://nmap.org/book/vscan.html\fR\m[]\&.
+A paper documenting the workings, usage, and customization of version detection is available at \m[blue]\fB\%https://nmap.org/book/vscan.html\fR\m[]\&.
 .PP
 Wenn Nmap Antworten von einem Dienst erhält, aber keine Übereinstimmungen dafür in seiner Datenbank finden kann, gibt es einen speziellen Fingerprint und eine URL aus, damit Sie diese Antwort einsenden können, falls Sie genau wissen, was auf diesem Port läuft\&. Bitte nehmen Sie sich ein paar Minuten Zeit, um sie einzusenden, damit Ihr Fund für alle ein Gewinn sein kann\&. Dank dieser Beiträge hat Nmap über 3000 Musterübereinstimmungen für über 350 Protokolle wie SMTP, FTP, HTTP usw\&..\" Einsenden von Dienst-Fingerprints
 .PP
@@ -1026,7 +1026,7 @@ aktiviert ist, wird auch die IP\-ID\-Sequenzerzeugung berichtet\&. Die meisten R
 .PP
 Eine weitere zusätzliche Information, die die Betriebssystem\-Erkennung aktiviert, ist eine Schätzung der Betriebszeit des Zielhosts\&. Dabei wird die TCP\-Timestamp\-Option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[7]\d\s+2) benutzt, um zu raten, wann ein Rechner das letzte Mal neu gestartet wurde\&. Wenn der Timestamp\-Zähler nicht bei null gestartet wurde oder der Zähler überläuft und wieder von vorn zählt, kann diese Schätzung ungenau werden, weshalb sie nur im ausführlichen Modus ausgegeben wird\&.
 .PP
-A paper documenting the workings, usage, and customization of OS detection is available at \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
+A paper documenting the workings, usage, and customization of OS detection is available at \m[blue]\fB\%https://nmap.org/book/osdetect.html\fR\m[]\&.
 .PP
 Eingeschaltet und gesteuert wird die Betriebssystem\-Erkennung mit den folgenden Optionen:
 .PP
@@ -1078,10 +1078,10 @@ vuln,
 auth
 und
 default\&. Sie alle werden
-at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
+at \m[blue]\fB\%https://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
 Die Nmap Scripting Engine wird detailliert
-at \m[blue]\fB\%http://nmap.org/book/nse.html\fR\m[]
+at \m[blue]\fB\%https://nmap.org/book/nse.html\fR\m[]
 beschrieben und wird mit den folgenden Optionen gesteuert:
 .PP
 \fB\-sC\fR .\" -sC
@@ -1108,7 +1108,7 @@ lauten\&.
 .sp
 Nmap\-Scripts werden standardmäßig in einem
 scripts\-Unterverzeichnis des Nmap\-Datenverzeichnisses gespeichert
-(see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
+(see \m[blue]\fB\%https://nmap.org/book/data-files.html\fR\m[])\&.
 Aus Effizienzgründen werden Scripts in einer Datenbank indiziert, die in
 scripts/script\&.db\&..\" script.db
 gespeichert ist und für jedes Script auflistet, in welche Kategorie bzw\&. Kategorien es gehört\&. Um alle Scripts in der Nmap\-Script\-Datenbank auszuführen, geben Sie das Argument
@@ -1578,7 +1578,7 @@ Cisco\&. Diese Option betrifft nur Scans mit rohen Paketen wie den SYN\-Scan ode
 \fB\-\-badsum\fR (sendet Pakete mit falschen TCP/UDP\-Prüfsummen) .\" --badsum .\" TCP-Prüfsumme .\" Prüfsummen
 .RS 4
 Verlangt von Nmap, bei den an Zielhosts gesendeten Paketen ungültige TCP\- oder UDP\-Prüfsummen zu benutzen\&. Da so gut wie alle Host\-IP\-Stacks solche Pakete verwerfen, kommen eventuelle Antworten sehr wahrscheinlich von einer Firewall oder einem IDS, das sich nicht die Mühe macht, die Prüfsumme zu überprüfen\&. Mehr Details zu dieser Methode finden Sie unter
-\m[blue]\fB\%http://nmap.org/p60-12.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/p60-12.html\fR\m[]\&.
 .RE
 .\" 
 .\" 
@@ -1681,7 +1681,7 @@ interaktiven Ausgabe\&.
 Verlangt, dass eine
 XML\-Ausgabe
 in der angegebenen Datei gespeichert wird\&. Nmap fügt eine DTD (Document Type Definition) hinzu, mit der XML\-Parser Nmaps XML\-Ausgabe validieren können\&. Diese ist vor allem für die Benutzung durch Programme gedacht, kann aber auch Menschen bei der Interpretation von Nmaps XML\-Ausgabe helfen\&. Die DTD definiert die gültigen Elemente des Formats und zählt an vielen Stellen die dafür erlaubten Attribute und Werte auf\&. Die neueste Version ist immer unter
-\m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]
 verfügbar\&.
 .sp
 XML bietet ein stabiles Format, das man mit Software leicht parsen kann\&. Solche XML\-Parser sind für alle wichtigen Programmiersprachen wie C/C++, Perl, Python und Java gratis verfügbar\&. Manche Leute haben sogar Anbindungen für die meisten dieser Sprachen geschrieben, um speziell die Ausgabe und Ausführung von Nmap zu steuern\&. Beispiele sind
@@ -1735,7 +1735,7 @@ und
 Version info\&.
 .sp
 Wie bei der XML\-Ausgabe kann diese Manpage auch hier nicht das vollständige Format dokumentieren\&. Eine detailliertere Betrachtung des grepbaren Ausgabeformats in Nmap finden Sie
-from \m[blue]\fB\%http://nmap.org/book/output-formats-grepable-output.html\fR\m[]\&.
+from \m[blue]\fB\%https://nmap.org/book/output-formats-grepable-output.html\fR\m[]\&.
 .RE
 .PP
 \fB\-oA \fR\fB\fIbasename\fR\fR (Ausgabe in allen Formaten) .\" -oA
@@ -1890,7 +1890,7 @@ nmap\&.xsl
 im Dateisystem finden und benutzen, um die Ergebnisse darzustellen\&. Wenn Sie ein anderes Stylesheet benutzen möchten, geben Sie es als Argument für
 \fB\-\-stylesheet\fR
 an\&. Dabei müssen Sie den vollständigen Pfadnamen oder die URL angeben\&. Sehr häufig wird
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR
 benutzt\&. Das sagt einem Browser, dass er die neueste Version des Stylesheets von Nmap\&.Org laden soll\&. Die Option
 \fB\-\-webxml\fR
 macht dasselbe, verlangt aber weniger Tipparbeit und Merkfähigkeit\&. Wenn man das XSL von Nmap\&.Org lädt, wird es einfacher, die Ergebnisse auf einem Rechner anzuschauen, auf dem kein Nmap (und folglich auch kein
@@ -1902,7 +1902,7 @@ im lokalen Dateisystem benutzt\&.
 \fB\-\-webxml\fR (lade Stylesheet von Nmap\&.Org) .\" --webxml
 .RS 4
 Diese bequeme Option ist nur ein Alias für
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (lasse XSL\-Stylesheet\-Deklaration im XML weg) .\" --no-stylesheet
@@ -2115,7 +2115,7 @@ Das scannt 4096 IPs nach Webservern (ohne sie anzupingen) und speichert die Ausg
 Auch wenn dieser Reference Guide alle wesentlichen Nmap\-Optionen genau beschreibt, kann er nicht vollständig zeigen, wie man diese Features anwendet, um Aufgaben der realen Welt zu lösen\&. Zu diesem Zweck haben wir das Buch
 Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning\&.
 Es zeigt, wie man Firewalls und Intrusion Detection\-Systeme unterwandert, die Performance von Nmap optimiert, und wie man häufige Netzwerkaufgaben mit der Nmap Scripting Engine automatisiert\&. Außerdem enthält es Tipps und Anleitungen für häufige Nmap\-Aufgaben wie die Netzwerkinventarisierung, Penetrationstests, die Erkennung schurkischer Wireless Access Points und das Verhindern von Wurmausbrüchen im Netzwerk\&. Dabei zeigt es mit Beispielen und Diagrammen, wie die Kommunikation auf der Leitung aussieht\&. Mehr als die Hälfte des Buches ist online frei verfügbar\&. Weitere Informationen finden Sie unter
-\m[blue]\fB\%http://nmap.org/book\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book\fR\m[]\&.
 .PP
 Die deutsche Übersetzung dieses Buches von Dinu Gherman ist im Mai 2009 unter dem Titel
 \m[blue]\fBNmap: Netzwerke scannen, analysieren und absichern\fR\m[]\&\s-2\u[14]\d\s+2
@@ -2125,7 +2125,7 @@ im
 .\" Fehlerberichte
 .PP
 Wie sein Autor ist auch Nmap selbst nicht perfekt\&. Aber Sie können helfen, es zu verbessern, indem Sie Fehlerberichte schicken oder sogar Patches schreiben\&. Falls Nmap sich nicht wie erwartet verhält, sollten Sie zuerst auf die neueste Version aktualisieren, die unter
-\m[blue]\fB\%http://nmap.org\fR\m[]
+\m[blue]\fB\%https://nmap.org\fR\m[]
 verfügbar ist\&. Wenn das Problem anhält, versuchen Sie herauszufinden, ob es bereits erkannt und bearbeitet wurde\&. Suchen Sie nach der Fehlermeldung auf unserer Suchseite unter
 \m[blue]\fB\%http://insecure.org/search.html\fR\m[]
 oder bei Google\&. Stöbern Sie in den
@@ -2135,10 +2135,10 @@ Lesen Sie auch diese Manpage vollständig\&. Wenn Sie keine Lösung finden, schi
 <dev@nmap\&.org>\&. Beschreiben Sie darin bitte alles, was Sie über das Problem wissen, inklusive der Nmap\-Version und der Betriebssystemversion, unter der Sie Nmap einsetzen\&. Berichte von Problemen und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher beantwortet, wenn sie an
 <dev@nmap\&.org>
 geschickt werden statt direkt an Fyodor\&. Wenn Sie sich erst auf der nmap\-dev\-Liste eintragen, bevor Sie Ihre E\-Mail schicken, entgeht Ihre Nachricht auch der Moderation und kommt schneller an\&. Eintragen können Sie sich unter
-\m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
 Code\-Patches zur Behebung von Fehlern sind noch besser als Fehlerberichte\&. Eine einfache Anweisung für die Erstellung von Patch\-Dateien mit Ihren Änderungen ist unter
-\m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]
 verfügbar\&. Patches können an
 nmap\-dev
 (empfohlen) oder direkt an Fyodor geschickt werden\&.
@@ -2151,7 +2151,7 @@ Fyodor
 Über die Jahre haben hunderte von Menschen wertvolle Beiträge zu Nmap geleistet\&. Sie sind detailliert in der Datei
 CHANGELOG.\" changelog
 aufgeführt, die mit dem Nmap\-Quellcode verbreitet wird und auch unter
-\m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]
 verfügbar ist\&.
 .SH ""
 .PP
@@ -2223,7 +2223,7 @@ Nmap Network Scanning: The Official
 Nmap Project Guide to Network Discovery and Security
 Scanning
 .RS 4
-\%http://nmap.org/book/
+\%https://nmap.org/book/
 .RE
 .IP "14." 4
 Nmap: Netzwerke scannen, analysieren und absichern
@@ -2238,5 +2238,5 @@ Open Source Press
 .IP "16." 4
 English version
 .RS 4
-\%http://nmap.org/book/man-legal.html
+\%https://nmap.org/book/man-legal.html
 .RE

@@ -28,7 +28,7 @@ Performs brute force password guessing against HTTP proxy servers.
 --       brute force guessing (default: HEAD)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 -- maybe the script does not need to be in the external category
 -- as most request should not "leave" the proxy.

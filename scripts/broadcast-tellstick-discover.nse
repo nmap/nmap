@@ -22,7 +22,7 @@ dimmers and electric outlets. For more information: http://www.telldus.com/
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 prerule = function() return ( nmap.address_family() == 'inet' ) end

@@ -19,7 +19,7 @@ of Windows and Windows Server are not supported.
 ]]
 
 author = "Niklaus Schiess <nschiess@adversec.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {'discovery', 'safe', 'default'}
 
 ---

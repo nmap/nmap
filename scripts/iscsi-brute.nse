@@ -24,7 +24,7 @@ Performs brute force password auditing against iSCSI targets.
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.portnumber(3260, "tcp", {"open", "open|filtered"})

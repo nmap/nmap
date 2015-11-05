@@ -713,7 +713,7 @@ abierto|filtrado\&. Nmap se comportará igual que para el sondeo tipo base, con 
 \fB\-sI <sistema zombi [:puerto_sonda]>\fR (Sondeo ocioso)
 .RS 4
 Este es un método de sondeo avanzado que le permite hacer un sondeo de puertos TCP a ciegas de verdad (lo que significa que no se envía ningún paquete al sistema objetivo desde su dirección IP real)\&. En lugar de ésto se utiliza un ataque con un canal alternativo que se aprovecha de la generación de la secuencia de los identificadores de fragmentación IP del sistema zombi para obtener información de los puertos abiertos en el objetivo\&. Los sistemas IDS mostrarán que el sondeo lo está realizando el sistema zombi que especifique (que debe estar vivo y cumplir algunos requisitos)\&. Este tipo de sondeo tan fascinante es demasiado complejo como para describirlo por completo en esta guía de referencia por lo que escribí y publiqué un documento informal que contiene todos los detalles, el documento está disponible en
-\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Además de ser extraordinariamente sigiloso (debido a su funcionamiento a ciegas), este tipo de sondeo permite determinar las relaciones basadas en IP entre distintos sistemas\&. El listado de puertos muestra los puertos abiertos
 \fIdesde la perspectiva del sistema zombi\&.\fR
@@ -1192,7 +1192,7 @@ Cisco\&.
 \fB\-\-badsum\fR (Envía paquetes con sumas de comprobación TCP/UDP erróneas)
 .RS 4
 Esta opción le indica a Nmap que debe generar sumas de comprobación inválidas para los paquetes que se envíen a los equipos objetivos\&. Cualquier respuesta que se reciba vendrá de un cortafuegos o un IDS que no comprobó la suma, dado que la mayoría de las pilas IP descartan estos paquetes\&. Para obtener más información de esta técnica puede consultar
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "SALIDA"
 .PP

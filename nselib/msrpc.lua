@@ -47,7 +47,7 @@
 -- Revised 07/25/2012 - added Printer Spooler Service (spoolss) RPC functions and
 --                      constants [Aleksandar Nikolic]
 --@author Ron Bowes <ron@skullsecurity.net>
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--@copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 
 local bin = require "bin"

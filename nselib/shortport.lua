@@ -4,7 +4,7 @@
 -- Since portrules are mostly the same for many scripts, this
 -- module provides functions for the most common tests.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local nmap = require "nmap"
 local stdnse = require "stdnse"

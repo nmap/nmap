@@ -41,7 +41,7 @@
 
   Questions, comments and patches should be sent to the Nmap development
   mailing list (nmap-dev). To suscribe:
-  <http://nmap.org/mailman/listinfo/dev>
+  <https://nmap.org/mailman/listinfo/dev>
 
 
 /*****************************************************************************
@@ -542,7 +542,7 @@
 [DONE] Move nping to /nping in SVN rather than being in nmap-exp
 
 [DONE] Set up automatic conversion from nping XML man page to HTML for
-       http://nmap.org/nping/man.html [Fyodor working on this]
+       https://nmap.org/nping/man.html [Fyodor working on this]
 
 [DONE] Include signature files in new releases. [Requested by Henri Salo]
 [DONE] It would be nice to have Bzip2 packages. [Requested by Henri Salo]
@@ -632,7 +632,7 @@
 [DONE] Update documentation for option --delay, including that now, time
   specification as float numbers is supported (eg: --delay 0.1 meaning 100ms)
 
-[DONE] Change info about TODO file in http://nmap.org/nping web page.
+[DONE] Change info about TODO file in https://nmap.org/nping web page.
     - If you wish to contribute code to Nping there is a TO-DO list you can have 
     - a look at (file "TODO" in the source package).
     + If you wish to contribute code to Nping there is a TO-DO list you can have 

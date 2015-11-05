@@ -125,13 +125,13 @@
 
 APP_NAME = "zenmap"
 APP_DISPLAY_NAME = "Zenmap"
-APP_WEB_SITE = "http://nmap.org/zenmap"
-APP_DOWNLOAD_SITE = "http://nmap.org/download.html"
-APP_DOCUMENTATION_SITE = "http://nmap.org/docs.html"
+APP_WEB_SITE = "https://nmap.org/zenmap"
+APP_DOWNLOAD_SITE = "https://nmap.org/download.html"
+APP_DOCUMENTATION_SITE = "https://nmap.org/docs.html"
 APP_COPYRIGHT = "Copyright 2005-2015 Insecure.Com LLC"
 
 NMAP_DISPLAY_NAME = u"Nmap"
-NMAP_WEB_SITE = "http://nmap.org"
+NMAP_WEB_SITE = "https://nmap.org"
 
 UMIT_DISPLAY_NAME = "Umit"
 UMIT_WEB_SITE = "http://www.umitproject.org/"

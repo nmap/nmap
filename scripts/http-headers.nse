@@ -27,7 +27,7 @@ Performs a HEAD request for the root folder ("/") of a web server and displays t
 
 author = "Ron Bowes"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 

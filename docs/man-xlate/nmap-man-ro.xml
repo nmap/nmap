@@ -1241,7 +1241,7 @@
             este prea complex pentru a fi descris in acest ghid de referinta,
             astfel ca am scris un document informativ cu detalii complete
             disponibil la
-            <ulink url="http://nmap.org/book/idlescan.html"></ulink>.</para>
+            <ulink url="https://nmap.org/book/idlescan.html"></ulink>.</para>
             <para>In afara faptului ca este extrem de discreta (datorita
             naturii oarbe), acest tip de scanare permite maparea relatiilor de
             incredere bazate pe IP intre masini. Lista de porturi arata

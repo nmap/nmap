@@ -86,7 +86,7 @@
 -- the filename based on the type requested.
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- Version 0.5
 -- Created 2011/02/06 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

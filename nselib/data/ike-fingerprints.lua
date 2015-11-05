@@ -16,7 +16,7 @@ Unknown ids:
 ]]
 
 author = "Jesper Kueckelhahn"
-license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
+license = "Simplified (2-clause) BSD license--See https://nmap.org/svn/docs/licenses/BSD-simplified"
 
 
 fingerprints = {};

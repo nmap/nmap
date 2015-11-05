@@ -5,7 +5,7 @@
  * using libnbase can guarantee the availability of functions like         *
  * (v)snprintf and inet_pton.  This library also provides consistency and  *
  * extended features for some functions.  It was originally written for    *
- * use in the Nmap Security Scanner ( http://nmap.org ).                   *
+ * use in the Nmap Security Scanner ( https://nmap.org ).                   *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

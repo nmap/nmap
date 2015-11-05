@@ -27,7 +27,7 @@ The target must be specified by DNS name, not IP address.
 --
 
 author = "Arturo 'Buanzo' Busleiman"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
 local function unescape(s)

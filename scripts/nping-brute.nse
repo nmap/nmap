@@ -10,7 +10,7 @@ local openssl = stdnse.silent_require "openssl"
 description = [[
 Performs brute force password auditing against an Nping Echo service.
 
-See http://nmap.org/book/nping-man-echo-mode.html for Echo Mode
+See https://nmap.org/book/nping-man-echo-mode.html for Echo Mode
 documentation.
 ]]
 
@@ -27,7 +27,7 @@ documentation.
 -- |_    Perfomed 204 guesses in 204 seconds, average tps: 1
 
 author = "Toni Ruottu"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 

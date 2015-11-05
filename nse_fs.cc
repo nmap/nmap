@@ -1,6 +1,6 @@
 /*
 ** Note: this is a port of LuaFileSystem for the
-** Nmap project (http://nmap.org).
+** Nmap project (https://nmap.org).
 ** Many functions have been removed, because we only really
 ** need: dir, mkdir, rmdir and possibly link.
  */

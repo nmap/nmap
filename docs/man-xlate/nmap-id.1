@@ -106,8 +106,8 @@ Nmap done: 1 IP address (1 host up) scanned in 17\&.00 seconds
 .\}
 .PP
 Versi terbaru Nmap dapat diperoleh dari
-\m[blue]\fB\%http://nmap.org\fR\m[]\&. Versi terbaru man page tersedia di
-\m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org\fR\m[]\&. Versi terbaru man page tersedia di
+\m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]\&.
 .SH "CATATAN TERJEMAHAN"
 .PP
 Edisi bahasa Indonesia Nmap Reference Guide ini diterjemahkan dari versi [12855]
@@ -117,7 +117,7 @@ oleh Tedi Heriyanto\&. Meskipun kami berharap bahwa hal ini akan membuat Nmap le
 .SH "RINGKASAN OPSI"
 .PP
 Ringkasan opsi ini ditampilkan ketika Nmap dijalankan tanpa argumen, dan versi terakhir selalu tersedia di
-\m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]\&. Ia membantu mengingat opsi\-opsi umum, namun ia bukanlah pengganti dokumentasi lengkap dalam halaman\-halaman berikut manual ini\&. Bahkan beberapa opsi tersembunyi tidak disertakan di sini\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]\&. Ia membantu mengingat opsi\-opsi umum, namun ia bukanlah pengganti dokumentasi lengkap dalam halaman\-halaman berikut manual ini\&. Bahkan beberapa opsi tersembunyi tidak disertakan di sini\&.
 .\" summary of options
 .\" command-line options: of Nmap
 .sp
@@ -230,7 +230,7 @@ EXAMPLES:
   nmap \-v \-A scanme\&.nmap\&.org
   nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-PN \-p 80
-SEE THE MAN PAGE (http://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
+SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
 .fi
 .if n \{\
 .RE
@@ -758,7 +758,7 @@ open|filtered\&. Nmap akan berperilaku sama dengan jenis scan dasar, kecuali ia 
 \fB\-sI \fR\fB\fIzombie host\fR\fR\fB[:\fIprobeport\fR]\fR (idle scan) .\" -sI .\" idle scan
 .RS 4
 Metode scan tingkat tinggi ini memungkinkan scan port TCP secara tersembunyi (artinya tidak ada paket dikirim ke target dari alamat IP anda yang sebenarnya)\&. Alih\-alih, serangan side\-channel mengeksploitasi pembuatan urutan ID fragmentasi IP yang mudah ditebak pada host zombi untuk memperoleh informasi tentang port terbuka pada target\&. Sistem IDS akan menampilkan scan berasal dari mesin zombi yang anda spesifikasikan (yang harus up dan memenuhi beberapa kriteria)\&.
-Jenis scan menarik ini terlalu kompleks untuk dijelaskan dalam panduan referensi ini, sehingga saya menulis dan menaruh paper informal dengan detil penuh di \m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+Jenis scan menarik ini terlalu kompleks untuk dijelaskan dalam panduan referensi ini, sehingga saya menulis dan menaruh paper informal dengan detil penuh di \m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Selain sangat tersembunyi (karena sifat blind\-nya), jenis scan ini mengijinkan pemetaan relasi kepercayaan berbasis IP antar mesin\&. Daftar port menampilkan port terbuka
 \fIdari perspektif host zombi\&.\fR
@@ -914,7 +914,7 @@ open|filtered
 diperlakukan dalam cara yang sama\&. Perhatikan bahwa opsi
 \fB\-A\fR
 di antaranya mengaktifkan deteksi versi\&.
-Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi deteksi versi tersedia di \m[blue]\fB\%http://nmap.org/book/vscan.html\fR\m[]\&.
+Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi deteksi versi tersedia di \m[blue]\fB\%https://nmap.org/book/vscan.html\fR\m[]\&.
 .PP
 Bila Nmap menerima respon dari sebuah layanan namun tidak dapat mencocokkannya ke database, ia akan mencetak fingerprint khusus dan sebuah URL untuk menyerahkannya bila anda tahu secara pasti apa yang berjalan pada port tersebut\&. Mohon meluangkan waktu beberapa menit untuk menyerahkannya sehingga dapat bermanfaat bagi semua orang\&. Berkat penyerahan ini, Nmap memiliki sekitar 3\&.000 pola yang sesuai untuk lebih dari 350 protokol seperti SMTP, FTP, HTTP, dsb\&..\" submission of service fingerprints
 .PP
@@ -995,7 +995,7 @@ or
 .PP
 Informasi ekstra lain yang disertakan dalam deteksi SO adalah menduga waktu uptime target\&. Tekniknya menggunakan opsi timestamp TCP (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[9]\d\s+2) untuk menduga waktu terakhir mesin direboot\&. Dugaan dapat tidak akurat akibat counter timestamp tidak diinisialisasi ke nol atau counter overflow dan kembali ke awal, sehingga ia hanya dicetak dalam mode verbose\&.
 .PP
-Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi deteksi SO tersedia di \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
+Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi deteksi SO tersedia di \m[blue]\fB\%https://nmap.org/book/osdetect.html\fR\m[]\&.
 .PP
 Deteksi SO diaktifkan dan dikendalikan dengan opsi\-opsi berikut:
 .PP
@@ -1046,10 +1046,10 @@ discovery,
 vuln,
 auth, and
 default\&. These are all described
-at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
+at \m[blue]\fB\%https://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
 Nmap Scripting Engine dijelaskan lebih rinci
-di \m[blue]\fB\%http://nmap.org/book/nse.html\fR\m[]
+di \m[blue]\fB\%https://nmap.org/book/nse.html\fR\m[]
 dan dikendalikan oleh opsi\-opsi berikut ini:
 .PP
 \fB\-sC\fR .\" -sC
@@ -1077,7 +1077,7 @@ nse\&.
 Skrip Nmap secara baku disimpan dalam subdirektori
 scripts
 direktori data Nmap
-(lihat \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
+(lihat \m[blue]\fB\%https://nmap.org/book/data-files.html\fR\m[])\&.
 Demi efisiensi, skrip diindeks dalam database yang disimpan dalam
 scripts/script\&.db\&..\" script.db
 yang mendaftar kategori atau kategori\-kategori yang dimiliki skrip\&. Berikan argumen
@@ -1536,7 +1536,7 @@ Cisco\&. Opsi ini hanya mempengaruhi scan paket raw seperti SYN scan atau deteks
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums) .\" --badsum .\" TCP checksum .\" checksums
 .RS 4
 Meminta Nmap untuk menggunakan checksum TCP atau UDP tidak valid untuk paket yang dikirimkan ke host target\&. Karena secara virtual seluruh stack IP host akan secara tepat men\-drop paket ini, sembarang respon yang diterima adalah kemungkinan berasal dari firewall atau IDS yang tidak peduli untuk memverifikasi checksum\&. Detil lebih lanjut mengenai teknik ini, dapat dilihat pada
-\m[blue]\fB\%http://nmap.org/p60-12.html\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.html\fR\m[]
 .RE
 .\" 
 .\" 
@@ -1633,7 +1633,7 @@ interactive output\&.
 .RS 4
 XML output
 diarahkan ke namafile yang diberikan\&. Nmap menyertakan document type definition (DTD) yang memungkinkan parser XML memvalidasi output XML Nmap\&. Walau utamanya ditujukan untuk penggunaan programatik, ia dapat juga membantu manusia menginterpretasikan output XML Nmap\&. DTD mendefinisikan elemen legal format, dan seringkali merinci atribut dan nilai yang dapat mereka terima\&. Versi terakhir selalu tersedia di
-\m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML memberikan format stabil yang dapat secara mudah diparse oleh software\&. Parser XML yang bebas tersedia untuk bahasa pemrograman utama, termasuk C/C++, Perl, Python, dan Java\&. Orang bahkan telah menulis binding untuk kebanyakan bahasa ini untuk menangani output Nmap dan dijalankan secara khusus\&. Contohnya adalah
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[12]\d\s+2.\" Nmap::Scanner
@@ -1684,7 +1684,7 @@ SunRPC info, dan
 Version info\&.
 .sp
 Sebagaimana dengan output XML, man page ini tidak memungkinkan untuk mendokumentasi seluruh format\&. Rincian lebih lanjut mengenai format output grepable Nmap tersedia
-dari \m[blue]\fB\%http://nmap.org/book/output-formats-grepable-output.html\fR\m[]\&.
+dari \m[blue]\fB\%https://nmap.org/book/output-formats-grepable-output.html\fR\m[]\&.
 .RE
 .PP
 \fB\-oA \fR\fB\fIbasename\fR\fR (Output to all formats) .\" -oA
@@ -1828,7 +1828,7 @@ tempat awalnya ia diinstalasi oleh Nmap (atau pada direktori kerja saat ini pada
 nmap\&.xsl
 dari filesystem dan menggunakannya untuk merender hasil\&. Jika anda ingin menggunakan stylesheet yang berbeda, berikan ia sebagai argumen bagi
 \fB\-\-stylesheet\fR\&. Anda harus memberikan nama path atau URL lengkap\&. Cara pemanggilan umum adalah
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&. Cara ini memberitahu browser untuk memuat versi terakhir stylesheet dari Nmap\&.Org\&. Opsi
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&. Cara ini memberitahu browser untuk memuat versi terakhir stylesheet dari Nmap\&.Org\&. Opsi
 \fB\-\-webxml\fR
 melakukan hal yang sama dengan cara yang lebih singkat\&. Memuatkan XSL dari Nmap\&.Org memudahkan melihat hasil pada mesin yang tidak memiliki Nmap (dan karenanya tidak memiliki
 nmap\&.xsl)\&. Jadi URL seringkali lebih bermanfaat, namun lokasi filesistem lokal
@@ -1839,7 +1839,7 @@ digunakan secara baku demi alasan privasi\&.
 \fB\-\-webxml\fR (Load stylesheet from Nmap\&.Org) .\" --webxml
 .RS 4
 Opsi kenyamanan ini adalah sekedar alias bagi
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/data/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (Omit XSL stylesheet declaration from XML) .\" --no-stylesheet
@@ -2054,7 +2054,7 @@ Memeriksa 4096 IP untuk sembarang web server (tanpa mem\-ping mereka) dan menyim
 .\" bugs, reporting
 .PP
 Seperti penulisnya, Nmap tidaklah sempurna\&. Namun anda dapat membantu membuatnya lebih baik dengan mengirimkan laporan bug atau bahkan menulis patch\&. Jika Nmap tidak berlaku sesuai yang anda harapkan, pertama upgrade ke versi terakhir yang tersedia dari
-\m[blue]\fB\%http://nmap.org\fR\m[]\&. Jika masalah masih tetap, lakukan riset untuk menentukan apakah ia telah ditemukan dan diselesaikan\&. Cobalah mencari pesan kesalahan pada halaman pencarian kami
+\m[blue]\fB\%https://nmap.org\fR\m[]\&. Jika masalah masih tetap, lakukan riset untuk menentukan apakah ia telah ditemukan dan diselesaikan\&. Cobalah mencari pesan kesalahan pada halaman pencarian kami
 \m[blue]\fB\%http://insecure.org/search.html\fR\m[]
 atau di Google\&. Juga cobalah membrowsing arsip
 nmap\-dev
@@ -2064,10 +2064,10 @@ Bacalah juga halaman manual ini dengan baik\&. Jika masih belum selesai juga, ki
 <dev@nmap\&.org>\&. Mohon sertakan semua yang anda telah pelajari mengenai masalah, dan juga versi Nmap dan sistem operasi yang anda gunakan\&. Laporan kesalahan dan pertanyaan penggunaan Nmap yang dikirim ke
 <dev@nmap\&.org>
 akan lebih mungkin dijawab daripada yang dikirimkan secara langsung ke Fyodor\&. Jika anda berlangganan ke list nmap\-dev sebelum posting, pesan anda akan melewati moderasi dan akan lewat dengan lebih cepat\&. Berlangganan di
-\m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
 Patch code untuk memperbaiki bug adalah lebih baik daripada laporan kesalahan\&. Instruksi dasar untuk membuat file patch dengan perubahan anda tersedia di
-\m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]\&. Patch dapat dikirim ke
+\m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]\&. Patch dapat dikirim ke
 nmap\-dev
 (direkomendasikan) atau langsun ke Fyodor\&.
 .SH "PENULIS"
@@ -2079,7 +2079,7 @@ Fyodor
 Selama ini, ratusan orang telah memberikan kontribusi berharga ke Nmap\&. Hal ini dirinci dalam file
 CHANGELOG.\" changelog
 yang didistribusikan bersama Nmap dan juga tersedia dari
-\m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "LEGAL NOTICES"
 .SS "Unofficial Translation Disclaimer / Disklaimer Terjemahan Tidak Resmi"
 .PP
@@ -2230,7 +2230,7 @@ U\&.S\&. Export Control: Insecure\&.Com LLC believes that Nmap falls under U\&.S
 .IP " 1." 4
 versi Inggris
 .RS 4
-\%http://nmap.org/book/man.html
+\%https://nmap.org/book/man.html
 .RE
 .IP " 2." 4
 Creative Commons Attribution License
@@ -2300,7 +2300,7 @@ di daftar Wikipedia
 .IP "15." 4
 Nmap license details
 .RS 4
-\%http://nmap.org/book/man-legal.html
+\%https://nmap.org/book/man-legal.html
 .RE
 .IP "16." 4
 Apache Software Foundation

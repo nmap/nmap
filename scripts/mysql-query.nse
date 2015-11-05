@@ -31,7 +31,7 @@ Runs a query against a MySQL database and returns the results as a table.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "discovery", "safe"}
 
 

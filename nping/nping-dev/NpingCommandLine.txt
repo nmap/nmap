@@ -7,7 +7,7 @@ now definitive. Howerever, comments and suggestions are still welcome.
 
 
 
-Nping 0.01a ( http://nmap.org/nping )
+Nping 0.01a ( https://nmap.org/nping )
 Usage: nping [Probe mode] [Options] {target specification}
 
 TARGET SPECIFICATION:

@@ -50,7 +50,7 @@ http://digitalbond.com
 
 
 author = "Stephen Hilt, Michael Toecker (Digital Bond)"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "version"}
 
 

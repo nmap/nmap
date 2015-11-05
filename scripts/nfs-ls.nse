@@ -137,7 +137,7 @@ Recursive listing is not implemented.
 --
 
 author = "Patrik Karlsson, Djalal Harouni"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"rpc-grind"}
 

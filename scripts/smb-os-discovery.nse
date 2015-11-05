@@ -70,7 +70,7 @@ will speed up the script on targets that do not allow guest access.
 -- <elem key="forest_dns">test.local</elem>
 
 author = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"smb-brute"}
 

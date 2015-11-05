@@ -133,11 +133,11 @@ Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
       </example>
 
       <para>L'ultima versione di Nmap si può ottenere dal sito <ulink
-      url="http://nmap.org" />. L'ultima versione di questa pagina del manuale
-      è disponibile al sito <ulink url="http://nmap.org/book/man.html" />. È
+      url="https://nmap.org" />. L'ultima versione di questa pagina del manuale
+      è disponibile al sito <ulink url="https://nmap.org/book/man.html" />. È
       anche inclusa come capitolo di <quote>Nmap Network Scanning: The Official
       Nmap Project Guide to Network Discovery and Security Scanning</quote>
-      (<ulink url="http://nmap.org/book/" />).</para>
+      (<ulink url="https://nmap.org/book/" />).</para>
     </refsect1>
 
     <refsect1 id="man-briefoptions">
@@ -153,7 +153,7 @@ Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
       qui.</para>
 
       <para>
-        <literallayout class="normal">Nmap 6.47SVN ( http://nmap.org )
+        <literallayout class="normal">Nmap 6.47SVN ( https://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -267,7 +267,7 @@ EXAMPLES:
   nmap -v -A scanme.nmap.org
   nmap -v -sn 192.168.0.0/16 10.0.0.0/8
   nmap -v -iR 10000 -Pn -p 80
-SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
+SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 </literallayout>
       </para>
     </refsect1>
@@ -1288,7 +1288,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             Questo in base ad una feature TCP estremamente rara conosciuta come
             "apertura simultanea" ("simultaneous open") o connessione "split
             handshake" (vedere <ulink
-            url="http://nmap.org/misc/split-handshake.pdf" />).</para>
+            url="https://nmap.org/misc/split-handshake.pdf" />).</para>
           </listitem>
         </varlistentry>
 
@@ -1686,7 +1686,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             scansione come se provenisse dalla macchina zombie specificata (che
             deve essere attiva e rispondere a certi criteri). Tutti i dettagli
             su questa affascinante tecnica di scansione si trovano al seguente
-            link <quote> <ulink url="http://nmap.org/book/idlescan.html">TCP
+            link <quote> <ulink url="https://nmap.org/book/idlescan.html">TCP
             Idle Scan (-sI)</ulink></quote>.</para>
 
             <para>Oltre che essere straordinariamente nascosto (grazie alla
@@ -1912,7 +1912,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             moreinfo="none">nmap-services</filename> che contiene le
             informazioni di frequenza, in modo da sapere quali sono le porte
             più comuni (vedi <quote><ulink
-            url="http://nmap.org/book/nmap-services.html">Well Known Port List:
+            url="https://nmap.org/book/nmap-services.html">Well Known Port List:
             <option>nmap-services</option></ulink></quote> per maggiori
             informazioni sulle "port frequencies"). Se la "port frequency
             information" non è disponibile, forse perché si sta utilizzando un
@@ -2020,7 +2020,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       stesso modo. Bisogna tener presente che l'opzione <option>-A</option>
       abilita, fra le varie cose, il version detection. Il version detection
       viene descritto nel dettaglio in <ulink
-      url="http://nmap.org/book/vscan.html">Chapter 7, Service and Application
+      url="https://nmap.org/book/vscan.html">Chapter 7, Service and Application
       Version Detection</ulink>.</para>
 
       <para>Quando i servizi RPC vengono identificati, Nmap è in grado di
@@ -2204,7 +2204,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 
 
       <para>L'OS detection viene trattato nel dettaglio in <ulink
-      url="http://nmap.org/book/osdetect.html">Chapter 8, Remote OS
+      url="https://nmap.org/book/osdetect.html">Chapter 8, Remote OS
       Detection</ulink>.</para>
 
       <para>OS detection viene attivato e controllato dalle le seguenti
@@ -2309,7 +2309,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       moreinfo="none">version</literal> e
       <literal moreinfo="none">vuln</literal>. Queste sono tutte descritte
       nella sezione <quote><ulink
-      url="http://nmap.org/book/nse-usage.html#nse-categories">Script
+      url="https://nmap.org/book/nse-usage.html#nse-categories">Script
       Categories</ulink></quote>.</para>
 
       <para>Gli script non vengono eseguiti in una sandbox e quindi
@@ -2319,7 +2319,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       ha preventivamente controllato personalmente gli script.</para>
 
       <para>L'Nmap Scripting Engine è descritto nel dettaglio in <ulink
-      url="http://nmap.org/book/nse.html">Chapter 9, Nmap Scripting
+      url="https://nmap.org/book/nse.html">Chapter 9, Nmap Scripting
       Engine</ulink> e viene controllato dalle seguenti opzioni:</para>
 
       <variablelist>
@@ -2410,7 +2410,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             <para>Gli script Nmap sono archiviati di default in una
             subdirectory <literal moreinfo="none">scripts</literal> della
             directory principale di Nmap (vedi <ulink
-            url="http://nmap.org/book/data-files.html">Chapter 14,
+            url="https://nmap.org/book/data-files.html">Chapter 14,
             Understanding and Customizing Nmap Data Files</ulink>). Per
             migliorare l'efficienza, gli script vengono indicizzati nel
             database <filename
@@ -2538,7 +2538,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             Un esempio complesso è <option>--script-args
             'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</option>.
             L'NSE Documentation Portal all'indirizzo <ulink
-            url="http://nmap.org/nsedoc/" /> elenca gli argomenti che ogni
+            url="https://nmap.org/nsedoc/" /> elenca gli argomenti che ogni
             script accetta.</para>
           </listitem>
         </varlistentry>
@@ -2760,7 +2760,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             ritrasmettere il probe. Questo viene calcolato basandosi sui
             tempi di response degli ultimi probe inviati. La formula si
             trova al link <ulink
-            url="http://nmap.org/book/scan-methods.html#port-scanning-algorithms"><quote>Idle
+            url="https://nmap.org/book/scan-methods.html#port-scanning-algorithms"><quote>Idle
             Scan Implementation Algorithms</quote></ulink>. Se la latenza
             della rete dovesse oscillare troppo questo timeout può
             crescere fino ad un valore di diversi secondi. Inoltre esso è
@@ -2903,7 +2903,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             (IDS/IPS, "intrusion-detection" e "intrusion-prevention
             system"). Questa tecnica viene utilizzata nella sezione
             <quote><ulink
-            url="http://nmap.org/book/firewalls.html#defeating-ids-snort-portscan">
+            url="https://nmap.org/book/firewalls.html#defeating-ids-snort-portscan">
             A practical example: bypassing default Snort 2.2.0
             rules</ulink></quote> per vincere il port scanner detector di
             default in Snort IDS. Molti altri IDS possono essere sconfitti
@@ -2974,7 +2974,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             portare ad un scansione <emphasis>più lenta</emphasis> rispetto
             ad una scansione con un rate più basso. Questo perché
             l'algoritmo <ulink
-            url="http://nmap.org/book/scan-methods.html#scan-methods-adaptive-retransmission">adaptive
+            url="https://nmap.org/book/scan-methods.html#scan-methods-adaptive-retransmission">adaptive
             retransmission</ulink> di Nmap potrebbe rilevare una
             congestione della rete causata da un eccessivo scanning rate e
             aumentare il numero di ritrasmissioni per mantenere una certa
@@ -3598,7 +3598,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             provenire da un firewall o da un Intrusion Detection System (IDS)
             che non si preoccupa di verificare il checksum. Per maggiori
             informazioni su questa tecnica, si consulti <ulink
-            url="http://nmap.org/p60-12.txt"/>.</para>
+            url="https://nmap.org/p60-12.txt"/>.</para>
           </listitem>
         </varlistentry>
         
@@ -3841,7 +3841,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             permette di documentare l'intero formato. È disponibile una
             descrizione più dettagliata del formato grepable
             output nella sezione <quote><ulink
-            url="http://nmap.org/book/output-formats-grepable-output.html">Grepable
+            url="https://nmap.org/book/output-formats-grepable-output.html">Grepable
             Output (-oG)</ulink></quote>.</para>
           </listitem>
         </varlistentry>
@@ -3957,7 +3957,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             <para>Periodicamente stampa un messaggio di timing status ogni
             intervallo di <replaceable>time</replaceable>. Il tempo è una
             specifica del tipo descritto nella sezione <quote><ulink
-            url="http://nmap.org/book/man-performance.html">Timing and
+            url="https://nmap.org/book/man-performance.html">Timing and
             Performance</ulink></quote> di questo manuale; quindi per esempio,
             si utilizzerà <option>--stats-every 10s</option> per avere un
             aggiornamento dello stato ogni 10 secondi. Gli aggiornamenti
@@ -4097,7 +4097,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
             l'opzione <option>--stylesheet</option>. Il file va indicato con il
             percorso completo o l'URL. Un esempio di invocazione con
             quest'opzione è <option>--stylesheet
-            http://nmap.org/svn/docs/nmap.xsl</option>. Questo indica ad un
+            https://nmap.org/svn/docs/nmap.xsl</option>. Questo indica ad un
             XSLT processor di caricare l'ultima versione del foglio di stile da
             Nmap.Org. L'opzione <option>--webxml</option> fa la stessa cosa ma
             richiede meno digitazioni e meno cose da ricordare. Caricando l'XSL
@@ -4117,7 +4117,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
           <listitem>
             <para>Quest'opzione è semplicemente una comodità per l'opzione
             <option>--stylesheet
-            http://nmap.org/svn/docs/nmap.xsl</option>.</para>
+            https://nmap.org/svn/docs/nmap.xsl</option>.</para>
           </listitem>
         </varlistentry>
 
@@ -4514,7 +4514,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       <para>Dato che questa guida di riferimento mostra nel dettaglio tutte le
       opzioni di Nmap, non può dimostrare in maniera completa come utilizzare
       queste feature per risolvere velocemente applicazioni reali. È per questo
-      che è stato pubblicato <ulink url="http://nmap.org/book/"><emphasis>Nmap
+      che è stato pubblicato <ulink url="https://nmap.org/book/"><emphasis>Nmap
       Network Scanning: The Official Nmap Project Guide to Network Discovery
       and Security Scanning</emphasis></ulink>. Gli argomenti trattati sono
       sovvertire i firewall e gli IDS, ottimizzare le performance di Nmap e
@@ -4524,7 +4524,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       access point wireless e l'annullamento di possibili worm. Esempi e
       diagrammi mostrano l'attuale sistema di comunicazione via cavo. Più della
       metà del libro è disponibile gratuitamente online. Per maggiori
-      informazioni <ulink url="http://nmap.org/book" />.</para>
+      informazioni <ulink url="https://nmap.org/book" />.</para>
     </refsect1>
 
     <refsect1 id="man-bugs">
@@ -4534,7 +4534,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       perfetto. Ma puoi fare qualcosa per aiutare a renderlo migliore mandando
       delle segnalazioni di bug o addirittura scrivendo delle patch. Se Nmap
       non si dovesse comportare come ti aspetteresti, prova prima l'ultima
-      versione disponibile su <ulink url="http://nmap.org/" />. Se il problema
+      versione disponibile su <ulink url="https://nmap.org/" />. Se il problema
       persiste effettua qualche ricerca per determinare se il problema è stato
       già scoperto e segnalato. Prova a cercare sulla nostra pagina di ricerca
       <ulink url="http://insecure.org/search.html" /> o su Google il messaggio
@@ -4549,7 +4549,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       direttamente. Se ti registri alla lista di nmap-dev prima di inviare il
       messaggio, quest'ultimo non verrà moderato e quindi arriverà più
       velocemente. Iscriviti su <ulink
-      url="http://nmap.org/mailman/listinfo/dev" />.</para>
+      url="https://nmap.org/mailman/listinfo/dev" />.</para>
 
       <para>Le patch che risolvono i bug sono molto meglio di una segnalazione.
       Le istruzioni di base per creare delle patch sono disponibili su <ulink
@@ -4577,7 +4577,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       <para>Centinaia di persone hanno dato validi contributi a Nmap nel corso
       degli anni. Questi sono elencati dettagliatamente nel file di CHANGELOG
       che è distribuito assieme a Nmap ed è anche disponibile su <ulink
-      url="http://nmap.org/changelog.html" />.</para>
+      url="https://nmap.org/changelog.html" />.</para>
     </refsect1>
 
     <refsect1 id="man-legal">
@@ -4808,7 +4808,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
         classification library</ulink> viene utilizzata per le nostre tecniche
         di apprendimento automatico dell'OS version su IPv6 (vedi la sezione
         <quote><ulink
-        url="http://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6">IPv6
+        url="https://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6">IPv6
         matching</ulink></quote>). Tutto il software di terze parti descritto
         in questo paragrafo è liberamente ridistribuibile sotto licenza stile
         BSD.</para>
@@ -4844,7 +4844,7 @@ SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
         di <quote>Covered Software</quote>. Per qualsiasi informazione o
         chiarimento e per la versione più aggiornata, fare riferimento al testo
         originale disponibile al link <ulink
-        url="http://nmap.org/book/man.html" />.</para>
+        url="https://nmap.org/book/man.html" />.</para>
     </refsect1>
   </refentry>
 </article>

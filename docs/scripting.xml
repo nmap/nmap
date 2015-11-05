@@ -149,7 +149,7 @@ The reference manual, updated for Lua 5.2, is also
 <screen>
 # <userinput>nmap -sC -p22,111,139 -T4 localhost</userinput>
 
-Starting Nmap ( http://nmap.org )
+Starting Nmap ( https://nmap.org )
 Nmap scan report for flog (127.0.0.1)
 PORT     STATE SERVICE
 22/tcp   open  ssh
@@ -172,7 +172,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
 </example>
 
 <para>A 38-minute video introduction to NSE is available at
-<ulink url="http://nmap.org/presentations/BHDC10/"/>.  This
+<ulink url="https://nmap.org/presentations/BHDC10/"/>.  This
 presentation was given by Fyodor and David Fifield at Defcon and the
 Black Hat Briefings in 2010.</para>
 
@@ -528,9 +528,9 @@ Black Hat Briefings in 2010.</para>
           requests to query DHCP and DNS SD servers.  Some of these
           scripts can generate new targets for Nmap to scan (only if
           you specify
-          the <ulink url="http://nmap.org/nsedoc/lib/target.html">newtargets</ulink>
+          the <ulink url="https://nmap.org/nsedoc/lib/target.html">newtargets</ulink>
           NSE argument).  For example, <ulink role="hidepdf"
-          url="http://nmap.org/nsedoc/scripts/dns-zone-transfer.html">dns-zone-transfer</ulink>
+          url="https://nmap.org/nsedoc/scripts/dns-zone-transfer.html">dns-zone-transfer</ulink>
           can obtain a list of IPs in a domain using a zone transfer
           request and then automatically add them to Nmap's scan
           target list.  Prerule scripts can be identified by containing a <literal>prerule</literal> function (see <xref linkend="nse-format-rules"/>).
@@ -549,10 +549,10 @@ Black Hat Briefings in 2010.</para>
           against each target host which matches
           its <literal>hostrule</literal> function.  Examples
           are <ulink role="hidepdf"
-          url="http://nmap.org/nsedoc/scripts/whois.html">whois</ulink>,
+          url="https://nmap.org/nsedoc/scripts/whois.html">whois</ulink>,
           which looks up ownership information for a target IP,
           and <ulink role="hidepdf"
-          url="http://nmap.org/nsedoc/scripts/path-mtu.html">path-mtu</ulink>
+          url="https://nmap.org/nsedoc/scripts/path-mtu.html">path-mtu</ulink>
           which tries to determine the maximum IP packet size which
           can reach the target without requiring fragmentation.
           </para>
@@ -582,7 +582,7 @@ Black Hat Briefings in 2010.</para>
           <para>These scripts run after Nmap has scanned all of its
           targets.  They can be useful for formatting and presenting
           Nmap output.  For example, <ulink role="hidepdf"
-          url="http://nmap.org/nsedoc/scripts/ssh-hostkey.html">ssh-hostkey</ulink>
+          url="https://nmap.org/nsedoc/scripts/ssh-hostkey.html">ssh-hostkey</ulink>
           is best known for its service (portrule) script which
           connects to SSH servers, discovers their public keys, and
           prints them.  But it also includes a postrule which checks
@@ -745,18 +745,18 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
 <screen>
 $ nmap --script-help "afp-* and discovery"
 
-Starting Nmap 5.36TEST4 ( http://nmap.org ) at 2011-01-27 13:04 PST
+Starting Nmap 5.36TEST4 ( https://nmap.org ) at 2011-01-27 13:04 PST
 
 afp-serverinfo
 Categories: discovery safe
-http://nmap.org/nsedoc/scripts/afp-serverinfo.html
+https://nmap.org/nsedoc/scripts/afp-serverinfo.html
   Shows AFP server information. This information includes the server's
   hostname, IPv4 and IPv6 addresses, and hardware type (for example
   <code>Macmini</code> or <code>MacBookPro</code>).
 
 afp-showmount
 Categories: discovery safe
-http://nmap.org/nsedoc/scripts/afp-showmount.html
+https://nmap.org/nsedoc/scripts/afp-showmount.html
   Shows AFP shares and ACLs.
 </screen>
             </example>
@@ -1066,7 +1066,7 @@ local server_name = stdnse.get_script_args("xmpp-info.server_name")
       </para>
       <para>
       The online NSE Documentation Portal at <ulink
-      url="http://nmap.org/nsedoc/"/> lists the arguments that each script
+      url="https://nmap.org/nsedoc/"/> lists the arguments that each script
       accepts.
       </para>
     </sect2>
@@ -1176,7 +1176,7 @@ categories = {"default", "discovery", "safe"}
       the following line:</para>
 
 <programlisting>
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 </programlisting>
 
 <para>The Nmap license is similar to the GNU GPL.  Script authors may
@@ -1184,7 +1184,7 @@ use a BSD-style license (no advertising clause) instead if they prefer
 that.  For a BSD-style license, please include this line:
 
 <programlisting>
-license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
+license = "Simplified (2-clause) BSD license--See https://nmap.org/svn/docs/licenses/BSD-simplified"
 </programlisting>
 
 </para>
@@ -1458,7 +1458,7 @@ details of how different return values are handled.
     software developed as actively as NSE is.  For complete and
     up-to-date documentation, including script arguments and output
     samples, see the online NSE Documentation Portal at
-    <ulink url="http://nmap.org/nsedoc/"/>.
+    <ulink url="https://nmap.org/nsedoc/"/>.
     </para>
 
     &nse-scripts;
@@ -1468,7 +1468,7 @@ details of how different return values are handled.
     <para>This section (a long list of NSE scripts with brief
     summaries) is only provided in the printed edition of this book
     because we already provide a better online interface to the
-    information at the <ulink url="http://nmap.org/nsedoc/">NSE
+    information at the <ulink url="https://nmap.org/nsedoc/">NSE
     Documentation Portal</ulink>.</para>
     </web>
   </sect1>
@@ -1489,7 +1489,7 @@ details of how different return values are handled.
       <para>
       This list is just an overview to give an idea of what libraries
       are available. Developers will want to consult the complete
-      documentation at <ulink url="http://nmap.org/nsedoc/"/>.
+      documentation at <ulink url="https://nmap.org/nsedoc/"/>.
       </para>
 
       &nse-modules;
@@ -2622,7 +2622,7 @@ NSEDoc <literal>@output</literal> tag:</para>
 <programlisting>
 author = "Diman Todorov"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 </programlisting>
@@ -2759,7 +2759,7 @@ local localip, localport = try(client_service:get_info())
     this section, aims to meet both these needs. While reading this
     section, you may want to browse NSE's online documentation, which is
     generated using this system. It is at
-    <ulink url="http://nmap.org/nsedoc/"/>.
+    <ulink url="https://nmap.org/nsedoc/"/>.
     </para>
 
     <para>
@@ -2848,7 +2848,7 @@ local localip, localport = try(client_service:get_info())
 -- for details). 
 --
 -- @author Kris Katterjohn 04/2008
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 </programlisting>
     </example>
 
@@ -2908,7 +2908,7 @@ server (your default DNS server, or whichever one you specified with the
 -- |_     Peer AS: 174 2914 6461
 
 author = "jah, Michael"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 </programlisting>
     </example>
@@ -3662,7 +3662,7 @@ Detects the Skype version 2 service.
 -- 80/tcp open  skype2  Skype
  
 author = "Brandon Enright"<indexterm><primary>Enright, Brandon</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 categories = {"version"}
 
 require "comm"
@@ -3713,7 +3713,7 @@ end
     <function>nmap.set_port_version</function>. Several other version
     fields are available to be set if they are known, but in this case
     we only have the name and product. For the full list of version
-    fields, refer to the <ulink role="hidepdf" url="http://nmap.org/nsedoc/modules/nmap.html"><function>nmap.set_port_version</function> documentation</ulink>.
+    fields, refer to the <ulink role="hidepdf" url="https://nmap.org/nsedoc/modules/nmap.html"><function>nmap.set_port_version</function> documentation</ulink>.
     </para>
 
     <para>
@@ -3742,7 +3742,7 @@ Attempts to get a list of usernames via the finger service.
 
 author = "Eddie Bell"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 </programlisting>
 
 <para>The <literal>categories</literal> field is a table

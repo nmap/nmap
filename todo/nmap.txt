@@ -222,7 +222,7 @@ o Treat the input to the escape function in xml.cc as UTF-8, not just
   byte->rune and rune->byte functions as in
   http://plan9.bell-labs.com/sys/doc/utf.html.
 
-o We should probably redo the Nmap header (e.g. on http://nmap.org) to
+o We should probably redo the Nmap header (e.g. on https://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
@@ -282,7 +282,7 @@ o NSE WORK (note that this is mostly infrastructure because script
     http://seclists.org/nmap-dev/2011/q2/307. [Henri and Hani?]
 
 o Revive the Nmap Public Source License project (need to find an open
-  source attorney to review it).  http://nmap.org/npsl/
+  source attorney to review it).  https://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
 
@@ -648,7 +648,7 @@ o Scanning through proxies
      servers.  Whoever does this should probably start by reading the
      code for the main port scanning engine (ultra_scan()) and also
      the version detection code (service_scan()).  And the version
-     detection paper at http://nmap.org/book/vscan.html.  If you
+     detection paper at https://nmap.org/book/vscan.html.  If you
      understand all that, you may be ready for this project :).  This
      is important, because it is easy to do poorly.  The tough part is
      high performance and clean code which is general enough that all
@@ -672,10 +672,10 @@ o [Web] Consider adding training/introduction videos to the Nmap site
    that far): http://www.splunk.com/product
 
 o The Zenmap translation system
-  (http://nmap.org/book/zenmap-lang.html) has been pretty successful
+  (https://nmap.org/book/zenmap-lang.html) has been pretty successful
   so far.  We should consider doing the same for Nmap.  After all, we
   already have the reference guide in 16 languages at
-  http://nmap.org/docs.html.  We should definitely try to use the same
+  https://nmap.org/docs.html.  We should definitely try to use the same
   translation methods for Zenmap as we do for Nmap.  In fact, maybe we
   can create a combined PO file Nmap, Zenmap, Ncat, and Ndiff so that
   they can all be translated and maintained together. Something to

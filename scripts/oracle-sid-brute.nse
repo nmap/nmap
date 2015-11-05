@@ -37,7 +37,7 @@ author, Alexander Kornbrust (http://seclists.org/nmap-dev/2009/q4/645).
 -- Revised 12/14/2009 - v0.3 - Fixed ugly file_exist kludge
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 

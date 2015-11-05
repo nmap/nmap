@@ -58,7 +58,7 @@ documentation of the protocol.
 -- <elem key="wander">0.000</elem>
 
 author = "Richard Sammet"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 

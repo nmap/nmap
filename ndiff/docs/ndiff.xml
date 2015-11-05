@@ -407,7 +407,7 @@ ln -sf scan-$date.xml scan-prev.xml
     <title>Web site</title>
 
     <para>
-    <ulink url="http://nmap.org/ndiff/"/>
+    <ulink url="https://nmap.org/ndiff/"/>
     </para>
   </refsect1>
 </refentry>

@@ -532,14 +532,14 @@ Some ideas for later versions (TODO):
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 dependencies = {"smb-brute"}
 
 
 
 -- Where we tell the user to get nmap_service.exe if it's not installed.
-local NMAP_SERVICE_EXE_DOWNLOAD = "http://nmap.org/psexec/nmap_service.exe"
+local NMAP_SERVICE_EXE_DOWNLOAD = "https://nmap.org/psexec/nmap_service.exe"
 
 
 hostrule = function(host)

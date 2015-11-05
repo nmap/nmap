@@ -9,7 +9,7 @@ description = [[
 Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access
 secured WebDAV folders by searching for a password-protected folder and
 attempting to access it. This vulnerability was patched in Microsoft Security
-Bulletin MS09-020, http://nmap.org/r/ms09-020.
+Bulletin MS09-020, https://nmap.org/r/ms09-020.
 
 A list of well known folders (almost 900) is used by default. Each one is
 checked, and if returns an authentication request (401), another attempt is
@@ -41,7 +41,7 @@ For more information on this vulnerability and script, see:
 -----------------------------------------------------------------------
 
 author = "Ron Bowes, Andrew Orr"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 
 

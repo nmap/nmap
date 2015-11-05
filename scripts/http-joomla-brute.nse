@@ -54,7 +54,7 @@ Joomla's default uri and form names:
 --
 
 author = "Paulino Calderon <calderon@websec.mx>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
@@ -69,7 +69,7 @@ local security_token
 local session_cookie_str
 
 ---
---This class implements the Brute library (http://nmap.org/nsedoc/lib/brute.html)
+--This class implements the Brute library (https://nmap.org/nsedoc/lib/brute.html)
 ---
 Driver = {
   new = function(self, host, port, options)

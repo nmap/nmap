@@ -1148,7 +1148,7 @@ zadane. Ak nie je zadany zakladny typ scanu, pouzije sa SYN scan.</para>
 		  byt samozrejme aktivny a splnat urcite kriteria.
 		  Tento fascinujuci typ scanu je prilis zlozity na plny popis v tejto prirucke,
 		  takze som uplne detaily popisal neformalnym sposobom a ulozil na adresu 
-		  <ulink url="http://nmap.org/book/idlescan.html"/>.</para>
+		  <ulink url="https://nmap.org/book/idlescan.html"/>.</para>
 
           <para>Okrem toho, ze tento scan je vynimocne nenapadny (kvoli svojej slepej povahe),
 		  umoznuje zmapovat doveryhodne vztahy medzi pocitacmi zalozene na IP adrese.
@@ -2146,7 +2146,7 @@ Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter u
           <para>Nmap pouzije neplatny kontrolny sucet TCP alebo UDP na odoslanie paketov cielovej stanici.  
 		  Kedze prakticky vsetky hostitelske IP stacky dokladne zahadzuju taketo pakety, ak pride odpoved,
 		  pochadza pravdepodobne od firewallu alebo systemu IDS, ktory neoveroval kontrolny sucet.
-		  Viac podrobnosti o tejto metode najdete na adrese <ulink url="http://nmap.org/p60-12.txt"/></para>
+		  Viac podrobnosti o tejto metode najdete na adrese <ulink url="https://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
 

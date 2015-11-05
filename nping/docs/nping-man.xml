@@ -26,7 +26,7 @@
     <indexterm><primary>Nping</primary><secondary>description of</secondary></indexterm>
     <web>
     <note><para>This document describes the very latest version of
-    Nping available from <ulink url="http://nmap.org/nping"/> Please
+    Nping available from <ulink url="https://nmap.org/nping"/> Please
     ensure you are using the latest version before reporting that a
     feature doesn't work as described.</para></note>
     </web>
@@ -65,7 +65,7 @@
 <screen format="linespecific">
 # <userinput>nping -c 1 --tcp -p 80,433 scanme.nmap.org google.com</userinput>
 
-Starting Nping ( http://nmap.org/nping )
+Starting Nping ( https://nmap.org/nping )
 SENT (0.0120s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:80 S ttl=64 id=52072 iple<continuation/>n=40  seq=1077657388 win=1480 
 RCVD (0.1810s) TCP 64.13.134.52:80 &gt; 96.16.226.135:50091 SA ttl=53 id=0 iplen=4<continuation/>4  seq=4158134847 win=5840 &lt;mss 1460&gt;
 SENT (1.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:80 S ttl=64 id=13932 ipl<continuation/>en=40  seq=1077657388 win=1480 
@@ -89,9 +89,9 @@ Nping done: 2 IP addresses pinged in 4.01 seconds
 <!-- This para is a bit jumbled together for man page rendering reasons -->
 <!--
 <para>The newest version of Nping can be obtained from
-<ulink url="http://nmap.org"/>.  The newest version of this man page
-is available at <ulink url="http://nmap.org/book/nping_man.html"/>.
-<notbook>It is also included as a chapter of <web><ulink url="http://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="http://nmap.org/book/"/>).</notweb></notbook>
+<ulink url="https://nmap.org"/>.  The newest version of this man page
+is available at <ulink url="https://nmap.org/book/nping_man.html"/>.
+<notbook>It is also included as a chapter of <web><ulink url="https://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="https://nmap.org/book/"/>).</notweb></notbook>
 </para>
 -->
   </refsect1>
@@ -263,7 +263,7 @@ Some obscure options aren't even included here.</para>
 <screen>
 # <userinput>nping --tcp -c 2 1.1.1.1 -p 100-102</userinput>
 
-Starting Nping ( http://nmap.org/nping )
+Starting Nping ( https://nmap.org/nping )
 SENT (0.0210s) TCP 192.168.1.77 &gt; 1.1.1.1:100
 SENT (1.0230s) TCP 192.168.1.77 &gt; 1.1.1.1:101
 SENT (2.0250s) TCP 192.168.1.77 &gt; 1.1.1.1:102
@@ -281,7 +281,7 @@ SENT (5.0320s) TCP 192.168.1.77 &gt; 1.1.1.1:102
 <screen>
 # <userinput>nping --tcp -c 2 1.1.1.1 2.2.2.2 3.3.3.3 -p 8080</userinput>
 
-Starting Nping ( http://nmap.org/nping )
+Starting Nping ( https://nmap.org/nping )
 SENT (0.0230s) TCP 192.168.0.21 &gt; 1.1.1.1:8080
 SENT (1.0240s) TCP 192.168.0.21 &gt; 2.2.2.2:8080
 SENT (2.0260s) TCP 192.168.0.21 &gt; 3.3.3.3:8080
@@ -299,7 +299,7 @@ SENT (5.0310s) TCP 192.168.0.21 &gt; 3.3.3.3:8080
 <screen>
 # <userinput>nping --tcp -c 1 --delay 500ms 1.1.1.1 2.2.2.2 3.3.3.3 -p 137-139</userinput>
 
-Starting Nping ( http://nmap.org/nping )
+Starting Nping ( https://nmap.org/nping )
 SENT (0.0230s) TCP 192.168.0.21 &gt; 1.1.1.1:137
 SENT (0.5250s) TCP 192.168.0.21 &gt; 2.2.2.2:137
 SENT (1.0250s) TCP 192.168.0.21 &gt; 3.3.3.3:137
@@ -773,7 +773,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            packets, any responses received are likely coming from a firewall or 
            an IDS that didn't bother to verify the checksum. For more
            details on this technique, see
-           <ulink url="http://nmap.org/p60-12.html"/>.
+           <ulink url="https://nmap.org/p60-12.html"/>.
         </para>
         </listitem>
       </varlistentry>
@@ -840,7 +840,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            packets, any responses received are likely coming from a firewall or 
            an IDS that didn't bother to verify the checksum. For more
            details on this technique, see
-           <ulink url="http://nmap.org/p60-12.html"/>.
+           <ulink url="https://nmap.org/p60-12.html"/>.
         </para>
         </listitem>
       </varlistentry>
@@ -2744,7 +2744,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     Internally, client and server communicate over an encrypted and
     authenticated channel, using the Nping Echo Protocol (NEP), whose technical
     specification can be found in
-    <ulink url="http://nmap.org/svn/nping/docs/EchoProtoRFC.txt"/> 
+    <ulink url="https://nmap.org/svn/nping/docs/EchoProtoRFC.txt"/> 
     </para>
 
     <para>
@@ -2932,7 +2932,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <screen format="linespecific">
     # <userinput>nping --echo-client "public" echo.nmap.org --udp </userinput>
 
-    Starting Nping ( http://nmap.org/nping )
+    Starting Nping ( https://nmap.org/nping )
     SENT (1.0970s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28 
     CAPT (1.1270s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28 
     RCVD (1.1570s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16619 iplen=56 
@@ -2963,7 +2963,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
     <screen format="linespecific">
     # <userinput>nping --echo-client "public" echo.nmap.org --tcp -p80</userinput>
 
-    Starting Nping ( http://nmap.org/nping )
+    Starting Nping ( https://nmap.org/nping )
     SENT (1.2160s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
     RCVD (1.2180s) TCP 178.79.165.17:80 &gt; 10.0.1.77:41659 SA ttl=128 id=13177 iplen=44  seq=3647106954 win=16384 &lt;mss 1460&gt;
     SENT (2.2150s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
@@ -3523,7 +3523,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
     <para>Like its author, Nping isn't perfect.  But you can help make
     it better by sending bug reports or even writing patches.  If Nping
     doesn't behave the way you expect, first upgrade to the latest Nmap 
-    version available from <ulink url="http://nmap.org/download.html"/>.  If
+    version available from <ulink url="https://nmap.org/download.html"/>.  If
     the problem persists, do some research to determine whether it has already
     been discovered and addressed.  Try searching for the error message on our
     search page at <ulink url="http://insecure.org/search.html"/> or at Google.
@@ -3540,7 +3540,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
     those sent to Fyodor directly.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
     through more quickly.  Subscribe at
-    <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
+    <ulink url="https://nmap.org/mailman/listinfo/dev"/>.</para>
 
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are

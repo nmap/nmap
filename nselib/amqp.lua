@@ -14,7 +14,7 @@
 --    - This class contains the core functions needed to communicate with AMQP
 --
 
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author "Sebastian Dragomir <velorien@gmail.com>"
 
 -- Version 0.1

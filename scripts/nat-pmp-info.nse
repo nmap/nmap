@@ -26,7 +26,7 @@ The NAT-PMP protocol is supported by a broad range of routers including:
 -- <elem key="WAN IP">192.0.2.13</elem>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 

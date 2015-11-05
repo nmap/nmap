@@ -2,7 +2,7 @@
 -- Library methods for handling unicode strings.
 --
 -- @author Daniel Miller
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
 local bit = require "bit"

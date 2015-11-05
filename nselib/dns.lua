@@ -27,7 +27,7 @@
 --</code>
 --
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
 local bin = require "bin"

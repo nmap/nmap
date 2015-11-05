@@ -28,7 +28,7 @@ Performs brute force password auditing against the rsync remote file syncing pro
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service(873, "rsync", "tcp")

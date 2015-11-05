@@ -134,7 +134,7 @@ References:
 ---
 
 author = {"Seth Art <sethsec()gmail>", "Paulino Calderon <calderon()websec.mx>", "Gyanendra Mishra"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "external", "vuln"}
 
 portrule = shortport.http

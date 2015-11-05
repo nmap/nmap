@@ -30,7 +30,7 @@ information for all discovered devices.
 --       the network interface. (default 30s)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "broadcast"}
 
 local bjnp = require("bjnp")

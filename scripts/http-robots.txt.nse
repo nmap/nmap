@@ -25,7 +25,7 @@ The higher the verbosity or debug level, the more disallowed entries are shown.
 
 
 author = "Eddie Bell"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = shortport.http

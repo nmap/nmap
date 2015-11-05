@@ -104,7 +104,7 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 
 
 author = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 

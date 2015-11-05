@@ -37,7 +37,7 @@ Any other accept state is an incorrect behaviour.
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 

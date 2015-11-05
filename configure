@@ -1440,7 +1440,7 @@ Optional Packages:
                           and DIR/lib. This is NOT RECOMMENDED because we have
                           made many important fixes to our included libdnet,
                           as described at
-                          http://nmap.org/svn/libdnet-stripped/NMAP_MODIFICATIONS
+                          ./libdnet-stripped/NMAP_MODIFICATIONS
   --with-libdnet=included Use the libdnet version included with Nmap (default)
   --with-liblua=DIR       Use an existing (compiled) lua lib from DIR/include
                           and DIR/lib.

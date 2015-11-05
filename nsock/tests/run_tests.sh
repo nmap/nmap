@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # nsock regression test suite
-# Same license as nmap -- see http://nmap.org/book/man-legal.html
+# Same license as nmap -- see https://nmap.org/book/man-legal.html
 
 # hackish, I should consider using a configuration file.
 PORT_UDP=$(grep "PORT_UDP " test-common.h | awk '{print $3}')

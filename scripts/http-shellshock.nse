@@ -73,7 +73,7 @@ References:
 -- @args http-shellshock.cmd Custom command to send inside payload. Default: nil
 ---
 author = {"Paulino Calderon <calderon()websec.mx","Paul Amar <paul()sensepost com>"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 
 portrule = shortport.http

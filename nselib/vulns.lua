@@ -179,7 +179,7 @@
 -- collect these last objects.
 --
 -- @author "Djalal Harouni" and "Henri Doreau"
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
 local bit = require "bit"

@@ -35,7 +35,7 @@ These targets will be added to the scanning queue in case
 
 
 author = "Henri Doreau"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"omp2-brute"}
 

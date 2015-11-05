@@ -2,7 +2,7 @@
 -- Library methods for handling Cassandra Thrift communication as client
 --
 -- @author Vlatko Kosturjak
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- Version 0.1
 --

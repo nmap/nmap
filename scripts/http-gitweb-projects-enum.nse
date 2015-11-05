@@ -29,7 +29,7 @@ Retrieves a list of Git projects, owners and descriptions from a gitweb (web int
 --       (default: /)
 
 author = "riemann"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

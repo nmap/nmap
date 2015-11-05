@@ -35,7 +35,7 @@ Collects and displays information from remote iSCSI targets.
 -- Revised 2010/11/28 - v0.2 - improved error handling <patrik@cqure.net>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "safe", "discovery"}
 
 

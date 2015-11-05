@@ -25,7 +25,7 @@ Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a
 --       the network interface. (default varies according to timing. -T3 = 5s)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "broadcast", "safe" }
 
 local TIMEOUT = stdnse.parse_timespec(stdnse.get_script_args("broadcast-pc-duo.timeout"))

@@ -39,7 +39,7 @@ With knowledge of the correct repository name, usernames and passwords can be gu
 --                             library [Aleksandar Nikolic]
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 

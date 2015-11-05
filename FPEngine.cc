@@ -2,7 +2,7 @@
 /***************************************************************************
  * FPEngine.cc -- Routines used for IPv6 OS detection via TCP/IP           *
  * fingerprinting.  * For more information on how this works in Nmap, see  *
- * http://nmap.org/osdetect/                                               *
+ * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

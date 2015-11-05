@@ -29,7 +29,7 @@ needs to be obtained through free registration for this service:
 --
 
 author = "Gorjan Petrovski"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","external","safe"}
 
 

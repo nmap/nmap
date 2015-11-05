@@ -25,7 +25,7 @@ service.
 -- Revised 12/02/2009 - v0.2 - Use stdnse.format_ouput for output
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

@@ -18,7 +18,7 @@ server. In addition your IP address will be sent along with the
 txidtest query to the DNS server running on the target.
 ]]
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 author = [[
 Script: Brandon Enright <bmenrigh@ucsd.edu>

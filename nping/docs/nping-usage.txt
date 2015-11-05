@@ -1,4 +1,4 @@
-Nping 0.5.59BETA1 ( http://nmap.org/nping )
+Nping 0.5.59BETA1 ( https://nmap.org/nping )
 Usage: nping [Probe mode] [Options] {target specification}
 
 TARGET SPECIFICATION:

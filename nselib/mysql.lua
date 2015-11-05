@@ -3,7 +3,7 @@
 --
 -- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 

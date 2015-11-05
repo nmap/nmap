@@ -638,7 +638,7 @@ otvoreny|filtrovany\&. Nmap bude postupovat presne tak ako pri zakladnych typoch
 \fB\-sI <zombie host[:probeport]>\fR (Scan naprazdno \- Idlescan)
 .RS 4
 Tato pokrocila metoda umoznuje naozaj slepy scan portov cielovej stanice s tym, ze z lokalnej skutocnej IP adresy nie su odosielane ziadne pakety\&. Namiesto toho sa pouzije utok po bocnom kanale, ktory vyuziva delenie na IP fragmenty a predpovedatelne tvorenie sekvencie ID cisel na zombie hostitelovi\&. Tym sa zhromazduju informacie o otvorenych portoch na cielovom pocitaci\&. IDS systemy zobrazia, ze scan pochadza z pocitaca zombie, ktory bol specifikovany, musi byt samozrejme aktivny a splnat urcite kriteria\&. Tento fascinujuci typ scanu je prilis zlozity na plny popis v tejto prirucke, takze som uplne detaily popisal neformalnym sposobom a ulozil na adresu
-\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Okrem toho, ze tento scan je vynimocne nenapadny (kvoli svojej slepej povahe), umoznuje zmapovat doveryhodne vztahy medzi pocitacmi zalozene na IP adrese\&. Zoznam portov zobrazuje otvorene porty
 \fIz pohladu zombie hostitela\&.\fR
@@ -1096,7 +1096,7 @@ Cisco\&.
 \fB\-\-badsum\fR (Odoslat pakety s falosnym kontrolnym suctom TCP/UDP)
 .RS 4
 Nmap pouzije neplatny kontrolny sucet TCP alebo UDP na odoslanie paketov cielovej stanici\&. Kedze prakticky vsetky hostitelske IP stacky dokladne zahadzuju taketo pakety, ak pride odpoved, pochadza pravdepodobne od firewallu alebo systemu IDS, ktory neoveroval kontrolny sucet\&. Viac podrobnosti o tejto metode najdete na adrese
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "VYSTUP"
 .PP

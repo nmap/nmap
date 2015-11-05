@@ -34,7 +34,7 @@ Credit to wafw00f and w3af for some fingerprints.
 --|_    BinarySec version 3.2.2
 
 author = "Hani Benhabiles"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 --

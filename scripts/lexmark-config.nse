@@ -49,7 +49,7 @@ http://www.lexmark.com/vgn/images/portal/Security%20Features%20of%20Lexmark%20MF
 -- Revised 01/23/2010 - v0.3 - revised script to use the proper ports
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

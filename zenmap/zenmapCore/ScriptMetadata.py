@@ -344,7 +344,7 @@ class ScriptMetadata (object):
             self.output = ""
             self.usage = ""
 
-        url = property(lambda self: "http://nmap.org/nsedoc/scripts/"
+        url = property(lambda self: "https://nmap.org/nsedoc/scripts/"
                 "%s.html" % (os.path.splitext(self.filename)[0]))
 
     def __init__(self, scripts_dir, nselib_dir):

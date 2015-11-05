@@ -20,7 +20,7 @@ connections between servers as well as client-server communication.
 
 author = "Ferdy Riphagen"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 

@@ -66,7 +66,7 @@
 -- on both Linux and Windows. For details regarding what versions where tested
 -- please consult the matrix below.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 -- @args tns.sid specifies the Oracle instance to connect to

@@ -142,7 +142,7 @@ in this script.
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth","intrusive"}
 dependencies = {"smb-brute"}
 

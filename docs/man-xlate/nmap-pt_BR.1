@@ -706,7 +706,7 @@ aberta|filtrada\&. O Nmap irá se comportar da mesma forma que o tipo de scan\-b
 .\" -sI
 .\" scan Idle
 Este método avançado de scan permite um scan TCP realmente cego das portas do alvo (significando que nenhum pacote é enviado para o alvo do seu endereço IP real)\&. Ao invés disso, um ataque canal\-lateral (side\-channel) explora a previsível geração de seqüencia de ID, conseqüencia da fragmentação do IP, no host zumbi, para juntar informações sobre as portas abertas no alvo\&. Sistemas IDS irão mostrar o scan como se viessem da máquina zumbi que você especificou (que deve estar ativa e obedecer a alguns critérios)\&. Este tipo fascinante de scan é complexo demais para se descrever completamente aqui, neste guia de referência, então eu escrevi e postei um trabalho informal com detalhes completos em
-\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Além de ser extraordinariamente camuflado (devido à sua natureza cega), este tipo de scan permite mapear relações de confiança baseadas em IP entre máquinas\&. A listagem de portas mostra as portas abertas
 \fIda perspectiva do host zumbi\&.\fR
@@ -1253,7 +1253,7 @@ Cisco\&.
 .RS 4
 .\" --badsum
 Solicita ao Nmap que utilize uma soma de verificação (checksum) TCP ou UDP inválida para os pacotes enviados aos hosts\&. Uma vez que virtualmente todos as pilhas (stack) IP do host irão rejeitar esses pacotes, quaisquer respostas recebidas são provavelmente vindas de um firewall ou IDS que nem se incomodou em verificar a soma de verificação\&. Para mais detalhes desta técnica, veja
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "SAíDA (OUTPUT)"
 .PP

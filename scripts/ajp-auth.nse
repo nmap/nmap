@@ -22,7 +22,7 @@ Retrieves the authentication scheme and realm of an AJP service (Apache JServ Pr
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
 

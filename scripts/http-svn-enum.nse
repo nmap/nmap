@@ -52,7 +52,7 @@ description = [[Enumerates users of a Subversion repository by examining logs of
 
 author = "Gyanendra Mishra"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 

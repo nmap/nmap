@@ -58,7 +58,7 @@ Performs brute force password auditing against http basic, digest and ntlm authe
 
 
 author = {"Patrik Karlsson", "Piotr Olma", "Gyanendra Mishra"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 

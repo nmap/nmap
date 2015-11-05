@@ -123,7 +123,7 @@ For more information about Ganglia, see:
 -- Created 2015-07-30 - v0.2 - Added Support for SLAXML by Gyanendra Mishra
 
 author = {"Brendan Coles", "Gyanendra Mishra"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service ({8649,8651}, "ganglia", {"tcp"})

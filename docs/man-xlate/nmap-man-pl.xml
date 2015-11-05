@@ -1258,7 +1258,7 @@ skanowania nie zostanie okre&#347;lony, zostanie wykorzystany domy&#347;lny typ 
           &#380;eby go dok&#322;adnie opisa&#263; w tej dokumentacji, dlatego napisa&#322;em
           oddzielny nieformalny dokument na ten temat ze szczeg&#243;&#322;owymi 
           informacjami i jest on dost&#281;pny pod adresem
-          <ulink url="http://nmap.org/book/idlescan.html"/>.</para>
+          <ulink url="https://nmap.org/book/idlescan.html"/>.</para>
 
           <para>Poza tym, &#380;e metoda ta jest niespotykanie poufna (z powodu
           jej &#347;lepej natury), ten typ skanowania pozwala na mapowanie regu&#322;
@@ -2353,7 +2353,7 @@ podobnie jak i UDP.</para>
           odrzuci tego typu pakiety, otrzymana odpowied&#378; najprawdopodobniej
           pochodzi od systemu zaporowego lub IDS, kt&#243;re nie przejmuj&#261; si&#281;
           sumami kontrolnymi. Dok&#322;adniejszy opis tej techniki znajduje si&#281;
-          pod adresem <ulink url="http://nmap.org/p60-12.txt"/></para>
+          pod adresem <ulink url="https://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
 

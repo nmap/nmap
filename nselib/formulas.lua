@@ -5,7 +5,7 @@
 -- averages, entropy, randomness and other calculations. Scripts that generate statistics
 -- and metrics can also make use of this library.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 ---
 
 local bin = require "bin"

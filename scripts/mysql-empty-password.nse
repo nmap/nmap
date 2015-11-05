@@ -18,7 +18,7 @@ Checks for MySQL servers with an empty password for <code>root</code> or
 -- |_  root account has empty password
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
 

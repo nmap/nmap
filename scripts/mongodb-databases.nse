@@ -41,7 +41,7 @@ Attempts to get a list of tables from a MongoDB database.
 -- Revised 01/03/2012 - v0.2 - added authentication support <patrik@cqure.net>
 
 author = "Martin Holst Swende"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 dependencies = {"mongodb-brute"}

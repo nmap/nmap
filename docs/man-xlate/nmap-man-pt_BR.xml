@@ -1539,7 +1539,7 @@ EXAMPLES:
             critérios). Este tipo fascinante de scan é complexo demais para se
             descrever completamente aqui, neste guia de referência, então eu
             escrevi e postei um trabalho informal com detalhes completos em
-            <ulink url="http://nmap.org/book/idlescan.html" />.</para>
+            <ulink url="https://nmap.org/book/idlescan.html" />.</para>
 
             <para>Além de ser extraordinariamente camuflado (devido à sua
             natureza cega), este tipo de scan permite mapear relações de
@@ -2881,7 +2881,7 @@ EXAMPLES:
             provavelmente vindas de um firewall ou IDS que nem se incomodou em
             verificar a soma de verificação. Para mais detalhes desta técnica,
             veja <ulink
-            url="http://nmap.org/p60-12.txt" /></para>
+            url="https://nmap.org/p60-12.txt" /></para>
           </listitem>
         </varlistentry>
       </variablelist>

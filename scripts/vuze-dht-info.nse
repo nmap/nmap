@@ -35,7 +35,7 @@ Retrieves some basic information, including protocol version from a Vuze filesha
 -- @args vuze-dht-info.allports if set runs this script against every open port
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

@@ -57,7 +57,7 @@ is 0. The payload is consisted of random bytes.
 --
 
 author = "Gorjan Petrovski"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","safe","broadcast"}
 
 

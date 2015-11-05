@@ -50,7 +50,7 @@ broadcast version will only use the SQL Server Browser service discovery method.
 -- Revised 02/01/2011 - v0.2 - Added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 

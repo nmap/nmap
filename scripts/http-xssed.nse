@@ -24,7 +24,7 @@ This script searches the xssed.com database and outputs the result.
 ---
 
 author = "George Chatzisofroniou"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "external", "discovery"}
 
 local http = require "http"

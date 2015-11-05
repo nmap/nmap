@@ -32,7 +32,7 @@ Performs brute force password auditing against SMTP servers using either LOGIN, 
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service({ 25, 465, 587 },

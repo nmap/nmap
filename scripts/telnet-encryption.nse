@@ -35,7 +35,7 @@ categories = {"safe", "discovery"}
 portrule = shortport.port_or_service(23, 'telnet')
 
 author = "Patrik Karlsson, David Fifield, Fyodor"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 local COMMAND = {
   SubCommand = 0xFA,

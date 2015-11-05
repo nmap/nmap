@@ -4,7 +4,7 @@
 -- This module contains various handy functions for debugging. These should
 -- never be used for actual results, only during testing.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local coroutine = require "coroutine"
 local debug = require "debug"

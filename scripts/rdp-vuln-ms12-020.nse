@@ -65,7 +65,7 @@ Original check by by Worawit Wang (sleepya).
 -- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-0002
 
 author = "Aleksandar Nikolic, based on python script by sleepya"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
 

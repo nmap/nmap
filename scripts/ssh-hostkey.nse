@@ -131,7 +131,7 @@ gathered keys.
 -- </table>
 
 author = "Sven Klemm" -- comparing keys from known_hosts file added by Piotr Olma and George Chatzisofroniou
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
 

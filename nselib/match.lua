@@ -3,7 +3,7 @@
 --
 -- The functions in this module can be used for delimiting data received by the
 -- <code>nmap.receive_buf</code> function in the Network I/O API (which see).
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
 _ENV = stdnse.module("match", stdnse.seeall)

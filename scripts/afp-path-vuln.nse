@@ -65,7 +65,7 @@ For additional information:
 -- Revised 21/10/2011 - v0.4 - Use the vulnerability library vulns.lua
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "vuln"}
 
 

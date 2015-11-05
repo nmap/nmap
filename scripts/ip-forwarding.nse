@@ -32,7 +32,7 @@ to be on the LAN.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
 local arg_target = stdnse.get_script_args(SCRIPT_NAME .. ".target")

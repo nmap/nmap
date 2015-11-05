@@ -28,7 +28,7 @@
 -- References:
 -- * http://docs.oracle.com/javase/6/docs/technotes/guides/jpda/jdwp-spec.html
 --
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--@copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --@author Aleksandar Nikolic
 --
 -- Version 0.1

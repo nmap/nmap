@@ -79,7 +79,7 @@ Interesting post about this vuln:
 ---
 
 author = "Paulino Calderon <calderon@websec.mx>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive", "vuln"}
 
 portrule = shortport.port_or_service(3306, "mysql")

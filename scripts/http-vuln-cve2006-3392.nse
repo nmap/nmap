@@ -37,7 +37,7 @@ to bypass the removal of "../" directory traversal sequences.
 ---
 
 author = "Paul AMAR <aos.paul@gmail.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 
 portrule = shortport.portnumber({10000})

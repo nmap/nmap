@@ -2,7 +2,7 @@
 -- Library methods for handling MongoDB, creating and parsing packets.
 --
 -- @author Martin Holst Swende
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @args mongodb.db - the database to use for authentication
 
@@ -45,7 +45,7 @@ local err =stdnse.debug1
 -- and licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0)
 --
 -- @author Martin Holst Swende
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- Version 0.1
 

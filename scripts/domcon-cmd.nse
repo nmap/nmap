@@ -56,7 +56,7 @@ Runs a console command on the Lotus Domino Console using the given authenticatio
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
 

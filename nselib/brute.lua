@@ -162,7 +162,7 @@
 --       lockouts.
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 --
 -- Version 0.73

@@ -27,7 +27,7 @@ o Web: We should probably distribute RapidSSL intermediate certificate
 o The XML version of Nmap lists and describes the six port states
   recognized by Nmap near the top of the "Port Scanning Basics"
   section.  That can be seen in the HTML rendering at
-  http://nmap.org/book/man-port-scanning-basics.html.  But in the man
+  https://nmap.org/book/man-port-scanning-basics.html.  But in the man
   page (nroff) rendering, the list is missing and it just gives the
   title: "The six port states recognized by Nmap".  UPDATE: Now the
   descriptions for each state appear in the man page, but the headings
@@ -53,7 +53,7 @@ o Fix a segmentation fault in Ncat when scanned with the SSL NSE
 o Investigate how we're ending up with OS fingerprints in nmap-os-db
   with attribute names like W0 and W8 when according to the docs they
   are only supposed to be W1 - W6 (and plain W).
-  http://nmap.org/book/osdetect-methods.html#osdetect-w.  See also
+  https://nmap.org/book/osdetect-methods.html#osdetect-w.  See also
   http://seclists.org/nmap-dev/2013/q4/68.  Need to determine how
   these are getting into the file (from Nmap itself or our
   integration/merge tools) and fix that then remove them from the
@@ -212,7 +212,7 @@ o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
   use that any more.
 
 o We should document Ron's sample script
-  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
+  (https://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
   so that new script writers know about it.
   - Decided to remove it instead.  Justification: "It is a great idea,
     but nobody seems to use it (for example, there were no replies to
@@ -223,7 +223,7 @@ o We should document Ron's sample script
     to the one they want to write and start with that.  2) As a way to
     learn more about the format of an NSE script.  Users instead seem
     to use our documentation
-    (http://nmap.org/book/nse-script-format.html).  So I'm deleting it
+    (https://nmap.org/book/nse-script-format.html).  So I'm deleting it
     for now.  But if folks miss it, they're welcome and encouraged to
     say so on dev@nmap.org and we could consider putting it back
     and/or improving it"
@@ -312,7 +312,7 @@ o Update our mswin32/OpenSSL to newest version (previous update was
   September 2010 to 1.0.0a).
 
 o Nmap should have a better way to handle XML script output.
- o done: http://nmap.org/book/nse-api.html#nse-structured-output
+ o done: https://nmap.org/book/nse-api.html#nse-structured-output
  o We currently just stick the current script output text into an XML tag.
  o Daniel Miller is working on an implementation:
    https://secwiki.org/w/Nmap/Structured_Script_Output
@@ -321,7 +321,7 @@ o Update more web content in real time (or near real-time, or at least
   on an automated basis rather than requiring manual checkin and
   update).  In particular:
   o NSEDoc generation
-  o [done] SVN dir (http://nmap.org/svn/) should be removed and a redirect
+  o [done] SVN dir (https://nmap.org/svn/) should be removed and a redirect
     added to https svn server.
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
@@ -364,7 +364,7 @@ o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
   Example:
   # nping --tcp -p80 -c1 scanme.nmap.org
 
-  Starting Nping 0.5.61TEST4 ( http://nmap.org/nping ) at 2012-02-16 17:52 PST
+  Starting Nping 0.5.61TEST4 ( https://nmap.org/nping ) at 2012-02-16 17:52 PST
   SENT (0.3307s) TCP 192.168.0.5:42005 > 74.207.244.221:80 S ttl=64 id=23109 iplen=40  seq=1015357225 win=1480
   RCVD (0.3524s) TCP 74.207.244.221:80 > 192.168.0.5:42005 SA ttl=51 id=0 iplen=44  seq=3197025741 win=14600 <mss 1460>
   nping_event_handler(): READ-PCAP killed: Resource temporarily unavailable
@@ -850,7 +850,7 @@ o A program to canonicalize and tidy nmap-service-probes.
     | % = @ #).
   o Retain line breaks and comments.
 
-o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
+o Document IPv6 OS detection at https://nmap.org/book/osdetect.html
 
 o Script review:
   - New scripts from Paulino: http-wordpress-brute and http-joomla-brute,
@@ -1020,7 +1020,7 @@ o If possible, Ncat, in listen mode, should probably listen on the system's
   - Done.  Tested on scanme with David & Fyodor on 7/18/11.
 
 o Right before the release, we could build Ncat portable and post it
-  on http://nmap.org/ncat/.
+  on https://nmap.org/ncat/.
   - Actually we did that for 5.59BETA1, which is good enough for now.
 
 o CHANGELOG updates [Fyodor]
@@ -1464,7 +1464,7 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o libdnet
 
 o Small NSEDoc bug:
-  http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
+  https://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
   \222\173' near the bottom.  This is presumably due to misparsing this
   line from the script: local req_id = '\222\173'.  Given that we don't
   use IDs any more, maybe we can just get rid of the functionality.
@@ -1576,8 +1576,8 @@ o [NSE] In the same way as our -brute scripts limit their runtime by
   more intense qscanning.
 
 o [Web] We should see if we can easily put the Insecure chrome around
-  Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
-  and http://nmap.org/404).  I think we may have had this working
+  Apache directory listings and 404 pages (e.g. https://nmap.org/dist/
+  and https://nmap.org/404).  I think we may have had this working
   before the move to Linode, so maybe check conf/httpd.conf.syn.
 
 o Do a serious analysis if and how we should use the NIST CPE standard
@@ -1616,7 +1616,7 @@ o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
 
 o [NSE] The NSEDoc for some scripts includes large "Functions"
   sections which aren't really useful to script users.  For example,
-  see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
+  see https://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
   should hide these behind an expander like "Developer documentation
   (show)".  I don't think we need to do this for libraries, since
   developers are the primary audience for those documents.
@@ -1659,14 +1659,14 @@ o Add this patch for compilation on OpenSolaris.
   http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on
 
 o Now that we've put the ndiff, ncat, and nping man pages under the
-  scope of the book (e.g. http://nmap.org/book/ncat-man.html), we need
+  scope of the book (e.g. https://nmap.org/book/ncat-man.html), we need
   to add a redirect from the old locations and also update our links.
 
 o Make sure the long output lines in Nping's man page are OK for the book.
   See r18829 and r18864.
 
 o Update "History and Future of Nmap"
-  (http://nmap.org/book/history-future.html) to include all the news
+  (https://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
 
 o Fix Win7 networking issue reported by Luis which seems to have been
@@ -2081,8 +2081,8 @@ o [NSE] Consider MongoDB scripts and libraries from Martin Holst Swende.
 
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
-  http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
-  http://nmap.org/nsedoc/lib/nmap.html#condvar) [Patrick]
+  https://nmap.org/nsedoc/lib/stdnse.html#new_thread,
+  https://nmap.org/nsedoc/lib/nmap.html#condvar) [Patrick]
 
 o Make Nmap 5.21 bugfix-only release
 
@@ -2103,7 +2103,7 @@ o [NSE] Consider DAAP script from Patrik Karlsson.
   [merged to trunk]
 
 o NSEDoc left sidebar should include a link to
-  http://nmap.org/book/nse.html below "Index".
+  https://nmap.org/book/nse.html below "Index".
 
 o Consider enhancing the new OS Assist system to handle version
   detection too. [We decided not to do this as David noted that Doug's
@@ -2149,9 +2149,9 @@ o Look at new Kerberos script from Patrik Karlsson.
 o Add feature to http library to let user set the user agent to be
   used. The NSEDoc for this feature should probably tell what our
   current default user agent is ("Mozilla/5.0 (compatible; Nmap
-  Scripting Engine; http://nmap.org/book/nse.html") [David]
+  Scripting Engine; https://nmap.org/book/nse.html") [David]
 
-o On our NSEDoc pages (e.g. http://nmap.org/nsedoc/), perhaps the link
+o On our NSEDoc pages (e.g. https://nmap.org/nsedoc/), perhaps the link
   text for scripts should not include the ".nse".  Basides saving
   horizontal space, this may improve the sorting so that the likes of
   "citrix-enum-apps" comes before "citrix-enum-apps-xml".  Also, we can
@@ -2179,7 +2179,7 @@ o Talk to Libpcap folks about incorporating (at least some of) my
 
 o Nping -- like hping3 but uses Nmap infrastructure and to a
   large degree the same command-line options as Nmap.
-  [We now have an alpha version at http://nmap.org/nping/]
+  [We now have an alpha version at https://nmap.org/nping/]
 
 o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
@@ -2364,7 +2364,7 @@ o Add --confdir option to Zenmap. See
 o Update our Winpcap from 4.0.2 to 4.1.1
   (http://seclists.org/nmap-dev/2009/q4/128).  This is a bit complex
   because we have our own installer.  See
-  http://nmap.org/svn/mswin32/winpcap/Upgrading-Instructions.txt.
+  https://nmap.org/svn/mswin32/winpcap/Upgrading-Instructions.txt.
 
 o Change Nmap to not show the "Host not scanned" lines in list scan
 
@@ -2504,7 +2504,7 @@ o Device categorization improvements
     other category really fits them well.  We should use a combined
     system for nmap-os-db and nmap-service-probes.
   o Add a classification sect1 to os-detection.xml
-    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
+    (https://nmap.org/book/osdetect.html) to cover how Nmap handles OS
     classification.  It should include a list with descriptions of
     each device type recognized by Nmap.  Version-detection.xml should
     reference (link to) it in the approprate place.
@@ -2572,7 +2572,7 @@ o Update nsedoc to refer to 'libraries' rather than 'modules'.  This
   and 'Modules' on the list of right, and affects the url (we should
   change /modules/ to /lib/ and then have Fyodor add a redirect for
   people still using old URLs) and the title of the module pages like
-  http://nmap.org/nsedoc/modules/base64.html. [Patrick]
+  https://nmap.org/nsedoc/modules/base64.html. [Patrick]
 
 o [Ncat] Prefix Ncat stderr messages with "Ncat: " to make it clear
   that they are coming from Ncat and not the remote server (or typed in
@@ -2718,7 +2718,7 @@ o [NSE] We need to deal with libraries which improperly use global
   long history of bugs caused by non-local variables defined in NSE
   libraies and often causing deadlocks.
 
-o The Nmap refguide (http://nmap.org/book/man-performance.html) says
+o The Nmap refguide (https://nmap.org/book/man-performance.html) says
   "The --max-parallelism option is sometimes set to one to prevent Nmap
   from sending more than one probe at a time to hosts. This can be
   useful in combination with --scan-delay (discussed later), although
@@ -3108,7 +3108,7 @@ o Change Nmap signature files to use the .sig extension rather than
    - not needed since I decided on .asc extension rather than .sig
   * Update the generation scripts
   * Update the book documentation -
-    http://nmap.org/book/install.html#inst-integrity
+    https://nmap.org/book/install.html#inst-integrity
 
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor asked
   David Maxwell on 5/14/09 ]
@@ -3135,7 +3135,7 @@ o [Ncat] Maybe we should create an SSL cert with no passphrase during
   on.  But people who need that will have to buy a key from a
   certificate authority in any case.  We could create the key by using
   the "openssl" command line tool as shown in
-  http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
+  https://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
   better to have a way for ncat to do it using openssl calls. [David]
 
 o [Zenmap] Should probably give some sort of widget indication that a
@@ -3261,7 +3261,7 @@ o Prepare for Summer of Code
 o NSEDoc script/module documentation pages should probably provide a
   link to the script/module source code (except for C modules).  The
   link format should probably be of the form
-  http://nmap.org/data/scripts/[script].nse and
+  https://nmap.org/data/scripts/[script].nse and
   /data/nselib/[module].lua.  NSEdoc can assume they already exist
   there, as we'll probably put them there using the same system we use
   to copy other stuff to the data dir.
@@ -3622,10 +3622,10 @@ o Find way to document NSE library script arguments and perhaps have
   them bubble up to scripts themselves.  For example, I had to read
   the SNMP library source code to determine the script argument to
   specify the SNMP community name for snmp-sysdescr
-  (http://nmap.org/nsedoc/scripts/snmp-sysdescr.html).  Maybe we could
+  (https://nmap.org/nsedoc/scripts/snmp-sysdescr.html).  Maybe we could
   just standardize on something like we do with SMB library and the
-  scripts which call it (http://nmap.org/nsedoc/modules/smb.html,
-  http://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
+  scripts which call it (https://nmap.org/nsedoc/modules/smb.html,
+  https://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
 
 o If it wouldn't bloat things too much, it would be nice to include
   ndiff in the Nmap win32 zip distribution files.

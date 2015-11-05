@@ -19,7 +19,7 @@
 --An a implementation resembling 'ike-scan' could be built.
 --
 --@author Jesper Kueckelhahn
---@license Same as Nmap--See http://nmap.org/book/man-legal.html
+--@license Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local _G = require "_G"
 local bin = require "bin"

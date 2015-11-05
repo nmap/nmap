@@ -32,7 +32,7 @@
 -- fetched from the registry (afaik) but not currently implemented. Some object ids are static : the registry is always 0
 --
 -- @author Martin Holst Swende
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @see java 1.4 RMI-spec: http://java.sun.com/j2se/1.4.2/docs/guide/rmi/
 -- @see java 5 RMI-spec: http://java.sun.com/j2se/1.5.0/docs/guide/rmi/spec/rmiTOC.html
 -- @see java 6 RMI-spec : http://java.sun.com/javase/6/docs/technotes/guides/rmi/index.html

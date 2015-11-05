@@ -54,7 +54,7 @@ when run from Windows.
 -- |_  and 441 sent queries
 
 author = "Aleksandar Nikolic, Ange Gutek"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"dos", "intrusive"}
 
 

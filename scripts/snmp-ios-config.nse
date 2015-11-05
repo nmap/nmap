@@ -37,7 +37,7 @@ Attempts to downloads Cisco router IOS configuration files using SNMP RW (v1) an
 
 author = "Vikas Singhal, Patrik Karlsson"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive"}
 

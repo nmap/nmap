@@ -2,27 +2,27 @@
 # $Id$
 #
 # This is a database of custom probes and expected responses that the
-# Nmap Security Scanner ( http://nmap.org ) uses to
+# Nmap Security Scanner ( https://nmap.org ) uses to
 # identify what services (eg http, smtp, dns, etc.) are listening on
 # open ports.  Contributions to this database are welcome.
 # Instructions for obtaining and submitting service detection fingerprints can
 # be found in the Nmap Network Scanning book and online at
-# http://nmap.org/book/vscan-community.html
+# https://nmap.org/book/vscan-community.html
 #
 # This collection of probe data is (C) 1998-2010 by Insecure.Com
 # LLC.  It is distributed under the Nmap Open Source license as
 # provided in the COPYING file of the source distribution or at
-# http://nmap.org/data/COPYING .  Note that this license
+# https://nmap.org/data/COPYING .  Note that this license
 # requires you to license your own work under a compatible open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).
 # Dozens of software vendors already license Nmap technology such as
 # host discovery, port scanning, OS detection, and version detection.
-# For more details, see http://nmap.org/book/man-legal.html
+# For more details, see https://nmap.org/book/man-legal.html
 #
 # For details on how Nmap version detection works, why it was added,
 # the grammar of this file, and how to detect and contribute new
-# services, see http://nmap.org/book/vscan.html.
+# services, see https://nmap.org/book/vscan.html.
 
 # The Exclude directive takes a comma separated list of ports.
 # The format is exactly the same as the -p switch.

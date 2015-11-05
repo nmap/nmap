@@ -104,10 +104,10 @@ Nmap done: 1 IP address (1 host up) scanned in 14\&.40 seconds
 .\}
 .PP
 L\*(Aqultima versione di Nmap si può ottenere dal sito
-\m[blue]\fB\%http://nmap.org\fR\m[]\&. L\*(Aqultima versione di questa pagina del manuale è disponibile al sito
-\m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]\&. È anche inclusa come capitolo di
+\m[blue]\fB\%https://nmap.org\fR\m[]\&. L\*(Aqultima versione di questa pagina del manuale è disponibile al sito
+\m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]\&. È anche inclusa come capitolo di
 \(lqNmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning\(rq
-(\m[blue]\fB\%http://nmap.org/book/\fR\m[])\&.
+(\m[blue]\fB\%https://nmap.org/book/\fR\m[])\&.
 .SH "ELENCO DELLE OPZIONI"
 .PP
 Questo elenco delle possibili opzioni viene stampato quando Nmap viene eseguito senza argomenti; una versione aggiornata di questo elenco è sempre disponibile sul sito
@@ -231,7 +231,7 @@ EXAMPLES:
   nmap \-v \-A scanme\&.nmap\&.org
   nmap \-v \-sn 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-Pn \-p 80
-SEE THE MAN PAGE (http://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
+SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
 .fi
 .if n \{\
 .RE
@@ -647,7 +647,7 @@ e
 filtered\&.
 .sp
 Questa tecnica è spesso indicata come "scanning semi\-aperto" (tradotto letteralmente per esigenze di comprensione, da "half\-open scanning", NdT), perché non viene aperta una connessione TCP completa\&. Viene mandato un pacchetto SYN come se si fosse sul punto di aprire una connessione reale e si attende una risposta\&. Un SYN/ACK indica che la porta è in ascolto (aperta), mentre un RST (reset) indica che la porta non è in ascolto\&. Se non viene ricevuta nessuna risposta dopo diverse ritrasmissioni la porta viene marcata come filtrata\&. La porta viene marcata come tale anche se viene ricevuto un pacchetto di errore "ICMP unreachable" (tipo 3, codici 1, 2, 3, 9, 10, 13)\&. La porta viene considerata aperta anche nel caso in cui un pacchetto SYN (senza il flag ACK) viene ricevuto in risposta\&. Questo in base ad una feature TCP estremamente rara conosciuta come "apertura simultanea" ("simultaneous open") o connessione "split handshake" (vedere
-\m[blue]\fB\%http://nmap.org/misc/split-handshake.pdf\fR\m[])\&.
+\m[blue]\fB\%https://nmap.org/misc/split-handshake.pdf\fR\m[])\&.
 .RE
 .PP
 \fB\-sT\fR (TCP connect scan)
@@ -1261,7 +1261,7 @@ name=value\&. I nomi e i valori possono essere stringhe senza spazi o i caratter
 xmpp\-info\&.server_name\&. Si può utilizzare questa identificazione per agire solo sullo script specificato, oppure utilizzare la versione non identificativa (server_name
 in questo caso) per agire su tutti gli script che utilizzano questo argomento\&. Uno script controllerà prima gli argomenti a lui identificati (il nome degli argomenti è specificato nella documentazione dello script) prima di accettare un argomento non qualificato\&. Un esempio complesso è
 \fB\-\-script\-args \*(Aquser=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp\-info\&.server_name=localhost\*(Aq\fR\&. L\*(AqNSE Documentation Portal all\*(Aqindirizzo
-\m[blue]\fB\%http://nmap.org/nsedoc/\fR\m[]
+\m[blue]\fB\%https://nmap.org/nsedoc/\fR\m[]
 elenca gli argomenti che ogni script accetta\&.
 .RE
 .PP
@@ -1691,7 +1691,7 @@ Attenzione: questa feature è ancora in fase di sviluppo ed ha alcune limitazion
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums)
 .RS 4
 Richiede ad Nmap di usare un checksum TCP o UDP non valido per i pacchetti inviati alla macchina di destinazione\&. Poiché teoricamente tutti gli stack IP degli host finiranno per ignorare questi pacchetti, qualunque risposta ricevuta dovrà per forza provenire da un firewall o da un Intrusion Detection System (IDS) che non si preoccupa di verificare il checksum\&. Per maggiori informazioni su questa tecnica, si consulti
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]\&.
 .RE
 .PP
 \fB\-\-adler32\fR (Use deprecated Adler32 instead of CRC32C for SCTP checksums)
@@ -1960,7 +1960,7 @@ dove è stato installato Nmap la prima volta\&. Processare il file XML con un XS
 \m[blue]\fBxsltproc\fR\m[]\&\s-2\u[25]\d\s+2
 per produrre un file HTML\&. Aprire direttamente l\*(Aqoutput XML in un browser non funziona più tanto bene in quanto i browser recenti limitano le location da cui può essere caricato un foglio di stile\&. Se si volesse usare un foglio di stile diverso, va specificato mediante l\*(Aqopzione
 \fB\-\-stylesheet\fR\&. Il file va indicato con il percorso completo o l\*(AqURL\&. Un esempio di invocazione con quest\*(Aqopzione è
-\fB\-\-stylesheet http://nmap\&.org/svn/docs/nmap\&.xsl\fR\&. Questo indica ad un XSLT processor di caricare l\*(Aqultima versione del foglio di stile da Nmap\&.Org\&. L\*(Aqopzione
+\fB\-\-stylesheet https://nmap\&.org/svn/docs/nmap\&.xsl\fR\&. Questo indica ad un XSLT processor di caricare l\*(Aqultima versione del foglio di stile da Nmap\&.Org\&. L\*(Aqopzione
 \fB\-\-webxml\fR
 fa la stessa cosa ma richiede meno digitazioni e meno cose da ricordare\&. Caricando l\*(AqXSL da Nmap\&.Org rende più semplice visualizzare i risultati su una macchina che non ha Nmap (e quindi il file
 nmap\&.xsl) installato\&. Quindi l\*(AqURL è spesso una scelta migliore, ma di default viene usato il file dal filesystem locale per ragioni di privacy\&.
@@ -1969,7 +1969,7 @@ nmap\&.xsl) installato\&. Quindi l\*(AqURL è spesso una scelta migliore, ma di 
 \fB\-\-webxml\fR (Load stylesheet from Nmap\&.Org)
 .RS 4
 Quest\*(Aqopzione è semplicemente una comodità per l\*(Aqopzione
-\fB\-\-stylesheet http://nmap\&.org/svn/docs/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet https://nmap\&.org/svn/docs/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no_stylesheet\fR (Omit XSL stylesheet declaration from XML)
@@ -2184,18 +2184,18 @@ Questo scansiona 4096 indirizzi IP in cerca di webservers (ma senza effettuare p
 .PP
 Dato che questa guida di riferimento mostra nel dettaglio tutte le opzioni di Nmap, non può dimostrare in maniera completa come utilizzare queste feature per risolvere velocemente applicazioni reali\&. È per questo che è stato pubblicato
 \m[blue]\fB\fINmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning\fR\fR\m[]\&\s-2\u[27]\d\s+2\&. Gli argomenti trattati sono sovvertire i firewall e gli IDS, ottimizzare le performance di Nmap e l\*(Aqautomazione di comuni processi di rete con l\*(AqNmap Scripting Engine\&. Vengono forniti suggerimenti ed istruzioni per operazioni comuni con Nmap come fare un inventario della rete, penetration testing, trovare rogue access point wireless e l\*(Aqannullamento di possibili worm\&. Esempi e diagrammi mostrano l\*(Aqattuale sistema di comunicazione via cavo\&. Più della metà del libro è disponibile gratuitamente online\&. Per maggiori informazioni
-\m[blue]\fB\%http://nmap.org/book\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book\fR\m[]\&.
 .SH "BUGS"
 .PP
 Al pari del suo autore (e di questa traduzione, NdT), Nmap non è perfetto\&. Ma puoi fare qualcosa per aiutare a renderlo migliore mandando delle segnalazioni di bug o addirittura scrivendo delle patch\&. Se Nmap non si dovesse comportare come ti aspetteresti, prova prima l\*(Aqultima versione disponibile su
-\m[blue]\fB\%http://nmap.org/\fR\m[]\&. Se il problema persiste effettua qualche ricerca per determinare se il problema è stato già scoperto e segnalato\&. Prova a cercare sulla nostra pagina di ricerca
+\m[blue]\fB\%https://nmap.org/\fR\m[]\&. Se il problema persiste effettua qualche ricerca per determinare se il problema è stato già scoperto e segnalato\&. Prova a cercare sulla nostra pagina di ricerca
 \m[blue]\fB\%http://insecure.org/search.html\fR\m[]
 o su Google il messaggio di errore o ancora a sfogliare l\*(Aqarchivio Nmap\-dev all\*(Aqindirizzo
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Leggi inoltre tutta questa pagina di manuale\&. Se nulla di questo riguarda il tuo caso, manda un bug report a
 <dev@nmap\&.org>\&. Accertati di includere ogni cosa che sei riuscito a sapere sul problema, la versione di Nmap che hai installato e su quale sistema operativo la stai usando\&. Segnalazioni di problemi ed eventuali domande sull\*(Aquso di Nmap inviate a
 <dev@nmap\&.org>
 hanno più probabilità di avere risposta di quelle inviate a Fyodor direttamente\&. Se ti registri alla lista di nmap\-dev prima di inviare il messaggio, quest\*(Aqultimo non verrà moderato e quindi arriverà più velocemente\&. Iscriviti su
-\m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
 Le patch che risolvono i bug sono molto meglio di una segnalazione\&. Le istruzioni di base per creare delle patch sono disponibili su
 \m[blue]\fB\%https://svn.nmap.org/nmap/HACKING\fR\m[]\&. Le patch potranno essere inviate a nmap\-dev (raccomandato) oppure direttamente a Fyodor\&.
@@ -2217,7 +2217,7 @@ Aggiornamento e revisione 04/2015: Andrea Pizzarotti
 <andrew3686@gmail\&.com>
 .PP
 Centinaia di persone hanno dato validi contributi a Nmap nel corso degli anni\&. Questi sono elencati dettagliatamente nel file di CHANGELOG che è distribuito assieme a Nmap ed è anche disponibile su
-\m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/changelog.html\fR\m[]\&.
 .SH "NOTE LEGALI"
 .SS "Copyright e Licenze di Nmap"
 .PP
@@ -2381,7 +2381,7 @@ Quando compilato col supporto ad OpenSSL o distribuito come codice sorgente, Ins
 La presente traduzione ha il solo scopo di aiutare nella comprensione del testo originale
 \(lqNmap Reference Guide\(rq, non ne costituisce copia sostitutiva e nemmeno licenza alternativa di
 \(lqCovered Software\(rq\&. Per qualsiasi informazione o chiarimento e per la versione più aggiornata, fare riferimento al testo originale disponibile al link
-\m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]\&.
 .SH "NOTES"
 .IP " 1." 4
 RFC 1122
@@ -2416,7 +2416,7 @@ RFC del protocollo TCP
 .IP " 7." 4
 TCP Idle Scan (-sI)
 .RS 4
-\%http://nmap.org/book/idlescan.html
+\%https://nmap.org/book/idlescan.html
 .RE
 .IP " 8." 4
 RFC 959
@@ -2427,12 +2427,12 @@ RFC 959
 Well Known Port List:
             \fBnmap-services\fR
 .RS 4
-\%http://nmap.org/book/nmap-services.html
+\%https://nmap.org/book/nmap-services.html
 .RE
 .IP "10." 4
 Chapter 7, Service and Application Version Detection
 .RS 4
-\%http://nmap.org/book/vscan.html
+\%https://nmap.org/book/vscan.html
 .RE
 .IP "11." 4
 RFC 1323
@@ -2442,7 +2442,7 @@ RFC 1323
 .IP "12." 4
 Chapter 8, Remote OS Detection
 .RS 4
-\%http://nmap.org/book/osdetect.html
+\%https://nmap.org/book/osdetect.html
 .RE
 .IP "13." 4
 linguaggio di programmazione Lua
@@ -2452,33 +2452,33 @@ linguaggio di programmazione Lua
 .IP "14." 4
 Script Categories
 .RS 4
-\%http://nmap.org/book/nse-usage.html#nse-categories
+\%https://nmap.org/book/nse-usage.html#nse-categories
 .RE
 .IP "15." 4
 Chapter 9, Nmap Scripting Engine
 .RS 4
-\%http://nmap.org/book/nse.html
+\%https://nmap.org/book/nse.html
 .RE
 .IP "16." 4
 Chapter 14, Understanding and Customizing Nmap Data Files
 .RS 4
-\%http://nmap.org/book/data-files.html
+\%https://nmap.org/book/data-files.html
 .RE
 .IP "17." 4
 \(lqIdle
             Scan Implementation Algorithms\(rq
 .RS 4
-\%http://nmap.org/book/scan-methods.html#port-scanning-algorithms
+\%https://nmap.org/book/scan-methods.html#port-scanning-algorithms
 .RE
 .IP "18." 4
 A practical example: bypassing default Snort 2.2.0 rules
 .RS 4
-\%http://nmap.org/book/firewalls.html#defeating-ids-snort-portscan
+\%https://nmap.org/book/firewalls.html#defeating-ids-snort-portscan
 .RE
 .IP "19." 4
 adaptive retransmission
 .RS 4
-\%http://nmap.org/book/scan-methods.html#scan-methods-adaptive-retransmission
+\%https://nmap.org/book/scan-methods.html#scan-methods-adaptive-retransmission
 .RE
 .IP "20." 4
 RFC 2960
@@ -2498,12 +2498,12 @@ Nmap::Parser
 .IP "23." 4
 Grepable Output (-oG)
 .RS 4
-\%http://nmap.org/book/output-formats-grepable-output.html
+\%https://nmap.org/book/output-formats-grepable-output.html
 .RE
 .IP "24." 4
 Timing and Performance
 .RS 4
-\%http://nmap.org/book/man-performance.html
+\%https://nmap.org/book/man-performance.html
 .RE
 .IP "25." 4
 xsltproc
@@ -2520,7 +2520,7 @@ su Wikipedia
       Network Scanning: The Official Nmap Project Guide to Network Discovery
       and Security Scanning\fR
 .RS 4
-\%http://nmap.org/book/
+\%https://nmap.org/book/
 .RE
 .IP "28." 4
 Apache Software Foundation
@@ -2565,7 +2565,7 @@ Liblinear linear classification library
 .IP "36." 4
 IPv6 matching
 .RS 4
-\%http://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6
+\%https://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6
 .RE
 .IP "37." 4
 Export Administration Regulations (EAR)

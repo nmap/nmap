@@ -47,7 +47,7 @@ Obtains information from a Bitcoin server by calling <code>getinfo</code> on its
 -- </table>
 
 author = "Toni Ruottu"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"http-brute"}
 

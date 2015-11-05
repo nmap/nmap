@@ -3,7 +3,7 @@
 --
 -- Large chunks of this code have been ripped right out from <code>snmp.lua</code>.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @author Patrik Karlsson
 --

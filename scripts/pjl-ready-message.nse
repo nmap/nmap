@@ -20,7 +20,7 @@ message and changes it to the message given.
 
 author = "Aaron Leininger"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive"}
 

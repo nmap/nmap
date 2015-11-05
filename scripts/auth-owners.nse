@@ -27,7 +27,7 @@ also known as identd, normally runs on port 113.
 
 author = "Diman Todorov"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 

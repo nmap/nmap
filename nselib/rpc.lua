@@ -66,7 +66,7 @@
 -- When multiple versions exists for a specific RPC program the library
 -- always attempts to connect using the highest available version.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --

@@ -1,7 +1,7 @@
 ---
 -- Simple Mail Transfer Protocol (SMTP) operations.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local base64 = require "base64"
 local comm = require "comm"

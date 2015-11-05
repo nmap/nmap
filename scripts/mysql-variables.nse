@@ -40,7 +40,7 @@ Attempts to show all variables on a MySQL server.
 -- |_  wait_timeout: 28800
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 

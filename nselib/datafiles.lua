@@ -8,7 +8,7 @@
 -- the function result. On failure, they return false and an error message.
 -- @author Kris Katterjohn 03/2008
 -- @author jah 08/2008
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local io = require "io"
 local nmap = require "nmap"

@@ -55,7 +55,7 @@ generates IPv4-compatible IPv6 addresses.
 --
 
 author = "Raúl Armando Fuentes Samaniego"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {
   "discovery",
 }

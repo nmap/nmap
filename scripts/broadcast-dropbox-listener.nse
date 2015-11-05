@@ -37,7 +37,7 @@ output.
 -- 1047/tcp open  neod1
 
 author = "Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait Milne"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 

@@ -1,7 +1,7 @@
 # Extract the version string from nping.h.
 export NPING_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NPING_VERSION' nping.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NPING_NAME= Nping
-NPING_URL= http://nmap.org/nping
+NPING_URL= https://nmap.org/nping
 NPING_PLATFORM=@host@
 prefix = @prefix@
 datarootdir = @datarootdir@

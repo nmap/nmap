@@ -20,7 +20,7 @@ Check if ePO agent is running on port 8081 or port identified as ePO Agent port.
 
 author = "Didier Stevens, Daniel Miller"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"version", "safe"}
 

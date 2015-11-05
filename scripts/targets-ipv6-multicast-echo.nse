@@ -26,7 +26,7 @@ on a LAN without needing to individually ping each IPv6 address.
 
 author = "David Fifield, Xu Weilin"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery","broadcast"}
 

@@ -49,7 +49,7 @@ An example of how to specify the methods to use and the order is the following:
 -----------------------------------------------------------------------
 
 author = "Duarte Silva <duarte.silva@serializing.me>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth","external","intrusive"}
 
 

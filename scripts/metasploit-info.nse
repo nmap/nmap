@@ -41,7 +41,7 @@ References:
 
 
 author = "Aleksandar Nikolic"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive","safe"}
 
 portrule = shortport.port_or_service(55553,"metasploit-msgrpc")

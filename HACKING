@@ -25,7 +25,7 @@ send them.
 
 Nmap is a community project and has already benefited greatly from
 outside contributors (for examples, see the CHANGELOG at
-http://nmap.org/changelog.html).  Bugfixes, and portability changes
+https://nmap.org/changelog.html).  Bugfixes, and portability changes
 will almost always be accepted.  Even if you do not have time to track
 down and patch a problem, bug reports are always welcome.
 
@@ -62,7 +62,7 @@ o Nmap GUI improvements -- Zenmap is the Nmap GUI. If you have
   (http://rubynmap.sourceforge.net).
 
 One of the best ways to help is to join the nmap-dev list
-( http://nmap.org/mailman/listinfo/dev ).  Requests for
+( https://nmap.org/mailman/listinfo/dev ).  Requests for
 assistance and new Nmap-related projects are often posted there.
 
 How to make code contributions

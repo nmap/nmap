@@ -25,7 +25,7 @@ Tries to log into a POP3 account by guessing usernames and passwords.
 -- |_ Performed 8 scans in 1 seconds, average tps: 8
 
 author = "Philip Pickering, Piotr Olma"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
