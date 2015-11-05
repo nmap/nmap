@@ -8,7 +8,9 @@ description = [[
 Attempts to perform a dynamic DNS update without authentication.
 
 Either the <code>test</code> or both the <code>hostname</code> and
-<code>ip</code> script arguments are required.
+<code>ip</code> script arguments are required. Note that the <code>test</code>
+function will probably fail due to using a static zone name that is not the
+zone configured on your target.
 ]]
 
 author = "Patrik Karlsson"
@@ -17,7 +19,8 @@ categories = {"vuln", "intrusive"}
 
 ---
 -- @usage
--- nmap -sU -p 53 --script=dns-update <target>
+-- nmap -sU -p 53 --script=dns-update --script-args=dns-update.hostname=foo.example.com,dns-update.ip=192.0.2.1 <target>
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 53/udp open  domain
@@ -29,6 +32,9 @@ categories = {"vuln", "intrusive"}
 -- @args dns-update.ip The ip address of the host to add to the zone
 -- @args dns-update.test Add and remove 4 records to determine if the target is vulnerable.
 --
+-- @xmloutput
+-- <elem>Successfully added the record "nmap-test.cqure.net"</elem>
+-- <elem>Failed to delete the record "nmap-test.cqure.net"</elem>
 
 --
 -- Examples
@@ -52,7 +58,7 @@ categories = {"vuln", "intrusive"}
 -- Revised 01/10/2011 - v0.2 - added test function <patrik@cqure.net>
 
 
-portrule = shortport.port_or_service( 53, "dns", "udp", {"open", "open|filtered"} )
+portrule = shortport.port_or_service( 53, "dns", {"udp", "tcp"} )
 
 local function test(host, port)
 
@@ -104,7 +110,7 @@ action = function(host, port)
       table.insert(result, ("Failed to delete the record \"%s\""):format(name))
     end
     nmap.set_port_state(host, port, "open")
-    return stdnse.format_output(true, result)
+    return result
   elseif ( err ) then
     return stdnse.format_output(false, err)
   end
