@@ -76,7 +76,7 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
 
 check-%: stage-%
-	find $* -perm -a+x -type f | xargs otool -L | grep "$(MACPORTS_PREFIX)" && false || echo "Libs are clean"
+	if (find $* -perm -a+x -type f | xargs otool -L | grep "$(MACPORTS_PREFIX)"); then false; else echo "Libs are clean"; fi
 
 export-%:
 	rm -rf $*
