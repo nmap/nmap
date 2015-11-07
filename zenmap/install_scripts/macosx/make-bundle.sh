@@ -66,23 +66,6 @@ find $BASE/Resources/lib/gtk-2.0/$gtk_version/ -type f -name '*.so' | while read
   done
 done
 
-pango_version=`$PKG_CONFIG --variable=pango_module_version pango`
-echo "Copying Pango $pango_version files."
-mkdir -p $BASE/Resources/etc/pango
-cat > $BASE/Resources/etc/pango/pangorc.in <<EOF
-# This template is filled in at run time by the application.
-
-#
-# pangorc file for uninstalled operation.
-# We set the path as ../modules, such that it works from any of
-# top level build subdirs.
-#
-
-[Pango]
-ModuleFiles = \${RESOURCES}/etc/pango/pango.modules
-EOF
-cp $LIBPREFIX/etc/pango/pango.modules $BASE/Resources/etc/pango/
-
 echo "Copying Fontconfig files."
 cp -R $LIBPREFIX/etc/fonts $BASE/Resources/etc/
 # Remove the dir and cachedir under $LIBPREFIX. The cachedir ~/.fontconfig remains.
