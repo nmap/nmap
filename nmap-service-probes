@@ -4512,6 +4512,9 @@ match telnet-proxy m|^\xff\xfc\x01\xff\xfd\"ixProxy V([\d.]+), Copyright \(C\) \
 match telnet-proxy m|^\xff\xfb\x01\xff\xfb\x03Blue Coat Shell proxy\r\nShell-proxy>| p/Blue Coat Shell proxy/ o/SGOS/ cpe:/o:bluecoat:sgos/a
 match telnet-proxy m|^Welcome to kingate ([\w._-]+)-win32 telnet proxy\.\r\nPlease enter host and port\r\nexample: abc\.com 23\r\nkingate >| p/kingate telnet proxy/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 
+match tn3270 m|^\xff\xfd\x1d| p/IBM Telnet TN3270/ i/3270-REGIME/
+match tn3270 m|^\xff\xfd\x28| p/IBM Telnet TN3270/ i/TN3270E/
+
 match textui m|^\r\nHi, my name is : *(\w.*)\r\nHere is what I know about myself:\r\nModel: *(\w.*)\r\nSerial Number: *(\w+)\r\nSoftware Version: *([\d.]+)\r\nBuild Information: *\d+\r\nTime In Last Call: *[\d:]+\r\nTotal Time In Calls: *[\d:]+\r\nTotal Calls: *\d+\r\nSNTP Time Service: *\w+ \r\nLocal Time is: .* ([-+]\d\d\d\d)\r\n| p/Polycom videoconferencing system control port/ v/$4/ i/name: $1; model: $2; serial: $3; timezone: $5/ cpe:/h:polycom:$2/
 
 match terraria m|^0\0\0\0\x02Client sent invalid network message \(168626705\)| p/Terraria Dedicated Server Mod/ i/Terraria game server/
@@ -4804,7 +4807,6 @@ match landesk-rc m|^(?!HTTP).{264}$|s p/LANDesk remote management/ cpe:/a:landes
 
 # Specific vendor telnet options that should be matched more accurately by prompt, etc.
 softmatch telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f| p/Huawei telnetd/
-softmatch tn3270 m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))*\xff\xfd[\x19\x24]= p/IBM Telnet TN3270/
 
 # General-purpose telnet softmatch
 softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
@@ -14290,3 +14292,14 @@ sslports 2252
 # If the port supports NJE it will respond with either a 'NAK' or 'ACK' in EBCDIC
 match nje m|^\xd5\xc1\xd2| p/IBM Network Job Entry (JES)/
 match nje m|^\xc1\xc3\xd2| p/IBM Network Job Entry (JES)/
+
+##############################NEXT PROBE##############################
+# Detects TN3270 Servers which send IAC DO TTYPE on initial connection
+# instead of IAC DO TN3270E
+Probe TCP tn3270 q|\xff\xfb\x18\xff\xfa\x18\x00IBM-3279-4-E\xff\xf0|
+rarity 8
+ports 23,2323,2023,623
+sslports 992
+
+# IAC DO TERMINAL TYPE, IAC SB TERMINAL TYPE SEND SE, .*, IAC DO EOR
+match tn3270 m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\x18.*\xff\xfd\x19| p/IBM Telnet TN3270/ i/traditional tn3270/
