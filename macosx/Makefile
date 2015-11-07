@@ -64,7 +64,6 @@ CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
 PYTHON = $(MACPORTS_PREFIX)/bin/python2.7
-SVN_STATIC = $(MACPORTS_PREFIX)/lib/libsvn_subr-1.a $(MACPORTS_PREFIX)/lib/libsvn_client-1.a $(MACPORTS_PREFIX)/lib/libapr-1.a
 OPENSSL_STATIC = $(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a
 
 $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
@@ -88,25 +87,28 @@ stage-nmap: export-$(NMAP_BUILD_DIR)
 	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NMAP_STAGING_DIR)
-	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
+	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
 	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
 	make -d -C $(NCAT_BUILD_DIR) build-ncat OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NCAT_STAGING_DIR)
-	make -d -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
+	make -d -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-nping: export-$(NPING_BUILD_DIR)
 	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NPING_BUILD_DIR) build-nping OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NPING_STAGING_DIR)
-	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
+	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
 	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
-	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
+	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
+	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libapr-1.0.dylib" "/usr/lib/libapr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_client-1.0.dylib" "/usr/lib/libsvn_client-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_subr-1.0.dylib" "/usr/lib/libsvn_subr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
 
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
