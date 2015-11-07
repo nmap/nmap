@@ -3625,8 +3625,6 @@ match telnet m|^\xff\xfb\x01\r\r\nUser Access Verification\r\r\n\r\r\nUsername:|
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems Console\r\n| p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nPassword required, but none set\r\n| p/Cisco router telnetd/ i/password required but not set/ d/router/ cpe:/a:cisco:telnet/
 match telnet m|^Access not permitted\. Closing connection\.\.\.\n$|s p/Cisco Catalyst switch telnetd/ i/access denied/ d/switch/ cpe:/a:cisco:telnet/
-# The match below matches Cisco microswitch devices and also Edge-core ES3526XA
-match telnet m|^\xff\xfd\x18$| p/Cisco or Edge-core switch telnetd/ d/switch/
 # OpenBSD 2.3
 # FreeBSD 5.1
 match telnet m|^\xff\xfd%$| p/BSD-derived telnetd/
@@ -4808,6 +4806,8 @@ match landesk-rc m|^(?!HTTP).{264}$|s p/LANDesk remote management/ cpe:/a:landes
 # Specific vendor telnet options that should be matched more accurately by prompt, etc.
 softmatch telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f| p/Huawei telnetd/
 
+# Matches lots of devices that require a terminal type to be sent
+softmatch telnet m|^\xff\xfd\x18$|
 # General-purpose telnet softmatch
 softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
 # Null probe hack; these seem to come in response to random probes
@@ -14303,3 +14303,6 @@ sslports 992
 
 # IAC DO TERMINAL TYPE, IAC SB TERMINAL TYPE SEND SE, .*, IAC DO EOR
 match tn3270 m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\x18.*\xff\xfd\x19| p/IBM Telnet TN3270/ i/traditional tn3270/
+
+# Hack to force the softmatch in NULL probe to allow this probe to be sent as a followup. Don't expect this will really match anything.
+softmatch telnet m|^\xff\xfd\x18$|
