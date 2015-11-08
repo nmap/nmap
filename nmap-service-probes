@@ -14302,7 +14302,7 @@ ports 23,2323,2023,623
 sslports 992
 
 # IAC DO TERMINAL TYPE, IAC SB TERMINAL TYPE SEND SE, .*, IAC DO EOR
-match tn3270 m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\x18.*\xff\xfd\x19| p/IBM Telnet TN3270/ i/traditional tn3270/
+match tn3270 m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0.*?\xff\xfd\x19| p/IBM Telnet TN3270/ i/traditional tn3270/
 
 # Hack to force the softmatch in NULL probe to allow this probe to be sent as a followup. Don't expect this will really match anything.
 softmatch telnet m|^\xff\xfd\x18$|
