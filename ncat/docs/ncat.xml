@@ -777,6 +777,19 @@
 
       <varlistentry>
         <term>
+          <option>--no-shutdown</option> (Do not shutdown into half-duplex mode)
+          <indexterm><primary><option>--no-shutdown</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>If this option is passed, Ncat will not invoke shutdown on a
+          socket aftering seeing EOF on stdin. This is provided for
+          backward-compatibility with OpenBSD netcat, which exhibits this
+          behavior when executed with its '-d' option.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-t</option>,
           <option>--telnet</option> (Answer Telnet negotiations)
           <indexterm><primary><option>-t</option> (Ncat option)</primary></indexterm>

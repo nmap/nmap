@@ -393,7 +393,7 @@ static int ncat_listen_stream(int proto)
                                receiving anything, we can quit here. */
                             return 0;
                         }
-                        shutdown_sockets(SHUT_WR);
+                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                     }
                     if (rc < 0)
                         return 1;
