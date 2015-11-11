@@ -48,6 +48,19 @@ function bignum_clear_bit(bignum, position)
 -- @return True if the selected bit is set, false otherwise.
 function bignum_is_bit_set(bignum, position)
 
+--- Tests whether <code>bignum</code> is prime using Miller-Rabin primality test.
+-- @param bignum bignum to test
+-- @param nchecks Number of Miller-Rabin rounds (optional, default 40)
+-- @return is_prime True if <code>bignum</code> is (probably) prime, false otherwise
+function bignum_is_prime(bignum, nchecks)
+
+--- Tests whether <code>bignum</code> is a safe prime using Miller-Rabin primality test.
+-- @param bignum bignum to test
+-- @param nchecks Number of Miller-Rabin rounds (optional, default 40)
+-- @return is_prime True if <code>bignum</code> is (probably) prime, false otherwise
+-- @return is_safe True if <code>bignum</code> is a safe prime, false otherwise
+function bignum_is_safe_prime(bignum, nchecks)
+
 --- Converts a binary-encoded string into a bignum.
 -- @param string Binary string.
 -- @return bignum.
