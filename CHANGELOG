@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] [GH#165] Added broadcast-sonicwall-discover to detect and extract
+  information from SonicWall firewalls. [Raphael Hoegger]
+
 o [NSE] [GH#38] Added http-vuln-cve2014-8877 to check for and optionally
   exploit a vulnerability in CM Download Manager plugin for Wordpress.
   [Mariusz Ziulek]
