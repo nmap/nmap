@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added nje-node-brute to brute-force z/OS JES Network Job Entry node
+  names. [Soldier of Fortran]
+
 o [NSE] [GH#165] Added broadcast-sonicwall-discover to detect and extract
   information from SonicWall firewalls. [Raphael Hoegger]
 
