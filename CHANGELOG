@@ -2,7 +2,7 @@
 
 o [Ncat] [GH#151] [GH#142] New option --no-shutdown prevents Ncat from shutting
   down when it reads EOF on stdin. This is the same as traditional netcat's
-  "-d" option. [Adam Saparona]
+  "-d" option. [Adam Saponara]
 
 o [NSE] Added ip-https-discover for detecting support for Microsoft's IP over
   HTTPS tunneling protocol. [Niklaus Schiess]
