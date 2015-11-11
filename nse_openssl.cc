@@ -3,6 +3,7 @@
  * Original code written by Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
  * Adapted for Nmap by Thomas Buchanan <tbuchanan@thecompassgrp.net>
  * bignum and rand_bytes functions added by Sven Klemm <sven@c3d2.de>
+ * Primality tests added by Jacob Gajek <jgajek@gmail.com>
  */
 
 #include <openssl/bn.h>
@@ -155,6 +156,37 @@ static int l_bignum_is_bit_set( lua_State *L ) /** bignum_set_bit( BIGNUM bn, nu
   int position = luaL_checkint( L, 2 );
   lua_pushboolean( L, BN_is_bit_set( userdata->bn, position ) );
   return 1;
+}
+
+static int l_bignum_is_prime( lua_State *L ) /** bignum_is_prime( BIGNUM p, number nchecks ) */
+{
+  bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
+  int nchecks = luaL_optint( L, 2, BN_prime_checks );
+  BN_CTX * ctx = BN_CTX_new();
+  int is_prime = BN_is_prime_ex( p->bn, nchecks, ctx, NULL );
+  BN_CTX_free( ctx );
+  lua_pushboolean( L, is_prime );
+  return 1;
+}
+
+static int l_bignum_is_safe_prime( lua_State *L ) /** bignum_is_safe_prime( BIGNUM p, number nchecks ) */
+{
+  bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
+  int nchecks = luaL_optint( L, 2, BN_prime_checks );
+  BN_CTX * ctx = BN_CTX_new();
+  int is_prime = BN_is_prime_ex( p->bn, nchecks, ctx, NULL );
+  int is_safe = 0;
+  if (is_prime) {
+    BIGNUM * n = BN_dup( p->bn );
+    BN_sub_word( n, (BN_ULONG)1 );
+    BN_div_word( n, (BN_ULONG)2 );
+    is_safe = BN_is_prime_ex( n, nchecks, ctx, NULL );
+    BN_clear_free( n );
+  }
+  BN_CTX_free( ctx );
+  lua_pushboolean( L, is_safe );
+  lua_pushboolean( L, is_prime );
+  return 2;
 }
 
 static int l_bignum_bn2bin( lua_State *L ) /** bignum_bn2bin( BIGNUM bn ) */
@@ -514,6 +546,8 @@ static const struct luaL_Reg bignum_methods[] = {
   { "set_bit", l_bignum_set_bit },
   { "clear_bit", l_bignum_clear_bit },
   { "is_bit_set", l_bignum_is_bit_set },
+  { "is_prime", l_bignum_is_prime },
+  { "is_safe_prime", l_bignum_is_safe_prime },
   { "__gc", l_bignum_free },
   { NULL, NULL }
 };
@@ -524,6 +558,8 @@ static const struct luaL_Reg openssllib[] = {
   { "bignum_set_bit", l_bignum_set_bit },
   { "bignum_clear_bit", l_bignum_clear_bit },
   { "bignum_is_bit_set", l_bignum_is_bit_set },
+  { "bignum_is_prime", l_bignum_is_prime },
+  { "bignum_is_safe_prime", l_bignum_is_safe_prime },
   { "bignum_bin2bn", l_bignum_bin2bn },
   { "bignum_dec2bn", l_bignum_dec2bn },
   { "bignum_hex2bn", l_bignum_hex2bn },

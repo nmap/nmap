@@ -48,6 +48,25 @@ function bignum_clear_bit(bignum, position)
 -- @return True if the selected bit is set, false otherwise.
 function bignum_is_bit_set(bignum, position)
 
+--- Checks whether <code>bignum</code> is probably prime.
+--
+-- Performs Miller-Rabin probablistic primality tests.
+-- @param bignum bignum to check for primality
+-- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
+-- @return True if the number is probably prime, false if it is composite.
+function bignum_is_prime(bignum, nchecks)
+
+--- Checks whether <code>bignum</code> is a safe prime.
+--
+-- A safe prime is defined as a prime p so that (p-1)/2 is also prime. Using
+-- non-safe primes in discrete logarithm cryptography like Diffie-Hellman can
+-- result in weak, easily broken key exchanges.
+-- @param bignum bignum to check for primality
+-- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
+-- @return True if the number is a safe prime, false if it is not.
+-- @return True if the number is probably prime, false if it is composite.
+function bignum_is_safe_prime(bignum, nchecks)
+
 --- Converts a binary-encoded string into a bignum.
 -- @param string Binary string.
 -- @return bignum.
