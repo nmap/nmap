@@ -96,4 +96,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>Index: liblua/liblua.vcxproj
+</Project>
