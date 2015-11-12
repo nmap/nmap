@@ -18,7 +18,7 @@ Discovers EMC Networker backup software servers on a LAN by sending a network br
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
@@ -58,8 +58,6 @@ local function Callit( host, port, program, protocol )
   return true, results
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function()
 
   local results = {}
@@ -80,7 +78,7 @@ action = function()
     -- warn about problematic sends on OS X requiring the interface to be
     -- supplied as part of IPv6
     if ( not(status) and results == "Portmap.Callit: Failed to send data" ) then
-      return fail("Failed sending data, try supplying the correct interface using -e")
+      return stdnse.format_output(false, "Failed sending data, try supplying the correct interface using -e")
     end
 
     if ( status ) then

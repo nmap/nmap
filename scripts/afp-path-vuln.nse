@@ -65,7 +65,7 @@ For additional information:
 -- Revised 21/10/2011 - v0.4 - Use the vulnerability library vulns.lua
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "vuln"}
 
 
@@ -176,7 +176,7 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
       status, response = afp_helper:Login(nil, nil)
     end
     if ( not(status) ) then
-      stdnse.debug1("Login failed", response)
+      stdnse.debug1("Login failed")
       stdnse.debug3("Login error: %s", response)
       return
     end

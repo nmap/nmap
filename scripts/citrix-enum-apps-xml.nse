@@ -67,7 +67,7 @@ The script returns more output with higher verbosity.
 -- Revised 12/16/2014 - v0.3 - Detect if encryption settings are minimum requirements
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

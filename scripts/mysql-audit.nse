@@ -86,12 +86,14 @@ audits by creating appropriate audit files).
 -- Created 05/29/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
 portrule = shortport.port_or_service(3306, "mysql")
 local TEMPLATE_NAME, ADMIN_ACCOUNTS = "", ""
+
+local function fail (err) return stdnse.format_output(false, err) end
 
 local function loadAuditRulebase( filename )
   local rules = {}
@@ -103,7 +105,7 @@ local function loadAuditRulebase( filename )
   local file, err = loadfile(filename, "t", env)
 
   if ( not(file) ) then
-    return false, ("ERROR: Failed to load rulebase:\n%s"):format(err)
+    return false, fail(("Failed to load rulebase:\n%s"):format(err))
   end
 
 
@@ -120,11 +122,11 @@ action = function( host, port )
   local filename = stdnse.get_script_args("mysql-audit.filename")
 
   if ( not(filename) ) then
-    return "\n  No audit rulebase file was supplied (see mysql-audit.filename)"
+    return fail("No audit rulebase file was supplied (see mysql-audit.filename)")
   end
 
   if ( not(username) ) then
-    return "\n  No username was supplied (see mysql-audit.username)"
+    return fail("No username was supplied (see mysql-audit.username)")
   end
 
   local status, tests = loadAuditRulebase( filename )
@@ -139,7 +141,7 @@ action = function( host, port )
 
   status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 
-  if ( not(status) ) then return "ERROR: Failed to authenticate" end
+  if ( not(status) ) then return fail("Failed to authenticate") end
   local results = {}
 
   for _, test in ipairs(tests) do

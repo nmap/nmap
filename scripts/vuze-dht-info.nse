@@ -35,7 +35,7 @@ Retrieves some basic information, including protocol version from a Vuze filesha
 -- @args vuze-dht-info.allports if set runs this script against every open port
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
@@ -55,13 +55,13 @@ local function getDHTInfo(host, port, lhost)
   local status = helper:connect()
 
   if ( not(status) ) then
-    return false, "\n  ERROR: Failed to connect to server"
+    return false, "Failed to connect to server"
   end
 
   local response
   status, response = helper:ping()
   if ( not(status) ) then
-    return false, "\n  ERROR: Failed to ping vuze node"
+    return false, "Failed to ping vuze node"
   end
   helper:close()
 
@@ -71,6 +71,9 @@ end
 action = function(host, port)
 
   local status, response = getDHTInfo(host, port)
+  if not status then
+    return stdnse.format_output(false, response)
+  end
 
   -- check whether we have an error due to an incorrect address
   -- ie. we're on a NAT:ed network and we're announcing our private ip

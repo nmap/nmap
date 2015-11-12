@@ -2,7 +2,7 @@
 -- Base32 encoding and decoding. Follows RFC 4648.
 --
 -- @author Philip Pickering <pgpickering@gmail.com>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @ported base64 to base32 <john.r.bond@gmail.com>
 
 -- thanks to Patrick Donnelly for some optimizations

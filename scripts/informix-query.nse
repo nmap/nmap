@@ -38,7 +38,7 @@ authentication credentials (see also: informix-brute).
 -- Created 07/28/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 dependencies = { "informix-brute" }
 
@@ -67,7 +67,7 @@ action = function( host, port )
       user = nmap.registry['informix-brute'][1]["username"]
       pass = nmap.registry['informix-brute'][1]["password"]
     else
-      return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
+      return stdnse.format_output(false, "No credentials specified (see informix-table.username and informix-table.password)")
     end
   end
 

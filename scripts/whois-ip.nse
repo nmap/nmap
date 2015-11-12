@@ -84,7 +84,7 @@ the RIRs.
 -- |_ country: US stateprov: CA
 
 author = "jah"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
 

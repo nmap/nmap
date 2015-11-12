@@ -35,7 +35,7 @@ Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 -- <elem key="delta">4</elem>
 
 author = "Aleksandar Nikolic, nnposter"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
 portrule = function(host, port)

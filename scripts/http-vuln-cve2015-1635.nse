@@ -39,7 +39,7 @@ References:
 ---
 
 author = {"Kl0nEz", "Paulino <calderon()websec.mx>"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = shortport.http

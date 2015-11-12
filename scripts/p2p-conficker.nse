@@ -86,7 +86,7 @@ who contributed!
 
 author = "Ron Bowes (with research from Symantec Security Response)"
 copyright = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default","safe"}
 
 
@@ -605,7 +605,7 @@ action = function(host)
   udp_ports[generated_ports[2]] = true
   udp_ports[generated_ports[4]] = true
 
-  table.insert(response, string.format("Checking for Conficker.C or higher..."))
+  table.insert(response, "Checking for Conficker.C or higher...")
 
   -- Check the TCP ports
   for port in pairs(tcp_ports) do

@@ -10,17 +10,26 @@
 -- The following code illustrates how a script may add discovered credentials
 -- to the database:
 -- <code>
--- local c = creds.Credentials:new( SCRIPT_NAME, host, port )
+-- local c = creds.Credentials:new( {"myapp"}, host, port )
 -- c:add("patrik", "secret", creds.State.VALID )
 -- </code>
 --
 -- The following code illustrates how a script can return a table of discovered
 -- credentials at the end of execution:
 -- <code>
--- return tostring(creds.Credentials:new(SCRIPT_NAME, host, port))
+-- return tostring(creds.Credentials:new({"myapp"}, host, port))
 -- </code>
 --
--- The following code illustrates how a script may iterate over discovered
+-- Another script can iterate over credential already discovered by other
+-- scripts just by referring to the same tag:
+-- <code>
+-- local c = creds.Credentials:new({"myapp", "yourapp"}, host, port)
+-- for cred in c:getCredentials(creds.State.VALID) do
+--   showContentForUser(cred.user, cred.pass)
+-- end
+-- </code>
+--
+-- The following code illustrates how a script may iterate over all discovered
 -- credentials:
 -- <code>
 -- local c = creds.Credentials:new(creds.ALL_DATA, host, port)
@@ -77,9 +86,9 @@
 -- the filename based on the type requested.
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
--- Version 0.4
+-- Version 0.5
 -- Created 2011/02/06 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 2011/27/06 - v0.2 - revised by Patrik Karlsson <patrik@cqure.net>
 --                * added documentation
@@ -93,6 +102,11 @@
 -- Revised 2011/09/04 - v0.4 - revised by Tom Sellers
 --                * added saveToFile function for saving credential
 --                * table to file in CSV or text formats
+--
+-- Revised 2015/19/08 - v0.5 - Gioacchino Mazzurco <gmazzurco89@gmail.com>
+--                * added multitag support to share credential easier accross
+--                  scripts
+--
 
 local bit = require "bit"
 local coroutine = require "coroutine"
@@ -150,7 +164,7 @@ StateMsg = {
 }
 
 
-ALL_DATA = "all_script_data"
+ALL_DATA = {}
 
 -- The RegStorage class
 RegStorage = {
@@ -168,16 +182,16 @@ RegStorage = {
 
   --- Add credentials to storage
   --
-  -- @param scriptname the name of the script adding the credentials
+  -- @param tags a table containing tags associated with the credentials
   -- @param host host table, name or ip
   -- @param port number containing the port of the service
   -- @param service the name of the service
   -- @param user the name of the user
   -- @param pass the password of the user
   -- @param state of the account
-  add = function( self, scriptname, host, port, service, user, pass, state )
+  add = function( self, tags, host, port, service, user, pass, state )
     local cred = {
-      scriptname = scriptname,
+      tags = tags,
       host = host,
       port = port,
       service = service,
@@ -296,10 +310,10 @@ end
 Credentials = {
 
   --- Creates a new instance of the Credentials class
-  -- @param scriptname string containing the name of the script
+  -- @param tags a table containing tags associated with the credentials
   -- @param host table as received by the scripts action method
   -- @param port table as received by the scripts action method
-  new = function(self, scriptname, host, port)
+  new = function(self, tags, host, port)
     local o = {}
     setmetatable(o, self)
     self.__index = self
@@ -308,7 +322,8 @@ Credentials = {
     o.host = host
     o.port = ( port and port.number ) and port.number
     o.service = ( port and port.service ) and port.service
-    o.scriptname = scriptname
+    if ( type(tags) ~= "table" ) then tags = {tags} end
+    o.tags = tags
     return o
   end,
 
@@ -322,12 +337,12 @@ Credentials = {
     assert( self.host, "No host supplied" )
     assert( self.port, "No port supplied" )
     assert( state, "No state supplied")
-    assert( self.scriptname, "No scriptname supplied")
+    assert( self.tags, "No tags supplied")
 
     -- there are cases where we will only get a user or password
     -- so as long we have one of them, we're good
     if ( user or pass ) then
-      self.storage:add( self.scriptname, self.host, self.port, self.service, user, pass, state )
+      self.storage:add( self.tags, self.host, self.port, self.service, user, pass, state )
     end
   end,
 
@@ -345,8 +360,8 @@ Credentials = {
   --         <code>pass</code> - string containing the user password
   --         <code>state</code> - a state number
   --         <code>service</code> - string containing the name of the service
-  --         <code>scriptname</code> - string containing the name of the
-  --                                   script that added the credential
+  --         <code>tags</code> - table containing tags associated with
+  --                             the credential
   getCredentials = function(self, state)
     local function next_credential()
       if ( state ) then
@@ -354,9 +369,15 @@ Credentials = {
       end
 
       for cred in self.storage:getAll() do
-        if ( ( self.scriptname == ALL_DATA ) or
-          ( cred.scriptname == self.scriptname ) ) then
+        if ( self.tags == ALL_DATA ) then
           coroutine.yield(cred)
+        end
+        for _,stag in pairs(self.tags) do
+          for _,ctag in pairs(cred.tags) do
+            if(stag == ctag) then
+              coroutine.yield(cred)
+            end
+          end
         end
       end
 
@@ -405,21 +426,19 @@ Credentials = {
   getTable = function(self)
     local result = {}
 
-    for v in self.storage:getAll() do
-      if ( v.scriptname == self.scriptname or self.scriptname == ALL_DATA ) then
-        local h = ( v.host.ip or v.host )
-        assert(type(h)=="string", "Could not determine a valid host")
-        local svc = ("%s/%s"):format(v.port,v.service)
+    for v in self:getCredentials() do
+      local h = ( v.host.ip or v.host )
+      assert(type(h)=="string", "Could not determine a valid host")
+      local svc = ("%s/%s"):format(v.port,v.service)
 
-        result[h] = result[h] or {}
-        result[h][svc] = result[h][svc] or {}
-        table.insert( result[h][svc], Account:new(
-            v.user ~= "" and v.user or nil,
-            v.pass,
-            v.state
-            )
+      result[h] = result[h] or {}
+      result[h][svc] = result[h][svc] or {}
+      table.insert( result[h][svc], Account:new(
+          v.user ~= "" and v.user or nil,
+          v.pass,
+          v.state
           )
-      end
+        )
     end
 
     for _, host_tbl in pairs(result) do

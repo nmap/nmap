@@ -25,7 +25,7 @@ Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a
 --       the network interface. (default varies according to timing. -T3 = 5s)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "broadcast", "safe" }
 
 local TIMEOUT = stdnse.parse_timespec(stdnse.get_script_args("broadcast-pc-duo.timeout"))
@@ -44,7 +44,7 @@ local function udpProbe(probe, responses)
   for i=1,2 do
     local status = socket:sendto(probe.host, probe.port, probe.data)
     if ( not(status) ) then
-      return "\n  ERROR: Failed to send broadcast request"
+      return stdnse.format_output(false, "Failed to send broadcast request")
     end
   end
 

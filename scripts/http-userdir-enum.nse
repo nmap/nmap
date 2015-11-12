@@ -34,14 +34,14 @@ CVE-2001-1013: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013.
 -- |_ apache-userdir-enum: Potential Users: root (403), user (200), test (200)
 
 author = "jah"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
 
 
 portrule = shortport.http
 
-
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
@@ -52,21 +52,13 @@ action = function(host, port)
 
   -- speedy exit if no usernames
   if(#usernames == 0) then
-    if(nmap.debugging() > 0) then
-      return "Didn't find any users to test (should be in nselib/data/usernames.lst)"
-    else
-      return nil
-    end
+    return fail("Didn't find any users to test (should be in nselib/data/usernames.lst)")
   end
 
   -- Check what response we get for a 404
   local result, result_404, known_404 = http.identify_404(host, port)
   if(result == false) then
-    if(nmap.debugging() > 0) then
-      return "ERROR: " .. result_404
-    else
-      return nil
-    end
+    return fail(result_404)
   end
 
   -- Check if we can use HEAD requests
@@ -93,11 +85,7 @@ action = function(host, port)
   -- Check for http.pipeline error
   if(results == nil) then
     stdnse.debug1("http.pipeline returned nil")
-    if(nmap.debugging() > 0) then
-      return "ERROR: http.pipeline returned nil"
-    else
-      return nil
-    end
+    return fail("http.pipeline returned nil")
   end
 
   local found = {}

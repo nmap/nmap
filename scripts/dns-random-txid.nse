@@ -3,6 +3,7 @@ local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local string = require "string"
+local stdnse = require "stdnse"
 
 description = [[
 Checks a DNS server for the predictable-TXID DNS recursion
@@ -17,7 +18,7 @@ server. In addition your IP address will be sent along with the
 txidtest query to the DNS server running on the target.
 ]]
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 author = [[
 Script: Brandon Enright <bmenrigh@ucsd.edu>
@@ -42,6 +43,8 @@ categories = {"external", "intrusive"}
 
 
 portrule = shortport.portnumber(53, "udp")
+
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
@@ -75,11 +78,7 @@ action = function(host, port)
 
   -- Fail gracefully
   if not status then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: TIMEOUT"
-    else
-      return
-    end
+    return fail(result)
   end
 
   -- Update the port
@@ -89,40 +88,24 @@ action = function(host, port)
 
   -- We need a minimum of 5 bytes...
   if (#result < 5) then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Malformed response"
-    else
-      return
-    end
+    return fail("Malformed response")
   end
 
   -- Check TXID
   if (string.byte(result, 1) ~= 0xba
       or string.byte(result, 2) ~= 0xbe) then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Invalid Transaction ID"
-    else
-      return
-    end
+    return fail("Invalid Transaction ID")
   end
 
   -- Check response flag and recursion
   if not (bit.band(string.byte(result, 3), 0x80) == 0x80
       and bit.band(string.byte(result, 4), 0x80) == 0x80) then
-    if (nmap.verbosity() >= 1 or nmap.debugging() >= 1) then
-      return "ERROR: Server refused recursion"
-    else
-      return
-    end
+    return fail("Server refused recursion")
   end
 
   -- Check error flag
   if (bit.band(string.byte(result, 4), 0x0F) ~= 0x00) then
-    if (nmap.verbosity() >= 1 or nmap.debugging() >= 1) then
-      return "ERROR: Server failure"
-    else
-      return
-    end
+    return fail("Server failure")
   end
 
   -- Check for two Answer RRs and 1 Authority RR
@@ -130,20 +113,12 @@ action = function(host, port)
       or string.byte(result, 6) ~= 0x01
       or string.byte(result, 7) ~= 0x00
       or string.byte(result, 8) ~= 0x02) then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Response did not include expected answers"
-    else
-      return
-    end
+    return fail("Response did not include expected answers")
   end
 
   -- We need a minimum of 128 bytes...
   if (#result < 128) then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Truncated response"
-    else
-      return
-    end
+    return fail("Truncated response")
   end
 
   -- Here is the really fragile part.  If the DNS response changes
@@ -155,21 +130,13 @@ action = function(host, port)
   if (string.byte(result, 118) ~= 0x00
       or string.byte(result, 119) ~= 0x10)
     then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Answer record not of type TXT"
-    else
-      return
-    end
+    return fail("Answer record not of type TXT")
   end
 
   -- Check for IN
   if (string.byte(result, 120) ~= 0x00
       or string.byte(result, 121) ~= 0x01) then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Answer record not of type IN"
-    else
-      return
-    end
+    return fail("Answer record not of type IN")
   end
 
   -- Get TXT length
@@ -177,11 +144,7 @@ action = function(host, port)
 
   -- We now need a minimum of 128 + txtlen bytes + 1...
   if (#result < 128 + txtlen) then
-    if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
-      return "ERROR: Truncated response"
-    else
-      return
-    end
+    return fail("Truncated response")
   end
 
   -- GET TXT record

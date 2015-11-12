@@ -29,7 +29,7 @@ services on each host.
 -- Version 0.1
 -- Created 11/22/2011 - v0.1 - created by Patrik Karlsson
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "safe" }
 
 -- the postrule displays the reverse-index once all hosts are scanned

@@ -13,7 +13,7 @@ Java class file that returns remote system information.
 ]]
 
 author = "Aleksandar Nikolic"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery"}
 
 ---

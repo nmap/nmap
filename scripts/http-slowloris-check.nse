@@ -58,7 +58,7 @@ Idea from Qualys blogpost:
 -- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750
 
 author = "Aleksandar Nikolic"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 

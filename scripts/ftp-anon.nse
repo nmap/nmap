@@ -31,7 +31,7 @@ and highlights writeable files.
 -- |_Only 6 shown. Use --script-args ftp-anon.maxlist=-1 to see all.
 
 author = "Eddie Bell, Rob Nicholls, Ange Gutek, David Fifield"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
 

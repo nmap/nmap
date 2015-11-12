@@ -2,7 +2,7 @@
 -- Functions for the SSH-2 protocol.
 --
 -- @author Sven Klemm <sven@c3d2.de>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local base64 = require "base64"
 local bin = require "bin"

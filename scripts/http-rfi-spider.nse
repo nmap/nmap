@@ -37,7 +37,7 @@ query.
 --
 
 author = "Piotr Olma"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 
 local shortport = require 'shortport'
@@ -171,7 +171,7 @@ function action(host, port)
 
     if ( not(status) ) then
       if ( r.err ) then
-        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+        return stdnse.format_output(false, r.reason)
       else
         break
       end

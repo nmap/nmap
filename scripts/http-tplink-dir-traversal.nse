@@ -62,7 +62,7 @@ Other interesting files:
 --
 
 author = "Paulino Calderon <calderon@websec.mx>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "exploit"}
 
 local http = require "http"
@@ -98,7 +98,7 @@ local function check_vuln(host, port)
   stdnse.debug1("HTTP GET %s", evil_uri)
   local response = http.get(host, port, evil_uri)
   if response.body and response.status==200 and response.body:match("root:") then
-    stdnse.debug1("Pattern 'root:' found.", response.body)
+    stdnse.debug1("Pattern 'root:' found.")
     return true
   end
   return false

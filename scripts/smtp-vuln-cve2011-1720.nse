@@ -44,7 +44,7 @@ Reference:
 -- @args smtp.domain Define the domain to be used in the SMTP EHLO command.
 
 author = "Djalal Harouni"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
 

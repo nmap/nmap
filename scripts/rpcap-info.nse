@@ -33,14 +33,14 @@ setup to require authentication or not and also supports IP restrictions.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"rpcap-brute"}
 
 
 portrule = shortport.port_or_service(2002, "rpcap", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function getInfo(host, port, username, password)
 

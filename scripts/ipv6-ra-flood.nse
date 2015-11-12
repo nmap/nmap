@@ -42,7 +42,7 @@ Additional documents: https://tools.ietf.org/rfc/rfc6104.txt
 -- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>,timeout=10s'
 
 author = "Adam Števko"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"dos", "intrusive"}
 
 try = nmap.new_try()
@@ -61,7 +61,7 @@ prerule = function()
   end
 
   if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
-    stdnse.debug1("No interface was selected, aborting...", SCRIPT_NAME)
+    stdnse.debug1("No interface was selected, aborting...")
     return false
   end
 

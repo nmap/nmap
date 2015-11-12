@@ -24,7 +24,7 @@ Performs password guessing against MySQL.
 -- @args mysql-brute.timeout socket timeout for connecting to MySQL (default 5s)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 -- Version 0.5

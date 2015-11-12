@@ -179,7 +179,7 @@
 -- collect these last objects.
 --
 -- @author "Djalal Harouni" and "Henri Doreau"
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
 local bit = require "bit"
@@ -2246,9 +2246,8 @@ Report = {
       for i, vuln_table in ipairs(self.entries.vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table)
         if type(out_t) == "table" then
-          for i, v, k in pairs(out_t) do
-            output_t2[i]=v
-          end
+          local ID = vuln_table.IDS.CVE or vuln_table.IDS[next(vuln_table.IDS)]
+          output_t2[ID] = out_t
         end
         if vuln_out then
           output_table.report = concat(vuln_out, "\n")
@@ -2269,9 +2268,8 @@ Report = {
       for i, vuln_table in ipairs(self.entries.not_vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table, SHOW_ALL)
         if type(out_t) == "table" then
-          for i, v, k in pairs(out_t) do
-            output_t2[i]=v
-          end
+          local ID = vuln_table.IDS.CVE or vuln_table.IDS[next(vuln_table.IDS)]
+          output_t2[ID] = out_t
         end
         if vuln_out then
           output_table.report = concat(vuln_out, "\n")

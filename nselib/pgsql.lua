@@ -9,7 +9,7 @@
 -- * http://developer.postgresql.org/pgdocs/postgres/protocol-flow.html
 -- * http://developer.postgresql.org/pgdocs/postgres/protocol-message-formats.html
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
 local bin = require "bin"

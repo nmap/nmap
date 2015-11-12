@@ -65,12 +65,7 @@
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request. For example, <code>options['header']['Content-Type'] = 'text/xml'</code>
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override). This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request).
--- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized:
--- ** <code>name</code>
--- ** <code>value</code>
--- ** <code>path</code>
--- ** <code>expires</code>
---   Only <code>name</code> and <code>value</code> fields are required.
+-- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: <code>name</code>, <code>value</code>, <code>path</code>, <code>expires</code>. Only <code>name</code> and <code>value</code> fields are required.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication.
 --   If a server requires HTTP Digest authentication, then there must also be a key <code>digest</code>, with value <code>true</code>.
 --   If a server requires NTLM authentication, then there must also be a key <code>ntlm</code>, with value <code>true</code>.
@@ -94,7 +89,7 @@
 --
 -- @args http.useragent The value of the User-Agent header field sent with
 -- requests. By default it is
--- <code>"Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"</code>.
+-- <code>"Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"</code>.
 -- A value of the empty string disables sending the User-Agent header field.
 --
 -- @args http.pipeline If set, it represents the number of HTTP requests that'll be
@@ -128,7 +123,7 @@ _ENV = stdnse.module("http", stdnse.seeall)
 ---Use ssl if we have it
 local have_ssl, openssl = pcall(require,'openssl')
 
-USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
 local MAX_REDIRECT_COUNT = 5
 
 -- Recursively copy a table.
@@ -206,7 +201,7 @@ local function get_quoted_string(s, offset, crlf)
       c = s:sub(i, i)
       if c == "" then
         -- No character following.
-        error(string.format("\\ escape at end of input while parsing quoted-string."))
+        error("\\ escape at end of input while parsing quoted-string.")
       end
       -- Only CHAR may follow a backslash.
       if c:byte(1) > 127 then
@@ -656,6 +651,8 @@ local function parse_status_line(status_line, response)
   return true
 end
 
+local parse_set_cookie -- defined farther down
+
 -- Sets response.header and response.rawheader.
 local function parse_header(header, response)
   local pos
@@ -689,10 +686,22 @@ local function parse_header(header, response)
 
     -- Set it in our table.
     name = string.lower(name)
+    local value = table.concat(words, " ")
     if response.header[name] then
-      response.header[name] = response.header[name] .. ", " .. table.concat(words, " ")
+      -- TODO: delay concatenation until return to avoid resource exhaustion
+      response.header[name] = response.header[name] .. ", " .. value
     else
-      response.header[name] = table.concat(words, " ")
+      response.header[name] = value
+    end
+
+    -- Update the cookie table if this is a Set-Cookie header
+    if name == "set-cookie" then
+      local cookie, err = parse_set_cookie(value)
+      if cookie then
+        response.cookies[#response.cookies + 1] = cookie
+      else
+        -- Ignore any cookie parsing error
+      end
     end
 
     -- Next field, or end of string. (If not it's an error.)
@@ -706,8 +715,8 @@ local function parse_header(header, response)
   return true
 end
 
--- Parse the contents of a Set-Cookie header field. The result is an array
--- containing tables of the form
+-- Parse the contents of a Set-Cookie header field.
+-- The result is a table of the form
 --
 -- { name = "NAME", value = "VALUE", Comment = "...", Domain = "...", ... }
 --
@@ -717,97 +726,65 @@ end
 -- along with the backwards-compatibility suggestions from its section 10,
 -- "HISTORICAL". Values need not be quoted, but if they start with a quote they
 -- will be interpreted as a quoted string.
-local function parse_set_cookie(s)
-  local cookies
+parse_set_cookie = function (s)
   local name, value
-  local _, pos
+  local _
 
-  cookies = {}
+  local cookie = {}
 
-  pos = 1
-  while true do
-    local cookie = {}
+  -- Get the NAME=VALUE part.
+  local pos = skip_space(s, 1)
+  pos, cookie.name = get_token(s, pos)
+  if not cookie.name then
+    return nil, "Can't get cookie name."
+  end
+  pos = skip_space(s, pos)
+  if s:sub(pos, pos) ~= "=" then
+    return nil, string.format("Expected '=' after cookie name \"%s\".", cookie.name)
+  end
+  pos = pos + 1
+  pos = skip_space(s, pos)
+  if s:sub(pos, pos) == "\"" then
+    pos, cookie.value = get_quoted_string(s, pos)
+  else
+    _, pos, cookie.value = s:find("([^; \t]*)", pos)
+    pos = pos + 1
+  end
+  if not cookie.value then
+    return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
+  end
+  pos = skip_space(s, pos)
 
-    -- Get the NAME=VALUE part.
-    pos = skip_space(s, pos)
-    pos, cookie.name = get_token(s, pos)
-    if not cookie.name then
-      return nil, "Can't get cookie name."
-    end
-    pos = skip_space(s, pos)
-    if pos > #s or string.sub(s, pos, pos) ~= "=" then
-      return nil, string.format("Expected '=' after cookie name \"%s\".", cookie.name)
-    end
+  -- Loop over the attributes.
+  while s:sub(pos, pos) == ";" do
     pos = pos + 1
     pos = skip_space(s, pos)
-    if string.sub(s, pos, pos) == "\"" then
-      pos, cookie.value = get_quoted_string(s, pos)
-    else
-      _, pos, cookie.value = string.find(s, "([^;]*)[ \t]*", pos)
-      pos = pos + 1
-    end
-    if not cookie.value then
-      return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
+    pos, name = get_token(s, pos)
+    if not name then
+      return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
     end
     pos = skip_space(s, pos)
-
-    -- Loop over the attributes.
-    while pos <= #s and string.sub(s, pos, pos) == ";" do
+    if s:sub(pos, pos) == "=" then
       pos = pos + 1
       pos = skip_space(s, pos)
-      pos, name = get_token(s, pos)
-      if not name then
-        return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
-      end
-      pos = skip_space(s, pos)
-      if pos <= #s and string.sub(s, pos, pos) == "=" then
-        pos = pos + 1
-        pos = skip_space(s, pos)
-        if string.sub(s, pos, pos) == "\"" then
-          pos, value = get_quoted_string(s, pos)
-        else
-          -- account for the possibility of the expires attribute being empty or improperly formatted
-          local last_pos = pos
-
-         if string.lower(name) == "expires" then
-            -- For version 0 cookies we must allow one comma for "expires".
-            _, pos, value = string.find(s, "([^,]*,[^;,]*)[ \t]*", pos)
-          else
-            _, pos, value = string.find(s, "([^;,]*)[ \t]*", pos)
-          end
-
-          -- account for the possibility of the expires attribute being empty or improperly formatted
-          if ( not(pos) ) then
-            _, pos, value = s:find("([^;]*)", last_pos)
-          end
-
-          pos = pos + 1
-        end
-        if not value then
-          return nil, string.format("Can't get value of cookie attribute \"%s\".", name)
-        end
+      if s:sub(pos, pos) == "\"" then
+        pos, value = get_quoted_string(s, pos)
       else
-        value = true
+        _, pos, value = s:find("([^;]*)", pos)
+        value = value:match("(.-)[ \t]*$")
+        pos = pos + 1
       end
-      cookie[name:lower()] = value
-      pos = skip_space(s, pos)
+      if not value then
+        return nil, string.format("Can't get value of cookie attribute \"%s\".", name)
+      end
+    else
+      value = true
     end
-
-    cookies[#cookies + 1] = cookie
-
-    if pos > #s then
-      break
-    end
-
-    if string.sub(s, pos, pos) ~= "," then
-      return nil, string.format("Syntax error after cookie named \"%s\".", cookie.name)
-    end
-
-    pos = pos + 1
+    cookie[name:lower()] = value
     pos = skip_space(s, pos)
   end
 
-  return cookies
+  return cookie
 end
 
 -- Read one response from the socket <code>s</code> and return it after
@@ -823,6 +800,7 @@ local function next_response(s, method, partial)
     ["status-line"]=nil,
     header={},
     rawheader={},
+    cookies={},
     body=""
   }
 
@@ -849,17 +827,6 @@ local function next_response(s, method, partial)
     return nil, partial
   end
   response.body = body
-
-  -- We have the Status-Line, header, and body; now do any postprocessing.
-
-  response.cookies = {}
-  if response.header["set-cookie"] then
-    response.cookies, err = parse_set_cookie(response.header["set-cookie"])
-    if not response.cookies then
-      -- Ignore a cookie parsing error.
-      response.cookies = {}
-    end
-  end
 
   return response, partial
 end
@@ -2547,13 +2514,13 @@ function identify_404(host, port)
       if(clean_body ~= clean_body2) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
+        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response."
       end
 
       if(clean_body ~= clean_body3) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
       end
 
       return true, 200, clean_body

@@ -206,7 +206,7 @@ language</primary></indexterm>  The <ulink role="hidepdf" url="http://www.csie.n
 linear classification library</ulink> is used for our 
 <man>
 <ulink
-url="http://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6">IPv6
+url="https://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6">IPv6
 OS detection machine learning techniques</ulink>.
 </man>
 <notman>
@@ -225,7 +225,7 @@ is included in the <filename>LICENSES</filename> files.
 </para>
 
 <para>
-This software was supported in part through the <ulink url="http://nmap.org/soc/">Google Summer of Code</ulink> and the <ulink role="hidepdf" url="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=585e02a51f77af5cb3c9e06b9cc82c48&amp;tab=core&amp;_cview=1">DARPA CINDER program</ulink> (DARPA-BAA-10-84).
+This software was supported in part through the <ulink url="https://nmap.org/soc/">Google Summer of Code</ulink> and the <ulink role="hidepdf" url="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=585e02a51f77af5cb3c9e06b9cc82c48&amp;tab=core&amp;_cview=1">DARPA CINDER program</ulink> (DARPA-BAA-10-84).
 </para>
 
 </refsect2>

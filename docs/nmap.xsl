@@ -845,7 +845,7 @@
       
       <ul>
         <li>Cannot determine exact operating system.  Fingerprint provided below.</li>
-        <li>If you know what OS is running on it, see http://nmap.org/submit/</li>
+        <li>If you know what OS is running on it, see https://nmap.org/submit/</li>
       </ul>
       <table cellspacing="1">
         <tr class="head">

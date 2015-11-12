@@ -20,7 +20,7 @@ Check if ePO agent is running on port 8081 or port identified as ePO Agent port.
 
 author = "Didier Stevens, Daniel Miller"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"version", "safe"}
 
@@ -40,10 +40,6 @@ portrule = function(host, port)
   end
 end
 
-function string.StartsWith(stringToSearch, stringToFind)
-  return stringToFind == stringToSearch:sub(1, #stringToFind)
-end
-
 function ExtractXMLElement(xmlContent, elementName)
   return xmlContent:match("<" .. elementName .. ">([^<]*)</" .. elementName .. ">")
 end
@@ -59,7 +55,7 @@ action = function(host, port)
   if data.body then
     stdnse.debug2("data.body:sub = %s", data.body:sub(1, 80))
 
-    if data.body:StartsWith('<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="FrameworkLog.xsl"?><naLog>') then
+    if data.body:match('^<%?xml .*%?>%s*<naLog>') then
       port.version.hostname = ExtractXMLElement(data.body, "ComputerName")
       epoServerName = ExtractXMLElement(data.body, "ePOServerName") or ""
       port.version.version =  ExtractXMLElement(data.body, "version") or ""

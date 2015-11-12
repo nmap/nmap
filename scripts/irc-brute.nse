@@ -29,7 +29,7 @@ Performs brute force password auditing against IRC (Internet Relay Chat) servers
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories={"brute","intrusive"}
 
 portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})

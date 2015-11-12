@@ -34,7 +34,7 @@
 -- and they can also use the low level functions to customize their
 -- encoding functions.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- Version 0.2
 -- Created 07/17/2011 - v0.1 - Created by Djalal Harouni

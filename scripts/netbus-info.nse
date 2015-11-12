@@ -80,7 +80,7 @@ and an smtp-server used for notification delivery.
 -- @args netbus-info.password The password used for authentication
 
 author = "Toni Ruottu"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 

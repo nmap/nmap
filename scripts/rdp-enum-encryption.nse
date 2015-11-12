@@ -26,7 +26,7 @@ http://labs.mwrinfosecurity.com/tools/2009/01/12/rdp-cipher-checker/
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 
 local bin = require("bin")
@@ -39,6 +39,8 @@ local stdnse = require("stdnse")
 categories = {"safe", "discovery"}
 
 portrule = shortport.port_or_service(3389, "ms-wbt-server")
+
+local function fail (err) return stdnse.format_output(false, err) end
 
 local function enum_protocols(host, port)
   local PROTOCOLS = {
@@ -60,7 +62,7 @@ local function enum_protocols(host, port)
   for k, v in pairs(PROTOCOLS) do
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
-      return false, "ERROR: Failed to connect to server"
+      return false, fail("Failed to connect to server")
     end
     local cr = rdp.Request.ConnectionRequest:new(v)
     local status, response = comm:exch(cr)
@@ -118,7 +120,7 @@ local function enum_ciphers(host, port)
   for k, v in get_ordered_ciphers() do
     local comm = rdp.Comm:new(host, port)
     if ( not(comm:connect()) ) then
-      return false, "ERROR: Failed to connect to server"
+      return false, fail("Failed to connect to server")
     end
 
     local cr = rdp.Request.ConnectionRequest:new()

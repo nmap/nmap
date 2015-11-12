@@ -27,7 +27,7 @@ Performs brute force password auditing against a Metasploit RPC server using the
 --
 
 author = "Vlatko Kosturjak"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
@@ -87,7 +87,7 @@ action = function(host, port)
   local xmlreq='<?xml version="1.0" ?><methodCall><methodName>core.version</methodName></methodCall>\n\0'
   local socket, _, opts = comm.tryssl(host, port, xmlreq, { recv_first = false } )
   if ( not(socket) ) then
-    return "\n  ERROR: Failed to determine whether SSL was needed or not"
+    return stdnse.format_output(false, "Failed to determine whether SSL was needed or not")
   end
 
   local engine = brute.Engine:new(Driver, host, port, opts)

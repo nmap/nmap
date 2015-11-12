@@ -37,7 +37,7 @@ portrule = shortport.portnumber({8611, 8612}, "udp")
 action = function(host, port)
   local helper = bjnp.Helper:new(host, port)
   if ( not(helper:connect()) ) then
-    return "\n  ERROR: Failed to connect to server"
+    return stdnse.format_output(false, "Failed to connect to server")
   end
   local status, attrs
   if ( port.number == 8611 ) then

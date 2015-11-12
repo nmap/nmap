@@ -22,7 +22,7 @@ number of requests and make lookups quicker.
 ---
 
 author = "Jiayi Ye"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"external", "safe"}
 
 -- from Tor 0.2.6.7/src/or/config.c

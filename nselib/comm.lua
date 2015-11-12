@@ -19,7 +19,7 @@
 -- <code>"lines"</code> takes precedence. If neither are given, the functions
 -- read as many bytes as possible.
 -- @author Kris Katterjohn 04/2008
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -175,7 +175,14 @@ local function bestoption(port)
     end
     if port.version and port.version.service_tunnel and port.version.service_tunnel == "ssl" then return "ssl","tcp" end
     if port.version and port.version.name_confidence and port.version.name_confidence > 6 then return "tcp","ssl" end
-    if is_ssl(port) then return "ssl","tcp" end
+    local _port = {
+      number = port.number,
+      service = port.service,
+      protocol = port.protocol or "tcp",
+      state = port.state or "open",
+      version = port.version or {}
+    }
+    if is_ssl(_port) then return "ssl","tcp" end
   elseif type(port) == 'number' then
     if is_ssl({number=port, protocol="tcp", state="open", version={}}) then return "ssl","tcp" end
   end

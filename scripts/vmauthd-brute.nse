@@ -2,6 +2,7 @@ local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 
 description = [[
 Performs brute force password auditing against the VMWare Authentication Daemon (vmware-authd).
@@ -22,14 +23,13 @@ Performs brute force password auditing against the VMWare Authentication Daemon 
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 
 portrule = shortport.port_or_service(902, {"ssl/vmware-auth", "vmware-auth"}, "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
-
+local function fail(err) return stdnse.format_output(false, err) end
 Driver = {
 
   new = function(self, host, port, options)

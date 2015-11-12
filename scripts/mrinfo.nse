@@ -65,7 +65,7 @@ Cisco IOS.
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "broadcast"}
 
@@ -251,7 +251,7 @@ action = function()
     interface = getInterface(target)
   end
   if not interface then
-    return ("\n ERROR: Couldn't get interface for %s"):format(target)
+    return stdnse.format_output(false, ("Couldn't get interface for %s"):format(target))
   end
 
   stdnse.debug1("will send to %s via %s interface.", target, interface.shortname)

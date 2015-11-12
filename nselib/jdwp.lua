@@ -28,7 +28,7 @@
 -- References:
 -- * http://docs.oracle.com/javase/6/docs/technotes/guides/jpda/jdwp-spec.html
 --
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--@copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --@author Aleksandar Nikolic
 --
 -- Version 0.1
@@ -170,7 +170,7 @@ JDWPReplyPacket = {
     if flags == 0x80 then
       return true, JDWPReplyPacket:new(length,id,error_code,data)
     end
-    stdnse.debug2("JDWP error parsing reply. Wrong reply packet flag. Raw data: ", stdnse.tohex(reply_packet))
+    stdnse.debug2("JDWP error parsing reply. Wrong reply packet flag. Raw data: %s", stdnse.tohex(reply_packet))
     return false, "JDWP error parsing reply."
   end
 

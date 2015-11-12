@@ -255,9 +255,9 @@ else
   BUILDNDIFF=build-ndiff
   INSTALLNDIFF=install-ndiff
   UNINSTALLNDIFF=uninstall-ndiff
-  NDIFF_CHECK="ndiff_check"
-  NDIFF_CLEAN=ndiff_clean
-  NDIFF_DIST_CLEAN=ndiff_dist_clean
+  NDIFF_CHECK="check-ndiff"
+  NDIFF_CLEAN=clean-ndiff
+  NDIFF_DIST_CLEAN=distclean-ndiff
 fi
 AC_SUBST(NDIFFDIR)
 AC_SUBST(BUILDNDIFF)
@@ -294,9 +294,9 @@ else
   BUILDZENMAP=build-zenmap
   INSTALLZENMAP=install-zenmap
   UNINSTALLZENMAP=uninstall-zenmap
-  ZENMAP_CHECK=zenmap_check
-  ZENMAP_CLEAN=zenmap_clean
-  ZENMAP_DIST_CLEAN=zenmap_dist_clean
+  ZENMAP_CHECK=check-zenmap
+  ZENMAP_CLEAN=clean-zenmap
+  ZENMAP_DIST_CLEAN=distclean-zenmap
 fi
 AC_SUBST(ZENMAPDIR)
 AC_SUBST(BUILDZENMAP)
@@ -323,8 +323,8 @@ else
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
-  NPING_CLEAN=nping_clean
-  NPING_DIST_CLEAN=nping_dist_clean
+  NPING_CLEAN=clean-nping
+  NPING_DIST_CLEAN=distclean-nping
   AC_CONFIG_SUBDIRS(nping)
 fi
 AC_SUBST(NPINGDIR)
@@ -460,10 +460,9 @@ if test $have_libpcap != yes; then
     CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$libpcapdir"
   fi
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_BUILD="pcap_build"
-  PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_dist_clean"
+  PCAP_BUILD="build-pcap"
+  PCAP_CLEAN="clean-pcap"
+  PCAP_DIST_CLEAN="distclean-pcap"
   AC_DEFINE(PCAP_INCLUDED, 1, [Using included libpcap])
 else
   # We assume our included libpcap doesn't need this check-and-define
@@ -471,13 +470,11 @@ else
 
   AC_DEFINE(HAVE_LIBPCAP, 1, [Have libpcap library])
   LIBPCAP_LIBS="-lpcap"
-  PCAP_DEPENDS=""
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
 fi
 
-AC_SUBST(PCAP_DEPENDS)
 AC_SUBST(PCAP_BUILD)
 AC_SUBST(PCAP_CLEAN)
 AC_SUBST(PCAP_DIST_CLEAN)
@@ -520,16 +517,14 @@ if test $have_pcre != yes ; then
   AC_CONFIG_SUBDIRS( libpcre )
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
   LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
-  PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
-  PCRE_BUILD="pcre_build"
-  PCRE_CLEAN="pcre_clean"
-  PCRE_DIST_CLEAN="pcre_dist_clean"
+  PCRE_BUILD="build-pcre"
+  PCRE_CLEAN="clean-pcre"
+  PCRE_DIST_CLEAN="distclean-pcre"
   AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
 else
 # We only need to check for and use this if we are NOT using included pcre
   AC_CHECK_HEADERS(pcre/pcre.h)
   LIBPCRE_LIBS="-lpcre"
-  PCRE_DEPENDS=""
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
@@ -537,7 +532,6 @@ fi
 
 AC_SUBST(LIBPCRE_LIBS)
 AC_SUBST(LIBPCREDIR)
-AC_SUBST(PCRE_DEPENDS)
 AC_SUBST(PCRE_BUILD)
 AC_SUBST(PCRE_CLEAN)
 AC_SUBST(PCRE_DIST_CLEAN)
@@ -553,7 +547,7 @@ LIBDNETDIR=libdnet-stripped
 # specifically asked to use a system version.  This is because we have
 # made many improvements and fixes to our version of dnet.
 AC_ARG_WITH(libdnet,
-AC_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib. This is NOT RECOMMENDED because we have made many important fixes to our included libdnet, as described at http://nmap.org/svn/libdnet-stripped/NMAP_MODIFICATIONS])
+AC_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib. This is NOT RECOMMENDED because we have made many important fixes to our included libdnet, as described at ./libdnet-stripped/NMAP_MODIFICATIONS])
 AC_HELP_STRING([--with-libdnet=included], [Use the libdnet version included with Nmap (default)]),
 [  case "$with_libdnet" in
   yes)
@@ -573,14 +567,12 @@ if test $have_dnet != yes ; then
   AC_CONFIG_SUBDIRS( libdnet-stripped )
   CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
   LIBDNET_LIBS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_DEPENDS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_BUILD="dnet_build"
-  DNET_CLEAN="dnet_clean"
-  DNET_DIST_CLEAN="dnet_dist_clean"
+  DNET_BUILD="build-dnet"
+  DNET_CLEAN="clean-dnet"
+  DNET_DIST_CLEAN="distclean-dnet"
   AC_DEFINE(DNET_INCLUDED, 1, [Use included libdnet])
 else
   LIBDNET_LIBS="-ldnet"
-  DNET_DEPENDS=""
   DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
@@ -588,7 +580,6 @@ fi
 
 AC_SUBST(LIBDNET_LIBS)
 AC_SUBST(LIBDNETDIR)
-AC_SUBST(DNET_DEPENDS)
 AC_SUBST(DNET_BUILD)
 AC_SUBST(DNET_CLEAN)
 AC_SUBST(DNET_DIST_CLEAN)
@@ -610,10 +601,9 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   included)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
-    LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_BUILD="build-lua"
+    LUA_CLEAN="clean-lua"
+    LUA_DIST_CLEAN="distclean-lua"
       have_lua="yes"
 
   ;;
@@ -635,7 +625,6 @@ if test "$no_lua" = "yes"; then
   trace_no_use="$trace_no_use lua"
   CPPFLAGS="-DNOLUA $CPPFLAGS"
   LIBLUA_LIBS=""
-  LUA_DEPENDS=""
   LUA_BUILD=""
   LUA_CLEAN=""
   LUA_DIST_CLEAN=""
@@ -660,7 +649,6 @@ else
       have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
     AC_LANG_POP(C++)
 
-    LUA_DEPENDS=""
     LUA_BUILD=""
     LUA_CLEAN=""
     LUA_DIST_CLEAN=""
@@ -671,22 +659,20 @@ else
     AC_MSG_RESULT(no)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
-    LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_BUILD="build-lua"
+    LUA_CLEAN="clean-lua"
+    LUA_DIST_CLEAN="distclean-lua"
     AC_DEFINE(LUA_INCLUDED, 1, [Using included liblua])
   else
     AC_MSG_RESULT(yes)
   fi
 
   INSTALLNSE="install-nse"
-  NSE_CHECK="nse_check"
+  NSE_CHECK="check-nse"
 fi
 
 AC_SUBST(LIBLUA_LIBS)
 AC_SUBST(LIBLUADIR)
-AC_SUBST(LUA_DEPENDS)
 AC_SUBST(LUA_BUILD)
 AC_SUBST(LUA_CLEAN)
 AC_SUBST(LUA_DIST_CLEAN)
@@ -708,10 +694,9 @@ AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included 
   included)
     CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
     LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-    LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-    LIBLINEAR_BUILD="liblinear_build"
-    LIBLINEAR_CLEAN="liblinear_clean"
-    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+    LIBLINEAR_BUILD="build-liblinear"
+    LIBLINEAR_CLEAN="clean-liblinear"
+    LIBLINEAR_DIST_CLEAN="distclean-liblinear"
     have_liblinear=yes
   ;;
   *)
@@ -728,7 +713,6 @@ if test $have_liblinear != yes; then
     AC_CHECK_LIB(linear, predict, [have_liblinear=yes; LIBLINEAR_LIBS="-llinear"; break],, [-lm])
   )
 
-  LIBLINEAR_DEPENDS=""
   LIBLINEAR_BUILD=""
   LIBLINEAR_CLEAN=""
   LIBLINEAR_DIST_CLEAN=""
@@ -739,10 +723,9 @@ if test $have_liblinear != yes; then
   AC_MSG_RESULT(no)
   CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
   LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-  LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-  LIBLINEAR_BUILD="liblinear_build"
-  LIBLINEAR_CLEAN="liblinear_clean"
-  LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+  LIBLINEAR_BUILD="build-liblinear"
+  LIBLINEAR_CLEAN="clean-liblinear"
+  LIBLINEAR_DIST_CLEAN="distclean-liblinear"
   AC_DEFINE(LIBLINEAR_INCLUDED, 1, [Using included liblinear])
 else
   AC_MSG_RESULT(yes)
@@ -750,7 +733,6 @@ fi
 
 AC_SUBST(LIBLINEAR_LIBS)
 AC_SUBST(LIBLINEARDIR)
-AC_SUBST(LIBLINEAR_DEPENDS)
 AC_SUBST(LIBLINEAR_BUILD)
 AC_SUBST(LIBLINEAR_CLEAN)
 AC_SUBST(LIBLINEAR_DIST_CLEAN)
@@ -838,7 +820,7 @@ AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
     NBASE_BUILD=""
     ;;
   esac],
-NBASE_BUILD="nbase_build"
+NBASE_BUILD="build-nbase"
 NBASEDIR="nbase"
 )
 
@@ -853,8 +835,8 @@ AC_SUBST(LIBNBASE_LIBS)
 AC_CONFIG_SUBDIRS(nbase)
 
 NSOCKDIR="nsock"
-NSOCK_BUILD="nsock_build"
-NSOCK_CHECK="nsock_check"
+NSOCK_BUILD="build-nsock"
+NSOCK_CHECK="check-nsock"
 AC_ARG_WITH(libnsock,
 AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
 [  case "$with_libnsock" in
@@ -894,12 +876,12 @@ if test "$with_ncat" = "no"; then
   NCAT_DIST_CLEAN=""
 else
   trace_use="$trace_use ncat"
-  NCAT_BUILD="ncat_build"
-  NCAT_CHECK="ncat_check"
+  NCAT_BUILD="build-ncat"
+  NCAT_CHECK="check-ncat"
   NCAT_INSTALL="install-ncat"
   NCAT_UNINSTALL="uninstall-ncat"
-  NCAT_CLEAN="ncat_clean"
-  NCAT_DIST_CLEAN="ncat_dist_clean"
+  NCAT_CLEAN="clean-ncat"
+  NCAT_DIST_CLEAN="distclean-ncat"
   AC_CONFIG_SUBDIRS(ncat)
 fi
 

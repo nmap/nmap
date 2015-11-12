@@ -36,7 +36,7 @@ For more information, see:
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "default"}
 
@@ -116,7 +116,12 @@ local check_npn = function(response)
       table.insert(results, protocol)
     end
 
-    return results
+    if next(results) then
+      return results
+    else
+      stdnse.debug1("Server supports TLS NPN extension, but no protocols were offered.")
+      return "<empty>"
+    end
   else
     stdnse.debug1("Server response was not server_hello")
     return nil

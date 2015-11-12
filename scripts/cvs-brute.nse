@@ -33,7 +33,7 @@ Performs brute force password auditing against CVS pserver authentication.
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 dependencies = {"cvs-brute-repository"}
 
@@ -91,7 +91,7 @@ action = function(host, port)
   local repo = stdnse.get_script_args("cvs-brute.repo") and
     { stdnse.get_script_args("cvs-brute.repo") } or
     getDiscoveredRepos(host)
-  if ( not(repo) ) then return "\n  ERROR: No CVS repository specified (see cvs-brute.repo)" end
+  if ( not(repo) ) then stdnse.verbose1("ERROR: No CVS repository specified (see cvs-brute.repo)") end
 
   local status, result
 

@@ -147,7 +147,7 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 --@version 0.5
 
 author = "Martin Holst Swende"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"java-rmi", "rmiregistry"})

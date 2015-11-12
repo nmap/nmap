@@ -104,7 +104,7 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 
 
 author = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
@@ -770,7 +770,7 @@ function test_lockouts(hostinfo)
     if(result == results.LOCKED) then
       -- If the canary just became locked, we're one step from locking out every account. Loop through the usernames and invalidate them to
       -- prevent them from being locked out
-      stdnse.debug1("Canary (%s) became locked out -- aborting")
+      stdnse.debug1("Canary (%s) became locked out -- aborting", username)
 
       -- Add it to the locked username list (so it can be reported)
       hostinfo['locked_usernames'][username] = true

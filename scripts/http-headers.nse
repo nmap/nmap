@@ -27,11 +27,13 @@ Performs a HEAD request for the root folder ("/") of a web server and displays t
 
 author = "Ron Bowes"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
 portrule = shortport.http
+
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
   local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
@@ -54,19 +56,11 @@ action = function(host, port)
   end
 
   if(result == nil) then
-    if(nmap.debugging() > 0) then
-      return "ERROR: Header request failed"
-    else
-      return nil
-    end
+    return fail("Header request failed")
   end
 
   if(result.rawheader == nil) then
-    if(nmap.debugging() > 0) then
-      return "ERROR: Header request didn't return a proper header"
-    else
-      return nil
-    end
+    return fail("Header request didn't return a proper header")
   end
 
   table.insert(result.rawheader, "(Request type: " .. request_type .. ")")

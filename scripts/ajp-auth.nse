@@ -22,7 +22,7 @@ Retrieves the authentication scheme and realm of an AJP service (Apache JServ Pr
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
 
@@ -30,13 +30,11 @@ portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 
 local arg_path = stdnse.get_script_args(SCRIPT_NAME .. ".path")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
   local helper = ajp.Helper:new(host, port)
 
   if ( not(helper:connect()) ) then
-    return fail("Failed to connect to AJP server")
+    return stdnse.format_output(false, "Failed to connect to AJP server")
   end
 
   local status, answer = helper:get(arg_path or "/")

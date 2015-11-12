@@ -1,6 +1,7 @@
 local ndmp = require "ndmp"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 
 description = [[
 Retrieves version information from the remote Network Data Management Protocol
@@ -20,13 +21,13 @@ the backup server. The following products are known to support the protocol:
 ]]
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 
 portrule = shortport.version_port_or_service(10000, "ndmp", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function vendorLookup(vendor)
   if ( vendor:match("VERITAS") ) then

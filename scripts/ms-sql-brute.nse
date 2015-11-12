@@ -72,7 +72,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --    - Added compatibility with changes in mssql.lua
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 dependencies = {"ms-sql-empty-password"}

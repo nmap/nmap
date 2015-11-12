@@ -7,7 +7,7 @@
 #
 # Copyright 2008 Insecure.Com LLC
 # Ndiff is distributed under the same license as Nmap. See the file COPYING or
-# http://nmap.org/data/COPYING. See http://nmap.org/book/man-legal.html for
+# https://nmap.org/data/COPYING. See https://nmap.org/book/man-legal.html for
 # more details.
 #
 # David Fifield

@@ -55,7 +55,7 @@ The script needs to be run as a privileged user, typically root.
 -- Created 07/14/2011 - v0.1 - created by Patrik Karlsson
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
@@ -149,6 +149,8 @@ local commasep = {
   end
 }
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function()
 
   local host, port = "255.255.255.255", 67
@@ -173,7 +175,7 @@ action = function()
     interfaces = getInterfaces("ethernet", "up")
   end
 
-  if( not(interfaces) ) then return "\n  ERROR: Failed to retrieve interfaces (try setting one explicitly using -e)" end
+  if( not(interfaces) ) then return fail("Failed to retrieve interfaces (try setting one explicitly using -e)") end
 
   local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
   local request_type = dhcp.request_types["DHCPDISCOVER"]
@@ -182,7 +184,7 @@ action = function()
   -- we need to set the flags to broadcast
   local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
   local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, nil, request_options, overrides, lease_time, transaction_id)
-  if (not(status)) then return "\n  ERROR: Failed to build packet" end
+  if (not(status)) then return fail("Failed to build packet") end
 
   local threads = {}
   local result = {}

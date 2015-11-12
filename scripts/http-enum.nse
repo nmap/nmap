@@ -75,7 +75,7 @@ database can specify their own criteria for accepting a page as valid.
 
 author = "Ron Bowes, Andrew Orr, Rob Nicholls"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive", "vuln"}
 

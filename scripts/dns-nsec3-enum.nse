@@ -71,7 +71,7 @@ References:
 -- |_  Total hashes found: 8
 
 author = "Aleksandar Nikolic, John R. Bond"
-license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
+license = "Simplified (2-clause) BSD license--See https://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"discovery", "intrusive"}
 
 portrule = shortport.port_or_service(53, "domain", {"tcp", "udp"})

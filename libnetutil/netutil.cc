@@ -3604,7 +3604,7 @@ int send_ip_packet_sd(int sd, const struct sockaddr_in *dst,
      must deal with it here rather than when building the packet,
      because they should be in NBO when I'm sending over raw
      ethernet */
-#if FREEBSD || BSDI || NETBSD || DEC || MACOSX
+#if (defined(FREEBSD) && (__FreeBSD_version < 1100030)) || BSDI || NETBSD || DEC || MACOSX
   ip->ip_len = ntohs(ip->ip_len);
   ip->ip_off = ntohs(ip->ip_off);
 #endif
@@ -3614,7 +3614,7 @@ int send_ip_packet_sd(int sd, const struct sockaddr_in *dst,
                (int) sizeof(struct sockaddr_in));
 
   /* Undo the byte order switching. */
-#if FREEBSD || BSDI || NETBSD || DEC || MACOSX
+#if (defined(FREEBSD) && (__FreeBSD_version < 1100030)) || BSDI || NETBSD || DEC || MACOSX
   ip->ip_len = htons(ip->ip_len);
   ip->ip_off = htons(ip->ip_off);
 #endif
@@ -4061,6 +4061,8 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
        with what we have then ... */
     Strncpy(pcapdev, device, sizeof(pcapdev));
   }
+  HANDLE pcapMutex = CreateMutex(NULL, 0, TEXT("Global\\DnetPcapHangAvoidanceMutex"));
+  DWORD wait = WaitForSingleObject(pcapMutex, INFINITE);
 #else
   Strncpy(pcapdev, device, sizeof(pcapdev));
 #endif
@@ -4078,6 +4080,10 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
   } while (!pt);
 
 #ifdef WIN32
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
   /* We want any responses back ASAP */
   pcap_setmintocopy(pt, 1);
 #endif

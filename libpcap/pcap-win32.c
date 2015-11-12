@@ -492,8 +492,16 @@ pcap_inject_win32(pcap_t *p, const void *buf, size_t size){
 static void
 pcap_cleanup_win32(pcap_t *p)
 {
+  HANDLE pcapMutex;
+  DWORD wait;
 	if (p->adapter != NULL) {
+    pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+    wait = WaitForSingleObject(pcapMutex, INFINITE);
 		PacketCloseAdapter(p->adapter);
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 		p->adapter = NULL;
 	}
 	if (p->Packet) {
@@ -508,6 +516,8 @@ pcap_activate_win32(pcap_t *p)
 {
 	struct pcap_win *pw = p->priv;
 	NetType type;
+  HANDLE pcapMutex;
+  DWORD wait;
 
 	if (p->opt.rfmon) {
 		/*
@@ -521,11 +531,18 @@ pcap_activate_win32(pcap_t *p)
 	/* Init WinSock */
 	wsockinit();
 
+  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+  wait = WaitForSingleObject(pcapMutex, INFINITE);
+
 	p->adapter = PacketOpenAdapter(p->opt.source);
 
 	if (p->adapter == NULL)
 	{
 		/* Adapter detected but we are not able to open it. Return failure. */
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Error opening adapter: %s", pcap_win32strerror());
 		return PCAP_ERROR;
 	}
@@ -533,9 +550,17 @@ pcap_activate_win32(pcap_t *p)
 	/*get network type*/
 	if(PacketGetNetType (p->adapter,&type) == FALSE)
 	{
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "Cannot determine the network type: %s", pcap_win32strerror());
 		goto bad;
 	}
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 
 	/*Set the linktype*/
 	switch (type.LinkType)

@@ -75,7 +75,7 @@ TODO:
 
 author = {"Ange Gutek", "Peter Hill", "Gyanendra Mishra", "Paulino Calderon"}
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 
@@ -125,7 +125,7 @@ local function get_version(path, typeof, host, port)
   if versioncheck.body then
     version = versioncheck.body:match(pattern)
   end
-  stdnse.debug1("Version found:", version)
+  stdnse.debug1("Version found: %s", version)
   return version
 end
 

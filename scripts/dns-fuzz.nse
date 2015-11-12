@@ -37,7 +37,7 @@ development lifecycle.
 -- |_dns-fuzz: Server stopped responding... He's dead, Jim.
 
 author = "Michael Pattrick"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 
 

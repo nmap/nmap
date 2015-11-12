@@ -42,7 +42,7 @@ the target to retrieve a web page from www.google.com.
 --   * If google is used, script checks for Server: gws
 
 author = "Arturo 'Buanzo' Busleiman"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "safe"}
 
 --- Performs the custom test, with user's arguments

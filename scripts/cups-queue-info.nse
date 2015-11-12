@@ -28,18 +28,16 @@ printer.
 categories = {"safe", "discovery"}
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
 
 portrule = shortport.port_or_service(631, "ipp", "tcp", "open")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
   local helper = ipp.Helper:new(host, port)
   if ( not(helper:connect()) ) then
-    return fail("Failed to connect to server")
+    return stdnse.format_output(false, "Failed to connect to server")
   end
 
   local output = helper:getQueueInfo()

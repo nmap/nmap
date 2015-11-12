@@ -26,13 +26,13 @@ http://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%
 -- | ajp-methods:
 -- |   Supported methods: GET HEAD POST PUT DELETE TRACE OPTIONS
 -- |   Potentially risky methods: PUT DELETE TRACE
--- |_  See http://nmap.org/nsedoc/scripts/ajp-methods.html
+-- |_  See https://nmap.org/nsedoc/scripts/ajp-methods.html
 --
 -- @args ajp-methods.path the path to check or <code>/<code> if none was given
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 
@@ -51,13 +51,11 @@ local function filter_out(t, filter)
   return result
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function(host, port)
 
   local helper = ajp.Helper:new(host, port)
   if ( not(helper:connect()) ) then
-    return fail("Failed to connect to server")
+    return stdnse.format_output(false, "Failed to connect to server")
   end
 
   local status, response = helper:options(arg_url)
@@ -75,7 +73,7 @@ action = function(host, port)
   local interesting = filter_out(methods, UNINTERESTING_METHODS)
   if ( #interesting > 0 ) then
     table.insert(output, "Potentially risky methods: " .. stdnse.strjoin(" ", interesting))
-    table.insert(output, "See http://nmap.org/nsedoc/scripts/ajp-methods.html")
+    table.insert(output, "See https://nmap.org/nsedoc/scripts/ajp-methods.html")
   end
   return stdnse.format_output(true, output)
 end

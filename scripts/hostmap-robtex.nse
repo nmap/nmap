@@ -24,7 +24,7 @@ Discovers hostnames that resolve to the target's IP address by querying the onli
 ---
 
 author = "Arturo 'Buanzo' Busleiman"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {
   "discovery",
   "safe",

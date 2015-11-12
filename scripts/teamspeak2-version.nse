@@ -21,7 +21,7 @@ password set, the exact version, name, and OS type will also be reported on.
 -- Service Info: OS: Win32
 
 author = "Marin Maržić"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "version" }
 
 local payload = "\xf4\xbe\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\z

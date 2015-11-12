@@ -46,7 +46,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API.
 -- Modified 07/02/2010 - v0.2 - added test if auth is enabled, compacted output a bit (mhs)
 
 author = "Martin Holst Swende"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 portrule = shortport.port_or_service({5984})
 -- Some lazy shortcuts

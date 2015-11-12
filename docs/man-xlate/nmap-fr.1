@@ -692,7 +692,7 @@ ouvert|filtré\&. Nmap se comportera de la même façon que le type de scan de b
 .PP
 \fB\-sI <zombie host[:probeport]>\fR(Scan passif \-\- idlescan)
 .RS 4
-Cette méthode de scan avancé permet de faire un véritable scan de port TCP en aveugle, (dans le sens où aucun paquet n\*(Aqest envoyé directement à la cible depuis votre vraie adresse IP)\&. En effet, la technique employée consiste à récolter des informations sur les ports ouverts de la cible en utilisant un exploit basé sur la prédictibilité de la génération des identifiants de fragmentation IP de l\*(Aqhôte relais (le zombie)\&. Les systèmes IDS considéreront que le scan provient de la machine zombie que vous avez spécifié (qui doit remplir certains critères)\&. Le mécanisme de cette incroyable technique est trop complexe pour être expliqué en détail dans ce guide; un papier informel a été posté pour rendre compte de tous ces détails:\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+Cette méthode de scan avancé permet de faire un véritable scan de port TCP en aveugle, (dans le sens où aucun paquet n\*(Aqest envoyé directement à la cible depuis votre vraie adresse IP)\&. En effet, la technique employée consiste à récolter des informations sur les ports ouverts de la cible en utilisant un exploit basé sur la prédictibilité de la génération des identifiants de fragmentation IP de l\*(Aqhôte relais (le zombie)\&. Les systèmes IDS considéreront que le scan provient de la machine zombie que vous avez spécifié (qui doit remplir certains critères)\&. Le mécanisme de cette incroyable technique est trop complexe pour être expliqué en détail dans ce guide; un papier informel a été posté pour rendre compte de tous ces détails:\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 En plus de son incroyable furtivité (en raison du caractère aveugle de la technique), ce type de scan permet de déterminer les relations de confiance entre les machines\&. La liste des ports ouverts est établie
 \fIdu point de vue de l\*(Aqhôte zombie\&.\fR
@@ -1368,7 +1368,7 @@ Si vous souhaitez voir les options dans les paquets envoyés et recus, spécifie
 \fB\-\-badsum\fR (Envoyer des paquets avec des sommes de contrôle TCP/UDP erronnées)
 .RS 4
 Demande a Nmap d\*(Aqutiliser une somme de contrôle TCP ou UDP erronnée pour les paquets envoyés aux hôtes cibles\&. Comme virtuellement toutes les piles IP des hôtes rejettent ces paquets, toute réponse recue doivent venir d\*(Aqun pare\-feu ou d\*(Aqun IDS qui ne se préoccuppe pas de vérifier les sommes de contrôle\&. Pour plus de détails sur cette technique, voir
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
 .PP
 \fB\-\-ttl <value>\fR (Règle la valeur du champ IP de durée de vie (time\-to\-live))

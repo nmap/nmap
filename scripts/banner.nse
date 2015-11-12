@@ -22,7 +22,7 @@ increase in the level of verbosity requested on the command line.
 
 
 author = "jah"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

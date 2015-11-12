@@ -40,7 +40,7 @@ Timeout (408) or Hang up (200).
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 
@@ -140,7 +140,7 @@ action = function(host, port)
   session = sip.Session:new(host, port)
   status = session:connect()
   if not status then
-    return "ERROR: Failed to connect to the SIP server."
+    return stdnse.format_output(false, "Failed to connect to the SIP server.")
   end
 
   local ringing, result, waittime = invitespoof(session, ua, from, src, extension, timeout)

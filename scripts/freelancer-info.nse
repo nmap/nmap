@@ -46,7 +46,7 @@ See http://sourceforge.net/projects/gameq/
 -- <elem key="allow new players">yes</elem>
 
 author = "Marin Maržić"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "default", "discovery", "safe", "version" }
 
 portrule = shortport.version_port_or_service({2302}, "freelancer", "udp")

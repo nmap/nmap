@@ -51,7 +51,7 @@ the password hash.
 -- then use "nmap -sV" so that nmap discovers the port as an HTTP server.
 
 author = "Micah Hoffman"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
 

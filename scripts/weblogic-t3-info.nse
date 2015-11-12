@@ -5,7 +5,7 @@ local nmap = require "nmap"
 
 description = "Detect the T3 RMI protocol and Weblogic version"
 author = "Alessandro ZANNI <alessandro.zanni@bt.com>, Daniel Miller"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery","version"}
 
 portrule = function(host, port)
@@ -34,9 +34,22 @@ action = function(host, port)
     extrainfo = extrainfo .. "; "
   end
   if weblogic_version then
-    port.version.version = weblogic_version
+    if weblogic_version == "12.1.2" then
+      status, result = comm.exchange(host, port,
+        "t3 11.1.2\nAS:2048\nHL:19\n\n")
+      weblogic_version = string.match(result, "^HELO:(%d+%.%d+%.%d+%.%d+)%.")
+      if weblogic_version == "11.1.2" then
+        -- Server just echoes whatever version we send.
+        rval = "T3 protocol in use (Unknown WebLogic version)"
+      else
+        port.version.version = weblogic_version
+        rval = "T3 protocol in use (WebLogic version: " .. weblogic_version .. ")"
+      end
+    else
+      port.version.version = weblogic_version
+      rval = "T3 protocol in use (WebLogic version: " .. weblogic_version .. ")"
+    end
     port.version.extrainfo = extrainfo .. "T3 enabled"
-    rval = "T3 protocol in use (WebLogic version: " .. weblogic_version .. ")"
   elseif string.match(result, "^LGIN:") then
     port.version.extrainfo = extrainfo .. "T3 enabled"
     rval = "T3 protocol in use (handshake failed)"
@@ -53,6 +66,10 @@ action = function(host, port)
     port.version.extrainfo = extrainfo .. "T3 enabled"
     rval = "T3 protocol in use (No resource)"
   elseif string.match(result, "^VERS:") then
+    weblogic_version = string.match(result, "^VERS:Incompatible versions %- this server:(%d+%.%d+%.%d+%.%d+)")
+    if weblogic_version then
+      port.version.version = weblogic_version
+    end
     port.version.extrainfo = extrainfo .. "T3 enabled"
     rval = "T3 protocol in use (Incompatible version)"
   elseif string.match(result, "^CATA:") then

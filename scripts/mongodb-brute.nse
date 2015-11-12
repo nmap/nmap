@@ -26,7 +26,7 @@ Performs brute force password auditing against the MongoDB database.
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 local arg_db = stdnse.get_script_args(SCRIPT_NAME .. ".db") or "admin"

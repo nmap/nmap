@@ -41,7 +41,7 @@ Attempts to enumerate Windows services through SNMP.
 -- <elem>DCOM Server Process Launcher</elem>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"snmp-brute"}
 

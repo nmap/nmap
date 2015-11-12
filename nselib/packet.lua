@@ -2,7 +2,7 @@
 -- Facilities for manipulating raw packets.
 --
 -- @author Marek Majkowski <majek04+nse@gmail.com>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bit = require "bit"
 local ipOps = require "ipOps"

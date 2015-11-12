@@ -985,7 +985,7 @@ SYN扫描认为没有响应意味着
           利用zombie主机上已知的IP分段ID序列生成算法来窥探目标上开放端口的信息。
           IDS系统将显示扫描来自您指定的zombie机(必须运行并且符合一定的标准)。 
           这种奇妙的扫描类型太复杂了，不能在此完全描述，所以我写一篇非正式的论文，
-          发布在<ulink url="http://nmap.org/book/idlescan.html"/>。</para>
+          发布在<ulink url="https://nmap.org/book/idlescan.html"/>。</para>
 
           <para>除了极端隐蔽(由于它不从真实IP地址发送任何报文)，
           该扫描类型可以建立机器间的基于IP的信任关系。
@@ -1325,7 +1325,7 @@ Nmap用<option>-b</option>选项支持ftp弹跳扫描。参数格式是
     很多主机的序列号是<quote>增加</quote>类别，即在每个发送包的IP头中
     增加ID域值， 这对一些先进的信息收集和哄骗攻击来说是个漏洞。</para>
 
-    <para><ulink url="http://nmap.org/book/osdetect.html"/>
+    <para><ulink url="https://nmap.org/book/osdetect.html"/>
     文档使用多种语言描述了版本检测的方式、使用和定制。</para>
 
     <para>采用下列选项启用和控制操作系统检测:</para>

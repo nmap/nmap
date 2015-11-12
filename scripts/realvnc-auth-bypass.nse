@@ -6,7 +6,7 @@ Checks if a VNC server is vulnerable to the RealVNC authentication bypass
 (CVE-2006-2369).
 ]]
 author = "Brandon Enright"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 ---
 -- @output

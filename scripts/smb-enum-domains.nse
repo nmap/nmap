@@ -57,7 +57,7 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive"}
 dependencies = {"smb-brute"}
 
@@ -84,13 +84,13 @@ action = function(host)
       if(#data.groups > 0) then
         table.insert(piece, string.format("Groups: %s", stdnse.strjoin(", ", data.groups)))
       else
-        table.insert(piece, string.format("Groups: n/a"))
+        table.insert(piece, "Groups: n/a")
       end
 
       if(#data.users > 0) then
         table.insert(piece, string.format("Users: %s", stdnse.strjoin(", ", data.users)))
       else
-        table.insert(piece, string.format("Users: n/a"))
+        table.insert(piece, "Users: n/a")
       end
 
       -- Floor data.max_password_age, if possible
@@ -111,7 +111,7 @@ action = function(host)
       if(data.lockout_threshold) then
         table.insert(piece, string.format("Account lockout: %s attempts in %s minutes will lock out the account for %s minutes", data.lockout_threshold, data.lockout_window or "unlimited", data.lockout_duration or "unlimited"))
       else
-        table.insert(piece, string.format("Account lockout disabled"))
+        table.insert(piece, "Account lockout disabled")
       end
 
       table.insert(response, piece)

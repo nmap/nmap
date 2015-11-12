@@ -39,7 +39,7 @@ of that, this list is rarely traversed in whole because:
 
 author = "Kris Katterjohn"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 

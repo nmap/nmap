@@ -25,7 +25,7 @@ virtually hosted sites.
 
 
 author = "Eddie Bell, Piotr Olma"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
 ---
@@ -235,7 +235,7 @@ action = function(host, port)
     local status, r = crawler:crawl()
     if (not(status)) then
       if (r.err) then
-        return stdnse.format_output(true, "ERROR: %s", r.reason)
+        return stdnse.format_output(false, r.reason)
       else
         break
       end

@@ -38,7 +38,7 @@ old authentication mechanism from versions 4.x and earlier.
 -- @args mysql-enum.timeout socket timeout for connecting to MySQL (default 5s)
 
 author = "Aleksandar Nikolic"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(3306, "mysql")

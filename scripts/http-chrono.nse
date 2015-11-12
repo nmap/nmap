@@ -58,7 +58,7 @@ the target server. This script could help identifying these web pages.
 
 
 author = "Ange Gutek"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 

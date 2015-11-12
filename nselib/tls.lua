@@ -8,6 +8,7 @@
 
 local stdnse = require "stdnse"
 local bin = require "bin"
+local math = require "math"
 local os = require "os"
 local table = require "table"
 _ENV = stdnse.module("tls", stdnse.seeall)
@@ -691,7 +692,7 @@ local cipher_info_cache = {
 local function unpack_dhparams (blob, pos)
   local p, g, y
   pos, p, g, y = bin.unpack(">PPP", blob, pos)
-  return pos, {p=p, g=g, y=y}, #p
+  return pos, {p=p, g=g, y=y}, #p * 8
 end
 
 local function unpack_ecdhparams (blob, pos)
@@ -702,7 +703,7 @@ local function unpack_ecdhparams (blob, pos)
   if eccurvetype == 1 then
     local p, a, b, base, order, cofactor
     pos, p, a, b, base, order, cofactor = bin.unpack("pppppp", blob, pos)
-    strength = #p
+    strength = math.log(order, 2)
     ret.curve_params = {
       ec_curve_type = "explicit_prime",
       prime_p=p, curve={a=a, b=b}, base=base, order=order, cofactor=cofactor
@@ -711,7 +712,6 @@ local function unpack_ecdhparams (blob, pos)
     local p = {}
     local m, basis
     pos, m, basis = bin.unpack(">SC", blob, pos)
-    strength = m
     if basis == 1 then -- ec_trinomial
       pos, p.k = bin.unpack("p", blob, pos)
     elseif basis == 2 then -- ec_pentanomial
@@ -719,6 +719,7 @@ local function unpack_ecdhparams (blob, pos)
     end
     local a, b, base, order, cofactor
     pos, a, b, base, order, cofactor = bin.unpack("ppppp", blob, pos)
+    strength = math.log(order, 2)
     ret.curve_params = {
       ec_curve_type = "explicit_char2",
       m=m, basis=basis, field=p, curve={a=a, b=b}, base=base, order=order, cofactor=cofactor
@@ -760,9 +761,9 @@ end
 -- @param bits Size of key in bits
 -- @return Size in bits of RSA key with equivalent strength
 function rsa_equiv (ktype, bits)
-  if ktype == "rsa" or ktype == "dsa" then
+  if ktype == "rsa" or ktype == "dsa" or ktype == "dh" then
     return bits
-  elseif ktype == "ec" or ktype == "dh" then
+  elseif ktype == "ec" then
     if bits < 160 then
       return 512 -- Possibly down to 0, but details not published
     elseif bits < 224 then
@@ -883,7 +884,7 @@ KEX_ALGORITHMS.DH_RSA_EXPORT={
 
 KEX_ALGORITHMS.ECDHE_RSA={
   pubkey="rsa",
-  type = "dh",
+  type = "ec",
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
@@ -894,7 +895,7 @@ KEX_ALGORITHMS.ECDHE_RSA={
 }
 KEX_ALGORITHMS.ECDHE_ECDSA={
   pubkey="ec",
-  type = "dh",
+  type = "ec",
   server_key_exchange = KEX_ALGORITHMS.ECDHE_RSA.server_key_exchange
 }
 KEX_ALGORITHMS.ECDH_ECDSA={
@@ -950,7 +951,7 @@ KEX_ALGORITHMS.PSK_DHE = KEX_ALGORITHMS.DHE_PSK
 
 --rfc5489
 KEX_ALGORITHMS.ECDHE_PSK={
-  type = "dh",
+  type = "ec",
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
@@ -1107,12 +1108,14 @@ end
 
 ---
 -- Read a SSL/TLS record
--- @param buffer The read buffer
--- @param i      The position in the buffer to start reading
+-- @param buffer   The read buffer
+-- @param i        The position in the buffer to start reading
+-- @param fragment Message fragment left over from previous record (nil if none)
 -- @return The current position in the buffer
 -- @return The record that was read, as a table
-function record_read(buffer, i)
+function record_read(buffer, i, fragment)
   local b, h, len
+  local add = 0
 
   ------------
   -- Header --
@@ -1147,6 +1150,14 @@ function record_read(buffer, i)
     return i, nil
   end
 
+  -- Adjust buffer and length to account for message fragment left over
+  -- from last record.
+  if fragment then
+    add = #fragment
+    len = len + add
+    buffer = buffer:sub(1, j - 1) .. fragment .. buffer:sub(j, -1)
+  end
+
   -- Convert to human-readable form.
 
   ----------
@@ -1154,12 +1165,11 @@ function record_read(buffer, i)
   ----------
 
   h["body"] = {}
-  while j < len do
+
+  while j <= len do
     -- RFC 2246, 6.2.1 "multiple client messages of the same ContentType may
     -- be coalesced into a single TLSPlaintext record"
-    -- TODO: implement reading of fragmented records
     b = {}
-    table.insert(h["body"], b)
     if h["type"] == "alert" then
       -- Parse body.
       j, b["level"] = bin.unpack("C", buffer, j)
@@ -1168,7 +1178,16 @@ function record_read(buffer, i)
       -- Convert to human-readable form.
       b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
       b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
+
+      table.insert(h["body"], b)
     elseif h["type"] == "handshake" then
+
+      -- Check for message fragmentation.
+      if len - j < 3 then
+        h.fragment = buffer:sub(j, len)
+        return len + 1 - add, h
+      end
+
       -- Parse body.
       j, b["type"] = bin.unpack("C", buffer, j)
       local msg_end
@@ -1177,6 +1196,12 @@ function record_read(buffer, i)
 
       -- Convert to human-readable form.
       b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
+
+      -- Check for message fragmentation.
+      if msg_end > len + 1 then
+        h.fragment = buffer:sub(j - 4, len)
+        return len + 1 - add, h
+      end
 
       if b["type"] == "server_hello" then
         -- Parse body.
@@ -1225,18 +1250,21 @@ function record_read(buffer, i)
         stdnse.debug2("Unknown handshake message type: %s", b["type"])
         j, b["data"] = bin.unpack("A" .. msg_end - j, buffer, j)
       end
+
+      table.insert(h["body"], b)
     elseif h["type"] == "heartbeat" then
       j, b["type"], b["payload_length"] = bin.unpack("C>S", buffer, j)
       j, b["payload"], b["padding"] = bin.unpack("PP", buffer, j)
+      table.insert(h["body"], b)
     else
       stdnse.debug1("Unknown message type: %s", h["type"])
     end
   end
 
   -- Ignore unparsed bytes.
-  j = len+1
+  j = len + 1
 
-  return j, h
+  return j - add, h
 end
 
 ---

@@ -12,7 +12,7 @@ local table = require "table"
 --   http://www.irvineunderground.org
 --
 -- This file is released under the Nmap license; see:
---  http://nmap.org/book/man-legal.html
+--  https://nmap.org/book/man-legal.html
 --
 -- @args http-fingerprints.nikto-db-path Looks at the given path for nikto database.
 --       It then converts the records in nikto's database into our Lua table format

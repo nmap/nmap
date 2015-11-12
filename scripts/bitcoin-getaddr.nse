@@ -26,7 +26,7 @@ Queries a Bitcoin server for a list of known Bitcoin nodes
 -- |_  10.10.10.14:8333      11/09/11 17:37:12
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
@@ -38,23 +38,25 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 
+local function fail(err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
 
   local bcoin = bitcoin.Helper:new(host, port, { timeout = 20000 })
   local status = bcoin:connect()
 
   if ( not(status) ) then
-    return "\n  ERROR: Failed to connect to server"
+    return fail("Failed to connect to server")
   end
 
   local status, ver = bcoin:exchVersion()
   if ( not(status) ) then
-    return "\n  ERROR: Failed to extract version information"
+    return fail("Failed to extract version information")
   end
 
   local status, nodes = bcoin:getNodes()
   if ( not(status) ) then
-    return "\n  ERROR: Failed to extract address information"
+    return fail("Failed to extract address information")
   end
   bcoin:close()
 

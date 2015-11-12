@@ -716,6 +716,7 @@ distclean: clean
 	rm -f Makefile config.cache config.log config.status \
 	    config.h gnuc.h net os-proto.h bpf_filter.c pcap-config \
 	    stamp-h stamp-h.in
+	rm -f version.h version.c
 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
 

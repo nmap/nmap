@@ -32,7 +32,7 @@ application.
 --       played while displaying the message. (default: true)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
 
@@ -58,7 +58,7 @@ local function decodeString(str)
   return str:gsub("\226\128\153", "'")
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function listDevices(mm)
   local status, devices = mm:getDevices()

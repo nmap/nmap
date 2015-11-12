@@ -32,7 +32,7 @@ Performs brute force password auditing against SMTP servers using either LOGIN, 
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
@@ -100,16 +100,17 @@ Driver =
 
 }
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
   local socket, response = smtp.connect(host, port, { ssl = true, recv_before = true })
-  if ( not(socket) ) then return "\n  ERROR: Failed to connect to SMTP server" end
+  if ( not(socket) ) then return fail("Failed to connect to SMTP server") end
   local status, response = smtp.ehlo(socket, smtp.get_domain(host))
-  if ( not(status) ) then return "\n  ERROR: EHLO command failed, aborting ..." end
+  if ( not(status) ) then return fail("EHLO command failed, aborting ...") end
   local mechs = smtp.get_auth_mech(response)
   if ( not(mechs) ) then
-    return "\n  ERROR: Failed to retrieve authentication mechanisms form server"
+    return fail("Failed to retrieve authentication mechanisms form server")
   end
   smtp.quit(socket)
 

@@ -230,7 +230,7 @@
 
 <!ELEMENT cpe (#PCDATA)>
 
-<!ELEMENT script	(table|elem)* >
+<!ELEMENT script	(#PCDATA|table|elem)* >
 <!ATTLIST script	
 	id	CDATA	#REQUIRED
 	output	CDATA	#REQUIRED

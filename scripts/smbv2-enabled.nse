@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local smb = require "smb"
 local string = require "string"
+local stdnse = require "stdnse"
 
 description = [[
 Checks whether or not a server is running the SMBv2 protocol.
@@ -22,7 +23,7 @@ Checks whether or not a server is running the SMBv2 protocol.
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 
@@ -55,11 +56,7 @@ action = function(host)
   local status, result, flag = go(host)
 
   if(not(status)) then
-    if(nmap.debugging() > 0) then
-      return "ERROR: " .. result
-    else
-      return nil
-    end
+    return stdnse.format_output(false, result)
   end
 
   return flag, result

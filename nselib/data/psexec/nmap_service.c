@@ -26,7 +26,7 @@
  *
  * @auther    Ron Bowes
  * @copyright Ron Bowes
- * @license   "Same as Nmap--See http://nmap.org/book/man-legal.html"
+ * @license   "Same as Nmap--See https://nmap.org/book/man-legal.html"
  */
 
 #include <stdio.h>

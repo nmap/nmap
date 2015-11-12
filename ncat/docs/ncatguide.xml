@@ -467,7 +467,7 @@ Content-Type: text/html; charset=UTF-8
     <indexterm><primary><option>--ssl</option> (Ncat option)</primary><secondary>example of</secondary></indexterm>
 <screen>
 $ <userinput>ncat -v --listen --ssl</userinput>
-Ncat ( http://nmap.org/ncat )
+Ncat ( https://nmap.org/ncat )
 Generating a temporary 1024-bit RSA key. Use --ssl-key and --ssl-cert to use a <continuation/>permanent one.
 SHA-1 fingerprint: F0:13:BF:FB:2D:AA:76:88:22:60:3E:17:93:29:3E:0E:6B:92:C0:2F
 </screen>
@@ -835,7 +835,7 @@ Protocol mismatch.
   options. Each of these takes a comma-separated list of host
   specifications. The syntax is almost identical to that recognized by Nmap for
   targets
-  (see <ulink url="http://nmap.org/book/man-target-specification.html">the section called <quote>Target Specification</quote></ulink>).
+  (see <ulink url="https://nmap.org/book/man-target-specification.html">the section called <quote>Target Specification</quote></ulink>).
   <!-- (see <xref linkend="host-discovery-specify-targets"/>). -->
   This includes IPv4 and IPv6 addresses, hostnames, IPv4 octet ranges,
   and CIDR netmasks. In Ncat (unlike Nmap), CIDR netmasks are supported for IPv6
@@ -1877,7 +1877,7 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
   <indexterm><primary><option>--script</option></primary><secondary>example of</secondary></indexterm>
 <screen>
 # <userinput>nmap -sSU -p 13 --script=daytime localhost</userinput>
-Starting Nmap ( http://nmap.org )
+Starting Nmap ( https://nmap.org )
 
 Nmap scan report for localhost (127.0.0.1)
 PORT   STATE SERVICE

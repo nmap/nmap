@@ -4,7 +4,13 @@ compiler:
   - clang
 # Change this to your needs
 sudo: false
-script: ./configure && make && make check
+script: mkdir /tmp/n && ./configure $SSL_FLAG $LUA_FLAG --prefix=/tmp/n && make && make check && make install && /tmp/n/bin/nmap -A localhost
+
+env:
+  - SSL_FLAG="--without-ssl" LUA_FLAG="--without-liblua"
+  - SSL_FLAG="" LUA_FLAG="--without-liblua"
+  - SSL_FLAG="--without-ssl" LUA_FLAG=""
+  - SSL_FLAG="" LUA_FLAG=""
 
 notifications:
   irc:

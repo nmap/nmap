@@ -37,7 +37,7 @@
     <indexterm><primary>Nmap</primary><secondary>Beschreibung</secondary></indexterm>
     <web>
     <note><para>This document describes the very latest version of
-    Nmap available from <ulink url="http://nmap.org/download.html" /> or <ulink url="http://nmap.org/dist/?C=M&amp;O=D" />.  Please
+    Nmap available from <ulink url="https://nmap.org/download.html" /> or <ulink url="https://nmap.org/dist/?C=M&amp;O=D" />.  Please
     ensure you are using the latest version before reporting that a
     feature doesn't work as described.</para></note>
     </web>
@@ -103,7 +103,7 @@ schnellere Ausführung. Danach kommen die Namen der Zielhosts.</para>
 <screen>
 # nmap -A -T4 scanme.nmap.org
 
-Starting Nmap ( http://nmap.org )
+Starting Nmap ( https://nmap.org )
 Interesting ports on scanme.nmap.org (64.13.134.52):
 Not shown: 994 filtered ports
 PORT    STATE  SERVICE VERSION
@@ -130,8 +130,8 @@ Nmap done: 1 IP address (1 host up) scanned in 17.00 seconds
 </example>
 
 <para>Die neueste Version von Nmap erhält man unter 
-<ulink url="http://nmap.org" />, und die neueste Version der Manpage 
-ist unter <ulink url="http://nmap.org/book/man.html"/> verfügbar.</para>
+<ulink url="https://nmap.org" />, und die neueste Version der Manpage 
+ist unter <ulink url="https://nmap.org/book/man.html"/> verfügbar.</para>
 
   </refsect1>
 
@@ -140,7 +140,7 @@ ist unter <ulink url="http://nmap.org/book/man.html"/> verfügbar.</para>
 
 <para>Diese Übersicht wird ausgegeben, wenn Nmap ohne Argumente 
 aufgerufen wird; die neueste Version davon ist immer unter 
-<ulink url="http://nmap.org/data/nmap.usage.txt" /> verfügbar. 
+<ulink url="https://nmap.org/data/nmap.usage.txt" /> verfügbar. 
 Sie hilft dabei, sich die am häufigsten benutzten Optionen zu merken, 
 ist aber kein Ersatz für die detaillierte Dokumentation im Rest 
 dieses Handbuchs. Einige obskure Optionen werden hier nicht einmal 
@@ -151,7 +151,7 @@ erwähnt.</para>
 <indexterm class="startofrange" id="nmap-usage-indexterm"><primary sortas="#">Optionsübersicht</primary></indexterm>
 <indexterm class="startofrange" id="nmap-usage-nmap-indexterm"><primary>Kommandozeilenoptionen</primary><secondary>von Nmap</secondary></indexterm>
 <?dbfo-need height="1in"?>
-<literallayout format="linespecific" class="normal">Nmap 4.85BETA8 ( http://nmap.org )
+<literallayout format="linespecific" class="normal">Nmap 4.85BETA8 ( https://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -256,7 +256,7 @@ EXAMPLES:
   nmap -v -A scanme.nmap.org
   nmap -v -sP 192.168.0.0/16 10.0.0.0/8
   nmap -v -iR 10000 -PN -p 80
-SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
+SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 </literallayout>
 
 
@@ -1534,7 +1534,7 @@ zeigen als Urheber des Scans den Zombie-Rechner an, den Sie angeben
 Da dieser faszinierende Scan-Typ zu komplex ist, um ihn in diesem Handbuch 
 vollständig zu beschreiben, habe ich einen Artikel mit vollständigen 
 Details dazu geschrieben und unter 
-<ulink url="http://nmap.org/book/idlescan.html" /> veröffentlicht. 
+<ulink url="https://nmap.org/book/idlescan.html" /> veröffentlicht. 
 </man>
 <notman>
 Alle Details zu diesem faszinierenden Scan-Typ finden Sie in
@@ -1861,7 +1861,7 @@ unter anderem auch die Versionserkennung einschaltet.
 <man>
 A paper documenting the workings, usage, and customization of version
 detection is available at
-<ulink url="http://nmap.org/book/vscan.html" />.
+<ulink url="https://nmap.org/book/vscan.html" />.
 </man>
 <notman>
 Die Versionserkennung wird detailliert in <xref linkend="vscan"/> behandelt. 
@@ -2080,7 +2080,7 @@ weshalb sie nur im ausführlichen Modus ausgegeben wird.
 <man>
 A paper documenting the workings, usage, and customization of OS
 detection is available at
-<ulink url="http://nmap.org/book/osdetect.html" />.
+<ulink url="https://nmap.org/book/osdetect.html" />.
 </man>
 
 <notman>
@@ -2196,13 +2196,13 @@ Im Moment sind folgende Kategorien definiert:
 <literal>discovery</literal>, <literal>vuln</literal>, 
 <literal>auth</literal> und <literal>default</literal>. 
 Sie alle werden 
-<man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
+<man>at <ulink url="https://nmap.org/book/nse-usage.html#nse-categories" />.</man>
 <notman>in <xref linkend="nse-categories"/> beschrieben.</notman>
 </para>
     
 <para>
 Die Nmap Scripting Engine wird detailliert 
-<man>at <ulink url="http://nmap.org/book/nse.html" /></man>
+<man>at <ulink url="https://nmap.org/book/nse.html" /></man>
 <notman>in <xref linkend="nse"/></notman> beschrieben und wird mit den 
 folgenden Optionen gesteuert:
 </para>
@@ -2258,7 +2258,7 @@ dann muss deren Dateierweiterung nicht <literal>nse</literal> lauten.
 <para>Nmap-Scripts werden standardmäßig in einem 
 <filename>scripts</filename>-Unterverzeichnis des Nmap-Datenverzeichnisses 
 gespeichert
-<man>(see <ulink url="http://nmap.org/book/data-files.html"/>).</man>
+<man>(see <ulink url="https://nmap.org/book/data-files.html"/>).</man>
 <notman>(siehe <xref linkend="data-files"/>).</notman> Aus Effizienzgründen 
 werden Scripts in einer Datenbank indiziert, die in <filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm> 
 gespeichert ist und für jedes Script auflistet, in welche Kategorie 
@@ -3285,7 +3285,7 @@ ungültige TCP- oder UDP-Prüfsummen zu benutzen. Da so gut wie alle
 Host-IP-Stacks solche Pakete verwerfen, kommen eventuelle Antworten 
 sehr wahrscheinlich von einer Firewall oder einem IDS, das sich nicht 
 die Mühe macht, die Prüfsumme zu überprüfen. Mehr Details zu dieser 
-Methode finden Sie unter <ulink url="http://nmap.org/p60-12.html"/>.</para>
+Methode finden Sie unter <ulink url="https://nmap.org/p60-12.html"/>.</para>
         </listitem>
       </varlistentry>
 
@@ -3424,7 +3424,7 @@ Programme gedacht, kann aber auch Menschen bei der Interpretation
 von Nmaps XML-Ausgabe helfen. Die DTD definiert die gültigen Elemente 
 des Formats und zählt an vielen Stellen die dafür erlaubten Attribute 
 und Werte auf. Die neueste Version ist immer unter 
-<ulink url="http://nmap.org/data/nmap.dtd"/> verfügbar.</para>
+<ulink url="https://nmap.org/data/nmap.dtd"/> verfügbar.</para>
 
 <para>XML bietet ein stabiles Format, das man mit Software leicht 
 parsen kann. Solche XML-Parser sind für alle wichtigen Programmiersprachen 
@@ -3517,7 +3517,7 @@ besteht. Diese Unterfelder lauten: <literal>Port number</literal>,
 <para>Wie bei der XML-Ausgabe kann diese Manpage auch hier nicht das 
 vollständige Format dokumentieren. Eine detailliertere Betrachtung des 
 grepbaren Ausgabeformats in Nmap finden Sie  
-<man>from <ulink url="http://nmap.org/book/output-formats-grepable-output.html" />.</man>
+<man>from <ulink url="https://nmap.org/book/output-formats-grepable-output.html" />.</man>
 <notman>in <xref linkend="output-formats-grepable-output"/>.</notman>
 </para>
         </listitem>
@@ -3827,7 +3827,7 @@ finden und benutzen, um die Ergebnisse darzustellen. Wenn Sie ein anderes
 Stylesheet benutzen möchten, geben Sie es als Argument für 
 <option>--stylesheet</option> an. Dabei müssen Sie den vollständigen 
 Pfadnamen oder die URL angeben. Sehr häufig wird 
-<option>--stylesheet http://nmap.org/data/nmap.xsl</option> benutzt. 
+<option>--stylesheet https://nmap.org/data/nmap.xsl</option> benutzt. 
 Das sagt einem Browser, dass er die neueste Version des Stylesheets 
 von Nmap.Org laden soll. Die Option <option>--webxml</option> 
 macht dasselbe, verlangt aber weniger Tipparbeit und Merkfähigkeit. 
@@ -3847,7 +3847,7 @@ nützlicher, doch aus Datenschutzgründen wird standardmäßig das
         <listitem>
 
 <para>Diese bequeme Option ist nur ein Alias für
-<option significance="preferred">--stylesheet http://nmap.org/data/nmap.xsl</option>.</para>
+<option significance="preferred">--stylesheet https://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -4292,7 +4292,7 @@ wie man diese Features anwendet, um Aufgaben der realen Welt zu lösen.
 Zu diesem Zweck haben wir das Buch 
 <notweb><citetitle>Nmap Network Scanning: The Official
 Nmap Project Guide to Network Discovery and Security
-Scanning</citetitle>.</notweb><web><ulink url="http://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official
+Scanning</citetitle>.</notweb><web><ulink url="https://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official
 Nmap Project Guide to Network Discovery and Security
 Scanning</citetitle></ulink> veröffentlicht.</web> 
 Es zeigt, wie man Firewalls und Intrusion Detection-Systeme unterwandert, 
@@ -4304,7 +4304,7 @@ das Verhindern von Wurmausbrüchen im Netzwerk.
 Dabei zeigt es mit Beispielen und Diagrammen, wie die Kommunikation 
 auf der Leitung aussieht. Mehr als die Hälfte des Buches ist online 
 frei verfügbar. Weitere Informationen finden Sie unter 
-<ulink url="http://nmap.org/book"/>.</para>
+<ulink url="https://nmap.org/book"/>.</para>
 <para>Die deutsche Übersetzung dieses Buches von Dinu Gherman ist im Mai 
 2009 unter dem Titel 
 <citetitle><ulink url="https://www.opensourcepress.de/index.php?26&amp;backPID=178&amp;tt_products=270">Nmap: Netzwerke scannen, analysieren und absichern</ulink></citetitle>
@@ -4321,7 +4321,7 @@ erschienen.</para>
 können helfen, es zu verbessern, indem Sie Fehlerberichte schicken oder 
 sogar Patches schreiben. Falls Nmap sich nicht wie erwartet verhält, 
 sollten Sie zuerst auf die neueste Version aktualisieren, die unter 
-<ulink url="http://nmap.org"/> verfügbar ist. Wenn das Problem anhält, 
+<ulink url="https://nmap.org"/> verfügbar ist. Wenn das Problem anhält, 
 versuchen Sie herauszufinden, ob es bereits erkannt und bearbeitet 
 wurde. Suchen Sie nach der Fehlermeldung auf unserer Suchseite unter 
 <ulink url="http://insecure.org/search.html"/> oder bei Google. Stöbern 
@@ -4337,12 +4337,12 @@ beantwortet, wenn sie an <email>dev@nmap.org</email> geschickt
 werden statt direkt an Fyodor. Wenn Sie sich erst auf der nmap-dev-Liste 
 eintragen, bevor Sie Ihre E-Mail schicken, entgeht Ihre Nachricht auch 
 der Moderation und kommt schneller an. Eintragen können Sie sich unter 
-<ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
+<ulink url="https://nmap.org/mailman/listinfo/dev"/>.</para>
 
 <para>Code-Patches zur Behebung von Fehlern sind noch besser als 
 Fehlerberichte. Eine einfache Anweisung für die Erstellung von Patch-Dateien 
 mit Ihren Änderungen ist unter 
-<ulink url="http://nmap.org/data/HACKING" /> verfügbar. Patches können 
+<ulink url="https://nmap.org/data/HACKING" /> verfügbar. Patches können 
 an <citetitle>nmap-dev</citetitle> (empfohlen) oder direkt an Fyodor 
 geschickt werden.</para>
   </refsect1>
@@ -4358,12 +4358,12 @@ geschickt werden.</para>
     zu Nmap geleistet. Sie sind detailliert in der Datei 
     <filename>CHANGELOG</filename><indexterm><primary>changelog</primary></indexterm>
     aufgeführt, die mit dem Nmap-Quellcode verbreitet wird und auch unter 
-    <ulink url="http://nmap.org/changelog.html" /> verfügbar ist.</para>
+    <ulink url="https://nmap.org/changelog.html" /> verfügbar ist.</para>
 
   </refsect1>
 
   <refsect1 id='man-legal'>
-    <para>Sorry, this section has not yet been translated to German.  Please see the <ulink url="http://nmap.org/book/man-legal.html">English version</ulink>.</para>
+    <para>Sorry, this section has not yet been translated to German.  Please see the <ulink url="https://nmap.org/book/man-legal.html">English version</ulink>.</para>
   </refsect1>
 </refentry>
 <indexterm class="endofrange" startref="man-nmap1-indexterm"/>

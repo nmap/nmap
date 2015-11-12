@@ -76,7 +76,7 @@ Attempts to retrieve information about the domain name of the target
 ---
 
 author = "George Chatzisofroniou"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
 local ipOps = require "ipOps"

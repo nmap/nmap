@@ -185,9 +185,9 @@ else
     CPPFLAGS="$CPPFLAGS -I$libpcapdir"
   fi
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
-  PCAP_BUILD="pcap_build"
-  PCAP_CLEAN="pcap_clean"
-  PCAP_DIST_CLEAN="pcap_dist_clean"
+  PCAP_BUILD="build-pcap"
+  PCAP_CLEAN="clean-pcap"
+  PCAP_DIST_CLEAN="distclean-pcap"
 fi
 
 AC_SUBST(PCAP_DEPENDS)
@@ -223,9 +223,9 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
-    LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_BUILD="build-lua"
+    LUA_CLEAN="clean-lua"
+    LUA_DIST_CLEAN="distclean-lua"
 	have_lua="yes"
 	
   ;;
@@ -282,9 +282,9 @@ else
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
-    LUA_BUILD="lua_build"
-    LUA_CLEAN="lua_clean"
-    LUA_DIST_CLEAN="lua_dist_clean"
+    LUA_BUILD="build-lua"
+    LUA_CLEAN="clean-lua"
+    LUA_DIST_CLEAN="distclean-lua"
     AC_DEFINE(LUA_INCLUDED)
   else
     AC_MSG_RESULT(yes) 

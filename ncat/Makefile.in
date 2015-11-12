@@ -112,7 +112,7 @@ all: $(TARGET)
 
 $(LIBLUADIR)/liblua.a: @LUA_BUILD@
 
-lua_build: $(LIBLUADIR)/Makefile
+build-lua: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) $(LUA_CFLAGS)"
 
 
@@ -150,7 +150,7 @@ test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_
 test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-.PHONY: uninstall all clean distclean lua_build
+.PHONY: uninstall all clean distclean build-lua
 
 ../libnetutil/libnetutil.a: ../libnetutil/Makefile
 	@echo Compiling libnetutil;
@@ -181,15 +181,15 @@ uninstall:
 	$(RM) -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
 	$(RM) -rf $(DESTDIR)$(pkgdatadir)/
 
-ncat_clean:
+clean-ncat:
 	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS)
 
-clean: ncat_clean @LUA_CLEAN@
+clean: clean-ncat @LUA_CLEAN@
 
-lua_clean:
+clean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 
-lua_dist_clean:
+distclean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 
 distclean: clean @LUA_DIST_CLEAN@

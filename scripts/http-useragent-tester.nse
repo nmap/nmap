@@ -44,7 +44,7 @@ Checks if various crawling utilities are allowed by the host.
 
 categories = {"discovery", "safe"}
 author = "George Chatzisofroniou"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 local http = require "http"
 local target = require "target"
@@ -57,7 +57,7 @@ getLastLoc = function(host, port, useragent)
 
   local options
 
-  options = {header={}, no_cache=true, redirect_ok=function(host,port)
+  options = {header={}, no_cache=true, bypass_cache=true, redirect_ok=function(host,port)
       local c = 3
       return function(url)
         if ( c==0 ) then return false end

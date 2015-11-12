@@ -13,7 +13,7 @@
 -- the special value <code>json.NULL</code>.
 --
 -- @author Martin Holst Swende (originally), David Fifield, Patrick Donnelly
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- Version 0.4
 -- Created 01/25/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>

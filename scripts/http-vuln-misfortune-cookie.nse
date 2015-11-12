@@ -1,7 +1,7 @@
 description = [[Detects the RomPager 4.07 Misfortune Cookie vulnerability by safely exploiting it.]]
 
 author = "Andrew Orr"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 
 ---

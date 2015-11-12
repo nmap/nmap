@@ -44,7 +44,7 @@ Reference:
 -- @args http-axis2-dir-traversal.basepath Basepath to the services page. Default: <code>/axis2/services/</code>
 
 author = "Paulino Calderon <calderon@websec.mx>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive", "exploit"}
 
 

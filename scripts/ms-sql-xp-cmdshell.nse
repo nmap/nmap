@@ -82,7 +82,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --                 added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 
 

@@ -15,7 +15,7 @@
 --
 -- The library is driven by the unittest NSE script.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
 local string = require "string"

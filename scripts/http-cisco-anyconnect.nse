@@ -31,7 +31,7 @@ and tunnel information.
 --
 
 author = "Patrik Karlsson <patrik@cqure.net>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = function(host, port)
@@ -42,7 +42,7 @@ action = function(host, port)
   local ac = anyconnect.Cisco.AnyConnect:new(host, port)
   local status, err = ac:connect()
   if not status then
-    return ("\n  ERROR: %s"):format(err)
+    return stdnse.format_output(false, err)
   else
     local o = stdnse.output_table()
     local xmltags = { 'version', 'tunnel-group', 'group-alias',

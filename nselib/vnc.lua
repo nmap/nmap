@@ -18,7 +18,7 @@
 --     - This class contains the core functions needed to communicate with VNC
 --
 
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
 -- Version 0.1

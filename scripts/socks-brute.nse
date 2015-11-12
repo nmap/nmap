@@ -2,6 +2,7 @@ local brute = require "brute"
 local creds = require "creds"
 local shortport = require "shortport"
 local socks = require "socks"
+local stdnse = require "stdnse"
 
 description = [[
 Performs brute force password auditing against SOCKS 5 proxy servers.
@@ -22,7 +23,7 @@ Performs brute force password auditing against SOCKS 5 proxy servers.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 
@@ -79,7 +80,7 @@ local function checkAuth(host, port)
 
   local status, err = helper:authenticate({username="nmap", password="nmapbruteprobe"})
   if ( err ~= "Authentication failed" ) then
-    return false, ("\n  ERROR: %s"):format(err)
+    return false, err
   end
 
   helper:close()
@@ -90,7 +91,7 @@ action = function(host, port)
 
   local status, response = checkAuth(host, port)
   if ( not(status) ) then
-    return response
+    return stdnse.format_output(false, response)
   end
 
   local engine = brute.Engine:new(Driver, host, port)

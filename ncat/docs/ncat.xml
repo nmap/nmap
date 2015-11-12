@@ -777,6 +777,19 @@
 
       <varlistentry>
         <term>
+          <option>--no-shutdown</option> (Do not shutdown into half-duplex mode)
+          <indexterm><primary><option>--no-shutdown</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>If this option is passed, Ncat will not invoke shutdown on a
+          socket aftering seeing EOF on stdin. This is provided for
+          backward-compatibility with OpenBSD netcat, which exhibits this
+          behavior when executed with its '-d' option.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-t</option>,
           <option>--telnet</option> (Answer Telnet negotiations)
           <indexterm><primary><option>-t</option> (Ncat option)</primary></indexterm>
@@ -936,7 +949,7 @@
     it better by sending bug reports or even writing patches.  If Ncat
     doesn't behave the way you expect, first upgrade to the latest
     version available from <ulink
-    url="http://nmap.org"/>.  If the problem persists,
+    url="https://nmap.org"/>.  If the problem persists,
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
     browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
@@ -996,7 +1009,7 @@
   <para>Ncat is (C) 2005&ndash;2012 Insecure.Com LLC. It is distributed
   as free and open source software under the same license terms as our
   Nmap software.  Precise terms and further details are available 
-  <man>from <ulink url="http://nmap.org/man/man-legal.html"/>.</man>
+  <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
   <notman>in <xref linkend="nmap-copyright"/>.</notman></para>
 </refsect2>
 

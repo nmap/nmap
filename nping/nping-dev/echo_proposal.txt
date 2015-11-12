@@ -134,7 +134,7 @@
  things like variation of TCP window size and warn about possible transparent
  proxies, etc.
 
- Starting Nping 0.5.30BETA1 ( http://nmap.org/nping ) at 2010-06-30 17:20 CEST
+ Starting Nping 0.5.30BETA1 ( https://nmap.org/nping ) at 2010-06-30 17:20 CEST
  
  SENT (0.0980s) TCP 192.168.1.99:33856 > 74.207.254.18:80 S ttl=64 id=60467 iplen=40  seq=1754993861 win=0
  CAPT (0.4504s) TCP 10.1.2.158:33856 > 10.0.23.56:80 ttl=53
@@ -158,7 +158,7 @@
  The side channel will be run over a custom application layer protocol called
  NEP, Nping Echo Protocol. The protocol itself is described in a separate
  document: "Nping Echo Protocol Specification", available from:
-    <http://nmap.org/svn/nping/nping-dev/EchoProtoRFC.txt>
+    <https://nmap.org/svn/nping/nping-dev/EchoProtoRFC.txt>
     
  The following flow diagram describes a typical client/server interaction.
  Please refer to the document cited above for more information.

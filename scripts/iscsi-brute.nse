@@ -24,7 +24,7 @@ Performs brute force password auditing against iSCSI targets.
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.portnumber(3260, "tcp", {"open", "open|filtered"})
@@ -66,7 +66,7 @@ action = function( host, port )
 
   local target = stdnse.get_script_args('iscsi-brute.target')
   if ( not(target) ) then
-    return "ERROR: No target specified (see iscsi-brute.target)"
+    return stdnse.format_output(false, "No target specified (see iscsi-brute.target)")
   end
 
   local helper = iscsi.Helper:new( host, port )

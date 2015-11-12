@@ -152,7 +152,7 @@ Original reversing of the protocol was done by Luigi Auriemma
 -- </table>
 
 author = "Marin Maržić"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "default", "discovery", "safe", "version" }
 
 local crypt_head = {

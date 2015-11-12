@@ -74,7 +74,7 @@ printed with the list of any combinations that were found prior to the error.
 --   * Rewrite the script to use the smtp.lua library.
 
 author = "Arturo 'Buanzo' Busleiman"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive","external"}
 
 

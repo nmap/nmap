@@ -54,7 +54,7 @@ when run from Windows.
 -- |_  and 441 sent queries
 
 author = "Aleksandar Nikolic, Ange Gutek"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"dos", "intrusive"}
 
 
@@ -146,9 +146,9 @@ local function do_half_http(host, port, obj)
     end
     stdnse.sleep(SendInterval)
     try(slowloris:send("X-a: b\r\n"))
-    ServerNotice = " (attack against " .. host.ip .. "): Feeding HTTP stream..."
     Queries = Queries + 1
-    ServerNotice = ServerNotice .. "\n(attack against " .. host.ip .. "): " .. Queries .. " queries sent using " .. ThreadCount .. " connections."
+    ServerNotice = ("(attack against %s): Feeding HTTP stream...\n(attack against %s): %d queries sent using %d connections."):format(
+      host.ip, host.ip, Queries, ThreadCount)
   end
   slowloris:close()
   ThreadCount = ThreadCount - 1

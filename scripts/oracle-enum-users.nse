@@ -36,7 +36,7 @@ servers (this bug was fixed in Oracle's October 2009 Critical Patch Update).
 -- Revised 21/07/2010 - v0.3 - removed references to smb in get_random_string
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
 
@@ -66,6 +66,8 @@ local function checkAccount( host, port, user )
   return true, auth["AUTH_VFR_DATA"]
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function( host, port )
 
   local known_good_accounts = { "system", "sys", "dbsnmp", "scott" }
@@ -76,12 +78,12 @@ action = function( host, port )
   local usernames
 
   if ( not( nmap.registry.args['oracle-enum-users.sid'] ) and not( nmap.registry.args['tns.sid'] ) ) then
-    return "ERROR: Oracle instance not set (see oracle-enum-users.sid or tns.sid)"
+    return fail("Oracle instance not set (see oracle-enum-users.sid or tns.sid)")
   end
 
   status, usernames = unpwdb.usernames()
   if( not(status) ) then
-    return stdnse.format_output(true, "ERROR: Failed to load the usernames dictionary")
+    return fail("Failed to load the usernames dictionary")
   end
 
   -- Check for some known good accounts
@@ -95,7 +97,7 @@ action = function( host, port )
 
   -- did we atleast get a single salt back?
   if ( count < 20 ) then
-    return stdnse.format_output(true, "ERROR: None of the known accounts were detected (oracle < 11g)")
+    return fail("None of the known accounts were detected (oracle < 11g)")
   end
 
   -- Check for some known bad accounts
@@ -112,7 +114,7 @@ action = function( host, port )
 
   -- It's unlikely that we hit 3 random combinations as valid users
   if ( count > 60 ) then
-    return stdnse.format_output(true, ("ERROR: %d of %d random accounts were detected (Patched Oracle 11G or Oracle 11G R2)"):format(count/20, 10))
+    return fail(("%d of %d random accounts were detected (Patched Oracle 11G or Oracle 11G R2)"):format(count/20, 10))
   end
 
   for user in usernames do

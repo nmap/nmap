@@ -3,7 +3,7 @@
 -- NetBIOS name requests.
 --
 -- @author Ron Bowes <ron@skullsecurity.net>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"
 local bit = require "bit"

@@ -28,7 +28,7 @@ Performs brute force password auditing against the rsync remote file syncing pro
 
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service(873, "rsync", "tcp")
@@ -88,16 +88,18 @@ local function isModuleValid(host, port, module)
   return false, ("Brute pre-check failed for unknown reason: (%s)"):format(data)
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function(host, port)
 
   local mod = stdnse.get_script_args(SCRIPT_NAME .. ".module")
   if ( not(mod) ) then
-    return "\n  ERROR: rsync-brute.module was not supplied"
+    return fail("rsync-brute.module was not supplied")
   end
 
   local status, err = isModuleValid(host, port, mod)
   if ( not(status) ) then
-    return ("\n  ERROR: %s"):format(err)
+    return fail(err)
   end
 
   local engine = brute.Engine:new(Driver, host, port, { module = mod })

@@ -18,15 +18,15 @@ Thanks to Positive Research, and Dmitry Efanov for creating PLCScan
 ]]
 
 author = "Stephen Hilt (Digital Bond)"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "intrusive"}
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+categories = {"discovery", "version"}
 
 ---
 -- @usage
--- nmap -sP --script s7-info.nse -p 102 <host/s>
+-- nmap --script s7-info.nse -p 102 <host/s>
 --
 -- @output
---102/tcp open  Siemens S7 315 PLC
+--102/tcp open  Siemens S7 PLC
 --| s7-info:
 --|   Basic Hardware: 6ES7 315-2AG10-0AB0
 --|   System Name: SIMATIC 300(1)
@@ -131,7 +131,7 @@ local function second_parse_response(response, output)
   if (value == 0x32) then
     -- if the szl-ID is not 0x1c
     if( szl_id ~= 0x1c ) then
-      -- change offset to 4, this is where most ov valid PLCs will fall
+      -- change offset to 4, this is where most of valid PLCs will fall
       offset = 4
     end
     -- parse system name
@@ -184,7 +184,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host, port)
   -- COTP packet with a dst of 102
-  local COTP = bin.pack("H", "0300001611e00000001400c1020100c2020" .. "102" .. "c0010a")
+local COTP = bin.pack("H", "0300001611e00000001400c1020100c2020" .. "102" .. "c0010a")
   -- COTP packet with a dst of 200
   local alt_COTP = bin.pack("H", "0300001611e00000000500c1020100c2020" .. "200" .. "c0010a")
   -- setup the ROSCTR Packet
@@ -213,7 +213,22 @@ action = function(host, port)
   local pos, CC_connect_confirm = bin.unpack("C", response, 6)
   -- if PDU type is not 0xd0, then not a successful COTP connection
   if ( CC_connect_confirm ~= 0xd0) then
-    return nil
+    sock:close()
+    -- create socket for communications
+    stdnse.debug1('S7INFO:: CREATING NEW SOCKET')
+    sock = nmap.new_socket()
+    -- connect to host
+    local constatus, conerr = sock:connect(host, port)
+    if not constatus then
+      stdnse.debug1('Error establishing connection for %s - %s', host, conerr)
+      return nil
+    end
+    response = send_receive(sock, alt_COTP)
+    local pos, CC_connect_confirm = bin.unpack("C", response, 6)
+    if ( CC_connect_confirm ~= 0xd0) then
+      stdnse.debug1('S7 INFO:: Could not negotiate COTP')
+      return nil
+    end
   end
   -- send and receive the ROSCTR Setup Packet
   response  = send_receive(sock, ROSCTR_Setup)
@@ -238,46 +253,6 @@ action = function(host, port)
   response = send_receive(sock, second_SZL_Request)
   -- parse the response for more information
   output = second_parse_response(response, output)
-  -- if nothing was parsed from the previous two responses
-  if(output == nil) then
-    -- re initialize the table
-    output = stdnse.output_table()
-    -- re connect to the device ( a RST packet was sent in the previous attempts)
-    local constatus, conerr = sock:connect(host, port)
-    if not constatus then
-      stdnse.debug1('Error establishing connection for %s - %s', host, conerr)
-      return nil
-    end
-    -- send and receive the alternate COTP Packet, the dst is 200 instead of 102( do nothing with result)
-    response  = send_receive(sock, alt_COTP)
-    local pos, CC_connect_confirm = bin.unpack("C", response, 6)
-    -- if PDU type is not 0xd0, then not a successful COTP connection
-    if ( CC_connect_confirm ~= 0xd0) then
-      stdnse.debug1("Not a successful COTP Packet")
-      return nil
-    end
-    -- send and receive the packets as before.
-    response  = send_receive(sock, ROSCTR_Setup)
-    -- unpack the protocol ID
-    local pos, protocol_id = bin.unpack("C", response, 8)
-    -- if protocol ID is not 0x32 then return nil
-    if ( protocol_id ~= 0x32) then
-      stdnse.debug1("Not a successful S7COMM Packet")
-      return nil
-    end
-    response  = send_receive(sock, Read_SZL)
-    -- unpack the protocol ID
-    local pos, protocol_id = bin.unpack("C", response, 8)
-    -- if protocol ID is not 0x32 then return nil
-    if ( protocol_id ~= 0x32) then
-      stdnse.debug1("Not a successful S7COMM Packet")
-      return nil
-    end
-    response  = send_receive(sock, first_SZL_Request)
-    output = parse_response(response, host, port, "ONE", output)
-    response = send_receive(sock, second_SZL_Request)
-    output = parse_response(response, host, port, "TWO", output)
-  end
   -- close the socket
   sock:close()
 

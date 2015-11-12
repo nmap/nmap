@@ -32,7 +32,7 @@ Reference: http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor
 ---
 
 author = "Patrik Karlsson <patrik@cqure.net>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln"}
 
 local http = require "http"

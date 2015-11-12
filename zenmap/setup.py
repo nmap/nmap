@@ -548,7 +548,7 @@ class my_uninstall(Command):
 # all the operations.
 COMMON_SETUP_ARGS = {
     'name': APP_NAME,
-    'license': 'Nmap License (http://nmap.org/book/man-legal.html)',
+    'license': 'Nmap License (https://nmap.org/book/man-legal.html)',
     'url': APP_WEB_SITE,
     'download_url': APP_DOWNLOAD_SITE,
     'author': 'Nmap Project',

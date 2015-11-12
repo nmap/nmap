@@ -35,7 +35,7 @@ References:
 -- |_      https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_rmi_server.rb
 
 author = "Aleksandar Nikolic";
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html";
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html";
 categories = {
   "intrusive",
   "vuln"

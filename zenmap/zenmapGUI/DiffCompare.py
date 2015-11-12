@@ -302,7 +302,10 @@ class ScanChooser(HIGVBox):
     def get_nmap_output(self):
         """Return the currently selected scan's output as a string, or None if
         no valid scan is selected."""
-        return self.parsed_scan.get_nmap_output()
+        if self.parsed_scan is not None:
+            return self.parsed_scan.get_nmap_output()
+        else:
+            return None
 
     nmap_output = property(get_nmap_output)
     parsed_scan = property(get_parsed_scan)

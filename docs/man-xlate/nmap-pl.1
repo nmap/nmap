@@ -649,7 +649,7 @@ otwarty|filtrowany\&. Nmap będzie się zachowywał w taki sam sposób jak przy 
 \fB\-sI <zombie host[:probeport]>\fR (Skanowanie Idle)
 .RS 4
 Ta zaawansowana technika skanowania pozwala na prawdziwie ślepe skanowanie TCP (co oznacza, że żaden pakiet nie zostanie wysłany do badanego systemu z prawdziwego adresu IP Nmapa)\&. Zamiast tego wykorzystany zostanie host zombie, o przwidywalnym działaniu stosu TCP polegającym na sekwencyjnym powiększaniu numerów ID pakietów, do uzyskania informacji o otwartych portach w badanym systemie\&. Systemy detekcji intruzów pokażą jako adres atakującego zdefiniowany host zombie (musi spełniać określone warunki)\&. Ten fascynujący typ skanowania jest zbyt skomplikowany żeby go dokładnie opisać w tej dokumentacji, dlatego napisałem oddzielny nieformalny dokument na ten temat ze szczegółowymi informacjami i jest on dostępny pod adresem
-\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Poza tym, że metoda ta jest niespotykanie poufna (z powodu jej ślepej natury), ten typ skanowania pozwala na mapowanie reguł zaufania pomiędzy maszynami bazujących na adresach IP\&. Wyniki zawierają otwarte porty,
 \fIz punktu widzenia hosta zombie \fR\&. Tak więc można próbować skanowania z wykorzystaniem różnych hostów zombie, które można traktować jako zaufane (poprzez router/reguły filtrowania pakietów)\&.
@@ -1117,7 +1117,7 @@ itp\&.
 \fB\-\-badsum\fR (Wysyłanie pakietów z nieprawidłową sumą kontrolną TCP/UDP)
 .RS 4
 Powoduje wstawianie do nagłówków wysyłanych pakietów nieprawidłowych sum kontrolnych\&. Jako że prawie każdy stos IP odrzuci tego typu pakiety, otrzymana odpowiedź najprawdopodobniej pochodzi od systemu zaporowego lub IDS, które nie przejmują się sumami kontrolnymi\&. Dokładniejszy opis tej techniki znajduje się pod adresem
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "WYJśCIE"
 .PP

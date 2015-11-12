@@ -1478,7 +1478,7 @@ sondeo SYN si no se especifica ningún tipo base.</para>
           referencia por lo que escribí y publiqué un documento
           informal que contiene todos los detalles, el documento está
           disponible en <ulink
-          url="http://nmap.org/book/idlescan.html"/>.</para>
+          url="https://nmap.org/book/idlescan.html"/>.</para>
 
           <para>Además de ser extraordinariamente sigiloso (debido a
           su funcionamiento a ciegas), este tipo de sondeo permite
@@ -2739,7 +2739,7 @@ hacen.</para>
 	  o un IDS que no comprobó la suma, dado que la mayoría de las pilas IP
 	  descartan estos paquetes. Para obtener más información de esta
 	  técnica puede consultar <ulink
-	  url="http://nmap.org/p60-12.txt"/></para>
+	  url="https://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
 

@@ -34,7 +34,7 @@ Link:
 --     if the http code is 200 (ok), proceed. (thanks to Tom Sellers who has reported this lack of check)
 
 author = "Ange Gutek, Rob Nicholls"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 

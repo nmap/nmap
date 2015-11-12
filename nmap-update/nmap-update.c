@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
 UPDATE CHANNEL %s HAS EXPIRED:\n\
 \n\
 The channel %s has expired and won't receive any more\n\
-updates.  Visit http://nmap.org for a newer Nmap release with \n\
+updates.  Visit https://nmap.org for a newer Nmap release with \n\
 supported updates.\n\
 ", successful_channel, successful_channel);
 	}

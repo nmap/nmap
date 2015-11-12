@@ -271,5 +271,7 @@ int getaddrinfo(const char *node, const char *service,
 const char *gai_strerror(int errcode);
 #endif
 
+int sockaddr_storage_inet_pton(const char * ip_str, struct sockaddr_storage * addr);
+const char *sockaddr_storage_iptop(const struct sockaddr_storage * addr, char * dst);
 
 #endif /* NBASE_IPV6_H */

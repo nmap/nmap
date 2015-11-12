@@ -37,7 +37,7 @@
     <indexterm significance="normal"><primary>Nmap</primary><secondary>description of</secondary></indexterm>
     <web>
     <note><para>Dokumen ini menjelaskan versi Nmap terakhir
-    yang tersedia di <ulink url="http://nmap.org/download.html"/> atau <ulink url="http://nmap.org/dist/?C=M&amp;O=D"/>.  Mohon
+    yang tersedia di <ulink url="https://nmap.org/download.html"/> atau <ulink url="https://nmap.org/dist/?C=M&amp;O=D"/>.  Mohon
     pastikan bahwa anda menggunakan versi terakhir sebelum melaporkan sebuah fitur
     tidak berfungsi sebagaimana yang dijelaskan..</para></note>
     </web>
@@ -96,7 +96,7 @@
 <screen format="linespecific">
 # nmap -A -T4 scanme.nmap.org
 
-Starting Nmap ( http://nmap.org )
+Starting Nmap ( https://nmap.org )
 Interesting ports on scanme.nmap.org (64.13.134.52):
 Not shown: 994 filtered ports
 PORT    STATE  SERVICE VERSION
@@ -122,8 +122,8 @@ Nmap done: 1 IP address (1 host up) scanned in 17.00 seconds
 </screen>
 </example>
 
-<para>Versi terbaru Nmap dapat diperoleh dari <ulink url="http://nmap.org"/>.  Versi terbaru man page
-tersedia di <ulink url="http://nmap.org/book/man.html"/>.</para>
+<para>Versi terbaru Nmap dapat diperoleh dari <ulink url="https://nmap.org"/>.  Versi terbaru man page
+tersedia di <ulink url="https://nmap.org/book/man.html"/>.</para>
 
   </refsect1>
 
@@ -132,7 +132,7 @@ tersedia di <ulink url="http://nmap.org/book/man.html"/>.</para>
 
   <para>Edisi bahasa Indonesia Nmap Reference Guide ini
   diterjemahkan dari versi [12855] <ulink
-  url="http://nmap.org/book/man.html">versi Inggris</ulink> 
+  url="https://nmap.org/book/man.html">versi Inggris</ulink> 
   oleh Tedi Heriyanto.  Meskipun kami berharap bahwa hal ini akan
   membuat Nmap lebih dapat diakses oleh para pengguna bahasa Indonesia di seluruh dunia, 
   namun kami tidak dapat menjamin bahwa terjemahanan ini lengkap atau
@@ -147,7 +147,7 @@ tersedia di <ulink url="http://nmap.org/book/man.html"/>.</para>
 
 <para>Ringkasan opsi ini ditampilkan ketika Nmap dijalankan
 tanpa argumen, dan versi terakhir selalu tersedia di
-<ulink url="http://nmap.org/data/nmap.usage.txt"/>.
+<ulink url="https://nmap.org/data/nmap.usage.txt"/>.
 Ia membantu mengingat opsi-opsi umum, namun ia bukanlah
 pengganti dokumentasi lengkap dalam halaman-halaman berikut manual ini. 
 Bahkan beberapa opsi tersembunyi tidak disertakan di sini.</para>
@@ -157,7 +157,7 @@ Bahkan beberapa opsi tersembunyi tidak disertakan di sini.</para>
 <indexterm class="startofrange" id="nmap-usage-indexterm" significance="normal"><primary sortas="#">summary of options</primary></indexterm>
 <indexterm class="startofrange" id="nmap-usage-nmap-indexterm" significance="normal"><primary>command-line options</primary><secondary>of Nmap</secondary></indexterm>
 <?dbfo-need height="1in"?>
-<literallayout format="linespecific" class="normal">Nmap 4.85BETA7 ( http://nmap.org )
+<literallayout format="linespecific" class="normal">Nmap 4.85BETA7 ( https://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -262,7 +262,7 @@ EXAMPLES:
   nmap -v -A scanme.nmap.org
   nmap -v -sP 192.168.0.0/16 10.0.0.0/8
   nmap -v -iR 10000 -PN -p 80
-SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
+SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 </literallayout>
 
 <indexterm class="endofrange" startref="nmap-usage-nmap-indexterm" significance="normal"/>
@@ -1419,7 +1419,7 @@ Jika anda tidak menspesifikasikan tipe dasar, akan digunakan SYN scan.</para>
           <man>
           Jenis scan menarik ini terlalu kompleks untuk dijelaskan dalam panduan
           referensi ini, sehingga saya menulis dan menaruh paper informal dengan
-          detil penuh di <ulink url="http://nmap.org/book/idlescan.html"/>.
+          detil penuh di <ulink url="https://nmap.org/book/idlescan.html"/>.
           </man>
           <notman>
           Full details of this fascinating scan type are in
@@ -1726,7 +1726,7 @@ sysadmin mungkin tidak akan menghargai anda menggunakan server mereka dengan car
     <man>
     Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi
     deteksi versi tersedia di
-    <ulink url="http://nmap.org/book/vscan.html"/>.
+    <ulink url="https://nmap.org/book/vscan.html"/>.
     </man>
     <notman>
     Deteksi versi dijelaskan secara rinci dalam <xref linkend="vscan"/>.
@@ -1923,7 +1923,7 @@ sysadmin mungkin tidak akan menghargai anda menggunakan server mereka dengan car
     <man>
     Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi deteksi SO
     tersedia di
-    <ulink url="http://nmap.org/book/osdetect.html"/>.
+    <ulink url="https://nmap.org/book/osdetect.html"/>.
     </man>
     <notman>
     Deteksi SO dibahas dalam <xref linkend="osdetect"/>.
@@ -2025,12 +2025,12 @@ sysadmin mungkin tidak akan menghargai anda menggunakan server mereka dengan car
     Untuk mencerminkan penggunaan yang berbeda dan untuk memudahkan pilihan skrip
     yang diinginkan, setiap skrip berisi field yang mengasosiasikannya dengan satu atau lebih kategori.  Kategori yang ada saat ini adalah
 <literal moreinfo="none">safe</literal>, <literal moreinfo="none">intrusive</literal>, <literal moreinfo="none">malware</literal>, <literal moreinfo="none">version</literal>, <literal moreinfo="none">discovery</literal>, <literal moreinfo="none">vuln</literal>, <literal moreinfo="none">auth</literal>, and <literal moreinfo="none">default</literal>.  These are all described
-    <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories"/>.</man>
+    <man>at <ulink url="https://nmap.org/book/nse-usage.html#nse-categories"/>.</man>
     <notman>in <xref linkend="nse-categories"/>.</notman></para>
 
     
     <para>Nmap Scripting Engine dijelaskan lebih rinci
-<man>di <ulink url="http://nmap.org/book/nse.html"/></man>
+<man>di <ulink url="https://nmap.org/book/nse.html"/></man>
 <notman>in <xref linkend="nse"/></notman> dan dikendalikan oleh opsi-opsi berikut ini:</para>
 
 	<variablelist>
@@ -2076,7 +2076,7 @@ Jika diberikan nama file individual, ekstensi file tidak perlu harus
 
 <para>Skrip Nmap secara baku disimpan dalam subdirektori <filename moreinfo="none">scripts</filename>
 direktori data Nmap
-<man>(lihat <ulink url="http://nmap.org/book/data-files.html"/>).</man>
+<man>(lihat <ulink url="https://nmap.org/book/data-files.html"/>).</man>
 <notman>(see <xref linkend="data-files"/>).</notman> Demi efisiensi,
 skrip diindeks dalam database yang disimpan dalam
 <filename moreinfo="none">scripts/script.db</filename>.<indexterm significance="normal"><primary><filename moreinfo="none">script.db</filename></primary></indexterm>
@@ -3004,7 +3004,7 @@ mendukung opsi secara penuh, demikian pula scan UDP.</para>
   paket yang dikirimkan ke host target.  Karena secara virtual seluruh
   stack IP host akan secara tepat men-drop paket ini, sembarang respon yang diterima
   adalah kemungkinan berasal dari firewall atau IDS yang tidak peduli untuk memverifikasi
-  checksum.  Detil lebih lanjut mengenai teknik ini, dapat dilihat pada <ulink url="http://nmap.org/p60-12.html"/></para>
+  checksum.  Detil lebih lanjut mengenai teknik ini, dapat dilihat pada <ulink url="https://nmap.org/p60-12.html"/></para>
         </listitem>
       </varlistentry>
 
@@ -3135,7 +3135,7 @@ file output daripada menghapusnya.  Seluruh opsi ini dijelaskan di bawah.</para>
           ia dapat juga membantu manusia menginterpretasikan output XML Nmap.
           DTD mendefinisikan elemen legal format, dan seringkali merinci atribut
           dan nilai yang dapat mereka terima.
-          Versi terakhir selalu tersedia di <ulink url="http://nmap.org/data/nmap.dtd"/>.</para>
+          Versi terakhir selalu tersedia di <ulink url="https://nmap.org/data/nmap.dtd"/>.</para>
 
           <para>XML memberikan format stabil yang dapat secara mudah
           diparse oleh software. Parser XML yang bebas tersedia untuk bahasa
@@ -3221,7 +3221,7 @@ info</literal>, dan <literal moreinfo="none">Version info</literal>.</para>
 
 <para>Sebagaimana dengan output XML, man page ini tidak memungkinkan untuk mendokumentasi
 seluruh format.  Rincian lebih lanjut mengenai format output grepable Nmap tersedia 
-<man>dari <ulink url="http://nmap.org/book/output-formats-grepable-output.html"/>.</man>
+<man>dari <ulink url="https://nmap.org/book/output-formats-grepable-output.html"/>.</man>
 <notman>dalam <xref linkend="output-formats-grepable-output"/>.</notman>
 </para>
         </listitem>
@@ -3511,7 +3511,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
           <option>--stylesheet</option>.  Anda harus memberikan nama path atau URL lengkap.
           Cara pemanggilan umum adalah
           <option>--stylesheet
-          http://nmap.org/data/nmap.xsl</option>.  Cara ini memberitahu
+          https://nmap.org/data/nmap.xsl</option>.  Cara ini memberitahu
           browser untuk memuat versi terakhir stylesheet dari Nmap.Org.  
 	  Opsi <option>--webxml</option> melakukan hal yang sama dengan cara yang lebih singkat.
           Memuatkan XSL dari Nmap.Org memudahkan melihat hasil pada mesin yang tidak memiliki
@@ -3530,7 +3530,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
         <listitem>
 
           <para>Opsi kenyamanan ini adalah sekedar alias bagi
-          <option significance="preferred">--stylesheet http://nmap.org/data/nmap.xsl</option>.</para>
+          <option significance="preferred">--stylesheet https://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -3961,7 +3961,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
     <para>Seperti penulisnya, Nmap tidaklah sempurna.  Namun anda dapat membantu
     membuatnya lebih baik dengan mengirimkan laporan bug atau bahkan menulis patch. Jika
     Nmap tidak berlaku sesuai yang anda harapkan, pertama upgrade ke versi terakhir
-    yang tersedia dari <ulink url="http://nmap.org"/>.  Jika masalah masih tetap,
+    yang tersedia dari <ulink url="https://nmap.org"/>.  Jika masalah masih tetap,
     lakukan riset untuk menentukan apakah ia telah ditemukan dan diselesaikan.
     Cobalah mencari pesan kesalahan pada halaman pencarian kami <ulink url="http://insecure.org/search.html"/> atau di Google.  Juga cobalah
     membrowsing arsip <citetitle>nmap-dev</citetitle> di <ulink url="http://seclists.org/"/>.<indexterm significance="normal"><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
@@ -3973,11 +3973,11 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
     <email>dev@nmap.org</email> akan lebih mungkin dijawab daripada yang dikirimkan
     secara langsung ke Fyodor.  Jika anda berlangganan ke list nmap-dev
     sebelum posting, pesan anda akan melewati moderasi dan akan lewat dengan lebih cepat.
-    Berlangganan di <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
+    Berlangganan di <ulink url="https://nmap.org/mailman/listinfo/dev"/>.</para>
 
     <para>Patch code untuk memperbaiki bug adalah lebih baik daripada laporan kesalahan.
     Instruksi dasar untuk membuat file patch dengan perubahan anda tersedia di
-    <ulink url="http://nmap.org/data/HACKING"/>.  Patch dapat dikirim ke 
+    <ulink url="https://nmap.org/data/HACKING"/>.  Patch dapat dikirim ke 
     <citetitle>nmap-dev</citetitle> (direkomendasikan) atau langsun ke Fyodor.</para>
   </refsect1>
 
@@ -3992,7 +3992,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
     Hal ini dirinci dalam file
     <filename moreinfo="none">CHANGELOG</filename><indexterm significance="normal"><primary>changelog</primary></indexterm>
     yang didistribusikan bersama Nmap
-    dan juga tersedia dari <ulink url="http://nmap.org/changelog.html"/>.</para>
+    dan juga tersedia dari <ulink url="https://nmap.org/changelog.html"/>.</para>
 
   </refsect1>
 
@@ -4003,7 +4003,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
   <title>Unofficial Translation Disclaimer / Disklaimer Terjemahan Tidak Resmi</title>
 
   <para>This is an unnofficial translation of the <ulink
-  url="http://nmap.org/book/man-legal.html">Nmap
+  url="https://nmap.org/book/man-legal.html">Nmap
   license details</ulink> into Indonesian.  It was not written by
   Insecure.Com LLC, and does not legally state the distribution terms
   for Nmap -- only the original English text does that.  However, we
@@ -4011,7 +4011,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
   Nmap license better.</para>
 
 <para>Ini merupakan terjemahan tidak resmi dari <ulink
-  url="http://nmap.org/book/man-legal.html">Nmap
+  url="https://nmap.org/book/man-legal.html">Nmap
   license details</ulink> ke dalam bahasa Indonesia.  Ia tidak ditulis oleh
   Insecure.Com LLC, dan tidak secara legal menyatakan syarat distribusi
   untuk Nmap -- hanya teks berbahasa Inggris aslinya yang melakukan hal itu.

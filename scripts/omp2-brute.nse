@@ -20,7 +20,7 @@ Performs brute force password auditing against the OpenVAS manager using OMPv2.
 --
 
 author = "Henri Doreau"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 

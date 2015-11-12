@@ -32,8 +32,8 @@
     <web>
     <note><para>This document describes the very latest version of
     Nmap available from <ulink
-    url="http://nmap.org/download.html" /> or <ulink
-    url="http://nmap.org/dist/?C=M&amp;O=D" />.  Please
+    url="https://nmap.org/download.html" /> or <ulink
+    url="https://nmap.org/dist/?C=M&amp;O=D" />.  Please
     ensure you are using the latest version before reporting that a
     feature doesn't work as described.</para></note>
     </web>
@@ -129,9 +129,9 @@ Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
 
 <!-- This para is a bit jumbled together for man page rendering reasons -->
 <para>The newest version of Nmap can be obtained from
-<ulink url="http://nmap.org" />.  The newest version of this man page
-is available at <ulink url="http://nmap.org/book/man.html"/>.
-<notbook>It is also included as a chapter of <web><ulink url="http://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="http://nmap.org/book/"/>).</notweb></notbook>
+<ulink url="https://nmap.org" />.  The newest version of this man page
+is available at <ulink url="https://nmap.org/book/man.html"/>.
+<notbook>It is also included as a chapter of <web><ulink url="https://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="https://nmap.org/book/"/>).</notweb></notbook>
 </para>
 
   </refsect1>
@@ -650,7 +650,7 @@ you would expect.</para>
           packet will be empty, though some use a protocol-specific
           payload that is more likely to elicit a
           response.
-<man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
+<man>The payload database is described at <ulink url="https://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
 <indexterm><primary>protocol-specific
 payloads</primary><secondary>UDP</secondary></indexterm>. Packet
@@ -1197,7 +1197,7 @@ response. A SYN/ACK indicates the port is listening (open), while a
 RST (reset) is indicative of a non-listener. If no response is
 received after several retransmissions, the port is marked as
 filtered.  The port is also marked filtered if an ICMP unreachable
-error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is received.  The port is also considered open if a SYN packet (without the ACK flag) is received in response.  This can be due to an extremely rare TCP feature known as a simultaneous open or split handshake connection (see <ulink url="http://nmap.org/misc/split-handshake.pdf"/>).</para>
+error (type 3, code 0, 1, 2, 3, 9, 10, or 13) is received.  The port is also considered open if a SYN packet (without the ACK flag) is received in response.  This can be due to an extremely rare TCP feature known as a simultaneous open or split handshake connection (see <ulink url="https://nmap.org/misc/split-handshake.pdf"/>).</para>
 
         </listitem>
       </varlistentry>
@@ -1580,7 +1580,7 @@ in both cases.</para>
           <man>
           This fascinating scan type is too complex to fully describe in this
           reference guide, so I wrote and posted an informal paper with full
-          details at <ulink url="http://nmap.org/book/idlescan.html" />.
+          details at <ulink url="https://nmap.org/book/idlescan.html" />.
           </man>
           <notman>
           Full details of this fascinating scan type are in
@@ -1929,7 +1929,7 @@ way.</para>
     <man>
     A paper documenting the workings, usage, and customization of version
     detection is available at
-    <ulink url="http://nmap.org/book/vscan.html" />.
+    <ulink url="https://nmap.org/book/vscan.html" />.
     </man>
     <notman>
     Version detection is described in detail in <xref linkend="vscan"/>.
@@ -2141,7 +2141,7 @@ way.</para>
     <man>
     A paper documenting the workings, usage, and customization of OS
     detection is available at
-    <ulink url="http://nmap.org/book/osdetect.html" />.
+    <ulink url="https://nmap.org/book/osdetect.html" />.
     </man>
     <notman>
     OS detection is covered in <xref linkend="osdetect"/>.
@@ -2264,7 +2264,7 @@ way.</para>
     <literal>version</literal>, and
     <literal>vuln</literal>.
     These are all described
-    <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
+    <man>at <ulink url="https://nmap.org/book/nse-usage.html#nse-categories" />.</man>
     <notman>in <xref linkend="nse-categories"/>.</notman></para>
 
     <para>
@@ -2275,7 +2275,7 @@ way.</para>
     </para>
     
     <para>The Nmap Scripting Engine is described in detail
-<man>at <ulink url="http://nmap.org/book/nse.html" /></man>
+<man>at <ulink url="https://nmap.org/book/nse.html" /></man>
 <notman>in <xref linkend="nse"/></notman> and is controlled by the following options:</para>
 
 	<variablelist>
@@ -2353,7 +2353,7 @@ it will be added automatically if necessary.
 
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory by default
-<man>(see <ulink url="http://nmap.org/book/data-files.html"/>).</man>
+<man>(see <ulink url="https://nmap.org/book/data-files.html"/>).</man>
 <notman>(see <xref linkend="data-files"/>).</notman>
 For efficiency, scripts are indexed in
 a database stored
@@ -2455,7 +2455,7 @@ special case; in all other cases a backslash is interpreted literally. Values
 may also be tables enclosed in <literal>{}</literal>, just as in Lua. A table
 may contain simple string values or more name-value pairs, including nested
 tables.  Many scripts qualify their arguments with the script name, as in <literal>xmpp-info.server_name</literal>.  You may use that full qualified version to affect just the specified script, or you may pass the unqualified version (<literal>server_name</literal> in this case) to affect all scripts using that argument name.  A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name.  A complex example of script arguments is
-<option>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</option>.  The online NSE Documentation Portal at <ulink url="http://nmap.org/nsedoc/"/>
+<option>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</option>.  The online NSE Documentation Portal at <ulink url="https://nmap.org/nsedoc/"/>
 lists the arguments that each script accepts.
 </para>
 </listitem>
@@ -3562,7 +3562,7 @@ work properly.</para>
   host IP stacks properly drop these packets, any responses received
   are likely coming from a firewall or IDS that didn't bother to
   verify the checksum.  For more details on this technique, see <ulink
-  url="http://nmap.org/p60-12.html"/></para>
+  url="https://nmap.org/p60-12.html"/></para>
         </listitem>
       </varlistentry>
 
@@ -3812,7 +3812,7 @@ info</literal>, and <literal>Version info</literal>.</para>
 <para>As with XML output, this man page does not allow for documenting
 the entire format.  A more detailed look at the Nmap grepable output
 format is available
-<man>from <ulink url="http://nmap.org/book/output-formats-grepable-output.html" />.</man>
+<man>from <ulink url="https://nmap.org/book/output-formats-grepable-output.html" />.</man>
 <notman>in <xref linkend="output-formats-grepable-output"/>.</notman>
 </para>
         </listitem>
@@ -4095,7 +4095,7 @@ hosts with at least one
           <option>--stylesheet</option>.  You must pass the full
           pathname or URL.  One common invocation is
           <option>--stylesheet
-          http://nmap.org/svn/docs/nmap.xsl</option>.  This
+          https://nmap.org/svn/docs/nmap.xsl</option>.  This
           tells an XSLT processor to load the latest version of the stylesheet
           from Nmap.Org.  The <option>--webxml</option> option
           does the same thing with less typing and memorization.
@@ -4115,7 +4115,7 @@ hosts with at least one
         <listitem>
 
           <para>This is a convenience option, nothing more than an alias for
-          <option significance="preferred">--stylesheet http://nmap.org/svn/docs/nmap.xsl</option>.</para>
+          <option significance="preferred">--stylesheet https://nmap.org/svn/docs/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -4562,7 +4562,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     quickly solve real-world tasks.  For that, we
     released <notweb><citetitle>Nmap Network Scanning: The Official
     Nmap Project Guide to Network Discovery and Security
-    Scanning</citetitle>.</notweb><web><ulink url="http://nmap.org/book/"><citetitle>Nmap
+    Scanning</citetitle>.</notweb><web><ulink url="https://nmap.org/book/"><citetitle>Nmap
     Network Scanning: The Official Nmap Project Guide to Network
     Discovery and Security Scanning</citetitle></ulink>.</web> Topics
     include subverting firewalls and intrusion detection systems,
@@ -4572,7 +4572,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     penetration testing, detecting rogue wireless access points, and
     quashing network worm outbreaks.  Examples and diagrams show
     actual communication on the wire.  More than half of the book is
-    available free online.  See <ulink url="http://nmap.org/book"/>
+    available free online.  See <ulink url="https://nmap.org/book"/>
     for more information.</para>
 
 </refsect1>
@@ -4586,7 +4586,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     it better by sending bug reports or even writing patches.  If Nmap
     doesn't behave the way you expect, first upgrade to the latest
     version available from <ulink
-    url="http://nmap.org"/>.  If the problem persists,
+    url="https://nmap.org"/>.  If the problem persists,
     do some research to determine whether it has already been
     discovered and addressed.  Try searching for the error message on our search page at <ulink url="http://insecure.org/search.html"/> or at Google.  Also try
     browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
@@ -4600,7 +4600,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     <email>dev@nmap.org</email> are far more likely to be answered than
     those sent to Fyodor directly.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
-    through more quickly.  Subscribe at <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
+    through more quickly.  Subscribe at <ulink url="https://nmap.org/mailman/listinfo/dev"/>.</para>
 
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are
@@ -4621,7 +4621,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     <filename>CHANGELOG</filename><indexterm><primary>changelog</primary></indexterm>
     file which is distributed with Nmap
     and also available from <ulink
-    url="http://nmap.org/changelog.html" />.</para>
+    url="https://nmap.org/changelog.html" />.</para>
 
   </refsect1>
 

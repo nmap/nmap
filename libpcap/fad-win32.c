@@ -49,6 +49,8 @@ pcap_add_if_win32(pcap_if_t **devlist, char *name, const char *desc,
 	npf_if_addr if_addrs[MAX_NETWORK_ADDRESSES];
 	LONG if_addr_size;
 	int res = 0;
+  HANDLE pcapMutex;
+  DWORD wait;
 
 	if_addr_size = MAX_NETWORK_ADDRESSES;
 
@@ -65,6 +67,8 @@ pcap_add_if_win32(pcap_if_t **devlist, char *name, const char *desc,
 	/*
 	 * Get the list of addresses for the interface.
 	 */
+  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+  wait = WaitForSingleObject(pcapMutex, INFINITE);
 	if (!PacketGetNetInfoEx((void *)name, if_addrs, &if_addr_size)) {
 		/*
 		 * Failure.
@@ -75,8 +79,16 @@ pcap_add_if_win32(pcap_if_t **devlist, char *name, const char *desc,
 		 *
 		 * We return an entry with an empty address list.
 		 */
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 		return (0);
 	}
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 
 	/*
 	 * Now add the addresses.
@@ -127,6 +139,11 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 	char *AdaptersName;
 	ULONG NameLength;
 	char *name;
+  HANDLE pcapMutex;
+  DWORD wait;
+	
+  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+  wait = WaitForSingleObject(pcapMutex, INFINITE);
 
 	/*
 	 * Find out how big a buffer we need.
@@ -149,6 +166,10 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 	if (!PacketGetAdapterNames(NULL, &NameLength))
 	{
 		DWORD last_error = GetLastError();
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 
 		if (last_error != ERROR_INSUFFICIENT_BUFFER)
 		{
@@ -158,6 +179,10 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 			return (-1);
 		}
 	}
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 
 	if (NameLength > 0)
 		AdaptersName = (char*) malloc(NameLength);
@@ -172,13 +197,23 @@ pcap_findalldevs_interfaces(pcap_if_t **alldevsp, char *errbuf)
 		return (-1);
 	}
 
+  pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
+  wait = WaitForSingleObject(pcapMutex, INFINITE);
 	if (!PacketGetAdapterNames(AdaptersName, &NameLength)) {
 		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			"PacketGetAdapterNames: %s",
 			pcap_win32strerror());
 		free(AdaptersName);
+    if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+      ReleaseMutex(pcapMutex);
+    }
+    CloseHandle(pcapMutex);
 		return (-1);
 	}
+  if (wait == WAIT_ABANDONED || wait == WAIT_OBJECT_0) {
+    ReleaseMutex(pcapMutex);
+  }
+  CloseHandle(pcapMutex);
 
 	/*
 	 * "PacketGetAdapterNames()" returned a list of

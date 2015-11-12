@@ -2,6 +2,7 @@ local anyconnect = require('anyconnect')
 local shortport = require('shortport')
 local vulns = require('vulns')
 local sslcert = require('sslcert')
+local stdnse = require "stdnse"
 
 description = [[
 Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SSL VPN
@@ -28,7 +29,7 @@ Authentication Bypass Vulnerability (CVE-2014-2128).
 -- |_      http://cvedetails.com/cve/2014-2128/
 
 author = "Patrik Karlsson <patrik@cqure.net>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = function(host, port)
@@ -71,7 +72,7 @@ The SSL VPN implementation in Cisco Adaptive Security Appliance (ASA) Software 8
   local ac = anyconnect.Cisco.AnyConnect:new(host, port)
   local status, err = ac:connect()
   if not status then
-    return ("\n  ERROR: %s"):format(err)
+    return stdnse.format_output(false, err)
   else
     local ver = ac:get_version()
     if vuln_versions[ver['major']] and vuln_versions[ver['major']][ver['minor']] then

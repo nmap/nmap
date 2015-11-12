@@ -122,8 +122,7 @@ static void proxy_socks4_node_delete(struct proxy_node *node) {
   if (!node)
     return;
 
-  if (node->nodestr)
-    free(node->nodestr);
+  free(node->nodestr);
 
   free(node);
 }

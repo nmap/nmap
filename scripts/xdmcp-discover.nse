@@ -22,14 +22,14 @@ Requests an XDMCP (X display manager control protocol) session and lists support
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
 
 portrule = shortport.port_or_service(177, "xdmcp", "udp")
 
 local mutex = nmap.mutex("xdmcp-discover")
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 
 action = function(host, port)

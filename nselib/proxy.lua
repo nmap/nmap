@@ -2,7 +2,7 @@
 -- Functions for proxy testing.
 --
 -- @author Joao Correa <joao@livewire.com.br>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"
 local dns = require "dns"

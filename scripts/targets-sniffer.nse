@@ -38,7 +38,7 @@ argument or <code>-e</code> Nmap option to define which interface to use.
 
 author = "Nick Nikolaou"
 categories = {"broadcast", "discovery", "safe"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 
 local interface_info

@@ -50,12 +50,14 @@ Retrieves a list of tables and column definitions for each database on an Inform
 -- Created 27/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 dependencies = { "informix-brute" }
 
 
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
+
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function( host, port )
   local helper
@@ -77,7 +79,7 @@ action = function( host, port )
       user = nmap.registry['informix-brute'][1]["username"]
       pass = nmap.registry['informix-brute'][1]["password"]
     else
-      return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
+      return fail("No credentials specified (see informix-table.username and informix-table.password)")
     end
   end
 
@@ -94,7 +96,7 @@ action = function( host, port )
   local databases
   status, databases = helper:GetDatabases()
   if ( not(status) ) then
-    return "  \n  ERROR: Failed to retrieve a list of databases"
+    return fail("Failed to retrieve a list of databases")
   end
 
   for _, db in ipairs(databases) do

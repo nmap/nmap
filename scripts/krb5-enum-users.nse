@@ -44,7 +44,7 @@ It needs a valid Kerberos REALM in order to operate.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
 
@@ -360,6 +360,8 @@ local function checkUserThread( host, port, realm, user, result )
   condvar "signal"
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function( host, port )
 
   local realm = stdnse.get_script_args("krb5-enum-users.realm")
@@ -368,17 +370,17 @@ action = function( host, port )
 
   -- did the user supply a realm
   if ( not(realm) ) then
-    return "ERROR: No Kerberos REALM was supplied, aborting ..."
+    return fail("No Kerberos REALM was supplied, aborting ...")
   end
 
   -- does the realm appear to exist
   if ( not(isValidRealm(host, port, realm)) ) then
-    return "ERROR: Invalid Kerberos REALM, aborting ..."
+    return fail("Invalid Kerberos REALM, aborting ...")
   end
 
   -- load our user database from unpwdb
   local status, usernames = unpwdb.usernames()
-  if( not(status) ) then return "ERROR: Failed to load unpwdb usernames" end
+  if( not(status) ) then return fail("Failed to load unpwdb usernames") end
 
   -- start as many threads as there are names in the list
   local threads = {}

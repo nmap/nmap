@@ -35,7 +35,7 @@ enabled. User-supplied arguments are not supported.
 -- |_check_zombie_procs  OK        PROCS OK: 0 processes with STATE = Z
 
 author = "Mak Kolybabi"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 

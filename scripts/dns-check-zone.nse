@@ -48,7 +48,7 @@ of different tests.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
 local arg_domain = stdnse.get_script_args(SCRIPT_NAME .. '.domain')

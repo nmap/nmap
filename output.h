@@ -168,6 +168,7 @@
 #endif
 #include <nsock.h>
 class PortList;
+class Target;
 
 #include <stdarg.h>
 #include <string>

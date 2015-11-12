@@ -278,7 +278,7 @@ end
 -- Return a pattern which matches a "keyword" literal, case insensitive.
 local function K (a)
   local insensitize = Cf((P(1) / function (a) return S(lower(a)..upper(a)) end)^1, function (a, b) return a * b end);
-  return assert(insensitize:match(a)) * -(locale().alnum + P "_"); -- "keyword" token
+  return assert(insensitize:match(a)) * #(V "space" + S"()," + P(-1)); -- "keyword" token
 end
 
 local REQUIRE_ERROR = {};
@@ -1194,7 +1194,7 @@ do
       value = V "table" + V "string";
       string = V "qstring" + V "uqstring";
       qstring = U.escaped_quote('"') + U.escaped_quote("'");
-      uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",}=")^0) * V "space"^0; -- everything but ',}=', do not capture final space
+      uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",{}=")^0) * V "space"^0; -- everything but ',{}=', do not capture final space
     };
     parser = assert(P(parser));
     nmap.registry.args = parser:match("{"..args.."}");

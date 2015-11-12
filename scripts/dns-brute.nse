@@ -62,7 +62,7 @@ try to enumerate common DNS SRV records.
 
 author = "Cirrus"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "discovery"}
 

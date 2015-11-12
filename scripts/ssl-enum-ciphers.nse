@@ -129,7 +129,7 @@ and therefore is quite noisy.
 
 author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 
@@ -149,20 +149,22 @@ end
 local function get_record_iter(sock)
   local buffer = ""
   local i = 1
+  local fragment
   return function ()
     local record
-    i, record = tls.record_read(buffer, i)
+    i, record = tls.record_read(buffer, i, fragment)
     if record == nil then
       local status, err
       status, buffer, err = tls.record_buffer(sock, buffer, i)
       if not status then
         return nil, err
       end
-      i, record = tls.record_read(buffer, i)
+      i, record = tls.record_read(buffer, i, fragment)
       if record == nil then
         return nil, "done"
       end
     end
+    fragment = record.fragment
     return record
   end
 end
@@ -526,7 +528,15 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                       scores.warnings["Weak certificate signature: SHA1"] = true
                     end
                     kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
-                    extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
+                    if c.pubkey.ecdhparams then
+                      if c.pubkey.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
+                        extra = c.pubkey.ecdhparams.curve_params.curve
+                      else
+                        extra = string.format("%s %d", c.pubkey.ecdhparams.curve_params.ec_curve_type, c.pubkey.bits)
+                      end
+                    else
+                      extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
+                    end
                   end
                 end
               end
@@ -540,7 +550,15 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                     scores.warnings["Key exchange parameters of lower strength than certificate key"] = true
                   end
                   kex_strength = kex_strength or rsa_bits
-                  extra = string.format("%s %d", kex.type, kex_info.strength)
+                  if kex_info.ecdhparams then
+                    if kex_info.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
+                      extra = kex_info.ecdhparams.curve_params.curve
+                    else
+                      extra = string.format("%s %d", kex_info.ecdhparams.curve_params.ec_curve_type, kex_info.strength)
+                    end
+                  else
+                    extra = string.format("%s %d", kex.type, kex_info.strength)
+                  end
                 end
               end
             end

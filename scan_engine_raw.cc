@@ -1796,7 +1796,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
               newstate = PORT_UNFILTERED;
             } else newstate = PORT_CLOSED;
           } else if (USI->scantype == SYN_SCAN && (tcp->th_flags & TH_SYN)) {
-            /* A SYN from a TCP Split Handshake - http://nmap.org/misc/split-handshake.pdf - open port */
+            /* A SYN from a TCP Split Handshake - https://nmap.org/misc/split-handshake.pdf - open port */
             newstate = PORT_OPEN;
             current_reason = ER_SYN;
           } else {

@@ -28,7 +28,7 @@ Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes with 
 -- </table>
 
 author = "Toni Ruottu"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service (4369, "epmd")

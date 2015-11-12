@@ -32,7 +32,7 @@ accepts a shell command as its argument.
 -- |_
 
 author = "Aleksandar Nikolic"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","intrusive"}
 
 portrule = function(host, port)

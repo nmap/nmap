@@ -34,7 +34,7 @@ types:
 -- </table>
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
 portrule = shortport.port_or_service({1080, 9050}, {"socks", "socks5", "tor-socks"})

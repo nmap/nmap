@@ -286,6 +286,7 @@ int main(int argc, char *argv[])
         {"source-port",     required_argument,  NULL,         'p'},
         {"source",          required_argument,  NULL,         's'},
         {"send-only",       no_argument,        &o.sendonly,  1},
+        {"no-shutdown",     no_argument,        &o.noshutdown,1},
         {"broker",          no_argument,        NULL,         0},
         {"chat",            no_argument,        NULL,         0},
         {"talk",            no_argument,        NULL,         0},

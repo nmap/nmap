@@ -25,7 +25,7 @@ extension number.
 -- |_  data_source: IPOFFICE/7.0(27) xxx.xxx.xxx.xxx
 
 author = "Paulino Calderon <calderon@websec.mx>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln"}
 
 local http = require "http"

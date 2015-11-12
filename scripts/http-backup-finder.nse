@@ -40,7 +40,7 @@ It does so by requesting a number of different combinations of the filename (eg.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
@@ -100,7 +100,7 @@ action = function(host, port)
     -- most of them are "legitimate" and should not be reason to abort
     if ( not(status) ) then
       if ( r.err ) then
-        return stdnse.format_output(true, "ERROR: %s", r.reason)
+        return stdnse.format_output(false, r.reason)
       else
         break
       end

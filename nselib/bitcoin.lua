@@ -20,7 +20,7 @@
 --
 --@author Patrik Karlsson <patrik@cqure.net>
 --@author Andrew Orr <andrew@andreworr.ca>
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--@copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 --
 -- Version 0.2

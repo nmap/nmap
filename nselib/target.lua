@@ -7,7 +7,7 @@
 -- able to add new targets. Post-scanning scripts (postrule) are not
 -- allowed to add new targets.
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @args newtargets  If specified, lets NSE scripts add new targets.
 -- @args max-newtargets  Sets the number of the maximum allowed

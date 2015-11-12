@@ -33,7 +33,7 @@ the value of the Allow header in the response.
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe", "discovery"}
 
@@ -45,7 +45,7 @@ action = function(host, port)
   session = sip.Session:new(host, port)
   status = session:connect()
   if not status then
-    return "ERROR: Failed to connect to the SIP server."
+    return stdnse.format_output(false, "Failed to connect to the SIP server.")
   end
 
   status, response = session:options()

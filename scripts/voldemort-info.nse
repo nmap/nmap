@@ -38,13 +38,13 @@ Retrieves cluster and store information from the Voldemort distributed key-value
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
 portrule = shortport.port_or_service(6666, "vp3", "tcp")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 -- Connect to the server and make sure it supports the vp3 protocol
 -- @param host table as received by the action method

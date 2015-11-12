@@ -41,7 +41,7 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 --
 
 author = "Gorjan Petrovski, Hani Benhabiles"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast","discovery","safe"}
 
 

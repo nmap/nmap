@@ -180,6 +180,10 @@
 #endif
 #define DNET_VERSION VERSION
 
+#include <string>
+#include <sstream>
+#include <vector>
+
 /* global options */
 extern char *optarg;
 extern int optind;
@@ -514,6 +518,14 @@ public:
   char  *exclude_spec, *exclude_file;
   char  *spoofSource;
   const char *spoofmac;
+  std::vector<std::string> verbose_out;
+
+  void warn_deprecated (const char *given, const char *replacement) {
+    std::ostringstream os;
+    os << "Warning: The -" << given << " option is deprecated. Please use -" << replacement;
+    this->verbose_out.push_back(os.str());
+  }
+
 } delayed_options;
 
 struct tm *local_time;
@@ -521,6 +533,8 @@ struct tm *local_time;
 static void test_file_name(const char *filename, const char *option) {
   if (filename[0] == '-' && filename[1] != '\0') {
     fatal("Output filename begins with '-'. Try '-%s ./%s' if you really want it to be named as such.", option, filename);
+  } else if (strcmp(option, "o") == 0 && strchr("NAXGS", filename[0])) {
+    fatal("You are using a deprecated option in a dangerous way. Did you mean: -o%c %s", filename[0], filename + 1);
   } else if (filename[0] == '-' && strcmp(option,"oA") == 0) {
     fatal("Cannot display multiple output types to stdout.");
   }
@@ -585,7 +599,7 @@ void parse_options(int argc, char **argv) {
     {"oS", required_argument, 0, 0},
     {"oH", required_argument, 0, 0},
     {"oX", required_argument, 0, 0},
-    {"iL", required_argument, 0, 'i'},
+    {"iL", required_argument, 0, 0},
     {"iR", required_argument, 0, 0},
     {"sI", required_argument, 0, 0},
     {"source_port", required_argument, 0, 'g'},
@@ -890,7 +904,7 @@ void parse_options(int argc, char **argv) {
         } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
           o.dns_servers = strdup(optarg);
         } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
-          /*Nmap Log errors is depreciated and is now always enabled by default.
+          /*Nmap Log errors is deprecated and is now always enabled by default.
           This option is left in so as to not break anybody's scanning scripts.
           However it does nothing*/
         } else if (optcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
@@ -904,6 +918,8 @@ void parse_options(int argc, char **argv) {
                    || strcmp(long_options[option_index].name, "oM") == 0) {
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.machinefilename = logfilename(optarg, local_time);
+          if (long_options[option_index].name[1] == 'M')
+            delayed_options.warn_deprecated("oM", "oG");
         } else if (strcmp(long_options[option_index].name, "oS") == 0) {
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.kiddiefilename = logfilename(optarg, local_time);
@@ -926,6 +942,18 @@ void parse_options(int argc, char **argv) {
           exit(0);
         } else if (strcmp(long_options[option_index].name, "badsum") == 0) {
           o.badsum = 1;
+        } else if (strcmp(long_options[option_index].name, "iL") == 0) {
+          if (o.inputfd) {
+            fatal("Only one input filename allowed");
+          }
+          if (!strcmp(optarg, "-")) {
+            o.inputfd = stdin;
+          } else {
+            o.inputfd = fopen(optarg, "r");
+            if (!o.inputfd) {
+              fatal("Failed to open input file %s for reading", optarg);
+            }
+          }
         } else if (strcmp(long_options[option_index].name, "iR") == 0) {
           o.generate_random_ips = 1;
           o.max_ips_to_scan = strtoul(optarg, &endptr, 10);
@@ -1113,6 +1141,7 @@ void parse_options(int argc, char **argv) {
       break;
       // o.identscan++; break;
     case 'i':
+      delayed_options.warn_deprecated("i", "iL");
       if (o.inputfd) {
         fatal("Only one input filename allowed");
       }
@@ -1133,6 +1162,8 @@ void parse_options(int argc, char **argv) {
         error("Warning: Your max-parallelism (-M) option is extraordinarily high, which can hurt reliability");
       break;
     case 'm':
+      delayed_options.warn_deprecated("m", "oG");
+      test_file_name(optarg, "oG");
       delayed_options.machinefilename = logfilename(optarg, local_time);
       break;
     case 'n':
@@ -1147,6 +1178,8 @@ void parse_options(int argc, char **argv) {
         fatal("Unknown argument to -O.");
       break;
     case 'o':
+      delayed_options.warn_deprecated("o", "oN");
+      test_file_name(optarg, "o");
       delayed_options.normalfilename = logfilename(optarg, local_time);
       break;
     case 'P':
@@ -1156,8 +1189,14 @@ void parse_options(int argc, char **argv) {
         o.pingtype |= PINGTYPE_ICMP_MASK;
       else if (*optarg == 'P')
         o.pingtype |= PINGTYPE_ICMP_TS;
-      else if (*optarg == 'n' || *optarg == '0' || *optarg == 'N' || *optarg == 'D')
+      else if (*optarg == 'n' || *optarg == '0' || *optarg == 'N' || *optarg == 'D') {
+        if (*optarg != 'n') {
+          char buf[4];
+          Snprintf(buf, 3, "P%c", *optarg);
+          delayed_options.warn_deprecated(buf, "Pn");
+        }
         o.pingtype |= PINGTYPE_NONE;
+      }
       else if (*optarg == 'R')
         o.pingtype |= PINGTYPE_ARP;
       else if (*optarg == 'S') {
@@ -1263,8 +1302,9 @@ void parse_options(int argc, char **argv) {
       p = optarg;
       while (*p) {
         switch (*p) {
-        case 'n':
         case 'P':
+          delayed_options.warn_deprecated("sP", "sn");
+        case 'n':
           o.noportscan = 1;
           break;
         case 'A':
@@ -1298,6 +1338,7 @@ void parse_options(int argc, char **argv) {
           /* Alias for -sV since March 2011. */
         case 'R':
           o.servicescan = 1;
+          delayed_options.warn_deprecated("sR", "sV");
           error("WARNING: -sR is now an alias for -sV and activates version detection as well as RPC scan.");
           break;
         case 'S':
@@ -1396,6 +1437,13 @@ void  apply_delayed_options() {
   struct sockaddr_storage ss;
   size_t sslen;
 
+  if (o.verbose > 0) {
+    for (std::vector<std::string>::iterator it = delayed_options.verbose_out.begin(); it != delayed_options.verbose_out.end(); ++it) {
+      error("%s", it->c_str());
+    }
+  }
+  delayed_options.verbose_out.clear();
+
   if (o.spoofsource) {
     int rc = resolve(delayed_options.spoofSource, 0, &ss, &sslen, o.af());
     if (rc != 0) {
@@ -1491,7 +1539,7 @@ void  apply_delayed_options() {
     if (local_time->tm_mon == 8 && local_time->tm_mday == 1) {
       log_write(LOG_STDOUT | LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", local_time->tm_year - 97, local_time->tm_year + 3);
     } else if (local_time->tm_mon == 11 && local_time->tm_mday == 25) {
-      log_write(LOG_STDOUT | LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
+      log_write(LOG_STDOUT | LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (https://nmap.org/book/man-port-scanning-techniques.html).\n");
     }
   }
 

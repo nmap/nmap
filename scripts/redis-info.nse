@@ -30,14 +30,14 @@ Retrieves information (such as version number and architecture) from a Redis key
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"redis-brute"}
 
 
 portrule = shortport.port_or_service(6379, "redis")
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function cb_parse_version(host, port, val)
   port.version.version = val

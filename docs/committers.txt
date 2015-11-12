@@ -1,6 +1,6 @@
 This is a list of fine folks who help bring you Nmap! But not an
 exclusive list, as many people who contribute greatly to Nmap are not
-committers.  See the CHANGELOG (http://nmap.org/changelog.html) for a
+committers.  See the CHANGELOG (https://nmap.org/changelog.html) for a
 broader list of contributions.
 
 These people have earned commit access to the Nmap SVN repository and
@@ -39,11 +39,11 @@ bmenrigh   - Brandon Enright specializes in large-scale scanning and math/crypto
 batrick    - Patrick Donnelly is a Lua expert and specializes in NSE internals
 
 ithilgore  - Ithilgore wrote the Ncrack authentication cracker
-             (http://nmap.org/ncrack/)
+             (https://nmap.org/ncrack/)
 
 luis       - Luis MartinGarcia wrote and maintains the Nping tool for packet
              generation, response analysis, and response time
-             measurement (http://nmap.org/nping/)
+             measurement (https://nmap.org/nping/)
 
 majek04    - Marek Majkowski wrote a lot of low-level code and several
              NSE scripts

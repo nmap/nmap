@@ -14,7 +14,7 @@
 -- And my primary inspiration was PsTools, specifically, <code>pstasklist.exe</code>.
 --
 --@author Ron Bowes <ron@skullsecurity.net>
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--@copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 
 local bin = require "bin"

@@ -27,7 +27,7 @@ header.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
@@ -117,24 +117,22 @@ local function sendConfigInfoRequest(iface)
   dnet:ethernet_close()
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-
 action = function()
 
   local iname = nmap.get_interface()
   if ( not(iname) ) then
-    stdnse.debug1("No interface supplied, use -e")
+    stdnse.verbose1("No interface supplied, use -e")
     return
   end
 
   if ( not(nmap.is_privileged()) ) then
-    stdnse.debug1("not running for lack of privileges")
+    stdnse.verbose1("not running for lack of privileges")
     return
   end
 
   local iface = nmap.get_interface_info(iname)
   if ( not(iface) ) then
-    return fail("Failed to retrieve interface information")
+    return stdnse.format_output(false, "Failed to retrieve interface information")
   end
 
   local pcap = nmap.new_socket()

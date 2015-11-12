@@ -34,7 +34,7 @@ Attempts to enumerate RTSP media URLS by testing for common paths on devices suc
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
 
@@ -115,7 +115,7 @@ action = function(host, port)
 
   local url_iter = urlIterator(f)
   if ( not(url_iter) ) then
-    return stdnse.format_output(false, ("Could not open the URL dictionary: "):format(f))
+    return stdnse.format_output(false, ("Could not open the URL dictionary: %s"):format(f))
   end
 
   local threads = {}

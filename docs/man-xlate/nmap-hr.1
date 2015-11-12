@@ -647,7 +647,7 @@ otvoren|filtriran\&. Nmap će se ponašati isto kao što se ponaša kod specific
 \fB\-sI <zombie host[:probeport]>\fR (Idlescan)
 .RS 4
 Ova napredna metoda skeniranja omogućava slijepo skeniranje ciljanog računala (niti jedan paket nije poslan na ciljano računalo s vaše stvarne IP adrese)\&.Umjesto toga koristite zombie host računalo i predvidljiv IP fragmentation ID na njemu kako bi dobili informaciju o tome koji su portovi otvoreni na ciljanom računalu\&. IDS sustavi će pokazati da scan dolazi sa zombie mašine kojju ste specificirali kod pokretanja ovog tipa skeniranja (zombie mora biti upaljen i mora zadovoljavati neke kriterije)\&. Ovaj način skeniranja je prekompleksan da bi ga ovdje opisali u potpunosti, pa sam napisao i postao informativni članak sa svim detaljima na
-\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Osim što je nevjerovatno nevidljiv (zbog načina na koji radi) ovaj tip skeniranja omogućava mapiranje IP baziranih pravila između računala\&. Ispis portova pokazuje otvorene portove
 \fIkako ih vidi zombi računalo\&.\fR
@@ -1131,7 +1131,7 @@ Cisco\&.
 \fB\-\-badsum\fR (Šalji pakete s lažnim TCP/UDP checksumom)
 .RS 4
 Ova opcija traži od Nmap\-a da koristi neispravne TCP i UDP checksume za pakete koje šalje na ciljano računalo\&. Kako skoro svaki IP stack odbacuje takve pakete, svaki odgovor koji dobijete najvjerovatnie dolazi od vatrozida ili IDS sustava koji nisu provjeravali checksum\&. Za više detalja o ovoj tehnici, pogledajte:
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]\&.
 .RE
 .SH "IZVJEšTAJI"
 .PP

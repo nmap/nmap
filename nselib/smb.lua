@@ -119,7 +119,7 @@
 -- @args randomseed   Set to a value to change the filenames/service names that are randomly generated.
 --
 -- @author Ron Bowes <ron@skullsecurity.net>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 local asn1 = require "asn1"
 local bin = require "bin"

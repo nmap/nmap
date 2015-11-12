@@ -58,7 +58,7 @@ Performs brute force password auditing against http basic, digest and ntlm authe
 
 
 author = {"Patrik Karlsson", "Piotr Olma", "Gyanendra Mishra"}
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
@@ -127,7 +127,7 @@ action = function( host, port )
   local method = string.upper(stdnse.get_script_args("http-brute.method") or "GET")
 
   if ( not(path) ) then
-    return "  \n  ERROR: No path was specified (see http-brute.path)"
+    return stdnse.format_output(false, "No path was specified (see http-brute.path)")
   end
 
   local response = http.generic_request( host, port, method, path, { no_cache = true } )

@@ -30,7 +30,7 @@ server time) from distributed memory object caching system memcached.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
@@ -60,7 +60,7 @@ local order = {
   "auth_enabled_sasl"
 }
 
-local function fail(err) return ("\n  ERROR: %s"):format(err) end
+local function fail(err) return stdnse.format_output(false, err) end
 
 local function mergetab(tab1, tab2)
   for k, v in pairs(tab2) do

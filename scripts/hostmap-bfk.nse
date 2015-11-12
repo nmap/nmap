@@ -60,7 +60,7 @@ This script was formerly (until April 2012) known as hostmap.nse.
 
 author = "Ange Gutek"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"external", "discovery", "intrusive"}
 

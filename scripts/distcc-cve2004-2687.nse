@@ -41,7 +41,7 @@ present in modern implementation due to poor configuration of the service.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "vuln"}
 
 
@@ -49,7 +49,7 @@ portrule = shortport.port_or_service(3632, "distcc")
 
 local arg_cmd = stdnse.get_script_args(SCRIPT_NAME .. '.cmd') or "id"
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 

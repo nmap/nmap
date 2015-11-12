@@ -124,13 +124,187 @@
 
 class Target;
 
-#include "nbase.h"
+#include "nbase/nbase.h"
 
 #include <string>
 #include <list>
 
+#include <algorithm>
+#include <sstream>
+
+
+namespace DNS
+{
+
+#define DNS_CHECK_ACCUMLATE(accumulator, tmp, exp) \
+  do { tmp = exp; if(tmp < 1) return 0 ; accumulator += tmp;} while(0)
+
+#define DNS_CHECK_UPPER_BOUND(accumulator, max)\
+  do { if(accumulator > max) return 0; } while(0)
+
+#define DNS_HAS_FLAG(v,flag) ((v&flag)==flag)
+
+#define DNS_HAS_ERR(v, err) ((v&DNS::ERR_ALL)==err)
+
+typedef enum
+{
+  ID = 0,
+  FLAGS_OFFSET = 2,
+  QDCOUNT = 4,
+  ANCOUNT = 6,
+  NSCOUNT = 8,
+  ARCOUNT = 10,
+  DATA = 12
+} HEADER_OFFSET;
+
+typedef enum {
+  ERR_ALL = 0x0007,
+  CHECKING_DISABLED = 0x0010,
+  AUTHENTICATED_DATA = 0x0020,
+  ZERO = 0x0070,
+  RECURSION_AVAILABLE = 0x0080,
+  RECURSION_DESIRED = 0x0100,
+  TRUNCATED = 0x0200,
+  AUTHORITATIVE_ANSWER = 0x0400,
+  OP_STANDARD_QUERY = 0x0000,
+  OP_INVERSE_QUERY = 0x0800, // Obsoleted in RFC 3425
+  OP_SERVER_STATUS = 0x1000,
+  RESPONSE = 0x8000
+} FLAGS;
+
+typedef enum {
+  ERR_NO = 0x0000,
+  ERR_FORMAT = 0x0001,
+  ERR_SERVFAIL = 0x0002,
+  ERR_NAME = 0x0003,
+  ERR_NOT_IMPLEMENTED = 0x0004,
+  ERR_REFUSED = 0x0005,
+} ERRORS;
+
+typedef enum {
+  A = 1,
+  CNAME = 5,
+  PTR = 12,
+  AAAA = 28,
+} RECORD_TYPE;
+
+typedef enum {
+  CLASS_IN = 1
+} RECORD_CLASS;
+
+const u8 COMPRESSED_NAME = 0xc0;
+
+const std::string IPV4_PTR_DOMAIN = ".in-addr.arpa";
+const std::string IPV6_PTR_DOMAIN = ".ip6.arpa";
+
+class Factory
+{
+public:
+  static u16 progressiveId;
+  static bool ipToPtr(const sockaddr_storage &ip, std::string &ptr);
+  static bool ptrToIp(const std::string &ptr, sockaddr_storage &ip);
+  static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
+  static size_t buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen);
+  static size_t putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen);
+  static size_t putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen);
+};
+
+class Record
+{
+public:
+  virtual Record * clone() = 0;
+  virtual ~Record() {}
+  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen) = 0;
+};
+
+class A_Record : public Record
+{
+public:
+  sockaddr_storage value;
+  Record * clone() { return new A_Record(*this); }
+  ~A_Record() {}
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen);
+};
+
+class PTR_Record : public Record
+{
+public:
+  std::string value;
+  Record * clone() { return new PTR_Record(*this); }
+  ~PTR_Record() {}
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  {
+    return Factory::parseDomainName(value, buf, offset, maxlen);
+  }
+};
+
+class CNAME_Record : public Record
+{
+public:
+  std::string value;
+  Record * clone() { return new CNAME_Record(*this); }
+  ~CNAME_Record() {}
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  {
+    return Factory::parseDomainName(value, buf, offset, maxlen);
+  }
+};
+
+class Query
+{
+public:
+  std::string name;
+  u16 record_type;
+  u16 record_class;
+
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen);
+};
+
+class Answer
+{
+public:
+  Answer() : record(NULL) {}
+  Answer(const Answer &c) : name(c.name), record_type(c.record_type),
+    record_class(c.record_class), ttl(c.ttl), length(c.length),
+    record(c.record->clone()) {}
+  ~Answer() { delete record; }
+
+  std::string name;
+  u16 record_type;
+  u16 record_class;
+  u32 ttl;
+  u16 length;
+  Record * record;
+
+  // Populate the object reading from buffer and returns "consumed" bytes
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen);
+  Answer& operator=(const Answer &r);
+};
+
+class Packet
+{
+public:
+  Packet() : id(0), flags(0) {}
+  ~Packet() {}
+
+  void addFlags(FLAGS fl){ flags |= fl; }
+  void removeFlags(FLAGS fl){ flags &= ~fl; }
+  void resetFlags() { flags = 0; }
+  size_t writeToBuffer(u8 *buf, size_t maxlen);
+  size_t parseFromBuffer(const u8 *buf, size_t maxlen);
+
+  u16 id;
+  u16 flags;
+  std::list<Query> queries;
+  std::list<Answer> answers;
+};
+
+}
+
 void nmap_mass_rdns(Target ** targets, int num_targets);
-const char *lookup_cached_host(u32 ip);
 
 std::list<std::string> get_dns_servers();
 

@@ -46,7 +46,7 @@ end
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "broadcast"}
 
@@ -184,7 +184,7 @@ action = function()
     interface = getInterface(mcast)
   end
   if not interface then
-    return ("\n ERROR: Couldn't get interface for %s"):format(mcast)
+    return stdnse.format_output(false, ("Couldn't get interface for %s"):format(mcast))
   end
 
   -- Launch listener thread

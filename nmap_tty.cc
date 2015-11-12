@@ -339,7 +339,7 @@ bool keyWasPressed()
                 "d/D             Increase/decrease debugging\n"
                 "p/P             Enable/disable packet tracing\n"
                 "anything else   Print status\n"
-                "More help: http://nmap.org/book/man-runtime-interaction.html\n");
+                "More help: https://nmap.org/book/man-runtime-interaction.html\n");
     } else {
        printStatusMessage();
        return true;

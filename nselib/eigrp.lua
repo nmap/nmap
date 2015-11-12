@@ -1,7 +1,7 @@
 --- A library supporting parsing and generating a limited subset of the Cisco' EIGRP packets.
 --
 -- @author "Hani Benhabiles"
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- Version 0.1
 --  19/07/2012 - First version.
 

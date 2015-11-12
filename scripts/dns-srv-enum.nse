@@ -59,7 +59,7 @@ The following services are enumerated by the script:
 --       (default: all)
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
@@ -80,8 +80,6 @@ local function parseSvcList(services)
     return svc.name, svc.query
   end
 end
-
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local function parseSrvResponse(resp)
   local i = 1
@@ -153,7 +151,7 @@ action = function(host)
   }
 
   if ( not(checkFilter(services)) ) then
-    return fail(("Invalid filter (%s) was supplied"):format(arg_filter))
+    return stdnse.format_output(false, ("Invalid filter (%s) was supplied"):format(arg_filter))
   end
 
   local threads, result = {}, {}

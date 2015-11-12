@@ -10,7 +10,7 @@ import java.io.*;
  * javac JDWPExecCmd.java (should be in the nselib/data/ directory).
  *
  * author = "Aleksandar Nikolic" 
- * license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+ * license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 */
 
 public class JDWPExecCmd {

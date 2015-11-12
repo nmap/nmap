@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/28/2013
+.\"      Date: 09/23/2015
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "09/23/2015" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -521,7 +521,7 @@ Embora o Nmap tente produzir resultados precisos, tenha em mente que todas as de
 Esta seção documenta as dezenas de técnicas de escaneamento de portas suportadas pelo Nmap\&. Apenas um método pode ser utilizado de cada vez exceto que um scan UDP (\fB\-sU\fR) pode ser combinado com qualquer um dos tipos de scan TCP\&. Como uma ajuda para a memória, as opções dos tipos de escaneamento de portas estão no formato
 \fB\-s\fR\fB\fIC\fR\fR, onde
 \fIC\fR
-é um caracter proeminente no nome do scan, normalmente o primeiro\&. A única exceção a essa regra é para o scan depreciado FTP bounce (\fB\-b\fR)\&. Por padrão, o Nmap executa um scan SYN, embora ele substitua por um scan connect se o usuário não tiver os privilégios adequados para enviar pacotes em estado bruto (requer acesso de root no UNIX) ou se alvos IPv6 forem especificados\&. Dos scans listados nesta seção, os usuários não privilegiados podem apenas executar os scans connect e ftp bounce\&.
+é um caracter proeminente no nome do scan, normalmente o primeiro\&. A única exceção a essa regra é para o scan deprecado FTP bounce (\fB\-b\fR)\&. Por padrão, o Nmap executa um scan SYN, embora ele substitua por um scan connect se o usuário não tiver os privilégios adequados para enviar pacotes em estado bruto (requer acesso de root no UNIX) ou se alvos IPv6 forem especificados\&. Dos scans listados nesta seção, os usuários não privilegiados podem apenas executar os scans connect e ftp bounce\&.
 .PP
 \fB\-sS\fR (scan TCP SYN)
 .RS 4
@@ -706,7 +706,7 @@ aberta|filtrada\&. O Nmap irá se comportar da mesma forma que o tipo de scan\-b
 .\" -sI
 .\" scan Idle
 Este método avançado de scan permite um scan TCP realmente cego das portas do alvo (significando que nenhum pacote é enviado para o alvo do seu endereço IP real)\&. Ao invés disso, um ataque canal\-lateral (side\-channel) explora a previsível geração de seqüencia de ID, conseqüencia da fragmentação do IP, no host zumbi, para juntar informações sobre as portas abertas no alvo\&. Sistemas IDS irão mostrar o scan como se viessem da máquina zumbi que você especificou (que deve estar ativa e obedecer a alguns critérios)\&. Este tipo fascinante de scan é complexo demais para se descrever completamente aqui, neste guia de referência, então eu escrevi e postei um trabalho informal com detalhes completos em
-\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]\&.
+\m[blue]\fB\%https://nmap.org/book/idlescan.html\fR\m[]\&.
 .sp
 Além de ser extraordinariamente camuflado (devido à sua natureza cega), este tipo de scan permite mapear relações de confiança baseadas em IP entre máquinas\&. A listagem de portas mostra as portas abertas
 \fIda perspectiva do host zumbi\&.\fR
@@ -1253,7 +1253,7 @@ Cisco\&.
 .RS 4
 .\" --badsum
 Solicita ao Nmap que utilize uma soma de verificação (checksum) TCP ou UDP inválida para os pacotes enviados aos hosts\&. Uma vez que virtualmente todos as pilhas (stack) IP do host irão rejeitar esses pacotes, quaisquer respostas recebidas são provavelmente vindas de um firewall ou IDS que nem se incomodou em verificar a soma de verificação\&. Para mais detalhes desta técnica, veja
-\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
+\m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "SAíDA (OUTPUT)"
 .PP
@@ -1347,7 +1347,7 @@ A saída script kiddie é como a saída interativa, com a diferença de ser pós
 \fB\-oG <especificaçãodearquivo>\fR (Saída para o grep)
 .RS 4
 .\" -oG
-Este formato de saída é mencionado por último porque está depreciado\&. O formato de saída XML é muito mais poderoso e é bastante adequado para usuário avançados\&. O XML é um padrão para o qual existem dezenas de excelentes interpretadores (parsers) disponíveis, enquanto que a saída para o grep é um quebra\-galho feito por mim\&. O XML é extensível para suportar novas características do Nmap conforme elas forem lançadas, por outro lado, sempre tenho que omitir essas novas características da saída para o grep por falta de onde colocá\-las\&.
+Este formato de saída é mencionado por último porque está deprecado\&. O formato de saída XML é muito mais poderoso e é bastante adequado para usuário avançados\&. O XML é um padrão para o qual existem dezenas de excelentes interpretadores (parsers) disponíveis, enquanto que a saída para o grep é um quebra\-galho feito por mim\&. O XML é extensível para suportar novas características do Nmap conforme elas forem lançadas, por outro lado, sempre tenho que omitir essas novas características da saída para o grep por falta de onde colocá\-las\&.
 .sp
 Apesar disso, a saída para o grep é bastante popular\&. É um formato simples que lista cada host em uma linha e pode ser pesquisado de forma trivial, e interpretado por qualquer ferramenta padrão do Unix, como o grep, awk, cut, sed, diff, e Perl\&. Em mesmo uso\-a para testes rápidos feitos na linha de comando\&. Descobrir todos os hosts com a porta ssh aberta ou que estão rodando o Solaris requer apenas um simples grep para identificá\-los, concatenado via pipe a um comando awk ou cut para mostrar os campos desejados\&.
 .sp

@@ -63,7 +63,7 @@
 -- 30 minutes. The default depends on the timing template level (see the module
 -- description). Use the value <code>0</code> to disable the time limit.
 -- @author Kris Katterjohn 06/2008
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local io = require "io"
 local nmap = require "nmap"

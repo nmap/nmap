@@ -35,7 +35,7 @@ Extracts and outputs HTML and JavaScript comments from HTTP responses.
 
 categories = {"discovery", "safe"}
 author = "George Chatzisofroniou"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 local http = require "http"
 local shortport = require "shortport"
@@ -108,7 +108,7 @@ action = function(host, port)
       -- most of them are "legitimate" and should not be reason to abort
       if (not(status)) then
         if (r.err) then
-          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+          return stdnse.format_output(false, r.reason)
         else
           break
         end

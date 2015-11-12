@@ -32,7 +32,7 @@ to be on the LAN.
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
 local arg_target = stdnse.get_script_args(SCRIPT_NAME .. ".target")
@@ -72,7 +72,7 @@ icmpEchoRequest = function(ifname, host, addr)
   return status
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host)
 
@@ -93,7 +93,7 @@ action = function(host)
   end
 
   if ( target == host.ip ) then
-    return ("\n  ERROR: Target can not be the same as the scanned host")
+    return fail("Target can not be the same as the scanned host")
   end
 
   if (icmpEchoRequest(ifname, host, target)) then

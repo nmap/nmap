@@ -649,7 +649,7 @@ msgid ""
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic "
 "instructions for creating patch files with your changes are available at "
-"http://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) "
+"https://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) "
 "or to Fyodor directly.\n"
 msgstr ""
 

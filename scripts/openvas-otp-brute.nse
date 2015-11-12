@@ -25,7 +25,7 @@ Performs brute force password auditing against a OpenVAS vulnerability scanner d
 
 author = "Vlatko Kosturjak"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 

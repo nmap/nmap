@@ -3,7 +3,7 @@
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @author Gioacchino Mazzurco <gmazzurco89@gmail.com>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- 2015-06-11 Gioacchino Mazzurco - Use creds library to handle SNMP community
 

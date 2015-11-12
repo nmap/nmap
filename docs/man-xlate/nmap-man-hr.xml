@@ -996,7 +996,7 @@ se SYN scan.</para>
           ciljanom računalu. IDS sustavi će pokazati da scan dolazi sa zombie mašine kojju ste specificirali kod
           pokretanja ovog tipa skeniranja (zombie mora biti upaljen i mora zadovoljavati neke kriterije). Ovaj način
           skeniranja je prekompleksan da bi ga ovdje opisali u potpunosti, pa sam napisao i postao informativni
-          članak sa svim detaljima na <ulink url="http://nmap.org/book/idlescan.html"></ulink>.</para>
+          članak sa svim detaljima na <ulink url="https://nmap.org/book/idlescan.html"></ulink>.</para>
 
           <para>Osim što je nevjerovatno nevidljiv (zbog načina na koji radi) ovaj tip skeniranja omogućava mapiranje
           IP baziranih pravila između računala. Ispis portova pokazuje otvorene portove <emphasis>kako ih vidi zombi
@@ -1829,7 +1829,7 @@ i SYN sken podržava ove opcije u potpunosti isto kao i UDP sken.</para>
           <para>Ova opcija traži od Nmap-a da koristi neispravne TCP i UDP checksume za pakete koje šalje na ciljano
           računalo. Kako skoro svaki IP stack odbacuje takve pakete, svaki odgovor koji dobijete najvjerovatnie
           dolazi od vatrozida ili IDS sustava koji nisu provjeravali checksum. Za više detalja o ovoj tehnici,
-          pogledajte: <ulink url="http://nmap.org/p60-12.txt"></ulink>.</para>
+          pogledajte: <ulink url="https://nmap.org/p60-12.txt"></ulink>.</para>
         </listitem>
       </varlistentry>
 

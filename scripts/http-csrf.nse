@@ -47,7 +47,7 @@ exist. See the http library's documentation to set your own cookie.
 
 categories = {"intrusive", "exploit", "vuln"}
 author = "George Chatzisofroniou"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 local http = require "http"
 local formulas = require "formulas"
@@ -115,7 +115,7 @@ action = function(host, port)
       -- most of them are "legitimate" and should not be reason to abort
       if (not(status)) then
         if (r.err) then
-          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+          return stdnse.format_output(false, r.reason)
         else
           break
         end

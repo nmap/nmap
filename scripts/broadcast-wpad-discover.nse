@@ -32,7 +32,7 @@ argument or by attempting to reverse resolve the local IP.
 -- @args broadcast-wpad-discover.getwpad instructs the script to retrieve the WPAD file instead of parsing it
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
@@ -192,13 +192,15 @@ local function dhcpDiscover()
 
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
 
 action = function()
 
   local status, response, wpad
 
   if ( arg_nodhcp and arg_nodns ) then
-    return "\n  ERROR: Both nodns and nodhcp arguments were supplied"
+    stdnse.verbose1("Both nodns and nodhcp arguments were supplied")
+    return fail("Both nodns and nodhcp arguments were supplied")
   end
 
   if ( nmap.is_privileged() and not(arg_nodhcp) ) then
@@ -213,7 +215,7 @@ action = function()
     status, response = dnsDiscover()
     if ( not(status) ) then
       local services = "DNS" .. ( nmap.is_privileged() and "/DHCP" or "" )
-      return ("\n  ERROR: Could not find WPAD using %s"):format(services)
+      return fail(("Could not find WPAD using %s"):format(services))
     end
     wpad = ("http://%s/wpad.dat"):format( response.name )
   end

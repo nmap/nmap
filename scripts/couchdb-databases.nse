@@ -33,7 +33,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API.
 -- TODO : Authentication not implemented
 
 author = "Martin Holst Swende"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service({5984})

@@ -16,7 +16,7 @@
 -- helper:close()
 -- </code>
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author = "Brandon Enright, Patrik Karlsson"
 
 -- Version 0.2

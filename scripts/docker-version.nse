@@ -11,7 +11,7 @@ description = [[Detects the Docker service version.]]
 -- 2375/tcp open  docker  Docker 1.1.2
 
 author = "Claudio Criscione"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 portrule = shortport.version_port_or_service({2375, 2376}, {"docker", "docker-s"}, "tcp")

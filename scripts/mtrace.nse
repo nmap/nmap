@@ -63,7 +63,7 @@ This is similar to the mtrace utility provided in Cisco IOS.
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "broadcast"}
 
@@ -344,7 +344,7 @@ action = function()
     interface = getInterface(firsthop)
   end
   if not interface then
-    return ("\n ERROR: Couldn't get interface for %s"):format(firsthop)
+    return stdnse.format_output(false, ("Couldn't get interface for %s"):format(firsthop))
   end
 
   -- Destination defaults to our own host

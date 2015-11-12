@@ -70,7 +70,7 @@ through all valid ethernet interfaces simultaneously.
 
 author = "Hani Benhabiles"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "broadcast", "safe"}
 
@@ -192,6 +192,8 @@ local asListener = function(interface, timeout, astab)
   condvar("signal")
 end
 
+local function fail (err) return stdnse.format_output(false, err) end
+
 action = function()
   -- Get script arguments
   local as = stdnse.get_script_args(SCRIPT_NAME .. ".as")
@@ -205,7 +207,7 @@ action = function()
   -- K params should be of length 6
   -- Cisco routers ignore eigrp packets that don't have matching K parameters
   if #kparams < 6 or #kparams > 6 then
-    return "\n ERROR: kparams should be of size 6."
+    return fail("kparams should be of size 6.")
   else
     k = {}
     k[1] = string.sub(kparams, 1,1)
@@ -221,7 +223,7 @@ action = function()
     -- If an interface was provided, get its information
     interface = nmap.get_interface_info(interface)
     if not interface then
-      return ("\n ERROR: Failed to retrieve %s interface information."):format(interface)
+      return fail(("Failed to retrieve %s interface information."):format(interface))
     end
     interfaces = {interface}
     stdnse.debug1("Will use %s interface.", interface.shortname)
@@ -264,7 +266,7 @@ action = function()
       stdnse.debug1("Will use %s A.S value.", astab[1])
       as = astab[1]
     else
-      return "\n ERROR: Couldn't get an A.S value."
+      return fail("Couldn't get an A.S value.")
     end
   end
 

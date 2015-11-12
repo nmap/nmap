@@ -23,7 +23,7 @@ Extracts version and node information from a Bitcoin server
 --
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 --
@@ -34,6 +34,8 @@ categories = {"discovery", "safe"}
 
 
 portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
+
+local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
@@ -46,12 +48,12 @@ action = function(host, port)
   local status = bcoin:connect()
 
   if ( not(status) ) then
-    return "\n  ERROR: Failed to connect to server"
+    return fail("Failed to connect to server")
   end
 
   local status, ver = bcoin:exchVersion()
   if ( not(status) ) then
-    return "\n  ERROR: Failed to extract version information"
+    return fail("Failed to extract version information")
   end
   bcoin:close()
 

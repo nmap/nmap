@@ -45,7 +45,7 @@ servers that use NSEC3 rather than NSEC; for that, see
 -- |_    vulpix.example.com
 
 author = "John R. Bond"
-license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
+license = "Simplified (2-clause) BSD license--See https://nmap.org/svn/docs/licenses/BSD-simplified"
 
 categories = {"discovery", "intrusive"}
 

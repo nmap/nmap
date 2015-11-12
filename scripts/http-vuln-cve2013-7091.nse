@@ -50,7 +50,7 @@ Then, send some payload to create the new mail account.
 ---
 
 author = "Paul AMAR <aos.paul@gmail.com>, Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 
 portrule = shortport.http

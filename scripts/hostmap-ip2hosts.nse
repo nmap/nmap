@@ -40,7 +40,7 @@ The script is in the "external" category because it sends target IPs to a third 
 
 author = "Paulino Calderon <calderon@websec.mx>"
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"external", "discovery"}
 

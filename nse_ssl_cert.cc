@@ -426,6 +426,50 @@ static const char *pkey_type_to_string(int type)
   }
 }
 
+void lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
+#ifdef EC_KEY
+  EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
+  const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+  int nid;
+  if ((nid = EC_GROUP_get_curve_name(group)) != 0) {
+    lua_newtable(L);
+    lua_newtable(L);
+    lua_pushstring(L, OBJ_nid2sn(nid));
+    lua_setfield(L, -2, "curve");
+    lua_pushstring(L, "namedcurve");
+    lua_setfield(L, -2, "ec_curve_type");
+    lua_setfield(L, -2, "curve_params");
+    lua_setfield(L, -2, "ecdhparams");
+  }
+  else {
+    /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
+       X.509. This may change in the future, but for now it doesn't seem worth it
+       to add in code to extract the extra parameters. */
+    nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
+    if (nid == NID_X9_62_prime_field) {
+      lua_newtable(L);
+      lua_newtable(L);
+      lua_pushstring(L, "explicit_prime");
+      lua_setfield(L, -2, "ec_curve_type");
+      lua_setfield(L, -2, "curve_params");
+      lua_setfield(L, -2, "ecdhparams");
+    }
+    else if (nid == NID_X9_62_characteristic_two_field) {
+      lua_newtable(L);
+      lua_newtable(L);
+      lua_pushstring(L, "explicit_char2");
+      lua_setfield(L, -2, "ec_curve_type");
+      lua_setfield(L, -2, "curve_params");
+      lua_setfield(L, -2, "ecdhparams");
+    }
+    else {
+      /* Something wierd happened. */
+    }
+  }
+  EC_KEY_free(ec_key);
+#endif
+}
+
 static int parse_ssl_cert(lua_State *L, X509 *cert);
 
 int l_parse_ssl_certificate(lua_State *L)
@@ -467,6 +511,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   struct cert_userdata *udata;
   X509_NAME *subject, *issuer;
   EVP_PKEY *pubkey;
+  int pkey_type;
 
   udata = (struct cert_userdata *) lua_newuserdata(L, sizeof(*udata));
   udata->cert = cert;
@@ -497,7 +542,11 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 
   pubkey = X509_get_pubkey(cert);
   lua_newtable(L);
-  lua_pushstring(L, pkey_type_to_string(pubkey->type));
+  pkey_type = EVP_PKEY_type(pubkey->type);
+  if (pkey_type == EVP_PKEY_EC) {
+    lua_push_ecdhparams(L, pubkey);
+  }
+  lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");
   lua_pushnumber(L, EVP_PKEY_bits(pubkey));
   lua_setfield(L, -2, "bits");

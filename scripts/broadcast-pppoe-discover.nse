@@ -30,7 +30,7 @@ mode to operate.
 -- |_    Host-Uniq: 7f8552a0
 
 author = "Patrik Karlsson"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
@@ -43,9 +43,7 @@ prerule = function()
 end
 
 local function fail(err)
-  if ( err ) then
-    return ("\n  ERROR: %s"):format(err)
-  end
+  return stdnse.format_output(false, err)
 end
 
 local function discoverPPPoE(helper)

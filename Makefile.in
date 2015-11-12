@@ -80,6 +80,7 @@ INSTALLNSE=@INSTALLNSE@
 BUILDZENMAP=@BUILDZENMAP@
 BUILDNDIFF=@BUILDNDIFF@
 BUILDNPING=@BUILDNPING@
+BUILDNCAT=@NCAT_BUILD@
 INSTALLZENMAP=@INSTALLZENMAP@
 INSTALLNDIFF=@INSTALLNDIFF@
 INSTALLNPING=@INSTALLNPING@
@@ -102,7 +103,7 @@ export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan
 
 export HDRS = charpool.h FingerPrintResults.h FPEngine.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h nmap_ftp.h NmapOps.h NmapOutputTable.h nmap_tty.h nmap_winconfig.h osscan2.h osscan.h output.h payload.h portlist.h portreasons.h protocols.h scan_engine.h scan_engine_connect.h scan_engine_raw.h service_scan.h services.h TargetGroup.h Target.h targets.h tcpip.h timing.h traceroute.h utils.h xml.h $(NSE_HDRS)
 
-OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o main.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o service_scan.o services.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS)
+OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o service_scan.o services.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS)
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
@@ -113,53 +114,50 @@ OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLooku
 # large for field of 2 bytes". Disable debugging for this one file.
 FPModel.o: CXXFLAGS += -g0
 
-all: @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ @NMAP_UPDATE_BUILD@ netutil_build
-	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
+all: $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING) $(BUILDNCAT) @NMAP_UPDATE_BUILD@
 
-$(TARGET): @LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS)
+$(TARGET): build-netutil @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
+	$(OBJS) main.o
 	@echo Compiling nmap
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) main.o $(LIBS)
 
-build-%: %/Makefile
-	cd $* && $(MAKE)
-
-pcre_build: $(LIBPCREDIR)/Makefile
+build-pcre: $(LIBPCREDIR)/Makefile
 	@echo Compiling libpcre; cd $(LIBPCREDIR) && $(MAKE)
 
-dnet_build: $(LIBDNETDIR)/Makefile
+build-dnet: $(LIBDNETDIR)/Makefile
 	@echo Compiling libdnet; cd $(LIBDNETDIR) && $(MAKE)
 
-pcap_build: $(LIBPCAPDIR)/Makefile
+build-pcap: $(LIBPCAPDIR)/Makefile
 	@echo Compiling libpcap; cd $(LIBPCAPDIR) && $(MAKE)
 
-nbase_build: $(NBASEDIR)/Makefile
+build-nbase: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)
 
-nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
+build-nsock: $(NSOCKDIR)/src/Makefile build-nbase
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
-netutil_build: libnetutil/Makefile
+build-netutil: libnetutil/Makefile
 	@echo Compiling libnetutil;
 	cd libnetutil && $(MAKE)
 
-ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h @PCAP_BUILD@
+build-ncat: $(NCATDIR)/Makefile build-nbase build-nsock $(NCATDIR)/ncat.h @PCAP_BUILD@
 	cd $(NCATDIR) && $(MAKE)
 
-lua_build: $(LIBLUADIR)/Makefile
+build-lua: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
 
-liblinear_build: $(LIBLINEARDIR)/Makefile
+build-liblinear: $(LIBLINEARDIR)/Makefile
 # -Wno-uninitialized avoids the warning "'Gnorm1_init' may be used uninitialized in this function"
 	@echo Compiling liblinear; cd $(LIBLINEARDIR) && $(MAKE) liblinear.a CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) -Wno-uninitialized"
 
 build-nmap-update: nmap-update/default_channel.h
 
-#$(LIBPCAPDIR)/Makefile:
-#	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
-
+# This is the last one to ensure specific build targets are preferred
+build-%: %/Makefile
+	cd $* && $(MAKE)
 
 # Make a statically compiled binary for portability between distributions
 static:
@@ -185,75 +183,106 @@ release-rpms:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@ @NMAP_UPDATE_CLEAN@ @NDIFF_CLEAN@
-
-my_clean:
+clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ \
+clean-nsock clean-nbase clean-netutil @NPING_CLEAN@ @ZENMAP_CLEAN@ \
+@NCAT_CLEAN@ @NMAP_UPDATE_CLEAN@ @NDIFF_CLEAN@ clean-tests
+	rm -f $(OBJS) main.o $(TARGET)
+# Who generates dependencies.mk? If it is generated by ./configure and
+# not by make it should be moved to distclean
 	rm -f dependencies.mk
-	rm -f $(OBJS) $(TARGET) config.cache
 
-clean-%:
-	-cd $* && $(MAKE) clean
-distclean-%: clean-%
-	-cd $* && $(MAKE) distclean
+debugclean:
+	rm -f *.gcov *.gcda *.gcno gmon.out
 
-pcap_clean:
+distclean: @LUA_DIST_CLEAN@ @LIBLINEAR_DIST_CLEAN@ @PCAP_DIST_CLEAN@ \
+@PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ \
+@NCAT_DIST_CLEAN@ @NMAP_UPDATE_DIST_CLEAN@ distclean-netutil \
+distclean-nsock distclean-nbase @NDIFF_DIST_CLEAN@ clean debugclean
+	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h \
+	stamp-h.in config.cache config.log config.status
+
+clean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
-pcre_clean:
+
+clean-pcre:
 	-cd $(LIBPCREDIR) && $(MAKE) clean
-dnet_clean:
+
+clean-dnet:
 	-cd $(LIBDNETDIR) && $(MAKE) clean
-nbase_clean:
+
+clean-nbase:
 	-cd $(NBASEDIR) && $(MAKE) clean
-nsock_clean:
+
+clean-nsock:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
-netutil_clean:
+
+clean-netutil:
 	-cd libnetutil && $(MAKE) clean
-ncat_clean:
+
+clean-ncat:
 	-cd $(NCATDIR) && $(MAKE) clean
-lua_clean:
+
+clean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
-liblinear_clean:
+
+clean-liblinear:
 	-cd $(LIBLINEARDIR) && $(MAKE) clean
-zenmap_clean:
+
+clean-zenmap:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 	rm -f $(ZENMAPDIR)/zenmapCore/__init__.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Version.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
-ndiff_clean:
+
+clean-ndiff:
 	-cd $(NDIFFDIR) && $(PYTHON) setup.py clean --all
-nping_clean:
+
+clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
-pcap_dist_clean:
+
+clean-tests:
+	@rm -f tests/check_dns
+
+distclean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
-pcre_dist_clean:
+
+distclean-pcre:
 	-cd $(LIBPCREDIR) && $(MAKE) distclean
-dnet_dist_clean:
+
+distclean-dnet:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
-lua_dist_clean:
+
+distclean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
-liblinear_dist_clean: liblinear_clean
-nbase_dist_clean:
+
+distclean-liblinear: clean-liblinear
+
+distclean-nbase:
 	-cd $(NBASEDIR) && $(MAKE) distclean
-nsock_dist_clean:
+
+distclean-nsock:
 	-cd $(NSOCKDIR)/src && $(MAKE) distclean
-netutil_dist_clean:
+
+distclean-netutil:
 	-cd libnetutil && $(MAKE) distclean
-ncat_dist_clean:
+
+distclean-ncat:
 	-cd $(NCATDIR) && $(MAKE) distclean
-zenmap_dist_clean: zenmap_clean
+
+distclean-zenmap: clean-zenmap
 	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/ INSTALLED_FILES
-ndiff_dist_clean: ndiff_clean
-	-cd $(NDIFFDIR) && rm -rf build/ dist/
-nping_dist_clean:
+
+distclean-ndiff: clean-ndiff
+	-cd $(NDIFFDIR) && rm -rf ndiff.pyc build/ dist/ INSTALLED_FILES
+
+distclean-nping:
 	-cd $(NPINGDIR) && $(MAKE) distclean
-debugclean:
-	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: @LUA_DIST_CLEAN@ @LIBLINEAR_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ @NMAP_UPDATE_DIST_CLEAN@ netutil_dist_clean nsock_dist_clean nbase_dist_clean @NDIFF_DIST_CLEAN@ my_clean my_distclean
+clean-%:
+	-cd $* && $(MAKE) clean
 
-my_distclean:
-	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h stamp-h.in \
-	         config.cache config.log config.status
+distclean-%: clean-%
+	-cd $* && $(MAKE) distclean
 
 install-nmap: $(TARGET)
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
@@ -297,6 +326,9 @@ nmap-update/default_channel.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+DEFAULT_CHANNEL[ \t]\+\(".*"\)/#define DEFAULT_CHANNEL "$(NMAP_UPDATE_CHANNEL)"/' $@ > $@.tmp
 	mv -f $@.tmp $@
 
+tests/check_dns: $(OBJS)
+	 $(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) tests/nmap_dns_test.cc
+
 # By default distutils rewrites installed scripts to hardcode the
 # location of the Python interpreter they were built with (something
 # like #!/usr/bin/python2.4). This is the wrong thing to do when
@@ -326,7 +358,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 build-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
-build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build netutil_build $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
+build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
@@ -393,22 +425,25 @@ uninstall-ncat:
 uninstall-nping:
 	@cd $(NPINGDIR) && $(MAKE) uninstall
 
-nse_check:
+check-nse:
 	./nmap -d --datadir . --script=unittest --script-args=unittest.run
 
-ncat_check:
+check-ncat:
 	@cd $(NCATDIR) && $(MAKE) check
 
-ndiff_check:
+check-ndiff:
 	@cd $(NDIFFDIR) && $(PYTHON) ndifftest.py
 
-nsock_check:
+check-nsock:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
 
-zenmap_check:
+check-zenmap:
 	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@
+check-dns: tests/check_dns
+	$<
+
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-dns
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
@@ -472,4 +507,4 @@ zoneTrans db2-info db2-brute html-title robots.txt xmpp sql-injection \
 http-robtex-reverse-ip http-vuln-zimbra-lfi http-vuln-0-day-lfi-zimbra \
 whois db2-discover http-crossdomainxml )
 
-.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web my_clean distclean lua-format
+.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web distclean lua-format
