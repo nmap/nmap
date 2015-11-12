@@ -546,13 +546,8 @@ static const struct luaL_Reg bignum_methods[] = {
   { "set_bit", l_bignum_set_bit },
   { "clear_bit", l_bignum_clear_bit },
   { "is_bit_set", l_bignum_is_bit_set },
-<<<<<<< HEAD
-	{ "is_prime", l_bignum_is_prime },
-	{ "is_safe_prime", l_bignum_is_safe_prime },
-=======
   { "is_prime", l_bignum_is_prime },
   { "is_safe_prime", l_bignum_is_safe_prime },
->>>>>>> upstream/master
   { "__gc", l_bignum_free },
   { NULL, NULL }
 };
@@ -563,13 +558,8 @@ static const struct luaL_Reg openssllib[] = {
   { "bignum_set_bit", l_bignum_set_bit },
   { "bignum_clear_bit", l_bignum_clear_bit },
   { "bignum_is_bit_set", l_bignum_is_bit_set },
-<<<<<<< HEAD
-	{ "bignum_is_prime", l_bignum_is_prime },
-	{ "bignum_is_safe_prime", l_bignum_is_safe_prime },
-=======
   { "bignum_is_prime", l_bignum_is_prime },
   { "bignum_is_safe_prime", l_bignum_is_safe_prime },
->>>>>>> upstream/master
   { "bignum_bin2bn", l_bignum_bin2bn },
   { "bignum_dec2bn", l_bignum_dec2bn },
   { "bignum_hex2bn", l_bignum_hex2bn },
