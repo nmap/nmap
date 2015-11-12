@@ -260,22 +260,21 @@ static int ncat_listen_stream(int proto)
         setup_ssl_listen();
 #endif
 
+/* Not sure if this problem exists on Windows, but fcntl and /dev/null don't */
+#ifndef WIN32
     /* Check whether stdin is closed. Because we treat this fd specially, we
      * can't risk it being reopened for an incoming connection, so we'll hold
      * it open instead. */
     if (fcntl(STDIN_FILENO, F_GETFD) == -1 && errno == EBADF) {
       logdebug("stdin is closed, attempting to reserve STDIN_FILENO\n");
-#ifdef WIN32
-      rc = open("NUL", O_RDONLY);
-#else
       rc = open("/dev/null", O_RDONLY);
-#endif
       if (rc >= 0 && rc != STDIN_FILENO) {
         /* Oh well, we tried */
         logdebug("Couldn't reserve STDIN_FILENO\n");
         close(rc);
       }
     }
+#endif
 
     /* We need a list of fds to keep current fdmax. The second parameter is a
        number added to the supplied connection limit, that will compensate
@@ -690,22 +689,21 @@ static int ncat_listen_dgram(int proto)
     Signal(SIGPIPE, SIG_IGN);
 #endif
 
+/* Not sure if this problem exists on Windows, but fcntl and /dev/null don't */
+#ifndef WIN32
     /* Check whether stdin is closed. Because we treat this fd specially, we
      * can't risk it being reopened for an incoming connection, so we'll hold
      * it open instead. */
     if (fcntl(STDIN_FILENO, F_GETFD) == -1 && errno == EBADF) {
       logdebug("stdin is closed, attempting to reserve STDIN_FILENO\n");
-#ifdef WIN32
-      i = open("NUL", O_RDONLY);
-#else
       i = open("/dev/null", O_RDONLY);
-#endif
       if (i >= 0 && i != STDIN_FILENO) {
         /* Oh well, we tried */
         logdebug("Couldn't reserve STDIN_FILENO\n");
         close(i);
       }
     }
+#endif
 
     /* set for selecting udp listening sockets */
     fd_set listen_fds;
