@@ -1180,7 +1180,7 @@ match ftp m|^220 FTP Server \((NXC\d+)\) \[::ffff:[\d.]+\]\r\n| p/ZyXEL WLAN con
 match ftp m|^220 IFT DS ([\w-]+) RAID FTP server ready\.\r\n| p/Infortrend EonStor DS iSCSI host ftpd/ i/model: $1/ d/storage-misc/ cpe:/h:infortrend:esds_$1/
 match ftp m|^220 Synology FTP server ready\.\r\n| p/Synology DiskStation ftpd/ d/storage-misc/
 match ftp m|^220-owftpd 1-wire ftp server -- Paul H Alfille\r\n220-Version: (\d[\w._-]*) see http://www\.owfs\.org\r\n220 Service ready for new user\.\r\n| p/OWFS owftpd/ v/$1/ cpe:/a:owfs:owftpd:$1/
-
+match ftp m|^220 Firewall Authentication required before proceeding with service\r\n| p/Fortigate Application filtering/
 #(insert ftp)
 
 # These look too generic, but didn't match anything else yet
