@@ -338,11 +338,25 @@ match compuware-lm m|^Hello, I don't understand your request\.  Good bye\.\.\.\.
 match cops m|^\x10\x06[\x80-\xff].......\x0b\x01([\w._-]+)\0|s p/Common Open Policy Service (COPS)/ v/1/ h/$1/
 
 # This port uses a binary protocol: [esc]X@ query OS version, [esc]XA query hardware
-match crestron-control m|^Crestron Terminal Protocol Console opened\r\n| p/Crestron Terminal Console/ i/Crestron CNMSX-AV automation system/
-match crestron-control m|^\r\nCrestron Terminal Protocol Console Opened\r\n\r\n| p/Crestron Terminal Console/
+match crestron-control m|^Crestron Terminal Protocol Console opened\r\n| p/Crestron Terminal Console/ i/Crestron automation system/ cpe:/h:crestron/
+match crestron-control m|^\r\nCrestron Terminal Protocol Console Opened\r\n\r\n| p/Crestron Terminal Console/ i/Crestron automation system/ cpe:/h:crestron/
+
+# Crestron Terminal Protocol - text based protocol
+match crestron-ctp m|^\r\nCEN-IDOC Control Console\r\n\r\nCEN-IDOC>| p/Crestron CEN-IDOC music player connection text ui/ d/media device/ cpe:/h:crestron:cen-iodc/
+match crestron-ctp m|^\r\nRMC Control Console\r\n\r\nQM-RMC>\r\nQM-RMC>| p/Crestron QM-RMC text ui/ d/media device/ cpe:/h:crestron:qm-rmc/
+match crestron-ctp m|^TSW-[\w._-]+ Console\r\n\r\n(TSW-[\w._-]+)>| p/Crestron $1 touch screen text ui/ d/media device/ cpe:/h:crestron:$1/
+match crestron-ctp m|^Password\? \r\n| p/Crestron MPS-200 presentation system text ui/ d/media device/ i/Authentication required/ cpe:/h:crestron:mps-200/
+match crestron-ctp m|^\r\n([-\w]+) Control Console\r\nConnected to Host: ([-\w_.]+)\r\n|  p/Crestron $1 automation system text ui/ d/specialized/ i/$2/ h/$2/ cpe:/h:crestron:$1/
+match crestron-ctp m|^\r?\n?[-\w]+ Control Console\r\n\r\n?([-\w_.]+)>|  p/Crestron $1 automation system text ui/ d/specialized/ cpe:/h:crestron:$1/
+match crestron-ctp m|^[-\w]+ Console\r\n\r\n([-\w]+)>\r\r\n| p/Crestron $1 automation system text ui/ d/specialized/ cpe:/h:crestron:$1/
+match crestron-ctp m|^[-\w]+ Console\r\nWarning: Another console session is open \r\n\r\n([-\w]+)>| p/Crestron $1 automation system text ui/ d/specialized/ cpe:/h:crestron:$1/
+match crestron-ctp m|\*\*\*\*\r\n\r\nHELP : Provides help menus\.\r\nHELP \[ALL | p/Crestron automation system text ui/ d/specialized/ i/Authentication required/ cpe:/h:crestron/
+# Should be matched above, unable to verify - TS
+match crestron-ctp m|^\r\nPRO2 Control Console\r\n| p/Crestron PRO2 automation system text ui/ d/specialized/ cpe:/h:crestron:pro2/
+match crestron-ctp m|^\r\nMC2E Control Console\r\n| p/Crestron MC2E automation system text ui/ d/specialized/ cpe:/h:crestron:mc2e/
 
 # XSig allows communcation with a Crestron control system.
-match crestron-xsig m|^\x0f\0\x01\x02$| p/Crestron PRO2 XSig communication/
+match crestron-xsig m|^\x0f\0\x01\x02$| p/Crestron XSig communication/ d/specialized/ cpe:/h:crestron/
 
 match cyrus-sync m|\* OK ([-.\w]+) Cyrus sync server v([-.\w]+)| p/Cyrus sync server/ v/$2/ h/$1/ cpe:/a:cmu:cyrus_imap_server:$2/
 
@@ -4011,7 +4025,6 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\x1b\[2J\x1b\[0;0H\x1b\[1;32m           
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[2J\x1b\[2;28H\x1b\[m\x1b\[1mNetopia (\w+) v([\d.]+)\x1b| p/Netgear Netopia $1 router telnetd/ v/$2/ d/router/ cpe:/h:netgear:netopia_$1/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\((FSM\w+)\) \r\nUser:| p/Netgear $1 router telnetd/ d/router/ cpe:/h:netgear:$1/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Access DENIED\.\r\n| p/OpenWrt telnetd/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match telnet m|^\r\nCP2E Control Console\r\nConnected to Host: ([-\w_.]+)\r\n| p/Creston CP2E control telnetd/ d/specialized/ h/$1/
 match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03([\w-]+) Ver ([-\w_.]+) TELNET server\.\r\0\nCopyright \(C\) [\d-]+ KYOCERA CORPORATION\r\0\nCopyright \(C\) [\d-]+ KYOCERA MITA CORPORATION\r\0\nlogin:| p/Kyocera $1 printer telnetd/ v/$2/ d/printer/ cpe:/h:kyocera:$1/a
 match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03([\w-]+) Ver ([-\w_.]+) TELNET server\.\r\0\nCopyright\(C\)[\d-]+ KYOCERA MITA Corporation\r\0\nCopyright\(C\)[\d-]+ Revised Edition KYOCERA MITA Corporation\r\0\nAll Rights Reserved\.\r\0\nlogin: | p/Kyocera $1 printer telnetd/ v/$2/ d/printer/ cpe:/h:kyocera:$1/a
 match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03(NS-\w+) Ver ([\w._-]+) TELNET server\.\r\0\nCopyright \(C\) 2001-2002 KYOCERA MITA CORPORATION\r\0\nlogin: | p/Okidata $1 printer telnetd/ v/$2/ d/printer/
@@ -4167,8 +4180,6 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rTerminal shell v1\.0\n\r
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rTerminal shell v1\.0\n\r\rCopyright \xa92008 Motorola, Inc\.  All rights reserved\.\n\r\rNetopia Model ([\d-]+)(?: AnnexA)? High-Power Wireless DSL Ethernet Managed Switch\n\rRunning Netopia SOC OS version ([\w.-]+ \(build \w+\))\n| p/Netopia $1 wireless ADSL router telnetd/ i/SOC OS $2/ d/WAP/ o/SOC OS/ cpe:/h:netopia:$1/a cpe:/o:netopia:soc_os:$2/
 # The esses spell "DSLink 260E".
 match telnet m|^\xff\xfb\x01\xff\xfb\x03ssss   ssss sss     s         ss           sss   sss   sss  sssss \r\n s  s s   s  s                 s          s   s s  s  s   s  s   \r\n s  s s      s                 s          s   s s     s   s  s  \r\n s  s  ss    s     ss   ssss   s sss         s  ssss  s   s  sss  \r\n s  s    s   s      s    s  s  s s          s   s   s s   s  s   \r\n s  s     s  s      s    s  s  sss         s    s   s s   s  s    \r\n s  s s   s  s   s  s    s  s  s  s       s     s   s s   s  s   \r\nssss  ssss  ssssss sss  sss sssss ss      sssss  sss   sss  sssss\r\nLogin: $| p/Optimcom DSLink 260E ADSL router telnetd/
-match telnet m|^\r\nPRO2 Control Console\r\n| p/Crestron PRO2 automation system telnetd/
-match telnet m|^\r\nMC2E Control Console\r\n| p/Crestron MC2E automation system telnetd/
 match telnet m|^(?:\x1b\[23;1H\r\n\r\x1b\[\?25h\x1b\[23;11H\x1b\[24;1HSession Terminated, Connect again\r\n\r\x1b\[\?25h\x1b\[24;1H)?\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[3;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HProCurve (J\w+) Switch (\d+)\r\n\rFirmware revision ([^\r\n]+)\r\n| p/HP ProCurve Switch $2/ i/JetDirect $1; firmware $3/ d/switch/ cpe:/h:hp:procurve_switch_$2/ cpe:/o:hp:procurve_switch_software:$3/
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01\r\n\r\nCache for Windows NT \(Intel\) 5\.0\.18 \(Build 6103\) [^\r\n]*\r\nNode \w+ Port: ([\w._-]+)/(\d+)\r\n\r\nUsername: | p/InterSystems Cache ftpd/ i/port $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match telnet m|^\xff\xfb\x01\xff\xfd\.\r\n\r\nWelcome to the SX-2000 \(vxTarget\)\r\n\r\nlogin: \0| p/Mitel SX-2000 PBX telnetd/ d/PBX/
@@ -4181,7 +4192,6 @@ match telnet m|^\nThis is packet-o-matic built-([\d-]+)\nCopyright Guy Martin 20
 # The ASCII art is a huge Conexant logo.
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n                ,vvvdP9P\?\?\?\^   ,,,\r\n              vvd###P\^`\^         vvvvv v\r\n         vv#####\?\^                  \?\?\?\?####vv,\r\n      vv####\?\?     ,vvvdP\?\?\?\^  ,,,        \?\?##\^\r\n     v#####\?    ,vvd##P\?\^        #\?#v#vvv\r\n   v#####\?    v###P\^    ,vvv,        '\?#\?,\r\n  ######\?   ####\?\^ ,vd#P\?\^     `\?\?\?##\r\n  #####\?   v####  ,d##P\^           ''\r\n ######   v####  \]###L                   _   _          _                  ___\r\n #####\?   v####  \]##L                   /   / \\  \|\\ \|  \|_  \\/   /\\   \|\\ \|   \|\r\n ######    ####  \]###L                  \\_  \\_/  \| \\\|  \|_  /\\  /--\\  \| \\\|   \|\r\n= p/Zoom X6 ADSL router telnetd/ d/broadband router/ cpe:/h:zoom:x6/a
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x05\r\n\*\*\* Welcome to VTM   \*\*\*\r\n\r\n\r\n\rLogin   : | p/Stratus ftServer VTM telnetd/ d/remote management/
-match telnet m|^\r\nCEN-IDOC Control Console\r\n\r\nCEN-IDOC>| p/Crestron CEN-IDOC music player connection telnetd/ d/media device/
 match telnet m|^\xff\xfe\x01\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x03\xff\xfb\x01jBASE Telnetd Server Version ([\d.]+) \n\r\r\nAccount Name: | p/jBASE telnetd/ v/$1/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\x01\xff\xfd\0(?:\r\0\n\r\0\n(?:\r\0\n)?-----------------------------------------------------------------------------\r\0\n)?Model name       : (NPort [\w._-]+)\r\0\nMAC address      : ([0-9A-F:]+)\r\0\nSerial No\.       : (\d+)\r\0\nFirmware version : ([^\r]+)\r\0\nSystem uptime    : ([^\r]+)\r\0\n| p/Moxa $1 serial-to-IP converter telnetd/ v/$4/ i/MAC $2; serial number $3; uptime $5/ cpe:/h:moxa:$1/
 match telnet m|^\xff\xfb\x01\r\nWelcome to Ring v([\d.]+) Copyright \(C\) AMX Corp\. 2002-2003\r\n| p/AMX NXD-CV5 Modero touch panel telnetd/ v/$1/ d/specialized/
@@ -4367,13 +4377,11 @@ match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfd\x1f\xff\xfd\x18\r\ntelnet sessi
 match telnet m|^Netcool/Impact Command Line Interface for server ([\w._-]+)\nlogin: | p|IBM Netcool/Impact telnetd| h/$1/ cpe:/a:ibm:tivoli_netcool%2fimpact/
 match telnet m|^\xff\xfb\x01\r\n\r\nEscape Character is usually 'CTRL\+\]'\r\n\r\n\r\ni\.LON login: | p/Echelon i.LON web server telnetd/
 match telnet m|^\xff\xfb\x01\r\n\r\nWelcome to KONICA MINOLTA (bizhub [\w._-]+)\r\nIP : [\d.]+\r\nHost Name : ([\w._-]+)\r\n\r\nEnter Password:| p/Konica Minolta $1 printer http config/ d/printer/ h/$2/ cpe:/h:konicaminolta:$1/
-match telnet m|^(MC3) Console\r\nWarning: Another console session is open \r\n\r\nMC3>| p/Crestron $1 automation system telnetd/ d/specialized/ cpe:/h:crestron:$1/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfe\x01\r\n\r\nWelcome to TSP100LAN TELNET Utility\.\r\nCopyright\(C\) \d\d\d\d Star Micronics co\., Ltd\.\r\n\r\n<< Connected Device >>\r\n   Device Model : (TSP[\w._-]+) \(.*\)\r\n   MAC Address  : ([0-9A-F:]+)\r\n\r\nlogin: | p/Star Micronics $1 printer ftpd/ i/MAC: $2/ d/printer/ cpe:/h:starmicronics:$1/
 match telnet m|^\r\nWelcome to yersinia version ([\w._-]+)\.\r\nCopyright \d\d\d\d-\d\d\d\d Slay & Tomac\.\r\n\r\n\0\xff\xfe\"\xff\xfb\x03\xff\xfb\x01\xff\xfd\x1f\xff\xfe\x18\xff\xfe\$\xff\xfe!\xff\xfe \xff\xfe\x05\r\nlogin: | p/yersinia telnetd/ v/$1/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03===Actiontec xDSL Router===\r\nLogin: | p/Actiontec Q1000 DSL router telnetd/ d/broadband router/ cpe:/h:actiontec:q1000/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03DataEngine Telnet v([\w._-]+)\r\n\r\n>| p/DataEngine telnetd/ v/$1/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01HGFMA-B> GET / HTTP/1\.0\r\nGET: Command not found\.\r\nHGFMA-B> \r\nHGFMA-B> | p/Hay Systems HSL 2.75G Femtocell telnetd/ d/WAP/ cpe:/o:hay_systems:hsl_2.75g_femtocell/
-match telnet m|^(TSW-[\w._-]+) Console\r\n\r\nTSW-[\w._-]+>| p/Crestron $1 touch screen telnetd/ d/media device/ cpe:/h:crestron:$1/
 match telnet m|^\x1b\[\?25l\xff\xfb\x01\xff\xfb\x03\xff\xfc\"\xff\xfd\x1f\x1b\[2J\x1b\[0m\x1b\[40m\x1b\[30m\x1b\[1;1H\x1b\[34;1m\xe2\x95\x94Enter your nickname for this session \(Alt\+1\)\xe2\x95\x90| p/dfterm2 telnetd for Dwarf Fortress game/
 # http://www.marss.eu/app/
 match telnet m|^connesso,1\n| p/Marss IP Controller telnetd/ d/remote management/
@@ -4388,7 +4396,6 @@ match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01\r\nRTCS v([\w._-]+) Telnet 
 match telnet m|^\x1b\[2J\x1b\[36m\x1b\[1mEmbedded Data Systems Telnet Server ([\w._-]+)\x1b\[0m\r\nLogin: | p/Embedded Data Systems Ethernet-to-1-wire telnetd/ v/$1/ d/bridge/
 match telnet m|^Welcome to the DS2 command line processor\r\nUsername: | p/Dedicated Micros Digital Sprite 2 DVR telnetd/ d/media device/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n               Welcome to Zhone Technologies\r\n               Model: ZNID-GPON-([\w._-]+) Router\r\n               Release: S([\w._-]+)\r\n\r\nCopyright \(C\) \d+-\d+ by Zhone Technologies\.  All Rights Reserved\.\r\nConfidential, Unpublished Property of Zhone Technologies\.\r\nRights Reserved Under the Copyright Laws of the United States\.\r\n\r\nLogin: | p/Zhone zNID GPON $1 router telnetd/ v/$2/ d/router/ cpe:/h:zhone:znid_gpon_$1/
-match telnet m|^Password\? \r\n| p/Crestron MPS-200 presentation system telnetd/ d/media device/ cpe:/h:crestron:mps-200/
 match telnet m|^\r\n\r\n\r\n\r\n<<<<<  NetProbe Lite Setup Program >>>>>\r\n\r\n       Mega System Technologies Inc\.\r\n       Copyright\(c\) 2000\.  All Rights Reserved\.\r\n<<<<<--------------------------------------------->>>>>\r\n       Press any key to continue \.\.\.\.\.\.\.| p/Mega System Technologies NetProbe Lite environmental sensor telnetd/ d/specialized/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\n\*\*\*Benzing Ethernet Option \*\*\*\n\r\0\r\0\nSerial Number (\d+)  MAC address ([\w:]+)\n\r\0Software version ([\w._-]+ \([\w._-]+\))\r\0\nPassword :| p/Kaba Benzing timeclock telnetd/ v/$3/ i/serial: $1; MAC: $2/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03(F[\w._-]+)\r\n\rLogin: | p/ZTE $1 router telnetd/ d/router/ cpe:/h:zte:$1/
@@ -5509,7 +5516,6 @@ match telnet m|^Enter PIN>\nBAD PIN\n| p/Gigaset telnetd/ d/VoIP phone/
 match telnet m|^\xff\r\nLogin: \r\nPassword: \r\n\r\nLogin incorrect\.\r\nPlease input Login ID again\.\r\n\r\nLogin: | p/Samsung CLP-315W telnetd/ d/printer/ cpe:/h:samsung:clp-315w/a
 match telnet m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\xff\xfb\x03\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x05\xff\xfd!\xff\xfb\x01TELNET_SERVER V([\d.]+) RTOS-UH \(c\)IEP,1995-\d\d\d\d ready\r\nUsername:| p/RTOS-UH telnetd/ v/$1/ o/RTOS-UH/ cpe:/o:universitathanover:rtos-uh/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03login as: \r\n\r\n's password: \x1b\[H\x1b\[J\r\nLogin failed, please check 'username', 'password' again\. If Caps-Lock enabled\?\r\n\r\nlogin as: | p/EnGenius telnetd/ d/WAP/
-match telnet m|^\r\nRMC Control Console\r\n\r\nQM-RMC>\r\nQM-RMC>| p/Crestron QM-RMC telnetd/ d/media device/
 match telnet m|^LOGIN: \r\nlogin incorrect\r\n\r\nLOGIN: \r\nlogin incorrect\r\n\r\nLOGIN: | p/Lutron HomeWorks telnetd/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfd\x18\r\0\r\nPassword: \x1b\[2J\x1b\[1;1H\x1b\[0m\x1b\[7m {25}\x1b\[0m +DS ([\w-]+) | p/Infortrend EonStor DS iSCSI host telnetd/ i/model: $1/ d/storage-misc/ cpe:/h:infortrend:esds_$1/
 match telnet m|^\xff\xfb\0\xff\xfb\x01\xff\xfe\0\xff\xf9 \x1b\[1;36m Welcome to the \x1b\[1;31m LEDI NETWORK ITS 2\x1b\[1;36m Telnet Configuration Utility \r\n\r\nSerial Number:\t\t\x1b\[1;37m(\d+)\r\n\x1b\[1;36mMAC address:\t\t\x1b\[1;37m([\dA-F:]{17})\r\n\xff\xf9\r\nlogin: \xff\xf9\xff\xf9Password: \xff\xf9\xff\xf9\r\nLogin incorrect \(hit <C/R> to continue\)\r\n| p/LEDY Network ITS 2 telnet configuration utility/ i/serial: $1; MAC: $2/ d/specialized/ cpe:/h:gorgy-timing:ledi_network_its_2/
@@ -6549,7 +6555,7 @@ match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nPragma: no-cache\r\n.*\n<
 match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n\n\n\n\t\n\n\n\t\n\n\n\n\n\n<!--  -->\n\n\n\n<!-- \$R..file: i_pagestart\.shtm,v \$  -->\n<html>\n<head>\n| p/Axis 5400 print server web config/ d/print server/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/([\w.]+)\r\n\r\n<html>\n\n<head>\n\n<title>  Software de administraci&#243;n de impresora PhaserLink  </title>\n\n| p/Spyglass_MicroServer/ v/$1/ i/Tektronix Phaser printer http config/ d/printer/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/([\d.]+)\r\n| p/ChipPC Extreme httpd/ o/Windows CE $1/ cpe:/o:microsoft:windows_ce/a
-match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: Microsoft-WinCE/([\w._-]+)\r\nContent-Type: text/html\r\nContent-Length: 125\r\n\r\n<html><head><title>Access Denied</title></head><body><B>Access denied\.</B><P>The action requested is forbidden\.</body></html>$| p/Crestron TSW-750 touch screen http interface/ d/media device/ o/Windows CE $1/ cpe:/h:crestron:tsw-750/ cpe:/o:microsoft:windows_ce:$1/
+match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: Microsoft-WinCE/([\w._-]+)\r\nContent-Type: text/html\r\nContent-Length: 125\r\n\r\n<html><head><title>Access Denied</title></head><body><B>Access denied\.</B><P>The action requested is forbidden\.</body></html>$| p/Crestron automation system httpd/ d/media device/ o/Windows CE $1/ cpe:/h:crestron/ cpe:/o:microsoft:windows_ce:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\nMIME-version: 1\.0\r\nWWW-Authenticate: Basic realm=\"surgemail| p/Surgemail webmail/ i/DNews based/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\n| p/DNews Web Based Manager/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IDS-Server/([\d.]+)\r\n| p/IDS-Server httpd/ v/$1/
@@ -8016,7 +8022,7 @@ match http m|^HTTP/1\.1 404 Not Found\r\nServer: ODS/([\w._-]+)\r\n| p|Apple ODS
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: CompaqHTTPServer/([\w._-]+) HP System Management Homepage/([\d.]+) httpd/([\w.+]+)\r\n| p/CompaqHTTPServer/ v/$1/ i/HP System Management $2; httpd $3/ cpe:/a:hp:compaqhttpserver:$1/ cpe:/a:hp:system_management_homepage:$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: CompaqHTTPServer/([\w._-]+) HP System Management Homepage\r\n| p/CompaqHTTPServer/ v/$1/ i/HP System Management/ cpe:/a:hp:compaqhttpserver:$1/ cpe:/a:hp:system_management_homepage/
 match http m|^HTTP/1\.1 401 N/A\r\nServer: Router\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"PENTAGRAM Cerberus ([^"]*)\"\r\n| p/Pentagram Cerberus $1 WAP http config/ d/WAP/
-match http m|^HTTP/1\.0 302 Document Follows\r\nLocation: http:///index\.html\r\nConnection: close\r\n\r\n| p/Crestron PRO2 automation system web server/ d/specialized/ o/2-Series/ cpe:/o:crestron:2-series/
+match http m|^HTTP/1\.0 302 Document Follows\r\nLocation: http:///index\.html\r\nConnection: close\r\n\r\n| p/Crestron PRO2 automation system httpd/ d/specialized/ o/2-Series/ cpe:/o:crestron:2-series/
 match http m|^HTTP/1\.1 200 Document Follows\r\n.*<META content=\"text/html; charset=windows-1252\" http-equiv=Content-Type>\n<meta NAME=\"AUTHOR\" CONTENT=\"TANDBERG ASA \(http://www\.tandberg\.net\)\">\n|s p/Tandberg 2500 video conferencing http config/ d/webcam/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\nWWW-Authenticate: Digest realm=\"[^"]*\", domain=\"/\", nonce=\"[0-9a-f]{10}\", algorithm=\"MD5\", qop=\"auth\"\r\nWWW-Authenticate: Basic realm=\"rut-nort-vc02\"\r\nContent-Type: text/html\r\nContent-Length: 236\r\n\r\n| p/Tandberg 3000 MXP video conferencing http config/ d/webcam/
 match http m|^HTTP/1\.0 200 Ok\r\nContent-Type: text/html\r\nServer: httpd\r\n.*<title>Router - Info</title>\n\n|s p/DD-WRT milli_httpd/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
@@ -8470,7 +8476,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nCache-Control: no-cache,
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n\r\n<html>\n<head><title>401 Unauthorized</title></head>\n<body>\n<h3>401 Unauthorized</h3>\nAuthorization required\. HuaCheng Technologies\n</body>\n</html>\n| p/HuaCheng firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n\r\n<html>\n<head><title>501 Not Implemented</title></head>\n<body>\n<h3>501 Not Implemented</h3>\nThat method is not implemented\.\n</body>\n</html>\n$| p/Western Digital My Book http config/ d/storage-misc/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Axeda Agent Web Server/([\w._-]+)\r\n.*Last-Modified: 1200004200\r\n.*<title>IM_v8_Data </title>\r\n</head>\r\n<body bgcolor=\"ffffff\">\r\n<center>\r\n<DIV style=\"position:absolute; top:6; left:6; width:(\d+); height:(\d+); z-layer:1;\" >\r\n<applet codebase=\"/aagweb/classes\" code=aglance\.jag\.AAGApplet|s p/Axeda remote management http interface/ v/$1/ i/Resolution $2x$3/ d/remote management/
-match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Encoding: gzip\r\nCache-Control: max-age=600\r\n\r\n\x1f\x8b\x08\0\0\0\0\0| p/BenQ projector/ i/Crestron RoomView/ d/media device/
+match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Encoding: gzip\r\nCache-Control: max-age=600\r\n\r\n\x1f\x8b\x08\0\0\0\0\0| p/BenQ projector/ i/Crestron RoomView/ d/media device/ cpe:/h:crestron/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nLocation: https://([\w._-]+):\d+/symantec\.jsp\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer: Hidden\r\n\r\n$| p/Symantec Endpoint Protection Manager http config/ d/firewall/ h/$1/ cpe:/a:symantec:endpoint_protection_manager/
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer:  \r\nLocation: https://[\d.]+:(\d+)/redirect\.cgi\?arip=\r\n.*<address>  Server at ([\w._-]+) Port \d+</address>|s p/ZyXEL ZyWALL USG 200 firewall http config/ i/redirect to port $1/ d/firewall/ h/$2/ cpe:/h:zyxel:zywall_usg_200/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*<script src=\"\./message/message\.js\"></script>\n\t<script src=\"\./buffalo\.js\"></script>\n\t\n\t<script src=\"\./btsdk\.js\"></script>\n\t<script src=\"\./btuicommon\.js\"></script>|s p/Buffalo NAS BitTorrent download manager http interface/ d/storage-misc/
@@ -12502,7 +12508,7 @@ match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nCache-Control: no-cache\r
 match http m|^<html>\n<link rel=stylesheet href=form\.css>\n<body onload='document\.login\.passwd\.focus\(\)'>\n<form name=login method=POST>\n.*<td bgcolor=#C1D6FF>&nbsp;System Name &nbsp; : ([\w._-]+)\n.*&nbsp;MAC Address &nbsp;&nbsp; : ([\w-]+)\n|s p/Web-Smart Gigabit Ethernet Switch http config/ i/MAC $2/ d/switch/ h/$1/
 match http m|^HTTP/1\.0 404 Not Found\r\n\r\nThis page does not exist or you are not authorized to view it| p/Google Search Appliance httpd/ d/specialized/ cpe:/a:google:search_appliance_software/
 match http m|^HTTP/1\.0 404 Document Follows\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<HEAD><TITLE>404 Not Found</TITLE></HEAD>\r\n<BODY><H1>404 Not Found</H1>\r\nUrl '/NICE%20PORTS%2C\\TRI%6EITY\.TXT%2EBAK' not found on server<P>\r\n</BODY>| p/HP StorageWorks MSL4048 http config/ d/storage-misc/
-match http m|^HTTP/1\.0 404 Document Follows\r\nContent-Type: text/html\r\nContent-Length: 147\r\n\r\n<HEAD><TITLE>404 Not Found</TITLE></HEAD>\r\n<BODY><H1>404 Not Found</H1>\r\nUrl '/nice%20ports%2C/Tri%6Eity\.txt%2ebak' not found on server<P>\r\n</BODY>| p/Crestron MPS-200 AV routing system http config/ d/media device/
+match http m|^HTTP/1\.0 404 Document Follows\r\nContent-Type: text/html\r\nContent-Length: 147\r\n\r\n<HEAD><TITLE>404 Not Found</TITLE></HEAD>\r\n<BODY><H1>404 Not Found</H1>\r\nUrl '/nice%20ports%2C/Tri%6Eity\.txt%2ebak' not found on server<P>\r\n</BODY>| p/Crestron automation system httpd/ d/specialized/ cpe:/h:crestron/
 match http m|^HTTP/1\.1 404 .*\r\nServer: WMI (V[\w._-]+)\r\n.*HTTP/1\.1 404 NOT FOUND!<br>Check flash:/s3p03_00\.web , please\.</h1>|s p/WMI/ v/$1/ i/3Com 4500 switch http config/ d/switch/ cpe:/h:3com:4500/a
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"/webpages\"\r\nServer: DigiSprite\r\n| p/DigiSprite httpd/ d/webcam/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nDate: .*\r\nLocation: https://([\w_.-]+)/nice%20ports%2C/Tri%6Eity\.txt%2ebak\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<HTML><BODY><H1>301 Moved Permanently</H1></BODY></HTML>$| p/VMware ESX 4.0 Server httpd/ h/$1/ cpe:/o:vmware:esx:4.0/
