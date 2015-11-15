@@ -1648,6 +1648,7 @@ match ipsi m|^\0\x0f\0/([\w._-]+)\0| p/Avaya $1 IPSI version/ d/PBX/
 
 # Port 9200: http://support.lexmark.com/index?page=content&id=FA642
 match ir-alerts m|^.\0\0\0\0Lexmark (\w+)\0| p/Lexmark $1 print server identification/ d/printer/ cpe:/h:lexmark:$1/a
+match ir-alerts m|^.\0\0\0\0Dell ([^\0]+)\0$| p/Dell $1 print server identification/ d/printer/ cpe:/h:dell:$1/
 
 # ircd-hybrid 7 on Linux
 match irc m=^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* (?:No|Got) Ident response\r\nNOTICE AUTH :\*\*\* (?:Couldn't look up|Found) your hostname\r\n$= p/Hybrid-based ircd/ cpe:/a:ircd-hybrid:ircd-hybrid/
