@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added targets-xml to extract target addresses from previous Nmap XML
+  results files. [Daniel Miller]
+
 o [NSE] [GH#232] Added ssl-dh-params to check for problems with weak, non-safe,
   and export-grade Diffie-Hellman parameters in TLS handshakes. This includes
   the LOGJAM vulnerability (CVE-2015-4000). [Jacob Gajek]
