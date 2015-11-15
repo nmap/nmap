@@ -3246,7 +3246,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-openssh-portable-overwrite-
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-openssh-gssapi-| p/OpenSSH/ v/$2/ i/gssapi; protocol $1/ o/FreeBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:freebsd:freebsd/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/FreeBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:freebsd:freebsd/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) miniBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/MiniBSD $3; protocol $1/ o/MiniBSD/ cpe:/a:openbsd:openssh:$2/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) NetBSD_Secure_Shell-([\w._-]+)\r?\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:netbsd:netbsd/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) NetBSD_Secure_Shell-([\w._+-]+)\r?\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:netbsd:netbsd/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)_Mikrotik_v([\d.]+)\r?\n| p/OpenSSH/ v/$2 mikrotik $3/ i/protocol $1/ d/router/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) in RemotelyAnywhere ([\d.]+)\r?\n| p/OpenSSH/ v/$2/ i/RemotelyAnywhere $3; protocol $1/ o/Windows/ cpe:/a:openbsd:openssh:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)\+CAN-2004-0175\r?\n| p/OpenSSH/ v/$2+CAN-2004-0175/ i/protocol $1/ cpe:/a:openbsd:openssh:$2/
@@ -3290,8 +3290,8 @@ match ssh m|^SSH-2\.0-mpsa57B_3A\n| p/Fortinet FortiGate 60C firewall sshd/ d/fi
 match ssh m|^SSH-2\.0-Fq6T1B\n| p/Fortinet FortiGate 310B firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:310b/
 match ssh m|^SSH-2\.0-cA2G3\n| p/Fortinet FortiGate 620B firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:620b/
 match ssh m|^SSH-1\.99-yIfdRWXrjyj\n| p/Fortinet FortiWifi 80C firewall sshd/ d/firewall/ cpe:/h:fortinet:fortiwifi:80c/
-# FortiSSH uses random server name
-#match ssh m|^SSH-([\d.]+)-[\w._-]{5,14}\n| p/FortiSSH/ i/protocol $1/ cpe:/o:fortinet:fortios/
+# FortiSSH uses random server name - match below breaks other SSH match lines
+#match ssh m|^SSH-([\d.]+)-[\w._-]{5,15}\n| p/FortiSSH/ i/protocol $1/ cpe:/o:fortinet:fortios/
 
 # These are strange ones. These routers pretend to be OpenSSH, but don't do it that well (see the \r):
 match ssh m|^SSH-2\.0-OpenSSH\r?\n| p/Linksys WRT45G modified dropbear sshd/ i/protocol 2.0/ d/router/
