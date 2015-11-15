@@ -13541,6 +13541,7 @@ ports 3050
 match firebird m|^\0\0\0\x03\0\0\0\x0a\0\0\0\x01| p/Firebird RDBMS/ v/Protocol version 10/ cpe:/a:firebirdsql:firebird/
 softmatch firebird m|^\0\0\0\x03\0\0\0.\0\0\0.|s p/Firebird RDBMS/ cpe:/a:firebirdsql:firebird/
 
+match cisco-smartinstall m|^\0\0\0\x04\0\0\0\0\0\0\0\x04\0\0\0\x04\0\0\0\x01| p/Cisco Switch Smart Install/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a
 
 
 # Following 4 probes created by Tom Sellers:
