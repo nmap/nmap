@@ -180,12 +180,12 @@ end
 local function do_sql_query(host, port, uri, user)
 
   local adminRole = 'administrator'
-  local sql_user = "";
-  local sql_admin = "";
-  local passwd = ""
-  local email = ""
-  local passHash = ""
-  local query = ""
+  local sql_user
+  local sql_admin
+  local passwd
+  local email
+  local passHash
+  local query
 
   if user == nil then
     user = stdnse.generate_random_string(10)
@@ -346,11 +346,12 @@ action = function(host, port)
   local user, passwd = do_sql_query(host, port, uri, nil)
 
   stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
-  local data = {}
-  data['name'] = user
-  data['pass'] = passwd
-  data['form_id'] = 'user_login'
-  data['op'] = 'Log in'
+  local data = {
+    ['name'] = user,
+    ['pass'] = passwd,
+    ['form_id'] = 'user_login',
+    ['op'] = 'Log in',
+  }
 
   local res = http.post(host, port, uri .. "/user/login", nil, nil, data)
 
