@@ -1194,7 +1194,7 @@ match ftp m|^220 FTP Server \((NXC\d+)\) \[::ffff:[\d.]+\]\r\n| p/ZyXEL WLAN con
 match ftp m|^220 IFT DS ([\w-]+) RAID FTP server ready\.\r\n| p/Infortrend EonStor DS iSCSI host ftpd/ i/model: $1/ d/storage-misc/ cpe:/h:infortrend:esds_$1/
 match ftp m|^220 Synology FTP server ready\.\r\n| p/Synology DiskStation ftpd/ d/storage-misc/
 match ftp m|^220-owftpd 1-wire ftp server -- Paul H Alfille\r\n220-Version: (\d[\w._-]*) see http://www\.owfs\.org\r\n220 Service ready for new user\.\r\n| p/OWFS owftpd/ v/$1/ cpe:/a:owfs:owftpd:$1/
-match ftp m|^220 Firewall Authentication required before proceeding with service\r\n| p/Fortigate Application filtering/
+match ftp m|^220 Firewall Authentication required before proceeding with service\r\n| p/FortiGate Application filtering/
 #(insert ftp)
 
 # These look too generic, but didn't match anything else yet
@@ -4500,6 +4500,7 @@ match telnet m|^\xff\xfe\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x1fUser
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\npsh running\. Type \"help\" for help or \"exit\" to exit\.\r\npsh > | p/Polycom videoconferencing system diagnostic shell/ d/VoIP phone/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nCIMC Debug Firmware Utility Shell\r\n\[ help \]# | p/Cisco Integrated Management Controller utility shell/ cpe:/h:cisco:unified_computing_system_integrated_management_controller/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\0| p/Actiontec MI424WR router telnetd/ d/broadband router/ cpe:/h:actiontec:mi424wr/
+match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfe\"\xff\xfb\x01| p/FortiGate Application Filtering/
 
 #(insert telnet)
 
@@ -8403,6 +8404,7 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Last-Modified: Tue, 31 Jan 2012 01:17:22 GMT
 match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Tue, 03 Oct 2006 19:21:12 GMT\r\nETag: \"85f_52_4522b828\"\r\n.*Content-Length: 82\r\n.*location=\"/remote/index\";\n\n</script>\n</html>\n\0{605}$|s p/Fortinet FortiGate-5001 SSL VPN remote http login/
 match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Wed, 11 Jan 2012 03:34:20 GMT\r\nETag: \"610_4f_4f0d033c\"\r\n.*Content-Length: 79\r\n.*location=\"/login\";\n\n</script>\n</html>\n|s p/Fortinet FortiGate firewall http proxy admin/ d/firewall/
 match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Fri, 21 Apr 2000 00:53:33 GMT\r\nETag: W/\"685_4f_4d082ec4\"\r\n.*Content-Length: 79\r\n.*location=\"/login\";\n\n</script>\n</html>\n|s p/Fortinet FortiGate firewall http proxy admin/ d/firewall/
+match http m|^HTTP/1\.1 303 See Other\r\nLocation: https?://([\d.]+:\d+)/fgtauth\?[0-9a-fA-F]+\r\n.*<title>Firewall Authentication</title></head>|s p/FortiGate Application filtering/ i/Auth server $1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"View Home & Status Web Pages\"\r\n.*Server: Allegro-Software-RomPager/([\w._-]+)\r\n|s p/Allegro RomPager/ v/$1/ i/Xerox Phaser 8560DN printer http config/ d/printer/ cpe:/a:allegro:rompager:$1/ cpe:/h:xerox:phaser_8560dn/a
 match http m|^HTTP/1\.1 302 Found\r\nLocation: https://[\d.]+/home\.html\r\nContent-Length: 0\r\nServer: Allegro-Software-RomPager/([\w._-]+)\r\n\r\n$| p/Allegro RomPager/ v/$1/ i/Xerox Phaser 8560DN printer http config/ d/printer/ cpe:/a:allegro:rompager:$1/ cpe:/h:xerox:phaser_8560dn/a
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>XenServer ([\w._-]+)</title>|s p/Citrix Xen Simple HTTP Server/ i/XenServer $1/
@@ -11277,7 +11279,7 @@ rarity 7
 ports 53,513,514,6050,41523
 match domain m|^\0\x0c\0\0\x90\x04\0\0\0\0\0\0\0\0$|
 match domain m|^\0\x0c\0\0\x90\x84\0\0\0\0\0\0\0\0$| p/OpenDNS Updater/
-# Fortigate v4.0,build0511,120110 (MR3 Patch 4)
+# FortiGate v4.0,build0511,120110 (MR3 Patch 4)
 match domain m|^\0\x0c\0\0\x90\x01\0\0\0\0\0\0\0\0$| p/Fortinet FortiGate named/
 
 # Matches weird txids, since 0 (what we sent) is matched above.
