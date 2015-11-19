@@ -5205,7 +5205,6 @@ match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\
 match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain\r\n\r\nnot allowed\n$| p/MongoDB simple REST interface/ v/1.5.0 - 1.9.0/ cpe:/a:mongodb:mongodb/
 match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain;charset=utf-8\r\n\r\nnot allowed\n$| p/MongoDB simple REST interface/ v/1.9.0 or later/ cpe:/a:mongodb:mongodb/
 match http m|^HTTP/1\.0 401\r\nWWW-Authenticate: Digest realm=\"mongo\", nonce=\"abc\", algorithm=MD5, qop=\"auth\" \r\nContent-Type: text/plain;charset=utf-8\r\nConnection: close\r\nContent-Length: 12\r\n\r\nnot allowed\n| p/MongoDB simple REST interface/ v/3.1.1 or later/ cpe:/a:mongodb:mongodb/
-match http m|^HTTP/1\.1 \d\d\d .*Server: thin ([\w._-]+) codename ([\w\s]+)\r\n|s p/Thin/ v/$1/ i/codename $2/
 match http m|^ 400 Invalid request\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Length: 15\r\n\r\nInvalid request| p/Acutenix WVS Scheduler/
 match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nContent-length: 0\r\n\r\n$| p/Ajenti http control panel/ cpe:/a:ajenti:ajenti/
 match http m|^HTTP/1\.0 200 OK\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\ncharset: UTF8\r\nContent-Type: text/html\r\n\r\n{\"STATUS\": \"REDIRECT\", \"RESPONSE\": \"mlicense\.html\"}| p/MONyog MySQL Monitor and Advisor/ cpe:/a:webyog:monyog/
@@ -9426,8 +9425,8 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FlashCom/(1\.[\w._-]+)\r\n|s p/Macr
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FlashCom/(2\.[\w._-]+)\r\n|s p/Macromedia Flash Media Server httpd/ v/$1/ cpe:/a:macromedia:flash_media_server:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FlashCom/([34]\.[\w._-]+)\r\n|s p/Adobe Flash Media Server httpd/ v/$1/ cpe:/a:adobe:flash_media_server:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FlashCom/([5-9]\.[\w._-]+)\r\n|s p/Adobe Media Server httpd/ v/$1/ cpe:/a:adobe:media_server:$1/
-match http m|^HTTP/1\.1 \d\d\d .*Server: thin ([\w._-]+) codename ([\w\s]+)\r\n|s p/Thin/ v/$1/ i/codename $2/ cpe:/a:macournoyer:thin:$1/
-match http m|^HTTP/1\.1 \d\d\d .*Server: thin\r\n|s p/Thin/ cpe:/a:macournoyer:thin/
+match http m|^HTTP/1\.1 \d\d\d .*Server: thin ([\w._-]+) codename ([\w\s-']+)\r\n|s p/Thin httpd/ v/$1/ i/codename $2/ cpe:/a:macournoyer:thin:$1/
+match http m|^HTTP/1\.1 \d\d\d .*Server: thin\r\n|s p/Thin httpd/ cpe:/a:macournoyer:thin/
 match http m|^HTTP/1\.0 \d\d\d .*Server: WYM/([\d\.]+)\r\n|s p/WYM httpd/ v/$1/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: NET-DK/([\d.]+)\r\n| p/NET-DK/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Agranat-EmWeb/R([\w._-]+)\r\n|s p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ cpe:/a:agranat:emweb:$SUBST(1,"_",".")/
