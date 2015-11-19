@@ -1,67 +1,121 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added targets-xml to extract target addresses from previous Nmap XML
-  results files. [Daniel Miller]
+Nmap 7.00 [2015-11-19]
 
-o [NSE] [GH#232] Added ssl-dh-params to check for problems with weak, non-safe,
-  and export-grade Diffie-Hellman parameters in TLS handshakes. This includes
-  the LOGJAM vulnerability (CVE-2015-4000). [Jacob Gajek]
+o This is the most important release since Nmap 6.00 back in May 2012!
+  For a list of the most significant improvements and new features,
+  see the announcement at: https://nmap.org/7
 
-o [NSE] Added nje-node-brute to brute-force z/OS JES Network Job Entry node
-  names. [Soldier of Fortran]
+o [NSE] Added 6 NSE scripts from 6 authors, bringing the total up to 515!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
 
-o [NSE] [GH#165] Added broadcast-sonicwall-discover to detect and extract
-  information from SonicWall firewalls. [Raphael Hoegger]
+  + targets-xml extracts target addresses from previous Nmap XML results files.
+    [Daniel Miller]
 
-o [NSE] [GH#38] Added http-vuln-cve2014-8877 to check for and optionally
-  exploit a vulnerability in CM Download Manager plugin for Wordpress.
-  [Mariusz Ziulek]
+  + [GH#232] ssl-dh-params checks for problems with weak, non-safe, and
+    export-grade Diffie-Hellman parameters in TLS handshakes. This includes the
+    LOGJAM vulnerability (CVE-2015-4000). [Jacob Gajek]
+
+  + nje-node-brute does brute-forcing of z/OS JES Network Job Entry node names.
+    [Soldier of Fortran]
+
+  + ip-https-discover detectings support for Microsoft's IP over HTTPS
+    tunneling protocol. [Niklaus Schiess]
+
+  + [GH#165] broadcast-sonicwall-discover detects and extracts information from
+    SonicWall firewalls. [Raphael Hoegger]
+
+  + [GH#38] http-vuln-cve2014-8877 checks for and optionally exploits a
+    vulnerability in CM Download Manager plugin for Wordpress. [Mariusz Ziulek]
 
 o [Ncat] [GH#151] [GH#142] New option --no-shutdown prevents Ncat from shutting
   down when it reads EOF on stdin. This is the same as traditional netcat's
   "-d" option. [Adam Saponara]
 
-o [NSE] Added ip-https-discover for detecting support for Microsoft's IP over
-  HTTPS tunneling protocol. [Niklaus Schiess]
-
 o [NSE] [GH#229] Improve parsing in http.lua for multiple Set-Cookie headers in
   a single response.  [nnposter]
 
-o [NSE] [GH#194] Add support for reading fragmented TLS messages to
-  ssl-enum-ciphers. [Jacob Gajek]
+Nmap 6.49BETA6 [2015-11-03]
+
+o Integrated all of your IPv6 OS fingerprint submissions from April to October
+  (only 9 of them!). We are steadily improving the IPv6 database, but we need
+  your submissions. The classifier added 3 new groups, bringing the new total
+  to 93. Highlights: http://seclists.org/nmap-dev/2015/q4/61 [Daniel Miller]
+
+o Integrated all of your IPv4 OS fingerprint submissions from February to
+  October (1065 of them). Added 219 fingerprints, bringing the new total to
+  4985. Additions include Linux 4.1, Windows 10, OS X 10.11, iOS 9, FreeBSD
+  11.0, Android 5.1, and more. Highlights:
+  http://seclists.org/nmap-dev/2015/q4/60 [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  February to October (800+ of them). The signature count went up 2.5% to
+  10293. We now detect 1089 protocols, from afp, bitcoin, and caldav to
+  xml-rpc, yiff, and zebra. Highlights: http://seclists.org/nmap-dev/2015/q4/62
+  [Daniel Miller]
+
+o [NSE] Added 10 NSE scripts from 5 authors, bringing the total up to 509!
+  They are all listed at http://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + knx-gateway-discover and knx-gateway-info scripts gather information from
+    multicast and unicast KNX gateways, which connect home automation systems
+    to IP networks. [Niklaus Schiess, Dominik Schneider]
+
+  + http-ls parses web server directory index pages with optional recursion.
+    [Pierre Lalet]
+
+  + xmlrpc-methods perfoms introspection of xmlrpc services and lists methods
+    and their descriptions. [Gyanendra Mishra]
+
+  + http-fetch can be used like wget or curl to fetch all files, specific
+    filenames, or files that match a given pattern. [Gyanendra Mishra]
+
+  + http-svn-enum enumerates users of a Subversion repository by examining
+    commit logs. [Gyanendra Mishra]
+
+  + http-svn-info requests information from a Subversion repository, similar to
+    the "svn info" command. [Gyanendra Mishra]
+
+  + hnap-info detects and outputs info for Home Network Administration Protocol
+    devices. [Gyanendra Mishra]
+
+  + http-webdav-scan detects WebDAV servers and reports allowed methods and
+    directory listing. [Gyanendra Mishra]
+
+  + tor-consensus-checker checks the target's address with the Tor directory
+    authorities to determine if a target is a known Tor node. [Jiayi Ye]
+
+o [NSE] Several scripts have been split, combined, or renamed:
+
+  + [GH#171] smb-check-vulns has been split into:
+    * smb-vuln-conficker
+    * smb-vuln-cve2009-3103
+    * smb-vuln-ms06-025
+    * smb-vuln-ms07-029
+    * smb-vuln-regsvc-dos
+    * smb-vuln-ms08-067
+    The scripts now use the vulns library, and the "unsafe" script-arg has been
+    replaced by putting the scripts into the "dos" category. [Paulino Calderon]
+
+  + http-email-harvest was removed, as the new http-grep does email address
+    scraping by default. [Gyanendra Mishra]
+
+  + http-drupal-modules was renamed to http-drupal-enum. Extended to enumerate
+    both themes and modules of Drupal installaions. [Gyanendra Mishra]
 
 o [Ncat] [GH#193] Fix Ncat listen mode over Unix sockets (named pipes) on OS X.
   This was crashing with the error:
     Ncat: getnameinfo failed: Undefined error: 0 QUITTING.
   Fixed by forcing the name to "localhost" [Michael Wallner]
 
-o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
-  information from multicast and unicast KNX gateways, which connect home
-  automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]
+o [Zenmap] Fix a crash in Zenmap when using Compare Results:
+    AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
+  [Daniel Miller]
 
-o [NSE] Added script http-ls. Parses web server directory index pages with
-  optional recursion. [Pierre Lalet]
-
-o [NSE] Added script xmlrpc-methods. This script perfoms introspection of
-  xmlrpc services and lists methods and their description. [Gyanendra Mishra]
-
-o [NSE] Added script http-fetch. This script can be used to fetch all files
-  from the target, specific files from the target or files that match a  given
-  pattern. [Gyanendra Mishra]
-
-o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
-  repostory by examinning commit logs. [Gyanendra Mishra]
-
-o [NSE] Added script http-svn-info. Requests information from a
-  Subversion repository.[Gyanendra Mishra]
-
-o [NSE] Added hnap-info, detects and outputs info for Home Network
-  Administration Protocol devices. [Gyanendra Mishra]
-
-o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
-
-o [NSE] Added tor-consensus-checker, which checks if a target is a
-  known Tor node. [Jiayi Ye]
+o [NSE] [GH#194] Add support for reading fragmented TLS messages to
+  ssl-enum-ciphers. [Jacob Gajek]
 
 o [GH#51] Added IPv6 support to nmap_mass_rdns, improved reverse DNS cache,
   and refactored DNS code to improve readability and
@@ -77,12 +131,6 @@ o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
   outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
   scripts have been converted to use this module. [Pierre Lalet]
 
-o [NSE] [GH#171] Splits smb-check-vulns into smb-vuln-conficker, smb-vuln-cve2009-3103,
-  smb-vuln-ms06-025, smb-vuln-ms07-029, smb-vuln-regsvc-dos and smb-vuln-ms08-067.
-  The scripts now support the library vulns and the script arguments "safe" and  
-  and "unsafe" were removed in favor of allowing users to control execution by 
-  NSE category. [Paulino Calderon] 
-
 o [NSE] bacnet-info.nse and s7-info.nse were added to the version category.
   [Paulino Calderon] 
 
@@ -92,22 +140,12 @@ o [NSE] Added 124 new identifiers to bacnet-info.nse vendor database.
 o [NSE] Fixed bacnet-info.nse to bind to the service port detected 
   during scan instead of fixed port. [Paulino Calderon] 
 
-o Fix a crash in Zenmap when using Compare Results:
-  AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
-  [Daniel Miller]
-
 o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
   [Brandon Paulsen]
 
 o [GH#75] Normalize Makefile targets to use the same verb-project format, e.g.
   build-ncat, check-zenmap, install-nping, clean-nsock [Gioacchino Mazzurco]
-
-o [NSE] Removed http-email-harvest as the the new http-grep does email address
-  scraping by default. [Gyanendra Mishra]
-
-o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
-  enumerate both themesa and modules of drupal installaions. [Gyanendra Mishra]
 
 o [NSE] Added builtin pattern and multiple pattern search to http-grep. [Gyanendra Mishra]
 
