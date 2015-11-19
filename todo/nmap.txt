@@ -1,18 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Finish the version detection submission integration
-
-o Do the very latest Nmap IPv4 OS detection (last was done with
-  snapshot from May).
-
-o Make sure the new version detection sigs have appropriate CPE’s.
-
-o Integrate latest IPv6 OS detection submissions and corrections
-
-o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/running
-
-o Make and test build on a newer OS X than 10.6 (10.10 was recently released)
-
 o Deal with our out-of-date CA root certificate bundle by either using
   OS-specific mechanisms and/or updating the latest from Mozilla or
   another source.  See http://seclists.org/nmap-dev/2014/q4/200
@@ -29,16 +16,6 @@ o Figure out what nmap-update is doing for SSL certificate
   verification (it uses libsvn to our SSL svn server).
 
 o Audit ncat's ssl algorithm and ciphersuite choices
-
-o Do a test/beta release (more, if necessary)
-
-o Make sure people have tested on Mac OS 10.10
-
-o Do CHANGELOG for new release[Fyodor]
-
-o Web updates for new release
-
-o Build and post new release
 
 ==Items we need to finish before next big release go above this line==
 
@@ -114,14 +91,6 @@ o Consider using a binary decision diagram for --exclude list to make
   it more efficient for large exclude lists.  See
   http://seclists.org/nmap-dev/2012/q4/420.
 
-o Augment the configure script to list unmet dependencies. Currently, configure
-  works just fine without a C++ compiler installed, but make generates an
-  error.  The configure script should be able to detect this. Also, a list of
-  features that are/are-not available would be nice at the end of the script,
-  so folks can see that they've e.g. missed the OpenSSL dependency.
-
-o Integrate latest version detection submissions and corrections
-
 o Look into moving our Mac building/testing system into a virtual
   machine or leased server sort of environment so that multiple Nmap
   developers can access it and nobody has to keep a stack of Mac Minis
@@ -151,10 +120,6 @@ o Investigate Checkmarx static analysis report of Nmap source tree
 o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
-
-o INFRASTRUCTURE: Add IPv6 support to secwiki
- - We probably just have to designate a new IPv6 address for it and
-   add it to Apache config.
 
 o INFRASTRUCTURE: Consider updating our svn-mailer.py (and conf file)
   to the latest official version.  First check whether there is a
@@ -211,7 +176,7 @@ o Our http library should allow the client to specify a max size in
 o NSE digest auth should use the more robust parsing from
   http.parse_www_authenticate as described at
   http://seclists.org/nmap-dev/2012/q3/868
- 
+
 o Treat the input to the escape function in xml.cc as UTF-8, not just
   ASCII. Good UTF-8 should survive into the output; i.e., "\xe2\x98\xbb"
   should become "\xe2\x98\xbb" in the output, not "&#xe2;&#x98;&#xbb;".
@@ -260,12 +225,6 @@ o Test a hierarchical classifier for IPv6 OS detection. Our classifier
   suspect playing it by ear will be sufficient. Talk to David for more
   of his thinking on this topic.
 
-o [INFRASTRUCTURE] Improve our main web server http configuration to
-  better handle high load situations and DoS attacks.  As part of
-  this, we may have to raise the max client limits.  But then there is
-  a risk of running out of RAM, which can be even worse.  So we need
-  to figure out a good balance.
-
 o Maybe we should rename dns-brute to dns-brute-enum since it is so different
   from our traditional brute force authentication cracking -brute scripts?
 
@@ -285,17 +244,6 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  https://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
-  6, since Linode doesn't currently offer ScientificLinux images).
-  o Actually, if we can wait until "second half of 2013", we might be
-    able to jump straight to RHEL 7.  And RHEL 5 support looks like it
-    will go on for many more years for critical/security patches.
-  o Maybe start with svn server, since we've had reports of our
-    current one giving people unexpected password prompts.  There is a
-    thread about that at http://seclists.org/nmap-dev/2012/q2/17
-    o UPDATE on this - adding read-only rights (rather than no rights)
-      to the root of the svn repo seems to have solved this problem.
 
 o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
@@ -409,9 +357,6 @@ o [NSE] Consider a system where scripts can tell if any other scripts
   should bother storing information in the registry.  For example,
   snmp-interfaces could store the discovered table if another script
   (such as a mac address geolocator script) depends on it.
-
-o Add parallel IPv6 reverse DNS support (right now we use the system
-  functions).
 
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
@@ -540,6 +485,7 @@ o Start project to make Nmap a Featured Article on Wikipedia.
 
 o Add Nmap web board/forum
  - First step is looking at the available software for this.
+ - Nmap subreddit exists: https://www.reddit.com/r/nmap
 
 o [Zenmap] Consider a couple ideas from Norris Carden
   (http://seclists.org/nmap-dev/2010/q2/228):
@@ -606,10 +552,6 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Obviously this will take some discussion/brainstorming on nmap-dev.
 
 o Do -p- Internet UDP scans.
-
-o [Ncat] This may sound ridiculous, but I'm starting to think that
-  Ncat should offer a very simple built-in http server (e.g. for simply
-  sharing files, etc.)  And maybe a simple client too.
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now

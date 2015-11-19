@@ -1,5 +1,44 @@
 DONE:
 
+o Augment the configure script to list unmet dependencies. Currently, configure
+  works just fine without a C++ compiler installed, but make generates an
+  error.  The configure script should be able to detect this. Also, a list of
+  features that are/are-not available would be nice at the end of the script,
+  so folks can see that they've e.g. missed the OpenSSL dependency.
+
+o Add parallel IPv6 reverse DNS support (right now we use the system
+  functions).
+
+o [Ncat] This may sound ridiculous, but I'm starting to think that
+  Ncat should offer a very simple built-in http server (e.g. for simply
+  sharing files, etc.)  And maybe a simple client too. (Done via --lua-exec and
+  the httpd.lua script shipped with Ncat)
+
+o INFRASTRUCTURE: Add IPv6 support to secwiki
+ - We probably just have to designate a new IPv6 address for it and
+   add it to Apache config.
+
+o [INFRASTRUCTURE] Improve our main web server http configuration to
+  better handle high load situations and DoS attacks.  As part of
+  this, we may have to raise the max client limits.  But then there is
+  a risk of running out of RAM, which can be even worse.  So we need
+  to figure out a good balance.
+
+o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
+  6, since Linode doesn't currently offer ScientificLinux images).
+  o Actually, if we can wait until "second half of 2013", we might be
+    able to jump straight to RHEL 7.  And RHEL 5 support looks like it
+    will go on for many more years for critical/security patches.
+  o Maybe start with svn server, since we've had reports of our
+    current one giving people unexpected password prompts.  There is a
+    thread about that at http://seclists.org/nmap-dev/2012/q2/17
+    o UPDATE on this - adding read-only rights (rather than no rights)
+      to the root of the svn repo seems to have solved this problem.
+
+o Make Windows 8.1 VM with VS 2013 and do more testing of Nmap compilation/running
+
+o Make and test build on a newer OS X than 10.6 (10.10 was recently released)
+
 o Adopt an issue tracking system for Nmap and related tools.  We
   should probably look at our needs and options and then decide on and
   either install it on our own infrastructure or use it hosted elsewhere.
