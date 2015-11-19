@@ -1,4 +1,4 @@
-Ncat 6.49SVN ( https://nmap.org/ncat )
+Ncat 7.00SVN ( https://nmap.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds. Append 'ms' for milliseconds,
@@ -40,6 +40,12 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --proxy <addr[:port]>  Specify address of host to proxy through
       --proxy-type <type>    Specify proxy type ("http" or "socks4" or "socks5")
       --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server
+      --ssl                  Connect or listen with SSL
+      --ssl-cert             Specify SSL certificate file (PEM) for listening
+      --ssl-key              Specify SSL private key (PEM) for listening
+      --ssl-verify           Verify trust and domain name of certificates
+      --ssl-trustfile        PEM file containing trusted SSL certificates
+      --ssl-ciphers          Cipherlist containing SSL ciphers to use
       --version              Display Ncat's version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples

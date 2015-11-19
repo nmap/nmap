@@ -145,7 +145,7 @@
 /* Ncat information for output, etc. */
 #define NCAT_NAME "Ncat"
 #define NCAT_URL "https://nmap.org/ncat"
-#define NCAT_VERSION "6.49SVN"
+#define NCAT_VERSION "7.00SVN"
 
 #ifndef __GNUC__
 #ifndef __attribute__

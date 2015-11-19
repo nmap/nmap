@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 11/05/2015
+.\"      Date: 11/19/2015
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "11/05/2015" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "11/19/2015" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -43,7 +43,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 6\&.49SVN ( https://nmap\&.org/ncat )
+Ncat 7\&.00SVN ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -85,6 +85,12 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-proxy <addr[:port]>  Specify address of host to proxy through
       \-\-proxy\-type <type>    Specify proxy type ("http" or "socks4" or "socks5")
       \-\-proxy\-auth <auth>    Authenticate with HTTP or SOCKS proxy server
+      \-\-ssl                  Connect or listen with SSL
+      \-\-ssl\-cert             Specify SSL certificate file (PEM) for listening
+      \-\-ssl\-key              Specify SSL private key (PEM) for listening
+      \-\-ssl\-verify           Verify trust and domain name of certificates
+      \-\-ssl\-trustfile        PEM file containing trusted SSL certificates
+      \-\-ssl\-ciphers          Cipherlist containing SSL ciphers to use
       \-\-version              Display Ncat\*(Aqs version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples
@@ -460,6 +466,11 @@ If this option is passed, Ncat will only receive data and will not try to send a
 \fB\-\-send\-only\fR (Only send data) .\" --send-only (Ncat option)
 .RS 4
 If this option is passed, then Ncat will only send data and will ignore anything received\&. This option also causes Ncat to close the network connection and terminate after EOF is received on standard input\&.
+.RE
+.PP
+\fB\-\-no\-shutdown\fR (Do not shutdown into half\-duplex mode) .\" --no-shutdown (Ncat option)
+.RS 4
+If this option is passed, Ncat will not invoke shutdown on a socket aftering seeing EOF on stdin\&. This is provided for backward\-compatibility with OpenBSD netcat, which exhibits this behavior when executed with its \*(Aq\-d\*(Aq option\&.
 .RE
 .PP
 \fB\-t\fR, \fB\-\-telnet\fR (Answer Telnet negotiations) .\" -t (Ncat option)
