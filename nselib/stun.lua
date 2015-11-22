@@ -3,6 +3,9 @@
 -- Traversal Utilities for NAT) per RFC3489 and RFC5389. A protocol
 -- overview is available at http://en.wikipedia.org/wiki/STUN.
 --
+-- @args stun.mode Mode container to use. Supported containers: "modern"
+--                 (default) or "classic"
+--
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
@@ -28,10 +31,12 @@ Header = {
   -- the header size in bytes
   size = 20,
 
-  -- creates a new instance of Header
+  --- creates a new instance of Header
   -- @param type number the request/response type
   -- @param trans_id string the 128-bit transaction id
   -- @param length number the packet length
+  -- @return new instance of Header
+  -- @name Header.new
   new = function(self, type, trans_id, length)
     local o = { type = type, trans_id = trans_id, length = length or 0 }
     setmetatable(o, self)
@@ -39,9 +44,10 @@ Header = {
     return o
   end,
 
-  -- parses an opaque string and creates a new Header instance
+  --- parses an opaque string and creates a new Header instance
   -- @param data opaque string
-  -- @return header new instance of Header
+  -- @return new instance of Header
+  -- @name Header.parse
   parse = function(data)
     local header = Header:new()
     local pos
@@ -61,9 +67,10 @@ Request = {
   -- The binding request
   Bind = {
 
-    -- Creates a new Bind request
+    --- Creates a new Bind request
     -- @param trans_id string containing the 128 bit transaction ID
-    -- @return o new instance of the Bind request
+    -- @return new instance of the Bind request
+    -- @name Request.Bind.new
     new = function(self, trans_id)
       local o = {
         header = Header:new(MessageType.BINDING_REQUEST, trans_id),
@@ -104,10 +111,11 @@ Attribute = {
   REFLECTED_FROM = 0x000b,
   SERVER = 0x8022,
 
-  -- creates a new attribute instance
+  --- creates a new attribute instance
   -- @param type number containing the attribute type
   -- @param data string containing the attribute value
-  -- @return o instance of attribute
+  -- @return instance of attribute
+  -- @name Attribute.new
   new = function(self, type, data)
     local o = {
       type = type,
@@ -119,9 +127,10 @@ Attribute = {
     return o
   end,
 
-  -- parses a string and creates an Attribute instance
+  --- parses a string and creates an Attribute instance
   -- @param data string containing the raw attribute
-  -- @return o new attribute instance
+  -- @return new attribute instance
+  -- @name Attribute.parse
   parse = function(data)
     local attr = Attribute:new()
     local pos = 1
@@ -166,9 +175,10 @@ Response = {
   -- Bind response class
   Bind = {
 
-    -- creates a new instance of the Bind response
+    --- creates a new instance of the Bind response
     -- @param trans_id string containing the 128 bit transaction id
-    -- @return o new Bind instance
+    -- @return new Bind instance
+    -- @name Response.Bind.new
     new = function(self, trans_id)
       local o = { header = Header:new(MessageType.BINDING_RESPONSE, trans_id) }
       setmetatable(o, self)
@@ -176,9 +186,10 @@ Response = {
       return o
     end,
 
-    -- parses a raw string and creates a new Bind instance
+    --- parses a raw string and creates a new Bind instance
     -- @param data string containing the raw data
-    -- @return resp containing a new Bind instance
+    -- @return a new Bind instance
+    -- @name Response.Bind.parse
     parse = function(data)
       local resp = Response.Bind:new()
       local pos = Header.size
@@ -199,14 +210,14 @@ Response = {
 -- The communication class
 Comm = {
 
-  -- creates a new Comm instance
+  --- creates a new Comm instance
   -- @param host table
   -- @param port table
   -- @param options table, currently supporting:
   --        <code>timeout</code> - socket timeout in ms.
-  -- @param mode containing the mode
-  -- @return o new instance of Comm
-  new = function(self, host, port, options, mode)
+  -- @return new instance of Comm
+  -- @name Comm.new
+  new = function(self, host, port, options)
     local o = {
       host = host,
       port = port,
@@ -218,25 +229,28 @@ Comm = {
     return o
   end,
 
-  -- connects the socket to the server
+  --- connects the socket to the server
   -- @return status true on success, false on failure
   -- @return err string containing an error message, if status is false
+  -- @name Comm.connect
   connect = function(self)
     self.socket:set_timeout(self.options.timeout)
     return self.socket:connect(self.host, self.port)
   end,
 
-  -- sends a request to the server
+  --- sends a request to the server
   -- @return status true on success, false on failure
   -- @return err string containing an error message, if status is false
+  -- @name Comm.send
   send = function(self, data)
     return self.socket:send(data)
   end,
 
-  -- receives a response from the server
+  --- receives a response from the server
   -- @return status true on success, false on failure
-  -- @return response containing a response instance
+  -- @return response containing a response instance, or
   --         err string containing an error message, if status is false
+  -- @name Comm.recv
   recv = function(self)
     local status, hdr_data = self.socket:receive_buf(match.numbytes(Header.size), false)
     if ( not(status) ) then
@@ -257,11 +271,12 @@ Comm = {
     return false, "Unknown response message received"
   end,
 
-  -- sends the request instance to the server and receives the response
+  --- sends the request instance to the server and receives the response
   -- @param req request class instance
   -- @return status true on success, false on failure
-  -- @return response containing a response instance
+  -- @return response containing a response instance, or
   --         err string containing an error message, if status is false
+  -- @name Comm.exch
   exch = function(self, req)
     local status, err = self:send(tostring(req))
     if ( not(status) ) then
@@ -270,9 +285,10 @@ Comm = {
     return self:recv()
   end,
 
-  -- closes the connection to the server
+  --- closes the connection to the server
   -- @return status true on success, false on failure
   -- @return err string containing an error message, if status is false
+  -- @name Comm.close
   close = function(self)
     self.socket:close()
   end,
@@ -281,9 +297,10 @@ Comm = {
 -- The Util class
 Util = {
 
-  -- creates a random string
+  --- creates a random string
   -- @param len number containing the length of the generated random string
   -- @return str containing the random string
+  -- @name Util.randomString
   randomString = function(len)
     local str = {}
     for i=1, len do str[i] = string.char(math.random(255)) end
@@ -295,36 +312,38 @@ Util = {
 -- The Helper class
 Helper = {
 
-  -- creates a new Helper instance
+  --- creates a new Helper instance
   -- @param host table
   -- @param port table
   -- @param options table, currently supporting:
   --        <code>timeout</code> - socket timeout in ms.
-  -- @param mode containing the mode container, currently Classic is the only
-  --        supported container
-  -- @return o new instance of Comm
+  -- @param mode containing the mode container. Supported containers: "modern"
+  --             (default) or "classic"
+  -- @return o new instance of Helper
+  -- @name Helper.new
   new = function(self, host, port, options, mode)
     local o = {
-      mode = mode,
-      comm = Comm:new(host, port, options, mode),
+      mode = mode or stdnse.get_script_args("stun.mode") or "modern",
+      comm = Comm:new(host, port, options),
     }
-    o.mode = stdnse.get_script_args("stun.mode") or "modern"
     assert(o.mode == "modern" or o.mode == "classic", "Unsupported mode")
     setmetatable(o, self)
     self.__index = self
     return o
   end,
 
-  -- connects to the server
+  --- connects to the server
   -- @return status true on success, false on failure
   -- @return err string containing an error message, if status is false
+  -- @name Helper.connect
   connect = function(self)
     return self.comm:connect()
   end,
 
-  -- Gets the external public IP
+  --- Gets the external public IP
   -- @return status true on success, false on failure
   -- @return result containing the IP as string
+  -- @name Helper.getExternalAddress
   getExternalAddress = function(self)
     local trans_id
 
@@ -358,9 +377,10 @@ Helper = {
     return status, result
   end,
 
-  -- Gets the server version if it was returned by the server
+  --- Gets the server version if it was returned by the server
   -- @return status true on success, false on failure
   -- @return version string containing the server product and version
+  -- @name Helper.getVersion
   getVersion = function(self)
     local status, response = false, nil
     -- check if the server version was cached
@@ -374,9 +394,10 @@ Helper = {
     return true, (self.cache and self.cache.server or "")
   end,
 
-  -- closes the connection to the server
+  --- closes the connection to the server
   -- @return status true on success, false on failure
   -- @return err string containing an error message, if status is false
+  -- @name Helper.close
   close = function(self)
     return self.comm:close()
   end,
