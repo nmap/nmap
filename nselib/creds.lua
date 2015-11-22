@@ -85,6 +85,12 @@
 -- includes the credential state.  The file extension is automatically added to
 -- the filename based on the type requested.
 --
+-- @args creds.global Credentials to be returned by Credentials.getCredentials
+--                    regardless of the service.
+-- @args creds.[service] Credentials to be returned by
+--                       Credentials.getCredentials for [service]. E.g.
+--                       creds.http=admin:password
+--
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
@@ -172,6 +178,7 @@ RegStorage = {
   --- Creates a new RegStorage instance
   --
   -- @return a new instance
+  -- @name RegStorage.new
   new = function(self)
     local o = {}
     setmetatable(o, self)
@@ -189,6 +196,7 @@ RegStorage = {
   -- @param user the name of the user
   -- @param pass the password of the user
   -- @param state of the account
+  -- @name RegStorage.add
   add = function( self, tags, host, port, service, user, pass, state )
     local cred = {
       tags = tags,
@@ -208,6 +216,7 @@ RegStorage = {
   -- @param host table containing the host
   -- @param port table containing the port
   -- @param state table containing the account state
+  -- @name RegStorage.setFilter
   setFilter = function( self, host, port, state )
     self.filter.host = host
     self.filter.port = port
@@ -217,6 +226,7 @@ RegStorage = {
   --- Returns a credential iterator matching the selected filters
   --
   -- @return a credential iterator
+  -- @name RegStorage.getAll
   getAll = function( self )
     local function get_next()
       local host, port = self.filter.host, self.filter.port
@@ -279,6 +289,7 @@ Account = {
   --- Less-than operation for sorting
   --
   -- Lexicographic comparison by user, pass, and state
+  -- @name Account.__lt
   __lt = function (a, b)
     if a.user and b.user and a.user >= b.user then
       return false
@@ -313,6 +324,7 @@ Credentials = {
   -- @param tags a table containing tags associated with the credentials
   -- @param host table as received by the scripts action method
   -- @param port table as received by the scripts action method
+  -- @name Credentials.new
   new = function(self, tags, host, port)
     local o = {}
     setmetatable(o, self)
@@ -332,6 +344,7 @@ Credentials = {
   -- @param user the name of the user
   -- @param pass the password of the user
   -- @param state of the account
+  -- @name Credentials.add
   add = function( self, user, pass, state )
     local pass = ( pass and #pass > 0 ) and pass or "<empty>"
     assert( self.host, "No host supplied" )
@@ -362,6 +375,7 @@ Credentials = {
   --         <code>service</code> - string containing the name of the service
   --         <code>tags</code> - table containing tags associated with
   --                             the credential
+  -- @name Credentials.getCredentials
   getCredentials = function(self, state)
     local function next_credential()
       if ( state ) then
@@ -423,6 +437,7 @@ Credentials = {
   --- Returns a table of credentials
   --
   -- @return tbl table containing the discovered credentials
+  -- @name Credentials.getTable
   getTable = function(self)
     local result = {}
 
@@ -514,6 +529,7 @@ Credentials = {
   -- @param host table or string containing the host to filter
   -- @param port number containing the port to filter
   -- @return table suitable from <code>stdnse.format_output</code>
+  -- @name Credentials.__tostring
   __tostring = function(self)
     local all = self:getTable()
     if ( all ) then return tostring(all) end

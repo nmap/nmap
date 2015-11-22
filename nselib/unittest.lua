@@ -136,6 +136,8 @@ local libs = {
 "xmpp",
 }
 
+-- This script-arg is documented in the unittest script to avoid cluttering
+-- NSEdoc of all the libraries which include this one.
 local am_testing = stdnse.get_script_args('unittest.run')
 ---Check whether tests are being run
 --
