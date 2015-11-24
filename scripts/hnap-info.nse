@@ -87,6 +87,14 @@ function get_text_callback(store, name)
 end
 
 function action (host, port)
+
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local _, http_status, _ = http.identify_404(host,port)
+  if ( http_status == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
+    return false
+  end
+
   local output = stdnse.output_table()
   local response = http.get(host, port, '/HNAP1')
   if response.status and response.status == 200 then
