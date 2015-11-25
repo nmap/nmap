@@ -170,7 +170,7 @@ end
 
 -- A function to validate ssn numbers.
 local function ssn(matched_ssn)
-  local group_1, group_2, group_3 = matched_ssn:match('(%d%d%d%)-(%d%d%)-(%d%d%d%d)')
+  local group_1, group_2, group_3 = matched_ssn:match('(%d%d%d)%-(%d%d)%-(%d%d%d%d)')
   group_1, group_2, group_3 = tonumber(group_1), tonumber(group_2), tonumber(group_3)
   if group_1*group_2*group_3 == 0 then return false end
   if group_1 == 666 or (900 <= group_1 and group_1 <= 999) then return false end
