@@ -25,6 +25,7 @@ back-end Java application server containers.
 -- |   Statistics
 -- |_    Performed 1946 guesses in 23 seconds, average tps: 82
 --
+-- @args ajp-brute.path URL path to request. Default: /
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

@@ -14,6 +14,8 @@ Performs brute force password auditing against the MongoDB database.
 -- @usage
 -- nmap -p 27017 <ip> --script mongodb-brute
 --
+-- @args mongodb-brute.db Database against which to check. Default: admin
+--
 -- @output
 -- PORT      STATE SERVICE
 -- 27017/tcp open  mongodb

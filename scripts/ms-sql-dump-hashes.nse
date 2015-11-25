@@ -17,6 +17,10 @@ discovered by other scripts.
 -- @usage
 -- nmap -p 1433 <ip> --script ms-sql-dump-hashes
 --
+-- @args ms-sql-dump-hashes.dir Dump hashes to a file in this directory. File
+--                              name is <ip>_<instance>_ms-sql_hashes.txt.
+--                              Default: no file is saved.
+--
 -- @output
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s

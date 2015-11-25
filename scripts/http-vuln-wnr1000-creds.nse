@@ -15,6 +15,7 @@ Vulnerability discovered by c1ph04.
 ---
 -- @usage
 -- nmap -sV --script http-vuln-wnr1000-creds <target> -p80
+-- @args http-vuln-wnr1000-creds.uri URI path where the passwordrecovered.cgi script can be found. Default: /
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack

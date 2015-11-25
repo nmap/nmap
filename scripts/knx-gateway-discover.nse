@@ -25,9 +25,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "broadcast"}
 
 ---
---@args
--- timeout Max time to wait for a response. (default 3s)
--- newtargets Add found gateways to target list
+--@args timeout Max time to wait for a response. (default 3s)
 --
 --@usage
 -- nmap --script knx-gateway-discover -e eth0

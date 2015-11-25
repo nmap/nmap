@@ -9,6 +9,7 @@ Performs brute force password auditing against iSCSI targets.
 ]]
 
 ---
+-- @args iscsi-brute.target iSCSI target to brute-force.
 -- @output
 -- PORT     STATE SERVICE
 -- 3260/tcp open  iscsi   syn-ack

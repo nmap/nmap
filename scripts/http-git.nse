@@ -26,6 +26,8 @@ message, and repository description.
 -- |   127.0.0.1:80/damagedrepository/.git/
 -- |_    Potential Git repository found (found 2/6 expected files)
 --
+-- @args http-git.root URL path to search for a .git directory. Default: /
+--
 -- @xmloutput
 -- <table key="127.0.0.1:80/.git/">
 --   <table key="remotes">
