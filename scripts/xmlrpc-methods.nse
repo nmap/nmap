@@ -68,6 +68,10 @@ action = function(host, port)
   local url = stdnse.get_script_args(SCRIPT_NAME .. ".url") or "/"
   local data = '<methodCall> <methodName>system.listMethods</methodName> <params></params> </methodCall>'
   local response = http.post(host, port, url, {header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, data )
+  if not (response and response.status and response.body) then
+    stdnse.debug1("HTTP POST failed")
+    return nil
+  end
   local output = stdnse.output_table()
   local parser = slaxml.parser:new()
 
@@ -75,7 +79,7 @@ action = function(host, port)
   __tostring = set_80_columns
   }
 
-  if response and response.status == 200 and response.body:find("<value><string>system.listMethods</string></value>", nil, true)  then
+  if response.status == 200 and response.body:find("<value><string>system.listMethods</string></value>", nil, true)  then
 
     parser._call = {startElement = function(name)
         parser._call.text = name == "string" and function(content) output["Supported Methods"] = output["Supported Methods"] or {} table.insert(output["Supported Methods"], content)  end end,
