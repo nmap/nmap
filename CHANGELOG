@@ -807,7 +807,7 @@ o Significant code and documentation cleanup effort, fixing file encodings,
   cleanup of warnings from LLVM's AddressSanitizer.  [Daniel Miller]
 
 o [Ncat] Added support for socks5 and corresponding regression tests.
-  [Marek Lucaszuk, Petr Stodulka]
+  [Marek Lukaszuk, Petr Stodulka]
 
 o Added TCP support to dns.lua. [John Bond]
 
