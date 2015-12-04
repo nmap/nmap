@@ -55,10 +55,11 @@ action = function(host, port)
     return fail("Didn't find any users to test (should be in nselib/data/usernames.lst)")
   end
 
-  -- Check what response we get for a 404
-  local result, result_404, known_404 = http.identify_404(host, port)
-  if(result == false) then
-    return fail(result_404)
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local status_404, result_404, known_404 = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
+    return nil
   end
 
   -- Check if we can use HEAD requests
