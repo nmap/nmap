@@ -505,6 +505,8 @@ smtp-check-vulns SNMPcommunitybrute SNMPsysdescr SQLInject SSH-hostkey \
 SSHv1-support SSLv2-support strangeSMTPport UPnP-info xamppDefaultPass \
 zoneTrans db2-info db2-brute html-title robots.txt xmpp sql-injection \
 http-robtex-reverse-ip http-vuln-zimbra-lfi http-vuln-0-day-lfi-zimbra \
-whois db2-discover http-crossdomainxml )
+whois db2-discover http-crossdomainxml http-email-harvest \
+http-wordpress-plugins http-wp-plugins smb-check-vulns \
+)
 
 .PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web distclean lua-format
