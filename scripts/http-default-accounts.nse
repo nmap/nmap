@@ -230,9 +230,9 @@ action = function(host, port)
   local output_lns = {}
 
   -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
-  local _, http_status, _ = http.identify_404(host,port)
-  if ( http_status == 200 ) then
-    stdnse.debug(1, "Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
+  local status_404, result_404, known_404 = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
     return nil
   end
 
@@ -260,12 +260,6 @@ action = function(host, port)
   if results == nil then
     return stdnse.format_output(false,
       "HTTP request table is empty. This should not happen since we at least made one request.")
-  end
-
-  -- Record 404 response, later it will be used to determine if page exists
-  local result, result_404, known_404 = http.identify_404(host, port)
-  if(result == false) then
-    return stdnse.format_output(false, result_404)
   end
 
   -- Iterate through responses to find a candidate for login routine
