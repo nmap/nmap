@@ -105,11 +105,8 @@ function action (host, port)
     }
     parser:parseSAX(response.body, {stripWhitespace=true})
     
-    -- Counting size of entries in table to determine if it is empty
-    -- using the '#' operator is not reliable on tables
-    local count = 0
-    for _ in pairs(output) do count = count + 1 end
-    if count < 1 then return nil end
+    -- exit if the parser does not return output
+    if not next(output) then return nil end
     
     -- set the port verson
     port.version.name = "hnap"
