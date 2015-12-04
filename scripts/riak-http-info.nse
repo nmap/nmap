@@ -114,10 +114,10 @@ action = function(host, port)
   end
 
   -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
-  local _, http_status, _ = http.identify_404(host,port)
-  if ( http_status == 200 ) then
+  local status_404, result_404, _ = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
     stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
-    return false
+    return nil
   end
 
   -- Silently abort if the server responds as anything different than
