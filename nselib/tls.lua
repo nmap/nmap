@@ -268,7 +268,7 @@ CIPHERS = {
 ["TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA"]               =  0x0010,
 ["TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA"]          =  0x0011,
 ["TLS_DHE_DSS_WITH_DES_CBC_SHA"]                   =  0x0012,
-["TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA"]              =  0x0013,
+["SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA"]              =  0x0013,
 ["TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA"]          =  0x0014,
 ["TLS_DHE_RSA_WITH_DES_CBC_SHA"]                   =  0x0015,
 ["TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA"]              =  0x0016,
@@ -616,7 +616,7 @@ CIPHERS = {
 DEFAULT_CIPHERS = {
   "TLS_RSA_WITH_AES_128_CBC_SHA", -- mandatory TLSv1.2
   "TLS_RSA_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.1
-  "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.0
+  "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.0
   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", -- DHE with strong AES
   "TLS_RSA_WITH_RC4_128_MD5", -- Weak and old, but likely supported on old stuff
 }
