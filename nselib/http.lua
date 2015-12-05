@@ -118,6 +118,7 @@ local table = require "table"
 local url = require "url"
 local smbauth = require "smbauth"
 local unicode = require "unicode"
+
 _ENV = stdnse.module("http", stdnse.seeall)
 
 ---Use ssl if we have it
@@ -2462,8 +2463,7 @@ function identify_404(host, port)
   local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
   local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
 
-  data = get(host, port, URL_404_1)
-
+  data = get(host, port, URL_404_1,{redirect_ok=false})
   if(data == nil) then
     stdnse.debug1("HTTP: Failed while testing for 404 status code")
     return false, "Failed while testing for 404 error message"

@@ -182,6 +182,13 @@ action = function(host, port)
     resource_search = tonumber(resource_search_arg)
   end
 
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local status_404, result_404, known_404 = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
+    return nil
+  end
+  
   -- search the website root for evidences of a Wordpress path
   if not wp_root then
     local target_index = http.get(host,port, "/")
@@ -196,13 +203,6 @@ action = function(host, port)
       end
     end
   end
-
-  --identify the 404, the script cant handle ambiguous responses
-  local status_404, result_404, body_404 = http.identify_404(host, port)
-    if not status_404 then
-      return stdnse.format_output(false, SCRIPT_NAME .. " unable to handle 404 pages (" .. result_404 .. ")")
-  end
-
 
   --build a table of both directories to brute force and the corresponding WP resources' name
   local resource_count=0
@@ -243,7 +243,7 @@ action = function(host, port)
   response['name'] = key
   for i, data in pairs(pipeline_returns) do
     -- if it's not a four-'o-four, it probably means that the plugin is present
-    if http.page_exists(data, result_404, body_404, bfqueries[i][1], true) then
+    if http.page_exists(data, result_404, known_404, bfqueries[i][1], true) then
       stdnse.debug(1,"Found a plugin/theme:%s", bfqueries[i][2])
       local version = get_version(bfqueries[i][1],key,host,port)
       local output  = nil
