@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Switch to using gtk-mac-bundler and jhbuild for building the OS X installer.
+  This promises to reduce a lot of the problems we've had with local paths and
+  dependencies using the py2app and macports build system.
+
 Nmap 7.00 [2015-11-19]
 
 o This is the most important release since Nmap 6.00 back in May 2012!

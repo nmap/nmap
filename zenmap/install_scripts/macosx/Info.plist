@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
@@ -7,6 +7,26 @@
 	<key>CFBundleName</key>
 	<string>Zenmap</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© Insecure.Com LLC</string>
+  <string>${APP_COPYRIGHT}</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleExecutable</key>
+    <string>Zenmap</string>
+    <key>CFBundleGetInfoString</key>
+    <string>${VERSION}, ${APP_COPYRIGHT} ${APP_WEB_SITE}</string>
+    <key>CFBundleIconFile</key>
+    <string>zenmap.icns</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>${VERSION}</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>${VERSION}</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.9</string>
 </dict>
 </plist>

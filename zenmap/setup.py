@@ -629,6 +629,9 @@ elif 'py2app' in sys.argv:
     }
 
     setup_args.update(MACOSX_SETUP_ARGS)
+elif 'vanilla' in sys.argv:
+    # Don't create uninstaller, don't fix paths. Used for bundling on OS X
+    sys.argv.remove('vanilla')
 else:
     # Default args.
     DEFAULT_SETUP_ARGS = {

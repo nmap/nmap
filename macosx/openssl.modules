@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE moduleset SYSTEM "moduleset.dtd">
+<?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
+<moduleset>
+  <!--
+  This is a jhbuild moduleset that can be used to build openssl as required for
+  building Nmap, Ncat, and Nping. Use it like this:
+    jhbuild -m openssl.modules build openssl
+  -->
+<include href="http://git.gnome.org/browse/gtk-osx/plain/modulesets-stable/gtk-osx.modules"/>
+
+<repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
+<autotools id="openssl" autogen-sh="Configure"
+autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s --libdir=lib darwin-i386-cc shared"
+makeinstallargs="install_sw">
+<branch repo="openssl" version="1.0.2e" module="openssl-1.0.2e.tar.gz"/>
+</autotools>
+
+</moduleset>

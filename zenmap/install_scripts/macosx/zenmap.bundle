@@ -1,0 +1,158 @@
+<?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
+<app-bundle>
+
+  <meta>
+    <!-- Where to pick up the GTK+ installation, icon themes,
+         etc. Note that "${env:JHBUILD_PREFIX}" is evaluated to the
+         value of the environment variable JHBUILD_PREFIX. You can
+         define additional prefixes and refer to them in paths
+         throughout this file on the form "${prefix:name}". This is
+         useful for installing certain libraries or even the
+         application itself separately. Note that JHBUILD_PREFIX is
+         defined by jhbuild, so it you are not using jhbuild you can
+         either define your own or just hardcode the path here.
+    -->
+    <prefix name="default">${env:JHBUILD_PREFIX}</prefix>
+
+    <!-- The project directory is the default location of the created
+         app. If you leave out the path, the current directory is
+         used. Note the usage of an environment variable here again.
+    -->
+    <destination overwrite="yes">${env:ZENMAP_DIST_DIR}</destination>
+
+    <!-- Comment this out to keep the install names in binaries.  -->
+    <run-install-name-tool/>
+
+    <!--A launcher script is pretty much mandatory here so that we can
+         set $PYTHON to point to the python in the bundle.
+    -->
+    <launcher-script>${project}/launcher.sh</launcher-script>
+
+     <!-- Indicate the active gtk version to use. This is needed only
+         for gtk+-3.0 projects. -->
+    <!--gtk>gtk+-2.0</gtk-->
+ </meta>
+
+  <!-- The special macro "${project}" refers to the directory where
+       this bundle file is located. The application name and bundle
+       identifier are taken from the plist file.
+  -->
+  <plist>${project}/Info.plist</plist>
+
+ <!-- This is mandatory, and the result gets named to the appname from
+      Info.plist with bin tacked on the end, in this example,
+      PyGtkDemo-bin. Bundler won't let us use the one from $project,
+      so we use the original and ignore it. If your original will work
+      in the bundle, you can use this instead.-->
+ <main-binary>
+     ${prefix}/bin/pygtk-demo
+  </main-binary>
+
+  <!-- We need to pack our own Python to avoid compatibility problems. -->
+  <binary dest="${bundle}/Contents/MacOS">
+    ${prefix}/bin/python
+  </binary>
+
+  <!-- Copy in libpyglib, which will pull in other dependencies we need -->
+  <binary>
+    ${prefix}/lib/libpyglib-2.0-python.0.dylib
+  </binary>
+  <!-- Gtk+ is required by python modules which aren't searched for
+       dependencies, so we have to pull it in explicitly. It will
+       bring Pango and Cairo with it. Note the use of ${gtkversion},
+       which expands to either 2.0 or 3.0, depending on which value of
+       gtk is specified.-->
+  <binary>
+    ${prefix}/lib/libgtk-quartz-${gtkversion}.0.dylib
+  </binary>
+
+  <!-- Copy in GTK+ modules. Note the ${gtkdir} macro, which expands
+       to the correct library subdirectory for the specified gtk
+       version.
+  -->
+  <binary>
+     ${prefix}/lib/${gtkdir}/modules/*.so
+  </binary>
+
+  <!-- Copy in GTK+ theme engines and print backends. Note the use of the
+       "${pkg:module:variable}" macro, which evaluates to a pkg-config
+       variable in the specified module. Note that any libraries that
+       binaries link to are also copied in automatically.  Note also
+       the included ${gtk} macro, which gets the correct package name
+       to get. -->
+  <binary>
+    ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/engines/*.so
+  </binary>
+  <binary>
+    ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/printbackends/*.so
+  </binary>
+
+<!-- Starting with 2.24, gdk-pixbuf installs into its own directory. -->
+  <binary>
+    ${prefix}/lib/gdk-pixbuf-2.0/${pkg:gdk-pixbuf-2.0:gdk_pixbuf_binary_version}/loaders/*.so
+  </binary>
+
+  <binary>
+    ${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/*.so
+  </binary>
+
+ <!-- Translation filenames, one for each program or library that you
+       want to copy in to the bundle. The "dest" attribute is
+       optional, as usual. Bundler will find all translations of that
+       library/program under the indicated directory and copy them.-->
+  <translations name="gtk20">
+    ${prefix}/share/locale
+  </translations>
+
+
+  <!-- We have to pull in the python modules, which are mixed python
+       and loadable modules.  -->
+  <binary>${prefix}/lib/python2.7/lib-dynload/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/cairo/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/glib/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/gobject/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/gtk-2.0/gtk/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/gtkmacintegration/*.so</binary>
+  <binary>${prefix}/lib/python2.7/site-packages/gtkosx_application/*.so</binary>
+  <data>
+    ${prefix}/lib/python2.7/
+  </data>
+
+  <!-- Copy in the themes data. You may want to trim this to save space
+       in your bundle. -->
+  <data>
+    ${prefix}/share/themes
+  </data>
+
+  <!-- Copy icons. Note that the .icns file is an Apple format which
+       contains up to 4 sizes of icon. You can use
+       /Developer/Applications/Utilities/Icon Composer.app to import
+       artwork and create the file. -->
+  <data dest="${bundle}/Contents/Resources">
+    ${project}/zenmap.icns
+  </data>
+
+  <!-- This is where theme commands go. You can copy them in from your
+       theme of choice if they provide and example, or you can just
+       change the source path. -->
+
+  <data dest="${bundle}/Contents/Resources/etc/${gtkdir}/gtkrc">
+    ${project}/gtkrc
+  </data>
+
+  <!-- Icon themes to copy. The "icons" property can be either of
+       "auto", "all", or "none". All or none should be
+       self-explanatory, while auto means that the script will try to
+       figure out which icons are needed. This is done by getting all
+       the strings from all copied binaries, and matching them against
+       icon names. To be safe, you should use "all". "none" is useful
+       if you want just the index.theme file but no icons, mostly
+       needed for the "hicolor" base theme.
+  >
+  <icon-theme icons="auto">
+    Tango
+  </icon-theme -->
+
+</app-bundle>
