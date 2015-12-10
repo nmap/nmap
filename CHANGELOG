@@ -1,8 +1,40 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.01 [2015-12-09]
+
 o Switch to using gtk-mac-bundler and jhbuild for building the OS X installer.
   This promises to reduce a lot of the problems we've had with local paths and
-  dependencies using the py2app and macports build system.
+  dependencies using the py2app and macports build system. [Daniel Miller]
+
+o The Windows installer is now built with NSIS 2.47 which features LoadLibrary
+  security hardening to prevent DLL hijacking and other unsafe use of temporary
+  directories. Thanks to Stefan Kanthak for reporting the issue to NSIS and to
+  us and the many other projects that use it.
+
+o Updated the OpenSSL shipped with our binary builds (Windows, OS X, and RPM)
+  to 1.0.2e.
+
+o [Zenmap] [GH#235] Fix several failures to launch Zenmap on OS X. The new
+  build process eliminates these errors:
+    IOError: [Errno 2] No such file or directory: '/Applications/Zenmap.app/Contents/Resources/etc/pango/pangorc.in'
+    LSOpenURLsWithRole() failed for the application /Applications/Zenmap.app with error -10810.
+
+o [NSE] [GH#254] Update the TLSSessionRequest probe in ssl-enum-ciphers to
+  match the one in nmap-service-probes, which was fixed previously to correct a
+  length calculation error. [Daniel Miller]
+
+o [NSE] [GH#251] Correct false positives and unexpected behavior in http-*
+  scripts which used http.identify_404 to determine when a file was not found
+  on the target. The function was following redirects, which could be an
+  indication of a soft-404 response. [Tom Sellers]
+
+o [NSE] [GH#241] Fix a false-positive in hnap-info when the target responds
+  with 200 OK to any request. [Tom Sellers]
+
+o [NSE] [GH#244] Fix an error response in xmlrpc-methods when run against a
+  non-HTTP service. The expected behavior is no output. [Niklaus Schiess]
+
+o [NSE] Fix SSN validation function in http-grep, reported by Bruce Barnett.
 
 Nmap 7.00 [2015-11-19]
 
