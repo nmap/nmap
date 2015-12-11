@@ -306,6 +306,89 @@ class Profile(UmitConfigParser, object):
         return True
 
 
+class WindowConfig(UmitConfigParser, object):
+    section_name = "window"
+
+    default_x = 0
+    default_y = 0
+    default_width = -1
+    default_height = 650
+
+    def __init__(self):
+        if not config_parser.has_section(self.section_name):
+            self.create_section()
+
+    def save_changes(self):
+        config_parser.fp = open(Path.user_config_file, 'w')
+        config_parser.save_changes()
+
+    def create_section(self):
+        config_parser.add_section(self.section_name)
+        self.x = self.default_x
+        self.y = self.default_y
+        self.width = self.default_width
+        self.height = self.default_height
+
+    def _get_it(self, p_name, default):
+        return config_parser.get(self.section_name, p_name, default)
+
+    def _set_it(self, p_name, value):
+        config_parser.set(self.section_name, p_name, value)
+
+    def get_x(self):
+        try:
+            value = int(self._get_it("x", self.default_x))
+        except ValueError:
+            value = self.default_x
+        return value
+
+    def set_x(self, x):
+        self._set_it("x", x)
+
+    def get_y(self):
+        try:
+            value = int(self._get_it("y", self.default_y))
+        except ValueError:
+            value = self.default_y
+        return value
+
+    def set_y(self, y):
+        self._set_it("y", y)
+
+    def get_width(self):
+        try:
+            value = int(self._get_it("width", self.default_width))
+        except ValueError:
+            value = self.default_width
+
+        if not (value >= -1):
+            value = self.default_width
+
+        return value
+
+    def set_width(self, width):
+        self._set_it("width", width)
+
+    def get_height(self):
+        try:
+            value = int(self._get_it("height", self.default_height))
+        except ValueError:
+            value = self.default_height
+
+        if not (value >= -1):
+            value = self.default_height
+
+        return value
+
+    def set_height(self, height):
+        self._set_it("height", height)
+
+    x = property(get_x, set_x)
+    y = property(get_y, set_y)
+    width = property(get_width, set_width)
+    height = property(get_height, set_height)
+
+
 class CommandProfile (Profile, object):
     """This class is a wrapper around Profile that provides accessors for the
     attributes of a profile: command and description"""
