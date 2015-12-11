@@ -133,15 +133,16 @@ class RecentScans(object):
         except:
             self.recent_scans_file = False
 
-        if self.recent_scans_file and \
-            (access(self.recent_scans_file, R_OK and W_OK) or \
-             access(dirname(self.recent_scans_file), R_OK and W_OK)):
+        if (self.recent_scans_file and
+                (access(self.recent_scans_file, R_OK and W_OK) or
+                    access(dirname(self.recent_scans_file), R_OK and W_OK))):
             self.using_file = True
 
             # Recovering saved targets
             recent_file = open(self.recent_scans_file, "r")
-            self.temp_list = [t for t in recent_file.read().split(";") \
-                                    if t != "" and t != "\n"]
+            self.temp_list = [
+                    t for t in recent_file.read().split(";")
+                    if t != "" and t != "\n"]
             recent_file.close()
         else:
             self.using_file = False

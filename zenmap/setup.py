@@ -381,15 +381,15 @@ for dir in dirs:
                 continue
 
             if os.path.isdir(output):
-                os.chmod(output, S_IRWXU | \
-                                 S_IRGRP | \
-                                 S_IXGRP | \
-                                 S_IROTH | \
+                os.chmod(output, S_IRWXU |
+                                 S_IRGRP |
+                                 S_IXGRP |
+                                 S_IROTH |
                                  S_IXOTH)
             else:
-                os.chmod(output, S_IRUSR | \
-                                 S_IWUSR | \
-                                 S_IRGRP | \
+                os.chmod(output, S_IRUSR |
+                                 S_IWUSR |
+                                 S_IRGRP |
                                  S_IROTH)
 
     def fix_paths(self):

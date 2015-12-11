@@ -261,10 +261,11 @@ class NmapCommand(object):
                 os.kill(self.command_process.pid, SIGTERM)
                 for i in range(10):
                     sleep(0.5)
-                    if self.command_process.poll() is not None: # Process has been TERMinated
+                    if self.command_process.poll() is not None:
+                        # Process has been TERMinated
                         break
                 else:
-                    log.debug(">>> SIGTERM has not worked even after waiting for 5 seconds. Using SIGKILL.")
+                    log.debug(">>> SIGTERM has not worked even after waiting for 5 seconds. Using SIGKILL.")  # noqa
                     os.kill(self.command_process.pid, SIGKILL)
                     self.command_process.wait()
             except:

@@ -177,12 +177,13 @@ class TracerouteHostInfo(object):
 
 def find_hop_by_ttl(hops, ttl):
     assert ttl >= 0, "ttl must be non-negative"
-    if ttl == 0: # Same machine (i.e. localhost)
+    if ttl == 0:  # Same machine (i.e. localhost)
         return {"ipaddr": "127.0.0.1/8"}
     for h in hops:
         if ttl == int(h["ttl"]):
             return h
     return None
+
 
 def make_graph_from_hosts(hosts):
     #hosts = parser.get_root().search_children('host', deep=True)
@@ -249,14 +250,14 @@ def make_graph_from_hosts(hosts):
                     else:
                         graph.set_connection(node, prev_node)
                 else:
-                    # Add an "anonymous" node only if there isn't already a node
-                    # equivalent to it (i.e. at same distance from the previous 
-                    # "real" node)
+                    # Add an "anonymous" node only if there isn't already a
+                    # node equivalent to it (i.e. at same distance from the
+                    # previous "real" node)
 
                     pre_hop = None
                     pre_hop_distance = 0
                     for i in range(1, ttl + 1):
-                        pre_hop = find_hop_by_ttl(hops, ttl-i)
+                        pre_hop = find_hop_by_ttl(hops, ttl - i)
                         if pre_hop is not None:
                             pre_hop_distance = i
                             break
@@ -264,29 +265,33 @@ def make_graph_from_hosts(hosts):
                     post_hop = None
                     post_hop_distance = 0
                     for i in range(1, max(ttls) - ttl):
-                        post_hop = find_hop_by_ttl(hops, ttl+i)
+                        post_hop = find_hop_by_ttl(hops, ttl + i)
                         if post_hop is not None:
                             post_hop_distance = i
                             break
 
-                    assert pre_hop is not None, "pre_hop should have become localhost if nothing else"
+                    assert pre_hop is not None, \
+                            "pre_hop should have become localhost if nothing else"  # noqa
 
                     ancestor_key = (pre_hop["ipaddr"], pre_hop_distance)
                     descendant_key = None
                     if post_hop is not None:
-                        descendant_key = (post_hop["ipaddr"], post_hop_distance)
+                        descendant_key = \
+                                (post_hop["ipaddr"], post_hop_distance)
 
                     if ancestor_key in ancestor_node_cache:
                         node = ancestor_node_cache[ancestor_key]
-                    elif descendant_key is not None and descendant_key in descendant_node_cache:
+                    elif (descendant_key is not None and
+                            descendant_key in descendant_node_cache):
                         node = descendant_node_cache[descendant_key]
                         graph.set_connection(node, prev_node)
                     else:
                         node = NetNode()
                         nodes.append(node)
 
-                        node.set_draw_info({"valid":False})
-                        node.set_draw_info({"color":(1,1,1), "radius":NONE_RADIUS})
+                        node.set_draw_info({"valid": False})
+                        node.set_draw_info(
+                                {"color": (1, 1, 1), "radius": NONE_RADIUS})
 
                         graph.set_connection(node, prev_node)
 

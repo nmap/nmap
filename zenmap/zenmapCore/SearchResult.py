@@ -277,11 +277,9 @@ class SearchResult(object):
         log.debug("Match profile: %s" % profile)
         log.debug("Comparing: %s == %s ??" % (
             str(self.parsed_scan.profile_name).lower(),
-                                              "*%s*" % profile.lower()))
-        if profile == "*" or profile == "" or \
-           profile.lower() in str(self.parsed_scan.profile_name).lower():
-            return True
-        return False
+            "*%s*" % profile.lower()))
+        return (profile == "*" or profile == "" or
+                profile.lower() in str(self.parsed_scan.profile_name).lower())
 
     def match_option(self, option):
         log.debug("Match option: %s" % option)
@@ -535,9 +533,9 @@ class SearchDir(SearchResult, object):
         log.debug(">>> SearchDir initialized")
         self.search_directory = search_directory
 
-        if type(file_extensions) in StringTypes:
+        if isinstance(file_extensions, StringTypes):
             self.file_extensions = file_extensions.split(";")
-        elif type(file_extensions) == type([]):
+        elif isinstance(file_extensions, list):
             self.file_extensions = file_extensions
         else:
             raise Exception(

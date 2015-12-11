@@ -218,9 +218,9 @@ class About(HIGDialog):
         self.vbox.pack_start(entry)
 
         entry = _program_entry(APP_DISPLAY_NAME, APP_WEB_SITE, _(
-        "%s is a multi-platform graphical %s frontend and results viewer. "
-        "It was originally derived from %s.") % (
-            APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, UMIT_DISPLAY_NAME))
+            "%s is a multi-platform graphical %s frontend and results viewer. "
+            "It was originally derived from %s.") % (
+                APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, UMIT_DISPLAY_NAME))
         self.vbox.pack_start(entry)
 
         entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _(

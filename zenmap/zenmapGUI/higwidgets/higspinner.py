@@ -198,15 +198,11 @@ class HIGSpinnerImages:
         self.animated_pixbufs = new_animated
 
         for k in self.static_pixbufs:
-            self.static_pixbufs[k] = self.static_pixbufs[k].\
-                                     scale_simple(width,
-                                                  height,
-                                                  gtk.gdk.INTERP_BILINEAR)
+            self.static_pixbufs[k] = self.static_pixbufs[k].scale_simple(
+                    width, height, gtk.gdk.INTERP_BILINEAR)
 
-        self.rest_pixbuf = self.rest_pixbuf.\
-                           scale_simple(width,
-                                        height,
-                                        gtk.gdk.INTERP_BILINEAR)
+        self.rest_pixbuf = self.rest_pixbuf.scale_simple(
+                width, height, gtk.gdk.INTERP_BILINEAR)
 
         self.images_width = width
         self.images_height = height
@@ -275,8 +271,8 @@ class HIGSpinnerCache:
 
         for x in range(0, grid_width, size):
             for y in range(0, grid_height, size):
-                self.spinner_images.add_animated_pixbuf(\
-                    self.__extract_frame(grid_pixbuf, x, y, size, size))
+                self.spinner_images.add_animated_pixbuf(
+                        self.__extract_frame(grid_pixbuf, x, y, size, size))
 
     def load_static_from_lookup(self, icon_name="gnome-spinner-rest",
                                 key_name=None):

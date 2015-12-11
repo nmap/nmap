@@ -246,7 +246,7 @@ class ScanWindow(UmitScanWindow):
         except:
             about_icon = None
 
-        self.main_actions = [ \
+        self.main_actions = [
             # Top level
             ('Scan', None, _('Sc_an'), None),
 
@@ -580,7 +580,7 @@ class ScanWindow(UmitScanWindow):
         if widget is None:
             # Don't have a Print menu item for lack of support.
             return
-        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()
+        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()  # noqa
         widget.set_sensitive(entry is not None)
 
     def _load_recent_scan(self, widget):
@@ -771,8 +771,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         try:
             scan_interface.inventory.save_to_file(
                     saved_filename, selected_index, format)
-            scan_interface.inventory.get_scans()[selected_index].unsaved = \
-                    False
+            scan_interface.inventory.get_scans()[selected_index].unsaved = False  # noqa
         except (OSError, IOError), e:
             alert = HIGAlertDialog(
                     message_format=_("Can't save file"),
@@ -916,7 +915,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
 
     def _print_cb(self, *args):
         """Show a print dialog."""
-        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()
+        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()  # noqa
         if entry is None:
             return False
         zenmapGUI.Print.run_print_operation(

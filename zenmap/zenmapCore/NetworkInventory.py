@@ -256,7 +256,8 @@ class NetworkInventory(object):
         #remove ports which are no longer up
         if old_date < new_date:
             for defunct_port in old_list:
-                #Check if defunct_port is in ports and that the protocol matches
+                # Check if defunct_port is in ports
+                # and that the protocol matches
                 port_number = int(defunct_port['portid'])
                 if port_number in ports:
                     if defunct_port['protocol'] in ports[port_number]:
@@ -520,9 +521,9 @@ class FilteredNetworkInventory(NetworkInventory):
         return len(self.network_inventory.hosts)
 
     def match_keyword(self, host, keyword):
-        return self.match_os(host, keyword) or\
-               self.match_target(host, keyword) or\
-               self.match_service(host, keyword)
+        return (self.match_os(host, keyword) or
+                self.match_target(host, keyword) or
+                self.match_service(host, keyword))
 
     def match_target(self, host, name):
         return HostSearch.match_target(host, name)
@@ -663,8 +664,8 @@ class FilteredNetworkInventoryTest(unittest.TestCase):
 
 class PortChangeTest(unittest.TestCase):
     def test_port(self):
-        """Verify that the port status (open/filtered/closed) is displayed """ \
-        """correctly when the port status changes in newer scans"""
+        """Verify that the port status (open/filtered/closed) is displayed
+        correctly when the port status changes in newer scans"""
         from zenmapCore.NmapParser import NmapParser
         inv = NetworkInventory()
         scan1 = NmapParser()

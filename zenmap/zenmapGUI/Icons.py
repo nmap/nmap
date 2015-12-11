@@ -130,7 +130,7 @@ from zenmapCore.UmitConf import is_maemo
 from zenmapCore.UmitLogging import log
 
 icon_names = (
-# Operating Systems
+    # Operating Systems
     'default',
     'freebsd',
     'irix',
@@ -142,7 +142,7 @@ icon_names = (
     'ubuntu',
     'unknown',
     'win',
-# Vulnerability Levels
+    # Vulnerability Levels
     'vl_1',
     'vl_2',
     'vl_3',

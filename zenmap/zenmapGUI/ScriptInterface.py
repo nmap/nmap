@@ -313,16 +313,16 @@ class ScriptInterface:
             status = process.scan_state()
         except:
             status = None
-        log.debug("Script interface: script_list_timer_callback %s" % \
+        log.debug("Script interface: script_list_timer_callback %s" %
                 repr(status))
 
-        if status == True:
+        if status is True:
             # Still running, schedule this timer to check again.
             return True
 
         self.script_list_widget.set_sensitive(True)
 
-        if status == False:
+        if status is False:
             # Finished with success.
             callback(True, process)
         else:

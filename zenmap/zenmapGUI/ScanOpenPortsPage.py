@@ -358,8 +358,8 @@ class HostOpenPorts(HIGVBox):
 
         self.port_columns['hostname'].set_visible(False)
 
-        self.scroll_ports_hosts.set_policy(gtk.POLICY_AUTOMATIC,\
-                                          gtk.POLICY_AUTOMATIC)
+        self.scroll_ports_hosts.set_policy(
+                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
     def port_mode(self):
         child = self.scroll_ports_hosts.get_child()

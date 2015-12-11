@@ -173,7 +173,7 @@ class SearchConfig(UmitConfigParser, object):
         config_parser.set(self.section_name, p_name, value)
 
     def boolean_sanity(self, attr):
-        if attr == True or \
+        if attr is True or \
            attr == "True" or \
            attr == "true" or \
            attr == "1":
@@ -192,18 +192,18 @@ class SearchConfig(UmitConfigParser, object):
         return self._get_it("file_extension", "xml").split(";")
 
     def set_file_extension(self, file_extension):
-        if type(file_extension) == type([]):
+        if isinstance(file_extension, list):
             self._set_it("file_extension", ";".join(file_extension))
-        elif type(file_extension) in StringTypes:
+        elif isinstance(file_extension, StringTypes):
             self._set_it("file_extension", file_extension)
 
     def get_save_time(self):
         return self._get_it("save_time", "60;days").split(";")
 
     def set_save_time(self, save_time):
-        if type(save_time) == type([]):
+        if isinstance(save_time, list):
             self._set_it("save_time", ";".join(save_time))
-        elif type(save_time) in StringTypes:
+        elif isinstance(save_time, StringTypes):
             self._set_it("save_time", save_time)
 
     def get_store_results(self):
@@ -413,8 +413,8 @@ class CommandProfile (Profile, object):
         self._set_it(profile, 'description', description)
 
     def get_profile(self, profile_name):
-        return {'profile': profile_name, \
-                'command': self.get_command(profile_name), \
+        return {'profile': profile_name,
+                'command': self.get_command(profile_name),
                 'description': self.get_description(profile_name)}
 
 
@@ -428,10 +428,9 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % p_name
 
         try:
-            return self.sanity_settings([config_parser.get(property_name,
-                                                         prop,
-                                                         True) \
-                                         for prop in self.setts])
+            return self.sanity_settings([
+                config_parser.get(
+                    property_name, prop, True) for prop in self.setts])
         except:
             settings = []
             prop_settings = self.default_highlights[p_name]
@@ -450,8 +449,8 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % property_name
         settings = self.sanity_settings(list(settings))
 
-        [config_parser.set(property_name, self.setts[pos], settings[pos]) \
-         for pos in xrange(len(settings))]
+        for pos in xrange(len(settings)):
+            config_parser.set(property_name, self.setts[pos], settings[pos])
 
     def sanity_settings(self, settings):
         """This method tries to convert insane settings to sanity ones ;-)
@@ -481,7 +480,7 @@ class NmapOutputHighlight(object):
         return settings
 
     def boolean_sanity(self, attr):
-        if attr == True or attr == "True" or attr == "true" or attr == "1":
+        if attr is True or attr == "True" or attr == "true" or attr == "1":
             return 1
         return 0
 
@@ -546,7 +545,7 @@ class NmapOutputHighlight(object):
         return True
 
     def set_enable(self, enable):
-        if enable == False or enable == "0" or enable is None or enable == "":
+        if enable is False or enable == "0" or enable is None or enable == "":
             config_parser.set(
                     "output_highlight", "enable_highlight", str(False))
         else:

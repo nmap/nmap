@@ -134,15 +134,16 @@ class TargetList(object):
             self.target_list_file = False
 
         #import pdb; pdb.set_trace()
-        if self.target_list_file and \
-            (access(self.target_list_file, R_OK and W_OK) or \
-             access(dirname(self.target_list_file), R_OK and W_OK)):
+        if (self.target_list_file and
+                (access(self.target_list_file, R_OK and W_OK) or
+                    access(dirname(self.target_list_file), R_OK and W_OK))):
             self.using_file = True
 
             # Recovering saved targets
             target_file = open(self.target_list_file, "r")
-            self.temp_list = [t for t in target_file.read().split(";") \
-                                    if t != "" and t != "\n"]
+            self.temp_list = [
+                    t for t in target_file.read().split(";")
+                    if t != "" and t != "\n"]
             target_file.close()
         else:
             self.using_file = False
