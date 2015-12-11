@@ -155,7 +155,7 @@ from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 import zenmapGUI.Print
-from zenmapCore.UmitConf import SearchConfig, is_maemo
+from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig
 from zenmapCore.NetworkInventory import FilteredNetworkInventory
 
 UmitScanWindow = None
@@ -194,8 +194,12 @@ def can_print():
 class ScanWindow(UmitScanWindow):
     def __init__(self):
         UmitScanWindow.__init__(self)
+
+        window = WindowConfig()
+
         self.set_title(_(APP_DISPLAY_NAME))
-        self.set_default_size(-1, 650)
+        self.move(window.x, window.y)
+        self.set_default_size(window.width, window.height)
 
         self.scan_interface = ScanInterface()
 
@@ -900,6 +904,11 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 self.scan_interface.kill_all_scans()
             elif response == gtk.RESPONSE_CANCEL:
                 return True
+
+        window = WindowConfig()
+        window.x, window.y = self.get_position()
+        window.width, window.height = self.get_size()
+        window.save_changes()
 
         self.destroy()
 
