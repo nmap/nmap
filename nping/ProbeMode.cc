@@ -1962,13 +1962,13 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
         trg=o.targets.findTarget( &peer );
         if(trg!=NULL){
             if ( trg->getSuppliedHostName() )
-                nping_print(VB_0,"RECV (%.4fs) Handshake with %s:%d (%s:%d) completed",
+                nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d (%s:%d) completed",
                          o.stats.elapsedRuntime(t), trg->getSuppliedHostName(), peerport, ipstring, peerport );
             else
-                nping_print(VB_0,"RECV (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
+                nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
             trg->setProbeRecvTCP( peerport , 0);
         }else{
-            nping_print(VB_0,"RECV (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
+            nping_print(VB_0,"RCVD (%.4fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
         }
         o.stats.addRecvPacket(40); /* Estimation Dst>We 1 TCP SYN|ACK */
     break;
@@ -2061,7 +2061,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
             inet_ntop(AF_INET, &peer4->sin_addr, ipstring, sizeof(ipstring));
             peerport=ntohs(peer4->sin_port);
         }
-        nping_print(VB_0,"RECV (%.4fs) Possible TCP RST received from %s:%d --> %s", o.stats.elapsedRuntime(t),ipstring, peerport, strerror(nse_errorcode(nse)) );
+        nping_print(VB_0,"RCVD (%.4fs) Possible TCP RST received from %s:%d --> %s", o.stats.elapsedRuntime(t),ipstring, peerport, strerror(nse_errorcode(nse)) );
      }
      else
         nping_warning(QT_2,"ERR: (%.4fs) %s to %s:%d failed: %s", o.stats.elapsedRuntime(t), nse_type2str(type), ipstring, peerport, strerror(socket_errno()));
@@ -2306,12 +2306,12 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
         trg=o.targets.findTarget( &peer );
         if(trg!=NULL){
             if ( trg->getSuppliedHostName() )
-                nping_print(VB_0,"RECV (%.4fs) UDP packet with %d bytes from %s:%d (%s:%d)", o.stats.elapsedRuntime(NULL),  readbytes, trg->getSuppliedHostName(), peerport, ipstring, peerport );
+                nping_print(VB_0,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d (%s:%d)", o.stats.elapsedRuntime(NULL),  readbytes, trg->getSuppliedHostName(), peerport, ipstring, peerport );
             else
-                nping_print(VB_0,"RECV (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(NULL),  readbytes, ipstring, peerport );
+                nping_print(VB_0,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(NULL),  readbytes, ipstring, peerport );
             trg->setProbeRecvUDP(peerport, 0);
         }else{
-            nping_print(VB_0,"RECV (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(t), readbytes, ipstring, peerport );
+            nping_print(VB_0,"RCVD (%.4fs) UDP packet with %d bytes from %s:%d", o.stats.elapsedRuntime(t), readbytes, ipstring, peerport );
         }
         o.stats.addRecvPacket(readbytes);
     break;
