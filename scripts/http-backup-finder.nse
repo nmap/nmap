@@ -94,6 +94,9 @@ action = function(host, port)
     return nil
   end
 
+  -- Check if we can use HEAD requests
+  local use_head = http.can_use_head(host, port, result_404)
+  
   local backups = {}
   while(true) do
     local status, r = crawler:crawl()
@@ -132,9 +135,14 @@ action = function(host, port)
         -- replacement instead.
         local escaped_link = link:gsub(" ", "%%20")
 
-        -- attempt a HEAD-request against each of the backup files
-        local response = http.head(host, port, escaped_link)
-        if http.page_exists(response, result_404, known_404, escaped_link, true) then
+        local response
+        if(use_head) then
+          response = http.head(host, port, escaped_link, {redirect_ok=false})
+        else
+          response = http.get(host, port, escaped_link, {redirect_ok=false})
+        end
+        
+        if http.page_exists(response, result_404, known_404, escaped_link, false) then
           if ( not(parsed.port) ) then
             table.insert(backups,
               ("%s://%s%s"):format(parsed.scheme, host, link))
