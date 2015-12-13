@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] [GH#242] Fix multiple false-positive sources in http-backup-agent. 
+  [Tom Sellers]
+
 Nmap 7.01 [2015-12-09]
 
 o Switch to using gtk-mac-bundler and jhbuild for building the OS X installer.
