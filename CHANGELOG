@@ -1,6 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] [GH#242] Fix multiple false-positive sources in http-backup-agent. 
+o [NSE] [GH#226] Added http-vuln-cve2014-3704 for detecting and exploiting the
+  "Drupalgeddon" pre-auth SQL Injection vulnerability in Drupal. [Mariusz Ziulek]
+
+o [NSE] [GH#242] Fix multiple false-positive sources in http-backup-agent.
   [Tom Sellers]
 
 Nmap 7.01 [2015-12-09]
