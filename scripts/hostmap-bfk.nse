@@ -62,7 +62,7 @@ author = "Ange Gutek"
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
-categories = {"external", "discovery", "intrusive"}
+categories = {"external", "discovery"}
 
 
 local HOSTMAP_SERVER = "www.bfk.de"
