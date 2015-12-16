@@ -6,7 +6,8 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Connects to a remote RMI registry and attempts to dump all of its objects.
+Connects to a remote RMI registry and attempts to dump all of its
+objects.
 
 First it tries to determine the names of all objects bound in the
 registry, and then it tries to determine information about the
@@ -19,7 +20,8 @@ on it.
 It also gives information about where the objects are located, (marked
 with @<ip>:port in the output).
 
-Some apps give away the classpath, which this scripts catches in so-called "Custom data".
+Some apps give away the classpath, which this scripts catches in
+so-called "Custom data".
 ]]
 
 ---
@@ -181,7 +183,7 @@ end
 -- @return title, data
 function customDataFormatter(className, customData)
   if customData == nil then return nil end
-  if #customData ==0 then return nil end
+  if #customData == 0 then return nil end
 
   local retData = {}
   for k,v in ipairs(customData) do
@@ -200,18 +202,17 @@ end
 
 
 function action(host,port, args)
-
-  local registry= rmi.Registry:new( host, port )
-
+  local registry = rmi.Registry:new( host, port )
 
   local status, j_array = registry:list()
   local output = {}
   if not status then
-    return false, ("Registry listing failed (%s)"):format(tostring(j_array))
+    table.insert(output, ("Registry listing failed (%s)"):format(tostring(j_array)))
+    return stdnse.format_output(false, output)
   end
   -- It's definitely RMI!
-  port.version.name ='java-rmi'
-  port.version.product='Java RMI Registry'
+  port.version.name = 'java-rmi'
+  port.version.product = 'Java RMI Registry'
   nmap.set_port_version(host,port)
 
   -- Monkey patch the java-class in rmi, to set our own custom data formatter
@@ -224,13 +225,12 @@ function action(host,port, args)
     --print(data)
     table.insert(output, name)
     dbg("Querying object %s", name)
-    local status, j_object= registry:lookup(name)
+    local status, j_object = registry:lookup(name)
 
     if status then
       table.insert(output, j_object:toTable())
     end
-
-
   end
+
   return stdnse.format_output(true, output)
 end
