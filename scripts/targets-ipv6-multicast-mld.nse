@@ -104,19 +104,21 @@ end
 local function format_output(results)
   local output = tab.new()
   local xmlout = {}
+  local ips = stdnse.keys(results)
+  table.sort(ips)
 
-  for i, record in ipairs(table.sort(stdnse.keys(results))) do
+  for i, ip in ipairs(ips) do
+    record = results[ip]
     xmlout[i] = record
-    tab.addrow(output, "IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
+    tab.addrow(output, "  IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
   end
 
   if ( #output > 0 ) then
-    output = { tab.dump(output) }
+    output = {"", tab.dump(output) }
     if not target.ALLOW_NEW_TARGETS then
-      table.insert(output, "")
-      table.insert(output, "Use --script-args=newtargets to add the results as targets")
+      table.insert(output, "  Use --script-args=newtargets to add the results as targets")
     end
-    return xmlout, table.concat(output, "\n  ")
+    return xmlout, table.concat(output, "\n")
   end
 end
 
