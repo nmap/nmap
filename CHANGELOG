@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o New service probe for CORBA GIOP (General Inter-ORB Protocol) detection
+  should elicit a not-found exception from GIOP services that do not respond to
+  non-GIOP probes. [Quentin Hardy]
+
 o [NSE] Added ipv6-multicast-mld-list for discovering IPv6 multicast listeners
   with MLD probes. The discovery is the same as targets-ipv6-multicast-mld, but
   the subscribed addresses are decoded and listed.

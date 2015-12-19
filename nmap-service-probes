@@ -14316,3 +14316,28 @@ match tn3270 m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0.*?\xff\xfd\x19| p/IBM Telne
 
 # Hack to force the softmatch in NULL probe to allow this probe to be sent as a followup. Don't expect this will really match anything.
 softmatch telnet m|^\xff\xfd\x18$|
+
+##############################NEXT PROBE##############################
+# CORBA GIOP (General Inter-ORB Protocol)
+# GIOP Header:
+# - Magic: GIOP
+# - Version: 1.0 (\x01\x00)
+# - Msge type: Request (\x00)
+# - Msg size: 36 ($\x00\x00\x00 i.e \x24\x00\x00\x00)
+# Request Data:
+# - ServiceContextList (\x00\x00\x00\x00)
+# - Request Id: 1 (\x01\x00\x00\x00)
+# - Response expected: 1 (\x01)
+# - Object key Length: 6 (\x06x\00\x00\x00)
+# - Object Key: 616263646566
+# - Operation length : 4 (\x04\x00\x00\x00)
+# - Req Operation: get (i.e \x67\x65\x74\x00)
+# - Requesting Principal Length: 0 (\x00\x00\x00\x00)
+Probe TCP giop q|GIOP\x01\x00\x01\x00$\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x06\x00\x00\x00abcdef\x00\x00\x04\x00\x00\x00get\x00\x00\x00\x00\x00|
+# rarity 7 because it has been observed on non-standard ports
+rarity 7
+ports 2481
+sslports 2482
+
+match giop m|GIOP\x01\0\x01\x01@\0\0\0\0\0\0\0\x01\0\0\0\x02\0\0\0'\0\0\0IDL:omg\.org/CORBA/OBJECT_NOT_EXIST:1\.0\0\0\0\0\0\0\x01\0\0\0| p/omg.org CORBA naming service/
+softmatch giop m|^GIOP\x01\x00\x01\x01........\x01\x00\x00\x00|
