@@ -71,7 +71,6 @@ local function get_interfaces()
   local interfaces = {}
   for _, if_table in pairs(nmap.list_interfaces()) do
     if (interface_name == nil or if_table.device == interface_name) -- check for correct interface
-      and ipOps.ip_to_str(if_table.address)                -- validate IP address
       and ipOps.ip_in_range(if_table.address, "fe80::/10") -- link local address
       and if_table.link == "ethernet" then                 -- not the loopback interface
       table.insert(interfaces, if_table)

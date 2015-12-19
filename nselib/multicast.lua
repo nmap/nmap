@@ -41,8 +41,7 @@ mld_query = function( if_nfo, arg_timeout )
     return nmap.registry[reg_entry]
   end
 
-  if ipOps.ip_to_str(if_nfo.address) == nil           -- validate IP address
-    or not ipOps.ip_in_range(if_nfo.address, "fe80::/10")  -- link local address
+  if not ipOps.ip_in_range(if_nfo.address, "fe80::/10")  -- link local address
     or if_nfo.link ~= "ethernet" then                 -- not the loopback interface
     mutex('done')
     return nil
