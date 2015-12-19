@@ -147,17 +147,17 @@ mld_report_addresses = function(reports)
 
       -- if this is the first reply from the target, make an entry for it
       if not rep_addresses[target_ip] then
-        rep_addresses[target_ip] = {
-          device        = device,
-          mac           = stdnse.format_mac(l2reply.mac_src),
-          multicast_ips = {}
-        }
+        rep_addresses[target_ip] = stdnse.output_table()
       end
+      local rep = rep_addresses[target_ip]
+      rep.device = device
+      rep.mac = stdnse.format_mac(l2reply.mac_src)
+      rep.multicast_ips = rep.multicast_ips or {}
 
       -- depending on the MLD version of the report, add appropriate IP addresses
       if l3reply.ip6_nhdr == packet.MLD_LISTENER_REPORT then
         local multicast_ip = ipOps.str_to_ip( l3reply:raw(0x38, 16) ) -- IP starts at byte 0x38 and is 16 bytes long
-        table.insert(rep_addresses[target_ip].multicast_ips, multicast_ip)
+        table.insert(rep.multicast_ips, multicast_ip)
       elseif l3reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT then
         local no_records = l3reply:u16(0x36)
         local record_offset = 0
@@ -167,7 +167,7 @@ mld_report_addresses = function(reports)
           local aux_data_len = l3reply:u8(records_start + record_offset + 1)
           local no_sources = l3reply:u16(records_start + record_offset + 2)
           local multicast_ip = ipOps.str_to_ip(l3reply:raw(records_start + record_offset + 4, 16))
-          table.insert(rep_addresses[target_ip].multicast_ips, multicast_ip)
+          table.insert(rep.multicast_ips, multicast_ip)
           record_offset = record_offset + 4 + 16 + no_sources * 16 + aux_data_len * 4
         end
       end
