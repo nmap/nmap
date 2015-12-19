@@ -22,7 +22,7 @@ http://grutztopia.jingojango.net/2012/10/hph3c-and-huawei-snmp-weak-access-to.ht
 
 ---
 -- @usage
--- nmap -sU -p 161 --script snmp-hh3c-logins --script-args --script-args snmpcommunity=<community> <target>
+-- nmap -sU -p 161 --script snmp-hh3c-logins --script-args snmpcommunity=<community> <target>
 --
 -- @output
 -- | snmp-hh3c-logins:
