@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Extend libnetutil's isipprivate function to check for 169.254/16 RFC3927
+  addresses. [Bill Parker]
+
 o New service probe for CORBA GIOP (General Inter-ORB Protocol) detection
   should elicit a not-found exception from GIOP services that do not respond to
   non-GIOP probes. [Quentin Hardy]

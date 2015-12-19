@@ -495,13 +495,13 @@ int ip_is_reserved(struct in_addr *ip)
       break;
     }
 
-  /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
+  /* 172.16.0.0/12 is reserved for private nets by RFC1918 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
     return 1;
 
   /* 192.0.2.0/24 is reserved for documentation and examples (RFC5737) */
   /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
-  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
+  /* 192.168.0.0/16 is reserved for private nets by RFC1918 */
   if (i1 == 192) {
     if (i2 == 0 && i3 == 2)
       return 1;
@@ -520,7 +520,7 @@ int ip_is_reserved(struct in_addr *ip)
       return 1;
   }
 
-  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses */
+  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses - RFC3927 */
   if (i1 == 169 && i2 == 254)
     return 1;
  
@@ -1789,6 +1789,9 @@ int islocalhost(const struct sockaddr_storage *ss) {
 
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
+ *
+ * Also checks for link-local addressing per RFC3927.
+ *
  * Returns 1 if the address is private or 0 otherwise. */
 int isipprivate(const struct sockaddr_storage *addr) {
   const struct sockaddr_in *sin;
@@ -1811,6 +1814,10 @@ int isipprivate(const struct sockaddr_storage *addr) {
 
   /* 172.16.0.0/12 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
+    return 1;
+
+  /* 169.254.0.0/16 - RFC 3927 */
+  if (i1 == 169 && i2 == 254)
     return 1;
 
   /* 192.168.0.0/16 */
