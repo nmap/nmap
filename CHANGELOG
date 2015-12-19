@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ipv6-multicast-mld-list for discovering IPv6 multicast listeners
+  with MLD probes. The discovery is the same as targets-ipv6-multicast-mld, but
+  the subscribed addresses are decoded and listed.
+  [Alexandru Geana, Daniel Miller]
+
 o [NSE] [GH#226] Added http-vuln-cve2014-3704 for detecting and exploiting the
   "Drupalgeddon" pre-auth SQL Injection vulnerability in Drupal. [Mariusz Ziulek]
 

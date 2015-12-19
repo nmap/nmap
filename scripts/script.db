@@ -133,7 +133,7 @@ Entry { filename = "hbase-master-info.nse", categories = { "default", "discovery
 Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hnap-info.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", "intrusive", } }
+Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-ip2hosts.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit", "vuln", } }
@@ -270,6 +270,7 @@ Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "e
 Entry { filename = "ip-geolocation-maxmind.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-https-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ipv6-multicast-mld-list.nse", categories = { "broadcast", "discovery", } }
 Entry { filename = "ipv6-node-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ipv6-ra-flood.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "irc-botnet-channels.nse", categories = { "discovery", "safe", "vuln", } }
