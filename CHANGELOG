@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Print service info in grepable output for ports which are not listed in
+  nmap-services when a service tunnel (SSL) is detected. Previously, the
+  service info ("ssl|unknown") was not printed unless the service inside the
+  tunnel was positively identified. http://seclists.org/nmap-dev/2015/q4/260
+  [Daniel Miller]
+
 o Extend libnetutil's isipprivate function to check for 169.254/16 RFC3927
   addresses. [Bill Parker]
 

@@ -796,14 +796,15 @@ void printportoutput(Target *currenths, PortList *plist) {
           *p = '|';
           p++;
         }
-        if (!sd.name)
-          serviceinfo[0] = '\0';
-        else {
+        if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE) {
           p = serviceinfo;
           while ((p = strchr(p, '/'))) {
             *p = '|';
             p++;
           }
+        }
+        else {
+          serviceinfo[0] = '\0';
         }
         log_write(LOG_MACHINE, "%d/%s/%s//%s//%s/", current->portno,
                   state, protocol, serviceinfo, grepvers);
