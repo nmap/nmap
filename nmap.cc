@@ -700,7 +700,7 @@ void parse_options(int argc, char **argv) {
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while ((arg = getopt_long_only(argc, argv, "6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
+  while ((arg = getopt_long_only(argc, argv, "46Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
     switch (arg) {
     case 0:
 #ifndef NOLUA
@@ -1027,6 +1027,11 @@ void parse_options(int argc, char **argv) {
         } else {
           fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
         }
+      break;
+    case '4':
+      /* This is basically useless for now, but serves as a placeholder to
+       * ensure that -4 is a valid option */
+      o.setaf(AF_INET);
       break;
     case '6':
 #if !HAVE_IPV6
