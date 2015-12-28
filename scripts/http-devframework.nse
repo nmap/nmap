@@ -49,7 +49,7 @@ local _G = require "_G"
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
-local function loadFingerprints(filename, cat)
+local function loadFingerprints(filename)
 
   local file, fingerprints
 
@@ -75,7 +75,12 @@ end
 
 action = function(host, port)
 
-  local tools = stdnse.get_script_args("http-devframework.fingerprintfile") or loadFingerprints("nselib/data/http-devframework-fingerprints.lua")
+  local filename = stdnse.get_script_args("http-devframework.fingerprintfile") or "http-devframework-fingerprints.lua"
+  local tools = loadFingerprints(filename)
+  if not tools then
+    stdnse.debug1("Failed to load fingerprints")
+    return nil
+  end
   local rapid = stdnse.get_script_args("http-devframework.rapid")
 
   local d
