@@ -71,7 +71,15 @@ Driver = {
     local o = {}
     setmetatable(o, self)
     self.__index = self
-    o.host = stdnse.get_script_args('http-wordpress-brute.hostname') or host
+    o.hostname = stdnse.get_script_args('http-wordpress-brute.hostname')
+    o.http_options = {
+      no_cache = true,
+      header = {
+        -- nil just means not set, so default http.lua behavior
+        Host = stdnse.get_script_args('http-wordpress-brute.hostname')
+      }
+    }
+    o.host = host
     o.port = port
     o.uri = stdnse.get_script_args('http-wordpress-brute.uri') or DEFAULT_WP_URI
     o.options = options
@@ -86,13 +94,11 @@ Driver = {
   end,
 
   login = function( self, username, password )
-    -- Note the no_cache directive
-    stdnse.debug2("HTTP POST %s%s\n", self.host, self.uri)
-    local response = http.post( self.host, self.port, self.uri, { no_cache = true }, nil, { [self.options.uservar] = username, [self.options.passvar] = password } )
-                -- This redirect is taking us to /wp-admin
+    stdnse.debug2("HTTP POST %s%s", self.http_options.header.Host or stdnse.get_hostname(self.host), self.uri)
+    local response = http.post( self.host, self.port, self.uri, self.http_options,
+      nil, { [self.options.uservar] = username, [self.options.passvar] = password } )
+    -- This redirect is taking us to /wp-admin
     if response.status == 302 then
-      local c = creds.Credentials:new( SCRIPT_NAME, self.host, self.port )
-      c:add(username, password, creds.State.VALID )
       return true, creds.Account:new( username, password, creds.State.VALID)
     end
 
@@ -104,8 +110,8 @@ Driver = {
   end,
 
   check = function( self )
-    local response = http.get( self.host, self.port, self.uri )
-    stdnse.debug1("HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
+    local response = http.get( self.host, self.port, self.uri, self.http_options )
+    stdnse.debug1("HTTP GET %s%s", self.http_options.header.Host or stdnse.get_hostname(self.host), self.uri)
     -- Check if password field is there
     if ( response.status == 200 and response.body:match('type=[\'"]password[\'"]')) then
       stdnse.debug1("Initial check passed. Launching brute force attack")
