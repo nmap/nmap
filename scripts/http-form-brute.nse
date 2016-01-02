@@ -22,22 +22,28 @@ the form components can be supplied using arguments method, path, uservar,
 and passvar. The same arguments can be used to selectively override
 the detection outcome.
 
+The script contains a small database of known web apps' form information. This
+improves form detection and also allows for form mangling and custom success
+detection functions. If the script arguments aren't expressive enough, users
+are encouraged to edit the database to fit.
+
 After attempting to authenticate using a HTTP GET or POST request the script
 analyzes the response and attempts to determine whether authentication was
 successful or not. The script analyzes this by checking the response using
 the following rules:
-   1. If the response was empty the authentication was successful.
-   2. If the onsuccess argument was provided then the authentication either
-      succeeded or failed depending on whether the response body contained
-      the message/pattern passed in the onsuccess argument.
-   3. If no onsuccess argument was passed, and if the onfailure argument
-      was provided then the authentication either succeeded or failed
-      depending on whether the response body does not contain
-      the message/pattern passed in the onfailure argument.
-   4. If neither the onsuccess nor onfailure argument was passed and the
-      response contains a form field named the same as the submitted
-      password parameter then the authentication failed.
-   5. Authentication was successful.
+
+1. If the response was empty the authentication was successful.
+2. If the onsuccess argument was provided then the authentication either
+   succeeded or failed depending on whether the response body contained
+   the message/pattern passed in the onsuccess argument.
+3. If no onsuccess argument was passed, and if the onfailure argument
+   was provided then the authentication either succeeded or failed
+   depending on whether the response body does not contain
+   the message/pattern passed in the onfailure argument.
+4. If neither the onsuccess nor onfailure argument was passed and the
+   response contains a form field named the same as the submitted
+   password parameter then the authentication failed.
+5. Authentication was successful.
 ]]
 
 ---
@@ -73,6 +79,10 @@ the following rules:
 --       to expect on successful authentication
 -- @args http-form-brute.onfailure (optional) sets the message/pattern
 --       to expect on unsuccessful authentication
+-- @args http-form-brute.sessioncookies Attempt to grab session cookies before
+--       submitting the form. Setting this to "false" could speed up cracking
+--       against forms that do not require any cookies to be set before logging
+--       in. Default: true
 
 --
 -- Version 0.5
@@ -475,6 +485,8 @@ action = function (host, port)
   local onfailure = stdnse.get_script_args('http-form-brute.onfailure')
   local hostname = stdnse.get_script_args('http-form-brute.hostname') or stdnse.get_hostname(host)
   local sessioncookies = stdnse.get_script_args('http-form-brute.sessioncookies')
+  -- Originally intended more granular control with "always" or other strings
+  -- to say when to grab new session cookies. For now, only boolean, though.
   if not sessioncookies then
     sessioncookies = true
   elseif sessioncookies == "false" then
