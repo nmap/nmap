@@ -368,34 +368,29 @@ spend some time talking about how it works.
 Running a script happens in several stages:
 
 1. An open fileshare is found that we can write to. Finding an open
-fileshare basically consists of enumerating all shares and seeing which
-one(s) we have access to.
-
+   fileshare basically consists of enumerating all shares and seeing which
+   one(s) we have access to.
 2. A "service wrapper", and all of the uploadable/extra files, are uploaded.
-Before they're uploaded, the name of each file is obfuscated. The
-obfuscation completely renames the file, is unique for each source system,
-and doesn't change between multiple runs. This obfuscation has the benefit
-of preventing filenames from overlapping if multiple people are running this
-against the same computer, and also makes it more difficult to determine
-their purposes. The reason for keeping them consistent for every run is to
-make cleanup possible: a random filename, if the script somehow fails, will
-be left on the system.
-
+   Before they're uploaded, the name of each file is obfuscated. The
+   obfuscation completely renames the file, is unique for each source system,
+   and doesn't change between multiple runs. This obfuscation has the benefit
+   of preventing filenames from overlapping if multiple people are running this
+   against the same computer, and also makes it more difficult to determine
+   their purposes. The reason for keeping them consistent for every run is to
+   make cleanup possible: a random filename, if the script somehow fails, will
+   be left on the system.
 3. A new service is created and started. The new service has a random name
-for the same reason the files do, and points at the 'service wrapper'
-program that was uploaded.
-
+   for the same reason the files do, and points at the 'service wrapper'
+   program that was uploaded.
 4. The service runs the processes. One by one, the processes are run and
-their output is captured. The output is obfuscated using a simple (and
-highly insecure) xor algorithm, which is designed to prevent casual sniffing
-(but won't deter intelligent attackers).  This data is put into a temporary
-output file. When all the programs have finished, the file is renamed to the
-final output file
-
+   their output is captured. The output is obfuscated using a simple (and
+   highly insecure) xor algorithm, which is designed to prevent casual sniffing
+   (but won't deter intelligent attackers).  This data is put into a temporary
+   output file. When all the programs have finished, the file is renamed to the
+   final output file
 5. The output file is downloaded, and the cleanup is performced. The file
-being renamed triggers the final stage of the program, where the data is
-downloaded and all relevant files are deleted.
-
+   being renamed triggers the final stage of the program, where the data is
+   downloaded and all relevant files are deleted.
 6. Output file, now decrypted, is formatted and displayed to the user.
 
 And that's how it works!
