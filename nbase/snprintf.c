@@ -242,6 +242,8 @@ append_string (struct state *state,
                int prec,
                int flags)
 {
+  if(!arg)
+    arg = (unsigned char *) "(nall)";
   if(prec != -1)
     width -= prec;
   else
