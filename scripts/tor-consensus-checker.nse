@@ -87,7 +87,7 @@ function script_init()
     end
   end
   if not(isConnected) then
-    stdnse.print_verbose("failed to connect to directory authorities")
+    stdnse.verbose1("failed to connect to directory authorities")
   end
   nmap.registry.tornode.connect = isConnected
 end
