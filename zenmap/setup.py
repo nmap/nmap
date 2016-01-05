@@ -118,9 +118,12 @@
 # * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
 # *                                                                         *
 # ***************************************************************************/
+import sys
+
+if sys.version_info[0] != 2:
+    sys.exit("Sorry, Zenmap requires Python 2")
 
 import errno
-import sys
 import os
 import os.path
 import re
