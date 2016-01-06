@@ -6967,6 +6967,31 @@ table.insert(fingerprints, {
     }
   });
 
+-- Rompager info disclosure
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/rom-0',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = 'dbgarea',
+        output = 'RomPager Embedded Web Server information disclosure (CVE-2014-4019)'
+      },
+      {
+        match = 'spt%.dat',
+        output = 'RomPager Embedded Web Server information disclosure (CVE-2014-4019)'
+      },
+      {
+        match = 'autoexec%.net',
+        output = 'RomPager Embedded Web Server information disclosure (CVE-2014-4019)'
+      },
+    }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
