@@ -1422,6 +1422,11 @@ void parse_options(int argc, char **argv) {
     case 'v':
       if (optarg && isdigit(optarg[0])) {
         o.verbose = atoi(optarg);
+        if (o.verbose == 0) {
+          o.nmap_stdout = fopen(DEVNULL, "w");
+          if (!o.nmap_stdout)
+            fatal("Could not assign %s to stdout for writing", DEVNULL);
+        }
       } else {
         const char *p;
         o.verbose++;

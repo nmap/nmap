@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o When provided a verbosity of 0 (-v0), Nmap will not output any text to the
+  screen. This happens at the time of argument parsing, so the usual meaning of
+  "verbosity 0" is preserved. [isjing]
+
 o [Nsock] Avoid a crash on Windows and other systems which use nbase's
   vasprintf implementation. In the case of unknown OpenSSL errors,
   ERR_reason_error_string would return NULL, which could not be printed with
