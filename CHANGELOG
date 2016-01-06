@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-vuln-cve2013-6786 for detecting a XSS and URL redirection
+  vulnerability in Allegro RomPager web server. Also added a fingerprint for
+  detecting CVE-2014-4019 to http-fingerprints.lua. [Vlatko Kosturjak]
+
 o When provided a verbosity of 0 (-v0), Nmap will not output any text to the
   screen. This happens at the time of argument parsing, so the usual meaning of
   "verbosity 0" is preserved. [isjing]

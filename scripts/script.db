@@ -236,6 +236,7 @@ Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "safe", "vuln", 
 Entry { filename = "http-vuln-cve2011-3368.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2012-1823.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2013-0156.nse", categories = { "exploit", "vuln", } }
+Entry { filename = "http-vuln-cve2013-6786.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-vuln-cve2013-7091.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2014-2126.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2014-2127.nse", categories = { "safe", "vuln", } }
