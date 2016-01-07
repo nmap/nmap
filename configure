@@ -6803,8 +6803,9 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version >= 502" >&5
-$as_echo_n "checking for lua version >= 502... " >&6; }
+    # We need Lua 5.2 exactly
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version == 502" >&5
+$as_echo_n "checking for lua version == 502... " >&6; }
 
 if test "$cross_compiling" = yes; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: cross-compiling -- assuming yes" >&5
@@ -6816,7 +6817,7 @@ else
 int
 main ()
 {
-if(LUA_VERSION_NUM < 502) return 1;
+if(LUA_VERSION_NUM != 502) return 1;
   ;
   return 0;
 }

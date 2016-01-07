@@ -642,10 +642,11 @@ else
     )
 
     AC_LANG_PUSH(C++)
-    AC_MSG_CHECKING([for lua version >= 502])
+    # We need Lua 5.2 exactly
+    AC_MSG_CHECKING([for lua version == 502])
     AC_RUN_IFELSE([ AC_LANG_PROGRAM(
       [[#include <lua.h>]],
-      [[if(LUA_VERSION_NUM < 502) return 1;]])],
+      [[if(LUA_VERSION_NUM != 502) return 1;]])],
       have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
     AC_LANG_POP(C++)
 
