@@ -324,7 +324,7 @@ local get_addresses = function(address, mask, domain, nameserver, port)
   local subnet = { family = nmap.address_family(), address = address, mask = mask }
   local status, resp = dns.query(domain, {host = nameserver, port=port.number, protocol=port.protocol, retAll=true, subnet=subnet})
   if ( not(status) ) then
-    return
+    return {}
   end
   if ( "table" ~= type(resp) ) then resp = { resp } end
   return resp
