@@ -695,6 +695,7 @@ void parse_options(int argc, char **argv) {
     {"disable-arp-ping", no_argument, 0, 0},
     {"route_dst", required_argument, 0, 0},
     {"route-dst", required_argument, 0, 0},
+    {"resume", required_argument, 0, 0},
     {0, 0, 0, 0}
   };
 
@@ -1024,6 +1025,8 @@ void parse_options(int argc, char **argv) {
           /* The --route-dst debugging option: push these on a list to be
              resolved later after options like -6 and -S have been parsed. */
           route_dst_hosts.push_back(optarg);
+        } else if (optcmp(long_options[option_index].name, "resume") == 0) {
+          fatal("Cannot use --resume with other options. Usage: nmap --resume <filename>");
         } else {
           fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
         }
