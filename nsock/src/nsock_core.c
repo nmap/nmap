@@ -718,7 +718,7 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = EIO;
         nsock_log_info("SSL_read() failed for reason %s on NSI %li",
-                       ERR_reason_error_string(err), iod->id);
+                       ERR_error_string(err, NULL), iod->id);
         return -1;
       }
     }

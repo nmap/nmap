@@ -1,5 +1,20 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-vuln-cve2013-6786 for detecting a XSS and URL redirection
+  vulnerability in Allegro RomPager web server. Also added a fingerprint for
+  detecting CVE-2014-4019 to http-fingerprints.lua. [Vlatko Kosturjak]
+
+o When provided a verbosity of 0 (-v0), Nmap will not output any text to the
+  screen. This happens at the time of argument parsing, so the usual meaning of
+  "verbosity 0" is preserved. [isjing]
+
+o [Nsock] Avoid a crash on Windows and other systems which use nbase's
+  vasprintf implementation. In the case of unknown OpenSSL errors,
+  ERR_reason_error_string would return NULL, which could not be printed with
+  the "%s" format string. Fixed by using ERR_error_string instead, which will
+  not return NULL, and by causing NULL pointers to be printed as "(null)", as
+  glibc and MSVC both do. Reported by Dan Baxter. [Gisle Vanem, Daniel Miller]
+
 o Print service info in grepable output for ports which are not listed in
   nmap-services when a service tunnel (SSL) is detected. Previously, the
   service info ("ssl|unknown") was not printed unless the service inside the

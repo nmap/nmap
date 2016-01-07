@@ -712,7 +712,7 @@ Comm = {
     -- if we got no response, just return false as there's
     -- probably not really an error
     if ( not(status) ) then
-      return false
+      return false, "Did not receive any packets"
     end
 
     local header = PPPoE.Header.parse(l3)

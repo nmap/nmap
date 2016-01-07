@@ -236,7 +236,7 @@ action = function(host, port)
   -- release hell...
   local pipeline_returns = http.pipeline_go(host, port, all)
   if not pipeline_returns then
-    stdnse.print_verbose(1,"got no answers from pipelined queries")
+    stdnse.verbose1("got no answers from pipelined queries")
     return nil
   end
   local response = {}
