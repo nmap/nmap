@@ -320,6 +320,7 @@ Entry { filename = "ms-sql-dump-hashes.nse", categories = { "auth", "discovery",
 Entry { filename = "ms-sql-empty-password.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ms-sql-hasdbaccess.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ms-sql-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-query.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }

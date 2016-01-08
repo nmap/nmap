@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ms-sql-ntlm-info for extracting OS version and sometimes hostname
+  from MS SQL Server instances via the NTLM challenge message. [Justin Cacak]
+
 o [NSE] Added nntp-ntlm-info for extracting hostname and sometimes OS version
   from NTLM-auth-enabled NNTP services. [Justin Cacak]
 
