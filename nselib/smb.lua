@@ -1319,6 +1319,7 @@ local function start_session_extended(smb, log_errors, overrides)
     sp_nego = ( oid == "\x2b\x06\x01\x05\x05\x02" ) -- check for SPNEGO OID 1.3.6.1.5.5.2
   end
 
+  local ntlm_challenge_accepted = false
   while result ~= false do
     -- These are loop variables
     local security_blob = nil
@@ -1427,24 +1428,27 @@ local function start_session_extended(smb, log_errors, overrides)
         -- Parse the data
         pos, security_blob, os, lanmanager = bin.unpack(string.format("<A%dzz", security_blob_length), data)
 
-        if ( status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED" and sp_nego ) then
-          local start = security_blob:find("NTLMSSP")
-          security_blob = security_blob:sub(start)
-        end
+        if not ntlm_challenge_accepted then
+          if ( status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED" and sp_nego ) then
+            local start = security_blob:find("NTLMSSP")
+            security_blob = security_blob:sub(start)
+          end
 
-        if(security_blob == nil or lanmanager == nil) then
-          return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
-        end
-        smb['os']         = os
-        smb['lanmanager'] = lanmanager
+          if(security_blob == nil or lanmanager == nil) then
+            return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
+          end
+          smb['os']         = os
+          smb['lanmanager'] = lanmanager
 
-        local host_info = smbauth.get_host_info_from_security_blob(security_blob)
-        if ( host_info ) then
-          smb['fqdn'] = host_info['fqdn']
-          smb['domain_dns'] = host_info['dns_domain_name']
-          smb['forest_dns'] = host_info['dns_forest_name']
-          smb['server'] = host_info['netbios_computer_name']
-          smb['domain'] = host_info['netbios_domain_name']
+          local host_info = smbauth.get_host_info_from_security_blob(security_blob)
+          if ( host_info ) then
+            smb['fqdn'] = host_info['fqdn']
+            smb['domain_dns'] = host_info['dns_domain_name']
+            smb['forest_dns'] = host_info['dns_forest_name']
+            smb['server'] = host_info['netbios_computer_name']
+            smb['domain'] = host_info['netbios_domain_name']
+          end
+          ntlm_challenge_accepted = true
         end
 
 

@@ -843,9 +843,7 @@ end
 -- @return A host_info table containing the data in the blob.
 -- @see host_info
 function get_host_info_from_security_blob(security_blob)
-  local ntlm_challenge = {}
-  --local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
-  local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
+  local hpos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge = bin.unpack("<A8ISSIIL", security_blob)
 
   -- Do some validation on the NTLMSSP message
   if ( identifier ~= "NTLMSSP\0" ) then
@@ -857,6 +855,8 @@ function get_host_info_from_security_blob(security_blob)
     return false, "Invalid message type in NTLM challenge message"
   end
 
+  local ntlm_challenge = {}
+
   -- Parse the TargetName data (i.e. the server authentication realm)
   if ( domain_length > 0 ) then
     local length = domain_length
@@ -864,6 +864,26 @@ function get_host_info_from_security_blob(security_blob)
     local target_realm
     pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
     ntlm_challenge[ "target_realm" ] = unicode.utf16to8( target_realm )
+  end
+
+  if hpos + domain_length > #security_blob then
+    -- Context, Target Information, and OS Version structure are all omitted
+    -- Probably Win9x
+    return ntlm_challenge
+  end
+
+  local hpos, context, target_info_length, target_info_max, target_info_offset = bin.unpack("<LSSI", security_blob, hpos)
+
+  -- OS info is in the intervening 8 bytes, subtract 1 for lua 1-index
+  if target_info_offset >= hpos + 7 and domain_offset >= hpos + 7 then
+    local hpos, major, minor, build, reserved = bin.unpack("<CCSA4", security_blob, hpos)
+    if reserved == "\0\0\0\x0f" then
+      ntlm_challenge.os_major_version = major
+      ntlm_challenge.os_minor_version = minor
+      ntlm_challenge.os_build = build
+    else
+      stdnse.debug2("smbauth: Unknown OS info structure in NTLM handshake")
+    end
   end
 
   -- Parse the TargetInfo data (Wireshark calls this the "Address List")
