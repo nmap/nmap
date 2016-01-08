@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added telnet-ntlm-info for extracting hostname and sometimes OS version
+  from NTLM-auth-enabled Telnet services. [Justin Cacak]
+
 o [NSE] Added smtp-ntlm-info for extracting hostname and sometimes OS version
   from NTLM-auth-enabled SMTP and submission services. [Justin Cacak]
 
