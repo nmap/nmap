@@ -31,7 +31,7 @@ information to include NetBIOS, DNS, and OS build version.
 -- |   DNS_Domain_Name: somedomain.com
 -- |   DNS_Computer_Name: imap-test2.somedomain.com
 -- |   DNS_Tree_Name: somedomain.com
--- |_  Product_Version: 6.1 (Build 7601)
+-- |_  Product_Version: 6.1.7601
 --
 --@xmloutput
 -- <elem key="Target_Name">ACTIVEIMAP</elem>
@@ -40,7 +40,7 @@ information to include NetBIOS, DNS, and OS build version.
 -- <elem key="DNS_Domain_Name">somedomain.com</elem>
 -- <elem key="DNS_Computer_Name">imap-test2.somedomain.com</elem>
 -- <elem key="DNS_Tree_Name">somedomain.com</elem>
--- <elem key="Product_Version">6.1 (Build 7601)</elem>
+-- <elem key="Product_Version">6.1.7601</elem>
 
 
 author = "Justin Cacak"
