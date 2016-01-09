@@ -1,5 +1,20 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ms-sql-ntlm-info for extracting OS version and sometimes hostname
+  from MS SQL Server instances via the NTLM challenge message. [Justin Cacak]
+
+o [NSE] Added nntp-ntlm-info for extracting hostname and sometimes OS version
+  from NTLM-auth-enabled NNTP services. [Justin Cacak]
+
+o [NSE] Added pop3-ntlm-info for extracting hostname and sometimes OS version
+  from NTLM-auth-enabled POP3 services. [Justin Cacak]
+
+o [NSE] Added telnet-ntlm-info for extracting hostname and sometimes OS version
+  from NTLM-auth-enabled Telnet services. [Justin Cacak]
+
+o [NSE] Added smtp-ntlm-info for extracting hostname and sometimes OS version
+  from NTLM-auth-enabled SMTP and submission services. [Justin Cacak]
+
 o [NSE] Added imap-ntlm-info for extracting hostname and sometimes OS version
   from NTLM-auth-enabled IMAP services. [Justin Cacak]
 

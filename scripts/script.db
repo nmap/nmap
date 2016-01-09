@@ -320,6 +320,7 @@ Entry { filename = "ms-sql-dump-hashes.nse", categories = { "auth", "discovery",
 Entry { filename = "ms-sql-empty-password.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ms-sql-hasdbaccess.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ms-sql-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-query.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
@@ -355,6 +356,7 @@ Entry { filename = "nfs-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nje-node-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "nntp-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nping-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "nrpe-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }
@@ -376,6 +378,7 @@ Entry { filename = "pgsql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "pjl-ready-message.nse", categories = { "intrusive", } }
 Entry { filename = "pop3-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "pop3-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "qconn-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
@@ -439,6 +442,7 @@ Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
 Entry { filename = "smtp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smtp-enum-users.nse", categories = { "auth", "external", "intrusive", } }
+Entry { filename = "smtp-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smtp-open-relay.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
 Entry { filename = "smtp-vuln-cve2010-4344.nse", categories = { "exploit", "intrusive", "vuln", } }
@@ -492,6 +496,7 @@ Entry { filename = "targets-xml.nse", categories = { "safe", } }
 Entry { filename = "teamspeak2-version.nse", categories = { "version", } }
 Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", } }
+Entry { filename = "telnet-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tor-consensus-checker.nse", categories = { "external", "safe", } }

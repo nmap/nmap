@@ -1,7 +1,6 @@
-local comm = require "comm"
+local smtp = require "smtp"
 local bin = require "bin"
 local shortport = require "shortport"
-local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local base64 = require "base64"
 local smbauth = require "smbauth"
@@ -9,10 +8,10 @@ local string = require "string"
 
 
 description = [[
-This script enumerates information from remote IMAP services with NTLM
+This script enumerates information from remote SMTP services with NTLM
 authentication enabled.
 
-Sending an IMAP NTLM authentication request with null credentials will
+Sending a SMTP NTLM authentication request with null credentials will
 cause the remote service to respond with a NTLMSSP message disclosing
 information to include NetBIOS, DNS, and OS build version.
 ]]
@@ -20,25 +19,25 @@ information to include NetBIOS, DNS, and OS build version.
 
 ---
 -- @usage
--- nmap -p 143,993 --script imap-ntlm-info <target>
+-- nmap -p 25,465,587 --script smtp-ntlm-info --script-args smtp-ntlm-info.domain=domain.com <target>
 --
 -- @output
--- 143/tcp   open     imap
--- | imap-ntlm-info:
--- |   Target_Name: ACTIVEIMAP
--- |   NetBIOS_Domain_Name: ACTIVEIMAP
--- |   NetBIOS_Computer_Name: IMAP-TEST2
+-- 25/tcp   open     smtp
+-- | smtp-ntlm-info:
+-- |   Target_Name: ACTIVESMTP
+-- |   NetBIOS_Domain_Name: ACTIVESMTP
+-- |   NetBIOS_Computer_Name: SMTP-TEST2
 -- |   DNS_Domain_Name: somedomain.com
--- |   DNS_Computer_Name: imap-test2.somedomain.com
+-- |   DNS_Computer_Name: smtp-test2.somedomain.com
 -- |   DNS_Tree_Name: somedomain.com
 -- |_  Product_Version: 6.1.7601
 --
 --@xmloutput
--- <elem key="Target_Name">ACTIVEIMAP</elem>
--- <elem key="NetBIOS_Domain_Name">ACTIVEIMAP</elem>
--- <elem key="NetBIOS_Computer_Name">IMAP-TEST2</elem>
+-- <elem key="Target_Name">ACTIVESMTP</elem>
+-- <elem key="NetBIOS_Domain_Name">ACTIVESMTP</elem>
+-- <elem key="NetBIOS_Computer_Name">SMTP-TEST2</elem>
 -- <elem key="DNS_Domain_Name">somedomain.com</elem>
--- <elem key="DNS_Computer_Name">imap-test2.somedomain.com</elem>
+-- <elem key="DNS_Computer_Name">smtp-test2.somedomain.com</elem>
 -- <elem key="DNS_Tree_Name">somedomain.com</elem>
 -- <elem key="Product_Version">6.1.7601</elem>
 
@@ -61,76 +60,87 @@ local ntlm_auth_blob = base64.enc( select(2,
     ))
   )
 
-portrule = shortport.port_or_service({ 143, 993 }, { "imap", "imaps" })
+portrule = shortport.port_or_service({ 25, 465, 587 }, { "smtp", "smtps", "submission" })
+
+local function do_connect(host, port, domain)
+  local options = {
+    recv_before = true,
+    ssl = true,
+  }
+
+  local socket, response = smtp.connect(host, port, options)
+  if not socket then
+    return
+  end
+
+  -- Required to send EHLO
+  local status, response = smtp.ehlo(socket, domain)
+  if not status then
+    return
+  end
+
+  return socket
+end
 
 action = function(host, port)
 
   local output = stdnse.output_table()
 
-  local starttls = sslcert.isPortSupported(port)
-  local socket
-  if starttls then
-    local status
-    status, socket = starttls(host, port)
-    if not status then
-      -- could be socket problems, but more likely STARTTLS not supported.
-      stdnse.debug1("starttls error: %s", socket)
-    end
-  end
+  -- Select domain name.  Typically has no implication for this purpose.
+  local domain = stdnse.get_script_args(SCRIPT_NAME .. ".domain") or smtp.get_domain(host)
+
+  local socket = do_connect(host, port, domain)
   if not socket then
-    local line, bopt, first_line
-    socket, line, bopt, first_line = comm.tryssl(host, port, "" , {recv_before=true})
-    if not socket then
-      stdnse.debug1("connection error: %s", line)
-      return nil
+    return nil
+  end
+
+  -- Per RFC, do not attempt to upgrade to a TLS connection if already over TLS
+  if not shortport.ssl(host, port) then
+    -- After EHLO, attempt to upgrade to a TLS connection (may not be advertised)
+    -- Various implementations *require* this before accepting authentication requests
+    local status, response = smtp.starttls(socket)
+    if status then
+      -- Read line after upgrading the connection or timeout trying.
+      -- This may induce a delay, however, appears required under rare conditions
+      -- since reconnect_ssl does not support recv_before.
+      -- -- commenting this out, not needed in testing, but may crop up sometime.
+      --status, response = socket:receive_lines(1)
+      -- Per RFC, must EHLO again after connection upgrade
+      status, response = smtp.ehlo(socket, domain)
+    else
+      -- STARTTLS failed, which means smtp.lua sent QUIT and shut down the
+      -- connection. Try again without SSL
+      socket = do_connect(host, port, domain)
     end
   end
 
-  socket:send("000b AUTHENTICATE NTLM\r\n")
+  socket:send("AUTH NTLM\r\n")
   local status, response = socket:receive()
-  if not status then
-    stdnse.debug1("Socket receive failed: %s", response)
-    return nil
-  end
   if not response then
-    stdnse.debug1("No response to AUTHENTICATE NTLM")
-    return nil
+    return
   end
 
   socket:send(ntlm_auth_blob .. "\r\n")
   status, response = socket:receive()
-  if not status then
-    stdnse.debug1("Socket receive failed: %s", response)
-    return nil
-  end
   if not response then
-    stdnse.debug1("No response to NTLM challenge")
-    return nil
+    return
   end
 
   socket:close()
 
-  if string.match(response, "^A%d%d%d%d ") then
-    stdnse.debug2("NTLM auth not supported.")
-    return nil
-  end
-
-  -- Continue only if a + response is returned
-  local response_decoded = string.match(response, "+ (.*)")
+  -- Continue only if a 334 response code is returned
+  local response_decoded = string.match(response, "^334 (.*)")
   if not response_decoded then
-    stdnse.debug1("Unexpected response to NTLM challenge: %s", response)
-    return nil
+    return
   end
 
-  local response_decoded = base64.dec(response_decoded)
+  response_decoded = base64.dec(response_decoded)
 
   -- Continue only if NTLMSSP response is returned
   if not string.match(response_decoded, "^NTLMSSP") then
-    stdnse.debug1("Unexpected response to NTLM challenge: %s", response)
     return nil
   end
 
-  -- Leverage smbauth.get_host_info_from_security_blob() for decoding
   local ntlm_decoded = smbauth.get_host_info_from_security_blob(response_decoded)
 
   -- Target Name will always be returned under any implementation

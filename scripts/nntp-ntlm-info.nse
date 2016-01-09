@@ -1,7 +1,5 @@
 local comm = require "comm"
-local bin = require "bin"
 local shortport = require "shortport"
-local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local base64 = require "base64"
 local smbauth = require "smbauth"
@@ -9,10 +7,10 @@ local string = require "string"
 
 
 description = [[
-This script enumerates information from remote IMAP services with NTLM
+This script enumerates information from remote NNTP services with NTLM
 authentication enabled.
 
-Sending an IMAP NTLM authentication request with null credentials will
+Sending an MS-NNTP NTLM authentication request with null credentials will
 cause the remote service to respond with a NTLMSSP message disclosing
 information to include NetBIOS, DNS, and OS build version.
 ]]
@@ -20,31 +18,31 @@ information to include NetBIOS, DNS, and OS build version.
 
 ---
 -- @usage
--- nmap -p 143,993 --script imap-ntlm-info <target>
+-- nmap -p 119,433,563 --script nntp-ntlm-info <target>
 --
 -- @output
--- 143/tcp   open     imap
--- | imap-ntlm-info:
--- |   Target_Name: ACTIVEIMAP
--- |   NetBIOS_Domain_Name: ACTIVEIMAP
--- |   NetBIOS_Computer_Name: IMAP-TEST2
+-- 119/tcp   open     nntp
+-- | nntp-ntlm-info:
+-- |   Target_Name: ACTIVENNTP
+-- |   NetBIOS_Domain_Name: ACTIVENNTP
+-- |   NetBIOS_Computer_Name: NNTP-TEST2
 -- |   DNS_Domain_Name: somedomain.com
--- |   DNS_Computer_Name: imap-test2.somedomain.com
+-- |   DNS_Computer_Name: nntp-test2.somedomain.com
 -- |   DNS_Tree_Name: somedomain.com
 -- |_  Product_Version: 6.1.7601
 --
 --@xmloutput
--- <elem key="Target_Name">ACTIVEIMAP</elem>
--- <elem key="NetBIOS_Domain_Name">ACTIVEIMAP</elem>
--- <elem key="NetBIOS_Computer_Name">IMAP-TEST2</elem>
+-- <elem key="Target_Name">ACTIVENNTP</elem>
+-- <elem key="NetBIOS_Domain_Name">ACTIVENNTP</elem>
+-- <elem key="NetBIOS_Computer_Name">NNTP-TEST2</elem>
 -- <elem key="DNS_Domain_Name">somedomain.com</elem>
--- <elem key="DNS_Computer_Name">imap-test2.somedomain.com</elem>
+-- <elem key="DNS_Computer_Name">nntp-test2.somedomain.com</elem>
 -- <elem key="DNS_Tree_Name">somedomain.com</elem>
 -- <elem key="Product_Version">6.1.7601</elem>
 
 
 author = "Justin Cacak"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 
@@ -61,64 +59,53 @@ local ntlm_auth_blob = base64.enc( select(2,
     ))
   )
 
-portrule = shortport.port_or_service({ 143, 993 }, { "imap", "imaps" })
+
+portrule = shortport.port_or_service({ 119, 433, 563 }, { "nntp", "snews" })
 
 action = function(host, port)
 
   local output = stdnse.output_table()
 
-  local starttls = sslcert.isPortSupported(port)
-  local socket
-  if starttls then
-    local status
-    status, socket = starttls(host, port)
-    if not status then
-      -- could be socket problems, but more likely STARTTLS not supported.
-      stdnse.debug1("starttls error: %s", socket)
-    end
-  end
+  -- Negotiate connection protocol
+  local socket, line, bopt, first_line = comm.tryssl(host, port, "" , {timeout=10000, recv_before=true})
   if not socket then
-    local line, bopt, first_line
-    socket, line, bopt, first_line = comm.tryssl(host, port, "" , {recv_before=true})
-    if not socket then
-      stdnse.debug1("connection error: %s", line)
-      return nil
+    return
+  end
+
+  -- Do not attempt to upgrade to a TLS connection if already over TLS
+  if not shortport.ssl(host,port) then
+    -- Attempt to upgrade to a TLS connection if supported (may not be advertised)
+    -- Various implementations *require* this before accepting authentication requests
+    socket:send("STARTTLS\r\n")
+    local status, response = socket:receive()
+    if not status then
+      return
+    end
+    -- Upgrade the connection if STARTTLS permitted, else continue without
+    if string.match(response, "382 .*") then
+      status, response = socket:reconnect_ssl()
+      if not status then
+        return
+      end
     end
   end
 
-  socket:send("000b AUTHENTICATE NTLM\r\n")
+  socket:send("AUTHINFO GENERIC NTLM\r\n")
   local status, response = socket:receive()
-  if not status then
-    stdnse.debug1("Socket receive failed: %s", response)
-    return nil
-  end
-  if not response then
-    stdnse.debug1("No response to AUTHENTICATE NTLM")
-    return nil
-  end
-
-  socket:send(ntlm_auth_blob .. "\r\n")
-  status, response = socket:receive()
-  if not status then
-    stdnse.debug1("Socket receive failed: %s", response)
-    return nil
-  end
-  if not response then
-    stdnse.debug1("No response to NTLM challenge")
-    return nil
+  -- If server supports NTLM authentication then continue
+  if string.match(response, "381 .*") then
+    socket:send("AUTHINFO GENERIC " .. ntlm_auth_blob .."\r\n")
+    status, response = socket:receive()
+    if not response then
+      return
+    end
   end
 
   socket:close()
 
-  if string.match(response, "^A%d%d%d%d ") then
-    stdnse.debug2("NTLM auth not supported.")
-    return nil
-  end
-
-  -- Continue only if a + response is returned
-  local response_decoded = string.match(response, "+ (.*)")
+  -- Continue only if a 381 response is returned
+  local response_decoded = string.match(response, "381 (.*)")
   if not response_decoded then
-    stdnse.debug1("Unexpected response to NTLM challenge: %s", response)
     return nil
   end
 
@@ -126,7 +113,6 @@ action = function(host, port)
 
   -- Continue only if NTLMSSP response is returned
   if not string.match(response_decoded, "^NTLMSSP") then
-    stdnse.debug1("Unexpected response to NTLM challenge: %s", response)
     return nil
   end
 
