@@ -383,4 +383,22 @@ tools = { Django = { rapidDetect = function(host, port)
     end
   },
 
+  Web2py = { rapidDetect = function(host,port)
+
+      local response = http.get(host,port,"/admin/") 
+
+      if response and response.status == 200 then
+        if string.find(response.body,'web2py') then
+          return "Web2py Found, admin panel at /admin/"
+        end
+      end
+    end,
+
+      consumingDetect = function(page, path)
+        return
+      end
+      },
+
+  
+
 }
