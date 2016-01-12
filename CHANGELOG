@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#274] Use a shorter pcap_select timeout on OpenBSD, just as we do for OS
+  X, old FreeBSD, and Solaris, which use BPF for packet capture and do not have
+  properly select-able fds. Fix by OpenBSD port maintainer [David Carlier]
+
 o [NSE] Added ms-sql-ntlm-info for extracting OS version and sometimes hostname
   from MS SQL Server instances via the NTLM challenge message. [Justin Cacak]
 
@@ -22,7 +26,7 @@ o [NSE] Added http-vuln-cve2013-6786 for detecting a XSS and URL redirection
   vulnerability in Allegro RomPager web server. Also added a fingerprint for
   detecting CVE-2014-4019 to http-fingerprints.lua. [Vlatko Kosturjak]
 
-o When provided a verbosity of 0 (-v0), Nmap will not output any text to the
+o [GH#265] When provided a verbosity of 0 (-v0), Nmap will not output any text to the
   screen. This happens at the time of argument parsing, so the usual meaning of
   "verbosity 0" is preserved. [isjing]
 
