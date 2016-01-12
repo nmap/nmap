@@ -915,7 +915,7 @@ void set_ttl(int sd, int ttl) {
 /* Other than WIN32, what these systems have in common is that they use BPF for
    packet capture. (Solaris 10 and earlier used DLPI and had valid selectable
    fds.) */
-#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000) || defined(SOLARIS_BPF_PCAP_CAPTURE))
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000)) || defined(SOLARIS_BPF_PCAP_CAPTURE) || defined(OPENBSD)
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
 int pcap_selectable_fd_valid() {
   return 0;
