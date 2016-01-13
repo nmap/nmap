@@ -134,6 +134,7 @@
 #include "mswin32/winclude.h"
 #include "pcap-int.h"
 #else
+#include <sys/uio.h>
 #include <sys/ioctl.h>
 #endif
 
