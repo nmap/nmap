@@ -127,6 +127,7 @@
 #include "nmap_error.h"
 #include "tcpip.h"
 #include "Target.h"
+#include "nmap_tty.h"
 extern NmapOps o;
 
 struct ftpinfo get_default_ftpinfo(void) {
@@ -256,14 +257,13 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
                  struct ftpinfo *ftp) {
   o.current_scantype = BOUNCE_SCAN;
 
-  time_t starttime;
+  ScanProgressMeter *SPM;
   int res , sd = ftp->sd,  i = 0;
   const char *t = (const char *)target->v4hostip();
   int retriesleft = FTP_RETRIES;
   char recvbuf[2048];
   char targetstr[20];
   char command[512];
-  char hostname[1200];
   unsigned short portno, p1, p2;
   int timedout;
 
@@ -272,17 +272,16 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 
   Snprintf(targetstr, 20, "%d,%d,%d,%d,", UC(t[0]), UC(t[1]), UC(t[2]), UC(t[3]));
 
-  starttime = time(NULL);
-  if (o.verbose || o.debugging) {
-    struct tm *tm = localtime(&starttime);
-    assert(tm);
-    log_write(LOG_STDOUT, "Initiating TCP FTP bounce scan against %s at %02d:%02d\n", target->NameIP(hostname, sizeof(hostname)), tm->tm_hour, tm->tm_min );
-  }
+  SPM = new ScanProgressMeter(scantype2str(BOUNCE_SCAN));
   for (i = 0; i < numports; i++) {
 
     /* Check for timeout */
-    if (target->timedOut(NULL))
+    if (target->timedOut(NULL)) {
+      Snprintf(recvbuf, sizeof(recvbuf), "Target timed out");
+      SPM->endTask(NULL, recvbuf);
+      delete SPM;
       return;
+    }
 
     portno = htons(portarray[i]);
     p1 = ((unsigned char *) &portno)[0];
@@ -298,14 +297,21 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         retriesleft--;
         close(sd);
         ftp->sd = ftp_anon_connect(ftp);
-        if (ftp->sd < 0)
+        if (ftp->sd < 0) {
+          Snprintf(recvbuf, sizeof(recvbuf), "Error connecting");
+          SPM->endTask(NULL, recvbuf);
+          delete SPM;
           return;
+        }
         sd = ftp->sd;
         i--;
       } else {
         error("Our socket descriptor is dead and we are out of retries. Giving up.");
         close(sd);
         ftp->sd = -1;
+        Snprintf(recvbuf, sizeof(recvbuf), "Max retries exceeded");
+        SPM->endTask(NULL, recvbuf);
+        delete SPM;
         return;
       }
     } else { /* Our send is good */
@@ -374,10 +380,17 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         }
       }
     }
+    if (SPM->mayBePrinted(NULL)) {
+      SPM->printStatsIfNecessary((double) i / numports, NULL);
+    }
+    else if (keyWasPressed()) {
+      SPM->printStats((double) i / numports, NULL);
+      log_flush(LOG_STDOUT);
+    }
   }
 
-  if (o.debugging || o.verbose)
-    log_write(LOG_STDOUT, "Scanned %d ports in %ld seconds via the Bounce scan.\n",
-              numports, (long) time(NULL) - starttime);
+  Snprintf(recvbuf, sizeof(recvbuf), "%d total ports", numports);
+  SPM->endTask(NULL, recvbuf);
+  delete SPM;
   return;
 }
