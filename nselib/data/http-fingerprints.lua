@@ -5166,6 +5166,26 @@ table.insert(fingerprints, {
       }
     }
   });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      "/ibm/console/logon.jsp?action=OK",
+      "/console/",
+      "/console/portal/0/Welcome"
+    },
+    matches = {
+      {
+        match = "[Ww][Ee][Bb][Ss][Pp][Hh][Ee][Rr][Ee]",
+        output = "WebSphere"
+      },
+      {
+        match = "WSC Console Federation",
+        output = "WebSphere Commerce"
+      },
+    }
+  })
+
 ------------------------------------------------
 ----     PRINTERS, WEBCAMS, PROJECTORS      ----
 ------------------------------------------------
