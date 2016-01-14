@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Use the same ScanProgressMeter for FTP bounce scan (-b) as for the other scan
+  types, allowing periodic status updates with --stats-every or keypress
+  events.  [Daniel Miller]
+
 o [GH#274] Use a shorter pcap_select timeout on OpenBSD, just as we do for OS
   X, old FreeBSD, and Solaris, which use BPF for packet capture and do not have
   properly select-able fds. Fix by OpenBSD port maintainer [David Carlier]

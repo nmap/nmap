@@ -1989,17 +1989,17 @@ void printosscanoutput(Target *currenths) {
   if (currenths->seq.lastboot) {
     char tmbuf[128];
     struct timeval tv;
-    time_t lastboot;
-    lastboot = (time_t) currenths->seq.lastboot;
-    strncpy(tmbuf, ctime(&lastboot), sizeof(tmbuf));
+    double uptime;
+    strncpy(tmbuf, ctime(&currenths->seq.lastboot), sizeof(tmbuf));
     chomp(tmbuf);
     gettimeofday(&tv, NULL);
+    uptime = difftime(tv.tv_sec, currenths->seq.lastboot);
     if (o.verbose)
       log_write(LOG_PLAIN, "Uptime guess: %.3f days (since %s)\n",
-                (double) (tv.tv_sec - currenths->seq.lastboot) / 86400,
+                uptime / 86400,
                 tmbuf);
     xml_open_start_tag("uptime");
-    xml_attribute("seconds", "%li", tv.tv_sec - currenths->seq.lastboot);
+    xml_attribute("seconds", "%.0f", uptime);
     xml_attribute("lastboot", "%s", tmbuf);
     xml_close_empty_tag();
     xml_newline();

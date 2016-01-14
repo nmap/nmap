@@ -2551,7 +2551,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
      5) Same with ~100/sec
   */
   if (hss->si.ts_seqclass == TS_SEQ_UNKNOWN && hss->si.responses >= 2) {
-    double lastboot = 0.0;
+    time_t uptime = 0;
     avg_ts_hz = 0.0;
     for (i = 0; i < hss->si.responses - 1; i++) {
       double dhz;
@@ -2563,31 +2563,33 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
     if (avg_ts_hz > 0 && avg_ts_hz < 5.66) { /* relatively wide range because sampling time so short and frequency so slow */
       hss->si.ts_seqclass = TS_SEQ_2HZ;
-      lastboot = (double) hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 2);
-      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 2);
+      uptime = hss->si.timestamps[0] / 2;
     }
     else if (avg_ts_hz > 70 && avg_ts_hz < 150) {
       hss->si.ts_seqclass = TS_SEQ_100HZ;
-      lastboot = (double) hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 100);
+      uptime = hss->si.timestamps[0] / 100;
     }
     else if (avg_ts_hz > 724 && avg_ts_hz < 1448) {
       hss->si.ts_seqclass = TS_SEQ_1000HZ;
-      lastboot = (double) hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 1000);
+      uptime = hss->si.timestamps[0] / 1000;
     }
     else if (avg_ts_hz > 0) {
       hss->si.ts_seqclass = TS_SEQ_OTHER_NUM;
-      lastboot = (double) hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / (unsigned int)(0.5 + avg_ts_hz));
+      uptime = hss->si.timestamps[0] / (unsigned int)(0.5 + avg_ts_hz);
     }
 
-    if (lastboot != 0.0 && (hss->seq_send_times[0].tv_sec - lastboot > 63072000)) {
+    if (uptime > 63072000) {
       /* Up 2 years?  Perhaps, but they're probably lying. */
       if (o.debugging) {
-        log_write(LOG_STDOUT, "Ignoring claimed %s uptime of %lu days\n",
-        hss->target->targetipstr(), (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
+        /* long long is probably excessive for number of days, but sick of
+         * truncation warnings and finding the right format string for time_t
+         */
+        log_write(LOG_STDOUT, "Ignoring claimed %s uptime of %lld days\n",
+        hss->target->targetipstr(), (long long) (uptime / 86400));
       }
-      lastboot = 0;
+      uptime = 0;
     }
-    hss->si.lastboot = (long) lastboot;
+    hss->si.lastboot = hss->seq_send_times[0].tv_sec - uptime;
   }
 
   switch (hss->si.ts_seqclass) {
