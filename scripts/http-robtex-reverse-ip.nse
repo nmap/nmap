@@ -48,7 +48,8 @@ function parse_robtex_response(data)
   local data = data:match("<span id=\"shared_ma\">.-<ol.->(.-)</ol>")
   local result = {}
   if data then
-    for domain in data:gmatch("<li><code>(.-)</code></li>") do
+    for domain in data:gmatch("<li[^>]*>(.-)</li>") do
+      domain = domain:gsub("<[^>]+>","")
       table.insert(result, domain)
     end
   end
