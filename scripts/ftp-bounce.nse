@@ -1,6 +1,7 @@
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local shortport = require "shortport"
+local stdnse = require "stdnse"
 local string = require "string"
 
 description=[[
@@ -14,6 +15,8 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 -- <code>"anonymous"</code>.
 -- @args ftp-bounce.password Password to log in with. Default
 -- <code>"IEUser@"</code>.
+-- @args ftp-bounce.checkhost Host to try connecting to with the PORT command.
+--                            Default: scanme.nmap.org
 --
 -- @output
 -- PORT   STATE SERVICE
@@ -102,6 +105,19 @@ local get_login = function()
   return user or "anonymous", pass or "IEUser@"
 end
 
+local portfmt_cached
+local function get_portfmt()
+  if portfmt_cached then return portfmt_cached end
+  local arghost = stdnse.get_script_args(SCRIPT_NAME .. ".checkhost") or "scanme.nmap.org"
+  local status, addrs = nmap.resolve(arghost, "inet")
+  if not status or #addrs < 1 then
+    stdnse.verbose1("Couldn't resolve %s, scanning 10.0.0.1 instead.", arghost)
+    addrs = {"10.0.0.1"}
+  end
+  portfmt_cached = string.format("PORT %s,%%s\r\n", (string.gsub(addrs[1], "%.", ",")))
+  return portfmt_cached
+end
+
 action = function(host, port)
   local socket = nmap.new_socket()
   local result;
@@ -182,7 +198,9 @@ action = function(host, port)
   end
 
   -- PORT scanme.nmap.com:highport
-  socket:send("PORT 205,217,153,62,80,80\r\n")
+  local portfmt = get_portfmt()
+  -- This is actually port 256*80 + 80 = 20560
+  socket:send(string.format(portfmt, "80,80"))
   fc = get_ftp_code(socket)
   if (fc >= 500 and fc <= 599) then
     socket:close()
@@ -201,7 +219,7 @@ action = function(host, port)
   end
 
   -- PORT scanme.nmap.com:lowport
-  socket:send("PORT 205,217,153,62,0,80\r\n")
+  socket:send(string.format(portfmt, "0,80"))
   fc = get_ftp_code(socket)
   if (fc >= 500 and fc <= 599) then
     socket:close()
