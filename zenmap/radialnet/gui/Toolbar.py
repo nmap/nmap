@@ -125,6 +125,7 @@ import gobject
 from radialnet.bestwidgets.buttons import *
 from radialnet.gui.SaveDialog import SaveDialog
 from radialnet.gui.Dialogs import AboutDialog
+from radialnet.gui.Dialogs import LegendDialog
 from radialnet.gui.HostsViewer import HostsViewer
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
@@ -233,6 +234,11 @@ class Toolbar(gtk.HBox):
         self.__fisheye = BWToggleStockButton(gtk.STOCK_ZOOM_FIT, _("Fisheye"))
         self.__fisheye.connect('clicked', self.__fisheye_callback)
         self.__fisheye.set_active(False)
+	
+
+	self.__legend_button = BWToggleStockButton(gtk.STOCK_INDEX, _("Legend"))
+	self.__legend_button.connect('clicked',self.__legend_callback)
+	self.__legend_button.set_active(False)
 
         #self.__fullscreen = gtk.ToggleToolButton(gtk.STOCK_FULLSCREEN)
         #self.__fullscreen.set_label(_('Fullscreen'))
@@ -265,6 +271,8 @@ class Toolbar(gtk.HBox):
         self.pack_start(self.__fisheye, False)
         self.pack_start(self.__control, False)
         self.pack_end(self.__save_button, False)
+	self.pack_end(self.__legend_button, False)
+
 
     def disable_controls(self):
         """
@@ -272,6 +280,7 @@ class Toolbar(gtk.HBox):
         self.__control.set_sensitive(False)
         self.__fisheye.set_sensitive(False)
         self.__hosts_button.set_sensitive(False)
+	self.__legend_button.set_sensitive(False)
         #self.__tools_menu.disable_dependents()
 
     def enable_controls(self):
@@ -280,6 +289,7 @@ class Toolbar(gtk.HBox):
         self.__control.set_sensitive(True)
         self.__fisheye.set_sensitive(True)
         self.__hosts_button.set_sensitive(True)
+	self.__legend_button.set_sensitive(True)
         #self.__tools_menu.enable_dependents()
 
     def __tools_callback(self, widget):
@@ -342,10 +352,17 @@ class Toolbar(gtk.HBox):
                 self.__fisheye_widget.deactive_fisheye()
                 self.__fisheye_widget.hide()
 
+    def __legend_callback(self,widget):
+	"""
+	"""
+	self.__legend_dialog = LegendDialog()
+	self.__legend_dialog.show_all()
+	 
+
     def __about_callback(self, widget):
         """
         """
-        self.__about_dialog = AboutDialog()
+        self.__about_dialog = Dialog() 
         self.__about_dialog.show_all()
 
     def __fullscreen_callback(self, widget=None):
