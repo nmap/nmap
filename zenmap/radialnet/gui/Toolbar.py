@@ -362,7 +362,7 @@ class Toolbar(gtk.HBox):
     def __about_callback(self, widget):
         """
         """
-        self.__about_dialog = Dialog() 
+        self.__about_dialog = AboutDialog() 
         self.__about_dialog.show_all()
 
     def __fullscreen_callback(self, widget=None):

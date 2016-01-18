@@ -137,7 +137,7 @@ class AboutDialog(gtk.AboutDialog):
         self.set_version(INFO['version'])
         self.set_website(INFO['website'])
         self.set_authors(INFO['authors'])
-        #self.set_license(INFO['license'])
+        self.set_license(INFO['license'])
         self.set_copyright(INFO['copyright'])
 
         self.set_logo(Pixmaps().get_pixbuf('logo'))
