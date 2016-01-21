@@ -79,6 +79,14 @@ local ciphers = function(cipher_list)
     end
   end
 
+  if #available_ciphers == 0 then
+    setmetatable(available_ciphers, {
+        __tostring = function(t)
+          return "none"
+        end
+      })
+  end
+
   return available_ciphers
 end
 
@@ -174,7 +182,7 @@ action = function(host, port)
   local idx, connection_ID = bin.unpack("A" .. connection_ID_len, server_hello, idx)
 
   -- get a list of ciphers offered
-  local available_ciphers = ciphers_len > 0 and ciphers(cipher_list) or "none"
+  local available_ciphers = ciphers(cipher_list)
 
   -- actually run some tests:
   local o = stdnse.output_table()
