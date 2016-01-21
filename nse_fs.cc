@@ -241,7 +241,7 @@ static int dir_iter_factory (lua_State *L) {
   if (strlen(path) > MAX_PATH-2)
     luaL_error (L, "path too long: %s", path);
   else
-    sprintf (d->pattern, "%s/*", path);
+    Snprintf (d->pattern, sizeof(d->pattern), "%s/*", path);
 #else
   d->dir = opendir (path);
   if (d->dir == NULL)

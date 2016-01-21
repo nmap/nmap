@@ -1338,7 +1338,7 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
       for (short i=15; i>=0; --i)
       {
         char tmp[3];
-        sprintf(tmp, "%02x", ipv6[i]);
+        Snprintf(tmp, sizeof(tmp), "%02x", ipv6[i]);
         ptr += '.';
         ptr += tmp[1];
         ptr += '.';

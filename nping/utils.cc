@@ -383,7 +383,7 @@ void luis_hdump(char *cp, unsigned int length) {
     current_char=cp[i];
     if( hex==HEX_START+24) hex++; /* Insert space every 8 bytes */
     /* First print the hex number */
-    sprintf(printbyte,"%02x", current_char);    
+    Snprintf(printbyte, sizeof(printbyte), "%02x", current_char);    
     line2print[hex++]=printbyte[0];
     line2print[hex++]=printbyte[1];
     line2print[hex++]=' ';

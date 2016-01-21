@@ -1342,7 +1342,7 @@ char *ProbeMode::getBPFFilterString(){
  /* For the server in Echo mode we need a special filter */
  if( o.getRole()==ROLE_SERVER ){
     /* Capture all IP packets but the ones that belong to the side-channel */
-    sprintf(filterstring, "ip and ( not (tcp and (dst port %d or src port %d) ) )", o.getEchoPort(), o.getEchoPort() );
+    Snprintf(filterstring, sizeof(filterstring), "ip and ( not (tcp and (dst port %d or src port %d) ) )", o.getEchoPort(), o.getEchoPort() );
     nping_print(DBG_1, "BPF-filter: %s", filterstring);
     return filterstring;
  }
@@ -1387,7 +1387,7 @@ char *ProbeMode::getBPFFilterString(){
     inet_ntop(AF_INET, &s4->sin_addr, ipstring, sizeof(ipstring));
  }else{
     nping_warning(QT_2, "Warning: Wrong address family (%d) in getBPFFilterString(). Please report a bug", srcss.ss_family);
-    sprintf(ipstring,"127.0.0.1");
+    sprintf(ipstring, "127.0.0.1");
  }
 
  /* Tell the filter that we only want incoming packets, destined to our source IP */
