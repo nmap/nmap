@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#272][GH#269] Give option parsing errors after the usage statement, or
+  avoid printing the usage statement in some cases. The options summary has
+  grown quite large, requiring users to scroll to the top to see the error
+  message. [Abhishek Singh]
+
 o [GH#284] Fix retrieval of route netmasks on FreeBSD. IPv6 routes were given
   /32 netmasks regardless of actual netmask configured, resulting in failed
   routing. Reported by Martin Gysi. [Daniel Miller]

@@ -238,7 +238,7 @@ static int parse_scanflags(char *arg) {
   return flagval;
 }
 
-static void printusage(int rc) {
+static void printusage() {
 
   printf("%s %s ( %s )\n"
          "Usage: nmap [Scan Type(s)] [Options] {target specification}\n"
@@ -356,7 +356,6 @@ static void printusage(int rc) {
          "  nmap -v -sn 192.168.0.0/16 10.0.0.0/8\n"
          "  nmap -v -iR 10000 -Pn -p 80\n"
          "SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
-  exit(rc);
 }
 
 #ifdef WIN32
@@ -1139,10 +1138,12 @@ void parse_options(int argc, char **argv) {
         error("WARNING: a source port of zero may not work on all systems.");
       break;
     case 'h':
-      printusage(0);
+      printusage();
+      exit(0);
       break;
     case '?':
-      printusage(-1);
+      error("See the output of nmap -h for a summary of options.");
+      exit(-1);
       break;
     case 'I':
       error("WARNING: identscan (-I) no longer supported.  Ignoring -I");
@@ -1304,8 +1305,9 @@ void parse_options(int argc, char **argv) {
       break;
     case 's':
       if (!*optarg) {
+        printusage();
         error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sn (Ping scan)");
-        printusage(-1);
+        exit(-1);
       }
       p = optarg;
       while (*p) {
@@ -1374,8 +1376,9 @@ void parse_options(int argc, char **argv) {
           o.sctpcookieechoscan = 1;
           break;
         default:
+          printusage();
           error("Scantype %c not supported\n", *p);
-          printusage(-1);
+          exit(-1);
           break;
         }
         p++;
@@ -1742,8 +1745,10 @@ int nmap_main(int argc, char *argv[]) {
   else
     nbase_set_log(fatal, NULL);
 
-  if (argc < 2)
-    printusage(-1);
+  if (argc < 2){
+    printusage();
+    exit(-1);
+  }
 
   Targets.reserve(100);
 #ifdef WIN32
