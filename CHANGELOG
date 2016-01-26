@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#284] Fix retrieval of route netmasks on FreeBSD. IPv6 routes were given
+  /32 netmasks regardless of actual netmask configured, resulting in failed
+  routing. Reported by Martin Gysi. [Daniel Miller]
+
 o Use the same ScanProgressMeter for FTP bounce scan (-b) as for the other scan
   types, allowing periodic status updates with --stats-every or keypress
   events.  [Daniel Miller]
