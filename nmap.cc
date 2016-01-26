@@ -1139,10 +1139,12 @@ void parse_options(int argc, char **argv) {
         error("WARNING: a source port of zero may not work on all systems.");
       break;
     case 'h':
-      printusage(0);
+      //printusage(0);
+      exit(0);
       break;
     case '?':
-      printusage(-1);
+      //printusage(-1);
+      exit(-1);
       break;
     case 'I':
       error("WARNING: identscan (-I) no longer supported.  Ignoring -I");
@@ -1305,7 +1307,8 @@ void parse_options(int argc, char **argv) {
     case 's':
       if (!*optarg) {
         error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sn (Ping scan)");
-        printusage(-1);
+        //printusage(-1);
+        exit(-1);
       }
       p = optarg;
       while (*p) {
@@ -1375,7 +1378,8 @@ void parse_options(int argc, char **argv) {
           break;
         default:
           error("Scantype %c not supported\n", *p);
-          printusage(-1);
+          //printusage(-1);
+          exit(-1);
           break;
         }
         p++;
