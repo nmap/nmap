@@ -123,7 +123,9 @@ import pango
 
 from radialnet.core.Info import INFO
 from radialnet.gui.Image import Pixmaps
-
+from radialnet.bestwidgets.boxes import *
+from radialnet.bestwidgets.windows import BWWindow
+from radialnet.bestwidgets.buttons import *
 
 class AboutDialog(gtk.AboutDialog):
     """
@@ -148,21 +150,12 @@ class AboutDialog(gtk.AboutDialog):
         """
         """
         self.destroy()
+			
 
 
 
-class LegendDialog(gtk.AboutDialog):
-	"""
-	"""
-	def __init__(self):
 
-		gtk.AboutDialog.__init__(self)
-		self.set_name("Legend")
-		self.set_logo(Pixmaps().get_pixbuf('legend'))
-		self.connect('response', self.__destroy)
-	
-	def __destroy(self, dialog, id):
-		"""
-		"""
-		self.destroy()
+
+
+
 
