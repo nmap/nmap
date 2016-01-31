@@ -139,9 +139,9 @@ end
 ---Writes the given account to the registry.
 --
 -- There are several places where accounts are stored:
--- * registry['usernames'][username]    => true
--- * registry['smbaccounts'][username]  => password
--- * registry[ip]['smbaccounts']        => array of table containing 'username', 'password', and 'is_admin'
+-- * registry['smbaccounts']    => array containing 'username', 'domain', 'password', 
+--                                 'password_hash', 'hash_type', and 'account_type'
+-- * registry['smbindex']       => index in the sorted array
 --
 -- The final place, 'smbaccount', is reserved for the "best" account. This is
 -- an administrator account, if one's found; otherwise, it's the first account
@@ -618,7 +618,6 @@ end
 --
 -- The output passwords are hashed based on the hash type.
 --
---@param ip       The ip address of the host, used for registry lookups.
 --@param username The username, which is used for v2 passwords.
 --@param domain The username, which is used for v2 passwords.
 --@param password [optional] The overriding password.
@@ -632,7 +631,7 @@ end
 --@return lm_response, to be send directly back to the server
 --@return ntlm_response, to be send directly back to the server
 --@reutrn mac_key used for message signing.
-function get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, is_extended)
+function get_password_response(username, domain, password, password_hash, hash_type, challenge, is_extended)
   local status
   local lm_hash   = nil
   local ntlm_hash = nil
@@ -756,7 +755,7 @@ end
 --                     set if password is set.
 --@param hash_type The way in which to hash the password.
 --@param flags The NTLM flags as a number
-function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type, flags)
+function get_security_blob(security_blob, username, domain, password, password_hash, hash_type, flags)
   local pos = 1
   local new_blob
   local flags = flags or 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
@@ -775,7 +774,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
   else
     -- Parse the old security blob
     local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
-    local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
+    local lanman, ntlm, mac_key = get_password_response(username, domain, password, password_hash, hash_type, challenge, true)
 
     -- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
     local hostname = unicode.utf8to16("nmap")
@@ -843,7 +842,9 @@ end
 -- @return A host_info table containing the data in the blob.
 -- @see host_info
 function get_host_info_from_security_blob(security_blob)
-  local hpos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge = bin.unpack("<A8ISSIIL", security_blob)
+  local ntlm_challenge = {}
+  --local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
+  local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
 
   -- Do some validation on the NTLMSSP message
   if ( identifier ~= "NTLMSSP\0" ) then
@@ -855,8 +856,6 @@ function get_host_info_from_security_blob(security_blob)
     return false, "Invalid message type in NTLM challenge message"
   end
 
-  local ntlm_challenge = {}
-
   -- Parse the TargetName data (i.e. the server authentication realm)
   if ( domain_length > 0 ) then
     local length = domain_length
@@ -864,26 +863,6 @@ function get_host_info_from_security_blob(security_blob)
     local target_realm
     pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
     ntlm_challenge[ "target_realm" ] = unicode.utf16to8( target_realm )
-  end
-
-  if hpos + domain_length > #security_blob then
-    -- Context, Target Information, and OS Version structure are all omitted
-    -- Probably Win9x
-    return ntlm_challenge
-  end
-
-  local hpos, context, target_info_length, target_info_max, target_info_offset = bin.unpack("<LSSI", security_blob, hpos)
-
-  -- OS info is in the intervening 8 bytes, subtract 1 for lua 1-index
-  if target_info_offset >= hpos + 7 and domain_offset >= hpos + 7 then
-    local hpos, major, minor, build, reserved = bin.unpack("<CCSA4", security_blob, hpos)
-    if reserved == "\0\0\0\x0f" then
-      ntlm_challenge.os_major_version = major
-      ntlm_challenge.os_minor_version = minor
-      ntlm_challenge.os_build = build
-    else
-      stdnse.debug2("smbauth: Unknown OS info structure in NTLM handshake")
-    end
   end
 
   -- Parse the TargetInfo data (Wireshark calls this the "Address List")
