@@ -37,6 +37,25 @@ _ENV = stdnse.module("sslcert", stdnse.seeall)
 --@see nmap.get_ssl_certificate
 _ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
 
+-- Simple reconnect_ssl wrapper for most common case
+local function tls_reconnect (func)
+  return function (host, port)
+    local err
+    local status, s = StartTLS[func](host, port)
+    if status then
+      status,err = s:reconnect_ssl()
+      if not status then
+        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
+        s:close()
+        return false, "Failed to connect to server"
+      else
+        return true, s
+      end
+    end
+    return false, "Failed to connect to server"
+  end
+end
+
 StartTLS = {
 
   -- TODO: Implement STARTTLS for NNTP
@@ -72,21 +91,7 @@ StartTLS = {
     return true, s
   end,
 
-  ftp_prepare_tls = function(host, port)
-    local err
-    local status, s = StartTLS.ftp_prepare_tls_without_reconnect(host, port)
-    if status then
-      status,err = s:reconnect_ssl()
-      if not status then
-        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
-        s:close()
-        return false, "Failed to connect to FTP server"
-      else
-        return true, s
-      end
-    end
-    return false, "Failed to connect to FTP server"
-  end,
+  ftp_prepare_tls = tls_reconnect("ftp_prepare_tls_without_reconnect"),
 
   imap_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over IMAP for services that support it
@@ -124,21 +129,7 @@ StartTLS = {
     return true, s
   end,
 
-  imap_prepare_tls = function(host, port)
-    local err
-    local status, s = StartTLS.imap_prepare_tls_without_reconnect(host, port)
-    if status then
-      status,err = s:reconnect_ssl()
-      if not status then
-        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
-        s:close()
-        return false, "Failed to connect to IMAP server"
-      else
-        return true,s
-      end
-    end
-    return false, "Failed to connect to IMAP server"
-  end,
+  imap_prepare_tls = tls_reconnect("imap_prepare_tls_without_reconnect"),
 
   ldap_prepare_tls_without_reconnect = function(host, port)
     local s = nmap.new_socket()
@@ -202,21 +193,7 @@ StartTLS = {
     return true,s
   end,
 
-  ldap_prepare_tls = function(host, port)
-    local err
-    local status, s = StartTLS.ldap_prepare_tls_without_reconnect(host, port)
-    if status then
-      status,err = s:reconnect_ssl()
-      if not status then
-        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
-        s:close()
-        return false, "Failed to connect to LDAP server"
-      else
-        return true,s
-      end
-    end
-    return false, "Failed to connect to LDAP server"
-  end,
+  ldap_prepare_tls = tls_reconnect("ldap_prepare_tls_without_reconnect"),
 
   pop3_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over POP3 for services that support it
@@ -246,21 +223,8 @@ StartTLS = {
     return true, s
   end,
 
-  pop3_prepare_tls = function(host, port)
-    local err
-    local status, s = StartTLS.pop3_prepare_tls_without_reconnect(host, port)
-    if status then
-      status,err = s:reconnect_ssl()
-      if not status then
-        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
-        s:close()
-        return false, "Failed to connect to POP3 server"
-      else
-        return true,s
-      end
-    end
-    return false, "Failed to connect to POP3 server"
-  end,
+
+  pop3_prepare_tls = tls_reconnect("pop3_prepare_tls_without_reconnect"),
 
   smtp_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over SMTP for services that support it
@@ -296,21 +260,7 @@ StartTLS = {
     return true, s
   end,
 
-  smtp_prepare_tls = function(host, port)
-    local err
-    local status,s = StartTLS.smtp_prepare_tls_without_reconnect(host, port)
-    if status then
-      status,err = s:reconnect_ssl()
-      if not status then
-        stdnse.debug1("Could not establish SSL session after STARTTLS command.")
-        s:close()
-        return false, "Failed to connect to SMTP server"
-      else
-        return true,s
-      end
-    end
-    return false, "Failed to connect to SMTP server"
-  end,
+  smtp_prepare_tls = tls_reconnect("smtp_prepare_tls_without_reconnect"),
 
   xmpp_prepare_tls_without_reconnect = function(host,port)
     local sock,status,err,result
