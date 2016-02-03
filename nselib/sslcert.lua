@@ -223,8 +223,25 @@ StartTLS = {
     return true, s
   end,
 
-
   pop3_prepare_tls = tls_reconnect("pop3_prepare_tls_without_reconnect"),
+
+  postgres_prepare_tls_without_reconnect = function(host, port)
+    -- http://www.postgresql.org/docs/devel/static/protocol-message-formats.html
+    -- 80877103 is "SSLRequest" in v2 and v3 of Postgres protocol
+    local s, resp = comm.opencon(host, port, bin.pack(">II", 8, 80877103))
+    if not s then
+      return false, ("Failed to connect to Postgres server: %s"):format(resp)
+    end
+    -- v2 has "Y", v3 has "S"
+    if string.match(resp, "^[SY]") then
+      return true, s
+    elseif string.match(resp, "^N") then
+      return false, "Postgres server does not support SSL"
+    end
+    return false, "Unknown response from Postgres server"
+  end,
+
+  postgres_prepare_tls = tls_reconnect("postgres_prepare_tls_without_reconnect"),
 
   smtp_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over SMTP for services that support it
@@ -343,6 +360,8 @@ local SPECIALIZED_PREPARE_TLS = {
   [389] = StartTLS.ldap_prepare_tls,
   pop3 = StartTLS.pop3_prepare_tls,
   [110] = StartTLS.pop3_prepare_tls,
+  postgresql = StartTLS.postgres_prepare_tls,
+  [5432] = StartTLS.postgres_prepare_tls,
   smtp = StartTLS.smtp_prepare_tls,
   [25] = StartTLS.smtp_prepare_tls,
   [587] = StartTLS.smtp_prepare_tls,
@@ -360,6 +379,8 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   [389] = StartTLS.ldap_prepare_tls_without_reconnect,
   pop3 = StartTLS.pop3_prepare_tls_without_reconnect,
   [110] = StartTLS.pop3_prepare_tls_without_reconnect,
+  postgresql = StartTLS.postgres_prepare_tls_without_reconnect,
+  [5432] = StartTLS.postgres_prepare_tls_without_reconnect,
   smtp = StartTLS.smtp_prepare_tls_without_reconnect,
   [25] = StartTLS.smtp_prepare_tls_without_reconnect,
   [587] = StartTLS.smtp_prepare_tls_without_reconnect,
