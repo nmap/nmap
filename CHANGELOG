@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Updated http-php-version hash database to cover all versions from PHP
+  4.1.0 to PHP 5.4.45. Based on scans of a few thousand PHP web servers pulled
+  from Shodan API (https://www.shodan.io/) [Daniel Miller]
+
 o [GH#272][GH#269] Give option parsing errors after the usage statement, or
   avoid printing the usage statement in some cases. The options summary has
   grown quite large, requiring users to scroll to the top to see the error
