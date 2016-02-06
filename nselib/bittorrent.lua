@@ -6,7 +6,7 @@
 -- For more information on the Bittorrent and DHT protocol go to:
 -- http://www.bittorrent.org/beps/bep_0000.html
 --
--- The library contains the class <code>Torrent</code> and the function bdecode(buf)
+-- The library contains the class <code>Torrent</code> and the function (buf)
 --
 -- How this library is likely to be used:
 -- <code>
@@ -100,20 +100,108 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local url = require "url"
+local nsedebug = require "nsedebug"
+
 _ENV = stdnse.module("bittorrent", stdnse.seeall)
+
+--------------------------------------------------------------------------------
+--  utilities for logging memory data
+--
+local hex_dump = function( _title, buf )
+    
+  io.write( "\n-->> " .. _title .. "\n" )
+
+  for byte=1, #buf, 16 do
+     local chunk = buf:sub(byte, byte+15)
+
+     io.write(string.format('%08X  ',byte-1))
+
+     chunk:gsub('.', function (c) io.write(string.format('%02X ',string.byte(c))) end)
+     io.write(string.rep(' ',3*(16-#chunk)))
+     io.write(' ',chunk:gsub('%c','.'),"\n") 
+  end
+
+  io.write( "-->> end " .. _title .. "\n\n" )
+end
+
+  --
+  --  print a table in memory
+  --
+  local print_r = function( t )
+    local print_r_cache={}
+    local function sub_print_r(t,indent)
+        if (print_r_cache[tostring(t)]) then
+            print(indent.."*"..tostring(t))
+        else
+            print_r_cache[tostring(t)]=true
+            if (type(t)=="table") then
+                for pos,val in pairs(t) do
+                    if (type(val)=="table") then
+                        print(indent.."["..pos.."] => "..tostring(t).." {")
+                        sub_print_r(val,indent..string.rep(" ",string.len(pos)+8))
+                        print(indent..string.rep(" ",string.len(pos)+6).."}")
+                    elseif (type(val)=="string") then
+                        print(indent.."["..pos..'] => "'..val..'"')
+                    else
+                        print(indent.."["..pos.."] => "..tostring(val))
+                    end
+                end
+            else
+                print(indent..tostring(t))
+            end
+        end
+    end
+    if (type(t)=="table") then
+        print(tostring(t).." {")
+        sub_print_r(t,"  ")
+        print("}")
+    else
+        sub_print_r(t,"  ")
+    end
+    print()
+  end
+
+  ------------------------------------------------------------------------------
+
+--[[ Retrieve the .torrent file, describing the torrent, hashes and tracker
+function get_torrent(url)
+  local r, code = http.request(url)
+  if code == 404 or r == nil then return nil end
+
+  -- We can't use benc.encode(torrent['info']) because the order can be
+  -- different than on the real info string
+  local a, b = string.find(r, "4:info")
+  local t = string.sub(r, b + 1)
+  t = string.sub(t, 1, string.len(t) - 1)
+
+  return benc.decode(r), crypto.evp.new("sha1"):digest(t)
+end
+]]
+
 
 --- Given a buffer and a starting position in the buffer, this function decodes
 -- a bencoded string there and returns it as a normal lua string, as well as
 -- the position after the string
 local bdec_string = function(buf, pos)
-  local len = tonumber(string.match(buf, "^(%d+):", pos) or "nil", 10)
-  if not len then
+  local text = string.match(buf, "^(%d+):", pos)
+  local plen = tonumber(text or "nil", 10)
+  if not plen then
     return nil, pos
   end
-  pos = string.find(buf, ":", pos, true) + 1
+  
+  local str
+  
+  if 0 < plen then
+    local pstart = pos + #text + 1
+    local pend   = pstart + plen 
 
-  local str = buf:sub(pos,pos+len-1)
-  pos = pos+len
+    str = buf:sub( pstart, pend - 1 )
+    pos = pend
+  else
+    str = ""
+    pos = pos + 2
+  end
+  
   return str, pos
 end
 
@@ -141,8 +229,6 @@ end
 -- @return bool indicating if parsing went ok
 -- @return table containing the decoded structure, or error string
 bdecode = function(buf)
-  local len = #buf
-
   -- the main table
   local t = {}
   local stack = {}
@@ -154,22 +240,29 @@ bdecode = function(buf)
   table.insert(stack, cur)
   cur.ref.type="list"
 
+  if not buf then
+    return false, "ERROR: check bdecode parameter (a nil buffer)", nil
+  end
+
+  local len = #buf
+
   while true do
-    if pos == len or (len-pos)==-1 then break end
+    if pos >= len or (len-pos)<=-1 then break end
 
     if cur.type == "list" then
+
       -- next element is a string
       if tonumber( string.char( buf:byte(pos) ) ) then
         local str
         str, pos = bdec_string(buf, pos)
-        if not str then return nil, "Error parsing string", pos end
+        if not str then return nil, "Error parsing string #[" .. pos .. "]" end
         table.insert(cur.ref, str)
 
       -- next element is a number
       elseif "i" == string.char(buf:byte(pos)) then
         local num
         num, pos = bdec_number(buf, pos)
-        if not num then return nil, "Error parsing number", pos end
+        if not num then return nil, "Error parsing number #[" .. pos .. "]" end
         table.insert(cur.ref, num)
 
       -- next element is a list
@@ -203,10 +296,12 @@ bdecode = function(buf)
         if not cur then return nil, "Problem with list closure:", pos end
         pos = pos+1
       else
-        return nil, "Unknown type found.", pos
+        stdnse.verbose1("* Error: can't handle data format")
+        break
       end
 
     elseif cur.type == "dict" then
+
       local item = {} -- {key = <string>, value = <.*>}
       -- used to skip reading the value when escaping from a structure
       local escape_flag = false
@@ -218,6 +313,7 @@ bdecode = function(buf)
         str, pos = bdec_string(buf, pos)
         if not str then return nil, "Error parsing string.", pos end
         item.key = str
+
       elseif "e" == string.char(buf:byte(pos)) then
         table.remove(stack, #stack)
         cur = stack[#stack]
@@ -225,15 +321,40 @@ bdecode = function(buf)
         pos = pos+1
 
         escape_flag = true
-
       else
         return nil, "A dict key has to be a string or escape.", pos
       end
 
+      -- value
       if not escape_flag then
-        -- value
+
+        --  Antonio
+        --  brutal
+        --
+        if "peers" == item.key then
+          local len
+          local a, b = string.find(buf, ":", pos)
+
+          if a and b then
+            local text = string.sub( buf, pos, a - 1 ) 
+
+            -- stdnse.verbose1(">>Length sought for peers[" .. text .. "]")
+            len = tonumber(text)
+            item.value = string.sub( buf, a + 1, a + len)
+
+            --  Antonio
+            --  should fall back to an 'e'
+            pos = len + a + 1
+
+            table.insert(cur.ref, item)
+          else
+            return nil, "Panic"
+          end
+        end
+
         -- next element is a string
         if tonumber( string.char( buf:byte(pos) ) ) then
+
           local str
           str, pos = bdec_string(buf, pos)
           if not str then return nil, "Error parsing string.", pos end
@@ -281,11 +402,15 @@ bdecode = function(buf)
           if not cur then return false, "Problem with dict closure", pos end
           pos = pos+1
         else
+          stdnse.verbose1("* ERROR[" .. string.char(buf:byte(pos)) .. "] at pos[" .. pos .. "]")
+
           return false, "Error parsing file, unknown type found", pos
         end
       end -- if not escape_flag
     else -- elseif type == "dict"
-      return false, "Invalid type of structure. Fix the code."
+
+      stdnse.verbose1("* Unknown type found: cur.type[" .. cur.type .. "] @[" .. pos .. "]")
+      return nil, "Unknown type found.", pos
     end
   end -- while(true)
 
@@ -294,9 +419,10 @@ bdecode = function(buf)
 
   -- next(stack) is never gonna be nil because we're always in the main list
   -- next(stack, next(stack)) should be nil if we're in the main list
-  --    if next(stack, next(stack)) then
-  --      return false, "Probably file incorrect format"
-  --    end
+  --
+  if next(stack, next(stack)) then
+    return false, "Probably file incorrect format"
+  end
 
   return true, t
 end
@@ -307,11 +433,14 @@ end
 -- is actually a DHT node and is added to the pnt.nodes_find_node table in
 -- order to be processed byt the find_node_thread(). This operation is done
 -- during the specified timeout which has a default value of about 30 seconds.
+
 local dht_ping_thread = function(pnt, timeout)
   local condvar = nmap.condvar(pnt)
   local socket = nmap.new_socket("udp")
   socket:set_timeout(3000)
   local status, data
+
+  stdnse.verbose2("! dht_ping_thread launched")
 
   local transaction_id = 0
   local start = os.time()
@@ -411,6 +540,8 @@ local find_node_thread = function(pnt, timeout)
   socket:set_timeout(3000)
   local status, data
 
+  stdnse.verbose2("! find_node_thread launched")
+
   local start = os.time()
   while true do
     if os.time() - start >= timeout then break end
@@ -484,6 +615,8 @@ local get_peers_thread = function(pnt, timeout)
   local socket = nmap.new_socket("udp")
   socket:set_timeout(3000)
   local status, data
+
+  stdnse.verbose2("! get_peers_thread launched")
 
   local start = os.time()
   while true do
@@ -582,8 +715,8 @@ end
 Torrent =
 {
   new = function(self)
-    local o ={}
-    setmetatable(o, self)
+    local obj ={}
+    setmetatable(obj, self)
     self.__index = self
 
     self.buffer = nil -- buffer to keep the torrent
@@ -593,13 +726,61 @@ Torrent =
     self.port = 6881 -- port on which our peer "listens" / it doesn't actually listen
     self.size = nil -- size of the files in the torrent
 
-    self.info_buf = nil --buffer for info_hash
+    --  self.info_buf = nil --buffer for info_hash        --  Antonio: this field is not necessary
     self.info_hash = nil --info_hash binary string
     self.info_hash_url = nil --info_hash escaped
 
     self.peers = {} -- peers = { [ip1] = {port1, id1}, [ip2] = {port2, id2}, ...}
     self.nodes = {} -- nodes = { [ip1] = {port1, id1}, [ip2] = {port2, id2}, ...}
-    return o
+
+    -- starting and ending position of the info dict
+    self.info_pos_start = nil
+    self.info_pos_end   = nil
+--    self.info_buf_count = 0
+
+    --  Antonio
+    --
+    self.num_seeders = 0      --  global counters of seeders and leechers
+    self.num_leeches = 0  
+    self.blacklist = nil      --  a black list of trackers
+
+    return obj
+  end,
+
+  --  load a text file and put it on a table
+  --  uses the self.blacklist variable
+  --
+  load_blacklist = function(self, filename)
+
+    stdnse.verbose2("  load_blacklist[" .. filename .. "]")
+
+    if not filename then 
+      stdnse.verbose1("* No filename specified for blacklist.")
+      return nil
+    end
+
+    local file = io.open(filename, "r")
+    if not file then 
+      stdnse.verbose1("* Unable to open blacklist[" .. filename .. "]")
+      return nil
+    end
+    file:close()
+
+    self.blacklist = {}
+    for line in io.lines(filename) do
+      if not self.blacklist[line] then
+        self.blacklist[line] = 0
+      end
+    end
+
+    return self.blacklist
+  end,
+
+    --  Antonio
+  --  associate a new black list to the torrent
+  --
+  assoc_blist = function(self, blist_table)
+    self.blacklist = blist_table
   end,
 
   --- Loads trackers and similar information for a torrent from a magnet link.
@@ -630,14 +811,17 @@ Torrent =
   -- @return boolean indicating whether loading went alright
   -- @return err string with error message if loadin went wrong
   load_from_file = function(self, filename)
-    if not filename then return false, "No filename specified." end
 
-    local file = io.open(filename, "r")
+    stdnse.verbose2(">>Loading [" .. filename .. "]")
+
+    if not filename then return false, "No filename specified." end
+    local file = io.open(filename, "rb")
     if not file then return false, "Cannot open file: "..filename end
 
     self.buffer = file:read("*a")
+    file:close()
 
-    local status, err = self:parse_buffer()
+    local status, err = self:parse_buffer()      
     if not status then
       return false, "Could not parse file: ".. err
     end
@@ -645,8 +829,9 @@ Torrent =
     status, err = self:calc_info_hash()
     if not status then
       return false, "Could not calculate info_hash: " .. err
-    end
-
+    end    
+    
+    self.buffer = nil
     status, err = self:load_trackers()
     if not status then
       return false, "Could not load trackers: " .. err
@@ -658,29 +843,43 @@ Torrent =
       return false, "Could not calculate torrent size: " .. err
     end
 
-    file:close()
     return true
   end,
 
-  --- Gets peers available from the loaded trackers
+  --  Antonio
+  --  Gets peers available from the loaded trackers
+  --  Modified to check current tracker against a table of black listed trackers
+  --
   trackers_peers = function(self)
-    for _, tracker in ipairs(self.trackers) do
-      local status, err
 
-      if tracker:match("^http://") then -- http tracker
-        status, err = self:http_tracker_peers(tracker)
-        if not status then
-          stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
+    for _, tracker in ipairs(self.trackers) do
+      local status, err, exec
+
+      --  Antonio
+      --  do a check if the current tracker is loaded
+      --
+      exec = true
+      if self.blacklist and self.blacklist[tracker] then exec = false end
+
+      if true == exec then
+        stdnse.verbose2("  Query[" .. tracker .. "]")  
+
+        if tracker:match("^http://") then -- http tracker
+          status, err = self:http_tracker_peers(tracker)
+        elseif tracker:match("^udp://") then -- udp tracker
+          status, err = self:udp_tracker_peers(tracker)
+        else -- unknown tracker
+          err = "Unknown tracker protocol for: " .. tracker
+          status = false
         end
-      elseif tracker:match("^udp://") then -- udp tracker
-        status, err = self:udp_tracker_peers(tracker)
+
+        --if not status then return false, err end
         if not status then
-          stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
+            stdnse.verbose1("* [%s] error[%s]", tracker, err)
         end
-      else -- unknown tracker
-        stdnse.debug1("Unknown tracker protocol for: "..tracker)
+      else
+        stdnse.verbose2("  Black listed[" .. tracker .. "]") 
       end
-      --if not status then return false, err end
     end
 
     return true
@@ -748,13 +947,14 @@ Torrent =
     end
   end,
 
-  --- Parses self.buffer, fills self.tor_struct, self.info_buf
+  --- Parses self.buffer, fills self.tor_struct (, self.info_buf no more)
   --
   -- This function is similar to the bdecode function but it has a few
   -- additions for calculating torrent file specific fields
   parse_buffer = function(self)
     local buf = self.buffer
-
+    local info_pos_start = 0 -- self.info_pos_start
+    local info_pos_end   = 0 -- self.info_pos_end
     local len = #buf
 
     -- the main table
@@ -768,34 +968,34 @@ Torrent =
     cur.ref = t
     table.insert(stack, cur)
     cur.ref.type="list"
-
-    -- starting and ending position of the info dict
-    local info_pos_start, info_pos_end, info_buf_count = nil, nil, 0
+       
+    local bypass = false
+    local stack_lvl = nil
 
     while true do
-      if pos == len or (len-pos)==-1 then break end
+      if pos >= len or (len-pos)<=-1 then break end
+      
+      local val_read = string.char( buf:byte(pos) ) 
+      local skipiter = false
 
       if cur.type == "list" then
+
         -- next element is a string
-        if tonumber( string.char( buf:byte(pos) ) ) then
+        if tonumber( val_read ) then
           local str
           str, pos = bdec_string(buf, pos)
           if not str then return nil, "Error parsing string", pos end
           table.insert(cur.ref, str)
 
         -- next element is a number
-        elseif "i" == string.char(buf:byte(pos)) then
+        elseif "i" == val_read then
           local num
           num, pos = bdec_number(buf, pos)
           if not num then return nil, "Error parsing number", pos end
           table.insert(cur.ref, num)
 
         -- next element is a list
-        elseif "l" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
+        elseif "l" == val_read then
           local new_list = {}
           new_list.type="list"
           table.insert(cur.ref, new_list)
@@ -807,11 +1007,7 @@ Torrent =
           pos = pos+1
 
         --next element is a dict
-        elseif "d" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
+        elseif "d" == val_read then
           local new_dict = {}
           new_dict.type = "dict"
           table.insert(cur.ref, new_dict)
@@ -823,130 +1019,135 @@ Torrent =
           pos = pos+1
 
         --escape from the list
-        elseif "e" == string.char(buf:byte(pos)) then
-          if info_buf_count == 0 then
-            info_pos_end = pos-1
-          end
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count -1
-          end
+        elseif "e" == val_read then
 
           table.remove(stack, #stack)
           cur = stack[#stack]
-          if not cur then return nil, "Problem with list closure:", pos end
-          pos = pos+1
+          if not cur then return nil, "Error at list closure pos[" .. pos .. "]" end
+          pos = pos+1          
         else
-          return nil, "Unknown type found.", pos
+          return nil, "Unknown type pos[" .. pos .. "]"
         end
 
       elseif cur.type == "dict" then
         local item = {} -- {key = <string>, value = <.*>}
+
         -- key
-        if tonumber( string.char( buf:byte(pos) ) ) then
+        if tonumber( val_read ) then
           local str
-          local tmp_pos = pos
           str, pos = bdec_string(buf, pos)
-          if not str then return nil, "Error parsing string.", pos end
+          if not str then return nil, "Error parsing string pos[" .. pos .. "]" end
           item.key = str
+
           -- fill the info_pos_start
-          if item.key == "info" and not info_pos_start then info_pos_start = pos end
+          -- set the stack index
+          -- 
+          if item.key == "info" then
+            info_pos_start = pos 
+            stack_lvl = #stack            
+            stdnse.verbose2("  parse_buffer [ + 4:info ] @[" .. info_pos_start .. "]")
+          end
 
-        elseif "e" == string.char(buf:byte(pos)) then
-          if info_buf_count == 0 then
-            info_pos_end = pos-1
-          end
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count -1
-          end
+        -- escape
+        elseif "e" == val_read then
+          
+          -- fill the info_pos_end until #stack higher than index
+          -- this bit of code is crucial for correct hashkey calculation!
+          --
+          if stack_lvl and #stack >= stack_lvl then
+            if 1 < (pos - info_pos_end) then info_pos_end = pos end
+            if #stack == stack_lvl then stack_lvl = nil end
+
+            stdnse.verbose2("  parse_buffer [ - 4:info ] @[" .. info_pos_end .. "]")
+          end   
 
           table.remove(stack, #stack)
           cur = stack[#stack]
-          if not cur then return nil, "Problem with list closure:", pos end
+          if not cur then return nil, "Error dict closure pos[" .. pos .. "]" end
           pos = pos+1
-
+          
+          -- Antonio
+          -- exit here
+          skipiter = true 
         else
-          return nil, "A dict key has to be a string or escape.", pos
+          return nil, "Dictionary key invalid pos[" .. pos .. "] value[" .. val_read .. "]"
         end
+        
+        if false == skipiter then
+          val_read = string.char( buf:byte(pos) ) 
 
-        -- value
-        -- next element is a string
-        if tonumber( string.char( buf:byte(pos) ) ) then
-          local str
-          str, pos = bdec_string(buf, pos)
-          if not str then return nil, "Error parsing string.", pos end
-          item.value = str
-          table.insert(cur.ref, item)
+          -- value
+          -- next element is a string
+          if tonumber( val_read ) then
+            local str
+            str, pos = bdec_string(buf, pos)
+            if not str then return nil, "Error parsing string pos[" .. pos .. "]" end
+            item.value = str
+            table.insert(cur.ref, item)
 
-          --next element is a number
-        elseif "i" == string.char(buf:byte(pos)) then
-          local num
-          num, pos = bdec_number(buf, pos)
-          if not num then return nil, "Error parsing number.", pos end
-          item.value = num
-          table.insert(cur.ref, item)
+            --next element is a number
+          elseif "i" == val_read then
+            local num
+            num, pos = bdec_number(buf, pos)
+            if not num then return nil, "Error parsing number pos[" .. pos .. "]" end
+            item.value = num
+            table.insert(cur.ref, item)
 
-        -- next element is a list
-        elseif "l" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
+          -- next element is a list
+          elseif "l" == val_read then
+            item.value = {}
+            item.value.type = "list"
+            table.insert(cur.ref, item)
+
+            cur = {}
+            cur.type = "list"
+            cur.ref = item.value
+
+            table.insert(stack, cur)
+            pos = pos+1
+
+          --next element is a dict
+          elseif "d" == val_read then
+            item.value = {}
+            item.value.type = "dict"
+            table.insert(cur.ref, item)
+
+            cur = {}
+            cur.type = "dict"
+            cur.ref = item.value
+
+            table.insert(stack, cur)
+            pos = pos+1     
+
+          --escape from the dict
+          elseif "e" == val_read then
+            table.remove(stack, #stack)
+            cur = stack[#stack]
+            if not cur then return false, "Error at dict closure pos[" .. pos .. "]" end
+            pos = pos+1
+          else
+            return false, "Error parsing file, unknown type pos[" .. pos .. "]"
           end
-
-          item.value = {}
-          item.value.type = "list"
-          table.insert(cur.ref, item)
-
-          cur = {}
-          cur.type = "list"
-          cur.ref = item.value
-
-          table.insert(stack, cur)
-          pos = pos+1
-
-        --next element is a dict
-        elseif "d" == string.char(buf:byte(pos)) then
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count +1
-          end
-
-          item.value = {}
-          item.value.type = "dict"
-          table.insert(cur.ref, item)
-
-          cur = {}
-          cur.type = "dict"
-          cur.ref = item.value
-
-          table.insert(stack, cur)
-          pos = pos+1
-
-        --escape from the dict
-        elseif "e" == string.char(buf:byte(pos)) then
-          if info_buf_count == 0 then
-            info_pos_end = pos-1
-          end
-          if info_pos_start and (not info_pos_end) then
-            info_buf_count = info_buf_count -1
-          end
-
-          table.remove(stack, #stack)
-          cur = stack[#stack]
-          if not cur then return false, "Problem with dict closure", pos end
-          pos = pos+1
-        else
-          return false, "Error parsing file, unknown type found", pos
         end
       else
         return false, "Invalid type of structure. Fix the code."
       end
     end -- while(true)
 
-    -- next(stack) is never gonna be nil because we're always in the main list
-    -- next(stack, next(stack)) should be nil if we're in the main list
-    if next(stack, next(stack)) then
-      return false, "Probably file incorrect format"
-    end
+    -- here we have to check if the stack level is up running
+    -- note that code is slightly different from the
+    -- other stack index check
+    --
+    if stack_lvl and #stack > stack_lvl then            
+      stdnse.verbose1("  parse_buffer [ ! 4:info ] info_pos_end[" .. info_pos_end .. "] pos[" .. pos .. "]")
 
-    self.info_buf = buf:sub(info_pos_start, info_pos_end)
+      info_pos_end = pos - 1
+    end   
+
+    -- update torrent's indexes
+    --
+    self.info_pos_start = info_pos_start
+    self.info_pos_end   = info_pos_end
 
     return true
   end,
@@ -958,21 +1159,35 @@ Torrent =
     self.trackers = trackers
 
     -- load the announce tracker
+    --
     if tor and tor[1] and tor[1][1] and tor[1][1].key and
       tor[1][1].key == "announce" and tor[1][1].value then
 
+      local _tracker = nil
+
       if tor[1][1].value.type and tor[1][1].value.type == "list" then
+
         for _, trac in ipairs(tor[1][1].value) do
-          table.insert(trackers, trac)
+          _tracker = trac
+          break
         end
-      else
-        table.insert(trackers, tor[1][1].value)
+      else        
+        _tracker = tor[1][1].value
       end
+
+      if _tracker then
+        table.insert(trackers, _tracker)
+        stdnse.verbose3("  load_trackers announce tracker[" .. _tracker .. "]")
+      end
+
     else
-      return nil, "Announce field not found"
+      local errstr = "Announce field not found"
+      stdnse.verbose1("* load_trackers Error: " .. errstr)
+      return false, errstr
     end
 
     -- load the announce-list trackers
+    --
     if tor[1][2] and tor[1][2].key and tor[1][2].key == "announce-list" and tor[1][2].value then
       for _, trac_list in ipairs(tor[1][2].value) do
         if trac_list.type and trac_list.type == "list" then
@@ -985,39 +1200,92 @@ Torrent =
       end
     end
 
+    --  purge the list, remove duplicated entries
+    --
+    local _tkswap = {}
+    local found = false
+
+    for pos, element in ipairs( trackers ) do
+      found = false
+      for _, value in pairs( _tkswap ) do
+        if value == element then
+          found = true
+          break
+        end
+      end
+
+      if not found then
+        table.insert(_tkswap, element)
+      end
+    end
+    table.sort(_tkswap)
+
+    --  finish up
+    --
+    self.trackers = _tkswap
+    trackers      = nil
+
+    if 1 < nmap.verbosity() then
+      io.write("\nSorted trackers list:\n")
+      for pos, val in ipairs( self.trackers ) do
+        io.write("\t" .. val .. "\n")
+      end    
+    end
+
     return true
   end,
 
   --- Calculates the size of the torrent in bytes
   -- @param tor, decoded bencoded torrent file structure
+  -- @ 
   calc_torrent_size = function(self)
     local tor = self.tor_struct
-    local size = nil
-    if tor[1].type ~= "dict" then return nil end
+    local size = 0
+
+    if tor[1].type ~= "dict" then
+      local errstring = "Cannot find dictionary in file"
+
+      stdnse.verbose1("* " .. errstring)
+      return false, errstring
+    end
+
     for _, m in ipairs(tor[1]) do
       if m.key == "info" then
-        if m.value.type ~= "dict" then return nil end
+
         for _, n in ipairs(m.value) do
-          if n.key == "files" then
-            size = 0
-            for _, f in ipairs(n.value) do
-              for _, k in ipairs(f) do
+          if n.key == "files" then      --  type is a list
+
+            for field, f in ipairs(n.value) do
+              for field2, k in ipairs(f) do
                 if k.key == "length" then
                   size = size + k.value
+
+                  stdnse.verbose3("  Length sum[" .. size .. "] read[" .. k.value .. "]")
                   break
                 end
+
               end
             end
             break
+
           elseif n.key == "length" then
             size = n.value
+
+            stdnse.verbose3("  Fixed length[" .. size .. "]")
             break
           end
         end
       end
     end
+
     self.size=size
-    if size == 0 then return false end
+    if size == 0 then
+      return false, "File size: 0"
+    end
+
+    stdnse.verbose1(string.format("  Torrent size [%.0fb] [%.2f Gb]", size, (size /(1024*1024*1024))))
+    return true, ""
+
   end,
 
   --- Calculates the info hash using self.info_buf.
@@ -1025,10 +1293,25 @@ Torrent =
   -- The info_hash value is used in many communication transactions for
   -- identifying the file shared among the bittorrent peers
   calc_info_hash = function(self)
-    local info_hash = openssl.sha1(self.info_buf)
+
+    if not self.info_pos_start or not self.info_pos_end then
+      return false, "No [info field] found"
+    end
+
+    local info_field   = string.sub(self.buffer, self.info_pos_start, self.info_pos_end)
+    local info_hash    = openssl.sha1(info_field)
     self.info_hash_url = url.escape(info_hash)
-    self.info_hash = info_hash
-    self.info_buf = nil
+    self.info_hash     = info_hash
+
+    --  output debugging data
+    --
+    if 4 < nmap.verbosity() then hex_dump("self.buffer", self.buffer) end
+    if 3 < nmap.verbosity() then 
+      local triminfo = string.sub(info_field, #info_field - 512, #info_field)
+      hex_dump("info_field [last 512]", triminfo) 
+    end
+    if 2 < nmap.verbosity() then hex_dump("info_hash", info_hash) end 
+
     return true
   end,
 
@@ -1038,19 +1321,25 @@ Torrent =
     -- which client they give peers to
     local fingerprint = "-KT4110-"
     local chars = {}
+
     -- the full length of a peer_id is 20 bytes but we already have 8 from the fingerprint
     return fingerprint .. stdnse.generate_random_string(12,
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
   end,
 
   --- Gets the peers from a http tracker when supplied the URL of the tracker
-  http_tracker_peers = function(self, tracker)
+  http_tracker_peers = function(self, tracker)  
     local url, trac_port, url_ext = tracker:match("^http://(.-):(%d-)(/.*)")
-    if not url then
+
+    if (not url) or (not trac_port) then
       --probably no port specification
       url, url_ext = tracker:match("^http://(.-)(/.*)")
       trac_port = "80"
     end
+
+    if (not url) or (not trac_port) or (not tonumber(trac_port)) then
+      return false, "Cannot parse tracker address"
+    end    
 
     trac_port = tonumber(trac_port)
     -- a http torrent tracker request specifying the info_hash of the torrent, our random
@@ -1058,28 +1347,71 @@ Torrent =
     -- to download the torrent, with 0 downloaded and 0 uploaded bytes, an as many bytes
     -- left to download as the size of the torrent, requesting 200 peers in a compact format
     -- because some trackers refuse connection if they are not explicitly requested that way
-    local request = "?info_hash=" .. self.info_hash_url .. "&peer_id=" .. self:generate_peer_id() ..
-      "&port=" .. self.port .. "&uploaded=0&downloaded=0&left=" .. self.size ..
+    local request = url_ext .. 
+      "?info_hash=" .. self.info_hash_url ..
+      "&peer_id=" .. self:generate_peer_id() ..
+      "&port=" .. self.port .. 
+      "&uploaded=0&downloaded=0&left=" .. self.size ..
       "&event=started&numwant=200&compact=1"
 
-    local response = http.get(url, trac_port, url_ext .. request, nil)
+    local response = http.get(url, trac_port, request, { timeout = 2000 })
 
-    if not response then
-      return false, "No response from tracker: " .. tracker
+    if not response or not response.body then
+      return false, "No response from tracker."
+    end
+
+    if 0 == #response.body then
+      return false, "Empty response from tracker."
+    end
+
+    --  minor check against a request to a bad company
+    --
+    local a, b, test = false
+    local may_respond = {"<html>", "<!DOCTYPE html>", "<title>"}
+
+    for _, txt_err in ipairs(may_respond) do
+      a, b = string.find(response.body, txt_err) 
+      if a or b then
+        test = true
+        break
+      end
+    end
+
+    if true == test then
+      hex_dump( "response body", response.body )
+      return false, "Invalid bittorrent protocol message"
+    end
+
+    --[[
+      Antonio
+
+    -->> VALID RESPONSE
+    00000000  64 31 34 3A 66 61 69 6C 75 72 65 20 72 65 61 73  d14:failure reas
+    00000010  6F 6E 32 30 3A 75 6E 72 65 67 69 73 74 65 72 65  on20:unregistere
+    00000020  64 20 74 6F 72 72 65 6E 74 65                    d torrente
+    -->> end VALID RESPONSE
+    ]]
+
+    if 2 < nmap.verbosity() then
+      hex_dump( "VALID RESPONSE", response.body )
     end
 
     local status, t = bdecode(response.body)
 
     if not status then
-      return false, "Could not parse response:"..t
+      return false, "Could not parse response:" .. t
     end
 
     if not t[1] then
-      return nil, "No response from server."
+      return false, "Server reply is empty, aborting request."
     end
+
+    local peers_add = 0
+    local peers_dup = 0
 
     for _, k in ipairs(t[1]) do
       if k.key == "peers" and type(k.value) == "string" then
+
         -- binary peers
         for bin_ip, bin_port in string.gmatch(k.value, "(....)(..)") do
           local ip = string.format("%d.%d.%d.%d",
@@ -1093,9 +1425,13 @@ Torrent =
             self.peers[peer.ip] = {}
             self.peers[peer.ip].port = peer.port
             if peer.id then self.peers[peer.ip].id = peer.id end
+            peers_add = peers_add + 1
+          else
+            peers_dup = peers_dup + 1
           end
         end
         break
+
       elseif k.key == "peers" and type(k.value) == "table" then
         -- table peers
         for _, peer_table in ipairs(k.value) do
@@ -1114,13 +1450,33 @@ Torrent =
             self.peers[peer.ip] = {}
             self.peers[peer.ip].port = peer.port
             self.peers[peer.ip].id = peer.id
+            peers_add = peers_add + 1
           else
             self.peers[peer.ip].port = peer.port
+            peers_dup = peers_dup + 1
           end
         end
         break
       end
     end
+
+    --  Antonio
+    --  don't have a clue, use fuzzy logic
+    local p_seeders  = math.floor(peers_add / 6)
+    local p_leechers = peers_add - p_seeders
+    self.num_seeders = self.num_seeders + p_seeders
+    self.num_leeches = self.num_leeches + p_leechers
+
+    stdnse.verbose1("  [" .. tracker .. "] seeders[" .. p_seeders .. "] leechers[" .. p_leechers .. "]")
+
+    if 1 < nmap.verbosity() then
+      if (0 < peers_add) or (0 < peers_dup) then
+        io.write(string.format("\nPeers list (%d new, %d dup):\n", peers_add, peers_dup))
+        for peer_ip in pairs(self.peers) do
+          io.write("\t" .. peer_ip .. ":" .. self.peers[peer_ip].port .. "\n")
+        end
+      end
+    end    
 
     return true
   end,
@@ -1131,9 +1487,17 @@ Torrent =
   -- peers. For a good specification refer to:
   -- http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
   udp_tracker_peers = function(self, tracker)
-    local host, port = tracker:match("^udp://(.-):(.+)")
+
+    local host, port, host_ext = tracker:match("^udp://(.-):(%d-)(/.*)")
+
     if (not host) or (not port) then
-      return false, "Could not parse tracker url"
+      --probably no ext specification
+      host, port = tracker:match("^udp://(.-):(.+)")
+      host_ext = ""
+    end
+
+    if (not host) or (not port) or(not tonumber(port))  then
+      return false, "Cannot parse tracker address"
     end
 
     local socket = nmap.new_socket("udp")
@@ -1147,17 +1511,24 @@ Torrent =
     if not status then return false, msg end
 
     status, msg = socket:receive()
-    if not status then return false, "Could not connect to tracker:"..tracker.." reason:"..msg end
-
-    local _, r_action, r_transaction_id, r_connection_id  =bin.unpack("H4A4A8",msg)
-
-    if not (r_transaction_id == hello_transaction_id) then
-      return false, "Received transaction ID not equivalent to sent transaction ID"
+    if not status then 
+      return false, "A socket receive failed: " .. msg
     end
 
-    -- the action in the response has to be 0 too
-    if not r_action == "00000000" then
-      return false, "Wrong action field, usually caused by an erroneous request"
+    local _, r_action, r_transaction_id, r_connection_id  = bin.unpack("H4A4A8", msg)
+
+    r_action = tonumber( r_action )
+
+    if (not r_action) or (not r_transaction_id) or (not r_connection_id) then
+      return false, "Tracker handshake bogus"
+    end
+
+    if 0 < r_action then
+      return false, "Tracker handshake out of order"
+    end
+
+    if not (r_transaction_id == hello_transaction_id) then
+      return false, "Tracker reply not for us"
     end
 
     -- established a connection, and now for an announce message, to which a
@@ -1170,7 +1541,18 @@ Torrent =
     local a_peer_id = self:generate_peer_id()
     local a_downloaded = "00 00 00 00 00 00 00 00" -- 0 bytes downloaded
 
-    local a_left = stdnse.tohex(self.size)  -- bytes left to download is the size of torrent
+    --  Antonio
+    --  a note on: stdnse.tohex(self.size)
+    --  here we go from 64bits to 32bits and big numbers will
+    --  get a negative value, making the format( "%x", a negative value)
+    --  to fail at run time.
+    local temp_size = self.size
+    if 0xefffffff < temp_size then
+      temp_size = 0xefffffff
+      stdnse.verbose1("* Size casted to [0xefffffff]")
+    end
+
+    local a_left = stdnse.tohex(temp_size)  -- bytes left to download is the size of torrent
     a_left = string.rep("0", 16-#a_left) .. a_left
 
     local a_uploaded = "00 00 00 00 00 00 00 00" -- 0 bytes uploaded
@@ -1185,46 +1567,118 @@ Torrent =
       a_info_hash, a_peer_id, a_downloaded, a_left, a_uploaded, a_event, a_ip, a_key,
       a_num_want, a_port, a_extensions)
 
+
     status, msg = socket:sendto(host, port, announce_packet)
     if not status then
-      return false, "Couldn't send announce message, reason: "..msg
+      return false, "Couldn't send announce, reason: "..msg
     end
 
     status, msg = socket:receive()
     if not status then
-      return false, "Didn't receive response to announce message, reason: "..msg
+      return false, "No response to announce, reason: "..msg
     end
-    local pos, p_action, p_transaction_id, p_interval, p_leechers, p_seeders = bin.unpack("H4A4H4H4H4",msg)
+
+    --[[
+    actions
+    The action fields has the following encoding:
+
+    connect = 0
+    announce = 1
+    scrape = 2
+    error = 3 (only in server replies)
+    ]]
+
+    local p_pos, p_action, p_transaction_id = bin.unpack("H4A4", msg)
+
+    p_action = tonumber(p_action)
+
+    --  got an error from the server
+    --
+    if 3 == p_action then
+        local m_pos, text = bin.unpack("z", msg, p_pos)
+
+        --  Antonio TBD
+        --  raise a flag here if we get a bad hash key check
+        --  <unregistered torrent>
+        --
+        return false, "Server replied an error string: " .. text
+    end
 
     -- the action field in the response has to be 1 (like the sent response)
-    if not (p_action == "00000001") then
+    --
+    if not (p_action == 1) then
       return false, "Action in response to announce erroneous"
     end
+
     if not (p_transaction_id == a_transaction_id) then
-      return false, "Transaction ID in response to announce message not equal to original"
+      return false, "Transaction ID not equal to original"
     end
 
-    -- parse peers from msg:sub(pos, #msg)
+    if 12 > (#msg - p_pos) then
+      return false, "Data truncated"
+    end
 
-    for bin_ip, bin_port in msg:sub(pos,#msg):gmatch("(....)(..)") do
-      local ip = string.format("%d.%d.%d.%d",
+    local p_interval, p_leechers, p_seeders
+    p_pos, p_interval, p_leechers, p_seeders = bin.unpack("H4H4H4", msg, p_pos)
+
+    if (p_interval) and (p_leechers) and (p_seeders) then
+      p_interval  = tonumber(p_interval, 16)
+      p_leechers  = tonumber(p_leechers, 16)
+      p_seeders   = tonumber(p_seeders,  16)
+
+      if (not p_interval) or (not p_leechers) or (not p_seeders) then
+        return false, "Data conversion error"
+      end 
+    else
+      hex_dump("H4H4H4", msg)
+      return false, "Data corrupted"
+    end
+
+    stdnse.verbose1("  [" .. tracker .. "] seeders[" .. p_seeders .. "] leechers[" .. p_leechers .. "]")
+
+    -- parse peers from msg:sub(p_pos, #msg)
+
+    local peers_add = 0
+    local peers_dup = 0
+
+    for bin_ip, bin_port in msg:sub(p_pos,#msg):gmatch("(....)(..)") do
+      local _ip = string.format("%d.%d.%d.%d",
         bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-      local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-      local peer = {}
-      peer.ip = ip
-      peer.port = port
-      if not self.peers[peer.ip] then
-        self.peers[peer.ip] = {}
-        self.peers[peer.ip].port = peer.port
+      local _port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
+
+      if not self.peers[_ip] then
+        local peer = {}
+        peer.ip    = _ip
+        peer.port  = _port
+
+        self.peers[_ip] = peer 
+
+        peers_add = peers_add + 1
       else
-        self.peers[peer.ip].port = peer.port
+        peers_dup = peers_dup + 1
+      end
+    end
+
+    --  update stats
+    --
+    if p_seeders > self.num_seeders then self.num_seeders = p_seeders end
+    if p_leechers > self.num_leeches then self.num_leeches = p_leechers end
+
+    --  Antonio
+    --  output shall be controlled by the verbosity level
+    --
+    if 1 < nmap.verbosity() then
+      if (0 < peers_add) or (0 < peers_dup) then
+        io.write(string.format("\nPeers list (%d new, %d dup):\n", peers_add, peers_dup))
+        for peer_ip in pairs(self.peers) do
+          io.write("\t" .. peer_ip .. ":" .. self.peers[peer_ip].port .. "\n")
+        end
       end
     end
 
     return true
   end
+
 }
-
-
 
 return _ENV;
