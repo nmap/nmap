@@ -100,7 +100,84 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local url = require "url"
+local nsedebug = require "nsedebug"
+
 _ENV = stdnse.module("bittorrent", stdnse.seeall)
+
+--------------------------------------------------------------------------------
+--  utilities for logging memory data
+--
+local hex_dump = function( _title, buf )
+    
+  io.write( "\n-->> " .. _title .. "\n" )
+
+  for byte=1, #buf, 16 do
+     local chunk = buf:sub(byte, byte+15)
+
+     io.write(string.format('%08X  ',byte-1))
+
+     chunk:gsub('.', function (c) io.write(string.format('%02X ',string.byte(c))) end)
+     io.write(string.rep(' ',3*(16-#chunk)))
+     io.write(' ',chunk:gsub('%c','.'),"\n") 
+  end
+
+  io.write( "-->> end " .. _title .. "\n\n" )
+end
+
+  --
+  --  print a table in memory
+  --
+  local print_r = function( t )
+    local print_r_cache={}
+    local function sub_print_r(t,indent)
+        if (print_r_cache[tostring(t)]) then
+            print(indent.."*"..tostring(t))
+        else
+            print_r_cache[tostring(t)]=true
+            if (type(t)=="table") then
+                for pos,val in pairs(t) do
+                    if (type(val)=="table") then
+                        print(indent.."["..pos.."] => "..tostring(t).." {")
+                        sub_print_r(val,indent..string.rep(" ",string.len(pos)+8))
+                        print(indent..string.rep(" ",string.len(pos)+6).."}")
+                    elseif (type(val)=="string") then
+                        print(indent.."["..pos..'] => "'..val..'"')
+                    else
+                        print(indent.."["..pos.."] => "..tostring(val))
+                    end
+                end
+            else
+                print(indent..tostring(t))
+            end
+        end
+    end
+    if (type(t)=="table") then
+        print(tostring(t).." {")
+        sub_print_r(t,"  ")
+        print("}")
+    else
+        sub_print_r(t,"  ")
+    end
+    print()
+  end
+
+  ------------------------------------------------------------------------------
+
+--[[ Retrieve the .torrent file, describing the torrent, hashes and tracker
+function get_torrent(url)
+  local r, code = http.request(url)
+  if code == 404 or r == nil then return nil end
+
+  -- We can't use benc.encode(torrent['info']) because the order can be
+  -- different than on the real info string
+  local a, b = string.find(r, "4:info")
+  local t = string.sub(r, b + 1)
+  t = string.sub(t, 1, string.len(t) - 1)
+
+  return benc.decode(r), crypto.evp.new("sha1"):digest(t)
+end
+]]
+
 
 --- Given a buffer and a starting position in the buffer, this function decodes
 -- a bencoded string there and returns it as a normal lua string, as well as
@@ -141,8 +218,6 @@ end
 -- @return bool indicating if parsing went ok
 -- @return table containing the decoded structure, or error string
 bdecode = function(buf)
-  local len = #buf
-
   -- the main table
   local t = {}
   local stack = {}
@@ -154,8 +229,16 @@ bdecode = function(buf)
   table.insert(stack, cur)
   cur.ref.type="list"
 
+  if buf == nil then
+    return false, "ERROR: check bdecode parameter (a nil buffer)", nil
+  end
+
+--  stdnse.verbose1("\n>> bdecode size[" .. #buf .. "]")
+
+  local len = #buf
+
   while true do
-    if pos == len or (len-pos)==-1 then break end
+    if pos >= len or (len-pos)<=-1 then break end
 
     if cur.type == "list" then
       -- next element is a string
@@ -294,9 +377,10 @@ bdecode = function(buf)
 
   -- next(stack) is never gonna be nil because we're always in the main list
   -- next(stack, next(stack)) should be nil if we're in the main list
-  --    if next(stack, next(stack)) then
-  --      return false, "Probably file incorrect format"
-  --    end
+  --
+  if next(stack, next(stack)) then
+    return false, "Probably file incorrect format"
+  end
 
   return true, t
 end
@@ -307,11 +391,14 @@ end
 -- is actually a DHT node and is added to the pnt.nodes_find_node table in
 -- order to be processed byt the find_node_thread(). This operation is done
 -- during the specified timeout which has a default value of about 30 seconds.
+
 local dht_ping_thread = function(pnt, timeout)
   local condvar = nmap.condvar(pnt)
   local socket = nmap.new_socket("udp")
   socket:set_timeout(3000)
   local status, data
+
+  stdnse.verbose1("\n>> dht_ping_thread launched")
 
   local transaction_id = 0
   local start = os.time()
@@ -411,6 +498,8 @@ local find_node_thread = function(pnt, timeout)
   socket:set_timeout(3000)
   local status, data
 
+  stdnse.verbose1("\n>> find_node_thread launched")
+
   local start = os.time()
   while true do
     if os.time() - start >= timeout then break end
@@ -484,6 +573,8 @@ local get_peers_thread = function(pnt, timeout)
   local socket = nmap.new_socket("udp")
   socket:set_timeout(3000)
   local status, data
+
+  stdnse.verbose1("\n>> get_peers_thread launched")
 
   local start = os.time()
   while true do
@@ -593,7 +684,7 @@ Torrent =
     self.port = 6881 -- port on which our peer "listens" / it doesn't actually listen
     self.size = nil -- size of the files in the torrent
 
-    self.info_buf = nil --buffer for info_hash
+    --  self.info_buf = nil --buffer for info_hash        --  Antonio: this field is not necessary
     self.info_hash = nil --info_hash binary string
     self.info_hash_url = nil --info_hash escaped
 
@@ -630,21 +721,40 @@ Torrent =
   -- @return boolean indicating whether loading went alright
   -- @return err string with error message if loadin went wrong
   load_from_file = function(self, filename)
+
+    stdnse.verbose1("\n>> load_from_file [" .. filename .. "]")
+
     if not filename then return false, "No filename specified." end
 
-    local file = io.open(filename, "r")
+    --  this is step 1 of 2, first we read the file in binary
+    --  format as we need the hash key information
+    --
+    local file = io.open(filename, "rb")
     if not file then return false, "Cannot open file: "..filename end
 
-    self.buffer = file:read("*a")
-
-    local status, err = self:parse_buffer()
-    if not status then
-      return false, "Could not parse file: ".. err
-    end
+    self.buffer = file:read("*all")
+    file:close()
 
     status, err = self:calc_info_hash()
     if not status then
       return false, "Could not calculate info_hash: " .. err
+    end       
+
+    --  now we read again the file but a whole lot of it won't be read
+    --  file is structured to have plain text first and a bunch of binary data next
+    --  now we are reading only the textual part
+    --
+    local file = io.open(filename, "r")
+    if not file then return false, "Cannot open file: "..filename end
+
+    self.buffer = file:read("*a")
+    file:close()
+
+    local status, err = self:parse_buffer()
+        
+    self.buffer = nil
+    if not status then
+      return false, "Could not parse file: ".. err
     end
 
     status, err = self:load_trackers()
@@ -658,29 +768,30 @@ Torrent =
       return false, "Could not calculate torrent size: " .. err
     end
 
-    file:close()
     return true
   end,
 
   --- Gets peers available from the loaded trackers
   trackers_peers = function(self)
+
     for _, tracker in ipairs(self.trackers) do
       local status, err
 
+      stdnse.verbose2("\n>> current tracker is [" .. tracker .. "]")     
+
       if tracker:match("^http://") then -- http tracker
         status, err = self:http_tracker_peers(tracker)
-        if not status then
-          stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
-        end
       elseif tracker:match("^udp://") then -- udp tracker
         status, err = self:udp_tracker_peers(tracker)
-        if not status then
-          stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
-        end
       else -- unknown tracker
-        stdnse.debug1("Unknown tracker protocol for: "..tracker)
+        err = "Unknown tracker protocol for: " .. tracker
+        status = false
       end
+
       --if not status then return false, err end
+      if not status then
+          stdnse.verbose1("Could not get peers from tracker %s, reason: %s", tracker, err)
+      end
     end
 
     return true
@@ -748,7 +859,7 @@ Torrent =
     end
   end,
 
-  --- Parses self.buffer, fills self.tor_struct, self.info_buf
+  --- Parses self.buffer, fills self.tor_struct (, self.info_buf no more)
   --
   -- This function is similar to the bdecode function but it has a few
   -- additions for calculating torrent file specific fields
@@ -773,7 +884,9 @@ Torrent =
     local info_pos_start, info_pos_end, info_buf_count = nil, nil, 0
 
     while true do
-      if pos == len or (len-pos)==-1 then break end
+      if pos >= len or (len-pos)<=-1 then break end
+
+      --  stdnse.verbose1("\n>> parse_buffer pos [" .. pos .. "/" .. len .. "] [" .. string.char(buf:byte(pos)) .. "] [" .. cur.type .. "]")
 
       if cur.type == "list" then
         -- next element is a string
@@ -940,13 +1053,21 @@ Torrent =
       end
     end -- while(true)
 
+    --[[
+    --  Antonio
+
     -- next(stack) is never gonna be nil because we're always in the main list
     -- next(stack, next(stack)) should be nil if we're in the main list
     if next(stack, next(stack)) then
       return false, "Probably file incorrect format"
     end
+    --]]
 
-    self.info_buf = buf:sub(info_pos_start, info_pos_end)
+    stdnse.verbose1("\n-->> in parse_buffer code is unfinished")
+
+    --  struct field info_buf was removed
+    --
+    --    self.info_buf = buf:sub(info_pos_start, info_pos_end)
 
     return true
   end,
@@ -957,22 +1078,36 @@ Torrent =
     local trackers = {}
     self.trackers = trackers
 
+    -- stdnse.verbose3("\n>> in load_trackers...")
+
     -- load the announce tracker
     if tor and tor[1] and tor[1][1] and tor[1][1].key and
       tor[1][1].key == "announce" and tor[1][1].value then
 
+      local _tracker = nil
+
       if tor[1][1].value.type and tor[1][1].value.type == "list" then
+
         for _, trac in ipairs(tor[1][1].value) do
-          table.insert(trackers, trac)
+          _tracker = trac
+          break
         end
-      else
-        table.insert(trackers, tor[1][1].value)
+      else        
+        _tracker = tor[1][1].value
       end
+
+      if _tracker then
+        table.insert(trackers, _tracker)
+        stdnse.verbose3("\n>> load_trackers announce tracker[" .. _tracker .. "]")
+      end
+
     else
-      return nil, "Announce field not found"
+      stdnse.verbose1("\n-->> in load_trackers -->> Announce field not found")
+      return false, "Announce field not found"
     end
 
     -- load the announce-list trackers
+    --
     if tor[1][2] and tor[1][2].key and tor[1][2].key == "announce-list" and tor[1][2].value then
       for _, trac_list in ipairs(tor[1][2].value) do
         if trac_list.type and trac_list.type == "list" then
@@ -985,6 +1120,40 @@ Torrent =
       end
     end
 
+
+    --  purge the list, remove duplicated entries
+    --
+    local _tkswap = {}
+    local found = false
+
+    for pos, element in ipairs( trackers ) do
+      found = false
+      for _, value in pairs( _tkswap ) do
+        if value == element then
+          found = true
+          break
+        end
+      end
+
+      if not found then
+        table.insert(_tkswap, element)
+      end
+    end
+    table.sort(_tkswap)
+
+    --  finish up
+    --
+    self.trackers = _tkswap
+    trackers      = nil
+
+    --  Antonio
+    --  output shall be controlled by the verbosity level
+    --
+    io.write("\nSorted trackers list:\n")
+    for pos, val in ipairs( self.trackers ) do
+      io.write("\t\t" .. val .. "\n")
+    end    
+
     return true
   end,
 
@@ -992,32 +1161,73 @@ Torrent =
   -- @param tor, decoded bencoded torrent file structure
   calc_torrent_size = function(self)
     local tor = self.tor_struct
-    local size = nil
-    if tor[1].type ~= "dict" then return nil end
+    local size = 0
+
+--    stdnse.verbose3("\n>> calc_torrent_size")
+
+    if tor[1].type ~= "dict" then
+      local errstring = "cannot find dictionary in file"
+
+      stdnse.verbose1("\n>> " .. errstring)
+      return false, errstring
+    end
+
     for _, m in ipairs(tor[1]) do
       if m.key == "info" then
-        if m.value.type ~= "dict" then return nil end
+
+        --[[
+        Antonio
+        questo test è una ripetizione
+
+        if m.value.type ~= "dict" then 
+          stdnse.verbose1("\n>> cannot find dictionary in file")
+          return false, "cannot find dictionary in file"
+        end
+        ]]
+
         for _, n in ipairs(m.value) do
-          if n.key == "files" then
-            size = 0
-            for _, f in ipairs(n.value) do
-              for _, k in ipairs(f) do
+          if n.key == "files" then      --  type is a list
+
+            for field, f in ipairs(n.value) do
+
+              --  we have to check an inner table after the 1st
+              --
+              local actual = f.value
+              if field == 1 then
+                actual = f
+              end
+
+              for field2, k in ipairs(actual) do
+
                 if k.key == "length" then
                   size = size + k.value
+
+                  --  stdnse.verbose3("\n>> length sum[" .. size .. "] now[" .. k.value .. "]")
                   break
                 end
+
               end
             end
             break
+
           elseif n.key == "length" then
             size = n.value
+
+            --  stdnse.verbose3("\n>> found length[" .. size .. "]")
             break
           end
         end
       end
     end
+
     self.size=size
-    if size == 0 then return false end
+    if size == 0 then
+      return false, "file size: 0"
+    end
+
+    stdnse.verbose1("\n>> calc_torrent_size size[ " .. size .. " bytes]")
+    return true, ""
+
   end,
 
   --- Calculates the info hash using self.info_buf.
@@ -1025,10 +1235,93 @@ Torrent =
   -- The info_hash value is used in many communication transactions for
   -- identifying the file shared among the bittorrent peers
   calc_info_hash = function(self)
-    local info_hash = openssl.sha1(self.info_buf)
-    self.info_hash_url = url.escape(info_hash)
+
+--    print_r( self )
+
+--[[
+
+74 D1 C6 50 DD8D317D 65BD03C4 859F2BCD 13AB161F             Il_Prigioniero_s1e01-03   --------------
+
+11 7D BF FB C9FE574E 892B7D62 F0AC6EE3 DDB9549B             Creepshow
+
+14 FF E5 DD 23 18 8FD5CB53A1D47F1289DB70ABF31E              TESTING (Ubuntu)
+
+4C 2B 24 98 B83E7D72 CB2E4A45 EA2FF007 DD3FE72C             Antibodies
+
+3D 91 F1 80 FF3C0A05 54CF08D3 25640891 07B81BAF             GLORY
+
+F8 BA CF 52 939F683B 5966DC64 9A36DAA8 B4267930             Scanners    Could not parse file: A dict key has to be a string or escape.
+
+2F 85 A1 37 B0FA2AE7 1DB01787 62D2DB1A DA67A20D             Cattive compagnie
+
+91 A6 13 38 F77911B5 6E8E389C 93D06287 5D7A9E76             Addio Alle Armi 1957
+
+D8 EE D6 F7 E063F298 F527DB11 A8990B27 E7D7CC00             Excalibur 1981 ------------------
+
+B7 D7 AB 3D D4B2ABF0 8486385D FD9328A9 E42702F6             Firefly s1e1-2
+
+82 D9 AD 1B 0CB50506 BA299074 4E92B7DF 624F13E7             Giunone il pavone ---------------
+
+FD D7 D4 24 E65F59A6 8EA1FC21 E99C33D8 F36D15B9             Milagro 1988
+
+87 9D C3 C8 A18BA6F2 C200753C 35263DE2 052EC189             Red Planet
+
+A5 16 4D EA 17CA1A9E 36606235 524FBE29 4006FD6B             Saint And Soldiers
+
+B8 92 37 4E 7F4B95BC 14F8E867 A8463032 0A1AC6CB             Black Sun - The Nanking Massacre 1994
+
+9D D7 AA 18 DCD55FA5 9F06C924 51FEAC5C E74C4C16             la guerra a colori
+
+CF 5C BF B9 CF1E0EFF BC77E39D AD8E012A 5A1EBC7A             Il ponte 1959
+
+2F 25 89 2F F13AB462 77B01F70 4BE16AAB C98D1339             The Fog - John Carpenter 1980
+
+EF BF BC 4B 75DBC93F C38772F7 0EE9EABB F2615801             Universal_Soldier_1992
+
+BF A9 0F 9B B6BA4A1A 8E989944 48E47D8F 77F2BB68             Vigilato Speciale
+
+71 41 53 46 BF019A53 5C07A2DF 6850493B 4337C8FB             Headhunters 2011        -----------------
+
+F1 79 80 FE 56AB9320 FFA299A8 FA4755EB 1E184395             Mirage 1965
+
+D3 58 20 5E 2D67EEB5 3AD3CA51 60946F4C D2D96936             Assassinio sull Eiger - The Eiger Sanction 1975
+
+90 15 87 86 4F5C45E4 B26AEA59 0CF81568 80BCAAB9             apollo13          Could not parse file: A dict key has to be a string or escape.
+
+19 B7 DD 57 D3FBCAD3 3EDD491E 3AE815CA 0CB04BBD             Soldato d Orange
+
+A4 F7 B1 39 799D4BA2 24C2CFF0 F8569990 8AE62C82             Boy wonder 2010
+
+89 8C 41 72 E9BF71D1 0C559E27 D84F6516 66E940E2             fenomeni paranormali incontrollabili
+
+A7 AB D9 86 C31FE44B 173B7044 9029DED6 934A8CC7             Fase IV distruzione Terra
+
+F5 30 41 61 E627792E 776D22AE 2DA5B2B0 4F98B60C             Gli Ultimi Giorni Di Pompei
+
+https://www.technojobs.co.uk/c++-jobs/manchester/c-developer-research-engineer-cc-windows/2102172?utm_source=Technojobs&utm_medium=Email&utm_campaign=JBEHTMLGM
+
+https://www.technojobs.co.uk/c++-jobs/london/c-developer-c-c-networking-tcpip/2101730?utm_source=Technojobs&utm_medium=Email&utm_campaign=JBEHTMLGM
+
+
+
+]]
+    --  info field is a subsection of the data buffer
+    --  it goes from tag to the end of memory
+    --
+    local a, b = string.find( self.buffer, "4:info" )
+    local info_field = string.sub( self.buffer, b + 1, #self.buffer - 1 )
+
+    local info_hash = openssl.sha1( info_field )
+    self.info_hash_url = url.escape( info_hash )
     self.info_hash = info_hash
-    self.info_buf = nil
+
+    --  Antonio
+    --  enable dumping only under verbosity level check
+  
+    --  hex_dump( "self.buffer",  self.buffer )
+    --  hex_dump( "info_field",   info_field )
+    hex_dump( "info_hash",    info_hash )
+
     return true
   end,
 
@@ -1038,19 +1331,55 @@ Torrent =
     -- which client they give peers to
     local fingerprint = "-KT4110-"
     local chars = {}
+
     -- the full length of a peer_id is 20 bytes but we already have 8 from the fingerprint
     return fingerprint .. stdnse.generate_random_string(12,
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
   end,
 
+
+
+--[[
+  Example GET Request
+An example of this GET message could be:
+
+http://some.tracker.com:999/announce
+?info_hash=12345678901234567890
+&peer_id=ABCDEFGHIJKLMNOPQRST
+&ip=255.255.255.255
+&port=6881
+&downloaded=1234
+&left=98765
+&event=stopped
+
+Response Format
+The tracker can send one of two kinds of response, as a [w:Bencode BEncoded] dictionary. If the tracker was able to process the client request it sends a BEncoded dictionary that has two keys:
+
+interval 
+Number of seconds the downloader should wait between regular rerequests.
+peers 
+List of dictionaries corresponding to peers.
+
+]]
+
   --- Gets the peers from a http tracker when supplied the URL of the tracker
-  http_tracker_peers = function(self, tracker)
+  http_tracker_peers = function(self, tracker)  
+
+--    stdnse.verbose1("\n>> http_tracker_peers[" .. tracker .. "]")  
+
     local url, trac_port, url_ext = tracker:match("^http://(.-):(%d-)(/.*)")
-    if not url then
+
+    if (not url) or (not trac_port) then
       --probably no port specification
       url, url_ext = tracker:match("^http://(.-)(/.*)")
       trac_port = "80"
     end
+
+    if (not url) or (not trac_port) then
+      return false, "Cannot parse tracker address"
+    end    
+
+    -- stdnse.verbose1("\n>> http_tracker_peers url[" .. url .. "] port[" .. trac_port .. "] ext[" .. url_ext .. "]")
 
     trac_port = tonumber(trac_port)
     -- a http torrent tracker request specifying the info_hash of the torrent, our random
@@ -1058,24 +1387,29 @@ Torrent =
     -- to download the torrent, with 0 downloaded and 0 uploaded bytes, an as many bytes
     -- left to download as the size of the torrent, requesting 200 peers in a compact format
     -- because some trackers refuse connection if they are not explicitly requested that way
-    local request = "?info_hash=" .. self.info_hash_url .. "&peer_id=" .. self:generate_peer_id() ..
-      "&port=" .. self.port .. "&uploaded=0&downloaded=0&left=" .. self.size ..
-      "&event=started&numwant=200&compact=1"
+    local request = tracker .. 
+      "?info_hash=" .. self.info_hash_url ..
+      "&peer_id=" .. self:generate_peer_id() ..
+      "&port=" .. self.port .. 
+      "&uploaded=0&downloaded=0&left=" .. self.size ..
+      "&event=started&numwant=200compact=1"
 
-    local response = http.get(url, trac_port, url_ext .. request, nil)
+    --stdnse.verbose1("\n>> http_tracker_peers request:" .. nsedebug.tostr(request, 1))
+
+    local response = http.get(url, trac_port, request, { timeout = 60 })
 
     if not response then
-      return false, "No response from tracker: " .. tracker
+      return false, "No response from tracker"
     end
 
     local status, t = bdecode(response.body)
 
     if not status then
-      return false, "Could not parse response:"..t
+      return false, "Could not parse response:" .. t
     end
 
     if not t[1] then
-      return nil, "No response from server."
+      return false, "Server reply is empty, aborting request."
     end
 
     for _, k in ipairs(t[1]) do
@@ -1131,10 +1465,20 @@ Torrent =
   -- peers. For a good specification refer to:
   -- http://www.rasterbar.com/products/libtorrent/udp_tracker_protocol.html
   udp_tracker_peers = function(self, tracker)
-    local host, port = tracker:match("^udp://(.-):(.+)")
+
+    local host, port, host_ext = tracker:match("^udp://(.-):(%d-)(/.*)")
+
     if (not host) or (not port) then
-      return false, "Could not parse tracker url"
+      --probably no ext specification
+      host, port = tracker:match("^udp://(.-):(.+)")
+      host_ext = ""
     end
+
+    if (not host) or (not port) then
+      return false, "Cannot parse tracker address"
+    end
+
+    -- stdnse.verbose1("\n>> udp_tracker_peers host[" .. host .. "] port[" .. port .. "]" .. " ext[" .. host_ext .. "]")
 
     local socket = nmap.new_socket("udp")
 
@@ -1147,17 +1491,26 @@ Torrent =
     if not status then return false, msg end
 
     status, msg = socket:receive()
-    if not status then return false, "Could not connect to tracker:"..tracker.." reason:"..msg end
-
-    local _, r_action, r_transaction_id, r_connection_id  =bin.unpack("H4A4A8",msg)
-
-    if not (r_transaction_id == hello_transaction_id) then
-      return false, "Received transaction ID not equivalent to sent transaction ID"
+    if not status then 
+      return false, "A socket receive failed: " .. msg
     end
 
-    -- the action in the response has to be 0 too
-    if not r_action == "00000000" then
-      return false, "Wrong action field, usually caused by an erroneous request"
+    local _, r_action, r_transaction_id, r_connection_id  = bin.unpack("H4A4A8", msg)
+
+--    stdnse.verbose1("\n>> udp_tracker_peers found r_action[" .. r_action .. "] r_transaction_id[" .. r_transaction_id .. "] r_connection_id[" .. r_connection_id .. "]")
+
+    r_action = tonumber( r_action )
+
+    if (not r_action) or (not r_transaction_id) or (not r_connection_id) then
+      return false, "Tracker reply has bogus data"
+    end
+
+    if 0 < r_action then
+      return false, "Tracker reply out of order"
+    end
+
+    if not (r_transaction_id == hello_transaction_id) then
+      return false, "Tracker reply not for us"
     end
 
     -- established a connection, and now for an announce message, to which a
@@ -1185,46 +1538,100 @@ Torrent =
       a_info_hash, a_peer_id, a_downloaded, a_left, a_uploaded, a_event, a_ip, a_key,
       a_num_want, a_port, a_extensions)
 
+
     status, msg = socket:sendto(host, port, announce_packet)
     if not status then
+      stdnse.verbose1("\n-->> udp_tracker_peers exit with an error #4")
       return false, "Couldn't send announce message, reason: "..msg
     end
 
     status, msg = socket:receive()
     if not status then
+      stdnse.verbose1("\n-->> udp_tracker_peers exit with an error #5")
       return false, "Didn't receive response to announce message, reason: "..msg
     end
-    local pos, p_action, p_transaction_id, p_interval, p_leechers, p_seeders = bin.unpack("H4A4H4H4H4",msg)
+
+    --[[
+    actions
+    The action fields has the following encoding:
+
+    connect = 0
+    announce = 1
+    scrape = 2
+    error = 3 (only in server replies)
+    ]]
+
+    local p_pos, p_action, p_transaction_id = bin.unpack("H4A4", msg)
+
+    p_action = tonumber(p_action)
+
+    --  got an error from the server
+    --
+    if 3 == p_action then
+        local m_pos, text = bin.unpack("z", msg, p_pos)
+
+        return false, "Server replied an error string: " .. text
+    end
 
     -- the action field in the response has to be 1 (like the sent response)
-    if not (p_action == "00000001") then
+    --
+    if not (p_action == 1) then
       return false, "Action in response to announce erroneous"
     end
+
     if not (p_transaction_id == a_transaction_id) then
       return false, "Transaction ID in response to announce message not equal to original"
     end
 
-    -- parse peers from msg:sub(pos, #msg)
+    local p_interval, p_leechers, p_seeders
+    p_pos, p_interval, p_leechers, p_seeders = bin.unpack("H4H4H4", msg, p_pos)
 
-    for bin_ip, bin_port in msg:sub(pos,#msg):gmatch("(....)(..)") do
-      local ip = string.format("%d.%d.%d.%d",
+    p_interval  = tonumber(p_interval, 16)
+    p_leechers  = tonumber(p_leechers)
+    p_seeders   = tonumber(p_seeders)
+
+   if (not p_interval) or (not p_leechers) or (not p_seeders) then
+      return false, "Tracker reply has bogus data"
+    end    
+
+    stdnse.verbose1("\n>> udp_tracker_peers found interval[" .. p_interval .. "] seeders[" .. p_seeders .. "] leechers [" .. p_leechers .. "]")
+
+    -- parse peers from msg:sub(p_pos, #msg)
+
+    local peers_add = 0
+    local peers_dup = 0
+
+    for bin_ip, bin_port in msg:sub(p_pos,#msg):gmatch("(....)(..)") do
+      local _ip = string.format("%d.%d.%d.%d",
         bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-      local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-      local peer = {}
-      peer.ip = ip
-      peer.port = port
-      if not self.peers[peer.ip] then
-        self.peers[peer.ip] = {}
-        self.peers[peer.ip].port = peer.port
+      local _port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
+
+      if not self.peers[_ip] then
+        local peer = {}
+        peer.ip    = _ip
+        peer.port  = _port
+
+        self.peers[_ip] = peer 
+
+        peers_add = peers_add + 1
       else
-        self.peers[peer.ip].port = peer.port
+        peers_dup = peers_dup + 1
       end
+    end
+
+    --  Antonio
+    --  output shall be controlled by the verbosity level
+    --
+    if 0 < peers_add then
+      io.write(string.format("\nPeers list (%d new, %d dup):\n", peers_add, peers_dup))
+      for peer_ip in pairs(self.peers) do
+        io.write("\t\t" .. peer_ip .. ":" .. self.peers[peer_ip].port .. "\n")
+      end   
     end
 
     return true
   end
+
 }
-
-
 
 return _ENV;
