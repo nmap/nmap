@@ -1789,7 +1789,8 @@ function get_local_assignments_data()
       elseif exists and readable then
         update_required, modified_date, entity_tag = requires_updating( file )
         if update_required and not writable then
-          return nil
+          update_required = false
+          readable = false
         end
       end
 
