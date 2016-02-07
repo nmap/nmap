@@ -1920,26 +1920,26 @@ function file_stat( path )
     if f then
       f.close()
       writable = true
-    elseif err == 'Permission denied' then
+    elseif err:match('Permission denied') then
       writable = false
     end
-  elseif err == 'No such file or directory' then
+  elseif err:match('No such file or directory') then
     exists = false
     f, err = io.open(path, 'w')
-    if err == 'Permission denied' then
-      writable = false
-    elseif f then
+    if f then
       f.close()
       writable = true
       f, err = io.open(path, 'r')
       if f then
         f.close()
         readable = true
-      elseif err == 'Permission denied' then
+      elseif err:match('Permission denied') then
         readable = false
       end
+    elseif err:match('Permission denied') then
+      writable = false
     end
-  elseif err == 'Permission denied' then
+  elseif err:match('Permission denied') then
     exists = true -- probably
     readable = false
   end
