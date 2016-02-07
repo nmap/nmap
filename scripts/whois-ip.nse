@@ -131,9 +131,9 @@ action = function( host )
     --@field local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
     --@field init_done                      Set when <code>script_init</code> has been called and prevents it being called again.
     --@field mutex                          A table of mutex functions, one for each service defined herein.  Allows a thread exclusive access to a
-    --                                service, preventing concurrent connections to it.
+    --                                      service, preventing concurrent connections to it.
     --@field nofollow                       A flag that prevents referrals to other whois records and allows the first record retrieved to be
-    --                                returned instead.  Set to true when whodb=nofollow
+    --                                      returned instead.  Set to true when whodb=nofollow
     --@field using_cache                    A flag which modifies the size of ranges in a cache entry.  Set to false when whodb=nocache
     --@field cache                          Storage for cached redirects, records and other data for output.
     nmap.registry.whois = {}
@@ -150,7 +150,7 @@ action = function( host )
   local mutex = nmap.mutex( "whois" )
   mutex "lock"
   if not nmap.registry.whois.init_done then
-    script_init( host.ip )
+    script_init()
   end
   mutex "done"
 
@@ -1354,7 +1354,7 @@ end
 -- Called once per script invocation, the purpose of this function is to populate the registry with variables and data for use by all threads.
 -- @see  get_args, get_local_assignments_data
 
-function script_init( )
+function script_init()
 
   ---
   -- fields_meta is a table of patterns and captures and defines from which fields of a whois record to extract data.
