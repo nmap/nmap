@@ -127,7 +127,8 @@ action = function( host )
     -- @name whois
     -- @class table
     --@field whoisdb_default_order          The default number and order of whois services to query.
-    --@field using_local_assignments_file   Set this to: false; to avoid using the data from IANA hosted assignments files (false when whodb=nofile).
+    --@field using_local_assignments_file   The boolean values of the two keys ipv4 and ipv6 determine whether or not to use the data from an IANA
+    --                                      hosted assignments file for that address family.
     --@field local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
     --@field init_done                      Set when <code>script_init</code> has been called and prevents it being called again.
     --@field mutex                          A table of mutex functions, one for each service defined herein.  Allows a thread exclusive access to a
@@ -139,7 +140,9 @@ action = function( host )
     nmap.registry.whois = {}
     nmap.registry.whois.whoisdb_default_order = {"arin","ripe","apnic"}
     nmap.registry.whois.using_cache = true
-    nmap.registry.whois.using_local_assignments_file = true
+    nmap.registry.whois.using_local_assignments_file = {}
+    nmap.registry.whois.using_local_assignments_file.ipv4 = true
+    nmap.registry.whois.using_local_assignments_file.ipv6 = true
     nmap.registry.whois.local_assignments_file_expiry = "16h"
     nmap.registry.whois.nofollow = false
     nmap.registry.whois.cache = {}
@@ -183,8 +186,9 @@ action = function( host )
   --@field completed  An array of services previously queried.
   local tracking = {}
   tracking.completed = {}
+  local addr_family = #host.bin_ip == 4 and "ipv4" or "ipv6"
 
-  tracking = get_next_action( tracking, host.ip )
+  tracking = get_next_action( tracking, host.ip, addr_family )
 
   -- main loop
   while tracking.next_db do
@@ -194,7 +198,7 @@ action = function( host )
 
     nmap.registry.whois.mutex[tracking.this_db] "lock"
 
-    status, retval = pcall( get_next_action, tracking, host.ip )
+    status, retval = pcall( get_next_action, tracking, host.ip, addr_family )
     if not status then
       stdnse.debug1("pcall caught an exception in get_next_action: %s.", retval)
     else tracking = retval end
@@ -211,7 +215,7 @@ action = function( host )
       else data = retval end
 
       -- get next action
-      status, retval = pcall( get_next_action, tracking, host.ip )
+      status, retval = pcall( get_next_action, tracking, host.ip, addr_family )
       if not status then
         stdnse.debug1("pcall caught an exception in get_next_action: %s.", retval)
         if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
@@ -242,10 +246,11 @@ end -- action
 -- knows its next move in the main loop.
 -- @param tracking  The Tracking table.
 -- @param ip        String representing the Target's IP address.
+-- @param addr_fam  String representing the Target's IP address family.
 -- @return          The supplied and possibly modified tracking table.
 -- @see             tracking, check_response_cache, get_db_from_assignments
 
-function get_next_action( tracking, ip )
+function get_next_action( tracking, ip, addr_fam )
 
   if type( ip ) ~= "string" or ip == "" or type( tracking ) ~= "table" or type( tracking.completed ) ~= "table" then return nil end
 
@@ -292,7 +297,7 @@ function get_next_action( tracking, ip )
 
 
   -- try to find a service to query in the assignments files, if allowed
-  if nmap.registry.whois.using_local_assignments_file and not tracking.this_db and not tracking.last_db then
+  if nmap.registry.whois.using_local_assignments_file[addr_fam] and not tracking.this_db and not tracking.last_db then
 
     tracking.next_db = get_db_from_assignments( ip )
     if tracking.next_db and not table.concat( tracking.completed, " " ):match( tracking.next_db ) then
@@ -1672,9 +1677,15 @@ function script_init()
   end
 
   -- get IANA assignments lists
-  if nmap.registry.whois.using_local_assignments_file then
-    nmap.registry.whois.local_assignments_data, err = get_local_assignments_data()
-    if err then nmap.registry.whois.using_local_assignments_file = false end
+  if nmap.registry.whois.using_local_assignments_file.ipv4
+  or nmap.registry.whois.using_local_assignments_file.ipv6 then
+    nmap.registry.whois.local_assignments_data = get_local_assignments_data()
+    for _, af in ipairs({"ipv4", "ipv6"}) do
+      if not nmap.registry.whois.local_assignments_data[af] then
+        nmap.registry.whois.using_local_assignments_file[af] = false
+        stdnse.debug1("Cannot use local assignments file for address family %s.", af)
+      end
+    end
   end
 
   nmap.registry.whois.init_done = true
@@ -1707,8 +1718,8 @@ function get_args()
       elseif ( db == "nocache" ) then
         nmap.registry.whois.using_cache = false
       elseif ( db == "nofile" ) then
-        nmap.registry.whois.using_local_assignments_file = false
-        stdnse.debug2("Not using local assignments data.")
+        nmap.registry.whois.using_local_assignments_file.ipv4 = false
+        nmap.registry.whois.using_local_assignments_file.ipv6 = false
       end
     elseif not ( string.match( table.concat( t, " " ), db ) ) then
       -- we have a unique valid whois db
@@ -1716,9 +1727,10 @@ function get_args()
     end
   end
 
-  if ( #t > 0 ) and nmap.registry.whois.using_local_assignments_file then
-    -- "nofile" was not explicitly supplied, but it is implied by supplying custom whoisdb_default_order
-    nmap.registry.whois.using_local_assignments_file = false
+  if ( #t > 0 ) then
+    -- "nofile" is implied by supplying custom whoisdb_default_order
+    nmap.registry.whois.using_local_assignments_file.ipv4 = false
+    nmap.registry.whois.using_local_assignments_file.ipv6 = false
     stdnse.debug3("Not using local assignments data because custom whoisdb_default_order was supplied.")
   end
 
@@ -1751,8 +1763,8 @@ end
 function get_local_assignments_data()
 
   if not next( nmap.registry.whois.remote_assignments_files ) then
-    nmap.registry.whois.using_local_assignments_file = false
-    return nil, "Error in get_local_assignments_data: Remote resources not defined in remote_assignments_files registry key"
+    stdnse.debug1("Error in get_local_assignments_data: Remote resources not defined in remote_assignments_files registry key")
+    return nil
   end
 
   -- get the directory path where cached files will be stored.
@@ -1760,7 +1772,7 @@ function get_local_assignments_data()
   local directory_path, err = get_parentpath( fetchfile )
   if err then
     stdnse.debug1("Nmap.fetchfile() failed to get a path to %s: %s.", fetchfile, err)
-    return nil, err
+    return nil
   end
 
   local ret = {}
@@ -1856,7 +1868,6 @@ function get_local_assignments_data()
   for af, t in pairs( ret ) do
     if #t == 0 then
       ret[af] = nil
-      stdnse.debug1("Cannot use local assignments file for address family %s.", af)
     end
   end
 
