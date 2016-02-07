@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] whois-ip: Don't request a remote IANA assignments data file when the
+  local filesystem will not permit the file to cached in a local file. [jah]
+
 o [NSE] Updated http-php-version hash database to cover all versions from PHP
   4.1.0 to PHP 5.4.45. Based on scans of a few thousand PHP web servers pulled
   from Shodan API (https://www.shodan.io/) [Daniel Miller]

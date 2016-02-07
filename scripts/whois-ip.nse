@@ -1757,8 +1757,6 @@ end
 -- Sets a flag in the registry to prevent use of the lookup data in the event of an error.
 -- @return  Table of lookup data (or nil in case of an error).
 -- @return  Nil or error message in case of an error.
--- @see     get_parentpath, file_exists, requires_updating, read_from_file, conditional_download,
---          write_to_file, parse_assignments
 
 function get_local_assignments_data()
 
@@ -1781,24 +1779,24 @@ function get_local_assignments_data()
   for address_family, t in pairs( nmap.registry.whois.remote_assignments_files ) do
     for i, assignment_data_spec in ipairs( t ) do
 
-      local update_required, modified_date, entity_tag, err
+      local update_required, modified_date, entity_tag
 
       -- do we have a cached file and does it need updating?
-      local file, exists = directory_path .. assignment_data_spec.local_resource
-      exists, err = file_exists( file )
-      if not exists and err then
-        stdnse.debug1("Error accessing %s: %s.", file, err)
-      elseif not exists then
+      local file = directory_path .. assignment_data_spec.local_resource
+      local exists, readable, writable = file_stat(file)
+      if not exists and (readable and writable) then
         update_required = true
-        stdnse.debug2("%s does not exist or is empty. Fetching it now...", file)
-      elseif exists then
+      elseif exists and readable then
         update_required, modified_date, entity_tag = requires_updating( file )
+        if update_required and not writable then
+          return nil
+        end
       end
 
       local file_content
 
       -- read an existing and up-to-date file into file_content.
-      if exists and not update_required then
+      if readable and not update_required then
         stdnse.debug2("%s was cached less than %s ago. Reading...", file, nmap.registry.whois.local_assignments_file_expiry)
         file_content = read_from_file( file )
       end
@@ -1901,28 +1899,52 @@ end
 
 
 
----
--- Given a filepath, checks for the existence of that file.
--- @param file  Path to a file.
--- @return      Boolean True if file exists and can be read or false if file does not exist or is empty or cannot be otherwise read.
--- @return      Nil or error message.  No error message if the file is empty or does not exist, only if the file cannot be read for some other reason.
+--;
+-- Tests a file path to determine whether it exists, can be read from and can be written to.
+-- An attempt is made to create the file if it does not exist and no attempt is made to remove
+-- it if creation succeeded.
+-- @param path Path to a file.
+-- @return     Boolean True if exists, False if not (at time of calling), nil if determination failed.
+-- @return     Boolean True if readable, False if not, nil if determination failed.
+-- @return     Boolean True if writable, False if not, nil if determination failed.
+function file_stat( path )
 
-function file_exists( file )
+  local exists, readable, writable
 
-  local f, err, _ = io.open( file, "r" )
-  if ( f and f:read() ) then
-    f:close()
-    return true, nil
-  elseif f then
-    f:close()
-    return false, nil
-  elseif not f and err:match("No such file or directory") then
-    return false, nil
-  elseif err then
-    return false, err
-  else
-    return false, ( "unforeseen error while checking " .. file )
+  local f, err = io.open(path, 'r')
+  if f then
+    f.close()
+    exists = true
+    readable = true
+    f, err = io.open(path, 'a')
+    if f then
+      f.close()
+      writable = true
+    elseif err == 'Permission denied' then
+      writable = false
+    end
+  elseif err == 'No such file or directory' then
+    exists = false
+    f, err = io.open(path, 'w')
+    if err == 'Permission denied' then
+      writable = false
+    elseif f then
+      f.close()
+      writable = true
+      f, err = io.open(path, 'r')
+      if f then
+        f.close()
+        readable = true
+      elseif err == 'Permission denied' then
+        readable = false
+      end
+    end
+  elseif err == 'Permission denied' then
+    exists = true -- probably
+    readable = false
   end
+
+  return exists, readable, writable
 
 end
 
