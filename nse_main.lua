@@ -1376,14 +1376,14 @@ local function main (hosts, scantype)
           end
         end
       end
-    cnse.xml_newline();
-    cnse.xml_end_tag();
-    cnse.xml_newline();
     end
     print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
     run(wrap(threads_iter), hosts)
   end
 
+  cnse.xml_newline();
+  cnse.xml_end_tag();
+  cnse.xml_newline();
   collectgarbage "collect";
 end
 
