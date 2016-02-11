@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support for DHCP options "TFTP server name" and "Bootfile name"
+  to dhcp.lua and enabled checking for options with a code above 61 by default.
+  [Mike Rykowski]
+
 o Removed 6/8, 7/8, and 55/8 networks from the list of "reserved" IP addresses
   that Nmap uses to filter -iR randomly generated targets. These address ranges
   belong to the U.S. Department of Defense, so users wanting to avoid those

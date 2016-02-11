@@ -346,6 +346,8 @@ actions[58] = {name="Renewal Time Value",              func=read_time,          
 actions[59] = {name="Rebinding Time Value",            func=read_time,           default=false}
 actions[60] = {name="Class Identifier",                func=read_string,         default=false}
 actions[61] = {name="Client Identifier (client)",      func=read_string,         default=false}
+actions[66] = {name="TFTP Server Name",                func=read_string,         default=false}
+actions[67] = {name="Bootfile Name",                   func=read_string,         default=false}
 actions[252]= {name="WPAD",                            func=read_string,         default=false}
 
 --- Does the send/receive, doesn't build/parse anything.
@@ -411,13 +413,9 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   if(request_options == nil) then
     -- Request the defaults, or there's no verbosity; otherwise, request everything!
     request_options = ''
-    for i = 1, 61, 1 do
-      if(nmap.verbosity() > 0) then
+    for i,v in pairs(actions) do
+      if(v.default or nmap.verbosity() > 0) then
         request_options = request_options .. string.char(i)
-      else
-        if(actions[i] and actions[i].default) then
-          request_options = request_options .. string.char(i)
-        end
       end
     end
   end
