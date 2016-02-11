@@ -1,5 +1,13 @@
 DONE:
 
+o Change Ncat so that it does SSL certificate trust checking by
+  default (even without --ssl-verify) and provides a warning and the key
+  fingerprint if there is no valid trusted chain or the cert is
+  expired, etc.  The warning should happen (to STDERR) even if -v is
+  not specified.  We should add a new option to force Ncat to quit if
+  cert not valid, and --ssl-verify should become an undocumented alias
+  for that. [GH#30]
+
 o Augment the configure script to list unmet dependencies. Currently, configure
   works just fine without a C++ compiler installed, but make generates an
   error.  The configure script should be able to detect this. Also, a list of
