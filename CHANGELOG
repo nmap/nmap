@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed 6/8, 7/8, and 55/8 networks from the list of "reserved" IP addresses
+  that Nmap uses to filter -iR randomly generated targets. These address ranges
+  belong to the U.S. Department of Defense, so users wanting to avoid those
+  ranges should use their own exclusion lists with --exclude or --exclude-file.
+  [Daniel Miller]
+
 o [NSE] whois-ip: Don't request a remote IANA assignments data file when the
   local filesystem will not permit the file to cached in a local file. [jah]
 
