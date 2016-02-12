@@ -2683,7 +2683,6 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   } else if (hdr.proto == IPPROTO_ICMP) {
     struct ip *ip2;       /* Points to the IP datagram carried by some ICMP messages */
     char *ip2dst;         /* Dest IP in caried IP datagram                   */
-    u16 *nextmtu = NULL;  /* Store next hop MTU when ICMP==Frag required     */
     char auxbuff[128];    /* Aux buffer                                      */
     struct icmp_packet{   /* Generic ICMP struct */
       u8 type;
@@ -2826,8 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            nextmtu = (u16 *)(&(icmppkt->data[6]));
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", (unsigned short) ntohs(*nextmtu));
+            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:

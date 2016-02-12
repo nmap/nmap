@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Properly display Next-hop MTU value from ICMP Type 3 Code 4 Fragmentation
+  Required messages when tracing packets or in Nping output. Improper offset
+  meant we were printing the total IP length. [Sławomir Demeszko]
+
 o [NSE] Added support for DHCP options "TFTP server name" and "Bootfile name"
   to dhcp.lua and enabled checking for options with a code above 61 by default.
   [Mike Rykowski]
