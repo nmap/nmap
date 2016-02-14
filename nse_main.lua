@@ -1316,7 +1316,6 @@ local function main (hosts, scantype)
     print_verbose(1, "Script Post-scanning.");
   end
 
-  --cnse.xml_start_tag("scriptscan" , { phase = scantype });
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
