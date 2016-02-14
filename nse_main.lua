@@ -1316,13 +1316,14 @@ local function main (hosts, scantype)
     print_verbose(1, "Script Post-scanning.");
   end
 
-  cnse.xml_start_tag("scriptscan" , { phase = scantype });
+  --cnse.xml_start_tag("scriptscan" , { phase = scantype });
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
     local function threads_iter ()
       -- activate prerule scripts
       if scantype == NSE_PRE_SCAN then
+        cnse.xml_start_tag("scriptscan" , { phase = scantype });
         for _, script in ipairs(scripts) do
            local thread = script:new_thread("prerule");
            if thread then
@@ -1333,10 +1334,14 @@ local function main (hosts, scantype)
              yield(thread)
            end
         end
+  	cnse.xml_newline();
+  	cnse.xml_end_tag();
+  	cnse.xml_newline();
       -- activate hostrule and portrule scripts
       elseif scantype == NSE_SCAN then
         -- Check hostrules for this host.
         for j, host in ipairs(hosts) do
+	  cnse.xml_start_tag("scriptscan" , { phase = "HOST_SCAN" });
           for _, script in ipairs(scripts) do
             local thread = script:new_thread("hostrule", host_copy(host));
             if thread then
@@ -1348,7 +1353,11 @@ local function main (hosts, scantype)
               yield(thread);
             end
           end
+  	cnse.xml_newline();
+  	cnse.xml_end_tag();
+  	cnse.xml_newline();
           -- Check portrules for this host.
+	  cnse.xml_start_tag("scriptscan" , { phase = "PORT_SCAN" });
           for port in cnse.ports(host) do
             for _, script in ipairs(scripts) do
               local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
@@ -1362,9 +1371,13 @@ local function main (hosts, scantype)
               end
             end
           end
+  	cnse.xml_newline();
+	cnse.xml_end_tag();
+  	cnse.xml_newline();
         end
         -- activate postrule scripts
       elseif scantype == NSE_POST_SCAN then
+        cnse.xml_start_tag("scriptscan" , { phase = scantype });
         for _, script in ipairs(scripts) do
           local thread = script:new_thread("postrule");
           if thread then
@@ -1375,15 +1388,15 @@ local function main (hosts, scantype)
             yield(thread);
           end
         end
+  	cnse.xml_newline();
+  	cnse.xml_end_tag();
+  	cnse.xml_newline();
       end
     end
     print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
     run(wrap(threads_iter), hosts)
   end
 
-  cnse.xml_newline();
-  cnse.xml_end_tag();
-  cnse.xml_newline();
   collectgarbage "collect";
 end
 
