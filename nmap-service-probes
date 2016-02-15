@@ -5468,7 +5468,7 @@ match softros-im m|^none\r\n$| p/Softros LAN Messenger instant messaging/
 
 match spamassassin m|^SPAMD/1\.0 76 Bad header line: \r\n| p/SpamAssassin spamd/ cpe:/a:apache:spamassassin/
 
-match sqlmonitor m|^\0\0\0\0\0$| p/Red-Gate SQL Monitor/ o/Windows/ cpe:/a:red-gate:sql_monitor/
+match sqlmonitor m|^\0\0\0\0\0$| p/Red-Gate SQL Monitor/ o/Windows/ cpe:/a:red-gate:sql_monitor/ cpe:/o:microsoft:windows/a
 
 match starbound m|^\0\x08\0\0\x02\x9c| p/Starbound game server/
 
@@ -6323,10 +6323,6 @@ match http m|^HTTP/1\.1 \d\d\d .*<address>Apache Server at ([\w._-]+) Port \d+</
 # https://svn.apache.org/repos/asf/httpd/httpd/trunk/modules/http/http_protocol.c
 match http m|^HTTP/1\.1 401 Authorization Required\r\n.*Server: Apache\r\n.*\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html><head>\n<title>401 Authorization Required</title>\n</head><body>\n<h1>Authorization Required</h1>\n<p>This server could not verify that you\nare authorized to access the document\nrequested\.  Either you supplied the wrong\ncredentials \(e\.g\., bad password\), or your\nbrowser doesn't understand how to supply\nthe credentials required\.</p>\n</body></html>\n$|s p/Apache httpd/ cpe:/a:apache:http_server/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache ((?:mod_\w+/[\w._-]+ ?)+)\r\n| p/Apache httpd/ i/$1/ cpe:/a:apache:http_server/
-
-# Place hard matched Apache banners above this line
-# (?!400) prevents matching 400 error, which can be result of SSL-only listener
-softmatch http m|^HTTP/1\.[01] (?!400)\d\d\d.*\r\nDate: .*\r\nServer: Apache ([^\r\n]+)\r\n| p/Apache httpd/ i/$1/ cpe:/a:apache:http_server/
 
 # Apache Stronghold
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold/([-.\w]+) Apache/([-.\w]+)| p/Apache Stronghold httpd/ v/$1/ i/based on Apache $2/ cpe:/a:redhat:stronghold:$1/
@@ -10441,6 +10437,9 @@ match msdtc m|^[^\x15\x16][^\x03].\0..$|s p/Microsoft Distributed Transaction Co
 match msdtc m|^..\x0a\0x\x01$|s p/Microsoft Distributed Transaction Coordinator/ o/Windows/ cpe:/o:microsoft:windows/a
 match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/error/ o/Windows/ cpe:/o:microsoft:windows/a
 
+# Place hard matched Apache banners above this line
+# (?!400) prevents matching 400 error, which can be result of SSL-only listener
+softmatch http m|^HTTP/1\.[01] (?!400)\d\d\d.*\r\nDate: .*\r\nServer: Apache ([^\r\n]+)\r\n| p/Apache httpd/ i/$1/ cpe:/a:apache:http_server/
 
 ##############################NEXT PROBE##############################
 Probe TCP HTTPOptions q|OPTIONS / HTTP/1.0\r\n\r\n|
@@ -11615,7 +11614,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .* GMT\r\nConnection: close\r\n
 # 6.2.Alpha
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 40\r\nContent-Type: text/html\r\n\r\n<h1>400 Bad Request</h1>Bad request line| p/JBoss Enterprise Application Platform/ cpe:/a:redhat:jboss_enterprise_application_platform/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: PhpStorm ([\w._-]+)\r\n| p/PhpStorm IDE httpd/ v/$1/ cpe:/a:jetbrains:phpstorm:$1/
-match http m|^<html><head><title>Metasploitable2 - Linux</title></head><body>\n<pre>| p/Metasploitable 2 welcome page/ o/Linux/
+match http m|^<html><head><title>Metasploitable2 - Linux</title></head><body>\n<pre>| p/Metasploitable 2 welcome page/ o/Linux/ cpe:/o:linux:linux_kernel/a
 
 # Seen a couple times for just Help probe... -Doug
 match http-proxy m|^HTTP/1\.0 200 OK\r\nCache-Control: no-store\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nX-Bypass-Cache: Application and Content Networking System Software ([\d.]+)\r\n| p/Cisco ACNS outbound proxying/ v/$1/ cpe:/a:cisco:application_and_content_networking_system_software:$1/
