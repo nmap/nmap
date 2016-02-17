@@ -252,9 +252,12 @@ function action(host, port)
       local new_urls = build_urls(injectable)
       local responses = inject(host, port, new_urls)
       local suspects = check_responses(new_urls, responses)
-      for p,q in pairs(suspects) do
-        if not output.Queries[p] then output.Queries[p] = {} end
-        table.insert(output.Queries[p], q)
+      for p, q in pairs(suspects) do
+        local queries_out = output.Queries[p] or {}
+        for _, query in ipairs(q) do
+          queries_out[#queries_out+1] = query
+        end
+        output.Queries[p] = queries_out
       end
     end
   end
