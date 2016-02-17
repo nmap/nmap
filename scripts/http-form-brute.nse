@@ -240,7 +240,10 @@ local detect_form = function (host, port, path, hostname)
       local match = true
       -- first check the 'match' table and be sure all values match
       for k, v in pairs(val.match) do
-        match = match and string.match(form[k], v)
+        -- ensure that corresponding field exists in form table also
+	if not (form[k] == nil) then
+          match = match and string.match(form[k], v)
+	end
       end
       -- then check that uservar and passvar are in this form
       if match then
