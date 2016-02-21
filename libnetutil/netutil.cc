@@ -3845,7 +3845,10 @@ static int send_ipv6_ip(const struct sockaddr_in6 *dst,
   const unsigned char *end;
   struct ip6_hdr *hdr;
   unsigned char nxt;
-  int tclass, hoplimit;
+#ifdef IPV6_TCLASS
+  int tclass;
+#endif
+  int hoplimit;
 
   int sd;
   int n;
