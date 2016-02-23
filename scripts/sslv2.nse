@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local string = require "string"
 local table = require "table"
 local bin = require "bin"
+local bit = require "bit"
 local stdnse = require "stdnse"
 local sslcert = require "sslcert"
 
@@ -74,6 +75,47 @@ local function socket_reader(socket)
     available = total:sub(n + 1)
     return status, total:sub(1, n)
   end
+end
+
+local function parse_record_header_1_2(header_1_2)
+  local _, b0, b1 = bin.unpack(">CC", header_1_2)
+  local msb = bit.band(b0, 0x80) == 0x80
+  local header_length
+  local record_length
+  if msb then
+    header_length = 2
+    record_length = bit.bor(bit.lshift(bit.band(b0, 0x7f), 8), b1)
+  else
+    header_length = 3
+    record_length = bit.bor(bit.lshift(bit.band(b0, 0x3f), 8), b1)
+  end
+  return header_length, record_length
+end
+
+local function read_ssl_record(socket_read)
+  local status, header_1_2 = socket_read(2)
+  if not status then
+    return status
+  end
+
+  local header_length, record_length = parse_record_header_1_2(header_1_2)
+  local padding_length
+  if header_length == 2 then
+    padding_length = 0
+  else
+    local status, header_3 = socket_read(1)
+    if not status then
+      return status
+    end
+    _, padding_length = bin.unpack(">C", header_3)
+  end
+
+  local status, payload = socket_read(record_length)
+  if not status then
+    return status
+  end
+
+  return true, payload, padding_length
 end
 
 local ssl_ciphers = {
@@ -163,39 +205,14 @@ action = function(host, port)
 
   socket:send(ssl_v2_hello)
 
-  local status, server_hello = socket_read(2)
-
-  if (not status) then
-    socket:close()
+  local status, server_hello = read_ssl_record(socket_read)
+  socket:close();
+  if not status then
     return
   end
-
-  local idx, server_hello_len = bin.unpack(">S", server_hello)
-  -- length record doesn't include its own length, and is "broken".
-  server_hello_len = server_hello_len - (128 * 256) + 2
-
-  -- the hello needs to be at least 13 bytes long to be of any use
-  if (server_hello_len < 13) then
-    socket:close()
-    stdnse.debug(1, "Server Hello too short")
-    return
-  end
-  --try to get entire hello, if we don't already
-  if (#server_hello < server_hello_len) then
-    local status, tmp = socket_read(server_hello_len - #server_hello)
-
-    if (not status) then
-      socket:close()
-      return
-    end
-
-    server_hello = server_hello .. tmp
-  end
-
-  socket:close()
 
   -- split up server hello into components
-  local idx, message_type, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_ID_len = bin.unpack(">CCCSSSS", server_hello, idx)
+  local idx, message_type, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_ID_len = bin.unpack(">CCCSSSS", server_hello)
   -- some sanity checks:
   -- is response a server hello?
   if (message_type ~= 4) then
