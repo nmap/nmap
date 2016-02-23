@@ -47,6 +47,35 @@ portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
+-- Read at least "n" bytes from a socket "s" given as argument.
+local function read_atleast(s, n)
+  local strings = {}
+  local count = 0
+  while count < n do
+    local status, data = s:receive_bytes(n - count)
+    table.insert(strings, data)
+    count = count + #data
+    if not status then
+      return status, table.concat(strings)
+    end
+  end
+  return true, table.concat(strings)
+end
+
+-- Return a function that reads exactly "n" bytes from a socket.
+--
+-- The function remains attached to the socket given to build it and keeps a buffer of
+-- extra received bytes so that they will be returned when necessary.
+local function socket_reader(socket)
+  local available = ""
+  return function(n)
+    local status, received = read_atleast(socket, n - #available)
+    local total = available .. received
+    available = total:sub(n + 1)
+    return status, total:sub(1, n)
+  end
+end
+
 local ssl_ciphers = {
   -- (cut down) table of codes with their corresponding ciphers.
   -- inspired by Wireshark's 'epan/dissectors/packet-ssl-utils.h'
@@ -112,7 +141,7 @@ action = function(host, port)
     end
   end
 
-  socket:set_timeout(timeout)
+  local socket_read = socket_reader(socket)
 
   -- build client hello packet (contents inspired by
   -- http://mail.nessus.org/pipermail/plugins-writers/2004-October/msg00041.html )
@@ -134,7 +163,7 @@ action = function(host, port)
 
   socket:send(ssl_v2_hello)
 
-  local status, server_hello = socket:receive_bytes(2)
+  local status, server_hello = socket_read(2)
 
   if (not status) then
     socket:close()
@@ -153,7 +182,7 @@ action = function(host, port)
   end
   --try to get entire hello, if we don't already
   if (#server_hello < server_hello_len) then
-    local status, tmp = socket:receive_bytes(server_hello_len - #server_hello)
+    local status, tmp = socket_read(server_hello_len - #server_hello)
 
     if (not status) then
       socket:close()
