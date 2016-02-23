@@ -43,6 +43,21 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
+local SSL_MT = {
+  ERROR = 0,
+  CLIENT_HELLO = 1,
+  CLIENT_MASTER_KEY = 2,
+  CLIENT_FINISHED = 3,
+  SERVER_HELLO = 4,
+  SERVER_VERIFY = 5,
+  SERVER_FINISHED = 6,
+  REQUEST_CERTIFICATE = 7,
+  CLIENT_CERTIFICATE = 8,
+}
+
+local SSL_CT = {
+  X509_CERTIFICATE = 1,
+}
 
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
@@ -161,7 +176,12 @@ local ciphers = function(cipher_list)
   return available_ciphers
 end
 
-action = function(host, port)
+-- Determine whether SSLv2 is supported by the target host and what ciphers if offers.
+--
+-- The first return value is a boolean representing SSLv2 support.  If it is "true", the
+-- second return value is a list of supported ciphers.  If the status of SSLv2 support
+-- could not be determined, the function returns "nil".
+local function test_sslv2(host, port)
   local timeout = stdnse.get_timeout(host, 10000, 5000)
 
   -- Create socket.
@@ -208,33 +228,32 @@ action = function(host, port)
   local status, server_hello = read_ssl_record(socket_read)
   socket:close();
   if not status then
-    return
+    return false
   end
 
   -- split up server hello into components
   local idx, message_type, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_ID_len = bin.unpack(">CCCSSSS", server_hello)
-  -- some sanity checks:
-  -- is response a server hello?
-  if (message_type ~= 4) then
-    return
+
+  if message_type ~= SSL_MT.SERVER_HELLO then
+    return false
   end
-  -- is certificate in X.509 format?
-  if (certificate_type ~= 1) then
-    return
+  if certificate_type ~= SSL_CT.X509_CERTIFICATE then
+    return false
   end
 
   local idx, certificate = bin.unpack("A" .. certificate_len, server_hello, idx)
   local idx, cipher_list = bin.unpack("A" .. ciphers_len, server_hello, idx)
-  local idx, connection_ID = bin.unpack("A" .. connection_ID_len, server_hello, idx)
 
-  -- get a list of ciphers offered
-  local available_ciphers = ciphers(cipher_list)
+  return ssl_version == 2, ciphers(cipher_list)
+end
 
-  -- actually run some tests:
+function action(host, port)
+  local sslv2_supported, offered_ciphers = test_sslv2(host, port)
+
   local o = stdnse.output_table()
-  if (ssl_version == 2) then
+  if sslv2_supported then
     table.insert(o, "SSLv2 supported")
-    o["ciphers"] = available_ciphers
+    o["ciphers"] = offered_ciphers
   end
 
   return o
