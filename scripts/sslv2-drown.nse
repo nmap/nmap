@@ -77,27 +77,43 @@ local SSL_MAX_RECORD_LENGTH_3_BYTE_HEADER = 16383
 local CIPHER_INFO = {
   ["\x01\x00\x80"] = {
     str = "SSL2_RC4_128_WITH_MD5",
+    key_length = 16,
+    encrypted_key_length = 16,
   },
   ["\x02\x00\x80"] = {
     str = "SSL2_RC4_128_EXPORT40_WITH_MD5",
+    key_length = 16,
+    encrypted_key_length = 5,
   },
   ["\x03\x00\x80"] = {
     str = "SSL2_RC2_128_CBC_WITH_MD5",
+    key_length = 16,
+    encrypted_key_length = 16,
   },
   ["\x04\x00\x80"] = {
     str = "SSL2_RC2_128_CBC_EXPORT40_WITH_MD5",
+    key_length = 16,
+    encrypted_key_length = 5,
   },
   ["\x05\x00\x80"] = {
     str = "SSL2_IDEA_128_CBC_WITH_MD5",
+    key_length = 16,
+    encrypted_key_length = 16,
   },
   ["\x06\x00\x40"] = {
     str = "SSL2_DES_64_CBC_WITH_MD5",
+    key_length = 8,
+    encrypted_key_length = 8,
   },
   ["\x07\x00\xc0"] = {
     str = "SSL2_DES_192_EDE3_CBC_WITH_MD5",
+    key_length = 24,
+    encrypted_key_length = 24,
   },
   ["\x08\x00\x80"] = {
     str = "SSL2_RC4_64_WITH_MD5",
+    key_length = 16,
+    encrypted_key_length = 8,
   },
 }
 
@@ -119,6 +135,20 @@ local CLIENT_HELLO_EXAMPLE =
 
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+end
+
+-- Return whether all values of "t1" are also values in "t2".
+local function values_in(t1, t2)
+  local set = {}
+  for _, e in pairs(t2) do
+    set[e] = true
+  end
+  for _, e in pairs(t1) do
+    if not set[e] then
+      return false
+    end
+  end
+  return true
 end
 
 -- Create a socket ready to begin an SSL negociation.
@@ -223,6 +253,19 @@ local function ssl_record(payload)
   return length_field .. payload
 end
 
+local function client_master_secret(cipher_kind, clear_key, encrypted_key, key_arg)
+  local key_arg = key_arg or ""
+  return
+    bin.pack(">C", SSL_MT.CLIENT_MASTER_KEY)
+    .. cipher_kind
+    .. bin.pack(">S", #clear_key)
+    .. bin.pack(">S", #encrypted_key)
+    .. bin.pack(">S", #key_arg)
+    .. clear_key
+    .. encrypted_key
+    .. key_arg
+end
+
 -- Determine whether SSLv2 is supported by the target host and what ciphers if offers.
 --
 -- The first return value is a boolean representing SSLv2 support.  If it is "true", the
@@ -259,6 +302,47 @@ local function test_sslv2(host, port)
     table.insert(ciphers, cipher_specs:sub(pos, pos + 2))
   end
   return ssl_version == 2, ciphers
+end
+
+local function try_force_cipher(host, port, cipher)
+  local socket = get_socket(host, port)
+  if not socket then
+    return false
+  end
+  local socket_read = socket_reader(socket)
+
+  socket:send(ssl_record(CLIENT_HELLO_EXAMPLE))
+  local status, server_hello = read_ssl_record(socket_read)
+  if not status then
+    socket:close()
+    return false
+  end
+
+  local key_length = CIPHER_INFO[cipher].key_length
+  local encrypted_key_length = CIPHER_INFO[cipher].encrypted_key_length
+
+  local dummy_key = {}
+  for i=1, key_length do
+    dummy_key[i] = "\x00"
+  end
+  dummy_key = table.concat(dummy_key)
+
+  local clear_key = dummy_key:sub(1, key_length - encrypted_key_length)
+  local encrypted_key = dummy_key:sub(key_length - encrypted_key_length + 1)
+  local dummy_client_master_key = client_master_secret(cipher, clear_key, encrypted_key)
+  socket:send(ssl_record(dummy_client_master_key))
+  local status, message = read_ssl_record(socket_read)
+  socket:close()
+  if not status then
+    return false
+  end
+
+  -- Treat an error as a failure to force the cipher.
+  if #message == 3 then
+    return false
+  end
+
+  return true
 end
 
 local function format_ciphers(ciphers)
@@ -301,7 +385,21 @@ function action(host, port)
   else
     return
   end
+
   output.ciphers = format_ciphers(offered_ciphers)
+
+  local forced_ciphers = {}
+  for _, cipher in pairs(SSL_CK) do
+    if try_force_cipher(host, port, cipher) then
+      table.insert(forced_ciphers, cipher)
+    end
+  end
+  output.forced_ciphers = format_ciphers(forced_ciphers)
+  if not values_in(forced_ciphers, offered_ciphers) then
+      output.cve_2015_3197 = "yes"
+  end
+
+  output.forced_ciphers = format_ciphers(forced_ciphers)
 
   return output
 end
