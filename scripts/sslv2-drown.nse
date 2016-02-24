@@ -64,6 +64,7 @@ local SSL_CK = {
   DES_192_EDE3_CBC_WITH_MD5 = "\x07\x00\xC0",
 
   -- from OpenSSL
+  NULL_WITH_MD5 = "\x00\x00\x00",
   RC4_64_WITH_MD5 = "\x08\x00\x80",
 }
 
@@ -110,6 +111,11 @@ local CIPHER_INFO = {
     key_length = 24,
     encrypted_key_length = 24,
   },
+  ["\x00\x00\x00"] = {
+    str = "SSL2_NULL_WITH_MD5",
+    key_length = 0,
+    encrypted_key_length = 0,
+  },
   ["\x08\x00\x80"] = {
     str = "SSL2_RC4_64_WITH_MD5",
     key_length = 16,
@@ -120,7 +126,7 @@ local CIPHER_INFO = {
 local CLIENT_HELLO_EXAMPLE =
   "\x01" -- MSG-CLIENT-HELLO
   .. "\x00\x02" -- version: SSL 2.0
-  .. "\x00\x18" -- cipher spec length
+  .. "\x00\x1b" -- cipher spec length
   .. "\x00\x00" -- session ID length
   .. "\x00\x10" -- challenge length
   .. SSL_CK.DES_192_EDE3_CBC_WITH_MD5
@@ -131,6 +137,7 @@ local CLIENT_HELLO_EXAMPLE =
   .. SSL_CK.DES_64_CBC_WITH_MD5
   .. SSL_CK.RC2_128_CBC_EXPORT40_WITH_MD5
   .. SSL_CK.RC4_128_EXPORT40_WITH_MD5
+  .. SSL_CK.NULL_WITH_MD5
   .. "\xe4\xbd\x00\x00\xa4\x41\xb6\x74\x71\x2b\x27\x95\x44\xc0\x3d\xc0" -- challenge
 
 portrule = function(host, port)
