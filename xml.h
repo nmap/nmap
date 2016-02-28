@@ -151,5 +151,8 @@ int xml_depth();
 bool xml_tag_open();
 bool xml_root_written();
 
+
+char *xml_unescape(const char *str);
+
 #endif
 
