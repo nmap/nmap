@@ -325,6 +325,12 @@ match citrix-ima m|^.\0\0\0\x81\0\0\0\x01|s p/Citrix Metaframe XP IMA/ o/Windows
 # Really no idea what this is or which fields are mutable
 match citynet m|^CityNetDUTChannel\[AT3V1\]\x04\0\xa5\x0f\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0........|s p/CityNet SV.3/
 
+# Length-prefixed Protocol Buffers. This is "UPDATE_TRACK_POSITION" message sent when music is playing. Version is based on protocol version byte.
+match clementine m|^\0\0\0.\x08\x0b\x10\.\xa2\x01.\x08.|s p/Clementine music player remote control/ v/1.2/ cpe:/a:clementine-player:clementine:1.2/
+match clementine m|^\0\0\0.\x08\x0c\x10\.\xa2\x01.\x08.|s p/Clementine music player remote control/ v/1.2.1/ cpe:/a:clementine-player:clementine:1.2.1/
+match clementine m|^\0\0\0.\x08\x0d\x10\.\xa2\x01.\x08.|s p/Clementine music player remote control/ v/1.2.2 - 1.2.3/ cpe:/a:clementine-player:clementine:1.2/
+softmatch clementine m|^\0\0\0.\x08.\x10\.\xa2\x01.\x08.|s p/Clementine music player remote control/ cpe:/a:clementine-player:clementine/
+
 match clsbd m|^\0\0\0\x10ClsBoolVersion 1$| p/Cadence IC design daemon/
 match cmrcservice m|^\"\0\0\x80 \0S\0T\0A\0R\0T\0_\0H\0A\0N\0D\0S\0H\0A\0K\0E\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/CmRcService.exe/ o/Windows/ cpe:/a:microsoft:systems_management_server/ cpe:/o:microsoft:windows/a
 match cmrcservice m|^,\0\0\x80\*\0E\0R\0R\0O\0R\0_\0N\0O\0_\0A\0C\0T\0I\0V\0E\0_\0U\0S\0E\0R\0\0\0| p/Microsoft Configuration Manager Remote Control service/ i/Error: no active user/ o/Windows/ cpe:/a:microsoft:systems_management_server/ cpe:/o:microsoft:windows/a
@@ -1205,6 +1211,7 @@ match ftp m|^421 Your IP is banned, no further requests will be processed from t
 match ftp m|^220 RICOH ([A-Z 0-9]+) FTP server \(([\d.]+)\) ready\.\r\n| p/Ricoh printer ftpd/ v/$2/ i/model: $1/ cpe:/h:ricoh:$1/
 match ftp m|^220 Femitter FTP Server ready\.\r\n| p/Acritum Femitter Server ftpd/ o/Windows/ cpe:/a:acritum:femitter_server/ cpe:/o:microsoft:windows/a
 match ftp m|^421-Could not open file /var/run/bftpdutmp\r\n421 Server disabled for security reasons\.\r\n| p/Bftpd/ i/disabled/ cpe:/a:jesse_smith:bftpd/
+match ftp m|^220 Gameservers FTPD v([\d.]+)\r\n| p/Choopa GameServers.com ftpd/ v/$1/
 #(insert ftp)
 
 # These look too generic, but didn't match anything else yet
@@ -1658,6 +1665,12 @@ match intranetchat m|^\d+\0FORWARD\0\x0b\xc2c\x0c\xc1a\x9f@| p/Intranet Chat Ser
 match ipmi-advertiserd m|^\x0e\0\0\0\0\0\0$| p/SuperMicro IPMI advertiserd/ d/remote management/ cpe:/o:supermicro:intelligent_platform_management_firmware/
 
 match ipremote m|^IPremote - w([\d.]+)\r\n\0\0\0\0| p/IPsoft IPremote/ v/$1/ cpe:/a:ipsoft:ipremote:$1/
+match ipremote m|^IPremote - ([\d.]+)\n\0\0\0\0\0\0\0| p/IPsoft IPremote/ v/$1/ cpe:/a:ipsoft:ipremote:$1/
+
+# double-length-prefixed Protocol Buffers. "Propose" message.
+match ipfs m|^\0\0\0\x04\0\0(..)\0\0\1\n\x10................\x12.*\x1a.(?:P-\d+,?)+".[\w.,_-]+\*.[\w.,_-]+$|s p/InterPlanetary File System peer/
+# Sometimes only a single length prefix?
+match ipfs m|^\0\0..\n\x10................\x12.*\x1a.(?:P-\d+,?)+".[\w.,_-]+\*.[\w.,_-]+$|s p/InterPlanetary File System peer/
 
 match ipsi m|^\0\x0f\0/([\w._-]+)\0| p/Avaya $1 IPSI version/ d/PBX/
 
@@ -2318,7 +2331,7 @@ match pop3 m|^\+OK Microsoft Exchange POP3 kiszolg\xe1l\xf3 verzi\xf3 ([\d.]+) k
 match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange Server 2003 version ([\d.]+) \(([-\w_.]+)\) est pr\xeat\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/French/ h/$2/ cpe:/a:microsoft:exchange_server:2003:::fr/
 match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange version ([\d.]+) est pr\xeat\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/French/ cpe:/a:microsoft:exchange_server::::fr/
 match pop3 m|^\+OK Microsoft Exchange POP3 server verze ([\d.]+) je p\xf8ipraven\.\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/Czech/ o/Windows/ cpe:/a:microsoft:exchange_server::::cs/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xa6\xf8\xaaA\xbe\xb9\xaa\xa9\xa5\xbb ([\d.]+) \(([-\w_.]+)\) \xa5i\xa5H\xa8\xcf\xa5\xce\xa1C\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Taiwanese/ o/Windows/ h/$2/ cpe:/a:microsoft:exchange_server:2003:::zh_tw/ cpe:/o:microsoft:windows/a
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xa6\xf8\xaaA\xbe\xb9\xaa\xa9\xa5\xbb ([\d.]+) \(([-\w_.]+)\) \xa5i\xa5H\xa8\xcf\xa5\xce\xa1C\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Chinese (Traditional)/ o/Windows/ h/$2/ cpe:/a:microsoft:exchange_server:2003:::zh_tw/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK Servidor POP3 de Microsoft Exchange Server 2003 versi\xf3n ([\d.]+) \(([\w._-]+)\) listo\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Spanish/ o/Windows/ h/$2/ cpe:/a:microsoft:exchange_server:2003:::es/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK Server POP3 di Microsoft Exchange Server 2003 versione ([\w._-]+) \(([\w._-]+)\) pronto\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Italian/ o/Windows/ h/$2/ cpe:/a:microsoft:exchange_server:2003:::it/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 service ready\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/a:microsoft:exchange_server:2007/ cpe:/o:microsoft:windows/a
@@ -3460,6 +3473,7 @@ match ssh m|^SSH-([\d.]+)-Maverick_SSHD\r\n| p/Maverick sshd/ i/protocol $1/ cpe
 match ssh m|^SSH-([\d.]+)-WingFTPserver\r\n| p/Wing FTP Server sftpd/ i/protocol $1/ cpe:/a:wingftp:wing_ftp_server/
 match ssh m|^SSH-([\d.]+)-mod_sftp/([\w._-]+)\r\n| p/ProFTPD mod_sftp/ v/$2/ i/protocol $1/ cpe:/a:proftpd:proftpd:$2/
 match ssh m|^SSH-1\.99--\n| p/Huawei VRP sshd/ i/protocol 1.99/ o/VRP/ cpe:/o:huawei:vrp/
+match ssh m|^SSH-([\d.]+)-SSH Server - ([^\r\n]+)\r\n\0\0...\x14|s p/Ice Cold Apps SSH Server (com.icecoldapps.sshserver)/ o/Android/ i/protocol $1; name: $2/ cpe:/a:ice_cold_apps:ssh_server/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-SSH Server - sshd\r\n| p/SSHelper sshd (com.arachnoid.sshelper)/ i/protocol $1/ o/Android/ cpe:/a:arachnoid:sshelper/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-ConfD-([\w._-]+)\r\n| p/ConfD sshd/ v/$2/ i/protocol $1/ cpe:/a:tail-f:confd:$2/
 match ssh m|^SSH-([\d.]+)-SERVER_([\d.]+)\r\n| p/FoxGate switch sshd/ v/$2/ i/protocol $1/
@@ -3469,13 +3483,13 @@ match ssh m|^SSH-([\d.]+)-FileCOPA\r\n| p/FileCOPA sftpd/ i/protocol $1/ o/Windo
 match ssh m|^SSH-([\d.]+)-PSFTPd\. Secure FTP Server ready\r\n| p/PSFTPd/ i/protocol $1/ o/Windows/ cpe:/a:pleis:psftpd/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-NA_([\d.]+)\r\n| p/HP Network Automation/ v/$2/ i/protocol $1/ cpe:/a:hp:network_automation:$2/
 # On a Moto X. Maybe "moto" is the hostname?
-match ssh m|^SSH-([\d.]+)-SSH Server - moto\r\n| p/Ice Cold Apps SSH Server/ i/protocol $1/ o/Android/ cpe:/a:ice_cold_apps:ssh_server/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-Comware-([\d.]+)\n| p/HP Comware switch sshd/ v/$2/ i/protocol $1/ o/Comware/ cpe:/o:hp:comware:$2/
 match ssh m|^SSH-([\d.]+)-SecureLink SSH Server \(Version ([\d.]+)\)\r\n| p/SecureLink sshd/ v/$2/ i/protocol $1/ cpe:/a:securelink:securelink:$2/
 match ssh m|^SSH-([\d.]+)-WeOnlyDo-WingFTP\r\n| p/WingFTP sftpd/ i/protocol $1/ cpe:/a:wftpserver:wing_ftp_server/
 match ssh m|^SSH-([\d.]+)-MS_(\d+\.\d\d\d)\r\n| p/Microsoft Windows IoT sshd/ v/$2/ i/protocol $1/ o/Windows 10 IoT Core/ cpe:/o:microsoft:windows_10:::iot_core/
 match ssh m|^SSH-([\d.]+)-elastic-sshd\n| p/Elastic Hosts emergency SSH console/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-ZTE_SSH\.([\d.]+)\n| p|ZTE router/switch sshd| v/$2/ i/protocol $1/
+# name is not hostname, but configurable service name
 
 softmatch ssh m|^SSH-([\d.]+)-| i/protocol $1/
 
@@ -5766,6 +5780,7 @@ match upnp m|^HTTP/1\.1 200 OK\r\n.*SERVER: XboxUpnp/([\w._-]+) UPnP/([\w._-]+) 
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Linux/([\w._-]+) UPnP/([\w._-]+) SKY DLNADOC/([\w._-]+)\r\n\r\n| p/BSkyB router upnpd/ i/UPnP $2; DLNADOC $3/ d/broadband router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 # ISP-branded, could be Actiontec, ZyXEL, Westell, Motorola, Netopia, 2Wire, Cisco, Thompson.
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nDATE: .*\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) CenturyLink-TR064/([\d.]+)\r\nContent-Length: 0\r\nContent-Type: text/xml; charset=\"utf-8\"\r\nEXT:\r\n\r\n| p/CenturyLink DSL modem upnpd/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/a
+match upnp m|^HTTP/1\.1 400 Bad Request\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) CenturyLink-UPnP/([\d.]+)\r\nContent-Length: 0\r\nContent-Type: text/xml; charset=\"utf-8\"\r\nEXT:\r\n\r\n| p/CenturyLink DSL modem upnpd/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/a
 
 match uptime-agent m|^ERR\n$| p/up.time server monitor/
 # Version 5.3.0 - Is this a memory address?
@@ -6649,7 +6664,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: ENI-Web/R([\d_]+
 
 match http m|^HTTP/1\.1 403 Forbidden \( The server denies the specified Uniform Resource Locator \(URL\)\. Contact the server administrator\.  \)\r\n| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 401 Unauthorized \( The server requires authorization to fulfill the request\. Access to the Web server is denied\. Contact the server administrator\.  \)\r\n| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 400 Bad Request \( The data is invalid\.  \)\r\nVia:| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 400 Bad Request \( The data is invalid\.  \)\r\nVia:| p/Microsoft ISA Server http proxy/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 403 Forbidden \( The ISA Server denied the specified Uniform Resource Locator \(URL\)\.  \)| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 500 \( The server denied the specified Uniform Resource Locator \(URL\)\. Contact the server administrator\.  \)| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 500 \(  Connection refused \)\r\n| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
@@ -6664,9 +6679,22 @@ match http m|^HTTP/1\.1 403 Forbidden \( The server denied the specified Uniform
 match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL verweigert\. Wenden Sie sich an den Serveradministrator\.| p/Microsoft IIS httpd/ i/German/ o/Windows/ cpe:/a:microsoft:iis::::de/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 403 Forbidden \( Le serveur a refus\xc3\xa9 l'URL \(Uniform Resource Locator\) sp\xc3\xa9cifi\xc3\xa9e\. Contactez l'administrateur du serveur\.| p/Microsoft IIS httpd/ i/French/ o/Windows/ cpe:/a:microsoft:iis::::fr/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 403 Forbidden \( El servidor deneg\xc3\xb3 la direcci\xc3\xb3n URL \(Uniform Resource Locator\) especificada\. P\xc3\xb3ngase en contacto con el administrador del servidor\.| p/Microsoft IIS httpd/ i/Spanish/ o/Windows/ cpe:/a:microsoft:iis::::es/ cpe:/o:microsoft:windows/a
+
 # MS ISA Server 2000 enterprise edition on windows 2000 advanced server
-match http-proxy m|^HTTP/1\.1 502 Proxy Error \( The Uniform Resource Locator \(URL\) does not use a recognized protocol\. Either the protocol is not supported or the request was not typed correctly\. Confirm that a valid protocol is in use \(for example, HTTP for a Web request\)\.| p/Microsoft ISA Server http proxy/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( The Uniform Resource Locator \(URL\) does not use a recognized protocol\. Either the protocol is not supported or the request was not typed correctly\. Confirm that a valid protocol is in use \(for example, HTTP for a Web request\)\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( L'URL \(Uniform Resource Locator\) n'utilise pas de protocole reconnu\. Le protocole n'est pas pris en charge, ou la demande n'a pas \xc3\xa9t\xc3\xa9 saisie correctement\. V\xc3\xa9rifiez qu'un protocole valide est utilis\xc3\xa9, par exemple HTTP pour une demande Web\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::fr/ cpe:/o:microsoft:windows/a i/French/
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( La direcci\xc3\xb3n URL \(Uniform Resource Locator\) no utiliza un protocolo reconocido\. El protocolo no es compatible o la petici\xc3\xb3n no se escribi\xc3\xb3 correctamente\. Confirme que se utiliza un protocolo v\xc3\xa1lido \(por ejemplo, HTTP para una petici\xc3\xb3n de web\)\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::es/ cpe:/o:microsoft:windows/a i/Spanish/
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( O URL n\xc3\xa3o usa um protocolo reconhecido\. N\xc3\xa3o h\xc3\xa1 suporte para o protocolo ou a solicita\xc3\xa7\xc3\xa3o n\xc3\xa3o foi digitada corretamente\. Confirme se um protocolo v\xc3\xa1lido est\xc3\xa1 em uso \(por exemplo, HTTP para uma solicita\xc3\xa7\xc3\xa3o da Web\)\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::pt/ cpe:/o:microsoft:windows/a i/Portuguese/
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( Die URL \(Uniform Resource Locator\) verwendet ein unbekanntes Protokoll\. Entweder wird das Protokoll nicht unterst\xc3\xbctzt, oder die Anforderung wurde nicht richtig eingegeben\. Vergewissern Sie sich, dass ein g\xc3\xbcltiges Protokoll, wie z\.B\. HTTP f\xc3\xbcr eine Webanforderung, verwendet wird\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::de/ cpe:/o:microsoft:windows/a i/German/
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( L'Uniform Resource Locator \(URL\) non utilizza un protocollo conosciuto\. Il protocollo non \xc3\xa8 supportato oppure la richiesta non \xc3\xa8 stata digitata correttamente\. Confermare la validit\xc3\xa0 del protocollo in uso \(ad esempio, HTTP per una richiesta Web\)\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::it/ cpe:/o:microsoft:windows/a i/Italian/
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( URL-\xd0\xb0\xd0\xb4\xd1\x80\xd0\xb5\xd1\x81 \xd0\xbd\xd0\xb5 \xd0\xb8\xd1\x81\xd0\xbf\xd0\xbe\xd0\xbb\xd1\x8c\xd0\xb7\xd1\x83\xd0\xb5\xd1\x82 \xd0\xbf\xd0\xbe\xd0\xb4\xd0\xb4\xd0\xb5\xd1\x80\xd0\xb6\xd0\xb8\xd0\xb2\xd0\xb0\xd0\xb5\xd0\xbc\xd1\x8b\xd0\xb9 \xd0\xbf\xd1\x80\xd0\xbe\xd1\x82\xd0\xbe\xd0\xba\xd0\xbe\xd0\xbb\. \xd0\x9f\xd1\x80\xd0\xbe\xd1\x82\xd0\xbe\xd0\xba\xd0\xbe\xd0\xbb \xd0\xbd\xd0\xb5 \xd0\xbf\xd0\xbe\xd0\xb4\xd0\xb4\xd0\xb5\xd1\x80\xd0\xb6\xd0\xb8\xd0\xb2\xd0\xb0\xd0\xb5\xd1\x82\xd1\x81\xd1\x8f, \xd0\xbb\xd0\xb8\xd0\xb1\xd0\xbe \xd0\xb7\xd0\xb0\xd0\xbf\xd1\x80\xd0\xbe\xd1\x81 \xd0\xb2\xd0\xb2\xd0\xb5\xd0\xb4\xd0\xb5\xd0\xbd \xd0\xbd\xd0\xb5\xd0\xbf\xd1\x80\xd0\xb0\xd0\xb2\xd0\xb8\xd0\xbb\xd1\x8c\xd0\xbd\xd0\xbe\. \xd0\xa3\xd0\xb1\xd0\xb5\xd0\xb4\xd0\xb8\xd1\x82\xd0\xb5\xd1\x81\xd1\x8c, \xd1\x87\xd1\x82\xd0\xbe \xd0\xb8\xd1\x81\xd0\xbf\xd0\xbe\xd0\xbb\xd1\x8c\xd0\xb7\xd1\x83\xd0\xb5\xd1\x82\xd1\x81\xd1\x8f \xd0\xb2\xd0\xb5\xd1\x80\xd0\xbd\xd1\x8b\xd0\xb9 \xd0\xbf\xd1\x80\xd0\xbe\xd1\x82\xd0\xbe\xd0\xba\xd0\xbe\xd0\xbb \(\xd0\xbd\xd0\xb0\xd0\xbf\xd1\x80\xd0\xb8\xd0\xbc\xd0\xb5\xd1\x80 HTTP \xd0\xb4\xd0\xbb\xd1\x8f \xd0\xb2\xd0\xb5\xd0\xb1-\xd0\xb7\xd0\xb0\xd0\xbf\xd1\x80\xd0\xbe\xd1\x81\xd0\xbe\xd0\xb2\)\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::ru/ cpe:/o:microsoft:windows/a i/Russian/
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( \xe7\xbb\x9f\xe4\xb8\x80\xe8\xb5\x84\xe6\xba\x90\xe5\xae\x9a\xe4\xbd\x8d\xe5\x99\xa8\(URL\)\xe6\x9c\xaa\xe4\xbd\xbf\xe7\x94\xa8\xe5\x8f\xaf\xe4\xbb\xa5\xe8\xaf\x86\xe5\x88\xab\xe7\x9a\x84\xe5\x8d\x8f\xe8\xae\xae\xe3\x80\x82\xe5\x8d\x8f\xe8\xae\xae\xe4\xb8\x8d\xe5\x8f\x97\xe6\x94\xaf\xe6\x8c\x81\xe6\x88\x96\xe9\x94\xae\xe5\x85\xa5\xe7\x9a\x84\xe8\xaf\xb7\xe6\xb1\x82\xe4\xb8\x8d\xe6\xad\xa3\xe7\xa1\xae\xe3\x80\x82\xe8\xaf\xb7\xe7\xa1\xae\xe8\xae\xa4\xe6\x89\x80\xe4\xbd\xbf\xe7\x94\xa8\xe7\x9a\x84\xe5\x8d\x8f\xe8\xae\xae\xe6\x9c\x89\xe6\x95\x88\(\xe4\xbe\x8b\xe5\xa6\x82\xef\xbc\x8c\xe4\xb8\xba Web \xe8\xaf\xb7\xe6\xb1\x82\xe4\xbd\xbf\xe7\x94\xa8 HTTP\)\xe3\x80\x82  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server Web Proxy/ i/Chinese (Simplified)/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::zh/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( \xe7\xb5\xb1\xe4\xb8\x80\xe8\xb3\x87\xe6\xba\x90\xe5\xae\x9a\xe4\xbd\x8d\xe5\x99\xa8 \(URL\) \xe6\xb2\x92\xe6\x9c\x89\xe4\xbd\xbf\xe7\x94\xa8\xe5\xb7\xb2\xe8\xbe\xa8\xe8\xad\x98\xe7\x9a\x84\xe9\x80\x9a\xe8\xa8\x8a\xe5\x8d\x94\xe5\xae\x9a\xe3\x80\x82\xe5\xa6\x82\xe6\x9e\x9c\xe4\xb8\x8d\xe6\x98\xaf\xe4\xb8\x8d\xe6\x94\xaf\xe6\x8f\xb4\xe9\x80\x9a\xe8\xa8\x8a\xe5\x8d\x94\xe5\xae\x9a\xef\xbc\x8c\xe5\xb0\xb1\xe6\x98\xaf\xe9\x8d\xb5\xe5\x85\xa5\xe7\x9a\x84\xe8\xa6\x81\xe6\xb1\x82\xe4\xb8\x8d\xe6\xad\xa3\xe7\xa2\xba\xe3\x80\x82\xe8\xab\x8b\xe7\xa2\xba\xe8\xaa\x8d\xe4\xbd\xbf\xe7\x94\xa8\xe4\xb8\xad\xe7\x9a\x84\xe9\x80\x9a\xe8\xa8\x8a\xe5\x8d\x94\xe5\xae\x9a\xe6\x9c\x89\xe6\x95\x88 \(\xe4\xbe\x8b\xe5\xa6\x82 Web \xe8\xa6\x81\xe6\xb1\x82\xe7\x9a\x84 HTTP\)\xe3\x80\x82  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server Web Proxy/ i/Chinese (Traditional)/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::zh_tw/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( URL\(Uniform Resource Locator\)\xec\x97\x90\xec\x84\x9c \xec\x9d\xb8\xec\x8b\x9d\xeb\x90\x9c \xed\x94\x84\xeb\xa1\x9c\xed\x86\xa0\xec\xbd\x9c\xec\x9d\x84 \xec\x82\xac\xec\x9a\xa9\xed\x95\x98\xec\xa7\x80 \xec\x95\x8a\xec\x8a\xb5\xeb\x8b\x88\xeb\x8b\xa4\. \xec\xa7\x80\xec\x9b\x90\xeb\x90\x98\xec\xa7\x80 \xec\x95\x8a\xeb\x8a\x94 \xed\x94\x84\xeb\xa1\x9c\xed\x86\xa0\xec\xbd\x9c\xec\x9d\xb4\xea\xb1\xb0\xeb\x82\x98 \xec\x9e\x85\xeb\xa0\xa5\xed\x95\x9c \xec\x9a\x94\xec\xb2\xad\xec\x9d\xb4 \xec\x98\xac\xeb\xb0\x94\xeb\xa5\xb4\xec\xa7\x80 \xec\x95\x8a\xec\x8a\xb5\xeb\x8b\x88\xeb\x8b\xa4\. \xec\x98\xac\xeb\xb0\x94\xeb\xa5\xb8 \xed\x94\x84\xeb\xa1\x9c\xed\x86\xa0\xec\xbd\x9c\xec\x9d\x84 \xec\x82\xac\xec\x9a\xa9\xed\x95\x98\xea\xb3\xa0 \xec\x9e\x88\xeb\x8a\x94\xec\xa7\x80 \xed\x99\x95\xec\x9d\xb8\xed\x95\x98\xec\x8b\xad\xec\x8b\x9c\xec\x98\xa4\. \xec\x98\x88\xeb\xa5\xbc \xeb\x93\xa4\xec\x96\xb4 \xec\x9b\xb9 \xec\x9a\x94\xec\xb2\xad\xec\x9d\x98 \xea\xb2\xbd\xec\x9a\xb0\xec\x97\x90\xeb\x8a\x94 HTTP\xec\x9e\x85\xeb\x8b\x88\xeb\x8b\xa4\.  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server Web Proxy/ i/Korean/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::ko/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 502 Proxy Error \( Uniform Resource Locator \(URL\) \xe8\xaa\x8d\xe8\xad\x98\xe3\x81\x95\xe3\x82\x8c\xe3\x81\xa6\xe3\x81\x84\xe3\x82\x8b\xe3\x83\x97\xe3\x83\xad\xe3\x83\x88\xe3\x82\xb3\xe3\x83\xab\xe3\x82\x92\xe4\xbd\xbf\xe7\x94\xa8\xe3\x81\x97\xe3\x81\xa6\xe3\x81\x84\xe3\x81\xbe\xe3\x81\x9b\xe3\x82\x93\xe3\x80\x82\xe3\x83\x97\xe3\x83\xad\xe3\x83\x88\xe3\x82\xb3\xe3\x83\xab\xe3\x81\x8c\xe3\x82\xb5\xe3\x83\x9d\xe3\x83\xbc\xe3\x83\x88\xe3\x81\x95\xe3\x82\x8c\xe3\x81\xa6\xe3\x81\x84\xe3\x81\xaa\xe3\x81\x84\xe3\x81\x8b\xe3\x80\x81\xe8\xa6\x81\xe6\xb1\x82\xe3\x81\x8c\xe6\xad\xa3\xe3\x81\x97\xe3\x81\x8f\xe5\x85\xa5\xe5\x8a\x9b\xe3\x81\x95\xe3\x82\x8c\xe3\x81\xbe\xe3\x81\x9b\xe3\x82\x93\xe3\x81\xa7\xe3\x81\x97\xe3\x81\x9f\xe3\x80\x82\xe6\x9c\x89\xe5\x8a\xb9\xe3\x81\xaa\xe3\x83\x97\xe3\x83\xad\xe3\x83\x88\xe3\x82\xb3\xe3\x83\xab \(Web \xe8\xa6\x81\xe6\xb1\x82\xe3\x81\xab\xe3\x81\xaf HTTP \xe3\x81\xaa\xe3\x81\xa9\) \xe3\x81\x8c\xe4\xbd\xbf\xe7\x94\xa8\xe3\x81\x95\xe3\x82\x8c\xe3\x81\xa6\xe3\x81\x84\xe3\x82\x8b\xe3\x81\x93\xe3\x81\xa8\xe3\x82\x92\xe7\xa2\xba\xe8\xaa\x8d\xe3\x81\x97\xe3\x81\xa6\xe3\x81\x8f\xe3\x81\xa0\xe3\x81\x95\xe3\x81\x84\xe3\x80\x82  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server::::ja/ cpe:/o:microsoft:windows/a i/Japanese/
+
 match http-proxy m|^HTTP/1\.1 502 Proxy Error \( L'URL \(Uniform Resource Locator\) n'utilise pas de protocole reconnu\. Soit le protocole n'est pas pris en charge, soit la demande n'a pas \xe9t\xe9 tap\xe9e correctement\.| p/Microsoft ISA Server Web Proxy/ i/French/ o/Windows/ cpe:/a:microsoft:isa_server::::fr/ cpe:/o:microsoft:windows/a
+softmatch http-proxy m|^HTTP/1\.1 502 Proxy Error \( [^\r\n]+  \)\r\nVia: 1\.1 ([\w.-]+)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ h/$1/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 407 Proxy Authentication Required \( The ISA Server requires authorization to fulfill the request\. Access to the Web Proxy service is denied\.  \)\r\n| p/Microsoft ISA Server Web Proxy/ i/Proxy auth required/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 407 Proxy Authentication Required \( El servidor ISA requiere autorizaci\xc3\xb3n para completar la petici\xc3\xb3n\. Acceso denegado al servicio de proxy web\.  \)\r\n| p/Microsoft ISA Server Web Proxy/ i/Spanish; Proxy auth required/ o/Windows/ cpe:/a:microsoft:isa_server::::es/ cpe:/o:microsoft:windows/a
 match http-proxy m|^IsException=TRUE\r\nExceptionMsg=| p/Microsoft ISA Server Web Proxy/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
@@ -9202,6 +9230,7 @@ match http m|^<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4\.01 Transitional//EN'><h
 match http m|^HTTP/1\.0 200 OK\r\nServer: pilight\r\n| p/pilight home automation webGUI/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nX_Language: .*\r\nContent-Type: text/html\r\nServer: Embedthis-http\r\nLocation: https://([^/]+)/start\.html\n\r\n| p/Embedthis httpd/ i/Dell iDRAC 7/ d/remote management/ h/$1/ cpe:/h:dell:idrac7/
 match http m|^HTTP/1\.[01] 30[12] Moved .*\r\nServer: Mbedthis-Appweb/([\d.]+)\r\nLocation: https://([^/]+)/start\.html\n\r\n| p/Embedthis Appweb httpd/ v/$1/ i/Dell iDRAC/ d/remote management/ h/$2/ cpe:/a:mbedthis:appweb:$1/
+match http m|^HTTP/1\.[01] 30[12] Moved [^\r\n]+\r\n.*\r\nLocation: https://([^/]+)/start\.html\n\r.*\nETag: [^\r\n]+ ([A-Z]+)\r\n|s p/Dell iDRAC http admin/ i/time zone: $1/ d/remote management/ h/$2/
 match http m|^HTTP/1\.[01] 30[12] Moved [^\r\n]+\r\n.*\r\nLocation: https://([^/]+)/start\.html\n\r\n|s p/Dell iDRAC http admin/ d/remote management/ h/$1/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nContent-Type: text/html\r\nContent-Length: 165\r\nLocation: http://oishare/DCIM\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\r\n<HTML><HEAD><TITLE>301 Moved Permanently</TITLE></HEAD>\r\n<BODY><H1>301 Moved Permanently</H1>\r\n\r\n</BODY></HTML>\r\n| p/Olympus camera httpd/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer:  \r\nCache-Control: no-cache, private\r\nPragma: no-cache\r\nExpires: .*\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\"\r\n\"http://www\.w3\.org/TR/html4/loose\.dtd\">\r\n<html>\r\n<head>\r\n<title>(NWA[\w-]+)</title>| p/ZyXEL $1 http config/ d/WAP/ cpe:/h:zyxel:$1/a
@@ -9496,6 +9525,13 @@ match http m|^HTTP/1\.0 200 OK\r\n.*X-Syncthing-Id: ((?:\w+-){7}\w+)\r\nX-Syncth
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Digest realm="cpe@zte\.com", qop="auth", nonce="[a-f0-9]{32}", opaque="T3BhcXVlIHN0cmluZyBmb3IgQUNTIEF1dGhlbnRpY2F0aW9u", Algorithm="MD5"\r\n| p/ZTE Auto-Configuration Servers (ACS) http login/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\ncache-control: no-cache\r\nContent-Length: 1573\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=9A69859878EF80D2D98913D0A75EA0CD; Path=/; Secure; HttpOnly\r\nContent-Type: text/html;charset=UTF-8\r\npragma: no-cache\r\n.*\r\n<html>\r\n<head>\r\n<title>VMware&nbsp;Horizon View</title>\r\n|s p/VMware Horizon View/ cpe:/a:vmware:horizon_view/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<\?xml version="1\.0" encoding="UTF-8"\?>\r\n<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1\.0 Strict//EN" "http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd">\r\n<html xmlns="http://www\.w3\.org/1999/xhtml">\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\r\n<meta http-equiv="Cache-Control" content="no-cache"/>\r\n<meta name="viewport" content="width=device-width; initial-scale=1\.0; minimum-scale=1\.0; maximum-scale=2\.0"/>\r\n<meta name="MobileOptimized" content="260"/>\r\n<title>zapya download</title>| p/Zapya file transfer app/ cpe:/a:dewmobile:zapya/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset="utf-8"\r\nContent-Encoding: gzip\r\nContent-Length: 1039\r\nlast-modified: .*\r\n\r\n\x1f\x8b\x08\x08....\0\x03index\.html\0|s p/HP Storage Management Utility/ d/storage-misc/
+match http m|^HTTP/1\.1 302 Moved Temporarily\r\nServer: \r\nDate: .*\r\nContent-Type: text/html\r\nContent-Length: 0\r\nConnection: close\r\nETag: "\w+-\w+-\w+"\r\nPragma: no-cache\r\nLocation: /php/login\.php\r\nCache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0\r\nExpires: Thu, 19 Nov 1981 08:52:00 GMT\r\nX-FRAME-OPTIONS: SAMEORIGIN\r\nSet-Cookie: PHPSESSID=\w+; path=/; HttpOnly\r\n\r\n| p/Palo Alto firewall http admin/ d/security-misc/
+match http m|^HTTP/1\.1 302 \r\nContent-Type: text/html\r\nConnection: Close\r\nLOCATION: http://speedport\.ip/html/login/index\.html\r\nContent-Length: 0\r\n\r\n| p/Telekom Speedport http config/ d/broadband router/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nLast-Modified: .*\r\nEtag: "[a-f\d]+\.\d+"\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nConnection: close\r\nAccept-Ranges: bytes\r\n\r\n<!doctype html>\n<html lang="en">\n    <head>\n {8}<meta charset="utf-8">\n {8}<title>Z-Way UI selection</title>| p/Z-Way home automation controller/ cpe:/a:z-wave.me:z-way/ d/specialized/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: Arcadyan httpd 1\.0\r\nContent-type: text/html\r\nConnection: close\r\n\r\n| p/Arcadyan broadband router httpd/ d/broadband router/
+match http m|^HTTP/1\.[01] 302 Hotspot redirect\r\nCache-Control: no-cache\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nDate: .*\r\nExpires: 0\r\nLocation: .*\r\n\r\n| p/MikroTik HotSpot/ o/RouterOS/ cpe:/a:mikrotik:hotspot/ cpe:/o:mikrotik:routeros/
+match http m|^HTTP/1\.1 404 Not Found\r\nServer: HDHomeRun/([\d.]+)\r\nConnection: close\r\nContent-Type: text/html; charset="utf-8"\r\n.*<div class="T TE">HDHomeRun RECORD</div>|s p/SiliconDust HDHomeRun RECORD http config/ v/$1/
 
 #(insert http)
 
@@ -10444,6 +10480,8 @@ match upnp m=^HTTP/1\.1 404 Not Found\r\nSERVER: Linux/((2\.[46]\.\d+|\d\.\d+)\S
 match upnp m=HTTP/1\.0 404 Not Found\r\nSERVER: TP-LINK (?:Portable )?Wireless (?:(?:Lite )?(?:N|G) (?:3G(?:/4G)? )?)?(?:Dual Band |Nano )?(?:Gigabit )?(?:AP|Router|Access Point|Range Extender) ([\w /+-]+), UPnP/([\d.]+)\r\n= p/TP-LINK $1 WAP upnpd/ i/UPnP $2/ d/WAP/ cpe:/h:tp-link:$1/a
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Linux, UPnP/([\d.]+), (DAP-\d+) Ver ([\d.]+)\r\n| p/D-Link $2 WAP upnpd/ v/$3/ i/UPnP $1/ cpe:/h:dlink:$2/a
 match upnp m|^HTTP/1\.1 412 Precondition Failed\r\nDate: .*\r\nContent-Length: 0\r\nConnection: close\r\nServer: ([^,]+), UPnP/([\d.]+) DLNADOC/([\d.]+), KooRaRoo Media Server/([\d.]+)\r\n\r\n| p/KooRaRoo upnpd/ v/$4/ i/UPnP $2; DLNADOC $3/ o/$1/ cpe:/a:shv-tal:kooraroo:$4/
+# Unsure of device type, have seen this one on P6 phone.
+match upnp m|^HTTP/1\.1 400 Bad Request\r\nSERVER: Linux/([\d.]+)-\w+-\w+ UPnP/([\d.]+) HUAWEI_iCOS/iCOS V1R1C00\r\nCONNECTION: close\r\nCONTENT-LENGTH: 50\r\nCONTENT-TYPE: text/html\r\n\r\n<html><body><h1>400 Bad Request</h1></body></html>| p/Huawei iCOS upnpd/ i/UPnP $2/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/a
 
 softmatch upnp m|^HTTP/1.[01] \d\d\d .*\r\nServer:[^\r\n]*UPnP/1.0|si
 
@@ -10902,7 +10940,7 @@ match http m|^<head><title>400 Bad Request</title></head>\r\n<h1>400 Bad Request
 match http m|^HTTP/1\.0 404 Not Found\r\n\r\n$| p/XBT BitTorrent tracker http interface/
 match http m|^HTTP/1\.1 400 Bad Request\n\n$| p/Adaptec Storage Manager Agent httpd/
 match http m|^HTTP/1\.1 406 Not Acceptable\r\n.*<blockquote>\n<TABLE border=0 cellPadding=1 width=\"80%\">\n<TR><TD>\n<FONT face=\"Helvetica\">\n<big>Request Error \(unsupported_protocol\)</big>\n<BR>\n<BR>\n</FONT>|s p/Dreambox httpd/ d/media device/
-match http m|^HTTP/1\.1 400 Bad Request \( The data is invalid\.  \)\r\n| p/Microsoft ISA httpd/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
+match http-proxy m|^HTTP/1\.1 400 Bad Request \( The data is invalid\.  \)\r\n| p/Microsoft ISA Server http proxy/ o/Windows/ cpe:/a:microsoft:isa_server/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html; charset=UTF-8\r\nPragma: no-cache\r\nConnection: close\r\nDate: .*\r\n\r\n<HTML><HEAD><TITLE>400 Bad Request</TITLE></HEAD>\r\n<BODY><H1>400 Bad Request</H1>\r\nThe request could not be understood by the server due to malformed syntax\r\n</BODY></HTML>$| p/Trend Micro CSC module for Cisco ASA 5510 firewall httpd/ cpe:/h:cisco:asa_5510/a
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nError 400: Bad Request\nCan not parse request: \[OPTIONS\]| p/TomTom httpd/
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nDate: .*\r\nConnection: close\r\nServer: Apache\r\n\r\n| p/Apache Tomcat httpd/ cpe:/a:apache:tomcat/
@@ -10998,6 +11036,8 @@ match rpcbind m|^\x80\0\0\x14r\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0\x
 match rpcbind m|^\x80\0\0\x18r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
 # AUTH_DH, apparently used by Veeam?
 match rpcbind m|^\x80\0\0\x18r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\x03\0\0\0\0\0\0\0\0|
+
+match rtdscchcch m|^\x03\x11\0\x02V1\xec\xe7\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xdd\0\x04\0\0| p/SIX Market Data Feed (MDF)/ cpe:/a:six_group:market_data_feed/
 
 # The following matchline commented out as it is actually a match for a TLS
 # negotiation error message (15 03 01 00 02 02 0a) - http://seclists.org/nmap-dev/2010/q2/465
@@ -12056,15 +12096,15 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/
 
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/ cpe:/o:apple:mac_os_x:10.6/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/ cpe:/o:apple:mac_os_x:10.6/
 
 # Patched version of OS X 10.5 may match these too... wait for corrections
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\0\0=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/
 
-match afp m=^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/ cpe:/o:apple:mac_os_x:10.6/
+match afp m=^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5 - 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/ cpe:/o:apple:mac_os_x:10.6/
 match afp m|^\x01\x03\0\x80........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ o/Mac OS X/ h/$2/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.5/
 
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver=s p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.6; $2/ o/Mac OS X/ h/$3/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/
 
 # Flags \x8f\xfb.
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*AirPort.*AFP3\.2|s p|Apple Airport Extreme/Time Capsule AFP| i/name: $1; protocol 3.2 WAP/ cpe:/h:apple:airport_extreme/
@@ -12075,15 +12115,15 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.2; Mac OS X 10.3 - 10.5/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 
 # Flags \x9f\xf3
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.9 - 10.10; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x:10.10/ cpe:/o:apple:mac_os_x:10.9/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.9 - 10.11; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x:10.11/ cpe:/o:apple:mac_os_x:10.10/ cpe:/o:apple:mac_os_x:10.9/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+).*?VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03|s p/Apple AFP/ i/name: $1; protocol 3.4; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x/a
 
 # Flags \x9f\xfb.
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Xserve\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Xserve/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(iMac|Mac(?:mini|Pro|Book(?:Air|Pro)?)\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
 
 softmatch afp m|^\x01\x03\0\0........\0\0\0\0.*AFP|s
 
@@ -12217,7 +12257,7 @@ match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
 Probe TCP SSLv23SessionReq q|\x80\x9e\x01\x03\x01\x00u\x00\x00\x00 \x00\x00f\x00\x00e\x00\x00d\x00\x00c\x00\x00b\x00\x00:\x00\x009\x00\x008\x00\x005\x00\x004\x00\x003\x00\x002\x00\x00/\x00\x00\x1b\x00\x00\x1a\x00\x00\x19\x00\x00\x18\x00\x00\x17\x00\x00\x16\x00\x00\x15\x00\x00\x14\x00\x00\x13\x00\x00\x12\x00\x00\x11\x00\x00\n\x00\x00\t\x00\x00\x08\x00\x00\x06\x00\x00\x05\x00\x00\x04\x00\x00\x03\x07\x00\xc0\x06\x00@\x04\x00\x80\x03\x00\x80\x02\x00\x80\x01\x00\x80\x00\x00\x02\x00\x00\x01\xe4i<+\xf6\xd6\x9b\xbb\xd3\x81\x9f\xbf\x15\xc1@\xa5o\x14,M \xc4\xc7\xe0\xb6\xb0\xb2\x1f\xf9)\xe8\x98|
 
 rarity 8
-ports 443,444,465,548,636,989,990,992,993,994,995,1241,1311,2000,4444,5550,7210,7272,8009,8194,8443,9001
+ports 443,444,465,548,636,989,990,992,993,994,995,1241,1311,2000,4433,4444,5550,7210,7272,8009,8194,8443,9001
 fallback GetRequest
 
 # SSLv2 ServerHello
@@ -12790,6 +12830,7 @@ match upnp m=^HTTP/1\.0 \d\d\d .*\r\nSERVER: (?:TP-LINK )?Wireless (?:N )?(?:Rou
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nServer: FreeBSD/([\w._-]+), UPnP/1\.0, FUPPES/([\w._-]+)\r\n\r\n|s p/Free UPnP Entertainment Service/ v/$2/ i/FreeBSD $1/ o/FreeBSD/ cpe:/a:ulrich_voelkel:fuppes:$2/ cpe:/o:freebsd:freebsd:$1/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nServer: Linux/([\w._-]+), UPnP/1\.0, FUPPES/([\w._-]+)\r\n\r\n|s p/Free UPnP Entertainment Service/ v/$2/ i/Linux $1/ o/Linux/ cpe:/a:ulrich_voelkel:fuppes:$2/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nServer: (\w+)/([\w._-]+), UPnP/1\.0, FUPPES/([\w._-]+)\r\n\r\n|s p/Free UPnP Entertainment Service/ v/$3/ o/$1 $2/ cpe:/a:ulrich_voelkel:fuppes:$3/
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/(([\d.]+)-[\d.]+) UPnP/([\d.]+) Evolution Media Server DLNADOC/([\d.]+)\r\n|s p/Cisco Evolution Media Server upnpd/ i/UPnP $3; DLNADOC $4; Linux $1/ d/media device/ o/Linux $2/ cpe:/a:cisco:evolution_media_server/ cpe:/o:linux:linux_kernel:$1/a
 
 match vnc-http m|^HTTP/1\.0 404 Not Found\r?\n\r?\n<HTML>\n  <HEAD><TITLE>404 Not Found</TITLE></HEAD>\n  <BODY>\n    <H1>Not Found</H1>\n    The requested file could not be found\.\n  </BODY>\n</HTML>\n| p/TightVNC/ cpe:/a:tightvnc:tightvnc/a
 
