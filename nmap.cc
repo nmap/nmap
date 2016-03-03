@@ -1819,7 +1819,7 @@ int nmap_main(int argc, char *argv[]) {
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
 
-  if (!o.append_output) {
+  if (!o.resuming) {
     /* Brief info in case they forget what was scanned */
     char *xslfname = o.XSLStyleSheet();
     xml_start_document("nmaprun");
