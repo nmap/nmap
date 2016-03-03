@@ -424,9 +424,10 @@ int xml_close_pi() {
 /* Open a start tag, like "<name". The tag must be later closed with
    xml_close_start_tag or xml_close_empty_tag. Usually the tag is closed
    after writing some attributes. */
-int xml_open_start_tag(const char *name) {
+int xml_open_start_tag(const char *name, const bool write) {
   assert(!xml.tag_open);
-  log_write(LOG_XML, "<%s", name);
+  if (write)
+    log_write(LOG_XML, "<%s", name);
   xml.element_stack.push_back(name);
   xml.tag_open = true;
   xml.root_written = true;
@@ -434,9 +435,10 @@ int xml_open_start_tag(const char *name) {
   return 0;
 }
 
-int xml_close_start_tag() {
+int xml_close_start_tag(const bool write) {
   assert(xml.tag_open);
-  log_write(LOG_XML, ">");
+  if(write)
+    log_write(LOG_XML, ">");
   xml.tag_open = false;
 
   return 0;
@@ -454,10 +456,10 @@ int xml_close_empty_tag() {
   return 0;
 }
 
-int xml_start_tag(const char *name) {
-  if (xml_open_start_tag(name) < 0)
+int xml_start_tag(const char *name, const bool write) {
+  if (xml_open_start_tag(name, write) < 0)
     return -1;
-  if (xml_close_start_tag() < 0)
+  if (xml_close_start_tag(write) < 0)
     return -1;
 
   return 0;

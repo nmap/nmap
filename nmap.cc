@@ -1856,6 +1856,8 @@ int nmap_main(int argc, char *argv[]) {
     xml_attribute("level", "%d", o.debugging);
     xml_close_empty_tag();
     xml_newline();
+  } else {
+    xml_start_tag("nmaprun", false);
   }
 
   std::string command;
