@@ -181,7 +181,7 @@ class NmapOps {
   /* Whether we have pcap functions (can be false on Windows). */
   bool have_pcap;
   int debugging;
-  int resuming;
+  bool resuming;
 
 #define PACKET_SEND_NOPREF 1
 #define PACKET_SEND_ETH_WEAK 2
