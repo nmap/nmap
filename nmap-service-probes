@@ -13326,7 +13326,7 @@ match srcds m|^\n\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/srcds game server/
 ##############################NEXT PROBE##############################
 Probe UDP Sqlping q|\x02|
 rarity 6
-ports 1434
+ports 1434,19131-19133
 match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w{2,3};Version;([\d\.]+);np;.+;tcp;(\d{1,5});| p/Microsoft SQL Server/ v/$2/ i/ServerName: $1; TCPPort: $3/ o/Windows/ cpe:/a:microsoft:sql_server:$2/ cpe:/o:microsoft:windows/a
 match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w{2,3};Version;([\d\.]+);tcp;(\d{1,5});np;.+;$| p/Microsoft SQL Server/ v/$2/ i/ServerName: $1; TCPPort: $3/ o/Windows/ cpe:/a:microsoft:sql_server:$2/ cpe:/o:microsoft:windows/a
 match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w{2,3};Version;([\d\.]+);tcp;(\d{1,5});;| p/Microsoft SQL Server/ v/$2/ i/ServerName: $1; TCPPort: $3/ o/Windows/ cpe:/a:microsoft:sql_server:$2/ cpe:/o:microsoft:windows/a
