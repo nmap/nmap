@@ -1,6 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE][GH#320] Add STARTTLS support to sslv2 to enable SSLv2 detection 
+o [NSE][GH#314] Fix naming of SSL2_RC2_128_CBC_WITH_MD5 and
+  SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 ciphers in sslv2 in order to match the
+  draft specification from Mozilla. [Bertrand Bonnefoy-Claudet]
+
+o [NSE][GH#320] Add STARTTLS support to sslv2 to enable SSLv2 detection
   against services that are not TLS encrypted by default but that support
   post connection upgrade. This will enable more comprehensive detection
   of SSLv2 and DROWN (CVE-2016-0800) attack oracles. [Tom Sellers]

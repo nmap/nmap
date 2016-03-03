@@ -19,20 +19,20 @@ supports.
 -- |   ciphers:
 -- |     SSL2_DES_192_EDE3_CBC_WITH_MD5
 -- |     SSL2_IDEA_128_CBC_WITH_MD5
--- |     SSL2_RC2_CBC_128_CBC_WITH_MD5
+-- |     SSL2_RC2_128_CBC_WITH_MD5
 -- |     SSL2_RC4_128_WITH_MD5
 -- |     SSL2_DES_64_CBC_WITH_MD5
--- |     SSL2_RC2_CBC_128_CBC_WITH_MD5
+-- |     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
 -- |_    SSL2_RC4_128_EXPORT40_WITH_MD5
 --@xmloutput
 --<elem>SSLv2 supported</elem>
 --<table key="ciphers">
 --  <elem>SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
 --  <elem>SSL2_IDEA_128_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC2_CBC_128_CBC_WITH_MD5</elem>
+--  <elem>SSL2_RC2_128_CBC_WITH_MD5</elem>
 --  <elem>SSL2_RC4_128_WITH_MD5</elem>
 --  <elem>SSL2_DES_64_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC2_CBC_128_CBC_WITH_MD5</elem>
+--  <elem>SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
 --  <elem>SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
 --</table>
 
@@ -52,8 +52,8 @@ local ssl_ciphers = {
   -- inspired by Wireshark's 'epan/dissectors/packet-ssl-utils.h'
   [0x010080] = "SSL2_RC4_128_WITH_MD5",
   [0x020080] = "SSL2_RC4_128_EXPORT40_WITH_MD5",
-  [0x030080] = "SSL2_RC2_CBC_128_CBC_WITH_MD5",
-  [0x040080] = "SSL2_RC2_CBC_128_CBC_WITH_MD5",
+  [0x030080] = "SSL2_RC2_128_CBC_WITH_MD5",
+  [0x040080] = "SSL2_RC2_128_CBC_EXPORT40_WITH_MD5",
   [0x050080] = "SSL2_IDEA_128_CBC_WITH_MD5",
   [0x060040] = "SSL2_DES_64_CBC_WITH_MD5",
   [0x0700c0] = "SSL2_DES_192_EDE3_CBC_WITH_MD5",
@@ -86,7 +86,7 @@ action = function(host, port)
   local timeout = stdnse.get_timeout(host, 10000, 5000)
 
   -- Create socket.
-  local status, sock, err
+  local status, socket, err
   local starttls = sslcert.getPrepareTLSWithoutReconnect(port)
   if starttls then
     status, socket = starttls(host, port)
@@ -116,11 +116,11 @@ action = function(host, port)
   .. "\x00\x10" -- challenge length (16)
   .. "\x07\x00\xc0" -- SSL2_DES_192_EDE3_CBC_WITH_MD5
   .. "\x05\x00\x80" -- SSL2_IDEA_128_CBC_WITH_MD5
-  .. "\x03\x00\x80" -- SSL2_RC2_CBC_128_CBC_WITH_MD5
+  .. "\x03\x00\x80" -- SSL2_RC2_128_CBC_WITH_MD5
   .. "\x01\x00\x80" -- SSL2_RC4_128_WITH_MD5
   .. "\x08\x00\x80" -- SSL2_RC4_64_WITH_MD5
   .. "\x06\x00\x40" -- SSL2_DES_64_CBC_WITH_MD5
-  .. "\x04\x00\x80" -- SSL2_RC2_CBC_128_CBC_WITH_MD5
+  .. "\x04\x00\x80" -- SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
   .. "\x02\x00\x80" -- SSL2_RC4_128_EXPORT40_WITH_MD5
   .. "\xe4\xbd\x00\x00\xa4\x41\xb6\x74\x71\x2b\x27\x95\x44\xc0\x3d\xc0" -- challenge
 
