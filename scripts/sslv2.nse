@@ -4,6 +4,7 @@ local string = require "string"
 local table = require "table"
 local bin = require "bin"
 local stdnse = require "stdnse"
+local sslcert = require "sslcert"
 
 description = [[
 Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it
@@ -42,7 +43,9 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 
-portrule = shortport.ssl
+portrule = function(host, port)
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+end
 
 local ssl_ciphers = {
   -- (cut down) table of codes with their corresponding ciphers.
@@ -80,8 +83,28 @@ local ciphers = function(cipher_list)
 end
 
 action = function(host, port)
+  local timeout = stdnse.get_timeout(host, 10000, 5000)
 
-  local socket = nmap.new_socket();
+  -- Create socket.
+  local status, sock, err
+  local starttls = sslcert.getPrepareTLSWithoutReconnect(port)
+  if starttls then
+    status, socket = starttls(host, port)
+    if not status then
+      stdnse.debug(1, "Can't connect using STARTTLS: %s", socket)
+      return nil
+    end
+  else
+    socket = nmap.new_socket()
+    socket:set_timeout(timeout)
+    status, err = socket:connect(host, port)
+    if not status then
+      stdnse.debug(1, "Can't connect: %s", err)
+      return nil
+    end
+  end
+
+  socket:set_timeout(timeout)
 
   -- build client hello packet (contents inspired by
   -- http://mail.nessus.org/pipermail/plugins-writers/2004-October/msg00041.html )
@@ -101,49 +124,49 @@ action = function(host, port)
   .. "\x02\x00\x80" -- SSL2_RC4_128_EXPORT40_WITH_MD5
   .. "\xe4\xbd\x00\x00\xa4\x41\xb6\x74\x71\x2b\x27\x95\x44\xc0\x3d\xc0" -- challenge
 
-  socket:connect(host, port);
-  socket:send(ssl_v2_hello);
+  socket:send(ssl_v2_hello)
 
-  local status, server_hello = socket:receive_bytes(2);
+  local status, server_hello = socket:receive_bytes(2)
 
   if (not status) then
-    socket:close();
-    return;
+    socket:close()
+    return
   end
 
   local idx, server_hello_len = bin.unpack(">S", server_hello)
   -- length record doesn't include its own length, and is "broken".
-  server_hello_len = server_hello_len - (128 * 256) + 2;
+  server_hello_len = server_hello_len - (128 * 256) + 2
 
   -- the hello needs to be at least 13 bytes long to be of any use
   if (server_hello_len < 13) then
-    socket:close();
-    return;
+    socket:close()
+    stdnse.debug(1, "Server Hello too short")
+    return
   end
   --try to get entire hello, if we don't already
   if (#server_hello < server_hello_len) then
-    local status, tmp = socket:receive_bytes(server_hello_len - #server_hello);
+    local status, tmp = socket:receive_bytes(server_hello_len - #server_hello)
 
     if (not status) then
-      socket:close();
-      return;
+      socket:close()
+      return
     end
 
-    server_hello = server_hello .. tmp;
-  end;
+    server_hello = server_hello .. tmp
+  end
 
-  socket:close();
+  socket:close()
 
   -- split up server hello into components
   local idx, message_type, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_ID_len = bin.unpack(">CCCSSSS", server_hello, idx)
   -- some sanity checks:
   -- is response a server hello?
   if (message_type ~= 4) then
-    return;
+    return
   end
   -- is certificate in X.509 format?
   if (certificate_type ~= 1) then
-    return;
+    return
   end
 
   local idx, certificate = bin.unpack("A" .. certificate_len, server_hello, idx)
@@ -160,5 +183,5 @@ action = function(host, port)
     o["ciphers"] = available_ciphers
   end
 
-  return o;
+  return o
 end
