@@ -1816,11 +1816,11 @@ int nmap_main(int argc, char *argv[]) {
   fflush(stderr);
 
   timep = time(NULL);
+  Strncpy(mytime, ctime(&timep), sizeof(mytime));
+  chomp(mytime);
 
   if (!o.append_output) {
     /* Brief info in case they forget what was scanned */
-    Strncpy(mytime, ctime(&timep), sizeof(mytime));
-    chomp(mytime);
     char *xslfname = o.XSLStyleSheet();
     xml_start_document("nmaprun");
     if (xslfname) {
