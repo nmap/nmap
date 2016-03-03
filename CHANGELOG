@@ -5,7 +5,6 @@ o [NSE][GH#320] Add STARTTLS support to sslv2 to enable SSLv2 detection
   post connection upgrade. This will enable more comprehensive detection
   of SSLv2 and DROWN (CVE-2016-0800) attack oracles. [Tom Sellers]
 
-
 o [NSE][GH#301] Added default credential checks for RICOH Web Image Monitor and
   BeEF to http-default-accounts. [nnposter]
 
