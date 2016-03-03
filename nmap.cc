@@ -1817,16 +1817,44 @@ int nmap_main(int argc, char *argv[]) {
 
   timep = time(NULL);
 
-  /* Brief info in case they forget what was scanned */
-  Strncpy(mytime, ctime(&timep), sizeof(mytime));
-  chomp(mytime);
-  char *xslfname = o.XSLStyleSheet();
-  xml_start_document("nmaprun");
-  if (xslfname) {
-    xml_open_pi("xml-stylesheet");
-    xml_attribute("href", "%s", xslfname);
-    xml_attribute("type", "text/xsl");
-    xml_close_pi();
+  if (!o.append_output) {
+    /* Brief info in case they forget what was scanned */
+    Strncpy(mytime, ctime(&timep), sizeof(mytime));
+    chomp(mytime);
+    char *xslfname = o.XSLStyleSheet();
+    xml_start_document("nmaprun");
+    if (xslfname) {
+      xml_open_pi("xml-stylesheet");
+      xml_attribute("href", "%s", xslfname);
+      xml_attribute("type", "text/xsl");
+      xml_close_pi();
+      xml_newline();
+    }
+
+    xml_start_comment();
+    xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
+    xml_end_comment();
+    xml_newline();
+
+    xml_open_start_tag("nmaprun");
+    xml_attribute("scanner", "nmap");
+    xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
+    xml_attribute("start", "%lu", (unsigned long) timep);
+    xml_attribute("startstr", "%s", mytime);
+    xml_attribute("version", "%s", NMAP_VERSION);
+    xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
+    xml_close_start_tag();
+    xml_newline();
+
+    output_xml_scaninfo_records(&ports);
+
+    xml_open_start_tag("verbose");
+    xml_attribute("level", "%d", o.verbose);
+    xml_close_empty_tag();
+    xml_newline();
+    xml_open_start_tag("debugging");
+    xml_attribute("level", "%d", o.debugging);
+    xml_close_empty_tag();
     xml_newline();
   }
 
@@ -1838,36 +1866,10 @@ int nmap_main(int argc, char *argv[]) {
     command += argv[i];
   }
 
-  xml_start_comment();
-  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
-  xml_end_comment();
-  xml_newline();
-
   log_write(LOG_NORMAL | LOG_MACHINE, "# ");
   log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
   log_write(LOG_NORMAL | LOG_MACHINE, "%s", command.c_str());
   log_write(LOG_NORMAL | LOG_MACHINE, "\n");
-
-  xml_open_start_tag("nmaprun");
-  xml_attribute("scanner", "nmap");
-  xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
-  xml_attribute("start", "%lu", (unsigned long) timep);
-  xml_attribute("startstr", "%s", mytime);
-  xml_attribute("version", "%s", NMAP_VERSION);
-  xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
-  xml_close_start_tag();
-  xml_newline();
-
-  output_xml_scaninfo_records(&ports);
-
-  xml_open_start_tag("verbose");
-  xml_attribute("level", "%d", o.verbose);
-  xml_close_empty_tag();
-  xml_newline();
-  xml_open_start_tag("debugging");
-  xml_attribute("level", "%d", o.debugging);
-  xml_close_empty_tag();
-  xml_newline();
 
   /* Before we randomize the ports scanned, lets output them to machine
      parseable output */
