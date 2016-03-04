@@ -2261,10 +2261,15 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
                         svc, (struct sockaddr *) &ss, ss_len,
                         svc->portno);
     }
-    // Now remove it from the remaining service list
-    SG->services_remaining.pop_front();
-    // And add it to the in progress list
-    SG->services_in_progress.push_back(svc);
+    // Check that the service is still where we left it.
+    // servicescan_connect_handler can call end_svcprobe before this point,
+    // putting it into services_finished already.
+    if (SG->services_remaining.front() == svc) {
+      // Now remove it from the remaining service list
+      SG->services_remaining.pop_front();
+      // And add it to the in progress list
+      SG->services_in_progress.push_back(svc);
+    }
   }
   return 0;
 }
