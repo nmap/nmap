@@ -15,6 +15,7 @@ References:
 * http://httpd.apache.org/docs/2.4/mod/mod_status.html
 * https://blog.sucuri.net/2012/10/popular-sites-with-apache-server-status-enabled.html
 * https://www.exploit-db.com/ghdb/1355/
+* https://github.com/michenriksen/nmap-scripts
 ]]
 
 ---
