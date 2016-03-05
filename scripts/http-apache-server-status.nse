@@ -52,7 +52,7 @@ author = "Eric Gershman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-portrule = shortport.http
+portrule = shortport.port_or_service({80, 443}, {"http","https"}, "tcp", "open")
 action = function(host, port)
   -- Perform a GET request for /server-status
   local path = "/server-status"
