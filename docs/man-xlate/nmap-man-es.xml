@@ -1306,8 +1306,8 @@ comportamiento salvo por las banderas TCP que se fijen en los paquetes
 sonda. Si se recibe un paquete RST entonces se considera que el puerto
 está <literal moreinfo="none">cerrado</literal>. Si no se recibe
 ninguna respuesta el puerto se marca como <literal
-moreinfo="none">cerrado|filtrado</literal>. El puerto se marca
-<literal moreinfo="none">filtrado</literal> si se recibe un error ICMP
+moreinfo="none">open|filtered</literal>. El puerto se marca
+<literal moreinfo="none">filtered</literal> si se recibe un error ICMP
 no alcanzable (tipo 3, código 1, 2, 3, 9, 10, o 13).</para>
 
 <para>La ventaja fundamental de este tipo de sondeos es que pueden
