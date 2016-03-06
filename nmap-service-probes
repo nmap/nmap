@@ -62,6 +62,7 @@ match adobe-crossdomain m|^<cross-domain-policy><allow-access-from domain=\"([^\
 match adobe-crossdomain m|^<\?xml version=\"1\.0\"\?>\r\n<cross-domain-policy>\r\n    <site-control permitted-cross-domain-policies=\"master-only\"/>\r\n    <allow-access-from domain=\"\*\" to-ports=\"59160\"/>\r\n</cross-domain-policy>\0| p/Konica Minolta printer cross-domain-policy/
 # playbrassmonkey.com
 match adobe-crossdomain m|^<\?xml version=\"1\.0\"\?><cross-domain-policy><allow-access-from domain=\"\*\" to-ports=\"1008-49151\" /></cross-domain-policy>\0$| p/Brass Monkey cross-domain-policy/
+match adobe-crossdomain m|^<\?xml version="1\.0"\?>\r\n<!DOCTYPE cross-domain-policy SYSTEM "http://www\.adobe\.com/xml/dtds/cross-domain-policy\.dtd">\r\n<cross-domain-policy>\r\n <site-control permitted-cross-domain-policies="master-only"/>\r\n <allow-access-from domain="www\.facebook\.com" to-ports="443" />\r\n</cross-domain-policy>\r\n| p/Facebook cross-domain policy/
 softmatch adobe-crossdomain m|^<\?xml version=\"1\.0\"\?>.*<cross-domain-policy>|s
 
 match afsmain m|^\+Welcome to Ability FTP Server \(Admin\)\. \[20500\]\r\n| p/Code-Crafters Ability FTP Server afsmain admin/ o/Windows/ cpe:/a:code-crafters:ability_ftp_server/ cpe:/o:microsoft:windows/a
