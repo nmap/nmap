@@ -1043,6 +1043,9 @@ static int l_pcap_receive (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
+  if (!nu->is_pcap) {
+    return nseU_safeerror(L, "not a pcap socket");
+  }
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nu->nseid = nsock_pcap_read_packet(nsp, nu->nsiod, pcap_receive_handler,
       nu->timeout, nu);
