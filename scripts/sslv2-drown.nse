@@ -158,6 +158,15 @@ local function values_in(t1, t2)
   return true
 end
 
+-- Create a string from repeating "length" times the given pattern.
+local function make_string(length, pattern)
+  local string = {}
+  for i=1, length do
+    string[i] = "\x00"
+  end
+  return table.concat(string)
+end
+
 -- Create a socket ready to begin an SSL negociation.
 local function get_socket(host, port)
   local timeout = stdnse.get_timeout(host, 10000, 5000)
@@ -328,14 +337,10 @@ local function try_force_cipher(host, port, cipher)
   local key_length = CIPHER_INFO[cipher].key_length
   local encrypted_key_length = CIPHER_INFO[cipher].encrypted_key_length
 
-  local dummy_key = {}
-  for i=1, key_length do
-    dummy_key[i] = "\x00"
-  end
-  dummy_key = table.concat(dummy_key)
-
+  local dummy_key = make_string(key_length, "\x00")
   local clear_key = dummy_key:sub(1, key_length - encrypted_key_length)
   local encrypted_key = dummy_key:sub(key_length - encrypted_key_length + 1)
+
   local dummy_client_master_key = client_master_secret(cipher, clear_key, encrypted_key)
   socket:send(ssl_record(dummy_client_master_key))
   local status, message = read_ssl_record(socket_read)
@@ -345,6 +350,42 @@ local function try_force_cipher(host, port, cipher)
   end
 
   -- Treat an error as a failure to force the cipher.
+  if #message == 3 then
+    return false
+  end
+
+  return true
+end
+
+local function has_extra_clear_bug(host, port, cipher)
+  local socket = get_socket(host, port)
+  if not socket then
+    return
+  end
+  local socket_read = socket_reader(socket)
+  socket:send(ssl_record(CLIENT_HELLO_EXAMPLE))
+  local status, server_hello = read_ssl_record(socket_read)
+  if not status then
+    socket:close()
+    return
+  end
+
+  local key_length = CIPHER_INFO[cipher].key_length
+  local encrypted_key_length = CIPHER_INFO[cipher].encrypted_key_length
+
+  -- The length of clear_key is intentionally wrong to highlight the bug.
+  local clear_key = make_string(key_length - encrypted_key_length + 1, "\x00")
+  local encrypted_key = make_string(encrypted_key_length, "\x00")
+
+  local dummy_client_master_key = client_master_secret(cipher, clear_key, encrypted_key)
+  socket:send(ssl_record(dummy_client_master_key))
+  local status, message = read_ssl_record(socket_read)
+  socket:close()
+  if not status then
+    return
+  end
+
+  -- Treat an error as the absence of the bug.
   if #message == 3 then
     return false
   end
@@ -386,15 +427,16 @@ end
 function action(host, port)
   local output = stdnse.output_table()
 
+  -- SSLv2 support
   local sslv2_supported, offered_ciphers = test_sslv2(host, port)
   if sslv2_supported then
     output.sslv2_supported = "yes"
   else
     return
   end
-
   output.ciphers = format_ciphers(offered_ciphers)
 
+  -- CVE-2015-3197
   local forced_ciphers = {}
   for _, cipher in pairs(SSL_CK) do
     if try_force_cipher(host, port, cipher) then
@@ -406,7 +448,16 @@ function action(host, port)
       output.cve_2015_3197 = "yes"
   end
 
-  output.forced_ciphers = format_ciphers(forced_ciphers)
+  -- CVE-2016-0703
+  for _, cipher in pairs(forced_ciphers) do
+    local result = has_extra_clear_bug(host, port, cipher)
+    if result == true then
+      output.cve_2016_0703 = "yes"
+      break
+    elseif result == false then
+      output.cve_2016_0703 = "no"
+    end
+  end
 
   return output
 end
