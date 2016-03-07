@@ -4845,6 +4845,9 @@ match wbem m|^HTTP/1\.1 400 Bad Request\r\nServer: sfcHttpd\r\nContent-Length: 0
 # https://www.google.com/patents/US20070250671
 match wcbackup m|^~\x80\x04\x80\x04$| p/Windows Client Backup service/ o/Windows/ cpe:/o:microsoft:windows/a
 
+# fallback hack
+match wolfssl m|^I hear ya fa shizzle!\n$| p/WolfSSL example TLS server/ cpe:/a:wolfssl:wolfssl/
+
 match wyse-devmgr m|^Invalid Command Sent:GET / HTTP/1\.0\r\n\r\n$| p/Wyse Device Manager/ cpe:/a:dell:wyse_device_manager/
 
 # Not sure about these. It's port 9200 on some printers. On Intermec printers
