@@ -140,6 +140,13 @@ local CLIENT_HELLO_EXAMPLE =
   .. SSL_CK.NULL_WITH_MD5
   .. "\xe4\xbd\x00\x00\xa4\x41\xb6\x74\x71\x2b\x27\x95\x44\xc0\x3d\xc0" -- challenge
 
+-- Those ciphers are weak enough to enable a "General DROWN" attack.
+local GENERAL_DROWN_CIPHERS = {
+  [SSL_CK.RC2_128_CBC_EXPORT40_WITH_MD5] = true,
+  [SSL_CK.RC4_128_EXPORT40_WITH_MD5] = true,
+  [SSL_CK.DES_64_CBC_WITH_MD5] = true,
+}
+
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
@@ -457,6 +464,20 @@ function action(host, port)
     elseif result == false then
       output.cve_2016_0703 = "no"
     end
+  end
+
+  -- CVE-2016-0800
+  local has_weak_ciphers = false
+  for _, cipher in pairs(forced_ciphers) do
+    if GENERAL_DROWN_CIPHERS[cipher] then
+      has_weak_ciphers = true
+      break
+    end
+  end
+  if has_weak_ciphers or output.cve_2016_0703 == "yes" then
+    output.cve_2016_0800 = "yes"
+  else
+    output.cve_2016_0800 = "no"
   end
 
   return output
