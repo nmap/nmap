@@ -384,10 +384,16 @@ do
   -- prerule/postrule scripts may be timed out in the future
   -- based on start time and script lifetime?
   function Thread:timed_out ()
-    if self.type == "hostrule" or self.type == "portrule" then
-      return cnse.timedOut(self.host);
+    local host_timeout, script_timeout = false, false;
+    -- checking whether user gave --script-timeout option or not
+    if self.timeout ~= 0 then
+      -- comparing script's timeout with time elapsed
+      script_timeout = self.timeout < os.difftime(os.time(), self.start_time)
     end
-    return nil;
+    if self.type == "hostrule" or self.type == "portrule" then
+      host_timeout = cnse.timedOut(self.host);
+    end
+    return script_timeout or host_timeout;
   end
 
   function Thread:start_time_out_clock ()
@@ -408,6 +414,8 @@ do
       timeouts[self.host] = timeouts[self.host] or {};
       timeouts[self.host][self.co] = true;
     end
+    -- storing script's start time so as to account for script's timeout later
+    self.start_time = os.time()
   end
 
   -- Remove scripts from the timeouts list and call their
@@ -473,6 +481,8 @@ do
       script = self,
       type = script_type,
       worker = false,
+      start_time = nil, --for script timeout
+      timeout = cnse.scriptTimeout
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -1171,6 +1181,10 @@ do
   if cnse.scriptargs then -- Load script arguments (--script-args)
     print_debug(1, "Arguments from CLI: %s", cnse.scriptargs);
     args[#args+1] = cnse.scriptargs;
+  end
+
+  if cnse.scriptTimeout then
+    print_debug(1, "Set script-time out as: %d seconds", cnse.scriptTimeout);
   end
 
   args = concat(args, ",");

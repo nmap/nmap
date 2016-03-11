@@ -292,6 +292,7 @@ static void printusage() {
          "  --script-args-file=filename: provide NSE script args in a file\n"
          "  --script-trace: Show all data sent and received\n"
          "  --script-updatedb: Update the script database.\n"
+         "  --script-timeout <t> sets the timeout for every individual script to t seconds.\n"
          "  --script-help=<Lua scripts>: Show help about scripts.\n"
          "           <Lua scripts> is a comma-separated list of script-files or\n"
          "           script-categories.\n"
@@ -680,6 +681,8 @@ void parse_options(int argc, char **argv) {
     {"script_args_file", required_argument, 0, 0},
     {"script-help", required_argument, 0, 0},
     {"script_help", required_argument, 0, 0},
+    {"script-timeout", required_argument, 0, 0},
+    {"script_timeout", required_argument, 0, 0},
 #endif
     {"ip_options", required_argument, 0, 0},
     {"ip-options", required_argument, 0, 0},
@@ -718,7 +721,14 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "script-help") == 0) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
-      } else
+      } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
+        l = tval2secs(optarg);
+        // keeping maximum timeout to be 10 Hours
+        if ( l <= 0 )
+          fatal(" Bogus value of Timeout given");
+        o.scriptTimeout = l;
+      }
+        else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
           l = atoi(optarg);
