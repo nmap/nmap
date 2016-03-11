@@ -482,7 +482,7 @@ do
       type = script_type,
       worker = false,
       start_time = nil, --for script timeout
-      timeout = cnse.scriptTimeout
+      timeout = cnse.scripttimeout
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -1183,8 +1183,8 @@ do
     args[#args+1] = cnse.scriptargs;
   end
 
-  if cnse.scriptTimeout then
-    print_debug(1, "Set script-time out as: %d seconds", cnse.scriptTimeout);
+  if cnse.scripttimeout then
+    print_debug(1, "Set script-time-out as: %d seconds", cnse.scripttimeout);
   end
 
   args = concat(args, ",");

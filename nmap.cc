@@ -723,12 +723,10 @@ void parse_options(int argc, char **argv) {
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
         l = tval2secs(optarg);
-        // keeping maximum timeout to be 10 Hours
         if ( l <= 0 )
-          fatal(" Bogus value of Timeout given");
-        o.scriptTimeout = l;
-      }
-        else
+          fatal("Bogus value of Timeout given, timeout should be more than 0");
+        o.scripttimeout = l;
+      } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
           l = atoi(optarg);
