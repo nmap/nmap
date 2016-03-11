@@ -390,7 +390,7 @@ class NmapOps {
   int scripttrace;
   int scriptupdatedb;
   bool scripthelp;
-  long scriptTimeout;
+  long scripttimeout;
   void chooseScripts(char* argument);
   std::vector<std::string> chosenScripts;
 #endif
