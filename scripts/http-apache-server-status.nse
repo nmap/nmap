@@ -26,27 +26,22 @@ References:
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
 -- | http-apache-server-status: 
--- |   title: Apache Server Status for example.com (via 127.0.1.1)
+-- |   Heading: Apache Server Status for example.com (via 127.0.1.1)
 -- |   Server Version:  Apache/2.4.12 (Ubuntu)
 -- |   Server Built:  Jul 24 2015 15:59:00
--- |   Server Uptime:   47 seconds
--- |   Server Load:  0.00 0.02 0.05
--- |   requests: 
--- |      Srv PID Acc M CPU SS Req Conn Child Slot Client VHost Request 
--- |      0-0  20079 0/0/0 W  0.00 0 0 0.0 0.00 0.00 127.0.0.1 www.example.com:80 GET /server-status HTTP/1.1 
--- |_     1-0  20080 0/1/1 _ 0.02 15 0 0.0 0.00 0.00 127.0.0.1 www.example.com:80 GET /server-status HTTP/1.1 
--- 
+-- |   Server Uptime:   53 minutes 31 seconds
+-- |   Server Load:  0.00 0.01 0.05
+-- |   Requests: 
+-- |_    www.example.com:80  GET /server-status HTTP/1.1
+--
 -- @xmloutput
--- <elem key="title">Apache Server Status for example.com (via 127.0.1.1)</elem>
+-- <elem key="Heading">Apache Server Status for example.com (via 127.0.1.1)</elem>
 -- <elem key="Server Version"> Apache/2.4.12 (Ubuntu)</elem>
 -- <elem key="Server Built"> Jul 24 2015 15:59:00</elem>
--- <elem key="Server Uptime">  47 seconds</elem>
--- <elem key="Server Load"> 0.00 0.02 0.05</elem>
--- <table key="requests">
--- <elem> Srv PID Acc M CPU SS Req Conn Child Slot Client VHost Request </elem>
--- <elem> 0-0  20079 0/0/0 W  0.00 0 0 0.0 0.00 0.00 127.0.0.1 www.example.com:80 GET /server-status HTTP/1.1 </elem>
--- <elem> 1-0  20080 0/1/1 _ 0.02 15 0 0.0 0.00 0.00 127.0.0.1 www.example.com:80 GET /server-status HTTP/1.1 </elem>
----
+-- <elem key="Server Uptime">  59 minutes 26 seconds</elem>
+-- <elem key="Server Load"> 0.01 0.02 0.05</elem>
+-- <table key="Requests">
+-- <elem>www.example.com:80&#x9;GET /server-status HTTP/1.1</elem>
 
 author = "Eric Gershman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -77,25 +72,27 @@ action = function(host, port)
   response.body = string.gsub(response.body, "\n", "")
 
   -- Add useful data to the result table
-  result.title = string.match(response.body, "<h1>([^<]*)</h1>")
+  result["Heading"] = string.match(response.body, "<h1>([^<]*)</h1>")
   result["Server Version"] = string.match(response.body, "Server%sVersion:([^<]*)</")
   result["Server Built"] = string.match(response.body, "Server%sBuilt:([^<]*)</")
   result["Server Uptime"] = string.match(response.body, "Server%suptime:([^<]*)</")
   result["Server Load"] = string.match(response.body, "Server%sload:([^<]*)</")
 
-  result.requests = {}
+  result.Requests = {}
+  local uniq_requests = {}
 
   -- Parse the Apache client requests into the result table
-  local results_table = string.match(response.body, "<table border=\"0\">.-</table>")
-  for line in string.gmatch(results_table, "<tr><t[hd]>.-</t[hd]></tr>") do
-    line = string.gsub (line, "\n", "")
-    local request = ""
-    for field in string.gmatch(line, ">([^<]*)</") do
-      -- Add spaces between each field in the request
-      request = request .. " " .. field
+  for line in string.gmatch(response.body, "<td nowrap>.-</td></tr>") do
+    -- skip line if the request is empty
+    if not string.match(line, "<td%snowrap></td><td%snowrap></td></tr>") then  
+      local request = string.match(line, ">([^<]*)</td><td") .. "\t" .. string.match(line, ">([^<]*)</td></tr>")
+      uniq_requests[request] = 1
     end
-    result.requests[#result.requests + 1] = request
   end
+  for request,count in pairs(uniq_requests) do
+    table.insert(result.Requests,request)
+  end 
+  table.sort(result.Requests)
 
   return result
 end
