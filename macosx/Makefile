@@ -72,12 +72,30 @@ OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.
 
 $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+	./createdmg.sh $(IMAGE_STAGING_DIR)
 
 $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
-	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
+
+	pkgbuild --root ../ncat/$(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location /Applications ncat.pkg
+	pkgbuild --root ../ndiff/$(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location /Applications ndiff.pkg
+	pkgbuild --root ../$(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location /Applications nmap.pkg
+	pkgbuild --root ../nping/$(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location /Applications nping.pkg
+	pkgbuild --root ../zenmap/$(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
+
+	productbuild --synthesize \
+		--package 'ncat.pkg' \
+		--package 'ndiff.pkg' \
+		--package 'nmap.pkg' \
+		--package 'nping.pkg' \
+		--package 'zenmap.pkg' \
+		distribution.xml
+
+	productbuild --distribution distribution.xml --package-path . $(NAME_VERSION).mpkg
+
+	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
+	# $(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
 
 check-%: stage-%
 	if (find $* -perm -a+x -type f | xargs otool -L | grep "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
@@ -149,5 +167,12 @@ clean:
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
+	rm -rf ncat.pkg
+	rm -rf ndiff.pkg
+	rm -rf nmap.pkg
+	rm -rf nping.pkg
+	rm -rf zenmap.pkg
+	rm -rf $(NAME_VERSION)/
+	rm -rf distribution.xml
 
 .PHONY: clean export-% stage-%
