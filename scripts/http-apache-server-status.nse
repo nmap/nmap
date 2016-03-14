@@ -30,7 +30,7 @@ References:
 -- |   Server Built:  Jul 24 2015 15:59:00
 -- |   Server Uptime:   53 minutes 31 seconds
 -- |   Server Load:  0.00 0.01 0.05
--- |   Requests: 
+-- |   VHosts:
 -- |_    www.example.com:80  GET /server-status HTTP/1.1
 --
 -- @xmloutput
@@ -39,8 +39,8 @@ References:
 -- <elem key="Server Built">Jul 24 2015 15:59:00</elem>
 -- <elem key="Server Uptime">59 minutes 26 seconds</elem>
 -- <elem key="Server Load">0.01 0.02 0.05</elem>
--- <table key="Requests">
--- <elem>www.example.com:80&#x9;GET /server-status HTTP/1.1</elem>
+-- <table key="VHosts">
+--   <elem>www.example.com:80</elem>
 -- </table>
 
 author = "Eric Gershman"
@@ -78,21 +78,21 @@ action = function(host, port)
   result["Server Uptime"] = string.match(response.body, "Server%suptime:%s*([^<]*)</")
   result["Server Load"] = string.match(response.body, "Server%sload:%s*([^<]*)</")
 
-  result.Requests = {}
+  result.VHosts = {}
   local uniq_requests = {}
 
   -- Parse the Apache client requests into the result table
   for line in string.gmatch(response.body, "<td nowrap>.-</td></tr>") do
     -- skip line if the request is empty
-    if not string.match(line, "<td%snowrap></td><td%snowrap></td></tr>") then  
-      local request = string.match(line, ">([^<]*)</td><td") .. "\t" .. string.match(line, ">([^<]*)</td></tr>")
-      uniq_requests[request] = 1
+    if not string.match(line, "<td%snowrap></td><td%snowrap></td></tr>") then
+      local vhost = string.match(line, ">([^<]*)</td><td")
+      uniq_requests[vhost] = 1
     end
   end
   for request,count in pairs(uniq_requests) do
-    table.insert(result.Requests,request)
-  end 
-  table.sort(result.Requests)
+    table.insert(result.VHosts,request)
+  end
+  table.sort(result.VHosts)
 
   return result
 end
