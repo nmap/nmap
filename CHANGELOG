@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Allow the -4 option for Nmap to indicate IPv4 address family. This is the
+  default, and using the option doesn't change anything, but does make it more
+  explicit which address family you want to scan. Using -4 with -6 is an error.
+  [Daniel Miller]
+
 o [NSE] Added rusers script to get logged-on users info from the rusersd RPC
   service. [Daniel Miller]
 
@@ -112,6 +117,9 @@ o [NSE] [GH#226] Added http-vuln-cve2014-3704 for detecting and exploiting the
 
 o [NSE] [GH#242] Fix multiple false-positive sources in http-backup-agent.
   [Tom Sellers]
+
+o [Zenmap] [GH#247] Remember window geometry (position and size) from the
+  previous time Zenmap was run. [isjing]
 
 Nmap 7.01 [2015-12-09]
 
