@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local shortport = require "shortport"
 local http = require "http"
 local stdnse = require "stdnse"
@@ -47,7 +48,16 @@ author = "Eric Gershman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-portrule = shortport.port_or_service({80, 443}, {"http","https"}, "tcp", "open")
+portrule = function(host, port)
+  if not shortport.http(host, port) then
+    return false
+  end
+  if port.version and port.version.product then
+    return string.match(port.version.product, "Apache")
+  end
+  return true
+end
+
 action = function(host, port)
   -- Perform a GET request for /server-status
   local path = "/server-status"
@@ -77,6 +87,24 @@ action = function(host, port)
   result["Server Built"] = string.match(response.body, "Server%sBuilt:%s*([^<]*)</")
   result["Server Uptime"] = string.match(response.body, "Server%suptime:%s*([^<]*)</")
   result["Server Load"] = string.match(response.body, "Server%sload:%s*([^<]*)</")
+
+  port.version = port.version or {}
+  if port.version.product == nil and (port.version.name_confidence or 0) <= 3 then
+    port.version.service = "http"
+    port.version.product = "Apache httpd"
+    local cpe = "cpe:/a:apache:http_server"
+    local version, extra = string.match(result["Server Version"], "^Apache/([%w._-]+)%s*(.-)$")
+    if version then
+      cpe = cpe .. ":" .. version
+      port.version.version = version
+    end
+    if extra then
+      port.version.extrainfo = extra
+    end
+    port.version.cpe = port.version.cpe or {}
+    table.insert(port.version.cpe, cpe)
+    nmap.set_port_version(host, port, "hardmatched")
+  end
 
   result.VHosts = {}
   local uniq_requests = {}
