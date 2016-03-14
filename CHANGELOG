@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#322] Added http-apache-server-status for parsing the server status
+  page of Apache's mod_status. [Eric Gershman]
+
 o [NSE][GH#314] Fix naming of SSL2_RC2_128_CBC_WITH_MD5 and
   SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 ciphers in sslv2 in order to match the
   draft specification from Mozilla. [Bertrand Bonnefoy-Claudet]
