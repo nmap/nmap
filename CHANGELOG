@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added rusers script to get logged-on users info from the rusersd RPC
+  service. [Daniel Miller]
+
 o [NSE][GH#322] Added http-apache-server-status for parsing the server status
   page of Apache's mod_status. [Eric Gershman]
 
