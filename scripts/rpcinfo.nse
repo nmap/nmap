@@ -75,7 +75,7 @@ supported version numbers, port number and protocol, and program name.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "default", "safe"}
+categories = {"discovery", "default", "safe", "version"}
 
 
 -- don't match "rpcbind" because that's what version scan labels any RPC service
