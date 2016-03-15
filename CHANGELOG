@@ -94,6 +94,10 @@ o [Nsock] Avoid a crash on Windows and other systems which use nbase's
   not return NULL, and by causing NULL pointers to be printed as "(null)", as
   glibc and MSVC both do. Reported by Dan Baxter. [Gisle Vanem, Daniel Miller]
 
+o [NSE] Upgrade to http-form-brute allowing correct handling of token-based
+  CSRF protections and cookies. Also, a simple database of common login forms
+  supports Django, Wordpress, MediaWiki, Joomla, and others. [Daniel Miller]
+
 o Print service info in grepable output for ports which are not listed in
   nmap-services when a service tunnel (SSL) is detected. Previously, the
   service info ("ssl|unknown") was not printed unless the service inside the
