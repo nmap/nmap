@@ -411,6 +411,7 @@ Entry { filename = "rusers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "s7-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "samba-vuln-cve-2012-1182.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "shodan-api.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "sip-call-spoof.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sip-enum-users.nse", categories = { "auth", "intrusive", } }

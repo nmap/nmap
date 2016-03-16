@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#333] Added shodan-api for querying the Shodan API
+  (https://www.shodan.io) and retrieving open port and service info from their
+  Internet-wide scan data. [Glenn Wilkinson]
+
 o Allow the -4 option for Nmap to indicate IPv4 address family. This is the
   default, and using the option doesn't change anything, but does make it more
   explicit which address family you want to scan. Using -4 with -6 is an error.
