@@ -348,7 +348,7 @@ local function validate_options(options)
       end
     elseif (key == 'ntlmauth') then
       stdnse.debug1("Proceeding with ntlm message")
-    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body') then
+    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af') then
       if(type(value) ~= 'boolean') then
         stdnse.debug1("http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
         bad = true
