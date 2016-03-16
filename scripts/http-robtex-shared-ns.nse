@@ -68,7 +68,7 @@ local function lookup_dns_server(data)
 end
 
 local function fetch_robtex_data(url)
-  local htmldata = http.get("www.robtex.net", 443, url)
+  local htmldata = http.get("www.robtex.net", 443, url, {any_af=true})
   if ( not(htmldata) or not(htmldata.body) ) then
     return
   end
