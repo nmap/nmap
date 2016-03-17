@@ -45,6 +45,9 @@ o [NSE] Added 12 NSE scripts from 7 authors, bringing the total up to 527!
   + telnet-ntlm-info extracts hostname and sometimes OS version from
     NTLM-auth-enabled Telnet services. [Justin Cacak]
 
+o Updated the OpenSSL shipped with our binary builds (Windows, OS X, and Linux
+  RPM) to 1.0.2g with SSLv2 enabled.
+
 o Integrated all of your IPv4 OS fingerprint submissions from October to
   January (536 of them). Added 104 fingerprints, bringing the new total to
   5089. Additions include Linux 4.2, more Windows 10, IBM i 7, and more.
