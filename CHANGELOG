@@ -1,19 +1,110 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE][GH#333] Added shodan-api for querying the Shodan API
-  (https://www.shodan.io) and retrieving open port and service info from their
-  Internet-wide scan data. [Glenn Wilkinson]
+Nmap 7.10 [2016-03-17]
+
+o [NSE] Added 12 NSE scripts from 7 authors, bringing the total up to 527!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + [GH#322] http-apache-server-status parses the server status page of
+    Apache's mod_status. [Eric Gershman]
+
+  + http-vuln-cve2013-6786 detects a XSS and URL redirection vulnerability in
+    Allegro RomPager web server. Also added a fingerprint for detecting
+    CVE-2014-4019 to http-fingerprints.lua. [Vlatko Kosturjak]
+
+  + [GH#226] http-vuln-cve2014-3704 detects and exploits the "Drupalgeddon"
+    pre-auth SQL Injection vulnerability in Drupal. [Mariusz Ziulek]
+
+  + imap-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled IMAP services. [Justin Cacak]
+
+  + ipv6-multicast-mld-list discovers IPv6 multicast listeners with MLD probes.
+    The discovery is the same as targets-ipv6-multicast-mld, but the subscribed
+    addresses are decoded and listed.  [Alexandru Geana, Daniel Miller]
+
+  + ms-sql-ntlm-info extracts OS version and sometimes hostname from MS SQL
+    Server instances via the NTLM challenge message. [Justin Cacak]
+
+  + nntp-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled NNTP services. [Justin Cacak]
+
+  + pop3-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled POP3 services. [Justin Cacak]
+
+  + rusers retrieves information about logged-on users from the rusersd RPC
+    service. [Daniel Miller]
+
+  + [GH#333] shodan-api queries the Shodan API (https://www.shodan.io) and
+    retrieves open port and service info from their Internet-wide scan data.
+    [Glenn Wilkinson]
+
+  + smtp-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled SMTP and submission services. [Justin Cacak]
+
+  + telnet-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled Telnet services. [Justin Cacak]
+
+o Integrated all of your IPv4 OS fingerprint submissions from October to
+  January (536 of them). Added 104 fingerprints, bringing the new total to
+  5089. Additions include Linux 4.2, more Windows 10, IBM i 7, and more.
+  Highlights: http://seclists.org/nmap-dev/2016/q1/270 [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  October to January (508 of them). The signature count went up 2.2% to 10532.
+  We now detect 1108 protocols, from icy, finger, and rtsp to ipfs,
+  basestation, and minecraft-pe. Highlights:
+  http://seclists.org/nmap-dev/2016/q1/271 [Daniel Miller]
+
+o Integrated all 12 of your IPv6 OS fingerprint submissions from October to
+  January. The classifier added 3 new groups, including new and expanded groups
+  for OS X, bringing the new total to 96. Highlights:
+  http://seclists.org/nmap-dev/2016/q1/273 [Daniel Miller]
+
+o [NSE] Upgrade to http-form-brute allowing correct handling of token-based
+  CSRF protections and cookies. Also, a simple database of common login forms
+  supports Django, Wordpress, MediaWiki, Joomla, and others. [Daniel Miller]
+
+o [Zenmap] [GH#247] Remember window geometry (position and size) from the
+  previous time Zenmap was run. [isjing]
+
+o New service probe for CORBA GIOP (General Inter-ORB Protocol) detection
+  should elicit a not-found exception from GIOP services that do not respond to
+  non-GIOP probes. [Quentin Hardy]
+
+o [GH#284] Fix retrieval of route netmasks on FreeBSD. IPv6 routes were given
+  /32 netmasks regardless of actual netmask configured, resulting in failed
+  routing. Reported by Martin Gysi. [Daniel Miller]
+
+o [GH#272][GH#269] Give option parsing errors after the usage statement, or
+  avoid printing the usage statement in some cases. The options summary has
+  grown quite large, requiring users to scroll to the top to see the error
+  message. [Abhishek Singh]
+
+o [GH#249][Nsock] Avoid a crash on Windows reported by users using Zenmap's
+  Slow Comprehensive Scan profile.  In the case of unknown OpenSSL errors,
+  ERR_reason_error_string would return NULL, which could not be printed with
+  the "%s" format string. Reported by Dan Baxter. [Gisle Vanem, Daniel Miller]
+
+o [GH#293][Zenmap] Fix a regression in our build that caused copy-and-paste to
+  not work in Zenmap on Windows.
+
+o Changed Nmap's idea of reserved and private IP addresses to include
+  169.254/16 (RFC3927) and remove 6/8, 7/8, and 55/8 networks. This list, in
+  libnetutil's isipprivate function, is used to filter -iR randomly generated
+  targets. The newly-valid address ranges belong to the U.S. Department of
+  Defense, so users wanting to avoid those ranges should use their own
+  exclusion lists with --exclude or --exclude-file.  [Bill Parker, Daniel
+  Miller]
 
 o Allow the -4 option for Nmap to indicate IPv4 address family. This is the
   default, and using the option doesn't change anything, but does make it more
   explicit which address family you want to scan. Using -4 with -6 is an error.
   [Daniel Miller]
 
-o [NSE] Added rusers script to get logged-on users info from the rusersd RPC
-  service. [Daniel Miller]
-
-o [NSE][GH#322] Added http-apache-server-status for parsing the server status
-  page of Apache's mod_status. [Eric Gershman]
+o [GH#265] When provided a verbosity of 0 (-v0), Nmap will not output any text to the
+  screen. This happens at the time of argument parsing, so the usual meaning of
+  "verbosity 0" is preserved. [isjing]
 
 o [NSE][GH#314] Fix naming of SSL2_RC2_128_CBC_WITH_MD5 and
   SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 ciphers in sslv2 in order to match the
@@ -35,27 +126,12 @@ o [NSE] Added support for DHCP options "TFTP server name" and "Bootfile name"
   to dhcp.lua and enabled checking for options with a code above 61 by default.
   [Mike Rykowski]
 
-o Removed 6/8, 7/8, and 55/8 networks from the list of "reserved" IP addresses
-  that Nmap uses to filter -iR randomly generated targets. These address ranges
-  belong to the U.S. Department of Defense, so users wanting to avoid those
-  ranges should use their own exclusion lists with --exclude or --exclude-file.
-  [Daniel Miller]
-
 o [NSE] whois-ip: Don't request a remote IANA assignments data file when the
   local filesystem will not permit the file to cached in a local file. [jah]
 
 o [NSE] Updated http-php-version hash database to cover all versions from PHP
   4.1.0 to PHP 5.4.45. Based on scans of a few thousand PHP web servers pulled
   from Shodan API (https://www.shodan.io/) [Daniel Miller]
-
-o [GH#272][GH#269] Give option parsing errors after the usage statement, or
-  avoid printing the usage statement in some cases. The options summary has
-  grown quite large, requiring users to scroll to the top to see the error
-  message. [Abhishek Singh]
-
-o [GH#284] Fix retrieval of route netmasks on FreeBSD. IPv6 routes were given
-  /32 netmasks regardless of actual netmask configured, resulting in failed
-  routing. Reported by Martin Gysi. [Daniel Miller]
 
 o Use the same ScanProgressMeter for FTP bounce scan (-b) as for the other scan
   types, allowing periodic status updates with --stats-every or keypress
@@ -65,69 +141,14 @@ o [GH#274] Use a shorter pcap_select timeout on OpenBSD, just as we do for OS
   X, old FreeBSD, and Solaris, which use BPF for packet capture and do not have
   properly select-able fds. Fix by OpenBSD port maintainer [David Carlier]
 
-o [NSE] Added ms-sql-ntlm-info for extracting OS version and sometimes hostname
-  from MS SQL Server instances via the NTLM challenge message. [Justin Cacak]
-
-o [NSE] Added nntp-ntlm-info for extracting hostname and sometimes OS version
-  from NTLM-auth-enabled NNTP services. [Justin Cacak]
-
-o [NSE] Added pop3-ntlm-info for extracting hostname and sometimes OS version
-  from NTLM-auth-enabled POP3 services. [Justin Cacak]
-
-o [NSE] Added telnet-ntlm-info for extracting hostname and sometimes OS version
-  from NTLM-auth-enabled Telnet services. [Justin Cacak]
-
-o [NSE] Added smtp-ntlm-info for extracting hostname and sometimes OS version
-  from NTLM-auth-enabled SMTP and submission services. [Justin Cacak]
-
-o [NSE] Added imap-ntlm-info for extracting hostname and sometimes OS version
-  from NTLM-auth-enabled IMAP services. [Justin Cacak]
-
-o [NSE] Added http-vuln-cve2013-6786 for detecting a XSS and URL redirection
-  vulnerability in Allegro RomPager web server. Also added a fingerprint for
-  detecting CVE-2014-4019 to http-fingerprints.lua. [Vlatko Kosturjak]
-
-o [GH#265] When provided a verbosity of 0 (-v0), Nmap will not output any text to the
-  screen. This happens at the time of argument parsing, so the usual meaning of
-  "verbosity 0" is preserved. [isjing]
-
-o [Nsock] Avoid a crash on Windows and other systems which use nbase's
-  vasprintf implementation. In the case of unknown OpenSSL errors,
-  ERR_reason_error_string would return NULL, which could not be printed with
-  the "%s" format string. Fixed by using ERR_error_string instead, which will
-  not return NULL, and by causing NULL pointers to be printed as "(null)", as
-  glibc and MSVC both do. Reported by Dan Baxter. [Gisle Vanem, Daniel Miller]
-
-o [NSE] Upgrade to http-form-brute allowing correct handling of token-based
-  CSRF protections and cookies. Also, a simple database of common login forms
-  supports Django, Wordpress, MediaWiki, Joomla, and others. [Daniel Miller]
-
 o Print service info in grepable output for ports which are not listed in
   nmap-services when a service tunnel (SSL) is detected. Previously, the
   service info ("ssl|unknown") was not printed unless the service inside the
   tunnel was positively identified. http://seclists.org/nmap-dev/2015/q4/260
   [Daniel Miller]
 
-o Extend libnetutil's isipprivate function to check for 169.254/16 RFC3927
-  addresses. [Bill Parker]
-
-o New service probe for CORBA GIOP (General Inter-ORB Protocol) detection
-  should elicit a not-found exception from GIOP services that do not respond to
-  non-GIOP probes. [Quentin Hardy]
-
-o [NSE] Added ipv6-multicast-mld-list for discovering IPv6 multicast listeners
-  with MLD probes. The discovery is the same as targets-ipv6-multicast-mld, but
-  the subscribed addresses are decoded and listed.
-  [Alexandru Geana, Daniel Miller]
-
-o [NSE] [GH#226] Added http-vuln-cve2014-3704 for detecting and exploiting the
-  "Drupalgeddon" pre-auth SQL Injection vulnerability in Drupal. [Mariusz Ziulek]
-
 o [NSE] [GH#242] Fix multiple false-positive sources in http-backup-agent.
   [Tom Sellers]
-
-o [Zenmap] [GH#247] Remember window geometry (position and size) from the
-  previous time Zenmap was run. [isjing]
 
 Nmap 7.01 [2015-12-09]
 

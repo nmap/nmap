@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 12/10/2015
+.\"      Date: 03/17/2016
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/10/2015" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/17/2016" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -123,7 +123,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.01SVN ( https://nmap\&.org )
+Nmap 7\&.10SVN ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -281,7 +281,7 @@ in the first octet so the target specification doesn\*(Aqt look like a command\-
 will perform an Internet\-wide scan for all IP addresses ending in 13\&.37\&. This sort of broad sampling can be useful for Internet surveys and research\&.
 .\" IPv6
 .PP
-IPv6 addresses can only be specified by their fully qualified IPv6 address or hostname\&. CIDR and octet ranges aren\*(Aqt yet supported for IPv6\&.
+IPv6 addresses can be specified by their fully qualified IPv6 address or hostname or with CIDR notation for subnets\&. Octet ranges aren\*(Aqt yet supported for IPv6\&.
 .\" link-local IPv6 address
 .\" IPv6 address: link-local
 .\" zone ID (IPv6 address)
