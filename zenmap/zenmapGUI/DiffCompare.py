@@ -134,7 +134,7 @@ import xml.sax
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, \
-        hig_box_space_holder
+    hig_box_space_holder
 from zenmapGUI.higwidgets.higlabels import HIGSectionLabel
 from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.higwidgets.higbuttons import HIGButton
@@ -214,7 +214,7 @@ class ScanChooser(HIGVBox):
     def _attaching_widgets(self):
         self.table.attach(self.combo_scan, 0, 1, 0, 1, yoptions=0)
         self.table.attach(
-                self.btn_open_scan, 1, 2, 0, 1, yoptions=0, xoptions=0)
+            self.btn_open_scan, 1, 2, 0, 1, yoptions=0, xoptions=0)
         self.table.attach(self.exp_scan, 0, 2, 1, 2)
 
     def _set_scrolled(self):
@@ -238,7 +238,7 @@ class ScanChooser(HIGVBox):
         self.txt_scan_result.set_wrap_mode(gtk.WRAP_WORD)
         self.txt_scan_result.set_editable(False)
         self.txt_scan_result.get_buffer().connect(
-                "changed", self._text_changed_cb)
+            "changed", self._text_changed_cb)
 
     def _set_open_button(self):
         self.btn_open_scan.connect('clicked', self.open_file)
@@ -253,7 +253,7 @@ class ScanChooser(HIGVBox):
             try:
                 parser = NmapParser()
                 parser.parse_file(file_chosen)
-            except xml.sax.SAXParseException, e:
+            except xml.sax.SAXParseException as e:
                 alert = HIGAlertDialog(
                     message_format='<b>%s</b>' % _('Error parsing file'),
                     secondary_text=_(
@@ -262,13 +262,13 @@ class ScanChooser(HIGVBox):
                 alert.run()
                 alert.destroy()
                 return False
-            except Exception, e:
+            except Exception as e:
                 alert = HIGAlertDialog(
-                        message_format='<b>%s</b>' % _(
-                            'Cannot open selected file'),
-                        secondary_text=_("""\
-                            This error occurred while trying to open the file:
-                            %s""") % str(e))
+                    message_format='<b>%s</b>' % _(
+                        'Cannot open selected file'),
+                    secondary_text=_("""\
+                        This error occurred while trying to open the file:
+                        %s""") % str(e))
                 alert.run()
                 alert.destroy()
                 return False
@@ -291,7 +291,7 @@ class ScanChooser(HIGVBox):
     def _text_changed_cb(self, widget):
         buff = self.txt_scan_result.get_buffer()
         buff.apply_tag(
-                self.txg_tag, buff.get_start_iter(), buff.get_end_iter())
+            self.txg_tag, buff.get_start_iter(), buff.get_end_iter())
 
     def get_parsed_scan(self):
         """Return the currently selected scan's parsed output as an NmapParser
@@ -388,7 +388,7 @@ class DiffWindow(gtk.Window):
         else:
             try:
                 self.ndiff_process = zenmapCore.Diff.ndiff(scan_a, scan_b)
-            except OSError, e:
+            except OSError as e:
                 alert = HIGAlertDialog(
                     message_format=_("Error running ndiff"),
                     secondary_text=_(
@@ -400,7 +400,7 @@ class DiffWindow(gtk.Window):
                 self.progress.show()
                 if self.timer_id is None:
                     self.timer_id = gobject.timeout_add(
-                            NDIFF_CHECK_TIMEOUT, self.check_ndiff_process)
+                        NDIFF_CHECK_TIMEOUT, self.check_ndiff_process)
 
     def check_ndiff_process(self):
         """Check if the ndiff subprocess is done and show the diff if it is.
@@ -425,7 +425,7 @@ class DiffWindow(gtk.Window):
                 # Successful completion.
                 try:
                     diff = self.ndiff_process.get_scan_diff()
-                except zenmapCore.Diff.NdiffParseException, e:
+                except zenmapCore.Diff.NdiffParseException as e:
                     alert = HIGAlertDialog(
                         message_format=_("Error parsing ndiff output"),
                         secondary_text=str(e))
@@ -436,8 +436,8 @@ class DiffWindow(gtk.Window):
             else:
                 # Unsuccessful completion.
                 error_text = _(
-                        "The ndiff process terminated with status code %d."
-                        ) % status
+                    "The ndiff process terminated with status code %d."
+                    ) % status
                 stderr = self.ndiff_process.stderr.read()
                 if len(stderr) > 0:
                     error_text += "\n\n" + stderr
@@ -476,7 +476,7 @@ class DiffView(gtk.TextView):
         # Create text markup tags.
         buff.create_tag("=", font="Monospace")
         buff.create_tag(
-                "-", font="Monospace", background=self.REMOVE_COLOR)
+            "-", font="Monospace", background=self.REMOVE_COLOR)
         buff.create_tag("+", font="Monospace", background=self.ADD_COLOR)
 
     def clear(self):
