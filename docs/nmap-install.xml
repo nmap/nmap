@@ -841,8 +841,6 @@ must install version 4.0 or later.</para></listitem>
 components. Many systems already have this installed from other
 packages, but you should run <filename>vcredist_x86.exe</filename>
 from the zip file just in case you need it.
-The Python interpreter embedded in the Zenmap executable requires the
-<ulink role="hidepdf" url="http://www.microsoft.com/downloads/details.aspx?familyid=2051a0c1-c9b5-4b0a-a8f5-770a549fd78c">2008 Redistributable Package</ulink> as well, so it is included as <filename>vcredist2008_x86.exe</filename>.
 Pass the <option>/q</option> option to run these installers in quiet (non interactive) mode.</para></listitem>
 
 <listitem><para>Instructions for executing your compiled Nmap are
