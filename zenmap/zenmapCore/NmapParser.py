@@ -623,8 +623,12 @@ in epoch format!")
         return ports
 
     def get_formatted_date(self):
-        return time.strftime("%B %d, %Y - %H:%M", self.get_date()).decode(
+        try:
+            return time.strftime("%B %d, %Y - %H:%M", self.get_date()).decode(
                 locale.getpreferredencoding())
+        except LookupError:
+            # encoding or locale not found
+            return time.asctime(self.get_date()).decode('ascii')
 
     def get_scanner(self):
         return self.nmap['nmaprun'].get('scanner', '')
