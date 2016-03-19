@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
+local unicode = require "unicode"
 
 description = [[
 Retrieves a server's SSL certificate. The amount of information printed
@@ -148,6 +149,21 @@ end
 local NON_VERBOSE_FIELDS = { "commonName", "organizationName",
 "stateOrProvinceName", "countryName" }
 
+-- Test to see if the string is UTF-16 and transcode it if possible
+local function maybe_decode(str)
+  -- If length is not even, then return as-is
+  if #str < 2 or #str % 2 == 1 then
+    return str
+  end
+  if str:byte(1) > 0 and str:byte(2) == 0 then
+    -- little-endian UTF-16
+    return unicode.transcode(str, unicode.utf16_dec, unicode.utf8_enc, false, nil)
+  elseif str:byte(1) == 0 and str:byte(2) > 0 then
+    -- big-endian UTF-16
+    return unicode.transcode(str, unicode.utf16_dec, unicode.utf8_enc, true, nil)
+  end
+end
+
 function stringify_name(name)
   local fields = {}
   local _, k, v
@@ -157,7 +173,7 @@ function stringify_name(name)
   for _, k in ipairs(NON_VERBOSE_FIELDS) do
     v = name[k]
     if v then
-      fields[#fields + 1] = string.format("%s=%s", k, v)
+      fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v))
     end
   end
   if nmap.verbosity() > 1 then
@@ -167,7 +183,7 @@ function stringify_name(name)
         if type(k) == "table" then
           k = stdnse.strjoin(".", k)
         end
-        fields[#fields + 1] = string.format("%s=%s", k, v)
+        fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v))
       end
     end
   end
@@ -239,6 +255,7 @@ end
 action = function(host, port)
   local status, cert = sslcert.getCertificate(host, port)
   if ( not(status) ) then
+    stdnse.debug1("getCertificate error: %s", cert or "unknown")
     return
   end
 
