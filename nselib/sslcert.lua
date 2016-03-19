@@ -19,13 +19,17 @@
 
 local asn1 = require "asn1"
 local bin = require "bin"
+local bit = require "bit"
 local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
+local mssql = require "mssql"
 local nmap = require "nmap"
 local smtp = require "smtp"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
+local tls = require "tls"
 local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
@@ -55,6 +59,104 @@ local function tls_reconnect (func)
     return false, "Failed to connect to server"
   end
 end
+
+-- Class for sockets which wrap sends and receives in some sort of tunnel
+-- Overload the wrap_close, wrap_send, and wrap_receive functions to use it.
+-- The socket won't be able to reconnect_ssl, though, since Nsock has
+-- no idea about the wrapper. Still useful for ssl-* scripts.
+WrappedSocket =
+{
+  new = function(self, socket, o)
+    assert(socket, "socket must be connected socket!")
+    o = o or {}
+    o.socket = socket
+    setmetatable(o, self)
+    self.__index = function(instance, key)
+      return rawget(self, key) or instance.socket[key]
+    end
+    return o
+  end,
+
+  close = function(self)
+    return self:wrap_close()
+  end,
+
+  receive = function(self)
+    return self:wrap_receive()
+  end,
+
+  send = function(self, data)
+    return self:wrap_send(data)
+  end,
+
+  set_timeout = function(self, timeout)
+    return self.socket:set_timeout(timeout)
+  end,
+
+  receive_buf = function(self, delimiter, keeppattern)
+    self.buffer = self.buffer or ""
+    local delim_func
+    if type(delimiter) == "function" then
+      delim_func = delimiter
+    else
+      delim_func = function(buf)
+        return string.find(buf, delimiter)
+      end
+    end
+    local start, finish = delim_func(self.buffer)
+    if start then
+      local rval
+      if keeppattern then
+        rval = string.sub(self.buffer, 1, finish)
+      else
+        rval = string.sub(self.buffer, 1, start - 1)
+      end
+      self.buffer = string.sub(self.buffer, finish + 1)
+      return true, rval
+    else
+      local status, data = self:receive()
+      if not status then
+        return status, data
+      end
+      self.buffer = self.buffer .. data
+      -- tail recursion
+      return self:receive_buf(delimiter, keeppattern)
+    end
+  end,
+
+  receive_bytes = function(self, n)
+    local x = 0
+    local read = {}
+    while x < n do
+      local status, data = self:receive()
+      if not status then
+        return status, data
+      end
+      read[#read+1] = data
+      x = x + #data
+    end
+    return true, table.concat(read)
+  end,
+
+  receive_lines = function(self, n)
+    local x = 0
+    local read = {}
+    local function incr()
+      x = x + 1
+    end
+    while x < n do
+      local status, data = self:receive()
+      if not status then
+        return status, data
+      end
+      read[#read+1] = data
+      string.gsub(data, "\n", incr)
+    end
+    return true, table.concat(read)
+  end,
+
+  }
+
 
 StartTLS = {
 
@@ -279,6 +381,110 @@ StartTLS = {
 
   smtp_prepare_tls = tls_reconnect("smtp_prepare_tls_without_reconnect"),
 
+  tds_prepare_tls_without_reconnect = function(host, port)
+    local tds = mssql.TDSStream:new()
+    local status, result = tds:Connect(host, port)
+    if not status then return status, result end
+    local prelogin = mssql.PreLoginPacket:new()
+    prelogin:SetRequestEncryption(true)
+    tds:Send( prelogin:ToBytes() )
+    status, result = tds:Receive()
+    if not status then return status, result end
+
+    local status, preloginResponse = mssql.PreLoginPacket.FromBytes(result)
+    if not status then return status, preloginResponse end
+
+    local encryption
+    local pos, optype, oppos, oplen = bin.unpack('>CSS', result)
+    while optype ~= mssql.PreLoginPacket.OPTION_TYPE.Terminator do
+      --stdnse.debug1("optype: %d, oppos: %x, oplen: %d", optype, oppos, oplen)
+      if optype == mssql.PreLoginPacket.OPTION_TYPE.Encryption then
+        encryption = bin.unpack('C', result, oppos + 1)
+        break
+      end
+      pos, optype, oppos, oplen = bin.unpack('>CSS', result, pos)
+    end
+    if not encryption then
+      return false, "no encryption option found"
+    elseif encryption == 0 then
+      return false, "Server refused encryption"
+    elseif encryption == 3 then
+      return false, "Server does not support encryption"
+    end
+
+    return true, WrappedSocket:new(tds._socket, {
+        wrap_close = function(self)
+          return tds:Disconnect()
+        end,
+        wrap_receive = function(self)
+          -- mostly lifted from mssql.TDSStream.Receive
+          -- TODO: Modify that function to allow recieving arbitrary response
+          -- types, since it's only because it forces type 0x04 that we had to
+          -- do this here (where we expect type 0x12)
+          local combinedData = ""
+          local readBuffer = ""
+          local pos = 1
+          local tdsPacketAvailable = true
+
+          -- Large messages (e.g. result sets) can be split across multiple TDS
+          -- packets from the server (which could themselves each be split across
+          -- multiple TCP packets or SMB messages).
+          while ( tdsPacketAvailable ) do
+            -- If there is existing data in the readBuffer, see if there's
+            -- enough to read the TDS headers for the next packet. If not,
+            -- do another read so we have something to work with.
+            if #readBuffer < 8 then
+              status, result = tds._socket:receive_bytes(8 - readBuffer:len())
+              if not status then return status, result end
+              readBuffer = readBuffer .. result
+            end
+
+            -- TDS packet validity check: packet at least as long as the TDS header
+            if #readBuffer < 8 then
+              return false, "Server returned short packet"
+            end
+
+            -- read in the TDS headers
+            local packetType, messageStatus, packetLength
+            pos, packetType, messageStatus, packetLength = bin.unpack(">CCS", readBuffer, pos )
+            local spid, packetId, window
+            pos, spid, packetId, window = bin.unpack(">SCC", readBuffer, pos )
+
+            if packetLength > #readBuffer then
+              status, result = tds._socket:receive_bytes(packetLength - #readBuffer)
+              if not status then return status, result end
+              readBuffer = readBuffer .. result
+            end
+
+            -- We've read in an apparently valid TDS packet
+            local thisPacketData = readBuffer:sub( pos, packetLength )
+            -- Append its data to that of any previous TDS packets
+            combinedData = combinedData .. thisPacketData
+            -- If we read in data beyond the end of this TDS packet, save it
+            -- so that we can use it in the next loop.
+            readBuffer = readBuffer:sub( packetLength + 1 )
+
+            -- Check the status flags in the TDS packet to see if the message is
+            -- continued in another TDS packet.
+            tdsPacketAvailable = (
+              bit.band( messageStatus, mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
+              ~= mssql.TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
+          end
+
+          -- return only the data section ie. without the headers
+          return true, combinedData
+
+        end,
+        wrap_send = function(self, data)
+          return tds:Send(mssql.PacketType.PreLogin, data)
+        end,
+      })
+  end,
+  -- no TLS reconnect for TDS because of the wrapped handshake thing.
+  tds_prepare_tls = function(host, port)
+    return false, "Full SSL connection over TDS not supported"
+  end,
+
   xmpp_prepare_tls_without_reconnect = function(host,port)
     local sock,status,err,result
     local xmppStreamStart = string.format("<?xml version='1.0' ?>\r\n<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:client' to='%s' version='1.0'>\r\n",host.name)
@@ -350,6 +556,7 @@ StartTLS = {
   end
 }
 
+
 -- A table mapping port numbers to specialized SSL negotiation functions.
 local SPECIALIZED_PREPARE_TLS = {
   ftp = StartTLS.ftp_prepare_tls,
@@ -367,7 +574,8 @@ local SPECIALIZED_PREPARE_TLS = {
   [587] = StartTLS.smtp_prepare_tls,
   xmpp = StartTLS.xmpp_prepare_tls,
   [5222] = StartTLS.xmpp_prepare_tls,
-  [5269] = StartTLS.xmpp_prepare_tls
+  [5269] = StartTLS.xmpp_prepare_tls,
+  ["ms-sql-s"] = StartTLS.tds_prepare_tls
 }
 
 local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
@@ -389,6 +597,11 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   [5269] = StartTLS.xmpp_prepare_tls_without_reconnect
 }
 
+-- these can't do reconnect_ssl
+local SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT = {
+  ["ms-sql-s"] = StartTLS.tds_prepare_tls_without_reconnect,
+}
+
 --- Get a specialized SSL connection function without starting SSL
 --
 -- For protocols that require some sort of START-TLS setup, this function will
@@ -401,7 +614,9 @@ function getPrepareTLSWithoutReconnect(port)
     return nil
   end
   return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
-    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service])
+    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
+    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number] or
+    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service])
 end
 
 --- Get a specialized SSL connection function to create an SSL socket
@@ -416,6 +631,30 @@ function isPortSupported(port)
   end
   return (SPECIALIZED_PREPARE_TLS[port.number] or
     SPECIALIZED_PREPARE_TLS[port.service])
+end
+
+-- returns a function that yields a new tls record each time it is called
+local function get_record_iter(sock)
+  local buffer = ""
+  local i = 1
+  local fragment
+  return function ()
+    local record
+    i, record = tls.record_read(buffer, i, fragment)
+    if record == nil then
+      local status, err
+      status, buffer, err = tls.record_buffer(sock, buffer, i)
+      if not status then
+        return nil, err
+      end
+      i, record = tls.record_read(buffer, i, fragment)
+      if record == nil then
+        return nil, "done"
+      end
+    end
+    fragment = record.fragment
+    return record
+  end
 end
 
 --- Gets a certificate for the given host and port
@@ -436,27 +675,95 @@ function getCertificate(host, port)
     return true, host.registry["ssl-cert"][port.number]
   end
 
-  -- Is there a specialized function for this port?
-  local specialized = SPECIALIZED_PREPARE_TLS[port.number]
-  local status
-  local socket = nmap.new_socket()
-  if specialized then
-    status, socket = specialized(host, port)
+  local cert
+  -- do we have to use a wrapper and do a manual handshake?
+  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service]
+  if wrapper then
+    local status, socket = wrapper(host, port)
+    if not status then
+      mutex "done"
+      return false, socket
+    end
+
+    -- logic mostly lifted from ssl-enum-ciphers
+    local hello = tls.client_hello()
+    local status, err = socket:send(hello)
     if not status then
       mutex "done"
       return false, "Failed to connect to server"
     end
-  else
-    local status
-    status = socket:connect(host, port, "ssl")
-    if ( not(status) ) then
-      mutex "done"
-      return false, "Failed to connect to server"
+
+    local get_next_record = get_record_iter(socket)
+    local records = {}
+    while true do
+      local record
+      record, err = get_next_record()
+      if not record then
+        stdnse.debug1("no record: %s", err)
+        socket:close()
+        break
+      end
+      -- Collect message bodies into one record per type
+      records[record.type] = records[record.type] or record
+      local done = false
+      for j = 1, #record.body do -- no ipairs because we append below
+        local b = record.body[j]
+        done = ((record.type == "alert" and b.level == "fatal") or
+          (record.type == "handshake" and b.type == "server_hello_done"))
+        table.insert(records[record.type].body, b)
+      end
+      if done then
+        socket:close()
+        break
+      end
     end
-  end
-  local cert = socket:get_ssl_certificate()
-  if ( cert == nil ) then
-    return false, "Unable to get cert"
+
+    local handshake = records.handshake
+    if not handshake then
+      mutex "done"
+      return false, "Server did not handshake"
+    end
+
+    local certs
+    for i, b in ipairs(handshake.body) do
+      if b.type == "certificate" then
+        certs = b
+        break
+      end
+    end
+    if not certs or not next(certs.certificates) then
+      mutex "done"
+      return false, "Server sent no certificate"
+    end
+
+    cert = parse_ssl_certificate(certs.certificates[1])
+    if not cert then
+      mutex "done"
+      return false, "Unable to get cert"
+    end
+  else
+    -- Is there a specialized function for this port?
+    local specialized = SPECIALIZED_PREPARE_TLS[port.number]
+    local status
+    local socket = nmap.new_socket()
+    if specialized then
+      status, socket = specialized(host, port)
+      if not status then
+        mutex "done"
+        return false, "Failed to connect to server"
+      end
+    else
+      status = socket:connect(host, port, "ssl")
+      if ( not(status) ) then
+        mutex "done"
+        return false, "Failed to connect to server"
+      end
+    end
+    cert = socket:get_ssl_certificate()
+    if ( cert == nil ) then
+      mutex "done"
+      return false, "Unable to get cert"
+    end
   end
 
   host.registry["ssl-cert"] = host.registry["ssl-cert"] or {}

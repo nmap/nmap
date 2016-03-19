@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support in sslcert.lua for Microsoft SQL Server's TDS protocol,
+  so you can now grab certs with ssl-cert or check ciphers with
+  ssl-enum-ciphers.  [Daniel Miller]
+
 Nmap 7.10 [2016-03-17]
 
 o [NSE] Added 12 NSE scripts from 7 authors, bringing the total up to 527!
