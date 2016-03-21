@@ -30,6 +30,7 @@ NMAP_UPDATE_BUILD_DIR = nmap-update-build
 NMAP_UPDATE_STAGING_DIR = nmap-update
 
 JHBUILD_PREFIX=$(HOME)/gtk/inst
+export JHBUILD_PREFIX
 # MACPORTS_PREFIX is still here because of nmap-update, which needs
 # libsvn and libapr, which jhbuild doesn't support yet.
 MACPORTS_PREFIX=$(HOME)/macports-10.8

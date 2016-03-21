@@ -11,9 +11,9 @@
 
 <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
 <autotools id="openssl" autogen-sh="Configure"
-autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s --libdir=lib darwin-i386-cc shared"
+autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s --libdir=lib darwin-i386-cc shared enable-ssl2"
 makeinstallargs="install_sw">
-<branch repo="openssl" version="1.0.2e" module="openssl-1.0.2e.tar.gz"/>
+<branch repo="openssl" version="1.0.2g" module="openssl-1.0.2g.tar.gz"/>
 </autotools>
 
 </moduleset>

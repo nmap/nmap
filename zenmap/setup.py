@@ -238,7 +238,7 @@ class my_install(install):
         # install.finalize_options when sys.prefix is "/usr/local" (our
         # default). Because we need the unchanged value later, remember it
         # here.
-        self.saved_prefix = sys.prefix
+        self.saved_prefix = self.prefix
         install.finalize_options(self)
 
     def run(self):

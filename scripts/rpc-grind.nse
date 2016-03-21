@@ -30,8 +30,8 @@ Any other accept state is an incorrect behaviour.
 -- <target>
 --
 --@output
---PORT      STATE SERVICE          VERSION
---53344/udp open  walld (walld V1) 1 (RPC #100008)
+--PORT      STATE SERVICE VERSION
+--53344/udp open  walld   1 (RPC #100008)
 --
 
 
@@ -41,6 +41,8 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 
+-- Depend on rpcinfo so we don't grind something that's already known.
+dependencies = {"rpcinfo"}
 
 portrule = function(host, port)
   -- Do not run for excluded ports

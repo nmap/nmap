@@ -163,7 +163,7 @@ local function check_domain (domain)
 
   stdnse.print_debug(1, "Checking availability of domain %s with tld:%s ", name, tld)
   local path = string.format("/all/%s?/tlds=%s&limit=1", name, tld)
-  local response = http.get("instantdomainsearch.com", 443, path)
+  local response = http.get("instantdomainsearch.com", 443, path, {any_af=true})
   if ( not(response) or (response.status and response.status ~= 200) ) then
     return nil
   end

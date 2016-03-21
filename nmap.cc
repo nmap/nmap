@@ -502,6 +502,7 @@ public:
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
     this->iflist                = false;
+    this->af                    = AF_UNSPEC;
   }
 
   // Pre-specified timing parameters.
@@ -517,6 +518,7 @@ public:
   char  *exclude_spec, *exclude_file;
   char  *spoofSource;
   const char *spoofmac;
+  int af;
   std::vector<std::string> verbose_out;
 
   void warn_deprecated (const char *given, const char *replacement) {
@@ -1033,13 +1035,19 @@ void parse_options(int argc, char **argv) {
     case '4':
       /* This is basically useless for now, but serves as a placeholder to
        * ensure that -4 is a valid option */
-      o.setaf(AF_INET);
+      if (delayed_options.af == AF_INET6) {
+        fatal("Cannot use both -4 and -6 in one scan.");
+      }
+      delayed_options.af = AF_INET;
       break;
     case '6':
 #if !HAVE_IPV6
       fatal("I am afraid IPv6 is not available because your host doesn't support it or you chose to compile Nmap w/o IPv6 support.");
 #else
-      o.setaf(AF_INET6);
+      if (delayed_options.af == AF_INET) {
+        fatal("Cannot use both -4 and -6 in one scan.");
+      }
+      delayed_options.af = AF_INET6;
 #endif /* !HAVE_IPV6 */
       break;
     case 'A':
@@ -1452,6 +1460,9 @@ void  apply_delayed_options() {
   char tbuf[128];
   struct sockaddr_storage ss;
   size_t sslen;
+
+  // Default IPv4
+  o.setaf(delayed_options.af == AF_UNSPEC ? AF_INET : delayed_options.af);
 
   if (o.verbose > 0) {
     for (std::vector<std::string>::iterator it = delayed_options.verbose_out.begin(); it != delayed_options.verbose_out.end(); ++it) {
