@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#341] Added support for diffie-hellman-group-exchange-* SSH key
+  exchange methods to ssh2.lua, allowing ssh-hostkey to run on servers that
+  only support custom Diffie-Hellman groups. [Sergey Khegay]
+
 o [NSE] Added support in sslcert.lua for Microsoft SQL Server's TDS protocol,
   so you can now grab certs with ssl-cert or check ciphers with
   ssl-enum-ciphers.  [Daniel Miller]
