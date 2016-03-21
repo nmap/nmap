@@ -343,7 +343,7 @@ class WindowConfig(UmitConfigParser, object):
         return value
 
     def set_x(self, x):
-        self._set_it("x", x)
+        self._set_it("x", "%d" % x)
 
     def get_y(self):
         try:
@@ -353,7 +353,7 @@ class WindowConfig(UmitConfigParser, object):
         return value
 
     def set_y(self, y):
-        self._set_it("y", y)
+        self._set_it("y", "%d" % y)
 
     def get_width(self):
         try:
@@ -367,7 +367,7 @@ class WindowConfig(UmitConfigParser, object):
         return value
 
     def set_width(self, width):
-        self._set_it("width", width)
+        self._set_it("width", "%d" % width)
 
     def get_height(self):
         try:
@@ -381,7 +381,7 @@ class WindowConfig(UmitConfigParser, object):
         return value
 
     def set_height(self, height):
-        self._set_it("height", height)
+        self._set_it("height", "%d" % height)
 
     x = property(get_x, set_x)
     y = property(get_y, set_y)
