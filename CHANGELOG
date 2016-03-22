@@ -8,6 +8,19 @@ o [NSE] Added support in sslcert.lua for Microsoft SQL Server's TDS protocol,
   so you can now grab certs with ssl-cert or check ciphers with
   ssl-enum-ciphers.  [Daniel Miller]
 
+o [Zenmap] Fix a crash when setting default window geometry:
+    TypeError: argument of type 'int' is not iterable
+
+o [Zenmap] Fix a crash when displaying the date from an Nmap XML file due to an
+  empty or unknown locale:
+    File "zenmapCore/NmapParser.py", line 627, in get_formatted_date
+      locale.getpreferredencoding())
+    LookupError: unknown encoding:
+
+o [Zenmap] Fix a crash due to incorrect file paths when installing to
+  /usr/local prefix. Example:
+    Exception: File '/home/blah/.zenmap/scan_profile.usp' does not exist or could not be found!
+
 Nmap 7.10 [2016-03-17]
 
 o [NSE] Added 12 NSE scripts from 7 authors, bringing the total up to 527!
