@@ -107,21 +107,19 @@ _ENV = stdnse.module("bittorrent", stdnse.seeall)
 --------------------------------------------------------------------------------
 --  utilities for logging memory data
 --
-local hex_dump = function( _title, buf )
-    
-  io.write( "\n-->> " .. _title .. "\n" )
+local hex_dump = function(_title, buf)
+  stdnse.debug(1, "MEMORY[" .. _title .. "]")
 
   for byte=1, #buf, 16 do
      local chunk = buf:sub(byte, byte+15)
 
-     io.write(string.format('%08X  ',byte-1))
-
-     chunk:gsub('.', function (c) io.write(string.format('%02X ',string.byte(c))) end)
-     io.write(string.rep(' ',3*(16-#chunk)))
-     io.write(' ',chunk:gsub('%c','.'),"\n") 
+     stdnse.debug(1, string.format('%08X  ',byte-1))
+     chunk:gsub('.', function (c) stdnse.debug(1, string.format('%02X ',string.byte(c))) end)
+     stdnse.debug(1, string.rep(' ',3*(16-#chunk)))
+     stdnse.debug(1, ' ',chunk:gsub('%c','.'),"\n") 
   end
 
-  io.write( "-->> end " .. _title .. "\n\n" )
+  stdnse.debug(1, "++++++++++++++++++++")
 end
 
   --
@@ -296,7 +294,7 @@ bdecode = function(buf)
         if not cur then return nil, "Problem with list closure:", pos end
         pos = pos+1
       else
-        stdnse.verbose1("* Error: can't handle data format")
+        stdnse.debug(1, "* Error: can't handle data format")
         break
       end
 
@@ -338,7 +336,6 @@ bdecode = function(buf)
           if a and b then
             local text = string.sub( buf, pos, a - 1 ) 
 
-            -- stdnse.verbose1(">>Length sought for peers[" .. text .. "]")
             len = tonumber(text)
             item.value = string.sub( buf, a + 1, a + len)
 
@@ -402,14 +399,14 @@ bdecode = function(buf)
           if not cur then return false, "Problem with dict closure", pos end
           pos = pos+1
         else
-          stdnse.verbose1("* ERROR[" .. string.char(buf:byte(pos)) .. "] at pos[" .. pos .. "]")
+          stdnse.debug(1, "* ERROR[" .. string.char(buf:byte(pos)) .. "] @[" .. pos .. "]")
 
           return false, "Error parsing file, unknown type found", pos
         end
       end -- if not escape_flag
     else -- elseif type == "dict"
 
-      stdnse.verbose1("* Unknown type found: cur.type[" .. cur.type .. "] @[" .. pos .. "]")
+      stdnse.debug(1, "* Unknown type found: cur.type[" .. cur.type .. "] @[" .. pos .. "]")
       return nil, "Unknown type found.", pos
     end
   end -- while(true)
@@ -440,7 +437,7 @@ local dht_ping_thread = function(pnt, timeout)
   socket:set_timeout(3000)
   local status, data
 
-  stdnse.verbose2("! dht_ping_thread launched")
+  stdnse.debug(2, "! dht_ping_thread launched")
 
   local transaction_id = 0
   local start = os.time()
@@ -540,7 +537,7 @@ local find_node_thread = function(pnt, timeout)
   socket:set_timeout(3000)
   local status, data
 
-  stdnse.verbose2("! find_node_thread launched")
+  stdnse.debug(2, "! find_node_thread launched")
 
   local start = os.time()
   while true do
@@ -616,7 +613,7 @@ local get_peers_thread = function(pnt, timeout)
   socket:set_timeout(3000)
   local status, data
 
-  stdnse.verbose2("! get_peers_thread launched")
+  stdnse.debug(2, "! get_peers_thread launched")
 
   local start = os.time()
   while true do
@@ -752,16 +749,16 @@ Torrent =
   --
   load_blacklist = function(self, filename)
 
-    stdnse.verbose2("  load_blacklist[" .. filename .. "]")
+    stdnse.debug(2, "  load_blacklist[" .. filename .. "]")
 
     if not filename then 
-      stdnse.verbose1("* No filename specified for blacklist.")
+      stdnse.debug(1, "* No filename specified for blacklist.")
       return nil
     end
 
     local file = io.open(filename, "r")
     if not file then 
-      stdnse.verbose1("* Unable to open blacklist[" .. filename .. "]")
+      stdnse.debug(1, "* Unable to open blacklist[" .. filename .. "]")
       return nil
     end
     file:close()
@@ -812,7 +809,7 @@ Torrent =
   -- @return err string with error message if loadin went wrong
   load_from_file = function(self, filename)
 
-    stdnse.verbose2(">>Loading [" .. filename .. "]")
+    stdnse.debug(2, "  Loading [" .. filename .. "]")
 
     if not filename then return false, "No filename specified." end
     local file = io.open(filename, "rb")
@@ -862,7 +859,7 @@ Torrent =
       if self.blacklist and self.blacklist[tracker] then exec = false end
 
       if true == exec then
-        stdnse.verbose2("  Query[" .. tracker .. "]")  
+        stdnse.debug(2, "  Query[" .. tracker .. "]")  
 
         if tracker:match("^http://") then -- http tracker
           status, err = self:http_tracker_peers(tracker)
@@ -875,10 +872,10 @@ Torrent =
 
         --if not status then return false, err end
         if not status then
-            stdnse.verbose1("* [%s] error[%s]", tracker, err)
+            stdnse.debug(1, "* [%s] error[%s]", tracker, err)
         end
       else
-        stdnse.verbose2("  Black listed[" .. tracker .. "]") 
+        stdnse.debug(2, "  Black listed[" .. tracker .. "]") 
       end
     end
 
@@ -1045,7 +1042,7 @@ Torrent =
           if item.key == "info" then
             info_pos_start = pos 
             stack_lvl = #stack            
-            stdnse.verbose2("  parse_buffer [ + 4:info ] @[" .. info_pos_start .. "]")
+            stdnse.debug(3, "  parse_buffer [ + 4:info ] @[" .. info_pos_start .. "]")
           end
 
         -- escape
@@ -1058,7 +1055,7 @@ Torrent =
             if 1 < (pos - info_pos_end) then info_pos_end = pos end
             if #stack == stack_lvl then stack_lvl = nil end
 
-            stdnse.verbose2("  parse_buffer [ - 4:info ] @[" .. info_pos_end .. "]")
+            stdnse.debug(3, "  parse_buffer [ - 4:info ] @[" .. info_pos_end .. "]")
           end   
 
           table.remove(stack, #stack)
@@ -1139,7 +1136,7 @@ Torrent =
     -- other stack index check
     --
     if stack_lvl and #stack > stack_lvl then            
-      stdnse.verbose1("  parse_buffer [ ! 4:info ] info_pos_end[" .. info_pos_end .. "] pos[" .. pos .. "]")
+      stdnse.debug(1, "  parse_buffer [ ! 4:info ] info_pos_end[" .. info_pos_end .. "] pos[" .. pos .. "]")
 
       info_pos_end = pos - 1
     end   
@@ -1177,12 +1174,12 @@ Torrent =
 
       if _tracker then
         table.insert(trackers, _tracker)
-        stdnse.verbose3("  load_trackers announce tracker[" .. _tracker .. "]")
+        stdnse.debug(3, "  load_trackers announce tracker[" .. _tracker .. "]")
       end
 
     else
       local errstr = "Announce field not found"
-      stdnse.verbose1("* load_trackers Error: " .. errstr)
+      stdnse.debug(1, "* load_trackers Error: " .. errstr)
       return false, errstr
     end
 
@@ -1225,10 +1222,10 @@ Torrent =
     self.trackers = _tkswap
     trackers      = nil
 
-    if 1 < nmap.verbosity() then
-      io.write("\nSorted trackers list:\n")
+    if 1 < nmap.debugging() then
+      stdnse.debug(1, "  Sorted trackers list")
       for pos, val in ipairs( self.trackers ) do
-        io.write("\t" .. val .. "\n")
+        stdnse.debug(1, "    " .. val)
       end    
     end
 
@@ -1245,7 +1242,7 @@ Torrent =
     if tor[1].type ~= "dict" then
       local errstring = "Cannot find dictionary in file"
 
-      stdnse.verbose1("* " .. errstring)
+      stdnse.debug(1, "* " .. errstring)
       return false, errstring
     end
 
@@ -1260,7 +1257,7 @@ Torrent =
                 if k.key == "length" then
                   size = size + k.value
 
-                  stdnse.verbose3("  Length sum[" .. size .. "] read[" .. k.value .. "]")
+                  stdnse.debug(3, "  Length sum[" .. size .. "] read[" .. k.value .. "]")
                   break
                 end
 
@@ -1271,7 +1268,7 @@ Torrent =
           elseif n.key == "length" then
             size = n.value
 
-            stdnse.verbose3("  Fixed length[" .. size .. "]")
+            stdnse.debug(3, "  Fixed length[" .. size .. "]")
             break
           end
         end
@@ -1283,7 +1280,7 @@ Torrent =
       return false, "File size: 0"
     end
 
-    stdnse.verbose1(string.format("  Torrent size [%.0fb] [%.2f Gb]", size, (size /(1024*1024*1024))))
+    stdnse.debug(1, string.format("  Torrent size [%.0fb] [%.2f Gb]", size, (size /(1024*1024*1024))))
     return true, ""
 
   end,
@@ -1305,12 +1302,12 @@ Torrent =
 
     --  output debugging data
     --
-    if 4 < nmap.verbosity() then hex_dump("self.buffer", self.buffer) end
-    if 3 < nmap.verbosity() then 
+    if 4 < nmap.debugging() then hex_dump("self.buffer", self.buffer) end
+    if 3 < nmap.debugging() then 
       local triminfo = string.sub(info_field, #info_field - 512, #info_field)
       hex_dump("info_field [last 512]", triminfo) 
     end
-    if 2 < nmap.verbosity() then hex_dump("info_hash", info_hash) end 
+    if 2 < nmap.debugging() then hex_dump("info_hash", info_hash) end 
 
     return true
   end,
@@ -1392,7 +1389,7 @@ Torrent =
     -->> end VALID RESPONSE
     ]]
 
-    if 2 < nmap.verbosity() then
+    if 2 < nmap.debugging() then
       hex_dump( "VALID RESPONSE", response.body )
     end
 
@@ -1467,13 +1464,13 @@ Torrent =
     self.num_seeders = self.num_seeders + p_seeders
     self.num_leeches = self.num_leeches + p_leechers
 
-    stdnse.verbose1("  [" .. tracker .. "] seeders[" .. p_seeders .. "] leechers[" .. p_leechers .. "]")
+    stdnse.debug(1, "  [" .. tracker .. "] seeders[" .. p_seeders .. "] leechers[" .. p_leechers .. "]")
 
-    if 1 < nmap.verbosity() then
+    if 1 < nmap.debugging() then
       if (0 < peers_add) or (0 < peers_dup) then
-        io.write(string.format("\nPeers list (%d new, %d dup):\n", peers_add, peers_dup))
+        stdnse.debug(1, string.format("  Peers list (%d new, %d dup)", peers_add, peers_dup))
         for peer_ip in pairs(self.peers) do
-          io.write("\t" .. peer_ip .. ":" .. self.peers[peer_ip].port .. "\n")
+          stdnse.debug(1, "    " .. peer_ip .. ":" .. self.peers[peer_ip].port)
         end
       end
     end    
@@ -1549,7 +1546,7 @@ Torrent =
     local temp_size = self.size
     if 0xefffffff < temp_size then
       temp_size = 0xefffffff
-      stdnse.verbose1("* Size casted to [0xefffffff]")
+      stdnse.debug(1, "* Size casted to [0xefffffff]")
     end
 
     local a_left = stdnse.tohex(temp_size)  -- bytes left to download is the size of torrent
@@ -1634,7 +1631,7 @@ Torrent =
       return false, "Data corrupted"
     end
 
-    stdnse.verbose1("  [" .. tracker .. "] seeders[" .. p_seeders .. "] leechers[" .. p_leechers .. "]")
+    stdnse.debug(1, "  [" .. tracker .. "] seeders[" .. p_seeders .. "] leechers[" .. p_leechers .. "]")
 
     -- parse peers from msg:sub(p_pos, #msg)
 
@@ -1665,13 +1662,13 @@ Torrent =
     if p_leechers > self.num_leeches then self.num_leeches = p_leechers end
 
     --  Antonio
-    --  output shall be controlled by the verbosity level
+    --  output shall be controlled by the debugging level
     --
-    if 1 < nmap.verbosity() then
+    if 1 < nmap.debugging() then
       if (0 < peers_add) or (0 < peers_dup) then
-        io.write(string.format("\nPeers list (%d new, %d dup):\n", peers_add, peers_dup))
+        stdnse.debug(1, string.format("  Peers list (%d new, %d dup)", peers_add, peers_dup))
         for peer_ip in pairs(self.peers) do
-          io.write("\t" .. peer_ip .. ":" .. self.peers[peer_ip].port .. "\n")
+          stdnse.debug(1, "    " .. peer_ip .. ":" .. self.peers[peer_ip].port)
         end
       end
     end
