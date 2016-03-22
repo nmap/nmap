@@ -340,6 +340,11 @@ class WindowConfig(UmitConfigParser, object):
             value = int(self._get_it("x", self.default_x))
         except ValueError:
             value = self.default_x
+        except TypeError as e:
+            v = self._get_it("x", self.default_x)
+            log.exception("Trouble parsing x value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_x
         return value
 
     def set_x(self, x):
@@ -350,6 +355,11 @@ class WindowConfig(UmitConfigParser, object):
             value = int(self._get_it("y", self.default_y))
         except ValueError:
             value = self.default_y
+        except TypeError as e:
+            v = self._get_it("y", self.default_y)
+            log.exception("Trouble parsing y value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_y
         return value
 
     def set_y(self, y):
@@ -359,6 +369,11 @@ class WindowConfig(UmitConfigParser, object):
         try:
             value = int(self._get_it("width", self.default_width))
         except ValueError:
+            value = self.default_width
+        except TypeError as e:
+            v = self._get_it("width", self.default_width)
+            log.exception("Trouble parsing width value as int: %s",
+                    repr(v), exc_info=e)
             value = self.default_width
 
         if not (value >= -1):
@@ -373,6 +388,11 @@ class WindowConfig(UmitConfigParser, object):
         try:
             value = int(self._get_it("height", self.default_height))
         except ValueError:
+            value = self.default_height
+        except TypeError as e:
+            v = self._get_it("height", self.default_height)
+            log.exception("Trouble parsing y value as int: %s",
+                    repr(v), exc_info=e)
             value = self.default_height
 
         if not (value >= -1):
