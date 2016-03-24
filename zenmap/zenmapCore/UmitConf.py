@@ -319,7 +319,6 @@ class WindowConfig(UmitConfigParser, object):
             self.create_section()
 
     def save_changes(self):
-        config_parser.fp = open(Path.user_config_file, 'w')
         config_parser.save_changes()
 
     def create_section(self):
