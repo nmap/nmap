@@ -14640,3 +14640,11 @@ ports 1194,443,500
 rarity 9
 match openvpn m|^@........\x01\0\0\0\0d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0$| p/OpenVPN/
 
+
+##############################NEXT PROBE##############################
+# MQTT v3.1.1 CONNECT
+Probe TCP mqtt q|\x10\x10\x00\x04MQTT\x04\x02\x00\x1e\x00\x04nmap|
+rarity 9
+ports 1883
+sslports 8883
+match mqtt m|^\x20\x02\x00.$|
