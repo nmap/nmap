@@ -14617,3 +14617,19 @@ sslports 2482
 
 match giop m|GIOP\x01\0\x01\x01@\0\0\0\0\0\0\0\x01\0\0\0\x02\0\0\0'\0\0\0IDL:omg\.org/CORBA/OBJECT_NOT_EXIST:1\.0\0\0\0\0\0\0\x01\0\0\0| p/omg.org CORBA naming service/
 softmatch giop m|^GIOP\x01\x00\x01\x01........\x01\x00\x00\x00|
+
+##############################NEXT PROBE##############################
+# P_CONTROL_HARD_RESET_CLIENT_V2
+Probe TCP OpenVPN q|\0\x0e87\xa5&\x08\xa2\x1b\xa0\xb1\0\0\0\0\0|
+ports 1194,443,500
+rarity 9
+match openvpn m|^\0\x1a@........\x01\0\0\0\x007\xa5&\x08\xa2\x1b\xa0\xb1\0\0\0\0$| p/OpenVPN/
+
+
+##############################NEXT PROBE##############################
+# P_CONTROL_HARD_RESET_CLIENT_V2
+Probe UDP OpenVPN q|8d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0\0|
+ports 1194,443,500
+rarity 9
+match openvpn m|^@........\x01\0\0\0\0d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0$| p/OpenVPN/
+
