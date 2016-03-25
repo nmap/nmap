@@ -161,6 +161,8 @@ local function maybe_decode(str)
   elseif str:byte(1) == 0 and str:byte(2) > 0 then
     -- big-endian UTF-16
     return unicode.transcode(str, unicode.utf16_dec, unicode.utf8_enc, true, nil)
+  else
+    return str
   end
 end
 
@@ -173,7 +175,7 @@ function stringify_name(name)
   for _, k in ipairs(NON_VERBOSE_FIELDS) do
     v = name[k]
     if v then
-      fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v))
+      fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v) or '')
     end
   end
   if nmap.verbosity() > 1 then
@@ -183,7 +185,7 @@ function stringify_name(name)
         if type(k) == "table" then
           k = stdnse.strjoin(".", k)
         end
-        fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v))
+        fields[#fields + 1] = string.format("%s=%s", k, maybe_decode(v) or '')
       end
     end
   end
