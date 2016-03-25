@@ -640,6 +640,9 @@ local SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT = {
 -- @param port A port table with 'number' and 'service' keys
 -- @return A STARTTLS function or nil
 function getPrepareTLSWithoutReconnect(port)
+  if port.protocol == 'udp' then
+    return nil
+  end
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
@@ -656,6 +659,9 @@ end
 -- @param port A port table with 'number' and 'service' keys
 -- @return A STARTTLS function or nil
 function isPortSupported(port)
+  if port.protocol == 'udp' then
+    return nil
+  end
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
