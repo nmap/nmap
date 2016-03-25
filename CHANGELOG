@@ -1,7 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
 o Added new service probes and match lines for OpenVPN on UDP and TCP.
-  [Corentin Delorme]
 
 Nmap 7.11 [2016-03-22]
 
