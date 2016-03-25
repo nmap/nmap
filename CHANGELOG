@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added STARTTLS support for NNTP [Daniel Miller]
+
 o Added new service probes and match lines for OpenVPN on UDP and TCP.
 
 Nmap 7.11 [2016-03-22]

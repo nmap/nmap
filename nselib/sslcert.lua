@@ -11,8 +11,11 @@
 -- * FTP
 -- * IMAP
 -- * LDAP
+-- * NNTP
 -- * POP3
+-- * PostgreSQL
 -- * SMTP
+-- * TDS (MS SQL Server)
 -- * XMPP
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
@@ -160,8 +163,6 @@ WrappedSocket =
 
 StartTLS = {
 
-  -- TODO: Implement STARTTLS for NNTP
-
   ftp_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over FTP for services that support it
     -- Works for FTP (21)
@@ -296,6 +297,31 @@ StartTLS = {
   end,
 
   ldap_prepare_tls = tls_reconnect("ldap_prepare_tls_without_reconnect"),
+
+  nntp_prepare_tls_without_reconnect = function(host, port)
+    local s, err, result = comm.opencon(host, port, "", {lines=1, recv_before=true})
+    if not s then
+      return false, string.format("Failed to connect to NNTP server: %s", err)
+    end
+
+    if not string.match(result, "^200") then
+      return false, "NNTP protocol mismatch"
+    end
+
+    local status = s:send("STARTTLS\r\n")
+    status, result = s:receive_lines(1)
+
+    if not (string.match(result, "^382 ")) then
+      stdnse.debug1(string.format("Error: %s", result))
+      status = s:send("QUIT\r\n")
+      s:close()
+      return false, "NNTP server does not support STARTTLS"
+    end
+
+    return true, s
+  end,
+
+  nntp_prepare_tls = tls_reconnect("nntp_prepare_tls_without_reconnect"),
 
   pop3_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over POP3 for services that support it
@@ -561,6 +587,8 @@ StartTLS = {
 local SPECIALIZED_PREPARE_TLS = {
   ftp = StartTLS.ftp_prepare_tls,
   [21] = StartTLS.ftp_prepare_tls,
+  nntp = StartTLS.nntp_prepare_tls,
+  [119] = StartTLS.nntp_prepare_tls,
   imap = StartTLS.imap_prepare_tls,
   [143] = StartTLS.imap_prepare_tls,
   [ldap] = StartTLS.ldap_prepare_tls,
@@ -581,6 +609,8 @@ local SPECIALIZED_PREPARE_TLS = {
 local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   ftp = StartTLS.ftp_prepare_tls_without_reconnect,
   [21] = StartTLS.ftp_prepare_tls_without_reconnect,
+  nntp = StartTLS.nntp_prepare_tls_without_reconnect,
+  [119] = StartTLS.nntp_prepare_tls_without_reconnect,
   imap = StartTLS.imap_prepare_tls_without_reconnect,
   [143] = StartTLS.imap_prepare_tls_without_reconnect,
   ldap = StartTLS.ldap_prepare_tls_without_reconnect,
