@@ -459,7 +459,7 @@ match directupdate m|^OK Welcome <[\d.]+> on DirectUpdate engine VER=\[([\d.]+) 
 match diskmonitor m|^000001a2[0-9a-f]{410}\r\n| p/Active@ Hard Disk Monitor/
 match diskmonitor m|^0000019a[0-9a-f]{402}\r\n| p/Active@ Hard Disk Monitor/
 
-match dlmtp m|^220 DSPAM DLMTP ([\w._-]+) Authentication Required\r\n| p/DSPAM dlmtpd/ v/$1/
+match lmtp m|^220 DSPAM DLMTP ([\w._-]+) Authentication Required\r\n| p/DSPAM lmtpd/ v/$1/ cpe:/a:dspam:dspam:$1/
 
 match doka5 m|^\xff\0\0\x14\x9d\0\0\0\0\0\0\0\0\0\0\x11l\0\0\0\x17\0\0| p/Surecomp DOKA 5/ cpe:/a:surecomp:doka_5/
 
