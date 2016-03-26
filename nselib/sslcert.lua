@@ -298,6 +298,44 @@ StartTLS = {
 
   ldap_prepare_tls = tls_reconnect("ldap_prepare_tls_without_reconnect"),
 
+  lmtp_prepare_tls_without_reconnect = function(host, port)
+    -- Open a standard TCP socket
+    local s, result = smtp.connect(host, port, {lines=1, recv_before=1, ssl=false})
+    if not s then
+      return false, string.format("Failed to connect to LMTP server: %s", result)
+    end
+
+    local status
+    status, result = smtp.query(s, "LHLO", "example.com")
+    if not status then
+      stdnse.debug1("LHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+      return false, string.format("Failed to LHLO: %s", result)
+    end
+    -- semantics of LHLO are same as EHLO
+    status, result = smtp.check_reply("EHLO", result)
+    if not status then
+      return false, string.format("Received LHLO error: %s", result)
+    end
+
+    -- Send STARTTLS command ask the service to start encryption
+    status, result = smtp.query(s, "STARTTLS")
+    if status then
+      status, result = smtp.check_reply("STARTTLS", result)
+    end
+
+    if not status then
+      stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
+
+      -- Send QUIT to clean up server side connection
+      smtp.quit(s)
+      return false, string.format("Failed to connect to SMTP server: %s", result)
+    end
+    -- Should have a solid TLS over LMTP session now...
+    return true, s
+  end,
+
+  lmtp_prepare_tls = tls_reconnect("lmtp_prepare_tls_without_reconnect"),
+
   nntp_prepare_tls_without_reconnect = function(host, port)
     local s, err, result = comm.opencon(host, port, "", {lines=1, recv_before=true})
     if not s then
@@ -593,6 +631,7 @@ local SPECIALIZED_PREPARE_TLS = {
   [143] = StartTLS.imap_prepare_tls,
   ldap = StartTLS.ldap_prepare_tls,
   [389] = StartTLS.ldap_prepare_tls,
+  lmtp = StartTLS.lmtp_prepare_tls,
   pop3 = StartTLS.pop3_prepare_tls,
   [110] = StartTLS.pop3_prepare_tls,
   postgresql = StartTLS.postgres_prepare_tls,
@@ -615,6 +654,7 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   [143] = StartTLS.imap_prepare_tls_without_reconnect,
   ldap = StartTLS.ldap_prepare_tls_without_reconnect,
   [389] = StartTLS.ldap_prepare_tls_without_reconnect,
+  lmtp = StartTLS.lmtp_prepare_tls_without_reconnect,
   pop3 = StartTLS.pop3_prepare_tls_without_reconnect,
   [110] = StartTLS.pop3_prepare_tls_without_reconnect,
   postgresql = StartTLS.postgres_prepare_tls_without_reconnect,
