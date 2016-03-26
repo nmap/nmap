@@ -646,10 +646,10 @@ function getPrepareTLSWithoutReconnect(port)
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
-  return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
-    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
-    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number] or
-    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service])
+  return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
+    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
+    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or
+    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number])
 end
 
 --- Get a specialized SSL connection function to create an SSL socket
@@ -665,8 +665,8 @@ function isPortSupported(port)
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
-  return (SPECIALIZED_PREPARE_TLS[port.number] or
-    SPECIALIZED_PREPARE_TLS[port.service])
+  return (SPECIALIZED_PREPARE_TLS[port.service] or
+    SPECIALIZED_PREPARE_TLS[port.number])
 end
 
 -- returns a function that yields a new tls record each time it is called
@@ -713,7 +713,7 @@ function getCertificate(host, port)
 
   local cert
   -- do we have to use a wrapper and do a manual handshake?
-  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service]
+  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
   if wrapper then
     local status, socket = wrapper(host, port)
     if not status then
@@ -779,7 +779,7 @@ function getCertificate(host, port)
     end
   else
     -- Is there a specialized function for this port?
-    local specialized = SPECIALIZED_PREPARE_TLS[port.number]
+    local specialized = SPECIALIZED_PREPARE_TLS[port.service] or SPECIALIZED_PREPARE_TLS[port.number]
     local status
     local socket = nmap.new_socket()
     if specialized then
