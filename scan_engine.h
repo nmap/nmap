@@ -206,7 +206,7 @@ int determineScanGroupSize(int hosts_scanned_so_far,
 
 class UltraScanInfo;
 
-struct ppkt { /* Beginning of ICMP Echo/Timestamp header         */
+struct ppkt { /* Beginning of ICMP Echo/Timestamp header */
   u8 type;
   u8 code;
   u16 checksum;

@@ -2107,6 +2107,25 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
       adjust_timing = false;
     adjust_ping = false;
   }
+  /* Do not slow down if
+     1)  we are in --defeat-icmp-ratelimit mode
+     2)  the new state is closed or filtered
+     3)  this is a UDP scan
+     We don't want to adjust timing when we get ICMP response, as the host might
+     be ratelimiting them. E.g. the port is actually closed, but the host ratelimiting
+     ICMP responses so we had to retransmit the probe several times in order to
+     match the (slow) rate limit that the target is using for responses. We
+     do not want to waste time on such ports.
+     On the other hand if the port is detected to be open it is a good idea to
+     adjust timing as we could have done retransmissions due to conjested network */
+  if (rcvdtime != NULL
+      && o.defeat_icmp_ratelimit
+      && (newstate == PORT_CLOSED || newstate == PORT_FILTERED)
+      && USI->udp_scan) {
+    if (probe->tryno > 0)
+      adjust_timing = false;
+    adjust_ping = false;
+  }
 
   if (adjust_timing) {
     ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
