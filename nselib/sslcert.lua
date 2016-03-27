@@ -26,6 +26,7 @@ local bit = require "bit"
 local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
+local match = require "match"
 local mssql = require "mssql"
 local nmap = require "nmap"
 local smtp = require "smtp"
@@ -33,6 +34,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local tls = require "tls"
+local vnc = require "vnc"
 local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
@@ -59,7 +61,7 @@ local function tls_reconnect (func)
         return true, s
       end
     end
-    return false, "Failed to connect to server"
+    return false, string.format("Failed to connect to server: %s", s or "unknown error")
   end
 end
 
@@ -549,6 +551,84 @@ StartTLS = {
     return false, "Full SSL connection over TDS not supported"
   end,
 
+  vnc_prepare_tls_without_reconnect = function(host,port)
+    local v = vnc.VNC:new( host, port )
+
+    local status, data = v:connect()
+    if not status then
+      return false, string.format("Failed to connect to VNC server: %s", data)
+    end
+
+    status, data = v:handshake()
+    if not status then
+      return false, string.format("Failed VNC handshake: %s", data)
+    end
+
+    local sock = v.socket
+    if v:supportsSecType(vnc.VNC.sectypes.VENCRYPT) then
+
+      status = sock:send( bin.pack("C", vnc.VNC.sectypes.VENCRYPT) )
+      if not status then
+        return false, "Failed to select VeNCrypt authentication type"
+      end
+
+      local status, buf = sock:receive_buf(match.numbytes(2), true)
+      local pos, maj, min = bin.unpack("CC", buf)
+      if maj ~= 0 or min ~= 2 then
+        return false, string.format("Unknown VeNCrypt version: %d.%d", maj, min)
+      end
+      sock:send(bin.pack("CC", maj, min))
+      status, buf = sock:receive_buf(match.numbytes(1), true)
+      pos, status = bin.unpack("C", buf)
+      if status ~= 0 then
+        return false, string.format("Server refused VeNCrypt version %d.%d", maj, min)
+      end
+
+      status, buf = sock:receive_buf(match.numbytes(1), true)
+      local pos, nauth = bin.unpack("C", buf)
+      if nauth == 0 then
+        return false, "No VeNCrypt auth subtypes received"
+      end
+
+      -- vencrypt auth types are u32
+      status, buf = sock:receive_buf(match.numbytes(nauth * 4), true)
+      local best
+      pos = 1
+      for i=1, nauth do
+        local auth
+        pos, auth = bin.unpack(">I", buf, pos)
+        if auth >= 260 and auth <= 263 then
+          -- X509 auth subtype
+          best = auth
+          break
+        elseif auth >= 257 then
+          -- other TLS auth subtype (Plain is 256)
+          -- These are anon types, so no cert available
+          best = auth
+        end
+      end
+      if not best then
+        return false, "No TLS VeNCrypt auth subtype received"
+      end
+      sock:send(bin.pack(">I", best))
+      status, buf = sock:receive_buf(match.numbytes(1), true)
+      if not status or string.byte(buf, 1) ~= 1 then
+        return false, "VeNCrypt auth subtype refused"
+      end
+      return true, sock
+    elseif v:supportsSecType(vnc.VNC.sectypes.TLS) then
+      status = sock:send( bin.pack("C", vnc.VNC.sectypes.TLS) )
+      if not status then
+        return false, "Failed to select TLS authentication type"
+      end
+    else
+      return false, string.format("No TLS auth types supported")
+    end
+    return true, sock
+  end,
+
+  vnc_prepare_tls = tls_reconnect("vnc_prepare_tls_without_reconnect"),
+
   xmpp_prepare_tls_without_reconnect = function(host,port)
     local sock,status,err,result
     local xmppStreamStart = string.format("<?xml version='1.0' ?>\r\n<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:client' to='%s' version='1.0'>\r\n",host.name)
@@ -642,6 +722,8 @@ local SPECIALIZED_PREPARE_TLS = {
   xmpp = StartTLS.xmpp_prepare_tls,
   [5222] = StartTLS.xmpp_prepare_tls,
   [5269] = StartTLS.xmpp_prepare_tls,
+  vnc = StartTLS.vnc_prepare_tls,
+  [5900] = StartTLS.vnc_prepare_tls,
   ["ms-sql-s"] = StartTLS.tds_prepare_tls
 }
 
@@ -664,7 +746,9 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   [587] = StartTLS.smtp_prepare_tls_without_reconnect,
   xmpp = StartTLS.xmpp_prepare_tls_without_reconnect,
   [5222] = StartTLS.xmpp_prepare_tls_without_reconnect,
-  [5269] = StartTLS.xmpp_prepare_tls_without_reconnect
+  [5269] = StartTLS.xmpp_prepare_tls_without_reconnect,
+  vnc = StartTLS.vnc_prepare_tls_without_reconnect,
+  [5900] = StartTLS.vnc_prepare_tls_without_reconnect,
 }
 
 -- these can't do reconnect_ssl
@@ -826,6 +910,7 @@ function getCertificate(host, port)
       status, socket = specialized(host, port)
       if not status then
         mutex "done"
+        stdnse.debug1("Specialized function error: %s", socket)
         return false, "Failed to connect to server"
       end
     else
