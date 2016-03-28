@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Avoid file corruption in zenmap.conf, reported as files containing
+  many null ("\x00") characters. Example exception:
+    ValueError: unable to parse colour specification
+
+o [NSE] VNC updates including vnc-brute support for TLS security type and
+  negotiating a lower RFB version if the server sends an unknown higher
+  version.  [Daniel Miller]
+
 o [NSE] Added STARTTLS support for VNC, NNTP, and LMTP [Daniel Miller]
 
 o Added new service probes and match lines for OpenVPN on UDP and TCP.
