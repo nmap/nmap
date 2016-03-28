@@ -422,8 +422,13 @@ Driver = {
         opts.cookies = nil
         return response, true
       end
-      -- set cookies
-      update_cookies(opts.cookies, response.cookies)
+      if response.cookies then
+        -- set cookies
+        update_cookies(opts.cookies, response.cookies)
+      else
+        stdnse.debug1("Failed to get new session cookies, reason: %s", response['status-line'] or "Unknown")
+        return nil, false
+      end
       if self.options.is_failure and self.options.is_failure(response) then
         return response, false
       end
