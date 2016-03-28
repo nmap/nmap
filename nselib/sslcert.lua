@@ -16,6 +16,7 @@
 -- * PostgreSQL
 -- * SMTP
 -- * TDS (MS SQL Server)
+-- * VNC (TLS and VeNCrypt auth types)
 -- * XMPP
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"

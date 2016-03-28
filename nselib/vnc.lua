@@ -36,7 +36,6 @@ local HAVE_SSL, openssl = pcall(require,'openssl')
 
 VNC = {
 
-  -- We currently support version 3.8 of the protocol only
   versions = {
     ["RFB 003.003\n"] = "3.3",
     ["RFB 003.007\n"] = "3.7",
@@ -88,8 +87,8 @@ VNC = {
       host = host,
       port = port,
       socket = nmap.new_socket(),
-      cli_version = nmap.registry.args['vnc-brute.version'] or "RFB 003.889\n"
     }
+    o.socket:set_timeout(5000)
     setmetatable(o, self)
     self.__index = self
     return o
@@ -116,6 +115,10 @@ VNC = {
   -- @return error string containing error message if status is false
   handshake = function(self)
     local status, data = self.socket:receive_buf(match.numbytes(12), true)
+    if not string.match(data, "^RFB %d%d%d%.%d%d%d[\r\n]") then
+      stdnse.debug1("ERROR: Not a VNC port. Banner: %s", data)
+      return false, "Not a VNC port."
+    end
     local vncsec = {
       count = 1,
       types = {}
@@ -126,12 +129,26 @@ VNC = {
     end
 
     self.protover = VNC.versions[data]
+    local cli_version = data
     if ( not(self.protover) ) then
       stdnse.debug1("ERROR: VNC:handshake unsupported version (%s)", data:sub(1,11))
-      return false, ("Unsupported version (%s)"):format(data:sub(1,11))
+      self.protover = string.match(data, "^RFB (%d+%.%d+)")
+      --return false, ("Unsupported version (%s)"):format(data:sub(1,11))
+      local versions = {
+        "RFB 003.003\n",
+        "RFB 003.007\n",
+        "RFB 003.008\n",
+        "RFB 003.889\n",
+      }
+      for i=1, #versions do
+        if versions[i] >= data then
+          break
+        end
+        cli_version = versions[i]
+      end
     end
 
-    status = self.socket:send( self.cli_version )
+    status = self.socket:send( cli_version or "RFB 003.889\n" )
     if ( not(status) ) then
       stdnse.debug1("ERROR: VNC:handshake failed to send client version")
       return false, "ERROR: VNC:handshake failed"
@@ -150,7 +167,7 @@ VNC = {
       return false, err
     end
 
-    if ( self.protover == "3.3" ) then
+    if ( cli_version == "RFB 003.003\n" ) then
       local status, tmp = self.socket:receive_buf(match.numbytes(4), true)
       if( not(status) ) then
         return false, "VNC:handshake failed to receive security data"
