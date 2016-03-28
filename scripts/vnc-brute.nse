@@ -122,6 +122,11 @@ Driver =
     end
 
     status, data = vnc:login( nil, "is_sec_mec_supported?" )
+    -- Check secondary auth type after potential TLS handshake that happened during login
+    if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
+      return false, "No authentication required"
+    end
+
     if ( data:match("The server does not support.*security type") ) then
       return stdnse.format_output( false, "  \n  " .. data )
     end

@@ -34,6 +34,19 @@ _ENV = stdnse.module("vnc", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require,'openssl')
 
+local function process_error(socket)
+  local status, tmp = socket:receive_buf(match.numbytes(4), true)
+  if( not(status) ) then
+    return false, "VNC:handshake failed to retrieve error message"
+  end
+  local len = select(2, bin.unpack(">I", tmp))
+  local status, err = socket:receive_buf(match.numbytes(len), true)
+  if( not(status) ) then
+    return false, "VNC:handshake failed to retrieve error message"
+  end
+  return false, err
+end
+
 VNC = {
 
   versions = {
@@ -154,19 +167,6 @@ VNC = {
       return false, "ERROR: VNC:handshake failed"
     end
 
-    local function process_error()
-      local status, tmp = self.socket:receive_buf(match.numbytes(4), true)
-      if( not(status) ) then
-        return false, "VNC:handshake failed to retrieve error message"
-      end
-      local len = select(2, bin.unpack(">I", tmp))
-      local status, err = self.socket:receive_buf(match.numbytes(len), true)
-      if( not(status) ) then
-        return false, "VNC:handshake failed to retrieve error message"
-      end
-      return false, err
-    end
-
     if ( cli_version == "RFB 003.003\n" ) then
       local status, tmp = self.socket:receive_buf(match.numbytes(4), true)
       if( not(status) ) then
@@ -179,7 +179,7 @@ VNC = {
       -- do we have an invalid security type, if so we need to handle an
       -- error condition
       if ( vncsec.types[1] == 0 ) then
-        return process_error()
+        return process_error(self.socket)
       end
     else
       local status, tmp = self.socket:receive_buf(match.numbytes(1), true)
@@ -190,7 +190,7 @@ VNC = {
 
       vncsec.count = select(2, bin.unpack("C", tmp))
       if ( vncsec.count == 0 ) then
-        return process_error()
+        return process_error(self.socket)
       end
       status, tmp = self.socket:receive_buf(match.numbytes(vncsec.count), true)
 
@@ -223,20 +223,37 @@ VNC = {
     return newpass
   end,
 
-  --- Attempts to login to the VNC service
-  -- Currently the only supported auth sectype is VNC Authentication
+  --- Attempts to login to the VNC service using any supported method
+  --
+  -- @param username string, could be anything when VNCAuth is used
+  -- @param password string containing the password to use for authentication
+  -- @param authtype The VNC auth type from the <code>VNC.sectypes</code> table (default: best available method)
+  -- @return status true on success, false on failure
+  -- @return err string containing error message when status is false
+  login = function( self, username, password, authtype )
+    if not authtype then
+      if self:supportsSecType( VNC.sectypes.VNCAUTH ) then
+        return self:login_vncauth(username, password)
+      elseif self:supportsSecType( VNC.sectypes.TLS ) then
+        return self:login_tls(username, password)
+      else
+        return false, "vnc.lua does not support that security type"
+      end
+    elseif ( not( self:supportsSecType( authtype ) ) ) then
+      return false, "The server does not support the \"VNC Authentication\" security type."
+    end
+
+  end,
+
+  --- Attempts to login to the VNC service using VNC Authentication
   --
   -- @param username string, could be anything when VNCAuth is used
   -- @param password string containing the password to use for authentication
   -- @return status true on success, false on failure
   -- @return err string containing error message when status is false
-  login = function( self, username, password )
+  login_vncauth = function( self, username, password )
     if ( not(password) ) then
       return false, "No password was supplied"
-    end
-
-    if ( not( self:supportsSecType( VNC.sectypes.VNCAUTH ) ) ) then
-      return false, "The server does not support the \"VNC Authentication\" security type."
     end
 
     -- Announce that we support VNC Authentication
@@ -267,6 +284,49 @@ VNC = {
       return false, ("Authentication failed with password %s"):format(password)
     end
     return true, ""
+  end,
+
+  login_tls = function( self, username, password )
+    if ( not(password) ) then
+      return false, "No password was supplied"
+    end
+
+    local status = self.socket:send( bin.pack("C", VNC.sectypes.TLS) )
+    if not status then
+      return false, "Failed to select TLS authentication type"
+    end
+
+    local status, err = self.socket:reconnect_ssl()
+    if not status then
+      return false, "Failed to reconnect SSL"
+    end
+
+    local status, tmp = self.socket:receive_buf(match.numbytes(1), true)
+    if ( not(status) ) then
+      stdnse.debug1("ERROR: VNC:handshake failed to receive security data")
+      return false, "ERROR: VNC:handshake failed to receive security data"
+    end
+
+    local vncsec = {
+      count = 1,
+      types = {}
+    }
+    vncsec.count = select(2, bin.unpack("C", tmp))
+    if ( vncsec.count == 0 ) then
+      return process_error(self.socket)
+    end
+    status, tmp = self.socket:receive_buf(match.numbytes(vncsec.count), true)
+
+    if ( not(status) ) then
+      stdnse.debug1("ERROR: VNC:handshake failed to receive security data")
+      return false, "ERROR: VNC:handshake failed to receive security data"
+    end
+    for i=1, vncsec.count do
+      table.insert( vncsec.types, select(2, bin.unpack("C", tmp, i) ) )
+    end
+    self.vncsec = vncsec
+
+    return self:login(username, password)
   end,
 
   --- Returns all supported security types as a table
