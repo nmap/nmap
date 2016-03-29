@@ -124,6 +124,7 @@ import os
 import signal
 import sys
 import ConfigParser
+import shutil
 
 # Cause an exception if PyGTK can't open a display. Normally this just
 # produces a warning, but the lack of a display eventually causes a
@@ -303,6 +304,9 @@ scan profiles. Check for access to the directory and try again.""") % (
         # Read the ~/.zenmap/zenmap.conf configuration file.
         zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
     except ConfigParser.ParsingError, e:
+        # ParsingError can leave some values as lists instead of strings. Just
+        # blow it all away if we have this problem.
+        zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()
         error_dialog = HIGAlertDialog(
                 message_format=_("Error parsing the configuration file"),
                 secondary_text=_("""\
@@ -316,6 +320,23 @@ until it is repaired.""") % (Path.user_config_file, str(e), APP_DISPLAY_NAME)
                 )
         error_dialog.run()
         error_dialog.destroy()
+        global_config_path = os.path.join(Path.config_dir, APP_NAME + '.conf')
+        repair_dialog = HIGAlertDialog(
+                type=gtk.MESSAGE_QUESTION,
+                message_format=_("Restore default configuration?"),
+                secondary_text=_("""\
+To avoid further errors parsing the configuration file %s, \
+you can copy the default configuration from %s.
+
+Do this now? \
+""") % (Path.user_config_file, global_config_path),
+                )
+        repair_dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        repair_dialog.set_default_response(gtk.RESPONSE_CANCEL)
+        if repair_dialog.run() == gtk.RESPONSE_OK:
+            shutil.copyfile(global_config_path, Path.user_config_file)
+            log.debug(">>> Copy %s to %s." % (global_config_path, Path.user_config_file))
+        repair_dialog.destroy()
 
     # Display a "you're not root" warning if appropriate.
     if not is_root():
