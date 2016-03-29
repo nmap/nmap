@@ -909,9 +909,20 @@ int ncat_connect(void)
         {
             if (srcaddr.storage.ss_family != AF_UNIX) {
                 char *tmp_name = NULL;
+#if HAVE_MKSTEMP
+              char *tmpdir = getenv("TMPDIR");
+              size_t size=0, offset=0;
+              strbuf_sprintf(&tmp_name, &size, &offset, "%s/ncat.XXXXXX",
+                  tmpdir ? tmpdir : "/tmp");
+              if (mkstemp(tmp_name) == -1) {
+                bye("Failed to create name for temporary DGRAM source Unix domain socket (mkstemp).");
+              }
+              unlink(tmp_name);
+#else
                 /* If no source socket was specified, we have to create temporary one. */
                 if ((tmp_name = tempnam(NULL, "ncat.")) == NULL)
                     bye("Failed to create name for temporary DGRAM source Unix domain socket (tempnam).");
+#endif
 
                 srcaddr.un.sun_family = AF_UNIX;
                 strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));

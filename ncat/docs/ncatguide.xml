@@ -1515,18 +1515,9 @@ Hello. This short message is being sent by Ncat.
     <para>
     Since Ncat v6.40, it is possible to use --lua-exec feature to run a Lua
     script turning Ncat into a web server. In order to do that, need the
-    httpd.lua script - currently hosted on our SVN server. You can download
-    it from the following URL:
-    </para>
-
-<literallayout>
-https://svn.nmap.org/nmap-exp/d33tah/lua-exec-examples/ncat/scripts/httpd.lua
-</literallayout>
-
-    <para>
-    Once you have downloaded it, simply run Ncat in listening mode. Assuming
-    that your working directory contains the httpd.lua script, simply run:
-    </para>
+    httpd.lua script which is bundled with the Ncat source in the
+    <literal>ncat/scripts/</literal> directory. With the httpd.lua script in
+    your working directory, run Ncat in listening mode:</para>
 
 <literallayout>
 <command>ncat --lua-exec httpd.lua --listen 8080 --keep-open</command>

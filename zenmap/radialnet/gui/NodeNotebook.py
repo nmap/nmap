@@ -133,12 +133,12 @@ PORTS_HEADER = [
         _('Port'), _('Protocol'), _('State'), _('Service'), _('Method')]
 EXTRAPORTS_HEADER = [_('Count'), _('State'), _('Reasons')]
 
-SERVICE_COLORS = {'open':            '#ffd5d5',
-                  'closed':          '#d5ffd5',
-                  'filtered':        '#ffffd5',
-                  'unfiltered':      '#ffd5d5',
-                  'open|filtered':   '#ffd5d5',
-                  'closed|filtered': '#d5ffd5'}
+SERVICE_COLORS = {'open':            '#ffd5d5',  # noqa
+                  'closed':          '#d5ffd5',  # noqa
+                  'filtered':        '#ffffd5',  # noqa
+                  'unfiltered':      '#ffd5d5',  # noqa
+                  'open|filtered':   '#ffd5d5',  # noqa
+                  'closed|filtered': '#d5ffd5'}  # noqa
 UNKNOWN_SERVICE_COLOR = '#d5d5d5'
 
 TRACE_HEADER = [_('TTL'), _('RTT'), _('IP'), _('Hostname')]
@@ -148,8 +148,8 @@ TRACE_TEXT = _(
 
 NO_TRACE_TEXT = _("No traceroute information available.")
 
-HOP_COLOR = {'known':   '#ffffff',
-             'unknown': '#cccccc'}
+HOP_COLOR = {'known':   '#ffffff',  # noqa
+             'unknown': '#cccccc'}  # noqa
 
 SYSTEM_ADDRESS_TEXT = "[%s] %s"
 

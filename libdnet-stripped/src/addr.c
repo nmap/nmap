@@ -394,8 +394,17 @@ addr_stob(const struct sockaddr *sa, uint16_t *bits)
 
 #ifdef HAVE_SOCKADDR_IN6
 	if (sa->sa_family == AF_INET6) {
-		len = IP6_ADDR_LEN;
 		p = (u_char *)&so->sin6.sin6_addr;
+#ifdef HAVE_SOCKADDR_SA_LEN
+		len = sa->sa_len - ((void *) p - (void *) sa);
+		/* Handles the special case of sa->sa_len == 0. */
+		if (len < 0)
+			len = 0;
+		else if (len > IP6_ADDR_LEN)
+			len = IP6_ADDR_LEN;
+#else
+		len = IP6_ADDR_LEN;
+#endif
 	} else
 #endif
 	{

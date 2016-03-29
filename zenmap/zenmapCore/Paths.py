@@ -139,7 +139,7 @@ from zenmapCore.Name import APP_NAME
 # http://mail.python.org/pipermail/pythonmac-sig/2004-November/012121.html.
 def get_prefix():
     frozen = getattr(sys, "frozen", None)
-    if frozen == "macosx_app":
+    if frozen == "macosx_app" or "Zenmap.app" in sys.executable:
         # A py2app .app bundle.
         return os.path.join(dirname(fs_dec(sys.executable)), "..", "Resources")
     elif frozen is not None:

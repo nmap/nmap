@@ -2,6 +2,7 @@ local http = require "http"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
+local slaxml = require "slaxml"
 local table = require "table"
 
 description = [[
@@ -33,16 +34,31 @@ categories = {
 
 
 --- Scrape domains sharing target host ip from robtex website
+--
+-- //section[@id="x_shared"]//li//text()
 -- @param data string containing the retrieved web page
 -- @return table containing the host names sharing host.ip
 function parse_robtex_response (data)
+  local in_li = false
   local result = {}
 
-  for domain in string.gmatch(data, "<span id=\"dns[0-9]+\"><a href=\"//[a-z]+.robtex.com/([^\"]-)%.html\"") do
-    if not stdnse.contains(result, domain) then
-      table.insert(result, domain)
-    end
-  end
+  local parser = slaxml.parser:new({
+      startElement = function(name, nsURI, nsPrefix)
+        in_li = in_li or name == "li"
+      end,
+      closeElement = function(name, nsURI, nsPrefix)
+        if name == "li" then
+          in_li = false
+        end
+      end,
+      text = function(text)
+        if in_li then
+          result[#result+1] = text
+        end
+      end,
+    })
+  parser:parseSAX(data:match('<section[^>]-id="x_shared".-</section>'))
+
   return result
 end
 
@@ -51,7 +67,7 @@ hostrule = function (host)
 end
 
 action = function (host)
-  local link = "https://ip.robtex.com/" .. host.ip .. ".html"
+  local link = "https://www.robtex.com/en/advisory/ip/" .. host.ip:gsub("%.", "/") .. "/"
   local htmldata = http.get_url(link)
   local domains = parse_robtex_response(htmldata.body)
   local output_tab = stdnse.output_table()

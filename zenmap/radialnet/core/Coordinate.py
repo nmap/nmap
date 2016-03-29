@@ -265,7 +265,7 @@ if __name__ == "__main__":
     # Testing application
 
     polar = PolarCoordinate(1, math.pi)
-    cartesian = CartesianCoordinate(-1,  0)
+    cartesian = CartesianCoordinate(-1, 0)
 
     print polar.to_cartesian()
     print cartesian.to_polar()

@@ -238,7 +238,7 @@ static int parse_scanflags(char *arg) {
   return flagval;
 }
 
-static void printusage(int rc) {
+static void printusage() {
 
   printf("%s %s ( %s )\n"
          "Usage: nmap [Scan Type(s)] [Options] {target specification}\n"
@@ -356,7 +356,6 @@ static void printusage(int rc) {
          "  nmap -v -sn 192.168.0.0/16 10.0.0.0/8\n"
          "  nmap -v -iR 10000 -Pn -p 80\n"
          "SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
-  exit(rc);
 }
 
 #ifdef WIN32
@@ -503,6 +502,7 @@ public:
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
     this->iflist                = false;
+    this->af                    = AF_UNSPEC;
   }
 
   // Pre-specified timing parameters.
@@ -518,6 +518,7 @@ public:
   char  *exclude_spec, *exclude_file;
   char  *spoofSource;
   const char *spoofmac;
+  int af;
   std::vector<std::string> verbose_out;
 
   void warn_deprecated (const char *given, const char *replacement) {
@@ -695,12 +696,13 @@ void parse_options(int argc, char **argv) {
     {"disable-arp-ping", no_argument, 0, 0},
     {"route_dst", required_argument, 0, 0},
     {"route-dst", required_argument, 0, 0},
+    {"resume", required_argument, 0, 0},
     {0, 0, 0, 0}
   };
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while ((arg = getopt_long_only(argc, argv, "6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
+  while ((arg = getopt_long_only(argc, argv, "46Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
     switch (arg) {
     case 0:
 #ifndef NOLUA
@@ -1024,15 +1026,28 @@ void parse_options(int argc, char **argv) {
           /* The --route-dst debugging option: push these on a list to be
              resolved later after options like -6 and -S have been parsed. */
           route_dst_hosts.push_back(optarg);
+        } else if (optcmp(long_options[option_index].name, "resume") == 0) {
+          fatal("Cannot use --resume with other options. Usage: nmap --resume <filename>");
         } else {
           fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
         }
+      break;
+    case '4':
+      /* This is basically useless for now, but serves as a placeholder to
+       * ensure that -4 is a valid option */
+      if (delayed_options.af == AF_INET6) {
+        fatal("Cannot use both -4 and -6 in one scan.");
+      }
+      delayed_options.af = AF_INET;
       break;
     case '6':
 #if !HAVE_IPV6
       fatal("I am afraid IPv6 is not available because your host doesn't support it or you chose to compile Nmap w/o IPv6 support.");
 #else
-      o.setaf(AF_INET6);
+      if (delayed_options.af == AF_INET) {
+        fatal("Cannot use both -4 and -6 in one scan.");
+      }
+      delayed_options.af = AF_INET6;
 #endif /* !HAVE_IPV6 */
       break;
     case 'A':
@@ -1131,10 +1146,12 @@ void parse_options(int argc, char **argv) {
         error("WARNING: a source port of zero may not work on all systems.");
       break;
     case 'h':
-      printusage(0);
+      printusage();
+      exit(0);
       break;
     case '?':
-      printusage(-1);
+      error("See the output of nmap -h for a summary of options.");
+      exit(-1);
       break;
     case 'I':
       error("WARNING: identscan (-I) no longer supported.  Ignoring -I");
@@ -1296,8 +1313,9 @@ void parse_options(int argc, char **argv) {
       break;
     case 's':
       if (!*optarg) {
+        printusage();
         error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sn (Ping scan)");
-        printusage(-1);
+        exit(-1);
       }
       p = optarg;
       while (*p) {
@@ -1366,8 +1384,9 @@ void parse_options(int argc, char **argv) {
           o.sctpcookieechoscan = 1;
           break;
         default:
+          printusage();
           error("Scantype %c not supported\n", *p);
-          printusage(-1);
+          exit(-1);
           break;
         }
         p++;
@@ -1417,6 +1436,11 @@ void parse_options(int argc, char **argv) {
     case 'v':
       if (optarg && isdigit(optarg[0])) {
         o.verbose = atoi(optarg);
+        if (o.verbose == 0) {
+          o.nmap_stdout = fopen(DEVNULL, "w");
+          if (!o.nmap_stdout)
+            fatal("Could not assign %s to stdout for writing", DEVNULL);
+        }
       } else {
         const char *p;
         o.verbose++;
@@ -1436,6 +1460,9 @@ void  apply_delayed_options() {
   char tbuf[128];
   struct sockaddr_storage ss;
   size_t sslen;
+
+  // Default IPv4
+  o.setaf(delayed_options.af == AF_UNSPEC ? AF_INET : delayed_options.af);
 
   if (o.verbose > 0) {
     for (std::vector<std::string>::iterator it = delayed_options.verbose_out.begin(); it != delayed_options.verbose_out.end(); ++it) {
@@ -1729,8 +1756,10 @@ int nmap_main(int argc, char *argv[]) {
   else
     nbase_set_log(fatal, NULL);
 
-  if (argc < 2)
-    printusage(-1);
+  if (argc < 2){
+    printusage();
+    exit(-1);
+  }
 
   Targets.reserve(100);
 #ifdef WIN32

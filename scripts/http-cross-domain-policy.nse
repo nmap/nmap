@@ -163,7 +163,7 @@ local function check_domain (domain)
 
   stdnse.print_debug(1, "Checking availability of domain %s with tld:%s ", name, tld)
   local path = string.format("/all/%s?/tlds=%s&limit=1", name, tld)
-  local response = http.get("instantdomainsearch.com", 443, path)
+  local response = http.get("instantdomainsearch.com", 443, path, {any_af=true})
   if ( not(response) or (response.status and response.status ~= 200) ) then
     return nil
   end
@@ -279,15 +279,15 @@ Forgery attacks, and may allow third parties to access sensitive data meant for 
      }
   local check, domains, domains_available, content = check_crossdomain(host, port, lookup)
   local mt = {__tostring=function(p) return ("%s:\n      %s"):format(p.name, p.body:gsub("\n", "\n      ")) end}
-  for i, _ in pairs(content) do
-    setmetatable(content[i], mt)
-    tostring(content[i])
-  end
   if check then
     if stdnse.contains(domains, "*") or stdnse.contains(domains, "https://") or stdnse.contains(domains, "http://") then
       vuln.state = vulns.STATE.VULN
     else
       vuln.state = vulns.STATE.LIKELY_VULN
+    end
+    for i, _ in pairs(content) do
+      setmetatable(content[i], mt)
+      tostring(content[i])
     end
     vuln.check_results = content
     vuln.extra_info = string.format("Trusted domains:%s\n", stdnse.strjoin(', ', domains))

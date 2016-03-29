@@ -4401,7 +4401,7 @@ fi
 done
 
 
-for ac_func in dup2 gettimeofday inet_ntoa memset select socket strcasecmp strchr strdup strerror strncasecmp strtol
+for ac_func in dup2 gettimeofday inet_ntoa memset mkstemp select socket strcasecmp strchr strdup strerror strncasecmp strtol
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -4690,7 +4690,7 @@ if ${ac_cv_lib_ssl_SSL_new+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
+LIBS="-lssl  -lcrypto  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 

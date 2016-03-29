@@ -1,7 +1,10 @@
 ---
 -- A smallish implementation of the Couchbase Membase TAP protocol
 -- Based on the scarce documentation from the Couchbase Wiki:
--- x http://www.couchbase.org/wiki/display/membase/SASL+Authentication+Example
+-- * http://www.couchbase.org/wiki/display/membase/SASL+Authentication+Example
+--
+-- @args membase.authmech SASL authentication mechanism to use. Default and
+--                        currently supported: PLAIN
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --

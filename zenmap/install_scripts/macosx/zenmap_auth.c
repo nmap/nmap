@@ -18,7 +18,7 @@
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
 
-#define EXECUTABLE_NAME "zenmap_wrapper.py"
+#define EXECUTABLE_NAME "zenmap.bin"
 
 int main(int argc, char *argv[]) {
 	AuthorizationItem items[] = {

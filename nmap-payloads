@@ -138,6 +138,13 @@ udp 520
 # is not known.
 udp 626 "SNQUERY: 127.0.0.1:AAAAAA:xsvr"
 
+# OpenVPN P_CONTROL_HARD_RESET_CLIENT_V2
+# Byte 0; 0x38 opcode
+# Byte 1-8: Session ID, random
+# Byte 9: Message packet-id array length (0)
+# Byte 10-13: Message packet-id (0)
+udp 1194 "8d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0\0"
+
 # Citrix MetaFrame application browser service
 # Original idea from http://sh0dan.org/oldfiles/hackingcitrix.html
 # Payload contents copied from Wireshark capture of Citrix Program

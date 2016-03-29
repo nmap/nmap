@@ -297,7 +297,7 @@ class HighlightProperty(object):
                 "clicked", self.highlight_color_dialog_ok, color_dialog)
         color_dialog.cancel_button.connect(
                 "clicked", self.highlight_color_dialog_cancel,
-                                           color_dialog)
+                color_dialog)
         color_dialog.connect(
                 "delete-event", self.highlight_color_dialog_close,
                 color_dialog)

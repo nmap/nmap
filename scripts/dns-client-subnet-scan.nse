@@ -20,15 +20,15 @@ requests using a given subnet.
 ---
 -- @usage
 --   nmap -sU -p 53 --script dns-client-subnet-scan  --script-args \
---     dns-client-subnet-scan.domain=www.example.com, \
+--     'dns-client-subnet-scan.domain=www.example.com, \
 --     dns-client-subnet-scan.address=192.168.0.1 \
 --     [,dns-client-subnet.nameserver=8.8.8.8] \
---     [,dns-client-subnet.mask=24] <target>
+--     [,dns-client-subnet.mask=24]' <target>
 --   nmap --script dns-client-subnet-scan --script-args \
---     dns-client-subnet-scan.domain=www.example.com, \
+--     'dns-client-subnet-scan.domain=www.example.com, \
 --     dns-client-subnet-scan.address=192.168.0.1 \
 --     dns-client-subnet.nameserver=8.8.8.8, \
---     [,dns-client-subnet.mask=24]
+--     [,dns-client-subnet.mask=24]'
 --
 -- @output
 -- 53/udp open  domain  udp-response
@@ -324,7 +324,7 @@ local get_addresses = function(address, mask, domain, nameserver, port)
   local subnet = { family = nmap.address_family(), address = address, mask = mask }
   local status, resp = dns.query(domain, {host = nameserver, port=port.number, protocol=port.protocol, retAll=true, subnet=subnet})
   if ( not(status) ) then
-    return
+    return {}
   end
   if ( "table" ~= type(resp) ) then resp = { resp } end
   return resp

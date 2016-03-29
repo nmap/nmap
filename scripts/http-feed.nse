@@ -76,6 +76,7 @@ end
 
 action = function(host, port)
 
+  --TODO: prefix this with SCRIPT_NAME and document it.
   local maxpagecount = stdnse.get_script_args("maxpagecount") or 40
 
   local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,

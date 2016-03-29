@@ -173,7 +173,7 @@ class SearchConfig(UmitConfigParser, object):
         config_parser.set(self.section_name, p_name, value)
 
     def boolean_sanity(self, attr):
-        if attr == True or \
+        if attr is True or \
            attr == "True" or \
            attr == "true" or \
            attr == "1":
@@ -192,18 +192,18 @@ class SearchConfig(UmitConfigParser, object):
         return self._get_it("file_extension", "xml").split(";")
 
     def set_file_extension(self, file_extension):
-        if type(file_extension) == type([]):
+        if isinstance(file_extension, list):
             self._set_it("file_extension", ";".join(file_extension))
-        elif type(file_extension) in StringTypes:
+        elif isinstance(file_extension, StringTypes):
             self._set_it("file_extension", file_extension)
 
     def get_save_time(self):
         return self._get_it("save_time", "60;days").split(";")
 
     def set_save_time(self, save_time):
-        if type(save_time) == type([]):
+        if isinstance(save_time, list):
             self._set_it("save_time", ";".join(save_time))
-        elif type(save_time) in StringTypes:
+        elif isinstance(save_time, StringTypes):
             self._set_it("save_time", save_time)
 
     def get_store_results(self):
@@ -306,6 +306,108 @@ class Profile(UmitConfigParser, object):
         return True
 
 
+class WindowConfig(UmitConfigParser, object):
+    section_name = "window"
+
+    default_x = 0
+    default_y = 0
+    default_width = -1
+    default_height = 650
+
+    def __init__(self):
+        if not config_parser.has_section(self.section_name):
+            self.create_section()
+
+    def save_changes(self):
+        config_parser.save_changes()
+
+    def create_section(self):
+        config_parser.add_section(self.section_name)
+        self.x = self.default_x
+        self.y = self.default_y
+        self.width = self.default_width
+        self.height = self.default_height
+
+    def _get_it(self, p_name, default):
+        return config_parser.get(self.section_name, p_name, default)
+
+    def _set_it(self, p_name, value):
+        config_parser.set(self.section_name, p_name, value)
+
+    def get_x(self):
+        try:
+            value = int(self._get_it("x", self.default_x))
+        except ValueError:
+            value = self.default_x
+        except TypeError as e:
+            v = self._get_it("x", self.default_x)
+            log.exception("Trouble parsing x value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_x
+        return value
+
+    def set_x(self, x):
+        self._set_it("x", "%d" % x)
+
+    def get_y(self):
+        try:
+            value = int(self._get_it("y", self.default_y))
+        except ValueError:
+            value = self.default_y
+        except TypeError as e:
+            v = self._get_it("y", self.default_y)
+            log.exception("Trouble parsing y value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_y
+        return value
+
+    def set_y(self, y):
+        self._set_it("y", "%d" % y)
+
+    def get_width(self):
+        try:
+            value = int(self._get_it("width", self.default_width))
+        except ValueError:
+            value = self.default_width
+        except TypeError as e:
+            v = self._get_it("width", self.default_width)
+            log.exception("Trouble parsing width value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_width
+
+        if not (value >= -1):
+            value = self.default_width
+
+        return value
+
+    def set_width(self, width):
+        self._set_it("width", "%d" % width)
+
+    def get_height(self):
+        try:
+            value = int(self._get_it("height", self.default_height))
+        except ValueError:
+            value = self.default_height
+        except TypeError as e:
+            v = self._get_it("height", self.default_height)
+            log.exception("Trouble parsing y value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_height
+
+        if not (value >= -1):
+            value = self.default_height
+
+        return value
+
+    def set_height(self, height):
+        self._set_it("height", "%d" % height)
+
+    x = property(get_x, set_x)
+    y = property(get_y, set_y)
+    width = property(get_width, set_width)
+    height = property(get_height, set_height)
+
+
 class CommandProfile (Profile, object):
     """This class is a wrapper around Profile that provides accessors for the
     attributes of a profile: command and description"""
@@ -330,8 +432,8 @@ class CommandProfile (Profile, object):
         self._set_it(profile, 'description', description)
 
     def get_profile(self, profile_name):
-        return {'profile': profile_name, \
-                'command': self.get_command(profile_name), \
+        return {'profile': profile_name,
+                'command': self.get_command(profile_name),
                 'description': self.get_description(profile_name)}
 
 
@@ -345,10 +447,9 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % p_name
 
         try:
-            return self.sanity_settings([config_parser.get(property_name,
-                                                         prop,
-                                                         True) \
-                                         for prop in self.setts])
+            return self.sanity_settings([
+                config_parser.get(
+                    property_name, prop, True) for prop in self.setts])
         except:
             settings = []
             prop_settings = self.default_highlights[p_name]
@@ -367,8 +468,8 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % property_name
         settings = self.sanity_settings(list(settings))
 
-        [config_parser.set(property_name, self.setts[pos], settings[pos]) \
-         for pos in xrange(len(settings))]
+        for pos in xrange(len(settings)):
+            config_parser.set(property_name, self.setts[pos], settings[pos])
 
     def sanity_settings(self, settings):
         """This method tries to convert insane settings to sanity ones ;-)
@@ -398,7 +499,7 @@ class NmapOutputHighlight(object):
         return settings
 
     def boolean_sanity(self, attr):
-        if attr == True or attr == "True" or attr == "true" or attr == "1":
+        if attr is True or attr == "True" or attr == "true" or attr == "1":
             return 1
         return 0
 
@@ -463,7 +564,7 @@ class NmapOutputHighlight(object):
         return True
 
     def set_enable(self, enable):
-        if enable == False or enable == "0" or enable is None or enable == "":
+        if enable is False or enable == "0" or enable is None or enable == "":
             config_parser.set(
                     "output_highlight", "enable_highlight", str(False))
         else:

@@ -1165,7 +1165,7 @@ do
     local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
     assert(t == 'file', format("%s is not a file", path))
     print_debug(1, "Loading script-args from file `%s'", cnse.scriptargsfile);
-    args[#args+1] = assert(assert(open(path, 'r')):read "*a"):gsub("\n", ","):gsub(",*$", "");
+    args[#args+1] = assert(assert(open(path, 'r')):read "*a"):gsub(",*$", "");
   end
 
   if cnse.scriptargs then -- Load script arguments (--script-args)
@@ -1187,15 +1187,17 @@ do
     local parser = locale {
       V "space"^0 * V "table" * V "space"^0,
       table = Cf(Ct "" * P "{" * V "space"^0 * (V "fieldlst")^-1 * V "space"^0 * P "}", set);
-      fieldlst = V "field" * (V "space"^0 * P "," * V "space"^0 * V "field")^0;
+      hws = V "space" - P "\n", -- horizontal whitespace
+      fieldlst = V "field" * (V "hws"^0 * S "\n," * V "space"^0 * V "field")^0;
       field = V "kv" + V "av";
-      kv = Cg(V "string" * V "space"^0 * P "=" * V "space"^0 * V "value");
+      kv = Cg(V "string" * V "hws"^0 * P "=" * V "hws"^0 * V "value");
       av = Cg(V "value");
       value = V "table" + V "string";
       string = V "qstring" + V "uqstring";
       qstring = U.escaped_quote('"') + U.escaped_quote("'");
-      uqstring = V "space"^0 * C((P(1) - V "space"^0 * S ",{}=")^0) * V "space"^0; -- everything but ',{}=', do not capture final space
+      uqstring = V "hws"^0 * C((P(1) - V "hws"^0 * S "\n,{}=")^0) * V "hws"^0; -- everything but '\n,{}=', do not capture final space
     };
+    --U.debug(parser,function(...)return print_debug(1,...)end)
     parser = assert(P(parser));
     nmap.registry.args = parser:match("{"..args.."}");
     if not nmap.registry.args then

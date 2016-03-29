@@ -5166,6 +5166,26 @@ table.insert(fingerprints, {
       }
     }
   });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      "/ibm/console/logon.jsp?action=OK",
+      "/console/",
+      "/console/portal/0/Welcome"
+    },
+    matches = {
+      {
+        match = "[Ww][Ee][Bb][Ss][Pp][Hh][Ee][Rr][Ee]",
+        output = "WebSphere"
+      },
+      {
+        match = "WSC Console Federation",
+        output = "WebSphere Commerce"
+      },
+    }
+  })
+
 ------------------------------------------------
 ----     PRINTERS, WEBCAMS, PROJECTORS      ----
 ------------------------------------------------
@@ -6963,6 +6983,31 @@ table.insert(fingerprints, {
         dontmatch = '<a href="http://www%.dlink%.com"',
         match = '^HTTP/1.[01] 200 OK\r\n.*Server: Virtual Web 0.9',
         output = 'D-Link Router Vulnerable to Authentication Bypass',
+      },
+    }
+  });
+
+-- Rompager info disclosure
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/rom-0',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = 'dbgarea',
+        output = 'RomPager Embedded Web Server information disclosure (CVE-2014-4019)'
+      },
+      {
+        match = 'spt%.dat',
+        output = 'RomPager Embedded Web Server information disclosure (CVE-2014-4019)'
+      },
+      {
+        match = 'autoexec%.net',
+        output = 'RomPager Embedded Web Server information disclosure (CVE-2014-4019)'
       },
     }
   });

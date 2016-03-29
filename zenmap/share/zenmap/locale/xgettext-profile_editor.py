@@ -15,14 +15,17 @@ import xml.sax
 
 directory = None
 
+
 def escape(s):
     return '"' + s.encode("UTF-8").replace('"', '\\"') + '"'
+
 
 def output_msgid(msgid, locator):
     print
     print u"#: %s:%d" % (locator.getSystemId(), locator.getLineNumber())
     print u"msgid", escape(msgid)
     print u"msgstr", escape(u"")
+
 
 class Handler (xml.sax.handler.ContentHandler):
     def setDocumentLocator(self, locator):

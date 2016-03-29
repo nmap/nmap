@@ -9,15 +9,15 @@ local stdnse = require "stdnse"
 
 description = [[
 Performs brute force password auditing against http basic, digest and ntlm authentication.
+
+This script uses the unpwdb and brute libraries to perform password
+guessing. Any successful guesses are stored in the nmap registry, using
+the creds library, for other scripts to use.
 ]]
 
 ---
 -- @usage
 -- nmap --script http-brute -p 80 <host>
---
--- This script uses the unpwdb and brute libraries to perform password
--- guessing. Any successful guesses are stored in the nmap registry, using
--- the creds library, for other scripts to use.
 --
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -28,22 +28,9 @@ Performs brute force password auditing against http basic, digest and ntlm authe
 -- |_  Statistics: Performed 123 guesses in 1 seconds, average tps: 123
 --
 --
--- Summary
--- -------
---   x The Driver class contains the driver implementation used by the brute
---     library
---
 -- @args http-brute.path points to the path protected by authentication (default: <code>/</code>)
 -- @args http-brute.hostname sets the host header in case of virtual hosting
 -- @args http-brute.method sets the HTTP method to use (default: <code>GET</code>)
-
---
--- Version 0.1
--- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Version 0.2
--- 07/26/2012 - v0.2 - added digest auth support (Piotr Olma)
--- Version 0.3
--- Created 06/20/2015 - added ntlm auth support (Gyanendra Mishra)
 --
 -- @xmloutput
 -- <table key="Accounts">
@@ -56,6 +43,14 @@ Performs brute force password auditing against http basic, digest and ntlm authe
 -- <elem key="Statistics">Performed 123 guesses in 1 seconds, average
 -- tps: 123</elem>
 
+--
+-- Version 0.1
+-- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Version 0.2
+-- 07/26/2012 - v0.2 - added digest auth support (Piotr Olma)
+-- Version 0.3
+-- Created 06/20/2015 - added ntlm auth support (Gyanendra Mishra)
+
 
 author = {"Patrik Karlsson", "Piotr Olma", "Gyanendra Mishra"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -67,10 +62,10 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 Driver = {
 
   new = function(self, host, port, opts)
-    local o = {port=port, path=opts.path, method=opts.method, digestauth=opts.digestauth, ntlmauth=opts.ntlmauth}
+    local o = {host=host, port=port, path=opts.path, method=opts.method, authmethod=opts.authmethod}
     setmetatable(o, self)
     self.__index = self
-    o.host = stdnse.get_script_args("http-brute.hostname") or host
+    o.hostname = stdnse.get_script_args("http-brute.hostname")
     return o
   end,
 
@@ -81,19 +76,32 @@ Driver = {
     return true
   end,
 
-  login = function( self, username, password )
-    local response
-    local opts_table
-    if self.digestauth then
-      -- we need to supply the no_cache directive, or else the http library
-      -- incorrectly tells us that the authentication was successful
-      opts_table = { auth = { username = username, password = password, digest = true }, no_cache = true }
-    elseif self.ntlmauth then
-      opts_table = { auth = { username = username, password = password, ntlm = true }, no_cache = true }
-    else
-      opts_table = { auth = { username = username, password = password }, no_cache = true }
+  get_opts = function( self )
+    -- we need to supply the no_cache directive, or else the http library
+    -- incorrectly tells us that the authentication was successful
+    local opts = {
+      auth = { },
+      no_cache = true,
+      bypass_cache = true,
+      header = {
+        -- nil just means not set, so default http.lua behavior
+        Host = self.hostname,
+      }
+    }
+    if self.authmethod == "digest" then
+      opts.auth.digest = true
+    elseif self.authmethod == "ntlm" then
+      opts.auth.ntlm = true
     end
-    response = http.generic_request( self.host, self.port, self.method, self.path, opts_table)
+    return opts
+  end,
+
+  login = function( self, username, password )
+    local opts_table = self:get_opts()
+    opts_table.auth.username = username
+    opts_table.auth.password = password
+
+    local response = http.generic_request( self.host, self.port, self.method, self.path, opts_table)
 
     if not response.status then
       local err = brute.Error:new(response["status-line"])
@@ -137,19 +145,19 @@ action = function( host, port )
   end
 
   -- check if digest or ntlm auth is required
-  local digestauth, ntlmauth = false, false
+  local authmethod = "basic"
   local h = response.header['www-authenticate']
   if h then
     h = h:lower()
     if string.find(h, 'digest.-realm') then
-      digestauth = true
+      authmethod = "digest"
     end
     if string.find(h, 'ntlm') then
-      ntlmauth = true
+      authmethod = "ntlm"
     end
   end
 
-  local engine = brute.Engine:new(Driver, host, port, {method=method, path=path, digestauth=digestauth, ntlmauth = ntlmauth})
+  local engine = brute.Engine:new(Driver, host, port, {method=method, path=path, authmethod=authmethod})
   engine.options.script_name = SCRIPT_NAME
 
   status, result = engine:start()

@@ -18,7 +18,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 portrule = shortport.port_or_service(3671, "efcp", "udp")
 
---
+---
 --@output
 -- 3671/udp open|filtered efcp
 -- | knx-gateway-info:

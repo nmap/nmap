@@ -366,10 +366,11 @@ action = function(host, port)
   end
   stdnse.debug1("Loaded %d fingerprints", #fingerprints)
 
-  -- Check what response we get for a 404
-  local result, result_404, known_404 = http.identify_404(host, port)
-  if(result == false) then
-    return stdnse.format_output(false, result_404)
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local status_404, result_404, known_404 = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
+    return nil
   end
 
   -- Queue up the checks

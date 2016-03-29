@@ -132,6 +132,7 @@ nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
    * SSL_OP_NO_SSLv2 disables the less-secure SSLv2 while allowing us to use the
    * SSLv2-compatible SSLv23_client_method. */
   SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
+  SSL_CTX_clear_options(ms->sslctx, SSL_OP_NO_SSLv2);
   SSL_CTX_set_options(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
                                   SSL_OP_ALL : SSL_OP_ALL|SSL_OP_NO_SSLv2);
 

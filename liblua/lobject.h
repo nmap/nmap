@@ -1,5 +1,5 @@
 /*
-** $Id: lobject.h,v 2.71.1.1 2013/04/12 18:48:47 roberto Exp $
+** $Id: lobject.h,v 2.71.1.2 2014/05/07 14:14:58 roberto Exp $
 ** Type definitions for Lua objects
 ** See Copyright Notice in lua.h
 */
@@ -561,12 +561,12 @@ typedef struct Table {
   CommonHeader;
   lu_byte flags;  /* 1<<p means tagmethod(p) is not present */
   lu_byte lsizenode;  /* log2 of size of `node' array */
-  struct Table *metatable;
+  int sizearray;  /* size of `array' array */
   TValue *array;  /* array part */
   Node *node;
   Node *lastfree;  /* any free position is before this position */
+  struct Table *metatable;
   GCObject *gclist;
-  int sizearray;  /* size of `array' array */
 } Table;
 
 

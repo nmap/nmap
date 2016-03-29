@@ -134,6 +134,7 @@
 #include "mswin32/winclude.h"
 #include "pcap-int.h"
 #else
+#include <sys/uio.h>
 #include <sys/ioctl.h>
 #endif
 
@@ -485,23 +486,20 @@ int ip_is_reserved(struct in_addr *ip)
   switch (i1)
     {
     case 0:         /* 000/8 is IANA reserved       */
-    case 6:         /* USA Army ISC                 */
-    case 7:         /* used for BGP protocol        */
     case 10:        /* the infamous 10.0.0.0/8      */
-    case 55:        /* misc. U.S.A. Armed forces    */
     case 127:       /* 127/8 is reserved for loopback */
       return 1;
     default:
       break;
     }
 
-  /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
+  /* 172.16.0.0/12 is reserved for private nets by RFC1918 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
     return 1;
 
   /* 192.0.2.0/24 is reserved for documentation and examples (RFC5737) */
   /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
-  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
+  /* 192.168.0.0/16 is reserved for private nets by RFC1918 */
   if (i1 == 192) {
     if (i2 == 0 && i3 == 2)
       return 1;
@@ -520,7 +518,7 @@ int ip_is_reserved(struct in_addr *ip)
       return 1;
   }
 
-  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses */
+  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses - RFC3927 */
   if (i1 == 169 && i2 == 254)
     return 1;
  
@@ -915,7 +913,7 @@ void set_ttl(int sd, int ttl) {
 /* Other than WIN32, what these systems have in common is that they use BPF for
    packet capture. (Solaris 10 and earlier used DLPI and had valid selectable
    fds.) */
-#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000) || defined(SOLARIS_BPF_PCAP_CAPTURE))
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000)) || defined(SOLARIS_BPF_PCAP_CAPTURE) || defined(OPENBSD)
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
 int pcap_selectable_fd_valid() {
   return 0;
@@ -1789,6 +1787,9 @@ int islocalhost(const struct sockaddr_storage *ss) {
 
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
+ *
+ * Also checks for link-local addressing per RFC3927.
+ *
  * Returns 1 if the address is private or 0 otherwise. */
 int isipprivate(const struct sockaddr_storage *addr) {
   const struct sockaddr_in *sin;
@@ -1811,6 +1812,10 @@ int isipprivate(const struct sockaddr_storage *addr) {
 
   /* 172.16.0.0/12 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
+    return 1;
+
+  /* 169.254.0.0/16 - RFC 3927 */
+  if (i1 == 169 && i2 == 254)
     return 1;
 
   /* 192.168.0.0/16 */
@@ -2678,7 +2683,6 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   } else if (hdr.proto == IPPROTO_ICMP) {
     struct ip *ip2;       /* Points to the IP datagram carried by some ICMP messages */
     char *ip2dst;         /* Dest IP in caried IP datagram                   */
-    u16 *nextmtu = NULL;  /* Store next hop MTU when ICMP==Frag required     */
     char auxbuff[128];    /* Aux buffer                                      */
     struct icmp_packet{   /* Generic ICMP struct */
       u8 type;
@@ -2821,8 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            nextmtu = (u16 *)(&(icmppkt->data[6]));
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", (unsigned short) ntohs(*nextmtu));
+            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:
@@ -3842,7 +3845,10 @@ static int send_ipv6_ip(const struct sockaddr_in6 *dst,
   const unsigned char *end;
   struct ip6_hdr *hdr;
   unsigned char nxt;
-  int tclass, hoplimit;
+#ifdef IPV6_TCLASS
+  int tclass;
+#endif
+  int hoplimit;
 
   int sd;
   int n;

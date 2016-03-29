@@ -342,7 +342,7 @@ class ProfileEditor(HIGWindow):
         log.debug(">>> Tab name: %s" % tab_name)
         log.debug(">>>Creating profile editor section: %s" % section_name)
         vbox = HIGVBox()
-        if  tab.notscripttab:  # if notscripttab is set
+        if tab.notscripttab:  # if notscripttab is set
             table = HIGTable()
             table.set_row_spacings(2)
             section = HIGSectionLabel(section_name)
@@ -374,13 +374,14 @@ class ProfileEditor(HIGWindow):
         command = self.ops.render_string()
 
         buf = self.profile_description_text.get_buffer()
-        description = buf.get_text(buf.get_start_iter(),\
-                                      buf.get_end_iter())
+        description = buf.get_text(
+                buf.get_start_iter(), buf.get_end_iter())
 
         try:
-            self.profile.add_profile(profile_name,\
-                                     command=command,\
-                                     description=description)
+            self.profile.add_profile(
+                    profile_name,
+                    command=command,
+                    description=description)
         except ValueError:
             alert = HIGAlertDialog(
                     message_format=_('Disallowed profile name'),

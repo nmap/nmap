@@ -65,15 +65,15 @@ action = function(host, port)
   local installation_version
 
   -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
-  local _, http_status, _ = http.identify_404(host,port)
-  if ( http_status == 200 ) then
+  local status_404, result_404, _ = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
     stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
-    return false
+    return nil
   end
 
   -- Are the default icons there?
-  png_icon_response = http.get(host, port, PNG_ICON_QUERY)
-  gif_icon_response = http.get(host, port, GIF_ICON_QUERY)
+  png_icon_response = http.get(host, port, PNG_ICON_QUERY,{redirect_ok=false})
+  gif_icon_response = http.get(host, port, GIF_ICON_QUERY,{redirect_ok=false})
   if png_icon_response.body and png_icon_response.status == 200 then
     icon_versions = {"1.3.x"}
   elseif gif_icon_response.body and gif_icon_response.status == 200 then
@@ -81,13 +81,13 @@ action = function(host, port)
   end
 
   -- Download cake.generic.css and fingerprint
-  response = http.get(host, port, STYLESHEET_QUERY)
+  response = http.get(host, port, STYLESHEET_QUERY,{redirect_ok=false})
   if response.body and response.status == 200 then
     stylesheet_hash = stdnse.tohex(openssl.md5(response.body))
     stylesheet_versions = CAKEPHP_STYLESHEET_HASHES[stylesheet_hash]
   end
   -- Is /js/vendors.php there?
-  response = http.get(host, port, VENDORS_QUERY)
+  response = http.get(host, port, VENDORS_QUERY,{redirect_ok=false})
   if response.body and response.status == 200 then
     installation_version = {"1.1.x","1.2.x"}
   elseif response.status ~= 200 and (icon_versions or stylesheet_versions) then

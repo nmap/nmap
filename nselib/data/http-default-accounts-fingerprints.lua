@@ -1,3 +1,4 @@
+local base64 = require "base64"
 local bin = require "bin"
 local http = require "http"
 local table = require "table"
@@ -199,6 +200,27 @@ table.insert(fingerprints, {
     return try_http_post_login(host, port, path, "login", "Invalid auth credentials!", {submit="+Login+", userName=user, password=pass})
   end
 })
+
+table.insert(fingerprints, {
+  name = "BeEF",
+  category = "web",
+  paths = {
+    {path = "/ui/authentication/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.body
+           and response.body:lower():find("<title>beef authentication</title>", 1, true)
+  end,
+  login_combos = {
+    {username = "beef", password = "beef"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "login",
+                               "{%s*success%s*:%s*false%s*}",
+                               {["username-cfrm"]=user, ["password-cfrm"]=pass})
+  end
+})
+
 ---
 --ROUTERS
 ---
@@ -421,6 +443,46 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  name = "RICOH Web Image Monitor",
+  category = "printer",
+  paths = {
+    {path = "/web/guest/en/websys/webArch/header.cgi"}
+  },
+  target_check = function (host, port, path, response)
+    return response.header["server"]
+           and response.header["server"]:find("^Web%-Server/%d+%.%d+$")
+           and response.body
+           and response.body:find("RICOH", 1, true)
+  end,
+  login_combos = {
+    {username = "admin",      password = ""},
+    {username = "supervisor", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- harvest the login form token
+    local req1 = http.get(host, port, url.absolute(path, "authForm.cgi"), {no_cache=true, redirect_ok = false, cookies = "cookieOnOffChecker=on"})
+    if req1.status ~= 200 then return false end
+    local token = req1.body and req1.body:match('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"wimToken"%s+value%s*=%s*"(.-)"')
+    if not token then return false end
+    -- build the login form and submit it
+    local form = {wimToken = token,
+                  userid_work = "",
+                  userid = base64.enc(user),
+                  password_work = "",
+                  password = base64.enc(pass),
+                  open = ""}
+    local req2 = http.post(host, port, url.absolute(path, "login.cgi"), {no_cache=true, cookies=req1.cookies}, nil, form)
+    local loc = req2.header["location"] or ""
+    -- successful login is a 302-redirect that sets a session cookie with numerical value
+    if not (req2.status == 302 and loc:find("/mainFrame%.cgi$")) then return false end
+    for _, ck in ipairs(req2.cookies or {}) do
+      if ck.name:lower() == "wimsesid" then return ck.value:find("^%d+$") end
+    end
+    return false
   end
 })
 

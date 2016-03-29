@@ -39,10 +39,11 @@ local table = require "table"
 portrule = shortport.http
 
 action = function(host, port)
-  local _, http_status, _ = http.identify_404(host,port)
-  if ( http_status == 200 ) then
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local status_404, result_404, _ = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
     stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
-    return
+    return nil
   end
   local output = stdnse.output_table()
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)

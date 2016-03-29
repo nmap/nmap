@@ -2,6 +2,8 @@
 -- Simple Mail Transfer Protocol (SMTP) operations.
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+-- @args smtp.domain The domain to be returned by get_domain, overriding the
+--                   target's own domain name.
 
 local base64 = require "base64"
 local comm = require "comm"

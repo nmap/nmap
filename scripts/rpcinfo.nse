@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local rpc = require "rpc"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -74,10 +75,11 @@ supported version numbers, port number and protocol, and program name.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "default", "safe"}
+categories = {"discovery", "default", "safe", "version"}
 
 
-portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
+-- don't match "rpcbind" because that's what version scan labels any RPC service
+portrule = shortport.portnumber(111, {"tcp", "udp"} )
 
 action = function(host, port)
 
@@ -92,6 +94,22 @@ action = function(host, port)
     for progid, v in pairs(rpcinfo) do
         xmlout[tostring(progid)] = v
         for proto, v2 in pairs(v) do
+          local nmapport = nmap.get_port_state(host, {number=v2.port, protocol=proto})
+          if nmapport and (nmapport.state == "open" or nmapport.state == "open|filtered") then
+            nmapport.version = nmapport.version or {}
+            -- If we don't already knkow it, or we only know that it's "rpcbind"
+            if nmapport.service == nil or nmapport.version.service_dtype == "table" or port.service == "rpcbind" then
+              nmapport.version.name = rpc.Util.ProgNumberToName(progid)
+              nmapport.version.extrainfo = "RPC #" .. progid
+              if #v2.version > 1 then
+                nmapport.version.version = ("%d-%d"):format(v2.version[1], v2.version[#v2.version])
+              else
+                nmapport.version.version = tostring(v2.version[1])
+              end
+              nmap.set_port_version(host, nmapport, "softmatched")
+            end
+          end
+
             table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
         end
     end

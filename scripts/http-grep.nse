@@ -169,11 +169,37 @@ local function luhn(matched_ccno)
 end
 
 -- A function to validate ssn numbers.
+local bad_ssn = {
+  -- https://www.ssa.gov/history/ssn/misused.html
+  ["078-05-1120"] = true,
+  ["219-09-9999"] = true,
+  -- Obvious fakes
+  ["123-12-1234"] = true,
+  ["123-45-6789"] = true,
+  ["321-21-4321"] = true,
+  ["111-11-1111"] = true,
+  ["222-22-2222"] = true,
+  ["333-33-3333"] = true,
+  ["444-44-4444"] = true,
+  ["555-55-5555"] = true,
+  ["666-66-6666"] = true,
+  ["777-77-7777"] = true,
+  ["888-88-8888"] = true,
+  ["999-99-9999"] = true,
+}
+local bad_group_1 = {
+  ["000"] = true,
+  ["333"] = true,
+  ["666"] = true,
+}
 local function ssn(matched_ssn)
-  local group_1, group_2, group_3 = matched_ssn:match('(%d%d%d%)-(%d%d%)-(%d%d%d%d)')
-  group_1, group_2, group_3 = tonumber(group_1), tonumber(group_2), tonumber(group_3)
-  if group_1*group_2*group_3 == 0 then return false end
-  if group_1 == 666 or (900 <= group_1 and group_1 <= 999) then return false end
+  if bad_ssn[matched_ssn] then return false end
+  local group_1, group_2, group_3 = matched_ssn:match('(%d%d%d)%-(%d%d)%-(%d%d%d%d)')
+  if bad_group_1[group_1] then return false end
+  if group_2 == "00" or group_3 == "0000" then return false end
+  group_1 = tonumber(group_1)
+  -- This line rules out ITINs, which may also be of interest.
+  if 900 <= group_1 and group_1 <= 999 then return false end
   return true
 end
 

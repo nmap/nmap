@@ -34,7 +34,7 @@ available.
 -- |   DNS_Domain_Name: somedomain.com
 -- |   DNS_Computer_Name: web-test2.somedomain.com
 -- |   DNS_Tree_Name: somedomain.com
--- |_  OS_Version: 6.1 (Build 7601)
+-- |_  Product_Version: 6.1.7601
 --
 --@xmloutput
 -- <elem key="Target_Name">TELME</elem>
@@ -42,7 +42,7 @@ available.
 -- <elem key="NetBIOS_Computer_Name">GT4</elem>
 -- <elem key="DNS_Domain_Name">telme.somedomain.com</elem>
 -- <elem key="DNS_Computer_Name">gt4.telme.somedomain.com</elem>
--- <elem key="Product_Version">5.0 (Build 2195)</elem>
+-- <elem key="Product_Version">5.0.2195</elem>
 
 
 author = "Justin Cacak"
@@ -52,26 +52,17 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.http
 
--- TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==
--- Ref: http://davenport.sourceforge.net/ntlm.html#theType1Message
-local auth_blob = base64.enc(
-  "NTLMSSP\x00" ..
-  "\x01\x00\x00\x00" .. -- NTLM Type 1 message
-  bin.pack("<I", --flags
+local auth_blob = base64.enc( select( 2,
+  smbauth.get_security_blob(nil, nil, nil, nil, nil, nil, nil,
     0x00000001 + -- Negotiate Unicode
     0x00000002 + -- Negotiate OEM strings
     0x00000004 + -- Request Target
     0x00000200 + -- Negotiate NTLM
     0x00008000 + -- Negotiate Always Sign
     0x00080000 + -- Negotiate NTLM2 Key
-    0x02000000 + -- Unknown
     0x20000000 + -- Negotiate 128
     0x80000000 -- Negotiate 56
-    ) ..
-  string.rep("\x00", 16) .. -- Supplied Domain and Workstation (empty)
-  bin.pack("CC<S", -- OS version info
-    6, 1, 7601) .. -- 6.1.7601, Win 7 SP1 or Server 2008 R2 SP1
-  "\x00\x00\x00\x0f" -- OS version info end (static 0x0000000f)
+    ))
   )
 
 action = function(host, port)
@@ -118,26 +109,11 @@ action = function(host, port)
       output.DNS_Tree_Name = ntlm_decoded.dns_forest_name
     end
 
-    -- Query product build version if available (typically OS version under Windows)
-    -- Use this method as certain open source HTTP NTLM implementations do not set correct flags
-    -- Compute offset for Target Name
-    local target_offset = data:sub(17, 21)
-    local pos, target_offset_dec = bin.unpack("<I", target_offset)
-
-    if #data > 48 and target_offset_dec ~= 48 then
-      -- Get product major version
-      local major_version = data:sub(49, 50)
-      local pos, major_version_dec = bin.unpack("C", major_version)
-
-      -- Get product minor version
-      local minor_version = data:sub(50, 51)
-      local pos, minor_version_dec = bin.unpack("C", minor_version)
-
-      -- Get product build version
-      local build = data:sub(51, 53)
-      local pos, build_dec = bin.unpack("<S", build)
-
-      output.Product_Version = major_version_dec .. "." .. minor_version_dec .. " (Build " .. build_dec .. ")"
+    if ntlm_decoded.os_major_version then
+      output.Product_Version = ("%d.%d.%d"):format(
+        ntlm_decoded.os_major_version,
+        ntlm_decoded.os_minor_version,
+        ntlm_decoded.os_build)
     end
 
     return output

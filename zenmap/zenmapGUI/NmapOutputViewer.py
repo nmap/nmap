@@ -372,7 +372,8 @@ class NmapOutputViewer (gtk.VBox):
                 buf.insert(buf.get_end_iter(), new_output)
                 # Highlight the new text.
                 self.apply_highlighting(
-                        buf.get_iter_at_mark(prev_end_mark), buf.get_end_iter())
+                        buf.get_iter_at_mark(prev_end_mark),
+                        buf.get_end_iter())
             except MemoryError:
                 self.show_large_output_message(self.command_execution)
                 return

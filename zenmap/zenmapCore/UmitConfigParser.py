@@ -142,8 +142,8 @@ class UmitConfigParser(ConfigParser):
     def read(self, filename):
         log.debug(">>> Trying to parse: %s" % filename)
 
-        self.filename = ConfigParser.read(self, filename)
-        return self.filename
+        self.filenames = ConfigParser.read(self, filename)
+        return self.filenames
 
     def readfp(self, fp, filename=None):
         ConfigParser.readfp(self, fp, filename)

@@ -32,8 +32,7 @@ This script uses some AD-specific support and optimizations:
 
 ---
 -- @usage
--- nmap -p 389 --script ldap-brute --script-args \
---  ldap.base='"cn=users,dc=cqure,dc=net"' <host>
+-- nmap -p 389 --script ldap-brute --script-args ldap.base='"cn=users,dc=cqure,dc=net"' <host>
 --
 -- @output
 -- 389/tcp open  ldap

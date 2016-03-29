@@ -48,11 +48,12 @@ function parse_robtex_response(data)
   end
 
   -- cut out the section we're interested in
-  data = data:match("<span id=\"shared_pn_mn\">.-<ol.->(.-)</ol>")
+  data = data:match('<span id="shared[^"]*_pn_mn">.-<ol.->(.-)</ol>')
 
   -- process each html list item
   if data then
-    for domain in data:gmatch("<li><code>(.-)</code></li>") do
+    for domain in data:gmatch("<li[^>]*>(.-)</li>") do
+      domain = domain:gsub("<[^>]+>","")
       if ( domain ) then
         table.insert(result, domain)
       end
@@ -67,7 +68,7 @@ local function lookup_dns_server(data)
 end
 
 local function fetch_robtex_data(url)
-  local htmldata = http.get("www.robtex.com", 443, url)
+  local htmldata = http.get("www.robtex.net", 443, url, {any_af=true})
   if ( not(htmldata) or not(htmldata.body) ) then
     return
   end
@@ -79,7 +80,7 @@ end
 hostrule = function (host) return host.targetname end
 
 action = function(host)
-  local base_url = "/dns/" .. host.targetname .. ".html"
+  local base_url = "/?dns=" .. host.targetname
   local data = fetch_robtex_data(base_url)
   local domains = parse_robtex_response(data)
 

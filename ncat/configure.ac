@@ -51,7 +51,7 @@ AC_FUNC_FORK
 AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([dup2 gettimeofday inet_ntoa memset select socket strcasecmp strchr strdup strerror strncasecmp strtol])
+AC_CHECK_FUNCS([dup2 gettimeofday inet_ntoa memset mkstemp select socket strcasecmp strchr strdup strerror strncasecmp strtol])
 AC_SEARCH_LIBS(setsockopt, socket)
 # Ncat does not call gethostbyname directly, but some of the libraries
 # it links to (such as libpcap) do. Instead it calls getaddrinfo. At
@@ -97,7 +97,8 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
 	   [ use_openssl="yes"],
 	   [ use_openssl="no"
 	   AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. 
-If it is installed you can try the --with-openssl=DIR argument]) ])
+If it is installed you can try the --with-openssl=DIR argument]) ],
+     [ -lcrypto ])
 	fi
 fi
 

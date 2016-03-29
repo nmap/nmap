@@ -1,25 +1,25 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
-local packet = require "packet"
 local stdnse = require "stdnse"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
+local multicast = require "multicast"
 
 description = [[
 Attempts to discover available IPv6 hosts on the LAN by sending an MLD
 (multicast listener discovery) query to the link-local multicast address
 (ff02::1) and listening for any responses.  The query's maximum response delay
-set to 0 to provoke hosts to respond immediately rather than waiting for other
+set to 1 to provoke hosts to respond immediately rather than waiting for other
 responses from their multicast group.
 ]]
 
 ---
 -- @usage
--- nmap -6 --script=targets-ipv6-multicast-mld.nse --script-args 'newtargets,interface=eth0' -sP
+-- nmap -6 --script=targets-ipv6-multicast-mld.nse --script-args 'newtargets,interface=eth0'
 --
+-- @output
 -- Pre-scan script results:
 -- | targets-ipv6-multicast-mld:
 -- |   IP: fe80::5a55:abcd:ef01:2345  MAC: 58:55:ab:cd:ef:01  IFACE: en0
@@ -29,10 +29,25 @@ responses from their multicast group.
 --
 -- @args targets-ipv6-multicast-mld.timeout timeout to wait for
 --       responses (default: 10s)
--- @args targets-ipv6-multicast-mld.interface Interface to send on (overrides -e)
+-- @args targets-ipv6-multicast-mld.interface Interface to send on (default:
+--       the interface specified with -e or every available Ethernet interface
+--       with an IPv6 address.)
 --
+-- @xmloutput
+-- <table>
+--   <table>
+--     <elem key="address">fe80::5a55:abcd:ef01:2345</elem>
+--     <elem key="mac">58:55:ab:cd:ef:01</elem>
+--     <elem key="iface">en0</elem>
+--   </table>
+--   <table>
+--     <elem key="address">fe80::9284:0123:4567:89ab</elem>
+--     <elem key="mac">90:84:01:23:45:67</elem>
+--     <elem key="iface">en0</elem>
+--   </table>
+-- </table>
 
-author = "niteesh"
+author = "niteesh, alegen"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","broadcast"}
 
@@ -54,19 +69,11 @@ local function get_interfaces()
 
   -- interfaces list (decide which interfaces to broadcast on)
   local interfaces = {}
-  if interface_name then
-    -- single interface defined
-    local if_table = nmap.get_interface_info(interface_name)
-    if if_table and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-      interfaces[#interfaces + 1] = if_table
-    else
-      stdnse.debug1("Interface not supported or not properly configured.")
-    end
-  else
-    for _, if_table in ipairs(nmap.list_interfaces()) do
-      if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-        table.insert(interfaces, if_table)
-      end
+  for _, if_table in pairs(nmap.list_interfaces()) do
+    if (interface_name == nil or if_table.device == interface_name) -- check for correct interface
+      and ipOps.ip_in_range(if_table.address, "fe80::/10") -- link local address
+      and if_table.link == "ethernet" then                 -- not the loopback interface
+      table.insert(interfaces, if_table)
     end
   end
 
@@ -76,87 +83,41 @@ end
 local function single_interface_broadcast(if_nfo, results)
   stdnse.debug2("Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
   local condvar = nmap.condvar(results)
-  local src_mac = if_nfo.mac
-  local src_ip6 = ipOps.ip_to_str(if_nfo.address)
-  local dst_mac = packet.mactobin("33:33:00:00:00:01")
-  local dst_ip6 = ipOps.ip_to_str("ff02::1")
-  local gen_qry = ipOps.ip_to_str("::")
 
-  local dnet = nmap.new_dnet()
-  local pcap = nmap.new_socket()
-
-  dnet:ethernet_open(if_nfo.device)
-  pcap:pcap_open(if_nfo.device, 1500, false, "ip6[40:1] == 58")
-
-  local probe = packet.Frame:new()
-  probe.mac_src = src_mac
-  probe.mac_dst = dst_mac
-  probe.ip_bin_src = src_ip6
-  probe.ip_bin_dst = dst_ip6
-
-  probe.ip6_tc = 0
-  probe.ip6_fl = 0
-  probe.ip6_hlimit = 1
-
-  probe.icmpv6_type = packet.MLD_LISTENER_QUERY
-  probe.icmpv6_code = 0
-
-  -- Add a non-empty payload too.
-  probe.icmpv6_payload = bin.pack("HA", "00 00 00 00", gen_qry)
-  probe:build_icmpv6_header()
-  probe.exheader = bin.pack("CH", packet.IPPROTO_ICMPV6, "00 05 02 00 00 01 00")
-  probe.ip6_nhdr = packet.IPPROTO_HOPOPTS
-
-  probe:build_ipv6_packet()
-  probe:build_ether_frame()
-
-  dnet:ethernet_send(probe.frame_buf)
-
-  pcap:set_timeout(1000)
-  local pcap_timeout_count = 0
-  local nse_timeout = arg_timeout or 10
-  local start_time = nmap:clock()
-  local addrs = {}
-
-  repeat
-    local status, length, layer2, layer3 = pcap:pcap_receive()
-    local cur_time = nmap:clock()
-    if ( status ) then
-      local l2reply = packet.Frame:new(layer2)
-      local reply = packet.Packet:new(layer3, length, true)
-      if ( reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or
-          reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT ) then
-        local target_str = reply.ip_src
-        if not results[target_str] then
-          if target.ALLOW_NEW_TARGETS then
-            target.add(target_str)
-          end
-          results[target_str] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
-        end
+  local reports = multicast.mld_query(if_nfo, arg_timeout or 10)
+  for _, r in pairs(reports) do
+    local l2reply = r[2]
+    local l3reply = r[3]
+    local target_str = l3reply.ip_src
+    if not results[target_str] then
+      if target.ALLOW_NEW_TARGETS then
+        target.add(target_str)
       end
+      results[target_str] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
     end
-  until ( cur_time - start_time >= nse_timeout )
-
-  dnet:ethernet_close()
-  pcap:pcap_close()
+  end
 
   condvar("signal")
 end
 
 local function format_output(results)
   local output = tab.new()
+  local xmlout = {}
+  local ips = stdnse.keys(results)
+  table.sort(ips)
 
-  for _, record in pairs(results) do
-    tab.addrow(output, "IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
+  for i, ip in ipairs(ips) do
+    local record = results[ip]
+    xmlout[i] = record
+    tab.addrow(output, "  IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
   end
 
   if ( #output > 0 ) then
-    output = { tab.dump(output) }
+    output = {"", tab.dump(output) }
     if not target.ALLOW_NEW_TARGETS then
-      table.insert(output, "")
-      table.insert(output, "Use --script-args=newtargets to add the results as targets")
+      table.insert(output, "  Use --script-args=newtargets to add the results as targets")
     end
-    return stdnse.format_output(true, output)
+    return xmlout, table.concat(output, "\n")
   end
 end
 

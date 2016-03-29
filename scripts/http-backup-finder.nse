@@ -87,12 +87,16 @@ action = function(host, port)
   local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
   crawler:set_timeout(10000)
 
-  local res, res404, known404 = http.identify_404(host, port)
-  if not res then
-    stdnse.debug1("Can't identify 404 pages")
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local status_404, result_404, known_404 = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
     return nil
   end
 
+  -- Check if we can use HEAD requests
+  local use_head = http.can_use_head(host, port, result_404)
+  
   local backups = {}
   while(true) do
     local status, r = crawler:crawl()
@@ -131,9 +135,14 @@ action = function(host, port)
         -- replacement instead.
         local escaped_link = link:gsub(" ", "%%20")
 
-        -- attempt a HEAD-request against each of the backup files
-        local response = http.head(host, port, escaped_link)
-        if http.page_exists(response, res404, known404, escaped_link, true) then
+        local response
+        if(use_head) then
+          response = http.head(host, port, escaped_link, {redirect_ok=false})
+        else
+          response = http.get(host, port, escaped_link, {redirect_ok=false})
+        end
+        
+        if http.page_exists(response, result_404, known_404, escaped_link, false) then
           if ( not(parsed.port) ) then
             table.insert(backups,
               ("%s://%s%s"):format(parsed.scheme, host, link))

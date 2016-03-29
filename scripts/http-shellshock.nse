@@ -23,6 +23,7 @@ References:
 * http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-6271
 ]]
 
+---
 -- @usage
 -- nmap -sV -p- --script http-shellshock <target>
 -- nmap -sV -p- --script http-shellshock --script-args uri=/cgi-bin/bin,cmd=ls <target>

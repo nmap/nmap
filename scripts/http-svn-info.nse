@@ -8,7 +8,7 @@ description = [[Requests information from a Subversion repository.
 ]]
 
 ---
--- @usage nmap --script svn-info <target>
+-- @usage nmap --script http-svn-info <target>
 --
 -- @args http-svn-info.url This is a URL relative to the scanned host eg. /default.html (default: /)
 --

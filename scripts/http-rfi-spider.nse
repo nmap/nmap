@@ -11,11 +11,38 @@ query.
 --
 -- @output
 -- PORT   STATE SERVICE REASON
--- 80/tcp open  http    syn-ack
+-- 80/tcp open  http
 -- | http-rfi-spider:
--- |   Possible RFI in form at path: /pio/rfi_test2.php, action: /rfi_test2.php for fields:
--- |     color
--- |_    inc
+-- |   Possible RFI in form fields
+-- |     Form "(form 1)" at /experiments/rfihome.html (action rfi.pl) with fields:
+-- |       inc
+-- |     Form "someform" at /experiments/rfihome.html (action rfi.pl) with fields:
+-- |       inc2
+-- |   Possible RFI in query parameters
+-- |     Path /experiments/rfi.pl with queries:
+-- |_      inc=http%3a%2f%2ftools%2eietf%2eorg%2fhtml%2frfc13%3f
+--
+-- @xmloutput
+-- <table key="Forms">
+--   <table key="/experiments/rfihome.html">
+--     <table key="(form 1)">
+--       <table key="Vulnerable fields">
+--         <elem>inc</elem>
+--       </table>
+--       <elem key="Action">rfi.pl</elem>
+--     </table>
+--   <table key="someform">
+--     <table key="Vulnerable fields">
+--       <elem>inc2</elem>
+--     </table>
+--     <elem key="Action">rfi.pl</elem>
+--   </table>
+-- </table>
+-- <table key="Queries">
+--   <table key="/experiments/rfi.pl">
+--     <elem>inc=http%3a%2f%2ftools%2eietf%2eorg%2fhtml%2frfc13%3f</elem>
+--   </table>
+-- </table>
 --
 -- @args http-rfi-spider.inclusionurl the url we will try to include, defaults
 --       to <code>http://tools.ietf.org/html/rfc13?</code>
@@ -148,6 +175,17 @@ local function check_responses(urls, responses)
   return suspects
 end
 
+-- return a shallow copy of t
+local function tcopy(t)
+  local k = next(t)
+  local out = {}
+  while k do
+    out[k] = t[k]
+    k = next(t, k)
+  end
+  return out
+end
+
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 function action(host, port)
@@ -164,7 +202,9 @@ function action(host, port)
     return
   end
 
-  local return_table = {}
+  local output = stdnse.output_table()
+  output.Forms = stdnse.output_table()
+  output.Queries = stdnse.output_table()
 
   while(true) do
     local status, r = crawler:crawl()
@@ -179,15 +219,18 @@ function action(host, port)
 
     -- first we try rfi on forms
     if r.response and r.response.body and r.response.status==200 then
+      local path = r.url.path
       local all_forms = http.grab_forms(r.response.body)
-      for _,form_plain in ipairs(all_forms) do
+      for seq, form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
-        local path = r.url.path
         if form and form.action then
           local vulnerable_fields = check_form(form, host, port, path)
           if #vulnerable_fields > 0 then
-            vulnerable_fields["name"] = "Possible RFI in form at path: "..path..", action: "..form["action"].." for fields:"
-            table.insert(return_table, vulnerable_fields)
+            local out_form = stdnse.output_table()
+            out_form["Action"] = form.action
+            out_form["Vulnerable fields"] = vulnerable_fields
+            if not output.Forms[path] then output.Forms[path] = stdnse.output_table() end
+            output.Forms[path][form.id or string.format("(form %d)", seq)] = out_form
           end
         end
       end --for
@@ -209,13 +252,39 @@ function action(host, port)
       local new_urls = build_urls(injectable)
       local responses = inject(host, port, new_urls)
       local suspects = check_responses(new_urls, responses)
-      for p,q in pairs(suspects) do
-        local vulnerable_fields = q
-        vulnerable_fields["name"] = "Possible RFI in parameters at path: "..p.." for queries:"
-        table.insert(return_table, vulnerable_fields)
+      for p, q in pairs(suspects) do
+        local queries_out = output.Queries[p] or {}
+        for _, query in ipairs(q) do
+          queries_out[#queries_out+1] = query
+        end
+        output.Queries[p] = queries_out
       end
     end
   end
-  return stdnse.format_output(true, return_table)
+
+  local text_output = {}
+  if #output.Forms > 0 then
+    local rfi = { name = "Possible RFI in form fields" }
+    for path, forms in pairs(output.Forms) do
+      for fid, fobj in pairs(forms) do
+        local out = tcopy(fobj["Vulnerable fields"])
+        out.name = string.format('Form "%s" at %s (action %s) with fields:',
+                                 fid, path, fobj["Action"])
+        table.insert(rfi, out)
+      end
+    end
+    table.insert(text_output, rfi)
+  end
+  if #output.Queries > 0 then
+    local rfi = { name = "Possible RFI in query parameters" }
+    for path, queries in pairs(output.Queries) do
+      local out = tcopy(queries)
+      out.name = string.format('Path %s with queries:', path)
+      table.insert(rfi, out)
+    end
+    table.insert(text_output, rfi)
+  end
+
+  return output, stdnse.format_output(true, text_output)
 end
 

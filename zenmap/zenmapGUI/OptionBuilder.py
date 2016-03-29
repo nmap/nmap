@@ -145,19 +145,19 @@ from zenmapGUI.ScriptInterface import *
 
 def get_option_check_auxiliary_widget(option, ops, check):
     if option in ("-sI", "-b", "--script", "--script-args", "--exclude", "-p",
-        "-D", "-S", "--source-port", "-e", "--ttl", "-iR", "--max-retries",
-        "--host-timeout", "--max-rtt-timeout", "--min-rtt-timeout",
-        "--initial-rtt-timeout", "--max-hostgroup", "--min-hostgroup",
-        "--max-parallelism", "--min-parallelism", "--max-scan-delay",
-        "--scan-delay", "-PA", "-PS", "-PU", "-PO", "-PY"):
+            "-D", "-S", "--source-port", "-e", "--ttl", "-iR", "--max-retries",
+            "--host-timeout", "--max-rtt-timeout", "--min-rtt-timeout",
+            "--initial-rtt-timeout", "--max-hostgroup", "--min-hostgroup",
+            "--max-parallelism", "--min-parallelism", "--max-scan-delay",
+            "--scan-delay", "-PA", "-PS", "-PU", "-PO", "-PY"):
         return OptionEntry(option, ops, check)
     elif option in ("-d", "-v"):
         return OptionLevel(option, ops, check)
     elif option in ("--excludefile", "-iL"):
         return OptionFile(option, ops, check)
     elif option in ("-A", "-O", "-sV", "-n", "-6", "-Pn", "-PE", "-PP", "-PM",
-        "-PB", "-sC", "--script-trace", "-F", "-f", "--packet-trace", "-r",
-        "--traceroute"):
+            "-PB", "-sC", "--script-trace", "-F", "-f", "--packet-trace", "-r",
+            "--traceroute"):
         return None
     elif option in ("",):
         return OptionExtras(option, ops, check)
@@ -496,9 +496,8 @@ class OptionBuilder(object):
         return dic
 
     def __parse_groups(self):
-        return [g_name.getAttribute(u'name') for g_name in \
-                  self.xml.getElementsByTagName(u'groups')[0].\
-                  getElementsByTagName(u'group')]
+        return [g_name.getAttribute(u'name') for g_name in
+                self.xml.getElementsByTagName(u'groups')[0].getElementsByTagName(u'group')]  # noqa
 
     def __parse_tabs(self):
         dic = {}

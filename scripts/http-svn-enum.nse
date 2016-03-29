@@ -9,7 +9,7 @@ description = [[Enumerates users of a Subversion repository by examining logs of
 ]]
 
 ---
--- @usage nmap --script svn-enum <target>
+-- @usage nmap --script http-svn-enum <target>
 --
 -- @args http-svn-enum.count The number of logs to fetch. Defaults to the last 1000 commits.
 -- @args http-svn-enum.url This is a URL relative to the scanned host eg. /default.html (default: /).

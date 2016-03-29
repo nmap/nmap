@@ -301,7 +301,12 @@ function process_ips( if_tbl, ip_tbl )
   for _, v in ipairs( ip_tbl ) do
     if ( v.oid:match("^" .. ip_index) ) then
       index = get_value_from_table( ip_tbl, v.oid )
+      if not index then goto NEXT_PROCESS_IPS end
       item = if_tbl[index]
+      if not item then
+        stdnse.debug1("Unknown interface index %s", index)
+        goto NEXT_PROCESS_IPS
+      end
 
       local objid = v.oid:gsub( "^" .. ip_index, ip_addr )
       local value = get_value_from_table( ip_tbl, objid )
@@ -316,6 +321,7 @@ function process_ips( if_tbl, ip_tbl )
       if value then
         item.netmask = value
       end
+      ::NEXT_PROCESS_IPS::
     end
   end
 

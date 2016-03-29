@@ -155,7 +155,7 @@ from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 import zenmapGUI.Print
-from zenmapCore.UmitConf import SearchConfig, is_maemo
+from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig
 from zenmapCore.NetworkInventory import FilteredNetworkInventory
 
 UmitScanWindow = None
@@ -194,8 +194,12 @@ def can_print():
 class ScanWindow(UmitScanWindow):
     def __init__(self):
         UmitScanWindow.__init__(self)
+
+        window = WindowConfig()
+
         self.set_title(_(APP_DISPLAY_NAME))
-        self.set_default_size(-1, 650)
+        self.move(window.x, window.y)
+        self.set_default_size(window.width, window.height)
 
         self.scan_interface = ScanInterface()
 
@@ -242,7 +246,7 @@ class ScanWindow(UmitScanWindow):
         except:
             about_icon = None
 
-        self.main_actions = [ \
+        self.main_actions = [
             # Top level
             ('Scan', None, _('Sc_an'), None),
 
@@ -576,7 +580,7 @@ class ScanWindow(UmitScanWindow):
         if widget is None:
             # Don't have a Print menu item for lack of support.
             return
-        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()
+        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()  # noqa
         widget.set_sensitive(entry is not None)
 
     def _load_recent_scan(self, widget):
@@ -767,8 +771,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         try:
             scan_interface.inventory.save_to_file(
                     saved_filename, selected_index, format)
-            scan_interface.inventory.get_scans()[selected_index].unsaved = \
-                    False
+            scan_interface.inventory.get_scans()[selected_index].unsaved = False  # noqa
         except (OSError, IOError), e:
             alert = HIGAlertDialog(
                     message_format=_("Can't save file"),
@@ -901,13 +904,18 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             elif response == gtk.RESPONSE_CANCEL:
                 return True
 
+        window = WindowConfig()
+        window.x, window.y = self.get_position()
+        window.width, window.height = self.get_size()
+        window.save_changes()
+
         self.destroy()
 
         return False
 
     def _print_cb(self, *args):
         """Show a print dialog."""
-        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()
+        entry = self.scan_interface.scan_result.scan_result_notebook.nmap_output.get_active_entry()  # noqa
         if entry is None:
             return False
         zenmapGUI.Print.run_print_operation(

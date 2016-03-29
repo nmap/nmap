@@ -214,7 +214,7 @@ function add_file(output, file)
   local curvol = output.curvol
   local files = curvol["files"]
   for i, info in ipairs(file) do
-    tab.add(files, i, info)
+    tab.add(files, i, tostring(info))
   end
   local size = get_size(file[curvol.hasperms and 4 or 1])
   if size then

@@ -54,7 +54,7 @@ action = function(host)
     stdnse.debug1("20 requests per hour Limit Exceeded")
     return nil
   end
-  local response = http.get("www.geobytes.com", 80, "/IpLocator.htm?GetLocation&template=json.txt&IpAddress="..host.ip, nil)
+  local response = http.get("www.geobytes.com", 80, "/IpLocator.htm?GetLocation&template=json.txt&IpAddress="..host.ip, {any_af=true})
   local stat, out = json.parse(response.body)
   if stat then
     local loc = out.geobytes

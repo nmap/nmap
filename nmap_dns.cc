@@ -1317,7 +1317,8 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 
       std::string ipv4 = ipv4_c;
       std::string octet;
-      for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != ipv4.rend(); ++c)
+      std::string::const_reverse_iterator crend = ipv4.rend();
+      for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != crend; ++c)
         if((*c)=='.')
         {
           ptr += octet + ".";
@@ -1382,7 +1383,8 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   {
 
     std::string octet;
-    for (std::string::const_reverse_iterator it = mptr.rend()-pos; it != mptr.rend(); ++it)
+    std::string::const_reverse_iterator crend = mptr.rend();
+    for (std::string::const_reverse_iterator it = crend-pos; it != crend; ++it)
     {
       const char &c = *it;
       if(c == '.')

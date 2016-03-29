@@ -87,6 +87,14 @@ function get_text_callback(store, name)
 end
 
 function action (host, port)
+
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local status_404, result_404, _ = http.identify_404(host,port)
+  if ( status_404 and result_404 == 200 ) then
+    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
+    return nil
+  end
+
   local output = stdnse.output_table()
   local response = http.get(host, port, '/HNAP1')
   if response.status and response.status == 200 then
@@ -96,7 +104,10 @@ function action (host, port)
       closeElement = function(name) parser._call.text = function() return nil end end
     }
     parser:parseSAX(response.body, {stripWhitespace=true})
-
+    
+    -- exit if the parser does not return output
+    if not next(output) then return nil end
+    
     -- set the port verson
     port.version.name = "hnap"
     port.version.name_confidence = 10
@@ -110,7 +121,7 @@ function action (host, port)
     end
     nmap.set_port_version(host, port, "hardmatched")
 
-    if #output >0 then return output end
+    return output
   end
 end
 

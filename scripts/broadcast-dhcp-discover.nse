@@ -214,6 +214,10 @@ action = function()
     end
   until next(threads) == nil
 
+  if not next(result) then
+    return nil
+  end
+
   local response = stdnse.output_table()
   -- Display the results
   for i, r in ipairs(result) do

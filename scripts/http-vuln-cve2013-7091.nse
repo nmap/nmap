@@ -56,7 +56,7 @@ categories = {"exploit","vuln","intrusive"}
 portrule = shortport.http
 
 -- function to escape specific characters
-local escape = function(str) return string.gsub(str, "", "") end
+local escape = function(str) return string.gsub(str, "%%", "%%%%") end
 
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/zimbra"

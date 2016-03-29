@@ -233,19 +233,19 @@ def parse_script_args_dict(raw_argument):
 
 if __name__ == '__main__':
     TESTS = (
-        ('', []),
-        ('a=b,c=d', [('a', 'b'), ('c', 'd')]),
-        ('a="b=c"', [('a', '"b=c"')]),
-        ('a="def\\"ghi"', [('a', '"def\\"ghi"')]),
-        ('a={one,{two,{three}}}', [('a', '{one,{two,{three}}}')]),
-        ('a={"quoted}quoted"}', [('a', '{"quoted}quoted"}')]),
-        ('a="unterminated', None),
-        ('user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},'
-            'userdb=C:\\Some\\Path\\To\\File',
-            [('user', 'foo'), ('pass', '",{}=bar"'),
-                ('whois', '{whodb=nofollow+ripe}'),
-                ('userdb', 'C:\\Some\\Path\\To\\File')]),
-     )
+            ('', []),
+            ('a=b,c=d', [('a', 'b'), ('c', 'd')]),
+            ('a="b=c"', [('a', '"b=c"')]),
+            ('a="def\\"ghi"', [('a', '"def\\"ghi"')]),
+            ('a={one,{two,{three}}}', [('a', '{one,{two,{three}}}')]),
+            ('a={"quoted}quoted"}', [('a', '{"quoted}quoted"}')]),
+            ('a="unterminated', None),
+            ('user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},'
+                'userdb=C:\\Some\\Path\\To\\File',
+                [('user', 'foo'), ('pass', '",{}=bar"'),
+                    ('whois', '{whodb=nofollow+ripe}'),
+                    ('userdb', 'C:\\Some\\Path\\To\\File')]),
+                )
 
     for test, expected in TESTS:
         args_dict = parse_script_args_dict(test)

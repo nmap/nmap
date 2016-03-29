@@ -121,8 +121,8 @@
 import os
 
 
-INFO = {'name':      'RadialNet',
-        'version':   '0.44',
-        'website':   'http://www.dca.ufrn.br/~joaomedeiros/radialnet/',
-        'authors':   ['João Paulo de Souza Medeiros'],
+INFO = {'name': 'RadialNet',
+        'version': '0.44',
+        'website': 'http://www.dca.ufrn.br/~joaomedeiros/radialnet/',
+        'authors': ['João Paulo de Souza Medeiros'],
         'copyright': 'Copyright (C) 2007, 2008 Insecure.Com LLC'}

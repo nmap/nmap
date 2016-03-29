@@ -144,10 +144,10 @@ REGION_GREEN = 2
 
 SQUARE_TYPES = ['router', 'switch', 'wap']
 
-ICON_DICT = {'router':      'router',
-             'switch':      'switch',
-             'wap':         'wireless',
-             'firewall':    'firewall'}
+ICON_DICT = {'router': 'router',
+             'switch': 'switch',
+             'wap': 'wireless',
+             'firewall': 'firewall'}
 
 POINTER_JUMP_TO = 0
 POINTER_INFO = 1

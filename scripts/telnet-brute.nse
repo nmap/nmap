@@ -14,10 +14,7 @@ Performs brute-force password auditing against telnet servers.
 
 ---
 -- @usage
---   nmap -p 23 --script telnet-brute \
---      --script-args userdb=myusers.lst,passdb=mypwds.lst \
---      --script-args telnet-brute.timeout=8s \
---      <target>
+--   nmap -p 23 --script telnet-brute --script-args userdb=myusers.lst,passdb=mypwds.lst,telnet-brute.timeout=8s <target>
 --
 -- @output
 -- 23/tcp open  telnet

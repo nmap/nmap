@@ -12,6 +12,9 @@ Attempts to get build info and server status from a MongoDB database.
 ---
 -- @usage
 -- nmap -p 27017 --script mongodb-info <host>
+--
+-- @args mongodb-info.db Database to check. Default: admin
+--
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 27017/tcp open  unknown syn-ack

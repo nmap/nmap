@@ -24,6 +24,8 @@ Information gathered:
 -- @usage
 -- nmap --script hadoop-jobtracker-info [--script-args=hadoop-jobtracker-info.userinfo] -p 50030 host
 --
+-- @args hadoop-jobtracker-info.userinfo Retrieve user history info. Default: false
+--
 -- @output
 -- 50030/tcp open  hadoop-jobtracker
 -- | hadoop-jobtracker-info:

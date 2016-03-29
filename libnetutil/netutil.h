@@ -433,6 +433,7 @@ int islocalhost(const struct sockaddr_storage *ss);
 
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
+ * Also checks for link-local addresses per RFC3927.
  * Returns 1 if the address is private or 0 otherwise. */
 int isipprivate(const struct sockaddr_storage *addr);
 

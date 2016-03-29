@@ -118,9 +118,12 @@
 # * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
 # *                                                                         *
 # ***************************************************************************/
+import sys
+
+if sys.version_info[0] != 2:
+    sys.exit("Sorry, Zenmap requires Python 2")
 
 import errno
-import sys
 import os
 import os.path
 import re
@@ -235,7 +238,7 @@ class my_install(install):
         # install.finalize_options when sys.prefix is "/usr/local" (our
         # default). Because we need the unchanged value later, remember it
         # here.
-        self.saved_prefix = sys.prefix
+        self.saved_prefix = self.prefix
         install.finalize_options(self)
 
     def run(self):
@@ -381,15 +384,15 @@ for dir in dirs:
                 continue
 
             if os.path.isdir(output):
-                os.chmod(output, S_IRWXU | \
-                                 S_IRGRP | \
-                                 S_IXGRP | \
-                                 S_IROTH | \
+                os.chmod(output, S_IRWXU |
+                                 S_IRGRP |
+                                 S_IXGRP |
+                                 S_IROTH |
                                  S_IXOTH)
             else:
-                os.chmod(output, S_IRUSR | \
-                                 S_IWUSR | \
-                                 S_IRGRP | \
+                os.chmod(output, S_IRUSR |
+                                 S_IWUSR |
+                                 S_IRGRP |
                                  S_IROTH)
 
     def fix_paths(self):
@@ -629,6 +632,9 @@ elif 'py2app' in sys.argv:
     }
 
     setup_args.update(MACOSX_SETUP_ARGS)
+elif 'vanilla' in sys.argv:
+    # Don't create uninstaller, don't fix paths. Used for bundling on OS X
+    sys.argv.remove('vanilla')
 else:
     # Default args.
     DEFAULT_SETUP_ARGS = {

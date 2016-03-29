@@ -2261,10 +2261,15 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
                         svc, (struct sockaddr *) &ss, ss_len,
                         svc->portno);
     }
-    // Now remove it from the remaining service list
-    SG->services_remaining.pop_front();
-    // And add it to the in progress list
-    SG->services_in_progress.push_back(svc);
+    // Check that the service is still where we left it.
+    // servicescan_connect_handler can call end_svcprobe before this point,
+    // putting it into services_finished already.
+    if (SG->services_remaining.front() == svc) {
+      // Now remove it from the remaining service list
+      SG->services_remaining.pop_front();
+      // And add it to the in progress list
+      SG->services_in_progress.push_back(svc);
+    }
   }
   return 0;
 }
@@ -2564,13 +2569,13 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
      */
 #ifndef WIN32
     case EPIPE:
+#endif
 
     case ENETRESET:
     //This error (same as WSAENETRESET according to nbase_winunix) is  Microsoft only error, where the connected host crashes and then resets during the communication
     //More information can be found at http://www.sockets.com/err_lst1.htm#WSAENETRESET.
     //I assume that we shouldn't bother doing anything beyond catching it, and then going on to the next probe.
 
-#endif
 #ifdef EPROTO
     case EPROTO:
       // EPROTO is suspected to be caused by an active IDS/IPS that forges ICMP

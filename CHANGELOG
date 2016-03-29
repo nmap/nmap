@@ -1,60 +1,345 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added nje-node-brute to brute-force z/OS JES Network Job Entry node
-  names. [Soldier of Fortran]
+o [Zenmap] Avoid file corruption in zenmap.conf, reported as files containing
+  many null ("\x00") characters. Example exception:
+    ValueError: unable to parse colour specification
 
-o [NSE] [GH#165] Added broadcast-sonicwall-discover to detect and extract
-  information from SonicWall firewalls. [Raphael Hoegger]
+o [NSE] VNC updates including vnc-brute support for TLS security type and
+  negotiating a lower RFB version if the server sends an unknown higher
+  version.  [Daniel Miller]
 
-o [NSE] [GH#38] Added http-vuln-cve2014-8877 to check for and optionally
-  exploit a vulnerability in CM Download Manager plugin for Wordpress.
-  [Mariusz Ziulek]
+o [NSE] Added STARTTLS support for VNC, NNTP, and LMTP [Daniel Miller]
+
+o Added new service probes and match lines for OpenVPN on UDP and TCP.
+
+Nmap 7.11 [2016-03-22]
+
+o [NSE][GH#341] Added support for diffie-hellman-group-exchange-* SSH key
+  exchange methods to ssh2.lua, allowing ssh-hostkey to run on servers that
+  only support custom Diffie-Hellman groups. [Sergey Khegay]
+
+o [NSE] Added support in sslcert.lua for Microsoft SQL Server's TDS protocol,
+  so you can now grab certs with ssl-cert or check ciphers with
+  ssl-enum-ciphers.  [Daniel Miller]
+
+o [Zenmap] Fix a crash when setting default window geometry:
+    TypeError: argument of type 'int' is not iterable
+
+o [Zenmap] Fix a crash when displaying the date from an Nmap XML file due to an
+  empty or unknown locale:
+    File "zenmapCore/NmapParser.py", line 627, in get_formatted_date
+      locale.getpreferredencoding())
+    LookupError: unknown encoding:
+
+o [Zenmap] Fix a crash due to incorrect file paths when installing to
+  /usr/local prefix. Example:
+    Exception: File '/home/blah/.zenmap/scan_profile.usp' does not exist or could not be found!
+
+Nmap 7.10 [2016-03-17]
+
+o [NSE] Added 12 NSE scripts from 7 authors, bringing the total up to 527!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + [GH#322] http-apache-server-status parses the server status page of
+    Apache's mod_status. [Eric Gershman]
+
+  + http-vuln-cve2013-6786 detects a XSS and URL redirection vulnerability in
+    Allegro RomPager web server. Also added a fingerprint for detecting
+    CVE-2014-4019 to http-fingerprints.lua. [Vlatko Kosturjak]
+
+  + [GH#226] http-vuln-cve2014-3704 detects and exploits the "Drupalgeddon"
+    pre-auth SQL Injection vulnerability in Drupal. [Mariusz Ziulek]
+
+  + imap-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled IMAP services. [Justin Cacak]
+
+  + ipv6-multicast-mld-list discovers IPv6 multicast listeners with MLD probes.
+    The discovery is the same as targets-ipv6-multicast-mld, but the subscribed
+    addresses are decoded and listed.  [Alexandru Geana, Daniel Miller]
+
+  + ms-sql-ntlm-info extracts OS version and sometimes hostname from MS SQL
+    Server instances via the NTLM challenge message. [Justin Cacak]
+
+  + nntp-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled NNTP services. [Justin Cacak]
+
+  + pop3-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled POP3 services. [Justin Cacak]
+
+  + rusers retrieves information about logged-on users from the rusersd RPC
+    service. [Daniel Miller]
+
+  + [GH#333] shodan-api queries the Shodan API (https://www.shodan.io) and
+    retrieves open port and service info from their Internet-wide scan data.
+    [Glenn Wilkinson]
+
+  + smtp-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled SMTP and submission services. [Justin Cacak]
+
+  + telnet-ntlm-info extracts hostname and sometimes OS version from
+    NTLM-auth-enabled Telnet services. [Justin Cacak]
+
+o Updated the OpenSSL shipped with our binary builds (Windows, OS X, and Linux
+  RPM) to 1.0.2g with SSLv2 enabled.
+
+o Integrated all of your IPv4 OS fingerprint submissions from October to
+  January (536 of them). Added 104 fingerprints, bringing the new total to
+  5089. Additions include Linux 4.2, more Windows 10, IBM i 7, and more.
+  Highlights: http://seclists.org/nmap-dev/2016/q1/270 [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  October to January (508 of them). The signature count went up 2.2% to 10532.
+  We now detect 1108 protocols, from icy, finger, and rtsp to ipfs,
+  basestation, and minecraft-pe. Highlights:
+  http://seclists.org/nmap-dev/2016/q1/271 [Daniel Miller]
+
+o Integrated all 12 of your IPv6 OS fingerprint submissions from October to
+  January. The classifier added 3 new groups, including new and expanded groups
+  for OS X, bringing the new total to 96. Highlights:
+  http://seclists.org/nmap-dev/2016/q1/273 [Daniel Miller]
+
+o [NSE] Upgrade to http-form-brute allowing correct handling of token-based
+  CSRF protections and cookies. Also, a simple database of common login forms
+  supports Django, Wordpress, MediaWiki, Joomla, and others. [Daniel Miller]
+
+o [Zenmap] [GH#247] Remember window geometry (position and size) from the
+  previous time Zenmap was run. [isjing]
+
+o New service probe for CORBA GIOP (General Inter-ORB Protocol) detection
+  should elicit a not-found exception from GIOP services that do not respond to
+  non-GIOP probes. [Quentin Hardy]
+
+o [GH#284] Fix retrieval of route netmasks on FreeBSD. IPv6 routes were given
+  /32 netmasks regardless of actual netmask configured, resulting in failed
+  routing. Reported by Martin Gysi. [Daniel Miller]
+
+o [GH#272][GH#269] Give option parsing errors after the usage statement, or
+  avoid printing the usage statement in some cases. The options summary has
+  grown quite large, requiring users to scroll to the top to see the error
+  message. [Abhishek Singh]
+
+o [GH#249][Nsock] Avoid a crash on Windows reported by users using Zenmap's
+  Slow Comprehensive Scan profile.  In the case of unknown OpenSSL errors,
+  ERR_reason_error_string would return NULL, which could not be printed with
+  the "%s" format string. Reported by Dan Baxter. [Gisle Vanem, Daniel Miller]
+
+o [GH#293][Zenmap] Fix a regression in our build that caused copy-and-paste to
+  not work in Zenmap on Windows.
+
+o Changed Nmap's idea of reserved and private IP addresses to include
+  169.254/16 (RFC3927) and remove 6/8, 7/8, and 55/8 networks. This list, in
+  libnetutil's isipprivate function, is used to filter -iR randomly generated
+  targets. The newly-valid address ranges belong to the U.S. Department of
+  Defense, so users wanting to avoid those ranges should use their own
+  exclusion lists with --exclude or --exclude-file.  [Bill Parker, Daniel
+  Miller]
+
+o Allow the -4 option for Nmap to indicate IPv4 address family. This is the
+  default, and using the option doesn't change anything, but does make it more
+  explicit which address family you want to scan. Using -4 with -6 is an error.
+  [Daniel Miller]
+
+o [GH#265] When provided a verbosity of 0 (-v0), Nmap will not output any text to the
+  screen. This happens at the time of argument parsing, so the usual meaning of
+  "verbosity 0" is preserved. [isjing]
+
+o [NSE][GH#314] Fix naming of SSL2_RC2_128_CBC_WITH_MD5 and
+  SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 ciphers in sslv2 in order to match the
+  draft specification from Mozilla. [Bertrand Bonnefoy-Claudet]
+
+o [NSE][GH#320] Add STARTTLS support to sslv2 to enable SSLv2 detection
+  against services that are not TLS encrypted by default but that support
+  post connection upgrade. This will enable more comprehensive detection
+  of SSLv2 and DROWN (CVE-2016-0800) attack oracles. [Tom Sellers]
+
+o [NSE][GH#301] Added default credential checks for RICOH Web Image Monitor and
+  BeEF to http-default-accounts. [nnposter]
+
+o Properly display Next-hop MTU value from ICMP Type 3 Code 4 Fragmentation
+  Required messages when tracing packets or in Nping output. Improper offset
+  meant we were printing the total IP length. [Sławomir Demeszko]
+
+o [NSE] Added support for DHCP options "TFTP server name" and "Bootfile name"
+  to dhcp.lua and enabled checking for options with a code above 61 by default.
+  [Mike Rykowski]
+
+o [NSE] whois-ip: Don't request a remote IANA assignments data file when the
+  local filesystem will not permit the file to cached in a local file. [jah]
+
+o [NSE] Updated http-php-version hash database to cover all versions from PHP
+  4.1.0 to PHP 5.4.45. Based on scans of a few thousand PHP web servers pulled
+  from Shodan API (https://www.shodan.io/) [Daniel Miller]
+
+o Use the same ScanProgressMeter for FTP bounce scan (-b) as for the other scan
+  types, allowing periodic status updates with --stats-every or keypress
+  events.  [Daniel Miller]
+
+o [GH#274] Use a shorter pcap_select timeout on OpenBSD, just as we do for OS
+  X, old FreeBSD, and Solaris, which use BPF for packet capture and do not have
+  properly select-able fds. Fix by OpenBSD port maintainer [David Carlier]
+
+o Print service info in grepable output for ports which are not listed in
+  nmap-services when a service tunnel (SSL) is detected. Previously, the
+  service info ("ssl|unknown") was not printed unless the service inside the
+  tunnel was positively identified. http://seclists.org/nmap-dev/2015/q4/260
+  [Daniel Miller]
+
+o [NSE] [GH#242] Fix multiple false-positive sources in http-backup-agent.
+  [Tom Sellers]
+
+Nmap 7.01 [2015-12-09]
+
+o Switch to using gtk-mac-bundler and jhbuild for building the OS X installer.
+  This promises to reduce a lot of the problems we've had with local paths and
+  dependencies using the py2app and macports build system. [Daniel Miller]
+
+o The Windows installer is now built with NSIS 2.47 which features LoadLibrary
+  security hardening to prevent DLL hijacking and other unsafe use of temporary
+  directories. Thanks to Stefan Kanthak for reporting the issue to NSIS and to
+  us and the many other projects that use it.
+
+o Updated the OpenSSL shipped with our binary builds (Windows, OS X, and RPM)
+  to 1.0.2e.
+
+o [Zenmap] [GH#235] Fix several failures to launch Zenmap on OS X. The new
+  build process eliminates these errors:
+    IOError: [Errno 2] No such file or directory: '/Applications/Zenmap.app/Contents/Resources/etc/pango/pangorc.in'
+    LSOpenURLsWithRole() failed for the application /Applications/Zenmap.app with error -10810.
+
+o [NSE] [GH#254] Update the TLSSessionRequest probe in ssl-enum-ciphers to
+  match the one in nmap-service-probes, which was fixed previously to correct a
+  length calculation error. [Daniel Miller]
+
+o [NSE] [GH#251] Correct false positives and unexpected behavior in http-*
+  scripts which used http.identify_404 to determine when a file was not found
+  on the target. The function was following redirects, which could be an
+  indication of a soft-404 response. [Tom Sellers]
+
+o [NSE] [GH#241] Fix a false-positive in hnap-info when the target responds
+  with 200 OK to any request. [Tom Sellers]
+
+o [NSE] [GH#244] Fix an error response in xmlrpc-methods when run against a
+  non-HTTP service. The expected behavior is no output. [Niklaus Schiess]
+
+o [NSE] Fix SSN validation function in http-grep, reported by Bruce Barnett.
+
+Nmap 7.00 [2015-11-19]
+
+o This is the most important release since Nmap 6.00 back in May 2012!
+  For a list of the most significant improvements and new features,
+  see the announcement at: https://nmap.org/7
+
+o [NSE] Added 6 NSE scripts from 6 authors, bringing the total up to 515!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + targets-xml extracts target addresses from previous Nmap XML results files.
+    [Daniel Miller]
+
+  + [GH#232] ssl-dh-params checks for problems with weak, non-safe, and
+    export-grade Diffie-Hellman parameters in TLS handshakes. This includes the
+    LOGJAM vulnerability (CVE-2015-4000). [Jacob Gajek]
+
+  + nje-node-brute does brute-forcing of z/OS JES Network Job Entry node names.
+    [Soldier of Fortran]
+
+  + ip-https-discover detectings support for Microsoft's IP over HTTPS
+    tunneling protocol. [Niklaus Schiess]
+
+  + [GH#165] broadcast-sonicwall-discover detects and extracts information from
+    SonicWall firewalls. [Raphael Hoegger]
+
+  + [GH#38] http-vuln-cve2014-8877 checks for and optionally exploits a
+    vulnerability in CM Download Manager plugin for Wordpress. [Mariusz Ziulek]
 
 o [Ncat] [GH#151] [GH#142] New option --no-shutdown prevents Ncat from shutting
   down when it reads EOF on stdin. This is the same as traditional netcat's
   "-d" option. [Adam Saponara]
 
-o [NSE] Added ip-https-discover for detecting support for Microsoft's IP over
-  HTTPS tunneling protocol. [Niklaus Schiess]
-
 o [NSE] [GH#229] Improve parsing in http.lua for multiple Set-Cookie headers in
   a single response.  [nnposter]
 
-o [NSE] [GH#194] Add support for reading fragmented TLS messages to
-  ssl-enum-ciphers. [Jacob Gajek]
+Nmap 6.49BETA6 [2015-11-03]
+
+o Integrated all of your IPv6 OS fingerprint submissions from April to October
+  (only 9 of them!). We are steadily improving the IPv6 database, but we need
+  your submissions. The classifier added 3 new groups, bringing the new total
+  to 93. Highlights: http://seclists.org/nmap-dev/2015/q4/61 [Daniel Miller]
+
+o Integrated all of your IPv4 OS fingerprint submissions from February to
+  October (1065 of them). Added 219 fingerprints, bringing the new total to
+  4985. Additions include Linux 4.1, Windows 10, OS X 10.11, iOS 9, FreeBSD
+  11.0, Android 5.1, and more. Highlights:
+  http://seclists.org/nmap-dev/2015/q4/60 [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  February to October (800+ of them). The signature count went up 2.5% to
+  10293. We now detect 1089 protocols, from afp, bitcoin, and caldav to
+  xml-rpc, yiff, and zebra. Highlights: http://seclists.org/nmap-dev/2015/q4/62
+  [Daniel Miller]
+
+o [NSE] Added 10 NSE scripts from 5 authors, bringing the total up to 509!
+  They are all listed at http://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + knx-gateway-discover and knx-gateway-info scripts gather information from
+    multicast and unicast KNX gateways, which connect home automation systems
+    to IP networks. [Niklaus Schiess, Dominik Schneider]
+
+  + http-ls parses web server directory index pages with optional recursion.
+    [Pierre Lalet]
+
+  + xmlrpc-methods perfoms introspection of xmlrpc services and lists methods
+    and their descriptions. [Gyanendra Mishra]
+
+  + http-fetch can be used like wget or curl to fetch all files, specific
+    filenames, or files that match a given pattern. [Gyanendra Mishra]
+
+  + http-svn-enum enumerates users of a Subversion repository by examining
+    commit logs. [Gyanendra Mishra]
+
+  + http-svn-info requests information from a Subversion repository, similar to
+    the "svn info" command. [Gyanendra Mishra]
+
+  + hnap-info detects and outputs info for Home Network Administration Protocol
+    devices. [Gyanendra Mishra]
+
+  + http-webdav-scan detects WebDAV servers and reports allowed methods and
+    directory listing. [Gyanendra Mishra]
+
+  + tor-consensus-checker checks the target's address with the Tor directory
+    authorities to determine if a target is a known Tor node. [Jiayi Ye]
+
+o [NSE] Several scripts have been split, combined, or renamed:
+
+  + [GH#171] smb-check-vulns has been split into:
+    * smb-vuln-conficker
+    * smb-vuln-cve2009-3103
+    * smb-vuln-ms06-025
+    * smb-vuln-ms07-029
+    * smb-vuln-regsvc-dos
+    * smb-vuln-ms08-067
+    The scripts now use the vulns library, and the "unsafe" script-arg has been
+    replaced by putting the scripts into the "dos" category. [Paulino Calderon]
+
+  + http-email-harvest was removed, as the new http-grep does email address
+    scraping by default. [Gyanendra Mishra]
+
+  + http-drupal-modules was renamed to http-drupal-enum. Extended to enumerate
+    both themes and modules of Drupal installaions. [Gyanendra Mishra]
 
 o [Ncat] [GH#193] Fix Ncat listen mode over Unix sockets (named pipes) on OS X.
   This was crashing with the error:
     Ncat: getnameinfo failed: Undefined error: 0 QUITTING.
   Fixed by forcing the name to "localhost" [Michael Wallner]
 
-o [NSE] Added knx-gateway-discover and knx-gateway-info scripts for gathering
-  information from multicast and unicast KNX gateways, which connect home
-  automation systems to IP networks. [Niklaus Schiess, Dominik Schneider]
+o [Zenmap] Fix a crash in Zenmap when using Compare Results:
+    AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
+  [Daniel Miller]
 
-o [NSE] Added script http-ls. Parses web server directory index pages with
-  optional recursion. [Pierre Lalet]
-
-o [NSE] Added script xmlrpc-methods. This script perfoms introspection of
-  xmlrpc services and lists methods and their description. [Gyanendra Mishra]
-
-o [NSE] Added script http-fetch. This script can be used to fetch all files
-  from the target, specific files from the target or files that match a  given
-  pattern. [Gyanendra Mishra]
-
-o [NSE] Added script http-svn-enum. Enumerates users of a Subversion
-  repostory by examinning commit logs. [Gyanendra Mishra]
-
-o [NSE] Added script http-svn-info. Requests information from a
-  Subversion repository.[Gyanendra Mishra]
-
-o [NSE] Added hnap-info, detects and outputs info for Home Network
-  Administration Protocol devices. [Gyanendra Mishra]
-
-o [NSE] Added http-webdav-scan, which detects WebDAV servers. [Gyanendra Mishra]
-
-o [NSE] Added tor-consensus-checker, which checks if a target is a
-  known Tor node. [Jiayi Ye]
+o [NSE] [GH#194] Add support for reading fragmented TLS messages to
+  ssl-enum-ciphers. [Jacob Gajek]
 
 o [GH#51] Added IPv6 support to nmap_mass_rdns, improved reverse DNS cache,
   and refactored DNS code to improve readability and
@@ -70,12 +355,6 @@ o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
   outputting file and directory listings. The afp-ls, nfs-ls, and smb-ls
   scripts have been converted to use this module. [Pierre Lalet]
 
-o [NSE] [GH#171] Splits smb-check-vulns into smb-vuln-conficker, smb-vuln-cve2009-3103,
-  smb-vuln-ms06-025, smb-vuln-ms07-029, smb-vuln-regsvc-dos and smb-vuln-ms08-067.
-  The scripts now support the library vulns and the script arguments "safe" and  
-  and "unsafe" were removed in favor of allowing users to control execution by 
-  NSE category. [Paulino Calderon] 
-
 o [NSE] bacnet-info.nse and s7-info.nse were added to the version category.
   [Paulino Calderon] 
 
@@ -85,22 +364,12 @@ o [NSE] Added 124 new identifiers to bacnet-info.nse vendor database.
 o [NSE] Fixed bacnet-info.nse to bind to the service port detected 
   during scan instead of fixed port. [Paulino Calderon] 
 
-o Fix a crash in Zenmap when using Compare Results:
-  AttributeError: 'NoneType' object has no attribute 'get_nmap_output'
-  [Daniel Miller]
-
 o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
   [Brandon Paulsen]
 
 o [GH#75] Normalize Makefile targets to use the same verb-project format, e.g.
   build-ncat, check-zenmap, install-nping, clean-nsock [Gioacchino Mazzurco]
-
-o [NSE] Removed http-email-harvest as the the new http-grep does email address
-  scraping by default. [Gyanendra Mishra]
-
-o [NSE] http-drupal-modules was renamed to http-drupal-enum. Extended to
-  enumerate both themesa and modules of drupal installaions. [Gyanendra Mishra]
 
 o [NSE] Added builtin pattern and multiple pattern search to http-grep. [Gyanendra Mishra]
 
@@ -762,7 +1031,7 @@ o Significant code and documentation cleanup effort, fixing file encodings,
   cleanup of warnings from LLVM's AddressSanitizer.  [Daniel Miller]
 
 o [Ncat] Added support for socks5 and corresponding regression tests.
-  [Marek Lucaszuk, Petr Stodulka]
+  [Marek Lukaszuk, Petr Stodulka]
 
 o Added TCP support to dns.lua. [John Bond]
 

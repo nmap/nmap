@@ -48,7 +48,8 @@ function parse_robtex_response(data)
   local data = data:match("<span id=\"shared_ma\">.-<ol.->(.-)</ol>")
   local result = {}
   if data then
-    for domain in data:gmatch("<li><code>(.-)</code></li>") do
+    for domain in data:gmatch("<li[^>]*>(.-)</li>") do
+      domain = domain:gsub("<[^>]+>","")
       table.insert(result, domain)
     end
   end
@@ -66,7 +67,7 @@ action = function(host, port)
   end
 
   local link = "/ip/"..target..".html"
-  local htmldata = http.get("www.robtex.com", 443, link)
+  local htmldata = http.get("www.robtex.com", 443, link, {any_af=true})
   local domains = parse_robtex_response(htmldata.body)
   if ( #domains > 0 ) then
     return stdnse.format_output(true, domains)

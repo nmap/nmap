@@ -286,6 +286,9 @@ local function handle_received_packet(buf)
 end
 
 local function format_results(results)
+  if empty(results) then
+    return nil
+  end
   local QTYPE_ORDER = {
     QTYPE_NOOP,
     QTYPE_NODENAME,

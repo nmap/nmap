@@ -88,6 +88,9 @@
 -- * <code>someComment.value</code> : the string content of the PI, i.e. everything but the name
 -- * <code>someComment.parent</code> : reference to the parent element or document table
 --
+-- @args slaxml.debug Debug level at which default callbacks will print detailed
+--                    parsing info. Default: 3
+--
 -- @author Gavin Kistner <original pure lua implemetation>
 -- @author Gyanendra Mishra <NSE specific implementation>
 

@@ -167,8 +167,8 @@ class HIGAlertDialog(gtk.MessageDialog):
         # "Alert windows have no titles, as the title would usually
         # unnecessarily duplicate the alert's primary text"
         self.set_title("")
-        self.set_markup("<span weight='bold'size='larger'>%s</span>" \
-                        % message_format)
+        self.set_markup(
+                "<span weight='bold'size='larger'>%s</span>" % message_format)
         if secondary_text:
             # GTK up to version 2.4 does not have secondary_text
             try:

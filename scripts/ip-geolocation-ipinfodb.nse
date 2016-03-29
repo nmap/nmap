@@ -55,7 +55,7 @@ end
 -- No limit on requests. A free registration for an API key is a prerequisite
 local ipinfodb = function(ip)
   local api_key = stdnse.get_script_args(SCRIPT_NAME..".apikey")
-  local response = http.get("api.ipinfodb.com", 80, "/v3/ip-city/?key="..api_key.."&format=json".."&ip="..ip, nil)
+  local response = http.get("api.ipinfodb.com", 80, "/v3/ip-city/?key="..api_key.."&format=json".."&ip="..ip, {any_af=true})
   local stat, loc = json.parse(response.body)
   if not stat then
     stdnse.debug1("No response, possibly a network problem.")

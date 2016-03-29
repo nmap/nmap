@@ -323,7 +323,7 @@ class ScanInterface(HIGVBox):
 
     def go_to_host(self, hostname):
         """Scroll the text output to the appearance of the named host."""
-        self.scan_result.scan_result_notebook.nmap_output.nmap_output.go_to_host(hostname)
+        self.scan_result.scan_result_notebook.nmap_output.nmap_output.go_to_host(hostname)  # noqa
 
     def __create_toolbar(self):
         self.toolbar = ScanToolbar()
@@ -456,7 +456,7 @@ class ScanInterface(HIGVBox):
     def update_cancel_button(self):
         """Make the Cancel button sensitive or not depending on whether the
         currently displayed scan is running."""
-        entry = self.scan_result.scan_result_notebook.nmap_output.get_active_entry()
+        entry = self.scan_result.scan_result_notebook.nmap_output.get_active_entry()  # noqa
         if entry is None:
             self.toolbar.cancel_button.set_sensitive(False)
         else:
@@ -464,7 +464,7 @@ class ScanInterface(HIGVBox):
 
     def _cancel_scan_cb(self, widget):
         """Cancel the scan whose output is shown."""
-        entry = self.scan_result.scan_result_notebook.nmap_output.get_active_entry()
+        entry = self.scan_result.scan_result_notebook.nmap_output.get_active_entry()  # noqa
         if entry is not None and entry.running:
             self.cancel_scan(entry.command)
 
@@ -472,14 +472,14 @@ class ScanInterface(HIGVBox):
         """This is like _cancel_scan_cb, but it cancels the scans that are
         currently selected in the scans list, not the one whose output is
         currently shown."""
-        model, selection = self.scan_result.scan_result_notebook.scans_list.scans_list.get_selection().get_selected_rows()
+        model, selection = self.scan_result.scan_result_notebook.scans_list.scans_list.get_selection().get_selected_rows()  # noqa
         for path in selection:
             entry = model.get_value(model.get_iter(path), 0)
             if entry.running:
                 self.cancel_scan(entry.command)
 
     def _remove_scan_cb(self, widget):
-        model, selection = self.scan_result.scan_result_notebook.scans_list.scans_list.get_selection().get_selected_rows()
+        model, selection = self.scan_result.scan_result_notebook.scans_list.scans_list.get_selection().get_selected_rows()  # noqa
         selected_refs = []
         for path in selection:
             # Kill running scans and remove finished scans from the inventory.
@@ -656,7 +656,7 @@ class ScanInterface(HIGVBox):
         try:
             parsed.nmap_output = command.get_output()
         except MemoryError:
-            self.scan_result.scan_result_notebook.nmap_output.nmap_output.show_large_output_message(command)
+            self.scan_result.scan_result_notebook.nmap_output.nmap_output.show_large_output_message(command)  # noqa
         self.update_ui()
         self.scans_store.finish_running_scan(command, parsed)
 
@@ -839,7 +839,8 @@ class ScanInterface(HIGVBox):
         host.comment = comment
         for scan in self.inventory.get_scans():
             for h in scan.get_hosts():
-                if h.get_ip() == host.get_ip() and h.get_ipv6() == host.get_ipv6():
+                if (h.get_ip() == host.get_ip() and
+                        h.get_ipv6() == host.get_ipv6()):
                     h.set_comment(host.comment)
                     scan.unsaved = True
                     break
@@ -929,10 +930,10 @@ class ScanResult(gtk.HPaned):
         self.pack2(self.scan_result_notebook, True, False)
 
     def set_nmap_output(self, msg):
-        self.scan_result_notebook.nmap_output.nmap_output.text_view.get_buffer().set_text(msg)
+        self.scan_result_notebook.nmap_output.nmap_output.text_view.get_buffer().set_text(msg)  # noqa
 
     def clear_nmap_output(self):
-        self.scan_result_notebook.nmap_output.nmap_output.text_view.get_buffer().set_text("")
+        self.scan_result_notebook.nmap_output.nmap_output.text_view.get_buffer().set_text("")  # noqa
 
     def get_host_selection(self):
         return self.scan_host_view.host_view.get_selection()
