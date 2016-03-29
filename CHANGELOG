@@ -3,7 +3,8 @@
 Nmap 7.12 [2016-03-29]
 
 o [Zenmap] Avoid file corruption in zenmap.conf, reported as files containing
-  many null ("\x00") characters. Example exception:
+  many null ("\x00") characters. Example exceptions:
+    TypeError: int() argument must be a string or a number, not 'list'
     ValueError: unable to parse colour specification
 
 o [NSE] VNC updates including vnc-brute support for TLS security type and
