@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.12 [2016-03-29]
+
 o [Zenmap] Avoid file corruption in zenmap.conf, reported as files containing
   many null ("\x00") characters. Example exception:
     ValueError: unable to parse colour specification
