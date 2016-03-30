@@ -11583,10 +11583,12 @@ match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0..([\w\-]{1,15}) *\0D\0([\w\-]{1,15}) *\0\xc4\0|s p/Microsoft Windows netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0...*\0([\w\-]{1,15}) *\0D\0.*\0([\w\-]{1,15}) *\0\xc4\0|s p/Microsoft Windows netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0...*\0([\w\-]{1,15}) *\0D\0([\w\-]{1,15}) *\0\xc4\0|s p/Microsoft Windows netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-# Windows NT 4.0 SP6a
-match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\0\x84\0|s p/Microsoft Windows NT netbios-ssn/ i/workgroup: $2/ o/Windows NT/ h/$1/ cpe:/o:microsoft:windows_nt/a
-# WinXP
-match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\x04| p/Microsoft Windows XP netbios-ssn/ o/Windows XP/ h/$1/ cpe:/o:microsoft:windows_xp/a
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\0\x84\0|s p/Microsoft Windows netbios-ssn/ i/workgroup: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+
+# The following 2 match lines match multiple versions of Windows as well as Samba on Linux
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\x04\0([\w\-]{1,15})| p/Microsoft Windows or Samba netbios-ssn/ h/$1/ i/workgroup: $2/ 
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\x04| p/Microsoft Windows or Samba netbios-ssn/ h/$1/
+
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0/\x00......\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Microsoft Windows Mobile netbios-ssn/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\x1e\x84\0|s p/Novell NetWare netbios-ns/ i/workgroup: $2/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
@@ -12364,9 +12366,9 @@ match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0
 # Microsoft Windows 2000 Server
 # Microsoft Windows 2000 Server SP4
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows 2000/ cpe:/o:microsoft:windows_2000/a
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows Server 2008 R2 microsoft-ds/ o/Windows Server 2008 R2/ cpe:/o:microsoft:windows_server_2008:r2/
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 7 or 10 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows_7/a
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 10 microsoft-ds/ o/Windows 10/ cpe:/o:microsoft:windows_10/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows Server 2008 R2 - 2012 microsoft-ds/ o/Windows Server 2008 R2 - 2012/ cpe:/o:microsoft:windows/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 7 - 10 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 7 - 10 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0|s p|IBM OS/400 microsoft-ds| o|OS/400| cpe:/o:ibm:os_400/a
 
@@ -12395,14 +12397,19 @@ match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0....\x04\0\x01\x05\0...$|s p/Micr
 match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0.*\W([-_.\w]+)\0$|s p/Samba smbd/ i/workgroup: $1/ cpe:/a:samba:samba/
 # Samba 2.999+3.0.alpha21-5 on Linux
 # Samba 3.0.0rc4-Debian
-match netbios-ssn m=^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[-\w. ]*\0+@\x06\0\0\x01\0\x11\x06\0.*(?:[^\0]|[^_A-Z0-9-]\0)((?:[-\w]\0){2,50})=s p/Samba smbd/ v/3.X/ i/workgroup: $P(1)/ cpe:/a:samba:samba:3/
-match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0..\0\x01\0..\0\0...\0..\0\0|s p/Samba smbd/ v/3.X/ cpe:/a:samba:samba:3/
+# Samba 4.1.6-ubuntu
+# Samba 3.6.x on FreeBSD
+# Samba 3.0.x based SMB implementation by Apple
+match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[-\w. ]*\0+@\x06\0\0\x01\0\x11\x06\0.{42}(.*)\0\0(.*)\0\0$|s p/Samba smbd/ v/3.X - 4.X/ i/workgroup: $P(1)/ cpe:/a:samba:samba/
+# The line below may no longer be required and seems to miss the first capture on test systems
+match netbios-ssn m=^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[-\w. ]*\0+@\x06\0\0\x01\0\x11\x06\0.*(?:[^\0]|[^_A-Z0-9-]\0)((?:[-\w]\0){2,50})=s p/Samba smbd/ v/3.X - 4.X/ i/workgroup: $P(1)/ cpe:/a:samba:samba/
+match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0..\0\x01\0..\0\0...\0..\0\0|s p/Samba smbd/ v/3.X - 4.X/ cpe:/a:samba:samba/
 # Samba 2.2.8a on Linux 2.4.20
 match netbios-ssn m|^\x83\0\0\x01\x81$| p/Samba smbd/ cpe:/a:samba:samba/
 # DAVE 4.1 enhanced windows networks services for Mac on Mac OS X
 match netbios-ssn m|^\0\0\0.\xffSMBr\x02\0Y\0\x98\x01.\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\0\x07\0|s p/Thursby DAVE Windows filesharing/ i/Runs on Macintosh systems/ o/Mac OS/ cpe:/o:apple:mac_os/a
-# Windows 98
-match netbios-ssn m|^\x83\0\0\x01\x8f$| p/Microsoft Windows 98 netbios-ssn/ o/Windows 98/ cpe:/o:microsoft:windows_98/
+# Windows Session Service - 139/tcp - Formerly Window 98 match, actually matches Win 98 through Windows 8 / 2012 R2
+match netbios-ssn m|^\x83\0\0\x01\x8f$| p/Microsoft Windows netbios-ssn/ o/Windows/ cpe:/o:microsoft:windows/a
 # Netware might just be using Samba?
 match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x80\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x032\0\x01\0\xff\xff\0\0\0\0\x01\0| p/NetWare 6 SMB Services/ o/NetWare/ cpe:/o:novell:netware:6/
 # Network Appliance ONTAP 6.3.3 netbios-ssn
@@ -12417,7 +12424,7 @@ match netbios-ssn m|^\0\0\0G\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 match netbios-ssn m|^\0\0\0G\xffSMBr\0\0\0\0\x88\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\r\x04\0\0\0\xa0\x05\x02\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Kyocera Mita KM-1530 printer smbd/ d/printer/ cpe:/h:kyocera:mita_km-1530/a
 match netbios-ssn m|^\x82\0\0\0$| p/Konica Minolta bizhub C452 printer smbd/ d/printer/ cpe:/h:konicaminolta:bizhub_c452/
 
-softmatch microsoft-ds m|^\0\0..\xffSMBr\0\0\0\0[\x80-\xff]..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11[\x01-\x07]\0[\0-\x0f].{41}(.*)\0\0(.*)\0\0$|s i/primary domain: $P(1)/ h/$P(2)/
+match microsoft-ds m|^\0\0..\xffSMBr\0\0\0\0[\x80-\xff]..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11[\x01-\x07]\0[\0-\x0f].{41}(.*)\0\0(.*)\0\0$|s p/Microsoft Windows Server microsoft-ds/ o/Windows Server/ i/workgroup: $P(1)/ h/$P(2)/ cpe:/o:microsoft:windows/a
 softmatch microsoft-ds m|^\0\0..\xffSMBr\0\0\0\0[\x80-\xff]..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11[\x01-\x07]\0|s
 
 match netradio m%^@(?:NETRADIO|MAIN|SYS):[A-Z0-9]+=% p/Yamaha Net Radio/ d/media device/
