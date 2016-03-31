@@ -29,6 +29,9 @@ Other systems (like embedded printers) will simply leave out the information. Ot
 systems will blank out various pieces (some will send back 0 for the current
 time, for example).
 
+If this script is used in conjunction with version detection it can augment the
+standard nmap version detection information with data that this script has discovered.
+
 Retrieving the name and operating system of a server is a vital step in targeting
 an attack against it, and this script makes that retrieval easy. Additionally, if
 a penetration tester is choosing between multiple targets, the time can help identify
@@ -186,9 +189,27 @@ action = function(host)
   end
   add_to_output(output_lines, "System time", response.date or "Unknown")
 
+  -- Augment service version detection
+  if result.port and response.lanmanager then
+    local proto
+    if result.port == 445 or result.port == 139 then
+      proto = 'tcp'
+    else
+      proto = 'udp'
+    end
+
+    local port = nmap.get_port_state(host,{number=result.port,protocol=proto})
+
+    local version, product
+    if string.match(response.lanmanager,"^Samba ") then
+      port.version.product = 'Samba smbd'
+      port.version.version = string.match(response.lanmanager,"^Samba (.*)")
+      nmap.set_port_version(host,port)
+    elseif smb.get_windows_version(response.os) then
+      port.version.product = string.format("%s %s",smb.get_windows_version(response.os), port.version.name)
+      nmap.set_port_version(host,port)
+    end
+  end
+
   return response, stdnse.format_output(true, output_lines)
 end
-
-
-
-

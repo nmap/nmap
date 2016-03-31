@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Update to enable smb-os-discovery to augment version detection
+  for certain SMB related services using data that the script discovers.
+  [Tom Sellers]
+
 o Improved version detection and descriptions for Microsoft and Samba
   SMB services. Also addresses certain issues with OS identification. 
   [Tom Sellers]
