@@ -307,7 +307,7 @@ action = function(host, port)
   local success = false
   local results = response.filters
   for i, result in ipairs(results) do
-    topic = options.topic[i]
+    local topic = options.topic[i]
     if result.success then
       stdnse.debug3("Topic filter '%s' was accepted with a maximum QoS of %d.", topic, result.max_qos)
       success = true
