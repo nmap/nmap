@@ -2,6 +2,7 @@ local mqtt = require "mqtt"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local table = require "table"
 
 description = [[
 Dumps message traffic from MQTT brokers.
