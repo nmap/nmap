@@ -140,7 +140,7 @@ author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery", "version"}
 
-portrule = shortport.version_port_or_service({1883, 8883}, {"mqtt", "mqtt-tls"}, "tcp")
+portrule = shortport.version_port_or_service({1883, 8883}, {"mqtt", "secure-mqtt"}, "tcp")
 
 local function parse_args()
   local args = {}

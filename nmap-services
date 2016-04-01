@@ -5591,7 +5591,7 @@ unknown	8878/tcp	0.000076
 unknown	8879/tcp	0.000076
 cddbp-alt	8880/tcp	0.000076	# CDDBP
 unknown	8882/tcp	0.000076
-mqtt-tls	8883/tcp	0.000076
+secure-mqtt	8883/tcp	0.000076
 unknown	8885/udp	0.000330
 unknown	8886/udp	0.000330
 unknown	8887/tcp	0.000076
