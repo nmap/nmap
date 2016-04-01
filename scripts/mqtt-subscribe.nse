@@ -4,9 +4,17 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
-Establishes a connection to an MQTT broker and subscribes to selected
-topics. The default topics are chosen to fetch system information and
-all client updates.
+Dumps message traffic from MQTT brokers.
+
+This script establishes a connection to an MQTT broker and subscribes
+to the requested topics. The default topics have been chosen to
+receive system information and all messages from other clients. This
+allows Nmap, to listen to all messages being published by clients to
+the MQTT broker.
+
+For additional information:
+* https://en.wikipedia.org/wiki/MQTT
+* https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 ]]
 
 ---
