@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] More VNC updates: Support for VeNCrypt auth type, output of
+  authentication sub-types in vnc-info, and all zero-authentication types are
+  recognized and reported. [Daniel Miller]
+
 o [NSE] Update to enable smb-os-discovery to augment version detection
   for certain SMB related services using data that the script discovers.
   [Tom Sellers]

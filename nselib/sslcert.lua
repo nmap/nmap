@@ -568,51 +568,36 @@ StartTLS = {
     local sock = v.socket
     if v:supportsSecType(vnc.VNC.sectypes.VENCRYPT) then
 
-      status = sock:send( bin.pack("C", vnc.VNC.sectypes.VENCRYPT) )
+      status, data = v:handshake_vencrypt()
       if not status then
-        return false, "Failed to select VeNCrypt authentication type"
+        return false, string.format("Failed VeNCrypt handshake: %s", data)
       end
-
-      local status, buf = sock:receive_buf(match.numbytes(2), true)
-      local pos, maj, min = bin.unpack("CC", buf)
-      if maj ~= 0 or min ~= 2 then
-        return false, string.format("Unknown VeNCrypt version: %d.%d", maj, min)
-      end
-      sock:send(bin.pack("CC", maj, min))
-      status, buf = sock:receive_buf(match.numbytes(1), true)
-      pos, status = bin.unpack("C", buf)
-      if status ~= 0 then
-        return false, string.format("Server refused VeNCrypt version %d.%d", maj, min)
-      end
-
-      status, buf = sock:receive_buf(match.numbytes(1), true)
-      local pos, nauth = bin.unpack("C", buf)
-      if nauth == 0 then
-        return false, "No VeNCrypt auth subtypes received"
-      end
-
-      -- vencrypt auth types are u32
-      status, buf = sock:receive_buf(match.numbytes(nauth * 4), true)
+      local auth_order = {
+        -- X509 types are not anonymous, have real certs
+        vnc.VENCRYPT_SUBTYPES.X509VNC,
+        vnc.VENCRYPT_SUBTYPES.X509SASL,
+        vnc.VENCRYPT_SUBTYPES.X509NONE,
+        vnc.VENCRYPT_SUBTYPES.X509PLAIN,
+        -- TLS types use anonymous DH handshakes
+        vnc.VENCRYPT_SUBTYPES.TLSVNC,
+        vnc.VENCRYPT_SUBTYPES.TLSSASL,
+        vnc.VENCRYPT_SUBTYPES.TLSNONE,
+        vnc.VENCRYPT_SUBTYPES.TLSPLAIN,
+        -- PLAIN type doesn't use TLS
+      }
       local best
-      pos = 1
-      for i=1, nauth do
-        local auth
-        pos, auth = bin.unpack(">I", buf, pos)
-        if auth >= 260 and auth <= 263 then
-          -- X509 auth subtype
-          best = auth
+      for i=1, #auth_order do
+        if stdnse.contains(v.vencrypt.types, auth_order[i]) then
+          best = auth_order[i]
           break
-        elseif auth >= 257 then
-          -- other TLS auth subtype (Plain is 256)
-          -- These are anon types, so no cert available
-          best = auth
         end
       end
+
       if not best then
         return false, "No TLS VeNCrypt auth subtype received"
       end
       sock:send(bin.pack(">I", best))
-      status, buf = sock:receive_buf(match.numbytes(1), true)
+      local status, buf = sock:receive_buf(match.numbytes(1), true)
       if not status or string.byte(buf, 1) ~= 1 then
         return false, "VeNCrypt auth subtype refused"
       end

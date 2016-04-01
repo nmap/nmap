@@ -34,6 +34,29 @@ _ENV = stdnse.module("vnc", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require,'openssl')
 
+VENCRYPT_SUBTYPES = {
+  PLAIN = 256,
+  TLSNONE = 257,
+  TLSVNC = 258,
+  TLSPLAIN = 259,
+  X509NONE = 260,
+  X509VNC = 261,
+  X509PLAIN = 262,
+  X509SASL = 263,
+  TLSSASL = 264,
+}
+VENCRYPT_SUBTYPES_STR = {
+  [256] = "Plain",
+  [257] = "None, Anonymous TLS",
+  [258] = "VNC auth, Anonymous TLS",
+  [259] = "Plain, Anonymous TLS",
+  [260] = "None, Server-authenticated TLS",
+  [261] = "VNC auth, Server-authenticated TLS",
+  [262] = "Plain, Server-authenticated TLS",
+  [263] = "SASL, Server-authenticated TLS",
+  [264] = "SASL, Anonymous TLS",
+}
+
 local function process_error(socket)
   local status, tmp = socket:receive_buf(match.numbytes(4), true)
   if( not(status) ) then
@@ -47,15 +70,39 @@ local function process_error(socket)
   return false, err
 end
 
+local function first_of (list, lookup)
+  for i=1, #list do
+    if stdnse.contains(lookup, list[i]) then
+      return list[i]
+    end
+  end
+end
+
+-- generalized output formatter for security types and subtypes
+local function get_types_as_table (types, lookup)
+  local tmp = {}
+  local typemt = {
+    __tostring = function(me)
+      return ("%s (%s)"):format(me.name, me.type)
+    end
+  }
+  for i=1, types.count do
+    local t = {name = lookup[types.types[i]] or "Unknown security type", type=types.types[i]}
+    setmetatable(t, typemt)
+    table.insert( tmp, t )
+  end
+  return tmp
+end
+
 VNC = {
 
   versions = {
-    ["RFB 003.003\n"] = "3.3",
-    ["RFB 003.007\n"] = "3.7",
-    ["RFB 003.008\n"] = "3.8",
+    ["RFB 003.003"] = "3.3",
+    ["RFB 003.007"] = "3.7",
+    ["RFB 003.008"] = "3.8",
 
     -- Mac Screen Sharing, could probably be used to fingerprint OS
-    ["RFB 003.889\n"] = "3.889",
+    ["RFB 003.889"] = "3.889",
   },
 
   sectypes = {
@@ -127,11 +174,12 @@ VNC = {
   -- @return status, true on success, false on failure
   -- @return error string containing error message if status is false
   handshake = function(self)
-    local status, data = self.socket:receive_buf(match.numbytes(12), true)
-    if not string.match(data, "^RFB %d%d%d%.%d%d%d[\r\n]") then
+    local status, data = self.socket:receive_buf("[\r\n]+", true)
+    if not status or not string.match(data, "^RFB %d%d%d%.%d%d%d[\r\n]") then
       stdnse.debug1("ERROR: Not a VNC port. Banner: %s", data)
       return false, "Not a VNC port."
     end
+    data = data:sub(1,11)
     local vncsec = {
       count = 1,
       types = {}
@@ -144,14 +192,14 @@ VNC = {
     self.protover = VNC.versions[data]
     local cli_version = data
     if ( not(self.protover) ) then
-      stdnse.debug1("ERROR: VNC:handshake unsupported version (%s)", data:sub(1,11))
+      stdnse.debug1("ERROR: VNC:handshake unsupported version (%s)", data)
       self.protover = string.match(data, "^RFB (%d+%.%d+)")
       --return false, ("Unsupported version (%s)"):format(data:sub(1,11))
       local versions = {
-        "RFB 003.003\n",
-        "RFB 003.007\n",
-        "RFB 003.008\n",
-        "RFB 003.889\n",
+        "RFB 003.003",
+        "RFB 003.007",
+        "RFB 003.008",
+        "RFB 003.889",
       }
       for i=1, #versions do
         if versions[i] >= data then
@@ -161,13 +209,14 @@ VNC = {
       end
     end
 
-    status = self.socket:send( cli_version or "RFB 003.889\n" )
+    self.client_version = VNC.versions[cli_version or "RFB 003.889"]
+    status = self.socket:send( (cli_version or "RFB 003.889") .. "\n" )
     if ( not(status) ) then
       stdnse.debug1("ERROR: VNC:handshake failed to send client version")
       return false, "ERROR: VNC:handshake failed"
     end
 
-    if ( cli_version == "RFB 003.003\n" ) then
+    if ( self.client_version == "3.3" ) then
       local status, tmp = self.socket:receive_buf(match.numbytes(4), true)
       if( not(status) ) then
         return false, "VNC:handshake failed to receive security data"
@@ -231,18 +280,43 @@ VNC = {
   -- @return status true on success, false on failure
   -- @return err string containing error message when status is false
   login = function( self, username, password, authtype )
-    if not authtype then
-      if self:supportsSecType( VNC.sectypes.VNCAUTH ) then
-        return self:login_vncauth(username, password)
-      elseif self:supportsSecType( VNC.sectypes.TLS ) then
-        return self:login_tls(username, password)
-      else
-        return false, "vnc.lua does not support that security type"
-      end
-    elseif ( not( self:supportsSecType( authtype ) ) ) then
-      return false, "The server does not support the \"VNC Authentication\" security type."
+    if ( not(password) ) then
+      return false, "No password was supplied"
     end
 
+    if not authtype then
+      if self:supportsSecType( VNC.sectypes.NONE ) then
+        return self:login_none()
+
+      elseif self:supportsSecType( VNC.sectypes.VNCAUTH ) then
+        return self:login_vncauth(username, password)
+
+      elseif self:supportsSecType( VNC.sectypes.TLS ) then
+        return self:login_tls(username, password)
+
+      elseif self:supportsSecType( VNC.sectypes.VENCRYPT ) then
+        return self:login_vencrypt(username, password)
+
+      else
+        return false, "The server does not support any matching security type"
+      end
+    elseif ( not( self:supportsSecType( authtype ) ) ) then
+      return false, string.format(
+        'The server does not support the "%s" security type.', VNC.sectypes_str[authtype])
+    end
+
+  end,
+
+  login_none = function (self)
+    local status = self.socket:send( bin.pack("C", VNC.sectypes.NONE) )
+    if not status then
+      return false, "Failed to select None authentication type"
+    end
+    if self.client_version == "3.8" then
+      return self:check_auth_result()
+    end
+    -- nothing to do here!
+    return true
   end,
 
   --- Attempts to login to the VNC service using VNC Authentication
@@ -252,14 +326,9 @@ VNC = {
   -- @return status true on success, false on failure
   -- @return err string containing error message when status is false
   login_vncauth = function( self, username, password )
-    if ( not(password) ) then
-      return false, "No password was supplied"
-    end
-
-    -- Announce that we support VNC Authentication
     local status = self.socket:send( bin.pack("C", VNC.sectypes.VNCAUTH) )
-    if ( not(status) ) then
-      return false, "Failed to select authentication type"
+    if not status then
+      return false, "Failed to send authentication type"
     end
 
     local status, chall = self.socket:receive_buf(match.numbytes(16), true)
@@ -274,23 +343,22 @@ VNC = {
     if ( not(status) ) then
       return false, "Failed to send authentication response to server"
     end
+    return self:check_auth_result()
+  end,
 
+  check_auth_result = function(self)
     local status, result = self.socket:receive_buf(match.numbytes(4), true)
     if ( not(status) ) then
       return false, "Failed to retrieve authentication status from server"
     end
 
     if ( select(2, bin.unpack("I", result) ) ~= 0 ) then
-      return false, ("Authentication failed with password %s"):format(password)
+      return false, "Authentication failed"
     end
-    return true, ""
+    return true
   end,
 
-  login_tls = function( self, username, password )
-    if ( not(password) ) then
-      return false, "No password was supplied"
-    end
-
+  handshake_tls = function(self)
     local status = self.socket:send( bin.pack("C", VNC.sectypes.TLS) )
     if not status then
       return false, "Failed to select TLS authentication type"
@@ -325,26 +393,129 @@ VNC = {
       table.insert( vncsec.types, select(2, bin.unpack("C", tmp, i) ) )
     end
     self.vncsec = vncsec
+    return true
+  end,
 
+  login_tls = function( self, username, password )
+    local status, err = self:handshake_tls()
+    if not status then
+      return status, err
+    end
     return self:login(username, password)
+  end,
+
+  handshake_vencrypt = function(self)
+    local status = self.socket:send( bin.pack("C", VNC.sectypes.VENCRYPT) )
+    if not status then
+      return false, "Failed to select VeNCrypt authentication type"
+    end
+
+    local status, buf = self.socket:receive_buf(match.numbytes(2), true)
+    local pos, maj, min = bin.unpack("CC", buf)
+    if maj ~= 0 or min ~= 2 then
+      return false, string.format("Unknown VeNCrypt version: %d.%d", maj, min)
+    end
+    self.socket:send(bin.pack("CC", maj, min))
+    status, buf = self.socket:receive_buf(match.numbytes(1), true)
+    pos, status = bin.unpack("C", buf)
+    if status ~= 0 then
+      return false, string.format("Server refused VeNCrypt version %d.%d", maj, min)
+    end
+
+    status, buf = self.socket:receive_buf(match.numbytes(1), true)
+    local pos, nauth = bin.unpack("C", buf)
+    if nauth == 0 then
+      return false, "No VeNCrypt auth subtypes received"
+    end
+
+    -- vencrypt auth types are u32
+    status, buf = self.socket:receive_buf(match.numbytes(nauth * 4), true)
+    pos = 1
+    local vencrypt = {
+      count = nauth,
+      types = {}
+    }
+    for i=1, nauth do
+      local auth
+      pos, auth = bin.unpack(">I", buf, pos)
+      table.insert(vencrypt.types, auth)
+    end
+    self.vencrypt = vencrypt
+    return true
+  end,
+
+  login_vencrypt = function(self, username, password)
+    local status, err = self:handshake_vencrypt()
+    if not status then
+      return status, err
+    end
+
+    local subauth = first_of({
+        VENCRYPT_SUBTYPES.TLSNONE,
+        VENCRYPT_SUBTYPES.X509NONE,
+        VENCRYPT_SUBTYPES.PLAIN,
+        VENCRYPT_SUBTYPES.TLSPLAIN,
+        VENCRYPT_SUBTYPES.X509PLAIN,
+        VENCRYPT_SUBTYPES.TLSVNC,
+        VENCRYPT_SUBTYPES.X509VNC,
+        -- These not supported yet
+        --VENCRYPT_SUBTYPES.TLSSASL,
+        --VENCRYPT_SUBTYPES.X509SASL,
+      }, self.vencrypt.types)
+
+    if not subauth then
+      return false, "The server does not support any supported security type"
+    end
+
+    self.socket:send(bin.pack(">I", subauth))
+    local status, buf = self.socket:receive_buf(match.numbytes(1), true)
+    if not status or string.byte(buf, 1) ~= 1 then
+      return false, "VeNCrypt auth subtype refused"
+    end
+
+    if subauth == VENCRYPT_SUBTYPES.PLAIN then
+      return self:login_plain(username, password)
+    end
+
+    status, err = self.socket:reconnect_ssl()
+    if not status then
+      return false, "Failed to reconnect SSL to VNC server"
+    end
+
+    if subauth == VENCRYPT_SUBTYPES.TLSNONE or subauth == VENCRYPT_SUBTYPES.X509NONE then
+      return self:check_auth_result()
+    elseif subauth == VENCRYPT_SUBTYPES.TLSVNC or subauth == VENCRYPT_SUBTYPES.X509VNC then
+      return self:login_vncauth(username, password)
+    elseif subauth == VENCRYPT_SUBTYPES.TLSPLAIN or subauth == VENCRYPT_SUBTYPES.X509PLAIN then
+      return self:login_plain(username, password)
+    elseif subauth == VENCRYPT_SUBTYPES.TLSSASL or subauth == VENCRYPT_SUBTYPES.X509SASL then
+      return self:login_sasl(username, password)
+    end
+
+  end,
+
+  login_plain = function(self, username, password)
+    local status = self.socket:send(bin.pack(">IIAA", #username, #password, username, password))
+    if not status then
+      return false, "Failed to send plain auth"
+    end
+
+    return self:check_auth_result()
+  end,
+
+  login_sasl = function(self, username, password)
+    -- TODO: support this!
+    return false, "Unsupported"
   end,
 
   --- Returns all supported security types as a table
   --
   -- @return table containing a entry for each security type
   getSecTypesAsTable = function( self )
-    local tmp = {}
-    local typemt = {
-      __tostring = function(me)
-        return ("%s (%s)"):format(me.name, me.type)
-      end
-    }
-    for i=1, self.vncsec.count do
-      local t = {name=VNC.sectypes_str[self.vncsec.types[i]] or "Unknown security type", type=self.vncsec.types[i]}
-      setmetatable(t, typemt)
-      table.insert( tmp, t )
-    end
-    return true, tmp
+    return get_types_as_table(self.vncsec, VNC.sectypes_str)
+  end,
+  getVencryptTypesAsTable = function (self)
+    return get_types_as_table(self.vencrypt, VENCRYPT_SUBTYPES_STR)
   end,
 
   --- Checks if the supplied security type is supported or not
@@ -367,6 +538,39 @@ VNC = {
     return self.protover
   end,
 
+  --- Send a ClientInit message.
+  --@param shared boolean determining whether the screen should be shared, or whether other logged-on users should be booted.
+  --@return status true if message was successful, false otherwise
+  --@return table containing contents of ServerInit message, or error message.
+  client_init = function (self, shared)
+    self.socket:send(shared and "\x01" or "\x00")
+    local status, buf = self.socket:receive_buf(match.numbytes(24), true)
+    if not status then
+      return false, "Did not receive ServerInit message"
+    end
+    local pos, width, height, bpp, depth, bigendian, truecolor, rmax, gmax, bmax, rshift, gshift, bshift, pad1, pad2, namelen = bin.unpack(">SSCCCCSSSCCCSCI", buf)
+    local status, buf = self.socket:receive_buf(match.numbytes(namelen), true)
+    if not status then
+      return false, "Did not receive ServerInit desktop name"
+    end
+    local pos, name = bin.unpack("A" .. namelen, buf)
+    return true, {
+      width = width,
+      height = height,
+      bpp = bpp,
+      depth = depth,
+      bigendian = bigendian,
+      truecolor = truecolor,
+      rmax = rmax,
+      gmax = gmax,
+      bmax = bmax,
+      rshift = rshift,
+      gshift = gshift,
+      bshift = bshift,
+      name = name
+    }
+
+  end
 }
 
 return _ENV;

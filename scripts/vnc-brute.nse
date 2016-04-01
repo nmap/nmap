@@ -122,8 +122,9 @@ Driver =
     end
 
     status, data = vnc:login( nil, "is_sec_mec_supported?" )
-    -- Check secondary auth type after potential TLS handshake that happened during login
-    if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
+    -- Check whether auth succeeded. This is most likely because one of the
+    -- NONE auth types was supported, since vnc.lua will just return true in that case.
+    if status then
       return false, "No authentication required"
     end
 

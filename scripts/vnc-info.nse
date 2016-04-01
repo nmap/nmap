@@ -45,26 +45,67 @@ local function fail(err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
-  local vnc = vnc.VNC:new( host, port )
+  local v = vnc.VNC:new( host, port )
   local status, data
   local result = stdnse.output_table()
 
-  status, data = vnc:connect()
+  status, data = v:connect()
   if ( not(status) ) then return fail(data) end
 
-  status, data = vnc:handshake()
+  status, data = v:handshake()
   if ( not(status) ) then return fail(data) end
 
-  status, data = vnc:getSecTypesAsTable()
-  if ( not(status) ) then return fail(data) end
+  data = v:getSecTypesAsTable()
 
-  result["Protocol version"] = vnc:getProtocolVersion()
+  result["Protocol version"] = v:getProtocolVersion()
 
   if ( data and #data ~= 0 ) then
     result["Security types"] = data
   end
 
-  if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
+  local none_auth = false
+  if ( v:supportsSecType(v.sectypes.NONE) ) then
+    none_auth = true
+  end
+
+  if v:supportsSecType(v.sectypes.VENCRYPT) then
+    status, data = v:handshake_vencrypt()
+    if not status then
+      stdnse.debug1("Failed to handshake VeNCrypt: %s", data)
+    else
+      result["VeNCrypt auth subtypes"] = v:getVencryptTypesAsTable()
+      if not none_auth then
+        for i=1, v.vencrypt.count do
+          if v.vencrypt.types[i] == vnc.VENCRYPT_SUBTYPES.TLSNONE or
+            v.vencrypt.types[i] == vnc.VENCRYPT_SUBTYPES.TLSNONE then
+            none_auth = true
+            break
+          end
+        end
+      end
+    end
+    -- Reset the connection for further tests
+    v:disconnect()
+  end
+
+  if v:supportsSecType(v.sectypes.TLS) then
+    if not v.socket:get_info() then
+      -- reconnect if necessary
+      v:connect()
+      v:handshake()
+    end
+    status, data = v:handshake_tls()
+    if not status then
+      stdnse.debug1("Failed to handshake TLS: %s", data)
+    else
+      result["TLS auth subtypes"] = v:getSecTypesAsTable()
+      if v:supportsSecType(v.sectypes.NONE) then
+        none_auth = true
+      end
+    end
+  end
+
+  if none_auth then
     result["WARNING"] = "Server does not require authentication"
   end
 
