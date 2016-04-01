@@ -3,7 +3,6 @@ local bit = require "bit"
 local comm = require "comm"
 local match = require "match"
 local nmap = require "nmap"
-local os = require "os"
 local stdnse = require "stdnse"
 
 _ENV = stdnse.module("mqtt", stdnse.seeall)
@@ -362,7 +361,7 @@ Helper = {
     assert(type(types) == "table")
     assert(type(timeout) == "number")
 
-    local start_time = os.time()
+    local end_time = nmap.clock_ms() + timeout * 1000
     while true do
       local status, result = self.comm:receive()
 
@@ -380,7 +379,7 @@ Helper = {
 
       -- Check timeout, but only if we care about it.
       if timeout > 0 then
-        if os.time() >= start_time + timeout then
+        if nmap.clock_ms() >= end_time then
           break
         end
       end

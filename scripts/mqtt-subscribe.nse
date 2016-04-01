@@ -1,5 +1,5 @@
 local mqtt = require "mqtt"
-local os = require "os"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 
@@ -120,9 +120,9 @@ all client updates.
 --       <code>nmap</code> with a random suffix.
 -- @args mqtt-subscribe.listen-msgs Number of PUBLISH messages to
 --       receive, defaults to 100. A value of zero forces this script
---       to stop only when listen-secs has passed.
--- @args mqtt-subscribe.listen-secs Number of seconds to listen for
---       PUBLISH messages, defaults to 5. A value of zero forces this
+--       to stop only when listen-time has passed.
+-- @args mqtt-subscribe.listen-time Length of time to listen for
+--       PUBLISH messages, defaults to 5s. A value of zero forces this
 --       script to stop only when listen-msgs PUBLISH messages have
 --       been received.
 -- @args mqtt-subscribe.password Password for MQTT brokers requiring
@@ -195,21 +195,22 @@ local function parse_args()
   end
   args.max_msgs = max_msgs
 
-  local max_secs = stdnse.get_script_args(SCRIPT_NAME .. '.listen-secs')
-  if max_secs then
-    -- Sanity check the value from the user
-    max_secs = tonumber(max_secs)
-    if type(max_secs) ~= "number" then
-      return false, "listen-secs argument must be a number."
-    elseif max_secs < 0 then
-      return false, "listen-secs argument must be non-negative."
-    elseif args.max_msgs == 0 and max_secs == 0 then
-      return falsem "listen-secs and listen-msgs may not both be zero."
+  local max_time = stdnse.get_script_args(SCRIPT_NAME .. '.listen-time')
+  if max_time then
+    -- Convert the time specification from the CLI to seconds.
+    local err
+    max_time, err = stdnse.parse_timespec(max_time)
+    if not max_time then
+      return false, ("Unable to parse listen-time: %s"):format(err)
+    elseif max_time < 0 then
+      return false, "listen-time argument must be non-negative."
+    elseif args.max_msgs == 0 and max_time == 0 then
+      return false, "listen-time and listen-msgs may not both be zero."
     end
   else
-    max_secs = 5
+    max_time = 5
   end
-  args.max_secs = max_secs
+  args.max_time = max_time
 
   local username = stdnse.get_script_args(SCRIPT_NAME .. '.username')
   if not username then
@@ -317,20 +318,20 @@ action = function(host, port)
   --
   -- We will continue to listen for PUBLISH messages until one of two
   -- conditions is met, whichever comes first:
-  --   1) We have listened for max_secs
+  --   1) We have listened for max_time
   --   2) We have received max_msgs
-  local end_time = os.time() + options.max_secs
+  local end_time = nmap.clock_ms() + options.max_time * 1000
   local topics = {}
   local keys = {}
   local msgs = 0
   while true do
     -- Check for the first condition.
-    local time_left = end_time - os.time()
+    local time_left = end_time - nmap.clock_ms()
     if time_left <= 0 then
       break
     end
 
-    status, response = helper:receive({"PUBLISH"}, time_left)
+    status, response = helper:receive({"PUBLISH"}, time_left / 1000)
     if not status then
       break
     end
