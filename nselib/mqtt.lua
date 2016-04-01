@@ -150,23 +150,109 @@ Comm = {
   --
   -- @return status true on success, false on failure.
   -- @return err string containing the error message on failure.
-  connect = function(self)
-    -- XXX-MAK: This should be changed to support TLS.
-    self.socket = nmap.new_socket()
-    self.socket:set_timeout(self.options.timeout or 5000)
-    return self.socket:connect(self.host, self.port)
+  connect = function(self, options)
+    -- Build the CONNECT control  packet that initiates an MQTT session.
+    local status, pkt = self:build("CONNECT", options)
+    if not status then
+      return false, pkt
+    end
+
+    -- The MQTT protocol requires us to sent the initial CONNECT
+    -- control packet before it will respond.
+    local sd, response, _, _ = comm.tryssl(self.host, self.port, pkt)
+    if not sd then
+      return false, response
+    end
+
+    -- The socket connected successfully over whichever protocol.
+    self.socket = sd
+
+    -- We now have some data that came back from the connection, which
+    -- the protocol guarantees will be the 4-byte CONNACK packet.
+    if #response ~= 4 then
+      return false, "More bytes were returned from tryssl() than expected."
+    end
+
+    return self:parse(response)
   end,
 
   --- Sends an MQTT control packet.
   --
   -- @name Comm.send
   --
-  -- @param type Type of MQTT control packet to build and send.
+  -- @param pkt String representing a raw control packet.
+  -- @return status true on success, false on failure.
+  -- @return err string containing the error message on failure.
+  send = function(self, pkt)
+    return self.socket:send(pkt)
+  end,
+
+  --- Receives an MQTT control packet.
+  --
+  -- @name Comm.receive
+  --
+  -- @return status True on success, false on failure.
+  -- @return response String representing a raw control packet on
+  --         success, string containing the error message on failure.
+  receive = function(self)
+    -- Receive the type and flags of the response packet's fixed header.
+    local status, type_and_flags = self.socket:receive_buf(match.numbytes(1), true)
+    if not status then
+      return false, "Failed to receive control packet from server."
+    end
+
+    -- To avoid reimplementing the length parsing, we will perform a
+    -- naive loop that gets the correct number of bytes for the
+    -- variable-length numeric field without interpreting it.
+    local length = ""
+    for i = 1, 4 do
+      -- Get the next byte from the socket.
+      local status, chunk = self.socket:receive_buf(match.numbytes(1), true)
+      if not status then
+        return false, chunk
+      end
+
+      -- Add the received data to the length buffer.
+      length = length .. chunk
+
+      -- If the byte has the continuation bit cleared, stop receiving.
+      local _, byte = bin.unpack("C", chunk)
+      if byte < 128 then
+        break
+      end
+    end
+
+    -- Parse the length buffer.
+    local pos, num = MQTT.length_parse(length)
+    if not pos then
+      return false, num
+    end
+
+    -- Get the remainder of the packet from the socket.
+    local status, body = self.socket:receive_buf(match.numbytes(num), true)
+    if not status then
+      return false, body
+    end
+    assert(#body == num)
+
+    -- Reassemble the packet.
+    local pkt = type_and_flags .. length .. body
+    assert(#pkt == 1 + #length + num)
+
+    return true, pkt
+  end,
+
+  --- Builds an MQTT control packet.
+  --
+  -- @name Comm.build
+  --
+  -- @param type Type of MQTT control packet to build.
   -- @param options Table of options accepted by the requested type of
   --        control packet.
   -- @return status true on success, false on failure.
-  -- @return err string containing the error message on failure.
-  send = function(self, type, options)
+    -- @return response String representing a raw control packet on
+  --         success, or containing the error message on failure.
+  build = function(self, type, options)
     -- Ensure the requested packet type is known.
     local pkt = MQTT.packet[type]
     assert(pkt, ("Control packet type '%s' is not known."):format(type))
@@ -189,84 +275,85 @@ Comm = {
     end
 
     -- Build the packet as specified.
-    local status, req = fn(o)
+    local status, pkt = fn(o)
     if not status then
-      return status, req
+      return status, pkt
     end
 
     -- Send the packet.
-    return self.socket:send(req)
+    return true, pkt
   end,
 
-  --- Receives an MQTT control packet.
+  --- Parses an MQTT control packet.
   --
-  -- @name Comm.receive
+  -- @name Comm.parse
   --
-  -- @return status True on success, false on failure.
+  -- @param buf String from which to parse the control packet.
+  -- @param pos Position from which to start parsing.
+  -- @return pos String index on success, false on failure.
   -- @return response Table representing a control packet on success,
   --         string containing the error message on failure.
-  receive = function(self)
-    -- Receive the type and flags of the response packet's fixed header.
-    local status, buf = self.socket:receive_buf(match.numbytes(1), true)
-    if not status then
-      return false, "Failed to receive response from server."
+  parse = function(self, buf, pos)
+    assert(type(buf) == "string")
+
+    if not pos then
+      pos = 0
+    end
+    assert(type(pos) == "number")
+    assert(pos < #buf)
+
+    -- Parse the type and flags of the control packet's fixed header.
+    local pos, type_and_flags = bin.unpack("C", buf, pos)
+    if not pos then
+      return false, "Failed to parse control packet."
     end
 
-    -- Extract the control packet type and fixed header flags of the packet.
-    local _, type_and_flags = bin.unpack("C", buf)
-
-    -- Retrieve the remaining length.
-    -- 2.2.3 Remaining Length
-    -- This only happens for large packets of size >= 128 bytes.
-    local multiplier = 1
-    local length = 0
-    repeat
-      status, buf = self.socket:receive_buf(match.numbytes(1), true)
-      if not status then
-        return false, "Failed to receive response from server."
-      end
-      local _, byte = bin.unpack("C", buf)
-      length = length + bit.band(byte, 0x7F) * multiplier
-      if (multiplier > 0x200000) then
-        return false, "Server response contained invalid packet length."
-      end
-      multiplier = bit.lshift(multiplier, 7)
-    until bit.band(byte, 0x80) == 0
-    assert(length >= 0)
-
-    -- Pull the rest of the packet off the wire.
-    status, buf = self.socket:receive_buf(match.numbytes(length), true)
-    if not status then
-      return status, buf
+    -- Parse the remaining length.
+    local pos, length = MQTT.length_parse(buf, pos)
+    if not pos then
+      return false, length
     end
-    assert(buf:len() == length, ("Length of packet (%d) doesn't match expectation (%d)."):format(buf:len(), length))
+
+    -- Extract the body.
+    local end_pos = pos + length
+    if end_pos - 1 > #buf then
+      return false, ("End of packet body (%d) is goes past end of buffer (%d)."):format(end_pos, #buf)
+    end
+    local body = buf:sub(pos, end_pos)
+    pos = end_pos
 
     -- Parse type and flags.
-    local type = bit.rshift(bit.band(type_and_flags, 0xF0), 4)
+    local type = bit.rshift(type_and_flags, 4)
     local fhflags = bit.band(type_and_flags, 0x0F)
 
     -- Search for the definition of the packet type.
-    local pkt = nil
-    for key,val in pairs(MQTT.packet) do
+    local def = nil
+    for key, val in pairs(MQTT.packet) do
       if val.number == type then
         type = key
-        pkt = val
+        def = val
         break
       end
     end
 
     -- Ensure the requested packet type is handled.
-    if not pkt then
+    if not def then
       return false, ("Control packet type '%d' is not known."):format(type)
     end
 
     -- Ensure the requested packet type is handled.
-    local fn = pkt.parse
+    local fn = def.parse
     if not fn then
       return false, ("Control packet type '%s' is not implemented."):format(type)
     end
 
-    return fn(fhflags, buf)
+    -- Parse the packet
+    local status, response = fn(fhflags, body)
+    if not status then
+      return false, response
+    end
+
+    return pos, response
   end,
 
   --- Disconnects from the MQTT broker.
@@ -315,13 +402,26 @@ Helper = {
   --         success, string containing the error message on failure.
   connect = function(self, options)
     self.comm = Comm:new(self.host, self.port, self.opt)
+    return self.comm:connect(options)
+  end,
 
-    local result, status = self.comm:connect()
-    if not result then
-      return false, status
+    --- Sends a request to the MQTT broker.
+  --
+  -- @name Helper.send
+  --
+  -- @param req_type Type of control packet to build and send.
+  -- @param options Table of options for the request control packet.
+  -- @return status True on success, false on failure.
+  -- @return err String containing the error message on failure.
+  send = function(self, req_type, options)
+    assert(type(req_type) == "string")
+
+    local status, pkt = self.comm:build(req_type, options)
+    if not status then
+       return false, pkt
     end
 
-    return self:request("CONNECT", options, "CONNACK")
+    return self.comm:send(pkt)
   end,
 
   --- Sends a request to the MQTT broker, and receive a response.
@@ -329,21 +429,19 @@ Helper = {
   -- @name Helper.request
   --
   -- @param req_type Type of control packet to build and send.
-  -- @param options Table of options for the CONNECT control packet.
+  -- @param options Table of options for the request control packet.
   -- @param res_type Type of control packet to receive and parse.
   -- @return status True on success, false on failure.
   -- @return response Table representing a <code>res_type</code>
   --         control packet on success, string containing the error
   --         message on failure.
   request = function(self, req_type, options, res_type)
-    assert(type(req_type) == "string")
-
-    local status, result = self.comm:send(req_type, options)
+    local status, pkt = self:send(req_type, options)
     if not status then
-       return false, result
+       return false, pkt
     end
 
-    return self.comm:receive({res_type})
+    return self:receive({res_type})
   end,
 
   --- Listens for a response matching a list of types.
@@ -351,7 +449,8 @@ Helper = {
   -- @name Helper.receive
   --
   -- @param types Type of control packet to build and send.
-  -- @param timeout Number of seconds to listen for matching response.
+  -- @param timeout Number of seconds to listen for matching response,
+  --                defaults to 5s.
   -- @param res_type Table of types of control packet to receive and
   --        parse.
   -- @return status True on success, false on failure.
@@ -360,13 +459,22 @@ Helper = {
   --         message on failure.
   receive = function(self, types, timeout)
     assert(type(types) == "table")
+
+    if not timeout then
+      timeout = 5
+    end
     assert(type(timeout) == "number")
 
     local end_time = nmap.clock_ms() + timeout * 1000
     while true do
-      local status, result = self.comm:receive()
+      -- Get the raw packet from the socket.
+      local status, pkt = self.comm:receive()
+      if not status then
+        return false, pkt
+      end
 
-      -- Check for failures.
+      -- Parse the raw packet into a table.
+      local status, result = self.comm:parse(pkt)
       if not status then
         return false, result
       end
@@ -393,7 +501,7 @@ Helper = {
   --
   -- @name Helper.close
   close = function(self)
-    self.comm:send("DISCONNECT")
+    self:send("DISCONNECT")
     return self.comm:close()
   end,
 }
@@ -635,6 +743,7 @@ end
 -- @return response Table representing a PUBLISH control packet on
 --         success, string containing the error message on failure.
 MQTT.packet["PUBLISH"].parse = function(fhflags, buf)
+  stdnse.debug1("PUB")
   assert(type(fhflags) == "number")
   assert(type(buf) == "string")
 
@@ -689,6 +798,87 @@ MQTT.packet["DISCONNECT"].build = function(options)
   return true, MQTT.fixed_header(14, 0x00, "")
 end
 
+--- Build a numeric field in MQTT's variable-length format.
+--
+-- See section "2.2.3 Remaining Length" of the standard.
+--
+-- @param num The value of the field.
+-- @return A variable-length field.
+MQTT.length_build = function(num)
+  -- This field represents a limited range of integers.
+  assert(num >= 0)
+  assert(num <= 268435455)
+
+  local field = ""
+  repeat
+    local byte = bit.band(num, 0x7F)
+    num = bit.rshift(num, 7)
+    if num > 0 then
+      byte = bit.bor(byte, 0x80)
+    end
+    field = bin.pack("C", byte) .. field
+  until num == 0
+
+  -- This field has a limit on its length in binary form.
+  assert(#field >= 1)
+  assert(#field <= 4)
+
+  return field
+end
+
+--- Parse a numeric field in MQTT's variable-length format.
+--
+-- See section "2.2.3 Remaining Length" of the standard.
+--
+-- @param buf String from which to parse the numeric field.
+-- @param pos Position from which to start parsing.
+-- @return pos String index on success, false on failure.
+-- @return response Parsed numeric field on success, string containing
+--         the error message on failure.
+MQTT.length_parse = function(buf, pos)
+  assert(type(buf) == "string")
+
+  if not pos then
+    pos = 0
+  end
+  assert(type(pos) == "number")
+  assert(pos < #buf)
+
+  local multiplier = 1
+  local offset = 0
+  local byte = nil
+  local num = 0
+
+  repeat
+    if pos > #buf then
+      return false, "Reached end of buffer before variable-length numeric field was parsed."
+    end
+    pos, byte = bin.unpack("C", buf, pos)
+    num = num + bit.band(byte, 0x7F) * multiplier
+    if offset > 3 then
+      return false, "Buffer contained an invalid variable-length numeric field."
+    end
+    multiplier = bit.lshift(multiplier, 7)
+    offset = offset + 1
+  until bit.band(byte, 0x80) == 0
+
+  -- This field represents a limited range of integers.
+  assert(num >= 0)
+  assert(num <= 268435455)
+
+  return pos, num
+end
+
+--- Parser a UTF-8 string in MQTT's length-prefixed format.
+--
+-- See section "1.5.3 UTF-8 encoded strings" of the standard.
+--
+-- @param buf The bytes to parse.
+-- @param pos The position from which to start parsing.
+-- @return status True on success, false on failure.
+-- @return response Parsed string on success, string containing the
+--         error message on failure.
+
 --- Build a UTF-8 string in MQTT's length-prefixed format.
 --
 -- See section "1.5.3 UTF-8 encoded strings" of the standard.
@@ -701,7 +891,7 @@ MQTT.utf8_build = function(str)
   return bin.pack(">P", str)
 end
 
---- Parser a UTF-8 string in MQTT's length-prefixed format.
+--- Parse a UTF-8 string in MQTT's length-prefixed format.
 --
 -- See section "1.5.3 UTF-8 encoded strings" of the standard.
 --
@@ -749,20 +939,7 @@ MQTT.fixed_header = function(num, flags, pkt)
   -- 2.2.2 Flags
   local hdr = bit.bor(bit.lshift(num, 4), flags)
 
-  -- Construct the remaining length.
-  -- 2.2.3 Remaining Length
-  local tlen = pkt:len()
-  local rlen = ""
-  repeat
-    local byte = bit.band(tlen, 0x7F)
-    tlen = bit.rshift(tlen, 7)
-    if tlen > 0 then
-      byte = bit.bor(byte, 0x80)
-    end
-    rlen = bin.pack("C", byte) .. rlen
-  until tlen == 0
-
-  return bin.pack("C", hdr) .. rlen .. pkt
+  return bin.pack("C", hdr) .. MQTT.length_build(#pkt) .. pkt
 end
 
 return _ENV;
