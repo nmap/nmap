@@ -102,6 +102,7 @@ bootrom.ld
 bridge-confg
 cfg.bin
 cisco-confg
+{cisco}-confg
 cisco_util
 cisconet.bin
 cisconet.cfg
