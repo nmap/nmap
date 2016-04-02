@@ -297,6 +297,9 @@ VNC = {
       elseif self:supportsSecType( VNC.sectypes.VENCRYPT ) then
         return self:login_vencrypt(username, password)
 
+      elseif self:supportsSecType( VNC.sectypes.TIGHT ) then
+        return self:login_tight(username, password)
+
       else
         return false, "The server does not support any matching security type"
       end
@@ -356,6 +359,89 @@ VNC = {
       return false, "Authentication failed"
     end
     return true
+  end,
+
+  handshake_tight = function(self)
+    local status = self.socket:send( bin.pack("C", VNC.sectypes.TIGHT) )
+    if not status then
+      return false, "Failed to select TIGHT authentication type"
+    end
+
+    -- https://vncdotool.readthedocs.org/en/0.8.0/rfbproto.html#tight-security-type
+    local status, buf = self.socket:receive_buf(match.numbytes(4), true)
+    if not status then
+      return false, "Failed to get number of tunnels"
+    end
+    local pos, ntunnels = bin.unpack(">I", buf)
+    status, buf = self.socket:receive_buf(match.numbytes(16 * ntunnels), true)
+    if not status then
+      return false, "Failed to get list of tunnels"
+    end
+
+    pos = 1
+    local tight = {
+      tunnels = {},
+      types = {}
+    }
+    for i=1, ntunnels do
+      local tunnel = {}
+      pos, tunnel.code, tunnel.vendor, tunnel.signature = bin.unpack(">IA4A8", buf, pos)
+      tight.tunnels[#tight.tunnels+1] = tunnel
+    end
+
+    if ntunnels > 0 then
+      -- for now, just return the first one. TODO: choose a supported tunnel type
+      self.socket:send(bin.pack(">I", tight.tunnels[1].code))
+    end
+
+    status, buf = self.socket:receive_buf(match.numbytes(4), true)
+    if not status then
+      return false, "Failed to get number of Tight auth types"
+    end
+    local pos, nauth = bin.unpack(">I", buf)
+    status, buf = self.socket:receive_buf(match.numbytes(16 * nauth), true)
+    if not status then
+      return false, "Failed to get list of Tight auth types"
+    end
+
+    pos = 1
+    for i=1, nauth do
+      local auth = {}
+      pos, auth.code, auth.vendor, auth.signature = bin.unpack(">IA4A8", buf, pos)
+      tight.types[#tight.types+1] = auth
+    end
+
+    self.tight = tight
+
+    return true
+  end,
+
+  login_tight = function(self, username, password)
+    local status, err = self:handshake_tight()
+    if not status then
+      return status, err
+    end
+
+    self.socket:send("\0\0\0") -- send auth types as int32
+
+    if #self.tight.types == 0 then
+      -- nothing further, no auth
+      return true
+    end
+
+    -- choose a supported auth type
+    for _, auth in ipairs({
+        {1, "login_none"},
+        {2, "login_vncauth"},
+        {19, "login_vencrypt"},
+      }) do
+      for _, t in ipairs(self.tight.types) do
+        if t.code == auth[1] then
+          return self[auth[2]](self, username, password)
+        end
+      end
+    end
+    return false, "The server does not support any supported Tight security type"
   end,
 
   handshake_tls = function(self)

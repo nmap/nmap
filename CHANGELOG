@@ -3,7 +3,7 @@
 o [NSE] Added vnc-title for logging in to VNC servers and grabbing the desktop
   title, geometry, and color depth. [Daniel Miller]
 
-o [NSE] More VNC updates: Support for VeNCrypt auth type, output of
+o [NSE] More VNC updates: Support for VeNCrypt and Tight auth types, output of
   authentication sub-types in vnc-info, and all zero-authentication types are
   recognized and reported. [Daniel Miller]
 
