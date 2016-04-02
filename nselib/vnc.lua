@@ -222,7 +222,7 @@ VNC = {
         return false, "VNC:handshake failed to receive security data"
       end
 
-      vncsec.types[1] = select(2, bin.unpack("I", tmp) )
+      vncsec.types[1] = select(2, bin.unpack(">I", tmp) )
       self.vncsec = vncsec
 
       -- do we have an invalid security type, if so we need to handle an
@@ -355,7 +355,7 @@ VNC = {
       return false, "Failed to retrieve authentication status from server"
     end
 
-    if ( select(2, bin.unpack("I", result) ) ~= 0 ) then
+    if ( select(2, bin.unpack(">I", result) ) ~= 0 ) then
       return false, "Authentication failed"
     end
     return true
