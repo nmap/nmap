@@ -12949,6 +12949,16 @@ match ldap m|^0 \x02\x01\x01a\x1b\n\x015\x04\0\x04\x14Minimum SSF not met\.| p/R
 softmatch ldap m|^0.\x02\x01\x01a.\n\x01.\x04\0\x04|
 
 
+# Ldap searchRequest for objectClass = * over udp - Active Direcotry specific
+##############################NEXT PROBE##############################
+Probe UDP LDAPSearchReqUDP q|\x30\x84\x00\x00\x00\x2d\x02\x01\x07\x63\x84\x00\x00\x00\x24\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x64\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x43\x6c\x61\x73\x73\x30\x84\x00\x00\x00\x00|
+rarity 8
+ports 389
+
+match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+)0\x84\0|s p/Microsoft Windows Active Directory ldap/ h/$1/ i/Domain: $3.$4, Site: $2/ o/Windows/
+match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+),DC=([^,]+)0\x84\0|s p/Microsoft Windows Active Directory ldap/ h/$1/ i/Domain: $3.$4.$5, Site: $2/ o/Windows/
+
+
 # This probe sends a SIP OPTIONS request.
 # Most of the numbers, usernames, and hostnames are abitrary.
 ##############################NEXT PROBE##############################
