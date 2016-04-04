@@ -272,6 +272,10 @@ VNC = {
     return newpass
   end,
 
+  sendSecType = function (self, sectype)
+    return self.socket:send( bin.pack("C", sectype))
+  end,
+
   --- Attempts to login to the VNC service using any supported method
   --
   -- @param username string, could be anything when VNCAuth is used
@@ -286,18 +290,23 @@ VNC = {
 
     if not authtype then
       if self:supportsSecType( VNC.sectypes.NONE ) then
+        self:sendSecType(VNC.sectypes.NONE)
         return self:login_none()
 
       elseif self:supportsSecType( VNC.sectypes.VNCAUTH ) then
+        self:sendSecType(VNC.sectypes.VNCAUTH)
         return self:login_vncauth(username, password)
 
       elseif self:supportsSecType( VNC.sectypes.TLS ) then
+        self:sendSecType(VNC.sectypes.TLS)
         return self:login_tls(username, password)
 
       elseif self:supportsSecType( VNC.sectypes.VENCRYPT ) then
+        self:sendSecType(VNC.sectypes.VENCRYPT)
         return self:login_vencrypt(username, password)
 
       elseif self:supportsSecType( VNC.sectypes.TIGHT ) then
+        self:sendSecType(VNC.sectypes.TIGHT)
         return self:login_tight(username, password)
 
       else
@@ -311,10 +320,6 @@ VNC = {
   end,
 
   login_none = function (self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.NONE) )
-    if not status then
-      return false, "Failed to select None authentication type"
-    end
     if self.client_version == "3.8" then
       return self:check_auth_result()
     end
@@ -329,11 +334,6 @@ VNC = {
   -- @return status true on success, false on failure
   -- @return err string containing error message when status is false
   login_vncauth = function( self, username, password )
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.VNCAUTH) )
-    if not status then
-      return false, "Failed to send authentication type"
-    end
-
     local status, chall = self.socket:receive_buf(match.numbytes(16), true)
     if ( not(status) ) then
       return false, "Failed to receive authentication challenge"
@@ -362,11 +362,6 @@ VNC = {
   end,
 
   handshake_tight = function(self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.TIGHT) )
-    if not status then
-      return false, "Failed to select TIGHT authentication type"
-    end
-
     -- https://vncdotool.readthedocs.org/en/0.8.0/rfbproto.html#tight-security-type
     local status, buf = self.socket:receive_buf(match.numbytes(4), true)
     if not status then
@@ -422,8 +417,6 @@ VNC = {
       return status, err
     end
 
-    self.socket:send("\0\0\0") -- send auth types as int32
-
     if #self.tight.types == 0 then
       -- nothing further, no auth
       return true
@@ -437,6 +430,7 @@ VNC = {
       }) do
       for _, t in ipairs(self.tight.types) do
         if t.code == auth[1] then
+          self.socket:send(bin.pack(">I", t.code))
           return self[auth[2]](self, username, password)
         end
       end
@@ -445,11 +439,6 @@ VNC = {
   end,
 
   handshake_tls = function(self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.TLS) )
-    if not status then
-      return false, "Failed to select TLS authentication type"
-    end
-
     local status, err = self.socket:reconnect_ssl()
     if not status then
       return false, "Failed to reconnect SSL"
@@ -491,11 +480,6 @@ VNC = {
   end,
 
   handshake_vencrypt = function(self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.VENCRYPT) )
-    if not status then
-      return false, "Failed to select VeNCrypt authentication type"
-    end
-
     local status, buf = self.socket:receive_buf(match.numbytes(2), true)
     local pos, maj, min = bin.unpack("CC", buf)
     if maj ~= 0 or min ~= 2 then
