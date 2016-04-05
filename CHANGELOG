@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#354] Added new version detection Probes for LDAP services, LDAPSearchReq
+  and LDAPSearchReqUDP. The second is Microsoft Active Directory specific. The
+  Probes will elicit responses from target services that allow better finger
+  -printing and information extraction. Also added nmap-payload entry for 
+  detecting LDAP on udp. [Tom Sellers]
+
 o [NSE] Added vnc-title for logging in to VNC servers and grabbing the desktop
   title, geometry, and color depth. [Daniel Miller]
 
