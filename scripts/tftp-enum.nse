@@ -200,7 +200,7 @@ action = function(host, port)
   for i, filename in ipairs(filenames) do
     local request_status = check_file_present(host, port, filename)
     if (request_status == FILE_FOUND) then
-     local newfilename = table.insert(results, filename)
+     table.insert(results, filename)
     end
   end
 
