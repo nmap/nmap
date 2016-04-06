@@ -71,9 +71,17 @@ LDFLAGS += $(UNIVERSAL_LDFLAGS)
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
 
-$(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
+$(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+
+path-check:
+	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi
+
+tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
+
+have-%:
+	which $*
 
 $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
@@ -81,7 +89,7 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
 
 check-%: stage-%
-	if (find $* -perm -a+x -type f | xargs otool -L | grep "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
+	if (find $* -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
 
 export-%:
 	rm -rf $*

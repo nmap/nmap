@@ -11,8 +11,12 @@
 -- * FTP
 -- * IMAP
 -- * LDAP
+-- * NNTP
 -- * POP3
+-- * PostgreSQL
 -- * SMTP
+-- * TDS (MS SQL Server)
+-- * VNC (TLS and VeNCrypt auth types)
 -- * XMPP
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
@@ -23,6 +27,7 @@ local bit = require "bit"
 local comm = require "comm"
 local ftp = require "ftp"
 local ldap = require "ldap"
+local match = require "match"
 local mssql = require "mssql"
 local nmap = require "nmap"
 local smtp = require "smtp"
@@ -30,6 +35,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local tls = require "tls"
+local vnc = require "vnc"
 local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
@@ -56,7 +62,7 @@ local function tls_reconnect (func)
         return true, s
       end
     end
-    return false, "Failed to connect to server"
+    return false, string.format("Failed to connect to server: %s", s or "unknown error")
   end
 end
 
@@ -159,8 +165,6 @@ WrappedSocket =
 
 
 StartTLS = {
-
-  -- TODO: Implement STARTTLS for NNTP
 
   ftp_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over FTP for services that support it
@@ -296,6 +300,69 @@ StartTLS = {
   end,
 
   ldap_prepare_tls = tls_reconnect("ldap_prepare_tls_without_reconnect"),
+
+  lmtp_prepare_tls_without_reconnect = function(host, port)
+    -- Open a standard TCP socket
+    local s, result = smtp.connect(host, port, {lines=1, recv_before=1, ssl=false})
+    if not s then
+      return false, string.format("Failed to connect to LMTP server: %s", result)
+    end
+
+    local status
+    status, result = smtp.query(s, "LHLO", "example.com")
+    if not status then
+      stdnse.debug1("LHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+      return false, string.format("Failed to LHLO: %s", result)
+    end
+    -- semantics of LHLO are same as EHLO
+    status, result = smtp.check_reply("EHLO", result)
+    if not status then
+      return false, string.format("Received LHLO error: %s", result)
+    end
+
+    -- Send STARTTLS command ask the service to start encryption
+    status, result = smtp.query(s, "STARTTLS")
+    if status then
+      status, result = smtp.check_reply("STARTTLS", result)
+    end
+
+    if not status then
+      stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
+
+      -- Send QUIT to clean up server side connection
+      smtp.quit(s)
+      return false, string.format("Failed to connect to SMTP server: %s", result)
+    end
+    -- Should have a solid TLS over LMTP session now...
+    return true, s
+  end,
+
+  lmtp_prepare_tls = tls_reconnect("lmtp_prepare_tls_without_reconnect"),
+
+  nntp_prepare_tls_without_reconnect = function(host, port)
+    local s, err, result = comm.opencon(host, port, "", {lines=1, recv_before=true})
+    if not s then
+      return false, string.format("Failed to connect to NNTP server: %s", err)
+    end
+
+    if not string.match(result, "^200") then
+      return false, "NNTP protocol mismatch"
+    end
+
+    local status = s:send("STARTTLS\r\n")
+    status, result = s:receive_lines(1)
+
+    if not (string.match(result, "^382 ")) then
+      stdnse.debug1(string.format("Error: %s", result))
+      status = s:send("QUIT\r\n")
+      s:close()
+      return false, "NNTP server does not support STARTTLS"
+    end
+
+    return true, s
+  end,
+
+  nntp_prepare_tls = tls_reconnect("nntp_prepare_tls_without_reconnect"),
 
   pop3_prepare_tls_without_reconnect = function(host, port)
     -- Attempt to negotiate TLS over POP3 for services that support it
@@ -485,6 +552,69 @@ StartTLS = {
     return false, "Full SSL connection over TDS not supported"
   end,
 
+  vnc_prepare_tls_without_reconnect = function(host,port)
+    local v = vnc.VNC:new( host, port )
+
+    local status, data = v:connect()
+    if not status then
+      return false, string.format("Failed to connect to VNC server: %s", data)
+    end
+
+    status, data = v:handshake()
+    if not status then
+      return false, string.format("Failed VNC handshake: %s", data)
+    end
+
+    local sock = v.socket
+    if v:supportsSecType(vnc.VNC.sectypes.VENCRYPT) then
+
+      status, data = v:handshake_vencrypt()
+      if not status then
+        return false, string.format("Failed VeNCrypt handshake: %s", data)
+      end
+      local auth_order = {
+        -- X509 types are not anonymous, have real certs
+        vnc.VENCRYPT_SUBTYPES.X509VNC,
+        vnc.VENCRYPT_SUBTYPES.X509SASL,
+        vnc.VENCRYPT_SUBTYPES.X509NONE,
+        vnc.VENCRYPT_SUBTYPES.X509PLAIN,
+        -- TLS types use anonymous DH handshakes
+        vnc.VENCRYPT_SUBTYPES.TLSVNC,
+        vnc.VENCRYPT_SUBTYPES.TLSSASL,
+        vnc.VENCRYPT_SUBTYPES.TLSNONE,
+        vnc.VENCRYPT_SUBTYPES.TLSPLAIN,
+        -- PLAIN type doesn't use TLS
+      }
+      local best
+      for i=1, #auth_order do
+        if stdnse.contains(v.vencrypt.types, auth_order[i]) then
+          best = auth_order[i]
+          break
+        end
+      end
+
+      if not best then
+        return false, "No TLS VeNCrypt auth subtype received"
+      end
+      sock:send(bin.pack(">I", best))
+      local status, buf = sock:receive_buf(match.numbytes(1), true)
+      if not status or string.byte(buf, 1) ~= 1 then
+        return false, "VeNCrypt auth subtype refused"
+      end
+      return true, sock
+    elseif v:supportsSecType(vnc.VNC.sectypes.TLS) then
+      status = sock:send( bin.pack("C", vnc.VNC.sectypes.TLS) )
+      if not status then
+        return false, "Failed to select TLS authentication type"
+      end
+    else
+      return false, string.format("No TLS auth types supported")
+    end
+    return true, sock
+  end,
+
+  vnc_prepare_tls = tls_reconnect("vnc_prepare_tls_without_reconnect"),
+
   xmpp_prepare_tls_without_reconnect = function(host,port)
     local sock,status,err,result
     local xmppStreamStart = string.format("<?xml version='1.0' ?>\r\n<stream:stream xmlns:stream='http://etherx.jabber.org/streams' xmlns='jabber:client' to='%s' version='1.0'>\r\n",host.name)
@@ -561,10 +691,13 @@ StartTLS = {
 local SPECIALIZED_PREPARE_TLS = {
   ftp = StartTLS.ftp_prepare_tls,
   [21] = StartTLS.ftp_prepare_tls,
+  nntp = StartTLS.nntp_prepare_tls,
+  [119] = StartTLS.nntp_prepare_tls,
   imap = StartTLS.imap_prepare_tls,
   [143] = StartTLS.imap_prepare_tls,
-  [ldap] = StartTLS.ldap_prepare_tls,
+  ldap = StartTLS.ldap_prepare_tls,
   [389] = StartTLS.ldap_prepare_tls,
+  lmtp = StartTLS.lmtp_prepare_tls,
   pop3 = StartTLS.pop3_prepare_tls,
   [110] = StartTLS.pop3_prepare_tls,
   postgresql = StartTLS.postgres_prepare_tls,
@@ -575,16 +708,21 @@ local SPECIALIZED_PREPARE_TLS = {
   xmpp = StartTLS.xmpp_prepare_tls,
   [5222] = StartTLS.xmpp_prepare_tls,
   [5269] = StartTLS.xmpp_prepare_tls,
+  vnc = StartTLS.vnc_prepare_tls,
+  [5900] = StartTLS.vnc_prepare_tls,
   ["ms-sql-s"] = StartTLS.tds_prepare_tls
 }
 
 local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   ftp = StartTLS.ftp_prepare_tls_without_reconnect,
   [21] = StartTLS.ftp_prepare_tls_without_reconnect,
+  nntp = StartTLS.nntp_prepare_tls_without_reconnect,
+  [119] = StartTLS.nntp_prepare_tls_without_reconnect,
   imap = StartTLS.imap_prepare_tls_without_reconnect,
   [143] = StartTLS.imap_prepare_tls_without_reconnect,
   ldap = StartTLS.ldap_prepare_tls_without_reconnect,
   [389] = StartTLS.ldap_prepare_tls_without_reconnect,
+  lmtp = StartTLS.lmtp_prepare_tls_without_reconnect,
   pop3 = StartTLS.pop3_prepare_tls_without_reconnect,
   [110] = StartTLS.pop3_prepare_tls_without_reconnect,
   postgresql = StartTLS.postgres_prepare_tls_without_reconnect,
@@ -594,7 +732,9 @@ local SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT = {
   [587] = StartTLS.smtp_prepare_tls_without_reconnect,
   xmpp = StartTLS.xmpp_prepare_tls_without_reconnect,
   [5222] = StartTLS.xmpp_prepare_tls_without_reconnect,
-  [5269] = StartTLS.xmpp_prepare_tls_without_reconnect
+  [5269] = StartTLS.xmpp_prepare_tls_without_reconnect,
+  vnc = StartTLS.vnc_prepare_tls_without_reconnect,
+  [5900] = StartTLS.vnc_prepare_tls_without_reconnect,
 }
 
 -- these can't do reconnect_ssl
@@ -610,13 +750,16 @@ local SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT = {
 -- @param port A port table with 'number' and 'service' keys
 -- @return A STARTTLS function or nil
 function getPrepareTLSWithoutReconnect(port)
+  if port.protocol == 'udp' then
+    return nil
+  end
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
-  return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
-    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
-    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number] or
-    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service])
+  return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
+    SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
+    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or
+    SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number])
 end
 
 --- Get a specialized SSL connection function to create an SSL socket
@@ -626,11 +769,14 @@ end
 -- @param port A port table with 'number' and 'service' keys
 -- @return A STARTTLS function or nil
 function isPortSupported(port)
+  if port.protocol == 'udp' then
+    return nil
+  end
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
-  return (SPECIALIZED_PREPARE_TLS[port.number] or
-    SPECIALIZED_PREPARE_TLS[port.service])
+  return (SPECIALIZED_PREPARE_TLS[port.service] or
+    SPECIALIZED_PREPARE_TLS[port.number])
 end
 
 -- returns a function that yields a new tls record each time it is called
@@ -677,7 +823,7 @@ function getCertificate(host, port)
 
   local cert
   -- do we have to use a wrapper and do a manual handshake?
-  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service]
+  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
   if wrapper then
     local status, socket = wrapper(host, port)
     if not status then
@@ -743,13 +889,14 @@ function getCertificate(host, port)
     end
   else
     -- Is there a specialized function for this port?
-    local specialized = SPECIALIZED_PREPARE_TLS[port.number]
+    local specialized = SPECIALIZED_PREPARE_TLS[port.service] or SPECIALIZED_PREPARE_TLS[port.number]
     local status
     local socket = nmap.new_socket()
     if specialized then
       status, socket = specialized(host, port)
       if not status then
         mutex "done"
+        stdnse.debug1("Specialized function error: %s", socket)
         return false, "Failed to connect to server"
       end
     else

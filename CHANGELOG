@@ -1,7 +1,40 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#354] Added new version detection Probes for LDAP services, LDAPSearchReq
+  and LDAPSearchReqUDP. The second is Microsoft Active Directory specific. The
+  Probes will elicit responses from target services that allow better finger
+  -printing and information extraction. Also added nmap-payload entry for 
+  detecting LDAP on udp. [Tom Sellers]
+
+o [NSE] Added vnc-title for logging in to VNC servers and grabbing the desktop
+  title, geometry, and color depth. [Daniel Miller]
+
+o [NSE] More VNC updates: Support for VeNCrypt and Tight auth types, output of
+  authentication sub-types in vnc-info, and all zero-authentication types are
+  recognized and reported. [Daniel Miller]
+
+o [NSE] Update to enable smb-os-discovery to augment version detection
+  for certain SMB related services using data that the script discovers.
+  [Tom Sellers]
+
+o Improved version detection and descriptions for Microsoft and Samba
+  SMB services. Also addresses certain issues with OS identification. 
+  [Tom Sellers]
+
+Nmap 7.12 [2016-03-29]
+
+o [Zenmap] Avoid file corruption in zenmap.conf, reported as files containing
+  many null ("\x00") characters. Example exceptions:
+    TypeError: int() argument must be a string or a number, not 'list'
+    ValueError: unable to parse colour specification
+
+o [NSE] VNC updates including vnc-brute support for TLS security type and
+  negotiating a lower RFB version if the server sends an unknown higher
+  version.  [Daniel Miller]
+
+o [NSE] Added STARTTLS support for VNC, NNTP, and LMTP [Daniel Miller]
+
 o Added new service probes and match lines for OpenVPN on UDP and TCP.
-  [Corentin Delorme]
 
 Nmap 7.11 [2016-03-22]
 

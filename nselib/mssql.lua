@@ -364,9 +364,9 @@ SqlServerVersionInfo =
 
     local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, {4000, "SP2"}, {6000, "SP3"}, }
 
-    local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, {3000, "SP1"}, {5058, "SP2"}, }
+    local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, {3000, "SP1"}, {5058, "SP2"}, {6020, "SP3"}, }
 
-    local SP_LOOKUP_TABLE_2014 = { {2000, "RTM"}, {4050, "SP1"}, }
+    local SP_LOOKUP_TABLE_2014 = { {2000, "RTM"}, {4100, "SP1"}, }
 
 
     if ( not self.brandedVersion ) then
