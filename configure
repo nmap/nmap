@@ -7690,15 +7690,14 @@ fi
 
 if test "$with_nmap_update" != "no"; then
   have_libsvn=yes
-  if test "$have_libsvn" = "yes"; then
-    old_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
-    ac_fn_c_check_header_mongrel "$LINENO" "svn_client.h" "ac_cv_header_svn_client_h" "$ac_includes_default"
+  old_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
+  ac_fn_c_check_header_mongrel "$LINENO" "svn_client.h" "ac_cv_header_svn_client_h" "$ac_includes_default"
 if test "x$ac_cv_header_svn_client_h" = xyes; then :
 
 else
 
-      ac_fn_c_check_header_mongrel "$LINENO" "subversion-1/svn_client.h" "ac_cv_header_subversion_1_svn_client_h" "$ac_includes_default"
+                   ac_fn_c_check_header_mongrel "$LINENO" "subversion-1/svn_client.h" "ac_cv_header_subversion_1_svn_client_h" "$ac_includes_default"
 if test "x$ac_cv_header_subversion_1_svn_client_h" = xyes; then :
 
 else
@@ -7710,10 +7709,9 @@ fi
 fi
 
 
-    CPPFLAGS="$old_CPPFLAGS"
-  fi
+  CPPFLAGS="$old_CPPFLAGS"
   if test "$have_libsvn" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for svn_client_create_context in -lsvn_client-1" >&5
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for svn_client_create_context in -lsvn_client-1" >&5
 $as_echo_n "checking for svn_client_create_context in -lsvn_client-1... " >&6; }
 if ${ac_cv_lib_svn_client_1_svn_client_create_context+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -7750,12 +7748,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_svn_client_1_svn_client_create_context" >&5
 $as_echo "$ac_cv_lib_svn_client_1_svn_client_create_context" >&6; }
 if test "x$ac_cv_lib_svn_client_1_svn_client_create_context" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBSVN_CLIENT_1 1
-_ACEOF
-
-  LIBS="-lsvn_client-1 $LIBS"
-
+  have_libsvn=yes
 else
   have_libsvn=no
 fi

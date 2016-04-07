@@ -921,16 +921,15 @@ case "$with_subversion" in
 
 if test "$with_nmap_update" != "no"; then
   have_libsvn=yes
+  old_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
+  AC_CHECK_HEADER([svn_client.h], [], [
+                   AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
+                   ])
+  CPPFLAGS="$old_CPPFLAGS"
   if test "$have_libsvn" = "yes"; then
-    old_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
-    AC_CHECK_HEADER([svn_client.h], [], [
-      AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
-    ])
-    CPPFLAGS="$old_CPPFLAGS"
-  fi
-  if test "$have_libsvn" = "yes"; then
-    AC_CHECK_LIB([svn_client-1], [svn_client_create_context], [], [have_libsvn=no])
+    dnl Avoid appending to LIBS here by providing non-default action-if-found
+    AC_CHECK_LIB([svn_client-1], [svn_client_create_context], [have_libsvn=yes], [have_libsvn=no])
   fi
   if test "$have_libsvn" != "yes"; then
     if test "$with_nmap_update" = "check"; then
