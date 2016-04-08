@@ -141,6 +141,7 @@ action = function( host, port )
   local response = http.generic_request( host, port, method, path, { no_cache = true } )
 
   if ( response.status ~= 401 and response.status ~= 501 ) then
+    print ("status is "..response.status)
     return ("  \n  Path \"%s\" does not require authentication"):format(path)
   end
 
