@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH362] Added support for LDAP over udp to ldap-rootdse.nse.
+  Also added version detection and information extraction to match the
+  new LDAP LDAPSearchReq and LDAPSearchReqUDP probes. [Tom Sellers]
+
 o [GH#354] Added new version detection Probes for LDAP services, LDAPSearchReq
   and LDAPSearchReqUDP. The second is Microsoft Active Directory specific. The
   Probes will elicit responses from target services that allow better finger
