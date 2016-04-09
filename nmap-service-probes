@@ -11540,7 +11540,7 @@ ports 137
 
 # Windows Server DNS - first two bytes are transaction ID, second two are flags, most variation is in the second part of the flag (3rd byte from start) which indicates if there is 
 # an error.  This value isn't OS specific and depends on the state of the server.  See Response Code here: 
-# http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm Windows Server 2003
+# http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 match domain m|^\x80\xf0\x80.\0\x01\0\0....\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s p/Microsoft DNS/ o/Windows/ cpe:/a:microsoft:dns/ cpe:/o:microsoft:windows_server/
 
 match domain m|^\x80\xf0\x81\x83\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/Mikrotik DNS/ d/router/
