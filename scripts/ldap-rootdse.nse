@@ -135,6 +135,11 @@ function action(host,port)
     req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default }
     status, searchResEntries = ldap.searchRequest( socket, req )
 
+    if not status then
+      socket:close()
+      return stdnse.format_output(false, searchResEntries)	
+    end
+
     -- Check if we were served all the results or not?
     if not ldap.extractAttribute( searchResEntries, "namingContexts" ) and
         not ldap.extractAttribute( searchResEntries, "supportedLDAPVersion" ) then
@@ -159,7 +164,7 @@ function action(host,port)
     status, searchResEntries = ldap.udpSearchRequest( host, port, req )
   end
 
-  if not status or not searchResEntries then return end
+  if not status or not searchResEntries then return stdnse.format_output(false, searchResEntries) end
   result = ldap.searchResultToTable( searchResEntries )
  
   -- if taken a way and ldap returns a single result, it ain't shown....
