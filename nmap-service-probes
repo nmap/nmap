@@ -11604,7 +11604,7 @@ match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0A\x01([\w\-]{1,15})[\s]{0,14}\0d\0[^\0]{6}\0\0\0\0\0\0\0\0\0| p/Apple Mac OS X netbios-ns/ h/$1/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0A\x01([\w\-]{1,15})[\s]{0,14}\0\x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Apple Mac OS X netbios-ns/ h/$1/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 
-match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15})[\s]{0,14}\0d\0.*\0([\w\-]{1,15})[\s]{0,14}\0\xe4\0|s p/Ricoh printer netbios-ns/ h/$1/ i/workgroup: $2/ d/printer/
+match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15})[\s]{0,14}\0d\0.*\0([\w\-]{1,15})[\s]{0,14}\0\xe4\0|s p/Samba nmbd netbios-ns/ h/$1/ i/workgroup: $2/ cpe:/a:samba:samba/
 
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0/\x00......\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Microsoft Windows Mobile netbios-ns/ o/Windows/ cpe:/o:microsoft:windows/a
 
