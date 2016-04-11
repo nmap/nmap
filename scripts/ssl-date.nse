@@ -39,7 +39,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 -- Miscellaneous script-wide constants
