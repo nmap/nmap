@@ -68,7 +68,6 @@ end
 
 --- Makes a table be treated as a JSON Object when generating JSON
 --
--- A table treated as an Object has all non-number indices ignored.
 -- @param t a table to be treated as an object
 function make_object(t)
   local mt = getmetatable(t) or {}
