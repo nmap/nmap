@@ -149,6 +149,9 @@ local parseHello = function(data)
         -- Machine Name (Hostname)
       elseif t == 0x0f then
         hostname = unicode.utf16to8(v)
+        if not hostname and ipv4 and ipv6 and mac then
+          break
+        end
       end
 
       p = p + l
@@ -230,7 +233,9 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
         if ipv4 then
           if not lltd_responders[ipv4] then
             lltd_responders[ipv4] = {}
-            lltd_responders[ipv4].hostname = hostname
+            if hostname then
+              lltd_responders[ipv4].hostname = hostname
+            end
             lltd_responders[ipv4].mac = mac
             lltd_responders[ipv4].ipv6 = ipv6
           end
@@ -319,6 +324,8 @@ action = function()
     s.name = ip_addr
     if info.hostname then
       table.insert(s, "Hostname: " .. info.hostname)
+    else
+      table.insert(s, "Problem in parsing hostname")
     end
     if info.mac then
       table.insert(s, "Mac: " .. info.mac)

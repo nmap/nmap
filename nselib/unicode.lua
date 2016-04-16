@@ -72,7 +72,11 @@ function transcode(buf, decoder, encoder, bigendian_dec, bigendian_enc)
   local pos = 1
   while pos <= #buf do
     pos, cp = decoder(buf, pos, bigendian_dec)
-    out[#out+1] = encoder(cp, bigendian_enc)
+    if cp then
+      out[#out+1] = encoder(cp, bigendian_enc)
+    else
+      pos=pos+1
+    end
   end
   return table.concat(out)
 end
@@ -123,10 +127,12 @@ function utf16_dec(buf, pos, bigendian)
 
   local cp
   pos, cp = unpack(fmt, buf, pos)
-  if cp >= 0xD800 and cp <= 0xDFFF then
+  if cp and cp >= 0xD800 and cp <= 0xDFFF then
     local high = lshift(cp - 0xD800, 10)
     pos, cp = unpack(fmt, buf, pos)
     cp = 0x10000 + high + cp - 0xDC00
+  elseif not cp then
+    return pos, nil
   end
   return pos, cp
 end
