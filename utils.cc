@@ -574,7 +574,7 @@ int cpe_get_part(const char *cpe) {
   const char *PREFIX = "cpe:/";
   char part;
 
-  if (strncmp(cpe, PREFIX, strlen(PREFIX) != 0))
+  if (strncmp(cpe, PREFIX, strlen(PREFIX)) != 0)
     return -1;
   /* This could be more robust, by decoding character escapes and checking ':'
      boundaries. */
