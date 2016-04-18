@@ -1,4 +1,6 @@
-require("tab")
+tab=require("tab")
+stdnse=require("stdnse")
+
 
 TEMPLATE_NAME="CIS MySQL Benchmarks v1.0.2"
 
