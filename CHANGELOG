@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed libdnet-stripped to avoid bailing completely when an interface is
+  encountered with an unsupported hardware address type. Caused "INTERFACES:
+  NONE FOUND!" bugs in Nmap whenever Linux kernel added new hardware address
+  types. [Daniel Miller]
+
 o [NSE][GH362] Added support for LDAP over udp to ldap-rootdse.nse.
   Also added version detection and information extraction to match the
   new LDAP LDAPSearchReq and LDAPSearchReqUDP probes. [Tom Sellers]
