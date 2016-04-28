@@ -3252,10 +3252,11 @@ static void display_nmap_version() {
   with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
 #endif
 
+  const char *pcap_version = pcap_lib_version();
 #ifdef PCAP_INCLUDED
-  with.push_back(std::string("nmap-libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+  with.push_back(std::string("nmap-") + get_word_or_quote(pcap_version, 0) + std::string("-") + get_word_or_quote(pcap_version, 2));
 #else
-  with.push_back(std::string("libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+  with.push_back(get_word_or_quote(pcap_version, 0) + std::string("-") + get_word_or_quote(pcap_version, 2));
 #endif
 
 #ifdef DNET_INCLUDED
