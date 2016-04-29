@@ -523,8 +523,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                   else
                     sigalg = c.sig_algorithm:match("([sS][hH][aA]1)")
                     if sigalg then
-                      -- TODO: Update this when SHA-1 is deprecated in 2016
-                      -- kex_strength = 0
+                      kex_strength = 0
                       scores.warnings["Weak certificate signature: SHA1"] = true
                     end
                     kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
