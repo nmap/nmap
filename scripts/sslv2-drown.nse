@@ -5,6 +5,7 @@ local bin = require "bin"
 local bit = require "bit"
 local stdnse = require "stdnse"
 local sslcert = require "sslcert"
+local vulns = require "vulns"
 
 description = [[
 Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it
@@ -433,13 +434,77 @@ end
 
 function action(host, port)
   local output = stdnse.output_table()
+  local report = vulns.Report:new("sslv2-drown", host, port)
+  local cve_2015_3197 = {
+    title = "OpenSSL: SSLv2 doesn't block disabled ciphers",
+    state = vulns.STATE.NOT_VULN,
+    IDS = {
+      CVE = 'CVE-2015-3197',
+    },
+    risk_factor = "Low",
+    description = [[
+      ssl/s2_srvr.c in OpenSSL 1.0.1 before 1.0.1r and 1.0.2 before 1.0.2f does not
+      prevent use of disabled ciphers, which makes it easier for man-in-the-middle
+      attackers to defeat cryptographic protection mechanisms by performing computations
+      on SSLv2 traffic, related to the get_client_master_key and get_client_hello
+      functions.
+    ]],
+    references = {
+      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3197",
+      "https://www.openssl.org/news/secadv/20160128.txt",
+    },
+  }
+  local cve_2016_0703 = {
+    title = "OpenSSL: Divide-and-conquer session key recovery in SSLv2",
+    state = vulns.STATE.NOT_VULN,
+    IDS = {
+      CVE = 'CVE-2016-0703',
+    },
+    risk_factor = "High",
+    description = [[
+      The get_client_master_key function in s2_srvr.c in the SSLv2 implementation in
+      OpenSSL before 0.9.8zf, 1.0.0 before 1.0.0r, 1.0.1 before 1.0.1m, and 1.0.2 before
+      1.0.2a accepts a nonzero CLIENT-MASTER-KEY CLEAR-KEY-LENGTH value for an arbitrary
+      cipher, which allows man-in-the-middle attackers to determine the MASTER-KEY value
+      and decrypt TLS ciphertext data by leveraging a Bleichenbacher RSA padding oracle, a
+      related issue to CVE-2016-0800.
+    ]],
+    references = {
+      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-0703",
+      "https://www.openssl.org/news/secadv/20160301.txt",
+    },
+  }
+  local cve_2016_0800 = {
+    title = "OpenSSL: Cross-protocol attack on TLS using SSLv2 (DROWN)",
+    state = vulns.STATE.NOT_VULN,
+    IDS = {
+      CVE = 'CVE-2016-0800',
+    },
+    risk_factor = "High",
+    description = [[
+      The SSLv2 protocol, as used in OpenSSL before 1.0.1s and 1.0.2 before 1.0.2g and
+      other products, requires a server to send a ServerVerify message before establishing
+      that a client possesses certain plaintext RSA data, which makes it easier for remote
+      attackers to decrypt TLS ciphertext data by leveraging a Bleichenbacher RSA padding
+      oracle, aka a "DROWN" attack.
+    ]],
+    references = {
+      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-0800",
+      "https://www.openssl.org/news/secadv/20160301.txt",
+    },
+  }
+  report:add_vulns(cve_2015_3197)
+  report:add_vulns(cve_2016_0703)
+  report:add_vulns(cve_2016_0800)
 
   -- SSLv2 support
   local sslv2_supported, offered_ciphers = test_sslv2(host, port)
   if sslv2_supported then
     output.sslv2_supported = "yes"
   else
-    return
+    output.sslv2_supported = "no"
+    output.vulns = report:make_output()
+    return output
   end
   output.ciphers = format_ciphers(offered_ciphers)
 
@@ -452,17 +517,15 @@ function action(host, port)
   end
   output.forced_ciphers = format_ciphers(forced_ciphers)
   if not values_in(forced_ciphers, offered_ciphers) then
-      output.cve_2015_3197 = "yes"
+    cve_2015_3197.state = vulns.STATE.VULN
   end
 
   -- CVE-2016-0703
   for _, cipher in pairs(forced_ciphers) do
     local result = has_extra_clear_bug(host, port, cipher)
     if result == true then
-      output.cve_2016_0703 = "yes"
+      cve_2016_0703.state = vulns.STATE.VULN
       break
-    elseif result == false then
-      output.cve_2016_0703 = "no"
     end
   end
 
@@ -475,10 +538,9 @@ function action(host, port)
     end
   end
   if has_weak_ciphers or output.cve_2016_0703 == "yes" then
-    output.cve_2016_0800 = "yes"
-  else
-    output.cve_2016_0800 = "no"
+    cve_2016_0800.state = vulns.STATE.VULN
   end
 
+  output.vulns = report:make_output()
   return output
 end
