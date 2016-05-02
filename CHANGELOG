@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] ssl-enum-ciphers will cap the score of an RC4-ciphersuite handshake at
+  C and output a warning referencing RFC 7465.
+
 o Changed libdnet-stripped to avoid bailing completely when an interface is
   encountered with an unsupported hardware address type. Caused "INTERFACES:
   NONE FOUND!" bugs in Nmap whenever Linux kernel added new hardware address

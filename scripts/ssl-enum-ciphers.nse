@@ -492,8 +492,8 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             end
             if protocol == "SSLv3" and  info.mode and info.mode == "CBC" then
               scores.warnings["CBC-mode cipher in SSLv3 (CVE-2014-3566)"] = true
-            elseif info.cipher == "RC4" and tls.PROTOCOLS[protocol] >= 0x0302 then
-              scores.warnings["Weak cipher RC4 in TLSv1.1 or newer not needed for BEAST mitigation"] = true
+            elseif info.cipher == "RC4" then
+              scores.warnings["Broken cipher RC4 is deprecated by RFC 7465"] = true
             end
             local kex = tls.KEX_ALGORITHMS[info.kex]
             local extra, kex_strength
