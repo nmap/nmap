@@ -48,82 +48,266 @@ and therefore is quite noisy.
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
 -- | ssl-enum-ciphers:
--- |   SSLv3:
--- |     ciphers:
--- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - A
--- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
--- |     compressors:
--- |       NULL
--- |     cipher preference: server
 -- |   TLSv1.0:
 -- |     ciphers:
--- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - A
--- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+-- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA (dh 256) - A
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA (dh 256) - A
+-- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
+-- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - C
 -- |     compressors:
 -- |       NULL
 -- |     cipher preference: server
+-- |     warnings:
+-- |       Broken cipher RC4 is deprecated by RFC 7465
+-- |       Ciphersuite uses MD5 for message integrity
+-- |       Weak certificate signature: SHA1
+-- |   TLSv1.1:
+-- |     ciphers:
+-- |       TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+-- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
+-- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
+-- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - C
+-- |     compressors:
+-- |       NULL
+-- |     cipher preference: server
+-- |     warnings:
+-- |       Broken cipher RC4 is deprecated by RFC 7465
+-- |       Ciphersuite uses MD5 for message integrity
+-- |       Weak certificate signature: SHA1
+-- |   TLSv1.2:
+-- |     ciphers:
+-- |       TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (secp256r1) - A
+-- |       TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (secp256r1) - A
+-- |       TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+-- |       TLS_RSA_WITH_AES_128_GCM_SHA256 (rsa 2048) - A
+-- |       TLS_RSA_WITH_AES_256_GCM_SHA384 (rsa 2048) - A
+-- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
+-- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
+-- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - C
+-- |     compressors:
+-- |       NULL
+-- |     cipher preference: server
+-- |     warnings:
+-- |       Broken cipher RC4 is deprecated by RFC 7465
+-- |       Ciphersuite uses MD5 for message integrity
 -- |_  least strength: C
 --
 -- @xmloutput
--- <table key="SSLv3">
+-- <table key="TLSv1.1">
 --   <table key="ciphers">
 --     <table>
---       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</elem>
 --       <elem key="strength">A</elem>
---       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
---       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</elem>
 --       <elem key="strength">A</elem>
---       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
 --       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
 --       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
 --     <elem>NULL</elem>
 --   </table>
 --   <elem key="cipher preference">server</elem>
+--   <table key="warnings">
+--     <elem>Broken cipher RC4 is deprecated by RFC 7465</elem>
+--     <elem>Ciphersuite uses MD5 for message integrity</elem>
+--     <elem>Weak certificate signature: SHA1</elem>
+--   </table>
 -- </table>
--- <table key="TLSv1.0">
+-- <table key="TLSv1.2">
 --   <table key="ciphers">
 --     <table>
---       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">
+--       TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</elem>
 --       <elem key="strength">A</elem>
---       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
---       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">
+--       TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</elem>
 --       <elem key="strength">A</elem>
---       <elem key="kex_info">rsa 2048</elem>
 --     </table>
 --     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_AES_128_GCM_SHA256</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_AES_256_GCM_SHA384</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_AES_128_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_AES_256_CBC_SHA</elem>
+--       <elem key="strength">A</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
 --       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
+--       <elem key="kex_info">secp256r1</elem>
+--       <elem key="name">TLS_ECDHE_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">C</elem>
+--     </table>
+--     <table>
 --       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
---       <elem key="name">TLS_DHE_RSA_WITH_AES_256_CBC_SHA</elem>
---       <elem key="strength">A</elem>
---       <elem key="kex_info">dh 256</elem>
---     </table>
---     <table>
---       <elem key="name">TLS_DHE_RSA_WITH_AES_128_CBC_SHA</elem>
---       <elem key="strength">A</elem>
---       <elem key="kex_info">dh 256</elem>
+--       <elem key="kex_info">rsa 2048</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --   </table>
 --   <table key="compressors">
 --     <elem>NULL</elem>
 --   </table>
 --   <elem key="cipher preference">server</elem>
+--   <table key="warnings">
+--     <elem>Broken cipher RC4 is deprecated by RFC 7465</elem>
+--     <elem>Ciphersuite uses MD5 for message integrity</elem>
+--   </table>
 -- </table>
 -- <elem key="least strength">C</elem>
 
@@ -523,8 +707,11 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                   else
                     sigalg = c.sig_algorithm:match("([sS][hH][aA]1)")
                     if sigalg then
-                      -- TODO: Update this when SHA-1 is deprecated in 2016
-                      -- kex_strength = 0
+                      -- TODO: Update this when SHA-1 is fully deprecated in 2017
+                      if type(c.notBefore) == "table" and c.notBefore.year >= 2016 then
+                        kex_strength = 0
+                        scores.warnings["Deprecated SHA1 signature in certificate issued after January 1, 2016"] = true
+                      end
                       scores.warnings["Weak certificate signature: SHA1"] = true
                     end
                     kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
