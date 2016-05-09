@@ -390,12 +390,6 @@ install-%: build-% %/Makefile
 uninstall-%: %/Makefile
 	cd $* && $(MAKE) uninstall
 
-install-ncat: $(NCATDIR)/ncat
-	@cd $(NCATDIR) && $(MAKE) install
-
-install-nping: $(NPINGDIR)/nping
-	@cd $(NPINGDIR) && $(MAKE) install
-
 install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@ @NMAP_UPDATE_INSTALL@ $(INSTALLNDIFF) $(INSTALLNPING)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
