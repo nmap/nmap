@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Retrieve the correct network prefix length for an adapter on Windows. If more
+  than one address was configured on an adapter, the same prefix length would
+  be used for both. This incorrect behavior is still used on Windows XP and
+  earlier. Reported by Niels Bohr. [Daniel Miller]
+
 o [NSE] ssl-enum-ciphers will cap the score of an RC4-ciphersuite handshake at
   C and output a warning referencing RFC 7465.
 
