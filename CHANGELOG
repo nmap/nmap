@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#371] Fix mysql-audit by adding needed library requires to the
+  mysql-cis.audit file. The script would fail with "Failed to load rulebase"
+  message. [Paolo Perego]
+
 o Retrieve the correct network prefix length for an adapter on Windows. If more
   than one address was configured on an adapter, the same prefix length would
   be used for both. This incorrect behavior is still used on Windows XP and
@@ -13,7 +17,7 @@ o Changed libdnet-stripped to avoid bailing completely when an interface is
   NONE FOUND!" bugs in Nmap whenever Linux kernel added new hardware address
   types. [Daniel Miller]
 
-o [NSE][GH362] Added support for LDAP over udp to ldap-rootdse.nse.
+o [NSE][GH#362] Added support for LDAP over udp to ldap-rootdse.nse.
   Also added version detection and information extraction to match the
   new LDAP LDAPSearchReq and LDAPSearchReqUDP probes. [Tom Sellers]
 
