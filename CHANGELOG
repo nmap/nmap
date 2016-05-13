@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#283][Nsock] Avoid "unknown protocol:0" debug messages and an "Unknown
+  address family 0" crash on Windows and other platforms that do not set the
+  src_addr argument to recvfrom for TCP sockets. [Daniel Miller]
+
 o [NSE][GH#371] Fix mysql-audit by adding needed library requires to the
   mysql-cis.audit file. The script would fail with "Failed to load rulebase"
   message. [Paolo Perego]
