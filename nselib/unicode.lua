@@ -127,6 +127,7 @@ function utf16_dec(buf, pos, bigendian)
     local high = lshift(cp - 0xD800, 10)
     pos, cp = unpack(fmt, buf, pos)
     cp = 0x10000 + high + cp - 0xDC00
+  end
   return pos, cp
 end
 
