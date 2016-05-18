@@ -83,43 +83,44 @@ portrule = shortport.portnumber(111, {"tcp", "udp"} )
 
 action = function(host, port)
 
-    local result = {}
-    local status, rpcinfo = rpc.Helper.RpcInfo( host, port )
-    local xmlout = {}
+  local result = {}
+  local status, rpcinfo = rpc.Helper.RpcInfo( host, port )
+  local xmlout = {}
 
-    if ( not(status) ) then
-        return stdnse.format_output(false, rpcinfo)
-    end
+  if ( not(status) ) then
+    return stdnse.format_output(false, rpcinfo)
+  end
 
-    for progid, v in pairs(rpcinfo) do
-        xmlout[tostring(progid)] = v
-        for proto, v2 in pairs(v) do
-          local nmapport = nmap.get_port_state(host, {number=v2.port, protocol=proto})
-          if nmapport and (nmapport.state == "open" or nmapport.state == "open|filtered") then
-            nmapport.version = nmapport.version or {}
-            -- If we don't already knkow it, or we only know that it's "rpcbind"
-            if nmapport.service == nil or nmapport.version.service_dtype == "table" or port.service == "rpcbind" then
-              nmapport.version.name = rpc.Util.ProgNumberToName(progid)
-              nmapport.version.extrainfo = "RPC #" .. progid
-              if #v2.version > 1 then
-                nmapport.version.version = ("%d-%d"):format(v2.version[1], v2.version[#v2.version])
-              else
-                nmapport.version.version = tostring(v2.version[1])
-              end
-              nmap.set_port_version(host, nmapport, "softmatched")
+  for progid, v in pairs(rpcinfo) do
+    xmlout[tostring(progid)] = v
+    for proto, v2 in pairs(v) do
+      if proto == "tcp" or proto == "udp" then
+        local nmapport = nmap.get_port_state(host, {number=v2.port, protocol=proto})
+        if nmapport and (nmapport.state == "open" or nmapport.state == "open|filtered") then
+          nmapport.version = nmapport.version or {}
+          -- If we don't already know it, or we only know that it's "rpcbind"
+          if nmapport.service == nil or nmapport.version.service_dtype == "table" or port.service == "rpcbind" then
+            nmapport.version.name = rpc.Util.ProgNumberToName(progid)
+            nmapport.version.extrainfo = "RPC #" .. progid
+            if #v2.version > 1 then
+              nmapport.version.version = ("%d-%d"):format(v2.version[1], v2.version[#v2.version])
+            else
+              nmapport.version.version = tostring(v2.version[1])
             end
+            nmap.set_port_version(host, nmapport, "softmatched")
           end
-
-            table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
         end
+      end
+
+      table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
     end
+  end
 
-    table.sort(result)
+  table.sort(result)
 
-    if (#result > 0) then
-        table.insert(result, 1, "program version   port/proto  service")
-    end
+  if (#result > 0) then
+    table.insert(result, 1, "program version   port/proto  service")
+  end
 
-    return xmlout, stdnse.format_output( true, result )
-
+  return xmlout, stdnse.format_output( true, result )
 end

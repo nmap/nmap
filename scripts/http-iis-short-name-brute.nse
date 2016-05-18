@@ -176,6 +176,6 @@ cause a denial of service condition.
     vuln.state = vulns.STATE.EXPLOIT
     results.name = "8.3 filenames found:"
     vuln.extra_info = stdnse.format_output(true, results)
-    return vuln_report:make_output(vuln)
   end
+  return vuln_report:make_output(vuln)
 end
