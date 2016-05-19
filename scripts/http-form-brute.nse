@@ -315,6 +315,9 @@ end
 
 -- TODO: expire cookies
 local function update_cookies (old, new)
+  if not old then
+    old = {}
+  end
   for i, c in ipairs(new) do
     local add = true
     for j, oc in ipairs(old) do
@@ -416,19 +419,14 @@ Driver = {
       response = http.get(self.host, self.port, uri, opts)
     end
     local rcount = 0
-    while response do
+    while response and response.status do
       if self.options.is_success and self.options.is_success(response) then
         -- "log out"
         opts.cookies = nil
         return response, true
       end
-      if response.cookies then
-        -- set cookies
-        update_cookies(opts.cookies, response.cookies)
-      else
-        stdnse.debug1("Failed to get new session cookies, reason: %s", response['status-line'] or "Unknown")
-        return nil, false
-      end
+      -- set cookies
+      update_cookies(opts.cookies, response.cookies)
       if self.options.is_failure and self.options.is_failure(response) then
         return response, false
       end
@@ -460,7 +458,11 @@ Driver = {
 
   login = function (self, username, password)
     local response, success = self:submit_form(username, password)
-    if not response then
+    if response and not response.status then
+      local err = brute.Error:new(response['status-line'] or "Unknown")
+      err:setRetry(true)
+      return false, err
+    elseif not response then
       local err = brute.Error:new("Form submission failed")
       err:setRetry(true)
       return false, err
