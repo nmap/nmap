@@ -386,9 +386,9 @@ do
   function Thread:timed_out ()
     local host_timeout, script_timeout = false, false;
     -- checking whether user gave --script-timeout option or not
-    if self.timeout ~= 0 then
+    if cnse.script_timeout then
       -- comparing script's timeout with time elapsed
-      script_timeout = self.timeout < os.difftime(os.time(), self.start_time)
+      script_timeout = cnse.script_timeout < os.difftime(os.time(), self.start_time)
     end
     if self.type == "hostrule" or self.type == "portrule" then
       host_timeout = cnse.timedOut(self.host);
@@ -482,7 +482,6 @@ do
       type = script_type,
       worker = false,
       start_time = nil, --for script timeout
-      timeout = cnse.scripttimeout
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -1184,7 +1183,7 @@ do
   end
 
   if cnse.scripttimeout then
-    print_debug(1, "Set script-time-out as: %d seconds", cnse.scripttimeout);
+    print_debug(1, "Set script-time-out as: %d seconds", cnse.script_timeout);
   end
 
   args = concat(args, ",");

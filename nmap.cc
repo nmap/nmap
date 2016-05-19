@@ -292,7 +292,6 @@ static void printusage() {
          "  --script-args-file=filename: provide NSE script args in a file\n"
          "  --script-trace: Show all data sent and received\n"
          "  --script-updatedb: Update the script database.\n"
-         "  --script-timeout <t> sets the timeout for every individual script to t seconds.\n"
          "  --script-help=<Lua scripts>: Show help about scripts.\n"
          "           <Lua scripts> is a comma-separated list of script-files or\n"
          "           script-categories.\n"
