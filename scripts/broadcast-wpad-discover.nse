@@ -151,7 +151,10 @@ local function dnsDiscover()
           -- first get all unique domain names
           if ( not(name:match("in%-addr.arpa$")) ) then
             local domain = name:match("^[^%.]-%.(.*)$")
-            domains[domain] = true
+            -- Check that the name has a domain component
+            if domain then
+              domains[domain] = true
+            end
           end
         end
 
