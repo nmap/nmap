@@ -11,32 +11,34 @@ PKG_NAME = $(NAME_VERSION).mpkg
 
 IMAGE_STAGING_DIR = $(NAME_VERSION)
 
-NMAP_BUILD_DIR = nmap-build
+NMAP_BUILD_DIR = ../
 NMAP_STAGING_DIR = Nmap
 
-ZENMAP_BUILD_DIR = zenmap-build
+ZENMAP_BUILD_DIR = ../zenmap
 ZENMAP_STAGING_DIR = Zenmap
 
-NCAT_BUILD_DIR = ncat-build
+NCAT_BUILD_DIR = ../ncat
 NCAT_STAGING_DIR = Ncat
 
-NDIFF_BUILD_DIR = ndiff-build
+NDIFF_BUILD_DIR = ../ndiff
 NDIFF_STAGING_DIR = Ndiff
 
-NPING_BUILD_DIR = nping-build
+NPING_BUILD_DIR = ../nping
 NPING_STAGING_DIR = Nping
 
 NMAP_UPDATE_BUILD_DIR = nmap-update-build
 NMAP_UPDATE_STAGING_DIR = nmap-update
 
+OSX_VERS=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
+
 JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
 # MACPORTS_PREFIX is still here because of nmap-update, which needs
 # libsvn and libapr, which jhbuild doesn't support yet.
-MACPORTS_PREFIX=$(HOME)/macports-10.8
+MACPORTS_PREFIX = /opt/local/bin/port
 PREFIX = /usr/local
 
-PACKAGEMAKER = /Developer/usr/bin/packagemaker
+# PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
 EXTRA_DIST = README ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
@@ -52,12 +54,12 @@ UNIVERSAL_CXX = g++
 # ("fat" or "universal") or a single one ("i386" or "ppc"). py2app in
 # turn uses the arch value to decide which of its bootstrappers to
 # install.
-UNIVERSAL_ARCHFLAGS = -arch i386
-UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
-UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.8 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_ARCHFLAGS = -arch x86_64
+UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERS).sdk
+UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=$(OSX_VERS) $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
 # https://stackoverflow.com/questions/19637164/c-linking-error-after-upgrading-to-mac-os-x-10-9-xcode-5-0-1/19637199#19637199
-UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -mmacosx-version-min=10.9 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERS).sdk -mmacosx-version-min=$(OSX_VERS) $(UNIVERSAL_ARCHFLAGS)
 
 CC = $(UNIVERSAL_CC)
 CXX = $(UNIVERSAL_CXX)
@@ -68,12 +70,12 @@ CFLAGS += $(UNIVERSAL_CFLAGS)
 CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
-PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
+PYTHON = /usr/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
 
 $(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+	./createdmg.sh $(IMAGE_STAGING_DIR)
 
 path-check:
 	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi
@@ -86,7 +88,41 @@ have-%:
 $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
-	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
+
+	# create packages
+	pkgbuild --root ../ncat/$(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location /Applications ncat.pkg
+	pkgbuild --root ../ndiff/$(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location /Applications ndiff.pkg
+	pkgbuild --root ../$(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location /Applications nmap.pkg
+	pkgbuild --root ../nping/$(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location /Applications nping.pkg
+	pkgbuild --root ../zenmap/$(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
+
+	# produce a .xml with packages informations
+	productbuild --synthesize \
+		--package 'ncat.pkg' \
+		--package 'ndiff.pkg' \
+		--package 'nmap.pkg' \
+		--package 'nping.pkg' \
+		--package 'zenmap.pkg' \
+		distribution.xml
+
+	# make a new file and add background and titles attributes
+	head -n 2 distribution.xml > finalDist.xml
+	echo "    <title>Nmap $(NMAP_VERSION)</title>" >> finalDist.xml
+	# second argument is the BACKGROUND file (in .jpeg — 820x418px)
+	./appendEnd.sh test pkg_bg3.jpg
+
+	# build the .mpkg according to the final .xml file
+	productbuild --distribution finalDist.xml --resources . --package-path . $(NAME_VERSION).mpkg
+
+	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
+
+	rm -rf distribution.xml
+	rm -rf finalDist.xml
+	rm -rf ncat.pkg
+	rm -rf ndiff.pkg
+	rm -rf nmap.pkg
+	rm -rf nping.pkg
+	rm -rf zenmap.pkg
 
 check-%: stage-%
 	if (find $* -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
@@ -143,20 +179,8 @@ COPYING.formatted:
 	../mswin32/license-format/licformat.sh ../COPYING > $@
 
 clean:
-	rm -rf $(IMAGE_STAGING_DIR)
-	rm -rf $(NMAP_BUILD_DIR)
-	rm -rf $(NMAP_STAGING_DIR)
-	rm -rf $(ZENMAP_BUILD_DIR)
-	rm -rf $(ZENMAP_STAGING_DIR)
-	rm -rf $(NCAT_BUILD_DIR)
-	rm -rf $(NCAT_STAGING_DIR)
-	rm -rf $(NDIFF_BUILD_DIR)
-	rm -rf $(NDIFF_STAGING_DIR)
-	rm -rf $(NPING_BUILD_DIR)
-	rm -rf $(NPING_STAGING_DIR)
-	rm -rf $(NMAP_UPDATE_BUILD_DIR)
-	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
+	rm -rf $(NAME_VERSION)/
 
 .PHONY: clean export-% stage-%
