@@ -130,7 +130,7 @@ local parseHello = function(data)
       local l = tlv:byte(p)
 
       p = p + 1
-      local v = tlv:sub(p,p+l)
+      local v = tlv:sub(p,p+l-1)
 
       if t == 0x01 then
         -- Host ID (MAC Address)
