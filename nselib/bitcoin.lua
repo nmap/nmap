@@ -188,8 +188,9 @@ Request = {
       return bin.pack("<IAII", 0xD9B4BEF9, "verack\0\0\0\0\0\0", 0, 0xe2e0f65d)
     end,
 
-  }
+  },
 
+  -- The pong message is sent in response to a ping message.
   Pong = {
     new = function(self)
       local o = {}
@@ -199,7 +200,7 @@ Request = {
     end,
 
     __tostring = function(self)
-      loccal magic = 0xD9B4BEF9
+      local magic = 0xD9B4BEF9
       local cmd = "pong\0\0\0\0\0\0\0\0"
       local len = 0
       local chksum = 0xe2e0f65d
@@ -260,12 +261,7 @@ Response = {
       self.header = Response.Header.parse(self.data)
 
       local p_length
-      --if ( Response.Header.size == #self.data ) then
-      --  pos = 0
-      --end
       pos, p_length = Util.decodeVarInt(self.data, pos)
-      --print(pos)
-      --print(p_length)
       local data
       pos, data = bin.unpack("A" .. p_length, self.data, pos)
 
@@ -393,24 +389,6 @@ Response = {
     end,
   },
 
-  -- The Ping
-  [[Ping = {
-
-
-    new = function(self, socket, data, version)
-      local o = { data = data, version = version }
-      setmetatable(o, self)
-      self.__index = self
-      
-    end,
-
-    sendPong = function(self, socket, data, version)
-      socket:send(tostring(data))
-      local status, response = Response.recvPacket(self.socket, self.version)
-      return status, response
-    end,
-  },]]
-
   -- Receives the packet and decodes it
   -- @param socket socket connected to the server
   -- @param version number containing the server version
@@ -419,7 +397,6 @@ Response = {
   --         err string containing the error message if status is false
   recvPacket = function(socket, version)
     local status, header = socket:receive_buf(match.numbytes(24), true)
-    print("Header Received is "..header)
     if ( not(status) ) then
       return false, "Failed to read the packet header"
     end
@@ -429,22 +406,21 @@ Response = {
 
     -- the verack and ping has no payload
     if ( 0 ~= len ) then
-      -- If a ping command is received then we pong has to be replied, use Request class to send the pong request
+      status, data = socket:receive_buf(match.numbytes(len), true)
+      if ( not(status) ) then
+        return false, "Failed to read the packet header"
+      end
+    else
+      -- The ping message is sent primarily to confirm that the TCP/IP connection is still valid. An error in transmission is presumed to be a closed connection and the address is removed as a current peer.
       if( cmd == "ping\0\0\0\0\0\0\0\0" ) then
         local req = Request.Pong:new()
 
-        print("Sending data "..tostring(req))
         local status, err = socket:send(tostring(req))
         if ( not(status) ) then
           return false, "Failed to send \"Pong\" reply to server"
         else
-          return self.recvPacket(socket, version)
+          return Response.recvPacket(socket, version)
         end
-      end
-      status, data = socket:receive_buf(match.numbytes(len), true)
-      print("Data recieved is "..data)
-      if ( not(status) ) then
-        return false, "Failed to read the packet header"
       end
     end
     return Response.decode(header .. data, version)
@@ -458,9 +434,6 @@ Response = {
   --         err string containing the error message if status is false
   decode = function(data, version)
     local pos, magic, cmd = bin.unpack("<IA12", data)
-    print("cmd = "..cmd)
-    print("magic = "..magic)
-    print("pos = "..pos)
     if ( "version\0\0\0\0\0" == cmd ) then
       return true, Response.Version:new(data)
     elseif ( "verack\0\0\0\0\0\0" == cmd ) then
@@ -471,9 +444,6 @@ Response = {
       return true, Response.Inv:new(data)
     elseif ( "alert\0\0\0\0\0" == cmd ) then
       return true, Response.Alert:new(data)
-  --  elseif ( "ping\0\0\0\0\0\0\0\0" == cmd ) then
-  --    return true, Response.Ping:new(data)
-  --  end
     else
       return false, ("Unknown command (%s)"):format(cmd)
     end
@@ -488,11 +458,7 @@ Util = {
   -- @return pos the new position
   -- @return count number the decoded argument
   decodeVarInt = function(data, pos)
-    --print(pos)
-    --print(#data)
     local pos, count = bin.unpack("C", data, pos)
-    --print(pos)
-    --print(count)
     if ( count == 0xfd ) then
       return bin.unpack("<S", data, pos)
     elseif ( count == 0xfe ) then
@@ -500,7 +466,7 @@ Util = {
     elseif ( count == 0xff ) then
       return bin.unpack("<L", data, pos)
     else
-      return pos, 0
+      return pos, count
     end
   end
 
@@ -555,7 +521,6 @@ Helper = {
       self.host, self.port, self.lhost, self.lport
     )
 
-    print("Sending data "..tostring(req))
     local status, err = self.socket:send(tostring(req))
     if ( not(status) ) then
       return false, "Failed to send \"Version\" request to server"
@@ -568,16 +533,13 @@ Helper = {
       return false, "Failed to read \"Version\" response from server"
     end
 
-    --print(version)
 
     if ( version.ver_raw > 29000 ) then
       local status, verack = Response.recvPacket(self.socket)
-      --print("Original Version ack is "..tostring(verack))
     end
 
     local verack = Request.VerAck:new()
 
-    print("Sending data  "..tostring(verack))
     local status, err = self.socket:send(tostring(verack))
     if ( not(status) ) then
       return false, "Failed to send \"Version\" request to server"
@@ -592,7 +554,6 @@ Helper = {
       self.host, self.port, self.lhost, self.lport
     )
     
-    print("Sending data "..tostring(req))
     local status, err = self.socket:send(tostring(req))
     if ( not(status) ) then
       return false, "Failed to send \"Version\" request to server"
@@ -604,7 +565,6 @@ Helper = {
       status, response = Response.recvPacket(self.socket, self.version)
     end
 
-    --print("repsonse is "..response[0])
     return status, response
   end,
 
