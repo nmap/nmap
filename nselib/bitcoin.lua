@@ -411,7 +411,7 @@ Response = {
         return false, "Failed to read the packet header"
       end
     else
-      -- The ping message is sent primarily to confirm that the TCP/IP connection is still valid. An error in transmission is presumed to be a closed connection and the address is removed as a current peer.
+      -- The ping message is sent primarily to confirm that the TCP/IP connection is still valid.
       if( cmd == "ping\0\0\0\0\0\0\0\0" ) then
         local req = Request.Pong:new()
 
