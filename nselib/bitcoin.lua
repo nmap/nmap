@@ -410,7 +410,7 @@ Response = {
       return true, Response.Addr:new(data, version)
     elseif ( "inv\0\0\0\0\0\0\0\0\0" == cmd ) then
       return true, Response.Inv:new(data)
-    elseif ( "alert\0\0\0\0\0") then
+    elseif ( "alert\0\0\0\0\0" == cmd ) then
       return true, Response.Alert:new(data)
     else
       return false, ("Unknown command (%s)"):format(cmd)
