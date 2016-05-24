@@ -2780,6 +2780,24 @@ for that host.</para>
 
       <varlistentry>
         <term>
+          <option>--script-timeout <replaceable>time</replaceable></option>
+          <indexterm><primary><option>--script-timeout</option></primary></indexterm>
+        </term>
+        <listitem>
+
+<para>Some scripts take <emphasis>long</emphasis> time for a particular set of configurations 
+done at the host. Cause can be either some bug in script, new changes in protocol 
+which wasn't expected in the script, delay in the network or nature of the script itself( example:http-slowloris ).
+You need to specify <option>--script-timeout</option> with the maximum amount of time 
+for which script should be run. Note that all scripts will have same timeout. Once script gets timed out
+no output for that script will be shown. Whether a script has timed out or not, can be seen in debug output.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
         <option>--scan-delay <replaceable>time</replaceable></option>;
         <option>--max-scan-delay
         <replaceable>time</replaceable></option> (Adjust delay between probes)
