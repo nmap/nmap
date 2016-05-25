@@ -1,0 +1,91 @@
+#!comment:  ***********************IMPORTANT NMAP LICENSE TERMS************************
+#!comment:  *                                                                         *
+#!comment:  * The Nmap Security Scanner is (C) 1996-2010 Insecure.Com LLC. Nmap is    *
+#!comment:  * also a registered trademark of Insecure.Com LLC.  This program is free  *
+#!comment:  * software; you may redistribute and/or modify it under the terms of the  *
+#!comment:  * GNU General Public License as published by the Free Software            *
+#!comment:  * Foundation; Version 2 with the clarifications and exceptions described  *
+#!comment:  * below.  This guarantees your right to use, modify, and redistribute     *
+#!comment:  * this software under certain conditions.  If you wish to embed Nmap      *
+#!comment:  * technology into proprietary software, we sell alternative licenses      *
+#!comment:  * (contact sales@insecure.com).  Dozens of software vendors already       *
+#!comment:  * license Nmap technology such as host discovery, port scanning, OS       *
+#!comment:  * detection, and version detection.                                       *
+#!comment:  *                                                                         *
+#!comment:  * Note that the GPL places important restrictions on "derived works", yet *
+#!comment:  * it does not provide a detailed definition of that term.  To avoid       *
+#!comment:  * misunderstandings, we consider an application to constitute a           *
+#!comment:  * "derivative work" for the purpose of this license if it does any of the *
+#!comment:  * following:                                                              *
+#!comment:  * o Integrates source code from Nmap                                      *
+#!comment:  * o Reads or includes Nmap copyrighted data files, such as                *
+#!comment:  *   nmap-os-db or nmap-service-probes.                                    *
+#!comment:  * o Executes Nmap and parses the results (as opposed to typical shell or  *
+#!comment:  *   execution-menu apps, which simply display raw Nmap output and so are  *
+#!comment:  *   not derivative works.)                                                *
+#!comment:  * o Integrates/includes/aggregates Nmap into a proprietary executable     *
+#!comment:  *   installer, such as those produced by InstallShield.                   *
+#!comment:  * o Links to a library or executes a program that does any of the above   *
+#!comment:  *                                                                         *
+#!comment:  * The term "Nmap" should be taken to also include any portions or derived *
+#!comment:  * works of Nmap.  This list is not exclusive, but is meant to clarify our *
+#!comment:  * interpretation of derived works with some common examples.  Our         *
+#!comment:  * interpretation applies only to Nmap--we don't speak for other people's  *
+#!comment:  * GPL works.                                                              *
+#!comment:  *                                                                         *
+#!comment:  * If you have any questions about the GPL licensing restrictions on using *
+#!comment:  * Nmap in non-GPL works, we would be happy to help.  As mentioned above,  *
+#!comment:  * we also offer alternative license to integrate Nmap into proprietary    *
+#!comment:  * applications and appliances.  These contracts have been sold to dozens  *
+#!comment:  * of software vendors, and generally include a perpetual license as well  *
+#!comment:  * as providing for priority support and updates as well as helping to     *
+#!comment:  * fund the continued development of Nmap technology.  Please email        *
+#!comment:  * sales@insecure.com for further information.                             *
+#!comment:  *                                                                         *
+#!comment:  * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+#!comment:  * permission to link the code of this program with any version of the     *
+#!comment:  * OpenSSL library which is distributed under a license identical to that  *
+#!comment:  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
+#!comment:  * linked combinations including the two. You must obey the GNU GPL in all *
+#!comment:  * respects for all of the code used other than OpenSSL.  If you modify    *
+#!comment:  * this file, you may extend this exception to your version of the file,   *
+#!comment:  * but you are not obligated to do so.                                     *
+#!comment:  *                                                                         *
+#!comment:  * If you received these files with a written license agreement or         *
+#!comment:  * contract stating terms other than the terms above, then that            *
+#!comment:  * alternative license agreement takes precedence over these comments.     *
+#!comment:  *                                                                         *
+#!comment:  * Source is provided to this software because we believe users have a     *
+#!comment:  * right to know exactly what a program is going to do before they run it. *
+#!comment:  * This also allows you to audit the software for security holes (none     *
+#!comment:  * have been found so far).                                                *
+#!comment:  *                                                                         *
+#!comment:  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
+#!comment:  * and add new features.  You are highly encouraged to send your changes   *
+#!comment:  * to the dev@nmap.org mailing list for possible incorporation into the    *
+#!comment:  * main distribution.  By sending these changes to Fyodor or one of the    *
+#!comment:  * Insecure.Org development mailing lists, it is assumed that you are      *
+#!comment:  * offering the Nmap Project (Insecure.Com LLC) the unlimited,             *
+#!comment:  * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+#!comment:  * will always be available Open Source, but this is important because the *
+#!comment:  * inability to relicense code has caused devastating problems for other   *
+#!comment:  * Free Software projects (such as KDE and NASM).  We also occasionally    *
+#!comment:  * relicense the code to third parties as discussed above.  If you wish to *
+#!comment:  * specify special license conditions of your contributions, just say so   *
+#!comment:  * when you send them.                                                     *
+#!comment:  *                                                                         *
+#!comment:  * This program is distributed in the hope that it will be useful, but     *
+#!comment:  * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+#!comment:  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+#!comment:  * General Public License v2.0 for more details at                         *
+#!comment:  * http://www.gnu.org/licenses/gpl-2.0.html , or in the COPYING file       *
+#!comment:  * included with Nmap.                                                     *
+#!comment:  *                                                                         *
+#!comment:  ***************************************************************************/
+
+public
+private
+snmpd
+mngt
+cisco
+admin
