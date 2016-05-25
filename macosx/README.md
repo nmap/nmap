@@ -15,6 +15,11 @@ Installation of all packages is optional. Unselect Zenmap to get just the comman
 
 The nmap, ncat, ndiff, and nping command-line binaries will be installed in `/usr/local/bin`, and additional support files will be installed in `/usr/local/share`. The Zenmap application bundle will be installed in `/Applications/Zenmap.app`.
 
+The images used in the installer package and the .dmg are respectively: 
+
+* [pkg_bg.jpg](pkg_bg.jpg) : 620 x 418px
+* [nmap.png](nmap.png) : 900 x 521px (must be 72 dpi)
+
 
 ## Jhbuild
 
