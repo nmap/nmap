@@ -47,7 +47,8 @@
 
     <autotools id="subversion" autogen-sh="configure" 
         autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2 
-            --with-apr-util=${HOME}/gtk/source/apr-util-1.5.4 --without-apxs --with-ssl">
+            --with-apr-util=${HOME}/gtk/source/apr-util-1.5.4 
+            --without-apxs --with-ssl">
         <branch repo="subversion"
             module="subversion-1.9.4.tar.gz" version="1.9.4"/>
         <dependencies>
@@ -57,5 +58,16 @@
             <dep package="neon"/>
         </dependencies>
     </autotools>
+    
+    <metamodule id="nmap-deps">
+        <dependencies>
+            <dep package="openssl" />
+            <dep package="neon" />
+            <dep package="apr" />
+            <dep package="apriconv" />
+            <dep package="aprutil" />
+            <dep package="subversion" />
+        </dependencies>
+    </metamodule>
 
 </moduleset>
