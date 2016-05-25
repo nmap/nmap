@@ -3,6 +3,7 @@
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+OSX_VERS=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 
@@ -30,16 +31,17 @@ NMAP_UPDATE_BUILD_DIR = nmap-update-build
 NMAP_UPDATE_STAGING_DIR = nmap-update
 
 JHBUILD_PREFIX=$(HOME)/gtk/inst
+OPENSSL_PREFIX=$(HOME)/gtk/source/openssl-1.0.2h
+export JHBUILD_PREFIX
 # MACPORTS_PREFIX is still here because of nmap-update, which needs
 # libsvn and libapr, which jhbuild doesn't support yet.
 MACPORTS_PREFIX=$(HOME)/macports-10.8
 PREFIX = /usr/local
 
-PACKAGEMAKER = /Developer/usr/bin/packagemaker
-
 EXTRA_DIST = README ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
+NMAP_UPDATE_CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) -I$(JHBUILD_PREFIX)/include/subversion-1" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS) -L$(JHBUILD_PREFIX)/lib -lsvn_client-1" PYTHON="$(PYTHON)"
 
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
@@ -52,11 +54,11 @@ UNIVERSAL_CXX = g++
 # turn uses the arch value to decide which of its bootstrappers to
 # install.
 UNIVERSAL_ARCHFLAGS = -arch i386
-UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERS).sdk
 UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.8 $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
 # https://stackoverflow.com/questions/19637164/c-linking-error-after-upgrading-to-mac-os-x-10-9-xcode-5-0-1/19637199#19637199
-UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -mmacosx-version-min=10.9 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERS).sdk -mmacosx-version-min=10.9 $(UNIVERSAL_ARCHFLAGS) 
 
 CC = $(UNIVERSAL_CC)
 CXX = $(UNIVERSAL_CXX)
@@ -70,17 +72,65 @@ LDFLAGS += $(UNIVERSAL_LDFLAGS)
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
 
-$(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
+APR_PREFIX = $(HOME)/gtk/source/apr-1.5.2
+SVN_PREFIX = $(HOME)/gtk/source/subversion-1.9.4/subversion
+
+$(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+	./createdmg.sh $(IMAGE_STAGING_DIR)
+
+path-check:
+	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi
+
+tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
+
+have-%:
+	which $*
 
 $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
-	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
+	
+	# create packages
+	pkgbuild --root $(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location / ncat.pkg
+	pkgbuild --root $(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location / ndiff.pkg
+	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location / nmap.pkg
+	pkgbuild --root $(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location / nping.pkg
+	pkgbuild --root $(NMAP_UPDATE_STAGING_DIR) --identifier org.insecure.nmap.nmap-update --version $(NMAP_VERSION) --install-location / nmap-update.pkg
+	pkgbuild --root $(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
+
+	# produce a .xml with packages informations
+	productbuild --synthesize \
+		--package 'ncat.pkg' \
+		--package 'ndiff.pkg' \
+		--package 'nmap.pkg' \
+		--package 'nping.pkg' \
+		--package 'nmap-update.pkg' \
+		--package 'zenmap.pkg' \
+		distribution.xml
+
+	# make a new file and add background and titles attributes
+	head -n 2 distribution.xml > finalDist.xml
+	echo "    <title>Nmap $(NMAP_VERSION)</title>" >> finalDist.xml
+	# second argument is the BACKGROUND file (in .jpeg — 820x418px)
+	./appendEnd.sh test pkg_bg.jpg
+
+	# build the .mpkg according to the final .xml file
+	productbuild --distribution finalDist.xml --resources . --package-path . $(NAME_VERSION).mpkg
+
+	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
+
+	rm -rf distribution.xml
+	rm -rf finalDist.xml
+	rm -rf ncat.pkg
+	rm -rf ndiff.pkg
+	rm -rf nmap.pkg
+	rm -rf nping.pkg
+	rm -rf nmap-update.pkg
+	rm -rf zenmap.pkg
 
 check-%: stage-%
-	if (find $* -perm -a+x -type f | xargs otool -L | grep "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
+	if (find $* -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
 
 export-%:
 	rm -rf $*
@@ -88,31 +138,31 @@ export-%:
 	svn export .. $*
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(OPENSSL_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR) OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
-	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update --with-openssl="$(OPENSSL_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NCAT_BUILD_DIR) build-ncat OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NCAT_STAGING_DIR)
 	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-nping: export-$(NPING_BUILD_DIR)
-	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --without-nmap-update --with-openssl="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --without-nmap-update --with-openssl="$(OPENSSL_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NPING_BUILD_DIR) build-nping OPENSSL_LIBS="$(OPENSSL_STATIC)"
 	rm -rf $(NPING_STAGING_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
-	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
+	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(APR_PREFIX) --with-subversion=$(SVN_PREFIX) $(NMAP_UPDATE_CONFIGURE_ARGS)
 	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libapr-1.0.dylib" "/usr/lib/libapr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_client-1.0.dylib" "/usr/lib/libsvn_client-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_subr-1.0.dylib" "/usr/lib/libsvn_subr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	install_name_tool -change "$(JHBUILD_PREFIX)/lib/libapr-1.0.dylib" "/usr/lib/libapr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	install_name_tool -change "$(JHBUILD_PREFIX)/lib/libsvn_client-1.0.dylib" "/usr/lib/libsvn_client-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	install_name_tool -change "$(JHBUILD_PREFIX)/lib/libsvn_subr-1.0.dylib" "/usr/lib/libsvn_subr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
 
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
@@ -149,5 +199,6 @@ clean:
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
+	rm -rf $(NAME_VERSION)
 
 .PHONY: clean export-% stage-%
