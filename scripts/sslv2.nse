@@ -266,6 +266,13 @@ local function test_sslv2(host, port)
   return ssl_version == 2, ciphers
 end
 
+local function registry_set(host, port, offered_ciphers)
+  if not host.registry.sslv2 then
+    host.registry.sslv2 = {}
+  end
+  host.registry.sslv2[port.number] = offered_ciphers
+end
+
 local function format_ciphers(ciphers)
   local seen = {}
   local available_ciphers = {}
@@ -306,6 +313,7 @@ function action(host, port)
   else
     return
   end
+  registry_set(host, port, offered_ciphers)
   output.ciphers = format_ciphers(offered_ciphers)
 
   return output

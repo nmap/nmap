@@ -40,7 +40,7 @@ supports.
 
 author = "Matthew Boyle"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-
+dependencies = {"sslv2"}
 categories = {"default", "safe"}
 
 local SSL_MT = {
@@ -401,6 +401,12 @@ local function has_extra_clear_bug(host, port, cipher)
   return true
 end
 
+local function registry_get(host, port)
+  if host.registry.sslv2 then
+    return host.registry.sslv2[port.number]
+  end
+end
+
 local function format_ciphers(ciphers)
   local seen = {}
   local available_ciphers = {}
@@ -497,14 +503,14 @@ function action(host, port)
   report:add_vulns(cve_2016_0703)
   report:add_vulns(cve_2016_0800)
 
-  -- SSLv2 support
-  local sslv2_supported, offered_ciphers = test_sslv2(host, port)
-  if sslv2_supported then
-    output.sslv2_supported = "yes"
-  else
-    output.sslv2_supported = "no"
-    output.vulns = report:make_output()
-    return output
+  local offered_ciphers = registry_get(host, port)
+  if not offered_ciphers then -- when the sslv2 was not previously run
+		local sslv2_supported
+		sslv2_supported, offered_ciphers = test_sslv2(host, port)
+		if not sslv2_supported then
+			output.vulns = report:make_output()
+			return output
+		end
   end
   output.ciphers = format_ciphers(offered_ciphers)
 
