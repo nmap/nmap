@@ -7,15 +7,16 @@ local stdnse = require "stdnse"
 local sslcert = require "sslcert"
 
 description = [[
-Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it
-supports.
+Determines whether the server supports SSLv2 and discovers which ciphers it supports.
 ]]
+author = "Matthew Boyle, Bertrand Bonnefoy-Claudet <bertrand@cryptosense.com>"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+categories = {"default", "safe"}
 
----
---@output
--- 443/tcp open   https   syn-ack
+-- @output
+-- 443/tcp open  https
 -- | sslv2:
--- |   SSLv2 supported
+-- |   sslv2_supported: yes
 -- |   ciphers:
 -- |     SSL2_DES_192_EDE3_CBC_WITH_MD5
 -- |     SSL2_IDEA_128_CBC_WITH_MD5
@@ -24,23 +25,39 @@ supports.
 -- |     SSL2_DES_64_CBC_WITH_MD5
 -- |     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
 -- |_    SSL2_RC4_128_EXPORT40_WITH_MD5
---@xmloutput
---<elem>SSLv2 supported</elem>
---<table key="ciphers">
---  <elem>SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
---  <elem>SSL2_IDEA_128_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC2_128_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC4_128_WITH_MD5</elem>
---  <elem>SSL2_DES_64_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
---  <elem>SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
---</table>
-
-
-author = "Matthew Boyle"
-license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-
-categories = {"default", "safe"}
+--
+-- @xmloutput
+-- <elem key="sslv2_supported">yes</elem>
+-- <table key="ciphers">
+--   <table>
+--     <elem key="value">0700c0</elem>
+--     <elem key="name">SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">050080</elem>
+--     <elem key="name">SSL2_IDEA_128_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">030080</elem>
+--     <elem key="name">SSL2_RC2_128_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">010080</elem>
+--     <elem key="name">SSL2_RC4_128_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">060040</elem>
+--     <elem key="name">SSL2_DES_64_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">040080</elem>
+--     <elem key="name">SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">020080</elem>
+--     <elem key="name">SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
+--   </table>
+-- </table>
 
 local SSL_MT = {
   ERROR = 0,

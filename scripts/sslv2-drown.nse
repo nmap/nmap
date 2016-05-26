@@ -8,15 +8,18 @@ local sslcert = require "sslcert"
 local vulns = require "vulns"
 
 description = [[
-Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it
-supports.
+Determines whether the server supports SSLv2, what ciphers it supports and tests for
+CVE-2015-3197, CVE-2016-0703 and CVE-2016-0800 (DROWN)
 ]]
+author = "Bertrand Bonnefoy-Claudet <bertrand@cryptosense.com>"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+dependencies = {"sslv2"}
+categories = {"default", "safe"}
 
 ---
---@output
--- 443/tcp open   https   syn-ack
--- | sslv2:
--- |   SSLv2 supported
+-- @output
+-- 443/tcp open  https
+-- | sslv2-drown:
 -- |   ciphers:
 -- |     SSL2_DES_192_EDE3_CBC_WITH_MD5
 -- |     SSL2_IDEA_128_CBC_WITH_MD5
@@ -24,24 +27,127 @@ supports.
 -- |     SSL2_RC4_128_WITH_MD5
 -- |     SSL2_DES_64_CBC_WITH_MD5
 -- |     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
--- |_    SSL2_RC4_128_EXPORT40_WITH_MD5
---@xmloutput
---<elem>SSLv2 supported</elem>
---<table key="ciphers">
---  <elem>SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
---  <elem>SSL2_IDEA_128_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC2_128_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC4_128_WITH_MD5</elem>
---  <elem>SSL2_DES_64_CBC_WITH_MD5</elem>
---  <elem>SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
---  <elem>SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
---</table>
-
-
-author = "Matthew Boyle"
-license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-dependencies = {"sslv2"}
-categories = {"default", "safe"}
+-- |     SSL2_RC4_128_EXPORT40_WITH_MD5
+-- |   forced_ciphers:
+-- |     SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
+-- |     SSL2_DES_64_CBC_WITH_MD5
+-- |     SSL2_RC4_128_EXPORT40_WITH_MD5
+-- |     SSL2_IDEA_128_CBC_WITH_MD5
+-- |     SSL2_RC4_128_WITH_MD5
+-- |     SSL2_DES_192_EDE3_CBC_WITH_MD5
+-- |     SSL2_RC2_128_CBC_WITH_MD5
+-- |   vulns:
+-- |     CVE-2016-0800:
+-- |       title: OpenSSL: Cross-protocol attack on TLS using SSLv2 (DROWN)
+-- |       state: VULNERABLE
+-- |       ids:
+-- |         CVE:CVE-2016-0800
+-- |       description:
+-- |               The SSLv2 protocol, as used in OpenSSL before 1.0.1s and 1.0.2 before 1.0.2g and
+-- |       other products, requires a server to send a ServerVerify message before establishing
+-- |       that a client possesses certain plaintext RSA data, which makes it easier for remote
+-- |       attackers to decrypt TLS ciphertext data by leveraging a Bleichenbacher RSA padding
+-- |       oracle, aka a "DROWN" attack.
+-- |
+-- |       refs:
+-- |         https://www.openssl.org/news/secadv/20160301.txt
+-- |_        https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-0800
+--
+-- @xmloutput
+-- <elem>SSLv2 supported</elem>
+-- <table key="ciphers">
+--   <elem>SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
+--   <elem>SSL2_IDEA_128_CBC_WITH_MD5</elem>
+--   <elem>SSL2_RC2_128_CBC_WITH_MD5</elem>
+--   <elem>SSL2_RC4_128_WITH_MD5</elem>
+--   <elem>SSL2_DES_64_CBC_WITH_MD5</elem>
+--   <elem>SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
+--   <elem>SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
+-- </table>
+-- @xmloutput
+-- <table key="ciphers">
+--   <table>
+--     <elem key="value">0700c0</elem>
+--     <elem key="name">SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">050080</elem>
+--     <elem key="name">SSL2_IDEA_128_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">030080</elem>
+--     <elem key="name">SSL2_RC2_128_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">010080</elem>
+--     <elem key="name">SSL2_RC4_128_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">060040</elem>
+--     <elem key="name">SSL2_DES_64_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">040080</elem>
+--     <elem key="name">SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">020080</elem>
+--     <elem key="name">SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
+--   </table>
+-- </table>
+-- <table key="forced_ciphers">
+--   <table>
+--     <elem key="value">050080</elem>
+--     <elem key="name">SSL2_IDEA_128_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">030080</elem>
+--     <elem key="name">SSL2_RC2_128_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">010080</elem>
+--     <elem key="name">SSL2_RC4_128_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">0700c0</elem>
+--     <elem key="name">SSL2_DES_192_EDE3_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">020080</elem>
+--     <elem key="name">SSL2_RC4_128_EXPORT40_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">060040</elem>
+--     <elem key="name">SSL2_DES_64_CBC_WITH_MD5</elem>
+--   </table>
+--   <table>
+--     <elem key="value">040080</elem>
+--     <elem key="name">SSL2_RC2_128_CBC_EXPORT40_WITH_MD5</elem>
+--   </table>
+-- </table>
+-- <table key="vulns">
+--   <table key="CVE-2016-0800">
+--     <elem key="title">OpenSSL: Cross-protocol attack on TLS using SSLv2 (DROWN)</elem>
+--     <elem key="state">VULNERABLE</elem>
+--     <table key="ids">
+--       <elem>CVE:CVE-2016-0800</elem>
+--     </table>
+--     <table key="description">
+--       <elem>
+--         The SSLv2 protocol, as used in OpenSSL before 1.0.1s and 1.0.2 before
+--         1.0.2g and other products, requires a server to send a ServerVerify
+--         message before establishing that a client possesses certain plaintext
+--         RSA data, which makes it easier for remote attackers to decrypt TLS
+--         ciphertext data by leveraging a Bleichenbacher RSA padding oracle, aka
+--         a "DROWN" attack.
+--       </elem>
+--     </table>
+--     <table key="refs">
+--       <elem>https://www.openssl.org/news/secadv/20160301.txt</elem>
+--       <elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-0800</elem>
+--     </table>
+--   </table>
+-- </table>
 
 local SSL_MT = {
   ERROR = 0,
