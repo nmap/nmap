@@ -2,19 +2,72 @@
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd">
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>
-<!--
-    This is a jhbuild moduleset that can be used to build openssl as required for
-    building Nmap, Ncat, and Nping. Use it like this:
-        jhbuild -m openssl.modules build openssl
--->
+
     <include href="http://git.gnome.org/browse/gtk-osx/plain/modulesets-stable/gtk-osx.modules"/>
 
-    <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
-    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl2"
-        autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
+    <repository type="tarball" name="openssl" 
+        href="http://www.openssl.org/source/"/>
+    <repository type="tarball" name="apache"
+        href="http://download.nextag.com/apache/"/>
+    <!-- download links:    http://subversion.apache.org/download.cgi -->
+    <repository type="tarball" name="subversion" 
+        href="http://mirrors.ircam.fr/pub/apache/subversion/"/>
+    <repository type="tarball" name="neon"
+        href="http://www.webdav.org/neon/"/>
+
+    <autotools id="openssl" autogen-sh="Configure" 
+        autogenargs="shared enable-ssl2"
+        autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s 
+            --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_sw" 
         supports-non-srcdir-builds="no">
         <branch repo="openssl" version="1.0.2h" module="openssl-1.0.2h.tar.gz"/>
     </autotools>
+
+    <autotools id="neon" autogen-sh="configure"
+        autogenargs="--with-ssl --enable-shared">
+        <branch repo="neon" module="neon-0.30.1.tar.gz" version="0.30.1"/>
+    </autotools>
+     
+    <autotools id="apr" autogen-sh="configure">
+        <branch repo="apache" module="apr/apr-1.5.2.tar.gz" version="1.5.2"/>
+    </autotools>
+
+    <autotools id="apriconv" autogen-sh="configure" 
+        autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2">
+        <branch repo="apache" module="apr/apr-iconv-1.2.1.tar.gz" version="1.2.1"/>
+    </autotools>
+
+    <autotools id="aprutil" autogen-sh="configure" 
+        autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2
+            --with-iconv=${HOME}/gtk/source/apr-iconv-1.2.1">
+        <branch repo="apache" module="apr/apr-util-1.5.4.tar.gz" 
+            version="1.5.4"/>
+    </autotools>
+
+    <autotools id="subversion" autogen-sh="configure" 
+        autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2 
+            --with-apr-util=${HOME}/gtk/source/apr-util-1.5.4 
+            --without-apxs --with-ssl">
+        <branch repo="subversion"
+            module="subversion-1.9.4.tar.gz" version="1.9.4"/>
+        <dependencies>
+            <dep package="apr"/>
+            <dep package="aprutil"/>
+            <dep package="openssl"/>
+            <dep package="neon"/>
+        </dependencies>
+    </autotools>
+    
+    <metamodule id="nmap-deps">
+        <dependencies>
+            <dep package="openssl" />
+            <dep package="neon" />
+            <dep package="apr" />
+            <dep package="apriconv" />
+            <dep package="aprutil" />
+            <dep package="subversion" />
+        </dependencies>
+    </metamodule>
 
 </moduleset>
