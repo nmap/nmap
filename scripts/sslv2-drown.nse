@@ -14,7 +14,7 @@ CVE-2015-3197, CVE-2016-0703 and CVE-2016-0800 (DROWN)
 author = "Bertrand Bonnefoy-Claudet <bertrand@cryptosense.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 dependencies = {"sslv2"}
-categories = {"default", "safe"}
+categories = {"intrusive", "vuln"}
 
 ---
 -- @output
