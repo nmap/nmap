@@ -292,7 +292,7 @@ Error =
   retry = false,
 
   new = function(self, msg)
-    local o = { msg = msg, done = false, reduce = nil }
+    local o = { msg = msg, done = false }
     setmetatable(o, self)
     self.__index = self
     return o
@@ -336,96 +336,22 @@ Error =
 
   -- Marks the username as invalid, aborting further guessing.
   -- @param username
-  setInvalidAccount = function( self, username )
+  setInvalidAccount = function(self, username)
     self.invalid_account = username
   end,
 
   -- Checks if the error reported the account as invalid.
   -- @return username string containing the invalid account
-  isInvalidAccount = function( self )
+  isInvalidAccount = function(self)
     return self.invalid_account
   end,
 
-  --- Set the error as reduce the number of running threads
-  --
-  -- @param r boolean true if should reduce, unset or false if not
-  setReduce = function( self, r ) self.reduce = r end,
-
-  --- Checks if the error signals to reduce the number of running threads
-  --
-  -- @return status true if reduce, false otherwise
-  isReduce = function( self )
-    if ( self.reduce ) then return true end
-    return false
-  end
 }
-
--- Auxillary data structure
-Batch = 
-{
-  new = function(self, lim, stime)
-    local o = {
-      limit = lim or 3,    -- maximum number of items
-      full = false,
-      data = {},           -- storage
-      size = 0,            -- current number of items
-      start_time = stime or 0,
-    }
-    setmetatable(o, self)
-    self.__index = self
-    return o
-  end,
-
-  --- Adds new item to the vault (if possible)
-  --
-  -- @param obj, new object
-  -- @return true if insert is successful, false if the vault is full
-  add = function(self, obj)
-    if self.size < self.limit then
-      self.data[self.size + 1] = obj
-      self.size = self.size + 1
-      return true
-    end
-    
-    return false
-  end,
-
-  isFull = function(self)
-    if self.size >= self.limit then
-      return true
-    end
-
-    return false
-  end,
-
-  getData = function(self)
-    return self.data
-  end,
-
-  getSize = function(self)
-    return self.size
-  end,
-
-  getStartTime = function(self)
-    return self.start_time
-  end,
-
-  getLimit = function(self)
-    return self.limit
-  end,
-
-  setLimit = function(self, lim)
-    self.limit = lim
-  end,
-}
-
 
 -- The brute engine, doing all the nasty work
 Engine =
 {
   STAT_INTERVAL = 20,
-  THREAD_POOL = {},
-  retry_accounts = {},
 
   --- Creates a new Engine instance
   --
@@ -435,13 +361,6 @@ Engine =
   -- @param options table containing any script specific options
   -- @return o new Engine instance
   new = function(self, driver, host, port, options)
-
-    -- we want Engine.THREAD_POOL to contain weak keys
-    -- for effective garbage collection
-    if ( getmetatable(Engine.THREAD_POOL) == nil ) then
-      setmetatable(Engine.THREAD_POOL, { __mode = "k" })
-    end
-
     local o = {
       driver = driver,
       host = host,
@@ -458,15 +377,10 @@ Engine =
       found_accounts = {},
       account_guesses = {},
       options = Options:new(),
-
-      initial_accounts_exhausted = false,
-      batch_full = false,
-      batch = nil,
-      tick = 0
     }
     setmetatable(o, self)
     self.__index = self
-    o.max_threads = stdnse.get_script_args("brute.threads") or 50
+    o.max_threads = stdnse.get_script_args("brute.threads") or 10
     return o
   end,
 
@@ -535,9 +449,6 @@ Engine =
     return coroutine.wrap( next_credential )
   end,
 
-
--- mark:doAuthenticate
-
   --- Does the actual authentication request
   --
   -- @return true on success, false on failure
@@ -548,34 +459,19 @@ Engine =
     local next_credential = self:get_next_credential()
     local retries = self.options.max_retries
     local username, password
-    local thread_data = Engine.THREAD_POOL[coroutine.running()]
-    assert(thread_data, "Unknown coroutine is running")
 
     repeat
       local driver = self.driver:new( self.host, self.port, self.driver_options )
-      status, response = driver:connect()
+      status = driver:connect()
 
       -- Did we successfully connect?
       if ( status ) then
         if ( not(username) and not(password) ) then
           repeat
-            if ( #self.retry_accounts > 0) then
-              -- stdnse.debug1("Using retry credentials")
-              username = self.retry_accounts[#self.retry_accounts].username
-              password = self.retry_accounts[#self.retry_accounts].password
-              table.remove(self.retry_accounts, #self.retry_accounts)
-            else
-              username, password = next_credential()
-            end
-
-            thread_data.username = username
-            thread_data.password = password
-
-
+            username, password = next_credential()
             if ( not(username) and not(password) ) then
               driver:disconnect()
-              -- self.threads[coroutine.running()].terminate = true
-              self.initial_accounts_exhausted = true
+              self.threads[coroutine.running()].terminate = true
               return false
             end
           until ( ( not(self.found_accounts) or not(self.found_accounts[username]) ) and
@@ -589,7 +485,6 @@ Engine =
         -- make sure that all threads locked in connect stat terminate quickly
         if ( Engine.terminate_all ) then
           driver:disconnect()
-          driver = nil
           return false
         end
 
@@ -603,18 +498,10 @@ Engine =
 
         local msg = ( retries ~= self.options.max_retries ) and "Re-trying" or "Trying"
         stdnse.debug2("%s %s against %s:%d", msg, c, self.host.ip, self.port.number )
-        status, response= driver:login( username, password )
+        status, response = driver:login( username, password )
 
         driver:disconnect()
         driver = nil
-
-        if ( not(status) and response:isReduce() ) then
-          local ret_creds = {}
-          ret_creds.username = username
-          ret_creds.password = password
-          return false, response, ret_creds
-        end
-
       end
 
       retries = retries - 1
@@ -630,7 +517,7 @@ Engine =
 
     -- did we exhaust all retries, terminate and report?
     if ( retries == 0 ) then
-      -- Engine.terminate_all = true
+      Engine.terminate_all = true
       self.error = "Too many retries, aborted ..."
       response = Error:new("Too many retries, aborted ...")
       response.abort = true
@@ -638,42 +525,16 @@ Engine =
     return status, response
   end,
 
--- mark:login
   login = function(self, cvar )
     local condvar = nmap.condvar( cvar )
     local thread_data = self.threads[coroutine.running()]
     local interval_start = os.time()
 
-
     while( true ) do
-      ------ stdnse.debug1("Alive") 
-      -- Should we terminate all threads or this particular thread?
-      if ( self.terminate_all or thread_data.terminate ) 
-        or ( self.initial_accounts_exhausted and #self.retry_accounts == 0) then 
-        break 
-      end
+      -- Should we terminate all threads?
+      if ( self.terminate_all or thread_data.terminate ) then break end
 
-
-      -- Add this thread to the batch and update tick
-      self.tick = self.tick + 1
-      if ( not( self.batch:isFull() ) and not( thread_data.in_batch ) ) then
-        ----stdnse.debug1( "Preadd. Batch is = %s", tostring( self.batch:isFull() ) )  
-        ----stdnse.debug1( "Preadd. Batch size = %d, limit = %d", self.batch:getSize(), self.batch:getLimit() )
-        self.batch:add( coroutine.running() )
-        ----stdnse.debug1( "Postadd. Batch size = %d, limit = %d", self.batch:getSize(), self.batch:getLimit() )
-        self.batch_full = self.batch:isFull()
-        thread_data.in_batch = true
-        thread_data.ready = false
-      end
-
-      -- stdnse.debug1("THREAD STARTED# = %s", tostring( coroutine.running() ))
-      -- We expect doAuthenticate to pass the report variable recieved from the script
-      local status, response, ret_creds = self:doAuthenticate()
-      -- stdnse.debug1("THREAD FINISHED# = %s", tostring( coroutine.running() ))
-
-      if ( thread_data.in_batch ) then
-        thread_data.ready = true
-      end
+      local status, response = self:doAuthenticate()
 
       if ( status ) then
         -- Prevent locked accounts from appearing several times
@@ -697,24 +558,12 @@ Engine =
           -- Check if firstonly option was set, if so abort all threads
           if ( self.options.firstonly ) then self.terminate_all = true end
         end
-      elseif ( ret_creds ) then
-        -- add credentials to a vault
-        -----stdnse.debug1("NOTICE: Added new pair to vault (%s, %s)", report.creds.username, report.creds.password)        
-        self.retry_accounts[#self.retry_accounts + 1] = { 
-          username = ret_creds.username,
-          password = ret_creds.password 
-        }
-        -- notify the main thread that there were an error on this coroutine
-        thread_data.error = true
-        
-        condvar "signal"
-        condvar "wait"
       else
         if ( response and response:isAbort() ) then
           self.terminate_all = true
           self.error = response:getMessage()
           break
-        elseif ( response and response:isDone() ) then
+        elseif( response and response:isDone() ) then
           break
         elseif ( response and response:isInvalidAccount() ) then
           self.found_accounts[response:isInvalidAccount()] = true
@@ -736,75 +585,8 @@ Engine =
 
       -- if delay was specified, do sleep
       if ( self.options.delay > 0 ) then stdnse.sleep( self.options.delay ) end
-      
-      condvar "signal"
     end
-    
     condvar "signal"
-  end,
-
-  --- Adds new worker thread using start function
-  --
-  -- @return new thread id
-  addNewWorker = function(self, cvar)
-    local co = stdnse.new_thread( self.login, self, cvar )
-    self.threads[co] = {}
-    self.threads[co].running = true
-    self.threads[co].error = nil
-    self.threads[co].attempt = 0
-    self.threads[co].in_batch = false
-    self.threads[co].ready = false
-
-    Engine.THREAD_POOL[co] = {
-      error = false,
-      reason = nil,
-      username = nil,
-      password = nil
-    }
-    -- if co and coroutine.status( co ) ~= "dead" then 
-    --   coroutine.resume( co ) 
-    -- end
-
-    return co
-  end,
-
-  renewBatch = function(self)
-    if self.batch then
-      local size = self.batch:getSize()
-      local data = self.batch:getData()
-
-      for i = 1, size do
-        if self.threads[data[i]] then
-          self.threads[data[i]].in_batch = false
-          self.threads[data[i]].ready = false
-        end
-      end
-    end
-
-    self.batch_full = false
-    -- self.batch = Batch:new( math.max( math.floor(self:threadCount() / 3), 1)  )
-    self.batch = Batch:new( math.min( self:threadCount(), 3), self.tick  )
-  end,
-
-  readyBatch = function(self)
-    if not( self.batch ) then return false end
-    local n = self.batch:getSize()
-    local data = self.batch:getData()
-
-    if ( n == 0 ) then return false end
-
-    for i = 1, n do
-      if ( self.threads[data[i]] and coroutine.status( data[i] ) ~= "dead" and 
-        self.threads[data[i]].in_batch ) then
-        if not( self.threads[data[i]].ready ) then 
-          stdnse.debug1("FOUND NOT READY = %d", i)
-          stdnse.debug1("THREAD# = %s", tostring(data[i]))
-          return false 
-        end
-      end
-    end
-
-    return true
   end,
 
   --- Starts the brute-force
@@ -902,121 +684,20 @@ Engine =
 
     self.starttime = os.time()
 
-    -- Startup one worker thread for now
-    self:addNewWorker( cvar )
-
-    local killed_one = false
-    local error_since_batch_start = false
-    local revive = false
-
-    self:renewBatch()
-
-    -- Main logic loop
-    while true do
-      local num_threads = self:threadCount()
-
-      -- should we stop 
-      if num_threads <= 0 then
-        if self.initial_accounts_exhausted and #self.retry_accounts == 0 then
-          break
-        else
-          revive = true
-        end
-      end
-
-      killed_one = false
-      error_since_batch_start = false
-
-
-      -- stdnse.debug1("SELF.THREADS:")
-      -- for co, _ in pairs( self.threads ) do
-      --   stdnse.debug1("%s", tostring(co))
-      -- end
-
-      -- stdnse.debug1("ENGINE.THREADS:")
-      -- for co, _ in pairs( Engine.THREAD_POOL ) do
-      --   stdnse.debug1("%s", tostring(co))
-      -- end
-
-      -- run through all coroutines and check their statuses
-      -- if any mistake has happened kill one coroutine
-      for co, v in pairs( self.threads ) do
-        -- stdnse.debug1("CONSIDERING: %s", tostring(co))
-        if v.error then
-          stdnse.debug1("Killed one because of PROTOCOL")
-          -- if an exception occured after we started a new batch.
-          if v.attempt >= self.batch:getStartTime() then
-            error_since_batch_start = true
-          end
-
-          if not ( killed_one ) then
-            ---stdnse.debug1("NOTICE: killed one")
-            v.terminate = true
-            killed_one = true
-
-            -- we want it dead as soon as possible, so we want
-            -- to be sure that the thread is going to run.
-            --stdnse.debug1("Olololo")
-            -- if coroutine.status( co ) ~= "dead" then
-            --   stdnse.debug1("Olololo00000000")
-            --   coroutine.resume( co )
-            -- end
-          end
-          -- remove error flag of a thread to let the thread continue to run
-          v.error = nil
-        end
-
-        -- if Engine.THREAD_POOL[co] then
-        --   stdnse.debug1("IN THREAD PULL. %s, error = %s", tostring(co), tostring(Engine.THREAD_POOL[co].error))
-        -- end
-
-        -- shall we kill a thread because of connection error? 
-        if Engine.THREAD_POOL[co] and Engine.THREAD_POOL[co].error then
-          stdnse.debug1("Killed one because of CONNECTION")
-          if not( killed_one ) then 
-            v.terminate = true
-            killed_one = true
-          end
-
-          Engine.THREAD_POOL[co].error = nil
-          -- self.retry_accounts[#self.retry_accounts + 1] = { 
-          --   username = Engine.THREAD_POOL[co].username, 
-          --   password = Engine.THREAD_POOL[co].password 
-          -- }
-          -- stdnse.debug1("CONNECTION:Added credentials to retry, (%s,%s)", v.username, v.password)
-        end
-      end
-
-      -- discard the current batch and start a new one
-      -- Renew batch if there was an error since we started to assemble the batch
-      -- or the batch's limit is unreachable with current number of threads
-      -- or when some thread does not change state to ready for too long
-      if error_since_batch_start 
-        or not( killed_one ) and num_threads < self.batch:getLimit()
-        or ( num_threads > 0 and self.tick - self.batch:getStartTime() > 10 ) then
-        self:renewBatch()
-      end
-
-      -- stdnse.debug1("Batch size = %d , limit = %d, ready = %s", self.batch:getSize(), self.batch:getLimit(), tostring(self:readyBatch()))
-      if ( not( killed_one ) and self.batch:isFull() and 
-        num_threads < self.max_threads ) or 
-        ( revive ) then
-        self:addNewWorker( cvar )
-        revive = false
-        --stdnse.debug1("Batch size = %d", self.batch:getSize())
-        ---stdnse.debug1("NOTICE: add new thread. #threads = %d", self:threadCount())
-        self:renewBatch()
-      end
-
-      
-      stdnse.debug1("BASE thread #threads = %d, #retry_accounts = %d, initial_accounts_exhausted = %s", self:threadCount(), #self.retry_accounts, tostring(self.initial_accounts_exhausted))
-      
-      -- wake up other threads
-      -- wait for all threads to finish running
-      condvar "broadcast"
-      condvar "wait" 
+    -- Startup all worker threads
+    for i=1, self.max_threads do
+      local co = stdnse.new_thread( self.login, self, cvar )
+      self.threads[co] = {}
+      self.threads[co].running = true
     end
 
+    -- Collect feedback from threads
+    while self:threadCount()>0 do
+      
+
+      -- wait for all threads to finish running
+      condvar "wait" 
+    end
 
     local valid_accounts
 
@@ -1215,108 +896,5 @@ Iterators = {
   end,
 
 }
-
-BruteSocket = {
-  new = function(self)
-    local o = {
-      socket = nil,
-    }
-    setmetatable(o, self)
-
-    self.__index = function(table, key)
-      --stdnse.debug1("__INDEX: key = %s, %s", tostring(key), tostring( coroutine.running() ))
-      if self[key] then
-        return self[key]
-      elseif o.socket[key] then
-        if type( o.socket[key] ) == "function" then
-          return function(self, ...)
-            return o.socket[key](o.socket, ...)
-          end
-        else
-          return o.socket[key]
-        end  
-      end
-
-      return nil
-    end
-
-    o.socket = nmap.new_socket()
-    --o.thread = coroutine.running()
-
-    if not( Engine.THREAD_POOL[ coroutine.running() ] ) then
-      Engine.THREAD_POOL[ coroutine.running() ] = {
-        error = false,
-        reason = nil,
-        username = nil,
-        password = nil
-      }
-    end
-
-    -- else
-    --   Engine.THREAD_POOL[ coroutine.running() ].error = false
-    -- end
-
-    return o
-  end,
-
-  getSocket = function(self)
-    return self.socket
-  end,
-
-  checkStatus = function(self, status, err)
-    if not( status ) then
-      stdnse.debug1("checkStatus ERROR: %s", err)
-    end
-    if not( status ) and (err == "ERROR" or err == "TIMEOUT") then
-      stdnse.debug1("MARKED, %s, %s", tostring(coroutine.running()), tostring(stdnse.base))
-      local thread_data = Engine.THREAD_POOL[ coroutine.running() ]
-      Engine.retry_accounts[ #Engine.retry_accounts + 1 ] = {
-        username = thread_data.username,
-        password = thread_data.password
-      }
-      stdnse.debug1("CONNECTION:Added credentials to retry, (%s,%s)", thread_data.username, thread_data.password)
-      thread_data.error = true
-      thread_data.reason = err
-    end
-  end, 
-
-  connect = function(self, host, port)
-    --stdnse.debug1("CONNECT: socket = %s, %s", tostring(self.socket), tostring( coroutine.running() ))
-    local status, err = self.socket:connect(host, port)
-    -- stdnse.debug1("CONNECT: socket = %s", tostring(self.socket))
-    -- stdnse.debug1("CONNECT: status = %s, err = %s, %s, %s", tostring(status), tostring(err), tostring(self.socket), tostring( coroutine.running() ))
-    self:checkStatus(status, err)
-
-    return status, err
-  end,
-
-  -- set_timeout = function(self, timeout)
-  --   self.socket:set_timeout(timeout)
-  -- end,
-
-  send = function(self, data)
-    local status, err = self.socket:send(data)
-    self:checkStatus(status, err)
-
-    return status, err
-  end,
-
-  receive = function(self)
-    local status, data = self.socket:receive()
-    self:checkStatus(status, data)
-
-    return status, data
-  end,
-
-  close = function(self)
-    self.socket:close()
-  end,
-
-}
-
-new_socket = function()
-  return BruteSocket:new()
-end
-
 
 return _ENV;
