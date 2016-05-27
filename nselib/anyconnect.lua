@@ -86,7 +86,7 @@ Cisco = {
       local path = '/'
       local response = http.head(self.host, self.port, path, options)
       -- account for redirects
-      if not response.status == 200 then
+      if response.status ~= 200 then
         return false, "Failed to connect to SSL VPN server"
       elseif response.location then
         local u = url.parse(response.location[#response.location])

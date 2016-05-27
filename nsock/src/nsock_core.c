@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -489,9 +489,13 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
                                iod->peerlen, nsock_iod_get_peerport(iod));
         nsock_engine_iod_register(ms, iod, saved_ev);
 
-        SSL_clear(iod->ssl);
-        if(!SSL_clear(iod->ssl))
-           fatal("SSL_clear failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        /* Use SSL_free here because SSL_clear keeps session info, which
+         * doesn't work when changing SSL versions (as we're clearly trying to
+         * do by adding SSL_OP_NO_SSLv2). */
+        SSL_free(iod->ssl);
+        iod->ssl = SSL_new(ms->sslctx);
+        if (!iod->ssl)
+          fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
 
         SSL_set_options(iod->ssl, options | SSL_OP_NO_SSLv2);
         socket_count_read_inc(nse->iod);
@@ -640,7 +644,11 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
         err = socket_errno();
         break;
       }
-      if (peerlen > 0) {
+      /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
+       * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
+       * only set this if it's not already set.
+       */
+      if (peerlen > 0 && iod->peerlen == 0) {
         assert(peerlen <= sizeof(iod->peer));
         memcpy(&iod->peer, &peer, peerlen);
         iod->peerlen = peerlen;

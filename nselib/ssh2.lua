@@ -71,6 +71,11 @@ end
 transport.build = function( payload )
   local packet_length, padding_length
   padding_length = 8 - ( (payload:len() + 1 + 4 ) % 8 )
+  -- padding length must be at least 4 bytes and is a multiple
+  -- of the cipher block size or 8
+  if padding_length < 4 then
+    padding_length = padding_length + 8
+  end
   packet_length = payload:len() + padding_length + 1
   return bin.pack( ">IcAA", packet_length, padding_length, payload, openssl.rand_pseudo_bytes( padding_length ) )
 end
@@ -96,6 +101,11 @@ end
 --- Build a <code>kexdh_init</code> packet.
 transport.kexdh_init = function( e )
   return bin.pack( ">cA", SSH2.SSH_MSG_KEXDH_INIT, transport.pack_mpint( e ) )
+end
+
+--- Build a <code>kexdh_gex_init</code> packet.
+transport.kexdh_gex_init = function( e )
+  return bin.pack( ">cA", SSH2.SSH_MSG_KEX_DH_GEX_INIT, transport.pack_mpint( e ) )
 end
 
 --- Build a <code>kex_init</code> packet.
@@ -188,7 +198,7 @@ fetch_host_key = function( host, port, key_type )
 
   local packet = transport.build( transport.kex_init( {
         host_key_algorithms=key_type,
-        kex_algorithms="diffie-hellman-group1-sha1,diffie-hellman-group14-sha1"
+        kex_algorithms="diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256",
     } ) )
   status = socket:send( packet )
   if not status then socket:close(); return end
@@ -204,14 +214,43 @@ fetch_host_key = function( host, port, key_type )
     return
   end
 
-  local kex_algs = tostring(kex_init.kex_algorithms)
-  local prime, q
+  local kex_algs = tostring( kex_init.kex_algorithms )
+  local kexdh_gex_used = false
+  local prime, q, gen
   if kex_algs:find("diffie-hellman-group1-", 1, true) then
     prime = prime2
     q = 1024
+    gen = "2"
   elseif kex_algs:find("diffie-hellman-group14-", 1, true) then
     prime = prime14
     q = 2048
+    gen = "2"
+  elseif kex_algs:find("diffie-hellman-group-exchange-", 1, true) then
+    local min, n, max
+    min = 1024
+    n = 1024
+    max = 8192
+    packet = transport.build( bin.pack( ">cIII", SSH2.SSH_MSG_KEX_DH_GEX_REQUEST, min, n, max ) )
+    status = socket:send( packet )
+    if not status then socket:close(); return end
+
+    local gex_reply
+    status, gex_reply = transport.receive_packet( socket )
+    if not status then socket:close(); return end
+    gex_reply = transport.payload( gex_reply )
+    -- check for proper msg code
+    if gex_reply:byte(1) ~= SSH2.SSH_MSG_KEX_DH_GEX_GROUP then
+      socket:close()
+      return
+    end
+    local _
+    _, _, prime, gen = bin.unpack( ">caa", gex_reply )
+
+    prime = openssl.bignum_bin2bn( prime ):tohex()
+    q = 1024
+    gen = openssl.bignum_bin2bn( gen ):todec()
+
+    kexdh_gex_used = true
   else
     stdnse.debug2("No shared KEX methods supported by server")
     return
@@ -219,12 +258,23 @@ fetch_host_key = function( host, port, key_type )
 
   local e, g, x, p
   -- e = g^x mod p
-  g = openssl.bignum_dec2bn( "2" )
+  g = openssl.bignum_dec2bn( gen )
   p = openssl.bignum_hex2bn( prime )
   x = openssl.bignum_pseudo_rand( q )
   e = openssl.bignum_mod_exp( g, x, p )
 
-  packet = transport.build( transport.kexdh_init( e ) )
+  -- if kexdh_gex_used then
+  --   e = openssl.bignum_pseudo_rand( 1024 )
+  -- end
+
+  local payload
+  if kexdh_gex_used == true then
+    payload = transport.kexdh_gex_init( e )
+  else
+    payload = transport.kexdh_init( e )
+  end
+
+  packet = transport.build( payload )
   status = socket:send( packet )
   if not status then socket:close(); return end
 
@@ -233,7 +283,11 @@ fetch_host_key = function( host, port, key_type )
   if not status then socket:close(); return end
   kexdh_reply = transport.payload( kexdh_reply )
   -- check for proper msg code
-  if kexdh_reply:byte(1) ~= SSH2.SSH_MSG_KEXDH_REPLY then
+  local msg_code = kexdh_reply:byte(1)
+
+  if ( kexdh_gex_used == true and msg_code ~= SSH2.SSH_MSG_KEX_DH_GEX_REPLY )
+    or ( kexdh_gex_used == false and msg_code ~= SSH2.SSH_MSG_KEXDH_REPLY )
+  then
     socket:close()
     return
   end
@@ -283,6 +337,12 @@ SSH2 = {
   SSH_MSG_NEWKEYS = 21,
   SSH_MSG_KEXDH_INIT = 30,
   SSH_MSG_KEXDH_REPLY = 31,
+
+  SSH_MSG_KEX_DH_GEX_REQUEST_OLD = 30,
+  SSH_MSG_KEX_DH_GEX_REQUEST = 34,
+  SSH_MSG_KEX_DH_GEX_GROUP = 31,
+  SSH_MSG_KEX_DH_GEX_INIT = 32,
+  SSH_MSG_KEX_DH_GEX_REPLY = 33,
 }
 
 

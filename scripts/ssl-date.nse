@@ -39,7 +39,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 -- Miscellaneous script-wide constants
@@ -194,7 +194,7 @@ action = function(host, port)
       status, tm = test_time_sample(host, port, reftm)
     end
     if not status then
-      return stdnse.format_output(false, "Unable to obtain data from the target")
+      return nil
     end
     if status ~= result.ACCEPTED then
       return {}, "TLS randomness does not represent time"

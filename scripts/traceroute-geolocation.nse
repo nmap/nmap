@@ -81,7 +81,7 @@ end
 -- GeoPlugin requires no API key and has no limitations on lookups
 --
 local function geoLookup(ip)
-  local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip)
+  local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip, {any_af=true})
   local stat, loc = json.parse(response.body)
 
   if not stat then return nil end

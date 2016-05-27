@@ -188,6 +188,26 @@ Request = {
       return bin.pack("<IAII", 0xD9B4BEF9, "verack\0\0\0\0\0\0", 0, 0xe2e0f65d)
     end,
 
+   },
+ 
+  -- The pong message is sent in response to a ping message.
+  Pong = {
+    new = function(self)
+      local o = {}
+      setmetatable(o, self)
+      self.__index = self
+      return o
+    end,
+
+    __tostring = function(self)
+      local magic = 0xD9B4BEF9
+      local cmd = "pong\0\0\0\0\0\0\0\0"
+      local len = 0
+      local chksum = 0xe2e0f65d
+
+      return bin.pack("<IAII", magic, cmd, len, chksum)
+    end,
+ 
   }
 
 }
@@ -384,11 +404,23 @@ Response = {
     local pos, magic, cmd, len, checksum = bin.unpack("<IA12II", header)
     local data = ""
 
-    -- the verack has no payload
+    -- the verack and ping has no payload
     if ( 0 ~= len ) then
       status, data = socket:receive_buf(match.numbytes(len), true)
       if ( not(status) ) then
         return false, "Failed to read the packet header"
+      end
+    else
+      -- The ping message is sent primarily to confirm that the TCP/IP connection is still valid.
+      if( cmd == "ping\0\0\0\0\0\0\0\0" ) then
+        local req = Request.Pong:new()
+
+        local status, err = socket:send(tostring(req))
+        if ( not(status) ) then
+          return false, "Failed to send \"Pong\" reply to server"
+        else
+          return Response.recvPacket(socket, version)
+        end
       end
     end
     return Response.decode(header .. data, version)
@@ -410,7 +442,7 @@ Response = {
       return true, Response.Addr:new(data, version)
     elseif ( "inv\0\0\0\0\0\0\0\0\0" == cmd ) then
       return true, Response.Inv:new(data)
-    elseif ( "alert\0\0\0\0\0") then
+    elseif ( "alert\0\0\0\0\0" == cmd ) then
       return true, Response.Alert:new(data)
     else
       return false, ("Unknown command (%s)"):format(cmd)

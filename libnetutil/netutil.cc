@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -486,10 +486,7 @@ int ip_is_reserved(struct in_addr *ip)
   switch (i1)
     {
     case 0:         /* 000/8 is IANA reserved       */
-    case 6:         /* USA Army ISC                 */
-    case 7:         /* used for BGP protocol        */
     case 10:        /* the infamous 10.0.0.0/8      */
-    case 55:        /* misc. U.S.A. Armed forces    */
     case 127:       /* 127/8 is reserved for loopback */
       return 1;
     default:
@@ -2686,7 +2683,6 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   } else if (hdr.proto == IPPROTO_ICMP) {
     struct ip *ip2;       /* Points to the IP datagram carried by some ICMP messages */
     char *ip2dst;         /* Dest IP in caried IP datagram                   */
-    u16 *nextmtu = NULL;  /* Store next hop MTU when ICMP==Frag required     */
     char auxbuff[128];    /* Aux buffer                                      */
     struct icmp_packet{   /* Generic ICMP struct */
       u8 type;
@@ -2829,8 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            nextmtu = (u16 *)(&(icmppkt->data[6]));
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", (unsigned short) ntohs(*nextmtu));
+            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:
@@ -3850,7 +3845,10 @@ static int send_ipv6_ip(const struct sockaddr_in6 *dst,
   const unsigned char *end;
   struct ip6_hdr *hdr;
   unsigned char nxt;
-  int tclass, hoplimit;
+#ifdef IPV6_TCLASS
+  int tclass;
+#endif
+  int hoplimit;
 
   int sd;
   int n;

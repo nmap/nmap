@@ -1,5 +1,5 @@
 /*
-** $Id: ldebug.c,v 2.90.1.3 2013/05/16 16:04:15 roberto Exp $
+** $Id: ldebug.c,v 2.90.1.4 2015/02/19 17:05:13 roberto Exp $
 ** Debug Interface
 ** See Copyright Notice in lua.h
 */
@@ -44,6 +44,16 @@ static int currentpc (CallInfo *ci) {
 
 static int currentline (CallInfo *ci) {
   return getfuncline(ci_func(ci)->p, currentpc(ci));
+}
+
+
+static void swapextra (lua_State *L) {
+  if (L->status == LUA_YIELD) {
+    CallInfo *ci = L->ci;  /* get function that yielded */
+    StkId temp = ci->func;  /* exchange its 'func' and 'extra' values */
+    ci->func = restorestack(L, ci->extra);
+    ci->extra = savestack(L, temp);
+  }
 }
 
 
@@ -144,6 +154,7 @@ static const char *findlocal (lua_State *L, CallInfo *ci, int n,
 LUA_API const char *lua_getlocal (lua_State *L, const lua_Debug *ar, int n) {
   const char *name;
   lua_lock(L);
+  swapextra(L);
   if (ar == NULL) {  /* information about non-active function? */
     if (!isLfunction(L->top - 1))  /* not a Lua function? */
       name = NULL;
@@ -158,6 +169,7 @@ LUA_API const char *lua_getlocal (lua_State *L, const lua_Debug *ar, int n) {
       api_incr_top(L);
     }
   }
+  swapextra(L);
   lua_unlock(L);
   return name;
 }
@@ -165,11 +177,14 @@ LUA_API const char *lua_getlocal (lua_State *L, const lua_Debug *ar, int n) {
 
 LUA_API const char *lua_setlocal (lua_State *L, const lua_Debug *ar, int n) {
   StkId pos = 0;  /* to avoid warnings */
-  const char *name = findlocal(L, ar->i_ci, n, &pos);
+  const char *name;
   lua_lock(L);
+  swapextra(L);
+  name = findlocal(L, ar->i_ci, n, &pos);
   if (name)
     setobjs2s(L, pos, L->top - 1);
   L->top--;  /* pop value */
+  swapextra(L);
   lua_unlock(L);
   return name;
 }
@@ -269,6 +284,7 @@ LUA_API int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar) {
   CallInfo *ci;
   StkId func;
   lua_lock(L);
+  swapextra(L);
   if (*what == '>') {
     ci = NULL;
     func = L->top - 1;
@@ -287,6 +303,7 @@ LUA_API int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar) {
     setobjs2s(L, L->top, func);
     api_incr_top(L);
   }
+  swapextra(L);
   if (strchr(what, 'L'))
     collectvalidlines(L, cl);
   lua_unlock(L);

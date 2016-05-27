@@ -77,7 +77,7 @@ action = function(host)
   local query = "/bfk_dnslogger.html?query=" .. host.ip
   local response
   local output_tab = stdnse.output_table()
-  response = http.get(HOSTMAP_SERVER, 80, query)
+  response = http.get(HOSTMAP_SERVER, 80, query, {any_af=true})
   if not response.status then
     stdnse.debug1("Error: could not GET http://%s%s", HOSTMAP_SERVER, query)
     return nil

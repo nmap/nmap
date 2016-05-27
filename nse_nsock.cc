@@ -350,6 +350,15 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
   nse_nsock_udata *nu = (nse_nsock_udata *) ud;
   lua_State *L = nu->thread;
+  if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_ERROR) {
+    // Sometimes Nsock fails immediately and callback is called before
+    // l_connect has a chance to yield. TODO: Figure out how to return an error
+    // to the calling thread without falling into an infinite loop somewhere.
+    // http://seclists.org/nmap-dev/2016/q1/201
+    trace(nse_iod(nse), nu->action, nu->direction);
+    nsock_iod_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
+    luaL_error(L, "Nsock immediate error");
+  }
   assert(lua_status(L) == LUA_YIELD);
   trace(nse_iod(nse), nu->action, nu->direction);
   status(L, nse_status(nse));
@@ -515,6 +524,9 @@ static int l_connect (lua_State *L)
   }
 
   nu->af = dest->ai_addr->sa_family;
+  nu->thread = L;
+  nu->action = "PRECONNECT";
+  nu->direction = TO;
 
   switch (what)
   {
@@ -1031,6 +1043,9 @@ static int l_pcap_receive (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
+  if (!nu->is_pcap) {
+    return nseU_safeerror(L, "not a pcap socket");
+  }
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nu->nseid = nsock_pcap_read_packet(nsp, nu->nsiod, pcap_receive_handler,
       nu->timeout, nu);

@@ -126,7 +126,7 @@ action = function(host, port)
   if response.status == 200 and response.body then
     local status, parsed = json.parse(response.body)
     if not(status) then
-      stdnse.debug1('Parsing J0SON failed(version checking). Probably not running Elasticsearch')
+      stdnse.debug1('Parsing JSON failed(version checking). Probably not running Elasticsearch')
       return nil
     else
       if parsed.version.number then

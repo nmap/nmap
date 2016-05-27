@@ -52,13 +52,13 @@ action = function(host, port)
   local mutex = nmap.mutex("http-xssed")
   mutex "lock"
 
-  local response = http.get(XSSED_SITE, 80, target)
+  local response = http.get(XSSED_SITE, 80, target, {any_af=true})
 
   if string.find(response.body, XSSED_FOUND) then
     fixed = {}
     unfixed = {}
     for m in string.gmatch(response.body, XSSED_MIRROR) do
-      local mirror = http.get(XSSED_SITE, 80, m)
+      local mirror = http.get(XSSED_SITE, 80, m, {any_af=true})
       for v in string.gmatch(mirror.body, XSSED_URL) do
         if string.find(mirror.body, XSSED_FIXED) then
           table.insert(fixed, "\t" .. v .. "\n")

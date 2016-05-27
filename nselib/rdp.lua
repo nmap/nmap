@@ -112,8 +112,10 @@ Request = {
         ("Cookie: %s\r\n"):format(cookie))
 
       if ( self.proto ) then
-          data = data .. bin.pack("<II",
-          0x00080001, -- Unknown
+        data = data .. bin.pack("<CCSI",
+          0x01, -- TYPE_RDP_NEG_REQ
+          0x00, -- flags
+          0x0008, -- length
           self.proto -- protocol
         )
       end

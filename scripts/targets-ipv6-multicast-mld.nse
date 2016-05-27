@@ -107,7 +107,7 @@ local function format_output(results)
   table.sort(ips)
 
   for i, ip in ipairs(ips) do
-    record = results[ip]
+    local record = results[ip]
     xmlout[i] = record
     tab.addrow(output, "  IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
   end

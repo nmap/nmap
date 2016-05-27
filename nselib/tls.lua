@@ -1076,6 +1076,11 @@ function cipher_info (c)
     info.size = tonumber(tokens[i])
   end
 
+  -- Other key size overrides
+  if info.cipher == "RC4" then -- RFC 7465 prohibits RC4 in TLS
+    info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
+  end
+
   -- hash
   if info.mode == "CCM" then
     info.hash = "SHA256"

@@ -67,7 +67,7 @@ action = function(host, port)
   end
 
   local link = "/ip/"..target..".html"
-  local htmldata = http.get("www.robtex.com", 443, link)
+  local htmldata = http.get("www.robtex.com", 443, link, {any_af=true})
   local domains = parse_robtex_response(htmldata.body)
   if ( #domains > 0 ) then
     return stdnse.format_output(true, domains)

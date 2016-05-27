@@ -127,19 +127,22 @@ action = function( host )
     -- @name whois
     -- @class table
     --@field whoisdb_default_order          The default number and order of whois services to query.
-    --@field using_local_assignments_file   Set this to: false; to avoid using the data from IANA hosted assignments files (false when whodb=nofile).
+    --@field using_local_assignments_file   The boolean values of the two keys ipv4 and ipv6 determine whether or not to use the data from an IANA
+    --                                      hosted assignments file for that address family.
     --@field local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
     --@field init_done                      Set when <code>script_init</code> has been called and prevents it being called again.
     --@field mutex                          A table of mutex functions, one for each service defined herein.  Allows a thread exclusive access to a
-    --                                service, preventing concurrent connections to it.
+    --                                      service, preventing concurrent connections to it.
     --@field nofollow                       A flag that prevents referrals to other whois records and allows the first record retrieved to be
-    --                                returned instead.  Set to true when whodb=nofollow
+    --                                      returned instead.  Set to true when whodb=nofollow
     --@field using_cache                    A flag which modifies the size of ranges in a cache entry.  Set to false when whodb=nocache
     --@field cache                          Storage for cached redirects, records and other data for output.
     nmap.registry.whois = {}
     nmap.registry.whois.whoisdb_default_order = {"arin","ripe","apnic"}
     nmap.registry.whois.using_cache = true
-    nmap.registry.whois.using_local_assignments_file = true
+    nmap.registry.whois.using_local_assignments_file = {}
+    nmap.registry.whois.using_local_assignments_file.ipv4 = true
+    nmap.registry.whois.using_local_assignments_file.ipv6 = true
     nmap.registry.whois.local_assignments_file_expiry = "16h"
     nmap.registry.whois.nofollow = false
     nmap.registry.whois.cache = {}
@@ -150,7 +153,7 @@ action = function( host )
   local mutex = nmap.mutex( "whois" )
   mutex "lock"
   if not nmap.registry.whois.init_done then
-    script_init( host.ip )
+    script_init()
   end
   mutex "done"
 
@@ -183,8 +186,9 @@ action = function( host )
   --@field completed  An array of services previously queried.
   local tracking = {}
   tracking.completed = {}
+  local addr_family = #host.bin_ip == 4 and "ipv4" or "ipv6"
 
-  tracking = get_next_action( tracking, host.ip )
+  tracking = get_next_action( tracking, host.ip, addr_family )
 
   -- main loop
   while tracking.next_db do
@@ -194,7 +198,7 @@ action = function( host )
 
     nmap.registry.whois.mutex[tracking.this_db] "lock"
 
-    status, retval = pcall( get_next_action, tracking, host.ip )
+    status, retval = pcall( get_next_action, tracking, host.ip, addr_family )
     if not status then
       stdnse.debug1("pcall caught an exception in get_next_action: %s.", retval)
     else tracking = retval end
@@ -211,7 +215,7 @@ action = function( host )
       else data = retval end
 
       -- get next action
-      status, retval = pcall( get_next_action, tracking, host.ip )
+      status, retval = pcall( get_next_action, tracking, host.ip, addr_family )
       if not status then
         stdnse.debug1("pcall caught an exception in get_next_action: %s.", retval)
         if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
@@ -242,10 +246,11 @@ end -- action
 -- knows its next move in the main loop.
 -- @param tracking  The Tracking table.
 -- @param ip        String representing the Target's IP address.
+-- @param addr_fam  String representing the Target's IP address family.
 -- @return          The supplied and possibly modified tracking table.
 -- @see             tracking, check_response_cache, get_db_from_assignments
 
-function get_next_action( tracking, ip )
+function get_next_action( tracking, ip, addr_fam )
 
   if type( ip ) ~= "string" or ip == "" or type( tracking ) ~= "table" or type( tracking.completed ) ~= "table" then return nil end
 
@@ -292,7 +297,7 @@ function get_next_action( tracking, ip )
 
 
   -- try to find a service to query in the assignments files, if allowed
-  if nmap.registry.whois.using_local_assignments_file and not tracking.this_db and not tracking.last_db then
+  if nmap.registry.whois.using_local_assignments_file[addr_fam] and not tracking.this_db and not tracking.last_db then
 
     tracking.next_db = get_db_from_assignments( ip )
     if tracking.next_db and not table.concat( tracking.completed, " " ):match( tracking.next_db ) then
@@ -1354,7 +1359,7 @@ end
 -- Called once per script invocation, the purpose of this function is to populate the registry with variables and data for use by all threads.
 -- @see  get_args, get_local_assignments_data
 
-function script_init( )
+function script_init()
 
   ---
   -- fields_meta is a table of patterns and captures and defines from which fields of a whois record to extract data.
@@ -1672,9 +1677,15 @@ function script_init( )
   end
 
   -- get IANA assignments lists
-  if nmap.registry.whois.using_local_assignments_file then
-    nmap.registry.whois.local_assignments_data, err = get_local_assignments_data()
-    if err then nmap.registry.whois.using_local_assignments_file = false end
+  if nmap.registry.whois.using_local_assignments_file.ipv4
+  or nmap.registry.whois.using_local_assignments_file.ipv6 then
+    nmap.registry.whois.local_assignments_data = get_local_assignments_data()
+    for _, af in ipairs({"ipv4", "ipv6"}) do
+      if not nmap.registry.whois.local_assignments_data[af] then
+        nmap.registry.whois.using_local_assignments_file[af] = false
+        stdnse.debug1("Cannot use local assignments file for address family %s.", af)
+      end
+    end
   end
 
   nmap.registry.whois.init_done = true
@@ -1707,8 +1718,8 @@ function get_args()
       elseif ( db == "nocache" ) then
         nmap.registry.whois.using_cache = false
       elseif ( db == "nofile" ) then
-        nmap.registry.whois.using_local_assignments_file = false
-        stdnse.debug2("Not using local assignments data.")
+        nmap.registry.whois.using_local_assignments_file.ipv4 = false
+        nmap.registry.whois.using_local_assignments_file.ipv6 = false
       end
     elseif not ( string.match( table.concat( t, " " ), db ) ) then
       -- we have a unique valid whois db
@@ -1716,9 +1727,10 @@ function get_args()
     end
   end
 
-  if ( #t > 0 ) and nmap.registry.whois.using_local_assignments_file then
-    -- "nofile" was not explicitly supplied, but it is implied by supplying custom whoisdb_default_order
-    nmap.registry.whois.using_local_assignments_file = false
+  if ( #t > 0 ) then
+    -- "nofile" is implied by supplying custom whoisdb_default_order
+    nmap.registry.whois.using_local_assignments_file.ipv4 = false
+    nmap.registry.whois.using_local_assignments_file.ipv6 = false
     stdnse.debug3("Not using local assignments data because custom whoisdb_default_order was supplied.")
   end
 
@@ -1745,14 +1757,12 @@ end
 -- Sets a flag in the registry to prevent use of the lookup data in the event of an error.
 -- @return  Table of lookup data (or nil in case of an error).
 -- @return  Nil or error message in case of an error.
--- @see     get_parentpath, file_exists, requires_updating, read_from_file, conditional_download,
---          write_to_file, parse_assignments
 
 function get_local_assignments_data()
 
   if not next( nmap.registry.whois.remote_assignments_files ) then
-    nmap.registry.whois.using_local_assignments_file = false
-    return nil, "Error in get_local_assignments_data: Remote resources not defined in remote_assignments_files registry key"
+    stdnse.debug1("Error in get_local_assignments_data: Remote resources not defined in remote_assignments_files registry key")
+    return nil
   end
 
   -- get the directory path where cached files will be stored.
@@ -1760,7 +1770,7 @@ function get_local_assignments_data()
   local directory_path, err = get_parentpath( fetchfile )
   if err then
     stdnse.debug1("Nmap.fetchfile() failed to get a path to %s: %s.", fetchfile, err)
-    return nil, err
+    return nil
   end
 
   local ret = {}
@@ -1769,24 +1779,25 @@ function get_local_assignments_data()
   for address_family, t in pairs( nmap.registry.whois.remote_assignments_files ) do
     for i, assignment_data_spec in ipairs( t ) do
 
-      local update_required, modified_date, entity_tag, err
+      local update_required, modified_date, entity_tag
 
       -- do we have a cached file and does it need updating?
-      local file, exists = directory_path .. assignment_data_spec.local_resource
-      exists, err = file_exists( file )
-      if not exists and err then
-        stdnse.debug1("Error accessing %s: %s.", file, err)
-      elseif not exists then
+      local file = directory_path .. assignment_data_spec.local_resource
+      local exists, readable, writable = file_stat(file)
+      if not exists and (readable and writable) then
         update_required = true
-        stdnse.debug2("%s does not exist or is empty. Fetching it now...", file)
-      elseif exists then
+      elseif exists and readable then
         update_required, modified_date, entity_tag = requires_updating( file )
+        if update_required and not writable then
+          update_required = false
+          readable = false
+        end
       end
 
       local file_content
 
       -- read an existing and up-to-date file into file_content.
-      if exists and not update_required then
+      if readable and not update_required then
         stdnse.debug2("%s was cached less than %s ago. Reading...", file, nmap.registry.whois.local_assignments_file_expiry)
         file_content = read_from_file( file )
       end
@@ -1856,7 +1867,6 @@ function get_local_assignments_data()
   for af, t in pairs( ret ) do
     if #t == 0 then
       ret[af] = nil
-      stdnse.debug1("Cannot use local assignments file for address family %s.", af)
     end
   end
 
@@ -1890,28 +1900,52 @@ end
 
 
 
----
--- Given a filepath, checks for the existence of that file.
--- @param file  Path to a file.
--- @return      Boolean True if file exists and can be read or false if file does not exist or is empty or cannot be otherwise read.
--- @return      Nil or error message.  No error message if the file is empty or does not exist, only if the file cannot be read for some other reason.
+--;
+-- Tests a file path to determine whether it exists, can be read from and can be written to.
+-- An attempt is made to create the file if it does not exist and no attempt is made to remove
+-- it if creation succeeded.
+-- @param path Path to a file.
+-- @return     Boolean True if exists, False if not (at time of calling), nil if determination failed.
+-- @return     Boolean True if readable, False if not, nil if determination failed.
+-- @return     Boolean True if writable, False if not, nil if determination failed.
+function file_stat( path )
 
-function file_exists( file )
+  local exists, readable, writable
 
-  local f, err, _ = io.open( file, "r" )
-  if ( f and f:read() ) then
-    f:close()
-    return true, nil
-  elseif f then
-    f:close()
-    return false, nil
-  elseif not f and err:match("No such file or directory") then
-    return false, nil
-  elseif err then
-    return false, err
-  else
-    return false, ( "unforeseen error while checking " .. file )
+  local f, err = io.open(path, 'r')
+  if f then
+    f.close()
+    exists = true
+    readable = true
+    f, err = io.open(path, 'a')
+    if f then
+      f.close()
+      writable = true
+    elseif err:match('Permission denied') then
+      writable = false
+    end
+  elseif err:match('No such file or directory') then
+    exists = false
+    f, err = io.open(path, 'w')
+    if f then
+      f.close()
+      writable = true
+      f, err = io.open(path, 'r')
+      if f then
+        f.close()
+        readable = true
+      elseif err:match('Permission denied') then
+        readable = false
+      end
+    elseif err:match('Permission denied') then
+      writable = false
+    end
+  elseif err:match('Permission denied') then
+    exists = true -- probably
+    readable = false
   end
+
+  return exists, readable, writable
 
 end
 

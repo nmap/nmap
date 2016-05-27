@@ -12,6 +12,7 @@ http library.
 ]]
 
 ---
+--@args http-title.url The url to fetch. Default: /
 --@output
 -- Nmap scan report for scanme.nmap.org (74.207.244.221)
 -- PORT   STATE SERVICE
@@ -36,7 +37,7 @@ portrule = shortport.http
 action = function(host, port)
   local resp, redirect_url, title
 
-  resp = http.get( host, port, '/' )
+  resp = http.get( host, port, stdnse.get_script_args(SCRIPT_NAME..".url") or "/" )
 
   -- check for a redirect
   if resp.location then

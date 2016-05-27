@@ -64,7 +64,7 @@ local function query_bing(ip)
   local query = "/csv.php?ip=" .. ip
   local response
   local entries
-  response = http.get(HOSTMAP_BING_SERVER, 80, query)
+  response = http.get(HOSTMAP_BING_SERVER, 80, query, {any_af=true})
   local hostnames = {}
   if not response.status then
     return string.format("Error: could not GET http://%s%s", HOSTMAP_BING_SERVER, query)

@@ -37,15 +37,16 @@ request_types =
   DHCPINFORM   = 8
 }
 
-request_types_str = {}
-request_types_str[1] = "DHCPDISCOVER"
-request_types_str[2] = "DHCPOFFER"
-request_types_str[3] = "DHCPREQUEST"
-request_types_str[4] = "DHCPDECLINE"
-request_types_str[5] = "DHCPACK"
-request_types_str[6] = "DHCPNAK"
-request_types_str[7] = "DHCPRELEASE"
-request_types_str[8] = "DHCPINFORM"
+--Invert a one-to-one mapping
+local function invert(t)
+  local out = {}
+  for k, v in pairs(t) do
+    out[v] = k
+  end
+  return out
+end
+
+request_types_str = invert(request_types)
 
 ---Read an IP address or a list of IP addresses. Print an error if the length isn't a multiple of 4.
 --
@@ -284,69 +285,73 @@ end
 
 ---These are the different fields for DHCP. These have to come after the read_* function
 -- definitions.
-local actions = {}
-actions[1]  = {name="Subnet Mask",                     func=read_ip,             default=true}
-actions[2]  = {name="Time Offset",                     func=read_4_bytes,        default=false}
-actions[3]  = {name="Router",                          func=read_ip,             default=true}
-actions[4]  = {name="Time Server",                     func=read_ip,             default=true}
-actions[5]  = {name="Name Server",                     func=read_ip,             default=true}
-actions[6]  = {name="Domain Name Server",              func=read_ip,             default=true}
-actions[7]  = {name="Log Server",                      func=read_ip,             default=true}
-actions[8]  = {name="Cookie Server",                   func=read_ip,             default=true}
-actions[9]  = {name="LPR Server",                      func=read_ip,             default=true}
-actions[10] = {name="Impress Server",                  func=read_ip,             default=true}
-actions[11] = {name="Resource Location Server",        func=read_ip,             default=true}
-actions[12] = {name="Hostname",                        func=read_string,         default=true}
-actions[13] = {name="Boot File Size",                  func=read_2_bytes,        default=false}
-actions[14] = {name="Merit Dump File",                 func=read_string,         default=false}
-actions[15] = {name="Domain Name",                     func=read_string,         default=true}
-actions[16] = {name="Swap Server",                     func=read_ip,             default=true}
-actions[17] = {name="Root Path",                       func=read_string,         default=false}
-actions[18] = {name="Extensions Path",                 func=read_string,         default=false}
-actions[19] = {name="IP Forwarding",                   func=read_boolean,        default=false}
-actions[20] = {name="Non-local Source Routing",        func=read_boolean,        default=true}
-actions[21] = {name="Policy Filter",                   func=read_policy_filter,  default=false}
-actions[22] = {name="Maximum Datagram Reassembly Size",func=read_2_bytes,        default=false}
-actions[23] = {name="Default IP TTL",                  func=read_1_byte,         default=false}
-actions[24] = {name="Path MTU Aging Timeout",          func=read_time,           default=false}
-actions[25] = {name="Path MTU Plateau",                func=read_2_bytes_list,   default=false}
-actions[26] = {name="Interface MTU",                   func=read_2_bytes,        default=false}
-actions[27] = {name="All Subnets are Local",           func=read_boolean,        default=false}
-actions[28] = {name="Broadcast Address",               func=read_ip,             default=true}
-actions[29] = {name="Perform Mask Discovery",          func=read_boolean,        default=false}
-actions[30] = {name="Mask Supplier",                   func=read_boolean,        default=false}
-actions[31] = {name="Perform Router Discovery",        func=read_boolean,        default=false}
-actions[32] = {name="Router Solicitation Address",     func=read_ip,             default=true}
-actions[33] = {name="Static Route",                    func=read_static_route,   default=true}
-actions[34] = {name="Trailer Encapsulation",           func=read_boolean,        default=false}
-actions[35] = {name="ARP Cache Timeout",               func=read_time,           default=false}
-actions[36] = {name="Ethernet Encapsulation",          func=read_boolean,        default=false}
-actions[37] = {name="TCP Default TTL",                 func=read_1_byte,         default=false}
-actions[38] = {name="TCP Keepalive Interval",          func=read_4_bytes,        default=false}
-actions[39] = {name="TCP Keepalive Garbage",           func=read_boolean,        default=false}
-actions[40] = {name="NIS Domain",                      func=read_string,         default=true}
-actions[41] = {name="NIS Servers",                     func=read_ip,             default=true}
-actions[42] = {name="NTP Servers",                     func=read_ip,             default=true}
-actions[43] = {name="Vendor Specific Information",     func=read_string,         default=false}
-actions[44] = {name="NetBIOS Name Server",             func=read_ip,             default=true}
-actions[45] = {name="NetBIOS Datagram Server",         func=read_ip,             default=true}
-actions[46] = {name="NetBIOS Node Type",               func=read_1_byte,         default=false}
-actions[47] = {name="NetBIOS Scope",                   func=read_string,         default=false}
-actions[48] = {name="X Window Font Server",            func=read_ip,             default=true}
-actions[49] = {name="X Window Display Manager",        func=read_ip,             default=true}
-actions[50] = {name="Requested IP Address (client)",   func=read_ip,             default=false}
-actions[51] = {name="IP Address Lease Time",           func=read_time,           default=false}
-actions[52] = {name="Option Overload",                 func=read_1_byte,         default=false}
-actions[53] = {name="DHCP Message Type",               func=read_message_type,   default=false}
-actions[54] = {name="Server Identifier",               func=read_ip,             default=true}
-actions[55] = {name="Parameter Request List (client)", func=read_string,         default=false}
-actions[56] = {name="Error Message",                   func=read_string,         default=true}
-actions[57] = {name="Maximum DHCP Message Size",       func=read_2_bytes,        default=false}
-actions[58] = {name="Renewal Time Value",              func=read_time,           default=false}
-actions[59] = {name="Rebinding Time Value",            func=read_time,           default=false}
-actions[60] = {name="Class Identifier",                func=read_string,         default=false}
-actions[61] = {name="Client Identifier (client)",      func=read_string,         default=false}
-actions[252]= {name="WPAD",                            func=read_string,         default=false}
+-- TODO: Add more from https://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xhtml#options
+local actions = {
+  [1]  = {name="Subnet Mask",                     func=read_ip,             default=true},
+  [2]  = {name="Time Offset",                     func=read_4_bytes,        default=false},
+  [3]  = {name="Router",                          func=read_ip,             default=true},
+  [4]  = {name="Time Server",                     func=read_ip,             default=true},
+  [5]  = {name="Name Server",                     func=read_ip,             default=true},
+  [6]  = {name="Domain Name Server",              func=read_ip,             default=true},
+  [7]  = {name="Log Server",                      func=read_ip,             default=true},
+  [8]  = {name="Cookie Server",                   func=read_ip,             default=true},
+  [9]  = {name="LPR Server",                      func=read_ip,             default=true},
+  [10] = {name="Impress Server",                  func=read_ip,             default=true},
+  [11] = {name="Resource Location Server",        func=read_ip,             default=true},
+  [12] = {name="Hostname",                        func=read_string,         default=true},
+  [13] = {name="Boot File Size",                  func=read_2_bytes,        default=false},
+  [14] = {name="Merit Dump File",                 func=read_string,         default=false},
+  [15] = {name="Domain Name",                     func=read_string,         default=true},
+  [16] = {name="Swap Server",                     func=read_ip,             default=true},
+  [17] = {name="Root Path",                       func=read_string,         default=false},
+  [18] = {name="Extensions Path",                 func=read_string,         default=false},
+  [19] = {name="IP Forwarding",                   func=read_boolean,        default=false},
+  [20] = {name="Non-local Source Routing",        func=read_boolean,        default=true},
+  [21] = {name="Policy Filter",                   func=read_policy_filter,  default=false},
+  [22] = {name="Maximum Datagram Reassembly Size",func=read_2_bytes,        default=false},
+  [23] = {name="Default IP TTL",                  func=read_1_byte,         default=false},
+  [24] = {name="Path MTU Aging Timeout",          func=read_time,           default=false},
+  [25] = {name="Path MTU Plateau",                func=read_2_bytes_list,   default=false},
+  [26] = {name="Interface MTU",                   func=read_2_bytes,        default=false},
+  [27] = {name="All Subnets are Local",           func=read_boolean,        default=false},
+  [28] = {name="Broadcast Address",               func=read_ip,             default=true},
+  [29] = {name="Perform Mask Discovery",          func=read_boolean,        default=false},
+  [30] = {name="Mask Supplier",                   func=read_boolean,        default=false},
+  [31] = {name="Perform Router Discovery",        func=read_boolean,        default=false},
+  [32] = {name="Router Solicitation Address",     func=read_ip,             default=true},
+  [33] = {name="Static Route",                    func=read_static_route,   default=true},
+  [34] = {name="Trailer Encapsulation",           func=read_boolean,        default=false},
+  [35] = {name="ARP Cache Timeout",               func=read_time,           default=false},
+  [36] = {name="Ethernet Encapsulation",          func=read_boolean,        default=false},
+  [37] = {name="TCP Default TTL",                 func=read_1_byte,         default=false},
+  [38] = {name="TCP Keepalive Interval",          func=read_4_bytes,        default=false},
+  [39] = {name="TCP Keepalive Garbage",           func=read_boolean,        default=false},
+  [40] = {name="NIS Domain",                      func=read_string,         default=true},
+  [41] = {name="NIS Servers",                     func=read_ip,             default=true},
+  [42] = {name="NTP Servers",                     func=read_ip,             default=true},
+  [43] = {name="Vendor Specific Information",     func=read_string,         default=false},
+  [44] = {name="NetBIOS Name Server",             func=read_ip,             default=true},
+  [45] = {name="NetBIOS Datagram Server",         func=read_ip,             default=true},
+  [46] = {name="NetBIOS Node Type",               func=read_1_byte,         default=false},
+  [47] = {name="NetBIOS Scope",                   func=read_string,         default=false},
+  [48] = {name="X Window Font Server",            func=read_ip,             default=true},
+  [49] = {name="X Window Display Manager",        func=read_ip,             default=true},
+  [50] = {name="Requested IP Address (client)",   func=read_ip,             default=false},
+  [51] = {name="IP Address Lease Time",           func=read_time,           default=false},
+  [52] = {name="Option Overload",                 func=read_1_byte,         default=false},
+  [53] = {name="DHCP Message Type",               func=read_message_type,   default=false},
+  [54] = {name="Server Identifier",               func=read_ip,             default=true},
+  [55] = {name="Parameter Request List (client)", func=read_string,         default=false},
+  [56] = {name="Error Message",                   func=read_string,         default=true},
+  [57] = {name="Maximum DHCP Message Size",       func=read_2_bytes,        default=false},
+  [58] = {name="Renewal Time Value",              func=read_time,           default=false},
+  [59] = {name="Rebinding Time Value",            func=read_time,           default=false},
+  [60] = {name="Class Identifier",                func=read_string,         default=false},
+  [61] = {name="Client Identifier (client)",      func=read_string,         default=false},
+  [66] = {name="TFTP Server Name",                func=read_string,         default=false},
+  [67] = {name="Bootfile Name",                   func=read_string,         default=false},
+  [252]= {name="WPAD",                            func=read_string,         default=false},
+}
 
 --- Does the send/receive, doesn't build/parse anything.
 local function dhcp_send(socket, host, packet)
@@ -410,16 +415,13 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
 
   if(request_options == nil) then
     -- Request the defaults, or there's no verbosity; otherwise, request everything!
-    request_options = ''
-    for i = 1, 61, 1 do
-      if(nmap.verbosity() > 0) then
+    request_options = strbuf.new()
+    for i,v in pairs(actions) do
+      if(v.default or nmap.verbosity() > 0) then
         request_options = request_options .. string.char(i)
-      else
-        if(actions[i] and actions[i].default) then
-          request_options = request_options .. string.char(i)
-        end
       end
     end
+    request_options = strbuf.dump(request_options)
   end
 
   -- Header

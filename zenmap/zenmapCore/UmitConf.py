@@ -3,7 +3,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+# * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
 # * also a registered trademark of Insecure.Com LLC.  This program is free  *
 # * software; you may redistribute and/or modify it under the terms of the  *
 # * GNU General Public License as published by the Free Software            *
@@ -319,7 +319,6 @@ class WindowConfig(UmitConfigParser, object):
             self.create_section()
 
     def save_changes(self):
-        config_parser.fp = open(Path.user_config_file, 'w')
         config_parser.save_changes()
 
     def create_section(self):
@@ -340,25 +339,40 @@ class WindowConfig(UmitConfigParser, object):
             value = int(self._get_it("x", self.default_x))
         except ValueError:
             value = self.default_x
+        except TypeError as e:
+            v = self._get_it("x", self.default_x)
+            log.exception("Trouble parsing x value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_x
         return value
 
     def set_x(self, x):
-        self._set_it("x", x)
+        self._set_it("x", "%d" % x)
 
     def get_y(self):
         try:
             value = int(self._get_it("y", self.default_y))
         except ValueError:
             value = self.default_y
+        except TypeError as e:
+            v = self._get_it("y", self.default_y)
+            log.exception("Trouble parsing y value as int: %s",
+                    repr(v), exc_info=e)
+            value = self.default_y
         return value
 
     def set_y(self, y):
-        self._set_it("y", y)
+        self._set_it("y", "%d" % y)
 
     def get_width(self):
         try:
             value = int(self._get_it("width", self.default_width))
         except ValueError:
+            value = self.default_width
+        except TypeError as e:
+            v = self._get_it("width", self.default_width)
+            log.exception("Trouble parsing width value as int: %s",
+                    repr(v), exc_info=e)
             value = self.default_width
 
         if not (value >= -1):
@@ -367,12 +381,17 @@ class WindowConfig(UmitConfigParser, object):
         return value
 
     def set_width(self, width):
-        self._set_it("width", width)
+        self._set_it("width", "%d" % width)
 
     def get_height(self):
         try:
             value = int(self._get_it("height", self.default_height))
         except ValueError:
+            value = self.default_height
+        except TypeError as e:
+            v = self._get_it("height", self.default_height)
+            log.exception("Trouble parsing y value as int: %s",
+                    repr(v), exc_info=e)
             value = self.default_height
 
         if not (value >= -1):
@@ -381,7 +400,7 @@ class WindowConfig(UmitConfigParser, object):
         return value
 
     def set_height(self, height):
-        self._set_it("height", height)
+        self._set_it("height", "%d" % height)
 
     x = property(get_x, set_x)
     y = property(get_y, set_y)

@@ -25,7 +25,7 @@ echo "Building bundle"
 # jhbuild build meta-gtk-osx-bootstrap
 # jhbuild build meta-gtk-osx-core
 # jhbuild build meta-gtk-osx-python
-gtk-mac-bundler "$SCRIPT_DIR/zenmap.bundle"
+jhbuild run gtk-mac-bundler "$SCRIPT_DIR/zenmap.bundle"
 
 echo "Stripping unoptimized Python libraries"
 #Remove some stuff that is unneeded. This cuts 40M off the installed size.
@@ -45,8 +45,8 @@ find "$BASE/Resources/lib/python2.7" -type f -name '*.pyo' | while read py; do
 done
 
 echo "Building using distutils"
-python setup.py build --executable "/usr/bin/env python"
-python setup.py install vanilla --prefix "$BASE/Resources"
+jhbuild run python setup.py build --executable "/usr/bin/env python"
+jhbuild run python setup.py install vanilla --prefix "$BASE/Resources"
 
 # This isn't truly necessary, but it allows us to do a simpler check for problems later.
 echo "Rewriting linker paths to pass checks"

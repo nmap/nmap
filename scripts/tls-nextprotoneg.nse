@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"
+local sslcert = require "sslcert"
 local tls = require "tls"
 
 description = [[
@@ -40,7 +41,10 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "default"}
 
-portrule = shortport.ssl
+portrule = function(host, port)
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+end
+
 
 
 --- Function that sends a client hello packet with the TLS NPN extension to the
@@ -59,14 +63,25 @@ local client_hello = function(host, port)
   })
 
   -- Connect to the target server
-  sock = nmap.new_socket()
-  sock:set_timeout(5000)
-  status, err = sock:connect(host, port)
-  if not status then
-    sock:close()
-    stdnse.debug1("Can't send: %s", err)
-    return false
+  local status, err
+  local sock
+  local specialized = sslcert.getPrepareTLSWithoutReconnect(port)
+  if specialized then
+    status, sock = specialized(host, port)
+    if not status then
+      stdnse.debug1("Connection to server failed: %s", sock)
+      return false
+    end
+  else
+    sock = nmap.new_socket()
+    status, err = sock:connect(host, port)
+    if not status then
+      stdnse.debug1("Connection to server failed: %s", err)
+      return false
+    end
   end
+
+  sock:set_timeout(5000)
 
   -- Send Client Hello to the target server
   status, err = sock:send(cli_h)
