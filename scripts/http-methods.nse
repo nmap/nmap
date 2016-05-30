@@ -43,7 +43,7 @@ only the potentially risky methods are shown.
 -- |_  Supported Methods: GET HEAD POST OPTIONS
 --
 -- @usage
--- nmap --script http-methods --script-args <target>
+-- nmap --script http-methods <target>
 -- nmap --script http-methods --script-args http.url-path='/website' <target>
 --
 -- @xmloutput
