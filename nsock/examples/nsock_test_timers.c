@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 
   srand(time(NULL));
   /* OK, we start with creating a p00l */
-  if ((nsp = nsp_new(NULL)) == NULL) {
+  if ((nsp = nsock_pool_new(NULL)) == NULL) {
     fprintf(stderr, "Failed to create new pool.  QUITTING.\n");
     exit(1);
   }
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
     }
   }
   printf("Trying to kill my msp!\n");
-  nsp_delete(nsp);
+  nsock_pool_delete(nsp);
   printf("SUCCESS -- completed %d l00ps.\n", num_loops);
 
   return 0;
