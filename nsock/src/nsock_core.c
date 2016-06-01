@@ -1003,9 +1003,9 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
           if (!nse->iod->ssl && match_w)
             handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
 
-          if (event_timedout(nse))
-            handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
-          break;
+        if (event_timedout(nse))
+          handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
+        break;
 
       case NSE_TYPE_TIMER:
         if (event_timedout(nse))
