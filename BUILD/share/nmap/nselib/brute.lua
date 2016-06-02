@@ -629,12 +629,12 @@ Engine =
     self.counter = self.counter + 1
 
     -- did we exhaust all retries, terminate and report?
-    if ( retries == 0 ) then
-      -- Engine.terminate_all = true
-      self.error = "Too many retries, aborted ..."
-      response = Error:new("Too many retries, aborted ...")
-      response.abort = true
-    end
+    -- if ( retries == 0 ) then
+    --   -- Engine.terminate_all = true
+    --   self.error = "Too many retries, aborted ..."
+    --   response = Error:new("Too many retries, aborted ...")
+    --   response.abort = true
+    -- end
     return status, response
   end,
 
@@ -812,7 +812,7 @@ Engine =
   -- @return status true on success, false on failure
   -- @return err string containing error message on failure
   start = function(self)
-
+  
     local cvar = {}
     local condvar = nmap.condvar( cvar )
 
