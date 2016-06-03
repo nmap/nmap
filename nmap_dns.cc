@@ -732,12 +732,6 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *req) {
      DNS_HAS_ERR(f, DNS::ERR_NOT_IMPLEMENTED) || DNS_HAS_ERR(f, DNS::ERR_REFUSED))
     return;
 
-  //TRUNCATED bit in the flag denotes truncated reply by the server
-  if (DNS_HAS_FLAG(f, DNS::TRUNCATED)){
-    tcp_fallback(nse_iod(evt), (request *)req);
-    return;
-  }
-
   if (DNS_HAS_ERR(f, DNS::ERR_NAME))
   {
     sockaddr_storage discard;
@@ -766,7 +760,12 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *req) {
   }
 
   // If there are no errors and no answer stop processing the event
-  if(p.answers.empty()) return;
+  if(p.answers.empty()){
+    //TRUNCATED bit in the flag denotes truncated reply by the server
+    if (DNS_HAS_FLAG(f, DNS::TRUNCATED)){
+      tcp_fallback(nse_iod(evt), (request *)req);
+    return;
+  }
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )
