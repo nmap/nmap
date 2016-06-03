@@ -143,6 +143,9 @@ int main()
   size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
   
   DNS::Packet p;
+
+  p.isTCP = p.checkTCP(buf, buflen);
+  buflen -= 2*(p.isTCP);
   size_t plen = p.parseFromBuffer(buf, buflen);
   TEST_INCR(reqlen == plen, ret);
 
@@ -177,6 +180,8 @@ int main()
                        0x00, 0x04, // Record Lenght
                        0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
 
+  p.isTCP = p.checkTCP(answere_buf, answere_len);
+  buflen -= 2*(p.isTCP);
   plen = p.parseFromBuffer(answere_buf, answere_len);
   TEST_INCR(answere_len == plen, ret);
 
