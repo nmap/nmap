@@ -138,7 +138,7 @@ int main()
   int ret = 0;
   std::string target = "scanme.nmap.org";
   DNS::RECORD_TYPE rt = DNS::A;
-  const size_t buflen = 1500;
+  size_t buflen = 1500;
   u8 buf[buflen];
   size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
   
@@ -157,7 +157,7 @@ int main()
 
   // This is a possible answere for an A query for scanme.nmap.org
   const char ipp[] = "45.33.32.156";
-  const size_t answere_len = 49;
+  size_t answere_len = 49;
   u8 answere_buf[] = { 0x92, 0xdc, // Trsnsaction ID
                        0x81, 0x80, // Flags
                        0x00, 0x01, // Questions count
