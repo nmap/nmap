@@ -155,7 +155,7 @@ int main()
   // This is a possible answere for an A query for scanme.nmap.org
   const char ipp[] = "45.33.32.156";
   const size_t answere_len = 49;
-  const u8 answere_buf[] = { 0x92, 0xdc, // Trsnsaction ID
+  u8 answere_buf[] = { 0x92, 0xdc, // Trsnsaction ID
                        0x81, 0x80, // Flags
                        0x00, 0x01, // Questions count
                        0x00, 0x01, // Answers RRs count
@@ -200,7 +200,7 @@ int main()
   std::string ptr_target;
   TEST_INCR(DNS::Factory::ipToPtr(ar->value, ptr_target), ret);
   TEST_INCR(ptr_target == "156.32.33.45.in-addr.arpa", ret);
-  const u8 ptr_answere[] = { 0x08, 0xf2, // ID
+  u8 ptr_answere[] = { 0x08, 0xf2, // ID
                                0x81, 0x80, // Flags
                                0x00, 0x01, // Questions count
                                0x00, 0x01, // Answers RRs count
