@@ -177,12 +177,23 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 		   OnLinkPrefixLength member that is stored right with the
 		   unicast address. */
 		bits = 0;
+    if (addr->Length >= 48) {
+      /* "The size of the IP_ADAPTER_UNICAST_ADDRESS structure changed on
+       * Windows Vista and later. The Length member should be used to determine
+       * which version of the IP_ADAPTER_UNICAST_ADDRESS structure is being
+       * used."
+       * Empirically, 48 is the value on Windows 8.1, so should include the
+       * OnLinkPrefixLength member.*/
+      bits = addr->OnLinkPrefixLength;
+    }
+    else {
 		for (prefix = a->FirstPrefix; prefix != NULL; prefix = prefix->Next) {
 			if (prefix->Address.lpSockaddr->sa_family == addr->Address.lpSockaddr->sa_family) {
 				bits = (unsigned short) prefix->PrefixLength;
 				break;
 			}
 		}
+    }
 
 		if (entry->intf_addr.addr_type == ADDR_TYPE_NONE) {
 			/* Set primary address if unset. */

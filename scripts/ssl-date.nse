@@ -194,7 +194,7 @@ action = function(host, port)
       status, tm = test_time_sample(host, port, reftm)
     end
     if not status then
-      return stdnse.format_output(false, "Unable to obtain data from the target")
+      return nil
     end
     if status ~= result.ACCEPTED then
       return {}, "TLS randomness does not represent time"

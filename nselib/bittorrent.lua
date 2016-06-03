@@ -1156,7 +1156,7 @@ Torrent =
     end
 
     -- the action in the response has to be 0 too
-    if not r_action == "00000000" then
+    if r_action ~= "00000000" then
       return false, "Wrong action field, usually caused by an erroneous request"
     end
 

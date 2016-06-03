@@ -193,7 +193,7 @@ function dropByte (dnsPacket)
   -- Iterate over every byte in the packet
   dnsPacket:gsub(".", function(c)
       i=i+1
-      if not i==byteToDrop then
+      if i ~= byteToDrop then
         newPacket[#newPacket+1] = c
       end
     end)
@@ -328,7 +328,7 @@ action = function(host, port)
     query =  makePacket ()
     -- induce random jitter
     retStr = corruptAndSend (host, port, query)
-    if not retStr==nil then
+    if retStr then
       return retStr
     end
   end
