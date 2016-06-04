@@ -71,7 +71,6 @@ counter = 0
 -- requested concurrent connections because of the webserver configuration (eg
 -- maxClients on Apache)
 local Sockets = 1
-local socket = {}
 -- this will save the amount of new lines sent to the half-http requests until
 -- the target runs out of ressources
 local Queries = 0
@@ -295,6 +294,7 @@ local function worker_scheduler(host, port)
 end
 
 action = function(host, port)
+
   Mutex("lock") -- we want only one slowloris instance running at a single
   -- time even if multiple hosts are specified
   -- in order to have as many sockets as we can available to
