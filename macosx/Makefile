@@ -3,6 +3,7 @@
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+OSX_VERS=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 
@@ -33,7 +34,7 @@ JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
 # MACPORTS_PREFIX is still here because of nmap-update, which needs
 # libsvn and libapr, which jhbuild doesn't support yet.
-MACPORTS_PREFIX=$(HOME)/macports-10.8
+# MACPORTS_PREFIX=$(HOME)/macports-10.8
 PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
@@ -53,11 +54,11 @@ UNIVERSAL_CXX = g++
 # turn uses the arch value to decide which of its bootstrappers to
 # install.
 UNIVERSAL_ARCHFLAGS = -arch i386
-UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERS).sdk
 UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.8 $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
 # https://stackoverflow.com/questions/19637164/c-linking-error-after-upgrading-to-mac-os-x-10-9-xcode-5-0-1/19637199#19637199
-UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -mmacosx-version-min=10.9 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERS).sdk -mmacosx-version-min=10.9 $(UNIVERSAL_ARCHFLAGS)
 
 CC = $(UNIVERSAL_CC)
 CXX = $(UNIVERSAL_CXX)
@@ -70,20 +71,33 @@ LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
+SVN_STATIC = $(JHBUILD_PREFIX)/lib/libsvn_client-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_wc-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_diff-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_delta-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_subr-1.a \
+$(JHBUILD_PREFIX)/lib/libexpat.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra_svn-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra_local-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_repos-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs_util-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs_fs-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs_x-1.a \
+$(JHBUILD_PREFIX)/lib/libintl.a
+APR_STATIC = $(JHBUILD_PREFIX)/lib/libapr-1.a $(JHBUILD_PREFIX)/lib/libaprutil-1.a $(JHBUILD_PREFIX)/lib/libapriconv-1.a
 
-$(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
+$(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
-
-path-check:
-	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
 
 have-%:
 	which $*
 
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap-update COPYING.formatted # check-nmap check-ncat check-ndiff check-zenmap check-nping 
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
@@ -115,13 +129,13 @@ stage-nping: export-$(NPING_BUILD_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
-	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
-	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update
+	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr="$(JHBUILD_PREFIX)" --with-subversion="$(JHBUILD_PREFIX)" $(CONFIGURE_ARGS)
+	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" 
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
-	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libapr-1.0.dylib" "/usr/lib/libapr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_client-1.0.dylib" "/usr/lib/libsvn_client-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_subr-1.0.dylib" "/usr/lib/libsvn_subr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)" APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)"
+	#install_name_tool -change "$(JHBUILD_PREFIX)/lib/libapr-1.0.dylib" "/usr/lib/libapr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	#install_name_tool -change "$(JHBUILD_PREFIX)/lib/libsvn_client-1.0.dylib" "/usr/lib/libsvn_client-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	#install_name_tool -change "$(JHBUILD_PREFIX)/lib/libsvn_subr-1.0.dylib" "/usr/lib/libsvn_subr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
 
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
