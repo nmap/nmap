@@ -2294,9 +2294,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin = (struct sockaddr_in *) &hdr.src;
-    inet_ntop(AF_INET, &sin->sin_addr.s_addr, srchost, sizeof(srchost));
+    inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, srchost, sizeof(srchost));
     sin = (struct sockaddr_in *) &hdr.dst;
-    inet_ntop(AF_INET, &sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
+	inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
 
     /* Compute fragment offset and check if flags are set */
     frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
@@ -2348,9 +2348,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin6 = (struct sockaddr_in6 *) &hdr.src;
-    inet_ntop(AF_INET6, sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
+	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
     sin6 = (struct sockaddr_in6 *) &hdr.dst;
-    inet_ntop(AF_INET6, sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
+	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
 
     /* Obtain flow label and traffic class */
     u32 flow = ntohl(ip6->ip6_flow);

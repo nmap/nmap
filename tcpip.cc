@@ -235,11 +235,11 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   }
 
   if (frame[7] == 1) { /* arp REQUEST */
-    inet_ntop(AF_INET, frame + 24, who_has, sizeof(who_has));
-    inet_ntop(AF_INET, frame + 14, tell, sizeof(tell));
+    inet_ntop(AF_INET, (void *)(frame + 24), who_has, sizeof(who_has));
+    inet_ntop(AF_INET, (void *)(frame + 14), tell, sizeof(tell));
     Snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
   } else { /* ARP REPLY */
-    inet_ntop(AF_INET, frame + 14, who_has, sizeof(who_has));
+    inet_ntop(AF_INET, (void *)(frame + 14), who_has, sizeof(who_has));
     Snprintf(arpdesc, sizeof(arpdesc),
              "reply %s is-at %02X:%02X:%02X:%02X:%02X:%02X", who_has,
              frame[8], frame[9], frame[10], frame[11], frame[12],
