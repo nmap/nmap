@@ -4,6 +4,7 @@
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 OSX_VERSION=$(shell sw_vers -productVersion | cut -d'.' -f1,2 | tr -d ' ')
+OSX_MIN_VERSION = 10.8
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 
@@ -55,10 +56,10 @@ UNIVERSAL_CXX = g++
 # install.
 UNIVERSAL_ARCHFLAGS = -arch i386
 UNIVERSAL_CPPFLAGS = -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERSION).sdk
-UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.8 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=$(OSX_MIN_VERSION) $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
 # https://stackoverflow.com/questions/19637164/c-linking-error-after-upgrading-to-mac-os-x-10-9-xcode-5-0-1/19637199#19637199
-UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERSION).sdk -mmacosx-version-min=10.8 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_LDFLAGS = -stdlib=libstdc++ -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VERSION).sdk -mmacosx-version-min=$(OSX_MIN_VERSION) $(UNIVERSAL_ARCHFLAGS)
 
 CC = $(UNIVERSAL_CC)
 CXX = $(UNIVERSAL_CXX)
