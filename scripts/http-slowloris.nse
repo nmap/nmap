@@ -66,7 +66,6 @@ local end_time
 
 -- this will save the amount of still connected threads
 local ThreadCount = 0
-counter = 0
 -- the maximum amount of sockets during the attack. This could be lower than the
 -- requested concurrent connections because of the webserver configuration (eg
 -- maxClients on Apache)
