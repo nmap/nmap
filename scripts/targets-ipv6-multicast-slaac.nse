@@ -32,7 +32,7 @@ See also:
 
 ---
 -- @usage
--- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0' -sP
+-- nmap -6 --script targets-ipv6-multicast-slaac --script-args 'newtargets,interface=eth0' -sP
 -- @output
 -- Pre-scan script results:
 -- | targets-ipv6-multicast-slaac:
