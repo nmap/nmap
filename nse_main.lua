@@ -473,7 +473,6 @@ do
       script = self,
       type = script_type,
       worker = false,
-      reap = false, --reap flag is used to indicate whether child threads should be killed or not
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -490,7 +489,7 @@ do
       info = format("%s W:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = self,
       worker = true,
-      reap = false, --reap flag is used to indicate whether child threads should be killed or not
+      reap = false, --reap flag is used to indicate whether to wait for child threads or not
     };
     setmetatable(thread, Worker)
     local function info ()
