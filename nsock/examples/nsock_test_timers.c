@@ -81,7 +81,7 @@ nsock_event_id request_timer(nsock_pool nsp, nsock_ev_handler handler, int timeo
 
 }
 
-int try_cancel_timer(nsock_pool * nsp, int idx, int notify) {
+int try_cancel_timer(nsock_pool nsp, int idx, int notify) {
   int res;
 
   printf("%ld:Attempting to cancel id %li (idx %d) %s notify.\n", time(NULL), ev_ids[idx], idx, ((notify) ? "WITH" : "WITHOUT"));

@@ -128,7 +128,7 @@ void telnet_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       nsock_iod_get_communication_info(nsi, NULL, NULL, NULL, (struct sockaddr *)&peer, sizeof peer);
-      printf("Successfully connected %sto %s:%hu -- start typing lines\n", (type == NSE_TYPE_CONNECT_SSL) ? "(SSL!) " : "", inet_ntoa(peer.sin_addr), peer.sin_port);
+      printf("Successfully connected %sto %s:%hu -- start typing lines\n", (type == NSE_TYPE_CONNECT_SSL) ? "(SSL!) " : "", inet_ntoa(peer.sin_addr), ntohs(peer.sin_port));
       /* First of all, lets add STDIN to our list of watched filehandles */
       if ((ts->stdin_nsi = nsock_iod_new2(nsp, STDIN_FILENO, NULL)) == NULL) {
         fprintf(stderr, "Failed to create stdin msi\n");
