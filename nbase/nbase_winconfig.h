@@ -152,6 +152,12 @@
 #define HAVE_SYS_STAT_H 1
 /* #define HAVE_INTTYPES_H */
 
+/* These functions are available on Vista and later */
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN6
+#define HAVE_INET_PTON 1
+#define HAVE_INET_NTOP 1
+#endif
+
 #ifdef _MSC_VER
 /* <wspiapi.h> only comes with Visual Studio. */
 #define HAVE_WSPIAPI_H 1
