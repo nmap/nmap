@@ -473,6 +473,7 @@ do
       script = self,
       type = script_type,
       worker = false,
+      reap = false, --reap flag is used to indicate whether child threads should be killed or not
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -489,6 +490,7 @@ do
       info = format("%s W:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = self,
       worker = true,
+      reap = false, --reap flag is used to indicate whether child threads should be killed or not
     };
     setmetatable(thread, Worker)
     local function info ()
@@ -917,7 +919,7 @@ local function run (threads_iter, hosts)
     local worker, info = current:new_worker(main, ...);
     total, all[worker.co], pending[worker.co], num_threads = total+1, worker, worker, num_threads+1;
     worker:start(timeouts);
-    return worker.co, info;
+    return worker.co, info, worker;
   end);
 
   rawset(stdnse, "base", function ()
@@ -989,6 +991,13 @@ local function run (threads_iter, hosts)
                     thread.port and ":"..thread.port.number or "")
             or "");
         thread:close(timeouts, "timed out");
+      elseif thread.parent.reap then
+        waiting[co], all[co], num_threads = nil, nil, num_threads-1;
+        thread:d("%THREAD %shas been killed", thread.host
+            and format("%s%s ", thread.host.ip,
+                    thread.port and ":"..thread.port.number or "")
+            or "");
+        thread:close(timeouts, "killed");
       end
     end
 
