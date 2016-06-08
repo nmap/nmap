@@ -570,6 +570,14 @@ void printportoutput(Target *currenths, PortList *plist) {
   int prevstate = PORT_UNKNOWN;
   int istate;
 
+  if (currenths->timedOut(NULL)) {
+    xml_open_start_tag("portscan");
+    xml_attribute("output", "partial");
+    xml_attribute("reason", "host-timeout");
+    xml_close_start_tag();
+    xml_newline();
+  }
+
   while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
     xml_open_start_tag("extraports");
     xml_attribute("state", "%s", statenum2str(istate));
@@ -1867,14 +1875,29 @@ void printosscanoutput(Target *currenths) {
   FingerPrintResults *FPR;
   int osscan_flag;
 
-  if (!(osscan_flag = currenths->osscanPerformed()))
+  if ( !(osscan_flag = currenths->osscanPerformed()) || currenths->FPR == NULL ) {
+    if (o.osscan && currenths->timedOut(NULL)) {
+      xml_open_start_tag("osscan");
+      xml_attribute("output", "empty");
+      xml_attribute("reason", "host-timeout");
+      xml_close_start_tag();
+      xml_newline();
+    }
     return;
+  }
 
-  if (currenths->FPR == NULL)
-    return;
   FPR = currenths->FPR;
 
   xml_start_tag("os");
+
+  if (currenths->timedOut(NULL)) {
+  xml_open_start_tag("osscan");
+  xml_attribute("output", "partial");
+  xml_attribute("reason", "host-timeout");
+  xml_close_start_tag();
+  xml_newline();
+  }
+
   if (FPR->osscan_opentcpport > 0) {
     xml_open_start_tag("portused");
     xml_attribute("state", "open");
@@ -2252,9 +2275,17 @@ void printhostscriptresults(Target *currenths) {
   ScriptResults::iterator iter;
   char *script_output;
 
+
   if (currenths->scriptResults.size() > 0) {
     currenths->scriptResults.sort(scriptid_lessthan);
     xml_start_tag("hostscript");
+    if (currenths->timedOut(NULL)) {
+      xml_open_start_tag("hostscan");
+      xml_attribute("output", "partial");
+      xml_attribute("reason", "host-timeout");
+      xml_close_start_tag();
+      xml_newline();
+    }
     log_write(LOG_PLAIN, "\nHost script results:\n");
     for (iter = currenths->scriptResults.begin();
          iter != currenths->scriptResults.end();
