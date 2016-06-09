@@ -33,7 +33,7 @@ categories = { "vuln", "discovery", "safe" }
 portrule = shortport.http
 
 local function generateHttpV1_0Req(host, port, path)
-  local privateIP
+  local redirectIP, privateIP
   local socket = nmap.new_socket()
   socket:connect(host, port)
 
@@ -47,23 +47,25 @@ local function generateHttpV1_0Req(host, port, path)
     end
 
     -- Check if the response contains a location header
-    local location = lines:match("Location: ([%a%p%d]+)")
-    if location then
-      stdnse.debug1("Location: %s", location)
-
+    if lines:match("Location") then
+      local locTarget = lines:match("Location: [%a%p%d]+")
       -- Check if the redirect location contains an IP address
-      if ipOps.isPrivate(location) then
-        privateIP = location
-        stdnse.debug1("Internal IP: %s", privateIP)
-        break
+      redirectIP = locTarget:match("[%d%.]+")
+      if redirectIP then
+        privateIP, _ = ipOps.isPrivate(redirectIP)
       end
+
+      stdnse.debug1("Location: %s", locTarget )
+      stdnse.debug1("Internal IP: %s", redirectIP )
     end
   end
 
   socket:close()
 
   -- Only report if the internal IP leaked is different then the target IP
-  return privateIP
+  if privateIP and redirectIP ~= host.ip then
+    return redirectIP
+  end
 end
 
 action = function(host, port)
