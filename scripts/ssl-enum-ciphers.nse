@@ -311,7 +311,7 @@ and therefore is quite noisy.
 -- </table>
 -- <elem key="least strength">C</elem>
 
-author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
+author = {"Mak Kolybabi <mak@kolybabi.com>", "Gabriel Lawrence"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

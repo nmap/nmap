@@ -53,7 +53,7 @@ when run from Windows.
 -- |   with 501 concurrent connections
 -- |_  and 441 sent queries
 
-author = "Aleksandar Nikolic, Ange Gutek"
+author = {"Aleksandar Nikolic", "Ange Gutek"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"dos", "intrusive"}
 

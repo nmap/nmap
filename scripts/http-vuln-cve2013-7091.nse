@@ -49,7 +49,7 @@ Then, send some payload to create the new mail account.
 -- @args http-vuln-cve2013-7091.uri URI. Default: /zimbra
 ---
 
-author = "Paul AMAR <aos.paul@gmail.com>, Ron Bowes"
+author = {"Paul AMAR <aos.paul@gmail.com>", "Ron Bowes"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 

@@ -5,7 +5,7 @@
 -- which have a trivial one-function interface, can send out DHCP packets of many
 -- types and parse the responses.
 --
--- @author "Ron Bowes"
+-- @author Ron Bowes
 
 --
 -- 2011-12-28 - Revised by Patrik Karlsson <patrik@cqure.net>

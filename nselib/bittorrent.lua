@@ -19,7 +19,7 @@
 -- After these operations the peers and nodes can be found in <code>torrent.peers</code> and
 -- <code>torrent.nodes</code> tables respectively
 --
--- @author "Gorjan Petrovski"
+-- @author Gorjan Petrovski
 -- @license "Same as Nmap--See https://nmap.org/book/man-legal.html"
 --
 

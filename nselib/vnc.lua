@@ -19,7 +19,7 @@
 --
 
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 -- Version 0.1
 -- Created 07/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

@@ -60,7 +60,7 @@
 -- x IBM Informix Dynamic Server xxx 32-bit on Windows 2003
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 -- @args informix.instance specifies the Informix instance to connect to
 

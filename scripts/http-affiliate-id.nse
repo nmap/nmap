@@ -42,7 +42,7 @@ Supported IDs:
 -- |   thisisphotobomb.memebase.com:80/
 -- |_  memebase.com:80/
 
-author = "Hani Benhabiles, Daniel Miller, Patrick Donnelly"
+author = {"Hani Benhabiles", "Daniel Miller", "Patrick Donnelly"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

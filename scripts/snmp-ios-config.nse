@@ -35,7 +35,7 @@ Attempts to downloads Cisco router IOS configuration files using SNMP RW (v1) an
 -- Created 01/03/2011 - v0.1 - created by Vikas Singhal
 -- Revised 02/22/2011 - v0.2 - cleaned up and added support for built-in tftp, Patrik Karlsson <patrik@cqure.net>
 
-author = "Vikas Singhal, Patrik Karlsson"
+author = {"Vikas Singhal", "Patrik Karlsson"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

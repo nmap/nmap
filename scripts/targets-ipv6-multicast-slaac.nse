@@ -40,7 +40,7 @@ See also:
 -- |_  Use --script-args=newtargets to add the results as targets
 -- @args targets-ipv6-multicast-slaac.interface  The interface to use for host discovery.
 
-author = "David Fifield, Xu Weilin"
+author = {"David Fifield", "Xu Weilin"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
