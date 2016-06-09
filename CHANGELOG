@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] ssl-enum-ciphers will give a failing score to any server with an RSA
+  certificate whose public key uses an exponent of 1. [Daniel Miller]
+
 o Update oldest supported Windows version to Vista (Windows 6.0). This enables
   the use of the poll Nsock engine. [Daniel Miller]
 
