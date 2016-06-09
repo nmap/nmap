@@ -128,6 +128,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>
+#include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
@@ -145,6 +146,12 @@ struct cert_userdata {
   X509 *cert;
   int attributes_table;
 };
+
+/* from nse_openssl.cc */
+typedef struct bignum_data {
+  BIGNUM * bn;
+} bignum_data_t;
+
 
 SSL *nse_nsock_get_ssl(lua_State *L);
 
@@ -545,6 +552,14 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   pkey_type = EVP_PKEY_type(pubkey->type);
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
+  }
+  else if (pkey_type == EVP_PKEY_RSA) {
+    RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
+    bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+    luaL_getmetatable( L, "BIGNUM" );
+    lua_setmetatable( L, -2 );
+    data->bn = rsa->e;
+    lua_setfield(L, -2, "exponent");
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");
