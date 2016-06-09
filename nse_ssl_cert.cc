@@ -433,20 +433,19 @@ static const char *pkey_type_to_string(int type)
   }
 }
 
-void lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#ifdef EC_KEY
+int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
+#ifdef EVP_PKEY_EC
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
+  /* This structure (ecdhparams.curve_params) comes from tls.lua */
+  lua_newtable(L); /* ecdhparams */
+  lua_newtable(L); /* curve_params */
   if ((nid = EC_GROUP_get_curve_name(group)) != 0) {
-    lua_newtable(L);
-    lua_newtable(L);
     lua_pushstring(L, OBJ_nid2sn(nid));
     lua_setfield(L, -2, "curve");
     lua_pushstring(L, "namedcurve");
     lua_setfield(L, -2, "ec_curve_type");
-    lua_setfield(L, -2, "curve_params");
-    lua_setfield(L, -2, "ecdhparams");
   }
   else {
     /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
@@ -454,26 +453,23 @@ void lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
        to add in code to extract the extra parameters. */
     nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
     if (nid == NID_X9_62_prime_field) {
-      lua_newtable(L);
-      lua_newtable(L);
       lua_pushstring(L, "explicit_prime");
       lua_setfield(L, -2, "ec_curve_type");
-      lua_setfield(L, -2, "curve_params");
-      lua_setfield(L, -2, "ecdhparams");
     }
     else if (nid == NID_X9_62_characteristic_two_field) {
-      lua_newtable(L);
-      lua_newtable(L);
       lua_pushstring(L, "explicit_char2");
       lua_setfield(L, -2, "ec_curve_type");
-      lua_setfield(L, -2, "curve_params");
-      lua_setfield(L, -2, "ecdhparams");
     }
     else {
-      /* Something wierd happened. */
+      /* Something weird happened. */
+      return luaL_error(L, "Unknown EC field type in certificate.");
     }
   }
+  lua_setfield(L, -2, "curve_params");
   EC_KEY_free(ec_key);
+  return 1;
+#else
+  return 0;
 #endif
 }
 
@@ -552,6 +548,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   pkey_type = EVP_PKEY_type(pubkey->type);
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
+    lua_setfield(L, -2, "ecdhparams");
   }
   else if (pkey_type == EVP_PKEY_RSA) {
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
