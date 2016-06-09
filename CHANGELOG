@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Update oldest supported Windows version to Vista (Windows 6.0). This enables
+  the use of the poll Nsock engine. [Daniel Miller]
+
+o [GH#345][Zenmap] On Windows, save Zenmap's stderr output to a writeable
+  location (%LOCALAPPDATA%\zenmap.exe.log or %TEMP%\zenmap.exe.log) instead of
+  next to the zenmap.exe executable. This avoids a warning message when closing
+  Zenmap if it produced any stderr output. [Daniel Miller]
+
 o [GH#379][NSE] Fix http-iis-short-name-brute to report non vulnerable hosts.
   Reported by alias1. [Paulino Calderon]
 
