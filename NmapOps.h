@@ -386,6 +386,7 @@ class NmapOps {
   int script;
   char *scriptargs;
   char *scriptargsfile;
+  char *script_expression;
   int scriptversion;
   int scripttrace;
   int scriptupdatedb;

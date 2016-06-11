@@ -384,6 +384,7 @@ static void open_cnse (lua_State *L)
   nseU_setsfield(L, -1, "script_dbpath", SCRIPT_ENGINE_DATABASE);
   nseU_setsfield(L, -1, "scriptargs", o.scriptargs);
   nseU_setsfield(L, -1, "scriptargsfile", o.scriptargsfile);
+  nseU_setsfield(L, -1, "script_expression", o.script_expression);
   nseU_setsfield(L, -1, "NMAP_URL", NMAP_URL);
 
 }

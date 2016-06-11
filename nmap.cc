@@ -709,6 +709,7 @@ void parse_options(int argc, char **argv) {
       if (strcmp(long_options[option_index].name, "script") == 0) {
         o.script = 1;
         o.chooseScripts(optarg);
+        o.script_expression = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "script-args") == 0) {
         o.scriptargs = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "script-args-file") == 0) {
