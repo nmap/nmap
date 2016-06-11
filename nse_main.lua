@@ -701,7 +701,11 @@ local function make_parser()
 end
 
 local function apply_short_syntax(script_args)
- 
+
+  if not cnse.script_expression then
+    return script_args
+  end
+
   local parser = make_parser()
   local output = parser:match(cnse.script_expression)
   local args = generate_args(output)
