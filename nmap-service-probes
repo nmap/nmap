@@ -14679,3 +14679,10 @@ ports 1194,443,500
 rarity 9
 match openvpn m|^@........\x01\0\0\0\0d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0$| p/OpenVPN/
 
+##############################NEXT PROBE##############################
+# Detects iperf3 servers by sending a string longer than the 37-byte test identifer or cookie
+# https://github.com/esnet/iperf/wiki/IperfProtocolStates#test-initiation
+Probe TCP iperf3 q|000000000000000000000000000000000000000|
+ports 5201
+match iperf3 m|\t$|
+
