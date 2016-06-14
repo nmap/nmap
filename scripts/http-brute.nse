@@ -112,8 +112,7 @@ Driver = {
     -- Checking for ~= 401 *should* work to
     -- but gave me a number of false positives last time I tried.
     -- We decided to change it to ~= 4xx.
-    if ( response.status < 400 ) then --or response.status > 499 ) then
-      -- print("response code is "..response.status)
+    if ( response.status < 400 or response.status > 499 ) then
       return true, creds.Account:new( username, password, creds.State.VALID)
     end
     return false, brute.Error:new( "Incorrect password" )
@@ -141,7 +140,9 @@ action = function( host, port )
 
   local response = http.generic_request( host, port, method, path, { no_cache = true } )
 
-  if ( not  ( response.status >= 400 ) ) then
+  -- Typically checking for response.status as 401 is sufficient 
+  -- but due to many of the non-standrard implementation we are checking for 4XX codes.
+  if ( not ( response.status == 401 or (response.status >= 400 and response.status <= 499 and response.header['www-authenticate']) ) ) then
     return ("  \n  Path \"%s\" does not require authentication"):format(path)
   end
 
