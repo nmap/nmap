@@ -249,6 +249,7 @@ class IPv4Header : public NetworkLayerElement {
         u8 getNextProto() const;
         int setNextHeader(u8 val);
         u8 getNextHeader() const;
+        virtual u8 getNextHeader(){return 0;}
 
         /* Checksum */
         int setSum();
@@ -261,16 +262,18 @@ class IPv4Header : public NetworkLayerElement {
         int setDestinationAddress(struct in_addr d);
         const u8 *getDestinationAddress() const;
         struct in_addr getDestinationAddress(struct in_addr *result) const;
-
+        virtual u8 *getDestinationAddress(){return NULL;}
 
         /* Source IP */
         int setSourceAddress(u32 d);
         int setSourceAddress(struct in_addr d);
         const u8 *getSourceAddress() const;
         struct in_addr getSourceAddress(struct in_addr *result) const;
+        virtual u8 *getSourceAddress(){return NULL;}
 
         u16 getAddressLength() const;
-
+        virtual u16 getAddressLength(){return 0;}
+        
         /* IP Options */
         int setOpts(const char *txt);
         int setOpts(u8 *opts_buff,  u32 opts_len);
