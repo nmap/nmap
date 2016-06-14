@@ -50,7 +50,7 @@ No output is reported if no valid account is found.
 -- |   dragon - Valid credentials
 -- |_  jordan - Valid credentials
 
-author = "Philip Pickering, Gorjan Petrovski, Patrik Karlsson, Gioacchino Mazzurco"
+author = {"Philip Pickering", "Gorjan Petrovski", "Patrik Karlsson", "Gioacchino Mazzurco"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

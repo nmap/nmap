@@ -958,7 +958,8 @@ local function run (threads_iter, hosts)
     end
 
     local nr, nw = table_size(running), table_size(waiting);
-    if cnse.key_was_pressed() then
+    -- total may be 0 if no scripts are running in this phase
+    if total > 0 and cnse.key_was_pressed() then
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)",
           nr+nw, nw);
       progress("printStats", 1-(nr+nw)/total);
@@ -972,7 +973,7 @@ local function run (threads_iter, hosts)
               (gsub(traceback(co), "\n", "\n\t")));
         end
       end
-    elseif progress "mayBePrinted" then
+    elseif total > 0 and progress "mayBePrinted" then
       if verbosity() > 1 or debugging() > 0 then
         progress("printStats", 1-(nr+nw)/total);
       else

@@ -36,7 +36,7 @@ successfully added.
 -- |_    Traffic stats: 6.45 Mb sent, 15.01 Mb received
 --
 
-author = "Thomas Buchanan, Kris Katterjohn"
+author = {"Thomas Buchanan", "Kris Katterjohn"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"snmp-brute"}

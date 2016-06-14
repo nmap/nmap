@@ -91,7 +91,7 @@
 --                       Credentials.getCredentials for [service]. E.g.
 --                       creds.http=admin:password
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- Version 0.5

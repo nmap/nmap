@@ -28,7 +28,7 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
--- @author "Riccardo Cecolin <n@rikiji.de>"
+-- @author Riccardo Cecolin <n@rikiji.de>
 --
 
 local bin = require "bin"

@@ -30,7 +30,7 @@ and highlights writeable files.
 -- | drwxr-sr-x   2 1170     924          1024 Aug  5  2004 pub
 -- |_Only 6 shown. Use --script-args ftp-anon.maxlist=-1 to see all.
 
-author = "Eddie Bell, Rob Nicholls, Ange Gutek, David Fifield"
+author = {"Eddie Bell", "Rob Nicholls", "Ange Gutek", "David Fifield"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 

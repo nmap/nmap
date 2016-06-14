@@ -161,7 +161,7 @@
 --       (default: 0 (unlimited)). The argument can be used to prevent account
 --       lockouts.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 --

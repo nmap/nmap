@@ -61,7 +61,7 @@ requested.
 -- | Dir_entry_type=INDIRECT
 -- |_Authentication=NOTSPEC
 
-author = "Patrik Karlsson, Tom Sellers"
+author = {"Patrik Karlsson", "Tom Sellers"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

@@ -1,7 +1,7 @@
 ---
 -- This library implements HTTP requests used by the Cisco AnyConnect VPN Client
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 -- @args anyconnect.group AnyConnect tunnel group (default: VPN)
 -- @args anyconnect.mac MAC address of connecting client (default: random MAC)

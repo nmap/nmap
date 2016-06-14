@@ -68,7 +68,7 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 -- @args nfs.version number If set overrides the detected version of nfs
 -- @args mount.version number If set overrides the detected version of mountd

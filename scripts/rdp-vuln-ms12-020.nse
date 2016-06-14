@@ -64,7 +64,7 @@ Original check by by Worawit Wang (sleepya).
 -- |       http://technet.microsoft.com/en-us/security/bulletin/ms12-020
 -- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-0002
 
-author = "Aleksandar Nikolic, based on python script by sleepya"
+author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
