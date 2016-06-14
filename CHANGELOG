@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix a crash that happened when trying to print the percent done of 0
+  NSE script threads:
+    timing.cc:710 bool ScanProgressMeter::printStats(double, const timeval*): Assertion 'ltime' failed.
+  This would happen if no scripts were scheduled in a scan phase and the user
+  pressed a key or specified a short --stats-every interval. Reported by
+  Richard Petrie. [Daniel Miller]
+
 o [NSE] ssl-enum-ciphers will give a failing score to any server with an RSA
   certificate whose public key uses an exponent of 1. [Daniel Miller]
 
