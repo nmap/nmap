@@ -140,6 +140,10 @@
 #include <math.h>
 
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 /* 8 options:
  *  0~5: six options for SEQ/OPS/WIN/T1 probes.
@@ -1415,7 +1419,11 @@ HostOsScan::HostOsScan(Target *t) {
   rawsd = -1;
   ethsd = NULL;
 
-  if ((o.sendpref & PACKET_SEND_ETH) &&  t->ifType() == devt_ethernet) {
+  if ((o.sendpref & PACKET_SEND_ETH) && (t->ifType() == devt_ethernet
+#ifdef WIN32
+    || (g_has_npcap_loopback && t->ifType() == devt_loopback)
+#endif
+    )) {
     if ((ethsd = eth_open_cached(t->deviceName())) == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
     rawsd = -1;
@@ -3511,7 +3519,7 @@ OsScanInfo::OsScanInfo(std::vector<Target *> &Targets) {
     }
 
 #ifdef WIN32
-    if (Targets[targetno]->ifType() == devt_loopback) {
+    if (g_has_npcap_loopback == 0 && Targets[targetno]->ifType() == devt_loopback) {
       log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhost)\n", Targets[targetno]->NameIP());
       continue;
     }
