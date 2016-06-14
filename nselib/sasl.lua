@@ -47,6 +47,15 @@ local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 local unicode = require "unicode"
+local lpeg = require "lpeg";
+lpeg.locale(lpeg)
+local P = lpeg.P;
+local S = lpeg.S;
+local C = lpeg.C;
+local Cf = lpeg.Cf;
+local Cg = lpeg.Cg;
+local Ct = lpeg.Ct;
+local space = lpeg.space
 _ENV = stdnse.module("sasl", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require, 'openssl')
@@ -87,28 +96,19 @@ if HAVE_SSL then
       local results = {}
       local start, stop = 0,0
       if self.chall then
-        while(true) do
-          local name, value
-          start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
-          if ( not(start) ) then break end
-          if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
-            start, stop, value = self.chall:find("(.-)\"", stop + 2)
-          else
-            start, stop, value = self.chall:find("([^,]*)", stop + 1)
-          end
-          name = name:lower()
-          if name == "digest realm" then name="realm" end
-          self.challnvs[name] = value
-          start, stop = self.chall:find("%s*,%s*", stop + 1)
-          if ( not(start) ) then break end
-        end
+        local key = C(lpeg.alpha^1)
+        local value = lpeg.C(lpeg.P'\"'^-1 * (lpeg.alnum+S'@.')^1 * P'\"'^-1)-- * lpeg.P'\"'
+        local sep = S(",") * space
+        local pair = Cg(key * "=" * value) * sep^-1
+        local list = Cf(lpeg.P'Digest ' * Ct("") * pair^0, rawset)
+        self.challnvs = list:match(self.chall)
       end
     end,
 
     --- Calculates the digest
     calcDigest = function( self )
       local uri = self.uri or ("%s/%s"):format(self.service, "localhost")
-      local realm = self.realm or self.challnvs.realm or ""
+      local realm = self.realm or self.challnvs['realm'] or ""
       local cnonce = stdnse.tohex(openssl.rand_bytes( 8 ))
       local qop = "auth"
       local qop_not_specified
@@ -118,16 +118,16 @@ if HAVE_SSL then
         qop_not_specified = true
       end
       self.nc = self.nc + 1
-      local A1_part1 = openssl.md5(self.username .. ":" .. (self.challnvs.realm or "") .. ":" .. self.password)
-      local A1 = stdnse.tohex(openssl.md5(A1_part1 .. ":" .. self.challnvs.nonce .. ':' .. cnonce))
+      local A1_part1 = openssl.md5(self.username .. ":" .. (self.challnvs['realm'] or "") .. ":" .. self.password)
+      local A1 = stdnse.tohex(openssl.md5(A1_part1 .. ":" .. self.challnvs['nonce'] .. ':' .. cnonce))
       local A2 = stdnse.tohex(openssl.md5(("%s:%s"):format(self.method, uri)))
-      local digest = stdnse.tohex(openssl.md5(A1 .. ":" .. self.challnvs.nonce .. ":" ..
+      local digest = stdnse.tohex(openssl.md5(A1 .. ":" .. self.challnvs['nonce'] .. ":" ..
         ("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" ..
         qop .. ":" .. A2))
 
       local b1
-      if not self.challnvs.algorithm or self.challnvs.algorithm == "MD5" then
-        b1 = stdnse.tohex(openssl.md5(self.username..":"..(self.challnvs.realm or "")..":"..self.password))
+      if not self.challnvs['algorithm'] or self.challnvs['algorithm'] == "MD5" then
+        b1 = stdnse.tohex(openssl.md5(self.username..":"..(self.challnvs['realm'] or "")..":"..self.password))
       else
         b1 = A1
       end
@@ -136,15 +136,15 @@ if HAVE_SSL then
 
       local digest_http
       if not qop_not_specified then
-        digest_http =  stdnse.tohex(openssl.md5(b1 .. ":" .. self.challnvs.nonce .. ":" ..
+        digest_http =  stdnse.tohex(openssl.md5(b1 .. ":" .. self.challnvs['nonce'] .. ":" ..
           ("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" .. qop .. ":" .. A2))
       else
-        digest_http =  stdnse.tohex(openssl.md5(b1 .. ":" .. self.challnvs.nonce .. ":" .. A2))
+        digest_http =  stdnse.tohex(openssl.md5(b1 .. ":" .. self.challnvs['nonce'] .. ":" .. A2))
       end
 
       local response = "username=\"" .. self.username .. "\""
       .. (",%s=\"%s\""):format("realm", realm)
-      .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
+      .. (",%s=\"%s\""):format("nonce", self.challnvs['nonce'])
       .. (",%s=\"%s\""):format("cnonce", cnonce)
       .. (",%s=%08d"):format("nc", self.nc)
       .. (",%s=%s"):format("qop", "auth")
@@ -157,12 +157,12 @@ if HAVE_SSL then
       local response_table = {
         username = self.username,
         realm = realm,
-        nonce = self.challnvs.nonce,
+        nonce = self.challnvs['nonce'],
         cnonce = cnonce,
         nc = ("%08d"):format(self.nc),
         qop = qop,
         ["digest-uri"] = uri,
-        algorithm = self.challnvs.algorithm,
+        algorithm = self.challnvs['algorithm'],
         response = digest_http
       }
 
