@@ -2294,9 +2294,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin = (struct sockaddr_in *) &hdr.src;
-    inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, srchost, sizeof(srchost));
+    inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, srchost, INET6_ADDRSTRLEN);
     sin = (struct sockaddr_in *) &hdr.dst;
-	inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
+	inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, INET6_ADDRSTRLEN);
 
     /* Compute fragment offset and check if flags are set */
     frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
@@ -2306,18 +2306,18 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Is this a fragmented packet? is it the last fragment? */
     if (frag_off || more_fragments) {
-      Snprintf(fragnfo, sizeof(fragnfo), " frag offset=%d%s", frag_off, more_fragments ? "+" : "");
+      Snprintf(fragnfo, 64, " frag offset=%d%s", frag_off, more_fragments ? "+" : "");
     }
 
     /* Create a string with information relevant to the specified level of detail */
     if (detail == LOW_DETAIL) {
-      Snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%hu iplen=%hu%s %s%s%s",
+      Snprintf(ipinfo, 512, "ttl=%d id=%hu iplen=%hu%s %s%s%s",
         ip->ip_ttl, (unsigned short) ntohs(ip->ip_id), (unsigned short) ntohs(ip->ip_len), fragnfo,
         ip->ip_hl==5?"":"ipopts={",
         ip->ip_hl==5?"":format_ip_options((u8*) ip + sizeof(struct ip), MIN((unsigned)(ip->ip_hl-5)*4,len-sizeof(struct ip))),
         ip->ip_hl==5?"":"}");
     } else if (detail == MEDIUM_DETAIL) {
-      Snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%hu proto=%d csum=0x%04x iplen=%hu%s %s%s%s",
+      Snprintf(ipinfo, 512, "ttl=%d id=%hu proto=%d csum=0x%04x iplen=%hu%s %s%s%s",
         ip->ip_ttl, (unsigned short) ntohs(ip->ip_id),
         ip->ip_p, ntohs(ip->ip_sum),
         (unsigned short) ntohs(ip->ip_len), fragnfo,
@@ -2325,7 +2325,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         ip->ip_hl==5?"":format_ip_options((u8*) ip + sizeof(struct ip), MIN((unsigned)(ip->ip_hl-5)*4,len-sizeof(struct ip))),
         ip->ip_hl==5?"":"}");
     } else if (detail == HIGH_DETAIL) {
-      Snprintf(ipinfo, sizeof(ipinfo), "ver=%d ihl=%d tos=0x%02x iplen=%hu id=%hu%s%s%s%s foff=%d%s ttl=%d proto=%d csum=0x%04x%s%s%s",
+      Snprintf(ipinfo, 512, "ver=%d ihl=%d tos=0x%02x iplen=%hu id=%hu%s%s%s%s foff=%d%s ttl=%d proto=%d csum=0x%04x%s%s%s",
         ip->ip_v, ip->ip_hl,
         ip->ip_tos, (unsigned short) ntohs(ip->ip_len),
         (unsigned short) ntohs(ip->ip_id),
@@ -2348,9 +2348,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin6 = (struct sockaddr_in6 *) &hdr.src;
-	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
+	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, srchost, INET6_ADDRSTRLEN);
     sin6 = (struct sockaddr_in6 *) &hdr.dst;
-	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
+	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, dsthost, INET6_ADDRSTRLEN);
 
     /* Obtain flow label and traffic class */
     u32 flow = ntohl(ip6->ip6_flow);
@@ -2359,13 +2359,13 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Create a string with information relevant to the specified level of detail */
     if (detail == LOW_DETAIL) {
-      Snprintf(ipinfo, sizeof(ipinfo), "hopl=%d flow=%x payloadlen=%hu",
+      Snprintf(ipinfo, 512, "hopl=%d flow=%x payloadlen=%hu",
         ip6->ip6_hlim, ip6_fl, (unsigned short) ntohs(ip6->ip6_plen));
     } else if (detail == MEDIUM_DETAIL) {
-      Snprintf(ipinfo, sizeof(ipinfo), "hopl=%d tclass=%d flow=%x payloadlen=%hu",
+      Snprintf(ipinfo, 512, "hopl=%d tclass=%d flow=%x payloadlen=%hu",
         ip6->ip6_hlim, ip6_tc, ip6_fl, (unsigned short) ntohs(ip6->ip6_plen));
     } else if (detail==HIGH_DETAIL) {
-      Snprintf(ipinfo, sizeof(ipinfo), "ver=6, tclass=%x flow=%x payloadlen=%hu nh=%s hopl=%d ",
+      Snprintf(ipinfo, 512, "ver=6, tclass=%x flow=%x payloadlen=%hu nh=%s hopl=%d ",
         ip6_tc, ip6_fl, (unsigned short) ntohs(ip6->ip6_plen),
         nexthdrtoa(ip6->ip6_nxt, 1), ip6->ip6_hlim);
     }
@@ -2406,7 +2406,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
      * less than 8 bytes. This also includes empty IP packets that say they
      * contain a TCP packet. */
     if (frag_off > 8 || datalen < 8) {
-      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)",
+      Snprintf(protoinfo, 1024, "TCP %s:?? > %s:?? ?? %s (incomplete)",
           srchost, dsthost, ipinfo);
     }
 
@@ -2429,7 +2429,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         *p++ = 'P';
       if (tcp->th_flags & TH_ACK) {
         *p++ = 'A';
-        Snprintf(tcpinfo, sizeof(tcpinfo), " ack=%lu",
+        Snprintf(tcpinfo, 64, " ack=%lu",
           (unsigned long) ntohl(tcp->th_ack));
       }
       if (tcp->th_flags & TH_URG)
@@ -2443,26 +2443,26 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       /* TCP Options */
       if ((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
         if (datalen < (u32) tcp->th_off * 4 - frag_off) {
-          Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
+          Snprintf(tcpoptinfo, 256, "option incomplete");
         } else {
           tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
             tcp->th_off*4 - sizeof(struct tcp_hdr),
-            tcpoptinfo, sizeof(tcpoptinfo));
+            tcpoptinfo, 256);
         }
       }
 
       /* Create a string with TCP information relevant to the specified level of detail */
       if (detail == LOW_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
+        Snprintf(protoinfo, 1024, "TCP %s:?? > %s:?? %s %s %s %s",
           srchost, dsthost, tflags, ipinfo, tcpinfo, tcpoptinfo);
       } else if (detail == MEDIUM_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
+        Snprintf(protoinfo, 1024, "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
           srchost, dsthost, tflags,
           (unsigned long) ntohl(tcp->th_ack), (unsigned short) ntohs(tcp->th_win),
           tcpoptinfo, ipinfo);
       } else if (detail == HIGH_DETAIL) {
         if (datalen >= 12) { /* We have at least bytes 8-20 */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:?? > %s:?? %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s] IP [%s]",
+          Snprintf(protoinfo, 1024, "TCP [%s:?? > %s:?? %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s] IP [%s]",
             srchost, dsthost, tflags,
             (unsigned long) ntohl(tcp->th_seq),
             (unsigned long) ntohl(tcp->th_ack),
@@ -2471,7 +2471,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
             (tcpoptinfo[0]!='\0') ? " " : "",
             tcpoptinfo, ipinfo);
         } else { /* We only have bytes 8-16 */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
+          Snprintf(protoinfo, 1024, "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
             srchost, dsthost, tflags,
             (unsigned long) ntohl(tcp->th_ack), (unsigned short) ntohs(tcp->th_win),
             tcpoptinfo, ipinfo);
@@ -2484,13 +2484,13 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     else if (datalen > 0 && datalen < 20) {
       /* We only have the first 32 bits: source and dst port */
       if (datalen >= 4 && datalen < 8) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu ?? (incomplete) %s",
+        Snprintf(protoinfo, 1024, "TCP %s:%hu > %s:%hu ?? (incomplete) %s",
           srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport), ipinfo);
       }
 
       /* We only have the first 64 bits: ports and seq number */
       if (datalen >= 8 && datalen < 12) {
-        Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu ?? seq=%lu (incomplete) %s",
+        Snprintf(tcpinfo, 64, "TCP %s:%hu > %s:%hu ?? seq=%lu (incomplete) %s",
           srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
           (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq), ipinfo);
       }
@@ -2498,11 +2498,11 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       /* We only have the first 96 bits: ports, seq and ack number */
       if (datalen >= 12 && datalen < 16) {
         if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
-          Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu seq=%lu (incomplete), %s",
+          Snprintf(tcpinfo, 64, "TCP %s:%hu > %s:%hu seq=%lu (incomplete), %s",
             srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
             (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq), ipinfo);
         } else {
-          Snprintf(tcpinfo, sizeof(tcpinfo), "TCP [%s:%hu > %s:%hu seq=%lu ack=%lu (incomplete)] IP [%s]",
+          Snprintf(tcpinfo, 64, "TCP [%s:%hu > %s:%hu seq=%lu ack=%lu (incomplete)] IP [%s]",
             srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
             (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq),
             (unsigned long) ntohl(tcp->th_ack), ipinfo);
@@ -2523,9 +2523,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
           *p++ = 'P';
         if (tcp->th_flags & TH_ACK) {
           *p++ = 'A';
-          Snprintf(buf, sizeof(buf), " ack=%lu",
+          Snprintf(buf, 32, " ack=%lu",
             (unsigned long) ntohl(tcp->th_ack));
-          strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
+          strncat(tcpinfo, buf, 64 - strlen(tcpinfo) - 1);
         }
         if (tcp->th_flags & TH_URG)
           *p++ = 'U';
@@ -2538,18 +2538,18 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
         /* Create a string with TCP information relevant to the specified level of detail */
         if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu %s %s seq=%lu win=%hu (incomplete)",
+          Snprintf(protoinfo, 1024, "TCP %s:%hu > %s:%hu %s %s seq=%lu win=%hu (incomplete)",
             srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
             tflags, ipinfo, (unsigned long) ntohl(tcp->th_seq),
             (unsigned short) ntohs(tcp->th_win));
         } else if (detail == MEDIUM_DETAIL) {
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu win=%hu (incomplete)] IP [%s]",
+          Snprintf(protoinfo, 1024, "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu win=%hu (incomplete)] IP [%s]",
             srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
             tflags,  (unsigned long) ntohl(tcp->th_seq),
             (unsigned long) ntohl(tcp->th_ack),
             (unsigned short) ntohs(tcp->th_win), ipinfo);
         } else if (detail == HIGH_DETAIL) {
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu (incomplete)] IP [%s]",
+          Snprintf(protoinfo, 1024, "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu (incomplete)] IP [%s]",
             srchost, (unsigned short) ntohs(tcp->th_sport),
             dsthost, (unsigned short) ntohs(tcp->th_dport),
             tflags, (unsigned long) ntohl(tcp->th_seq),
@@ -2577,9 +2577,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         *p++ = 'P';
       if (tcp->th_flags & TH_ACK) {
         *p++ = 'A';
-        Snprintf(buf, sizeof(buf), " ack=%lu",
+        Snprintf(buf, 32, " ack=%lu",
             (unsigned long) ntohl(tcp->th_ack));
-        strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
+        strncat(tcpinfo, buf, 64 - strlen(tcpinfo) - 1);
       }
       if (tcp->th_flags & TH_URG)
         *p++ = 'U';
@@ -2592,29 +2592,29 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       /* TCP Options */
       if ((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
         if (datalen < (unsigned int) tcp->th_off * 4) {
-          Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
+          Snprintf(tcpoptinfo, 256, "option incomplete");
         } else {
           tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
             tcp->th_off*4 - sizeof(struct tcp_hdr),
-            tcpoptinfo, sizeof(tcpoptinfo));
+            tcpoptinfo, 256);
         }
       }
 
       /* Rest of header fields */
       if (detail == LOW_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu %s %s seq=%lu win=%hu %s",
+        Snprintf(protoinfo, 1024, "TCP %s:%hu > %s:%hu %s %s seq=%lu win=%hu %s",
           srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
           tflags, ipinfo, (unsigned long) ntohl(tcp->th_seq),
           (unsigned short) ntohs(tcp->th_win), tcpoptinfo);
       } else if (detail == MEDIUM_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu win=%hu csum=0x%04X%s%s] IP [%s]",
+        Snprintf(protoinfo, 1024, "TCP [%s:%hu > %s:%hu %s seq=%lu win=%hu csum=0x%04X%s%s] IP [%s]",
           srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
           tflags, (unsigned long) ntohl(tcp->th_seq),
           (unsigned short) ntohs(tcp->th_win),  (unsigned short) ntohs(tcp->th_sum),
           (tcpoptinfo[0]!='\0') ? " " : "",
           tcpoptinfo, ipinfo);
       } else if (detail == HIGH_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s] IP [%s]",
+        Snprintf(protoinfo, 1024, "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s] IP [%s]",
           srchost, (unsigned short) ntohs(tcp->th_sport),
           dsthost, (unsigned short) ntohs(tcp->th_dport),
           tflags, (unsigned long) ntohl(tcp->th_seq),
@@ -2627,28 +2627,28 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     } else{
       /* If the packet does not fall into any other category, then we have a
          really screwed-up packet. */
-      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (invalid TCP)",
+      Snprintf(protoinfo, 1024, "TCP %s:?? > %s:?? ?? %s (invalid TCP)",
         srchost, dsthost, ipinfo);
     }
 
     /* UDP INFORMATION ***********************************************************/
   } else if (hdr.proto == IPPROTO_UDP && frag_off) {
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)",
+    Snprintf(protoinfo, 1024, "UDP %s:?? > %s:?? fragment %s (incomplete)",
       srchost, dsthost, ipinfo);
   } else if (hdr.proto == IPPROTO_UDP) {
     udp = (struct udp_hdr *) data;
     /* TODO: See if we can segfault if we receive a fragmented packet whose IP packet does not say a thing about fragmentation */
 
     if (detail == LOW_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%hu > %s:%hu %s",
+      Snprintf(protoinfo, 1024, "UDP %s:%hu > %s:%hu %s",
           srchost, (unsigned short) ntohs(udp->uh_sport), dsthost, (unsigned short) ntohs(udp->uh_dport),
           ipinfo);
     } else if (detail == MEDIUM_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "UDP [%s:%hu > %s:%hu csum=0x%04X] IP [%s]",
+      Snprintf(protoinfo, 1024, "UDP [%s:%hu > %s:%hu csum=0x%04X] IP [%s]",
         srchost, (unsigned short) ntohs(udp->uh_sport), dsthost, (unsigned short) ntohs(udp->uh_dport), ntohs(udp->uh_sum),
         ipinfo);
     } else if (detail == HIGH_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "UDP [%s:%hu > %s:%hu len=%hu csum=0x%04X] IP [%s]",
+      Snprintf(protoinfo, 1024, "UDP [%s:%hu > %s:%hu len=%hu csum=0x%04X] IP [%s]",
         srchost, (unsigned short) ntohs(udp->uh_sport), dsthost, (unsigned short) ntohs(udp->uh_dport),
         (unsigned short) ntohs(udp->uh_ulen), ntohs(udp->uh_sum),
         ipinfo);
@@ -2656,21 +2656,21 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* SCTP INFORMATION **********************************************************/
   } else if (hdr.proto == IPPROTO_SCTP && frag_off) {
-    Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:?? > %s:?? fragment %s (incomplete)",
+    Snprintf(protoinfo, 1024, "SCTP %s:?? > %s:?? fragment %s (incomplete)",
       srchost, dsthost, ipinfo);
   } else if (hdr.proto == IPPROTO_SCTP) {
     sctp = (struct sctp_hdr *) data;
 
     if (detail == LOW_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:%hu > %s:%hu %s",
+      Snprintf(protoinfo, 1024, "SCTP %s:%hu > %s:%hu %s",
         srchost, (unsigned short) ntohs(sctp->sh_sport), dsthost, (unsigned short) ntohs(sctp->sh_dport),
         ipinfo);
     } else if (detail == MEDIUM_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%hu > %s:%hu csum=0x%08x] IP [%s]",
+      Snprintf(protoinfo, 1024, "SCTP [%s:%hu > %s:%hu csum=0x%08x] IP [%s]",
         srchost, (unsigned short) ntohs(sctp->sh_sport), dsthost, (unsigned short) ntohs(sctp->sh_dport), ntohl(sctp->sh_sum),
         ipinfo);
     } else if (detail == HIGH_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%hu > %s:%hu vtag=%lu csum=0x%08x] IP [%s]",
+      Snprintf(protoinfo, 1024, "SCTP [%s:%hu > %s:%hu vtag=%lu csum=0x%08x] IP [%s]",
         srchost, (unsigned short) ntohs(sctp->sh_sport), dsthost, (unsigned short) ntohs(sctp->sh_dport),
         (unsigned long) ntohl(sctp->sh_vtag), ntohl(sctp->sh_sum),
         ipinfo);
@@ -2678,7 +2678,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* ICMP INFORMATION **********************************************************/
   } else if (hdr.proto == IPPROTO_ICMP && frag_off) {
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s fragment %s (incomplete)",
+    Snprintf(protoinfo, 1024, "ICMP %s > %s fragment %s (incomplete)",
       srchost, dsthost, ipinfo);
   } else if (hdr.proto == IPPROTO_ICMP) {
     struct ip *ip2;       /* Points to the IP datagram carried by some ICMP messages */
@@ -2752,7 +2752,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       /* Echo Reply **************************/
       case 0:
         strcpy(icmptype, "Echo reply");
-        Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
+        Snprintf(icmpfields, 256, "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
         break;
 
         /* Destination Unreachable *************/
@@ -2764,10 +2764,10 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         pktlen += MAX( (ip2->ip_hl * 4), 20);
         if (pktlen > datalen) {
           if (datalen == 8) {
-            Snprintf(icmptype, sizeof icmptype, "Destination unreachable%s",
+            Snprintf(icmptype, 128, "Destination unreachable%s",
               (detail!=LOW_DETAIL)? " (original datagram missing)" : "");
           } else {
-            Snprintf(icmptype, sizeof icmptype, "Destination unreachable%s",
+            Snprintf(icmptype, 128, "Destination unreachable%s",
               (detail!=LOW_DETAIL)? " (part of original datagram missing)" : "");
           }
           goto icmpbad;
@@ -2779,7 +2779,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
          * is not enough. On average, if we get random data 1 out of
          * 16 (2^4bits) times we will have value 4. */
         if ((ip2->ip_v != 4) || ((ip2->ip_hl * 4) < 20) || ((ip2->ip_hl * 4) > 60)) {
-          Snprintf(icmptype, sizeof icmptype, "Destination unreachable (bogus original datagram)");
+          Snprintf(icmptype, 128, "Destination unreachable (bogus original datagram)");
           goto icmpbad;
         } else {
           /* We have the original datagram + the first 8 bytes of the
@@ -2797,27 +2797,27 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         /* Determine type of Destination unreachable from the code value */
         switch (icmppkt->code) {
           case 0:
-            Snprintf(icmptype, sizeof icmptype, "Network %s unreachable", ip2dst);
+            Snprintf(icmptype, 128, "Network %s unreachable", ip2dst);
             break;
 
           case 1:
-            Snprintf(icmptype, sizeof icmptype, "Host %s unreachable", ip2dst);
+            Snprintf(icmptype, 128, "Host %s unreachable", ip2dst);
             break;
 
           case 2:
-            Snprintf(icmptype, sizeof icmptype, "Protocol %u unreachable", ip2->ip_p);
+            Snprintf(icmptype, 128, "Protocol %u unreachable", ip2->ip_p);
             break;
 
           case 3:
             if (pktlen + 8 < datalen) {
               if (ip2->ip_p == IPPROTO_UDP && udp)
-                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (unsigned short) ntohs(udp->uh_dport));
+                Snprintf(icmptype, 128, "Port %hu unreachable", (unsigned short) ntohs(udp->uh_dport));
               else if (ip2->ip_p == IPPROTO_TCP && tcp)
-                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (unsigned short) ntohs(tcp->th_dport));
+                Snprintf(icmptype, 128, "Port %hu unreachable", (unsigned short) ntohs(tcp->th_dport));
               else if (ip2->ip_p == IPPROTO_SCTP && sctp)
-                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (unsigned short) ntohs(sctp->sh_dport));
+                Snprintf(icmptype, 128, "Port %hu unreachable", (unsigned short) ntohs(sctp->sh_dport));
               else
-                Snprintf(icmptype, sizeof icmptype, "Port unreachable (unknown protocol %u)", ip2->ip_p);
+                Snprintf(icmptype, 128, "Port unreachable (unknown protocol %u)", ip2->ip_p);
             }
             else
               strcpy(icmptype, "Port unreachable");
@@ -2825,7 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
+            Snprintf(icmpfields, 256, "Next-Hop-MTU=%d", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:
@@ -2833,11 +2833,11 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
             break;
 
           case 6:
-            Snprintf(icmptype, sizeof icmptype, "Destination network %s unknown", ip2dst);
+            Snprintf(icmptype, 128, "Destination network %s unknown", ip2dst);
             break;
 
           case 7:
-            Snprintf(icmptype, sizeof icmptype, "Destination host %s unknown", ip2dst);
+            Snprintf(icmptype, 128, "Destination host %s unknown", ip2dst);
             break;
 
           case 8:
@@ -2845,19 +2845,19 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
             break;
 
           case 9:
-            Snprintf(icmptype, sizeof icmptype, "Destination network %s administratively prohibited", ip2dst);
+            Snprintf(icmptype, 128, "Destination network %s administratively prohibited", ip2dst);
             break;
 
           case 10:
-            Snprintf(icmptype, sizeof icmptype, "Destination host %s administratively prohibited", ip2dst);
+            Snprintf(icmptype, 128, "Destination host %s administratively prohibited", ip2dst);
             break;
 
           case 11:
-            Snprintf(icmptype, sizeof icmptype, "Network %s unreachable for TOS", ip2dst);
+            Snprintf(icmptype, 128, "Network %s unreachable for TOS", ip2dst);
             break;
 
           case 12:
-            Snprintf(icmptype, sizeof icmptype, "Host %s unreachable for TOS", ip2dst);
+            Snprintf(icmptype, 128, "Host %s unreachable for TOS", ip2dst);
             break;
 
           case 13:
@@ -2893,14 +2893,14 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         else
           strcpy(icmptype, "Redirect (unknown code)");
         icmpredir = (struct icmp_redir *) icmppkt;
-        inet_ntop(AF_INET, &icmpredir->addr, auxbuff, sizeof(auxbuff));
-        Snprintf(icmpfields, sizeof(icmpfields), "addr=%s", auxbuff);
+        inet_ntop(AF_INET, &icmpredir->addr, auxbuff, 128);
+        Snprintf(icmpfields, 256, "addr=%s", auxbuff);
         break;
 
         /* Echo Request ************************/
       case 8:
         strcpy(icmptype, "Echo request");
-        Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
+        Snprintf(icmpfields, 256, "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
         break;
 
         /* Router Advertisement ****************/
@@ -2910,7 +2910,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         else
           strcpy(icmptype, "Router advertisement");
         icmprouter = (struct icmp_router *) icmppkt;
-        Snprintf(icmpfields, sizeof(icmpfields), "addrs=%u addrlen=%u lifetime=%hu",
+        Snprintf(icmpfields, 256, "addrs=%u addrlen=%u lifetime=%hu",
           icmprouter->addrs,
           icmprouter->addrlen,
           (unsigned short) ntohs(icmprouter->lifetime));
@@ -2942,15 +2942,15 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         else
           strcpy(icmptype, "Parameter problem (unknown code)");
         icmpparam = (struct icmp_param *) icmppkt;
-        Snprintf(icmpfields, sizeof(icmpfields), "pointer=%d", icmpparam->pnt);
+        Snprintf(icmpfields, 256, "pointer=%d", icmpparam->pnt);
         break;
 
         /* Timestamp Request/Reply *************/
       case 13:
       case 14:
-        Snprintf(icmptype, sizeof(icmptype), "Timestamp %s", (icmppkt->type == 13)? "request" : "reply");
+        Snprintf(icmptype, 128, "Timestamp %s", (icmppkt->type == 13)? "request" : "reply");
         icmptstamp = (struct icmp_tstamp *) icmppkt;
-        Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu orig=%lu recv=%lu trans=%lu",
+        Snprintf(icmpfields, 256, "id=%hu seq=%hu orig=%lu recv=%lu trans=%lu",
           (unsigned short) ntohs(icmptstamp->id), (unsigned short) ntohs(icmptstamp->seq),
           (unsigned long) ntohl(icmptstamp->orig),
           (unsigned long) ntohl(icmptstamp->recv),
@@ -2960,22 +2960,22 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         /* Information Request *****************/
       case 15:
         strcpy(icmptype, "Information request");
-        Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
+        Snprintf(icmpfields, 256, "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
         break;
 
         /* Information Reply *******************/
       case 16:
         strcpy(icmptype, "Information reply");
-        Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
+        Snprintf(icmpfields, 256, "id=%hu seq=%hu", (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq));
         break;
 
         /* Netmask Request/Reply ***************/
       case 17:
       case 18:
-        Snprintf(icmptype, sizeof(icmptype), "Address mask %s", (icmppkt->type == 17)? "request" : "reply");
+        Snprintf(icmptype, 128, "Address mask %s", (icmppkt->type == 17)? "request" : "reply");
         icmpmask = (struct icmp_amask *) icmppkt;
-        inet_ntop(AF_INET, &icmpmask->mask, auxbuff, sizeof(auxbuff));
-        Snprintf(icmpfields, sizeof(icmpfields), "id=%u seq=%u mask=%s",
+        inet_ntop(AF_INET, &icmpmask->mask, auxbuff, 128);
+        Snprintf(icmpfields, 256, "id=%u seq=%u mask=%s",
             (unsigned short) ntohs(ping->id), (unsigned short) ntohs(ping->seq), auxbuff);
         break;
 
@@ -3008,19 +3008,19 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 icmpbad:
       if (ping) {
         /* We still have this information */
-        Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (type=%d/code=%d) %s",
+        Snprintf(protoinfo, 1024, "ICMP %s > %s %s (type=%d/code=%d) %s",
             srchost, dsthost, icmptype, ping->type, ping->code, ipinfo);
       } else {
-        Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s [??] %s",
+        Snprintf(protoinfo, 1024, "ICMP %s > %s [??] %s",
             srchost, dsthost, ipinfo);
       }
     } else {
       if (ping)
         sprintf(icmpinfo,"type=%d/code=%d", ping->type, ping->code);
       else
-        strncpy(icmpinfo,"type=?/code=?", sizeof(icmpinfo));
+        strncpy(icmpinfo,"type=?/code=?", 512);
 
-      Snprintf(protoinfo, sizeof(protoinfo), "ICMP [%s > %s %s (%s) %s] IP [%s]",
+      Snprintf(protoinfo, 1024, "ICMP [%s > %s %s (%s) %s] IP [%s]",
         srchost, dsthost, icmptype, icmpinfo, icmpfields, ipinfo);
     }
 
@@ -3029,7 +3029,7 @@ icmpbad:
     const struct icmpv6_hdr *icmpv6;
 
     icmpv6 = (struct icmpv6_hdr *) data;
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
+    Snprintf(protoinfo, 1024, "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
       hdr.proto, srchost, dsthost,
       icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
   } else {
@@ -3037,10 +3037,10 @@ icmpbad:
 
     hdrstr = nexthdrtoa(hdr.proto, 1);
     if (hdrstr == NULL || *hdrstr == '\0') {
-      Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s",
+      Snprintf(protoinfo, 1024, "Unknown protocol (%d) %s > %s: %s",
         hdr.proto, srchost, dsthost, ipinfo);
     } else {
-      Snprintf(protoinfo, sizeof(protoinfo), "%s (%d) %s > %s: %s",
+      Snprintf(protoinfo, 1024, "%s (%d) %s > %s: %s",
         hdrstr, hdr.proto, srchost, dsthost, ipinfo);
     }
   }
@@ -3172,12 +3172,12 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
     intf_index = ii->ifindex;
   }
 
-  memset(buf, 0, sizeof(buf));
+  memset(buf, 0, 512);
 
   nlmsg = (struct nlmsghdr *) buf;
 
   nlmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*rtmsg));
-  assert(nlmsg->nlmsg_len <= sizeof(buf));
+  assert(nlmsg->nlmsg_len <= 512);
   nlmsg->nlmsg_flags = NLM_F_REQUEST;
   nlmsg->nlmsg_type = RTM_GETROUTE;
 
@@ -3185,7 +3185,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   rtmsg->rtm_family = dst->ss_family;
 
   rtattr = RTM_RTA(rtmsg);
-  len = sizeof(buf) - ((unsigned char *) RTM_RTA(rtmsg) - buf);
+  len = 512 - ((unsigned char *) RTM_RTA(rtmsg) - buf);
 
   /* Add rtattrs for destination address and interface. */
   add_rtattr_addr(nlmsg, &rtattr, &len, RTA_DST, dst, intf_index);
@@ -3208,7 +3208,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
     netutil_fatal("%s: cannot sendmsg: %s", __func__, strerror(errno));
 
   iov.iov_base = buf;
-  iov.iov_len = sizeof(buf);
+  iov.iov_len = 512;
 
   len = recvmsg(fd, &msg, 0);
   if (len <= 0)
@@ -3376,7 +3376,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     if (dst->ss_family == AF_INET6) {
       const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) dst;
       if (sin6->sin6_scope_id > 0) {
-        device = lookup_ifindex(sin6->sin6_scope_id, sin6->sin6_family, namebuf, sizeof(namebuf));
+        device = lookup_ifindex(sin6->sin6_scope_id, sin6->sin6_family, namebuf, 32);
         if (device == NULL) {
           netutil_error("Could not find interface with index %u", (unsigned int) sin6->sin6_scope_id);
           return 0;
@@ -3393,9 +3393,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     iface = NULL;
   }
 
-  if((routes=getsysroutes(&numroutes, errstr, sizeof(errstr)))==NULL)
+  if((routes=getsysroutes(&numroutes, errstr, 256))==NULL)
     netutil_fatal("%s: Failed to obtain system routes: %s", __func__, errstr);
-  if((ifaces=getinterfaces(&numifaces, errstr, sizeof(errstr)))==NULL)
+  if((ifaces=getinterfaces(&numifaces, errstr, 256))==NULL)
     netutil_fatal("%s: Failed to obtain system interfaces: %s", __func__, errstr);
 
   /* First check if dst is one of the localhost's own addresses. We need to use
@@ -4005,7 +4005,7 @@ int DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen) {
   // OK, so it isn't in the cache.  Let's ask dnet for it.
   /* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
   pcapdev (up to a length of pcapdevlen).  Returns 1 and fills in pcapdev if successful. */
-  if (eth_get_pcap_devname(dnetdev, tmpdev, sizeof(tmpdev)) != 0) {
+  if (eth_get_pcap_devname(dnetdev, tmpdev, 128) != 0) {
       // We've got it.  Let's add it to the not found cache
       if (NNFCsz >= NNFCcapacity) {
         NNFCcapacity <<= 2;
@@ -4062,15 +4062,15 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
 #ifdef WIN32
   /* Nmap normally uses device names obtained through dnet for interfaces, but
      Pcap has its own naming system.  So the conversion is done here */
-  if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
+  if (!DnetName2PcapName(device, pcapdev, 128)) {
     /* Oh crap -- couldn't find the corresponding dev apparently.  Let's just go
        with what we have then ... */
-    Strncpy(pcapdev, device, sizeof(pcapdev));
+    Strncpy(pcapdev, device, 128);
   }
   HANDLE pcapMutex = CreateMutex(NULL, 0, TEXT("Global\\DnetPcapHangAvoidanceMutex"));
   DWORD wait = WaitForSingleObject(pcapMutex, INFINITE);
 #else
-  Strncpy(pcapdev, device, sizeof(pcapdev));
+  Strncpy(pcapdev, device, 128);
 #endif
   do {
     pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r);
@@ -4105,7 +4105,7 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
   struct bpf_program fcode;
 
   va_start(ap, bpf);
-  if (Vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
+  if (Vsnprintf(buf, 3072, bpf, ap) >= (int) 3072)
     netutil_fatal("%s called with too-large filter arg\n", __func__);
   va_end(ap);
 
@@ -4411,7 +4411,7 @@ bool doND(const char *dev, const u8 *srcmac,
   multicast_prefix[1] = 0x02;
   multicast_prefix[11] = 0x1;
   multicast_prefix[12] = 0xff;
-  memcpy(ns_dst_ip6.sin6_addr.s6_addr, multicast_prefix, sizeof(multicast_prefix));
+  memcpy(ns_dst_ip6.sin6_addr.s6_addr, multicast_prefix, sizeof(unsigned char)*13);
 
   /* Start listening */
   if((pd=my_pcap_open_live(dev, 100, 1, 25))==NULL)
@@ -4632,15 +4632,15 @@ const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char
     do {
       ip.s_addr = get_random_unique_u32();
     } while (ip_is_reserved(&ip));
-    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
+    Strncpy(host_spec, inet_ntoa(ip), 1024);
   } else if (!inputfd) {
     return( (optind < argc)?  argv[optind++] : NULL);
   } else { 
-    n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
+    n = read_host_from_file(inputfd, host_spec, 1024);
     if (n == 0)
       return NULL;
-    else if (n >= sizeof(host_spec))
-      netutil_fatal("One of the host specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
+    else if (n >= 1024)
+      netutil_fatal("One of the host specifications from your input file is too long (>= %d chars)", 1024);
   }
   return host_spec;
 }
