@@ -1430,6 +1430,11 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'V':
+#ifdef WIN32
+      /* For pcap_get_version, since we need to get the correct Npcap/WinPcap
+       * DLL loaded */
+      win_init();
+#endif
       display_nmap_version();
       exit(0);
       break;
