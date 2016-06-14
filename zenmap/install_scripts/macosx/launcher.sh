@@ -34,10 +34,11 @@ PYTHONPATH="$bundle_res/lib/zenmap"
 export PYTHONPATH
 
 # We need a UTF-8 locale.
-if [ -z ${LANG+x} ]; then 
-  # LANG is unset 
+if [ -z ${lang+x} ]; then 
+  # lang is unset 
   lang=`defaults read /Library/Preferences/.GlobalPreferences AppleLanguages 2>/dev/null | awk '{ print $1 }' | head -n2 | tail -n1 | sed 's/\,/ /'`
-  if test "x$lang" == "x"; then
+  if [ -z ${lang+x} ]; then
+    # lang is still unset 
     lang=`defaults read .GlobalPreferences AppleLocale 2>/dev/null`
   fi
   export LANG="`grep \"\`echo $lang\`_\" /usr/share/locale/locale.alias |  tail -n1 | sed 's/\./ /' | awk '{print $2}'`.UTF-8"
