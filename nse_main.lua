@@ -782,7 +782,6 @@ local function get_chosen_scripts (rules)
     rule = gsub(rule, "\\([^\\])", "\\\\%1");
     rules[i] = rule;
   end
---  os.exit()
 
   -- Checks if a given script, script_entry, should be loaded. A script_entry
   -- should be in the form: { filename = "name.nse", categories = { ... } }
@@ -1231,6 +1230,7 @@ end
 nmap.registry.args = {};
 do
   local args = {};
+
   if cnse.scriptargsfile then
     local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
     assert(t == 'file', format("%s is not a file", path))

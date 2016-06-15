@@ -607,7 +607,7 @@ static int run_main (lua_State *L)
   lua_setfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS);
 
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_MAIN);
-  assert(lua_isfunction(L, -1));
+  //assert(lua_isfunction(L, -1));
 
   /* The first argument to the NSE main function is the list of targets.  This
    * has all the target names, 1-N, in a list.
