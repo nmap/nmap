@@ -686,7 +686,7 @@ local function get_script_name(tbl)
 end
 
 local function make_parser()
-  local script_file_name = C( (1-S'\\/=?%*:|\"<>.,')^1 )
+  local script_file_name = C( (1-S'/=%:|\"<>.,')^1 )
   local parameter = C( (1-S"=")^1 )
   local nested_table =  C{"{" * ((1 - lpeg.S"{}") + lpeg.V(1))^0 * "}"}
   local value=C((1-S"=,}")^1)
