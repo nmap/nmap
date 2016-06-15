@@ -2,19 +2,100 @@
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd">
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>
-<!--
-    This is a jhbuild moduleset that can be used to build openssl as required for
-    building Nmap, Ncat, and Nping. Use it like this:
-        jhbuild -m openssl.modules build openssl
--->
-    <include href="http://git.gnome.org/browse/gtk-osx/plain/modulesets-stable/gtk-osx.modules"/>
 
+    <!-- INCLUDE -->
+
+    <include href="https://git.gnome.org/browse/gtk-osx/plain/modulesets-stable/gtk-osx.modules"/>
+
+    <!-- REPOSITORIES -->
+
+    <repository type="tarball" name="sourceforge" href="http://prdownloads.sourceforge.net/"/>
     <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
+    <repository type="tarball" name="apache" href="http://download.nextag.com/apache/"/>
+    <repository type="tarball" name="subversion" href="http://mirrors.ircam.fr/pub/apache/subversion/"/>
+    <repository type="tarball" name="sqlite" href="http://sqlite.org/2016/"/>
+    <repository type="tarball" name="serf" href="https://archive.apache.org/dist/serf/"/>
+    <repository type="tarball" name="zlib" href="http://www.zlib.net"/>
+
+    <!-- MODULES -->
+
+    <autotools id="zlib" version="1.2.8" makeargs=""
+        makeinstallargs="install INCLUDE_PATH=${prefix}include LIBRARY_PATH=${prefix}lib BIN_PATH=${prefix}bin">
+        <branch repo="zlib" module="zlib-1.2.8.tar.gz" version="1.2.8"/>
+    </autotools>
+
+    <autotools id="sqlite" autogenargs="--enable-shared --disable-tcl" autogen-sh="configure">
+        <branch repo="sqlite" module="sqlite-autoconf-3130000.tar.gz" version="3130000" />
+    </autotools>
+    
     <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl2"
-        autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
+        autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s 
+            --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_sw" 
         supports-non-srcdir-builds="no">
         <branch repo="openssl" version="1.0.2h" module="openssl-1.0.2h.tar.gz"/>
     </autotools>
+
+    <distutils id="scons">
+        <branch repo="sourceforge" module="scons/scons-2.5.0.tar.gz" version="2.5.0"/>
+    </distutils>
+ 
+    <autotools id="serf" autogen-sh=""
+        autogen-template="scons CFLAGS='-arch i386' 
+            APR=${HOME}/gtk/source/apr-1.5.2/apr-1-config 
+            APU=${HOME}/gtk/source/apr-util-1.5.4/apu-1-config 
+            OPENSSL=${HOME}/gtk/source/openssl-1.0.2h 
+            ZLIB=${HOME}/gtk/source/zlib-1.2.8
+            LINKFLAGS='-arch i386' 
+            APR_STATIC=true 
+            PREFIX=%(prefix)s install"
+        makeargs="-v" skip-install="true" check-target="false">
+        <branch repo="serf" module="serf-1.3.8.tar.bz2" version="1.3.8"/>
+        <dependencies>
+            <dep package="scons"/>
+            <dep package="apr"/>
+            <dep package="aprutil"/>
+            <dep package="openssl"/>
+            <dep package="sqlite"/>
+        </dependencies>
+    </autotools>
+     
+    <autotools id="apr" autogen-sh="configure">
+        <branch repo="apache" module="apr/apr-1.5.2.tar.gz" version="1.5.2"/>
+    </autotools>
+
+    <autotools id="apriconv" autogen-sh="configure" autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2">
+        <branch repo="apache" module="apr/apr-iconv-1.2.1.tar.gz" version="1.2.1"/>
+    </autotools>
+
+    <autotools id="aprutil" autogen-sh="configure" 
+        autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2 --with-iconv=${HOME}/gtk/source/apr-iconv-1.2.1">
+        <branch repo="apache" module="apr/apr-util-1.5.4.tar.gz" version="1.5.4"/>
+        <dependencies>
+            <dep package="apr"/>
+        </dependencies>
+    </autotools>
+
+    <autotools id="subversion" autogen-sh="configure" autogenargs="--with-apr=${HOME}/gtk/source/apr-1.5.2 
+            --with-apr-util=${HOME}/gtk/source/apr-util-1.5.4 
+            --with-serf=${HOME}/gtk/source/serf-1.3.8 
+            --without-apxs --with-ssl">
+        <branch repo="subversion" module="subversion-1.9.4.tar.gz" version="1.9.4"/>
+        <dependencies>
+            <dep package="apr"/>
+            <dep package="aprutil"/>
+            <dep package="openssl"/>
+            <dep package="serf"/>
+        </dependencies>
+    </autotools>
+
+    <!-- METAMODULE -->
+
+    <metamodule id="nmap-deps">
+        <dependencies>
+            <dep package="openssl" />
+            <dep package="subversion" />
+        </dependencies>
+    </metamodule>
 
 </moduleset>
