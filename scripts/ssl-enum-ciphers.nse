@@ -1111,6 +1111,8 @@ end
 
 action = function(host, port)
 
+  host.registry.supported_ciphers = {}
+
   if not have_ssl then
     stdnse.verbose("OpenSSL not available; some cipher scores will be marked as unknown.")
   end
@@ -1142,6 +1144,7 @@ action = function(host, port)
   local least = "A"
   for p, r in pairs(results) do
     for i, c in ipairs(r.ciphers) do
+      host.registry.supported_ciphers[#host.registry.supported_ciphers + 1] = c.name
       -- counter-intuitive: "A" < "B", so really looking for max
       least = least < c.strength and c.strength or least
     end
