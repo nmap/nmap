@@ -77,6 +77,8 @@ local function ctx_log(level, protocol, fmt, ...)
 end
 
 local function try_params(host, port, t)
+  t.host = host --adds host also so that host.registry is accessible inside tls.lua
+
   local timeout = ((host.times and host.times.timeout) or 5) * 1000 + 5000
 
   -- Create socket.
