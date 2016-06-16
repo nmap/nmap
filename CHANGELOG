@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap can now make full use of Npcap, the Nmap Project's packet sniffing
+  library for Windows. Most notably, this enables SYN scan and OS detection
+  against localhost. [Yang Luo]
+
 o [NSE] Fix a crash that happened when trying to print the percent done of 0
   NSE script threads:
     timing.cc:710 bool ScanProgressMeter::printStats(double, const timeval*): Assertion 'ltime' failed.

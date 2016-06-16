@@ -132,6 +132,10 @@
 #include "common_modified.h"
 
 extern NpingOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 NpingTargets::NpingTargets(){
   memset(specs, 0, 1024*(sizeof(char *)) );
@@ -309,11 +313,11 @@ int NpingTargets::processSpecs(){
 			continue;
 		  }
 #ifdef WIN32
-		  if (rnfo.ii.device_type == devt_loopback){
+		if (g_has_npcap_loopback == 0 && rnfo.ii.device_type == devt_loopback){
 			nping_warning(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
 			delete mytarget;
 			continue;
-		  }
+		}
 #endif
 		   /* Determine next hop */
 		  if( rnfo.direct_connect ){
@@ -344,8 +348,17 @@ int NpingTargets::processSpecs(){
 
 		  /* Determine next hop MAC address and target MAC address */
 		  if( o.sendEth() ){
-		    mytarget->determineNextHopMACAddress();
-		    mytarget->determineTargetMACAddress(); /* Sets Target MAC only if is directly connected to us */
+#ifdef WIN32
+		    if (g_has_npcap_loopback == 1 && rnfo.ii.device_type == devt_loopback) {
+		      mytarget->setNextHopMACAddress(mytarget->getSrcMACAddress());
+		    }
+		    else {
+#endif
+		      mytarget->determineNextHopMACAddress();
+		      mytarget->determineTargetMACAddress(); /* Sets Target MAC only if is directly connected to us */
+#ifdef WIN32
+		    }
+#endif
           }
 		  /* If we are in debug mode print target details */
 		  if(o.getDebugging() >= DBG_3)
