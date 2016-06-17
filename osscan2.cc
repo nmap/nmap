@@ -3411,7 +3411,7 @@ bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, i
       memcpy(&tmpshort, q, 2);
       /*  if (ntohs(tmpshort) == mss) */
       /*    *p++ = 'E'; */
-      sprintf(p, "%hX", ntohs(tmpshort));
+      sprintf(p, "%hhX", ntohs(tmpshort));
       p += strlen(p); /* max movement of p is 4 (0xFFFF) */
       q += 2;
       length -= 4;

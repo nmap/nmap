@@ -294,7 +294,7 @@ static void connect_report(nsock_iod nsi)
             loguser("Connected to %s.\n", peer.un.sun_path);
         else
 #endif
-            loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+            loguser("Connected to %s:%d.\n", inet_socktop(&peer),
                     nsock_iod_get_peerport(nsi));
 #endif
     }
