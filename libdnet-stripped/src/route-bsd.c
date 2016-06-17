@@ -92,7 +92,7 @@ route_msg(route_t *r, int type, char intf_name[INTF_NAME_LEN], struct addr *dst,
 	pid_t pid;
 	int len;
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, BUFSIZ);
 
 	rtm = (struct rt_msghdr *)buf;
 	rtm->rtm_version = RTM_VERSION;
@@ -137,7 +137,7 @@ route_msg(route_t *r, int type, char intf_name[INTF_NAME_LEN], struct addr *dst,
 
 	pid = getpid();
 	
-	while (type == RTM_GET && (len = read(r->fd, buf, sizeof(buf))) > 0) {
+	while (type == RTM_GET && (len = read(r->fd, buf, BUFSIZ)) > 0) {
 		if (len < (int)sizeof(*rtm)) {
 			return (-1);
 		}
@@ -168,7 +168,7 @@ route_msg(route_t *r, int type, char intf_name[INTF_NAME_LEN], struct addr *dst,
 				errno = ESRCH;
 				return (-1);
 			}
-			strlcpy(intf_name, namebuf, sizeof(intf_name));
+			strlcpy(intf_name, namebuf, INTF_NAME_LEN);
 		}
 	}
 	return (0);
@@ -397,7 +397,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	struct T_optmgmt_ack *toa;
 	struct T_error_ack *tea;
 	struct opthdr *opt;
-	u_char buf[8192];
+	int sizeof_buf = 8192;
+	u_char buf[sizeof_buf];
 	int flags, rc, rtable, ret;
 
 	tor = (struct T_optmgmt_req *)buf;
@@ -413,7 +414,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	opt->level = MIB2_IP;
 	opt->name = opt->len = 0;
 	
-	msg.maxlen = sizeof(buf);
+	msg.maxlen = sizeof_buf;
 	msg.len = sizeof(*tor) + sizeof(*opt);
 	msg.buf = buf;
 	
@@ -421,7 +422,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		return (-1);
 	
 	opt = (struct opthdr *)(toa + 1);
-	msg.maxlen = sizeof(buf);
+	msg.maxlen = sizeof_buf;
 	
 	for (;;) {
 		mib2_ipRouteEntry_t *rt, *rtend;
@@ -447,7 +448,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		
 		rtable = (opt->level == MIB2_IP && opt->name == MIB2_IP_21);
 		
-		msg.maxlen = sizeof(buf) - (sizeof(buf) % sizeof(*rt));
+		msg.maxlen = sizeof_buf - (sizeof_buf % sizeof(*rt));
 		msg.len = 0;
 		flags = 0;
 		
@@ -509,7 +510,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	opt->level = MIB2_IP6;
 	opt->name = opt->len = 0;
 	
-	msg.maxlen = sizeof(buf);
+	msg.maxlen = sizeof_buf;
 	msg.len = sizeof(*tor) + sizeof(*opt);
 	msg.buf = buf;
 	
@@ -517,7 +518,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		return (-1);
 	
 	opt = (struct opthdr *)(toa + 1);
-	msg.maxlen = sizeof(buf);
+	msg.maxlen = sizeof_buf;
 	
 	for (;;) {
 		mib2_ipv6RouteEntry_t *rt, *rtend;
@@ -543,7 +544,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		
 		rtable = (opt->level == MIB2_IP6 && opt->name == MIB2_IP6_ROUTE);
 		
-		msg.maxlen = sizeof(buf) - (sizeof(buf) % sizeof(*rt));
+		msg.maxlen = sizeof_buf - (sizeof_buf % sizeof(*rt));
 		msg.len = 0;
 		flags = 0;
 		
