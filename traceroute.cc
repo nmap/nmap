@@ -678,7 +678,7 @@ void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
 
         sin = (struct sockaddr_in *) &source;
         sin->sin_family = AF_INET;
-        sin->sin_addr = o.decoys[decoy];
+        sin->sin_addr = ((struct sockaddr_in *)&o.decoys[decoy])->sin_addr;
       } else {
         /* Decoys are IPv4-only. */
         continue;

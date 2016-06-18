@@ -313,7 +313,7 @@ class NmapOps {
   int override_excludeports;
   int version_intensity;
 
-  struct in_addr decoys[MAX_DECOYS];
+  struct sockaddr_storage decoys[MAX_DECOYS];
   int osscan_limit; /* Skip OS Scan if no open or no closed TCP ports */
   int osscan_guess;   /* Be more aggressive in guessing OS type */
   int numdecoys;
