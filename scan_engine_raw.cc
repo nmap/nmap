@@ -1346,7 +1346,7 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         free(packet);
       }
     }
-   } else if (pspec->type == PS_UDP) {
+  } else if (pspec->type == PS_UDP) {
     const char *payload;
     size_t payload_length;
 

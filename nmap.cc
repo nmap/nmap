@@ -1081,7 +1081,7 @@ void parse_options(int argc, char **argv) {
             fatal("Random decoys can only be used with IPv4");
           int i = 1;
 
-          /// * 'rnd:' is allowed and just gives them one * /
+          /* 'rnd:' is allowed and just gives them one */
           if (strlen(p) > 4)
             i = atoi(&p[4]);
 
@@ -2080,9 +2080,9 @@ int nmap_main(int argc, char *argv[]) {
 
     // Our source must be set in decoy list because nexthost() call can
     // change it (that issue really should be fixed when possible)
-    if (o.RawScan()){
+    if (o.RawScan())
         o.decoys[o.decoyturn] = Targets[0]->source();
-    }
+
     /* I now have the group for scanning in the Targets vector */
 
     if (!o.noportscan) {
