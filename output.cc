@@ -574,7 +574,7 @@ void printportoutput(Target *currenths, PortList *plist) {
     xml_open_start_tag("portscan");
     xml_attribute("output", "partial");
     xml_attribute("reason", "host-timeout");
-    xml_close_start_tag();
+    xml_close_empty_tag();
     xml_newline();
   }
 
@@ -1880,7 +1880,7 @@ void printosscanoutput(Target *currenths) {
       xml_open_start_tag("osscan");
       xml_attribute("output", "empty");
       xml_attribute("reason", "host-timeout");
-      xml_close_start_tag();
+      xml_close_empty_tag();
       xml_newline();
     }
     return;
@@ -1894,7 +1894,7 @@ void printosscanoutput(Target *currenths) {
   xml_open_start_tag("osscan");
   xml_attribute("output", "partial");
   xml_attribute("reason", "host-timeout");
-  xml_close_start_tag();
+  xml_close_empty_tag();
   xml_newline();
   }
 
@@ -2283,7 +2283,7 @@ void printhostscriptresults(Target *currenths) {
       xml_open_start_tag("hostscan");
       xml_attribute("output", "partial");
       xml_attribute("reason", "host-timeout");
-      xml_close_start_tag();
+      xml_close_empty_tag();
       xml_newline();
     }
     log_write(LOG_PLAIN, "\nHost script results:\n");
