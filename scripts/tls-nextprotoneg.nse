@@ -106,7 +106,7 @@ end
 --@args response Response to parse.
 --@return results List of found protocols.
 local check_npn = function(response)
-  local i, record = tls.record_read(response, 0)
+  local i, record = tls.record_read(response, 1)
   if record == nil then
     stdnse.debug1("Unknown response from server")
     return nil

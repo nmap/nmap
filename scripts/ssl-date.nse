@@ -106,7 +106,7 @@ end
 
 -- extract time from ServerHello response
 local extract_time = function(response)
-  local i, record = tls.record_read(response, 0)
+  local i, record = tls.record_read(response, 1)
   if record == nil then
     stdnse.debug("Unknown response from server")
     return nil
