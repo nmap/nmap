@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-aspnet-debug to detect ASP.NET applications with  
+  debugging enabled. Script submitted by Josh Amishav-Zlatin. [Paulino Calderon]
+
 o Nmap can now make full use of Npcap, the Nmap Project's packet sniffing
   library for Windows. Most notably, this enables SYN scan and OS detection
   against localhost. [Yang Luo]
