@@ -1340,16 +1340,16 @@ function client_hello(t)
   -- Set the session ID.
   table.insert(b, '\0')
 
-  if t.host and t.host.registry and t.host.registry.supported_ciphers then
-    DEFAULT_CIPHERS = {}
-    for _,val in pairs(t.host.registry.supported_ciphers) do
-      table.insert(DEFAULT_CIPHERS, val)
-    end
-  end
   -- Cipher suites.
   ciphers = {}
+  local default_ciphers = {}
+
+  if t.host and t.host.registry then
+    default_ciphers = t.host.registry.supported_ciphers or DEFAULT_CIPHERS
+  end
+
   -- Add specified ciphers.
-  for _, cipher in pairs(t["ciphers"] or DEFAULT_CIPHERS) do
+  for _, cipher in pairs(t["ciphers"] or default_ciphers) do
     if type(cipher) == "string" then
       cipher = CIPHERS[cipher] or SCSVS[cipher]
     end
