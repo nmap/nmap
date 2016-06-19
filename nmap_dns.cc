@@ -515,10 +515,15 @@ static void do_possible_writes() {
 
 // nsock write handler
 static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
+  info record;
   request *req = (request *) req_v;
 
   req->curr_server->write_busy = 0;
+
   req->curr_server->in_process.push_front(req);
+  record.tpreq = req;
+  record.server = req->curr_server;
+  records[req->id] = record;
 
   do_possible_writes();
 }
@@ -530,7 +535,6 @@ static void put_dns_packet_on_wire(request *req) {
   const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
-  info request;
 
   struct timeval now, timeout;
 
@@ -543,10 +547,6 @@ static void put_dns_packet_on_wire(request *req) {
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
   TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
   memcpy(&req->timeout, &timeout, sizeof(struct timeval));
-
-  request.tpreq = req;
-  request.server = req->curr_server;
-  records[req->id] = request;
 
   req->tries++;
 
@@ -650,8 +650,13 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
   infoI = records.find(id);
 
   if( infoI != records.end() ){
+
     tpreq = infoI->second.tpreq;
     server = infoI->second.server;
+
+    if( !sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()) )
+      return 0;
+
     if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED)
     {
       server->capacity += CAPACITY_UP_STEP;
