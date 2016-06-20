@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added clamav-exec to detect ClamAV servers vulnerable to unauthorized   
+  clamav command execution. [Paulino Calderon]
+
 o [NSE] Added http-aspnet-debug to detect ASP.NET applications with  
   debugging enabled. Script submitted by Josh Amishav-Zlatin. [Paulino Calderon]
 
