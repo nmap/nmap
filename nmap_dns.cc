@@ -585,6 +585,9 @@ static int deal_with_timedout_reads() {
         servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
         check_capacities(&*servI);
         servI->in_process.erase(reqI);
+        std::map<u16, info>::iterator it = records.find(tpreq->id);
+        if ( it != records.end() )
+          records.erase(it);
         servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
@@ -614,9 +617,10 @@ static int deal_with_timedout_reads() {
             stat_dropped++;
             total_reqs--;
             infoI = records.find(tpreq->id);
-            if ( infoI != records.end() )
+            if ( infoI != records.end() ){
               records.erase(infoI);
-            delete tpreq;
+              delete tpreq;
+            }
 
             // **** OR We start at the back of this server's queue
             //servItemp->to_process.push_back(tpreq);
@@ -654,7 +658,7 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
     tpreq = infoI->second.tpreq;
     server = infoI->second.server;
 
-    if( !sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()) )
+    if( !result.empty() && !sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()) )
       return 0;
 
     if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED)
@@ -675,7 +679,7 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 
       if (action == ACTION_CNAME_LIST) cname_reqs.push_back(tpreq);
       if (action == ACTION_FINISHED) {
-        records.erase(id);
+        records.erase(infoI);
         delete tpreq;
       }
     }
