@@ -1,0 +1,27 @@
+﻿  proxy_socks4.c
+  proxy_http.c
+  nsock_write.c
+  nsock_timers.c
+  nsock_ssl.c
+  nsock_read.c
+  nsock_proxy.c
+  nsock_pool.c
+  nsock_pcap.c
+  nsock_log.c
+  nsock_iod.c
+  nsock_event.c
+  nsock_engines.c
+  nsock_core.c
+  nsock_connect.c
+  netutils.c
+  gh_heap.c
+  filespace.c
+  error.c
+  engine_select.c
+  Generating Code...
+  Compiling...
+  engine_poll.c
+  engine_kqueue.c
+  engine_epoll.c
+  Generating Code...
+  nsock.vcxproj -> C:\Users\rajit\Source\Repos\nmap\nsock\.\nsock.lib

@@ -1,0 +1,23 @@
+﻿  Copying ca-bundle.crt to output directory...
+  base64.c
+  http.c
+  http_digest.c
+  ncat_connect.c
+  ncat_core.c
+  ncat_exec_win.c
+  ncat_listen.c
+  ncat_lua.c
+  ncat_main.c
+  ncat_proxy.c
+  ncat_ssl.c
+  ncat_win.c
+  sys_wrap.c
+  util.c
+  Generating Code...
+base64.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+     Creating library .\Debug\ncat.lib and object .\Debug\ncat.exp
+  ncat.vcxproj -> C:\Users\rajit\Source\Repos\nmap\ncat\.\Debug\ncat.exe
+  File not found - *.dll
+  0 File(s) copied
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: The command "xcopy "..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "Debug\" /y
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: :VCEnd" exited with code 4.

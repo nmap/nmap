@@ -1,0 +1,36 @@
+﻿  lzio.c
+  lvm.c
+  lundump.c
+  ltm.c
+  ltablib.c
+  ltable.c
+  lstrlib.c
+  lstring.c
+  lstate.c
+  lparser.c
+  loslib.c
+  lopcodes.c
+  lobject.c
+  loadlib.c
+  lmem.c
+  lmathlib.c
+  llex.c
+  liolib.c
+  linit.c
+  lgc.c
+  Generating Code...
+  Compiling...
+  lfunc.c
+  ldump.c
+  ldo.c
+  ldebug.c
+  ldblib.c
+  lctype.c
+  lcorolib.c
+  lcode.c
+  lbitlib.c
+  lbaselib.c
+  lauxlib.c
+  lapi.c
+  Generating Code...
+  liblua.vcxproj -> C:\Users\rajit\Source\Repos\nmap\liblua\.\liblua.lib
