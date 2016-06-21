@@ -3061,7 +3061,8 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
        name. Return a positive result even if the file doesn't exist or is not
        readable. It is the caller's responsibility to report the error if the
        file can't be accessed. */
-    return file_is_readable(filename_returned) || 1;
+    res = file_is_readable(filename_returned);
+    return res != 0 ? res : 1;
   }
 
   /* Try updates directory first. */
