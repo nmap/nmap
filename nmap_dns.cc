@@ -617,10 +617,9 @@ static int deal_with_timedout_reads() {
             stat_dropped++;
             total_reqs--;
             infoI = records.find(tpreq->id);
-            if ( infoI != records.end() ){
+            if ( infoI != records.end() )
               records.erase(infoI);
-              delete tpreq;
-            }
+            delete tpreq;
 
             // **** OR We start at the back of this server's queue
             //servItemp->to_process.push_back(tpreq);
@@ -672,16 +671,14 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
         host_cache.add(* tpreq->targ->TargetSockAddr(), result);
       }
 
+      records.erase(infoI);
       server->in_process.remove(tpreq);
       server->reqs_on_wire--;
 
       total_reqs--;
 
       if (action == ACTION_CNAME_LIST) cname_reqs.push_back(tpreq);
-      if (action == ACTION_FINISHED) {
-        records.erase(infoI);
-        delete tpreq;
-      }
+      if (action == ACTION_FINISHED) delete tpreq;
     }
     else
     {
@@ -758,7 +755,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
-  // If there is no errors and no answhere stop processing the event
+  // If there is no error and no answer stop processing the event
   if(p.answers.empty()) return;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
