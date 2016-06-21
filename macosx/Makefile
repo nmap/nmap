@@ -162,7 +162,7 @@ stage-nping: export-$(NPING_BUILD_DIR)
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
 	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(JHBUILD_PREFIX) --with-subversion=$(JHBUILD_PREFIX) --with-serf=$(JHBUILD_PREFIX) --with-openssl=$(JHBUILD_PREFIX) $(CONFIGURE_ARGS)
-	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
+	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)" APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
 
