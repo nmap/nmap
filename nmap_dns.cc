@@ -508,7 +508,6 @@ static void do_possible_writes() {
            log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , servI->hostname.c_str());
         stat_trans++;
         put_dns_packet_on_wire(tpreq);
-        nsock_read(dnspool, servI->nsd, read_evt_handler, -1, tpreq);
       }
     }
   }
@@ -700,12 +699,12 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
-static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *req) {
+static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   u8 *buf;
   int buflen;
 
   if (total_reqs >= 1)
-    nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, req);
+    nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
 
   if (nse_type(evt) != NSE_TYPE_READ || nse_status(evt) != NSE_STATUS_SUCCESS) {
     if (o.debugging)
@@ -761,13 +760,8 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *req) {
     //TRUNCATED bit is set and we are not able to extract even a single answer
     //then we would switch to system resolver
     if (DNS_HAS_FLAG(f, DNS::TRUNCATED)){
-      //const struct sockaddr_storage *ip = ((request *) &req)->targ->TargetSockAddr();
-      if (o.debugging >= TRACE_DEBUG_LEVEL){
-        char ipstr[INET6_ADDRSTRLEN];
-        sockaddr_storage_iptop(((request *) &req)->targ->TargetSockAddr(), ipstr);
-        log_write(LOG_STDOUT, "mass_rdns: TRUNCATED response found for <%s>\n", ipstr);
-      }
-      process_result( *((request *) &req)->targ->TargetSockAddr(), "", ACTION_SYSTEM_RESOLVE, p.id);
+      sockaddr_storage discard;
+      process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
     }
     return;
   }
@@ -882,6 +876,7 @@ static void connect_dns_servers() {
     serverI->write_busy = 0;
 
     nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, NULL, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
+    nsock_read(dnspool, serverI->nsd, read_evt_handler, -1, NULL);
     serverI->connected = 1;
   }
 
@@ -1197,7 +1192,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   nsock_pool_delete(dnspool);
 
   if (deferred_reqs.size() && o.debugging)
-    log_write(LOG_STDOUT, "Performing system-dns for %d domain names that use CNAMEs\n", (int) deferred_reqs.size());
+    log_write(LOG_STDOUT, "Performing system-dns for %d domain names that were deferred\n", (int) deferred_reqs.size());
 
   if (deferred_reqs.size()) {
     Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %u host%s.", (unsigned) deferred_reqs.size(), deferred_reqs.size()-1 ? "s" : "");
