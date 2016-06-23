@@ -40,7 +40,7 @@ PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
-EXTRA_DIST = README ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
+EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
 
