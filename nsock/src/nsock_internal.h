@@ -276,6 +276,10 @@ struct niod {
   SSL *ssl;
   /* SSL SESSION ID (or NULL if none) */
   SSL_SESSION *ssl_session;
+
+  /* optional client certificate and key */
+  X509 *client_x509;
+  EVP_PKEY *client_key;
 #else
   /* Because there are many if (nsi->ssl) cases in the code */
   char *ssl;

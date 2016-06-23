@@ -397,6 +397,17 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
       }
 #endif
 
+      /* set client certificate and key, if applicable */
+      if (iod->client_x509 && iod->client_key) {
+        if (SSL_use_certificate(iod->ssl, iod->client_x509) != 1) {
+          fatal("SSL_use_certificate failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        }
+
+        if (SSL_use_PrivateKey(iod->ssl, iod->client_key) != 1) {
+          fatal("SSL_use_PrivateKey failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        }
+      }
+
       /* Associate our new SSL with the connected socket.  It will inherit the
        * non-blocking nature of the sd */
       if (SSL_set_fd(iod->ssl, iod->sd) != 1)
