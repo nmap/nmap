@@ -143,10 +143,6 @@
 #define DLI_ERROR VcppException(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND)
 #endif
 
-#define PCAP_DRIVER_NONE 0
-#define PCAP_DRIVER_WINPCAP 1
-#define PCAP_DRIVER_NPCAP 2
-
 extern NpingOps o;
 
 /*   internal functions   */
@@ -167,15 +163,14 @@ void win_pre_init() {
 		fatal("failed to start winsock.\n");
 }
 
-/* Check if the NPCAP service is running on Windows, and try to start it if it's
+/* Check if the NPF service is running on Windows, and try to start it if it's
    not. Return true if it was running or we were able to start it, false
    otherwise. */
-static bool start_service(const char *svcname) {
+static bool start_npf() {
   SC_HANDLE scm, npf;
   SERVICE_STATUS service;
   bool npf_running;
   int ret;
-  char startsvc[32];
 
   scm = NULL;
   npf = NULL;
@@ -185,7 +180,7 @@ static bool start_service(const char *svcname) {
     error("Error in OpenSCManager");
     goto quit_error;
   }
-  npf = OpenService(scm, svcname, SC_MANAGER_CONNECT | SERVICE_QUERY_STATUS);
+  npf = OpenService(scm, "npf", SC_MANAGER_CONNECT | SERVICE_QUERY_STATUS);
   if (npf == NULL) {
     error("Error in OpenService");
     goto quit_error;
@@ -200,20 +195,19 @@ static bool start_service(const char *svcname) {
 
   if (npf_running) {
     if (o.getDebugging() > DBG_1)
-      printf("%s service is already running.\n", svcname);
+      printf("NPF service is already running.\n");
     return true;
   }
 
-  /* Service is not running. Try to start it. */
+  /* NPF is not running. Try to start it. */
 
   if (o.getDebugging() > DBG_1)
-    printf("%s service is already running.\n", svcname);
+    printf("NPF service is not running.\n");
 
-  Snprintf(startsvc, 32, "start %s", svcname);
-  ret = (int) ShellExecute(0, "runas", "net.exe", startsvc, 0, SW_HIDE);
+  ret = (int) ShellExecute(0, "runas", "net.exe", "start npf", 0, SW_HIDE);
   if (ret <= 32) {
-    error("Unable to start %s service: ShellExecute returned %d.\n\
-Resorting to unprivileged (non-administrator) mode.", svcname, ret);
+    error("Unable to start NPF service: ShellExecute returned %d.\n\
+Resorting to unprivileged (non-administrator) mode.", ret);
     return false;
   }
 
@@ -252,27 +246,6 @@ static void init_dll_path()
 	}
 }
 
-/* If we find the Npcap driver, allow Nmap to load Npcap DLLs from the "\System32\Npcap" directory. */
-static void init_npcap_dll_path()
-{
-	BOOL(WINAPI *SetDllDirectory)(LPCTSTR);
-	char sysdir_name[512];
-	int len;
-
-	SetDllDirectory = (BOOL(WINAPI *)(LPCTSTR)) GetProcAddress(GetModuleHandle("kernel32.dll"), "SetDllDirectoryA");
-	if (SetDllDirectory == NULL) {
-		pfatal("Error in SetDllDirectory");
-	}
-	else {
-		len = GetSystemDirectory(sysdir_name, 480);	//	be safe
-		if (!len)
-			pfatal("Error in GetSystemDirectory (%d)", GetLastError());
-		strcat(sysdir_name, "\\Npcap");
-		if (SetDllDirectory(sysdir_name) == 0)
-			pfatal("Error in SetDllDirectory(\"System32\\Npcap\")");
-	}
-}
-
 /* Requires that win_pre_init() has already been called, also that
    options processing has been done so that o.debugging is
    available */
@@ -285,7 +258,6 @@ void win_init()
 	PMIB_IPADDRTABLE pIp = 0;
 	int i;
 	int numipsleft;
-	int pcap_driver;
 
 	init_dll_path();
 
@@ -311,17 +283,6 @@ void win_init()
 		ULONG len = sizeof(pcaplist);
 
 		if(o.getDebugging() >= DBG_2) printf("Trying to initialize WinPcap\n");
-
-    if (start_service("npcap"))
-      pcap_driver = PCAP_DRIVER_NPCAP;
-    else if (start_service("npf"))
-      pcap_driver = PCAP_DRIVER_WINPCAP;
-    else
-      pcap_driver = PCAP_DRIVER_NONE;
-
-    if (pcap_driver == PCAP_DRIVER_NPCAP)
-      init_npcap_dll_path();
-
     pcapMutex = CreateMutex(NULL, 0, "Global\\DnetPcapHangAvoidanceMutex");
     wait = WaitForSingleObject(pcapMutex, INFINITE);
 		PacketGetAdapterNames(pcaplist, &len);
@@ -344,7 +305,7 @@ void win_init()
 		   --unprivileged. In that case don't bother them with a
 		   potential UAC dialog when starting NPF. */
 		if (o.isRoot())
-			o.setHavePcap(o.havePcap() && ((bool) pcap_driver));
+			o.setHavePcap(o.havePcap() && start_npf());
 	}
 #ifdef _MSC_VER
 	__except (1) {
