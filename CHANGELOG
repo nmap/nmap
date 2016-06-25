@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nping] Nping is now fully compatible with Npcap. [Daniel Miller]
+
 o [GH#279][Zenmap] Added a legend for the Topography window. [Suraj Hande]
 
 o [NSE] Added clamav-exec to detect ClamAV servers vulnerable to unauthorized
