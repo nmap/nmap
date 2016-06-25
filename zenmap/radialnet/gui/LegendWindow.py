@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
+# * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
 # * also a registered trademark of Insecure.Com LLC.  This program is free  *
 # * software; you may redistribute and/or modify it under the terms of the  *
 # * GNU General Public License as published by the Free Software            *
@@ -118,254 +118,191 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import os
 import gtk
-import gobject
+import pango
+import math
+import cairo
 
-from radialnet.bestwidgets.buttons import *
-from radialnet.gui.SaveDialog import SaveDialog
-from radialnet.gui.Dialogs import AboutDialog
-from radialnet.gui.LegendWindow import LegendWindow
-from radialnet.gui.HostsViewer import HostsViewer
-from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
+import zenmapCore.I18N
+import radialnet.util.drawing as drawing
+
+from radialnet.bestwidgets.windows import *
+from radialnet.bestwidgets.boxes import *
+from radialnet.bestwidgets.labels import *
+from radialnet.gui.Image import Pixmaps
+from radialnet.gui.NodeNotebook import NodeNotebook
+from radialnet.util.drawing import *
+DIMENSION_NORMAL = (350, 450)
 
 
-SHOW = True
-HIDE = False
+def draw_pixmap(context, x, y, name, label):
+    context.set_source_pixbuf(Pixmaps().get_pixbuf(name), x, y)
+    context.paint()
+    context.move_to(x + 50, y + 10)
+    context.set_source_rgb(0, 0, 0)
+    context.show_text(label)
 
-REFRESH_RATE = 500
+
+def reset_font(context):
+    context.select_font_face(
+            "Monospace", cairo.FONT_SLANT_NORMAL, cairo.FONT_SLANT_NORMAL)
+    context.set_font_size(11)
 
 
-class ToolsMenu(gtk.Menu):
+def draw_heading(context, x, y, label):
+    context.select_font_face(
+            "Monospace", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    context.set_font_size(13)
+    context.move_to(x - 15, y)
+    context.set_source_rgb(0, 0, 0)
+    context.show_text(label)
+    reset_font(context)
+
+
+def draw_circle(context, x, y, size, color, label):
+    context.set_source_rgb(0, 0, 0)
+    context.move_to(x, y)
+    context.arc(x, y, size, 0, 2 * math.pi)
+    context.stroke_preserve()
+    context.set_source_rgb(*color)
+    context.fill()
+    context.set_source_rgb(0, 0, 0)
+    context.move_to(x + 50, y + 5)
+    context.show_text(label)
+
+
+def draw_square(context, x, y, size, color):
+    context.set_source_rgb(0, 0, 0)
+    context.rectangle(x, y - size / 2, size, size)
+    context.stroke_preserve()
+    context.set_source_rgb(*color)
+    context.fill()
+
+
+def draw_line(context, x, y, dash, color, label):
+    context.set_source_rgb(*color)
+    context.move_to(x - 20, y)
+    context.set_dash(dash)
+    context.line_to(x + 25, y)
+    context.stroke()
+    context.set_dash([])
+    context.set_source_rgb(0, 0, 0)
+    context.move_to(x + 50, y + 5)
+    context.show_text(label)
+
+
+class LegendWindow(gtk.Window):
     """
     """
-    def __init__(self, radialnet):
+    def __init__(self):
         """
         """
-        gtk.Menu.__init__(self)
+        gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+        self.set_default_size(DIMENSION_NORMAL[0], DIMENSION_NORMAL[1])
+        self.__title_font = pango.FontDescription("Monospace Bold")
+        self.set_title(_("Topology Legend"))
 
-        self.radialnet = radialnet
+        self.vbox = gtk.VBox()
+        self.add(self.vbox)
 
-        self.__create_items()
+        self.drawing_area = gtk.DrawingArea()
+        self.vbox.pack_start(self.drawing_area)
+        self.drawing_area.connect("expose-event", self.expose_event_handler)
+        self.more_uri = gtk.LinkButton(
+                "https://nmap.org/book/zenmap-topology.html#zenmap-topology-legend",
+                label=_("View full legend online"))
+        self.vbox.pack_start(self.more_uri, False, False)
 
-    def __create_items(self):
+    def expose_event_handler(self, widget, event):
         """
         """
-        self.__hosts = gtk.ImageMenuItem(_('Hosts viewer'))
-        self.__hosts.connect("activate", self.__hosts_viewer_callback)
-        self.__hosts_image = gtk.Image()
-        self.__hosts_image.set_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_MENU)
-        self.__hosts.set_image(self.__hosts_image)
+        self.graphic_context = widget.window.cairo_create()
+        w, h = widget.window.get_size()
+        x, y = 45, 20
+        draw_heading(self.graphic_context, x, y, _("Hosts"))
 
-        self.append(self.__hosts)
+        # white circle
+        y += 20
+        draw_circle(self.graphic_context, x, y, 3, (1, 1, 1),
+                _("host was not port scanned"))
+        # green circle
+        y += 20
+        draw_circle(self.graphic_context, x, y, 4, (0, 1, 0),
+                _("host with fewer than 3 open ports"))
+        # yellow circle
+        y += 20
+        draw_circle(self.graphic_context, x, y, 5, (1, 1, 0),
+                _("host with 3 to 6 open ports"))
+        # red circle
+        y += 20
+        draw_circle(self.graphic_context, x, y, 6, (1, 0, 0),
+                _("host with more than 6 open ports"))
 
-        self.__hosts.show_all()
+        # green square
+        y += 20
+        rx = x - 20
+        draw_square(self.graphic_context, rx, y, 10, (0, 1, 0))
+        rx += 10 + 5
+        # yellow square
+        draw_square(self.graphic_context, rx, y, 12, (1, 1, 0))
+        rx += 12 + 5
+        # red square
+        draw_square(self.graphic_context, rx, y, 14, (1, 0, 0))
 
-    def __hosts_viewer_callback(self, widget):
-        """
-        """
-        window = HostsViewer(self.radialnet.get_scanned_nodes())
-        window.show_all()
-        window.set_keep_above(True)
+        self.graphic_context.move_to(x + 50, y + 5)
+        self.graphic_context.set_source_rgb(0, 0, 0)
+        self.graphic_context.show_text(_("host is a router, switch, or WAP"))
 
-    def enable_dependents(self):
-        """
-        """
-        self.__hosts.set_sensitive(True)
+        # connections between hosts
+        y += 30
+        draw_heading(self.graphic_context, x, y, _("Traceroute connections"))
 
-    def disable_dependents(self):
-        """
-        """
-        self.__hosts.set_sensitive(False)
+        y += 20
+        self.graphic_context.move_to(x, y)
+        self.graphic_context.show_text(_("Thicker line means higher round-trip time"))
+        # primary traceroute (blue line)
+        y += 20
+        draw_line(self.graphic_context, x, y, [], (0, 0, 1),
+                _("primary traceroute connection"))
+        # Alternate route (orange line)
+        y += 20
+        draw_line(self.graphic_context, x, y, [], (1, 0.5, 0),
+                _("alternate path"))
+        # no traceroute
+        y += 20
+        draw_line(self.graphic_context, x, y, [4.0, 2.0], (0, 0, 0),
+                _("no traceroute information"))
+        # missing traceroute
+        y += 20
+        self.graphic_context.set_source_rgb(0.5, 0.7, 0.95)
+        self.graphic_context.move_to(x - 15, y)
+        self.graphic_context.arc(x - 25, y, 5, 0, 2 * math.pi)
+        self.graphic_context.stroke_preserve()
+        draw_line(self.graphic_context, x, y, [4.0, 2.0], (0.5, 0.7, 0.95),
+                _("missing traceroute hop"))
 
+        # special purpose hosts
+        y += 30
+        draw_heading(self.graphic_context, x, y, _("Additional host icons"))
 
-class Toolbar(gtk.HBox):
-    """
-    """
-    def __init__(self, radialnet, window, control, fisheye):
-        """
-        """
-        gtk.HBox.__init__(self)
-        #self.set_style(gtk.TOOLBAR_BOTH_HORIZ)
-        #self.set_tooltips(True)
+        # router image
+        y += 20
+        draw_pixmap(self.graphic_context, x, y, "router", _("router"))
 
-        self.radialnet = radialnet
+        # switch image
+        y += 20
+        draw_pixmap(self.graphic_context, x, y, "switch", _("switch"))
 
-        self.__window = window
-        self.__control_widget = control
-        self.__fisheye_widget = fisheye
+        # wap image
+        y += 20
+        draw_pixmap(self.graphic_context, x, y, "wireless",
+                _("wireless access point"))
 
-        self.__control_widget.show_all()
-        self.__control_widget.set_no_show_all(True)
-        self.__control_widget.hide()
+        # firewall image
+        y += 20
+        draw_pixmap(self.graphic_context, x, y, "firewall", _("firewall"))
 
-        self.__fisheye_widget.show_all()
-        self.__fisheye_widget.set_no_show_all(True)
-        self.__fisheye_widget.hide()
-
-        self.__save_chooser = None
-
-        self.__create_widgets()
-
-    def __create_widgets(self):
-        """
-        """
-        # self.__tooltips = gtk.Tooltips()
-
-        #self.__tools_menu = ToolsMenu(self.radialnet)
-
-        #self.__tools_button = gtk.MenuToolButton(gtk.STOCK_PREFERENCES)
-        #self.__tools_button.set_label(_('Tools'))
-        #self.__tools_button.set_is_important(True)
-        #self.__tools_button.set_menu(self.__tools_menu)
-        #self.__tools_button.connect('clicked', self.__tools_callback)
-
-        self.__save_button = BWStockButton(gtk.STOCK_SAVE, _("Save Graphic"))
-        self.__save_button.connect("clicked", self.__save_image_callback)
-
-        self.__hosts_button = BWStockButton(gtk.STOCK_INDEX, _("Hosts Viewer"))
-        self.__hosts_button.connect("clicked", self.__hosts_viewer_callback)
-
-        self.__control = BWToggleStockButton(
-                gtk.STOCK_PROPERTIES, _("Controls"))
-        self.__control.connect('clicked', self.__control_callback)
-        self.__control.set_active(False)
-
-        self.__fisheye = BWToggleStockButton(gtk.STOCK_ZOOM_FIT, _("Fisheye"))
-        self.__fisheye.connect('clicked', self.__fisheye_callback)
-        self.__fisheye.set_active(False)
-
-        self.__legend_button = BWStockButton(gtk.STOCK_INDEX, _("Legend"))
-        self.__legend_button.connect('clicked', self.__legend_callback)
-
-        #self.__fullscreen = gtk.ToggleToolButton(gtk.STOCK_FULLSCREEN)
-        #self.__fullscreen.set_label(_('Fullscreen'))
-        #self.__fullscreen.set_is_important(True)
-        #self.__fullscreen.connect('clicked', self.__fullscreen_callback)
-        #self.__fullscreen.set_tooltip(self.__tooltips, _('Toggle fullscreen'))
-
-        #self.__about = gtk.ToolButton(gtk.STOCK_ABOUT)
-        #self.__about.set_label(_('About'))
-        #self.__about.set_is_important(True)
-        #self.__about.connect('clicked', self.__about_callback)
-        #self.__about.set_tooltip(self.__tooltips, _('About RadialNet'))
-
-        self.__separator = gtk.SeparatorToolItem()
-        self.__expander = gtk.SeparatorToolItem()
-        self.__expander.set_expand(True)
-        self.__expander.set_draw(False)
-
-        #self.insert(self.__open,         0)
-        #self.insert(self.__separator,    1)
-        #self.insert(self.__tools_button, 2)
-        #self.insert(self.__expander,     3)
-        #self.insert(self.__control,      4)
-        #self.insert(self.__fisheye,      5)
-        #self.insert(self.__fullscreen,   6)
-        #self.insert(self.__about,        7)
-
-        #self.pack_start(self.__tools_button, False)
-        self.pack_start(self.__hosts_button, False)
-        self.pack_start(self.__fisheye, False)
-        self.pack_start(self.__control, False)
-        self.pack_end(self.__save_button, False)
-        self.pack_end(self.__legend_button, False)
-
-    def disable_controls(self):
-        """
-        """
-        self.__control.set_sensitive(False)
-        self.__fisheye.set_sensitive(False)
-        self.__hosts_button.set_sensitive(False)
-        self.__legend_button.set_sensitive(False)
-        #self.__tools_menu.disable_dependents()
-
-    def enable_controls(self):
-        """
-        """
-        self.__control.set_sensitive(True)
-        self.__fisheye.set_sensitive(True)
-        self.__hosts_button.set_sensitive(True)
-        self.__legend_button.set_sensitive(True)
-        #self.__tools_menu.enable_dependents()
-
-    def __tools_callback(self, widget):
-        """
-        """
-        self.__tools_menu.popup(None, None, None, 1, 0)
-
-    def __hosts_viewer_callback(self, widget):
-        """
-        """
-        window = HostsViewer(self.radialnet.get_scanned_nodes())
-        window.show_all()
-        window.set_keep_above(True)
-
-    def __save_image_callback(self, widget):
-        """
-        """
-        if self.__save_chooser is None:
-            self.__save_chooser = SaveDialog()
-
-        response = self.__save_chooser.run()
-
-        if response == gtk.RESPONSE_OK:
-            filename = self.__save_chooser.get_filename()
-            filetype = self.__save_chooser.get_filetype()
-
-            try:
-                self.radialnet.save_drawing_to_file(filename, filetype)
-            except Exception, e:
-                alert = HIGAlertDialog(parent=self.__save_chooser,
-                        type=gtk.MESSAGE_ERROR,
-                        message_format=_("Error saving snapshot"),
-                        secondary_text=unicode(e))
-                alert.run()
-                alert.destroy()
-
-        self.__save_chooser.hide()
-
-    def __control_callback(self, widget=None):
-        """
-        """
-        if self.__control.get_active():
-            self.__control_widget.show()
-
-        else:
-            self.__control_widget.hide()
-
-    def __fisheye_callback(self, widget=None):
-        """
-        """
-        if not self.radialnet.is_in_animation():
-
-            if self.__fisheye.get_active():
-
-                self.__fisheye_widget.active_fisheye()
-                self.__fisheye_widget.show()
-
-            else:
-
-                self.__fisheye_widget.deactive_fisheye()
-                self.__fisheye_widget.hide()
-
-    def __legend_callback(self, widget):
-        """
-        """
-        self.__legend_window = LegendWindow()
-        self.__legend_window.show_all()
-
-    def __about_callback(self, widget):
-        """
-        """
-        self.__about_dialog = AboutDialog()
-        self.__about_dialog.show_all()
-
-    def __fullscreen_callback(self, widget=None):
-        """
-        """
-        if self.__fullscreen.get_active():
-            self.__window.fullscreen()
-
-        else:
-            self.__window.unfullscreen()
+        # host with filtered ports
+        y += 20
+        draw_pixmap(self.graphic_context, x, y, "padlock",
+                _("host with some filtered ports"))
