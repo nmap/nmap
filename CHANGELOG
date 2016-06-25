@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-mcmp for detecting mod_cluster Management Protocol (MCMP)
+  and dumping its configuration. [Frank Spierings]
+
 o [Nping] Nping is now fully compatible with Npcap. [Daniel Miller]
 
 o [GH#279][Zenmap] Added a legend for the Topography window. [Suraj Hande]
