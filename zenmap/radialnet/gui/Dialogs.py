@@ -123,7 +123,9 @@ import pango
 
 from radialnet.core.Info import INFO
 from radialnet.gui.Image import Pixmaps
-
+from radialnet.bestwidgets.boxes import *
+from radialnet.bestwidgets.windows import BWWindow
+from radialnet.bestwidgets.buttons import *
 
 class AboutDialog(gtk.AboutDialog):
     """
@@ -148,3 +150,12 @@ class AboutDialog(gtk.AboutDialog):
         """
         """
         self.destroy()
+			
+
+
+
+
+
+
+
+
