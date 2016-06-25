@@ -75,6 +75,7 @@ action = function(host, port)
     if not status then
       -- could be socket problems, but more likely STARTTLS not supported.
       stdnse.debug1("starttls error: %s", socket)
+      socket = nil
     end
   end
   if not socket then
