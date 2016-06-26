@@ -994,7 +994,7 @@ int NpingTarget::setProbeSentICMP(u16 id, u16 seq){
   current_stat=(current_stat+1)%MAX_SENTPROBEINFO_ENTRIES;
   if( total_stats< MAX_SENTPROBEINFO_ENTRIES)
     total_stats++;
-    return OP_SUCCESS;
+  return OP_SUCCESS;
 } /* End of setProbeSentARP() */
 
 
