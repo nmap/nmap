@@ -766,6 +766,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
+  bool processing_successful = false;
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )
   {
@@ -780,7 +781,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
           sockaddr_storage ip;
           if(DNS::Factory::ptrToIp(a.name, ip))
-            if (process_result(ip, ptr->value, ACTION_FINISHED, p.id))
+            if (processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, p.id))
             {
               if (o.debugging >= TRACE_DEBUG_LEVEL)
               {
@@ -792,7 +793,10 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
               }
               output_summary();
               stat_ok++;
+              /*Since we have got the answer we can avoid iterating over all answers*/
+              return;
             }
+          /*This is the case where we aren't able to parse the PTR record successfully*/
           break;
         }
         case DNS::CNAME:
@@ -806,7 +810,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
               sockaddr_storage_iptop(&ip, ipstr);
               log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", ipstr);
             }
-            process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
+            processing_successful = process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
           }
           break;
         }
@@ -814,6 +818,11 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
           break;
       }
     }
+  }
+
+  if (!processing_successful){
+    sockaddr_storage discard;
+    process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
   }
 }
 
