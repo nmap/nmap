@@ -781,7 +781,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
           sockaddr_storage ip;
           if(DNS::Factory::ptrToIp(a.name, ip))
-            if (processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, p.id))
+            if ((processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, p.id)))
             {
               if (o.debugging >= TRACE_DEBUG_LEVEL)
               {
