@@ -1078,6 +1078,13 @@ int ncat_connect(void)
     return rc == NSOCK_LOOP_ERROR ? 1 : 0;
 }
 
+void flip_address_family(){
+  if (o.verbose)
+    loguser("Trying to reconnect with different address family.\n");
+  o.af = targetss.storage.ss_family = targetss.storage.ss_family == AF_INET6 ? AF_INET : AF_INET6;
+  ncat_connect();
+}
+
 static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
@@ -1086,6 +1093,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
     if (status == NSE_STATUS_ERROR) {
+        //May be we tried with wrong address family
+        if (strcmp(socket_strerror(nse_errorcode(evt)), "Connection refused") == 0 && o.af == AF_UNSPEC){
+          flip_address_family();
+        }
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
