@@ -34,18 +34,9 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","external","safe"}
 
-local db_file
 local function get_db_file()
-  if db_file == nil then
-    db_file = stdnse.get_script_args(SCRIPT_NAME .. ".maxmind_db")
-    if db_file == nil then
-      db_file = nmap.fetchfile("nselib/data/GeoLiteCity.dat")
-      if db_file == nil then
-        stdnse.verbose1("You must specify a Maxmind database file with the maxmind_db argument.")
-      end
-    end
-  end
-  return db_file or false
+  return (stdnse.get_script_args(SCRIPT_NAME .. ".maxmind_db") or
+    nmap.fetchfile("nselib/data/GeoLiteCity.dat"))
 end
 
 hostrule = function(host)
@@ -53,13 +44,15 @@ hostrule = function(host)
     stdnse.verbose1("Only IPv4 is currently supported.")
     return false
   end
-  if not get_db_file() then return false end
   local is_private, err = ipOps.isPrivate( host.ip )
-  if is_private == nil then
-    stdnse.debug1("Error in Hostrule: %s.", err )
+  if is_private then
     return false
   end
-  return not is_private
+  if not get_db_file() then
+    stdnse.verbose1("You must specify a Maxmind database file with the maxmind_db argument.")
+    return false
+  end
+  return true
 end
 
 local MaxmindDef = {
@@ -601,24 +594,12 @@ local GeoIP = {
   end,
 }
 
-local geoip
-local function get_geoip_instance()
-  if geoip then return geoip end
-  --if f_maxmind is a string, it should specify the filename of the database
-  local f_maxmind = get_db_file()
-  if f_maxmind then
-    geoip = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
-  else
-    return nil
-  end
-  return geoip
-end
-
 action = function(host,port)
-
-  local gi = get_geoip_instance()
+  local gi = nmap.registry.maxmind_db
   if not gi then
-    return stdnse.format_output(false, "No Maxmind database found")
+    local f_maxmind = get_db_file()
+    gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
+    nmap.registry.maxmind_db = gi
   end
 
   return gi:output_record_by_addr(host.ip)
