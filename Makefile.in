@@ -15,6 +15,7 @@ srcdir = @srcdir@
 nmapdatadir = @datadir@/nmap
 deskdir = $(prefix)/share/applications
 NMAPDEVDIR=~/nmap-private-dev
+UNAME := $(shell uname)
 
 export NBASEDIR=@NBASEDIR@
 export NSOCKDIR=@NSOCKDIR@
@@ -164,7 +165,11 @@ static:
 	$(MAKE) STATIC=-static
 
 debug:
+ifeq ($(UNAME),Darwin)
+	$(MAKE) DBGFLAGS="-O0 -g -pg -ftest-coverage"
+else
 	$(MAKE) DBGFLAGS="-O0 -g -pg -ftest-coverage -fprofile-arcs"
+endif
 
 # CALL THIS FROM ONE COMPUTER AND CHECK IN RESULTS BEFORE DOING ANYONE
 # DOES A MAKE RELEASE
