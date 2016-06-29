@@ -755,20 +755,10 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
-  if(p.answers.empty())
-  {
-    //TRUNCATED bit is set and we are not able to extract even a single answer
-    //then we would switch to system resolver
-    if (DNS_HAS_FLAG(f, DNS::TRUNCATED)){
-      sockaddr_storage discard;
-      process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
-    }
-    return;
-  }
-
   bool processing_successful = false;
+
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
-      it != p.answers.end(); ++it )
+      it != p.answers.end() && !processing_successful; ++it )
   {
     const DNS::Answer &a = *it;
     if(a.record_class == DNS::CLASS_IN)
@@ -793,11 +783,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
               }
               output_summary();
               stat_ok++;
-              /*Since we have got the answer we can avoid iterating over all answers*/
-              return;
             }
-          /*This is the case where we aren't able to parse the PTR record successfully*/
-          break;
         }
         case DNS::CNAME:
         {
@@ -820,9 +806,14 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     }
   }
 
-  if (!processing_successful){
-    sockaddr_storage discard;
-    process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
+  if (!processing_successful) {
+    if (DNS_HAS_FLAG(f, DNS::TRUNCATED)) {
+      sockaddr_storage discard;
+      process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
+    }
+    else
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+        log_write(LOG_STDOUT, "mass_rdns: Unable to process the response\n");
   }
 }
 
