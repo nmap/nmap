@@ -307,6 +307,7 @@ int main(int argc, char *argv[])
         {"nsock-engine",    required_argument,  NULL,         0},
         {"test",            no_argument,        NULL,         0},
         {"ssl",             no_argument,        &o.ssl,       1},
+        {"zero",            no_argument,        NULL,         'z'},
 #ifdef HAVE_OPENSSL
         {"ssl-cert",        required_argument,  NULL,         0},
         {"ssl-key",         required_argument,  NULL,         0},
@@ -334,7 +335,7 @@ int main(int argc, char *argv[])
     while (1) {
         /* handle command line arguments */
         int option_index;
-        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n",
+        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n:z",
                             long_options, &option_index);
 
         /* That's the end of the options. */
@@ -457,6 +458,9 @@ int main(int argc, char *argv[])
             break;
         case 't':
             o.telnet = 1;
+            break;
+        case 'z':
+            o.zerobyte = 1;
             break;
         case 0:
             if (strcmp(long_options[option_index].name, "version") == 0) {
@@ -618,6 +622,7 @@ int main(int argc, char *argv[])
 "      --proxy <addr[:port]>  Specify address of host to proxy through\n"
 "      --proxy-type <type>    Specify proxy type (\"http\" or \"socks4\" or \"socks5\")\n"
 "      --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server\n"
+"  -z, --zero                 Just to establish connection, doesn't send any payload\n"
 
 #ifdef HAVE_OPENSSL
 "      --ssl                  Connect or listen with SSL\n"
@@ -723,6 +728,24 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (o.zerobyte) {
+      if (o.listen||o.httpserver||o.keepopen)
+        bye("Services designed for LISTENING can't be used with -z");
+      if (o.proto != IPPROTO_TCP)
+        bye("-z option only works with TCP");
+      if (o.sendonly||o.recvonly)
+        bye("Invalid option combination: -z and --%s-only.", o.sendonly?"send":"recv");
+      if (o.telnet)
+        bye("Invalid option combination: -z and -t.");
+      if (o.chat)
+        bye("Invalid option combination: -z and -chat.");
+      if (o.crlf)
+        bye("Invalid option combination: -z and -C.");
+      if (o.execmode||o.cmdexec)
+        bye("Command execution can't be done along with option -z.");
+      if (o.idletimeout)
+        bye("Invalid option combination: -z and -i.");
+    }
     /* Default port */
     if (o.listen && o.proxytype && !o.portno && srcport == -1)
         o.portno = DEFAULT_PROXY_PORT;

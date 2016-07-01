@@ -1134,10 +1134,10 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
 
     /* Start the initial reads. */
 
-    if (!o.sendonly)
+    if (!o.sendonly && !o.zerobyte)
         nsock_read(nsp, cs.sock_nsi, read_socket_handler, -1, NULL);
 
-    if (!o.recvonly)
+    if (!o.recvonly && !o.zerobyte)
         nsock_readbytes(nsp, cs.stdin_nsi, read_stdin_handler, -1, NULL, 0);
 
     /* The --idle-timeout option says to exit after a certain period of
