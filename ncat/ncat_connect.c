@@ -1086,10 +1086,12 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
     if (status == NSE_STATUS_ERROR) {
-        loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
+        if (!o.zerobyte||o.verbose)
+          loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
-        loguser("%s.\n", socket_strerror(ETIMEDOUT));
+        if (!o.zerobyte||o.verbose)
+          loguser("%s.\n", socket_strerror(ETIMEDOUT));
         exit(1);
     } else {
         ncat_assert(status == NSE_STATUS_SUCCESS);
