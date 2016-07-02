@@ -307,7 +307,6 @@ int main(int argc, char *argv[])
         {"nsock-engine",    required_argument,  NULL,         0},
         {"test",            no_argument,        NULL,         0},
         {"ssl",             no_argument,        &o.ssl,       1},
-        {"z",               no_argument,        NULL,         'z'},
 #ifdef HAVE_OPENSSL
         {"ssl-cert",        required_argument,  NULL,         0},
         {"ssl-key",         required_argument,  NULL,         0},
@@ -622,7 +621,7 @@ int main(int argc, char *argv[])
 "      --proxy <addr[:port]>  Specify address of host to proxy through\n"
 "      --proxy-type <type>    Specify proxy type (\"http\" or \"socks4\" or \"socks5\")\n"
 "      --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server\n"
-"  -z, --zero                 Just to establish connection, doesn't send any payload\n"
+"  -z                         Just to establish connection, doesn't send any payload\n"
 
 #ifdef HAVE_OPENSSL
 "      --ssl                  Connect or listen with SSL\n"
