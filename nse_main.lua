@@ -32,8 +32,8 @@
 
 local _VERSION = _VERSION;
 local MAJOR, MINOR = assert(_VERSION:match "^Lua (%d+).(%d+)$");
-if tonumber(MAJOR.."."..MINOR) < 5.2 then
-  error "NSE requires Lua 5.2 or newer. It looks like you're using an older version of nmap."
+if tonumber(MAJOR.."."..MINOR) < 5.3 then
+  error "NSE requires Lua 5.3 or newer. It looks like you're using an older version of nmap."
 end
 
 local NAME = "NSE";
@@ -134,7 +134,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
     local name = "nselib/"..lib..".lua";
     local type, path = cnse.fetchfile_absolute(name);
     if type == "file" then
-      return loadfile(path);
+      return assert(loadfile(path));
     else
       return "\n\tNSE failed to find "..name.." in search paths.";
     end

@@ -107,12 +107,11 @@ local function readFile(filename)
     return false, ("Failed to open file: %s"):format(filename)
   end
 
-  local str = f:read("*all")
+  local str = f:read("a")
+  f:close()
   if ( not(str) ) then
-    f:close()
     return false, "Failed to read file contents"
   end
-  f:close()
   return true, str
 end
 

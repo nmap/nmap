@@ -27,7 +27,6 @@ Cisco = {
   Util = {
 
     generate_mac = function()
-      math.randomseed(os.time())
       local mac = {}
       for i=1,6 do
         mac[#mac + 1] = (("%x"):format(math.random(255))):gsub(' ', '0');

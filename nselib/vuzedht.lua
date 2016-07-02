@@ -468,7 +468,6 @@ Helper = {
     }
     setmetatable(o, self)
     self.__index = self
-    math.randomseed(os.time())
     return o
   end,
 
