@@ -1,6 +1,7 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local brute = require "brute"
+local creds = require "creds"
 
 local libssh2 = stdnse.silent_require "libssh2"
 
@@ -82,7 +83,7 @@ Driver = {
       return false, brute.Error:new("login failed")
     else
       stdnse.verbose(1, "Found working Credentials: %s:%s", username, password)
-      return true, brute.Account:new(username, password, "OPEN")
+      return true, creds.Account:new(username, password, "OPEN")
     end
   end,
 }

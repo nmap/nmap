@@ -4,9 +4,10 @@
 class Port;
 class Target;
 
-#if HAVE_STDINT_H
+// TODO: uncomment
+//#if HAVE_STDINT_H
 #include <stdint.h>
-#endif
+//#endif
 
 /* int nseU_traceback (lua_State *L)
  *
