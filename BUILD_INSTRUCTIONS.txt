@@ -1,0 +1,7 @@
+1. Open `libssh2.sln` from .\libssh2-1.7.0\win32
+2. Build libssh2 for `OpenSSL DLL Release` target
+3. Close solution
+
+4. Open `nmap.sln` from .\mswin32
+5. Build solution for `Release` target
+6. nmap.exe can be found at .\mswin32\Release folder
