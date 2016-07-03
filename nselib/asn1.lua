@@ -250,8 +250,8 @@ ASN1Decoder = {
     local hexStr
     pos, hexStr = bin.unpack("H" .. len, encStr, pos)
     local value = tonumber(hexStr, 16)
-    if (value >= math.pow(256, len)/2) then
-      value = value - math.pow(256, len)
+    if (value >= (256^len)/2) then
+      value = value - 256^len
     end
     return pos, value
   end,
@@ -409,7 +409,7 @@ ASN1Encoder = {
       local i = 1
       local tcval = val + 256 -- two's complement
       while tcval <= 127 do
-        tcval = tcval + (math.pow(256, i) * 255)
+        tcval = tcval + 256^i * 255
         i = i+1
       end
       local valStr = ""

@@ -1,15 +1,15 @@
-# Bundling
+# Table of Contents
+---
+   
+ * [Jhbuild](#jhbuild)
+ 	* Observation
+ 	* Possible error
+ * [gtk-mac-bundler](#bundler)
+ * [How to use](#howto)
+ 	* Prerequisite
+ 	* Usage
 
-## Notes
-
-This package contains Nmap, Zenmap, Ncat, Ndiff, and Nping. It is intended to work on Intel Macs running Mac OS X 10.8 or later.
-
-Installation of all packages is optional. Unselect Zenmap to get just the command-line tool. Unselect Nmap if you prefer to use a copy of Nmap that is already installed. Zenmap will not work without Nmap.
-
-The nmap, ncat, ndiff, and nping command-line binaries will be installed in `/usr/local/bin`, and additional support files will be installed in `/usr/local/share`. The Zenmap application bundle will be installed in `/Applications/Zenmap.app`.
-
-
-## Jhbuild
+## <a name="jhbuild"></a>Jhbuild
 
 In order to set up Jhbuild properly before building Nmap suite, follow the tutorial at [https://wiki.gnome.org/Projects/GTK%2B/OSX/Building](https://wiki.gnome.org/Projects/GTK%2B/OSX/Building), but keep reading this file if you encounter any error...
 
@@ -97,8 +97,7 @@ Now, add the path for the new SVN version to your _$PATH_:
 $ export PATH=/opt/subversion/bin:$PATH
 ~~~~
 
-
-## Jhbuild & gtk-mac-bundler
+## <a name="bundler"></a>gtk-mac-bundler
 
 Now that Jhbuild is properly configured, we need to install **gtk-mac-bundler** in order to render the bundle file:
 
@@ -108,7 +107,7 @@ $ cd gtk-mac-bundler
 $ make install
 ~~~~
 
-## How to use
+## <a name="howto"></a>How to use
 #### Prerequisite:
 —`openssl.modules`:
 

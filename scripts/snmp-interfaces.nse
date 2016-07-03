@@ -145,13 +145,13 @@ function get_if_speed( speed )
 
   -- GigE or 10GigE speeds
   if speed >= 1000000000 then
-    result = string.format( "%d Gbps", speed / 1000000000)
+    result = string.format( "%.f Gbps", speed / 1000000000)
   -- Common for 10 or 100 Mbit ethernet
   elseif speed >= 1000000 then
-    result = string.format( "%d Mbps", speed / 1000000)
+    result = string.format( "%.f Mbps", speed / 1000000)
   -- Anything slower report in Kbps
   else
-    result = string.format( "%d Kbps", speed / 1000)
+    result = string.format( "%.f Kbps", speed / 1000)
   end
 
   return result

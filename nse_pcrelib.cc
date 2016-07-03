@@ -27,7 +27,7 @@ extern "C" {
 
 static int get_startoffset(lua_State *L, int stackpos, size_t len)
 {
-        int startoffset = luaL_optint(L, stackpos, 1);
+        int startoffset = luaL_optinteger(L, stackpos, 1);
         if(startoffset > 0)
                 startoffset--;
         else if(startoffset < 0) {
@@ -110,7 +110,7 @@ static int Lpcre_comp(lua_State *L)
         int erroffset;
         pcre2 *ud;
         const char *pattern = luaL_checkstring(L, 1);
-        int cflags = luaL_optint(L, 2, 0);
+        int cflags = luaL_optinteger(L, 2, 0);
         const unsigned char *tables = NULL;
 
         if(lua_gettop(L) > 2 && !lua_isnil(L, 3))
@@ -225,7 +225,7 @@ static int Lpcre_match_generic(lua_State *L, Lpcre_push_matches push_matches)
         pcre2 *ud;
         size_t elen;
         int startoffset;
-        int eflags = luaL_optint(L, 4, 0);
+        int eflags = luaL_optinteger(L, 4, 0);
 
         Lpcre_getargs(L, &ud, &text, &elen);
         startoffset = get_startoffset(L, 3, elen);
@@ -258,8 +258,8 @@ static int Lpcre_gmatch(lua_State *L)
         int nmatch = 0, limit = 0;
         const char *text;
         pcre2 *ud;
-        int maxmatch = luaL_optint(L, 4, 0);
-        int eflags = luaL_optint(L, 5, 0);
+        int maxmatch = luaL_optinteger(L, 4, 0);
+        int eflags = luaL_optinteger(L, 5, 0);
         int startoffset = 0;
         Lpcre_getargs(L, &ud, &text, &len);
         luaL_checktype(L, 3, LUA_TFUNCTION);

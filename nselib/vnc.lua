@@ -25,6 +25,7 @@
 -- Created 07/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
+local bits = require "bits"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -263,13 +264,7 @@ VNC = {
   -- @return password string containing the processed password
   createVNCDESKey = function( self, password )
     password = password .. string.rep('\0', 8 - #password)
-
-    local newpass = ""
-    for i=1, 8 do
-      local _, bitstr = bin.unpack("B", password, i)
-      newpass = newpass .. bin.pack("B", bitstr:reverse())
-    end
-    return newpass
+    return password:gsub(".", function(c) return string.char(bits.reverse(c:byte())) end)
   end,
 
   sendSecType = function (self, sectype)

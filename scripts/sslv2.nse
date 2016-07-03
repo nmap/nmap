@@ -1,8 +1,10 @@
 local nmap = require "nmap"
+local match = require "match"
 local shortport = require "shortport"
 local string = require "string"
 local table = require "table"
 local bin = require "bin"
+local bit = require "bit"
 local stdnse = require "stdnse"
 local sslcert = require "sslcert"
 
@@ -50,15 +52,27 @@ end
 local ssl_ciphers = {
   -- (cut down) table of codes with their corresponding ciphers.
   -- inspired by Wireshark's 'epan/dissectors/packet-ssl-utils.h'
-  [0x010080] = "SSL2_RC4_128_WITH_MD5",
-  [0x020080] = "SSL2_RC4_128_EXPORT40_WITH_MD5",
-  [0x030080] = "SSL2_RC2_128_CBC_WITH_MD5",
-  [0x040080] = "SSL2_RC2_128_CBC_EXPORT40_WITH_MD5",
-  [0x050080] = "SSL2_IDEA_128_CBC_WITH_MD5",
-  [0x060040] = "SSL2_DES_64_CBC_WITH_MD5",
-  [0x0700c0] = "SSL2_DES_192_EDE3_CBC_WITH_MD5",
-  [0x080080] = "SSL2_RC4_64_WITH_MD5",
+  ["\x00\x00\x00"] = "SSL2_NULL_WITH_MD5",
+  ["\x01\x00\x80"] = "SSL2_RC4_128_WITH_MD5",
+  ["\x02\x00\x80"] = "SSL2_RC4_128_EXPORT40_WITH_MD5",
+  ["\x03\x00\x80"] = "SSL2_RC2_128_CBC_WITH_MD5",
+  ["\x04\x00\x80"] = "SSL2_RC2_128_CBC_EXPORT40_WITH_MD5",
+  ["\x05\x00\x80"] = "SSL2_IDEA_128_CBC_WITH_MD5",
+  ["\x06\x00\x40"] = "SSL2_DES_64_CBC_WITH_MD5",
+  ["\x07\x00\xc0"] = "SSL2_DES_192_EDE3_CBC_WITH_MD5",
+  ["\x08\x00\x80"] = "SSL2_RC4_64_WITH_MD5",
 }
+
+--Invert a one-to-one mapping
+local function invert(t)
+  local out = {}
+  for k, v in pairs(t) do
+    out[v] = k
+  end
+  return out
+end
+
+local cipher_codes = invert(ssl_ciphers)
 
 local ciphers = function(cipher_list)
 
@@ -68,9 +82,8 @@ local ciphers = function(cipher_list)
   local available_ciphers = {}
 
   for idx = 1, #cipher_list, 3 do
-    local _, cipher_high, cipher_low = bin.unpack(">CS", cipher_list, idx)
-    local cipher = cipher_high * 0x10000 + cipher_low
-    local cipher_name = ssl_ciphers[cipher] or string.format("0x%06x", cipher)
+    local _, cipher = bin.unpack("A3", cipher_list, idx)
+    local cipher_name = ssl_ciphers[cipher] or ("0x" .. stdnse.tohex(cipher))
 
     -- Check for duplicate ciphers
     if not seen[cipher] then
@@ -80,6 +93,45 @@ local ciphers = function(cipher_list)
   end
 
   return available_ciphers
+end
+
+local function parse_record_header_1_2(header_1_2)
+  local _, b0, b1 = bin.unpack(">CC", header_1_2)
+  local msb = bit.band(b0, 0x80) == 0x80
+  local header_length
+  local record_length
+  if msb then
+    header_length = 2
+    record_length = bit.bor(bit.lshift(bit.band(b0, 0x7f), 8), b1)
+  else
+    header_length = 3
+    record_length = bit.bor(bit.lshift(bit.band(b0, 0x3f), 8), b1)
+  end
+  return header_length, record_length
+end
+
+local function read_ssl_record(sock)
+  local status, header_1_2 = sock:receive_buf(match.numbytes(2), true)
+  if not status then
+    return status
+  end
+
+  local header_length, record_length = parse_record_header_1_2(header_1_2)
+  local padding_length
+  if header_length == 2 then
+    padding_length = 0
+  else
+    local status, header_3 = sock:receive_buf(match.numbytes(1), true)
+    if not status then
+      return status
+    end
+    local _
+    _, padding_length = bin.unpack(">C", header_3)
+  end
+
+  local status, payload = sock:receive_buf(match.numbytes(record_length), true)
+
+  return status, payload, padding_length
 end
 
 action = function(host, port)
@@ -108,58 +160,46 @@ action = function(host, port)
 
   -- build client hello packet (contents inspired by
   -- http://mail.nessus.org/pipermail/plugins-writers/2004-October/msg00041.html )
-  local ssl_v2_hello = "\x80\x31" -- length 49
-  .. "\x01" -- MSG-CLIENT-HELLO
-  .. "\x00\x02" -- version: SSL 2.0
-  .. "\x00\x18" -- cipher spec length (24)
-  .. "\x00\x00" -- session ID length (0)
-  .. "\x00\x10" -- challenge length (16)
-  .. "\x07\x00\xc0" -- SSL2_DES_192_EDE3_CBC_WITH_MD5
-  .. "\x05\x00\x80" -- SSL2_IDEA_128_CBC_WITH_MD5
-  .. "\x03\x00\x80" -- SSL2_RC2_128_CBC_WITH_MD5
-  .. "\x01\x00\x80" -- SSL2_RC4_128_WITH_MD5
-  .. "\x08\x00\x80" -- SSL2_RC4_64_WITH_MD5
-  .. "\x06\x00\x40" -- SSL2_DES_64_CBC_WITH_MD5
-  .. "\x04\x00\x80" -- SSL2_RC2_128_CBC_EXPORT40_WITH_MD5
-  .. "\x02\x00\x80" -- SSL2_RC4_128_EXPORT40_WITH_MD5
-  .. "\xe4\xbd\x00\x00\xa4\x41\xb6\x74\x71\x2b\x27\x95\x44\xc0\x3d\xc0" -- challenge
+  local cipher_list = (
+    cipher_codes.SSL2_DES_192_EDE3_CBC_WITH_MD5 ..
+    cipher_codes.SSL2_IDEA_128_CBC_WITH_MD5 ..
+    cipher_codes.SSL2_RC2_128_CBC_WITH_MD5 ..
+    cipher_codes.SSL2_RC4_128_WITH_MD5 ..
+    cipher_codes.SSL2_RC4_64_WITH_MD5 ..
+    cipher_codes.SSL2_DES_64_CBC_WITH_MD5 ..
+    cipher_codes.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 ..
+    cipher_codes.SSL2_RC4_128_EXPORT40_WITH_MD5 ..
+    cipher_codes.SSL2_NULL_WITH_MD5
+    )
+  -- Random
+  local challenge = "\xe4\xbd\x00\x00\xa4\x41\xb6\x74\x71\x2b\x27\x95\x44\xc0\x3d\xc0"
+  local ssl_v2_hello = bin.pack(">CSSSSAA",
+    1, -- MSG-CLIENT-HELLO
+    2, -- version: SSL 2.0
+    #cipher_list, -- cipher spec length
+    0, -- session ID length
+    #challenge, -- challenge length
+    cipher_list,
+    challenge
+    )
+  -- Prepend length plus MSB
+  ssl_v2_hello = bin.pack(">SA", #ssl_v2_hello + 0x8000, ssl_v2_hello)
 
   socket:send(ssl_v2_hello)
 
-  local status, server_hello = socket:receive_bytes(2)
-
-  if (not status) then
-    socket:close()
-    return
+  local status, server_hello = read_ssl_record(socket)
+  socket:close();
+  if not status then
+    return nil
   end
-
-  local idx, server_hello_len = bin.unpack(">S", server_hello)
-  -- length record doesn't include its own length, and is "broken".
-  server_hello_len = server_hello_len - (128 * 256) + 2
-
-  -- the hello needs to be at least 13 bytes long to be of any use
-  if (server_hello_len < 13) then
-    socket:close()
-    stdnse.debug(1, "Server Hello too short")
-    return
-  end
-  --try to get entire hello, if we don't already
-  if (#server_hello < server_hello_len) then
-    local status, tmp = socket:receive_bytes(server_hello_len - #server_hello)
-
-    if (not status) then
-      socket:close()
-      return
-    end
-
-    server_hello = server_hello .. tmp
-  end
-
-  socket:close()
 
   -- split up server hello into components
-  local idx, message_type, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_ID_len = bin.unpack(">CCCSSSS", server_hello, idx)
+  local idx, message_type, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_ID_len = bin.unpack(">CCCSSSS", server_hello)
   -- some sanity checks:
+  -- is it SSLv2?
+  if (ssl_version ~= 2) then
+    return
+  end
   -- is response a server hello?
   if (message_type ~= 4) then
     return
@@ -176,12 +216,9 @@ action = function(host, port)
   -- get a list of ciphers offered
   local available_ciphers = ciphers_len > 0 and ciphers(cipher_list) or "none"
 
-  -- actually run some tests:
-  local o = stdnse.output_table()
-  if (ssl_version == 2) then
-    table.insert(o, "SSLv2 supported")
-    o["ciphers"] = available_ciphers
-  end
+  return {
+    "SSLv2 supported",
+    ciphers = available_ciphers
+  }
 
-  return o
 end

@@ -47,7 +47,7 @@ action = function( host, port )
     output.error = ("ERROR: Failed to open file: %s"):format(fname)
     return output, output.error
   end
-  local content = f:read("*all")
+  local content = f:read("a")
   f:close()
 
   local response = http.put(host, port, url,  nil, content)
