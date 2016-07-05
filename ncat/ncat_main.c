@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
 "      --sctp                 Use SCTP instead of default TCP\n"
 "  -v, --verbose              Set verbosity level (can be used several times)\n"
 "  -w, --wait <time>          Connect timeout\n"
-"  -z,                        Zero-I/O mode, report connection status only\n"
+"  -z                         Zero-I/O mode, report connection status only\n"
 "      --append-output        Append rather than clobber specified output files\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
