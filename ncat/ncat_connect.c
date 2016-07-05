@@ -1298,8 +1298,9 @@ static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data)
 
     ncat_assert(status == NSE_STATUS_SUCCESS);
 
-    if (o.zerobyte&&o.verbose&&o.proto==IPPROTO_UDP){
-      loguser("UDP packet sent successfully\n");
+    if (o.zerobyte&&o.proto==IPPROTO_UDP){
+      if (o.verbose)
+        loguser("UDP packet sent successfully\n");
       nsock_loop_quit(nsp);
       return;
     }
