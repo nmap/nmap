@@ -239,6 +239,25 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         if ((o.sslcert == NULL) != (o.sslkey == NULL))
             bye("The --ssl-key and --ssl-cert options must be used together.");
     }
+
+    if (o.sslalpn) {
+        size_t alpn_len;
+        unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
+
+        if (alpn == NULL)
+            bye("Could not parse ALPN string");
+
+        if (o.debug)
+            logdebug("Using ALPN String %s\n", o.sslalpn);
+
+        /* SSL_CTX_set_alpn_protos returns 0 on success */
+        if (SSL_CTX_set_alpn_protos(ctx, alpn, alpn_len) != 0){
+            free(alpn);
+            bye("SSL_CTX_set_alpn_protos: %s.", ERR_error_string(ERR_get_error(), NULL));
+        }
+
+        free(alpn);
+    }
 }
 #endif
 
@@ -891,7 +910,10 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-    set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
+    if(o.proto == IPPROTO_UDP)
+        set_ssl_ctx_options((SSL_CTX *) nsock_pool_dtls_init(mypool, 0));
+    else
+        set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
 #endif
 
     if (!o.proxytype) {
@@ -986,7 +1008,17 @@ int ncat_connect(void)
             }
         } else
 #endif
-        if (o.proto == IPPROTO_UDP) {
+
+#ifdef HAVE_OPENSSL
+        if (o.ssl && o.proto == IPPROTO_UDP) {
+            nsock_connect_ssl(mypool, cs.sock_nsi, connect_handler,
+                              o.conntimeout, NULL,
+                              &targetss.sockaddr, targetsslen,
+                              IPPROTO_UDP, inet_port(&targetss),
+                              NULL);
+        }
+#endif
+        else if (o.proto == IPPROTO_UDP) {
             nsock_connect_udp(mypool, cs.sock_nsi, connect_handler,
                               NULL, &targetss.sockaddr, targetsslen,
                               inet_port(&targetss));
