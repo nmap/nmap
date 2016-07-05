@@ -128,8 +128,13 @@
 
 #ifdef HAVE_OPENSSL
 #include <openssl/hmac.h>
-#include <openssl/evp.h>
 #include <openssl/err.h>
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+  #include <openssl/evp.h>
+#else
+  #include <openssl/evp.h>
+  #include "openssl1.1/evp_locl.h"
+#endif
 #endif
 
 extern NpingOps o;
@@ -310,7 +315,11 @@ u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
         }
         if(final_len!=NULL)
           *final_len=SHA256_HASH_LEN;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         EVP_MD_CTX_cleanup(&ctx);
+#else
+        EVP_MD_CTX_reset(&ctx);
+#endif
         return hash;
     }
   #endif
