@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .gitignore
 *.[oa]
 *.[sl][oa]
@@ -70,5 +71,8 @@ nmap-update/Release/
 nping/Release/
 nsock/Release/
 nsock/nsock.lib
-".gitignore" 
-.gitignore 
+.vagrant/
+BUILD/
+Vagrantfile
+benchmark/
+ndiff/INSTALLED_FILES
