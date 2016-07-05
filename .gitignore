@@ -40,3 +40,8 @@ libpcap/pcap-filter.manmisc
 libpcap/pcap-linktype.manmisc
 libpcap/pcap-savefile.manfile
 libpcap/pcap-tstamp.manmisc
+.vagrant/
+BUILD/
+Vagrantfile
+benchmark/
+ndiff/INSTALLED_FILES
