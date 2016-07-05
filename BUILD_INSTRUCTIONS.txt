@@ -1,3 +1,11 @@
+WINDOWS
+You should use Visual Studio 2013 Community Edition
+
+0. Get nmap-mswin32-aux from the Nmap SVN and place 
+   it in the same directory where cloned project is.
+
+   svn checkout https://svn.nmap.org/nmap-mswin32-aux
+
 1. Open `libssh2.sln` from .\libssh2-1.7.0\win32
 2. Build libssh2 for `OpenSSL DLL Release` target
 3. Close solution
@@ -5,3 +13,10 @@
 4. Open `nmap.sln` from .\mswin32
 5. Build solution for `Release` target
 6. nmap.exe can be found at .\mswin32\Release folder
+
+
+LINUX
+
+0. Call configure with --with-libssh2=<path> option
+1. Run make
+2. Run make install

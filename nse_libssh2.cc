@@ -141,7 +141,7 @@ static int finish_read(lua_State *L, int status, lua_KContext ctx)
 
 
 
-			size_t n = 0;
+		size_t n = 0;
 		size_t l;
 		lua_getuservalue(L, 1);
 		lua_getfield(L, -1, "sp_buff");
@@ -233,7 +233,7 @@ static int filter(lua_State *L)
 
 	LOG("in filter()\n")
 
-		int rc;
+	int rc;
 	char data[4096];
 	struct ssh_userdata *sshu = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
 
@@ -307,23 +307,23 @@ static int filter(lua_State *L)
 
 		LOG("filter(): write data to nsock socket\n")
 
-			lua_getfield(L, -1, "send");
+		lua_getfield(L, -1, "send");
 		lua_insert(L, -2); /* swap */
 
 		LOG("filter(): Calling lua_pushstring\n")
 
-			lua_pushlstring(L, data, rc);
+		lua_pushlstring(L, data, rc);
 
 		LOG("filter(): Calling finish_send\n")
 
-			lua_callk(L, 2, 2, 0, finish_send);
+		lua_callk(L, 2, 2, 0, finish_send);
 		return finish_send(L,0,0);
 	}
 	else if (rc == -1 && errno != EAGAIN) {
 
 		LOG("filter(): rc == -1 was caught\n")
 
-			luaL_error(L, "%s", strerror(errno));
+		luaL_error(L, "%s", strerror(errno));
 	}
 
 	lua_getfield(L, -1, "receive");
@@ -490,7 +490,7 @@ int dumb_socketpair(int socks[2], int dummy)
 
 
 /* Creates libssh2 session, connects to hostname:port and tries to perform a
-* ssh handshake on socket. Returns ssh_state on success
+* ssh handshake on socket. Returns ssh_state on success, nil on failure.
 *
 * session_open(hostname, port)
 */
@@ -498,7 +498,7 @@ static int l_session_open(lua_State *L) {
 
 	LOG("in l_session_open()\n")
 
-		int rc;
+	int rc;
 
 	luaL_checkinteger(L, 2);
 
@@ -517,6 +517,21 @@ static int l_session_open(lua_State *L) {
 	assert(lua_gettop(L) == 4);
 
 	state->session = libssh2_session_init();
+	if (state->session == NULL) {
+		// A session could not be created because of memory
+		// limits. I will put this placeholder for now.
+
+
+		// Dispose all allocations to be garbage collected later
+		// lua_settop(L, 2);
+		
+		// return nil
+		// lua_pushnil(L);
+		
+		assert(state->session != NULL);
+		// return lua_error(L);
+		// return nseU_safeerror(L, "trying to initiate session");
+	}
 	libssh2_session_set_blocking(state->session, 0);
 
 	// create socket pair
@@ -553,7 +568,7 @@ static int l_session_open(lua_State *L) {
 	LOG("l_session_open(): Created socket pair\n")
 
 
-		lua_getglobal(L, "nmap");
+	lua_getglobal(L, "nmap");
 	lua_getfield(L, -1, "new_socket");
 	lua_replace(L, -2);
 	lua_call(L, 0, 1);
@@ -572,14 +587,14 @@ static int l_session_open(lua_State *L) {
 
 	LOG("l_session_open(): Before callk finish_session_open()\n")
 
-		lua_callk(L, 3, 2, 3, finish_session_open);
+	lua_callk(L, 3, 2, 3, finish_session_open);
 
 	LOG("l_session_open(): After callk finish_session_open()\n")
 
 
-		LOG("l_session_open(): Returning finish_session_open()\n")
+	LOG("l_session_open(): Returning finish_session_open()\n")
 
-		return finish_session_open(L,0,0);
+	return finish_session_open(L,0,0);
 }
 
 /* Returns the SHA1 or MD5 hostkey hash of provided session or nil if it is not available
@@ -858,6 +873,7 @@ static int gc(lua_State *L)
 	close(sshu->sp[0]);
 	close(sshu->sp[1]);
 #endif
+	//lua_settop(L, 0);
 	return 0;
 }
 
