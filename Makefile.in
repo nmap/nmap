@@ -51,8 +51,9 @@ export CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(OPENSSL_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
+LIBS =  @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(OPENSSL_LIBS) $(LIBSSH2_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
+LIBSSH2_LIBS = @LIBSSH2_LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 INSTALL = @INSTALL@
@@ -96,6 +97,11 @@ ifneq (@OPENSSL_LIBS@,)
 NSE_SRC+=nse_openssl.cc nse_ssl_cert.cc
 NSE_HDRS+=nse_openssl.h nse_ssl_cert.h
 NSE_OBJS+=nse_openssl.o nse_ssl_cert.o
+endif
+ifneq (@LIBSSH2_LIBS@,)
+NSE_SRC+=nse_libssh2.cc
+NSE_HDRS+=nse_libssh2.h
+NSE_OBJS+=nse_libssh2.o
 endif
 endif
 
