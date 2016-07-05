@@ -738,6 +738,8 @@ int main(int argc, char *argv[])
         bye("Invalid option combination: -z and -C.");
       if (o.execmode||o.cmdexec)
         bye("Command execution can't be done along with option -z.");
+      if (!o.idletimeout)
+        o.idletimeout = 2 * 1000;
     }
     /* Default port */
     if (o.listen && o.proxytype && !o.portno && srcport == -1)

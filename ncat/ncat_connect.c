@@ -1113,8 +1113,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 #endif
 
-    if (o.proto != IPPROTO_UDP)
+    if (o.proto != IPPROTO_UDP) {
       connect_report(cs.sock_nsi);
+      nsock_loop_quit(nsp);
+    }
 
     /* Create IOD for nsp->stdin */
     if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
@@ -1230,12 +1232,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
           loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
-        if (o.zerobyte&&o.verbose){
-          loguser("UDP packet sent successfully\n");
-          nsock_loop_quit(nsp);
-        }
-        else
-          loguser("%s.\n", socket_strerror(ETIMEDOUT));
+        loguser("%s.\n", socket_strerror(ETIMEDOUT));
         exit(1);
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
@@ -1281,7 +1278,7 @@ static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 
     if (o.zerobyte){
       ncat_assert(o.proto == IPPROTO_UDP);
-      nsock_read(nsp, cs.sock_nsi, read_socket_handler, 1000 * 2, NULL);
+      nsock_read(nsp, cs.sock_nsi, read_socket_handler, -1, NULL);
       return;
     }
     /* The write to the socket was successful. Allow reading more from stdin
@@ -1300,6 +1297,12 @@ static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data)
         return;
 
     ncat_assert(status == NSE_STATUS_SUCCESS);
+
+    if (o.zerobyte&&o.verbose&&o.proto==IPPROTO_UDP){
+      loguser("UDP packet sent successfully\n");
+      nsock_loop_quit(nsp);
+      return;
+    }
 
     loguser("Idle timeout expired (%d ms).\n", o.idletimeout);
 
