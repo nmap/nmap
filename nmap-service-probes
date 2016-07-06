@@ -9589,7 +9589,6 @@ match http m|^HTTP/1\.1 404 Not Found\r\nContent-Length:0\r\nContent-Type:text/h
 #match http m|^HTTP/1\.0 404 Not Found\r\nConnection: close\r\n\r\n$| p/apt-proxy httpd/
 
 # Fairly general:
-match http m|^HTTP/1\.1 400 Bad Request\r\n\r\n$| p/IBM ServeRAID controller httpd/ d/storage-misc/
 # http://svn.dd-wrt.com:8000/dd-wrt/browser/src/router/httpd/httpd.c
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: micro_httpd\r\n| p/micro_httpd/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\d.]+)\r\n| p/RapidLogic httpd/ v/$1/ cpe:/a:rapidlogic:httpd:$1/
