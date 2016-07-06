@@ -320,6 +320,7 @@ int main(int argc, char *argv[])
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   optional_argument,  NULL,         0},
         {"ssl-ciphers",     optional_argument,  NULL,         0},
+        {"ssl-alpn",        optional_argument,  NULL,         0},
 #endif
         {0, 0, 0, 0}
     };
@@ -527,10 +528,16 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
                 o.ssl = 1;
                 o.sslciphers = Strdup(optarg);
+#if (OPENSSL_VERSION_NUMBER >= 0x10002000L)
             } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 o.ssl = 1;
                 o.sslalpn = Strdup(optarg);
             }
+#else
+            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+                bye("OpenSSL does not have ALPN support compiled in. The --ssl-alpn option cannot be chosen.");
+            }
+#endif
 #else
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
                 bye("OpenSSL isn't compiled in. The --ssl-cert option cannot be chosen.");
@@ -879,6 +886,11 @@ int main(int argc, char *argv[])
     }
 
     if (o.proto == IPPROTO_UDP) {
+
+#if (OPENSSL_VERSION_NUMBER < 0x10002000L)
+        if (o.ssl)
+            bye("OpenSSL does not have DTLS support compiled in.");
+#endif
         if (o.keepopen && o.cmdexec == NULL)
             bye("UDP mode does not support the -k or --keep-open options, except with --exec or --sh-exec.");
         if (o.broker)

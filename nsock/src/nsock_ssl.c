@@ -103,28 +103,6 @@ static SSL_CTX *ssl_init_common() {
   return ctx;
 }
 
-/* Create an SSL_CTX and do initialisation, creating a DTLS client */
-static SSL_CTX *dtls_init_common() {
-  SSL_CTX *ctx;
-
-  SSL_load_error_strings();
-  SSL_library_init();
-
-  ctx = SSL_CTX_new(DTLS_client_method());
-  if (!ctx) {
-    fatal("OpenSSL failed to create a new SSL_CTX: %s",
-          ERR_error_string(ERR_get_error(), NULL));
-  }
-
-  /* Our SSL* will always have the SSL_SESSION* inside it, so we neither need to
-   * use nor waste memory for the session cache.  (Use '1' because '0' means
-   * 'infinite'.)   */
-  SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF|SSL_SESS_CACHE_NO_AUTO_CLEAR);
-  SSL_CTX_sess_set_cache_size(ctx, 1);
-  SSL_CTX_set_timeout(ctx, 3600); /* pretty unnecessary */
-
-  return ctx;
-}
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
  * SSL_CTX, which is like a template that sets options for all connections that
@@ -167,6 +145,31 @@ nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
   return ms->sslctx;
 }
 
+#if (OPENSSL_VERSION_NUMBER > 0x10002000L)
+
+/* Create an SSL_CTX and do initialisation, creating a DTLS client */
+static SSL_CTX *dtls_init_common() {
+  SSL_CTX *ctx;
+
+  SSL_load_error_strings();
+  SSL_library_init();
+
+  ctx = SSL_CTX_new(DTLS_client_method());
+  if (!ctx) {
+    fatal("OpenSSL failed to create a new SSL_CTX: %s",
+          ERR_error_string(ERR_get_error(), NULL));
+  }
+
+  /* Our SSL* will always have the SSL_SESSION* inside it, so we neither need to
+   * use nor waste memory for the session cache.  (Use '1' because '0' means
+   * 'infinite'.)   */
+  SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF|SSL_SESS_CACHE_NO_AUTO_CLEAR);
+  SSL_CTX_sess_set_cache_size(ctx, 1);
+  SSL_CTX_set_timeout(ctx, 3600); /* pretty unnecessary */
+
+  return ctx;
+}
+
 /* Initializes an Nsock pool to create DTLS connections. Very much similar to
  * nsock_pool_ssl_init, just with DTLS. */
 nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
@@ -199,6 +202,14 @@ nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
 
   return ms->sslctx;
 }
+
+#else /* OpenSSL Version does not support DTLS */
+
+nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
+  fatal("%s called with no OpenSSL DTLS support", __func__);
+}
+
+#endif
 
 /* Check server certificate verification, after a connection is established. We
  * check first that a certificate was even offered, then call
