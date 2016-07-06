@@ -771,6 +771,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
           sockaddr_storage ip;
           if(DNS::Factory::ptrToIp(a.name, ip))
+          {
             if ((processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, p.id)))
             {
               if (o.debugging >= TRACE_DEBUG_LEVEL)
@@ -784,6 +785,8 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
               output_summary();
               stat_ok++;
             }
+          }
+          break;
         }
         case DNS::CNAME:
         {
@@ -811,9 +814,11 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
       sockaddr_storage discard;
       process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
     }
-    else
-      if (o.debugging >= TRACE_DEBUG_LEVEL)
+    else {
+      if (o.debugging >= TRACE_DEBUG_LEVEL) {
         log_write(LOG_STDOUT, "mass_rdns: Unable to process the response\n");
+      }
+    }
   }
 }
 
