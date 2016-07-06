@@ -71,6 +71,8 @@ if test -n "$GXX"; then
   CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
+CFLAGS="$CFLAGS -Wall"
+
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
 AH_TEMPLATE(__func__, [C99-specified function identifier])
@@ -680,6 +682,7 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
 AC_SUBST(NSE_CHECK)
 AC_SUBST(CXXFLAGS)
+AC_SUBST(CFLAGS)
 
 
 LIBLINEARDIR=liblinear

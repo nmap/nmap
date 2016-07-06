@@ -4403,6 +4403,8 @@ if test -n "$GXX"; then
   CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
+CFLAGS="$CFLAGS -Wall"
+
 # Remember that all following tests will run with this CXXFLAGS by default
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for __func__" >&5
 $as_echo_n "checking for __func__... " >&6; }
@@ -6863,6 +6865,7 @@ $as_echo "yes" >&6; }
   INSTALLNSE="install-nse"
   NSE_CHECK="check-nse"
 fi
+
 
 
 
