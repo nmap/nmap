@@ -27,7 +27,8 @@ action = function(host, port)
   local ok_json, response = json.parse(http_response.body)
   if ok_json and response["Version"] and response["GitCommit"] then
     ---Detected
-    port.version.name = response["Version"]
+    port.version.name = 'docker'
+    port.version.version = response["Version"]
     port.version.product = "Docker"
     nmap.set_port_version(host, port)
     return
