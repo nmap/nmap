@@ -483,6 +483,7 @@ Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "e
 Entry { filename = "ssl-heartbleed.nse", categories = { "safe", "vuln", } }
 Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
 Entry { filename = "ssl-poodle.nse", categories = { "safe", "vuln", } }
+Entry { filename = "sslv2-drown.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "sstp-discover.nse", categories = { "default", "discovery", } }
 Entry { filename = "stun-info.nse", categories = { "discovery", "safe", } }
