@@ -1259,9 +1259,18 @@ function generic_request(host, port, method, path, options)
     -- request to get realm, nonce and other fields.
     local options_with_auth_removed = tcopy(options)
     options_with_auth_removed["auth"] = nil
-    local r = generic_request(host, port, method, path, options_with_auth_removed)
-    local h = r.header['www-authenticate']
-    if not r.status or (h and not string.find(h:lower(), "digest.-realm")) then
+
+    local response
+    local socket, partial, opts = comm.tryssl(host, port, build_request(host, port, method, path, options_with_auth_removed), { timeout = options.timeout })
+    repeat
+      response, partial = next_response(socket, method, partial)
+      if not response then
+        return http_error("There was error in receiving response of type 3 message.")
+      end
+    until not (response.status >= 100 and response.status <= 199)
+
+    local h = response.header['www-authenticate']
+    if not response.status or (h and not string.find(h:lower(), "digest.-realm")) then
       stdnse.debug1("http: the target doesn't support digest auth or there was an error during request.")
       return http_error("The target doesn't support digest auth or there was an error during request.")
     end
@@ -1269,6 +1278,20 @@ function generic_request(host, port, method, path, options)
     local dmd5 = sasl.DigestMD5:new(h, options.auth.username, options.auth.password, method, path)
     local _, digest_table = dmd5:calcDigest()
     options.digestauth = digest_table
+
+    socket:send(build_request(host, port, method, path, options))
+
+    repeat
+      response, partial = next_response(socket, method, partial)
+      if not response then
+        return http_error("There was error in receiving response of type 3 message.")
+      end
+    until not (response.status >= 100 and response.status <= 199)
+
+    response.ssl = ( opts == 'ssl' )
+
+    socket:close()
+    return response
   end
 
   if ntlm_auth and have_ssl then
