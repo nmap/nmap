@@ -140,6 +140,7 @@ local function read_header(buffer, i)
   if msb then
     header_length = 2
     record_length = bit.band(len, 0x7fff)
+    padding_length = 0
   else
     header_length = 3
     if #buffer - i + 1 < 1 then
@@ -193,22 +194,20 @@ function record_read(buffer, i)
       connection_id = connection_id,
     }
     i = j
-  elseif h.message_type == SSL_MESSAGE_TYPES.ERROR then
+  elseif h.message_type == SSL_MESSAGE_TYPES.ERROR and h.record_length == 3 then
     local j, err = bin.unpack(">S", buffer, i)
     h.body = {
       error = SSL_ERRORS[err] or err
     }
     i = j
-  elseif h.padding_length then
+  else
+    -- TODO: Other message types?
     h.message_type = "encrypted"
     local j, data = bin.unpack("A"..h.record_length, buffer, i)
     h.body = {
       data = data
     }
     i = j
-  else
-    stdnse.debug1("Unknown message type: %s", h.message_type)
-    return i, nil
   end
   return i, h
 end
