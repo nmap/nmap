@@ -97,7 +97,7 @@ if HAVE_SSL then
       local start, stop = 0,0
       if self.chall then
         local key = C(lpeg.alpha^1)
-        local value = lpeg.C(lpeg.P'\"'^-1 * (lpeg.alnum+S'@.')^1 * P'\"'^-1)-- * lpeg.P'\"'
+        local value = lpeg.C(lpeg.P'\"'^-1 * (lpeg.alnum+S'@./')^1 * P'\"'^-1)
         local sep = S(",") * space
         local pair = Cg(key * "=" * value) * sep^-1
         local list = Cf(lpeg.P'Digest ' * Ct("") * pair^0, rawset)
