@@ -14543,8 +14543,12 @@ sslports 2376
 
 match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"KernelVersion\":\"([^"]+)\",.*\"Os\":\"([^"]+)\",.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$4/ i/API $1; KernelVersion $2/ o/$3/ cpe:/a:docker:docker:$4/
 # Ordering doesn't matter, we'd like to at least grab ApiVersion and Version
-match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"Version\":\"(["]+)\"| p/Docker remote API/ v/$2/ i/API $1/ cpe:/a:docker:docker:$2/
-match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"(["]+)\"| p/Docker remote API/ v/$1/ i/API $2/ cpe:/a:docker:docker:$1/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$2/ i/API $1/ cpe:/a:docker:docker:$2/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API $2/ cpe:/a:docker:docker:$1/
+# Similar to above, but without the Job-Name header.
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nServer: Docker.*\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"([^"]+)\",.*\"Os\":\"([^"]+)\",.*\"KernelVersion\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API $2; KernelVersion $4/ o/$3/ cpe:/a:docker:docker:$1/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nServer: Docker.*\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API $2/ cpe:/a:docker:docker:$1/
+
 # API spec only lists Version, GoVersion, ApiVersion (in API >= 1.12), and GitCommit.
 # Assuming the above matches will get ApiVersion if it's present, this one can report ApiVersion <= 1.11
 match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API 1.11 or older/ cpe:/a:docker:docker:$1/
