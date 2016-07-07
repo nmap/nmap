@@ -86,6 +86,7 @@ Driver = {
       header = {
         -- nil just means not set, so default http.lua behavior
         Host = self.hostname,
+        Connection = "keep-alive",
       }
     }
     if self.authmethod == "digest" then
