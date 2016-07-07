@@ -38,6 +38,9 @@
 --
 -- Note that the endian operators work as modifiers to all the
 -- characters following them in the format string.
+--
+-- @class module
+-- @name bin
 
 local debug2 = require "stdnse".debug2
 
