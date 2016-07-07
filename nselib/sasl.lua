@@ -43,11 +43,13 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local lpeg = require "lpeg";
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 local unicode = require "unicode"
-local lpeg = require "lpeg";
+local unittest = require "unittest"
+
 lpeg.locale(lpeg)
 local P = lpeg.P;
 local S = lpeg.S;
@@ -457,5 +459,38 @@ Helper = {
     return self.callback(...)
   end,
 }
+
+if not unittest.testing() then
+  return _ENV;
+end
+
+-- self-testing starts here
+local expected = {}
+
+local object = DigestMD5:new("Digest nonce=\"9e4ab724d272474ab13b64d75300a47b\", opaque=\"de40b82666bd5fe631a64f3b2d5a019e\", realm=\"me@kennethreitz.com\", qop=auth", "tempuname", "tempupasswd", "tempmethod", "/temp/path")
+expected['nonce'], expected['opaque'], expected['realm'], expected['qop'] = '"9e4ab724d272474ab13b64d75300a47b"', '"de40b82666bd5fe631a64f3b2d5a019e"', '"me@kennethreitz.com"', 'auth'
+
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(function()
+  for key, value in ipairs(expected) do
+    if not ( object.challnvs[key] and object.challnvs[key] == value ) then
+      return false
+    end
+  end
+  return true
+end, "Parse Digest key:\"value\" challenge")
+
+object.chall = "Digest realm=\"test\", domain=\"/HTTP/Digest\", nonce=\"c8563a5b367e66b3693fbb07a53a30ba\""
+object:parseChallenge()
+expected['realm'], expected['domain'], expected['nonce']= '"test"', '"/HTTP/Digest"', '"c8563a5b367e66b3693fbb07a53a30ba"'
+
+test_suite:add_test(function()
+  for key, value in ipairs(expected) do
+    if not ( object.challnvs[key] and object.challnvs[key] == value ) then
+      return false
+    end
+  end
+  return true
+end, "Parse Digest key:\"value\" challenge")
 
 return _ENV;
