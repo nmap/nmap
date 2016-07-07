@@ -25,6 +25,13 @@ SSL_MESSAGE_TYPES = {
   CLIENT_CERTIFICATE = 8,
 }
 
+SSL_ERRORS = {
+  [1] = "SSL_PE_NO_CIPHER",
+  [2] = "SSL_PE_NO_CERTIFICATE",
+  [3] = "SSL_PE_BAD_CERTIFICATE",
+  [4] = "SSL_PE_UNSUPPORTED_CERTIFICATE_TYPE",
+}
+
 SSL_CERT_TYPES = {
   X509_CERTIFICATE = 1,
 }
@@ -133,8 +140,6 @@ local function read_header(buffer, i)
   if msb then
     header_length = 2
     record_length = bit.band(len, 0x7fff)
-    is_escape = false
-    padding_length = 0
   else
     header_length = 3
     if #buffer - i + 1 < 1 then
@@ -169,17 +174,17 @@ function record_read(buffer, i)
   i, h.message_type = bin.unpack("C", buffer, i)
 
   if h.message_type == SSL_MESSAGE_TYPES.SERVER_HELLO then
-    local i, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_id_len = bin.unpack(">CCSSSS", buffer, i)
-    local i, certificate = bin.unpack("A" .. certificate_len, buffer, i)
-    local ciphers_end = i + ciphers_len
+    local j, SID_hit, certificate_type, ssl_version, certificate_len, ciphers_len, connection_id_len = bin.unpack(">CCSSSS", buffer, i)
+    local j, certificate = bin.unpack("A" .. certificate_len, buffer, j)
+    local ciphers_end = j + ciphers_len
     local ciphers = {}
-    while i < ciphers_end do
+    while j < ciphers_end do
       local cipher
-      i, cipher = bin.unpack("A3", buffer, i)
+      j, cipher = bin.unpack("A3", buffer, j)
       local cipher_name = SSL_CIPHERS[cipher] and SSL_CIPHERS[cipher].str or ("0x" .. stdnse.tohex(cipher))
       ciphers[#ciphers+1] = cipher_name
     end
-    local i, connection_id = bin.unpack("A" .. connection_id_len, buffer, i)
+    local j, connection_id = bin.unpack("A" .. connection_id_len, buffer, j)
 
     h.body = {
       cert_type = certificate_type,
@@ -187,6 +192,20 @@ function record_read(buffer, i)
       ciphers = ciphers,
       connection_id = connection_id,
     }
+    i = j
+  elseif h.message_type == SSL_MESSAGE_TYPES.ERROR then
+    local j, err = bin.unpack(">S", buffer, i)
+    h.body = {
+      error = SSL_ERRORS[err] or err
+    }
+    i = j
+  elseif h.padding_length then
+    h.message_type = "encrypted"
+    local j, data = bin.unpack("A"..h.record_length, buffer, i)
+    h.body = {
+      data = data
+    }
+    i = j
   else
     stdnse.debug1("Unknown message type: %s", h.message_type)
     return i, nil
@@ -241,6 +260,22 @@ function client_hello (ciphers)
     )
 
   return ssl_record(ssl_v2_hello, 0)
+end
+
+function client_master_secret(cipher_name, clear_key, encrypted_key, key_arg)
+  local key_arg = key_arg or ""
+  local ck = SSL_CIPHER_CODES[cipher_name] or cipher_name
+  assert(#ck == 3, "Unknown cipher in client_master_secret")
+  return ssl_record( bin.pack(">CASSSAAA",
+    SSL_MESSAGE_TYPES.CLIENT_MASTER_KEY,
+    ck,
+    #clear_key,
+    #encrypted_key,
+    #key_arg,
+    clear_key,
+    encrypted_key,
+    key_arg
+    ), 0)
 end
 
 local function read_atleast(s, n)
