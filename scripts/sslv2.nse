@@ -1,11 +1,4 @@
-local nmap = require "nmap"
-local match = require "match"
 local shortport = require "shortport"
-local string = require "string"
-local table = require "table"
-local bin = require "bin"
-local bit = require "bit"
-local stdnse = require "stdnse"
 local sslcert = require "sslcert"
 local sslv2 = require "sslv2"
 
@@ -40,7 +33,7 @@ supports.
 --</table>
 
 
-author = "Matthew Boyle"
+author = {"Matthew Boyle", "Daniel Miller"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
@@ -51,58 +44,14 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
-  local timeout = stdnse.get_timeout(host, 10000, 5000)
+  local ciphers = sslv2.test_sslv2(host, port)
 
-  -- Create socket.
-  local status, socket, err
-  local starttls = sslcert.getPrepareTLSWithoutReconnect(port)
-  if starttls then
-    status, socket = starttls(host, port)
-    if not status then
-      stdnse.debug(1, "Can't connect using STARTTLS: %s", socket)
-      return nil
-    end
-  else
-    socket = nmap.new_socket()
-    socket:set_timeout(timeout)
-    status, err = socket:connect(host, port)
-    if not status then
-      stdnse.debug(1, "Can't connect: %s", err)
-      return nil
-    end
+  if ciphers then
+    host.registry.sslv2 = host.registry.sslv2 or {}
+    host.registry.sslv2[port.number .. port.protocol] = ciphers
+    return {
+      "SSLv2 supported",
+      ciphers = #ciphers > 0 and ciphers or "none"
+    }
   end
-
-  socket:set_timeout(timeout)
-
-  local ssl_v2_hello = sslv2.client_hello(stdnse.keys(sslv2.SSL_CIPHER_CODES))
-
-  socket:send(ssl_v2_hello)
-
-  local status, record = sslv2.record_buffer(socket)
-  socket:close();
-  if not status then
-    return nil
-  end
-
-  local _, message = sslv2.record_read(record)
-
-  -- some sanity checks:
-  -- is it SSLv2?
-  if not message or not message.body then
-    return
-  end
-  -- is response a server hello?
-  if (message.message_type ~= sslv2.SSL_MESSAGE_TYPES.SERVER_HELLO) then
-    return
-  end
-  ---- is certificate in X.509 format?
-  --if (message.body.cert_type ~= 1) then
-  --  return
-  --end
-
-  return {
-    "SSLv2 supported",
-    ciphers = #message.body.ciphers > 0 and message.body.ciphers or "none"
-  }
-
 end

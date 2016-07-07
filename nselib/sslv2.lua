@@ -9,6 +9,8 @@ local stdnse = require "stdnse"
 local bin = require "bin"
 local bit = require "bit"
 local table = require "table"
+local nmap = require "nmap"
+local sslcert = require "sslcert"
 _ENV = stdnse.module("sslv2", stdnse.seeall)
 
 SSL_MESSAGE_TYPES = {
@@ -288,6 +290,59 @@ function record_buffer(sock, buffer, i)
     buffer = buffer .. resp
   end
   return true, buffer
+end
+
+function test_sslv2 (host, port)
+  local timeout = stdnse.get_timeout(host, 10000, 5000)
+
+  -- Create socket.
+  local status, socket, err
+  local starttls = sslcert.getPrepareTLSWithoutReconnect(port)
+  if starttls then
+    status, socket = starttls(host, port)
+    if not status then
+      stdnse.debug(1, "Can't connect using STARTTLS: %s", socket)
+      return nil
+    end
+  else
+    socket = nmap.new_socket()
+    socket:set_timeout(timeout)
+    status, err = socket:connect(host, port)
+    if not status then
+      stdnse.debug(1, "Can't connect: %s", err)
+      return nil
+    end
+  end
+
+  socket:set_timeout(timeout)
+
+  local ssl_v2_hello = client_hello(stdnse.keys(SSL_CIPHER_CODES))
+
+  socket:send(ssl_v2_hello)
+
+  local status, record = record_buffer(socket)
+  socket:close();
+  if not status then
+    return nil
+  end
+
+  local _, message = record_read(record)
+
+  -- some sanity checks:
+  -- is it SSLv2?
+  if not message or not message.body then
+    return
+  end
+  -- is response a server hello?
+  if (message.message_type ~= SSL_MESSAGE_TYPES.SERVER_HELLO) then
+    return
+  end
+  ---- is certificate in X.509 format?
+  --if (message.body.cert_type ~= 1) then
+  --  return
+  --end
+
+  return message.body.ciphers
 end
 
 return _ENV;
