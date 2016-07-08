@@ -553,7 +553,14 @@ AC_HELP_STRING([--with-libssh2=DIR], [Use speficic copy of libssh2]),
 
     # This is a temporary hack to specify where to look for libssh2 shared library
     # objects. Should be removed.
-    LDFLAGS="-Wl,-rpath=../../libssh2-1.7.0/BUILD/lib $LDFLAGS"
+    case "$host" in
+    *-linux*)
+      LDFLAGS="-Wl,-rpath=../../libssh2-1.7.0/BUILD/lib $LDFLAGS"
+      ;;
+    *-apple-darwin*)
+      # Do nothing here
+      ;;
+    esac
   ;;
   esac]
 )
