@@ -550,6 +550,10 @@ AC_HELP_STRING([--with-libssh2=DIR], [Use speficic copy of libssh2]),
     have_libssh2=yes
     CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
     LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
+
+    # This is a temporary hack to specify where to look for libssh2 shared library
+    # objects. Should be removed.
+    LDFLAGS="-Wl,-rpath,libssh2-1.7.0/BUILD/lib/ $LDFLAGS"
   ;;
   esac]
 )
