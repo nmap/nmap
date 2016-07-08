@@ -372,8 +372,8 @@
       <TreatWarningAsError>false</TreatWarningAsError>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\include;..\..\libzlib128-dll\include;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2DEBUG;LIBSSH2_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_dll\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug_dll\libssh2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Debug_dll\</ObjectFileName>
@@ -404,6 +404,7 @@
       <OutputFile>.\Debug_dll\libssh2.dll</OutputFile>
       <ImportLibrary>.\Debug_dll\libssh2.lib</ImportLibrary>
       <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\libzlib128-dll\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WinCNG LIB Release|Win32'">
