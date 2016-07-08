@@ -15,8 +15,6 @@ You should use Visual Studio 2013 Community Edition
 6. nmap.exe can be found at .\mswin32\Release folder
 
 
-LINUX
+LINUX & MacOS
 
-0. Call configure with --with-libssh2=<path> option
-1. Run make
-2. Run make install
+0. Run build.sh script
