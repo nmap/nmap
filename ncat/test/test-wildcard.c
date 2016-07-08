@@ -304,7 +304,7 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
             goto err;
 
         rsa = RSA_new();
-        ret = RSA_generate_key_ex(rsa, DEFAULT_KEY_BITS, bne, NULL);
+        ret = RSA_generate_key_ex(rsa, KEY_BITS, bne, NULL);
         if (ret != 1)
             goto err;
         /* Check RSA key. */
