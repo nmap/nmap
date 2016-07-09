@@ -139,7 +139,7 @@ extern "C" int g_has_npcap_loopback;
 #endif
 
 #include <math.h>
-
+#include <sstream>
 
 /******************************************************************************
  * Globals.                                                                   *
@@ -149,6 +149,17 @@ extern "C" int g_has_npcap_loopback;
  * network resources and schedule packet transmissions. */
 FPNetworkControl global_netctl;
 
+/* To send decoy probe one global data structure of type map has been used.
+ * It stores packet which has unique packet id which is concatenation of 
+ * ProbeID + decoynumber + target_host's number*/
+static std::map<std::string, IPv6Header*> decoy_probes;
+
+std::string get_unique_id(const char *id, int decoynumber, const char *targetIP) {
+  std::string id_str(id), ip_str(targetIP);
+  std::stringstream out;
+  out<<id_str<<decoynumber<<ip_str;
+  return out.str();
+}
 
 /******************************************************************************
  * Implementation of class FPNetworkControl.                                  *
@@ -478,6 +489,25 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
         this->cc_report_final_timeout();
         myprobe->host->fail_one_probe();
         gh_perror("Unable to send packet in %s", __func__);
+      }
+      /* If Packet was sent successfully and Decoys are present */
+      else if (o.numdecoys) {  
+        FPPacket *temp = new FPPacket();
+        std::map<std::string, IPv6Header*>::iterator it;
+        char addr[INET6_ADDRSTRLEN];
+        for (int decoy = 0; decoy < o.numdecoys; decoy++) {
+          if (decoy == o.decoyturn)
+            continue;
+          sockaddr_storage_iptop(myprobe->host->getTargetAddress(), addr);
+          it = decoy_probes.find(get_unique_id(myprobe->getProbeID(), decoy, addr));
+          if (it != decoy_probes.end()) {
+            /* First we should free up the previously allocated buffer */
+            free(buf);
+            temp->setPacket(it->second);
+            buf = temp->getPacketBuffer(&len);
+            send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len);
+          }
+        }
       }
       myprobe->setTimeSent();
       free(buf);
@@ -1275,6 +1305,12 @@ int FPEngine6::os_scan(std::vector<Target *> &Targets) {
     delete tmp;
     fphosts.pop_back();
   }
+  std::map<std::string, IPv6Header*>::iterator it;
+  while (!decoy_probes.empty()) {
+    it = decoy_probes.begin();
+    delete it->second;
+    decoy_probes.erase(it);
+  }
 
   if (o.debugging)
     log_write(LOG_PLAIN, "IPv6 OS Scan completed.\n");
@@ -1738,7 +1774,7 @@ int FPHost6::build_probe_list() {
   RoutingHeader *routing;
   HopByHopHeader *hopbyhop1, *hopbyhop2;
   RawData *payload;
-  unsigned int i;
+  int i, decoy;
   char payloadbuf[300];
 
   assert(this->target_host != NULL);
@@ -1768,6 +1804,16 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].setTimed();
     this->timed_probes++;
     this->total_probes++;
+
+    for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      ip6 = make_tcp((struct sockaddr_in6 *) &o.decoys[decoy],
+      (struct sockaddr_in6 *) this->target_host->TargetSockAddr(),
+      OSDETECT_FLOW_LABEL, TCP_DESCS[i].win, this->tcpSeqBase + i, get_random_u32(),
+      TCP_DESCS[i].flags, this->tcp_port_base + i,
+      TCP_DESCS[i].dstport == OPEN ? this->open_port_tcp : this->closed_port_tcp,
+      TCP_DESCS[i].urgptr, TCP_DESCS[i].opts, TCP_DESCS[i].optslen);
+      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, this->target_host->targetipstr())] = ip6;
+    }
   }
 
 
@@ -1807,6 +1853,32 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
   this->total_probes++;
 
+  for (decoy = 0; decoy < o.numdecoys; decoy++) {
+    ip6 = new IPv6Header();
+    icmp6 = new ICMPv6Header();
+    hopbyhop1 = new HopByHopHeader();
+    payload = new RawData();
+    sockaddr_in6 *s = (struct sockaddr_in6 *)&o.decoys[decoy];
+    ip6->setSourceAddress(s->sin6_addr);
+    ip6->setDestinationAddress(ss6->sin6_addr);
+    ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
+    ip6->setHopLimit(get_hoplimit());
+    ip6->setNextHeader((u8) HEADER_TYPE_IPv6_HOPOPT);
+    ip6->setNextElement(hopbyhop1);
+    hopbyhop1->setNextHeader(HEADER_TYPE_ICMPv6);
+    hopbyhop1->setNextElement(icmp6);
+    icmp6->setNextElement(payload);
+    payload->store((u8 *) payloadbuf, 120);
+    icmp6->setType(ICMPv6_ECHO);
+    icmp6->setCode(9); // But is supposed to be 0.
+    icmp6->setIdentifier(0xabcd);
+    icmp6->setSequence(this->icmp_seq_counter++);
+    icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
+    ip6->setPayloadLength();
+    icmp6->setSum();
+    decoy_probes[get_unique_id("IE1", decoy, this->target_host->targetipstr())] = ip6;
+  }
+
   /* ICMP Probe #2: Echo Request with badly ordered extension headers */
   ip6 = new IPv6Header();
   hopbyhop1 = new HopByHopHeader();
@@ -1844,6 +1916,40 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
   this->total_probes++;
 
+  for (decoy = 0; decoy < o.numdecoys; decoy++) {
+    ip6 = new IPv6Header();
+    hopbyhop1 = new HopByHopHeader();
+    dstopts = new DestOptsHeader();
+    routing = new RoutingHeader();
+    hopbyhop2 = new HopByHopHeader();
+    icmp6 = new ICMPv6Header();
+    payload = new RawData();
+    sockaddr_in6 *s = (struct sockaddr_in6 *)&o.decoys[decoy];
+    ip6->setSourceAddress(s->sin6_addr);
+    this->target_host->TargetSockAddr(&ss, &slen);
+    ip6->setDestinationAddress(ss6->sin6_addr);
+    ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
+    ip6->setHopLimit(get_hoplimit());
+    ip6->setNextHeader((u8) HEADER_TYPE_IPv6_HOPOPT);
+    ip6->setNextElement(hopbyhop1);
+    hopbyhop1->setNextHeader(HEADER_TYPE_IPv6_OPTS);
+    hopbyhop1->setNextElement(dstopts);
+    dstopts->setNextHeader(HEADER_TYPE_IPv6_ROUTE);
+    dstopts->setNextElement(routing);
+    routing->setNextHeader(HEADER_TYPE_IPv6_HOPOPT);
+    routing->setNextElement(hopbyhop2);
+    hopbyhop2->setNextHeader(HEADER_TYPE_ICMPv6);
+    hopbyhop2->setNextElement(icmp6);
+    icmp6->setType(ICMPv6_ECHO);
+    icmp6->setCode(0);
+    icmp6->setIdentifier(0xabcd);
+    icmp6->setSequence(this->icmp_seq_counter++);
+    icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
+    ip6->setPayloadLength();
+    icmp6->setSum();
+    decoy_probes[get_unique_id("IE2", decoy, this->target_host->targetipstr())] = ip6;
+  }
+
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
   if (this->target_host->directlyConnected()) {
     ip6 = new IPv6Header();
@@ -1869,6 +1975,25 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].setProbeID("NS");
     this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
     this->total_probes++;
+
+    for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      ip6 = new IPv6Header();
+      icmp6 = new ICMPv6Header();
+      sockaddr_in6 *s = (struct sockaddr_in6 *)&o.decoys[decoy];
+      ip6->setSourceAddress(s->sin6_addr);
+      this->target_host->TargetSockAddr(&ss, &slen);
+      ip6->setDestinationAddress(ss6->sin6_addr);
+      ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
+      ip6->setHopLimit(255);
+      ip6->setNextHeader("ICMPv6");
+      ip6->setNextElement(icmp6);
+      icmp6->setType(ICMPv6_NGHBRSOLICIT);
+      icmp6->setCode(0);
+      icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
+      icmp6->setSum();
+      ip6->setPayloadLength();
+      decoy_probes[get_unique_id("NS", decoy, this->target_host->targetipstr())] = ip6;
+    }
   }
 
   /* Set UDP probes */
@@ -1899,6 +2024,28 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
   this->total_probes++;
 
+  for (decoy = 0; decoy < o.numdecoys; decoy++) {
+    ip6 = new IPv6Header();
+    udp = new UDPHeader();
+    payload = new RawData();
+    sockaddr_in6 *s = (struct sockaddr_in6 *)&o.decoys[decoy];
+    ip6->setSourceAddress(s->sin6_addr);
+    this->target_host->TargetSockAddr(&ss, &slen);
+    ip6->setDestinationAddress(ss6->sin6_addr);
+    ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
+    ip6->setHopLimit(get_hoplimit());
+    ip6->setNextHeader("UDP");
+    ip6->setNextElement(udp);
+    udp->setSourcePort(this->udp_port_base);
+    udp->setDestinationPort(this->closed_port_udp);
+    payload->store((u8 *) payloadbuf, 300);
+    udp->setNextElement(payload);
+    udp->setTotalLength();
+    udp->setSum();
+    ip6->setPayloadLength(udp->getLen());
+    decoy_probes[get_unique_id("U1", decoy, this->target_host->targetipstr())] = ip6;
+  }
+
   /* Set TECN probe */
   if ((TCP_DESCS[i].dstport == OPEN && this->open_port_tcp >= 0)
       || (TCP_DESCS[i].dstport == CLSD && this->closed_port_tcp >= 0)) {
@@ -1915,6 +2062,16 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
     this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
     this->total_probes++;
+
+    for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      ip6 = make_tcp((struct sockaddr_in6 *)&o.decoys[decoy],
+      (struct sockaddr_in6 *) this->target_host->TargetSockAddr(),
+      OSDETECT_FLOW_LABEL, TCP_DESCS[i].win, this->tcpSeqBase + i, 0,
+      TCP_DESCS[i].flags, tcp_port_base + i,
+      TCP_DESCS[i].dstport == OPEN ? this->open_port_tcp : this->closed_port_tcp,
+      TCP_DESCS[i].urgptr, TCP_DESCS[i].opts, TCP_DESCS[i].optslen);
+      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, this->target_host->targetipstr())] = ip6;
+    }
   }
   i++;
 
@@ -1940,6 +2097,16 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
     this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
     this->total_probes++;
+
+    for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      ip6 = make_tcp((struct sockaddr_in6 *)&o.decoys[decoy],
+        (struct sockaddr_in6 *) this->target_host->TargetSockAddr(),
+        OSDETECT_FLOW_LABEL, TCP_DESCS[i].win, this->tcpSeqBase + i, get_random_u32(),
+        TCP_DESCS[i].flags, tcp_port_base + i,
+        TCP_DESCS[i].dstport == OPEN ? this->open_port_tcp : this->closed_port_tcp,
+        TCP_DESCS[i].urgptr, TCP_DESCS[i].opts, TCP_DESCS[i].optslen);
+      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, this->target_host->targetipstr())] = ip6;
+    }
   }
 
   return OP_SUCCESS;
@@ -2446,7 +2613,6 @@ FPPacket::~FPPacket() {
 void FPPacket::__reset() {
   this->link_eth = false;
   memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));
-
   PacketElement *me = this->pkt, *aux = NULL;
   while (me != NULL) {
     aux = me->getNextElement();
