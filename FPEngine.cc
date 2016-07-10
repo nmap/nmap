@@ -491,7 +491,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
         gh_perror("Unable to send packet in %s", __func__);
       }
       /* If Packet was sent successfully and Decoys are present */
-      else if (o.numdecoys) {  
+      else if (o.numdecoys > 1) {  
         FPPacket *temp = new FPPacket();
         std::map<std::string, IPv6Header*>::iterator it;
         char addr[INET6_ADDRSTRLEN];
@@ -1806,6 +1806,8 @@ int FPHost6::build_probe_list() {
     this->total_probes++;
 
     for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      if (decoy == o.decoyturn)
+        continue;
       ip6 = make_tcp((struct sockaddr_in6 *) &o.decoys[decoy],
       (struct sockaddr_in6 *) this->target_host->TargetSockAddr(),
       OSDETECT_FLOW_LABEL, TCP_DESCS[i].win, this->tcpSeqBase + i, get_random_u32(),
@@ -1854,6 +1856,8 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
+    if (decoy == o.decoyturn)
+      continue;
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
     hopbyhop1 = new HopByHopHeader();
@@ -1917,6 +1921,8 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
+    if (decoy == o.decoyturn)
+      continue;
     ip6 = new IPv6Header();
     hopbyhop1 = new HopByHopHeader();
     dstopts = new DestOptsHeader();
@@ -1977,6 +1983,8 @@ int FPHost6::build_probe_list() {
     this->total_probes++;
 
     for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      if (decoy == o.decoyturn)
+        continue;
       ip6 = new IPv6Header();
       icmp6 = new ICMPv6Header();
       sockaddr_in6 *s = (struct sockaddr_in6 *)&o.decoys[decoy];
@@ -2025,6 +2033,8 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
+    if (decoy == o.decoyturn)
+      continue;
     ip6 = new IPv6Header();
     udp = new UDPHeader();
     payload = new RawData();
@@ -2064,6 +2074,8 @@ int FPHost6::build_probe_list() {
     this->total_probes++;
 
     for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      if (decoy == o.decoyturn)
+        continue;
       ip6 = make_tcp((struct sockaddr_in6 *)&o.decoys[decoy],
       (struct sockaddr_in6 *) this->target_host->TargetSockAddr(),
       OSDETECT_FLOW_LABEL, TCP_DESCS[i].win, this->tcpSeqBase + i, 0,
@@ -2099,6 +2111,8 @@ int FPHost6::build_probe_list() {
     this->total_probes++;
 
     for (decoy = 0; decoy < o.numdecoys; decoy++) {
+      if (decoy == o.decoyturn)
+        continue;
       ip6 = make_tcp((struct sockaddr_in6 *)&o.decoys[decoy],
         (struct sockaddr_in6 *) this->target_host->TargetSockAddr(),
         OSDETECT_FLOW_LABEL, TCP_DESCS[i].win, this->tcpSeqBase + i, get_random_u32(),
