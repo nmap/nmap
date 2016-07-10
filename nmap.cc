@@ -1648,14 +1648,6 @@ void  apply_delayed_options() {
     error("WARNING: a IP Protocol ping scan was requested, but after excluding requested protocols, none remain. Skipping this scan type.");
 
 
-  /* Set up our array of decoys! */
-  if (o.decoyturn == -1) {
-    o.decoyturn = (o.numdecoys == 0) ?  0 : get_random_uint() % o.numdecoys;
-    o.numdecoys++;
-    for (i = o.numdecoys - 1; i > o.decoyturn; i--)
-      o.decoys[i] = o.decoys[i - 1];
-  }
-
   /* We need to find what interface to route through if:
    * --None have been specified AND
    * --We are root and doing tcp ping OR
@@ -1737,6 +1729,13 @@ void  apply_delayed_options() {
         p = q + 1;
       }
     } while (q);
+  }
+  /* Set up host address also in array of decoys! */
+  if (o.decoyturn == -1) {
+    o.decoyturn = (o.numdecoys == 0) ?  0 : get_random_uint() % o.numdecoys;
+    o.numdecoys++;
+    for (i = o.numdecoys - 1; i > o.decoyturn; i--)
+      o.decoys[i] = o.decoys[i - 1];
   }
 }
 
