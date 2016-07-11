@@ -1113,7 +1113,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 #endif
 
-    if (o.proto != IPPROTO_UDP) {
+    if (o.proto != IPPROTO_UDP && o.zerobyte) {
       connect_report(cs.sock_nsi);
       nsock_loop_quit(nsp);
     }
