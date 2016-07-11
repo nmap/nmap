@@ -820,7 +820,7 @@ msgstr ""
 "<b>unfiltered: (ufp:)</b> - Puertos no filtrados descubiertos en un escaneo "
 "(usando por ejemplo, un escaneo ACK).\n"
 "<b>open|filtered: (ofp:)</b> - Puertos en estado \"abierto|filtrado\".\n"
-"<b>closed|filtered: (cfp:)</b> - Puertos en estado \"cerrado|filtrado\".\n
+"<b>closed|filtered: (cfp:)</b> - Puertos en estado \"cerrado|filtrado\".\n"
 "<b>service: (s:)</b> - Todo campo relacionado con los servicios.\n"
 "<b>inroute: (ir:)</b> - Selecciona un router en la salida traceroute del "
 "escaneo.\n"
