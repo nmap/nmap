@@ -312,7 +312,7 @@ msgstr "Esc_aneo"
 
 #: zenmapGUI/MainWindow.py:251
 msgid "_Save Scan"
-msgstr "Guardar Escaneo (_S)"
+msgstr "Guardar E_scaneo"
 
 #: zenmapGUI/MainWindow.py:253
 msgid "Save current scan results"
@@ -328,7 +328,7 @@ msgstr "Guardar todos los escaneos en un directorio"
 
 #: zenmapGUI/MainWindow.py:265
 msgid "_Open Scan"
-msgstr "Abrir escaneo (_O)"
+msgstr "Abrir escane_o"
 
 #: zenmapGUI/MainWindow.py:267
 msgid "Open the results of a previous scan"
@@ -336,7 +336,7 @@ msgstr "Abrir resultados de un escaneo anterior"
 
 #: zenmapGUI/MainWindow.py:272
 msgid "_Open Scan in This Window"
-msgstr "Abrir Escaneo en esta ventana (_O)"
+msgstr "Abrir Escane_o en esta ventana"
 
 #: zenmapGUI/MainWindow.py:274
 msgid "Append a saved scan to the list of scans in this window."
