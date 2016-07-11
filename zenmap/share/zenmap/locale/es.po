@@ -482,7 +482,7 @@ msgstr "Un escaneo sigue ejecutándose. Espere a que termine y guárdelo despues
 #: zenmapGUI/MainWindow.py:636 zenmapGUI/MainWindow.py:714
 #, python-format
 msgid "There are %u scans still running. Wait until they finish and then save."
-msgstr "Hay %u escaneos que continúan ejecutándose. Espere a que termine y guárdelo despues."
+msgstr "Hay %u escaneos que continúan ejecutándose. Espere a que terminen y guárdelos despues."
 
 #: zenmapGUI/MainWindow.py:638 zenmapGUI/MainWindow.py:716
 msgid "Scan is running"
