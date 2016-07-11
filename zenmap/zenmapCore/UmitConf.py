@@ -253,14 +253,16 @@ class Profile(UmitConfigParser, object):
     def __init__(self, user_profile=None, *args):
         UmitConfigParser.__init__(self, *args)
 
-        if not user_profile:
-            user_profile = Path.scan_profile
+        try:
+            if not user_profile:
+                user_profile = Path.scan_profile
 
-        fconf = open(user_profile, 'r')
-        self.readfp(fconf, user_profile)
-
-        fconf.close()
-        del(fconf)
+            self.read(user_profile)
+        except Exception as e:
+            # No scan profiles found is not a reason to crash.
+            self.add_profile("Profiles not found",
+                    command="nmap",
+                    description="The {} file was not found".format(user_profile))
 
         self.attributes = {}
 
