@@ -45,7 +45,7 @@ msgstr "Ningún módulo nombrado dbapi2.pysqlite2 o sqlite3 "
 #: zenmapCore/UmitOptionParser.py:140
 #, python-format
 msgid "Use DIR as the user configuration directory. Default: %default"
-msgstr “Utiliza DIR como directorio de configuración de usuario"
+msgstr "Utiliza DIR como directorio de configuración de usuario. Defecto: "
 "%default"
 
 #: zenmapCore/UmitOptionParser.py:154
