@@ -1210,7 +1210,7 @@ msgid ""
 "\n"
 msgstr ""
 "Un módulo obligatorio no ha sido encontrado.\n"
-“\n”
+"\n"
 
 #: zenmapGUI/App.py:284
 msgid "Error creating the per-user configuration directory"
@@ -1373,7 +1373,7 @@ msgstr "Tipo"
 
 #: zenmapGUI/ScanHostDetailsPage.py:425 radialnet/gui/NodeNotebook.py:157
 msgid "Vendor"
-msgstr “Constructor"
+msgstr "Constructor"
 
 #: zenmapGUI/ScanHostDetailsPage.py:426
 msgid "OS Family"
