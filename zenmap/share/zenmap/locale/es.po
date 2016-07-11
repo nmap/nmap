@@ -380,7 +380,7 @@ msgstr "Salir de la aplicación"
 
 #: zenmapGUI/MainWindow.py:310
 msgid "New _Profile or Command"
-msgstr "Nuebo _perfil o comando"
+msgstr "Nuevo _perfil o comando"
 
 #: zenmapGUI/MainWindow.py:312
 msgid "Create a new scan profile using the current command"
