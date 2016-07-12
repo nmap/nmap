@@ -77,7 +77,7 @@
       <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib;libssh2.lib</AdditionalDependencies>
       <OutputFile>.\Debug\nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>C:\Users\picnic\Desktop\nmap_to_push\libssh2-1.7.0\win32\Debug_dll;..\liblua;lib;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;..\libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2-1.7.0\win32\Debug_dll;..\liblua;lib;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;..\libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
