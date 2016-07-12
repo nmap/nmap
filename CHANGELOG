@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#365] Added sslv2-drown for detecting vulnerability to the DROWN
+  attack, including CVE-2016-0703 and CVE-2016-0704 that enable fast attacks on
+  OpenSSL. [Bertrand Bonnefoy-Claudet]
+
 o [NSE] Added http-mcmp for detecting mod_cluster Management Protocol (MCMP)
   and dumping its configuration. [Frank Spierings]
 

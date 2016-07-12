@@ -5,6 +5,8 @@
 --
 -- @copyright BSD License
 -- @see https://www.lua.org/manual/5.3/manual.html#3.4.2
+-- @class module
+-- @name bit
 
 local select = select
 

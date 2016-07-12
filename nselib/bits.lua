@@ -4,6 +4,9 @@
 -- @author Patrick Donnelly <batrick@batbytes.com>
 -- @copyright Same as Nmap -- see https://nmap.org/book/man-legal.html
 -- @see https://www.lua.org/manual/5.3/manual.html#3.4.2
+--
+-- @class module
+-- @name bits
 
 local assert = assert
 local error = error
