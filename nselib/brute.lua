@@ -580,7 +580,7 @@ Engine =
         interval_start = os.time()
         local tps = self.counter / ( os.time() - self.starttime )
         table.insert(self.tps, tps )
-        stdnse.debug2("threads=%d,tps=%d", self:activeThreads(), tps )
+        stdnse.debug2("threads=%d,tps=%f", self:activeThreads(), tps )
       end
 
       -- if delay was specified, do sleep
