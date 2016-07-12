@@ -75,7 +75,7 @@ OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.
 
 $(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+	./createdmg.sh $(IMAGE_STAGING_DIR)
 
 path-check:
 	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi
