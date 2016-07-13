@@ -43,6 +43,7 @@
 -- @name bin
 
 local debug2 = require "stdnse".debug2
+local debug3 = require "stdnse".debug3
 
 local assert = assert
 local error = error
@@ -89,6 +90,7 @@ end
 -- @param ... The values to pack.
 -- @return String containing packed data.
 function _ENV.pack (format, ...)
+    debug3("bin.pack: format = '%s'", format);
     format = "!1="..format -- 1 byte alignment
     local endianness = "="
     local i, args = 1, pack(...)
@@ -174,7 +176,7 @@ function _ENV.pack (format, ...)
         end
     end
     format = format:gsub("([%a=<>])(%d*)", translate)
-    debug2("format = '%s'", format)
+    debug3("bin.pack: string.pack(format = '%s', ...)", format)
     return format.pack(format, unpack(args)) -- don't use method syntax for better error message
 end
 
@@ -236,7 +238,7 @@ end
 -- @return Position in the data string where unpacking stopped.
 -- @return All unpacked values.
 function _ENV.unpack (format, data, init)
-    debug2("format = '%s'", format);
+    debug3("bin.unpack: format = '%s'", format);
     format = "!1="..format -- 1 byte alignment
     if type(init) == "number" and init <= 0 then init = 1 end
     local endianness = "="
@@ -244,7 +246,6 @@ function _ENV.unpack (format, data, init)
     local i = 0
     local function translate (o, n)
         n = #n == 0 and 1 or tointeger(n)
-        debug2("%d: %s:%d", i, o, n);
 
         if o == "=" then
             endianness = "="
@@ -299,6 +300,7 @@ function _ENV.unpack (format, data, init)
         end
     end
     format = format:gsub("([%a=<>])(%d*)", translate)
+    debug3("bin.unpack: string.unpack(format = '%s', ...)", format)
     return unpacker(fixer, pcall(format.unpack, format, data, init))
 end
 
