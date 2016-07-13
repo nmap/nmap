@@ -6,6 +6,8 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @author Patrik Karlsson
+-- @class module
+-- @name asn1
 --
 
 -- Version 0.3
@@ -104,6 +106,7 @@ ASN1Decoder = {
 
   --- Template for an ASN1 decoder function.
   -- @name asn1.decoder
+  -- @class function
   -- @param self The ASN1Decoder object
   -- @param encStr Encoded string
   -- @param elen Length of the object in bytes
@@ -312,6 +315,7 @@ ASN1Encoder = {
   -- @param self The ASN1Encoder object
   -- @param val The value to encode
   -- @return The encoded object
+  -- @class function
 
   --- Allows for registration of additional tag encoders
   -- @name ASN1Decoder.registerTagEncoders
