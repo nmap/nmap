@@ -730,15 +730,11 @@ int main(int argc, char *argv[])
     if (o.zerobyte) {
       if (o.listen)
         bye("Services designed for LISTENING can't be used with -z");
-      if (o.sendonly||o.recvonly)
-        bye("Invalid option combination: -z and --%s-only.", o.sendonly?"send":"recv");
       if (o.telnet)
         bye("Invalid option combination: -z and -t.");
-      if (o.crlf)
-        bye("Invalid option combination: -z and -C.");
       if (o.execmode||o.cmdexec)
         bye("Command execution can't be done along with option -z.");
-      if (!o.idletimeout)
+      if (!o.idletimeout && o.proto == IPPROTO_UDP)
         o.idletimeout = 2 * 1000;
     }
     /* Default port */
