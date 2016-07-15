@@ -12,7 +12,7 @@ export ZENMAP_BUILD_DIR
 BASE=$ZENMAP_DIST_DIR/$APP_NAME.app/Contents
 SCRIPT_DIR=`dirname "$0"`
 
-CC=${CC:-gcc}
+CC=${CC:-clang}
 CFLAGS=${CFLAGS:--Wall -arch i386}
 
 echo "Running $0."
@@ -62,8 +62,8 @@ mv $BASE/MacOS/$APP_NAME $BASE/MacOS/zenmap.bin
 rm $BASE/MacOS/$APP_NAME-bin
 
 echo "Compiling and installing authorization wrapper."
-echo $CC $CPPFLAGS $CFLAGS $LDFLAGS -framework Security -o "$BASE/MacOS/$APP_NAME" "$SCRIPT_DIR/zenmap_auth.c"
-$CC $CPPFLAGS $CFLAGS $LDFLAGS -framework Security -o "$BASE/MacOS/$APP_NAME" "$SCRIPT_DIR/zenmap_auth.c"
+echo $CC $CPPFLAGS $CFLAGS $LDFLAGS -v "$SCRIPT_DIR/zenmap_auth.m" -lobjc -framework Foundation -o "$BASE/MacOS/$APP_NAME"
+$CC $CPPFLAGS $CFLAGS $LDFLAGS -v "$SCRIPT_DIR/zenmap_auth.m" -lobjc -framework Foundation -o "$BASE/MacOS/$APP_NAME"
 
 echo "Filling out Info.plist"
 python - "$SCRIPT_DIR/Info.plist" >"$BASE/Info.plist" <<'EOF'
