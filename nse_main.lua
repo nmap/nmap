@@ -386,7 +386,7 @@ do
   function Thread:timed_out ()
     local host_timeout, script_timeout = false, false;
     -- checking whether user gave --script-timeout option or not
-    if cnse.script_timeout then
+    if cnse.script_timeout and cnse.script_timeout > 0 then
       -- comparing script's timeout with time elapsed
       script_timeout = cnse.script_timeout < os.difftime(os.time(), self.start_time)
     end
@@ -1182,7 +1182,7 @@ do
     args[#args+1] = cnse.scriptargs;
   end
 
-  if cnse.scripttimeout then
+  if cnse.script_timeout  and cnse.script_timeout > 0 then
     print_debug(1, "Set script-time-out as: %d seconds", cnse.script_timeout);
   end
 
