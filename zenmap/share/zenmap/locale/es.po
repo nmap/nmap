@@ -6,12 +6,13 @@ msgstr ""
 "Project-Id-Version: Zenmap\n"
 "Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2014-10-23 15:14+0000\n"
-"PO-Revision-Date: 2016-07-02 12:00+0200\n"
+"PO-Revision-Date: 2016-07-12 13:37+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Translator: Marta GDLP <martagarciadelapaz@gmail.com>\n"
-"Last-Translator: Marta GDLP <martagarciadelapaz@gmail.com>\n"
+"Translator: Paulino Calderon <paulino@calderonpale.com>\n"
+"Last-Translator: Paulino Calderon <paulino@calderonpale.com>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -45,7 +46,7 @@ msgstr "Ningún módulo nombrado dbapi2.pysqlite2 o sqlite3 "
 #: zenmapCore/UmitOptionParser.py:140
 #, python-format
 msgid "Use DIR as the user configuration directory. Default: %default"
-msgstr "Utiliza DIR como directorio de configuración de usuario. Por defecto: "
+msgstr "Utilice DIR como directorio de configuración de usuario. Por defecto: "
 "%default"
 
 #: zenmapCore/UmitOptionParser.py:154
@@ -67,7 +68,7 @@ msgid ""
 "Begin with the specified profile selected. If combined with the -t (--"
 "target) option, automatically run the profile against the specified target."
 msgstr ""
-"Empieza con el perfil específico seleccionado. Si está combinado con la opción -t "
+"Empieza con el perfil especificado seleccionado. Si es combinado con la opción -t "
 "(--target), ejecuta automáticamente el perfil contra el objetivo "
 "especificado."
 
@@ -217,11 +218,11 @@ msgstr "Servicio"
 
 #: zenmapGUI/DiffCompare.py:194
 msgid "Scan Output"
-msgstr "Salida del escaneo"
+msgstr "Resultados del escaneo"
 
 #: zenmapGUI/DiffCompare.py:247
 msgid "Select Scan Result"
-msgstr "Seleccionar resultado de escaneo"
+msgstr "Selecciona resultado de escaneo"
 
 #: zenmapGUI/DiffCompare.py:258
 msgid "Error parsing file"
@@ -234,12 +235,12 @@ msgid ""
 "was\n"
 "%s"
 msgstr ""
-"El archivo no es un archivo de salida XML de Nmap. El error de análisis ocurrido fue\n"
+"El archivo no es un archivo de resultados XML de Nmap. El error de análisis ocurrido fue\n"
 "%s"
 
 #: zenmapGUI/DiffCompare.py:268
 msgid "Cannot open selected file"
-msgstr "Imposible abrir el archivo seleccionado"
+msgstr "No se puede abrir el archivo seleccionado"
 
 #: zenmapGUI/DiffCompare.py:269
 #, python-format
@@ -278,7 +279,7 @@ msgstr ""
 
 #: zenmapGUI/DiffCompare.py:427
 msgid "Error parsing ndiff output"
-msgstr "Error al analizar la salida ndiff"
+msgstr "Error al analizar los resultados de ndiff"
 
 #: zenmapGUI/DiffCompare.py:436
 #, python-format
@@ -320,7 +321,7 @@ msgstr "Guardar los resultados actuales del escaneo"
 
 #: zenmapGUI/MainWindow.py:258
 msgid "Save All Scans to _Directory"
-msgstr "Guardar todos los scans a _Directorio"
+msgstr "Guardar todos los escaneos en un _Directorio"
 
 #: zenmapGUI/MainWindow.py:260
 msgid "Save all scans into a directory"
@@ -422,16 +423,13 @@ msgstr "Comparar resultados de escaneo utilizando Diffies"
 msgid "_Help"
 msgstr "Ayuda (_H)"
 
-# I am not sure if this is okay since It would actually change the shortcuts
-# for the previous one, "Ayuda (_H)" would probably be the best option
-# waiting for feedback !
 #: zenmapGUI/MainWindow.py:352
 msgid "_Report a bug"
 msgstr "_Reportar un error"
 
 #: zenmapGUI/MainWindow.py:354
 msgid "Report a bug"
-msgstr "Informar un error"
+msgstr "Reportar un error"
 
 #: zenmapGUI/MainWindow.py:360
 msgid "_About"
@@ -448,7 +446,7 @@ msgstr "Muestra la ayuda de la aplicación"
 
 #: zenmapGUI/MainWindow.py:474
 msgid "Can't save to database"
-msgstr "Imposible guardar en la base de datos"
+msgstr "No se puede guardar en la base de datos"
 
 #: zenmapGUI/MainWindow.py:475
 #, python-format
@@ -456,7 +454,7 @@ msgid ""
 "Can't store unsaved scans to the recent scans database:\n"
 "%s"
 msgstr ""
-"Imposible almacenar los escaneos sin guardar en la base de datos de escaneos recientes:\n"
+"No se puede almacenar los escaneos sin guardar en la base de datos de escaneos recientes:\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:600
@@ -494,7 +492,7 @@ msgstr "Guardar escaneo"
 
 #: zenmapGUI/MainWindow.py:703
 msgid ""
-"This scan has not been run yet. Start the escaneo with the \"Scan\" button "
+"This scan has not been run yet. Start the scan with the \"Scan\" button "
 "first."
 msgstr ""
 "Este escaneo aún no ha sido ejecutado. Empiece el escaneo con el botón \"Scan\" primero."
@@ -513,7 +511,7 @@ msgid ""
 "Can't open file to write.\n"
 "%s"
 msgstr ""
-"Imposible abrir archivo para modificarlo.\n"
+"No se puede abrir el archivo para modificarlo.\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:826 zenmapGUI/MainWindow.py:867
@@ -548,7 +546,7 @@ msgstr ""
 
 #: zenmapGUI/MainWindow.py:946
 msgid "Can't find documentation files"
-msgstr "Imposible encontrar archivos de documentación"
+msgstr "No se pueden encontrar los archivos de documentación"
 
 #: zenmapGUI/MainWindow.py:947
 #, python-format
@@ -578,8 +576,8 @@ msgid ""
 "This means that the nmap executable was not found in your system PATH, which "
 "is"
 msgstr ""
-"Esto significa que el ejecutable Nmap no ha sido encontrado en su sistema "
-"PATH, que es"
+"Esto significa que el ejecutable Nmap no ha sido encontrado en su PATH de sistema, "
+"que es"
 
 #: zenmapGUI/ScanInterface.py:545
 msgid "<undefined>"
@@ -753,7 +751,7 @@ msgid ""
 "option in the 'Search options' tab before starting a search"
 msgstr ""
 "%s puede buscar resultados en directorios o dentro de su propia base de "
-"datos. Seleccione por favor un método eligiendo un directorio o verificando "
+"datos. Seleccione por favor un método eligiendo un directorio o seleccionando "
 "la opción de búsqueda en la base de datos en la pestaña 'Buscar opciones' "
 "antes de realizar una búsqueda"
 
