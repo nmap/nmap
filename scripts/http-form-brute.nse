@@ -316,7 +316,7 @@ end
 -- TODO: expire cookies
 local function update_cookies (old, new)
   if not old then
-    old = {}
+    return
   end
   for i, c in ipairs(new) do
     local add = true
