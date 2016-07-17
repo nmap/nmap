@@ -1803,7 +1803,7 @@ msgid ""
 "Send probes with no flags set (TCP flag header is 0). Null scan can "
 "differentiate \"closed\" and \"open|filtered\" ports on some systems."
 msgstr ""
-"Enviar sondeos sin banderas activas (el encabezado TCP es 0.) Ningún escaneo "
+"Enviar sondeos sin banderas activas (el encabezado TCP es 0.) El escaneo nulo "
 "puede diferenciar puertos \"cerrados\" y \"abiertos|filtrados\" en algunos "
 "sistemas."
 
@@ -1818,7 +1818,7 @@ msgid ""
 "making a full TCP connection."
 msgstr ""
 "Enviar sondeos con la bandera SYN activada. Este es el escaneo más popular y "
-"generalmente el más útil. Es conocido como un escaneo \"disimulo\" porque evita "
+"generalmente el más útil. Es conocido como un escaneo \"media-conexión\" porque evita "
 "una conexión TCP completa."
 
 #: share/zenmap/misc/profile_editor.xml:24
@@ -1831,14 +1831,14 @@ msgid ""
 "because it makes a full TCP connection. It is the default when a user does "
 "not have raw packet privileges or is scanning IPv6 networks."
 msgstr ""
-"Escanear usando la connect llamada al sistema. Esto es como un escaneo SYN pero "
-"más discreto porque establece una conexión completa a TCP. Es ejecutado por "
-"vía predeterminada cuando el usuario no tiene privilegios de raw packets o "
+"Escanear usando la llamada de sistema connect. Esto es como un escaneo SYN pero "
+"más discreto porque establece una conexión completa TCP. Es ejecutado de "
+"forma predeterminada cuando el usuario no tiene privilegios de raw packets o "
 "si está escaneando redes IPv6."
 
 #: share/zenmap/misc/profile_editor.xml:25
 msgid "TCP connect scan"
-msgstr "TCP conectar escaneo"
+msgstr "Escaneo TCP connect"
 
 #: share/zenmap/misc/profile_editor.xml:26
 msgid ""
@@ -1870,7 +1870,7 @@ msgstr "Escaneo Xmas Tree"
 
 #: share/zenmap/misc/profile_editor.xml:29
 msgid "Non-TCP scans: "
-msgstr "Scans no-TCP: "
+msgstr "Escaneos no-TCP: "
 
 #: share/zenmap/misc/profile_editor.xml:31
 msgid ""
@@ -1902,7 +1902,7 @@ msgid ""
 "Do not scan any targets, just list which ones would be scanned (with reverse "
 "DNS names if available)."
 msgstr ""
-"No escanee objetivos, simplemente liste cuales serán escaneados (con nombres "
+"No escanee objetivos, simplemente liste cuales serían escaneados (con nombres "
 "DNS invertidos si disponible)."
 
 #: share/zenmap/misc/profile_editor.xml:33
@@ -1951,7 +1951,7 @@ msgstr "Plantilla de tiempo: "
 #: share/zenmap/misc/profile_editor.xml:41
 #: share/zenmap/misc/profile_editor.xml:42
 msgid "Set the timing template for IDS evasion."
-msgstr "Activar la plantilla de tiempo para evasión IDS."
+msgstr "Configurar la plantilla de tiempo para evasión IDS."
 
 #: share/zenmap/misc/profile_editor.xml:41
 msgid "Paranoid"
@@ -1966,7 +1966,7 @@ msgid ""
 "Set the timing template to slow down the scan to use less bandwidth and "
 "target machine resources."
 msgstr ""
-"Activar la plantilla de tiempo para desacelerar el escaneo y para usar menos de "
+"Configurar la plantilla de tiempo para desacelerar el escaneo y para usar menos de "
 "bandwidth y fuentes de máquinas objetivas."
 
 #: share/zenmap/misc/profile_editor.xml:43
@@ -1975,8 +1975,8 @@ msgstr "Educado"
 
 #: share/zenmap/misc/profile_editor.xml:44
 msgid "Set the timing template to not modify the default Nmap value."
-msgstr "Fijar plantilla de tiempo para no modificar el valor por vía "
-"predeterminada de Nmap."
+msgstr "Fija la plantilla de tiempo para no modificar el valor por vía "
+"predeterminado de Nmap."
 
 #: share/zenmap/misc/profile_editor.xml:44
 msgid "Normal"
@@ -1987,7 +1987,7 @@ msgid ""
 "Set the timing template for faster scan. Used when on a reasonably fast and "
 "reliable network."
 msgstr ""
-"Fijar plantilla de tiempo para un escaneo más rápido. Utilizado cuando en una "
+"Fija la plantilla de tiempo para el escaneo más rápido. Usado cuando en una red "
 "red razonablemente rápida y fiable."
 
 #: share/zenmap/misc/profile_editor.xml:45
@@ -2011,7 +2011,7 @@ msgid ""
 "Enable OS detection (-O), version detection (-sV), script scanning (-sC), "
 "and traceroute (--traceroute)."
 msgstr ""
-"Activar detección OS (-O), versión detección (-sV), escaneo de la scripts "
+"Activar detección OS (-O), detección de versión (-sV), escaneo con scripts "
 "(-sC), y traceroute (--traceroute)."
 
 #: share/zenmap/misc/profile_editor.xml:48
@@ -2020,7 +2020,7 @@ msgstr "Activar todas la opciones avanzadas/agresivas"
 
 #: share/zenmap/misc/profile_editor.xml:49
 msgid "Attempt to discover the operating system running on remote systems."
-msgstr "Intentar descubrir el sistema operativo activo en sistemas remoto."
+msgstr "Intentar descubrir versiones de servicios activos en puertos remotos."
 
 #: share/zenmap/misc/profile_editor.xml:49
 msgid "Operating system detection"
@@ -2043,13 +2043,13 @@ msgid ""
 "no packets from your IP address. The zombie must meet certain conditions "
 "which Nmap will check before scanning."
 msgstr ""
-"Escanear disimulando los paquetes provenientes de un ordenador zombie para "
+"Escanear falsificando el origen desde un ordenador zombie para"
 "que los objetivos no reciban paquetes desde tu dirección IP. El zombie debe "
 "cumplir ciertas condiciones, Nmap las comprobara antes de escanear."
 
 #: share/zenmap/misc/profile_editor.xml:51
 msgid "Idle Scan (Zombie)"
-msgstr "Idle Escaneo (Zombie)"
+msgstr "Escaneo Idle (Zombie)"
 
 #: share/zenmap/misc/profile_editor.xml:52
 msgid ""
@@ -2065,7 +2065,7 @@ msgstr "FTP bounce attack"
 
 #: share/zenmap/misc/profile_editor.xml:53
 msgid "Never do reverse DNS. This can slash scanning times."
-msgstr "Nunca haga DNS inverso. Esto puede cortar el tiempo de escaneo."
+msgstr "Nunca haga resolución DNS inversa. Esto puede cortar el tiempo de escaneo."
 
 #: share/zenmap/misc/profile_editor.xml:53
 msgid "Disable reverse DNS resolution"
@@ -2073,7 +2073,7 @@ msgstr "Desactivar la resolución DNS inversa"
 
 #: share/zenmap/misc/profile_editor.xml:54
 msgid "Enable IPv6 scanning."
-msgstr "Activar scanning IPv6."
+msgstr "Activar escaneo IPv6."
 
 #: share/zenmap/misc/profile_editor.xml:54
 msgid "IPv6 support"
@@ -2154,7 +2154,7 @@ msgid ""
 msgstr ""
 "Enviar uno o más sondeos UDP para ver si los objetivos están activos. Dar "
 "una lista de los puertos o dejar el argumento en blanco para usar un puerto "
-"por vía predeterminada."
+"predeterminado."
 
 #: share/zenmap/misc/profile_editor.xml:63
 msgid "UDP probes"
@@ -2195,12 +2195,12 @@ msgid ""
 "Use the Nmap Scripting Engine to gain more information about targets after "
 "scanning them."
 msgstr ""
-"Usar el motor de secuencias de comando de Nmap para ganar mas informacion "
+"Usar el motor de scripts de Nmap para ganar mas informacion "
 "sobre los objetivos después de escanearlos."
 
 #: share/zenmap/misc/profile_editor.xml:68
 msgid "Script scan"
-msgstr "Script escaneo"
+msgstr "Escaneo con scripts"
 
 #: share/zenmap/misc/profile_editor.xml:69
 msgid ""
@@ -2212,12 +2212,12 @@ msgstr ""
 "Ejecutar los scripts determinados. Dar nombres de script, nombres de "
 "directorios, o nombres de categoría. Las categorías son \"safe\", "
 "\"intrusive\", \"malware\", \"discovery\", \"vuln\", \"auth\", \"external\", "
-"\"default\", y \"all\". Si vacío, los scripts  en la categoría \"default\" "
+"\"default\", y \"all\". Si es vacío, los scripts en la categoría \"default\" "
 "son ejecutados."
 
 #: share/zenmap/misc/profile_editor.xml:69
 msgid "Scripts to run"
-msgstr "Scripts que ejecutar"
+msgstr "Scripts a ejecutar"
 
 #: share/zenmap/misc/profile_editor.xml:70
 msgid ""
@@ -2229,20 +2229,19 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:70
 msgid "Script arguments"
-msgstr "Argumentos script"
+msgstr "Argumentos de script"
 
 #: share/zenmap/misc/profile_editor.xml:71
 msgid "Show all information sent and received by the scripting engine."
-msgstr "Mostrar toda la información enviada por el motor de secuencias de "
-"comando."
+msgstr "Mostrar toda la información enviada y recivida por el motor NSE."
 
 #: share/zenmap/misc/profile_editor.xml:71
 msgid "Trace script execution"
-msgstr "Trazar la ejecución del script"
+msgstr "Trazar la ejecución de scripts"
 
 #: share/zenmap/misc/profile_editor.xml:73
 msgid "Target options"
-msgstr "Opciones objetivo"
+msgstr "Opciones de objetivo"
 
 #: share/zenmap/misc/profile_editor.xml:74
 msgid "Specifies a comma-separated list of targets to exclude from the scan."
@@ -2258,7 +2257,7 @@ msgid ""
 "Specifies a newline-, space-, or tab-delimited file of targets to exclude "
 "from the scan."
 msgstr ""
-"Especifica un archivo delimitados a nueva línea, espacio, o tab con objetivos "
+"Especifica un archivo delimitados a nueva línea, espacio, o tabulador con objetivos "
 "que excluir del escaneo."
 
 #: share/zenmap/misc/profile_editor.xml:75
@@ -2279,7 +2278,7 @@ msgid ""
 "is used for a never-ending scan."
 msgstr ""
 "Opción para buscar objetivos aleatoriamente. Le dice a Nmap cuantos IPs hay "
-"que generar. 0 es usado para un escaneo sin fin."
+"que generar. 0 es usado para un escaneo infinito."
 
 #: share/zenmap/misc/profile_editor.xml:77
 msgid "Scan random hosts"
@@ -2294,7 +2293,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:78
 msgid "Ports to scan"
-msgstr "Puertos que escanear"
+msgstr "Puertos a escanear"
 
 #: share/zenmap/misc/profile_editor.xml:79
 msgid ""
@@ -2318,9 +2317,9 @@ msgid ""
 "a list of addresses separated by commas. Use RND for a random address and ME "
 "to set the position of your address."
 msgstr ""
-"Enviar sondeos trampa desde direcciones falsas para esconder su propia "
+"Enviar sondeos trampa desde direcciones falsificadas para esconder su propia "
 "dirección. Dar una lista de direcciones separada por comas. Usar RND para "
-"una dirección aleatoria y ME para activar la posición de su dirección."
+"una dirección aleatoria y ME para configurar la posición de su dirección."
 
 #: share/zenmap/misc/profile_editor.xml:82
 msgid "Use decoys to hide identity"
@@ -2355,7 +2354,7 @@ msgstr "Indica a Nmap qué interfaz usar para enviar y recibir paquetes."
 
 #: share/zenmap/misc/profile_editor.xml:85
 msgid "Set network interface"
-msgstr "Fijar interfaz de redes"
+msgstr "Fijar interfaz de red"
 
 #: share/zenmap/misc/profile_editor.xml:87
 msgid "Other options"
@@ -2383,7 +2382,7 @@ msgid ""
 "Causes the requested scan (including ping scans) to split up TCP headers "
 "over several packets."
 msgstr ""
-"Hace que el escaneo solicitado (incluido los scans ping) divida los encabezados "
+"Hace que el escaneo solicitado (incluido los escaneos ping) divida los encabezados "
 "TCP en varios paquetes."
 
 #: share/zenmap/misc/profile_editor.xml:90
@@ -2408,8 +2407,8 @@ msgid ""
 "When even verbose mode doesn't provide sufficient data for you, debugging "
 "level is available to show more detailed output."
 msgstr ""
-"Cuando el modo verboso no le aporta data suficiente, el nivel de depuración "
-"es disponible para mostrar un resultado con más detalle."
+"Cuando el modo de verbosidad no le aporta información suficiente, el nivel "
+"de depuración está disponible para mostrar un resultado con más detalle."
 
 #: share/zenmap/misc/profile_editor.xml:92
 msgid "Debugging level"
@@ -2454,11 +2453,11 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:96
 msgid "Max Retries"
-msgstr "Reintento Max"
+msgstr "Número de reintentos máximo"
 
 #: share/zenmap/misc/profile_editor.xml:98
 msgid "Timing and performance"
-msgstr "Hora y representación"
+msgstr "Hora y rendimiento"
 
 #: share/zenmap/misc/profile_editor.xml:99
 msgid ""
@@ -2467,7 +2466,7 @@ msgid ""
 "milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
 "Abandone el escaneo de un servidor si este no ha terminado de ser escaneado. "
-"El tiempo está en segundos por vía predeterminada, o puede ser seguido por "
+"El tiempo está en segundos de forma predeterminada, o puede ser seguido por "
 "sufijo 'ms' para milisegundos, 's' para segundo, 'm' para minutos, o 'h' "
 "para horas."
 
@@ -2483,13 +2482,13 @@ msgid ""
 "'h' for hours."
 msgstr ""
 "No espere más que esto para una respuesta de sondeo antes de rendirte o "
-"retransmitir el sondeo. El tiempo está en segundos por vía predeterminada, "
+"retransmitir el sondeo. El tiempo está en segundos de forma predeterminada, "
 "o puede ser seguido por sufijo 'ms' para milisegundos, 's' para segundo, 'm' "
 "para minutos, o 'h' para horas."
 
 #: share/zenmap/misc/profile_editor.xml:100
 msgid "Max probe timeout"
-msgstr "Timeout máximo del sondeo"
+msgstr "Tiempo de espera máximo del sondeo"
 
 #: share/zenmap/misc/profile_editor.xml:101
 msgid ""
@@ -2499,13 +2498,13 @@ msgid ""
 "'h' for hours."
 msgstr ""
 "Espero por lo menos este tiempo para una respuesta de sondeo antes de "
-"rendirse o retransmitir el sondeo. El tiempo está en segundos por vía "
+"rendirse o retransmitir el sondeo. El tiempo está en segundos de forma "
 "predeterminada, o puede ser seguido por sufijo 'ms' para milisegundos, 's' "
 "para segundo, 'm' para minutos, o 'h' para horas."
 
 #: share/zenmap/misc/profile_editor.xml:101
 msgid "Min probe timeout"
-msgstr "Timeout mínimo del sondeo"
+msgstr "Tiempo de espera mínimo del sondeo"
 
 #: share/zenmap/misc/profile_editor.xml:102
 msgid ""
@@ -2513,11 +2512,11 @@ msgid ""
 "speed up scans if you know a good time for the network you're scanning."
 msgstr ""
 "Use el tiempo dado como la estimación inicial del tiempo round-trip. Esto "
-"puede acelerar scans si conoce una buena hora de la red que está escaneando."
+"puede acelerar scans si conoce una buena hora para la red que está escaneando."
 
 #: share/zenmap/misc/profile_editor.xml:102
 msgid "Initial probe timeout"
-msgstr "Timeout inicial del sondeo"
+msgstr "Tiempo de espera inicial del sondeo"
 
 #: share/zenmap/misc/profile_editor.xml:103
 msgid "Scan no more than this many hosts in parallel."
@@ -2525,7 +2524,7 @@ msgstr "No escanee más que esto servidores en paralelo."
 
 #: share/zenmap/misc/profile_editor.xml:103
 msgid "Max hosts in parallel"
-msgstr "Servidores máximos en paralelo"
+msgstr "Máximo número de servidores en paralelo"
 
 #: share/zenmap/misc/profile_editor.xml:104
 msgid "Scan at least this many hosts in parallel."
@@ -2533,7 +2532,7 @@ msgstr "Escanee por lo menos este número de servidores en paralelo."
 
 #: share/zenmap/misc/profile_editor.xml:104
 msgid "Min hosts in parallel"
-msgstr "Servidores mínimo en paralelo"
+msgstr "Mínimo de servidores en paralelo"
 
 #: share/zenmap/misc/profile_editor.xml:105
 msgid ""
@@ -2542,12 +2541,12 @@ msgid ""
 "time to hosts."
 msgstr ""
 "Nunca deje mas del numero dado de sondeos esperando al mismo tiempo. Puede "
-"ser fijado a 1 para prevenir a Nmap de enviar más de un sondeo a la vez a "
+"ser fijado a 1 para prevenir que Nmap envie más de un sondeo a la vez a "
 "un servidor."
 
 #: share/zenmap/misc/profile_editor.xml:105
 msgid "Max outstanding probes"
-msgstr "Sondeos máximos en espera"
+msgstr "Número máximo de sondeos en espera"
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid ""
@@ -2556,12 +2555,12 @@ msgid ""
 "poorly performing hosts or networks."
 msgstr ""
 "Intente mantener por lo menos el número dado de sondeos esperando durante un "
-"escaneo. El uso común es fijar un número más alto que 1 para acelerar scans de "
-"servidores y redes con actuación débil."
+"escaneo. El uso común es fijar un número más alto que 1 para acelerar escaneos de "
+"servidores y redes con desempeño pobre."
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid "Min outstanding probes"
-msgstr "Sondeos mínimos en espera"
+msgstr "Número mínimo de sondeos en espera"
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid ""
@@ -2571,7 +2570,7 @@ msgid ""
 "minutes, or 'h' for hours."
 msgstr ""
 "No deje que el retraso del escaneo (retraso de tiempo entre sondeos sucesivos) "
-"crezca más que el tiempo dado. El tiempo está en segundos por vía "
+"crezca más que el tiempo dado. El tiempo está en segundos de forma "
 "predeterminada, o puede ser seguido por sufijo 'ms' para milisegundos, 's' "
 "para segundo, 'm' para minutos, o 'h' para horas."
 
@@ -2586,8 +2585,8 @@ msgid ""
 "for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
 "Espere por lo menos el tiempo dado entre cada sondeo enviado a cierto "
-"servidor. El tiempo está en segundos por vía predeterminada, o puede ser "
-"seguido por sufijo 'ms' para milisegundos, 's' para segundo, 'm' para "
+"servidor. El tiempo está en segundos de forma predeterminada, o puede ser "
+"seguido por sufijo 'ms' para milisegundos, 's' para segundos, 'm' para "
 "minutos, o 'h' para horas."
 
 #: share/zenmap/misc/profile_editor.xml:108
