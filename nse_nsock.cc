@@ -44,7 +44,7 @@ extern NmapOps o;
 typedef struct nse_nsock_udata
 {
   nsock_iod nsiod;
-  unsigned timeout;
+  int timeout;
 
   lua_State *thread;
 
@@ -739,9 +739,10 @@ static int l_get_info (lua_State *L)
 static int l_set_timeout (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
-  nu->timeout = luaL_checkinteger(L, 2);
-  if ((int) nu->timeout < -1) /* -1 is no timeout */
-    return luaL_error(L, "Negative timeout: %d", nu->timeout);
+  int timeout = nseU_checkinteger(L, 2);
+  if (timeout < -1) /* -1 is no timeout */
+    return luaL_error(L, "Negative timeout: %f", timeout);
+  nu->timeout = timeout;
   return nseU_success(L);
 }
 
