@@ -7,6 +7,7 @@ determine if the fuzzing was successful.
 ---
 -- @usage
 -- nmap --script http-form-fuzzer --script-args 'http-form-fuzzer.targets={1={path=/},2={path=/register.html}}' -p 80 <host>
+-- nmap --script http-form-fuzzer --script-args 'http-form-fuzzer.timelimit=50m','http-form-fuzzer.minlength=100000' -p 80 <host>
 --
 -- This script attempts to fuzz fields in forms it detects (it fuzzes one field at a time).
 -- In each iteration it first tries to fuzz a field with a string, then with a number.
@@ -45,7 +46,10 @@ determine if the fuzzing was successful.
 -- defaults to 300000
 -- @args http-form-fuzzer.maxlength the maximum length of a string that will be used for fuzzing,
 -- defaults to 310000
---
+-- @args http-form-fuzzer.timelimit Specify maximum runtime for fuzzing the target application,
+-- defaults to 30 minutes
+-- @args http-form-fuzzer.runforever Make this script run on target application until it terminates
+-- by itself, defaults to false. This option takes precedence over timelimit if provided.
 
 author = "Piotr Olma, Gioacchino Mazzurco"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -58,6 +62,7 @@ local stdnse = require 'stdnse'
 local string = require 'string'
 local table = require 'table'
 local url = require 'url'
+local nmap = require 'nmap'
 
 -- generate a charset that will be used for fuzzing
 local function generate_charset(left_bound, right_bound, ...)
@@ -103,12 +108,20 @@ local function generate_safe_postdata(form)
   return postdata
 end
 
+-- get time (in milliseconds) when the script should finish
+local function get_end_time(timeLimit)
+  if timeLimit == nil then
+    return -1
+  end
+  return 1000 * timeLimit + nmap.clock_ms()
+end
+
 -- generate a charset of characters with ascii codes from 33 to 126
 -- you can use http://www.asciitable.com/ to see which characters those actually are
 local charset = generate_charset(33,126)
 local charset_number = generate_charset(49,57) -- ascii 49 -> 1; 57 -> 9
 
-local function fuzz_form(form, minlen, maxlen, host, port, path)
+local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, path)
   local affected_fields = {}
   local postdata = generate_safe_postdata(form)
   local action_absolute = httpspider.LinkExtractor.isAbsolute(form["action"])
@@ -138,7 +151,11 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
     for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
       local response_string
       local response_number
-      
+
+      -- Let's check for timeout first and then proceed 
+      if (nmap.clock_ms() > end_time and timeLimit) then
+        break
+      end
       --first try to fuzz with a string
       postdata[field["name"]] = stdnse.generate_random_string(i, charset)
       response_string = sending_function(postdata)
@@ -167,6 +184,10 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
   for _,field in ipairs(form["fields"]) do
     if fuzzable(field["type"]) then
       local affected_string, affected_int = fuzz_field(field, minlen, maxlen, postdata, sending_function)
+      -- It's neccessary to check for timeout here, perhaps we timed out at fuzz_field
+      if (nmap.clock_ms() > end_time and timeLimit) then
+        break
+      end
       if #affected_string > 0 or #affected_int > 0 then
         local affected_next_index = #affected_fields+1
         affected_fields[affected_next_index] = {name = field["name"]}
@@ -189,6 +210,15 @@ function action(host, port)
   local return_table = {}
   local minlen = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
   local maxlen = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
+  local timeLimit
+
+  if stdnse.get_script_args('http-form-fuzzer.runforever') then
+    timeLimit = nil
+  else
+    timeLimit = stdnse.parse_timespec(stdnse.get_script_args('http-form-fuzzer.timelimit') or '30m')
+  end
+
+  local end_time = get_end_time(timeLimit)
 
   for _,target in pairs(targets) do
     stdnse.debug2("testing path: "..target["path"])
@@ -201,15 +231,20 @@ function action(host, port)
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
         if form and form.action then
-          local affected_fields = fuzz_form(form, minlen, maxlen, host, port, path)
+          local affected_fields = fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, path)
           if #affected_fields > 0 then
             affected_fields["name"] = "Path: "..path.." Action: "..form["action"]
             table.insert(return_table, affected_fields)
           end
         end
+        if (nmap.clock_ms() > end_time and timeLimit) then
+          break
+        end
       end
+    end
+    if (nmap.clock_ms() > end_time and timeLimit) then
+      break
     end
   end
   return stdnse.format_output(true, return_table)
 end
-
