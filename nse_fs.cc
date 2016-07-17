@@ -56,15 +56,6 @@ extern "C" {
 #define MAX_PATH 2048
 #endif
 
-/*
- * ** compatibility with Lua 5.2
- * */
-#if (LUA_VERSION_NUM == 502)
-#undef luaL_register
-#define luaL_register(L,n,f) \
-          { if ((n) == NULL) luaL_setfuncs(L,f,0); else luaL_newlib(L,f); }
-#endif
-
 /* Define 'strerror' for systems that do not implement it */
 #ifdef NO_STRERROR
 #define strerror(_)  "System unable to describe the error"
@@ -306,7 +297,7 @@ static const struct luaL_Reg fslib[] = {
 
 LUALIB_API int luaopen_lfs(lua_State *L) {
   dir_create_meta (L);
-  luaL_register (L, "lfs", fslib);
+  luaL_newlib(L, fslib);
   set_info (L);
   return 1;
 }

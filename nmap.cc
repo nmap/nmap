@@ -1430,6 +1430,11 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'V':
+#ifdef WIN32
+      /* For pcap_get_version, since we need to get the correct Npcap/WinPcap
+       * DLL loaded */
+      win_init();
+#endif
       display_nmap_version();
       exit(0);
       break;
@@ -3056,7 +3061,8 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
        name. Return a positive result even if the file doesn't exist or is not
        readable. It is the caller's responsibility to report the error if the
        file can't be accessed. */
-    return file_is_readable(filename_returned) || 1;
+    res = file_is_readable(filename_returned);
+    return res != 0 ? res : 1;
   }
 
   /* Try updates directory first. */

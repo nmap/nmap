@@ -47,7 +47,7 @@ responses from their multicast group.
 --   </table>
 -- </table>
 
-author = "niteesh, alegen"
+author = {"niteesh", "alegen"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","broadcast"}
 

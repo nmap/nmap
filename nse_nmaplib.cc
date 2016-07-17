@@ -66,12 +66,12 @@ void set_portinfo (lua_State *L, const Target *target, const Port *port)
 
   target->ports.getServiceDeductions(port->portno, port->proto, &sd);
 
-  nseU_setnfield(L, -1, "number", port->portno);
+  nseU_setifield(L, -1, "number", port->portno);
   nseU_setsfield(L, -1, "service", sd.name);
   nseU_setsfield(L, -1, "protocol", IPPROTO2STR(port->proto));
   nseU_setsfield(L, -1, "state", statenum2str(port->state));
   nseU_setsfield(L, -1, "reason", reason_str(port->reason.reason_id, 1));
-  nseU_setnfield(L, -1, "reason_ttl", port->reason.ttl);
+  nseU_setifield(L, -1, "reason_ttl", port->reason.ttl);
   lua_newtable(L);
   set_version(L, &sd);
   lua_setfield(L, -2, "version");
@@ -153,7 +153,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
   nseU_setsfield(L, -1, "name", currenths->HostName());
   nseU_setsfield(L, -1, "targetname", currenths->TargetName());
   nseU_setsfield(L, -1, "reason", reason_str(currenths->reason.reason_id, SINGULAR));
-  nseU_setnfield(L, -1, "reason_ttl", currenths->reason.ttl);
+  nseU_setifield(L, -1, "reason_ttl", currenths->reason.ttl);
 
   if (currenths->directlyConnectedOrUnset() != -1)
     nseU_setbfield(L, -1, "directly_connected", currenths->directlyConnected());
@@ -173,7 +173,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     lua_setfield(L, -2, "mac_addr_src");
   }
   nseU_setsfield(L, -1, "interface", currenths->deviceName());
-  nseU_setnfield(L, -1, "interface_mtu", currenths->MTU());
+  nseU_setifield(L, -1, "interface_mtu", currenths->MTU());
 
   push_bin_ip(L, currenths->TargetSockAddr());
   lua_setfield(L, -2, "bin_ip");
@@ -494,7 +494,7 @@ static int l_get_port_state (lua_State *L)
  * */
 static int l_port_is_excluded (lua_State *L)
 {
-  unsigned short portno = (unsigned short) luaL_checkint(L, 1);
+  unsigned short portno = (unsigned short) luaL_checkinteger(L, 1);
   int protocol = NSE_PROTOCOL[luaL_checkoption(L, 2, NULL, NSE_PROTOCOL_OP)];
 
   lua_pushboolean(L, AllProbes::check_excluded_port(portno, protocol));
@@ -611,7 +611,7 @@ static int l_log_write (lua_State *L)
   return 0;
 }
 
-static int finalize_cleanup (lua_State *L)
+static int finalize_cleanup (lua_State *L, int status, lua_KContext ctx)
 {
   lua_settop(L, 2);
   return lua_error(L);
@@ -629,7 +629,7 @@ static int new_try_finalize (lua_State *L)
       lua_pushvalue(L, lua_upvalueindex(1));
       lua_callk(L, 0, 0, 0, finalize_cleanup);
     }
-    return finalize_cleanup(L);
+    return finalize_cleanup(L, LUA_OK, 0);
   }
   return lua_gettop(L)-1; /* omit first boolean argument */
 }
@@ -883,7 +883,7 @@ static int l_list_interfaces (lua_State *L)
       lua_newtable(L); //interface table
       nseU_setsfield(L, -1, "device", iflist[i].devfullname);
       nseU_setsfield(L, -1, "shortname", iflist[i].devname);
-      nseU_setnfield(L, -1, "netmask", iflist[i].netmask_bits);
+      nseU_setifield(L, -1, "netmask", iflist[i].netmask_bits);
       nseU_setsfield(L, -1, "address", inet_ntop_ez(&(iflist[i].addr),
             sizeof(iflist[i].addr) ));
 
@@ -916,7 +916,7 @@ static int l_list_interfaces (lua_State *L)
       }
 
       nseU_setsfield(L, -1, "up", (iflist[i].device_up ? "up" : "down"));
-      nseU_setnfield(L, -1, "mtu", iflist[i].mtu);
+      nseU_setifield(L, -1, "mtu", iflist[i].mtu);
 
       /* After setting the fields, add the interface table to the base table */
       lua_rawseti(L, -2, i + 1);

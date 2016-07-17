@@ -51,7 +51,7 @@ determine if the fuzzing was successful.
 -- @args http-form-fuzzer.runforever Make this script run on target application until it terminates
 -- by itself, defaults to false. This option takes precedence over timelimit if provided.
 
-author = "Piotr Olma, Gioacchino Mazzurco"
+author = {"Piotr Olma", "Gioacchino Mazzurco"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 

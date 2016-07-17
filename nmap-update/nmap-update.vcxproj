@@ -14,6 +14,11 @@
     <ClCompile Include="nmap-update.c" />
     <ClCompile Include="svn_auth.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\nbase\nbase.vcxproj">
+      <Project>{b630c8f7-3138-43e8-89ed-78742fa2ac5f}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BBF27339-C7B6-4F52-B742-897796C1F13B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -24,14 +29,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

@@ -45,7 +45,7 @@ References:
 -- |_      http://code.google.com/p/iis-shortname-scanner-poc/
 ---
 
-author = "Jesper Kueckelhahn, Paulino Calderon"
+author = {"Jesper Kueckelhahn", "Paulino Calderon"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 

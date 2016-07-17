@@ -133,6 +133,10 @@
 #include "linear.h"
 #include "FPModel.h"
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 #include <math.h>
 
@@ -211,7 +215,11 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   this->nsock_init = true;
 
   /* Obtain raw socket or check that we can obtain an eth descriptor. */
-  if ((o.sendpref & PACKET_SEND_ETH) && iftype == devt_ethernet && ifname != NULL) {
+  if ((o.sendpref & PACKET_SEND_ETH) && (iftype == devt_ethernet
+#ifdef WIN32
+        || (g_has_npcap_loopback && iftype == devt_loopback)
+#endif
+        ) && ifname != NULL) {
     /* We don't need to store the eth handler because FPProbes come with a
      * suitable one (FPProbes::getEthernet()), we just attempt to obtain one
      * to see if it fails. */
@@ -1837,7 +1845,11 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
-  if (this->target_host->directlyConnected()) {
+  if (this->target_host->directlyConnected()
+#ifdef WIN32
+    && !(g_has_npcap_loopback && this->target_host->ifType() == devt_loopback)
+#endif
+    ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
     this->target_host->SourceSockAddr(&ss, &slen);

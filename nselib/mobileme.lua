@@ -8,7 +8,7 @@ _ENV = stdnse.module("mobileme", stdnse.seeall)
 -- A MobileMe web service client that allows discovering Apple devices
 -- using the "find my iPhone" functionality.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 MobileMe = {

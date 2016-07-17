@@ -81,7 +81,7 @@ nsock_event_id request_timer(nsock_pool nsp, nsock_ev_handler handler, int timeo
 
 }
 
-int try_cancel_timer(nsock_pool * nsp, int idx, int notify) {
+int try_cancel_timer(nsock_pool nsp, int idx, int notify) {
   int res;
 
   printf("%ld:Attempting to cancel id %li (idx %d) %s notify.\n", time(NULL), ev_ids[idx], idx, ((notify) ? "WITH" : "WITHOUT"));
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 
   srand(time(NULL));
   /* OK, we start with creating a p00l */
-  if ((nsp = nsp_new(NULL)) == NULL) {
+  if ((nsp = nsock_pool_new(NULL)) == NULL) {
     fprintf(stderr, "Failed to create new pool.  QUITTING.\n");
     exit(1);
   }
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
     }
   }
   printf("Trying to kill my msp!\n");
-  nsp_delete(nsp);
+  nsock_pool_delete(nsp);
   printf("SUCCESS -- completed %d l00ps.\n", num_loops);
 
   return 0;

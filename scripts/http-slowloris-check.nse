@@ -150,7 +150,7 @@ the http server's resources causing Denial Of Service.
     return nil
   end
   local diff = TimeWith - TimeWithout
-  stdnse.debug1("Time difference is: %d",diff)
+  stdnse.debug1("Time difference is: %.f",diff)
   -- if second connection died 10 or more seconds after the first
   -- it means that sending additional data prolonged the connection's time
   -- and the server is vulnerable to slowloris attack

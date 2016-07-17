@@ -136,7 +136,7 @@ Recursive listing is not implemented.
 -- Revised 06/28/2010 - v0.8 - added NFSv2 support.
 --
 
-author = "Patrik Karlsson, Djalal Harouni"
+author = {"Patrik Karlsson", "Djalal Harouni"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"rpc-grind"}

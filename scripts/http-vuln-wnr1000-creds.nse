@@ -34,7 +34,7 @@ Vulnerability discovered by c1ph04.
 --
 ---
 
-author = "Paul AMAR <aos.paul@gmail.com>, Rob Nicholls"
+author = {"Paul AMAR <aos.paul@gmail.com>", "Rob Nicholls"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 

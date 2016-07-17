@@ -3317,7 +3317,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) \.\n| p/OpenSSH/ v/$2/ i/protocol $
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) PKIX\r\n| p/OpenSSH/ v/$2/ i/protocol $1; X.509 v3 certificate support/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)-FIPS\(capable\)\r\n| p/OpenSSH/ v/$2/ i/protocol $1; FIPS capable/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)-sshjail\n| p/OpenSSH/ v/$2/ i/protocol $1; sshjail patch/ cpe:/a:openbsd:openssh:$2/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Raspbian-(\d+)\r\n| p/OpenSSH/ v/$2 Raspbian $3/ i/protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:linux:linux_kernel/a
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Raspbian-([^\r\n]+)\r\n| p/OpenSSH/ v/$2 Raspbian $3/ i/protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) OVH-rescue\r\n| p/OpenSSH/ v/$2/ i/protocol $1; OVH hosting rescue/ cpe:/a:openbsd:openssh:$2/a
 
 
@@ -9589,7 +9589,6 @@ match http m|^HTTP/1\.1 404 Not Found\r\nContent-Length:0\r\nContent-Type:text/h
 #match http m|^HTTP/1\.0 404 Not Found\r\nConnection: close\r\n\r\n$| p/apt-proxy httpd/
 
 # Fairly general:
-match http m|^HTTP/1\.1 400 Bad Request\r\n\r\n$| p/IBM ServeRAID controller httpd/ d/storage-misc/
 # http://svn.dd-wrt.com:8000/dd-wrt/browser/src/router/httpd/httpd.c
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: micro_httpd\r\n| p/micro_httpd/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\d.]+)\r\n| p/RapidLogic httpd/ v/$1/ cpe:/a:rapidlogic:httpd:$1/
@@ -12265,7 +12264,8 @@ match xamarin m|^ERROR: Another instance is running\n| p/Xamarin MonoTouch/
 # in the match lines)
 Probe TCP TLSSessionReq q|\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\x05\x03\x05\x02|
 rarity 1
-ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,3389,4433,4444,5061,6679,6697,8443,9001
+# port 3389 not listed because we can't figure out what to send to it after negotiating TLS
+ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,4433,4444,5061,6679,6697,8443,9001
 fallback GetRequest
 
 # SSLv3 - TLSv1.2 ServerHello
@@ -14543,8 +14543,12 @@ sslports 2376
 
 match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"KernelVersion\":\"([^"]+)\",.*\"Os\":\"([^"]+)\",.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$4/ i/API $1; KernelVersion $2/ o/$3/ cpe:/a:docker:docker:$4/
 # Ordering doesn't matter, we'd like to at least grab ApiVersion and Version
-match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"Version\":\"(["]+)\"| p/Docker remote API/ v/$2/ i/API $1/ cpe:/a:docker:docker:$2/
-match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"(["]+)\"| p/Docker remote API/ v/$1/ i/API $2/ cpe:/a:docker:docker:$1/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"ApiVersion\":\"([^"]+)\",.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$2/ i/API $1/ cpe:/a:docker:docker:$2/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API $2/ cpe:/a:docker:docker:$1/
+# Similar to above, but without the Job-Name header.
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nServer: Docker.*\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"([^"]+)\",.*\"Os\":\"([^"]+)\",.*\"KernelVersion\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API $2; KernelVersion $4/ o/$3/ cpe:/a:docker:docker:$1/
+match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nServer: Docker.*\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\",.*\"ApiVersion\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API $2/ cpe:/a:docker:docker:$1/
+
 # API spec only lists Version, GoVersion, ApiVersion (in API >= 1.12), and GitCommit.
 # Assuming the above matches will get ApiVersion if it's present, this one can report ApiVersion <= 1.11
 match docker m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nJob-Name: version\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n{.*\"Version\":\"([^"]+)\"| p/Docker remote API/ v/$1/ i/API 1.11 or older/ cpe:/a:docker:docker:$1/

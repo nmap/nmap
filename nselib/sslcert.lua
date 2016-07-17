@@ -19,7 +19,7 @@
 -- * VNC (TLS and VeNCrypt auth types)
 -- * XMPP
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 local asn1 = require "asn1"
 local bin = require "bin"

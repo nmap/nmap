@@ -1970,8 +1970,8 @@ function requires_updating( file )
   local f, err, _ = io.open( file, "r" )
   if not f then return true, nil end
 
-  local _ = f:read("*line")
-  local stamp = f:read("*line")
+  local _ = f:read()
+  local stamp = f:read()
   f:close()
   if not stamp then return true, nil end
 

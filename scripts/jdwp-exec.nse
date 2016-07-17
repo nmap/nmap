@@ -53,7 +53,8 @@ action = function(host, port)
 
   -- read .class file
   local file = io.open(nmap.fetchfile("nselib/data/jdwp-class/JDWPExecCmd.class"), "rb")
-  local class_bytes = file:read("*all")
+  local class_bytes = file:read("a")
+  file:close()
 
   -- inject the class
   local injectedClass

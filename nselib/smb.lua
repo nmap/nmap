@@ -1065,7 +1065,7 @@ function negotiate_protocol(smb, overrides)
   end
 
   -- Convert the time and timezone to more useful values
-  smb['time'] = (smb['time'] / 10000000) - 11644473600
+  smb['time'] = (smb['time'] // 10000000) - 11644473600
   smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
   smb['timezone'] = -(smb['timezone'] / 60)
   if(smb['timezone'] == 0) then

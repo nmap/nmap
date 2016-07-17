@@ -45,6 +45,13 @@ void nseU_setnfield (lua_State *L, int idx, const char *field, lua_Number n)
   lua_setfield(L, idx, field);
 }
 
+void nseU_setifield (lua_State *L, int idx, const char *field, lua_Integer i)
+{
+  idx = lua_absindex(L, idx);
+  lua_pushinteger(L, i);
+  lua_setfield(L, idx, field);
+}
+
 void nseU_setbfield (lua_State *L, int idx, const char *field, int b)
 {
   idx = lua_absindex(L, idx);
@@ -147,7 +154,7 @@ uint16_t nseU_checkport (lua_State *L, int idx, const char **protocol)
       *protocol = lua_tostring(L, -1);
     lua_pop(L, 2);
   } else {
-    port = (uint16_t) luaL_checkint(L, idx);
+    port = (uint16_t) luaL_checkinteger(L, idx);
   }
   return port;
 }

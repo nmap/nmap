@@ -287,6 +287,13 @@ struct request {
   u16 id;
 };
 
+/*keeps record of a request going through a particular DNS server
+helps in attaining faster lookup based on ID */
+struct info{
+  dns_server *server;
+  request *tpreq;
+};
+
 class HostElem
 {
 public:
@@ -420,6 +427,7 @@ u16 DNS::Factory::progressiveId = get_random_u16();
 static std::list<dns_server> servs;
 static std::list<request *> new_reqs;
 static std::list<request *> cname_reqs;
+static std::map<u16, info> records;
 static int total_reqs;
 static nsock_pool dnspool=NULL;
 
@@ -507,10 +515,15 @@ static void do_possible_writes() {
 
 // nsock write handler
 static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
+  info record;
   request *req = (request *) req_v;
 
   req->curr_server->write_busy = 0;
+
   req->curr_server->in_process.push_front(req);
+  record.tpreq = req;
+  record.server = req->curr_server;
+  records[req->id] = record;
 
   do_possible_writes();
 }
@@ -547,6 +560,7 @@ static int deal_with_timedout_reads() {
   std::list<dns_server>::iterator servItemp;
   std::list<request *>::iterator reqI;
   std::list<request *>::iterator nextI;
+  std::map<u16, info>::iterator infoI;
   request *tpreq;
   struct timeval now;
   int tp, min_timeout = INT_MAX;
@@ -571,6 +585,9 @@ static int deal_with_timedout_reads() {
         servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
         check_capacities(&*servI);
         servI->in_process.erase(reqI);
+        std::map<u16, info>::iterator it = records.find(tpreq->id);
+        if ( it != records.end() )
+          records.erase(it);
         servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
@@ -599,6 +616,9 @@ static int deal_with_timedout_reads() {
             output_summary();
             stat_dropped++;
             total_reqs--;
+            infoI = records.find(tpreq->id);
+            if ( infoI != records.end() )
+              records.erase(infoI);
             delete tpreq;
 
             // **** OR We start at the back of this server's queue
@@ -626,61 +646,54 @@ static int deal_with_timedout_reads() {
 // Returns non-zero if this matches a query we're looking for
 static int process_result(const sockaddr_storage &ip, const std::string &result, int action, u16 id)
 {
-  std::list<dns_server>::iterator servI;
-  std::list<request *>::iterator reqI;
   request *tpreq;
+  std::map<u16, info>::iterator infoI;
+  dns_server *server;
 
-  for(servI = servs.begin(); servI != servs.end(); servI++)
-  {
-    /* TODO: This is higly inefficent we do on average
-     * (0.5 * servs.size() * in_process.size())
-     * iterations to find a a request, we should use a map
-     * to do this efficiently
-     */
-    for(reqI = servI->in_process.begin(); reqI != servI->in_process.end(); reqI++)
+  infoI = records.find(id);
+
+  if( infoI != records.end() ){
+
+    tpreq = infoI->second.tpreq;
+    server = infoI->second.server;
+
+    if( !result.empty() && !sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()) )
+      return 0;
+
+    if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED)
     {
-      tpreq = *reqI;
-      if (id == tpreq->id)
+      server->capacity += CAPACITY_UP_STEP;
+      check_capacities(&*server);
+
+      if(!result.empty())
       {
-        if(!result.empty() && (!sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr())))
-          continue;
-
-        if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED)
-        {
-          servI->capacity += CAPACITY_UP_STEP;
-          check_capacities(&*servI);
-
-          if(!result.empty())
-          {
-            tpreq->targ->setHostName(result.c_str());
-            host_cache.add(* tpreq->targ->TargetSockAddr(), result);
-          }
-
-          servI->in_process.remove(tpreq);
-          servI->reqs_on_wire--;
-
-          total_reqs--;
-
-          if (action == ACTION_CNAME_LIST) cname_reqs.push_back(tpreq);
-          if (action == ACTION_FINISHED) delete tpreq;
-        }
-        else
-        {
-          memcpy(&tpreq->timeout, nsock_gettimeofday(), sizeof(struct timeval));
-          deal_with_timedout_reads();
-        }
-
-        do_possible_writes();
-
-        // Close DNS servers if we're all done so that we kill
-        // all events and return from nsock_loop immediateley
-        if (total_reqs == 0)
-          close_dns_servers();
-        return 1;
+        tpreq->targ->setHostName(result.c_str());
+        host_cache.add(* tpreq->targ->TargetSockAddr(), result);
       }
-    }
-  }
 
+      records.erase(infoI);
+      server->in_process.remove(tpreq);
+      server->reqs_on_wire--;
+
+      total_reqs--;
+
+      if (action == ACTION_CNAME_LIST) cname_reqs.push_back(tpreq);
+      if (action == ACTION_FINISHED) delete tpreq;
+    }
+    else
+    {
+      memcpy(&tpreq->timeout, nsock_gettimeofday(), sizeof(struct timeval));
+      deal_with_timedout_reads();
+    }
+
+    do_possible_writes();
+
+    // Close DNS servers if we're all done so that we kill
+    // all events and return from nsock_loop immediateley
+    if (total_reqs == 0)
+      close_dns_servers();
+    return 1;
+  }
   return 0;
 }
 
@@ -742,7 +755,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
-  // If there is no errors and no answhere stop processing the event
+  // If there is no error and no answer stop processing the event
   if(p.answers.empty()) return;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();

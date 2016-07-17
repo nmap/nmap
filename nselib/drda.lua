@@ -45,7 +45,7 @@
 -- http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/topic/com.ibm.db29.doc.drda/db2z_drda.htm.
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 --
