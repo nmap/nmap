@@ -788,15 +788,15 @@ msgid ""
 "<b>service: (s:)</b> - All service-related fields.\n"
 "<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
 msgstr ""
-"Entrando el texto a la búsqueda lleva a cabo <b>Búsqueda palabra clave</b> "
+"Introducir el texto a la búsqueda lleva a cabo <b>Búsqueda palabra clave</b> "
 "la búsqueda de cadena de caracteres es emparejada contra la salida entera de "
-"cada scan.\n"
+"cada escaneo.\n"
 "\n"
 "Para reducir la búsqueda, puede usar <b>operadores</b> Para buscar "
 "únicamente en una parte específica de un escaneo. Operadores pueden ser "
-"añadidos a la búsqueda interactivamente pinchando en el botón "
-"<b>Expressions</b>, o puede entrarlos manualmente a el campo de búsqueda. "
-"La mayoría de los operadores son de forma corta, listados aquí.\n"
+"añadidos a la búsqueda interactivamente a través del botón "
+"<b>Expressions</b>, o puede introducirlos manualmente al campo de búsqueda. "
+"La mayoría de los operadores tienen una forma abreviada, listados aquí.\n"
 "\n"
 "<b>profile: (pr:)</b> - Perfil utilizado.\n"
 "<b>target: (t:)</b> - El objetivo dado por el usuario, o un resultado rDNS.\n"
@@ -810,7 +810,7 @@ msgstr ""
 "<b>before (b:)</b> - Seleccione scans hechos después de la fecha dada "
 "(<i>AAAA-MM-DD</i> or <i>-n</i>).\n"
 "<b>os:</b> - Todos los campos relativos a OS.\n"
-"<b>scanned: (sp:)</b> - Empareja un puerto si estuviese entre los "
+"<b>scanned: (sp:)</b> - Selecciona un puerto si estuviese entre los "
 "escaneados.\n"
 "<b>open: (op:)</b> - Puertos abiertos descubiertos en un escaneo.\n"
 "<b>closed: (cp:)</b> - Puertos cerrados descubiertos en un escaneo.\n"
@@ -820,7 +820,7 @@ msgstr ""
 "<b>open|filtered: (ofp:)</b> - Puertos en estado \"abierto|filtrado\".\n"
 "<b>closed|filtered: (cfp:)</b> - Puertos en estado \"cerrado|filtrado\".\n"
 "<b>service: (s:)</b> - Todo campo relacionado con los servicios.\n"
-"<b>inroute: (ir:)</b> - Selecciona un router en la salida traceroute del "
+"<b>inroute: (ir:)</b> - Selecciona un ruteador en la salida traceroute del "
 "escaneo.\n"
 
 #: zenmapGUI/ScanRunDetailsPage.py:135 zenmapGUI/ScanHostDetailsPage.py:133
@@ -829,7 +829,7 @@ msgstr "No disponible"
 
 #: zenmapGUI/ScanRunDetailsPage.py:141
 msgid "Nmap Version:"
-msgstr "Versión Nmap:"
+msgstr "Versión de Nmap:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:144
 msgid "Verbosity level:"
@@ -901,7 +901,7 @@ msgstr "Servicios:"
 
 #: zenmapGUI/CrashReport.py:146
 msgid "Crash Report"
-msgstr "Reporte colgado"
+msgstr "Reporte de error"
 
 #: zenmapGUI/CrashReport.py:166
 #, python-format
@@ -911,8 +911,8 @@ msgid ""
 "mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list."
 "</a>) The developers will see your report and try to fix the problem."
 msgstr ""
-"Un error inesperado ha colgado la aplicación %(app_name)s. Copie por favor "
-"el stack trace aquí abajo y envíelo a la mailing list "
+"Un error inesperado ha terminado inesperadamente la aplicación %(app_name)s. Copie por favor "
+"la traza de depuración aquí abajo y envíelo a la lista de correo "
 "<a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>. "
 "(<a href=\"http://seclists.org/nmap-dev/\">Más sobre la lista.</a>) "
 "Los programadores verán su reporte e intentarán de arreglar el problema."
@@ -965,7 +965,7 @@ msgstr "ip"
 
 #: zenmapGUI/NmapOutputProperties.py:221
 msgid "Highlight definitions"
-msgstr "Subrayar definiciones"
+msgstr "Resaltar definiciones"
 
 #: zenmapGUI/NmapOutputProperties.py:248
 msgid "Text"
@@ -973,7 +973,7 @@ msgstr "Texto"
 
 #: zenmapGUI/NmapOutputProperties.py:250
 msgid "Highlight"
-msgstr "Subrayar"
+msgstr "Resaltar"
 
 #: zenmapGUI/NmapOutputProperties.py:266
 msgid "text color"
@@ -981,7 +981,7 @@ msgstr "color texto"
 
 #: zenmapGUI/NmapOutputProperties.py:293
 msgid "highlight color"
-msgstr "subrayar color"
+msgstr "resaltar color"
 
 #: zenmapGUI/About.py:197
 #, python-format
@@ -994,8 +994,8 @@ msgid ""
 "%s is a free and open source utility for network exploration and security "
 "auditing."
 msgstr ""
-"%s es una utilidad gratis y open source para la explotación de las redes y "
-"auditoria de seguridad."
+"es una utilidad gratis y de software para la exploración de redes y "
+"auditorias de seguridad."
 
 #: zenmapGUI/About.py:221
 #, python-format
@@ -1052,7 +1052,7 @@ msgstr "Sin guardar"
 
 #: zenmapGUI/ScanScanListPage.py:141
 msgid "Failed"
-msgstr "Fracasado"
+msgstr "Fallido"
 
 #: zenmapGUI/ScanScanListPage.py:143
 msgid "Canceled"
@@ -1089,7 +1089,7 @@ msgid ""
 "to run slowly. The limit is %d hosts and there are %d."
 msgstr ""
 "La topología se ha desactivado porque demasiados\n"
-"servidores la  pueden rendir lenta. El límite es %d \n"
+"servidores ocasionan problemas de desempeño. El límite es %d \n"
 "servidores y hay %d."
 
 #: zenmapGUI/FileChoosers.py:137
@@ -1165,7 +1165,7 @@ msgstr "Debe producir un nombre para este perfil."
 
 #: zenmapGUI/ProfileEditor.py:386
 msgid "Disallowed profile name"
-msgstr "Nombre de perfil rechazado"
+msgstr "Nombre de perfil no permitido"
 
 #: zenmapGUI/ProfileEditor.py:387
 #, python-format
@@ -1192,7 +1192,7 @@ msgstr ""
 
 #: zenmapGUI/SearchWindow.py:148
 msgid "Search Scans"
-msgstr "Buscar scans"
+msgstr "Buscar escaneos"
 
 #: zenmapGUI/SearchWindow.py:175
 msgid "Append"
@@ -1265,13 +1265,13 @@ msgid ""
 "\n"
 "Some %s options need root privileges to work."
 msgstr ""
-"¡Está intentando lanzar %s con un usuario non-root!\n"
+"¡Está intentando lanzar %s con un usuario sin privilegios!\n"
 "\n"
 "Algunas opciones %s necesitan privilegios de root para funcionar."
 
 #: zenmapGUI/App.py:378
 msgid "Non-root user"
-msgstr "Usuario non-root"
+msgstr "Usuario sin privilegios"
 
 #: zenmapGUI/ScanHostDetailsPage.py:186
 msgid "Host Status"
@@ -1295,7 +1295,7 @@ msgstr "Puertos usados"
 
 #: zenmapGUI/ScanHostDetailsPage.py:192
 msgid "OS Classes"
-msgstr "Clases de OS"
+msgstr "Clases de SO"
 
 #: zenmapGUI/ScanHostDetailsPage.py:193
 msgid "TCP Sequence"
@@ -1343,7 +1343,7 @@ msgstr "MAC:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:233
 msgid "Vendor:"
-msgstr "Constructor:"
+msgstr "Fabricante:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:357
 msgid "Name - Type:"
@@ -1371,15 +1371,15 @@ msgstr "Tipo"
 
 #: zenmapGUI/ScanHostDetailsPage.py:425 radialnet/gui/NodeNotebook.py:157
 msgid "Vendor"
-msgstr "Constructor"
+msgstr "Fabricante"
 
 #: zenmapGUI/ScanHostDetailsPage.py:426
 msgid "OS Family"
-msgstr "Familia OS"
+msgstr "Familia SO"
 
 #: zenmapGUI/ScanHostDetailsPage.py:427
 msgid "OS Generation"
-msgstr "Generación OS"
+msgstr "Generación SO"
 
 #: zenmapGUI/ScanHostDetailsPage.py:428
 msgid "Accuracy"
@@ -1404,7 +1404,7 @@ msgstr "Clase:"
 
 #: radialnet/gui/Toolbar.py:153
 msgid "Hosts viewer"
-msgstr "Visor de servidores"
+msgstr "Visualizador de servidores"
 
 #: radialnet/gui/Toolbar.py:222
 msgid "Save Graphic"
@@ -1412,7 +1412,7 @@ msgstr "Guardar gráfico"
 
 #: radialnet/gui/Toolbar.py:225 radialnet/gui/HostsViewer.py:147
 msgid "Hosts Viewer"
-msgstr "Visor de servidores"
+msgstr "Visualizador de servidores"
 
 #: radialnet/gui/Toolbar.py:229
 msgid "Controls"
@@ -1535,7 +1535,7 @@ msgstr "Ninguna información de secuencia."
 
 #: radialnet/gui/NodeNotebook.py:435
 msgid "No OS information."
-msgstr "Ninguna información OS."
+msgstr "Ninguna información SO."
 
 #: radialnet/gui/NodeNotebook.py:440
 msgid "Address:"
@@ -1552,7 +1552,7 @@ msgstr "%s (%s segundos)."
 
 #: radialnet/gui/NodeNotebook.py:554
 msgid "Match"
-msgstr "Emparejado"
+msgstr "Coincidencia"
 
 #: radialnet/gui/NodeNotebook.py:601 radialnet/gui/NodeNotebook.py:651
 msgid "Class"
@@ -1748,7 +1748,7 @@ msgstr "Opciones de escaneo"
 
 #: share/zenmap/misc/profile_editor.xml:17
 msgid "Targets (optional): "
-msgstr "Destinatorios (opcional): "
+msgstr "Objetivos (opcional): "
 
 #: share/zenmap/misc/profile_editor.xml:18
 msgid "TCP scan: "
