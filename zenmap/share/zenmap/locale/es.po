@@ -184,7 +184,7 @@ msgstr ""
 "campos específicos dentro del servidor. Gran parte de los operadores tienen "
 "una forma corta, listada a continuación. \n"
 "<b>target: (t:)</b> - Datos proporcionados por el usuario, o un resultado rDNS.\n"
-"<b>os:</b> - Todos los campos relacionados con el SO.\n"
+"<b>os:</b> - Todos los campos relacionados con el OS.\n"
 "<b>open: (op:)</b> - Puertos abiertos encontrados en un escaneo.\n"
 "<b>closed: (cp:)</b> - Puertos cerrados encontrados en un escaneo.\n" 
 "<b>filtered: (fp:)</b> - Puertos filtrados encontrados en un escaneo.\n"
@@ -205,7 +205,7 @@ msgstr "Servicios"
 
 #: zenmapGUI/ScanHostsView.py:180
 msgid "OS"
-msgstr "SO"
+msgstr "OS"
 
 #: zenmapGUI/ScanHostsView.py:181 zenmapGUI/ScanOpenPortsPage.py:230
 msgid "Host"
@@ -1295,7 +1295,7 @@ msgstr "Puertos usados"
 
 #: zenmapGUI/ScanHostDetailsPage.py:192
 msgid "OS Classes"
-msgstr "Clases de SO"
+msgstr "Clases de OS"
 
 #: zenmapGUI/ScanHostDetailsPage.py:193
 msgid "TCP Sequence"
@@ -1375,11 +1375,11 @@ msgstr "Fabricante"
 
 #: zenmapGUI/ScanHostDetailsPage.py:426
 msgid "OS Family"
-msgstr "Familia SO"
+msgstr "Familia OS"
 
 #: zenmapGUI/ScanHostDetailsPage.py:427
 msgid "OS Generation"
-msgstr "Generación SO"
+msgstr "Generación OS"
 
 #: zenmapGUI/ScanHostDetailsPage.py:428
 msgid "Accuracy"
@@ -1535,7 +1535,7 @@ msgstr "Ninguna información de secuencia."
 
 #: radialnet/gui/NodeNotebook.py:435
 msgid "No OS information."
-msgstr "Ninguna información SO."
+msgstr "Ninguna información OS."
 
 #: radialnet/gui/NodeNotebook.py:440
 msgid "Address:"
