@@ -45,6 +45,9 @@ fi
 libpcapdir=libpcap
 AC_SUBST(libpcapdir)
 
+LIBSSH2DIR=libssh2
+AC_SUBST(LIBSSH2DIR)
+
 pcredir=libpcre
 AC_SUBST(pcredir)
 
@@ -536,47 +539,101 @@ AC_SUBST(PCRE_BUILD)
 AC_SUBST(PCRE_CLEAN)
 AC_SUBST(PCRE_DIST_CLEAN)
 
-have_libssh2=no
+
+# We test whether desired libssh2 is scpecified explicitly
+
+echo "               LIBSSH2 START"
+
+have_libssh2="no"
+
+with_zlib="no"
+test "${with_libssh2+set}" != "set" && with_libssh2="yes"
+
 AC_ARG_WITH(libssh2,
-AC_HELP_STRING([--with-libssh2=DIR], [Use speficic copy of libssh2]),
+AC_HELP_STRING([--with-libssh2=DIR], [Use speficic copy of libssh2])
+AC_HELP_STRING([--with-libssh2=included], [Always use version included with Nmap])
+AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
 [ case "$with_libssh2" in
   yes)
-    have_libssh2=yes
+    AC_CHECK_HEADER(libssh2.h,[
+      AC_CHECK_LIB(ssh2, libssh2_version,
+        [have_libssh2="yes"],,[-lm])
+      ])
+    ;;
+  no)
+    with_libssh2="no"
     ;;
   included)
-    AC_MSG_WARN("Libssh2 is not included with Nmap. Will try to find system version")
+    have_libssh2="no"
     ;;
   *)
-    have_libssh2=yes
+    _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
+
     CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
     LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
 
-    # This is a temporary hack to specify where to look for libssh2 shared library
-    # objects. Should be removed.
-    case "$host" in
-    *-linux*)
-      LDFLAGS="-Wl,-rpath=../../libssh2-1.7.0/BUILD/lib $LDFLAGS"
-      ;;
-    *-apple-darwin*)
-      # Do nothing here
-      ;;
-    esac
+    AC_CHECK_HEADER(libssh2.h,[
+      AC_CHECK_LIB(ssh2, libssh2_version,
+        [have_libssh2=yes
+        LIBSSH2_INC=$with_libssh2/include
+        LIBSSH2_LIB=$with_libssh2/lib])],,[-lm])
+
+    LDFLAGS=$_ldflags
+    CPPFLAGS=$_cppflags
   ;;
   esac]
 )
 
-if test $have_libssh2 != yes; then
-  AC_CHECK_HEADERS([libssh2.h],
-    AC_CHECK_LIB(ssh2, libssh2_version, [have_libssh2=yes; break],, [-lm])
-  )
+if test $with_libssh2 = yes; then
+  trace_use="$trace_use libssh2"
+
+  if test $have_libssh2 = yes; then
+    if test "${LIBSSH2_LIB+set}" = "set"; then
+      CPPFLAGS="-I$LIBSSH2_INC $CPPFLAGS"
+      LDFLAGS="-L$LIBSSH2_LIB $LDFLAGS"
+    fi
+  fi
+
+  if test $have_libssh2 != yes; then
+    AC_CONFIG_SUBDIRS(libssh2)
+    
+    if test "${LIBSSH2_INC+set}" = "set"; then
+      CPPFLAGS="$CPPFLAGS -I$LIBSSH2_INC"
+    else
+      CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$LIBSSH2DIR/include"
+    fi
+    echo "                                     $(LIBSSH2DIR)"
+    LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a"
+    LIBSSH2_BUILD="build-libssh2"
+    LIBSSH2_CLEAN="clean-libssh2"
+    LIBSSH2_DIST_CLEAN="distclean-libssh2"
+    AC_DEFINE(LIBSSH2_INCLUDED, 1, [Using included libssh2])
+  else
+    LIBSSH2_LIBS="-lssh2"
+    LIBSSH2_BUILD=""
+    LIBSSH2_CLEAN=""
+    LIBSSH2_DIST_CLEAN=""
+  fi
+
+  AC_DEFINE(HAVE_LIBSSH2, 1, [Have libssh2 library])
+
+else
+  trace_no_use="$trace_no_use libssh2"
+  LIBSSH2_LIBS="-lssh2"
+  LIBSSH2_BUILD=""
+  LIBSSH2_CLEAN=""
+  LIBSSH2_DIST_CLEAN=""
 fi
 
-LIBSSH2_LIBS=
-if test $have_libssh2 = yes; then
-  LIBSSH2_LIBS="-lssh2"
-  AC_DEFINE(HAVE_LIBSSH2)
-fi
+AC_SUBST(LIBSSH2_BUILD)
+AC_SUBST(LIBSSH2_CLEAN)
+AC_SUBST(LIBSSH2_DIST_CLEAN)
 AC_SUBST(LIBSSH2_LIBS)
+
+echo "               have_libssh2=$have_libssh2, with_libssh2=$with_libssh2"
+echo "               LIBSSH2 END"
+
 
 have_dnet=no
 requested_included_dnet=no

@@ -659,6 +659,9 @@ DNET_BUILD
 LIBDNETDIR
 LIBDNET_LIBS
 LIBSSH2_LIBS
+LIBSSH2_DIST_CLEAN
+LIBSSH2_CLEAN
+LIBSSH2_BUILD
 PCRE_DIST_CLEAN
 PCRE_CLEAN
 PCRE_BUILD
@@ -728,6 +731,7 @@ build_vendor
 build_cpu
 build
 pcredir
+LIBSSH2DIR
 libpcapdir
 USE_NLS
 target_alias
@@ -806,6 +810,7 @@ PYTHON'
 ac_subdirs_all='nping
 libpcap
 libpcre
+libssh2
 libdnet-stripped
 nbase
 nsock/src
@@ -1439,6 +1444,7 @@ Optional Packages:
                           and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
   --with-libssh2=DIR      Use speficic copy of libssh2
+  --with-libssh2=included Always use version included with Nmap
   --with-libdnet=DIR      Use an existing (compiled) dnet lib from DIR/include
                           and DIR/lib. This is NOT RECOMMENDED because we have
                           made many important fixes to our included libdnet,
@@ -2434,6 +2440,9 @@ if test "${top_nmap_srcdir+set}" != set; then
 fi
 
 libpcapdir=libpcap
+
+
+LIBSSH2DIR=libssh2
 
 
 pcredir=libpcre
@@ -6506,48 +6515,24 @@ fi
 
 
 
-have_libssh2=no
+
+# We test whether desired libssh2 is scpecified explicitly
+
+echo "               LIBSSH2 START"
+
+have_libssh2="no"
+
+test "${with_libssh2+set}" != "set" && with_libssh2="yes"
+
 
 # Check whether --with-libssh2 was given.
 if test "${with_libssh2+set}" = set; then :
   withval=$with_libssh2;  case "$with_libssh2" in
   yes)
-    have_libssh2=yes
-    ;;
-  included)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: \"Libssh2 is not included with Nmap. Will try to find system version\"" >&5
-$as_echo "$as_me: WARNING: \"Libssh2 is not included with Nmap. Will try to find system version\"" >&2;}
-    ;;
-  *)
-    have_libssh2=yes
-    CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
-    LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
-
-    # This is a temporary hack to specify where to look for libssh2 shared library
-    # objects. Should be removed.
-    case "$host" in
-    *-linux*)
-      LDFLAGS="-Wl,-rpath=../../libssh2-1.7.0/BUILD/lib $LDFLAGS"
-      ;;
-    *-apple-darwin*)
-      # Do nothing here
-      ;;
-    esac
-  ;;
-  esac
-
-fi
-
-
-if test $have_libssh2 != yes; then
-  for ac_header in libssh2.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "libssh2.h" "ac_cv_header_libssh2_h" "$ac_includes_default"
+    ac_fn_c_check_header_mongrel "$LINENO" "libssh2.h" "ac_cv_header_libssh2_h" "$ac_includes_default"
 if test "x$ac_cv_header_libssh2_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBSSH2_H 1
-_ACEOF
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
 $as_echo_n "checking for libssh2_version in -lssh2... " >&6; }
 if ${ac_cv_lib_ssh2_libssh2_version+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6584,22 +6569,130 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
 $as_echo "$ac_cv_lib_ssh2_libssh2_version" >&6; }
 if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes; then :
-  have_libssh2=yes; break
+  have_libssh2="yes"
 fi
 
 
 fi
 
-done
+
+    ;;
+  no)
+    with_libssh2="no"
+    ;;
+  included)
+    have_libssh2="no"
+    ;;
+  *)
+    _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
+
+    CPPFLAGS="-I$with_libssh2/include $CPPFLAGS"
+    LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
+
+    ac_fn_c_check_header_compile "$LINENO" "libssh2.h" "ac_cv_header_libssh2_h" "-lm
+"
+if test "x$ac_cv_header_libssh2_h" = xyes; then :
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
+$as_echo_n "checking for libssh2_version in -lssh2... " >&6; }
+if ${ac_cv_lib_ssh2_libssh2_version+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lssh2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char libssh2_version ();
+int
+main ()
+{
+return libssh2_version ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ssh2_libssh2_version=yes
+else
+  ac_cv_lib_ssh2_libssh2_version=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
+$as_echo "$ac_cv_lib_ssh2_libssh2_version" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes; then :
+  have_libssh2=yes
+        LIBSSH2_INC=$with_libssh2/include
+        LIBSSH2_LIB=$with_libssh2/lib
+fi
 
 fi
 
-LIBSSH2_LIBS=
+
+
+    LDFLAGS=$_ldflags
+    CPPFLAGS=$_cppflags
+  ;;
+  esac
+
+fi
+
+
+if test $needs_cpp_precomp = yes; then
+  CXXFLAGS="-no-cpp-precomp $CXXFLAGS"
+fi
+
 if test $have_libssh2 = yes; then
+  if test "${LIBSSH2_LIB+set}" = "set"; then
+    CPPFLAGS="-I$LIBSSH2_INC $CPPFLAGS"
+    LDFLAGS="-L$LIBSSH2_LIB $LDFLAGS"
+  fi
+fi
+
+if test $have_libssh2 != yes; then
+  subdirs="$subdirs libssh2"
+
+
+  if test "${LIBSSH2_INC+set}" = "set"; then
+    CPPFLAGS="$CPPFLAGS -I$LIBSSH2_INC"
+  else
+    CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$LIBSSH2DIR/include"
+  fi
+  echo "                                     $(LIBSSH2DIR)"
+  LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a -lz"
+  LIBSSH2_BUILD="build-libssh2"
+  LIBSSH2_CLEAN="clean-libssh2"
+  LIBSSH2_DIST_CLEAN="distclean-libssh2"
+
+$as_echo "#define LIBSSH2_INCLUDED 1" >>confdefs.h
+
+else
   LIBSSH2_LIBS="-lssh2"
-  $as_echo "#define HAVE_LIBSSH2 1" >>confdefs.h
+  LIBSSH2_BUILD=""
+  LIBSSH2_CLEAN=""
+  LIBSSH2_DIST_CLEAN=""
+
+$as_echo "#define HAVE_LIBSSH2 1" >>confdefs.h
 
 fi
+
+
+
+
+
+
+echo "               have_libssh2=$have_libssh2, with_libssh2=$with_libssh2"
+echo "               LIBSSH2 END"
 
 
 have_dnet=no
