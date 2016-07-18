@@ -3142,7 +3142,7 @@ sub {
         my ($pid, $code);
         local $SIG{CHLD} = sub { };
 
-        my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "-z --udp");
+        my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "-z", "--udp");
         do {
                 $pid = waitpid($c_pid, 0);
         } while ($pid > 0 && $pid != $c_pid);
