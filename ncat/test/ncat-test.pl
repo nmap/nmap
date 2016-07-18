@@ -451,7 +451,7 @@ $SIG{PIPE} = "IGNORE";
 $SIG{CHLD} = "IGNORE";
 
 # Individual tests begin here.
-=pod
+
 # Test server with no hostname or port.
 ($s_pid, $s_out, $s_in) = ncat("-lk");
 test "Server default listen address and port",
@@ -3083,7 +3083,7 @@ for my $count (1, 10) {
 	max_conns_test_multi(["tcp", "sctp", "udp xfail", "tcp ssl", "sctp ssl"],
 		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], $count);
 }
-=cut
+
 # Tests for zero byte option.
 
 ($s_pid, $s_out, $s_in) = ncat_server();
