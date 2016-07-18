@@ -1,0 +1,19 @@
+diff --git a/libssh2/Makefile.am b/libssh2/Makefile.am
+index 761733e..0a3ef77 100644
+--- a/libssh2/Makefile.am
++++ b/libssh2/Makefile.am
+@@ -1,9 +1,10 @@
+ AUTOMAKE_OPTIONS = foreign nostdinc
+ 
+-SUBDIRS = src tests docs
+-if BUILD_EXAMPLES
+-SUBDIRS += example
+-endif
++SUBDIRS = src
++# SUBDIRS = src tests docs
++# if BUILD_EXAMPLES
++# SUBDIRS += example
++# endif
+ 
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = libssh2.pc

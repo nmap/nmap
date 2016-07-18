@@ -89,7 +89,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_EXAMPLES_TRUE@am__append_1 = example
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/autobuild.m4 \
@@ -195,7 +194,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = src tests docs example
+DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.inc \
 	$(srcdir)/libssh2.pc.in COPYING ChangeLog NEWS README compile \
 	config.guess config.rpath config.sub depcomp install-sh \
@@ -374,7 +373,6 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -384,7 +382,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign nostdinc
-SUBDIRS = src tests docs $(am__append_1)
+SUBDIRS = src
+# SUBDIRS = src tests docs
+# if BUILD_EXAMPLES
+# SUBDIRS += example
+# endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libssh2.pc
 include_HEADERS = \
