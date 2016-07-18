@@ -66,7 +66,7 @@ static int l_bignum_hex2bn( lua_State *L ) /** bignum_hex2bn( string s ) */
 
 static int l_bignum_rand( lua_State *L ) /** bignum_rand( number bits ) */
 {
-  size_t bits = luaL_checkint( L, 1 );
+  size_t bits = luaL_checkinteger( L, 1 );
   BIGNUM * num = BN_new();
   BN_rand( num, bits, -1, 0 );
   return nse_pushbn(L, num);
@@ -74,7 +74,7 @@ static int l_bignum_rand( lua_State *L ) /** bignum_rand( number bits ) */
 
 static int l_bignum_pseudo_rand( lua_State *L ) /** bignum_pseudo_rand( number bits ) */
 {
-  size_t bits = luaL_checkint( L, 1 );
+  size_t bits = luaL_checkinteger( L, 1 );
   BIGNUM * num = BN_new();
   BN_pseudo_rand( num, bits, -1, 0 );
   return nse_pushbn(L, num);
@@ -118,7 +118,7 @@ static int l_bignum_num_bytes( lua_State *L ) /** bignum_num_bytes( BIGNUM bn ) 
 static int l_bignum_set_bit( lua_State *L ) /** bignum_set_bit( BIGNUM bn, number position ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  int position = luaL_checkint( L, 2 );
+  int position = luaL_checkinteger( L, 2 );
   BN_set_bit( userdata->bn, position );
   return 0;
 }
@@ -126,7 +126,7 @@ static int l_bignum_set_bit( lua_State *L ) /** bignum_set_bit( BIGNUM bn, numbe
 static int l_bignum_clear_bit( lua_State *L ) /** bignum_clear_bit( BIGNUM bn, number position ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  int position = luaL_checkint( L, 2 );
+  int position = luaL_checkinteger( L, 2 );
   BN_clear_bit( userdata->bn, position );
   return 0;
 }
@@ -134,7 +134,7 @@ static int l_bignum_clear_bit( lua_State *L ) /** bignum_clear_bit( BIGNUM bn, n
 static int l_bignum_is_bit_set( lua_State *L ) /** bignum_set_bit( BIGNUM bn, number position ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  int position = luaL_checkint( L, 2 );
+  int position = luaL_checkinteger( L, 2 );
   lua_pushboolean( L, BN_is_bit_set( userdata->bn, position ) );
   return 1;
 }
@@ -142,7 +142,7 @@ static int l_bignum_is_bit_set( lua_State *L ) /** bignum_set_bit( BIGNUM bn, nu
 static int l_bignum_is_prime( lua_State *L ) /** bignum_is_prime( BIGNUM p, number nchecks ) */
 {
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
-  int nchecks = luaL_optint( L, 2, BN_prime_checks );
+  int nchecks = luaL_optinteger( L, 2, BN_prime_checks );
   BN_CTX * ctx = BN_CTX_new();
   int is_prime = BN_is_prime_ex( p->bn, nchecks, ctx, NULL );
   BN_CTX_free( ctx );
@@ -153,7 +153,7 @@ static int l_bignum_is_prime( lua_State *L ) /** bignum_is_prime( BIGNUM p, numb
 static int l_bignum_is_safe_prime( lua_State *L ) /** bignum_is_safe_prime( BIGNUM p, number nchecks ) */
 {
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
-  int nchecks = luaL_optint( L, 2, BN_prime_checks );
+  int nchecks = luaL_optinteger( L, 2, BN_prime_checks );
   BN_CTX * ctx = BN_CTX_new();
   int is_prime = BN_is_prime_ex( p->bn, nchecks, ctx, NULL );
   int is_safe = 0;
@@ -209,7 +209,7 @@ static int l_bignum_free( lua_State *L ) /** bignum_free( bignum ) */
 
 static int l_rand_bytes( lua_State *L ) /** rand_bytes( number bytes ) */
 {
-  size_t len = luaL_checkint( L, 1 );
+  size_t len = luaL_checkinteger( L, 1 );
   unsigned char * result = (unsigned char *) malloc( len );
   if (!result) return luaL_error( L, "Couldn't allocate memory.");
 
@@ -221,7 +221,7 @@ static int l_rand_bytes( lua_State *L ) /** rand_bytes( number bytes ) */
 
 static int l_rand_pseudo_bytes( lua_State *L ) /** rand_pseudo_bytes( number bytes ) */
 {
-  size_t len = luaL_checkint( L, 1 );
+  size_t len = luaL_checkinteger( L, 1 );
   unsigned char * result = (unsigned char *) malloc( len );
   if (!result) return luaL_error( L, "Couldn't allocate memory.");
 

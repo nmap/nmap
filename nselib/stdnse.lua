@@ -554,7 +554,7 @@ function format_timestamp(t, offset)
   else
     local tz_string = format_tz(offset)
     offset = offset or 0
-    return date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
+    return date("!%Y-%m-%dT%H:%M:%S", floor(t + offset)) .. tz_string
   end
 end
 

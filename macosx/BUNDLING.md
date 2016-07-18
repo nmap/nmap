@@ -15,7 +15,7 @@ In order to set up Jhbuild properly before building Nmap suite, follow the tutor
 
 If you had any error, just type the following command to delete jhbuild,
 
-	$ rm -rf ~/bin/jhbuild ~/.local/bin/jhbuild ~/.local/share/jhbuild ~/.cache/jhbuild ~/.config/jhbuildrc ~/.jhbuildrc ~/jhbuild
+	$ rm -rf ~/bin/jhbuild ~/.local/bin/jhbuild ~/.local/share/jhbuild ~/.cache/jhbuild ~/.config/jhbuildrc ~/.jhbuildrc ~/.jhbuildrc-custom ~/jhbuild
 
 And we'll start over together:
 
@@ -52,6 +52,7 @@ And we'll start over together:
 	~~~~
 	$ jhbuild build meta-gtk-osx-bootstrap
 	$ jhbuild build meta-gtk-osx-core
+	$ jhbuild build meta-gtk-osx-python
 	~~~~
 	
 	Go to **Observation** if errors appear... 

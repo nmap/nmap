@@ -258,7 +258,7 @@ static void connect_report(nsock_iod nsi)
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
-            loguser("SSL connection to %s:%hu.", inet_socktop(&peer),
+            loguser("SSL connection to %s:%d.", inet_socktop(&peer),
                     nsock_iod_get_peerport(nsi));
 
             cert = SSL_get_peer_certificate((SSL *)nsock_iod_get_ssl(nsi));
@@ -285,7 +285,7 @@ static void connect_report(nsock_iod nsi)
                 loguser("Connected to %s.\n", peer.un.sun_path);
             else
 #endif
-                loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+                loguser("Connected to %s:%d.\n", inet_socktop(&peer),
                         nsock_iod_get_peerport(nsi));
         }
 #else
@@ -294,7 +294,7 @@ static void connect_report(nsock_iod nsi)
             loguser("Connected to %s.\n", peer.un.sun_path);
         else
 #endif
-            loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+            loguser("Connected to %s:%d.\n", inet_socktop(&peer),
                     nsock_iod_get_peerport(nsi));
 #endif
     }

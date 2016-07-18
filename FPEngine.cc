@@ -1845,7 +1845,11 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
-  if (this->target_host->directlyConnected()) {
+  if (this->target_host->directlyConnected()
+#ifdef WIN32
+    && !(g_has_npcap_loopback && this->target_host->ifType() == devt_loopback)
+#endif
+    ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
     this->target_host->SourceSockAddr(&ss, &slen);

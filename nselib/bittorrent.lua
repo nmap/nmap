@@ -635,7 +635,8 @@ Torrent =
     local file = io.open(filename, "r")
     if not file then return false, "Cannot open file: "..filename end
 
-    self.buffer = file:read("*a")
+    self.buffer = file:read("a")
+    file:close()
 
     local status, err = self:parse_buffer()
     if not status then
@@ -658,7 +659,6 @@ Torrent =
       return false, "Could not calculate torrent size: " .. err
     end
 
-    file:close()
     return true
   end,
 

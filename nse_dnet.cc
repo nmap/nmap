@@ -67,7 +67,7 @@ static int l_dnet_get_interface_info (lua_State *L)
 
   nseU_setsfield(L, -1, "device", ii->devfullname);
   nseU_setsfield(L, -1, "shortname", ii->devname);
-  nseU_setnfield(L, -1, "netmask", ii->netmask_bits);
+  nseU_setifield(L, -1, "netmask", ii->netmask_bits);
 
   if (ii->addr.ss_family == AF_INET)
     inet_ntop(AF_INET, &((struct sockaddr_in *)&ii->addr)->sin_addr,
@@ -109,7 +109,7 @@ static int l_dnet_get_interface_info (lua_State *L)
   }
 
   nseU_setsfield(L, -1, "up", (ii->device_up ? "up" : "down"));
-  nseU_setnfield(L, -1, "mtu", ii->mtu);
+  nseU_setifield(L, -1, "mtu", ii->mtu);
 
   return 1;
 }

@@ -49,8 +49,8 @@
 -- nmap --script-args userdb=/tmp/user.lst
 -- nmap --script-args unpwdb.timelimit=10m
 --
--- @args userdb The filename of an alternate username database.
--- @args passdb The filename of an alternate password database.
+-- @args userdb The filename of an alternate username database. Default: nselib/data/usernames.lst
+-- @args passdb The filename of an alternate password database. Default: nselib/data/passwords.lst
 -- @args unpwdb.userlimit The maximum number of usernames
 -- <code>usernames</code> will return (default unlimited).
 -- @args unpwdb.passlimit The maximum number of passwords

@@ -1879,7 +1879,7 @@ void printosscanoutput(Target *currenths) {
     xml_open_start_tag("portused");
     xml_attribute("state", "open");
     xml_attribute("proto", "tcp");
-    xml_attribute("portid", "%hu", FPR->osscan_opentcpport);
+    xml_attribute("portid", "%d", FPR->osscan_opentcpport);
     xml_close_empty_tag();
     xml_newline();
   }
@@ -1887,7 +1887,7 @@ void printosscanoutput(Target *currenths) {
     xml_open_start_tag("portused");
     xml_attribute("state", "closed");
     xml_attribute("proto", "tcp");
-    xml_attribute("portid", "%hu", FPR->osscan_closedtcpport);
+    xml_attribute("portid", "%d", FPR->osscan_closedtcpport);
     xml_close_empty_tag();
     xml_newline();
   }
@@ -1895,7 +1895,7 @@ void printosscanoutput(Target *currenths) {
     xml_open_start_tag("portused");
     xml_attribute("state", "closed");
     xml_attribute("proto", "udp");
-    xml_attribute("portid", "%hu", FPR->osscan_closedudpport);
+    xml_attribute("portid", "%d", FPR->osscan_closedudpport);
     xml_close_empty_tag();
     xml_newline();
   }

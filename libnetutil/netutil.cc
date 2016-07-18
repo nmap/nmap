@@ -2825,7 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
+            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%d", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:

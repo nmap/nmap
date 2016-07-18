@@ -365,7 +365,7 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
 }
 
 static int yield (lua_State *L, nse_nsock_udata *nu, const char *action,
-    const char *direction, int ctx, lua_CFunction k)
+    const char *direction, int ctx, lua_KFunction k)
 {
   lua_getuservalue(L, 1);
   lua_pushthread(L);
@@ -423,7 +423,7 @@ do { \
 static int l_loop (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  int tout = luaL_checkint(L, 1);
+  int tout = luaL_checkinteger(L, 1);
 
   socket_unlock(L); /* clean up old socket locks */
 
@@ -451,7 +451,7 @@ static int l_reconnect_ssl (lua_State *L)
 
 static void close_internal (lua_State *L, nse_nsock_udata *nu);
 
-static int l_connect (lua_State *L)
+static int connect (lua_State *L, int status, lua_KContext ctx)
 {
   enum type {TCP, UDP, SSL};
   static const char * const op[] = {"tcp", "udp", "ssl", NULL};
@@ -479,7 +479,7 @@ static int l_connect (lua_State *L)
   int error_id;
 
   if (!socket_lock(L, 1)) /* we cannot get a socket lock */
-    return nse_yield(L, 0, l_connect); /* restart on continuation */
+    return nse_yield(L, 0, connect); /* restart on continuation */
 
 #ifndef HAVE_OPENSSL
   if (what == SSL)
@@ -550,6 +550,11 @@ static int l_connect (lua_State *L)
   if (dest != NULL)
     freeaddrinfo(dest);
   return yield(L, nu, "CONNECT", TO, 0, NULL);
+}
+
+static int l_connect (lua_State *L)
+{
+  return connect(L, LUA_OK, 0);
 }
 
 static int l_send (lua_State *L)
@@ -624,7 +629,7 @@ static int l_receive_lines (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readlines(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
-      luaL_checkint(L, 2));
+      luaL_checkinteger(L, 2));
   return yield(L, nu, "RECEIVE LINES", FROM, 0, NULL);
 }
 
@@ -634,11 +639,11 @@ static int l_receive_bytes (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readbytes(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
-      luaL_checkint(L, 2));
+      luaL_checkinteger(L, 2));
   return yield(L, nu, "RECEIVE BYTES", FROM, 0, NULL);
 }
 
-static int l_receive_buf (lua_State *L)
+static int receive_buf (lua_State *L, int status, lua_KContext ctx)
 {
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
@@ -647,14 +652,11 @@ static int l_receive_buf (lua_State *L)
     nseU_typeerror(L, 2, "function/string");
   luaL_checktype(L, 3, LUA_TBOOLEAN); /* 3 */
 
-  if (lua_getctx(L, NULL) == LUA_OK)
-  {
+  if (status == LUA_OK) {
     lua_settop(L, 3); /* clear top */
     lua_getuservalue(L, 1); /* 4 */
     lua_rawgeti(L, 4, BUFFER_I); /* 5 */
-  }
-  else
-  {
+  } else {
     /* Here we are returning from nsock_read below.
      * We have two extra values on the stack pushed by receive_callback.
      */
@@ -702,8 +704,13 @@ static int l_receive_buf (lua_State *L)
   {
     lua_pop(L, 2); /* pop 2 results */
     nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
-    return yield(L, nu, "RECEIVE BUF", FROM, 0, l_receive_buf);
+    return yield(L, nu, "RECEIVE BUF", FROM, 0, receive_buf);
   }
+}
+
+static int l_receive_buf (lua_State *L)
+{
+  return receive_buf(L, LUA_OK, 0);
 }
 
 static int l_get_info (lua_State *L)
@@ -732,7 +739,7 @@ static int l_get_info (lua_State *L)
 static int l_set_timeout (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
-  nu->timeout = luaL_checkint(L, 2);
+  nu->timeout = luaL_checkinteger(L, 2);
   if ((int) nu->timeout < -1) /* -1 is no timeout */
     return luaL_error(L, "Negative timeout: %d", nu->timeout);
   return nseU_success(L);
@@ -814,7 +821,7 @@ static int l_bind (lua_State *L)
   struct addrinfo hints = { 0 };
   struct addrinfo *results;
   const char *addr_str = luaL_optstring(L, 2, NULL);
-  luaL_checkint(L, 3);
+  luaL_checkinteger(L, 3);
   const char *port_str = lua_tostring(L, 3); /* automatic conversion */
   int rc;
 
@@ -969,7 +976,7 @@ static int l_pcap_open (lua_State *L)
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
   const char *device = luaL_checkstring(L, 2);
-  int snaplen = luaL_checkint(L, 3);
+  int snaplen = luaL_checkinteger(L, 3);
   luaL_checktype(L, 4, LUA_TBOOLEAN); /* promiscuous */
   const char *bpf = luaL_checkstring(L, 5);
 
