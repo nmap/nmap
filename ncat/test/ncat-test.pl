@@ -451,7 +451,7 @@ $SIG{PIPE} = "IGNORE";
 $SIG{CHLD} = "IGNORE";
 
 # Individual tests begin here.
-
+=pod
 # Test server with no hostname or port.
 ($s_pid, $s_out, $s_in) = ncat("-lk");
 test "Server default listen address and port",
@@ -3083,33 +3083,33 @@ for my $count (1, 10) {
 	max_conns_test_multi(["tcp", "sctp", "udp xfail", "tcp ssl", "sctp ssl"],
 		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], $count);
 }
-
+=cut
 # Tests for zero byte option.
 
+($s_pid, $s_out, $s_in) = ncat_server();
 test "-z client with Connect success exit code (tcp)",
 sub {
-        my ($resp, $pid, $code);
+        my ($pid, $code);
         local $SIG{CHLD} = sub { };
 
-        my ($s_pid, $s_out, $s_in) = ncat($HOST, $PORT, "-l");
-        my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "-z");
+        my ($c_pid, $c_out, $c_in) = ncat_client("-z");
 
         do {
-                $pid = waitpid($s_pid, 0);
-        } while ($pid > 0 && $pid != $s_pid);
-        $pid == $s_pid or die "$pid != $s_pid";
+                $pid = waitpid($c_pid, 0);
+        } while ($pid > 0 && $pid != $c_pid);
+        $pid == $c_pid or die "$pid != $c_pid";
         $code = $? >> 8;
         $code == 0 or die "Exit code was $code, not 0";
 };
 kill_children;
 
+($s_pid, $s_out, $s_in) = ncat_server("--udp");
 test "-z client sends \"\\0\" to server and exits with success exit code (udp)",
 sub {
         my ($resp, $pid, $code);
         local $SIG{CHLD} = sub { };
 
-        my ($s_pid, $s_out, $s_in) = ncat($HOST, $PORT, "--udp", "-l");
-        my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "-z", "--udp");
+        my ($c_pid, $c_out, $c_in) = ncat_client("-z", "--udp");
         $resp = timeout_read($s_out);
         $resp eq "\0" or die "Server got \"$resp\", not \"\\0\" from client";
 
@@ -3126,12 +3126,12 @@ test "-z client with connection refused exit code (tcp)",
 sub {
         my ($pid, $code);
         local $SIG{CHLD} = sub { };
+        ($c_pid, $c_out, $c_in) = ncat_client("-z");
 
-        my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "-z");
         do {
                 $pid = waitpid($c_pid, 0);
         } while ($pid > 0 && $pid != $c_pid);
-        $pid == $c_pid or die;
+        $pid == $c_pid or die "$pid != $c_pid";
         $code = $? >> 8;
         $code == 1 or die "Exit code was $code, not 1";
 };
@@ -3141,14 +3141,14 @@ test "-z client with connection refused exit code (udp)",
 sub {
         my ($pid, $code);
         local $SIG{CHLD} = sub { };
+        ($c_pid, $c_out, $c_in) = ncat_client("-z", "--udp");
 
-        my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "-z", "--udp");
         do {
                 $pid = waitpid($c_pid, 0);
         } while ($pid > 0 && $pid != $c_pid);
-        $pid == $c_pid or die;
+        $pid == $c_pid or "$pid != $c_pid";
         $code = $? >> 8;
-        $code == 2 or die "Exit code was $code, not 2";
+        $code == 1 or die "Exit code was $code, not 1";
 };
 kill_children;
 
