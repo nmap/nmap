@@ -171,8 +171,8 @@
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\libz;..\..\..\nmap-mswin32-aux\OpenSSL\include;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release_lib\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release_lib\libssh2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release_lib\</ObjectFileName>
@@ -189,6 +189,8 @@
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>Release_lib\libssh2.lib</OutputFile>
+      <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc11\Release_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WinCNG DLL Release|Win32'">
@@ -253,8 +255,8 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\libz;..\..\..\nmap-mswin32-aux\OpenSSL\include;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2DEBUG;LIBSSH2_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_lib\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug_lib\libssh2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Debug_lib\</ObjectFileName>
@@ -272,6 +274,8 @@
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>Debug_lib\libssh2d.lib</OutputFile>
+      <AdditionalDependencies>zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc11\Debug_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WinCNG DLL Debug|Win32'">
@@ -328,7 +332,7 @@
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\..\libzlib128-dll\include;..\..\..\nmap-mswin32-aux\OpenSSL\include;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libz;..\..\..\nmap-mswin32-aux\OpenSSL\include;..\win32;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;LIBSSH2_WIN32;LIBSSH2_OPENSSL;_LIB;LIBSSH2_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release_dll\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release_dll\libssh2.pch</PrecompiledHeaderOutputFile>
@@ -358,7 +362,7 @@
       <OutputFile>.\Release_dll\libssh2.dll</OutputFile>
       <ImportLibrary>.\Release_dll\libssh2.lib</ImportLibrary>
       <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\libzlib128-dll\lib;..\..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\libz\contrib\vstudio\vc11\Release_lib;..\..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='OpenSSL DLL Debug|Win32'">
@@ -475,6 +479,16 @@
     <ClInclude Include="..\src\userauth.h" />
     <ClInclude Include="..\src\wincng.h" />
     <ClInclude Include="libssh2_config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\libz\contrib\vstudio\vc11\zlibvc.vcxproj">
+      <Project>{8fd826f8-3739-44e6-8cc8-997122e53b8d}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

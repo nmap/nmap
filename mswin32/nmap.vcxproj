@@ -90,8 +90,11 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y
-xcopy /y /d  "$(ProjectDir)..\libssh2-1.7.0\win32\Release_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
+xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <ResourceOutputFileName>$(IntDir)%(Filename).res</ResourceOutputFileName>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -131,7 +134,7 @@ xcopy /y /d  "$(ProjectDir)..\libssh2-1.7.0\win32\Release_dll\*.dll" "$(ProjectD
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y
-xcopy /y /d  "$(ProjectDir)..\libssh2-1.7.0\win32\Release_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
+xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -331,6 +334,14 @@ xcopy /y /d  "$(ProjectDir)..\libssh2-1.7.0\win32\Release_dll\*.dll" "$(ProjectD
     <ProjectReference Include="..\libpcre\libpcre.vcxproj">
       <Project>{5de86c7a-de72-4265-8807-4ca38f94f22a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\libssh2\win32\libssh2.vcxproj">
+      <Project>{ed957342-e43b-496e-92d9-4c76b525bdf5}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <ProjectReference Include="..\nbase\nbase.vcxproj">
       <Project>{b630c8f7-3138-43e8-89ed-78742fa2ac5f}</Project>
