@@ -3146,7 +3146,7 @@ sub {
         do {
                 $pid = waitpid($c_pid, 0);
         } while ($pid > 0 && $pid != $c_pid);
-        $pid == $c_pid or "$pid != $c_pid";
+        $pid == $c_pid or die "$pid != $c_pid";
         $code = $? >> 8;
         $code == 1 or die "Exit code was $code, not 1";
 };
