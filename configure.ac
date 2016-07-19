@@ -642,12 +642,15 @@ echo "               LIBZ START"
 
 have_zlib="no"
 
+test "${with_zlib+set}" != "set" && with_zlib="yes"
+
 AC_ARG_WITH(zlib,
-AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib]),
-# AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
-[ # Force use of included zlib if compiling with libssh2
+AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])
+AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
+[ 
+  # Force use of included zlib if compiling with libssh2
   if test $with_libssh2 = "yes" -a $with_zlib = "no"; then
-    with_zlib=included
+    with_zlib="yes"
   fi
 
   case "$with_zlib" in
@@ -675,14 +678,18 @@ AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib]),
       AC_CHECK_LIB(z, gzread,
         [have_zlib=yes
         ZLIB_INC=$with_zlib/include
-        ZLIB_LIB=$with_zlib/lib])],,)
+        ZLIB_LIB=$with_zlib/lib])
+      ],,
+    )
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
     with_zlib="yes"
   ;;
-  esac]
+  esac
+]
 )
+
 echo "               with_zlib=${with_zlib}, have_zlib=${have_zlib}"
 
 if test $with_zlib = yes -a $with_libssh2 = yes; then
