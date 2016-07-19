@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#444] Added a -z option to Ncat. Just like the -z option in
+  traditional netcat, it can be used to quicky check the status of a port. Port
+  ranges are not supported. [Abhishek Singh]
+
+o [GH#103][GH#364] Made Nmap's parallel reverse DNS resolver more robust, fully
+  handling truncated replies. If a response is too long, we now fall back to
+  using the system resolver to answer it. [Abhishek Singh]
+
 o [NSE][GH#365] Added sslv2-drown for detecting vulnerability to the DROWN
   attack, including CVE-2016-0703 and CVE-2016-0704 that enable fast attacks on
   OpenSSL. [Bertrand Bonnefoy-Claudet]
