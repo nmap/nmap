@@ -200,6 +200,7 @@ void options_init(void)
     o.execmode = EXEC_PLAIN;
     o.proxy_auth = NULL;
     o.proxytype = NULL;
+    o.zerobyte = 0;
 
 #ifdef HAVE_OPENSSL
     o.ssl = 0;
