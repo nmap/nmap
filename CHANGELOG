@@ -8,26 +8,57 @@ o [GH#103][GH#364] Made Nmap's parallel reverse DNS resolver more robust, fully
   handling truncated replies. If a response is too long, we now fall back to
   using the system resolver to answer it. [Abhishek Singh]
 
-o [NSE][GH#365] Added sslv2-drown for detecting vulnerability to the DROWN
-  attack, including CVE-2016-0703 and CVE-2016-0704 that enable fast attacks on
-  OpenSSL. [Bertrand Bonnefoy-Claudet]
-
-o [NSE] Added http-mcmp for detecting mod_cluster Management Protocol (MCMP)
-  and dumping its configuration. [Frank Spierings]
-
-o [Nping] Nping is now fully compatible with Npcap. [Daniel Miller]
-
 o [GH#279][Zenmap] Added a legend for the Topography window. [Suraj Hande]
 
-o [NSE] Added clamav-exec to detect ClamAV servers vulnerable to unauthorized
-  clamav command execution. [Paulino Calderon]
+Nmap 7.25BETA1 [2016-07-15]
 
-o [NSE] Added http-aspnet-debug to detect ASP.NET applications with
-  debugging enabled. Script submitted by Josh Amishav-Zlatin. [Paulino Calderon]
+o Nmap now ships with and uses Npcap, our new packet sniffing library
+  for Windows. It's based on WinPcap (unmaintained for years), but
+  uses modern Windows APIs for better performance. It also includes
+  security improvements and many bug fixes. See http://npcap.org. And
+  it enables Nmap to perform SYN scans and OS detection against
+  localhost, which we haven't been able to do on Windows since
+  Microsoft removed the raw sockets API in 2003. [Yang Luo, Daniel
+  Miller, Fyodor]
 
-o Nmap can now make full use of Npcap, the Nmap Project's packet sniffing
-  library for Windows. Most notably, this enables SYN scan and OS detection
-  against localhost. [Yang Luo]
+o [NSE] Added 6 NSE scripts, from 5 authors, bringing the total up to 533!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + clamav-exec detects ClamAV servers vulnerable to unauthorized clamav
+    command execution. [Paulino Calderon]
+
+  + http-aspnet-debug detects ASP.NET applications with debugging enabled.
+    [Josh Amishav-Zlatin]
+
+  + http-internal-ip-disclosure determines if the web server leaks its internal
+    IP address when sending an HTTP/1.0 request without a Host header. [Josh
+    Amishav-Zlatin]
+
+  + [GH#304] http-mcmp detects mod_cluster Management Protocol (MCMP) and dumps
+    its configuration. [Frank Spierings]
+
+  + [GH#365] sslv2-drown detects vulnerability to the DROWN attack, including
+    CVE-2016-0703 and CVE-2016-0704 that enable fast attacks on OpenSSL.
+    [Bertrand Bonnefoy-Claudet]
+
+  + vnc-title logs in to VNC servers and grabs the desktop title, geometry, and
+    color depth. [Daniel Miller]
+
+o Integrated all of your IPv4 OS fingerprint submissions from January
+  to April (539 of them). Added 98 fingerprints, bringing the new total
+  to 5187. Additions include Linux 4.4, Android 6.0, Windows Server
+  2016, and more. [Daniel Miller]
+
+o Integrated all 31 of your IPv6 OS fingerprint submissions from January to
+  June. The classifier added 2 groups and expanded several others. Several
+  Apple OS X groups were consolidated, reducing the total number of groups to
+  93. [Daniel Miller]
+
+o Update oldest supported Windows version to Vista (Windows 6.0). This enables
+  the use of the poll Nsock engine, which has significant performance and
+  accuracy advantages. Windows XP users can still use Nmap 7.12, available from
+  https://nmap.org/dist/?C=M&O=D [Daniel Miller]
 
 o [NSE] Fix a crash that happened when trying to print the percent done of 0
   NSE script threads:
@@ -36,11 +67,54 @@ o [NSE] Fix a crash that happened when trying to print the percent done of 0
   pressed a key or specified a short --stats-every interval. Reported by
   Richard Petrie. [Daniel Miller]
 
-o [NSE] ssl-enum-ciphers will give a failing score to any server with an RSA
-  certificate whose public key uses an exponent of 1. [Daniel Miller]
+o [GH#283][Nsock] Avoid "unknown protocol:0" debug messages and an "Unknown
+  address family 0" crash on Windows and other platforms that do not set the
+  src_addr argument to recvfrom for TCP sockets. [Daniel Miller]
 
-o Update oldest supported Windows version to Vista (Windows 6.0). This enables
-  the use of the poll Nsock engine. [Daniel Miller]
+o Retrieve the correct network prefix length for an adapter on Windows. If more
+  than one address was configured on an adapter, the same prefix length would
+  be used for both. This incorrect behavior is still used on Windows XP and
+  earlier. Reported by Niels Bohr. [Daniel Miller]
+
+o Changed libdnet-stripped to avoid bailing completely when an interface is
+  encountered with an unsupported hardware address type. Caused "INTERFACES:
+  NONE FOUND!" bugs in Nmap whenever Linux kernel added new hardware address
+  types. [Daniel Miller]
+
+o Improved service detection of Docker and fixed a bug in the output of
+  docker-version script. [Tom Sellers]
+
+o Fix detection of Microsoft Terminal Services (RDP). Our improved TLS service
+  probes were matching on port 3389 before our specific Terminal Services
+  probe, causing the port to be labeled as "ssl/unknown". Reported by Josh
+  Amishav-Zlatin.
+
+o [NSE] Update to enable smb-os-discovery to augment version detection
+  for certain SMB related services using data that the script discovers.
+  [Tom Sellers]
+
+o Improved version detection and descriptions for Microsoft and Samba
+  SMB services. Also addresses certain issues with OS identification.
+  [Tom Sellers]
+
+o [NSE] ssl-enum-ciphers will give a failing score to any server with an RSA
+  certificate whose public key uses an exponent of 1. It will also cap the
+  score of an RC4-ciphersuite handshake at C and output a warning referencing
+  RFC 7465. [Daniel Miller]
+
+o [NSE] Refactored some SSLv2 functionality into a new library, sslv2.lua .
+  [Daniel Miller]
+
+o [GH#399] Zenmap's authorization wrapper now uses an AppleScript method for
+  privilege escalation on OS X, avoiding the deprecated
+  AuthorizationExecuteWithPrivileges method previously used. [Vincent Dumont]
+
+o [GH#454] The OS X binary package is distributed in a .dmg disk image that now
+  features an instructive background image. [Vincent Dumont]
+
+o [GH#420] Our OS X build system now uses gtk-mac-bundler and jhbuild to
+  provide all dependencies. We no longer use Macports for this purpose.
+  [Vincent Dumont]
 
 o [GH#345][Zenmap] On Windows, save Zenmap's stderr output to a writeable
   location (%LOCALAPPDATA%\zenmap.exe.log or %TEMP%\zenmap.exe.log) instead of
@@ -50,26 +124,9 @@ o [GH#345][Zenmap] On Windows, save Zenmap's stderr output to a writeable
 o [GH#379][NSE] Fix http-iis-short-name-brute to report non vulnerable hosts.
   Reported by alias1. [Paulino Calderon]
 
-o [GH#283][Nsock] Avoid "unknown protocol:0" debug messages and an "Unknown
-  address family 0" crash on Windows and other platforms that do not set the
-  src_addr argument to recvfrom for TCP sockets. [Daniel Miller]
-
 o [NSE][GH#371] Fix mysql-audit by adding needed library requires to the
   mysql-cis.audit file. The script would fail with "Failed to load rulebase"
   message. [Paolo Perego]
-
-o Retrieve the correct network prefix length for an adapter on Windows. If more
-  than one address was configured on an adapter, the same prefix length would
-  be used for both. This incorrect behavior is still used on Windows XP and
-  earlier. Reported by Niels Bohr. [Daniel Miller]
-
-o [NSE] ssl-enum-ciphers will cap the score of an RC4-ciphersuite handshake at
-  C and output a warning referencing RFC 7465.
-
-o Changed libdnet-stripped to avoid bailing completely when an interface is
-  encountered with an unsupported hardware address type. Caused "INTERFACES:
-  NONE FOUND!" bugs in Nmap whenever Linux kernel added new hardware address
-  types. [Daniel Miller]
 
 o [NSE][GH#362] Added support for LDAP over udp to ldap-rootdse.nse.
   Also added version detection and information extraction to match the
@@ -78,23 +135,12 @@ o [NSE][GH#362] Added support for LDAP over udp to ldap-rootdse.nse.
 o [GH#354] Added new version detection Probes for LDAP services, LDAPSearchReq
   and LDAPSearchReqUDP. The second is Microsoft Active Directory specific. The
   Probes will elicit responses from target services that allow better finger
-  -printing and information extraction. Also added nmap-payload entry for 
+  -printing and information extraction. Also added nmap-payload entry for
   detecting LDAP on udp. [Tom Sellers]
-
-o [NSE] Added vnc-title for logging in to VNC servers and grabbing the desktop
-  title, geometry, and color depth. [Daniel Miller]
 
 o [NSE] More VNC updates: Support for VeNCrypt and Tight auth types, output of
   authentication sub-types in vnc-info, and all zero-authentication types are
   recognized and reported. [Daniel Miller]
-
-o [NSE] Update to enable smb-os-discovery to augment version detection
-  for certain SMB related services using data that the script discovers.
-  [Tom Sellers]
-
-o Improved version detection and descriptions for Microsoft and Samba
-  SMB services. Also addresses certain issues with OS identification. 
-  [Tom Sellers]
 
 Nmap 7.12 [2016-03-29]
 
