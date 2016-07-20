@@ -121,6 +121,7 @@
  ***************************************************************************/
 
 /* $Id$ */
+#include "nmap.h"
 #include "nmap_ftp.h"
 #include "output.h"
 #include "NmapOps.h"
@@ -128,7 +129,6 @@
 #include "tcpip.h"
 #include "Target.h"
 #include "nmap_tty.h"
-#define FQDN_LEN 255
 extern NmapOps o;
 
 struct ftpinfo get_default_ftpinfo(void) {

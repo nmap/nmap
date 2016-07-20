@@ -134,10 +134,8 @@
 #include "nbase.h"
 #include "NmapOps.h"
 #include "utils.h"
+#include "nmap.h"
 #include "nmap_error.h"
-
-#define FQDN_LEN 255
-
 extern NmapOps o;
 
 Target::Target() {
@@ -431,8 +429,10 @@ const char *Target::NameIP(char *buf, size_t buflen) const {
 
 /* This next version returns a static buffer -- so no concurrency */
 const char *Target::NameIP() const {
-  if (!nameIPBuf) nameIPBuf = (char *) safe_malloc(FQDN_LEN + INET6_ADDRSTRLEN);
-  return NameIP(nameIPBuf, FQDN_LEN + INET6_ADDRSTRLEN);
+  /* Add 3 characters for the hostname and IP string, hence we allocate 
+      (FQDN_LEN + INET6_ADDRSTRLEN + 3) octets */
+  if (!nameIPBuf) nameIPBuf = (char *) safe_malloc(FQDN_LEN + INET6_ADDRSTRLEN + 3);
+  return NameIP(nameIPBuf, FQDN_LEN + INET6_ADDRSTRLEN + 3);
 }
 
   /* Returns the next hop for sending packets to this host.  Returns true if
