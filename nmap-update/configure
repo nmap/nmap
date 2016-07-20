@@ -624,7 +624,6 @@ LIBOBJS
 EGREP
 GREP
 CPP
-MAC_FLAGS
 SVN_LIBS
 APR_LIBS
 STRIP
@@ -3171,7 +3170,6 @@ if test "$apr_found" = "no"; then
 fi
 CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
 APR_LIBS="$($apr_config --link-ld)"
-MAC_FLAGS=""
 
 
 # Check whether --with-subversion was given.
