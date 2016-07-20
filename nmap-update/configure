@@ -3172,7 +3172,6 @@ CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
 APR_LIBS="$($apr_config --link-ld)"
 
 
-
 # Check whether --with-subversion was given.
 if test "${with_subversion+set}" = set; then :
   withval=$with_subversion;
