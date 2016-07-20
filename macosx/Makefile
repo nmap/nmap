@@ -33,12 +33,7 @@ NMAP_UPDATE_STAGING_DIR = nmap-update
 
 JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
-# MACPORTS_PREFIX is still here because of nmap-update, which needs
-# libsvn and libapr, which jhbuild doesn't support yet.
-MACPORTS_PREFIX=$(HOME)/macports-10.8
 PREFIX = /usr/local
-
-PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
 EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
@@ -70,15 +65,37 @@ CFLAGS += $(UNIVERSAL_CFLAGS)
 CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
+MAC_FLAGS = -lsasl2 -liconv -framework CoreFoundation -framework Security
+
+# Jhbuild static libraries
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
+SVN_STATIC = $(JHBUILD_PREFIX)/lib/libsvn_client-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_wc-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_diff-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_delta-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_subr-1.a \
+$(JHBUILD_PREFIX)/lib/libexpat.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra_svn-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra_local-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_repos-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs_util-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs_fs-1.a \
+$(JHBUILD_PREFIX)/lib/libsvn_fs_x-1.a \
+$(JHBUILD_PREFIX)/lib/libintl.a \
+$(JHBUILD_PREFIX)/lib/libsvn_ra_serf-1.a \
+$(JHBUILD_PREFIX)/lib/libserf-1.a \
+$(JHBUILD_PREFIX)/lib/libz.a \
+$(JHBUILD_PREFIX)/lib/libsqlite3.a
+APR_STATIC = $(JHBUILD_PREFIX)/lib/libapr-1.a \
+$(JHBUILD_PREFIX)/lib/libaprutil-1.a \
+$(JHBUILD_PREFIX)/lib/libapriconv-1.a
 
-$(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
+$(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
-
-path-check:
-	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
 
@@ -144,13 +161,10 @@ stage-nping: export-$(NPING_BUILD_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)" OPENSSL_LIBS="$(OPENSSL_STATIC)"
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
-	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
-	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update
+	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(JHBUILD_PREFIX) --with-subversion=$(JHBUILD_PREFIX) --with-serf=$(JHBUILD_PREFIX) --with-openssl=$(JHBUILD_PREFIX) $(CONFIGURE_ARGS)
+	make -C $(NMAP_UPDATE_BUILD_DIR) build-nmap-update APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
-	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libapr-1.0.dylib" "/usr/lib/libapr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_client-1.0.dylib" "/usr/lib/libsvn_client-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
-	install_name_tool -change "$(MACPORTS_PREFIX)/lib/libsvn_subr-1.0.dylib" "/usr/lib/libsvn_subr-1.0.dylib" "$(NMAP_UPDATE_STAGING_DIR)/usr/local/bin/nmap-update"
+	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)" APR_LIBS="$(APR_STATIC)" SVN_LIBS="$(SVN_STATIC)" OPENSSL_LIBS="$(OPENSSL_STATIC)" MAC_FLAGS="$(MAC_FLAGS)"
 
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
