@@ -545,7 +545,6 @@ AC_SUBST(PCRE_DIST_CLEAN)
 
 # We test whether desired libssh2 is scpecified explicitly
 
-echo "               LIBSSH2 START"
 
 have_libssh2="no"
 
@@ -632,13 +631,8 @@ AC_SUBST(LIBSSH2_CLEAN)
 AC_SUBST(LIBSSH2_DIST_CLEAN)
 AC_SUBST(LIBSSH2_LIBS)
 
-echo "               have_libssh2=$have_libssh2, with_libssh2=$with_libssh2"
-echo "               LIBSSH2 END"
-
-
 
 # We test whether desired libz is scpecified explicitly
-echo "               LIBZ START"
 
 have_zlib="no"
 
@@ -690,8 +684,6 @@ AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
 ]
 )
 
-echo "               with_zlib=${with_zlib}, have_zlib=${have_zlib}"
-
 if test $with_zlib = yes -a $with_libssh2 = yes; then
   trace_use="$trace_use zlib (libssh2 dependency)"
 
@@ -737,10 +729,6 @@ AC_SUBST(ZLIB_BUILD)
 AC_SUBST(ZLIB_CLEAN)
 AC_SUBST(ZLIB_DIST_CLEAN)
 AC_SUBST(ZLIB_LIBS)
-
-
-echo "               with_zlib=${with_zlib}, have_zlib=${have_zlib}"
-echo "               LIBZ END"
 
 
 have_dnet=no
