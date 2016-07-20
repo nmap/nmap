@@ -535,7 +535,6 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
    proxy is determined to be unsuitable, the function whines and exits
    the program */
 #define NUM_IPID_PROBES 6
-#define FQDN_LEN 255
 static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                                  Target *target, const struct scan_lists *ports) {
   unsigned int probes_sent = 0, probes_returned = 0;

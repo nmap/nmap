@@ -180,8 +180,6 @@
 #endif
 #define DNET_VERSION VERSION
 
-#define FQDN_LEN 255
-
 #include <string>
 #include <sstream>
 #include <vector>

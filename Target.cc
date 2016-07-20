@@ -134,10 +134,8 @@
 #include "nbase.h"
 #include "NmapOps.h"
 #include "utils.h"
+#include "nmap.h"
 #include "nmap_error.h"
-
-#define FQDN_LEN 255
-
 extern NmapOps o;
 
 Target::Target() {
