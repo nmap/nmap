@@ -136,6 +136,8 @@
 #include "utils.h"
 #include "nmap_error.h"
 
+#define FQDN_LEN 255
+
 extern NmapOps o;
 
 Target::Target() {
@@ -429,8 +431,8 @@ const char *Target::NameIP(char *buf, size_t buflen) const {
 
 /* This next version returns a static buffer -- so no concurrency */
 const char *Target::NameIP() const {
-  if (!nameIPBuf) nameIPBuf = (char *) safe_malloc(MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
-  return NameIP(nameIPBuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
+  if (!nameIPBuf) nameIPBuf = (char *) safe_malloc(FQDN_LEN + INET6_ADDRSTRLEN);
+  return NameIP(nameIPBuf, FQDN_LEN + INET6_ADDRSTRLEN);
 }
 
   /* Returns the next hop for sending packets to this host.  Returns true if

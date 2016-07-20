@@ -180,6 +180,8 @@
 #endif
 #define DNET_VERSION VERSION
 
+#define FQDN_LEN 255
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -965,8 +967,8 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "sI") == 0) {
           o.idlescan = 1;
           o.idleProxy = strdup(optarg);
-          if (strlen(o.idleProxy) > MAXHOSTNAMELEN) {
-            fatal("ERROR: -sI argument must be less than %d characters", MAXHOSTNAMELEN);
+          if (strlen(o.idleProxy) > FQDN_LEN) {
+            fatal("ERROR: -sI argument must be less than %d characters", FQDN_LEN);
           }
         } else if (strcmp(long_options[option_index].name, "vv") == 0) {
           /* Compatibility hack ... ugly */

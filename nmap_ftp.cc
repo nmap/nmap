@@ -128,6 +128,7 @@
 #include "tcpip.h"
 #include "Target.h"
 #include "nmap_tty.h"
+#define FQDN_LEN 255
 extern NmapOps o;
 
 struct ftpinfo get_default_ftpinfo(void) {
@@ -167,9 +168,9 @@ int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
     ftp->port = atoi(s);
   }
 
-  strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
+  strncpy(ftp->server_name, q, FQDN_LEN);
 
-  ftp->user[63] = ftp->pass[255] = ftp->server_name[MAXHOSTNAMELEN] = 0;
+  ftp->user[63] = ftp->pass[255] = ftp->server_name[FQDN_LEN] = 0;
 
   return 1;
 }
