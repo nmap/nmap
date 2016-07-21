@@ -352,12 +352,12 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
   lua_State *L = nu->thread;
   if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_ERROR) {
     // Sometimes Nsock fails immediately and callback is called before
-    // l_connect has a chance to yield. TODO: Figure out how to return an error
-    // to the calling thread without falling into an infinite loop somewhere.
+    // l_connect has a chance to yield. We'll use nu->action to signal
+    // l_connect to return an error instead of yielding.
     // http://seclists.org/nmap-dev/2016/q1/201
     trace(nse_iod(nse), nu->action, nu->direction);
-    nsock_iod_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
-    luaL_error(L, "Nsock immediate error");
+    nu->action = "ERROR";
+    return;
   }
   assert(lua_status(L) == LUA_YIELD);
   trace(nse_iod(nse), nu->action, nu->direction);
@@ -549,6 +549,11 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
 
   if (dest != NULL)
     freeaddrinfo(dest);
+
+  if (!strncmp(nu->action, "ERROR", 5)) {
+    // Immediate error
+    return nseU_safeerror(L, "Nsock connect failed immediately");
+  }
   return yield(L, nu, "CONNECT", TO, 0, NULL);
 }
 
