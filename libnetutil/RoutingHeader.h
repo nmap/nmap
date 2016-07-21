@@ -121,8 +121,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __ROUTING_HEADER_H__
-#define __ROUTING_HEADER_H__ 1
+#ifndef ROUTING_HEADER_H
+#define ROUTING_HEADER_H 1
 
 #include "IPv6ExtensionHeader.h"
 

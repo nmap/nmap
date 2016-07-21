@@ -123,8 +123,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __TCPHEADER_H__
-#define __TCPHEADER_H__ 1
+#ifndef TCPHEADER_H
+#define TCPHEADER_H 1
 
 #include "TransportLayerElement.h"
 
@@ -320,4 +320,4 @@ class TCPHeader : public TransportLayerElement {
 
 }; /* End of class TCPHeader */
 
-#endif /* __TCPHEADER_H__ */
+#endif /* TCPHEADER_H */

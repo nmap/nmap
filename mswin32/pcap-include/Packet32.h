@@ -42,8 +42,8 @@
  *  @{
  */
 
-#ifndef __PACKET32
-#define __PACKET32
+#ifndef PACKET32
+#define PACKET32
 
 #include <winsock2.h>
 
@@ -356,4 +356,4 @@ PAirpcapHandle PacketGetAirPcapHandle(LPADAPTER AdapterObject);
 }
 #endif 
 
-#endif //__PACKET32
+#endif //PACKET32

@@ -120,8 +120,8 @@
 
 /* $Id: xml.h 15135 2009-08-19 21:05:21Z david $ */
 
-#ifndef _XML_H
-#define _XML_H
+#ifndef XML_H
+#define XML_H
 
 #include <stdarg.h>
 

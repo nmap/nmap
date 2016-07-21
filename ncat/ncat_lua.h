@@ -120,8 +120,8 @@
 
 /* $Id$ */
 
-#ifndef _NCAT_LUA_H
-#define _NCAT_LUA_H
+#ifndef NCAT_LUA_H
+#define NCAT_LUA_H
 
 #ifdef __cplusplus
 extern "C" {

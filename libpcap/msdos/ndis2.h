@@ -37,8 +37,8 @@
  *             Gisle Vanem 1998
  */
 
-#ifndef __PCAP_NDIS_H
-#define __PCAP_NDIS_H
+#ifndef PCAP_NDIS_H
+#define PCAP_NDIS_H
 
 #if defined (__HIGHC__)
   #define pascal          _CC(_CALLEE_POPS_STACK & ~_REVERSE_PARMS) /* calling convention */

@@ -119,8 +119,8 @@
  * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
  *                                                                         *
  ***************************************************************************/
-#ifndef __ECHOCLIENT_H__
-#define __ECHOCLIENT_H__ 1
+#ifndef ECHOCLIENT_H
+#define ECHOCLIENT_H 1
 
 #include "nping.h"
 #include "NpingTarget.h"
@@ -191,4 +191,4 @@ void recv_hs_server_handler(nsock_pool nsp, nsock_event nse, void *arg);
 void recv_hs_final_handler(nsock_pool nsp, nsock_event nse, void *arg);
 void recv_ready_handler(nsock_pool nsp, nsock_event nse, void *arg);
 
-#endif /* __ECHOCLIENT_H__ */
+#endif /* ECHOCLIENT_H */

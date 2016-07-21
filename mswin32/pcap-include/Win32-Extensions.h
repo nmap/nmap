@@ -31,8 +31,8 @@
  *
  */
 
-#ifndef __WIN32_EXTENSIONS_H__
-#define __WIN32_EXTENSIONS_H__
+#ifndef WIN32_EXTENSIONS_H
+#define WIN32_EXTENSIONS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -110,4 +110,4 @@ PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
 }
 #endif
 
-#endif //__WIN32_EXTENSIONS_H__
+#endif //WIN32_EXTENSIONS_H

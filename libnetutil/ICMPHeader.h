@@ -124,8 +124,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __ICMPHEADER_H__
-#define __ICMPHEADER_H__  1
+#ifndef ICMPHEADER_H
+#define ICMPHEADER_H  1
 
 #include "PacketElement.h"
 
@@ -144,4 +144,4 @@ class ICMPHeader : public PacketElement {
     virtual bool isError() const = 0;
 };
 
-#endif /* __ICMPHEADER_H__ */
+#endif /* ICMPHEADER_H */

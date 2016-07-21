@@ -102,7 +102,7 @@ snf_setnonblock(pcap_t *p, int nonblock, char *errbuf)
 	return (0);
 }
 
-#define _NSEC_PER_SEC 1000000000
+#define NSEC_PER_SEC 1000000000
 
 static inline
 struct timeval
@@ -114,8 +114,8 @@ snf_timestamp_to_timeval(const int64_t ts_nanosec, const int tstamp_precision)
 	if (ts_nanosec == 0)
 		return (struct timeval) { 0, 0 };
 
-	tv.tv_sec = ts_nanosec / _NSEC_PER_SEC;
-	tv_nsec = (ts_nanosec % _NSEC_PER_SEC);
+	tv.tv_sec = ts_nanosec / NSEC_PER_SEC;
+	tv_nsec = (ts_nanosec % NSEC_PER_SEC);
 
 	/* libpcap expects tv_usec to be nanos if using nanosecond precision. */
 	if (tstamp_precision == PCAP_TSTAMP_PRECISION_NANO)

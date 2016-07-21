@@ -31,8 +31,8 @@
  */
 
 
-#ifndef __REMOTE_EXT_H__
-#define __REMOTE_EXT_H__
+#ifndef REMOTE_EXT_H
+#define REMOTE_EXT_H
 
 
 #ifndef HAVE_REMOTE

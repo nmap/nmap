@@ -3,8 +3,8 @@
  * 32-bit targets: djgpp, Pharlap or DOS4GW.
  */
 
-#ifndef __PCAP_DOS_H
-#define __PCAP_DOS_H
+#ifndef PCAP_DOS_H
+#define PCAP_DOS_H
 
 #ifdef __DJGPP__
 #include <pc.h>    /* simple non-conio kbhit */
@@ -222,4 +222,4 @@ extern void _w32_os_yield (void); /* Watt-32's misc.c */
                          } while (0)
 #endif
 
-#endif  /* __PCAP_DOS_H */
+#endif  /* PCAP_DOS_H */

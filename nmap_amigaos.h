@@ -123,8 +123,8 @@
 
 /* $Id$ */
 
-#ifndef _NMAP_AMIGAOS_H_
-#define _NMAP_AMIGAOS_H_
+#ifndef NMAP_AMIGAOS_H
+#define NMAP_AMIGAOS_H
 
 #include <proto/miami.h>
 #include <proto/miamibpf.h>
@@ -171,5 +171,5 @@ struct addrinfo {
   struct addrinfo	*ai_next;	/* next structure in linked list */
 };
 
-#endif /* _NMAP_AMIGAOS_H_ */
+#endif /* NMAP_AMIGAOS_H */
 

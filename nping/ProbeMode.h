@@ -121,8 +121,8 @@
  * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
  *                                                                         *
  ***************************************************************************/
-#ifndef __PROBEMODE_H__
-#define __PROBEMODE_H__ 1
+#ifndef PROBEMODE_H
+#define PROBEMODE_H 1
 
 
 
@@ -195,4 +195,4 @@ void tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, void *arg);
 void udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, void *arg);
 void delayed_output_handler(nsock_pool nsp, nsock_event nse, void *arg);
 
-#endif /* __PROBEMODE_H__ */
+#endif /* PROBEMODE_H */

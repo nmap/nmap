@@ -121,8 +121,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __DESTOPTS_HEADER_H__
-#define __DESTOPTS_HEADER_H__ 1
+#ifndef DESTOPTS_HEADER_H
+#define DESTOPTS_HEADER_H 1
 
 #include "HopByHopHeader.h"
 

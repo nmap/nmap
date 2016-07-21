@@ -120,8 +120,8 @@
 
 /* $Id$ */
 
-#ifndef _NBASE_ADDRSET_H
-#define _NBASE_ADDRSET_H
+#ifndef NBASE_ADDRSET_H
+#define NBASE_ADDRSET_H
 
 //#define HAVE_IPV6 1
 #include <limits.h>

@@ -36,8 +36,8 @@ POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef _PCRE_H
-#define _PCRE_H
+#ifndef PCRE_H
+#define PCRE_H
 
 /* The current PCRE version information. */
 

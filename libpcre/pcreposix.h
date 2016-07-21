@@ -2,8 +2,8 @@
 *       Perl-Compatible Regular Expressions      *
 *************************************************/
 
-#ifndef _PCREPOSIX_H
-#define _PCREPOSIX_H
+#ifndef PCREPOSIX_H
+#define PCREPOSIX_H
 
 /* This is the header for the POSIX wrapper interface to the PCRE Perl-
 Compatible Regular Expression library. It defines the things POSIX says should

@@ -54,8 +54,8 @@
  * --Copyright--
  */
 
-#ifndef _NETDB_H_
-#define _NETDB_H_
+#ifndef NETDB_H
+#define NETDB_H
 
 /* MingW64 defines _POSIX_THREAD_SAFE_FUNCTIONS.
  */
@@ -84,8 +84,8 @@ struct rpcent {
 #ifndef WIN32
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) || defined(_REENTRANT)
 
-#define __NETDB_MAXALIASES	35
-#define __NETDB_MAXADDRS	35
+#define NETDB_MAXALIASES	35
+#define NETDB_MAXADDRS	35
 
 /*
  * Error return codes from gethostbyname() and gethostbyaddr()

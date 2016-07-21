@@ -123,8 +123,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __ECHOHEADER_H__
-#define __ECHOHEADER_H__ 1
+#ifndef ECHOHEADER_H
+#define ECHOHEADER_H 1
 
 #include "nping.h"
 
@@ -391,4 +391,4 @@ class EchoHeader : public ApplicationLayerElement {
         u8 *decrypt(u8 *key, size_t key_len, u8 *iv, int message_type);
 };
 
-#endif /* __ECHOHEADER_H__ */
+#endif /* ECHOHEADER_H */

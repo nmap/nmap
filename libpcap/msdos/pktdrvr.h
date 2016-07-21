@@ -1,5 +1,5 @@
-#ifndef __PKTDRVR_H
-#define __PKTDRVR_H
+#ifndef PKTDRVR_H
+#define PKTDRVR_H
 
 #define PUBLIC
 #define LOCAL        static
@@ -149,5 +149,5 @@ extern WORD        PktBuffersUsed    (void);
 }
 #endif
 
-#endif /* __PKTDRVR_H */
+#endif /* PKTDRVR_H */
 

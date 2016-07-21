@@ -31,8 +31,8 @@
  *
  * $FreeBSD: src/sys/net80211/ieee80211.h,v 1.10 2005/07/22 16:55:27 sam Exp $
  */
-#ifndef _NET80211_IEEE80211_H_
-#define _NET80211_IEEE80211_H_
+#ifndef NET80211_IEEE80211_H
+#define NET80211_IEEE80211_H
 
 /*
  * 802.11 protocol definitions.
@@ -143,4 +143,4 @@
 
 #define IEEE80211_TYPE_NAMES	{ "mgt", "ctl", "data", "reserved#4" }
 
-#endif /* _NET80211_IEEE80211_H_ */
+#endif /* NET80211_IEEE80211_H */

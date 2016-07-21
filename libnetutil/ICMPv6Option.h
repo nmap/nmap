@@ -123,8 +123,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __ICMPv6OPTION_H__
-#define __ICMPv6OPTION_H__ 1
+#ifndef ICMPv6OPTION_H
+#define ICMPv6OPTION_H 1
 
 #include "NetworkLayerElement.h"
 

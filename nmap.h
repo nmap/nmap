@@ -212,8 +212,7 @@
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts
                                       in a row before we decide the host is
                                       dead? */
-#define _STR(X) #X
-#define STR(X)  _STR(X)
+#define STR(X)  #X
 #define DEFAULT_TCP_PROBE_PORT 80 /* The ports TCP ping probes go to if
                                      unspecified by user -- uber hackers
                                      change this to 113 */

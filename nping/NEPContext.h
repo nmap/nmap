@@ -120,8 +120,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __NEPCONTEXT_H__
-#define __NEPCONTEXT_H__ 1
+#ifndef NEPCONTEXT_H
+#define NEPCONTEXT_H 1
 
 
 
@@ -274,4 +274,4 @@ class NEPContext {
 
 };
 
-#endif /* __NEPCONTEXT_H__ */
+#endif /* NEPCONTEXT_H */

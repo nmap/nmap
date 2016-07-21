@@ -2,8 +2,8 @@
 *          Unicode Property Table handler        *
 *************************************************/
 
-#ifndef _UCP_H
-#define _UCP_H
+#ifndef UCP_H
+#define UCP_H
 
 /* This file contains definitions of the property values that are returned by
 the function _pcre_ucp_findprop(). New values that are added for new releases

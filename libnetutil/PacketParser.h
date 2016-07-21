@@ -124,8 +124,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __PACKETPARSER_H__
-#define __PACKETPARSER_H__ 1
+#ifndef PACKETPARSER_H
+#define PACKETPARSER_H 1
 
 #include "ApplicationLayerElement.h"
 #include "ARPHeader.h"
@@ -193,4 +193,4 @@ class PacketParser {
 
 }; /* End of class PacketParser */
 
-#endif /* __PACKETPARSER_H__ */
+#endif /* PACKETPARSER_H */

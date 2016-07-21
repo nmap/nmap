@@ -121,8 +121,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __FRAGMENT_HEADER_H__
-#define __FRAGMENT_HEADER_H__ 1
+#ifndef FRAGMENT_HEADER_H
+#define FRAGMENT_HEADER_H 1
 
 #include "IPv6ExtensionHeader.h"
 

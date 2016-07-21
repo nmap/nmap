@@ -123,8 +123,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __ARPHEADER_H__
-#define __ARPHEADER_H__ 1
+#ifndef ARPHEADER_H
+#define ARPHEADER_H 1
 
 #include "NetworkLayerElement.h"
 
@@ -283,5 +283,5 @@ class ARPHeader : public NetworkLayerElement {
 
 }; /* End of class ARPHeader */
 
-#endif /* __ARPHEADER_H__ */
+#endif /* ARPHEADER_H */
 
