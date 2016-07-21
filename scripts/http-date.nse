@@ -3,6 +3,7 @@ local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local datetime = require "datetime"
 
 description = [[
 Gets the date from HTTP-like services. Also prints how much the date
@@ -31,8 +32,8 @@ categories = {"discovery", "safe"}
 portrule = shortport.http
 
 action = function(host, port)
-  local request_time = os.time()
   local response = http.get(host, port, "/")
+  local request_time = os.time()
   if not response.status or not response.header["date"] then
     return
   end
@@ -46,6 +47,8 @@ action = function(host, port)
   local output_tab = stdnse.output_table()
   output_tab.date = stdnse.format_timestamp(response_time, 0)
   output_tab.delta = os.difftime(response_time, request_time)
+
+  datetime.record_skew(host, response_time, request_time)
 
   local output_str = string.format("%s; %s from local time.",
     response.header["date"], stdnse.format_difftime(os.date("!*t", response_time), os.date("!*t", request_time)))

@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the datetime library for performing date and time calculations,
+  and as a helper to the clock-skew script.
+
+o [NSE] Added clock-skew for analyzing and reporting clock skew between Nmap
+  and services that report timestamps. Reports groups of hosts with similar
+  skews. [Daniel Miller]
+
 o [Ncat][GH#444] Added a -z option to Ncat. Just like the -z option in
   traditional netcat, it can be used to quicky check the status of a port. Port
   ranges are not supported. [Abhishek Singh]

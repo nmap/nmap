@@ -1,4 +1,6 @@
 local comm = require "comm"
+local os = require "os"
+local datetime = require "datetime"
 local bin = require "bin"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
@@ -109,6 +111,7 @@ action = function(host, port)
     return nil
   end
 
+  local recvtime = os.time()
   socket:close()
 
   if string.match(response, "^A%d%d%d%d ") then
@@ -133,6 +136,12 @@ action = function(host, port)
 
   -- Leverage smbauth.get_host_info_from_security_blob() for decoding
   local ntlm_decoded = smbauth.get_host_info_from_security_blob(response_decoded)
+
+  if ntlm_decoded.timestamp then
+    -- 64-bit number of 100ns clicks since 1/1/1601
+    local unixstamp = ntlm_decoded.timestamp // 10000000 - 11644473600
+    datetime.record_skew(host, unixstamp, recvtime)
+  end
 
   -- Target Name will always be returned under any implementation
   output.Target_Name = ntlm_decoded.target_realm
