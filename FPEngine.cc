@@ -140,6 +140,7 @@ extern "C" int g_has_npcap_loopback;
 
 #include <math.h>
 #include <sstream>
+#include <iostream>
 
 /******************************************************************************
  * Globals.                                                                   *
@@ -155,7 +156,7 @@ FPNetworkControl global_netctl;
 static std::map<std::string, IPv6Header*> decoy_probes;
 
 std::string get_unique_id(const char *id, int decoynumber, const char *targetIP) {
-  std::string id_str(id), ip_str(targetIP);
+  std::string id_str(id), ip_str(targetIP, 16);
   std::stringstream out;
   out<<id_str<<decoynumber<<ip_str;
   return out.str();
@@ -456,7 +457,7 @@ int FPNetworkControl::scheduleProbe(FPProbe *pkt, int in_msecs_time) {
 
 /* This is the handler for packet transmission. It is called by nsock whenever a timer expires,
  * which means that a new packet needs to be transmitted. Note that this method is not
- * called directly by Nsock but by the wrapper function probe_transmission_handler_wrapper().
+ * called directly by Nsiock but by the wrapper function probe_transmission_handler_wrapper().
  * The reason for that is because C++ does not allow to use class methods as callback
  * functions, so this is a small hack to make that happen. */
 void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event nse, void *arg) {
@@ -494,12 +495,13 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
       else if (o.numdecoys > 1) {  
         FPPacket *temp = new FPPacket();
         std::map<std::string, IPv6Header*>::iterator it;
-        char addr[INET6_ADDRSTRLEN];
+
         for (int decoy = 0; decoy < o.numdecoys; decoy++) {
           if (decoy == o.decoyturn)
             continue;
-          sockaddr_storage_iptop(myprobe->host->getTargetAddress(), addr);
-          it = decoy_probes.find(get_unique_id(myprobe->getProbeID(), decoy, addr));
+          char str[INET6_ADDRSTRLEN];
+          inet_ntop(AF_INET6,(struct sockaddr_in6 *) myprobe->host->getTargetAddress(), str, INET6_ADDRSTRLEN);
+          it = decoy_probes.find(get_unique_id(myprobe->getProbeID(), decoy, (const char *)((struct sockaddr_in6 *)myprobe->host->getTargetAddress())->sin6_addr.s6_addr));
           if (it != decoy_probes.end()) {
             /* First we should free up the previously allocated buffer */
             free(buf);
@@ -1814,7 +1816,7 @@ int FPHost6::build_probe_list() {
       TCP_DESCS[i].flags, this->tcp_port_base + i,
       TCP_DESCS[i].dstport == OPEN ? this->open_port_tcp : this->closed_port_tcp,
       TCP_DESCS[i].urgptr, TCP_DESCS[i].opts, TCP_DESCS[i].optslen);
-      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, this->target_host->targetipstr())] = ip6;
+      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, (const char *)((struct sockaddr_in6 *)this->target_host->TargetSockAddr())->sin6_addr.s6_addr)] = ip6;
     }
   }
 
@@ -1880,7 +1882,7 @@ int FPHost6::build_probe_list() {
     icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
     ip6->setPayloadLength();
     icmp6->setSum();
-    decoy_probes[get_unique_id("IE1", decoy, this->target_host->targetipstr())] = ip6;
+    decoy_probes[get_unique_id("IE1", decoy, (const char *)ss6->sin6_addr.s6_addr)] = ip6;
   }
 
   /* ICMP Probe #2: Echo Request with badly ordered extension headers */
@@ -1953,7 +1955,7 @@ int FPHost6::build_probe_list() {
     icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
     ip6->setPayloadLength();
     icmp6->setSum();
-    decoy_probes[get_unique_id("IE2", decoy, this->target_host->targetipstr())] = ip6;
+    decoy_probes[get_unique_id("IE2", decoy, (const char *)ss6->sin6_addr.s6_addr)] = ip6;
   }
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
@@ -2000,7 +2002,7 @@ int FPHost6::build_probe_list() {
       icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
       icmp6->setSum();
       ip6->setPayloadLength();
-      decoy_probes[get_unique_id("NS", decoy, this->target_host->targetipstr())] = ip6;
+      decoy_probes[get_unique_id("NS", decoy, (const char *)ss6->sin6_addr.s6_addr)] = ip6;
     }
   }
 
@@ -2053,7 +2055,7 @@ int FPHost6::build_probe_list() {
     udp->setTotalLength();
     udp->setSum();
     ip6->setPayloadLength(udp->getLen());
-    decoy_probes[get_unique_id("U1", decoy, this->target_host->targetipstr())] = ip6;
+    decoy_probes[get_unique_id("U1", decoy, (const char *)ss6->sin6_addr.s6_addr)] = ip6;
   }
 
   /* Set TECN probe */
@@ -2082,7 +2084,7 @@ int FPHost6::build_probe_list() {
       TCP_DESCS[i].flags, tcp_port_base + i,
       TCP_DESCS[i].dstport == OPEN ? this->open_port_tcp : this->closed_port_tcp,
       TCP_DESCS[i].urgptr, TCP_DESCS[i].opts, TCP_DESCS[i].optslen);
-      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, this->target_host->targetipstr())] = ip6;
+      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, (const char *)((struct sockaddr_in6 *)this->target_host->TargetSockAddr())->sin6_addr.s6_addr)] = ip6;
     }
   }
   i++;
@@ -2119,7 +2121,7 @@ int FPHost6::build_probe_list() {
         TCP_DESCS[i].flags, tcp_port_base + i,
         TCP_DESCS[i].dstport == OPEN ? this->open_port_tcp : this->closed_port_tcp,
         TCP_DESCS[i].urgptr, TCP_DESCS[i].opts, TCP_DESCS[i].optslen);
-      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, this->target_host->targetipstr())] = ip6;
+      decoy_probes[get_unique_id(TCP_DESCS[i].id, decoy, (const char *)((struct sockaddr_in6 *)this->target_host->TargetSockAddr())->sin6_addr.s6_addr)] = ip6;
     }
   }
 
