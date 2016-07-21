@@ -61,7 +61,7 @@ ASN1Decoder = {
 
     -- Boolean
     self.decoder["01"] = function( self, encStr, elen, pos )
-      local val = bin.unpack("H", encStr, pos)
+      local pos, val = bin.unpack("H", encStr, pos)
       if val ~= "FF" then
         return pos, true
       else
