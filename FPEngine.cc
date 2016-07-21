@@ -140,7 +140,6 @@ extern "C" int g_has_npcap_loopback;
 
 #include <math.h>
 #include <sstream>
-#include <iostream>
 
 /******************************************************************************
  * Globals.                                                                   *
@@ -457,7 +456,7 @@ int FPNetworkControl::scheduleProbe(FPProbe *pkt, int in_msecs_time) {
 
 /* This is the handler for packet transmission. It is called by nsock whenever a timer expires,
  * which means that a new packet needs to be transmitted. Note that this method is not
- * called directly by Nsiock but by the wrapper function probe_transmission_handler_wrapper().
+ * called directly by Nsock but by the wrapper function probe_transmission_handler_wrapper().
  * The reason for that is because C++ does not allow to use class methods as callback
  * functions, so this is a small hack to make that happen. */
 void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event nse, void *arg) {
@@ -499,8 +498,6 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
         for (int decoy = 0; decoy < o.numdecoys; decoy++) {
           if (decoy == o.decoyturn)
             continue;
-          char str[INET6_ADDRSTRLEN];
-          inet_ntop(AF_INET6,(struct sockaddr_in6 *) myprobe->host->getTargetAddress(), str, INET6_ADDRSTRLEN);
           it = decoy_probes.find(get_unique_id(myprobe->getProbeID(), decoy, (const char *)((struct sockaddr_in6 *)myprobe->host->getTargetAddress())->sin6_addr.s6_addr));
           if (it != decoy_probes.end()) {
             /* First we should free up the previously allocated buffer */
