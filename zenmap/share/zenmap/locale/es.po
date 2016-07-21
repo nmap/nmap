@@ -1792,7 +1792,7 @@ msgid ""
 msgstr ""
 "Enviar sondeos con las banderas FIN y ACK activadas. Contra algunos sistema "
 "derivados de BSD, esto puede diferenciar entre puertos \"cerrados\" y "
-"\"abiertos|filtrados\."
+"\"abiertos|filtrados\"."
 
 #: share/zenmap/misc/profile_editor.xml:22
 msgid "Maimon scan"
