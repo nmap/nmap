@@ -999,6 +999,12 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           time with <option>--dns-servers</option> until you find one
           which works.</para>
 
+          <para>This option might not work if the response is big enough
+          to excceed the size of an UDP packet, in such a situation our DNS
+          resolver will make the best effort to extract response from the
+          truncated packet and if not successful, it will fall back to
+          system resolver which in turn may use TCP or some other mechanism
+          to get the response.</para>
 
         </listitem>
       </varlistentry>
