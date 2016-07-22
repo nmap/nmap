@@ -1031,9 +1031,9 @@ options from across the Internet might show that port as <literal>filtered</lite
 
 <variablelist><title>The six port states recognized by Nmap</title>
 
-  <varlistentry><term>
+  <varlistentry><term>open
   <indexterm><primary><literal>open</literal> port state</primary></indexterm>
-  open</term>
+  </term>
   <listitem><para>An application is actively accepting TCP
   connections, UDP datagrams or SCTP associations on this port.
   Finding these is often the primary goal of port scanning.
@@ -1045,9 +1045,9 @@ options from across the Internet might show that port as <literal>filtered</lite
   services available for use on the network.
   </para></listitem></varlistentry>
 
-  <varlistentry><term>
+  <varlistentry><term>closed
   <indexterm><primary><literal>closed</literal> port state</primary></indexterm>
-  closed</term>
+  </term>
 
   <listitem><para>A closed port is accessible (it receives and
   responds to Nmap probe packets), but there is no application
@@ -1059,9 +1059,9 @@ options from across the Internet might show that port as <literal>filtered</lite
   appear in the filtered state, discussed next.
   </para></listitem></varlistentry>
 
-  <varlistentry><term>
+  <varlistentry><term>filtered
   <indexterm><primary><literal>filtered</literal> port state</primary></indexterm>
-  filtered</term>
+  </term>
 
   <listitem><para>Nmap cannot determine whether the port is open
   because packet filtering prevents its probes from reaching the port.
@@ -1075,9 +1075,9 @@ options from across the Internet might show that port as <literal>filtered</lite
   in case the probe was dropped due to network congestion rather than
   filtering.  This slows down the scan dramatically.</para></listitem></varlistentry>
 
-  <varlistentry><term>
+  <varlistentry><term>unfiltered
   <indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
-  unfiltered</term>
+  </term>
   <listitem><para>The unfiltered state means that a port is accessible,
   but Nmap is unable to determine whether it is open or closed.  Only
   the ACK scan, which is used to map firewall rulesets, classifies
@@ -1086,9 +1086,9 @@ options from across the Internet might show that port as <literal>filtered</lite
   whether the port is open.
   </para></listitem></varlistentry>
 
-  <varlistentry><term>
+  <varlistentry><term>open|filtered
   <indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
-  open|filtered</term>
+  </term>
   <listitem><para>Nmap places ports in this state when it is unable to
   determine whether a port is open or filtered.  This occurs for scan
   types in which open ports give no response.  The lack of
@@ -1098,9 +1098,9 @@ options from across the Internet might show that port as <literal>filtered</lite
   FIN, NULL, and Xmas scans classify ports this
   way.</para></listitem></varlistentry>
 
-  <varlistentry><term>
+  <varlistentry><term>closed|filtered
   <indexterm><primary><literal>closed|filtered</literal> port state</primary></indexterm>
-  closed|filtered</term>
+  </term>
   <listitem><para>This state is used when Nmap is unable to determine
   whether a port is closed or filtered.  It is only used for the IP ID
   idle scan.</para></listitem></varlistentry>
