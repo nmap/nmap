@@ -586,7 +586,8 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
   esac]
 )
 
-if test $with_libssh2 = yes; then
+
+if test $with_libssh2 = yes -a $use_openssl = yes; then
   trace_use="$trace_use libssh2"
 
   if test $have_libssh2 = yes; then
@@ -604,7 +605,7 @@ if test $with_libssh2 = yes; then
     else
       CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$LIBSSH2DIR/include"
     fi
-    echo "                                     ${LIBSSH2DIR}"
+    
     LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a"
     LIBSSH2_BUILD="build-libssh2"
     LIBSSH2_CLEAN="clean-libssh2"

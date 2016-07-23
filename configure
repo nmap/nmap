@@ -6531,7 +6531,6 @@ fi
 
 # We test whether desired libssh2 is scpecified explicitly
 
-echo "               LIBSSH2 START"
 
 have_libssh2="no"
 
@@ -6661,7 +6660,8 @@ fi
 fi
 
 
-if test $with_libssh2 = yes; then
+
+if test $with_libssh2 = yes -a $use_openssl = yes; then
   trace_use="$trace_use libssh2"
 
   if test $have_libssh2 = yes; then
@@ -6680,7 +6680,7 @@ if test $with_libssh2 = yes; then
     else
       CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$LIBSSH2DIR/include"
     fi
-    echo "                                     ${LIBSSH2DIR}"
+
     LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a"
     LIBSSH2_BUILD="build-libssh2"
     LIBSSH2_CLEAN="clean-libssh2"
@@ -6711,13 +6711,8 @@ fi
 
 
 
-echo "               have_libssh2=$have_libssh2, with_libssh2=$with_libssh2"
-echo "               LIBSSH2 END"
-
-
 
 # We test whether desired libz is scpecified explicitly
-echo "               LIBZ START"
 
 have_zlib="no"
 
@@ -6856,8 +6851,6 @@ fi
 fi
 
 
-echo "               with_zlib=${with_zlib}, have_zlib=${have_zlib}"
-
 if test $with_zlib = yes -a $with_libssh2 = yes; then
   trace_use="$trace_use zlib (libssh2 dependency)"
 
@@ -6908,10 +6901,6 @@ fi
 
 
 
-
-
-echo "               with_zlib=${with_zlib}, have_zlib=${have_zlib}"
-echo "               LIBZ END"
 
 
 have_dnet=no
