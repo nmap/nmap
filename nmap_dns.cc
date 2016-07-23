@@ -1429,8 +1429,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   if(ip_str.empty())
     return false;
 
-  sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
-  return true;
+  return sockaddr_storage_inet_pton(ip_str.c_str(), &ip);
 }
 
 size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)
