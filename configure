@@ -6533,7 +6533,7 @@ fi
 
 
 have_libssh2="no"
-
+use_libssh2="yes"
 test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 
 
@@ -6591,6 +6591,7 @@ fi
     ;;
   no)
     with_libssh2="no"
+    use_libssh2="no"
     ;;
   included)
     have_libssh2="no"
@@ -6654,6 +6655,7 @@ fi
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
+    with_libssh2="yes"
   ;;
   esac
 
@@ -6699,6 +6701,7 @@ $as_echo "#define LIBSSH2_INCLUDED 1" >>confdefs.h
 $as_echo "#define HAVE_LIBSSH2 1" >>confdefs.h
 
 else
+  use_libssh2="no"
   trace_no_use="$trace_no_use libssh2"
   LIBSSH2_LIBS=""
   LIBSSH2_BUILD=""
@@ -6871,7 +6874,6 @@ if test $with_zlib = yes -a $with_libssh2 = yes; then
       CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$ZLIBDIR"
     fi
 
-    echo "                                     ${ZLIBDIR}"
     ZLIB_LIBS="$ZLIBDIR/libz.a"
     ZLIB_BUILD="build-zlib"
     ZLIB_CLEAN="clean-zlib"
@@ -9653,3 +9655,10 @@ echo "Type make (or gmake on some *BSD machines) to compile."
 if test "x$use_openssl" = "xno" && test "x$with_openssl" != "xno"; then
   echo "WARNING: You are compiling without OpenSSL"
 fi
+
+if test "x$use_libssh2" != "xyes"; then
+  echo "WARNING: You are compiling without LibSSH2"
+fi
+
+
+

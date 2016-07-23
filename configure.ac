@@ -547,7 +547,7 @@ AC_SUBST(PCRE_DIST_CLEAN)
 
 
 have_libssh2="no"
-
+use_libssh2="yes"
 test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 
 AC_ARG_WITH(libssh2,
@@ -563,6 +563,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
     ;;
   no)
     with_libssh2="no"
+    use_libssh2="no"
     ;;
   included)
     have_libssh2="no"
@@ -582,6 +583,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
+    with_libssh2="yes"
   ;;
   esac]
 )
@@ -620,6 +622,7 @@ if test $with_libssh2 = yes -a $use_openssl = yes; then
 
   AC_DEFINE(HAVE_LIBSSH2, 1, [Have libssh2 library])
 else
+  use_libssh2="no"
   trace_no_use="$trace_no_use libssh2"
   LIBSSH2_LIBS=""
   LIBSSH2_BUILD=""
@@ -704,7 +707,6 @@ if test $with_zlib = yes -a $with_libssh2 = yes; then
       CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$ZLIBDIR"
     fi
 
-    echo "                                     ${ZLIBDIR}"
     ZLIB_LIBS="$ZLIBDIR/libz.a"
     ZLIB_BUILD="build-zlib"
     ZLIB_CLEAN="clean-zlib"
@@ -1194,3 +1196,10 @@ echo "Type make (or gmake on some *BSD machines) to compile."
 if test "x$use_openssl" = "xno" && test "x$with_openssl" != "xno"; then
   echo "WARNING: You are compiling without OpenSSL"
 fi
+
+if test "x$use_libssh2" != "xyes"; then
+  echo "WARNING: You are compiling without LibSSH2"
+fi
+
+
+
