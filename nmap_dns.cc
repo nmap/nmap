@@ -757,6 +757,10 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
   bool processing_successful = false;
 
+  sockaddr_storage ip;
+  ip.ss_family = AF_UNSPEC;
+  std::string alias;
+
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end() && !processing_successful; ++it )
   {
@@ -769,8 +773,11 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
         {
           DNS::PTR_Record * ptr = static_cast<DNS::PTR_Record *>(a.record);
 
-          sockaddr_storage ip;
-          if(DNS::Factory::ptrToIp(a.name, ip))
+          if(
+            // If CNAME answer filled in ip with a matching alias
+            (ip.ss_family != AF_UNSPEC && a.name == alias )
+            // Or if we can get an IP from reversing the .arpa PTR address
+            || DNS::Factory::ptrToIp(a.name, ip))
           {
             if ((processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, p.id)))
             {
@@ -790,16 +797,16 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
         }
         case DNS::CNAME:
         {
-          sockaddr_storage ip;
           if(DNS::Factory::ptrToIp(a.name, ip))
           {
+            DNS::CNAME_Record * cname = static_cast<DNS::CNAME_Record *>(a.record);
+            alias = cname->value;
             if (o.debugging >= TRACE_DEBUG_LEVEL)
             {
               char ipstr[INET6_ADDRSTRLEN];
               sockaddr_storage_iptop(&ip, ipstr);
-              log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", ipstr);
+              log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s> to <%s>\n", ipstr, alias.c_str());
             }
-            processing_successful = process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
           }
           break;
         }
@@ -811,8 +818,20 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
   if (!processing_successful) {
     if (DNS_HAS_FLAG(f, DNS::TRUNCATED)) {
-      sockaddr_storage discard;
-      process_result(discard, "", ACTION_SYSTEM_RESOLVE, p.id);
+      // TODO: TCP fallback, or only use system resolver if user didn't specify --dns-servers
+      process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
+    }
+    else if (!alias.empty()) {
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+      {
+        char ipstr[INET6_ADDRSTRLEN];
+        sockaddr_storage_iptop(&ip, ipstr);
+        log_write(LOG_STDOUT, "mass_rdns: CNAME for <%s> not processed.\n", ipstr);
+      }
+      // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
+      // back to using system resolver. Alternative: report the canonical name
+      // (alias), but that's not very useful.
+      process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
     }
     else {
       if (o.debugging >= TRACE_DEBUG_LEVEL) {
