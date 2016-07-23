@@ -544,9 +544,9 @@ static void set_nmap_libraries (lua_State *L)
     {NSE_NMAPLIBNAME, luaopen_nmap},
     {LFSLIBNAME, luaopen_lfs},
     {LPEGLIBNAME, luaopen_lpeg},
-// #ifdef HAVE_LIBSSH2
+#ifdef HAVE_LIBSSH2
     {LIBSSH2LIBNAME, luaopen_libssh2},
-// #endif
+#endif
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
 #endif
