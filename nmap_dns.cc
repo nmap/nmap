@@ -1206,7 +1206,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     for(i=0, reqI = deferred_reqs.begin(); reqI != deferred_reqs.end(); reqI++, i++) {
       struct sockaddr_storage ss;
       size_t sslen;
-      char hostname[MAXHOSTNAMELEN + 1] = "";
+      char hostname[FQDN_LEN + 1] = "";
 
       if (keyWasPressed())
         SPM->printStats((double) i / deferred_reqs.size(), NULL);
@@ -1240,7 +1240,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
   Target *currenths;
   struct sockaddr_storage ss;
   size_t sslen;
-  char hostname[MAXHOSTNAMELEN + 1] = "";
+  char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
   int i;
 

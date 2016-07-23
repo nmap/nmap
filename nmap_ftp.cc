@@ -168,9 +168,9 @@ int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
     ftp->port = atoi(s);
   }
 
-  strncpy(ftp->server_name, q, FQDN_LEN);
+  strncpy(ftp->server_name, q, FQDN_LEN+1);
 
-  ftp->user[63] = ftp->pass[255] = ftp->server_name[FQDN_LEN] = 0;
+  ftp->user[63] = ftp->pass[255] = ftp->server_name[FQDN_LEN+1] = 0;
 
   return 1;
 }

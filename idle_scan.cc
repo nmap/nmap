@@ -547,7 +547,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   int newipid;
   unsigned int i;
   char filter[512]; /* Libpcap filter string */
-  char name[FQDN_LEN];
+  char name[FQDN_LEN + 1];
   struct sockaddr_storage ss;
   size_t sslen;
   u32 sequence_base;
