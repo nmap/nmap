@@ -123,14 +123,16 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifdef WIN32
 #include "nping_winconfig.h"
 #endif
 
+#ifndef FQDN_LEN
+#define FQDN_LEN 254
+#endif
+
 #include "NpingTarget.h"
 #include <dnet.h>
-#include "../nmap.h"
 #include "nbase.h"
 #include "nping.h"
 #include "output.h"
