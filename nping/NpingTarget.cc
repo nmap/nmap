@@ -130,7 +130,7 @@
 
 #include "NpingTarget.h"
 #include <dnet.h>
-#include "nmap.h"
+#include "../nmap.h"
 #include "nbase.h"
 #include "nping.h"
 #include "output.h"
