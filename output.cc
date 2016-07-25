@@ -1472,8 +1472,8 @@ void write_host_status(Target *currenths) {
     /* SMURF ADDRESS */
     /* Write xml "down" or "up" based on flags and the smurf info */
     write_xml_initial_hostinfo(currenths,
-                               (currenths->
-                                flags & HOST_UP) ? "up" : "down");
+                      (currenths->timedOut(NULL)) ? "timedout":         
+                      (currenths->flags & HOST_UP) ? "up" : "down");
     xml_open_start_tag("smurf");
     xml_attribute("responses", "%d", currenths->weird_responses);
     xml_close_empty_tag();
@@ -1494,7 +1494,7 @@ void write_host_status(Target *currenths) {
   } else {
     /* Ping scan / port scan. */
 
-    write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
+    write_xml_initial_hostinfo(currenths, (currenths->timedOut(NULL)) ? "timedout" : (currenths->flags & HOST_UP) ? "up" : "down");
     if (currenths->flags & HOST_UP) {
       log_write(LOG_PLAIN, "Host is up");
       if (o.reason)
