@@ -106,7 +106,7 @@ OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   AC_DEFINE([HAVE_OPENSSL], [1], [Define to 1 if you have OpenSSL.])
   AC_DEFINE([HAVE_HTTP_DIGEST], [1], [Define to 1 to enable HTTP Digest authentication (requires OpenSSL).])
-  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
+  OPENSSL_LIBS="-lssl -lcrypto"
   # Define in Makefile also.
   HAVE_OPENSSL=yes
   AC_SUBST(HAVE_OPENSSL)

@@ -393,7 +393,7 @@ OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   trace_use="$trace_use openssl"
   AC_DEFINE(HAVE_OPENSSL, 1, [Have OpenSSL library])
-  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
+  OPENSSL_LIBS="-lssl -lcrypto"
 else
   trace_no_use="$trace_no_use openssl"
 fi

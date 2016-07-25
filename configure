@@ -6023,7 +6023,7 @@ if test "$use_openssl" = "yes"; then
 
 $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
-  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
+  OPENSSL_LIBS="-lssl -lcrypto"
 else
   trace_no_use="$trace_no_use openssl"
 fi
