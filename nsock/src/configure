@@ -4888,7 +4888,7 @@ OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
-  OPENSSL_LIBS="-lssl -lcrypto"
+  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
   LIBS="$LIBS $OPENSSL_LIBS"
 fi
 

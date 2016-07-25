@@ -256,7 +256,7 @@ AC_SEARCH_LIBS(dlopen, dl)
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   AC_DEFINE(HAVE_OPENSSL)
-  OPENSSL_LIBS="-lssl -lcrypto"
+  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
   LIBS="$LIBS $OPENSSL_LIBS"
 fi
 

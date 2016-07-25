@@ -173,7 +173,7 @@ fi
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   AC_DEFINE(HAVE_OPENSSL)
-  OPENSSL_LIBS="-lssl -lcrypto"
+  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
   LIBS_TMP="$LIBS"
   LIBS="$LIBS $OPENSSL_LIBS"
   # Check whether the installed OpenSSL supports SHA-256 (ver 0.9.8 or later).

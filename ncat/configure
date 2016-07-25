@@ -4741,7 +4741,7 @@ $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
 $as_echo "#define HAVE_HTTP_DIGEST 1" >>confdefs.h
 
-  OPENSSL_LIBS="-lssl -lcrypto"
+  OPENSSL_LIBS="-lssl -lcrypto -lpthread"
   # Define in Makefile also.
   HAVE_OPENSSL=yes
 
