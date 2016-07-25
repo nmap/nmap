@@ -132,7 +132,15 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
-#include <openssl/x509.h>
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+  #include <openssl/x509.h>
+#else
+  #include <openssl/x509.h>
+  #include "openssl1.1/rsa_locl.h"
+  #include "openssl1.1/x509_int.h"
+  #include "openssl1.1/evp_int.h"
+#endif
+
 
 extern "C"
 {
@@ -384,7 +392,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
 /* This is a helper function for x509_validity_to_table. It builds a table with
    the two members "notBefore" and "notAfter", whose values are what is returned
    from asn1_time_to_obj. */
-static void x509_validity_to_table(lua_State *L, const X509 *cert)
+static void x509_validity_to_table(lua_State *L, X509 *cert)
 {
   lua_newtable(L);
 
@@ -527,7 +535,11 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     lua_setfield(L, -2, "subject");
   }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg->algorithm));
+#else
+  const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg.algorithm));
+#endif
   lua_pushstring(L, sig_algo);
   lua_setfield(L, -2, "sig_algorithm");
 
