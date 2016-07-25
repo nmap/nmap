@@ -847,7 +847,8 @@ static void set_default_port_state(std::vector<Target *> &targets, stype scantyp
       (*target)->ports.setDefaultPortState(IPPROTO_TCP, PORT_OPENFILTERED);
       break;
     case UDP_SCAN:
-      (*target)->ports.setDefaultPortState(IPPROTO_UDP, PORT_OPENFILTERED);
+      (*target)->ports.setDefaultPortState(IPPROTO_UDP, 
+        o.defeat_icmp_ratelimit ? PORT_CLOSEDFILTERED : PORT_OPENFILTERED);
       break;
     case IPPROT_SCAN:
       (*target)->ports.setDefaultPortState(IPPROTO_IP, PORT_OPENFILTERED);
