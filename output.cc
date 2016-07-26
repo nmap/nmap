@@ -2095,7 +2095,7 @@ void printserviceinfooutput(Target *currenths) {
   Port port;
   struct serviceDeductions sd;
   int i, numhostnames = 0, numostypes = 0, numdevicetypes = 0, numcpes = 0;
-  char hostname_tbl[MAX_SERVICE_INFO_FIELDS][MAXHOSTNAMELEN];
+  char hostname_tbl[MAX_SERVICE_INFO_FIELDS][FQDN_LEN+1];
   char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
   char devicetype_tbl[MAX_SERVICE_INFO_FIELDS][64];
   char cpe_tbl[MAX_SERVICE_INFO_FIELDS][80];

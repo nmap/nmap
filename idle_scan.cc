@@ -547,7 +547,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   int newipid;
   unsigned int i;
   char filter[512]; /* Libpcap filter string */
-  char name[MAXHOSTNAMELEN + 1];
+  char name[FQDN_LEN + 1];
   struct sockaddr_storage ss;
   size_t sslen;
   u32 sequence_base;
@@ -1399,7 +1399,7 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
 void idle_scan(Target *target, u16 *portarray, int numports,
                char *proxyName, const struct scan_lists *ports) {
 
-  static char lastproxy[MAXHOSTNAMELEN + 1] = ""; /* The proxy used in any previous call */
+  static char lastproxy[FQDN_LEN + 1] = ""; /* The proxy used in any previous call */
   static struct idle_proxy_info proxy;
   int groupsz;
   int portidx = 0; /* Used for splitting the port array into chunks */
