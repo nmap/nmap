@@ -147,6 +147,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
   local function fuzz_field(field)
     local affected_string = {}
     local affected_int = {}
+    local timeout = false
 
     for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
       local response_string
@@ -154,6 +155,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
 
       -- Let's check for timeout first and then proceed 
       if (timeLimit and nmap.clock_ms() > end_time) then
+        timeout = true
         break
       end
       --first try to fuzz with a string
@@ -178,14 +180,15 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
       end
     end
     postdata[field["name"]] = "sampleString"
-    return affected_string, affected_int
+
+    return affected_string, affected_int, timeout
   end
 
   for _,field in ipairs(form["fields"]) do
     if fuzzable(field["type"]) then
-      local affected_string, affected_int = fuzz_field(field, minlen, maxlen, postdata, sending_function)
+      local affected_string, affected_int, timeout = fuzz_field(field)
       -- It's neccessary to check for timeout here, perhaps we timed out at fuzz_field
-      if (timeLimit and nmap.clock_ms() > end_time) then
+      if (timeout) then
         break
       end
       if #affected_string > 0 or #affected_int > 0 then
@@ -208,6 +211,7 @@ portrule = shortport.http
 function action(host, port)
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
   local return_table = {}
+  local timeout_table = {}
   local minlen = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
   local maxlen = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
   local timeLimit
@@ -243,6 +247,8 @@ function action(host, port)
       end
     end
     if (timeLimit and nmap.clock_ms() > end_time) then
+      timeout_str = "script timed out".." with timelimit = "..((stdnse.get_script_args('http-form-fuzzer.timelimit')) or "30m\nUse http-form-fuzzer.timelimit to change the default timeout.")
+      table.insert(return_table, timeout_str)
       break
     end
   end
