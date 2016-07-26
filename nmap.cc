@@ -965,8 +965,8 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "sI") == 0) {
           o.idlescan = 1;
           o.idleProxy = strdup(optarg);
-          if (strlen(o.idleProxy) > MAXHOSTNAMELEN) {
-            fatal("ERROR: -sI argument must be less than %d characters", MAXHOSTNAMELEN);
+          if (strlen(o.idleProxy) > FQDN_LEN) {
+            fatal("ERROR: -sI argument must be less than %d characters", FQDN_LEN);
           }
         } else if (strcmp(long_options[option_index].name, "vv") == 0) {
           /* Compatibility hack ... ugly */
@@ -1745,11 +1745,11 @@ int nmap_main(int argc, char *argv[]) {
 #endif
   unsigned int ideal_scan_group_sz = 0;
   Target *currenths;
-  char myname[MAXHOSTNAMELEN + 1];
+  char myname[FQDN_LEN + 1];
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
                                 source addresses? */
   unsigned int targetno;
-  char hostname[MAXHOSTNAMELEN + 1] = "";
+  char hostname[FQDN_LEN + 1] = "";
   struct sockaddr_storage ss;
   size_t sslen;
 
@@ -2035,7 +2035,7 @@ int nmap_main(int argc, char *argv[]) {
           if (o.SourceSockAddr(&ss, &sslen) == 0) {
             currenths->setSourceSockAddr(&ss, sslen);
           } else {
-            if (gethostname(myname, MAXHOSTNAMELEN) ||
+            if (gethostname(myname, FQDN_LEN) ||
                 resolve(myname, 0, &ss, &sslen, o.af()) != 0)
               fatal("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n");
 
