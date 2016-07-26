@@ -7,7 +7,7 @@ determine if the fuzzing was successful.
 ---
 -- @usage
 -- nmap --script http-form-fuzzer --script-args 'http-form-fuzzer.targets={1={path=/},2={path=/register.html}}' -p 80 <host>
--- nmap --script http-form-fuzzer --script-args 'http-form-fuzzer.timelimit=50m','http-form-fuzzer.minlength=100000' -p 80 <host>
+-- nmap --script http-form-fuzzer --script-args 'http-form-fuzzer.timelimit=50m,http-form-fuzzer.minlength=100000' -p 80 <host>
 --
 -- This script attempts to fuzz fields in forms it detects (it fuzzes one field at a time).
 -- In each iteration it first tries to fuzz a field with a string, then with a number.
