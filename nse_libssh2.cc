@@ -112,8 +112,6 @@ static int ssh_error(lua_State *L, LIBSSH2_SESSION *session, const char *msg)
 
 static int finish_send(lua_State *L, int status, lua_KContext ctx)
 {
-
-
 	LOG("in finish_send()\n")
 
 		if (lua_toboolean(L, -2)) {
@@ -496,7 +494,6 @@ static int l_session_open(lua_State *L) {
 	int rc;
 
 	luaL_checkinteger(L, 2);
-
 	lua_settop(L, 2);
 
 	ssh_userdata *state = (ssh_userdata *)lua_newuserdata(L, sizeof(ssh_userdata)); /* index 3 */
@@ -527,21 +524,21 @@ static int l_session_open(lua_State *L) {
 		// return lua_error(L);
 		return nseU_safeerror(L, "trying to initiate session");
 	}
+	
+	// set non-blocking session
 	libssh2_session_set_blocking(state->session, 0);
 
-	// create socket pair
-	//if (socketpair(AF_UNIX, SOCK_STREAM, 0, state->sp) == -1) {
-	//  return nseU_safeerror(L, "trying to create socketpair");
-	//}
+	// create socketpair
 	if (dumb_socketpair(state->sp, 1) == -1) {
 		return nseU_safeerror(L, "trying to create socketpair");
 	}
+
 #ifdef WIN32
 	unsigned long s_mode = 1; // non-blocking
 
 	LOG("l_session_open(): Setting non-blocking operation\n")
 
-		rc = ioctlsocket(state->sp[1], FIONBIO, (unsigned long *)&s_mode);
+	rc = ioctlsocket(state->sp[1], FIONBIO, (unsigned long *)&s_mode);
 	if (rc != NO_ERROR)
 		return nseU_safeerror(L, "%s", strerror(errno));
 
@@ -561,7 +558,6 @@ static int l_session_open(lua_State *L) {
 #endif
 
 	LOG("l_session_open(): Created socket pair\n")
-
 
 	lua_getglobal(L, "nmap");
 	lua_getfield(L, -1, "new_socket");
