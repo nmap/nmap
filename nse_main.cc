@@ -39,6 +39,7 @@
 
 #define NSE_FORMAT_TABLE "NSE_FORMAT_TABLE"
 #define NSE_FORMAT_XML "NSE_FORMAT_XML"
+#define NSE_PARALLELISM "NSE_PARALLELISM"
 
 #ifndef MAXPATHLEN
 #  define MAXPATHLEN 2048
@@ -589,6 +590,10 @@ static int init_main (lua_State *L)
   lua_call(L, 2, 1); /* returns the NSE main function */
 
   lua_setfield(L, LUA_REGISTRYINDEX, NSE_MAIN);
+
+  lua_pushinteger(L, o.min_parallelism);
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_PARALLELISM);
+
   return 0;
 }
 

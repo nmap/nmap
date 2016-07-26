@@ -126,4 +126,81 @@ function looksRandom(data)
     return true
 end
 
+-- Return the mean and sample standard deviation of an array, using the
+-- algorithm from Knuth Vol. 2, Section 4.2.2.
+--
+-- @params t An array-style table of values
+-- @return The mean of the values
+-- @return The standard deviation of the values
+function mean_stddev(t)
+  local i, m, s, sigma
+
+  if #t == 0 then
+    return 0, nil
+  end
+
+  m = t[1]
+  s = 0
+  for i = 2, #t do
+    local mp = m
+    m = m + (t[i] - m) / i
+    s = s + (t[i] - mp) * (t[i] - m)
+  end
+  sigma = math.sqrt(s / (#t - 1))
+
+  return m, sigma
+end
+
+-- Partition function for quickselect and quicksort
+local function partition(t, left, right, pivot)
+  local pv = t[pivot]
+  t[pivot], t[right] = t[right], t[pivot]
+  local storeidx = left
+  for i=left, right-1 do
+    assert(storeidx < right)
+    if t[i] < pv then
+      t[storeidx], t[i] = t[i], t[storeidx]
+      storeidx = storeidx + 1
+    end
+  end
+  t[storeidx], t[right] = t[right], t[storeidx]
+  return storeidx
+end
+
+-- Quickselect algorithm
+local function _qselect(t, left, right, k)
+  if left == right then
+    return t[left]
+  end
+  local pivot = math.random(left, right)
+  pivot = partition(t, left, right, pivot)
+  if k == pivot then
+    return t[k]
+  elseif k < pivot then
+    return _qselect(t, left, pivot - 1, k)
+  else
+    return _qselect(t, pivot + 1, right, k)
+  end
+end
+
+--- Return the k-th largest element in a list
+--
+-- @param t The list, not sorted
+-- @param k The ordinal value to return
+-- @return The k-th largest element in the list
+function quickselect(t, k)
+  local tc = {}
+  -- Work on a copy of the table, since we modify in-place
+  table.move(t, 1, #t, 1, tc)
+  return _qselect(tc, 1, #tc, k)
+end
+
+--- Find the median of a list
+--
+--@param t the table/list of values
+--@return the median value
+function median(t)
+  return quickselect(t, math.ceil(#t/2))
+end
+
 return _ENV

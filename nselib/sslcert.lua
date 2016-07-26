@@ -466,7 +466,7 @@ StartTLS = {
     while optype ~= mssql.PreLoginPacket.OPTION_TYPE.Terminator do
       --stdnse.debug1("optype: %d, oppos: %x, oplen: %d", optype, oppos, oplen)
       if optype == mssql.PreLoginPacket.OPTION_TYPE.Encryption then
-        encryption = bin.unpack('C', result, oppos + 1)
+        pos, encryption = bin.unpack('C', result, oppos + 1)
         break
       end
       pos, optype, oppos, oplen = bin.unpack('>CSS', result, pos)

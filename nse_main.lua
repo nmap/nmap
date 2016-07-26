@@ -51,6 +51,7 @@ local DESTRUCTOR = "NSE_DESTRUCTOR";
 local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 local FORMAT_TABLE = "NSE_FORMAT_TABLE";
 local FORMAT_XML = "NSE_FORMAT_XML";
+local PARALLELISM = "NSE_PARALLELISM";
 
 -- Unique value indicating the action function is going to run.
 local ACTION_STARTING = {};
@@ -1303,6 +1304,10 @@ local function main (hosts, scantype)
   for i, script in ipairs(chosen_scripts) do
     runlevels[script.runlevel] = runlevels[script.runlevel] or {};
     insert(runlevels[script.runlevel], script);
+  end
+
+  if _R[PARALLELISM] > CONCURRENCY_LIMIT then
+    CONCURRENCY_LIMIT = _R[PARALLELISM];
   end
 
   if scantype == NSE_PRE_SCAN then

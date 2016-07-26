@@ -64,6 +64,7 @@ Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", }
 Entry { filename = "citrix-enum-servers-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "clamav-exec.nse", categories = { "exploit", "vuln", } }
+Entry { filename = "clock-skew.nse", categories = { "default", "safe", } }
 Entry { filename = "couchdb-databases.nse", categories = { "discovery", "safe", } }
 Entry { filename = "couchdb-stats.nse", categories = { "discovery", "safe", } }
 Entry { filename = "creds-summary.nse", categories = { "auth", "default", "safe", } }

@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 06/22/2016
+.\"      Date: 07/19/2016
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "06/22/2016" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "07/19/2016" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -43,7 +43,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 7\&.12SVN ( https://nmap\&.org/ncat )
+Ncat 7\&.25SVN ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -73,6 +73,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-sctp                 Use SCTP instead of default TCP
   \-v, \-\-verbose              Set verbosity level (can be used several times)
   \-w, \-\-wait <time>          Connect timeout
+  \-z                         Zero\-I/O mode, report connection status only
       \-\-append\-output        Append rather than clobber specified output files
       \-\-send\-only            Only send data, ignoring received; quit on EOF
       \-\-recv\-only            Only receive data, never send anything

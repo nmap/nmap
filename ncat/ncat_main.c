@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
     while (1) {
         /* handle command line arguments */
         int option_index;
-        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n",
+        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n:z",
                             long_options, &option_index);
 
         /* That's the end of the options. */
@@ -457,6 +457,9 @@ int main(int argc, char *argv[])
             break;
         case 't':
             o.telnet = 1;
+            break;
+        case 'z':
+            o.zerobyte = 1;
             break;
         case 0:
             if (strcmp(long_options[option_index].name, "version") == 0) {
@@ -606,6 +609,7 @@ int main(int argc, char *argv[])
 "      --sctp                 Use SCTP instead of default TCP\n"
 "  -v, --verbose              Set verbosity level (can be used several times)\n"
 "  -w, --wait <time>          Connect timeout\n"
+"  -z                         Zero-I/O mode, report connection status only\n"
 "      --append-output        Append rather than clobber specified output files\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
@@ -723,6 +727,16 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (o.zerobyte) {
+      if (o.listen)
+        bye("Services designed for LISTENING can't be used with -z");
+      if (o.telnet)
+        bye("Invalid option combination: -z and -t.");
+      if (o.execmode||o.cmdexec)
+        bye("Command execution can't be done along with option -z.");
+      if (!o.idletimeout && o.proto == IPPROTO_UDP)
+        o.idletimeout = 2 * 1000;
+    }
     /* Default port */
     if (o.listen && o.proxytype && !o.portno && srcport == -1)
         o.portno = DEFAULT_PROXY_PORT;

@@ -1,11 +1,22 @@
 #include <stdlib.h>
 #include <stdarg.h>
+#include <math.h>
 
 #include "Target.h"
 #include "portlist.h"
 
 #include "nse_main.h"
 #include "nse_utility.h"
+
+int nseU_checkinteger (lua_State *L, int arg)
+{
+  lua_Number n = luaL_checknumber(L, arg);
+  int i;
+  if (!lua_numbertointeger(floor(n), &i)) {
+    return luaL_error(L, "Number cannot be converted to an integer");
+  }
+  return i;
+}
 
 int nseU_traceback (lua_State *L)
 {
