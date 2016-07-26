@@ -153,7 +153,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
       local response_number
 
       -- Let's check for timeout first and then proceed 
-      if (nmap.clock_ms() > end_time and timeLimit) then
+      if (timeLimit and nmap.clock_ms() > end_time) then
         break
       end
       --first try to fuzz with a string
@@ -185,7 +185,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
     if fuzzable(field["type"]) then
       local affected_string, affected_int = fuzz_field(field, minlen, maxlen, postdata, sending_function)
       -- It's neccessary to check for timeout here, perhaps we timed out at fuzz_field
-      if (nmap.clock_ms() > end_time and timeLimit) then
+      if (timeLimit and nmap.clock_ms() > end_time) then
         break
       end
       if #affected_string > 0 or #affected_int > 0 then
@@ -237,12 +237,12 @@ function action(host, port)
             table.insert(return_table, affected_fields)
           end
         end
-        if (nmap.clock_ms() > end_time and timeLimit) then
+        if (timeLimit and nmap.clock_ms() > end_time) then
           break
         end
       end
     end
-    if (nmap.clock_ms() > end_time and timeLimit) then
+    if (timeLimit and nmap.clock_ms() > end_time) then
       break
     end
   end
