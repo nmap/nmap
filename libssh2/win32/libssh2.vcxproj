@@ -407,8 +407,8 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>.\Debug_dll\libssh2.dll</OutputFile>
       <ImportLibrary>.\Debug_dll\libssh2.lib</ImportLibrary>
-      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\libzlib128-dll\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;libeay32.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\libz\contrib\vstudio\vc11\Debug_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WinCNG LIB Release|Win32'">

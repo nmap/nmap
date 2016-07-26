@@ -211,6 +211,7 @@ typedef signed __int64 int64_t;
 #endif
 
 #define HAVE_OPENSSL 1
+#define HAVE_LIBSSH2 1
 /* Apparently __func__ isn't yet supported */
 #define __func__ __FUNCTION__
 
