@@ -211,7 +211,6 @@ portrule = shortport.http
 function action(host, port)
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
   local return_table = {}
-  local timeout_table = {}
   local minlen = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
   local maxlen = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
   local timeLimit
@@ -247,7 +246,7 @@ function action(host, port)
       end
     end
     if (timeLimit and nmap.clock_ms() > end_time) then
-      timeout_str = "script timed out".." with timelimit = "..((stdnse.get_script_args('http-form-fuzzer.timelimit')) or "30m\nUse http-form-fuzzer.timelimit to change the default timeout.")
+      local timeout_str = "script timed out".." with timelimit = "..((stdnse.get_script_args('http-form-fuzzer.timelimit')) or "30m\nUse http-form-fuzzer.timelimit to change the default timeout.")
       table.insert(return_table, timeout_str)
       break
     end
