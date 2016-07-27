@@ -137,7 +137,7 @@ class Target;
 struct ftpinfo {
   char user[64];
   char pass[256]; /* methinks you're paranoid if you need this much space */
-  char server_name[MAXHOSTNAMELEN + 1];
+  char server_name[FQDN_LEN + 1];
   struct in_addr server;
   u16 port;
   int sd; /* socket descriptor */
