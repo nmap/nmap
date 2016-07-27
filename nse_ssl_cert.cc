@@ -424,7 +424,7 @@ static const char *pkey_type_to_string(int type)
     return "dsa";
   case EVP_PKEY_DH:
     return "dh";
-#ifdef EVP_PKEY_EC
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L
   case EVP_PKEY_EC:
     return "ec";
 #endif
@@ -434,7 +434,7 @@ static const char *pkey_type_to_string(int type)
 }
 
 int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#ifdef EVP_PKEY_EC
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
@@ -546,11 +546,14 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   pubkey = X509_get_pubkey(cert);
   lua_newtable(L);
   pkey_type = EVP_PKEY_type(pubkey->type);
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
     lua_setfield(L, -2, "ecdhparams");
   }
-  else if (pkey_type == EVP_PKEY_RSA) {
+  else
+#endif
+  if (pkey_type == EVP_PKEY_RSA) {
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
     bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
     luaL_getmetatable( L, "BIGNUM" );
