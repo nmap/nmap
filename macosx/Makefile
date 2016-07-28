@@ -110,6 +110,8 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	# make a new file and add background and titles attributes
 	head -n 2 distribution.xml > finalDist.xml
 	echo "    <title>Nmap $(NMAP_VERSION)</title>" >> finalDist.xml
+	# here we just have to add the following line to add a background to the Mac Installer (.mpkg) located inside the DMG
+	# echo "    <background file=\"background.jpg\" alignment=\"topleft\" scaling=\"none\"/>" >> finalDist.xml
 	tail -n +3 distribution.xml >> finalDist.xml
 
 	# build the .mpkg according to the final .xml file
