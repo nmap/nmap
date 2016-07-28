@@ -106,7 +106,7 @@ function _ENV.pack (format, ...)
             assert(n > 0, "n cannot be 0") -- original bin library allowed this, it doesn't make sense
             local new = "=" -- !! in original bin library, hex strings are always native
             for j = i, i+n-1 do
-                args[j] = tostring(args[j]):gsub("(%x%x?)", function (s) return char(tonumber(s, 16)) end)
+                args[j] = tostring(args[j]):gsub("%s*(%S%S?)%s*", function (s) return char(tonumber(s, 16)) end)
                 new = new .. ("c%d"):format(#args[j])
             end
             new = new .. endianness -- restore old endianness
@@ -184,6 +184,7 @@ do
     -- !! endianness is always big endian for H !!
     assert(_ENV.pack(">H", "415D615A") == "\x41\x5D\x61\x5A")
     assert(_ENV.pack("<H", "415D615A") == "\x41\x5D\x61\x5A")
+    assert(_ENV.pack("H", "41 5D  61\n5A") == "\x41\x5D\x61\x5A")
     assert(_ENV.pack("H2", "415D615A", "A5") == "\x41\x5D\x61\x5A\xA5")
 
     assert(_ENV.pack("A", "415D615A") == "415D615A")
