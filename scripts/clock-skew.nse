@@ -60,9 +60,7 @@ hostrule = function(host)
 end
 
 postrule = function()
-  local tmp = nmap.registry.clock_skews and #nmap.registry.clock_skews > 0
-  stdnse.debug1("rule returns %s", tmp)
-  return tmp
+  return nmap.registry.clock_skews and #nmap.registry.clock_skews > 0
 end
 
 local function format_host (host)
