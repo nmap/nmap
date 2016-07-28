@@ -121,6 +121,6 @@ if [ "$RES" = "True" ]; then
     echo "\nTest passed?: Yes\n"
     exit 0
 else
-    echo "\nTest passed?: No\nThey are some errors that should be corrected\n"
+    echo "\nTest passed?: No\nThere are some errors that should be corrected\n"
     exit 1
 fi;
