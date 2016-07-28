@@ -3,7 +3,7 @@
 export source=$1
 export version=$(grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export title="nmap-${version}"
-export size=30000
+export size=50000
 export backgroundPictureName="nmap.png"
 export finalDMGName="${title}.dmg"
 export applicationName="${title}.mpkg"
@@ -19,13 +19,26 @@ mkdir ${source}/.background/
 cp ${backgroundPictureName} ${source}/.background/
 ln -s /Applications ${source}/
 
+# Ensure that we have no virtual disk currently mounted
+hdiutil detach /Volumes/${title}/ 2> /dev/null
+
 hdiutil create -srcfolder "${source}" -volname "${title}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -ov -format UDRW -size ${size}k pack.temp.dmg
 
 # Mount the disk image and store the device name
 export device=$(hdiutil attach -readwrite -noverify -noautoopen "pack.temp.dmg" | egrep '^/dev/' | sed 1q | awk '{print $1}')
 
-sleep 2
+# Try to list files in the Volume, if we can't, its because its not ready yet
+# so we should sleep while its mounted before trying to design it with Applescript
+stop=false
+while [ "$stop" = false ]; do
+    test=`ls -l /Volumes/${title}/ | wc -l`
+    if [ "$test" -eq 7 ]; then
+        stop=true
+    fi
+    sleep 1
+done
 
+# Applescript: design the virtual disk image we just mounted
 echo '
 	tell application "Finder"
 		tell disk "'${title}'"
