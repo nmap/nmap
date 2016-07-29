@@ -4,8 +4,8 @@
  */
 
 
-#ifndef __TEST_COMMON_H
-#define __TEST_COMMON_H
+#ifndef TEST_COMMON_H
+#define TEST_COMMON_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,4 +92,4 @@ static inline int test_teardown(const struct test_case *test, void *tdata) {
   return rc;
 }
 
-#endif /* ^__TEST_COMMON_H */
+#endif /* ^TEST_COMMON_H */

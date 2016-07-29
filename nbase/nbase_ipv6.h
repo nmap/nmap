@@ -127,7 +127,7 @@
 #define NBASE_IPV6_H
 
 #ifdef __amigaos__
-#ifndef _NMAP_AMIGAOS_H_
+#ifndef NMAP_AMIGAOS_H
 #include "../nmap_amigaos.h"
 #endif
 #endif

@@ -26,8 +26,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#ifndef _BITTYPES_H
-#define _BITTYPES_H
+#ifndef BITTYPES_H
+#define BITTYPES_H
 
 #ifndef HAVE_U_INT8_T
 
@@ -134,4 +134,4 @@ typedef unsigned short u_int64_t;
 #endif /* _MSC_EXTENSIONS */
 #endif /* PRIu64 */
 
-#endif /* _BITTYPES_H */
+#endif /* BITTYPES_H */

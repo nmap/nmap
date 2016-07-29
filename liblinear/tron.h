@@ -1,5 +1,5 @@
-#ifndef _TRON_H
-#define _TRON_H
+#ifndef TRON_H
+#define TRON_H
 
 class function
 {

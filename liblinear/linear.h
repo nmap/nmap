@@ -1,5 +1,5 @@
-#ifndef _LIBLINEAR_H
-#define _LIBLINEAR_H
+#ifndef LIBLINEAR_H
+#define LIBLINEAR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,5 +69,5 @@ void set_print_string_function(void (*print_func) (const char*));
 }
 #endif
 
-#endif /* _LIBLINEAR_H */
+#endif /* LIBLINEAR_H */
 

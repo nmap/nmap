@@ -120,8 +120,8 @@
 
 /* $Id$ */
 
-#ifndef _HTTP_H
-#define _HTTP_H
+#ifndef HTTP_H
+#define HTTP_H
 
 #include "ncat_config.h"
 #include "util.h"

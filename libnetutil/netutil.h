@@ -126,8 +126,8 @@
 
 /* $Id: netutil.h 18098 2010-06-14 11:50:12Z luis $ */
 
-#ifndef _NETUTIL_H_
-#define _NETUTIL_H_ 1
+#ifndef NETUTIL_H
+#define NETUTIL_H 1
 
 #ifdef __cplusplus
 extern "C" {
@@ -613,4 +613,4 @@ int get_max_open_descriptors();
    max allowed  */
 int max_sd();
 
-#endif /* _NETUTIL_H_ */
+#endif /* NETUTIL_H */

@@ -119,8 +119,8 @@
  * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
  *                                                                         *
  ***************************************************************************/
-#ifndef __ECHOSERVER_H__
-#define __ECHOSERVER_H__ 1
+#ifndef ECHOSERVER_H
+#define ECHOSERVER_H 1
 
 
 
@@ -193,4 +193,4 @@ void ready_handler(nsock_pool nsp, nsock_event nse, void *arg);
 void empty_handler(nsock_pool nsp, nsock_event nse, void *arg);
 void session_ended_handler(nsock_pool nsp, nsock_event nse, void *arg);
 
-#endif /* __ECHOSERVER_H__ */
+#endif /* ECHOSERVER_H */

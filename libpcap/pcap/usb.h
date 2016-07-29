@@ -31,8 +31,8 @@
  * By Paolo Abeni <paolo.abeni@email.it>
  */
 
-#ifndef _PCAP_USB_STRUCTS_H__
-#define _PCAP_USB_STRUCTS_H__
+#ifndef PCAP_USB_STRUCTS_H
+#define PCAP_USB_STRUCTS_H
 
 /*
  * possible transfer mode

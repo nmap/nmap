@@ -121,8 +121,8 @@
  * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
  *                                                                         *
  ***************************************************************************/
-#ifndef __STATS_H__
-#define __STATS_H__ 1
+#ifndef STATS_H
+#define STATS_H 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -270,4 +270,4 @@ class NpingStats {
 };
 
 
-#endif /* __STATS_H__ */
+#endif /* STATS_H */

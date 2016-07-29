@@ -39,12 +39,12 @@
  *	@(#)err.h	8.1 (Berkeley) 6/2/93
  */
 
-#ifndef _ERR_H_
-#define _ERR_H_
+#ifndef ERR_H
+#define ERR_H
 
 void	err(int eval, const char *fmt, ...);
 void	warn(const char *fmt, ...);
 void	errx(int eval, const char *fmt, ...);
 void	warnx(const char *fmt, ...);
 
-#endif /* !_ERR_H_ */
+#endif /* !ERR_H */

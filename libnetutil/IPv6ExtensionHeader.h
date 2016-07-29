@@ -122,8 +122,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __IPv6_EXTENSION_HEADER_H__
-#define __IPv6_EXTENSION_HEADER_H__ 1
+#ifndef IPv6_EXTENSION_HEADER_H
+#define IPv6_EXTENSION_HEADER_H 1
 
 #include "PacketElement.h"
 

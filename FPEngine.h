@@ -124,8 +124,8 @@
 
 /* $Id$ */
 
-#ifndef __FPENGINE_H__
-#define __FPENGINE_H__ 1
+#ifndef FPENGINE_H
+#define FPENGINE_H 1
 
 #include "nsock.h"
 #include <vector>
@@ -471,5 +471,5 @@ void response_reception_handler_wrapper(nsock_pool nsp, nsock_event nse, void *a
 std::vector<FingerMatch> load_fp_matches();
 
 
-#endif /* __FPENGINE_H__ */
+#endif /* FPENGINE_H */
 

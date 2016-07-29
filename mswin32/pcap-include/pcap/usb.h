@@ -33,8 +33,8 @@
  * @(#) $Header: /tcpdump/master/libpcap/pcap/usb.h,v 1.6 2007/09/22 02:06:08 guy Exp $
  */
  
-#ifndef _PCAP_USB_STRUCTS_H__
-#define _PCAP_USB_STRUCTS_H__
+#ifndef PCAP_USB_STRUCTS_H
+#define PCAP_USB_STRUCTS_H
 
 /* 
  * possible transfer mode

@@ -122,8 +122,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __CRYPTO_H__
-#define __CRYPTO_H__ 1
+#ifndef CRYPTO_H
+#define CRYPTO_H 1
 #include "nping.h"
 
 #define HMAC_SHA256_CODE_LEN 32
@@ -146,4 +146,4 @@ class Crypto {
         static u8 *deriveKey(const u8 *from, size_t fromlen, size_t *final_len);
 };
 
-#endif /* __CRYPTO_H__ */
+#endif /* CRYPTO_H */

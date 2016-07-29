@@ -121,8 +121,8 @@
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
-#ifndef __HOP_BY_HOP_HEADER_H__
-#define __HOP_BY_HOP_HEADER_H__ 1
+#ifndef HOP_BY_HOP_HEADER_H
+#define HOP_BY_HOP_HEADER_H 1
 
 #include "IPv6ExtensionHeader.h"
 
