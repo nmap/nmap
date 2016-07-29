@@ -221,6 +221,14 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   if (recvbuf[0] == '5')
     fatal("Your FTP bounce server doesn't like the username \"%s\"", ftp->user);
 
+  if (!strncmp(recvbuf, "230", 3)) {
+    // 230 User logged in
+    // No need to send PASS
+    if (o.verbose)
+      log_write(LOG_STDOUT, "Login credentials accepted by FTP server!\n");
+    ftp->sd = sd;
+    return sd;
+  }
   Snprintf(command, 511, "PASS %s\r\n", ftp->pass);
 
   send(sd, command, strlen(command), 0);
