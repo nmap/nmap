@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o FTP Bounce scan: improved some edge cases like anonymous login without
+  password, 500 errors used to indicate port closed, and timeouts for LIST
+  command. Also fixed a 1-byte array overrun (read) when checking for
+  privileged ports. [Daniel Miller]
+
 o [NSE] Solved a memory corruption issue that would happen if a socket connect
   operation produced an error immediately, such as Network Unreachable. The
   event handler was throwing a Lua error, preventing Nsock from cleaning up
