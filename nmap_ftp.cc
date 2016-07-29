@@ -275,6 +275,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
   char command[512];
   unsigned short portno, p1, p2;
   int timedout;
+  bool privok = false;
 
   if (numports == 0)
     return; /* nothing to scan for */
@@ -332,7 +333,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         if (o.debugging)
           log_write(LOG_STDOUT, "result of port query on port %i: %s",
                                      portarray[i],  recvbuf);
-        if (recvbuf[0] == '5') {
+        if (recvbuf[0] == '5' && !privok) {
           if (portarray[i] > 1023) {
             fatal("Your FTP bounce server sucks, it won't let us feed bogus ports!");
           } else {
@@ -343,6 +344,9 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
             }
           }
         } else { /* Not an error message */
+          if (portarray[i] < 1024) {
+            privok = true;
+          }
           if (send(sd, "LIST\r\n", 6, 0) > 0 ) {
             res = recvtime(sd, recvbuf, 2048, 12, &timedout);
             if (res < 0) {
