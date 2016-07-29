@@ -352,6 +352,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
             if (res < 0) {
               perror("recv problem from FTP bounce server");
             } else if (res == 0) {
+              recvbuf[res] = '\0';
               if (timedout)
                 target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
               else target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
@@ -365,25 +366,35 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
                   error("FTP command misalignment detected ... correcting.");
                 res = recvtime(sd, recvbuf, 2048, 10, NULL);
               }
-              if (recvbuf[0] == '1' || recvbuf[0] == '2') {
-                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_OPEN);
-                if (recvbuf[0] == '1') {
-                  res = recvtime(sd, recvbuf, 2048, 5, NULL);
-                  if (res < 0)
-                    perror("recv problem from FTP bounce server");
-                  else {
-                    recvbuf[res] = '\0';
-                    if (res > 0) {
-                      if (o.debugging)
-                        log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
-                      if (recvbuf[0] == '4' && recvbuf[1] == '2' && recvbuf[2] == '6') {
-                        target->ports.forgetPort(portarray[i], IPPROTO_TCP);
-                        if (o.debugging || o.verbose)
-                          log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
-                      }
+              if (recvbuf[0] == '1') {
+                res = recvtime(sd, recvbuf, 2048, 10, &timedout);
+                if (res < 0)
+                  perror("recv problem from FTP bounce server");
+                else if (timedout || res == 0) {
+                  // Timed out waiting for LIST to complete; probably filtered.
+                  if(send(sd, "ABOR\r\n", 6, 0) > 0) {
+                    target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
+                  }
+                  // Get response and discard
+                  res = recvtime(sd, recvbuf, 2048, 10, &timedout);
+                  recvbuf[0] = '\0';
+                  goto nextport;
+                }
+                else {
+                  recvbuf[res] = '\0';
+                  if (res > 0) {
+                    if (o.debugging)
+                      log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
+                    if (recvbuf[0] == '4' && recvbuf[1] == '2' && recvbuf[2] == '6') {
+                      target->ports.forgetPort(portarray[i], IPPROTO_TCP);
+                      if (o.debugging || o.verbose)
+                        log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
                     }
                   }
                 }
+              }
+              if (recvbuf[0] == '2') {
+                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_OPEN);
               } else {
                 /* This means the port is closed ... */
                 target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
@@ -393,6 +404,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         }
       }
     }
+    nextport:
     if (SPM->mayBePrinted(NULL)) {
       SPM->printStatsIfNecessary((double) i / numports, NULL);
     }
