@@ -40,6 +40,11 @@ PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
+README_FILE = README.md
+COPYING_FILE = COPYING
+3RD_P_LIC_FILE = 3rd-party-licenses.txt
+LICENSES_FILE = licenses
+
 EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
@@ -73,10 +78,25 @@ LDFLAGS += $(UNIVERSAL_LDFLAGS)
 PYTHON = $(JHBUILD_PREFIX)/bin/python2.7
 OPENSSL_STATIC = $(JHBUILD_PREFIX)/lib/libssl.a $(JHBUILD_PREFIX)/lib/libcrypto.a
 
+export ICON_SIZE=88
+export FONT_SIZE=13
+export MPKG_POS_X=110
+export MPKG_POS_Y=170
+export APPS_POS_X=110
+export APPS_POS_Y=310
+export README_POS_X=802
+export README_POS_Y=180
+export COPYING_POS_X=802
+export COPYING_POS_Y=310
+export THIRD_P_POS_X=802
+export THIRD_P_POS_Y=440
+export LICENSES_POS_X=670
+export LICENSES_POS_Y=60
+
 $(IMAGE_NAME): path-check tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	./createdmg.sh $(IMAGE_STAGING_DIR)
-	./check_test.sh
+	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./check_test.sh $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
 path-check:
 	if (echo $(PATH) | grep -F "$(MACPORTS_PREFIX)"); then false; else echo "Path is OK"; fi

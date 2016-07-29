@@ -7,90 +7,88 @@ export backgroundPictureName="nmap.png"
 export finalDMGName="${title}.dmg"
 export applicationName="${title}.mpkg"
 RES="True"
+NB_FILES=7
 
 hdiutil attach ${finalDMGName}
 
+# Try to list files in the Volume, if we can't, its because its not ready yet
+# so we should sleep while its mounted before trying to check if everything is ok
+stop=false
+while [ "$stop" = false ]; do
+    test=`ls -l /Volumes/${title}/ | wc -l`
+    if [ "$test" -eq $NB_FILES ]; then
+        stop=true
+    fi
+    sleep 1
+done
+
 echo "\nDisk: ${disk}"
-echo "\nChecking positions..."
+echo "Checking positions...\n"
 
 export MPKG=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/'${applicationName}'" as alias
-		get properties of f
-	end tell
-' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
-
-export APP_FOLDER=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/Applications" as alias
-		get properties of f
-	end tell
+    tell application "Finder"
+        set f to POSIX file "'${disk}'/'${applicationName}'" as alias
+        get properties of f
+    end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
 export README=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/README.md" as alias
-		get properties of f
-	end tell
+    tell application "Finder"
+        set f to POSIX file "'${disk}'/'$1'" as alias
+        get properties of f
+    end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
 export COPYING=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/COPYING" as alias
-		get properties of f
-	end tell
+    tell application "Finder"
+        set f to POSIX file "'${disk}'/'$2'" as alias
+        get properties of f
+    end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
 export LICENSES_3RD=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/3rd-party-licenses.txt" as alias
-		get properties of f
-	end tell
+    tell application "Finder"
+        set f to POSIX file "'${disk}'/'$3'" as alias
+        get properties of f
+    end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
 export LICENSES=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/licenses" as alias
-		get properties of f
-	end tell
+    tell application "Finder"
+        set f to POSIX file "'${disk}'/'$4'" as alias
+        get properties of f
+    end tell
 ' | osascript | grep -o 'position:[0-9]*, [0-9]*' | awk -F':' '{ print $2 }'`
 
-if [ "$MPKG" = "110, 170" ]; then 
+if [ "$MPKG" = "$MPKG_POS_X, $MPKG_POS_Y" ]; then 
     echo "${applicationName}: OK"
 else
     echo "${applicationName}: Wrong"
     RES="False"
 fi;
 
-if [ "$APP_FOLDER" = "70, 40" ]; then 
-    echo "Applications: OK"
-else
-    echo "Applications: Wrong"
-    RES="False"
-fi;
-
-if [ "$README" = "802, 180" ]; then 
+if [ "$README" = "$README_POS_X, $README_POS_Y" ]; then 
     echo "README.md: OK"
 else
     echo "README.md: Wrong"
     RES="False"
 fi;
 
-if [ "$COPYING" = "802, 310" ]; then 
+if [ "$COPYING" = "$COPYING_POS_X, $COPYING_POS_Y" ]; then 
     echo "COPYING: OK"
 else
     echo "COPYING: Wrong"
     RES="False"
 fi;
 
-if [ "$LICENSES_3RD" = "802, 440" ]; then 
+if [ "$LICENSES_3RD" = "$THIRD_P_POS_X, $THIRD_P_POS_Y" ]; then 
     echo "3rd-party-licenses.txt: OK"
 else
     echo "3rd-party-licenses.txt: Wrong"
     RES="False"
 fi;
 
-if [ "$LICENSES" = "670, 60" ]; then 
+if [ "$LICENSES" = "$LICENSES_POS_X, $LICENSES_POS_Y" ]; then 
     echo "licenses: OK"
 else
     echo "licenses: Wrong"
@@ -98,14 +96,14 @@ else
 fi;
 
 export BG=`echo '
-	tell application "Finder"
-		set f to POSIX file "'${disk}'/.background/'${backgroundPictureName}'" as alias
-		if exists file f then
+    tell application "Finder"
+        set f to POSIX file "'${disk}'/.background/'${backgroundPictureName}'" as alias
+        if exists file f then
             return true
         else
             return false
         end if
-	end tell
+    end tell
 ' | osascript`
 
 if [ "$BG" = "true" ]; then 

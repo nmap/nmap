@@ -7,6 +7,7 @@ export size=50000
 export backgroundPictureName="nmap.png"
 export finalDMGName="${title}.dmg"
 export applicationName="${title}.mpkg"
+NB_FILES=7
 
 rm -rf ${source}/.background/${backgroundPictureName}
 rm -rf ${source}/.background/
@@ -32,7 +33,7 @@ export device=$(hdiutil attach -readwrite -noverify -noautoopen "pack.temp.dmg" 
 stop=false
 while [ "$stop" = false ]; do
     test=`ls -l /Volumes/${title}/ | wc -l`
-    if [ "$test" -eq 7 ]; then
+    if [ "$test" -eq $NB_FILES ]; then
         stop=true
     fi
     sleep 1
@@ -49,17 +50,17 @@ echo '
 			set statusbar visible of container window to false
 			set the bounds of container window to {100, 100, 1000, 660}
 			set theViewOptions to the icon view options of container window
-			set icon size of theViewOptions to 88
-			set text size of theViewOptions to 13
+			set icon size of theViewOptions to '${ICON_SIZE}'
+			set text size of theViewOptions to '${FONT_SIZE}'
 			set arrangement of theViewOptions to not arranged
 			set background picture of theViewOptions to file ".background:'${backgroundPictureName}'"
 			
-			set position of item "'${applicationName}'" of container window to {110, 170}
-			set position of item "Applications" of container window to {110, 310}
-			set position of item "README.md" of container window to {802, 180}
-			set position of item "COPYING" of container window to {802, 310}
-			set position of item "3rd-party-licenses.txt" of container window to {802, 440}
-			set position of item "licenses" of container window to {670, 60}
+			set position of item "'${applicationName}'" of container window to {'${MPKG_POS_X}', '${MPKG_POS_Y}'}
+			set position of item "Applications" of container window to {'${APPS_POS_X}', '${APPS_POS_Y}'}
+			set position of item "'$2'" of container window to {'${README_POS_X}', '${README_POS_Y}'}
+			set position of item "'$3'" of container window to {'${COPYING_POS_X}', '${COPYING_POS_Y}'}
+			set position of item "'$4'" of container window to {'${THIRD_P_POS_X}', '${THIRD_P_POS_Y}'}
+			set position of item "'$5'" of container window to {'${LICENSES_POS_X}', '${LICENSES_POS_Y}'}
 			
 			update without registering applications
 
