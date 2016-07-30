@@ -347,7 +347,7 @@ char **cmdline_split(const char *cmdexec)
 
     /* The line is not empty so we've got something to deal with */
     cmd_args = (char **) safe_malloc(sizeof(char *) * (max_tokens + 1));
-    cur_arg = (char *) Calloc(sizeof(char), strlen(cmdexec));
+    cur_arg = (char *) Calloc(sizeof(char), strlen(cmdexec) + 1);
 
     /* Get and copy the tokens */
     ptr = cmdexec;
