@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fix a crash ("add_fdinfo() failed.") when --exec was used with --ssl
+  and --max-conns, due to improper accounting of file descriptors. [Daniel
+  Miller]
+
 o FTP Bounce scan: improved some edge cases like anonymous login without
   password, 500 errors used to indicate port closed, and timeouts for LIST
   command. Also fixed a 1-byte array overrun (read) when checking for
