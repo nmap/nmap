@@ -434,7 +434,7 @@ static const char *pkey_type_to_string(int type)
 }
 
 int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#ifdef EVP_PKEY_EC
+#ifdef HAVE_EVP_PKEY_EC
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
