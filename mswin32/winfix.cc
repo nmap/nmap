@@ -187,7 +187,9 @@ static bool start_service(const char *svcname) {
   }
   npf = OpenService(scm, svcname, SC_MANAGER_CONNECT | SERVICE_QUERY_STATUS);
   if (npf == NULL) {
+    /* No need to warn at this point: we'll check later
     error("Error in OpenService");
+    */
     goto quit_error;
   }
   if (!QueryServiceStatus(npf, &service)) {
@@ -311,14 +313,24 @@ void win_init()
 		ULONG len = sizeof(pcaplist);
 
 		o.have_pcap = true;
-		if(o.debugging > 2) printf("Trying to initialize WinPcap\n");
+		if(o.debugging > 2) printf("Trying to initialize Windows pcap engine\n");
 		
-		if (start_service("npcap"))
-			pcap_driver = PCAP_DRIVER_NPCAP;
-		else if (start_service("npf"))
-			pcap_driver = PCAP_DRIVER_WINPCAP;
-		else
-			pcap_driver = PCAP_DRIVER_NONE;
+    /* o.isr00t will be false at this point if the user asked for
+       --unprivileged. In that case don't bother them with a
+       potential UAC dialog when starting NPF. */
+    if (o.isr00t) {
+      if (start_service("npcap"))
+        pcap_driver = PCAP_DRIVER_NPCAP;
+      else if (start_service("npf"))
+        pcap_driver = PCAP_DRIVER_WINPCAP;
+      else {
+        if (o.debugging) {
+          error("Unable to start either npcap or npf service");
+        }
+        pcap_driver = PCAP_DRIVER_NONE;
+        o.have_pcap = false;
+      }
+    }
 
 		if (pcap_driver == PCAP_DRIVER_NPCAP)
 			init_npcap_dll_path();
@@ -341,11 +353,6 @@ void win_init()
 		if(o.debugging)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
 
-		/* o.isr00t will be false at this point if the user asked for
-		   --unprivileged. In that case don't bother them with a
-		   potential UAC dialog when starting NPF. */
-		if (o.isr00t)
-			o.have_pcap = o.have_pcap && ((bool) pcap_driver);
 	}
 #ifdef _MSC_VER
 	__except (1) {
