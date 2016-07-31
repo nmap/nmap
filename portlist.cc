@@ -933,7 +933,7 @@ int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl,
       answer->reason.ip_addr.sockaddr.sa_family = AF_UNSPEC;
     else
       answer->reason.set_ip_addr(ip_addr);
-        answer->reason.ttl = ttl;
+    answer->reason.ttl = ttl;
     return 0;
 }
 

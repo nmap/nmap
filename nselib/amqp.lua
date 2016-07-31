@@ -15,7 +15,7 @@
 --
 
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Sebastian Dragomir <velorien@gmail.com>"
+-- @author Sebastian Dragomir <velorien@gmail.com>
 
 -- Version 0.1
 

@@ -311,7 +311,7 @@ and therefore is quite noisy.
 -- </table>
 -- <elem key="least strength">C</elem>
 
-author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
+author = {"Mak Kolybabi <mak@kolybabi.com>", "Gabriel Lawrence"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -322,7 +322,7 @@ categories = {"discovery", "intrusive"}
 -- http://seclists.org/nmap-dev/2012/q3/156
 -- http://seclists.org/nmap-dev/2010/q1/859
 local CHUNK_SIZE = 64
-local have_ssl, _ = pcall(require,'openssl')
+local have_ssl, openssl = pcall(require,'openssl')
 
 -- Add additional context (protocol) to debug output
 local function ctx_log(level, protocol, fmt, ...)
@@ -715,6 +715,12 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                       scores.warnings["Weak certificate signature: SHA1"] = true
                     end
                     kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
+                    if c.pubkey.exponent then
+                      if openssl.bignum_bn2dec(c.pubkey.exponent) == "1" then
+                        kex_strength = 0
+                        scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
+                      end
+                    end
                     if c.pubkey.ecdhparams then
                       if c.pubkey.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
                         extra = c.pubkey.ecdhparams.curve_params.curve
@@ -746,6 +752,10 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                   else
                     extra = string.format("%s %d", kex.type, kex_info.strength)
                   end
+                end
+                if kex_info.rsa and kex_info.rsa.exponent == 1 then
+                  kex_strength = 0
+                  scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
                 end
               end
             end

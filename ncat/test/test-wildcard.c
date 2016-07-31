@@ -285,8 +285,9 @@ stack_err:
 static int gen_cert(X509 **cert, EVP_PKEY **key,
     const struct lstr commonNames[], const struct lstr dNSNames[])
 {
-    RSA *rsa;
-    int rc;
+    RSA *rsa = NULL;
+    BIGNUM *bne = NULL;
+    int rc, ret=0;
 
     *cert = NULL;
     *key = NULL;
@@ -296,9 +297,17 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     if (*key == NULL)
         goto err;
     do {
-        rsa = RSA_generate_key(KEY_BITS, RSA_F4, NULL, NULL);
-        if (rsa == NULL)
+        /* Generate RSA key. */
+        bne = BN_new();
+        ret = BN_set_word(bne, RSA_F4);
+        if (ret != 1)
             goto err;
+
+        rsa = RSA_new();
+        ret = RSA_generate_key_ex(rsa, KEY_BITS, bne, NULL);
+        if (ret != 1)
+            goto err;
+        /* Check RSA key. */
         rc = RSA_check_key(rsa);
     } while (rc == 0);
     if (rc == -1)

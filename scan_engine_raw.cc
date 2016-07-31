@@ -181,20 +181,21 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
   }
 
   if (hdr == IPPROTO_TCP) {
-    assert(len >= 20);
+    assert(len >= sizeof(struct tcp_hdr));
     tcp = (struct tcp_hdr *) data;
     probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
     probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
   } else if (hdr == IPPROTO_UDP) {
-    assert(len >= 8);
+    assert(len >= sizeof(struct udp_hdr));
     udp = (struct udp_hdr *) data;
     probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
   } else if (hdr == IPPROTO_SCTP) {
-    assert(len >= 12);
+    assert(len >= sizeof(struct sctp_hdr));
     sctp = (struct sctp_hdr *) data;
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
     probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
-  } else if (hdr == IPPROTO_ICMP || hdr == IPPROTO_ICMPV6) {
+  } else if ((ip->ip_v == 4 && hdr == IPPROTO_ICMP) || (ip->ip_v == 6 && hdr == IPPROTO_ICMPV6)) {
+    assert(len >= sizeof(struct ppkt));
     icmp = (struct ppkt *) data;
     probes.IP.pd.icmp.ident = ntohs(icmp->id);
   }

@@ -178,7 +178,8 @@
 -- that are referenced by other objects to let the Lua garbage-collector
 -- collect these last objects.
 --
--- @author "Djalal Harouni" and "Henri Doreau"
+-- @author Djalal Harouni
+-- @author Henri Doreau
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 

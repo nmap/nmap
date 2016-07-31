@@ -127,10 +127,10 @@ void telnet_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
     switch (type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
-      nsi_getlastcommunicationinfo(nsi, NULL, NULL, NULL, (struct sockaddr *)&peer, sizeof peer);
-      printf("Successfully connected %sto %s:%hu -- start typing lines\n", (type == NSE_TYPE_CONNECT_SSL) ? "(SSL!) " : "", inet_ntoa(peer.sin_addr), peer.sin_port);
+      nsock_iod_get_communication_info(nsi, NULL, NULL, NULL, (struct sockaddr *)&peer, sizeof peer);
+      printf("Successfully connected %sto %s:%hu -- start typing lines\n", (type == NSE_TYPE_CONNECT_SSL) ? "(SSL!) " : "", inet_ntoa(peer.sin_addr), ntohs(peer.sin_port));
       /* First of all, lets add STDIN to our list of watched filehandles */
-      if ((ts->stdin_nsi = nsi_new2(nsp, STDIN_FILENO, NULL)) == NULL) {
+      if ((ts->stdin_nsi = nsock_iod_new2(nsp, STDIN_FILENO, NULL)) == NULL) {
         fprintf(stderr, "Failed to create stdin msi\n");
         exit(1);
       }
@@ -172,7 +172,7 @@ void telnet_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
       printf("Cancelled stdin event: %li\n", ts->latest_readstdinev);
     }
   } else if (status == NSE_STATUS_ERROR) {
-    if (nsi_checkssl(nsi)) {
+    if (nsock_iod_check_ssl(nsi)) {
       printf("SSL %s failed: %s\n", nse_type2str(type), ERR_error_string(ERR_get_error(), NULL));
     } else {
       int err;
@@ -230,14 +230,14 @@ int main(int argc, char *argv[]) {
     portno = 23;
 
   /* OK, we start with creating a p00l */
-  if ((nsp = nsp_new(NULL)) == NULL) {
+  if ((nsp = nsock_pool_new(NULL)) == NULL) {
     fprintf(stderr, "Failed to create new pool.  QUITTING.\n");
     exit(1);
   }
 
   gettimeofday(&now, NULL);
 
-  if ((ts.tcp_nsi = nsi_new(nsp, NULL)) == NULL) {
+  if ((ts.tcp_nsi = nsock_iod_new(nsp, NULL)) == NULL) {
     fprintf(stderr, "Failed to create new nsock_iod.  QUITTING.\n");
     exit(1);
   }

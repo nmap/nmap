@@ -199,7 +199,7 @@ int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
   /* Do not encrypt, just set the plaintext */
   for(size_t i=0; i<inlen; i++)
     dst_buff[i]=inbuff[i];
-    return OP_SUCCESS;
+  return OP_SUCCESS;
 } /* End of aes128_cbc_encrypt() */
 
 

@@ -322,6 +322,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
   int optval;
   socklen_t optlen = sizeof(int);
   struct niod *iod = nse->iod;
+  assert(iod != NULL);
 #if HAVE_OPENSSL
   int sslerr;
   int rc = 0;

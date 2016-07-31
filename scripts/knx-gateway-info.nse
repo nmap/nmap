@@ -13,7 +13,7 @@ Further information:
   * http://www.knx.org/
 ]]
 
-author = "Niklaus Schiess <nschiess@ernw.de>, Dominik Schneider <dschneider@ernw.de>"
+author = {"Niklaus Schiess <nschiess@ernw.de>", "Dominik Schneider <dschneider@ernw.de>"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 portrule = shortport.port_or_service(3671, "efcp", "udp")

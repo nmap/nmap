@@ -252,6 +252,10 @@ const char *FingerPrintResultsIPv6::OmitSubmissionFP() {
     return reason;
   }
 
+  if (osscan_opentcpport <= 0 && osscan_closedtcpport <= 0) {
+    return "Missing a closed or open TCP port so results incomplete";
+  }
+
   if (incomplete) {
     return "Some probes failed to send so results incomplete";
   }

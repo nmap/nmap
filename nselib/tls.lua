@@ -4,7 +4,7 @@
 -- These functions will build strings and process buffers. Socket communication
 -- is left to the script to implement.
 --
--- @author "Daniel Miller <bonsaiviking@gmail.com>"
+-- @author Daniel Miller
 
 local stdnse = require "stdnse"
 local bin = require "bin"

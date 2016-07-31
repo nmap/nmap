@@ -147,6 +147,10 @@
 #include <map>
 
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 void UltraScanInfo::log_overall_rates(int logt) {
   log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
@@ -971,7 +975,11 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
      requires it. */
   if (isRawScan()) {
     if (ping_scan_arp || (ping_scan_nd && o.sendpref != PACKET_SEND_IP_STRONG) || ((o.sendpref & PACKET_SEND_ETH) &&
-        Targets[0]->ifType() == devt_ethernet)) {
+        (Targets[0]->ifType() == devt_ethernet
+#ifdef WIN32
+        || (g_has_npcap_loopback && Targets[0]->ifType() == devt_loopback)
+#endif
+        ))) {
       /* We'll send ethernet packets with dnet */
       ethsd = eth_open_cached(Targets[0]->deviceName());
       if (ethsd == NULL)
@@ -1465,7 +1473,7 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
       pspec->pd.sctp.chunktype = SCTP_INIT;
       return 0;
     }
-    if (USI->ptech.rawprotoscan) {
+    if (USI->ptech.rawprotoscan && hss->next_protoportpingidx < USI->ports->proto_ping_count) {
       pspec->type = PS_PROTO;
       pspec->proto = USI->ports->proto_ping_ports[hss->next_protoportpingidx++];
       return 0;
@@ -2664,7 +2672,7 @@ void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
   }
 
 #ifdef WIN32
-  if (scantype != CONNECT_SCAN && Targets[0]->ifType() == devt_loopback) {
+  if (g_has_npcap_loopback == 0 && scantype != CONNECT_SCAN && Targets[0]->ifType() == devt_loopback) {
     log_write(LOG_STDOUT, "Skipping %s against %s because Windows does not support scanning your own machine (localhost) this way.\n", scantype2str(scantype), Targets[0]->NameIP());
     return;
   }

@@ -125,15 +125,6 @@
 #ifndef NBASE_WINUNIX_H
 #define NBASE_WINUNIX_H
 
-/* Define the earliest version of Windows we support.  These control
-   what parts of the Windows API are available. The available constants
-   are in <sdkddkver.h>.
-   http://msdn.microsoft.com/en-us/library/aa383745.aspx
-   http://blogs.msdn.com/oldnewthing/archive/2007/04/11/2079137.aspx */
-#undef _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINNT_WIN6
-#undef NTDDI_VERSION
-#define NTDDI_VERSION NTDDI_WIN6
 
 #include "nbase_winconfig.h"
 
