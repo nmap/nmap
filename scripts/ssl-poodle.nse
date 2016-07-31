@@ -77,7 +77,6 @@ local function ctx_log(level, protocol, fmt, ...)
 end
 
 local function try_params(host, port, t)
-  t.host = host --adds host also so that host.registry is accessible inside tls.lua
 
   local timeout = ((host.times and host.times.timeout) or 5) * 1000 + 5000
 
@@ -286,6 +285,18 @@ local function find_ciphers(host, port, protocol)
   local ciphers = in_chunks(cbc_ciphers, CHUNK_SIZE)
 
   results = {}
+
+  -- If ssl-enum was run and ciphers are already discovered
+  if host.registry.tls_protos then
+    for proto, ciphers in pairs(host.registry.tls_protos) do
+      for _, cipher in pairs(ciphers) do
+        if string.find(cipher, "_CBC_") then
+          table.insert(results, cipher)
+        end
+      end
+    end
+    return results
+  end
 
   -- Try every cipher.
   for _, group in ipairs(ciphers) do

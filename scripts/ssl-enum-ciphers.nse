@@ -1121,7 +1121,7 @@ end
 
 action = function(host, port)
 
-  host.registry.supported_ciphers = {}
+  host.registry.tls_protos = {}
 
   if not have_ssl then
     stdnse.verbose("OpenSSL not available; some cipher scores will be marked as unknown.")
@@ -1151,10 +1151,18 @@ action = function(host, port)
     return nil
   end
 
+  -- Store the discovered ciphers in host table, should be utilized by other
+  -- scripts to find cipher suite available.
+  for key, val in pairs(results) do
+    host.registry.tls_protos[key] = {}
+    for _, j in pairs(val.ciphers) do
+      table.insert(host.registry.tls_protos[key], j.name)
+    end
+  end
+
   local least = "A"
   for p, r in pairs(results) do
     for i, c in ipairs(r.ciphers) do
-      host.registry.supported_ciphers[#host.registry.supported_ciphers + 1] = c.name
       -- counter-intuitive: "A" < "B", so really looking for max
       least = least < c.strength and c.strength or least
     end

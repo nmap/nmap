@@ -1342,14 +1342,8 @@ function client_hello(t)
 
   -- Cipher suites.
   ciphers = {}
-  local default_ciphers = {}
-
-  if t.host and t.host.registry then
-    default_ciphers = t.host.registry.supported_ciphers or DEFAULT_CIPHERS
-  end
-
   -- Add specified ciphers.
-  for _, cipher in pairs(t["ciphers"] or default_ciphers) do
+  for _, cipher in pairs(t["ciphers"] or DEFAULT_CIPHERS) do
     if type(cipher) == "string" then
       cipher = CIPHERS[cipher] or SCSVS[cipher]
     end
