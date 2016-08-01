@@ -18,6 +18,7 @@
     <ProjectGuid>{BBF27339-C7B6-4F52-B742-897796C1F13B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>nmapupdate</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

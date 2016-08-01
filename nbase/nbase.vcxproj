@@ -18,6 +18,7 @@
     <ProjectGuid>{B630C8F7-3138-43E8-89ED-78742FA2AC5F}</ProjectGuid>
     <RootNamespace>nbase</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

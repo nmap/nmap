@@ -15,6 +15,7 @@
     <ProjectGuid>{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}</ProjectGuid>
     <RootNamespace>dnet</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

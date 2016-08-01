@@ -17,7 +17,6 @@
 base64.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
      Creating library .\Debug\ncat.lib and object .\Debug\ncat.exp
   ncat.vcxproj -> C:\Users\rajit\Source\Repos\nmap\ncat\.\Debug\ncat.exe
-  File not found - *.dll
-  0 File(s) copied
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: The command "xcopy "..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "Debug\" /y
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: :VCEnd" exited with code 4.
+  ..\..\nmap-mswin32-aux\OpenSSL\bin\libeay32.dll
+  ..\..\nmap-mswin32-aux\OpenSSL\bin\ssleay32.dll
+  2 File(s) copied

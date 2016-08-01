@@ -22,7 +22,6 @@ c:\users\rajit\source\repos\nmap\nping\echoserver.cc(444): warning C4305: '+=': 
 ArgParser.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
 LINK : warning LNK4199: /DELAYLOAD:libeay32.lib ignored; no imports found from libeay32.lib
   nping.vcxproj -> C:\Users\rajit\Source\Repos\nmap\nping\.\Debug\nping.exe
-  File not found - *.dll
-  0 File(s) copied
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: The command "xcopy "..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "C:\Users\rajit\Source\Repos\nmap\mswin32\\Debug\" /y 
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: :VCEnd" exited with code 4.
+  ..\..\nmap-mswin32-aux\OpenSSL\bin\libeay32.dll
+  ..\..\nmap-mswin32-aux\OpenSSL\bin\ssleay32.dll
+  2 File(s) copied

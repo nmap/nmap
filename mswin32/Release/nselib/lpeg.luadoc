@@ -1,0 +1,10 @@
+---
+-- Parsing Expression Grammars for Lua
+--
+-- LPeg is a powerful pattern matching and grammar parsing library. The full
+-- documentation can be found at
+-- http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html
+--
+-- @author Roberto Ierusalimschy
+-- @license Copyright 2007, Lua.org & PUC-Rio (https://svn.nmap.org/nmap/docs/licenses/MIT)
+module "lpeg"

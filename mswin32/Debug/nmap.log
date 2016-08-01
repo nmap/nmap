@@ -1,4 +1,6 @@
-﻿  nmap.vcxproj -> C:\Users\rajit\Source\Repos\nmap\mswin32\.\Debug\nmap.exe
+﻿charpool.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  nmap.vcxproj -> C:\Users\rajit\Source\Repos\nmap\mswin32\.\Debug\nmap.exe
+  nmap.vcxproj -> .\Debug/nmap.pdb (Full PDB)
   C:\Users\rajit\Source\Repos\nmap\mswin32\..\scripts\acarsd-info.nse
   C:\Users\rajit\Source\Repos\nmap\mswin32\..\scripts\address-info.nse
   C:\Users\rajit\Source\Repos\nmap\mswin32\..\scripts\afp-brute.nse
@@ -695,7 +697,8 @@
   C:\Users\rajit\Source\Repos\nmap\mswin32\..\nselib\data\psexec\pwdump.lua
   C:\Users\rajit\Source\Repos\nmap\mswin32\..\nselib\data\psexec\README
   44 File(s) copied
-  File not found - *.dll
-  0 File(s) copied
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: The command "xcopy "C:\Users\rajit\Source\Repos\nmap\mswin32\..\scripts" ".\Debug\scripts\" /e /y && xcopy "C:\Users\rajit\Source\Repos\nmap\mswin32\..\nselib\*.lua" "C:\Users\rajit\Source\Repos\nmap\mswin32\\Debug\nselib\" /y && xcopy /s /e "C:\Users\rajit\Source\Repos\nmap\mswin32\..\nselib\data\*.*" "C:\Users\rajit\Source\Repos\nmap\mswin32\\Debug\nselib\data\" /y && xcopy "C:\Users\rajit\Source\Repos\nmap\mswin32\\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "C:\Users\rajit\Source\Repos\nmap\mswin32\\Debug\" /y && xcopy "C:\Users\rajit\Source\Repos\nmap\mswin32\..\nse_main.lua" "C:\Users\rajit\Source\Repos\nmap\mswin32\\Debug\" /y
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(133,5): error MSB3073: :VCEnd" exited with code 4.
+  C:\Users\rajit\Source\Repos\nmap\mswin32\\..\..\nmap-mswin32-aux\OpenSSL\bin\libeay32.dll
+  C:\Users\rajit\Source\Repos\nmap\mswin32\\..\..\nmap-mswin32-aux\OpenSSL\bin\ssleay32.dll
+  2 File(s) copied
+  C:\Users\rajit\Source\Repos\nmap\mswin32\..\nse_main.lua
+  1 File(s) copied

@@ -26,6 +26,7 @@
     <ProjectGuid>{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}</ProjectGuid>
     <RootNamespace>nsock</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseNoPcap|Win32'" Label="Configuration">

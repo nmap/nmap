@@ -5,10 +5,6 @@
   nbase_str.c
   nbase_rnd.c
   nbase_misc.c
-c:\users\rajit\source\repos\nmap\nbase\nbase_misc.c(239): warning C4090: 'function': different 'const' qualifiers
-c:\users\rajit\source\repos\nmap\nbase\nbase_misc.c(245): warning C4090: 'function': different 'const' qualifiers
-c:\users\rajit\source\repos\nmap\nbase\nbase_misc.c(941): warning C4090: 'function': different 'const' qualifiers
-c:\users\rajit\source\repos\nmap\nbase\nbase_misc.c(947): warning C4090: 'function': different 'const' qualifiers
   nbase_memalloc.c
   nbase_addrset.c
   inet_pton.c

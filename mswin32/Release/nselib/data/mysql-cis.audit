@@ -1,0 +1,228 @@
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
+-- Defined in mysql-audit.nse
+-- makes nse-check-globals complain, but that's ok
+local test = test
+
+TEMPLATE_NAME="CIS MySQL Benchmarks v1.0.2"
+
+-- These accounts should be treated as admins and excluded from some of the results
+ADMIN_ACCOUNTS={"root", "debian-sys-maint"}
+
+-- Checks whether a resultset is empty or not
+local function isEmpty(rows)
+  if ( #rows > 0 ) then return false end
+  return true
+end
+
+-- Extracts a column from a row and return all occurances as an array
+local function col2tab(rs, cname)
+  local tab = {}
+  local cpos
+  for i=1, #rs.cols do
+    if ( rs.cols[i].name == cname ) then
+      cpos = i
+      break
+    end
+  end
+  if ( not(cpos) ) then
+    return
+  end
+  for _, row in ipairs(rs.rows) do table.insert(tab, row[cpos]) end
+  return tab
+end
+
+local function createINstmt(tab)
+  local tab2 = {}
+  for i=1, #tab do tab2[i] = ("'%s'"):format(tab[i]) end
+  return stdnse.strjoin(",", tab2)
+end
+
+
+-- This next section contains all the tests
+
+-- Logging
+test { id="3.1", desc="Skip symbolic links", sql="SHOW variables WHERE Variable_name = 'log_error' AND Value IS NOT NULL", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="3.2", desc="Logs not on system partition", sql="SHOW variables WHERE Variable_name = 'log_bin' AND Value <> 'OFF'", check=function(rowstab)
+  local log = col2tab(rowstab[1], 'Value')
+  return { status = isEmpty(rowstab[1]), result = log, review = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="3.2", desc="Logs not on database partition", sql="SHOW variables WHERE Variable_name = 'log_bin' AND Value <> 'OFF'", check=function(rowstab)
+  local log = col2tab(rowstab[1], 'Value')
+  return { status = isEmpty(rowstab[1]), result = log, review = not(isEmpty(rowstab[1])) }
+end
+}
+
+
+-- General
+test { id="4.1", desc="Supported version of MySQL", sql="SHOW VARIABLES like 'version'", check=function(rowstab)
+  local ver = col2tab(rowstab[1], 'Value')[1]
+  return { status = true, review = true, result = ("Version: %s"):format(ver) }
+end
+}
+
+test { id="4.4", desc="Remove test database", sql="SHOW DATABASES like 'test'", check=function(rowstab) return { status = isEmpty(rowstab[1]) } end  }
+
+test { id="4.5", desc="Change admin account name", sql="SELECT user FROM mysql.user WHERE user='root';", check=function(rowstab) return { status = isEmpty(rowstab[1]) } end }
+
+test { id="4.7", desc="Verify Secure Password Hashes", sql="SELECT DISTINCT user, password from mysql.user where length(password) < 41 AND length(password) > 0", check=function(rowstab)
+  local users = col2tab(rowstab[1], 'user')
+  users.name = ( #users > 0 ) and "The following users were found having weak password hashes"
+  return { status = isEmpty(rowstab[1]), result = users }
+end
+}
+
+test { id="4.9", desc="Wildcards in user hostname", sql="select user from mysql.user where host = '%'", check=function(rowstab)
+  local users = col2tab(rowstab[1], 'user')
+  users.name = ( #users > 0 ) and "The following users were found with wildcards in hostname"
+  return { status = isEmpty(rowstab[1]), result = users }
+end
+}
+
+test { id="4.10", desc="No blank passwords", sql="select distinct user, password from mysql.user where length(password) = 0 or password is null", check=function(rowstab)
+  local users = col2tab(rowstab[1], 'user')
+  users.name = ( #users > 0 ) and "The following users were found having blank/empty passwords"
+  return { status = isEmpty(rowstab[1]), result = users }
+end
+}
+
+test { id="4.11", desc="Anonymous account", sql="select distinct user from mysql.user where user =''", check=function(rowstab) return { status = isEmpty(rowstab[1]) } end }
+
+
+-- MySQL Permissions
+test { id="5.1", desc="Access to mysql database",
+  sql = { "SELECT user, host FROM mysql.db WHERE db = 'mysql' and ((Select_priv = 'Y') or (Insert_priv = 'Y') " ..
+    "or (Update_priv = 'Y') or (Delete_priv = 'Y') or (Create_priv = 'Y') or (Drop_priv = 'Y'))",
+    "SELECT user, host FROM mysql.user WHERE (Select_priv = 'Y') or (Insert_priv = 'Y') or " ..
+    "(Update_priv = 'Y') or (Delete_priv = 'Y') or (Create_priv = 'Y') or (Drop_priv = 'Y')" },
+  check = function(rowstab)
+
+    local result = tab.new(2)
+    tab.addrow(result, "user", "host")
+
+    local rs = rowstab[1]
+    for _, row in ipairs(rs.rows) do
+      tab.addrow( result, row[1], row[2] )
+    end
+
+    return { status = false, review = true, result = { tab.dump(result), name="Verify the following users that have access to the MySQL database" } }
+  end
+}
+
+test { id="5.2", desc="Do not grant FILE privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE File_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the FILE privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+test { id="5.3", desc="Do not grant PROCESS privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE Process_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the PROCESS privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+test { id="5.4", desc="Do not grant SUPER privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE Super_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the SUPER privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+test { id="5.5", desc="Do not grant SHUTDOWN privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE Shutdown_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the SHUTDOWN privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+test { id="5.6", desc="Do not grant CREATE USER privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE Create_user_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the CREATE USER privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+test { id="5.7", desc="Do not grant RELOAD privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE Reload_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the RELOAD privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+test { id="5.8", desc="Do not grant GRANT privileges to non Admin users",
+  sql=("SELECT user, host FROM mysql.user WHERE Grant_priv = 'Y' AND user NOT IN (%s)"):format(createINstmt(ADMIN_ACCOUNTS)),
+  check=function(rowstab)
+    local users = col2tab(rowstab[1], 'user')
+    users.name = ( #users > 0 ) and "The following users were found having the GRANT privilege"
+    return { status = isEmpty(rowstab[1]), result = users, review = not(isEmpty(rowstab[1])) }
+  end
+}
+
+
+-- MySQL Configuraiton options
+test { id="6.2", desc="Disable Load data local", sql="SHOW variables WHERE Variable_name = 'local_infile' AND Value='OFF'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.3", desc="Disable old password hashing", sql="SHOW variables WHERE Variable_name = 'old_passwords' AND Value='OFF'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.4", desc="Safe show database", sql="SHOW variables WHERE Variable_name = 'safe_show_database' AND Value='ON'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.5", desc="Secure auth", sql="SHOW variables WHERE Variable_name = 'secure_auth' AND Value='ON'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.6", desc="Grant tables", sql="SHOW variables WHERE Variable_name = 'skip_grant_tables' AND Value='OFF'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.7", desc="Skip merge", sql="SHOW variables WHERE Variable_name = 'have_merge_engine' AND Value='DISABLED'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.8", desc="Skip networking", sql="SHOW variables WHERE Variable_name = 'skip_networking' AND Value='ON'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.9", desc="Safe user create", sql="select @@global.sql_mode, @@session.sql_mode FROM dual WHERE @@session.sql_mode='NO_AUTO_CREATE_USER' AND @@global.sql_mode='NO_AUTO_CREATE_USER'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
+
+test { id="6.10", desc="Skip symbolic links", sql="SHOW variables WHERE Variable_name = 'have_symlink' AND Value='DISABLED'", check=function(rowstab)
+  return { status = not(isEmpty(rowstab[1])) }
+end
+}
