@@ -1,4 +1,6 @@
 local bit = require "bit"
+local os = require "os"
+local datetime = require "datetime"
 local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -100,6 +102,9 @@ action = function(host)
   if(status == false) then
     smb.stop(state)
     return stdnse.format_output(false, err)
+  end
+  if state.time then
+    datetime.record_skew(host, state.time, os.time())
   end
 
   local security_mode = state['security_mode']

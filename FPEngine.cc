@@ -1366,7 +1366,9 @@ int FPHost::choose_osscan_ports() {
       if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_OPEN)))
        this->open_port_tcp = tport->portno;
     }
-    this->target_host->FPR->osscan_opentcpport = this->open_port_tcp;
+    if (this->target_host->FPR != NULL) {
+      this->target_host->FPR->osscan_opentcpport = this->open_port_tcp;
+    }
   } else {
     /* If we don't have an open port, set it to -1 so we don't send probes that
      * target TCP open ports */
@@ -1382,7 +1384,9 @@ int FPHost::choose_osscan_ports() {
     if (tport->portno == 0)
       if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_CLOSED)))
         this->closed_port_tcp = tport->portno;
-    this->target_host->FPR->osscan_closedtcpport = this->closed_port_tcp;
+    if (this->target_host->FPR != NULL) {
+      this->target_host->FPR->osscan_closedtcpport = this->closed_port_tcp;
+    }
   } else if ((tport = this->target_host->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     this->closed_port_tcp = tport->portno;
@@ -1405,7 +1409,9 @@ int FPHost::choose_osscan_ports() {
     if (tport->portno == 0)
       if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_UDP, PORT_CLOSED)))
         this->closed_port_udp = tport->portno;
-    this->target_host->FPR->osscan_closedudpport = this->closed_port_udp;
+    if (this->target_host->FPR != NULL) {
+      this->target_host->FPR->osscan_closedudpport = this->closed_port_udp;
+    }
   } else if ((tport = this->target_host->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     this->closed_port_udp = tport->portno;
@@ -1845,7 +1851,11 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
-  if (this->target_host->directlyConnected()) {
+  if (this->target_host->directlyConnected()
+#ifdef WIN32
+    && !(g_has_npcap_loopback && this->target_host->ifType() == devt_loopback)
+#endif
+    ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
     this->target_host->SourceSockAddr(&ss, &slen);

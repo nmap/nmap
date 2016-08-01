@@ -13,7 +13,7 @@
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 7,0,12,1
+FILEVERSION 7,0,25,100
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x21L
@@ -30,7 +30,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Insecure.Org\0"
             VALUE "FileDescription", "Nmap\0"
-            VALUE "FileVersion", "7.12SVN\0"
+            VALUE "FileVersion", "7.25SVN\0"
             VALUE "InternalName", "Nmap\0"
             VALUE "LegalCopyright", "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)\0"
             VALUE "LegalTrademarks", "NMAP\0"

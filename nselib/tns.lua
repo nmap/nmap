@@ -111,6 +111,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local bits = require "bits"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
@@ -1102,8 +1103,11 @@ Packet.QueryResponseAck = {
     if ( len > 0 ) then
       while( len > 0) do
         local mask_part
-        pos, mask_part = bin.unpack("B", data, pos)
-        mask = mask .. mask_part:reverse()
+        pos, mask_part = bin.unpack("C", data, pos)
+        mask_part = stdnse.tobinary(bits.reverse(mask_part))
+        assert(#mask_part <= 8)
+        mask_part = ("0"):rep(8-#mask_part)..mask_part
+        mask = mask .. mask_part
         len = len - 1
       end
       pos = pos + 4
@@ -1130,8 +1134,11 @@ Packet.QueryResponseAck = {
         len = cols
         while( len > 0 ) do
           local mask_part
-          pos, mask_part = bin.unpack("B", data, pos)
-          mask = mask .. mask_part:reverse()
+          pos, mask_part = bin.unpack("C", data, pos)
+          mask_part = stdnse.tobinary(bits.reverse(mask_part))
+          assert(#mask_part <= 8)
+          mask_part = ("0"):rep(8-#mask_part)..mask_part
+          mask = mask .. mask_part
           len = len - 8
         end
         pos, marker = bin.unpack("C", data, pos)

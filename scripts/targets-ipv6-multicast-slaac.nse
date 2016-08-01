@@ -60,7 +60,6 @@ end
 -- @return A 16-byte string of IPv6 address, and the length of the prefix.
 local function get_random_ula_prefix(local_scope)
   local ula_prefix
-  math.randomseed(os.time())
   local global_id = string.char(math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1)
 
   if local_scope then

@@ -1269,7 +1269,7 @@ int readtcppacket(const u8 *packet, int readdata) {
         log_write(LOG_PLAIN, "URG ");
       log_write(LOG_PLAIN, "\n");
 
-      log_write(LOG_PLAIN, "ipid: %hu ttl: %hu ", ntohs(ip->ip_id),
+      log_write(LOG_PLAIN, "ipid: %hu ttl: %hhu ", ntohs(ip->ip_id),
                 ip->ip_ttl);
 
       if (tcp->th_flags & (TH_SYN | TH_ACK))
@@ -1329,7 +1329,7 @@ int readudppacket(const u8 *packet, int readdata) {
                 sourcehost, ntohs(udp->uh_sport), inet_ntoa(bullshit2),
                 ntohs(udp->uh_dport), tot_len);
 
-      log_write(LOG_PLAIN, "ttl: %hu ", ip->ip_ttl);
+      log_write(LOG_PLAIN, "ttl: %hhu ", ip->ip_ttl);
     }
   }
   if (readdata && i < tot_len) {

@@ -1,6 +1,5 @@
 local bit = require "bit"
 local http = require "http"
-local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -162,7 +161,7 @@ end
 local function gen_passwd_hash(passwd)
   local iter = 15
   local iter_char = itoa64(iter)
-  local iter_count = math.pow(2, iter)
+  local iter_count = 1<<iter
   local salt = stdnse.generate_random_string(8)
 
   local md5 = openssl.md5(salt .. passwd)

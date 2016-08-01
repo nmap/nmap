@@ -7,7 +7,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2014-10-23 15:14+0000\n"
 "PO-Revision-Date: 2014-11-23 14:00+0100\n"
-"Last-Translator: MaZ <rockmaaz at gmail d0t com>\n"
+"Translator: MaZ <rockmaaz at gmail d0t com>\n"
+"Last-Translator: VincentD <dumontv7 at gmail d0t com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -41,7 +42,7 @@ msgstr "%s sur %s"
 
 #: zenmapCore/UmitDB.py:139
 msgid "No module named dbapi2.pysqlite2 or sqlite3"
-msgstr "Pas de module nommé dbapi2.pysqlite2 ou sqlite3"
+msgstr "Aucun module nommé dbapi2.pysqlite2 ou sqlite3"
 
 #: zenmapCore/UmitOptionParser.py:140
 #, python-format
@@ -69,7 +70,7 @@ msgid ""
 "Begin with the specified profile selected. If combined with the -t (--"
 "target) option, automatically run the profile against the specified target."
 msgstr ""
-"Commence avec le profil sélectionné. En combinaison avec l'option -t (--"
+"Commence avec le profil spécifié sélectionné. Si combiné avec l'option -t (--"
 "target), lance automatiquement le profil contre la cible spécifiée."
 
 #: zenmapCore/UmitOptionParser.py:184
@@ -77,8 +78,8 @@ msgid ""
 "Specify a target to be used along with other options. If specified alone, "
 "open with the target field filled with the specified target"
 msgstr ""
-"Spécifie une cible utilisée avec d'autres options. Si spécifié seul, ouvre "
-"avec le champ cible contenant la cible spécifiée"
+"Spécifier une cible à utiliser avec d'autres options. Si spécifié seule, "
+"s'ouvre avec le champ cible contenant la cible spécifiée"
 
 #: zenmapCore/UmitOptionParser.py:192
 msgid ""
@@ -86,7 +87,7 @@ msgid ""
 "more verbosity"
 msgstr ""
 "Augmente le nombre de messages informatifs. Peut être utilisé plus d'une "
-"fois pour encore plus d'informations"
+"fois pour avoir encore plus d'informations"
 
 #: zenmapCore/NmapCommand.py:139
 msgid "Python 2.4 or later is required."
@@ -96,7 +97,8 @@ msgstr "Python 2.4 ou plus récent est requis."
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."
 msgstr ""
-"Une erreur s'est produite lors de l'obtention de la liste des scripts Nmap. Tentez d'effectuer une mise à jour de Nmap."
+"Une erreur s'est produite lors de l'obtention de la liste des scripts Nmap. "
+"Tentez de mettre à jour Nmap."
 
 #: zenmapGUI/ScriptInterface.py:467
 msgid ""
@@ -107,8 +109,8 @@ msgid ""
 msgstr ""
 "Liste des scripts\n"
 "\n"
-"Une liste des scripts installés. Activation ou désactivation possible d'un script en cliquant"
-"sur la case située à côté de son nom."
+"Une liste de tous les scripts installés. Activez ou désactivez un script en "
+"cliquant sur la case située à côté de son nom."
 
 #: zenmapGUI/ScriptInterface.py:471
 msgid ""
@@ -120,9 +122,9 @@ msgid ""
 msgstr ""
 "Description\n"
 "\n"
-"Cette case montre les catégories auxquelles un script appartient. De plus, elle donne une "
-"description détaillée du script présent dans le script. L'URL renvoie "
-"vers la documentation NSEDoc en ligne."
+"Cette case montre les catégories auxquelles un script appartient. De plus, "
+"elle donne une description détaillée du script présent dans le script. L'URL "
+"renvoie vers la documentation NSEDoc en ligne."
 
 #: zenmapGUI/ScriptInterface.py:476
 msgid ""
@@ -133,8 +135,8 @@ msgid ""
 msgstr ""
 "Arguments\n"
 "\n"
-"La liste des arguments passés au script sélectionné. Saisir une valeur en"
-"cliquant dans le champ situé à côté du nom de l'argument."
+"Une liste d'arguments qui affectent le script sélectionné. Entrer une valeur "
+"en cliquant dans le champ situé à côté du nom de l'argument."
 
 #: zenmapGUI/ScriptInterface.py:483
 msgid "Please wait."
@@ -150,11 +152,11 @@ msgstr "Arguments"
 
 #: zenmapGUI/ScriptInterface.py:721
 msgid "Select script files"
-msgstr "Selectionnez les fichiers des scripts"
+msgstr "Selectionnez les fichiers scripts"
 
 #: zenmapGUI/FilterBar.py:24
 msgid "Host Filter:"
-msgstr "Filtre:"
+msgstr "Filtre d'hôte:"
 
 #: zenmapGUI/FilterBar.py:57
 msgid ""
@@ -178,15 +180,14 @@ msgstr ""
 "Entrer du texte pour effectuer une <b>recherche par mot clef</b> - le texte "
 "entré est comparé à chaque caractéristique de l'hôte\n"
 "\n"
-"Pour réduire la recherche vous pouvez utiliser des <b>opérateurs</b> pour ne "
-"rechercher que certains champs pour l'hôte. La plupart des opérateurs ont "
-"une forme courte, listée ci-dessous.\n"
-"\n"
+"Pour réduire la recherche vous pouvez utiliser des <b>opérateurs</b> de "
+"recherche pour ne rechercher que certains champs spécifiques dans l'hôte. La "
+"plupart des opérateurs ont une forme courte, listée ci-dessous.\n"
 "<b>target: (t:)</b> - Données utilisateur ou résultat d'une requête DNS.\n"
-"<b>os:</b> - Tous les champs relatifs à l'OS\n"
-"<b>open: (op:)</b> - Ports ouverts découverts lors un scan.\n"
-"<b>closed: (cp:)</b> - Ports fermés découverts lors un scan.\n"
-"<b>filtered: (fp:)</b> - Ports filtrés découverts lors un scan.\n"
+"<b>os:</b> - Tous les champs relatifs à l'OS (SE)\n"
+"<b>open: (op:)</b> - Ports ouverts découverts lors d'un scan.\n"
+"<b>closed: (cp:)</b> - Ports fermés découverts lors d'un scan.\n"
+"<b>filtered: (fp:)</b> - Ports filtrés découverts lors d'un scan.\n"
 "<b>unfiltered: (ufp:)</b> - Ports non filtrés découverts lors d'un scan (en "
 "utilisant par exemple, un scan ACK).\n"
 "<b>open|filtered: (ofp:)</b> - Ports dans l'état \"ouvert|filtré\"\n"
@@ -205,7 +206,7 @@ msgstr "Services"
 
 #: zenmapGUI/ScanHostsView.py:180
 msgid "OS"
-msgstr "OS"
+msgstr "OS (SE)"
 
 #: zenmapGUI/ScanHostsView.py:181 zenmapGUI/ScanOpenPortsPage.py:230
 msgid "Host"
@@ -218,7 +219,7 @@ msgstr "Service"
 
 #: zenmapGUI/DiffCompare.py:194
 msgid "Scan Output"
-msgstr "Sortie de Nmap"
+msgstr "Résultat du Scan"
 
 #: zenmapGUI/DiffCompare.py:247
 msgid "Select Scan Result"
@@ -249,8 +250,8 @@ msgid ""
 "file:\n"
 "                            %s"
 msgstr ""
-"                            Cette erreur s'est produite lors de la tentative d'ouverture du "
-"fichier:\n"
+"                            Cette erreur s'est produite lors de la tentative "
+"d'ouverture du fichier:\n"
 "                            %s"
 
 #: zenmapGUI/DiffCompare.py:314 zenmapGUI/MainWindow.py:341
@@ -267,24 +268,24 @@ msgstr "Scan B"
 
 #: zenmapGUI/DiffCompare.py:390 zenmapGUI/DiffCompare.py:442
 msgid "Error running ndiff"
-msgstr "Erreur en lancant ndiff"
+msgstr "Erreur lors de l'exécution de ndiff"
 
 #: zenmapGUI/DiffCompare.py:392
 msgid ""
 "There was an error running the ndiff program.\n"
 "\n"
 msgstr ""
-"Il y a eu une erreur en lançant le programme ndiff.\n"
+"Il y a eu une erreur lors de l'exécution du programme ndiff.\n"
 "\n"
 
 #: zenmapGUI/DiffCompare.py:427
 msgid "Error parsing ndiff output"
-msgstr "Erreur en analysant la sortie ndiff"
+msgstr "Erreur lors de l'analyse du résultat de ndiff"
 
 #: zenmapGUI/DiffCompare.py:436
 #, python-format
 msgid "The ndiff process terminated with status code %d."
-msgstr "Le processus ndiff s'est terminé avec le code d'état %d."
+msgstr "Le processus ndiff s'est terminé avec le code status %d."
 
 #: zenmapGUI/ScanToolbar.py:141 zenmapGUI/ScanRunDetailsPage.py:138
 msgid "Command:"
@@ -309,7 +310,7 @@ msgstr "Profil:"
 
 #: zenmapGUI/MainWindow.py:247
 msgid "Sc_an"
-msgstr "Sc_an"
+msgstr "Sc_anner"
 
 #: zenmapGUI/MainWindow.py:251
 msgid "_Save Scan"
@@ -317,11 +318,11 @@ msgstr "_Sauvegarder le Scan"
 
 #: zenmapGUI/MainWindow.py:253
 msgid "Save current scan results"
-msgstr "Sauvegarder les résultats de scan en cours"
+msgstr "Sauvegarder les résultats de scan actuels"
 
 #: zenmapGUI/MainWindow.py:258
 msgid "Save All Scans to _Directory"
-msgstr "Enregistrer tous les scans dans le répertoire"
+msgstr "Enregistrer tous les scans _dans le répertoire"
 
 #: zenmapGUI/MainWindow.py:260
 msgid "Save all scans into a directory"
@@ -337,11 +338,11 @@ msgstr "Ouvre les résultats d'un scan précédent"
 
 #: zenmapGUI/MainWindow.py:272
 msgid "_Open Scan in This Window"
-msgstr "_Ouvrir un Scan dans cette Fenêtre"
+msgstr "_Ouvrir le Scan dans cette Fenêtre"
 
 #: zenmapGUI/MainWindow.py:274
 msgid "Append a saved scan to the list of scans in this window."
-msgstr "Ajouter un scan sauvegardé à la liste de scans de cette fenêtre."
+msgstr "Ajouter un scan sauvegardé à la liste de scans dans cette fenêtre."
 
 #: zenmapGUI/MainWindow.py:278
 msgid "_Tools"
@@ -361,11 +362,11 @@ msgstr "Fermer la Fenêtre"
 
 #: zenmapGUI/MainWindow.py:291
 msgid "Close this scan window"
-msgstr "Ferme cette fenêtre de scan"
+msgstr "Fermer cette fenêtre de scan"
 
 #: zenmapGUI/MainWindow.py:296
 msgid "Print..."
-msgstr "Imprimer"
+msgstr "Imprimer..."
 
 #: zenmapGUI/MainWindow.py:298
 msgid "Print the current scan"
@@ -381,15 +382,15 @@ msgstr "Quitte l'application"
 
 #: zenmapGUI/MainWindow.py:310
 msgid "New _Profile or Command"
-msgstr "Nouveau _Profil ou commande"
+msgstr "Nouveau _Profil ou Commande"
 
 #: zenmapGUI/MainWindow.py:312
 msgid "Create a new scan profile using the current command"
-msgstr "Créer un nouveau profil de scan "
+msgstr "Créer un nouveau profil de scan en utilisant la commande actuelle"
 
 #: zenmapGUI/MainWindow.py:317
 msgid "Search Scan Results"
-msgstr "Chercher des résultats de Scan"
+msgstr "Chercher les résultats de Scan"
 
 #: zenmapGUI/MainWindow.py:319
 msgid "Search for a scan result"
@@ -401,7 +402,7 @@ msgstr "Filtrer les hôtes"
 
 #: zenmapGUI/MainWindow.py:326
 msgid "Search for host by criteria"
-msgstr "Recherche d'un hôte par critère"
+msgstr "Recherche d'hôte par critère"
 
 #: zenmapGUI/MainWindow.py:331
 msgid "_Edit Selected Profile"
@@ -409,7 +410,7 @@ msgstr "_Editer le Profil Sélectionné"
 
 #: zenmapGUI/MainWindow.py:333
 msgid "Edit selected scan profile"
-msgstr "Editer le profil sélectionné"
+msgstr "Editer le profil de scan sélectionné"
 
 #: zenmapGUI/MainWindow.py:337
 msgid "_Profile"
@@ -417,11 +418,12 @@ msgstr "_Profil"
 
 #: zenmapGUI/MainWindow.py:343
 msgid "Compare Scan Results using Diffies"
-msgstr "Comparer les résultats en utilisant les Différences"
+msgstr "Comparer les résultats de scan en utilisant des Diffies (diff, cmp, "
+"...)"
 
 #: zenmapGUI/MainWindow.py:348 zenmapGUI/MainWindow.py:368
 msgid "_Help"
-msgstr "Ai_de"
+msgstr "Aide (_H)"
 
 #: zenmapGUI/MainWindow.py:352
 msgid "_Report a bug"
@@ -454,8 +456,8 @@ msgid ""
 "Can't store unsaved scans to the recent scans database:\n"
 "%s"
 msgstr ""
-"Impossible de stocker des scans non-sauvegardés dans la base de données de "
-"scans récente:\n"
+"Impossible de stocker des scans non-sauvegardés dans la récente base de "
+"données de scans:\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:600
@@ -464,14 +466,14 @@ msgstr "Erreur au chargement du fichier"
 
 #: zenmapGUI/MainWindow.py:623 zenmapGUI/MainWindow.py:702
 msgid "Nothing to save"
-msgstr "Rien à  sauvegarder"
+msgstr "Rien à sauvegarder"
 
 #: zenmapGUI/MainWindow.py:625
 msgid ""
 "There are no scans with results to be saved. Run a scan with the \"Scan\" "
 "button first."
 msgstr ""
-"Il n'y a pas de scan ayant des résultats à sauvegarder. Lancez un scan avec "
+"Il n'y a aucun scan ayant des résultats à sauvegarder. Lancez un scan avec "
 "le bouton \"Scan\" d'abord."
 
 #: zenmapGUI/MainWindow.py:633 zenmapGUI/MainWindow.py:711
@@ -519,7 +521,7 @@ msgstr ""
 
 #: zenmapGUI/MainWindow.py:826 zenmapGUI/MainWindow.py:867
 msgid "Close anyway"
-msgstr "Fermer quand même"
+msgstr "Fermer malgré tout"
 
 #: zenmapGUI/MainWindow.py:830
 msgid "Unsaved changes"
@@ -531,18 +533,18 @@ msgid ""
 "What do you want to do?"
 msgstr ""
 "Le scan en question a des changements non sauvegardés.\n"
-"Que voulez vous faire ?"
+"Que voulez vous faire?"
 
 #: zenmapGUI/MainWindow.py:871
 msgid "Trying to close"
-msgstr "Essai de fermeture"
+msgstr "Tentative de fermeture en cours"
 
 #: zenmapGUI/MainWindow.py:874
 msgid ""
 "The window you are trying to close has a scan running in the background.\n"
 "What do you want to do?"
 msgstr ""
-"La fenêtre que vous tentez de fermer réalise un scan en fond de tâche.\n"
+"La fenêtre que vous tentez de fermer réalise un scan en tâche de fond.\n"
 "Que souhaitez-vous faire?"
 
 #: zenmapGUI/MainWindow.py:946
@@ -555,8 +557,8 @@ msgid ""
 "There was an error loading the documentation file %s (%s). See the online "
 "documentation at %s."
 msgstr ""
-"Il y a eu une erreur au chargement du fichier de documentation %s (%s). Voir "
-"la documentation en ligne sur %s."
+"Une erreur est survenue au chargement du fichier de documentation %s (%s). "
+"Reportez-vous à la documentation en ligne sur %s."
 
 #: zenmapGUI/ScanInterface.py:441
 msgid "Empty Nmap Command"
@@ -569,7 +571,8 @@ msgid ""
 "to execute."
 msgstr ""
 "Aucune commande à exécuter. Peut être que le profil selectionné/saisi "
-"n'existe pas. Veuillez vérifier le nom du profil ou saisissez la commande nmap souhaitée. "
+"n'existe pas. Veuillez vérifier le nom du profil ou saisissez la commande "
+"nmap souhaitée."
 
 #: zenmapGUI/ScanInterface.py:543
 msgid ""
@@ -632,11 +635,11 @@ msgstr "%d/%d hôtes visibles"
 
 #: zenmapGUI/ScanInterface.py:967
 msgid "Nmap Output"
-msgstr "Sortie de Nmap"
+msgstr "Résultat de Nmap"
 
 #: zenmapGUI/ScanInterface.py:968
 msgid "Ports / Hosts"
-msgstr "Ports / hôtes"
+msgstr "Ports / Hôtes"
 
 #: zenmapGUI/ScanInterface.py:969
 msgid "Topology"
@@ -680,7 +683,7 @@ msgstr "Nom de l'hôte"
 
 #: zenmapGUI/BugReport.py:141
 msgid "How to Report a Bug"
-msgstr "Comment rapporter un Bug"
+msgstr "Comment Rapporter un Bug"
 
 #: zenmapGUI/BugReport.py:160
 #, python-format
@@ -707,25 +710,25 @@ msgid ""
 msgstr ""
 "<big><b>Comment rapporter un bug</b></big>\n"
 "\n"
-"Comme leur auteur, %(nmap)s et %(app)s ne sont pas parfaits. Mais vous "
-"pouvez aider à  les rendre meilleurs en envoyant des rapports de bug ou même "
+"Comme leurs auteurs, %(nmap)s et %(app)s ne sont pas parfaits. Mais vous "
+"pouvez aider à les améliorer en envoyant des rapports de bug ou même "
 "en écrivant des patches. Si %(nmap)s n'agit pas comme vous l'esperiez, "
-"mettez le d'abord à  jour à  la dernià¨re version disponible sur <b>"
-"%(nmap_web)s</b>. Si le problà¨me persiste, faites quelques recherches pour "
-"déterminer si cela a déja été découvert et rapporté. Essayez de rechercher "
+"mettez le d'abord à jour à la dernière version disponible sur <b>"
+"%(nmap_web)s</b>. Si le problème persiste, faites quelques recherches pour "
+"déterminer si cela a déjà été découvert et rapporté. Essayez de rechercher "
 "le message d'erreur sur Google ou les archives de développement sur http://"
 "seclists.org/. Lisez aussi le manuel en entier. Si rien de ceci n'aboutit, "
-"envoyez un rapport de bug à  <b>&lt;dev@nmap.org&gt;</b>. Veuillez inclure "
-"tout ce que vous pouvez avoir appris au sujet du problà¨me, ainsi que la "
-"version de Nmap que vous utilisez et sur quel systà¨me d'exploitation il est "
-"lancé. Les rapports de problà¨mes et les questions sur l'utilisation de "
-"%(nmap)s envoyés à  dev@nmap.org ont plus de chance de trouver des réponses "
-"que ceux envoyés à  Fyodor directement.\n"
+"envoyez un rapport de bug à <b>&lt;dev@nmap.org&gt;</b>. Veuillez inclure "
+"tout ce que vous pouvez avoir appris au sujet du problème, ainsi que la "
+"version de Nmap que vous utilisez et sur quel système d'exploitation il est "
+"lancé. Les rapports de problèmes et les questions sur l'utilisation de "
+"%(nmap)s envoyés à dev@nmap.org ont plus de chance de trouver des réponses "
+"que ceux envoyés à Fyodor directement.\n"
 "\n"
-"Les code correctifs pour réparer un bug sont encore meilleurs que les "
+"Les codes correctifs pour réparer des bugs sont encore mieux que les "
 "rapports de bug. Les instructions de base pour créer un correctif sont "
 "disponibles sur https://nmap.org/data/HACKING. Les correctifs peuvent être "
-"envoyés au nmap-dev (recommandé) ou à  Fyodor directement.\n"
+"envoyés à nmap-dev (recommandé) ou à Fyodor directement.\n"
 
 #: zenmapGUI/SearchGUI.py:325
 msgid "Search:"
@@ -750,9 +753,10 @@ msgid ""
 "select a method by choosing a directory or by checking the search data base "
 "option in the 'Search options' tab before starting a search"
 msgstr ""
-"%s peut rechercher les résultats au sein de dictionnaires ou de sa propre base de données. Veuillez "
-"selectionner une méthode en choisissant un répertoire ou une base de données "
-"via l'option au sein du menu 'Options de recherche' avant d'effectuer une recherche"
+"%s peut rechercher les résultats au sein de répertoires ou de sa propre base "
+"de données. Veuillez selectionner une méthode en choisissant un répertoire ou "
+"une base de données via l'option au sein de l'onglet 'Options de recherche' "
+"avant d'effectuer une recherche"
 
 #: zenmapGUI/SearchGUI.py:958
 msgid ""
@@ -790,11 +794,11 @@ msgstr ""
 "Entrer du texte pour effectuer une <b>recherche par mot clef</b> - le texte "
 "entré est comparé à l'intégralité de la sortie de chaque scan\n"
 "\n"
-"Pour réduire la recherche vous pouvez utiliser des <b>opérateurs</b> pour ne "
+"Pour réduire la recherche, vous pouvez utiliser des <b>opérateurs</b> pour ne "
 "rechercher qu'au sein d'une partie d'un scan. Les opérateurs peuvent être "
-"ajoutés pour rechercher interactivement si vous cliquez le bouton "
+"ajoutés interactivement à la recherche si vous cliquez sur le bouton "
 "<b>Expressions</b>, ou vous pouvez les entrer manuellement dans le champ de "
-"recherche. La plupart des opérateurs ont une forme courte, listée ci-"
+"recherche. La plupart des opérateurs ont une forme courte, listés ci-"
 "dessous.\n"
 "\n"
 "<b>profile: (pr:)</b> - Profile utilisé.\n"
@@ -809,7 +813,7 @@ msgstr ""
 "(<i>AAAA-MM-JJ</i> ou <i>-n</i>).\n"
 "<b>before (b:)</b> - Sélectionne les scans effectués avant la date entrée "
 "(<i>AAAA-MM-JJ</i> ou <i>-n</i>).\n"
-"<b>os:</b> - Tous les champs relatifs à l'OS\n"
+"<b>os:</b> - Tous les champs relatifs à l'OS (SE).\n"
 "<b>scanned: (sp:)</b> - Sélection sur un port parmis ceux scannés.\n"
 "<b>open: (op:)</b> - Ports ouverts découverts lors un scan.\n"
 "<b>closed: (cp:)</b> - Ports fermés découverts lors un scan.\n"
@@ -819,7 +823,7 @@ msgstr ""
 "<b>open|filtered: (ofp:)</b> - Ports dans l'état \"ouvert|filtré\"\n"
 "<b>closed|filtered: (cfp:)</b> - Ports dans l'état \"fermé|filtré\"\n"
 "<b>service: (s:)</b> - Tous les champs relatifs aux services\n"
-"<b>inroute: (ir:)</b> - Recherche un routeur dans la sortie du traceroute "
+"<b>inroute: (ir:)</b> - Recherche un routeur dans le résultat@ du traceroute "
 "d'un scan.\n"
 
 #: zenmapGUI/ScanRunDetailsPage.py:135 zenmapGUI/ScanHostDetailsPage.py:133
@@ -832,7 +836,7 @@ msgstr "Version de Nmap:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:144
 msgid "Verbosity level:"
-msgstr "Niveau d'informations:"
+msgstr "Niveau de verbosité:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:147
 msgid "Debug level:"
@@ -852,15 +856,15 @@ msgstr "Fini le:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:186
 msgid "Hosts up:"
-msgstr "hôtes actifs:"
+msgstr "Hôtes actifs:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:189
 msgid "Hosts down:"
-msgstr "hôtes inactifs:"
+msgstr "Hôtes inactifs:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:192
 msgid "Hosts scanned:"
-msgstr "hôtes scannés:"
+msgstr "Hôtes scannés:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:195 zenmapGUI/ScanHostDetailsPage.py:205
 msgid "Open ports:"
@@ -910,16 +914,19 @@ msgid ""
 "mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list."
 "</a>) The developers will see your report and try to fix the problem."
 msgstr ""
-"Une erreur inattendue s'est produite et a entrainé le crash de l'application %(app_name)s. Veuillez copier la stack trace "
-"ci-dessous et envoyez-la à la mailing-list <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> "
-"(<a href=\"http://seclists.org/nmap-dev/\">Plus d'informations à propos de cette liste."
-"</a>) Les développeurs consulteront la trace et tenteront de corriger le problème."
+"Une erreur inattendue a entrainé le crash de l'application %(app_name)s. "
+"Veuillez copier la stack trace ci-dessous et l'envoyez à la mailing-list "
+"<a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> "
+"(<a href=\"http://seclists.org/nmap-dev/\">Plus d'informations à propos de "
+"cette liste.</a>) Les développeurs consulteront la trace et tenteront de "
+"corriger le problème."
 
 #: zenmapGUI/CrashReport.py:174
 msgid ""
 "<b>Copy and email to <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
 msgstr ""
-"<b>Copiez et envoyez par mail à <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
+"<b>Copiez et envoyez par mail à "
+"<a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
 
 #: zenmapGUI/ScanNmapOutputPage.py:218
 msgid "Details"
@@ -927,7 +934,7 @@ msgstr "Détails"
 
 #: zenmapGUI/NmapOutputProperties.py:139
 msgid "Nmap Output Properties"
-msgstr "Propriétés de la sortie de Nmap"
+msgstr "Propriétés des résultats de Nmap"
 
 #: zenmapGUI/NmapOutputProperties.py:166
 msgid "details"
@@ -975,7 +982,7 @@ msgstr "Mise en évidence"
 
 #: zenmapGUI/NmapOutputProperties.py:266
 msgid "text color"
-msgstr "Couleur du texte"
+msgstr "couleur du texte"
 
 #: zenmapGUI/NmapOutputProperties.py:293
 msgid "highlight color"
@@ -1002,7 +1009,7 @@ msgid ""
 "originally derived from %s."
 msgstr ""
 "%s est une interface graphique multi-plateformes pour %s et un visualiseur "
-"de résultats. Il est dérivé à  l'origine de %s."
+"de résultats. Il est dérivé à l'origine de %s."
 
 #: zenmapGUI/About.py:227
 #, python-format
@@ -1023,7 +1030,7 @@ msgstr "Ecrit par"
 
 #: zenmapGUI/About.py:316
 msgid "Design"
-msgstr "Visuels"
+msgstr "Design"
 
 #: zenmapGUI/About.py:318
 msgid "SoC 2007"
@@ -1087,8 +1094,9 @@ msgid ""
 "Topology is disabled because too many hosts can cause it\n"
 "to run slowly. The limit is %d hosts and there are %d."
 msgstr ""
-"L'affichage de la topologie est désactivé car le nombre d'hôtes est trop élevé\n"
-"La limite d'affichage est %d hôtes et il y en a actuellement %d."
+"L'affichage de la topologie est désactivé car le nombre\n"
+"d'hôtes est trop élevé. La limite d'affichage est de \n"
+"%d hôtes et il y en a actuellement %d."
 
 #: zenmapGUI/FileChoosers.py:137
 #, python-format
@@ -1119,7 +1127,7 @@ msgstr "Format de texte Nmap (.nmap)"
 
 #: zenmapGUI/FileChoosers.py:268 radialnet/gui/SaveDialog.py:167
 msgid "Select File Type:"
-msgstr "Sélectionner le type de fichier"
+msgstr "Sélectionner le type de fichier:"
 
 #: zenmapGUI/OptionBuilder.py:298
 msgid "Choose file"
@@ -1131,7 +1139,7 @@ msgstr "Éditeur de Profil"
 
 #: zenmapGUI/ProfileEditor.py:242
 msgid "Profile Information"
-msgstr "Information de Profil"
+msgstr "Informations du Profil"
 
 #: zenmapGUI/ProfileEditor.py:243
 msgid "Profile name"
@@ -1159,7 +1167,7 @@ msgstr "Profil sans nom"
 
 #: zenmapGUI/ProfileEditor.py:366
 msgid "You must provide a name for this profile."
-msgstr "Vous devez donner un nom à ce profil"
+msgstr "Vous devez donner un nom à ce profil."
 
 #: zenmapGUI/ProfileEditor.py:386
 msgid "Disallowed profile name"
@@ -1185,12 +1193,12 @@ msgid ""
 "Your profile is going to be deleted! ClickOk to continue, or Cancel to go "
 "back to Profile Editor."
 msgstr ""
-"Votre profil va être supprimé ! Cliquez sur OK pour confirmer, ou Annuler (Cancel) pour retourner "
-"vers l'Éditeur de Profil."
+"Votre profil va être supprimé! Cliquez sur OK pour confirmer, ou Annuler "
+"pour retourner vers l'Éditeur de Profil."
 
 #: zenmapGUI/SearchWindow.py:148
 msgid "Search Scans"
-msgstr "Recherche des Scans"
+msgstr "Rechercher les Scans"
 
 #: zenmapGUI/SearchWindow.py:175
 msgid "Append"
@@ -1198,19 +1206,19 @@ msgstr "Ajouter"
 
 #: zenmapGUI/App.py:235
 msgid "Import error"
-msgstr "Erreur lors de l'import"
+msgstr "Erreur d'importation"
 
 #: zenmapGUI/App.py:236
 msgid ""
 "A required module was not found.\n"
 "\n"
 msgstr ""
-"Un module nécessaire n'a pas été trouvé\n"
+"Un module nécessaire est manquant.\n"
 "\n"
 
 #: zenmapGUI/App.py:284
 msgid "Error creating the per-user configuration directory"
-msgstr "Erreur en créant la configuration de répertoire pour utilisateur"
+msgstr "Erreur en créant le répertoire de configuration utilisateur"
 
 #: zenmapGUI/App.py:285
 #, python-format
@@ -1253,8 +1261,8 @@ msgstr ""
 "\n"
 "%s\n"
 "\n"
-"%s peut continuer sans ce fichier mais toute information sera ignorée "
-"jusqu'à ce qu'il soit réparé."
+"%s peut continuer sans ce fichier mais toute information se trouvant dedans "
+"sera ignorée jusqu'à ce qu'il soit réparé."
 
 #: zenmapGUI/App.py:373
 #, python-format
@@ -1373,11 +1381,11 @@ msgstr "Constructeur"
 
 #: zenmapGUI/ScanHostDetailsPage.py:426
 msgid "OS Family"
-msgstr "Famille de l'OS"
+msgstr "Famille de l'OS (SE)"
 
 #: zenmapGUI/ScanHostDetailsPage.py:427
 msgid "OS Generation"
-msgstr "Génération de l'OS"
+msgstr "Génération de l'OS (SE)"
 
 #: zenmapGUI/ScanHostDetailsPage.py:428
 msgid "Accuracy"
@@ -1410,7 +1418,7 @@ msgstr "Enregistrer le graphique"
 
 #: radialnet/gui/Toolbar.py:225 radialnet/gui/HostsViewer.py:147
 msgid "Hosts Viewer"
-msgstr "Visualiseur d'hôtes"
+msgstr "Visualiseur d'Hôtes"
 
 #: radialnet/gui/Toolbar.py:229
 msgid "Controls"
@@ -1422,7 +1430,7 @@ msgstr "Grand-angle"
 
 #: radialnet/gui/Toolbar.py:314
 msgid "Error saving snapshot"
-msgstr "Erreur lors de l'enregistrement du graphique"
+msgstr "Erreur lors de l'enregistrement du snapshot"
 
 #: radialnet/gui/NodeNotebook.py:133
 msgid "Method"
@@ -1430,11 +1438,11 @@ msgstr "Méthode"
 
 #: radialnet/gui/NodeNotebook.py:134
 msgid "Count"
-msgstr "Compte"
+msgstr "Décompte"
 
 #: radialnet/gui/NodeNotebook.py:134
 msgid "Reasons"
-msgstr "Raison"
+msgstr "Raisons"
 
 #: radialnet/gui/NodeNotebook.py:144
 msgid "TTL"
@@ -1451,11 +1459,11 @@ msgstr "IP"
 #: radialnet/gui/NodeNotebook.py:147
 #, python-format
 msgid "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops."
-msgstr "Traceroute sur le port <b>%s/%s</b> totalise <b>%d</b> hops connus."
+msgstr "Traceroute sur le port <b>%s/%s</b> a totalisé <b>%d</b> hops connus."
 
 #: radialnet/gui/NodeNotebook.py:149
 msgid "No traceroute information available."
-msgstr "Aucune information de traceroute disponible"
+msgstr "Aucune information de traceroute disponible."
 
 #: radialnet/gui/NodeNotebook.py:156
 msgid "Name"
@@ -1475,8 +1483,8 @@ msgid ""
 "<b>*</b> TCP sequence <i>index</i> equal to %d and <i>difficulty</i> is \"%s"
 "\"."
 msgstr ""
-"<b>*</b><i>index</i> de la séquence TCP égal à %d et <i>difficulté</i> "
-"estimée \"%s\"."
+"<b>*</b> La séquence TCP <i>index</i> est égal à %d et <i>difficulté</i> "
+"estimée à \"%s\"."
 
 #: radialnet/gui/NodeNotebook.py:195
 msgid "General"
@@ -1527,11 +1535,11 @@ msgstr "Séquences"
 
 #: radialnet/gui/NodeNotebook.py:434
 msgid "No sequence information."
-msgstr "Aucune information sur la séquence"
+msgstr "Aucune information sur la séquence."
 
 #: radialnet/gui/NodeNotebook.py:435
 msgid "No OS information."
-msgstr "Aucune information sur l'OS"
+msgstr "Aucune information sur l'OS (SE)"
 
 #: radialnet/gui/NodeNotebook.py:440
 msgid "Address:"
@@ -1564,7 +1572,7 @@ msgstr "Empreinte"
 
 #: radialnet/gui/NodeNotebook.py:652
 msgid "Values"
-msgstr "Valeur"
+msgstr "Valeurs"
 
 #: radialnet/gui/NodeNotebook.py:654
 msgid "TCP *"
@@ -1748,65 +1756,65 @@ msgstr "Cibles (optionnel):"
 
 #: share/zenmap/misc/profile_editor.xml:18
 msgid "TCP scan: "
-msgstr "TCP scan: "
+msgstr "Scan TCP: "
 
 #: share/zenmap/misc/profile_editor.xml:19
 #: share/zenmap/misc/profile_editor.xml:30
 #: share/zenmap/misc/profile_editor.xml:40
 msgid "None"
-msgstr "Aucun(e)s"
+msgstr "Aucun(e)"
 
 #: share/zenmap/misc/profile_editor.xml:20
 msgid ""
 "Send probes with the ACK flag set. Ports will be marked \"filtered\" or "
 "\"unfiltered\". Use ACK scan to map out firewall rulesets."
 msgstr ""
-"Envoie les paquets de test avec le drapeau ACK activé. Les ports seront "
+"Envoie de sondes avec le drapeau ACK activé. Les ports seront "
 "marqués comme \"filtrés\" ou \"non filtrés\". Utilisez le scan ACK afin de "
 "déterminer les politiques de réglage du pare-feu."
 
 #: share/zenmap/misc/profile_editor.xml:20
 msgid "ACK scan"
-msgstr "ACK scan"
+msgstr "Scan ACK"
 
 #: share/zenmap/misc/profile_editor.xml:21
 msgid ""
 "Send probes with the FIN bit set. FIN scan can differentiate \"closed\" and "
 "\"open|filtered\" ports on some systems."
 msgstr ""
-"Envoie les paquets de test avec le drapeau FIN activé. Le scan FIN est "
+"Envoie de sondes avec le drapeau FIN activé. Le scan FIN est "
 "capable de distinguer les ports \"fermés\" ou \"ouverts|filtrés\" sur "
 "certains systèmes."
 
 #: share/zenmap/misc/profile_editor.xml:21
 msgid "FIN scan"
-msgstr "FIN scan"
+msgstr "Scan FIN"
 
 #: share/zenmap/misc/profile_editor.xml:22
 msgid ""
 "Send probes with the FIN and ACK bits set. Against some BSD-derived systems "
 "this can differentiate between \"closed\" and \"open|filtered\" ports."
 msgstr ""
-"Envoie les paquets de test avec les drapeaux FIN et ACK activé. Contre "
+"Envoie de sondes avec les drapeaux FIN et ACK activé. Contre "
 "certains systèmes dérivés de BSD ce scan est capable de distinguer l'état "
 "\"fermé\" et \"ouvert|filtré\" des ports."
 
 #: share/zenmap/misc/profile_editor.xml:22
 msgid "Maimon scan"
-msgstr "Maimon scan"
+msgstr "Scan Maimon"
 
 #: share/zenmap/misc/profile_editor.xml:23
 msgid ""
 "Send probes with no flags set (TCP flag header is 0). Null scan can "
 "differentiate \"closed\" and \"open|filtered\" ports on some systems."
 msgstr ""
-"Envoie les paquets de test sans aucun drapeau d' activé (l'entête de drapeau "
+"Envoie de sondes sans aucun drapeau d'activé (l'entête de drapeau "
 "TCP est à 0). Le NULL scan peut distinguer les ports \"fermés\" et \"ouverts|"
-"filtrés\" sur certains systèmes. "
+"filtrés\" sur certains systèmes."
 
 #: share/zenmap/misc/profile_editor.xml:23
 msgid "Null scan"
-msgstr "Null scan"
+msgstr "Scan Null"
 
 #: share/zenmap/misc/profile_editor.xml:24
 msgid ""
@@ -1814,13 +1822,13 @@ msgid ""
 "most generally useful. It is known as a \"stealth\" scan because it avoids "
 "making a full TCP connection."
 msgstr ""
-"Envoie les paquets de test avec le drapeau SYN activé. Il s'agit du scan le "
+"Envoie de sondes avec le drapeau SYN activé. Il s'agit du scan le "
 "plus populaire et le plus généralement utile. Il est connu comme un scan "
 "\"discret\" parce qu'il évite l'établissement d'une connexion TCP complète."
 
 #: share/zenmap/misc/profile_editor.xml:24
 msgid "TCP SYN scan"
-msgstr "TCP SYN scan"
+msgstr "Scan TCP SYN"
 
 #: share/zenmap/misc/profile_editor.xml:25
 msgid ""
@@ -1835,7 +1843,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:25
 msgid "TCP connect scan"
-msgstr "TCP connect scan"
+msgstr "Scan TCP connect"
 
 #: share/zenmap/misc/profile_editor.xml:26
 msgid ""
@@ -1843,13 +1851,13 @@ msgid ""
 "systems to differentiate open ports from closed ones, rather than always "
 "printing \"unfiltered\" when a RST is returned. "
 msgstr ""
-"Le même que le scan ACK mis à part qu'il exploite un détail d'implémentation "
+"Identique au scan ACK mis à part qu'il exploite un détail d'implémentation "
 "de certains systèmes pour distinguer les ports ouverts des fermés, plutôt "
-"que systématiquement indiquer \"filtré\" lorsqu'un RST est retourné."
+"que de systématiquement indiquer \"filtré\" lorsqu'un RST est retourné. "
 
 #: share/zenmap/misc/profile_editor.xml:26
 msgid "Window scan"
-msgstr "Window scan"
+msgstr "Scan Window (de fenêtre)"
 
 #: share/zenmap/misc/profile_editor.xml:27
 msgid ""
@@ -1857,18 +1865,18 @@ msgid ""
 "like a Christmas tree. Xmas tree scan can differentiate \"closed\" and "
 "\"open|filtered\" ports on some systems."
 msgstr ""
-"Envoie les paquets de test avec les drapeaux FIN, PUSH et URG activés, "
+"Envoie de sondes avec les drapeaux FIN, PUSH et URG activés, "
 "illuminant les paquets comme un arbre de Noël. Le scan Xmas Tree est capable "
 "de distinguer les ports \"fermés\" et \"ouverts|filtrés\" sur certains "
 "systèmes."
 
 #: share/zenmap/misc/profile_editor.xml:27
 msgid "Xmas Tree scan"
-msgstr "Xmas Tree scan"
+msgstr "Scan Xmas Tree"
 
 #: share/zenmap/misc/profile_editor.xml:29
 msgid "Non-TCP scans: "
-msgstr "Scans non-TCP:"
+msgstr "Scans non-TCP: "
 
 #: share/zenmap/misc/profile_editor.xml:31
 msgid ""
@@ -1892,7 +1900,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:32
 msgid "IP protocol scan"
-msgstr "Scan protocole IP"
+msgstr "Scan de protocole IP"
 
 #: share/zenmap/misc/profile_editor.xml:33
 msgid ""
@@ -1916,7 +1924,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:34
 msgid "No port scan"
-msgstr "Pas de scan de ports"
+msgstr "Pas de scan de port"
 
 #: share/zenmap/misc/profile_editor.xml:35
 msgid ""
@@ -1929,7 +1937,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:35
 msgid "SCTP INIT port scan"
-msgstr "SCTP INIT port scan"
+msgstr "Scan de port SCTP INIT"
 
 #: share/zenmap/misc/profile_editor.xml:36
 msgid ""
@@ -1944,7 +1952,7 @@ msgstr "SCTP cookie-echo port scan"
 
 #: share/zenmap/misc/profile_editor.xml:39
 msgid "Timing template: "
-msgstr "Gabarit Temps:"
+msgstr "Gabarit Temps: "
 
 #: share/zenmap/misc/profile_editor.xml:41
 #: share/zenmap/misc/profile_editor.xml:42
@@ -1986,8 +1994,8 @@ msgid ""
 "Set the timing template for faster scan. Used when on a reasonably fast and "
 "reliable network."
 msgstr ""
-"Règle le gabarit temporel pour un scan plus rapide. Utilisé lorsque sur un "
-"réseau raisonnablement rapide et fiable. "
+"Règle le gabarit temporel pour un scan plus rapide. Utilisé sur un "
+"réseau raisonnablement rapide et fiable."
 
 #: share/zenmap/misc/profile_editor.xml:45
 msgid "Aggressive"
@@ -1999,7 +2007,7 @@ msgid ""
 "when willing to sacrifice accuracy for speed."
 msgstr ""
 "Règle le gabarit temporel pour le scan le plus rapide. Utilisé sur un réseau "
-"rapide ou lorsqu'on accepte de sacrifier la précision à la vitesse."
+"rapide ou lorsqu'on accepte de sacrifier la précision pour la vitesse."
 
 #: share/zenmap/misc/profile_editor.xml:46
 msgid "Insane"
@@ -2050,7 +2058,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:51
 msgid "Idle Scan (Zombie)"
-msgstr "Idle Scan (Zombie)"
+msgstr "Scan Idle (Zombie)"
 
 #: share/zenmap/misc/profile_editor.xml:52
 msgid ""
@@ -2109,7 +2117,7 @@ msgstr "ICMP ping"
 #: share/zenmap/misc/profile_editor.xml:59
 msgid "Send an ICMP timestamp probe to see if targets are up."
 msgstr ""
-"Envoie un paquet de test ICMP timestamp afin de voir si les cibles sont "
+"Envoie une sonde ICMP timestamp afin de voir si les cibles sont "
 "actives."
 
 #: share/zenmap/misc/profile_editor.xml:59
@@ -2119,7 +2127,7 @@ msgstr "Requête ICMP Timestamp"
 #: share/zenmap/misc/profile_editor.xml:60
 msgid "Send an ICMP address mask request probe to see if targets are up."
 msgstr ""
-"Envoie un paquet de test ICMP address mask afin de voir si les cibles sont "
+"Envoie une sonde ICMP address mask afin de voir si les cibles sont "
 "actives."
 
 #: share/zenmap/misc/profile_editor.xml:60
@@ -2157,39 +2165,39 @@ msgid ""
 "Send one or more UDP probes to see if targets are up. Give a list of ports "
 "or leave the argument blank to use a default port."
 msgstr ""
-"Envoie un ou plusieurs paquets de test UDP pour voir si les cibles sont "
+"Envoie une ou plusieurs sonde(s) UDP pour voir si les cibles sont "
 "actives. Donnez une liste de ports ou laissez l'argument vierge pour "
 "utiliser un port par défaut."
 
 #: share/zenmap/misc/profile_editor.xml:63
 msgid "UDP probes"
-msgstr "Paquets de test UDP"
+msgstr "Sonde UDP"
 
 #: share/zenmap/misc/profile_editor.xml:64
 msgid ""
 "Send one or more raw IP protocol probes to see if targets are up. Give a "
 "list of protocols or leave the argument blank to use a default list"
 msgstr ""
-"Envoie un ou plusieurs paquets de test en protocole raw IP pour voir si les "
+"Envoie une ou plusieurs sonde(s) de protocole raw IP pour voir si les "
 "cibles sont actives. Donnez une liste de protocoles ou laissez l'argument "
 "vierge pour utiliser une liste par défaut."
 
 #: share/zenmap/misc/profile_editor.xml:64
 msgid "IPProto probes"
-msgstr "Paquets de test IPProto"
+msgstr "Sondes IPProto"
 
 #: share/zenmap/misc/profile_editor.xml:65
 msgid ""
 "Send SCTP INIT chunk packets to see if targets are up.  Give a list of ports "
 "or leave the argument blank to use a default port."
 msgstr ""
-"Envoie des paquets SCTP INIT afin de voir si les cibles sont actives.Donnez "
+"Envoie des paquets SCTP INIT afin de voir si les cibles sont actives. Donnez "
 "une liste de ports ou laissez l'argument vierge pour utiliser un port par "
 "défaut."
 
 #: share/zenmap/misc/profile_editor.xml:65
 msgid "SCTP INIT ping probes"
-msgstr "Paquets de test SCTP INIT"
+msgstr "Sondes SCTP INIT"
 
 #: share/zenmap/misc/profile_editor.xml:67
 msgid "Scripting options (NSE)"
@@ -2242,7 +2250,7 @@ msgstr "Montre toute information envoyée et reçue par le moteur de scripts."
 
 #: share/zenmap/misc/profile_editor.xml:71
 msgid "Trace script execution"
-msgstr "Trace l'exécution du ou des scripts"
+msgstr "Trace l'exécution du/des scripts"
 
 #: share/zenmap/misc/profile_editor.xml:73
 msgid "Target options"
@@ -2275,7 +2283,7 @@ msgstr "Lis la liste des cibles depuis un fichier."
 
 #: share/zenmap/misc/profile_editor.xml:76
 msgid "Target list file"
-msgstr "Fichier-liste de cibles"
+msgstr "Fichier de liste de cibles"
 
 #: share/zenmap/misc/profile_editor.xml:77
 msgid ""
@@ -2322,14 +2330,14 @@ msgid ""
 "a list of addresses separated by commas. Use RND for a random address and ME "
 "to set the position of your address."
 msgstr ""
-"Envoie de faux paquets de test leurres depuis des addresses usurpées afin de "
+"Envoie de fausses sondes leurres depuis des addresses usurpées afin de "
 "cacher votre propre adresse. Donnez une liste d'adresses séparée par des "
 "virgules. Utilisez RND pour une adresse aléatoire et ME pour fixer la "
 "position de votre adresse."
 
 #: share/zenmap/misc/profile_editor.xml:82
 msgid "Use decoys to hide identity"
-msgstr "Utiliser des leurres afin de masquer son identité"
+msgstr "Utiliser des sondes leurres afin de masquer son identité"
 
 #: share/zenmap/misc/profile_editor.xml:83
 msgid ""
@@ -2454,7 +2462,7 @@ msgid ""
 "Try sending a probe to each port no more than this many times before giving "
 "up."
 msgstr ""
-"Tente d'envoyer un paquet de test à chaque port, pas plus que ce nombre de "
+"Tente d'envoyer une sonde à chaque port, pas plus que ce nombre de "
 "fois, avant d'abandonner."
 
 #: share/zenmap/misc/profile_editor.xml:96
@@ -2494,7 +2502,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:100
 msgid "Max probe timeout"
-msgstr "Timeout max du paquet de test"
+msgstr "Timeout max de la sonde"
 
 #: share/zenmap/misc/profile_editor.xml:101
 msgid ""
@@ -2510,7 +2518,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:101
 msgid "Min probe timeout"
-msgstr "Temps min du paquet de test"
+msgstr "Temps min de la sonde"
 
 #: share/zenmap/misc/profile_editor.xml:102
 msgid ""
@@ -2523,7 +2531,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:102
 msgid "Initial probe timeout"
-msgstr "Temps initial du paquet de tests"
+msgstr "Temps initial de la sonde"
 
 #: share/zenmap/misc/profile_editor.xml:103
 msgid "Scan no more than this many hosts in parallel."
@@ -2547,13 +2555,13 @@ msgid ""
 "time. May be set to 1 to prevent Nmap from sending more than one probe at a "
 "time to hosts."
 msgstr ""
-"N'autorise jamais plus que le nombre donné de paquets de tests en attente à "
-"un instant. Peut être réglé à 1 afin d'empêcher Nmap d'envoyer plus d'un "
-"paquet à la fois aux hôtes. "
+"N'autorise jamais plus que le nombre donné de sondes en attente à "
+"un instant. Peut être réglé à 1 afin d'empêcher Nmap d'envoyer plus d'une "
+"sonde à la fois aux hôtes. "
 
 #: share/zenmap/misc/profile_editor.xml:105
 msgid "Max outstanding probes"
-msgstr "Paquets de tests max en suspens"
+msgstr "Sondes max en suspens"
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid ""
@@ -2561,13 +2569,13 @@ msgid ""
 "scan. Common usage is to set to a number higher than 1 to speed up scans of "
 "poorly performing hosts or networks."
 msgstr ""
-"Essaie de maintenir au moins le nombre donné de paquets de tests en attente "
+"Essayer de maintenir au moins le nombre donné de sondes en attente "
 "lors d'un scan. L'usage commun est de régler à un nombre supérieur à 1 afin "
-"d'accélérer les scans sur les réseaux ou les hôtes aux performances pauvres."
+"d'accélérer les scans sur les réseaux ou les hôtes à faibles performances."
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid "Min outstanding probes"
-msgstr "Paquets de tests min en suspens"
+msgstr "Sondes min en suspens"
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid ""
@@ -2577,13 +2585,13 @@ msgid ""
 "minutes, or 'h' for hours."
 msgstr ""
 "Interdire au \"délai de scan\" (la durée entre deux requêtes successives) de "
-"croître au dela de cette durée. Le temps est exprimé en secondes par "
+"croître au-delà de cette durée. Le temps est exprimé en secondes par "
 "défaut, ou peut être suivi du suffixe 'ms' pour millisecondes, 's' pour "
 "secondes, 'm' pour minutes ou 'h' pour heures."
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid "Max scan delay"
-msgstr "Délais max de scan "
+msgstr "Délais max de scan"
 
 #: share/zenmap/misc/profile_editor.xml:108
 msgid ""
@@ -2591,11 +2599,11 @@ msgid ""
 "host. Time is in seconds by default, or may be followed by a suffix of 'ms' "
 "for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
-"Attendre au moins cette durée entre deux requêtes en direction d'un hôte "
+"Attendre au moins cette durée entre deux sondes envoyées vers un hôte "
 "donné. Le temps est exprimé en secondes par défaut, ou peut être suivi du "
 "suffixe 'ms' pour millisecondes, 's' pour secondes, 'm' pour minutes ou 'h' "
 "pour heures."
 
 #: share/zenmap/misc/profile_editor.xml:108
 msgid "Min delay between probes"
-msgstr "Délais min entre les paquets de tests"
+msgstr "Délais min entre les sondes"

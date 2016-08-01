@@ -546,11 +546,14 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   pubkey = X509_get_pubkey(cert);
   lua_newtable(L);
   pkey_type = EVP_PKEY_type(pubkey->type);
+#ifdef EVP_PKEY_EC
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
     lua_setfield(L, -2, "ecdhparams");
   }
-  else if (pkey_type == EVP_PKEY_RSA) {
+  else
+#endif
+  if (pkey_type == EVP_PKEY_RSA) {
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
     bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
     luaL_getmetatable( L, "BIGNUM" );

@@ -554,7 +554,7 @@ function format_timestamp(t, offset)
   else
     local tz_string = format_tz(offset)
     offset = offset or 0
-    return date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
+    return date("!%Y-%m-%dT%H:%M:%S", floor(t + offset)) .. tz_string
   end
 end
 
@@ -566,20 +566,25 @@ end
 --             in milliseconds, this is 1000 for instance. Default: 1 (seconds)
 -- @return The time interval in string format
 function format_time(interval, unit)
+  local sign = ""
+  if interval < 0 then
+    sign = "-"
+    interval = math.abs(interval)
+  end
   unit = unit or 1
   local precision = floor(math.log(unit, 10))
 
   local sec = (interval % (60 * unit)) / unit
-  interval = floor(interval / (60 * unit))
+  interval = interval // (60 * unit)
   local min = interval % 60
-  interval = floor(interval / 60)
+  interval = interval // 60
   local hr = interval % 24
-  interval = floor(interval / 24)
+  interval = interval // 24
 
-  local s = format("%dd%02dh%02dm%02.".. precision .."fs",
+  local s = format("%.0fd%02.0fh%02.0fm%02.".. precision .."fs",
     interval, hr, min, sec)
   -- trim off leading 0 and "empty" units
-  return match(s, "([1-9].*)") or format("%0.".. precision .."fs", 0)
+  return sign .. (match(s, "([1-9].*)") or format("%0.".. precision .."fs", 0))
 end
 
 --- Format the difference between times <code>t2</code> and <code>t1</code>

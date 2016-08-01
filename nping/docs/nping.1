@@ -2,12 +2,12 @@
 .\"     Title: nping
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 03/29/2016
+.\"      Date: 07/19/2016
 .\"    Manual: Nping Reference Guide
 .\"    Source: Nping
 .\"  Language: English
 .\"
-.TH "NPING" "1" "03/29/2016" "Nping" "Nping Reference Guide"
+.TH "NPING" "1" "07/19/2016" "Nping" "Nping Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -222,7 +222,8 @@ SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
 .PP
 Everything on the Nping command line that isn\*(Aqt an option or an option argument is treated as a target host specification\&. Nping uses the same syntax for target specifications that Nmap does\&. The simplest case is a single target given by IP address or hostname\&.
 .PP
-Nping supports CIDR\-style.\" CIDR (Classless Inter-Domain Routing)
+Nping supports CIDR\-style
+.\" CIDR (Classless Inter-Domain Routing)
 addressing\&. You can append
 /\fInumbits\fR
 to an IPv4 address or hostname and Nping will send probes to every IP address for which the first
@@ -233,7 +234,8 @@ would send probes to the 256 hosts between 192\&.168\&.10\&.0 (binary:
 11000000 10101000 00001010 00000000) and 192\&.168\&.10\&.255 (binary:
 11000000 10101000 00001010 11111111), inclusive\&.
 192\&.168\&.10\&.40/24
-would ping exactly the same targets\&. Given that the host scanme\&.nmap\&.org.\" scanme.nmap.org
+would ping exactly the same targets\&. Given that the host scanme\&.nmap\&.org
+.\" scanme.nmap.org
 is at the IP address 64\&.13\&.134\&.52, the specification
 scanme\&.nmap\&.org/16
 would send probes to the 65,536 IP addresses between 64\&.13\&.0\&.0 and 64\&.13\&.255\&.255\&. The smallest allowed value is
@@ -374,44 +376,52 @@ SENT (4\&.0330s) TCP 192\&.168\&.0\&.21 > 3\&.3\&.3\&.3:139
 .PP
 Nping supports a wide variety of protocols\&. Although in some cases Nping can automatically determine the mode from the options used, it is generally a good idea to specify it explicitly\&.
 .PP
-\fB\-\-tcp\-connect\fR (TCP Connect mode) .\" --tcp-connect (Nping option) .\" TCP connect: in Nping .\" TCP connect
+\fB\-\-tcp\-connect\fR (TCP Connect mode) 
+.\" --tcp-connect (Nping option) .\" TCP connect: in Nping .\" TCP connect
 .RS 4
 TCP connect mode is the default mode when a user does not have raw packet privileges\&. Instead of writing raw packets as most other modes do, Nping asks the underlying operating system to establish a connection with the target machine and port by issuing the
 connect
 system call\&. This is the same high\-level system call that web browsers, P2P clients, and most other network\-enabled applications use to establish a connection\&. It is part of a programming interface known as the Berkeley Sockets API\&. Rather than read raw packet responses off the wire, Nping uses this API to obtain status information on each connection attempt\&. For this reason, you will not be able to see the contents of the packets that are sent or received but only status information about the TCP connection establishment taking place\&.
 .RE
 .PP
-\fB\-\-tcp\fR (TCP mode) .\" --tcp (Nping option)
+\fB\-\-tcp\fR (TCP mode) 
+.\" --tcp (Nping option)
 .RS 4
 TCP is the mode that lets users create and send any kind of TCP packet\&. TCP packets are sent embedded in IP packets that can also be tuned\&. This mode can be used for many different purposes\&. For example you could try to discover open ports by sending TCP SYN messages without completing the three\-way handshake\&. This technique is often referred to as half\-open scanning, because you don\*(Aqt open a full TCP connection\&. You send a SYN packet, as if you are going to open a real connection and then wait for a response\&. A SYN/ACK indicates the port is open, while a RST indicates it\*(Aqs closed\&. If no response is received one could assume that some intermediate network device is filtering the responses\&. Another use could be to see how a remote TCP/IP stack behaves when it receives a non\-RFC\-compliant packet, like one with both SYN and RST flags set\&. One could also do some evil by creating custom RST packets using an spoofed IP address with the intent of closing an active TCP connection\&.
 .RE
 .PP
-\fB\-\-udp\fR (UDP mode) .\" --udp (Nping option)
+\fB\-\-udp\fR (UDP mode) 
+.\" --udp (Nping option)
 .RS 4
 UDP mode can have two different behaviours\&. Under normal circumstances, it lets users create custom IP/UDP packets\&. However, if Nping is run by a user without raw packet privileges and no changes to the default protocol headers are requested, then Nping enters the unprivileged UDP mode which basically sends UDP packets to the specified target hosts and ports using the
 sendto
-system call\&. Note that in this unprivileged mode it is not possible to see low\-level header information of the packets on the wire but only status information about the amount of bytes that are being transmitted and received\&. UDP mode can be used to interact with any UDP\-based server\&. Examples are DNS servers, streaming servers, online gaming servers, and port knocking/single\-packet.\" port knocking
+system call\&. Note that in this unprivileged mode it is not possible to see low\-level header information of the packets on the wire but only status information about the amount of bytes that are being transmitted and received\&. UDP mode can be used to interact with any UDP\-based server\&. Examples are DNS servers, streaming servers, online gaming servers, and port knocking/single\-packet
+.\" port knocking
 authorization daemons\&.
 .RE
 .PP
-\fB\-\-icmp\fR (ICMP mode) .\" --icmp (Nping option)
+\fB\-\-icmp\fR (ICMP mode) 
+.\" --icmp (Nping option)
 .RS 4
 ICMP mode is the default mode when the user runs Nping with raw packet privileges\&. Any kind of ICMP message can be created\&. The default ICMP type is Echo, i\&.e\&., ping\&. ICMP mode can be used for many different purposes, from a simple request for a timestamp or a netmask to the transmission of fake destination unreachable messages, custom redirects, and router advertisements\&.
 .RE
 .PP
-\fB\-\-arp\fR (ARP/RARP mode) .\" --arp (Nping option)
+\fB\-\-arp\fR (ARP/RARP mode) 
+.\" --arp (Nping option)
 .RS 4
 ARP lets you create and send a few different ARP\-related packets\&. These include ARP, RARP, DRARP, and InARP requests and replies\&. This mode can ban be used to perform low\-level host discovery, and conduct ARP\-cache poisoning attacks\&.
 .RE
 .PP
-\fB\-\-traceroute\fR (Traceroute mode) .\" --tcp-connect (Nping option)
+\fB\-\-traceroute\fR (Traceroute mode) 
+.\" --tcp-connect (Nping option)
 .RS 4
 Traceroute is not a mode by itself but a complement to TCP, UDP, and ICMP modes\&. When this option is specified Nping will set the IP TTL value of the first probe to 1\&. When the next router receives the packet it will drop it due to the expiration of the TTL and it will generate an ICMP destination unreachable message\&. The next probe will have a TTL of 2 so now the first router will forward the packet while the second router will be the one that drops the packet and generates the ICMP message\&. The third probe will have a TTL value of 3 and so on\&. By examining the source addresses of all those ICMP Destination Unreachable messages it is possible to determine the path that the probes take until they reach their final destination\&.
 .RE
 .\" 
 .SH "TCP CONNECT MODE"
 .PP
-\fB\-p \fR\fB\fIport_spec\fR\fR, \fB\-\-dest\-port \fR\fB\fIport_spec\fR\fR (Target ports) .\" --dest-port (Nping option) .\" -p (Nping option)
+\fB\-p \fR\fB\fIport_spec\fR\fR, \fB\-\-dest\-port \fR\fB\fIport_spec\fR\fR (Target ports) 
+.\" --dest-port (Nping option) .\" -p (Nping option)
 .RS 4
 This option specifies which ports you want to try to connect to\&. It can be a single port, a comma\-separated list of ports (e\&.g\&.
 80,443,8080), a range (e\&.g\&.
@@ -421,7 +431,8 @@ This option specifies which ports you want to try to connect to\&. It can be a s
 to target ports from 1 through 65535\&. Using port zero is allowed if you specify it explicitly\&.
 .RE
 .PP
-\fB\-g \fR\fB\fIportnumber\fR\fR, \fB\-\-source\-port \fR\fB\fIportnumber\fR\fR (Spoof source port) .\" --source-port (Nping option) .\" -g (Nping option)
+\fB\-g \fR\fB\fIportnumber\fR\fR, \fB\-\-source\-port \fR\fB\fIportnumber\fR\fR (Spoof source port) 
+.\" --source-port (Nping option) .\" -g (Nping option)
 .RS 4
 This option asks Nping to use the specified port as source port for the TCP connections\&. Note that this might not work on all systems or may require root privileges\&. Specified value must be an integer in the range [0\(en65535]\&.
 .RE
@@ -442,14 +453,16 @@ to target ports from 1 through 65535\&. Using port zero is allowed if you specif
 This option asks Nping to use the specified port as source port for the TCP connections\&. Note that this might not work on all systems or may require root privileges\&. Specified value must be an integer in the range [0\(en65535]\&.
 .RE
 .PP
-\fB\-\-seq \fR\fB\fIseqnumber\fR\fR (Sequence Number) .\" --seq (Nping option)
+\fB\-\-seq \fR\fB\fIseqnumber\fR\fR (Sequence Number) 
+.\" --seq (Nping option)
 .RS 4
 Specifies the TCP sequence number\&. In SYN packets this is the initial sequence number (ISN)\&. In a normal transmission this corresponds to the sequence number of the first byte of data in the segment\&.
 \fIseqnumber\fR
 must be a number in the range [0\(en4294967295]\&.
 .RE
 .PP
-\fB\-\-flags \fR\fB\fIflags\fR\fR (TCP Flags) .\" --flags (Nping option)
+\fB\-\-flags \fR\fB\fIflags\fR\fR (TCP Flags) 
+.\" --flags (Nping option)
 .RS 4
 This option specifies which flags should be set in the TCP packet\&.
 \fIflags\fR
@@ -509,63 +522,75 @@ means to set all flags\&.
 NONE
 means to set no flags\&. It is important that if you don\*(Aqt want any flag to be set, you request it explicitly because in some cases the SYN flag may be set by default\&. Here is a brief description of the meaning of each flag:
 .PP
-CWR (Congestion Window Reduced) .\" CWR (TCP flag)
+CWR (Congestion Window Reduced) 
+.\" CWR (TCP flag)
 .RS 4
 Set by an ECN\-Capable sender when it reduces its congestion window (due to a retransmit timeout, a fast retransmit or in response to an ECN notification\&.
 .RE
 .PP
-ECN (Explicit Congestion Notification) .\" ECN (TCP flag)
+ECN (Explicit Congestion Notification) 
+.\" ECN (TCP flag)
 .RS 4
-During the three\-way handshake it indicates that sender is capable of performing explicit congestion notification\&. Normally it means that a packet with the IP Congestion Experienced flag set was received during normal transmission\&. See RFC 3168.\" RFC 3168
+During the three\-way handshake it indicates that sender is capable of performing explicit congestion notification\&. Normally it means that a packet with the IP Congestion Experienced flag set was received during normal transmission\&. See RFC 3168
+.\" RFC 3168
 for more information\&.
 .RE
 .PP
-URG (Urgent) .\" URG (TCP flag)
+URG (Urgent) 
+.\" URG (TCP flag)
 .RS 4
 Segment is urgent and the urgent pointer field carries valid information\&.
 .RE
 .PP
-ACK (Acknowledgement) .\" ACK (TCP flag)
+ACK (Acknowledgement) 
+.\" ACK (TCP flag)
 .RS 4
 The segment carries an acknowledgement and the value of the acknowledgement number field is valid and contains the next sequence number that is expected from the receiver\&.
 .RE
 .PP
-PSH (Push) .\" PSH (TCP flag)
+PSH (Push) 
+.\" PSH (TCP flag)
 .RS 4
 The data in this segment should be immediately pushed to the application layer on arrival\&.
 .RE
 .PP
-RST (Reset) .\" RST (TCP flag)
+RST (Reset) 
+.\" RST (TCP flag)
 .RS 4
 There was some problem and the sender wants to abort the connection\&.
 .RE
 .PP
-SYN (Synchronize) .\" SYN (TCP flag)
+SYN (Synchronize) 
+.\" SYN (TCP flag)
 .RS 4
 The segment is a request to synchronize sequence numbers and establish a connection\&. The sequence number field contains the sender\*(Aqs initial sequence number\&.
 .RE
 .PP
-FIN (Finish) .\" FIN (TCP flag)
+FIN (Finish) 
+.\" FIN (TCP flag)
 .RS 4
 The sender wants to close the connection\&.
 .RE
 .RE
 .PP
-\fB\-\-win \fR\fB\fIsize\fR\fR (Window Size) .\" --win (Nping option)
+\fB\-\-win \fR\fB\fIsize\fR\fR (Window Size) 
+.\" --win (Nping option)
 .RS 4
 Specifies the TCP window size, this is, the number of octets the sender of the segment is willing to accept from the receiver at one time\&. This is usually the size of the reception buffer that the OS allocates for a given connection\&.
 \fIsize\fR
 must be a number in the range [0\(en65535]\&.
 .RE
 .PP
-\fB\-\-badsum\fR (Invalid Checksum) .\" --badsum (Nping option)
+\fB\-\-badsum\fR (Invalid Checksum) 
+.\" --badsum (Nping option)
 .RS 4
 Asks Nping to use an invalid TCP checksum for the packets sent to target hosts\&. Since virtually all host IP stacks properly drop these packets, any responses received are likely coming from a firewall or an IDS that didn\*(Aqt bother to verify the checksum\&. For more details on this technique, see
 \m[blue]\fB\%https://nmap.org/p60-12.html\fR\m[]\&.
 .RE
 .SH "UDP MODE"
 .PP
-\fB\-p \fR\fB\fIport_spec\fR\fR, \fB\-\-dest\-port \fR\fB\fIport_spec\fR\fR (Target ports) .\" --dest-port (Nping option)
+\fB\-p \fR\fB\fIport_spec\fR\fR, \fB\-\-dest\-port \fR\fB\fIport_spec\fR\fR (Target ports) 
+.\" --dest-port (Nping option)
 .RS 4
 This option specifies which ports you want UDP datagrams to be sent to\&. It can be a single port, a comma\-separated list of ports (e\&.g\&.
 80,443,8080), a range (e\&.g\&.
@@ -575,7 +600,8 @@ This option specifies which ports you want UDP datagrams to be sent to\&. It can
 to target ports from 1 through 65535\&. Using port zero is allowed if you specify it explicitly\&.
 .RE
 .PP
-\fB\-g \fR\fB\fIportnumber\fR\fR, \fB\-\-source\-port \fR\fB\fIportnumber\fR\fR (Spoof source port) .\" --source-port (Nping option)
+\fB\-g \fR\fB\fIportnumber\fR\fR, \fB\-\-source\-port \fR\fB\fIportnumber\fR\fR (Spoof source port) 
+.\" --source-port (Nping option)
 .RS 4
 This option asks Nping to use the specified port as source port for the transmitted datagrams\&. Note that this might not work on all systems or may require root privileges\&. Specified value must be an integer in the range [0\(en65535]\&.
 .RE
@@ -587,7 +613,8 @@ Asks Nping to use an invalid UDP checksum for the packets sent to target hosts\&
 .RE
 .SH "ICMP MODE"
 .PP
-\fB\-\-icmp\-type \fR\fB\fItype\fR\fR (ICMP type) .\" --icmp-type (Nping option)
+\fB\-\-icmp\-type \fR\fB\fItype\fR\fR (ICMP type) 
+.\" --icmp-type (Nping option)
 .RS 4
 This option specifies which type of ICMP messages should be generated\&.
 \fItype\fR
@@ -599,7 +626,8 @@ for ICMP Echo Request), or you can use any of the mnemonics listed in
 the section called \(lqICMP Types\(rq\&.
 .RE
 .PP
-\fB\-\-icmp\-code \fR\fB\fIcode\fR\fR (ICMP code) .\" --icmp-code (Nping option)
+\fB\-\-icmp\-code \fR\fB\fIcode\fR\fR (ICMP code) 
+.\" --icmp-code (Nping option)
 .RS 4
 This option specifies which ICMP code should be included in the generated ICMP messages\&.
 \fIcode\fR
@@ -611,42 +639,48 @@ for Fragment Reassembly Time Exceeded), or you can use any of the mnemonics list
 the section called \(lqICMP Codes\(rq\&.
 .RE
 .PP
-\fB\-\-icmp\-id \fR\fB\fIid\fR\fR (ICMP identifier) .\" --icmp-id (Nping option)
+\fB\-\-icmp\-id \fR\fB\fIid\fR\fR (ICMP identifier) 
+.\" --icmp-id (Nping option)
 .RS 4
 This option specifies the value of the identifier used in some of the ICMP messages\&. In general it is used to match request and reply messages\&.
 \fIid\fR
 must be a number in the range [0\(en65535]\&.
 .RE
 .PP
-\fB\-\-icmp\-seq \fR\fB\fIseq\fR\fR (ICMP sequence) .\" --icmp-seq (Nping option)
+\fB\-\-icmp\-seq \fR\fB\fIseq\fR\fR (ICMP sequence) 
+.\" --icmp-seq (Nping option)
 .RS 4
 This option specifies the value of the sequence number field used in some ICMP messages\&. In general it is used to match request and reply messages\&.
 \fIid\fR
 must be a number in the range [0\(en65535]\&.
 .RE
 .PP
-\fB\-\-icmp\-redirect\-addr \fR\fB\fIaddr\fR\fR (ICMP Redirect address) .\" --icmp-redirect-addr (Nping option)
+\fB\-\-icmp\-redirect\-addr \fR\fB\fIaddr\fR\fR (ICMP Redirect address) 
+.\" --icmp-redirect-addr (Nping option)
 .RS 4
 This option sets the address field in ICMP Redirect messages\&. In other words, it sets the IP address of the router that should be used when sending IP datagrams to the original destination\&.
 \fIaddr\fR
 can be either an IPv4 address or a hostname\&.
 .RE
 .PP
-\fB\-\-icmp\-param\-pointer \fR\fB\fIpointer\fR\fR (ICMP Parameter Problem pointer) .\" --icmp-param-pointer (Nping option)
+\fB\-\-icmp\-param\-pointer \fR\fB\fIpointer\fR\fR (ICMP Parameter Problem pointer) 
+.\" --icmp-param-pointer (Nping option)
 .RS 4
 This option specifies the pointer that indicates the location of the problem in ICMP Parameter Problem messages\&.
 \fIpointer\fR
 should be a number in the range [0\(en255]\&. Normally this option is only used when ICMP code is set to 0 ("Pointer indicates the error")\&.
 .RE
 .PP
-\fB\-\-icmp\-advert\-lifetime \fR\fB\fIttl\fR\fR (ICMP Router Advertisement Lifetime) .\" --icmp-advert-lifetime (Nping option)
+\fB\-\-icmp\-advert\-lifetime \fR\fB\fIttl\fR\fR (ICMP Router Advertisement Lifetime) 
+.\" --icmp-advert-lifetime (Nping option)
 .RS 4
 This option specifies the router advertisement lifetime, this is, the number of seconds the information carried in an ICMP Router Advertisement can be considered valid for\&.
 \fIttl\fR
 must be a positive integer in the range [0\(en65535]\&.
 .RE
 .PP
-\fB\-\-icmp\-advert\-entry \fR\fB\fIaddr\fR\fR\fB,\fR\fB\fIpref\fR\fR (ICMP Router Advertisement Entry) .\" --icmp-advert-entry (Nping option)
+\fB\-\-icmp\-advert\-entry \fR\fB\fIaddr\fR\fR\fB,\fR\fB\fIpref\fR\fR (ICMP Router Advertisement Entry) 
+.\" --icmp-advert-entry (Nping option)
 .RS 4
 This option adds a Router Advertisement entry to an ICMP Router Advertisement message\&. The parameter must be two values separated by a comma\&.
 \fIaddr\fR
@@ -656,7 +690,8 @@ is the preference level for the specified IP\&. It must be a number in the range
 \fB\-\-icmp\-advert\-entry 192\&.168\&.128\&.1,3\fR\&.
 .RE
 .PP
-\fB\-\-icmp\-orig\-time \fR\fB\fItimestamp\fR\fR (ICMP Originate Timestamp) .\" --icmp-orig-time (Nping option)
+\fB\-\-icmp\-orig\-time \fR\fB\fItimestamp\fR\fR (ICMP Originate Timestamp) 
+.\" --icmp-orig-time (Nping option)
 .RS 4
 This option sets the Originate Timestamp in ICMP Timestamp messages\&. The Originate Timestamp is expressed as the number of milliseconds since midnight UTC and it corresponds to the time the sender last touched the Timestamp message before its transmission\&.
 \fItimestamp\fR
@@ -671,7 +706,8 @@ now, for example
 \fB\-\-icmp\-orig\-time now+200ms\fR\&.
 .RE
 .PP
-\fB\-\-icmp\-recv\-time \fR\fB\fItimestamp\fR\fR (ICMP Receive Timestamp) .\" --icmp-recv-time (Nping option)
+\fB\-\-icmp\-recv\-time \fR\fB\fItimestamp\fR\fR (ICMP Receive Timestamp) 
+.\" --icmp-recv-time (Nping option)
 .RS 4
 This option sets the Receive Timestamp in ICMP Timestamp messages\&. The Receive Timestamp is expressed as the number of milliseconds since midnight UTC and it corresponds to the time the echoer first touched the Timestamp message on receipt\&.
 \fItimestamp\fR
@@ -679,7 +715,8 @@ is as with
 \fB\-\-icmp\-orig\-time\fR\&.
 .RE
 .PP
-\fB\-\-icmp\-trans\-time \fR\fB\fItimestamp\fR\fR (ICMP Transmit Timestamp) .\" --icmp-trans-time (Nping option)
+\fB\-\-icmp\-trans\-time \fR\fB\fItimestamp\fR\fR (ICMP Transmit Timestamp) 
+.\" --icmp-trans-time (Nping option)
 .RS 4
 This option sets the Transmit Timestamp in ICMP Timestamp messages\&. The Transmit Timestamp is expressed as the number of milliseconds since midnight UTC and it corresponds to the time the echoer last touched the Timestamp message before its transmission\&.
 \fItimestamp\fR
@@ -690,7 +727,8 @@ is as with
 .\" ICMP types: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the ICMP type numbers given to the
-\fB\-\-icmp\-type\fR.\" --icmp-type (Nping option)
+\fB\-\-icmp\-type\fR
+.\" --icmp-type (Nping option)
 option\&. In general there are three forms of each identifier: the full name (e\&.g\&.
 destination\-unreachable), the short name (e\&.g\&.
 dest\-unr), or the initials (e\&.g\&.
@@ -782,7 +820,8 @@ Address Mask Reply (type 18)\&. This message contains a subnet mask and is sent 
 .PP
 traceroute, trace, tc
 .RS 4
-Traceroute (type 30)\&. This message is normally sent by an intermediate device when it receives an IP datagram with a traceroute option\&. ICMP Traceroute messages are still experimental, see RFC 1393.\" RFC 1393
+Traceroute (type 30)\&. This message is normally sent by an intermediate device when it receives an IP datagram with a traceroute option\&. ICMP Traceroute messages are still experimental, see RFC 1393
+.\" RFC 1393
 for more information\&.
 .RE
 .\" 
@@ -790,7 +829,8 @@ for more information\&.
 .\" ICMP codes: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the ICMP code numbers given to the
-\fB\-\-icmp\-code\fR.\" --icmp-code (Nping option)
+\fB\-\-icmp\-code\fR
+.\" --icmp-code (Nping option)
 option\&. They are listed by the ICMP type they correspond to\&.
 .sp
 .it 1 an-trap
@@ -892,7 +932,8 @@ Code 15\&. Precedence value in the IP TOS field is lower than the minimum allowe
 .PP
 redirect\-network, redi\-net, net
 .RS 4
-Code 0\&. Redirect all future datagrams with the same destination network as the original datagram, to the router specified in the Address field\&. The use of this code is prohibited by RFC 1812\&..\" RFC 1812
+Code 0\&. Redirect all future datagrams with the same destination network as the original datagram, to the router specified in the Address field\&. The use of this code is prohibited by RFC 1812\&.
+.\" RFC 1812
 .RE
 .PP
 redirect\-host, redi\-host, host
@@ -977,7 +1018,8 @@ Code 2\&. The length of the IP datagram is incorrect\&.
 .\" 
 .SH "ARP MODE"
 .PP
-\fB\-\-arp\-type \fR\fB\fItype\fR\fR (ICMP Type) .\" --arp-type (Nping option)
+\fB\-\-arp\-type \fR\fB\fItype\fR\fR (ICMP Type) 
+.\" --arp-type (Nping option)
 .RS 4
 This option specifies which type of ARP messages should be generated\&.
 \fItype\fR
@@ -989,7 +1031,8 @@ for ARP Request), or you can use one of the mnemonics from
 the section called \(lqARP Types\(rq\&.
 .RE
 .PP
-\fB\-\-arp\-sender\-mac \fR\fB\fImac\fR\fR (Sender MAC address) .\" --arp-sender-mac (Nping option)
+\fB\-\-arp\-sender\-mac \fR\fB\fImac\fR\fR (Sender MAC address) 
+.\" --arp-sender-mac (Nping option)
 .RS 4
 This option sets the Sender Hardware Address field of the ARP header\&. Although ARP supports many types of link layer addresses, currently Nping only supports MAC addresses\&.
 \fImac\fR
@@ -998,19 +1041,22 @@ must be specified using the traditional MAC notation (e\&.g\&.
 00\-0a\-8a\-32\-f4\-ae)\&.
 .RE
 .PP
-\fB\-\-arp\-sender\-ip \fR\fB\fIaddr\fR\fR (Sender IP address) .\" --arp-sender-ip (Nping option)
+\fB\-\-arp\-sender\-ip \fR\fB\fIaddr\fR\fR (Sender IP address) 
+.\" --arp-sender-ip (Nping option)
 .RS 4
 This option sets the Sender IP field of the ARP header\&.
 \fIaddr\fR
 can be given as an IPv4 address or a hostname\&.
 .RE
 .PP
-\fB\-\-arp\-target\-mac \fR\fB\fImac\fR\fR (target MAC address) .\" --arp-target-mac (Nping option)
+\fB\-\-arp\-target\-mac \fR\fB\fImac\fR\fR (target MAC address) 
+.\" --arp-target-mac (Nping option)
 .RS 4
 This option sets the Target Hardware Address field of the ARP header\&.
 .RE
 .PP
-\fB\-\-arp\-target\-ip \fR\fB\fIaddr\fR\fR (target ip address) .\" --arp-target-ip (Nping option)
+\fB\-\-arp\-target\-ip \fR\fB\fIaddr\fR\fR (target ip address) 
+.\" --arp-target-ip (Nping option)
 .RS 4
 This option sets the Target IP field of the ARP header\&.
 .RE
@@ -1018,7 +1064,8 @@ This option sets the Target IP field of the ARP header\&.
 .\" ARP types: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the ARP type numbers given to the
-\fB\-\-arp\-type\fR.\" --arp-type (Nping option)
+\fB\-\-arp\-type\fR
+.\" --arp-type (Nping option)
 option\&.
 .PP
 arp\-request, arp, a
@@ -1033,7 +1080,8 @@ ARP Reply (type 2)\&. An ARP reply is a message that a host sends in response to
 .PP
 rarp\-request, rarp, r
 .RS 4
-RARP Requests (type 3)\&. RARP requests are used to translate a link layer address (normally a MAC address) to a network layer address (usually an IP address)\&. Basically a RARP request is a broadcasted message sent by a host that wants to know his own IP address because it doesn\*(Aqt have any\&. It was the first protocol designed to solve the bootstrapping problem\&. However, RARP is now obsolete and DHCP is used instead\&. For more information about RARP see RFC 903\&..\" RFC 903
+RARP Requests (type 3)\&. RARP requests are used to translate a link layer address (normally a MAC address) to a network layer address (usually an IP address)\&. Basically a RARP request is a broadcasted message sent by a host that wants to know his own IP address because it doesn\*(Aqt have any\&. It was the first protocol designed to solve the bootstrapping problem\&. However, RARP is now obsolete and DHCP is used instead\&. For more information about RARP see RFC 903\&.
+.\" RFC 903
 .RE
 .PP
 rarp\-reply, rarp\-rep, rr
@@ -1043,7 +1091,8 @@ RARP Reply (type 4)\&. A RARP reply is a message sent in response to a RARP requ
 .PP
 drarp\-request, drarp, d
 .RS 4
-Dynamic RARP Request (type 5)\&. Dynamic RARP is an extension to RARP used to obtain or assign a network layer address from a fixed link layer address\&. DRARP was used mainly in Sun Microsystems platforms in the late 90\*(Aqs but now it\*(Aqs no longer used\&. See RFC 1931.\" RFC 1931
+Dynamic RARP Request (type 5)\&. Dynamic RARP is an extension to RARP used to obtain or assign a network layer address from a fixed link layer address\&. DRARP was used mainly in Sun Microsystems platforms in the late 90\*(Aqs but now it\*(Aqs no longer used\&. See RFC 1931
+.\" RFC 1931
 for more information\&.
 .RE
 .PP
@@ -1059,7 +1108,8 @@ DRARP Error (type 7)\&. DRARP Error messages are usually sent in response to DRA
 .PP
 inarp\-request, inarp, i
 .RS 4
-Inverse ARP Request (type 8)\&. InARP requests are used to translate a link layer address to a network layer address\&. It is similar to RARP request but in this case, the sender of the InARP request wants to know the network layer address of another node, not its own address\&. InARP is mainly used in Frame Relay and ATM networks\&. For more information see RFC 2390\&..\" RFC 2390
+Inverse ARP Request (type 8)\&. InARP requests are used to translate a link layer address to a network layer address\&. It is similar to RARP request but in this case, the sender of the InARP request wants to know the network layer address of another node, not its own address\&. InARP is mainly used in Frame Relay and ATM networks\&. For more information see RFC 2390\&.
+.\" RFC 2390
 .RE
 .PP
 inarp\-reply, inarp\-rep, ir
@@ -1069,63 +1119,74 @@ Inverse ARP Reply (type 9)\&. InARP reply messages are sent in response to InARP
 .PP
 arp\-nak, an
 .RS 4
-ARP NAK (type 10)\&. ARP NAK messages are an extension to the ATMARP protocol and they are used to improve the robustness of the ATMARP server mechanism\&. With ARP NAK, a client can determine the difference between a catastrophic server failure and an ATMARP table lookup failure\&. See RFC 1577.\" RFC 1577
+ARP NAK (type 10)\&. ARP NAK messages are an extension to the ATMARP protocol and they are used to improve the robustness of the ATMARP server mechanism\&. With ARP NAK, a client can determine the difference between a catastrophic server failure and an ATMARP table lookup failure\&. See RFC 1577
+.\" RFC 1577
 for more information\&.
 .RE
 .\" 
 .SH "IPV4 OPTIONS"
 .PP
-\fB\-S \fR\fB\fIaddr\fR\fR, \fB\-\-source\-ip \fR\fB\fIaddr\fR\fR (Source IP Address) .\" --source-ip (Nping option) .\" -S (Nping option)
+\fB\-S \fR\fB\fIaddr\fR\fR, \fB\-\-source\-ip \fR\fB\fIaddr\fR\fR (Source IP Address) 
+.\" --source-ip (Nping option) .\" -S (Nping option)
 .RS 4
 Sets the source IP address\&. This option lets you specify a custom IP address to be used as source IP address in sent packets\&. This allows spoofing the sender of the packets\&.
 \fIaddr\fR
 can be an IPv4 address or a hostname\&.
 .RE
 .PP
-\fB\-\-dest\-ip \fR\fB\fIaddr\fR\fR (Destination IP Address) .\" --dest-ip (Nping option)
+\fB\-\-dest\-ip \fR\fB\fIaddr\fR\fR (Destination IP Address) 
+.\" --dest-ip (Nping option)
 .RS 4
 Adds a target to Nping\*(Aqs target list\&. This option is provided for consistency but its use is deprecated in favor of plain target specifications\&. See
 the section called \(lqTARGET SPECIFICATION\(rq\&.
 .RE
 .PP
-\fB\-\-tos \fR\fB\fItos\fR\fR (Type of Service) .\" --tos (Nping option)
+\fB\-\-tos \fR\fB\fItos\fR\fR (Type of Service) 
+.\" --tos (Nping option)
 .RS 4
-Sets the IP TOS field\&. The TOS field is used to carry information to provide quality of service features\&. It is normally used to support a technique called Differentiated Services\&. See RFC 2474.\" RFC 2474
+Sets the IP TOS field\&. The TOS field is used to carry information to provide quality of service features\&. It is normally used to support a technique called Differentiated Services\&. See RFC 2474
+.\" RFC 2474
 for more information\&.
 \fItos\fR
 must be a number in the range [0\(en255]\&.
 .RE
 .PP
-\fB\-\-id \fR\fB\fIid\fR\fR (Identification) .\" --id (Nping option)
+\fB\-\-id \fR\fB\fIid\fR\fR (Identification) 
+.\" --id (Nping option)
 .RS 4
 Sets the IPv4 Identification field\&. The Identification field is a 16\-bit value that is common to all fragments belonging to a particular message\&. The value is used by the receiver to reassemble the original message from the fragments received\&.
 \fIid\fR
 must be a number in the range [0\(en65535]\&.
 .RE
 .PP
-\fB\-\-df\fR (Don\*(Aqt Fragment) .\" --df (Nping option)
+\fB\-\-df\fR (Don\*(Aqt Fragment) 
+.\" --df (Nping option)
 .RS 4
 Sets the Don\*(Aqt Fragment bit in sent packets\&. When an IP datagram has its DF flag set, intermediate devices are not allowed to fragment it so if it needs to travel across a network with a MTU smaller that datagram length the datagram will have to be dropped\&. Normally an ICMP Destination Unreachable message is generated and sent back to the sender\&.
 .RE
 .PP
-\fB\-\-mf\fR (More Fragments) .\" --mf (Nping option)
+\fB\-\-mf\fR (More Fragments) 
+.\" --mf (Nping option)
 .RS 4
 Sets the More Fragments bit in sent packets\&. The MF flag is set to indicate the receiver that the current datagram is a fragment of some larger datagram\&. When set to zero it indicates that the current datagram is either the last fragment in the set or that it is the only fragment\&.
 .RE
 .PP
-\fB\-\-ttl \fR\fB\fIhops\fR\fR (Time To Live) .\" --ttl (Nping option)
+\fB\-\-ttl \fR\fB\fIhops\fR\fR (Time To Live) 
+.\" --ttl (Nping option)
 .RS 4
 Sets the IPv4 Time\-To\-Live (TTL) field in sent packets to the given value\&. The TTL field specifies how long the datagram is allowed to exist on the network\&. It was originally intended to represent a number of seconds but it actually represents the number of hops a packet can traverse before being dropped\&. The TTL tries to avoid a situation in which undeliverable datagrams keep being forwarded from one router to another endlessly\&.
 \fIhops\fR
 must be a number in the range [0\(en255]\&.
 .RE
 .PP
-\fB\-\-badsum\-ip\fR (Invalid IP checksum) .\" --badsum-ip (Nping option)
+\fB\-\-badsum\-ip\fR (Invalid IP checksum) 
+.\" --badsum-ip (Nping option)
 .RS 4
 Asks Nping to use an invalid IP checksum for packets sent to target hosts\&. Note that some systems (like most Linux kernels), may fix the checksum before placing the packet on the wire, so even if Nping shows the incorrect checksum in its output, the packets may be transparently corrected by the kernel\&.
 .RE
 .PP
-\fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&.\fR\fR, \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (IP Options) .\" --ip-options (Nping option)
+\fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&.\fR\fR, \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (IP Options) 
+.\" --ip-options (Nping option)
 .RS 4
 The IP protocol offers several options which may be placed in packet headers\&. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns\&. In fact, many Internet routers block the most dangerous options such as source routing\&. Yet options can still be useful in some cases for determining and manipulating the network route to target machines\&. For example, you may be able to use the record route option to determine a path to a target even when more traditional traceroute\-style approaches fail\&. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options\&.
 .sp
@@ -1148,7 +1209,8 @@ For more information and examples of using IP options with Nping, see the mailin
 \m[blue]\fB\%http://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
 .RE
 .PP
-\fB\-\-mtu \fR\fB\fIsize\fR\fR (Maximum Transmission Unit) .\" --mtu (Nping option)
+\fB\-\-mtu \fR\fB\fIsize\fR\fR (Maximum Transmission Unit) 
+.\" --mtu (Nping option)
 .RS 4
 This option sets a fictional MTU in Nping so IP datagrams larger than
 \fIsize\fR
@@ -1158,7 +1220,8 @@ must be specified in bytes and corresponds to the number of octets that can be c
 .RE
 .SH "IPV6 OPTIONS"
 .PP
-\fB\-6\fR, \fB\-\-ipv6\fR (Use IPv6) .\" --ipv6 (Nping option) .\" -6 (Nping option)
+\fB\-6\fR, \fB\-\-ipv6\fR (Use IPv6) 
+.\" --ipv6 (Nping option) .\" -6 (Nping option)
 .RS 4
 Tells Nping to use IP version 6 instead of the default IPv4\&. It is generally a good idea to specify this option as early as possible in the command line so Nping can parse it soon and know in advance that the rest of the parameters refer to IPv6\&. The command syntax is the same as usual except that you also add the
 \fB\-6\fR
@@ -1171,36 +1234,43 @@ While IPv6 hasn\*(Aqt exactly taken the world by storm, it gets significant use 
 Please note that IPv6 support is still highly experimental and many modes and options may not work with it\&.
 .RE
 .PP
-\fB\-S \fR\fB\fIaddr\fR\fR, \fB\-\-source\-ip \fR\fB\fIaddr\fR\fR (Source IP Address) .\" --source-ip (Nping option)
+\fB\-S \fR\fB\fIaddr\fR\fR, \fB\-\-source\-ip \fR\fB\fIaddr\fR\fR (Source IP Address) 
+.\" --source-ip (Nping option)
 .RS 4
 Sets the source IP address\&. This option lets you specify a custom IP address to be used as source IP address in sent packets\&. This allows spoofing the sender of the packets\&.
 \fIaddr\fR
 can be an IPv6 address or a hostname\&.
 .RE
 .PP
-\fB\-\-dest\-ip \fR\fB\fIaddr\fR\fR (Destination IP Address) .\" --dest-ip (Nping option)
+\fB\-\-dest\-ip \fR\fB\fIaddr\fR\fR (Destination IP Address) 
+.\" --dest-ip (Nping option)
 .RS 4
 Adds a target to Nping\*(Aqs target list\&. This option is provided for consistency but its use is deprecated in favor of plain target specifications\&. See
 the section called \(lqTARGET SPECIFICATION\(rq\&.
 .RE
 .PP
-\fB\-\-flow \fR\fB\fIlabel\fR\fR (Flow Label) .\" --flow (Nping option)
+\fB\-\-flow \fR\fB\fIlabel\fR\fR (Flow Label) 
+.\" --flow (Nping option)
 .RS 4
-Sets the IPv6 Flow Label\&. The Flow Label field is 20 bits long and is intended to provide certain quality\-of\-service properties for real\-time datagram delivery\&. However, it has not been widely adopted, and not all routers or endpoints support it\&. Check RFC 2460.\" RFC 2560
+Sets the IPv6 Flow Label\&. The Flow Label field is 20 bits long and is intended to provide certain quality\-of\-service properties for real\-time datagram delivery\&. However, it has not been widely adopted, and not all routers or endpoints support it\&. Check RFC 2460
+.\" RFC 2560
 for more information\&.
 \fIlabel\fR
 must be an integer in the range [0\(en1048575]\&.
 .RE
 .PP
-\fB\-\-traffic\-class \fR\fB\fIclass\fR\fR (Traffic Class) .\" --traffic-class (Nping option)
+\fB\-\-traffic\-class \fR\fB\fIclass\fR\fR (Traffic Class) 
+.\" --traffic-class (Nping option)
 .RS 4
-Sets the IPv6 Traffic Class\&. This field is similar to the TOS field in IPv4, and is intended to provide the Differentiated Services method, enabling scalable service discrimination in the Internet without the need for per\-flow state and signaling at every hop\&. Check RFC 2474.\" RFC 2474
+Sets the IPv6 Traffic Class\&. This field is similar to the TOS field in IPv4, and is intended to provide the Differentiated Services method, enabling scalable service discrimination in the Internet without the need for per\-flow state and signaling at every hop\&. Check RFC 2474
+.\" RFC 2474
 for more information\&.
 \fIclass\fR
 must be an integer in the range [0\(en255]\&.
 .RE
 .PP
-\fB\-\-hop\-limit \fR\fB\fIhops\fR\fR (Hop Limit) .\" --hop-limit (Nping option)
+\fB\-\-hop\-limit \fR\fB\fIhops\fR\fR (Hop Limit) 
+.\" --hop-limit (Nping option)
 .RS 4
 .\" hop limit (IPv6)
 Sets the IPv6 Hop Limit field in sent packets to the given value\&. The Hop Limit field specifies how long the datagram is allowed to exist on the network\&. It represents the number of hops a packet can traverse before being dropped\&. As with the TTL in IPv4, IPv6 Hop Limit tries to avoid a situation in which undeliverable datagrams keep being forwarded from one router to another endlessly\&.
@@ -1211,7 +1281,8 @@ must be a number in the range [0\(en255]\&.
 .PP
 In most cases Nping sends packets at the raw IP level\&. This means that Nping creates its own IP packets and transmits them through a raw socket\&. However, in some cases it may be necessary to send packets at the raw Ethernet level\&. This happens, for example, when Nping is run under Windows (as Microsoft has disabled raw socket support since Windows XP SP2), or when Nping is asked to send ARP packets\&. Since in some cases it is necessary to construct ethernet frames, Nping offers some options to manipulate the different fields\&.
 .PP
-\fB\-\-dest\-mac \fR\fB\fImac\fR\fR (Ethernet Destination MAC Address) .\" --dest-mac (Nping option)
+\fB\-\-dest\-mac \fR\fB\fImac\fR\fR (Ethernet Destination MAC Address) 
+.\" --dest-mac (Nping option)
 .RS 4
 This option sets the destination MAC address that should be set in outgoing Ethernet frames\&. This is useful in case Nping can\*(Aqt determine the next hop\*(Aqs MAC address or when you want to route probes through a router other than the configured default gateway\&. The MAC address should have the usual format of six colon\-separated bytes, e\&.g\&.
 00:50:56:d4:01:98\&. Alternatively, hyphens may be used instead of colons\&. Use the word
@@ -1225,13 +1296,15 @@ bcast
 to use ff:ff:ff:ff:ff:ff\&. If you set up a bogus destination MAC address your probes may not reach the intended targets\&.
 .RE
 .PP
-\fB\-\-source\-mac \fR\fB\fImac\fR\fR (Ethernet Source MAC Address) .\" --source-mac (Nping option)
+\fB\-\-source\-mac \fR\fB\fImac\fR\fR (Ethernet Source MAC Address) 
+.\" --source-mac (Nping option)
 .RS 4
 This option sets the source MAC address that should be set in outgoing Ethernet frames\&. This is useful in case Nping can\*(Aqt determine your network interface MAC address or when you want to inject traffic into the network while hiding your network card\*(Aqs real address\&. The syntax is the same as for
 \-\-dest\-mac\&. If you set up a bogus source MAC address you may not receive probe replies\&.
 .RE
 .PP
-\fB\-\-ether\-type \fR\fB\fItype\fR\fR (Ethertype) .\" --ether-type (Nping option)
+\fB\-\-ether\-type \fR\fB\fItype\fR\fR (Ethertype) 
+.\" --ether-type (Nping option)
 .RS 4
 This option sets the Ethertype field of the ethernet frame\&. The Ethertype is used to indicate which protocol is encapsulated in the payload\&.
 \fItype\fR
@@ -1246,7 +1319,8 @@ the section called \(lqEthernet Types\(rq\&.
 .\" Ethernet types: mnemonics of, in Nping
 .PP
 These identifiers may be used as mnemonics for the Ethertype numbers given to the
-\fB\-\-arp\-type\fR.\" --arp-type (Nping option)
+\fB\-\-arp\-type\fR
+.\" --arp-type (Nping option)
 option\&.
 .PP
 ipv4, ip, 4
@@ -1376,7 +1450,8 @@ Fast Roaming Remote Request (type 0x890D)\&.
 .\" 
 .SH "PAYLOAD OPTIONS"
 .PP
-\fB\-\-data \fR\fB\fIhex string\fR\fR (Append custom binary data to sent packets) .\" --data (Nping option)
+\fB\-\-data \fR\fB\fIhex string\fR\fR (Append custom binary data to sent packets) 
+.\" --data (Nping option)
 .RS 4
 This option lets you include binary data as payload in sent packets\&.
 \fIhex string\fR
@@ -1392,7 +1467,8 @@ and
 no byte\-order conversion is performed\&. Make sure you specify the information in the byte order expected by the receiver\&.
 .RE
 .PP
-\fB\-\-data\-string \fR\fB\fIstring\fR\fR (Append custom string to sent packets) .\" --data-string (Nping option)
+\fB\-\-data\-string \fR\fB\fIstring\fR\fR (Append custom string to sent packets) 
+.\" --data-string (Nping option)
 .RS 4
 This option lets you include a regular string as payload in sent packets\&.
 \fIstring\fR
@@ -1400,7 +1476,8 @@ can contain any string\&. However, note that some characters may depend on your 
 \fB\-\-data\-string "Jimmy Jazz\&.\&.\&."\fR\&.
 .RE
 .PP
-\fB\-\-data\-length \fR\fB\fIlen\fR\fR (Append random data to sent packets) .\" --data-length (Nping option)
+\fB\-\-data\-length \fR\fB\fIlen\fR\fR (Append random data to sent packets) 
+.\" --data-length (Nping option)
 .RS 4
 This option lets you include
 \fIlen\fR
@@ -1421,7 +1498,8 @@ Internally, client and server communicate over an encrypted and authenticated ch
 .PP
 The following paragraphs describe the different options available in Nping\*(Aqs Echo mode\&.
 .PP
-\fB\-\-ec \fR\fB\fIpassphrase\fR\fR, \fB\-\-echo\-client \fR\fB\fIpassphrase\fR\fR (Run Echo client) .\" --echo-client (Nping option) .\" --ec (Nping option)
+\fB\-\-ec \fR\fB\fIpassphrase\fR\fR, \fB\-\-echo\-client \fR\fB\fIpassphrase\fR\fR (Run Echo client) 
+.\" --echo-client (Nping option) .\" --ec (Nping option)
 .RS 4
 This option tells Nping to run as an Echo client\&.
 \fIpassphrase\fR
@@ -1437,7 +1515,8 @@ or
 \fB\-\-icmp\-type\fR, etc\&.)\&. The only exceptions are ARP\-related flags, which are not supported in Echo mode, as protocols like ARP are closely related to the data link layer and its probes can\*(Aqt pass through different network segments\&.
 .RE
 .PP
-\fB\-\-es \fR\fB\fIpassphrase\fR\fR, \fB\-\-echo\-server \fR\fB\fIpassphrase\fR\fR (Run Echo server) .\" --echo-server (Nping option) .\" --es (Nping option)
+\fB\-\-es \fR\fB\fIpassphrase\fR\fR, \fB\-\-echo\-server \fR\fB\fIpassphrase\fR\fR (Run Echo server) 
+.\" --echo-server (Nping option) .\" --es (Nping option)
 .RS 4
 This option tells Nping to run as an Echo server\&.
 \fIpassphrase\fR
@@ -1446,14 +1525,16 @@ is a sequence of ASCII characters that is used used to generate the cryptographi
 \fB\-\-no\-crypto\fR\&. See below for details\&.
 .RE
 .PP
-\fB\-\-ep \fR\fB\fIport\fR\fR, \fB\-\-echo\-port \fR\fB\fIport\fR\fR (Set Echo TCP port number) .\" --echo-port (Nping option) .\" --ep (Nping option)
+\fB\-\-ep \fR\fB\fIport\fR\fR, \fB\-\-echo\-port \fR\fB\fIport\fR\fR (Set Echo TCP port number) 
+.\" --echo-port (Nping option) .\" --ep (Nping option)
 .RS 4
 This option asks Nping to use the specified TCP port number for the Echo side channel connection\&. If this option is used with
 \fB\-\-echo\-server\fR, it specifies the port on which the server listens for connections\&. If it is used with
 \fB\-\-echo\-client\fR, it specifies the port to connect to on the remote host\&. By default, port number 9929 is used\&.
 .RE
 .PP
-\fB\-\-nc\fR, \fB\-\-no\-crypto\fR (Disable encryption and authentication) .\" --no-crypto (Nping option) .\" --nc (Nping option)
+\fB\-\-nc\fR, \fB\-\-no\-crypto\fR (Disable encryption and authentication) 
+.\" --no-crypto (Nping option) .\" --nc (Nping option)
 .RS 4
 This option asks Nping not to use any cryptographic operations during an Echo session\&. In practical terms, this means that the Echo side channel session data will be transmitted in the clear, and no authentication will be performed by the server or client during the session establishment phase\&. When
 \fB\-\-no\-crypto\fR
@@ -1468,12 +1549,14 @@ This option must be specified if Nping was compiled without openSSL support\&. N
 The \-\-no\-crypto flag might be useful when setting up a public Echo server, because it allows users to connect to the Echo server without the need for any passphrase or shared secret\&. However, it is strongly recommended to not use \-\-no\-crypto unless absolutely necessary\&. Public Echo servers should be configured to use the passphrase "public" or the empty passphrase (\-\-echo\-server "") as the use of cryptography does not only provide confidentiality and authentication but also message integrity\&.
 .RE
 .PP
-\fB\-\-once\fR (Serve one client and quit) .\" --once (Nping option)
+\fB\-\-once\fR (Serve one client and quit) 
+.\" --once (Nping option)
 .RS 4
 This option asks the Echo server to quit after serving one client\&. This is useful when only a single Echo session wants to be established as it eliminates the need to access the remote host to shutdown the server\&.
 .RE
 .PP
-\fB\-\-safe\-payloads\fR (Zero application data before echoing a packet) .\" --safe-payloads (Nping option)
+\fB\-\-safe\-payloads\fR (Zero application data before echoing a packet) 
+.\" --safe-payloads (Nping option)
 .RS 4
 This option asks the Echo server to erase any application layer data found in client packets before echoing them\&. When the option is enabled, the Echo server parses the packets received from Echo clients and tries to determine if they contain data beyond the transport layer\&. If such data is found, it is overwritten with zeroes before transmitting the packets to the appropriate Echo client\&.
 .sp
@@ -1543,7 +1626,8 @@ The output clearly shows the presence of a NAT device in the client\*(Aqs local 
 In this example, the output is a bit more tricky\&. The absence of error messages shows that the Echo client has successfully established an Echo session with the server\&. However, no CAPT packets can be seen in the output\&. This means that none of the transmitted packets reached the server\&. Interestingly, a TCP SYN\-ACK packet was received in response to the first TCP\-SYN packet (and also, it is known that the target host does not have port 80 open)\&. This behavior reveals the presence of a transparent web proxy cache server (which in this case is an old MS ISA server)\&.
 .SH "TIMING AND PERFORMANCE OPTIONS"
 .PP
-\fB\-\-delay \fR\fB\fItime\fR\fR (Delay between probes) .\" --delay (Nping option)
+\fB\-\-delay \fR\fB\fItime\fR\fR (Delay between probes) 
+.\" --delay (Nping option)
 .RS 4
 This option lets you control for how long will Nping wait before sending the next probe\&. Like in many other ping tools, the default delay is one second\&.
 \fItime\fR
@@ -1561,7 +1645,8 @@ for hours (e\&.g\&.
 2h)\&.
 .RE
 .PP
-\fB\-\-rate \fR\fB\fIrate\fR\fR (Send probes at a given rate) .\" --rate (Nping option)
+\fB\-\-rate \fR\fB\fIrate\fR\fR (Send probes at a given rate) 
+.\" --rate (Nping option)
 .RS 4
 This option specifies the number of probes that Nping should send per second\&. This option and
 \fB\-\-delay\fR
@@ -1572,79 +1657,94 @@ is the same as
 .RE
 .SH "MISCELLANEOUS OPTIONS"
 .PP
-\fB\-h\fR, \fB\-\-help\fR (Display help) .\" --help (Nping option) .\" --h (Nping option)
+\fB\-h\fR, \fB\-\-help\fR (Display help) 
+.\" --help (Nping option) .\" --h (Nping option)
 .RS 4
 Displays help information and exits\&.
 .RE
 .PP
-\fB\-V\fR, \fB\-\-version\fR (Display version) .\" --version (Nping option) .\" -V (Nping option)
+\fB\-V\fR, \fB\-\-version\fR (Display version) 
+.\" --version (Nping option) .\" -V (Nping option)
 .RS 4
 Displays the program\*(Aqs version number and quits\&.
 .RE
 .PP
-\fB\-c \fR\fB\fIrounds\fR\fR, \fB\-\-count \fR\fB\fIrounds\fR\fR (Stop after a given number of rounds) .\" --count (Nping option) .\" -c (Nping option)
+\fB\-c \fR\fB\fIrounds\fR\fR, \fB\-\-count \fR\fB\fIrounds\fR\fR (Stop after a given number of rounds) 
+.\" --count (Nping option) .\" -c (Nping option)
 .RS 4
 This option lets you specify the number of times that Nping should loop over target hosts (and in some cases target ports)\&. Nping calls these
 \(lqrounds\(rq\&. In a basic execution with only one target (and only one target port in TCP/UDP modes), the number of rounds matches the number of probes sent to the target host\&. However, in more complex executions where Nping is run against multiple targets and multiple ports, the number of rounds is the number of times that Nping sends a complete set of probes that covers all target IPs and all target ports\&. For example, if Nping is asked to send TCP SYN packets to hosts 192\&.168\&.1\&.0\-255 and ports 80 and 433, then 256 \(mu 2\ \&=\ \&512 packets are sent in one round\&. So if you specify
 \fB\-c 100\fR, Nping will loop over the different target hosts and ports 100 times, sending a total of 256 \(mu 2 \(mu 100\ \&=\ \&51200 packets\&. By default Nping runs for 5 rounds\&. If a value of 0 is specified, Nping will run continuously\&.
 .RE
 .PP
-\fB\-e \fR\fB\fIname\fR\fR, \fB\-\-interface \fR\fB\fIname\fR\fR (Set the network interface to be used) .\" --interface (Nping option) .\" -e (Nping option)
+\fB\-e \fR\fB\fIname\fR\fR, \fB\-\-interface \fR\fB\fIname\fR\fR (Set the network interface to be used) 
+.\" --interface (Nping option) .\" -e (Nping option)
 .RS 4
 This option tells Nping what interface should be used to send and receive packets\&. Nping should be able to detect this automatically, but it will tell you if it cannot\&.
 \fIname\fR
 must be the name of an existing network interface with an assigned IP address\&.
 .RE
 .PP
-\fB\-\-privileged\fR (Assume that the user is fully privileged) .\" --privileged (Nping option)
+\fB\-\-privileged\fR (Assume that the user is fully privileged) 
+.\" --privileged (Nping option)
 .RS 4
 Tells Nping to simply assume that it is privileged enough to perform raw socket sends, packet sniffing, and similar operations that usually require special privileges\&. By default Nping quits if such operations are requested by a user that has no root or administrator privileges\&. This option may be useful on Linux, BSD or similar systems that can be configured to allow unprivileged users to perform raw\-packet transmissions\&. The
-\fBNPING_PRIVILEGED\fR.\" NPING_PRIVILEGED environment variable
+\fBNPING_PRIVILEGED\fR
+.\" NPING_PRIVILEGED environment variable
 environment variable may be set as an alternative to using
 \fB\-\-privileged\fR\&.
 .RE
 .PP
-\fB\-\-unprivileged\fR (Assume that the user lacks raw socket privileges) .\" --unprivileged (Nping option)
+\fB\-\-unprivileged\fR (Assume that the user lacks raw socket privileges) 
+.\" --unprivileged (Nping option)
 .RS 4
 This option is the opposite of
 \fB\-\-privileged\fR\&. It tells Nping to treat the user as lacking network raw socket and sniffing privileges\&. This is useful for testing, debugging, or when the raw network functionality of your operating system is somehow broken\&. The
-\fBNPING_UNPRIVILEGED\fR.\" NPING_UNPRIVILEGED environment variable
+\fBNPING_UNPRIVILEGED\fR
+.\" NPING_UNPRIVILEGED environment variable
 environment variable may be set as an alternative to using
 \fB\-\-unprivileged\fR\&.
 .RE
 .PP
-\fB\-\-send\-eth\fR (Use raw ethernet sending) .\" --send-eth (Nping option)
+\fB\-\-send\-eth\fR (Use raw ethernet sending) 
+.\" --send-eth (Nping option)
 .RS 4
 Asks Nping to send packets at the raw ethernet (data link) layer rather than the higher IP (network) layer\&. By default, Nping chooses the one which is generally best for the platform it is running on\&. Raw sockets (IP layer) are generally most efficient for Unix machines, while ethernet frames are required for Windows operation since Microsoft disabled raw socket support\&. Nping still uses raw IP packets despite this option when there is no other choice (such as non\-ethernet connections)\&.
 .RE
 .PP
-\fB\-\-send\-ip\fR (Send at raw IP level) .\" --send-ip (Nping option)
+\fB\-\-send\-ip\fR (Send at raw IP level) 
+.\" --send-ip (Nping option)
 .RS 4
 Asks Nping to send packets via raw IP sockets rather than sending lower level ethernet frames\&. It is the complement to the
 \fB\-\-send\-eth\fR
 option\&.
 .RE
 .PP
-\fB\-\-bpf\-filter \fR\fB\fIfilter spec\fR\fR \fB\-\-filter \fR\fB\fIfilter spec\fR\fR (Set custom BPF filter) .\" --bpf-filter (Nping option) .\" --filter (Nping option)
+\fB\-\-bpf\-filter \fR\fB\fIfilter spec\fR\fR \fB\-\-filter \fR\fB\fIfilter spec\fR\fR (Set custom BPF filter) 
+.\" --bpf-filter (Nping option) .\" --filter (Nping option)
 .RS 4
-This option lets you use a custom BPF filter\&. By default Nping chooses a filter that is intended to capture most common responses to the particular probes that are sent\&. For example, when sending TCP packets, the filter is set to capture packets whose destination port matches the probe\*(Aqs source port or ICMP error messages that may be generated by the target or any intermediate device as a result of the probe\&. If for some reason you expect strange packets in response to sent probes or you just want to sniff a particular kind of traffic, you can specify a custom filter using the BPF syntax used by tools like tcpdump\&..\" tcpdump
+This option lets you use a custom BPF filter\&. By default Nping chooses a filter that is intended to capture most common responses to the particular probes that are sent\&. For example, when sending TCP packets, the filter is set to capture packets whose destination port matches the probe\*(Aqs source port or ICMP error messages that may be generated by the target or any intermediate device as a result of the probe\&. If for some reason you expect strange packets in response to sent probes or you just want to sniff a particular kind of traffic, you can specify a custom filter using the BPF syntax used by tools like tcpdump\&.
+.\" tcpdump
 See the documentation at
 \m[blue]\fB\%http://www.tcpdump.org/\fR\m[]
 for more information\&.
 .RE
 .PP
-\fB\-H\fR, \fB\-\-hide\-sent\fR (Do not display sent packets) .\" --hide-sent (Nping option) .\" -H (Nping option)
+\fB\-H\fR, \fB\-\-hide\-sent\fR (Do not display sent packets) 
+.\" --hide-sent (Nping option) .\" -H (Nping option)
 .RS 4
 This option tells Nping not to print information about sent packets\&. This can be useful when using very short inter\-probe delays (i\&.e\&., when flooding), because printing information to the standard output has a computational cost and disabling it can probably speed things up a bit\&. Also, it may be useful when using Nping to detect active hosts or open ports (e\&.g\&. sending probes to all TCP ports in a /24 subnet)\&. In that case, users may not want to see thousands of sent probes but just the replies generated by active hosts\&.
 .RE
 .PP
-\fB\-N\fR, \fB\-\-no\-capture\fR (Do not attempt to capture replies) .\" --no-capture (Nping option) .\" -N (Nping option)
+\fB\-N\fR, \fB\-\-no\-capture\fR (Do not attempt to capture replies) 
+.\" --no-capture (Nping option) .\" -N (Nping option)
 .RS 4
 This option tells Nping to skip packet capture\&. This means that packets in response to sent probes will not be processed or displayed\&. This can be useful when doing flooding and network stack stress tests\&. Note that when this option is specified, most of the statistics shown at the end of the execution will be useless\&. This option does not work with TCP Connect mode\&.
 .RE
 .SH "OUTPUT OPTIONS"
 .PP
-\fB\-v\fR\fB[\fIlevel\fR]\fR, \fB\-\-verbose \fR\fB[\fIlevel\fR]\fR (Increase or set verbosity level) .\" --verbose (Nping option) .\" -v (Nping option)
+\fB\-v\fR\fB[\fIlevel\fR]\fR, \fB\-\-verbose \fR\fB[\fIlevel\fR]\fR (Increase or set verbosity level) 
+.\" --verbose (Nping option) .\" -v (Nping option)
 .RS 4
 Increases the verbosity level, causing Nping to print more information during its execution\&. There are 9 levels of verbosity (\-4 to 4)\&. Every instance of
 \fB\-v\fR
@@ -1702,12 +1802,14 @@ Same as level 3\&.
 .RE
 .RE
 .PP
-\fB\-q\fR\fB[\fIlevel\fR]\fR, \fB\-\-reduce\-verbosity \fR\fB[\fIlevel\fR]\fR (Decrease verbosity level) .\" --reduce-verbosity (Nping option) .\" -q (Nping option)
+\fB\-q\fR\fB[\fIlevel\fR]\fR, \fB\-\-reduce\-verbosity \fR\fB[\fIlevel\fR]\fR (Decrease verbosity level) 
+.\" --reduce-verbosity (Nping option) .\" -q (Nping option)
 .RS 4
 Decreases the verbosity level, causing Nping to print less information during its execution\&.
 .RE
 .PP
-\fB\-d\fR\fB[\fIlevel\fR]\fR (Increase or set debugging level) .\" -d (Nping option)
+\fB\-d\fR\fB[\fIlevel\fR]\fR (Increase or set debugging level) 
+.\" -d (Nping option)
 .RS 4
 When even verbose mode doesn\*(Aqt provide sufficient data for you, debugging is available to flood you with much more! As with the
 \fB\-v\fR, debugging is enabled with a command\-line flag
@@ -1762,7 +1864,8 @@ Like level 3 but also displays messages only a real Nping freak would want to se
 .PP
 Level 5
 .RS 4
-Like level 4 but it enables basic debug information related to external libraries like Nsock\&..\" Nsock
+Like level 4 but it enables basic debug information related to external libraries like Nsock\&.
+.\" Nsock
 .RE
 .PP
 Level 6
@@ -1779,7 +1882,8 @@ Like its author, Nping isn\*(Aqt perfect\&. But you can help make it better by s
 or at Google\&. Also try browsing the
 nmap\-dev
 archives at
-\m[blue]\fB\%http://seclists.org/\fR\m[].\" nmap-dev mailing list
+\m[blue]\fB\%http://seclists.org/\fR\m[]
+.\" nmap-dev mailing list
 Read this full manual page as well\&. If nothing comes out of this, mail a bug report to
 <dev@nmap\&.org>\&. Please include everything you have learned about the problem, as well as what version of Nping you are running and what operating system version it is running on\&. Problem reports and Nping usage questions sent to
 <dev@nmap\&.org>
