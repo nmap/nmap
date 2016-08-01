@@ -356,7 +356,7 @@ void win_init()
 	}
 #ifdef _MSC_VER
 	__except (1) {
-			error("WARNING: Could not import all necessary WinPcap functions.  You may need to upgrade to version 3.1 or higher from http://www.winpcap.org.  Resorting to connect() mode -- Nmap may not function completely");
+			error("WARNING: Could not import all necessary Npcap functions.  You may need to upgrade to version 0.07 or higher from http://www.npcap.org.  Resorting to connect() mode -- Nmap may not function completely");
 		o.have_pcap=false;
 		}
 #endif
