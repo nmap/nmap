@@ -646,7 +646,7 @@ AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])
 AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
 [ 
   # Force use of included zlib if compiling with libssh2
-  if test $with_libssh2 = "yes" -a $with_zlib = "no"; then
+  if test $use_libssh2 = "yes" -a $with_zlib = "no"; then
     with_zlib="yes"
   fi
 
