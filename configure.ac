@@ -543,15 +543,15 @@ AC_SUBST(PCRE_CLEAN)
 AC_SUBST(PCRE_DIST_CLEAN)
 
 
-# We test whether desired libssh2 is scpecified explicitly
+# We test whether desired libssh2 is specified explicitly
 
 
-have_libssh2="no"
 use_libssh2="yes"
+have_libssh2="no"
 test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 
 AC_ARG_WITH(libssh2,
-AC_HELP_STRING([--with-libssh2=DIR], [Use speficic copy of libssh2])
+AC_HELP_STRING([--with-libssh2=DIR], [Use specific copy of libssh2])
 AC_HELP_STRING([--with-libssh2=included], [Always use version included with Nmap])
 AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
 [ case "$with_libssh2" in
@@ -589,7 +589,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
 )
 
 
-if test $with_libssh2 = yes -a $use_openssl = yes; then
+if test $use_libssh2 = yes -a $use_openssl = yes; then
   trace_use="$trace_use libssh2"
 
   if test $have_libssh2 = yes; then
@@ -636,11 +636,10 @@ AC_SUBST(LIBSSH2_DIST_CLEAN)
 AC_SUBST(LIBSSH2_LIBS)
 
 
-# We test whether desired libz is scpecified explicitly
+# We test whether desired libz is specified explicitly
 
 have_zlib="no"
-
-test "${with_zlib+set}" != "set" && with_zlib="yes"
+test "${with_zlib+set}" != "set" && with_zlib="no"
 
 AC_ARG_WITH(zlib,
 AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])

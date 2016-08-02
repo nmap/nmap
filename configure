@@ -1450,7 +1450,7 @@ Optional Packages:
   --with-libpcre=DIR      Use an existing (compiled) pcre lib from DIR/include
                           and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
-  --with-libssh2=DIR      Use speficic copy of libssh2
+  --with-libssh2=DIR      Use specific copy of libssh2
   --with-libssh2=included Always use version included with Nmap
   --without-libssh2       Compile without libssh2
   --with-zlib=DIR         Use speficic copy of zlib
@@ -6529,11 +6529,11 @@ fi
 
 
 
-# We test whether desired libssh2 is scpecified explicitly
+# We test whether desired libssh2 is specified explicitly
 
 
-have_libssh2="no"
 use_libssh2="yes"
+have_libssh2="no"
 test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 
 
@@ -6663,7 +6663,7 @@ fi
 
 
 
-if test $with_libssh2 = yes -a $use_openssl = yes; then
+if test $use_libssh2 = yes -a $use_openssl = yes; then
   trace_use="$trace_use libssh2"
 
   if test $have_libssh2 = yes; then
@@ -6715,11 +6715,10 @@ fi
 
 
 
-# We test whether desired libz is scpecified explicitly
+# We test whether desired libz is specified explicitly
 
 have_zlib="no"
-
-test "${with_zlib+set}" != "set" && with_zlib="yes"
+test "${with_zlib+set}" != "set" && with_zlib="no"
 
 
 # Check whether --with-zlib was given.
