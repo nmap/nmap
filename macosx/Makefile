@@ -35,6 +35,11 @@ JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
 PREFIX = /usr/local
 
+README_FILE = README.md
+COPYING_FILE = COPYING
+3RD_P_LIC_FILE = 3rd-party-licenses.txt
+LICENSES_FILE = licenses
+
 EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
@@ -93,9 +98,25 @@ APR_STATIC = $(JHBUILD_PREFIX)/lib/libapr-1.a \
 $(JHBUILD_PREFIX)/lib/libaprutil-1.a \
 $(JHBUILD_PREFIX)/lib/libapriconv-1.a
 
+export ICON_SIZE=88
+export FONT_SIZE=13
+export MPKG_POS_X=110
+export MPKG_POS_Y=170
+export APPS_POS_X=110
+export APPS_POS_Y=310
+export README_POS_X=802
+export README_POS_Y=180
+export COPYING_POS_X=802
+export COPYING_POS_Y=310
+export THIRD_P_POS_X=802
+export THIRD_P_POS_Y=440
+export LICENSES_POS_X=670
+export LICENSES_POS_Y=60
+
 $(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./check_test.sh $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
 
