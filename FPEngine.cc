@@ -475,7 +475,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
         /* We don't need to change address if decoys aren't specified */
         if (o.numdecoys > 1)
           /* Decoys have to be sent only if changeSourceAddress worked */
-          assert(myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr) == OP_SUCCESS)
+          assert(myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr) == OP_SUCCESS);
         assert(myprobe->host != NULL);
         buf = myprobe->getPacketBuffer(&len);
         if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
