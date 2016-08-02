@@ -474,7 +474,8 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
       for (int decoy = 0; decoy < o.numdecoys; decoy++) {
         /* We don't need to change address if decoys aren't specified */
         if (o.numdecoys > 1)
-          myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr);
+          /* Decoys have to be sent only if changeSourceAddress worked */
+          assert(myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr) == OP_SUCCESS)
         assert(myprobe->host != NULL);
         buf = myprobe->getPacketBuffer(&len);
         if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
@@ -489,7 +490,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
       }
       /* Reset the address to the original one if decoys were present and original Address wasn't last one */
       if ( o.numdecoys != o.decoyturn+1 )
-        myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[o.decoyturn])->sin6_addr);
+        assert(myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[o.decoyturn])->sin6_addr) == OP_SUCCESS);
 
       myprobe->setTimeSent();
       break;
@@ -2739,11 +2740,13 @@ int FPProbe::setTimed() {
 /* Add description here. */
 int FPProbe::changeSourceAddress(struct in6_addr *addr) {
   if (!is_set())
-    return false;
+    return OP_FAILURE;
   else{
     IPv6Header *ip6 = find_ipv6(getPacket());
-    return ip6->setSourceAddress(*addr);
+    if (ip6 != NULL)
+      return ip6->setSourceAddress(*addr);
   }
+  return OP_FAILURE;
 }
 
 /******************************************************************************
