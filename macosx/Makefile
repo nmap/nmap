@@ -127,18 +127,18 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
 	# create packages
+	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location / nmap.pkg
 	pkgbuild --root $(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location / ncat.pkg
 	pkgbuild --root $(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location / ndiff.pkg
-	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location / nmap.pkg
 	pkgbuild --root $(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location / nping.pkg
 	pkgbuild --root $(NMAP_UPDATE_STAGING_DIR) --identifier org.insecure.nmap.nmap-update --version $(NMAP_VERSION) --install-location / nmap-update.pkg
 	pkgbuild --root $(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
 
 	# produce a .xml with packages informations
 	productbuild --synthesize \
+		--package 'nmap.pkg' \
 		--package 'ncat.pkg' \
 		--package 'ndiff.pkg' \
-		--package 'nmap.pkg' \
 		--package 'nping.pkg' \
 		--package 'nmap-update.pkg' \
 		--package 'zenmap.pkg' \
@@ -147,13 +147,15 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	# make a new file and add background and titles attributes
 	head -n 2 distribution.xml > finalDist.xml
 	echo "    <title>Nmap $(NMAP_VERSION)</title>" >> finalDist.xml
+	# This line is for adding a background image to the .mpkg, we'd need to copy to file to the dmg during createdmg.sh process first
+	echo "    <background file=\"pkg_bg.jpg\" mime-type=\"image/jpeg\" scaling=\"proportional\" alignment=\"bottomleft\"/>" >> finalDist.xml
 	tail -n +3 distribution.xml >> finalDist.xml
 
 	# build the .mpkg according to the final .xml file
 	productbuild --distribution finalDist.xml --resources . --package-path . $(NAME_VERSION).mpkg
 
 	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
-	rm -rf distribution.xml finalDist.xml ncat.pkg ndiff.pkg nmap.pkg nping.pkg nmap-update.pkg zenmap.pkg
+	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg nmap-update.pkg zenmap.pkg
 
 check-%: stage-%
 	if (find $* -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
