@@ -387,6 +387,12 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
     AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
     [ -lcrypto ])
  fi
+
+ if test "$use_openssl" = "yes"; then
+   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
+    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
+    [AC_MSG_WARN([Disabling support for EC crypto])])
+  fi
 fi
 
 OPENSSL_LIBS=

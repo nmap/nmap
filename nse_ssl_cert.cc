@@ -425,7 +425,7 @@ static const char *pkey_type_to_string(int type)
     return "dsa";
   case EVP_PKEY_DH:
     return "dh";
-#ifdef EVP_PKEY_EC
+#ifdef HAVE_OPENSSL_EC
   case EVP_PKEY_EC:
     return "ec";
 #endif
@@ -435,7 +435,7 @@ static const char *pkey_type_to_string(int type)
 }
 
 int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#ifdef EVP_PKEY_EC
+#ifdef HAVE_OPENSSL_EC
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
@@ -555,7 +555,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 #else
   pkey_type = EVP_PKEY_base_id(pubkey);
 #endif
-#ifdef EVP_PKEY_EC
+#ifdef HAVE_OPENSSL_EC
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
     lua_setfield(L, -2, "ecdhparams");
