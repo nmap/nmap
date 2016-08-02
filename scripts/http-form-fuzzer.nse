@@ -125,6 +125,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
   local affected_fields = {}
   local postdata = generate_safe_postdata(form)
   local action_absolute = httpspider.LinkExtractor.isAbsolute(form["action"])
+  local affected_string, affected_int, timeout
 
   -- determine the path where the form needs to be submitted
   local form_submission_path
@@ -186,8 +187,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
 
   for _,field in ipairs(form["fields"]) do
     if fuzzable(field["type"]) then
-      local affected_string, affected_int, timeout = fuzz_field(field)
-      -- It's neccessary to check for timeout here, perhaps we timed out at fuzz_field
+      affected_string, affected_int, timeout = fuzz_field(field)
       if (timeout) then
         break
       end
@@ -203,7 +203,7 @@ local function fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, 
       end
     end
   end
-  return affected_fields
+  return affected_fields, timeout
 end
 
 portrule = shortport.http
@@ -213,7 +213,8 @@ function action(host, port)
   local return_table = {}
   local minlen = stdnse.get_script_args("http-form-fuzzer.minlength") or 300000
   local maxlen = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
-  local timeLimit
+  local timeLimit, affected_fields
+  local timeout = false
 
   if stdnse.get_script_args('http-form-fuzzer.runforever') then
     timeLimit = nil
@@ -234,19 +235,19 @@ function action(host, port)
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
         if form and form.action then
-          local affected_fields = fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, path)
+          affected_fields, timeout = fuzz_form(form, minlen, maxlen, timeLimit, end_time, host, port, path)
           if #affected_fields > 0 then
             affected_fields["name"] = "Path: "..path.." Action: "..form["action"]
             table.insert(return_table, affected_fields)
           end
         end
-        if (timeLimit and nmap.clock_ms() > end_time) then
+        if (timeLimit and timeout) then
           break
         end
       end
     end
-    if (timeLimit and nmap.clock_ms() > end_time) then
-      local timeout_str = "script timed out".." with timelimit = "..((stdnse.get_script_args('http-form-fuzzer.timelimit')) or "30m\nUse http-form-fuzzer.timelimit to change the default timeout.")
+    if (timeLimit and timeout) then
+      local timeout_str = string.format("script timed out with timelimit=%s", stdnse.get_script_args('http-form-fuzzer.timelimit') or '30m')
       table.insert(return_table, timeout_str)
       break
     end
