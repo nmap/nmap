@@ -569,10 +569,14 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     lua_setmetatable( L, -2 );
   #if OPENSSL_VERSION_NUMBER < 0x10100000L
     data->bn = rsa->e;
-  #else
+  #elif OPENSSL_VERSION_NUMBER < 0x10100006L
     BIGNUM *n, *e, *d;
     RSA_get0_key(rsa, &n, &e, &d);
     data->bn = e;
+  #else
+    const BIGNUM *n, *e, *d;
+    RSA_get0_key(rsa, &n, &e, &d);
+    data->bn = (BIGNUM*) e;
   #endif
     lua_setfield(L, -2, "exponent");
   }
