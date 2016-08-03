@@ -3,6 +3,7 @@ local ldap = require "ldap"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 Retrieves the LDAP root DSA-specific Entry (DSE)
@@ -137,7 +138,7 @@ function action(host,port)
 
     if not status then
       socket:close()
-      return stdnse.format_output(false, searchResEntries)	
+      return stdnse.format_output(false, searchResEntries)
     end
 
     -- Check if we were served all the results or not?
@@ -166,22 +167,22 @@ function action(host,port)
 
   if not status or not searchResEntries then return stdnse.format_output(false, searchResEntries) end
   result = ldap.searchResultToTable( searchResEntries )
- 
+
   -- if taken a way and ldap returns a single result, it ain't shown....
   result.name = "LDAP Results"
-  local scriptResult = stdnse.format_output(true, result )  
-  
+  local scriptResult = stdnse.format_output(true, result )
+
   -- Start extracting target information
   -- The following works on Windows AD LDAP as well as VMware's LDAP, VMware uses lower case cn vs AD ucase CN
-  local serverName = string.match(scriptResult,"serverName: [cC][nN]=([^,]+),[cC][nN]=Servers,[cC][nN]=")
+  local serverName = scriptResult:match("serverName: [cC][nN]=([^,]+),[cC][nN]=Servers,[cC][nN]=")
   if serverName then port.version.hostname = serverName end
-  
+
   -- Check to see if this is Active Directory vs some other product or ADAM
   -- https://msdn.microsoft.com/en-us/library/cc223359.aspx
   if string.match(scriptResult,"1.2.840.113556.1.4.800") then
     port.version.product = 'Microsoft Windows Active Directory LDAP'
     port.version.name_confidence = 10
-    
+
     -- Determine Windows version
     if not port.version.ostype or port.version.ostype == 'Windows' then
       local DC_Func = string.match(scriptResult,"domainControllerFunctionality: (%d)")
@@ -201,11 +202,11 @@ function action(host,port)
       port.version.extrainfo = string.format("Domain: %s, Site: %s", domainName, siteName)
     end
   end
- 
-  -- Set port information 
+
+  -- Set port information
   port.version.name = "ldap"
   nmap.set_port_version(host, port, "hardmatched")
   nmap.set_port_state(host, port, "open")
-  
+
   return scriptResult
 end

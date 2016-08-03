@@ -1,4 +1,5 @@
 local http = require "http"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local ipOps = require "ipOps"
@@ -52,7 +53,7 @@ local function generateHttpV1_0Req(host, port, path)
       -- Check if the redirect location contains an IP address
       redirectIP = locTarget:match("[%d%.]+")
       if redirectIP then
-        privateIP, _ = ipOps.isPrivate(redirectIP)
+        privateIP = ipOps.isPrivate(redirectIP)
       end
 
       stdnse.debug1("Location: %s", locTarget )

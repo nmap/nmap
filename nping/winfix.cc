@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * winfix.cc -- A few trivial windows-compatibility-related functions that *
- * are specific to Nmap.  Most of this has been moved into nbase so it can *
+ * are specific to Nping.  Most of this has been moved into nbase so it can *
  * be shared.                                                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
@@ -154,7 +154,7 @@ static void win_cleanup(void);
 static char pcaplist[4096];
 
 /* The code that has no preconditions to being called, so it can be
-   executed before even Nmap options parsing (so o.debugging and the
+   executed before even Nping options parsing (so o.getDebugging() and the
    like don't need to be used.  Its main function is to do
    WSAStartup() as some of the option parsing code does DNS
    resolution */
@@ -191,7 +191,9 @@ static bool start_service(const char *svcname) {
     goto quit_error;
   }
   if (!QueryServiceStatus(npf, &service)) {
+    /* No need to warn at this point: we'll check later
     error("Error in QueryServiceStatus");
+    */
     goto quit_error;
   }
   npf_running = (service.dwCurrentState & SERVICE_RUNNING) != 0;
@@ -252,7 +254,7 @@ static void init_dll_path()
 	}
 }
 
-/* If we find the Npcap driver, allow Nmap to load Npcap DLLs from the "\System32\Npcap" directory. */
+/* If we find the Npcap driver, allow Nping to load Npcap DLLs from the "\System32\Npcap" directory. */
 static void init_npcap_dll_path()
 {
 	BOOL(WINAPI *SetDllDirectory)(LPCTSTR);
@@ -310,14 +312,23 @@ void win_init()
     DWORD wait;
 		ULONG len = sizeof(pcaplist);
 
-		if(o.getDebugging() >= DBG_2) printf("Trying to initialize WinPcap\n");
+    if(o.getDebugging() >= DBG_2) printf("Trying to initialize Windows pcap engine\n");
 
+    /* o.getIsRoot() will be false at this point if the user asked for
+       --unprivileged. In that case don't bother them with a
+       potential UAC dialog when starting NPF. */
+    if (o.isRoot()) {
     if (start_service("npcap"))
       pcap_driver = PCAP_DRIVER_NPCAP;
     else if (start_service("npf"))
       pcap_driver = PCAP_DRIVER_WINPCAP;
-    else
+    else {
+      if(o.getDebugging() >= DBG_0) {
+        error("Unable to start either npcap or npf service");
+      }
       pcap_driver = PCAP_DRIVER_NONE;
+      o.setHavePcap(false);
+    }
 
     if (pcap_driver == PCAP_DRIVER_NPCAP)
       init_npcap_dll_path();
@@ -333,22 +344,17 @@ void win_init()
 #ifdef _MSC_VER
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
 		{
-			error("WARNING: your winpcap is too old to use.  Nmap may not function.\n");
+			error("WARNING: your winpcap is too old to use.  Nping may not function.\n");
 			o.setHavePcap(false);
 		}
 #endif
 		if(o.getDebugging() >= DBG_1)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
 
-		/* o.getIsRoot() will be false at this point if the user asked for
-		   --unprivileged. In that case don't bother them with a
-		   potential UAC dialog when starting NPF. */
-		if (o.isRoot())
-			o.setHavePcap(o.havePcap() && ((bool) pcap_driver));
 	}
 #ifdef _MSC_VER
 	__except (1) {
-			error("WARNING: Could not import all necessary WinPcap functions.  You may need to upgrade to version 3.1 or higher from http://www.winpcap.org.  Resorting to connect() mode -- Nmap may not function completely");
+			error("WARNING: Could not import all necessary Npcap functions.  You may need to upgrade to version 0.07 or higher from http://www.npcap.org.  Resorting to connect() mode -- Nping may not function completely");
 		o.setHavePcap(false);
 		}
 #endif

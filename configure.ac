@@ -77,6 +77,8 @@ if test -n "$GXX"; then
   CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
+CFLAGS="$CFLAGS -Wall"
+
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
 AH_TEMPLATE(__func__, [C99-specified function identifier])
@@ -391,6 +393,12 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
     AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
     [ -lcrypto ])
  fi
+
+ if test "$use_openssl" = "yes"; then
+   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
+    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
+    [AC_MSG_WARN([Disabling support for EC crypto])])
+  fi
 fi
 
 OPENSSL_LIBS=
@@ -877,6 +885,7 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
 AC_SUBST(NSE_CHECK)
 AC_SUBST(CXXFLAGS)
+AC_SUBST(CFLAGS)
 
 
 LIBLINEARDIR=liblinear

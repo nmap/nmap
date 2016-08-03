@@ -132,15 +132,15 @@
 class NetworkLayerElement : public PacketElement {
 
   public:
-    virtual u16 getAddressLength(){
+    virtual u16 getAddressLength() const{
         return 0;
     }
 
-    virtual u8 *getSourceAddress(){
+    virtual const u8 *getSourceAddress() const{
         return NULL;
     }
 
-    virtual u8 *getDestinationAddress(){
+    virtual const u8 *getDestinationAddress() const{
         return NULL;
     }
 
@@ -148,7 +148,7 @@ class NetworkLayerElement : public PacketElement {
         return 0;
     }
 
-    virtual u8 getNextHeader(){
+    virtual u8 getNextHeader() const{
         return 0;
     }
 };

@@ -213,8 +213,7 @@ class IPv6Header : public NetworkLayerElement {
         int setNextHeader(u8 val);
         int setNextHeader(const char *p);
         u8 getNextHeader() const;
-        virtual u8 getNextHeader(){return 0;}
-
+        
         /* Hop Limit */
         int setHopLimit(u8 val);
         u8 getHopLimit() const;
@@ -224,17 +223,14 @@ class IPv6Header : public NetworkLayerElement {
         int setSourceAddress(struct in6_addr val);
         const u8 *getSourceAddress() const;
         struct in6_addr getSourceAddress(struct in6_addr *result) const;
-        virtual u8 *getSourceAddress(){return NULL;}
-
+        
         /* Destination Address*/
         int setDestinationAddress(u8 *val);
         int setDestinationAddress(struct in6_addr val);
         const u8 *getDestinationAddress() const;
         struct in6_addr getDestinationAddress(struct in6_addr *result) const;
-        virtual u8 *getDestinationAddress(){return NULL;}
 
         u16 getAddressLength() const;
-        virtual u16 getAddressLength(){return 0;}
 };
 
 #endif

@@ -532,6 +532,14 @@ static void post_handle_connection(struct fdinfo sinfo)
      * to our descriptor list or set.
      */
     if (o.cmdexec) {
+#ifdef HAVE_OPENSSL
+      /* We added this in handle_connection, but at this point the ssl
+       * connection has taken over. Stop tracking.
+       */
+      if (o.ssl) {
+        rm_fd(&client_fdlist, sinfo.fd);
+      }
+#endif
         if (o.keepopen)
             netrun(&sinfo, o.cmdexec);
         else
@@ -546,10 +554,13 @@ static void post_handle_connection(struct fdinfo sinfo)
             /* add it to our list of fds for maintaining maxfd */
 #ifdef HAVE_OPENSSL
             /* Don't add it twice (see handle_connection above) */
-            if (!o.ssl)
+            if (!o.ssl) {
 #endif
             if (add_fdinfo(&client_fdlist, &sinfo) < 0)
                 bye("add_fdinfo() failed.");
+#ifdef HAVE_OPENSSL
+            }
+#endif
         }
         FD_SET(sinfo.fd, &master_broadcastfds);
         if (add_fdinfo(&broadcast_fdlist, &sinfo) < 0)

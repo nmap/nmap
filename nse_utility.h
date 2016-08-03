@@ -4,10 +4,15 @@
 class Port;
 class Target;
 
-// TODO: uncomment
-//#if HAVE_STDINT_H
+#if HAVE_STDINT_H
 #include <stdint.h>
-//#endif
+#endif
+
+/* int nseU_checkinteger (lua_State *L, int arg)
+ *
+ * Replacement for luaL_checkinteger that does a floor operation first
+ */
+int nseU_checkinteger (lua_State *L, int arg);
 
 /* int nseU_traceback (lua_State *L)
  *

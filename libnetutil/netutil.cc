@@ -3024,15 +3024,21 @@ icmpbad:
         srchost, dsthost, icmptype, icmpinfo, icmpfields, ipinfo);
     }
 
-    /* UNKNOWN PROTOCOL **********************************************************/
   } else if (hdr.proto == IPPROTO_ICMPV6) {
-    const struct icmpv6_hdr *icmpv6;
+    if (datalen > sizeof(struct icmpv6_hdr)) {
+      const struct icmpv6_hdr *icmpv6;
 
-    icmpv6 = (struct icmpv6_hdr *) data;
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
-      hdr.proto, srchost, dsthost,
-      icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
+      icmpv6 = (struct icmpv6_hdr *) data;
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
+          hdr.proto, srchost, dsthost,
+          icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
+    }
+    else {
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=?/code=?) %s",
+          hdr.proto, srchost, dsthost, ipinfo);
+    }
   } else {
+    /* UNKNOWN PROTOCOL **********************************************************/
     const char *hdrstr;
 
     hdrstr = nexthdrtoa(hdr.proto, 1);

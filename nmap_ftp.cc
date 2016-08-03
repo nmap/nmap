@@ -121,6 +121,7 @@
  ***************************************************************************/
 
 /* $Id$ */
+#include "nmap.h"
 #include "nmap_ftp.h"
 #include "output.h"
 #include "NmapOps.h"
@@ -167,9 +168,9 @@ int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
     ftp->port = atoi(s);
   }
 
-  strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
+  strncpy(ftp->server_name, q, FQDN_LEN+1);
 
-  ftp->user[63] = ftp->pass[255] = ftp->server_name[MAXHOSTNAMELEN] = 0;
+  ftp->user[63] = ftp->pass[255] = ftp->server_name[FQDN_LEN] = 0;
 
   return 1;
 }
@@ -220,6 +221,14 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   if (recvbuf[0] == '5')
     fatal("Your FTP bounce server doesn't like the username \"%s\"", ftp->user);
 
+  if (!strncmp(recvbuf, "230", 3)) {
+    // 230 User logged in
+    // No need to send PASS
+    if (o.verbose)
+      log_write(LOG_STDOUT, "Login credentials accepted by FTP server!\n");
+    ftp->sd = sd;
+    return sd;
+  }
   Snprintf(command, 511, "PASS %s\r\n", ftp->pass);
 
   send(sd, command, strlen(command), 0);
@@ -266,6 +275,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
   char command[512];
   unsigned short portno, p1, p2;
   int timedout;
+  bool privok = false;
 
   if (numports == 0)
     return; /* nothing to scan for */
@@ -323,22 +333,26 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         if (o.debugging)
           log_write(LOG_STDOUT, "result of port query on port %i: %s",
                                      portarray[i],  recvbuf);
-        if (recvbuf[0] == '5') {
+        if (recvbuf[0] == '5' && !privok) {
           if (portarray[i] > 1023) {
             fatal("Your FTP bounce server sucks, it won't let us feed bogus ports!");
           } else {
             error("Your FTP bounce server doesn't allow privileged ports, skipping them.");
             while (i < numports && portarray[i] < 1024) i++;
-            if (!portarray[i]) {
+            if (i >= numports) {
               fatal("And you didn't want to scan any unprivileged ports.  Giving up.");
             }
           }
         } else { /* Not an error message */
+          if (portarray[i] < 1024) {
+            privok = true;
+          }
           if (send(sd, "LIST\r\n", 6, 0) > 0 ) {
             res = recvtime(sd, recvbuf, 2048, 12, &timedout);
             if (res < 0) {
               perror("recv problem from FTP bounce server");
             } else if (res == 0) {
+              recvbuf[res] = '\0';
               if (timedout)
                 target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
               else target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
@@ -352,25 +366,35 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
                   error("FTP command misalignment detected ... correcting.");
                 res = recvtime(sd, recvbuf, 2048, 10, NULL);
               }
-              if (recvbuf[0] == '1' || recvbuf[0] == '2') {
-                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_OPEN);
-                if (recvbuf[0] == '1') {
-                  res = recvtime(sd, recvbuf, 2048, 5, NULL);
-                  if (res < 0)
-                    perror("recv problem from FTP bounce server");
-                  else {
-                    recvbuf[res] = '\0';
-                    if (res > 0) {
-                      if (o.debugging)
-                        log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
-                      if (recvbuf[0] == '4' && recvbuf[1] == '2' && recvbuf[2] == '6') {
-                        target->ports.forgetPort(portarray[i], IPPROTO_TCP);
-                        if (o.debugging || o.verbose)
-                          log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
-                      }
+              if (recvbuf[0] == '1') {
+                res = recvtime(sd, recvbuf, 2048, 10, &timedout);
+                if (res < 0)
+                  perror("recv problem from FTP bounce server");
+                else if (timedout || res == 0) {
+                  // Timed out waiting for LIST to complete; probably filtered.
+                  if(send(sd, "ABOR\r\n", 6, 0) > 0) {
+                    target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
+                  }
+                  // Get response and discard
+                  res = recvtime(sd, recvbuf, 2048, 10, &timedout);
+                  recvbuf[0] = '\0';
+                  goto nextport;
+                }
+                else {
+                  recvbuf[res] = '\0';
+                  if (res > 0) {
+                    if (o.debugging)
+                      log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
+                    if (recvbuf[0] == '4' && recvbuf[1] == '2' && recvbuf[2] == '6') {
+                      target->ports.forgetPort(portarray[i], IPPROTO_TCP);
+                      if (o.debugging || o.verbose)
+                        log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
                     }
                   }
                 }
+              }
+              if (recvbuf[0] == '2') {
+                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_OPEN);
               } else {
                 /* This means the port is closed ... */
                 target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
@@ -380,6 +404,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         }
       }
     }
+    nextport:
     if (SPM->mayBePrinted(NULL)) {
       SPM->printStatsIfNecessary((double) i / numports, NULL);
     }

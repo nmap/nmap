@@ -111,6 +111,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local bits = require "bits"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
