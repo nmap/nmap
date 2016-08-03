@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now supports OpenSSL 1.1.0-pre5 and previous versions. [Vincent Dumont]
+
+o [Ncat] Fix a crash ("add_fdinfo() failed.") when --exec was used with --ssl
+  and --max-conns, due to improper accounting of file descriptors. [Daniel
+  Miller]
+
+o FTP Bounce scan: improved some edge cases like anonymous login without
+  password, 500 errors used to indicate port closed, and timeouts for LIST
+  command. Also fixed a 1-byte array overrun (read) when checking for
+  privileged ports. [Daniel Miller]
+
 o [NSE] Solved a memory corruption issue that would happen if a socket connect
   operation produced an error immediately, such as Network Unreachable. The
   event handler was throwing a Lua error, preventing Nsock from cleaning up

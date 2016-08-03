@@ -499,6 +499,7 @@ static void do_possible_writes() {
         servI->to_process.pop_front();
       } else if (!new_reqs.empty()) {
         tpreq = new_reqs.front();
+        assert(tpreq != NULL);
         tpreq->first_server = tpreq->curr_server = &*servI;
         new_reqs.pop_front();
       }

@@ -1473,7 +1473,7 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
       pspec->pd.sctp.chunktype = SCTP_INIT;
       return 0;
     }
-    if (USI->ptech.rawprotoscan) {
+    if (USI->ptech.rawprotoscan && hss->next_protoportpingidx < USI->ports->proto_ping_count) {
       pspec->type = PS_PROTO;
       pspec->proto = USI->ports->proto_ping_ports[hss->next_protoportpingidx++];
       return 0;
