@@ -40,7 +40,7 @@ For more information on this vulnerability and script, see:
 -- @args basefolder The folder to start in; eg, <code>"/web"</code> will try <code>"/web/xxx"</code>.
 -----------------------------------------------------------------------
 
-author = "Ron Bowes, Andrew Orr"
+author = {"Ron Bowes", "Andrew Orr"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 

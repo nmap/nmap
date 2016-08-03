@@ -24,7 +24,7 @@ virtually hosted sites.
 ]]
 
 
-author = "Eddie Bell, Piotr Olma"
+author = {"Eddie Bell", "Piotr Olma"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 

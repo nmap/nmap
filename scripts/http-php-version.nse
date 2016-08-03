@@ -37,7 +37,7 @@ Link:
 --   * Added a check on the http status when querying the server:
 --     if the http code is 200 (ok), proceed. (thanks to Tom Sellers who has reported this lack of check)
 
-author = "Ange Gutek, Rob Nicholls"
+author = {"Ange Gutek", "Rob Nicholls"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 

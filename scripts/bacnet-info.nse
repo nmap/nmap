@@ -49,7 +49,7 @@ http://digitalbond.com
 
 
 
-author = "Stephen Hilt, Michael Toecker (Digital Bond)"
+author = {"Stephen Hilt", "Michael Toecker"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "version"}
 

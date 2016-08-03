@@ -22,6 +22,8 @@
 
 #include "nbase.h"
 
+#ifndef HAVE_INET_NTOP
+
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -249,3 +251,5 @@ inet_ntop6(const unsigned char *src, char *dst, size_t size)
     return (dst);
 }
 #endif
+
+#endif /* ifndef HAVE_INET_NTOP */

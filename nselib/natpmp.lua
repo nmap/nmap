@@ -4,7 +4,7 @@
 --   o http://tools.ietf.org/html/draft-cheshire-nat-pmp-03
 --
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 local bin = require "bin"
 local ipOps = require "ipOps"

@@ -46,7 +46,7 @@ class Target;
 
 
 /* API */
-int nse_yield (lua_State *, int, lua_CFunction);
+int nse_yield (lua_State *, lua_KContext, lua_KFunction);
 void nse_restore (lua_State *, int);
 void nse_destructor (lua_State *, char);
 void nse_base (lua_State *);

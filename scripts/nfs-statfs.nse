@@ -37,7 +37,7 @@ the version used is NFSv3.
 -- Revised 06/28/2010 - v0.4 - added NFSv3 support and doc
 
 
-author = "Patrik Karlsson, Djalal Harouni"
+author = {"Patrik Karlsson", "Djalal Harouni"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"rpc-grind"}

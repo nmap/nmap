@@ -39,7 +39,7 @@ server (your default DNS server, or whichever one you specified with the
 -- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
 -- |_     Peer AS: 174 2914 6461
 
-author = "jah, Michael Pattrick"
+author = {"jah", "Michael Pattrick"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 

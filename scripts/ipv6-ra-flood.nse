@@ -47,8 +47,6 @@ categories = {"dos", "intrusive"}
 
 try = nmap.new_try()
 
-math.randomseed(os.time())
-
 prerule = function()
   if nmap.address_family() ~= "inet6" then
     stdnse.debug1("is IPv6 compatible only.")

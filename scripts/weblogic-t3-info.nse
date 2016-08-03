@@ -4,7 +4,7 @@ local shortport = require "shortport"
 local nmap = require "nmap"
 
 description = "Detect the T3 RMI protocol and Weblogic version"
-author = "Alessandro ZANNI <alessandro.zanni@bt.com>, Daniel Miller"
+author = {"Alessandro ZANNI <alessandro.zanni@bt.com>", "Daniel Miller"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery","version"}
 

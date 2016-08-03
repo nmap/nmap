@@ -493,13 +493,14 @@ int ssl_post_connect_check(SSL *ssl, const char *hostname)
    "Making Certificates"; and apps/req.c in the OpenSSL source. */
 static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 {
-    RSA *rsa;
+    RSA *rsa = NULL;
     X509_NAME *subj;
     X509_EXTENSION *ext;
     X509V3_CTX ctx;
+    BIGNUM *bne = NULL;
     const char *commonName = "localhost";
     char dNSName[128];
-    int rc;
+    int rc, ret=0;
 
     *cert = NULL;
     *key = NULL;
@@ -509,9 +510,17 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     if (*key == NULL)
         goto err;
     do {
-        rsa = RSA_generate_key(DEFAULT_KEY_BITS, RSA_F4, NULL, NULL);
-        if (rsa == NULL)
+        /* Generate RSA key. */
+        bne = BN_new();
+        ret = BN_set_word(bne, RSA_F4);
+        if (ret != 1)
             goto err;
+
+        rsa = RSA_new();
+        ret = RSA_generate_key_ex(rsa, DEFAULT_KEY_BITS, bne, NULL);
+        if (ret != 1)
+            goto err;
+
         rc = RSA_check_key(rsa);
     } while (rc == 0);
     if (rc == -1)

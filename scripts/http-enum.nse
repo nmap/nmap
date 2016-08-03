@@ -73,7 +73,7 @@ database can specify their own criteria for accepting a page as valid.
 -- |   /nfservlets/servlet/SPSRouterServlet/: netForensics
 -- |_  /nfservlets/servlet/SPSRouterServlet/: netForensics
 
-author = "Ron Bowes, Andrew Orr, Rob Nicholls"
+author = {"Ron Bowes", "Andrew Orr", "Rob Nicholls"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

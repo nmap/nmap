@@ -2,7 +2,7 @@
 -- Implementation of the XDMCP (X Display Manager Control Protocol) based on:
 --   x http://www.xfree86.org/current/xdmcp.pdf
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
 local ipOps = require "ipOps"

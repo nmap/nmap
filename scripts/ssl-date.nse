@@ -7,6 +7,7 @@ local os = require "os"
 local string = require "string"
 local sslcert = require "sslcert"
 local tls = require "tls"
+local datetime = require "datetime"
 
 description = [[
 Retrieves a target host's time and date from its TLS ServerHello response.
@@ -34,7 +35,7 @@ Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 -- <elem key="date">2012-08-02T18:29:31+00:00</elem>
 -- <elem key="delta">4</elem>
 
-author = "Aleksandar Nikolic, nnposter"
+author = {"Aleksandar Nikolic", "nnposter"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
@@ -106,7 +107,7 @@ end
 
 -- extract time from ServerHello response
 local extract_time = function(response)
-  local i, record = tls.record_read(response, 0)
+  local i, record = tls.record_read(response, 1)
   if record == nil then
     stdnse.debug("Unknown response from server")
     return nil
@@ -201,6 +202,7 @@ action = function(host, port)
     end
   end
 
+  datetime.record_skew(host, tm.target, tm.scanner)
   local output = {
                  date = stdnse.format_timestamp(tm.target, 0),
                  delta = tm.delta,

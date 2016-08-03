@@ -1,25 +1,50 @@
+-- The MIT License (MIT)
+-- Copyright (c) 2016 Patrick Joseph Donnelly (batrick@batbytes.com)
+--
+-- Permission is hereby granted, free of charge, to any person obtaining a copy of
+-- this software and associated documentation files (the "Software"), to deal in
+-- the Software without restriction, including without limitation the rights to
+-- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+-- of the Software, and to permit persons to whom the Software is furnished to do
+-- so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 ---
 -- Base32 encoding and decoding. Follows RFC 4648.
 --
--- @author Philip Pickering <pgpickering@gmail.com>
--- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @ported base64 to base32 <john.r.bond@gmail.com>
+-- @author Patrick Donnelly <batrick@batbytes.com>
+-- @copyright The MIT License (MIT); Copyright (c) 2016 Patrick Joseph Donnelly (batrick@batbytes.com)
 
--- thanks to Patrick Donnelly for some optimizations
+local debug1 = require "stdnse".debug1
 
---module(... or "base32",package.seeall)
--- local bin = require 'bin'
--- local stdnse = require 'stdnse'
--- _ENV = stdnse.module("base32", stdnse.seeall)
+local assert = assert
+local error = error
+local ipairs = ipairs
+local setmetatable = setmetatable
 
-local bin = require "bin"
-local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
-_ENV = stdnse.module("base32", stdnse.seeall)
+local open = require "io".open
+local popen = require "io".popen
 
--- todo: make metatable/index --> '' for b32dctable
+local random = require "math".random
 
+local tmpname = require "os".tmpname
+local remove = require "os".remove
+
+local char = require "string".char
+
+local concat = require "table".concat
+
+_ENV = require "stdnse".module "base32"
 
 local b32standard = {
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -28,173 +53,183 @@ local b32standard = {
   'Y', 'Z', '2', '3', '4', '5', '6', '7',
 }
 
-local b32dcstandard = {} -- efficiency
-b32dcstandard['A'] = '00000'
-b32dcstandard['B'] = '00001'
-b32dcstandard['C'] = '00010'
-b32dcstandard['D'] = '00011'
-b32dcstandard['E'] = '00100'
-b32dcstandard['F'] = '00101'
-b32dcstandard['G'] = '00110'
-b32dcstandard['H'] = '00111'
-b32dcstandard['I'] = '01000'
-b32dcstandard['J'] = '01001'
-b32dcstandard['K'] = '01010'
-b32dcstandard['L'] = '01011'
-b32dcstandard['M'] = '01100'
-b32dcstandard['N'] = '01101'
-b32dcstandard['O'] = '01110'
-b32dcstandard['P'] = '01111'
-b32dcstandard['Q'] = '10000'
-b32dcstandard['R'] = '10001'
-b32dcstandard['S'] = '10010'
-b32dcstandard['T'] = '10011'
-b32dcstandard['U'] = '10100'
-b32dcstandard['V'] = '10101'
-b32dcstandard['W'] = '10110'
-b32dcstandard['X'] = '10111'
-b32dcstandard['Y'] = '11000'
-b32dcstandard['Z'] = '11001'
-b32dcstandard['2'] = '11010'
-b32dcstandard['3'] = '11011'
-b32dcstandard['4'] = '11100'
-b32dcstandard['5'] = '11101'
-b32dcstandard['6'] = '11110'
-b32dcstandard['7'] = '11111'
-
 local b32hexExtend = {
-        '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-        'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+  '0', '1', '2', '3', '4', '5', '6', '7',
+  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+  'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+  'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
 }
 
-local b32dchexExtend = {} -- efficiency
-b32dchexExtend['0'] = '00000'
-b32dchexExtend['1'] = '00001'
-b32dchexExtend['2'] = '00010'
-b32dchexExtend['3'] = '00011'
-b32dchexExtend['4'] = '00100'
-b32dchexExtend['5'] = '00101'
-b32dchexExtend['6'] = '00110'
-b32dchexExtend['7'] = '00111'
-b32dchexExtend['8'] = '01000'
-b32dchexExtend['9'] = '01001'
-b32dchexExtend['A'] = '01010'
-b32dchexExtend['B'] = '01011'
-b32dchexExtend['C'] = '01100'
-b32dchexExtend['D'] = '01101'
-b32dchexExtend['E'] = '01110'
-b32dchexExtend['F'] = '01111'
-b32dchexExtend['G'] = '10000'
-b32dchexExtend['H'] = '10001'
-b32dchexExtend['I'] = '10010'
-b32dchexExtend['J'] = '10011'
-b32dchexExtend['K'] = '10100'
-b32dchexExtend['L'] = '10101'
-b32dchexExtend['M'] = '10110'
-b32dchexExtend['N'] = '10111'
-b32dchexExtend['O'] = '11000'
-b32dchexExtend['P'] = '11001'
-b32dchexExtend['Q'] = '11010'
-b32dchexExtend['R'] = '11011'
-b32dchexExtend['S'] = '11100'
-b32dchexExtend['T'] = '11101'
-b32dchexExtend['U'] = '11110'
-b32dchexExtend['V'] = '11111'
-
-local b32table = b32standard
-local b32dctable = b32dcstandard
-
-local append = table.insert
-local substr = string.sub
-local bpack = bin.pack
-local bunpack = bin.unpack
-local concat = table.concat
-
----
--- Encode bits to a Base32-encoded character.
--- @param bits String of five bits to be encoded.
--- @return Encoded character.
-local function b32enc5bit(bits)
-  local byte = tonumber(bits, 2) + 1
-  return b32table[byte]
+local function etransform (t, a, b, c, d, e)
+    local e1 = t[((a>>3)&0x1f)+1]
+    local e2 = t[((((a<<2)&0x1c)|((b>>6)&0x03))&0x1f)+1]
+    local e3 = t[((b>>1)&0x1f)+1]
+    local e4 = t[((((b<<4)&0x10)|((c>>4)&0x0f))&0x1f)+1]
+    local e5 = t[((((c<<1)&0x1e)|((d>>7)&0x01))&0x1f)+1]
+    local e6 = t[((d>>2)&0x1f)+1]
+    local e7 = t[((((d<<3)&0x18)|((e>>5)&0x07))&0x1f)+1]
+    local e8 = t[(e&0x1f)+1]
+	return e1..e2..e3..e4..e5..e6..e7..e8
 end
-
-
----
--- Decodes a Base32-encoded character into a string of binary digits.
--- @param b32byte A single base32-encoded character.
--- @return String of five decoded bits.
-local function b32dec5bit(b32byte)
-  local bits = b32dctable[b32byte]
-  if bits then return bits end
-  return ''
-end
-
 
 ---
 -- Encodes a string to Base32.
--- @param bdata Data to be encoded.
+-- @param p Data to be encoded.
 -- @param hexExtend pass true to use the hex extended char set
 -- @return Base32-encoded string.
-function enc(bdata, hexExtend)
-  local _, bitstring = bunpack(">B".. #bdata,bdata)
-  local b32dataBuf = {}
+function enc (p, hexExtend)
+    local b32table = not hexExtend and b32standard or b32hexExtend
 
-  if hexExtend then
-    b32table = b32hexExtend
-    b32dctable = b32dchexExtend
-  end
+    local out = {}
+    local i = 1
+    local m = #p % 5
 
-  while #bitstring > 4 do
-    append(b32dataBuf,b32enc5bit(substr(bitstring,1,5)))
-    bitstring = substr(bitstring,6)
-  end
-  if #bitstring == 1 then
-    append(b32dataBuf, b32enc5bit(bitstring .. "0000"))
-    append(b32dataBuf, '====')
-  elseif #bitstring == 2 then
-    append(b32dataBuf, b32enc5bit(bitstring .. "000") )
-    append(b32dataBuf, '=')
-  elseif #bitstring == 3 then
-    append(b32dataBuf, b32enc5bit(bitstring .. "00") )
-    append(b32dataBuf, "======")
-  elseif #bitstring == 4 then
-    append(b32dataBuf, b32enc5bit(bitstring .. "0") )
-    append(b32dataBuf, '===')
-  end
-  return concat(b32dataBuf)
+    while i+(5-1) <= #p do
+        local a, b, c, d, e = p:byte(i, i+(5-1))
+        out[#out+1] = etransform(b32table, a, b, c, d, e)
+        i = i + 5
+    end
+
+	if m == 4 then
+        local a, b, c, d = p:byte(i, i+(4-1))
+        out[#out+1] = etransform(b32table, a, b, c, d, 0):sub(1, 7).."="
+	elseif m == 3 then
+        local a, b, c = p:byte(i, i+(3-1))
+        out[#out+1] = etransform(b32table, a, b, c, 0, 0):sub(1, 5).."==="
+	elseif m == 2 then
+        local a, b = p:byte(i, i+(2-1))
+        out[#out+1] = etransform(b32table, a, b, 0, 0, 0):sub(1, 4).."===="
+	elseif m == 1 then
+        local a = p:byte(i, i+(1-1))
+        out[#out+1] = etransform(b32table, a, 0, 0, 0, 0):sub(1, 2).."======"
+	end
+
+    return concat(out)
 end
 
 
----
+local db32table_standard = setmetatable({}, {__index = function (t, k) error "invalid encoding: invalid character" end})
+do
+    local r = {["="] = 0}
+    for i, v in ipairs(b32standard) do
+        r[v] = i-1
+    end
+    for i = 0, 255 do
+        db32table_standard[i] = r[char(i)]
+    end
+end
+local db32table_hex = setmetatable({}, {__index = function (t, k) error "invalid encoding: invalid character" end})
+do
+    local r = {["="] = 0}
+    for i, v in ipairs(b32hexExtend) do
+        r[v] = i-1
+    end
+    for i = 0, 255 do
+        db32table_hex[i] = r[char(i)]
+    end
+end
+
+
 -- Decodes Base32-encoded data.
--- @param b32data Base32 encoded data.
+-- @param b32 Base32 encoded data.
 -- @param hexExtend pass true to use the hex extended char set
 -- @return Decoded data.
-function dec(b32data, hexExtend)
-  local bdataBuf = {}
-  local pos = 1
-  local byte
-  local nbyte = ''
+function dec (b32, hexExtend)
+    local db32table = not hexExtend and db32table_standard or db32table_hex
 
-  if hexExtend then
-    b32table = b32hexExtend
-    b32dctable = b32dchexExtend
-  end
+    local out = {}
+    local i = 1
+    local m = #b32 % 8
+    local done = false
 
-  for pos = 1, #b32data do -- while pos <= string.len(b32data) do
-    byte = b32dec5bit(substr(b32data, pos, pos))
-    if not byte then return end
-    nbyte = nbyte .. byte
-    if #nbyte >= 8 then
-      append(bdataBuf, bpack("B", substr(nbyte, 1, 8)))
-      nbyte = substr(nbyte, 9)
+    if m ~= 0 then
+        error "invalid encoding: input is not divisible by 8"
     end
-    -- pos = pos + 1
-  end
-  return concat(bdataBuf)
+
+    while i+(8-1) <= #b32 do
+        if done then
+            error "invalid encoding: trailing characters"
+        end
+
+        local a, b, c, d, e, f, g, h = b32:byte(i, i+(8-1))
+
+        local v = ((db32table[a]<<3)&0xf8) | ((db32table[b]>>2)&0x07)
+        local w = ((db32table[b]<<6)&0xc0) | ((db32table[c]<<1)&0x3e) | ((db32table[d]>>4)&0x01)
+        local x = ((db32table[d]<<4)&0xf0) | ((db32table[e]>>1)&0x0f)
+        local y = ((db32table[e]<<7)&0x80) | ((db32table[f]<<2)&0x7c) | ((db32table[g]>>3)&0x03)
+        local z = ((db32table[g]<<5)&0xe0) | ((db32table[h]   )&0x1f)
+
+        if c == 0x3d then
+            assert(d == 0x3d and e == 0x3d and f == 0x3d and g == 0x3d and h == 0x3d, "invalid encoding: invalid character")
+            out[#out+1] = char(v)
+            done = true
+		elseif d == 0x3d then
+            error "invalid encoding: invalid character"
+        elseif e == 0x3d then
+            assert(f == 0x3d and g == 0x3d and h == 0x3d, "invalid encoding: invalid character")
+            out[#out+1] = char(v, w)
+            done = true
+        elseif f == 0x3d then
+            assert(g == 0x3d and h == 0x3d, "invalid encoding: invalid character")
+            out[#out+1] = char(v, w, x)
+            done = true
+        elseif g == 0x3d then
+            error "invalid encoding: invalid character"
+        elseif h == 0x3d then
+            out[#out+1] = char(v, w, x, y)
+            done = true
+        else
+            out[#out+1] = char(v, w, x, y, z)
+        end
+        i = i + 8
+    end
+
+    return concat(out)
 end
 
-return _ENV;
+do
+    local function test(a, b)
+        assert(enc(a) == b and dec(b) == a)
+    end
+    local function testh(a, b)
+        assert(enc(a, true) == b and dec(b, true) == a)
+    end
+
+    test("", "")
+    test("f", "MY======")
+    test("fo", "MZXQ====")
+    test("foo", "MZXW6===")
+    test("foob", "MZXW6YQ=")
+    test("fooba", "MZXW6YTB")
+    test("foobar", "MZXW6YTBOI======")
+    testh("", "")
+    testh("f", "CO======")
+    testh("fo", "CPNG====")
+    testh("foo", "CPNMU===")
+    testh("foob", "CPNMUOG=")
+    testh("foobar", "CPNMUOJ1E8======")
+
+    -- extensive tests
+    if false then
+        local path = tmpname()
+        local file = open(path, "w")
+        local t = {}
+        for a = 0, 255, random(1, 7) do
+            for b = 0, 255, random(2, 7) do
+                for c = 0, 255, random(2, 7) do
+                    t[#t+1] = char(a, b, c, 0xA)
+                    file:write(t[#t])
+                end
+            end
+        end
+        assert(file:close())
+        local input = concat(t)
+        local output = enc(input)
+        local good = assert(popen("base32 < "..path, "r")):read("a"):gsub("%s", "")
+        remove(path)
+        assert(output == good)
+        assert(dec(output) == input)
+    end
+end
+
+return _ENV

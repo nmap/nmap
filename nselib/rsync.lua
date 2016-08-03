@@ -1,7 +1,7 @@
 ---
 -- A minimalist RSYNC (remote file sync) library
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 local base64 = require "base64"
 local bin = require "bin"

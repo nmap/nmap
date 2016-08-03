@@ -130,7 +130,7 @@ gathered keys.
 --   </table>
 -- </table>
 
-author = "Sven Klemm" -- comparing keys from known_hosts file added by Piotr Olma and George Chatzisofroniou
+author = {"Sven Klemm", "Piotr Olma", "George Chatzisofroniou"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 

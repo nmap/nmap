@@ -98,6 +98,8 @@ addr_net(const struct addr *a, struct addr *b)
 			memset(b->addr_data8 + 3, 0, 3);
 		b->addr_bits = ETH_ADDR_BITS;
 	} else if (a->addr_type == ADDR_TYPE_IP6) {
+	  if (a->addr_bits > IP6_ADDR_BITS)
+	    return (-1);
 		b->addr_type = ADDR_TYPE_IP6;
 		b->addr_bits = IP6_ADDR_BITS;
 		memset(&b->addr_ip6, 0, IP6_ADDR_LEN);

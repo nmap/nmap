@@ -222,7 +222,7 @@ action = function()
     -- single interface defined
     local interface = interface_opt or interface_arg
     local if_table = nmap.get_interface_info(interface)
-    if not if_table or not if_table.address or not if_table.link=="ethernet" then
+    if not (if_table and if_table.address and if_table.link=="ethernet") then
       stdnse.debug1("Interface not supported or not properly configured.")
       return false
     end

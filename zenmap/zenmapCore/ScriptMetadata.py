@@ -339,7 +339,7 @@ class ScriptMetadata (object):
             self.categories = []
             self.arguments = []  # Arguments including library arguments.
             self.license = ""
-            self.author = ""
+            self.author = []
             self.description = ""
             self.output = ""
             self.usage = ""
@@ -359,7 +359,8 @@ class ScriptMetadata (object):
         entry.description = self.get_string_variable(filename, "description")
         entry.arguments = self.get_arguments(entry.filename)
         entry.license = self.get_string_variable(filename, "license")
-        entry.author = self.get_string_variable(filename, "author")
+        entry.author = self.get_list_variable(filename, "author") or [
+                self.get_string_variable(filename, "author")]
 
         filepath = os.path.join(self.scripts_dir, filename)
         f = open(filepath, "r")
@@ -397,6 +398,19 @@ class ScriptMetadata (object):
         if m:
             return m.group(2)
         return None
+
+    def get_list_variable(self, filename, varname):
+        contents = ScriptMetadata.get_file_contents(
+            os.path.join(self.scripts_dir, filename))
+        m = re.search(
+            re.escape(varname) + r'\s*=\s*\{(.*?)}', contents)
+        if not m:
+            return None
+        strings = m.group(1)
+        out = []
+        for m in re.finditer(r'(["\'])(.*?[^\\])\1\s*,?', strings, re.S):
+            out.append(m.group(2))
+        return out
 
     @staticmethod
     def get_requires(filename):

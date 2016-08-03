@@ -834,7 +834,7 @@ function convertADTimeStamp(timestamp)
     -- I have been unable to find an explanation for this, and have resorted to
     -- manually adjusting the formula.
 
-    result = ( timestamp /  10000000 ) - 3036
+    result = ( timestamp //  10000000 ) - 3036
     result = result + base_time
     result = os.date("%Y/%m/%d %H:%M:%S UTC", result)
   else

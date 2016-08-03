@@ -932,7 +932,8 @@ function get_host_info_from_security_blob(security_blob)
         break
       elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
         -- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
-        ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
+        local _
+        _, ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
       elseif ( friendly_name ) then
         ntlm_challenge[ friendly_name ] = unicode.utf16to8( value )
       end

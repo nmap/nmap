@@ -258,7 +258,7 @@ static void connect_report(nsock_iod nsi)
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
-            loguser("SSL connection to %s:%hu.", inet_socktop(&peer),
+            loguser("SSL connection to %s:%d.", inet_socktop(&peer),
                     nsock_iod_get_peerport(nsi));
 
             cert = SSL_get_peer_certificate((SSL *)nsock_iod_get_ssl(nsi));
@@ -285,7 +285,7 @@ static void connect_report(nsock_iod nsi)
                 loguser("Connected to %s.\n", peer.un.sun_path);
             else
 #endif
-                loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+                loguser("Connected to %s:%d.\n", inet_socktop(&peer),
                         nsock_iod_get_peerport(nsi));
         }
 #else
@@ -294,7 +294,7 @@ static void connect_report(nsock_iod nsi)
             loguser("Connected to %s.\n", peer.un.sun_path);
         else
 #endif
-            loguser("Connected to %s:%hu.\n", inet_socktop(&peer),
+            loguser("Connected to %s:%d.\n", inet_socktop(&peer),
                     nsock_iod_get_peerport(nsi));
 #endif
     }
@@ -1078,6 +1078,13 @@ int ncat_connect(void)
     return rc == NSOCK_LOOP_ERROR ? 1 : 0;
 }
 
+static void send_udp_null(nsock_pool nsp)
+{
+  char *NULL_PROBE = "\0";
+  int length = 1;
+  nsock_write(nsp, cs.sock_nsi, write_socket_handler, -1, NULL, NULL_PROBE, length);
+}
+
 static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
@@ -1086,10 +1093,12 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
     if (status == NSE_STATUS_ERROR) {
-        loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
+        if (!o.zerobyte||o.verbose)
+          loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
-        loguser("%s.\n", socket_strerror(ETIMEDOUT));
+        if (!o.zerobyte||o.verbose)
+          loguser("%s.\n", socket_strerror(ETIMEDOUT));
         exit(1);
     } else {
         ncat_assert(status == NSE_STATUS_SUCCESS);
@@ -1104,7 +1113,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 #endif
 
-    connect_report(cs.sock_nsi);
+    if (o.proto != IPPROTO_UDP && o.zerobyte) {
+      connect_report(cs.sock_nsi);
+      nsock_loop_quit(nsp);
+    }
 
     /* Create IOD for nsp->stdin */
     if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
@@ -1134,11 +1146,14 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
 
     /* Start the initial reads. */
 
-    if (!o.sendonly)
+    if (!o.sendonly && !o.zerobyte)
         nsock_read(nsp, cs.sock_nsi, read_socket_handler, -1, NULL);
 
-    if (!o.recvonly)
+    if (!o.recvonly && !o.zerobyte)
         nsock_readbytes(nsp, cs.stdin_nsi, read_stdin_handler, -1, NULL, 0);
+
+    if (o.zerobyte && o.proto==IPPROTO_UDP)
+      send_udp_null(nsp);
 
     /* The --idle-timeout option says to exit after a certain period of
        inactivity. We start a timer here and reset it on every read event; see
@@ -1157,6 +1172,7 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
     int nbytes;
 
     ncat_assert(type == NSE_TYPE_READ);
+
 
     if (status == NSE_STATUS_EOF) {
         shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
@@ -1212,7 +1228,8 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
             nsock_loop_quit(nsp);
         return;
     } else if (status == NSE_STATUS_ERROR) {
-        loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
+        if (!o.zerobyte||o.verbose)
+          loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
     } else if (status == NSE_STATUS_TIMEOUT) {
         loguser("%s.\n", socket_strerror(ETIMEDOUT));
@@ -1259,6 +1276,11 @@ static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         ncat_assert(status == NSE_STATUS_SUCCESS);
     }
 
+    if (o.zerobyte){
+      ncat_assert(o.proto == IPPROTO_UDP);
+      nsock_read(nsp, cs.sock_nsi, read_socket_handler, -1, NULL);
+      return;
+    }
     /* The write to the socket was successful. Allow reading more from stdin
        now. */
     nsock_readbytes(nsp, cs.stdin_nsi, read_stdin_handler, -1, NULL, 0);
@@ -1275,6 +1297,13 @@ static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data)
         return;
 
     ncat_assert(status == NSE_STATUS_SUCCESS);
+
+    if (o.zerobyte&&o.proto==IPPROTO_UDP){
+      if (o.verbose)
+        loguser("UDP packet sent successfully\n");
+      nsock_loop_quit(nsp);
+      return;
+    }
 
     loguser("Idle timeout expired (%d ms).\n", o.idletimeout);
 

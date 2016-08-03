@@ -1,7 +1,7 @@
 ---
 -- A minimal Internet Storage Name Service (iSNS) implementation
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 local bin    = require('bin')
