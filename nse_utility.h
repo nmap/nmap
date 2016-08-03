@@ -4,9 +4,9 @@
 class Port;
 class Target;
 
-#if HAVE_STDINT_H
+//#if HAVE_STDINT_H
 #include <stdint.h>
-#endif
+//#endif
 
 /* int nseU_checkinteger (lua_State *L, int arg)
  *
