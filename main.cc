@@ -165,7 +165,7 @@ extern void set_program_name(const char *name);
 int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
      beginning to do the following:
-     3) Check the environment variable NMAP_ARGS.
+     1) Check the environment variable NMAP_ARGS.
      2) Check if Nmap was called with --resume.
      3) Resume a previous scan or just call nmap_main.
   */

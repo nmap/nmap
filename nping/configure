@@ -2216,6 +2216,23 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Check whether --with-localdirs was given.
 if test "${with_localdirs+set}" = set; then :
   withval=$with_localdirs;  case "$with_localdirs" in
@@ -5058,7 +5075,7 @@ if test "$use_openssl" = "yes"; then
 
   OPENSSL_LIBS="-lssl -lcrypto"
   LIBS_TMP="$LIBS"
-  LIBS="$LIBS $OPENSSL_LIBS"
+  LIBS="$OPENSSL_LIBS $LIBS"
   # Check whether the installed OpenSSL supports SHA-256 (ver 0.9.8 or later).
   ac_fn_c_check_func "$LINENO" "EVP_sha256" "ac_cv_func_EVP_sha256"
 if test "x$ac_cv_func_EVP_sha256" = xyes; then :

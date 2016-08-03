@@ -40,7 +40,7 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 -- |_  Use the newtargets script-arg to add the results as targets
 --
 
-author = "Gorjan Petrovski, Hani Benhabiles"
+author = {"Gorjan Petrovski", "Hani Benhabiles"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast","discovery","safe"}
 

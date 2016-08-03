@@ -28,7 +28,7 @@
 -- return stdnse.format_output( helper:discoverDevices() )
 -- </code>
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 

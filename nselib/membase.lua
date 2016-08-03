@@ -6,7 +6,7 @@
 -- @args membase.authmech SASL authentication mechanism to use. Default and
 --                        currently supported: PLAIN
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 

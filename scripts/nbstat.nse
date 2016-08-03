@@ -77,7 +77,7 @@ owns.
 -- </table>
 
 
-author = "Brandon Enright, Ron Bowes"
+author = {"Brandon Enright", "Ron Bowes"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 -- Current version of this script was based entirely on Implementing CIFS, by

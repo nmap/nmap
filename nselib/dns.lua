@@ -865,23 +865,22 @@ end
 -- RA, RCx).
 -- @return Binary digit string representing flags.
 local function encodeFlags(flags)
-  if type(flags) == "string" then return flags end
+  if type(flags) == "number" then return flags end
   if type(flags) ~= "table" then return nil end
-  local fb = ""
-  if flags.QR then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.OC1 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.OC2 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.OC3 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.OC4 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.AA then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.TC then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.RD then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.RA then fb = fb .. "1" else fb = fb .. "0" end
-  fb = fb .. "000"
-  if flags.RC1 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.RC2 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.RC3 then fb = fb .. "1" else fb = fb .. "0" end
-  if flags.RC4 then fb = fb .. "1" else fb = fb .. "0" end
+  local fb = 0
+  if flags.QR  then fb = fb|0x8000 end
+  if flags.OC1 then fb = fb|0x4000 end
+  if flags.OC2 then fb = fb|0x2000 end
+  if flags.OC3 then fb = fb|0x1000 end
+  if flags.OC4 then fb = fb|0x0800 end
+  if flags.AA  then fb = fb|0x0400 end
+  if flags.TC  then fb = fb|0x0200 end
+  if flags.RD  then fb = fb|0x0100 end
+  if flags.RA  then fb = fb|0x0080 end
+  if flags.RC1 then fb = fb|0x0008 end
+  if flags.RC2 then fb = fb|0x0004 end
+  if flags.RC3 then fb = fb|0x0002 end
+  if flags.RC4 then fb = fb|0x0001 end
   return fb
 end
 
@@ -914,7 +913,7 @@ function encode(pkt)
   if ( pkt.flags.raw ) then
     encStr = bin.pack(">SSS4", pkt.id, pkt.flags.raw, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
   else
-    encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
+    encStr = bin.pack(">SSS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
   end
   return encStr
 end
@@ -1280,38 +1279,25 @@ local function decodeRR(data, count, pos)
 end
 
 ---
--- Splits a string up into a table of single characters.
--- @param str String to be split up.
--- @return Table of characters.
-local function str2tbl(str)
-  local tbl = {}
-  for i = 1, #str do
-    table.insert(tbl, string.sub(str, i, i))
-  end
-  return tbl
-end
-
----
 -- Decodes DNS flags.
 -- @param flgStr Flags as a binary digit string.
 -- @return Table representing flags.
-local function decodeFlags(flgStr)
-  local flags = {}
-  local flgTbl = str2tbl(flgStr)
-  if flgTbl[1] == '1' then flags.QR = true end
-  if flgTbl[2] == '1' then flags.OC1 = true end
-  if flgTbl[3] == '1' then flags.OC2 = true end
-  if flgTbl[4] == '1' then flags.OC3 = true end
-  if flgTbl[5] == '1' then flags.OC4 = true end
-  if flgTbl[6] == '1' then flags.AA = true end
-  if flgTbl[7] == '1' then flags.TC = true end
-  if flgTbl[8] == '1' then flags.RD = true end
-  if flgTbl[9] == '1' then flags.RA = true end
-  if flgTbl[13] == '1' then flags.RC1 = true end
-  if flgTbl[14] == '1' then flags.RC2 = true end
-  if flgTbl[15] == '1' then flags.RC3 = true end
-  if flgTbl[16] == '1' then flags.RC4 = true end
-  return flags
+local function decodeFlags(flags)
+  local tflags = {}
+  if (flags & 0x8000) ~= 0 then tflags.QR  = true end
+  if (flags & 0x4000) ~= 0 then tflags.OC1 = true end
+  if (flags & 0x2000) ~= 0 then tflags.OC2 = true end
+  if (flags & 0x1000) ~= 0 then tflags.OC3 = true end
+  if (flags & 0x0800) ~= 0 then tflags.OC4 = true end
+  if (flags & 0x0400) ~= 0 then tflags.AA  = true end
+  if (flags & 0x0200) ~= 0 then tflags.TC  = true end
+  if (flags & 0x0100) ~= 0 then tflags.RD  = true end
+  if (flags & 0x0080) ~= 0 then tflags.RA  = true end
+  if (flags & 0x0008) ~= 0 then tflags.RC1 = true end
+  if (flags & 0x0004) ~= 0 then tflags.RC2 = true end
+  if (flags & 0x0002) ~= 0 then tflags.RC3 = true end
+  if (flags & 0x0001) ~= 0 then tflags.RC4 = true end
+  return tflags
 end
 
 ---
@@ -1323,7 +1309,7 @@ function decode(data)
   local pkt = {}
   local encFlags
   local cnt = {}
-  pos, pkt.id, encFlags, cnt.q, cnt.a, cnt.auth, cnt.add = bin.unpack(">SB2S4", data)
+  pos, pkt.id, encFlags, cnt.q, cnt.a, cnt.auth, cnt.add = bin.unpack(">SSS4", data)
   -- for now, don't decode the flags
   pkt.flags = decodeFlags(encFlags)
 
@@ -1332,8 +1318,9 @@ function decode(data)
   -- a quick fix to allow decoding of non updates and not break for updates
   -- the flags are enough for the current code to determine whether an update was successful or not
   --
-  local strflags=encodeFlags(pkt.flags)
-  if ( strflags:sub(1,4) == "1010" ) then
+  local flags = encodeFlags(pkt.flags)
+  -- QR, OC2
+  if (flags & 0xF000) == 0xA000 then
     return pkt
   else
     pos, pkt.questions = decodeQuestions(data, cnt.q, pos)
@@ -1401,15 +1388,11 @@ end
 -- @param flags Flag table, each entry representing a flag (only DO flag implmented).
 -- @return Binary digit string representing flags.
 local function encodeOPT_Z(flags)
-  if type(flags) == "string" then return flags end
-  if type(flags) ~= "table" then return nil end
-  local bits = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  for n, k in pairs({[1] = "DO"}) do
-    if flags[k] then
-      bits[n] = 1
-    end
-  end
-  return table.concat(bits)
+  if type(flags) == "number" then return flags end
+  assert(type(flags) == "table")
+  local bits = 0
+  if flags.DO then bits = bits|0x8000 end
+  return bits
 end
 
 ---
@@ -1452,7 +1435,7 @@ function addOPT(pkt, Z, opt)
   local rdata = opt or ""
   if type(pkt) ~= "table" then return nil end
   if type(pkt.additional) ~= "table" then return nil end
-  local _, Z_int = bin.unpack(">S", bin.pack("B", encodeOPT_Z(Z)))
+  local Z_int = encodeOPT_Z(Z)
   local opt = {
     type = types.OPT,
     class = 4096,  -- Actually the sender UDP payload size.
@@ -1573,8 +1556,8 @@ function update(dname, options)
 
   if ( status ) then
     local decoded = decode(response[1].data)
-    local flags=encodeFlags(decoded.flags)
-    if (flags:sub(-4) == "0000") then
+    local flags = encodeFlags(decoded.flags)
+    if (flags & 0xF) == 0 then
       return true
     end
   end

@@ -27,14 +27,14 @@ only the potentially risky methods are shown.
 ]]
 
 ---
--- @args http.url-path The path to request. Defaults to
+-- @args http-methods.url-path The path to request. Defaults to
 -- <code>/</code>.
--- @args http.retest If defined, do a request using each method
+-- @args http-methods.retest If defined, do a request using each method
 -- individually and show the response code. Use of this argument can
 -- make this script unsafe; for example <code>DELETE /</code> is
 -- possible. All methods received through options are tested with generic
 -- requests. Saved status lines are shown for rest.
--- @args http.test-all If set true tries all the unsafe methods as well.
+-- @args http-methods.test-all If set true tries all the unsafe methods as well.
 --
 -- @output
 -- PORT   STATE SERVICE REASON
@@ -44,7 +44,7 @@ only the potentially risky methods are shown.
 --
 -- @usage
 -- nmap --script http-methods <target>
--- nmap --script http-methods --script-args http.url-path='/website' <target>
+-- nmap --script http-methods --script-args http-methods.url-path='/website' <target>
 --
 -- @xmloutput
 -- <table key="Supported Methods">

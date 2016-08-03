@@ -2825,7 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
+            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%d", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:
@@ -3024,15 +3024,21 @@ icmpbad:
         srchost, dsthost, icmptype, icmpinfo, icmpfields, ipinfo);
     }
 
-    /* UNKNOWN PROTOCOL **********************************************************/
   } else if (hdr.proto == IPPROTO_ICMPV6) {
-    const struct icmpv6_hdr *icmpv6;
+    if (datalen > sizeof(struct icmpv6_hdr)) {
+      const struct icmpv6_hdr *icmpv6;
 
-    icmpv6 = (struct icmpv6_hdr *) data;
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
-      hdr.proto, srchost, dsthost,
-      icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
+      icmpv6 = (struct icmpv6_hdr *) data;
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
+          hdr.proto, srchost, dsthost,
+          icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
+    }
+    else {
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=?/code=?) %s",
+          hdr.proto, srchost, dsthost, ipinfo);
+    }
   } else {
+    /* UNKNOWN PROTOCOL **********************************************************/
     const char *hdrstr;
 
     hdrstr = nexthdrtoa(hdr.proto, 1);

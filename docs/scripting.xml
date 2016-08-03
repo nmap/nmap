@@ -1547,15 +1547,11 @@ details of how different return values are handled.
       </para>
 
       <para>
-      The smallest compiled module that comes with NSE is
-      <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE library</primary></indexterm>
-      and one of the most straightforward is
+      The most straightforward compiled module that comes with NSE is
       <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE library</primary></indexterm>
-      These modules serve as good examples for a beginning module
+      This module serves as a good example for a beginning module
       writer. The
-      source code for <literal>bit</literal> is found in
-      <filename>nse_bit.cc</filename> and
-      <filename>nse_bit.h</filename>, while the
+      source code for
       <literal>openssl</literal> source is in <filename>nse_openssl.cc</filename> and
       <filename>nse_openssl.h</filename>. Most of the other compiled modules
       follow this <literal>nse_<replaceable>module name</replaceable>.cc</literal> naming convention.

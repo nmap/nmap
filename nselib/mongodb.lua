@@ -676,7 +676,7 @@ end
 --   local res
 --   res = versionQuery()
 --   print(type(res),res:len(),res)
---   local  out= bin.unpack('C'..#res,res)
+--   local _, out= bin.unpack('C'..#res,res)
 --   printBuffer(res)
 -- end
 --test()

@@ -1,5 +1,5 @@
 local dns = require "dns"
-local math = require "math"
+local formulas = require "formulas"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -138,27 +138,6 @@ for _, domain in ipairs(ALEXA_DOMAINS) do
   end
 end
 
--- Return the mean and sample standard deviation of an array, using the
--- algorithm from Knuth Vol. 2, Section 4.2.2.
-function mean_stddev(t)
-  local i, m, s, sigma
-
-  if #t == 0 then
-    return 0, nil
-  end
-
-  m = t[1]
-  s = 0
-  for i = 2, #t do
-    local mp = m
-    m = m + (t[i] - m) / i
-    s = s + (t[i] - mp) * (t[i] - m)
-  end
-  sigma = math.sqrt(s / (#t - 1))
-
-  return m, sigma
-end
-
 local function nonrecursive_mode(host, port, domains)
   local cached = {}
 
@@ -194,16 +173,14 @@ local function timed_mode(host, port, domains)
 
   -- Measure how long it takes to resolve on average.
   local times = {}
-  local mean, stddev
-  local cutoff
   for i = 1, TIMED_NUM_SAMPLES do
     t = timed_query(host, port, TIMED_DUMMY_DOMAIN)
     if t then
       times[#times + 1] = t
     end
   end
-  mean, stddev = mean_stddev(times)
-  cutoff = mean + stddev * TIMED_MULTIPLIER
+  local mean, stddev = formulas.mean_stddev(times)
+  local cutoff = mean + stddev * TIMED_MULTIPLIER
   stdnse.debug1("reference %s: mean %g  stddev %g  cutoff %g", TIMED_DUMMY_DOMAIN, mean, stddev, cutoff)
 
   -- Now try all domains one by one.

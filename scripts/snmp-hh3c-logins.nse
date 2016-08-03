@@ -136,7 +136,7 @@ action = function(host, port)
     status, users = snmpHelper:walk( newsnmpoid )
 
     if (not(status)) or ( users == nil ) or ( #users == 0 ) then
-      return users
+      return nil
     end
 
   end

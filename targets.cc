@@ -138,6 +138,10 @@
 #include "xml.h"
 
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
@@ -556,6 +560,15 @@ static Target *setup_target(const HostGroupState *hs,
       else
         t->setSrcMACAddress(rnfo.ii.mac);
     }
+#ifdef WIN32
+    else if (g_has_npcap_loopback && rnfo.ii.device_type == devt_loopback) {
+      if (o.spoofMACAddress())
+        t->setSrcMACAddress(o.spoofMACAddress());
+      else
+        t->setSrcMACAddress(rnfo.ii.mac);
+      t->setNextHopMACAddress(t->SrcMACAddress());
+    }
+#endif
     t->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
     if (hs->current_batch_sz == 0) /* Because later ones can have different src addy and be cut off group */
       o.decoys[o.decoyturn] = t->v4source();

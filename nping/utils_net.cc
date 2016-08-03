@@ -1486,9 +1486,9 @@ int obtainRawSocket(){
   }else{
     if ((rawipsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
         nping_fatal(QT_3,"Couldn't acquire IPv4 raw socket. Are you root?");
-        /* Tell the kernel we are including our own IP Header (call to 
-        * setsockopt passing option IP_HDRINCL)                             */
-        sethdrinclude(rawipsd);
+    /* Tell the kernel we are including our own IP Header (call to
+     * setsockopt passing option IP_HDRINCL) */
+    sethdrinclude(rawipsd);
   }
 
   /* Allow broadcast addresses */

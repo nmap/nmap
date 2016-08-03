@@ -29,7 +29,7 @@
 -- </code>
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 --

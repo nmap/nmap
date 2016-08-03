@@ -59,7 +59,7 @@ Multicast Address Space Registry have their descriptions listed.
 --   </table>
 -- </table>
 
-author = "alegen, Daniel Miller"
+author = {"alegen", "Daniel Miller"}
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- Technically multicast, not broadcast
 categories = {"broadcast", "discovery"}

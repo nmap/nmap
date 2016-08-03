@@ -71,6 +71,8 @@ if test -n "$GXX"; then
   CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
+CFLAGS="$CFLAGS -Wall"
+
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
 AH_TEMPLATE(__func__, [C99-specified function identifier])
@@ -385,6 +387,12 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
     AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
     [ -lcrypto ])
  fi
+
+ if test "$use_openssl" = "yes"; then
+   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
+    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
+    [AC_MSG_WARN([Disabling support for EC crypto])])
+  fi
 fi
 
 OPENSSL_LIBS=
@@ -635,18 +643,18 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua.h lua/lua.h lua5.2/lua.h],
-      AC_CHECK_LIB(lua, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua52, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua52"; CPPFLAGS="-I/usr/include/lua52 $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua5.2, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua5.2"; CPPFLAGS="-I/usr/include/lua5.2 $CPPFLAGS"; break],, [-lm])
+    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h],
+      AC_CHECK_LIB(lua5.3, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua5.3"; CPPFLAGS="-I/usr/include/lua5.3 $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua53, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua53"; CPPFLAGS="-I/usr/include/lua53 $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
     )
 
     AC_LANG_PUSH(C++)
     # We need Lua 5.2 exactly
-    AC_MSG_CHECKING([for lua version == 502])
+    AC_MSG_CHECKING([for lua version == 503])
     AC_RUN_IFELSE([ AC_LANG_PROGRAM(
       [[#include <lua.h>]],
-      [[if(LUA_VERSION_NUM != 502) return 1;]])],
+      [[if(LUA_VERSION_NUM != 503) return 1;]])],
       have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
     AC_LANG_POP(C++)
 
@@ -680,6 +688,7 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
 AC_SUBST(NSE_CHECK)
 AC_SUBST(CXXFLAGS)
+AC_SUBST(CFLAGS)
 
 
 LIBLINEARDIR=liblinear

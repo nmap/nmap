@@ -70,7 +70,7 @@ References:
 -- |   nexthash 430456af8svfvl98l66shhrgucoip7mi mges520acstgaviekurg3oksh9u31bmb
 -- |_  Total hashes found: 8
 
-author = "Aleksandar Nikolic, John R. Bond"
+author = {"Aleksandar Nikolic", "John R. Bond"}
 license = "Simplified (2-clause) BSD license--See https://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"discovery", "intrusive"}
 

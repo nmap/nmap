@@ -175,7 +175,7 @@ if test "$use_openssl" = "yes"; then
   AC_DEFINE(HAVE_OPENSSL)
   OPENSSL_LIBS="-lssl -lcrypto"
   LIBS_TMP="$LIBS"
-  LIBS="$LIBS $OPENSSL_LIBS"
+  LIBS="$OPENSSL_LIBS $LIBS"
   # Check whether the installed OpenSSL supports SHA-256 (ver 0.9.8 or later).
   AC_CHECK_FUNC(EVP_sha256,, AC_MSG_ERROR([Your version of OpenSSL does not support SHA-256. Please install OpenSSL 0.9.8 or later.]))
   LIBS="$LIBS_TMP"

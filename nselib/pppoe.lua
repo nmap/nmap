@@ -18,7 +18,7 @@
 --             and the library.
 --
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 local bin = require "bin"

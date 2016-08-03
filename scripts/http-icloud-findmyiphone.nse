@@ -74,7 +74,7 @@ action = function()
     end
     local ts
     if ( info.timestamp and 1000 < info.timestamp ) then
-      ts = os.date("%x %X", info.timestamp/1000)
+      ts = os.date("%x %X", info.timestamp//1000)
     else
       ts = "-"
     end

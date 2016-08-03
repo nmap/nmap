@@ -3084,6 +3084,74 @@ for my $count (1, 10) {
 		"--max-conns $count --keep-open with exec", ["--keep-open", "--exec", "/bin/cat"], [], $count);
 }
 
+# Tests for zero byte option.
+
+($s_pid, $s_out, $s_in) = ncat_server();
+test "-z client with Connect success exit code (tcp)",
+sub {
+        my ($pid, $code);
+        local $SIG{CHLD} = sub { };
+
+        my ($c_pid, $c_out, $c_in) = ncat_client("-z");
+
+        do {
+                $pid = waitpid($c_pid, 0);
+        } while ($pid > 0 && $pid != $c_pid);
+        $pid == $c_pid or die "$pid != $c_pid";
+        $code = $? >> 8;
+        $code == 0 or die "Exit code was $code, not 0";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server("--udp");
+test "-z client sends \"\\0\" to server and exits with success exit code (udp)",
+sub {
+        my ($resp, $pid, $code);
+        local $SIG{CHLD} = sub { };
+
+        my ($c_pid, $c_out, $c_in) = ncat_client("-z", "--udp");
+        $resp = timeout_read($s_out);
+        $resp eq "\0" or die "Server got \"$resp\", not \"\\0\" from client";
+
+        do {
+                $pid = waitpid($c_pid, 0);
+        } while ($pid > 0 && $pid != $c_pid);
+        $pid == $c_pid or die "$pid != $c_pid";
+        $code = $? >> 8;
+        $code == 0 or die "Exit code was $code, not 0";
+};
+kill_children;
+
+test "-z client with connection refused exit code (tcp)",
+sub {
+        my ($pid, $code);
+        local $SIG{CHLD} = sub { };
+        ($c_pid, $c_out, $c_in) = ncat_client("-z");
+
+        do {
+                $pid = waitpid($c_pid, 0);
+        } while ($pid > 0 && $pid != $c_pid);
+        $pid == $c_pid or die "$pid != $c_pid";
+        $code = $? >> 8;
+        $code == 1 or die "Exit code was $code, not 1";
+};
+kill_children;
+
+test "-z client with connection refused exit code (udp)",
+sub {
+        my ($pid, $code);
+        local $SIG{CHLD} = sub { };
+        ($c_pid, $c_out, $c_in) = ncat_client("-z", "--udp");
+
+        do {
+                $pid = waitpid($c_pid, 0);
+        } while ($pid > 0 && $pid != $c_pid);
+        $pid == $c_pid or die "$pid != $c_pid";
+        $code = $? >> 8;
+        $code == 1 or die "Exit code was $code, not 1";
+};
+kill_children;
+
 # Without --keep-open, just make sure that --max-conns 0 disallows any connection.
 max_conns_test_all("--max-conns 0", [], [], 0);
 max_conns_test_all("--max-conns 0 with exec", ["--exec", "/bin/cat"], [], 0);

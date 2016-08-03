@@ -492,7 +492,7 @@ static int handle_connect(struct socket_buffer *client_sock,
         return 400;
     }
     if (o.debug > 1)
-        logdebug("CONNECT to %s:%hu.\n", request->uri.host, request->uri.port);
+        logdebug("CONNECT to %s:%d.\n", request->uri.host, request->uri.port);
 
     rc = resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af);
     if (rc != 0) {
@@ -680,7 +680,7 @@ static int do_transaction(struct http_request *request,
     if (request->uri.port == -1 || request->uri.port == 80)
         n = Snprintf(buf, sizeof(buf), "%s", request->uri.host);
     else
-        n = Snprintf(buf, sizeof(buf), "%s:%hu", request->uri.host, request->uri.port);
+        n = Snprintf(buf, sizeof(buf), "%s:%d", request->uri.host, request->uri.port);
     if (n < 0 || n >= sizeof(buf)) {
         /* Request Entity Too Large. */
         return 501;

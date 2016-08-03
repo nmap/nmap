@@ -201,7 +201,7 @@ parser = {
     -- Cache references for maximum speed
     local find, sub, gsub, char, push, pop, concat = string.find, string.sub, string.gsub, string.char, table.insert, table.remove, table.concat
     local first, last, match1, match2, match3, pos2, nsURI
-    local unpack = unpack or table.unpack
+    local unpack = table.unpack
     local pos = 1
     local state = "text"
     local textStart = 1

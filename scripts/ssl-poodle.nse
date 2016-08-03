@@ -341,8 +341,8 @@ action = function(host, port)
   local vuln_table = {
     title = "SSL POODLE information leak",
     description = [[
-    The SSL protocol 3.0, as used in OpenSSL through 1.0.1i and
-    other products, uses nondeterministic CBC padding, which makes it easier
+    The SSL protocol 3.0, as used in OpenSSL through 1.0.1i and other
+    products, uses nondeterministic CBC padding, which makes it easier
     for man-in-the-middle attackers to obtain cleartext data via a
     padding-oracle attack, aka the "POODLE" issue.]],
     state = vulns.STATE.NOT_VULN,

@@ -44,7 +44,7 @@ References:
 -- @args http-vuln-cve2011-3368.prefix sets the path prefix (directory) to check for the vulnerability.
 --
 
-author = "Ange Gutek, Patrik Karlsson"
+author = {"Ange Gutek", "Patrik Karlsson"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 

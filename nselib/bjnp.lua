@@ -5,7 +5,7 @@
 -- The implementation is pretty much based on Wireshark decoded messages
 -- the cups-bjnp implementation and the usual guesswork.
 --
--- @author "Patrik Karlsson <patrik [at] cqure.net>"
+-- @author Patrik Karlsson <patrik [at] cqure.net>
 --
 
 local bin = require("bin")
