@@ -688,15 +688,15 @@ end
 
 local function make_parser()
   local script_file_name = C( (1-S'/=%:|\"<>.,')^1 )
-  local parameter = C( (1-S"=")^1 )
-  local nested_table =  C{"{" * ((1 - lpeg.S"{}") + lpeg.V(1))^0 * "}"}
-  local value=C((1-S"=,}")^1)
-  local values = nested_table + value
-  local argument = Ct(parameter * P"=" * values)
-  local arguments = argument * ( P"," * argument)^0
+  --local parameter = C( (1-S"=")^1 )
+  --local nested_table =  C{"{" * ((1 - lpeg.S"{}") + lpeg.V(1))^0 * "}"}
+  --local value=C((1-S"=,}")^1)
+  --local values = nested_table + value
+  --local argument = Ct(parameter * P"=" * values)
+  --local arguments = argument * ( P"," * argument)^0
   local without_argument = P","^0
-  local with_argument = P"={" * arguments * P"}" * P","^0
-  local parser = script_file_name * (with_argument + without_argument) * ( script_file_name * (with_argument + without_argument) )^0
+  --local with_argument = P"={" * arguments * P"}" * P","^0
+  local parser = script_file_name * without_argument * ( script_file_name * without_argument )^0
   parser=assert(Ct(parser))
   return parser
 end
