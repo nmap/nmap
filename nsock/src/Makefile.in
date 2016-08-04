@@ -44,7 +44,7 @@ DEPS =	$(srcdir)/error.h $(srcdir)/filespace.h $(srcdir)/gh_list.h $(srcdir)/nso
 	$(srcdir)/nsock_log.h $(srcdir)/nsock_proxy.h $(srcdir)/gh_heap.h $(srcdir)/../include/nsock.h \
 	$(NBASEDIR)/libnbase.a
 
-.c.o:
+%.o: $(srcdir)/%.c $(DEPS)
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 all: $(TARGET) 
