@@ -137,8 +137,6 @@ static int finish_read(lua_State *L, int status, lua_KContext ctx)
 
 		LOG("finish_read(): in the branch\n")
 
-
-
 		size_t n = 0;
 		size_t l;
 		lua_getuservalue(L, 1);
@@ -155,7 +153,7 @@ static int finish_read(lua_State *L, int status, lua_KContext ctx)
 
 			LOG("finish_read(): ")
 
-				switch (WSAGetLastError()) {
+			switch (WSAGetLastError()) {
 				case WSANOTINITIALISED: LOG("WSANOTINITIALISED\n"); break;
 
 				case WSAENETDOWN: LOG("WSAENETDOWN\n") break;
@@ -194,10 +192,11 @@ static int finish_read(lua_State *L, int status, lua_KContext ctx)
 
 				case WSAETIMEDOUT: LOG("WSAETIMEDOUT\n") break;
 
-				default:;
+				default:
 #ifdef LOCAL_DEBUG
 					printf("finish_read(): default: rc = %d\n", rc);
 #endif
+					;
 			};
 
 #else
@@ -338,46 +337,41 @@ static int do_session_handshake(lua_State *L, int status, lua_KContext ctx)
 	int rc;
 	struct ssh_userdata *sshu;
 
-	assert(lua_gettop(L) == 4);
+	assert(lua_gettop(L) == 4); /* 4: t, t["sock"] = socket object
+	                             		 t["sp_buff"] = "" 
+	                       		   3: userdata */
 
 	sshu = (struct ssh_userdata *) nseU_checkudata(L, 3, SSH2_UDATA, "ssh2");
 
 	LOG("do_session_handshake(): Entering while\n")
 
-		while ((rc = libssh2_session_handshake(sshu->session, sshu->sp[0])) == LIBSSH2_ERROR_EAGAIN) {
-			LOG("do_session_handshake(): In while loop\n")
+	assert(sshu->session != NULL);
 
-			luaL_getmetafield(L, 3, "filter");
-			lua_pushvalue(L, 3);
-			lua_callk(L, 1, 0, 0, do_session_handshake);
-		}
+	while ((rc = libssh2_session_handshake(sshu->session, sshu->sp[0])) == LIBSSH2_ERROR_EAGAIN) {
+		LOG("do_session_handshake(): In while loop\n")
+
+		luaL_getmetafield(L, 3, "filter");
+		lua_pushvalue(L, 3);
+		lua_callk(L, 1, 0, 0, do_session_handshake);
+	}
 
 	LOG("do_session_handshake(): Exit while\n")
 
 	if (rc) {
-
 		LOG("do_session_handshake(): Unable to complete libssh2 handshake.\n")
 		libssh2_session_free(sshu->session);
 		luaL_error(L, "Unable to complete libssh2 handshake.");
 	}
-	lua_pushvalue(L, 3);
+
+	lua_pushvalue(L, 3); /* 5: userdata
+							4: t, t["sock"] = socket object
+	                             		 t["sp_buff"] = "" 
+	                        3: userdata */
+
 	return 1;
 }
 
-static int finish_session_open(lua_State *L, int status, lua_KContext ctx) {
 
-	LOG("in finish_session_open()\n")
-	assert(lua_gettop(L) == 6);
-	if (lua_toboolean(L, -2)) {
-		lua_pop(L, 2);
-		return do_session_handshake(L,0,0);
-	}
-	else {
-		ssh_userdata *state = (ssh_userdata *)lua_newuserdata(L, sizeof(ssh_userdata));
-		libssh2_session_free(state->session);
-		return lua_error(L);
-	}
-}
 
 
 /////////////////////////
@@ -480,7 +474,7 @@ int dumb_socketpair(int socks[2], int dummy)
 
 /////////////////////////
 
-
+static int finish_session_open(lua_State *L, int status, lua_KContext ctx);
 
 /* Creates libssh2 session, connects to hostname:port and tries to perform a
 * ssh handshake on socket. Returns ssh_state on success, nil on failure.
@@ -497,18 +491,25 @@ static int l_session_open(lua_State *L) {
 	lua_settop(L, 2);
 
 	ssh_userdata *state = (ssh_userdata *)lua_newuserdata(L, sizeof(ssh_userdata)); /* index 3 */
+
+	LOG("in l_session_open(): created state userdata\n")
+	
 	assert(lua_gettop(L) == 3);
 	state->session = NULL;
 	state->sp[0] = -1;
 	state->sp[1] = -1;
 	lua_pushvalue(L, lua_upvalueindex(1)); /* metatable */
 	lua_setmetatable(L, 3);
+
 	lua_newtable(L);
 	lua_setuservalue(L, 3);
-	lua_getuservalue(L, 3); /* index 4 */
+
+	lua_getuservalue(L, 3); /* index 4 - a table associated with userdata*/
 	assert(lua_gettop(L) == 4);
 
+	LOG("in l_session_open(): calling libssh2_session_init() \n")
 	state->session = libssh2_session_init();
+
 	if (state->session == NULL) {
 		// A session could not be created because of memory
 		// limits. I will put this placeholder for now.
@@ -524,10 +525,10 @@ static int l_session_open(lua_State *L) {
 		// return lua_error(L);
 		return nseU_safeerror(L, "trying to initiate session");
 	}
-	
+	LOG("in l_session_open(): setting non-blocking session\n")
 	// set non-blocking session
 	libssh2_session_set_blocking(state->session, 0);
-
+	LOG("in l_session_open(): creating socketpair\n")
 	// create socketpair
 	if (dumb_socketpair(state->sp, 1) == -1) {
 		return nseU_safeerror(L, "trying to create socketpair");
@@ -559,22 +560,34 @@ static int l_session_open(lua_State *L) {
 
 	LOG("l_session_open(): Created socket pair\n")
 
-	lua_getglobal(L, "nmap");
-	lua_getfield(L, -1, "new_socket");
-	lua_replace(L, -2);
-	lua_call(L, 0, 1);
-	lua_setfield(L, 4, "sock");
+	/* lua_top == 4. a table associated with userdata */
+	lua_getglobal(L, "nmap");          /* 5: nmap object
+										  4: empty table t associated with userdata
+										  3: userdata */
 
-	lua_pushliteral(L, "");
-	lua_setfield(L, 4, "sp_buff");
+	lua_getfield(L, -1, "new_socket"); /* 6: nmap.new_socket function
+										  5: nmap object */
+
+	lua_replace(L, -2);				   /* 5: nmap.new_socket function */
+
+	lua_call(L, 0, 1);				   /* 5: socket object */
+										  
+	lua_setfield(L, 4, "sock");		   /* 4: t, t["sock"] = socket object */
+
+	lua_pushliteral(L, "");            /* 5: "" */
+	lua_setfield(L, 4, "sp_buff");     /* 4: t, t["sock"] = socket object
+	                                            t["sp_buff"] = "" */
 
 	assert(lua_gettop(L) == 4);
 
-	lua_getfield(L, 4, "sock");
-	lua_getfield(L, -1, "connect");
-	lua_insert(L, -2); /* swap */
-	lua_pushvalue(L, 1);
-	lua_pushvalue(L, 2);
+	lua_getfield(L, 4, "sock");        /* 5: socket object */
+	lua_getfield(L, -1, "connect");	   /* 6: socket.connect function */
+
+	lua_insert(L, -2); /* swap */      /* 6: socket object
+		                                  5: socket.connect function */
+
+	lua_pushvalue(L, 1);               /* 7: host */
+	lua_pushvalue(L, 2);               /* 8: port */
 
 	LOG("l_session_open(): Before callk finish_session_open()\n")
 
@@ -587,6 +600,30 @@ static int l_session_open(lua_State *L) {
 
 	return finish_session_open(L,0,0);
 }
+
+static int finish_session_open(lua_State *L, int status, lua_KContext ctx) {
+
+	LOG("in finish_session_open()\n")
+	assert(lua_gettop(L) == 6);
+	if (lua_toboolean(L, -2)) {
+		lua_pop(L, 2); 	/* 4: t, t["sock"] = socket object
+	                             t["sp_buff"] = "" 
+	                       3: userdata */
+ 
+		return do_session_handshake(L,0,0);
+	}
+	else {
+		// wtf was this???
+		// ssh_userdata *state = (ssh_userdata *)lua_newuserdata(L, sizeof(ssh_userdata));
+		struct ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 3, SSH2_UDATA, "ssh2");
+		if (state->session != NULL) {
+			libssh2_session_free(state->session);
+			state->session = NULL;
+		}
+		return lua_error(L);
+	}
+}
+
 
 /* Returns the SHA1 or MD5 hostkey hash of provided session or nil if it is not available
 *
@@ -609,7 +646,7 @@ static int l_hostkey_hash(lua_State *L) {
 
 	luaL_buffinit(L, &B);
 	for (int i = 0; i < hash_length[type]; i++) {
-		char byte[3]; /* with space for NUL */
+		char byte[3]; /* with space for NULL */
 		snprintf(byte, sizeof(byte), "%02X", (unsigned int)hash[i]);
 		if (i)
 			luaL_addchar(&B, ':');
@@ -635,20 +672,28 @@ static int l_set_timeout(lua_State *L) {
 *
 */
 static int userauth_list(lua_State *L, int status, lua_KContext ctx) {
+	/* 1: session (userdata)
+	   2: username */
 
 	LOG("in userauth_list()\n")
 
 	struct ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
 	const char *username = luaL_checkstring(L, 2);
-	char *auth_list;
-
-	while ((auth_list = libssh2_userauth_list(state->session, username, lua_rawlen(L, 2))) == NULL && libssh2_session_last_errno(state->session) == LIBSSH2_ERROR_EAGAIN) {
+	char *auth_list = NULL;
+    assert(state->session != NULL);
+	
+	LOG("in userauth_list(): entering while\n")    
+	while ((auth_list = libssh2_userauth_list(state->session, username, lua_rawlen(L, 2))) == NULL 
+		&& libssh2_session_last_errno(state->session) == LIBSSH2_ERROR_EAGAIN) {
 		luaL_getmetafield(L, 1, "filter");
 		lua_pushvalue(L, 1);
 		lua_callk(L, 1, 0, 0, userauth_list);
 	}
+	LOG("in userauth_list(): exited while\n")
 
 	if (auth_list) {
+		LOG("in userauth_list(): auth_list != NULL\n");
+		printf("in userauth_list(): auth_list: %s\n", auth_list);
 		const char *auth = strtok(auth_list, ",");
 		lua_newtable(L);
 		do {
@@ -744,7 +789,7 @@ static int publickey_canauth(lua_State *L, int status, lua_KContext ctx) {
 	int rc;
 	const char *username;
 	unsigned const char *publickey_data;
-	size_t len;
+	size_t len = 0;
 	struct ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
 	username = luaL_checkstring(L, 2);
 	if (lua_isstring(L, 3)) {
@@ -782,8 +827,11 @@ static int userauth_password(lua_State *L, int status, lua_KContext ctx) {
 	int rc;
 	const char *username, *password;
 	struct ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+
 	username = luaL_checkstring(L, 2);
 	password = luaL_checkstring(L, 3);
+	
+	assert(state->session != NULL);
 
 	while ((rc = libssh2_userauth_password(state->session, username, password)) == LIBSSH2_ERROR_EAGAIN) {
 		luaL_getmetafield(L, 1, "filter");
@@ -822,7 +870,6 @@ static int session_close(lua_State *L, int status, lua_KContext ctx) {
 	}
 	return 0;
 }
-
 
 
 static int l_userauth_list(lua_State *L) {
