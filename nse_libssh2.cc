@@ -44,7 +44,7 @@ extern "C" {
 
 #ifdef LOCAL_DEBUG 
 
-#define LOG(line) printf((line));
+#define LOG(line) fprintf(stderr, (line));
 
 #else
 
