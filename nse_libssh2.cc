@@ -954,7 +954,7 @@ static int gc(lua_State *L)
 int luaopen_libssh2(lua_State *L) {
 	lua_settop(L, 0); /* clear the stack */
 
-	luaL_newlib(L, libssh2);
+	luaL_newlibtable(L, libssh2);
 
 	lua_newtable(L); /* ssh2 session metatable */
 	lua_pushvalue(L, -1);
