@@ -1291,7 +1291,7 @@ int determineScanGroupSize(int hosts_scanned_so_far,
 
   groupsize = box(o.minHostGroupSz(), o.maxHostGroupSz(), groupsize);
 
-  if (o.max_ips_to_scan && (o.max_ips_to_scan - hosts_scanned_so_far) < groupsize)
+  if (o.max_ips_to_scan && (o.max_ips_to_scan - hosts_scanned_so_far) < (unsigned int)groupsize)
     // don't scan more randomly generated hosts than was specified
     groupsize = o.max_ips_to_scan - hosts_scanned_so_far;
 
