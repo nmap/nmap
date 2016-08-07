@@ -987,9 +987,6 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
       case LOG_MACHINE:
       case LOG_SKID:
       case LOG_XML:
-        len = alloc_vsprintf(&writebuf, fmt, ap);
-        if (writebuf == NULL)
-          fatal("%s: alloc_vsprintf failed.", __func__);
         if (logtype == LOG_SKID_NOXLT)
             l = LOG_SKID;
         else
@@ -1000,17 +997,22 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
           l >>= 1;
         }
         assert(fileidx < LOG_NUM_FILES);
-        if (o.logfd[fileidx] && len) {
-          if ((logtype & (LOG_SKID|LOG_SKID_NOXLT)) && !skid_noxlate)
-            skid_output(writebuf);
+        if (o.logfd[fileidx]) {
+          len = alloc_vsprintf(&writebuf, fmt, ap);
+          if (writebuf == NULL)
+            fatal("%s: alloc_vsprintf failed.", __func__);
+          if (len) {
+            if ((logtype & (LOG_SKID|LOG_SKID_NOXLT)) && !skid_noxlate)
+              skid_output(writebuf);
 
-          rc = fwrite(writebuf, len, 1, o.logfd[fileidx]);
-          if (rc != 1) {
-            fatal("Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.", len, logtype, rc);
+            rc = fwrite(writebuf, len, 1, o.logfd[fileidx]);
+            if (rc != 1) {
+              fatal("Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.", len, logtype, rc);
+            }
+            va_end(apcopy);
           }
-          va_end(apcopy);
+          free(writebuf);
         }
-        free(writebuf);
         break;
 
       default:
