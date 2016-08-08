@@ -662,20 +662,6 @@ do
   Script.__index = Script;
 end
 
-local function generate_args(tbl)
-  local o={}
-  local name=""
-  for _, val in pairs(tbl) do
-    if type(val) == "string" then
-      name=val
-    end
-    if type(val) == "table" then
-      table.insert(o,name.."."..val[1].."="..val[2])
-    end
-  end
-  return o
-end
-
 local function get_script_name(tbl)
   local o={}
   for _, val in pairs(tbl) do
@@ -688,36 +674,20 @@ end
 
 local function make_parser()
   local script_file_name = C( (1-S'/=%:|\"<>.,')^1 )
-  --local parameter = C( (1-S"=")^1 )
-  --local nested_table =  C{"{" * ((1 - lpeg.S"{}") + lpeg.V(1))^0 * "}"}
-  --local value=C((1-S"=,}")^1)
-  --local values = nested_table + value
-  --local argument = Ct(parameter * P"=" * values)
-  --local arguments = argument * ( P"," * argument)^0
   local without_argument = P","^0
-  --local with_argument = P"={" * arguments * P"}" * P","^0
   local parser = script_file_name * without_argument * ( script_file_name * without_argument )^0
   parser=assert(Ct(parser))
   return parser
 end
 
-local function apply_short_syntax(script_args)
+local function assign_scripts()
 
   if not cnse.script_expression then
-    return script_args
+    return
   end
 
   local parser = make_parser()
   local output = parser:match(cnse.script_expression)
-  local args = generate_args(output)
-
-  for _, arg in pairs(args) do
-    if #script_args == 0 then
-      script_args = script_args..arg
-    else
-      script_args = script_args..","..arg
-    end
-  end
 
   --empty the rules table
   for k in pairs (rules) do
@@ -729,8 +699,8 @@ local function apply_short_syntax(script_args)
     rules[index] = val
   end
 
-  return script_args
 end
+
 -- check_rules(rules)
 -- Adds the "default" category if no rules were specified.
 -- Adds other implicitly specified rules (e.g. "version")
@@ -1246,7 +1216,7 @@ do
   end
 
   args = concat(args, ",");
-  args = apply_short_syntax(args)
+  assign_scripts()
 
   if #args > 0 then
     print_debug(1, "Arguments parsed: %s", args);
