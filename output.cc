@@ -2486,7 +2486,7 @@ void print_xml_finished_open(time_t timep, const struct timeval *tv) {
   xml_attribute("timestr", "%s", mytime);
   xml_attribute("elapsed", "%.2f", o.TimeSinceStart(tv));
   xml_attribute("summary",
-    "Nmap done at %s; %d %s (%d %s up) scanned in %.2f seconds",
+    "Nmap done at %s; %u %s (%u %s up) scanned in %.2f seconds",
     mytime, o.numhosts_scanned,
     (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
     o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
@@ -2531,7 +2531,7 @@ void printfinaloutput() {
   }
 
   log_write(LOG_STDOUT | LOG_SKID,
-            "Nmap done: %d %s (%d %s up) scanned in %.2f seconds\n",
+            "Nmap done: %u %s (%u %s up) scanned in %.2f seconds\n",
             o.numhosts_scanned,
             (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
             o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
@@ -2553,7 +2553,7 @@ void printfinaloutput() {
   xml_newline();
 
   log_write(LOG_NORMAL | LOG_MACHINE,
-            "# Nmap done at %s -- %d %s (%d %s up) scanned in %.2f seconds\n",
+            "# Nmap done at %s -- %u %s (%u %s up) scanned in %.2f seconds\n",
             mytime, o.numhosts_scanned,
             (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
             o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
