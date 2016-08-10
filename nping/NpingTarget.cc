@@ -128,6 +128,10 @@
 #include "nping_winconfig.h"
 #endif
 
+#ifndef FQDN_LEN
+#define FQDN_LEN 254
+#endif
+
 #include "NpingTarget.h"
 #include <dnet.h>
 #include "nbase.h"
@@ -761,8 +765,8 @@ const char *NpingTarget::getNameAndIP(char *buf, size_t buflen) {
 /** This next version returns a static buffer -- so no concurrency */
 const char *NpingTarget::getNameAndIP() {
   if(!nameIPBuf)
-    nameIPBuf = (char *)safe_malloc(MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
-  return getNameAndIP(nameIPBuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
+    nameIPBuf = (char *)safe_malloc(FQDN_LEN + INET6_ADDRSTRLEN + 4);
+  return getNameAndIP(nameIPBuf, FQDN_LEN + INET6_ADDRSTRLEN + 4);
 } /* End of getNameAndIP() */
 
 

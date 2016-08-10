@@ -16,12 +16,6 @@
 #include <nsock.h>
 
 
-#if !defined(container_of)
-#define container_of(ptr, type, member) \
-        ((type *)((char *)(ptr)-(char *)(&((type *)0)->member)))
-#endif
-
-
 #define PORT_UDP    55234
 #define PORT_TCP    55235
 #define PORT_TCPSSL 55236

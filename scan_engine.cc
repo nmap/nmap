@@ -152,6 +152,15 @@ extern NmapOps o;
 extern "C" int g_has_npcap_loopback;
 #endif
 
+
+int HssPredicate::operator() (HostScanStats *lhs, HostScanStats *rhs) {
+  const struct sockaddr_storage *lss, *rss;
+  lss = (lhs) ? lhs->target->TargetSockAddr() : ss;
+  rss = (rhs) ? rhs->target->TargetSockAddr() : ss;
+  return 0 > sockaddr_storage_cmp(lss, rss);
+}
+struct sockaddr_storage *HssPredicate::ss = NULL;
+
 void UltraScanInfo::log_overall_rates(int logt) {
   log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
   if (send_rate_meter.getNumBytes() > 0)
@@ -751,14 +760,19 @@ UltraScanInfo::UltraScanInfo() {
 }
 
 UltraScanInfo::~UltraScanInfo() {
-  while (!incompleteHosts.empty()) {
-    delete incompleteHosts.front();
-    incompleteHosts.pop_front();
+  std::set<HostScanStats *>::iterator hostI;
+
+  for (hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
+    delete *hostI;
   }
-  while (!completedHosts.empty()) {
-    delete completedHosts.front();
-    completedHosts.pop_front();
+
+  for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI++) {
+    delete *hostI;
   }
+  
+  incompleteHosts.clear();
+  completedHosts.clear();
+
   delete gstats;
   delete SPM;
   if (rawsd >= 0) {
@@ -805,7 +819,7 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
 /* Return a number between 0.0 and 1.0 inclusive indicating how much of the scan
    is done. */
 double UltraScanInfo::getCompletionFraction() {
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   double total;
 
   /* Add 1 for each completed host. */
@@ -958,7 +972,7 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
     }
 
     hss = new HostScanStats(Targets[targetno], this);
-    incompleteHosts.push_back(hss);
+    incompleteHosts.insert(hss);
   }
   numInitialTargets = Targets.size();
   nextI = incompleteHosts.begin();
@@ -1062,7 +1076,7 @@ unsigned int UltraScanInfo::numProbesPerHost() {
 bool UltraScanInfo::sendOK(struct timeval *when) {
   struct timeval lowhtime = {0};
   struct timeval tmptv;
-  std::list<HostScanStats *>::iterator host;
+  std::set<HostScanStats *>::iterator host;
   bool ggood = false;
   bool thisHostGood = false;
   bool foundgood = false;
@@ -1120,27 +1134,23 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
 /* Find a HostScanStats by its IP address in the incomplete and completed lists.
    Returns NULL if none are found. */
 HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
-  std::list<HostScanStats *>::iterator hss;
-  struct sockaddr_storage target_addr;
-  size_t target_addr_len;
+  std::set<HostScanStats *>::iterator hss;
 
-  for (hss = incompleteHosts.begin(); hss != incompleteHosts.end(); hss++) {
-    target_addr_len = sizeof(target_addr);
-    (*hss)->target->TargetSockAddr(&target_addr, &target_addr_len);
-    if (sockaddr_storage_cmp(&target_addr, ss) == 0) {
-      if (o.debugging > 2)
-        log_write(LOG_STDOUT, "Found %s in incomplete hosts list.\n", (*hss)->target->targetipstr());
-      return *hss;
-    }
+  HssPredicate::ss = ss;
+  HostScanStats *fakeHss = NULL;
+
+  hss = incompleteHosts.find(fakeHss);
+  if (hss != incompleteHosts.end()) {
+    if (o.debugging > 2)
+      log_write(LOG_STDOUT, "Found %s in incomplete hosts list.\n", (*hss)->target->targetipstr());
+    return *hss;
   }
-  for (hss = completedHosts.begin(); hss != completedHosts.end(); hss++) {
-    target_addr_len = sizeof(target_addr);
-    (*hss)->target->TargetSockAddr(&target_addr, &target_addr_len);
-    if (sockaddr_storage_cmp(&target_addr, ss) == 0) {
-      if (o.debugging > 2)
-        log_write(LOG_STDOUT, "Found %s in completed hosts list.\n", (*hss)->target->targetipstr());
-      return *hss;
-    }
+
+  hss = completedHosts.find(fakeHss);
+  if (hss != completedHosts.end()) {
+    if (o.debugging > 2)
+      log_write(LOG_STDOUT, "Found %s in completed hosts list.\n", (*hss)->target->targetipstr());
+    return *hss;
   }
 
   return NULL;
@@ -1150,7 +1160,7 @@ HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
    is here to replace numIncompleteHosts() < n, which would have to walk
    through the entire list. */
 bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) {
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   unsigned int count;
 
   count = 0;
@@ -1170,7 +1180,7 @@ static bool pingprobe_is_better(const probespec *new_probe, int new_state,
    list, and remove any hosts from completedHosts which have exceeded their
    lifetime.  Returns the number of hosts removed. */
 int UltraScanInfo::removeCompletedHosts() {
-  std::list<HostScanStats *>::iterator hostI, nxt;
+  std::set<HostScanStats *>::iterator hostI, nxt;
   HostScanStats *hss = NULL;
   int hostsRemoved = 0;
   bool timedout = false;
@@ -1236,7 +1246,7 @@ int UltraScanInfo::removeCompletedHosts() {
         }
       }
       hss->completiontime = now;
-      completedHosts.push_front(hss);
+      completedHosts.insert(hss);
       incompleteHosts.erase(hostI);
       hostsRemoved++;
       /* Consider making this host the new global ping host during its
@@ -1291,7 +1301,7 @@ int determineScanGroupSize(int hosts_scanned_so_far,
 
   groupsize = box(o.minHostGroupSz(), o.maxHostGroupSz(), groupsize);
 
-  if (o.max_ips_to_scan && (o.max_ips_to_scan - hosts_scanned_so_far) < groupsize)
+  if (o.max_ips_to_scan && (o.max_ips_to_scan - hosts_scanned_so_far) < (unsigned int)groupsize)
     // don't scan more randomly generated hosts than was specified
     groupsize = o.max_ips_to_scan - hosts_scanned_so_far;
 
@@ -1473,7 +1483,7 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
       pspec->pd.sctp.chunktype = SCTP_INIT;
       return 0;
     }
-    if (USI->ptech.rawprotoscan) {
+    if (USI->ptech.rawprotoscan && hss->next_protoportpingidx < USI->ports->proto_ping_count) {
       pspec->type = PS_PROTO;
       pspec->proto = USI->ports->proto_ping_ports[hss->next_protoportpingidx++];
       return 0;
@@ -2280,7 +2290,7 @@ static void sendGlobalPingProbe(UltraScanInfo *USI) {
 }
 
 static void doAnyPings(UltraScanInfo *USI) {
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   HostScanStats *hss = NULL;
 
   gettimeofday(&USI->now, NULL);
@@ -2355,7 +2365,7 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
 /* Go through the ProbeQueue of each host, identify any
    timed out probes, then try to retransmit them as appropriate */
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   std::list<UltraProbe *>::iterator probeI;
   /* A cache of the last processed probe from each host, to avoid re-examining a
      bunch of probes to find the next one that needs to be retransmitted. */
@@ -2435,8 +2445,7 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
 /* Print occasional remaining time estimates, as well as
    debugging information */
 static void printAnyStats(UltraScanInfo *USI) {
-
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
   struct ultra_timing_vals hosttm;
 
@@ -2506,7 +2515,7 @@ static void waitForResponses(UltraScanInfo *USI) {
 /* Go through the data structures, making appropriate changes (such as expiring
    probes, noting when hosts are complete, etc. */
 static void processData(UltraScanInfo *USI) {
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   std::list<UltraProbe *>::iterator probeI, nextProbeI;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;

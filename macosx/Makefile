@@ -35,6 +35,11 @@ JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
 PREFIX = /usr/local
 
+README_FILE = README.md
+COPYING_FILE = COPYING
+3RD_P_LIC_FILE = 3rd-party-licenses.txt
+LICENSES_FILE = licenses
+
 EXTRA_DIST = README.md ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
@@ -93,9 +98,25 @@ APR_STATIC = $(JHBUILD_PREFIX)/lib/libapr-1.a \
 $(JHBUILD_PREFIX)/lib/libaprutil-1.a \
 $(JHBUILD_PREFIX)/lib/libapriconv-1.a
 
+export ICON_SIZE=88
+export FONT_SIZE=13
+export MPKG_POS_X=110
+export MPKG_POS_Y=170
+export APPS_POS_X=110
+export APPS_POS_Y=310
+export README_POS_X=802
+export README_POS_Y=180
+export COPYING_POS_X=802
+export COPYING_POS_Y=310
+export THIRD_P_POS_X=802
+export THIRD_P_POS_Y=440
+export LICENSES_POS_X=670
+export LICENSES_POS_Y=60
+
 $(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
-	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
+	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	./check_test.sh $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
 
@@ -106,18 +127,18 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
 	# create packages
+	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location / nmap.pkg
 	pkgbuild --root $(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location / ncat.pkg
 	pkgbuild --root $(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location / ndiff.pkg
-	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location / nmap.pkg
 	pkgbuild --root $(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location / nping.pkg
 	pkgbuild --root $(NMAP_UPDATE_STAGING_DIR) --identifier org.insecure.nmap.nmap-update --version $(NMAP_VERSION) --install-location / nmap-update.pkg
 	pkgbuild --root $(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
 
 	# produce a .xml with packages informations
 	productbuild --synthesize \
+		--package 'nmap.pkg' \
 		--package 'ncat.pkg' \
 		--package 'ndiff.pkg' \
-		--package 'nmap.pkg' \
 		--package 'nping.pkg' \
 		--package 'nmap-update.pkg' \
 		--package 'zenmap.pkg' \
@@ -126,13 +147,15 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	# make a new file and add background and titles attributes
 	head -n 2 distribution.xml > finalDist.xml
 	echo "    <title>Nmap $(NMAP_VERSION)</title>" >> finalDist.xml
+	# This line is for adding a background image to the .mpkg, we'd need to copy to file to the dmg during createdmg.sh process first
+	echo "    <background file=\"pkg_bg.jpg\" mime-type=\"image/jpeg\" scaling=\"proportional\" alignment=\"bottomleft\"/>" >> finalDist.xml
 	tail -n +3 distribution.xml >> finalDist.xml
 
 	# build the .mpkg according to the final .xml file
 	productbuild --distribution finalDist.xml --resources . --package-path . $(NAME_VERSION).mpkg
 
 	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
-	rm -rf distribution.xml finalDist.xml ncat.pkg ndiff.pkg nmap.pkg nping.pkg nmap-update.pkg zenmap.pkg
+	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg nmap-update.pkg zenmap.pkg
 
 check-%: stage-%
 	if (find $* -perm -a+x -type f | xargs otool -L | grep -F "$(JHBUILD_PREFIX)"); then false; else echo "Libs are clean"; fi
