@@ -1,16 +1,13 @@
 local dns = require "dns"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local openssl = require "openssl"
-local base64 = require "base64"
 
 description = [[
 Queries a DNS server configured with DNSSEC and displays some parameters of a signed resource record.
 
 DNSSEC is mainly defined in RFC 4033,4034,4035. A DNSSEC configured server must
 reply with a signed resource record(RRSIG) for every RR. This script displays information
-about Algorithm used in signing the record, Inception and Expiration date of signature,
-Signer's name.
+about Algorithm used in signing the record, Inception and Expiration date of signature and signer's name.
 ]]
 
 ---
