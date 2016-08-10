@@ -654,15 +654,7 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
 struct HssPredicate {
 public:
   int operator() (HostScanStats *lhs, HostScanStats *rhs);
-};
-
-struct SockAddrPredicate {
-public:
-  SockAddrPredicate(struct sockaddr_storage *ss) {
-    this->ss = ss;
-  }
-  int operator() (HostScanStats *lhs, HostScanStats *rhs);
-  struct sockaddr_storage *ss;
+  static struct sockaddr_storage *ss;
 };
 
 class UltraScanInfo {

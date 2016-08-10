@@ -154,15 +154,12 @@ extern "C" int g_has_npcap_loopback;
 
 
 int HssPredicate::operator() (HostScanStats *lhs, HostScanStats *rhs) {
-  return 0 > sockaddr_storage_cmp(lhs->target->TargetSockAddr(), rhs->target->TargetSockAddr());
-}
-
-int SockAddrPredicate::operator() (HostScanStats *lhs, HostScanStats *rhs) {
   const struct sockaddr_storage *lss, *rss;
   lss = (lhs) ? lhs->target->TargetSockAddr() : ss;
   rss = (rhs) ? rhs->target->TargetSockAddr() : ss;
   return 0 > sockaddr_storage_cmp(lss, rss);
 }
+struct sockaddr_storage *HssPredicate::ss = NULL;
 
 void UltraScanInfo::log_overall_rates(int logt) {
   log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
@@ -1139,17 +1136,17 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
 HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
   std::set<HostScanStats *>::iterator hss;
 
-  SockAddrPredicate p(ss);
+  HssPredicate::ss = ss;
   HostScanStats *fakeHss = NULL;
 
-  hss = std::lower_bound(incompleteHosts.begin(), incompleteHosts.end(), fakeHss, p);
+  hss = incompleteHosts.find(fakeHss);
   if (hss != incompleteHosts.end()) {
     if (o.debugging > 2)
       log_write(LOG_STDOUT, "Found %s in incomplete hosts list.\n", (*hss)->target->targetipstr());
     return *hss;
   }
 
-  hss = std::lower_bound(completedHosts.begin(), completedHosts.end(), fakeHss, p);
+  hss = completedHosts.find(fakeHss);
   if (hss != completedHosts.end()) {
     if (o.debugging > 2)
       log_write(LOG_STDOUT, "Found %s in completed hosts list.\n", (*hss)->target->targetipstr());
