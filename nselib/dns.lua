@@ -61,7 +61,9 @@ types = {
   SRV = 33,
   OPT = 41,
   SSHFP = 44,
+  RRSIG = 46,
   NSEC = 47,
+  DNSKEY = 48,
   NSEC3 = 50,
   AXFR = 252,
   ANY = 255
@@ -1317,9 +1319,9 @@ local function decodeRR(data, count, pos)
     pos, currRR.dtype, currRR.class, currRR.ttl = bin.unpack(">SSI", data, pos)
 
     local reslen
-    pos, reslen = bin.unpack(">S", data, pos)
+    pos, currRR.reslen = bin.unpack(">S", data, pos)
 
-    pos, currRR.data = bin.unpack("A" .. reslen, data, pos)
+    pos, currRR.data = bin.unpack("A" .. currRR.reslen, data, pos)
 
     -- try to be smart: decode per type
     if decoder[currRR.dtype] then
