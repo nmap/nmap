@@ -1,5 +1,5 @@
 # Extract the version string from nping.h.
-export NPING_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NPING_VERSION' nping.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+export NPING_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NPING_VERSION' @srcdir@/nping.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NPING_NAME= Nping
 NPING_URL= https://nmap.org/nping
 NPING_PLATFORM=@host@
@@ -18,8 +18,8 @@ NPINGWININSTDIR=mswin32/nsis
 export RELEASE_DATE := $(shell date +"%b %d, %Y")
 
 
-export NBASEDIR=../nbase
-export NSOCKDIR=../nsock
+export NBASEDIR=${srcdir}/../nbase
+export NSOCKDIR=${srcdir}/../nsock
 
 export NDIR=$(shell pwd)
 
@@ -49,7 +49,7 @@ export CFLAGS = $(CXXFLAGS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
 OPENSSL_LIBS = @OPENSSL_LIBS@
-LIBS =  $(NSOCKDIR)/src/libnsock.a $(NBASEDIR)/libnbase.a ../libnetutil/libnetutil.a $(OPENSSL_LIBS) @LIBPCAP_LIBS@ @LIBDNET_LIBS@ @LIBS@
+LIBS =  $(NSOCKDIR)/src/libnsock.a $(NBASEDIR)/libnbase.a ${srcdir}/../libnetutil/libnetutil.a $(OPENSSL_LIBS) @LIBPCAP_LIBS@ @LIBDNET_LIBS@ @LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 INSTALL = @INSTALL@
@@ -65,9 +65,9 @@ DESTDIR =
 TARGET = nping
 
 
-export SRCS = ArgParser.cc common.cc common_modified.cc nping.cc NpingOps.cc utils.cc utils_net.cc output.cc stats.cc NpingTargets.cc NpingTarget.cc EchoHeader.cc EchoServer.cc EchoClient.cc ProbeMode.cc NEPContext.cc Crypto.cc
+export SRCS = ${srcdir}/ArgParser.cc ${srcdir}/common.cc ${srcdir}/common_modified.cc ${srcdir}/nping.cc ${srcdir}/NpingOps.cc ${srcdir}/utils.cc ${srcdir}/utils_net.cc ${srcdir}/output.cc ${srcdir}/stats.cc ${srcdir}/NpingTargets.cc ${srcdir}/NpingTarget.cc ${srcdir}/EchoHeader.cc ${srcdir}/EchoServer.cc ${srcdir}/EchoClient.cc ${srcdir}/ProbeMode.cc ${srcdir}/NEPContext.cc ${srcdir}/Crypto.cc
 
-export HDRS = ArgParser.h nping_config.h common.h common_modified.h nping.h NpingOps.h global_structures.h output.h utils.h utils_net.h stats.h NpingTargets.h NpingTarget.h EchoHeader.h EchoServer.h EchoClient.h ProbeMode.h NEPContext.h Crypto.h
+export HDRS = ${srcdir}/ArgParser.h ${srcdir}/nping_config.h ${srcdir}/common.h ${srcdir}/common_modified.h ${srcdir}/nping.h ${srcdir}/NpingOps.h ${srcdir}/global_structures.h ${srcdir}/output.h ${srcdir}/utils.h ${srcdir}/utils_net.h ${srcdir}/stats.h ${srcdir}/NpingTargets.h ${srcdir}/NpingTarget.h ${srcdir}/EchoHeader.h ${srcdir}/EchoServer.h ${srcdir}/EchoClient.h ${srcdir}/ProbeMode.h ${srcdir}/NEPContext.h ${srcdir}/Crypto.h
 
 OBJS = ArgParser.o common.o common_modified.o nping.o NpingOps.o utils.o utils_net.o output.o stats.o NpingTargets.o NpingTarget.o EchoHeader.o EchoServer.o EchoClient.o ProbeMode.o NEPContext.o Crypto.o
 
@@ -76,14 +76,13 @@ export DOCS2DIST = leet-nping-ascii-art.txt nping.1 nping-man.html
 export MISC2DIST = config.guess config.sub configure configure.ac Makefile.in TODO nping_config.h.in CHANGELOG COPYING
 
 
-# %.o : %.cc -- nope this is a GNU extension
-.cc.o:
+%.o: $(srcdir)/%.cc
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all:
 	$(MAKE) $(TARGET)
 
-$(TARGET): $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a ../libnetutil/libnetutil.a $(OBJS)
+$(TARGET): $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a ${srcdir}/../libnetutil/libnetutil.a $(OBJS)
 	@echo Compiling nping
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -129,7 +128,7 @@ install-nping: $(TARGET)
 # Use strip -x to avoid stripping dynamically loaded NSE functions. See
 # http://seclists.org/nmap-dev/2007/q4/0272.html.
 	$(STRIP) -x $(DESTDIR)$(bindir)/nping
-	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/
+	$(INSTALL) -c -m 644 ${srcdir}/docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/
 
 
 
@@ -142,7 +141,7 @@ uninstall-nping:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
 	rm -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
 
-${srcdir}/configure: configure.ac 
+${srcdir}/configure: ${srcdir}/configure.ac 
 	cd ${srcdir} && autoconf
 
 ## autoheader might not change config.h.in, so touch a stamp file.
@@ -156,10 +155,10 @@ ${srcdir}/configure: configure.ac
 #stamp-h: config.h.in config.status
 #	./config.status
 
-Makefile: Makefile.in config.status
+Makefile: ${srcdir}/Makefile.in config.status
 	./config.status
 
-config.status: configure
+config.status: ${srcdir}/configure
 	./config.status --recheck
 
 makefile.dep:

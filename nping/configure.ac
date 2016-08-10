@@ -2,7 +2,7 @@
 AC_PREREQ(2.13)
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(nping.cc)
+AC_INIT(${srcdir}/nping.cc)
 
 m4_include([../acinclude.m4])
 
@@ -28,14 +28,14 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
-libpcapdir=../libpcap
+libpcapdir=${srcdir}/../libpcap
 AC_SUBST(libpcapdir)
 
-pcredir=libpcre
+pcredir=${srcdir}/libpcre
 AC_SUBST(pcredir)
 
 dnl use nping_config.h instead of -D macros
-AC_CONFIG_HEADER(nping_config.h)
+AC_CONFIG_HEADER(${srcdir}/nping_config.h)
 
 dnl Host specific hacks
 AC_CANONICAL_HOST
@@ -272,7 +272,7 @@ fi
 
 have_dnet=no
 requested_included_dnet=no
-LIBDNETDIR=../libdnet-stripped
+LIBDNETDIR=${srcdir}/../libdnet-stripped
 
 # First we test whether they specified libdnet explicitly.
 # Unlike the other included libraries (pcap, pcre, lua), we prefer our local
@@ -539,18 +539,13 @@ case "$host" in
 esac
 
 
-
-
-
-
-
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strerror)
 #RECVFROM_ARG6_TYPE
 
 AC_OUTPUT(Makefile)
 # Some ASCII ART#!#@$!@#$
-if test -f docs/leet-nping-ascii-art.txt; then
-	cat docs/leet-nping-ascii-art.txt
+if test -f ${srcdir}/docs/leet-nping-ascii-art.txt; then
+	cat ${srcdir}/docs/leet-nping-ascii-art.txt
 fi
 echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."
