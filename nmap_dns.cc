@@ -255,8 +255,8 @@ static int read_timeouts[][4] = {
 
 // The amount of time we wait for nsock_write() to complete before
 // retransmission. This should almost never happen. (in milliseconds)
-#define WRITE_TIMEOUT 100
-
+#define WRITE_TIMEOUT 1000
+#define CONNECT_TIMEOUT 1000
 
 //------------------- Internal Structures ---------------------
 
@@ -275,6 +275,7 @@ struct dns_server {
   int write_busy;
   std::list<request *> to_process;
   std::list<request *> in_process;
+  bool proto_TCP;
 };
 
 struct request {
@@ -285,6 +286,7 @@ struct request {
   dns_server *first_server;
   dns_server *curr_server;
   u16 id;
+  bool isTCP;
 };
 
 /*keeps record of a request going through a particular DNS server
@@ -430,7 +432,6 @@ static std::list<request *> deferred_reqs;
 static std::map<u16, info> records;
 static int total_reqs;
 static nsock_pool dnspool=NULL;
-
 /* The DNS cache, not just for entries from /etc/hosts. */
 static HostCache host_cache;
 
@@ -445,6 +446,8 @@ static ScanProgressMeter *SPM;
 //------------------- Prototypes and macros ---------------------
 static void read_evt_handler(nsock_pool, nsock_event, void *);
 static void put_dns_packet_on_wire(request *req);
+static void tcp_fallback(nsock_iod, request *req);
+static void read_evt_handler(nsock_pool, nsock_event, void *);
 
 #define ACTION_FINISHED 0
 #define ACTION_SYSTEM_RESOLVE 1
@@ -490,7 +493,6 @@ static void close_dns_servers() {
 static void do_possible_writes() {
   std::list<dns_server>::iterator servI;
   request *tpreq;
-
   for(servI = servs.begin(); servI != servs.end(); servI++) {
     if (servI->write_busy == 0 && servI->reqs_on_wire < servI->capacity) {
       tpreq = NULL;
@@ -509,6 +511,7 @@ static void do_possible_writes() {
            log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , servI->hostname.c_str());
         stat_trans++;
         put_dns_packet_on_wire(tpreq);
+        nsock_read(dnspool, servI->nsd, read_evt_handler, -1, tpreq);
       }
     }
   }
@@ -518,7 +521,6 @@ static void do_possible_writes() {
 static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   info record;
   request *req = (request *) req_v;
-
   req->curr_server->write_busy = 0;
 
   req->curr_server->in_process.push_front(req);
@@ -527,6 +529,15 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   records[req->id] = record;
 
   do_possible_writes();
+}
+
+// nsock connect handler - Empty because it doesn't really need to do anything...
+static void connect_evt_handler(nsock_pool dnsp, nsock_event nse, void *server) {
+  enum nse_status status = nse_status(nse);
+  enum nse_type type = nse_type(nse);
+  if ( status == NSE_STATUS_SUCCESS && type == NSE_TYPE_CONNECT ){
+    ((dns_server *)server)->connected = 1;
+  }
 }
 
 // Takes a DNS request structure and actually puts it on the wire
@@ -538,19 +549,21 @@ static void put_dns_packet_on_wire(request *req) {
   size_t plen=0;
 
   struct timeval now, timeout;
-
   req->id = DNS::Factory::progressiveId;
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
 
   plen = DNS::Factory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
+  if (req->isTCP){
+    memmove(packet+2, packet, plen);
+    plen = DNS::Factory::appendLength(plen, packet, maxlen);
+  }
 
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
   TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
   memcpy(&req->timeout, &timeout, sizeof(struct timeval));
 
   req->tries++;
-
   nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, reinterpret_cast<const char *>(packet), plen);
 }
 
@@ -700,12 +713,14 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
-static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
+static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *req) {
+
   u8 *buf;
   int buflen;
 
-  if (total_reqs >= 1)
-    nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
+  if (total_reqs >= 1){
+    nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, req);
+  }
 
   if (nse_type(evt) != NSE_TYPE_READ || nse_status(evt) != NSE_STATUS_SUCCESS) {
     if (o.debugging)
@@ -714,10 +729,13 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
         nse_status2str(nse_status(evt)), __func__);
     return;
   }
-
   buf = (unsigned char *) nse_readbuf(evt, &buflen);
 
   DNS::Packet p;
+  //We need to protocol before parsing
+  p.isTCP = p.checkTCP(buf, buflen);
+  buflen -= 2*(p.isTCP);
+
   size_t readed_bytes = p.parseFromBuffer(buf, buflen);
   if(readed_bytes < DNS::DATA) return;
 
@@ -756,6 +774,13 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
+  // If there are no errors and no answer stop processing the event
+  if(p.answers.empty()){
+    //TRUNCATED bit in the flag denotes truncated reply by the server
+    if (DNS_HAS_FLAG(f, DNS::TRUNCATED))
+      tcp_fallback(nse_iod(evt), (request *)req);
+    return;
+  }
   bool processing_successful = false;
 
   sockaddr_storage ip;
@@ -843,10 +868,6 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 }
 
 
-// nsock connect handler - Empty because it doesn't really need to do anything...
-static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
-
-
 // Adds DNS servers to the dns_server list. They can be separated by
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
@@ -870,6 +891,7 @@ static void add_dns_server(char *ipaddrs) {
     if (servI == servs.end()) {
       dns_server tpserv;
 
+      tpserv.proto_TCP = false;
       tpserv.hostname = hostname;
       memcpy(&tpserv.addr, &addr, sizeof(addr));
       tpserv.addr_len = addr_len;
@@ -881,6 +903,57 @@ static void add_dns_server(char *ipaddrs) {
 
   }
 
+}
+
+static void tcp_fallback(nsock_iod nsd, request *req){
+
+  std::list<dns_server>::iterator serverI; 
+
+  req->curr_server->in_process.remove(req);
+  req->curr_server->reqs_on_wire--;
+  req->isTCP = true;
+
+  for(serverI = servs.begin(); serverI != servs.end(); serverI++){
+    if ( req->curr_server->hostname == serverI->hostname && serverI->proto_TCP == true){
+      serverI->to_process.push_back(req);
+      req->curr_server = &*serverI;
+      break;
+    }
+  }
+
+  //If there isn't any tcp connection to current dns server then create a new one
+  if (serverI == servs.end()){
+    dns_server tempserv, *tcpserv;
+
+    tempserv.proto_TCP = true;
+    tempserv.hostname = req->curr_server->hostname;
+    memcpy(&tempserv.addr, &(req->curr_server->addr), sizeof(req->curr_server->addr));
+    tempserv.addr_len = req->curr_server->addr_len;
+
+    //since the scope of tempserv is this function itself
+    servs.push_front(tempserv);
+
+    tcpserv = &servs.front();
+
+    tcpserv->nsd = nsock_iod_new(dnspool, NULL);
+    if (o.spoofsource) {
+      struct sockaddr_storage ss;
+      size_t sslen;
+      o.SourceSockAddr(&ss, &sslen);
+      nsock_iod_set_localaddr(tcpserv->nsd, &ss, sslen);
+    }
+    if (o.ipoptionslen)
+      nsock_iod_set_ipoptions(tcpserv->nsd, o.ipoptions, o.ipoptionslen);
+    tcpserv->reqs_on_wire = 0;
+    tcpserv->capacity = CAPACITY_MIN;
+    tcpserv->write_busy = 0;
+
+    tcpserv->to_process.push_back(req);
+    req->curr_server = tcpserv;
+
+    nsock_connect_tcp(dnspool, tcpserv->nsd, connect_evt_handler, CONNECT_TIMEOUT, tcpserv, (struct sockaddr *) &tcpserv->addr, tcpserv->addr_len, 53);
+    tcpserv->connected = 1;
+  }
 }
 
 // Creates a new nsi for each DNS server
@@ -900,13 +973,9 @@ static void connect_dns_servers() {
     serverI->capacity = CAPACITY_MIN;
     serverI->write_busy = 0;
 
-    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, NULL, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
-    nsock_read(dnspool, serverI->nsd, read_evt_handler, -1, NULL);
-    serverI->connected = 1;
+    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, &*serverI, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
   }
-
 }
-
 
 #ifdef WIN32
 static bool interface_is_known_by_guid(const char *guid) {
@@ -1015,7 +1084,6 @@ static void parse_resolvdotconf() {
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;
-
     // Clip off comments #, \r, \n
     while (*tp != '\r' && *tp != '\n' && *tp != '#' && *tp) tp++;
     *tp = '\0';
@@ -1098,7 +1166,6 @@ static void etchosts_init(void) {
  * This function caches the results from the first time it is run. */
 static void init_servs(void) {
   static bool initialized = false;
-
   if (initialized)
     return;
 
@@ -1165,6 +1232,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     tpreq->targ = *hostI;
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
+    tpreq->isTCP = false;
 
     new_reqs.push_back(tpreq);
 
@@ -1203,7 +1271,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
     if (total_reqs <= 0) break;
 
-    /* Because this can change with runtime interaction */
+    // Because this can change with runtime interaction 
     nmap_adjust_loglevel(o.packetTrace());
 
     nsock_loop(dnspool, timeout);
@@ -1454,7 +1522,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 
 size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)
 {
-  size_t ret=0 , tmp=0;
+  size_t ret=0, tmp=0;
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(progressiveId++, buf, ID, maxlen)); // Postincrement inmportant here
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS_OFFSET, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(1, buf, QDCOUNT, maxlen));
@@ -1464,8 +1532,14 @@ size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt,
   DNS_CHECK_ACCUMLATE(ret, tmp, putDomainName(name, buf, DATA, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(rt, buf, ret, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(CLASS_IN, buf, ret, maxlen));
-
   return ret;
+}
+
+size_t DNS::Factory::appendLength(u16 length, u8 *buf, size_t maxlen) //Note this is length of the packet not maximum length
+{
+  size_t ret=0, tmp=0;
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(length, buf, LENGTH, maxlen));
+  return length+2;
 }
 
 size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen)
@@ -1479,13 +1553,13 @@ size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, u8 *buf, si
 size_t DNS::Factory::putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t max_access = offset+1;
+  
   if(buf && (maxlen > max_access))
   {
     buf[offset] = (num >> 8) & 0xFF;
     buf[max_access] = num & 0xFF;
     return 2;
   }
-
   return 0;
 }
 
@@ -1614,7 +1688,6 @@ size_t DNS::Query::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
 size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
-
   if (buf && ((maxlen - offset) > 7))
   {
     size_t tmp;
@@ -1623,9 +1696,7 @@ size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
     DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(record_class, buf, offset+ret, maxlen));
     DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(ttl, buf, offset+ret, maxlen));
     DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(length, buf, offset+ret, maxlen));
-
     DNS_CHECK_UPPER_BOUND(offset+ret+length, maxlen);
-
     switch(record_type)
     {
     case A:
@@ -1649,7 +1720,6 @@ size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
 
     DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
   }
-
   return ret;
 }
 
@@ -1664,20 +1734,19 @@ DNS::Answer& DNS::Answer::operator=(const Answer &r)
   return *this;
 }
 
-size_t DNS::Packet::parseFromBuffer(const u8 *buf, size_t maxlen)
+size_t DNS::Packet::parseFromBuffer(u8 *buf, size_t maxlen)
 {
   if( !buf || maxlen < DATA) return 0;
-
+  if(isTCP)
+    memmove(buf, buf+2, maxlen);
   size_t tmp, ret = 0;
-  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(id, buf, ID, maxlen));
-  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(flags, buf, FLAGS_OFFSET, maxlen));
-
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(id, buf,  ID, maxlen));
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(flags, buf,  FLAGS_OFFSET, maxlen));
   u16 queries_counter, answers_counter, authorities_counter, additionals_counter;
   DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(queries_counter, buf, QDCOUNT, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(answers_counter, buf, ANCOUNT, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(authorities_counter, buf, NSCOUNT, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(additionals_counter, buf, ARCOUNT, maxlen));
-
   queries.clear();
   for(u16 i=0; i<queries_counter; ++i)
   {
@@ -1693,6 +1762,16 @@ size_t DNS::Packet::parseFromBuffer(const u8 *buf, size_t maxlen)
     DNS_CHECK_ACCUMLATE(ret, tmp, a.parseFromBuffer(buf, ret, maxlen));
     answers.push_back(a);
   };
-
   return ret;
+}
+
+//Check whether a connection is TCP by seeing 2 byte length field exists or not in the starting
+bool DNS::Packet::checkTCP(const u8 *buf, size_t buflen)
+{
+  if( !buf || buflen < DATA ) return 0;
+
+  size_t tmp, ret = 0;
+  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedShort(length, buf, LENGTH, buflen));
+
+  return (length+2) == buflen;
 }

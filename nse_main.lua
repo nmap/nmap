@@ -662,6 +662,45 @@ do
   Script.__index = Script;
 end
 
+local function get_script_name(tbl)
+  local o={}
+  for _, val in pairs(tbl) do
+    if type(val) == "string" then
+      table.insert(o,val)
+    end
+  end
+  return o
+end
+
+local function make_parser()
+  local script_file_name = C( (1-S'/=%:|\"<>.,')^1 )
+  local without_argument = P","^0
+  local parser = script_file_name * without_argument * ( script_file_name * without_argument )^0
+  parser=assert(Ct(parser))
+  return parser
+end
+
+local function assign_scripts()
+
+  if not cnse.script_expression then
+    return
+  end
+
+  local parser = make_parser()
+  local output = parser:match(cnse.script_expression)
+
+  --empty the rules table
+  for k in pairs (rules) do
+      rules[k] = nil
+  end
+
+  local scripts = get_script_name(output)
+  for index, val in pairs(scripts) do
+    rules[index] = val
+  end
+
+end
+
 -- check_rules(rules)
 -- Adds the "default" category if no rules were specified.
 -- Adds other implicitly specified rules (e.g. "version")
@@ -1249,6 +1288,7 @@ if script_database_update then
   log_write("stdout", "Script Database updated successfully.");
 end
 
+assign_scripts()
 -- Load all user chosen scripts
 local chosen_scripts = get_chosen_scripts(rules);
 print_verbose(1, "Loaded %d scripts for scanning.", #chosen_scripts);

@@ -137,7 +137,7 @@ namespace DNS
 {
 
 #define DNS_CHECK_ACCUMLATE(accumulator, tmp, exp) \
-  do { tmp = exp; if(tmp < 1) return 0 ; accumulator += tmp;} while(0)
+  do { tmp = exp; if(tmp < 1) return 0 ; accumulator += tmp; } while(0)
 
 #define DNS_CHECK_UPPER_BOUND(accumulator, max)\
   do { if(accumulator > max) return 0; } while(0)
@@ -148,6 +148,7 @@ namespace DNS
 
 typedef enum
 {
+  LENGTH = 0,
   ID = 0,
   FLAGS_OFFSET = 2,
   QDCOUNT = 4,
@@ -210,6 +211,7 @@ public:
   static size_t parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t appendLength(u16 num, u8 *buf, size_t maxlen);
 };
 
 class Record
@@ -294,8 +296,11 @@ public:
   void removeFlags(FLAGS fl){ flags &= ~fl; }
   void resetFlags() { flags = 0; }
   size_t writeToBuffer(u8 *buf, size_t maxlen);
-  size_t parseFromBuffer(const u8 *buf, size_t maxlen);
+  size_t parseFromBuffer(u8 *buf, size_t maxlen);
+  bool checkTCP(const u8 *buf, size_t buflen);
 
+  bool isTCP;
+  u16 length;
   u16 id;
   u16 flags;
   std::list<Query> queries;

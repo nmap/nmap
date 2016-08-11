@@ -138,11 +138,14 @@ int main()
   int ret = 0;
   std::string target = "scanme.nmap.org";
   DNS::RECORD_TYPE rt = DNS::A;
-  const size_t buflen = 1500;
+  size_t buflen = 1500;
   u8 buf[buflen];
   size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
   
   DNS::Packet p;
+
+  p.isTCP = p.checkTCP(buf, buflen);
+  buflen -= 2*(p.isTCP);
   size_t plen = p.parseFromBuffer(buf, buflen);
   TEST_INCR(reqlen == plen, ret);
 
@@ -154,8 +157,8 @@ int main()
 
   // This is a possible answere for an A query for scanme.nmap.org
   const char ipp[] = "45.33.32.156";
-  const size_t answere_len = 49;
-  const u8 answere_buf[] = { 0x92, 0xdc, // Trsnsaction ID
+  size_t answere_len = 49;
+  u8 answere_buf[] = { 0x92, 0xdc, // Trsnsaction ID
                        0x81, 0x80, // Flags
                        0x00, 0x01, // Questions count
                        0x00, 0x01, // Answers RRs count
@@ -177,6 +180,8 @@ int main()
                        0x00, 0x04, // Record Lenght
                        0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
 
+  p.isTCP = p.checkTCP(answere_buf, answere_len);
+  buflen -= 2*(p.isTCP);
   plen = p.parseFromBuffer(answere_buf, answere_len);
   TEST_INCR(answere_len == plen, ret);
 
@@ -200,7 +205,7 @@ int main()
   std::string ptr_target;
   TEST_INCR(DNS::Factory::ipToPtr(ar->value, ptr_target), ret);
   TEST_INCR(ptr_target == "156.32.33.45.in-addr.arpa", ret);
-  const u8 ptr_answere[] = { 0x08, 0xf2, // ID
+  u8 ptr_answere[] = { 0x08, 0xf2, // ID
                                0x81, 0x80, // Flags
                                0x00, 0x01, // Questions count
                                0x00, 0x01, // Answers RRs count
