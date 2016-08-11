@@ -41,8 +41,8 @@ sbindir = @sbindir@
 mandir = @mandir@
 srcdir = @srcdir@
 
-NBASEDIR = ../nbase
-NSOCKDIR = ../nsock/src
+NBASEDIR = ${srcdir}/../nbase
+NSOCKDIR = ${srcdir}/../nsock/src
 NSOCKLIB = $(NSOCKDIR)/libnsock.a
 NBASELIB = $(NBASEDIR)/libnbase.a
 
@@ -54,7 +54,7 @@ LIBS = @LIBS@
 DEFS = @DEFS@ -DNCAT_DATADIR="\"$(pkgdatadir)\""
 # With GCC, add extra security checks to source code.
 DEFS += -D_FORTIFY_SOURCE=2
-INCLS = -I. -I.. -I../nsock/include/ -I$(NBASEDIR)
+INCLS = -I$(srcdir)/. -I$(srcdir)/.. -I${srcdir}/../nsock/include/ -I$(NBASEDIR)
 RM = rm -f
 STRIP = @STRIP@
 OPENSSL_LIBS = @OPENSSL_LIBS@
@@ -67,27 +67,27 @@ LUA_CFLAGS = @LUA_CFLAGS@
 
 CPPFLAGS += $(DEFS) $(INCLS)
 
-SHTOOL = ../shtool
+SHTOOL = ${srcdir}/../shtool
 
 # DESTDIR can be used by package maintainers to install Ncat under its 
 # usual directory structure into a different tree.
 DESTDIR = 
 
-SRCS = ncat_main.c ncat_connect.c ncat_core.c ncat_posix.c ncat_listen.c ncat_proxy.c ncat_ssl.c base64.c http.c util.c sys_wrap.c
+SRCS = ${srcdir}/ncat_main.c ${srcdir}/ncat_connect.c ${srcdir}/ncat_core.c ${srcdir}/ncat_posix.c ${srcdir}/ncat_listen.c ${srcdir}/ncat_proxy.c ${srcdir}/ncat_ssl.c ${srcdir}/base64.c ${srcdir}/http.c ${srcdir}/util.c ${srcdir}/sys_wrap.c
 OBJS = ncat_main.o ncat_connect.o ncat_core.o ncat_posix.o ncat_listen.o ncat_proxy.o ncat_ssl.o base64.o http.o util.o sys_wrap.o
 DATAFILES =
 
 ifneq ($(HAVE_OPENSSL),)
-SRCS += http_digest.c
+SRCS += ${srcdir}/http_digest.c
 OBJS += http_digest.o
-DATAFILES = certs/ca-bundle.crt
+DATAFILES = ${srcdir}/certs/ca-bundle.crt
 endif
 
 ifneq ($(HAVE_LUA),)
-LUA_SRCS = ncat_lua.c
+LUA_SRCS = ${srcdir}/ncat_lua.c
 LUA_OBJS = ncat_lua.o
 LUA_LIBS = @LIBLUA_LIBS@ -lm
-LUA_CFLAGS += -DHAVE_LUA=1 -I../liblua
+LUA_CFLAGS += -DHAVE_LUA=1 -I${srcdir}/../liblua
 else
 LUA_SRCS =
 LUA_OBJS =
@@ -100,26 +100,28 @@ OBJS += $(LUA_OBJS)
 
 TARGET = ncat
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = config.h
+CONFIG_HEADER = ${srcdir}/config.h
 CONFIG_CLEAN_FILES = $(CONFIG_HEADER) config.cache config.log config.status
 
-TEST_PROGS = test/addrset test/test-uri test/test-cmdline-split
+TEST_PROGS = ${srcdir}/test/addrset ${srcdir}/test/test-uri ${srcdir}/test/test-cmdline-split
 ifneq ($(HAVE_OPENSSL),)
-TEST_PROGS += test/test-wildcard
+TEST_PROGS += ${srcdir}/test/test-wildcard
 endif
 
 all: $(TARGET)
 
-$(LIBLUADIR)/liblua.a: @LUA_BUILD@
+$(srcdir)/$(LIBLUADIR)/liblua.a: @LUA_BUILD@
 
 build-lua: $(LIBLUADIR)/Makefile
+	# We first clean the original ncat directory so that 'make' does not think that the sources have already been built
+	cd $(srcdir)/ && $(MAKE) clean
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) $(LUA_CFLAGS)"
 
 
 $(TARGET): @LUA_DEPENDS@ $(OBJS) $(NSOCKLIB)
 	$(CC) -o $@ $(CFLAGS) $(lua_cflags) $(LDFLAGS) $(OBJS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-%.o: %.c
+%.o: $(srcdir)/%.c $(srcdir)/%.h
 	$(CC) $(CPPFLAGS) $(LUA_CFLAGS) $(CFLAGS) -c $< -o $@
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -132,29 +134,29 @@ config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 $(srcdir)/configure: $(srcdir)/configure.ac $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && autoconf
 
-config.h:
+${srcdir}/config.h:
 	@if test ! -f config.h; then \
 		cd $(top_builddir) && CONFIG_FILES= CONFIG_HEADERS=config.h \
 		        $(SHELL) ./config.status; \
 	fi
 
-test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
+${srcdir}/test/addrset: ${srcdir}/test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
+${srcdir}/test/test-uri: ${srcdir}/test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o $(LUA_OBJS) @LUA_DEPENDS@
+${srcdir}/test/test-cmdline-split: ${srcdir}/test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
+${srcdir}/test/test-wildcard: ${srcdir}/test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
 .PHONY: uninstall all clean distclean build-lua
 
-../libnetutil/libnetutil.a: ../libnetutil/Makefile
+${srcdir}/../libnetutil/libnetutil.a: ${srcdir}/../libnetutil/Makefile
 	@echo Compiling libnetutil;
-	cd ../libnetutil && $(MAKE)
+	cd ${srcdir}/../libnetutil && $(MAKE)
 
 $(NBASEDIR)/libnbase.a: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
@@ -173,7 +175,7 @@ install: $(TARGET)
 		$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(pkgdatadir); \
 		$(INSTALL) -c -m 644 $(DATAFILES) $(DESTDIR)$(pkgdatadir)/; \
 	fi
-	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/$(TARGET).1
+	$(INSTALL) -c -m 644 ${srcdir}/docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/$(TARGET).1
 
 uninstall:
 	@echo Uninstalling Ncat;
@@ -182,7 +184,7 @@ uninstall:
 	$(RM) -rf $(DESTDIR)$(pkgdatadir)/
 
 clean-ncat:
-	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS)
+	$(RM) -f *.o ${srcdir}/test/*.o $(TARGET) $(TEST_PROGS)
 
 clean: clean-ncat @LUA_CLEAN@
 
@@ -201,7 +203,7 @@ TESTS += ./test-wildcard
 endif
 
 check: $(TARGET) $(TEST_PROGS)
-	cd test && ($(addsuffix &&,$(TESTS)) echo "All tests passed.")
+	cd $(srcdir)/test && ($(addsuffix &&,$(TESTS)) echo "All tests passed.")
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
