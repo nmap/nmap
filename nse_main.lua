@@ -742,7 +742,6 @@ local function get_chosen_scripts (rules)
     end
   end
 
-
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
     local original_rule = rule;
@@ -1216,8 +1215,6 @@ do
   end
 
   args = concat(args, ",");
-  assign_scripts()
-
   if #args > 0 then
     print_debug(1, "Arguments parsed: %s", args);
     local function set (t, a, b)
@@ -1291,6 +1288,7 @@ if script_database_update then
   log_write("stdout", "Script Database updated successfully.");
 end
 
+assign_scripts()
 -- Load all user chosen scripts
 local chosen_scripts = get_chosen_scripts(rules);
 print_verbose(1, "Loaded %d scripts for scanning.", #chosen_scripts);
