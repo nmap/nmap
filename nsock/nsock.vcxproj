@@ -186,6 +186,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\engine_epoll.c" />
+	<ClCompile Include="src\engine_iocp.c" />
     <ClCompile Include="src\engine_kqueue.c" />
     <ClCompile Include="src\engine_poll.c" />
     <ClCompile Include="src\engine_select.c" />
@@ -197,6 +198,7 @@
     <ClCompile Include="src\nsock_core.c" />
     <ClCompile Include="src\nsock_engines.c" />
     <ClCompile Include="src\nsock_event.c" />
+	<ClCompile Include="src\nsock_iocp.c" />
     <ClCompile Include="src\nsock_iod.c" />
     <ClCompile Include="src\nsock_log.c" />
     <ClCompile Include="src\nsock_pcap.c" />
@@ -217,6 +219,7 @@
     <ClInclude Include="src\netutils.h" />
     <ClInclude Include="include\nsock.h" />
     <ClInclude Include="src\nsock_internal.h" />
+	<ClInclude Include="src\nsock_iocp.h" />
     <ClInclude Include="src\nsock_log.h" />
     <ClInclude Include="src\nsock_pcap.h" />
     <ClInclude Include="src\nsock_proxy.h" />

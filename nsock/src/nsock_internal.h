@@ -110,6 +110,8 @@
 
 /* ------------------- CONSTANTS ------------------- */
 
+#define READ_BUFFER_SZ 8192
+
 enum nsock_read_types {
   NSOCK_READLINES,
   NSOCK_READBYTES,
@@ -176,6 +178,11 @@ struct npool {
   gh_list_t free_iods;
   /* When an event is deleted, we stick it here for later reuse */
   gh_list_t free_events;
+  
+#if HAVE_IOCP
+  gh_list_t active_eovs;
+  gh_list_t free_eovs;
+#endif
 
   /* Number of events pending (total) on all lists */
   int events_pending;
@@ -360,6 +367,10 @@ struct nevent {
    * that other crap */
   unsigned int event_done: 1;
   unsigned int eof: 1;
+  
+#if HAVE_IOCP
+  struct extended_overlapped *eov;
+#endif
 };
 
 
@@ -500,6 +511,10 @@ static inline struct nevent *lnode_nevent(gh_lnode_t *lnode) {
 
 static inline struct nevent *lnode_nevent2(gh_lnode_t *lnode) {
   return container_of(lnode, struct nevent, nodeq_pcap);
+}
+
+static inline int engine_is_iocp(struct npool *nsp) {
+  return !strcmp(nsp->engine->name, "iocp");
 }
 
 #endif /* NSOCK_INTERNAL_H */

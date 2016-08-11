@@ -930,7 +930,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     }
   }
 
-  return 0;
+  return goodone;
 }
 
 /* Initiate libpcap or some other sniffer as appropriate to be able to catch

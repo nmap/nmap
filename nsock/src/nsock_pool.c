@@ -71,6 +71,10 @@
 #endif
 #include <signal.h>
 
+#if HAVE_IOCP
+#include "nsock_iocp.h"
+#endif
+
 
 extern struct timeval nsock_tod;
 
@@ -172,6 +176,11 @@ nsock_pool nsock_pool_new(void *userdata) {
   /* initialize caches */
   gh_list_init(&nsp->free_iods);
   gh_list_init(&nsp->free_events);
+  
+#if HAVE_IOCP
+  gh_list_init(&nsp->active_eovs);
+  gh_list_init(&nsp->free_eovs);
+#endif
 
   nsp->next_event_serial = 1;
 
@@ -278,10 +287,33 @@ void nsock_pool_delete(nsock_pool ms_pool) {
     nse = lnode_nevent(current);
     free(nse);
   }
+  
+#if HAVE_IOCP
+  struct extended_overlapped *eov;
+
+  while ((current = gh_list_pop(&nsp->active_eovs))) {
+    eov = container_of(current, struct extended_overlapped, nodeq);
+    if (eov->readbuf) {
+      free(eov->readbuf);
+      eov->readbuf = NULL;
+    }
+    free(eov);
+  }
+
+  while ((current = gh_list_pop(&nsp->free_eovs))) {
+    eov = container_of(current, struct extended_overlapped, nodeq);
+    free(eov);
+  }
+#endif
 
   gh_list_free(&nsp->active_iods);
   gh_list_free(&nsp->free_iods);
   gh_list_free(&nsp->free_events);
+  
+#if HAVE_IOCP
+  gh_list_free(&nsp->active_eovs);
+  gh_list_free(&nsp->free_eovs);
+#endif
 
   nsock_engine_destroy(nsp);
 

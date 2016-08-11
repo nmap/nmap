@@ -315,7 +315,12 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     data = ext->value->data;
+#else
+    ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
+    data = asn1_str->data;
+#endif
     /* Here we rely on the fact that the internal representation (the "i" in
        "i2d") for NID_subject_alt_name is STACK_OF(GENERAL_NAME). Converting it
        to a stack of CONF_VALUE with a i2v method is not satisfactory, because a
@@ -323,13 +328,27 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
        presence of null bytes. */
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
     if (method->it != NULL) {
+    #if OPENSSL_VERSION_NUMBER < 0x10100000L
         gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
             (const unsigned char **) &data,
             ext->value->length, ASN1_ITEM_ptr(method->it));
+    #else
+        ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
+        gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
+            (const unsigned char **) &data,
+            asn1_str_a->length, ASN1_ITEM_ptr(method->it));
+    #endif
     } else {
+    #if OPENSSL_VERSION_NUMBER < 0x10100000L
         gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
             (const unsigned char **) &data,
             ext->value->length);
+    #else
+        ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
+        gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
+            (const unsigned char **) &data,
+            asn1_str_b->length);
+    #endif
     }
 #else
     gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,

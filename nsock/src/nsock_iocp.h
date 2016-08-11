@@ -1,8 +1,5 @@
 /***************************************************************************
- * nsock_engines.c -- This contains the functions and definitions to       *
- * manage the list of available IO engines.  Each IO engine leverages a    *
- * specific IO notification function to wait for events.  Nsock will try   *
- * to use the most efficient engine for your system.                       *
+ * nsock_iocp.h -- Header for the overlapped operations in nsock_iocp.c.   *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
@@ -55,116 +52,66 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id$ */
-
-#ifdef HAVE_CONFIG_H
-#include "nsock_config.h"
-#endif
+#ifndef NSOCK_IOCP_H
+#define NSOCK_IOCP_H
 
 #include "nsock_internal.h"
+#ifdef HAVE_IOCP
 
-#if HAVE_IOCP
-  extern struct io_engine engine_iocp;
-  #define ENGINE_IOCP &engine_iocp,
-#else
-  #define ENGINE_IOCP
-#endif /* HAVE_IOCP */
+/*
+ * Engine specific data structure
+ */
+struct iocp_engine_info {
+  /* The handle to the Completion Port*/
+  HANDLE iocp;
 
-#if HAVE_EPOLL
-  extern struct io_engine engine_epoll;
-  #define ENGINE_EPOLL &engine_epoll,
-#else
-  #define ENGINE_EPOLL
-#endif /* HAVE_EPOLL */
+  /* We put the current eov to be processed here in order to be retrieved by nsock_core */
+  struct extended_overlapped *eov;
 
-#if HAVE_KQUEUE
-  extern struct io_engine engine_kqueue;
-  #define ENGINE_KQUEUE &engine_kqueue,
-#else
-  #define ENGINE_KQUEUE
-#endif /* HAVE_KQUEUE */
+  /* The overlapped_entry list used to retrieve completed packets from the port */
+  OVERLAPPED_ENTRY *eov_list;
+  unsigned long capacity;
 
-#if HAVE_POLL
-  extern struct io_engine engine_poll;
-  #define ENGINE_POLL &engine_poll,
-#else
-  #define ENGINE_POLL
-#endif /* HAVE_POLL */
-
-/* select() based engine is the fallback engine, we assume it's always available */
-extern struct io_engine engine_select;
-#define ENGINE_SELECT &engine_select,
-
-/* Available IO engines. This depends on which IO management interfaces are
- * available on your system. Engines must be sorted by order of preference */
-static struct io_engine *available_engines[] = {
-  ENGINE_EPOLL
-  ENGINE_KQUEUE
-  ENGINE_POLL
-  ENGINE_IOCP
-  ENGINE_SELECT
-  NULL
+  /* How many Completion Packets we actually retreieved */
+  unsigned long entries_removed;
 };
 
-static char *engine_hint;
+struct extended_overlapped {
+  /* Overlapped structure used for overlapped operations */
+  OVERLAPPED ov;
+
+  /* Did we get an error when we initiated the operation?
+  Put the error code here and post it to the main loop */
+  int err;
+
+  /* The event may have expired and was recycled, we can't trust
+  a pointer to the nevent structure to tell us the real nevent */
+  nsock_event_id nse_id;
+
+  /* A pointer to the event */
+  struct nevent *nse;
+
+  /* Needed for WSARecv/WSASend */
+  WSABUF wsabuf;
+
+  /* This is the buffer we will read data in */
+  char *readbuf;
+
+  /* The struct npool keeps track of EOVs that have been allocated so that it
+  * can destroy them if the msp is deleted.  This pointer makes it easy to
+  * remove this struct extended_overlapped from the allocated list when necessary */
+  gh_lnode_t nodeq;
+
+};
 
 
-struct io_engine *get_io_engine(void) {
-  struct io_engine *engine = NULL;
-  int i;
+void initiate_overlapped_event(struct npool *nsp, struct nevent *nse);
 
-  if (!engine_hint) {
-    engine = available_engines[0];
-  } else {
-    for (i = 0; available_engines[i] != NULL; i++)
-      if (strcmp(engine_hint, available_engines[i]->name) == 0) {
-        engine = available_engines[i];
-        break;
-      }
-  }
+void terminate_overlapped_event(struct npool *nsp, struct nevent *nse);
 
-  if (!engine)
-    fatal("No suitable IO engine found! (%s)\n",
-          engine_hint ? engine_hint : "no hint");
+int get_overlapped_result(struct niod *iod, struct nevent *nse, char *buf);
 
-  return engine;
-}
+void free_eov(struct npool *nsp, struct extended_overlapped *eov);
 
-int nsock_set_default_engine(char *engine) {
-  if (engine_hint)
-    free(engine_hint);
-
-  if (engine) {
-    int i;
-
-    for (i = 0; available_engines[i] != NULL; i++) {
-      if (strcmp(engine, available_engines[i]->name) == 0) {
-        engine_hint = strdup(engine);
-        return 0;
-      }
-    }
-    return -1;
-  }
-  /* having engine = NULL is fine. This is actually the
-   * way to tell nsock to use the default engine again. */
-  engine_hint = NULL;
-  return 0;
-}
-
-const char *nsock_list_engines(void) {
-  return
-#if HAVE_IOCP
-  "iocp "
-#endif
-#if HAVE_EPOLL
-  "epoll "
-#endif
-#if HAVE_KQUEUE
-  "kqueue "
-#endif
-#if HAVE_POLL
-  "poll "
-#endif
-  "select";
-}
-
+#endif /* HAVE_IOCP */
+#endif /* NSOCK_IOCP_H */
