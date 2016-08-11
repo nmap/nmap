@@ -1,66 +1,97 @@
 ---
 -- Bitwise operations on integers.
 --
--- Lua does not provide bitwise logical operations. Since they are often useful
--- for low-level network communication, Reuben Thomas' BitLib
--- (http://luaforge.net/projects/bitlib) for Lua has been integrated into NSE.
--- The arguments to the bitwise operation functions should be integers.  The
--- number of bits available for logical operations depends on the data type used
--- to represent Lua numbers. This is typically 8-byte IEEE floats (double),
--- which give 53 bits (the size of the mantissa).
+-- THIS LIBRARY IS DEPRECATED, Please use native Lua 5.3 bitwise operators.
 --
--- This implies that the bitwise operations won't work (as expected) for numbers
--- larger than 10^14. You can use them with 32-bit wide numbers without any
--- problems. Operations involving 64-bit wide numbers, however, may not return
--- the expected result.
---
--- The logical operations start with "b" to avoid
--- clashing with reserved words; although <code>xor</code> isn't a
--- reserved word, it seemed better to use <code>bxor</code> for
--- consistency.
---
--- @author Reuben Thomas
 -- @copyright BSD License
+-- @see https://www.lua.org/manual/5.3/manual.html#3.4.2
+-- @class module
+-- @name bit
 
-module "bit"
+local select = select
+
+local mininteger = require "math".mininteger
+
+local _ENV = {}
 
 --- Returns the one's complement of <code>a</code>.
 -- @param a Number.
 -- @return The one's complement of <code>a</code>.
 function bnot(a)
+    return ~a
+end
 
 --- Returns the bitwise and of all its arguments.
 -- @param ... A variable number of Numbers to and.
 -- @return The anded result.
-function band(...)
+function band(a, b, ...)
+    a = a & b
+    if select("#", ...) > 0 then
+        return band(a, ...)
+    else
+        return a
+    end
+end
 
 --- Returns the bitwise or of all its arguments.
 -- @param ... A variable number of Numbers to or.
 -- @return The ored result.
-function bor(...)
+function bor(a, b, ...)
+    a = a | b
+    if select("#", ...) > 0 then
+        return bor(a, ...)
+    else
+        return a
+    end
+end
 
 --- Returns the bitwise exclusive or of all its arguments.
 -- @param ... A variable number of Numbers to exclusive or.
 -- @return The exclusive ored result.
-function bxor(...)
+function bxor(a, b, ...)
+    a = a ~ b
+    if select("#", ...) > 0 then
+        return bxor(a, ...)
+    else
+        return a
+    end
+end
 
 --- Returns <code>a</code> left-shifted by <code>b</code> places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function lshift(a, b)
+    return a << b
+end
 
 --- Returns <code>a</code> right-shifted by <code>b</code> places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function rshift(a, b)
+    return a >> b
+end
 
 --- Returns <code>a</code> arithmetically right-shifted by <code>b</code>
 -- places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function arshift(a, b)
+    if a < 0 then
+        if a % 2 == 0 then -- even?
+            return a // (1<<b)
+        else
+            return a // (1<<b) + 1
+        end
+    else
+        return a >> b
+    end
+end
 
 --- Returns the integer remainder of <code>a</code> divided by <code>b</code>.
 -- @param a Dividend.
 -- @param b Divisor.
 function mod(a, b)
+    return a % b
+end
+
+return _ENV

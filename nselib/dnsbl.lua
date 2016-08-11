@@ -15,7 +15,7 @@
 -- ... formatting code ...
 -- </code>
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 local bit = require "bit"

@@ -17,7 +17,8 @@
 -- </code>
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author = "Brandon Enright, Patrik Karlsson"
+-- @author Brandon Enright
+-- @author Patrik Karlsson
 
 -- Version 0.2
 -- Revised 07/15/2011 - v0.2 - added the IMAP and Helper classes

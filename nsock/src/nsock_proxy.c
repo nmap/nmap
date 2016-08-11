@@ -139,6 +139,7 @@ void nsock_proxychain_delete(nsock_proxychain chain) {
 
 int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   struct npool *nsp = (struct npool *)nspool;
+  assert(nsp != NULL);
 
   if (nsp && nsp->px_chain) {
     nsock_log_error("Invalid call. Existing proxychain on this nsock_pool");

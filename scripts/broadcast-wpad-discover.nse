@@ -104,19 +104,25 @@ local function parseWPAD(wpad)
   return proxies
 end
 
-local function dnsDiscover()
+-- cache of all names we've already tried once. No point in wasting time.
+local wpad_dns_tried = {}
 
-  -- tries to discover WPAD for all domains and sub-domains
-  local function enumWPADNames(domain)
-    local d = domain
-    -- reduce domain until we only have a single dot left
-    -- there is a security problem in querying for wpad.tld like eg
-    -- wpad.com as this could be a rogue domain. This loop does not
-    -- account for domains with tld's containing two parts e.g. co.uk.
-    -- However, as the script just attempts to download and parse the
-    -- proxy values in the WPAD there should be no real harm here.
-    repeat
-      local name = ("wpad.%s"):format(d)
+-- tries to discover WPAD for all domains and sub-domains
+local function enumWPADNames(domain)
+  local d = domain
+  -- reduce domain until we only have a single dot left
+  -- there is a security problem in querying for wpad.tld like eg
+  -- wpad.com as this could be a rogue domain. This loop does not
+  -- account for domains with tld's containing two parts e.g. co.uk.
+  -- However, as the script just attempts to download and parse the
+  -- proxy values in the WPAD there should be no real harm here.
+  repeat
+    local name = ("wpad.%s"):format(d)
+    if wpad_dns_tried[name] then
+      -- We've been here before, stop.
+      d = nil
+    else
+      wpad_dns_tried[name] = true
       d = d:match("^[^%.]-%.(.*)$")
       local status, response = dns.query(name, { dtype = 'A', retAll = true })
 
@@ -124,10 +130,12 @@ local function dnsDiscover()
       if ( status and response[1] ) then
         return true, { name = name, ip = response[1] }
       end
-    until( not(d) or not(d:match("%.")) )
+    end
+  until not d
 
-  end
+end
 
+local function dnsDiscover()
   -- first try a domain if it was supplied
   if ( arg_domain ) then
     local status, response = enumWPADNames(arg_domain)
@@ -151,7 +159,7 @@ local function dnsDiscover()
           -- first get all unique domain names
           if ( not(name:match("in%-addr.arpa$")) ) then
             local domain = name:match("^[^%.]-%.(.*)$")
-            domains[domain] = true
+            domains[domain or ""] = true
           end
         end
 

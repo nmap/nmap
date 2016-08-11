@@ -47,7 +47,7 @@ determine if the fuzzing was successful.
 -- defaults to 310000
 --
 
-author = "Piotr Olma, Gioacchino Mazzurco"
+author = {"Piotr Olma", "Gioacchino Mazzurco"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 

@@ -4798,6 +4798,7 @@ unknown	6349/udp	0.000330
 adap	6350/tcp	0.000076	# App Discovery and Access Protocol
 unknown	6353/udp	0.000661
 unknown	6372/udp	0.000661
+redis	6379/tcp	0.000076
 unknown	6386/udp	0.000330
 clariion-evr01	6389/tcp	0.000380
 unknown	6395/udp	0.000661

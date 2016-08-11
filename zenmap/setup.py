@@ -604,7 +604,8 @@ if 'py2exe' in sys.argv:
             "includes": ["pango", "atk", "gobject", "gio", "pickle", "bz2",
                 "encodings", "encodings.*", "cairo", "pangocairo"],
             "dll_excludes": ["USP10.dll", "NSI.dll", "MSIMG32.dll",
-                "DNSAPI.dll"]
+                "DNSAPI.dll"],
+            "custom_boot_script": "install_scripts/windows/boot_script.py",
             }
         }
     }

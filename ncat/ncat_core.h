@@ -205,6 +205,7 @@ struct options {
     int sslverify;
     char *ssltrustfile;
     char *sslciphers;
+    int zerobyte;
 };
 
 extern struct options o;

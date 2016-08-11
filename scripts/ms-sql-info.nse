@@ -144,7 +144,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --               broadcast-ms-sql-discovery.nse <chris3E3@gmail.com>)
 -- rev 1.6 (2014-09-04 - Added structured output Daniel Miller)
 
-author = "Chris Woodbury, Thomas Buchanan"
+author = {"Chris Woodbury", "Thomas Buchanan"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

@@ -12,7 +12,7 @@ _ENV = stdnse.module("ajp", stdnse.seeall)
 -- A basic AJP 1.3 implementation based on documentation available from Apache
 -- mod_proxy_ajp; http://httpd.apache.org/docs/2.2/mod/mod_proxy_ajp.html
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 AJP = {

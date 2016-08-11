@@ -1,4 +1,4 @@
-Ncat 7.12SVN ( https://nmap.org/ncat )
+Ncat 7.25SVN ( https://nmap.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds. Append 'ms' for milliseconds,
@@ -28,6 +28,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --sctp                 Use SCTP instead of default TCP
   -v, --verbose              Set verbosity level (can be used several times)
   -w, --wait <time>          Connect timeout
+  -z                         Zero-I/O mode, report connection status only
       --append-output        Append rather than clobber specified output files
       --send-only            Only send data, ignoring received; quit on EOF
       --recv-only            Only receive data, never send anything

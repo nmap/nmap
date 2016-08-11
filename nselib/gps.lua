@@ -8,7 +8,7 @@ _ENV = stdnse.module("gps", stdnse.seeall)
 -- A smallish gps parsing module.
 -- Currently does GPRMC NMEA decoding
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 --
 

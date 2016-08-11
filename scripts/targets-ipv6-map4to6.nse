@@ -200,7 +200,7 @@ function prerule ()
   -- be sure to have everything for work the Mapped IPv4 to IPv6
   if IPv4Sub == nil then
     stdnse.verbose1( "There are no IPv4 addresses to map!\z
-    You must provide it using the %s.IPv4Hosts script-arg.")
+    You must provide it using the %s.IPv4Hosts script-arg.", SCRIPT_NAME)
     return false
   end
 

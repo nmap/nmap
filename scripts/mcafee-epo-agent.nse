@@ -18,7 +18,7 @@ Check if ePO agent is running on port 8081 or port identified as ePO Agent port.
 -- 8081/tcp  open  http    McAfee ePolicy Orchestrator Agent 4.5.0.1852 (ePOServerName: EPOSERVER, AgentGuid: D2E157F4-B917-4D31-BEF0-32074BADF081)
 -- Service Info: Host: TESTSERVER
 
-author = "Didier Stevens, Daniel Miller"
+author = {"Didier Stevens", "Daniel Miller"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

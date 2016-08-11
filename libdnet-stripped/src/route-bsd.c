@@ -168,7 +168,7 @@ route_msg(route_t *r, int type, char intf_name[INTF_NAME_LEN], struct addr *dst,
 				errno = ESRCH;
 				return (-1);
 			}
-			strlcpy(intf_name, namebuf, sizeof(intf_name));
+			strlcpy(intf_name, namebuf, INTF_NAME_LEN);
 		}
 	}
 	return (0);

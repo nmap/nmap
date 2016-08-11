@@ -32,7 +32,7 @@ See also:
 
 ---
 -- @usage
--- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0' -sP
+-- nmap -6 --script targets-ipv6-multicast-slaac --script-args 'newtargets,interface=eth0' -sP
 -- @output
 -- Pre-scan script results:
 -- | targets-ipv6-multicast-slaac:
@@ -40,7 +40,7 @@ See also:
 -- |_  Use --script-args=newtargets to add the results as targets
 -- @args targets-ipv6-multicast-slaac.interface  The interface to use for host discovery.
 
-author = "David Fifield, Xu Weilin"
+author = {"David Fifield", "Xu Weilin"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -60,7 +60,6 @@ end
 -- @return A 16-byte string of IPv6 address, and the length of the prefix.
 local function get_random_ula_prefix(local_scope)
   local ula_prefix
-  math.randomseed(os.time())
   local global_id = string.char(math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1,math.random(256)-1)
 
   if local_scope then

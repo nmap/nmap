@@ -687,36 +687,36 @@ int ProbeMode::createIPv4(IPv4Header *i, PacketElement *next_element, const char
  * class.
  * @return OP_SUCCESS on success and fatal()s in case of failure. */
 int ProbeMode::createIPv6(IPv6Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target){
- if( i==NULL || next_proto==NULL || target==NULL)
+  if( i==NULL || next_proto==NULL || target==NULL)
     nping_fatal(QT_3,"createIPv6(): NULL pointer supplied.");
 
-    /* Set datagram payload */
-    i->setNextElement( next_element );
+  /* Set datagram payload */
+  i->setNextElement( next_element );
 
-    i->setVersion();
-    i->setTrafficClass( o.getTrafficClass() );
-    i->setFlowLabel( o.getFlowLabel() );
-    i->setNextHeader(next_proto);
-    i->setPayloadLength();
-    i->setDestinationAddress( target->getIPv6Address_u8() );
+  i->setVersion();
+  i->setTrafficClass( o.getTrafficClass() );
+  i->setFlowLabel( o.getFlowLabel() );
+  i->setNextHeader(next_proto);
+  i->setPayloadLength();
+  i->setDestinationAddress( target->getIPv6Address_u8() );
 
-    /* Hop Limit */
-    if ( o.issetTraceroute() ){
-        i->setHopLimit( o.getCurrentRound() );
-    }else{
-        i->setHopLimit( o.getHopLimit() );
-    }
+  /* Hop Limit */
+  if ( o.issetTraceroute() ){
+    i->setHopLimit( o.getCurrentRound() );
+  }else{
+    i->setHopLimit( o.getHopLimit() );
+  }
 
-    /* Source IP */
-    if( o.issetIPv6SourceAddress() ){
-         i->setSourceAddress( o.getIPv6SourceAddress() );
-    }else{
-        if ( target->getIPv6SourceAddress_u8() != NULL )
-            i->setSourceAddress( target->getIPv6SourceAddress_u8() );
-        else
-            nping_fatal(QT_3, "createIPv6(): Cannot determine Source IPv6 Address");
-    }
-    return OP_SUCCESS;
+  /* Source IP */
+  if( o.issetIPv6SourceAddress() ){
+    i->setSourceAddress( o.getIPv6SourceAddress() );
+  }else{
+    if ( target->getIPv6SourceAddress_u8() != NULL )
+      i->setSourceAddress( target->getIPv6SourceAddress_u8() );
+    else
+      nping_fatal(QT_3, "createIPv6(): Cannot determine Source IPv6 Address");
+  }
+  return OP_SUCCESS;
 } /* End of createIPv6() */
 
 

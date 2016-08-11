@@ -1,4 +1,6 @@
 local bin = require "bin"
+local os = require "os"
+local datetime = require "datetime"
 local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -74,6 +76,7 @@ action = function(host, port)
   local opts = { header = { Authorization = "NTLM " .. auth_blob } }
 
   local response = http.get( host, port, root, opts )
+  local recvtime = os.time()
 
   -- Continue only if correct header (www-authenticate) and NTLM response are included
   if response.header["www-authenticate"] and string.match(response.header["www-authenticate"], "NTLM (.*)") then
@@ -83,6 +86,12 @@ action = function(host, port)
 
     -- Leverage smbauth.get_host_info_from_security_blob() for decoding
     local ntlm_decoded = smbauth.get_host_info_from_security_blob(data)
+
+    if ntlm_decoded.timestamp then
+      -- 64-bit number of 100ns clicks since 1/1/1601
+      local unixstamp = ntlm_decoded.timestamp // 10000000 - 11644473600
+      datetime.record_skew(host, unixstamp, recvtime)
+    end
 
     -- Target Name will always be returned under any implementation
     output.Target_Name = ntlm_decoded.target_realm

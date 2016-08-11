@@ -63,6 +63,8 @@ Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers.nse", categories = { "discovery", "safe", } }
+Entry { filename = "clamav-exec.nse", categories = { "exploit", "vuln", } }
+Entry { filename = "clock-skew.nse", categories = { "default", "safe", } }
 Entry { filename = "couchdb-databases.nse", categories = { "discovery", "safe", } }
 Entry { filename = "couchdb-stats.nse", categories = { "discovery", "safe", } }
 Entry { filename = "creds-summary.nse", categories = { "auth", "default", "safe", } }
@@ -140,6 +142,7 @@ Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-apache-server-status.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-aspnet-debug.nse", categories = { "discovery", "vuln", } }
 Entry { filename = "http-auth-finder.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "http-avaya-ipoffice-users.nse", categories = { "exploit", "vuln", } }
@@ -186,11 +189,13 @@ Entry { filename = "http-icloud-findmyiphone.nse", categories = { "discovery", "
 Entry { filename = "http-icloud-sendmsg.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-iis-short-name-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-internal-ip-disclosure.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-joomla-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-litespeed-sourcecode-download.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-ls.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-majordomo2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
+Entry { filename = "http-mcmp.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-method-tamper.nse", categories = { "auth", "vuln", } }
 Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "http-mobileversion-checker.nse", categories = { "discovery", "safe", } }
@@ -479,6 +484,7 @@ Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "e
 Entry { filename = "ssl-heartbleed.nse", categories = { "safe", "vuln", } }
 Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
 Entry { filename = "ssl-poodle.nse", categories = { "safe", "vuln", } }
+Entry { filename = "sslv2-drown.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "sstp-discover.nse", categories = { "default", "discovery", } }
 Entry { filename = "stun-info.nse", categories = { "discovery", "safe", } }

@@ -60,7 +60,7 @@ The script uses several technique:
 -- 08/2010:
 --   * Added Poison NULL Byte tests
 
-author = "Kris Katterjohn, Ange Gutek"
+author = {"Kris Katterjohn", "Ange Gutek"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

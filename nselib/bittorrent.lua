@@ -19,7 +19,7 @@
 -- After these operations the peers and nodes can be found in <code>torrent.peers</code> and
 -- <code>torrent.nodes</code> tables respectively
 --
--- @author "Gorjan Petrovski"
+-- @author Gorjan Petrovski
 -- @license "Same as Nmap--See https://nmap.org/book/man-legal.html"
 --
 
@@ -635,7 +635,8 @@ Torrent =
     local file = io.open(filename, "r")
     if not file then return false, "Cannot open file: "..filename end
 
-    self.buffer = file:read("*a")
+    self.buffer = file:read("a")
+    file:close()
 
     local status, err = self:parse_buffer()
     if not status then
@@ -658,7 +659,6 @@ Torrent =
       return false, "Could not calculate torrent size: " .. err
     end
 
-    file:close()
     return true
   end,
 
@@ -1156,7 +1156,7 @@ Torrent =
     end
 
     -- the action in the response has to be 0 too
-    if not r_action == "00000000" then
+    if r_action ~= "00000000" then
       return false, "Wrong action field, usually caused by an erroneous request"
     end
 

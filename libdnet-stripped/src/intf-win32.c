@@ -25,6 +25,8 @@
 #include <Packet32.h>
 #include <Ntddndis.h>
 
+int g_has_npcap_loopback = 0;
+
 struct ifcombo {
 	struct {
 		DWORD	ipv4;
@@ -210,6 +212,98 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	entry->intf_len = (u_int) ((u_char *)ap - (u_char *)entry);
 }
 
+#ifdef _X86_
+#define NPCAP_SOFTWARE_REGISTRY_KEY "SOFTWARE\\Npcap"
+#else // AMD64
+#define NPCAP_SOFTWARE_REGISTRY_KEY "SOFTWARE\\Wow6432Node\\Npcap"
+#endif
+
+int intf_get_loopback_name(char *buffer, int buf_size)
+{
+	HKEY hKey;
+	DWORD type;
+	int size = buf_size;
+	int res = 0;
+
+	memset(buffer, 0, buf_size);
+
+#ifndef _X86_
+	Wow64EnableWow64FsRedirection(FALSE);
+#endif
+
+	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NPCAP_SOFTWARE_REGISTRY_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	{
+		if (RegQueryValueExA(hKey, "LoopbackAdapter", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
+		{
+			res = 1;
+		}
+		else
+		{
+			res = 0;
+		}
+
+		RegCloseKey(hKey);
+	}
+	else
+	{
+		res = 0;
+	}
+
+#ifndef _X86_
+	Wow64EnableWow64FsRedirection(TRUE);
+#endif
+
+	return res;
+}
+
+static IP_ADAPTER_ADDRESSES*
+_update_tables_for_npcap_loopback(IP_ADAPTER_ADDRESSES *p)
+{
+	IP_ADAPTER_ADDRESSES *a_prev = NULL;
+	IP_ADAPTER_ADDRESSES *a;
+	IP_ADAPTER_ADDRESSES *a_original_loopback_prev = NULL;
+	IP_ADAPTER_ADDRESSES *a_original_loopback = NULL;
+	IP_ADAPTER_ADDRESSES *a_npcap_loopback = NULL;
+	char npcap_loopback_name[1024];
+	int has_npcap_loopback = 0;
+
+	g_has_npcap_loopback = has_npcap_loopback = intf_get_loopback_name(npcap_loopback_name, 1024);
+	if (has_npcap_loopback == 0)
+		return p;
+
+	if (!p)
+		return p;
+
+	for (a = p; a != NULL; a = a->Next) {
+		if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK) {
+			a_original_loopback = a;
+			a_original_loopback_prev = a_prev;
+		}
+		else if (strcmp(a->AdapterName, npcap_loopback_name + strlen("\\Device\\")) == 0) {
+			a_npcap_loopback = a;
+		}
+		a_prev = a;
+	}
+
+	if (!a_original_loopback || !a_npcap_loopback)
+		return p;
+
+	a_npcap_loopback->IfType = a_original_loopback->IfType;
+	a_npcap_loopback->FirstUnicastAddress = a_original_loopback->FirstUnicastAddress;
+	a_npcap_loopback->FirstPrefix = a_original_loopback->FirstPrefix;
+	memset(a_npcap_loopback->PhysicalAddress, 0, ETH_ADDR_LEN);
+	if (a_original_loopback_prev) {
+		a_original_loopback_prev->Next = a_original_loopback_prev->Next->Next;
+		return p;
+	}
+	else if (a_original_loopback == p) {
+		return a_original_loopback->Next;
+	}
+	else {
+		return p;
+	}
+}
+
 static int
 _refresh_tables(intf_t *intf)
 {
@@ -245,6 +339,7 @@ _refresh_tables(intf_t *intf)
 		free(p);
 		return (-1);
 	}
+	p = _update_tables_for_npcap_loopback(p);
 	intf->iftable = p;
 
 	/*
