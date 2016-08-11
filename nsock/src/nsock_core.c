@@ -86,10 +86,6 @@
 #include "nsock_pcap.h"
 #endif
 
-#if HAVE_IOCP
-#include "nsock_iocp.h"
-#endif
-
 
 /* Nsock time of day -- we update this at least once per nsock_loop round (and
  * after most calls that are likely to block).  Other nsock files should grab
@@ -291,12 +287,6 @@ static int iod_add_event(struct niod *iod, struct nevent *nse) {
     default:
       fatal("Unknown event type (%d) for IOD #%lu\n", nse->type, iod->id);
   }
-  
-#if HAVE_IOCP
-  if (engine_is_iocp(nsp))
-    initiate_overlapped_event(nsp, nse);
-#endif
-
   return 0;
 }
 
@@ -352,12 +342,6 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     /* First we want to determine whether the socket really is connected */
     if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) != 0)
       optval = socket_errno(); /* Stupid Solaris */
-#if HAVE_IOCP
-    else if (engine_is_iocp(ms)) {
-      if (get_overlapped_result(nse->iod, nse, NULL) == -1)
-        optval = socket_errno();
-    }
-#endif
 
     switch (optval) {
       case 0:
@@ -559,11 +543,6 @@ void handle_write_result(struct npool *ms, struct nevent *nse, enum nse_status s
       res = SSL_write(iod->ssl, str, bytesleft);
     else
 #endif
-#if HAVE_IOCP
-    if (engine_is_iocp(ms)) {
-      res = get_overlapped_result(iod, nse, NULL);
-    } else 
-#endif
       if (nse->writeinfo.dest.ss_family == AF_UNSPEC)
         res = send(nse->iod->sd, str, bytesleft, 0);
       else
@@ -634,7 +613,7 @@ void handle_timer_result(struct npool *ms, struct nevent *nse, enum nse_status s
 
 /* Returns -1 if an error, otherwise the number of newly written bytes */
 static int do_actual_read(struct npool *ms, struct nevent *nse) {
-  char buf[READ_BUFFER_SZ];
+  char buf[8192];
   int buflen = 0;
   struct niod *iod = nse->iod;
   int err = 0;
@@ -648,13 +627,8 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
     do {
       struct sockaddr_storage peer;
       socklen_t peerlen;
+
       peerlen = sizeof(peer);
-#if HAVE_IOCP
-      if (engine_is_iocp(ms)) {
-        buflen = get_overlapped_result(iod, nse, buf);
-        peerlen = 0;
-      } else
-#endif
       buflen = recvfrom(iod->sd, buf, sizeof(buf), 0, (struct sockaddr *)&peer, &peerlen);
 
       /* Using recv() was failing, at least on UNIX, for non-network sockets
@@ -1242,11 +1216,6 @@ void process_expired_events(struct npool *nsp) {
     nse = container_of(hnode, struct nevent, expire);
     if (!event_timedout(nse))
       break;
-  
-#if HAVE_IOCP
-    if (engine_is_iocp(nsp))
-      terminate_overlapped_event(nsp, nse);
-#endif
 
     gh_heap_pop(&nsp->expirables);
     process_event(nsp, NULL, nse, EV_NONE);
