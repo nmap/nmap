@@ -377,7 +377,7 @@ void NmapOps::Initialize() {
   scripttrace = 0;
   scriptupdatedb = 0;
   scripthelp = false;
-  chosenScripts.clear();
+  script_expression = NULL;
 #endif
   memset(&sourcesock, 0, sizeof(sourcesock));
   sourcesocklen = 0;
@@ -676,20 +676,3 @@ void NmapOps::setSpoofMACAddress(u8 *mac_data) {
   memcpy(spoof_mac, mac_data, 6);
   spoof_mac_set = true;
 }
-
-#ifndef NOLUA
-void NmapOps::chooseScripts(char* argument) {
-        char *p;
-
-        for (;;) {
-                p = strchr(argument, ',');
-                if (p == NULL) {
-                        chosenScripts.push_back(std::string(argument));
-                        break;
-                } else {
-                        chosenScripts.push_back(std::string(argument, p - argument));
-                        argument = p + 1;
-                }
-        }
-}
-#endif

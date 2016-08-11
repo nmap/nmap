@@ -662,6 +662,45 @@ do
   Script.__index = Script;
 end
 
+local function get_script_name(tbl)
+  local o={}
+  for _, val in pairs(tbl) do
+    if type(val) == "string" then
+      table.insert(o,val)
+    end
+  end
+  return o
+end
+
+local function make_parser()
+  local script_file_name = C( (1-S'/=%:|\"<>.,')^1 )
+  local without_argument = P","^0
+  local parser = script_file_name * without_argument * ( script_file_name * without_argument )^0
+  parser=assert(Ct(parser))
+  return parser
+end
+
+local function assign_scripts()
+
+  if not cnse.script_expression then
+    return
+  end
+
+  local parser = make_parser()
+  local output = parser:match(cnse.script_expression)
+
+  --empty the rules table
+  for k in pairs (rules) do
+      rules[k] = nil
+  end
+
+  local scripts = get_script_name(output)
+  for index, val in pairs(scripts) do
+    rules[index] = val
+  end
+
+end
+
 -- check_rules(rules)
 -- Adds the "default" category if no rules were specified.
 -- Adds other implicitly specified rules (e.g. "version")
@@ -702,6 +741,7 @@ local function get_chosen_scripts (rules)
       return false, str;
     end
   end
+
 
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
@@ -1176,6 +1216,8 @@ do
   end
 
   args = concat(args, ",");
+  assign_scripts()
+
   if #args > 0 then
     print_debug(1, "Arguments parsed: %s", args);
     local function set (t, a, b)
