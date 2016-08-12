@@ -386,11 +386,11 @@ class NmapOps {
   int script;
   char *scriptargs;
   char *scriptargsfile;
+  char *script_expression;
   int scriptversion;
   int scripttrace;
   int scriptupdatedb;
   bool scripthelp;
-  void chooseScripts(char* argument);
   std::vector<std::string> chosenScripts;
 #endif
 
