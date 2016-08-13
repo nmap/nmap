@@ -524,15 +524,15 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
       fatal("Level argument to gettoppts (%g) is too large", level);
 
     if (o.TCPScan()) {
-      ports->tcp_count = MIN((int) level, numtcpports);
+      ports->tcp_count = MIN((int) level+ptsdata.tcp_count, numtcpports);
       ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
     }
     if (o.UDPScan()) {
-      ports->udp_count = MIN((int) level, numudpports);
+      ports->udp_count = MIN((int) level+ptsdata.udp_count, numudpports);
       ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
     }
     if (o.SCTPScan()) {
-      ports->sctp_count = MIN((int) level, numsctpports);
+      ports->sctp_count = MIN((int) level+ptsdata.sctp_count, numsctpports);
       ports->sctp_ports = (unsigned short *)safe_zalloc(ports->sctp_count * sizeof(unsigned short));
     }
 
@@ -540,7 +540,7 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
 
     for (i = services_by_ratio.begin(); i != services_by_ratio.end(); i++) {
       current = &(*i);
-      if (ptsdata_initialized && !is_port_member(&ptsdata, current))
+      if (ptsdata_initialized && is_port_member(&ptsdata, current))
         continue;
       if (o.TCPScan() && strcmp(current->s_proto, "tcp") == 0 && ti < ports->tcp_count)
         ports->tcp_ports[ti++] = current->s_port;
@@ -553,6 +553,32 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
     if (ti < ports->tcp_count) ports->tcp_count = ti;
     if (ui < ports->udp_count) ports->udp_count = ui;
     if (si < ports->sctp_count) ports->sctp_count = si;
+
+    int pos=0;
+    if (o.TCPScan()) {
+      for (int j = ti; j < ti+ptsdata.tcp_count; ++j)
+      {
+        ports->tcp_ports[j] = ptsdata.tcp_ports[pos++];
+        ports->tcp_count++;
+        fprintf(stderr, "<TESTING/2> ports->tcp_ports[%d]: %d\n", j, ports->tcp_ports[j]);
+      }
+    }
+    if (o.UDPScan()) {
+      for (int j = 0; j < ptsdata.udp_count; ++j)
+      {
+        ports->udp_ports[j] = ptsdata.udp_ports[pos++];
+        ports->udp_count++;
+        fprintf(stderr, "<TESTING/2> ports->udp_ports[%d]: %d\n", j, ports->udp_ports[j]);
+      }
+    }
+    if (o.SCTPScan()) {
+      for (int j = 0; j < ptsdata.sctp_count; ++j)
+      {
+        ports->sctp_ports[j] = ptsdata.sctp_ports[pos++];
+        ports->sctp_count++;
+        fprintf(stderr, "<TESTING/2> ports->sctp_ports[%d]: %d\n", j, ports->sctp_ports[j]);
+      }
+    }
   } else
     fatal("Argument to gettoppts (%g) should be a positive ratio below 1 or an integer of 1 or higher", level);
 
