@@ -1121,7 +1121,7 @@ end
 
 action = function(host, port)
 
-  host.registry.tls_protos = {}
+  host.registry.tls_protos = host.registry.tls_protos or {}
 
   if not have_ssl then
     stdnse.verbose("OpenSSL not available; some cipher scores will be marked as unknown.")
@@ -1153,14 +1153,15 @@ action = function(host, port)
 
   -- Store the discovered ciphers in host table, should be utilized by other
   -- scripts to find cipher suite available.
-  for key, val in pairs(results) do
-    host.registry.tls_protos[key] = {}
-    for _, j in pairs(val.ciphers) do
-      table.insert(host.registry.tls_protos[key], j.name)
+  host.registry.tls_protos[port.number .. port.protocol] = host.registry.tls_protos[port.number .. port.protocol] or {}
+  for version, supported in pairs(results) do
+    host.registry.tls_protos[port.number .. port.protocol][version] = host.registry.tls_protos[port.number .. port.protocol][version] or {}
+    for _, cipher in pairs(supported.ciphers) do
+      table.insert(host.registry.tls_protos[port.number .. port.protocol][version], cipher.name)
     end
   end
-
   local least = "A"
+
   for p, r in pairs(results) do
     for i, c in ipairs(r.ciphers) do
       -- counter-intuitive: "A" < "B", so really looking for max
