@@ -723,7 +723,7 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
         l = tval2secs(optarg);
         if ( l <= 0 )
-          fatal("Bogus value of Timeout given, timeout should be more than 0");
+          fatal("Bogus --script-timeout argument specified");
         o.scripttimeout = l;
       } else
 #endif

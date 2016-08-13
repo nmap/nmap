@@ -1182,8 +1182,8 @@ do
     args[#args+1] = cnse.scriptargs;
   end
 
-  if cnse.script_timeout  and cnse.script_timeout > 0 then
-    print_debug(1, "Set script-time-out as: %d seconds", cnse.script_timeout);
+  if cnse.script_timeout and cnse.script_timeout > 0 then
+    print_debug(1, "Set script-timeout as: %d seconds", cnse.script_timeout);
   end
 
   args = concat(args, ",");
