@@ -465,12 +465,14 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
     else level = 1000;
   }
 
-  if (portlist){
-    getpts(portlist, &ptsdata);
-    ptsdata_initialized = true;
-  } else if (exclude_ports) {
-    getpts("-", &ptsdata);
-    ptsdata_initialized = true;
+  if( level <= 1 ) {
+    if (portlist){
+      getpts(portlist, &ptsdata);
+      ptsdata_initialized = true;
+    } else if (exclude_ports) {
+      getpts("-", &ptsdata);
+      ptsdata_initialized = true;
+    }
   }
 
   if (ptsdata_initialized && exclude_ports)
@@ -524,15 +526,15 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
       fatal("Level argument to gettoppts (%g) is too large", level);
 
     if (o.TCPScan()) {
-      ports->tcp_count = MIN((int) level+ptsdata.tcp_count, numtcpports);
+      ports->tcp_count = MIN((int) level, numtcpports);
       ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
     }
     if (o.UDPScan()) {
-      ports->udp_count = MIN((int) level+ptsdata.udp_count, numudpports);
+      ports->udp_count = MIN((int) level, numudpports);
       ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
     }
     if (o.SCTPScan()) {
-      ports->sctp_count = MIN((int) level+ptsdata.sctp_count, numsctpports);
+      ports->sctp_count = MIN((int) level, numsctpports);
       ports->sctp_ports = (unsigned short *)safe_zalloc(ports->sctp_count * sizeof(unsigned short));
     }
 
@@ -550,6 +552,14 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         ports->sctp_ports[si++] = current->s_port;
     }
 
+    if (portlist){
+      getpts(portlist, &ptsdata);
+      ptsdata_initialized = true;
+    } else if (exclude_ports) {
+      getpts("-", &ptsdata);
+      ptsdata_initialized = true;
+    }
+
     if (ti < ports->tcp_count) ports->tcp_count = ti;
     if (ui < ports->udp_count) ports->udp_count = ui;
     if (si < ports->sctp_count) ports->sctp_count = si;
@@ -558,25 +568,43 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
     if (o.TCPScan()) {
       for (int j = ti; j < ti+ptsdata.tcp_count; ++j)
       {
-        ports->tcp_ports[j] = ptsdata.tcp_ports[pos++];
-        ports->tcp_count++;
-        fprintf(stderr, "<TESTING/2> ports->tcp_ports[%d]: %d\n", j, ports->tcp_ports[j]);
+        int res=0;
+        for ( int k = 0; k < ports->tcp_count; k++ ) {
+          if( ports->tcp_ports[k] == ptsdata.tcp_ports[pos] )
+            res = 1;
+        }
+        if( res == 0 ) {
+          ports->tcp_ports[j] = ptsdata.tcp_ports[pos++];
+          ports->tcp_count++;
+        }
       }
     }
     if (o.UDPScan()) {
-      for (int j = 0; j < ptsdata.udp_count; ++j)
+      for (int j = ui; j < ui+ptsdata.udp_count; ++j)
       {
-        ports->udp_ports[j] = ptsdata.udp_ports[pos++];
-        ports->udp_count++;
-        fprintf(stderr, "<TESTING/2> ports->udp_ports[%d]: %d\n", j, ports->udp_ports[j]);
+        int res=0;
+        for ( int k = 0; k < ports->udp_count; k++ ) {
+          if( ports->udp_ports[k] == ptsdata.udp_ports[pos] )
+            res = 1;
+        }
+        if( res == 0 ) {
+          ports->udp_ports[j] = ptsdata.udp_ports[pos++];
+          ports->udp_count++;
+        }
       }
     }
     if (o.SCTPScan()) {
-      for (int j = 0; j < ptsdata.sctp_count; ++j)
+      for (int j = si; j < si+ptsdata.sctp_count; ++j)
       {
-        ports->sctp_ports[j] = ptsdata.sctp_ports[pos++];
-        ports->sctp_count++;
-        fprintf(stderr, "<TESTING/2> ports->sctp_ports[%d]: %d\n", j, ports->sctp_ports[j]);
+        int res=0;
+        for ( int k = 0; k < ports->sctp_count; k++ ) {
+          if( ports->sctp_ports[k] == ptsdata.sctp_ports[pos] )
+            res = 1;
+        }
+        if( res == 0 ) {
+          ports->sctp_ports[j] = ptsdata.sctp_ports[pos++];
+          ports->sctp_count++;
+        }
       }
     }
   } else
