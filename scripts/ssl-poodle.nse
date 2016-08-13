@@ -287,8 +287,8 @@ local function find_ciphers(host, port, protocol)
   results = {}
 
   -- If ssl-enum was run and ciphers are already discovered
-  if host.registry.tls_protos then
-    for proto, ciphers in pairs(host.registry.tls_protos) do
+  if host.registry.tls_protos[port.number .. port.protocol] then
+    for proto, ciphers in pairs(host.registry.tls_protos[port.number .. port.protocol]) do
       for _, cipher in pairs(ciphers) do
         if string.find(cipher, "_CBC_") then
           table.insert(results, cipher)
