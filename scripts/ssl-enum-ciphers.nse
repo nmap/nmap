@@ -1160,8 +1160,8 @@ action = function(host, port)
       table.insert(host.registry.tls_protos[port.number .. port.protocol][version], cipher.name)
     end
   end
-  local least = "A"
 
+  local least = "A"
   for p, r in pairs(results) do
     for i, c in ipairs(r.ciphers) do
       -- counter-intuitive: "A" < "B", so really looking for max
