@@ -3,7 +3,7 @@
  * connections from the nsock parallel socket event library                *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -63,6 +63,10 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
+
+#if HAVE_IOCP
+#include "nsock_iocp.h"
+#endif
 
 
 static int mksock_bind_addr(struct npool *ms, struct niod *iod) {
@@ -252,6 +256,12 @@ void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int 
     if (&iod->peer != ss)
       memcpy(&iod->peer, ss, sslen);
     iod->peerlen = sslen;
+	
+#if HAVE_IOCP
+    /* The connection will be initiated when the event is added to the iod. */
+    if (engine_is_iocp(ms))
+      return;
+#endif
 
     if (connect(iod->sd, (struct sockaddr *)ss, sslen) == -1) {
       int err = socket_errno();

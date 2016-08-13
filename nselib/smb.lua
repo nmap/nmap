@@ -1065,7 +1065,7 @@ function negotiate_protocol(smb, overrides)
   end
 
   -- Convert the time and timezone to more useful values
-  smb['time'] = (smb['time'] / 10000000) - 11644473600
+  smb['time'] = (smb['time'] // 10000000) - 11644473600
   smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
   smb['timezone'] = -(smb['timezone'] / 60)
   if(smb['timezone'] == 0) then
@@ -3279,6 +3279,7 @@ end
 -- * <code>date</code>: <code>"2012-09-08 09:24:30"</code>
 -- * <code>timezone</code>: <code>-7</code>
 -- * <code>timezone_str</code>: <code>UTC-7</code>
+-- * <code>port</code>: <code>445</code>
 -- The table may also contain these additional keys:
 -- * <code>fqdn</code>: <code>"Sql2008.lab.test.local"</code>
 -- * <code>domain_dns</code>: <code>"lab.test.local"</code>
@@ -3312,6 +3313,7 @@ function get_os(host)
   response['time']         = smbstate['time']
   response['timezone_str'] = smbstate['timezone_str']
   response['timezone']     = smbstate['timezone']
+  response['port']         = smbstate['port']
 
   -- Kill SMB
   stop(smbstate)

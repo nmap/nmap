@@ -1,19 +1,49 @@
+-- The MIT License (MIT)
+-- Copyright (c) 2016 Patrick Joseph Donnelly (batrick@batbytes.com)
+--
+-- Permission is hereby granted, free of charge, to any person obtaining a copy of
+-- this software and associated documentation files (the "Software"), to deal in
+-- the Software without restriction, including without limitation the rights to
+-- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+-- of the Software, and to permit persons to whom the Software is furnished to do
+-- so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 ---
 -- Base64 encoding and decoding. Follows RFC 4648.
 --
--- @author Philip Pickering <pgpickering@gmail.com>
--- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+-- @author Patrick Donnelly <batrick@batbytes.com>
+-- @copyright The MIT License (MIT); Copyright (c) 2016 Patrick Joseph Donnelly (batrick@batbytes.com)
 
--- thanks to Patrick Donnelly for some optimizations
+local assert = assert
+local error = error
+local ipairs = ipairs
+local setmetatable = setmetatable
 
-local bin = require "bin"
-local stdnse = require "stdnse"
-local string = require "string"
-local table = require "table"
-_ENV = stdnse.module("base64", stdnse.seeall)
+local open = require "io".open
+local popen = require "io".popen
 
--- todo: make metatable/index --> '' for b64dctable
+local random = require "math".random
 
+local tmpname = require "os".tmpname
+local remove = require "os".remove
+
+
+local char = require "string".char
+
+local concat = require "table".concat
+
+_ENV = require "stdnse".module("base64")
 
 local b64table = {
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -26,157 +56,139 @@ local b64table = {
   '4', '5', '6', '7', '8', '9', '+', '/'
 }
 
-local b64dctable = {} -- efficiency
-b64dctable['A'] = '000000'
-b64dctable['B'] = '000001'
-b64dctable['C'] = '000010'
-b64dctable['D'] = '000011'
-b64dctable['E'] = '000100'
-b64dctable['F'] = '000101'
-b64dctable['G'] = '000110'
-b64dctable['H'] = '000111'
-b64dctable['I'] = '001000'
-b64dctable['J'] = '001001'
-b64dctable['K'] = '001010'
-b64dctable['L'] = '001011'
-b64dctable['M'] = '001100'
-b64dctable['N'] = '001101'
-b64dctable['O'] = '001110'
-b64dctable['P'] = '001111'
-b64dctable['Q'] = '010000'
-b64dctable['R'] = '010001'
-b64dctable['S'] = '010010'
-b64dctable['T'] = '010011'
-b64dctable['U'] = '010100'
-b64dctable['V'] = '010101'
-b64dctable['W'] = '010110'
-b64dctable['X'] = '010111'
-b64dctable['Y'] = '011000'
-b64dctable['Z'] = '011001'
-b64dctable['a'] = '011010'
-b64dctable['b'] = '011011'
-b64dctable['c'] = '011100'
-b64dctable['d'] = '011101'
-b64dctable['e'] = '011110'
-b64dctable['f'] = '011111'
-b64dctable['g'] = '100000'
-b64dctable['h'] = '100001'
-b64dctable['i'] = '100010'
-b64dctable['j'] = '100011'
-b64dctable['k'] = '100100'
-b64dctable['l'] = '100101'
-b64dctable['m'] = '100110'
-b64dctable['n'] = '100111'
-b64dctable['o'] = '101000'
-b64dctable['p'] = '101001'
-b64dctable['q'] = '101010'
-b64dctable['r'] = '101011'
-b64dctable['s'] = '101100'
-b64dctable['t'] = '101101'
-b64dctable['u'] = '101110'
-b64dctable['v'] = '101111'
-b64dctable['w'] = '110000'
-b64dctable['x'] = '110001'
-b64dctable['y'] = '110010'
-b64dctable['z'] = '110011'
-b64dctable['0'] = '110100'
-b64dctable['1'] = '110101'
-b64dctable['2'] = '110110'
-b64dctable['3'] = '110111'
-b64dctable['4'] = '111000'
-b64dctable['5'] = '111001'
-b64dctable['6'] = '111010'
-b64dctable['7'] = '111011'
-b64dctable['8'] = '111100'
-b64dctable['9'] = '111101'
-b64dctable['+'] = '111110'
-b64dctable['/'] = '111111'
-
-
-local append = table.insert
-local substr = string.sub
-local bpack = bin.pack
-local bunpack = bin.unpack
-local concat = table.concat
-
----
--- Encode six bits to a Base64-encoded character.
--- @param bits String of six bits to be encoded.
--- @return Encoded character.
-local function b64enc6bit(bits)
-  -- local byte
-  -- local _, byte = bunpack("C", bpack("B", "00" .. bits))
-  --
-
-  -- more efficient, does the same (nb: add one to byte moved up one line):
-  local byte = tonumber(bits, 2) + 1
-  return b64table[byte]
-end
-
-
----
--- Decodes a Base64-encoded character into a string of binary digits.
--- @param b64byte A single base64-encoded character.
--- @return String of six decoded bits.
-local function b64dec6bit(b64byte)
-  local bits = b64dctable[b64byte]
-  if bits then return bits end
-  return ''
-end
-
-
 ---
 -- Encodes a string to Base64.
 -- @param bdata Data to be encoded.
 -- @return Base64-encoded string.
-function enc(bdata)
-  local pos = 1
-  local byte
-  local nbyte = ''
-  -- local nbuffer = {}
-  local b64dataBuf = {}
-  while pos <= #bdata  do
-    pos, byte = bunpack("B1", bdata, pos)
-    nbyte = nbyte .. byte
-    append(b64dataBuf, b64enc6bit(substr(nbyte, 1, 6)))
-    nbyte = substr(nbyte,7)
-    if (#nbyte == 6) then
-      append(b64dataBuf, b64enc6bit(nbyte))
-      nbyte = ''
+function enc (p)
+    local out = {}
+    local i = 1
+    local m = #p % 3
+
+    while i+2 <= #p do
+        local a, b, c = p:byte(i, i+2)
+		local e1 = b64table[((a>>2)&0x3f)+1];
+		local e2 = b64table[((((a<<4)&0x30)|((b>>4)&0xf))&0x3f)+1];
+        local e3 = b64table[((((b<<2)&0x3c)|((c>>6)&0x3))&0x3f)+1];
+        local e4 = b64table[(c&0x3f)+1];
+        out[#out+1] = e1..e2..e3..e4
+        i = i + 3
     end
-  end
-  if #nbyte == 2 then
-    append(b64dataBuf, b64enc6bit(nbyte .. "0000") )
-    append(b64dataBuf, "==")
-  elseif #nbyte == 4 then
-    append(b64dataBuf, b64enc6bit(nbyte .. "00"))
-    append(b64dataBuf, '=')
-  end
-  return concat(b64dataBuf)
+
+    if m == 2 then
+        local a, b = p:byte(i, i+1)
+        local c = 0
+		local e1 = b64table[((a>>2)&0x3f)+1];
+		local e2 = b64table[((((a<<4)&0x30)|((b>>4)&0xf))&0x3f)+1];
+        local e3 = b64table[((((b<<2)&0x3c)|((c>>6)&0x3))&0x3f)+1];
+        out[#out+1] = e1..e2..e3.."="
+    elseif m == 1 then
+        local a = p:byte(i)
+        local b = 0
+		local e1 = b64table[((a>>2)&0x3f)+1];
+		local e2 = b64table[((((a<<4)&0x30)|((b>>4)&0xf))&0x3f)+1];
+        out[#out+1] = e1..e2.."=="
+    end
+
+    return concat(out)
 end
 
+local db64table = setmetatable({}, {__index = function (t, k) error "invalid encoding: invalid character" end})
+do
+    local r = {["="] = 0}
+    for i, v in ipairs(b64table) do
+        r[v] = i-1
+    end
+    for i = 0, 255 do
+        db64table[i] = r[char(i)]
+    end
+end
 
 ---
 -- Decodes Base64-encoded data.
 -- @param b64data Base64 encoded data.
 -- @return Decoded data.
-function dec(b64data)
-  local bdataBuf = {}
-  local pos = 1
-  local byte
-  local nbyte = ''
-  for pos = 1, #b64data do -- while pos <= #b64data do
-    byte = b64dec6bit(substr(b64data, pos, pos))
-    if not byte then return end
-    nbyte = nbyte .. byte
-    if #nbyte >= 8 then
-      append(bdataBuf, bpack("B", substr(nbyte, 1, 8)))
-      nbyte = substr(nbyte, 9)
+function dec (e)
+    local out = {}
+    local i = 1
+    local done = false
+
+    e = e:gsub("%s+", "")
+
+    local m = #e % 4
+    if m ~= 0 then
+        error "invalid encoding: input is not divisible by 4"
     end
-    -- pos = pos + 1
-  end
-  return concat(bdataBuf)
+
+    while i+3 <= #e do
+        if done then
+            error "invalid encoding: trailing characters"
+        end
+
+        local a, b, c, d = e:byte(i, i+3)
+
+        local x = ((db64table[a]<<2)&0xfc) | ((db64table[b]>>4)&0x03)
+        local y = ((db64table[b]<<4)&0xf0) | ((db64table[c]>>2)&0x0f)
+        local z = ((db64table[c]<<6)&0xc0) | ((db64table[d])&0x3f)
+
+        if c == 0x3d then
+            assert(d == 0x3d, "invalid encoding: invalid character")
+            out[#out+1] = char(x)
+            done = true
+        elseif d == 0x3d then
+            out[#out+1] = char(x, y)
+            done = true
+        else
+            out[#out+1] = char(x, y, z)
+        end
+        i = i + 4
+    end
+
+    return concat(out)
 end
 
+do
+    local function test(a, b)
+        assert(enc(a) == b and dec(b) == a)
+    end
+    test("", "")
+    test("\x01", "AQ==")
+    test("\x00", "AA==")
+    test("\x00\x01", "AAE=")
+    test("\x00\x01\x02", "AAEC")
+    test("\x00\x01\x02\x03", "AAECAw==")
+    test("\x00\x01\x02\x03\x04", "AAECAwQ=")
+    test("\x00\x01\x02\x03\x04\x05", "AAECAwQF")
+    test("\x00\x01\x02\x03\x04\x05\x06", "AAECAwQFBg==")
+    test("\x00\x01\x02\x03\x04\x05\x06\x07", "AAECAwQFBgc=")
+    for i = 1, 255 do
+        test(char(i), enc(char(i)))
+    end
 
-return _ENV;
+    -- whitespace stripping
+    assert(dec(" AAEC A\r\nw==") == "\x00\x01\x02\x03")
+
+    -- extensive tests
+    if false then
+        local path = tmpname()
+        local file = open(path, "w")
+        local t = {}
+        for a = 0, 255, random(1, 7) do
+            for b = 0, 255, random(2, 7) do
+                for c = 0, 255, random(2, 7) do
+                    t[#t+1] = char(a, b, c, 0xA)
+                    file:write(t[#t])
+                end
+            end
+        end
+        assert(file:close())
+        local input = concat(t)
+        local output = enc(input)
+        local good = assert(popen("base64 < "..path, "r")):read("a"):gsub("%s", "")
+        remove(path)
+        assert(output == good)
+        assert(dec(output) == input)
+    end
+end
+
+return _ENV

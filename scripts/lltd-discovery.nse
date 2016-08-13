@@ -40,7 +40,7 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 -- |_  Use the newtargets script-arg to add the results as targets
 --
 
-author = "Gorjan Petrovski, Hani Benhabiles"
+author = {"Gorjan Petrovski", "Hani Benhabiles"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast","discovery","safe"}
 
@@ -130,7 +130,7 @@ local parseHello = function(data)
       local l = tlv:byte(p)
 
       p = p + 1
-      local v = tlv:sub(p,p+l)
+      local v = tlv:sub(p,p+l-1)
 
       if t == 0x01 then
         -- Host ID (MAC Address)
@@ -268,7 +268,7 @@ action = function()
     -- single interface defined
     local interface = interface_opt or interface_arg
     local if_table = nmap.get_interface_info(interface)
-    if not if_table or not if_table.address or not if_table.link=="ethernet" then
+    if not (if_table and if_table.address and if_table.link=="ethernet") then
       stdnse.debug1("Interface not supported or not properly configured.")
       return false
     end

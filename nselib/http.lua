@@ -72,6 +72,7 @@
 -- * <code>bypass_cache</code>: Do not perform a lookup in the local HTTP cache.
 -- * <code>no_cache</code>: Do not save the result of this request to the local HTTP cache.
 -- * <code>no_cache_body</code>: Do not save the body of the response to the local HTTP cache.
+-- * <code>any_af</code>: Allow connecting to any address family, inet or inet6. By default, these functions will only use the same AF as nmap.address_family to resolve names.
 -- * <code>redirect_ok</code>: Closure that overrides the default redirect_ok used to validate whether to follow HTTP redirects or not. False, if no HTTP redirects should be followed. Alternatively, a number may be passed to change the number of redirects to follow.
 --   The following example shows how to write a custom closure that follows 5 consecutive redirects, without the safety checks in the default redirect_ok:
 --   <code>
@@ -347,7 +348,7 @@ local function validate_options(options)
       end
     elseif (key == 'ntlmauth') then
       stdnse.debug1("Proceeding with ntlm message")
-    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body') then
+    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af') then
       if(type(value) ~= 'boolean') then
         stdnse.debug1("http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
         bad = true
@@ -1196,9 +1197,15 @@ local function request(host, port, data, options)
 
   method = string.match(data, "^(%S+)")
 
+  if type(host) == "string" and options.any_af then
+    local status, addrs = nmap.resolve(host)
+    host = addrs[1] or host
+  end
+
   local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
 
   if not socket then
+    stdnse.debug1("http.request socket error: %s", partial)
     return http_error("Error creating socket.")
   end
 

@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -235,11 +235,11 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   }
 
   if (frame[7] == 1) { /* arp REQUEST */
-    inet_ntop(AF_INET, frame + 24, who_has, sizeof(who_has));
-    inet_ntop(AF_INET, frame + 14, tell, sizeof(tell));
+    inet_ntop(AF_INET, (void *)(frame + 24), who_has, sizeof(who_has));
+    inet_ntop(AF_INET, (void *)(frame + 14), tell, sizeof(tell));
     Snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
   } else { /* ARP REPLY */
-    inet_ntop(AF_INET, frame + 14, who_has, sizeof(who_has));
+    inet_ntop(AF_INET, (void *)(frame + 14), who_has, sizeof(who_has));
     Snprintf(arpdesc, sizeof(arpdesc),
              "reply %s is-at %02X:%02X:%02X:%02X:%02X:%02X", who_has,
              frame[8], frame[9], frame[10], frame[11], frame[12],
@@ -1269,7 +1269,7 @@ int readtcppacket(const u8 *packet, int readdata) {
         log_write(LOG_PLAIN, "URG ");
       log_write(LOG_PLAIN, "\n");
 
-      log_write(LOG_PLAIN, "ipid: %hu ttl: %hu ", ntohs(ip->ip_id),
+      log_write(LOG_PLAIN, "ipid: %hu ttl: %hhu ", ntohs(ip->ip_id),
                 ip->ip_ttl);
 
       if (tcp->th_flags & (TH_SYN | TH_ACK))
@@ -1329,7 +1329,7 @@ int readudppacket(const u8 *packet, int readdata) {
                 sourcehost, ntohs(udp->uh_sport), inet_ntoa(bullshit2),
                 ntohs(udp->uh_dport), tot_len);
 
-      log_write(LOG_PLAIN, "ttl: %hu ", ip->ip_ttl);
+      log_write(LOG_PLAIN, "ttl: %hhu ", ip->ip_ttl);
     }
   }
   if (readdata && i < tot_len) {

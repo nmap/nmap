@@ -67,6 +67,13 @@ udp 161
 # http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz
 udp 177 "\x00\x01\x00\x02\x00\x01\x00"
 
+# Connectionless LDAP - used by Microsoft Active Directory
+udp 389 
+  "\x30\x84\x00\x00\x00\x2d\x02\x01\x07\x63\x84\x00\x00\x00\x24\x04\x00"
+  "\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x64\x01\x01\x00\x87\x0b"
+  "\x6f\x62\x6a\x65\x63\x74\x43\x6c\x61\x73\x73\x30\x84\x00\x00\x00\x00"
+
+
 # svrloc
 udp 427
   "\x02\x01\x00\x006 \x00\x00\x00\x00\x00\x01\x00\x02en\x00\x00\x00\x15"
@@ -137,6 +144,13 @@ udp 520
 # packet starting with "SNRESPS:", followed by some data whose purpose
 # is not known.
 udp 626 "SNQUERY: 127.0.0.1:AAAAAA:xsvr"
+
+# OpenVPN P_CONTROL_HARD_RESET_CLIENT_V2
+# Byte 0; 0x38 opcode
+# Byte 1-8: Session ID, random
+# Byte 9: Message packet-id array length (0)
+# Byte 10-13: Message packet-id (0)
+udp 1194 "8d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0\0"
 
 # Citrix MetaFrame application browser service
 # Original idea from http://sh0dan.org/oldfiles/hackingcitrix.html

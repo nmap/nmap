@@ -6,6 +6,8 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 -- @author Patrik Karlsson
+-- @class module
+-- @name asn1
 --
 
 -- Version 0.3
@@ -59,7 +61,7 @@ ASN1Decoder = {
 
     -- Boolean
     self.decoder["01"] = function( self, encStr, elen, pos )
-      local val = bin.unpack("H", encStr, pos)
+      local pos, val = bin.unpack("H", encStr, pos)
       if val ~= "FF" then
         return pos, true
       else
@@ -104,6 +106,7 @@ ASN1Decoder = {
 
   --- Template for an ASN1 decoder function.
   -- @name asn1.decoder
+  -- @class function
   -- @param self The ASN1Decoder object
   -- @param encStr Encoded string
   -- @param elen Length of the object in bytes
@@ -250,8 +253,8 @@ ASN1Decoder = {
     local hexStr
     pos, hexStr = bin.unpack("H" .. len, encStr, pos)
     local value = tonumber(hexStr, 16)
-    if (value >= math.pow(256, len)/2) then
-      value = value - math.pow(256, len)
+    if (value >= (256^len)/2) then
+      value = value - 256^len
     end
     return pos, value
   end,
@@ -312,6 +315,7 @@ ASN1Encoder = {
   -- @param self The ASN1Encoder object
   -- @param val The value to encode
   -- @return The encoded object
+  -- @class function
 
   --- Allows for registration of additional tag encoders
   -- @name ASN1Decoder.registerTagEncoders
@@ -409,7 +413,7 @@ ASN1Encoder = {
       local i = 1
       local tcval = val + 256 -- two's complement
       while tcval <= 127 do
-        tcval = tcval + (math.pow(256, i) * 255)
+        tcval = tcval + 256^i * 255
         i = i+1
       end
       local valStr = ""

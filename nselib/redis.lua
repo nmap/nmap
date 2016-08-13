@@ -1,6 +1,6 @@
 --- A minimalistic Redis (in-memory key-value data store) library.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 local match = require "match"
 local nmap = require "nmap"

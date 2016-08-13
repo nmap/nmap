@@ -290,7 +290,7 @@ action = function( host, port )
     passwords("reset")
   end
 
-  stdnse.debug1( "Finished brute against LDAP, total tries: %d, tps: %d", tot_tries, ( tot_tries / ( ( nmap.clock_ms() - clock_start ) / 1000 ) ) )
+  stdnse.debug1( "Finished brute against LDAP, total tries: %d, tps: %.f", tot_tries, ( tot_tries / ( ( nmap.clock_ms() - clock_start ) / 1000 ) ) )
 
   if ( invalid_account_cnt == user_cnt and base_dn ~= nil ) then
     return "WARNING: All usernames were invalid. Invalid LDAP base?"

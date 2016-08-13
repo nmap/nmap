@@ -8,6 +8,12 @@ class Target;
 #include <stdint.h>
 #endif
 
+/* int nseU_checkinteger (lua_State *L, int arg)
+ *
+ * Replacement for luaL_checkinteger that does a floor operation first
+ */
+int nseU_checkinteger (lua_State *L, int arg);
+
 /* int nseU_traceback (lua_State *L)
  *
  * Traceback C Lua function.
@@ -42,6 +48,14 @@ void nseU_setsfield (lua_State *L, int idx, const char *field, const char *value
  *  (t[field] = value).
  */
 void nseU_setnfield (lua_State *L, int idx, const char *field, lua_Number value);
+
+/* void nseU_setifield (lua_State *L, int idx,             [-0, +0, e]
+ *                      const char *field, lua_Integer value)
+ *
+ * Sets the field for table at index idx to numerical value.
+ *  (t[field] = value).
+ */
+void nseU_setifield (lua_State *L, int idx, const char *field, lua_Integer value);
 
 /* void nseU_setbfield (lua_State *L, int idx,             [-0, +0, e]
  *                      const char *field, int value)

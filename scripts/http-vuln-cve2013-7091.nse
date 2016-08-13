@@ -49,14 +49,14 @@ Then, send some payload to create the new mail account.
 -- @args http-vuln-cve2013-7091.uri URI. Default: /zimbra
 ---
 
-author = "Paul AMAR <aos.paul@gmail.com>, Ron Bowes"
+author = {"Paul AMAR <aos.paul@gmail.com>", "Ron Bowes"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 
 portrule = shortport.http
 
 -- function to escape specific characters
-local escape = function(str) return string.gsub(str, "", "") end
+local escape = function(str) return string.gsub(str, "%%", "%%%%") end
 
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/zimbra"

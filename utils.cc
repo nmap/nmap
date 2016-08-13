@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -574,7 +574,7 @@ int cpe_get_part(const char *cpe) {
   const char *PREFIX = "cpe:/";
   char part;
 
-  if (strncmp(cpe, PREFIX, strlen(PREFIX) != 0))
+  if (strncmp(cpe, PREFIX, strlen(PREFIX)) != 0)
     return -1;
   /* This could be more robust, by decoding character escapes and checking ':'
      boundaries. */

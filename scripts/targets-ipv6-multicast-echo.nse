@@ -24,7 +24,7 @@ on a LAN without needing to individually ping each IPv6 address.
 -- @args newtargets  If true, add discovered targets to the scan queue.
 -- @args targets-ipv6-multicast-echo.interface  The interface to use for host discovery.
 
-author = "David Fifield, Xu Weilin"
+author = {"David Fifield", "Xu Weilin"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

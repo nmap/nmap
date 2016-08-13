@@ -22,6 +22,8 @@
 
 #include "nbase.h"
 
+#ifndef HAVE_INET_PTON
+
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -243,3 +245,5 @@ inet_pton6(const char *src, unsigned char *dst)
     return (1);
 }
 #endif
+
+#endif /* ifndef HAVE_INET_PTON */

@@ -80,7 +80,7 @@ Driver = {
     -- we need to supply the no_cache directive, or else the http library
     -- incorrectly tells us that the authentication was successful
     local opts = {
-      auth = { digest = true },
+      auth = { },
       no_cache = true,
       bypass_cache = true,
       header = {
@@ -98,8 +98,8 @@ Driver = {
 
   login = function( self, username, password )
     local opts_table = self:get_opts()
-    opts_table.username = username
-    opts_table.password = password
+    opts_table.auth.username = username
+    opts_table.auth.password = password
 
     local response = http.generic_request( self.host, self.port, self.method, self.path, opts_table)
 

@@ -60,7 +60,8 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
--- @author "Patrik Karlsson <patrik@cqure.net>, Chris Woodbury"
+-- @author Patrik Karlsson <patrik@cqure.net>
+-- @author Chris Woodbury
 --
 -- @args mssql.username The username to use to connect to SQL Server instances.
 --       This username is used by scripts taking actions that require
@@ -364,9 +365,9 @@ SqlServerVersionInfo =
 
     local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, {4000, "SP2"}, {6000, "SP3"}, }
 
-    local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, {3000, "SP1"}, {5058, "SP2"}, }
+    local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, {3000, "SP1"}, {5058, "SP2"}, {6020, "SP3"}, }
 
-    local SP_LOOKUP_TABLE_2014 = { {2000, "RTM"}, {4050, "SP1"}, }
+    local SP_LOOKUP_TABLE_2014 = { {2000, "RTM"}, {4100, "SP1"}, }
 
 
     if ( not self.brandedVersion ) then

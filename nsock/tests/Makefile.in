@@ -8,9 +8,10 @@ NSOCKLIB=../src/libnsock.a
 NBASELIB=$(NBASEDIR)/libnbase.a
 
 CC 	= @CC@
-CFLAGS	= -Wall -O0 -I../include -I$(NBASEDIR)
+CPPFLAGS = @CPPFLAGS@ -I../include
+CFLAGS	= @CFLAGS@
 LDFLAGS	= @LDFLAGS@
-LIBS	= @OPENSSL_LIBS@ @LIBPCAP_LIBS@
+LIBS	= @OPENSSL_LIBS@ @LIBPCAP_LIBS@ @LIBS@
 
 SRC = tests_main.c \
       basic.c \
@@ -31,7 +32,7 @@ $(EXE): $(OBJ)
 	$(CC) $(LDFLAGS) $(OBJ) -o $@ $(NSOCKLIB) $(NBASELIB) $(LIBS)
 
 .c.o:
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 clean:
 	$(RM) $(OBJ) $(EXE)

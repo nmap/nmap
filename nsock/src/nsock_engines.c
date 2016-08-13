@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -63,6 +63,13 @@
 
 #include "nsock_internal.h"
 
+#if HAVE_IOCP
+  extern struct io_engine engine_iocp;
+  #define ENGINE_IOCP &engine_iocp,
+#else
+  #define ENGINE_IOCP
+#endif /* HAVE_IOCP */
+
 #if HAVE_EPOLL
   extern struct io_engine engine_epoll;
   #define ENGINE_EPOLL &engine_epoll,
@@ -94,6 +101,7 @@ static struct io_engine *available_engines[] = {
   ENGINE_EPOLL
   ENGINE_KQUEUE
   ENGINE_POLL
+  ENGINE_IOCP
   ENGINE_SELECT
   NULL
 };
@@ -145,6 +153,9 @@ int nsock_set_default_engine(char *engine) {
 
 const char *nsock_list_engines(void) {
   return
+#if HAVE_IOCP
+  "iocp "
+#endif
 #if HAVE_EPOLL
   "epoll "
 #endif

@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -2294,9 +2294,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin = (struct sockaddr_in *) &hdr.src;
-    inet_ntop(AF_INET, &sin->sin_addr.s_addr, srchost, sizeof(srchost));
+    inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, srchost, sizeof(srchost));
     sin = (struct sockaddr_in *) &hdr.dst;
-    inet_ntop(AF_INET, &sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
+	inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
 
     /* Compute fragment offset and check if flags are set */
     frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
@@ -2348,9 +2348,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin6 = (struct sockaddr_in6 *) &hdr.src;
-    inet_ntop(AF_INET6, sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
+	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
     sin6 = (struct sockaddr_in6 *) &hdr.dst;
-    inet_ntop(AF_INET6, sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
+	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
 
     /* Obtain flow label and traffic class */
     u32 flow = ntohl(ip6->ip6_flow);
@@ -2825,7 +2825,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 4:
             strcpy(icmptype, "Fragmentation required");
-            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%hu", icmppkt->data[2]<<8 | icmppkt->data[3]);
+            Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%d", icmppkt->data[2]<<8 | icmppkt->data[3]);
             break;
 
           case 5:
@@ -3024,15 +3024,21 @@ icmpbad:
         srchost, dsthost, icmptype, icmpinfo, icmpfields, ipinfo);
     }
 
-    /* UNKNOWN PROTOCOL **********************************************************/
   } else if (hdr.proto == IPPROTO_ICMPV6) {
-    const struct icmpv6_hdr *icmpv6;
+    if (datalen > sizeof(struct icmpv6_hdr)) {
+      const struct icmpv6_hdr *icmpv6;
 
-    icmpv6 = (struct icmpv6_hdr *) data;
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
-      hdr.proto, srchost, dsthost,
-      icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
+      icmpv6 = (struct icmpv6_hdr *) data;
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
+          hdr.proto, srchost, dsthost,
+          icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
+    }
+    else {
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=?/code=?) %s",
+          hdr.proto, srchost, dsthost, ipinfo);
+    }
   } else {
+    /* UNKNOWN PROTOCOL **********************************************************/
     const char *hdrstr;
 
     hdrstr = nexthdrtoa(hdr.proto, 1);

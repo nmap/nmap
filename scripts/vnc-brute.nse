@@ -122,6 +122,12 @@ Driver =
     end
 
     status, data = vnc:login( nil, "is_sec_mec_supported?" )
+    -- Check whether auth succeeded. This is most likely because one of the
+    -- NONE auth types was supported, since vnc.lua will just return true in that case.
+    if status then
+      return false, "No authentication required"
+    end
+
     if ( data:match("The server does not support.*security type") ) then
       return stdnse.format_output( false, "  \n  " .. data )
     end

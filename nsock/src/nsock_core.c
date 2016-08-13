@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -84,6 +84,10 @@
 
 #if HAVE_PCAP
 #include "nsock_pcap.h"
+#endif
+
+#if HAVE_IOCP
+#include "nsock_iocp.h"
 #endif
 
 
@@ -287,6 +291,12 @@ static int iod_add_event(struct niod *iod, struct nevent *nse) {
     default:
       fatal("Unknown event type (%d) for IOD #%lu\n", nse->type, iod->id);
   }
+  
+#if HAVE_IOCP
+  if (engine_is_iocp(nsp))
+    initiate_overlapped_event(nsp, nse);
+#endif
+
   return 0;
 }
 
@@ -322,6 +332,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
   int optval;
   socklen_t optlen = sizeof(int);
   struct niod *iod = nse->iod;
+  assert(iod != NULL);
 #if HAVE_OPENSSL
   int sslerr;
   int rc = 0;
@@ -341,6 +352,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     /* First we want to determine whether the socket really is connected */
     if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) != 0)
       optval = socket_errno(); /* Stupid Solaris */
+#if HAVE_IOCP
+    else if (engine_is_iocp(ms)) {
+      if (get_overlapped_result(nse->iod, nse, NULL) == -1)
+        optval = socket_errno();
+    }
+#endif
 
     switch (optval) {
       case 0:
@@ -489,9 +506,13 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
                                iod->peerlen, nsock_iod_get_peerport(iod));
         nsock_engine_iod_register(ms, iod, saved_ev);
 
-        SSL_clear(iod->ssl);
-        if(!SSL_clear(iod->ssl))
-           fatal("SSL_clear failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        /* Use SSL_free here because SSL_clear keeps session info, which
+         * doesn't work when changing SSL versions (as we're clearly trying to
+         * do by adding SSL_OP_NO_SSLv2). */
+        SSL_free(iod->ssl);
+        iod->ssl = SSL_new(ms->sslctx);
+        if (!iod->ssl)
+          fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
 
         SSL_set_options(iod->ssl, options | SSL_OP_NO_SSLv2);
         socket_count_read_inc(nse->iod);
@@ -537,6 +558,11 @@ void handle_write_result(struct npool *ms, struct nevent *nse, enum nse_status s
     if (iod->ssl)
       res = SSL_write(iod->ssl, str, bytesleft);
     else
+#endif
+#if HAVE_IOCP
+    if (engine_is_iocp(ms)) {
+      res = get_overlapped_result(iod, nse, NULL);
+    } else 
 #endif
       if (nse->writeinfo.dest.ss_family == AF_UNSPEC)
         res = send(nse->iod->sd, str, bytesleft, 0);
@@ -608,7 +634,7 @@ void handle_timer_result(struct npool *ms, struct nevent *nse, enum nse_status s
 
 /* Returns -1 if an error, otherwise the number of newly written bytes */
 static int do_actual_read(struct npool *ms, struct nevent *nse) {
-  char buf[8192];
+  char buf[READ_BUFFER_SZ];
   int buflen = 0;
   struct niod *iod = nse->iod;
   int err = 0;
@@ -622,8 +648,13 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
     do {
       struct sockaddr_storage peer;
       socklen_t peerlen;
-
       peerlen = sizeof(peer);
+#if HAVE_IOCP
+      if (engine_is_iocp(ms)) {
+        buflen = get_overlapped_result(iod, nse, buf);
+        peerlen = 0;
+      } else
+#endif
       buflen = recvfrom(iod->sd, buf, sizeof(buf), 0, (struct sockaddr *)&peer, &peerlen);
 
       /* Using recv() was failing, at least on UNIX, for non-network sockets
@@ -640,7 +671,11 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
         err = socket_errno();
         break;
       }
-      if (peerlen > 0) {
+      /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
+       * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
+       * only set this if it's not already set.
+       */
+      if (peerlen > 0 && iod->peerlen == 0) {
         assert(peerlen <= sizeof(iod->peer));
         memcpy(&iod->peer, &peer, peerlen);
         iod->peerlen = peerlen;
@@ -995,9 +1030,9 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
           if (!nse->iod->ssl && match_w)
             handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
 
-          if (event_timedout(nse))
-            handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
-          break;
+        if (event_timedout(nse))
+          handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
+        break;
 
       case NSE_TYPE_TIMER:
         if (event_timedout(nse))
@@ -1207,6 +1242,11 @@ void process_expired_events(struct npool *nsp) {
     nse = container_of(hnode, struct nevent, expire);
     if (!event_timedout(nse))
       break;
+  
+#if HAVE_IOCP
+    if (engine_is_iocp(nsp))
+      terminate_overlapped_event(nsp, nse);
+#endif
 
     gh_heap_pop(&nsp->expirables);
     process_event(nsp, NULL, nse, EV_NONE);

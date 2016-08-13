@@ -19,6 +19,10 @@ extern "C" {
 #include <assert.h>
 
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 enum {
   DNET_METATABLE = lua_upvalueindex(1),
@@ -63,7 +67,7 @@ static int l_dnet_get_interface_info (lua_State *L)
 
   nseU_setsfield(L, -1, "device", ii->devfullname);
   nseU_setsfield(L, -1, "shortname", ii->devname);
-  nseU_setnfield(L, -1, "netmask", ii->netmask_bits);
+  nseU_setifield(L, -1, "netmask", ii->netmask_bits);
 
   if (ii->addr.ss_family == AF_INET)
     inet_ntop(AF_INET, &((struct sockaddr_in *)&ii->addr)->sin_addr,
@@ -105,7 +109,7 @@ static int l_dnet_get_interface_info (lua_State *L)
   }
 
   nseU_setsfield(L, -1, "up", (ii->device_up ? "up" : "down"));
-  nseU_setnfield(L, -1, "mtu", ii->mtu);
+  nseU_setifield(L, -1, "mtu", ii->mtu);
 
   return 1;
 }
@@ -153,7 +157,11 @@ static int ethernet_open (lua_State *L)
   const char *interface_name = luaL_checkstring(L, 2);
   struct interface_info *ii = getInterfaceByName(interface_name, o.af());
 
-  if (ii == NULL || ii->device_type != devt_ethernet)
+  if (ii == NULL || ii->device_type != devt_ethernet
+#ifdef WIN32
+    && !(g_has_npcap_loopback && ii->device_type == devt_loopback)
+#endif
+    )
     return luaL_argerror(L, 2, "device is not valid ethernet interface");
 
   udata->eth = open_eth_cached(L, 1, interface_name);
@@ -252,8 +260,13 @@ static int ip_send (lua_State *L)
 
     Strncpy(dev, route.ii.devname, sizeof(dev));
 
-    if (route.ii.device_type != devt_ethernet)
+    if (! (route.ii.device_type == devt_ethernet
+#ifdef WIN32
+          || (g_has_npcap_loopback && route.ii.device_type == devt_loopback)
+#endif
+          ) ) {
       goto usesock;
+    }
 
     /* above we fallback to using the raw socket if we can't find an (ethernet)
      * route to the host.  From here on out it's ethernet all the way.

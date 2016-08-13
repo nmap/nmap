@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -1486,9 +1486,9 @@ int obtainRawSocket(){
   }else{
     if ((rawipsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
         nping_fatal(QT_3,"Couldn't acquire IPv4 raw socket. Are you root?");
-        /* Tell the kernel we are including our own IP Header (call to 
-        * setsockopt passing option IP_HDRINCL)                             */
-        sethdrinclude(rawipsd);
+    /* Tell the kernel we are including our own IP Header (call to
+     * setsockopt passing option IP_HDRINCL) */
+    sethdrinclude(rawipsd);
   }
 
   /* Allow broadcast addresses */

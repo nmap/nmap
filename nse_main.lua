@@ -32,8 +32,8 @@
 
 local _VERSION = _VERSION;
 local MAJOR, MINOR = assert(_VERSION:match "^Lua (%d+).(%d+)$");
-if tonumber(MAJOR.."."..MINOR) < 5.2 then
-  error "NSE requires Lua 5.2 or newer. It looks like you're using an older version of nmap."
+if tonumber(MAJOR.."."..MINOR) < 5.3 then
+  error "NSE requires Lua 5.3 or newer. It looks like you're using an older version of nmap."
 end
 
 local NAME = "NSE";
@@ -51,6 +51,7 @@ local DESTRUCTOR = "NSE_DESTRUCTOR";
 local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 local FORMAT_TABLE = "NSE_FORMAT_TABLE";
 local FORMAT_XML = "NSE_FORMAT_XML";
+local PARALLELISM = "NSE_PARALLELISM";
 
 -- Unique value indicating the action function is going to run.
 local ACTION_STARTING = {};
@@ -134,7 +135,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
     local name = "nselib/"..lib..".lua";
     local type, path = cnse.fetchfile_absolute(name);
     if type == "file" then
-      return loadfile(path);
+      return assert(loadfile(path));
     else
       return "\n\tNSE failed to find "..name.." in search paths.";
     end
@@ -967,7 +968,8 @@ local function run (threads_iter, hosts)
     end
 
     local nr, nw = table_size(running), table_size(waiting);
-    if cnse.key_was_pressed() then
+    -- total may be 0 if no scripts are running in this phase
+    if total > 0 and cnse.key_was_pressed() then
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)",
           nr+nw, nw);
       progress("printStats", 1-(nr+nw)/total);
@@ -981,7 +983,7 @@ local function run (threads_iter, hosts)
               (gsub(traceback(co), "\n", "\n\t")));
         end
       end
-    elseif progress "mayBePrinted" then
+    elseif total > 0 and progress "mayBePrinted" then
       if verbosity() > 1 or debugging() > 0 then
         progress("printStats", 1-(nr+nw)/total);
       else
@@ -1315,6 +1317,10 @@ local function main (hosts, scantype)
   for i, script in ipairs(chosen_scripts) do
     runlevels[script.runlevel] = runlevels[script.runlevel] or {};
     insert(runlevels[script.runlevel], script);
+  end
+
+  if _R[PARALLELISM] > CONCURRENCY_LIMIT then
+    CONCURRENCY_LIMIT = _R[PARALLELISM];
   end
 
   if scantype == NSE_PRE_SCAN then

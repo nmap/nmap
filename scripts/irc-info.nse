@@ -37,7 +37,7 @@ It uses STATS, LUSERS, and other queries to obtain this information.
 -- <elem key="source host">source.example.com</elem>
 -- <elem key="source ident">NONE or BLOCKED</elem>
 
-author = "Doug Hoyte, Patrick Donnelly"
+author = {"Doug Hoyte", "Patrick Donnelly"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 

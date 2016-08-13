@@ -107,12 +107,11 @@ local function readFile(filename)
     return false, ("Failed to open file: %s"):format(filename)
   end
 
-  local str = f:read("*all")
+  local str = f:read("a")
+  f:close()
   if ( not(str) ) then
-    f:close()
     return false, "Failed to read file contents"
   end
-  f:close()
   return true, str
 end
 
@@ -136,7 +135,7 @@ local function requestFileScan(filename)
   local port = { number = 80, protocol = "tcp" }
   local path = "/vtapi/v2/file/scan"
 
-  local response = http.post( host, port, path, { header = header }, nil, postdata )
+  local response = http.post( host, port, path, {any_af = true, header = header }, nil, postdata )
   if ( not(response) or response.status ~= 200 ) then
     return false, "Failed to request file scan"
   end
@@ -156,7 +155,7 @@ local function getFileScanReport(resource)
   local path = "/vtapi/v2/file/report"
 
 
-  local response = http.post(host, port, path, nil, nil, { ["apikey"] = arg_apiKey, ["resource"] = resource })
+  local response = http.post(host, port, path, {any_af=true}, nil, { ["apikey"] = arg_apiKey, ["resource"] = resource })
   if ( not(response) or response.status ~= 200 ) then
     return false, "Failed to retrieve scan report"
   end

@@ -22,7 +22,7 @@
 --
 -- For a more complete example, consult the rpcap-info.nse script.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 
 local bin = require "bin"

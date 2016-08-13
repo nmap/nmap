@@ -72,7 +72,7 @@ categories = { "vuln", "safe" }
 
 
 portrule = function(host, port)
- return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+ return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 local Error = {

@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -2264,7 +2264,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
     // Check that the service is still where we left it.
     // servicescan_connect_handler can call end_svcprobe before this point,
     // putting it into services_finished already.
-    if (SG->services_remaining.front() == svc) {
+    if (!SG->services_remaining.empty() && SG->services_remaining.front() == svc) {
       // Now remove it from the remaining service list
       SG->services_remaining.pop_front();
       // And add it to the in progress list

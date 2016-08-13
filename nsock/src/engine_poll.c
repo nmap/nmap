@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -356,9 +356,17 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
-    nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
-    nsp->errnum = sock_err;
-    return -1;
+#ifdef WIN32
+    for (int i = 0; sock_err != EINVAL || i <= pinfo->max_fd; i++) {
+      if (sock_err != EINVAL || pinfo->events[i].fd != -1) {
+#endif
+        nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+        nsp->errnum = sock_err;
+        return -1;
+#ifdef WIN32
+      }
+    }
+#endif
   }
 
   iterate_through_event_lists(nsp);

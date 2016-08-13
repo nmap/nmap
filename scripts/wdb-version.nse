@@ -63,16 +63,14 @@ local WDB_Procedure = {
 
 local function checksum(data)
   local sum = 0
-  local p = 0
-  local _
-  p, _ = bin.unpack(">I", data)
-  while p < data:len() do
+  local p = 5 -- skip first 4 bytes
+  while p < #data do
     local c
-    p, c = bin.unpack(">S", data, p)
+    c, p = (">I2"):unpack(data, p)
     sum = sum + c
   end
-  sum = bit.band(sum, 0xffff) + bit.rshift(sum, 16)
-  return bit.bnot( sum )
+  sum = (sum & 0xffff) + (sum >> 16)
+  return ~sum & 0xffff
 end
 
 local seqnum = 0
@@ -83,9 +81,9 @@ end
 
 local function request(comm, procedure, data)
   local packet = comm:EncodePacket( nil, procedure, {type = rpc.Portmap.AuthType.NULL}, nil )
-  local wdbwrapper = bin.pack( ">I2", data:len() + packet:len() + 8, seqno() )
-  local sum = checksum(packet..bin.pack(">I", 0x00000000)..wdbwrapper..data)
-  return packet .. bin.pack(">S2", 0xffff, sum) .. wdbwrapper .. data
+  local wdbwrapper = (">I4I4"):pack(#data + #packet + 8, seqno())
+  local sum = checksum(packet .. "\0\0\0\0" .. wdbwrapper .. data)
+  return packet .. (">I2I2"):pack(0xffff, sum) .. wdbwrapper .. data
 end
 
 local function stripnull(str)
@@ -100,61 +98,61 @@ local function decode_reply(data, pos)
   pos, _ = rpc.Util.unmarshall_uint32(data, pos)
   pos, _ = rpc.Util.unmarshall_uint32(data, pos)
   pos, wdberr = rpc.Util.unmarshall_uint32(data, pos)
-  info["error"] = bit.band(wdberr, 0xc0000000)
-  if (info["error"] ~= 0x00000000 ) then
+  info["error"] = wdberr & 0xc0000000
+  if info["error"] ~= 0x00000000 then
     stdnse.debug1("Error from decode_reply: %x", info["error"])
     return nil, info
   end
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (len ~= 0) then
+  if len ~= 0 then
     pos, info["agent_ver"] = rpc.Util.unmarshall_vopaque(len, data, pos)
   end
   pos, info["agent_mtu"] = rpc.Util.unmarshall_uint32(data, pos)
   pos, info["agent_mod"] = rpc.Util.unmarshall_uint32(data, pos)
-  pos, info["rt_type"]          = rpc.Util.unmarshall_uint32(data, pos)
+  pos, info["rt_type"] = rpc.Util.unmarshall_uint32(data, pos)
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (pos == done) then return pos, info end
-  if (len ~= 0) then
-    pos, info["rt_vers"]          = rpc.Util.unmarshall_vopaque(len, data, pos)
+  if pos == done then return pos, info end
+  if len ~= 0 then
+    pos, info["rt_vers"] = rpc.Util.unmarshall_vopaque(len, data, pos)
   end
-  pos, info["rt_cpu_type"]      = rpc.Util.unmarshall_uint32(data, pos)
-  pos, len       = rpc.Util.unmarshall_uint32(data, pos)
-  info["rt_has_fpp"]       = ( len ~= 0 )
-  pos, len       = rpc.Util.unmarshall_uint32(data, pos)
-  info["rt_has_wp"]       = ( len ~= 0 )
-  pos, info["rt_page_size"]     = rpc.Util.unmarshall_uint32(data, pos)
-  pos, info["rt_endian"]        = rpc.Util.unmarshall_uint32(data, pos)
+  pos, info["rt_cpu_type"] = rpc.Util.unmarshall_uint32(data, pos)
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (len ~= 0) then
-    pos, info["rt_bsp_name"]      = rpc.Util.unmarshall_vopaque(len, data, pos)
+  info["rt_has_fpp"] = ( len ~= 0 )
+  pos, len = rpc.Util.unmarshall_uint32(data, pos)
+  info["rt_has_wp"] = ( len ~= 0 )
+  pos, info["rt_page_size"] = rpc.Util.unmarshall_uint32(data, pos)
+  pos, info["rt_endian"] = rpc.Util.unmarshall_uint32(data, pos)
+  pos, len = rpc.Util.unmarshall_uint32(data, pos)
+  if len ~= 0 then
+    pos, info["rt_bsp_name"] = rpc.Util.unmarshall_vopaque(len, data, pos)
   end
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (len ~= 0) then
-    pos, info["rt_bootline"]      = rpc.Util.unmarshall_vopaque(len, data, pos)
+  if len ~= 0 then
+    pos, info["rt_bootline"] = rpc.Util.unmarshall_vopaque(len, data, pos)
   end
-  if (pos == done) then return pos, info end
-  pos, info["rt_membase"]       = rpc.Util.unmarshall_uint32(data, pos)
-  if (pos == done) then return pos, info end
-  pos, info["rt_memsize"]       = rpc.Util.unmarshall_uint32(data, pos)
-  if (pos == done) then return pos, info end
-  pos, info["rt_region_count"]  = rpc.Util.unmarshall_uint32(data, pos)
-  if (pos == done) then return pos, info end
+  if pos == done then return pos, info end
+  pos, info["rt_membase"] = rpc.Util.unmarshall_uint32(data, pos)
+  if pos == done then return pos, info end
+  pos, info["rt_memsize"] = rpc.Util.unmarshall_uint32(data, pos)
+  if pos == done then return pos, info end
+  pos, info["rt_region_count"] = rpc.Util.unmarshall_uint32(data, pos)
+  if pos == done then return pos, info end
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (len ~= 0) then
+  if len ~= 0 then
     info["rt_regions"] = {}
     for i = 1, len do
       pos, info["rt_regions"][i] = rpc.Util.unmarshall_uint32(data, pos)
     end
   end
-  if (pos == done) then return pos, info end
+  if pos == done then return pos, info end
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (len == nil) then return pos, info end
-  if (len ~= 0) then
+  if len == nil then return pos, info end
+  if len ~= 0 then
     pos, info["rt_hostpool_base"] = rpc.Util.unmarshall_vopaque(len, data, pos)
   end
-  if (pos == done) then return pos, info end
+  if pos == done then return pos, info end
   pos, len = rpc.Util.unmarshall_uint32(data, pos)
-  if (len ~= 0) then
+  if len ~= 0 then
     pos, info["rt_hostpool_size"] = rpc.Util.unmarshall_vopaque(len, data, pos)
   end
   return pos, info
@@ -162,36 +160,32 @@ end
 
 action = function(host, port)
   local comm = rpc.Comm:new("wdb", 1)
-  local status, err, data, pos, header
-  local info = {}
-  status, err = comm:Connect(host, port)
-  if (not(status)) then
+  local status, err = comm:Connect(host, port)
+  if not status then
     return stdnse.format_output(false, err)
   end
-  comm.socket:set_timeout(3000)
-  local packet = request(comm, WDB_Procedure["WDB_TARGET_CONNECT"], bin.pack(">I3", 0x00000002, 0x00000000, 0x00000000))
-  if (not(comm:SendPacket(packet))) then
+  local packet = request(comm, WDB_Procedure["WDB_TARGET_CONNECT"], (">I4I4I4"):pack(2, 0, 0))
+  if not comm:SendPacket(packet) then
     return stdnse.format_output(false, "Failed to send request")
   end
 
-  status, data = comm:ReceivePacket()
-  if (not(status)) then
+  local status, data = comm:ReceivePacket()
+  if not status then
     --return stdnse.format_output(false, "Failed to read data")
     return nil
   end
   nmap.set_port_state(host, port, "open")
 
-  pos = 0
-  pos, header = comm:DecodeHeader(data, pos)
+  local pos, header = comm:DecodeHeader(data, 1)
   if not header then
     return stdnse.format_output(false, "Failed to decode header")
   end
 
-  if ( pos == data:len() ) then
+  if pos == #data then
     return stdnse.format_output(false, "No WDB data in reply")
   end
 
-  pos, info = decode_reply(data, pos)
+  local pos, info = decode_reply(data, pos)
   if not pos then
     return stdnse.format_output(false, "WDB error: "..info.error)
   end
@@ -199,32 +193,32 @@ action = function(host, port)
   port.version.name_confidence = 10
   port.version.product = "Wind DeBug Agent"
   port.version.version = stripnull(info["agent_ver"])
-  if (port.version.ostype ~= nil) then
+  if port.version.ostype ~= nil then
     port.version.ostype = "VxWorks " .. stripnull(info["rt_vers"])
   end
   nmap.set_port_version(host, port)
   -- Clean up (some agents will continue to send data until we disconnect)
-  packet = request(comm, WDB_Procedure["WDB_TARGET_DISCONNECT"], bin.pack(">I3", 0x00000002, 0x00000000, 0x00000000))
-  if (not(comm:SendPacket(packet))) then
+  packet = request(comm, WDB_Procedure["WDB_TARGET_DISCONNECT"], (">I4I4I4"):pack(2, 0, 0))
+  if not comm:SendPacket(packet) then
     return stdnse.format_output(false, "Failed to send request")
   end
 
   local o = stdnse.output_table()
   table.insert(o, "VULNERABLE: Wind River Systems VxWorks debug service enabled. See http://www.kb.cert.org/vuls/id/362332")
-  if (info.agent_ver) then
+  if info.agent_ver then
     o["Agent version"] = stripnull(info.agent_ver)
   end
   --table.insert(o, "Agent MTU: " .. info.agent_mtu)
-  if (info.rt_vers) then
+  if info.rt_vers then
     o["VxWorks version"] = stripnull(info.rt_vers)
   end
   -- rt_cpu_type is an enum type, but I don't have access to
   -- cputypes.h, where it is defined
   --table.insert(o, "CPU Type: " .. info.rt_cpu_type)
-  if (info.rt_bsp_name) then
+  if info.rt_bsp_name then
     o["Board Support Package"] = stripnull(info.rt_bsp_name)
   end
-  if (info.rt_bootline) then
+  if info.rt_bootline then
     o["Boot line"] = stripnull(info.rt_bootline)
   end
   return o

@@ -3,7 +3,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+# * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
 # * also a registered trademark of Insecure.Com LLC.  This program is free  *
 # * software; you may redistribute and/or modify it under the terms of the  *
 # * GNU General Public License as published by the Free Software            *
@@ -128,7 +128,7 @@ APP_DISPLAY_NAME = "Zenmap"
 APP_WEB_SITE = "https://nmap.org/zenmap"
 APP_DOWNLOAD_SITE = "https://nmap.org/download.html"
 APP_DOCUMENTATION_SITE = "https://nmap.org/docs.html"
-APP_COPYRIGHT = "Copyright 2005-2015 Insecure.Com LLC"
+APP_COPYRIGHT = "Copyright 2005-2016 Insecure.Com LLC"
 
 NMAP_DISPLAY_NAME = u"Nmap"
 NMAP_WEB_SITE = "https://nmap.org"

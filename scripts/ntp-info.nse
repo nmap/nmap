@@ -1,5 +1,8 @@
 local bin = require "bin"
 local comm = require "comm"
+local datetime = require "datetime"
+local os = require "os"
+local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -100,13 +103,15 @@ action = function(host, port)
 
   status, buftres = comm.exchange(host, port, treq, {timeout=TIMEOUT})
   if status then
-    local _, sec, frac, tstamp
+    local recvtime = os.time()
 
-    _, sec, frac = bin.unpack(">II", buftres, 33)
+    local _, sec, frac = bin.unpack(">II", buftres, 33)
     -- The NTP epoch is 1900-01-01, so subtract 70 years to bring the date into
     -- the range Lua expects. The number of seconds at 1970-01-01 is taken from
     -- the NTP4 reference above.
-    tstamp = sec - 2208988800 + frac / 0x10000000
+    local tstamp = sec - 2208988800 + frac / 0x10000000
+
+    datetime.record_skew(host, tstamp, recvtime)
 
     output["receive time stamp"] = stdnse.format_timestamp(tstamp)
   end

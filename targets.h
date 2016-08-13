@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -208,6 +208,9 @@ int dumpExclude(addrset *exclude_group);
 /* Returns the last host obtained by nexthost.  It will be given again the next
    time you call nexthost(). */
 void returnhost(HostGroupState *hs);
+
+
+bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *target);
 
 #endif /* TARGETS_H */
 
