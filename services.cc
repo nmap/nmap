@@ -579,6 +579,7 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         }
       }
     }
+    pos=0;
     if (o.UDPScan()) {
       for (int j = ui; j < ui+ptsdata.udp_count; ++j)
       {
@@ -593,6 +594,7 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         }
       }
     }
+    pos=0;
     if (o.SCTPScan()) {
       for (int j = si; j < si+ptsdata.sctp_count; ++j)
       {
