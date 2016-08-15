@@ -417,7 +417,11 @@ do
     end
     -- storing script's start time so as to account for script's timeout later
     if cnse.script_timeout then
-      self.start_time = os.time()
+      if self.worker then
+        self.start_time = self.parent.start_time
+      else
+        self.start_time = os.time()
+      end
     end
   end
 
