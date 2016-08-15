@@ -1750,8 +1750,6 @@ int nmap_main(int argc, char *argv[]) {
   char hostname[FQDN_LEN + 1] = "";
   struct sockaddr_storage ss;
   size_t sslen;
-  int processed_hosts;
-  bool check_target;
 
   now = time(NULL);
   local_time = localtime(&now);
@@ -1979,25 +1977,14 @@ int nmap_main(int argc, char *argv[]) {
     o.ping_group_sz = o.minHostGroupSz();
   HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) argv);
 
-  processed_hosts = 0;
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
-
-    check_target = false;
-    if (processed_hosts ==  hstate.current_batch_sz)
-      processed_hosts = 0;
 
     while (Targets.size() < ideal_scan_group_sz) {
       o.current_scantype = HOST_DISCOVERY;
       currenths = nexthost(&hstate, &exclude_group, &ports, o.pingtype);
       if (!currenths)
         break;
-
-      if (processed_hosts == hstate.current_batch_sz) {
-        check_target = true;
-        processed_hosts = 0;
-      }
-      processed_hosts++;
 
       if (currenths->flags & HOST_UP && !o.listscan)
         o.numhosts_up++;
@@ -2069,7 +2056,7 @@ int nmap_main(int argc, char *argv[]) {
         /* Hosts in a group need to be somewhat homogeneous. Put this host in
            the next group if necessary. See target_needs_new_hostgroup for the
            details of when we need to split. */
-        if (check_target && target_needs_new_hostgroup(&Targets[0], Targets.size(), currenths)) {
+        if (Targets.size() && target_needs_new_hostgroup(&Targets[0], Targets.size(), currenths)) {
           returnhost(&hstate);
           o.numhosts_up--;
           break;

@@ -163,7 +163,7 @@ run_tests = function(to_test)
     stdnse.debug1("Testing %s", lib)
     local status, thelib = pcall(require, lib)
     if not status then
-      stdnse.debug1("Failed to load %s", lib)
+      stdnse.debug1("Failed to load %s: %s", lib, thelib)
     else
       local failed = 0
       if rawget(thelib,"test_suite") ~= nil then
@@ -302,6 +302,28 @@ table_equal = function(a, b)
   end
 end
 
+--- Test associative tables for equality, 1 level deep
+-- @param a The first table to test
+-- @param b The second table to test
+-- @return bool True if a[k] == b[k] for all k in a and b
+keys_equal = function(a, b)
+  return function (suite)
+    local seen = {}
+    for k, v in pairs(a) do
+      if b[k] ~= v then
+        return false, ("%s ~= %s at key %s"):format(v, b[k], k)
+      end
+      seen[k] = true
+    end
+    for k, v in pairs(b) do
+      if not seen[k] then
+        return false, ("Key %s not present in table a"):format(k)
+      end
+    end
+    return true
+  end
+end
+
 --- Test for equality
 -- @param a The first value to test
 -- @param b The second value to test
@@ -394,6 +416,8 @@ test_suite:add_test(lt(1, 999), "1 < 999")
 test_suite:add_test(lte(8, 8), "8 <= 8")
 test_suite:add_test(expected_failure(not_nil(nil)), "Test expected to fail fails")
 test_suite:add_test(expected_failure(is_nil(nil)), "Test expected to fail succeeds")
-test_suite:add_test(length_is(test_suite.tests, 10), "Number of tests is 10")
+test_suite:add_test(keys_equal({one=1,two=2,[3]="three"},{[3]="three",one=1,two=2}), "identical tables are identical")
+test_suite:add_test(expected_failure(keys_equal({one=1,two=2},{[3]="three",one=1,two=2}), "dissimilar tables are dissimilar"))
+test_suite:add_test(length_is(test_suite.tests, 12), "Number of tests is 12")
 
 return _ENV;
