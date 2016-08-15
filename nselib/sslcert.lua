@@ -19,7 +19,7 @@
 -- * VNC (TLS and VeNCrypt auth types)
 -- * XMPP
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 local asn1 = require "asn1"
 local bin = require "bin"
@@ -466,7 +466,7 @@ StartTLS = {
     while optype ~= mssql.PreLoginPacket.OPTION_TYPE.Terminator do
       --stdnse.debug1("optype: %d, oppos: %x, oplen: %d", optype, oppos, oplen)
       if optype == mssql.PreLoginPacket.OPTION_TYPE.Encryption then
-        encryption = bin.unpack('C', result, oppos + 1)
+        pos, encryption = bin.unpack('C', result, oppos + 1)
         break
       end
       pos, optype, oppos, oplen = bin.unpack('>CSS', result, pos)

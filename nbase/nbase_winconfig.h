@@ -126,6 +126,17 @@
 
 #ifndef NBASE_WINCONFIG_H
 #define NBASE_WINCONFIG_H
+
+/* Define the earliest version of Windows we support.  These control
+what parts of the Windows API are available. The available constants
+are in <sdkddkver.h>.
+http://msdn.microsoft.com/en-us/library/aa383745.aspx
+http://blogs.msdn.com/oldnewthing/archive/2007/04/11/2079137.aspx */
+#undef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_WIN6
+#undef NTDDI_VERSION
+#define NTDDI_VERSION NTDDI_WIN6
+
 //This disables the warning 4800 http://msdn.microsoft.com/en-us/library/b6801kcy(v=vs.71).aspx
 #pragma warning(disable : 4800)
 /* It doesn't really have struct IP, but we use a different one instead
@@ -151,6 +162,12 @@
 #define HAVE_NETINET_IF_ETHER_H 1
 #define HAVE_SYS_STAT_H 1
 /* #define HAVE_INTTYPES_H */
+
+/* These functions are available on Vista and later */
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN6
+#define HAVE_INET_PTON 1
+#define HAVE_INET_NTOP 1
+#endif
 
 #ifdef _MSC_VER
 /* <wspiapi.h> only comes with Visual Studio. */

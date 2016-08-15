@@ -196,6 +196,12 @@ action = function (host, port)
     save = save .. "/";
   end
 
+  local status_404, result_404, known_404 = http.identify_404(host, port)
+  if not status_404 then
+    stdnse.debug1("Can't distinguish 404 response. Quitting.")
+    return stdnse.format_output(false, "Can't determine file existence")
+  end
+
   -- for each config file
   for _, cfg in ipairs(CONFIGS) do
     -- for each alteration of the filename
@@ -203,10 +209,12 @@ action = function (host, port)
       local url_path
 
       url_path = url.build({path = path .. entry});
+
       -- http request
       local response = http.get(host, port, url_path);
 
-      if (response.status == 200) then
+      -- if it's not 200, don't bother. If it is, check that it's not a false 404
+      if response.status == 200 and http.page_exists(response, result_404, known_404, url_path) then
         -- check it if is valid before inserting
         if cfg.check(response.body) then
           local filename = stdnse.escape_filename((host.targetname or host.ip) .. url_path)

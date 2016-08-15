@@ -25,7 +25,7 @@
 -- ** The purpose of the class is to provide easy access to common iSCSI task
 --
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 -- Version 0.2

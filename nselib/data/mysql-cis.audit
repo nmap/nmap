@@ -1,4 +1,10 @@
-require("tab")
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
+-- Defined in mysql-audit.nse
+-- makes nse-check-globals complain, but that's ok
+local test = test
 
 TEMPLATE_NAME="CIS MySQL Benchmarks v1.0.2"
 

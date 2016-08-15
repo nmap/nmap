@@ -48,7 +48,7 @@ vulnerable installations.
 -- @args http-vuln-cve2012-1823.cmd CMD. Default: uname -a
 ---
 
-author = "Paulino Calderon <calderon@websec.mx>, Paul AMAR <aos.paul@gmail.com>"
+author = {"Paulino Calderon <calderon@websec.mx>", "Paul AMAR <aos.paul@gmail.com>"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 

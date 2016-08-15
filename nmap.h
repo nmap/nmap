@@ -193,13 +193,13 @@
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "7.12SVN"
-#define NMAP_NUM_VERSION "7.0.12.1"
+#define NMAP_VERSION "7.25SVN"
+#define NMAP_NUM_VERSION "7.0.25.100"
 #endif
 /* The version number of updates retrieved by the nmap-update
    program. It can be different (but should always be the same or
    earlier) than NMAP_VERSION. */
-#define NMAP_UPDATE_CHANNEL "6.49"
+#define NMAP_UPDATE_CHANNEL "7.20"
 
 #define NMAP_XMLOUTPUTVERSION "1.04"
 
@@ -322,6 +322,9 @@
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif
+
+/* Length of longest DNS name */
+#define FQDN_LEN 254
 
 /* Max payload: Worst case is IPv4 with 40bytes of options and TCP with 20
  * bytes of options. */

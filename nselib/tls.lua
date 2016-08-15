@@ -4,7 +4,7 @@
 -- These functions will build strings and process buffers. Socket communication
 -- is left to the script to implement.
 --
--- @author "Daniel Miller <bonsaiviking@gmail.com>"
+-- @author Daniel Miller
 
 local stdnse = require "stdnse"
 local bin = require "bin"
@@ -1074,6 +1074,11 @@ function cipher_info (c)
   if info.export and tonumber(tokens[i+1]) then
     i = i + 1
     info.size = tonumber(tokens[i])
+  end
+
+  -- Other key size overrides
+  if info.cipher == "RC4" then -- RFC 7465 prohibits RC4 in TLS
+    info.size = math.min(info.size or 80, 80) -- Equivalently caps to C grade?
   end
 
   -- hash

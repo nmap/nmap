@@ -6,7 +6,7 @@
 -- @args stun.mode Mode container to use. Supported containers: "modern"
 --                 (default) or "classic"
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 local bin = require "bin"

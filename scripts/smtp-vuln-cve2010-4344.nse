@@ -226,7 +226,7 @@ local function exploit_heap(socket, smtp_opts)
     return status, msg
   end
 
-  stdnse.debug1("sending forged mail, size: %dMB", msg_len / (1024*1024))
+  stdnse.debug1("sending forged mail, size: %.fMB", msg_len / (1024*1024))
 
   -- use low socket level functions.
   status, ret = socket:send(hdrs)

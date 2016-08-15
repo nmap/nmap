@@ -336,7 +336,7 @@ local DHE_PRIMES = {
     C3F0A6AF 8F92F19E 3FEF9337 B99B9C93 A055D55A 96E42573 4005A68E D47040FD
     F00A5593 6EBA4B93 F64CBA1A 004E4513 611C9B21 7438A703 A2060C20 38D0CFAA
     FFBBA48F B9DAC4B2 450DC58C B0320A03 17E2A31B 44A02787 C657FB0C 0CBEC11D
-  ]])] = "weakdh.org/1024-bit MODP group with safe prime modulus",
+  ]])] = "weakdh.org/1024-bit MODP group with non-safe prime modulus",
 
   [fromhex([[
     C9BBF5F7 74A8297B 0F97CDDA 3A3468C7 117B6BF7 99A13D9F 1F5DAC48 7B2241FE
@@ -796,11 +796,11 @@ action = function(host, port)
   local vuln_table_anondh = {
     title = "Anonymous Diffie-Hellman Key Exchange MitM Vulnerability",
     description = [[
-Transport Layer Security (TLS) services that use anonymous Diffie-Hellman
-key exchange only provide protection against passive eavesdropping, and
-are vulnerable to active man-in-the-middle attacks which could completely
-compromise the confidentiality and integrity of any data exchanged over
-the resulting session.]],
+Transport Layer Security (TLS) services that use anonymous
+Diffie-Hellman key exchange only provide protection against passive
+eavesdropping, and are vulnerable to active man-in-the-middle attacks
+which could completely compromise the confidentiality and integrity
+of any data exchanged over the resulting session.]],
     state = vulns.STATE.NOT_VULN,
     references = {
       "https://www.ietf.org/rfc/rfc2246.txt"
@@ -810,12 +810,13 @@ the resulting session.]],
   local vuln_table_logjam = {
     title = "Transport Layer Security (TLS) Protocol DHE_EXPORT Ciphers Downgrade MitM (Logjam)",
     description = [[
-The Transport Layer Security (TLS) protocol contains a flaw that is triggered
-when handling Diffie-Hellman key exchanges defined with the DHE_EXPORT cipher.
-This may allow a man-in-the-middle attacker to downgrade the security of a TLS
-session to 512-bit export-grade cryptography, which is significantly weaker,
-allowing the attacker to more easily break the encryption and monitor or tamper
-with the encrypted stream.]],
+The Transport Layer Security (TLS) protocol contains a flaw that is
+triggered when handling Diffie-Hellman key exchanges defined with
+the DHE_EXPORT cipher. This may allow a man-in-the-middle attacker
+to downgrade the security of a TLS session to 512-bit export-grade
+cryptography, which is significantly weaker, allowing the attacker
+to more easily break the encryption and monitor or tamper with
+the encrypted stream.]],
     state = vulns.STATE.NOT_VULN,
     IDS = {
       CVE = 'CVE-2015-4000',
@@ -837,9 +838,9 @@ with the encrypted stream.]],
   local vuln_table_weakdh = {
     title = "Diffie-Hellman Key Exchange Insufficient Group Strength",
     description = [[
-Transport Layer Security (TLS) services that use Diffie-Hellman groups of
-insufficient strength, especially those using one of a few commonly shared
-groups, may be susceptible to passive eavesdropping attacks.]],
+Transport Layer Security (TLS) services that use Diffie-Hellman groups
+of insufficient strength, especially those using one of a few commonly
+shared groups, may be susceptible to passive eavesdropping attacks.]],
     state = vulns.STATE.NOT_VULN,
     references = {
       "https://weakdh.org"
@@ -849,13 +850,15 @@ groups, may be susceptible to passive eavesdropping attacks.]],
   local vuln_table_nosafe = {
     title = "Diffie-Hellman Key Exchange Incorrectly Generated Group Parameters",
     description = [[
-This TLS service appears to be using a modulus that is not a safe prime and does
-not correspond to any well-known DSA group for Diffie-Hellman key exchange.
+This TLS service appears to be using a modulus that is not a safe prime
+and does not correspond to any well-known DSA group for Diffie-Hellman
+key exchange.
 These parameters MAY be secure if:
-- They were generated according to the procedure described in FIPS 186-4 for
-  DSA Domain Parameter Generation, or
+- They were generated according to the procedure described in
+  FIPS 186-4 for DSA Domain Parameter Generation, or
 - The generator g generates a subgroup of large prime order
-Additional testing may be required to verify the security of these parameters.]],
+Additional testing may be required to verify the security of these
+parameters.]],
     state = vulns.STATE.NOT_VULN,
     references = {
       "https://weakdh.org",

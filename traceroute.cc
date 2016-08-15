@@ -906,6 +906,8 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   assert(targets.size() > 0);
 
   if ((o.sendpref & PACKET_SEND_ETH) && targets[0]->ifType() == devt_ethernet) {
+    /* No need to check for g_has_npcap_loopback on WIN32 because devt_loopback
+     * is checked earlier. */
     ethsd = eth_open_cached(targets[0]->deviceName());
     if (ethsd == NULL)
       fatal("dnet: failed to open device %s", targets[0]->deviceName());

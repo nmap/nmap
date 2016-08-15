@@ -196,10 +196,10 @@ static unsigned short *parse_portlist(const char *portlist, unsigned int *count)
     l = strtol(portlist, &tail, 10);
     if (portlist == tail || errno != 0 || l < 0 || l > 65535)
       return NULL;
-      if (!(bitmap[l / 32] & (1 << (l % 32)))) {
-        bitmap[l / 32] |= (1 << (l % 32));
-        (*count)++;
-      }
+    if (!(bitmap[l / 32] & (1 << (l % 32)))) {
+      bitmap[l / 32] |= (1 << (l % 32));
+      (*count)++;
+    }
     if (*tail == '\0')
       break;
     else if (*tail == ',')

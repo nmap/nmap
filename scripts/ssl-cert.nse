@@ -119,7 +119,7 @@ categories = { "default", "safe", "discovery" }
 
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 -- Find the index of a value in an array.

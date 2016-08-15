@@ -135,6 +135,8 @@
 #include "tcpip.h"
 #include <list>
 #include <vector>
+#include <set>
+#include <algorithm>
 
 struct probespec_tcpdata {
   u16 dport;
@@ -649,6 +651,12 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
   void init();
 };
 
+struct HssPredicate {
+public:
+  int operator() (HostScanStats *lhs, HostScanStats *rhs);
+  static struct sockaddr_storage *ss;
+};
+
 class UltraScanInfo {
 public:
   UltraScanInfo();
@@ -730,11 +738,11 @@ public:
 
   /* Any function which messes with (removes elements from)
      incompleteHosts may have to manipulate nextI */
-  std::list<HostScanStats *> incompleteHosts;
+  std::set<HostScanStats *, HssPredicate> incompleteHosts;
   /* Hosts are moved from incompleteHosts to completedHosts as they are
      completed. We keep them around because sometimes responses come back very
      late, after we consider a host completed. */
-  std::list<HostScanStats *> completedHosts;
+  std::set<HostScanStats *, HssPredicate> completedHosts;
   /* How long (in msecs) we keep a host in completedHosts */
   unsigned int completedHostLifetime;
   /* The last time we went through completedHosts to remove hosts */
@@ -751,7 +759,7 @@ public:
 private:
 
   unsigned int numInitialTargets;
-  std::list<HostScanStats *>::iterator nextI;
+  std::set<HostScanStats *>::iterator nextI;
 
 };
 

@@ -1,4 +1,5 @@
 local comm = require "comm"
+local datetime = require "datetime"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local bin = require "bin"
@@ -46,12 +47,14 @@ action = function(host, port)
 
     -- Make sure we don't stomp a more-likely service detection.
     if port.version.name == "time" then
-      local diff = os.difftime(stamp,os.time())
+      local recvtime = os.time()
+      local diff = os.difftime(stamp,recvtime)
       if diff < 0 then diff = -diff end
       -- confidence decreases by 1 for each year the time is off.
       stdnse.debug1("Time difference: %d seconds (%0.2f years)", diff, diff / 31556926)
       local confidence = 10 - diff / 31556926
       if confidence < 0 then confidence = 0 end
+      datetime.record_skew(host, stamp, recvtime)
       port.version.name_confidence = confidence
       nmap.set_port_version(host, port, "hardmatched")
     end

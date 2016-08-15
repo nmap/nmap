@@ -315,7 +315,12 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     data = ext->value->data;
+#else
+    ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
+    data = asn1_str->data;
+#endif
     /* Here we rely on the fact that the internal representation (the "i" in
        "i2d") for NID_subject_alt_name is STACK_OF(GENERAL_NAME). Converting it
        to a stack of CONF_VALUE with a i2v method is not satisfactory, because a
@@ -323,13 +328,27 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
        presence of null bytes. */
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
     if (method->it != NULL) {
+    #if OPENSSL_VERSION_NUMBER < 0x10100000L
         gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
             (const unsigned char **) &data,
             ext->value->length, ASN1_ITEM_ptr(method->it));
+    #else
+        ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
+        gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
+            (const unsigned char **) &data,
+            asn1_str_a->length, ASN1_ITEM_ptr(method->it));
+    #endif
     } else {
+    #if OPENSSL_VERSION_NUMBER < 0x10100000L
         gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
             (const unsigned char **) &data,
             ext->value->length);
+    #else
+        ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
+        gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
+            (const unsigned char **) &data,
+            asn1_str_b->length);
+    #endif
     }
 #else
     gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
@@ -493,13 +512,14 @@ int ssl_post_connect_check(SSL *ssl, const char *hostname)
    "Making Certificates"; and apps/req.c in the OpenSSL source. */
 static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 {
-    RSA *rsa;
+    RSA *rsa = NULL;
     X509_NAME *subj;
     X509_EXTENSION *ext;
     X509V3_CTX ctx;
+    BIGNUM *bne = NULL;
     const char *commonName = "localhost";
     char dNSName[128];
-    int rc;
+    int rc, ret=0;
 
     *cert = NULL;
     *key = NULL;
@@ -509,9 +529,17 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     if (*key == NULL)
         goto err;
     do {
-        rsa = RSA_generate_key(DEFAULT_KEY_BITS, RSA_F4, NULL, NULL);
-        if (rsa == NULL)
+        /* Generate RSA key. */
+        bne = BN_new();
+        ret = BN_set_word(bne, RSA_F4);
+        if (ret != 1)
             goto err;
+
+        rsa = RSA_new();
+        ret = RSA_generate_key_ex(rsa, DEFAULT_KEY_BITS, bne, NULL);
+        if (ret != 1)
+            goto err;
+
         rc = RSA_check_key(rsa);
     } while (rc == 0);
     if (rc == -1)

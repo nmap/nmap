@@ -53,11 +53,10 @@ Default installations of older versions of frontpage extensions allow anonymous 
     references = {
       'http://insecure.org/sploits/Microsoft.frontpage.insecurities.html',
     },
-    exploit_results = {},
+    state = vulns.STATE.NOT_VULN,
   };
 
   local report = vulns.Report:new(SCRIPT_NAME, host, port);
-  frontpage_vuln.state = vulns.STATE.NOT_VULN;
 
   data = http.get( host, port, path .. "/_vti_inf.html" )
 
@@ -72,17 +71,14 @@ Default installations of older versions of frontpage extensions allow anonymous 
         if data.status == 200  then
           stdnse.debug1("Frontpage returned 200 OK, server vulnerable.")
           frontpage_vuln.state = vulns.STATE.VULN;
-          return report:make_output(frontpage_vuln);
         elseif data.status == 401  then
           stdnse.debug1("Frontpage returned 401, password protected.")
-          return false
         else
           stdnse.debug1("Frontpage returned unknown response.")
-          return false
         end
       end
     end
   end
   stdnse.debug1("Frontpage probably not installed.")
-  return false
+  return report:make_output(frontpage_vuln);
 end

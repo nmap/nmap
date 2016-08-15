@@ -27,7 +27,8 @@
 -- </code>
 --
 --
--- @author "Thomas Buchanan, Patrik Karlsson <patrik@cqure.net>"
+-- @author Thomas Buchanan
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 --
 -- Version 0.1
