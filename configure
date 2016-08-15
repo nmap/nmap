@@ -6740,6 +6740,7 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
 
 $as_echo "#define LIBSSH2_INCLUDED 1" >>confdefs.h
 
+    with_libssh2="yes"
   else
     LIBSSH2_LIBS="-lssh2"
     LIBSSH2_BUILD=""
@@ -6775,9 +6776,16 @@ test "${with_zlib+set}" != "set" && with_zlib="no"
 if test "${with_zlib+set}" = set; then :
   withval=$with_zlib;
   # Force use of included zlib if compiling with libssh2
+  echo "                                                  use_libssh2=$use_libssh2"
+  echo "                                                 with_libssh2=$with_libssh2"
+  echo "                                                    with_zlib=$with_zlib"
   if test $use_libssh2 = "yes" -a $with_zlib = "no"; then
     with_zlib="yes"
   fi
+
+  echo "                                                  use_libssh2=$use_libssh2"
+  echo "                                                 with_libssh2=$with_libssh2"
+  echo "                                                    with_zlib=$with_zlib"
 
   case "$with_zlib" in
   yes)

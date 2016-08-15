@@ -621,6 +621,7 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
     LIBSSH2_CLEAN="clean-libssh2"
     LIBSSH2_DIST_CLEAN="distclean-libssh2"
     AC_DEFINE(LIBSSH2_INCLUDED, 1, [Using included libssh2])
+    with_libssh2="yes"
   else
     LIBSSH2_LIBS="-lssh2"
     LIBSSH2_BUILD=""
@@ -654,9 +655,16 @@ AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])
 AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
 [ 
   # Force use of included zlib if compiling with libssh2
+  echo "                                                  use_libssh2=$use_libssh2"
+  echo "                                                 with_libssh2=$with_libssh2"
+  echo "                                                    with_zlib=$with_zlib"
   if test $use_libssh2 = "yes" -a $with_zlib = "no"; then
     with_zlib="yes"
   fi
+
+  echo "                                                  use_libssh2=$use_libssh2"
+  echo "                                                 with_libssh2=$with_libssh2"
+  echo "                                                    with_zlib=$with_zlib"
 
   case "$with_zlib" in
   yes)
