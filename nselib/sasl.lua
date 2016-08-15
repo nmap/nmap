@@ -43,21 +43,10 @@
 
 local bin = require "bin"
 local bit = require "bit"
-local lpeg = require "lpeg";
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 local unicode = require "unicode"
-local unittest = require "unittest"
-
-lpeg.locale(lpeg)
-local P = lpeg.P;
-local S = lpeg.S;
-local C = lpeg.C;
-local Cf = lpeg.Cf;
-local Cg = lpeg.Cg;
-local Ct = lpeg.Ct;
-local space = lpeg.space
 _ENV = stdnse.module("sasl", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require, 'openssl')
@@ -98,12 +87,21 @@ if HAVE_SSL then
       local results = {}
       local start, stop = 0,0
       if self.chall then
-        local key = C(lpeg.alpha^1)
-        local value = lpeg.C(lpeg.P'\"'^-1 * (lpeg.alnum+S'@./')^1 * P'\"'^-1)
-        local sep = S(",") * space
-        local pair = Cg(key * "=" * value) * sep^-1
-        local list = Cf(lpeg.P'Digest ' * Ct("") * pair^0, rawset)
-        self.challnvs = list:match(self.chall)
+        while(true) do
+          local name, value
+          start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
+          if ( not(start) ) then break end
+          if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
+            start, stop, value = self.chall:find("(.-)\"", stop + 2)
+          else
+            start, stop, value = self.chall:find("([^,]*)", stop + 1)
+          end
+          name = name:lower()
+          if name == "digest realm" then name="realm" end
+          self.challnvs[name] = value
+          start, stop = self.chall:find("%s*,%s*", stop + 1)
+          if ( not(start) ) then break end
+        end
       end
     end,
 
@@ -459,48 +457,5 @@ Helper = {
     return self.callback(...)
   end,
 }
-
-if not unittest.testing() then
-  return _ENV;
-end
-
--- self-testing starts here
-local expected = {}
-
-local object = DigestMD5:new('Digest nonce="9e4ab724d272474ab13b64d75300a47b", \z
-    opaque="de40b82666bd5fe631a64f3b2d5a019e", \z
-    realm="me@kennethreitz.com", qop=auth',
-  "tempuname", "tempupasswd", "tempmethod", "/temp/path")
-
-expected['nonce'] = '"9e4ab724d272474ab13b64d75300a47b"'
-expected['opaque'] = '"de40b82666bd5fe631a64f3b2d5a019e"'
-expected['realm'] = '"me@kennethreitz.com"'
-expected['qop'] = 'auth'
-
-test_suite = unittest.TestSuite:new()
-test_suite:add_test(function()
-  for key, value in ipairs(expected) do
-    if not ( object.challnvs[key] and object.challnvs[key] == value ) then
-      return false
-    end
-  end
-  return true
-end, 'Parse Digest key:"value" challenge')
-
-object.chall = 'Digest realm="test", domain="/HTTP/Digest", nonce="c8563a5b367e66b3693fbb07a53a30ba"'
-object:parseChallenge()
-
-expected['realm'] = '"test"'
-expected['domain'] = '"/HTTP/Digest"'
-expected['nonce'] = '"c8563a5b367e66b3693fbb07a53a30ba"'
-
-test_suite:add_test(function()
-  for key, value in ipairs(expected) do
-    if not ( object.challnvs[key] and object.challnvs[key] == value ) then
-      return false
-    end
-  end
-  return true
-end, 'Parse Digest key:"value" challenge')
 
 return _ENV;
