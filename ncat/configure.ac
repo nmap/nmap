@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(ncat_main.c)
+AC_INIT(${srcdir}/ncat_main.c)
 
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER(${srcdir}/config.h)
 
 m4_include([../acinclude.m4])
 
@@ -114,7 +114,7 @@ fi
 
 AC_SUBST(OPENSSL_LIBS)
 
-libpcapdir=../libpcap
+libpcapdir=${srcdir}/../libpcap
 AC_SUBST(libpcapdir)
 
 dnl Check whether libpcap is already available
@@ -306,8 +306,8 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_CONFIG_FILES(Makefile)
 AC_OUTPUT
 # NCAT ASCII ART
-if test -f docs/ncat-ascii-art.txt; then
-	cat docs/ncat-ascii-art.txt
+if test -f ${srcdir}/docs/ncat-ascii-art.txt; then
+	cat ${srcdir}/docs/ncat-ascii-art.txt
 fi
 
 echo "Configuration complete."

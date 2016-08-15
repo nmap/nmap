@@ -582,7 +582,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 PACKAGE_URL=
 
-ac_unique_file="nsock_core.c"
+ac_unique_file="${srcdir}/nsock_core.c"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -2109,14 +2109,14 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 if test "${top_nmap_srcdir+set}" != set; then
-  top_nmap_srcdir=../..
+  top_nmap_srcdir=${srcdir}/../..
   export top_nmap_srcdir
 fi
 
-ac_config_files="$ac_config_files Makefile ../tests/Makefile"
+ac_config_files="$ac_config_files Makefile ${srcdir}/../tests/Makefile"
 
 
-ac_config_headers="$ac_config_headers ../include/nsock_config.h"
+ac_config_headers="$ac_config_headers ${srcdir}/../include/nsock_config.h"
 
 
 ac_aux_dir=
@@ -4937,7 +4937,7 @@ else
 fi
 
 
-NSOCKTESTDIR="../tests"
+NSOCKTESTDIR="${srcdir}/../tests"
 
 LDFLAGS="$LDFLAGS -L$NBASEDIR"
 CPPFLAGS="$CPPFLAGS -I$NBASEDIR"
@@ -5639,8 +5639,8 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "../tests/Makefile") CONFIG_FILES="$CONFIG_FILES ../tests/Makefile" ;;
-    "../include/nsock_config.h") CONFIG_HEADERS="$CONFIG_HEADERS ../include/nsock_config.h" ;;
+    "${srcdir}/../tests/Makefile") CONFIG_FILES="$CONFIG_FILES ${srcdir}/../tests/Makefile" ;;
+    "${srcdir}/../include/nsock_config.h") CONFIG_HEADERS="$CONFIG_HEADERS ${srcdir}/../include/nsock_config.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -6221,4 +6221,3 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-

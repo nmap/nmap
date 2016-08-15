@@ -17,15 +17,15 @@ SVN_LIBS = @SVN_LIBS@
 
 INSTALL = @INSTALL@
 STRIP = @STRIP@
-SHTOOL = ../shtool
+SHTOOL = ${srcdir}/../shtool
 
 DESTDIR =
 
 SOURCES = nmap-update svn_auth
-C_FILES = $(addsuffix .c,$(SOURCES))
+C_FILES = $(addprefix ${srcdir}/, $(addsuffix .c,$(SOURCES)) )
 O_FILES = $(addsuffix .o,$(SOURCES))
 
-NBASEDIR = ../nbase
+NBASEDIR = ${srcdir}/../nbase
 NBASELIB = $(NBASEDIR)/libnbase.a
 
 all: nmap-update
@@ -33,7 +33,7 @@ all: nmap-update
 nmap-update: $(O_FILES) $(NBASELIB)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(SVN_LIBS) $(APR_LIBS) $(OPENSSL_LIBS) $(LIBS)
 
-%.o: %.c
+%.o: ${srcdir}/%.c
 	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<
 
 $(NBASELIB):
@@ -43,7 +43,7 @@ install: nmap-update
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 	$(INSTALL) -c -m 755 nmap-update $(DESTDIR)$(bindir)
 	$(STRIP) -x $(DESTDIR)$(bindir)/nmap-update
-	$(INSTALL) -c -m 644 ../docs/nmap-update.1 $(DESTDIR)$(mandir)/man1/
+	$(INSTALL) -c -m 644 ${srcdir}/../docs/nmap-update.1 $(DESTDIR)$(mandir)/man1/
 
 uninstall:
 	$(RM) -f $(DESTDIR)$(bindir)/nmap-update
@@ -54,7 +54,7 @@ clean:
 distclean: clean
 	rm -f Makefile makefile.dep
 
-Makefile: Makefile.in
+Makefile: ${srcdir}/Makefile.in
 	./config.status
 
 makefile.dep:

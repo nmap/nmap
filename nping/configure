@@ -582,7 +582,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 PACKAGE_URL=
 
-ac_unique_file="nping.cc"
+ac_unique_file="${srcdir}/nping.cc"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -2258,13 +2258,13 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
-libpcapdir=../libpcap
+libpcapdir=${srcdir}/../libpcap
 
 
-pcredir=libpcre
+pcredir=${srcdir}/libpcre
 
 
-ac_config_headers="$ac_config_headers nping_config.h"
+ac_config_headers="$ac_config_headers ${srcdir}/nping_config.h"
 
 
 ac_aux_dir=
@@ -5375,7 +5375,7 @@ fi
 
 have_dnet=no
 requested_included_dnet=no
-LIBDNETDIR=../libdnet-stripped
+LIBDNETDIR=${srcdir}/../libdnet-stripped
 
 # First we test whether they specified libdnet explicitly.
 # Unlike the other included libraries (pcap, pcre, lua), we prefer our local
@@ -6235,11 +6235,6 @@ fi
 esac
 
 
-
-
-
-
-
 for ac_func in strerror
 do :
   ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
@@ -6946,7 +6941,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "nping_config.h") CONFIG_HEADERS="$CONFIG_HEADERS nping_config.h" ;;
+    "${srcdir}/nping_config.h") CONFIG_HEADERS="$CONFIG_HEADERS ${srcdir}/nping_config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
@@ -7680,7 +7675,7 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 # Some ASCII ART#!#@$!@#$
-if test -f docs/leet-nping-ascii-art.txt; then
-	cat docs/leet-nping-ascii-art.txt
+if test -f ${srcdir}/docs/leet-nping-ascii-art.txt; then
+	cat ${srcdir}/docs/leet-nping-ascii-art.txt
 fi
 echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."

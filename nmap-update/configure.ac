@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([nmap-update.c])
-AC_CONFIG_HEADERS([config.h])
+AC_INIT([${srcdir}/nmap-update.c])
+AC_CONFIG_HEADERS([${srcdir}/config.h])
 
 m4_include([../acinclude.m4])
 

@@ -18,13 +18,13 @@ CFLAGS = @CFLAGS@ $(CCOPT) $(GLIB_CFLAGS) $(DEFS) $(INCLS)
 STATIC = 
 LDFLAGS = @LDFLAGS@ $(STATIC)
 LIBS =  @LIBS@ 
-SHTOOL = ./shtool
+SHTOOL = ${srcdir}/../shtool
 INSTALL = $(SHTOOL) install 
 MAKEDEPEND = @MAKEDEPEND@
 
 TARGET = libnbase.a
 
-DEPS = getopt.h nbase.h nbase_winconfig.h nbase_config.h nbase_ipv6.h nbase_winunix.h nbase_crc32ct.h nbase_addrset.h
+DEPS = ${srcdir}/getopt.h ${srcdir}/nbase.h ${srcdir}/nbase_winconfig.h ${srcdir}/nbase_config.h ${srcdir}/nbase_ipv6.h ${srcdir}/nbase_winunix.h ${srcdir}/nbase_crc32ct.h ${srcdir}/nbase_addrset.h
 OBJS = @LIBOBJS@
 
 all: $(TARGET) 
@@ -38,22 +38,22 @@ clean:
 	rm -f $(OBJS) $(TARGET) 
 
 distclean: clean
-	rm -f Makefile config.cache config.log config.status nbase_config.h
+	rm -f Makefile config.cache config.log config.status ${srcdir}/nbase_config.h
 
 depend:
 	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
 
-configure: configure.ac
-	autoconf
+${srcdir}/configure: ${srcdir}/configure.ac
+	cd $(srcdir) && autoconf
 
-Makefile: Makefile.in config.status
+Makefile: ${srcdir}/Makefile.in config.status
 	./config.status
 
-config.status: configure
+config.status: ${srcdir}/configure
 	./config.status --recheck
 
-.cc.o:
-	$(CC) -c $(CFLAGS) $*.cc
+%.o: ${srcdir}/%.c $(DEPS)
+	$(CC) -c $(CFLAGS) -c $< -o $@
 
 # DO NOT DELETE -- Needed by makedepend
 

@@ -582,7 +582,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 PACKAGE_URL=
 
-ac_unique_file="nbase.h"
+ac_unique_file="${srcdir}/nbase.h"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -2260,7 +2260,7 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
-ac_config_headers="$ac_config_headers nbase_config.h"
+ac_config_headers="$ac_config_headers ${srcdir}/nbase_config.h"
 
 
 ac_ext=c
@@ -5869,7 +5869,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "nbase_config.h") CONFIG_HEADERS="$CONFIG_HEADERS nbase_config.h" ;;
+    "${srcdir}/nbase_config.h") CONFIG_HEADERS="$CONFIG_HEADERS ${srcdir}/nbase_config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

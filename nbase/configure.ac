@@ -14,7 +14,7 @@ AC_PREREQ(2.13)
 # Include my own macros
 m4_include([acinclude.m4])
 
-AC_INIT(nbase.h)
+AC_INIT(${srcdir}/nbase.h)
 
 AC_ARG_WITH(localdirs,
   [  --with-localdirs        Explicitly ask compiler to use /usr/local/{include,libs} if they exist ],
@@ -39,7 +39,7 @@ if test "$user_localdirs" = 1; then
 fi
 
 dnl use config.h instad of -D macros
-AC_CONFIG_HEADER(nbase_config.h)
+AC_CONFIG_HEADER(${srcdir}/nbase_config.h)
 
 dnl Checks for programs.
 AC_PROG_CC
