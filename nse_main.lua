@@ -416,7 +416,9 @@ do
       timeouts[self.host][self.co] = true;
     end
     -- storing script's start time so as to account for script's timeout later
-    self.start_time = os.time()
+    if cnse.script_timeout then
+      self.start_time = os.time()
+    end
   end
 
   -- Remove scripts from the timeouts list and call their
@@ -482,7 +484,7 @@ do
       script = self,
       type = script_type,
       worker = false,
-      start_time = nil, --for script timeout
+      start_time = 0, --for script timeout
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -499,6 +501,7 @@ do
       info = format("%s W:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = self,
       worker = true,
+      start_time = 0,
     };
     setmetatable(thread, Worker)
     local function info ()
