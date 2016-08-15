@@ -1176,9 +1176,10 @@ end
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>.
+-- @param extra_params A table containing socket which is already in operation for stateful connection
 -- @return A response table, see module documentation for description.
 -- @see generic_request
-local function request(host, port, data, options)
+local function request(host, port, data, options, extra_params)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
@@ -1202,7 +1203,14 @@ local function request(host, port, data, options)
     host = addrs[1] or host
   end
 
-  local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
+  local socket, partial, opts
+  if extra_params and extra_params.socket then
+    socket = extra_params.socket
+    partial = extra_params.partial
+    opts = extra_params.opts
+  else
+    socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
+  end
 
   if not socket then
     stdnse.debug1("http.request socket error: %s", partial)
@@ -1279,19 +1287,7 @@ function generic_request(host, port, method, path, options)
     local _, digest_table = dmd5:calcDigest()
     options.digestauth = digest_table
 
-    socket:send(build_request(host, port, method, path, options))
-
-    repeat
-      response, partial = next_response(socket, method, partial)
-      if not response then
-        return http_error("There was error in receiving response of type 3 message.")
-      end
-    until not (response.status >= 100 and response.status <= 199)
-
-    response.ssl = ( opts == 'ssl' )
-
-    socket:close()
-    return response
+    return request(host, port, build_request(host, port, method, path, options), options, { socket=socket })
   end
 
   if ntlm_auth and have_ssl then
