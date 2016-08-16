@@ -74,7 +74,7 @@ end
 ---
 local function http_auth_realm(response)
   local auth = response.header["www-authenticate"] or ""
-  return auth:match('%srealm="([^"]*)')
+  return auth:match('%srealm%s*=%s*"([^"]*)')
 end
 
 fingerprints = {}
