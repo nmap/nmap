@@ -4,15 +4,14 @@
 -- SSH2 is a complex protocol and libssh2 simplifies many tasks involved in
 -- interacting with ssh servers. This module provides bindings for some of the
 -- most commonly used libssh2 functions. You may wish to use the functionality
--- in libssh2_util instead, which wraps many of the functions here in an easier
+-- in libssh2-utility instead, which wraps many of the functions here in an easier
 -- to use class, SSHConnection.
 --
 -- For perfomance reasons, the modules reuses the NSE's existing nsock socket
--- pool. In order to accomplish this, libssh2 is a given a unix socket pair 
--- instead of a network socket. As a result, this library is *nix only at the
--- current time.
+-- pool.
 --
 -- @author Devin Bjelland
+-- @author Sergey Khegay
 -- @copyright same as Nmap
 
 module "libssh2"
