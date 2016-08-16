@@ -87,7 +87,7 @@ __inline int c99_snprintf(char *outBuf, size_t size, const char *format, ...)
 
 
 #ifdef WIN32
-/* dumb_socketpair:
+/* make_socketpair:
 *   If make_overlapped is nonzero, both sockets created will be usable for
 *   "overlapped" operations via WSASend etc.  If make_overlapped is zero,
 *   socks[0] (only) will be usable with regular ReadFile etc., and thus
@@ -95,7 +95,7 @@ __inline int c99_snprintf(char *outBuf, size_t size, const char *format, ...)
 *   sockets must be closed with closesocket() regardless.
 */
 
-int dumb_socketpair (SOCKET socks[2], int make_overlapped)
+int make_socketpair (SOCKET socks[2], int make_overlapped)
 {
     union {
         struct sockaddr_in inaddr;
@@ -165,7 +165,7 @@ int dumb_socketpair (SOCKET socks[2], int make_overlapped)
     return -1;
 }
 #else
-int dumb_socketpair (int socks[2], int dummy)
+int make_socketpair (int socks[2], int dummy)
 {
     if (socks == 0) {
         errno = EINVAL;
@@ -405,7 +405,7 @@ static int l_session_open (lua_State *L)
 
     libssh2_session_set_blocking(state->session, 0);
 
-    if (dumb_socketpair(state->sp, 1) == -1) {
+    if (make_socketpair(state->sp, 1) == -1) {
         return nseU_safeerror(L, "trying to create socketpair");
     }
 
