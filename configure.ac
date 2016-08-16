@@ -647,73 +647,66 @@ AC_SUBST(LIBSSH2_LIBS)
 
 # We test whether desired libz is specified explicitly
 
-have_zlib="no"
-test "${with_zlib+set}" != "set" && with_zlib="no"
+have_libz="no"
+test "${with_libz+set}" != "set" && with_libz="no"
 
 AC_ARG_WITH(zlib,
 AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])
 AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
 [ 
   # Force use of included zlib if compiling with libssh2
-  echo "                                                  use_libssh2=$use_libssh2"
-  echo "                                                 with_libssh2=$with_libssh2"
-  echo "                                                    with_zlib=$with_zlib"
-  if test $use_libssh2 = "yes" -a $with_zlib = "no"; then
-    with_zlib="yes"
+  if test $use_libssh2 = "yes" -a $with_libz = "no"; then
+    with_libz="yes"
   fi
 
-  echo "                                                  use_libssh2=$use_libssh2"
-  echo "                                                 with_libssh2=$with_libssh2"
-  echo "                                                    with_zlib=$with_zlib"
-
-  case "$with_zlib" in
+  case "$with_libz" in
   yes)
     AC_CHECK_HEADER(zlib.h,[
       AC_CHECK_LIB(z, gzread,
-        [have_zlib="yes"],,)
+        [have_libz="yes"],,)
       ])
     ;;
   no)
     # Do nothing
     ;;
   included)
-    with_zlib="yes"
-    have_zlib="no"
+    with_libz="yes"
+    have_libz="no"
     ;;
   *)
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
-    CPPFLAGS="-I$with_zlib/include $CPPFLAGS"
-    LDFLAGS="-L$with_zlib/lib $LDFLAGS"
+    CPPFLAGS="-I$with_libz/include $CPPFLAGS"
+    LDFLAGS="-L$with_libz/lib $LDFLAGS"
 
     AC_CHECK_HEADER(zlib.h,[
       AC_CHECK_LIB(z, gzread,
-        [have_zlib=yes
-        ZLIB_INC=$with_zlib/include
-        ZLIB_LIB=$with_zlib/lib])
+        [have_libz=yes
+        ZLIB_INC=$with_libz/include
+        ZLIB_LIB=$with_libz/lib])
       ],,
     )
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-    with_zlib="yes"
+    with_libz="yes"
   ;;
   esac
 ]
 )
 
-if test $with_zlib = yes -a $with_libssh2 = yes; then
+if test $with_libz = yes -a $with_libssh2 = yes; then
   trace_use="$trace_use zlib (libssh2 dependency)"
 
-  if test $have_zlib = yes; then
+  if test $have_libz = yes; then
     if test "${ZLIB_LIB+set}" = "set"; then
       CPPFLAGS="-I$ZLIB_INC $CPPFLAGS"
       LDFLAGS="-L$ZLIB_LIB $LDFLAGS"
     fi
   fi
 
-  if test $have_zlib != yes; then
+  if test $have_libz != yes; then
     AC_CONFIG_SUBDIRS(libz)
     
     if test "${ZLIB_INC+set}" = "set"; then
@@ -734,7 +727,7 @@ if test $with_zlib = yes -a $with_libssh2 = yes; then
     ZLIB_DIST_CLEAN=""
   fi
 
-  AC_DEFINE(HAVE_ZLIB, 1, [Have zlib library])
+  AC_DEFINE(have_libz, 1, [Have zlib library])
 else
   trace_no_use="$trace_no_use zlib (libssh2 dependency)"
   ZLIB_LIBS=""
