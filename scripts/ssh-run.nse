@@ -1,6 +1,6 @@
 local stdnse = require "stdnse"
 local shortport = require "shortport"
-local libssh2_util = require "libssh2_util"
+local libssh2_util = require "libssh2-utility"
 
 description = [[
 Runs remote command on ssh server and returns command output.
