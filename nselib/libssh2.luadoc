@@ -3,7 +3,9 @@
 --
 -- SSH2 is a complex protocol and libssh2 simplifies many tasks involved in
 -- interacting with ssh servers. This module provides bindings for some of the
--- most commonly used libssh2 functions. 
+-- most commonly used libssh2 functions. You may wish to use the functionality
+-- in libssh2_util instead, which wraps many of the functions here in an easier
+-- to use class, SSHConnection.
 --
 -- For perfomance reasons, the modules reuses the NSE's existing nsock socket
 -- pool. In order to accomplish this, libssh2 is a given a unix socket pair 
@@ -65,6 +67,54 @@ function read_publickey(publickeyfile)
 -- @param publickeydata String containing raw publickey blob
 -- @return true/false, depending on whether user can authenticate with given key
 function publickey_canauth(session, username, publickeydata)
+
+--- Opens channel on authenticated ssh2 session and sets it to pseudo 
+-- terminal mode.
+-- @param session Authenticated libssh2 session
+-- @return libssh2 channel
+function open_channel(session)
+
+--- Reads data from stdin on libssh2 channel.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @return string containing data read from channel 
+function channel_read(session, channel)
+
+--- Reads data from stderr on libssh2 channel.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @return string containing data read from channel
+function channel_read_stderr(session, channel)
+
+--- Writes data to libssh2 channel. Not garenteed to write entire buffer.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param buffer String containing data to be written
+-- @return Number of bytes written to channel 
+function channel_write(session, channel, buffer)
+
+--- Executes command on libssh2 channel and returns output
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param cmd String containing command to execute
+-- @return String containing output from command
+function channel_exec(session, channel, cmd)
+
+--- Sends EOF on libssh2 channel. Note that the server may continue to send data
+-- until it sends its own EOF (which can be checked with channel_eof()
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+function channel_send_eof(session, channel)
+
+--- Checks if server has sent EOF on libssh2 channel
+-- @param channel Open libssh2 channel
+-- @return true/false depending on whether server has send EOF
+function channel_eof(channel)
+
+--- Gracefully closes open libssh2 channel
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+function channel_close(session, channel)
 
 --- Gracefully closes connected libssh2 session
 -- @param session Connected libssh2 session
