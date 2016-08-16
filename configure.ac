@@ -650,15 +650,15 @@ AC_SUBST(LIBSSH2_LIBS)
 have_libz="no"
 test "${with_libz+set}" != "set" && with_libz="no"
 
+# Force use of included zlib if compiling with libssh2
+if test $use_libssh2 = "yes" -a $with_libz = "no"; then
+  with_libz="yes"
+fi
+
 AC_ARG_WITH(zlib,
 AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])
 AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
 [ 
-  # Force use of included zlib if compiling with libssh2
-  if test $use_libssh2 = "yes" -a $with_libz = "no"; then
-    with_libz="yes"
-  fi
-
   case "$with_libz" in
   yes)
     AC_CHECK_HEADER(zlib.h,[
