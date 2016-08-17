@@ -718,7 +718,7 @@ Engine =
     local tps = ( sum == 0 ) and ( self.counter / time_diff ) or ( sum / #self.tps )
 
     -- Add the statistics to the result
-    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps )
+    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %.1f"):format( self.counter, time_diff, tps )
 
     if ( self.options.max_guesses > 0 ) then
       -- we only display a warning if the guesses are equal to max_guesses
