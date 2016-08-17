@@ -1287,7 +1287,12 @@ function generic_request(host, port, method, path, options)
     local _, digest_table = dmd5:calcDigest()
     options.digestauth = digest_table
 
-    return request(host, port, build_request(host, port, method, path, options), options, { socket=socket })
+    print("response.header is " .. response.header['connection'])
+    if response.header['connection'] == "close" then
+      return request(host, port, build_request(host, port, method, path, options), options)
+    else
+      return request(host, port, build_request(host, port, method, path, options), options, { socket=socket })
+    end
   end
 
   if ntlm_auth and have_ssl then
