@@ -494,20 +494,23 @@ static void begin_sniffer(HostOsScan *HOS, std::vector<Target *> &Targets) {
   if (HOS->pd == NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
 
+  struct sockaddr_storage ss = Targets[0]->source();
   /* Build the final BPF filter */
-  if (doIndividual)
-    len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s",
-                   inet_ntoa(Targets[0]->v4source()), dst_hosts);
-  else
-    len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or tcp)",
-                   inet_ntoa(Targets[0]->v4source()));
-  if (len < 0 || len >= (int) sizeof(pcap_filter))
-    fatal("ran out of space in pcap filter");
+  if (ss.ss_family == AF_INET) {
+    if (doIndividual)
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s",
+                   inet_ntoa(((struct sockaddr_in *)&ss)->sin_addr), dst_hosts);
+    else
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or tcp)",
+                   inet_ntoa(((struct sockaddr_in *)&ss)->sin_addr));
+    if (len < 0 || len >= (int) sizeof(pcap_filter))
+      fatal("ran out of space in pcap filter");
 
-  /* Compile and apply the filter to the pcap descriptor */
-  if (o.debugging)
-    log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter);
-  set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
+    /* Compile and apply the filter to the pcap descriptor */
+    if (o.debugging)
+      log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter);
+    set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
+  }
 
   return;
 }
@@ -2192,7 +2195,7 @@ int HostOsScan::send_icmp_echo_probe(HostOsScanStats *hss,
   ethptr = hss->fill_eth_nfo(&eth, ethsd);
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+    packet = build_icmp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
                             o.ttl, get_random_u16(), tos, df, NULL, 0, seq, id,
                             ICMP_ECHO, pcode, NULL, datalen, &packetlen);
     if (!packet)
@@ -2245,7 +2248,9 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
   }
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    source = &o.decoys[decoy];
+    if (o.decoys[decoy].ss_family == AF_INET6)
+      return 1;
+    source = &((struct sockaddr_in *)&o.decoys[decoy])->sin_addr;
 
     memset((char *) packet, 0, sizeof(struct ip) + sizeof(struct udp_hdr));
 

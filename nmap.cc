@@ -501,6 +501,7 @@ public:
     this->pre_host_timeout      = -1;
     this->iflist                = false;
     this->af                    = AF_UNSPEC;
+    this->decoys                = false;
   }
 
   // Pre-specified timing parameters.
@@ -512,9 +513,9 @@ public:
   int   pre_max_retries;
   long  pre_host_timeout;
   char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
-  bool  iflist;
+  bool  iflist, decoys;
   char  *exclude_spec, *exclude_file;
-  char  *spoofSource;
+  char  *spoofSource, *decoy_arguments;
   const char *spoofmac;
   int af;
   std::vector<std::string> verbose_out;
@@ -540,7 +541,7 @@ static void test_file_name(const char *filename, const char *option) {
 }
 
 void parse_options(int argc, char **argv) {
-  char *p, *q;
+  char *p;
   int arg;
   long l;
   double d;
@@ -1065,52 +1066,7 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'D':
-      p = optarg;
-      do {
-        q = strchr(p, ',');
-        if (q)
-          *q = '\0';
-        if (!strcasecmp(p, "me")) {
-          if (o.decoyturn != -1)
-            fatal("Can only use 'ME' as a decoy once.\n");
-          o.decoyturn = o.numdecoys++;
-        } else if (!strcasecmp(p, "rnd") || !strncasecmp(p, "rnd:", 4)) {
-          int i = 1;
-
-          /* 'rnd:' is allowed and just gives them one */
-          if (strlen(p) > 4)
-            i = atoi(&p[4]);
-
-          if (i < 1)
-            fatal("Bad 'rnd' decoy \"%s\"", p);
-
-          if (o.numdecoys + i >= MAX_DECOYS - 1)
-            fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
-
-          while (i--) {
-            do {
-              o.decoys[o.numdecoys].s_addr = get_random_u32();
-            } while (ip_is_reserved(&o.decoys[o.numdecoys]));
-            o.numdecoys++;
-          }
-        } else {
-          if (o.numdecoys >= MAX_DECOYS - 1)
-            fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
-
-          /* Try to resolve it */
-          struct sockaddr_in decoytemp;
-          size_t decoytemplen = sizeof(struct sockaddr_in);
-          int rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
-          if (rc != 0)
-            fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
-          o.decoys[o.numdecoys] = decoytemp.sin_addr;
-          o.numdecoys++;
-        }
-        if (q) {
-          *q = ',';
-          p = q + 1;
-        }
-      } while (q);
+      delayed_options.decoy_arguments = optarg;
       break;
     case 'd':
       if (optarg && isdigit(optarg[0])) {
@@ -1690,14 +1646,6 @@ void  apply_delayed_options() {
     error("WARNING: a IP Protocol ping scan was requested, but after excluding requested protocols, none remain. Skipping this scan type.");
 
 
-  /* Set up our array of decoys! */
-  if (o.decoyturn == -1) {
-    o.decoyturn = (o.numdecoys == 0) ?  0 : get_random_uint() % o.numdecoys;
-    o.numdecoys++;
-    for (i = o.numdecoys - 1; i > o.decoyturn; i--)
-      o.decoys[i] = o.decoys[i - 1];
-  }
-
   /* We need to find what interface to route through if:
    * --None have been specified AND
    * --We are root and doing tcp ping OR
@@ -1725,6 +1673,68 @@ void  apply_delayed_options() {
   }
   o.exclude_spec = delayed_options.exclude_spec;
 
+  if (delayed_options.decoy_arguments) {
+    char *p = delayed_options.decoy_arguments, *q;
+    do {
+      q = strchr(p, ',');
+      if (q)
+        *q = '\0';
+      if (!strcasecmp(p, "me")) {
+        if (o.decoyturn != -1)
+          fatal("Can only use 'ME' as a decoy once.\n");
+        o.decoyturn = o.numdecoys++;
+      } else if (!strcasecmp(p, "rnd") || !strncasecmp(p, "rnd:", 4)) {
+        if (delayed_options.af == AF_INET6)
+          fatal("Random decoys can only be used with IPv4");
+        int i = 1;
+
+        /* 'rnd:' is allowed and just gives them one */
+        if (strlen(p) > 4)
+          i = atoi(&p[4]);
+
+        if (i < 1)
+          fatal("Bad 'rnd' decoy \"%s\"", p);
+
+        if (o.numdecoys + i >= MAX_DECOYS - 1)
+          fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
+
+        while (i--) {
+          do {
+            ((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr.s_addr = get_random_u32();
+          } while (ip_is_reserved(&((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr));
+          o.numdecoys++;
+        }
+      } else {
+        if (o.numdecoys >= MAX_DECOYS - 1)
+          fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
+
+        /* Try to resolve it */
+        struct sockaddr_storage decoytemp;
+        size_t decoytemplen = sizeof(struct sockaddr_storage);
+        int rc;
+        if (delayed_options.af == AF_INET6){
+          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET6);
+        }
+        else
+          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
+        if (rc != 0)
+          fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
+        o.decoys[o.numdecoys] = decoytemp;
+        o.numdecoys++;
+      }
+      if (q) {
+        *q = ',';
+        p = q + 1;
+      }
+    } while (q);
+  }
+  /* Set up host address also in array of decoys! */
+  if (o.decoyturn == -1) {
+    o.decoyturn = (o.numdecoys == 0) ?  0 : get_random_uint() % o.numdecoys;
+    o.numdecoys++;
+    for (i = o.numdecoys - 1; i > o.decoyturn; i--)
+      o.decoys[i] = o.decoys[i - 1];
+  }
 }
 
 int nmap_main(int argc, char *argv[]) {
@@ -2061,7 +2071,7 @@ int nmap_main(int argc, char *argv[]) {
           o.numhosts_up--;
           break;
         }
-        o.decoys[o.decoyturn] = currenths->v4source();
+        o.decoys[o.decoyturn] = currenths->source();
       }
       Targets.push_back(currenths);
     }
@@ -2074,8 +2084,8 @@ int nmap_main(int argc, char *argv[]) {
 
     // Our source must be set in decoy list because nexthost() call can
     // change it (that issue really should be fixed when possible)
-    if (o.af() == AF_INET && o.RawScan())
-      o.decoys[o.decoyturn] = Targets[0]->v4source();
+    if (o.RawScan())
+      o.decoys[o.decoyturn] = Targets[0]->source();
 
     /* I now have the group for scanning in the Targets vector */
 
