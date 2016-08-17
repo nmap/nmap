@@ -1417,19 +1417,8 @@ function generic_request(host, port, method, path, options)
       ntlm)
 
     custom_options.ntlmauth = auth_blob
-    socket:send(build_request(host, port, method, path, custom_options))
 
-    repeat
-      response, partial = next_response(socket, method, partial)
-      if not response then
-        return http_error("There was error in receiving response of type 3 message.")
-      end
-    until not (response.status >= 100 and response.status <= 199)
-
-    socket:close()
-    response.ssl = ( opts == 'ssl' )
-
-    return response
+    return request(host, port, build_request(host, port, method, path, custom_options), custom_options, { socket=socket })
   end
 
   return request(host, port, build_request(host, port, method, path, options), options)
