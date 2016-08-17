@@ -1855,7 +1855,7 @@ way.</para>
         <indexterm><primary>--port-ratio</primary></indexterm>
         <para>Scans all ports in <filename>nmap-services</filename> file
         with a ratio greater than the one given.
-        <replaceable>ratio</replaceable> must be between 0.0 and 1.1.</para>
+        <replaceable>ratio</replaceable> must be between 0.0 and 1.0.</para>
         </listitem>
       </varlistentry>
 
