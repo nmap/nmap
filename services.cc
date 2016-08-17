@@ -526,17 +526,21 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
       fatal("Level argument to gettoppts (%g) is too large", level);
 
     if (o.TCPScan()) {
-      ports->tcp_count = MIN((int) level, numtcpports);
+      ports->tcp_count = MIN((int) level+ptsdata.tcp_count, numtcpports);
       ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
     }
     if (o.UDPScan()) {
-      ports->udp_count = MIN((int) level, numudpports);
+      ports->udp_count = MIN((int) level+ptsdata.udp_count, numudpports);
       ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
     }
     if (o.SCTPScan()) {
-      ports->sctp_count = MIN((int) level, numsctpports);
+      ports->sctp_count = MIN((int) level+ptsdata.sctp_count, numsctpports);
       ports->sctp_ports = (unsigned short *)safe_zalloc(ports->sctp_count * sizeof(unsigned short));
     }
+
+    ports->tcp_count = level;
+    ports->udp_count = level;
+    ports->sctp_count = level;
 
     ports->prots = NULL;
 
