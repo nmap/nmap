@@ -673,16 +673,7 @@ void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
       host->target->SourceSockAddr(&source, &source_len);
       sent_time = get_now(now);
     } else {
-      if (o.af() == AF_INET) {
-        struct sockaddr_in *sin;
-
-        sin = (struct sockaddr_in *) &source;
-        sin->sin_family = AF_INET;
-        sin->sin_addr = o.decoys[decoy];
-      } else {
-        /* Decoys are IPv4-only. */
-        continue;
-      }
+      source = o.decoys[decoy];
     }
 
     packet = this->build_packet(&source, &packetlen);

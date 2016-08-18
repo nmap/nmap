@@ -56,31 +56,9 @@ and therefore is quite noisy.
 -- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
--- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
--- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
--- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
--- |       TLS_RSA_WITH_RC4_128_MD5 (rsa 2048) - C
--- |     compressors:
--- |       NULL
--- |     cipher preference: server
--- |     warnings:
--- |       Broken cipher RC4 is deprecated by RFC 7465
--- |       Ciphersuite uses MD5 for message integrity
--- |       Weak certificate signature: SHA1
--- |   TLSv1.1:
--- |     ciphers:
--- |       TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
--- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
--- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - A
 -- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
@@ -106,9 +84,9 @@ and therefore is quite noisy.
 -- |       TLS_RSA_WITH_AES_256_GCM_SHA384 (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - A
 -- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
@@ -122,7 +100,7 @@ and therefore is quite noisy.
 -- |_  least strength: C
 --
 -- @xmloutput
--- <table key="TLSv1.1">
+-- <table key="TLSv1.0">
 --   <table key="ciphers">
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -157,17 +135,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">C</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">C</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">C</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -267,17 +245,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">C</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">C</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">C</elem>
+--       <elem key="strength">A</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -571,7 +549,7 @@ local function score_cipher (kex_strength, cipher_info)
 
   if cipher_info.size == 0 then
     return 0
-  elseif cipher_info.size < 128 then
+  elseif cipher_info.size < 112 then
     cipher_score = 0.2
   elseif cipher_info.size < 256 then
     cipher_score = 0.8

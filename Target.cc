@@ -353,12 +353,8 @@ void Target::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len)
 }
 
 // Returns IPv4 host address or {0} if unavailable.
-struct in_addr Target::v4source() const {
-  const struct in_addr *addy = v4sourceip();
-  struct in_addr in;
-  if (addy) return *addy;
-  in.s_addr = 0;
-  return in;
+struct sockaddr_storage Target::source() const {
+  return sourcesock;
 }
 
 // Returns IPv4 host address or NULL if unavailable.

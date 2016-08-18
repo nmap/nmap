@@ -5,6 +5,8 @@
 
 #include "test-common.h"
 #include "../src/gh_list.h"
+/* For container_of */
+#include "../src/gh_heap.h"
 #include <stdint.h>
 #include <time.h>
 

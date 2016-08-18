@@ -205,7 +205,7 @@ class Target {
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
   void setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len);
-  struct in_addr v4source() const;
+  struct sockaddr_storage source() const;
   const struct in_addr *v4sourceip() const;
   const struct in6_addr *v6sourceip() const;
   /* The IPv4 or IPv6 literal string for the target host */

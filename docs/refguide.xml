@@ -3205,7 +3205,7 @@ services.</para>
           which host is scanning if only one is actually up on the
           network. You might want to use IP addresses instead of names
           (so the decoy networks don't see you in their nameserver
-          logs).</para>
+          logs). Right now random IP address generation is only supported with IPv4</para>
 
           <para>Decoys are used both in the initial ping scan (using
           ICMP, SYN, ACK, or whatever) and during the actual port

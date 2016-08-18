@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added support for decoys in IPv6. Earlier we supported decoys only in
+  IPv4. [Abhishek Singh]
+
 o Nmap now supports OpenSSL 1.1.0-pre5 and previous versions. [Vincent Dumont]
 
 o [Ncat] Fix a crash ("add_fdinfo() failed.") when --exec was used with --ssl

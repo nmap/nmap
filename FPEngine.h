@@ -353,6 +353,7 @@ class FPProbe : public FPPacket {
   int setFailed();
   bool isTimed() const;
   int setTimed();
+  int changeSourceAddress(struct in6_addr *addr);
 
 };
 

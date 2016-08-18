@@ -164,4 +164,4 @@ config.status: configure
 
 makefile.dep:
 	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
-include makefile.dep
+-include makefile.dep

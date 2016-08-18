@@ -515,13 +515,13 @@ Engine =
     -- Increase the amount of total guesses
     self.counter = self.counter + 1
 
-    -- -- did we exhaust all retries, terminate and report?
-    -- if ( retries == 0 ) then
-    --   Engine.terminate_all = true
-    --   self.error = "Too many retries, aborted ..."
-    --   response = Error:new("Too many retries, aborted ...")
-    --   response.abort = true
-    -- end
+    -- did we exhaust all retries, terminate and report?
+    if ( retries == 0 ) then
+      Engine.terminate_all = true
+      self.error = "Too many retries, aborted ..."
+      response = Error:new("Too many retries, aborted ...")
+      response.abort = true
+    end
     return status, response
   end,
 
@@ -718,7 +718,7 @@ Engine =
     local tps = ( sum == 0 ) and ( self.counter / time_diff ) or ( sum / #self.tps )
 
     -- Add the statistics to the result
-    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %f"):format( self.counter, time_diff, tps )
+    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %.1f"):format( self.counter, time_diff, tps )
 
     if ( self.options.max_guesses > 0 ) then
       -- we only display a warning if the guesses are equal to max_guesses

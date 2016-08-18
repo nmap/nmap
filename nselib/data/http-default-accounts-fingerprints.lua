@@ -74,7 +74,7 @@ end
 ---
 local function http_auth_realm(response)
   local auth = response.header["www-authenticate"] or ""
-  return auth:match('%srealm="([^"]*)')
+  return auth:match('%srealm%s*=%s*"([^"]*)')
 end
 
 fingerprints = {}
@@ -128,7 +128,7 @@ table.insert(fingerprints, {
     -- harvest all hidden fields from the login form
     local req1 = http.get(host, port, path, {no_cache=true, redirect_ok = false})
     if req1.status ~= 200 then return false end
-    local html = req1.body and req1.body:match('<form%s+action%s*=%s*"/users/login".->(.-)</form>')
+    local html = req1.body and req1.body:match('<form%s+action%s*=%s*"[^"]*/users/login".->(.-)</form>')
     if not html then return false end
     local form = {}
     for n, v in html:gmatch('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"(.-)"%s+value%s*=%s*"(.-)"') do
