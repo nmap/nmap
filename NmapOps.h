@@ -285,7 +285,7 @@ class NmapOps {
   /* Gets the spoofed MAC address, but returns NULL if it hasn't been set */
   const u8 *spoofMACAddress() { return spoof_mac_set? spoof_mac : NULL; }
 
-  int max_ips_to_scan; // Used for Random input (-iR) to specify how
+  unsigned int max_ips_to_scan; // Used for Random input (-iR) to specify how
                        // many IPs to try before stopping. 0 means unlimited.
   int extra_payload_length; /* These two are for --data-length op */
   char *extra_payload;
@@ -313,7 +313,7 @@ class NmapOps {
   int override_excludeports;
   int version_intensity;
 
-  struct in_addr decoys[MAX_DECOYS];
+  struct sockaddr_storage decoys[MAX_DECOYS];
   int osscan_limit; /* Skip OS Scan if no open or no closed TCP ports */
   int osscan_guess;   /* Be more aggressive in guessing OS type */
   int numdecoys;
@@ -401,8 +401,8 @@ class NmapOps {
   int ipopt_lasthop;	// offset in ipoptions where is space for targets ip for source/strict routing
 
   // Statistics Options set in nmap.cc
-  int numhosts_scanned;
-  int numhosts_up;
+  unsigned int numhosts_scanned;
+  unsigned int numhosts_up;
   int numhosts_scanning;
   stype current_scantype;
   bool noninteractive;

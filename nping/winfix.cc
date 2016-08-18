@@ -318,16 +318,17 @@ void win_init()
        --unprivileged. In that case don't bother them with a
        potential UAC dialog when starting NPF. */
     if (o.isRoot()) {
-    if (start_service("npcap"))
-      pcap_driver = PCAP_DRIVER_NPCAP;
-    else if (start_service("npf"))
-      pcap_driver = PCAP_DRIVER_WINPCAP;
-    else {
-      if(o.getDebugging() >= DBG_0) {
-        error("Unable to start either npcap or npf service");
+      if (start_service("npcap"))
+        pcap_driver = PCAP_DRIVER_NPCAP;
+      else if (start_service("npf"))
+        pcap_driver = PCAP_DRIVER_WINPCAP;
+      else {
+        if(o.getDebugging() >= DBG_0) {
+          error("Unable to start either npcap or npf service");
+        }
+        pcap_driver = PCAP_DRIVER_NONE;
+        o.setHavePcap(false);
       }
-      pcap_driver = PCAP_DRIVER_NONE;
-      o.setHavePcap(false);
     }
 
     if (pcap_driver == PCAP_DRIVER_NPCAP)

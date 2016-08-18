@@ -25,9 +25,31 @@
 #include <Packet32.h>
 #include <Ntddndis.h>
 
+/* From Npcap's Loopback.h */
+/*
+ * * Structure of a DLT_NULL header.
+ * */
+typedef struct _DLT_NULL_HEADER
+{
+    UINT  null_type;
+} DLT_NULL_HEADER, *PDLT_NULL_HEADER;
+
+/*
+ * * The length of the combined header.
+ * */
+#define DLT_NULL_HDR_LEN  sizeof(DLT_NULL_HEADER)
+
+/*
+ * * Types in a DLT_NULL (Loopback) header.
+ * */
+#define DLTNULLTYPE_IP    0x00000002  /* IP protocol */
+#define DLTNULLTYPE_IPV6  0x00000018 /* IPv6 */
+/* END Loopback.h */
+
 struct eth_handle {
 	LPADAPTER	 lpa;
 	LPPACKET	 pkt;
+	NetType    type;
 };
 
 eth_t *
@@ -60,6 +82,10 @@ eth_open(const char *device)
 		eth_close(eth);
 		return NULL;
 	}
+	if (!PacketGetNetType(eth->lpa, &eth->type)) {
+	  eth_close(eth);
+	  return NULL;
+  }
 
 	return (eth);
 }
@@ -67,8 +93,27 @@ eth_open(const char *device)
 ssize_t
 eth_send(eth_t *eth, const void *buf, size_t len)
 {
-	PacketInitPacket(eth->pkt, (void *)buf, (UINT) len);
-	PacketSendPacket(eth->lpa, eth->pkt, TRUE);
+  /* 14-byte Ethernet header, but DLT_NULL is a 4-byte header. Skip over the difference */
+  DLT_NULL_HEADER *hdr = (uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN;
+  if (eth->type.LinkType == NdisMediumNull) {
+    switch (ntohs(((struct eth_hdr *)buf)->eth_type)) {
+      case ETH_TYPE_IP:
+        hdr->null_type = DLTNULLTYPE_IP;
+        break;
+      case ETH_TYPE_IPV6:
+        hdr->null_type = DLTNULLTYPE_IPV6;
+        break;
+      default:
+        hdr->null_type = 0;
+        break;
+    }
+    PacketInitPacket(eth->pkt, (void *)((uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN), (UINT) (len - ETH_HDR_LEN + DLT_NULL_HDR_LEN));
+    PacketSendPacket(eth->lpa, eth->pkt, TRUE);
+  }
+  else {
+    PacketInitPacket(eth->pkt, (void *)buf, (UINT) len);
+    PacketSendPacket(eth->lpa, eth->pkt, TRUE);
+  }
 	return (ssize_t)(len);
 }
 

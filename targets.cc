@@ -302,11 +302,11 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
    These restrictions only apply for raw scans. This function is similar to one
    of the same name in nmap.cc. That one is for port scanning, this one is for
    ping scanning. */
-static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *target) {
-  int i;
+bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *target) {
+  int i = 0;
 
   /* We've just started a new hostgroup, so any target is acceptable. */
-  if (hs->current_batch_sz == 0)
+  if (targets_sz == 0)
     return false;
 
   /* There are no restrictions on non-root scans. */
@@ -314,30 +314,30 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
     return false;
 
   /* Different address family? */
-  if (hs->hostbatch[0]->af() != target->af())
+  if (targets[0]->af() != target->af())
     return true;
 
   /* Different interface name? */
-  if (hs->hostbatch[0]->deviceName() != NULL &&
+  if (targets[0]->deviceName() != NULL &&
       target->deviceName() != NULL &&
-      strcmp(hs->hostbatch[0]->deviceName(), target->deviceName()) != 0) {
+      strcmp(targets[0]->deviceName(), target->deviceName()) != 0) {
     return true;
   }
 
   /* Different source address? */
-  if (sockaddr_storage_cmp(hs->hostbatch[0]->SourceSockAddr(), target->SourceSockAddr()) != 0)
+  if (sockaddr_storage_cmp(targets[0]->SourceSockAddr(), target->SourceSockAddr()) != 0)
     return true;
 
   /* Different direct connectedness? */
-  if (hs->hostbatch[0]->directlyConnected() != target->directlyConnected())
+  if (targets[0]->directlyConnected() != target->directlyConnected())
     return true;
 
   /* Is there already a target with this same IP address? ultra_scan doesn't
      cope with that, because it uses IP addresses to look up targets from
      replies. What happens is one target gets the replies for all probes
      referring to the same IP address. */
-  for (i = 0; i < hs->current_batch_sz; i++) {
-    if (sockaddr_storage_cmp(hs->hostbatch[i]->TargetSockAddr(), target->TargetSockAddr()) == 0)
+  for (i = 0; i < targets_sz; i++) {
+    if (sockaddr_storage_cmp(targets[i]->TargetSockAddr(), target->TargetSockAddr()) == 0)
       return true;
   }
 
@@ -571,7 +571,7 @@ static Target *setup_target(const HostGroupState *hs,
 #endif
     t->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
     if (hs->current_batch_sz == 0) /* Because later ones can have different src addy and be cut off group */
-      o.decoys[o.decoyturn] = t->v4source();
+      o.decoys[o.decoyturn] = t->source();
     t->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
     t->setMTU(rnfo.ii.mtu);
     // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", t->NameIP(), t->directlyConnected()? "IS" : "IS NOT", t->deviceName(), (t->ifType() == devt_ethernet)? "IS" : "IS NOT");
@@ -653,14 +653,14 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
       break;
 
     /* Does this target need to go in a separate host group? */
-    if (target_needs_new_hostgroup(hs, t)) {
+    if (target_needs_new_hostgroup(hs->hostbatch, hs->current_batch_sz, t)) {
       if (hs->defer(t))
         continue;
       else
         break;
     }
 
-    o.decoys[o.decoyturn] = t->v4source();
+    o.decoys[o.decoyturn] = t->source();
     hs->hostbatch[hs->current_batch_sz++] = t;
   }
 

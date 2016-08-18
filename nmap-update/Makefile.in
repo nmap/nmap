@@ -59,6 +59,6 @@ Makefile: Makefile.in
 
 makefile.dep:
 	$(CC) -MM $(CPPFLAGS) $(C_FILES) > $@
-include makefile.dep
+-include makefile.dep
 
 .PHONY: all clean
