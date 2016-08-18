@@ -655,9 +655,9 @@ if test $use_libssh2 = "yes" -a $with_libz = "no"; then
   with_libz="yes"
 fi
 
-AC_ARG_WITH(zlib,
-AC_HELP_STRING([--with-zlib=DIR], [Use speficic copy of zlib])
-AC_HELP_STRING([--with-zlib=included], [Always use version included with Nmap]),
+AC_ARG_WITH(libz,
+AC_HELP_STRING([--with-libz=DIR], [Use specific copy of libz])
+AC_HELP_STRING([--with-libz=included], [Always use version included with Nmap]),
 [ 
   case "$with_libz" in
   yes)
