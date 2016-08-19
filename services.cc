@@ -584,6 +584,14 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
     if (level > 65536)
       fatal("Level argument to gettoppts (%g) is too large", level);
 
+    int only_db = 0;
+    for (int i = 0; i < strlen(portlist); ++i) {
+      if( portlist[i] == '[' || portlist[i] == ']' )
+        only_db = 1;
+    }
+    if( only_db )
+      level = 0.0;
+
     /* Allocate the TCP, UDP and SCTP arrays that will hold the ports lists :
     We are keeping the minimum between level+ptsdata.tcp_count (the maximum number
     of ports that could be scanned) and num***ports as the actual size of the arrays */
