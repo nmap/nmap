@@ -465,20 +465,12 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
     else level = 1000;
   }
 
-  if( level <= 1 ) {
-    if (portlist){
-      getpts(portlist, &ptsdata);
-      ptsdata_initialized = true;
-    } else if (exclude_ports) {
-      getpts("-", &ptsdata);
-      ptsdata_initialized = true;
-    }
-  }
-
   if (ptsdata_initialized && exclude_ports)
     removepts(exclude_ports, &ptsdata);
 
-  if (level < 1) {
+  if (level < 1) /* Which means we are using the --port-ratio option */
+  {
+    /* Loop into the ports of the nmap-services file */
     for (i = services_by_ratio.begin(); i != services_by_ratio.end(); i++) {
       current = &(*i);
       if (ptsdata_initialized && !is_port_member(&ptsdata, current))
@@ -495,6 +487,21 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
       }
     }
 
+    /* Get the ports list into ptsdata */
+    if (portlist){
+      getpts(portlist, &ptsdata);
+      ptsdata_initialized = true;
+    } else if (exclude_ports) {
+      getpts("-", &ptsdata);
+      ptsdata_initialized = true;
+    }
+
+    /* Add the number of ports specified by the -p option */
+    ports->tcp_count += ptsdata.tcp_count;
+    ports->udp_count += ptsdata.udp_count;
+    ports->sctp_count += ptsdata.sctp_count;
+
+    /* Allocate the TCP, UDP and SCTP arrays that will hold the ports lists */ 
     if (ports->tcp_count)
       ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
 
@@ -506,10 +513,10 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
 
     ports->prots = NULL;
 
+    /* Add the list of ports that are obtained by --port-ratio to the 
+    TCP, UDP and SCTP ports lists */
     for (i = services_by_ratio.begin(); i != services_by_ratio.end(); i++) {
       current = &(*i);
-      if (ptsdata_initialized && !is_port_member(&ptsdata, current))
-        continue;
       if (current->ratio >= level) {
         if (o.TCPScan() && strcmp(current->s_proto, "tcp") == 0)
           ports->tcp_ports[ti++] = current->s_port;
@@ -521,10 +528,65 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         break;
       }
     }
-  } else if (level >= 1) {
+
+    /* Add the TCP port(s) specified with the -p option (if its a TCP scan)
+     to the list of ports obtained by --port-ratio */
+    int pos=0;
+    if (o.TCPScan()) {
+      for (int j = ti; j < ti+ptsdata.tcp_count; ++j)
+      {
+        int res=0;
+        for ( int k = 0; k < ports->tcp_count; k++ ) {
+          if( ports->tcp_ports[k] == ptsdata.tcp_ports[pos] )
+            res = 1;
+        }
+        if( res == 0 ) {
+          ports->tcp_ports[j] = ptsdata.tcp_ports[pos++];
+        }
+      }
+    }
+    /* Add the UDP port(s) specified with the -p option (if its a UDP scan)
+     to the list of ports obtained by --port-ratio */
+    pos=0;
+    if (o.UDPScan()) {
+      for (int j = ui; j < ui+ptsdata.udp_count; ++j)
+      {
+        int res=0;
+        for ( int k = 0; k < ports->udp_count; k++ ) {
+          if( ports->udp_ports[k] == ptsdata.udp_ports[pos] )
+            res = 1;
+        }
+        if( res == 0 ) {
+          ports->udp_ports[j] = ptsdata.udp_ports[pos++];
+        }
+      }
+    }
+    /* Add the SCTP port(s) specified with the -p option (if its a SCTP scan)
+     to the list of ports obtained by --port-ratio */
+    pos=0;
+    if (o.SCTPScan()) {
+      for (int j = si; j < si+ptsdata.sctp_count; ++j)
+      {
+        int res=0;
+        for ( int k = 0; k < ports->sctp_count; k++ ) {
+          if( ports->sctp_ports[k] == ptsdata.sctp_ports[pos] )
+            res = 1;
+        }
+        if( res == 0 ) {
+          ports->sctp_ports[j] = ptsdata.sctp_ports[pos++];
+        }
+      }
+    }
+  } 
+  else if (level >= 1) /* Which means we are using the --top-ports option */
+  {
+    /* Make sure we don't exceed the maximum ports number */
     if (level > 65536)
       fatal("Level argument to gettoppts (%g) is too large", level);
 
+    /* Allocate the TCP, UDP and SCTP arrays that will hold the ports lists :
+    We are keeping the minimum between level+ptsdata.tcp_count (the maximum number
+    of ports that could be scanned) and num***ports as the actual size of the arrays */
     if (o.TCPScan()) {
       ports->tcp_count = MIN((int) level+ptsdata.tcp_count, numtcpports);
       ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
@@ -538,12 +600,15 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
       ports->sctp_ports = (unsigned short *)safe_zalloc(ports->sctp_count * sizeof(unsigned short));
     }
 
+    /* Once the arrays are allocated to the good sizes, we first get back to the old sizes (only the
+    --top-ports number specified) in order to loop only through the top ports */
     ports->tcp_count = level;
     ports->udp_count = level;
     ports->sctp_count = level;
 
     ports->prots = NULL;
 
+    /* We want to add those to the actual port list that will be scanned */
     for (i = services_by_ratio.begin(); i != services_by_ratio.end(); i++) {
       current = &(*i);
       if (ptsdata_initialized && is_port_member(&ptsdata, current))
@@ -556,6 +621,8 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         ports->sctp_ports[si++] = current->s_port;
     }
 
+    /* Now get the ports specified by the -p option (we still have to add those to 
+    the port list that wiil be scanned) */
     if (portlist){
       getpts(portlist, &ptsdata);
       ptsdata_initialized = true;
@@ -568,10 +635,11 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
     if (ui < ports->udp_count) ports->udp_count = ui;
     if (si < ports->sctp_count) ports->sctp_count = si;
 
+    /* Add the TCP port(s) specified with the -p option (if its a TCP scan)
+     to the list of ports obtained by --top-ports */
     int pos=0;
     if (o.TCPScan()) {
-      for (int j = ti; j < ti+ptsdata.tcp_count; ++j)
-      {
+      for (int j = ti; j < ti+ptsdata.tcp_count; ++j) {
         int res=0;
         for ( int k = 0; k < ports->tcp_count; k++ ) {
           if( ports->tcp_ports[k] == ptsdata.tcp_ports[pos] )
@@ -583,10 +651,11 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         }
       }
     }
+    /* Add the UDP port(s) specified with the -p option (if its a UDP scan)
+     to the list of ports obtained by --top-ports */
     pos=0;
     if (o.UDPScan()) {
-      for (int j = ui; j < ui+ptsdata.udp_count; ++j)
-      {
+      for (int j = ui; j < ui+ptsdata.udp_count; ++j) {
         int res=0;
         for ( int k = 0; k < ports->udp_count; k++ ) {
           if( ports->udp_ports[k] == ptsdata.udp_ports[pos] )
@@ -598,10 +667,11 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports, char *ex
         }
       }
     }
+    /* Add the SCTP port(s) specified with the -p option (if its a SCTP scan)
+     to the list of ports obtained by --top-ports */
     pos=0;
     if (o.SCTPScan()) {
-      for (int j = si; j < si+ptsdata.sctp_count; ++j)
-      {
+      for (int j = si; j < si+ptsdata.sctp_count; ++j) {
         int res=0;
         for ( int k = 0; k < ports->sctp_count; k++ ) {
           if( ports->sctp_ports[k] == ptsdata.sctp_ports[pos] )
