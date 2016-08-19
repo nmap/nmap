@@ -1,6 +1,7 @@
 local base64 = require "base64"
 local bin = require "bin"
 local http = require "http"
+local stdnse = require "stdnse"
 local table = require "table"
 local url = require "url"
 
@@ -86,6 +87,7 @@ table.insert(fingerprints, {
   name = "Cacti",
   category = "web",
   paths = {
+    {path = "/"},
     {path = "/cacti/"}
   },
   target_check = function (host, port, path, response)
@@ -101,7 +103,10 @@ table.insert(fingerprints, {
     {username = "admin", password = "admin"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_post_login(host, port, path, "index.php", "Invalid User Name/Password", {action="login", login_username=user, login_password=pass}, false)
+    return try_http_post_login(host, port, path, "index.php",
+                              "Invalid User Name/Password",
+                              {action="login", login_username=user, login_password=pass},
+                              false)
   end
 })
 
@@ -242,9 +247,11 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 12.2SE on Catalyst 3750
   name = "Cisco IOS",
   category = "routers",
   paths = {
+    {path = "/"},
     {path = "/exec/show/log/CR"},
     {path = "/level/15/exec/-/configure/http"},
     {path = "/level/15/exec/-"},
@@ -253,7 +260,7 @@ table.insert(fingerprints, {
   target_check = function (host, port, path, response)
     local realm = http_auth_realm(response) or ""
     -- Exact PCRE: "^level 15?( or view)? access$"
-    return realm:gsub("_"," "):find("^level 15? .*access$")
+    return realm:gsub("_"," "):find("^level 15? .*%f[^%s]access$")
   end,
   login_combos = {
     {username = "", password = ""},
@@ -265,10 +272,11 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.0.22
   name = "Cisco WAP200",
   category = "routers",
   paths = {
-    {path = "/StatusLan.htm"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "Linksys WAP200"
@@ -282,10 +290,11 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.07.01
   name = "Cisco WAP55AG",
   category = "routers",
   paths = {
-    {path = "/WPA_Preshared.asp"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "Linksys WAP55AG"
@@ -299,10 +308,11 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.0.1.3
   name = "ASUS RT-N10U",
   category = "routers",
   paths = {
-    {path = "/as.asp"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "RT-N10U"
@@ -316,71 +326,76 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 3.3.2, 4.3.1, 4.4.0, 4.4.1 on RFS6000
   name = "Motorola RF Switch",
   category = "routers",
   paths = {
-    {path = "/getfwversion.cgi"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/200 and returns a firmware version
     return response.status == 200
-           and not response.header["server"]
-           and response.header["content-type"] == "text/plain"
+           and response.header["server"]
+           and response.header["server"]:find("^thttpd/%d+%.")
            and response.body
-           and response.body:find("\n%d+%.%d+%.%d+%.%d+%-%w+\n")
+           and response.body:lower():find("<title>motorola wireless network management</title>", 1, true)
   end,
   login_combos = {
     {username = "admin", password = "superuser"}
   },
   login_check = function (host, port, path, user, pass)
-    local tohex = function (str)
-                    local _, hex = bin.unpack("H" .. str:len(), str)
-                    return hex:lower()
-                  end
-    local login = ("J20K34NMMT89XPIJ34S login %s %s"):format(tohex(user), tohex(pass))
-    local lpath = url.absolute(path, "usmCgi.cgi/?" .. url.escape(login))
-    local req = http.get(host, port, lpath, {no_cache=true, redirect_ok = false})
-    return req
-           and req.status == 200
+    local login = ("J20K34NMMT89XPIJ34S login %s %s"):format(stdnse.tohex(user), stdnse.tohex(pass))
+    local lurl = url.absolute(path, "usmCgi.cgi/?" .. url.escape(login))
+    local req = http.get(host, port, lurl, {no_cache=true, redirect_ok=false})
+    return req.status == 200
            and req.body
-           and req.body:match("^login 0 ")
+           and req.body:find("^login 0 ")
   end
 })
 
 table.insert(fingerprints, {
+  -- Version 08.05.100 on NVR 1750D
   name = "Nortel VPN Router",
   category = "routers",
   paths = {
-    {path = "/manage/bdy_sys.htm"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "Management(1)"
+    return response.status == 200
+           and response.header["server"] == "HTTP Server"
+           and response.body
+           and response.body:lower():find("<title>nortel vpn router</title>", 1, true)
   end,
   login_combos = {
     {username = "admin", password = "setup"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass, false)
+    return try_http_basic_login(host, port,
+                               url.absolute(path, "manage/bdy_sys.htm"),
+                               user, pass, false)
   end
 })
 
 table.insert(fingerprints, {
+  -- Version 11.4.1, 11.5.3
   name = "F5 BIG-IP",
   category = "routers",
   paths = {
-    {path = "/tmui/login.jsp"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
     return response.status == 200
-           and response.header["f5-login-page"] == "true"
            and response.body
-           and response.body:find("logmein.html",1,true)
+           and response.body:find("F5 Networks", 1, true)
+           and response.body:find("BIG-IP", 1, true)
+           and response.body:find("/tmui/tmui/system/settings/redirect.jsp", 1, true)
   end,
   login_combos = {
     {username = "admin", password = "admin"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_post_login(host, port, path, "logmein.html", "login%.jsp%?msgcode=1", {username=user, passwd=pass})
+    return try_http_post_login(host, port, path, "tmui/logmein.html",
+                              "login%.jsp%?msgcode=1",
+                              {username=user, passwd=pass})
   end
 })
 
@@ -408,22 +423,24 @@ table.insert(fingerprints, {
 --Printers
 ---
 table.insert(fingerprints, {
+  -- Version 61.17.5Z on ZTC GK420d
   name = "Zebra Printer",
   category = "printer",
   paths = {
-    {path = "/setgen"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
-    return response.body
-           and response.body:lower():find("<h1>zebra technologies<br>", 1, true)
+    return response.status == 200
+           and response.body
+           and response.body:find("Zebra Technologies", 1, true)
+           and response.body:lower():find('<a href="config.html">view printer configuration</a>', 1, true)
   end,
   login_combos = {
     {username = "", password = "1234"}
   },
   login_check = function (host, port, path, user, pass)
-    local form = {}
-    form["0"] = pass
-    return try_http_post_login(host, port, path, "authorize", "incorrect password", form)
+    return try_http_post_login(host, port, path, "authorize",
+                              "incorrect password", {["0"]=pass})
   end
 })
 
@@ -447,24 +464,32 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.04.9 on RICOH MP C4503, 1.05 on MP 5054, 1.12 pn MP C5000
   name = "RICOH Web Image Monitor",
   category = "printer",
   paths = {
-    {path = "/web/guest/en/websys/webArch/header.cgi"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
-    return response.header["server"]
-           and response.header["server"]:find("^Web%-Server/%d+%.%d+$")
+    return response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^Web%-Server/%d+%.")
            and response.body
-           and response.body:find("RICOH", 1, true)
+           and response.body:find("/websys/webArch/mainFrame.cgi", 1, true)
   end,
   login_combos = {
     {username = "admin",      password = ""},
     {username = "supervisor", password = ""}
   },
   login_check = function (host, port, path, user, pass)
+    -- determine proper login path by locale
+    local req0 = http.get(host, port, path)
+    if req0.status ~= 200 then return false end
+    local lpath = req0.body and req0.body:match('location%.href="(/[^"]+/)mainFrame%.cgi"')
+    if not lpath then return false end
     -- harvest the login form token
-    local req1 = http.get(host, port, url.absolute(path, "authForm.cgi"), {no_cache=true, redirect_ok = false, cookies = "cookieOnOffChecker=on"})
+    local req1 = http.get(host, port, url.absolute(lpath, "authForm.cgi"),
+                         {cookies="cookieOnOffChecker=on", no_cache=true, redirect_ok=false})
     if req1.status ~= 200 then return false end
     local token = req1.body and req1.body:match('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"wimToken"%s+value%s*=%s*"(.-)"')
     if not token then return false end
@@ -475,7 +500,9 @@ table.insert(fingerprints, {
                   password_work = "",
                   password = base64.enc(pass),
                   open = ""}
-    local req2 = http.post(host, port, url.absolute(path, "login.cgi"), {no_cache=true, cookies=req1.cookies}, nil, form)
+    local req2 = http.post(host, port, url.absolute(lpath, "login.cgi"),
+                          {cookies=req1.cookies, no_cache=true, redirect_ok=false},
+                          nil, form)
     local loc = req2.header["location"] or ""
     -- successful login is a 302-redirect that sets a session cookie with numerical value
     if not (req2.status == 302 and loc:find("/mainFrame%.cgi$")) then return false end
@@ -490,22 +517,25 @@ table.insert(fingerprints, {
 --Remote consoles
 ---
 table.insert(fingerprints, {
+  -- Version 5.5, 6.1
   name = "Lantronix SLC",
   category = "console",
   paths = {
-    {path = "/scsnetwork.htm"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
     return response.status == 200
            and response.header["server"]
            and response.header["server"]:find("^mini_httpd")
            and response.body
-           and response.body:find("<title>Lantronix SLC",1,true)
+           and response.body:lower():find("<title>lantronix slc", 1, true)
   end,
   login_combos = {
     {username = "sysadmin", password = "PASS"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_post_login(host, port, path, "./", "%sname%s*=%s*(['\"]?)slcpassword%1[%s>]", {slclogin=user, slcpassword=pass})
+    return try_http_post_login(host, port, path, "./",
+                              "%sname%s*=%s*(['\"]?)slcpassword%1[%s>]",
+                              {slclogin=user, slcpassword=pass})
   end
 })
