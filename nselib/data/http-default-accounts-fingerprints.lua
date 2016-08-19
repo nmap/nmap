@@ -454,6 +454,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 61.17.5Z on ZTC GK420d, 1.01.4
   name = "Zebra Print Server",
   category = "printer",
   paths = {
@@ -461,8 +462,6 @@ table.insert(fingerprints, {
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "Network Print Server"
-           and response.header["server"]
-           and response.header["server"] == "Micro-Web"
   end,
   login_combos = {
     {username = "admin", password = "1234"}
