@@ -95,8 +95,6 @@
 
 #ifndef DISABLE_NSOCK_PCAP
 #define HAVE_PCAP 1
-/* WinPCAP doesn't have this */
-#define PCAP_NETMASK_UNKNOWN 0
 #endif
 
 /* Need this for _WIN32_WINNT below */

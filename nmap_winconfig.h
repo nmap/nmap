@@ -142,8 +142,5 @@
 #define DNET_INCLUDED 1
 #define PCRE_INCLUDED 1
 
-/* WinPCAP doesn't have this */
-#define PCAP_NETMASK_UNKNOWN 0
-
 #endif /* NMAP_WINCONFIG_H */
 
