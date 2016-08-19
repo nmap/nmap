@@ -124,7 +124,7 @@ local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
     end
     if lat then
       table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon })
-      tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
+      tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%.3f,%.3f %s (%s)"):format(lat, lon, ctry, reg))
       table.insert(coordinates, { hop = count, lat = lat, lon = lon })
     else
       table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt) })
