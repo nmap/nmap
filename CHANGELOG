@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Completed a refresh and validation of almost all fingerprints for
+  script http-default-accounts. Also improved the script speed. [nnposter]
+
 o Added support for decoys in IPv6. Earlier we supported decoys only in
   IPv4. [Abhishek Singh]
 
