@@ -150,6 +150,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
   category = "web",
   paths = {
@@ -215,6 +216,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+   -- Version 0.4.4.6.1-alpha on SamuraiWTF 2.6
   name = "BeEF",
   category = "web",
   paths = {
@@ -222,6 +224,7 @@ table.insert(fingerprints, {
   },
   target_check = function (host, port, path, response)
     return response.body
+           and response.body:find("BeEF", 1, true)
            and response.body:lower():find("<title>beef authentication</title>", 1, true)
   end,
   login_combos = {
@@ -412,6 +415,7 @@ table.insert(fingerprints, {
 --Digital recorders
 ---
 table.insert(fingerprints, {
+  -- UI Version 03.2 (4.8), 03.2 (5.5)
   name = "Digital Sprite 2",
   category = "security",
   paths = {
@@ -419,6 +423,7 @@ table.insert(fingerprints, {
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "WebPage Configuration"
+           and response.header["server"] == "ADH-Web"
   end,
   login_combos = {
     {username = "dm", password = "web"}
