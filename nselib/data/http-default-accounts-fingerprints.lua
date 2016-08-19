@@ -173,16 +173,19 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  name = "Adobe LiveCycle Management Console",
+  name = "Apache Felix OSGi Management Console",
   category = "web",
   paths = {
+    {path = "/system/console"},
     {path = "/lc/system/console"}
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "OSGi Management Console"
   end,
   login_combos = {
-    {username = "admin", password = "admin"}
+    {username = "admin", password = "admin"},
+    {username = "karaf", password = "karaf"},
+    {username = "smx",   password = "smx"}
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
