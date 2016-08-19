@@ -255,7 +255,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 12.2SE on Catalyst 3750
+  -- Version 12.2SE on Catalyst 3750, 12.3(8)JA on Aironet 1300
   name = "Cisco IOS",
   category = "routers",
   paths = {
@@ -272,7 +272,8 @@ table.insert(fingerprints, {
   end,
   login_combos = {
     {username = "", password = ""},
-    {username = "cisco", password = "cisco"}
+    {username = "cisco", password = "cisco"},
+    {username = "Cisco", password = "Cisco"}
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
