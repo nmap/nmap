@@ -193,6 +193,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.4.1, 1.5.2, 1.5.3, 1.6.0, 1.6.1
   name = "Apache Axis2",
   category = "web",
   paths = {
@@ -200,12 +201,16 @@ table.insert(fingerprints, {
   },
   target_check = function (host, port, path, response)
     return response.status == 200
+           and response.body
+           and response.body:lower():find("<title>login to axis2 :: administration page</title>", 1, true)
   end,
   login_combos = {
     {username = "admin", password = "axis2"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_post_login(host, port, path, "login", "Invalid auth credentials!", {submit="+Login+", userName=user, password=pass})
+    return try_http_post_login(host, port, path, "login",
+                              "Invalid auth credentials!",
+                              {submit="+Login+", userName=user, password=pass})
   end
 })
 
