@@ -456,7 +456,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
   FPProbe *myprobe = (FPProbe *)arg;
   u8 *buf;
   size_t len;
-  int result = true;
+  int result;
 
   if (status == NSE_STATUS_SUCCESS) {
     switch(type) {
@@ -473,31 +473,29 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
 
       /* Send the packet*/
       for (int decoy = 0; decoy < o.numdecoys; decoy++) {
-        /* We don't need to change address if decoys aren't specified */
-        if (o.numdecoys > 1) {
-          result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr) == OP_SUCCESS;
-        }
-        /* Decoys have to be sent only if changeSourceAddress worked */
-        if (result) {
-          assert(myprobe->host != NULL);
-          buf = myprobe->getPacketBuffer(&len);
-          if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
-            if (decoy == o.decoyturn) {
-              myprobe->setFailed();
-              this->cc_report_final_timeout();
-              myprobe->host->fail_one_probe();
-              gh_perror("Unable to send packet in %s", __func__);
-            }
+        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr);
+        assert(result == OP_SUCCESS);
+        assert(myprobe->host != NULL);
+        buf = myprobe->getPacketBuffer(&len);
+        if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
+          if (decoy == o.decoyturn) {
+            myprobe->setFailed();
+            this->cc_report_final_timeout();
+            myprobe->host->fail_one_probe();
+            gh_perror("Unable to send packet in %s", __func__);
           }
-          free(buf);
         }
+        if (decoy == o.decoyturn) {
+          myprobe->setTimeSent();
+        }
+        free(buf);
       }
       /* Reset the address to the original one if decoys were present and original Address wasn't last one */
-      if ( o.numdecoys != o.decoyturn+1 )
-        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[o.decoyturn])->sin6_addr) == OP_SUCCESS;
-      assert(result == true);
+      if ( o.numdecoys != o.decoyturn+1 ) {
+        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[o.decoyturn])->sin6_addr);
+        assert(result == OP_SUCCESS);
+      }
 
-      myprobe->setTimeSent();
       break;
 
     default:
