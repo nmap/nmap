@@ -681,6 +681,8 @@ void parse_options(int argc, char **argv) {
     {"script_args_file", required_argument, 0, 0},
     {"script-help", required_argument, 0, 0},
     {"script_help", required_argument, 0, 0},
+    {"script-timeout", required_argument, 0, 0},
+    {"script_timeout", required_argument, 0, 0},
 #endif
     {"ip_options", required_argument, 0, 0},
     {"ip-options", required_argument, 0, 0},
@@ -719,6 +721,11 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "script-help") == 0) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
+      } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
+        l = tval2secs(optarg);
+        if ( l <= 0 )
+          fatal("Bogus --script-timeout argument specified");
+        o.scripttimeout = l;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
