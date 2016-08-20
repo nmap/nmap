@@ -223,7 +223,8 @@ table.insert(fingerprints, {
     {path = "/ui/authentication/"}
   },
   target_check = function (host, port, path, response)
-    return response.body
+    return response.status == 200
+           and response.body
            and response.body:find("BeEF", 1, true)
            and response.body:lower():find("<title>beef authentication</title>", 1, true)
   end,
