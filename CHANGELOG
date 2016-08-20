@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added --script-timeout option for limiting run time for every
+  individual script. [Abhishek Singh]
+
 o [NSE] Completed a refresh and validation of almost all fingerprints for
   script http-default-accounts. Also improved the script speed. [nnposter]
 
