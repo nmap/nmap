@@ -68,16 +68,7 @@ local client_hello = function(host, port)
   -- Craft Client Hello
   if host.registry.tls_protos and host.registry.tls_protos[port.number .. port.protocol] then
     local t = {}
-    t.ciphers = {}
-    for proto, ciphers in pairs(host.registry.tls_protos[port.number .. port.protocol]) do
-      for _, cipher in pairs(ciphers) do
-        table.insert(t.ciphers, cipher)
-      end
-      -- tls.client_hello() accepts only one group of cipher suite at a time
-      if #t.ciphers > 0 then
-        break
-      end 
-    end
+    t.ciphers = host.registry.tls_protos[port.number .. port.protocol]
     cli_h = tls.client_hello(t)
   else
     cli_h = tls.client_hello()
