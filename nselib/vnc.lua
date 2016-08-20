@@ -263,7 +263,12 @@ VNC = {
   -- @param password string containing the password to process
   -- @return password string containing the processed password
   createVNCDESKey = function( self, password )
-    password = password .. string.rep('\0', 8 - #password)
+    -- exactly 8 chars needed
+    if #password > 8 then
+      password = password:sub(1,8)
+    elseif #password < 8 then
+      password = password .. string.rep('\0', 8 - #password)
+    end
     return password:gsub(".", function(c) return string.char(bits.reverse(c:byte())) end)
   end,
 
