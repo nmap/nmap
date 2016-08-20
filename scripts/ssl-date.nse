@@ -70,7 +70,6 @@ local client_hello = function(host, port)
     local t = {}
     t.ciphers = {}
     for proto, ciphers in pairs(host.registry.tls_protos[port.number .. port.protocol]) do
-      t.protocol = proto
       for _, cipher in pairs(ciphers) do
         table.insert(t.ciphers, cipher)
       end
