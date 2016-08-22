@@ -339,6 +339,34 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Motorola AP-7532",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^lighttpd/%d+%.")
+           and response.body
+           and response.body:lower():find("<title>motorola solutions</title>", 1, true)
+  end,
+  login_combos = {
+    {username = "admin", password = "motorola"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {_dc = stdnse.clock_ms(),
+                  username = user,
+                  password = pass}
+    local lurl = url.absolute(path, "rest.fcgi/services/rest/login?" .. url.build_query(form))
+    local req = http.get(host, port, lurl, {no_cache=true, redirect_ok=false})
+    return req.status == 200
+           and req.body
+           and req.body:find('[{,]%s*"status"%s*:%s*true%s*[,}]')
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 3.3.2, 4.3.1, 4.4.0, 4.4.1 on RFS6000
   name = "Motorola RF Switch",
   category = "routers",
