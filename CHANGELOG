@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removed the obsolete script ip-geolocation-geobytes. [Paulino Calderon]
+
 o Added --script-timeout option for limiting run time for every
   individual script. [Abhishek Singh]
 
