@@ -623,3 +623,27 @@ table.insert(fingerprints, {
                               {slclogin=user, slcpassword=pass})
   end
 })
+
+table.insert(fingerprints, {
+  --Version 1.10.12
+  name = "Dell iDRAC6",
+  category = "console",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 301
+           and response.header["server"]
+           and response.header["server"]:find("^Mbedthis%-Appweb/%d+%.")
+           and response.header["location"]
+           and response.header["location"]:find("/start%.html$")
+  end,
+  login_combos = {
+    {username = "root", password = "calvin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "data/login",
+                            "<authResult>1</authResult>",
+                            {user=user, password=pass})
+  end
+})
