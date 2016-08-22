@@ -78,11 +78,12 @@
 /* --- ENGINE INTERFACE PROTOTYPES --- */
 static int kqueue_init(struct npool *nsp);
 static void kqueue_destroy(struct npool *nsp);
-static int kqueue_iod_register(struct npool *nsp, struct niod *iod, int ev);
+static int kqueue_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev);
 static int kqueue_iod_unregister(struct npool *nsp, struct niod *iod);
-static int kqueue_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+static int kqueue_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr);
 static int kqueue_loop(struct npool *nsp, int msec_timeout);
 
+extern struct io_operations posix_io_operations;
 
 /* ---- ENGINE DEFINITION ---- */
 struct io_engine engine_kqueue = {
@@ -92,7 +93,8 @@ struct io_engine engine_kqueue = {
   kqueue_iod_register,
   kqueue_iod_unregister,
   kqueue_iod_modify,
-  kqueue_loop
+  kqueue_loop,
+  &posix_io_operations
 };
 
 
@@ -151,7 +153,7 @@ void kqueue_destroy(struct npool *nsp) {
   free(kinfo);
 }
 
-int kqueue_iod_register(struct npool *nsp, struct niod *iod, int ev) {
+int kqueue_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
   struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
 
   assert(!IOD_PROPGET(iod, IOD_REGISTERED));
@@ -185,7 +187,7 @@ int kqueue_iod_unregister(struct npool *nsp, struct niod *iod) {
 
 #define EV_SETFLAG(_set, _ev) (((_set) & (_ev)) ? (EV_ADD|EV_ENABLE) : (EV_ADD|EV_DISABLE))
 
-int kqueue_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
+int kqueue_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
   struct kevent kev[2];
   int new_events, i;
   struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;

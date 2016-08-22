@@ -253,7 +253,7 @@ void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int 
       memcpy(&iod->peer, ss, sslen);
     iod->peerlen = sslen;
 
-    if (connect(iod->sd, (struct sockaddr *)ss, sslen) == -1) {
+    if (ms->engine->io_operations->iod_connect(ms, iod->sd, (struct sockaddr *)ss, sslen) == -1) {
       int err = socket_errno();
 
       if (proto == IPPROTO_UDP || (err != EINPROGRESS && err != EAGAIN)) {

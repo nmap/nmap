@@ -109,6 +109,7 @@
 
 
 /* ------------------- CONSTANTS ------------------- */
+#define READ_BUFFER_SZ 8192
 
 enum nsock_read_types {
   NSOCK_READLINES,
@@ -360,8 +361,21 @@ struct nevent {
    * that other crap */
   unsigned int event_done: 1;
   unsigned int eof: 1;
+  
+#if HAVE_IOCP
+  struct extended_overlapped *eov;
+#endif
 };
 
+struct io_operations {
+  int(*iod_connect)(struct npool *nsp, int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+
+  int(*iod_read)(struct npool *nsp, int sockfd, void *buf, size_t len, int flags,
+    struct sockaddr *src_addr, socklen_t *addrlen);
+
+  int(*iod_write)(struct npool *nsp, int sockfd, const void *buf, size_t len, int flags,
+    const struct sockaddr *dest_addr, socklen_t addrlen);
+};
 
 struct io_engine {
   /* Human readable identifier for this engine. */
@@ -374,18 +388,21 @@ struct io_engine {
   void (*destroy)(struct npool *nsp);
 
   /* Register a new IOD to the engine */
-  int (*iod_register)(struct npool *nsp, struct niod *iod, int ev);
+  int(*iod_register)(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev);
 
   /* Remove a registered IOD */
-  int (*iod_unregister)(struct npool *nsp, struct niod *iod);
+  int(*iod_unregister)(struct npool *nsp, struct niod *iod);
 
   /* Modify events for a registered IOD.
    *  - ev_set represent the events to add
    *  - ev_clr represent the events to delete (if set) */
-  int (*iod_modify)(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+  int (*iod_modify)(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr);
 
   /* Main engine loop */
   int (*loop)(struct npool *nsp, int msec_timeout);
+
+  /* I/O operations */
+  struct io_operations *io_operations;
 };
 
 /* ----------- NSOCK I/O ENGINE CONVENIENCE WRAPPERS ------------ */
@@ -398,16 +415,16 @@ static inline void nsock_engine_destroy(struct npool *nsp) {
   return;
 }
 
-static inline int nsock_engine_iod_register(struct npool *nsp, struct niod *iod, int ev) {
-  return nsp->engine->iod_register(nsp, iod, ev);
+static inline int nsock_engine_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
+  return nsp->engine->iod_register(nsp, iod, nse, ev);
 }
 
 static inline int nsock_engine_iod_unregister(struct npool *nsp, struct niod *iod) {
   return nsp->engine->iod_unregister(nsp, iod);
 }
 
-static inline int nsock_engine_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
-  return nsp->engine->iod_modify(nsp, iod, ev_set, ev_clr);
+static inline int nsock_engine_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
+  return nsp->engine->iod_modify(nsp, iod, nse, ev_set, ev_clr);
 }
 
 static inline int nsock_engine_loop(struct npool *nsp, int msec_timeout) {
