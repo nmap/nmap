@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Avoid an unnecessary assert failure in timing.cc when printing estimated
+  completion time. Instead, we'll output a diagnostic error message:
+    Timing error: localtime(n) is NULL
+  where "n" is some number that is causing problems. [Jean-Guilhem Nousse]
+
 o [NSE] Removed the obsolete script ip-geolocation-geobytes. [Paulino Calderon]
 
 o Added --script-timeout option for limiting run time for every
