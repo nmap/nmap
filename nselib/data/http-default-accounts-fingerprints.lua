@@ -4,6 +4,7 @@ local http = require "http"
 local stdnse = require "stdnse"
 local table = require "table"
 local url = require "url"
+local have_openssl, openssl = pcall(require, 'openssl')
 
 ---
 -- http-default-accounts-fingerprints.lua
@@ -552,6 +553,47 @@ table.insert(fingerprints, {
       if ck.name:lower() == "wimsesid" then return ck.value:find("^%d+$") end
     end
     return false
+  end
+})
+
+table.insert(fingerprints, {
+  -- Version 3.6/4
+  name = "Lantronix ThinWeb Manager",
+  category = "printer",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    -- This fingerprint needs OpenSSL for MD5
+    return have_openssl
+           and response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^Gordian Embedded")
+           and response.body
+           and response.body:lower():find("<title>lantronix thinweb manager", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = "system"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local lurl = url.absolute(path, "server_eps.html")
+    -- obtain login nonce
+    local req1 = http.get(host, port, lurl, {no_cache=true, redirect_ok=false})
+    if req1.status ~= 403 then return false end
+    local nonce = nil
+    for _, ck in ipairs(req1.cookies or {}) do
+      if ck.name == "SrvrNonce" then
+        nonce = ck.value
+        break
+      end
+    end
+    if not nonce then return false end
+    -- credential is the MD5 hash of the nonce and the password (in upper case)
+    local creds = stdnse.tohex(openssl.md5(nonce .. ":" .. pass:upper()))
+    local cookies = ("SrvrNonce=%s; SrvrCreds=%s"):format(nonce, creds)
+    local req2 = http.get(host, port, lurl,
+                         {cookies=cookies, no_cache=true, redirect_ok=false})
+    return req2.status == 200
   end
 })
 
