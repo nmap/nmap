@@ -4967,6 +4967,10 @@ table.insert(fingerprints, {
         method = 'HEAD'
       },
       {
+        path = '/invoker/JMXInvokerServlet',
+        method = 'HEAD'
+      },
+      {
         path = '/invoker/',
         method = 'HEAD'
       },

@@ -35,14 +35,15 @@ export PYTHONPATH
 
 # We need a UTF-8 locale.
 if [ -z ${lang+x} ]; then 
-  # lang is unset 
-  lang=`defaults read /Library/Preferences/.GlobalPreferences AppleLanguages 2>/dev/null | awk '{ print $1 }' | head -n2 | tail -n1 | sed 's/\,/ /'`
-  if [ -z ${lang+x} ]; then
-    # lang is still unset 
-    lang=`defaults read .GlobalPreferences AppleLocale 2>/dev/null`
-  fi
-  export LANG="`grep \"\`echo $lang\`_\" /usr/share/locale/locale.alias |  tail -n1 | sed 's/\./ /' | awk '{print $2}'`.UTF-8"
+  # lang is unset, we are thus using the Apple locale because it's set to the currently used language,
+  # which is already in the good format
+  lang=`defaults read /Library/Preferences/.GlobalPreferences AppleLocale 2>/dev/null`
+  export LANG="`echo $lang`.UTF-8"
 fi
+
+echo $LANG > ~/Desktop/tmp.txt
+echo " | " >> ~/Desktop/tmp.txt
+echo $lang >> ~/Desktop/tmp.txt
 
 if test -f "$bundle_lib/charset.alias"; then
     export CHARSETALIASDIR="$bundle_lib"

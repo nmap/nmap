@@ -263,8 +263,23 @@ VNC = {
   -- @param password string containing the password to process
   -- @return password string containing the processed password
   createVNCDESKey = function( self, password )
-    password = password .. string.rep('\0', 8 - #password)
+    -- exactly 8 chars needed
+    if #password > 8 then
+      password = password:sub(1,8)
+    elseif #password < 8 then
+      password = password .. string.rep('\0', 8 - #password)
+    end
     return password:gsub(".", function(c) return string.char(bits.reverse(c:byte())) end)
+  end,
+
+  --- Encrypts a password with the server's challenge to create the challenge response
+  --
+  -- @param password string containing the password to process
+  -- @param challenge string containing the server challenge
+  -- @return the challenge response string
+  encryptVNCDES = function (self, password, challenge)
+    local key = self:createVNCDESKey(password)
+    return openssl.encrypt("des-ecb", key, nil, challenge, false)
   end,
 
   sendSecType = function (self, sectype)
@@ -334,8 +349,7 @@ VNC = {
       return false, "Failed to receive authentication challenge"
     end
 
-    local key = self:createVNCDESKey(password)
-    local resp = openssl.encrypt("des-ecb", key, nil, chall, false )
+    local resp = self:encryptVNCDES(password, chall)
 
     status = self.socket:send( resp )
     if ( not(status) ) then
@@ -638,4 +652,40 @@ VNC = {
   end
 }
 
-return _ENV;
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+local test_vectors = {
+  -- from John the Ripper's vnc_fmt_plug.c
+  -- pass, challenge, response
+  {
+    "1234567890",
+    "\x2f\x75\x32\xb3\xef\xd1\x7e\xea\x5d\xd3\xa0\x94\x9f\xfd\xf1\xd8",
+    "\x0e\xb4\x2d\x4d\x9a\xc1\xef\x1b\x6e\xf6\x64\x7b\x95\x94\xa6\x21"
+  },
+  {
+    "123",
+    "\x79\x63\xf9\xbb\x7b\xa6\xa4\x2a\x08\x57\x63\x80\x81\x56\xf5\x70",
+    "\x47\x5b\x10\xd0\x56\x48\xe4\x11\x0d\x77\xf0\x39\x16\x10\x6f\x98"
+  },
+  {
+    "Password",
+    "\x08\x05\xb7\x90\xb5\x8e\x96\x7f\x2a\x35\x0a\x0c\x99\xde\x38\x81",
+    "\xae\xcb\x26\xfa\xea\xaa\x62\xd7\x96\x36\xa5\x93\x4b\xac\x10\x78"
+  },
+  {
+    "pass\xc2\xA3",
+    "\x84\x07\x6f\x04\x05\x50\xee\xa9\x34\x19\x67\x63\x3b\x5f\x38\x55",
+    "\x80\x75\x75\x68\x95\x82\x37\x9f\x7d\x80\x7f\x73\x6d\xe9\xe4\x34"
+  },
+}
+
+for _, v in ipairs(test_vectors) do
+  test_suite:add_test(unittest.equal(
+    VNC:encryptVNCDES(v[1], v[2]), v[3]), v[1])
+end
+
+return _ENV

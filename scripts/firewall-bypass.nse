@@ -107,6 +107,10 @@ ftp_helper = {
           break
         end
       end
+      if not status then
+        stdnse.debug1("pcap read timed out")
+        return false
+      end
 
       -- Get ethernet values
       local f = packet.Frame:new(l2data)

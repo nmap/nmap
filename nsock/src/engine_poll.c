@@ -106,13 +106,14 @@
   #define POLL_X_FLAGS (POLLERR | POLLHUP)
 #endif /* POLLRDHUP */
 
+extern struct io_operations posix_io_operations;
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
 static int poll_init(struct npool *nsp);
 static void poll_destroy(struct npool *nsp);
-static int poll_iod_register(struct npool *nsp, struct niod *iod, int ev);
+static int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev);
 static int poll_iod_unregister(struct npool *nsp, struct niod *iod);
-static int poll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+static int poll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr);
 static int poll_loop(struct npool *nsp, int msec_timeout);
 
 
@@ -124,7 +125,8 @@ struct io_engine engine_poll = {
   poll_iod_register,
   poll_iod_unregister,
   poll_iod_modify,
-  poll_loop
+  poll_loop,
+  &posix_io_operations
 };
 
 
@@ -212,7 +214,7 @@ void poll_destroy(struct npool *nsp) {
   free(pinfo);
 }
 
-int poll_iod_register(struct npool *nsp, struct niod *iod, int ev) {
+int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
   int sd;
 
@@ -265,7 +267,7 @@ int poll_iod_unregister(struct npool *nsp, struct niod *iod) {
   return 1;
 }
 
-int poll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
+int poll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
   int sd;
   int new_events;
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;

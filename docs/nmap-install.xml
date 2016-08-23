@@ -1008,9 +1008,11 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 <indexterm class="startofrange" id="inst-macosx-indexterm"><primary>Mac OS X</primary></indexterm>
 <indexterm><primary>Apple Mac OS X</primary><see>Mac OS X</see></indexterm>
 
-<para>Nmap has supported Mac OS X since 2001, and our support has only improved over time.  While Mac users can compile Nmap themselves, we also offer an executable installer.  Nmap
-is also available through systems such as MacPorts and Fink which
-package Unix software for Mac OS X.</para>
+<para>Nmap has supported Mac OS X since 2001, and our support has only improved over time. 
+While Mac users can compile Nmap themselves, we also offer an executable installer. Nmap 
+makes use of Jhbuild and gtk-mac-bundler which are used to build other projects for Mac OS X, 
+such as OpenSSL, libapr, libsvn... Nmap is also available through systems such as MacPorts 
+and Fink which package Unix software for Mac OS X.</para>
 
 <sect2 id="inst-macosx-installer">
 <title>Executable Installer</title>
@@ -1113,7 +1115,7 @@ Tools</guilabel>.</para>
 
 <para>Xcode installations don't always include the command line tools.  You can install them by opening Xcode from the Applications folder, opening Preferencechoosing the <literal>Download</literal> header icon and clicking the <literal>Install</literal> button next to <quote>Command Line Tools</quote>.</para>
 
-<para>Once you have installed Xcode and the command-line tools, follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>.</para>
+<para>Once you have installed Xcode and the command-line tools, follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>. Also, on some newer Mac OS X versions, the libpcap version of the library provided by Apple may be too old. You may have to configure Nmap with the command <command>./configure --with-libpcap=included</command> in order to use the compatible version included in Nmap, or you should update the libpcap installed on your machine.</para>
 </sect3>
 
 <sect3>

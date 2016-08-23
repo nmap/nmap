@@ -67,13 +67,15 @@
 #include "nsock_pcap.h"
 #endif
 
+extern struct io_operations posix_io_operations;
+
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
 static int select_init(struct npool *nsp);
 static void select_destroy(struct npool *nsp);
-static int select_iod_register(struct npool *nsp, struct niod *iod, int ev);
+static int select_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev);
 static int select_iod_unregister(struct npool *nsp, struct niod *iod);
-static int select_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+static int select_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr);
 static int select_loop(struct npool *nsp, int msec_timeout);
 
 
@@ -85,7 +87,8 @@ struct io_engine engine_select = {
   select_iod_register,
   select_iod_unregister,
   select_iod_modify,
-  select_loop
+  select_loop,
+  &posix_io_operations
 };
 
 
@@ -153,11 +156,11 @@ void select_destroy(struct npool *nsp) {
   free(nsp->engine_data);
 }
 
-int select_iod_register(struct npool *nsp, struct niod *iod, int ev) {
+int select_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
   assert(!IOD_PROPGET(iod, IOD_REGISTERED));
 
   iod->watched_events = ev;
-  select_iod_modify(nsp, iod, ev, EV_NONE);
+  select_iod_modify(nsp, iod, nse, ev, EV_NONE);
   IOD_PROPSET(iod, IOD_REGISTERED);
   return 1;
 }
@@ -196,7 +199,7 @@ int select_iod_unregister(struct npool *nsp, struct niod *iod) {
   return 1;
 }
 
-int select_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
+int select_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
   int sd;
   struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
 

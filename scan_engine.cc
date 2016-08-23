@@ -153,7 +153,7 @@ extern "C" int g_has_npcap_loopback;
 #endif
 
 
-int HssPredicate::operator() (HostScanStats *lhs, HostScanStats *rhs) {
+const int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs) const {
   const struct sockaddr_storage *lss, *rss;
   lss = (lhs) ? lhs->target->TargetSockAddr() : ss;
   rss = (rhs) ? rhs->target->TargetSockAddr() : ss;

@@ -35,6 +35,7 @@ JHBUILD_PREFIX=$(HOME)/gtk/inst
 export JHBUILD_PREFIX
 PREFIX = /usr/local
 
+# Extra distribution file names
 README_FILE = README.md
 COPYING_FILE = COPYING
 3RD_P_LIC_FILE = 3rd-party-licenses.txt
@@ -70,6 +71,7 @@ CFLAGS += $(UNIVERSAL_CFLAGS)
 CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
+# Mac OS options for libraries used by nmap-update
 MAC_FLAGS = -lsasl2 -liconv -framework CoreFoundation -framework Security
 
 # Jhbuild static libraries
@@ -98,6 +100,7 @@ APR_STATIC = $(JHBUILD_PREFIX)/lib/libapr-1.a \
 $(JHBUILD_PREFIX)/lib/libaprutil-1.a \
 $(JHBUILD_PREFIX)/lib/libapriconv-1.a
 
+# These are the positions used by the createdmg.sh and check_test.sh scripts
 export ICON_SIZE=88
 export FONT_SIZE=13
 export MPKG_POS_X=110
@@ -115,7 +118,9 @@ export LICENSES_POS_Y=60
 
 $(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
+	# Create the dmg disk image and convert it to read only disk
 	./createdmg.sh $(IMAGE_STAGING_DIR) $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
+	# Check the created disk image for the sizes, backgrounds and icons presence and positions
 	./check_test.sh $(README_FILE) $(COPYING_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
 tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
@@ -126,7 +131,7 @@ have-%:
 $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping check-nmap-update COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
-	# create packages
+	# Create packages (.pkg) for all the components to install in the installer (.mpkg)
 	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location / nmap.pkg
 	pkgbuild --root $(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location / ncat.pkg
 	pkgbuild --root $(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location / ndiff.pkg
@@ -134,7 +139,7 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	pkgbuild --root $(NMAP_UPDATE_STAGING_DIR) --identifier org.insecure.nmap.nmap-update --version $(NMAP_VERSION) --install-location / nmap-update.pkg
 	pkgbuild --root $(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
 
-	# produce a .xml with packages informations
+	# Produce a .xml with packages information
 	productbuild --synthesize \
 		--package 'nmap.pkg' \
 		--package 'ncat.pkg' \
@@ -144,14 +149,14 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 		--package 'zenmap.pkg' \
 		distribution.xml
 
-	# make a new file and add background and titles attributes
+	# Make a new file and add background and title attributes
 	head -n 2 distribution.xml > finalDist.xml
 	echo "    <title>Nmap $(NMAP_VERSION)</title>" >> finalDist.xml
-	# This line is for adding a background image to the .mpkg, we'd need to copy to file to the dmg during createdmg.sh process first
+	# This line is for adding a background image to the .mpkg
 	echo "    <background file=\"pkg_bg.jpg\" mime-type=\"image/jpeg\" scaling=\"proportional\" alignment=\"bottomleft\"/>" >> finalDist.xml
 	tail -n +3 distribution.xml >> finalDist.xml
 
-	# build the .mpkg according to the final .xml file
+	# Build the .mpkg according to the final .xml file (and so all the .pkg)
 	productbuild --distribution finalDist.xml --resources . --package-path . $(NAME_VERSION).mpkg
 
 	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
