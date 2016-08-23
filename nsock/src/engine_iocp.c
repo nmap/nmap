@@ -200,7 +200,7 @@ void iocp_destroy(struct npool *nsp) {
   assert(iinfo != NULL);
 
   struct extended_overlapped *eov;
-  gh_lnode_t *current, *next;
+  gh_lnode_t *current;
 
   while ((current = gh_list_pop(&iinfo->active_eovs))) {
     eov = container_of(current, struct extended_overlapped, nodeq);
@@ -282,7 +282,7 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
   int combined_msecs;
   int sock_err = 0;
   BOOL bRet;
-  int total_events;
+  unsigned long total_events;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
   assert(msec_timeout >= -1);
@@ -361,7 +361,7 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
 void iterate_through_event_lists(struct npool *nsp) {
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
-  for (int i = 0; i < iinfo->entries_removed; i++) {
+  for (unsigned long i = 0; i < iinfo->entries_removed; i++) {
 
     iinfo->eov = (struct extended_overlapped *)iinfo->eov_list[i].lpOverlapped;
     /* We can't rely on iinfo->entries_removed to tell us the real number of
@@ -755,7 +755,7 @@ static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, 
     dwRes = recvfrom(fd, buf, READ_BUFFER_SZ, 0, (struct sockaddr *)&peer, &peerlen);
   }
 
-  if (!nse->type == NSE_TYPE_READ || (nse->type == NSE_TYPE_READ && dwRes < eov->wsabuf.len)) {
+  if (nse->type != NSE_TYPE_READ || (nse->type == NSE_TYPE_READ && dwRes < eov->wsabuf.len)) {
     old_eov = NULL;
   } else if (nse->type == NSE_TYPE_READ && dwRes == eov->wsabuf.len) {
     old_eov = eov;
