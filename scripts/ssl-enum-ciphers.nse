@@ -598,6 +598,9 @@ local function find_ciphers_group(host, port, protocol, group, scores)
     t["ciphers"] = group
 
     local records = try_params(host, port, t)
+    if not records then
+      return nil
+    end
     local handshake = records.handshake
 
     if handshake == nil then

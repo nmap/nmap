@@ -786,7 +786,7 @@ function RmiDataStream:writeMethodCall(out,objNum, hash, op, arguments)
   -- Send Call:
   dos:writeByte(0x50)
   -- Send Magic 0xaced
-  dos:writeShort(0xACED)
+  dos:writeUnsignedShort(0xACED)
   -- Send version 0x0005
   dos:writeShort(0x0005)
   -- Send TC_BLOKDATA

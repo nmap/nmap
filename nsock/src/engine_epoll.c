@@ -85,11 +85,12 @@
 /* --- ENGINE INTERFACE PROTOTYPES --- */
 static int epoll_init(struct npool *nsp);
 static void epoll_destroy(struct npool *nsp);
-static int epoll_iod_register(struct npool *nsp, struct niod *iod, int ev);
+static int epoll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev);
 static int epoll_iod_unregister(struct npool *nsp, struct niod *iod);
-static int epoll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr);
+static int epoll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr);
 static int epoll_loop(struct npool *nsp, int msec_timeout);
 
+extern struct io_operations posix_io_operations;
 
 /* ---- ENGINE DEFINITION ---- */
 struct io_engine engine_epoll = {
@@ -99,7 +100,8 @@ struct io_engine engine_epoll = {
   epoll_iod_register,
   epoll_iod_unregister,
   epoll_iod_modify,
-  epoll_loop
+  epoll_loop,
+  &posix_io_operations
 };
 
 
@@ -159,7 +161,7 @@ void epoll_destroy(struct npool *nsp) {
   free(einfo);
 }
 
-int epoll_iod_register(struct npool *nsp, struct niod *iod, int ev) {
+int epoll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
   int sd;
   struct epoll_event epev;
   struct epoll_engine_info *einfo = (struct epoll_engine_info *)nsp->engine_data;
@@ -204,7 +206,7 @@ int epoll_iod_unregister(struct npool *nsp, struct niod *iod) {
   return 1;
 }
 
-int epoll_iod_modify(struct npool *nsp, struct niod *iod, int ev_set, int ev_clr) {
+int epoll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
   int sd;
   struct epoll_event epev;
   int new_events;
