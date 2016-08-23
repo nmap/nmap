@@ -57,13 +57,11 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-<<<<<<< HEAD
+
       <AdditionalIncludeDirectories>C:\OpenSSL-Win32\include;.;..;..\mswin32;../nbase;..\nsock\include;..\mswin32\pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-=======
       <AdditionalIncludeDirectories>.;..;..\mswin32;../nbase;..\nsock\include;..\mswin32\pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
->>>>>>> upstream/master
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <PreprocessKeepComments>false</PreprocessKeepComments>
