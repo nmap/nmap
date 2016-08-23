@@ -209,5 +209,8 @@ int dumpExclude(addrset *exclude_group);
    time you call nexthost(). */
 void returnhost(HostGroupState *hs);
 
+
+bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *target);
+
 #endif /* TARGETS_H */
 

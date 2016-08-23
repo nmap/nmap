@@ -1110,15 +1110,16 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   nseU_weaktable(L, 0, MAX_PARALLELISM, "k"); /* THREAD_SOCKETS */
   nseU_weaktable(L, 0, 1000, "k"); /* CONNECT_WAITING */
   nseU_weaktable(L, 0, 0, "v"); /* KEY_PCAP */
+  int nupvals = lua_gettop(L)-top;
 
   /* Create the nsock metatable for sockets */
   lua_pushvalue(L, top+2); /* NSOCK_SOCKET */
   luaL_newlibtable(L, metatable_index);
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  luaL_setfuncs(L, metatable_index, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  luaL_setfuncs(L, metatable_index, nupvals);
   lua_setfield(L, -2, "__index");
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  lua_pushcclosure(L, nsock_gc, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  lua_pushcclosure(L, nsock_gc, nupvals);
   lua_setfield(L, -2, "__gc");
   lua_newtable(L);
   lua_setfield(L, -2, "__metatable");  /* protect metatable */
@@ -1126,8 +1127,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 
   /* Create the nsock pcap metatable */
   lua_pushvalue(L, top+3); /* PCAP_SOCKET */
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  lua_pushcclosure(L, pcap_gc, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  lua_pushcclosure(L, pcap_gc, nupvals);
   lua_setfield(L, top+3, "__gc");
   lua_pop(L, 1); /* PCAP_SOCKET */
 
@@ -1142,8 +1143,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 #endif
 
   luaL_newlibtable(L, l_nsock);
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  luaL_setfuncs(L, l_nsock, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  luaL_setfuncs(L, l_nsock, nupvals);
 
   return 1;
 }

@@ -339,7 +339,7 @@ Comm = {
     elseif auth.type == Portmap.AuthType.UNIX then
       packet = packet .. Util.marshall_int32(auth.type)
       local blob = (
-        Util.marshall_int32(nmap.clock()) --time
+        Util.marshall_int32(math.floor(nmap.clock())) --time
         .. Util.marshall_vopaque(auth.hostname or 'localhost')
         .. Util.marshall_int32(auth.uid or 0)
         .. Util.marshall_int32(auth.gid or 0)

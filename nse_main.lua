@@ -385,10 +385,16 @@ do
   -- prerule/postrule scripts may be timed out in the future
   -- based on start time and script lifetime?
   function Thread:timed_out ()
-    if self.type == "hostrule" or self.type == "portrule" then
-      return cnse.timedOut(self.host);
+    local host_timeout, script_timeout = false, false;
+    -- checking whether user gave --script-timeout option or not
+    if cnse.script_timeout and cnse.script_timeout > 0 then
+      -- comparing script's timeout with time elapsed
+      script_timeout = cnse.script_timeout < os.difftime(os.time(), self.start_time)
     end
-    return nil;
+    if self.type == "hostrule" or self.type == "portrule" then
+      host_timeout = cnse.timedOut(self.host);
+    end
+    return script_timeout or host_timeout;
   end
 
   function Thread:start_time_out_clock ()
@@ -408,6 +414,12 @@ do
     if self.host then
       timeouts[self.host] = timeouts[self.host] or {};
       timeouts[self.host][self.co] = true;
+    end
+    -- storing script's start time so as to account for script's timeout later
+    if self.worker then
+      self.start_time = self.parent.start_time
+    else
+      self.start_time = os.time()
     end
   end
 
@@ -474,6 +486,7 @@ do
       script = self,
       type = script_type,
       worker = false,
+      start_time = 0, --for script timeout
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -490,6 +503,7 @@ do
       info = format("%s W:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = self,
       worker = true,
+      start_time = 0,
     };
     setmetatable(thread, Worker)
     local function info ()
@@ -1173,6 +1187,10 @@ do
   if cnse.scriptargs then -- Load script arguments (--script-args)
     print_debug(1, "Arguments from CLI: %s", cnse.scriptargs);
     args[#args+1] = cnse.scriptargs;
+  end
+
+  if cnse.script_timeout and cnse.script_timeout > 0 then
+    print_debug(1, "Set script-timeout as: %d seconds", cnse.script_timeout);
   end
 
   args = concat(args, ",");

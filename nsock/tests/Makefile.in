@@ -11,7 +11,7 @@ CC 	= @CC@
 CPPFLAGS = @CPPFLAGS@ -I../include
 CFLAGS	= @CFLAGS@
 LDFLAGS	= @LDFLAGS@
-LIBS	= @OPENSSL_LIBS@ @LIBPCAP_LIBS@
+LIBS	= @OPENSSL_LIBS@ @LIBPCAP_LIBS@ @LIBS@
 
 SRC = tests_main.c \
       basic.c \

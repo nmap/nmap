@@ -114,10 +114,10 @@ end
 -- Version 0.3.13 release announcement: https://bitcointalk.org/?topic=1327.0
 local function decode_bitcoin_version(n)
   if n < 31300 then
-    local minor, micro = n / 100, n % 100
+    local minor, micro = n // 100, n % 100
     return string.format("0.%d.%d", minor, micro)
   else
-    local minor, micro = n / 10000, (n / 100) % 100
+    local minor, micro = n // 10000, (n // 100) % 100
     return string.format("0.%d.%d", minor, micro)
   end
 end

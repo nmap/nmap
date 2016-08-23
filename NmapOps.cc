@@ -377,6 +377,7 @@ void NmapOps::Initialize() {
   scripttrace = 0;
   scriptupdatedb = 0;
   scripthelp = false;
+  scripttimeout = 0;
   chosenScripts.clear();
 #endif
   memset(&sourcesock, 0, sizeof(sourcesock));
@@ -570,8 +571,8 @@ dialog where you can start NPF if you have administrator privileges.";
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
 
-  if (af() == AF_INET6 && (generate_random_ips|numdecoys|bouncescan|fragscan)) {
-    fatal("Random targets, decoys, FTP bounce scan, and fragmentation are not supported with IPv6.");
+  if (af() == AF_INET6 && (generate_random_ips|bouncescan|fragscan)) {
+    fatal("Random targets, FTP bounce scan, and fragmentation are not supported with IPv6.");
   }
 
   if(ipoptions && osscan)

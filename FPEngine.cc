@@ -456,6 +456,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
   FPProbe *myprobe = (FPProbe *)arg;
   u8 *buf;
   size_t len;
+  int result;
 
   if (status == NSE_STATUS_SUCCESS) {
     switch(type) {
@@ -470,17 +471,31 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
         this->first_pcap_scheduled = true;
       }
 
-      buf = myprobe->getPacketBuffer(&len);
       /* Send the packet*/
-      assert(myprobe->host != NULL);
-      if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
-        myprobe->setFailed();
-        this->cc_report_final_timeout();
-        myprobe->host->fail_one_probe();
-        gh_perror("Unable to send packet in %s", __func__);
+      for (int decoy = 0; decoy < o.numdecoys; decoy++) {
+        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr);
+        assert(result == OP_SUCCESS);
+        assert(myprobe->host != NULL);
+        buf = myprobe->getPacketBuffer(&len);
+        if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
+          if (decoy == o.decoyturn) {
+            myprobe->setFailed();
+            this->cc_report_final_timeout();
+            myprobe->host->fail_one_probe();
+            gh_perror("Unable to send packet in %s", __func__);
+          }
+        }
+        if (decoy == o.decoyturn) {
+          myprobe->setTimeSent();
+        }
+        free(buf);
       }
-      myprobe->setTimeSent();
-      free(buf);
+      /* Reset the address to the original one if decoys were present and original Address wasn't last one */
+      if ( o.numdecoys != o.decoyturn+1 ) {
+        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[o.decoyturn])->sin6_addr);
+        assert(result == OP_SUCCESS);
+      }
+
       break;
 
     default:
@@ -754,7 +769,7 @@ void FPHost6::fill_FPR(FingerPrintResultsIPv6 *FPR) {
   FPR->incomplete = this->incomplete_fp;
 }
 
-static const IPv6Header *find_ipv6(const PacketElement *pe) {
+static IPv6Header *find_ipv6(const PacketElement *pe) {
   while (pe != NULL && pe->protocol_id() != HEADER_TYPE_IPv6)
     pe = pe->getNextElement();
 
@@ -1744,7 +1759,7 @@ int FPHost6::build_probe_list() {
   RoutingHeader *routing;
   HopByHopHeader *hopbyhop1, *hopbyhop2;
   RawData *payload;
-  unsigned int i;
+  int i;
   char payloadbuf[300];
 
   assert(this->target_host != NULL);
@@ -2736,6 +2751,17 @@ int FPProbe::setTimed() {
   return OP_SUCCESS;
 }
 
+/* Changes source address for packet element associated with current FPProbe. */
+int FPProbe::changeSourceAddress(struct in6_addr *addr) {
+  if (!is_set())
+    return OP_FAILURE;
+  else{
+    IPv6Header *ip6 = find_ipv6(getPacket());
+    if (ip6 != NULL)
+      return ip6->setSourceAddress(*addr);
+  }
+  return OP_FAILURE;
+}
 
 /******************************************************************************
  * Implementation of class FPResponse.                                        *

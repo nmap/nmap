@@ -128,7 +128,7 @@ function makeHost (compressed)
     name[#name+1] = "\x00"
   end
 
-  return name
+  return table.concat(name)
 end
 
 ---

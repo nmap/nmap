@@ -478,7 +478,7 @@ lua-format:
 
 makefile.dep:
 	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
-include makefile.dep
+-include makefile.dep
 
 # These the old names of scripts that have been renamed or deleted. Any
 # scripts with these names will be deleted from the installation

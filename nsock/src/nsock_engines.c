@@ -63,6 +63,13 @@
 
 #include "nsock_internal.h"
 
+#if HAVE_IOCP
+  extern struct io_engine engine_iocp;
+  #define ENGINE_IOCP &engine_iocp,
+#else
+  #define ENGINE_IOCP
+#endif /* HAVE_IOCP */
+
 #if HAVE_EPOLL
   extern struct io_engine engine_epoll;
   #define ENGINE_EPOLL &engine_epoll,
@@ -94,12 +101,34 @@ static struct io_engine *available_engines[] = {
   ENGINE_EPOLL
   ENGINE_KQUEUE
   ENGINE_POLL
+  ENGINE_IOCP
   ENGINE_SELECT
   NULL
 };
 
 static char *engine_hint;
 
+int posix_iod_connect(struct npool *nsp, int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+  return connect(sockfd, addr, addrlen);
+}
+
+int posix_iod_read(struct npool *nsp, int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen) {
+  return recvfrom(sockfd, (char *)buf, len, flags, src_addr, addrlen);
+}
+
+int posix_iod_write(struct npool *nsp, int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen) {
+  struct sockaddr_storage *dest = (struct sockaddr_storage *)dest_addr;
+  if (dest->ss_family == AF_UNSPEC)
+    return send(sockfd, (char *)buf, len, flags);
+  else
+    return sendto(sockfd, (char *)buf, len, flags, dest_addr, addrlen);
+}
+
+struct io_operations posix_io_operations = {
+  posix_iod_connect,
+  posix_iod_read,
+  posix_iod_write
+};
 
 struct io_engine *get_io_engine(void) {
   struct io_engine *engine = NULL;
@@ -145,6 +174,9 @@ int nsock_set_default_engine(char *engine) {
 
 const char *nsock_list_engines(void) {
   return
+#if HAVE_IOCP
+  "iocp "
+#endif
 #if HAVE_EPOLL
   "epoll "
 #endif

@@ -25,7 +25,7 @@ the commercial ones.
 -- | 74.207.244.221 (scanme.nmap.org)
 -- |   coordinates (lat,lon): 39.4899,-74.4773
 -- |_  city: Absecon, Philadelphia, PA, United States
---
+---
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -398,6 +398,10 @@ end
 
 local GeoIP = {
   new = function(self, filename)
+    if not(filename) then
+      return nil
+    end
+
     local o = {}
     setmetatable(o, self)
     self.__index = self
@@ -588,18 +592,16 @@ action = function(host,port)
   local f_maxmind = stdnse.get_script_args(SCRIPT_NAME .. ".maxmind_db")
 
   local output = {}
-
+  local gi = nil
   --if f_maxmind is a string, it should specify the filename of the database
   if f_maxmind then
-    local gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
-    local out = gi:output_record_by_addr(host.ip)
-    output = out
+    gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
   else
-    local gi = assert( GeoIP:new(nmap.fetchfile("nselib/data/GeoLiteCity.dat")), "Cannot read Maxmind database file in 'nselib/data/'.")
-    local out = gi:output_record_by_addr(host.ip)
-    output = out
+    gi = assert( GeoIP:new(nmap.fetchfile("nselib/data/GeoLiteCity.dat")), 
+                 "Cannot read GeoLiteCity.dat in 'nselib/data/'. Download the database from http://dev.maxmind.com/geoip/legacy/geolite/.")
   end
-
+  local out = gi:output_record_by_addr(host.ip)
+  output = out
   if(#output~=0) then
     output.name = host.ip
     if host.targetname then
