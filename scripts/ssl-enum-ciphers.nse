@@ -549,7 +549,7 @@ local function score_cipher (kex_strength, cipher_info)
 
   if cipher_info.size == 0 then
     return 0
-  elseif cipher_info.size < 112 then
+  elseif cipher_info.size < 128 then
     cipher_score = 0.2
   elseif cipher_info.size < 256 then
     cipher_score = 0.8
