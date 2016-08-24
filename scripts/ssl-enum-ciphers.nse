@@ -655,6 +655,9 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             if info.hash and info.hash == "MD5" then
               scores.warnings["Ciphersuite uses MD5 for message integrity"] = true
             end
+            if info.mode and info.mode == "CBC" and info.block_size <= 64 then
+              scores.warnings[("64-bit block cipher %s vulnerable to SWEET32 attack"):format(info.cipher)] = true
+            end
             if protocol == "SSLv3" and  info.mode and info.mode == "CBC" then
               scores.warnings["CBC-mode cipher in SSLv3 (CVE-2014-3566)"] = true
             elseif info.cipher == "RC4" then
