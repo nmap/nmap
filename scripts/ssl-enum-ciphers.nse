@@ -56,9 +56,9 @@ and therefore is quite noisy.
 -- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
 -- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
@@ -67,6 +67,7 @@ and therefore is quite noisy.
 -- |       NULL
 -- |     cipher preference: server
 -- |     warnings:
+-- |       64-bit block cipher 3DES vulnerable to SWEET32 attack
 -- |       Broken cipher RC4 is deprecated by RFC 7465
 -- |       Ciphersuite uses MD5 for message integrity
 -- |       Weak certificate signature: SHA1
@@ -84,9 +85,9 @@ and therefore is quite noisy.
 -- |       TLS_RSA_WITH_AES_256_GCM_SHA384 (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
 -- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
@@ -95,6 +96,7 @@ and therefore is quite noisy.
 -- |       NULL
 -- |     cipher preference: server
 -- |     warnings:
+-- |       64-bit block cipher 3DES vulnerable to SWEET32 attack
 -- |       Broken cipher RC4 is deprecated by RFC 7465
 -- |       Ciphersuite uses MD5 for message integrity
 -- |_  least strength: C
@@ -135,17 +137,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -173,6 +175,7 @@ and therefore is quite noisy.
 --   </table>
 --   <elem key="cipher preference">server</elem>
 --   <table key="warnings">
+--     <elem>64-bit block cipher 3DES vulnerable to SWEET32 attack</elem>
 --     <elem>Broken cipher RC4 is deprecated by RFC 7465</elem>
 --     <elem>Ciphersuite uses MD5 for message integrity</elem>
 --     <elem>Weak certificate signature: SHA1</elem>
@@ -245,17 +248,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -283,6 +286,7 @@ and therefore is quite noisy.
 --   </table>
 --   <elem key="cipher preference">server</elem>
 --   <table key="warnings">
+--     <elem>64-bit block cipher 3DES vulnerable to SWEET32 attack</elem>
 --     <elem>Broken cipher RC4 is deprecated by RFC 7465</elem>
 --     <elem>Ciphersuite uses MD5 for message integrity</elem>
 --   </table>
