@@ -49,10 +49,10 @@ categories = { "default", "discovery", "safe" }
 --- Converts a number to a string description of the capabilities
 --@param num Start of the capabilities data
 --@return table containing the names of the capabilities offered
-local capabilities = function(num)
+local bitset = function(num, lookup)
   local caps = {}
 
-  for k, v in pairs(mysql.Capabilities) do
+  for k, v in pairs(lookup) do
     if bit.band(num, v) > 0 then
       caps[#caps+1] = k
     end
@@ -100,24 +100,34 @@ action = function(host, port)
   output["Version"] = info.version
   output["Thread ID"] = info.threadid
 
-  output["Capabilities flags"] = info.capabilities
-  local caps = capabilities(info.capabilities)
-  if #caps > 0 then
-    setmetatable(caps, {
-        __tostring = function (self)
-          return table.concat(self, ", ")
-        end
-      })
-    output["Some Capabilities"] = caps
-  end
+  if info.proto == 10 then
+    output["Capabilities flags"] = info.capabilities
+    local caps = bitset(info.capabilities, mysql.Capabilities)
+    if info.extcapabilities then
+      local extcaps = bitset(info.extcapabilities, mysql.ExtCapabilities)
+      for i, c in ipairs(extcaps) do
+        caps[#caps+1] = c
+      end
+    end
+    if #caps > 0 then
+      setmetatable(caps, {
+          __tostring = function (self)
+            return table.concat(self, ", ")
+          end
+        })
+      output["Some Capabilities"] = caps
+    end
 
-  if info.status == 2 then
-    output["Status"] = "Autocommit"
-  else
-    output["Status"] = info.status
-  end
+    if info.status == 2 then
+      output["Status"] = "Autocommit"
+    else
+      output["Status"] = info.status
+    end
 
-  output["Salt"] = info.salt
+    output["Salt"] = info.salt
+
+    output["Auth Plugin Name"] = info.auth_plugin_name
+  end
 
   return output
 end
