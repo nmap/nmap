@@ -130,7 +130,7 @@ function receiveGreeting( socket )
   end
 
   pos, response.proto = bin.unpack( "C", data, pos )
-  pos, response.version = bin.unpack( "z", data, pos )
+  pos, response.version = bin.unpack( "z", data, pos-1 )
   pos, response.threadid = bin.unpack( "I", data, pos )
   pos, response.salt, _ = bin.unpack( "A8C", data, pos )
   pos, response.capabilities = bin.unpack( "S", data, pos )
