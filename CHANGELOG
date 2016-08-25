@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix two issues in sslcert.lua that prevented correct operations
+  against LDAP services when version detection or STARTTLS were used.
+  [Tom Sellers]
+
 o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
   Windows, which required including pcap-int.h and locking us to a single
   version of libpcap. The new method, using WaitForSingleObject should work
