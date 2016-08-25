@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
+  Windows, which required including pcap-int.h and locking us to a single
+  version of libpcap. The new method, using WaitForSingleObject should work
+  with all versions of both WinPcap and Npcap. [Daniel Miller]
+
 o Avoid an unnecessary assert failure in timing.cc when printing estimated
   completion time. Instead, we'll output a diagnostic error message:
     Timing error: localtime(n) is NULL
