@@ -160,8 +160,8 @@ int kqueue_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse,
 
   IOD_PROPSET(iod, IOD_REGISTERED);
   iod->watched_events = EV_NONE;
-  
-  kqueue_iod_modify(nsp, iod, ev, EV_NONE);
+
+  kqueue_iod_modify(nsp, iod, nse, ev, EV_NONE);
 
   if (nsock_iod_get_sd(iod) > kinfo->maxfd)
     kinfo->maxfd = nsock_iod_get_sd(iod);
@@ -175,7 +175,7 @@ int kqueue_iod_unregister(struct npool *nsp, struct niod *iod) {
   /* some IODs can be unregistered here if they're associated to an event that was
    * immediately completed */
   if (IOD_PROPGET(iod, IOD_REGISTERED)) {
-    kqueue_iod_modify(nsp, iod, EV_NONE, EV_READ|EV_WRITE);
+    kqueue_iod_modify(nsp, iod, NULL, EV_NONE, EV_READ|EV_WRITE);
     IOD_PROPCLR(iod, IOD_REGISTERED);
 
     if (nsock_iod_get_sd(iod) == kinfo->maxfd)
