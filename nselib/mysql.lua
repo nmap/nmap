@@ -13,6 +13,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local math = require "math"
 _ENV = stdnse.module("mysql", stdnse.seeall)
 
 -- Version 0.3
@@ -50,7 +51,8 @@ Capabilities =
 ExtCapabilities =
 {
   SupportsMultipleStatments = 0x1,
-  SupportsMultipleResults = 0x2
+  SupportsMultipleResults = 0x2,
+  SupportsAuthPlugins = 0x8,
 }
 
 Charset =
@@ -123,23 +125,43 @@ function receiveGreeting( socket )
   pos, is_error = bin.unpack( "C", data, pos )
 
   if ( is_error == 0xff ) then
-    pos, response.errorcode = bin.unpack( "S", data, pos )
+    pos, response.errorcode = bin.unpack( "<S", data, pos )
     pos, response.errormsg = bin.unpack("A" .. (#data - pos + 1), data, pos )
 
     return false, response.errormsg
   end
 
-  pos, response.proto = bin.unpack( "C", data, pos )
+  response.proto = is_error
   pos, response.version = bin.unpack( "z", data, pos )
-  pos, response.threadid = bin.unpack( "I", data, pos )
-  pos, response.salt, _ = bin.unpack( "A8C", data, pos )
-  pos, response.capabilities = bin.unpack( "S", data, pos )
-  pos, response.charset = bin.unpack( "C", data, pos )
-  pos, response.status = bin.unpack( "S", data, pos )
-  pos, _ = bin.unpack( "A13", data, pos )
-  pos, tmp = bin.unpack( "A12", data, pos )
+  pos, response.threadid = bin.unpack( "<I", data, pos )
 
-  response.salt = response.salt .. tmp
+  if response.proto == 10 then
+    pos, response.salt, _ = bin.unpack( "A8C", data, pos )
+    pos, response.capabilities = bin.unpack( "<S", data, pos )
+    if pos < #data then
+      pos, response.charset = bin.unpack( "C", data, pos )
+      pos, response.status = bin.unpack( "<S", data, pos )
+      pos, response.extcapabilities = bin.unpack( "<S", data, pos) -- capabilities, upper 2 bytes
+      local auth_plugin_len
+      pos, auth_plugin_len = bin.unpack("C", data, pos)
+      pos, tmp = bin.unpack( "A10", data, pos )
+      if tmp ~= "\0\0\0\0\0\0\0\0\0\0" then
+        stdnse.debug2("reserved bytes are not nulls")
+      end
+      if response.capabilities & Capabilities.Support41Auth > 0 then
+        pos, tmp = bin.unpack("A" .. math.max(13, auth_plugin_len - 8), data, pos)
+        response.salt = response.salt .. tmp
+      end
+      if response.extcapabilities & ExtCapabilities.SupportsAuthPlugins > 0 then
+        response.auth_plugin_name = bin.unpack("z", data, pos)
+      end
+    end
+  elseif response.proto == 9 then
+    pos, response.auth_plugin_data = bin.unpack( "z", data, pos )
+  else
+    stdnse.debug2("Unknown MySQL protocol version: %d", response.proto)
+  end
+
   response.errorcode = 0
 
   return true, response

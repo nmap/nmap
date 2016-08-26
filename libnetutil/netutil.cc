@@ -132,7 +132,6 @@
 
 #ifdef WIN32
 #include "mswin32/winclude.h"
-#include "pcap-int.h"
 #else
 #include <sys/uio.h>
 #include <sys/ioctl.h>
@@ -960,7 +959,31 @@ int pcap_selectable_fd_one_to_one() {
  * the file descriptor we got from my_pcap_get_selectable_fd()
  */
 int pcap_select(pcap_t *p, struct timeval *timeout) {
-  int fd, ret;
+  int ret;
+#ifdef WIN32
+  DWORD msec_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / 1000;
+  HANDLE event = pcap_getevent(p);
+  DWORD result = WaitForSingleObject(event, msec_timeout);
+
+  switch(result) {
+    case WAIT_OBJECT_0:
+      ret = 1;
+      break;
+    case WAIT_TIMEOUT:
+      ret = 0;
+      break;
+    case WAIT_FAILED:
+      ret = -1;
+      netutil_error("%s: WaitForSingleObject failed: %d", __func__, GetLastError());
+      break;
+    default:
+      ret = -1;
+      netutil_fatal("%s: WaitForSingleObject returned unknown result: %x", __func__, result);
+      break;
+  }
+
+#else
+  int fd;
   fd_set rfds;
 
   if ((fd = my_pcap_get_selectable_fd(p)) == -1)
@@ -980,6 +1003,7 @@ int pcap_select(pcap_t *p, struct timeval *timeout) {
     }
   } while (ret == -1);
 
+#endif
   return ret;
 }
 
@@ -4176,17 +4200,6 @@ static int read_reply_pcap(pcap_t *pd, long to_usec,
   }
 
   do {
-#ifdef WIN32
-    if (to_usec == 0) {
-      PacketSetReadTimeout(pd->adapter, 1);
-    } else {
-      gettimeofday(&tv_end, NULL);
-      long to_left =
-          MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
-      // Set the timeout (BUGBUG: this is cheating)
-      PacketSetReadTimeout(pd->adapter, to_left);
-    }
-#endif
 
     *p = NULL;
     /* It may be that protecting this with !pcap_selectable_fd_one_to_one is not

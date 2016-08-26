@@ -248,13 +248,18 @@ StartTLS = {
       return false, "Failed to connect to LDAP server"
     end
 
-    -- Create an ExtendedRequest and specify the OID for the
-    -- Start TTLS operation (see http://www.ietf.org/rfc/rfc2830.txt)
+    -- Create an LDAP extendedRequest and specify the OID for the
+    -- STARTTLS operation (see http://www.ietf.org/rfc/rfc2830.txt)
+    local oid = "1.3.6.1.4.1.1466.20037"
+
+    -- 0x80  = 10000001  =  10        0                 00000
+    -- hex     binary       Context   Primitive value   Field: requestName  Value: 0
+    local encodedOID = bin.pack('HAA' , '80', string.char(#oid), oid)
+
+    local ldapRequest, ldapRequestId
     local ExtendedRequest = 23
     local ExtendedResponse = 24
-    local oid, ldapRequest, ldapRequestId
-    oid = ldap.encode("1.3.6.1.4.1.1466.20037")
-    ldapRequest = ldap.encodeLDAPOp(ExtendedRequest, true, oid)
+    ldapRequest = ldap.encodeLDAPOp(ExtendedRequest, true, encodedOID)
     ldapRequestId = ldap.encode(1)
 
     -- Send the STARTTLS request
@@ -822,8 +827,14 @@ function getCertificate(host, port)
   end
 
   local cert
-  -- do we have to use a wrapper and do a manual handshake?
-  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
+
+  -- If we don't already know the service is TLS wrapped check to see if we 
+  -- have to use a wrapper and do a manual handshake
+  local wrapper
+  if not ( port.version.service_tunnel == 'ssl' ) then
+    wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
+  end
+
   if wrapper then
     local status, socket = wrapper(host, port)
     if not status then
@@ -888,8 +899,12 @@ function getCertificate(host, port)
       return false, "Unable to get cert"
     end
   else
-    -- Is there a specialized function for this port?
-    local specialized = SPECIALIZED_PREPARE_TLS[port.service] or SPECIALIZED_PREPARE_TLS[port.number]
+    -- If we don't already know the service is TLS wrapped check to see if 
+    -- there a specialized function for this port
+    local specialized 
+    if not ( port.version.service_tunnel == 'ssl' ) then
+      specialized = SPECIALIZED_PREPARE_TLS[port.service] or SPECIALIZED_PREPARE_TLS[port.number]
+    end
     local status
     local socket = nmap.new_socket()
     if specialized then

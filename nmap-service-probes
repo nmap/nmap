@@ -12356,7 +12356,7 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.2; Mac OS X 10.3 - 10.5/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 
 # Flags \x9f\xf3
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.9 - 10.11; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x:10.10/ cpe:/o:apple:mac_os_x:10.11/ cpe:/o:apple:mac_os_x:10.9/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03=s p/Apple AFP/ i/name: $1; protocol 3.4; OS X 10.9 - 10.11; $2/ o/OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x:10.10/ cpe:/o:apple:mac_os_x:10.11/ cpe:/o:apple:mac_os_x:10.9/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xf3.([^\0\x01]+).*?VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03|s p/Apple AFP/ i/name: $1; protocol 3.4; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/ cpe:/o:apple:mac_os_x/a
 
 # Flags \x9f\xfb.
@@ -12364,7 +12364,7 @@ match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6 - 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/ cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Xserve\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Xserve/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
-match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent=s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.8; $2/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
+match afp m=^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*?(i?Mac(?:mini|Pro|Book(?:Air|Pro)?)?\d+,\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\x03GSS\x0fNo User Authent=s p/Apple AFP/ i/name: $1; protocol 3.4; OS X 10.8; $2/ o/OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.8/
 
 softmatch afp m|^\x01\x03\0\0........\0\0\0\0.*AFP|s
 

@@ -146,17 +146,7 @@
 
 extern NmapOps o;
 
-#ifdef WIN32
-#include "pcap-int.h"
-#endif
-
 static PacketCounter PktCt;
-
-
-
-
-
-
 
 /* Create a raw socket and do things that always apply to raw sockets:
     * Set SO_BROADCAST.
@@ -1669,18 +1659,6 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   }
 
   do {
-#ifdef WIN32
-    long to_left;
-
-    if (to_usec > 0) {
-      gettimeofday(&tv_end, NULL);
-      to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
-    } else {
-      to_left = 1;
-    }
-    // Set the timeout (BUGBUG: this is cheating)
-    PacketSetReadTimeout(pd->adapter, to_left);
-#endif
 
     p = NULL;
     /* It may be that protecting this with !pcap_selectable_fd_one_to_one is not
