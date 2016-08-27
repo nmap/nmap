@@ -1058,6 +1058,13 @@ function cipher_info (c)
     info.size = tonumber(tokens[i])
   end
 
+  -- block size (bits)
+  if t == "3DES" or t == "RC2" or t == "IDEA" or t == "DES" or t == "FORTEZZA" or t == "DES40" then
+    info.block_size = 64
+  elseif t == "AES" or t == "CAMELLIA" or t == "ARIA" or t == "SEED" then
+    info.block_size = 128
+  end
+
   -- stream ciphers don't have a mode
   if info.cipher == "RC4" then
     info.mode = "stream"

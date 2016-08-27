@@ -56,9 +56,9 @@ and therefore is quite noisy.
 -- |       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
 -- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
@@ -67,6 +67,7 @@ and therefore is quite noisy.
 -- |       NULL
 -- |     cipher preference: server
 -- |     warnings:
+-- |       64-bit block cipher 3DES vulnerable to SWEET32 attack
 -- |       Broken cipher RC4 is deprecated by RFC 7465
 -- |       Ciphersuite uses MD5 for message integrity
 -- |       Weak certificate signature: SHA1
@@ -84,9 +85,9 @@ and therefore is quite noisy.
 -- |       TLS_RSA_WITH_AES_256_GCM_SHA384 (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
--- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - A
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - A
+-- |       TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA (secp256r1) - C
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
 -- |       TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_ECDHE_RSA_WITH_RC4_128_SHA (secp256r1) - C
 -- |       TLS_RSA_WITH_RC4_128_SHA (rsa 2048) - C
@@ -95,6 +96,7 @@ and therefore is quite noisy.
 -- |       NULL
 -- |     cipher preference: server
 -- |     warnings:
+-- |       64-bit block cipher 3DES vulnerable to SWEET32 attack
 -- |       Broken cipher RC4 is deprecated by RFC 7465
 -- |       Ciphersuite uses MD5 for message integrity
 -- |_  least strength: C
@@ -135,17 +137,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -173,6 +175,7 @@ and therefore is quite noisy.
 --   </table>
 --   <elem key="cipher preference">server</elem>
 --   <table key="warnings">
+--     <elem>64-bit block cipher 3DES vulnerable to SWEET32 attack</elem>
 --     <elem>Broken cipher RC4 is deprecated by RFC 7465</elem>
 --     <elem>Ciphersuite uses MD5 for message integrity</elem>
 --     <elem>Weak certificate signature: SHA1</elem>
@@ -245,17 +248,17 @@ and therefore is quite noisy.
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
 --       <elem key="name">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">rsa 2048</elem>
 --       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
---       <elem key="strength">A</elem>
+--       <elem key="strength">C</elem>
 --     </table>
 --     <table>
 --       <elem key="kex_info">secp256r1</elem>
@@ -283,6 +286,7 @@ and therefore is quite noisy.
 --   </table>
 --   <elem key="cipher preference">server</elem>
 --   <table key="warnings">
+--     <elem>64-bit block cipher 3DES vulnerable to SWEET32 attack</elem>
 --     <elem>Broken cipher RC4 is deprecated by RFC 7465</elem>
 --     <elem>Ciphersuite uses MD5 for message integrity</elem>
 --   </table>
@@ -549,7 +553,7 @@ local function score_cipher (kex_strength, cipher_info)
 
   if cipher_info.size == 0 then
     return 0
-  elseif cipher_info.size < 112 then
+  elseif cipher_info.size < 128 then
     cipher_score = 0.2
   elseif cipher_info.size < 256 then
     cipher_score = 0.8
@@ -655,6 +659,9 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             if info.hash and info.hash == "MD5" then
               scores.warnings["Ciphersuite uses MD5 for message integrity"] = true
             end
+            if info.mode and info.mode == "CBC" and info.block_size <= 64 then
+              scores.warnings[("64-bit block cipher %s vulnerable to SWEET32 attack"):format(info.cipher)] = true
+            end
             if protocol == "SSLv3" and  info.mode and info.mode == "CBC" then
               scores.warnings["CBC-mode cipher in SSLv3 (CVE-2014-3566)"] = true
             elseif info.cipher == "RC4" then
@@ -719,9 +726,10 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 local kex_info = kex.server_key_exchange(ske.data)
                 if kex_info.strength then
                   local rsa_bits = tls.rsa_equiv(kex.type, kex_info.strength)
+                  local low_strength_warning = false
                   if kex_strength and kex_strength > rsa_bits then
                     kex_strength = rsa_bits
-                    scores.warnings["Key exchange parameters of lower strength than certificate key"] = true
+                    low_strength_warning = true
                   end
                   kex_strength = kex_strength or rsa_bits
                   if kex_info.ecdhparams then
@@ -732,6 +740,11 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                     end
                   else
                     extra = string.format("%s %d", kex.type, kex_info.strength)
+                  end
+                  if low_strength_warning then
+                    scores.warnings[(
+                        "Key exchange (%s) of lower strength than certificate key"
+                      ):format(extra)] = true
                   end
                 end
                 if kex_info.rsa and kex_info.rsa.exponent == 1 then
