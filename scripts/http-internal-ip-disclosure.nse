@@ -28,7 +28,7 @@ versions of Microsoft IIS, but affects other web servers as well.
 ---
 
 author = "Josh Amishav-Zlatin"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "discovery", "safe" } 
 
 portrule = shortport.http

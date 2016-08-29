@@ -90,7 +90,7 @@ Opportunistic STARTTLS sessions are established on services that support them.
 -- |_      http://www2.esentire.com/TLSUnjammedWP
 
 author = "Jacob Gajek"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 

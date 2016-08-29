@@ -29,7 +29,7 @@ other software may be vulnerable in the same way.
 ---
 
 author = "Vlatko Kosturjak <kost@linux.hr>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln"}
 
 local http = require "http"

@@ -66,7 +66,7 @@ Exploitation technique used to achieve RCE on the target is based on exploit/mul
 ---
 
 author = "Mariusz Ziulek <mzet()owasp org>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive", "exploit"}
 
 portrule = shortport.http
