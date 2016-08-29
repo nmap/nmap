@@ -77,6 +77,7 @@ local function ctx_log(level, protocol, fmt, ...)
 end
 
 local function try_params(host, port, t)
+
   local timeout = ((host.times and host.times.timeout) or 5) * 1000 + 5000
 
   -- Create socket.
@@ -284,6 +285,16 @@ local function find_ciphers(host, port, protocol)
   local ciphers = in_chunks(cbc_ciphers, CHUNK_SIZE)
 
   results = {}
+
+  -- If ssl-enum was run and ciphers are already discovered
+  if host.registry.tls_protos and host.registry.tls_protos[port.number .. port.protocol] and host.registry.tls_protos[port.number .. port.protocol][protocol] then
+    for _, cipher in pairs(host.registry.tls_protos[port.number .. port.protocol][protocol]) do
+      if string.find(cipher, "_CBC_") then
+        table.insert(results, cipher)
+      end
+    end
+    return results
+  end
 
   -- Try every cipher.
   for _, group in ipairs(ciphers) do

@@ -1326,16 +1326,45 @@ end
 -- @param t Table of options
 -- @return The client_hello record as a string
 function client_hello(t)
-  local b, ciphers, compressor, compressors, h, len
+  local b, ciphers, compressor, compressors, h, len, protocol
   t = t or {}
 
   ----------
   -- Body --
   ----------
 
+  --print_r(t.ciphers)
   b = {}
   -- Set the protocol.
-  local protocol = t["protocol"] or HIGHEST_PROTOCOL
+  if not t.ciphers then
+    protocol = t["protocol"] or HIGHEST_PROTOCOL
+  -- #t.ciphers will be zero when we are sending many protocols
+  elseif #t.ciphers == 0 then
+    if t['protocol'] then
+      protocol = t['protocol']
+    else
+      if t.ciphers['TLSv1.2'] then
+        protocol = 'TLSv1.2'
+      elseif t.ciphers['TLSv1.1'] then
+        protocol = 'TLSv1.1'
+      elseif t.ciphers['TLSv1.0'] then
+        protocol = 'TLSv1.0'
+      elseif t.ciphers['SSLv3'] then
+        protocol = 'SSLv3'
+      else
+        protocol = HIGHEST_PROTOCOL
+      end
+    end
+    -- There are few cases where we may still get t.ciphers[protocol] as nil
+    if t.ciphers[protocol] then
+      t.ciphers = t.ciphers[protocol]
+    else
+      t.ciphers = nil
+    end
+  else
+    protocol = t["protocol"] or HIGHEST_PROTOCOL
+  end
+
   table.insert(b, bin.pack(">S", PROTOCOLS[protocol]))
 
   -- Set the random data.

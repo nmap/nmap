@@ -1115,6 +1115,8 @@ end
 
 action = function(host, port)
 
+  host.registry.tls_protos = host.registry.tls_protos or {}
+
   if not have_ssl then
     stdnse.verbose("OpenSSL not available; some cipher scores will be marked as unknown.")
   end
@@ -1141,6 +1143,16 @@ action = function(host, port)
 
   if not next(results) then
     return nil
+  end
+
+  -- Store the discovered ciphers in host table, should be utilized by other
+  -- scripts to find cipher suite available.
+  host.registry.tls_protos[port.number .. port.protocol] = host.registry.tls_protos[port.number .. port.protocol] or {}
+  for version, supported in pairs(results) do
+    host.registry.tls_protos[port.number .. port.protocol][version] = host.registry.tls_protos[port.number .. port.protocol][version] or {}
+    for _, cipher in pairs(supported.ciphers) do
+      table.insert(host.registry.tls_protos[port.number .. port.protocol][version], cipher.name)
+    end
   end
 
   local least = "A"

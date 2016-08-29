@@ -39,6 +39,8 @@ author = {"Aleksandar Nikolic", "nnposter"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
+dependencies = {"ssl-enum-ciphers"}
+
 portrule = function(host, port)
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
@@ -64,7 +66,13 @@ local client_hello = function(host, port)
   local sock, status, response, err, cli_h
 
   -- Craft Client Hello
-  cli_h = tls.client_hello()
+  if host.registry.tls_protos and host.registry.tls_protos[port.number .. port.protocol] then
+    local t = {}
+    t.ciphers = host.registry.tls_protos[port.number .. port.protocol]
+    cli_h = tls.client_hello(t)
+  else
+    cli_h = tls.client_hello()
+  end
 
   -- Connect to the target server
   local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
