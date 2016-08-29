@@ -188,7 +188,7 @@ action = function(host, port)
     stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
     return nil
   end
-  
+
   -- search the website root for evidences of a Wordpress path
   if not wp_root then
     local target_index = http.get(host,port, "/")

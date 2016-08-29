@@ -7,11 +7,11 @@ local table = require "table"
 local vulns = require "vulns"
 
 description = [[
-Checks if a Microsoft Windows 2000 system is vulnerable to a crash in regsvc caused by a null pointer 
-dereference. This check will crash the service if it is vulnerable and requires a guest account or 
+Checks if a Microsoft Windows 2000 system is vulnerable to a crash in regsvc caused by a null pointer
+dereference. This check will crash the service if it is vulnerable and requires a guest account or
 higher to work.
 
-The vulnerability was discovered by Ron Bowes while working on <code>smb-enum-sessions</code> and 
+The vulnerability was discovered by Ron Bowes while working on <code>smb-enum-sessions</code> and
 was reported to Microsoft (Case #MSRC8742).
 
 This check was previously part of smb-check-vulns.
@@ -22,14 +22,14 @@ This check was previously part of smb-check-vulns.
 -- nmap -sU --script smb-vuln-regsvc-dos.nse -p U:137,T:139 <host>
 --
 --@output
---| smb-vuln-regsvc-dos: 
+--| smb-vuln-regsvc-dos:
 --|   VULNERABLE:
 --|   Service regsvc in Microsoft Windows systems vulnerable to denial of service
 --|     State: VULNERABLE
---|       The service regsvc in Microsoft Windows 2000 systems is vulnerable to denial of service caused by a null deference 
---|       pointer. This script will crash the service if it is vulnerable. This vulnerability was discovered by Ron Bowes 
+--|       The service regsvc in Microsoft Windows 2000 systems is vulnerable to denial of service caused by a null deference
+--|       pointer. This script will crash the service if it is vulnerable. This vulnerability was discovered by Ron Bowes
 --|       while working on smb-enum-sessions.
---|_          
+--|_
 ---
 
 author = {"Ron Bowes", "Jiayi Ye", "Paulino Calderon <calderon()websec.mx>"}
@@ -62,7 +62,7 @@ local PATCHED    = 2
 --
 --@param host The host object.
 --@return (status, result) If status is false, result is an error code; otherwise, result is either
---        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable. 
+--        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable.
 function check_winreg_Enum_crash(host)
   local i, j
   local elements = {}
@@ -107,8 +107,8 @@ action = function(host)
     title = 'Service regsvc in Microsoft Windows systems vulnerable to denial of service',
     state = vulns.STATE.NOT_VULN,
     description = [[
-The service regsvc in Microsoft Windows 2000 systems is vulnerable to denial of service caused by a null deference 
-pointer. This script will crash the service if it is vulnerable. This vulnerability was discovered by Ron Bowes 
+The service regsvc in Microsoft Windows 2000 systems is vulnerable to denial of service caused by a null deference
+pointer. This script will crash the service if it is vulnerable. This vulnerability was discovered by Ron Bowes
 while working on smb-enum-sessions.
     ]]
   }

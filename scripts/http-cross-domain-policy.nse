@@ -32,7 +32,7 @@ References:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 8080/tcp open  http-proxy syn-ack
--- | http-crossdomainxml-slaxml: 
+-- | http-crossdomainxml-slaxml:
 -- |   VULNERABLE:
 -- |   Cross-domain policy file (crossdomain.xml)
 -- |     State: VULNERABLE

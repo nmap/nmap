@@ -27,12 +27,12 @@ This script takes inspiration from the various scripts listed here:
 -- @output
 -- PORT     STATE SERVICE
 -- 8008/tcp open  http
--- | http-webdav-scan: 
+-- | http-webdav-scan:
 -- |   Allowed Methods: GET, HEAD, COPY, MOVE, POST, PUT, PROPFIND, PROPPATCH, OPTIONS, MKCOL, DELETE, TRACE, REPORT
 -- |   Server Type: DAV/0.9.8 Python/2.7.6
 -- |   Server Date: Fri, 22 May 2015 19:28:00 GMT
 -- |   WebDAV type: unkown
--- |   Directory Listing: 
+-- |   Directory Listing:
 -- |     http://localhosft
 -- |     http://localhost:8008/WebDAVTest_b1tqTWeyRR
 -- |     http://localhost:8008/WebDAVTest_A0QWJb7hcK

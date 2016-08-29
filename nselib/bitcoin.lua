@@ -189,7 +189,7 @@ Request = {
     end,
 
    },
- 
+
   -- The pong message is sent in response to a ping message.
   Pong = {
     new = function(self)
@@ -207,7 +207,7 @@ Request = {
 
       return bin.pack("<IAII", magic, cmd, len, chksum)
     end,
- 
+
   }
 
 }

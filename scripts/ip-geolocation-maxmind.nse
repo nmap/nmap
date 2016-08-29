@@ -597,7 +597,7 @@ action = function(host,port)
   if f_maxmind then
     gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
   else
-    gi = assert( GeoIP:new(nmap.fetchfile("nselib/data/GeoLiteCity.dat")), 
+    gi = assert( GeoIP:new(nmap.fetchfile("nselib/data/GeoLiteCity.dat")),
                  "Cannot read GeoLiteCity.dat in 'nselib/data/'. Download the database from http://dev.maxmind.com/geoip/legacy/geolite/.")
   end
   local out = gi:output_record_by_addr(host.ip)

@@ -828,7 +828,7 @@ function getCertificate(host, port)
 
   local cert
 
-  -- If we don't already know the service is TLS wrapped check to see if we 
+  -- If we don't already know the service is TLS wrapped check to see if we
   -- have to use a wrapper and do a manual handshake
   local wrapper
   if not ( port.version.service_tunnel == 'ssl' ) then
@@ -899,9 +899,9 @@ function getCertificate(host, port)
       return false, "Unable to get cert"
     end
   else
-    -- If we don't already know the service is TLS wrapped check to see if 
+    -- If we don't already know the service is TLS wrapped check to see if
     -- there a specialized function for this port
-    local specialized 
+    local specialized
     if not ( port.version.service_tunnel == 'ssl' ) then
       specialized = SPECIALIZED_PREPARE_TLS[port.service] or SPECIALIZED_PREPARE_TLS[port.number]
     end

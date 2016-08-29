@@ -20,7 +20,7 @@ versions of Microsoft IIS, but affects other web servers as well.
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- | http-internal-ip-disclosure: 
+-- | http-internal-ip-disclosure:
 -- |_  Internal IP Leaked: 10.0.0.2
 --
 -- @xmloutput
@@ -29,7 +29,7 @@ versions of Microsoft IIS, but affects other web servers as well.
 
 author = "Josh Amishav-Zlatin"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = { "vuln", "discovery", "safe" } 
+categories = { "vuln", "discovery", "safe" }
 
 portrule = shortport.http
 
@@ -81,7 +81,7 @@ action = function(host, port)
   end
 
   if IP then
-    output["Internal IP Leaked"] = IP 
+    output["Internal IP Leaked"] = IP
     return output
   end
 end

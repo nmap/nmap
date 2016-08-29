@@ -9,11 +9,11 @@ local vulns = require "vulns"
 description = [[
 Detects Microsoft Windows systems with Dns Server RPC vulnerable to MS07-029.
 
-MS07-029 targets the <code>R_DnssrvQuery()</code> and <code>R_DnssrvQuery2()</code> 
-RPC method which isa part of DNS Server RPC interface that serves as a RPC service 
-for configuring and getting information from the DNS Server service. 
-DNS Server RPC service can be accessed using "\dnsserver" SMB named pipe. 
-The vulnerability is triggered when a long string is send as the "zone" parameter 
+MS07-029 targets the <code>R_DnssrvQuery()</code> and <code>R_DnssrvQuery2()</code>
+RPC method which isa part of DNS Server RPC interface that serves as a RPC service
+for configuring and getting information from the DNS Server service.
+DNS Server RPC service can be accessed using "\dnsserver" SMB named pipe.
+The vulnerability is triggered when a long string is send as the "zone" parameter
 which causes the buffer overflow which crashes the service.
 
 This check was previously part of smb-check-vulns.
@@ -25,15 +25,15 @@ This check was previously part of smb-check-vulns.
 --
 --@output
 --Host script results:
---| smb-vuln-ms07-029: 
+--| smb-vuln-ms07-029:
 --|   VULNERABLE:
 --|   Windows DNS RPC Interface Could Allow Remote Code Execution (MS07-029)
 --|     State: VULNERABLE
 --|     IDs:  CVE:CVE-2007-1748
---|           A stack-based buffer overflow in the RPC interface in the Domain Name System (DNS) Server Service in 
---|           Microsoft Windows 2000 Server SP 4, Server 2003 SP 1, and Server 2003 SP 2 allows remote attackers to 
+--|           A stack-based buffer overflow in the RPC interface in the Domain Name System (DNS) Server Service in
+--|           Microsoft Windows 2000 Server SP 4, Server 2003 SP 1, and Server 2003 SP 2 allows remote attackers to
 --|           execute arbitrary code via a long zone name containing character constants represented by escape sequences.
---|           
+--|
 --|     Disclosure date: 2007-06-06
 --|     References:
 --|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1748
@@ -119,8 +119,8 @@ action = function(host)
     title = 'Windows DNS RPC Interface Could Allow Remote Code Execution (MS07-029)',
     state = vulns.STATE.NOT_VULN,
     description = [[
-    A stack-based buffer overflow in the RPC interface in the Domain Name System (DNS) Server Service in 
-    Microsoft Windows 2000 Server SP 4, Server 2003 SP 1, and Server 2003 SP 2 allows remote attackers to 
+    A stack-based buffer overflow in the RPC interface in the Domain Name System (DNS) Server Service in
+    Microsoft Windows 2000 Server SP 4, Server 2003 SP 1, and Server 2003 SP 2 allows remote attackers to
     execute arbitrary code via a long zone name containing character constants represented by escape sequences.
     ]],
     IDS = {CVE = 'CVE-2007-1748'},

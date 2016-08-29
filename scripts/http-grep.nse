@@ -22,15 +22,15 @@ The script searches for email and ip by default.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-grep: 
--- |   (1) http://nmap.org/book/man-bugs.html: 
--- |     (1) email: 
+-- | http-grep:
+-- |   (1) http://nmap.org/book/man-bugs.html:
+-- |     (1) email:
 -- |       + dev@nmap.org
--- |   (1) http://nmap.org/book/install.html: 
--- |     (1) email: 
+-- |   (1) http://nmap.org/book/install.html:
+-- |     (1) email:
 -- |       + fyodor@nmap.org
--- |   (16) http://nmap.org/changelog.html: 
--- |     (7) ip: 
+-- |   (16) http://nmap.org/changelog.html:
+-- |     (7) ip:
 -- |       + 255.255.255.255
 -- |       + 10.99.24.140
 -- |       + 74.125.53.103
@@ -38,7 +38,7 @@ The script searches for email and ip by default.
 -- |       + 203.65.42.255
 -- |       + 192.31.33.7
 -- |       + 168.0.40.135
--- |     (9) email: 
+-- |     (9) email:
 -- |       + d1n@inbox.com
 -- |       + fyodor@insecure.org
 -- |       + uce@ftc.gov
@@ -48,8 +48,8 @@ The script searches for email and ip by default.
 -- |       + president@whitehouse.gov
 -- |       + haesslich@loyalty.org
 -- |       + rchong@fcc.gov
--- |   (6) http://nmap.org/5/#5changes: 
--- |     (6) ip: 
+-- |   (6) http://nmap.org/5/#5changes:
+-- |     (6) ip:
 -- |       + 207.68.200.30
 -- |       + 64.13.134.52
 -- |       + 4.68.105.6

@@ -130,7 +130,7 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
   else
     sending_function = function(data) return http.get(host, port, form_submission_path.."?"..url.build_query(data), {no_cache=true, bypass_cache=true}) end
   end
-  
+
   local function fuzz_field(field)
     local affected_string = {}
     local affected_int = {}
@@ -138,14 +138,14 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
     for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
       local response_string
       local response_number
-      
+
       --first try to fuzz with a string
       postdata[field["name"]] = stdnse.generate_random_string(i, charset)
       response_string = sending_function(postdata)
       --then with a number
       postdata[field["name"]] = stdnse.generate_random_string(i, charset_number)
       response_number = sending_function(postdata)
-      
+
       if check_response(response_string) then
         affected_string[#affected_string+1]=i
       elseif request_too_big(response_string) then

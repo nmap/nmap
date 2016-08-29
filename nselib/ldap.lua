@@ -366,7 +366,7 @@ function udpSearchRequest( host, port, params )
 
   local encoder = asn1.ASN1Encoder:new()
   local decoder = asn1.ASN1Decoder:new()
-  
+
   encoder:registerTagEncoders(tagEncoder)
   decoder:registerTagDecoders(tagDecoder)
 

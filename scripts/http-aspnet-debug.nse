@@ -5,10 +5,10 @@ local stdnse = require "stdnse"
 description =  [[
 Determines if a ASP.NET application has debugging enabled using a HTTP DEBUG request.
 
-The HTTP DEBUG verb is used within ASP.NET applications to start/stop remote 
-debugging sessions. The script sends a 'stop-debug' command to determine the 
+The HTTP DEBUG verb is used within ASP.NET applications to start/stop remote
+debugging sessions. The script sends a 'stop-debug' command to determine the
 application's current configuration state but access to RPC services is required
- to interact with the debugging session. The request does not change the 
+ to interact with the debugging session. The request does not change the
 application debugging configuration.
 ]]
 
@@ -20,7 +20,7 @@ application debugging configuration.
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- | http-aspnet-debug: 
+-- | http-aspnet-debug:
 -- |_  status: DEBUG is enabled
 --
 -- @xmloutput
@@ -29,12 +29,12 @@ application debugging configuration.
 
 author = "Josh Amishav-Zlatin"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = { "vuln", "discovery" } 
+categories = { "vuln", "discovery" }
 
 portrule = shortport.http
 
 local function generate_http_debug_req(host, port, path)
-  local status = false 
+  local status = false
   local options = {header={}}
   options["header"]["Command"] = "stop-debug"
   options["redirect_ok"] = 2

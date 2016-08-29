@@ -1299,7 +1299,7 @@ function generic_request(host, port, method, path, options)
 
     local auth_blob = "NTLMSSP\x00" .. -- NTLM signature
     "\x01\x00\x00\x00" .. -- NTLM Type 1 message
-    bin.pack("<I", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode 
+    bin.pack("<I", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode
     bin.pack("<SSISSI",#workstation_name, #workstation_name, 40 + #hostname, #hostname, #hostname, 40) .. -- Supplied Domain and Workstation
     bin.pack("CC<S", -- OS version info
     5, 1, 2600) .. -- 5.1.2600
