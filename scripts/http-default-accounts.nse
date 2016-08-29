@@ -16,8 +16,9 @@ This script depends on a fingerprint file containing the target's information: n
 You may select a category if you wish to reduce the number of requests. We have categories like:
 * <code>web</code> - Web applications
 * <code>routers</code> - Routers
-* <code>voip</code> - VOIP devices
-* <code>security</code>
+* <code>security</code> - CCTVs and other security devices
+* <code>printer</code> - Network-attached printers and printer servers
+* <code>console</code> - Remote consoles
 
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
 
