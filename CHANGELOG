@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#117][NSE] tftp-enum now only brute-forces IP-address-based Cisco filenames when
+  the wordlist contains "{cisco}". Previously, custom wordlists would still end
+  up sending these extra 256 requests. [Sriram Raghunathan]
+
 o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
   like DH certificates or corrupted certs. When this happens, ssl-enum-ciphers
   will label the ciphersuite strength as "unknown." Reported by Bertrand

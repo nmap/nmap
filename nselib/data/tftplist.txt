@@ -101,6 +101,7 @@ boot.txt
 bootrom.ld
 bridge-confg
 cfg.bin
+{cisco}
 cisco-confg
 cisco_util
 cisconet.bin
