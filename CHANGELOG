@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added 9 new fingerprints for script http-default-accounts.
+  (Motorola AP, Lantronix print server, Dell iDRAC6, HP StorageWorks, Zabbix,
+  Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypevisor)
+  [nnposter]
+
 o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
   the wordlist contains "{cisco}". Previously, custom wordlists would still end
   up sending these extra 256 requests. [Sriram Raghunathan]
@@ -28,8 +33,8 @@ o [NSE][GH#519] Removed the obsolete script ip-geolocation-geobytes. [Paulino Ca
 o [NSE][GH#234] Added --script-timeout option for limiting run time for every
   individual script. [Abhishek Singh]
 
-o [NSE] Completed a refresh and validation of almost all fingerprints for
-  script http-default-accounts. Also improved the script speed. [nnposter]
+o [NSE][GH#516] Completed a refresh and validation of almost all fingerprints
+  for script http-default-accounts. Also improved the script speed. [nnposter]
 
 o [GH#98] Added support for decoys in IPv6. Earlier we supported decoys only in
   IPv4. [Abhishek Singh]
