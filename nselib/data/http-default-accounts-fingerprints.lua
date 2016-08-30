@@ -598,6 +598,50 @@ table.insert(fingerprints, {
 })
 
 ---
+--Storage
+---
+table.insert(fingerprints, {
+  -- Version TS200R021 on MSA 2000 G3
+  name = "HP Storage Management Utility",
+  category = "storage",
+  paths = {
+    {path = "/api/id/"}
+  },
+  -- TODO: Change the probe path to "/" and use the following target_check
+  -- once the http library adds support for gzip encoding. Don't forget
+  -- to change url.absolute() argument from "../" to "api/" in login_check.
+  --target_check = function (host, port, path, response)
+  --  return response.status == 200
+  --         and response.body
+  --         and response.body:find("brandStrings", 1, true)
+  --         and response.body:find("checkAuthentication", 1, true)
+  --         and response.body:find("hp stuff init", 1, true)
+  --end,
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["command-status"]
+           and response.header["command-status"]:find("^0 %({.*systemName:.*,%s*controller:.*}%)")
+  end,
+  login_combos = {
+    {username = "monitor", password = "!monitor"},
+    {username = "manage",  password = "!manage"},
+    {username = "admin",   password = "!admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local creds = stdnse.tohex(openssl.md5(user .. "_" .. pass))
+    local content = "/api/login/" .. creds
+    local header = {["Content-Type"] = "application/x-www-form-urlencoded",
+                    ["datatype"] = "json"}
+    local req = http.generic_request(host, port, "POST",
+                                    url.absolute(path, "../"),
+                                    {header=header, content=content,
+                                    no_cache=true, redirect_ok=false})
+    return req.status == 200
+           and (req.header["command-status"] or ""):find("^1 ")
+  end
+})
+
+---
 --Remote consoles
 ---
 table.insert(fingerprints, {

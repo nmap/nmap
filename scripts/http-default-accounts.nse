@@ -18,6 +18,7 @@ You may select a category if you wish to reduce the number of requests. We have 
 * <code>routers</code> - Routers
 * <code>security</code> - CCTVs and other security devices
 * <code>printer</code> - Network-attached printers and printer servers
+* <code>storage</code> - Storage devices
 * <code>console</code> - Remote consoles
 
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
