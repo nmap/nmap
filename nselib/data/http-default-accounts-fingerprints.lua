@@ -470,6 +470,30 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version 10.5 on MPX 8005
+  name = "Citrix NetScaler",
+  category = "router",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("NetScaler", 1, true)
+           and response.body:lower():find("<title>citrix login</title>", 1, true)
+  end,
+  login_combos = {
+    {username = "nsroot", password = "nsroot"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "login/do_login",
+                              "Invalid username or password",
+                              {username=user, password=pass, url="", timezone_offset="0"},
+                              false)
+  end
+})
+
 ---
 --Digital recorders
 ---
