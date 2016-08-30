@@ -2,7 +2,7 @@
 
 o [NSE] Added 9 new fingerprints for script http-default-accounts.
   (Motorola AP, Lantronix print server, Dell iDRAC6, HP StorageWorks, Zabbix,
-  Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypevisor)
+  Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypervisor)
   [nnposter]
 
 o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
