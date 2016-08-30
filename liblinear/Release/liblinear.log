@@ -1,0 +1,7 @@
+﻿  daxpy.c
+  ddot.c
+  dnrm2.c
+  dscal.c
+  linear.cpp
+  tron.cpp
+  liblinear.vcxproj -> C:\Users\rajit\Source\Repos\nmap\liblinear\.\liblinear.lib

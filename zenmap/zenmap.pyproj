@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6fe86e8d-9a68-4aa6-b9d9-caecc4275420}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>setup.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+    <InterpreterVersion />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="install_scripts\utils\version_update.py" />
+    <Compile Include="install_scripts\windows\boot_script.py" />
+    <Compile Include="radialnet\bestwidgets\boxes.py" />
+    <Compile Include="radialnet\bestwidgets\buttons.py" />
+    <Compile Include="radialnet\bestwidgets\comboboxes.py" />
+    <Compile Include="radialnet\bestwidgets\expanders.py" />
+    <Compile Include="radialnet\bestwidgets\frames.py" />
+    <Compile Include="radialnet\bestwidgets\labels.py" />
+    <Compile Include="radialnet\bestwidgets\textview.py" />
+    <Compile Include="radialnet\bestwidgets\windows.py" />
+    <Compile Include="radialnet\bestwidgets\__init__.py" />
+    <Compile Include="radialnet\core\ArgvHandle.py" />
+    <Compile Include="radialnet\core\Coordinate.py" />
+    <Compile Include="radialnet\core\Graph.py" />
+    <Compile Include="radialnet\core\Info.py" />
+    <Compile Include="radialnet\core\Interpolation.py" />
+    <Compile Include="radialnet\core\XMLHandler.py" />
+    <Compile Include="radialnet\core\__init__.py" />
+    <Compile Include="radialnet\gui\Application.py" />
+    <Compile Include="radialnet\gui\ControlWidget.py" />
+    <Compile Include="radialnet\gui\Dialogs.py" />
+    <Compile Include="radialnet\gui\HostsViewer.py" />
+    <Compile Include="radialnet\gui\Image.py" />
+    <Compile Include="radialnet\gui\NodeNotebook.py" />
+    <Compile Include="radialnet\gui\NodeWindow.py" />
+    <Compile Include="radialnet\gui\RadialNet.py" />
+    <Compile Include="radialnet\gui\SaveDialog.py" />
+    <Compile Include="radialnet\gui\Toolbar.py" />
+    <Compile Include="radialnet\gui\__init__.py" />
+    <Compile Include="radialnet\radialnet.pyw" />
+    <Compile Include="radialnet\util\drawing.py" />
+    <Compile Include="radialnet\util\geometry.py" />
+    <Compile Include="radialnet\util\integration.py" />
+    <Compile Include="radialnet\util\misc.py" />
+    <Compile Include="radialnet\util\__init__.py" />
+    <Compile Include="radialnet\__init__.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="share\zenmap\locale\xgettext-profile_editor.py" />
+    <Compile Include="test\run_tests.py" />
+    <Compile Include="zenmapCore\BasePaths.py" />
+    <Compile Include="zenmapCore\DelayedObject.py" />
+    <Compile Include="zenmapCore\Diff.py" />
+    <Compile Include="zenmapCore\I18N.py" />
+    <Compile Include="zenmapCore\Name.py" />
+    <Compile Include="zenmapCore\NetworkInventory.py" />
+    <Compile Include="zenmapCore\NmapCommand.py" />
+    <Compile Include="zenmapCore\NmapOptions.py" />
+    <Compile Include="zenmapCore\NmapParser.py" />
+    <Compile Include="zenmapCore\NSEDocParser.py" />
+    <Compile Include="zenmapCore\Paths.py" />
+    <Compile Include="zenmapCore\RecentScans.py" />
+    <Compile Include="zenmapCore\ScriptArgsParser.py" />
+    <Compile Include="zenmapCore\ScriptMetadata.py" />
+    <Compile Include="zenmapCore\SearchResult.py" />
+    <Compile Include="zenmapCore\StringPool.py" />
+    <Compile Include="zenmapCore\TargetList.py" />
+    <Compile Include="zenmapCore\UmitConf.py" />
+    <Compile Include="zenmapCore\UmitConfigParser.py" />
+    <Compile Include="zenmapCore\UmitDB.py" />
+    <Compile Include="zenmapCore\UmitLogging.py" />
+    <Compile Include="zenmapCore\UmitOptionParser.py" />
+    <Compile Include="zenmapCore\Version.py" />
+    <Compile Include="zenmapCore\__init__.py" />
+    <Compile Include="zenmapGUI\About.py" />
+    <Compile Include="zenmapGUI\App.py" />
+    <Compile Include="zenmapGUI\BugReport.py" />
+    <Compile Include="zenmapGUI\CrashReport.py" />
+    <Compile Include="zenmapGUI\DiffCompare.py" />
+    <Compile Include="zenmapGUI\FileChoosers.py" />
+    <Compile Include="zenmapGUI\FilterBar.py" />
+    <Compile Include="zenmapGUI\higwidgets\gtkutils.py" />
+    <Compile Include="zenmapGUI\higwidgets\higboxes.py" />
+    <Compile Include="zenmapGUI\higwidgets\higbuttons.py" />
+    <Compile Include="zenmapGUI\higwidgets\higdialogs.py" />
+    <Compile Include="zenmapGUI\higwidgets\higentries.py" />
+    <Compile Include="zenmapGUI\higwidgets\higexpanders.py" />
+    <Compile Include="zenmapGUI\higwidgets\higframe.py" />
+    <Compile Include="zenmapGUI\higwidgets\higlabels.py" />
+    <Compile Include="zenmapGUI\higwidgets\higlogindialogs.py" />
+    <Compile Include="zenmapGUI\higwidgets\hignotebooks.py" />
+    <Compile Include="zenmapGUI\higwidgets\higprogressbars.py" />
+    <Compile Include="zenmapGUI\higwidgets\higscrollers.py" />
+    <Compile Include="zenmapGUI\higwidgets\higspinner.py" />
+    <Compile Include="zenmapGUI\higwidgets\higtables.py" />
+    <Compile Include="zenmapGUI\higwidgets\higtextviewers.py" />
+    <Compile Include="zenmapGUI\higwidgets\higwindows.py" />
+    <Compile Include="zenmapGUI\higwidgets\utils.py" />
+    <Compile Include="zenmapGUI\higwidgets\__init__.py" />
+    <Compile Include="zenmapGUI\Icons.py" />
+    <Compile Include="zenmapGUI\MainWindow.py" />
+    <Compile Include="zenmapGUI\NmapOutputProperties.py" />
+    <Compile Include="zenmapGUI\NmapOutputViewer.py" />
+    <Compile Include="zenmapGUI\OptionBuilder.py" />
+    <Compile Include="zenmapGUI\Print.py" />
+    <Compile Include="zenmapGUI\ProfileCombo.py" />
+    <Compile Include="zenmapGUI\ProfileEditor.py" />
+    <Compile Include="zenmapGUI\ProfileHelp.py" />
+    <Compile Include="zenmapGUI\ScanHostDetailsPage.py" />
+    <Compile Include="zenmapGUI\ScanHostsView.py" />
+    <Compile Include="zenmapGUI\ScanInterface.py" />
+    <Compile Include="zenmapGUI\ScanNmapOutputPage.py" />
+    <Compile Include="zenmapGUI\ScanOpenPortsPage.py" />
+    <Compile Include="zenmapGUI\ScanRunDetailsPage.py" />
+    <Compile Include="zenmapGUI\ScanScanListPage.py" />
+    <Compile Include="zenmapGUI\ScansListStore.py" />
+    <Compile Include="zenmapGUI\ScanToolbar.py" />
+    <Compile Include="zenmapGUI\ScriptInterface.py" />
+    <Compile Include="zenmapGUI\SearchGUI.py" />
+    <Compile Include="zenmapGUI\SearchWindow.py" />
+    <Compile Include="zenmapGUI\TargetCombo.py" />
+    <Compile Include="zenmapGUI\TopologyPage.py" />
+    <Compile Include="zenmapGUI\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="install_scripts\windows\nmap-eye.ico" />
+    <Content Include="share\zenmap\docs\help.html" />
+    <Content Include="share\zenmap\pixmaps\default.svg" />
+    <Content Include="share\zenmap\pixmaps\default_32.png" />
+    <Content Include="share\zenmap\pixmaps\default_75.png" />
+    <Content Include="share\zenmap\pixmaps\freebsd.svg" />
+    <Content Include="share\zenmap\pixmaps\freebsd_32.png" />
+    <Content Include="share\zenmap\pixmaps\freebsd_75.png" />
+    <Content Include="share\zenmap\pixmaps\irix.svg" />
+    <Content Include="share\zenmap\pixmaps\irix_32.png" />
+    <Content Include="share\zenmap\pixmaps\irix_75.png" />
+    <Content Include="share\zenmap\pixmaps\linux.svg" />
+    <Content Include="share\zenmap\pixmaps\linux_32.png" />
+    <Content Include="share\zenmap\pixmaps\linux_75.png" />
+    <Content Include="share\zenmap\pixmaps\macosx.svg" />
+    <Content Include="share\zenmap\pixmaps\macosx_32.png" />
+    <Content Include="share\zenmap\pixmaps\macosx_75.png" />
+    <Content Include="share\zenmap\pixmaps\openbsd.svg" />
+    <Content Include="share\zenmap\pixmaps\openbsd_32.png" />
+    <Content Include="share\zenmap\pixmaps\openbsd_75.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\border.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\firewall.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\logo.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\logo.svg" />
+    <Content Include="share\zenmap\pixmaps\radialnet\padlock.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\router.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\switch.png" />
+    <Content Include="share\zenmap\pixmaps\radialnet\wireless.png" />
+    <Content Include="share\zenmap\pixmaps\redhat.svg" />
+    <Content Include="share\zenmap\pixmaps\redhat_32.png" />
+    <Content Include="share\zenmap\pixmaps\redhat_75.png" />
+    <Content Include="share\zenmap\pixmaps\solaris.svg" />
+    <Content Include="share\zenmap\pixmaps\solaris_32.png" />
+    <Content Include="share\zenmap\pixmaps\solaris_75.png" />
+    <Content Include="share\zenmap\pixmaps\throbber.gif" />
+    <Content Include="share\zenmap\pixmaps\throbber.png" />
+    <Content Include="share\zenmap\pixmaps\ubuntu.svg" />
+    <Content Include="share\zenmap\pixmaps\ubuntu_32.png" />
+    <Content Include="share\zenmap\pixmaps\ubuntu_75.png" />
+    <Content Include="share\zenmap\pixmaps\unknown.svg" />
+    <Content Include="share\zenmap\pixmaps\unknown_32.png" />
+    <Content Include="share\zenmap\pixmaps\unknown_75.png" />
+    <Content Include="share\zenmap\pixmaps\vl_1.svg" />
+    <Content Include="share\zenmap\pixmaps\vl_1_32.png" />
+    <Content Include="share\zenmap\pixmaps\vl_1_75.png" />
+    <Content Include="share\zenmap\pixmaps\vl_2.svg" />
+    <Content Include="share\zenmap\pixmaps\vl_2_32.png" />
+    <Content Include="share\zenmap\pixmaps\vl_2_75.png" />
+    <Content Include="share\zenmap\pixmaps\vl_3.svg" />
+    <Content Include="share\zenmap\pixmaps\vl_3_32.png" />
+    <Content Include="share\zenmap\pixmaps\vl_3_75.png" />
+    <Content Include="share\zenmap\pixmaps\vl_4.svg" />
+    <Content Include="share\zenmap\pixmaps\vl_4_32.png" />
+    <Content Include="share\zenmap\pixmaps\vl_4_75.png" />
+    <Content Include="share\zenmap\pixmaps\vl_5.svg" />
+    <Content Include="share\zenmap\pixmaps\vl_5_32.png" />
+    <Content Include="share\zenmap\pixmaps\vl_5_75.png" />
+    <Content Include="share\zenmap\pixmaps\win.svg" />
+    <Content Include="share\zenmap\pixmaps\win_32.png" />
+    <Content Include="share\zenmap\pixmaps\win_75.png" />
+    <Content Include="share\zenmap\pixmaps\zenmap.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="install_scripts\" />
+    <Folder Include="install_scripts\utils" />
+    <Folder Include="install_scripts\windows" />
+    <Folder Include="radialnet" />
+    <Folder Include="radialnet\bestwidgets" />
+    <Folder Include="radialnet\core" />
+    <Folder Include="radialnet\gui" />
+    <Folder Include="radialnet\util" />
+    <Folder Include="share\" />
+    <Folder Include="share\zenmap\" />
+    <Folder Include="share\zenmap\docs" />
+    <Folder Include="share\zenmap\locale" />
+    <Folder Include="share\zenmap\pixmaps" />
+    <Folder Include="share\zenmap\pixmaps\radialnet" />
+    <Folder Include="test" />
+    <Folder Include="zenmapCore" />
+    <Folder Include="zenmapGUI" />
+    <Folder Include="zenmapGUI\higwidgets" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>

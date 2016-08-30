@@ -1,0 +1,14 @@
+﻿  getopt.c
+  inet_ntop.c
+  inet_pton.c
+  nbase_addrset.c
+  nbase_memalloc.c
+  nbase_misc.c
+  nbase_rnd.c
+  nbase_str.c
+  nbase_time.c
+  nbase_winunix.c
+  snprintf.c
+  strcasecmp.c
+  Generating Code...
+  nbase.vcxproj -> C:\Users\rajit\Source\Repos\nmap\nbase\.\nbase.lib

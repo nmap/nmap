@@ -222,8 +222,14 @@ Resorting to unprivileged (non-administrator) mode.", svcname, ret);
   return true;
 
 quit_error:
-  if (scm != NULL)
-    CloseHandle(scm);
+  if (scm != NULL){
+	  try {
+		  CloseHandle(scm);
+	  }
+	  catch (const std::exception& e) {
+	  printf("sone of a Etion %s\n", e.what());
+	  }
+  }
   if (npf != NULL)
     CloseHandle(npf);
 

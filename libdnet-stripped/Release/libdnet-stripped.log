@@ -1,0 +1,17 @@
+﻿  addr-util.c
+  addr.c
+src\addr.c(210): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10586.0\um\winsock2.h(2214): note: see declaration of 'gethostbyname'
+  arp-win32.c
+  err.c
+  eth-win32.c
+  intf-win32.c
+  ip-util.c
+  ip-win32.c
+  ip6.c
+  route-win32.c
+  strlcat.c
+  strlcpy.c
+  strsep.c
+  Generating Code...
+  libdnet-stripped.vcxproj -> C:\Users\rajit\Source\Repos\nmap\libdnet-stripped\.\libdnet-stripped.lib

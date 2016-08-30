@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ProfilingTarget xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ProjectTarget>
+    <TargetProject>31ca8a02-9c5e-4142-b47f-4a49e8be1cb6</TargetProject>
+    <FriendlyName>zenmap1</FriendlyName>
+  </ProjectTarget>
+  <Reports />
+</ProfilingTarget>

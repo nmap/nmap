@@ -277,7 +277,7 @@ int	strlcpy(char *, const char *, int);
 char	*strsep(char **, const char *);
 #endif
 
-#define snprintf _snprintf
+//#define snprintf _snprintf
 
 /* Without this, Windows will give us all sorts of crap about using functions
    like strcpy() even if they are done safely */

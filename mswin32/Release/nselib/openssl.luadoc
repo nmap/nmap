@@ -1,0 +1,207 @@
+---
+-- OpenSSL bindings.
+--
+-- This module is a wrapper for OpenSSL functions that provide encryption and
+-- decryption, hashing, and multiprecision integers.
+--
+-- The <code>openssl</code> module may not always be available. It depends on
+-- whether OpenSSL support was enabled at compile time. Scripts using the
+-- module should be made to fail gracefully using code like the following:
+-- <code>
+-- if not pcall(require, "openssl") then
+--   action = function(host, port)
+--     stdnse.debug2("Skipping \"%s\" because OpenSSL is missing.", id)
+--   end
+-- end
+-- action = action or function(host, port)
+--   ...
+-- end
+-- </code>
+-- @author Sven Klemm <sven@c3d2.de>
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+
+module "openssl"
+
+--- Returns the size of <code>bignum</code> in bits.
+-- @param bignum bignum to operate on.
+-- @return Size of <code>bignum</code>.
+function bignum_num_bits(bignum)
+
+--- Returns the size of <code>bignum</code> in bytes.
+-- @param bignum bignum to operate on.
+-- @return Size of <code>bignum</code>.
+function bignum_num_bytes(bignum)
+
+--- Sets the bit at <code>position</code> in <code>bignum</code>.
+-- @param bignum bignum to operate on.
+-- @param position Bit position.
+function bignum_set_bit(bignum, position)
+
+--- Clears the bit at <code>position</code> in <code>bignum</code>.
+-- @param bignum bignum to operate on.
+-- @param position Bit position.
+function bignum_clear_bit(bignum, position)
+
+--- Gets the state of the bit at <code>position</code> in <code>bignum</code>.
+-- @param bignum bignum to operate on.
+-- @param position Bit position.
+-- @return True if the selected bit is set, false otherwise.
+function bignum_is_bit_set(bignum, position)
+
+--- Checks whether <code>bignum</code> is probably prime.
+--
+-- Performs Miller-Rabin probablistic primality tests.
+-- @param bignum bignum to check for primality
+-- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
+-- @return True if the number is probably prime, false if it is composite.
+function bignum_is_prime(bignum, nchecks)
+
+--- Checks whether <code>bignum</code> is a safe prime.
+--
+-- A safe prime is defined as a prime p so that (p-1)/2 is also prime. Using
+-- non-safe primes in discrete logarithm cryptography like Diffie-Hellman can
+-- result in weak, easily broken key exchanges.
+-- @param bignum bignum to check for primality
+-- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
+-- @return True if the number is a safe prime, false if it is not.
+-- @return True if the number is probably prime, false if it is composite.
+function bignum_is_safe_prime(bignum, nchecks)
+
+--- Converts a binary-encoded string into a bignum.
+-- @param string Binary string.
+-- @return bignum.
+function bignum_bin2bn(string)
+
+--- Converts a decimal-encoded string into a bignum.
+-- @param string Decimal string.
+-- @return bignum.
+function bignum_dec2bn(string)
+
+--- Converts a hex-encoded string into a bignum.
+-- @param string Hex string.
+-- @return bignum.
+function bignum_hex2bn(string)
+
+--- Converts <code>bignum</code> into a binary-encoded string.
+-- @param bignum bignum to operate on.
+-- @return Binary string.
+function bignum_bn2bin(bignum)
+
+--- Converts <code>bignum</code> into a decimal-encoded string.
+-- @param bignum bignum to operate on.
+-- @return Decimal string.
+function bignum_bn2dec(bignum)
+
+--- Converts <code>bignum</code> into a hex-encoded string.
+-- @param bignum bignum to operate on.
+-- @return Hex string.
+function bignum_bn2hex(bignum)
+
+--- Returns a random bignum.
+-- @param bits Size of the returned bignum in bits.
+-- @return Random bignum.
+function bignum_rand(bits)
+
+--- Returns a pseudorandom bignum.
+-- @param bits Size of the returned bignum in bits.
+-- @return Pseudorandom bignum.
+function bignum_pseudo_rand(bits)
+
+--- Returns the bignum which is the result of <code>a</code>^<code>p</code> mod
+-- <code>m</code>.
+-- @param a Base.
+-- @param p Exponent.
+-- @param m Modulus.
+-- @return bignum.
+function bignum_mod_exp(a, p, m)
+
+--- Returns the bignum which is the result of <code>a+b</code>
+-- @param a bignum
+-- @param b bignum
+-- @return bignum
+function bignum_add(a, b)
+
+--- Returns a string containing random data.
+-- @param bytes Length of the returned string in bytes.
+-- @return Random string.
+function rand_bytes(bytes)
+
+--- Returns a string containing pseudorandom data.
+-- @param bytes Length of the returned string in bytes.
+-- @return Pseudorandom string.
+function rand_pseudo_bytes(bytes)
+
+--- Returns the MD4 digest of a string.
+-- @param message String to digest.
+-- @return MD4 digest.
+function md4(message)
+
+--- Returns the MD5 digest of a string.
+-- @param message String to digest.
+-- @return MD5 digest.
+function md5(message)
+
+--- Returns the SHA-1 digest of a string.
+-- @param message String to digest.
+-- @return SHA-1 digest.
+function sha1(message)
+
+--- Returns the RIPEMD-160 digest of a string.
+-- @param message String to digest.
+-- @return RIPEMD-160 digest.
+function ripemd160(message)
+
+--- Returns the digest of a string using a named algorithm.
+-- @param algorithm Any of the strings returned by
+-- <code>openssl.supported_digests</code>.
+-- @param message String to digest.
+function digest(algorithm, message)
+
+--- Returns the message authentication code of a string using a named algorithm.
+-- @param algorithm Any of the strings returned by
+-- <code>openssl.supported_digests</code>.
+-- @param key Key.
+-- @param message String.
+function hmac(algorithm, key, message)
+
+--- Encrypt data with a given algorithm, key, and initialization vector.
+-- @param algorithm Any of the strings returned by
+-- <code>openssl.supported_ciphers</code>.
+-- @param key Key.
+-- @param iv Initialization vector.
+-- @param data Data to encrypt.
+-- @param padding If true, then a partial final block will be padded and
+-- encrypted (default false).
+function encrypt(algorithm, key, iv, data, padding)
+
+--- Decrypt data with a given algorithm, key, and initialization vector.
+-- @param algorithm Any of the strings returned by
+-- <code>openssl.supported_ciphers</code>.
+-- @param key Key.
+-- @param iv Initialization vector.
+-- @param data Data to decrypt.
+-- @param padding If true, then the final block must be padded correctly
+-- (default false).
+function decrypt(algorithm, key, iv, data, padding)
+
+--- Returns a table with the names of the supported cipher algorithms.
+-- @return Array containing cipher names as strings.
+function supported_ciphers()
+
+--- Returns a table with the names of the supported digest algorithms.
+-- @return Array containing digest names as strings.
+function supported_digests()
+
+--- Converts a 56-bit DES key into a 64-bit key with the correct parity.
+-- @param data A 7-byte string.
+-- @return An 8-byte string.
+function DES_string_to_key(data)
+
+--- Returns options for RC4.
+-- @return Option string.
+function rc4_options()
+
+--- Function which generates an RC4 cipher function with the given key.
+-- @param key_data The key for the cipher.
+-- @return A function which performs the RC4 stream cipher on an input string and returns the result.
+function rc4(key_data)
