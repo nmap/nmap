@@ -493,6 +493,34 @@ table.insert(fingerprints, {
 })
 
 ---
+--Industrial systems
+---
+table.insert(fingerprints, {
+  -- Version 2.1.2, 2.2.0 on TSX ETY Port, 1.0.4, 2.2.0 on TSX ETY410
+  name = "Schneider Modicon Web",
+  category = "industrial",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 302
+           and response.header["server"]
+           and response.header["server"]:find("^Schneider%-WEB/V%d+%.")
+           and response.header["location"]
+           and response.header["location"]:find("/index%.htm$")
+  end,
+  login_combos = {
+    {username = "USER", password = "USER"}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- realm="Schneider Web"
+    return try_http_basic_login(host, port,
+                               url.absolute(path, "secure/system/globaldata.htm?Language=English"),
+                               user, pass, false)
+  end
+})
+
+---
 --Printers
 ---
 table.insert(fingerprints, {
