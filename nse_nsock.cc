@@ -844,7 +844,7 @@ static int l_bind (lua_State *L)
 
   rc = getaddrinfo(addr_str, port_str, &hints, &results);
   if (rc != 0)
-    return nseU_safeerror(L, gai_strerror(rc));
+    return nseU_safeerror(L, "getaddrinfo: %s", gai_strerror(rc));
   if (results == NULL)
     return nseU_safeerror(L, "getaddrinfo: no results found");
   if (results->ai_addrlen > sizeof(nu->source_addr)) {
