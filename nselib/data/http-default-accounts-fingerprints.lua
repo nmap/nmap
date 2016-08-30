@@ -614,6 +614,33 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 071.*, 072.* on WorkCentre 7835, 7845, ColorQube 8900X
+  name = "Xerox WorkCentre/ColorQube",
+  category = "printer",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find('SuppliesType != "InkStick"', 1, true)
+           and response.body:find("XEROX WORKCENTRE", 1, true)
+  end,
+  login_combos = {
+    {username = "admin", password = "1111"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {_fun_function="HTTP_Authenticate_fn",
+                  NextPage="/properties/authentication/luidLogin.php",
+                  webUsername=user,
+                  webPassword=pass,
+                  frmaltDomain="default"}
+    return try_http_post_login(host, port, path, "userpost/xerox.set",
+                              "/login%.php%?invalid=t", form)
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 3.6/4
   name = "Lantronix ThinWeb Manager",
   category = "printer",
