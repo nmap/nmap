@@ -311,8 +311,20 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     memset(&pi, 0, sizeof(pi));
 
     if (CreateProcess(NULL, cmdexec, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi) == 0) {
-        if (o.verbose)
-            logdebug("Error in CreateProcess: %d\n", GetLastError());
+        if (o.verbose) {
+            LPVOID lpMsgBuf;
+            FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            GetLastError(),
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR)&lpMsgBuf,
+            0, NULL);
+
+            logdebug("Error in CreateProcess: %s\nCommand was: %s\n", (lpMsgBuf), cmdexec);
+        }
         CloseHandle(info->child_in_r);
         CloseHandle(info->child_in_w);
         CloseHandle(info->child_out_r);
