@@ -750,6 +750,33 @@ table.insert(fingerprints, {
 })
 
 ---
+--Virtualization systems
+---
+table.insert(fingerprints, {
+  -- Version 5.0.0
+  name = "VMware ESXi",
+  category = "virtualization",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("ID_EESX_Welcome", 1, true)
+           and response.body:find("/folder?dcPath=ha-datacenter", 1, true)
+  end,
+  login_combos = {
+    {username = "root", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- realm="VMware HTTP server"
+    return try_http_basic_login(host, port,
+                               url.absolute(path, "folder?dcPath=ha-datacenter"),
+                               user, pass, false)
+  end
+})
+
+---
 --Remote consoles
 ---
 table.insert(fingerprints, {

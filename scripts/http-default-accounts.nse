@@ -20,6 +20,7 @@ You may select a category if you wish to reduce the number of requests. We have 
 * <code>industrial</code> - Industrial systems
 * <code>printer</code> - Network-attached printers and printer servers
 * <code>storage</code> - Storage devices
+* <code>virtualization</code> - Virtualization systems
 * <code>console</code> - Remote consoles
 
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
