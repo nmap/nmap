@@ -112,6 +112,35 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 2.0.6
+  name = "Zabbix",
+  category = "web",
+  paths = {
+    {path = "/zabbix/"}
+  },
+  target_check = function (host, port, path, response)
+    -- true if the response is HTTP/200 and sets cookie "zbx_sessionid"
+    if response.status == 200 then
+      for _, ck in ipairs(response.cookies or {}) do
+        if ck.name:lower() == "zbx_sessionid" then return true end
+      end
+    end
+    return false
+  end,
+  login_combos = {
+    {username = "admin", password = "zabbix"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http.post(host, port, url.absolute(path, "index.php"),
+                          {no_cache=true, redirect_ok=false},
+                          nil,
+                          {request="", name=user, password=pass, enter="Sign in"},
+                          false)
+    return req.status == 302 and req.header["location"] == "dashboard.php"
+  end
+})
+
+table.insert(fingerprints, {
   name = "Xplico",
   category = "web",
   paths = {
