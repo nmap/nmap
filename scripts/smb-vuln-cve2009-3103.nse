@@ -173,6 +173,5 @@ action = function(host)
       vuln_table.state = vulns.STATE.NOT_VULN
     end
   end
-  vuln_table.state = vulns.STATE.VULN
   return vuln_report:make_output(vuln_table)
 end
