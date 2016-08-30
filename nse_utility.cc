@@ -157,8 +157,8 @@ uint16_t nseU_checkport (lua_State *L, int idx, const char **protocol)
 
   if (lua_istable(L, idx)) {
     lua_getfield(L, idx, "number");
-    if (!lua_isnumber(L, -1))
-      luaL_argerror(L, idx, "port table lacks numeric 'number' field");
+    if (!lua_isinteger(L, -1))
+      luaL_argerror(L, idx, "port table lacks integer 'number' field");
     port = (uint16_t) lua_tointeger(L, -1);
     lua_getfield(L, idx, "protocol");
     if (lua_isstring(L, -1))
@@ -205,8 +205,8 @@ Port *nseU_getport (lua_State *L, Target *target, Port *port, int idx)
   idx = lua_absindex(L, idx);
   luaL_checktype(L, idx, LUA_TTABLE);
   lua_getfield(L, idx, "number");
-  if (!lua_isnumber(L, -1))
-    luaL_error(L, "port 'number' field must be a number");
+  if (!lua_isinteger(L, -1))
+    luaL_error(L, "port 'number' field must be an integer");
   lua_getfield(L, idx, "protocol");
   if (!lua_isstring(L, -1))
     luaL_error(L, "port 'protocol' field must be a string");

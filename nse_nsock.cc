@@ -735,9 +735,9 @@ static int l_get_info (lua_State *L)
 
   lua_pushboolean(L, true);
   lua_pushstring(L, inet_ntop_both(af, &local, ipstring_local));
-  lua_pushnumber(L, inet_port_both(af, &local));
+  lua_pushinteger(L, inet_port_both(af, &local));
   lua_pushstring(L, inet_ntop_both(af, &remote, ipstring_remote));
-  lua_pushnumber(L, inet_port_both(af, &remote));
+  lua_pushinteger(L, inet_port_both(af, &remote));
   return 5;
 }
 
