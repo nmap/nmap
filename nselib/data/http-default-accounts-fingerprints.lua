@@ -37,10 +37,10 @@ local have_openssl, openssl = pcall(require, 'openssl')
 local function try_http_basic_login(host, port, path, user, pass, digest_auth)
   local credentials = {username = user, password = pass, digest = digest_auth}
   local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
-  if req.status and req.status ~= 401 and req.status ~= 403 then
-    return true
-  end
-  return false
+  return req.status
+         and req.status ~= 401
+         and req.status ~= 403
+         and req.status ~= 404
 end
 
 ---
