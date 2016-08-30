@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [GH#117][NSE] tftp-enum now only brute-forces IP-address-based Cisco filenames when
+o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
   the wordlist contains "{cisco}". Previously, custom wordlists would still end
   up sending these extra 256 requests. [Sriram Raghunathan]
 
@@ -9,7 +9,7 @@ o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
   will label the ciphersuite strength as "unknown." Reported by Bertrand
   Bonnefoy-Claudet. [Daniel Miller]
 
-o [NSE] Fix two issues in sslcert.lua that prevented correct operations
+o [NSE][GH#531] Fix two issues in sslcert.lua that prevented correct operations
   against LDAP services when version detection or STARTTLS were used.
   [Tom Sellers]
 
@@ -18,23 +18,23 @@ o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
   version of libpcap. The new method, using WaitForSingleObject should work
   with all versions of both WinPcap and Npcap. [Daniel Miller]
 
-o Avoid an unnecessary assert failure in timing.cc when printing estimated
+o [GH#472] Avoid an unnecessary assert failure in timing.cc when printing estimated
   completion time. Instead, we'll output a diagnostic error message:
     Timing error: localtime(n) is NULL
   where "n" is some number that is causing problems. [Jean-Guilhem Nousse]
 
-o [NSE] Removed the obsolete script ip-geolocation-geobytes. [Paulino Calderon]
+o [NSE][GH#519] Removed the obsolete script ip-geolocation-geobytes. [Paulino Calderon]
 
-o Added --script-timeout option for limiting run time for every
+o [NSE][GH#234] Added --script-timeout option for limiting run time for every
   individual script. [Abhishek Singh]
 
 o [NSE] Completed a refresh and validation of almost all fingerprints for
   script http-default-accounts. Also improved the script speed. [nnposter]
 
-o Added support for decoys in IPv6. Earlier we supported decoys only in
+o [GH#98] Added support for decoys in IPv6. Earlier we supported decoys only in
   IPv4. [Abhishek Singh]
 
-o Nmap now supports OpenSSL 1.1.0-pre5 and previous versions. [Vincent Dumont]
+o [GH#439] Nmap now supports OpenSSL 1.1.0-pre5 and previous versions. [Vincent Dumont]
 
 o [Ncat] Fix a crash ("add_fdinfo() failed.") when --exec was used with --ssl
   and --max-conns, due to improper accounting of file descriptors. [Daniel
@@ -65,7 +65,7 @@ o [GH#103][GH#364] Made Nmap's parallel reverse DNS resolver more robust, fully
   handling truncated replies. If a response is too long, we now fall back to
   using the system resolver to answer it. [Abhishek Singh]
 
-o [GH#279][Zenmap] Added a legend for the Topography window. [Suraj Hande]
+o [Zenmap][GH#279] Added a legend for the Topography window. [Suraj Hande]
 
 Nmap 7.25BETA1 [2016-07-15]
 
