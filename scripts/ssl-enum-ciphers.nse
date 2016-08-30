@@ -685,8 +685,10 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 -- This may not always be the case, so
                 -- TODO: reorder certificates and validate entire chain
                 -- TODO: certificate validation (date, self-signed, etc)
-                local c = sslcert.parse_ssl_certificate(certs.certificates[1])
-                if c.pubkey.type == kex.pubkey then
+                local c, err = sslcert.parse_ssl_certificate(certs.certificates[1])
+                if not c then
+                  stdnse.debug1("Failed to parse certificate: %s", err)
+                elseif c.pubkey.type == kex.pubkey then
                   local sigalg = c.sig_algorithm:match("([mM][dD][245])")
                   if sigalg then
                     -- MD2 and MD5 are broken

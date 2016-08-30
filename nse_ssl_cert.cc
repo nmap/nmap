@@ -134,6 +134,7 @@
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/evp.h>
+#include <openssl/err.h>
 
 extern "C"
 {
@@ -455,16 +456,15 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
     nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
     if (nid == NID_X9_62_prime_field) {
       lua_pushstring(L, "explicit_prime");
-      lua_setfield(L, -2, "ec_curve_type");
     }
     else if (nid == NID_X9_62_characteristic_two_field) {
       lua_pushstring(L, "explicit_char2");
-      lua_setfield(L, -2, "ec_curve_type");
     }
     else {
       /* Something weird happened. */
-      return luaL_error(L, "Unknown EC field type in certificate.");
+      lua_pushstring(L, "UNKNOWN");
     }
+    lua_setfield(L, -2, "ec_curve_type");
   }
   lua_setfield(L, -2, "curve_params");
   EC_KEY_free(ec_key);
@@ -549,6 +549,11 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   lua_setfield(L, -2, "pem");
 
   pubkey = X509_get_pubkey(cert);
+  if (pubkey == NULL) {
+    lua_pushnil(L);
+    lua_pushfstring(L, "Error parsing cert: %s", ERR_error_string(ERR_get_error(), NULL));
+    return 2;
+  }
   lua_newtable(L);
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
   pkey_type = EVP_PKEY_type(pubkey->type);

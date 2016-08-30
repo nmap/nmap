@@ -43,7 +43,8 @@ _ENV = stdnse.module("sslcert", stdnse.seeall)
 --@name parse_ssl_certificate
 --@class function
 --@param der DER-encoded certificate
---@return table containing decoded certificate
+--@return table containing decoded certificate or nil on failure
+--@return error string if parsing failed
 --@see nmap.get_ssl_certificate
 _ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
 
@@ -893,10 +894,10 @@ function getCertificate(host, port)
       return false, "Server sent no certificate"
     end
 
-    cert = parse_ssl_certificate(certs.certificates[1])
+    cert, err = parse_ssl_certificate(certs.certificates[1])
     if not cert then
       mutex "done"
-      return false, "Unable to get cert"
+      return false, ("Unable to get cert: %s"):format(err)
     end
   else
     -- If we don't already know the service is TLS wrapped check to see if

@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
+  like DH certificates or corrupted certs. When this happens, ssl-enum-ciphers
+  will label the ciphersuite strength as "unknown." Reported by Bertrand
+  Bonnefoy-Claudet. [Daniel Miller]
+
 o [NSE] Fix two issues in sslcert.lua that prevented correct operations
   against LDAP services when version detection or STARTTLS were used.
   [Tom Sellers]
