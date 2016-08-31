@@ -5,6 +5,9 @@ o [NSE] Added 9 new fingerprints for script http-default-accounts.
   Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypervisor)
   [nnposter]
 
+o [NSE] Added oracle-tns-version to decode the version number from Oracle
+  Database Server's TNS listener. [Daniel Miller]
+
 o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
   the wordlist contains "{cisco}". Previously, custom wordlists would still end
   up sending these extra 256 requests. [Sriram Raghunathan]
