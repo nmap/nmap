@@ -126,6 +126,7 @@ import gtk
 import gtk.gdk
 import pango
 import re
+import errno
 
 import zenmapCore.I18N
 from zenmapCore.UmitLogging import log
@@ -263,7 +264,20 @@ class NmapOutputViewer (gtk.VBox):
             self.nmap_highlight.__setattr__(widget.property_name, wid_props)
 
         nmap_out_prop.destroy()
-        self.nmap_highlight.save_changes()
+        try:
+            self.nmap_highlight.save_changes()
+        except IOError as e:
+            if e.errno == errno.EACCES:
+                alert = HIGAlertDialog(
+                        message_format=_("Can't save Zenmap configuration"),
+                        secondary_text=_(
+                            'Permission denied when writing to \n%s'
+                            '\nMake sure the file exists and is writable.'
+                            ) % (Path.user_config_file))
+                alert.run()
+                alert.destroy()
+            else:
+                raise
         self.apply_highlighting()
 
     def apply_highlighting(self, start_iter=None, end_iter=None):
