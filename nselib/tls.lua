@@ -7,11 +7,14 @@
 -- @author Daniel Miller
 
 local stdnse = require "stdnse"
-local bin = require "bin"
+local string = require "string"
 local math = require "math"
 local os = require "os"
 local table = require "table"
 _ENV = stdnse.module("tls", stdnse.seeall)
+
+local pack = string.pack
+local unpack = string.unpack
 
 -- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/
@@ -211,7 +214,7 @@ EXTENSION_HELPERS = {
   ["server_name"] = function (server_name)
     -- Only supports host_name type (0), as per RFC
     -- Support for other types could be added later
-    return bin.pack(">P", bin.pack(">CP", 0, server_name))
+    return pack(">s2", pack(">Bs2", 0, server_name))
   end,
   ["max_fragment_length"] = tostring,
   ["client_certificate_url"] = tostring,
@@ -221,26 +224,26 @@ EXTENSION_HELPERS = {
   ["elliptic_curves"] = function (elliptic_curves)
     local list = {}
     for _, name in ipairs(elliptic_curves) do
-      list[#list+1] = bin.pack(">S", ELLIPTIC_CURVES[name])
+      list[#list+1] = pack(">I2", ELLIPTIC_CURVES[name])
     end
-    return bin.pack(">P", table.concat(list))
+    return pack(">s2", table.concat(list))
   end,
   ["ec_point_formats"] = function (ec_point_formats)
     local list = {}
     for _, format in ipairs(ec_point_formats) do
-      list[#list+1] = bin.pack(">C", EC_POINT_FORMATS[format])
+      list[#list+1] = pack(">B", EC_POINT_FORMATS[format])
     end
-    return bin.pack(">p", table.concat(list))
+    return pack(">s1", table.concat(list))
   end,
   ["signature_algorithms"] = function(signature_algorithms)
     local list = {}
     for _, pair in ipairs(signature_algorithms) do
-      list[#list+1] = bin.pack(">CC",
+      list[#list+1] = pack(">BB",
         HashAlgorithms[pair[1]] or pair[1],
         SignatureAlgorithms[pair[2]] or pair[2]
         )
     end
-    return bin.pack(">P", table.concat(list))
+    return pack(">s2", table.concat(list))
   end,
   ["next_protocol_negotiation"] = tostring,
 }
@@ -691,18 +694,18 @@ local cipher_info_cache = {
 -- A couple helpers for server_key_exchange parsing
 local function unpack_dhparams (blob, pos)
   local p, g, y
-  pos, p, g, y = bin.unpack(">PPP", blob, pos)
+  p, g, y, pos = unpack(">s2s2s2", blob, pos)
   return pos, {p=p, g=g, y=y}, #p * 8
 end
 
 local function unpack_ecdhparams (blob, pos)
   local eccurvetype
-  pos, eccurvetype = bin.unpack("C", blob, pos)
+  eccurvetype, pos = unpack("B", blob, pos)
   local ret = {}
   local strength
   if eccurvetype == 1 then
     local p, a, b, base, order, cofactor
-    pos, p, a, b, base, order, cofactor = bin.unpack("pppppp", blob, pos)
+    p, a, b, base, order, cofactor, pos = unpack("s1s1s1s1s1s1", blob, pos)
     strength = math.log(order, 2)
     ret.curve_params = {
       ec_curve_type = "explicit_prime",
@@ -711,14 +714,14 @@ local function unpack_ecdhparams (blob, pos)
   elseif eccurvetype == 2 then
     local p = {}
     local m, basis
-    pos, m, basis = bin.unpack(">SC", blob, pos)
+    m, basis, pos = unpack(">I2B", blob, pos)
     if basis == 1 then -- ec_trinomial
-      pos, p.k = bin.unpack("p", blob, pos)
+      p.k, pos = unpack("s1", blob, pos)
     elseif basis == 2 then -- ec_pentanomial
-      pos, p.k1, p.k2, p.k3 = bin.unpack("ppp", blob, pos)
+      p.k1, p.k2, p.k3, pos = unpack("s1s1s1", blob, pos)
     end
     local a, b, base, order, cofactor
-    pos, a, b, base, order, cofactor = bin.unpack("ppppp", blob, pos)
+    a, b, base, order, cofactor, pos = unpack("s1s1s1s1s1", blob, pos)
     strength = math.log(order, 2)
     ret.curve_params = {
       ec_curve_type = "explicit_char2",
@@ -726,7 +729,7 @@ local function unpack_ecdhparams (blob, pos)
     }
   elseif eccurvetype == 3 then
     local curve
-    pos, curve = bin.unpack(">S", blob, pos)
+    curve, pos = unpack(">I2", blob, pos)
     ret.curve_params = {
       ec_curve_type = "namedcurve",
       curve = find_key(ELLIPTIC_CURVES, curve)
@@ -736,7 +739,7 @@ local function unpack_ecdhparams (blob, pos)
       strength = tonumber(size)
     end
   end
-  pos, ret.public = bin.unpack("p", blob, pos)
+  ret.public, pos = unpack("s1", blob, pos)
   return pos, ret, strength
 end
 
@@ -747,9 +750,9 @@ local function unpack_signed (blob, pos, protocol)
   local hash_alg, sig_alg, sig
   -- TLSv1.2 changed to allow arbitrary hash and sig algorithms
   if protocol and PROTOCOLS[protocol] >= 0x0303 then
-    pos, hash_alg, sig_alg, sig = bin.unpack("CC>P", blob, pos)
+    hash_alg, sig_alg, sig, pos = unpack(">BBs2", blob, pos)
   else
-    pos, sig = bin.unpack(">P", blob, pos)
+    sig, pos = unpack(">s2", blob, pos)
   end
   return pos, {hash_algorithm=hash_alg, signature_algorithm=sig_alg, signature=sig}
 end
@@ -830,7 +833,7 @@ KEX_ALGORITHMS.RSA_EXPORT = {
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {rsa={}}
-    pos, ret.rsa.modulus, ret.rsa.exponent = bin.unpack(">PP", blob)
+    ret.rsa.modulus, ret.rsa.exponent, pos = unpack(">s2s2", blob)
     pos, ret.signed = unpack_signed(blob, pos, protocol)
     ret.strength = #ret.rsa.modulus
     return ret
@@ -915,7 +918,7 @@ KEX_ALGORITHMS.ECMQV_ECDSA={
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
-    pos, ret.mqvparams = bin.unpack("p", blob)
+    ret.mqvparams, pos = unpack("s1", blob)
     return ret
   end
 }
@@ -927,7 +930,7 @@ KEX_ALGORITHMS.ECMQV_ECNRA={
 KEX_ALGORITHMS.PSK = {
   type = "psk",
   server_key_exchange = function (blob, protocol)
-    local pos, hint = bin.unpack(">P", blob)
+    local hint, pos = unpack(">s2", blob)
     return {psk_identity_hint=hint}
   end
 }
@@ -941,7 +944,7 @@ KEX_ALGORITHMS.DHE_PSK = {
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
-    pos, ret.psk_identity_hint = bin.unpack(">P", blob)
+    ret.psk_identity_hint, pos = unpack(">s2", blob)
     pos, ret.dhparams, ret.strength = unpack_dhparams(blob, pos)
     return ret
   end
@@ -955,7 +958,7 @@ KEX_ALGORITHMS.ECDHE_PSK={
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {}
-    pos, ret.psk_identity_hint = bin.unpack(">P", blob)
+    ret.psk_identity_hint, pos = unpack(">s2", blob)
     pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob, pos)
     return ret
   end
@@ -967,7 +970,7 @@ KEX_ALGORITHMS.SRP_SHA = {
   server_key_exchange = function (blob, protocol)
     local pos
     local ret = {srp={}}
-    pos, ret.srp.N, ret.srp.g, ret.srp.s, ret.srp.B = bin.unpack(">PPpP", blob)
+    ret.srp.N, ret.srp.g, ret.srp.s, ret.srp.B, pos = unpack(">s2s2s1s2", blob)
     pos, ret.signed = unpack_signed(blob, pos, protocol)
     ret.strength = #ret.srp.N
     return ret
@@ -1111,13 +1114,6 @@ SCSVS = {
 ["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
 }
 
--- Helper function to unpack a 3-byte integer value
-local function unpack_3byte (buffer, pos)
-  local low, high
-  pos, high, low = bin.unpack("C>S", buffer, pos)
-  return pos, low + high * 0x10000
-end
-
 ---
 -- Read a SSL/TLS record
 -- @param buffer   The read buffer
@@ -1140,7 +1136,7 @@ function record_read(buffer, i, fragment)
 
   -- Parse header.
   h = {}
-  local j, typ, proto = bin.unpack(">CS", buffer, i)
+  local typ, proto, j = unpack(">BI2", buffer, i)
   local name = find_key(TLS_CONTENTTYPE_REGISTRY, typ)
   if name == nil then
     stdnse.debug1("Unknown TLS ContentType: %d", typ)
@@ -1154,7 +1150,7 @@ function record_read(buffer, i, fragment)
   end
   h["protocol"] = name
 
-  j, h["length"] = bin.unpack(">S", buffer, j)
+  h["length"], j = unpack(">I2", buffer, j)
 
   -- Ensure we have enough data for the body.
   len = j + h["length"] - 1
@@ -1184,8 +1180,7 @@ function record_read(buffer, i, fragment)
     b = {}
     if h["type"] == "alert" then
       -- Parse body.
-      j, b["level"] = bin.unpack("C", buffer, j)
-      j, b["description"] = bin.unpack("C", buffer, j)
+      b.level, b.description, j = unpack("BB", buffer, j)
 
       -- Convert to human-readable form.
       b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
@@ -1201,9 +1196,8 @@ function record_read(buffer, i, fragment)
       end
 
       -- Parse body.
-      j, b["type"] = bin.unpack("C", buffer, j)
       local msg_end
-      j, msg_end = unpack_3byte(buffer, j)
+      b.type, msg_end, j = unpack("B>I3", buffer, j)
       msg_end = msg_end + j
 
       -- Convert to human-readable form.
@@ -1217,24 +1211,19 @@ function record_read(buffer, i, fragment)
 
       if b["type"] == "server_hello" then
         -- Parse body.
-        j, b["protocol"] = bin.unpack(">S", buffer, j)
-        j, b["time"] = bin.unpack(">I", buffer, j)
-        j, b["random"] = bin.unpack("A28", buffer, j)
-        j, b["session_id_length"] = bin.unpack("C", buffer, j)
-        j, b["session_id"] = bin.unpack("A" .. b["session_id_length"], buffer, j)
-        j, b["cipher"] = bin.unpack(">S", buffer, j)
-        j, b["compressor"] = bin.unpack("C", buffer, j)
+        b.protocol, b.time, b.random, b.session_id, j = unpack(">I2 I4 c28 s1", buffer, j)
+        b.cipher, b.compressor, j = unpack(">I2 B", buffer, j)
         -- Optional extensions for TLS only
         if j < msg_end and h["protocol"] ~= "SSLv3" then
           local num_exts
           b["extensions"] = {}
-          j, num_exts = bin.unpack(">S", buffer, j)
+          num_exts, j = unpack(">I2", buffer, j)
           for e = 0, num_exts do
             if j >= msg_end then break end
             local extcode, datalen
-            j, extcode = bin.unpack(">S", buffer, j)
+            extcode, j = unpack(">I2", buffer, j)
             extcode = find_key(EXTENSIONS, extcode) or extcode
-            j, b["extensions"][extcode] = bin.unpack(">P", buffer, j)
+            b["extensions"][extcode], j = unpack(">s2", buffer, j)
           end
         end
 
@@ -1244,7 +1233,7 @@ function record_read(buffer, i, fragment)
         b["compressor"] = find_key(COMPRESSORS, b["compressor"])
       elseif b["type"] == "certificate" then
         local cert_end
-        j, cert_end = unpack_3byte(buffer, j)
+        cert_end, j = unpack(">I3", buffer, j)
         cert_end = cert_end + j
         if cert_end > msg_end then
           stdnse.debug2("server_certificate length > handshake body length!")
@@ -1252,21 +1241,19 @@ function record_read(buffer, i, fragment)
         b["certificates"] = {}
         while j < cert_end do
           local cert_len, cert
-          j, cert_len = unpack_3byte(buffer, j)
-          j, cert = bin.unpack("A" .. cert_len, buffer, j)
+          cert, j = unpack(">s3", buffer, j)
           -- parse these with sslcert.parse_ssl_certificate
           table.insert(b["certificates"], cert)
         end
       else
         -- TODO: implement other handshake message types
         stdnse.debug2("Unknown handshake message type: %s", b["type"])
-        j, b["data"] = bin.unpack("A" .. msg_end - j, buffer, j)
+        b.data, j = unpack("c" .. msg_end - j, buffer, j)
       end
 
       table.insert(h["body"], b)
     elseif h["type"] == "heartbeat" then
-      j, b["type"], b["payload_length"] = bin.unpack("C>S", buffer, j)
-      j, b["payload"], b["padding"] = bin.unpack("PP", buffer, j)
+      b.type, b.payload_length, b.payload, b.padding, j = unpack(">B I2 s2 s2", buffer, j)
       table.insert(h["body"], b)
     else
       stdnse.debug1("Unknown message type: %s", h["type"])
@@ -1288,12 +1275,11 @@ end
 function record_write(type, protocol, b)
   return table.concat({
     -- Set the header as a handshake.
-    bin.pack("C", TLS_CONTENTTYPE_REGISTRY[type]),
+    pack("B", TLS_CONTENTTYPE_REGISTRY[type]),
     -- Set the protocol.
-    bin.pack(">S", PROTOCOLS[protocol]),
+    pack(">I2", PROTOCOLS[protocol]),
     -- Set the length of the header body.
-    bin.pack(">S", #b),
-    b
+    pack(">s2", b)
   })
 end
 
@@ -1336,10 +1322,11 @@ function client_hello(t)
   b = {}
   -- Set the protocol.
   local protocol = t["protocol"] or HIGHEST_PROTOCOL
-  table.insert(b, bin.pack(">S", PROTOCOLS[protocol]))
-
-  -- Set the random data.
-  table.insert(b, bin.pack(">I", os.time()))
+  table.insert(b, pack(">I2 I4",
+    PROTOCOLS[protocol],
+    -- Set the random data.
+    os.time()
+  ))
 
   -- Set the random data.
   table.insert(b, stdnse.generate_random_string(28))
@@ -1355,12 +1342,12 @@ function client_hello(t)
       cipher = CIPHERS[cipher] or SCSVS[cipher]
     end
     if type(cipher) == "number" and cipher >= 0 and cipher <= 0xffff then
-      table.insert(ciphers, bin.pack(">S", cipher))
+      table.insert(ciphers, pack(">I2", cipher))
     else
       stdnse.debug1("Unknown cipher in client_hello: %s", cipher)
     end
   end
-  table.insert(b, bin.pack(">P", table.concat(ciphers)))
+  table.insert(b, pack(">s2", table.concat(ciphers)))
 
   -- Compression methods.
   compressors = {}
@@ -1368,13 +1355,13 @@ function client_hello(t)
     -- Add specified compressors.
     for _, compressor in pairs(t["compressors"]) do
       if compressor ~= "NULL" then
-        table.insert(compressors, bin.pack("C", COMPRESSORS[compressor]))
+        table.insert(compressors, pack("B", COMPRESSORS[compressor]))
       end
     end
   end
   -- Always include NULL as last choice
-  table.insert(compressors, bin.pack("C", COMPRESSORS["NULL"]))
-  table.insert(b, bin.pack(">p", table.concat(compressors)))
+  table.insert(compressors, pack("B", COMPRESSORS["NULL"]))
+  table.insert(b, pack("s1", table.concat(compressors)))
 
   -- TLS extensions
   if PROTOCOLS[protocol] and protocol ~= "SSLv3" then
@@ -1385,23 +1372,23 @@ function client_hello(t)
       -- Add specified extensions.
       for extension, data in pairs(t["extensions"]) do
         if type(extension) == "number" then
-          table.insert(extensions, bin.pack(">S", extension))
+          table.insert(extensions, pack(">I2", extension))
         else
           if extension == "signature_algorithms" then
             need_sigalg = false
           end
-          table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
+          table.insert(extensions, pack(">I2", EXTENSIONS[extension]))
         end
-        table.insert(extensions, bin.pack(">P", data))
+        table.insert(extensions, pack(">s2", data))
       end
       if need_sigalg then
-        table.insert(extensions, bin.pack(">S", EXTENSIONS["signature_algorithms"]))
-        table.insert(extensions, bin.pack(">P", signature_algorithms_all))
+        table.insert(extensions, pack(">I2", EXTENSIONS["signature_algorithms"]))
+        table.insert(extensions, pack(">s2", signature_algorithms_all))
       end
     end
     -- Extensions are optional
     if #extensions ~= 0 then
-      table.insert(b, bin.pack(">P", table.concat(extensions)))
+      table.insert(b, pack(">s2", table.concat(extensions)))
     end
   end
 
@@ -1414,14 +1401,10 @@ function client_hello(t)
   h = {}
 
   -- Set type to ClientHello.
-  table.insert(h, bin.pack("C", TLS_HANDSHAKETYPE_REGISTRY["client_hello"]))
+  table.insert(h, pack("B", TLS_HANDSHAKETYPE_REGISTRY["client_hello"]))
 
   -- Set the length of the body.
-  len = bin.pack(">I", #b)
-  -- body length is 24 bits big-endian, so the 3 LSB of len
-  table.insert(h, len:sub(2,4))
-
-  table.insert(h, b)
+  table.insert(h, pack(">s3", b))
 
   -- Record layer version should be SSLv3 (lowest compatible record version)
   return record_write("handshake", "SSLv3", table.concat(h))
@@ -1466,7 +1449,7 @@ function record_buffer(sock, buffer, i)
     count = count + #resp
   end
   -- ContentType, ProtocolVersion, length
-  local _, _, _, len = bin.unpack(">CSS", buffer, i)
+  local _, _, len = unpack(">BI2I2", buffer, i)
   if count < TLS_RECORD_HEADER_LENGTH + len then
     status, resp = read_atleast(sock, TLS_RECORD_HEADER_LENGTH + len - count)
     if not status then
