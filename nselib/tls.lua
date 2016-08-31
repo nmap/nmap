@@ -831,7 +831,7 @@ KEX_ALGORITHMS.RSA_EXPORT = {
     local pos
     local ret = {rsa={}}
     pos, ret.rsa.modulus, ret.rsa.exponent = bin.unpack(">PP", blob)
-    pos, ret.signed = unpack_signed(blob, pos)
+    pos, ret.signed = unpack_signed(blob, pos, protocol)
     ret.strength = #ret.rsa.modulus
     return ret
   end
@@ -844,7 +844,7 @@ KEX_ALGORITHMS.DHE_RSA={
     local pos
     local ret = {}
     pos, ret.dhparams, ret.strength = unpack_dhparams(blob)
-    pos, ret.signed = unpack_signed(blob, pos)
+    pos, ret.signed = unpack_signed(blob, pos, protocol)
     return ret
   end
 }
@@ -889,7 +889,7 @@ KEX_ALGORITHMS.ECDHE_RSA={
     local pos
     local ret = {}
     pos, ret.ecdhparams, ret.strength = unpack_ecdhparams(blob)
-    pos, ret.signed = unpack_signed(blob, pos)
+    pos, ret.signed = unpack_signed(blob, pos, protocol)
     return ret
   end
 }
@@ -968,7 +968,7 @@ KEX_ALGORITHMS.SRP_SHA = {
     local pos
     local ret = {srp={}}
     pos, ret.srp.N, ret.srp.g, ret.srp.s, ret.srp.B = bin.unpack(">PPpP", blob)
-    pos, ret.signed = unpack_signed(blob, pos)
+    pos, ret.signed = unpack_signed(blob, pos, protocol)
     ret.strength = #ret.srp.N
     return ret
   end

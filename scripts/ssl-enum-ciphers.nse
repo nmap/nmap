@@ -725,7 +725,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
               end
               local ske = get_body(handshake, "type", "server_key_exchange")
               if kex.server_key_exchange and ske then
-                local kex_info = kex.server_key_exchange(ske.data)
+                local kex_info = kex.server_key_exchange(ske.data, protocol)
                 if kex_info.strength then
                   local rsa_bits = tls.rsa_equiv(kex.type, kex_info.strength)
                   local low_strength_warning = false
