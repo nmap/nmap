@@ -241,7 +241,7 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "login",
                               "Invalid auth credentials!",
-                              {submit="+Login+", userName=user, password=pass})
+                              {submit=" Login ", userName=user, password=pass})
   end
 })
 
@@ -440,6 +440,7 @@ table.insert(fingerprints, {
     {username = "admin", password = "setup"}
   },
   login_check = function (host, port, path, user, pass)
+    -- realm="Management(8)"
     return try_http_basic_login(host, port,
                                url.absolute(path, "manage/bdy_sys.htm"),
                                user, pass, false)
@@ -473,7 +474,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 10.5 on MPX 8005
   name = "Citrix NetScaler",
-  category = "router",
+  category = "routers",
   paths = {
     {path = "/"}
   },
@@ -588,7 +589,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 1.04.9 on RICOH MP C4503, 1.05 on MP 5054, 1.12 pn MP C5000
+  -- Version 1.04.9 on RICOH MP C4503, 1.05 on MP 5054, 1.12 on MP C5000
   name = "RICOH Web Image Monitor",
   category = "printer",
   paths = {
