@@ -5,9 +5,9 @@ o [NSE] Added 9 new fingerprints for script http-default-accounts.
   Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypervisor)
   [nnposter]
 
-o [NSE] Fixed a bug in ssl-enum-ciphers which caused it to not output TLSv1.2
-  info with DHE ciphersuites or others involving ServerKeyExchange messages.
-  [Daniel Miller]
+o [NSE] Fixed a bug in ssl-enum-ciphers and ssl-dh-params which caused them to
+  not output TLSv1.2 info with DHE ciphersuites or others involving
+  ServerKeyExchange messages. [Daniel Miller]
 
 o [NSE] Added oracle-tns-version to decode the version number from Oracle
   Database Server's TNS listener. [Daniel Miller]

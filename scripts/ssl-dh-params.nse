@@ -672,7 +672,7 @@ local function get_dhe_params(host, port, protocol, ciphers)
     -- Only try next chunk if current chunk was rejected
     if cipher and packed then
       local info = tls.cipher_info(cipher)
-      local data = tls.KEX_ALGORITHMS[info.kex].server_key_exchange(packed)
+      local data = tls.KEX_ALGORITHMS[info.kex].server_key_exchange(packed, protocol)
       return cipher, data.dhparams
     end
   end
