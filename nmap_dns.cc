@@ -965,7 +965,8 @@ void win32_read_registry() {
 
     for (i=0; sz = sizeof(buf), RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
 
-      if (!interface_is_known_by_guid(buf)) {
+      // If we don't have pcap, interface_is_known_by_guid will crash. Just use any servers we can find.
+      if (o.have_pcap && !interface_is_known_by_guid(buf)) {
         if (o.debugging > 1)
           log_write(LOG_PLAIN, "Interface %s is not known; ignoring its nameservers.\n", buf);
         continue;
