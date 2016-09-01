@@ -500,6 +500,7 @@ public:
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
     this->iflist                = false;
+    this->advanced              = false;
     this->af                    = AF_UNSPEC;
     this->decoys                = false;
   }
@@ -513,7 +514,7 @@ public:
   int   pre_max_retries;
   long  pre_host_timeout;
   char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
-  bool  iflist, decoys;
+  bool  iflist, decoys, advanced;
   char  *exclude_spec, *exclude_file;
   char  *spoofSource, *decoy_arguments;
   const char *spoofmac;
@@ -1057,14 +1058,7 @@ void parse_options(int argc, char **argv) {
 #endif /* !HAVE_IPV6 */
       break;
     case 'A':
-      o.servicescan = true;
-#ifndef NOLUA
-      o.script = 1;
-#endif
-      if (o.isr00t) {
-        o.osscan++;
-        o.traceroute = true;
-      }
+      delayed_options.advanced = true;
       break;
     case 'b':
       o.bouncescan++;
@@ -1437,6 +1431,16 @@ void  apply_delayed_options() {
   }
   delayed_options.verbose_out.clear();
 
+  if (delayed_options.advanced) {
+    o.servicescan = true;
+#ifndef NOLUA
+    o.script = 1;
+#endif
+    if (o.isr00t) {
+      o.osscan++;
+      o.traceroute = true;
+    }
+  }
   if (o.spoofsource) {
     int rc = resolve(delayed_options.spoofSource, 0, &ss, &sslen, o.af());
     if (rc != 0) {
