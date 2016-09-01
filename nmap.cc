@@ -1794,11 +1794,13 @@ int nmap_main(int argc, char *argv[]) {
 
   tty_init(); // Put the keyboard in raw mode
 
-  apply_delayed_options();
-
 #ifdef WIN32
+  // Must come after parse_options because of --unprivileged
+  // Must come before apply_delayed_options because it sets o.isr00t
   win_init();
 #endif
+
+  apply_delayed_options();
 
   for (unsigned int i = 0; i < route_dst_hosts.size(); i++) {
     const char *dst;
