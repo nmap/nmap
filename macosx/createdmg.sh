@@ -40,6 +40,7 @@ while [ "$stop" = false ]; do
 done
 
 # Applescript: design the virtual disk image we just mounted
+# This will fail if there is not a graphical login
 echo '
 	tell application "Finder"
 		tell disk "'${title}'"
