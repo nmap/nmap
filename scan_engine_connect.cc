@@ -536,8 +536,8 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       continue;
 
     std::list<UltraProbe *>::iterator nextProbeI;
-    for (std::list<UltraProbe *>::iterator probeI = host->probes_outstanding.begin(), end = host->probes_outstanding.end();
-        probeI != end && numGoodSD < selectres && host->num_probes_outstanding() > 0; probeI = nextProbeI) {
+    for (std::list<UltraProbe *>::iterator probeI = host->probes_outstanding.begin();
+        probeI != host->probes_outstanding.end() && numGoodSD < selectres && host->num_probes_outstanding() > 0; probeI = nextProbeI) {
       /* handleConnectResult may remove the probe at probeI, which invalidates
        * the iterator. We copy and increment it here instead of in the for-loop
        * statement to avoid incrementing an invalid iterator */
