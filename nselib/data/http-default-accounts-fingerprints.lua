@@ -289,15 +289,17 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 12.2SE on Catalyst 3750, 12.3(8)JA on Aironet 1300
+  -- Version 12.2SE on Catalyst 3750, 3845, CBS3020, 12.3 on Aironet 1300
   name = "Cisco IOS",
   category = "routers",
   paths = {
     {path = "/"},
-    {path = "/exec/show/log/CR"},
-    {path = "/level/15/exec/-/configure/http"},
-    {path = "/level/15/exec/-"},
-    {path = "/level/15/"}
+    -- TODO: Remove these paths completely unless a bug gets filed (9/1/2016)
+    -- (The paths are likely redundant. "/" should be covering all the cases.)
+    -- {path = "/exec/show/log/CR"},
+    -- {path = "/level/15/exec/-/configure/http"},
+    -- {path = "/level/15/exec/-"},
+    -- {path = "/level/15/"}
   },
   target_check = function (host, port, path, response)
     local realm = http_auth_realm(response) or ""
