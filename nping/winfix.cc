@@ -223,9 +223,9 @@ Resorting to unprivileged (non-administrator) mode.", svcname, ret);
 
 quit_error:
   if (scm != NULL)
-    CloseHandle(scm);
+    CloseServiceHandle(scm);
   if (npf != NULL)
-    CloseHandle(npf);
+    CloseServiceHandle(npf);
 
   return false;
 }
