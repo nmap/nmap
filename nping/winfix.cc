@@ -287,7 +287,7 @@ void win_init()
 	PMIB_IPADDRTABLE pIp = 0;
 	int i;
 	int numipsleft;
-	int pcap_driver;
+	int pcap_driver = PCAP_DRIVER_NONE;
 
 	init_dll_path();
 
