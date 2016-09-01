@@ -11146,6 +11146,7 @@ match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nContent-Type: text/htm
 match http m|^<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad request version \('RTSP/1\.0'\)\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n| p/BaseHTTPServer/ cpe:/a:python:basehttpserver/a
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: 59\r\nConnection: close\r\n\r\nError 400: Bad Request\nCannot parse HTTP request: \[OPTIONS\]$| p/Mongoose httpd/ cpe:/a:cesanta:mongoose/
 match http m|^HTTP/1\.1 505 HTTP Version not supported\r\nContent-Length: 0\r\nDate: .* GMT\r\nConnection: close\r\n\r\n| p/Konica Minolta bizhub C452 OpenAPI/ d/printer/ cpe:/h:konicaminolta:bizhub_c452/
+match http m|^HTTP/1\.0 500\r\nContent-Type: text/html; charset=UTF-8\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\nConnection: close\r\n\r\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Application Firewall Error</title>\n  <style type="text/css" media="screen">\n    body \{ font-family: Arial, Garamond, sans-serif; padding: 40px; background-color: #333333; \}\n| p/Imperva WAF/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 103\r\nConnection: close\r\n\r\n<html><body> <h2>Mikrotik HttpProxy</h2>\n\r<hr>\n\r<h2>\n\rError: 400 Bad Request\r\n\r\n</h2>\n\r</body></html>\n\r$| p/MikroTik HttpProxy/ d/router/
@@ -14511,7 +14512,7 @@ match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x
 Probe UDP sybaseanywhere q|\x1b\0\0\x3d\0\0\0\0\x12CONNECTIONLESS_TDS\0\0\0\x01\0\0\x04\0\x05\0\x05\0\0\x01\x02\0\0\x03\x01\x01\x04\x08\0\0\0\0\0\0\0\0\x07\x02\x04\xb1|
 rarity 7
 ports 2638
-match sybseanywhere m|^\x1b\0\0.\0\0\0\0\x12CONNECTIONLESS_TDS\0\0\0\x01\x01\0\x04\0\x05\0\x05\0.(.*)\0\x01\x02..\x03\x01\x02\x04\x08\0\0\0\0\0\0\0\0\x07\x02\x04\xb1|s p/Sybase SQL Anywhere/ i/Instance name: $1/ cpe:/a:sybase:sql_anywhere/
+match sybaseanywhere m|^\x1b\0\0.\0\0\0\0\x12CONNECTIONLESS_TDS\0\0\0\x01\x01\0\x04\0\x05\0\x05\0.(.*)\0\x01\x02..\x03\x01\x02\x04\x08\0\0\0\0\0\0\0\0\x07\x02\x04\xb1|s p/Sybase SQL Anywhere/ i/Instance name: $1/ cpe:/a:sybase:sql_anywhere/
 
 ##############################NEXT PROBE##############################
 # Vuze DHT PING probe
