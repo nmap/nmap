@@ -33,7 +33,7 @@
 --  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
 --
 --  -- Perform all three requests as parallel as Nmap is able to
---  local results = http.pipeline('nmap.org', 80, all)
+--  local results = http.pipeline_go('nmap.org', 80, all)
 --</code>
 --
 -- At this point, <code>results</code> is an array with three elements. Each element
