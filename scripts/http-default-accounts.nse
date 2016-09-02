@@ -254,7 +254,7 @@ action = function(host, port)
 
   -- Add requests to the http pipeline
   pathmap = {}
-  requests = {}
+  requests = nil
   stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   for _, fingerprint in ipairs(fingerprints) do
     for _, probe in ipairs(fingerprint.paths) do
