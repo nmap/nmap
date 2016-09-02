@@ -223,11 +223,7 @@ local function register_http_credentials(host, port, login_username, login_passw
   c:add(login_username, login_password, creds.State.VALID )
 end
 
----
--- MAIN
--- Here we iterate through the paths to try to find a target. When a target is found
--- the login routine is initialized to check for default credentials authentication
----
+
 action = function(host, port)
   local fingerprintload_status, status, fingerprints, pathmap, requests, results
   local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
