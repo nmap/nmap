@@ -1832,7 +1832,7 @@ function pipeline_go(host, port, all_requests)
 
   -- Check for an empty request
   if (#all_requests == 0) then
-    stdnse.debug1("Warning: empty set of requests passed to http.pipeline()")
+    stdnse.debug1("Warning: empty set of requests passed to http.pipeline_go()")
     return responses
   end
 
