@@ -1,34 +1,76 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added 9 new fingerprints for script http-default-accounts.
-  (Motorola AP, Lantronix print server, Dell iDRAC6, HP StorageWorks, Zabbix,
-  Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypervisor)
-  [nnposter]
+Nmap 7.25BETA2 [2016-09-01]
 
-o [NSE] Fixed a bug in ssl-enum-ciphers and ssl-dh-params which caused them to
-  not output TLSv1.2 info with DHE ciphersuites or others involving
-  ServerKeyExchange messages. [Daniel Miller]
+o [GH#376] Windows binaries are now code-signed with our "Insecure.Com LLC"
+  SHA256 certificate. This should give our users extra peace-of-mind and avoid
+  triggering Microsoft's ever-increasing security warnings.
 
-o [NSE] Added oracle-tns-version to decode the version number from Oracle
-  Database Server's TNS listener. [Daniel Miller]
+o [NSE] Upgraded NSE to Lua 5.3, adding bitwise operators, integer data type, a
+  utf8 library, and native binary packing and unpacking functions. Removed bit
+  library, added bits.lua, replaced base32, base64, and bin libraries. [Patrick
+  Donnelly]
 
-o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
-  the wordlist contains "{cisco}". Previously, custom wordlists would still end
-  up sending these extra 256 requests. [Sriram Raghunathan]
+o [NSE] Added 2 NSE scripts, bringing the total up to 534!  They are both listed
+  at https://nmap.org/nsedoc/, and the summaries are below:
+
+  + oracle-tns-version decodes the version number from Oracle Database Server's
+    TNS listener. [Daniel Miller]
+
+  + clock-skew analyzes and reports clock skew between Nmap and services that
+    report timestamps, grouping hosts with similar skews. [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  January to April (578 of them). The signature count went up 2.2% to 10760.
+  We now detect 1122 protocols, from elasticsearch, fhem, and goldengate to
+  ptcp, resin-watchdog, and siemens-logo. [Daniel Miller]
+
+o [Nsock][GH#148] New, very fast IOCP Nsock engine uses "Overlapped I/O" to
+  improve performance of version scan and NSE against many targets on Windows.
+  [Tudor Emil Coman]
+
+o [Zenmap][GH#449] Fix a crash when closing Zenmap due to a read-only
+  zenmap.conf. User will be warned that config cannot be saved and that they
+  should fix the file permissions. [Daniel Miller]
 
 o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
   like DH certificates or corrupted certs. When this happens, ssl-enum-ciphers
   will label the ciphersuite strength as "unknown." Reported by Bertrand
   Bonnefoy-Claudet. [Daniel Miller]
 
+o [NSE] Fixed a bug in ssl-enum-ciphers and ssl-dh-params which caused them to
+  not output TLSv1.2 info with DHE ciphersuites or others involving
+  ServerKeyExchange messages. [Daniel Miller]
+
 o [NSE][GH#531] Fix two issues in sslcert.lua that prevented correct operations
   against LDAP services when version detection or STARTTLS were used.
   [Tom Sellers]
+
+o [Zenmap] Long-overdue Spanish language translation has been added! Muy bien!
+  [Vincent Dumont, Marta Garcia De La Paz, Paulino Calderon, Patricio Castagnaro]
 
 o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
   Windows, which required including pcap-int.h and locking us to a single
   version of libpcap. The new method, using WaitForSingleObject should work
   with all versions of both WinPcap and Npcap. [Daniel Miller]
+
+o [NSE][GH#234] Added a --script-timeout option for limiting run time for
+  every individual NSE script. [Abhishek Singh]
+
+o [Ncat][GH#444] Added a -z option to Ncat. Just like the -z option in
+  traditional netcat, it can be used to quicky check the status of a port. Port
+  ranges are not supported. [Abhishek Singh]
+
+o Fix checking of Npcap/WinPcap presence on Windows so that "nmap -A" and
+  "nmap" with no options result in the same behaviors as on Linux (and no
+  crashes) [Daniel Miller]
+
+o [NSE] ssl-enum-ciphers will now warn about 64-bit block ciphers in CBC mode,
+  which are vulnerable to the SWEET32 attack.
+
+o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
+  the wordlist contains "{cisco}". Previously, custom wordlists would still end
+  up sending these extra 256 requests. [Sriram Raghunathan]
 
 o [GH#472] Avoid an unnecessary assert failure in timing.cc when printing estimated
   completion time. Instead, we'll output a diagnostic error message:
@@ -37,14 +79,23 @@ o [GH#472] Avoid an unnecessary assert failure in timing.cc when printing estima
 
 o [NSE][GH#519] Removed the obsolete script ip-geolocation-geobytes. [Paulino Calderon]
 
-o [NSE][GH#234] Added --script-timeout option for limiting run time for every
-  individual script. [Abhishek Singh]
+o [NSE] Added 9 new fingerprints for script http-default-accounts.
+  (Motorola AP, Lantronix print server, Dell iDRAC6, HP StorageWorks, Zabbix,
+  Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypervisor)
+  [nnposter]
 
-o [NSE][GH#516] Completed a refresh and validation of almost all fingerprints
-  for script http-default-accounts. Also improved the script speed. [nnposter]
+o [NSE] Completed a refresh and validation of almost all fingerprints for
+  script http-default-accounts. Also improved the script speed. [nnposter]
 
 o [GH#98] Added support for decoys in IPv6. Earlier we supported decoys only in
   IPv4. [Abhishek Singh]
+
+o Various performance improvements for large-scale high-rate scanning,
+  including increased ping host groups, faster probe matching, and ensuring
+  data types can handle an Internet's-worth of targets. [Tudor Emil Coman]
+
+o [GH#484] Allow Nmap to compile on some older Red Hat distros that disable EC
+  crypto support in OpenSSL. [Jeroen Roovers, Vincent Dumont]
 
 o [GH#439] Nmap now supports OpenSSL 1.1.0-pre5 and previous versions. [Vincent Dumont]
 
@@ -57,6 +108,13 @@ o FTP Bounce scan: improved some edge cases like anonymous login without
   command. Also fixed a 1-byte array overrun (read) when checking for
   privileged ports. [Daniel Miller]
 
+o [GH#140] Allow target DNS names up to 254 bytes. We previously imposed an
+  incorrect limit of 64 bytes in several parts of Nmap. [Vincent Dumont]
+
+o [NSE] The hard limit on number of concurrently running scripts can now
+  increase above 1000 to match a high user-set --min-parallelism value. [Tudor
+  Emil Coman]
+
 o [NSE] Solved a memory corruption issue that would happen if a socket connect
   operation produced an error immediately, such as Network Unreachable. The
   event handler was throwing a Lua error, preventing Nsock from cleaning up
@@ -64,14 +122,6 @@ o [NSE] Solved a memory corruption issue that would happen if a socket connect
 
 o [NSE] Added the datetime library for performing date and time calculations,
   and as a helper to the clock-skew script.
-
-o [NSE] Added clock-skew for analyzing and reporting clock skew between Nmap
-  and services that report timestamps. Reports groups of hosts with similar
-  skews. [Daniel Miller]
-
-o [Ncat][GH#444] Added a -z option to Ncat. Just like the -z option in
-  traditional netcat, it can be used to quicky check the status of a port. Port
-  ranges are not supported. [Abhishek Singh]
 
 o [GH#103][GH#364] Made Nmap's parallel reverse DNS resolver more robust, fully
   handling truncated replies. If a response is too long, we now fall back to
