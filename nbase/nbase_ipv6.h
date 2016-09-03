@@ -149,6 +149,7 @@
 #define AF_INET6 10
 #define PF_INET6 10
 #endif /* HAVE_AF_INET6 */
+
 #ifndef HAVE_INET_PTON
 /* int
  * inet_pton(af, src, dst)

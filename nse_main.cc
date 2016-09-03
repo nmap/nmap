@@ -18,6 +18,7 @@
 #include "nse_openssl.h"
 #include "nse_debug.h"
 #include "nse_lpeg.h"
+#include "nse_libssh2.h"
 
 #include <math.h>
 
@@ -545,6 +546,9 @@ static void set_nmap_libraries (lua_State *L)
     {NSE_NMAPLIBNAME, luaopen_nmap},
     {LFSLIBNAME, luaopen_lfs},
     {LPEGLIBNAME, luaopen_lpeg},
+#ifdef HAVE_LIBSSH2
+    {LIBSSH2LIBNAME, luaopen_libssh2},
+#endif
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
 #endif
@@ -679,15 +683,19 @@ int nse_yield (lua_State *L, lua_KContext ctx, lua_KFunction k)
  */
 void nse_restore (lua_State *L, int number)
 {
-  luaL_checkstack(L, 5, "nse_restore: stack overflow");
+  int top = lua_gettop(L);
+  if (!lua_checkstack(L, 5)) abort();
+  lua_State *restorer = lua_newthread(L);
+  lua_insert(L, -(number+1)); /* move below args, anchor on stack */
+  lua_getfield(restorer, LUA_REGISTRYINDEX, NSE_WAITING_TO_RUNNING);
   lua_pushthread(L);
-  lua_getfield(L, LUA_REGISTRYINDEX, NSE_WAITING_TO_RUNNING);
-  lua_insert(L, -(number+2)); /* move WAITING_TO_RUNNING down below the args */
-  lua_insert(L, -(number+1)); /* move thread above WAITING_TO_RUNNING */
-  /* Call WAITING_TO_RUNNING (defined in nse_main.lua) on the thread and any
-     other arguments. */
-  if (lua_pcall(L, number+1, 0, 0) != 0)
+  lua_xmove(L, restorer, 1);
+  lua_xmove(L, restorer, number);
+  assert(lua_gettop(restorer) == number+2);
+  if (lua_pcall(restorer, number+1, 0, 0) != 0)
     fatal("%s: WAITING_TO_RUNNING error!\n%s", __func__, lua_tostring(L, -1));
+  lua_pop(L, 1);
+  assert(lua_gettop(L) == top-number);
 }
 
 /* void nse_destructor (lua_State *L, char what)           [-(1|2), +0, e]
