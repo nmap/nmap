@@ -15,7 +15,7 @@ Unknown ids:
 
 ]]
 
-author = "Jesper Kueckelhahn"
+author = {"Jesper Kueckelhahn", "Roy Hills"}
 license = "Simplified (2-clause) BSD license--See https://nmap.org/svn/docs/licenses/BSD-simplified"
 
 
