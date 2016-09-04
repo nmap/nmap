@@ -108,6 +108,7 @@ portrule = shortport.ssl
 
 action = function(host, port)
   -- Get script arguments.
+  host.targetname = tls.servername(host)
   local path = stdnse.get_script_args("ssl-known-key.fingerprintfile") or FINGERPRINT_FILE
   local status, result = get_fingerprints(path)
   if not status then
