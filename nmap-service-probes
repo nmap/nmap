@@ -1141,7 +1141,7 @@ match ftp m|^220 Welcome to This FTP Server\. Service ready for new user\.\r\n21
 match ftp m|^220 Wind River FTP server ([\w._-]+) ready\.\r\n| p/Wind River FTP server/ v/$1/ o/VxWorks/ cpe:/a:windriver:ftp_server:$1/ cpe:/o:windriver:vxworks/
 match ftp m|^220 FTP Server \(ZyWALL (USG \w+)\) \[::ffff:[\d.]+\]\r\n| p/ZyXEL ZyWALL $1 firewall ftpd/ cpe:/h:zyxel:zywall_$1/
 match ftp m|^220 Authentication_Required\r\n| p/glFTPd/ o/Unix/
-match ftp m|^220 Ftp firmware update utility\r\n| p/D-Link DLS-2750U ftp firmward update/ d/WAP/ cpe:/h:dlink:dls-2750u/
+match ftp m|^220 Ftp firmware update utility\r\n| p/D-Link DLS-2750U ftp firmware update/ d/WAP/ cpe:/h:dlink:dls-2750u/
 match ftp m|^550 Permission denied ,please check access control list\r\nPermission denied\.\(Please check access control list\)\r\n| p/DrayTek ADSL router ftpd/
 match ftp m|^220 RIEDEL Artist FTP Server\r\n| p/Riedel Artist intercom system ftpd/ cpe:/h:riedel:artist/
 match ftp m|^220 (ZXDSL [\w._-]+) FTP version ([\w._-]+) ready at .*\r\n| p/ZyXEL $1 ADSL modem ftpd/ v/$2/ d/broadband router/ cpe:/h:zyxel:$1/
