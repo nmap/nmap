@@ -126,11 +126,11 @@
 #ifndef PROTOCOLS_H
 #define PROTOCOLS_H
 
+#include "nbase.h"
+
 #if HAVE_NETDB_H
 #include <netdb.h>
 #endif
-
-#include "nbase.h"
 
 #define PROTOCOL_TABLE_SIZE 256
 
