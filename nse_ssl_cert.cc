@@ -123,6 +123,7 @@
 /* $Id:$ */
 
 #include "nbase.h"
+#include "nmap_config.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -587,7 +588,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");
-  lua_pushnumber(L, EVP_PKEY_bits(pubkey));
+  lua_pushinteger(L, EVP_PKEY_bits(pubkey));
   lua_setfield(L, -2, "bits");
   lua_setfield(L, -2, "pubkey");
   EVP_PKEY_free(pubkey);
