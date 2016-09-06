@@ -380,6 +380,7 @@ Entry { filename = "ovs-agent-version.nse", categories = { "version", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
 Entry { filename = "path-mtu.nse", categories = { "discovery", "safe", } }
 Entry { filename = "pcanywhere-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "pcworx-info.nse", categories = { "discovery", } }
 Entry { filename = "pgsql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "pjl-ready-message.nse", categories = { "intrusive", } }
 Entry { filename = "pop3-brute.nse", categories = { "brute", "intrusive", } }

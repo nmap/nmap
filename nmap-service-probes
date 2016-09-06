@@ -14946,3 +14946,10 @@ ports 1194,443,500
 rarity 9
 match openvpn m|^@........\x01\0\0\0\0d\xc1x\x01\xb8\x9b\xcb\x8f\0\0\0\0$| p/OpenVPN/
 
+##############################NEXT PROBE##############################
+# Phoenix Contact PCWorx
+Probe TCP pcworx q|\x01\x01\x00\x1a\x00\x00\x00\x00x\x80\x00\x03\x00\x0cIBETH01N0_M\x00|
+rarity 9
+ports 1962
+
+match pcworx m|\x81\x01\0\x14\0\0\0\x01\0\0\0\0\0\x02\0\0\0.\0\0| p/Phoenix Contact PCWorx/

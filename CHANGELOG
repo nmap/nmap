@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script: pcworx-info retrieves PLC model, firmware version, and date
+  from Phoenix Contact PLCs. [Stephen Hilt]
+
 Nmap 7.25BETA2 [2016-09-01]
 
 o [GH#376] Windows binaries are now code-signed with our "Insecure.Com LLC"
