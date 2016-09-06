@@ -14953,3 +14953,12 @@ rarity 9
 ports 1962
 
 match pcworx m|\x81\x01\0\x14\0\0\0\x01\0\0\0\0\0\x02\0\0\0.\0\0| p/Phoenix Contact PCWorx/
+
+##############################NEXT PROBE##############################
+# ProConOs protocol
+Probe TCP proconos q|\xcc\x01\x00\x0b\x40\x02\x00\x00\x47\xee|
+rarity 9
+ports 20547
+
+match proconos m|^\xcc\x01...\x02\x92\0V\d+\.\d+ProConOS V([\d.]+) \w\w\w +\d+ \d+\0+\0([^\0]+)\0+([^\0]+)\0+([^\0]+)\0+([^\0]+)\0|s p/ProConOS/ v/$1/ i|PLC: $2; project: $3/$4; source: $5|
+match echo m|^\xcc\x01\0\x0b@\x02\0\0G\xee|

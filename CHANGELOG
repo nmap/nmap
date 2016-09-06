@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o New service probe and match lines for PCWorx and ProConOS, based on work by
+  Stephen Hilt of Digital Bond.
+
 o [NSE] New script: pcworx-info retrieves PLC model, firmware version, and date
   from Phoenix Contact PLCs. [Stephen Hilt]
 
