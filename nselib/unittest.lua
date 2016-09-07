@@ -459,11 +459,10 @@ length_is = make_test(length_is, "Length of %s is not %s")
 expected_failure = function(test)
   return function(suite)
     if test(suite) then
-      return true, "Test unexpectedly passed"
-    else
-      return true, "Test failed as expected"
+      return false, "Test unexpectedly passed"
     end
-    return true
+
+    return true, "Test failed as expected"
   end
 end
 
@@ -483,7 +482,7 @@ test_suite:add_test(is_false(1.9999 == 2.0), "Boolean expression evaluates to fa
 test_suite:add_test(lt(1, 999), "1 < 999")
 test_suite:add_test(lte(8, 8), "8 <= 8")
 test_suite:add_test(expected_failure(not_nil(nil)), "Test expected to fail fails")
-test_suite:add_test(expected_failure(is_nil(nil)), "Test expected to fail succeeds")
+test_suite:add_test(expected_failure(expected_failure(is_nil(nil))), "Test expected to succeed does not fail")
 test_suite:add_test(keys_equal({one=1,two=2,[3]="three"},{[3]="three",one=1,two=2}), "identical tables are identical")
 test_suite:add_test(expected_failure(keys_equal({one=1,two=2},{[3]="three",one=1,two=2}), "dissimilar tables are dissimilar"))
 test_suite:add_test(identical(0, 0), "integer === integer")
