@@ -12303,7 +12303,7 @@ softmatch ftp m|^220[\s-].*ftp[^\r]*\r\n214[\s-]|i
 # TLSv1-only servers, based on a failed handshake alert.
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 rarity 1
-ports 322,443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2252,2443,3443,4433,4443,4444,5061,5443,5550,6443,7210,7272,7443,8009,8181,8194,8443,9001,9443,10443,14443,44443,60443
+ports 322,443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2252,2443,3443,4433,4443,4444,4911,5061,5443,5550,6443,7210,7272,7443,8009,8181,8194,8443,9001,9443,10443,14443,44443,60443
 fallback GetRequest
 
 match adabas m|^,\0,\0\x03\x02\0\0G\xd7\xf7\xbaO\x03\0\?\x05\0\0\0\0\x02\x18\0\xfd\x0b\0\0<=\xdbo\xef\x10n \xd5\x96\xc8w\x9b\xe6\xc4\xdb$| p/ADABAS database/
@@ -14962,3 +14962,13 @@ ports 20547
 
 match proconos m|^\xcc\x01...\x02\x92\0V\d+\.\d+ProConOS V([\d.]+) \w\w\w +\d+ \d+\0+\0([^\0]+)\0+([^\0]+)\0+([^\0]+)\0+([^\0]+)\0|s p/ProConOS/ v/$1/ i|PLC: $2; project: $3/$4; source: $5|
 match echo m|^\xcc\x01\0\x0b@\x02\0\0G\xee|
+
+##############################NEXT PROBE##############################
+# Tridium Niagara Fox
+Probe TCP niagara-fox q|fox a 1 -1 fox hello\n{\nfox.version=s:1.0\nid=i:1\n};;\n|
+rarity 9
+ports 1911
+sslports 4911
+
+match niagara-fox m|^fox a 0 -1 fox hello\n\{\nfox\.version=s:([\d.]+)\nid=i:\d+.*\napp\.name=s:Station\napp\.version=s:([\d.]+)\n|s p/Tridium Niagara/ v/$2/ i/fox version $1/
+softmatch niagara-fox m|^fox a 0|
