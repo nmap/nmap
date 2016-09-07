@@ -202,6 +202,7 @@ local LIKELY_SSL_PORTS = {
   6697,
   8443, -- https-alt
   9001, -- tor-orport
+  8883, -- secure-mqtt
 }
 local LIKELY_SSL_SERVICES = {
   "ftps", "ftps-data", "ftps-control", "https", "https-alt", "imaps", "ircs",

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#352] New script: mqtt-subscribe connects to a MQTT broker, subscribes to
+  topics, and lists the messages received. [Mak Kolybabi]
+
 o [NSE] New script: fox-info retrieves detailed version and configuration info
   from Tridium Niagara Fox services. [Stephen Hilt]
 

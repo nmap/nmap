@@ -2628,6 +2628,7 @@ canocentral0	1871/udp	0.000330	# Cano Central 0
 fjmpjps	1873/udp	0.000330	# Fjmpjps
 westell-stats	1875/tcp	0.000152	# westell stats
 westell-stats	1875/udp	0.000330	# westell stats
+mqtt	1883/tcp	0.000330	# Message Queuing Telemetry Transport Protocol
 ibm-mqisdp	1883/udp	0.000330	# IBM MQSeries SCADA
 idmaps	1884/udp	0.000661	# Internet Distance Map Svc
 vrtstrapserver	1885/udp	0.003304	# Veritas Trap Server
@@ -5591,6 +5592,7 @@ unknown	8878/tcp	0.000076
 unknown	8879/tcp	0.000076
 cddbp-alt	8880/tcp	0.000076	# CDDBP
 unknown	8882/tcp	0.000076
+secure-mqtt	8883/tcp	0.000076	# Secure MQTT
 unknown	8885/udp	0.000330
 unknown	8886/udp	0.000330
 unknown	8887/tcp	0.000076
