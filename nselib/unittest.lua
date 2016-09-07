@@ -334,6 +334,64 @@ keys_equal = function(a, b)
   end
 end
 
+--- Test two values for equality, recursively if necessary.
+--
+-- This function checks that both values are indistinguishable in all
+-- but memory location.
+--
+-- @param a The first value to test.
+-- @param b The second value to test
+-- @return bool True if values are indistinguishable, false otherwise.
+-- @return note Nil if values are indistinguishable, description of
+--         distinguishability otherwise.
+identical = function(a, b)
+  return function(suite)
+    function identical(val1, val2, path)
+      local table_size = function(tbl)
+        local count = 0
+        for k in pairs(tbl) do
+          count = count + 1
+        end
+        return count
+      end
+
+      -- Both values must be of the same type
+      local t1, t2 = type(val1), type(val2)
+      if t1 ~= t2 then
+        return false, string.format("Types of %s are not equal: %s ~= %s", path, t1, t2)
+      end
+
+      -- For non-tables, we can make a direct comparison.
+      if t1 ~= "table" then
+        if val1 ~= val2 then
+          return false, string.format("Values of %s are not equal: %s ~= %s", path, val1, val2)
+        end
+        return true
+      end
+
+      -- For tables, we must first check that they are of equal size.
+      local len1, len2 = table_size(val1), table_size(val2)
+      if len1 ~= len2 then
+        return false, string.format("Sizes of %s are not equal: %s ~= %s", path, len1, len2)
+      end
+
+      -- Finally, we must recursively check all of the values in the tables.
+      for k,v in pairs(val1) do
+        -- Check that the key's value is identical in both tables, passing
+        -- along the path of keys we have taken to get here.
+        local status, note = identical(val1[k], val2[k], string.format('%s["%s"]', path, k))
+        if not status then
+          return false, note
+        end
+      end
+
+      return true
+    end
+
+    return identical(a, b, "<top>")
+  end
+end
+
 --- Test for equality
 -- @param a The first value to test
 -- @param b The second value to test
@@ -428,6 +486,9 @@ test_suite:add_test(expected_failure(not_nil(nil)), "Test expected to fail fails
 test_suite:add_test(expected_failure(is_nil(nil)), "Test expected to fail succeeds")
 test_suite:add_test(keys_equal({one=1,two=2,[3]="three"},{[3]="three",one=1,two=2}), "identical tables are identical")
 test_suite:add_test(expected_failure(keys_equal({one=1,two=2},{[3]="three",one=1,two=2}), "dissimilar tables are dissimilar"))
-test_suite:add_test(length_is(test_suite.tests, 12), "Number of tests is 12")
+test_suite:add_test(identical(0, 0), "integer === integer")
+test_suite:add_test(identical(nil, nil), "nil === nil")
+test_suite:add_test(identical({}, {}), "{} === {}")
+test_suite:add_test(length_is(test_suite.tests, 15), "Number of tests is 15")
 
 return _ENV;
