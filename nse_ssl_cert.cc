@@ -529,7 +529,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     lua_setfield(L, -2, "subject");
   }
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg->algorithm));
 #else
   const char *sig_algo = OBJ_nid2ln(X509_get_signature_nid(cert));
@@ -556,7 +556,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     return 2;
   }
   lua_newtable(L);
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   pkey_type = EVP_PKEY_type(pubkey->type);
 #else
   pkey_type = EVP_PKEY_base_id(pubkey);
@@ -573,7 +573,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
     luaL_getmetatable( L, "BIGNUM" );
     lua_setmetatable( L, -2 );
-  #if OPENSSL_VERSION_NUMBER < 0x10100000L
+  #if OPENSSL_VERSION_NUMBER < 0x10100000L || !defined(HAVE_OPAQUE_RSA_DSA_DH)
     data->bn = rsa->e;
   #elif OPENSSL_VERSION_NUMBER < 0x10100006L
     BIGNUM *n, *e, *d;
