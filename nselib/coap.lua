@@ -1784,7 +1784,7 @@ COAP.payload.parse = function(hdr, buf)
     return false, buf
   end
 
-  -- Run the parser associated with the content format.
+  -- Find the parser associated with the content format.
   local fn_name = COAP.payload.content_formats[cf]
   if not fn_name then
     stdnse.debug1("Content format %s not implemented for payload.", cf)

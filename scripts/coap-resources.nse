@@ -236,28 +236,36 @@ action = function(host, port)
   -- we'll need to perform more requests.
   local b2opt = coap.COAP.header.find_option(response, "block2")
   if b2opt then
+    -- Since the block2 option was used, the payload should be an unparsed string.
+    assert(type(result) == "string")
+
     local status, payload = get_blocks(helper, options, b2opt, result, 64)
     if not status then
       output.ERROR = result
       return output, output.ERROR
     end
     result = result .. payload
+
+    -- Parse the payload.
+    local status, parsed = coap.COAP.payload.parse(response, result)
+    if not status then
+      stdnse.debug1("Failed to parse payload: %s", parsed)
+      stdnse.debug1("Falling back to returning raw payload as last resort.")
+      output["Raw CoAP response"] = result
+      return output, stdnse.format_output(true, output)
+    end
+
+    result = parsed
   end
 
-  -- Parse the payload.
-  local status, parsed = coap.COAP.payload.parse(response, result)
-  if not status then
-    stdnse.debug1("Failed to parse payload: %s", parsed)
-    stdnse.debug1("Falling back to returning raw payload as last resort.")
-    output["Raw CoAP response"] = result
-    return output, stdnse.format_output(true, output)
-  end
+  -- Regardless of whether the block2 option was used, we should now have a parsed table.
+  assert(type(result) == "table")
 
   -- If the payload has been parsed, and we requested the default
   -- resource, then we know how to format it nicely.
-  local formatted = parsed
+  local formatted = result
   if true then
-    formatted = format_payload(parsed)
+    formatted = format_payload(result)
   end
 
   output["Parsed CoAP response"] = formatted
