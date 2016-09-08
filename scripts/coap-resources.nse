@@ -220,15 +220,9 @@ action = function(host, port)
   -- Connect to the CoAP endpoint.
   local status, response = helper:connect({["uri"] = options.uri})
   if not status then
-    -- Handle the error messages that indicate we're probably not talking to a
-    -- CoAP server, in which case we exit silently.
-    if (response == "Message ID in response does not match request." or
-	response:match("Code '%d%.%d%d' not recognized%.")) then
-      return nil
-    end
-
-    output.ERROR = response
-    return output, output.ERROR
+    -- Erros at this stage indicate we're probably not talking to a CoAP server,
+    -- so we exit silently.
+    return nil
   end
 
   -- Check that the response is a 2.05, otherwise we don't know how to
