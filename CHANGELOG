@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script: ipmi-version retrieves protocol version and authentication
+  options from ASF-RMCP (IPMI) services. [Claudiu Perta]
+
+o [NSE] New script: ipmi-cipher-zero checks IPMI services for Cipher Zero
+  support, which allows connection without a password. [Claudiu Perta]
+
+o [NSE] New script: ipmi-brute performs authentication brute-forcing on IPMI
+  services. [Claudiu Perta]
+
 o [NSE][GH#352] New script: mqtt-subscribe connects to a MQTT broker, subscribes to
   topics, and lists the messages received. [Mak Kolybabi]
 
