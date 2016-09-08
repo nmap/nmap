@@ -238,10 +238,10 @@ COAP.parse = function(buf, pos)
   end
   pos = pos + 1
 
-  -- If there's nothing past the payload marker, we consider that an
-  -- error.
+  -- If there's nothing past the payload marker, which is how some
+  -- implementations format their packets.
   if pos > #buf then
-    return false, "Buffer ends with payload marker but contains no payload."
+    return pos, hdr
   end
 
   -- By this point, we have the payload and it's prefixed by the
