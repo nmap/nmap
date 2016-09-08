@@ -233,6 +233,9 @@ udp 5353
   "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
   "\x09_services\x07_dns-sd\x04_udp\x05local\x00\x00\x0C\x00\x01"
 
+# CoAP GET .well-known/core
+udp 5683 "@\x01\x01\xce\xbb.well-known\x04core"
+
 # Amanda backup service noop request. I think that this does nothing on the
 # server but only asks it to send back its feature list. In reply we expect an
 # ACK or (more likely) an ERROR. I couldn't find good online documentation of

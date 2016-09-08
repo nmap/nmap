@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#369] New script: coap-resources grabs the list of available
+  resources from CoAP endpoints. [Mak Kolybabi]
+
 o [NSE] New script: ipmi-version retrieves protocol version and authentication
   options from ASF-RMCP (IPMI) services. [Claudiu Perta]
 

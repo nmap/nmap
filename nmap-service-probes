@@ -14989,3 +14989,12 @@ rarity 9
 ports 623
 
 softmatch asf-rmcp m|^\x06\0\xff\x07\0\0\0\0\0\0\0\0\0\x10|
+
+##############################NEXT PROBE##############################
+# CoAP GET .well-known/core
+Probe UDP coap-request q|@\x01\x01\xce\xbb.well-known\x04core|
+rarity 9
+ports 5683
+sslports 5684
+
+softmatch coap m|^`E|
