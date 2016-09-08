@@ -139,6 +139,12 @@ udp 520
   "\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x10"
 
+# IPMI
+# RMCP Get Channel Auth Capabilities
+udp 623
+  "\x06\x00\xff\x07\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09\x20\x18"
+  "\xc8\x81\x00\x38\x8e\x04\xb5"
+
 # serialnumberd. This service runs on Mac OS X Server. This probe
 # requests the serial number of another server. In response we expect a
 # packet starting with "SNRESPS:", followed by some data whose purpose
