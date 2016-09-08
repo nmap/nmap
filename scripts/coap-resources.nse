@@ -53,6 +53,11 @@ categories = {"safe", "discovery"}
 portrule = shortport.version_port_or_service({5683, 5684}, {"coap", "coaps"}, "udp")
 
 format_payload = function(payload)
+  -- Leave strings alone.
+  if type(payload) == "string" then
+    return payload
+  end
+
   local tbl = {}
 
   -- We want to go through all of the links in alphabetical order.
@@ -278,8 +283,10 @@ action = function(host, port)
     result = parsed
   end
 
-  -- Regardless of whether the block2 option was used, we should now have a parsed table.
-  assert(type(result) == "table")
+  -- Regardless of whether the block2 option was used, we should now have a
+  -- parsed payload in some format or another. For now, they should all be
+  -- strings or tables.
+  assert(type(result) == "string" or type(result) == "table")
 
   -- If the payload has been parsed, and we requested the default
   -- resource, then we know how to format it nicely.
