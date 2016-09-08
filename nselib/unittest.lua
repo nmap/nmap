@@ -42,6 +42,7 @@ local libs = {
 "brute",
 "cassandra",
 "citrixxml",
+"coap",
 "comm",
 "creds",
 "cvs",
@@ -312,28 +313,6 @@ table_equal = function(a, b)
   end
 end
 
---- Test associative tables for equality, 1 level deep
--- @param a The first table to test
--- @param b The second table to test
--- @return bool True if a[k] == b[k] for all k in a and b
-keys_equal = function(a, b)
-  return function (suite)
-    local seen = {}
-    for k, v in pairs(a) do
-      if b[k] ~= v then
-        return false, ("%s ~= %s at key %s"):format(v, b[k], k)
-      end
-      seen[k] = true
-    end
-    for k, v in pairs(b) do
-      if not seen[k] then
-        return false, ("Key %s not present in table a"):format(k)
-      end
-    end
-    return true
-  end
-end
-
 --- Test two values for equality, recursively if necessary.
 --
 -- This function checks that both values are indistinguishable in all
@@ -481,6 +460,7 @@ test_suite:add_test(is_true("test" == "test"), "Boolean expression evaluates to 
 test_suite:add_test(is_false(1.9999 == 2.0), "Boolean expression evaluates to false")
 test_suite:add_test(lt(1, 999), "1 < 999")
 test_suite:add_test(lte(8, 8), "8 <= 8")
+
 test_suite:add_test(expected_failure(not_nil(nil)), "Test expected to fail fails")
 test_suite:add_test(expected_failure(expected_failure(is_nil(nil))), "Test expected to succeed does not fail")
 test_suite:add_test(keys_equal({one=1,two=2,[3]="three"},{[3]="three",one=1,two=2}), "identical tables are identical")

@@ -14981,3 +14981,13 @@ ports 1883
 sslports 8883
 
 match mqtt m|^\x20\x02\x00.$|
+
+##############################NEXT PROBE##############################
+# CoAP
+Probe UDP CoAP q|\x30\x01nm\xbb.well-known\x04core|
+rarity 9
+ports 5683
+sslports 5684
+
+match coap m|^\x60\x45nm| p/CoAP/
+
