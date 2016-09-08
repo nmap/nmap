@@ -1964,7 +1964,9 @@ Comm = {
   -- @return o Instance of Client.
   new = function(self, host, port, options)
     local o = {host = host, port = port, options = options or {}}
-    o["message_id"] = math.random(65535)
+    -- Choose something random, while still giving lots of the 16-bit range
+    -- available to grow into.
+    o["message_id"] = math.random(16384)
     setmetatable(o, self)
     self.__index = self
     return o
