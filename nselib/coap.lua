@@ -351,7 +351,7 @@ end
 
 --- Parses a CoAP message header.
 --
--- @name COAP.parse
+-- @name COAP.header.parse
 --
 -- See section "3. Message Format" of the standard.
 --
