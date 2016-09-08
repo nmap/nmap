@@ -228,18 +228,6 @@ local function get_quoted_string(s, offset, crlf)
   return nil
 end
 
--- Get a ( token | quoted-string ) starting at offset.
--- @return the first index following the token or quoted-string, or nil if
--- nothing was found.
--- @return the token or quoted-string.
-local function get_token_or_quoted_string(s, offset, crlf)
-  if s:sub(offset, offset) == "\"" then
-    return get_quoted_string(s, offset)
-  else
-    return get_token(s, offset)
-  end
-end
-
 -- Returns the index just past the end of LWS.
 local function skip_lws(s, pos)
   local _, e

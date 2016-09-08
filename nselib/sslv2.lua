@@ -108,21 +108,6 @@ end
 local SSL_MAX_RECORD_LENGTH_2_BYTE_HEADER = 32767
 local SSL_MAX_RECORD_LENGTH_3_BYTE_HEADER = 16383
 
-local function parse_record_header_1_2(header_1_2)
-  local _, b0, b1 = bin.unpack(">CC", header_1_2)
-  local msb = bit.band(b0, 0x80) == 0x80
-  local header_length
-  local record_length
-  if msb then
-    header_length = 2
-    record_length = bit.bor(bit.lshift(bit.band(b0, 0x7f), 8), b1)
-  else
-    header_length = 3
-    record_length = bit.bor(bit.lshift(bit.band(b0, 0x3f), 8), b1)
-  end
-  return header_length, record_length
-end
-
 -- 2 bytes of length minimum
 local SSL_MIN_HEADER = 2
 

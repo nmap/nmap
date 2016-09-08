@@ -57,13 +57,6 @@ local function dbg_err(str,...)
 end
 --local err =stdnse.log_error
 
--- Packs data into nullterminated string
---@param input the string to pack
---@return the packed nullterminated string
-local function make_nullterminated_string(input)
-  return bin.pack("z",input)
-end
-
 --Converts an element (key, value) into bson binary data
 --@param key the key name, must *NOT* contain . (period) or start with $
 --@param value, the element value
@@ -644,42 +637,5 @@ function queryResultToTable( resultTable )
   return result
 
 end
-----------------------------------------------------------------------------------
--- Test-code for debugging purposes below
-----------------------------------------------------------------------------------
-
-
---- Prints data (string) as Hex values, e.g so it more easily can
--- be compared with a packet dump
--- @param strData the data in a string format
-
-local function printBuffer(strData)
-  local out = ''
-  local ch
-  for i  = 1,strData:len() do
-    out = out .." "
-    ch =strData:byte(i)
-    if(ch < 16) then
-      ch = string.format("0%x",ch)
-    else ch = string.format("%x",ch)
-    end
-    --if ch > 64 and ch < 123 then
-    --  out = out .. string.char(ch)
-    --else
-    out = out .. ch
-    --end
-  end
-  print(out)
-end
-
--- function test()
---   local res
---   res = versionQuery()
---   print(type(res),res:len(),res)
---   local _, out= bin.unpack('C'..#res,res)
---   printBuffer(res)
--- end
---test()
-
 
 return _ENV;

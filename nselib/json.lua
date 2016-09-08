@@ -172,17 +172,6 @@ end
 local function dbg(str,...)
   stdnse.debug1("Json:"..str, ...)
 end
-local function d4(str,...)
-  if nmap.debugging() > 3 then dbg(str, ...) end
-end
-local function d3(str,...)
-  if nmap.debugging() > 2 then dbg(str, ...) end
-end
-
---local dbg =stdnse.debug
-local function dbg_err(str,...)
-  stdnse.debug1("json-ERR:"..str, ...)
-end
 
 -- See section 2.5 for escapes.
 -- For convenience, ESCAPE_TABLE maps to escape sequences complete with
