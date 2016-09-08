@@ -215,6 +215,13 @@ action = function(host, port)
   -- Connect to the CoAP endpoint.
   local status, response = helper:connect({["uri"] = options.uri})
   if not status then
+    -- Handle the error messages that indicate we're probably not talking to a
+    -- CoAP server, in which case we exit silently.
+    if (response == "Message ID in response does not match request." or
+	response:match("Code '%d%.%d%d' not recognized%.")) then
+      return nil
+    end
+
     output.ERROR = response
     return output, output.ERROR
   end
@@ -222,6 +229,19 @@ action = function(host, port)
   -- Check that the response is a 2.05, otherwise we don't know how to
   -- continue.
   if response.code ~= "content" then
+    -- If the port runs an echo service, we'll see an unexpected 'get' code.
+    if response.code == "get" then
+      -- Exit silently, this has all been a mistake.
+      return nil
+    end
+
+    -- If the requested resource wasn't found, that's okay.
+    if response.code == "not_found" then
+      stdnse.debug1("The target reports that the resource '%s' was not found.", options.uri)
+      return nil
+    end
+
+    -- Otherwise, we assume that we're getting a legitimate CoAP response.
     output.ERROR = ("Server responded with '%s' code where 'content' was expected."):format(response.code)
     return output, output.ERROR
   end

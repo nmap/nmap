@@ -2121,7 +2121,19 @@ Helper = {
     end
 
     self.comm = Comm:new(self.host, self.port, self.opt)
-    return self.comm:connect(options)
+
+    local status, response = self.comm:connect(options)
+    if not status then
+      return false, response
+    end
+
+    -- If the response's ID is not what we expect, then we're going to assume
+    -- that we're not talking to a CoAP service.
+    if response.id ~= self.comm.message_id then
+      return false, "Message ID in response does not match request."
+    end
+
+    return status, response
   end,
 
   --- Sends a request to the CoAP endpoint.
