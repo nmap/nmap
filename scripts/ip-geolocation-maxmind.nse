@@ -6,6 +6,9 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
 
+-- TODO: Support IPv6. Database format supports it, but we need to be able to
+-- do equivalent of bit operations on 128-bit integers to make it work.
+
 description = [[
 Tries to identify the physical location of an IP address using a
 Geolocation Maxmind database file (available from
@@ -25,20 +28,32 @@ the commercial ones.
 -- | 74.207.244.221 (scanme.nmap.org)
 -- |   coordinates (lat,lon): 39.4899,-74.4773
 -- |_  city: Absecon, Philadelphia, PA, United States
---
+---
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery","external","safe"}
 
+local function get_db_file()
+  return (stdnse.get_script_args(SCRIPT_NAME .. ".maxmind_db") or
+    nmap.fetchfile("nselib/data/GeoLiteCity.dat"))
+end
 
 hostrule = function(host)
-  local is_private, err = ipOps.isPrivate( host.ip )
-  if is_private == nil then
-    stdnse.debug1("Error in Hostrule: %s.", err )
+  if nmap.address_family() ~= "inet" then
+    stdnse.verbose1("Only IPv4 is currently supported.")
     return false
   end
-  return not is_private
+  local is_private, err = ipOps.isPrivate( host.ip )
+  if is_private then
+    return false
+  end
+  if not get_db_file() then
+    stdnse.verbose1("You must specify a Maxmind database file with the maxmind_db argument.")
+    stdnse.verbose1("Download the database from http://dev.maxmind.com/geoip/legacy/geolite/")
+    return false
+  end
+  return true
 end
 
 local MaxmindDef = {
@@ -389,15 +404,31 @@ local MaxmindDef = {
   }
 }
 
-local ip2long=function(ip_str)
-  local ip = stdnse.strsplit('%.',ip_str)
-  local ip_num = (tonumber(ip[1])*16777216 + tonumber(ip[2])*65536
-  + tonumber(ip[3])*256 + tonumber(ip[4]))
-  return ip_num
-end
+local record_metatable = {
+  __tostring = function(loc)
+    local output = {
+    "coordinates (lat,lon): ", loc.latitude, ",", loc.longitude, "\n"
+    }
 
+    if loc.city then
+      output[#output+1] = "city: "..loc.city
+    end
+    if loc.metro_code then
+      output[#output+1] = ", "..loc.metro_code
+    end
+    if loc.country_name then
+      output[#output+1] = ", "..loc.country_name
+    end
+    output[#output+1] = "\n"
+    return table.concat(output)
+  end
+}
 local GeoIP = {
   new = function(self, filename)
+    if not(filename) then
+      return nil
+    end
+
     local o = {}
     setmetatable(o, self)
     self.__index = self
@@ -461,28 +492,12 @@ local GeoIP = {
   output_record_by_addr = function(self,addr)
     local loc = self:record_by_addr(addr)
     if not loc then return nil end
-
-    local output = {}
-    --output.name = "Maxmind database"
-    table.insert(output, "coordinates (lat,lon): " .. loc.latitude .. "," .. loc.longitude)
-
-    local str = ""
-    if loc.city then
-      str = str.."city: "..loc.city
-    end
-    if loc.metro_code then
-      str = str .. ", "..loc.metro_code
-    end
-    if loc.country_name then
-      str = str .. ", "..loc.country_name
-    end
-    table.insert(output,str)
-
-    return output
+    setmetatable(loc, record_metatable)
+    return loc
   end,
 
   record_by_addr=function(self,addr)
-    local ipnum = ip2long(addr)
+    local ipnum = ipOps.todword(addr)
     return self:_get_record(ipnum)
   end,
 
@@ -585,27 +600,12 @@ local GeoIP = {
 }
 
 action = function(host,port)
-  local f_maxmind = stdnse.get_script_args(SCRIPT_NAME .. ".maxmind_db")
-
-  local output = {}
-
-  --if f_maxmind is a string, it should specify the filename of the database
-  if f_maxmind then
-    local gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
-    local out = gi:output_record_by_addr(host.ip)
-    output = out
-  else
-    local gi = assert( GeoIP:new(nmap.fetchfile("nselib/data/GeoLiteCity.dat")), "Cannot read Maxmind database file in 'nselib/data/'.")
-    local out = gi:output_record_by_addr(host.ip)
-    output = out
+  local gi = nmap.registry.maxmind_db
+  if not gi then
+    local f_maxmind = get_db_file()
+    gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
+    nmap.registry.maxmind_db = gi
   end
 
-  if(#output~=0) then
-    output.name = host.ip
-    if host.targetname then
-      output.name = output.name.." ("..host.targetname..")"
-    end
-  end
-
-  return stdnse.format_output(true,output)
+  return gi:output_record_by_addr(host.ip)
 end

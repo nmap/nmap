@@ -12,14 +12,14 @@ description = [[The script is used to fetch files from servers.
 
 The script supports three different use cases :
 * The paths argument isn't provided, the script spiders the host
- and downloads files in their respective folders relative to
- the one provided using "destination".
+  and downloads files in their respective folders relative to
+  the one provided using "destination".
 * The paths argument(a single item or list) is provided and the path starts
- with "/", the script tries to fetch the path relative to the url
- provided via the argument "url".
+  with "/", the script tries to fetch the path relative to the url
+  provided via the argument "url".
 * The paths argument(a single item or list) is provided and the path doesn't
- start with "/". Then the script spiders the host and tries to find
- files which contain the path(now treated as a pattern).
+  start with "/". Then the script spiders the host and tries to find
+  files which contain the path(now treated as a pattern).
 ]]
 
 ---

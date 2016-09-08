@@ -33,7 +33,7 @@
 --  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
 --
 --  -- Perform all three requests as parallel as Nmap is able to
---  local results = http.pipeline('nmap.org', 80, all)
+--  local results = http.pipeline_go('nmap.org', 80, all)
 --</code>
 --
 -- At this point, <code>results</code> is an array with three elements. Each element
@@ -1299,7 +1299,7 @@ function generic_request(host, port, method, path, options)
 
     local auth_blob = "NTLMSSP\x00" .. -- NTLM signature
     "\x01\x00\x00\x00" .. -- NTLM Type 1 message
-    bin.pack("<I", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode 
+    bin.pack("<I", 0xa208b207) .. -- flags 56, 128, Version, Extended Security, Always Sign, Workstation supplied, Domain Supplied, NTLM Key, OEM, Unicode
     bin.pack("<SSISSI",#workstation_name, #workstation_name, 40 + #hostname, #hostname, #hostname, 40) .. -- Supplied Domain and Workstation
     bin.pack("CC<S", -- OS version info
     5, 1, 2600) .. -- 5.1.2600
@@ -1832,7 +1832,7 @@ function pipeline_go(host, port, all_requests)
 
   -- Check for an empty request
   if (#all_requests == 0) then
-    stdnse.debug1("Warning: empty set of requests passed to http.pipeline()")
+    stdnse.debug1("Warning: empty set of requests passed to http.pipeline_go()")
     return responses
   end
 

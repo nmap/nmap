@@ -16,8 +16,12 @@ This script depends on a fingerprint file containing the target's information: n
 You may select a category if you wish to reduce the number of requests. We have categories like:
 * <code>web</code> - Web applications
 * <code>routers</code> - Routers
-* <code>voip</code> - VOIP devices
-* <code>security</code>
+* <code>security</code> - CCTVs and other security devices
+* <code>industrial</code> - Industrial systems
+* <code>printer</code> - Network-attached printers and printer servers
+* <code>storage</code> - Storage devices
+* <code>virtualization</code> - Virtualization systems
+* <code>console</code> - Remote consoles
 
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
 
@@ -25,7 +29,7 @@ Remember each fingerprint must have:
 * <code>name</code> - Descriptive name
 * <code>category</code> - Category
 * <code>login_combos</code> - Table of login combinations
-* <code>paths</code> - Paths table containing the possible location of the target
+* <code>paths</code> - Table containing possible path locations of the target
 * <code>login_check</code> - Login function of the target
 
 In addition, a fingerprint may have:
@@ -53,9 +57,11 @@ This script was based on http-enum.
 --   * added support for target_check()
 -- 2014-04-27
 --   * changed category from safe to intrusive
+-- 2016-08-10 nnposter
+--   * added sharing of probe requests across fingerprints
 ---
 
-author = "Paulino Calderon <calderon@websec.mx>"
+author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "auth", "intrusive"}
 
@@ -217,13 +223,9 @@ local function register_http_credentials(host, port, login_username, login_passw
   c:add(login_username, login_password, creds.State.VALID )
 end
 
----
--- MAIN
--- Here we iterate through the paths to try to find a target. When a target is found
--- the login routine is initialized to check for default credentials authentication
----
+
 action = function(host, port)
-  local fingerprintload_status, status, fingerprints, requests, results
+  local fingerprintload_status, status, fingerprints, pathmap, requests, results
   local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
   local category = stdnse.get_script_args("http-default-accounts.category") or false
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
@@ -247,11 +249,19 @@ action = function(host, port)
   basepath = format_basepath(basepath)
 
   -- Add requests to the http pipeline
-  requests = {}
+  pathmap = {}
+  requests = nil
   stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
-  for i = 1, #fingerprints, 1 do
-    for j = 1, #fingerprints[i].paths, 1 do
-      requests = http.pipeline_add(basepath .. fingerprints[i].paths[j].path, nil, requests, 'GET')
+  for _, fingerprint in ipairs(fingerprints) do
+    for _, probe in ipairs(fingerprint.paths) do
+      -- Multiple fingerprints may share probe paths so only unique paths will
+      -- be added to the pipeline. Table pathmap keeps track of their position
+      -- within the pipeline.
+      local path = probe.path
+      if not pathmap[path] then
+        requests = http.pipeline_add(basepath .. path, nil, requests, 'GET')
+        pathmap[path] = #requests
+      end
     end
   end
 
@@ -263,19 +273,17 @@ action = function(host, port)
   end
 
   -- Iterate through responses to find a candidate for login routine
-  local j = 1
-
-  for i, fingerprint in ipairs(fingerprints) do
+  for _, fingerprint in ipairs(fingerprints) do
     local credentials_found = false
     stdnse.debug(1, "Processing %s", fingerprint.name)
     for _, probe in ipairs(fingerprint.paths) do
-
-      if (results[j] and not(credentials_found)) then
+      local result = results[pathmap[probe.path]]
+      if result and not credentials_found then
         local path = basepath .. probe['path']
 
-        if http.page_exists(results[j], result_404, known_404, path, true)
+        if http.page_exists(result, result_404, known_404, path, true)
           and (not fingerprint.target_check
-          or fingerprint.target_check(host, port, path, results[j]))
+          or fingerprint.target_check(host, port, path, result))
         then
           for _, login_combo in ipairs(fingerprint.login_combos) do
             stdnse.debug(2, "Trying login combo -> %s:%s", login_combo["username"], login_combo["password"])
@@ -293,7 +301,6 @@ action = function(host, port)
           end
         end
       end
-      j = j + 1
     end
   end
 

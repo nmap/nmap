@@ -209,5 +209,5 @@ check: $(TARGET) $(TEST_PROGS)
 
 makefile.dep:
 	$(CC) -MM $(CPPFLAGS) $(SRCS) > $@
-include makefile.dep
+-include makefile.dep
 

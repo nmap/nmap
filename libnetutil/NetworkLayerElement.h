@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -132,15 +132,15 @@
 class NetworkLayerElement : public PacketElement {
 
   public:
-    virtual u16 getAddressLength(){
+    virtual u16 getAddressLength() const{
         return 0;
     }
 
-    virtual u8 *getSourceAddress(){
+    virtual const u8 *getSourceAddress() const{
         return NULL;
     }
 
-    virtual u8 *getDestinationAddress(){
+    virtual const u8 *getDestinationAddress() const{
         return NULL;
     }
 
@@ -148,7 +148,7 @@ class NetworkLayerElement : public PacketElement {
         return 0;
     }
 
-    virtual u8 getNextHeader(){
+    virtual u8 getNextHeader() const{
         return 0;
     }
 };

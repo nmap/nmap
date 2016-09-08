@@ -11,8 +11,8 @@ Detects Microsoft Windows systems vulnerable to denial of service (CVE-2009-3103
 This script will crash the service if it is vulnerable.
 
 The script performs a denial-of-service against the vulnerability disclosed in
-CVE-2009-3103. This works against Windows Vista and some versions of Windows 7, 
-and causes a bluescreen if successful. The proof-of-concept code at 
+CVE-2009-3103. This works against Windows Vista and some versions of Windows 7,
+and causes a bluescreen if successful. The proof-of-concept code at
 http://seclists.org/fulldisclosure/2009/Sep/39 was used, with one small change.
 
 This check was previously part of smb-check-vulns.
@@ -25,17 +25,17 @@ This check was previously part of smb-check-vulns.
 --
 --@output
 --Host script results:
---| smb-vuln-cve2009-3103: 
+--| smb-vuln-cve2009-3103:
 --|   VULNERABLE:
 --|   SMBv2 exploit (CVE-2009-3103, Microsoft Security Advisory 975497)
 --|     State: VULNERABLE
 --|     IDs:  CVE:CVE-2009-3103
---|           Array index error in the SMBv2 protocol implementation in srv2.sys in Microsoft Windows Vista Gold, SP1, and SP2, 
---|           Windows Server 2008 Gold and SP2, and Windows 7 RC allows remote attackers to execute arbitrary code or cause a 
---|           denial of service (system crash) via an & (ampersand) character in a Process ID High header field in a NEGOTIATE 
---|           PROTOCOL REQUEST packet, which triggers an attempted dereference of an out-of-bounds memory location, 
+--|           Array index error in the SMBv2 protocol implementation in srv2.sys in Microsoft Windows Vista Gold, SP1, and SP2,
+--|           Windows Server 2008 Gold and SP2, and Windows 7 RC allows remote attackers to execute arbitrary code or cause a
+--|           denial of service (system crash) via an & (ampersand) character in a Process ID High header field in a NEGOTIATE
+--|           PROTOCOL REQUEST packet, which triggers an attempted dereference of an out-of-bounds memory location,
 --|           aka "SMBv2 Negotiation Vulnerability." NOTE: some of these details are obtained from third party information.
---|           
+--|
 --|     Disclosure date: 2009-09-08
 --|     References:
 --|       http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3103
@@ -147,11 +147,11 @@ action = function(host)
     title = 'SMBv2 exploit (CVE-2009-3103, Microsoft Security Advisory 975497)',
     state = vulns.STATE.NOT_VULN,
     description = [[
-    Array index error in the SMBv2 protocol implementation in srv2.sys in Microsoft Windows Vista Gold, SP1, and SP2, 
-    Windows Server 2008 Gold and SP2, and Windows 7 RC allows remote attackers to execute arbitrary code or cause a 
-    denial of service (system crash) via an & (ampersand) character in a Process ID High header field in a NEGOTIATE 
-    PROTOCOL REQUEST packet, which triggers an attempted dereference of an out-of-bounds memory location, 
-    aka "SMBv2 Negotiation Vulnerability." 
+    Array index error in the SMBv2 protocol implementation in srv2.sys in Microsoft Windows Vista Gold, SP1, and SP2,
+    Windows Server 2008 Gold and SP2, and Windows 7 RC allows remote attackers to execute arbitrary code or cause a
+    denial of service (system crash) via an & (ampersand) character in a Process ID High header field in a NEGOTIATE
+    PROTOCOL REQUEST packet, which triggers an attempted dereference of an out-of-bounds memory location,
+    aka "SMBv2 Negotiation Vulnerability."
     ]],
     IDS = {CVE = 'CVE-2009-3103'},
     references = {
@@ -173,6 +173,5 @@ action = function(host)
       vuln_table.state = vulns.STATE.NOT_VULN
     end
   end
-  vuln_table.state = vulns.STATE.VULN
   return vuln_report:make_output(vuln_table)
 end

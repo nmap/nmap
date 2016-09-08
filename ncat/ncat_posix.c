@@ -2,7 +2,7 @@
  * ncat_posix.c -- POSIX-specific functions.                               *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -347,7 +347,7 @@ char **cmdline_split(const char *cmdexec)
 
     /* The line is not empty so we've got something to deal with */
     cmd_args = (char **) safe_malloc(sizeof(char *) * (max_tokens + 1));
-    cur_arg = (char *) Calloc(sizeof(char), strlen(cmdexec));
+    cur_arg = (char *) Calloc(sizeof(char), strlen(cmdexec) + 1);
 
     /* Get and copy the tokens */
     ptr = cmdexec;

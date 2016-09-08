@@ -3,7 +3,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+# * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
 # * also a registered trademark of Insecure.Com LLC.  This program is free  *
 # * software; you may redistribute and/or modify it under the terms of the  *
 # * GNU General Public License as published by the Free Software            *
@@ -604,7 +604,8 @@ if 'py2exe' in sys.argv:
             "includes": ["pango", "atk", "gobject", "gio", "pickle", "bz2",
                 "encodings", "encodings.*", "cairo", "pangocairo"],
             "dll_excludes": ["USP10.dll", "NSI.dll", "MSIMG32.dll",
-                "DNSAPI.dll"]
+                "DNSAPI.dll"],
+            "custom_boot_script": "install_scripts/windows/boot_script.py",
             }
         }
     }

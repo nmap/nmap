@@ -78,15 +78,36 @@ end
 
 local generate_filenames = function(host)
   local customlist = stdnse.get_script_args('tftp-enum.filelist')
+  local cisco = false
   local status, default_filenames = datafiles.parse_file(customlist or "nselib/data/tftplist.txt" , {})
   if not status then
     stdnse.debug1("Can not open file with tftp file names list")
     return {}
+  else
+
+    for i, filename in ipairs(default_filenames) do
+      if filename:match('{[Mm][Aa][Cc]}') then
+        if not host.mac_addr then
+          goto next_filename
+        else
+          filename = filename:gsub('{M[Aa][Cc]}', string.upper(stdnse.tohex(host.mac_addr)))
+          filename = filename:gsub('{m[aA][cC]}', stdnse.tohex(host.mac_addr))
+        end
+      end
+
+      if filename:match('{cisco}') then
+        cisco = true
+        table.remove(default_filenames,i)
+      end
+      ::next_filename::
+    end
+
+    if cisco == true then
+      local cisco_address_confg_filenames = generate_cisco_address_confg(host.ip)
+      return array_concat(default_filenames, cisco_address_confg_filenames)
+    end
   end
-
-  local cisco_address_confg_filenames = generate_cisco_address_confg(host.ip)
-
-  return array_concat(default_filenames, cisco_address_confg_filenames)
+  return default_filenames
 end
 
 
@@ -103,6 +124,7 @@ local check_file_present = function(host, port, filename)
   local socket = nmap.new_socket()
   socket:connect(host, port)
   local status, lhost, lport, rhost, rport = socket:get_info()
+  stdnse.debug1("lhost: %s, lport: %s", lhost, lport);
 
 
   if (not (status)) then
@@ -178,18 +200,10 @@ action = function(host, port)
   local filenames = generate_filenames(host)
 
   for i, filename in ipairs(filenames) do
-    if filename:match('{[Mm][Aa][Cc]}') then
-      if not host.mac_addr then
-        goto next_filename
-      end
-      filename = filename:gsub('{MAC}', string.upper(stdnse.tohex(host.mac_addr)))
-      filename = filename:gsub('{mac}', stdnse.tohex(host.mac_addr))
-    end
     local request_status = check_file_present(host, port, filename)
     if (request_status == FILE_FOUND) then
       table.insert(results, filename)
     end
-    ::next_filename::
   end
 
   return stdnse.format_output(true, results)

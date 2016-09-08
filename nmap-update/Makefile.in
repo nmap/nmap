@@ -10,7 +10,7 @@ CC = @CC@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@ $(DEFS) -I$(NBASEDIR)
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@ $(NBASELIB)
+LIBS = @LIBS@ $(NBASELIB) $(MAC_FLAGS)
 DEFS = @DEFS@ -D_FORTIFY_SOURCE=2
 APR_LIBS = @APR_LIBS@
 SVN_LIBS = @SVN_LIBS@
@@ -31,7 +31,7 @@ NBASELIB = $(NBASEDIR)/libnbase.a
 all: nmap-update
 
 nmap-update: $(O_FILES) $(NBASELIB)
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(APR_LIBS) $(SVN_LIBS) $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(SVN_LIBS) $(APR_LIBS) $(OPENSSL_LIBS) $(LIBS)
 
 %.o: %.c
 	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<
@@ -59,6 +59,6 @@ Makefile: Makefile.in
 
 makefile.dep:
 	$(CC) -MM $(CPPFLAGS) $(C_FILES) > $@
-include makefile.dep
+-include makefile.dep
 
 .PHONY: all clean

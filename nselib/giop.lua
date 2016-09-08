@@ -45,7 +45,7 @@
 -- x Sun's JAVA orbd
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 --
@@ -235,6 +235,10 @@ Packet.GIOP.reply = {
       pos, tmp = bin.unpack( bo .. "I", self.GIOP.data, pos )
     elseif ( self.GIOP.version == Constants.VERSION_1_0 ) then
       pos, tmp = bin.unpack( bo .. "I", self.GIOP.data )
+    else
+      local err = ("Unknown GIOP version: %s"):format(self.GIOP.version)
+      stdnse.debug2("recv: %s", err)
+      return false, err
     end
 
     for i=1, tmp do

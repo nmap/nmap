@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -123,15 +123,19 @@
 /* $Id:$ */
 
 #include "nbase.h"
+#include "nmap_config.h"
 
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>
+#include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
 
 extern "C"
 {
@@ -145,6 +149,12 @@ struct cert_userdata {
   X509 *cert;
   int attributes_table;
 };
+
+/* from nse_openssl.cc */
+typedef struct bignum_data {
+  BIGNUM * bn;
+} bignum_data_t;
+
 
 SSL *nse_nsock_get_ssl(lua_State *L);
 
@@ -377,7 +387,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
 /* This is a helper function for x509_validity_to_table. It builds a table with
    the two members "notBefore" and "notAfter", whose values are what is returned
    from asn1_time_to_obj. */
-static void x509_validity_to_table(lua_State *L, const X509 *cert)
+static void x509_validity_to_table(lua_State *L, X509 *cert)
 {
   lua_newtable(L);
 
@@ -417,7 +427,7 @@ static const char *pkey_type_to_string(int type)
     return "dsa";
   case EVP_PKEY_DH:
     return "dh";
-#ifdef EVP_PKEY_EC
+#ifdef HAVE_OPENSSL_EC
   case EVP_PKEY_EC:
     return "ec";
 #endif
@@ -426,20 +436,19 @@ static const char *pkey_type_to_string(int type)
   }
 }
 
-void lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#ifdef EC_KEY
+int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
+#ifdef HAVE_OPENSSL_EC
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
+  /* This structure (ecdhparams.curve_params) comes from tls.lua */
+  lua_newtable(L); /* ecdhparams */
+  lua_newtable(L); /* curve_params */
   if ((nid = EC_GROUP_get_curve_name(group)) != 0) {
-    lua_newtable(L);
-    lua_newtable(L);
     lua_pushstring(L, OBJ_nid2sn(nid));
     lua_setfield(L, -2, "curve");
     lua_pushstring(L, "namedcurve");
     lua_setfield(L, -2, "ec_curve_type");
-    lua_setfield(L, -2, "curve_params");
-    lua_setfield(L, -2, "ecdhparams");
   }
   else {
     /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
@@ -447,26 +456,22 @@ void lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
        to add in code to extract the extra parameters. */
     nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
     if (nid == NID_X9_62_prime_field) {
-      lua_newtable(L);
-      lua_newtable(L);
       lua_pushstring(L, "explicit_prime");
-      lua_setfield(L, -2, "ec_curve_type");
-      lua_setfield(L, -2, "curve_params");
-      lua_setfield(L, -2, "ecdhparams");
     }
     else if (nid == NID_X9_62_characteristic_two_field) {
-      lua_newtable(L);
-      lua_newtable(L);
       lua_pushstring(L, "explicit_char2");
-      lua_setfield(L, -2, "ec_curve_type");
-      lua_setfield(L, -2, "curve_params");
-      lua_setfield(L, -2, "ecdhparams");
     }
     else {
-      /* Something wierd happened. */
+      /* Something weird happened. */
+      lua_pushstring(L, "UNKNOWN");
     }
+    lua_setfield(L, -2, "ec_curve_type");
   }
+  lua_setfield(L, -2, "curve_params");
   EC_KEY_free(ec_key);
+  return 1;
+#else
+  return 0;
 #endif
 }
 
@@ -524,7 +529,11 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     lua_setfield(L, -2, "subject");
   }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg->algorithm));
+#else
+  const char *sig_algo = OBJ_nid2ln(X509_get_signature_nid(cert));
+#endif
   lua_pushstring(L, sig_algo);
   lua_setfield(L, -2, "sig_algorithm");
 
@@ -541,14 +550,45 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   lua_setfield(L, -2, "pem");
 
   pubkey = X509_get_pubkey(cert);
+  if (pubkey == NULL) {
+    lua_pushnil(L);
+    lua_pushfstring(L, "Error parsing cert: %s", ERR_error_string(ERR_get_error(), NULL));
+    return 2;
+  }
   lua_newtable(L);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   pkey_type = EVP_PKEY_type(pubkey->type);
+#else
+  pkey_type = EVP_PKEY_base_id(pubkey);
+#endif
+#ifdef HAVE_OPENSSL_EC
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
+    lua_setfield(L, -2, "ecdhparams");
+  }
+  else
+#endif
+  if (pkey_type == EVP_PKEY_RSA) {
+    RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
+    bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+    luaL_getmetatable( L, "BIGNUM" );
+    lua_setmetatable( L, -2 );
+  #if OPENSSL_VERSION_NUMBER < 0x10100000L
+    data->bn = rsa->e;
+  #elif OPENSSL_VERSION_NUMBER < 0x10100006L
+    BIGNUM *n, *e, *d;
+    RSA_get0_key(rsa, &n, &e, &d);
+    data->bn = e;
+  #else
+    const BIGNUM *n, *e, *d;
+    RSA_get0_key(rsa, &n, &e, &d);
+    data->bn = (BIGNUM*) e;
+  #endif
+    lua_setfield(L, -2, "exponent");
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");
-  lua_pushnumber(L, EVP_PKEY_bits(pubkey));
+  lua_pushinteger(L, EVP_PKEY_bits(pubkey));
   lua_setfield(L, -2, "bits");
   lua_setfield(L, -2, "pubkey");
   EVP_PKEY_free(pubkey);

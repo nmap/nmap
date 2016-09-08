@@ -54,7 +54,8 @@ action = function(host, port)
     return stdnse.format_output(false, "This script requires a .class file to inject.")
   end
   local file = io.open(nmap.fetchfile(filename) or filename, "rb")
-  local class_bytes = file:read("*all")
+  local class_bytes = file:read("a")
+  file:close()
 
   -- inject the class
   local injectedClass

@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -133,6 +133,10 @@
 #include "linear.h"
 #include "FPModel.h"
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 #include <math.h>
 
@@ -211,7 +215,11 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   this->nsock_init = true;
 
   /* Obtain raw socket or check that we can obtain an eth descriptor. */
-  if ((o.sendpref & PACKET_SEND_ETH) && iftype == devt_ethernet && ifname != NULL) {
+  if ((o.sendpref & PACKET_SEND_ETH) && (iftype == devt_ethernet
+#ifdef WIN32
+        || (g_has_npcap_loopback && iftype == devt_loopback)
+#endif
+        ) && ifname != NULL) {
     /* We don't need to store the eth handler because FPProbes come with a
      * suitable one (FPProbes::getEthernet()), we just attempt to obtain one
      * to see if it fails. */
@@ -448,6 +456,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
   FPProbe *myprobe = (FPProbe *)arg;
   u8 *buf;
   size_t len;
+  int result;
 
   if (status == NSE_STATUS_SUCCESS) {
     switch(type) {
@@ -462,17 +471,31 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
         this->first_pcap_scheduled = true;
       }
 
-      buf = myprobe->getPacketBuffer(&len);
       /* Send the packet*/
-      assert(myprobe->host != NULL);
-      if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
-        myprobe->setFailed();
-        this->cc_report_final_timeout();
-        myprobe->host->fail_one_probe();
-        gh_perror("Unable to send packet in %s", __func__);
+      for (int decoy = 0; decoy < o.numdecoys; decoy++) {
+        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr);
+        assert(result == OP_SUCCESS);
+        assert(myprobe->host != NULL);
+        buf = myprobe->getPacketBuffer(&len);
+        if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
+          if (decoy == o.decoyturn) {
+            myprobe->setFailed();
+            this->cc_report_final_timeout();
+            myprobe->host->fail_one_probe();
+            gh_perror("Unable to send packet in %s", __func__);
+          }
+        }
+        if (decoy == o.decoyturn) {
+          myprobe->setTimeSent();
+        }
+        free(buf);
       }
-      myprobe->setTimeSent();
-      free(buf);
+      /* Reset the address to the original one if decoys were present and original Address wasn't last one */
+      if ( o.numdecoys != o.decoyturn+1 ) {
+        result = myprobe->changeSourceAddress(&((struct sockaddr_in6 *)&o.decoys[o.decoyturn])->sin6_addr);
+        assert(result == OP_SUCCESS);
+      }
+
       break;
 
     default:
@@ -746,7 +769,7 @@ void FPHost6::fill_FPR(FingerPrintResultsIPv6 *FPR) {
   FPR->incomplete = this->incomplete_fp;
 }
 
-static const IPv6Header *find_ipv6(const PacketElement *pe) {
+static IPv6Header *find_ipv6(const PacketElement *pe) {
   while (pe != NULL && pe->protocol_id() != HEADER_TYPE_IPv6)
     pe = pe->getNextElement();
 
@@ -1358,7 +1381,9 @@ int FPHost::choose_osscan_ports() {
       if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_OPEN)))
        this->open_port_tcp = tport->portno;
     }
-    this->target_host->FPR->osscan_opentcpport = this->open_port_tcp;
+    if (this->target_host->FPR != NULL) {
+      this->target_host->FPR->osscan_opentcpport = this->open_port_tcp;
+    }
   } else {
     /* If we don't have an open port, set it to -1 so we don't send probes that
      * target TCP open ports */
@@ -1374,7 +1399,9 @@ int FPHost::choose_osscan_ports() {
     if (tport->portno == 0)
       if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_CLOSED)))
         this->closed_port_tcp = tport->portno;
-    this->target_host->FPR->osscan_closedtcpport = this->closed_port_tcp;
+    if (this->target_host->FPR != NULL) {
+      this->target_host->FPR->osscan_closedtcpport = this->closed_port_tcp;
+    }
   } else if ((tport = this->target_host->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     this->closed_port_tcp = tport->portno;
@@ -1397,7 +1424,9 @@ int FPHost::choose_osscan_ports() {
     if (tport->portno == 0)
       if ((tport = this->target_host->ports.nextPort(tport, &port, IPPROTO_UDP, PORT_CLOSED)))
         this->closed_port_udp = tport->portno;
-    this->target_host->FPR->osscan_closedudpport = this->closed_port_udp;
+    if (this->target_host->FPR != NULL) {
+      this->target_host->FPR->osscan_closedudpport = this->closed_port_udp;
+    }
   } else if ((tport = this->target_host->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     this->closed_port_udp = tport->portno;
@@ -1730,7 +1759,7 @@ int FPHost6::build_probe_list() {
   RoutingHeader *routing;
   HopByHopHeader *hopbyhop1, *hopbyhop2;
   RawData *payload;
-  unsigned int i;
+  int i;
   char payloadbuf[300];
 
   assert(this->target_host != NULL);
@@ -1837,7 +1866,11 @@ int FPHost6::build_probe_list() {
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
-  if (this->target_host->directlyConnected()) {
+  if (this->target_host->directlyConnected()
+#ifdef WIN32
+    && !(g_has_npcap_loopback && this->target_host->ifType() == devt_loopback)
+#endif
+    ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
     this->target_host->SourceSockAddr(&ss, &slen);
@@ -2718,6 +2751,17 @@ int FPProbe::setTimed() {
   return OP_SUCCESS;
 }
 
+/* Changes source address for packet element associated with current FPProbe. */
+int FPProbe::changeSourceAddress(struct in6_addr *addr) {
+  if (!is_set())
+    return OP_FAILURE;
+  else{
+    IPv6Header *ip6 = find_ipv6(getPacket());
+    if (ip6 != NULL)
+      return ip6->setSourceAddress(*addr);
+  }
+  return OP_FAILURE;
+}
 
 /******************************************************************************
  * Implementation of class FPResponse.                                        *

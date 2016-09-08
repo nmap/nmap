@@ -1,11 +1,22 @@
 #include <stdlib.h>
 #include <stdarg.h>
+#include <math.h>
 
 #include "Target.h"
 #include "portlist.h"
 
 #include "nse_main.h"
 #include "nse_utility.h"
+
+int nseU_checkinteger (lua_State *L, int arg)
+{
+  lua_Number n = luaL_checknumber(L, arg);
+  int i;
+  if (!lua_numbertointeger(floor(n), &i)) {
+    return luaL_error(L, "Number cannot be converted to an integer");
+  }
+  return i;
+}
 
 int nseU_traceback (lua_State *L)
 {
@@ -42,6 +53,13 @@ void nseU_setnfield (lua_State *L, int idx, const char *field, lua_Number n)
 {
   idx = lua_absindex(L, idx);
   lua_pushnumber(L, n);
+  lua_setfield(L, idx, field);
+}
+
+void nseU_setifield (lua_State *L, int idx, const char *field, lua_Integer i)
+{
+  idx = lua_absindex(L, idx);
+  lua_pushinteger(L, i);
   lua_setfield(L, idx, field);
 }
 
@@ -139,15 +157,15 @@ uint16_t nseU_checkport (lua_State *L, int idx, const char **protocol)
 
   if (lua_istable(L, idx)) {
     lua_getfield(L, idx, "number");
-    if (!lua_isnumber(L, -1))
-      luaL_argerror(L, idx, "port table lacks numeric 'number' field");
+    if (!lua_isinteger(L, -1))
+      luaL_argerror(L, idx, "port table lacks integer 'number' field");
     port = (uint16_t) lua_tointeger(L, -1);
     lua_getfield(L, idx, "protocol");
     if (lua_isstring(L, -1))
       *protocol = lua_tostring(L, -1);
     lua_pop(L, 2);
   } else {
-    port = (uint16_t) luaL_checkint(L, idx);
+    port = (uint16_t) luaL_checkinteger(L, idx);
   }
   return port;
 }
@@ -187,8 +205,8 @@ Port *nseU_getport (lua_State *L, Target *target, Port *port, int idx)
   idx = lua_absindex(L, idx);
   luaL_checktype(L, idx, LUA_TTABLE);
   lua_getfield(L, idx, "number");
-  if (!lua_isnumber(L, -1))
-    luaL_error(L, "port 'number' field must be a number");
+  if (!lua_isinteger(L, -1))
+    luaL_error(L, "port 'number' field must be an integer");
   lua_getfield(L, idx, "protocol");
   if (!lua_isstring(L, -1))
     luaL_error(L, "port 'protocol' field must be a string");

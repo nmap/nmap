@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -181,20 +181,21 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
   }
 
   if (hdr == IPPROTO_TCP) {
-    assert(len >= 20);
+    assert(len >= sizeof(struct tcp_hdr));
     tcp = (struct tcp_hdr *) data;
     probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
     probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
   } else if (hdr == IPPROTO_UDP) {
-    assert(len >= 8);
+    assert(len >= sizeof(struct udp_hdr));
     udp = (struct udp_hdr *) data;
     probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
   } else if (hdr == IPPROTO_SCTP) {
-    assert(len >= 12);
+    assert(len >= sizeof(struct sctp_hdr));
     sctp = (struct sctp_hdr *) data;
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
     probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
-  } else if (hdr == IPPROTO_ICMP || hdr == IPPROTO_ICMPV6) {
+  } else if ((ip->ip_v == 4 && hdr == IPPROTO_ICMP) || (ip->ip_v == 6 && hdr == IPPROTO_ICMPV6)) {
+    assert(len >= sizeof(struct ppkt));
     icmp = (struct ppkt *) data;
     probes.IP.pd.icmp.ident = ntohs(icmp->id);
   }
@@ -929,7 +930,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     }
   }
 
-  return 0;
+  return goodone;
 }
 
 /* Initiate libpcap or some other sniffer as appropriate to be able to catch
@@ -1313,7 +1314,7 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
     if (hss->target->af() == AF_INET) {
       for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+        packet = build_tcp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
                                o.ttl, ipid, IP_TOS_DEFAULT, false,
                                o.ipoptions, o.ipoptionslen,
                                sport, pspec->pd.tcp.dport,
@@ -1330,24 +1331,21 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
-      struct sockaddr_storage source;
-      struct sockaddr_in6 *sin6;
-      size_t source_len;
-
-      source_len = sizeof(source);
-      hss->target->SourceSockAddr(&source, &source_len);
-      sin6 = (struct sockaddr_in6 *) &source;
-      packet = build_tcp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
+      for (decoy = 0; decoy < o.numdecoys; decoy++) {
+        packet = build_tcp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
                                   0, 0, o.ttl, sport, pspec->pd.tcp.dport,
                                   seq, ack, 0, pspec->pd.tcp.flags, 0, 0,
                                   tcpops, tcpopslen,
                                   o.extra_payload, o.extra_payload_length,
                                   &packetlen);
-      probe->setIP(packet, packetlen, pspec);
-      probe->sent = USI->now;
-      hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-      free(packet);
+        if (decoy == o.decoyturn) {
+          probe->setIP(packet, packetlen, pspec);
+          probe->sent = USI->now;
+        }
+        hss->probeSent(packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+        free(packet);
+      }
     }
   } else if (pspec->type == PS_UDP) {
     const char *payload;
@@ -1357,7 +1355,7 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
     if (hss->target->af() == AF_INET) {
       for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_udp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+        packet = build_udp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
                                o.ttl, ipid, IP_TOS_DEFAULT, false,
                                o.ipoptions, o.ipoptionslen,
                                sport, pspec->pd.udp.dport,
@@ -1372,22 +1370,19 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
-      struct sockaddr_storage source;
-      struct sockaddr_in6 *sin6;
-      size_t source_len;
-
-      source_len = sizeof(source);
-      hss->target->SourceSockAddr(&source, &source_len);
-      sin6 = (struct sockaddr_in6 *) &source;
-      packet = build_udp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
+      for (decoy = 0; decoy < o.numdecoys; decoy++) {
+        packet = build_udp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
                                   0, 0, o.ttl, sport, pspec->pd.tcp.dport,
                                   (char *) payload, payload_length,
                                   &packetlen);
-      probe->setIP(packet, packetlen, pspec);
-      probe->sent = USI->now;
-      hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-      free(packet);
+        if (decoy == o.decoyturn) {
+          probe->setIP(packet, packetlen, pspec);
+          probe->sent = USI->now;
+        }
+        hss->probeSent(packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+        free(packet);
+      }
     }
   } else if (pspec->type == PS_SCTP) {
     switch (pspec->pd.sctp.chunktype) {
@@ -1413,7 +1408,7 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     }
     if (hss->target->af() == AF_INET) {
       for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        packet = build_sctp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+        packet = build_sctp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
                                 o.ipoptions, o.ipoptionslen,
                                 sport, pspec->pd.sctp.dport,
@@ -1429,23 +1424,20 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
-      struct sockaddr_storage source;
-      struct sockaddr_in6 *sin6;
-      size_t source_len;
-
-      source_len = sizeof(source);
-      hss->target->SourceSockAddr(&source, &source_len);
-      sin6 = (struct sockaddr_in6 *) &source;
-      packet = build_sctp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
+      for (decoy = 0; decoy < o.numdecoys; decoy++) {
+        packet = build_sctp_raw_ipv6(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
                                    0, 0, o.ttl, sport, pspec->pd.sctp.dport,
                                    vtag, chunk, chunklen,
                                    o.extra_payload, o.extra_payload_length,
                                    &packetlen);
-      probe->setIP(packet, packetlen, pspec);
-      probe->sent = USI->now;
-      hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-      free(packet);
+        if (decoy == o.decoyturn) {
+          probe->setIP(packet, packetlen, pspec);
+          probe->sent = USI->now;
+        }
+        hss->probeSent(packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+        free(packet);
+      }
     }
     free(chunk);
   } else if (pspec->type == PS_PROTO) {
@@ -1457,7 +1449,7 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       sin->sin_family = AF_INET;
 
       for (decoy = 0; decoy < o.numdecoys; decoy++) {
-        sin->sin_addr = o.decoys[decoy];
+        sin->sin_addr = ((struct sockaddr_in *)&o.decoys[decoy])->sin_addr;
         packet = build_protoscan_packet(&ss, hss->target->TargetSockAddr(),
                                         pspec->proto, sport, &packetlen);
         assert(packet != NULL);
@@ -1470,18 +1462,29 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
-      packet = build_protoscan_packet(hss->target->SourceSockAddr(), hss->target->TargetSockAddr(),
+      struct sockaddr_storage ss;
+      struct sockaddr_in6 *sin6;
+
+      sin6 = (struct sockaddr_in6 *) &ss;
+      sin6->sin6_family = AF_INET6;
+
+      for (decoy = 0; decoy < o.numdecoys; decoy++) {
+        sin6->sin6_addr = ((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr;
+        packet = build_protoscan_packet(&ss, hss->target->TargetSockAddr(),
                                       pspec->proto, sport, &packetlen);
-      assert(packet != NULL);
-      probe->setIP(packet, packetlen, pspec);
-      probe->sent = USI->now;
-      hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-      free(packet);
+        assert(packet != NULL);
+        if (decoy == o.decoyturn) {
+          probe->setIP(packet, packetlen, pspec);
+          probe->sent = USI->now;
+        }
+        hss->probeSent(packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+        free(packet);
+      }
     }
   } else if (pspec->type == PS_ICMP) {
     for (decoy = 0; decoy < o.numdecoys; decoy++) {
-      packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+      packet = build_icmp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
                               o.ttl, ipid, IP_TOS_DEFAULT, false,
                               o.ipoptions, o.ipoptionslen,
                               0, icmp_ident, pspec->pd.icmp.type, pspec->pd.icmp.code,
@@ -1496,23 +1499,20 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       free(packet);
     }
   } else if (pspec->type == PS_ICMPV6) {
-    struct sockaddr_storage source;
-    struct sockaddr_in6 *sin6;
-    size_t source_len;
-
-    source_len = sizeof(source);
-    hss->target->SourceSockAddr(&source, &source_len);
-    sin6 = (struct sockaddr_in6 *) &source;
-    packet = build_icmpv6_raw(&sin6->sin6_addr, hss->target->v6hostip(),
+    for (decoy =0; decoy < o.numdecoys; decoy++) {
+      packet = build_icmpv6_raw(&((struct sockaddr_in6 *)&o.decoys[decoy])->sin6_addr, hss->target->v6hostip(),
                               0, 0, o.ttl, 0, icmp_ident, pspec->pd.icmpv6.type,
                               pspec->pd.icmpv6.code, o.extra_payload,
                               o.extra_payload_length,
                               &packetlen);
-    probe->setIP(packet, packetlen, pspec);
-    probe->sent = USI->now;
-    hss->probeSent(packetlen);
-    send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
-    free(packet);
+      if (decoy == o.decoyturn) {
+        probe->setIP(packet, packetlen, pspec);
+        probe->sent = USI->now;
+      }
+      hss->probeSent(packetlen);
+      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
+      free(packet);
+    }
   } else assert(0);
 
   /* Now that the probe has been sent, add it to the Queue for this host */

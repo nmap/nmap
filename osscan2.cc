@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -140,6 +140,10 @@
 #include <math.h>
 
 extern NmapOps o;
+#ifdef WIN32
+/* from libdnet's intf-win32.c */
+extern "C" int g_has_npcap_loopback;
+#endif
 
 /* 8 options:
  *  0~5: six options for SEQ/OPS/WIN/T1 probes.
@@ -490,20 +494,23 @@ static void begin_sniffer(HostOsScan *HOS, std::vector<Target *> &Targets) {
   if (HOS->pd == NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
 
+  struct sockaddr_storage ss = Targets[0]->source();
   /* Build the final BPF filter */
-  if (doIndividual)
-    len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s",
-                   inet_ntoa(Targets[0]->v4source()), dst_hosts);
-  else
-    len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or tcp)",
-                   inet_ntoa(Targets[0]->v4source()));
-  if (len < 0 || len >= (int) sizeof(pcap_filter))
-    fatal("ran out of space in pcap filter");
+  if (ss.ss_family == AF_INET) {
+    if (doIndividual)
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s",
+                   inet_ntoa(((struct sockaddr_in *)&ss)->sin_addr), dst_hosts);
+    else
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or tcp)",
+                   inet_ntoa(((struct sockaddr_in *)&ss)->sin_addr));
+    if (len < 0 || len >= (int) sizeof(pcap_filter))
+      fatal("ran out of space in pcap filter");
 
-  /* Compile and apply the filter to the pcap descriptor */
-  if (o.debugging)
-    log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter);
-  set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
+    /* Compile and apply the filter to the pcap descriptor */
+    if (o.debugging)
+      log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter);
+    set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
+  }
 
   return;
 }
@@ -1415,7 +1422,11 @@ HostOsScan::HostOsScan(Target *t) {
   rawsd = -1;
   ethsd = NULL;
 
-  if ((o.sendpref & PACKET_SEND_ETH) &&  t->ifType() == devt_ethernet) {
+  if ((o.sendpref & PACKET_SEND_ETH) && (t->ifType() == devt_ethernet
+#ifdef WIN32
+    || (g_has_npcap_loopback && t->ifType() == devt_loopback)
+#endif
+    )) {
     if ((ethsd = eth_open_cached(t->deviceName())) == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
     rawsd = -1;
@@ -2184,7 +2195,7 @@ int HostOsScan::send_icmp_echo_probe(HostOsScanStats *hss,
   ethptr = hss->fill_eth_nfo(&eth, ethsd);
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+    packet = build_icmp_raw(&((struct sockaddr_in *)&o.decoys[decoy])->sin_addr, hss->target->v4hostip(),
                             o.ttl, get_random_u16(), tos, df, NULL, 0, seq, id,
                             ICMP_ECHO, pcode, NULL, datalen, &packetlen);
     if (!packet)
@@ -2237,7 +2248,9 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
   }
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    source = &o.decoys[decoy];
+    if (o.decoys[decoy].ss_family == AF_INET6)
+      return 1;
+    source = &((struct sockaddr_in *)&o.decoys[decoy])->sin_addr;
 
     memset((char *) packet, 0, sizeof(struct ip) + sizeof(struct udp_hdr));
 
@@ -3412,7 +3425,7 @@ bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, i
         break; /* Window Scale option has 3 bytes */
       *p++ = 'W';
       q++;
-      snprintf(p, length, "%hX", *((u8*)q));
+      snprintf(p, length, "%hhX", *((u8*)q));
       p += strlen(p); /* max movement of p is 2 (max WScale value is 0xFF) */
       q++;
       length -= 3;
@@ -3511,7 +3524,7 @@ OsScanInfo::OsScanInfo(std::vector<Target *> &Targets) {
     }
 
 #ifdef WIN32
-    if (Targets[targetno]->ifType() == devt_loopback) {
+    if (g_has_npcap_loopback == 0 && Targets[targetno]->ifType() == devt_loopback) {
       log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhost)\n", Targets[targetno]->NameIP());
       continue;
     }

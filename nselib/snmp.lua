@@ -444,7 +444,7 @@ Helper = {
     self.__index = self
     o.host = host
     o.port = port
-    
+
     o.community = community or "public"
     if community == nil then
       local creds_store = creds.Credentials:new(creds.ALL_DATA, host, port)
@@ -461,7 +461,7 @@ Helper = {
       timeout = 5000,
       version = 0
     }
-    
+
     return o
   end,
 
@@ -558,7 +558,7 @@ Helper = {
     while ( snmpdata and snmpdata[1] and snmpdata[1][1] and snmpdata[1][2] ) do
       oid  = snmpdata[1][2]
       if not oid:match(base_oid) or base_oid == oid then break end
-      
+
       table.insert(snmp_table, { oid = oid, value = snmpdata[1][1] })
       local _ -- NSE don't want you to use global even if it is _
       _, snmpdata = self:getnext(options, oid)

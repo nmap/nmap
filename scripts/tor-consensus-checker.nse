@@ -1,4 +1,5 @@
 local http = require "http"
+local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
 local nmap = require "nmap"
@@ -43,7 +44,7 @@ hostrule = function(host)
   if nmap.registry.tornode and not(nmap.registry.tornode.connect) then
     return false
   end
-  return true
+  return not ipOps.isPrivate(host.ip)
 end
 
 function get_consensus(server)

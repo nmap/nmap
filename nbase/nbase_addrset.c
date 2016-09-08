@@ -2,7 +2,7 @@
  * nbase_addrset.c -- Address set (addrset) management.                          *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -242,10 +242,10 @@ static void in_addr_to_octets(const struct in_addr *ia, uint8_t octets[4])
 {
     u32 hbo = ntohl(ia->s_addr);
 
-    octets[0] = (uint8_t) ((hbo & (0xFF << 24)) >> 24);
-    octets[1] = (uint8_t) ((hbo & (0xFF << 16)) >> 16);
-    octets[2] = (uint8_t) ((hbo & (0xFF << 8)) >> 8);
-    octets[3] = (uint8_t) (hbo & 0xFF);
+    octets[0] = (uint8_t) ((hbo & (0xFFU << 24)) >> 24);
+    octets[1] = (uint8_t) ((hbo & (0xFFU << 16)) >> 16);
+    octets[2] = (uint8_t) ((hbo & (0xFFU << 8)) >> 8);
+    octets[3] = (uint8_t) (hbo & 0xFFU);
 }
 
 #define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)

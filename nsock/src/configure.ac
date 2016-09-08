@@ -257,15 +257,17 @@ OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   AC_DEFINE(HAVE_OPENSSL)
   OPENSSL_LIBS="-lssl -lcrypto"
-  LIBS="$LIBS $OPENSSL_LIBS"
+  LIBS_TMP="$LIBS"
+  LIBS="$OPENSSL_LIBS $LIBS"
+  AC_MSG_CHECKING([for SSL_set_tlsext_host_name])
+  AC_TRY_LINK([#include <openssl/ssl.h>], [SSL_set_tlsext_host_name(NULL, NULL)],
+    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_SSL_SET_TLSEXT_HOST_NAME)],
+    [AC_MSG_RESULT([no])])
+  LIBS="$LIBS_TMP"
+
 fi
 
 AC_SUBST(OPENSSL_LIBS)
-
-AC_MSG_CHECKING([for SSL_set_tlsext_host_name])
-AC_TRY_LINK([#include <openssl/ssl.h>], [SSL_set_tlsext_host_name(NULL, NULL)],
-  [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_SSL_SET_TLSEXT_HOST_NAME)],
-  [AC_MSG_RESULT([no])])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 

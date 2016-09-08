@@ -3,7 +3,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+# * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
 # * also a registered trademark of Insecure.Com LLC.  This program is free  *
 # * software; you may redistribute and/or modify it under the terms of the  *
 # * GNU General Public License as published by the Free Software            *
@@ -124,6 +124,7 @@ import gtk
 import sys
 import os
 from os.path import split, isfile, join, abspath, exists
+import errno
 
 # Prevent loading PyXML
 import xml
@@ -905,9 +906,23 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 return True
 
         window = WindowConfig()
-        window.x, window.y = self.get_position()
-        window.width, window.height = self.get_size()
-        window.save_changes()
+        try:
+            window.x, window.y = self.get_position()
+            window.width, window.height = self.get_size()
+            window.save_changes()
+        except IOError as e:
+            if e.errno == errno.EACCES:
+                alert = HIGAlertDialog(
+                        message_format=_("Can't save Zenmap configuration"),
+                        # newline before path to help avoid weird line wrapping
+                        secondary_text=_(
+                            'Permission denied when writing to\n%s'
+                            '\nMake sure the file exists and is writable.'
+                            ) % (Path.user_config_file))
+                alert.run()
+                alert.destroy()
+            else:
+                raise
 
         self.destroy()
 

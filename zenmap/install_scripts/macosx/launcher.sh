@@ -34,16 +34,16 @@ PYTHONPATH="$bundle_res/lib/zenmap"
 export PYTHONPATH
 
 # We need a UTF-8 locale.
-if test "x$LANG" == "x"; then
-lang=`defaults read .GlobalPreferences AppleLocale 2>/dev/null`
-if test "$?" != "0"; then
-  lang=`defaults read .GlobalPreferences AppleCollationOrder 2>/dev/null | sed 's/_.*//'`
+if [ -z ${lang+x} ]; then 
+  # lang is unset, we are thus using the Apple locale because it's set to the currently used language,
+  # which is already in the good format
+  lang=`defaults read /Library/Preferences/.GlobalPreferences AppleLocale 2>/dev/null`
+  export LANG="`echo $lang`.UTF-8"
 fi
-if test "$?" == "0"; then
-    export LANG="`grep \"\`echo $lang\`_\" /usr/share/locale/locale.alias | \
-  tail -n1 | sed 's/\./ /' | awk '{print $2}'`.UTF-8"
-fi
-fi
+
+echo $LANG > ~/Desktop/tmp.txt
+echo " | " >> ~/Desktop/tmp.txt
+echo $lang >> ~/Desktop/tmp.txt
 
 if test -f "$bundle_lib/charset.alias"; then
     export CHARSETALIASDIR="$bundle_lib"

@@ -182,10 +182,7 @@ local tld = {
 --@param idx Index in the string (first of two consecutive bytes).
 --@return 16 bit number represented by the two bytes.
 function bto16(data, idx)
-  local b1 = string.byte(data, idx)
-  local b2 = string.byte(data, idx+1)
-  -- (b2 & 0xff) | ((b1 & 0xff) << 8)
-  return bit.bor(bit.band(b2, 255), bit.lshift(bit.band(b1, 255), 8))
+  return (">I2"):unpack(data, idx)
 end
 
 --- Check if domain name element is a tld
@@ -440,7 +437,20 @@ local RD = {
     fingerprint = stdnse.tohex(data:sub(offset, offset+fplen-1))
     return offset + fplen, string.format("%d %d %s", algorithm, fptype, fingerprint)
   end,
-  --IPSECKEY RRSIG NSEC DNSKEY DHCID NSEC3 NSEC3PARAM TLSA HIP NINFO RKEY TALINK CDS
+  --IPSECKEY RRSIG NSEC DNSKEY DHCID NSEC3 NSEC3PARAM
+  TLSA = function(data, offset) -- https://tools.ietf.org/html/rfc6698
+    local rdatalen, cert_usage, selector, match_type, offset = (">I2BBB"):unpack(data, offset-2)
+    local usages = {[0] = "PKIX-TA", [1] = "PKIX-EE", [2] = "DANE-TA", [3] = "DANE-EE", [255] = "PrivCert"}
+    cert_usage = usages[cert_usage] or cert_usage
+    local selectors = {[0] = "Cert", [1] = "SPKI", [255] = "PrivSel"}
+    selector = selectors[selector] or selector
+    local matches = {[0] = "Full", [1] = "SHA2-256", [2] = "SHA2-512", [255] = "PrivMatch"}
+    match_type = matches[match_type] or match_type
+    local offend = offset + rdatalen - 3
+    local assoc_data = stdnse.tohex(data:sub(offset, offend - 1))
+    return offend, string.format("%s %s %s %s", cert_usage, selector, match_type, assoc_data)
+  end,
+  --HIP NINFO RKEY TALINK CDS
   SPF = parse_txt,
   --UINFO UID GID UNSPEC TKEY TSIG IXFR AXFR
 }

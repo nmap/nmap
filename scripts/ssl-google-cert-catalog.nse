@@ -1,4 +1,5 @@
 local dns = require "dns"
+local math = require "math"
 local os = require "os"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
@@ -34,7 +35,7 @@ categories = { "safe", "discovery", "external" }
 
 
 local format_date = function(day_num)
-    return os.date("%d %b %Y", 60 * 60 * 24 * tonumber(day_num))
+    return os.date("%d %b %Y", 60 * 60 * 24 * math.tointeger(day_num))
 end
 
 portrule = shortport.ssl

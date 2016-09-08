@@ -54,7 +54,8 @@ action = function(host,port)
   else
     -- read text from file
     local file = io.open(filename, "rb")
-    text_to_print = file:read("*all")
+    text_to_print = file:read("a")
+    file:close()
   end
   status, smbstate = msrpc.start_smb(host, msrpc.SPOOLSS_PATH,true)
   if(status == false) then

@@ -71,6 +71,8 @@ if test -n "$GXX"; then
   CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
+CFLAGS="$CFLAGS -Wall"
+
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
 AH_TEMPLATE(__func__, [C99-specified function identifier])
@@ -195,7 +197,7 @@ esac
 AC_SUBST(LUA_CFLAGS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
+AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h stdint.h)
 AC_CHECK_HEADERS(linux/rtnetlink.h,,,[#include <netinet/in.h>])
 dnl A special check required for <net/if.h> on Darwin. See
 dnl http://www.gnu.org/software/autoconf/manual/html_node/Header-Portability.html.
@@ -385,6 +387,12 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
     AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
     [ -lcrypto ])
  fi
+
+ if test "$use_openssl" = "yes"; then
+   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
+    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
+    [AC_MSG_WARN([Disabling support for EC crypto])])
+  fi
 fi
 
 OPENSSL_LIBS=
@@ -635,18 +643,18 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua.h lua/lua.h lua5.2/lua.h],
-      AC_CHECK_LIB(lua, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua52, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua52"; CPPFLAGS="-I/usr/include/lua52 $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua5.2, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua5.2"; CPPFLAGS="-I/usr/include/lua5.2 $CPPFLAGS"; break],, [-lm])
+    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h],
+      AC_CHECK_LIB(lua5.3, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua5.3"; CPPFLAGS="-I/usr/include/lua5.3 $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua53, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua53"; CPPFLAGS="-I/usr/include/lua53 $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua, lua_isyieldable, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
     )
 
     AC_LANG_PUSH(C++)
     # We need Lua 5.2 exactly
-    AC_MSG_CHECKING([for lua version == 502])
+    AC_MSG_CHECKING([for lua version == 503])
     AC_RUN_IFELSE([ AC_LANG_PROGRAM(
       [[#include <lua.h>]],
-      [[if(LUA_VERSION_NUM != 502) return 1;]])],
+      [[if(LUA_VERSION_NUM != 503) return 1;]])],
       have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
     AC_LANG_POP(C++)
 
@@ -680,6 +688,7 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
 AC_SUBST(NSE_CHECK)
 AC_SUBST(CXXFLAGS)
+AC_SUBST(CFLAGS)
 
 
 LIBLINEARDIR=liblinear
@@ -921,16 +930,15 @@ case "$with_subversion" in
 
 if test "$with_nmap_update" != "no"; then
   have_libsvn=yes
+  old_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
+  AC_CHECK_HEADER([svn_client.h], [], [
+                   AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
+                   ])
+  CPPFLAGS="$old_CPPFLAGS"
   if test "$have_libsvn" = "yes"; then
-    old_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
-    AC_CHECK_HEADER([svn_client.h], [], [
-      AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
-    ])
-    CPPFLAGS="$old_CPPFLAGS"
-  fi
-  if test "$have_libsvn" = "yes"; then
-    AC_CHECK_LIB([svn_client-1], [svn_client_create_context], [], [have_libsvn=no])
+    dnl Avoid appending to LIBS here by providing non-default action-if-found
+    AC_CHECK_LIB([svn_client-1], [svn_client_create_context], [have_libsvn=yes], [have_libsvn=no])
   fi
   if test "$have_libsvn" != "yes"; then
     if test "$with_nmap_update" = "check"; then

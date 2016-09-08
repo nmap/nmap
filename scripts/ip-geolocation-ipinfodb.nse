@@ -76,7 +76,7 @@ end
 action = function(host,port)
   local output = ipinfodb(host.ip)
 
-  if(#output~=0) then
+  if(output and #output~=0) then
     output.name = host.ip
     if host.targetname then
       output.name = output.name.." ("..host.targetname..")"

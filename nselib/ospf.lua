@@ -4,7 +4,7 @@
 --
 -- The library consists of an OSPF class that contains code to handle OSPFv2 packets.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"

@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -707,13 +707,22 @@ bool ScanProgressMeter::printStats(double perc_done,
   /* Get the estimated time of day at completion */
   timet = last_est.tv_sec;
   ltime = localtime(&timet);
-  assert(ltime);
 
-  log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%.f:%02.f:%02.f remaining)\n",
-      scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min,
-      floor(time_left_s / 60.0 / 60.0),
-      floor(fmod(time_left_s / 60.0, 60.0)),
-      floor(fmod(time_left_s, 60.0)));
+  if (ltime) {
+    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%.f:%02.f:%02.f remaining)\n",
+        scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min,
+        floor(time_left_s / 60.0 / 60.0),
+        floor(fmod(time_left_s / 60.0, 60.0)),
+        floor(fmod(time_left_s, 60.0)));
+  }
+  else {
+    log_write(LOG_STDERR, "Timing error: localtime(%f) is NULL\n", (double) timet);
+    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: Unknown (%.f:%02.f:%02.f remaining)\n",
+        scantypestr, perc_done * 100,
+        floor(time_left_s / 60.0 / 60.0),
+        floor(fmod(time_left_s / 60.0, 60.0)),
+        floor(fmod(time_left_s, 60.0)));
+  }
   xml_open_start_tag("taskprogress");
   xml_attribute("task", "%s", scantypestr);
   xml_attribute("time", "%lu", (unsigned long) now->tv_sec);

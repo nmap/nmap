@@ -70,6 +70,7 @@ action = function(host, port)
   end
 
   if v:supportsSecType(v.sectypes.VENCRYPT) then
+    v:sendSecType(v.sectypes.VENCRYPT)
     status, data = v:handshake_vencrypt()
     if not status then
       stdnse.debug1("Failed to handshake VeNCrypt: %s", data)
@@ -95,6 +96,7 @@ action = function(host, port)
       v:connect()
       v:handshake()
     end
+    v:sendSecType(v.sectypes.TIGHT)
     status, data = v:handshake_tight()
     if not status then
       stdnse.debug1("Failed to handshake Tight: %s", data)
@@ -137,6 +139,7 @@ action = function(host, port)
       v:connect()
       v:handshake()
     end
+    v:sendSecType(v.sectypes.TLS)
     status, data = v:handshake_tls()
     if not status then
       stdnse.debug1("Failed to handshake TLS: %s", data)

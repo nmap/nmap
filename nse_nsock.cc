@@ -44,7 +44,7 @@ extern NmapOps o;
 typedef struct nse_nsock_udata
 {
   nsock_iod nsiod;
-  unsigned timeout;
+  int timeout;
 
   lua_State *thread;
 
@@ -352,12 +352,12 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
   lua_State *L = nu->thread;
   if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_ERROR) {
     // Sometimes Nsock fails immediately and callback is called before
-    // l_connect has a chance to yield. TODO: Figure out how to return an error
-    // to the calling thread without falling into an infinite loop somewhere.
+    // l_connect has a chance to yield. We'll use nu->action to signal
+    // l_connect to return an error instead of yielding.
     // http://seclists.org/nmap-dev/2016/q1/201
     trace(nse_iod(nse), nu->action, nu->direction);
-    nsock_iod_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
-    luaL_error(L, "Nsock immediate error");
+    nu->action = "ERROR";
+    return;
   }
   assert(lua_status(L) == LUA_YIELD);
   trace(nse_iod(nse), nu->action, nu->direction);
@@ -365,7 +365,7 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
 }
 
 static int yield (lua_State *L, nse_nsock_udata *nu, const char *action,
-    const char *direction, int ctx, lua_CFunction k)
+    const char *direction, int ctx, lua_KFunction k)
 {
   lua_getuservalue(L, 1);
   lua_pushthread(L);
@@ -423,7 +423,7 @@ do { \
 static int l_loop (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  int tout = luaL_checkint(L, 1);
+  int tout = luaL_checkinteger(L, 1);
 
   socket_unlock(L); /* clean up old socket locks */
 
@@ -451,7 +451,7 @@ static int l_reconnect_ssl (lua_State *L)
 
 static void close_internal (lua_State *L, nse_nsock_udata *nu);
 
-static int l_connect (lua_State *L)
+static int connect (lua_State *L, int status, lua_KContext ctx)
 {
   enum type {TCP, UDP, SSL};
   static const char * const op[] = {"tcp", "udp", "ssl", NULL};
@@ -479,7 +479,7 @@ static int l_connect (lua_State *L)
   int error_id;
 
   if (!socket_lock(L, 1)) /* we cannot get a socket lock */
-    return nse_yield(L, 0, l_connect); /* restart on continuation */
+    return nse_yield(L, 0, connect); /* restart on continuation */
 
 #ifndef HAVE_OPENSSL
   if (what == SSL)
@@ -549,7 +549,17 @@ static int l_connect (lua_State *L)
 
   if (dest != NULL)
     freeaddrinfo(dest);
+
+  if (!strncmp(nu->action, "ERROR", 5)) {
+    // Immediate error
+    return nseU_safeerror(L, "Nsock connect failed immediately");
+  }
   return yield(L, nu, "CONNECT", TO, 0, NULL);
+}
+
+static int l_connect (lua_State *L)
+{
+  return connect(L, LUA_OK, 0);
 }
 
 static int l_send (lua_State *L)
@@ -624,7 +634,7 @@ static int l_receive_lines (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readlines(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
-      luaL_checkint(L, 2));
+      luaL_checkinteger(L, 2));
   return yield(L, nu, "RECEIVE LINES", FROM, 0, NULL);
 }
 
@@ -634,11 +644,11 @@ static int l_receive_bytes (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readbytes(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
-      luaL_checkint(L, 2));
+      luaL_checkinteger(L, 2));
   return yield(L, nu, "RECEIVE BYTES", FROM, 0, NULL);
 }
 
-static int l_receive_buf (lua_State *L)
+static int receive_buf (lua_State *L, int status, lua_KContext ctx)
 {
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
@@ -647,14 +657,11 @@ static int l_receive_buf (lua_State *L)
     nseU_typeerror(L, 2, "function/string");
   luaL_checktype(L, 3, LUA_TBOOLEAN); /* 3 */
 
-  if (lua_getctx(L, NULL) == LUA_OK)
-  {
+  if (status == LUA_OK) {
     lua_settop(L, 3); /* clear top */
     lua_getuservalue(L, 1); /* 4 */
     lua_rawgeti(L, 4, BUFFER_I); /* 5 */
-  }
-  else
-  {
+  } else {
     /* Here we are returning from nsock_read below.
      * We have two extra values on the stack pushed by receive_callback.
      */
@@ -702,8 +709,13 @@ static int l_receive_buf (lua_State *L)
   {
     lua_pop(L, 2); /* pop 2 results */
     nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
-    return yield(L, nu, "RECEIVE BUF", FROM, 0, l_receive_buf);
+    return yield(L, nu, "RECEIVE BUF", FROM, 0, receive_buf);
   }
+}
+
+static int l_receive_buf (lua_State *L)
+{
+  return receive_buf(L, LUA_OK, 0);
 }
 
 static int l_get_info (lua_State *L)
@@ -723,18 +735,19 @@ static int l_get_info (lua_State *L)
 
   lua_pushboolean(L, true);
   lua_pushstring(L, inet_ntop_both(af, &local, ipstring_local));
-  lua_pushnumber(L, inet_port_both(af, &local));
+  lua_pushinteger(L, inet_port_both(af, &local));
   lua_pushstring(L, inet_ntop_both(af, &remote, ipstring_remote));
-  lua_pushnumber(L, inet_port_both(af, &remote));
+  lua_pushinteger(L, inet_port_both(af, &remote));
   return 5;
 }
 
 static int l_set_timeout (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
-  nu->timeout = luaL_checkint(L, 2);
-  if ((int) nu->timeout < -1) /* -1 is no timeout */
-    return luaL_error(L, "Negative timeout: %d", nu->timeout);
+  int timeout = nseU_checkinteger(L, 2);
+  if (timeout < -1) /* -1 is no timeout */
+    return luaL_error(L, "Negative timeout: %f", timeout);
+  nu->timeout = timeout;
   return nseU_success(L);
 }
 
@@ -814,7 +827,7 @@ static int l_bind (lua_State *L)
   struct addrinfo hints = { 0 };
   struct addrinfo *results;
   const char *addr_str = luaL_optstring(L, 2, NULL);
-  luaL_checkint(L, 3);
+  luaL_checkinteger(L, 3);
   const char *port_str = lua_tostring(L, 3); /* automatic conversion */
   int rc;
 
@@ -831,7 +844,7 @@ static int l_bind (lua_State *L)
 
   rc = getaddrinfo(addr_str, port_str, &hints, &results);
   if (rc != 0)
-    return nseU_safeerror(L, gai_strerror(rc));
+    return nseU_safeerror(L, "getaddrinfo: %s", gai_strerror(rc));
   if (results == NULL)
     return nseU_safeerror(L, "getaddrinfo: no results found");
   if (results->ai_addrlen > sizeof(nu->source_addr)) {
@@ -969,7 +982,7 @@ static int l_pcap_open (lua_State *L)
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
   const char *device = luaL_checkstring(L, 2);
-  int snaplen = luaL_checkint(L, 3);
+  int snaplen = luaL_checkinteger(L, 3);
   luaL_checktype(L, 4, LUA_TBOOLEAN); /* promiscuous */
   const char *bpf = luaL_checkstring(L, 5);
 
@@ -1097,15 +1110,16 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   nseU_weaktable(L, 0, MAX_PARALLELISM, "k"); /* THREAD_SOCKETS */
   nseU_weaktable(L, 0, 1000, "k"); /* CONNECT_WAITING */
   nseU_weaktable(L, 0, 0, "v"); /* KEY_PCAP */
+  int nupvals = lua_gettop(L)-top;
 
   /* Create the nsock metatable for sockets */
   lua_pushvalue(L, top+2); /* NSOCK_SOCKET */
   luaL_newlibtable(L, metatable_index);
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  luaL_setfuncs(L, metatable_index, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  luaL_setfuncs(L, metatable_index, nupvals);
   lua_setfield(L, -2, "__index");
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  lua_pushcclosure(L, nsock_gc, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  lua_pushcclosure(L, nsock_gc, nupvals);
   lua_setfield(L, -2, "__gc");
   lua_newtable(L);
   lua_setfield(L, -2, "__metatable");  /* protect metatable */
@@ -1113,8 +1127,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 
   /* Create the nsock pcap metatable */
   lua_pushvalue(L, top+3); /* PCAP_SOCKET */
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  lua_pushcclosure(L, pcap_gc, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  lua_pushcclosure(L, pcap_gc, nupvals);
   lua_setfield(L, top+3, "__gc");
   lua_pop(L, 1); /* PCAP_SOCKET */
 
@@ -1129,8 +1143,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 #endif
 
   luaL_newlibtable(L, l_nsock);
-  for (i = top+1; i < top+1+6; i++) lua_pushvalue(L, i);
-  luaL_setfuncs(L, l_nsock, 6);
+  for (i = top+1; i <= top+nupvals; i++) lua_pushvalue(L, i);
+  luaL_setfuncs(L, l_nsock, nupvals);
 
   return 1;
 }

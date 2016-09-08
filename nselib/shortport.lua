@@ -196,11 +196,13 @@ local LIKELY_SSL_PORTS = {
   995, -- pop3s
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
+  4911, -- ssl/niagara-fox
   5061, -- sip-tls
   6679,
   6697,
   8443, -- https-alt
   9001, -- tor-orport
+  8883, -- secure-mqtt
 }
 local LIKELY_SSL_SERVICES = {
   "ftps", "ftps-data", "ftps-control", "https", "https-alt", "imaps", "ircs",

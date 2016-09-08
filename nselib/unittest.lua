@@ -29,12 +29,14 @@ local libs = {
 "afp",
 "ajp",
 "amqp",
+"anyconnect",
 "asn1",
 "base32",
 "base64",
 "bin",
 "bitcoin",
 "bit",
+"bits",
 "bittorrent",
 "bjnp",
 "brute",
@@ -45,6 +47,7 @@ local libs = {
 "creds",
 "cvs",
 "datafiles",
+"datetime",
 "dhcp6",
 "dhcp",
 "dnsbl",
@@ -76,10 +79,12 @@ local libs = {
 "membase",
 "mobileme",
 "mongodb",
+"mqtt",
 "msrpc",
 "msrpcperformance",
 "msrpctypes",
 "mssql",
+"multicast",
 "mysql",
 "natpmp",
 "ncp",
@@ -99,6 +104,7 @@ local libs = {
 "proxy",
 "rdp",
 "redis",
+"re",
 "rmi",
 "rpcap",
 "rpc",
@@ -107,6 +113,7 @@ local libs = {
 "sasl",
 "shortport",
 "sip",
+"slaxml",
 "smbauth",
 "smb",
 "smtp",
@@ -116,12 +123,15 @@ local libs = {
 "ssh1",
 "ssh2",
 "sslcert",
+"sslv2",
 "stdnse",
 "strbuf",
+--"strict", -- behaves oddly
 "stun",
 "tab",
 "target",
 "tftp",
+"tls",
 "tns",
 "unicode",
 "unittest",
@@ -164,7 +174,7 @@ run_tests = function(to_test)
     stdnse.debug1("Testing %s", lib)
     local status, thelib = pcall(require, lib)
     if not status then
-      stdnse.debug1("Failed to load %s", lib)
+      stdnse.debug1("Failed to load %s: %s", lib, thelib)
     else
       local failed = 0
       if rawget(thelib,"test_suite") ~= nil then
@@ -452,14 +462,12 @@ test_suite:add_test(lt(1, 999), "1 < 999")
 test_suite:add_test(lte(8, 8), "8 <= 8")
 
 test_suite:add_test(expected_failure(not_nil(nil)), "Test expected to fail fails")
-test_suite:add_test(expected_failure(expected_failure(is_nil(nil))), "Test expected to fail succeeds")
-
+test_suite:add_test(expected_failure(expected_failure(is_nil(nil))), "Test expected to succeed does not fail")
+test_suite:add_test(keys_equal({one=1,two=2,[3]="three"},{[3]="three",one=1,two=2}), "identical tables are identical")
+test_suite:add_test(expected_failure(keys_equal({one=1,two=2},{[3]="three",one=1,two=2}), "dissimilar tables are dissimilar"))
 test_suite:add_test(identical(0, 0), "integer === integer")
 test_suite:add_test(identical(nil, nil), "nil === nil")
 test_suite:add_test(identical({}, {}), "{} === {}")
-test_suite:add_test(identical({["a"] = true}, {["a"] = true}), "table === table")
-test_suite:add_test(expected_failure(identical({["a"] = true}, {["a"] = false})), "table ~=== table")
-
 test_suite:add_test(length_is(test_suite.tests, 15), "Number of tests is 15")
 
 return _ENV;

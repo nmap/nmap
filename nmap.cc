@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -189,8 +189,6 @@ extern char *optarg;
 extern int optind;
 extern NmapOps o;  /* option structure */
 
-static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
-                                       const Target *target);
 static void display_nmap_version();
 
 /* A mechanism to save argv[0] for code that requires that. */
@@ -502,7 +500,9 @@ public:
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
     this->iflist                = false;
+    this->advanced              = false;
     this->af                    = AF_UNSPEC;
+    this->decoys                = false;
   }
 
   // Pre-specified timing parameters.
@@ -514,9 +514,9 @@ public:
   int   pre_max_retries;
   long  pre_host_timeout;
   char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
-  bool  iflist;
+  bool  iflist, decoys, advanced;
   char  *exclude_spec, *exclude_file;
-  char  *spoofSource;
+  char  *spoofSource, *decoy_arguments;
   const char *spoofmac;
   int af;
   std::vector<std::string> verbose_out;
@@ -542,7 +542,7 @@ static void test_file_name(const char *filename, const char *option) {
 }
 
 void parse_options(int argc, char **argv) {
-  char *p, *q;
+  char *p;
   int arg;
   long l;
   double d;
@@ -682,6 +682,8 @@ void parse_options(int argc, char **argv) {
     {"script_args_file", required_argument, 0, 0},
     {"script-help", required_argument, 0, 0},
     {"script_help", required_argument, 0, 0},
+    {"script-timeout", required_argument, 0, 0},
+    {"script_timeout", required_argument, 0, 0},
 #endif
     {"ip_options", required_argument, 0, 0},
     {"ip-options", required_argument, 0, 0},
@@ -720,6 +722,11 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "script-help") == 0) {
         o.scripthelp = true;
         o.chooseScripts(optarg);
+      } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
+        l = tval2secs(optarg);
+        if ( l <= 0 )
+          fatal("Bogus --script-timeout argument specified");
+        o.scripttimeout = l;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -965,8 +972,8 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "sI") == 0) {
           o.idlescan = 1;
           o.idleProxy = strdup(optarg);
-          if (strlen(o.idleProxy) > MAXHOSTNAMELEN) {
-            fatal("ERROR: -sI argument must be less than %d characters", MAXHOSTNAMELEN);
+          if (strlen(o.idleProxy) > FQDN_LEN) {
+            fatal("ERROR: -sI argument must be less than %d characters", FQDN_LEN);
           }
         } else if (strcmp(long_options[option_index].name, "vv") == 0) {
           /* Compatibility hack ... ugly */
@@ -1051,14 +1058,7 @@ void parse_options(int argc, char **argv) {
 #endif /* !HAVE_IPV6 */
       break;
     case 'A':
-      o.servicescan = true;
-#ifndef NOLUA
-      o.script = 1;
-#endif
-      if (o.isr00t) {
-        o.osscan++;
-        o.traceroute = true;
-      }
+      delayed_options.advanced = true;
       break;
     case 'b':
       o.bouncescan++;
@@ -1067,52 +1067,7 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'D':
-      p = optarg;
-      do {
-        q = strchr(p, ',');
-        if (q)
-          *q = '\0';
-        if (!strcasecmp(p, "me")) {
-          if (o.decoyturn != -1)
-            fatal("Can only use 'ME' as a decoy once.\n");
-          o.decoyturn = o.numdecoys++;
-        } else if (!strcasecmp(p, "rnd") || !strncasecmp(p, "rnd:", 4)) {
-          int i = 1;
-
-          /* 'rnd:' is allowed and just gives them one */
-          if (strlen(p) > 4)
-            i = atoi(&p[4]);
-
-          if (i < 1)
-            fatal("Bad 'rnd' decoy \"%s\"", p);
-
-          if (o.numdecoys + i >= MAX_DECOYS - 1)
-            fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
-
-          while (i--) {
-            do {
-              o.decoys[o.numdecoys].s_addr = get_random_u32();
-            } while (ip_is_reserved(&o.decoys[o.numdecoys]));
-            o.numdecoys++;
-          }
-        } else {
-          if (o.numdecoys >= MAX_DECOYS - 1)
-            fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
-
-          /* Try to resolve it */
-          struct sockaddr_in decoytemp;
-          size_t decoytemplen = sizeof(struct sockaddr_in);
-          int rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
-          if (rc != 0)
-            fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
-          o.decoys[o.numdecoys] = decoytemp.sin_addr;
-          o.numdecoys++;
-        }
-        if (q) {
-          *q = ',';
-          p = q + 1;
-        }
-      } while (q);
+      delayed_options.decoy_arguments = optarg;
       break;
     case 'd':
       if (optarg && isdigit(optarg[0])) {
@@ -1430,6 +1385,11 @@ void parse_options(int argc, char **argv) {
       }
       break;
     case 'V':
+#ifdef WIN32
+      /* For pcap_get_version, since we need to get the correct Npcap/WinPcap
+       * DLL loaded */
+      win_init();
+#endif
       display_nmap_version();
       exit(0);
       break;
@@ -1471,6 +1431,16 @@ void  apply_delayed_options() {
   }
   delayed_options.verbose_out.clear();
 
+  if (delayed_options.advanced) {
+    o.servicescan = true;
+#ifndef NOLUA
+    o.script = 1;
+#endif
+    if (o.isr00t) {
+      o.osscan++;
+      o.traceroute = true;
+    }
+  }
   if (o.spoofsource) {
     int rc = resolve(delayed_options.spoofSource, 0, &ss, &sslen, o.af());
     if (rc != 0) {
@@ -1687,14 +1657,6 @@ void  apply_delayed_options() {
     error("WARNING: a IP Protocol ping scan was requested, but after excluding requested protocols, none remain. Skipping this scan type.");
 
 
-  /* Set up our array of decoys! */
-  if (o.decoyturn == -1) {
-    o.decoyturn = (o.numdecoys == 0) ?  0 : get_random_uint() % o.numdecoys;
-    o.numdecoys++;
-    for (i = o.numdecoys - 1; i > o.decoyturn; i--)
-      o.decoys[i] = o.decoys[i - 1];
-  }
-
   /* We need to find what interface to route through if:
    * --None have been specified AND
    * --We are root and doing tcp ping OR
@@ -1722,6 +1684,68 @@ void  apply_delayed_options() {
   }
   o.exclude_spec = delayed_options.exclude_spec;
 
+  if (delayed_options.decoy_arguments) {
+    char *p = delayed_options.decoy_arguments, *q;
+    do {
+      q = strchr(p, ',');
+      if (q)
+        *q = '\0';
+      if (!strcasecmp(p, "me")) {
+        if (o.decoyturn != -1)
+          fatal("Can only use 'ME' as a decoy once.\n");
+        o.decoyturn = o.numdecoys++;
+      } else if (!strcasecmp(p, "rnd") || !strncasecmp(p, "rnd:", 4)) {
+        if (delayed_options.af == AF_INET6)
+          fatal("Random decoys can only be used with IPv4");
+        int i = 1;
+
+        /* 'rnd:' is allowed and just gives them one */
+        if (strlen(p) > 4)
+          i = atoi(&p[4]);
+
+        if (i < 1)
+          fatal("Bad 'rnd' decoy \"%s\"", p);
+
+        if (o.numdecoys + i >= MAX_DECOYS - 1)
+          fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
+
+        while (i--) {
+          do {
+            ((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr.s_addr = get_random_u32();
+          } while (ip_is_reserved(&((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr));
+          o.numdecoys++;
+        }
+      } else {
+        if (o.numdecoys >= MAX_DECOYS - 1)
+          fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
+
+        /* Try to resolve it */
+        struct sockaddr_storage decoytemp;
+        size_t decoytemplen = sizeof(struct sockaddr_storage);
+        int rc;
+        if (delayed_options.af == AF_INET6){
+          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET6);
+        }
+        else
+          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
+        if (rc != 0)
+          fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
+        o.decoys[o.numdecoys] = decoytemp;
+        o.numdecoys++;
+      }
+      if (q) {
+        *q = ',';
+        p = q + 1;
+      }
+    } while (q);
+  }
+  /* Set up host address also in array of decoys! */
+  if (o.decoyturn == -1) {
+    o.decoyturn = (o.numdecoys == 0) ?  0 : get_random_uint() % o.numdecoys;
+    o.numdecoys++;
+    for (i = o.numdecoys - 1; i > o.decoyturn; i--)
+      o.decoys[i] = o.decoys[i - 1];
+  }
 }
 
 int nmap_main(int argc, char *argv[]) {
@@ -1740,11 +1764,11 @@ int nmap_main(int argc, char *argv[]) {
 #endif
   unsigned int ideal_scan_group_sz = 0;
   Target *currenths;
-  char myname[MAXHOSTNAMELEN + 1];
+  char myname[FQDN_LEN + 1];
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
                                 source addresses? */
   unsigned int targetno;
-  char hostname[MAXHOSTNAMELEN + 1] = "";
+  char hostname[FQDN_LEN + 1] = "";
   struct sockaddr_storage ss;
   size_t sslen;
 
@@ -1770,11 +1794,13 @@ int nmap_main(int argc, char *argv[]) {
 
   tty_init(); // Put the keyboard in raw mode
 
-  apply_delayed_options();
-
 #ifdef WIN32
+  // Must come after parse_options because of --unprivileged
+  // Must come before apply_delayed_options because it sets o.isr00t
   win_init();
 #endif
+
+  apply_delayed_options();
 
   for (unsigned int i = 0; i < route_dst_hosts.size(); i++) {
     const char *dst;
@@ -1970,10 +1996,13 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
+  if (o.ping_group_sz < o.minHostGroupSz())
+    o.ping_group_sz = o.minHostGroupSz();
   HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) argv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
+
     while (Targets.size() < ideal_scan_group_sz) {
       o.current_scantype = HOST_DISCOVERY;
       currenths = nexthost(&hstate, &exclude_group, &ports, o.pingtype);
@@ -2030,7 +2059,7 @@ int nmap_main(int argc, char *argv[]) {
           if (o.SourceSockAddr(&ss, &sslen) == 0) {
             currenths->setSourceSockAddr(&ss, sslen);
           } else {
-            if (gethostname(myname, MAXHOSTNAMELEN) ||
+            if (gethostname(myname, FQDN_LEN) ||
                 resolve(myname, 0, &ss, &sslen, o.af()) != 0)
               fatal("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n");
 
@@ -2050,12 +2079,12 @@ int nmap_main(int argc, char *argv[]) {
         /* Hosts in a group need to be somewhat homogeneous. Put this host in
            the next group if necessary. See target_needs_new_hostgroup for the
            details of when we need to split. */
-        if (target_needs_new_hostgroup(Targets, currenths)) {
+        if (Targets.size() && target_needs_new_hostgroup(&Targets[0], Targets.size(), currenths)) {
           returnhost(&hstate);
           o.numhosts_up--;
           break;
         }
-        o.decoys[o.decoyturn] = currenths->v4source();
+        o.decoys[o.decoyturn] = currenths->source();
       }
       Targets.push_back(currenths);
     }
@@ -2068,8 +2097,8 @@ int nmap_main(int argc, char *argv[]) {
 
     // Our source must be set in decoy list because nexthost() call can
     // change it (that issue really should be fixed when possible)
-    if (o.af() == AF_INET && o.RawScan())
-      o.decoys[o.decoyturn] = Targets[0]->v4source();
+    if (o.RawScan())
+      o.decoys[o.decoyturn] = Targets[0]->source();
 
     /* I now have the group for scanning in the Targets vector */
 
@@ -2234,57 +2263,6 @@ int nmap_main(int argc, char *argv[]) {
     nmap_free_mem();
   }
   return 0;
-}
-
-/* Returns true iff this target is incompatible with the other hosts in the host
-   group. This happens when:
-     1. it uses a different interface, or
-     2. it uses a different source address, or
-     3. it is directly connected when the other hosts are not, or vice versa, or
-     4. it has the same IP address as another target already in the group.
-   These restrictions only apply for raw scans. This function is similar to one
-   of the same name in targets.cc. That one is for ping scanning, this one is
-   for port scanning. */
-static bool target_needs_new_hostgroup(std::vector<Target *> &targets, const Target *target) {
-  std::vector<Target *>::iterator it;
-
-  /* We've just started a new hostgroup, so any target is acceptable. */
-  if (targets.empty())
-    return false;
-
-  /* There are no restrictions on non-root scans. */
-  if (!(o.isr00t && target->deviceName() != NULL))
-    return false;
-
-  /* Different address family? */
-  if (targets[0]->af() != target->af())
-    return true;
-
-  /* Different interface name? */
-  if (targets[0]->deviceName() != NULL &&
-      target->deviceName() != NULL &&
-      strcmp(targets[0]->deviceName(), target->deviceName()) != 0) {
-    return true;
-  }
-
-  /* Different source address? */
-  if (sockaddr_storage_cmp(targets[0]->SourceSockAddr(), target->SourceSockAddr()) != 0)
-    return true;
-
-  /* Different direct connectedness? */
-  if (targets[0]->directlyConnected() != target->directlyConnected())
-    return true;
-
-  /* Is there already a target with this same IP address? ultra_scan doesn't
-     cope with that, because it uses IP addresses to look up targets from
-     replies. What happens is one target gets the replies for all probes
-     referring to the same IP address. */
-  for (it = targets.begin(); it != targets.end(); it++) {
-    if (sockaddr_storage_cmp((*it)->TargetSockAddr(), target->TargetSockAddr()) == 0)
-      return true;
-  }
-
-  return false;
 }
 
 // Free some global memory allocations.
@@ -3056,7 +3034,8 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
        name. Return a positive result even if the file doesn't exist or is not
        readable. It is the caller's responsibility to report the error if the
        file can't be accessed. */
-    return file_is_readable(filename_returned) || 1;
+    res = file_is_readable(filename_returned);
+    return res != 0 ? res : 1;
   }
 
   /* Try updates directory first. */
@@ -3252,10 +3231,11 @@ static void display_nmap_version() {
   with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
 #endif
 
+  const char *pcap_version = pcap_lib_version();
 #ifdef PCAP_INCLUDED
-  with.push_back(std::string("nmap-libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+  with.push_back(std::string("nmap-") + get_word_or_quote(pcap_version, 0) + std::string("-") + get_word_or_quote(pcap_version, 2));
 #else
-  with.push_back(std::string("libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+  with.push_back(get_word_or_quote(pcap_version, 0) + std::string("-") + get_word_or_quote(pcap_version, 2));
 #endif
 
 #ifdef DNET_INCLUDED

@@ -96,7 +96,7 @@ action = function(host, port)
 
   -- Check if we can use HEAD requests
   local use_head = http.can_use_head(host, port, result_404)
-  
+
   local backups = {}
   while(true) do
     local status, r = crawler:crawl()
@@ -141,7 +141,7 @@ action = function(host, port)
         else
           response = http.get(host, port, escaped_link, {redirect_ok=false})
         end
-        
+
         if http.page_exists(response, result_404, known_404, escaped_link, false) then
           if ( not(parsed.port) ) then
             table.insert(backups,

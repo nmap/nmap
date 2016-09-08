@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -479,7 +479,7 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int timeleft;
   ConnectScanInfo *CSI = USI->gstats->CSI;
   int sd;
-  std::list<HostScanStats *>::iterator hostI;
+  std::set<HostScanStats *>::iterator hostI;
   HostScanStats *host;
   UltraProbe *probe = NULL;
   int optval;
@@ -520,7 +520,7 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
      and find the relevant ones. Note the peculiar structure of the loop--we
      iterate through both incompleteHosts and completedHosts, because global
      timing pings are sent to hosts in completedHosts. */
-  std::list<HostScanStats *>::iterator incompleteHostI, completedHostI;
+  std::set<HostScanStats *>::iterator incompleteHostI, completedHostI;
   incompleteHostI = USI->incompleteHosts.begin();
   completedHostI = USI->completedHosts.begin();
   while ((incompleteHostI != USI->incompleteHosts.end()
@@ -536,8 +536,8 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       continue;
 
     std::list<UltraProbe *>::iterator nextProbeI;
-    for (std::list<UltraProbe *>::iterator probeI = host->probes_outstanding.begin(), end = host->probes_outstanding.end();
-        probeI != end && numGoodSD < selectres && host->num_probes_outstanding() > 0; probeI = nextProbeI) {
+    for (std::list<UltraProbe *>::iterator probeI = host->probes_outstanding.begin();
+        probeI != host->probes_outstanding.end() && numGoodSD < selectres && host->num_probes_outstanding() > 0; probeI = nextProbeI) {
       /* handleConnectResult may remove the probe at probeI, which invalidates
        * the iterator. We copy and increment it here instead of in the for-loop
        * statement to avoid incrementing an invalid iterator */

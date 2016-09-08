@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -142,18 +142,18 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
   if (datalen < 0)
     datalen = (int)strlen(data);
 
-    if (NsockLogLevel == NSOCK_LOG_DBG_ALL && datalen < 80) {
-      memcpy(displaystr, ": ", 2);
-      memcpy(displaystr + 2, data, datalen);
-      displaystr[2 + datalen] = '\0';
-      replacenonprintable(displaystr + 2, datalen, '.');
-    } else {
-      displaystr[0] = '\0';
-    }
+  if (NsockLogLevel == NSOCK_LOG_DBG_ALL && datalen < 80) {
+    memcpy(displaystr, ": ", 2);
+    memcpy(displaystr + 2, data, datalen);
+    displaystr[2 + datalen] = '\0';
+    replacenonprintable(displaystr + 2, datalen, '.');
+  } else {
+    displaystr[0] = '\0';
+  }
 
-    nsock_log_info("Write request for %d bytes to IOD #%li EID %li [%s]%s",
-                   datalen, nsi->id, nse->id, get_peeraddr_string(nsi),
-                   displaystr);
+  nsock_log_info("Write request for %d bytes to IOD #%li EID %li [%s]%s",
+      datalen, nsi->id, nse->id, get_peeraddr_string(nsi),
+      displaystr);
 
   fs_cat(&nse->iobuf, data, datalen);
 

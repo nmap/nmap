@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -66,6 +66,12 @@
 #include <string.h>
 #include <stdarg.h>
 
+#ifdef WIN32
+/* WinPCAP doesn't have this, but Npcap does.
+ * Using 0 is safe for both, but change this if we decide to drop WinPcap */
+#undef PCAP_NETMASK_UNKNOWN
+#define PCAP_NETMASK_UNKNOWN 0
+#endif
 
 /*
  * There are three possible ways to read packets from pcap descriptor:

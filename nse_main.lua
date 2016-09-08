@@ -32,8 +32,8 @@
 
 local _VERSION = _VERSION;
 local MAJOR, MINOR = assert(_VERSION:match "^Lua (%d+).(%d+)$");
-if tonumber(MAJOR.."."..MINOR) < 5.2 then
-  error "NSE requires Lua 5.2 or newer. It looks like you're using an older version of nmap."
+if tonumber(MAJOR.."."..MINOR) < 5.3 then
+  error "NSE requires Lua 5.3 or newer. It looks like you're using an older version of nmap."
 end
 
 local NAME = "NSE";
@@ -51,6 +51,7 @@ local DESTRUCTOR = "NSE_DESTRUCTOR";
 local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 local FORMAT_TABLE = "NSE_FORMAT_TABLE";
 local FORMAT_XML = "NSE_FORMAT_XML";
+local PARALLELISM = "NSE_PARALLELISM";
 
 -- Unique value indicating the action function is going to run.
 local ACTION_STARTING = {};
@@ -134,7 +135,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
     local name = "nselib/"..lib..".lua";
     local type, path = cnse.fetchfile_absolute(name);
     if type == "file" then
-      return loadfile(path);
+      return assert(loadfile(path));
     else
       return "\n\tNSE failed to find "..name.." in search paths.";
     end
@@ -384,10 +385,16 @@ do
   -- prerule/postrule scripts may be timed out in the future
   -- based on start time and script lifetime?
   function Thread:timed_out ()
-    if self.type == "hostrule" or self.type == "portrule" then
-      return cnse.timedOut(self.host);
+    local host_timeout, script_timeout = false, false;
+    -- checking whether user gave --script-timeout option or not
+    if cnse.script_timeout and cnse.script_timeout > 0 then
+      -- comparing script's timeout with time elapsed
+      script_timeout = cnse.script_timeout < os.difftime(os.time(), self.start_time)
     end
-    return nil;
+    if self.type == "hostrule" or self.type == "portrule" then
+      host_timeout = cnse.timedOut(self.host);
+    end
+    return script_timeout or host_timeout;
   end
 
   function Thread:start_time_out_clock ()
@@ -407,6 +414,12 @@ do
     if self.host then
       timeouts[self.host] = timeouts[self.host] or {};
       timeouts[self.host][self.co] = true;
+    end
+    -- storing script's start time so as to account for script's timeout later
+    if self.worker then
+      self.start_time = self.parent.start_time
+    else
+      self.start_time = os.time()
     end
   end
 
@@ -473,6 +486,7 @@ do
       script = self,
       type = script_type,
       worker = false,
+      start_time = 0, --for script timeout
     };
     thread.parent = thread;
     setmetatable(thread, Thread)
@@ -489,6 +503,7 @@ do
       info = format("%s W:%s", self.id, match(tostring(co), "^thread: 0?[xX]?(.*)"));
       parent = self,
       worker = true,
+      start_time = 0,
     };
     setmetatable(thread, Worker)
     local function info ()
@@ -958,7 +973,8 @@ local function run (threads_iter, hosts)
     end
 
     local nr, nw = table_size(running), table_size(waiting);
-    if cnse.key_was_pressed() then
+    -- total may be 0 if no scripts are running in this phase
+    if total > 0 and cnse.key_was_pressed() then
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)",
           nr+nw, nw);
       progress("printStats", 1-(nr+nw)/total);
@@ -972,7 +988,7 @@ local function run (threads_iter, hosts)
               (gsub(traceback(co), "\n", "\n\t")));
         end
       end
-    elseif progress "mayBePrinted" then
+    elseif total > 0 and progress "mayBePrinted" then
       if verbosity() > 1 or debugging() > 0 then
         progress("printStats", 1-(nr+nw)/total);
       else
@@ -1173,6 +1189,10 @@ do
     args[#args+1] = cnse.scriptargs;
   end
 
+  if cnse.script_timeout and cnse.script_timeout > 0 then
+    print_debug(1, "Set script-timeout as: %d seconds", cnse.script_timeout);
+  end
+
   args = concat(args, ",");
   if #args > 0 then
     print_debug(1, "Arguments parsed: %s", args);
@@ -1302,6 +1322,10 @@ local function main (hosts, scantype)
   for i, script in ipairs(chosen_scripts) do
     runlevels[script.runlevel] = runlevels[script.runlevel] or {};
     insert(runlevels[script.runlevel], script);
+  end
+
+  if _R[PARALLELISM] > CONCURRENCY_LIMIT then
+    CONCURRENCY_LIMIT = _R[PARALLELISM];
   end
 
   if scantype == NSE_PRE_SCAN then

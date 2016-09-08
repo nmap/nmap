@@ -161,7 +161,7 @@
 --       (default: 0 (unlimited)). The argument can be used to prevent account
 --       lockouts.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 --
@@ -718,7 +718,7 @@ Engine =
     local tps = ( sum == 0 ) and ( self.counter / time_diff ) or ( sum / #self.tps )
 
     -- Add the statistics to the result
-    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps )
+    result.Statistics = ("Performed %d guesses in %d seconds, average tps: %.1f"):format( self.counter, time_diff, tps )
 
     if ( self.options.max_guesses > 0 ) then
       -- we only display a warning if the guesses are equal to max_guesses

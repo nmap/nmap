@@ -47,8 +47,7 @@ DEFS += -D_FORTIFY_SOURCE=2
 # DEFS += -DMTRACE=1
 CXXFLAGS = @CXXFLAGS@ $(DBGFLAGS) $(CCOPT)
 CPPFLAGS = @CPPFLAGS@ $(DEFS)
-export CFLAGS = $(CXXFLAGS)
-# CFLAGS = $(DEFS) $(INCLS)
+CFLAGS = @CFLAGS@ $(DBGFLAGS) $(CCOPT)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
 LIBS =  @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(OPENSSL_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
@@ -89,9 +88,9 @@ UNINSTALLNDIFF=@UNINSTALLNDIFF@
 UNINSTALLNPING=@UNINSTALLNPING@
 
 ifneq (@LIBLUA_LIBS@,)
-NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_binlib.cc nse_bit.cc nse_lpeg.cc
-NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_pcrelib.h nse_binlib.h nse_bit.h nse_lpeg.h
-NSE_OBJS=nse_main.o nse_utility.o nse_nsock.o nse_dnet.o nse_fs.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_binlib.o nse_bit.o nse_lpeg.o
+NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_lpeg.cc
+NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_pcrelib.h nse_lpeg.h
+NSE_OBJS=nse_main.o nse_utility.o nse_nsock.o nse_dnet.o nse_fs.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_lpeg.o
 ifneq (@OPENSSL_LIBS@,)
 NSE_SRC+=nse_openssl.cc nse_ssl_cert.cc
 NSE_HDRS+=nse_openssl.h nse_ssl_cert.h
@@ -390,12 +389,6 @@ install-%: build-% %/Makefile
 uninstall-%: %/Makefile
 	cd $* && $(MAKE) uninstall
 
-install-ncat: $(NCATDIR)/ncat
-	@cd $(NCATDIR) && $(MAKE) install
-
-install-nping: $(NPINGDIR)/nping
-	@cd $(NPINGDIR) && $(MAKE) install
-
 install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@ @NMAP_UPDATE_INSTALL@ $(INSTALLNDIFF) $(INSTALLNPING)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
@@ -485,7 +478,7 @@ lua-format:
 
 makefile.dep:
 	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
-include makefile.dep
+-include makefile.dep
 
 # These the old names of scripts that have been renamed or deleted. Any
 # scripts with these names will be deleted from the installation

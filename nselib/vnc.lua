@@ -19,12 +19,13 @@
 --
 
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 
 -- Version 0.1
 -- Created 07/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
+local bits = require "bits"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -262,14 +263,27 @@ VNC = {
   -- @param password string containing the password to process
   -- @return password string containing the processed password
   createVNCDESKey = function( self, password )
-    password = password .. string.rep('\0', 8 - #password)
-
-    local newpass = ""
-    for i=1, 8 do
-      local _, bitstr = bin.unpack("B", password, i)
-      newpass = newpass .. bin.pack("B", bitstr:reverse())
+    -- exactly 8 chars needed
+    if #password > 8 then
+      password = password:sub(1,8)
+    elseif #password < 8 then
+      password = password .. string.rep('\0', 8 - #password)
     end
-    return newpass
+    return password:gsub(".", function(c) return string.char(bits.reverse(c:byte())) end)
+  end,
+
+  --- Encrypts a password with the server's challenge to create the challenge response
+  --
+  -- @param password string containing the password to process
+  -- @param challenge string containing the server challenge
+  -- @return the challenge response string
+  encryptVNCDES = function (self, password, challenge)
+    local key = self:createVNCDESKey(password)
+    return openssl.encrypt("des-ecb", key, nil, challenge, false)
+  end,
+
+  sendSecType = function (self, sectype)
+    return self.socket:send( bin.pack("C", sectype))
   end,
 
   --- Attempts to login to the VNC service using any supported method
@@ -286,18 +300,23 @@ VNC = {
 
     if not authtype then
       if self:supportsSecType( VNC.sectypes.NONE ) then
+        self:sendSecType(VNC.sectypes.NONE)
         return self:login_none()
 
       elseif self:supportsSecType( VNC.sectypes.VNCAUTH ) then
+        self:sendSecType(VNC.sectypes.VNCAUTH)
         return self:login_vncauth(username, password)
 
       elseif self:supportsSecType( VNC.sectypes.TLS ) then
+        self:sendSecType(VNC.sectypes.TLS)
         return self:login_tls(username, password)
 
       elseif self:supportsSecType( VNC.sectypes.VENCRYPT ) then
+        self:sendSecType(VNC.sectypes.VENCRYPT)
         return self:login_vencrypt(username, password)
 
       elseif self:supportsSecType( VNC.sectypes.TIGHT ) then
+        self:sendSecType(VNC.sectypes.TIGHT)
         return self:login_tight(username, password)
 
       else
@@ -311,10 +330,6 @@ VNC = {
   end,
 
   login_none = function (self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.NONE) )
-    if not status then
-      return false, "Failed to select None authentication type"
-    end
     if self.client_version == "3.8" then
       return self:check_auth_result()
     end
@@ -329,18 +344,12 @@ VNC = {
   -- @return status true on success, false on failure
   -- @return err string containing error message when status is false
   login_vncauth = function( self, username, password )
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.VNCAUTH) )
-    if not status then
-      return false, "Failed to send authentication type"
-    end
-
     local status, chall = self.socket:receive_buf(match.numbytes(16), true)
     if ( not(status) ) then
       return false, "Failed to receive authentication challenge"
     end
 
-    local key = self:createVNCDESKey(password)
-    local resp = openssl.encrypt("des-ecb", key, nil, chall, false )
+    local resp = self:encryptVNCDES(password, chall)
 
     status = self.socket:send( resp )
     if ( not(status) ) then
@@ -362,11 +371,6 @@ VNC = {
   end,
 
   handshake_tight = function(self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.TIGHT) )
-    if not status then
-      return false, "Failed to select TIGHT authentication type"
-    end
-
     -- https://vncdotool.readthedocs.org/en/0.8.0/rfbproto.html#tight-security-type
     local status, buf = self.socket:receive_buf(match.numbytes(4), true)
     if not status then
@@ -422,8 +426,6 @@ VNC = {
       return status, err
     end
 
-    self.socket:send("\0\0\0") -- send auth types as int32
-
     if #self.tight.types == 0 then
       -- nothing further, no auth
       return true
@@ -437,6 +439,7 @@ VNC = {
       }) do
       for _, t in ipairs(self.tight.types) do
         if t.code == auth[1] then
+          self.socket:send(bin.pack(">I", t.code))
           return self[auth[2]](self, username, password)
         end
       end
@@ -445,11 +448,6 @@ VNC = {
   end,
 
   handshake_tls = function(self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.TLS) )
-    if not status then
-      return false, "Failed to select TLS authentication type"
-    end
-
     local status, err = self.socket:reconnect_ssl()
     if not status then
       return false, "Failed to reconnect SSL"
@@ -491,11 +489,6 @@ VNC = {
   end,
 
   handshake_vencrypt = function(self)
-    local status = self.socket:send( bin.pack("C", VNC.sectypes.VENCRYPT) )
-    if not status then
-      return false, "Failed to select VeNCrypt authentication type"
-    end
-
     local status, buf = self.socket:receive_buf(match.numbytes(2), true)
     local pos, maj, min = bin.unpack("CC", buf)
     if maj ~= 0 or min ~= 2 then
@@ -659,4 +652,40 @@ VNC = {
   end
 }
 
-return _ENV;
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+local test_vectors = {
+  -- from John the Ripper's vnc_fmt_plug.c
+  -- pass, challenge, response
+  {
+    "1234567890",
+    "\x2f\x75\x32\xb3\xef\xd1\x7e\xea\x5d\xd3\xa0\x94\x9f\xfd\xf1\xd8",
+    "\x0e\xb4\x2d\x4d\x9a\xc1\xef\x1b\x6e\xf6\x64\x7b\x95\x94\xa6\x21"
+  },
+  {
+    "123",
+    "\x79\x63\xf9\xbb\x7b\xa6\xa4\x2a\x08\x57\x63\x80\x81\x56\xf5\x70",
+    "\x47\x5b\x10\xd0\x56\x48\xe4\x11\x0d\x77\xf0\x39\x16\x10\x6f\x98"
+  },
+  {
+    "Password",
+    "\x08\x05\xb7\x90\xb5\x8e\x96\x7f\x2a\x35\x0a\x0c\x99\xde\x38\x81",
+    "\xae\xcb\x26\xfa\xea\xaa\x62\xd7\x96\x36\xa5\x93\x4b\xac\x10\x78"
+  },
+  {
+    "pass\xc2\xA3",
+    "\x84\x07\x6f\x04\x05\x50\xee\xa9\x34\x19\x67\x63\x3b\x5f\x38\x55",
+    "\x80\x75\x75\x68\x95\x82\x37\x9f\x7d\x80\x7f\x73\x6d\xe9\xe4\x34"
+  },
+}
+
+for _, v in ipairs(test_vectors) do
+  test_suite:add_test(unittest.equal(
+    VNC:encryptVNCDES(v[1], v[2]), v[3]), v[1])
+end
+
+return _ENV

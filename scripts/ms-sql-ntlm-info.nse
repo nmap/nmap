@@ -1,4 +1,6 @@
 local bin = require "bin"
+local os = require "os"
+local datetime = require "datetime"
 local mssql = require "mssql"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -42,7 +44,7 @@ disclosing information to include NetBIOS, DNS, and OS build version.
 
 
 author = "Justin Cacak"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service(1433, "ms-sql-s")
@@ -72,6 +74,7 @@ action = function(host, port)
   end
 
   local status, response, errorDetail = tdsstream:Receive()
+  local recvtime = os.time()
   tdsstream:Disconnect()
 
   local pos, ttype = bin.unpack("C", response)
@@ -86,6 +89,12 @@ action = function(host, port)
 
   -- Leverage smbauth.get_host_info_from_security_blob() for decoding
   local ntlm_decoded = smbauth.get_host_info_from_security_blob(data)
+
+  if ntlm_decoded.timestamp then
+    -- 64-bit number of 100ns clicks since 1/1/1601
+    local unixstamp = ntlm_decoded.timestamp // 10000000 - 11644473600
+    datetime.record_skew(host, unixstamp, recvtime)
+  end
 
   -- Target Name will always be returned under any implementation
   output.Target_Name = ntlm_decoded.target_realm

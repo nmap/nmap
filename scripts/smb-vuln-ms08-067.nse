@@ -7,12 +7,12 @@ local table = require "table"
 local vulns = require "vulns"
 
 description = [[
-Detects Microsoft Windows systems vulnerable to the remote code execution vulnerability 
+Detects Microsoft Windows systems vulnerable to the remote code execution vulnerability
 known as MS08-067. This check is dangerous and it may crash systems.
 
 On a fairly wide scan conducted by Brandon Enright, we determined
 that on average, a vulnerable system is more likely to crash than to survive
-the check. Out of 82 vulnerable systems, 52 crashed. 
+the check. Out of 82 vulnerable systems, 52 crashed.
 Please consider this before running the script.
 
 This check was previously part of smb-check-vulns.nse.
@@ -23,15 +23,15 @@ This check was previously part of smb-check-vulns.nse.
 -- nmap -sU --script smb-vuln-ms08-067.nse -p U:137 <host>
 --
 --@output
---| smb-vuln-ms08-067: 
+--| smb-vuln-ms08-067:
 --|   VULNERABLE:
 --|   Microsoft Windows system vulnerable to remote code execution (MS08-067)
 --|     State: VULNERABLE
 --|     IDs:  CVE:CVE-2008-4250
---|           The Server service in Microsoft Windows 2000 SP4, XP SP2 and SP3, Server 2003 SP1 and SP2, 
---|           Vista Gold and SP1, Server 2008, and 7 Pre-Beta allows remote attackers to execute arbitrary 
+--|           The Server service in Microsoft Windows 2000 SP4, XP SP2 and SP3, Server 2003 SP1 and SP2,
+--|           Vista Gold and SP1, Server 2008, and 7 Pre-Beta allows remote attackers to execute arbitrary
 --|           code via a crafted RPC request that triggers the overflow during path canonicalization.
---|           
+--|
 --|     Disclosure date: 2008-10-23
 --|     References:
 --|       https://technet.microsoft.com/en-us/library/security/ms08-067.aspx
@@ -75,7 +75,7 @@ local INFECTED   = 5
 --@param host The host object.
 --@return (status, result) If status is false, result is an error code; otherwise, result is either
 --        <code>VULNERABLE</code> for vulnerable, <code>PATCHED</code> for not vulnerable,
---        <code>UNKNOWN</code> if there was an error (likely vulnerable), 
+--        <code>UNKNOWN</code> if there was an error (likely vulnerable),
 --        and <code>INFECTED</code> if it was patched by Conficker.
 function check_ms08_067(host)
   local status, smbstate
@@ -125,8 +125,8 @@ action = function(host)
     title = 'Microsoft Windows system vulnerable to remote code execution (MS08-067)',
     state = vulns.STATE.NOT_VULN,
     description = [[
-    The Server service in Microsoft Windows 2000 SP4, XP SP2 and SP3, Server 2003 SP1 and SP2, 
-    Vista Gold and SP1, Server 2008, and 7 Pre-Beta allows remote attackers to execute arbitrary 
+    The Server service in Microsoft Windows 2000 SP4, XP SP2 and SP3, Server 2003 SP1 and SP2,
+    Vista Gold and SP1, Server 2008, and 7 Pre-Beta allows remote attackers to execute arbitrary
     code via a crafted RPC request that triggers the overflow during path canonicalization.
     ]],
     IDS = {CVE = 'CVE-2008-4250'},

@@ -7,7 +7,7 @@ local nmap = require "nmap"
 
 description = [[
 Retrieve hardwares details and configuration information utilizing HNAP, the "Home Network Administration Protocol".
-It is an HTTP-Simple Object Access Protocol (SOAP)-based protocol which allows for remote topology discovery, 
+It is an HTTP-Simple Object Access Protocol (SOAP)-based protocol which allows for remote topology discovery,
 configuration, and management of devices (routers, cameras, PCs, NAS, etc.)]]
 
 ---
@@ -17,7 +17,7 @@ configuration, and management of devices (routers, cameras, PCs, NAS, etc.)]]
 -- @output
 -- PORT     STATE SERVICE    REASON
 -- 8080/tcp open  http-proxy syn-ack
--- | hnap-info: 
+-- | hnap-info:
 -- |   Type: GatewayWithWiFi
 -- |   Device: Ingraham
 -- |   Vendor: Linksys
@@ -25,7 +25,7 @@ configuration, and management of devices (routers, cameras, PCs, NAS, etc.)]]
 -- |   Model: E1200
 -- |   Firmware: 1.0.00 build 11
 -- |   Presentation URL: http://192.168.1.1/
--- |   SOAPACTIONS: 
+-- |   SOAPACTIONS:
 -- |     http://purenetworks.com/HNAP1/IsDeviceReady
 -- |     http://purenetworks.com/HNAP1/GetDeviceSettings
 -- |     http://purenetworks.com/HNAP1/SetDeviceSettings
@@ -104,10 +104,10 @@ function action (host, port)
       closeElement = function(name) parser._call.text = function() return nil end end
     }
     parser:parseSAX(response.body, {stripWhitespace=true})
-    
+
     -- exit if the parser does not return output
     if not next(output) then return nil end
-    
+
     -- set the port verson
     port.version.name = "hnap"
     port.version.name_confidence = 10

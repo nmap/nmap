@@ -732,6 +732,12 @@ function pcap_close()
 -- pem = "-----BEGIN CERTIFICATE-----\nMIIFxzCCBK+gAwIBAgIQX02QuADDB7CVj..."
 -- </code>
 --
+-- If the <code>pubkey</code> is type <code>"rsa"</code>, it will also have an
+-- <code>exponent</code> member, containing the public exponent as a bignum. If
+-- the type is <code>"ec"</code>, it will have an <code>ecdhparams.curve_params</code>
+-- member, containing a table with <code>ec_curve_type</code> and
+-- <code>curve</code> keys as strings.
+--
 -- It also has the following member functions:
 --
 -- * <code>digest(algorithm)</code> returns the digest of the certificate using the given digest algorithm, which is any of the strings returned by <code>openssl.supported_digests</code>, typically something like <code>"md5"</code> or <code>"sha1"</code>.

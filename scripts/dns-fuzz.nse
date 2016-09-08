@@ -74,7 +74,7 @@ function pingServer (host, port, attempts)
     data = dns.encode(pkt)
 
     for i = 1, attempts do
-      status, result = comm.exchange(host, port, data, {timeout=math.pow(DNStimeout,slowDown)})
+      status, result = comm.exchange(host, port, data, {timeout=DNStimeout^slowDown})
       if status then
         return true
       end
@@ -85,7 +85,7 @@ function pingServer (host, port, attempts)
   else
     -- just do a vanilla recursive lookup of scanme.nmap.org
     for i = 1, attempts do
-      status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, proto=port.protocol, tries=1, timeout=math.pow(DNStimeout,slowDown)})
+      status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, proto=port.protocol, tries=1, timeout=DNStimeout^slowDown})
       if status then
         return true
       end
@@ -128,7 +128,7 @@ function makeHost (compressed)
     name[#name+1] = "\x00"
   end
 
-  return name
+  return table.concat(name)
 end
 
 ---
@@ -193,7 +193,7 @@ function dropByte (dnsPacket)
   -- Iterate over every byte in the packet
   dnsPacket:gsub(".", function(c)
       i=i+1
-      if not i==byteToDrop then
+      if i ~= byteToDrop then
         newPacket[#newPacket+1] = c
       end
     end)
@@ -328,7 +328,7 @@ action = function(host, port)
     query =  makePacket ()
     -- induce random jitter
     retStr = corruptAndSend (host, port, query)
-    if not retStr==nil then
+    if retStr then
       return retStr
     end
   end

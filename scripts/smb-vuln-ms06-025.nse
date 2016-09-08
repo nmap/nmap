@@ -29,15 +29,15 @@ This script was previously part of smb-check-vulns.
 -- nmap -sU --script smb-vuln-ms06-025.nse -p U:137,T:139 <host>
 --
 --@output
---| smb-vuln-ms06-025: 
+--| smb-vuln-ms06-025:
 --|   VULNERABLE:
 --|   RRAS Memory Corruption vulnerability (MS06-025)
 --|     State: VULNERABLE
 --|     IDs:  CVE:CVE-2006-2370
---|           A buffer overflow vulnerability in the Routing and Remote Access service (RRAS) in Microsoft Windows 2000 SP4, XP SP1 
---|           and SP2, and Server 2003 SP1 and earlier allows remote unauthenticated or authenticated attackers to 
+--|           A buffer overflow vulnerability in the Routing and Remote Access service (RRAS) in Microsoft Windows 2000 SP4, XP SP1
+--|           and SP2, and Server 2003 SP1 and earlier allows remote unauthenticated or authenticated attackers to
 --|           execute arbitrary code via certain crafted "RPC related requests" aka the "RRAS Memory Corruption Vulnerability."
---|           
+--|
 --|     Disclosure date: 2006-6-27
 --|     References:
 --|       https://technet.microsoft.com/en-us/library/security/ms06-025.aspx
@@ -129,8 +129,8 @@ action = function(host)
     title = 'RRAS Memory Corruption vulnerability (MS06-025)',
     state = vulns.STATE.NOT_VULN,
     description = [[
-    A buffer overflow vulnerability in the Routing and Remote Access service (RRAS) in Microsoft Windows 2000 SP4, XP SP1 
-    and SP2, and Server 2003 SP1 and earlier allows remote unauthenticated or authenticated attackers to 
+    A buffer overflow vulnerability in the Routing and Remote Access service (RRAS) in Microsoft Windows 2000 SP4, XP SP1
+    and SP2, and Server 2003 SP1 and earlier allows remote unauthenticated or authenticated attackers to
     execute arbitrary code via certain crafted "RPC related requests" aka the "RRAS Memory Corruption Vulnerability."
     ]],
     IDS = {CVE = 'CVE-2006-2370'},

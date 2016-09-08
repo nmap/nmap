@@ -38,24 +38,25 @@ categories = {"default", "version", "safe"}
 
 portrule = shortport.version_port_or_service(161, "snmp", "udp")
 
-local ENTERPRISE_NUMS
-do
-  local status
-  status, ENTERPRISE_NUMS = datafiles.parse_file("nselib/data/enterprise_numbers.txt",
-    {[function(l) return tonumber(l:match("^%d+")) end] = "\t(.*)$"})
-  if not status then
-    stdnse.debug1("Couldn't parse enterprise numbers datafile: %s", ENTERPRISE_NUMS)
-    ENTERPRISE_NUMS = {}
-    setmetatable(ENTERPRISE_NUMS, {__index = function(i) return "unknown" end})
-  end
-end
-
 -- Lifted from nmap-service-probes:
 local SNMPv3GetRequest = "\x30\x3a\x02\x01\x03\x30\x0f\x02\x02\x4a\x69\x02\x03\0\xff\xe3\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0e\x04\0\x02\x01\0\x02\x01\0\x04\0\x04\0\x04\0\x30\x12\x04\0\x04\0\xa0\x0c\x02\x02\x37\xf0\x02\x01\0\x02\x01\0\x30\0"
 
 -- TODO: This should probably check for version 1 and version 2, since those
 -- can operate on the same port. Right now it's really just "snmp3-info"
 action = function (host, port)
+  local ENTERPRISE_NUMS = nmap.registry.enterprise_numbers
+  if not ENTERPRISE_NUMS then
+    local status
+    status, ENTERPRISE_NUMS = datafiles.parse_file("nselib/data/enterprise_numbers.txt",
+      {[function(l) return tonumber(l:match("^%d+")) end] = "\t(.*)$"})
+    if not status then
+      stdnse.debug1("Couldn't parse enterprise numbers datafile: %s", ENTERPRISE_NUMS)
+      ENTERPRISE_NUMS = {}
+      setmetatable(ENTERPRISE_NUMS, {__index = function(i) return "unknown" end})
+    end
+    nmap.registry.enterprise_numbers = ENTERPRISE_NUMS
+  end
+
   local response
   -- Did the service engine already do the hard work?
   if port.version and port.version.service_fp then

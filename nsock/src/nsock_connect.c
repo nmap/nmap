@@ -3,7 +3,7 @@
  * connections from the nsock parallel socket event library                *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2015 Insecure.Com   *
+ * The nsock parallel socket event library is (C) 1999-2016 Insecure.Com   *
  * LLC This library is free software; you may redistribute and/or          *
  * modify it under the terms of the GNU General Public License as          *
  * published by the Free Software Foundation; Version 2.  This guarantees  *
@@ -253,7 +253,7 @@ void nsock_connect_internal(struct npool *ms, struct nevent *nse, int type, int 
       memcpy(&iod->peer, ss, sslen);
     iod->peerlen = sslen;
 
-    if (connect(iod->sd, (struct sockaddr *)ss, sslen) == -1) {
+    if (ms->engine->io_operations->iod_connect(ms, iod->sd, (struct sockaddr *)ss, sslen) == -1) {
       int err = socket_errno();
 
       if (proto == IPPROTO_UDP || (err != EINPROGRESS && err != EAGAIN)) {

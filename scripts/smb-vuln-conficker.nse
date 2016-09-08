@@ -7,7 +7,7 @@ local table = require "table"
 local vulns = require "vulns"
 
 description = [[
-Detects Microsoft Windows systems infected by the Conficker worm. This check is dangerous and 
+Detects Microsoft Windows systems infected by the Conficker worm. This check is dangerous and
 it may crash systems.
 
 Based loosely on the Simple Conficker Scanner, found here:
@@ -21,7 +21,7 @@ This check was previously part of smb-check-vulns.
 -- nmap -sU --script smb-vuln-conficker.nse -p T:139 <host>
 --
 --@output
---| smb-vuln-conficker: 
+--| smb-vuln-conficker:
 --|   VULNERABLE:
 --|   Microsoft Windows system infected by Conficker
 --|     State: VULNERABLE

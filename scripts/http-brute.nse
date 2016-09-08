@@ -22,8 +22,8 @@ the creds library, for other scripts to use.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | http-brute: 
--- |   Accounts: 
+-- | http-brute:
+-- |   Accounts:
 -- |     user:user - Valid credentials
 -- |_  Statistics: Performed 123 guesses in 1 seconds, average tps: 123
 --

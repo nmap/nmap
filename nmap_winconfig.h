@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -141,9 +141,6 @@
 #undef PCAP_INCLUDED
 #define DNET_INCLUDED 1
 #define PCRE_INCLUDED 1
-
-/* WinPCAP doesn't have this */
-#define PCAP_NETMASK_UNKNOWN 0
 
 #endif /* NMAP_WINCONFIG_H */
 

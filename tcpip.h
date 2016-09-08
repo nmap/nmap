@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -131,6 +131,12 @@
 #include "nbase.h"
 
 #include <pcap.h>
+#ifdef WIN32
+/* WinPCAP doesn't have this, but Npcap does.
+ * Using 0 is safe for both, but change this if we decide to drop WinPcap */
+#undef PCAP_NETMASK_UNKNOWN
+#define PCAP_NETMASK_UNKNOWN 0
+#endif
 
 class Target;
 

@@ -80,14 +80,25 @@ end
 --
 -- GeoPlugin requires no API key and has no limitations on lookups
 --
-local function geoLookup(ip)
+local function geoLookup(ip, no_cache)
+  local output = stdnse.registry_get({SCRIPT_NAME, ip})
+  if output then return output end
+
   local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip, {any_af=true})
   local stat, loc = json.parse(response.body)
 
   if not stat then return nil end
-  local output = {}
   local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
-  return loc.geoplugin_latitude, loc.geoplugin_longitude, regionName, loc.geoplugin_countryName
+  output = {
+    lat = loc.geoplugin_latitude,
+    lon = loc.geoplugin_longitude,
+    reg = regionName,
+    ctry = loc.geoplugin_countryName
+  }
+  if not no_cache then
+    stdnse.registry_add_table({SCRIPT_NAME}, ip, output)
+  end
+  return output
 end
 
 local function createKMLFile(filename, coords)
@@ -114,7 +125,7 @@ local output_structured = {}
 local output = tab.new(4)
 local coordinates = {}
 
-local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
+local function output_hop(count, ip, name, rtt, geo)
   if ip then
     local label
     if name then
@@ -122,10 +133,10 @@ local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
     else
       label = ("%s"):format(ip)
     end
-    if lat then
-      table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon })
-      tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
-      table.insert(coordinates, { hop = count, lat = lat, lon = lon })
+    if geo then
+      table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = geo.lat, lon = geo.lon })
+      tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%.3f,%.3f %s (%s)"):format(geo.lat, geo.lon, geo.ctry, geo.reg))
+      table.insert(coordinates, { hop = count, lat = geo.lat, lon = geo.lon })
     else
       table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt) })
       tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%s,%s"):format("- ", "- "))
@@ -144,12 +155,13 @@ action = function(host)
     -- do not add the current scanned host.ip
     if hop.ip then
       local rtt = tonumber(hop.times.srtt) * 1000
-      if ( not(ipOps.isPrivate(hop.ip) ) ) then
-        local lat, lon, reg, ctry = geoLookup(hop.ip)
-        output_hop(count, hop.ip, hop.name, rtt, lat, lon, ctry, reg)
-      else
-        output_hop(count, hop.ip, hop.name, rtt)
+      local geo
+      if not ipOps.isPrivate(hop.ip) then
+        -- be sure not to cache the target address, since it's not likely to be
+        -- a hop for something else.
+        geo = geoLookup(hop.ip, ipOps.compare_ip(hop.ip, "eq", host.ip) )
       end
+      output_hop(count, hop.ip, hop.name, rtt, geo)
     else
       output_hop(count)
     end

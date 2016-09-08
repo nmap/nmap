@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -196,10 +196,10 @@ static unsigned short *parse_portlist(const char *portlist, unsigned int *count)
     l = strtol(portlist, &tail, 10);
     if (portlist == tail || errno != 0 || l < 0 || l > 65535)
       return NULL;
-      if (!(bitmap[l / 32] & (1 << (l % 32)))) {
-        bitmap[l / 32] |= (1 << (l % 32));
-        (*count)++;
-      }
+    if (!(bitmap[l / 32] & (1 << (l % 32)))) {
+      bitmap[l / 32] |= (1 << (l % 32));
+      (*count)++;
+    }
     if (*tail == '\0')
       break;
     else if (*tail == ',')

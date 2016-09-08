@@ -5,7 +5,7 @@
 -- entirely based on packet dumps captured when using the Versant
 -- Management Center administration application.
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 
 local stdnse = require "stdnse"

@@ -95,13 +95,14 @@
 
 #ifndef DISABLE_NSOCK_PCAP
 #define HAVE_PCAP 1
-/* WinPCAP doesn't have this */
-#define PCAP_NETMASK_UNKNOWN 0
 #endif
 
+/* Need this for _WIN32_WINNT below */
+#include <nbase.h>
  /* WSAPoll() isn't available before Vista */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0600)
 #define HAVE_POLL 1
+#define HAVE_IOCP 1
 #endif
 
 #endif /* NSOCK_WINCONFIG_H */

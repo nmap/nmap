@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+ * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
  * also a registered trademark of Insecure.Com LLC.  This program is free  *
  * software; you may redistribute and/or modify it under the terms of the  *
  * GNU General Public License as published by the Free Software            *
@@ -673,16 +673,7 @@ void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
       host->target->SourceSockAddr(&source, &source_len);
       sent_time = get_now(now);
     } else {
-      if (o.af() == AF_INET) {
-        struct sockaddr_in *sin;
-
-        sin = (struct sockaddr_in *) &source;
-        sin->sin_family = AF_INET;
-        sin->sin_addr = o.decoys[decoy];
-      } else {
-        /* Decoys are IPv4-only. */
-        continue;
-      }
+      source = o.decoys[decoy];
     }
 
     packet = this->build_packet(&source, &packetlen);
@@ -906,6 +897,8 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   assert(targets.size() > 0);
 
   if ((o.sendpref & PACKET_SEND_ETH) && targets[0]->ifType() == devt_ethernet) {
+    /* No need to check for g_has_npcap_loopback on WIN32 because devt_loopback
+     * is checked earlier. */
     ethsd = eth_open_cached(targets[0]->deviceName());
     if (ethsd == NULL)
       fatal("dnet: failed to open device %s", targets[0]->deviceName());

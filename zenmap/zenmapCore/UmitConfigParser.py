@@ -3,7 +3,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2015 Insecure.Com LLC. Nmap is    *
+# * The Nmap Security Scanner is (C) 1996-2016 Insecure.Com LLC. Nmap is    *
 # * also a registered trademark of Insecure.Com LLC.  This program is free  *
 # * software; you may redistribute and/or modify it under the terms of the  *
 # * GNU General Public License as published by the Free Software            *
@@ -126,10 +126,9 @@ from zenmapCore.UmitLogging import log
 
 
 class UmitConfigParser(ConfigParser):
-    filenames = None
-    fp = None
 
     def __init__(self, *args):
+        self.filenames = None
         ConfigParser.__init__(self, *args)
 
     def set(self, section, option, value):
@@ -142,31 +141,17 @@ class UmitConfigParser(ConfigParser):
     def read(self, filename):
         log.debug(">>> Trying to parse: %s" % filename)
 
-        self.filenames = ConfigParser.read(self, filename)
-        return self.filenames
+        if ConfigParser.read(self, filename):
+            self.filenames = filename
 
-    def readfp(self, fp, filename=None):
-        ConfigParser.readfp(self, fp, filename)
-        self.fp = fp
-        self.filenames = filename
+        return self.filenames
 
     def save_changes(self):
         if self.filenames:
-            filename = None
-            if isinstance(self.filenames, basestring):
-                filename = self.filenames
-            elif isinstance(self.filenames, list):
-                if len(self.filenames) == 1:
-                    filename = self.filenames[0]
-                else:
-                    raise ValueError("UmitConfigParser can't handle a list "
-                            "of filenames: %s" % self.filenames)
-            else:
-                raise ValueError("UmitConfigParser can't handle a filename of "
-                        "type %s: %s" % (type(self.filenames), self.filenames))
-            self.write(open(filename, 'w'))
-        elif self.fp:
-            self.write(self.fp)
+            log.debug("saving to %s" % self.filenames)
+            self.write(open(self.filenames, 'w'))
+        else:
+            log.debug(">>> UmitConfigParser can't save changes: no filename")
 
     def write(self, fp):
         '''Write alphabetically sorted config files'''

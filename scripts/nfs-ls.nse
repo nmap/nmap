@@ -136,7 +136,7 @@ Recursive listing is not implemented.
 -- Revised 06/28/2010 - v0.8 - added NFSv2 support.
 --
 
-author = "Patrik Karlsson, Djalal Harouni"
+author = {"Patrik Karlsson", "Djalal Harouni"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"rpc-grind"}
@@ -167,7 +167,13 @@ hostrule = function(host)
     end
     if mountport and nfsport then break end
   end
-  if nfsport == nil then return false end
+  -- Run when nfs and mount ports were scanned and their versions numbers known
+  if not (nfsport and (host.registry.nfs.nfsver or nfsport.version.version)) then
+    return false
+  end
+  if not (mountport and (host.registry.nfs.mountver or mountport.version.version)) then
+    return false
+  end
   if host.registry.nfs.nfsver == nil then
     local low, high = string.match(nfsport.version.version, "(%d)%-(%d)")
     if high == nil then
@@ -185,7 +191,6 @@ hostrule = function(host)
       end
     end
   end
-  if mountport == nil then return false end
   if host.registry.nfs.mountver == nil then
     local low, high = string.match(mountport.version.version, "(%d)%-(%d)")
     if high == nil then

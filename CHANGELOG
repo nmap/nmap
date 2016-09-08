@@ -1,19 +1,277 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added vnc-title for logging in to VNC servers and grabbing the desktop
-  title, geometry, and color depth. [Daniel Miller]
+o [NSE][GH#352] New script: mqtt-subscribe connects to a MQTT broker, subscribes to
+  topics, and lists the messages received. [Mak Kolybabi]
 
-o [NSE] More VNC updates: Support for VeNCrypt and Tight auth types, output of
-  authentication sub-types in vnc-info, and all zero-authentication types are
-  recognized and reported. [Daniel Miller]
+o [NSE] New script: fox-info retrieves detailed version and configuration info
+  from Tridium Niagara Fox services. [Stephen Hilt]
+
+o New service probe and match lines for PCWorx, ProConOS, and Tridium Fox,
+  based on work by Stephen Hilt of Digital Bond.
+
+o [NSE] New script: pcworx-info retrieves PLC model, firmware version, and date
+  from Phoenix Contact PLCs. [Stephen Hilt]
+
+Nmap 7.25BETA2 [2016-09-01]
+
+o [GH#376] Windows binaries are now code-signed with our "Insecure.Com LLC"
+  SHA256 certificate. This should give our users extra peace-of-mind and avoid
+  triggering Microsoft's ever-increasing security warnings.
+
+o [NSE] Upgraded NSE to Lua 5.3, adding bitwise operators, integer data type, a
+  utf8 library, and native binary packing and unpacking functions. Removed bit
+  library, added bits.lua, replaced base32, base64, and bin libraries. [Patrick
+  Donnelly]
+
+o [NSE] Added 2 NSE scripts, bringing the total up to 534!  They are both listed
+  at https://nmap.org/nsedoc/, and the summaries are below:
+
+  + oracle-tns-version decodes the version number from Oracle Database Server's
+    TNS listener. [Daniel Miller]
+
+  + clock-skew analyzes and reports clock skew between Nmap and services that
+    report timestamps, grouping hosts with similar skews. [Daniel Miller]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  January to April (578 of them). The signature count went up 2.2% to 10760.
+  We now detect 1122 protocols, from elasticsearch, fhem, and goldengate to
+  ptcp, resin-watchdog, and siemens-logo. [Daniel Miller]
+
+o [Nsock][GH#148] New, very fast IOCP Nsock engine uses "Overlapped I/O" to
+  improve performance of version scan and NSE against many targets on Windows.
+  [Tudor Emil Coman]
+
+o [Zenmap][GH#449] Fix a crash when closing Zenmap due to a read-only
+  zenmap.conf. User will be warned that config cannot be saved and that they
+  should fix the file permissions. [Daniel Miller]
+
+o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
+  like DH certificates or corrupted certs. When this happens, ssl-enum-ciphers
+  will label the ciphersuite strength as "unknown." Reported by Bertrand
+  Bonnefoy-Claudet. [Daniel Miller]
+
+o [NSE] Fixed a bug in ssl-enum-ciphers and ssl-dh-params which caused them to
+  not output TLSv1.2 info with DHE ciphersuites or others involving
+  ServerKeyExchange messages. [Daniel Miller]
+
+o [NSE][GH#531] Fix two issues in sslcert.lua that prevented correct operations
+  against LDAP services when version detection or STARTTLS were used.
+  [Tom Sellers]
+
+o [Zenmap] Long-overdue Spanish language translation has been added! Muy bien!
+  [Vincent Dumont, Marta Garcia De La Paz, Paulino Calderon, Patricio Castagnaro]
+
+o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
+  Windows, which required including pcap-int.h and locking us to a single
+  version of libpcap. The new method, using WaitForSingleObject should work
+  with all versions of both WinPcap and Npcap. [Daniel Miller]
+
+o [NSE][GH#234] Added a --script-timeout option for limiting run time for
+  every individual NSE script. [Abhishek Singh]
+
+o [Ncat][GH#444] Added a -z option to Ncat. Just like the -z option in
+  traditional netcat, it can be used to quicky check the status of a port. Port
+  ranges are not supported. [Abhishek Singh]
+
+o Fix checking of Npcap/WinPcap presence on Windows so that "nmap -A" and
+  "nmap" with no options result in the same behaviors as on Linux (and no
+  crashes) [Daniel Miller]
+
+o [NSE] ssl-enum-ciphers will now warn about 64-bit block ciphers in CBC mode,
+  which are vulnerable to the SWEET32 attack.
+
+o [NSE][GH#117] tftp-enum now only brute-forces IP-address-based Cisco filenames when
+  the wordlist contains "{cisco}". Previously, custom wordlists would still end
+  up sending these extra 256 requests. [Sriram Raghunathan]
+
+o [GH#472] Avoid an unnecessary assert failure in timing.cc when printing estimated
+  completion time. Instead, we'll output a diagnostic error message:
+    Timing error: localtime(n) is NULL
+  where "n" is some number that is causing problems. [Jean-Guilhem Nousse]
+
+o [NSE][GH#519] Removed the obsolete script ip-geolocation-geobytes. [Paulino Calderon]
+
+o [NSE] Added 9 new fingerprints for script http-default-accounts.
+  (Motorola AP, Lantronix print server, Dell iDRAC6, HP StorageWorks, Zabbix,
+  Schneider controller, Xerox printer, Citrix NetScaler, ESXi hypervisor)
+  [nnposter]
+
+o [NSE] Completed a refresh and validation of almost all fingerprints for
+  script http-default-accounts. Also improved the script speed. [nnposter]
+
+o [GH#98] Added support for decoys in IPv6. Earlier we supported decoys only in
+  IPv4. [Abhishek Singh]
+
+o Various performance improvements for large-scale high-rate scanning,
+  including increased ping host groups, faster probe matching, and ensuring
+  data types can handle an Internet's-worth of targets. [Tudor Emil Coman]
+
+o [GH#484] Allow Nmap to compile on some older Red Hat distros that disable EC
+  crypto support in OpenSSL. [Jeroen Roovers, Vincent Dumont]
+
+o [GH#439] Nmap now supports OpenSSL 1.1.0-pre5 and previous versions. [Vincent Dumont]
+
+o [Ncat] Fix a crash ("add_fdinfo() failed.") when --exec was used with --ssl
+  and --max-conns, due to improper accounting of file descriptors. [Daniel
+  Miller]
+
+o FTP Bounce scan: improved some edge cases like anonymous login without
+  password, 500 errors used to indicate port closed, and timeouts for LIST
+  command. Also fixed a 1-byte array overrun (read) when checking for
+  privileged ports. [Daniel Miller]
+
+o [GH#140] Allow target DNS names up to 254 bytes. We previously imposed an
+  incorrect limit of 64 bytes in several parts of Nmap. [Vincent Dumont]
+
+o [NSE] The hard limit on number of concurrently running scripts can now
+  increase above 1000 to match a high user-set --min-parallelism value. [Tudor
+  Emil Coman]
+
+o [NSE] Solved a memory corruption issue that would happen if a socket connect
+  operation produced an error immediately, such as Network Unreachable. The
+  event handler was throwing a Lua error, preventing Nsock from cleaning up
+  properly, leaking events. [Abhishek Singh, Daniel Miller]
+
+o [NSE] Added the datetime library for performing date and time calculations,
+  and as a helper to the clock-skew script.
+
+o [GH#103][GH#364] Made Nmap's parallel reverse DNS resolver more robust, fully
+  handling truncated replies. If a response is too long, we now fall back to
+  using the system resolver to answer it. [Abhishek Singh]
+
+o [Zenmap][GH#279] Added a legend for the Topography window. [Suraj Hande]
+
+Nmap 7.25BETA1 [2016-07-15]
+
+o Nmap now ships with and uses Npcap, our new packet sniffing library
+  for Windows. It's based on WinPcap (unmaintained for years), but
+  uses modern Windows APIs for better performance. It also includes
+  security improvements and many bug fixes. See http://npcap.org. And
+  it enables Nmap to perform SYN scans and OS detection against
+  localhost, which we haven't been able to do on Windows since
+  Microsoft removed the raw sockets API in 2003. [Yang Luo, Daniel
+  Miller, Fyodor]
+
+o [NSE] Added 6 NSE scripts, from 5 authors, bringing the total up to 533!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + clamav-exec detects ClamAV servers vulnerable to unauthorized clamav
+    command execution. [Paulino Calderon]
+
+  + http-aspnet-debug detects ASP.NET applications with debugging enabled.
+    [Josh Amishav-Zlatin]
+
+  + http-internal-ip-disclosure determines if the web server leaks its internal
+    IP address when sending an HTTP/1.0 request without a Host header. [Josh
+    Amishav-Zlatin]
+
+  + [GH#304] http-mcmp detects mod_cluster Management Protocol (MCMP) and dumps
+    its configuration. [Frank Spierings]
+
+  + [GH#365] sslv2-drown detects vulnerability to the DROWN attack, including
+    CVE-2016-0703 and CVE-2016-0704 that enable fast attacks on OpenSSL.
+    [Bertrand Bonnefoy-Claudet]
+
+  + vnc-title logs in to VNC servers and grabs the desktop title, geometry, and
+    color depth. [Daniel Miller]
+
+o Integrated all of your IPv4 OS fingerprint submissions from January
+  to April (539 of them). Added 98 fingerprints, bringing the new total
+  to 5187. Additions include Linux 4.4, Android 6.0, Windows Server
+  2016, and more. [Daniel Miller]
+
+o Integrated all 31 of your IPv6 OS fingerprint submissions from January to
+  June. The classifier added 2 groups and expanded several others. Several
+  Apple OS X groups were consolidated, reducing the total number of groups to
+  93. [Daniel Miller]
+
+o Update oldest supported Windows version to Vista (Windows 6.0). This enables
+  the use of the poll Nsock engine, which has significant performance and
+  accuracy advantages. Windows XP users can still use Nmap 7.12, available from
+  https://nmap.org/dist/?C=M&O=D [Daniel Miller]
+
+o [NSE] Fix a crash that happened when trying to print the percent done of 0
+  NSE script threads:
+    timing.cc:710 bool ScanProgressMeter::printStats(double, const timeval*): Assertion 'ltime' failed.
+  This would happen if no scripts were scheduled in a scan phase and the user
+  pressed a key or specified a short --stats-every interval. Reported by
+  Richard Petrie. [Daniel Miller]
+
+o [GH#283][Nsock] Avoid "unknown protocol:0" debug messages and an "Unknown
+  address family 0" crash on Windows and other platforms that do not set the
+  src_addr argument to recvfrom for TCP sockets. [Daniel Miller]
+
+o Retrieve the correct network prefix length for an adapter on Windows. If more
+  than one address was configured on an adapter, the same prefix length would
+  be used for both. This incorrect behavior is still used on Windows XP and
+  earlier. Reported by Niels Bohr. [Daniel Miller]
+
+o Changed libdnet-stripped to avoid bailing completely when an interface is
+  encountered with an unsupported hardware address type. Caused "INTERFACES:
+  NONE FOUND!" bugs in Nmap whenever Linux kernel added new hardware address
+  types. [Daniel Miller]
+
+o Improved service detection of Docker and fixed a bug in the output of
+  docker-version script. [Tom Sellers]
+
+o Fix detection of Microsoft Terminal Services (RDP). Our improved TLS service
+  probes were matching on port 3389 before our specific Terminal Services
+  probe, causing the port to be labeled as "ssl/unknown". Reported by Josh
+  Amishav-Zlatin.
 
 o [NSE] Update to enable smb-os-discovery to augment version detection
   for certain SMB related services using data that the script discovers.
   [Tom Sellers]
 
 o Improved version detection and descriptions for Microsoft and Samba
-  SMB services. Also addresses certain issues with OS identification. 
+  SMB services. Also addresses certain issues with OS identification.
   [Tom Sellers]
+
+o [NSE] ssl-enum-ciphers will give a failing score to any server with an RSA
+  certificate whose public key uses an exponent of 1. It will also cap the
+  score of an RC4-ciphersuite handshake at C and output a warning referencing
+  RFC 7465. [Daniel Miller]
+
+o [NSE] Refactored some SSLv2 functionality into a new library, sslv2.lua .
+  [Daniel Miller]
+
+o [GH#399] Zenmap's authorization wrapper now uses an AppleScript method for
+  privilege escalation on OS X, avoiding the deprecated
+  AuthorizationExecuteWithPrivileges method previously used. [Vincent Dumont]
+
+o [GH#454] The OS X binary package is distributed in a .dmg disk image that now
+  features an instructive background image. [Vincent Dumont]
+
+o [GH#420] Our OS X build system now uses gtk-mac-bundler and jhbuild to
+  provide all dependencies. We no longer use Macports for this purpose.
+  [Vincent Dumont]
+
+o [GH#345][Zenmap] On Windows, save Zenmap's stderr output to a writeable
+  location (%LOCALAPPDATA%\zenmap.exe.log or %TEMP%\zenmap.exe.log) instead of
+  next to the zenmap.exe executable. This avoids a warning message when closing
+  Zenmap if it produced any stderr output. [Daniel Miller]
+
+o [GH#379][NSE] Fix http-iis-short-name-brute to report non vulnerable hosts.
+  Reported by alias1. [Paulino Calderon]
+
+o [NSE][GH#371] Fix mysql-audit by adding needed library requires to the
+  mysql-cis.audit file. The script would fail with "Failed to load rulebase"
+  message. [Paolo Perego]
+
+o [NSE][GH#362] Added support for LDAP over udp to ldap-rootdse.nse.
+  Also added version detection and information extraction to match the
+  new LDAP LDAPSearchReq and LDAPSearchReqUDP probes. [Tom Sellers]
+
+o [GH#354] Added new version detection Probes for LDAP services, LDAPSearchReq
+  and LDAPSearchReqUDP. The second is Microsoft Active Directory specific. The
+  Probes will elicit responses from target services that allow better finger
+  -printing and information extraction. Also added nmap-payload entry for
+  detecting LDAP on udp. [Tom Sellers]
+
+o [NSE] More VNC updates: Support for VeNCrypt and Tight auth types, output of
+  authentication sub-types in vnc-info, and all zero-authentication types are
+  recognized and reported. [Daniel Miller]
 
 Nmap 7.12 [2016-03-29]
 

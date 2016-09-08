@@ -12,7 +12,7 @@ export ZENMAP_BUILD_DIR
 BASE=$ZENMAP_DIST_DIR/$APP_NAME.app/Contents
 SCRIPT_DIR=`dirname "$0"`
 
-CC=${CC:-gcc}
+CC=${CC:-clang}
 CFLAGS=${CFLAGS:--Wall -arch i386}
 
 echo "Running $0."
@@ -25,7 +25,7 @@ echo "Building bundle"
 # jhbuild build meta-gtk-osx-bootstrap
 # jhbuild build meta-gtk-osx-core
 # jhbuild build meta-gtk-osx-python
-gtk-mac-bundler "$SCRIPT_DIR/zenmap.bundle"
+jhbuild run gtk-mac-bundler "$SCRIPT_DIR/zenmap.bundle"
 
 echo "Stripping unoptimized Python libraries"
 #Remove some stuff that is unneeded. This cuts 40M off the installed size.
@@ -45,8 +45,8 @@ find "$BASE/Resources/lib/python2.7" -type f -name '*.pyo' | while read py; do
 done
 
 echo "Building using distutils"
-python setup.py build --executable "/usr/bin/env python"
-python setup.py install vanilla --prefix "$BASE/Resources"
+jhbuild run python setup.py build --executable "/usr/bin/env python"
+jhbuild run python setup.py install vanilla --prefix "$BASE/Resources"
 
 # This isn't truly necessary, but it allows us to do a simpler check for problems later.
 echo "Rewriting linker paths to pass checks"
@@ -62,8 +62,8 @@ mv $BASE/MacOS/$APP_NAME $BASE/MacOS/zenmap.bin
 rm $BASE/MacOS/$APP_NAME-bin
 
 echo "Compiling and installing authorization wrapper."
-echo $CC $CPPFLAGS $CFLAGS $LDFLAGS -framework Security -o "$BASE/MacOS/$APP_NAME" "$SCRIPT_DIR/zenmap_auth.c"
-$CC $CPPFLAGS $CFLAGS $LDFLAGS -framework Security -o "$BASE/MacOS/$APP_NAME" "$SCRIPT_DIR/zenmap_auth.c"
+echo $CC $CPPFLAGS $CFLAGS $LDFLAGS -v "$SCRIPT_DIR/zenmap_auth.m" -lobjc -framework Foundation -o "$BASE/MacOS/$APP_NAME"
+$CC $CPPFLAGS $CFLAGS $LDFLAGS -v "$SCRIPT_DIR/zenmap_auth.m" -lobjc -framework Foundation -o "$BASE/MacOS/$APP_NAME"
 
 echo "Filling out Info.plist"
 python - "$SCRIPT_DIR/Info.plist" >"$BASE/Info.plist" <<'EOF'

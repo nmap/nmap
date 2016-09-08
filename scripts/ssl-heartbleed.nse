@@ -45,7 +45,7 @@ categories = { "vuln", "safe" }
 local arg_protocols = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {'TLSv1.0', 'TLSv1.1', 'TLSv1.2'}
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
 local function recvhdr(s)

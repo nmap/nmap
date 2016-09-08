@@ -6,7 +6,7 @@
 --
 -- Credit goes out to Martin Swende who provided me with the initial code that got me started writing this.
 --
--- Version 0.6
+-- Version 0.7
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Revised to fit better fit ASN.1 library
 -- Revised 02/02/2010 - v0.3 - Revised to fit OO ASN.1 Library
@@ -14,6 +14,7 @@
 --                             formats
 -- Revised 10/29/2011 - v0.5 - Added support for performing wildcard searches via the substring filter.
 -- Revised 10/30/2011 - v0.6 - Added support for the ldap extensibleMatch filter type for searches
+-- Revised 04/04/2016 - v0.7 - Added support for searchRequest over upd ( udpSearchRequest ) - Tom Sellers
 --
 
 local asn1 = require "asn1"
@@ -24,6 +25,7 @@ local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local comm = require "comm"
 _ENV = stdnse.module("ldap", stdnse.seeall)
 
 local ldapMessageId = 1
@@ -221,7 +223,7 @@ end
 -- @param params table containing at least <code>scope</code>, <code>derefPolicy</code>, <code>baseObject</code>
 --        the field <code>maxObjects</code> may also be included to restrict the amount of records returned
 -- @return success true or false.
--- @return err string containing error message
+-- @return searchResEntries containing results or a string containing error message
 function searchRequest( socket, params )
 
   local searchResEntries = { errorMessage="", resultCode = 0}
@@ -334,6 +336,123 @@ function searchRequest( socket, params )
   return true, searchResEntries
 end
 
+--- Performs an LDAP Search request over UDP
+--
+-- This function has a concept of softerrors which populates the return tables error information
+-- while returning a true status. The reason for this is that LDAP may return a number of records
+-- and then finish off with an error like SIZE LIMIT EXCEEDED. We still want to return the records
+-- that were received prior to the error. In order to achieve this and not terminating the script
+-- by returning a false status a true status is returned together with a table containing all searchentries.
+-- This table has the <code>errorMessage</code> and <code>resultCode</code> entries set with the error information.
+-- As a <code>try</code> won't catch this error it's up to the script to do so. See ldap-search.nse for an example.
+--
+-- @param host The host to connect to
+-- @param port The port on the host
+-- @param params table containing at least <code>scope</code>, <code>derefPolicy</code>, <code>baseObject</code>
+--        the field <code>maxObjects</code> may also be included to restrict the amount of records returned
+-- @return success true or false.
+-- @return searchResEntries containing results or a string containing error message
+
+function udpSearchRequest( host, port, params )
+
+  local searchResEntries = { errorMessage="", resultCode = 0}
+  local catch = function() stdnse.debug1("udpSearchRequest failed") end
+  local try = nmap.new_try(catch)
+  local attributes = params.attributes
+  local request = encode(params.baseObject)
+  local attrSeq = ''
+  local requestData, messageSeq, data
+  local maxObjects = params.maxObjects or -1
+
+  local encoder = asn1.ASN1Encoder:new()
+  local decoder = asn1.ASN1Decoder:new()
+
+  encoder:registerTagEncoders(tagEncoder)
+  decoder:registerTagDecoders(tagDecoder)
+
+  request = request .. encode( { _ldap='0A', params.scope } )--scope
+  request = request .. encode( { _ldap='0A', params.derefPolicy } )--derefpolicy
+  request = request .. encode( params.sizeLimit or 0)--sizelimit
+  request = request .. encode( params.timeLimit or 0)--timelimit
+  request = request .. encode( params.typesOnly or false)--TypesOnly
+
+  if params.filter then
+    request = request .. createFilter( params.filter )
+  else
+    request = request .. encode( { _ldaptype='87', "objectclass" } )-- filter : string, presence
+  end
+  if  attributes~= nil then
+    for _,attr in ipairs(attributes) do
+      attrSeq = attrSeq .. encode(attr)
+    end
+  end
+
+  request = request .. encoder:encodeSeq(attrSeq)
+  requestData = encodeLDAPOp(APPNO.SearchRequest, true, request)
+  messageSeq = encode(ldapMessageId)
+  ldapMessageId = ldapMessageId +1
+  messageSeq = messageSeq .. requestData
+  data = encoder:encodeSeq(messageSeq)
+  local status, response = comm.exchange(host, port, data)
+
+  while true do
+    local len, pos, messageId = 0, 0, -1
+    local tmp = ""
+    local _, objectName, attributes, ldapOp
+    local attributes
+    local searchResEntry = {}
+
+    if ( maxObjects == 0 ) then
+      break
+    elseif ( maxObjects > 0 ) then
+      maxObjects = maxObjects - 1
+    end
+
+    pos, tmp = bin.unpack("C", response, pos)
+    pos, len = decoder.decodeLength( response, pos )
+    pos, messageId = decode( response, pos )
+    pos, tmp = bin.unpack("C", response, pos)
+    pos, len = decoder.decodeLength( response, pos )
+    ldapOp = asn1.intToBER( tmp )
+    searchResEntry = {}
+
+    if ldapOp.number == APPNO.SearchResDone then
+      pos, searchResEntry.resultCode = decode( response, pos )
+      -- errors may occur after a large amount of response has been received (eg. size limit exceeded)
+      -- we want to be able to return the response received prior to this error to the user
+      -- however, we also need to alert the user of the error. This is achieved through "softerrors"
+      -- softerrors populate the error fields of the table while returning a true status
+      -- this allows for the caller to output response while still being able to catch the error
+      if ( searchResEntry.resultCode ~= 0 ) then
+        local error_msg
+        pos, searchResEntry.matchedDN = decode( response, pos )
+        pos, searchResEntry.errorMessage = decode( response, pos )
+        error_msg = ERROR_MSG[searchResEntry.resultCode]
+        -- if the table is empty return a hard error
+        if #searchResEntries == 0 then
+          return false, string.format("Code: %d|Error: %s|Details: %s", searchResEntry.resultCode, error_msg or "", searchResEntry.errorMessage or "" )
+        else
+          searchResEntries.errorMessage = string.format("Code: %d|Error: %s|Details: %s", searchResEntry.resultCode, error_msg or "", searchResEntry.errorMessage or "" )
+          searchResEntries.resultCode = searchResEntry.resultCode
+          return true, searchResEntries
+        end
+      end
+      break
+    end
+
+    pos, searchResEntry.objectName = decode( response, pos )
+    if ldapOp.number == APPNO.SearchResponse then
+      pos, searchResEntry.attributes = decode( response, pos )
+      table.insert( searchResEntries, searchResEntry )
+    end
+    if response:len() > pos then
+      response = response:sub(pos)
+    else
+      response = ""
+    end
+  end
+  return true, searchResEntries
+end
 
 --- Attempts to bind to the server using the credentials given
 --
@@ -715,7 +834,7 @@ function convertADTimeStamp(timestamp)
     -- I have been unable to find an explanation for this, and have resorted to
     -- manually adjusting the formula.
 
-    result = ( timestamp /  10000000 ) - 3036
+    result = ( timestamp //  10000000 ) - 3036
     result = result + base_time
     result = os.date("%Y/%m/%d %H:%M:%S UTC", result)
   else

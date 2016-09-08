@@ -60,7 +60,8 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
--- @author "Patrik Karlsson <patrik@cqure.net>, Chris Woodbury"
+-- @author Patrik Karlsson <patrik@cqure.net>
+-- @author Chris Woodbury
 --
 -- @args mssql.username The username to use to connect to SQL Server instances.
 --       This username is used by scripts taking actions that require

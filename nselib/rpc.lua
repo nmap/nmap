@@ -68,7 +68,7 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
--- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @author Patrik Karlsson <patrik@cqure.net>
 --
 -- @args nfs.version number If set overrides the detected version of nfs
 -- @args mount.version number If set overrides the detected version of mountd
@@ -287,8 +287,11 @@ Comm = {
     self.program_id = progid
   end,
 
-  --- Checks if data contains enough bytes to read the <code>needed</code> amount
-  --  If it doesn't it attempts to read the remaining amount of bytes from the socket
+  --- Checks if <code>data</code> contains enough bytes to read the <code>needed</code> amount
+  --
+  --  If it doesn't it attempts to read the remaining amount of bytes from the
+  --  socket. Unlike <code>socket.receive_bytes</code>, reading less than
+  --  <code>needed</code> is treated as an error.
   --
   -- @param data string containing the current buffer
   -- @param pos number containing the current offset into the buffer
@@ -296,16 +299,19 @@ Comm = {
   -- @return status success or failure
   -- @return data string containing the data passed to the function and the additional data appended to it or error message on failure
   GetAdditionalBytes = function( self, data, pos, needed )
-    local status, tmp
-
-    if data:len() - pos + 1 < needed then
-      local toread =  needed - ( data:len() - pos + 1 )
-      status, tmp = self.socket:receive_bytes( toread )
+    local toread =  needed - ( data:len() - pos + 1 )
+    -- Do the loop ourselves instead of receive_bytes. Pathological case:
+    -- * read less than needed and timeout
+    -- * receive_bytes returns short but we don't know if it's eof or timeout
+    -- * Try again. If it was timeout, we've doubled the timeout waiting for bytes that aren't coming.
+    while toread > 0 do
+      local status, tmp = self.socket:receive()
       if status then
+        toread = toread - #tmp
         data = data .. tmp
       else
-        return false, string.format("getAdditionalBytes() failed to read: %d bytes from the socket",
-          needed - ( data:len() - pos ) )
+        return false, string.format("getAdditionalBytes read %d bytes before error: %s",
+          needed - toread, tmp)
       end
     end
     return true, data
@@ -333,7 +339,7 @@ Comm = {
     elseif auth.type == Portmap.AuthType.UNIX then
       packet = packet .. Util.marshall_int32(auth.type)
       local blob = (
-        Util.marshall_int32(nmap.clock()) --time
+        Util.marshall_int32(math.floor(nmap.clock())) --time
         .. Util.marshall_vopaque(auth.hostname or 'localhost')
         .. Util.marshall_int32(auth.uid or 0)
         .. Util.marshall_int32(auth.gid or 0)
