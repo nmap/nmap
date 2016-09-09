@@ -132,6 +132,14 @@
 #include <openssl/rand.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+#define HAVE_OPAQUE_STRUCTS 1
+#define FUNC_ASN1_STRING_data ASN1_STRING_get0_data
+#else
+#define FUNC_ASN1_STRING_data ASN1_STRING_data
+#endif
+
 /* Required for windows compilation to Eliminate APPLINK errors.
    See http://www.openssl.org/support/faq.html#PROG2 */
 #ifdef WIN32
@@ -315,12 +323,8 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
-#if HAVE_OPAQUE_STRUCTS
-    data = ext->value->data;
-#else
     ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
     data = asn1_str->data;
-#endif
     /* Here we rely on the fact that the internal representation (the "i" in
        "i2d") for NID_subject_alt_name is STACK_OF(GENERAL_NAME). Converting it
        to a stack of CONF_VALUE with a i2v method is not satisfactory, because a
@@ -328,27 +332,15 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
        presence of null bytes. */
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
     if (method->it != NULL) {
-    #if OPENSSL_VERSION_NUMBER < 0x10100000L
-        gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
-            (const unsigned char **) &data,
-            ext->value->length, ASN1_ITEM_ptr(method->it));
-    #else
         ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
         gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
             (const unsigned char **) &data,
             asn1_str_a->length, ASN1_ITEM_ptr(method->it));
-    #endif
     } else {
-    #if OPENSSL_VERSION_NUMBER < 0x10100000L
-        gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
-            (const unsigned char **) &data,
-            ext->value->length);
-    #else
         ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
         gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
             (const unsigned char **) &data,
             asn1_str_b->length);
-    #endif
     }
 #else
     gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
@@ -366,10 +358,10 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
         gen_name = sk_GENERAL_NAME_value(gen_names, i);
         if (gen_name->type == GEN_DNS) {
             if (o.debug > 1)
-                logdebug("Checking certificate DNS name \"%s\" against \"%s\".\n", ASN1_STRING_data(gen_name->d.dNSName), hostname);
+                logdebug("Checking certificate DNS name \"%s\" against \"%s\".\n", FUNC_ASN1_STRING_data(gen_name->d.dNSName), hostname);
             if (num_checked != NULL)
                 (*num_checked)++;
-            if (wildcard_match((char *) ASN1_STRING_data(gen_name->d.dNSName), hostname, ASN1_STRING_length(gen_name->d.dNSName)))
+            if (wildcard_match((char *) FUNC_ASN1_STRING_data(gen_name->d.dNSName), hostname, ASN1_STRING_length(gen_name->d.dNSName)))
                 return 1;
         }
     }
@@ -425,8 +417,8 @@ static int most_specific_commonname(X509_NAME *subject, const char **result)
         /* We use "not less specific" instead of "more specific" to allow later
            entries to supersede earlier ones. */
         if (best == NULL
-            || !less_specific(ASN1_STRING_data(cur), ASN1_STRING_length(cur),
-                              ASN1_STRING_data(best), ASN1_STRING_length(best))) {
+            || !less_specific(FUNC_ASN1_STRING_data(cur), ASN1_STRING_length(cur),
+                              FUNC_ASN1_STRING_data(best), ASN1_STRING_length(best))) {
             best = cur;
         }
     }
@@ -435,7 +427,7 @@ static int most_specific_commonname(X509_NAME *subject, const char **result)
         *result = NULL;
         return -1;
     } else {
-        *result = (char *) ASN1_STRING_data(best);
+        *result = (char *) FUNC_ASN1_STRING_data(best);
         return ASN1_STRING_length(best);
     }
 }
