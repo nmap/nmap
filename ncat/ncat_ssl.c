@@ -315,7 +315,7 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if HAVE_OPAQUE_STRUCTS
     data = ext->value->data;
 #else
     ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);

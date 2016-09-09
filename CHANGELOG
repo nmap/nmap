@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#543] Restored compatibility with LibreSSL, which was lost in adding
+  library version checks for OpenSSL 1.1. [Wonko7]
+
 o [Zenmap] Fixed a bug in the Compare Scans window of Zenmap on OS X resulting
   in this message instead of Ndiff output:
     ImportError: dlopen(/Applications/Zenmap.app/Contents/Resources/lib/python2.7/lib-dynload/datetime.so, 2): no suitable image found.  Did find:

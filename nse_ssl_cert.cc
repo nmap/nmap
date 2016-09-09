@@ -137,6 +137,13 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+/* Technically some of these things were added in 0x10100006
+ * but that was pre-release. */
+#define HAVE_OPAQUE_STRUCTS 1
+#endif
+
+
 extern "C"
 {
 #include "lua.h"
@@ -529,10 +536,10 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     lua_setfield(L, -2, "subject");
   }
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-  const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg->algorithm));
-#else
+#if HAVE_OPAQUE_STRUCTS
   const char *sig_algo = OBJ_nid2ln(X509_get_signature_nid(cert));
+#else
+  const char *sig_algo = OBJ_nid2ln(OBJ_obj2nid(cert->sig_alg->algorithm));
 #endif
   lua_pushstring(L, sig_algo);
   lua_setfield(L, -2, "sig_algorithm");
@@ -556,10 +563,10 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     return 2;
   }
   lua_newtable(L);
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-  pkey_type = EVP_PKEY_type(pubkey->type);
-#else
+#if HAVE_OPAQUE_STRUCTS
   pkey_type = EVP_PKEY_base_id(pubkey);
+#else
+  pkey_type = EVP_PKEY_type(pubkey->type);
 #endif
 #ifdef HAVE_OPENSSL_EC
   if (pkey_type == EVP_PKEY_EC) {
@@ -573,16 +580,12 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
     bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
     luaL_getmetatable( L, "BIGNUM" );
     lua_setmetatable( L, -2 );
-  #if OPENSSL_VERSION_NUMBER < 0x10100000L
-    data->bn = rsa->e;
-  #elif OPENSSL_VERSION_NUMBER < 0x10100006L
-    BIGNUM *n, *e, *d;
-    RSA_get0_key(rsa, &n, &e, &d);
-    data->bn = e;
-  #else
+  #if HAVE_OPAQUE_STRUCTS
     const BIGNUM *n, *e, *d;
     RSA_get0_key(rsa, &n, &e, &d);
     data->bn = (BIGNUM*) e;
+  #else
+    data->bn = rsa->e;
   #endif
     lua_setfield(L, -2, "exponent");
   }
