@@ -21,6 +21,17 @@
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
 #define HAVE_OPAQUE_STRUCTS 1
+#define FUNC_EVP_MD_CTX_init EVP_MD_CTX_reset
+#define FUNC_EVP_MD_CTX_cleanup EVP_MD_CTX_reset
+#define FUNC_EVP_CIPHER_CTX_init EVP_CIPHER_CTX_reset
+#define FUNC_EVP_CIPHER_CTX_cleanup EVP_CIPHER_CTX_reset
+#define PASS_EVP_CTX(ctx) (ctx)
+#else
+#define FUNC_EVP_MD_CTX_init EVP_MD_CTX_init
+#define FUNC_EVP_MD_CTX_cleanup EVP_MD_CTX_cleanup
+#define FUNC_EVP_CIPHER_CTX_init EVP_CIPHER_CTX_init
+#define FUNC_EVP_CIPHER_CTX_cleanup EVP_CIPHER_CTX_cleanup
+#define PASS_EVP_CTX(ctx) (&(ctx))
 #endif
 
 extern "C" {
@@ -295,34 +306,17 @@ static int l_digest(lua_State *L)     /** digest(string algorithm, string messag
 
   if (!evp_md) return luaL_error( L, "Unknown digest algorithm: %s", algorithm );
 
-#if HAVE_OPAQUE_STRUCTS
-  EVP_MD_CTX_reset(mdctx);
+  FUNC_EVP_MD_CTX_init(PASS_EVP_CTX(mdctx));
   if (!(
-      EVP_DigestInit_ex( mdctx, evp_md, NULL ) &&
-      EVP_DigestUpdate( mdctx, msg, msg_len ) &&
-      EVP_DigestFinal_ex( mdctx, digest, &digest_len ))) {
-    /* EVP_MD_CTX_cleanup deprecated in OpenSSL 1.1 _ EVP_MD_CTX_reset()
-    should be called instead to reinitialise an already created structure. */
-    EVP_MD_CTX_reset( mdctx );
+      EVP_DigestInit_ex( PASS_EVP_CTX(mdctx), evp_md, NULL ) &&
+      EVP_DigestUpdate( PASS_EVP_CTX(mdctx), msg, msg_len ) &&
+      EVP_DigestFinal_ex( PASS_EVP_CTX(mdctx), digest, &digest_len ))) {
+    FUNC_EVP_MD_CTX_cleanup( PASS_EVP_CTX(mdctx) );
     unsigned long e = ERR_get_error();
     return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
-  /* EVP_MD_CTX_cleanup deprecated in OpenSSL 1.1 */
-  EVP_MD_CTX_reset( mdctx );
-#else
-  EVP_MD_CTX_init(&mdctx);
-  if (!(
-      EVP_DigestInit_ex( &mdctx, evp_md, NULL ) &&
-      EVP_DigestUpdate( &mdctx, msg, msg_len ) &&
-      EVP_DigestFinal_ex( &mdctx, digest, &digest_len ))) {
-    EVP_MD_CTX_cleanup( &mdctx );
-    unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
-                       ERR_func_error_string(e), ERR_reason_error_string(e));
-  }
-  EVP_MD_CTX_cleanup( &mdctx );
-#endif
+  FUNC_EVP_MD_CTX_cleanup( PASS_EVP_CTX(mdctx) );
 
   lua_pushlstring( L, (char *) digest, digest_len );
   return 1;
@@ -400,66 +394,26 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
 
 #if HAVE_OPAQUE_STRUCTS
   EVP_CIPHER_CTX *cipher_ctx = EVP_CIPHER_CTX_new();
-  /* EVP_CIPHER_CTX_init remains as an alias for EVP_CIPHER_CTX_reset()
-  in OpenSSL 1.1.0. As this symbol was missing in the static library,
-  I replaced it with EVP_CIPHER_CTX_reset */
-  EVP_CIPHER_CTX_reset( cipher_ctx );
-
-  /* First create the cipher context, then set the key length and padding, and
-     check the iv length. Below we set the key and iv. */
-  if (!(
-      EVP_EncryptInit_ex( cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
-      EVP_CIPHER_CTX_set_key_length( cipher_ctx, key_len ) &&
-      EVP_CIPHER_CTX_set_padding( cipher_ctx, padding ))) {
-    unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
-                       ERR_func_error_string(e), ERR_reason_error_string(e));
-  }
-
-  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( cipher_ctx )) {
-    return luaL_error( L, "Length of iv is %d; should be %d",
-      (int) iv_len, EVP_CIPHER_CTX_iv_length( cipher_ctx ));
-  }
-
-  int out_len, final_len;
-  unsigned char * out = (unsigned char *) malloc( data_len + EVP_MAX_BLOCK_LENGTH );
-  if (!out) return luaL_error( L, "Couldn't allocate memory.");
-
-  if (!(
-      EVP_EncryptInit_ex( cipher_ctx, NULL, NULL, key, iv ) &&
-      EVP_EncryptUpdate( cipher_ctx, out, &out_len, data, data_len ) &&
-      EVP_EncryptFinal_ex( cipher_ctx, out + out_len, &final_len ) )) {
-    /* EVP_CIPHER_CTX_cleanup is now deprecated in OpenSSL 1.1 _ replaced by
-      EVP_CIPHER_CTX_reset (same args & return value) */
-    EVP_CIPHER_CTX_reset( cipher_ctx );
-    free( out );
-    unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
-                       ERR_func_error_string(e), ERR_reason_error_string(e));
-  }
-
-  lua_pushlstring( L, (char *) out, out_len + final_len );
-
-  /* EVP_CIPHER_CTX_cleanup deprecated in OpenSSL 1.1 */
-  EVP_CIPHER_CTX_reset( cipher_ctx );
 #else
   EVP_CIPHER_CTX cipher_ctx;
-  EVP_CIPHER_CTX_init( &cipher_ctx );
+#endif
+
+  FUNC_EVP_CIPHER_CTX_init( PASS_EVP_CTX(cipher_ctx) );
 
   /* First create the cipher context, then set the key length and padding, and
      check the iv length. Below we set the key and iv. */
   if (!(
-      EVP_EncryptInit_ex( &cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
-      EVP_CIPHER_CTX_set_key_length( &cipher_ctx, key_len ) &&
-      EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ))) {
+      EVP_EncryptInit_ex( PASS_EVP_CTX(cipher_ctx), evp_cipher, NULL, NULL, NULL ) &&
+      EVP_CIPHER_CTX_set_key_length( PASS_EVP_CTX(cipher_ctx), key_len ) &&
+      EVP_CIPHER_CTX_set_padding( PASS_EVP_CTX(cipher_ctx), padding ))) {
     unsigned long e = ERR_get_error();
     return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
-  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( &cipher_ctx )) {
+  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( PASS_EVP_CTX(cipher_ctx) )) {
     return luaL_error( L, "Length of iv is %d; should be %d",
-      (int) iv_len, EVP_CIPHER_CTX_iv_length( &cipher_ctx ));
+      (int) iv_len, EVP_CIPHER_CTX_iv_length( PASS_EVP_CTX(cipher_ctx) ));
   }
 
   int out_len, final_len;
@@ -467,10 +421,10 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
   if (!out) return luaL_error( L, "Couldn't allocate memory.");
 
   if (!(
-      EVP_EncryptInit_ex( &cipher_ctx, NULL, NULL, key, iv ) &&
-      EVP_EncryptUpdate( &cipher_ctx, out, &out_len, data, data_len ) &&
-      EVP_EncryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
-    EVP_CIPHER_CTX_cleanup( &cipher_ctx );
+      EVP_EncryptInit_ex( PASS_EVP_CTX(cipher_ctx), NULL, NULL, key, iv ) &&
+      EVP_EncryptUpdate( PASS_EVP_CTX(cipher_ctx), out, &out_len, data, data_len ) &&
+      EVP_EncryptFinal_ex( PASS_EVP_CTX(cipher_ctx), out + out_len, &final_len ) )) {
+    FUNC_EVP_CIPHER_CTX_cleanup( PASS_EVP_CTX(cipher_ctx) );
     free( out );
     unsigned long e = ERR_get_error();
     return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
@@ -479,8 +433,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
 
   lua_pushlstring( L, (char *) out, out_len + final_len );
 
-  EVP_CIPHER_CTX_cleanup( &cipher_ctx );
-#endif
+  FUNC_EVP_CIPHER_CTX_cleanup( PASS_EVP_CTX(cipher_ctx) );
   free( out );
 
   return 1;
@@ -502,61 +455,24 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
 
 #if HAVE_OPAQUE_STRUCTS
   EVP_CIPHER_CTX *cipher_ctx = EVP_CIPHER_CTX_new();
-  /* EVP_CIPHER_CTX_init remains as an alias for EVP_CIPHER_CTX_reset()
-  in OpenSSL 1.1.0. As this symbol was missing in the static library,
-  I replaced it with EVP_CIPHER_CTX_reset */
-  EVP_CIPHER_CTX_reset( cipher_ctx );
-
-  if (!(
-      EVP_DecryptInit_ex( cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
-      EVP_CIPHER_CTX_set_key_length( cipher_ctx, key_len ) &&
-      EVP_CIPHER_CTX_set_padding( cipher_ctx, padding ))) {
-    unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
-                       ERR_func_error_string(e), ERR_reason_error_string(e));
-  }
-
-  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( cipher_ctx )) {
-    return luaL_error( L, "Length of iv is %d; should be %d",
-      (int) iv_len, EVP_CIPHER_CTX_iv_length( cipher_ctx ));
-  }
-
-  int out_len, final_len;
-  unsigned char * out = (unsigned char *) malloc( data_len );
-  if (!out) return luaL_error( L, "Couldn't allocate memory.");
-
-  if (!(
-      EVP_DecryptInit_ex( cipher_ctx, NULL, NULL, key, iv ) &&
-      EVP_DecryptUpdate( cipher_ctx, out, &out_len, data, data_len ) &&
-      EVP_DecryptFinal_ex( cipher_ctx, out + out_len, &final_len ) )) {
-    /* EVP_CIPHER_CTX_cleanup deprecated in OpenSSL 1.1 */
-    EVP_CIPHER_CTX_reset( cipher_ctx );
-    free( out );
-    unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
-                       ERR_func_error_string(e), ERR_reason_error_string(e));
-  }
-
-  lua_pushlstring( L, (char *) out, out_len + final_len );
-
-  /* EVP_CIPHER_CTX_cleanup deprecated in OpenSSL 1.1 */
-  EVP_CIPHER_CTX_reset( cipher_ctx );
 #else
   EVP_CIPHER_CTX cipher_ctx;
-  EVP_CIPHER_CTX_init( &cipher_ctx );
+#endif
+
+  FUNC_EVP_CIPHER_CTX_init( PASS_EVP_CTX(cipher_ctx) );
 
   if (!(
-      EVP_DecryptInit_ex( &cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
-      EVP_CIPHER_CTX_set_key_length( &cipher_ctx, key_len ) &&
-      EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ))) {
+      EVP_DecryptInit_ex( PASS_EVP_CTX(cipher_ctx), evp_cipher, NULL, NULL, NULL ) &&
+      EVP_CIPHER_CTX_set_key_length( PASS_EVP_CTX(cipher_ctx), key_len ) &&
+      EVP_CIPHER_CTX_set_padding( PASS_EVP_CTX(cipher_ctx), padding ))) {
     unsigned long e = ERR_get_error();
     return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
-  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( &cipher_ctx )) {
+  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( PASS_EVP_CTX(cipher_ctx) )) {
     return luaL_error( L, "Length of iv is %d; should be %d",
-      (int) iv_len, EVP_CIPHER_CTX_iv_length( &cipher_ctx ));
+      (int) iv_len, EVP_CIPHER_CTX_iv_length( PASS_EVP_CTX(cipher_ctx) ));
   }
 
   int out_len, final_len;
@@ -564,10 +480,10 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
   if (!out) return luaL_error( L, "Couldn't allocate memory.");
 
   if (!(
-      EVP_DecryptInit_ex( &cipher_ctx, NULL, NULL, key, iv ) &&
-      EVP_DecryptUpdate( &cipher_ctx, out, &out_len, data, data_len ) &&
-      EVP_DecryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
-    EVP_CIPHER_CTX_cleanup( &cipher_ctx );
+      EVP_DecryptInit_ex( PASS_EVP_CTX(cipher_ctx), NULL, NULL, key, iv ) &&
+      EVP_DecryptUpdate( PASS_EVP_CTX(cipher_ctx), out, &out_len, data, data_len ) &&
+      EVP_DecryptFinal_ex( PASS_EVP_CTX(cipher_ctx), out + out_len, &final_len ) )) {
+    FUNC_EVP_CIPHER_CTX_cleanup( PASS_EVP_CTX(cipher_ctx) );
     free( out );
     unsigned long e = ERR_get_error();
     return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
@@ -576,8 +492,7 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
 
   lua_pushlstring( L, (char *) out, out_len + final_len );
 
-  EVP_CIPHER_CTX_cleanup( &cipher_ctx );
-#endif
+  FUNC_EVP_CIPHER_CTX_cleanup( PASS_EVP_CTX(cipher_ctx) );
   free( out );
 
   return 1;

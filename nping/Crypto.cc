@@ -133,6 +133,17 @@
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
 #define HAVE_OPAQUE_EVP_PKEY 1
+#define FUNC_EVP_MD_CTX_init EVP_MD_CTX_reset
+#define FUNC_EVP_MD_CTX_cleanup EVP_MD_CTX_reset
+#define FUNC_EVP_CIPHER_CTX_init EVP_CIPHER_CTX_reset
+#define FUNC_EVP_CIPHER_CTX_cleanup EVP_CIPHER_CTX_reset
+#define PASS_EVP_CTX(ctx) (ctx)
+#else
+#define FUNC_EVP_MD_CTX_init EVP_MD_CTX_init
+#define FUNC_EVP_MD_CTX_cleanup EVP_MD_CTX_cleanup
+#define FUNC_EVP_CIPHER_CTX_init EVP_CIPHER_CTX_init
+#define FUNC_EVP_CIPHER_CTX_cleanup EVP_CIPHER_CTX_cleanup
+#define PASS_EVP_CTX(ctx) (&(ctx))
 #endif
 
 #endif /* HAVE_OPENSSL */
@@ -185,37 +196,23 @@ int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         int flen=0, flen2=0;
         #if HAVE_OPAQUE_EVP_PKEY
           EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-          EVP_CIPHER_CTX_reset(ctx);
-          EVP_CIPHER_CTX_set_padding(ctx, 0);
-          int result=OP_SUCCESS;
-          if( EVP_EncryptInit(ctx, EVP_aes_128_cbc(), key, iv)==0 ){
-              nping_print(DBG_4, "EVP_EncryptInit() failed");
-              result=OP_FAILURE;
-          }else if( EVP_EncryptUpdate(ctx, dst_buff, &flen, inbuff, (int)inlen)==0 ){
-              nping_print(DBG_4, "EVP_EncryptUpdate() failed");
-              result=OP_FAILURE;
-          }else if( EVP_EncryptFinal(ctx, dst_buff+flen, &flen2)==0 ){
-              nping_print(DBG_4, "EVP_EncryptFinal() failed");
-              result=OP_FAILURE;
-          }
-          EVP_CIPHER_CTX_cleanup(ctx);
         #else
           EVP_CIPHER_CTX ctx;
-          EVP_CIPHER_CTX_init(&ctx);
-          EVP_CIPHER_CTX_set_padding(&ctx, 0);
-          int result=OP_SUCCESS;
-          if( EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), key, iv)==0 ){
-              nping_print(DBG_4, "EVP_EncryptInit() failed");
-              result=OP_FAILURE;
-          }else if( EVP_EncryptUpdate(&ctx, dst_buff, &flen, inbuff, (int)inlen)==0 ){
-              nping_print(DBG_4, "EVP_EncryptUpdate() failed");
-              result=OP_FAILURE;
-          }else if( EVP_EncryptFinal(&ctx, dst_buff+flen, &flen2)==0 ){
-              nping_print(DBG_4, "EVP_EncryptFinal() failed");
-              result=OP_FAILURE;
-          }
-          EVP_CIPHER_CTX_cleanup(&ctx);
         #endif
+        FUNC_EVP_CIPHER_CTX_init(PASS_EVP_CTX(ctx));
+        EVP_CIPHER_CTX_set_padding(PASS_EVP_CTX(ctx), 0);
+        int result=OP_SUCCESS;
+        if( EVP_EncryptInit(PASS_EVP_CTX(ctx), EVP_aes_128_cbc(), key, iv)==0 ){
+            nping_print(DBG_4, "EVP_EncryptInit() failed");
+            result=OP_FAILURE;
+        }else if( EVP_EncryptUpdate(PASS_EVP_CTX(ctx), dst_buff, &flen, inbuff, (int)inlen)==0 ){
+            nping_print(DBG_4, "EVP_EncryptUpdate() failed");
+            result=OP_FAILURE;
+        }else if( EVP_EncryptFinal(PASS_EVP_CTX(ctx), dst_buff+flen, &flen2)==0 ){
+            nping_print(DBG_4, "EVP_EncryptFinal() failed");
+            result=OP_FAILURE;
+        }
+        FUNC_EVP_CIPHER_CTX_cleanup(PASS_EVP_CTX(ctx));
         return result;
     }
   #endif
@@ -238,64 +235,48 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         int flen1=0, flen2=0;
         #if HAVE_OPAQUE_EVP_PKEY
           EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-          EVP_CIPHER_CTX_reset(ctx);
-          EVP_CIPHER_CTX_set_padding(ctx, 0);
-          int result=OP_SUCCESS;
-          if( EVP_DecryptInit(ctx, EVP_aes_128_cbc(), key, iv)==0 ){
-              nping_print(DBG_4, "EVP_DecryptInit() failed");
-              result=OP_FAILURE;
-          }else if( EVP_DecryptUpdate(ctx, dst_buff, &flen1, inbuff, (int)inlen)==0 ){
-              nping_print(DBG_4, "EVP_DecryptUpdate() failed");
-              result=OP_FAILURE;
-          }else  if( EVP_DecryptFinal(ctx, dst_buff+flen1, &flen2)==0 ){
-              nping_print(DBG_4, "OpenSSL bug: it says EVP_DecryptFinal() failed when it didn't (%s).",
-                      ERR_error_string(ERR_peek_last_error(), NULL));
         #else
           EVP_CIPHER_CTX ctx;
-          EVP_CIPHER_CTX_init(&ctx);
-          EVP_CIPHER_CTX_set_padding(&ctx, 0);
-          int result=OP_SUCCESS;
-          if( EVP_DecryptInit(&ctx, EVP_aes_128_cbc(), key, iv)==0 ){
-              nping_print(DBG_4, "EVP_DecryptInit() failed");
-              result=OP_FAILURE;
-          }else if( EVP_DecryptUpdate(&ctx, dst_buff, &flen1, inbuff, (int)inlen)==0 ){
-              nping_print(DBG_4, "EVP_DecryptUpdate() failed");
-              result=OP_FAILURE;
-          }else  if( EVP_DecryptFinal(&ctx, dst_buff+flen1, &flen2)==0 ){
-              nping_print(DBG_4, "OpenSSL bug: it says EVP_DecryptFinal() failed when it didn't (%s).",
-                      ERR_error_string(ERR_peek_last_error(), NULL));
         #endif
-            /* We do not return OP_FAILURE in this case because the
-             * EVP_DecryptFinal() function seems to be buggy and fails when it shouldn't.
-             * We are passing a buffer whose length is multiple of the AES block
-             * size, we've disable padding, and still, the call fails.
-             * The call to EVP_DecryptUpdate() says we've decrypted all blocks but
-             * the last one and then EVP_DecryptFinal says we have decrypted nothing.
-             * However I've tested this for hours and everything works fine. The
-             * full buffer is decrypted correctly, from the first to the last byte,
-             * so we return OP_SUCCESS even if OpenSSL says the opposite. */
+        FUNC_EVP_CIPHER_CTX_init(PASS_EVP_CTX(ctx));
+        EVP_CIPHER_CTX_set_padding(PASS_EVP_CTX(ctx), 0);
+        int result=OP_SUCCESS;
+        if( EVP_DecryptInit(PASS_EVP_CTX(ctx), EVP_aes_128_cbc(), key, iv)==0 ){
+          nping_print(DBG_4, "EVP_DecryptInit() failed");
+          result=OP_FAILURE;
+        }else if( EVP_DecryptUpdate(PASS_EVP_CTX(ctx), dst_buff, &flen1, inbuff, (int)inlen)==0 ){
+          nping_print(DBG_4, "EVP_DecryptUpdate() failed");
+          result=OP_FAILURE;
+        }else  if( EVP_DecryptFinal(PASS_EVP_CTX(ctx), dst_buff+flen1, &flen2)==0 ){
+          nping_print(DBG_4, "OpenSSL bug: it says EVP_DecryptFinal() failed when it didn't (%s).",
+              ERR_error_string(ERR_peek_last_error(), NULL));
+          /* We do not return OP_FAILURE in this case because the
+           * EVP_DecryptFinal() function seems to be buggy and fails when it shouldn't.
+           * We are passing a buffer whose length is multiple of the AES block
+           * size, we've disable padding, and still, the call fails.
+           * The call to EVP_DecryptUpdate() says we've decrypted all blocks but
+           * the last one and then EVP_DecryptFinal says we have decrypted nothing.
+           * However I've tested this for hours and everything works fine. The
+           * full buffer is decrypted correctly, from the first to the last byte,
+           * so we return OP_SUCCESS even if OpenSSL says the opposite. */
 
-            /* NOTE for developers debugging memory issues with Valgrind:
-             * None of these seems to free OpenSSL's internal error structures.
-             * Valgrind currently reports things like:
-             ==12849== 592 bytes in 1 blocks are still reachable in loss record 7 of 9
-            ==12849==    at 0x4C284A8: malloc (vg_replace_malloc.c:236)
-            ==12849==    by 0x531BF21: CRYPTO_malloc (in /lib/libcrypto.so.0.9.8)
-            ==12849==    by 0x537F25D: ERR_get_state (in /lib/libcrypto.so.0.9.8)
-            ==12849==    by 0x537E7BE: ERR_put_error (in /lib/libcrypto.so.0.9.8)
-            ==12849==    by 0x5381EB0: EVP_DecryptFinal_ex (in /lib/libcrypto.so.0.9.8)
-            ==12849==    by 0x429A49: Crypto::aes128_cbc_decrypt(unsigned char*...
-            ==12849==    by 0x41ABBA: EchoHeader::decrypt(unsigned char*, unsign...
-             */
-            //ERR_clear_error();
-            //ERR_free_strings();
-            //ERR_pop_to_mark();
+          /* NOTE for developers debugging memory issues with Valgrind:
+           * None of these seems to free OpenSSL's internal error structures.
+           * Valgrind currently reports things like:
+           ==12849== 592 bytes in 1 blocks are still reachable in loss record 7 of 9
+           ==12849==    at 0x4C284A8: malloc (vg_replace_malloc.c:236)
+           ==12849==    by 0x531BF21: CRYPTO_malloc (in /lib/libcrypto.so.0.9.8)
+           ==12849==    by 0x537F25D: ERR_get_state (in /lib/libcrypto.so.0.9.8)
+           ==12849==    by 0x537E7BE: ERR_put_error (in /lib/libcrypto.so.0.9.8)
+           ==12849==    by 0x5381EB0: EVP_DecryptFinal_ex (in /lib/libcrypto.so.0.9.8)
+           ==12849==    by 0x429A49: Crypto::aes128_cbc_decrypt(unsigned char*...
+           ==12849==    by 0x41ABBA: EchoHeader::decrypt(unsigned char*, unsign...
+           */
+          //ERR_clear_error();
+          //ERR_free_strings();
+          //ERR_pop_to_mark();
         }
-        #if HAVE_OPAQUE_EVP_PKEY
-          EVP_CIPHER_CTX_reset(ctx);
-        #else
-          EVP_CIPHER_CTX_cleanup(&ctx);
-        #endif
+        FUNC_EVP_CIPHER_CTX_cleanup(PASS_EVP_CTX(ctx));
         return result;
     }
   #endif
@@ -334,53 +315,31 @@ u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
         unsigned int lastlen;
       #if HAVE_OPAQUE_EVP_PKEY
         EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-        EVP_MD_CTX_init(ctx);
-
-        if( EVP_MD_size(EVP_sha256()) != SHA256_HASH_LEN )
-          nping_fatal(QT_2, "OpenSSL is broken. SHA256 len is %d\n", EVP_MD_size(EVP_sha256()) );
-
-        /* Compute the SHA256 hash of the supplied buffer */
-        EVP_DigestInit(ctx, EVP_sha256());
-        EVP_DigestUpdate(ctx, from, fromlen);
-        EVP_DigestFinal(ctx, hash, &lastlen);
-
-        /* Now compute the 1000th hash of that hash */
-        for(int i=0; i<TIMES_KEY_DERIVATION; i++){
-        EVP_MD_CTX_init(ctx);
-        EVP_DigestInit(ctx, EVP_sha256());
-        EVP_DigestUpdate(ctx, hash, SHA256_HASH_LEN);
-        EVP_DigestFinal(ctx, next, &lastlen);
-        memcpy(hash, next, SHA256_HASH_LEN);
-        }
-        if(final_len!=NULL)
-          *final_len=SHA256_HASH_LEN;
-
-        EVP_MD_CTX_free(ctx);
       #else
         EVP_MD_CTX ctx;
-        EVP_MD_CTX_init(&ctx);
+      #endif
+        FUNC_EVP_MD_CTX_init(PASS_EVP_CTX(ctx));
 
         if( EVP_MD_size(EVP_sha256()) != SHA256_HASH_LEN )
           nping_fatal(QT_2, "OpenSSL is broken. SHA256 len is %d\n", EVP_MD_size(EVP_sha256()) );
 
         /* Compute the SHA256 hash of the supplied buffer */
-        EVP_DigestInit(&ctx, EVP_sha256());
-        EVP_DigestUpdate(&ctx, from, fromlen);
-        EVP_DigestFinal(&ctx, hash, &lastlen);
+        EVP_DigestInit(PASS_EVP_CTX(ctx), EVP_sha256());
+        EVP_DigestUpdate(PASS_EVP_CTX(ctx), from, fromlen);
+        EVP_DigestFinal(PASS_EVP_CTX(ctx), hash, &lastlen);
 
         /* Now compute the 1000th hash of that hash */
         for(int i=0; i<TIMES_KEY_DERIVATION; i++){
-        EVP_MD_CTX_init(&ctx);
-        EVP_DigestInit(&ctx, EVP_sha256());
-        EVP_DigestUpdate(&ctx, hash, SHA256_HASH_LEN);
-        EVP_DigestFinal(&ctx, next, &lastlen);
+        EVP_MD_CTX_init(PASS_EVP_CTX(ctx));
+        EVP_DigestInit(PASS_EVP_CTX(ctx), EVP_sha256());
+        EVP_DigestUpdate(PASS_EVP_CTX(ctx), hash, SHA256_HASH_LEN);
+        EVP_DigestFinal(PASS_EVP_CTX(ctx), next, &lastlen);
         memcpy(hash, next, SHA256_HASH_LEN);
         }
         if(final_len!=NULL)
           *final_len=SHA256_HASH_LEN;
 
-        EVP_MD_CTX_cleanup(&ctx);
-      #endif
+        FUNC_EVP_MD_CTX_cleanup(PASS_EVP_CTX(ctx));
         return hash;
     }
   #endif
