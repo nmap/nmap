@@ -166,11 +166,11 @@ class NdiffCommand(subprocess.Popen):
         search_paths = get_path()
         env = dict(os.environ)
         env["PATH"] = search_paths
-        if getattr(sys, "frozen", None) == "macosx_app":
-            # These variables are set by py2app, but they can interfere with
+        if "Zenmap.app" in sys.executable:
+            # These vars are set by the launcher, but they can interfere with
             # Ndiff because Ndiff is also a Python application. Without
             # removing these, Ndiff will attempt to run using the
-            # py2app-bundled Python library, and may run into version or
+            # bundled Python library, and may run into version or
             # architecture mismatches.
             if "PYTHONPATH" in env:
                 del env["PYTHONPATH"]

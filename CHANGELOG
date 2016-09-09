@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a bug in the Compare Scans window of Zenmap on OS X resulting
+  in this message instead of Ndiff output:
+    ImportError: dlopen(/Applications/Zenmap.app/Contents/Resources/lib/python2.7/lib-dynload/datetime.so, 2): no suitable image found.  Did find:
+    /Applications/Zenmap.app/Contents/Resources/lib/python2.7/lib-dynload/datetime.so: mach-o, but wrong architecture
+  Reported by Kyle Gustafson. [Daniel Miller]
+
 o [NSE][GH#369] New script: coap-resources grabs the list of available
   resources from CoAP endpoints. [Mak Kolybabi]
 
