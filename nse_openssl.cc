@@ -281,7 +281,7 @@ static int l_digest(lua_State *L)     /** digest(string algorithm, string messag
   const unsigned char *msg = (unsigned char *) luaL_checklstring( L, 2, &msg_len );
   unsigned char digest[EVP_MAX_MD_SIZE];
   const EVP_MD * evp_md;
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   EVP_MD_CTX mdctx;
 #else
   EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
@@ -291,7 +291,7 @@ static int l_digest(lua_State *L)     /** digest(string algorithm, string messag
 
   if (!evp_md) return luaL_error( L, "Unknown digest algorithm: %s", algorithm );
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   EVP_MD_CTX_init(&mdctx);
   if (!(
       EVP_DigestInit_ex( &mdctx, evp_md, NULL ) &&
@@ -394,7 +394,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
   if (iv[0] == '\0')
     iv = NULL;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   EVP_CIPHER_CTX cipher_ctx;
   EVP_CIPHER_CTX_init( &cipher_ctx );
 
@@ -496,7 +496,7 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
   if (iv[0] == '\0')
     iv = NULL;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   EVP_CIPHER_CTX cipher_ctx;
   EVP_CIPHER_CTX_init( &cipher_ctx );
 
@@ -684,7 +684,7 @@ static const struct luaL_Reg openssllib[] = {
 LUALIB_API int luaopen_openssl(lua_State *L) {
 
   OpenSSL_add_all_algorithms();
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#ifndef HAVE_OPAQUE_STRUCTS
   ERR_load_crypto_strings();
 #else
   /* This is now deprecated in OpenSSL 1.1.0 _ No explicit initialisation 
