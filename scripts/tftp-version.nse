@@ -24,7 +24,7 @@ local responses = {
   -- match tftp m|^\0\x05\0\x02\0The IP address is not in the range of allowable addresses\.\0| p/SolarWinds tftpd/ i/IP disallowed/ o/Windows/ cpe:/a:solarwinds:tftp_server/ cpe:/o:microsoft:windows/a
   {
     2,
-    "The IP address is not in the range of allowable addresses\\.",
+    "The IP address is not in the range of allowable addresses.",
     {
       ["p"] = "SolarWinds tftpd",
       ["i"] = "IP disallowed",
@@ -87,7 +87,7 @@ local responses = {
   -- match tftp m|^\0\x05\0\x04Illegal operation error\.\0$| p/Microsoft Windows Deployment Services tftpd/ o/Windows/ cpe:/o:microsoft:windows/
   {
     4,
-    "Illegal operation error\\.",
+    "Illegal operation error.",
     {
       ["p"] = "Microsoft Windows Deployment Services tftpd",
       ["o"] = "Windows",
@@ -100,7 +100,7 @@ local responses = {
   -- match tftp m|^\0\x05\0\x04Unknown operatation code: 0 received from [\d.]+:\d+\0| p/SolarWinds Free tftpd/ cpe:/a:solarwinds:tftp_server/
   {
     4,
-    "Unknown operatation code: 0 received from [\\d.]+:\\d+",
+    "Unknown operatation code: 0 received from",
     {
       ["p"] = "SolarWinds Free tftpd",
       ["cpe"] = {
@@ -112,7 +112,7 @@ local responses = {
   -- match tftp m|^\0\x05\0\x04illegal \(unrecognized\) tftp operation\0$| p/Brother printer tftpd/ d/printer/
   {
     4,
-    "illegal \\(unrecognized\\) tftp operation",
+    "illegal (unrecognized) tftp operation",
     {
       ["p"] = "Brother printer tftpd",
       ["d"] = "printer"
@@ -122,7 +122,7 @@ local responses = {
   -- match tftp m|^\0\x05\0\0Not defined, see error message\(if any\)\.\0| p/HP Intelligent Management Center tftpd/ cpe:/a:hp:intelligent_management_center/
   {
     0,
-    "Not defined, see error message\\(if any\\)\\.",
+    "Not defined, see error message(if any).",
     {
       ["p"] = "HP Intelligent Management Center tftpd",
       ["cpe"] = {
@@ -145,7 +145,7 @@ local responses = {
   -- match tftp m|^\0\x05\0\x01File not found\.\0$| p/Enistic zone controller tftpd/
   {
     1,
-    "File not found\\\\.",
+    "File not found.",
     {
       ["p"] = "Enistic zone controller tftpd"
     }
@@ -197,8 +197,7 @@ local identify_software = function(pkt, port)
   for _, res in ipairs(responses) do
     stdnse.debug1(pkt.errmsg .. " <=> " .. res[2])
     if pkt.errcode == res[1] then
-      local patt = re.compile(res[2])
-      if re.find(pkt.errmsg, patt) then
+      if pkt.errmsg:find(res[2]) then
 	record_match(port, res[3])
 	break
       end
