@@ -195,7 +195,6 @@ local identify_software = function(pkt, port)
 
   -- Try to match the packet against our table of responses.
   for _, res in ipairs(responses) do
-    stdnse.debug1(pkt.errmsg .. " <=> " .. res[2])
     if pkt.errcode == res[1] then
       if pkt.errmsg:find(res[2]) then
 	record_match(port, res[3])
