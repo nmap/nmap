@@ -187,12 +187,10 @@ local record_match = function(port, sw)
     port.version.devicetype = sw.d
   end
 
-  if not sw.cpe then
-    return
-  end
-
-  for _, cpe in ipairs(sw.cpe) do
-    table.insert(port.version.cpe, "cpe:/" .. cpe)
+  if sw.cpe then
+    for _, cpe in ipairs(sw.cpe) do
+      table.insert(port.version.cpe, "cpe:/" .. cpe)
+    end
   end
 end
 
