@@ -320,5 +320,5 @@ action = function(host, port)
   nmap.set_port_version(host, port, "hardmatched")
   nmap.set_port_state(host, port, "open")
 
-  return output
+  return nil
 end
