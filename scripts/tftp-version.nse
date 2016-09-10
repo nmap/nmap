@@ -108,6 +108,16 @@ local responses = {
       }
     }
   },
+  {
+    1,
+    "Could not find file '",
+    {
+      ["p"] = "SolarWinds Free tftpd",
+      ["cpe"] = {
+	"a:solarwinds:tftp_server"
+      }
+    }
+  },
   -- # Brother MFC-9340CDW
   -- match tftp m|^\0\x05\0\x04illegal \(unrecognized\) tftp operation\0$| p/Brother printer tftpd/ d/printer/
   {
