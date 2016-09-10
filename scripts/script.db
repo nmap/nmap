@@ -514,6 +514,7 @@ Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "tftp-version.nse", categories = {"default", "discovery", "safe", "version", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tor-consensus-checker.nse", categories = { "external", "safe", } }
 Entry { filename = "traceroute-geolocation.nse", categories = { "discovery", "external", "safe", } }
