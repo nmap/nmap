@@ -212,7 +212,7 @@ local parse = function(buf)
     return nil
   end
 
-  local opcode, num = string.unpack(">HH", buf)
+  local opcode, num = (">HH"):unpack(buf)
   local ret = {["opcode"] = opcode}
 
   if opcode == OPCODE_DATA then
@@ -238,7 +238,7 @@ local parse = function(buf)
 
     -- Extract the error message, if there is one.
     if #buf > 2 + 2 + 1 then
-      ret.errmsg = string.unpack("z", buf, 5)
+      ret.errmsg = ("z"):unpack(buf, 5)
     end
 
     return ret
@@ -276,7 +276,7 @@ action = function(host, port)
   end
 
   -- Generate a Read Request.
-  local req = string.pack(">Hzz", OPCODE_RRQ, path, "octet")
+  local req = (">Hzz"):pack(OPCODE_RRQ, path, "octet")
 
   -- Send the Read Request.
   socket:send(req)
