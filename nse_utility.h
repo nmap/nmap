@@ -4,7 +4,10 @@
 class Port;
 class Target;
 
+#ifdef HAVE_CONFIG_H
 #include "nmap_config.h"
+#endif
+
 #if HAVE_STDINT_H
 #include <stdint.h>
 #endif
