@@ -123,7 +123,10 @@
 /* $Id:$ */
 
 #include "nbase.h"
+
+#ifdef HAVE_CONFIG_H
 #include "nmap_config.h"
+#endif
 
 #include <assert.h>
 #include <ctype.h>
