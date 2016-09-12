@@ -1811,7 +1811,6 @@ end
 -- @return A list of responses, in the same order as the requests were queued.
 --         Each response is a table as described in the module documentation.
 function pipeline_go(host, port, all_requests)
-  stdnse.debug1("Total number of pipelined requests: " .. #all_requests)
   local responses
   local response
   local partial
@@ -1819,10 +1818,11 @@ function pipeline_go(host, port, all_requests)
   responses = {}
 
   -- Check for an empty request
-  if (#all_requests == 0) then
+  if (not all_requests or #all_requests == 0) then
     stdnse.debug1("Warning: empty set of requests passed to http.pipeline_go()")
     return responses
   end
+  stdnse.debug1("Total number of pipelined requests: " .. #all_requests)
 
   local socket, bopt
 
