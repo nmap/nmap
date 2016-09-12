@@ -1,5 +1,4 @@
 local base64 = require "base64"
-local bin = require "bin"
 local http = require "http"
 local stdnse = require "stdnse"
 local table = require "table"
