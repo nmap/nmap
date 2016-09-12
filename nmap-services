@@ -2628,6 +2628,7 @@ canocentral0	1871/udp	0.000330	# Cano Central 0
 fjmpjps	1873/udp	0.000330	# Fjmpjps
 westell-stats	1875/tcp	0.000152	# westell stats
 westell-stats	1875/udp	0.000330	# westell stats
+mqtt	1883/tcp	0.000076	# Message Queuing Telemetry Transport Protocol
 ibm-mqisdp	1883/udp	0.000330	# IBM MQSeries SCADA
 idmaps	1884/udp	0.000661	# Internet Distance Map Svc
 vrtstrapserver	1885/udp	0.003304	# Veritas Trap Server
@@ -4477,6 +4478,8 @@ rrac	5678/tcp	0.000228	# Remote Replication Agent Connection
 activesync	5679/tcp	0.000590	# Microsoft ActiveSync PDY synchronization
 canna	5680/tcp	0.000151	# Canna (Japanese Input)
 brightcore	5682/udp	0.000330	# BrightCore control & data transfer exchange
+coap	5683/udp	0.000330	# Constrained Application Protocol
+coaps	5684/udp	0.000330	# DTLS-secured Constrained Application Protocol
 qmvideo	5689/udp	0.000330	# QM video network management protocol
 unknown	5693/udp	0.000330
 unknown	5699/udp	0.000330
@@ -5593,6 +5596,7 @@ unknown	8878/tcp	0.000076
 unknown	8879/tcp	0.000076
 cddbp-alt	8880/tcp	0.000076	# CDDBP
 unknown	8882/tcp	0.000076
+secure-mqtt	8883/tcp	0.000076	# Secure MQTT
 unknown	8885/udp	0.000330
 unknown	8886/udp	0.000330
 unknown	8887/tcp	0.000076
