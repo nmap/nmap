@@ -1065,6 +1065,8 @@ int hascaptures (TTree *tree) {
       return 1;
     case TCall:
       tree = sib2(tree); goto tailcall;  /* return hascaptures(sib2(tree)); */
+    case TRule:
+      tree = sib1(tree); goto tailcall;  /* return hascaptures(sib1(tree)); */
     case TOpenCall: assert(0);
     default: {
       switch (numsiblings[tree->tag]) {
