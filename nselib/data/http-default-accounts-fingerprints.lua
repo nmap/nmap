@@ -104,9 +104,8 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "index.php",
-                              "Invalid User Name/Password",
-                              {action="login", login_username=user, login_password=pass},
-                              false)
+                              "%sname%s*=%s*(['\"]?)login_password%1[%s>]",
+                              {action="login", login_username=user, login_password=pass})
   end
 })
 
@@ -239,7 +238,7 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "login",
-                              "Invalid auth credentials!",
+                              "%sname%s*=%s*(['\"]?)password%1[%s>]",
                               {submit=" Login ", userName=user, password=pass})
   end
 })
