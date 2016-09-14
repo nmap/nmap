@@ -89,3 +89,16 @@ snmpd
 mngt
 cisco
 admin
+PUBLIC
+PRIVATE
+#!comment: https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20160831-sps3
+rmonmgmtuicommunity
+#!comment: http://www.phenoelit.org/dpl/dpl.html
+secret
+cascade
+ANYCOM
+ILMI
+volition
+TENmanUFactOryPOWER
+MiniAP
+snmp-Trap
