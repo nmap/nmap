@@ -792,7 +792,8 @@ table.insert(fingerprints, {
            and response.header["server"]
            and response.header["server"]:find("^mini_httpd")
            and response.body
-           and response.body:lower():find("<title>lantronix slc", 1, true)
+           and response.body:find("lantronix", 1, true)
+           and response.body:find("slcpassword", 1, true)
   end,
   login_combos = {
     {username = "sysadmin", password = "PASS"}
