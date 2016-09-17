@@ -137,6 +137,7 @@
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <openssl/x509v3.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
@@ -269,6 +270,54 @@ static void x509_name_to_table(lua_State *L, X509_NAME *name)
 
     lua_settable(L, -3);
   }
+}
+
+static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION) *exts)
+{
+  if (sk_X509_EXTENSION_num(exts) <= 0)
+    return false;
+
+  lua_newtable(L);
+
+  for (int i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
+    ASN1_OBJECT *obj;
+    X509_EXTENSION *ext;
+    char *value = NULL;
+    BIO *out;
+
+    ext = sk_X509_EXTENSION_value(exts, i);
+    obj = X509_EXTENSION_get_object(ext);
+
+    lua_newtable(L);
+    char objname[256];
+    long len = 0;
+    len = OBJ_obj2txt(objname, 256, obj, 0);
+    lua_pushlstring(L, objname, MIN(len, 256));
+    lua_setfield(L, -2, "name");
+
+
+    if (X509_EXTENSION_get_critical(ext)) {
+      lua_pushboolean(L, true);
+      lua_setfield(L, -2, "critical");
+    }
+
+    out = BIO_new(BIO_s_mem());
+    if (!X509V3_EXT_print(out, ext, 0, 0)) {
+      lua_pushboolean(L, true);
+      lua_setfield(L, -2, "error");
+    }
+    else {
+      len = BIO_get_mem_data(out, &value);
+      lua_pushlstring(L, value, len);
+      lua_setfield(L, -2, "value");
+    }
+    BIO_free_all(out);
+
+    lua_seti(L, -2, i+1);
+  }
+
+  return true;
+
 }
 
 /* Parse as a decimal integer the len characters starting at s. This function
@@ -558,6 +607,14 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 
   cert_pem_to_string(L, cert);
   lua_setfield(L, -2, "pem");
+
+#if HAVE_OPAQUE_STRUCTS
+  if (x509_extensions_to_table(L, X509_get0_extensions(cert))) {
+#else
+  if (x509_extensions_to_table(L, cert->cert_info->extensions)) {
+#endif
+    lua_setfield(L, -2, "extensions");
+  }
 
   pubkey = X509_get_pubkey(cert);
   if (pubkey == NULL) {

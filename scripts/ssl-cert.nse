@@ -208,6 +208,7 @@ local function output_tab(cert)
   o.subject = name_to_table(cert.subject)
   o.issuer = name_to_table(cert.issuer)
   o.pubkey = cert.pubkey
+  o.extensions = cert.extensions
   o.sig_algo = cert.sig_algorithm
   o.validity = {}
   for k, v in pairs(cert.validity) do
@@ -227,6 +228,14 @@ local function output_str(cert)
   local lines = {}
 
   lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
+  if cert.extensions then
+    for _, e in ipairs(cert.extensions) do
+      if e.name == "X509v3 Subject Alternative Name" then
+        lines[#lines + 1] = "Subject Alternative Name: " .. e.value
+        break
+      end
+    end
+  end
 
   if nmap.verbosity() > 0 then
     lines[#lines + 1] = "Issuer: " .. stringify_name(cert.issuer)
