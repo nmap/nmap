@@ -1569,7 +1569,7 @@ void  apply_delayed_options() {
   }
 
   // Uncomment the following line to use the common lisp port spec test suite
-  //printf("port spec: (%d %d %d %d)\n", ports.tcp_count, ports.udp_count, ports.stcp_count, ports.prot_count); exit(0);
+  //printf("port spec: (%d %d %d %d)\n", ports.tcp_count, ports.udp_count, ports.sctp_count, ports.prot_count); exit(0);
 
 #ifdef WIN32
   if (o.sendpref & PACKET_SEND_IP) {
