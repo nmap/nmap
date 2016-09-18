@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in port specification parsing that could cause extraneous
+  'T', 'U', 'S', and 'P' characters to be ignored when they should have
+  caused an error. [David Fifield]
+
 o [GH#543] Restored compatibility with LibreSSL, which was lost in adding
   library version checks for OpenSSL 1.1. [Wonko7]
 
