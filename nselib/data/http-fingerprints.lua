@@ -4325,6 +4325,22 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/debug.seam',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = 'JBoss Seam Debug Page',
+        output = 'JBoss Seam Debug Page'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
