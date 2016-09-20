@@ -197,6 +197,7 @@ local identify_software = function(pkt, port)
   -- There's not enough information in anything but an ERROR packet to deduce
   -- the software that responded, and only if it has an error message
   if pkt.opcode ~= OPCODE_ERROR or pkt.errmsg == nil then
+    stdnse.debug1("Response contains no data that can be used to check software.")
     return
   end
 
@@ -214,6 +215,7 @@ end
 local parse = function(buf)
   -- Every TFTP packet is at least 4 bytes.
   if #buf < 4 then
+    stdnse.debug1("Packet was %d bytes, but TFTP packets are a minimum of 4 bytes.", #buf)
     return nil
   end
 
@@ -223,11 +225,13 @@ local parse = function(buf)
   if opcode == OPCODE_DATA then
     -- The block number, which must be one.
     if num ~= 1 then
+      stdnse.debug1("DATA packet should have a block number of 1, not %d.", num)
       return nil
     end
 
     -- The data remaining in the response must be from 0 to 512 bytes in length.
     if #buf > 2 + 2 + 512 then
+      stdnse.debug1("DATA packet should be 0 to 512 bytes, but is %d bytes.", #buf)
       return nil
     end
 
@@ -237,6 +241,7 @@ local parse = function(buf)
   if opcode == OPCODE_ERROR then
     -- The last byte in the packet must be zero to terminate the error message.
     if buf:byte(#buf) ~= 0 then
+      stdnse.debug1("ERROR packet does not end with a zero byte.")
       return nil
     end
     ret.errcode = num
@@ -251,6 +256,7 @@ local parse = function(buf)
 
   -- Any other opcode, defined or otherwise, should not be coming back from the
   -- service, so we treat it as an error.
+  stdnse.debug1("Unexpected opcode %d received.", opcode)
   return nil
 end
 
