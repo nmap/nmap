@@ -1,3 +1,4 @@
+local json = require "json"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -161,9 +162,6 @@ local responses = {
   },
 }
 
-local record_match = function(port, sw)
-end
-
 local parse = function(buf)
   -- Every TFTP packet is at least 4 bytes.
   if #buf < 4 then
@@ -283,6 +281,7 @@ action = function(host, port)
   end
 
   -- We're sure this is a TFTP server by this point..
+  nmap.set_port_state(host, port, "open")
   port.version = port.version or {}
   port.version.service = "tftp"
 
@@ -290,17 +289,16 @@ action = function(host, port)
   -- encouraging the user to submit a fingerprint to Nmap.
   local sw = nil
   for _, res in ipairs(responses) do
-    if pkt.errcode == res[1] then
-      if pkt.errmsg:find(res[2]) then
-	sw = record_match(res[3])
-	break
-      end
+    if pkt.errcode == res[1] and pkt.errmsg == res[2] then
+      sw = res[3]
+      break
     end
   end
   if not sw then
     nmap.set_port_version(host, port, "hardmatched")
-    nmap.set_port_state(host, port, "open")
-    return nil
+    pkt.script = "tftp-version"
+    pkt = json.generate(pkt)
+    return ("If you know the name or version of the software running on this port, please submit the following information to dev@nmap.org: %s."):format(pkt)
   end
 
   if not port.version.product and sw.p then
@@ -331,12 +329,14 @@ action = function(host, port)
   port.version.cpe = port.version.cpe or {}
   if #port.version.cpe == 0 and sw.cpe then
     for _, cpe in ipairs(sw.cpe) do
-      table.insert(port.version.cpe, "cpe:/" .. cpe)
+     table.insert(port.version.cpe, "cpe:/" .. cpe)
     end
   end
 
   port.version = port.version or {}
   port.version.service = "tftp"
+
+  nmap.set_port_version(host, port, "hardmatched")
 
   return nil
 end
