@@ -162,54 +162,6 @@ local responses = {
 }
 
 local record_match = function(port, sw)
-  if sw.p then
-    port.version.product = sw.p
-  end
-
-  if sw.v then
-    port.version.version = sw.v
-  end
-
-  if sw.i then
-    port.version.extrainfo = sw.i
-  end
-
-  if sw.h then
-    port.version.hostname = sw.h
-  end
-
-  if sw.o then
-    port.version.ostype = sw.o
-  end
-
-  if sw.d then
-    port.version.devicetype = sw.d
-  end
-
-  if sw.cpe then
-    for _, cpe in ipairs(sw.cpe) do
-      table.insert(port.version.cpe, "cpe:/" .. cpe)
-    end
-  end
-end
-
-local identify_software = function(pkt, port)
-  -- There's not enough information in anything but an ERROR packet to deduce
-  -- the software that responded, and only if it has an error message
-  if pkt.opcode ~= OPCODE_ERROR or pkt.errmsg == nil then
-    stdnse.debug1("Response contains no data that can be used to check software.")
-    return
-  end
-
-  -- Try to match the packet against our table of responses.
-  for _, res in ipairs(responses) do
-    if pkt.errcode == res[1] then
-      if pkt.errmsg:find(res[2]) then
-	record_match(port, res[3])
-	break
-      end
-    end
-  end
 end
 
 local parse = function(buf)
@@ -323,15 +275,68 @@ action = function(host, port)
     return nil
   end
 
-  -- Now we are convinced that the service speaks TFTP.
-  port.version.name = "tftp"
+  -- There's not enough information in anything but an ERROR packet to deduce
+  -- the software that responded, and only if it has an error message
+  if pkt.opcode ~= OPCODE_ERROR or pkt.errmsg == nil then
+    stdnse.debug1("Response contains no data that can be used to check software.")
+    return nil
+  end
 
-  -- Populate the service information by referencing our list of software
-  -- responses.
-  identify_software(pkt, port)
+  -- We're sure this is a TFTP server by this point..
+  port.version = port.version or {}
+  port.version.service = "tftp"
 
-  nmap.set_port_version(host, port, "hardmatched")
-  nmap.set_port_state(host, port, "open")
+  -- Try to match the packet against our table of responses, falling back to
+  -- encouraging the user to submit a fingerprint to Nmap.
+  local sw = nil
+  for _, res in ipairs(responses) do
+    if pkt.errcode == res[1] then
+      if pkt.errmsg:find(res[2]) then
+	sw = record_match(res[3])
+	break
+      end
+    end
+  end
+  if not sw then
+    nmap.set_port_version(host, port, "hardmatched")
+    nmap.set_port_state(host, port, "open")
+    return nil
+  end
+
+  if not port.version.product and sw.p then
+    port.version.product = sw.p
+  end
+
+  if not port.version.version and sw.v then
+    port.version.version = sw.v
+  end
+
+  if not port.version.extrainfo and sw.i then
+    port.version.extrainfo = sw.i
+  end
+
+  if not port.version.hostname and sw.h then
+    port.version.hostname = sw.h
+  end
+
+  if not port.version.ostype and sw.o then
+    port.version.ostype = sw.o
+  end
+
+  if not port.version.devicetype and sw.d then
+    port.version.devicetype = sw.d
+  end
+
+  -- Only add CPEs if there aren't any already, to avoid doubling-up.
+  port.version.cpe = port.version.cpe or {}
+  if #port.version.cpe == 0 and sw.cpe then
+    for _, cpe in ipairs(sw.cpe) do
+      table.insert(port.version.cpe, "cpe:/" .. cpe)
+    end
+  end
+
+  port.version = port.version or {}
+  port.version.service = "tftp"
 
   return nil
 end
