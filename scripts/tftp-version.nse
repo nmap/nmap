@@ -11,7 +11,7 @@ TFTP service. Software vendor information is deduced based on error messages.
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"default", "discovery", "safe", "version"}
+categories = {"default", "safe", "version"}
 
 portrule = shortport.version_port_or_service(69, "tftp", "udp")
 
