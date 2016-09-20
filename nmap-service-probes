@@ -6477,7 +6477,7 @@ softmatch http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold| p/Apac
 
 match ssl/http m|^HTTP/1.1 400 Bad Request\r\n.*?Server: nginx/([\d.]+)[^\r\n]*?\r\n.*<title>400 The plain HTTP request was sent to HTTPS port</title>|s p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
 match ssl/http m|^HTTP/1.1 400 Bad Request\r\n.*<title>400 The plain HTTP request was sent to HTTPS port</title>|s p/nginx/ cpe:/a:igor_sysoev:nginx/
-match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx\r\n| p/nginx/ cpe:/a:igor_sysoev:nginx/
+match http m|^HTTP/1\.[01] \d\d\d.*?\r\nServer: nginx\r\n|s p/nginx/ cpe:/a:igor_sysoev:nginx/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+)\r\n|s p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \(Ubuntu\)\r\n|s p/nginx/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/a:igor_sysoev:nginx:$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \+ ([^\r\n]*)\r\n|s p/nginx/ v/$1/ i/$2/ cpe:/a:igor_sysoev:nginx:$1/
@@ -8370,7 +8370,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On</t
 match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On</title>\n<meta http-equiv=\"Cache-Control\" content=\"no-store\" />.*<!--\n////////////////////////////////////////////\n// Copyright TippingPoint 2002, 2003, 2004 and 2005\n|s p/HP TippingPoint 1200E or 5000E IPS http config/ d/firewall/
 match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On \x7c LSM - Device \(tp\)</title>\r\n\r\n<meta http-equiv=\"Cache-Control\" content=\"no-store\" />.*<!--\r\n////////////////////////////////////////////\r\n// Copyright TippingPoint 2002, 2003, 2004 and 2005\r\n|s p/HP TippingPoint 10 IPS http config/ d/firewall/
 match http m|^HTTP/1\.0 200 OK\r\nServer: SpaceMon/([\d.]+)\r\n.*<TITLE>SpaceMon</TITLE>.*SpaceMon Administrator: ([^<]*)<BR>|s p/IPWorx SpaceMon storage monitor httpd/ v/$1/ i/administrator: $2/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 400 Bad Request\r\nServer: CloudFront\r\n| p/CloudFront httpd/
+match http m|^HTTP/1\.[01] 400 Bad Request\r\nServer: CloudFront\r\n| p/Amazon CloudFront httpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Freetz \(([\w._-]+):([\w._-]+)\)\"\r\n.*<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY><H1>401 Unauthorized</H1>\n\n</BODY></HTML>\n|s p/BusyBox httpd/ i/Freetz firmware for AVM FRITZ!Box; login $1:$2/ d/WAP/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-type: text/html\r\nAccept-Ranges: bytes\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"GeneralUser/Administrator\"\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H2>401 Unauthorized</H2>\n<HR>\nAuthorization required for the URL '/'\.\n</BODY></HTML>\n$| p/thttpd/ i/Panasonic BB-HCM511A Network camera http config/ d/webcam/ cpe:/a:acme:thttpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"router\"\r\n.*<h2>401 Unauthorized<h2>\n  <p>\n  Authorization required for the URL\.\n</body>\n</html>\n|s p/thttpd/ i/Linksys RV082 WAP http config/ d/WAP/ cpe:/a:acme:thttpd/ cpe:/h:linksys:rv082/
@@ -9791,7 +9791,6 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: TornadoServer/([\w._-]+)\r\n|s p
 match http m|^HTTP/1\.1 200 OK\r.*\nServer: Node v([\d.]+)\r\n|s p/Node.js httpd/ v/$1/ cpe:/a:nodejs:node.js:$1/
 match http m|^HTTP/1\.1 200 OK\r.*\nServer: GHC\r\n|s p/Gemius Hit Counter/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Pegasus/Plan9\r\n|s p/Pegasus httpd/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Tengine\r\n|s p/Tengine httpd/
 match http m|^HTTP/1\.0 \d\d\d [A-Z ]*\r.*\nServer: Werkzeug/([\w._-]+) Python/([\w._-]+)\r\n|s p/Werkzeug httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Webduino/([\w._-]+)\r\n| p/Webduino httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Restlet-Framework/([\w._-]+)\r\n|s p/Restlet Java web framework/ v/$1/ cpe:/a:restlet:restlet:$1/
@@ -9826,7 +9825,10 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Karrigell ([\w._-]+)\r\nDate: |s p/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .* GMT\r\nServer: WSGIServer/([\w._-]+) C?Python/([\w._+-]+)\r\n| p/WSGIServer/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/ cpe:/a:python:wsgiref:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: MX4J-HTTPD/1\.0\r\n\r\n|s p/MX4J HTTP Adaptor/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ExtremeWare/([\d.]+)\r\n|s p/Exreme Networks switch admin httpd/ i/ExtremeWare XOS $1/ o/XOS/ cpe:/o:extremenetworks:extremeware_xos:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: ngx_openresty/([\w._-]+)\r\n|s p/OpenResty web app server/ v/$1/ cpe:/a:openresty:ngx_openresty:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: ngx_openresty\r\n|s p/OpenResty web app server/ v/1.9.7.2 or earlier/ cpe:/a:openresty:ngx_openresty/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: openresty/([\w._-]+)\r\n|s p/OpenResty web app server/ v/$1/ cpe:/a:openresty:ngx_openresty:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: openresty\r\n|s p/OpenResty web app server/ cpe:/a:openresty:ngx_openresty/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IntelliJ IDEA (\d[\w._-]*)\r\n|s p/IntelliJ IDEA/ v/$1/ cpe:/a:jetbrains:intellij_idea:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Cowboy\r\nDate: .*\r\nContent-Length: \d+\r\n\r\n| p/Cowboy httpd/ cpe:/a:ninenines:cowboy/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Xavante (\d[\w._-]+)\r\n|s p/Xavante Lua httpd/ v/$1/ cpe:/a:kepler_project:xavante:$1/
@@ -9856,8 +9858,20 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\n\r\n<html><head><title>Apache Tomcat/(\d[\w
 match http m|^HTTP/1\.1 \d\d\d .*\r\nContent-Type: application/x-appweb-(\w+)\r\n|s p/Embedthis-Appweb/ i/extension: $1/ cpe:/a:mbedthis:appweb/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nMIME-Version: 1\.0\r\nServer: KS_HTTP/([\d.]+)\r\n| p/Canon Pixma printer http config/ i/KS_HTTP $1/ d/printer/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Content Gateway Manager ([\w._-]+)\r\n| p/Websense Content Gateway Manager http config/ v/$1/ cpe:/a:websense:websense_content_content_gateway:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: bfe\r\n| p/Baidu Front End httpd/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: bfe/([\d.]+)\r\n| p/Baidu Front End httpd/ v/$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: bfe/([\d.]+)-([\w-]+)\r\n| p/Baidu Front End httpd/ v/$1/ i/$2/
 # Also matches Swift?
 match http m|^HTTP/1\.0 \d\d\d .*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/ cpe:/a:lighttpd:lighttpd/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nP3P: CP="This is not a P3P policy! See https://www\.google\.com/support/accounts/answer/151657\?hl=.. for more info\."\r\nServer: gws\r\n|s p/Google Web Server/
+match http m|^HTTP/1\.[01] .*\r\nServer: proxygen\r\nDate: |s p/Facebook Proxygen httpd/ cpe:/a:facebook:proxygen/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 360wzws\r\nDate: |s p/360 WangZhan httpd/
+match http m|^HTTP/1\.[01] 40[04] .*\r\nServer: ATLAS Platform\r\n|s p/VeriSign Advanced Transaction Look-up Signaling http redirector/
+match http m|^HTTP/1\.[01] .*\r\nDate: [^\r\n]+ GMT\r\nServer: ECD \(\w+/[0-9A-F]+\)\r\n|s p/Edgecast ECD httpd/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: instart/nginx\r\n| p/nginx/ i/Instart Logic/ cpe:/a:igor_sysoev:nginx/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Tengine/([\w._-]+)\r\n|s p/Tengine httpd/ v/$1/ cpe:/a:alibaba:tengine:$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Tengine\r\n|s p/Tengine httpd/ cpe:/a:alibaba:tengine/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: 0W/(\d[\w._-]+)\r\n|s p/0W-httpd/ v/$1/ cpe:/a:maxim_zotov:0w-httpd:$1/
 
 # Put this at the end because it's not a server, but a backend.
 match http m|^HTTP/1\.1 \d\d\d .*\r\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n|s p/Java Servlet/ v/$1/ i/JSP $2/ cpe:/a:oracle:jsp:$2/
@@ -10065,7 +10079,11 @@ match http-proxy m|^HTTP/1\.1 401 Unauthorized\r\nServer: RabbIT proxy version (
 match http-proxy m|^HTTP/1\.1 403 Forbidden\r\nServer: Lusca/([\w._-]+)\r\n| p/Lusca http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.0 403 Access Denied\r\nConnection: close\r\n\r\n<html>The request you issued is not authorized for GoogleSharing\.\n| p/GoogleSharing http proxy/
 match http-proxy m|^HTTP/1\.0 503\r\nServer: Charles\r\n| p/Charles http proxy/
-match http-proxy m|^HTTP/1\.0 400 Host Header Required\r\n.*Server: ATS/([\w._-]+)\r\n|s p/Apache Traffic Server/ v/$1/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nVia: http/1\.[01] ([\w._-]+) \(ApacheTrafficServer[^)]*\)\r\nServer: ATS/([\w._-]+)\r\n|s p/Apache Traffic Server/ v/$2/ h/$1/ cpe:/a:apache:traffic_server:$2/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nVia: http/1\.[01] ([\w._-]+) \(ApacheTrafficServer[^)]*\)\r\nServer: ATS\r\n|s p/Apache Traffic Server/ h/$1/ cpe:/a:apache:traffic_server/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: ATS/([\w._-]+)\r\n|s p/Apache Traffic Server/ v/$1/ cpe:/a:apache:traffic_server:$1/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: ATS\r\n|s p/Apache Traffic Server/ cpe:/a:apache:traffic_server/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nVia: http/1\.1 ([\w._-]+) \([^\)]+ \[c[M ]s[S ]f \]\)\r\nServer: [^/]+/([\d.]+)\r\n|s p/Apache Traffic Server/ v/$2/ h/$1/ cpe:/a:apache:traffic_server:$2/
 match http-proxy m|^HTTP/1\.0 200 OK\r\nACCEPT-RANGES: none\r\n\r\n<html><head><Title>SecTitan&#153; Reverse Proxy</title></head><body><center><h1>Error 107</h1>Invalid Request!<br><b>SecTitan&#153; Reverse Proxy ([\w._-]+)</b><br>Copyright &copy; \d+ Bestellen Software, LLC All rights reserved\.</center></body></html>| p/Bestellen SecTitan reverse http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: Varnish\r\n| p/Varnish/ cpe:/a:varnish-cache:varnish/
 match http-proxy m|^HTTP/1\.0 503 Internal Error\r\nServer: awarrenhttp/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD>\n<TITLE>ERROR: The requested URL could not be retrieved</TITLE>\n</HEAD><BODY>\n<H1>ERROR</H1>\n<H2>The requested URL could not be retrieved</H2>| p/awarrenhttp http proxy/ v/$1/
@@ -10082,6 +10100,7 @@ match http-proxy m|^HTTP/1\.1 200 I'm sorry, Dave\. I'm afraid I can't work with
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: smartcds/([\w.]+)\r\n| p/SmartCDS http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.0 400 Bad request: request-line invalid\r\nContent-type: text/html; charset=\"utf-8\"\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\r\n<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www\.w3\.org/1999/xhtml\">\r\n  <head>\r\n    <title>Request denied by WatchGuard HTTP Proxy</title>| p/WatchGuard http proxy/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nX-Varnish: \d+\r.*\nVia: 1\.1 varnish\r\n|s p/Varnish http accelerator/ cpe:/a:varnish-cache:varnish/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: Varnish\r.*\nX-Varnish: \d+\r\n|s p/Varnish http accelerator/ cpe:/a:varnish-cache:varnish/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nVia: 1\.1 varnish-v(\d)\r\n|s p/Varnish http accelerator/ v/$1/ cpe:/a:varnish-cache:varnish:$1/
 match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: Microdasys-SCIP\r\nContent-Type: text/html\r\nContent-Length: 240\r\nConnection: close\r\n\r\n<HTML>.*<ADDRESS><A HREF=\"http://www\.websense\.com/\">Websense Content Gateway Proxy v([\w._-]+)</A>| p/Websense Content Gateway http proxy/ v/$1/ i/Microdasys SCIP ssl proxy/ cpe:/a:websense:websense_content_content_gateway:$1/
 match http-proxy m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: Microdasys-SCIP\r\n| p/Microdasys SCIP ssl proxy/
@@ -10111,6 +10130,7 @@ match http-proxy m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: xxxx\r\nLocation:
 match http-proxy m|^HTTP/1\.1 403 No Protocol\r\nX-Hola-Error: No Protocol\r\nDate: .*\r\nConnection: close\r\n\r\n$| p/Hola VPN http-proxy/ cpe:/a:hola:hola/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: Traffic Inspector HTTP/FTP/Proxy server \(([\d.]+)\)\r\n|s p/Traffic Inspector http proxy/ v/$1/ o/Windows/ cpe:/a:smart-soft:traffic_inspector:$1/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 404 Not Found\r\nServer: Sucuri/Cloudproxy\r\nDate: .* GMT\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nConnection: close\r\nETag: "[a-f\d-]+"\r\n\r\n<!DOCTYPE html>\n\n<html lang="en">\n\n| p/Sucuri CloudProxy/
+match http-proxy m|^HTTP/1\.0 30[12] .*\r\nLocation: https?:///[^\r\n]*\r\nServer: LBaaS\r\n| p/OpenStack Neutron LBaaS load balancer/ cpe:/a:openstack:neutron-lbaas/
 
 match http-proxy m|^HTTP/1\.0 200 OK\r\n\r\n$| p/sslstrip/
 
