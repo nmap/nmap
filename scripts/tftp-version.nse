@@ -144,12 +144,21 @@ action = function(host, port)
   -- We don't have to worry about other instance of this script running on other
   -- ports of the same host confounding our results, because TFTP services
   -- should respond back to the port matching the sending script.
-  --
-  -- Note that due to API limitations, we can't know if the response came from
-  -- the host we sent the request to, so we must assume it does.
   local status, res = socket:receive()
+  if not status then
+    stdnse.debug1("Failed to receive response from server: %s", res)
+    return nil
+  end
+
+  local status, err, _, rhost, _ = socket:get_info()
   socket:close()
   if not status then
+    stdnse.debug1("Failed to determine source of response: %s", err)
+    return nil
+  end
+
+  if rhost ~= host.ip then
+    stdnse.debug1("UDP response came from unexpected host: %s", rhost)
     return nil
   end
 
