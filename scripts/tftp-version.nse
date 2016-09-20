@@ -20,147 +20,33 @@ local OPCODE_RRQ   = 1
 local OPCODE_DATA  = 3
 local OPCODE_ERROR = 5
 
-local responses = {
-  -- match tftp m|^\0\x05\0\x02\0The IP address is not in the range of allowable addresses\.\0| p/SolarWinds tftpd/ i/IP disallowed/ o/Windows/ cpe:/a:solarwinds:tftp_server/ cpe:/o:microsoft:windows/a
-  {
-    2,
-    "The IP address is not in the range of allowable addresses.",
-    {
-      ["p"] = "SolarWinds tftpd",
-      ["i"] = "IP disallowed",
-      ["o"] = "Windows",
-      ["cpe"] = {
-	"a:solarwinds:tftp_server",
-	"o:microsoft:windows/a"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\0Invalid TFTP Opcode| p/Cisco tftpd/ cpe:/a:cisco:tftp_server/
-  {
-    0,
-    "Invalid TFTP Opcode",
-    {
-      ["p"] = "Cisco tftpd",
-      ["cpe"] = {
-	"a:cisco:tftp_server"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\x04Illegal TFTP operation\0| p/Plan 9 tftpd/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
-  {
-    4,
-    "Illegal TFTP operation",
-    {
-      ["p"] = "Plan 9 tftpd",
-      ["o"] = "Plan 9",
-      ["cpe"] = {
-	"o:belllabs:plan_9/a"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\x04Error: Illegal TFTP Operation\0\0\0\0\0| p/Zoom X5 ADSL modem tftpd/ d/broadband router/ cpe:/h:zoom:x5/a
-  {
-    4,
-    "Error: Illegal TFTP Operation",
-    {
-      ["p"] = "Zoom X5 ADSL modem tftpd",
-      ["d"] = "broadband router",
-      ["cpe"] = {
-	"h:zoom:x5/a"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\x04Illegal operation\0$| p/Cisco router tftpd/ d/router/ o/IOS/ cpe:/a:cisco:tftp_server/ cpe:/o:cisco:ios/a
-  {
-    4,
-    "Illegal operation",
-    {
-      ["p"] = "Cisco router tftpd",
-      ["d"] = "router",
-      ["o"] = "IOS",
-      ["cpe"] = {
-	"a:cisco:tftp_server",
-	"o:cisco:ios/a"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\x04Illegal operation error\.\0$| p/Microsoft Windows Deployment Services tftpd/ o/Windows/ cpe:/o:microsoft:windows/
-  {
-    4,
-    "Illegal operation error.",
-    {
-      ["p"] = "Microsoft Windows Deployment Services tftpd",
-      ["o"] = "Windows",
-      ["cpe"] = {
-	"o:microsoft:windows"
-      }
-    }
-  },
-  -- # version 10.9.0.25
-  -- match tftp m|^\0\x05\0\x04Unknown operatation code: 0 received from [\d.]+:\d+\0| p/SolarWinds Free tftpd/ cpe:/a:solarwinds:tftp_server/
-  {
-    4,
-    "Unknown operatation code: 0 received from",
-    {
-      ["p"] = "SolarWinds Free tftpd",
-      ["cpe"] = {
-	"a:solarwinds:tftp_server"
-      }
-    }
-  },
-  {
-    1,
-    "Could not find file '",
-    {
-      ["p"] = "SolarWinds Free tftpd",
-      ["cpe"] = {
-	"a:solarwinds:tftp_server"
-      }
-    }
-  },
-  -- # Brother MFC-9340CDW
-  -- match tftp m|^\0\x05\0\x04illegal \(unrecognized\) tftp operation\0$| p/Brother printer tftpd/ d/printer/
-  {
-    4,
-    "illegal (unrecognized) tftp operation",
-    {
-      ["p"] = "Brother printer tftpd",
-      ["d"] = "printer"
-    }
-  },
-  -- # HP IMC 7.1
-  -- match tftp m|^\0\x05\0\0Not defined, see error message\(if any\)\.\0| p/HP Intelligent Management Center tftpd/ cpe:/a:hp:intelligent_management_center/
-  {
-    0,
-    "Not defined, see error message(if any).",
-    {
-      ["p"] = "HP Intelligent Management Center tftpd",
-      ["cpe"] = {
-	"a:hp:intelligent_management_center"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\x04Illegal TFTP operation\0| p/Windows 2003 Server Deployment Service/ o/Windows/ cpe:/o:microsoft:windows_server_2003/a
-  {
-    4,
-    "Illegal TFTP operation",
-    {
-      ["p"] = "Windows 2003 Server Deployment Service",
-      ["o"] = "Windows",
-      ["cpe"] = {
-	"o:microsoft:windows_server_2003/a"
-      }
-    }
-  },
-  -- match tftp m|^\0\x05\0\x01File not found\.\0$| p/Enistic zone controller tftpd/
-  {
-    1,
-    "File not found.",
-    {
-      ["p"] = "Enistic zone controller tftpd"
-    }
-  },
-}
+local load_fingerprints = function()
+  -- Check if fingerprints are cached.
+  if nmap.registry.tftp_fingerprints then
+    stdnse.debug1("Loading cached TFTP fingerprints...")
+    return nmap.registry.tftp_fingerprints
+  end
+
+  -- Load the fingerprints.
+  local path = nmap.fetchfile("nselib/data/tftp-fingerprints.lua")
+  stdnse.debug1("Loading TFTP fingerprint from files: %s", path)
+  local env = setmetatable({fingerprints = {}}, {__index = _G});
+  local file = loadfile(path, "t", env)
+  if not file then
+    stdnse.debug1("Couldn't load the file: %s", path)
+    return nil
+  end
+  file()
+  local fingerprints = env.fingerprints
+
+  -- Check there are fingerprints to use
+  if #fingerprints == 0 then
+    stdnse.debug1("No fingerprints were loaded from file: %s", path)
+    return nil
+  end
+
+  return fingerprints
+end
 
 local parse = function(buf)
   -- Every TFTP packet is at least 4 bytes.
@@ -285,12 +171,17 @@ action = function(host, port)
   port.version = port.version or {}
   port.version.service = "tftp"
 
+  local fingerprints = load_fingerprints()
+  if not fingerprints then
+    return nil
+  end
+
   -- Try to match the packet against our table of responses, falling back to
   -- encouraging the user to submit a fingerprint to Nmap.
   local sw = nil
-  for _, res in ipairs(responses) do
-    if pkt.errcode == res[1] and pkt.errmsg == res[2] then
-      sw = res[3]
+  for _, fp in ipairs(fingerprints) do
+    if pkt.errcode == fp[1] and pkt.errmsg == fp[2] then
+      sw = fp[3]
       break
     end
   end
