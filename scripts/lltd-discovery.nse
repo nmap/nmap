@@ -184,7 +184,7 @@ local QuickDiscoveryPacket = function(mac_src)
   -- set up LLTD base header = [ mac_dst, mac_src, seq_num(xid) ]
   local lltd_seq_num = openssl.rand_bytes(2)
 
-  base_hdr = bin.pack("HHA", mac_dst, mac_src, lltd_seq_num)
+  base_hdr = bin.pack("HAA", mac_dst, mac_src, lltd_seq_num)
 
   -- set up LLTD Upper Level Header = [ generation_number, number_of_stations, station_list ]
   local generation_number = openssl.rand_bytes(2)
