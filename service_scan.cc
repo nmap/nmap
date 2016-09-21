@@ -691,7 +691,7 @@ static char *transform_cpe(const char *s) {
       Snprintf(buf, sizeof(buf), "%%%02X", *p);
       repl = buf;
     /* Replacing spaces with underscores is also a convention. */
-    } else if (*p == ' ') {
+    } else if (isspace(*p)) {
       repl = "_";
     /* Otherwise just make lower-case. */
     } else {

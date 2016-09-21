@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Improved some output filtering to remove or escape carriage returns ('\r')
+  that could allow output spoofing by overwriting portions of the screen. Issue
+  reported by Adam Rutherford. [Daniel Miller]
+
 o [NSE] Fixed a few bad Lua patterns that could result in denial of service due
   to excessive backtracking. [Adam Rutherford, Daniel Miller]
 
