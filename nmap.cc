@@ -3232,11 +3232,20 @@ static void display_nmap_version() {
 #endif
 
   const char *pcap_version = pcap_lib_version();
-#ifdef PCAP_INCLUDED
-  with.push_back(std::string("nmap-") + get_word_or_quote(pcap_version, 0) + std::string("-") + get_word_or_quote(pcap_version, 2));
+#ifdef WIN32
+  const char *pcap_num = strstr(pcap_version, "version ");
+  if (pcap_num) {
+    pcap_num += strlen("version ");
+  }
+  std::string pcap_num_str (pcap_num, strchr(pcap_num, ',') - pcap_num);
 #else
-  with.push_back(get_word_or_quote(pcap_version, 0) + std::string("-") + get_word_or_quote(pcap_version, 2));
+  std::string pcap_num_str = get_word_or_quote(pcap_version, 2);
 #endif
+  with.push_back(
+#ifdef PCAP_INCLUDED
+      std::string("nmap-") +
+#endif
+      get_word_or_quote(pcap_version, 0) + std::string("-") + pcap_num_str);
 
 #ifdef DNET_INCLUDED
   with.push_back(std::string("nmap-libdnet-") + DNET_VERSION);
