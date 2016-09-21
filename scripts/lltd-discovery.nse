@@ -1,5 +1,4 @@
 local datafiles = require "datafiles"
-local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
@@ -168,34 +167,33 @@ local QuickDiscoveryPacket = function(mac_src)
   local ethernet_hdr, demultiplex_hdr, base_hdr, discover_up_lev_hdr
 
   -- set up ethernet header = [ mac_dst, mac_src, protocol ]
-  local mac_dst = "FF FF FF FF FF FF" -- broadcast
-  local protocol = "88 d9" -- LLTD protocol number
+  local mac_dst = "\xFF\xFF\xFF\xFF\xFF\xFF" -- broadcast
+  local protocol = "\x88\xd9" -- LLTD ethertype
 
-  ethernet_hdr = bin.pack("HAH",mac_dst, mac_src, protocol)
+  ethernet_hdr = mac_dst .. mac_src .. protocol
 
   -- set up LLTD demultiplex header = [ version, type_of_service, reserved, function ]
-  local lltd_version = "01" -- Fixed Value
-  local lltd_type_of_service = "01" -- Type Of Service = Quick Discovery(0x01)
-  local lltd_reserved = "00" -- Fixed value
-  local lltd_function = "00" -- Function = QuickDiscovery->Discover (0x00)
+  local lltd_version = 1 -- Fixed Value
+  local lltd_type_of_service = 1 -- Type Of Service = Quick Discovery(0x01)
+  local lltd_reserved = 0 -- Fixed value
+  local lltd_function = 0 -- Function = QuickDiscovery->Discover (0x00)
 
-  demultiplex_hdr = bin.pack("HHHH", lltd_version, lltd_type_of_service, lltd_reserved, lltd_function )
+  demultiplex_hdr = string.pack("BBBB", lltd_version, lltd_type_of_service, lltd_reserved, lltd_function )
 
   -- set up LLTD base header = [ mac_dst, mac_src, seq_num(xid) ]
   local lltd_seq_num = openssl.rand_bytes(2)
 
-  base_hdr = bin.pack("HAA", mac_dst, mac_src, lltd_seq_num)
+  base_hdr = mac_dst .. mac_src .. lltd_seq_num
 
   -- set up LLTD Upper Level Header = [ generation_number, number_of_stations, station_list ]
   local generation_number = openssl.rand_bytes(2)
-  local number_of_stations = "00 00"
-  local station_list = "00 00 00 00 00 00 " .. "00 00 00 00 00 00 " ..
-  "00 00 00 00 00 00 " .."00 00 00 00 00 00 "
+  local number_of_stations = 0
+  local station_list = string.rep("\0", 6*4)
 
-  discover_up_lev_hdr = bin.pack("AHH", generation_number, number_of_stations, station_list)
+  discover_up_lev_hdr = generation_number .. string.pack("I2", number_of_stations) .. station_list
 
   -- put them all together and return
-  return bin.pack("AAAA", ethernet_hdr, demultiplex_hdr, base_hdr, discover_up_lev_hdr)
+  return ethernet_hdr .. demultiplex_hdr .. base_hdr .. discover_up_lev_hdr
 end
 
 --- Runs a thread which discovers LLTD Responders on a certain interface
