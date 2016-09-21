@@ -135,15 +135,15 @@ Decoders = {
     local response = {}
 
     -- extracts the messagid, so we can check if we already got a response
-    response.msgid = data:match("<.*:MessageID>urn:uuid:(.*)</.*:MessageID>")
+    response.msgid = data:match("<[^:]*:MessageID>urn:uuid:([^<]*)</[^:]*:MessageID>")
 
     -- if unable to parse msgid return nil
     if ( not(response.msgid) ) then
       return false, "No message id was found"
     end
 
-    response.xaddrs = data:match("<.*:*XAddrs>(.*)</.*:*XAddrs>")
-    response.types = data:match("<.*:Types>[wsdp:]*(.*)</.*:Types>")
+    response.xaddrs = data:match("<[^:]*:*XAddrs>(.*)</[^:]*:*XAddrs>")
+    response.types = data:match("<[^:]*:Types>[wsdp:]*(.*)</[^:]*:Types>")
 
     return true, response
   end,

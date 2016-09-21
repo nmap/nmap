@@ -370,7 +370,7 @@ local function check_exim(smtp_opts)
   for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
     if not smtp_opts.ehlo_host or not smtp_opts.domain_ip then
       smtp_opts.ehlo_host, smtp_opts.domain_ip =
-      line:match("%d+.*Hello%s(.*)%s%[(.*)%]")
+      line:match("%d.-Hello%s(.*)%s%[([^]]*)%]")
     end
     if not smtp_server.size then
       smtp_server.size = line:match("%d+%-SIZE%s(%d+)")

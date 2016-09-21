@@ -70,7 +70,7 @@ action = function(host, port)
   end
   socket:close()
 
-  if string.match(response, 'HTTP/1.1 200%s+.+HTTPAPI/2.0') then
+  if string.match(response, 'HTTP/1.1 200%s.+HTTPAPI/2.0') then
     return true, 'IP-HTTPS is supported. This indicates that this host supports Microsoft DirectAccess.'
   end
 end

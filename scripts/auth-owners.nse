@@ -54,7 +54,7 @@ action = function(host, port)
 
   local try = nmap.new_try(catch)
 
-  try(client_ident:connect(host, 113))
+  try(client_ident:connect(host, 1113))
   try(client_service:connect(host, port))
 
   local localip, localport, remoteip, remoteport =
@@ -70,7 +70,7 @@ action = function(host, port)
     owner = nil
   else
     owner = string.match(owner,
-      "%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n")
+      "%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*[^:]+%s*:[ \t]*([^\r\n]+)\r?\n")
   end
 
   try(client_ident:close())

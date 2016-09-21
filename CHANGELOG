@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a few bad Lua patterns that could result in denial of service due
+  to excessive backtracking. [Adam Rutherford, Daniel Miller]
+
 o Fixed a bug in port specification parsing that could cause extraneous
   'T', 'U', 'S', and 'P' characters to be ignored when they should have
   caused an error. [David Fifield]
