@@ -123,6 +123,7 @@ import re
 
 from types import StringTypes
 from ConfigParser import DuplicateSectionError, NoSectionError, NoOptionError
+from ConfigParser import Error as ConfigParser_Error
 
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
@@ -258,11 +259,11 @@ class Profile(UmitConfigParser, object):
                 user_profile = Path.scan_profile
 
             self.read(user_profile)
-        except Exception as e:
+        except ConfigParser_Error as e:
             # No scan profiles found is not a reason to crash.
-            self.add_profile("Profiles not found",
+            self.add_profile(_("Profiles not found"),
                     command="nmap",
-                    description="The {} file was not found".format(user_profile))
+                    description=_("The {} file is missing or corrupted").format(user_profile))
 
         self.attributes = {}
 
@@ -418,6 +419,11 @@ class CommandProfile (Profile, object):
 
     def get_command(self, profile):
         command_string = self._get_it(profile, 'command')
+        # Corrupted config file can include multiple commands. Take the first one.
+        if isinstance(command_string, list):
+            command_string = command_string[0]
+        if not hasattr(command_string, "endswith"):
+            return "nmap"
         # Old versions of Zenmap used to append "%s" to commands and use that
         # to substitute the target. Ignore it if present.
         if command_string.endswith("%s"):
