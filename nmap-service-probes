@@ -15018,3 +15018,13 @@ ports 5683
 sslports 5684
 
 softmatch coap m|^`E|
+
+##############################NEXT PROBE##############################
+# DTLS Client Hello. Dissection available in nmap-payloads
+Probe UDP DTLSSessionReq q|\x16\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x36\x01\x00\x00\x2a\x00\x00\x00\x00\x00\x00\x00\x2a\xfe\xfd\x00\x00\x00\x00\x7c\x77\x40\x1e\x8a\xc8\x22\xa0\xa0\x18\xff\x93\x08\xca\xac\x0a\x64\x2f\xc9\x22\x64\xbc\x08\xa8\x16\x89\x19\x30\x00\x00\x00\x02\x00\x2f\x01\x00|
+rarity 5
+ports 443,4433,4740,5349,5684,6514,6636,10161,10162
+
+# OpenSSL 1.1.0 s_server -dtls -listen
+# HelloVerifyRequest always uses DTLS 1.1 version, per RFC 6347
+match dtls m|^\x16\xfe\xff\0\0\0\0\0\0\0\0..\x03...\0\0\0\0\0...\xfe\xff.|

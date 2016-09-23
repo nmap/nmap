@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o New service probe and match line for DTLS (Datagram TLS, or TLS over UDP).
+
 o Improved some output filtering to remove or escape carriage returns ('\r')
   that could allow output spoofing by overwriting portions of the screen. Issue
   reported by Adam Rutherford. [Daniel Miller]
