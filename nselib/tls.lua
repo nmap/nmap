@@ -1188,7 +1188,6 @@ function record_read(buffer, i, fragment)
 
       table.insert(h["body"], b)
     elseif h["type"] == "handshake" then
-
       -- Check for message fragmentation.
       if len - j < 3 then
         h.fragment = buffer:sub(j, len)
@@ -1253,7 +1252,9 @@ function record_read(buffer, i, fragment)
 
       table.insert(h["body"], b)
     elseif h["type"] == "heartbeat" then
-      b.type, b.payload_length, b.payload, b.padding, j = unpack(">B I2 s2 s2", buffer, j)
+      b.type, b.payload, j = unpack(">B s2", buffer, j)
+      b.padding = buffer:sub(j, len)
+      j = len + 1
       table.insert(h["body"], b)
     else
       stdnse.debug1("Unknown message type: %s", h["type"])
