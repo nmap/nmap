@@ -410,7 +410,7 @@ action = function(host, port)
   end
 
   -- Perform all the requests.
-  local results = http.pipeline_go(host, port, all, nil)
+  local results = http.pipeline_go(host, port, all)
 
   -- Check for http.pipeline error
   if(results == nil) then

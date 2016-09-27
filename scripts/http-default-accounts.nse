@@ -266,7 +266,7 @@ action = function(host, port)
   end
 
   -- Nuclear launch detected!
-  results = http.pipeline_go(host, port, requests, nil)
+  results = http.pipeline_go(host, port, requests)
   if results == nil then
     return stdnse.format_output(false,
       "HTTP request table is empty. This should not happen since we at least made one request.")
