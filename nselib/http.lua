@@ -20,7 +20,7 @@
 --
 -- If a script is planning on making a lot of requests, the pipelining functions can
 -- be helpful. <code>pipeline_add</code> queues requests in a table, and
--- <code>pipeline</code> performs the requests, returning the results as an array,
+-- <code>pipeline_go</code> performs the requests, returning the results as an array,
 -- with the responses in the same order as the queries were added. As a simple example:
 --<code>
 --  -- Start by defining the 'all' variable as nil
@@ -2611,7 +2611,7 @@ end
 ---Check if the response variable contains the given text.
 --
 -- Response variable could be a return from a http.get, http.post,
--- http.pipeline, etc. The text can be:
+-- http.pipeline_go, etc. The text can be:
 -- * Part of a header ('content-type', 'text/html', '200 OK', etc)
 -- * An entire header ('Content-type: text/html', 'Content-length: 123', etc)
 -- * Part of the body
