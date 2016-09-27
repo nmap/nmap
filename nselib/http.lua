@@ -1777,7 +1777,7 @@ end
 --                     the first call.
 -- @param method [optional] The HTTP method ('GET', 'HEAD', 'POST', etc).
 --                          Default: 'GET'.
--- @return Table with the pipeline get requests (plus this new one)
+-- @return Table with the pipeline requests (plus this new one)
 -- @see http.pipeline_go
 function pipeline_add(path, options, all_requests, method)
   if(not(validate_options(options))) then
