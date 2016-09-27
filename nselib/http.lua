@@ -1810,6 +1810,8 @@ end
 -- @param all_requests A table with all the previously built pipeline requests
 -- @return A list of responses, in the same order as the requests were queued.
 --         Each response is a table as described in the module documentation.
+--         The response list may be either nil or shorter than expected (up to
+--         and including being completely empty) due to communication issues.
 function pipeline_go(host, port, all_requests)
   local responses
   local response
