@@ -47,6 +47,14 @@ local table = require "table"
 -- fingerprint.probes[i].method [optional; default: 'GET'}}]
 -- The HTTP method to use when making requests ('GET'}}, 'POST', 'HEAD', 'PUT', 'DELETE', etc
 --
+-- fingerprint.probes[i].nopipeline [optional; default: false]
+-- Do not use HTTP pipelining to send this request.
+--
+-- fingerprint.probes[i].options [optional]
+-- An options table as defined in http.lua. Can be used to provide POST data or
+-- override defaults. Note that when HTTP pipelining is used, not all of these
+-- options will be used.
+--
 -- fingerprint.ignore_404 [optional; default: false]
 -- If set, the automatic checks for 404 and custom 404 pages are disabled for that check.
 -- Every page will be included unless fingerprint.matches.dontmatch excludes it.
