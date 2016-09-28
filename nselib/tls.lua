@@ -1114,42 +1114,9 @@ SCSVS = {
 ["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
 }
 
-message_parse = {
-    alert = function (buffer, j)
-      local b = {}
-      -- Parse body.
-      b.level, b.description, j = unpack("BB", buffer, j)
-
-      -- Convert to human-readable form.
-      b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
-      b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
-
-      return b, j
-    end,
-    handshake = function (buffer, j, protocol)
-      -- Check for message fragmentation.
-      -- Need 4 bytes for message header with length
-      local have = #buffer - j + 1
-      if have < 4 then
-        return nil, j, 4
-      end
-
-      -- Parse body.
-      local b = {}
-      local len
-      b.type, len, j = unpack("B>I3", buffer, j)
-      local msg_end = len + j
-
-      -- Convert to human-readable form.
-      b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
-
-      -- Check for message fragmentation.
-      -- Need 4 bytes for header plus length of message
-      if have < len + 4 then
-        return nil, j - 4, len + 4
-      end
-
-      if b["type"] == "server_hello" then
+handshake_parse = {
+      server_hello = function (buffer, j, msg_end, protocol)
+        local b = {}
         -- Parse body.
         b.protocol, b.time, b.random, b.session_id, j = unpack(">I2 I4 c28 s1", buffer, j)
         b.cipher, b.compressor, j = unpack(">I2 B", buffer, j)
@@ -1171,28 +1138,79 @@ message_parse = {
         b["protocol"] = find_key(PROTOCOLS, b["protocol"])
         b["cipher"] = find_key(CIPHERS, b["cipher"])
         b["compressor"] = find_key(COMPRESSORS, b["compressor"])
-      elseif b["type"] == "certificate" then
+
+        return b, j
+      end,
+
+      certificate = function (buffer, j, msg_end, protocol)
         local cert_end
         cert_end, j = unpack(">I3", buffer, j)
         cert_end = cert_end + j
         if cert_end > msg_end then
           stdnse.debug2("server_certificate length > handshake body length!")
         end
-        b["certificates"] = {}
+        local b = {certificates = {}}
         while j < cert_end do
           local cert_len, cert
           cert, j = unpack(">s3", buffer, j)
           -- parse these with sslcert.parse_ssl_certificate
           table.insert(b["certificates"], cert)
         end
+
+        return b, j
+      end,
+}
+
+message_parse = {
+    alert = function (buffer, j)
+      local b = {}
+      -- Parse body.
+      b.level, b.description, j = unpack("BB", buffer, j)
+
+      -- Convert to human-readable form.
+      b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
+      b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
+
+      return b, j
+    end,
+
+    handshake = function (buffer, j, protocol)
+      -- Check for message fragmentation.
+      -- Need 4 bytes for message header with length
+      local have = #buffer - j + 1
+      if have < 4 then
+        return nil, j, 4
+      end
+
+      -- Parse body.
+      local btype, len
+      btype, len, j = unpack("B>I3", buffer, j)
+      local msg_end = len + j
+
+      -- Convert to human-readable form.
+      btype = find_key(TLS_HANDSHAKETYPE_REGISTRY, btype)
+
+      -- Check for message fragmentation.
+      -- Need 4 bytes for header plus length of message
+      if have < len + 4 then
+        return nil, j - 4, len + 4
+      end
+
+      local parser = handshake_parse[btype]
+      local b
+      if parser then
+        b, j = parser(buffer, j, msg_end, protocol)
+        b.type = btype
       else
         -- TODO: implement other handshake message types
+        b = { type = btype }
         stdnse.debug2("Unknown handshake message type: %s", b["type"])
         b.data, j = unpack("c" .. msg_end - j, buffer, j)
       end
 
       return b, j
     end,
+
     heartbeat = function (buffer, j)
       local b = {}
       b.type, b.payload, j = unpack(">B s2", buffer, j)
@@ -1202,6 +1220,36 @@ message_parse = {
     end,
 }
 
+
+--- Parse a series of TLS messages from a buffer
+--@param mbuffer The buffer to parse
+--@param mi The index into that buffer to begin parsing
+--@param h The TLS/DTLS header. Must contain "type" and "protocol" fields
+--@return A table of parsed messages
+--@return The position where parsing stopped
+function parse_messages (mbuffer, mi, h)
+  local messages = {}
+  while mi < #mbuffer do
+    -- RFC 2246, 6.2.1 "multiple client messages of the same ContentType may
+    -- be coalesced into a single TLSPlaintext record"
+    local parser = message_parse[h.type]
+    if not parser then
+      stdnse.debug1("Unknown message type: %s", h["type"])
+      break
+    end
+    local b, need
+    b, mi, need = parser(mbuffer, mi, h.protocol)
+    if b then
+      messages[#messages+1] = b
+    elseif need then
+      -- Can't finish parsing this message, it'll be left in the fragment
+      break
+    end
+  end
+
+  return messages, mi
+end
+
 ---
 -- Read a SSL/TLS record
 -- @param buffer   The read buffer
@@ -1210,11 +1258,6 @@ message_parse = {
 -- @return The current position in the buffer
 -- @return The record that was read, as a table
 function record_read(buffer, i, fragment)
-
-  ------------
-  -- Header --
-  ------------
-
   -- Ensure we have enough data for the header.
   if #buffer - i < TLS_RECORD_HEADER_LENGTH then
     return i, nil
@@ -1251,36 +1294,13 @@ function record_read(buffer, i, fragment)
     mbuffer = buffer:sub(j, j + rlength)
   end
 
-  -- Convert to human-readable form.
-
-  ----------
-  -- Body --
-  ----------
-
-  h["body"] = {}
-
+  -- Body
   local mi = 1
-  while mi < #mbuffer do
-    -- RFC 2246, 6.2.1 "multiple client messages of the same ContentType may
-    -- be coalesced into a single TLSPlaintext record"
-    local parser = message_parse[h.type]
-    if not parser then
-      stdnse.debug1("Unknown message type: %s", h["type"])
-      break
-    end
-    local b, need
-    b, mi, need = parser(mbuffer, mi, h.protocol)
-    if b then
-      table.insert(h.body, b)
-    elseif need then
-      stdnse.debug1("Fragmented after %d messages in %d bytes. %d remaining, need %d",
-        #h.body, mi, #mbuffer - mi + 1, need)
-      -- Fragmented message
-      h.fragment = mbuffer:sub(mi)
-      break
-    end
+  h.body, mi = parse_messages(mbuffer, mi, h)
+  if mi < #mbuffer then
+    -- Fragmented message
+    h.fragment = mbuffer:sub(mi)
   end
-
   -- Skip to the end of the record. Ignore unparsed bytes.
   -- These should be handled as fragmentation above
   j = j + rlength
