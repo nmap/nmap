@@ -1,10 +1,45 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Fixed a discrepancy between the number of targets selected with -iR and the
-  number of hosts scanned, resulting in output like "Nmap done: 1033 IP
-  addresses" when the user specified -iR 1000. [Daniel Miller]
+Nmap 7.30 [2016-09-29]
 
-o New service probe and match line for DTLS (Datagram TLS, or TLS over UDP).
+o Integrated all 12 of your IPv6 OS fingerprint submissions from June to
+  September. No new groups, but several classifications were strengthened,
+  especially Windows localhost and OS X. [Daniel Miller]
+
+o [NSE] Added 7 NSE scripts, from 3 authors, bringing the total up to 541!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
+  (authors are listed in brackets):
+
+  + [GH#369] coap-resources grabs the list of available resources from CoAP
+    endpoints. [Mak Kolybabi]
+
+  + fox-info retrieves detailed version and configuration info from Tridium
+    Niagara Fox services. [Stephen Hilt]
+
+  + ipmi-brute performs authentication brute-forcing on IPMI services.
+    [Claudiu Perta]
+
+  + ipmi-cipher-zero checks IPMI services for Cipher Zero support, which allows
+    connection without a password. [Claudiu Perta]
+
+  + ipmi-version retrieves protocol version and authentication options from
+    ASF-RMCP (IPMI) services. [Claudiu Perta]
+
+  + [GH#352] mqtt-subscribe connects to a MQTT broker, subscribes to topics,
+    and lists the messages received. [Mak Kolybabi]
+
+  + pcworx-info retrieves PLC model, firmware version, and date from Phoenix
+    Contact PLCs. [Stephen Hilt]
+
+o Upgraded Npcap, our new Windows packet capturing driver/library,
+  from version to 0.09 to 0.10r2. This includes many bug fixes, with a
+  particular on emphasis on concurrency issues discovered by running
+  hundreds of Nmap instances at a time. More details are available
+  from https://github.com/nmap/npcap/releases. [Yang Luo, Daniel
+  Miller, Fyodor]
+
+o New service probes and match lines for DTLS, IPMI-RMCP, MQTT, PCWorx,
+  ProConOS, and Tridium Fox, [Stephen Hilt, Mak Kolybabi, Daniel Miller]
 
 o Improved some output filtering to remove or escape carriage returns ('\r')
   that could allow output spoofing by overwriting portions of the screen. Issue
@@ -12,6 +47,10 @@ o Improved some output filtering to remove or escape carriage returns ('\r')
 
 o [NSE] Fixed a few bad Lua patterns that could result in denial of service due
   to excessive backtracking. [Adam Rutherford, Daniel Miller]
+
+o Fixed a discrepancy between the number of targets selected with -iR and the
+  number of hosts scanned, resulting in output like "Nmap done: 1033 IP
+  addresses" when the user specified -iR 1000. [Daniel Miller]
 
 o Fixed a bug in port specification parsing that could cause extraneous
   'T', 'U', 'S', and 'P' characters to be ignored when they should have
@@ -26,29 +65,13 @@ o [Zenmap] Fixed a bug in the Compare Scans window of Zenmap on OS X resulting
     /Applications/Zenmap.app/Contents/Resources/lib/python2.7/lib-dynload/datetime.so: mach-o, but wrong architecture
   Reported by Kyle Gustafson. [Daniel Miller]
 
-o [NSE][GH#369] New script: coap-resources grabs the list of available
-  resources from CoAP endpoints. [Mak Kolybabi]
+o [NSE] Fixed a bug in ssl-enum-ciphers and ssl-dh-params which caused them to
+  not output TLSv1.2 info with DHE ciphersuites or others involving
+  ServerKeyExchange messages. [Daniel Miller]
 
-o [NSE] New script: ipmi-version retrieves protocol version and authentication
-  options from ASF-RMCP (IPMI) services. [Claudiu Perta]
-
-o [NSE] New script: ipmi-cipher-zero checks IPMI services for Cipher Zero
-  support, which allows connection without a password. [Claudiu Perta]
-
-o [NSE] New script: ipmi-brute performs authentication brute-forcing on IPMI
-  services. [Claudiu Perta]
-
-o [NSE][GH#352] New script: mqtt-subscribe connects to a MQTT broker, subscribes to
-  topics, and lists the messages received. [Mak Kolybabi]
-
-o [NSE] New script: fox-info retrieves detailed version and configuration info
-  from Tridium Niagara Fox services. [Stephen Hilt]
-
-o New service probe and match lines for PCWorx, ProConOS, and Tridium Fox,
-  based on work by Stephen Hilt of Digital Bond.
-
-o [NSE] New script: pcworx-info retrieves PLC model, firmware version, and date
-  from Phoenix Contact PLCs. [Stephen Hilt]
+o [NSE] Added X509v3 extension parsing to NSE's sslcert code. ssl-cert now
+  shows the Subject Alternative Name extension; all extensions are shown in the
+  XML output. [Daniel Miller]
 
 Nmap 7.25BETA2 [2016-09-01]
 
@@ -75,9 +98,34 @@ o Integrated all of your service/version detection fingerprints submitted from
   We now detect 1122 protocols, from elasticsearch, fhem, and goldengate to
   ptcp, resin-watchdog, and siemens-logo. [Daniel Miller]
 
-o [Nsock][GH#148] New, very fast IOCP Nsock engine uses "Overlapped I/O" to
-  improve performance of version scan and NSE against many targets on Windows.
-  [Tudor Emil Coman]
+o Upgraded Npcap, our new Windows packet capturing driver/library,
+  from version 0.07-r17 to 0.09. This includes many improvements you can
+  read about at https://github.com/nmap/npcap/releases.
+
+o [Nsock][GH#148] Added the new IOCP Nsock engine which uses the Windows
+  Overlapped I/O API to improve performance of version scan and NSE against
+  many targets on Windows. [Tudor Emil Coman]
+
+o [GH#376] Windows binaries are now code-signed with our "Insecure.Com LLC"
+  SHA256 certificate. This should give our users extra peace-of-mind and avoid
+  triggering Microsoft's ever-increasing security warnings.
+
+o Various performance improvements for large-scale high-rate scanning,
+  including increased ping host groups, faster probe matching, and ensuring
+  data types can handle an Internet's-worth of targets. [Tudor Emil Coman]
+
+o [NSE] Added the oracle-tns-version NSE script which decodes the version
+  number from Oracle Database Server's TNS
+  listener. https://nmap.org/nsedoc/scripts/oracle-tns-version.html [Daniel
+  Miller]
+
+o [NSE] Added the clock-skew NSE script which analyzes and reports clock skew
+  between Nmap and services that report timestamps, grouping hosts with
+  similar skews. https://nmap.org/nsedoc/scripts/clock-skew.html [Daniel
+  Miller]
+
+o [Zenmap] Long-overdue Spanish language translation has been added! Muy bien!
+  [Vincent Dumont, Marta Garcia De La Paz, Paulino Calderon, Patricio Castagnaro]
 
 o [Zenmap][GH#449] Fix a crash when closing Zenmap due to a read-only
   zenmap.conf. User will be warned that config cannot be saved and that they
@@ -87,10 +135,6 @@ o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
   like DH certificates or corrupted certs. When this happens, ssl-enum-ciphers
   will label the ciphersuite strength as "unknown." Reported by Bertrand
   Bonnefoy-Claudet. [Daniel Miller]
-
-o [NSE] Fixed a bug in ssl-enum-ciphers and ssl-dh-params which caused them to
-  not output TLSv1.2 info with DHE ciphersuites or others involving
-  ServerKeyExchange messages. [Daniel Miller]
 
 o [NSE][GH#531] Fix two issues in sslcert.lua that prevented correct operations
   against LDAP services when version detection or STARTTLS were used.
@@ -108,8 +152,9 @@ o [NSE][GH#234] Added a --script-timeout option for limiting run time for
   every individual NSE script. [Abhishek Singh]
 
 o [Ncat][GH#444] Added a -z option to Ncat. Just like the -z option in
-  traditional netcat, it can be used to quicky check the status of a port. Port
-  ranges are not supported. [Abhishek Singh]
+  traditional netcat, it can be used to quickly check the status of a
+  port. Port ranges are not supported since we recommend a certain other tool
+  for port scanning. [Abhishek Singh]
 
 o Fix checking of Npcap/WinPcap presence on Windows so that "nmap -A" and
   "nmap" with no options result in the same behaviors as on Linux (and no

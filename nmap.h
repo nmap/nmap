@@ -193,13 +193,13 @@
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "7.25SVN"
-#define NMAP_NUM_VERSION "7.0.25.100"
+#define NMAP_VERSION "7.30SVN"
+#define NMAP_NUM_VERSION "7.0.30.100"
 #endif
 /* The version number of updates retrieved by the nmap-update
    program. It can be different (but should always be the same or
    earlier) than NMAP_VERSION. */
-#define NMAP_UPDATE_CHANNEL "7.20"
+#define NMAP_UPDATE_CHANNEL "7.30"
 
 #define NMAP_XMLOUTPUTVERSION "1.04"
 
