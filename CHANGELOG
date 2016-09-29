@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a discrepancy between the number of targets selected with -iR and the
+  number of hosts scanned, resulting in output like "Nmap done: 1033 IP
+  addresses" when the user specified -iR 1000. [Daniel Miller]
+
 o New service probe and match line for DTLS (Datagram TLS, or TLS over UDP).
 
 o Improved some output filtering to remove or escape carriage returns ('\r')

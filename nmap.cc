@@ -2031,7 +2031,10 @@ int nmap_main(int argc, char *argv[]) {
         }
         delete currenths;
         o.numhosts_scanned++;
-        continue;
+        if (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + Targets.size())
+          continue;
+        else
+          break;
       }
 
       if (o.spoofsource) {
@@ -2051,7 +2054,10 @@ int nmap_main(int argc, char *argv[]) {
         }
         delete currenths;
         o.numhosts_scanned++;
-        continue;
+        if (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + Targets.size())
+          continue;
+        else
+          break;
       }
 
       if (o.RawScan()) {
