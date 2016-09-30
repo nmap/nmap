@@ -2497,6 +2497,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 0;
+		match.numprints = 11;
 		match.OS_name = (char *) "Linux 2.6.38 - 3.2";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -2513,6 +2514,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 1;
+		match.numprints = 6;
 		match.OS_name = (char *) "Linux 2.6.38 - 2.6.39";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -2524,6 +2526,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 2;
+		match.numprints = 8;
 		match.OS_name = (char *) "Linux 2.6.32 - 2.6.39";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -2535,6 +2538,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 3;
+		match.numprints = 1;
 		match.OS_name = (char *) "HP ProCurve 2520G switch";
 		{
 			OS_Classification osclass = {"HP", "embedded", NULL, "switch"};
@@ -2546,6 +2550,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 4;
+		match.numprints = 1;
 		match.OS_name = (char *) "FreeBSD 8.1-RELEASE";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "8.X", "general purpose"};
@@ -2557,6 +2562,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 5;
+		match.numprints = 1;
 		match.OS_name = (char *) "OpenIndiana oi_148";
 		{
 			OS_Classification osclass = {"OpenIndiana", "OpenIndiana", NULL, "general purpose"};
@@ -2568,6 +2574,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 6;
+		match.numprints = 4;
 		match.OS_name = (char *) "Microsoft Windows 7 Professional SP1";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "7", "general purpose"};
@@ -2579,6 +2586,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 7;
+		match.numprints = 4;
 		match.OS_name = (char *) "Linux 2.6.11 - 2.6.15";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -2590,6 +2598,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 8;
+		match.numprints = 1;
 		match.OS_name = (char *) "VMware ESXi 5";
 		{
 			OS_Classification osclass = {"VMware", "ESXi", "5.X", "specialized"};
@@ -2601,6 +2610,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 9;
+		match.numprints = 1;
 		match.OS_name = (char *) "OpenBSD 4.8";
 		{
 			OS_Classification osclass = {"OpenBSD", "OpenBSD", "4.X", "general purpose"};
@@ -2612,6 +2622,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 10;
+		match.numprints = 1;
 		match.OS_name = (char *) "Netgear DGN3300v2 ADSL router";
 		{
 			OS_Classification osclass = {"Netgear", "embedded", NULL, "broadband router"};
@@ -2623,6 +2634,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 11;
+		match.numprints = 1;
 		match.OS_name = (char *) "Apple Mac OS X 10.4.11 (Tiger) (Darwin 8.11.1)";
 		{
 			OS_Classification osclass = {"Apple", "Mac OS X", "10.4.X", "general purpose"};
@@ -2634,6 +2646,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 12;
+		match.numprints = 1;
 		match.OS_name = (char *) "Linux 2.4.21";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.4.X", "general purpose"};
@@ -2645,6 +2658,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 13;
+		match.numprints = 2;
 		match.OS_name = (char *) "Equinox CCM4850 remote management appliance or Nokia 5530 XpressMusic phone";
 		{
 			OS_Classification osclass = {"Nokia", "Symbian OS", "9.X", "phone"};
@@ -2662,6 +2676,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 14;
+		match.numprints = 2;
 		match.OS_name = (char *) "HP LaserJet P2055dn printer or TP-LINK TL-SG2216 switch";
 		{
 			OS_Classification osclass = {"HP", "embedded", NULL, "printer"};
@@ -2678,6 +2693,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 15;
+		match.numprints = 11;
 		match.OS_name = (char *) "Microsoft Windows Vista SP2 or Windows 7 SP1 or Windows Server 2008 R2 SP1 or Windows 8 Consumer Preview";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "Vista", "general purpose"};
@@ -2704,6 +2720,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 16;
+		match.numprints = 1;
 		match.OS_name = (char *) "Brother MFC-9440CN printer";
 		{
 			OS_Classification osclass = {"Brother", "embedded", NULL, "printer"};
@@ -2715,6 +2732,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 17;
+		match.numprints = 1;
 		match.OS_name = (char *) "Cisco 2600 router";
 		{
 			OS_Classification osclass = {"Cisco", "IOS", NULL, "router"};
@@ -2726,6 +2744,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 18;
+		match.numprints = 1;
 		match.OS_name = (char *) "Cisco 3750G switch";
 		{
 			OS_Classification osclass = {"Cisco", "IOS", "12.X", "switch"};
@@ -2738,6 +2757,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 19;
+		match.numprints = 1;
 		match.OS_name = (char *) "Cisco 3650G switch (IOS 15.0)";
 		{
 			OS_Classification osclass = {"Cisco", "IOS", "15.X", "switch"};
@@ -2750,6 +2770,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 20;
+		match.numprints = 1;
 		match.OS_name = (char *) "pfSense firewall (FreeBSD 8.1-RELEASE)";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "8.X", "general purpose"};
@@ -2761,6 +2782,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 21;
+		match.numprints = 1;
 		match.OS_name = (char *) "m0n0wall 1.8 firewall (FreeBSD 8.2)";
 		{
 			OS_Classification osclass = {"m0n0wall", "FreeBSD", "8.X", "general purpose"};
@@ -2772,6 +2794,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 22;
+		match.numprints = 1;
 		match.OS_name = (char *) "OpenBSD 3.8";
 		{
 			OS_Classification osclass = {"OpenBSD", "OpenBSD", "3.X", "general purpose"};
@@ -2783,6 +2806,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 23;
+		match.numprints = 1;
 		match.OS_name = (char *) "HP LaserJet P1606dn printer";
 		{
 			OS_Classification osclass = {"HP", "embedded", NULL, "printer"};
@@ -2794,6 +2818,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 24;
+		match.numprints = 1;
 		match.OS_name = (char *) "HP LaserJet M1212nf";
 		{
 			OS_Classification osclass = {"HP", "embedded", NULL, "printer"};
@@ -2805,6 +2830,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 25;
+		match.numprints = 1;
 		match.OS_name = (char *) "NetBSD 5.0";
 		{
 			OS_Classification osclass = {"NetBSD", "NetBSD", "5.X", "general purpose"};
@@ -2816,6 +2842,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 26;
+		match.numprints = 1;
 		match.OS_name = (char *) "FreeBSD 6.1-RELEASE";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "6.X", "general purpose"};
@@ -2827,6 +2854,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 27;
+		match.numprints = 2;
 		match.OS_name = (char *) "Linux 2.6.23 - 2.6.33 (embedded)";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -2838,6 +2866,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 28;
+		match.numprints = 1;
 		match.OS_name = (char *) "Thecus N4100PRO NAS device (Linux 2.6.33)";
 		{
 			OS_Classification osclass = {"Thecus", "Linux", "2.6.X", "storage-misc"};
@@ -2850,6 +2879,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 29;
+		match.numprints = 2;
 		match.OS_name = (char *) "Oracle Solaris 10 or Sun OpenSolaris svn_111b";
 		{
 			OS_Classification osclass = {"Sun", "Solaris", "10", "general purpose"};
@@ -2866,6 +2896,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 30;
+		match.numprints = 3;
 		match.OS_name = (char *) "Oracle Solaris 11 or OpenIndiana";
 		{
 			OS_Classification osclass = {"Sun", "Solaris", "10", "general purpose"};
@@ -2882,6 +2913,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 31;
+		match.numprints = 2;
 		match.OS_name = (char *) "Microsoft Windows 7 SP0 - SP1";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "7", "general purpose"};
@@ -2893,6 +2925,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 32;
+		match.numprints = 1;
 		match.OS_name = (char *) "OpenBSD 4.4";
 		{
 			OS_Classification osclass = {"OpenBSD", "OpenBSD", "4.X", "general purpose"};
@@ -2904,6 +2937,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 33;
+		match.numprints = 3;
 		match.OS_name = (char *) "Cisco 1841 or 2509 router (IOS 12.3 - 15.4)";
 		{
 			OS_Classification osclass = {"Cisco", "IOS", "12.X", "router"};
@@ -2922,6 +2956,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 34;
+		match.numprints = 5;
 		match.OS_name = (char *) "Apple Mac OS X 10.6.8 - 10.7.3 (Snow Leopard - Lion) (Darwin 10.8.0 - 11.3.0)";
 		{
 			OS_Classification osclass = {"Apple", "Mac OS X", "10.6.X", "general purpose"};
@@ -2943,6 +2978,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 35;
+		match.numprints = 14;
 		match.OS_name = (char *) "Apple Mac OS X 10.6.8 - 10.7 (Snow Leopard - Lion) or iOS 4.3.3 (Darwin 10.8.0 - 11.3.0)";
 		{
 			OS_Classification osclass = {"Apple", "Mac OS X", "10.6.X", "general purpose"};
@@ -2964,6 +3000,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 36;
+		match.numprints = 1;
 		match.OS_name = (char *) "HP OfficeJet 8500 printer";
 		{
 			OS_Classification osclass = {"HP", "embedded", NULL, "printer"};
@@ -2975,6 +3012,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 37;
+		match.numprints = 4;
 		match.OS_name = (char *) "HP LaserJet CP1525nw or CP2025dn printer";
 		{
 			OS_Classification osclass = {"HP", "embedded", NULL, "printer"};
@@ -2985,6 +3023,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 38;
+		match.numprints = 2;
 		match.OS_name = (char *) "AVM FRITZ!Box 7390 WAP or Cisco SA520 Security Appliance";
 		{
 			OS_Classification osclass = {"AVM", "embedded", NULL, "broadband router"};
@@ -3001,6 +3040,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 39;
+		match.numprints = 10;
 		match.OS_name = (char *) "Linux 2.6.18 - 2.6.34";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3012,6 +3052,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 40;
+		match.numprints = 2;
 		match.OS_name = (char *) "Linux 2.6.18 - 2.6.34";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3023,6 +3064,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 41;
+		match.numprints = 5;
 		match.OS_name = (char *) "Linux 2.6.23 - 2.6.32";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3034,6 +3076,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 42;
+		match.numprints = 4;
 		match.OS_name = (char *) "Microsoft Windows XP SP3 or Windows Server 2003 SP1";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "XP", "general purpose"};
@@ -3050,6 +3093,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 43;
+		match.numprints = 2;
 		match.OS_name = (char *) "Microsoft Windows 7 SP1";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "7", "general purpose"};
@@ -3061,6 +3105,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 44;
+		match.numprints = 3;
 		match.OS_name = (char *) "FreeBSD 7.4 - 8.2";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "7.X", "general purpose"};
@@ -3077,6 +3122,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 45;
+		match.numprints = 17;
 		match.OS_name = (char *) "Linux 2.6.32 - 2.6.37";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3088,6 +3134,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 46;
+		match.numprints = 16;
 		match.OS_name = (char *) "Linux 2.6.16 - 3.2";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3104,6 +3151,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 47;
+		match.numprints = 16;
 		match.OS_name = (char *) "Linux 2.6.32 - 3.2";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3120,6 +3168,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 48;
+		match.numprints = 2;
 		match.OS_name = (char *) "IBM AIX 7.1";
 		{
 			OS_Classification osclass = {"IBM", "AIX", "7.X", "general purpose"};
@@ -3131,6 +3180,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 49;
+		match.numprints = 3;
 		match.OS_name = (char *) "IBM AIX 6.1";
 		{
 			OS_Classification osclass = {"IBM", "AIX", "6.X", "general purpose"};
@@ -3142,6 +3192,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 50;
+		match.numprints = 4;
 		match.OS_name = (char *) "IBM AIX 6.1 - 7.1";
 		{
 			OS_Classification osclass = {"IBM", "AIX", "6.X", "general purpose"};
@@ -3158,6 +3209,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 51;
+		match.numprints = 2;
 		match.OS_name = (char *) "IBM AIX 6.1 - 7.1";
 		{
 			OS_Classification osclass = {"IBM", "AIX", "6.X", "general purpose"};
@@ -3174,6 +3226,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 52;
+		match.numprints = 10;
 		match.OS_name = (char *) "Microsoft Windows 7 SP1 or Windows Server 2008 R2 or Windows 8.1";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "7", "general purpose"};
@@ -3195,6 +3248,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 53;
+		match.numprints = 3;
 		match.OS_name = (char *) "Linux 2.6.32 - 3.2";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
@@ -3211,6 +3265,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 54;
+		match.numprints = 7;
 		match.OS_name = (char *) "Linux 3.2 - 3.8";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
@@ -3222,6 +3277,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 55;
+		match.numprints = 8;
 		match.OS_name = (char *) "Linux 3.7 - 4.4";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
@@ -3233,6 +3289,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 56;
+		match.numprints = 4;
 		match.OS_name = (char *) "Linux 3.7 - 3.9";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
@@ -3244,6 +3301,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 57;
+		match.numprints = 4;
 		match.OS_name = (char *) "Cisco IOS 12";
 		{
 			OS_Classification osclass = {"Cisco", "IOS", "12.X", "router"};
@@ -3255,6 +3313,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 58;
+		match.numprints = 5;
 		match.OS_name = (char *) "Linux 2.6.39 - 3.5";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3271,6 +3330,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 59;
+		match.numprints = 1;
 		match.OS_name = (char *) "Linux 2.6.39";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3282,6 +3342,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 60;
+		match.numprints = 4;
 		match.OS_name = (char *) "OpenWrt (Linux 3.3 - 3.10)";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "broadband router"};
@@ -3293,6 +3354,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 61;
+		match.numprints = 1;
 		match.OS_name = (char *) "Citrix NetScaler load balancer (NS9.3)";
 		{
 			OS_Classification osclass = {"Citrix", "embedded", NULL, "load balancer"};
@@ -3304,6 +3366,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 62;
+		match.numprints = 1;
 		match.OS_name = (char *) "Citrix NetScaler load balancer (NS9.2)";
 		{
 			OS_Classification osclass = {"Citrix", "embedded", NULL, "load balancer"};
@@ -3315,6 +3378,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 63;
+		match.numprints = 3;
 		match.OS_name = (char *) "Linux 2.6.18";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
@@ -3326,6 +3390,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 64;
+		match.numprints = 2;
 		match.OS_name = (char *) "NetBSD";
 		{
 			OS_Classification osclass = {"NetBSD", "NetBSD", NULL, "general purpose"};
@@ -3337,6 +3402,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 65;
+		match.numprints = 1;
 		match.OS_name = (char *) "F5 BIG-IP load balancer";
 		{
 			OS_Classification osclass = {"F5 Networks", "embedded", NULL, "load balancer"};
@@ -3347,6 +3413,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 66;
+		match.numprints = 1;
 		match.OS_name = (char *) "FreeBSD 8.2-RELEASE";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "8.X", "general purpose"};
@@ -3358,6 +3425,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 67;
+		match.numprints = 1;
 		match.OS_name = (char *) "FreeBSD 8.2-RELEASE";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "8.X", "general purpose"};
@@ -3369,6 +3437,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 68;
+		match.numprints = 2;
 		match.OS_name = (char *) "Microsoft Windows Vista SP2";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "Vista", "general purpose"};
@@ -3380,6 +3449,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 69;
+		match.numprints = 2;
 		match.OS_name = (char *) "Microsoft Windows Server 2008 R2";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "2008", "general purpose"};
@@ -3391,6 +3461,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 70;
+		match.numprints = 7;
 		match.OS_name = (char *) "FreeBSD 9.0 - 10.3";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "9.X", "general purpose"};
@@ -3407,6 +3478,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 71;
+		match.numprints = 1;
 		match.OS_name = (char *) "Juniper MX960 Universal Edge Router (JUNOS)";
 		{
 			OS_Classification osclass = {"Juniper", "JUNOS", NULL, "firewall"};
@@ -3419,6 +3491,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 72;
+		match.numprints = 1;
 		match.OS_name = (char *) "NetComm NP805N wireless ADSL router";
 		{
 			OS_Classification osclass = {"NetComm", "embedded", NULL, "WAP"};
@@ -3430,6 +3503,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 73;
+		match.numprints = 3;
 		match.OS_name = (char *) "OpenBSD 5.3 - 5.9";
 		{
 			OS_Classification osclass = {"OpenBSD", "OpenBSD", "5.X", "general purpose"};
@@ -3441,6 +3515,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 74;
+		match.numprints = 2;
 		match.OS_name = (char *) "FreeBSD 9.1 - 9.3";
 		{
 			OS_Classification osclass = {"FreeBSD", "FreeBSD", "9.X", "general purpose"};
@@ -3452,6 +3527,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 75;
+		match.numprints = 1;
 		match.OS_name = (char *) "BlackBerry 10";
 		{
 			OS_Classification osclass = {"RIM", "BlackBerry", "10.X", "phone"};
@@ -3463,6 +3539,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 76;
+		match.numprints = 1;
 		match.OS_name = (char *) "Microsoft Windows Server 2012 R2";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "2012", "general purpose"};
@@ -3474,6 +3551,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 77;
+		match.numprints = 1;
 		match.OS_name = (char *) "IBM AIX 7.1";
 		{
 			OS_Classification osclass = {"IBM", "AIX", "7.X", "general purpose"};
@@ -3485,6 +3563,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 78;
+		match.numprints = 1;
 		match.OS_name = (char *) "HP HP-UX B.11.23";
 		{
 			OS_Classification osclass = {"HP", "HP-UX", "11.X", "general purpose"};
@@ -3496,6 +3575,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 79;
+		match.numprints = 1;
 		match.OS_name = (char *) "Cisco IOS XR";
 		{
 			OS_Classification osclass = {"Cisco", "IOS XR", NULL, "router"};
@@ -3506,6 +3586,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 80;
+		match.numprints = 1;
 		match.OS_name = (char *) "Joyent SmartOS";
 		{
 			OS_Classification osclass = {"Joyent", "SmartOS", NULL, "general purpose"};
@@ -3517,6 +3598,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 81;
+		match.numprints = 5;
 		match.OS_name = (char *) "Linux 3.12 - 3.18";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
@@ -3528,6 +3610,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 82;
+		match.numprints = 12;
 		match.OS_name = (char *) "Apple OS X 10.9 (Mavericks) - 10.11 (El Capitan) or iOS 6 - 10.0 (Darwin 13.0.0 - 16.0.0)";
 		{
 			OS_Classification osclass = {"Apple", "OS X", "10.9.X", "general purpose"};
@@ -3564,6 +3647,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 83;
+		match.numprints = 1;
 		match.OS_name = (char *) "Dell SonicWALL firewall (SonicOS 5.9)";
 		{
 			OS_Classification osclass = {"SonicWALL", "SonicOS", "5.X", "firewall"};
@@ -3575,6 +3659,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 84;
+		match.numprints = 7;
 		match.OS_name = (char *) "Linux 3.13 - 4.1";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
@@ -3591,6 +3676,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 85;
+		match.numprints = 2;
 		match.OS_name = (char *) "VMware ESXi 6.0.0";
 		{
 			OS_Classification osclass = {"VMware", "ESXi", "6.X", "specialized"};
@@ -3602,6 +3688,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 86;
+		match.numprints = 3;
 		match.OS_name = (char *) "Linux 4.0 - 4.4";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "4.X", "general purpose"};
@@ -3613,6 +3700,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 87;
+		match.numprints = 2;
 		match.OS_name = (char *) "Apple Time Capsule NAS device";
 		{
 			OS_Classification osclass = {"Apple", "NetBSD", "4.X", "storage-misc"};
@@ -3624,6 +3712,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 88;
+		match.numprints = 1;
 		match.OS_name = (char *) "IBM i 7.2";
 		{
 			OS_Classification osclass = {"IBM", "i", "7.X", "general purpose"};
@@ -3635,6 +3724,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 89;
+		match.numprints = 5;
 		match.OS_name = (char *) "Apple OS X 10.10 (Yosemite) - 10.11 (El Capitan) (Darwin 14.0.0 - 15.5.0)";
 		{
 			OS_Classification osclass = {"Apple", "OS X", "10.10.X", "general purpose"};
@@ -3651,6 +3741,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 90;
+		match.numprints = 1;
 		match.OS_name = (char *) "Apple OS X 10.9 (Mavericks) (Darwin 13.4.0)";
 		{
 			OS_Classification osclass = {"Apple", "OS X", "10.9.X", "general purpose"};
@@ -3662,6 +3753,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 91;
+		match.numprints = 1;
 		match.OS_name = (char *) "Cisco IOS XE 15";
 		{
 			OS_Classification osclass = {"Cisco", "IOS XE", "15.X", "router"};
@@ -3673,6 +3765,7 @@ std::vector<FingerMatch> load_fp_matches() {
 	{
 		FingerMatch match;
 		match.line = 92;
+		match.numprints = 2;
 		match.OS_name = (char *) "Microsoft Windows 8.1 or Windows 10";
 		{
 			OS_Classification osclass = {"Microsoft", "Windows", "8.1", "general purpose"};
