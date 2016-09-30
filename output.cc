@@ -1924,12 +1924,22 @@ void printosscanoutput(Target *currenths) {
       for (i = 1; i < FPR->num_perfect_matches; i++)
         log_write(LOG_MACHINE, "|%s", FPR->matches[i]->OS_name);
 
+      unsigned short numprints = FPR->matches[0]->numprints;
       log_write(LOG_PLAIN, "OS details: %s", FPR->matches[0]->OS_name);
-      for (i = 1; i < FPR->num_perfect_matches; i++)
+      for (i = 1; i < FPR->num_perfect_matches; i++) {
+        numprints = MIN(numprints, FPR->matches[i]->numprints);
         log_write(LOG_PLAIN, ", %s", FPR->matches[i]->OS_name);
+      }
       log_write(LOG_PLAIN, "\n");
 
-      if (o.debugging || o.verbose > 1)
+      /* Suggest submission of an already-matching IPv6 fingerprint with
+       * decreasing probability as numprints increases, and never if the group
+       * has 5 or more prints or if the print is unsuitable. */
+      bool suggest_submission = currenths->af() == AF_INET6 && reason == NULL && rand() % 5 >= numprints;
+      if (suggest_submission)
+        log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
+            "Nmap needs more fingerprint submissions of this type. Please submit via https://nmap.org/submit/\n");
+      if (suggest_submission || o.debugging || o.verbose > 1)
         write_merged_fpr(FPR, currenths, reason == NULL, true);
     } else {
       /* No perfect matches. */
