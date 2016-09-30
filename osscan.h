@@ -172,6 +172,9 @@ struct OS_Classification {
    classifications. */
 struct FingerMatch {
   int line; /* For reference prints, the line # in nmap-os-db */
+  /* For IPv6 matches, the number of fingerprints that contributed to this
+   * classification group */
+  unsigned short numprints;
   char *OS_name;
   std::vector<OS_Classification> OS_class;
 
