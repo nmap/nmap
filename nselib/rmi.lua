@@ -883,7 +883,7 @@ function RmiDataStream:readReturnData(dis)
     return doh("Not enough data received")
   end
 
-  local status, magic = dis:readShort() -- read magic
+  local status, magic = dis:readUnsignedShort() -- read magic
   local status, version = dis:readShort() -- read version
 
 
