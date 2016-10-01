@@ -673,7 +673,6 @@ table.insert(fingerprints, {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    -- This fingerprint needs OpenSSL for MD5
     return have_openssl
            and response.status == 200
            and response.header["server"]
@@ -720,14 +719,16 @@ table.insert(fingerprints, {
   -- once the http library adds support for gzip encoding. Don't forget
   -- to change url.absolute() argument from "../" to "api/" in login_check.
   --target_check = function (host, port, path, response)
-  --  return response.status == 200
+  --  return have_openssl
+  --         and response.status == 200
   --         and response.body
   --         and response.body:find("brandStrings", 1, true)
   --         and response.body:find("checkAuthentication", 1, true)
   --         and response.body:find("hp stuff init", 1, true)
   --end,
   target_check = function (host, port, path, response)
-    return response.status == 200
+    return have_openssl
+           and response.status == 200
            and response.header["command-status"]
            and response.header["command-status"]:find("^0 %({.*systemName:.*,%s*controller:.*}%)")
   end,
