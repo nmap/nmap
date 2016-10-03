@@ -854,6 +854,8 @@ class ControlOptions(BWScrolledWindow):
 
         self.radialnet = radialnet
 
+        self.enable_labels = True
+
         self.__create_widgets()
 
     def __create_widgets(self):
@@ -878,12 +880,14 @@ class ControlOptions(BWScrolledWindow):
 
         self.__column_toggle = gtk.TreeViewColumn('', self.__cell_toggle)
         self.__column_toggle.add_attribute(self.__cell_toggle, 'active', 0)
+        self.__column_toggle.set_cell_data_func(self.__cell_toggle, self.__cell_toggle_data_method)
 
         self.__cell_text = gtk.CellRendererText()
 
         self.__column_text = gtk.TreeViewColumn(None,
                                                 self.__cell_text,
                                                 text=1)
+        self.__column_text.set_cell_data_func(self.__cell_text, self.__cell_text_data_method)
 
         self.__treeview = gtk.TreeView(self.__liststore)
         self.__treeview.set_enable_search(True)
@@ -896,13 +900,25 @@ class ControlOptions(BWScrolledWindow):
 
         gobject.timeout_add(REFRESH_RATE, self.__update_options)
 
+    def __cell_toggle_data_method(self, column, cell, model, it):
+        if not self.enable_labels and model.get_value(it, 1) == 'hostname':
+            cell.set_property('activatable', False)
+        else:
+            cell.set_property('activatable', True)
+
+    def __cell_text_data_method(self, column, cell, model, it):
+        if not self.enable_labels and model.get_value(it, 1) == 'hostname':
+            cell.set_property('strikethrough', True)
+        else:
+            cell.set_property('strikethrough', False)
+
     def __update_options(self):
         """
         """
         model = self.__liststore
 
         model[OPTIONS.index('address')][0] = self.radialnet.get_show_address()
-        model[OPTIONS.index('hostname')][0] = \
+        model[OPTIONS.index('hostname')][0] = self.enable_labels and \
                 self.radialnet.get_show_hostname()
         model[OPTIONS.index('icon')][0] = self.radialnet.get_show_icon()
         model[OPTIONS.index('latency')][0] = self.radialnet.get_show_latency()
@@ -921,6 +937,11 @@ class ControlOptions(BWScrolledWindow):
 
         if OPTIONS[option] == 'address':
             self.radialnet.set_show_address(model[option][0])
+            if model[option][0]:
+                model[OPTIONS.index('hostname')][0] = self.radialnet.get_show_hostname()
+            else:
+                model[OPTIONS.index('hostname')][0] = False
+            self.enable_labels = model[option][0]
 
         elif OPTIONS[option] == 'hostname':
             self.radialnet.set_show_hostname(model[option][0])
