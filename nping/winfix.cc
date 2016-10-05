@@ -187,13 +187,13 @@ static bool start_service(const char *svcname) {
   }
   npf = OpenService(scm, svcname, SC_MANAGER_CONNECT | SERVICE_QUERY_STATUS);
   if (npf == NULL) {
+    /* No need to warn at this point: we'll check later
     error("Error in OpenService");
+    */
     goto quit_error;
   }
   if (!QueryServiceStatus(npf, &service)) {
-    /* No need to warn at this point: we'll check later
     error("Error in QueryServiceStatus");
-    */
     goto quit_error;
   }
   npf_running = (service.dwCurrentState & SERVICE_RUNNING) != 0;
