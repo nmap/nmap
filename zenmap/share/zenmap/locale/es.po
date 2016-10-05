@@ -994,7 +994,7 @@ msgid ""
 "%s is a free and open source utility for network exploration and security "
 "auditing."
 msgstr ""
-"es una utilidad gratis y de software para la exploración de redes y "
+"%s es una utilidad gratis y de software para la exploración de redes y "
 "auditorias de seguridad."
 
 #: zenmapGUI/About.py:221
