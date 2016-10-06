@@ -94,7 +94,7 @@ ssize_t
 eth_send(eth_t *eth, const void *buf, size_t len)
 {
   /* 14-byte Ethernet header, but DLT_NULL is a 4-byte header. Skip over the difference */
-  DLT_NULL_HEADER *hdr = (uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN;
+  DLT_NULL_HEADER *hdr = (DLT_NULL_HEADER *)((uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN);
   if (eth->type.LinkType == NdisMediumNull) {
     switch (ntohs(((struct eth_hdr *)buf)->eth_type)) {
       case ETH_TYPE_IP:
