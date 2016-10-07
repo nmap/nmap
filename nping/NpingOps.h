@@ -218,7 +218,6 @@ class NpingOps {
 
     /* Privileges */
     bool isr00t;              /* True if current user has root privs   */
-    bool isr00t_set;
 
     /* Payloads */
     int payload_type;         /* Type of payload (RAND,HEX,FILE)       */
@@ -447,7 +446,6 @@ class NpingOps {
     int setIsRoot(int v);
     int setIsRoot();
     bool isRoot();
-    bool issetIsRoot();
 
     /* Payloads */
     int setPayloadType(int t);

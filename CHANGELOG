@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nping][GH#559] Fix Nping's ability to use Npcap on Windows. A privilege
+  check was performed too late, so the Npcap loading code assumed the user had no
+  rights. [Yang Luo, Daniel Miller]
+
 o [Zenmap] Fix a crash in the About page in the Spanish translation due to a
   missing format specifier:
     File "zenmapGUI\About.pyo", line 217, in __init__

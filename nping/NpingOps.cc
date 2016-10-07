@@ -188,8 +188,19 @@ NpingOps::NpingOps() {
     disable_packet_capture_set=false;
 
     /* Privileges */
+/* If user did not specify --privileged or --unprivileged explicitly, try to
+ * determine if has root privileges. */
+#if defined WIN32 || defined __amigaos__
+    /* TODO: Check this because although nmap does exactly the same, it has a this->have_pcap that may affect to this */
+    isr00t=true;
+#else
+  if (getenv("NMAP_PRIVILEGED") || getenv("NPING_PRIVILEGED"))
+    isr00t=true;
+  else if (getenv("NMAP_UNPRIVILEGED") || getenv("NPING_UNPRIVILEGED"))
     isr00t=false;
-    isr00t_set=false;
+  else
+    isr00t = !(geteuid());
+#endif
 
     /* Payloads */
     payload_type=PL_NONE;
@@ -957,7 +968,6 @@ int NpingOps::af(){
 int NpingOps::setIsRoot(int v) {
   int prev=this->isr00t;
   this->isr00t = (v==0) ? 0 : 1;
-  this->isr00t_set=true;
   return prev;
 } /* End of setIsRoot() */
 
@@ -967,7 +977,6 @@ int NpingOps::setIsRoot(int v) {
 int NpingOps::setIsRoot() {
   int prev=this->isr00t;
   this->isr00t=1;
-  this->isr00t_set=true;
  return prev;
 } /* End of setIsRoot() */
 
@@ -976,12 +985,6 @@ int NpingOps::setIsRoot() {
 bool NpingOps::isRoot() {
   return (this->isr00t);
 } /* End of isRoot() */
-
-
-/* Returns true if option has been set */
-bool NpingOps::issetIsRoot(){
-  return this->isr00t_set;
-} /* End of isset() */
 
 
 /******************************************************************************
@@ -2288,21 +2291,6 @@ const char *privreq = "root privileges";
     //if (!this->have_pcap)
         privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating systems and NT 4.0 with SP4 or greater.  For previous Windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
 #endif
-/* If user did not specify --privileged or --unprivileged explicitly, try to
- * determine if has root privileges. */
-if( !this->issetIsRoot() ){
-#if defined WIN32 || defined __amigaos__
-  /* TODO: Check this because although nmap does exactly the same, it has a this->have_pcap that may affect to this */
-  this->setIsRoot(1);
-#else
-  if (getenv("NMAP_PRIVILEGED") || getenv("NPING_PRIVILEGED"))
-        this->setIsRoot(1);
-  else if (getenv("NMAP_UNPRIVILEGED") || getenv("NPING_UNPRIVILEGED"))
-        this->setIsRoot(0);
-  else
-        this->setIsRoot( !(geteuid()) );
-#endif
-}
 
 if (this->havePcap()==false){
     #ifdef WIN32

@@ -175,7 +175,6 @@ int main(int argc, char *argv[] ){
   /* Init a few things on Windows */
   #ifdef WIN32
     win_pre_init();
-    win_init();
   #endif
 
   /* Register the SIGINT signal so when the users presses CTRL-C we print stats
@@ -186,6 +185,11 @@ int main(int argc, char *argv[] ){
 
   /* Let's parse and validate user supplied args */
   a.parseArguments(argc, argv);
+  #ifdef WIN32
+    // Must come after parseArguments because of --unprivileged
+    // Must come before validateOptions because it sets o.isRoot
+    win_init();
+  #endif
   o.validateOptions();
 
   /* ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html */
