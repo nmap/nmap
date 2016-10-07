@@ -1,5 +1,21 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fix a crash in the About page in the Spanish translation due to a
+  missing format specifier:
+    File "zenmapGUI\About.pyo", line 217, in __init__
+    TypeError: not all arguments converted during string formatting
+  [Daniel Miller]
+
+o [Zenmap][GH#556] Better visual indication that display of hostname is tied to
+  address in the Topology page. You can show numeric addresses with hostnames
+  or without, but you can't show hostnames without numeric addresses when they
+  are not available. [Daniel Miller]
+
+o To increase the number of IPv6 fingerprint submissions, a prompt for
+  submission will be shown with some random chance for successful matches of OS
+  classes that are based on only a few submissions. Previously, only
+  unsuccessful matches produced such a prompt. [Daniel Miller]
+
 Nmap 7.30 [2016-09-29]
 
 o Integrated all 12 of your IPv6 OS fingerprint submissions from June to
