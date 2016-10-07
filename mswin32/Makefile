@@ -59,7 +59,8 @@ nmap.rc: nmap.rc.in ../nmap.h
 	     -e 's/@@COMMAVERSION@@/$(COMMA_VERSION)/' \
 	     "$<" > "$@"
 
-nsis/Nmap.nsi: nsis/Nmap.nsi.in
+nsis/Nmap.nsi: nsis/Nmap.nsi.in ../nmap.h
+	test -n "$(NPCAP_VERSION)" # Make sure NPcap is present
 	sed -e '1i; Automatically generated from $<.' \
 	     -e 's/@@VIPRODUCTVERSION@@/"$(NMAP_NUM_VERSION)"/' \
 	     -e 's/@@VERSION@@/"$(NMAP_VERSION)"/' \
