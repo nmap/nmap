@@ -278,6 +278,10 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
       break;
 #ifdef ENOPROTOOPT
     case ENOPROTOOPT:
+      newhoststate = HOST_DOWN;
+      newportstate = PORT_FILTERED;
+      current_reason = ER_PROTOUNREACH;
+      break;
 #endif
     case EHOSTUNREACH:
       newhoststate = HOST_DOWN;
@@ -300,6 +304,12 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
       newhoststate = HOST_DOWN;
       newportstate = PORT_FILTERED;
       current_reason = ER_NETUNREACH;
+      break;
+    case ENONET:
+      /* For Linux at least, this means ICMP type 3 code 8, source host isolated */
+      newhoststate = HOST_DOWN;
+      newportstate = PORT_FILTERED;
+      current_reason = ER_DESTUNREACH;
       break;
     case ENETDOWN:
     case ENETRESET:
