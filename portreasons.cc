@@ -245,7 +245,7 @@ static reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
             case ICMP_UNREACH_FILTER_PROHIB:
                 return ER_ADMINPROHIBITED;
             }
-            return ER_UNKNOWN;
+            return ER_DESTUNREACH;
 
         case ICMP_SRCQUENCH:
             return ER_SOURCEQUENCH;
@@ -288,7 +288,7 @@ static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
             case ICMPV6_UNREACH_REJECT_ROUTE:
                 return ER_REJECTROUTE;
             }
-            return ER_UNKNOWN;
+            return ER_DESTUNREACH;
 
         case ICMPV6_PARAMPROBLEM:
             return ER_PARAMPROBLEM;
