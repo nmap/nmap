@@ -1104,7 +1104,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   int top = lua_gettop(L);
 
   /* library upvalues */
-  nsock_pool nsp = new_pool(L); /* NSOCK_POOL */
+  nsock_pool nsp;
+  nsp = new_pool(L); /* NSOCK_POOL */
   lua_newtable(L); /* NSOCK_SOCKET */
   lua_newtable(L); /* PCAP_SOCKET */
   nseU_weaktable(L, 0, MAX_PARALLELISM, "k"); /* THREAD_SOCKETS */
