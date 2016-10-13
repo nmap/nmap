@@ -326,7 +326,6 @@ static int ncat_listen_stream(int proto)
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
-        struct fdinfo *fdi = NULL;
 
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", client_fdlist.fdmax);
@@ -360,6 +359,7 @@ static int ncat_listen_stream(int proto)
                 logdebug("fd %d is ready\n", i);
 
 #ifdef HAVE_OPENSSL
+            struct fdinfo *fdi = NULL;
             /* Is this an ssl socket pending a handshake? If so handle it. */
             if (o.ssl && FD_ISSET(i, &sslpending_fds)) {
                 FD_CLR(i, &master_readfds);
