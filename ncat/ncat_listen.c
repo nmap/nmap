@@ -359,9 +359,9 @@ static int ncat_listen_stream(int proto)
                 logdebug("fd %d is ready\n", i);
 
 #ifdef HAVE_OPENSSL
-            struct fdinfo *fdi = NULL;
             /* Is this an ssl socket pending a handshake? If so handle it. */
             if (o.ssl && FD_ISSET(i, &sslpending_fds)) {
+                struct fdinfo *fdi = NULL;
                 FD_CLR(i, &master_readfds);
                 FD_CLR(i, &master_writefds);
                 fdi = get_fdinfo(&client_fdlist, i);
