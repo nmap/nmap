@@ -760,7 +760,7 @@ UltraScanInfo::UltraScanInfo() {
 }
 
 UltraScanInfo::~UltraScanInfo() {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
 
   for (hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
     delete *hostI;
@@ -819,7 +819,7 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
 /* Return a number between 0.0 and 1.0 inclusive indicating how much of the scan
    is done. */
 double UltraScanInfo::getCompletionFraction() {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
   double total;
 
   /* Add 1 for each completed host. */
@@ -1076,7 +1076,7 @@ unsigned int UltraScanInfo::numProbesPerHost() {
 bool UltraScanInfo::sendOK(struct timeval *when) {
   struct timeval lowhtime = {0};
   struct timeval tmptv;
-  std::set<HostScanStats *>::iterator host;
+  std::multiset<HostScanStats *>::iterator host;
   bool ggood = false;
   bool thisHostGood = false;
   bool foundgood = false;
@@ -1134,7 +1134,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
 /* Find a HostScanStats by its IP address in the incomplete and completed lists.
    Returns NULL if none are found. */
 HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
-  std::set<HostScanStats *>::iterator hss;
+  std::multiset<HostScanStats *>::iterator hss;
 
   HssPredicate::ss = ss;
   HostScanStats *fakeHss = NULL;
@@ -1160,7 +1160,7 @@ HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
    is here to replace numIncompleteHosts() < n, which would have to walk
    through the entire list. */
 bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
   unsigned int count;
 
   count = 0;
@@ -1180,7 +1180,7 @@ static bool pingprobe_is_better(const probespec *new_probe, int new_state,
    list, and remove any hosts from completedHosts which have exceeded their
    lifetime.  Returns the number of hosts removed. */
 int UltraScanInfo::removeCompletedHosts() {
-  std::set<HostScanStats *>::iterator hostI, nxt;
+  std::multiset<HostScanStats *>::iterator hostI, nxt;
   HostScanStats *hss = NULL;
   int hostsRemoved = 0;
   bool timedout = false;
@@ -2290,7 +2290,7 @@ static void sendGlobalPingProbe(UltraScanInfo *USI) {
 }
 
 static void doAnyPings(UltraScanInfo *USI) {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
   HostScanStats *hss = NULL;
 
   gettimeofday(&USI->now, NULL);
@@ -2365,7 +2365,7 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
 /* Go through the ProbeQueue of each host, identify any
    timed out probes, then try to retransmit them as appropriate */
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
   std::list<UltraProbe *>::iterator probeI;
   /* A cache of the last processed probe from each host, to avoid re-examining a
      bunch of probes to find the next one that needs to be retransmitted. */
@@ -2445,7 +2445,7 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
 /* Print occasional remaining time estimates, as well as
    debugging information */
 static void printAnyStats(UltraScanInfo *USI) {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
   struct ultra_timing_vals hosttm;
 
@@ -2515,7 +2515,7 @@ static void waitForResponses(UltraScanInfo *USI) {
 /* Go through the data structures, making appropriate changes (such as expiring
    probes, noting when hosts are complete, etc. */
 static void processData(UltraScanInfo *USI) {
-  std::set<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *>::iterator hostI;
   std::list<UltraProbe *>::iterator probeI, nextProbeI;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;

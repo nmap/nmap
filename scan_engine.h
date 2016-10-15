@@ -738,11 +738,11 @@ public:
 
   /* Any function which messes with (removes elements from)
      incompleteHosts may have to manipulate nextI */
-  std::set<HostScanStats *, HssPredicate> incompleteHosts;
+  std::multiset<HostScanStats *, HssPredicate> incompleteHosts;
   /* Hosts are moved from incompleteHosts to completedHosts as they are
      completed. We keep them around because sometimes responses come back very
      late, after we consider a host completed. */
-  std::set<HostScanStats *, HssPredicate> completedHosts;
+  std::multiset<HostScanStats *, HssPredicate> completedHosts;
   /* How long (in msecs) we keep a host in completedHosts */
   unsigned int completedHostLifetime;
   /* The last time we went through completedHosts to remove hosts */
@@ -759,7 +759,7 @@ public:
 private:
 
   unsigned int numInitialTargets;
-  std::set<HostScanStats *>::iterator nextI;
+  std::multiset<HostScanStats *>::iterator nextI;
 
 };
 
