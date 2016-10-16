@@ -965,29 +965,32 @@ if not unittest.testing() then
 end
 
 test_suite = unittest.TestSuite:new()
-test_suite:add_test(unittest.equal(
-    stdnse.tohex(select(-1, lm_create_hash("passphrase"))),
-    "855c3697d9979e78ac404c4ba2c66533"
-    ),
-  "lm_create_hash"
-  )
-test_suite:add_test(unittest.equal(
-    stdnse.tohex(select(-1, ntlm_create_hash("passphrase"))),
-    "7f8fe03093cc84b267b109625f6bbf4b"
-    ),
-  "ntlm_create_hash"
-  )
-test_suite:add_test(unittest.equal(
-    stdnse.tohex(select(-1, lm_create_hash("ÅÇÅÇ"))),
-    "1830f5732b438091aad3b435b51404ee"
-    ),
-  "lm_create_hash"
-  )
-test_suite:add_test(unittest.equal(
-    stdnse.tohex(select(-1, ntlm_create_hash("öäü"))),
-    "4848bcb81cf018c3b70ea1479bd1374d"
-    ),
-  "ntlm_create_hash"
-  )
+-- OpenSSL-dependent crypto tests.
+if have_ssl then
+  test_suite:add_test(unittest.equal(
+      stdnse.tohex(select(-1, lm_create_hash("passphrase"))),
+      "855c3697d9979e78ac404c4ba2c66533"
+      ),
+    "lm_create_hash"
+    )
+  test_suite:add_test(unittest.equal(
+      stdnse.tohex(select(-1, ntlm_create_hash("passphrase"))),
+      "7f8fe03093cc84b267b109625f6bbf4b"
+      ),
+    "ntlm_create_hash"
+    )
+  test_suite:add_test(unittest.equal(
+      stdnse.tohex(select(-1, lm_create_hash("ÅÇÅÇ"))),
+      "1830f5732b438091aad3b435b51404ee"
+      ),
+    "lm_create_hash"
+    )
+  test_suite:add_test(unittest.equal(
+      stdnse.tohex(select(-1, ntlm_create_hash("öäü"))),
+      "4848bcb81cf018c3b70ea1479bd1374d"
+      ),
+    "ntlm_create_hash"
+    )
+end
 
 return _ENV;
