@@ -131,6 +131,7 @@
 #include "xml.h"
 
 #include <math.h>
+#include <limits>
 
 extern NmapOps o;
 
