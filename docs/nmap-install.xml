@@ -717,11 +717,13 @@ quite as efficient as on Unix.  Here are the known limitations:
 <indexterm><primary>Windows</primary><secondary>limitations of</secondary></indexterm>
 <itemizedlist>
 
-<listitem><para>You cannot generally scan your own machine from itself
-(using a loopback<indexterm><primary>loopback
+<listitem><para>When using Nmap with WinPcap instead of Npcap, you cannot
+generally scan your own machine from itself (using a
+loopback<indexterm><primary>loopback
 interface</primary></indexterm> IP such as 127.0.0.1 or any of its
 registered IP addresses).  This is a Windows limitation that we
-haven't yet worked around.  If you really want to do this, use a TCP
+have worked around in Npcap, which is included in the Windows self-installer.
+Users stuck with WinPcap can use a TCP
 connect scan without pinging (<option>-sT -Pn</option>) as that uses
 the high level socket API rather than sending raw
 packets.</para></listitem>
@@ -742,8 +744,8 @@ Unix, though the latter often has a slight performance edge.  One
 exception to this is connect scan (<option>-sT</option>), which is
 often much slower on Windows because of deficiencies in the Windows
 networking API.  This is a shame, since that is the one TCP scan that
-works against localhost and over all networking types (not just
-ethernet, like the raw packet scans).  Connect scan performance can be
+works over all networking types (not just ethernet, like the raw packet scans).
+Connect scan performance can be
 improved substantially by applying the Registry changes in the
 <filename>nmap_performance.reg</filename> file included with Nmap.  By default these changes are applied for you by the Nmap executable installer.  This registry file
 is in the <filename>nmap-<replaceable>version</replaceable></filename>
@@ -816,8 +818,8 @@ system available from <ulink url="http://www.cygwin.com" />.  Here are the step-
 Nmap to reside in.  An example would be <filename>C:\Program
 Files</filename>.  A directory called
 <filename>nmap-<replaceable>version</replaceable></filename> should be created, which includes
-the Nmap executable and data files.  Microsoft Windows XP and Vista
-include zip extraction&mdash;just right-click on the file in
+the Nmap executable and data files.  Microsoft Windows XP and later
+includes zip extraction&mdash;just right-click on the file in
 <application>Explorer</application>.  If you do not have a Zip
 decompression program, there is one (called unzip) in Cygwin described
 above, or you can download the open-source and free <ulink
@@ -828,13 +830,13 @@ alternatives are <ulink url="http://www.winzip.com">WinZip</ulink> and
 <listitem><para>For improved performance, apply the Nmap Registry
 changes discussed previously.</para></listitem>
 
-<listitem><para>Nmap requires the free WinPcap packet capture library.
-We build our own WinPcap installer which is available in the zip file
-as <filename>winpcap-nmap-<replaceable>version</replaceable>.exe</filename>,
-where <replaceable>version</replaceable> is the WinPcap version rather
+<listitem><para>Nmap requires the free Npcap packet capture library.
+We include a recent Npcap installer which is available in the zip file
+as <filename>npcap-<replaceable>version</replaceable>.exe</filename>,
+where <replaceable>version</replaceable> is the Npcap version rather
 than the Nmap version.  Alternatively, you can obtain and install
-the latest version from <ulink url="http://www.winpcap.org" />.  You
-must install version 4.0 or later.</para></listitem>
+the latest version from <ulink url="http://www.npcap.org" />.
+</para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
 <ulink role="hidepdf" url="http://www.microsoft.com/download/details.aspx?id=40784">Microsoft Visual C++ 2013 Redistributable Package</ulink> of runtime
@@ -856,8 +858,10 @@ given in <xref linkend="inst-win-exec"/>.</para></listitem>
 
 <para>Most Windows users prefer to use the Nmap binary self-installer,
 but compilation from source code is an option, particularly if you plan to help with Nmap development.  Compilation requires
-Microsoft Visual C++ 2010, which is part of their commercial Visual Studio suite.  Any of the Visual Studio 2010 editions should work, including the free <ulink
-url="https://www.microsoft.com/visualstudio/eng/products/visual-studio-2010-express">Visual C++ 2010 Express SP1</ulink>.</para>
+Microsoft Visual C++ 2013, which is part of their commercial Visual Studio
+suite.  Any of the Visual Studio 2013 editions should work, including the free
+<ulink url="https://www.microsoft.com/en-us/download/details.aspx?id=48131">
+Visual C++ 2013 Express</ulink>.</para>
 
 <para>
 Some of Nmap's dependencies on Windows are inconvenient to build. For
@@ -904,7 +908,11 @@ failures.</para></listitem>
 
 <listitem><para>The executable and data files can be found in <filename>nmap-<replaceable>version</replaceable>/mswin32/Release/</filename>.  You can copy them to a preferred directory as long as they are all kept together.</para></listitem>
 
-<listitem><para>Ensure that you have WinPcap installed.  You can obtain it by installing our binary self-installer or executing <filename>winpcap-nmap-<replaceable>version</replaceable>.exe</filename> from our zip package.  Alternatively, you can obtain the official installer at <ulink url="http://www.winpcap.org"/>.</para></listitem>
+<listitem><para>Ensure that you have Npcap installed.  You can obtain it by
+installing our binary self-installer or executing
+<filename>npcap-<replaceable>version</replaceable>.exe</filename> from
+our zip package.  Alternatively, you can obtain the official installer at
+<ulink url="http://www.npcap.org"/>.</para></listitem>
 
 <listitem><para>Instructions for executing your compiled Nmap are
 given in the next section.</para></listitem>
