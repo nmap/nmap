@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#350] Fix an assertion failure due to floating point error in equality
+  comparison, which triggered mainly on OpenBSD:
+    assertion "diff <= interval" failed: file "timing.cc", line 440
+  This was reported earlier as [GH#472] but the assertion fixed there was a
+  different one. [David Carlier]
+
 o [Nping][GH#559] Fix Nping's ability to use Npcap on Windows. A privilege
   check was performed too late, so the Npcap loading code assumed the user had no
   rights. [Yang Luo, Daniel Miller]

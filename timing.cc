@@ -437,7 +437,7 @@ void RateMeter::update(double amount, const struct timeval *now) {
     interval = MAX(current_rate_history, diff);
   else
     interval = TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0;
-  assert(diff <= interval);
+  assert(diff <= interval + std::numeric_limits<double>::epsilon());
   /* If we record an amount in the very same instant that the timer is started,
      there's no way to calculate meaningful rates. Ignore it. */
   if (interval == 0.0)
