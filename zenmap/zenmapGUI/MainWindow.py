@@ -156,7 +156,7 @@ from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 import zenmapGUI.Print
-from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig
+from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig, config_parser
 from zenmapCore.NetworkInventory import FilteredNetworkInventory
 
 UmitScanWindow = None
@@ -906,23 +906,19 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                 return True
 
         window = WindowConfig()
-        try:
-            window.x, window.y = self.get_position()
-            window.width, window.height = self.get_size()
-            window.save_changes()
-        except IOError as e:
-            if e.errno == errno.EACCES:
-                alert = HIGAlertDialog(
-                        message_format=_("Can't save Zenmap configuration"),
-                        # newline before path to help avoid weird line wrapping
-                        secondary_text=_(
-                            'Permission denied when writing to\n%s'
-                            '\nMake sure the file exists and is writable.'
-                            ) % (Path.user_config_file))
-                alert.run()
-                alert.destroy()
-            else:
-                raise
+        window.x, window.y = self.get_position()
+        window.width, window.height = self.get_size()
+        window.save_changes()
+        if config_parser.failed:
+            alert = HIGAlertDialog(
+                    message_format=_("Can't save Zenmap configuration"),
+                    # newline before path to help avoid weird line wrapping
+                    secondary_text=_(
+                        'An error occurred when saving to\n%s'
+                        '\nThe error was: %s.'
+                        ) % (Path.user_config_file, config_parser.failed))
+            alert.run()
+            alert.destroy()
 
         self.destroy()
 
