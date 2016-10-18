@@ -491,7 +491,7 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int timeleft;
   ConnectScanInfo *CSI = USI->gstats->CSI;
   int sd;
-  std::multiset<HostScanStats *>::iterator hostI;
+  std::multiset<HostScanStats *, HssPredicate>::iterator hostI;
   HostScanStats *host;
   UltraProbe *probe = NULL;
   int optval;
@@ -532,7 +532,7 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
      and find the relevant ones. Note the peculiar structure of the loop--we
      iterate through both incompleteHosts and completedHosts, because global
      timing pings are sent to hosts in completedHosts. */
-  std::multiset<HostScanStats *>::iterator incompleteHostI, completedHostI;
+  std::multiset<HostScanStats *, HssPredicate>::iterator incompleteHostI, completedHostI;
   incompleteHostI = USI->incompleteHosts.begin();
   completedHostI = USI->completedHosts.begin();
   while ((incompleteHostI != USI->incompleteHosts.end()

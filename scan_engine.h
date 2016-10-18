@@ -759,7 +759,7 @@ public:
 private:
 
   unsigned int numInitialTargets;
-  std::multiset<HostScanStats *>::iterator nextI;
+  std::multiset<HostScanStats *, HssPredicate>::iterator nextI;
 
 };
 
