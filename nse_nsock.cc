@@ -1104,8 +1104,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   int top = lua_gettop(L);
 
   /* library upvalues */
-  nsock_pool nsp;
-  nsp = new_pool(L); /* NSOCK_POOL */
+  nsock_pool nsp = new_pool(L); /* NSOCK_POOL */
   lua_newtable(L); /* NSOCK_SOCKET */
   lua_newtable(L); /* PCAP_SOCKET */
   nseU_weaktable(L, 0, MAX_PARALLELISM, "k"); /* THREAD_SOCKETS */
@@ -1141,6 +1140,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 #if HAVE_OPENSSL
   /* Value speed over security in SSL connections. */
   nsock_pool_ssl_init(nsp, NSOCK_SSL_MAX_SPEED);
+#else
+  (void) nsp; //variable is unused, avoid warning.
 #endif
 
   luaL_newlibtable(L, l_nsock);
