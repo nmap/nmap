@@ -135,6 +135,16 @@ local known_apps = {
     passvar = "password",
     onsuccess = "Set%-Cookie:%s*sessionid=",
   },
+  drupal = {
+    match = {
+      action = "user$",
+      id = "user%-login",
+    },
+    uservar = "name",
+    passvar = "pass",
+    onsuccess = "Location: .+user/%d",
+    sessioncookies = false,
+  },
   mediawiki = {
     match = {
       action = "action=submitlogin"

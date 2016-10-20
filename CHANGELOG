@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#555] Add Drupal to the set of web apps brute forced by
+  http-form-brute. [Nima Ghotbi]
+
 o [GH#350] Fix an assertion failure due to floating point error in equality
   comparison, which triggered mainly on OpenBSD:
     assertion "diff <= interval" failed: file "timing.cc", line 440
