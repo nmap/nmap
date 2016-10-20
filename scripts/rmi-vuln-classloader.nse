@@ -79,7 +79,7 @@ action = function (host, port)
     title = "RMI registry default configuration remote code execution vulnerability",
 
     description = [[
-Default configuration of RMI registry allows loading classes from remote URLs which can lead to remote code executeion.
+Default configuration of RMI registry allows loading classes from remote URLs which can lead to remote code execution.
 ]],
     references = {
       'https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_rmi_server.rb',
