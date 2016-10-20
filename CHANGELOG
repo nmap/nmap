@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#416] New service probe and match line for iperf3. [Eric Gershman]
+
 o [NSE][GH#555] Add Drupal to the set of web apps brute forced by
   http-form-brute. [Nima Ghotbi]
 

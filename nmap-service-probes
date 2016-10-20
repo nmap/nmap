@@ -15064,3 +15064,11 @@ ports 443,4433,4740,5349,5684,6514,6636,10161,10162
 # OpenSSL 1.1.0 s_server -dtls -listen
 # HelloVerifyRequest always uses DTLS 1.1 version, per RFC 6347
 match dtls m|^\x16\xfe\xff\0\0\0\0\0\0\0\0..\x03...\0\0\0\0\0...\xfe\xff.|
+
+##############################NEXT PROBE##############################
+# Detects iperf3 servers by sending a string longer than the 37-byte test identifer or cookie
+# https://github.com/esnet/iperf/wiki/IperfProtocolStates#test-initiation
+Probe TCP iperf3 q|0000000000000000000000000000000000000\0\0\0\0|
+ports 5201
+rarity 9
+match iperf3 m|^\t$|
