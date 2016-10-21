@@ -5,6 +5,16 @@ o [GH#416] New service probe and match line for iperf3. [Eric Gershman]
 o [NSE][GH#555] Add Drupal to the set of web apps brute forced by
   http-form-brute. [Nima Ghotbi]
 
+Nmap 7.31 [2016-10-20]
+
+o [Windows] Updated the bundled Npcap to 0.10 r9, bringing increased stability,
+  bug fixes, and raw 802.11 WiFi capture (unused by Nmap). [Yang Luo]
+
+o Fixed the way Nmap handles scanning names that resolve to the same IP. Due to
+  changes in 7.30, the IP was only being scanned once, with bogus results
+  displayed for the other names. The previous behavior is now restored.
+  [Tudor Emil Coman]
+
 o [GH#350] Fix an assertion failure due to floating point error in equality
   comparison, which triggered mainly on OpenBSD:
     assertion "diff <= interval" failed: file "timing.cc", line 440
