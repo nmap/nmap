@@ -7,23 +7,25 @@ o [NSE][GH#555] Add Drupal to the set of web apps brute forced by
 
 Nmap 7.31 [2016-10-20]
 
-o [Windows] Updated the bundled Npcap to 0.10 r9, bringing increased stability,
-  bug fixes, and raw 802.11 WiFi capture (unused by Nmap). [Yang Luo]
+o [Windows] Updated the bundled Npcap from 0.10r2 to 0.10r9, bringing
+  increased stability, bug fixes, and raw 802.11 WiFi capture (unused
+  by Nmap). Further details on these changes can be found at
+  https://github.com/nmap/npcap/releases. [Yang Luo]
 
 o Fixed the way Nmap handles scanning names that resolve to the same IP. Due to
   changes in 7.30, the IP was only being scanned once, with bogus results
   displayed for the other names. The previous behavior is now restored.
   [Tudor Emil Coman]
 
+o [Nping][GH#559] Fix Nping's ability to use Npcap on Windows. A privilege
+  check was performed too late, so the Npcap loading code assumed the user had no
+  rights. [Yang Luo, Daniel Miller]
+
 o [GH#350] Fix an assertion failure due to floating point error in equality
   comparison, which triggered mainly on OpenBSD:
     assertion "diff <= interval" failed: file "timing.cc", line 440
   This was reported earlier as [GH#472] but the assertion fixed there was a
   different one. [David Carlier]
-
-o [Nping][GH#559] Fix Nping's ability to use Npcap on Windows. A privilege
-  check was performed too late, so the Npcap loading code assumed the user had no
-  rights. [Yang Luo, Daniel Miller]
 
 o [Zenmap] Fix a crash in the About page in the Spanish translation due to a
   missing format specifier:
