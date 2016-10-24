@@ -136,7 +136,9 @@ function mean_stddev(t)
   local i, m, s, sigma
 
   if #t == 0 then
-    return 0, nil
+    return nil, nil
+  elseif #t == 1 then
+    return t[1], 0
   end
 
   m = t[1]
