@@ -88,6 +88,10 @@ end
 hostaction = function(host)
   local mean, stddev = formulas.mean_stddev(host.registry.datetime_skew)
   local median = formulas.median(host.registry.datetime_skew)
+  -- truncate to integers; we don't care about fractional seconds)
+  mean = math.modf(mean)
+  stddev = math.modf(stddev)
+  median = math.modf(median)
   record_stats(host, mean, stddev, median)
   local out = {mean = mean, stddev = stddev, median = median}
   return out, ("mean: %s, deviation: %s, median: %s"):format(
