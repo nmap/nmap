@@ -1,6 +1,7 @@
 local http = require "http"
 local ipOps = require "ipOps"
 local json = require "json"
+local geoip = require "geoip"
 local stdnse = require "stdnse"
 local table = require "table"
 
@@ -45,6 +46,8 @@ local geoplugin = function(ip)
   table.insert(output, "coordinates (lat,lon): "..loc.geoplugin_latitude..","..loc.geoplugin_longitude)
   local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
   table.insert(output,"state: ".. regionName ..", ".. loc.geoplugin_countryName)
+
+  geoip.add(ip, loc.geoplugin_latitude, loc.geoplugin_longitude)
 
   return output
 end
