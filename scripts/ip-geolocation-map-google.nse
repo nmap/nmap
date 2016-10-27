@@ -128,7 +128,7 @@ action = function()
   -- Render the map.
   local status, msg = render(query, path)
   if not status then
-    output.ERROR = err
+    output.ERROR = msg
     return output, output.ERROR
   end
 
