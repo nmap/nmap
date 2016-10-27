@@ -29,8 +29,14 @@ author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
-local render = function(query, path)
-  local res = http.get("dev.virtualearth.net", 80, query)
+local render = function(query, body, path)
+  local options = {
+    ["header"] = {
+      ["Content-Type"] = "text/plain; charset=utf-8"
+    }
+  }
+
+  local res = http.post("dev.virtualearth.net", 80, query, options, nil, body)
   if not res or res.status ~= 200 then
     stdnse.debug1("Error %d from API: %s", res.status, res.body)
     return false, ("Failed to recieve map using query '%s'."):format(query)
@@ -92,17 +98,24 @@ local parse_args = function()
 
   local size = stdnse.get_script_args(SCRIPT_NAME .. "size")
   if not size then
-    size = "1280,1280"
+    size = "1280x1280"
   end
-  -- Change 'x' to ','.
+  size = string.gsub(size, "x", ",")
   query = query .. "&mapSize=" .. size
 
   -- Add in a pushpin for each host.
+  pushpins = {}
   for ip, coords in pairs(geoip.get_all()) do
-    query = query .. "&pp=" .. coords["latitude"] .. "," .. coords["longitude"]
-  end
+    table.insert(pushpins, "pp=" .. coords["latitude"] .. "," .. coords["longitude"])
 
-  return true, query, map_path
+    -- The API allows up to 100 pushpins with the POST method.
+    if #pushpins >= 100 then
+      break
+    end
+  end
+  body = table.concat(pushpins, "&")
+
+  return true, query, body, map_path
 end
 
 postrule = function()
@@ -113,14 +126,14 @@ action = function()
   local output = stdnse.output_table()
 
   -- Parse and sanity check the command line arguments.
-  local status, query, path = parse_args()
+  local status, query, body, path = parse_args()
   if not status then
     output.ERROR = query
     return output, output.ERROR
   end
 
   -- Render the map.
-  local status, msg = render(query, path)
+  local status, msg = render(query, body, path)
   if not status then
     output.ERROR = msg
     return output, output.ERROR
