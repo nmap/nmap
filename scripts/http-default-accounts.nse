@@ -259,7 +259,9 @@ action = function(host, port)
       -- within the pipeline.
       local path = probe.path
       if not pathmap[path] then
-        requests = http.pipeline_add(basepath .. path, nil, requests, 'GET')
+        requests = http.pipeline_add(basepath .. path,
+                                    {bypass_cache=true, redirect_ok=false},
+                                    requests, 'GET')
         pathmap[path] = #requests
       end
     end

@@ -23,6 +23,54 @@ local have_openssl, openssl = pcall(require, 'openssl')
 --       between valid HTTP/200 and a custom error page.
 ---
 
+-- Recursively copy a table.
+-- Only recurs when a value is a table, other values are copied by assignment.
+local function tcopy (t)
+  local tc = {};
+  for k,v in pairs(t) do
+    if type(v) == "table" then
+      tc[k] = tcopy(v);
+    else
+      tc[k] = v;
+    end
+  end
+  return tc;
+end
+
+---
+-- Requests given path using http.get() but disabling cache and redirects.
+-- @param host The host to connect to
+-- @param port The port to connect to
+-- @param path The path to retrieve
+-- @param options [optional] A table of HTTP request options
+-- @return A response table (see library http.lua for description)
+---
+local function http_get_simple (host, port, path, options)
+  local opts = tcopy(options or {})
+  opts.bypass_cache = true
+  opts.no_cache = true
+  opts.redirect_ok = false
+  return http.get(host, port, path, opts)
+end
+
+---
+-- Requests given path using http.post() but disabling cache and redirects.
+-- (The current implementation of http.post() does not use either; this is
+-- a defensive wrapper to guard against future problems.)
+-- @param host The host to connect to
+-- @param port The port to connect to
+-- @param path The path to retrieve
+-- @param options [optional] A table of HTTP request options
+-- @param postdata A string or a table of data to be posted
+-- @return A response table (see library http.lua for description)
+---
+local function http_post_simple (host, port, path, options, postdata)
+  local opts = tcopy(options or {})
+  opts.no_cache = true
+  opts.redirect_ok = false
+  return http.post(host, port, path, opts, nil, postdata)
+end
+
 ---
 -- Requests given path using basic authentication.
 -- @param host Host table
@@ -35,7 +83,7 @@ local have_openssl, openssl = pcall(require, 'openssl')
 ---
 local function try_http_basic_login(host, port, path, user, pass, digest_auth)
   local credentials = {username = user, password = pass, digest = digest_auth}
-  local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
+  local req = http_get_simple(host, port, path, {auth=credentials})
   return req.status
          and req.status ~= 401
          and req.status ~= 403
@@ -54,12 +102,11 @@ end
 -- @return True if login in was successful
 ---
 local function try_http_post_login(host, port, path, target, failstr, params, follow_redirects)
-  local req = http.post(host, port, url.absolute(path, target), {no_cache=true}, nil, params)
-
+  local req = http_post_simple(host, port, url.absolute(path, target), nil, params)
   if not req.status then return false end
   local status = tonumber(req.status) or 0
   if follow_redirects and ( status > 300 and status < 400 ) then
-    req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true, redirect_ok = false })
+    req = http_get_simple(host, port, url.absolute(path, req.header.location))
   end
   if req.status and req.status ~= 404 and not(http.response_contains(req, failstr)) then
     return true
@@ -129,11 +176,8 @@ table.insert(fingerprints, {
     {username = "admin", password = "zabbix"}
   },
   login_check = function (host, port, path, user, pass)
-    local req = http.post(host, port, url.absolute(path, "index.php"),
-                          {no_cache=true, redirect_ok=false},
-                          nil,
-                          {request="", name=user, password=pass, enter="Sign in"},
-                          false)
+    local req = http_post_simple(host, port, url.absolute(path, "index.php"), nil,
+                                {request="", name=user, password=pass, enter="Sign in"})
     return req.status == 302 and req.header["location"] == "dashboard.php"
   end
 })
@@ -159,7 +203,7 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     -- harvest all hidden fields from the login form
-    local req1 = http.get(host, port, path, {no_cache=true, redirect_ok = false})
+    local req1 = http_get_simple(host, port, path)
     if req1.status ~= 200 then return false end
     local html = req1.body and req1.body:match('<form%s+action%s*=%s*"[^"]*/users/login".->(.-)</form>')
     if not html then return false end
@@ -170,7 +214,7 @@ table.insert(fingerprints, {
     -- add username and password to the form and submit it
     form["data[User][username]"] = user
     form["data[User][password]"] = pass
-    local req2 = http.post(host, port, path, {no_cache=true, cookies=req1.cookies}, nil, form)
+    local req2 = http_post_simple(host, port, path, {cookies=req1.cookies}, form)
     if req2.status ~= 302 then return false end
     local loc = req2.header["location"]
     return loc and (loc:match("/admins$") or loc:match("/pols/index$"))
@@ -389,7 +433,7 @@ table.insert(fingerprints, {
                   username = user,
                   password = pass}
     local lurl = url.absolute(path, "rest.fcgi/services/rest/login?" .. url.build_query(form))
-    local req = http.get(host, port, lurl, {no_cache=true, redirect_ok=false})
+    local req = http_get_simple(host, port, lurl)
     return req.status == 200
            and req.body
            and req.body:find('[{,]%s*"status"%s*:%s*true%s*[,}]')
@@ -416,7 +460,7 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     local login = ("J20K34NMMT89XPIJ34S login %s %s"):format(stdnse.tohex(user), stdnse.tohex(pass))
     local lurl = url.absolute(path, "usmCgi.cgi/?" .. url.escape(login))
-    local req = http.get(host, port, lurl, {no_cache=true, redirect_ok=false})
+    local req = http_get_simple(host, port, lurl)
     return req.status == 200
            and req.body
            and req.body:find("^login 0 ")
@@ -613,8 +657,8 @@ table.insert(fingerprints, {
     local lpath = req0.body and req0.body:match('location%.href="(/[^"]+/)mainFrame%.cgi"')
     if not lpath then return false end
     -- harvest the login form token
-    local req1 = http.get(host, port, url.absolute(lpath, "authForm.cgi"),
-                         {cookies="cookieOnOffChecker=on", no_cache=true, redirect_ok=false})
+    local req1 = http_get_simple(host, port, url.absolute(lpath, "authForm.cgi"),
+                                {cookies="cookieOnOffChecker=on"})
     if req1.status ~= 200 then return false end
     local token = req1.body and req1.body:match('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"wimToken"%s+value%s*=%s*"(.-)"')
     if not token then return false end
@@ -625,9 +669,8 @@ table.insert(fingerprints, {
                   password_work = "",
                   password = base64.enc(pass),
                   open = ""}
-    local req2 = http.post(host, port, url.absolute(lpath, "login.cgi"),
-                          {cookies=req1.cookies, no_cache=true, redirect_ok=false},
-                          nil, form)
+    local req2 = http_post_simple(host, port, url.absolute(lpath, "login.cgi"),
+                                 {cookies=req1.cookies}, form)
     local loc = req2.header["location"] or ""
     -- successful login is a 302-redirect that sets a session cookie with numerical value
     if not (req2.status == 302 and loc:find("/mainFrame%.cgi$")) then return false end
@@ -686,7 +729,7 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     local lurl = url.absolute(path, "server_eps.html")
     -- obtain login nonce
-    local req1 = http.get(host, port, lurl, {no_cache=true, redirect_ok=false})
+    local req1 = http_get_simple(host, port, lurl)
     if req1.status ~= 403 then return false end
     local nonce = nil
     for _, ck in ipairs(req1.cookies or {}) do
@@ -699,8 +742,7 @@ table.insert(fingerprints, {
     -- credential is the MD5 hash of the nonce and the password (in upper case)
     local creds = stdnse.tohex(openssl.md5(nonce .. ":" .. pass:upper()))
     local cookies = ("SrvrNonce=%s; SrvrCreds=%s"):format(nonce, creds)
-    local req2 = http.get(host, port, lurl,
-                         {cookies=cookies, no_cache=true, redirect_ok=false})
+    local req2 = http_get_simple(host, port, lurl, {cookies=cookies})
     return req2.status == 200
   end
 })
@@ -739,13 +781,10 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     local creds = stdnse.tohex(openssl.md5(user .. "_" .. pass))
-    local content = "/api/login/" .. creds
     local header = {["Content-Type"] = "application/x-www-form-urlencoded",
                     ["datatype"] = "json"}
-    local req = http.generic_request(host, port, "POST",
-                                    url.absolute(path, "../"),
-                                    {header=header, content=content,
-                                    no_cache=true, redirect_ok=false})
+    local req = http_post_simple(host, port, url.absolute(path, "../"),
+                                {header=header}, "/api/login/" .. creds)
     return req.status == 200
            and (req.header["command-status"] or ""):find("^1 ")
   end
