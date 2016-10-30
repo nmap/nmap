@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#577] Script http-default-accounts now can test systems that return
+  status 200 for non-existent pages. [nnposter]
+
 o [NSE][GH#573] Updated http.lua to allow processing of HTTP responses with
   malformed header names. Such header lines are still captured in the rawheader
   list but skipped otherwise. [nnposter]

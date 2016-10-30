@@ -18,9 +18,6 @@ local have_openssl, openssl = pcall(require, 'openssl')
 -- * <code>paths</code> - Paths table containing the possible location of the target
 -- * <code>target_check</code> - Validation function of the target (optional)
 -- * <code>login_check</code> - Login function of the target
---
--- TODO: Update the functionality of <code>target_check</code> to differentiate
---       between valid HTTP/200 and a custom error page.
 ---
 
 -- Recursively copy a table.
@@ -319,9 +316,6 @@ table.insert(fingerprints, {
   paths = {
     {path = "/logo_t.gif"}
   },
-  target_check = function (host, port, path, response)
-    return response.status == 200
-  end,
   login_combos = {
     {username = "", password = ""}
   },

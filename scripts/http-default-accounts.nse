@@ -231,12 +231,16 @@ action = function(host, port)
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
   local output_lns = {}
 
-  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  -- Determine the target's response to "404" HTTP requests.
   local status_404, result_404, known_404 = http.identify_404(host,port)
-  if ( status_404 and result_404 == 200 ) then
-    stdnse.debug1("Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", host.ip, port.number)
-    return nil
-  end
+  -- The default target_check is the existence of the probe path on the target.
+  -- To reduce false-positives, fingerprints that lack target_check() will not
+  -- be tested on targets on which a "404" response is 200.
+  local default_target_check =
+    function (host, port, path, response)
+      if status_404 and result_404 == 200 then return false end
+      return http.page_exists(response, result_404, known_404, path, true)
+    end
 
   --Load fingerprint data or abort
   status, fingerprints = load_fingerprints(fingerprint_filename, category)
@@ -276,6 +280,7 @@ action = function(host, port)
 
   -- Iterate through responses to find a candidate for login routine
   for _, fingerprint in ipairs(fingerprints) do
+    local target_check = fingerprint.target_check or default_target_check
     local credentials_found = false
     stdnse.debug(1, "Processing %s", fingerprint.name)
     for _, probe in ipairs(fingerprint.paths) do
@@ -283,10 +288,7 @@ action = function(host, port)
       if result and not credentials_found then
         local path = basepath .. probe['path']
 
-        if http.page_exists(result, result_404, known_404, path, true)
-          and (not fingerprint.target_check
-          or fingerprint.target_check(host, port, path, result))
-        then
+        if target_check(host, port, path, result) then
           for _, login_combo in ipairs(fingerprint.login_combos) do
             stdnse.debug(2, "Trying login combo -> %s:%s", login_combo["username"], login_combo["password"])
             --Check default credentials
