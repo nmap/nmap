@@ -661,10 +661,15 @@ local function parse_header(header, response)
   while pos <= #header do
     -- Get the field name.
     e, name = get_token(header, pos)
-    if not name or e > #header or string.sub(header, e, e) ~= ":" then
-      return nil, string.format("Can't get header field name at %q", string.sub(header, pos, pos + 30))
+    -- Do not bail out if the header is malformed. Consume the header line
+    -- anyway, getting to the next header, but do not create a new entry in
+    -- the "header" table.
+    if e then
+      if header:sub(e, e) ~= ":" then
+        name = nil
+      end
+      pos = e + 1
     end
-    pos = e + 1
 
     -- Skip initial space.
     pos = skip_lws(header, pos)
@@ -680,23 +685,25 @@ local function parse_header(header, response)
       pos = skip_lws(header, pos)
     end
 
-    -- Set it in our table.
-    name = string.lower(name)
-    local value = table.concat(words, " ")
-    if response.header[name] then
-      -- TODO: delay concatenation until return to avoid resource exhaustion
-      response.header[name] = response.header[name] .. ", " .. value
-    else
-      response.header[name] = value
-    end
-
-    -- Update the cookie table if this is a Set-Cookie header
-    if name == "set-cookie" then
-      local cookie, err = parse_set_cookie(value)
-      if cookie then
-        response.cookies[#response.cookies + 1] = cookie
+    if name then
+      -- Set it in our table.
+      name = string.lower(name)
+      local value = table.concat(words, " ")
+      if response.header[name] then
+        -- TODO: delay concatenation until return to avoid resource exhaustion
+        response.header[name] = response.header[name] .. ", " .. value
       else
-        -- Ignore any cookie parsing error
+        response.header[name] = value
+      end
+
+      -- Update the cookie table if this is a Set-Cookie header
+      if name == "set-cookie" then
+        local cookie, err = parse_set_cookie(value)
+        if cookie then
+          response.cookies[#response.cookies + 1] = cookie
+        else
+          -- Ignore any cookie parsing error
+        end
       end
     end
 

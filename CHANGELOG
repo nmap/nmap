@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#573] Updated http.lua to allow processing of HTTP responses with
+  malformed header names. Such header lines are still captured in the rawheader
+  list but skipped otherwise. [nnposter]
+
 o [GH#416] New service probe and match line for iperf3. [Eric Gershman]
 
 o [NSE][GH#555] Add Drupal to the set of web apps brute forced by
