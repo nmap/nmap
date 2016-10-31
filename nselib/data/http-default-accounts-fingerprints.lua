@@ -298,6 +298,30 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 3.2.3
+  name = "Nagios",
+  category = "web",
+  paths = {
+    {path = "/"},
+    {path = "/nagios/"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "Nagios Access"
+  end,
+  login_combos = {
+    {username = "nagiosadmin", password = "nagios"},
+    {username = "nagiosadmin", password = "nagiosadmin"},
+    -- IBM PurePower Integrated Manager
+    {username = "nagiosadmin", password = "PASSW0RD"},
+    -- CactiEZ
+    {username = "nagiosadmin", password = "CactiEZ"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
   category = "web",
