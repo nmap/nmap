@@ -1085,8 +1085,8 @@ match ftp m|^220-Local time is now [\d:]+\r\n220 You will be disconnected after 
 match ftp m|^220 ET(\w+) ([\w-]+) Series FTP Server ready\.\r\n| p/Lexmark $2 series printer ftpd/ i/MAC: $1/ d/printer/
 match ftp m|^220 aFTPServer ready \(cwd is /\)\r\n$| p/FTPServer/ d/phone/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match ftp m|^220 BCB1COOL Server \(Proftpd FTP Server\) \[([\w._-]+)\]\r\n| p/ProFTPD/ h/$1/ cpe:/a:proftpd:proftpd/
-match ftp m|^220 FTP version ([\w.]+)\r\n| p/DrayTek Vigor 2820 ADSL router ftpd/ v/$1/ d/broadband router/ cpe:/h:draytek:vigor_2820/a
-match ftp m|^220 FTP version ([\w.]+)\r\n331 Enter PASS command\r\n$| p/DrayTek Vigor 2820 ADSL router ftpd/ v/$1/ d/broadband router/ cpe:/h:draytek:vigor_2820/a
+match ftp m|^220 FTP version ([\w.]+)\r\n| p/DrayTek Vigor ADSL router ftpd/ v/$1/ d/broadband router/
+match ftp m|^220 FTP version ([\w.]+)\r\n331 Enter PASS command\r\n$| p/DrayTek Vigor ADSL router ftpd/ v/$1/ d/broadband router/
 match ftp m|^220 Core FTP Server Version ([\w._-]+, build \d+), installed (\d+ days ago) Registered\r\n| p/Core FTP Server/ v/$1/ i/installed $2/ cpe:/a:coreftp:core_ftp:$1/
 match ftp m|^220 Core FTP Server Version ([\w._-]+, build \d+) Registered\r\n| p/Core FTP Server/ v/$1/ cpe:/a:coreftp:core_ftp:$1/
 match ftp m|^220-.*\r\n220 ([\w._-]+) FTP Server \(Apache/([\w._-]+) \(Linux/SUSE\)\) ready\.\r\n| p/Apache mod_ftpd/ v/$2/ o/Linux/ h/$1/ cpe:/a:apache:http_server/ cpe:/o:linux:linux_kernel/a
@@ -3445,7 +3445,7 @@ match ssh m|^Could not load host key\. Closing connection\.\.\.$| p/Cisco switch
 match ssh m|^SSH-([\d.]+)-WS_FTP-SSH_([\w._-]+)(?: FIPS)?\r\n| p/WS_FTP sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:ipswitch:ws_ftp:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-http://www\.sshtools\.com J2SSH \[SERVER\]\r\n| p/SSHTools J2SSH/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n\n\rNo connection is available now\. Try again later!$| p/DrayTek Vigor 2820 ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/ cpe:/h:draytek:vigor_2820/a
-match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n| p/DrayTek Vigor 2820n ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/ cpe:/h:draytek:vigor_2820n/a
+match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n| p/DrayTek Vigor ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/
 match ssh m|^SSH-([\d.]+)-Pragma FortressSSH ([\d.]+)\n| p/Pragma Fortress SSH Server/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:pragmasys:fortress_ssh_server:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-SysaxSSH_([\d.]+)\r\n| p/Sysax Multi Server sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:sysax:multi_server:$2/ cpe:/o:microsoft:windows/a
 # CP-7900G and 8961
@@ -8206,7 +8206,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .* GMT\r\nWWW-Auth
 match http m|^HTTP/1\.0 301 Moved Permanently \r\nContent-Type: text/html\r\nDate: .*\r\nLocation: /fusionreactor/\r\n\r\nRedirecting, please wait\.$| p/FusionReactor web server monitor/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nServer: wgt_http ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"Anlage\"\r\nConnection: close\r\n$| p/wgt_http/ v/$1/ i/Eumex 704PC ADSL router/ d/broadband router/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Alvarion-Webs\r\nDate: THU JAN 01 01:04:22 1970\r\nWWW-Authenticate: Basic realm=\"Alvarion\"\r\n.*<html><head><title>Document Error: Unauthorized</title></head>\r\n\t\t<body><h2>Access Error: Unauthorized</h2>\r\n\t\t<p>Access to this document requires a User ID</p></body></html>\r\n\r\n$|s p/Alvarion-Webs/ i/Alvarion BreezeMAX WiMAX WAP http config/ d/WAP/
-match http m|^HTTP/1\.0 400 Bad Request\r\nPragma: no-cache\r\nContent-type: text/html\r\n\r\n<html>\n  <head>\n  <title>400 Bad Request !!!</title>| p/DrayTek Vigor 2800-series ADSL router httpd/ d/broadband router/
+match http m|^HTTP/1\.0 400 Bad Request\r\nPragma: no-cache\r\nContent-type: text/html\r\n\r\n<html>\n  <head>\n  <title>400 Bad Request !!!</title>| p/DrayTek Vigor ADSL router httpd/ d/broadband router/
 match http m|^HTTP/1\.0 200 ;OK\r\nServer: \?\?\?\?\?\?\?\?\?\?\?\?\?\?\r\nContent-Type: text/html\r\nConnection: Close\r\n\r\n<HTML>\n<TITLE>Jacarta interSeptor\n</TITLE>| p/Jacarta interSeptor environmental monitor http/ d/specialized/
 match http m|^HTTP/1\.0 302 Document Follows\r\nLocation: http:///index\.htm\r\nConnection: close\r\n\r\n| p/Dell PowerVault TL4000 http config/ d/storage-misc/
 match http m|^HTTP/1\.0 302 Found\r\nConnection: close\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: -1\r\nLocation: https?://[\d.]+/login\.htm\r\n\r\n.*Click <a href=\"https?://[\d.]+/login\.htm\">Here</a> to proceed\.\n|s p/3Com Baseline Switch 2948-SFP Plus web config/ d/switch/
