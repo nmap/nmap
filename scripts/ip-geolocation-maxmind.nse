@@ -1,4 +1,5 @@
 local bit = require "bit"
+local geoip = require "geoip"
 local io = require "io"
 local ipOps = require "ipOps"
 local math = require "math"
@@ -492,6 +493,7 @@ local GeoIP = {
   output_record_by_addr = function(self,addr)
     local loc = self:record_by_addr(addr)
     if not loc then return nil end
+    geoip.add(addr, loc.latitude, loc.longitude)
     setmetatable(loc, record_metatable)
     return loc
   end,
