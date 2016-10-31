@@ -369,35 +369,22 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 1.0.22
-  name = "Cisco WAP200",
+  -- Version (see below)
+  name = "Cisco Linksys",
   category = "routers",
   paths = {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "Linksys WAP200"
+    -- realm="Linksys WAP200", "Linksys WAP55AG", "Linksys E2000"
+    return (http_auth_realm(response) or ""):find("^Linksys %u[%u%d]+$")
   end,
   login_combos = {
-    {username = "admin", password = "admin"}
-  },
-  login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass, false)
-  end
-})
-
-table.insert(fingerprints, {
-  -- Version 1.07.01
-  name = "Cisco WAP55AG",
-  category = "routers",
-  paths = {
-    {path = "/"}
-  },
-  target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "Linksys WAP55AG"
-  end,
-  login_combos = {
-    {username = "", password = "admin"}
+    -- WAP55AG, version 1.07.01
+    -- E2000, version 1.0.03 (any username is valid)
+    {username = "", password = "admin"},
+    -- WAP200, version 1.0.22
+    {username = "admin", password = "admin"},
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
