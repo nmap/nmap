@@ -423,6 +423,34 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 5.00.12 on F5D7234-4
+  name = "Belkin G Wireless Router",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return have_openssl
+           and response.status == 200
+           and response.body
+           and response.body:find("setup_top.htm", 1, true)
+           and response.body:find("status.stm", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "cgi-bin/login.exe"), nil,
+                                -- this should be local time, not UTC
+                                {totalMSec = stdnse.clock_ms()/1000,
+                                pws = stdnse.tohex(openssl.md5(pass))})
+    local loc = req.header["location"] or ""
+    return req.status == 302 and loc:find("/index%.htm$")
+  end
+})
+
+table.insert(fingerprints, {
   name = "Motorola AP-7532",
   category = "routers",
   paths = {
