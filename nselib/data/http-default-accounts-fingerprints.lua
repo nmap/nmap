@@ -322,6 +322,30 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 9.2
+  name = "WebLogic Server Console 9.x",
+  category = "web",
+  paths = {
+    {path = "/console/"}
+  },
+  target_check = function (host, port, path, response)
+    local loc = response.header["location"] or ""
+    return response.status == 302
+           and loc:find("/console/login/LoginForm%.jsp;")
+  end,
+  login_combos = {
+    {username = "weblogic", password = "weblogic"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "j_security_check"), nil,
+                                {j_username=user,j_password=pass,j_character_encoding="UTF-8"})
+    local loc = req.header["location"] or ""
+    return req.status == 302 and loc:find("/console;")
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
   category = "web",

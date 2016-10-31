@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Updated fingerprints for script http-default-accounts with 16 new
+o [NSE] Updated fingerprints for script http-default-accounts with 17 new
   fingerprints. 4 fingerprints have been broadened to cover more variants.
   [nnposter]
 
