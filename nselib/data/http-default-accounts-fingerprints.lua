@@ -180,14 +180,15 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 0.7, 1.0.1
   name = "Xplico",
   category = "web",
   paths = {
-    {path = "/users/login"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
     -- true if the response is HTTP/200 and sets cookie "Xplico"
-    if response.status == 200 then
+    if response.status == 302 then
       for _, ck in ipairs(response.cookies or {}) do
         if ck.name:lower() == "xplico" then return true end
       end
@@ -199,8 +200,9 @@ table.insert(fingerprints, {
     {username = "xplico", password = "xplico"}
   },
   login_check = function (host, port, path, user, pass)
+    local lurl = url.absolute(path, "users/login")
     -- harvest all hidden fields from the login form
-    local req1 = http_get_simple(host, port, path)
+    local req1 = http_get_simple(host, port, lurl)
     if req1.status ~= 200 then return false end
     local html = req1.body and req1.body:match('<form%s+action%s*=%s*"[^"]*/users/login".->(.-)</form>')
     if not html then return false end
@@ -211,10 +213,9 @@ table.insert(fingerprints, {
     -- add username and password to the form and submit it
     form["data[User][username]"] = user
     form["data[User][password]"] = pass
-    local req2 = http_post_simple(host, port, path, {cookies=req1.cookies}, form)
-    if req2.status ~= 302 then return false end
-    local loc = req2.header["location"]
-    return loc and (loc:match("/admins$") or loc:match("/pols/index$"))
+    local req2 = http_post_simple(host, port, lurl, {cookies=req1.cookies}, form)
+    local loc = req2.header["location"] or ""
+    return req2.status == 302 and (loc:find("/admins$") or loc:find("/pols/index$"))
   end
 })
 
