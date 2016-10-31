@@ -1061,3 +1061,28 @@ table.insert(fingerprints, {
                             {user=user, password=pass})
   end
 })
+
+table.insert(fingerprints, {
+  --Version 1.1 on Supermicro X7SB3
+  name = "Supermicro WPCM450",
+  category = "console",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("ATEN International", 1, true)
+           and response.body:find("/cgi/login.cgi", 1, true)
+  end,
+  login_combos = {
+    {username = "ADMIN", password = "ADMIN"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port, url.absolute(path, "cgi/login.cgi"),
+                                nil, {name=user, pwd=pass})
+    return req.status == 200
+           and req.body
+           and req.body:find("../cgi/url_redirect.cgi?url_name=mainmenu", 1, true)
+  end
+})
