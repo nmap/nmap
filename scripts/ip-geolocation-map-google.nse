@@ -27,7 +27,7 @@ description = [[
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "external", "safe"}
+categories = {"external", "safe"}
 
 local render = function(query, path)
   local res = http.get("maps.googleapis.com", 80, query)
