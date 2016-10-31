@@ -822,20 +822,26 @@ table.insert(fingerprints, {
 ---
 table.insert(fingerprints, {
   -- UI Version 03.2 (4.8), 03.2 (5.5)
-  name = "Digital Sprite 2",
+  name = "DM Digital Sprite 2",
   category = "security",
   paths = {
-    {path = "/frmpages/index.html"}
+    {path = "/"}
   },
   target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "WebPage Configuration"
-           and response.header["server"] == "ADH-Web"
+    return response.status == 200
+           and response.body
+           and response.body:find("Dedicated Micros", 1, true)
+           and response.body:find("webpages/index.shtml", 1, true)
+           and response.body:lower():find('<meta%s+name%s*=%s*"author"%s+content%s*=%s*"dedicated micros ')
   end,
   login_combos = {
     {username = "dm", password = "web"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass, true)
+    -- realm="WebPage Configuration"
+    return try_http_basic_login(host, port,
+                               url.absolute(path, "frmpages/index.html"),
+                               user, pass, true)
   end
 })
 
