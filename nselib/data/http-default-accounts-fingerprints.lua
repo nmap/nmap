@@ -887,6 +887,37 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version 01.01
+  name = "Riello UPS NetMan 204",
+  category = "industrial",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^mini_httpd/%d+%.")
+           and response.body
+           and response.body:lower():find("<title>netman 204 login</title>", 1, true)
+  end,
+  login_combos = {
+    {username = "admin",     password = "admin"},
+    {username = "fwupgrade", password = "fwupgrade"},
+    {username = "user",      password = "user"},
+    {username = "eurek",     password = "eurek"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "cgi-bin/login.cgi"),
+                                nil, {username=user, password=pass})
+    return req.status == 200
+           and req.body
+           and (req.body:find(">window.location.replace(", 1, true)
+             or req.body:find("Another user is logged in", 1, true))
+  end
+})
+
 ---
 --Printers
 ---
