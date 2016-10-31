@@ -392,14 +392,15 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 1.0.1.3
-  name = "ASUS RT-N10U",
+  -- Version 1.0.1.3 on RT-N10U, RT-N66U
+  name = "ASUS RT",
   category = "routers",
   paths = {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    return http_auth_realm(response) == "RT-N10U"
+    -- realm="RT-N10U", "RT-N66U"
+    return (http_auth_realm(response) or ""):find("^RT%-%u[%u%d]+$")
   end,
   login_combos = {
     {username = "admin", password = "admin"}
