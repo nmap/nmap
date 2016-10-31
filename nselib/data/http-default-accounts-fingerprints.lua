@@ -818,6 +818,59 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.1, 1.1 SP7
+  name = "EFI Fiery Webtools",
+  category = "printer",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["content-location"]
+           and response.header["content-location"]:find("^redirect%.html%.")
+           and response.body
+           and response.body:lower():find('content="0;url=wt2parser.cgi?home_', 1, true)
+  end,
+  login_combos = {
+    {username = "Administrator", password = ""},
+    {username = "Administrator", password = "Fiery.1"}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- sessionId normally includes the client IP, not the target,
+    -- but this would be too revealing
+    local sessionid = host.ip
+                      .. "_"
+                      .. stdnse.clock_ms()
+                      .. math.random(100000, 999999)
+    local encpass = stdnse.tohex(pass):gsub("..", "&#x%0;")
+    local header = {["Content-Type"]="text/xml", ["SOAPAction"]='""'}
+    local soapmsg = [[
+<?xml version='1.0' encoding='UTF-8'?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<SOAP-ENV:Body>
+<ns1:doLogin xmlns:ns1="urn:FierySoapService" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+<sessionId xsi:type="xsd:string">__SESS__</sessionId>
+<in xsi:type="ns1:Login">
+<fieldsMask xsi:type="xsd:int">0</fieldsMask>
+<password xsi:type="xsd:string">__PASS__</password>
+<timeout xsi:type="xsd:int">30</timeout>
+<userName xsi:type="xsd:string" xsi:nil="true"/>
+</in>
+</ns1:doLogin>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+]]
+    -- username is not injected into the payload because it is implied
+    soapmsg = soapmsg:gsub("__%w+__", {__SESS__=sessionid, __PASS__=encpass})
+    local req = http_post_simple(host, port, url.absolute(path, "soap"),
+                                {header=header}, soapmsg)
+    return req.status == 200
+           and req.body
+           and req.body:find('<result xsi:type="xsd:boolean">true</result>', 1, true)
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 3.6/4
   name = "Lantronix ThinWeb Manager",
   category = "printer",
