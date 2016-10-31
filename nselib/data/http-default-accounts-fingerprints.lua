@@ -534,6 +534,29 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Aruba AirWave",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 401
+           and response.body
+           and response.body:find("/noauth/theme/airwave/favicon.ico", 1, true)
+           and response.body:find("/api/user_prefs.json", 1, true)
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "LOGIN",
+                              "403 Forbidden",
+                              {credential_0=user, credential_1=pass,
+                              destination=url.absolute(path, "index.html")})
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 08.05.100 on NVR 1750D
   name = "Nortel VPN Router",
   category = "routers",
