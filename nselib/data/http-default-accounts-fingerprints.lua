@@ -451,6 +451,40 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.00.12 on F9K1001 v1
+  name = "Belkin N150",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return have_openssl
+           and response.status == 200
+           and response.body
+           and response.body:find("Belkin", 1, true)
+           and response.body:find("isAPmode", 1, true)
+           and response.body:lower():find("showmenu.js", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {page="",
+                  logout="",
+                  action="submit",
+                  pws=base64.enc(pass),
+                  itsbutton1="Submit",
+                  h_language="en",
+                  is_parent_window="1"}
+    local req = http_post_simple(host, port, url.absolute(path, "login.cgi"),
+                                nil, form)
+    return req.status == 200
+           and req.body
+           and req.body:find("index.html", 1, true)
+  end
+})
+
+table.insert(fingerprints, {
   name = "Motorola AP-7532",
   category = "routers",
   paths = {
