@@ -979,6 +979,37 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version 4.0.0
+  name = "PCoIP Zero Client",
+  category = "virtualization",
+  paths = {
+    {path = "/login.html"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("PCoIP&#174 Zero Client", 1, true)
+           and response.body:find("password_value", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = "Administrator"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port, url.absolute(path, "cgi-bin/login"),
+                                nil, {password_value=pass, idle_timeout=60})
+    -- successful login is a 302-redirect that sets a session cookie with hex value
+    -- failed login is the same but the cookie contains an error message
+    if req.status ~= 302 then return false end
+    for _, ck in ipairs(req.cookies or {}) do
+      if ck.name:lower() == "session_id" then
+        -- observed variable cookie length between 37 and 40 digits
+        return #ck.value > 35 and ck.value:find("^%x+$") end
+    end
+    return false
+  end
+})
+
 ---
 --Remote consoles
 ---
