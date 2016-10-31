@@ -22,24 +22,32 @@ Additional information for the Bing Maps REST Services API can be found at:
 -- | ip-geolocation-map-bing:
 -- |_  The map has been saved at 'map.png'.
 --
--- @args ip-geolocation-map-bing.api_key (REQUIRED)
+-- @args ip-geolocation-map-bing.api_key The required Bing Maps API key for your
+-- account. An API key can be generated at https://www.bingmapsportal.com/
 --
--- @args ip-geolocation-map-bing.center
+-- ip-geolocation-map-bing.center GPS coordinates defining the center of the
+-- image. If omitted, Bing Maps will choose a center that shows all the
+-- markers.
 --
--- @args ip-geolocation-map-bing.format
+-- @args ip-geolocation-map-bing.format The default value is 'jpeg', 'png', and
+-- 'gif' are also allowed.
 --
--- @args ip-geolocation-map-bing.language
+-- @args ip-geolocation-map-bing.language The default value is 'en', but other
+-- two-letter language codes are accepted.
 --
--- @args ip-geolocation-map-bing.layer
+-- @args ip-geolocation-map-bing.layer The default value is 'Road',
+-- 'Aerial', and 'AerialWithLabels' are also allowed.
 --
--- @args ip-geolocation-map-bing.map_path (REQUIRED)
+-- @args ip-geolocation-map-bing.map_path The path at which the rendered
+-- Bing Map will be saved to the local filesystem.
 --
--- @args ip-geolocation-map-bing.marker_style
+-- @args ip-geolocation-map-bing.marker_style This argument can apply styling
+-- to the markers.
 -- https://msdn.microsoft.com/en-us/library/ff701719.aspx
 --
--- @args ip-geolocation-map-bing.scale
---
--- @args ip-geolocation-map-bing.size
+-- @args ip-geolocation-map-bing.size The default value is '640x640' pixels, but
+-- can be changed so long as the width is between 80 and 2000 pixels and the
+-- height is between 80 and 1500 pixels.
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -104,12 +112,12 @@ local parse_args = function()
 
   local center = stdnse.get_script_args(SCRIPT_NAME .. ".center")
   if center then
-    params["center"] = center
+    params["centerPoint"] = center
   end
 
   local format = stdnse.get_script_args(SCRIPT_NAME .. ".format")
   if format then
-    params["fmt"] = format
+    params["format"] = format
   end
 
   local language = stdnse.get_script_args(SCRIPT_NAME .. ".language")
@@ -128,11 +136,6 @@ local parse_args = function()
     options["map_path"] = map_path
   else
     return false, "Need to specify a path for the map."
-  end
-
-  local scale = stdnse.get_script_args(SCRIPT_NAME .. ".scale")
-  if scale then
-    params["scale"] = scale
   end
 
   local size = stdnse.get_script_args(SCRIPT_NAME .. ".size")
