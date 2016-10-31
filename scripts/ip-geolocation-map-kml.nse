@@ -5,6 +5,9 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
+This script queries the Nmap registry for the GPS coordinates of targets stored
+by previous geolocation scripts and produces a KML file of points representing
+the targets.
 ]]
 
 ---
@@ -65,6 +68,7 @@ local parse_args = function()
 end
 
 postrule = function()
+  -- Only run if a previous script has registered geolocation data.
   return not geoip.empty()
 end
 
