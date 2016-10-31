@@ -1172,6 +1172,37 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version 7.5.0.3 on 2072-24C
+  name = "IBM Storwize V3700",
+  category = "storage",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("V3700", 1, true)
+           and response.body:lower():find("<title>[^<]-%sibm storwize v3700%s*</title>")
+  end,
+  login_combos = {
+    {username = "superuser", password = "passw0rd"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {login=user,
+                 password=pass,
+                 newPassword="",
+                 confirmPassword="",
+                 tzoffset="0", -- present twice in the original form
+                 nextURL="",   -- present twice in the original form
+                 licAccept=""}
+    local req = http_post_simple(host, port, url.absolute(path, "login"),
+                                nil, form)
+    local loc = req.header["location"] or ""
+    return req.status == 302 and loc:find("/gui$")
+  end
+})
+
 ---
 --Virtualization systems
 ---
