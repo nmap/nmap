@@ -99,8 +99,8 @@ local render = function(params, options)
 end
 
 local parse_args = function()
-  options = {}
-  params = {}
+  local options = {}
+  local params = {}
 
   local api_key = stdnse.get_script_args(SCRIPT_NAME .. '.api_key')
   if not api_key then

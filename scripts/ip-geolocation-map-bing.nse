@@ -23,16 +23,21 @@ Additional information for the Bing Maps REST Services API can be found at:
 -- |_  The map has been saved at 'map.png'.
 --
 -- @args ip-geolocation-map-bing.api_key (REQUIRED)
--- @args ip-geolocation-map-bing.center
--- @args ip-geolocation-map-bing.format
--- @args ip-geolocation-map-bing.language
--- @args ip-geolocation-map-bing.layer
--- @args ip-geolocation-map-bing.map_path (REQUIRED)
--- @args ip-geolocation-map-bing.marker_style
 --
--- @args ip-geolocation-map-bing.scale The default value is 1, but values 2 and
--- 4 are permitted. Scale level 4 is only available to Google Maps APIs Premium
--- Plan customers.
+-- @args ip-geolocation-map-bing.center
+--
+-- @args ip-geolocation-map-bing.format
+--
+-- @args ip-geolocation-map-bing.language
+--
+-- @args ip-geolocation-map-bing.layer
+--
+-- @args ip-geolocation-map-bing.map_path (REQUIRED)
+--
+-- @args ip-geolocation-map-bing.marker_style
+-- https://msdn.microsoft.com/en-us/library/ff701719.aspx
+--
+-- @args ip-geolocation-map-bing.scale
 --
 -- @args ip-geolocation-map-bing.size
 
@@ -40,56 +45,56 @@ author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"external", "safe"}
 
-local render = function(params, path)
-  local options = {
+local render = function(params, options)
+  -- Format marker style for inclusion in parameters.
+  local style = ""
+  if options["marker_style"] then
+    style = ";" .. options["marker_style"]
+  end
+
+  -- Add in a marker for each host.
+  local markers = {}
+  for coords, ip in pairs(geoip.get_all_by_gps(100)) do
+    table.insert(markers, "pp=" .. coords .. style)
+  end
+  local body = table.concat(markers, "&")
+
+  -- Format the parameters into a properly encoded URL.
+  local query = "/REST/v1/Imagery/Map/" .. options["layer"] .. "?" .. url.build_query(params)
+  stdnse.debug1("The query URL is: %s", query)
+  stdnse.debug1("The query body is: %s", body)
+
+  local headers = {
     ["header"] = {
       ["Content-Type"] = "text/plain; charset=utf-8"
     }
   }
 
-  -- Add in a pushpin for each host.
-  pushpins = {}
-  for ip, coords in pairs(geoip.get_all()) do
-    table.insert(pushpins, "pp=" .. coords["latitude"] .. "," .. coords["longitude"])
-
-    -- The API allows up to 100 pushpins with the POST method.
-    if #pushpins >= 100 then
-      break
-    end
-  end
-  body = table.concat(pushpins, "&")
-
-  -- Build the query.
-  local query = "/REST/v1/Imagery/Map/"
-
-  local res = http.post("dev.virtualearth.net", 80, query, options, nil, body)
+  local res = http.post("dev.virtualearth.net", 80, query, headers, nil, body)
   if not res or res.status ~= 200 then
     stdnse.debug1("Error %d from API: %s", res.status, res.body)
     return false, ("Failed to recieve map using query '%s'."):format(query)
   end
 
-  local f = io.open(path, "w")
+  local f = io.open(options["map_path"], "w")
   if not f then
-    return false, ("Failed to open file '%s'."):format(path)
+    return false, ("Failed to open file '%s'."):format(options["map_path"])
   end
 
   if not f:write(res.body) then
-    return false, ("Failed to write file '%s'."):format(path)
+    return false, ("Failed to write file '%s'."):format(options["map_path"])
   end
 
   f:close()
 
-  return true, ("The map has been saved at '%s'."):format(path)
+  local msg
+
+  return true, ("The map has been saved at '%s'."):format(options["map_path"])
 end
 
 local parse_args = function()
-  params = {}
-
-  local layer = stdnse.get_script_args(SCRIPT_NAME .. ".layer")
-  if not layer then
-    layer = "Road"
-  end
-  param["layer"] = layer
+  local options = {}
+  local params = {}
 
   local api_key = stdnse.get_script_args(SCRIPT_NAME .. '.api_key')
   if not api_key then
@@ -112,8 +117,16 @@ local parse_args = function()
     params["language"] = language
   end
 
+  local layer = stdnse.get_script_args(SCRIPT_NAME .. ".layer")
+  if not layer then
+    layer = "Road"
+  end
+  options["layer"] = layer
+
   local map_path = stdnse.get_script_args(SCRIPT_NAME .. '.map_path')
-  if not map_path then
+  if map_path then
+    options["map_path"] = map_path
+  else
     return false, "Need to specify a path for the map."
   end
 
@@ -124,14 +137,14 @@ local parse_args = function()
 
   local size = stdnse.get_script_args(SCRIPT_NAME .. ".size")
   if not size then
-    -- This size is arbitrary, and is chosen to match the largest that Google
-    -- Maps will produce without a cost.
-    size = "1280x1280"
+    -- This size is arbitrary, and is chosen to match the default that Google
+    -- Maps will produce.
+    size = "640x640"
   end
   size = string.gsub(size, "x", ",")
   params["mapSize"] = size
 
-  return true, params, map_path
+  return true, params, options
 end
 
 postrule = function()
@@ -143,14 +156,14 @@ action = function()
   local output = stdnse.output_table()
 
   -- Parse and sanity check the command line arguments.
-  local status, params, path = parse_args()
+  local status, params, options = parse_args()
   if not status then
     output.ERROR = params
     return output, output.ERROR
   end
 
   -- Render the map.
-  local status, msg = render(params, path)
+  local status, msg = render(params, options)
   if not status then
     output.ERROR = msg
     return output, output.ERROR

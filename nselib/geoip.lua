@@ -34,13 +34,17 @@ get_all_by_ip = function()
   return nmap.registry.geoip
 end
 
-get_all_by_gps = function()
+get_all_by_gps = function(limit)
   if empty() then
     return nil
   end
 
   local t = {}
   for ip, coords in pairs(get_all_by_ip()) do
+    if limit and limit < #t then
+      break
+    end
+
     local key = coords["latitude"] .. "," .. coords["longitude"]
     if not t[key] then
       t[key] = {}
