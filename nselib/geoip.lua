@@ -26,12 +26,29 @@ empty = function()
   return not nmap.registry.geoip
 end
 
-get_all = function()
+get_all_by_ip = function()
   if empty() then
     return nil
   end
 
   return nmap.registry.geoip
+end
+
+get_all_by_gps = function()
+  if empty() then
+    return nil
+  end
+
+  local t = {}
+  for ip, coords in pairs(get_all_by_ip()) do
+    local key = coords["latitude"] .. "," .. coords["longitude"]
+    if not t[key] then
+      t[key] = {}
+    end
+    table.insert(t[key], ip)
+  end
+
+  return t
 end
 
 return _ENV;

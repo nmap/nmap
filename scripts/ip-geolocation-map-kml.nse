@@ -30,7 +30,7 @@ local render = function(path)
   table.insert(kml, '<kml xmlns="http://www.opengis.net/kml/2.2">')
   table.insert(kml, '  <Document>')
 
-  for ip, coords in pairs(geoip.get_all()) do
+  for ip, coords in pairs(geoip.get_all_by_ip()) do
     table.insert(kml, "    <Placemark>")
     table.insert(kml, "      <name>" .. ip .. "</name>")
     table.insert(kml, "      <Point>")
