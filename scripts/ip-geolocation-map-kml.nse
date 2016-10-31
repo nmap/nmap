@@ -13,29 +13,33 @@ description = [[
 --
 -- @output
 -- | ip-geolocation-map-kml:
--- |_  The map has been saved at 'nmap.kml'.
+-- |_  The map has been saved at 'map.kml'.
 --
 -- @args ip-geolocation-map-kml.map_path (REQUIRED)
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "external", "safe"}
+categories = {"safe"}
 
 local render = function(path)
-  local kml = ''
-  kml = kml .. '<?xml version="1.0" encoding="UTF-8"?>\n'
-  kml = kml .. '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
+  local kml = {}
+  table.insert(kml, '<?xml version="1.0" encoding="UTF-8"?>')
+  table.insert(kml, '<kml xmlns="http://www.opengis.net/kml/2.2">')
+  table.insert(kml, '  <Document>')
 
   for ip, coords in pairs(geoip.get_all()) do
-    kml = kml .. "  <Placemark>\n"
-    kml = kml .. "    <name>" .. ip .. "</name>\n"
-    kml = kml .. "    <Point>\n"
-    kml = kml .. "      <coordinates>" .. coords["latitude"] .. "," .. coords["longitude"] .. "</coordinates>\n"
-    kml = kml .. "    </Point>\n"
-    kml = kml .. "  </Placemark>\n"
+    table.insert(kml, "    <Placemark>")
+    table.insert(kml, "      <name>" .. ip .. "</name>")
+    table.insert(kml, "      <Point>")
+    table.insert(kml, "        <coordinates>" .. coords["latitude"] .. "," .. coords["longitude"] .. "</coordinates>")
+    table.insert(kml, "      </Point>")
+    table.insert(kml, "    </Placemark>")
   end
 
-  kml = kml .. '</kml>\n'
+  table.insert(kml, '  </Document>')
+  table.insert(kml, '</kml>\n')
+
+  kml = table.concat(kml, "\n")
 
   local f = io.open(path, "w")
   if not f then
