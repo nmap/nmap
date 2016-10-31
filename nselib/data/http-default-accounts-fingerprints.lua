@@ -1,5 +1,6 @@
 local base64 = require "base64"
 local http = require "http"
+local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local url = require "url"
@@ -122,6 +123,46 @@ local function http_auth_realm(response)
   return auth:match('%srealm%s*=%s*"([^"]*)')
 end
 
+---
+-- Generates default scheme, host, and port components for a parsed URL.
+--
+-- This filter function generates the scheme, host, and port components from
+-- the standard <code>host</code> and <code>port</code> script objects. These
+-- components can then be passed onto function <code>url.build</code>.
+--
+-- As an example, the following code generates a URL for path "/test/"
+-- on the current host and port:
+-- <code>
+-- local testurl = url.build(url_build_defaults(host, port, {path = "/test/"}))
+-- </code>
+-- or, alternatively, when not used as a filter:
+-- <code>
+-- local parsed = url_build_defaults(host, port)
+-- parsed.path = "/test/"
+-- local testurl = url.build(parsed)
+-- </code>
+--
+-- @param host The host the URL is intended for.
+-- @param port The port the URL is intended for.
+-- @param parsed Parsed URL, as typically returned by <code>url.parse</code>,
+-- or nil. The table can be be missing the scheme, host, and port components.
+-- @return A clone of the parsed URL, with any missing scheme, host, and port
+-- components added.
+-- @see url.parse
+-- @see url.build
+---
+local function url_build_defaults (host, port, parsed)
+  local parts = tcopy(parsed or {})
+  parts.host = parts.host or stdnse.get_hostname(host, port)
+  parts.scheme = parts.scheme or shortport.ssl(host, port) and "https" or "http"
+  local pn = parts.port or tostring(port.number)
+  if not (parts.scheme == "http" and pn == "80"
+       or parts.scheme == "https" and pn == "443") then
+    parts.port = pn
+  end
+  return parts
+end
+
 fingerprints = {}
 
 ---
@@ -216,6 +257,41 @@ table.insert(fingerprints, {
     local req2 = http_post_simple(host, port, lurl, {cookies=req1.cookies}, form)
     local loc = req2.header["location"] or ""
     return req2.status == 302 and (loc:find("/admins$") or loc:find("/pols/index$"))
+  end
+})
+
+table.insert(fingerprints, {
+  --Version 5.3.1.1944 on EH6000
+  name = "ExtraHop Web UI",
+  category = "new",
+  paths = {
+    {path = "/extrahop/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("csrfmiddlewaretoken", 1, true)
+           and response.body:lower():find("<title>extrahop login", 1, true)
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- obtain cookies and a CSRF token
+    local req1 = http_get_simple(host, port, path)
+    if not (req1.status == 200 and req1.body) then return false end
+    local tname, tvalue = req1.body:match("<input%s+type%s*=%s*'hidden'%s+name%s*=%s*'(csrfmiddlewaretoken)'%s+value%s*=%s*'(.-)'")
+    if not tname then return false end
+    local form = {[tname]=tvalue,
+                  next=path,
+                  username=user,
+                  password=pass}
+    -- Referer header is mandatory
+    local header = {["Referer"]=url.build(url_build_defaults(host, port, {path=path}))}
+    local req2 = http_post_simple(host, port, path,
+                                 {cookies=req1.cookies, header=header}, form)
+    local loc = req2.header["location"] or ""
+    return req2.status == 302 and loc:find("/extrahop/$")
   end
 })
 
