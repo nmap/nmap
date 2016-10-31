@@ -594,6 +594,30 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 1.0.1-00 on model 5554
+  name = "Zoom ADSL X5",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 301
+           and response.header["server"]
+           and response.header["server"]:find("^Nucleus/%d+%.")
+           and response.header["location"]
+           and response.header["location"]:find("/hag/pages/home%.htm$")
+  end,
+  login_combos = {
+    {username = "admin", password = "zoomadsl"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port,
+                               url.absolute(path, "hag/pages/home.htm"),
+                               user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 2.3, 2.4 on FVS318
   name = "Netgear FVS",
   category = "routers",
