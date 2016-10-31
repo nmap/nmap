@@ -575,6 +575,25 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version H131-310CTU-C07_R01_4.5.5.27
+  name = "NexusLink-5631",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "DSL Router"
+  end,
+  login_combos = {
+    {username = "apuser", password = "apuser"},
+    {username = "root", password = "12345"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
   name = "Motorola AP-7532",
   category = "routers",
   paths = {
