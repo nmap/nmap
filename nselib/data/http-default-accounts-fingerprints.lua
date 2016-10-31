@@ -506,6 +506,34 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 3.4.5.1 on Aruba800
+  name = "ArubaOS WebUI",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 401
+           and response.body
+           and response.body:find("/images/arubalogo.gif", 1, true)
+           and response.body:find("/screens/wms/wms.login", 1, true)
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "screens/wms/wms.login"),
+                                nil,
+                                {opcode="login", url="/", needxml="0",
+                                uid=user, passwd=pass})
+    return req.status == 200
+           and req.body
+           and req.body:find("/screens/wmsi/monitor.summary.html", 1, true)
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 08.05.100 on NVR 1750D
   name = "Nortel VPN Router",
   category = "routers",
