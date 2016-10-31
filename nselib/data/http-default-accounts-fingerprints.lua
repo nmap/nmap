@@ -225,7 +225,8 @@ table.insert(fingerprints, {
   category = "web",
   paths = {
     {path = "/manager/html/"},
-    {path = "/tomcat/manager/html/"}
+    {path = "/tomcat/manager/html/"},
+    {path = "/cognos_express/manager/html/"}
   },
   target_check = function (host, port, path, response)
     return http_auth_realm(response) == "Tomcat Manager Application"
@@ -233,10 +234,24 @@ table.insert(fingerprints, {
   login_combos = {
     {username = "tomcat", password = "tomcat"},
     {username = "admin", password = "admin"},
-    -- http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-3548
+    {username = "admin", password = ""},
+    -- https://github.com/seshendra/vagrant-ubuntu-tomcat7/
+    {username = "admin", password = "tomcat"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-4094
+    {username = "ADMIN", password = "ADMIN"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
     {username = "ovwebusr", password = "OvW*busr1"},
-    -- http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4188
-    {username = "j2deployer", password = "j2deployer"}
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4188
+    {username = "j2deployer", password = "j2deployer"},
+    -- https://cve.mitre.org/cgi-bin/cvename.cgi?name=2010-0557
+    {username = "cxsdk", password = "kdsxc"},
+    -- XAMPP https://www.apachefriends.org/index.html
+    {username = "xampp", password = "xampp"},
+    -- QLogic QConvergeConsole http://www.qlogic.com/
+    {username = "QCC", password = "QLogic66"},
+    -- HAPI FHIR http://hapifhir.io/
+    {username = "fhir", password = "FHIRDefaultPassword"}
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
