@@ -678,6 +678,26 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version 06.05.00/6.0.1 on QD2040 HW 675
+  name = "TCS Basys Controls Communication Center",
+  category = "industrial",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "Private"
+           and response.header["server"]
+           and response.header["server"]:find("^lighttpd/%d+%.")
+  end,
+  login_combos = {
+    {username = "admin", password = "password"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass)
+  end
+})
+
 ---
 --Printers
 ---
