@@ -169,6 +169,7 @@ fingerprints = {}
 --WEB
 ---
 table.insert(fingerprints, {
+  -- Version 0.8.8a
   name = "Cacti",
   category = "web",
   paths = {
@@ -176,10 +177,11 @@ table.insert(fingerprints, {
     {path = "/cacti/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/200 and sets cookie "Cacti"
+    -- true if the response is HTTP/200 and sets cookie "Cacti" or "CactiEZ"
     if response.status == 200 then
       for _, ck in ipairs(response.cookies or {}) do
-        if ck.name:lower() == "cacti" then return true end
+        local cname = ck.name:lower()
+        if cname == "cacti" or cname == "cactiez" then return true end
       end
     end
     return false
