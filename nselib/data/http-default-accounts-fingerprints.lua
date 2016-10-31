@@ -845,6 +845,35 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version SD32L30, ECS116/A
+  name = "DM NetVu",
+  category = "security",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("Dedicated Micros", 1, true)
+           and response.body:find("/gui/gui_outer_frame.shtml", 1, true)
+           and response.body:lower():find('<meta%s+name%s*=%s*"author"%s+content%s*=%s*"dedicated micros ')
+  end,
+  login_combos = {
+    {username = "", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    local lpath = url.absolute(path, "gui/frmpages/gui_system.shtml")
+    -- Check if authentication is required at all
+    local req = http_get_simple(host, port, lpath)
+    if req.status == 200 then
+      return (req.body or ""):find('top.render_table("System Page"', 1, true)
+    end
+    -- realm="Menu Configuration"
+    return try_http_basic_login(host, port, lpath, user, pass, true)
+  end
+})
+
 ---
 --Industrial systems
 ---
