@@ -120,3 +120,12 @@ table.insert(fingerprints, {
   1, "File not found.", {
   p   = "Enistic zone controller tftpd",
 }});
+
+--------------------------------------------------------------------------------
+-- Netkit
+--------------------------------------------------------------------------------
+table.insert(fingerprints, {
+  1, "File not found", {
+  p   = "Netkit tftpd or atftpd",
+  cpe = {"a:netkit:netkit", "a:lefebvre:atftpd"},
+}})
