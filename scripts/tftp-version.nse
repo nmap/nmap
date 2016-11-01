@@ -194,11 +194,14 @@ action = function(host, port)
       break
     end
   end
+
   if not sw then
     nmap.set_port_version(host, port, "hardmatched")
     pkt.script = "tftp-version"
     local pkt = json.generate(pkt)
-    return ("If you know the name or version of the software running on this port, please submit the following information to dev@nmap.org: %s."):format(pkt)
+    local msg = ("If you know the name or version of the software running on this port, please submit it to dev@nmap.org along with the following information: %s."):format(pkt)
+    stdnse.verbose(msg)
+    return msg
   end
 
   if not port.version.product and sw.p then
