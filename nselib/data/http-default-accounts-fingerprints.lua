@@ -427,6 +427,44 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  name = "Plumtree Portal",
+  category = "web",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    local loc = response.header["location"] or ""
+    return response.status == 302
+           and loc:find("/portal/server%.pt$")
+  end,
+  login_combos = {
+    {username = "Administrator", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {in_hi_space="Login",
+                  in_hi_spaceID="0",
+                  in_hi_control="Login",
+                  in_hi_dologin="true",
+                  in_tx_username=user,
+                  in_pw_userpass=pass,
+                  in_se_authsource=""}
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "portal/server.pt"),
+                                nil, form)
+    local loc = req.header["location"] or ""
+    -- successful login is a 302-redirect that sets cookie "plloginoccured"
+    -- to "true"
+    if not (req.status == 302 and loc:find("/portal/server%.pt[;?]")) then
+      return false
+    end
+    for _, ck in ipairs(req.cookies or {}) do
+      if ck.name:lower() == "plloginoccured" then return ck.value == "true" end
+    end
+    return false
+  end
+})
+
+table.insert(fingerprints, {
    -- Version 0.4.4.6.1-alpha on SamuraiWTF 2.6
   name = "BeEF",
   category = "web",
