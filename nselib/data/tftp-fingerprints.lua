@@ -10,6 +10,23 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 fingerprints = {};
 
 --------------------------------------------------------------------------------
+-- Example Fingerprint
+--------------------------------------------------------------------------------
+-- Based on the format of the 'match' directive used in service probes.
+-- https://nmap.org/book/vscan-fileformat.html#vscan-tbl-versioninfo
+--------------------------------------------------------------------------------
+-- table.insert(fingerprints, {
+--   TFTP_ERRCODE, "TFTP_ERRMSG", {
+--   p   = "Product",
+--   v   = "Version",
+--   i   = "Extra Info",
+--   h   = "Hostname",
+--   o   = "Operating System",
+--   d   = "Device Type",
+--   cpe = {"CPE", ...},
+-- }});
+
+--------------------------------------------------------------------------------
 -- SolarWinds
 --------------------------------------------------------------------------------
 table.insert(fingerprints, {
