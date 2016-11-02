@@ -3,18 +3,26 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local target = require "target"
+local ipOps = require "ipOps"
 
 description = [[
 Resolves hostnames and adds every address (IPv4 or IPv6, depending on
 Nmap mode) to Nmap's target list.  This differs from Nmap's normal
 host resolution process, which only scans the first address (A or AAAA
 record) returned for each host name.
+
+The script will run on any target provided by hostname. It can also be fed
+hostnames via the <code>resolveall.hosts</code> argument. Because it adds new
+targets by IP address it will not run recursively, since those new targets were
+not provided by hostname. It will also not add the same IP that was initially
+chosen for scanning by Nmap.
 ]]
 
 ---
 -- @usage
 -- nmap --script=resolveall --script-args=newtargets,resolveall.hosts={<host1>, ...} ...
--- @args resolveall.hosts Table of hosts to resolve
+-- nmap --script=resolveall manyaddresses.example.com
+-- @args resolveall.hosts Table of hostnames to resolve
 -- @output
 -- Pre-scan script results:
 -- | resolveall:
@@ -26,6 +34,20 @@ record) returned for each host name.
 -- |     74.125.39.105
 -- |     74.125.39.104
 -- |_  Successfully added 6 new targets
+-- Host script results:
+-- | resolveall:
+-- |   Host 'chat.freenode.net' also resolves to:
+-- |     94.125.182.252
+-- |     185.30.166.37
+-- |     162.213.39.42
+-- |     193.10.255.100
+-- |     139.162.227.51
+-- |     195.154.200.232
+-- |     164.132.77.237
+-- |     185.30.166.38
+-- |     130.185.232.126
+-- |     38.229.70.22
+-- |_  Successfully added 10 new targets
 -- @xmloutput
 -- <elem key="newtargets">4</elem>
 -- <table key="hosts">
@@ -45,11 +67,11 @@ categories = {"safe", "discovery"}
 
 
 prerule = function()
-  if not stdnse.get_script_args("resolveall.hosts") then
-    stdnse.verbose1("Skipping '%s', missing required argument 'resolveall.hosts'.", SCRIPT_NAME)
-    return false
-  end
-  return true
+  return stdnse.get_script_args("resolveall.hosts")
+end
+
+hostrule = function(host)
+  return host.targetname
 end
 
 local addtargets = function(list)
@@ -67,7 +89,7 @@ local addtargets = function(list)
   return sum
 end
 
-action = function()
+preaction = function()
   local hosts = stdnse.get_script_args("resolveall.hosts")
 
   if type(hosts) ~= "table" then
@@ -100,3 +122,44 @@ action = function()
   end
   return xmloutput, stdnse.format_output(true, output)
 end
+
+hostaction = function(host)
+  local sum = 0
+  local output = {}
+  local status, list = nmap.resolve(host.targetname, nmap.address_family())
+  if not status or #list <= 0 then
+    return nil
+  end
+  -- Don't re-add this same IP!
+  for i = #list, 1, -1 do
+    if ipOps.compare_ip(list[i], "eq", host.ip) then
+      table.remove(list, i)
+    end
+  end
+  if target.ALLOW_NEW_TARGETS then
+    sum = sum + addtargets(list)
+  end
+  table.insert(output, string.format("Host '%s' also resolves to:", host.targetname))
+  table.insert(output, list)
+
+  local xmloutput = {
+    addresses = list,
+    newtargets = sum or 0,
+  }
+  if sum > 0 then
+    table.insert(output, string.format("Successfully added %d new targets", sum))
+  else
+    table.insert(output, "Use the 'newtargets' script-arg to add the results as targets")
+  end
+  return xmloutput, stdnse.format_output(true, output)
+end
+
+local ActionsTable = {
+  -- prerule: resolve via script-args
+  prerule = preaction,
+  -- hostrule: resolve via scanned host
+  hostrule = hostaction
+}
+
+-- execute the action function corresponding to the current rule
+action = function(...) return ActionsTable[SCRIPT_TYPE](...) end

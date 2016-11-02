@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Enabled resolveall to run against any target provided as a hostname, so
+  the resolveall.hosts script-arg is no longer required. [Daniel Miller]
+
 o [NSE] Updated fingerprints for script http-default-accounts with 18 new
   fingerprints. 4 fingerprints have been broadened to cover more variants.
   [nnposter]
