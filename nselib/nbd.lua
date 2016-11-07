@@ -121,12 +121,12 @@ connect = function(host, port, options)
     return false
   end
 
-  if magic ~= NBD_OLD_MAGIC_2 then
+  if magic == NBD_OLD_MAGIC_2 then
     stdnse.debug1("Service speaks old-style NBD protocol.")
     return connect_old(sock)
   end
 
-  if magic ~= NBD_OLD_MAGIC_2 then
+  if magic == NBD_NEW_MAGIC_2 then
     stdnse.debug1("Service speaks new-style NBD protocol.")
     return connect_new(sock)
   end
