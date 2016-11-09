@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added service probe and UDP payload for Quick UDP Internet Connection (QUIC),
+  a secure transport developed by Google and used with HTTP/2. [Daniel Miller]
+
 o [NSE] Enabled resolveall to run against any target provided as a hostname, so
   the resolveall.hosts script-arg is no longer required. [Daniel Miller]
 
@@ -196,9 +199,6 @@ o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
 o [NSE][GH#531] Fix two issues in sslcert.lua that prevented correct operations
   against LDAP services when version detection or STARTTLS were used.
   [Tom Sellers]
-
-o [Zenmap] Long-overdue Spanish language translation has been added! Muy bien!
-  [Vincent Dumont, Marta Garcia De La Paz, Paulino Calderon, Patricio Castagnaro]
 
 o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
   Windows, which required including pcap-int.h and locking us to a single

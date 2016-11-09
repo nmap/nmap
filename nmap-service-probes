@@ -15139,3 +15139,11 @@ Probe TCP iperf3 q|0000000000000000000000000000000000000\0\0\0\0|
 ports 5201
 rarity 9
 match iperf3 m|^\t$|
+
+##############################NEXT PROBE##############################
+# QUIC initialization with random CID, advertising version Q999, which should elicit a version negotiation packet from the server
+Probe UDP QUIC q|\r\x89\xc1\x9c\x1c*\xff\xfc\xf1Q999\x00|
+ports 80,443
+rarity 6
+
+softmatch quic m|^\r\x89\xc1\x9c\x1c\*\xff\xfc\xf1((?:Q[0-8]\d\d)+)$| i/QUIC versions$SUBST(1,"Q",", Q")/
