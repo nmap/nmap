@@ -430,6 +430,9 @@ match daytime m|^[A-Z][a-z]+day, [A-Z][a-z]+ \d{1,2}, \d{4} \d\d:\d\d:\d\d-\w\w\
 match daytime m|^\w+, +\d+ +\w+ +\d+ +\d+:\d+:\d+ [+-]\d+\r\n([\w:._ /\\-]+\\ats\.exe)\r\n| p/Atomic Time Synchonizer daytime/ i/$1/ o/Windows/ cpe:/o:microsoft:windows/
 match daytime m|^\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d\r\n$| p/American Dynamics EDVR security camera daytime/ d/webcam/
 
+# TODO: replace this when we figure out what it is.
+softmatch daytime m|^[0-2]\d:[0-5]\d:[0-5]\d [12]\d\d\d/\d\d?/\d\d?\n$|
+
 match devonthink m|^\xe6\x01\0\0\0\0\0\0bplist00\xd4\x01\x02\x03\x04\x05\x06\x1e\x1fX\$versionX\$objectsY\$archiverT\$top\x12\0\x01\x86\xa0\xa5\x07\x08\x0f\x13\x1aU\$null\xd3\t\n\x0b\x0c\r\x0eStag\[dataContentV\$class\x10\x01\x80\x02\x80\x04\xd2\x10\x0b\x11\x12WNS\.dataO\x10\x98bplist00\xd2\x01\x02\x03\x04_\x10\x16ComputerIdentificationZPINCodeKey_\x10:([\w._-]+)\x08| p/DEVONthink dcoument management/ i/PIN code key: $1/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 
 match diablo2 m|^[\xae\xaf]\x01$| p/Diablo 2 game server/
@@ -1735,10 +1738,10 @@ match irc m|^ERROR :Trying to reconnect too fast\.\r\n| p/Hybrid ircd/ cpe:/a:ir
 # Hybrid-IRCD 7.0 on Linux 2.4
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Found your hostname\r\nNOTICE AUTH :\*\*\* Got Ident response\r\n| p/Hybrid ircd/ cpe:/a:ircd-hybrid:ircd-hybrid/
 
-match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email ([-\w_.]+@[-\w_.]+) for more information\.| p/Unreal ircd/ i/Admin email $1/ cpe:/a:unrealircd:unrealircd/
+match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email ([-\w_.]+@[-\w_.]+) for more information\.| p/UnrealIRCd/ i/Admin email $1/ cpe:/a:unrealircd:unrealircd/
 # Sometimes multiple emails are specified, bad emails, etc
-match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email (.*) for more information\.| p/Unreal ircd/ i/Admin email $1/ cpe:/a:unrealircd:unrealircd/
-match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Too many unknown connections from your IP\)\r\n| p/Unreal ircd/ cpe:/a:unrealircd:unrealircd/
+match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email (.*) for more information\.| p/UnrealIRCd/ i/Admin email $1/ cpe:/a:unrealircd:unrealircd/
+match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Too many unknown connections from your IP\)\r\n| p/UnrealIRCd/ cpe:/a:unrealircd:unrealircd/
 match irc m|^ERROR :Reconnecting too fast, throttled\.\r\n$| p/ratbox, charybdis, or ircd-seven ircd/
 
 match irc m|^NOTICE AUTH :\*\*\* Processing connection to ([-\w_.]+)\r\n| p/ratbox ircd/ h/$1/ cpe:/a:ratbox:ircd-ratbox/
@@ -1757,7 +1760,7 @@ match irc-proxy m|^:dircproxy NOTICE AUTH :Looking up your hostname\.\.\.\r\n:di
 # dirkproxy (modificated dircproxy)
 match irc-proxy m|^:dirkproxy NOTICE AUTH :Looking up your hostname\.\.\.\r\n:dirkproxy NOTICE AUTH :Got your hostname\.\r\n| p/dirkproxy/
 # Unreal IRCD Server version 3.2 beta 17
-match irc m|^:([-.\w]+) NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\n| p/Unreal ircd/ h/$1/ cpe:/a:unrealircd:unrealircd/
+match irc m|^:([-.\w]+) NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\n| p/UnrealIRCd/ h/$1/ cpe:/a:unrealircd:unrealircd/
 
 # dancer-ircd 1.0.31+maint8-1
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking ident\r\nNOTICE AUTH :\*\*\* No identd \(auth\) response\r\nNOTICE AUTH :\*\*\* Found your hostname\r\n$| p/Dancer ircd/
@@ -1789,6 +1792,7 @@ match irc m|^IRCXPRO ([\w._-]+)\r\nAUTHREQUEST :Authentication Required\r\n| p/I
 
 match irc m|^:([\w._-]+) 451 \* HELP :No te has registrado\r\n| p/ConferenceRoom ircd/ i/Spanish/ h/$1/
 match irc m|^:([\w._-]+) NOTICE AUTH :Minbif-IRCd initialized, please go on\r\n| p/Minbif ircd/ h/$1/
+match irc m|^:([\w._-]+) NOTICE \* :BitlBee-IRCd initialized, please go on\r\n| p/BitlBee ircd/ h/$1/ cpe:/a:bitlbee:bitlbee/
 
 match irc-proxy m|^:.*!psyBNC@lam3rz\.de NOTICE \* :psyBNC([-.\w]+)\r\n| p/psyBNC/ v/$1/
 match irc-proxy m|^:.*!pb@lam3rz\.de NOTICE \* :pb([-.\w]+)\r\n| p/psyBNC/ v/$1/
@@ -1851,6 +1855,7 @@ match java-rmi m|^\xac\xed\0\x05sr\0\x19java\.rmi\.MarshalledObject\x7c\xbd\x1e\
 match java-rmi m|^\xac\xed\0\x05sr\0\x19java\.rmi\.MarshalledObject\x7c\xbd\x1e\x97\xedc\xfc>\x02\0\x03I\0\x04hash\[\0\x08locBytest\0\x02\[B\[\0\x08objBytesq\0~\0\x01xp\x16\xa1\xfe\x03ur\0\x02\[B\xac\xf3\x17\xf8\x06\x08T\xe0\x02\0\0xp\0\0\0J\xac\xed\0\x05t\0 (http://[\w._-]+:\d+/)q\0~\0\0q\0~\0\0q\0~\0\0q\0~\0\0q\0~\0\0q\0~\0\0q\0~\0\0uq\0~\0\x03\0\0\x03\x14\xac\xed\0\x05s}\0\0\0\x02\0\x19org\.jnp\.interfaces\.Naming\0,org\.jboss\.ha\.framework\.interfaces\.HARMIProxyxr\0\x17java\.lang\.reflect\.Proxy\xe1'\xda \xcc\x10C\xcb\x02\0\x01L\0\x01ht\0%Ljava/lang/reflect/InvocationHandler;xpsr\0-org\.jboss\.ha\.framework\.interfaces\.HARMIClient\xee\xf5\xebj\xfb\xb5\xd9\x91\x03\0\x03L\0\x11familyClusterInfot\0\x35Lorg/jboss/ha/framework/interfaces/FamilyClusterInfo;L\0\x03keyt\0\x12Ljava/lang/String;L\0\x11loadBalancePolicyt\0\x35Lorg/jboss/ha/framework/interfaces/LoadBalancePolicy;xpw%\0#RIM_BES_BAS_HA_338625_VCBES1/HAJNDIsr\0\x13java\.util\.ArrayListx\x81\xd2\x1d\x99\xc7a\x9d\x03\0\x01I\0\x04sizexp\0\0\0\x01w\x04\0\0\0\x01sr\0\x32org\.jboss\.ha\.framework\.server\.HARMIServerImpl_Stub\0\0\0\0\0\0\0\x02\x02\0\0xr\0\x1ajava\.rmi\.server\.RemoteStub\xe9\xfe\xdc\xc9\x8b\xe1e\x1a\x02\0\0xr\0\x1cjava\.rmi\.server\.RemoteObject\xd3a\xb4\x91\x0ca3\x1e\x03\0\0xpw\x3d\0\x0bUnicastRef2\0\0.([\w._-]+)\0\0\xc0\x81k\x9b\n;\x12\xdb\$\x89\t\xc3\x15G\0| p/Java RMI/ i/BlackBerry Enterprise Service JNDI; URL: $1/ h/$2/ cpe:/a:blackberry:blackberry_enterprise_service/
 match java-rmi m|^\xac\xed\0\x05sr\0\x35javax\.management\.remote\.message\.HandshakeBeginMessage\x04\x13\xdf,\x84\x8b\xce6\x02\0\x02L\0\x08profilest\0\x12Ljava/lang/String;L\0\x07versionq\0~\0\x01xppt\0\x031\.0$| p/Java RMI/ i/JMXMP Connectors/
 match java-rmi m|^\xac\xed\0\x05sr\0\x19java\.rmi\.MarshalledObject\x7c\xbd\x1e\x97\xedc\xfc>\x02\0\x03I\0\x04hash\[\0\x08locBytest\0\x02\[B\[\0\x08objBytesq\0~\0\x01xpsN\x96Rur\0\x02\[B\xac\xf3\x17\xf8\x06\x08T\xe0\x02\0\0xp\0\0\0\)\xac\xed\0\x05t..http://([\w._-]+):\d+q\0~\0\0q\0~\0\0uq\0~\0\x03\0\0\0\xc2\xac\xed\0\x05sr\0 org\.jnp\.server\.NamingServer_Stub\0\0\0\0\0\0\0\x02\x02\0\0xr\0\x1ajava\.rmi\.server\.RemoteStub\xe9\xfe\xdc\xc9\x8b\xe1e\x1a\x02\0\0xr\0\x1cjava\.rmi\.server\.RemoteObject\xd3a\xb4\x91\x0ca3\x1e\x03\0\0xpw6\0\x0bUnicastRef2\0..[\d.]+\0\0FRS\xf5\x7f\[<\xda\xbd\x92\xcfN\x8c\xcf\0\0\x01Ay\x1e\xc1\xba\x80\x01\0x| p/Java RMI/ i/NE3S Naming Service/ h/$1/
+match java-rmi m|^\xac\xed\0\x05sr\0\x19java\.rmi\.MarshalledObject\x7c\xbd\x1e\x97\xedc\xfc>\x02\0\x03I\0\x04hash\[\0\x08locBytest\0\x02\[B\[\0\x08objBytesq\0~\0\x01xp\x01\xc3\xed\x9epur\0\x02\[B\xac\xf3\x17\xf8\x06\x08T\xe0\x02\0\0xp\0\0\0\xc5\xac\xed\0\x05sr\0 org\.jnp\.server\.NamingServer_Stub\0\0\0\0\0\0\0\x02\x02\0\0xr\0\x1ajava\.rmi\.server\.RemoteStub\xe9\xfe\xdc\xc9\x8b\xe1e\x1a\x02\0\0xr\0\x1cjava\.rmi\.server\.RemoteObject\xd3a\xb4\x91\x0ca3\x1e\x03\0\0xpw9\0\x0bUnicastRef2\0\0\x0e| p/Java RMI/ i/HornetQ JMS/
 # May be more general: "WebGoat (OWASP): in the WebGoat WEB-INF\web.xml: Axis SOAPMonitorService.
 
 # ACED is a magic number and 5 is a version number.
@@ -1894,6 +1899,7 @@ match ldap m|^unable to set certificate file\n6292:error:02001002:system library
 
 match ldminfod m|^language:\nlanguage:[a-z][a-z]_[A-Z][A-Z]\.[\w-]+\n| p/ldminfod login session daemon/
 
+match libp2p-multistream m|^./multistream/([\d.]+)\n|s p/libp2p multistream protocol/ v/$1/
 match lineage-ii m|^\x03\0\x7e$| p/Lineage II game server/
 
 match lisa m|^\d+ \*+\n.*\x000 succeeded\n\0$|s p/LAN Information Server/ i/Sanitized/
@@ -1933,14 +1939,17 @@ match midas m|^MIDASd v([\w.]+) connection accepted\n\xff| p/midasd/ v/$1/
 match millennium m|^\x01\0\0\0\x1a\0\0\0Millennium Process Server\0$| p/Millennium Process Server/
 match minecraft m|^\xff\0\x17Took too long to log in$| p/Minecraft game server/
 match minecraft-socketapi m|^{\"result\":\"error\",\"error\":\"Incorrect\. Socket requests are in the format PAGE\?ARGUMENTS\. For example, \\/api\\/subscribe\?source=\.\.\.\.\",\"source\":\"\"}\r\n{\"result\":\"error\",\"error\":\"Incorrect\. Socket requests are in the format PAGE\?ARGUMENTS\. For example, \\/api\\/subscribe\?source=\.\.\.\.\",\"source\":\"\"}\r\n$| p/Bukkit JSONAPI Socket API for Minecraft game server/
-match minecraft-votifier m|^VOTIFIER ([\w._-]+)\r?\n$| p/Votifier plugin for Minecraft game/ v/$1/
+match minecraft-votifier m|^VOTIFIER (\d[\w._-]+)(?: \w{26})?\r?\n$| p/Votifier plugin for Minecraft game/ v/$1/
 match misys-loaniq m|^Loan IQ %1 Request Server - Ready for Request\0| p/Misys Loan IQ/
+
+# Hayes codes, could be something else but all searches point to Lantronix devices on port 3001
+match modem m|^(?:ATZ\r)?(?:\+\+\+ATZ\r)| p/Lantronix raw serial port/
 
 match moo m|^Type 'connect <player name>' to log in\.\r\n| p/LambdaMOO/
 
 # http://www.monetdb.org/Documentation/monetdbd
-match monetdb m|^C\0void:merovingian:8:md5,plain:BIG:$| p/MonetDB/ i/big-endian/ cpe:/a:monetdb:monetdb/
-match monetdb m|^C\0void:merovingian:8:md5,plain:LIT:$| p/MonetDB/ i/little-endian/ cpe:/a:monetdb:monetdb/
+match monetdb m|^.\0[^:]+:merovingian:(\d+):[^:]+:BIG:| p/MonetDB/ i/protocol $1; big-endian/ cpe:/a:monetdb:monetdb/
+match monetdb m|^.\0[^:]+:merovingian:(\d+):[^:]+:LIT:| p/MonetDB/ i/protocol $1; little-endian/ cpe:/a:monetdb:monetdb/
 match monetdb-ctl m|^merovingian:2:\w+:\n| p/MonetDB control/ cpe:/a:monetdb:monetdb/
 
 match mpd m|^OK MPD ([\d.]+)\n$| p/Music Player Daemon/ v/$1/
@@ -2005,6 +2014,9 @@ match nmea-0183 m|^\$GP[A-Z]{3},[\w.,]+\*[A-F\d]{2}\r\n| p/NMEA 0183 GPS data/
 
 match nngs m|^>>messages/login\r\n----- Welcome to the No Name Go Server \(NNGS\) -----\r\n\r\n| p/No Name Go Server/
 match nngs m|^----- Welcome to the No Name Go Server \(NNGS\) -----\r\n\r\nTo connect as a guest, please log in with an unusual name\r\nthat is probably not being used by another player\.\r\n\r\n\r\nLogin: | p/No Name Go Server/
+
+# source is a hostname, but not necessarily the hostname of the target.
+match nutcracker m|^\{"service":"nutcracker", "source":"([^"]+)", "version":"([\d.]+)",| p/twemproxy stats/ v/$2/ i/source: $1/ cpe:/a:twitter:twemproxy:$2/
 
 # This smells like VNC (RFB 3.3), but very customized
 # http://support.nuuo.com/mediawiki/index.php/Remote_desktop
@@ -2103,6 +2115,9 @@ match mysql m|^.\0\0\0\xffj\x04'[\d.]+' .* MySQL|s p/MySQL/ cpe:/a:mysql:mysql/
 match mysql m|^.\0\0\0\x0a(0[\w._-]+)\0| p/MySQL instance manager/ v/$1/ cpe:/a:mysql:mysql:$1/
 
 match minisql m|^.\0\0\x000:23:([\d.]+)\n$|s p/Mini SQL/ v/$1/
+
+# xrdp disconnects this way if you look at it funny.
+match ms-wbt-server m|^\x03\0\0\t\x02\xf0\x80!\x80| p/xrdp/ cpe:/a:jay_sorg:xrdp/
 
 # TIME
 # This is a random 128-byte IV followed by a four-byte timestamp.
@@ -4618,6 +4633,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfb\x03\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x05\xff\xfd!\xff\xfb\x01\r\n\*{78}\r\n\* Copyright \(c\) 2004-(20\d\d) Hangzhou H3C Tech\. Co\., Ltd\. All rights reserved\.  \*| p/H3C telnetd/ i/copyright date: $1/ d/switch/
 match telnet m|^\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[[03];23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HHP ([A-Z\d]+) ((\d+)-\w+) Switch\r\r\nSoftware revision ([\w.]+)\r\r\n\r\r\n(?:\(C\) )?Copyright| p/HP $2 switch telnetd/ v/$4/ i/model number: $1/ d/switch/ cpe:/h:hp:$3/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\0\r\n\r\n\r\n\r\n\x1b\(U\x1b\[8;25;80t\x1b\[1;25r\x1b\[2J\x1b\[1;1H\r\n\x1b\[2;1H\x1b\(U\x1b\[2J\x1b\[1;1HMystic BBS v([\d.]+) for Raspberry Pi Node \d+\r\n\x1b\[2;1HCopyright \(C\) 1997-2\d\d\d By James Coyle\r\n\x1b\[3;1H\r\n\x1b\[4;1HDetecting terminal emulation: \x1b\[6n| p/Mystic BBS telnetd/ v/$1/ i/Raspberry Pi/ cpe:/a:james_coyle:mystic_bbs:$1/
+match telnet m|^\xff\xfe\x01\xff\xfb\x01\xff\xfb\x03$| p/Aastra Office A400-series or Mitel MiVoice Office 400 PBX telnetd/ d/PBX/
 
 #(insert telnet)
 
@@ -4953,7 +4969,7 @@ softmatch telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03[^\xff]| p/Busy
 # Matches lots of devices that require a terminal type to be sent
 softmatch telnet m|^\xff\xfd\x18$|
 # General-purpose telnet softmatch
-softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+[\0-\x7f]=
+softmatch telnet m=^(?:\xff(?:[\xfb-\xfe].|\xf0|\xfa..))+(?:[\0-\x7f]|$)=
 # Null probe hack; these seem to come in response to random probes
 softmatch kerberos-sec m|^\0\0\0[\x40-\x90]~[\x3e-\x8e]\x30[\x3c-\x8c]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z|s i/server time: $1-$2-$3 $4:$5:$6Z/
 
@@ -5199,6 +5215,9 @@ softmatch gkrellm m|^<error>\nBad connect string!| p/GKrellM System Monitor/
 
 softmatch gopher m|^i\t?[\x20-\x7f]+\tfake\t\(NULL\)\t0\r\n| p/Pygopherd or Phricken/
 softmatch gopher m|^[0-9ghisIT](?:\t?[\x20-\x7f]+\t){3}[0-9]+\r\n|
+
+# https://github.com/quine/GoProGTFO
+match gopro-json m|^\{"rval": -7, "param_size": 0 \}\0| p/GoPro or similar camera json service/ d/webcam/
 
 match control-gc-ports m|^unknowncommand 14\r$| p/Global Cache GC-100 config/ d/media device/
 
@@ -5863,6 +5882,7 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nConnection: close\r\nContent-type
 match upnp m|^ 501 Not Implemented\r\n.*Server: Linux Mips ([\w._-]+) UPnP/([\w.]+) MiniUPnPd/([\w.]+)\r\n|s p/MiniUPnP/ v/$3/ i/Linux $1 (MIPS); UPnP $2/ o/Linux/ cpe:/a:miniupnp_project:miniupnpd:$3/a cpe:/o:linux:linux_kernel:$1/a
 match upnp m|^ 501 Not Implemented\r\n.*Server: SmoothWall Express/([\w._-]+) UPnP/([\w.]+) miniupnpd/([\w.]+)\r\n|s p/MiniUPnP/ v/$3/ i/SmoothWall Express $1; UPnP $2/ o/Linux/ cpe:/a:miniupnp_project:miniupnpd:$3/a cpe:/o:linux:linux_kernel/a
 match upnp m|^ 501 Not Implemented\r.*\nServer: SDK ([\d.]+) UPnP/([\d.]+) MiniUPnPd/([\d.]+)\r\n|s p/MiniUPnP/ v/$3/ i/Netgear SDK $1; UPnP $2/ cpe:/a:miniupnp_project:miniupnpd:$3/a
+match upnp m|^ 501 Not Implemented\r.*\nServer: SDK ([\d.]+) UPnP/([\d.]+) MiniUPnPd/([\d.]+)_MTK_v([\d_]+)\r\n\r\n|s p/MiniUPnP/ v/$3/ i|Linksys/Belkin WiFi range extender; SDK $1; UPnP $2; MTK $SUBST(4,"_",".")| cpe:/a:miniupnp_project:miniupnpd:$3/a
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: UPnP/([\d.]+)\r\nContent-Length: 0\r\nContent-Type: text/xml; charset=\"utf-8\"\r\nEXT:\r\n\r\n$| p/UPnP/ v/$1/ d/broadband router/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: *Linux/([-\w_.]+), UPnP/([-\w_.]+), TwonkyVision UPnP SDK/([-\w_.]+)\r\n|s p/TwonkyMedia UPnP/ i/Linux $1; UPnP $2; SDK $3/ o/Linux/ cpe:/a:packetvideo:twonky/ cpe:/o:linux:linux_kernel:$1/a
 match upnp m|^HTTP/1\.1 400 Bad request\r\nServer: Reciva UPnP/([\w._-]+) Radio/([\w._-]+) DLNADOC/([\w._-]+)\r\nContent-length: 0\r\nConnection: close\r\n\r\n$| p/dnt IPdio radio UPnP/ v/$2/ i/UPnP $1; DLNADOC $3/ d/media device/
@@ -8748,7 +8768,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: ExtremeZ-IP/([\w._-]+)\r\n.*<title>Ext
 match http m|^HTTP/1\.0 302 FOUND\r\nContent-Type: text/html; charset=utf-8\r\nLocation: http://([\w._-]+):\d+/login\?next=%2F\r\n.*Server: Werkzeug/([\w._-]+) Python/([\w._-]+)\r\n|s p/Werkzeug httpd/ v/$2/ i/Flask web framework; Python $3/ h/$1/ cpe:/a:python:python:$3/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n.*Server: Werkzeug/([\w._-]+) Python/([\w._+-]+)\r\n|s p/Werkzeug httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 301 MOVED PERMANENTLY\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \d+\r\nLocation: http://0\.0\.0\.0:\d+/web/webclient/home\r\nServer: Werkzeug/([\w._-]+) Python/([\w._+-]+)\r\n| p/Werkzeug httpd/ v/$1/ i/OpenERP XML-RPC; Python $2/ o/Unix/ cpe:/a:python:python:$2/
-match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nVary: Cookie, User-Agent, Accept-Language\r\nConnection: close\r\nServer: MoinMoin ([\w._-]+) release Python/([\w._~+-]+)\r\n| p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nVary: Cookie, User-Agent, Accept-Language\r.*\nServer: MoinMoin (\d[\w._-]+) release Python/(\d[\w._~+-]+)\r\n|s p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.0 200 OK\r\nServer: MoinMoin ([\w._-]+) release ThreadPoolServer Python/([\w._~+-]+)\r\n| p/MoinMoin wiki standalone httpd/ v/$1/ i/Python $2/ cpe:/a:python:python:$2/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 77\r\nServer: Indy/([\w._-]+)\r\nWWW-Authenticate: Basic realm=\"Delta Server Management Interface\"\r\n| p/Indy httpd/ v/$1/ i/Avaya IP Office Delta Server/ d/PBX/ cpe:/a:indy:httpd:$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*<!--\r\n#\r\n# If you have a 'split' directory installation, with configuration\r\n# files in ~/\.i2p \(Linux\) or %APPDATA%\\I2P \(Windows\), be sure to\r\n# edit the file in the configuration directory, NOT the install directory\.\r\n#\r\n--><title>I2P Anonymous Webserver</title>|s p/I2P anonymous httpd/
@@ -9735,6 +9755,7 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .* GMT\r\nServer: PHttp/([\d.]+) Win32NT
 match http m|^HTTP/1\.0 200 OK\r\nDate: .* GMT\r\nServer: PHttp/([\d.]+) Unix\r\nX-AspNetMvc-Version: ([\d.]+)\r\nX-AspNet-Version: ([\d.]+)\r\nContent-Length: \d+\r\nCache-Control: private\r\nContent-Type: text/html; charset=utf-8\r\nSet-Cookie: WorkplaceToken=[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}; path=/; expires=.* GMT\r\nConnection: close\r\n\r\n| p/Termika OlimpOKS PHttpd/ v/$1/ i/ASP.NET $3; MVC $2/ o/Unix/ cpe:/a:microsoft:asp.net:$3/ cpe:/a:termika:olimpoks/
 match http m|^HTTP/1\.0 403 Forbidden\r\nDate: .* GMT\r\nContent-Type: text/html; charset=UTF-8\r\nServer: OpenVPN-AS\r\nSet-Cookie: openvpn_sess_[a-f\d]{32}=[a-f\d]{32}; Path=/; Secure; HttpOnly\r\n\r\n| p/OpenVPN Access Server/ cpe:/a:openvpn:openvpn_access_server/
 match http m|^HTTP/1\.1 200 OK\r\nVary: Accept-Encoding\r\nAccess-Control-Allow-Origin: \*\r\nX-Rocket-Chat-Version: ([\d.]+)\r\n.*__meteor_runtime_config__ = JSON\.parse\(decodeURIComponent\("%7B%22meteorRelease%22%3A%22METEOR%40([\d.]+)%22%2C%22PUBLIC_SETTINGS%22%3A%7B%7D%2C%22ROOT_URL%22%3A%22https?%3A%2F%2F([^%]+)%|s p/Rocket.Chat/ v/$1/ i/Meteor $2/ h/$3/ cpe:/a:meteor:meteor:$2/ cpe:/a:rocketchat:rocket.chat:$1/
+match http m|^HTTP/1\.1 200 OK\r\ncontent-type: text/html; charset=utf-8\r\nvary: Accept-Encoding\r\ndate: .*<title>Coral Rapid Application Development Framework - Corrad</title>.*__meteor_runtime_config__ = JSON\.parse\(decodeURIComponent\("%7B%22meteorRelease%22%3A%22METEOR%40([\d.]+)%22|s p/Corrad Development httpd/ i/Meteor $1/ cpe:/a:encoral:corrad/ cpe:/a:meteor:meteor:$1/
 match http m|^HTTP/1\.1 302 Found\r\nConnection: Keep-Alive\r\nServer: \r\nContent-Type: text/html\r\nContent-Length: 680\r\n\r\n\xef\xbb\xbf<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4\.01 Transitional//EN" "http://www\.w3\.org/TR/html4/loose\.dtd">\r\n<!-- this page must have 520 bytes or more, ie is a wonderfull program -->| p/Gigaset DECT phone/ d/phone/
 # Maybe distinguish language?
 match http m%^HTTP/1\.0 200 OK\r\nDate: .* GMT\r\nConnection: Close\r\nServer: ([\d.]+)\r\nContent-Type: text/html; charset=utf-8\r\nETag: W/"[a-f\d]{32}"\r\nTransfer-Encoding: chunked\r\nContent-Length: \d+\r\n\r\n\d+\r\n<!DOCTYPE html> <html lang="en" ng-app="server" ng-strict-di ng-controller="ServerController"> <head> <script type="text/javascript">window\.lang = "en";</script> <meta charset="utf-8"> <meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge"> <meta name="viewport" content="width=device-width,initial-scale=1"> <meta name="description" content="Repetier-Server (Free|Pro) for 3d printer">% p/Repetier Server $2 3d printer controller/ v/$1/ cpe:/a:hot-world:repetier_server:$1::$2/
@@ -9799,6 +9820,12 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nDate: .*\r\nX-AV
 match http m|^HTTP/1\.1 200 \r\nContent-Type: text/html;charset=UTF-8\r\nDate: .*\r\nConnection: close\r\n\r\n\n\n\n<!DOCTYPE html>\n<html lang="en">\n    <head>\n {8}<meta charset="UTF-8" />\n {8}<title>Apache Tomcat/(\d[\w._-]+)</title>| p/Apache Tomcat/ v/$1/ cpe:/a:apache:tomcat:$1/a
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Keep-Alive\r\nContent-Type: text/xml\r\nContent-Length: \d+\r\nX-Transcend-Version: 1\r\n\r\n<\?xml version="1\.0" encoding="UTF-8"\?>\n<config-auth client="vpn" type="auth-request">\n<version who="sg">0\.1\(1\)</version>\n<auth id="main">\n<message>Please enter your username</message>\n<form method="post" action="/auth">\n<input type="text" name="username" label="Username:" />\n</form></auth>\n</config-auth>| p/OpenConnect Server httpd/ cpe:/a:infradead:ocserv/
 match http m|^HTTP/1\.0 505 HTTP Version not supported\r\nDate: .*\r\nAccept-Ranges: bytes\r\nContent-Length: 0\r\n\r\n| p/iOS Call Recorder httpd/ o/iOS/ cpe:/a:yaniv_danan:ioscallrecorder/ cpe:/o:apple:iphone_os/a
+match http m|^HTTP/1\.1 303 See Other\r\nLocation: /logon\.htm\r\nContent-Length: 0\r\nServer: Intel\(R\) Management & Security Application ([\d.]+)\r\n\r\n| p/Intel Management & Security Application httpd/ v/$1/ cpe:/a:intel:management_engine_components:$1/
+match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: application/json; charset=utf-8\r\nDate: .*\r\nServer: kong/([\d.]+)\r\n| p/Kong http reverse-proxy/ v/$1/ cpe:/a:mashape:kong:$1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-Type: text/plain; charset=utf-8\r\nWww-Authenticate: Basic realm="kubernetes-master"\r\nX-Content-Type-Options: nosniff\r\nDate: .*\r\nContent-Length: 13\r\n\r\nUnauthorized\n| p/Kubernetes master node httpd/ cpe:/a:kubernetes:kubernetes/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: application/json\r\nDate: .*\r\nConnection: close\r\n\r\n\{"tinylr":"Welcome","version":"([\d.]+)"\}| p/tinylr httpd/ v/$1/ cpe:/a:mickael_daniel:tinylr:$1/
+match http m|^HTTP/1\.1 404 Not Found\r\nDate: .*\r\nContent-Length: 0\r\n\r\n$| p/AppDynamics EUM server/
+match http m|^HTTP/1\.1 200 OK\r\nAccess-Control-Allow-Origin: \*\r\nContent-Length: 81\r\n\r\nThis is a Minecraft server\. HTTP on this port by JSONAPI\. JSONAPI by Alec Gorge\.\n| p/Minecraft JSONAPI/ cpe:/a:alec_gorge:jsonapi/
 
 #(insert http)
 
@@ -10002,6 +10029,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nX-Influxdb-Version: ([\d.]+)\r\n|s p/Influx
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: KFWebServer\r\n|s p/KF Web Server/ cpe:/a:keyfocus:kf_web_server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: KFWebServer/([\d.]+) (Windows[^\r\n]*)\r\n|s p/KF Web Server/ v/$1/ o/$2/ cpe:/a:keyfocus:kf_web_server/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Huawei-BMC\r\n| p/Huawei BMC httpd/ d/remote management/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Seattle Lab HTTP Server/([\d.]+)\r\n| p/Seattle Lab httpd/ v/$1/
 
 # Put this at the end because it's not a server, but a backend.
 match http m|^HTTP/1\.1 \d\d\d .*\r\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n|s p/Java Servlet/ v/$1/ i/JSP $2/ cpe:/a:oracle:jsp:$2/
@@ -10435,9 +10463,13 @@ match ipp m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Language: C\r\nUpgra
 match ipp m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><META HTTP-EQUIV=\"REFRESH\" CONTENT=\"0; URL=http://[\d.]+/\"></HEAD><BODY><P>For more printserver info please open the <A HREF=\"http://[\d.]+/\">[\d.]+</A> home page</BODY></HTML>$| p/Kyocera Mita KM-1530 IPP/ d/printer/ cpe:/h:kyocera:mita_km-1530/
 match ipp m|^HTTP/1\.0 405 Method Not Allowed\r\nContent-Type: text/html\r\nCache-Control: public,max-age=86400\r\nPragma: cache\r\nExpires: .*\r\nDate: .*\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\n\r\n| p/Netia Spot ipp/ d/broadband router/
 match ipp m|^HTTP/1\.0 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nreturn_code=FCS9015\?error_text=This server does not support this API\.| p/PrinterOn Print Delivery Gateway ipp/ cpe:/a:printeron:print_delivery_gateway/
+# Fuji Xerox DocuCentre-V C4475 T2
+match ipp m|^HTTP/1\.0 301 Moved Permanently\r\nDate: .*\r\nPragma: no-cache\r\nLocation: http:///\r\nContent-Length: 109\r\nContent-Type: text/html\r\n\r\n<html><head><title>301 Moved Permanently</title></head>\t\t<body><h1>301 Moved Permanently</h1></body></html>\r\n| p/Fuji Xerox DocuCentre-V ipp/ d/printer/
 
 match irc m|^:Default-Chat-Community 421 \* GET :Unknown command\r\n| p/Microsoft Exchange 2000 Server Chat Service/ o/Windows/ cpe:/a:microsoft:exchange_server:2000/ cpe:/o:microsoft:windows/a
 match irc m|^:([-\w_.]+) 451  :You have not registered your connection\r\n$| p/Wircsrv/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match irc m|^ERROR :Closing Link: \[[^]]*\] \(HTTP command from IRC connection \(ATTACK\?\)\)\r\n| p/UnrealIRCd/ cpe:/a:unrealircd:unrealircd/
+match irc m|^HTTP/1\.0 400 Wrong Port\r\nServer: ConferenceRoom/IRC (\d[\w._-]+)\r\n| p/WebMaster ConferenceRoom ircd/ v/$1/ cpe:/a:webmaster:conferenceroom:$1/
 
 match ingrian-xml m|^<GenericError><Success>false</Success><FatalError>101</FatalError><ErrorString>Could not parse client request</ErrorString></GenericError>| p/Ingrian NAE XML daemon/ d/security-misc/
 
@@ -11201,6 +11233,7 @@ match http m|^<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4\.01 Transitional//EN" "h
 # ASUS RT-AC66U firmware uses the "httpd/2.0" SERVER_NAME
 match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: httpd/2\.0\r\nDate: .* GMT\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD>\n<BODY BGCOLOR="#cc9999"><H4>501 Not Implemented</H4>\nThat method is not implemented\.\n</BODY></HTML>\n| p/Acme milli_httpd/ v/2.0/ i/ASUS RT-AC-series router/ d/broadband router/ cpe:/a:acme:milli_httpd:2.0/
 match http m|^HTTP/1\.1 501 Not Implemented\r\nConnection: close\r\n\r\n501 Not Implemented: Only GET and POST supported\r\n| p|Microchip Libraries of Applications TCP/IP Stack httpd| cpe:/a:microchip_technology_inc:mla/
+match http m|^HTTP/1\.1 400 Page not found\r\nServer: Go[aA]head(?:-Webs)?/([\d.]+) PeerSec-MatrixSSL/(\d[\w.]+)-OPEN\r\n| p/GoAhead WebServer/ v/$1/ i/PeerSec MatrixSSL $2/ cpe:/a:goahead:goahead_webserver:$1/ cpe:/a:peersec:matrixssl:$2/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
@@ -11388,7 +11421,10 @@ match honeywell-confd m|^\0\0\0\0\0\0\+\xc1$| p/Honeywell confd/
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H4>400 Bad Request</H4>\nNo request found\.\n<HR>\n<ADDRESS><A HREF=\"http://www\.acme\.com/software/micro_httpd/\">micro_httpd</A></ADDRESS>\n</BODY></HTML>\n$| p/micro_httpd/ cpe:/a:acme:micro_httpd/
 
 # reported for 3.8.1, 3.9.3
-match jabber m|^<stream:error xmlns:stream=\"http://etherx\.jabber\.org/streams\"><xml-not-well-formed xmlns=\"urn:ietf:params:xml:ns:xmpp-streams\"/></stream:error>$| p/Ignite Realtime Openfire Jabber server/ cpe:/a:igniterealtime:openfire/
+match jabber m|^<stream:error xmlns:stream="http://etherx\.jabber\.org/streams"><xml-not-well-formed xmlns="urn:ietf:params:xml:ns:xmpp-streams"/></stream:error>$| p/Ignite Realtime Openfire Jabber server/ v/3.9.3 or earlier/ cpe:/a:igniterealtime:openfire/
+# https://issues.igniterealtime.org/browse/OF-811
+match jabber m|^<stream:error xmlns:stream="http://etherx\.jabber\.org/streams"><not-well-formed xmlns="urn:ietf:params:xml:ns:xmpp-streams"/></stream:error>$| p/Ignite Realtime Openfire Jabber server/ v/3.10.0 or later/ cpe:/a:igniterealtime:openfire/
+softmatch jabber m|^<stream:error |
 
 match kdb m|^'char$| p/kdb+/ cpe:/a:kx_systems:kdb%2b/
 
@@ -11664,6 +11700,9 @@ match domain m|^\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x0
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04\xa3\xc0\x08\x06$| p/ArubaOS 3.3 named/ o/ArubaOS/ cpe:/o:arubanetworks:arubaos:3.3/
 match domain m|^\0\x06\x81\x05\0\0\0\0\0\0\0\0$| p/MaraDNS/
 match domain m|^\0\x06\x81\x03\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/Eagle DNS/
+
+# INVALID-MAJOR-VERSION notification
+softmatch isakmp m|^\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07ver\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\x01\x01\0\0\x05|
 
 match kerberos-sec m=^~[\x60-\x62]\x30[\x5e-\x60]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z\xa5[\x03-\x05]\x02(?:\x03...|\x02..|\x01.)\xa6\x03\x02\x01\x3c\xa9\x04\x1b\x02NM\xaa\x170\x15\xa0\x03\x02\x01\0\xa1\x0e0\x0c\x1b\x06krbtgt\x1b\x02NM\xab\x16\x1b\x14No client in request=s p/MIT Kerberos/ i/server time: $1-$2-$3 $4:$5:$6Z/ cpe:/a:mit:kerberos/
 
@@ -12320,6 +12359,8 @@ match ident m|^HELP : USERID : UNIX : ([-\w_.]+)\r\n$| p/Trillian identd/ i/Name
 match ident m|^\d+, \d+ : USERID : UNIX : [-.@\w]+\r\n| p/Internet Rex identd/
 match ident m|^0, 0 : ERROR : UNKNOWN-ERROR$| p/Windows NT identd/ o/Windows/ cpe:/o:microsoft:windows_nt/a
 
+match ipp m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Length: 23\r\nContent-Type: text/html\r\nUpgrade: TLS/1\.0\r\n\r\n 405 Method Not Allowed| p/Ecosys ipp/ d/print server/
+
 # IRCNet ircd
 match irc m|^:([-\w_.]+) 451 \* :You have not registered\r\n$| p/IRCnet-based ircd/ h/$1/
 match irc m|^:([-\w_.]+) 020 \* :.*\r\n:[-\w_.]+ 451 \* :You have not registered\r\n| p/IRCnet-based ircd/ h/$1/
@@ -12705,6 +12746,8 @@ match ssl m|^\x15\x03[\0-\x03]\0\x02[\x01\x02].$|s
 
 match autonomic-mrad m|^\x1b\[2J\x1b\[2J\r\n\r\nAutonomic Controls MRAD Bridge version (\d[\w.]+) Release\.\r\nMore info found on the Web http://www\.Autonomic-Controls\.com\r\n\r\nType '\?' for help or 'help <command>' for help on <command>\.\r\n\r\n\r\nError: Unknown command '\x01'\.\r\nError: Unknown command '\x03'\.\r\n| p/Autonomic Controls MRAD Bridge/ v/$1/ d/media device/
 
+match iperf3 m|^\t$|
+
 ##############################NEXT PROBE##############################
 # SSLv2-compatible ClientHello, 39 ciphers offered.
 # Will elicit a ServerHello from most SSL implementations, apart from those
@@ -12820,9 +12863,11 @@ match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0
 # Microsoft Windows 2000 Server SP4
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows 2000/ cpe:/o:microsoft:windows_2000/a
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows Server 2008 R2 - 2012 microsoft-ds/ o/Windows Server 2008 R2 - 2012/ cpe:/o:microsoft:windows/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfc\xf3\x01\0.{21}((?:..)*)\0\0((?:..)*)\0\0|s p/Microsoft Windows Server 2008 R2 - 2012 microsoft-ds/ i/workgroup: $P(1)/ o/Windows/ h/$P(2)/ cpe:/o:microsoft:windows/
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 7 - 10 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0.{21}(.*)\0\0(.*)\0\0|s p/Microsoft Windows 7 - 10 microsoft-ds/ i/workgroup: $P(1)/ o/Windows/ h/$P(2)/ cpe:/o:microsoft:windows/
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfc\xe3\x01\0|s p/Microsoft Windows 7 - 10 microsoft-ds/ o/Windows/ cpe:/o:microsoft:windows/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\x01\0.{21}((?:..)*)\0\0((?:..)*)\0\0|s p/Microsoft Windows Server 2008 R2 microsoft-ds/ i/workgroup: $P(1)/ o/Windows/ h/$P(2)/ cpe:/o:microsoft:windows_server_2008:r2/a
 
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0|s p|IBM OS/400 microsoft-ds| o|OS/400| cpe:/o:ibm:os_400/a
 
@@ -12843,6 +12888,8 @@ match microsoft-ds m|^\0...\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 match microsoft-ds m|^\0...\xffSMBr\0\0\0\0\x88\x03\xc0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x02\x01\0\x01\0\xff\xff\0\0\0\0\x01\0\0\0\0\0\}\xa2\0\0..........\x08\x08\0........|s p/Arcadyan ARV752DPW22 (Vodafone EasyBox 803A) WAP smbd/ d/WAP/ cpe:/h:arcadyan:arv752dpw22/
 match microsoft-ds m|^\0...\xffSMBr\0\0\0\0\x88\x01H\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x03\n\0\x01\0\0\0\x01\0\0\0\x01\0\0\0\0\0\x7c\xe0\0\0..........\x08\x08\0........|s p/Epson WF-2650 printer smbd/ d/printer/ cpe:/h:epson:wf-2650/a
 match microsoft-ds m|^\0...\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x03\n\0\x01\0\xec\xfa\0\0\0\0\x01\0\0\0\0\0\x7c \0\0..........\x08\x08\0........|s p/Apple Time Capsule smbd/ d/storage-misc/
+match microsoft-ds m|^\0...\xffSMBr\0\0\0\0\x88C@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x03\xff\xff\x01\0\x04A\0\0\x04A\0\0....\xfc\x02\0\0.{21}((?:..)+)\0\0((?:..)+)\0\0| p/Acopia ARX switch smbd/ i/workgroup: $P(1)/ d/storage-misc/ h/$P(2)/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x02\x01\0\x01\0h\x0b\0\0\xff\xff\0\0\0\0\0\0\x07\x02\0\0\0\0\0\0\0\0\0\0..\x08\x08\0\0\0\0\0\0\0\0\0| p/Fujitsu Storagebird LAN smbd/ d/storage-misc/ cpe:/h:fujitsu:storagebird_lan/
 
 # Microsoft Windows XP SP1
 # Windows 2000
@@ -12947,10 +12994,14 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ cpe:/a:postgresql:postgresql:9.1/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1734\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.15 - 9.1.18/ cpe:/a:postgresql:postgresql:9.1/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1803\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.19/ cpe:/a:postgresql:postgresql:9.1.19/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1833\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.20 - 9.1.24/ cpe:/a:postgresql:postgresql:9.1/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ cpe:/a:postgresql:postgresql:9.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ cpe:/a:postgresql:postgresql:9.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1640\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.10 - 9.2.13/ cpe:/a:postgresql:postgresql:9.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1709\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.14/ cpe:/a:postgresql:postgresql:9.2.14/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1739\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.15 - 9.2.16/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1742\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.17/ cpe:/a:postgresql:postgresql:9.2.17/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1746\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.18 - 9.2.19/ cpe:/a:postgresql:postgresql:9.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ cpe:/a:postgresql:postgresql:9.3/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ cpe:/a:postgresql:postgresql:9.3/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1872\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.6 - 9.3.9/ cpe:/a:postgresql:postgresql:9.3/
@@ -12960,8 +13011,13 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ cpe:/a:postgresql:postgresql:9.4.0/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1 - 9.4.4/ cpe:/a:postgresql:postgresql:9.4/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ cpe:/a:postgresql:postgresql:9.4.5/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.6 - 9.4.8/ cpe:/a:postgresql:postgresql:9.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.14 - 9.3.15 or 9.4.6 - 9.4.8/ cpe:/a:postgresql:postgresql:9/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1990\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.9/ cpe:/a:postgresql:postgresql:9.4.9/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ cpe:/a:postgresql:postgresql:9.4.10/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ cpe:/a:postgresql:postgresql:9.5/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.4/ cpe:/a:postgresql:postgresql:9.5.4/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ cpe:/a:postgresql:postgresql:9.5.5/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ cpe:/a:postgresql:postgresql:9.6/
 
 # PostgreSQL - Windows platforms
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
@@ -13003,10 +13059,14 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1701\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.12 - 9.1.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1734\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.15 - 9.1.18/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1803\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.19/ o/Windows/ cpe:/a:postgresql:postgresql:9.1.19/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1833\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.1.20 - 9.1.24/ o/Windows/ cpe:/a:postgresql:postgresql:9.1/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1612\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.0 - 9.2.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1607\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.7 - 9.2.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1640\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.10 - 9.2.13/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1709\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.14/ o/Windows/ cpe:/a:postgresql:postgresql:9.2.14/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1739\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.15 - 9.2.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1742\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.17/ o/Windows/ cpe:/a:postgresql:postgresql:9.2.17/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1746\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.18 - 9.2.19/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1872\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.6 - 9.3.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
@@ -13014,6 +13074,13 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1849\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.0/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.0/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1 - 9.4.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.5/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.14 - 9.3.15 or 9.4.6 - 9.4.8/ o/Windows/ cpe:/a:postgresql:postgresql:9/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1990\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.9/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.10/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.4/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.5/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
@@ -13680,8 +13747,7 @@ match ssl/consul-rpc m|^\x15\x03\x01\0\x02\x02\n| p/HashiCorp Consul RPC/ cpe:/a
 # Cisco video conference device port 1720
 match H.323/Q.931 m|^\x03\0\0\x10\x08\x02\x80\0}\x08\x02\x80\xe2\x14\x01\0|
 
-match lineage-ii m|^\x03\0\x84$| p/l2emurt Lineage II game server/
-match lineage-ii m|^\x03\0\x26$| p/Lineage II game server/
+match lineage-ii m|^\x03\0.$| p/Lineage II game server/
 
 # \x03 is queue status command for LPD service.  Should be terminated
 # by \n, but apparently some dumb lpds allow \0.  For now I will keep
@@ -13702,7 +13768,7 @@ match ms-wbt-server m|^\x03\0\0\x11\x08\x02..}\x08\x03\0\0\xdf\x14\x01\x01$|s p/
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x03.\0$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/ cpe:/a:microsoft:netmeeting/ cpe:/o:microsoft:windows/a
 
 # Need more samples!
-match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\0\0\0| p/xrdp/
+match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\0\0\0| p/xrdp/ cpe:/a:jay_sorg:xrdp/
 match ms-wbt-server m|^\x03\0\0\x0e\t\xd0\0\0\0[\x02\xa1]\0\xc0\x01\n$| p/IBM Sametime Meeting Services/ o/Windows/ cpe:/a:ibm:sametime/ cpe:/o:microsoft:windows/a
 
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\x004\x12\0| p/VirtualBox VM Remote Desktop Service/ o/Windows/ cpe:/a:oracle:vm_virtualbox/ cpe:/o:microsoft:windows/a
@@ -13808,6 +13874,9 @@ ports 706,999,1030,1035,1090,1098,1099,1100-1103,1129,1199,1234,1440,1981,2199,2
 
 match rmiregistry m|^\x4e..[0-9.]+\0\0..$|s p/Java RMI/
 match rmiregistry m|^\x4e..([\w._-]+)\0\0..$|s p/GNU Classpath grmiregistry/ h/$1/
+
+# https://github.com/quine/GoProGTFO
+match gopro-json m|^\{"rval": -7, "param_size": 0 \}\0| p/GoPro or similar camera json service/ d/webcam/
 
 ##############################NEXT PROBE##############################
 Probe TCP Radmin q|\x01\x00\x00\x00\x01\x00\x00\x00\x08\x08|
@@ -14222,6 +14291,7 @@ match shell m|^\0Access is denied\n$| p/Windows Services for Unix rsh/ o/Windows
 Probe TCP OfficeScan q|GET /?CAVIT HTTP/1.1\r\n\r\n|
 rarity 9
 ports 12345
+fallback GetRequest
 match http m|^HTTP/1.0 \d\d\d .*\r\nServer: OfficeScan Client| p/Trend Micro OfficeScan Antivirus http config/
 
 
@@ -14247,6 +14317,7 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08\x00\x07\xf7| p/Microsoft SQL Server 2000/ v/8.00.2039; SP4/ o/Windows/ cpe:/a:microsoft:sql_server:2000:sp4/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08\x00\x08\x02| p/Microsoft SQL Server 2000/ v/8.00.2050; SP4+ MS08-040/ o/Windows/ cpe:/a:microsoft:sql_server:2000:sp4/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08\x00\x08\x07| p/Microsoft SQL Server 2000/ v/8.00.2055; SP4+ MS09-004/ o/Windows/ cpe:/a:microsoft:sql_server:2000:sp4/ cpe:/o:microsoft:windows/
+
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x05\x77| p/Microsoft SQL Server 2005/ v/9.00.1399; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2005:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x05\x7e| p/Microsoft SQL Server 2005/ v/9.00.1406/ o/Windows/ cpe:/a:microsoft:sql_server:2005/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x07\xff| p/Microsoft SQL Server 2005/ v/9.00.2047; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp1/ cpe:/o:microsoft:windows/
@@ -14262,6 +14333,8 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x10\x73| p/Microsoft SQL Server 2005/ v/9.00.4211; SP3+/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp3/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x13\x88| p/Microsoft SQL Server 2005/ v/9.00.5000; SP4/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp4/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x13\xcd| p/Microsoft SQL Server 2005/ v/9.00.5069; SP4+ MS12-070/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp4/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x14\xcc| p/Microsoft SQL Server 2005/ v/9.00.5324; SP4+ MS12-070 cumulative/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp4/ cpe:/o:microsoft:windows/
+
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x04\x33| p/Microsoft SQL Server 2008/ v/10.00.1075; CTP/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x06\x40| p/Microsoft SQL Server 2008/ v/10.00.1600; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2008:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x06\xfb| p/Microsoft SQL Server 2008/ v/10.00.1787; Cumulative Update 3/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
@@ -14271,20 +14344,28 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x0f\xe0| p/Microsoft SQL Server 2008/ v/10.00.4064; SP2+ MS11-049/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x15\x7c| p/Microsoft SQL Server 2008/ v/10.00.5500; SP3/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp3/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x15\x88| p/Microsoft SQL Server 2008/ v/10.00.5512; SP3+ MS12-070/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp3/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x15\xa2| p/Microsoft SQL Server 2008/ v/10.00.5538; SP3+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp3/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x17\x70| p/Microsoft SQL Server 2008/ v/10.00.6000; SP4/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp4/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x18\x61| p/Microsoft SQL Server 2008/ v/10.00.6241; SP4+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp4/ cpe:/o:microsoft:windows/
+
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x06\x40| p/Microsoft SQL Server 2008 R2/ v/10.50.1600; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x06\x51| p/Microsoft SQL Server 2008 R2/ v/10.50.1617; RTM+ MS11-049/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x09\xc4| p/Microsoft SQL Server 2008 R2/ v/10.50.2500; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x0f\xa0| p/Microsoft SQL Server 2008 R2/ v/10.50.4000; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x10\xb4| p/Microsoft SQL Server 2008 R2/ v/10.50.4276; SP2+ Cumulative Update 5/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x17\x70| p/Microsoft SQL Server 2008 R2/ v/10.50.6000; SP3/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp3/ cpe:/o:microsoft:windows/
+
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x08\x34| p/Microsoft SQL Server 2012/ v/11.00.2100; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2012:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x0b\xb8| p/Microsoft SQL Server 2012/ v/11.00.3000; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x0c\x38| p/Microsoft SQL Server 2012/ v/11.00.3128; SP1+/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x13\xc2| p/Microsoft SQL Server 2012/ v/11.00.5058; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x17\x84| p/Microsoft SQL Server 2012/ v/11.00.6020; SP3/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp3/ cpe:/o:microsoft:windows/
+
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x07\xd0| p/Microsoft SQL Server 2014/ v/12.00.2000/ o/Windows/ cpe:/a:microsoft:sql_server:2014/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x10\x04| p/Microsoft SQL Server 2014/ v/12.00.4100; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp1/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x10\x75| p/Microsoft SQL Server 2014/ v/12.00.4213; SP1+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp1/ cpe:/o:microsoft:windows/
+
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0d\x00\x06\x41| p/Microsoft SQL Server 2016/ v/13.00.1601/ o/Windows/ cpe:/a:microsoft:sql_server:2016/ cpe:/o:microsoft:windows/
 
 #Major version match lines - in the event that minor versions do not match
 softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08| p/Microsoft SQL Server 2000/ o/Windows/ cpe:/a:microsoft:sql_server:2000/ cpe:/o:microsoft:windows/
