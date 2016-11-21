@@ -5055,7 +5055,7 @@ match citrix-licensing m|^WW\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 match computone-intelliserver m|^\nWelcome to the Computone IntelliServer `([\w._-]+)'\nRunning cnx kernel release ([\w._, -]+)\n\npt-ses day time  owner         command\n| p/Computone IntelliServer serial port terminal server/ v/$2/ d/bridge/ o/cnx/ h/$1/
 
 match crossmatchverifier m|^Idle\r\n$| p/Cross Match Technologies Verifier fingerprint capture control port/
-match clam m|^UNKNOWN COMMAND\n$| p/Clam AV/ cpe:/a:clamav:clamav/
+softmatch clam m|^UNKNOWN COMMAND\n$| p/Clam AV/ cpe:/a:clamav:clamav/
 match cmae m|^_err=refused%20by%20workers\r\n$| p/Cloudmark cmae_server antispam/
 match conserver m|^ok\r\nunknown command\r\nunknown command\r\n$| p/conserver serial console daemon/ d/specialized/
 
@@ -15321,3 +15321,10 @@ ports 80,443
 rarity 6
 
 softmatch quic m|^\r\x89\xc1\x9c\x1c\*\xff\xfc\xf1((?:Q[0-8]\d\d)+)$| i/QUIC versions$SUBST(1,"Q",", Q")/
+
+##############################NEXT PROBE##############################
+# Detects ClamAV servers and possibly other services that respond to the string VERSION
+Probe TCP VersionRequest q|VERSION|
+ports 3310
+rarity 8
+match clam m|^ClamAV ([\w.]+)/(\w+)/(.+)$| p/ClamAV/ v/$1 ($2)/ i/AV definitions updated on:$3/

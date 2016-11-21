@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added service probe for ClamAV servers (clam),
+  an open source antivirus engine used in mail scanning. [Paulino Calderon]
+
 o Added service probe and UDP payload for Quick UDP Internet Connection (QUIC),
   a secure transport developed by Google and used with HTTP/2. [Daniel Miller]
 
