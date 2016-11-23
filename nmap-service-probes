@@ -67,6 +67,8 @@ softmatch adobe-crossdomain m|^<\?xml version=\"1\.0\"\?>.*<cross-domain-policy>
 
 match afsmain m|^\+Welcome to Ability FTP Server \(Admin\)\. \[20500\]\r\n| p/Code-Crafters Ability FTP Server afsmain admin/ o/Windows/ cpe:/a:code-crafters:ability_ftp_server/ cpe:/o:microsoft:windows/a
 
+match airserv-ng m|^\x05\0\0\x01.\0\0\0\0....\xff\xff\xff.\0\0\0\0\0\0\0.\0\0\0\0\0\x0fB@\0\0\0.\x80\0\0\0\xff\xff\xff\xff\xff\xff|s p/airserv-ng/ cpe:/a:aircrack-ng:airserv-ng/
+
 match altiris-agent m|^<\0r\0e\0s\0p\0o\0n\0s\0e\0>\0C\0o\0n\0n\0e\0c\0t\0e\0d\0 \0t\0o\0 [\0\d.]*<\0/\0r\0e\0s\0p\0o\0n\0s\0e\0>\0$| p/Altiris remote monitoring agent/
 
 # AMANDA index server 2.4.2p2 on Linux 2.4
@@ -471,7 +473,7 @@ match doka5 m|^\xff\0\0\x14\x9d\0\0\0\0\0\0\0\0\0\0\x11l\0\0\0\x17\0\0| p/Sureco
 
 match durian m|^<c5>Durian Web Application Server III<c4> ([^<]+)<c0> for Win32\r| p/Durian Web Application Server III/ v/$1/ o/Windows/ cpe:/a:mozilla:durian_web_application_server:$1/ cpe:/o:microsoft:windows/a
 
-match dvr-video m|^head\0\0\0\0\xf9\x02\0\0\x04\0\0\0\x03\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03\0| p/LTS or QSEE DVR video server/ d/media device/
+match dvr-video m|^head\0\0\0\0[\xf9-\xfa].\0\0\x04\0\0\0\x03\0{45}[\0\x03]\0| p/LTS or QSEE DVR video server/ d/media device/
 
 # 1024 random bytes of challenge
 match d-mp m|^\x01\0\0\0\x08\x04\0\0\x04\x04\0\0\0\x04\0\0.{100}| p/Dark MultiPlayer Kerbel Space Program mod/ cpe:/a:christopher_andrews:darkmultiplayer/
@@ -2795,6 +2797,8 @@ match servicetags m|^I/O error : Permission denied\n$| p/Sun service tags/ cpe:/
 # This sdmsvc was matching HP printers.  May be bogus, so removed.
 # match sdmsvc m|^[\xaa\xff]$| p/LANDesk Software Distribution/ i/sdmsvc.exe/ o/Windows/ cpe:/o:microsoft:windows/a
 
+match siemens-xtrace m|^OK\x1d\0\x0e\x18.\x08\x02\x10\xd5q..([\w.]+)\0\0\0\0\0\0|s p/Siemens X-Trace/ i/production version: $1/
+
 # http://www.ietf.org/internet-drafts/draft-martin-managesieve-04.txt
 match sieve m|^NO Fatal error: Error initializing actions\r\n$| p/Cyrus timsieved/ i|included w/cyrus imap| cpe:/a:cmu:cyrus_imap_server/
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\w._-]+-Red Hat[- ][\w._+-]+)\"\r\n| p/Cyrus timsieved/ v/$1/ i/Red Hat/ o/Linux/ cpe:/a:cmu:cyrus_imap_server:$1/ cpe:/o:redhat:linux/
@@ -5113,6 +5117,7 @@ match desktop-central m|^\x10\0\0\0\t\xe7\xa0o\xde&\xdc\xfec\xbf\xb91\xef\xc3\?\
 
 match digi-usb m|^\xff\x14Port is out of range\0\xff\x14Port is out of range\0\xff\x14Port is out of range\0\xff\x14Port is out of range\0\xff\x14Port is out of range\0| p/Digi USB-over-TCP bridge/ d/specialized/
 
+match dps-shell m|^\+-{26}\+\r\n\x7c {6}Welcome to use {6}\x7c\r\n\x7c >Destiny DPS Mini shell< \x7c\r\n\+-{9}\+-{16}\+\r\n\x7c Author  \x7c TimesWu {8}\x7c\r\n\+-{9}\+-{16}\+\r\n\x7c Version \x7c V([\d.]+) {10}\x7c\r\n\+-{9}\+-{16}\+\r\n| p/Destiny DPS Mini shell/ v/$1/ i/Ricoh printer/ d/printer/
 match drb m|^\0\0\0\x03\x04\x08F\0\0\x03.\x04\x08o:\x16DRb::DRbConnError\x07:\x07bt\[.\"/(/usr/lib/ruby/([\w._-]+)/drb)/drb\.rb:573| p/Ruby DRb RMI/ i/Ruby $2; path $1/ cpe:/a:ruby-lang:ruby:$2/
 
 # HP Digital Sender Service (dss)
@@ -8191,7 +8196,7 @@ match http m|^HTTP/1\.0 200 .*\r\nServer: Mbedthis-Appweb/([\w._-]+)\r\n.*\r\nX-
 match http m|^HTTP/1\.1 302 Redirect\r\nServer: GoAhead-Webs\r\n.*Location: https://Device/config/log_off_page\.htm\r\n|s p/GoAhead WebServer/ i/Linksys SRW2024 switch http config/ d/switch/ cpe:/a:goahead:goahead_webserver/ cpe:/h:linksys:srw2024/a
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nConnection: close\r\n(?:Pragma: no-cache\r\n)?WWW-Authenticate: Basic realm=\"Netcam\"\r\nContent-Length: 17\r\n\r\n401 Unauthorized\n$| p/Airlink 101 or TRENDnet TVIP-422w webcam http config/ d/webcam/ cpe:/h:trendnet:tvip-422w/a
 match http m|^HTTP/1\.1 503 Service Unavailable\r\nServer: NS([\w._-]+)\r\nContent-Length:\d+\r\n| p/Citrix NetScaler httpd/ v/$1/ d/load balancer/
-match http m|^HTTP/1\.1 [45]\d\d (.*)\r\nContent-Length: ?\d+\r\nConnection: close\r\nCache-Control: no-cache,no-store\r\nPragma: no-cache\r\n\r\n<html><body>Http/1\.1 \1</body> </html>$| p/Citrix NetScaler httpd/ d/load balancer/
+match http m|^HTTP/1\.1 [45]\d\d (.*)\r\nContent-Length: ?\d+\r\nConnection: close\r\nCache-Control: no-cache,no-store\r\nPragma: no-cache\r\n\r\n<html><body>(?:<b>)?Http/1\.1 \1| p/Citrix NetScaler httpd/ d/load balancer/
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nContent-Length:71\r\nConnection: close\r\nCache-Control: no-cache,no-store\r\nPragma: no-cache\r\n\r\n<html><body><b>Http/1\.1 Internal Server Error 31    </b></body> </html>$| p/Citrix NetScaler httpd/ d/load balancer/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nLast-Modified: .*\r\nContent-Language: en\r\nContent-Length: \d+\r\nServer: Wireless Network Camera\r\n\r\n<html>\r\n<frameset rows=\"2000,0\" border=\"0\" frameborder=\"no\" framespacing=\"0\">| p/LevelOne WCS-2030 webcam http config/ d/webcam/ cpe:/h:levelone:wcs-2030/a
 match http m|^HTTP/1\.0 200 .*\r\nServer: wg_httpd/([\w._-]+)\(based Boa/([\w._-]+)\)\r\n.*<title>WebEye Index Page</title>\n<meta name=\"generator\" content=\"WebGateInc\">|s p/wg_httpd/ v/$1/ i/WebGateInc WebEye webcam http config; based on Boa $2/ d/webcam/
@@ -8440,7 +8445,7 @@ match http m|^HTTP/1\.0 401 Default login not authorized to perform this action\
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Trapeze-Srv/([\d.]+)\r\n.*<TITLE>Trapeze Service Shell response</TITLE>|s p/Trapeze-Srv/ v/$1/ i/Trapeze Service Shell/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Trapeze-Srv/([\d.]+)\r\n|s p/Trapeze-Srv/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\n.*server: httpd\.js\r\n.*<title>Songbird WebRemote</title>|s p/httpd.js/ i/Songbird WebRemote/
-match http m|^HTTP/1\.0 302 Temporary moved\r\nContent-Length: 0\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nConnection: Close\r\nDate: .*\r\nLocation: https:///\r\n\r\n| p/Cisco ASA firewall http config/ d/firewall/
+match http m|^HTTP/1\.0 302 Temporary moved\r\nContent-Length: 0\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nConnection: Close\r\nDate: .*\r\n(?:X-Frame-Options: SAMEORIGIN\r\n)?Location: https:///\r\n\r\n| p/Cisco ASA firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Baby Web Server\r\n| p/Baby Web Server/ o/Windows/ cpe:/o:microsoft:windows/a
 # BAIDA by Yandex (yandex.ru).
 match http m|^HTTP/1\.1 \d\d\d [^\r\n]*\r\n.*Server: BAIDA/([\w._-]+)\r\n|s p/BAIDA/ v/$1/
@@ -9150,7 +9155,7 @@ match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .* GMT\r\nServer: PanWeb 
 # Sony KDL-46hx720 TV (european model).
 # Sony Bravia kdl-46ex725
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Length: 72\r\nDate: .* GMT\r\n\r\n<html><head><title>not found</title></head><body>not found</body></html>$| p/Sony Bravia TV/ d/media device/
-match http m|^HTTP/1\.0 200 \(OK\) \r\nPragma: No-Cache\r\nCache-Control: no-cache\r\nDate: [A-Z]{3} [A-Z]{3} \d+ \d+:\d+:\d+ \d\d\d\d\r\nServer: HTTP Server\r\n.*<title>Nortel VPN Router</title>|s p/WindWeb/ v/1.0/ i/Nortel CES1010E router http admin/ d/router/ cpe:/a:windriver:windweb:1.0/ cpe:/h:nortel:ces1010e/
+match http m|^HTTP/1\.0 200 \(OK\) \r\nPragma: No-Cache\r\nCache-Control: no-cache\r\nDate: [A-Z]{3} [A-Z]{3} \d+ \d+:\d+:\d+ \d\d\d\d\r\nServer: HTTP Server\r\n.*<title>Nortel VPN Router</title>|s p/WindWeb/ v/1.0/ i/Nortel VPN router http admin/ d/router/ cpe:/a:windriver:windweb:1.0/
 match http m|^HTTP/1\.0 403 Forbidden\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 353\r\n\r\n<HTML><HEAD>\n<TITLE>ERROR: Access Denied</TITLE>\n</HEAD><BODY>\n<H1>ERROR</H1>\n<H2>Access Denied</H2>\n<HR>\n<UL>\n<LI>\n<STRONG>\nAccess Denied by security policy\n</STRONG>\n</UL>\n<P>\nThe security policy for your network prevents your request from\nbeing allowed at this time\.  Please contact your administrator if\nyou feel this is incorrect\.\n</BODY>\n</HTML>\n\n$| p/Secure Computing Sidewinder firewall http admin/ d/firewall/ cpe:/h:securecomputing:sidewinder/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nServer: SpryWare/([\w._-]+)\r\nDate: .* GMT\r\nX-Deprecated-Response: Invalid CheckSum Received\r\n| p/SpryWare MIS quote server/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nX-Powered-By: PHP/([\w._-]+)\r\nContent-type: text/html\r\n\r\n<html>\n<head>\n<meta http-equiv=\"REFRESH\" content=\"0;url=/nyan/index\.html\">\n</head>\n<body>\n</body>\n</html>\n\n\n$| p/Wifi Pineapple Jasager httpd/ i/PHP $1/ cpe:/a:php:php:$1/
@@ -9462,7 +9467,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nConnect
 match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\r\nDate: .*?\r\nConnection: close\r\n\r\n.*<OBJECT\s+classid=\"clsid:EE479A40-C128-40DD-93DA-000556AF9607\"\r\n\t  codebase=\"CtrWeb\.cab#version=([\d,]+)\".*?<param name=\"CmdPort\" value=\"(\d+)\">\n<param name=\"StreamPort\" value=\"(\d+)\">|s p/DVRWeb viewer/ v/$SUBST(1,",",".")/ i/CmdPort $2; StreamPort $3/
 match http m|^HTTP/1\.0 200 OK\r\nServer: KwikNet Web Server\r\n| p/Kadak KwikNet httpd/
 match http m|^HTTP/1\.1 406 Not Acceptable\r\nContent-Type: text/html\r\nServer: MineloadHTTPD\r\n\r\nInvalid XML password\.| p/Mineload Bukkit plugin/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: cPanel\r.*\nWWW-Authenticate: Basic realm=\"cPanel WebDisk\"\r\n|s p/cPanel httpd/ i/unauthorized/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: cPanel\r\n| p/cPanel httpd/ i/unauthorized/
 match http m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nCache-control: no-cache\r\nDate: .*\r\nServer: eXtensible UPnP agent\r\nAccept-Ranges: none\r\nConnection: close\r\nContent-Type: text/html\r\nEXT:\r\n\r\n.*Uptime: (\d+ days, [\d:]+).*Model: <a href=http://xupnpd\.org>xupnpd-([\w._-]+)</a>|s p/xupnpd http admin/ v/$2/ i/uptime: $1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: fexsrv\r\nLast-Modified: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n| p/F*EX (Frams' Fast File EXchange) server/ cpe:/a:ulli_horlacher:fex/
 match http m|^HTTP/1\.0 403 Forbidden\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\nPragma: no-cache\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//en\">\r\n<html lang=\"en\">\r\n\r\n<head>\r\n    <meta LAG = \"<AG_PROXY_ID>\" >| p/Novell Access Gateway/
@@ -9843,8 +9848,7 @@ match http m|^HTTP/1\.0 404\r\nServer: Standard ERP ([\d.]+) \d{4}-\d\d-\d\d\r\n
 match http m|^HTTP/1\.1 200 OK\r\nX-UA-Compatible: IE=edge\r\nX-Graylog-Node-ID: [a-f\d-]{36}\r\nVary: Accept-Encoding\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n| p/Graylog2 web interface/ cpe:/a:graylog:graylog2/
 match http m|^HTTP/1\.0 411 Length Required\r\nDate: .*\r\nServer: RedBack Application Server ([\d.]+)\r\n| p/IBM RedBack Application Server SOAP/ v/$1/ cpe:/a:ibm:redback_application_server:$1/
 match http m|^HTTP/1\.0 403 Forbidden\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<h1>Forbidden</h1>Rejected request from RFC1918 IP to public server address| p/OpenWrt admin httpd/ i/rejected RFC1918 address/
-# /owa/14.3.266.1/
-match http m|^HTTP/1\.1 302 Object Moved\r\nLocation: https://.*\r\nContent-Type: text/html\r\nCache-Control: private\r\nConnection: close\r\n\r\n<head><body> This object may be found <a HREF="https://[^"]*">here</a> </body>| p/Outlook Web Access/ v/2010/ cpe:/a:microsoft:outlook_web_access:2010/
+match http m|^HTTP/1\.1 302 Object Moved\r\nLocation: https://.*\r\nContent-Type: text/html\r\nCache-Control: private\r\nConnection: close\r\n\r\n<head><body> This object may be found <a HREF="https://[^"]*">here</a> </body>| p/Citrix NetScaler https redirect/ d/load balancer/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\n\r\n<HTML>\n<HEAD><META http-equiv="Content-Type" content="text/html; charset=utf-8"><TITLE>Cisco .*>Cisco IP Phone CP-(\d+) \(|s p/Cisco Unified IP Phone httpd/ i/model: $1/ cpe:/h:cisco:unified_ip_phone_$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n[A-Z\d]+\r\n<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <meta http-equiv="X-UA-Compatible" content="IE=edge">\n  <meta name="viewport" content="width=device-width, initial-scale=1\.0">\n  <meta name="description" content="ympd - fast and lightweight MPD webclient">\n  <meta name="author" content="andy@ndyk\.de">| p/ympd/ cpe:/a:ndyk.de:ympd/
 match http m|^HTTP/1\.1 303 See Other\r\nLocation : /postage/\r\n\r\n$| p/Workflow Envelope httpd/ cpe:/a:workflow_products:envelope/
@@ -9900,6 +9904,9 @@ match http m|^HTTP/1\.1 302 Found\r\nConnection: Keep-Alive\r\nServer: (\w+) IP 
 match http m|^HTTP/1\.0 403 Forbidden\r\nDate: .*\r\nServer: RealPlayer Cloud Service/([\d.]+) \(win-x86-vc10\)\r\nPragma: no-cache\r\nContent-Type: application/json\r\n| p/RealPlayer Cloud httpd/ v/$1/ o/Windows/ cpe:/a:real:realplayer_cloud:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 200 OK\r\nDate: .* GMT\+00:00\r\nServer: HttpServer/([\d.]+)\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE html>\r\n<html lang="en">\r\n<head>\r\n    <meta charset="UTF-8">\r\n    <title>CM Transfer</title>| p/CM Transfer HttpServer/ v/$1/ cpe:/a:cheetah_mobile_cloud:cm_transfer:$1/
 match http m|^HTTP/1\.[01] 401 Unauthorized\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Moonware\.MiniHttpd/([\d.]+)\r\n| p/Moonware MiniHttpd/ v/$1/ cpe:/a:moonware:netcam_studio:$1/
+match http m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: sky\r\n\r\n| p/Sky+HD photo display httpd/ d/media device/
+match http m|^HTTP/1\.0 301 Moved Permanently\r\nLocation: https:///\r\nContent-length: 0\r\n\r\n$| p/Compact IP-DECT Base Station/
+match http m|^HTTP/1\.0 302 Moved Temporarily\r\nConnection: close\r\nPragma: no-cache\r\nExpires: Fri, 01 Jan 1971 00:00:00 GMT\r\nCache-Control: no-cache, must-revalidate\r\nP3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"\r\nLocation: https://portal\.moovmanage\.com/| p/FleetConnect MoovManage WiFi gateway/ d/WAP/
 
 #(insert http)
 
@@ -10432,6 +10439,8 @@ match magent m|^Agent Ready v([\w._]+)+\.\.\.(?:\[[\w._-]+\])\r\nGET / HTTP/1\.0
 
 match mas-financial m|^409 Invalid Protocol PVXAS/1\.0\r\n| p/MAS200 Financial System/ o/Windows/ cpe:/o:microsoft:windows/a
 match mas-financial m|^The Host cannot run the specified program\.$| p/MAS200 Financial System/ o/Windows/ cpe:/o:microsoft:windows/a
+
+match mep m|^\x10\0\0\0\xa5\xa5\0\0.\0`\x01\0\0\0\0|s p/Citrix NetScaler Metric Exchange Protocol/ d/load balancer/
 
 # Expect MassTransit will also match with some variation.
 match mtap m|^WATSON!WATSON!\x13Tx\xa3\xfee\xc0\x9b\0\0\0\x01\0\0\0\0\0\0\0\0\0v\0\0\0\0\x84\x84\0\x02\0\x13\0\xd9\0\0\0\x16\x13Virtual Network ([\d.]+)\0| p/Adobe Virtual Network/ v/$1/ cpe:/a:adobe:virtual_network:$1/
@@ -11318,6 +11327,8 @@ match http m|^<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4\.01 Transitional//EN" "h
 match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: httpd/2\.0\r\nDate: .* GMT\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD>\n<BODY BGCOLOR="#cc9999"><H4>501 Not Implemented</H4>\nThat method is not implemented\.\n</BODY></HTML>\n| p/Acme milli_httpd/ v/2.0/ i/ASUS RT-AC-series router/ d/broadband router/ cpe:/a:acme:milli_httpd:2.0/
 match http m|^HTTP/1\.1 501 Not Implemented\r\nConnection: close\r\n\r\n501 Not Implemented: Only GET and POST supported\r\n| p|Microchip Libraries of Applications TCP/IP Stack httpd| cpe:/a:microchip_technology_inc:mla/
 match http m|^HTTP/1\.1 400 Page not found\r\nServer: Go[aA]head(?:-Webs)?/([\d.]+) PeerSec-MatrixSSL/(\d[\w.]+)-OPEN\r\n| p/GoAhead WebServer/ v/$1/ i/PeerSec MatrixSSL $2/ cpe:/a:goahead:goahead_webserver:$1/ cpe:/a:peersec:matrixssl:$2/
+# Also works for GetRequest but may be too general there.
+match http m|^HTTP/1\.1 200 OK\r\n(?:connection: .*\r\n)?(?:content-length: \d+\r\n)?content-type: text/html(?:; charset=UTF-8)?\r\n(?:transfer-encoding: .*\r\n)?\r\n| p/ocaml-cohttp/ cpe:/a:mirageos:ocaml-cohttp/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
@@ -11882,6 +11893,9 @@ match domain m|^..\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\
 
 softmatch domain m|^\0.\0\x06[\x80-\x87].\0\x01\0.\0.\0.\x07version\x04bind\0\0\x10\0\x03|
 softmatch domain m|^\0\x0c\x050\x81\x85\0\0\0\0\0\0\0\0| i/version.bind refused/
+
+# Last 8 bytes are little-endian NTFS timestamp. Date range here covers 1986-04-30 to 2056-10-16
+match domaintime m|^\0\x1e\0\x06\x01\0\0\x01......[\xb0-\xff]\x01$| p/Greyware Domain Time II/
 
 match goldengate m|^\0&  ERROR\tMGR Did Not Recognize Command\0| p/Oracle GoldenGate/ cpe:/a:oracle:goldengate/
 
