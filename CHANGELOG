@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added known Diffie-Hellman parameters for haproxy, postfix, and
+  IronPort to ssl-dh-params. [Frank Bergmann]
+
 o Added service probe for ClamAV servers (clam),
   an open source antivirus engine used in mail scanning. [Paulino Calderon]
 
