@@ -926,7 +926,7 @@ static bool interface_is_known_by_guid(const char *guid) {
     pcap_guid = strchr(pcap_name, '{');
     if (pcap_guid == NULL)
       continue;
-    if (strcmp(guid, pcap_guid) == 0)
+    if (strcasecmp(guid, pcap_guid) == 0)
       return true;
   }
 

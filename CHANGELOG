@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix reverse DNS on Windows which was failing with the message "mass_dns:
+  warning: Unable to determine any DNS servers." This was because the interface
+  GUID comparison needed to be done case-insensitive. [Robert Croteau]
+
 o [Ncat] Restore the connection success message that Ncat prints with -v. This
   was accidentally suppressed when not using -z.
 
