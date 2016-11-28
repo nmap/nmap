@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Restore the connection success message that Ncat prints with -v. This
+  was accidentally suppressed when not using -z.
+
 o [NSE] Added known Diffie-Hellman parameters for haproxy, postfix, and
   IronPort to ssl-dh-params. [Frank Bergmann]
 
