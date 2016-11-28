@@ -41,7 +41,7 @@ tcpwrappedms 3000
 
 match 1c-server m|^S\xf5\xc6\x1a{| p/1C:Enterprise business management server/
 
-match 4d-server m|^\0\0\0H\0\0\0\x02.[^\0]*\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$|s p/4th Dimension database server/
+match 4d-server m|^\0\0\0H\0\0\0\x02.[^\0]*\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$|s p/4th Dimension database server/ cpe:/a:4d_sas:4d/
 
 match aastra-pbx m|^BUSY$| p|Aastra/Mitel 400-series PBX service port|
 match acap m|^\* ACAP \(IMPLEMENTATION \"CommuniGate Pro ACAP (\d[-.\w]+)\"\) | p/CommuniGate Pro ACAP server/ v/$1/ i/for mail client preference sharing/ cpe:/a:stalker:communigate_pro:$1/
