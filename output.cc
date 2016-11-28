@@ -655,8 +655,12 @@ void printportoutput(Target *currenths, PortList *plist) {
     prevstate = istate;
   }
 
-  if (prevstate != PORT_UNKNOWN)
+  if (prevstate != PORT_UNKNOWN) {
     log_write(LOG_PLAIN, "\n");
+    if (o.defeat_rst_ratelimit) {
+      log_write(LOG_PLAIN, "Some closed ports may be reported as filtered due to --defeat-rst-ratelimit\n");
+    }
+  }
 
   if (o.reason)
     print_state_summary(plist, STATE_REASON_FULL);

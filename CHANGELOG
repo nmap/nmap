@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The --open option now implies --defeat-rst-ratelimit. This may result in
+  inaccuracies in the numbers of "Not shown:" closed and filtered ports, but
+  only in situations where it also speeds up scan times. [Daniel Miller]
+
 o Fix reverse DNS on Windows which was failing with the message "mass_dns:
   warning: Unable to determine any DNS servers." This was because the interface
   GUID comparison needed to be done case-insensitive. [Robert Croteau]

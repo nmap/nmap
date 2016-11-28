@@ -769,6 +769,8 @@ void parse_options(int argc, char **argv) {
             error("Warning: You specified a highly aggressive --min-hostgroup.");
         } else if (strcmp(long_options[option_index].name, "open") == 0) {
           o.setOpenOnly(true);
+          // If they only want open, don't spend extra time (potentially) distinguishing closed from filtered.
+          o.defeat_rst_ratelimit = 1;
         } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
           o.scanflags = parse_scanflags(optarg);
           if (o.scanflags < 0) {
