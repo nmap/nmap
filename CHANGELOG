@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#596] Fix a bug in mysql.lua that caused authentication failures in
+  mysql-brute and other scripts due to including a null terminator in the salt
+  value. This bug affects Nmap 7.25BETA2 and later releases.  [Daniel Miller]
+
 o The --open option now implies --defeat-rst-ratelimit. This may result in
   inaccuracies in the numbers of "Not shown:" closed and filtered ports, but
   only in situations where it also speeds up scan times. [Daniel Miller]

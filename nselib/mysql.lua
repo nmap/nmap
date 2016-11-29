@@ -149,7 +149,7 @@ function receiveGreeting( socket )
         stdnse.debug2("reserved bytes are not nulls")
       end
       if response.capabilities & Capabilities.Support41Auth > 0 then
-        pos, tmp = bin.unpack("A" .. math.max(13, auth_plugin_len - 8), data, pos)
+        pos, tmp, _ = bin.unpack("A" .. (math.max(13, auth_plugin_len - 8) - 1) .. "x", data, pos)
         response.salt = response.salt .. tmp
       end
       if response.extcapabilities & ExtCapabilities.SupportsAuthPlugins > 0 then
