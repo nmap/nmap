@@ -124,6 +124,30 @@ class Host(object):
         self.os = []
         self.script_results = []
 
+    def __cmp__(self,other):
+        i = len(self.addresses)
+        j = len(other.addresses)
+        flag = 0
+        if ((!i) || (!j)):
+            while ((k<i) && (k<j))
+                if (self.addresses[k] == other.addresses[k]):
+                        flag = 1
+                        break
+                k = k+1
+        else:
+            while ((k<i) && (k<j))
+                if (self.addresses[k] == other.addresses[k]):
+                    if (self.hostname[k] == other.hostnames[k]):
+                        flag = 1
+                        break
+                k = k+1
+        if (flag):
+            return 0; # ie if both the hosts are equal
+        elif (self.get_id() < other.get_id()):
+            return -1;
+        else:
+            return 1;
+
     def get_id(self):
         """Return an id that is used to determine if hosts are "the same"
         across scans."""
@@ -514,10 +538,10 @@ def host_pairs(a, b):
     i = 0
     j = 0
     while i < len(a) and j < len(b):
-        if a[i].get_id() < b[j].get_id():
+        if a[i] < b[j]:
             yield a[i], Host()
             i += 1
-        elif a[i].get_id() > b[j].get_id():
+        elif a[i] > b[j]:
             yield Host(), b[j]
             j += 1
         else:
