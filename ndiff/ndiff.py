@@ -142,11 +142,11 @@ class Host(object):
                         break
                 k = k+1
         if (flag):
-            return 0; # ie if both the hosts are equal
+            return 0 # ie if both the hosts are equal
         elif (self.get_id() < other.get_id()):
-            return -1;
+            return -1
         else:
-            return 1;
+            return 1
 
     def get_id(self):
         """Return an id that is used to determine if hosts are "the same"
