@@ -2805,7 +2805,7 @@ function find_files(smbstate, fname, options)
         pos, fe.s_fname = bin.unpack("A24", response.data, pos)
 
         local time = fe.created
-        time = (time / 10000000) - 11644473600
+        time = (time // 10000000) - 11644473600
         fe.created = os.date("%Y-%m-%d %H:%M:%S", time)
 
         -- TODO: cleanup fe.s_fname

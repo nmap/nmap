@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#588] Fix a crash in smb.lua when using smb-ls due to a
+  floating-point number being passed to os.time ("bad argument").
+  [Dallas Winger]
+
 o [NSE][GH#596] Fix a bug in mysql.lua that caused authentication failures in
   mysql-brute and other scripts due to including a null terminator in the salt
   value. This bug affects Nmap 7.25BETA2 and later releases.  [Daniel Miller]
