@@ -243,14 +243,14 @@ class Host(object):
         i = len(self.addresses)
         j = len(other.addresses)
         flag = 0
-        if ((i==0) || (j==0))
-            while ((k<i) && (k<j))
+        if ((i==0) or (j==0)):
+            while ((k<i) and (k<j))
                 if (self.addresses[k] == other.addresses[k]):
                         flag = 1
                         break
                 k = k+1
         else:
-            while ((k<i) && (k<j))
+            while ((k<i) and (k<j))
                 if (self.addresses[k] == other.addresses[k]):
                     if (self.hostname[k] == other.hostnames[k]):
                         flag = 1
