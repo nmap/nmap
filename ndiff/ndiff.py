@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Ndiff
 #
 # This programs reads two Nmap XML files and displays a list of their
@@ -244,13 +243,13 @@ class Host(object):
         j = len(other.addresses)
         flag = 0
         if ((i==0) or (j==0)):
-            while ((k<i) and (k<j))
+            while ((k<i) and (k<j)):
                 if (self.addresses[k] == other.addresses[k]):
                         flag = 1
                         break
                 k = k+1
         else:
-            while ((k<i) and (k<j))
+            while ((k<i) and (k<j)):
                 if (self.addresses[k] == other.addresses[k]):
                     if (self.hostname[k] == other.hostnames[k]):
                         flag = 1
