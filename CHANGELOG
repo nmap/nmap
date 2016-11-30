@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#505] Updated Russian translation of Zenmap by Alexander Kozlov.
+
 o [NSE][GH#588] Fix a crash in smb.lua when using smb-ls due to a
   floating-point number being passed to os.time ("bad argument").
   [Dallas Winger]
