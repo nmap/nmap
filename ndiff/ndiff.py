@@ -538,10 +538,10 @@ def host_pairs(a, b):
     i = 0
     j = 0
     while i < len(a) and j < len(b):
-        if a[i] < b[j]:
+        if a[i].get_id() < b[j].get_id():
             yield a[i], Host()
             i += 1
-        elif a[i] > b[j]:
+        elif a[i].get_id() > b[j].get_id():
             yield Host(), b[j]
             j += 1
         else:
