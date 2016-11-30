@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Name=Zenmap (as root)
 GenericName=GUI Port Scanner
 TryExec=su-to-zenmap.sh
