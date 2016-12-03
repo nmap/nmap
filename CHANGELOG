@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script fingerprint-strings will print the ASCII strings it finds in the
+  service fingerprints that Nmap shows for unidentified services. [Daniel Miller]
+
 o [GH#505] Updated Russian translation of Zenmap by Alexander Kozlov.
 
 o [NSE][GH#588] Fix a crash in smb.lua when using smb-ls due to a
