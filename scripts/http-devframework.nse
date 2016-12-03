@@ -57,7 +57,7 @@ local function loadFingerprints(filename)
   filename = nmap.fetchfile('nselib/data/' .. filename) or filename
 
   -- Load the file
-  stdnse.debug1("Loading fingerprints: %s", filename)
+  --stdnse.debug1("Loading fingerprints: %s", filename)
   local env = setmetatable({fingerprints = {}}, {__index = _G});
   file = loadfile(filename, "t", env)
 
