@@ -9,6 +9,9 @@ Prints the readable strings from service fingerprints of unknown services.
 ]]
 
 ---
+--@usage
+-- nmap -sV --script fingerprint-strings <target>
+--
 --@output
 --| fingerprint-strings:
 --|   DNSStatusRequest, GenericLines, LANDesk-RC, TLSSessionReq:
