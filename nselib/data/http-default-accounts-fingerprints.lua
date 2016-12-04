@@ -171,6 +171,7 @@ fingerprints = {}
 table.insert(fingerprints, {
   -- Version 0.8.8a
   name = "Cacti",
+  cpe = "cpe:/a:cacti:cacti",
   category = "web",
   paths = {
     {path = "/"},
@@ -199,6 +200,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 2.0.6
   name = "Zabbix",
+  cpe = "cpe:/a:zabbix:zabbix",
   category = "web",
   paths = {
     {path = "/zabbix/"}
@@ -300,6 +302,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 3.2.3
   name = "Nagios",
+  cpe = "cpe:/a:nagios:nagios",
   category = "web",
   paths = {
     {path = "/"},
@@ -358,6 +361,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 8.1, 9.2, 10.3.4, 10.3.6, 12.1.2
   name = "WebLogic Server Console",
+  cpe = "cpe:/a:bea:weblogic_server",
   category = "web",
   paths = {
     {path = "/console/"}
@@ -394,6 +398,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
+  cpe = "cpe:/a:apache:tomcat",
   category = "web",
   paths = {
     {path = "/manager/html/"},
@@ -453,6 +458,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 1.4.1, 1.5.2, 1.5.3, 1.6.0, 1.6.1
   name = "Apache Axis2",
+  cpe = "cpe:/a:apache:axis2",
   category = "web",
   paths = {
     {path = "/axis2/axis2-admin/"}
@@ -553,6 +559,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 12.2SE on Catalyst 3750, 3845, CBS3020, 12.3 on Aironet 1300
   name = "Cisco IOS",
+  cpe = "cpe:/o:cisco:ios",
   category = "routers",
   paths = {
     {path = "/"},
@@ -581,6 +588,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version (see below)
   name = "Cisco Linksys",
+  cpe = "cpe:/h:linksys:*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -604,6 +612,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version ESIP-12-v302r125573-131230c_upc
   name = "Cisco EPC3925",
+  cpe = "cpe:/h:cisco:epc3925",
   category = "routers",
   paths = {
     {path = "/"}
@@ -634,6 +643,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 1.0.1.3 on RT-N10U, RT-N66U
   name = "ASUS RT",
+  cpe = "cpe:/h:asus:rt-*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -653,6 +663,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 5.00.12 on F5D7234-4
   name = "Belkin G Wireless Router",
+  cpe = "cpe:/h:belkin:f5d7234-4",
   category = "routers",
   paths = {
     {path = "/"}
@@ -681,6 +692,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 1.00.12 on F9K1001 v1
   name = "Belkin N150",
+  cpe = "cpe:/h:belkin:n150_f9k1001",
   category = "routers",
   paths = {
     {path = "/"}
@@ -864,6 +876,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 3.4.5.1 on Aruba800
   name = "ArubaOS WebUI",
+  cpe = "cpe:/o:arubanetworks:arubaos",
   category = "routers",
   paths = {
     {path = "/"}
@@ -891,6 +904,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   name = "Aruba AirWave",
+  cpe = "cpe:/a:arubanetworks:airwave",
   category = "routers",
   paths = {
     {path = "/"}
@@ -915,6 +929,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 08.05.100 on NVR 1750D
   name = "Nortel VPN Router",
+  cpe = "cpe:/h:nortel:vpn_router_*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -939,6 +954,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 11.4.1, 11.5.3
   name = "F5 TMOS",
+  cpe = "cpe:/o:f5:tmos",
   category = "routers",
   paths = {
     {path = "/"}
@@ -963,6 +979,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 10.5 on MPX 8005
   name = "Citrix NetScaler",
+  cpe = "cpe:/a:citrix:netscaler",
   category = "routers",
   paths = {
     {path = "/"}
@@ -1215,6 +1232,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 071.*, 072.* on WorkCentre 7835, 7845, ColorQube 8900X
   name = "Xerox WorkCentre/ColorQube",
+  cpe = "cpe:/h:xerox:workcentre",
   category = "printer",
   paths = {
     {path = "/"}
@@ -1377,6 +1395,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 7.5.0.3 on 2072-24C
   name = "IBM Storwize V3700",
+  cpe = "cpe:/a:ibm:storwize_v3700_software",
   category = "storage",
   paths = {
     {path = "/"}
@@ -1411,6 +1430,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 5.0.0
   name = "VMware ESXi",
+  cpe = "cpe:/o:vmware:esxi",
   category = "virtualization",
   paths = {
     {path = "/"}
@@ -1435,6 +1455,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 4.0.0
   name = "PCoIP Zero Client",
+  cpe = "cpe:/a:teradici:pcoip_host_software",
   category = "virtualization",
   paths = {
     {path = "/login.html"}
@@ -1494,6 +1515,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   --Version 1.10.12, 1.80
   name = "Dell iDRAC6",
+  cpe = "cpe:/o:dell:idrac6_firmware",
   category = "console",
   paths = {
     {path = "/"}

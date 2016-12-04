@@ -46,6 +46,8 @@ o [NSE] Revised script http-default-accounts in several ways:
   - [GH#604] Implemented XML output. Layout of the classic text output has also
     changed, including reporting blank usernames or passwords as "<blank>",
     instead of just empty strings. [nnposter]
+  - Added CPE entries to individual fingerprints (where known). They are
+    reported only in the XML output. [nnposter]
 
 o [NSE][GH#573] Updated http.lua to allow processing of HTTP responses with
   malformed header names. Such header lines are still captured in the rawheader

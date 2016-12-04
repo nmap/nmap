@@ -54,6 +54,7 @@ This script was based on http-enum.
 --
 -- @xmloutput
 -- <table key="Cacti">
+--   <elem key="cpe">cpe:/a:cacti:cacti</elem>
 --   <elem key="path">/</elem>
 --   <table key="credentials">
 --     <table>
@@ -63,6 +64,7 @@ This script was based on http-enum.
 --   </table>
 -- </table>
 -- <table key="Nagios">
+--   <elem key="cpe">cpe:/a:nagios:nagios</elem>
 --   <elem key="path">/nagios/</elem>
 --   <table key="credentials">
 --     <table>
@@ -89,6 +91,8 @@ This script was based on http-enum.
 -- 2016-12-01 nnposter
 --   * implemented XML structured output
 --   * changed classic output to report empty credentials as <blank>
+-- 2016-12-04 nnposter
+--   * added CPE entries to individual fingerprints (where known)
 ---
 
 author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
@@ -270,6 +274,7 @@ local function  test_credentials (host, port, fingerprint, path)
   if #credlst == 0 then return nil end
   -- Some credentials found. Generate the fingerprint output report
   local out = stdnse.output_table()
+  out.cpe = fingerprint.cpe
   out.path = path
   out.credentials = credlst
   local txtout = {}
