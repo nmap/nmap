@@ -1502,4 +1502,32 @@ function record_buffer(sock, buffer, i)
   return true, buffer
 end
 
+-- Get a server_name for use with the TLS Server Name Indication extension.
+--
+-- This returns the value of the script argument "tls.servername" if given.  Otherwise, it
+-- returns the target name of the host parameter.
+--
+-- @param host Host table as received by the action function
+-- @return String of the selected host name
+function servername(host)
+    local script_arg = stdnse.get_script_args("tls.servername")
+    if script_arg then
+        return script_arg
+    elseif type(host) == "table" then
+        return host.targetname
+    end
+end
+
+-- Get data for the TLS Server Name Indication extension.
+--
+-- If the argument is nil, this returns nil.
+--
+-- @param server_name String to use as server name for the extension, or nil
+-- @return Data for the extension or nil
+function servername_extension(server_name)
+  if server_name then
+    return EXTENSION_HELPERS["server_name"](server_name)
+  end
+end
+
 return _ENV;
