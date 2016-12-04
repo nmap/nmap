@@ -40,8 +40,12 @@ o [NSE] Updated fingerprints for script http-default-accounts with 21 new
   fingerprints. 5 fingerprints have been broadened to cover more variants.
   [nnposter]
 
-o [NSE][GH#577] Script http-default-accounts now can test systems that return
-  status 200 for non-existent pages. [nnposter]
+o [NSE] Revised script http-default-accounts in several ways:
+  - [GH#577] It can now can test systems that return status 200 for
+    non-existent pages. [nnposter]
+  - [GH#604] Implemented XML output. Layout of the classic text output has also
+    changed, including reporting blank usernames or passwords as "<blank>",
+    instead of just empty strings. [nnposter]
 
 o [NSE][GH#573] Updated http.lua to allow processing of HTTP responses with
   malformed header names. Such header lines are still captured in the rawheader
