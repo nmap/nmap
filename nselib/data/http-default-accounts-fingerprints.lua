@@ -356,8 +356,8 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 9.2
-  name = "WebLogic Server Console 9.x",
+  -- Version 8.1, 9.2, 10.3.4, 10.3.6, 12.1.2
+  name = "WebLogic Server Console",
   category = "web",
   paths = {
     {path = "/console/"}
@@ -365,17 +365,29 @@ table.insert(fingerprints, {
   target_check = function (host, port, path, response)
     local loc = response.header["location"] or ""
     return response.status == 302
-           and loc:find("/console/login/LoginForm%.jsp;")
+           and loc:find("/console/login/LoginForm%.jsp%f[;\0]")
   end,
   login_combos = {
-    {username = "weblogic", password = "weblogic"}
+    -- WebLogic 9.x
+    {username = "weblogic", password = "weblogic"},
+    -- WebLogic 10.x, 12.x
+    {username = "weblogic", password = "weblogic1"},
+    {username = "weblogic", password = "welcome1"},
+    -- Adobe LiveCycle ES
+    {username = "weblogic", password = "password"},
+    -- PeopleSoft
+    {username = "system", password = "Passw0rd"}
   },
   login_check = function (host, port, path, user, pass)
     local req = http_post_simple(host, port,
                                 url.absolute(path, "j_security_check"), nil,
                                 {j_username=user,j_password=pass,j_character_encoding="UTF-8"})
     local loc = req.header["location"] or ""
-    return req.status == 302 and loc:find("/console;")
+    -- WebLogic 8.x, 9.x
+    if req.status == 403 then return false end
+    -- WebLogic 10.x, 12.x
+    if req.status == 302 and loc:find("/console/login/LoginForm%.jsp$") then return false end
+    return true
   end
 })
 
