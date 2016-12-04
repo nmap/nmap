@@ -778,6 +778,35 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 2.00.08 on GS108PEv3
+  name = "Netgear ProSafe Plus Switch",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("loginTData", 1, true)
+           and response.body:lower():find("<title>netgear ", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = "password"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port, url.absolute(path, "login.cgi"),
+                                nil, {password=pass})
+    -- successful login is a HTTP/200 that sets cookie xxxSID,
+    -- where xxx is the hardware model, such as GS108SID
+    if req.status ~= 200 then return false end
+    for _, ck in ipairs(req.cookies or {}) do
+      if ck.name:lower():find("sid$") then return true end
+    end
+    return false
+  end
+})
+
+table.insert(fingerprints, {
   name = "Motorola AP-7532",
   category = "routers",
   paths = {
