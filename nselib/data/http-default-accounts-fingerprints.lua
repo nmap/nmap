@@ -230,7 +230,7 @@ table.insert(fingerprints, {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/200 and sets cookie "Xplico"
+    -- true if the response is HTTP/302 and sets cookie "Xplico"
     if response.status == 302 then
       for _, ck in ipairs(response.cookies or {}) do
         if ck.name:lower() == "xplico" then return true end
@@ -465,7 +465,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-   -- Version 0.4.4.6.1-alpha on SamuraiWTF 2.6
+  -- Version 0.4.4.6.1 on SamuraiWTF 2.6, 0.4.7.0 on Kali 2016.2
   name = "BeEF",
   category = "web",
   paths = {
@@ -681,7 +681,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Version 2.3, 2.4 on FVS318
-  name = "Netgear FVS",
+  name = "Netgear ProSafe Firewall",
   category = "routers",
   paths = {
     {path = "/"}
@@ -833,7 +833,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Version 11.4.1, 11.5.3
-  name = "F5 BIG-IP",
+  name = "F5 TMOS",
   category = "routers",
   paths = {
     {path = "/"}
@@ -1125,7 +1125,7 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     local form = {_fun_function="HTTP_Authenticate_fn",
-                  NextPage="/properties/authentication/luidLogin.php",
+                  NextPage=url.absolute(path, "properties/authentication/luidLogin.php"),
                   webUsername=user,
                   webPassword=pass,
                   frmaltDomain="default"}
@@ -1362,7 +1362,7 @@ table.insert(fingerprints, {
 --Remote consoles
 ---
 table.insert(fingerprints, {
-  -- Version 5.5, 6.1
+  -- Version 5.5, 6.1, 6.2, 7.2 on SLC16, SLC32, SLC48, SLC 8016
   name = "Lantronix SLC",
   category = "console",
   paths = {
@@ -1371,7 +1371,7 @@ table.insert(fingerprints, {
   target_check = function (host, port, path, response)
     return response.status == 200
            and response.header["server"]
-           and response.header["server"]:find("^mini_httpd")
+           and response.header["server"]:find("^mini_httpd/%d+%.")
            and response.body
            and response.body:find("lantronix", 1, true)
            and response.body:find("slcpassword", 1, true)
@@ -1387,7 +1387,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  --Version 1.10.12
+  --Version 1.10.12, 1.80
   name = "Dell iDRAC6",
   category = "console",
   paths = {
@@ -1405,8 +1405,8 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "data/login",
-                            "<authResult>1</authResult>",
-                            {user=user, password=pass})
+                              "<authResult>1</authResult>",
+                              {user=user, password=pass})
   end
 })
 
