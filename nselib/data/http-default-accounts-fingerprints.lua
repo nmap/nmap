@@ -590,6 +590,36 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version ESIP-12-v302r125573-131230c_upc
+  name = "Cisco EPC3925",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("Docsis", 1, true)
+           and response.body:find('window%.location%.href%s*=%s*"Docsis_system%.asp";')
+  end,
+  login_combos = {
+    {username = "", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {username_login=user,
+                  password_login=pass,
+                  LanguageSelect="en",
+                  Language_Submit="0",
+                  login="Log In"}
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "goform/Docsis_system"),
+                                nil, form)
+    local loc = req.header["location"] or ""
+    return req.status == 302 and loc:find("/Quick_setup%.asp$")
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 1.0.1.3 on RT-N10U, RT-N66U
   name = "ASUS RT",
   category = "routers",

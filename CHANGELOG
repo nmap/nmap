@@ -36,7 +36,7 @@ o Added service probe and UDP payload for Quick UDP Internet Connection (QUIC),
 o [NSE] Enabled resolveall to run against any target provided as a hostname, so
   the resolveall.hosts script-arg is no longer required. [Daniel Miller]
 
-o [NSE] Updated fingerprints for script http-default-accounts with 19 new
+o [NSE] Updated fingerprints for script http-default-accounts with 20 new
   fingerprints. 4 fingerprints have been broadened to cover more variants.
   [nnposter]
 
