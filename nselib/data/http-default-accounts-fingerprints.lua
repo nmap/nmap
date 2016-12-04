@@ -322,6 +322,40 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 3.1.1
+  name = "Grafana",
+  category = "web",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    -- true if the response is HTTP/302 and sets cookie "grafana_sess"
+    if response.status == 302 then
+      for _, ck in ipairs(response.cookies or {}) do
+        if ck.name:lower() == "grafana_sess" then return true end
+      end
+    end
+    return false
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local header = {["Accept"] = "application/json, text/plain, */*",
+                    ["Content-Type"] = "application/json;charset=utf-8"}
+    local json = ('{"user":"%s","email":"","password":"%s"}'):format(user, pass)
+    local req = http_post_simple(host, port, url.absolute(path, "login"),
+                                {header=header}, json)
+    -- successful login is HTTP/200 that sets cookie "grafana_user"
+    if req.status ~= 200 then return false end
+    for _, ck in ipairs(req.cookies or {}) do
+      if ck.name:lower() == "grafana_user" then return ck.value == user end
+    end
+    return false
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 9.2
   name = "WebLogic Server Console 9.x",
   category = "web",
