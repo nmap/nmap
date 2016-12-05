@@ -469,7 +469,7 @@ def format_banner(scan):
 
 
 def print_script_result_diffs_text(title, script_results_a, script_results_b,
-    script_result_diffs, f=sys.stdout):
+        script_result_diffs, f=sys.stdout):
     table = Table(u"*")
     for sr_diff in script_result_diffs:
         sr_diff.append_to_port_table(table)
@@ -485,7 +485,7 @@ def print_script_result_diffs_text(title, script_results_a, script_results_b,
 
 
 def script_result_diffs_to_dom_fragment(elem, script_results_a,
-    script_results_b, script_result_diffs, document):
+        script_results_b, script_result_diffs, document):
     if len(script_results_a) == 0 and len(script_results_b) == 0:
         return document.createDocumentFragment()
     elif len(script_results_b) == 0:
@@ -1200,18 +1200,18 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         self.current_port = None
 
         self._start_elem_handlers = {
-            u"nmaprun":    self._start_nmaprun,
-            u"host":       self._start_host,
-            u"status":     self._start_status,
-            u"address":    self._start_address,
-            u"hostname":   self._start_hostname,
+            u"nmaprun": self._start_nmaprun,
+            u"host": self._start_host,
+            u"status": self._start_status,
+            u"address": self._start_address,
+            u"hostname": self._start_hostname,
             u"extraports": self._start_extraports,
-            u"port":       self._start_port,
-            u"state":      self._start_state,
-            u"service":    self._start_service,
-            u"script":     self._start_script,
-            u"osmatch":    self._start_osmatch,
-            u"finished":   self._start_finished,
+            u"port": self._start_port,
+            u"state": self._start_state,
+            u"service": self._start_service,
+            u"script": self._start_script,
+            u"osmatch": self._start_osmatch,
+            u"finished": self._start_finished,
         }
         self._end_elem_handlers = {
             u'host': self._end_host,
@@ -1243,7 +1243,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             handler(name)
 
     def _start_nmaprun(self, name, attrs):
-        assert self.parent_element() == None
+        assert self.parent_element() is None
         if "start" in attrs:
             start_timestamp = int(attrs.get(u"start"))
             self.scan.start_date = datetime.datetime.fromtimestamp(
