@@ -127,11 +127,12 @@ class Host(object):
     def get_id(self):
         """Return an id that is used to determine if hosts are "the same"
         across scans."""
+        hid = None
         if len(self.addresses) > 0:
-            return str(sorted(self.addresses)[0])
+            hid = "%-40s" % (str(sorted(self.addresses)[0]))
         if len(self.hostnames) > 0:
-            return str(sorted(self.hostnames)[0])
-        return id(self)
+            return (hid or " " * 40) + str(sorted(self.hostnames)[0])
+        return hid or id(self)
 
     def format_name(self):
         """Return a human-readable identifier for this host."""

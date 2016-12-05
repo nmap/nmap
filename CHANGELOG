@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff][GH#591] Fix a bug where hosts with the same IP but different
+  hostnames were shown as changing hostnames between scans. Made sort stable
+  with regard to hostnames. [Daniel Miller]
+
 o [NSE][GH#533] Removed ssl-google-cert-catalog, since Google shut off that
   service at some point. Reported by Brian Morin.
 
