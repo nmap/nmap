@@ -201,6 +201,68 @@ struct xml_writer {
 
 static struct xml_writer xml;
 
+char *xml_unescape(const char *str) {
+  char *result = NULL;
+  size_t n = 0, len;
+  const char *p;
+  int i;
+
+  i = 0;
+  for (p = str; *p != '\0'; p++) {
+    const char *repl;
+    char buf[32];
+
+    if (*p != '&') {
+      /* Based on the asumption that ampersand is only used for escaping. */
+      buf[0] = *p;
+      buf[1] = '\0';
+      repl = buf;
+    } else if (strncmp(p, "&lt;", 4) == 0) {
+      repl = "<";
+      p += 3;
+    } else if (strncmp(p, "&gt;", 4) == 0) {
+      repl = ">";
+      p += 3;
+    } else if (strncmp(p, "&amp;", 5) == 0) {
+      repl = "&";
+      p += 4;
+    } else if (strncmp(p, "&quot;", 6) == 0) {
+      repl = "\"";
+      p += 5;
+    } else if (strncmp(p, "&apos;", 6) == 0) {
+      repl = "\'";
+      p += 5;
+    } else if (strncmp(p, "&#45;", 5) == 0) {
+      repl = "-";
+      p += 4;
+    } else {
+      /* Escaped control characters and anything outside of ASCII. */
+      Strncpy(buf, p + 3, sizeof(buf));
+      char *q;
+      q = strchr(buf, ';');
+      if(!q)
+        buf[0] = '\0';
+      else
+        *q = '\0';
+      repl = buf;
+    }
+
+    len = strlen(repl);
+    /* Double the size of the result buffer if necessary. */
+    if (i == 0 || i + len > n) {
+      n = (i + len) * 2;
+      result = (char *) safe_realloc(result, n + 1);
+    }
+    memcpy(result + i, repl, len);
+    i += len;
+  }
+  /* Trim to length. (Also does initial allocation when str is empty.) */
+  result = (char *) safe_realloc(result, i + 1);
+  result[i] = '\0';
+
+  return result;
+}
+
 /* Escape a string for inclusion in XML. This gets <>&, "' for attribute
    values, -- for inside comments, and characters with value > 0x7F. It
    also gets control characters with value < 0x20 to avoid parser
@@ -362,9 +424,10 @@ int xml_close_pi() {
 /* Open a start tag, like "<name". The tag must be later closed with
    xml_close_start_tag or xml_close_empty_tag. Usually the tag is closed
    after writing some attributes. */
-int xml_open_start_tag(const char *name) {
+int xml_open_start_tag(const char *name, const bool write) {
   assert(!xml.tag_open);
-  log_write(LOG_XML, "<%s", name);
+  if (write)
+    log_write(LOG_XML, "<%s", name);
   xml.element_stack.push_back(name);
   xml.tag_open = true;
   xml.root_written = true;
@@ -372,9 +435,10 @@ int xml_open_start_tag(const char *name) {
   return 0;
 }
 
-int xml_close_start_tag() {
+int xml_close_start_tag(const bool write) {
   assert(xml.tag_open);
-  log_write(LOG_XML, ">");
+  if(write)
+    log_write(LOG_XML, ">");
   xml.tag_open = false;
 
   return 0;
@@ -392,10 +456,10 @@ int xml_close_empty_tag() {
   return 0;
 }
 
-int xml_start_tag(const char *name) {
-  if (xml_open_start_tag(name) < 0)
+int xml_start_tag(const char *name, const bool write) {
+  if (xml_open_start_tag(name, write) < 0)
     return -1;
-  if (xml_close_start_tag() < 0)
+  if (xml_close_start_tag(write) < 0)
     return -1;
 
   return 0;

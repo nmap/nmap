@@ -222,6 +222,7 @@ int main(int argc, char *argv[]) {
     if (gather_logfile_resumption_state(argv[2], &myargc, &myargv) == -1) {
       fatal("Cannot resume from (supposed) log file %s", argv[2]);
     }
+    o.resuming = true;
     return nmap_main(myargc, myargv);
   }
 
