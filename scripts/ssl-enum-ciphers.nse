@@ -499,26 +499,17 @@ local function remove_high_byte_ciphers(t)
   return output
 end
 
--- Claim to support every elliptic curve and EC point format
-local base_extensions = {
-  -- Claim to support every elliptic curve
-  ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
-  -- Claim to support every EC point format
-  ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
-}
-
--- Recursively copy a table.
--- Only recurs when a value is a table, other values are copied by assignment.
-local function tcopy (t)
-  local tc = {};
-  for k,v in pairs(t) do
-    if type(v) == "table" then
-      tc[k] = tcopy(v);
-    else
-      tc[k] = v;
-    end
-  end
-  return tc;
+-- Get TLS extensions
+local function base_extensions(host)
+  local tlsname = tls.servername(host)
+  return {
+    -- Claim to support every elliptic curve
+    ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
+    -- Claim to support every EC point format
+    ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
+    -- Enable SNI if a server name is available
+    ["server_name"] = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
+  }
 end
 
 -- Get a message body from a record which has the specified property set to value
@@ -587,11 +578,8 @@ local function find_ciphers_group(host, port, protocol, group, scores)
   local results = {}
   local t = {
     ["protocol"] = protocol,
-    ["extensions"] = tcopy(base_extensions),
+    ["extensions"] = base_extensions(host),
   }
-  if host.targetname then
-    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
-  end
 
   -- This is a hacky sort of tristate variable. There are three conditions:
   -- 1. false = either ciphers or protocol is bad. Keep trying with new ciphers
@@ -775,11 +763,8 @@ local function get_chunk_size(host, protocol)
   local len_t = {
     protocol = protocol,
     ciphers = {},
-    extensions = tcopy(base_extensions),
+    extensions = base_extensions(host),
   }
-  if host.targetname then
-    len_t.extensions.server_name = tls.EXTENSION_HELPERS.server_name(host.targetname)
-  end
   local cipher_len_remaining = 255 - #tls.client_hello(len_t)
   -- if we're over 255 anyway, just go for it.
   -- Each cipher adds 2 bytes
@@ -815,11 +800,8 @@ local function find_compressors(host, port, protocol, good_ciphers)
   local t = {
     ["protocol"] = protocol,
     ["ciphers"] = good_ciphers,
-    ["extensions"] = tcopy(base_extensions),
+    ["extensions"] = base_extensions(host),
   }
-  if host.targetname then
-    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
-  end
 
   local results = {}
 
@@ -896,11 +878,8 @@ local function compare_ciphers(host, port, protocol, cipher_a, cipher_b)
   local t = {
     ["protocol"] = protocol,
     ["ciphers"] = {cipher_a, cipher_b},
-    ["extensions"] = tcopy(base_extensions),
+    ["extensions"] = base_extensions(host),
   }
-  if host.targetname then
-    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
-  end
   local records = try_params(host, port, t)
   local server_hello = records.handshake and get_body(records.handshake, "type", "server_hello")
   if server_hello then

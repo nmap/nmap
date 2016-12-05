@@ -174,13 +174,17 @@ local function remove_high_byte_ciphers(t)
   return output
 end
 
--- Claim to support every elliptic curve and EC point format
-local base_extensions = {
-  -- Claim to support every elliptic curve
-  ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
-  -- Claim to support every EC point format
-  ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
-}
+local function base_extensions(host)
+  local tlsname = tls.servername(host)
+  return {
+    -- Claim to support every elliptic curve
+    ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](sorted_keys(tls.ELLIPTIC_CURVES)),
+    -- Claim to support every EC point format
+    ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](sorted_keys(tls.EC_POINT_FORMATS)),
+    -- Enable SNI if a server name is available
+    ["server_name"] = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
+  }
+end
 
 -- Recursively copy a table.
 -- Only recurs when a value is a table, other values are copied by assignment.
@@ -202,11 +206,8 @@ local function find_ciphers_group(host, port, protocol, group)
   results = {}
   local t = {
     ["protocol"] = protocol,
-    ["extensions"] = tcopy(base_extensions),
+    ["extensions"] = base_extensions(host),
   }
-  if host.targetname then
-    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
-  end
 
   -- This is a hacky sort of tristate variable. There are three conditions:
   -- 1. false = either ciphers or protocol is bad. Keep trying with new ciphers
@@ -303,11 +304,8 @@ local function check_fallback_scsv(host, port, protocol, ciphers)
   local results = {}
   local t = {
     ["protocol"] = protocol,
-    ["extensions"] = tcopy(base_extensions),
+    ["extensions"] = base_extensions(host),
   }
-  if host.targetname then
-    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
-  end
 
   t["ciphers"] = tcopy(ciphers)
   t.ciphers[#t.ciphers+1] = "TLS_FALLBACK_SCSV"

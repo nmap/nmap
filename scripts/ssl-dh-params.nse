@@ -633,11 +633,10 @@ local function get_dhe_params(host, port, protocol, ciphers)
   local t = {}
   local pos = 1
   t.protocol = protocol
-  t.extensions = {}
-
-  if host.targetname then
-    t.extensions.server_name = tls.EXTENSION_HELPERS.server_name(host.targetname)
-  end
+  local tlsname = tls.servername(host)
+  t.extensions = {
+    server_name = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
+  }
 
   -- Keep ClientHello record size below 255 bytes and the number of ciphersuites
   -- to 64 or less in order to avoid implementation issues with some TLS servers

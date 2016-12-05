@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#540] Add tls.servername script-arg for forcing a name to be used for
+  TLS Server Name Indication extension. The argument overrides the default use
+  of the host's targetname. [Bertrand Bonnefoy-Claudet]
+
 o [NSE] Script fingerprint-strings will print the ASCII strings it finds in the
   service fingerprints that Nmap shows for unidentified services. [Daniel Miller]
 

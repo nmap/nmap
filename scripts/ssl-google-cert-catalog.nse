@@ -6,6 +6,7 @@ local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tls = require "tls"
 
 description = [[
 Queries Google's Certificate Catalog for the SSL certificates retrieved from
@@ -41,6 +42,7 @@ end
 portrule = shortport.ssl
 
 action = function(host, port)
+    host.targetname = tls.servername(host)
     local lines, sha1, query
     local status, cert = sslcert.getCertificate(host, port)
 
