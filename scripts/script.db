@@ -488,7 +488,6 @@ Entry { filename = "ssl-cert.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "ssl-date.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssl-dh-params.nse", categories = { "safe", "vuln", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ssl-heartbleed.nse", categories = { "safe", "vuln", } }
 Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
 Entry { filename = "ssl-poodle.nse", categories = { "safe", "vuln", } }

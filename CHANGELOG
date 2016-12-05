@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#533] Removed ssl-google-cert-catalog, since Google shut off that
+  service at some point. Reported by Brian Morin.
+
 o [NSE][GH#540] Add tls.servername script-arg for forcing a name to be used for
   TLS Server Name Indication extension. The argument overrides the default use
   of the host's targetname. [Bertrand Bonnefoy-Claudet]
