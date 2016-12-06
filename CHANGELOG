@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#557] Script ssl-cert-intaddr will search for private IP addresses in
+  TLS certificate fields and extensions. [Steve Benson]
+
 o [GH#316] Added scan resume from Nmap's XML output. Now you can --resume a
   canceled scan from all 3 major output formats: -oN, -oG, and -oX.
   [Tudor Emil Coman]
