@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#316] Added scan resume from Nmap's XML output. Now you can --resume a
+  canceled scan from all 3 major output formats: -oN, -oG, and -oX.
+  [Tudor Emil Coman]
+
 o [Ndiff][GH#591] Fix a bug where hosts with the same IP but different
   hostnames were shown as changing hostnames between scans. Made sort stable
   with regard to hostnames. [Daniel Miller]

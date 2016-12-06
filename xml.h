@@ -137,10 +137,10 @@ int xml_end_comment();
 int xml_open_pi(const char *name);
 int xml_close_pi();
 
-int xml_open_start_tag(const char *name);
-int xml_close_start_tag();
+int xml_open_start_tag(const char *name, const bool write = true);
+int xml_close_start_tag(const bool write = true);
 int xml_close_empty_tag();
-int xml_start_tag(const char *name);
+int xml_start_tag(const char *name, const bool write = true);
 int xml_end_tag();
 
 int xml_attribute(const char *name, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
@@ -150,6 +150,9 @@ int xml_newline();
 int xml_depth();
 bool xml_tag_open();
 bool xml_root_written();
+
+
+char *xml_unescape(const char *str);
 
 #endif
 

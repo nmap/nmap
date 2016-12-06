@@ -1855,18 +1855,48 @@ int nmap_main(int argc, char *argv[]) {
   fflush(stderr);
 
   timep = time(NULL);
-
-  /* Brief info in case they forget what was scanned */
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
-  char *xslfname = o.XSLStyleSheet();
-  xml_start_document("nmaprun");
-  if (xslfname) {
-    xml_open_pi("xml-stylesheet");
-    xml_attribute("href", "%s", xslfname);
-    xml_attribute("type", "text/xsl");
-    xml_close_pi();
+
+  if (!o.resuming) {
+    /* Brief info in case they forget what was scanned */
+    char *xslfname = o.XSLStyleSheet();
+    xml_start_document("nmaprun");
+    if (xslfname) {
+      xml_open_pi("xml-stylesheet");
+      xml_attribute("href", "%s", xslfname);
+      xml_attribute("type", "text/xsl");
+      xml_close_pi();
+      xml_newline();
+    }
+
+    xml_start_comment();
+    xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
+    xml_end_comment();
     xml_newline();
+
+    xml_open_start_tag("nmaprun");
+    xml_attribute("scanner", "nmap");
+    xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
+    xml_attribute("start", "%lu", (unsigned long) timep);
+    xml_attribute("startstr", "%s", mytime);
+    xml_attribute("version", "%s", NMAP_VERSION);
+    xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
+    xml_close_start_tag();
+    xml_newline();
+
+    output_xml_scaninfo_records(&ports);
+
+    xml_open_start_tag("verbose");
+    xml_attribute("level", "%d", o.verbose);
+    xml_close_empty_tag();
+    xml_newline();
+    xml_open_start_tag("debugging");
+    xml_attribute("level", "%d", o.debugging);
+    xml_close_empty_tag();
+    xml_newline();
+  } else {
+    xml_start_tag("nmaprun", false);
   }
 
   std::string command;
@@ -1877,36 +1907,10 @@ int nmap_main(int argc, char *argv[]) {
     command += argv[i];
   }
 
-  xml_start_comment();
-  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
-  xml_end_comment();
-  xml_newline();
-
   log_write(LOG_NORMAL | LOG_MACHINE, "# ");
   log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
   log_write(LOG_NORMAL | LOG_MACHINE, "%s", command.c_str());
   log_write(LOG_NORMAL | LOG_MACHINE, "\n");
-
-  xml_open_start_tag("nmaprun");
-  xml_attribute("scanner", "nmap");
-  xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
-  xml_attribute("start", "%lu", (unsigned long) timep);
-  xml_attribute("startstr", "%s", mytime);
-  xml_attribute("version", "%s", NMAP_VERSION);
-  xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
-  xml_close_start_tag();
-  xml_newline();
-
-  output_xml_scaninfo_records(&ports);
-
-  xml_open_start_tag("verbose");
-  xml_attribute("level", "%d", o.verbose);
-  xml_close_empty_tag();
-  xml_newline();
-  xml_open_start_tag("debugging");
-  xml_attribute("level", "%d", o.debugging);
-  xml_close_empty_tag();
-  xml_newline();
 
   /* Before we randomize the ports scanned, lets output them to machine
      parseable output */
@@ -2328,12 +2332,21 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   if (!q || ((unsigned int) (q - p) >= sizeof(nmap_arg_buffer) - 32))
     fatal("Unable to parse supposed log file %s.  Perhaps the Nmap execution had not finished at least one host?  In that case there is no use \"resuming\"", fname);
 
-
   strncpy(nmap_arg_buffer, "nmap --append-output ", sizeof(nmap_arg_buffer));
   if ((q - p) + 21 + 1 >= (int) sizeof(nmap_arg_buffer))
     fatal("0verfl0w");
   memcpy(nmap_arg_buffer + 21, p, q - p);
   nmap_arg_buffer[21 + q - p] = '\0';
+
+  q = strstr(nmap_arg_buffer, "-->");
+  if (q) {
+    *q = '\0';
+     char *unescaped = xml_unescape(nmap_arg_buffer);
+     if (sizeof(nmap_arg_buffer) < strlen(unescaped) + 1)
+       fatal("0verfl0w");
+     memcpy(nmap_arg_buffer, unescaped, strlen(unescaped) + 1);
+     free(unescaped);
+  }
 
   if (strstr(nmap_arg_buffer, "--randomize-hosts") != NULL) {
     error("WARNING: You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch may be missed and others may be repeated once");
@@ -2360,37 +2373,52 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
       fatal("Unable to parse supposed log file %s.  Sorry", fname);
     *q = ' ';
   } else {
-    /* OK, I guess (hope) it is a normal log then (-oN) */
+    /* Let's see if it's an XML log (-oX) */
     q = p;
     found = NULL;
-    while ((q = strstr(q, "\nNmap scan report for ")))
-      found = q = q + 22;
-
-    /*  There may be some later IPs of the form :
-        "Nmap scan report for florence (x.x.7.10)" (dns reverse lookup)
-        or "Nmap scan report for x.x.7.10".
-    */
+    while ((q = strstr(q, "\n<address addr=\"")))
+      found = q = q + 16;
     if (found) {
-      q = strchr(found, '\n');
+      q = strchr(found, '"');
       if (!q)
         fatal("Unable to parse supposed log file %s.  Sorry", fname);
       *q = '\0';
-      p = strchr(found, '(');
-      if (!p) { /* No DNS reverse lookup, found should already contain IP */
-        lastipstr = strdup(found);
-      } else { /* DNS reverse lookup, IP is between parentheses */
-        *q = '\n';
-        q--;
-        *q = '\0';
-        lastipstr = strdup(p + 1);
-      }
-      *q = p ? ')' : '\n'; /* recover changed chars */
-      if (inet_pton(AF_INET, lastipstr, &lastip) == 0)
-        fatal("Unable to parse ip (%s) in supposed log file %s.  Sorry", lastipstr, fname);
-      free(lastipstr);
+      if (inet_pton(AF_INET, found, &lastip) == 0)
+        fatal("Unable to parse supposed log file %s.  Sorry", fname);
+      *q = '"';
     } else {
-      error("Warning: You asked for --resume but it doesn't look like any hosts in the log file were successfully scanned.  Starting from the beginning.");
-      lastip.s_addr = 0;
+      /* OK, I guess (hope) it is a normal log then (-oN) */
+      q = p;
+      found = NULL;
+      while ((q = strstr(q, "\nNmap scan report for ")))
+        found = q = q + 22;
+
+      /*  There may be some later IPs of the form :
+          "Nmap scan report for florence (x.x.7.10)" (dns reverse lookup)
+          or "Nmap scan report for x.x.7.10".
+      */
+      if (found) {
+        q = strchr(found, '\n');
+        if (!q)
+          fatal("Unable to parse supposed log file %s.  Sorry", fname);
+        *q = '\0';
+        p = strchr(found, '(');
+        if (!p) { /* No DNS reverse lookup, found should already contain IP */
+          lastipstr = strdup(found);
+        } else { /* DNS reverse lookup, IP is between parentheses */
+          *q = '\n';
+          q--;
+          *q = '\0';
+          lastipstr = strdup(p + 1);
+        }
+        *q = p ? ')' : '\n'; /* recover changed chars */
+        if (inet_pton(AF_INET, lastipstr, &lastip) == 0)
+          fatal("Unable to parse ip (%s) in supposed log file %s.  Sorry", lastipstr, fname);
+        free(lastipstr);
+      } else {
+        error("Warning: You asked for --resume but it doesn't look like any hosts in the log file were successfully scanned.  Starting from the beginning.");
+        lastip.s_addr = 0;
+      }
     }
   }
   o.resume_ip = lastip;
