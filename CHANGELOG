@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script nje-pass-brute brute-forces the password to a NJE node, given a
+  valid RHOST and OHOST. Helpfully, nje-node-brute can now brute force both of
+  those values. [Soldier of Fortran]
+
 o [NSE][GH#557] Script ssl-cert-intaddr will search for private IP addresses in
   TLS certificate fields and extensions. [Steve Benson]
 

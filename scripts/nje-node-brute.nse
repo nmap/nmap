@@ -71,7 +71,7 @@ Since most systems will only have one OHOST name, it is recommended to use the
 -- 2016-03-22 - v0.2 - Added RHOST Brute forcing.
 
 author = "Soldier of Fortran"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service({175,2252}, "nje")
