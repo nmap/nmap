@@ -25,22 +25,20 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe"}
 
 local render = function(path)
-  local kml = {}
-  table.insert(kml, '<?xml version="1.0" encoding="UTF-8"?>')
-  table.insert(kml, '<kml xmlns="http://www.opengis.net/kml/2.2">')
-  table.insert(kml, '  <Document>')
+  local kml = {'<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">\n  <Document>'}
 
   for ip, coords in pairs(geoip.get_all_by_ip()) do
-    table.insert(kml, "    <Placemark>")
-    table.insert(kml, "      <name>" .. ip .. "</name>")
-    table.insert(kml, "      <Point>")
-    table.insert(kml, "        <coordinates>" .. coords["longitude"] .. "," .. coords["latitude"] .. "</coordinates>")
-    table.insert(kml, "      </Point>")
-    table.insert(kml, "    </Placemark>")
+    table.insert(kml, ([[
+    <Placemark>
+      <name>%s</name>
+      <Point>
+        <coordinates>%s,%s</coordinates>
+      </Point>
+    </Placemark>]]):format(ip, coords["longitude"], coords["latitude"])
+    )
   end
 
-  table.insert(kml, '  </Document>')
-  table.insert(kml, '</kml>\n')
+  table.insert(kml, '  </Document>\n</kml>\n')
 
   kml = table.concat(kml, "\n")
 
