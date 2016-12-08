@@ -18,6 +18,5 @@ categories = {"discovery"}
 portrule = shortport.version_port_or_service(10809, "nbd", "tcp")
 
 action = function(host, port)
-  local info = nbd.connect(host, port)
-  return info
+  return nbd.connect(host, port)
 end
