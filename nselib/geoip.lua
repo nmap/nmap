@@ -19,6 +19,18 @@ add = function(ip, lat, lon)
     nmap.registry.geoip[ip] = {}
   end
 
+  local lat_n = tonumber(lat)
+  if lat_n < -90 or lat_n > 90 then
+    stdnse.debug1("Invalid latitude for %s: %s.", ip, lat)
+    return
+  end
+
+  local lon_n = tonumber(lon)
+  if lon_n < -180 or lon_n > 180 then
+    stdnse.debug1("Invalid longitude for %s: %s.", ip, lon)
+    return
+  end
+
   nmap.registry.geoip[ip]["latitude"] = lat
   nmap.registry.geoip[ip]["longitude"] = lon
 end
