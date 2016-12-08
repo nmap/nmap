@@ -58,6 +58,8 @@ Entry { filename = "broadcast-xdmcp-discover.nse", categories = { "broadcast", "
 Entry { filename = "cassandra-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cassandra-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "cccam-version.nse", categories = { "version", } }
+Entry { filename = "cics-enum.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "cics-user-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }

@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script cics-enum enumerates CICS transaction IDs, mapping to screens in
+  TN3270 services. [Soldier of Fortran]
+
+o [NSE] Script cics-user-enum brute-forces usernames for CICS users on TN3270
+  services. [Soldier of Fortran]
+
 o [NSE] Script tso-enum enumerates usernames for TN3270 Telnet services, and
   tso-brute brute-forces passwords for the same services. [Soldier of Fortran]
 
