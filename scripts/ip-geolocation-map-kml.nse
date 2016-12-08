@@ -34,7 +34,7 @@ local render = function(path)
     table.insert(kml, "    <Placemark>")
     table.insert(kml, "      <name>" .. ip .. "</name>")
     table.insert(kml, "      <Point>")
-    table.insert(kml, "        <coordinates>" .. coords["latitude"] .. "," .. coords["longitude"] .. "</coordinates>")
+    table.insert(kml, "        <coordinates>" .. coords["longitude"] .. "," .. coords["latitude"] .. "</coordinates>")
     table.insert(kml, "      </Point>")
     table.insert(kml, "    </Placemark>")
   end
