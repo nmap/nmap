@@ -1,5 +1,6 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local table = require "table"
 
 _ENV = stdnse.module("geoip", stdnse.seeall)
 

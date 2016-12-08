@@ -2,6 +2,7 @@ local http = require "http"
 local geoip = require "geoip"
 local io = require "io"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local url = require "url"
 

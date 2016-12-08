@@ -78,7 +78,7 @@ action = function()
   -- Parse and sanity check the command line arguments.
   local status, path = parse_args()
   if not status then
-    output.ERROR = query
+    output.ERROR = path
     return output, output.ERROR
   end
 
