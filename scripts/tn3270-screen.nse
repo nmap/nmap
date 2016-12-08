@@ -76,7 +76,7 @@ action = function(host, port)
         stdnse.debug(1,"Issuing Command (#%s of %s): %s", i, #run ,run[i])
         t:send_cursor(run[i])
         t:get_all_data()
-        t:get_screen_debug()
+        t:get_screen_debug(2)
       end
     end
     status = t:get_all_data()

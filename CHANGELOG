@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script vtam-enum brute-forces VTAM application IDs for TN3270 services.
+  [Soldier of Fortran]
+
 o [NSE] Script tn3270-screen shows the login screen from mainframe TN3270
   Telnet services, including any hidden fields. The script is accompanied by
   the new tn3270 library. [Soldier of Fortran]

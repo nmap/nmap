@@ -1043,8 +1043,9 @@ Telnet = {
     return buff
   end,
 
-  get_screen_debug = function ( self )
-    stdnse.debug(1,"---------------------- Printing the current TN3270 buffer ----------------------")
+  get_screen_debug = function ( self, lvl )
+    lvl = lvl or 1
+    stdnse.debug(lvl,"---------------------- Printing the current TN3270 buffer ----------------------")
     local buff = ''
     for i = 1,#self.buffer do
       if self.buffer[i] == "\00" then
@@ -1053,11 +1054,11 @@ Telnet = {
         buff = buff .. drda.StringUtil.toASCII(self.buffer[i])
       end
       if i % 80 == 0 then
-        stdnse.debug(1, buff)
+        stdnse.debug(lvl, buff)
         buff = ''
       end
     end
-    stdnse.debug(1,"----------------------- End of the current TN3270 buffer ---------------------")
+    stdnse.debug(lvl,"----------------------- End of the current TN3270 buffer ---------------------")
 
     return buff
   end,
