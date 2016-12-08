@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script tso-enum enumerates usernames for TN3270 Telnet services, and
+  tso-brute brute-forces passwords for the same services. [Soldier of Fortran]
+
 o [NSE] Script vtam-enum brute-forces VTAM application IDs for TN3270 services.
   [Soldier of Fortran]
 
