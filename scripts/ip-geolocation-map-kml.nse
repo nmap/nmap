@@ -89,5 +89,5 @@ action = function()
     return output, output.ERROR
   end
 
-  return output, stdnse.format_output(true, msg)
+  return msg
 end
