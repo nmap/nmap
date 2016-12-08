@@ -4,6 +4,8 @@ local tn3270 = require "tn3270"
 
 description = [[
 Connects to a tn3270 'server' and returns the screen.
+
+Hidden fields will be listed below the screen with (row, col) coordinates.
 ]]
 
 ---
@@ -14,6 +16,7 @@ Connects to a tn3270 'server' and returns the screen.
 -- PORT     STATE  SERVICE         VERSION
 -- 23/tcp   open   tn3270          Telnet TN3270
 -- | tn3270-screen:
+-- |  screen:
 -- |  Mainframe Operating System                              z/OS V1.6
 -- |          FFFFF  AAA  N   N      DDDD  EEEEE      ZZZZZ H   H  III
 -- |          F     A   A NN  N      D   D E             Z  H   H   I
