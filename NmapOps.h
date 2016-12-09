@@ -304,6 +304,11 @@ class NmapOps {
             slow against it. If we don't distinguish between closed and filtered ports,
             we can get the list of open ports very fast */
 
+  int defeat_icmp_ratelimit; /* If a host rate-limits ICMP responses, then scanning
+            is very slow against it. This option prevents Nmap to adjust timing
+            when it changes the port's state because of ICMP response, as the latter
+            might be rate-limited. Doing so we can get scan results faster. */
+
   struct in_addr resume_ip; /* The last IP in the log file if user
                                requested --restore .  Otherwise
                                restore_ip.s_addr == 0.  Also

@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#353] New option --defeat-icmp-ratelimit dramatically reduces UDP scan
+  times in exchange for labeling unresponsive (and possibly open) ports as
+  "closed|filtered". Ports which give a UDP protocol response to one of Nmap's
+  scanning payloads will be marked "open". [Sergey Khegay]
+
 o [NSE] Script cics-enum enumerates CICS transaction IDs, mapping to screens in
   TN3270 services. [Soldier of Fortran]
 
