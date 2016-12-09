@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#518] Brute scripts are faster and more accurate. New feedback and
+  adaptivity mechanisms in brute.lua help brute scripts use resources more
+  efficiently, dynamically changing number of threads based on protocol
+  messages like FTP 421 errors, network errors like timeouts, etc.
+  [Sergey Khegay]
+
 o [GH#353] New option --defeat-icmp-ratelimit dramatically reduces UDP scan
   times in exchange for labeling unresponsive (and possibly open) ports as
   "closed|filtered". Ports which give a UDP protocol response to one of Nmap's
