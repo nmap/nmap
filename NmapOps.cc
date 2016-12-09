@@ -323,6 +323,7 @@ void NmapOps::Initialize() {
   open_only = false;
   scanflags = -1;
   defeat_rst_ratelimit = 0;
+  defeat_icmp_ratelimit = 0;
   resume_ip.s_addr = 0;
   osscan_limit = 0;
   osscan_guess = 0;
@@ -554,7 +555,11 @@ dialog where you can start NPF if you have administrator privileges.";
     servicescan = 0;
 
   if (defeat_rst_ratelimit && !synscan) {
-      fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
+    fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
+  }
+
+  if (defeat_icmp_ratelimit && !udpscan) {
+    fatal("Option --defeat-icmp-ratelimit works only with a UDP scan (-sU)");
   }
 
   if (resume_ip.s_addr && generate_random_ips)

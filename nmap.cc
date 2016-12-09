@@ -585,6 +585,8 @@ void parse_options(int argc, char **argv) {
     {"scanflags", required_argument, 0, 0},
     {"defeat_rst_ratelimit", no_argument, 0, 0},
     {"defeat-rst-ratelimit", no_argument, 0, 0},
+    {"defeat_icmp_ratelimit", no_argument, 0, 0},
+    {"defeat-icmp-ratelimit", no_argument, 0, 0},
     {"host_timeout", required_argument, 0, 0},
     {"host-timeout", required_argument, 0, 0},
     {"scan_delay", required_argument, 0, 0},
@@ -835,6 +837,8 @@ void parse_options(int argc, char **argv) {
           delayed_options.pre_scan_delay = l;
         } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
           o.defeat_rst_ratelimit = 1;
+        } else if (optcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
+          o.defeat_icmp_ratelimit = 1;
         } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
           l = tval2msecs(optarg);
           if (l < 0)
