@@ -171,7 +171,7 @@ Comm = {
     end
 
     self.protocol.negotiation = "unrecognized"
-    stdnse.debug1("Second 64 bits from server don't match any known protocol magic: %s", stdnse.tohex(magic, {separator = ":"}))
+    stdnse.debug1("Second 64 bits from server don't match any known protocol magic: %s", stdnse.tohex(rep, {separator = ":"}))
 
     self.socket:close()
     return true
@@ -190,7 +190,7 @@ Comm = {
 
     local status, err = self.socket:send(req)
     if not status then
-      stdnse.debug1("Failed to send attach request for '%s': %s", args.export_name, err)
+      stdnse.debug1("Failed to send attach request for '%s': %s", name, err)
       self:close()
       return
     end
@@ -304,7 +304,7 @@ Comm = {
     end
 
     -- Send the client flags to the server.
-    req = (">I4"):pack(cflags)
+    local req = (">I4"):pack(cflags)
 
     local status, err = self.socket:send(req)
     if not status then
@@ -333,7 +333,7 @@ Comm = {
       return false
     end
 
-    local status, flags = self.sock:receive_buf(match.numbytes(4), true)
+    local status, flags = self.socket:receive_buf(match.numbytes(4), true)
     if not status then
       stdnse.debug1("Failed to receive flags from server: %s", flags)
       self.socket:close()
@@ -347,7 +347,7 @@ Comm = {
       return false
     end
 
-    local status, pad = sock:receive_buf(match.numbytes(124), true)
+    local status, pad = self.socket:receive_buf(match.numbytes(124), true)
     if not status then
       stdnse.debug1("Failed to receive zero pad from server: %s", pad)
       self.socket:close()
@@ -366,7 +366,7 @@ Comm = {
 
   receive_opt_rep = function(self)
     -- Receive the static header of the option.
-    local status, hdr = sock:receive_buf(match.numbytes(20), true)
+    local status, hdr = self.socket:receive_buf(match.numbytes(20), true)
     if not status then
       stdnse.debug1("Failed to receive option reply header: %s", hdr)
       return false
@@ -383,12 +383,12 @@ Comm = {
       return false
     end
 
-    if rlen == 0 then
+    if len == 0 then
       return hdr
     end
 
     -- Receive the variable body of the option.
-    local status, body = sock:receive_buf(match.numbytes(len), true)
+    local status, body = self.socket:receive_buf(match.numbytes(len), true)
     if not status then
       stdnse.debug1("Failed to receive option reply: %s", body)
       return false
@@ -416,6 +416,8 @@ Comm = {
       options = {}
     end
     assert(type(options) == "table")
+
+    local payload = ""
 
     if name == "EXPORT_NAME" then
       assert(options.export_name)
@@ -449,9 +451,9 @@ Comm = {
       return false
     end
 
-    local magic, otype, rtype, len, pos = (">I8I4I4I4"):unpack(buf, pos)
+    local magic, otype, rtype, rlen, pos = (">I8I4I4I4"):unpack(buf, pos)
 
-    if magic ~= NDB.magic.option then
+    if magic ~= NBD.magic.option then
       stdnse.debug1("First 64 bits of option reply don't match expected magic: %s", stdnse.tohex(magic, {separator = ":"}))
       return false
     end
