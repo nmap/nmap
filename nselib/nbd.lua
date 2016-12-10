@@ -183,6 +183,9 @@ Comm = {
   end,
 
   attach = function(self, name)
+    assert(self.protocol.negotiation == "newstyle" or self.protocol.negotiation == "fixed newstyle")
+    assert(type(name) == "string")
+
     local req = self:build_opt_req("EXPORT_NAME", {export_name = name})
 
     local status, err = self.socket:send(req)
