@@ -261,31 +261,6 @@ Comm = {
   receive = function(self)
   end,
 
-  --- Builds an MQTT control packet.
-  --
-  -- @name Comm.build
-  --
-  -- @param type Type of MQTT control packet to build.
-  -- @param options Table of options accepted by the requested type of
-  --        control packet.
-  -- @return status true on success, false on failure.
-  -- @return response String representing a raw control packet on
-  --         success, or containing the error message on failure.
-  build = function(self, type, options)
-  end,
-
-  --- Parses an MQTT control packet.
-  --
-  -- @name Comm.parse
-  --
-  -- @param buf String from which to parse the control packet.
-  -- @param pos Position from which to start parsing.
-  -- @return pos String index on success, false on failure.
-  -- @return response Table representing a control packet on success,
-  --         string containing the error message on failure.
-  parse = function(self, buf, pos)
-  end,
-
   --- Disconnects from the NBD server.
   --
   -- @name Comm.close
