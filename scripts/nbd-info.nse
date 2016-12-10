@@ -66,7 +66,7 @@ action = function(host, port)
   -- oldstyle negotiation, there's no more information to be had.
   if comm.protocol.negotiation == "unrecognized" or comm.protocol.negotiation == "oldstyle" then
     -- Nothing to do.
-    conn:close()
+    comm:close()
 
   -- If the service supports the (non-fixed) newstyle negotiation,
   -- which should be very rare, we can only send a single option. That
