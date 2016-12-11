@@ -106,7 +106,7 @@ NBD = {
 }
 
 Comm = {
-  --- Creates a new Client instance.
+  --- Creates a new client instance.
   --
   -- @name Comm.new
   --
@@ -126,11 +126,7 @@ Comm = {
   -- @name Comm.connect
   --
   -- @return status true on success, false on failure.
-  -- @return err string containing the error message on failure.
-  connect = function(self, options)
-    self.connect_options = options or {}
-    assert(type(options) == "table")
-
+  connect = function(self)
     -- NBD servers send a response when we connect. We are using
     -- tryssl here as a precaution since there are several
     -- implementations of the protocol and no reason it can't be
@@ -148,17 +144,17 @@ Comm = {
 
     if #rep ~= 8 then
       stdnse.debug1("Failed to receive first 64 bits of magic from server: %s", rep)
-      self.socket:close()
+      self:close()
       return false
     end
 
     if rep ~= NBD.magic.init_passwd then
       stdnse.debug1("First 64 bits from server don't match expected magic: %s", stdnse.tohex(rep, {separator = ":"}))
-      self.sock:close()
+      self:close()
       return false
     end
 
-    local status, rep = self.socket:receive_buf(match.numbytes(8), true)
+    local status, rep = self:receive(8)
     if not status then
       stdnse.debug1("Failed to receive second 64 bits of magic from server: %s", rep)
       return false
@@ -166,74 +162,85 @@ Comm = {
 
     if rep == NBD.magic.cliserv_magic_new then
       self.protocol.negotiation = "newstyle"
-      return self:connect_new(options)
+      return self:connect_new()
     end
 
     if rep == NBD.magic.cliserv_magic_old then
       self.protocol.negotiation = "oldstyle"
-      return self:connect_old(options)
+      return self:connect_old()
     end
 
     self.protocol.negotiation = "unrecognized"
     stdnse.debug1("Second 64 bits from server don't match any known protocol magic: %s", stdnse.tohex(rep, {separator = ":"}))
 
-    self.socket:close()
+    self:close()
+
     return true
   end,
 
+  --- Cycles the connection to the server.
+  --
+  -- @name Comm.reconnect
+  --
+  -- @return status true on success, false on failure.
   reconnect = function(self)
     self:close()
     return self:connect(self.connect_options)
   end,
 
+  --- Attaches to an named share on the server.
+  --
+  -- @name Comm.attach
+  --
+  -- @return status true on success, false on failure.
   attach = function(self, name)
     assert(self.protocol.negotiation == "newstyle" or self.protocol.negotiation == "fixed newstyle")
     assert(type(name) == "string")
 
     local req = self:build_opt_req("EXPORT_NAME", {export_name = name})
 
-    local status, err = self.socket:send(req)
+    local status, err = self:send(req)
     if not status then
       stdnse.debug1("Failed to send attach request for '%s': %s", name, err)
       self:close()
       return
     end
 
-    local status, size = self.socket:receive_buf(match.numbytes(8), true)
+    local status, size = self:receive(8)
     if not status then
       stdnse.debug1("Failed to receive response to attach request for '%s': %s", name, size)
-      self.socket:close()
+      self:close()
       return
     end
 
     local size, pos = (">I8"):unpack(size)
     if pos ~= 9 then
       stdnse.debug1("Failed to unpack size of exported block device from server.")
-      self.socket:close()
+      self:close()
       return false
     end
 
-    local status, tflags = self.socket:receive_buf(match.numbytes(2), true)
+    local status, tflags = self:receive(2)
     if not status then
       stdnse.debug1("Failed to receive transmission flags from server while attaching to export: %s", tflags)
-      self.socket:close()
+      self:close()
       return false
     end
 
     local tflags, pos = (">I2"):unpack(tflags)
     if pos ~= 3 then
       stdnse.debug1("Failed to unpack transmission flags from server.")
-      self.socket:close()
+      self:close()
       return false
     end
 
     tflags = self:parse_transmission_flags(tflags)
 
     if self.protocol.zero_pad == "required" then
-      local status, err = self.socket:receive_buf(match.numbytes(124), true)
+      local status, err = self:receive(124)
       if not status then
 	stdnse.debug1("Failed to receive zero pad from server while attaching to export: %s", err)
-	self.socket:close()
+	self:close()
 	return false
       end
     end
@@ -246,40 +253,49 @@ Comm = {
     return true
   end,
 
-  --- Sends an MQTT control packet.
+  --- Sends data to the server
   --
   -- @name Comm.send
   --
-  -- @param pkt String representing a raw control packet.
+  -- @param pkt String containing the bytes to send.
+  --
   -- @return status true on success, false on failure.
   -- @return err string containing the error message on failure.
-  send = function(self, pkt)
+  send = function(self, data)
+    assert(type(data) == "string")
+
+    return self.socket:send(data)
   end,
 
-  --- Receives an MQTT control packet.
+  --- Receives data from the server.
   --
   -- @name Comm.receive
   --
+  -- @param len Number of bytes to receive.
+  --
   -- @return status True on success, false on failure.
-  -- @return response String representing a raw control packet on
-  --         success, string containing the error message on failure.
-  receive = function(self)
+  -- @return response String representing bytes received on success,
+  --         string containing the error message on failure.
+  receive = function(self, len)
+    assert(type(len) == "number")
+
+    return self.socket:receive_buf(match.numbytes(len), true)
   end,
 
-  --- Disconnects from the NBD server.
+  --- Disconnects from the server.
   --
   -- @name Comm.close
   close = function(self)
-    return self.socket:close()
+    assert(self.socket)
+    self.socket:close()
+    self.socket = nil
   end,
 
-  connect_new = function(self, options)
-    assert(type(options) == "table")
-
-    local status, flags = self.socket:receive_buf(match.numbytes(2), true)
+  connect_new = function(self)
+    local status, flags = self:receive(2)
     if not status then
       stdnse.debug1("Failed to receive handshake flags from server: %s", flags)
-      self.socket:close()
+      self:close()
       return false
     end
 
@@ -288,7 +304,7 @@ Comm = {
     local hflags, pos = (">I2"):unpack(flags)
     if pos ~= 3 then
       stdnse.debug1("Failed to unpack handshake flags from server.")
-      self.socket:close()
+      self:close()
       return false
     end
 
@@ -308,51 +324,49 @@ Comm = {
     -- Send the client flags to the server.
     local req = (">I4"):pack(cflags)
 
-    local status, err = self.socket:send(req)
+    local status, err = self:send(req)
     if not status then
       stdnse.debug1("Failed to send client flags: %s", err)
-      self.socket:close()
+      self:close()
       return false
     end
 
     return true
   end,
 
-  connect_old = function(self, options)
-    assert(type(options) == "table")
-
-    local status, size = self.socket:receive_buf(match.numbytes(8), true)
+  connect_old = function(self)
+    local status, size = self:receive(8)
     if not status then
       stdnse.debug1("Failed to receive size of exported block device from server: %s", size)
-      self.socket:close()
+      self:close()
       return false
     end
 
     local size, pos = (">I8"):unpack(size)
     if pos ~= 9 then
       stdnse.debug1("Failed to unpack size of exported block device from server.")
-      self.socket:close()
+      self:close()
       return false
     end
 
-    local status, hflags = self.socket:receive_buf(match.numbytes(4), true)
+    local status, hflags = self:receive(4)
     if not status then
       stdnse.debug1("Failed to receive handshake flags from server: %s", hflags)
-      self.socket:close()
+      self:close()
       return false
     end
 
     local hflags, pos = (">I4"):unpack(hflags)
     if pos ~= 5 then
       stdnse.debug1("Failed to unpack handshake flags from server.")
-      self.socket:close()
+      self:close()
       return false
     end
 
-    local status, pad = self.socket:receive_buf(match.numbytes(124), true)
+    local status, pad = self:receive(124)
     if not status then
       stdnse.debug1("Failed to receive zero pad from server: %s", pad)
-      self.socket:close()
+      self:close()
       return false
     end
 
@@ -366,7 +380,7 @@ Comm = {
 
   receive_opt_rep = function(self)
     -- Receive the static header of the option.
-    local status, hdr = self.socket:receive_buf(match.numbytes(20), true)
+    local status, hdr = self:receive(20)
     if not status then
       stdnse.debug1("Failed to receive option reply header: %s", hdr)
       return false
@@ -389,7 +403,7 @@ Comm = {
     end
 
     -- Receive the variable body of the option.
-    local status, body = self.socket:receive_buf(match.numbytes(len), true)
+    local status, body = self:receive(len)
     if not status then
       stdnse.debug1("Failed to receive option reply: %s", body)
       return false
@@ -398,16 +412,6 @@ Comm = {
     return self:parse_opt_rep(hdr .. body)
   end,
 
-  --- Build an option request message.
-  --
-  -- @name nbd.build_opt_req
-  --
-  -- @param name String naming the option.
-  -- @param options Table of options defined by the option.
-  --
-  -- @return status true on success, false on failure.
-  -- @return response String representing a raw message on success, or
-  --         containing the error message on failure.
   build_opt_req = function(self, name, options)
     assert(type(name) == "string")
     local otype = NBD.opt_req_types[name]
@@ -453,16 +457,6 @@ Comm = {
     return payload
   end,
 
-  --- Parses an option reply message.
-  --
-  -- @name nbd.parse_opt_rep
-  --
-  -- @param buf String from which to parse the reply.
-  -- @param pos Position from which to start parsing.
-  --
-  -- @return pos String index on success, false on failure.
-  -- @return response Table representing a reply on success, string
-  --         containing the error message on failure.
   parse_opt_rep = function(self, buf)
     assert(type(buf) == "string")
 
@@ -584,16 +578,6 @@ Comm = {
     return rep
   end,
 
-  --- Builds a command request message.
-  --
-  -- @name nbd.build_cmd_req
-  --
-  -- @param name String naming the command.
-  -- @param options Table of options defined by the option.
-  --
-  -- @return status true on success, false on failure.
-  -- @return response String representing a raw message on success, or
-  --         containing the error message on failure.
   build_cmd_req = function(self, name, options)
     assert(type(name) == "string")
     if not options then

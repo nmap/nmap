@@ -47,22 +47,6 @@ categories = {"discovery", "intrusive"}
 -- XXX-MAK: The expanded port range is for testing against nmap.kolybabi.com.
 portrule = shortport.version_port_or_service({10807, 10808, 10809}, "nbd", "tcp")
 
-option_exchange = function(comm, req)
-  local status, err = comm.socket:send(req)
-  if not status then
-    stdnse.debug1("Failed to send option request.")
-    return nil
-  end
-
-  local rep = comm:receive_opt_rep()
-  if not rep then
-    stdnse.debug1("Failed to receive option reply.")
-    return nil
-  end
-
-  return rep
-end
-
 enumerate_options = function(comm)
   -- Run the LIST command and store the responses.
   local req = comm:build_opt_req("LIST")
@@ -70,7 +54,7 @@ enumerate_options = function(comm)
     return
   end
 
-  local status, err = comm.socket:send(req)
+  local status, err = comm:send(req)
   if not status then
     stdnse.debug1("Failed to send option request: %s", err)
     return nil
