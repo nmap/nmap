@@ -13,20 +13,61 @@ description = [[
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"discovery", "intrusive"}
 
 portrule = shortport.version_port_or_service(10001, "nbd", "tcp")
 
-fixed_newstyle_connection = function(comm, args)
+option_exchange = function(comm, req)
+  local status, err = comm.socket:send(req)
+  if not status then
+    stdnse.debug1("Failed to send option request.")
+    return nil
+  end
+
+  local rep = comm:receive_opt_rep()
+  if not rep then
+    stdnse.debug1("Failed to receive option reply.")
+    return nil
+  end
+
+  return rep
 end
 
-newstyle_connection = function(comm, args)
-  if type(args.export_name) == "string" then
-    comm:attach(args.export_name)
+enumerate_options = function(comm)
+  -- Run the LIST command and store the responses.
+  local req = comm:build_opt_req("LIST")
+  if not req then
     return
   end
 
-  for i, name in ipairs(args.export_name) do
+  local status, err = comm.socket:send(req)
+  if not status then
+    stdnse.debug1("Failed to send option request: %s", err)
+    return nil
+  end
+
+  while true do
+    local rep = comm:receive_opt_rep()
+    if not rep or rep.rtype_name ~= "SERVER" then
+      break
+    end
+
+    comm.exports[rep.export_name] = {}
+  end
+end
+
+newstyle_connection = function(comm, args)
+  local names = {}
+
+  for _, name in ipairs(args.export_name) do
+    table.insert(names, name)
+  end
+
+  for name, _ in pairs(comm.exports) do
+    table.insert(names, name)
+  end
+
+  for i, name in ipairs(names) do
     if i ~= 1 then
       local status = comm:reconnect()
       if not status then
@@ -45,7 +86,9 @@ local function parse_args()
   if not arg then
     -- An empty string for an export name indicates to the server that
     -- we wish to attach to the default export.
-    arg = ""
+    arg = {}
+  elseif type(arg) ~= table then
+    arg = {arg}
   end
   args.export_name = arg
 
@@ -78,7 +121,7 @@ action = function(host, port)
   -- can perform option haggling to wring additional information from
   -- it.
   elseif comm.protocol.negotiation == "fixed newstyle" then
-    --fixed_newstyle_connection(comm)
+    enumerate_options(comm)
     newstyle_connection(comm, args)
 
   -- Otherwise, we've got a mismatch between the library and this script.
@@ -97,18 +140,22 @@ action = function(host, port)
 
   -- Format exported block device information.
   local tbl = {}
-  local exports = comm.exports or {}
+  local exports = comm.exports
   for name, info in pairs(exports) do
     local exp = {}
-    table.insert(exp, ("Size: %d bytes"):format(info.size))
-
-    local keys = {}
-    for k, _ in pairs(info.flags) do
-      if k ~= "HAS_FLAGS" then
-	table.insert(keys, k)
-      end
+    if type(info.size) ~= "nil" then
+      table.insert(exp, ("Size: %d bytes"):format(info.size))
     end
-    exp["Flags"] = keys
+
+    if type(info.flags) ~= "nil" then
+      local keys = {}
+      for k, _ in pairs(info.flags) do
+	if k ~= "HAS_FLAGS" then
+	  table.insert(keys, k)
+	end
+      end
+      exp["Flags"] = keys
+    end
 
     tbl[name] = exp
   end

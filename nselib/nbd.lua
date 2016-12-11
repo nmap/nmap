@@ -23,81 +23,90 @@ NBD = {
     cliserv_magic_old = string.char(0x00, 0x00, 0x42, 0x02, 0x81, 0x86, 0x12, 0x53),
     cliserv_magic_new = string.char(0x49, 0x48, 0x41, 0x56, 0x45, 0x4F, 0x50, 0x54),
     option            = string.char(0x00, 0x03, 0xE8, 0x89, 0x04, 0x55, 0x65, 0xA9),
-    request           = string.char(0x25, 0x60, 0x95, 0x13),
-    reply             = string.char(0x67, 0x44, 0x66, 0x98),
+    cmd_request       = string.char(0x25, 0x60, 0x95, 0x13),
+    cmd_reply         = string.char(0x67, 0x44, 0x66, 0x98),
   },
 
   handshake_flags = {
-    ["FIXED_NEWSTYLE"] = 0x0001,
-    ["NO_ZEROES"]      = 0x0002,
+    FIXED_NEWSTYLE = 0x0001,
+    NO_ZEROES      = 0x0002,
   },
 
   client_flags = {
-    ["C_FIXED_NEWSTYLE"] = 0x00000001,
-    ["C_NO_ZEROES"]      = 0x00000002,
+    C_FIXED_NEWSTYLE = 0x00000001,
+    C_NO_ZEROES      = 0x00000002,
   },
 
   transmission_flags = {
-    ["HAS_FLAGS"]         = 0x0001,
-    ["READ_ONLY"]         = 0x0002,
-    ["SEND_FLUSH"]        = 0x0004,
-    ["SEND_FUA"]          = 0x0008,
-    ["ROTATIONAL"]        = 0x0010,
-    ["SEND_TRIM"]         = 0x0020,
-    ["SEND_WRITE_ZEROES"] = 0x0040, -- WRITE_ZEROES Extension
-    ["SEND_DF"]           = 0x0080, -- STRUCTURED_REPLY Extension
+    HAS_FLAGS         = 0x0001,
+    READ_ONLY         = 0x0002,
+    SEND_FLUSH        = 0x0004,
+    SEND_FUA          = 0x0008,
+    ROTATIONAL        = 0x0010,
+    SEND_TRIM         = 0x0020,
+    SEND_WRITE_ZEROES = 0x0040, -- WRITE_ZEROES Extension
+    SEND_DF           = 0x0080, -- STRUCTURED_REPLY Extension
   },
 
   opt_req_types = {
-    ["EXPORT_NAME"]      = 0x00000001,
-    ["ABORT"]            = 0x00000002,
-    ["LIST"]             = 0x00000003,
-    ["PEEK_EXPORT"]      = 0x00000004, -- PEEK_EXPORT Extension
-    ["STARTTLS"]         = 0x00000005,
-    ["INFO"]             = 0x00000006, -- INFO Extension
-    ["GO"]               = 0x00000007, -- INFO Extension
-    ["STRUCTURED_REPLY"] = 0x00000008, -- STRUCTURED_REPLY Extension
-    ["BLOCK_SIZE"]       = 0x00000009, -- INFO Extension
+    EXPORT_NAME      = 0x00000001,
+    ABORT            = 0x00000002,
+    LIST             = 0x00000003,
+    PEEK_EXPORT      = 0x00000004, -- PEEK_EXPORT Extension
+    STARTTLS         = 0x00000005,
+    INFO             = 0x00000006, -- INFO Extension
+    GO               = 0x00000007, -- INFO Extension
+    STRUCTURED_REPLY = 0x00000008, -- STRUCTURED_REPLY Extension
+    BLOCK_SIZE       = 0x00000009, -- INFO Extension
   },
 
   opt_rep_types = {
-    ["ACK"]                 = 0x00000001,
-    ["SERVER"]              = 0x00000002,
-    ["INFO"]                = 0x00000003, -- INFO Extension
-    ["ERR_UNSUP"]           = 0xF0000001,
-    ["ERR_POLICY"]          = 0xF0000002,
-    ["ERR_INVALID"]         = 0xF0000003,
-    ["ERR_PLATFORM"]        = 0xF0000004,
-    ["ERR_TLS_REQD"]        = 0xF0000005,
-    ["ERR_UNKNOWN"]         = 0xF0000006, -- INFO Extension
-    ["ERR_SHUTDOWN"]        = 0xF0000007,
-    ["ERR_BLOCK_SIZE_REQD"] = 0xF0000008, -- INFO Extension
+    ACK                 = 0x00000001,
+    SERVER              = 0x00000002,
+    INFO                = 0x00000003, -- INFO Extension
+    ERR_UNSUP           = 0x80000001,
+    ERR_POLICY          = 0x80000002,
+    ERR_INVALID         = 0x80000003,
+    ERR_PLATFORM        = 0x80000004,
+    ERR_TLS_REQD        = 0x80000005,
+    ERR_UNKNOWN         = 0x80000006, -- INFO Extension
+    ERR_SHUTDOWN        = 0x80000007,
+    ERR_BLOCK_SIZE_REQD = 0x80000008, -- INFO Extension
+  },
+
+  opt_rep_ext_types = {
+    info = {
+      EXPORT   	  = 0x0000,
+      NAME     	  = 0x0001,
+      DESCRIPTION = 0x0002,
+      BLOCK_SIZE  = 0x0003,
+    },
   },
 
   cmd_req_flags = {
-    ["FUA"]     = 0x0001,
-    ["NO_HOLE"] = 0x0002, -- WRITE_ZEROES Extension
-    ["DF"]      = 0x0004, -- STRUCTURED_REPLY Extension
+    FUA     = 0x0001,
+    NO_HOLE = 0x0002, -- WRITE_ZEROES Extension
+    DF      = 0x0004, -- STRUCTURED_REPLY Extension
   },
 
   cmd_req_types = {
-    ["READ"]         = 0x0000,
-    ["WRITE"]        = 0x0001,
-    ["DISC"]         = 0x0002,
-    ["FLUSH"]        = 0x0003,
-    ["TRIM"]         = 0x0004,
-    ["CACHE"]        = 0x0005, -- XNBD custom request types
-    ["WRITE_ZEROES"] = 0x0006, -- WRITE_ZEROES Extension
+    READ         = 0x0000,
+    WRITE        = 0x0001,
+    DISC         = 0x0002,
+    FLUSH        = 0x0003,
+    TRIM         = 0x0004,
+    CACHE        = 0x0005, -- XNBD custom request types
+    WRITE_ZEROES = 0x0006, -- WRITE_ZEROES Extension
   },
 
   errors = {
-    ["EPERM"]     = 0x00000001,
-    ["EIO"]       = 0x00000005,
-    ["ENOMEM"]    = 0x0000000C,
-    ["EINVAL"]    = 0x00000016,
-    ["ENOSPC"]    = 0x0000001C,
-    ["EOVERFLOW"] = 0x0000004B,
-    ["ESHUTDOWN"] = 0x0000006C,
+    EPERM     = 0x00000001,
+    EIO       = 0x00000005,
+    ENOMEM    = 0x0000000C,
+    EINVAL    = 0x00000016,
+    ENOSPC    = 0x0000001C,
+    EOVERFLOW = 0x0000004B,
+    ESHUTDOWN = 0x0000006C,
   },
 }
 
@@ -111,7 +120,7 @@ Comm = {
   -- @param options Table.
   -- @return o Instance of Client.
   new = function(self, host, port, options)
-    local o = {host = host, port = port, options = options or {}}
+    local o = {host = host, port = port, options = options or {}, exports = {}}
     setmetatable(o, self)
     self.__index = self
     return o
@@ -234,8 +243,6 @@ Comm = {
       end
     end
 
-    self.exports = self.exports or {}
-
     self.exports[name] = {
       size = size,
       flags = flags
@@ -354,11 +361,9 @@ Comm = {
       return false
     end
 
-    self.exports = {
-      unnamed = {
-	flags = flags,
-	size = size
-      }
+    self.exports["(unnamed)"] = {
+      flags = flags,
+      size = size
     }
 
     return true
@@ -372,19 +377,20 @@ Comm = {
       return false
     end
 
-    local magic, _, _, len, pos = (">I8I4I4I4"):unpack(hdr)
-    if pos ~= 20 then
+    local len, pos = (">I4"):unpack(hdr, 17)
+    if pos ~= 21 then
       stdnse.debug1("Failed to parse option reply header during receive.")
       return false
     end
 
+    local magic = hdr:sub(1, 8)
     if magic ~= NBD.magic.option then
       stdnse.debug1("First 64 bits of option reply don't match expected magic: %s", stdnse.tohex(magic, {separator = ":"}))
       return false
     end
 
     if len == 0 then
-      return hdr
+      return self:parse_opt_rep(hdr)
     end
 
     -- Receive the variable body of the option.
@@ -394,7 +400,7 @@ Comm = {
       return false
     end
 
-    return hdr .. body
+    return self:parse_opt_rep(hdr .. body)
   end,
 
   --- Build an option request message.
@@ -422,9 +428,34 @@ Comm = {
     if name == "EXPORT_NAME" then
       assert(options.export_name)
       payload = options.export_name
+    elseif name == "INFO" or name == "GO" then
+      payload = self:build_opt_ext_info_req(name, options)
     end
 
-    return NBD.magic.cliserv_magic_new .. (">I4I4"):pack(otype, #payload) .. payload
+    return NBD.magic.cliserv_magic_new .. (">I4s4"):pack(otype, payload)
+  end,
+
+  build_opt_ext_info_req = function(self, name, options)
+    assert(type(name) == "string")
+    local otype = NBD.opt_req_types[name]
+    assert(otype)
+
+    if not options then
+      options = {}
+    end
+    assert(type(options) == "table")
+
+    local payload = ""
+
+    if name == "INFO" or name == "GO" then
+      -- XXX-MAK: WTF is with the second field? Spec is unclear.
+      payload = (">I2I2"):pack(#options.export_names, #options.export_names)
+      for i, name in ipairs(options.export_names) do
+	payload = payload .. (">s4"):format(name)
+      end
+    end
+
+    return payload
   end,
 
   --- Parses an option reply message.
@@ -437,7 +468,71 @@ Comm = {
   -- @return pos String index on success, false on failure.
   -- @return response Table representing a reply on success, string
   --         containing the error message on failure.
-  parse_opt_rep = function(self, buf, pos)
+  parse_opt_rep = function(self, buf)
+    assert(type(buf) == "string")
+
+    if 20 - 1 > #buf then
+      stdnse.debug1("Buffer is too short to be parsed as an option reply.")
+      return false
+    end
+
+    local magic, otype, rtype, rlen, pos = (">c8I4I4I4"):unpack(buf)
+
+    if magic ~= NBD.magic.option then
+      stdnse.debug1("First 64 bits of option reply don't match expected magic: %s", stdnse.tohex(magic, {separator = ":"}))
+      return false
+    end
+
+    local otype_name = find_key(NBD.opt_req_types, otype)
+    local rtype_name = find_key(NBD.opt_rep_types, rtype)
+
+    local rep = {
+      otype      = otype,
+      otype_name = otype_name,
+      rtype      = rtype,
+      rtype_name = rtype_name,
+    }
+
+    if pos + rlen - 1 > #buf then
+      stdnse.debug1("Option reply payload length extends past end of buffer.")
+      return false
+    end
+
+    if rtype_name == "ACK" then
+      return rep
+    end
+
+    if rtype_name == "SERVER" then
+      if rlen < 4 then
+	stdnse.debug1("SERVER option reply payload length must be 4 or greater, but is %d.", rlen)
+	return false
+      end
+
+      local nlen, pos = (">I4"):unpack(buf, pos)
+      if pos + nlen - 1 > #buf then
+	stdnse.debug1("SERVER option reply payload name length extends past end of buffer.")
+	return false
+      end
+
+      -- An empty name represents the default export.
+      local name = ""
+      if nlen > 0 then
+	name = buf:sub(pos, pos + nlen - 1)
+	pos = pos + nlen
+      end
+      rep.export_name = name
+
+      return rep
+    end
+
+    if rtype_name == "INFO" then
+      return self:parse_opt_ext_info_rep(buf, pos, rep)
+    end
+
+    return rep
+  end,
+
+  parse_opt_ext_info_rep = function(self, buf, pos, rep)
     assert(type(buf) == "string")
 
     if not pos or pos == 0 then
@@ -446,52 +541,52 @@ Comm = {
     assert(type(pos) == "number")
     assert(pos <= #buf)
 
-    if pos + 20 > #buf then
-      stdnse.debug1("Buffer is too short to be parsed as an option reply.")
-      return false
-    end
+    local ftype, pos = (">I2"):unpack(buf, pos)
+    local ftype_name = find_key(NBD.opt_rep_ext_types.info, ftype)
 
-    local magic, otype, rtype, rlen, pos = (">I8I4I4I4"):unpack(buf, pos)
+    rep.ftype = ftype
+    rep.ftype_name = ftype_name
 
-    if magic ~= NBD.magic.option then
-      stdnse.debug1("First 64 bits of option reply don't match expected magic: %s", stdnse.tohex(magic, {separator = ":"}))
-      return false
-    end
-
-    local otype_name = NBD.opt_req_types[otype]
-    local rtype_name = NBD.opt_rep_types[rtype]
-
-    local res = {
-      ["otype"]      = otype,
-      ["otype_name"] = otype_name,
-      ["rtype"]      = rtype,
-      ["rtype_name"] = rtype_name,
-    }
-
-    if rlen == 0 then
-      return res, pos
-    end
-
-    if otype_name == "ACK" then
-      -- No payload.
-    elseif otype_name == "SERVER" then
-      if pos + rlen - 1 > #buf then
-	return false, "Option reply payload length extends past end of buffer."
+    if ftype_name == "EXPORT" then
+      if pos + 10 - 1 > #buf then
+	stdnse.debug1("INFO option EXPORT field buffer too small.")
+	return false
       end
 
-      if rlen < 4 then
-	return false, ("Option reply payload length must be 4 or greater, but is %d."):format(rlen)
-      end
+      local size, tflags = (">I8I2"):unpack(buf, pos)
+      rep.size = size
+      rep.tflags = self:parse_transmission_flags(tflags)
 
-      local nlen, pos = (">I4"):unpack(buf, pos)
-      if nlen > 0 then
-	res["export_name"] = buf:sub(pos, pos + nlen - 1)
-	pos = pos + nlen
-      end
-    elseif otype_name == "INFO" then
+      return rep
     end
 
-    return res, pos
+    if ftype_name == "NAME" then
+      rep.export_name = buf:sub(pos, #buf - 1)
+
+      return rep
+    end
+
+    if ftype_name == "DESCRIPTION" then
+      rep.export_desc = buf:sub(pos, #buf - 1)
+
+      return rep
+    end
+
+    if ftype_name == "BLOCK_SIZE" then
+      if pos + 12 - 1 > #buf then
+	stdnse.debug1("INFO option BLOCK_SIZE field buffer too small.")
+	return false
+      end
+
+      local min, pref, max = (">I4I4I4"):unpack(buf, pos)
+      rep.block_size_min = min
+      rep.block_size_pref = pref
+      rep.block_size_max = max
+
+      return rep
+    end
+
+    return rep
   end,
 
   --- Builds a command request message.
@@ -551,5 +646,18 @@ Comm = {
     return tbl
   end,
 }
+
+find_key = function(tbl, val)
+  assert(type(tbl) == "table")
+  assert(val ~= nil)
+
+  for k, v in pairs(tbl) do
+    if v == val then
+      return k
+    end
+  end
+
+  return nil
+end
 
 return _ENV;
