@@ -1,5 +1,4 @@
 local nbd = require "nbd"
-local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"

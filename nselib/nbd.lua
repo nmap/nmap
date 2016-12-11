@@ -1,12 +1,7 @@
-local bin = require "bin"
-local bit = require "bit"
 local comm = require "comm"
 local match = require "match"
-local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
-local unittest = require "unittest"
 
 _ENV = stdnse.module("nbd", stdnse.seeall)
 
