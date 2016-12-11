@@ -5,17 +5,48 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
+Displays protocol and block device information from NBD servers.
+
+The Network Block Device protocol is used to publish block devices
+over TCP. This script connects to an NBD server and attempts to pull
+down a list of exported block devices and their details
+
+For additional information:
+* https://github.com/NetworkBlockDevice/nbd/blob/master/doc/proto.md
 ]]
 
 ---
 -- @usage nmap -p 10809 --script nbd-info <target>
 --
+-- @output
+-- PORT      STATE SERVICE REASON
+-- 10809/tcp open  nbd     syn-ack
+-- | nbd-info:
+-- |   Protocol:
+-- |     Negotiation: fixed newstyle
+-- |     SSL/TLS Wrapped: false
+-- |   Exported Block Devices:
+-- |     foo:
+-- |       Size: 1048576 bytes
+-- |       Transmission Flags:
+-- |         SEND_FLUSH
+-- |         READ_ONLY
+-- |         SEND_FUA
+-- |     bar:
+-- |       Size: 1048576 bytes
+-- |       Transmission Flags:
+-- |         READ_ONLY
+-- |_        ROTATIONAL
+--
+-- @args nbd-info.export_names Either a single name, or a table of
+-- names to about which to request information from the server.
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-portrule = shortport.version_port_or_service(10001, "nbd", "tcp")
+-- XXX-MAK: The expanded port range is for testing against nmap.kolybabi.com.
+portrule = shortport.version_port_or_service({10807, 10808, 10809}, "nbd", "tcp")
 
 option_exchange = function(comm, req)
   local status, err = comm.socket:send(req)
@@ -54,6 +85,9 @@ enumerate_options = function(comm)
 
     comm.exports[rep.export_name] = {}
   end
+
+  -- If an implementation is found that uses the INFO extension, add
+  -- code here to query the exports with the INFO option.
 end
 
 newstyle_connection = function(comm, args)
@@ -82,7 +116,7 @@ end
 local function parse_args()
   local args = {}
 
-  local arg = stdnse.get_script_args(SCRIPT_NAME .. ".export-name")
+  local arg = stdnse.get_script_args(SCRIPT_NAME .. ".export-names")
   if not arg then
     -- An empty string for an export name indicates to the server that
     -- we wish to attach to the default export.
@@ -102,7 +136,7 @@ action = function(host, port)
 
   local status = comm:connect(args)
   if not status then
-     return false
+     return nil
   end
 
   -- If the service supports an unrecognized negotiation, or the
@@ -134,33 +168,40 @@ action = function(host, port)
 
   -- Format protocol information.
   local tbl = {}
+  if comm.protocol.negotiation == "oldstyle" and comm.exports["(default)"] then
+    if comm.exports["(default)"].hflags & nbd.NBD.handshake_flags.FIXED_NEWSTYLE then
+      table.insert(tbl, "The server software appears to support fixed newstyle negotiation, but not on this port.")
+    end
+  end
   table.insert(tbl, ("Negotiation: %s"):format(comm.protocol.negotiation))
   table.insert(tbl, ("SSL/TLS Wrapped: %s"):format(comm.protocol.ssl_tls))
+
   output["Protocol"] = tbl
 
   -- Format exported block device information.
   local tbl = {}
-  local exports = comm.exports
-  for name, info in pairs(exports) do
+  local no_shares = true
+  for name, info in pairs(comm.exports) do
     local exp = {}
-    if type(info.size) ~= "nil" then
+    if type(info.size) == "number" then
       table.insert(exp, ("Size: %d bytes"):format(info.size))
     end
 
-    if type(info.flags) ~= "nil" then
+    if type(info.tflags) == "table" then
       local keys = {}
-      for k, _ in pairs(info.flags) do
+      for k, _ in pairs(info.tflags) do
 	if k ~= "HAS_FLAGS" then
 	  table.insert(keys, k)
 	end
       end
-      exp["Flags"] = keys
+      exp["Transmission Flags"] = keys
     end
 
+    no_shares = false
     tbl[name] = exp
   end
 
-  if comm.exports then
+  if not no_shares then
     output["Exported Block Devices"] = tbl
   end
 

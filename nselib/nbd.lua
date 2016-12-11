@@ -218,21 +218,21 @@ Comm = {
       return false
     end
 
-    local status, flags = self.socket:receive_buf(match.numbytes(2), true)
+    local status, tflags = self.socket:receive_buf(match.numbytes(2), true)
     if not status then
-      stdnse.debug1("Failed to receive transmission flags from server while attaching to export: %s", flags)
+      stdnse.debug1("Failed to receive transmission flags from server while attaching to export: %s", tflags)
       self.socket:close()
       return false
     end
 
-    local flags, pos = (">I2"):unpack(flags)
+    local tflags, pos = (">I2"):unpack(tflags)
     if pos ~= 3 then
       stdnse.debug1("Failed to unpack transmission flags from server.")
       self.socket:close()
       return false
     end
 
-    flags = self:parse_transmission_flags(flags)
+    tflags = self:parse_transmission_flags(tflags)
 
     if self.protocol.zero_pad == "required" then
       local status, err = self.socket:receive_buf(match.numbytes(124), true)
@@ -245,7 +245,7 @@ Comm = {
 
     self.exports[name] = {
       size = size,
-      flags = flags
+      tflags = tflags,
     }
 
     return true
@@ -340,16 +340,16 @@ Comm = {
       return false
     end
 
-    local status, flags = self.socket:receive_buf(match.numbytes(4), true)
+    local status, hflags = self.socket:receive_buf(match.numbytes(4), true)
     if not status then
-      stdnse.debug1("Failed to receive flags from server: %s", flags)
+      stdnse.debug1("Failed to receive handshake flags from server: %s", hflags)
       self.socket:close()
       return false
     end
 
-    local flags, pos = (">I4"):unpack(flags)
+    local hflags, pos = (">I4"):unpack(hflags)
     if pos ~= 5 then
-      stdnse.debug1("Failed to unpack flags from server.")
+      stdnse.debug1("Failed to unpack handshake flags from server.")
       self.socket:close()
       return false
     end
@@ -361,9 +361,9 @@ Comm = {
       return false
     end
 
-    self.exports["(unnamed)"] = {
-      flags = flags,
-      size = size
+    self.exports["(default)"] = {
+      size = size,
+      hflags = hflags,
     }
 
     return true
