@@ -112,10 +112,10 @@ Comm = {
   --
   -- @param host Table as received by the action method.
   -- @param port Table as received by the action method.
-  -- @param options Table.
+  --
   -- @return o Instance of Client.
-  new = function(self, host, port, options)
-    local o = {host = host, port = port, options = options or {}, exports = {}}
+  new = function(self, host, port)
+    local o = {host = host, port = port, exports = {}}
     setmetatable(o, self)
     self.__index = self
     return o
