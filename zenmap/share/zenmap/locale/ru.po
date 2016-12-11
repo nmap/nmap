@@ -6,23 +6,24 @@ msgstr ""
 "Project-Id-Version: Zenmap\n"
 "Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2014-10-23 15:14+0000\n"
-"PO-Revision-Date: 2009-08-18 12:45+0400\n"
-"Last-Translator:  <spxnezzar@gmail.com>\n"
+"PO-Revision-Date: 2016-08-03 22:54+0300\n"
+"Last-Translator: spxnezzar@gmail.com\n"
 "Language-Team: Russian\n"
-"Language: \n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.8.8\n"
 
 #: zenmapCore/NmapParser.py:380
 msgid "Unknown Host"
-msgstr "Неизвестный порт"
+msgstr "Неизвестный узел"
 
 #: zenmapCore/NmapParser.py:421
 msgid "unknown"
-msgstr "Неизвестно"
+msgstr "неизвестно"
 
 #: zenmapCore/NmapParser.py:424
 msgid "Unknown version"
@@ -46,6 +47,8 @@ msgstr "Нет модуля с названием dbapi2.pysqlite2 или sqlite
 #, python-format
 msgid "Use DIR as the user configuration directory. Default: %default"
 msgstr ""
+"Использовать DIR в качестве конфигурационной папки пользователя. По "
+"умолчанию: %default"
 
 #: zenmapCore/UmitOptionParser.py:154
 msgid ""
@@ -63,8 +66,8 @@ msgid ""
 "Begin with the specified profile selected. If combined with the -t (--"
 "target) option, automatically run the profile against the specified target."
 msgstr ""
-"Начать с выбранным профилем. Если используется вместе с опцией -t (--target)"
-"автоматически запускается с указанной целью."
+"Начать с выбранным профилем. Если используется вместе с опцией -t (--"
+"target)автоматически запускается с указанной целью."
 
 #: zenmapCore/UmitOptionParser.py:184
 msgid ""
@@ -90,6 +93,8 @@ msgstr "Требуется Python 2.4 или старше"
 msgid ""
 "There was an error getting the list of scripts from Nmap. Try upgrading Nmap."
 msgstr ""
+"Возникла ошибка при получении списка скриптов для Nmap. Попробуйте обновить "
+"Nmap."
 
 #: zenmapGUI/ScriptInterface.py:467
 msgid ""
@@ -118,7 +123,7 @@ msgstr ""
 
 #: zenmapGUI/ScriptInterface.py:483
 msgid "Please wait."
-msgstr ""
+msgstr "Подождите..."
 
 #: zenmapGUI/ScriptInterface.py:507
 msgid "Names"
@@ -134,7 +139,7 @@ msgstr ""
 
 #: zenmapGUI/FilterBar.py:24
 msgid "Host Filter:"
-msgstr "Фильтр хостов:"
+msgstr "Фильтр узлов:"
 
 #: zenmapGUI/FilterBar.py:57
 msgid ""
@@ -158,7 +163,7 @@ msgstr ""
 
 #: zenmapGUI/ScanHostsView.py:168
 msgid "Hosts"
-msgstr "Хосты"
+msgstr "Узлы"
 
 #: zenmapGUI/ScanHostsView.py:169 radialnet/gui/NodeNotebook.py:196
 msgid "Services"
@@ -170,7 +175,7 @@ msgstr "ОС"
 
 #: zenmapGUI/ScanHostsView.py:181 zenmapGUI/ScanOpenPortsPage.py:230
 msgid "Host"
-msgstr "Хост"
+msgstr "Узел"
 
 #: zenmapGUI/ScanHostsView.py:189 zenmapGUI/ScanOpenPortsPage.py:235
 #: zenmapGUI/ScanOpenPortsPage.py:258 radialnet/gui/NodeNotebook.py:133
@@ -196,7 +201,7 @@ msgid ""
 "was\n"
 "%s"
 msgstr ""
-"Файл не соответсвует формату выходного Nmap XML файла. Ошибка:\n"
+"Файл не соответствует формату выходного Nmap XML файла. Ошибка:\n"
 "%s"
 
 #: zenmapGUI/DiffCompare.py:268
@@ -210,6 +215,8 @@ msgid ""
 "file:\n"
 "                            %s"
 msgstr ""
+"                            Ошибка при открытии файла:\n"
+"                            %s"
 
 #: zenmapGUI/DiffCompare.py:314 zenmapGUI/MainWindow.py:341
 msgid "Compare Results"
@@ -323,11 +330,11 @@ msgstr "Закрыть это окно сканирования"
 
 #: zenmapGUI/MainWindow.py:296
 msgid "Print..."
-msgstr ""
+msgstr "Печать..."
 
 #: zenmapGUI/MainWindow.py:298
 msgid "Print the current scan"
-msgstr ""
+msgstr "Печать текущего отчета"
 
 #: zenmapGUI/MainWindow.py:303
 msgid "Quit"
@@ -355,11 +362,11 @@ msgstr "Искать результат сканирования"
 
 #: zenmapGUI/MainWindow.py:324 zenmapGUI/ScanInterface.py:917
 msgid "Filter Hosts"
-msgstr "Фильтр хостов"
+msgstr "Фильтр узлов"
 
 #: zenmapGUI/MainWindow.py:326
 msgid "Search for host by criteria"
-msgstr "Искать хост по критериям"
+msgstr "Искать узел по критериям"
 
 #: zenmapGUI/MainWindow.py:331
 msgid "_Edit Selected Profile"
@@ -404,7 +411,7 @@ msgstr "Показать помощь по приложению"
 
 #: zenmapGUI/MainWindow.py:474
 msgid "Can't save to database"
-msgstr ""
+msgstr "Не возможно сохранить в базу данных"
 
 #: zenmapGUI/MainWindow.py:475
 #, python-format
@@ -412,6 +419,8 @@ msgid ""
 "Can't store unsaved scans to the recent scans database:\n"
 "%s"
 msgstr ""
+"Не возможно сохранить несохраненные отчеты в базе последних отчетов:\n"
+"%s"
 
 #: zenmapGUI/MainWindow.py:600
 msgid "Error loading file"
@@ -488,6 +497,8 @@ msgid ""
 "The given scan has unsaved changes.\n"
 "What do you want to do?"
 msgstr ""
+"У выбранного сканирования есть не сохраненные изменения. \n"
+"Что вы хотите сделать?"
 
 #: zenmapGUI/MainWindow.py:871
 msgid "Trying to close"
@@ -498,6 +509,8 @@ msgid ""
 "The window you are trying to close has a scan running in the background.\n"
 "What do you want to do?"
 msgstr ""
+"В окне, которое вы путаетесь закрыть, запущено фоновое сканирование. \n"
+"Что вы хотете сделать?"
 
 #: zenmapGUI/MainWindow.py:946
 msgid "Can't find documentation files"
@@ -522,12 +535,16 @@ msgid ""
 "exist. Please check the profile name or type the nmap command you would like "
 "to execute."
 msgstr ""
+"Нет команды для выполнения. Возможно выбраный/указанный профиль не "
+"существует. Проверьте профиль или тип команды, которую вы хотите выполнить."
 
 #: zenmapGUI/ScanInterface.py:543
 msgid ""
 "This means that the nmap executable was not found in your system PATH, which "
 "is"
 msgstr ""
+"Это означает, что исполняемый файл Nmap не был найден в вашей системе по "
+"путям в переменной PATH."
 
 #: zenmapGUI/ScanInterface.py:545
 msgid "<undefined>"
@@ -562,7 +579,7 @@ msgstr ""
 
 #: zenmapGUI/ScanInterface.py:647
 msgid "Cannot merge scan"
-msgstr ""
+msgstr "Не могу объеденить сканирования"
 
 #: zenmapGUI/ScanInterface.py:649
 #, python-format
@@ -571,11 +588,14 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Произошла ошибка при слиянии новых отчетов XML:\n"
+"\n"
+"%s"
 
 #: zenmapGUI/ScanInterface.py:738
 #, python-format
 msgid "%d/%d hosts shown"
-msgstr "%d/%d хостов показано"
+msgstr "%d/%d узлов показано"
 
 #: zenmapGUI/ScanInterface.py:967
 msgid "Nmap Output"
@@ -583,7 +603,7 @@ msgstr "Вывод Nmap"
 
 #: zenmapGUI/ScanInterface.py:968
 msgid "Ports / Hosts"
-msgstr "Порты / Хосты"
+msgstr "Порты / Узлы"
 
 #: zenmapGUI/ScanInterface.py:969
 msgid "Topology"
@@ -591,7 +611,7 @@ msgstr "Топология"
 
 #: zenmapGUI/ScanInterface.py:970
 msgid "Host Details"
-msgstr "Детали хоста"
+msgstr "Детали узла"
 
 #: zenmapGUI/ScanInterface.py:971
 msgid "Scans"
@@ -599,7 +619,7 @@ msgstr "Сканирование"
 
 #: zenmapGUI/ScanInterface.py:992
 msgid "No host selected."
-msgstr "Не выбран хост"
+msgstr "Узел не выбран"
 
 #: zenmapGUI/ScanOpenPortsPage.py:232 zenmapGUI/ScanOpenPortsPage.py:262
 #: radialnet/gui/NodeNotebook.py:133
@@ -623,7 +643,7 @@ msgstr "Версия"
 
 #: zenmapGUI/ScanOpenPortsPage.py:260 radialnet/gui/NodeNotebook.py:144
 msgid "Hostname"
-msgstr "Имя хоста"
+msgstr "Имя узла"
 
 #: zenmapGUI/BugReport.py:141
 msgid "How to Report a Bug"
@@ -734,8 +754,8 @@ msgstr ""
 "<b>open: (op:)</b> - Найденые открытые порты\n"
 "<b>closed: (cp:)</b> - Найденые закрытые порты\n"
 "<b>filtered: (fp:)</b> - Найденые отфильтрованные порты\n"
-"<b>unfiltered: (ufp:)</b> - Неотфильтрованные порты найденые при сканировании"
-"(например ACK сканирование)\n"
+"<b>unfiltered: (ufp:)</b> - Неотфильтрованные порты найденые при "
+"сканировании(например ACK сканирование)\n"
 "<b>open|filtered: (ofp:)</b> - Порты в состоянии \"открыт|отфильтрован\"\n"
 "<b>closed|filtered: (cfp:)</b> - Порты в состоянии \"закрыт|отфильтрован\"\n"
 "<b>service: (s:)</b> - Все поля связанные с сервисами\n"
@@ -771,15 +791,15 @@ msgstr "Закончено:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:186
 msgid "Hosts up:"
-msgstr "Хостов включено:"
+msgstr "Узлов включено:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:189
 msgid "Hosts down:"
-msgstr "Хостов отключено:"
+msgstr "Узлов отключено:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:192
 msgid "Hosts scanned:"
-msgstr "Хостов просканировано:"
+msgstr "Узлов просканировано:"
 
 #: zenmapGUI/ScanRunDetailsPage.py:195 zenmapGUI/ScanHostDetailsPage.py:205
 msgid "Open ports:"
@@ -869,11 +889,11 @@ msgstr "дата"
 
 #: zenmapGUI/NmapOutputProperties.py:176
 msgid "hostname"
-msgstr "имя хоста"
+msgstr "имя узла"
 
 #: zenmapGUI/NmapOutputProperties.py:177
 msgid "ip"
-msgstr ""
+msgstr "ip"
 
 #: zenmapGUI/NmapOutputProperties.py:221
 msgid "Highlight definitions"
@@ -898,7 +918,7 @@ msgstr "цвет подсветки"
 #: zenmapGUI/About.py:197
 #, python-format
 msgid "About %s and %s"
-msgstr "О программах %s и %s"
+msgstr "О %s и %s"
 
 #: zenmapGUI/About.py:216
 #, python-format
@@ -922,7 +942,9 @@ msgstr ""
 #, python-format
 msgid ""
 "%s is an %s GUI created as part of the Nmap/Google Summer of Code program."
-msgstr "%s это %s GUI, созданное как часть Nmap/Google Summer of code program."
+msgstr ""
+"%s это графический интерфейс для %s созданный в рамках программы Nmap/Google "
+"Summer of Code."
 
 #: zenmapGUI/About.py:229 zenmapGUI/About.py:272
 #, python-format
@@ -951,7 +973,7 @@ msgstr "Перевод"
 
 #: zenmapGUI/About.py:324
 msgid "Maemo"
-msgstr ""
+msgstr "Maemo"
 
 #: zenmapGUI/ScanScanListPage.py:134
 msgid "Running"
@@ -991,7 +1013,7 @@ msgstr "Отменить сканирование"
 
 #: zenmapGUI/TopologyPage.py:180
 msgid "Show the topology anyway"
-msgstr ""
+msgstr "В любом случае показать топологию"
 
 #: zenmapGUI/TopologyPage.py:213
 #, python-format
@@ -999,6 +1021,8 @@ msgid ""
 "Topology is disabled because too many hosts can cause it\n"
 "to run slowly. The limit is %d hosts and there are %d."
 msgstr ""
+"Топология отключена, т.к. слишком большое количество узлов\n"
+"приведет к замедлению. Ограничение - %d узлов. В топологии - %d."
 
 #: zenmapGUI/FileChoosers.py:137
 #, python-format
@@ -1013,19 +1037,19 @@ msgstr "Nmap XML файлы (%s)"
 #: zenmapGUI/FileChoosers.py:157
 #, python-format
 msgid "NSE scripts (%s)"
-msgstr ""
+msgstr "NSE скрипты (%s)"
 
 #: zenmapGUI/FileChoosers.py:237 radialnet/gui/SaveDialog.py:130
 msgid "By extension"
-msgstr ""
+msgstr "По расширению"
 
 #: zenmapGUI/FileChoosers.py:238
 msgid "Nmap XML format (.xml)"
-msgstr ""
+msgstr "XML-формат nmap (.xml)"
 
 #: zenmapGUI/FileChoosers.py:239
 msgid "Nmap text format (.nmap)"
-msgstr ""
+msgstr "Текстовый формат nmap (.nmap)"
 
 #: zenmapGUI/FileChoosers.py:268 radialnet/gui/SaveDialog.py:167
 msgid "Select File Type:"
@@ -1073,7 +1097,7 @@ msgstr "Необходимо указать имя для профиля."
 
 #: zenmapGUI/ProfileEditor.py:386
 msgid "Disallowed profile name"
-msgstr ""
+msgstr "Недопустимое имя профиля"
 
 #: zenmapGUI/ProfileEditor.py:387
 #, python-format
@@ -1082,6 +1106,8 @@ msgid ""
 "underlying ConfigParser used to store profiles does not allow it.) Choose a "
 "different name."
 msgstr ""
+"Извините, имя \"%s\" не допустимо по техническим ограниениям. (Используемый "
+"парсер не может использовать это имя) Выберите другое имя."
 
 #: zenmapGUI/ProfileEditor.py:412
 msgid "Deleting Profile"
@@ -1092,6 +1118,8 @@ msgid ""
 "Your profile is going to be deleted! ClickOk to continue, or Cancel to go "
 "back to Profile Editor."
 msgstr ""
+"Ваш профиль будет удален! Нажмите OK для продолжения, или Отмену для "
+"возвращения в редактор профиля."
 
 #: zenmapGUI/SearchWindow.py:148
 msgid "Search Scans"
@@ -1162,7 +1190,7 @@ msgstr "Не root-пользователь"
 
 #: zenmapGUI/ScanHostDetailsPage.py:186
 msgid "Host Status"
-msgstr "Статус хоста"
+msgstr "Статус узла"
 
 #: zenmapGUI/ScanHostDetailsPage.py:187
 msgid "Addresses"
@@ -1170,7 +1198,7 @@ msgstr "Адреса"
 
 #: zenmapGUI/ScanHostDetailsPage.py:188
 msgid "Hostnames"
-msgstr "Имена хоста"
+msgstr "Имена узла"
 
 #: zenmapGUI/ScanHostDetailsPage.py:189 radialnet/gui/NodeNotebook.py:432
 msgid "Operating System"
@@ -1182,7 +1210,7 @@ msgstr "Используемые порты"
 
 #: zenmapGUI/ScanHostDetailsPage.py:192
 msgid "OS Classes"
-msgstr ""
+msgstr "Семейство ОС"
 
 #: zenmapGUI/ScanHostDetailsPage.py:193
 msgid "TCP Sequence"
@@ -1218,15 +1246,15 @@ msgstr "Последняя загрузка:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:224
 msgid "IPv4:"
-msgstr ""
+msgstr "IPv4:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:227
 msgid "IPv6:"
-msgstr ""
+msgstr "IPv6:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:230
 msgid "MAC:"
-msgstr ""
+msgstr "MAC:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:233
 msgid "Vendor:"
@@ -1250,7 +1278,7 @@ msgstr "Точность:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:410
 msgid "Port-Protocol-State:"
-msgstr ""
+msgstr "Порт-Протокол-Состояние"
 
 #: zenmapGUI/ScanHostDetailsPage.py:424 radialnet/gui/NodeNotebook.py:157
 msgid "Type"
@@ -1278,7 +1306,7 @@ msgstr "Сложность:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:460
 msgid "Index:"
-msgstr ""
+msgstr "Индекс:"
 
 #: zenmapGUI/ScanHostDetailsPage.py:463 zenmapGUI/ScanHostDetailsPage.py:482
 #: zenmapGUI/ScanHostDetailsPage.py:501
@@ -1291,7 +1319,7 @@ msgstr "Класс:"
 
 #: radialnet/gui/Toolbar.py:153
 msgid "Hosts viewer"
-msgstr "Просмотр хостов"
+msgstr "Просмотр узлов"
 
 #: radialnet/gui/Toolbar.py:222
 msgid "Save Graphic"
@@ -1299,7 +1327,7 @@ msgstr "Сохранить изображение"
 
 #: radialnet/gui/Toolbar.py:225 radialnet/gui/HostsViewer.py:147
 msgid "Hosts Viewer"
-msgstr "Просмотр хостов"
+msgstr "Просмотр узлов"
 
 #: radialnet/gui/Toolbar.py:229
 msgid "Controls"
@@ -1311,7 +1339,7 @@ msgstr ""
 
 #: radialnet/gui/Toolbar.py:314
 msgid "Error saving snapshot"
-msgstr ""
+msgstr "Ошибка при сохранении снапшота"
 
 #: radialnet/gui/NodeNotebook.py:133
 msgid "Method"
@@ -1327,15 +1355,15 @@ msgstr "Причина"
 
 #: radialnet/gui/NodeNotebook.py:144
 msgid "TTL"
-msgstr ""
+msgstr "TTL"
 
 #: radialnet/gui/NodeNotebook.py:144
 msgid "RTT"
-msgstr ""
+msgstr "RTT"
 
 #: radialnet/gui/NodeNotebook.py:144
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 #: radialnet/gui/NodeNotebook.py:147
 #, python-format
@@ -1398,7 +1426,7 @@ msgstr "<специальное поле>"
 #: radialnet/gui/NodeNotebook.py:389
 #, python-format
 msgid "Extraports (%s)"
-msgstr ""
+msgstr "Дополнительные порты (%s)"
 
 #: radialnet/gui/NodeNotebook.py:396
 msgid "Special fields"
@@ -1426,7 +1454,7 @@ msgstr "Адрес:"
 
 #: radialnet/gui/NodeNotebook.py:463
 msgid "Hostname:"
-msgstr "Имя хоста:"
+msgstr "Имя узла:"
 
 #: radialnet/gui/NodeNotebook.py:487
 #, python-format
@@ -1447,7 +1475,7 @@ msgstr "Используемые порты"
 
 #: radialnet/gui/NodeNotebook.py:632
 msgid "Fingerprint"
-msgstr ""
+msgstr "Отпечаток"
 
 #: radialnet/gui/NodeNotebook.py:652
 msgid "Values"
@@ -1455,7 +1483,7 @@ msgstr "Значения"
 
 #: radialnet/gui/NodeNotebook.py:654
 msgid "TCP *"
-msgstr ""
+msgstr "TCP *"
 
 #: radialnet/gui/NodeNotebook.py:655
 msgid "IP ID"
@@ -1467,19 +1495,19 @@ msgstr ""
 
 #: radialnet/gui/SaveDialog.py:131
 msgid "PDF"
-msgstr ""
+msgstr "PDF"
 
 #: radialnet/gui/SaveDialog.py:132
 msgid "PNG"
-msgstr ""
+msgstr "PNG"
 
 #: radialnet/gui/SaveDialog.py:133
 msgid "PostScript"
-msgstr ""
+msgstr "PostScript"
 
 #: radialnet/gui/SaveDialog.py:134
 msgid "SVG"
-msgstr ""
+msgstr "SVG"
 
 #: radialnet/gui/SaveDialog.py:147
 msgid "Save Topology"
@@ -1602,39 +1630,39 @@ msgstr "Оповещение"
 
 #: share/zenmap/misc/profile_editor.xml:9
 msgid "Ping"
-msgstr ""
+msgstr "Ping"
 
 #: share/zenmap/misc/profile_editor.xml:10
 msgid "Scripting"
-msgstr ""
+msgstr "Скрипты"
 
 #: share/zenmap/misc/profile_editor.xml:11
 msgid "Target"
-msgstr ""
+msgstr "Цель"
 
 #: share/zenmap/misc/profile_editor.xml:12
 msgid "Source"
-msgstr ""
+msgstr "Источник"
 
 #: share/zenmap/misc/profile_editor.xml:13
 msgid "Other"
-msgstr ""
+msgstr "Прочее"
 
 #: share/zenmap/misc/profile_editor.xml:14
 msgid "Timing"
-msgstr ""
+msgstr "Таймниг"
 
 #: share/zenmap/misc/profile_editor.xml:16
 msgid "Scan options"
-msgstr ""
+msgstr "Опции сканирования"
 
 #: share/zenmap/misc/profile_editor.xml:17
 msgid "Targets (optional): "
-msgstr ""
+msgstr "Цель (опционально):"
 
 #: share/zenmap/misc/profile_editor.xml:18
 msgid "TCP scan: "
-msgstr ""
+msgstr "TCP-сканирование:"
 
 #: share/zenmap/misc/profile_editor.xml:19
 #: share/zenmap/misc/profile_editor.xml:30
@@ -1728,7 +1756,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:29
 msgid "Non-TCP scans: "
-msgstr ""
+msgstr "не TCP сканирование:"
 
 #: share/zenmap/misc/profile_editor.xml:31
 msgid ""
@@ -1755,10 +1783,12 @@ msgid ""
 "Do not scan any targets, just list which ones would be scanned (with reverse "
 "DNS names if available)."
 msgstr ""
+"Не сканировать ничего, просто вывести цели, которые должны быть "
+"просканированы (с обратными именами DNS если возможно)"
 
 #: share/zenmap/misc/profile_editor.xml:33
 msgid "List scan"
-msgstr ""
+msgstr "Список сканирования"
 
 #: share/zenmap/misc/profile_editor.xml:34
 msgid ""
@@ -1768,7 +1798,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:34
 msgid "No port scan"
-msgstr ""
+msgstr "Не сканировать порты"
 
 #: share/zenmap/misc/profile_editor.xml:35
 msgid ""
@@ -1791,7 +1821,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:39
 msgid "Timing template: "
-msgstr ""
+msgstr "Тайминг шаблон:"
 
 #: share/zenmap/misc/profile_editor.xml:41
 #: share/zenmap/misc/profile_editor.xml:42
@@ -1852,7 +1882,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:48
 msgid "Enable all advanced/aggressive options"
-msgstr ""
+msgstr "Разрешить все расширенные/агрессивные опции"
 
 #: share/zenmap/misc/profile_editor.xml:49
 msgid "Attempt to discover the operating system running on remote systems."
@@ -1860,7 +1890,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:49
 msgid "Operating system detection"
-msgstr ""
+msgstr "Определение операционной системы"
 
 #: share/zenmap/misc/profile_editor.xml:50
 msgid ""
@@ -1869,7 +1899,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:50
 msgid "Version detection"
-msgstr ""
+msgstr "Определение версии"
 
 #: share/zenmap/misc/profile_editor.xml:51
 msgid ""
@@ -1898,15 +1928,15 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:53
 msgid "Disable reverse DNS resolution"
-msgstr ""
+msgstr "Запретить обратное разрешение имен DNS"
 
 #: share/zenmap/misc/profile_editor.xml:54
 msgid "Enable IPv6 scanning."
-msgstr ""
+msgstr "Включает IPv6 сканирование."
 
 #: share/zenmap/misc/profile_editor.xml:54
 msgid "IPv6 support"
-msgstr ""
+msgstr "Поддержка IPv6"
 
 #: share/zenmap/misc/profile_editor.xml:56
 msgid "Ping options"
@@ -1919,7 +1949,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:57
 msgid "Don't ping before scanning"
-msgstr ""
+msgstr "Не пинговать перед сканированием"
 
 #: share/zenmap/misc/profile_editor.xml:58
 msgid "Send an ICMP echo request (ping) probe to see if targets are up."
@@ -2019,7 +2049,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:69
 msgid "Scripts to run"
-msgstr ""
+msgstr "Скрипты для запуска"
 
 #: share/zenmap/misc/profile_editor.xml:70
 msgid ""
@@ -2029,7 +2059,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:70
 msgid "Script arguments"
-msgstr ""
+msgstr "Аргументы скрипта"
 
 #: share/zenmap/misc/profile_editor.xml:71
 msgid "Show all information sent and received by the scripting engine."
@@ -2041,7 +2071,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:73
 msgid "Target options"
-msgstr ""
+msgstr "Опции для цели"
 
 #: share/zenmap/misc/profile_editor.xml:74
 msgid "Specifies a comma-separated list of targets to exclude from the scan."
@@ -2049,7 +2079,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:74
 msgid "Excluded hosts/networks"
-msgstr ""
+msgstr "Исключить узлы/сети"
 
 #: share/zenmap/misc/profile_editor.xml:75
 msgid ""
@@ -2059,7 +2089,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:75
 msgid "Exclusion file"
-msgstr ""
+msgstr "Файл исключений"
 
 #: share/zenmap/misc/profile_editor.xml:76
 msgid "Reads target list specification from an input file."
@@ -2067,7 +2097,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:76
 msgid "Target list file"
-msgstr ""
+msgstr "Файл целей"
 
 #: share/zenmap/misc/profile_editor.xml:77
 msgid ""
@@ -2077,7 +2107,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:77
 msgid "Scan random hosts"
-msgstr ""
+msgstr "Сканировать случайные узлы"
 
 #: share/zenmap/misc/profile_editor.xml:78
 msgid ""
@@ -2086,7 +2116,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:78
 msgid "Ports to scan"
-msgstr ""
+msgstr "Сканируемые порты"
 
 #: share/zenmap/misc/profile_editor.xml:79
 msgid ""
@@ -2096,11 +2126,11 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:79
 msgid "Fast scan"
-msgstr ""
+msgstr "Быстрое сканирование"
 
 #: share/zenmap/misc/profile_editor.xml:81
 msgid "Source options"
-msgstr ""
+msgstr "Опции источника"
 
 #: share/zenmap/misc/profile_editor.xml:82
 msgid ""
@@ -2120,7 +2150,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:83
 msgid "Set source IP address"
-msgstr ""
+msgstr "Установить IP адрес источника"
 
 #: share/zenmap/misc/profile_editor.xml:84
 msgid ""
@@ -2130,7 +2160,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:84
 msgid "Set source port"
-msgstr ""
+msgstr "Установить порт источника"
 
 #: share/zenmap/misc/profile_editor.xml:85
 msgid "Tells Nmap what interface to send and receive packets on."
@@ -2138,11 +2168,11 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:85
 msgid "Set network interface"
-msgstr ""
+msgstr "Установить сетевой интерфейс"
 
 #: share/zenmap/misc/profile_editor.xml:87
 msgid "Other options"
-msgstr ""
+msgstr "Прочие опции"
 
 #: share/zenmap/misc/profile_editor.xml:88
 msgid "Any extra options to add to the command line."
@@ -2150,7 +2180,7 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:88
 msgid "Extra options defined by user"
-msgstr ""
+msgstr "Дополнительные опции, определенные пользователем"
 
 #: share/zenmap/misc/profile_editor.xml:89
 msgid "Set the IPv4 time-to-live field in sent packets to the given value."
@@ -2178,57 +2208,61 @@ msgstr ""
 
 #: share/zenmap/misc/profile_editor.xml:91
 msgid "Verbosity level"
-msgstr ""
+msgstr "Уровень детализации"
 
 #: share/zenmap/misc/profile_editor.xml:92
 msgid ""
 "When even verbose mode doesn't provide sufficient data for you, debugging "
 "level is available to show more detailed output."
 msgstr ""
+"Когда даже в расширенном режиме не достаточно данных для вас, то уровень "
+"отладки можеи показать более подробные данные."
 
 #: share/zenmap/misc/profile_editor.xml:92
 msgid "Debugging level"
-msgstr ""
+msgstr "Уровень отладки"
 
 #: share/zenmap/misc/profile_editor.xml:93
 msgid "Print a summary of every packet sent or received."
-msgstr ""
+msgstr "Выводить краткую информацию о каждом принятом и отправленном пакете."
 
 #: share/zenmap/misc/profile_editor.xml:93
 msgid "Packet trace"
-msgstr ""
+msgstr "Трассировка пакетов"
 
 #: share/zenmap/misc/profile_editor.xml:94
 msgid "Scan ports in order instead of randomizing them."
-msgstr ""
+msgstr "Сканировать порты по порядку, вместо случайной последовательности."
 
 #: share/zenmap/misc/profile_editor.xml:94
 msgid "Disable randomizing scanned ports"
-msgstr ""
+msgstr "Отключить случайное сканирование портов"
 
 #: share/zenmap/misc/profile_editor.xml:95
 msgid ""
 "Trace the network path to each target after scanning. This works with all "
 "scan types except connect scan (-sT) and idle scan (-sI)."
 msgstr ""
+"Трассировать сетевой путь к каждой цели после сканирования. Работает со "
+"всеми типами сканирования кроме Connection Scan (-sT) и Idle Scan (-sI)."
 
 #: share/zenmap/misc/profile_editor.xml:95
 msgid "Trace routes to targets"
-msgstr ""
+msgstr "Трассировка маршрута до целей"
 
 #: share/zenmap/misc/profile_editor.xml:96
 msgid ""
 "Try sending a probe to each port no more than this many times before giving "
 "up."
-msgstr ""
+msgstr "Пытаться сканировать каждый порт не более указанного количества."
 
 #: share/zenmap/misc/profile_editor.xml:96
 msgid "Max Retries"
-msgstr ""
+msgstr "Максимум попыток"
 
 #: share/zenmap/misc/profile_editor.xml:98
 msgid "Timing and performance"
-msgstr ""
+msgstr "Тайминг и производительность"
 
 #: share/zenmap/misc/profile_editor.xml:99
 msgid ""
@@ -2236,10 +2270,13 @@ msgid ""
 "is in seconds by default, or may be followed by a suffix of 'ms' for "
 "milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
+"Оставить сканирование узла, если оно превысило указанное время. По умолчанию "
+"время указывается в секундах, но может быть указан суфикс 'ms' для "
+"милисекунд, суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:99
 msgid "Max time to scan a target"
-msgstr ""
+msgstr "Максимальное время сканирования цели"
 
 #: share/zenmap/misc/profile_editor.xml:100
 msgid ""
@@ -2248,10 +2285,14 @@ msgid ""
 "by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or "
 "'h' for hours."
 msgstr ""
+"Ждать ответа не более указанного времени, прежде чем будет осуществлена "
+"повторная попытка. По умолчанию время указывается в секундах, но может быть "
+"указан суфикс 'ms' для милисекунд, суффикс 's' для секунд, 'm' для минут, "
+"или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:100
 msgid "Max probe timeout"
-msgstr ""
+msgstr "Максимальное время ожидания"
 
 #: share/zenmap/misc/profile_editor.xml:101
 msgid ""
@@ -2260,36 +2301,43 @@ msgid ""
 "by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or "
 "'h' for hours."
 msgstr ""
+"Ждать ответа не менее указанного времени, прежде чем будет осуществлена "
+"повторная попытка. По умолчанию время указывается в секундах, но может быть "
+"указан суфикс 'ms' для милисекунд, суффикс 's' для секунд, 'm' для минут, "
+"или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:101
 msgid "Min probe timeout"
-msgstr ""
+msgstr "Минимальное время ожидания"
 
 #: share/zenmap/misc/profile_editor.xml:102
 msgid ""
 "Use the time given as the initial estimate of round-trip time. This can "
 "speed up scans if you know a good time for the network you're scanning."
 msgstr ""
+"Используйте это время для указания начального ожидания перед переходом к "
+"следующему узлу. Это позволит ускорить сканирование, если вы уверены в "
+"пропускной способности сети."
 
 #: share/zenmap/misc/profile_editor.xml:102
 msgid "Initial probe timeout"
-msgstr ""
+msgstr "Первоначальное ожидание"
 
 #: share/zenmap/misc/profile_editor.xml:103
 msgid "Scan no more than this many hosts in parallel."
-msgstr ""
+msgstr "Не сканировать больше указанного количества за раз."
 
 #: share/zenmap/misc/profile_editor.xml:103
 msgid "Max hosts in parallel"
-msgstr ""
+msgstr "Максимальное количество узлов за раз"
 
 #: share/zenmap/misc/profile_editor.xml:104
 msgid "Scan at least this many hosts in parallel."
-msgstr ""
+msgstr "Параллельное сканирование как минимум указанного количества узлов."
 
 #: share/zenmap/misc/profile_editor.xml:104
 msgid "Min hosts in parallel"
-msgstr ""
+msgstr "Минимальное количество узлов за раз"
 
 #: share/zenmap/misc/profile_editor.xml:105
 msgid ""
@@ -2297,10 +2345,12 @@ msgid ""
 "time. May be set to 1 to prevent Nmap from sending more than one probe at a "
 "time to hosts."
 msgstr ""
+"Никогда не допускать больше попыток чем указано. Может быть установлено в 1 "
+"для предотвращения множества попыток за раз к одному узлу."
 
 #: share/zenmap/misc/profile_editor.xml:105
 msgid "Max outstanding probes"
-msgstr ""
+msgstr "Максимально число попыток"
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid ""
@@ -2308,10 +2358,13 @@ msgid ""
 "scan. Common usage is to set to a number higher than 1 to speed up scans of "
 "poorly performing hosts or networks."
 msgstr ""
+"Пытаться поддерживать минимальное количество попыток во время сканирования. "
+"Обычно значение устанавливавается больше 1 для увеличения скорости "
+"сканировани в сетях с низкой производительностью."
 
 #: share/zenmap/misc/profile_editor.xml:106
 msgid "Min outstanding probes"
-msgstr ""
+msgstr "Миимально число попыток"
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid ""
@@ -2320,10 +2373,13 @@ msgid ""
 "be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for "
 "minutes, or 'h' for hours."
 msgstr ""
+"Не допускать задержек (время задержки между запросами) больше чем указано. "
+"По умолчанию время указывается в секундах, но может быть указан суфикс 'ms' "
+"для милисекунд, суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:107
 msgid "Max scan delay"
-msgstr ""
+msgstr "Максимальная задержка при сканировании"
 
 #: share/zenmap/misc/profile_editor.xml:108
 msgid ""
@@ -2331,7 +2387,10 @@ msgid ""
 "host. Time is in seconds by default, or may be followed by a suffix of 'ms' "
 "for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
+"Ожидать между попытками не менее указанного времени. По умолчанию время "
+"указывается в секундах, но может быть указан суфикс 'ms' для милисекунд, "
+"суффикс 's' для секунд, 'm' для минут, или 'h' для часов."
 
 #: share/zenmap/misc/profile_editor.xml:108
 msgid "Min delay between probes"
-msgstr ""
+msgstr "Минимальная задержка между попытками"

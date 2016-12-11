@@ -259,7 +259,7 @@ AMQP = {
     end
 
     -- parse protocol version
-    status, tmp = self.amqpsocket:receive_buf(match.num_bytes(2), true)
+    status, tmp = self.amqpsocket:receive_buf(match.numbytes(2), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading version"
     end

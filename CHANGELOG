@@ -1,14 +1,102 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#518] Brute scripts are faster and more accurate. New feedback and
+  adaptivity mechanisms in brute.lua help brute scripts use resources more
+  efficiently, dynamically changing number of threads based on protocol
+  messages like FTP 421 errors, network errors like timeouts, etc.
+  [Sergey Khegay]
+
+o [GH#353] New option --defeat-icmp-ratelimit dramatically reduces UDP scan
+  times in exchange for labeling unresponsive (and possibly open) ports as
+  "closed|filtered". Ports which give a UDP protocol response to one of Nmap's
+  scanning payloads will be marked "open". [Sergey Khegay]
+
+o [NSE] Script cics-enum enumerates CICS transaction IDs, mapping to screens in
+  TN3270 services. [Soldier of Fortran]
+
+o [NSE] Script cics-user-enum brute-forces usernames for CICS users on TN3270
+  services. [Soldier of Fortran]
+
+o [NSE] Script tso-enum enumerates usernames for TN3270 Telnet services, and
+  tso-brute brute-forces passwords for the same services. [Soldier of Fortran]
+
+o [NSE] Script vtam-enum brute-forces VTAM application IDs for TN3270 services.
+  [Soldier of Fortran]
+
+o [NSE] Script tn3270-screen shows the login screen from mainframe TN3270
+  Telnet services, including any hidden fields. The script is accompanied by
+  the new tn3270 library. [Soldier of Fortran]
+
+o [NSE] Script nje-pass-brute brute-forces the password to a NJE node, given a
+  valid RHOST and OHOST. Helpfully, nje-node-brute can now brute force both of
+  those values. [Soldier of Fortran]
+
+o [NSE][GH#557] Script ssl-cert-intaddr will search for private IP addresses in
+  TLS certificate fields and extensions. [Steve Benson]
+
+o [GH#316] Added scan resume from Nmap's XML output. Now you can --resume a
+  canceled scan from all 3 major output formats: -oN, -oG, and -oX.
+  [Tudor Emil Coman]
+
+o [Ndiff][GH#591] Fix a bug where hosts with the same IP but different
+  hostnames were shown as changing hostnames between scans. Made sort stable
+  with regard to hostnames. [Daniel Miller]
+
+o [NSE][GH#533] Removed ssl-google-cert-catalog, since Google shut off that
+  service at some point. Reported by Brian Morin.
+
+o [NSE][GH#540] Add tls.servername script-arg for forcing a name to be used for
+  TLS Server Name Indication extension. The argument overrides the default use
+  of the host's targetname. [Bertrand Bonnefoy-Claudet]
+
+o [NSE] Script fingerprint-strings will print the ASCII strings it finds in the
+  service fingerprints that Nmap shows for unidentified services. [Daniel Miller]
+
+o [GH#505] Updated Russian translation of Zenmap by Alexander Kozlov.
+
+o [NSE][GH#588] Fix a crash in smb.lua when using smb-ls due to a
+  floating-point number being passed to os.time ("bad argument").
+  [Dallas Winger]
+
+o [NSE][GH#596] Fix a bug in mysql.lua that caused authentication failures in
+  mysql-brute and other scripts due to including a null terminator in the salt
+  value. This bug affects Nmap 7.25BETA2 and later releases.  [Daniel Miller]
+
+o The --open option now implies --defeat-rst-ratelimit. This may result in
+  inaccuracies in the numbers of "Not shown:" closed and filtered ports, but
+  only in situations where it also speeds up scan times. [Daniel Miller]
+
+o Fix reverse DNS on Windows which was failing with the message "mass_dns:
+  warning: Unable to determine any DNS servers." This was because the interface
+  GUID comparison needed to be done case-insensitive. [Robert Croteau]
+
+o [Ncat] Restore the connection success message that Ncat prints with -v. This
+  was accidentally suppressed when not using -z.
+
+o [NSE] Added known Diffie-Hellman parameters for haproxy, postfix, and
+  IronPort to ssl-dh-params. [Frank Bergmann]
+
+o Added service probe for ClamAV servers (clam),
+  an open source antivirus engine used in mail scanning. [Paulino Calderon]
+
+o Added service probe and UDP payload for Quick UDP Internet Connection (QUIC),
+  a secure transport developed by Google and used with HTTP/2. [Daniel Miller]
+
 o [NSE] Enabled resolveall to run against any target provided as a hostname, so
   the resolveall.hosts script-arg is no longer required. [Daniel Miller]
 
-o [NSE] Updated fingerprints for script http-default-accounts with 18 new
-  fingerprints. 4 fingerprints have been broadened to cover more variants.
+o [NSE] Updated fingerprints for script http-default-accounts with 21 new
+  fingerprints. 5 fingerprints have been broadened to cover more variants.
   [nnposter]
 
-o [NSE][GH#577] Script http-default-accounts now can test systems that return
-  status 200 for non-existent pages. [nnposter]
+o [NSE] Revised script http-default-accounts in several ways:
+  - [GH#577] It can now can test systems that return status 200 for
+    non-existent pages. [nnposter]
+  - [GH#604] Implemented XML output. Layout of the classic text output has also
+    changed, including reporting blank usernames or passwords as "<blank>",
+    instead of just empty strings. [nnposter]
+  - Added CPE entries to individual fingerprints (where known). They are
+    reported only in the XML output. [nnposter]
 
 o [NSE][GH#573] Updated http.lua to allow processing of HTTP responses with
   malformed header names. Such header lines are still captured in the rawheader
@@ -196,9 +284,6 @@ o [NSE] Fix a crash when parsing TLS certificates that OpenSSL doesn't support,
 o [NSE][GH#531] Fix two issues in sslcert.lua that prevented correct operations
   against LDAP services when version detection or STARTTLS were used.
   [Tom Sellers]
-
-o [Zenmap] Long-overdue Spanish language translation has been added! Muy bien!
-  [Vincent Dumont, Marta Garcia De La Paz, Paulino Calderon, Patricio Castagnaro]
 
 o [GH#426] Remove a workaround for lack of selectable pcap file descriptors on
   Windows, which required including pcap-int.h and locking us to a single

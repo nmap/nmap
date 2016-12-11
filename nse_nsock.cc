@@ -1065,6 +1065,19 @@ static int l_pcap_receive (lua_State *L)
   return yield(L, nu, "PCAP RECEIVE", FROM, 0, NULL);
 }
 
+/* This function also has a binding in stdnse.lua */
+static int l_get_stats (lua_State *L) {
+  lua_newtable(L);
+  int idx = lua_gettop(L);
+
+  /* the only field so far is
+     connect_waiting - number of threads waiting for connection */
+  lua_pushinteger(L, nseU_tablen(L, CONNECT_WAITING));
+  lua_setfield(L, idx, "connect_waiting");
+
+  return 1;
+}
+
 LUALIB_API int luaopen_nsock (lua_State *L)
 {
   static const luaL_Reg metatable_index[] = {
@@ -1092,6 +1105,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
     {"new", l_new},
     {"sleep", l_sleep},
     {"parse_ssl_certificate", l_parse_ssl_certificate},
+    {"get_stats", l_get_stats},
     {NULL, NULL}
   };
 

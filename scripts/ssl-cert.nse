@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local sslcert = require "sslcert"
 local stdnse = require "stdnse"
 local string = require "string"
+local tls = require "tls"
 local unicode = require "unicode"
 
 description = [[
@@ -264,6 +265,7 @@ local function output_str(cert)
 end
 
 action = function(host, port)
+  host.targetname = tls.servername(host)
   local status, cert = sslcert.getCertificate(host, port)
   if ( not(status) ) then
     stdnse.debug1("getCertificate error: %s", cert or "unknown")

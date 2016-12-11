@@ -31,11 +31,12 @@ query.
 --       </table>
 --       <elem key="Action">rfi.pl</elem>
 --     </table>
---   <table key="someform">
---     <table key="Vulnerable fields">
---       <elem>inc2</elem>
+--     <table key="someform">
+--       <table key="Vulnerable fields">
+--         <elem>inc2</elem>
+--       </table>
+--       <elem key="Action">rfi.pl</elem>
 --     </table>
---     <elem key="Action">rfi.pl</elem>
 --   </table>
 -- </table>
 -- <table key="Queries">

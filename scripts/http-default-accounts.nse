@@ -44,9 +44,35 @@ This script was based on http-enum.
 -- nmap -p80 --script http-default-accounts host/ip
 --
 -- @output
--- PORT   STATE SERVICE REASON
--- 80/tcp open  http    syn-ack
--- |_http-default-accounts: [Cacti] credentials found -> admin:admin Path:/cacti/
+-- PORT   STATE SERVICE
+-- 80/tcp open  http
+-- | http-default-accounts:
+-- |   [Cacti] at /
+-- |     admin:admin
+-- |   [Nagios] at /nagios/
+-- |_    nagiosadmin:CactiEZ
+--
+-- @xmloutput
+-- <table key="Cacti">
+--   <elem key="cpe">cpe:/a:cacti:cacti</elem>
+--   <elem key="path">/</elem>
+--   <table key="credentials">
+--     <table>
+--       <elem key="username">admin</elem>
+--       <elem key="password">admin</elem>
+--     </table>
+--   </table>
+-- </table>
+-- <table key="Nagios">
+--   <elem key="cpe">cpe:/a:nagios:nagios</elem>
+--   <elem key="path">/nagios/</elem>
+--   <table key="credentials">
+--     <table>
+--       <elem key="username">nagiosadmin</elem>
+--       <elem key="password">CactiEZ</elem>
+--     </table>
+--   </table>
+-- </table>
 --
 -- @args http-default-accounts.basepath Base path to append to requests. Default: "/"
 -- @args http-default-accounts.fingerprintfile Fingerprint filename. Default: http-default-accounts-fingerprints.lua
@@ -59,6 +85,14 @@ This script was based on http-enum.
 --   * changed category from safe to intrusive
 -- 2016-08-10 nnposter
 --   * added sharing of probe requests across fingerprints
+-- 2016-10-30 nnposter
+--   * removed a limitation that prevented testing of systems returning
+--     status 200 for non-existent pages.
+-- 2016-12-01 nnposter
+--   * implemented XML structured output
+--   * changed classic output to report empty credentials as <blank>
+-- 2016-12-04 nnposter
+--   * added CPE entries to individual fingerprints (where known)
 ---
 
 author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
@@ -212,15 +246,49 @@ local function format_basepath(basepath)
 end
 
 ---
--- register_http_credentials(username, password)
--- Stores HTTP credentials in the registry. If the registry entry hasn't been
--- initiated, it will create it and store the credentials.
--- @param login_username Username
--- @param login_password Password
+-- test_credentials(host, port, fingerprint, path)
+-- Tests default credentials of a given fingerprint against a given path.
+-- Any successful credentials are registered in the Nmap credential repository.
+-- @param host table as received by the scripts action method
+-- @param port table as received by the scripts action method
+-- @param fingerprint as defined in the fingerprint file
+-- @param path againt which the the credentials will be tested
+-- @return out table suitable for inclusion in the script structured output
+--             (or nil if no credentials succeeded)
+-- @return txtout table suitable for inclusion in the script textual output
 ---
-local function register_http_credentials(host, port, login_username, login_password)
-  local c = creds.Credentials:new( SCRIPT_NAME, host, port )
-  c:add(login_username, login_password, creds.State.VALID )
+local function  test_credentials (host, port, fingerprint, path)
+  local credlst = {}
+  for _, login_combo in ipairs(fingerprint.login_combos) do
+    local user = login_combo.username
+    local pass = login_combo.password
+    stdnse.debug(2, "Trying login combo -> %s:%s", user, pass)
+    if fingerprint.login_check(host, port, path, user, pass) then
+      stdnse.debug(1, "[%s] valid default credentials found.", fingerprint.name)
+      local cred = stdnse.output_table()
+      cred.username = user
+      cred.password = pass
+      table.insert(credlst, cred)
+    end
+  end
+  if #credlst == 0 then return nil end
+  -- Some credentials found. Generate the fingerprint output report
+  local out = stdnse.output_table()
+  out.cpe = fingerprint.cpe
+  out.path = path
+  out.credentials = credlst
+  local txtout = {}
+  txtout.name = ("[%s] at %s"):format(fingerprint.name, path)
+  for _, cred in ipairs(credlst) do
+    table.insert(txtout,("%s:%s"):format(stdnse.string_or_blank(cred.username),
+                                         stdnse.string_or_blank(cred.password)))
+  end
+  -- Register the credentials
+  local credreg = creds.Credentials:new(SCRIPT_NAME, host, port)
+  for _, cred in ipairs(credlst) do
+    credreg:add(cred.username, cred.password, creds.State.VALID )
+  end
+  return out, txtout
 end
 
 
@@ -229,7 +297,8 @@ action = function(host, port)
   local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
   local category = stdnse.get_script_args("http-default-accounts.category") or false
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
-  local output_lns = {}
+  local output = stdnse.output_table()
+  local text_output = {}
 
   -- Determine the target's response to "404" HTTP requests.
   local status_404, result_404, known_404 = http.identify_404(host,port)
@@ -278,7 +347,7 @@ action = function(host, port)
       "HTTP request table is empty. This should not happen since we at least made one request.")
   end
 
-  -- Iterate through responses to find a candidate for login routine
+  -- Iterate through fingerprints to find a candidate for login routine
   for _, fingerprint in ipairs(fingerprints) do
     local target_check = fingerprint.target_check or default_target_check
     local credentials_found = false
@@ -286,29 +355,17 @@ action = function(host, port)
     for _, probe in ipairs(fingerprint.paths) do
       local result = results[pathmap[probe.path]]
       if result and not credentials_found then
-        local path = basepath .. probe['path']
-
+        local path = basepath .. probe.path
         if target_check(host, port, path, result) then
-          for _, login_combo in ipairs(fingerprint.login_combos) do
-            stdnse.debug(2, "Trying login combo -> %s:%s", login_combo["username"], login_combo["password"])
-            --Check default credentials
-            if( fingerprint.login_check(host, port, path, login_combo["username"], login_combo["password"]) ) then
-
-              --Valid credentials found
-              stdnse.debug(1, "[%s] valid default credentials found.", fingerprint.name)
-              output_lns[#output_lns + 1] = string.format("[%s] credentials found -> %s:%s Path:%s",
-                                          fingerprint.name, login_combo["username"], login_combo["password"], path)
-              -- Add to http credentials table
-              register_http_credentials(host, port, login_combo["username"], login_combo["password"])
-              credentials_found = true
-            end
+          local out, txtout = test_credentials(host, port, fingerprint, path)
+          if out then
+            output[fingerprint.name] = out
+            table.insert(text_output, txtout)
+            credentials_found = true
           end
         end
       end
     end
   end
-
-  if #output_lns > 0 then
-    return stdnse.strjoin("\n", output_lns)
-  end
+  return output, stdnse.format_output(true, text_output)
 end

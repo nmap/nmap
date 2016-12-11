@@ -171,6 +171,7 @@ fingerprints = {}
 table.insert(fingerprints, {
   -- Version 0.8.8a
   name = "Cacti",
+  cpe = "cpe:/a:cacti:cacti",
   category = "web",
   paths = {
     {path = "/"},
@@ -199,6 +200,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 2.0.6
   name = "Zabbix",
+  cpe = "cpe:/a:zabbix:zabbix",
   category = "web",
   paths = {
     {path = "/zabbix/"}
@@ -230,7 +232,7 @@ table.insert(fingerprints, {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/200 and sets cookie "Xplico"
+    -- true if the response is HTTP/302 and sets cookie "Xplico"
     if response.status == 302 then
       for _, ck in ipairs(response.cookies or {}) do
         if ck.name:lower() == "xplico" then return true end
@@ -300,6 +302,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 3.2.3
   name = "Nagios",
+  cpe = "cpe:/a:nagios:nagios",
   category = "web",
   paths = {
     {path = "/"},
@@ -322,8 +325,43 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 9.2
-  name = "WebLogic Server Console 9.x",
+  -- Version 3.1.1
+  name = "Grafana",
+  category = "web",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    -- true if the response is HTTP/302 and sets cookie "grafana_sess"
+    if response.status == 302 then
+      for _, ck in ipairs(response.cookies or {}) do
+        if ck.name:lower() == "grafana_sess" then return true end
+      end
+    end
+    return false
+  end,
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local header = {["Accept"] = "application/json, text/plain, */*",
+                    ["Content-Type"] = "application/json;charset=utf-8"}
+    local json = ('{"user":"%s","email":"","password":"%s"}'):format(user, pass)
+    local req = http_post_simple(host, port, url.absolute(path, "login"),
+                                {header=header}, json)
+    -- successful login is HTTP/200 that sets cookie "grafana_user"
+    if req.status ~= 200 then return false end
+    for _, ck in ipairs(req.cookies or {}) do
+      if ck.name:lower() == "grafana_user" then return ck.value == user end
+    end
+    return false
+  end
+})
+
+table.insert(fingerprints, {
+  -- Version 8.1, 9.2, 10.3.4, 10.3.6, 12.1.2
+  name = "WebLogic Server Console",
+  cpe = "cpe:/a:bea:weblogic_server",
   category = "web",
   paths = {
     {path = "/console/"}
@@ -331,23 +369,36 @@ table.insert(fingerprints, {
   target_check = function (host, port, path, response)
     local loc = response.header["location"] or ""
     return response.status == 302
-           and loc:find("/console/login/LoginForm%.jsp;")
+           and loc:find("/console/login/LoginForm%.jsp%f[;\0]")
   end,
   login_combos = {
-    {username = "weblogic", password = "weblogic"}
+    -- WebLogic 9.x
+    {username = "weblogic", password = "weblogic"},
+    -- WebLogic 10.x, 12.x
+    {username = "weblogic", password = "weblogic1"},
+    {username = "weblogic", password = "welcome1"},
+    -- Adobe LiveCycle ES
+    {username = "weblogic", password = "password"},
+    -- PeopleSoft
+    {username = "system", password = "Passw0rd"}
   },
   login_check = function (host, port, path, user, pass)
     local req = http_post_simple(host, port,
                                 url.absolute(path, "j_security_check"), nil,
                                 {j_username=user,j_password=pass,j_character_encoding="UTF-8"})
     local loc = req.header["location"] or ""
-    return req.status == 302 and loc:find("/console;")
+    -- WebLogic 8.x, 9.x
+    if req.status == 403 then return false end
+    -- WebLogic 10.x, 12.x
+    if req.status == 302 and loc:find("/console/login/LoginForm%.jsp$") then return false end
+    return true
   end
 })
 
 table.insert(fingerprints, {
   -- Version 4.1.31, 6.0.24, 7.0.54
   name = "Apache Tomcat",
+  cpe = "cpe:/a:apache:tomcat",
   category = "web",
   paths = {
     {path = "/manager/html/"},
@@ -407,6 +458,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 1.4.1, 1.5.2, 1.5.3, 1.6.0, 1.6.1
   name = "Apache Axis2",
+  cpe = "cpe:/a:apache:axis2",
   category = "web",
   paths = {
     {path = "/axis2/axis2-admin/"}
@@ -465,7 +517,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-   -- Version 0.4.4.6.1-alpha on SamuraiWTF 2.6
+  -- Version 0.4.4.6.1 on SamuraiWTF 2.6, 0.4.7.0 on Kali 2016.2
   name = "BeEF",
   category = "web",
   paths = {
@@ -507,6 +559,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 12.2SE on Catalyst 3750, 3845, CBS3020, 12.3 on Aironet 1300
   name = "Cisco IOS",
+  cpe = "cpe:/o:cisco:ios",
   category = "routers",
   paths = {
     {path = "/"},
@@ -535,6 +588,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version (see below)
   name = "Cisco Linksys",
+  cpe = "cpe:/h:linksys:*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -556,8 +610,40 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version ESIP-12-v302r125573-131230c_upc
+  name = "Cisco EPC3925",
+  cpe = "cpe:/h:cisco:epc3925",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("Docsis", 1, true)
+           and response.body:find('window%.location%.href%s*=%s*"Docsis_system%.asp";')
+  end,
+  login_combos = {
+    {username = "", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {username_login=user,
+                  password_login=pass,
+                  LanguageSelect="en",
+                  Language_Submit="0",
+                  login="Log In"}
+    local req = http_post_simple(host, port,
+                                url.absolute(path, "goform/Docsis_system"),
+                                nil, form)
+    local loc = req.header["location"] or ""
+    return req.status == 302 and loc:find("/Quick_setup%.asp$")
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 1.0.1.3 on RT-N10U, RT-N66U
   name = "ASUS RT",
+  cpe = "cpe:/h:asus:rt-*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -577,6 +663,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 5.00.12 on F5D7234-4
   name = "Belkin G Wireless Router",
+  cpe = "cpe:/h:belkin:f5d7234-4",
   category = "routers",
   paths = {
     {path = "/"}
@@ -605,6 +692,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 1.00.12 on F9K1001 v1
   name = "Belkin N150",
+  cpe = "cpe:/h:belkin:n150_f9k1001",
   category = "routers",
   paths = {
     {path = "/"}
@@ -681,7 +769,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Version 2.3, 2.4 on FVS318
-  name = "Netgear FVS",
+  name = "Netgear ProSafe Firewall",
   category = "routers",
   paths = {
     {path = "/"}
@@ -698,6 +786,35 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, url.absolute(path, "top.html"),
                                user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  -- Version 2.00.08 on GS108PEv3
+  name = "Netgear ProSafe Plus Switch",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.body
+           and response.body:find("loginTData", 1, true)
+           and response.body:lower():find("<title>netgear ", 1, true)
+  end,
+  login_combos = {
+    {username = "", password = "password"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local req = http_post_simple(host, port, url.absolute(path, "login.cgi"),
+                                nil, {password=pass})
+    -- successful login is a HTTP/200 that sets cookie xxxSID,
+    -- where xxx is the hardware model, such as GS108SID
+    if req.status ~= 200 then return false end
+    for _, ck in ipairs(req.cookies or {}) do
+      if ck.name:lower():find("sid$") then return true end
+    end
+    return false
   end
 })
 
@@ -759,6 +876,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 3.4.5.1 on Aruba800
   name = "ArubaOS WebUI",
+  cpe = "cpe:/o:arubanetworks:arubaos",
   category = "routers",
   paths = {
     {path = "/"}
@@ -786,6 +904,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   name = "Aruba AirWave",
+  cpe = "cpe:/a:arubanetworks:airwave",
   category = "routers",
   paths = {
     {path = "/"}
@@ -810,6 +929,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 08.05.100 on NVR 1750D
   name = "Nortel VPN Router",
+  cpe = "cpe:/h:nortel:vpn_router_*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -833,7 +953,8 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Version 11.4.1, 11.5.3
-  name = "F5 BIG-IP",
+  name = "F5 TMOS",
+  cpe = "cpe:/o:f5:tmos",
   category = "routers",
   paths = {
     {path = "/"}
@@ -858,6 +979,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 10.5 on MPX 8005
   name = "Citrix NetScaler",
+  cpe = "cpe:/a:citrix:netscaler",
   category = "routers",
   paths = {
     {path = "/"}
@@ -1110,6 +1232,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 071.*, 072.* on WorkCentre 7835, 7845, ColorQube 8900X
   name = "Xerox WorkCentre/ColorQube",
+  cpe = "cpe:/h:xerox:workcentre",
   category = "printer",
   paths = {
     {path = "/"}
@@ -1125,7 +1248,7 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     local form = {_fun_function="HTTP_Authenticate_fn",
-                  NextPage="/properties/authentication/luidLogin.php",
+                  NextPage=url.absolute(path, "properties/authentication/luidLogin.php"),
                   webUsername=user,
                   webPassword=pass,
                   frmaltDomain="default"}
@@ -1272,6 +1395,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 7.5.0.3 on 2072-24C
   name = "IBM Storwize V3700",
+  cpe = "cpe:/a:ibm:storwize_v3700_software",
   category = "storage",
   paths = {
     {path = "/"}
@@ -1306,6 +1430,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 5.0.0
   name = "VMware ESXi",
+  cpe = "cpe:/o:vmware:esxi",
   category = "virtualization",
   paths = {
     {path = "/"}
@@ -1330,6 +1455,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   -- Version 4.0.0
   name = "PCoIP Zero Client",
+  cpe = "cpe:/a:teradici:pcoip_host_software",
   category = "virtualization",
   paths = {
     {path = "/login.html"}
@@ -1362,7 +1488,7 @@ table.insert(fingerprints, {
 --Remote consoles
 ---
 table.insert(fingerprints, {
-  -- Version 5.5, 6.1
+  -- Version 5.5, 6.1, 6.2, 7.2 on SLC16, SLC32, SLC48, SLC 8016
   name = "Lantronix SLC",
   category = "console",
   paths = {
@@ -1371,7 +1497,7 @@ table.insert(fingerprints, {
   target_check = function (host, port, path, response)
     return response.status == 200
            and response.header["server"]
-           and response.header["server"]:find("^mini_httpd")
+           and response.header["server"]:find("^mini_httpd/%d+%.")
            and response.body
            and response.body:find("lantronix", 1, true)
            and response.body:find("slcpassword", 1, true)
@@ -1387,8 +1513,9 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  --Version 1.10.12
+  --Version 1.10.12, 1.80
   name = "Dell iDRAC6",
+  cpe = "cpe:/o:dell:idrac6_firmware",
   category = "console",
   paths = {
     {path = "/"}
@@ -1405,8 +1532,8 @@ table.insert(fingerprints, {
   },
   login_check = function (host, port, path, user, pass)
     return try_http_post_login(host, port, path, "data/login",
-                            "<authResult>1</authResult>",
-                            {user=user, password=pass})
+                              "<authResult>1</authResult>",
+                              {user=user, password=pass})
   end
 })
 

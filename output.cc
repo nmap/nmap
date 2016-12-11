@@ -655,8 +655,12 @@ void printportoutput(Target *currenths, PortList *plist) {
     prevstate = istate;
   }
 
-  if (prevstate != PORT_UNKNOWN)
+  if (prevstate != PORT_UNKNOWN) {
     log_write(LOG_PLAIN, "\n");
+    if (o.defeat_rst_ratelimit) {
+      log_write(LOG_PLAIN, "Some closed ports may be reported as filtered due to --defeat-rst-ratelimit\n");
+    }
+  }
 
   if (o.reason)
     print_state_summary(plist, STATE_REASON_FULL);
@@ -2539,6 +2543,9 @@ void printfinaloutput() {
       log_write(LOG_PLAIN, "OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .\n");
     else if (o.servicescan)
       log_write(LOG_PLAIN, "Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .\n");
+    else if (o.udpscan && o.defeat_icmp_ratelimit)
+      log_write(LOG_PLAIN, "WARNING: Some ports marked closed|filtered may actually be open. For more accurate results, do not use --defeat-icmp-ratelimit .\n");
+
   }
 
   log_write(LOG_STDOUT | LOG_SKID,

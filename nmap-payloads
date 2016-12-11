@@ -37,6 +37,9 @@
 udp 7 "\x0D\x0A\x0D\x0A"
 # DNSStatusRequest
 udp 53 "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+# QUIC packet with unsupported version Q999
+# Also found on 443, but need to check whether DTLS or QUIC is more prevalent
+udp 80 "\r12345678Q999\x00"
 # RPCCheck
 udp 111
   "\x72\xFE\x1D\x13\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA0"

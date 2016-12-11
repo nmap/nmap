@@ -2941,6 +2941,25 @@ worth the extra time.</para>
       </varlistentry>
 
       <varlistentry>
+        <term><option>--defeat-icmp-ratelimit</option>
+        <indexterm><primary><option>--defeat-icmp-ratelimit</option></primary></indexterm></term>
+        <listitem>
+
+<para>Similar to <option>--defeat-rst-ratelimit</option>, the
+  <option>--defeat-icmp-ratelimit</option> option trades accuracy for speed,
+  increasing UDP scanning speed against hosts that rate-limit ICMP error
+  messages.  Because this option causes Nmap to not delay in order to receive
+  the port unreachable messages, a non-responsive port will be labeled
+  <literal>closed|filtered</literal> instead of the default
+  <literal>open|filtered</literal>. This has the effect of only treating ports
+  which actually respond via UDP as <literal>open</literal>. Since many UDP
+  services do not respond in this way, the chance for inaccuracy is greater
+  with this option than with <option>--defeat-rst-ratelimit</option>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term><option>--nsock-engine
         epoll|kqueue|poll|select</option>
         <indexterm><primary><option>--nsock-engine</option></primary></indexterm>

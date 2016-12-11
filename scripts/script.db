@@ -58,6 +58,8 @@ Entry { filename = "broadcast-xdmcp-discover.nse", categories = { "broadcast", "
 Entry { filename = "cassandra-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cassandra-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "cccam-version.nse", categories = { "version", } }
+Entry { filename = "cics-enum.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "cics-user-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
@@ -111,6 +113,7 @@ Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe
 Entry { filename = "eppc-enum-processes.nse", categories = { "discovery", "safe", } }
 Entry { filename = "fcrdns.nse", categories = { "discovery", "safe", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "fingerprint-strings.nse", categories = { "version", } }
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
 Entry { filename = "firewall-bypass.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "flume-master-info.nse", categories = { "default", "discovery", "safe", } }
@@ -368,6 +371,7 @@ Entry { filename = "nfs-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nje-node-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "nje-pass-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "nntp-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nping-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "nrpe-enum.nse", categories = { "discovery", "intrusive", } }
@@ -484,11 +488,11 @@ Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "sa
 Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-ccs-injection.nse", categories = { "safe", "vuln", } }
+Entry { filename = "ssl-cert-intaddr.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "ssl-cert.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssl-date.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssl-dh-params.nse", categories = { "safe", "vuln", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ssl-heartbleed.nse", categories = { "safe", "vuln", } }
 Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
 Entry { filename = "ssl-poodle.nse", categories = { "safe", "vuln", } }
@@ -516,8 +520,11 @@ Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", 
 Entry { filename = "telnet-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "tn3270-screen.nse", categories = { "discovery", "safe", } }
 Entry { filename = "tor-consensus-checker.nse", categories = { "external", "safe", } }
 Entry { filename = "traceroute-geolocation.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "tso-brute.nse", categories = { "intrusive", } }
+Entry { filename = "tso-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "unittest.nse", categories = { "safe", } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
@@ -529,6 +536,7 @@ Entry { filename = "vnc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "vnc-title.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "voldemort-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "vtam-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vuze-dht-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "version", "vuln", } }
 Entry { filename = "weblogic-t3-info.nse", categories = { "default", "discovery", "safe", "version", } }
