@@ -291,6 +291,15 @@ Comm = {
     self.socket = nil
   end,
 
+  --- Continue in-progress newstyle handshake with server.
+  --
+  -- @name Comm.connect_new
+  --
+  -- @param len Number of bytes to receive.
+  --
+  -- @return status True on success, false on failure.
+  -- @return response String representing bytes received on success,
+  --         string containing the error message on failure.
   connect_new = function(self)
     local status, flags = self:receive(2)
     if not status then
@@ -334,6 +343,12 @@ Comm = {
     return true
   end,
 
+  --- Continue in-progress oldstyle handshake with server.
+  --
+  -- @name Comm.connect_old
+  --
+  -- @return response String representing bytes received on success,
+  --         string containing the error message on failure.
   connect_old = function(self)
     local status, size = self:receive(8)
     if not status then
@@ -378,6 +393,12 @@ Comm = {
     return true
   end,
 
+  --- Receives an option reply.
+  --
+  -- @name Comm.receive_opt_rep
+  --
+  -- @return reply Table representing option reply on success, false
+  --         on failure.
   receive_opt_rep = function(self)
     -- Receive the static header of the option.
     local status, hdr = self:receive(20)
@@ -412,51 +433,45 @@ Comm = {
     return self:parse_opt_rep(hdr .. body)
   end,
 
+  --- Builds an option request.
+  --
+  -- @name Comm.build_opt_req
+  --
+  -- @param name String naming the option type.
+  -- @param options Table containing options.
+  --
+  -- @return req String representing the option request.
   build_opt_req = function(self, name, options)
     assert(type(name) == "string")
-    local otype = NBD.opt_req_types[name]
-    assert(otype)
 
     if not options then
       options = {}
     end
     assert(type(options) == "table")
+
+    local otype = NBD.opt_req_types[name]
+    assert(otype)
 
     local payload = ""
 
     if name == "EXPORT_NAME" then
       assert(options.export_name)
       payload = options.export_name
-    elseif name == "INFO" or name == "GO" then
-      payload = self:build_opt_ext_info_req(name, options)
     end
 
     return NBD.magic.cliserv_magic_new .. (">I4s4"):pack(otype, payload)
   end,
 
-  build_opt_ext_info_req = function(self, name, options)
-    assert(type(name) == "string")
-    local otype = NBD.opt_req_types[name]
-    assert(otype)
-
-    if not options then
-      options = {}
-    end
-    assert(type(options) == "table")
-
-    local payload = ""
-
-    if name == "INFO" or name == "GO" then
-      -- XXX-MAK: WTF is with the second field? Spec is unclear.
-      payload = (">I2I2"):pack(#options.export_names, #options.export_names)
-      for i, name in ipairs(options.export_names) do
-	payload = payload .. (">s4"):format(name)
-      end
-    end
-
-    return payload
-  end,
-
+  --- Parses an option reply.
+  --
+  -- @name Comm.parse_opt_rep
+  --
+  -- @param buf String to be parsed.
+  -- @param rep Table representing the fields of the reply that have
+  --        already been parsed by the caller.
+  --
+  -- @return reply Table representing option reply on success, false
+  --         on failure.
   parse_opt_rep = function(self, buf)
     assert(type(buf) == "string")
 
@@ -514,98 +529,16 @@ Comm = {
       return rep
     end
 
-    if rtype_name == "INFO" then
-      return self:parse_opt_ext_info_rep(buf, pos, rep)
-    end
-
     return rep
   end,
 
-  parse_opt_ext_info_rep = function(self, buf, pos, rep)
-    assert(type(buf) == "string")
-
-    if not pos or pos == 0 then
-      pos = 1
-    end
-    assert(type(pos) == "number")
-    assert(pos <= #buf)
-
-    local ftype, pos = (">I2"):unpack(buf, pos)
-    local ftype_name = find_key(NBD.opt_rep_ext_types.info, ftype)
-
-    rep.ftype = ftype
-    rep.ftype_name = ftype_name
-
-    if ftype_name == "EXPORT" then
-      if pos + 10 - 1 > #buf then
-	stdnse.debug1("INFO option EXPORT field buffer too small.")
-	return false
-      end
-
-      local size, tflags = (">I8I2"):unpack(buf, pos)
-      rep.size = size
-      rep.tflags = self:parse_transmission_flags(tflags)
-
-      return rep
-    end
-
-    if ftype_name == "NAME" then
-      rep.export_name = buf:sub(pos, #buf - 1)
-
-      return rep
-    end
-
-    if ftype_name == "DESCRIPTION" then
-      rep.export_desc = buf:sub(pos, #buf - 1)
-
-      return rep
-    end
-
-    if ftype_name == "BLOCK_SIZE" then
-      if pos + 12 - 1 > #buf then
-	stdnse.debug1("INFO option BLOCK_SIZE field buffer too small.")
-	return false
-      end
-
-      local min, pref, max = (">I4I4I4"):unpack(buf, pos)
-      rep.block_size_min = min
-      rep.block_size_pref = pref
-      rep.block_size_max = max
-
-      return rep
-    end
-
-    return rep
-  end,
-
-  build_cmd_req = function(self, name, options)
-    assert(type(name) == "string")
-    if not options then
-      options = {}
-    end
-    assert(type(options) == "table")
-  end,
-
-  --- Parses a command reply message.
+  --- Parses the transmission flags describing an export.
   --
-  -- @name nbd.parse_cmd_rep
+  -- @name Comm.parse_transmission_flags
   --
-  -- @param buf String from which to parse the reply.
-  -- @param pos Position from which to start parsing.
+  -- @param flags Transmission flags sent by server.
   --
-  -- @return pos String index on success, false on failure.
-  -- @return response Table representing a reply on success, string
-  --         containing the error message on failure.
-  parse_cmd_rep = function(self, buf, pos)
-    assert(type(buf) == "string")
-
-    if not pos or pos == 0 then
-      pos = 1
-    end
-    assert(type(pos) == "number")
-    assert(pos <= #buf)
-  end,
-
+  -- @return Table of parsed flags as keys.
   parse_transmission_flags = function(self, flags)
     assert(type(flags) == "number")
 
@@ -626,6 +559,14 @@ Comm = {
   end,
 }
 
+--- Finds a key corresponding with a value.
+--
+-- @name find_key
+--
+-- @param tbl Table in which to search.
+-- @param val Value to search for.
+--
+-- @return key String on success, nil on failure
 find_key = function(tbl, val)
   assert(type(tbl) == "table")
   assert(val ~= nil)

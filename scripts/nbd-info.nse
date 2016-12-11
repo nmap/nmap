@@ -68,9 +68,6 @@ enumerate_options = function(comm)
 
     comm.exports[rep.export_name] = {}
   end
-
-  -- If an implementation is found that uses the INFO extension, add
-  -- code here to query the exports with the INFO option.
 end
 
 newstyle_connection = function(comm, args)
