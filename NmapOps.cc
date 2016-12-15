@@ -561,7 +561,7 @@ dialog where you can start NPF if you have administrator privileges.";
   if (servicescan && noportscan)
     servicescan = 0;
 
-  if (defeat_rst_ratelimit && !synscan) {
+  if (defeat_rst_ratelimit && !synscan && !openOnly()) {
     fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
   }
 
