@@ -1,3 +1,4 @@
+local geoip = require "geoip"
 local http = require "http"
 local ipOps = require "ipOps"
 local json = require "json"
@@ -39,24 +40,35 @@ end
 local geoplugin = function(ip)
   local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip, {any_af=true})
   local stat, loc = json.parse(response.body)
-  if not stat then return nil end
+  if not stat then
+    return false, loc
+  end
 
   local output = {}
   table.insert(output, "coordinates (lat,lon): "..loc.geoplugin_latitude..","..loc.geoplugin_longitude)
   local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
   table.insert(output,"state: ".. regionName ..", ".. loc.geoplugin_countryName)
 
-  return output
+  geoip.add(ip, loc.geoplugin_latitude, loc.geoplugin_longitude)
+
+  return true, output
 end
 
 action = function(host,port)
-  local output = geoplugin(host.ip)
+ local output = stdnse.output_table()
 
-  if(#output~=0) then
-    output.name = host.ip
-    if host.targetname then
-      output.name = output.name.." ("..host.targetname..")"
+  local status, result = geoplugin(host.ip)
+  if not status then
+    if result == "syntax error" then
+      result = "The geoPlugin service has likely blocked you due to excessive usage, but the response received was 'syntax error'."
     end
+    output.ERROR = result
+    return output, output.ERROR
+  end
+
+  output.name = host.ip
+  if host.targetname then
+    output.name = output.name.." ("..host.targetname..")"
   end
 
   return stdnse.format_output(true,output)

@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#606] Three new scripts render IP geolocation data as maps.
+  ip-geolocation-map-bing uses Bing Maps, ip-geolocation-map-google uses Google
+  Maps, and ip-geolocation-map-kml outputs KML map data for import into other
+  mapping software. [Mak Kolybabi]
+
+o [NSE][GH#606] New NSE library, geoip.lua, provides a common framework for
+  storing and retrieving IP geolocation results. [Mak Kolybabi]
+
 o [NSE][GH#518] Brute scripts are faster and more accurate. New feedback and
   adaptivity mechanisms in brute.lua help brute scripts use resources more
   efficiently, dynamically changing number of threads based on protocol

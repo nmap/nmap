@@ -1,3 +1,4 @@
+local geoip = require "geoip"
 local http = require "http"
 local ipOps = require "ipOps"
 local json = require "json"
@@ -69,6 +70,8 @@ local ipinfodb = function(ip)
   local output = {}
   table.insert(output, "coordinates (lat,lon): "..loc.latitude..","..loc.longitude)
   table.insert(output,"city: ".. loc.cityName..", ".. loc.regionName..", ".. loc.countryName)
+
+  geoip.add(ip, loc.latitude, loc.longitude)
 
   return output
 end
