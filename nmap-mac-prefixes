@@ -488,7 +488,6 @@ AC11D3 Suzhou Hotek  Video Technology
 F42853 Zioncom Electronics (Shenzhen)
 3C46D8 Tp-link Technologies
 6C0273 Shenzhen Jin Yun Video Equipment
-2CFAA2 Alcatel-Lucent
 F0761C Compal Information (kunshan)
 F42833 Mmpc
 244F1D iRule
@@ -3131,7 +3130,6 @@ A8CE90 CVC
 00D0F0 Convision Technology Gmbh
 00D00E Pluris
 00D055 Kathrein-werke KG
-00D095 Alcatel-Lucent, Enterprise Business Group
 00D000 Ferran Scientific
 00D005 ZHS Zeitmanagementsysteme
 00D019 Dainippon Screen Corporate
@@ -4583,6 +4581,13 @@ DCA904 Apple
 503237 Apple
 000889 Echostar Technologies
 2C029F 3ALogics
+58D9D5 Tenda Technology,Ltd.Dongguan branch
+60E78A Unisem
+6C5976 Shanghai Tricheer Technology
+F4A739 Juniper Networks
+2CFAA2 Alcatel-Lucent Enterprise
+00D095 Alcatel-Lucent Enterprise
+4095BD NTmore.Co.
 0C6F9C Shaw Communications
 1801E3 Bittium Wireless
 C0AC54 Sagemcom Broadband SAS
@@ -5280,7 +5285,6 @@ E8DE27 Tp-link Technologies
 FC229C Han Kyung I Net
 148692 Tp-link Technologies
 1832A2 Laon Technology
-6854ED Alcatel-Lucent - Nuage
 985C93 SBG Systems SAS
 64E599 EFM Networks
 F499AC Weber Schraubautomaten Gmbh
@@ -5793,7 +5797,6 @@ C89C1D Cisco Systems
 801440 Sunlit System Technology
 948D50 Beamex Oy Ab
 94E226 D. ORtiz Consulting
-E8E732 Alcatel-Lucent
 386E21 Wasion Group
 D8C99D EA Display Limited
 CCFC6D RIZ Transmitters
@@ -6884,7 +6887,6 @@ D0D286 Beckman Coulter K.K.
 00119B Telesynergy Research
 00118C Missouri Department of Transportation
 001191 CTS-Clima Temperatur Systeme GmbH
-00118B Alcatel-Lucent, Enterprise Business Group
 001196 Actuality Systems
 001179 Singular Technology
 001172 Cotron
@@ -7924,7 +7926,6 @@ D0D286 Beckman Coulter K.K.
 00E0C1 Memorex Telex Japan
 00E0AD EES Technology
 00E025 dit
-00E0B1 Alcatel-Lucent, Enterprise Business Group
 00E0E4 Fanuc Robotics North America
 00E031 Hagiwara Electric
 00E0A5 ComCore Semiconductor
@@ -8202,7 +8203,6 @@ D0D286 Beckman Coulter K.K.
 0080B7 Stellar Computer
 008002 Satelcom (uk)
 00805C Agilis
-0080E7 Lynwood Scientific DEV.
 008070 Computadoras Micron
 00808F C. Itoh Electronics
 000091 Anritsu
@@ -9169,7 +9169,18 @@ F0D7AA Motorola Mobility, a Lenovo Company
 285767 Echostar Technologies
 0024AF Echostar Technologies
 04C9D9 Echostar Technologies
+C49DED Microsoft
+98A40E Snap
 D0498B Zoom Server
+AC7409 Hangzhou H3C Technologies, Limited
+2C5A0F Cisco Systems
+0080E7 DRS Technologies UK Limited
+4C8120 Taicang T&W Electronics
+E8E732 Alcatel-Lucent Enterprise
+00118B Alcatel-Lucent Enterprise
+00E0B1 Alcatel-Lucent Enterprise
+E037BF Wistron Neweb
+6854ED Alcatel-Lucent
 5846E1 Baxter International
 00D0BD Lattice Semiconductor (LPA)
 F08261 Sagemcom Broadband SAS
@@ -13680,6 +13691,11 @@ F49634 Intel Corporate
 F470AB vivo Mobile Communication
 341A35 Fiberhome Telecommunication Technologies
 144FD7 Ieee Registration Authority
+6C4B90 LiteON
+08028E Netgear
+F8FF0B Electronic Technology
+38F135 SensorTec-Canada
+90F305 Humax
 D86CE9 Sagemcom Broadband SAS
 3C81D8 Sagemcom Broadband SAS
 2CE412 Sagemcom Broadband SAS
@@ -15849,7 +15865,6 @@ EC3091 Cisco Systems
 0014AE Wizlogics
 0014B3 CoreStar International
 00149B Nokota Communications
-00143F Hotway Technology
 001431 PDL Electronics
 001433 Empower Technologies(Canada)
 001432 Tarallax Wireless
@@ -16983,7 +16998,6 @@ EC3091 Cisco Systems
 001072 GVN Technologies
 00E019 ING. Giordano Elettronica
 00E0D7 Sunshine Electronics
-00E0DA Alcatel North America ESD
 00E068 Merrimac Systems
 00E01D Webtv Networks
 00E01F Avidia Systems
@@ -18264,6 +18278,16 @@ F80377 Apple
 14BD61 Apple
 C0D012 Apple
 0827CE Nagano Keiki
+00D318 SPG Controls
+2C3124 Cisco Systems
+F40343 Hewlett Packard Enterprise
+00143F Hotway Technology
+F8BE0D A2UICT
+5CC6E9 Edifier International
+08EA40 Shenzhen Bilian Electronicltd
+00E0DA Alcatel-Lucent Enterprise
+1868CB Hangzhou Hikvision Digital Technology
+E8C1D7 Philips
 2C3996 Sagemcom Broadband SAS
 0054BD Swelaser AB
 0057D2 Cisco Systems
@@ -21752,7 +21776,6 @@ DC3350 TechSAT GmbH
 002091 J125, National Security Agency
 002054 Sycamore Networks
 0020A7 Pairgain Technologies
-0020DA Alcatel North America ESD
 002005 Simple Technology
 00202B Advanced Telecommunications Modules
 002086 Microtech Electronics Limited
@@ -22861,6 +22884,16 @@ E0C0D1 CK Telecom (Shenzhen) Limited
 245BA7 Apple
 BCA920 Apple
 D055B2 Integrated Device Technology (Malaysia) Sdn. Bhd.
+A49BF5 Hybridserver Tec GmbH
+B436E3 Kbvision Group
+488803 ManTechnology
+7C6BF7 NTI
+54E061 Sichuan Tianyi Comheart Telecomco.
+B47C9C Amazon Technologies
+E81367 Airsound
+64D154 Routerboard.com
+0020DA Alcatel-Lucent Enterprise
+1CDA27 vivo Mobile Communication
 525400 QEMU virtual NIC
 B0C420 Bochs virtual NIC
 DEADCA PearPC virtual NIC
