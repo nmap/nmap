@@ -221,7 +221,7 @@ function strsplit(pattern, text)
   assert(pattern ~= "", "delimiter matches empty string!");
 
   while true do
-    local first, last, match = text:find(pattern, pos);
+    local first, last = text:find(pattern, pos);
     if first then -- found?
       list[#list+1] = text:sub(pos, first-1);
       pos = last+1;
