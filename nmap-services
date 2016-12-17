@@ -1834,7 +1834,7 @@ garcon	999/tcp	0.000966	# puprouter | applix | Applix ac
 applix	999/udp	0.073230	# Applix ac
 cadlock	1000/tcp	0.003149	# cadlock2
 ock	1000/udp	0.002142
-unknown	1001/tcp	0.000364
+webpush	1001/tcp	0.000364	# HTTP Web Push
 unknown	1001/udp	0.004955
 windows-icfw	1002/tcp	0.000690	# Windows Internet Connection Firewall or Internet Locator Server for NetMeeting.
 unknown	1002/udp	0.000330
@@ -7936,7 +7936,7 @@ aibkup	4071/tcp	0.000000	# Automatically Incremental Backup
 aibkup	4071/udp	0.000330	# Automatically Incremental Backup
 zieto-sock	4072/tcp	0.000000	# Zieto Socket Communications
 zieto-sock	4072/udp	0.000000	# Zieto Socket Communications
-iRAPP	4073/tcp	0.000000	# iRAPP Server Protocol
+iRAPP	4073/tcp	0.000000	# iRAPP Server Protocol | Interactive Remote Application Pairing Protocol
 iRAPP	4073/udp	0.000330	# iRAPP Server Protocol
 cequint-cityid	4074/tcp	0.000000	# Cequint City ID UI trigger
 cequint-cityid	4074/udp	0.000000	# Cequint City ID UI trigger
@@ -8855,6 +8855,7 @@ ifsp	4744/tcp	0.000000	# Internet File Synchronization Protocol
 ifsp	4744/udp	0.000000	# Internet File Synchronization Protocol
 fmp	4745/tcp	0.000076	# Funambol Mobile Push
 fmp	4745/udp	0.000330	# Funambol Mobile Push
+intelliadm-disc	4746/tcp	0.000000	# IntelliAdmin Discovery
 unknown	4746/udp	0.000330
 buschtrommel	4747/tcp	0.000000	# peer-to-peer file exchange protocol
 profilemac	4749/tcp	0.000000	# Profile for Mac
@@ -8866,6 +8867,9 @@ spocp	4751/udp	0.000000	# Simple Policy Control Protocol
 snap	4752/tcp	0.000000	# Simple Network Audio Protocol
 snap	4752/udp	0.000330	# Simple Network Audio Protocol
 simon	4753/tcp	0.000000	# simon-disc | Simple Invocation of Methods Over Network (SIMON) | Simple Invocation of Methods Over Network (SIMON) Discovery
+gre-in-udp	4754/tcp	0.000000	# GRE-in-UDP Encapsulation
+gre-udp-dtls	4755/tcp	0.000000	# GRE-in-UDP Encapsulation with DTLS
+RDCenter	4756/tcp	0.000000	# Reticle Decision Center
 unknown	4757/udp	0.000330
 unknown	4760/tcp	0.000076
 unknown	4761/udp	0.000330
@@ -8874,6 +8878,7 @@ unknown	4769/udp	0.000330
 unknown	4770/tcp	0.000076
 unknown	4771/tcp	0.000076
 unknown	4773/udp	0.000330
+converge	4774/tcp	0.000000	# Converge RPC
 unknown	4777/udp	0.000330
 unknown	4778/tcp	0.000076
 unknown	4778/udp	0.000991
@@ -10599,6 +10604,7 @@ nexgen	6627/tcp	0.000000	# Allied Electronics NeXGen
 nexgen	6627/udp	0.000661	# Allied Electronics NeXGen
 afesc-mc	6628/tcp	0.000076	# AFE Stock Channel M/C
 afesc-mc	6628/udp	0.000000	# AFE Stock Channel M/C
+nexgen-aux	6629/tcp	0.000000	# Secondary, (non ANDI) multi-protocol multi-function interface to the Allied ANDI-based family of forecourt controllers
 mxodbc-connect	6632/tcp	0.000000	# eGenix mxODBC Connect
 cisco-vpath-tun	6633/tcp	0.000000	# Cisco vPath Services Overlay
 unknown	6633/udp	0.000330
@@ -10704,7 +10710,7 @@ smc-admin	6787/tcp	0.000000	# Sun Web Console Admin
 smc-admin	6787/udp	0.000000	# Sun Web Console Admin
 smc-http	6788/tcp	0.000380
 smc-http	6788/udp	0.000000	# SMC-HTTP
-ibm-db2-admin	6789/tcp	0.000760	# smc-https | IBM DB2 | SMC-HTTPS
+ibm-db2-admin	6789/tcp	0.000760	# radg | smc-https | IBM DB2 | SMC-HTTPS | GSS-API for the Oracle Remote Administration Daemon
 smc-https	6789/udp	0.000330	# SMC-HTTPS
 hnmp	6790/tcp	0.000000
 hnmp	6790/udp	0.000000	# HNMP
@@ -10748,6 +10754,7 @@ muse	6888/udp	0.000000	# MUSE
 unknown	6895/udp	0.000330
 unknown	6896/tcp	0.000152
 unknown	6897/tcp	0.000076
+rtimeviewer	6900/tcp	0.000000	# R*TIME Viewer Data Interface
 jetstream	6901/tcp	0.000380	# Novell Jetstream messaging protocol
 unknown	6905/udp	0.000991
 unknown	6909/udp	0.000330
@@ -11204,6 +11211,7 @@ unknown	7471/udp	0.000330
 rise	7473/tcp	0.000000	# Rise: The Vieneo Province
 rise	7473/udp	0.000000	# Rise: The Vieneo Province
 neo4j	7474/tcp	0.000000	# Neo4j Graph Database
+openit	7478/tcp	0.000000	# IT Asset Management
 unknown	7486/udp	0.000330
 telops-lmd	7491/tcp	0.000000
 telops-lmd	7491/udp	0.000000
@@ -11316,6 +11324,7 @@ pando-pub	7680/udp	0.000330	# Pando Media Public Distribution
 dmt	7683/tcp	0.000000	# Cleondris DMT
 unknown	7684/udp	0.000330
 unknown	7685/tcp	0.000076
+bolt	7687/tcp	0.000000	# Bolt database connection
 unknown	7688/tcp	0.000076
 unknown	7688/udp	0.000330
 collaber	7689/tcp	0.000000	# Collaber Network Service
@@ -12105,6 +12114,7 @@ tor-socks	9050/tcp	0.000703	# versiera | Tor SocksPort, www.torproject.org | Ver
 tor-control	9051/tcp	0.000025	# fio-cmgmt | Tor ControlPort, www.torproject.org | Fusion-io Central Manager Service
 unknown	9053/udp	0.000991
 unknown	9055/udp	0.000330
+CardWeb-IO	9060/tcp	0.000000	# CardWeb-RT | CardWeb request-response I/O exchange | CardWeb realtime device data
 unknown	9061/tcp	0.000076
 unknown	9061/udp	0.000330
 unknown	9064/udp	0.000330
@@ -12754,6 +12764,7 @@ eapol-relay	10253/tcp	0.000000	# Relay of EAPOL frames
 unknown	10255/tcp	0.000076
 axis-wimp-port	10260/tcp	0.000000	# Axis WIMP Port
 axis-wimp-port	10260/udp	0.000330	# Axis WIMP Port
+tile-ml	10261/tcp	0.000000	# Tile remote machine learning
 unknown	10261/udp	0.000330
 unknown	10268/udp	0.000661
 unknown	10280/tcp	0.000076
@@ -13837,6 +13848,7 @@ unknown	14487/udp	0.000661
 unknown	14488/udp	0.000330
 unknown	14494/udp	0.000330
 unknown	14499/udp	0.000991
+xpra	14500/tcp	0.000000	# xpra network protocol
 unknown	14507/udp	0.000330
 unknown	14512/udp	0.000330
 unknown	14513/udp	0.000330
@@ -14971,6 +14983,7 @@ unknown	18654/udp	0.000654
 unknown	18655/udp	0.000654
 unknown	18656/udp	0.000654
 unknown	18666/udp	0.001307
+vdmmesh	18668/tcp	0.000000	# vdmmesh-disc | Manufacturing Execution Systems Mesh Communication
 unknown	18668/udp	0.000654
 unknown	18669/tcp	0.000076
 unknown	18669/udp	0.001307
@@ -15159,6 +15172,7 @@ unknown	19208/udp	0.000654
 unknown	19209/udp	0.000654
 unknown	19210/udp	0.000654
 unknown	19219/udp	0.000654
+cora	19220/tcp	0.000000	# cora-disc | Client Connection Management and Data Exchange Service | Discovery for Client Connection Management and Data Exchange Service
 unknown	19220/udp	0.000654
 unknown	19222/udp	0.001307
 unknown	19227/udp	0.001307
@@ -18803,6 +18817,7 @@ ovobs	30999/udp	0.000000	# OpenView Service Desk Client
 unknown	31001/udp	0.000654
 unknown	31005/udp	0.000654
 unknown	31015/udp	0.000654
+ka-sddp	31016/tcp	0.000000	# ka-kdp | Kollective Agent Secure Distributed Delivery Protocol | Kollective Agent Kollective Delivery Protocol
 autotrac-acp	31020/tcp	0.000000	# Autotrac ACP 245
 unknown	31020/udp	0.000654
 unknown	31022/udp	0.000654
@@ -19893,7 +19908,7 @@ unknown	34555/udp	0.006732
 unknown	34557/udp	0.000518
 unknown	34560/udp	0.000518
 unknown	34561/udp	0.000518
-dhanalakshmi	34567/tcp	0.000000	# dhanalakshmi.org EDI Service
+dhanalakshmi	34567/tcp	0.000000	# edi_service | dhanalakshmi.org EDI Service
 unknown	34570/udp	0.001554
 unknown	34571/tcp	0.000380
 unknown	34571/udp	0.000518
@@ -20020,6 +20035,7 @@ unknown	35063/udp	0.000518
 unknown	35067/udp	0.000518
 unknown	35088/udp	0.000518
 unknown	35099/udp	0.000518
+axio-disc	35100/tcp	0.000000	# Axiomatic discovery protocol
 unknown	35108/udp	0.001036
 unknown	35116/tcp	0.000076
 unknown	35120/udp	0.000518
