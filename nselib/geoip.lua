@@ -15,28 +15,26 @@ _ENV = stdnse.module("geoip", stdnse.seeall)
 -- @param lat The latitude in degrees
 -- @param lon The longitude in degrees
 add = function(ip, lat, lon)
-  if not nmap.registry.geoip then
-    nmap.registry.geoip = {}
-  end
-
-  if not nmap.registry.geoip[ip] then
-    nmap.registry.geoip[ip] = {}
-  end
-
   local lat_n = tonumber(lat)
-  if lat_n < -90 or lat_n > 90 then
+  if not lat_n or lat_n < -90 or lat_n > 90 then
     stdnse.debug1("Invalid latitude for %s: %s.", ip, lat)
     return
   end
 
   local lon_n = tonumber(lon)
-  if lon_n < -180 or lon_n > 180 then
+  if not lat_n or lon_n < -180 or lon_n > 180 then
     stdnse.debug1("Invalid longitude for %s: %s.", ip, lon)
     return
   end
 
-  nmap.registry.geoip[ip]["latitude"] = lat
-  nmap.registry.geoip[ip]["longitude"] = lon
+  if not nmap.registry.geoip then
+    nmap.registry.geoip = {}
+  end
+
+  nmap.registry.geoip[ip] = {
+    latitude = lat,
+    longitude = lon
+  }
 end
 
 --- Check if any coordinates have been stored in the registry

@@ -26,7 +26,7 @@ Additional information for the Bing Maps REST Services API can be found at:
 -- @args ip-geolocation-map-bing.api_key The required Bing Maps API key for your
 -- account. An API key can be generated at https://www.bingmapsportal.com/
 --
--- ip-geolocation-map-bing.center GPS coordinates defining the center of the
+-- @args ip-geolocation-map-bing.center GPS coordinates defining the center of the
 -- image. If omitted, Bing Maps will choose a center that shows all the
 -- markers.
 --

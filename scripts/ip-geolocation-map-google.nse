@@ -26,7 +26,7 @@ Additional information for the Google Static Maps API can be found at:
 -- your account. An API key can be generated at
 -- https://developers.google.com/maps/documentation/static-maps/." @args
 --
--- ip-geolocation-map-google.center GPS coordinates defining the center of the
+-- @args ip-geolocation-map-google.center GPS coordinates defining the center of the
 -- image. If omitted, Google Maps will choose a center that shows all the
 -- markers.
 --
@@ -136,7 +136,6 @@ local parse_args = function()
   end
 
   local marker_style = stdnse.get_script_args(SCRIPT_NAME .. ".marker_style")
-  stdnse.debug1('--> [%s]', marker_style)
   if not marker_style then
     marker_style = ""
   end
