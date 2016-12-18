@@ -24,7 +24,7 @@ Additional information for the Google Static Maps API can be found at:
 --
 -- @args ip-geolocation-map-google.api_key The required Google Maps API key for
 -- your account. An API key can be generated at
--- https://developers.google.com/maps/documentation/static-maps/."
+-- https://developers.google.com/maps/documentation/static-maps/
 --
 -- @args ip-geolocation-map-google.center GPS coordinates defining the center of the
 -- image. If omitted, Google Maps will choose a center that shows all the

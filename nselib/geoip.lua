@@ -55,17 +55,13 @@ end
 
 --- Retrieve a table of IPs by coordinate
 --@return A table of IPs keyed by coordinate in <code>lat,lon</code> format
-get_all_by_gps = function(limit)
+get_all_by_gps = function()
   if empty() then
     return nil
   end
 
   local t = {}
   for ip, coords in pairs(get_all_by_ip()) do
-    if limit and limit < #t then
-      break
-    end
-
     local key = coords["latitude"] .. "," .. coords["longitude"]
     if not t[key] then
       t[key] = {}

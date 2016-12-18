@@ -11,6 +11,9 @@ This script queries the Nmap registry for the GPS coordinates of targets stored
 by previous geolocation scripts and renders a Bing Map of markers representing
 the targets.
 
+The Bing Maps REST API has a limit of 100 markers, so if more coordinates are
+found, only the top 100 markers by number of IPs will be shown.
+
 Additional information for the Bing Maps REST Services API can be found at:
 - https://msdn.microsoft.com/en-us/library/ff701724.aspx
 ]]
@@ -63,10 +66,21 @@ local render = function(params, options)
 
   -- Add in a marker for each host.
   local markers = {}
-  for coords, ip in pairs(geoip.get_all_by_gps(100)) do
-    table.insert(markers, "pp=" .. coords .. style)
+  for coords, ip in pairs(geoip.get_all_by_gps()) do
+    table.insert(markers, {#ip, "pp=" .. coords .. style})
   end
-  local body = table.concat(markers, "&")
+  if #markers > 100 then
+    -- API is limited to 100 markers
+    stdnse.verbose1("Bing Maps API limits render to 100 markers. Some results not mapped.")
+    -- sort by number of IPs so we map the biggest groups
+    table.sort(markers, function (a, b) return a[1] < b[1] end)
+  end
+  local out_markers = {}
+  for i=1, #markers do
+    if i > 100 then break end
+    out_markers[#out_markers+1] = markers[i][2]
+  end
+  local body = table.concat(out_markers, "&")
 
   -- Format the parameters into a properly encoded URL.
   local query = "/REST/v1/Imagery/Map/" .. options["layer"] .. "?" .. url.build_query(params)
