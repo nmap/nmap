@@ -323,6 +323,7 @@ SqlServerVersionInfo =
       ["^6%.0"] = "6.0", ["^6%.5"] = "6.5", ["^7%.0"] = "7.0",
       ["^8%.0"] = "2000", ["^9%.0"] = "2005", ["^10%.0"] = "2008",
       ["^10%.50"] = "2008 R2", ["^11%.0"] = "2012", ["^12%.0"] = "2014",
+      ["^13%.0"] = "2016",
     }
 
     local product = ""
@@ -351,39 +352,85 @@ SqlServerVersionInfo =
     -- (e.g. a patch applied to 2000 SP3 that increased the build number to 780 would get displayed
     -- as "SP3a+", when it was actually SP3+). To avoid this, we will include an additional fake build
     -- number that combines the two.
-    local SP_LOOKUP_TABLE_6_5 = { {201, "RTM"}, {213, "SP1"}, {240, "SP2"}, {258, "SP3"}, {281, "SP4"},
-      {415, "SP5"}, {416, "SP5a"}, {417, "SP5/SP5a"}, }
+    local SP_LOOKUP_TABLE = {
+      ["6.5"] = {
+        {201, "RTM"},
+        {213, "SP1"},
+        {240, "SP2"},
+        {258, "SP3"},
+        {281, "SP4"},
+        {415, "SP5"},
+        {416, "SP5a"},
+        {417, "SP5/SP5a"},
+      },
 
-    local SP_LOOKUP_TABLE_7 = { {623, "RTM"}, {699, "SP1"}, {842, "SP2"}, {961, "SP3"}, {1063, "SP4"}, }
+      ["7.0"] = {
+        {623, "RTM"},
+        {699, "SP1"},
+        {842, "SP2"},
+        {961, "SP3"},
+        {1063, "SP4"},
+      },
 
-    local SP_LOOKUP_TABLE_2000 = { {194, "RTM"}, {384, "SP1"}, {532, "SP2"}, {534, "SP2"}, {760, "SP3"},
-      {766, "SP3a"}, {767, "SP3/SP3a"}, {2039, "SP4"}, }
+      ["2000"] = { {194, "RTM"},
+        {384, "SP1"},
+        {532, "SP2"},
+        {534, "SP2"},
+        {760, "SP3"},
+        {766, "SP3a"},
+        {767, "SP3/SP3a"},
+        {2039, "SP4"},
+      },
 
-    local SP_LOOKUP_TABLE_2005 = { {1399, "RTM"}, {2047, "SP1"}, {3042, "SP2"}, {4035, "SP3"}, {5000, "SP4"}, }
+      ["2005"] = {
+        {1399, "RTM"},
+        {2047, "SP1"},
+        {3042, "SP2"},
+        {4035, "SP3"},
+        {5000, "SP4"},
+      },
 
-    local SP_LOOKUP_TABLE_2008 = { {1600, "RTM"}, {2531, "SP1"}, {4000, "SP2"}, {5500, "SP3"}, {6000, "SP4"}, }
+      ["2008"] = {
+        {1600, "RTM"},
+        {2531, "SP1"},
+        {4000, "SP2"},
+        {5500, "SP3"},
+        {6000, "SP4"},
+      },
 
-    local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, {4000, "SP2"}, {6000, "SP3"}, }
+      ["2008 R2"] = {
+        {1600, "RTM"},
+        {2500, "SP1"},
+        {4000, "SP2"},
+        {6000, "SP3"},
+      },
 
-    local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, {3000, "SP1"}, {5058, "SP2"}, {6020, "SP3"}, }
+      ["2012"] = {
+        {2100, "RTM"},
+        {3000, "SP1"},
+        {5058, "SP2"},
+        {6020, "SP3"},
+      },
 
-    local SP_LOOKUP_TABLE_2014 = { {2000, "RTM"}, {4100, "SP1"}, }
+      ["2014"] = {
+        {2000, "RTM"},
+        {4100, "SP1"},
+        {5000, "SP2"},
+      },
+
+      ["2016"] = {
+        {1601, "RTM"},
+        {4001, "SP1"},
+      },
+    }
 
 
     if ( not self.brandedVersion ) then
       self:_InferProductVersion()
     end
 
-    local spLookupTable
-    if self.brandedVersion == "6.5" then spLookupTable = SP_LOOKUP_TABLE_6_5
-    elseif self.brandedVersion == "7.0" then spLookupTable = SP_LOOKUP_TABLE_7
-    elseif self.brandedVersion == "2000" then spLookupTable = SP_LOOKUP_TABLE_2000
-    elseif self.brandedVersion == "2005" then spLookupTable = SP_LOOKUP_TABLE_2005
-    elseif self.brandedVersion == "2008" then spLookupTable = SP_LOOKUP_TABLE_2008
-    elseif self.brandedVersion == "2008 R2" then spLookupTable = SP_LOOKUP_TABLE_2008R2
-    elseif self.brandedVersion == "2012" then spLookupTable = SP_LOOKUP_TABLE_2012
-    elseif self.brandedVersion == "2014" then spLookupTable = SP_LOOKUP_TABLE_2014
-    end
+    local spLookupTable = SP_LOOKUP_TABLE[self.brandedVersion]
+    stdnse.debug1("brandedVersion: %s, #lookup: %d", self.brandedVersion, spLookupTable and #spLookupTable or 0)
 
     return spLookupTable
 
