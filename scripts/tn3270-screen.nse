@@ -54,8 +54,6 @@ Hidden fields will be listed below the screen with (row, col) coordinates.
 author = "Philip Young aka Soldier of Fortran"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
--- XXX Is this a real script?
---dependencies = {"tn3270-info"}
 
 portrule = shortport.port_or_service({23,992}, {"tn3270"})
 
