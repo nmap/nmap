@@ -43,3 +43,4 @@ libpcap/pcap-tstamp.manmisc
 libpcre/.deps/
 libpcre/pcre-config
 libpcre/stamp-h1
+ndiff/INSTALLED_FILES
