@@ -35,6 +35,7 @@ CICS User ID enumeration script for the CESL/CESN Login screen.
 --
 -- @changelog
 -- 2016-08-29 - v0.1 - created by Soldier of Fortran
+-- 2016-12-19 - v0.2 - Added RACF support
 --
 -- @author Philip Young
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -106,7 +107,8 @@ Driver = {
     end
     -- At this point we MUST be at CESL/CESN to try accounts.
     -- If we're not then we quit with an error
-    if not (self.tn3270:find('SIGN ON TO CICS') and self.tn3270:find("Signon to CICS")) then
+    if not (self.tn3270:find('SIGN ON TO CICS') or self.tn3270:find("Signon to CICS")) then
+    local err = brute.Error:new( "Can't get to CESL")
       err:setRetry( true )
       return false, err
     end
@@ -117,21 +119,21 @@ Driver = {
     self.tn3270:get_all_data()
     stdnse.debug(2,"Screen Recieved for User ID: %s", pass)
     self.tn3270:get_screen_debug(2)
-    -- So far only support for TopSecret, ACF2
-    -- TODO: Add RACF error messages if they exist?
     if self.tn3270:find('TSS7145E') or
-       self.tn3270:find('ACF01004') then
-       -- known invalid userid
+       self.tn3270:find('ACF01004') or
+       self.tn3270:find('DFHCE3530') then
+       -- known invalid userid messages
        -- TopSecret: TSS7145E
        -- ACF2:      ACF01004
-       -- RACF:      TODO
+       -- RACF:      DFHCE3530
       stdnse.debug("Invalid CICS User ID: %s", string.upper(pass))
       return false,  brute.Error:new( "Incorrect CICS User ID" )
     elseif self.tn3270:find('TSS7102E') or
-           self.tn3270:find('ACF01012') then
+           self.tn3270:find('ACF01012') or
+           self.tn3270:find('DFHCE3523') then
       -- TopSecret: TSS7102E Password Missing
       -- ACF2:      ACF01012 PASSWORD NOT MATCHED
-      -- RACF:      TODO
+      -- RACF:      DFHCE3523 Please type your password.
       stdnse.verbose("Valid CICS User ID: %s", string.upper(pass))
       return true, creds.Account:new("CICS User", string.upper(pass), creds.State.VALID)
     else
@@ -244,9 +246,8 @@ action = function(host, port)
     local status, result = engine:start()
     -- port.version.extrainfo = "Security: " .. secprod
     -- nmap.set_port_version(host, port)
-    return "result"
+    return result
   else
     return err
   end
-
 end
