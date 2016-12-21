@@ -40,3 +40,7 @@ libpcap/pcap-filter.manmisc
 libpcap/pcap-linktype.manmisc
 libpcap/pcap-savefile.manfile
 libpcap/pcap-tstamp.manmisc
+libpcre/.deps/
+libpcre/pcre-config
+libpcre/stamp-h1
+ndiff/INSTALLED_FILES
