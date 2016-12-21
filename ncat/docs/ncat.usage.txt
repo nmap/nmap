@@ -1,4 +1,4 @@
-Ncat 7.31SVN ( https://nmap.org/ncat )
+Ncat 7.40SVN ( https://nmap.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds. Append 'ms' for milliseconds,

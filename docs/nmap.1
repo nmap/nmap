@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/21/2016
+.\"      Date: 12/21/2016
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "10/21/2016" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "12/21/2016" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -130,7 +130,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.31SVN ( https://nmap\&.org )
+Nmap 7\&.40SVN ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -1768,6 +1768,20 @@ filtered
 ports isn\*(Aqt worth the extra time\&.
 .RE
 .PP
+\fB\-\-defeat\-icmp\-ratelimit\fR 
+.\" --defeat-icmp-ratelimit
+.RS 4
+Similar to
+\fB\-\-defeat\-rst\-ratelimit\fR, the
+\fB\-\-defeat\-icmp\-ratelimit\fR
+option trades accuracy for speed, increasing UDP scanning speed against hosts that rate\-limit ICMP error messages\&. Because this option causes Nmap to not delay in order to receive the port unreachable messages, a non\-responsive port will be labeled
+closed|filtered
+instead of the default
+open|filtered\&. This has the effect of only treating ports which actually respond via UDP as
+open\&. Since many UDP services do not respond in this way, the chance for inaccuracy is greater with this option than with
+\fB\-\-defeat\-rst\-ratelimit\fR\&.
+.RE
+.PP
 \fB\-\-nsock\-engine epoll|kqueue|poll|select\fR 
 .\" --nsock-engine .\" Nsock IO engine
 .RS 4
@@ -2759,7 +2773,7 @@ file which is distributed with Nmap and also available from
 .\" copyright
 .\" GNU General Public License
 .PP
-The Nmap Security Scanner is (C) 1996\(en2015 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 (\(lqGPL\(rq), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
+The Nmap Security Scanner is (C) 1996\(en2016 Insecure\&.Com LLC ("The Nmap Project")\&. Nmap is also a registered trademark of the Nmap Project\&. This program free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 (\(lqGPL\(rq), BUT ONLY WITH ALL OF THE CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
 <sales@nmap\&.com>)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, version detection, and the Nmap Scripting Engine\&.
 .PP
 Note that the GPL places important restrictions on
@@ -2836,10 +2850,12 @@ Executes a helper program, module, or script to do any of the above\&.
 .PP
 This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Other people may interpret the plain GPL differently, so we consider this a special exception to the GPL that we apply to Covered Software\&. Works which meet any of these conditions must conform to all of the terms of this license, particularly including the GPL Section 3 requirements of providing source code and allowing free redistribution of the work as a whole\&.
 .PP
-As another special exception to the GPL terms, Insecure\&.Com LLC grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
+As another special exception to the GPL terms, the Nmap Project grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
 docs/licenses/OpenSSL\&.txt
 file, and distribute linked combinations including the two\&.
 .\" OpenSSL: linking exception
+.PP
+The Nmap Project has permission to redistribute Npcap, a packet capturing driver and library for the Microsoft Windows platform\&. Npcap is a separate work with it\*(Aqs own license rather than this Nmap license\&. Since the Npcap license does not permit redistribution without special permission, our Nmap Windows binary packages which contain Npcap may not be redistributed without special permission\&.
 .PP
 Any redistribution of Covered Software, including any derived works, must obey and carry forward all of the terms of this license, including obeying all GPL rules and restrictions\&. For example, source code of the whole work must be provided and free redistribution must be allowed\&. All GPL references to "this License", are to be treated as including the terms and conditions of this license text as well\&.
 .PP
@@ -2854,7 +2870,7 @@ If you have received a written license agreement or contract for Covered Softwar
 .PP
 This
 Nmap Reference Guide
-is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
+is (C) 2005\(en2016 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[19]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
@@ -2862,7 +2878,7 @@ Source is provided to this software because we believe users have a right to kno
 .PP
 Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
 <dev@nmap\&.org>
-for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project (Insecure\&.Com LLC) the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,
+for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,
 .\" open source
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed above\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty
@@ -2928,11 +2944,11 @@ and the
 .SS "United States Export Control
 .\" export control"
 .PP
-Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, Insecure\&.Com LLC believes that Nmap is not subject to U\&.S\&.
+Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, the Nmap Project believes that Nmap is not subject to U\&.S\&.
 \m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[31]\d\s+2
 export control\&. As such, there is no applicable ECCN (export control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
-When compiled with OpenSSL support or distributed as source code, Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN
+When compiled with OpenSSL support or distributed as source code, the Nmap Project believes that Nmap falls under U\&.S\&. ECCN
 \m[blue]\fB5D002\fR\m[]\&\s-2\u[32]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
 \m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[33]\d\s+2\&.

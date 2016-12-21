@@ -1,4 +1,4 @@
-Nmap 7.31SVN ( https://nmap.org )
+Nmap 7.40SVN ( https://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
