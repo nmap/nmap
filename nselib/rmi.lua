@@ -47,6 +47,7 @@ local bit = require "bit"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local shortport = require "shortport"
 local table = require "table"
 _ENV = stdnse.module("rmi", stdnse.seeall)
 -- Some lazy shortcuts
@@ -705,12 +706,21 @@ RmiDataStream = {
 -- we are definitely talking to an RMI service.
 function RmiDataStream:connect(host, port)
   local status, err
-
   local socket = nmap.new_socket()
   socket:set_timeout(5000)
+  local sslenabled = shortport.ssl(host, port)
+  
+  -- Connect over SSL if the RMI Registry uses a SSL Server Socket
+  if sslenabled then
+    status, err = socket:connect(host, port, "ssl")
+    dbg("SSL RMI Registry")
+  else
+    status, err = socket:connect(host, port, "tcp")
+  end
 
-  --  local bsocket = BufferedSocket:new()
-  socket:connect(host,port, "tcp")
+  if not socket then
+    return doh(err)
+  end
 
   -- Output and input
   local dos = JavaDOS:new(BufferedWriter:new(socket))
