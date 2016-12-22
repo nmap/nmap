@@ -317,7 +317,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
     <para>由于主机发现的需求五花八门，Nmap提供了一箩筐的选项来定制您的需求。
     主机发现有时候也叫做ping扫描，但它远远超越用世人皆知的<application moreinfo="none">ping</application>工具
     发送简单的ICMP回声请求报文。用户完全可以通过使用列表扫描(<option>-sL</option>)或者
-    通过关闭ping (<option>-P0</option>)跳过ping的步骤，也可以使用多个端口把TPC SYN/ACK，UDP和ICMP
+    通过关闭ping (<option>-P0</option>)跳过ping的步骤，也可以使用多个端口把TCP SYN/ACK，UDP和ICMP
     任意组合起来玩一玩。这些探测的目的是获得响应以显示某个IP地址是否是活动的(正在被某
     主机或者网络设备使用)。 在许多网络上，在给定的时间，往往只有小部分的IP地址是活动的。
     这种情况在基于RFC1918的私有地址空间如10.0.0.0/8尤其普遍。
