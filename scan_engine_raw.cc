@@ -1587,15 +1587,16 @@ bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
       hss->target->reason.reason_id = ER_ARPRESPONSE;
 
       if (hss->probes_outstanding.empty()) {
+        /* It's up because we got a response, but doesn't count as a response
+         * within this timeout window. Go around again. */
+        hss->target->flags = HOST_UP;
         continue;
-        /* TODO: I suppose I should really mark the @@# host as up */
       }
       probeI = hss->probes_outstanding.end();
       probeI--;
       ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
       /* Now that we know the host is up, we can forget our other probes. */
       hss->destroyAllOutstandingProbes();
-      /* TODO: Set target mac */
       gotone = 1;
       //      printf("Marked host %s as up!", hss->target->NameIP());
       break;
