@@ -12844,9 +12844,13 @@ match xamarin m|^ERROR: Another instance is running\n| p/Xamarin MonoTouch/
 # in the match lines)
 Probe TCP TLSSessionReq q|\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\x05\x03\x05\x02|
 rarity 1
-# port 3389 not listed because we can't figure out what to send to it after negotiating TLS
-ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,4433,4444,5061,6679,6697,8443,8883,9001
+# Remove 3388 and 3389 if the ssl/ms-wbt-server match below doesn't catch stuff well enough.
+ports 443,444,465,636,989,990,992,993,994,995,1241,1311,2252,3388,3389,4433,4444,5061,6679,6697,8443,8883,9001
 fallback GetRequest
+
+# TIME \x52-\x7f is 2013 - 2038
+# Combination of extension data and null bytes in the session ID should be pretty unique.
+match ssl/ms-wbt-server m|^\x16\x03[\x01-\x03]..\x02\0\0M\x03[\x01-\x03][\x52-\x7f].{31} ..\0\0.{28}[\0-\xd0].\0\0\x05\xff\x01\0\x01\0\x0b|s p/Microsoft Terminal Service/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # SSLv3 - TLSv1.2 ServerHello
 match ssl m|^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03]|s
@@ -13861,8 +13865,7 @@ match spice m|^REDQ\x02\0\0\0\x02\0\0\0[^\0]| i/SPICE 2.2/
 ##############################NEXT PROBE##############################
 Probe TCP TerminalServer q|\x03\0\0\x0b\x06\xe0\0\0\0\0\0|
 rarity 6
-ports 515,1028,1068,1503,1720,1935,2040,3389
-sslports 3389
+ports 515,1028,1068,1503,1720,1935,2040,3388,3389
 
 match activefax m|^ActiveFax Server: Es befinden sich insgesamt| p/ActFax Communication ActiveFax/ i/German/
 
