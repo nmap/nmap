@@ -2128,9 +2128,9 @@ match ms-wbt-server m|^\x03\0\0\t\x02\xf0\x80!\x80| p/xrdp/ cpe:/a:jay_sorg:xrdp
 # TIME
 # This is a random 128-byte IV followed by a four-byte timestamp.
 # 0x52000000 = Mon Aug  5 12:41:52 2013
-# 0x5FFFFFFF = Thu Jan 14 00:25:35 2021
-# Calculating: perl -MPOSIX -le 'print ctime(0x5FFFFFFF)'
-match nagios-nsca m|^.{128}[\x52-\x5F]...$|s p/Nagios NSCA/
+# 0x7FFFFFFF = Mon Jan 18 21:14:07 2038
+# Calculating: perl -MPOSIX -le 'print ctime(0x7FFFFFFF)'
+match nagios-nsca m|^.{128}[\x52-\x7F]...$|s p/Nagios NSCA/
 
 match nbd m|^NBDMAGIC\0\0B\x02\x81\x86\x12S| p/Network Block Device/ i/old handshake/ cpe:/a:wouter_verhelst:nbd/
 # see nbd/proto.txt
@@ -4703,14 +4703,14 @@ match tinc m|^0 \w+ 17\n| p/tinc vpn daemon/
 # This will match systems with clocks set between the
 # following 2 dates:
 # 0xD5000000 = Fri Mar 29 04:56:48 2013
-# 0xE2FFFFFF = Sun Sep  6 17:40:31 2020
+# 0xEFFFFFFF = Fri Aug  6 04:03:59 2027
 # Calculate this with the Python program:
 # python -c 'import datetime; print datetime.datetime.fromtimestamp(0xca000000 - 2208988800).ctime()'
 # Also needs updating (search for TIME):
 #   UDP Help
 #   TCP NULL
-match time m|^[\xd5-\xe2]...$|s i/32 bits/
-match time m|^[\xd5-\xe2]....\0\0\0$|s i/64 bits/
+match time m|^[\xd5-\xef]...$|s i/32 bits/
+match time m|^[\xd5-\xef]....\0\0\0$|s i/64 bits/
 
 # Need more examples... -Doug
 match timeedit m|^\0\0\0H\0\0\0\x02\x0fTimeEdit131\.| p/Evolvera TimeEdit/ v/1.3.1/
@@ -12207,8 +12207,8 @@ match daytime m|^(\w\w\w \w\w\w \d\d \d\d:\d\d:\d\d \w+ \d\d\d\d)\r\n\0\0\0\0\0\
 
 match drweb m|^\x7csrv_realm=([^\x7c]+)\x7csrv_Uuid=[-\da-f]{36}\x7cdws9=\d+\x7cMajorVer=(\d+)\x7cMinorVer=(\d+)\x7c| p/DrWeb/ v/$2.$3/ i/realm: $1/ cpe:/a:drweb:drweb:$2.$3/
 # TIME
-match time m|^[\xd5-\xe2]...$|s i/32 bits/
-match time m|^[\xd5-\xe2]....\0\0\0$|s i/64 bits/
+match time m|^[\xd5-\xef]...$|s i/32 bits/
+match time m|^[\xd5-\xef]....\0\0\0$|s i/64 bits/
 # Solaris Internet Name Server (42/udp), see ien116.txt
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/ cpe:/o:sun:sunos/a
 match nameserver m|^\x03\x03\x02$| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/ cpe:/o:sun:sunos/a
