@@ -300,6 +300,9 @@ local function portaction(host, port)
   key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp521" )
   if key then table.insert( keys, key ) end
 
+  key = ssh2.fetch_host_key( host, port, "ssh-ed25519" )
+  if key then table.insert( keys, key ) end
+
   if #keys == 0 then
     return nil
   end

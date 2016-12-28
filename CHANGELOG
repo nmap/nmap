@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Script ssh-hostkey now recognizes and reports Ed25519 keys [nnposter]
+
 o [NSE][GH#627] Fixed script hang in several brute scripts due to the "threads"
   script-arg not being converted to a number. Error message was
   "nselib/brute.lua:1188: attempt to compare number with string" [Arne Beer]
