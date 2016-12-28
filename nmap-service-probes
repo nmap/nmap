@@ -12850,7 +12850,7 @@ fallback GetRequest
 
 # TIME \x52-\x7f is 2013 - 2038
 # Combination of extension data and null bytes in the session ID should be pretty unique.
-match ssl/ms-wbt-server m|^\x16\x03[\x01-\x03]..\x02\0\0M\x03[\x01-\x03][\x52-\x7f].{31} ..\0\0.{28}[\0-\xd0].\0\0\x05\xff\x01\0\x01\0\x0b|s p/Microsoft Terminal Service/ o/Windows/ cpe:/o:microsoft:windows/a
+softmatch ssl m|^\x16\x03[\x01-\x03]..\x02\0\0M\x03[\x01-\x03][\x52-\x7f].{31} ..\0\0.{28}[\0-\xd0].\0\0\x05\xff\x01\0\x01\0\x0b|s p/Microsoft SChannel TLS/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # SSLv3 - TLSv1.2 ServerHello
 match ssl m|^\x16\x03[\0-\x03]..\x02\0\0.\x03[\0-\x03]|s
@@ -13863,9 +13863,25 @@ match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x07\x04\0\x08\0.{9}\0P\0\x03\0U\
 match spice m|^REDQ\x02\0\0\0\x02\0\0\0[^\0]| i/SPICE 2.2/
 
 ##############################NEXT PROBE##############################
+# This is an RDP connection request with the MSTS cookie set. Some RDP
+# listeners (with NLA?) only respond to this one.
+Probe TCP TerminalServerCookie q|\x03\0\0*%\xe0\0\0\0\0\0Cookie: mstshash=nmap\r\n\x01\0\x08\0\x03\0\0\0|
+rarity 8
+ports 3388,3389
+
+# Just to draw the softmatch here from TLSSessionReq
+match ssl m|^(?!x)x| p/BUGBUG: This should never match/
+
+# Windows 10
+match ms-wbt-server m|\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/
+
+##############################NEXT PROBE##############################
 Probe TCP TerminalServer q|\x03\0\0\x0b\x06\xe0\0\0\0\0\0|
 rarity 6
 ports 515,1028,1068,1503,1720,1935,2040,3388,3389
+
+# Just to draw the softmatch here from TLSSessionReq
+match ssl m|^(?!x)x| p/BUGBUG: This should never match/
 
 match activefax m|^ActiveFax Server: Es befinden sich insgesamt| p/ActFax Communication ActiveFax/ i/German/
 
