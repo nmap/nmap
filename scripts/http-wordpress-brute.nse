@@ -131,7 +131,7 @@ action = function( host, port )
   local status, result, engine
   local uservar = stdnse.get_script_args('http-wordpress-brute.uservar') or DEFAULT_WP_USERVAR
   local passvar = stdnse.get_script_args('http-wordpress-brute.passvar') or DEFAULT_WP_PASSVAR
-  local thread_num = stdnse.get_script_args("http-wordpress-brute.threads") or DEFAULT_THREAD_NUM
+  local thread_num = tonumber(stdnse.get_script_args("http-wordpress-brute.threads")) or DEFAULT_THREAD_NUM
 
   engine = brute.Engine:new( Driver, host, port, { uservar = uservar, passvar = passvar } )
   engine:setMaxThreads(thread_num)

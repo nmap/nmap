@@ -90,7 +90,7 @@ Driver =
 }
 
 action = function(host, port)
-  local thread_num = stdnse.get_script_args(SCRIPT_NAME..".threads") or 1
+  local thread_num = tonumber(stdnse.get_script_args(SCRIPT_NAME..".threads")) or 1
   local options = {timeout = 5000}
   local bengine = brute.Engine:new(Driver, host, port, options)
 
