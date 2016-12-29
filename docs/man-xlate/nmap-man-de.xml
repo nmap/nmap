@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id: nmap-man.xml 13215 2009-05-08 02:47:14Z fyodor $ -->
-<article id="man">
+<article id="man" lang="de">
 <artheader>
   <title>Nmap-Referenz-Handbuch (Man Page)</title>
 </artheader>

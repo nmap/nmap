@@ -1,6 +1,6 @@
 <?xml version = '1.0' encoding="latin1"?>
 <!-- $Id: manhtml-fr.xml 2991 2007-20-12 14:00:56Z gutek $ -->
-<article id="man" >
+<article id="man" lang="fr">
   <artheader>
     <title>Guide de référence Nmap (Man Page, French translation)</title>
   </artheader>

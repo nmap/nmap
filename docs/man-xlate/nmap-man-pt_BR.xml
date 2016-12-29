@@ -3,7 +3,7 @@
 <!-- <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"> -->
-<article id="man">
+<article id="man" lang="pt_BR">
   <artheader>
     <title>Guia de Referência do Nmap (Página do Manual)</title>
   </artheader>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id: manhtml.xml 6184 2007-11-10 01:55:40Z fyodor $ -->
-<article id="man">
+<article id="man" lang="ru">
 <artheader>
   <title>Справочное руководство Nmap (Man Page)</title>
 </artheader>
