@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script http-hsts-verify reports whether or not HTTP Strict
+  Transport Security is configured. [Ícaro Torres]
+
 o [NSE] Script ssh-hostkey now recognizes and reports Ed25519 keys [nnposter]
 
 o [NSE][GH#627] Fixed script hang in several brute scripts due to the "threads"
