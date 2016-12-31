@@ -52,19 +52,32 @@ _ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
 -- If it ever succeeds, it can't be marked as failing later, but if it fails
 -- the first time, we won't try again.
 local function starttls_supported(host, port, state)
-  local reg = host.registry.starttls or {}
+  host.registry.starttls = host.registry.starttls or {}
+  local reg = host.registry.starttls
+  local mutex = nmap.mutex(reg)
   local key = ("%d/%s"):format(port.number, port.protocol)
-  if reg[key] then
-    return true
+  if reg[key] ~= nil then
+    return reg[key]
   end
+  -- try releasing mutex, ignore error if we don't hold it.
+  pcall(mutex, "done")
   reg[key] = state
   host.registry.starttls_failed = reg
 end
 
 -- Check whether we've tried and failed to STARTTLS already
 local function check_starttls_failed (host, port)
+  host.registry.starttls = host.registry.starttls or {}
   local reg = host.registry.starttls
-  return reg and not reg[("%d/%s"):format(port.number, port.protocol)]
+  local key = ("%d/%s"):format(port.number, port.protocol)
+  local mutex = nmap.mutex(reg)
+  mutex "lock"
+  if reg[key] ~= nil then
+    -- somebody already did the hard work.
+    mutex "done"
+    return not reg[key]
+  end
+  -- no idea. Keep it locked until we know.
 end
 
 -- Simple reconnect_ssl wrapper for most common case
@@ -800,15 +813,16 @@ local SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT = {
 }
 
 -- Wrap the specialized connection function with a check for previous fail
--- TODO: Can we use a mutex to make this single-threaded until we know whether
--- it works or fails?
 local function wrap_special_with_reg_check(special)
   return special and function(host, port)
     local oldfail = check_starttls_failed(host, port)
     if oldfail then
       return false, "Previous STARTTLS attempt failed"
     else
-      return special(host, port)
+      local result = table.pack(special(host, port))
+      local mutex = nmap.mutex(host.registry.starttls)
+      pcall(mutex, "done")
+      return table.unpack(result)
     end
   end
 end
