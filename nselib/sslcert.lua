@@ -48,17 +48,23 @@ _ENV = stdnse.module("sslcert", stdnse.seeall)
 --@see nmap.get_ssl_certificate
 _ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
 
--- Mark this port as not supporting STARTTLS, to save connection attempts later.
-local function starttls_not_supported (host, port)
-  local failreg = host.registry.starttls_failed or {}
-  failreg[("%d/%s"):format(port.number, port.protocol)] = true
-  host.registry.starttls_failed = failreg
+-- Mark whether this port supports STARTTLS, to save connection attempts later.
+-- If it ever succeeds, it can't be marked as failing later, but if it fails
+-- the first time, we won't try again.
+local function starttls_supported(host, port, state)
+  local reg = host.registry.starttls or {}
+  local key = ("%d/%s"):format(port.number, port.protocol)
+  if reg[key] then
+    return true
+  end
+  reg[key] = state
+  host.registry.starttls_failed = reg
 end
 
 -- Check whether we've tried and failed to STARTTLS already
 local function check_starttls_failed (host, port)
-  local failreg = host.registry.starttls_failed
-  return failreg and failreg[("%d/%s"):format(port.number, port.protocol)]
+  local reg = host.registry.starttls
+  return reg and not reg[("%d/%s"):format(port.number, port.protocol)]
 end
 
 -- Simple reconnect_ssl wrapper for most common case
@@ -200,7 +206,7 @@ StartTLS = {
     s:send("AUTH TLS\r\n")
     code, result = ftp.read_reply(buf)
     if code ~= 234 then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
       -- Send QUIT to clean up server side connection
@@ -209,6 +215,7 @@ StartTLS = {
       return false, string.format("FTP AUTH TLS error: %s", code or result)
     end
     -- Should have a solid TLS over FTP session now...
+    starttls_supported(host, port, true)
     return true, s
   end,
 
@@ -233,7 +240,7 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "STARTTLS")) then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1("Server doesn't support STARTTLS")
       return false, "Failed to connect to IMAP server"
     end
@@ -243,12 +250,13 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "^A002 OK")) then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1(string.format("Error: %s", result))
       return false, "Failed to connect to IMAP server"
     end
 
     -- Should have a solid TLS over IMAP session now...
+    starttls_supported(host, port, true)
     return true, s
   end,
 
@@ -302,7 +310,7 @@ StartTLS = {
     ldapOp = asn1.intToBER(tmp)
 
     if ldapOp.number ~= ExtendedResponse then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1(string.format(
         "STARTTLS failed (got wrong op number: %d)", ldapOp.number))
       return false, "STARTTLS failed"
@@ -313,13 +321,14 @@ StartTLS = {
     pos, resultCode = ldap.decode(response, pos)
 
     if resultCode ~= 0 then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1(string.format(
         "STARTTLS failed (LDAP error code is: %d)", resultCode))
       return false, "STARTTLS failed"
     end
 
     -- Should have a solid TLS over LDAP session now...
+    starttls_supported(host, port, true)
     return true,s
   end,
 
@@ -351,7 +360,7 @@ StartTLS = {
     end
 
     if not status then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
       -- Send QUIT to clean up server side connection
@@ -359,6 +368,7 @@ StartTLS = {
       return false, string.format("Failed to connect to SMTP server: %s", result)
     end
     -- Should have a solid TLS over LMTP session now...
+    starttls_supported(host, port, true)
     return true, s
   end,
 
@@ -378,13 +388,14 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "^382 ")) then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1(string.format("Error: %s", result))
       status = s:send("QUIT\r\n")
       s:close()
       return false, "NNTP server does not support STARTTLS"
     end
 
+    starttls_supported(host, port, true)
     return true, s
   end,
 
@@ -409,13 +420,14 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "^%+OK")) then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1(string.format("Error: %s", result))
       status = s:send("QUIT\r\n")
       return false, "Failed to connect to POP3 server"
     end
 
     -- Should have a solid TLS over POP3 session now...
+    starttls_supported(host, port, true)
     return true, s
   end,
 
@@ -430,9 +442,10 @@ StartTLS = {
     end
     -- v2 has "Y", v3 has "S"
     if string.match(resp, "^[SY]") then
+      starttls_supported(host, port, true)
       return true, s
     elseif string.match(resp, "^N") then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       return false, "Postgres server does not support SSL"
     end
     return false, "Unknown response from Postgres server"
@@ -464,7 +477,7 @@ StartTLS = {
     end
 
     if not status then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
       -- Send QUIT to clean up server side connection
@@ -472,6 +485,7 @@ StartTLS = {
       return false, string.format("Failed to connect to SMTP server: %s", result)
     end
     -- Should have a solid TLS over SMTP session now...
+    starttls_supported(host, port, true)
     return true, s
   end,
 
@@ -501,16 +515,17 @@ StartTLS = {
       pos, optype, oppos, oplen = bin.unpack('>CSS', result, pos)
     end
     if not encryption then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       return false, "no encryption option found"
     elseif encryption == 0 then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       return false, "Server refused encryption"
     elseif encryption == 3 then
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       return false, "Server does not support encryption"
     end
 
+    starttls_supported(host, port, true)
     return true, WrappedSocket:new(tds._socket, {
         wrap_close = function(self)
           return tds:Disconnect()
@@ -626,26 +641,28 @@ StartTLS = {
       end
 
       if not best then
-        starttls_not_supported(host, port)
+        starttls_supported(host, port, false)
         return false, "No TLS VeNCrypt auth subtype received"
       end
       sock:send(bin.pack(">I", best))
       local status, buf = sock:receive_buf(match.numbytes(1), true)
       if not status or string.byte(buf, 1) ~= 1 then
-        starttls_not_supported(host, port)
+        starttls_supported(host, port, false)
         return false, "VeNCrypt auth subtype refused"
       end
+      starttls_supported(host, port, true)
       return true, sock
     elseif v:supportsSecType(vnc.VNC.sectypes.TLS) then
       status = sock:send( bin.pack("C", vnc.VNC.sectypes.TLS) )
       if not status then
-        starttls_not_supported(host, port)
+        starttls_supported(host, port, false)
         return false, "Failed to select TLS authentication type"
       end
     else
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       return false, string.format("No TLS auth types supported")
     end
+    starttls_supported(host, port, true)
     return true, sock
   end,
 
@@ -688,6 +705,7 @@ StartTLS = {
       return false, "Failed to connect to XMPP server"
     end
     if string.find(result,"proceed") then
+      starttls_supported(host, port, true)
       return true,sock
     end
 
@@ -698,9 +716,10 @@ StartTLS = {
       return false, "Failed to connect to XMPP server"
     end
     if string.find(result,"proceed") then
+      starttls_supported(host, port, true)
       return true,sock
     else
-      starttls_not_supported(host, port)
+      starttls_supported(host, port, false)
       return false, "Failed to connect to XMPP server"
     end
   end,
@@ -719,6 +738,7 @@ StartTLS = {
     if not(status) then
       return false, "Failed to connected"
     end
+    starttls_supported(host, port, true)
     return true, ls.socket
   end
 }
