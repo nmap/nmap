@@ -48,6 +48,19 @@ _ENV = stdnse.module("sslcert", stdnse.seeall)
 --@see nmap.get_ssl_certificate
 _ENV.parse_ssl_certificate = nmap.socket.parse_ssl_certificate
 
+-- Mark this port as not supporting STARTTLS, to save connection attempts later.
+local function starttls_not_supported (host, port)
+  local failreg = host.registry.starttls_failed or {}
+  failreg[("%d/%s"):format(port.number, port.protocol)] = true
+  host.registry.starttls_failed = failreg
+end
+
+-- Check whether we've tried and failed to STARTTLS already
+local function check_starttls_failed (host, port)
+  local failreg = host.registry.starttls_failed
+  return failreg and failreg[("%d/%s"):format(port.number, port.protocol)]
+end
+
 -- Simple reconnect_ssl wrapper for most common case
 local function tls_reconnect (func)
   return function (host, port)
@@ -187,6 +200,7 @@ StartTLS = {
     s:send("AUTH TLS\r\n")
     code, result = ftp.read_reply(buf)
     if code ~= 234 then
+      starttls_not_supported(host, port)
       stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
       -- Send QUIT to clean up server side connection
@@ -219,6 +233,7 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "STARTTLS")) then
+      starttls_not_supported(host, port)
       stdnse.debug1("Server doesn't support STARTTLS")
       return false, "Failed to connect to IMAP server"
     end
@@ -228,6 +243,7 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "^A002 OK")) then
+      starttls_not_supported(host, port)
       stdnse.debug1(string.format("Error: %s", result))
       return false, "Failed to connect to IMAP server"
     end
@@ -286,6 +302,7 @@ StartTLS = {
     ldapOp = asn1.intToBER(tmp)
 
     if ldapOp.number ~= ExtendedResponse then
+      starttls_not_supported(host, port)
       stdnse.debug1(string.format(
         "STARTTLS failed (got wrong op number: %d)", ldapOp.number))
       return false, "STARTTLS failed"
@@ -296,6 +313,7 @@ StartTLS = {
     pos, resultCode = ldap.decode(response, pos)
 
     if resultCode ~= 0 then
+      starttls_not_supported(host, port)
       stdnse.debug1(string.format(
         "STARTTLS failed (LDAP error code is: %d)", resultCode))
       return false, "STARTTLS failed"
@@ -333,6 +351,7 @@ StartTLS = {
     end
 
     if not status then
+      starttls_not_supported(host, port)
       stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
       -- Send QUIT to clean up server side connection
@@ -359,6 +378,7 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "^382 ")) then
+      starttls_not_supported(host, port)
       stdnse.debug1(string.format("Error: %s", result))
       status = s:send("QUIT\r\n")
       s:close()
@@ -389,6 +409,7 @@ StartTLS = {
     status, result = s:receive_lines(1)
 
     if not (string.match(result, "^%+OK")) then
+      starttls_not_supported(host, port)
       stdnse.debug1(string.format("Error: %s", result))
       status = s:send("QUIT\r\n")
       return false, "Failed to connect to POP3 server"
@@ -411,6 +432,7 @@ StartTLS = {
     if string.match(resp, "^[SY]") then
       return true, s
     elseif string.match(resp, "^N") then
+      starttls_not_supported(host, port)
       return false, "Postgres server does not support SSL"
     end
     return false, "Unknown response from Postgres server"
@@ -442,6 +464,7 @@ StartTLS = {
     end
 
     if not status then
+      starttls_not_supported(host, port)
       stdnse.debug1("STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
 
       -- Send QUIT to clean up server side connection
@@ -478,10 +501,13 @@ StartTLS = {
       pos, optype, oppos, oplen = bin.unpack('>CSS', result, pos)
     end
     if not encryption then
+      starttls_not_supported(host, port)
       return false, "no encryption option found"
     elseif encryption == 0 then
+      starttls_not_supported(host, port)
       return false, "Server refused encryption"
     elseif encryption == 3 then
+      starttls_not_supported(host, port)
       return false, "Server does not support encryption"
     end
 
@@ -600,20 +626,24 @@ StartTLS = {
       end
 
       if not best then
+        starttls_not_supported(host, port)
         return false, "No TLS VeNCrypt auth subtype received"
       end
       sock:send(bin.pack(">I", best))
       local status, buf = sock:receive_buf(match.numbytes(1), true)
       if not status or string.byte(buf, 1) ~= 1 then
+        starttls_not_supported(host, port)
         return false, "VeNCrypt auth subtype refused"
       end
       return true, sock
     elseif v:supportsSecType(vnc.VNC.sectypes.TLS) then
       status = sock:send( bin.pack("C", vnc.VNC.sectypes.TLS) )
       if not status then
+        starttls_not_supported(host, port)
         return false, "Failed to select TLS authentication type"
       end
     else
+      starttls_not_supported(host, port)
       return false, string.format("No TLS auth types supported")
     end
     return true, sock
@@ -670,6 +700,7 @@ StartTLS = {
     if string.find(result,"proceed") then
       return true,sock
     else
+      starttls_not_supported(host, port)
       return false, "Failed to connect to XMPP server"
     end
   end,
@@ -748,6 +779,20 @@ local SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT = {
   ["ms-sql-s"] = StartTLS.tds_prepare_tls_without_reconnect,
 }
 
+-- Wrap the specialized connection function with a check for previous fail
+-- TODO: Can we use a mutex to make this single-threaded until we know whether
+-- it works or fails?
+local function wrap_special_with_reg_check(special)
+  return special and function(host, port)
+    local oldfail = check_starttls_failed(host, port)
+    if oldfail then
+      return false, "Previous STARTTLS attempt failed"
+    else
+      return special(host, port)
+    end
+  end
+end
+
 --- Get a specialized SSL connection function without starting SSL
 --
 -- For protocols that require some sort of START-TLS setup, this function will
@@ -762,10 +807,11 @@ function getPrepareTLSWithoutReconnect(port)
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
-  return (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
+  local special = (SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.service] or
     SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT[port.number] or
     SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or
     SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number])
+  return wrap_special_with_reg_check(special)
 end
 
 --- Get a specialized SSL connection function to create an SSL socket
@@ -781,8 +827,9 @@ function isPortSupported(port)
   if ( port.version and port.version.service_tunnel == 'ssl') then
     return nil
   end
-  return (SPECIALIZED_PREPARE_TLS[port.service] or
+  local special = (SPECIALIZED_PREPARE_TLS[port.service] or
     SPECIALIZED_PREPARE_TLS[port.number])
+  return wrap_special_with_reg_check(special)
 end
 
 -- returns a function that yields a new tls record each time it is called
