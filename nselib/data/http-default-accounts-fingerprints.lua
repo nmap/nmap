@@ -1137,6 +1137,30 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- APC Symmetra 80K, firmware revision 530.1800.D
+  name = "APC Network Management Card",
+  category = "industrial",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status==401
+           and http_auth_realm(response)=="APC Management Card"
+  end,
+  login_combos = {
+    {username = "apc",     password = "apc"}
+  },
+  login_check = function (host, port, path, user, pass)
+    -- Leaving path alone; any will work.
+    local req = http_get_simple(host, port, path, {
+        auth={ username=user, password=pass}
+    })
+    return req.status==200
+  end
+})
+
+
 ---
 --Printers
 ---
