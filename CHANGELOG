@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#630] Updated or removed some OpenSSL library calls that were deprecated
+  in OpenSSL 1.1. [eroen]
+
 o [NSE] New script http-hsts-verify reports whether or not HTTP Strict
   Transport Security is configured. [Ícaro Torres]
 
