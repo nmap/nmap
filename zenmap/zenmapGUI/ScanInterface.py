@@ -131,7 +131,6 @@ import gtk
 import gobject
 import os
 import time
-import subprocess
 
 # Prevent loading PyXML
 import xml
@@ -430,46 +429,46 @@ class ScanInterface(HIGVBox):
         command = self.command_toolbar.command
         profile = self.toolbar.selected_profile
 
-        check = subprocess.Popen(["mktemp"], stdout=subprocess.PIPE).communicate()[0]
-
-        if (not check):
+        try: 
+            check = tempfile.mktemp(prefix="nmap" + target, suffix=".tmp")
+        except IOError as e: 
             warn_dialog = HIGAlertDialog(
                     message_format=_("Temp File Could not be created"),
                     secondary_text=_("There is no usable temp directory. "
-                        "Please check file permissions and run nmap again"),
+                        "Please check file permissions and run nmap again"
+                        "Error: %s" %(str(e))),
                         type=gtk.MESSAGE_ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
 
-        else:
-            log.debug(">>> Start Scan:")
-            log.debug(">>> Target: '%s'" % target)
-            log.debug(">>> Profile: '%s'" % profile)
-            log.debug(">>> Command: '%s'" % command)
+        log.debug(">>> Start Scan:")
+        log.debug(">>> Target: '%s'" % target)
+        log.debug(">>> Profile: '%s'" % profile)
+        log.debug(">>> Command: '%s'" % command)
 
-            if target != '':
-                try:
-                    self.toolbar.add_new_target(target)
-                except IOError, e:
-                    # We failed to save target_list.txt; treat it as read-only.
-                    # Probably it's owned by root and this is a normal user.
-                    log.debug(">>> Error saving %s: %s" % (
-                        Path.target_list, str(e)))
+        if target != '':
+            try:
+                self.toolbar.add_new_target(target)
+            except IOError, e:
+                # We failed to save target_list.txt; treat it as read-only.
+                # Probably it's owned by root and this is a normal user.
+                log.debug(">>> Error saving %s: %s" % (
+                    Path.target_list, str(e)))
 
-            if command == '':
-                warn_dialog = HIGAlertDialog(
-                        message_format=_("Empty Nmap Command"),
-                        secondary_text=_("There is no command to execute. "
-                            "Maybe the selected/typed profile doesn't exist. "
-                            "Please check the profile name or type the nmap "
-                            "command you would like to execute."),
-                        type=gtk.MESSAGE_ERROR)
-                warn_dialog.run()
-                warn_dialog.destroy()
-                return
+        if command == '':
+            warn_dialog = HIGAlertDialog(
+                    message_format=_("Empty Nmap Command"),
+                    secondary_text=_("There is no command to execute. "
+                        "Maybe the selected/typed profile doesn't exist. "
+                        "Please check the profile name or type the nmap "
+                        "command you would like to execute."),
+                    type=gtk.MESSAGE_ERROR)
+            warn_dialog.run()
+            warn_dialog.destroy()
+            return
 
-            self.execute_command(command, target, profile)
+        self.execute_command(command, target, profile)
 
     def _displayed_scan_change_cb(self, widget):
         self.update_cancel_button()
