@@ -455,7 +455,10 @@ class ScanInterface(HIGVBox):
             warn_dialog.destroy()
             return
 
-        self.execute_command(command, target, profile)
+        try:
+            self.execute_command(command, target, profile)
+        except IOError, e:
+            self.toolbar.scan_button.set_sensitive(False)
 
     def _displayed_scan_change_cb(self, widget):
         self.update_cancel_button()
