@@ -429,6 +429,19 @@ class ScanInterface(HIGVBox):
         command = self.command_toolbar.command
         profile = self.toolbar.selected_profile
 
+        try: 
+            check = tempfile.mktemp(prefix="nmap" + target, suffix=".tmp")
+        except IOError as e: 
+            warn_dialog = HIGAlertDialog(
+                    message_format=_("Temp File Could not be created"),
+                    secondary_text=_("There is no usable temp directory. "
+                        "Please check file permissions and run nmap again"
+                        "Error: %s" %(str(e))),
+                        type=gtk.MESSAGE_ERROR)
+            warn_dialog.run()
+            warn_dialog.destroy()
+            return
+
         log.debug(">>> Start Scan:")
         log.debug(">>> Target: '%s'" % target)
         log.debug(">>> Profile: '%s'" % profile)
