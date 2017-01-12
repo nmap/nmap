@@ -53,6 +53,10 @@ only the potentially risky methods are shown.
 --   <elem>POST</elem>
 --   <elem>OPTIONS</elem>
 -- </table>
+--
+-- @see http-method-tamper
+-- @see http-trace
+-- @see http-put
 
 
 author = {"Bernd Stroessenreuther <berny1@users.sourceforge.net>", "Gyanendra Mishra"}
