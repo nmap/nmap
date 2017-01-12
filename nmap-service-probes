@@ -15473,3 +15473,22 @@ Probe TCP VersionRequest q|VERSION|
 ports 3310
 rarity 8
 match clam m|^ClamAV ([\w.]+)/(\w+)/(.+)$| p/ClamAV/ v/$1 ($2)/ i/AV definitions updated on:$3/
+
+##############################NEXT PROBE##############################
+# RSE for IBM Explorer for z/OS (FMID HALG300)
+Probe TCP RSE q|ZmFrZTpmYWtl0\x00\x30\x00|
+rarity 9
+ports 4035
+sslports 4035
+
+match rse m|^\xa2\x85\x99\xa5\x85\x99@| p/IBM Explorer for zOS (FMID HALG300)/
+
+
+##############################NEXT PROBE##############################
+# JMON for z/OS (FMID HALG300)
+Probe TCP JMON q|CONNECT01 v09\n|
+rarity 9
+ports 6715
+sslports 6715
+
+match jmon m|^ACKNOWLEDGE| p/JMON for zOS (FMID HALG300)/
