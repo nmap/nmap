@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local lpeg_utility = require "lpeg-utility"
 
 description = [[
-Obtains the version information of a SIP server from the a User-Agent
+Obtains the version information of a SIP server from the User-Agent
 response header.
 ]]
 
@@ -21,7 +21,7 @@ response header.
 
 author = "Steve Benson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"version"}
 
 portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 
@@ -41,7 +41,6 @@ action = function(host, port)
       local status, response = session:options()
       if status then
         user_agent = response:getHeader('User-Agent')
-        stdnse.debug1("response:getHeader : %s", user_agent)
       end 
     end
   end
