@@ -66,6 +66,7 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local io = require "io"
+local pwdprofile = require "pwdprofile"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
@@ -73,6 +74,7 @@ _ENV = stdnse.module("unpwdb", stdnse.seeall)
 
 local usertable = {}
 local passtable = {}
+local profiled_passtable = {}
 
 local customdata = false
 
@@ -207,7 +209,20 @@ local passwords_raw = function()
     return false, "Error parsing password list"
   end
 
+    passtable_count = #passtable
+    if #profiled_passtable > 0 then
+      for i=1, #profiled_passtable do
+        passtable[passtable_count+i] = profiled_passtable[i]
+      end
+    end
+
   return true, table_iterator(passtable)
+end
+
+--- Adds profiled passwords to password iterator.
+-- Must be executed before passwords().
+add_profiled_pwds = function()
+  profiled_passtable = pwdprofile.get_profiled_pwds()
 end
 
 --- Wraps time and count limits around an iterator.

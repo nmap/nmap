@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local pwdprofile = require "pwdprofile"
 
 description = [[
 Shows the title of the default page of a web server.
@@ -78,6 +79,8 @@ action = function(host, port)
   if redirect_url then
     output_str = output_str .. "\n" .. ("Requested resource was %s"):format( redirect_url )
   end
+
+  pwdprofile.save_for_pwdprofiling( host, title )
 
   return output_tab, output_str
 end

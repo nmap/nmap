@@ -4,6 +4,7 @@ local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local pwdprofile = require "pwdprofile"
 
 description = [[
 Attempts to enumerate domains on a system, along with their policies. This generally requires
@@ -78,6 +79,10 @@ action = function(host)
     local response = {}
 
     for domain, data in pairs(result) do
+
+      -- Save for password profiling
+      pwdprofile.save_for_pwdprofiling( host, domain )
+      
       local piece = {}
       piece['name'] = domain
 
@@ -120,4 +125,3 @@ action = function(host)
     return stdnse.format_output(true, response)
   end
 end
-

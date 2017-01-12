@@ -7,6 +7,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local url = require "url"
+local pwdprofile = require "pwdprofile"
 
 description = [[
 Performs brute force password auditing against http form-based authentication.
@@ -105,6 +106,7 @@ the following rules:
 author = {"Patrik Karlsson", "nnposter"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
+dependencies = pwdprofile.PWDPROFILE_SCRIPTS
 
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
