@@ -120,11 +120,13 @@ Driver = {
     local macros = self.options['key3']
     local cmdfmt = "logon applid(%s)"
     local type = "applid"
+    local threshold = 75
     -- instead of sending 'logon applid(<appname>)' when macros=true
     -- we try to logon with just the command
     if macros then
       cmdfmt = "%s"
       type ="macro"
+      threshold = 90 -- sometimes the screen barely changes
     end
     stdnse.verbose(2,"Trying VTAM ID: %s", pass)
 
@@ -134,10 +136,9 @@ Driver = {
     self.tn3270:get_screen_debug(2)
     local current_screen = self.tn3270:get_screen_raw()
 
-    if (self.tn3270:find('UNABLE TO ESTABLISH SESSION')  or
-        self.tn3270:find('COMMAND UNRECOGNI[SZ]ED')         or
-        self.tn3270:find('UNABLE TO CONNECT TO THE REQUESTED APPLICATION')         or
-        self.tn3270:find('USSMSG0[1-4]')         or
+    if (self.tn3270:find('UNABLE TO ESTABLISH SESSION')  or -- thanks goes to Dominic White for creating these
+        self.tn3270:find('COMMAND UNRECOGNI[SZ]ED')      or
+        self.tn3270:find('USSMSG0[1-4]')                 or
         self.tn3270:find('SESSION NOT BOUND')            or
         self.tn3270:find('INVALID COMMAND')              or
         self.tn3270:find('PARAMETER OMITTED')            or
@@ -149,9 +150,11 @@ Driver = {
         self.tn3270:find('syntax invalid')               or
         self.tn3270:find('INVALID SYSTEM')               or
         self.tn3270:find('NOT VALID')                    or
-        self.tn3270:find('INVALID USERID, APPLID') )     or -- thanks goes to Domonic White for creating these
-      screen_diff(previous_screen, current_screen) > 75 then
+        self.tn3270:find('INVALID USERID, APPLID') )     or
+        self.tn3270:find('UNABLE TO CONNECT TO THE REQUESTED APPLICATION') or
+        screen_diff(previous_screen, current_screen) > threshold then
       -- Looks like an invalid APPLID.
+      stdnse.verbose(2,'Invalid Application ID: %s',string.upper(pass))
       return false,  brute.Error:new( "Invalid VTAM Application ID" )
     else
       stdnse.verbose(2,"Valid Application ID: %s",string.upper(pass))
@@ -200,9 +203,11 @@ local function vtam_test( host, port, commands, macros)
   tn:get_all_data()
   tn:get_screen_debug(2)
   local isVTAM = false
-  if tn:find('IBMECHO ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') then
+  if tn:find('IBMECHO ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') and not macros then
     stdnse.debug2("IBMTEST Returned: IBMECHO ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.")
     stdnse.debug1("VTAM Test Success!")
+    isVTAM = true
+  elseif macros then
     isVTAM = true
   end
 
