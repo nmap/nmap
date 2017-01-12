@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap][GH#639] Zenmap will no longer crash when no suitable temporary
+  directory is found. Patches contributed by [Varunram Ganesh] and [Sai Sundhar]
+
 o [Zenmap][GH#626] Zenmap now properly handles the -v0 (no output) option,
   which was added in Nmap 7.10. Previously, this was treated the same as not
   specifying -v at all. [lymanZerga11]
