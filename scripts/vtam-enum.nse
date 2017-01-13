@@ -54,6 +54,8 @@ found for application IDs.
 -- 2015-07-04 - v0.1 - created by Soldier of Fortran
 -- 2015-11-04 - v0.2 - significant upgrades and speed increases
 -- 2015-11-14 - v0.3 - rewrote iterator
+-- 2017-01-13 - v0.4 - Fixed 'macros' bug with default vtam screen and test
+--                     and added threshold for macros screen checking
 --
 
 author = "Philip Young aka Soldier of Fortran"
@@ -244,7 +246,6 @@ action = function(host, port)
   local macros = stdnse.get_script_args(SCRIPT_NAME .. '.macros') or false -- if set to true, doesn't prepend the commands with 'logon applid'
   local commands = stdnse.get_script_args(SCRIPT_NAME .. '.commands') -- Commands to send to get to VTAM
   local vtam_ids = {"tso", "CICS", "IMS", "NETVIEW", "TPX"} -- these are defaults usually seen
-
   vtam_id_file = ( (vtam_id_file and nmap.fetchfile(vtam_id_file)) or vtam_id_file ) or
   nmap.fetchfile("nselib/data/vhosts-default.lst")
 
