@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local ls = require "ls"
+local creds = require "creds"
 
 description = [[
 Attempts to get useful information about files from AFP volumes.
@@ -112,10 +113,11 @@ action = function(host, port)
   local users = nmap.registry.afp or { ['nil'] = 'nil' }
   local maxfiles = ls.config("maxfiles")
   local output = ls.new_listing()
+  users = {}
 
-  if ( args['afp.username'] ) then
-    users = {}
-    users[args['afp.username']] = args['afp.password']
+  local c = creds.Credentials:new({"afp-brute", "afp-ls"}, host, port)
+  for cred in c:getCredentials(creds.State.VALID) do
+    users[args[cred.user]] = args[cred.pass]
   end
 
   for username, password in pairs(users) do

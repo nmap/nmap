@@ -5,6 +5,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
+local creds = require "creds"
 
 -- we don't really need openssl here, but let's attempt to load it as a way
 -- to simply prevent the script from running, in case we don't have it
@@ -96,6 +97,8 @@ action = function( host, port )
           found_users[username] = true
 
           table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
+          local c = creds.Credentials.new( {"afp-brute"}, host, port)
+          c:add(username, password:len()>0 and password or "<empty>" , creds.State.VALID )
           break
         end
         helper:CloseSession()
