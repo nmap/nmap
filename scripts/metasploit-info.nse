@@ -37,6 +37,8 @@ References:
 -- @args metasploit-info.username  Valid metasploit rpc username (required)
 -- @args metasploit-info.password  Valid metasploit rpc password (required)
 -- @args metasploit-info.command   Custom command to run on the server (optional)
+--
+-- @see metasploit-msgrpc-brute.nse
 
 
 

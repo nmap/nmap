@@ -54,9 +54,9 @@ only the potentially risky methods are shown.
 --   <elem>OPTIONS</elem>
 -- </table>
 --
--- @see http-method-tamper
--- @see http-trace
--- @see http-put
+-- @see http-method-tamper.nse
+-- @see http-trace.nse
+-- @see http-put.nse
 
 
 author = {"Bernd Stroessenreuther <berny1@users.sourceforge.net>", "Gyanendra Mishra"}

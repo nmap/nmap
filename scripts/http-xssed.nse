@@ -21,7 +21,10 @@ This script searches the xssed.com database and outputs the result.
 -- |   xssed.com found the following previously reported XSS vulnerabilities marked as fixed:
 -- |
 -- |_    /myBook/myregion.php?targetUrl=javascript:alert(1);
----
+--
+-- @see http-stored-xss.nse
+-- @see http-dombased-xss.nse
+-- @see http-phpself-xss.nse
 
 author = "George Chatzisofroniou"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

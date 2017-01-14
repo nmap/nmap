@@ -72,6 +72,8 @@ database can specify their own criteria for accepting a page as valid.
 -- |   /images/outlook.jpg: Outlook Web Access
 -- |   /nfservlets/servlet/SPSRouterServlet/: netForensics
 -- |_  /nfservlets/servlet/SPSRouterServlet/: netForensics
+--
+-- @see http-iis-short-name-brute.nse
 
 author = {"Ron Bowes", "Andrew Orr", "Rob Nicholls"}
 

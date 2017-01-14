@@ -31,6 +31,7 @@ setup to require authentication or not and also supports IP restrictions.
 --
 -- @args creds.rpcap username:password to use for authentication
 --
+-- @see rpcap-brute.nse
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

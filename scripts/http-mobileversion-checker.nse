@@ -18,7 +18,7 @@ Checks if the website holds a mobile version.
 -- 80/tcp open  http    syn-ack
 -- |_ http-mobileversion-checker: Found mobile version: https://m.some-very-random-website.com (Redirected to a different host)
 --
----
+-- @see http-useragent-tester.nse
 
 categories = {"discovery", "safe"}
 author = "George Chatzisofroniou"
