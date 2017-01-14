@@ -779,7 +779,7 @@ Nmap 7.00 [2015-11-19]
 
 o This is the most important release since Nmap 6.00 back in May 2012!
   For a list of the most significant improvements and new features,
-  see the announcement at: https://nmap.org/7
+  see the announcement at: https://nmap.org/7/
 
 o [NSE] Added 6 NSE scripts from 6 authors, bringing the total up to 515!
   They are all listed at https://nmap.org/nsedoc/, and the summaries are below
@@ -2775,7 +2775,7 @@ Nmap 6.00 [2012-05-21]
 
 o Most important release since Nmap 5.00 in July 2009! For a list of
   the most significant improvements and new features, see the
-  announcement at: https://nmap.org/6
+  announcement at: https://nmap.org/6/
 
 o In XML output, "osclass" elements are now child elements of the
   "osmatch" they belong to. Old output was thus:
@@ -4772,7 +4772,7 @@ o Dramatically improved nmap.xsl (used for converting Nmap XML output
     default if Javascript is enabled).
   Many smaller improvements were made as well. You can find the new
   file at https://nmap.org/svn/docs/nmap.xsl, and here is an example
-  scan processed through it: https://nmap.org/tmp/newxsl.html . [Tom]
+  scan processed through it: https://nmap.org/book/output-formats-output-to-html.html . [Tom]
 
 o [NSE] Created a new "broadcast" script category for the broadcast-*
   scripts.  These perform network discovery by broadcasting on the
@@ -4851,7 +4851,7 @@ o [Nping] Substantially improved the Nping man page. You can read it
 
 o Documented the licenses of the third-party software used by Nmap and
   its sibling tools:
-  https://nmap.org/svn/docs/3rd-party-licenses.txt . [David]
+  https://svn.nmap.org/nmap/docs/3rd-party-licenses.txt . [David]
 
 o [NSE] Improved the SMB scripts so that they can run in parallel
   rather than using a mutex to force serialization.  This quadrupled
@@ -5273,7 +5273,7 @@ o Nmap now works if you specify several target host names which
   machine. [David]
 
 o Made a list of current Nmap SVN committers:
-  https://nmap.org/svn/docs/committers.txt
+  https://svn.nmap.org/nmap/docs/committers.txt
 
 o Added a new library, libnetutil, which contains about 2,700 lines of
   networking related code which is now shared between Nmap and Nping
@@ -6319,8 +6319,7 @@ o Added 14 new NSE scripts for a grand total of 72! You can learn
     version detection probe value if that is more precise. It also
     detects the server platform and database instance name. The DB2
     version detection port ranges were broadened to 50000-50025 and
-    60000-60025 as well. See
-    https://nmap.org/nsedoc/scripts/db2-info.html . [Tom]
+    60000-60025 as well. [Tom]
 
   + smbv2-enabled checks if the smbv2 protocol is enabled on target
     servers. SMBv2 has already suffered from at least one major
@@ -6535,7 +6534,7 @@ o [Ncat] Ncat now prints a message like "Connection refused." by
 o Zenmap no longer displays down hosts in the GUI. [Josh]
 
 o The Ndiff man page was dramatically improved with examples and
-  sample output. See https://nmap.org/ndiff/man.html .
+  sample output. See https://nmap.org/book/ndiff-man.html .
   [David]
 
 o [NSE] At debug level 2 or higher (-d2), Nmap now prints all active
@@ -6708,8 +6707,7 @@ o [NSE] All scripts (except for those in "version" or "demo"
 o Added a check for a SMBv2 vulnerability (CVE-2009-3103) to
   smb-check-vulns. Due to its nature (it performs a DoS, then checks
   if the system is still online), the script isn't run by default and
-  requires a special script-arg to work. See
-  https://nmap.org/nsedoc/scripts/smb-check-vulns.html . [Ron]
+  requires a special script-arg to work. [Ron]
 
 o Fixed an integer overflow in uptime calculation which could occur
   when a target with a low TCP timestamp clock frequency uses large
@@ -6747,7 +6745,7 @@ o There is a new OS detection pseudo-test, SCAN.DC, which records how
   and DS=1%DC=D (a true one-hop connection.) [David]
 
 o Canonicalized the list of OS detection device types to a smaller set
-  with descriptions: https://nmap.org/svn/docs/device-types.txt .
+  with descriptions: https://svn.nmap.org/nmap/docs/device-types.txt .
   [David, Fyodor, Doug]
 
 o [Ncat] The --idle-timeout option now exits when *both* stdin and the
@@ -7576,7 +7574,7 @@ o The NSEDoc portal at https://nmap.org/nsedoc/ now provides download
   links from the script and module pages to browse or download recent versions
   of the code.  It isn't quite as up-to-date as obtaining them from
   svn directly, but may be more convenient. For an example, see
-  https://nmap.org/nsedoc/scripts/smb-check-vulns.html . [David, Fyodor]
+  https://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html . [David, Fyodor]
 
 o A copy of the Nmap public svn repository (/nmap, plus its zenmap,
   nsock, nbase, and ncat externals) is now available at
@@ -7814,7 +7812,7 @@ o You can now use '-' by itself in a target IP specification to mean
 o Nmap was discovered in another movie!  In the Russian film
   Khottabych, teenage hacker Gena uses Nmap (and telnet) to hack
   Microsoft.  In response, MS sends a pretty female hacker to flush
-  him out.  More details and screenshots: https://nmap.org/movies.html .
+  him out.  More details and screenshots: https://nmap.org/movies/#khottabych .
 
 o Improved operating system support for the smb-enum-sessions NSE
   script; previous revisions worked on Windows 2003 or Windows 2000,
@@ -8038,7 +8036,7 @@ o Made a few improvements to nmap.xsl (details:
 o [Zenmap] New translation: French (contributed by Gutek)
 
 o Updated the mswin32 installer build guide and posted it to
-  https://nmap.org/data/win32-installer-zenmap-buildguide.txt [Fyodor]
+  https://svn.nmap.org/nmap/docs/win32-installer-zenmap-buildguide.txt [Fyodor]
 
 o The xampp-default-auth.nse script was renamed to ftp-brute.nse since
   it has become more general.
@@ -8264,7 +8262,7 @@ o [NSE] We now have a canonical way for scripts to check for
   dependency libraries such as OpenSSL.  This allows them to handle
   the issue gracefully (by exiting or doing some of their work if
   possible) rather than flooding the console with error messages as
-  before. See https://nmap.org/nsedoc/modules/openssl.html . [Pattrick,
+  before. See https://nmap.org/nsedoc/lib/openssl.html . [Pattrick,
   David, Fyodor]
 
 o Nmap now reports a proper error message when you combine an IPv6
@@ -9598,7 +9596,7 @@ o Canonicalize NSE script license text--more than half did not even
   spell license correctly. They all still say that they are under
   Nmap's license, just with consistent capitalization and spelling,
   and now a link to Nmap legal page at
-  https://nmap.org/man/man-legal.html .
+  https://nmap.org/book/man-legal.html .
 
 o Updated ripeQuery.nse to not print extraneous whitespace. [Kris]
 
@@ -9764,7 +9762,7 @@ o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
 o The DocBook XML source code to the Nmap Scripting Engine docs
-  (https://nmap.org/nse/) is now in SVN under docs/scripting.xml .
+  (https://nmap.org/book/nse.html) is now in SVN under docs/scripting.xml .
 
 Nmap 4.53 [2008-1-12]
 
@@ -10717,7 +10715,7 @@ o Changed the IP protocol scan so that it sends proper IGMP headers when
 
 o Improved the algorithm for classifying the TCP timestamp frequency
   for OS detection.  The new algorithm is described at
-  https://nmap.org/osdetect/osdetect-methods.html#osdetect-ts .
+  https://nmap.org/book/osdetect-methods.html#osdetect-ts .
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
@@ -10763,7 +10761,7 @@ o Integrated the Nmap Scripting Engine (NSE) into mainline Nmap.
   accepting (and writing) general purpose scripts to put into Nmap
   proper, and you can also write personal scripts to deal with issues
   specific to your environment.  The system is documented at
-  https://nmap.org/nse/ .
+  https://nmap.org/book/nse.html .
 
 o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
   (http://standards.ieee.org/regauth/oui/oui.txt) as of December 7.
@@ -10880,7 +10878,7 @@ o Integrated the newly submitted OS fingerprints.  The DB now contains
 
 o Nmap 2nd generation OS detection now has a more sophisticated
   mechanism for guessing a target OS when there is no exact match in the
-  database (see https://nmap.org/osdetect/osdetect-guess.html )
+  database (see https://nmap.org/book/osdetect-guess.html )
 
 o Rewrote mswin32/nmap.rc to remove cruft and hopefully reduce some
   MFC-related compilation problems we've seen.  Thanks to KX
@@ -10929,14 +10927,14 @@ o Worked with Zhao to improve the new OS detection system with
   now ready to start growing the new database!  If Nmap gives you
   fingerprints, please submit them at the given URL.  The DB is still
   extremely small.  The new system is extensively documented at
-  https://nmap.org/osdetect/ .
+  https://nmap.org/book/osdetect.html .
 
 o Nmap now supports IP options with the new --ip-options flag.  You
   can specify any options in hex, or use "R" (record route), "T"
   (record timestamp), "U") (record route & timestamp), "S [route]"
   (strict source route), or "L [route]" (loose source route).  Specify
   --packet-trace to display IP options of responses.  For further
-  information and examples, see https://nmap.org/man/ and
+  information and examples, see https://nmap.org/book/man.html and
   http://seclists.org/nmap-dev/2006/q3/0052.html .  Thanks to Marek
   Majkowski for writing and sending the patch.
 
@@ -11050,7 +11048,7 @@ o Added a fix for the crash in the new OS detection which would come
 Nmap 4.20ALPHA1 [2006-6-24]
 
 o Integrated initial 2nd generation OS detection patch!  The system is
-  documented at https://nmap.org/osdetect/ .  Thanks to Zhao Lei
+  documented at https://nmap.org/book/osdetect.html .  Thanks to Zhao Lei
   for helping with the coding and design.
 
 o portlist.cc was refactored to remove some code duplication.  Thanks
@@ -11149,7 +11147,7 @@ o Nmap now ignores certain ICMP error message rate limiting (rather
   limits when encountered.  For a SYN scan, this may cause closed
   ports to be labeled 'filtered' because Nmap refused to slow down
   enough to correspond to the rate limiting.  Learn more about this
-  new option at https://nmap.org/man/ .  Thanks to Martin
+  new option at https://nmap.org/book/man.html .  Thanks to Martin
   Macok (martin.macok(a)underground.cz) for writing the patch that
   these changes were based on.
 
@@ -11157,7 +11155,7 @@ o Moved my Nmap development environment to Visual C++ 2005 Express
   edition.  In typical "MS Upgrade Treadmill" fashion, Visual Studio
   2003 users will no longer be able to compile Nmap using the new
   solution files.  The compilation, installation, and execution
-  instructions at https://nmap.org/install/inst-windows.html have been
+  instructions at https://nmap.org/book/inst-windows.html have been
   upgraded.
 
 o Automated my Windows build system so that I just have to type a
@@ -11467,7 +11465,7 @@ o Fixed compilation to again work with gcc-derivatives such as
 Nmap 3.98BETA1 [2006-1-22]
 
 o Added run time interaction as documented at
-  https://nmap.org/man/man-runtime-interaction.html .
+  https://nmap.org/book/man-runtime-interaction.html .
   While Nmap is running, you can now press 'v' to increase verbosity,
   'd' to increase the debugging level, 'p' to enable packet tracing,
   or the capital versions (V,D,P) to do the opposite.  Any other key
@@ -11590,10 +11588,10 @@ o Made a change to libdnet so that Windows interfaces are listed as
 o Ceased including foreign translations in the Nmap tarball as they
   take up too much space.  HTML versions can be found at
   https://nmap.org/docs.html , while XML and NROFF versions
-  are available from https://nmap.org/data/man-xlate/ .
+  are available from https://svn.nmap.org/nmap/docs/man-xlate/ .
 
 o Changed INSTALL and README-WIN32 files to mostly just reference the
-  new Nmap Install Guide at https://nmap.org/install/ .
+  new Nmap Install Guide at https://nmap.org/book/install.html .
 
 o Included docs/nmap-man.xml in the tarball distribution, which is the
   DocBook XML source for the Nmap man page.  Patches to Nmap that are
@@ -11684,13 +11682,13 @@ Nmap 3.94ALPHA1 [2005-11-27]
 
 o Wrote a new man page from scratch.  It is much more comprehensive
   (more than twice as long) and (IMHO) better organized than the
-  previous one.  Read it online at https://nmap.org/man/
+  previous one.  Read it online at https://nmap.org/book/man.html
   or docs/nmap.1 from the Nmap distribution.  Let me know if you have
   any ideas for improving it.
 
 o Wrote a new "help screen", which you get when running Nmap without
   arguments.  It is also reproduced in the man page and at
-  https://nmap.org/data/nmap.usage.txt .  I gave up trying
+  https://svn.nmap.org/nmap/docs/nmap.usage.txt .  I gave up trying
   to fit it within a 25-line, 80-column terminal window.  It is now 78
   lines and summarizes all but the most obscure Nmap options.
 
@@ -11711,7 +11709,7 @@ o Made the version detection "ports" directive (in
   bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
 
 o Added the --webxml option, which does the same thing as
-  --stylesheet https://nmap.org/data/nmap.xsl , without
+  --stylesheet https://svn.nmap.org/nmap/docs/nmap.xsl , without
   requiring you to remember the exact URL or type that whole thing.
 
 o Fixed a crash occurred when the --exclude option was used with
@@ -11889,7 +11887,7 @@ o Nmap distribution signing has changed. Release files are now signed
   generated a new key for himself (KeyID 33599B5F).  The Nmap key has
   been signed by Fyodor's new key, which has been signed by Fyodor's
   old key so that you know they are legit.  The new keys are available
-  at https://nmap.org/data/nmap_gpgkeys.txt , as
+  at https://svn.nmap.org/nmap/docs/nmap_gpgkeys.txt , as
   docs/nmap_gpgkeys.txt in the Nmap source tarball, and on the public
   keyserver network.  Here are the fingerprints:
     pub  1024D/33599B5F 2005-04-24
@@ -12153,7 +12151,7 @@ o Nmap now ships with and installs (in the same directory as other
   privacy reasons (avoid loading of an external URL when you view
   results), Nmap uses the local file system by default.  If you would
   like the latest version of the stylesheet loaded from the web when
-  rendering, specify --stylesheet https://nmap.org/data/nmap.xsl .
+  rendering, specify --stylesheet https://svn.nmap.org/nmap/docs/nmap.xsl .
 
 o Fixed fragmentation option (-f).  One -f now sets sends fragments
   with just 8 bytes after the IP header, while -ff sends 16 bytes to
@@ -12329,7 +12327,7 @@ o Fixed nmap_fetchfile() to better find custom versions of data files
 
 o Changed XML output so that the MAC address <address> element comes
   right after the IPv4/IPv6 <address> element.  Apparently this is
-  needed to comply with the DTD ( https://nmap.org/data/nmap.dtd ).
+  needed to comply with the DTD ( https://svn.nmap.org/nmap/docs/nmap.dtd ).
   Thanks to Adam Morgan (adam.morgan(a)Q1Labs.com) and Florian Ebner
   (Florian.Ebner(a)e-bros.de) for the problem reports.
 
@@ -12612,7 +12610,7 @@ o Modified the mswine32/nmap_performance.reg Windows registry file to
   should apply the new registry changes by clicking on the .reg file.
   Or do it manually as described in README-WIN32.  This file is also
   now available in the data directory at
-  https://nmap.org/data/nmap_performance.reg
+  https://svn.nmap.org/nmap/docs/nmap_performance.reg
 
 o Applied patch from Gisle Vanem (giva(a)bgnett.no) which allows the
   Windows version of Nmap to work with WinPCAP 3.1BETA (and probably
@@ -12944,7 +12942,7 @@ o Applied a one-line patch from Dmitry V. Levin (ldv(a)altlinux.org)
 Nmap 3.40PVT17 [2003-9-12]
 
 o Wrote and posted a new paper on version scanning to
-  https://nmap.org/versionscan.html .  Updated nmap-service-probes and
+  https://nmap.org/book/vscan.html .  Updated nmap-service-probes and
   the Nmap man page to simply refer to this URL.
 
 o Integrated more service signatures from my own scanning as well as
@@ -13856,11 +13854,11 @@ o Applied patch by Max Schubert (nmap(a)webwizarddesign.com) which adds
 
 o Added German translation of Nmap man page by Marc Ruef
   (marc.ruef(a)computec.ch).  It is also available at
-  https://nmap.org/data/nmap_manpage-de.html
+  https://nmap.org/man/de/
 
 o Includes a brand new French translation of the man page by Sebastien
   Blanchet.  You could probably guess that it is available at
-  https://nmap.org/data/nmap_manpage-fr.html
+  https://nmap.org/man/fr/
 
 o Applied some patches from Chad Loder (cloder(a)loder.us) which update
   the random IP allocation pool and improve OpenBSD support.  Some
@@ -15132,7 +15130,7 @@ o Fixed strtol() integer overflow problem found by Renaud Deraison
   (deraison(a)cvs.nessus.org)
 
 o The HTML translation of the Man page at
-  https://nmap.org/nmap_manpage.html should now be
+  https://nmap.org/book/man.html should now be
   complete (man2html was dropping lines before).
 
 o Added a note in the man page that Nmap 2.0+ is believed to be
