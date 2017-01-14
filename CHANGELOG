@@ -831,7 +831,7 @@ o Integrated all of your service/version detection fingerprints submitted from
   [Daniel Miller]
 
 o [NSE] Added 10 NSE scripts from 5 authors, bringing the total up to 509!
-  They are all listed at http://nmap.org/nsedoc/, and the summaries are below
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below
   (authors are listed in brackets):
 
   + knx-gateway-discover and knx-gateway-info scripts gather information from

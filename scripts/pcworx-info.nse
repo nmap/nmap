@@ -35,7 +35,7 @@ http://digitalbond.com
 --<elem key="Firmware Time">09:39:02</elem>
 
 author = "Stephen Hilt (Digital Bond)"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery"}
 
 portrule = shortport.port_or_service(1962, "pcworx", "tcp")
