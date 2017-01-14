@@ -115,8 +115,10 @@ action = function(host, port)
   local output = ls.new_listing()
   users = {}
 
-  local c = creds.Credentials:new({"afp-brute", "afp-ls"}, host, port)
-  for cred in c:getCredentials(creds.State.VALID) do
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  local states = creds.State.VALID + creds.State.PARAM
+
+  for cred in c:getCredentials(states) do
     users[args[cred.user]] = args[cred.pass]
   end
 

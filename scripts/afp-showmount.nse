@@ -52,9 +52,11 @@ action = function(host, port)
   local args = nmap.registry.args
   local users = nmap.registry.afp or { ['nil'] = 'nil' }
 
-  local c = creds.Credentials:new({"afp-brute", "afp-ls"}, host, port)
-  for cred in c:getCredentials(creds.State.VALID) do
-    users[args[cred.user]] = cred.pass
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  local states = creds.State.VALID + creds.State.PARAM
+
+  for cred in c:getCredentials(states) do
+    users[args[cred.user]] = args[cred.pass]
   end
 
   for username, password in pairs(users) do

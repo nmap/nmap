@@ -6,6 +6,7 @@ local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
 local creds = require "creds"
+local brute = require "brute"
 
 -- we don't really need openssl here, but let's attempt to load it as a way
 -- to simply prevent the script from running, in case we don't have it
@@ -50,10 +51,47 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(548, "afp")
 
-action = function( host, port )
+Driver = {
 
+  new = function(self, host, port)
+    local o = { helper = afp.Helper:new(host, port) }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
+
+  connect = function( self )
+    return self.helper:connect()
+  end,
+
+  login = function( self, username, password )
+    local status, resp = self.helper:Login( username, password )
+
+    if status then
+      -- Add credentials for other afp scripts to use via brute
+      if password:len()>0
+        return true, creds.Account:new(username, password, creds.State.VALID)
+      else
+        return true, creds.Account:new(username, "", creds.State.VALID)
+        end
+      break
+    else
+      local err = brute.Error:new( response.data )
+      err:setRetry( true )
+      helper:CloseSession()
+      return true, err
+    end
+  end,
+
+  disconnect = function(self)
+    return self.helper:close()
+  end,
+
+}
+
+local function validateAuth(host, port)
   local result, response, status = {}, nil, nil
-  local valid_accounts, found_users = {}, {}
+  local valid_accounts = {}
   local helper
   local usernames, passwords
 
@@ -72,43 +110,35 @@ action = function( host, port )
 
         if ( not(status) ) then
           stdnse.debug1("OpenSession failed")
-          return
+          return 
         end
-
 
         stdnse.debug1("Trying %s/%s ...", username, password)
-        status, response = helper:Login( username, password )
-
-        -- if the response is "Parameter error." we're dealing with Netatalk
-        -- This basically means that the user account does not exist
-        -- In this case, why bother continuing? Simply abort and thank Netatalk for the fish
-        if response:match("Parameter error.") then
-          stdnse.debug1("Netatalk told us the user does not exist! Thanks.")
-          -- mark it as "found" to skip it
-          found_users[username] = true
+        status, result = helper:login()
+        if ( status ) then
+          return true, "Brute Successful"
+        else
+          return false, "Brute Unsuccessful"
         end
-
-        if status then
-          -- Add credentials for other afp scripts to use
-          if nmap.registry.afp == nil then
-            nmap.registry.afp = {}
-          end
-          nmap.registry.afp[username]=password
-          found_users[username] = true
-
-          table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
-          local c = creds.Credentials.new( {"afp-brute"}, host, port)
-          c:add(username, password:len()>0 and password or "<empty>" , creds.State.VALID )
-          break
-        end
-        helper:CloseSession()
+        return status, result
       end
     end
-    usernames("reset")
+  end
+end
+
+action = function(host, port)
+
+  local status, result = validateAuth(host, port)
+  if ( not(status) ) then
+    return result
   end
 
-  local output = stdnse.format_output(true, valid_accounts)
+  local engine = brute.Engine:new(Driver, host, port )
 
-  return output
+  engine.options.script_name = SCRIPT_NAME
+  engine.options.firstonly = true
 
+  local result
+  status, result = engine:start()
+  return result
 end

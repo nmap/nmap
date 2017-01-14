@@ -158,8 +158,11 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
 
   users = {}
-  local c = creds.Credentials:new({"afp-brute", "afp-ls"}, host, port)
-  for cred in c:getCredentials(creds.State.VALID) do
+
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  local states = creds.State.VALID + creds.State.PARAM
+
+  for cred in c:getCredentials(states) do
     users[args[cred.user]] = args[cred.pass]
   end
 

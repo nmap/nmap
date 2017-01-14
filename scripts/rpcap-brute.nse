@@ -90,5 +90,3 @@ action = function(host, port)
 
   return result
 end
-
-
