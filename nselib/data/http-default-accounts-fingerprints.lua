@@ -953,6 +953,37 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Version 5.0.0r8 on NetScreen 5XT
+  name = "ScreenOS",
+  cpe = "cpe:/o:juniper:netscreen_screenos",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^Virata%-EmWeb/R%d+_")
+           and response.body
+           and response.body:lower():find("admin_pw", 1, true)
+  end,
+  login_combos = {
+    {username = "netscreen", password = "netscreen"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {admin_id="",
+                  admin_pw="",
+                  time=tostring(math.floor(stdnse.clock_ms())):sub(5),
+                  un=base64.enc(user),
+                  pw=base64.enc(pass)}
+    local req = http_post_simple(host, port, url.absolute(path, "index.html"),
+                                 nil, form)
+    local loc = req.header["location"] or ""
+    return req.status == 303 and loc:find("/nswebui.html?", 1, true)
+  end
+})
+
+table.insert(fingerprints, {
   -- Version 11.4.1, 11.5.3
   name = "F5 TMOS",
   cpe = "cpe:/o:f5:tmos",
