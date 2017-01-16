@@ -12,11 +12,12 @@ local have_openssl, openssl = pcall(require, 'openssl')
 --
 -- STRUCTURE:
 -- * <code>name</code> - Descriptive name
+-- * <code>cpe</code> - Official CPE Dictionary entry (optional)
 -- * <code>category</code> - Category
--- * <code>login_combos</code>
----- * <code>username</code> - Default username
----- * <code>password</code> - Default password
--- * <code>paths</code> - Paths table containing the possible location of the target
+-- * <code>login_combos</code> - Table of default credential pairs
+---- * <code>username</code>
+---- * <code>password</code>
+-- * <code>paths</code> - Table of likely locations (paths) of the target
 -- * <code>target_check</code> - Validation function of the target (optional)
 -- * <code>login_check</code> - Login function of the target
 ---
