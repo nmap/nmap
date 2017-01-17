@@ -2258,23 +2258,6 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
 
       <varlistentry>
         <term>
-          <option>--interactive</option> (Startaj u interaktivnom modu)
-        </term>
-        <listitem>
-          <para>Starta Nmap u interaktivnom modu, što omogućava lako pokretanje više skenova (sinhrono ili u
-          pozadini). Ovo je korisno za korisnike koji skeniraju s multikorisničkih sustava, jer često žele testirati
-          sigurnost, bez da dozvole svima ostalima koji su ulogirani na sustav da vide što i koga oni skeniraju.
-          Koristite --interactive opciju kako bi aktivirali ovaj mod, te nakon toga pritisnite
-          <keycap moreinfo="none">h</keycap> za pomoć. Ovo se rijetko koristi, jer su shell-ovi obično poznatiji i
-          imaju dovoljno mogućnosti. Ova opcija uključuje bang (!) operator za izvršavanje shell naredbi, što je
-          jedan od glavnih razloga zašto ne bi trebalo instalirati Nmap sa setuid = root (op. prev. Ako instalirate
-          Nmap sa setuid=root, svatko tko ga pokrene, moći će napraviti na sustavu što god hoće, jer može iz Nmap-a
-          pokrenuti bilo koju naredbu s root pravima).</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <option>--noninteractive</option> (Za pokretanje Nmap-a iz nekog drugog programa)
         </term>
         <listitem>

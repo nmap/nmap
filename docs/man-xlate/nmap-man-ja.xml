@@ -1230,15 +1230,6 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
 
       <varlistentry>
         <term>
-          <option>--interactive</option> (インタラクティブモードで開始する)
-        </term>
-        <listitem>
-          <para>Nmapをインタラクティブモードで開始する。このモードでは、対話型のプロンプトによって、複数のスキャンを(同時進行かバックグラウンドかで)簡単に開始することができる。これは、マルチユーザシステムからスキャンを行う場合に役に立つ。システムのセキュリティ検査を行う際に、どのシステムをスキャンしているかをシステム上の誰にも知られずに実施したい場合が多いからだ。<option>--interactive</option> を使ってインタラクティブモードにしたら、<keycap moreinfo="none">h</keycap> と入力してヘルプを表示してみよう。このオプションはめったに使用されない。なぜなら、適切なシェルのほうが、使い慣れているし、機能も揃っているからだ。このオプションには、シェルコマンドを実行するためのbang演算子(!)が組み込まれている。setuid rootでNmapをインストールしない多くの理由の1つがこれである。 </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <option>-V</option>; <option>--version</option> (バージョン番号を表示する)
         </term>
         <listitem>

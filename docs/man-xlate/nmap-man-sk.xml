@@ -2636,26 +2636,6 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 
       <varlistentry>
         <term>
-          <option>--interactive</option> (Zacat v interaktivnom mode)
-        </term>
-        <listitem>
-          <para>Nmap zacne pracovat v interaktivnom mode, 
-		  ktory ponuka moznost pouzitia vyzvy na jednoduche spustenie
-		  viacnasobnych scanov, bud synchronne alebo v pozadi. Zide sa to 
-		  pre pouzivatelov, ktori scanuju zo systemov typu multi-user a
-		  casto chcu testovat bezpecnost bez toho, aby niekto v systeme vedel
-		  , ktore systemy sa presne scanuju. Tento mod sa aktivuje parametrom
-		  <option>--interactive</option> a zadanim <keycap moreinfo="none">h</keycap> pre napovedu.
-		  Tento parameter sa pouziva zriedkavo, pretoze poriadne shelly su dovernejsie zname a maju
-		  vela funkcii. Tento parameter zahrnuje operator ! kvoli spusteniu
-		  prikazov shellu, co je jednou z mnohych pricin, preco sa
-		  nema instalovat setuid root Nmapu.
-		  </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <option>-V</option>; <option>--version</option> (Zobrazit cislo verzie)
         </term>
         <listitem>

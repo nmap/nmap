@@ -3476,29 +3476,6 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
 
       <varlistentry>
         <term>
-          <option>--interactive</option> (Indítás interaktív módban)
-          <indexterm significance="normal"><primary>--interactive</primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Interaktív módban indítja el az Nmap programot, mely így egy készenléti 
-	  jelet ad vissza. Így könnyen indíthatók párhuzamos letapogatások (akár 
-	  szinkronban, akár a háttérben). Ez olyan felhasználóknak hasznos, akik 
-	  többfelhasználós rendszerben akarják letesztelni a biztonságukat és 
-	  nem akarják a többi felhasználó tudomására hozni, hogy mely rendszert 
-	  vizsgálják. Használja az <option>--interactive</option> paramétert az 
-	  üzzemód bekapcsolásához, majd nyomja le a <keycap moreinfo="none">h</keycap> 
-	  billentyűt a súgó megjelenítéséhez. Ezt a paramétert ritkán használják, 
-	  mivel egy megfelelő parancshéj általában sokkal kényelmesebb és több 
-	  funkcióval rendelkezik. Ennél a paraméternél használható a felkiáltójel 
-	  (!) operátor, mellyel héjparancsokat lehet végrehajtani. Ez az egyik 
-	  legfőbb érv, hogy miért nem szabad az Nmap programot setuid beállítással 
-	  telepíteni.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <option>-V</option>; <option>--version</option> (Programváltozat megjelenítése)
           <indexterm significance="normal"><primary>-V</primary></indexterm>
           <indexterm significance="normal"><primary>--version</primary></indexterm>

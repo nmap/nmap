@@ -2112,23 +2112,6 @@ le temps supplémentaire que cela suppose.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--interactive</option> (Démarrer en mode interactif)
-							</term>
-          <listitem>
-            <para>Démarre Nmap en mode interactif, qui offre
-									un prompt interactif avec Nmap permettant le lancement facile de plusieurs
-									scans (que ce soit en synchronisation ou en arrière-plan). Cette procédure est utile pour les gens qui scannent à partir de systèmes multi-utilisateurs puisqu'ils souhaitent souvent tester leur
-									sécurité sans que d'autres utilisateurs sur le système ne sachent
-									précisément quels systèmes ils sont en train de scanner. Utilisez 
-									<option>--interactive</option> pour activer ce mode puis entrez <keycap moreinfo="none" >h</keycap> pour obtenir
-									l'aide sur les commandes. Cette option est rarement utilisée parce que de vrais shells
-									sont en général plus familiers et complets. Cette option
-									inclus un opérateur dit « bang » (!) pour l'exécution des commandes de shell,
-									qui est une des raisons de ne pas installer Nmap en tant que setuid root.</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
             <option>-V</option>; <option>--version</option> (Affiche le numéro de version)
 							</term>
           <listitem>

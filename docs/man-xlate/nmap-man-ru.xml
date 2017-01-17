@@ -3299,27 +3299,6 @@ rttvar: 14987 to: 100000</computeroutput>. Если вы не понимаете
 
       <varlistentry>
         <term>
-          <option>--interactive</option> (Запустить в интерактивном режиме)
-          <indexterm significance="normal"><primary><option>--interactive</option></primary></indexterm>
-          <indexterm significance="normal"><primary><option>interactive mode</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Запускает Nmap в интерактивном режиме, который предлагает интерактивные подсказки Nmap, позволяющие 
-          запускать несколько процессов сканирования (параллельно или в фоне). Эта опция полезна для людей, которые 
-          запускают сканирование с многопользовательской системы, т.к. они часто хотят протестировать свою безопасность, 
-          при этом не давая узнать кому-либо другому в системе, что является целью их сканирования. Используйте опцию 
-          <option>--interactive</option>, для запуска этого режима, а затем нажмите 
-          <keycap moreinfo="none">h</keycap> для справки. Эта опция используется редко, т.к. собственные командные 
-          оболочки более знакомы и содержат больше возможностей. Эта опция включает оператор (!) для запуска команд 
-          оболочки, что является одной из многих причин, почему не следует устанавливать Nmap setuid root.
-	  setuid root.<indexterm significance="normal"><primary>setuid, why Nmap shouldn't be</primary></indexterm>
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <option>-V</option>; <option>--version</option> (Вывести номер версии)
           <indexterm significance="normal"><primary><option>-V</option></primary></indexterm>
           <indexterm significance="normal"><primary><option>--version</option></primary></indexterm>
