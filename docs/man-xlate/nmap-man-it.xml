@@ -2613,7 +2613,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       </variablelist>
     </refsect1>
 
-    <refsect1 id="man-timing-and-performance">
+    <refsect1 id="man-performance">
       <title>Timing and Performance</title>
 
       <para>Le performance sono sempre state una delle principali
