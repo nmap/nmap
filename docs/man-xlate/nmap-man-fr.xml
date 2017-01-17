@@ -182,7 +182,8 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 
 -T[0-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
 --min-hostgroup/max-hostgroup &lt;msec>: Tailles des groupes d'hôtes à scanner en parallèle
---min-parallelism/max-parallelism &lt;msec>: Parallélisation des paquets de tests (probes) --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
+--min-parallelism/max-parallelism &lt;nombre>: Parallélisation des paquets de tests (probes)
+--min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
 --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
 --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time>: Précise
 le round trip time des paquets de tests.
@@ -807,9 +808,9 @@ nmap -v -iR 10000 -P0 -p 80
 		    </varlistentry>
 		    <varlistentry>
 			    <term>
-				    <option>--min-parallelism &lt;millisecondes></option>;
+				    <option>--min-parallelism &lt;nombre></option>;
 				    <option>--max-parallelism'
-					    &lt;millisecondes></option> (Ajuste la mise en parallèle des paquets de test, probes)</term>
+					    &lt;nombre></option> (Ajuste la mise en parallèle des paquets de test, probes)</term>
 			    <listitem>
 				    <para>Ces options permettent de contrôler le nombre total de probes idéal
 					    pour un groupe d'hôtes. Elles permettent de scanner des ports et de découvrir des hôtes (host discovery). Par défaut, Nmap calcule un parallélisme
