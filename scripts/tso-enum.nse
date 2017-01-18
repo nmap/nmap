@@ -180,20 +180,19 @@ local function tso_test( host, port, commands )
   end
   tn:get_screen_debug(2)
 
+  if tn:find("***") then
+    secprod = "TopSecret/ACF2"
+  end
+
   if tn:find("ENTER USERID") or tn:find("TSO/E LOGON")  then
     tso = true
     -- Patch OA44855 removed the ability to enumerate users
     tn:send_cursor("notreal")
     tn:get_all_data()
     if tn:find("IKJ56476I ENTER PASSWORD") then
-      return false, "Enumeration is not possible. PASSWORDPREPROMPT is set to ON."
+      return false, secprod, "Enumeration is not possible. PASSWORDPREPROMPT is set to ON."
     end
   end
-
-  if tn:find("***") then
-    secprod = "TopSecret/ACF2"
-  end
-
   tn:send_pf(3)
   tn:disconnect()
   return tso, secprod, "Could not get to TSO. Try --script-args=tso-enum.commands='logon applid(tso)'. Aborting."
@@ -270,9 +269,6 @@ action = function(host, port)
   local tsotst, secprod, err = tso_test(host, port, commands)
   if tsotst then
     local options = { key1 = commands, skip = tso_skip(host, port, commands) }
-    --if tso_skip(host, port, commands) then
-    --if true then return('bleh') end
-    
     stdnse.debug("Starting TSO User ID Enumeration")
     local engine = brute.Engine:new(Driver, host, port, options)
     engine.options.script_name = SCRIPT_NAME
