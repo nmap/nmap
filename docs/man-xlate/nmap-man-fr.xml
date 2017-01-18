@@ -33,8 +33,8 @@
       <note><para>
           Ce document décrit Nmap version 4.50. La dernière documentation est disponible en anglais à
           <ulink url="https://nmap.org/book/man.html" />.</para></note>
-      <para>
       </web>
+      <para>
 										Nmap (<quote>Network Mapper</quote>) est un outil open source d'exploration réseau et d'audit de sécurité. Il a été conçu pour rapidement scanner de grands réseaux, mais il fonctionne aussi très bien sur une cible unique. Nmap innove en utilisant des paquets IP bruts (raw packets) pour déterminer quels sont les hôtes actifs sur le réseau, quels services (y compris le nom de l'application et la version) ces hôtes offrent, quels systèmes d'exploitation (et leurs versions) ils utilisent, quels types de dispositifs de filtrage/pare-feux sont utilisés, ainsi que des douzaines d'autres caractéristiques. Nmap est généralement utilisé pour les audits de sécurité mais de nombreux gestionnaires des systèmes et de  réseau l'apprécient pour des tâches de routine comme les inventaires de réseau, la gestion des mises à jour planifiées ou la surveillance des hôtes et des services actifs. 
 										</para>
       <para>
