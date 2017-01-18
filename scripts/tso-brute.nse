@@ -194,7 +194,7 @@ Driver = {
 
         -- The 'MSG allows testers to discern any relevant messages they may get for the account'
         stdnse.verbose(2,"Valid User/Pass: " .. user .. "/" .. pass)
-        stdnse.verbose(3,"Valid MSG for " .. user .. "/" .. pass .. " :: " .. self.tn3270:get_screen():sub(1,80))
+        stdnse.verbose(3,"Valid MSG for " .. user .. "/" .. pass .. ": " .. self.tn3270:get_screen():sub(1,80))
         return true, creds.Account:new(user, pass, creds.State.VALID)
       else
         return false, brute.Error:new( "Incorrect password" )
