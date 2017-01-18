@@ -30,6 +30,11 @@
   </refsynopsisdiv>
   <refsect1 id="man-description">
     <title>Opis</title>
+    <web>
+      <note><para>
+          Tento dokument popisuje Nmap verzia 3.95. je k dispozícii v angličtine Najnovšie dokumentácie na
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
     <para>Nmap (<quote>Network Mapper</quote>) je open-source nastrojom na skumanie siete a kontrolu bezpecnosti.  
 	Bol vyvinuty s ohladom na rychle scanovanie velkych sieti, hoci funguje vyborne aj pri nasadeni proti jednotlivym hostitelom.

@@ -36,10 +36,9 @@
     <title>Beschreibung</title>
     <indexterm><primary>Nmap</primary><secondary>Beschreibung</secondary></indexterm>
     <web>
-    <note><para>This document describes the very latest version of
-    Nmap available from <ulink url="https://nmap.org/download.html" /> or <ulink url="https://nmap.org/dist/?C=M&amp;O=D" />.  Please
-    ensure you are using the latest version before reporting that a
-    feature doesn't work as described.</para></note>
+      <note><para>Dieses Dokument beschreibt Nmap Version 4.85BETA8. Die
+          neueste Dokumentation ist in englischer Sprache verfügbar unter
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
 
 <para>Nmap (<quote>Network Mapper</quote>) ist ein Open-Source-Werkzeug 

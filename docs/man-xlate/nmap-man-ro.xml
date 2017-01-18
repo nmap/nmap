@@ -29,6 +29,12 @@
     </refsynopsisdiv>
     <refsect1 id="man-description">
       <title>Descriere</title>
+    <web>
+      <note><para>
+          Acest document descrie versiunea Nmap 3.95. Cea mai recentă
+          documentație este disponibilă în limba engleză la
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
       <para>Nmap (
       <quote>Network Mapper</quote>) este un instrument open source pentru
       explorarea retelei si audit de securitate A fost proiectat sa scaneze

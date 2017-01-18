@@ -31,11 +31,10 @@
   <refsect1 id="man-description">
     <title>Leírás</title>
     <web>
-    <note><para>Ez a dokumentum az Nmap legfrissebb változatának leírása, mely a
-     <ulink url="https://nmap.org/download.html"></ulink> vagy a  
-     <ulink url="https://nmap.org/dist/?C=M&amp;O=D"></ulink> címekről tölthető le.  
-     Mielőtt egy paraméter hibás működését jeleznéd, kérlek győződj meg arról, hogy 
-     a legfrissebb változatot használod-e.</para></note>
+    <note><para>
+        Ez a dokumentum leírja az Nmap változata X. A legfrissebb dokumentáció
+        elérhető angolul
+        <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
     <para>Az Nmap (<quote>Network Mapper</quote>) egy hálózatfelderítésre és biztonsági 
     ellenőrzésre használható, nyílt forráskódú eszköz.  Nagy hálózatok gyors 

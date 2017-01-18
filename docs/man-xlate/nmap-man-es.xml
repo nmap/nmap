@@ -47,6 +47,11 @@
     </cmdsynopsis>
   </refsynopsisdiv>
 
+    <web>
+      <note><para>
+          Este documento describe Nmap versión 4.00. La última documentación está disponible en inglés en
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
   <refsect1 id="man-description">
     <title>Descripción</title>
 

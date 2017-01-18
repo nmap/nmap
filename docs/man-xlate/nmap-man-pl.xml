@@ -30,6 +30,11 @@
   </refsynopsisdiv>
   <refsect1 id="man-description">
     <title>Opis</title>
+    <web>
+      <note><para>
+          Dokument ten opisuje Nmap wersji 3.95. Najnowsza dokumentacja jest dostępna w języku angielskim na
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
     <para>Nmap (ang. <quote>Network Mapper</quote>) jest narz&#281;dziem open source
     do eksploracji sieci i audyt&#243;w bezpiecze&#324;stwa. Zosta&#322; zaprojektowany do 

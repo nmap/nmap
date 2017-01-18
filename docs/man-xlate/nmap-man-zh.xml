@@ -29,6 +29,11 @@
   </refsynopsisdiv>
   <refsect1 id="man-description">
     <title>描述</title>
+    <web>
+      <note><para>
+          本文档描述了Nmap版本4.50。最新文档以英语
+          <ulink url="https://nmap.org/book/man.html" />提供。</para></note>
+    </web>
 
     <para>Nmap (<quote>Network Mapper(网络映射器)</quote>) 是一款开放源代码的
     网络探测和安全审核的工具。它的设计目标是快速地扫描大型网络，当然用它扫描单个

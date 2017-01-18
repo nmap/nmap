@@ -44,6 +44,12 @@
 
     <refsect1 id="man-description">
       <title>Descrição</title>
+    <web>
+      <note><para>
+          Este documento descreve o Nmap versão 4.50. A documentação mais recente
+          está disponível em inglês em
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
       <para>O Nmap (<quote>Network Mapper</quote>) é uma ferramenta em código
       aberto para exploração de rede e auditoria de segurança. Foi

@@ -36,10 +36,10 @@
     <title>Deskripsi</title>
     <indexterm significance="normal"><primary>Nmap</primary><secondary>description of</secondary></indexterm>
     <web>
-    <note><para>Dokumen ini menjelaskan versi Nmap terakhir
-    yang tersedia di <ulink url="https://nmap.org/download.html"/> atau <ulink url="https://nmap.org/dist/?C=M&amp;O=D"/>.  Mohon
-    pastikan bahwa anda menggunakan versi terakhir sebelum melaporkan sebuah fitur
-    tidak berfungsi sebagaimana yang dijelaskan..</para></note>
+      <note><para>
+          Dokumen ini menjelaskan versi Nmap 4.85BETA7. Dokumentasi terbaru tersedia
+          dalam bahasa Inggris di
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
     <para>Nmap (<quote>Network Mapper</quote>) merupakan sebuah tool open source untuk 
     eksplorasi dan audit keamanan jaringan. Ia dirancang untuk memeriksa jaringan

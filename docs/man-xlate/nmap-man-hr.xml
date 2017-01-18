@@ -31,6 +31,12 @@
   <refsect1 id="man-description">
     <title>Opis</title>
 
+    <web>
+      <note><para>
+          Ovaj dokument opisuje Nmap verziju 3.95. Najnovija dokumentacija
+          dostupna je na engleskom jeziku, na
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
     <para>Nmap (<quote>Network Mapper</quote>) je open source alat za istraživanje
     mreže i sigurnosni auditing.  Dizajniran je za brzo skeniranje velikih mreža,
     ali radi jednako dobro i kad je u pitanju samo jedan host. Nmap koristi sirove
