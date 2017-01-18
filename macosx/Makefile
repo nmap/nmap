@@ -200,8 +200,8 @@ export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 stage-zenmap: export-$(ZENMAP_BUILD_DIR)
 	cd $(ZENMAP_BUILD_DIR)/zenmap && install_scripts/macosx/make-bundle.sh
 	rm -rf $(ZENMAP_STAGING_DIR)
-	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
-	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
+	mkdir -p $(ZENMAP_STAGING_DIR)
+	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)
 
 stage-ndiff: export-$(NDIFF_BUILD_DIR)
 	mkdir -p $(NDIFF_STAGING_DIR)/usr/local/bin

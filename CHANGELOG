@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a recurring installation problem on OS X/macOS where Zenmap
+  was installed to /Applications/Applications/Zenmap.app instead of
+  /Applications/Zenmap.app.
+
 o [Zenmap][GH#639] Zenmap will no longer crash when no suitable temporary
   directory is found. Patches contributed by [Varunram Ganesh] and [Sai Sundhar]
 
