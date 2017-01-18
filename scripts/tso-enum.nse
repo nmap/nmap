@@ -110,6 +110,11 @@ Driver = {
       self.tn3270:get_all_data()
     end
 
+    if self.tn3270:find("***") then
+      self.tn3270:send_enter()
+      self.tn3270:get_all_data()
+    end
+
     if not self.tn3270:find("ENTER USERID") 
        and not self.tn3270:find("TSO/E LOGON")
        and not self.tn3270:find("IKJ56710I INVALID USERID") then
@@ -126,10 +131,6 @@ Driver = {
       self.tn3270:send_cursor(pass)
       self.tn3270:get_all_data()
       -- some systems require an enter after sending a valid user ID
-      if self.tn3270:find("***") then
-        self.tn3270:send_enter()
-        self.tn3270:get_all_data()
-      end
     end
 
     stdnse.debug(2,"Screen Recieved for User ID: %s", pass)
