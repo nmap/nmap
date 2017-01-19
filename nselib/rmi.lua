@@ -44,6 +44,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local comm = require "comm"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -706,17 +707,8 @@ RmiDataStream = {
 -- we are definitely talking to an RMI service.
 function RmiDataStream:connect(host, port)
   local status, err
-  local socket = nmap.new_socket()
+  local socket = comm.tryssl(host, port)
   socket:set_timeout(5000)
-  local sslenabled = shortport.ssl(host, port)
-  
-  -- Connect over SSL if the RMI Registry uses a SSL Server Socket
-  if sslenabled then
-    status, err = socket:connect(host, port, "ssl")
-    dbg("SSL RMI Registry")
-  else
-    status, err = socket:connect(host, port, "tcp")
-  end
 
   if not socket then
     return doh(err)
