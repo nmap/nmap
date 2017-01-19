@@ -118,11 +118,11 @@ Driver = {
     if not self.tn3270:find("ENTER USERID") 
        and not self.tn3270:find("TSO/E LOGON")
        and not self.tn3270:find("IKJ56710I INVALID USERID") then
-      local err = brute.Error:new( "TSO Unavailable" )
-      stdnse.debug(1,"TSO Unavailable for UserID %s", pass )
+      local err = brute.Error:new("Too many connections")
         -- This error occurs on too many concurrent application requests it
-        -- should be temporary. If not, the script errors and less threads should be used.
-      err:setRetry( true )
+        -- should be temporary. We use the new setReduce function.
+      err:setReduce(true)
+      stdnse.debug(1,"TSO Unavailable for UserID %s", pass )
       return false, err
     end
 
@@ -141,12 +141,10 @@ Driver = {
     elseif self.tn3270:find('NO USER APPLID AVAILABLE') or self.tn3270:isClear() 
            or not (self.tn3270:find('TSO/E LOGON') or 
                    self.tn3270:find("IKJ56710I INVALID USERID")) then
-      local err = brute.Error:new( "TSO Unavailable" )
-
-      stdnse.debug(2,"TSO Unavailable for UserID %s", pass )
         -- This error occurs on too many concurrent application requests it
-        -- should be temporary. If not, the script errors and less threads should be used.
-      err:setRetry( true )
+        -- should be temporary. We use the new setReduce function here to reduce number of connections.
+      err:setReduce(true)
+      stdnse.debug(1,"TSO Unavailable for UserID %s", pass )
       return false, err
     else
       stdnse.verbose("Valid TSO User ID: %s", string.upper(pass))
