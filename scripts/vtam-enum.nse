@@ -205,7 +205,7 @@ local function vtam_test( host, port, commands, macros)
   tn:get_all_data()
   tn:get_screen_debug(2)
   local isVTAM = false
-  if tn:find('IBMECHO ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') and not macros then
+  if not macros and tn:find('IBMECHO ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') then
     stdnse.debug2("IBMTEST Returned: IBMECHO ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.")
     stdnse.debug1("VTAM Test Success!")
     isVTAM = true
