@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o New service probe and match line for NoMachine NX Server remote desktop.
+  [Justin Cacak]
+
 o [Zenmap] Fixed a recurring installation problem on OS X/macOS where Zenmap
   was installed to /Applications/Applications/Zenmap.app instead of
   /Applications/Zenmap.app.

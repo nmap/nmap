@@ -15473,3 +15473,12 @@ Probe TCP VersionRequest q|VERSION|
 ports 3310
 rarity 8
 match clam m|^ClamAV ([\w.]+)/(\w+)/(.+)$| p/ClamAV/ v/$1 ($2)/ i/AV definitions updated on:$3/
+
+##############################NEXT PROBE##############################
+# NoMachine Network Server
+# Announce client version 5.6.7 (could be anything)
+Probe TCP NoMachine q|NXSH-5.6.7\n|
+ports 4000
+rarity 9
+
+match nomachine-nx m|^NXD-([\d.]+)\n| p/NoMachine NX Server remote desktop/ v/$1/ cpe:/a:nomachine:nx_server:$1/
