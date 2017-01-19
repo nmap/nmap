@@ -121,10 +121,10 @@ Driver = {
        and not self.tn3270:find("TSO/E LOGON")
        and not self.tn3270:find("IKJ56710I INVALID USERID") then
       local err = brute.Error:new( "TSO Unavailable" )
-      stdnse.debug(1,"TSO Unavailable for UserID %s", user )
         -- This error occurs on too many concurrent application requests it
-        -- should be temporary. If not, the script errors and less threads should be used.
-      err:setRetry( true )
+        -- should be temporary. We use the new setReduce function.
+      err:setReduce(true)
+      stdnse.debug(1,"TSO Unavailable for UserID %s", pass )
       return false, err
     end
     
@@ -141,9 +141,10 @@ Driver = {
     if not self.tn3270:find('Enter LOGON parameters below') then
       stdnse.debug(2,"Screen Recieved for User ID: %s", user)
       self.tn3270:get_screen_debug(2)
-    -- Sometimes mainframes get overloaded
-      local err = brute.Error:new( "Not at TSO" )
-      err:setRetry( true )
+        -- This error occurs on too many concurrent application requests it
+        -- should be temporary. We use the new setReduce function.
+      err:setReduce(true)
+      stdnse.debug(1,"TSO Unavailable for UserID %s", pass )
       return false, err
     end
 
