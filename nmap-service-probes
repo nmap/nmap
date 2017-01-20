@@ -13549,7 +13549,7 @@ match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Sett
 ##############################NEXT PROBE##############################
 Probe TCP LDAPBindReq q|\x30\x0c\x02\x01\x01\x60\x07\x02\x01\x02\x04\0\x80\0|
 rarity 6
-ports 256,257,389,390,1702,3268,3892
+ports 256,257,389,390,1702,3268,3892,4000
 sslports 636,637,3269
 
 match oo-defrag m|^h\0\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0\0\0\0d\0\0\0\0\xd9\$\x01\0\0\0\0\0\0T\0\0\0\0\0\0\xb7x\x01\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xe2\x0b\0\0\0\0\0\0\xb7\xb5p@\^\xa7\x08\0\0\0\0\0| p/O&O Defrag/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -13592,6 +13592,8 @@ match ldap m|^0\x1a\x02\x01\x01a\x15\n\x01\0\x04\0\x04\x0eBind succeeded$| p/Sie
 # Think this means TLS required?
 match ldap m|^0 \x02\x01\x01a\x1b\n\x015\x04\0\x04\x14Minimum SSF not met\.| p/Red Hat directory server LDAP/ i/Minimum SSF not met/ o/Linux/ cpe:/a:redhat:ns-slapd/ cpe:/o:redhat:directory_server/
 match ldap m|^0\x81\xa0\x02\x01\x01a\x81\x9a\n\x011\x04\0\x04\x81\x92The server has been configured to only allow bind operations that result in authenticated connections\.  Anonymous bind operations are not allowed\.| p/UnboundID LDAP SDK/ i/access denied/ cpe:/a:unboundid:ldap-sdk/
+
+match rse m|^\xa2\x85\x99\xa5\x85\x99@| p/IBM Explorer for zOS (FMID HALG300)/ o|z/OS| cpe:/a:ibm:zos_explorer/ cpe:/o:ibm:z%2fos/
 
 softmatch ldap m|^0..?\x02\x01\x01a..?\n\x01.\x04\0\x04|s
 
@@ -15476,3 +15478,12 @@ ports 4000
 rarity 9
 
 match nomachine-nx m|^NXD-([\d.]+)\n| p/NoMachine NX Server remote desktop/ v/$1/ cpe:/a:nomachine:nx_server:$1/
+
+##############################NEXT PROBE##############################
+# JMON for z/OS (FMID HALG300)
+Probe TCP JMON q|CONNECT01 v09\n|
+rarity 9
+ports 6715
+sslports 6715
+
+match jmon m|^ACKNOWLEDGE| p/JMON for zOS (FMID HALG300)/ o|z/OS| cpe:/a:ibm:zos_explorer/ cpe:/o:ibm:z%2fos/
