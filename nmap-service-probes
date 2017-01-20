@@ -9000,7 +9000,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: Mon, 21 Feb 2011 17:38:00 GMT\r
 match http m|^HTTP/1\.1 307 Temporary Redirect\r\n.*Content-Length: 0\r\nConnection: keep-alive\r\nServer: AmazonS3\r\n\r\n$|s p/Amazon S3 httpd/
 match http m|^HTTP/1\.1 200 OK\nServer: BO/([\w._-]+)\nDate: .*\nContent-type: text/html\nPublic: GET, POST\nConnection: keep-alive\n\n| p/BO2K built-in httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nHello, non-Bayeux request\. Yet another one$| p/Node.js/ i/Faye Bayeux protocol/ cpe:/a:nodejs:node.js/
-match http m|^HTTP/1\.0 500 Internal Server Error\r\nCONTENT-TYPE: text/html\r\nDate: .*\r\nServer: IBM_CICS_Transaction_Server/([\w._-]+)\(zOS\)\r\n| p/IBM CICS Transaction Server/ v/$1/ o|z/OS| cpe:/o:ibm:z%2fos/
+match http m|^HTTP/1\.[01] \d\d\d [^\r\n]*\r\nCONTENT-TYPE: text/html\r.*\nServer: IBM_CICS_Transaction_Server/([\w._-]+)\(zOS\)\r\n|s p/IBM CICS Transaction Server/ v/$1/ o|z/OS| cpe:/o:ibm:z%2fos/
 match http m|^HTTP/1\.1 200 OK\r\nServer: corehttp-([\w._-]+)\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><pre>| p/CoreHTTP/ v/$1/ i/directory listing/
 # http://code.google.com/p/webfinger/
 match http m|^HTTP/1\.1 400 Bad request\r\n\r\n$| p/WebFinger httpd/
