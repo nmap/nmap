@@ -13549,8 +13549,8 @@ match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Sett
 ##############################NEXT PROBE##############################
 Probe TCP LDAPBindReq q|\x30\x0c\x02\x01\x01\x60\x07\x02\x01\x02\x04\0\x80\0|
 rarity 6
-ports 256,257,389,390,1702,3268,3892,4000
-sslports 636,637,3269
+ports 256,257,389,390,1702,3268,3892,4035
+sslports 636,637,3269,4035
 
 match oo-defrag m|^h\0\0\0\x01\0\0\0\x03\0\0\0\x07\x08\0\0\x02\0\0\0\0d\0\0\0\0\xd9\$\x01\0\0\0\0\0\0T\0\0\0\0\0\0\xb7x\x01\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xc4\x05\0\0\0\0\0\0\xe2\x0b\0\0\0\0\0\0\xb7\xb5p@\^\xa7\x08\0\0\0\0\0| p/O&O Defrag/ o/Windows/ cpe:/o:microsoft:windows/a
 
