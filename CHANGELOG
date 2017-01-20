@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed a duplicate service probe for Memcached added in 2011 (the original
+  probe was added in 2008) and reported as duplicate in 2013 by Pavel Kankovsky.
+
 o New service probe and match line for NoMachine NX Server remote desktop.
   [Justin Cacak]
 

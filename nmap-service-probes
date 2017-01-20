@@ -5551,7 +5551,7 @@ match lirc m|^BEGIN\n\r\nERROR\nDATA\n1\nbad send packet\nEND\nBEGIN\n\r\nERROR\
 
 match loglogic m|^\x02\x02$| p/LogLogic protocol/ d/security-misc/
 
-match memcache m|^ERROR\r\nERROR\r\n$| p/memcached/ cpe:/a:memcached:memcached/
+match memcached m|^ERROR\r\nERROR\r\n$| p/Memcached/ cpe:/a:memcached:memcached/
 
 match minecraft m|^\x0eYou need to log in!                                             $| p/Minecraft game server/
 match multicraft m|^>ERROR - client not authorized\n>ERROR - client not authorized\n| p/Bitnami Multicraft/
@@ -14536,7 +14536,8 @@ match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s 
 Probe TCP Memcache q|stats\r\n|
 rarity 8
 ports 11211
-match memcache m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/ cpe:/a:memcached:memcached:$3/
+match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/Memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/ cpe:/a:memcached:memcached:$3/
+match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$3/ i/PID $1; uptime $2 seconds/ cpe:/a:memcached:memcached:$3/
 
 
 ##############################NEXT PROBE##############################
@@ -14987,13 +14988,6 @@ rarity 8
 ports 6379
 match redis m|-ERR operation not permitted\r\n|s p/Redis key-value store/
 match redis m|^\$\d+\r\nredis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
-
-##############################NEXT PROBE##############################
-# Memcached distributed memory object caching system
-Probe TCP memcached q|stats\r\n|
-rarity 8
-ports 11211
-match memcached m|^STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$1/ cpe:/a:memcached:memcached:$1/
 
 ##############################NEXT PROBE##############################
 # Memcached distributed memory object caching system
