@@ -701,7 +701,7 @@ Engine = {
       status, response = driver:connect()
 
       -- Did we successfully connect?
-      if status then
+      if status and not response:isReduce() then
         if not username and not password then
           repeat
             if #self.retry_accounts > 0 then
