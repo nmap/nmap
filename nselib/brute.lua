@@ -700,8 +700,12 @@ Engine = {
       local driver = self.driver:new(self.host, self.port, self.driver_options)
       status, response = driver:connect()
 
+      if not status and response:isReduce() then
+        return false
+      end
+
       -- Did we successfully connect?
-      if status and not response:isReduce() then
+      if status then
         if not username and not password then
           repeat
             if #self.retry_accounts > 0 then
