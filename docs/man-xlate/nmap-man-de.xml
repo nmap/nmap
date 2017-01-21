@@ -36,10 +36,9 @@
     <title>Beschreibung</title>
     <indexterm><primary>Nmap</primary><secondary>Beschreibung</secondary></indexterm>
     <web>
-    <note><para>This document describes the very latest version of
-    Nmap available from <ulink url="https://nmap.org/download.html" /> or <ulink url="https://nmap.org/dist/?C=M&amp;O=D" />.  Please
-    ensure you are using the latest version before reporting that a
-    feature doesn't work as described.</para></note>
+      <note><para>Dieses Dokument beschreibt Nmap Version 4.85BETA8. Die
+          neueste Dokumentation ist in englischer Sprache verfügbar unter
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
 
 <para>Nmap (<quote>Network Mapper</quote>) ist ein Open-Source-Werkzeug 
@@ -4088,31 +4087,6 @@ Sie bewirkt, dass Nmap den von ihm belegten Speicher direkt vor seiner
 Terminierung freigibt, damit man echte Speicherlecks einfacher finden kann. 
 Normalerweise macht Nmap das nicht, weil es das Betriebssystem ohnehin 
 macht, wenn es den Prozess terminiert.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (startet im interaktiven Modus)
-          <indexterm><primary><option>--interactive</option></primary></indexterm>
-          <indexterm><primary><option>interactive mode</option></primary></indexterm>
-        </term>
-        <listitem>
-
-<para>Startet Nmap im interaktiven Modus, in dem es eine interaktive 
-Nmap-Eingabeaufforderung gibt, bei der man mehrere Scans ausführen kann 
-(entweder synchron oder im Hintergrund). Das ist nützlich für Leute, 
-die von Mehrbenutzersystemen scannen, weil sie ihre Sicherheit meist 
-testen wollen, ohne dass alle anderen im selben System genau mitbekommen, 
-welche Systeme sie scannen. Benutzen Sie <option>--interactive</option>, 
-um diesen Modus zu aktivieren, und geben Sie dann <keycap>h</keycap> ein, 
-um eine Hilfe zu erhalten. Diese Option wird selten benutzt, weil echte 
-Shells für die Leute vertrauter sind und ihnen viel mehr Möglichkeiten 
-bieten. Diese Option enthält einen bang(!)-Operator zur Ausführung von 
-Shell-Befehlen, was einer der vielen Gründe dafür ist, Nmap nicht mit 
-setuid root<indexterm><primary>setuid, warum nicht für Nmap</primary></indexterm> 
-zu installieren.
-</para>
         </listitem>
       </varlistentry>
 

@@ -48,7 +48,7 @@ http://digitalbond.com
 --<elem key="brandId">vykon</elem>
 
 author = "Stephen Hilt (Digital Bond)"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "version"}
 
 

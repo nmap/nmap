@@ -12,11 +12,12 @@ local have_openssl, openssl = pcall(require, 'openssl')
 --
 -- STRUCTURE:
 -- * <code>name</code> - Descriptive name
+-- * <code>cpe</code> - Official CPE Dictionary entry (optional)
 -- * <code>category</code> - Category
--- * <code>login_combos</code>
----- * <code>username</code> - Default username
----- * <code>password</code> - Default password
--- * <code>paths</code> - Paths table containing the possible location of the target
+-- * <code>login_combos</code> - Table of default credential pairs
+---- * <code>username</code>
+---- * <code>password</code>
+-- * <code>paths</code> - Table of likely locations (paths) of the target
 -- * <code>target_check</code> - Validation function of the target (optional)
 -- * <code>login_check</code> - Login function of the target
 ---
@@ -948,6 +949,37 @@ table.insert(fingerprints, {
     return try_http_basic_login(host, port,
                                url.absolute(path, "manage/bdy_sys.htm"),
                                user, pass, false)
+  end
+})
+
+table.insert(fingerprints, {
+  -- Version 5.0.0r8 on NetScreen 5XT
+  name = "ScreenOS",
+  cpe = "cpe:/o:juniper:netscreen_screenos",
+  category = "routers",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return response.status == 200
+           and response.header["server"]
+           and response.header["server"]:find("^Virata%-EmWeb/R%d+_")
+           and response.body
+           and response.body:lower():find("admin_pw", 1, true)
+  end,
+  login_combos = {
+    {username = "netscreen", password = "netscreen"}
+  },
+  login_check = function (host, port, path, user, pass)
+    local form = {admin_id="",
+                  admin_pw="",
+                  time=tostring(math.floor(stdnse.clock_ms())):sub(5),
+                  un=base64.enc(user),
+                  pw=base64.enc(pass)}
+    local req = http_post_simple(host, port, url.absolute(path, "index.html"),
+                                 nil, form)
+    local loc = req.header["location"] or ""
+    return req.status == 303 and loc:find("/nswebui.html?", 1, true)
   end
 })
 

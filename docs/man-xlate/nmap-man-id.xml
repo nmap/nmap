@@ -36,10 +36,10 @@
     <title>Deskripsi</title>
     <indexterm significance="normal"><primary>Nmap</primary><secondary>description of</secondary></indexterm>
     <web>
-    <note><para>Dokumen ini menjelaskan versi Nmap terakhir
-    yang tersedia di <ulink url="https://nmap.org/download.html"/> atau <ulink url="https://nmap.org/dist/?C=M&amp;O=D"/>.  Mohon
-    pastikan bahwa anda menggunakan versi terakhir sebelum melaporkan sebuah fitur
-    tidak berfungsi sebagaimana yang dijelaskan..</para></note>
+      <note><para>
+          Dokumen ini menjelaskan versi Nmap 4.85BETA7. Dokumentasi terbaru tersedia
+          dalam bahasa Inggris di
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
     <para>Nmap (<quote>Network Mapper</quote>) merupakan sebuah tool open source untuk 
     eksplorasi dan audit keamanan jaringan. Ia dirancang untuk memeriksa jaringan
@@ -3770,29 +3770,6 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
         </listitem>
       </varlistentry>
 
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (Start in interactive mode)
-          <indexterm significance="normal"><primary><option>--interactive</option></primary></indexterm>
-          <indexterm significance="normal"><primary><option>interactive mode</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Mulai Nmap dalam mode interaktif, yang memberikan prompt
-          interaktif Nmap yang memudahkan peluncuran 
-          multiple scan (baik secara synchronous atau di latar belakang).
-          Opsi ini bermanfaat bagi orang yang melakukan scan dari sistem 
-          multi-user karena mereka ingin memeriksa keamanan mereka tanpa 
-          memberitahu yang lain sistem apa yang mereka periksa. Gunakan
-          <option>--interactive</option> untuk mengaktifkan mode ini dan kemudian ketik <keycap moreinfo="none">h</keycap> untuk bantuan.
-          Opsi ini jarang digunakan karena shell yang sesuai biasanya lebih 
-          dikenal dan lebih lengkap fiturnya. Opsi ini menyertakan operator
-          bang (!) untuk mengeksekusi perintah shell, yang menjadi salah satu
-          alasan tidak menginstalasi Nmap setuid root.<indexterm significance="normal"><primary>setuid, why Nmap shouldn't be</primary></indexterm>
-          </para>
-        </listitem>
-      </varlistentry>
 
       <varlistentry>
         <term>

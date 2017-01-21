@@ -40,7 +40,7 @@ description = [[
 --
 
 author = "Claudiu Perta <claudiu.perta@gmail.com>"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = shortport.port_or_service(623, "asf-rmcp", "udp", {"open", "open|filtered"})

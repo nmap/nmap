@@ -29,6 +29,11 @@
     </refsynopsisdiv>
     <refsect1 id="man-description" >
       <title>Description</title>
+      <web>
+      <note><para>
+          Ce document décrit Nmap version 4.50. La dernière documentation est disponible en anglais à
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+      </web>
       <para>
 										Nmap (<quote>Network Mapper</quote>) est un outil open source d'exploration réseau et d'audit de sécurité. Il a été conçu pour rapidement scanner de grands réseaux, mais il fonctionne aussi très bien sur une cible unique. Nmap innove en utilisant des paquets IP bruts (raw packets) pour déterminer quels sont les hôtes actifs sur le réseau, quels services (y compris le nom de l'application et la version) ces hôtes offrent, quels systèmes d'exploitation (et leurs versions) ils utilisent, quels types de dispositifs de filtrage/pare-feux sont utilisés, ainsi que des douzaines d'autres caractéristiques. Nmap est généralement utilisé pour les audits de sécurité mais de nombreux gestionnaires des systèmes et de  réseau l'apprécient pour des tâches de routine comme les inventaires de réseau, la gestion des mises à jour planifiées ou la surveillance des hôtes et des services actifs. 
 										</para>
@@ -182,7 +187,8 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 
 -T[0-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
 --min-hostgroup/max-hostgroup &lt;msec>: Tailles des groupes d'hôtes à scanner en parallèle
---min-parallelism/max-parallelism &lt;msec>: Parallélisation des paquets de tests (probes) --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
+--min-parallelism/max-parallelism &lt;nombre>: Parallélisation des paquets de tests (probes)
+--min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
 --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec>: Spécifie le temps d'aller-retour des paquets de tests
 --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time>: Précise
 le round trip time des paquets de tests.
@@ -807,9 +813,9 @@ nmap -v -iR 10000 -P0 -p 80
 		    </varlistentry>
 		    <varlistentry>
 			    <term>
-				    <option>--min-parallelism &lt;millisecondes></option>;
+				    <option>--min-parallelism &lt;nombre></option>;
 				    <option>--max-parallelism'
-					    &lt;millisecondes></option> (Ajuste la mise en parallèle des paquets de test, probes)</term>
+					    &lt;nombre></option> (Ajuste la mise en parallèle des paquets de test, probes)</term>
 			    <listitem>
 				    <para>Ces options permettent de contrôler le nombre total de probes idéal
 					    pour un groupe d'hôtes. Elles permettent de scanner des ports et de découvrir des hôtes (host discovery). Par défaut, Nmap calcule un parallélisme
@@ -2107,23 +2113,6 @@ le temps supplémentaire que cela suppose.</para>
           quitter de facon a repérer les véritables fuites de mémoire.
           En temps normal Nmap ne fait pas ceci étant donné que l'OS le fait de toutes facons 
           à la fin du processus.</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
-            <option>--interactive</option> (Démarrer en mode interactif)
-							</term>
-          <listitem>
-            <para>Démarre Nmap en mode interactif, qui offre
-									un prompt interactif avec Nmap permettant le lancement facile de plusieurs
-									scans (que ce soit en synchronisation ou en arrière-plan). Cette procédure est utile pour les gens qui scannent à partir de systèmes multi-utilisateurs puisqu'ils souhaitent souvent tester leur
-									sécurité sans que d'autres utilisateurs sur le système ne sachent
-									précisément quels systèmes ils sont en train de scanner. Utilisez 
-									<option>--interactive</option> pour activer ce mode puis entrez <keycap moreinfo="none" >h</keycap> pour obtenir
-									l'aide sur les commandes. Cette option est rarement utilisée parce que de vrais shells
-									sont en général plus familiers et complets. Cette option
-									inclus un opérateur dit « bang » (!) pour l'exécution des commandes de shell,
-									qui est une des raisons de ne pas installer Nmap en tant que setuid root.</para>
           </listitem>
         </varlistentry>
         <varlistentry>

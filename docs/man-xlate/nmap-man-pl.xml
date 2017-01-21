@@ -30,6 +30,11 @@
   </refsynopsisdiv>
   <refsect1 id="man-description">
     <title>Opis</title>
+    <web>
+      <note><para>
+          Dokument ten opisuje Nmap wersji 3.95. Najnowsza dokumentacja jest dostępna w języku angielskim na
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
     <para>Nmap (ang. <quote>Network Mapper</quote>) jest narz&#281;dziem open source
     do eksploracji sieci i audyt&#243;w bezpiecze&#324;stwa. Zosta&#322; zaprojektowany do 
@@ -2882,27 +2887,6 @@ podobnie jak i UDP.</para>
           uprwanie&#324; (skanowanie SYN, wykrywanie systemu operacyjnego itp).
           Zmienna NMAP_PRIVILEGED mo&#380;e zosta&#263; ustawiona jako alternatywa dla
           wykorzystania opcji <option>--privileged</option>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (W&#322;&#261;cz tryb interaktywny)
-        </term>
-        <listitem>
-          <para>Uruchamia Nmapa w trybie interaktywnym, kt&#243;ry oferuje lini&#281;
-          polece&#324; umo&#380;lwiaj&#261;c&#261; &#322;atwe uruchamianie wilelu r&#243;wnoczesnych skanowa&#324;
-          (zar&#243;wno synchronicznych jak i w tle). Jest to u&#380;yteczne dla os&#243;b, 
-          kt&#243;re pracuj&#261; w &#347;rodowisku wielou&#380;ytkownikowym i jednocze&#347;nie chc&#261;
-          zbada&#263; poziom bezpiecze&#324;stwa bez pokazaywania innym u&#380;ytkownikom
-          systemu kt&#243;re dok&#322;adnie systemy s&#261; skanowane. U&#380;ycie opcji 
-          <option>--interactive</option> w&#322;&#261;cza ten tryb, mo&#380;liwe jest w nim
-          wci&#347;ni&#281;cie <keycap moreinfo="none">h</keycap> dla uzyskania pomocy.
-          Opcja ta nie jest zbyt popularna, jako &#380;e uruchamianie Nmapa z linii 
-          polece&#324; jest ca&#322;kiem wygodne. Nale&#380;y przy tym zwr&#243;ci&#263; uwag&#281;, &#380;e 
-          w tym trybie mo&#380;liwe jest wykonywanie polece&#324; systemowych za pomoc&#261;
-          operatora (!), wi&#281;c jest to jeden z powod&#243;w, dla kt&#243;rych nie powinno
-          si&#281; instalowa&#263; Nmapa z ustawionym bitem setuid root.</para>
         </listitem>
       </varlistentry>
 
