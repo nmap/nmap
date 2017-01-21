@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap][GH#626] Zenmap now properly handles the -v0 (no output) option,
+  which was added in Nmap 7.10. Previously, this was treated the same as not
+  specifying -v at all. [lymanZerga11]
+
 o [GH#630] Updated or removed some OpenSSL library calls that were deprecated
   in OpenSSL 1.1. [eroen]
 
