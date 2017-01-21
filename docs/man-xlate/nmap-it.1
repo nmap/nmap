@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
-.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\"    Author: [see the "Autore" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 05/01/2015
+.\"      Date: 18/01/2017
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
-.\"  Language: English
+.\"  Language: Italian
 .\"
-.TH "NMAP" "1" "05/01/2015" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "18/01/2017" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,17 +27,17 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "NOME"
 nmap \- Strumento di network exploration e security / port scanner
-.SH "SYNOPSIS"
+.SH "SINOSSI"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fITipo\ di\ Scansione\fR...] [\fIOpzioni\fR] {\fIObiettivo\fR}
 .SH "DESCRIZIONE"
 .PP
-Nmap (\(lqNetwork Mapper\(rq) è uno strumento open\-source per la network exploration e l\*(Aqauditing\&. È stato progettato per scansionare rapidamente reti di grandi dimensioni, ma è indicato anche per l\*(Aqutilizzo verso singoli host\&. Nmap usa pacchetti IP "raw" (grezzi, non formattati) in varie modalità per determinare quali host sono disponibili su una rete, che servizi (nome dell\*(Aqapplicazione e versione) vengono offerti da questi host, che sistema operativo (e che versione del sistema operativo) è in esecuzione, che tipo di firewall e packet filters sono usati, e molte altre caratteristiche\&. Nonostante Nmap sia comunemente usato per audits di sicurezza, molti sistemisti e amministratori di rete lo trovano utile per tutte le attività giornaliere come ad esempio l\*(Aqinventario delle macchine presenti in rete, per gestire gli aggiornamenti programmati dei servizi e per monitorare gli host o il loro uptime\&.
+Nmap («Network Mapper») è uno strumento open\-source per la network exploration e l\*(Aqauditing\&. È stato progettato per scansionare rapidamente reti di grandi dimensioni, ma è indicato anche per l\*(Aqutilizzo verso singoli host\&. Nmap usa pacchetti IP "raw" (grezzi, non formattati) in varie modalità per determinare quali host sono disponibili su una rete, che servizi (nome dell\*(Aqapplicazione e versione) vengono offerti da questi host, che sistema operativo (e che versione del sistema operativo) è in esecuzione, che tipo di firewall e packet filters sono usati, e molte altre caratteristiche\&. Nonostante Nmap sia comunemente usato per audits di sicurezza, molti sistemisti e amministratori di rete lo trovano utile per tutte le attività giornaliere come ad esempio l\*(Aqinventario delle macchine presenti in rete, per gestire gli aggiornamenti programmati dei servizi e per monitorare gli host o il loro uptime\&.
 .PP
 L\*(Aqoutput di Nmap è un elenco di obiettivi scansionati, con informazioni supplementari per ognuno a seconda delle opzioni usate\&. Tra queste informazioni è vitale la
-\(lqtabella delle porte interessanti \(rq\&. Questa tabella elenca il numero della porta e il protocollo, il nome del servizio e lo stato attuale\&. Lo stato può essere
+«tabella delle porte interessanti »\&. Questa tabella elenca il numero della porta e il protocollo, il nome del servizio e lo stato attuale\&. Lo stato può essere
 open (aperto),
 filtered (filtrato),
 closed (chiuso), o
@@ -59,12 +59,12 @@ quando non può determinare quale dei due stati descrive una porta\&. La tabella
 In aggiunta alla tabella delle porte notevoli, Nmap può fornire ulteriori informazioni sugli obiettivi come ad esempio i nomi DNS risolti (reverse DNS names), il probabile sistema operativo in uso, il tipo di device e l\*(Aqindirizzo fisico (MAC address)\&.
 .PP
 Una tipica scansione con Nmap è mostrata su
-Example\ \&1, \(lqUna scansione di esempio\(rq\&. Le uniche opzioni usate di Nmap in questo esempio sono
+Esempio 1, «Una scansione di esempio»\&. Le uniche opzioni usate di Nmap in questo esempio sono
 \fB\-A\fR, per abilitare la rilevazione del sistema operativo e della versione, lo script scanning e il traceroute,
 \fB\-T4\fR
 per un\*(Aqesecuzione più rapida e infine l\*(Aqhost obiettivo\&.
 .PP
-\fBExample\ \&1.\ \&Una scansione di esempio\fR
+\fBEsempio 1. Una scansione di esempio\fR
 .sp
 .if n \{\
 .RS 4
@@ -106,7 +106,7 @@ Nmap done: 1 IP address (1 host up) scanned in 14\&.40 seconds
 L\*(Aqultima versione di Nmap si può ottenere dal sito
 \m[blue]\fB\%https://nmap.org\fR\m[]\&. L\*(Aqultima versione di questa pagina del manuale è disponibile al sito
 \m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]\&. È anche inclusa come capitolo di
-\(lqNmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning\(rq
+«Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning»
 (\m[blue]\fB\%https://nmap.org/book/\fR\m[])\&.
 .SH "ELENCO DELLE OPZIONI"
 .PP
@@ -117,7 +117,7 @@ Questo elenco delle possibili opzioni viene stampato quando Nmap viene eseguito 
 .RS 4
 .\}
 .nf
-Nmap 6\&.47SVN ( http://nmap\&.org )
+Nmap 6\&.47SVN ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -303,9 +303,9 @@ può contenere commenti\&. Ogni commento inizia con # e finisce con un carattere
 Uno dei primi passi in qualsiasi approccio di mappatura di una rete è quello di ridurre un intervallo di indirizzi IP (talvolta di notevoli dimensioni) ad una lista di host attivi o interessanti\&. Uno scan di ogni porta di ogni singolo indirizzo IP è lento e generalmente non necessario\&. Ovviamente ciò che rende un host interessante dipende in larga misura dalle motivazioni della scansione\&. Gli amministratori di rete possono essere interessati solo a host sui quali è in esecuzione uno specifico servizio, mentre chi fa auditing di sicurezza è più interessato a ogni singola periferica dotata di un indirizzo IP\&. Un sistemista può accontentarsi di semplici ping ICMP per trovare gli host sulla propria rete, ma un penetration tester esterno può dover usare un insieme di molti differenti probing (tentativi di scansione) per cercare di evitare le restrizioni imposte da un firewall\&.
 .PP
 Poiché le necessità di host discovering sono così diverse, Nmap offre una notevole varietà di opzioni per la customizzazione delle tecniche usate\&. Il semplice host discovery è spesso chiamato
-\(lqping scan\(rq, anche se va molto oltre il semplice pacchetto ICMP di tipo "echo request" associato al famoso strumento di
+«ping scan», anche se va molto oltre il semplice pacchetto ICMP di tipo "echo request" associato al famoso strumento di
 ping\&. Un utente può evitare il passaggio per l\*(Aqutility
-\(lqping\(rq
+«ping»
 usando una List Scan (scansione di tipo lista:
 \fB\-sL\fR) o disabilitando il ping (\fB\-Pn\fR), oppure mettendo alla prova la rete usando combinazioni arbitrarie di probe TCP SYN/ACK, UDP e ICMP su differenti porte\&. Lo scopo di questi approcci è quello di sollecitare una risposta che dimostri l\*(Aqesistenza di un host o di un dispositivo di rete con quell\*(Aqindirizzo IP\&. In molte reti solo una piccola percentuale di indirizzi IP è attiva in ogni momento, specialmente negli spazi di indirizzamento privati previsti dall\*(AqRFC 1918 come ad esempio 10\&.0\&.0\&.0/8\&. Una rete di questo tipo ha 16 milioni di possibili IP, anche se è di uso comune in aziende con meno di un migliaio di macchine\&. L\*(Aqhost discovery può trovare queste macchine in un mare di indirizzi IP non consecutivi\&.
 .PP
@@ -338,10 +338,10 @@ Poiché l\*(Aqidea è quella di stampare semplicemente una lista di obiettivi, l
 \fB\-sn\fR (No port scan)
 .RS 4
 Questa opzione indica a Nmap di non effettuare un port scan dopo un host discovery e di mostrare gli host che hanno risposto\&. Quest\*(Aqopzione è spesso conosciuta come
-\(lqping scan\(rq, ma si può anche richiedere il traceroute ed eseguire script host NSE\&. Quest\*(Aqazione è un gradino più invadente della List Scan, e spesso può essere usata per lo stesso scopo\&. Essa permette una mappatura di una rete obiettivo senza attrarre molta attenzione\&. Sapere quanti host sono attivi è più utile ad un attaccante rispetto ad una semplice List Scan di ogni indirizzo IP e nome di host\&.
+«ping scan», ma si può anche richiedere il traceroute ed eseguire script host NSE\&. Quest\*(Aqazione è un gradino più invadente della List Scan, e spesso può essere usata per lo stesso scopo\&. Essa permette una mappatura di una rete obiettivo senza attrarre molta attenzione\&. Sapere quanti host sono attivi è più utile ad un attaccante rispetto ad una semplice List Scan di ogni indirizzo IP e nome di host\&.
 .sp
 Gli amministratori di sistema trovano spesso questa opzione utile allo stesso modo\&. Può essere usata facilmente per enumerare le macchine disponibili in una rete o tenere sotto osservazione la disponibilità di un singolo server\&. Questo approccio viene anche chiamato
-\(lqping sweep\(rq, ed è più affidabile di un ping all\*(Aqindirizzo broadcast poiché molti host non rispondono alle richieste di questa categoria\&.
+«ping sweep», ed è più affidabile di un ping all\*(Aqindirizzo broadcast poiché molti host non rispondono alle richieste di questa categoria\&.
 .sp
 L\*(Aqopzione
 \fB\-sn\fR
@@ -434,7 +434,7 @@ e
 \fB\-PU <portlist>\fR (UDP Ping)
 .RS 4
 Un\*(Aqaltra opzione di host discovery è il ping UDP, la quale manda un pacchetto UDP alle porte indicate\&. Per molte porte, il pacchetto sarà vuoto, anche se utilizzare un payload specifico del protocollo aumentale probabilità di risposta\&. Vedi la sezione
-\(lqUDP payloads: \fBnmap\-payloads\fR\(rq
+«UDP payloads: \fBnmap\-payloads\fR»
 (\m[blue]\fB\%https://nmap.org/book/nmap-payloads.html\fR\m[]) per una descrizione del database dei payloads\&. Il contenuto del pacchetto può essere gestito con le opzioni
 \fB\-\-data\fR,
 \fB\-\-data\-string\fR
@@ -448,7 +448,7 @@ e
 nmap\&.h\&. Si usa di default una porta poco comune perché inviare dati ad una porta già aperta è spesso non desiderabile per questo tipo particolare di scansione\&.
 .sp
 Una volta raggiunta una porta UDP chiusa sulla macchina di destinazione, il probe UDP dovrebbe provocare un pacchetto ICMP di tipo "port unreachable" (porta irraggiungibile)\&. Questo indica a Nmap che l\*(Aqhost è funzionante e disponibile\&. Altri tipi di pacchetti ICMP di errore, come ad esempio host o rete "unreachable" (non disponibile) o "TTL exceeded" (superato il tempo di vita del pacchetto) indicano un host non funzionante o irraggiungibile\&. Una mancanza di risposta viene interpretata alla stessa maniera\&. Se si raggiunge una porta aperta la maggior parte dei servizi semplicemente ignorano il pacchetto vuoto e non rimandano alcuna risposta\&. Questo spiega perché il probe di default è la porta 40125, la quale si usa molto raramente\&. Pochi servizi, tra i quali
-\(lqchargen\(rq, rispondono a un pacchetto UDP vuoto, rivelando così a Nmap la disponibilità della macchina in questione\&.
+«chargen», rispondono a un pacchetto UDP vuoto, rivelando così a Nmap la disponibilità della macchina in questione\&.
 .sp
 Il vantaggio primario di questo tipo di scansione è che riesce a bypassare firewall e filtri che controllano solo pacchetti TCP\&. Ad esempio, una volta avevo un router a banda larga wireless Linksys BEFW11S4\&. L\*(Aqinterfaccia esterna di questa periferica filtrava tutte le porte TCP di default, ma i probe UDP provocavano messaggi di "Port unreachable" rivelando così l\*(Aqesistenza del device\&.
 .RE
@@ -485,7 +485,7 @@ per abilitare questo comportamento di "echo request"\&.
 Mentre la "echo request" è la richiesta standard del ping ICMP, Nmap non si ferma qui\&. Gli standard ICMP (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[2]\d\s+2
 e
 \m[blue]\fBRFC 950\fR\m[]\&\s-2\u[3]\d\s+2) specificano inoltre i pacchetti "timestamp request", "information request" e "address mask request" (rispettivamente "richiesta di timestamp", ovvero data e ora, "richiesta di informazioni" e "richiesta della maschera di rete") mediante i codici ICMP 13, 15 e 17\&. Dato che lo scopo dichiarato di questo tipo di richieste è quello di avere informazioni quali la maschera di rete e l\*(Aqora corrente, essi possono facilmente essere usati per l\*(Aqhost discovery\&. Un sistema che risponde è funzionante e disponibile\&. Nmap non implementa allo stato attuale pacchetti di "information request", poiché in genere non sono supportati comunemente\&. L\*(AqRFC 1122 specifica che
-\(lqun host NON DOVREBBE implementare questi messaggi\(rq
+«un host NON DOVREBBE implementare questi messaggi»
 (il maiuscolo negli RFC indica comportamenti precisi)\&. Il timestamp (data e ora) e le richieste di maschera di rete possono essere inviate rispettivamente mediante le opzioni
 \fB\-PP\fR
 e
@@ -715,8 +715,8 @@ open
 (aperte) e
 closed
 (chiuse)\&. A pagina 65 si dice che
-\(lqse lo stato della porta [di destinazione] è CHIUSO \&.\&.\&. un segmento in arrivo che non contiene un RST causerà l\*(Aqinvio di un RST in risposta\(rq\&. La pagina successiva discute di pacchetti inviati a porte aperte senza i bit SYN, RST o ACK impostati, indicando che:
-\(lqquesta situazione è decisamente improbabile, ma se dovesse capitare i segmenti vanno ignorati e si deve ritornare [alla funzione chiamante, NdT]\(rq\&.
+«se lo stato della porta [di destinazione] è CHIUSO \&.\&.\&. un segmento in arrivo che non contiene un RST causerà l\*(Aqinvio di un RST in risposta»\&. La pagina successiva discute di pacchetti inviati a porte aperte senza i bit SYN, RST o ACK impostati, indicando che:
+«questa situazione è decisamente improbabile, ma se dovesse capitare i segmenti vanno ignorati e si deve ritornare [alla funzione chiamante, NdT]»\&.
 .sp
 Quando si scansionano sistemi aderenti a questo testo RFC, qualunque pacchetto che non contenga i bit SYN, RST o ACK causerà un RST di ritorno se la porta è chiusa e nessuna risposta se la porta è aperta\&. Finché nessuno di questi tre bit è incluso, qualunque combinazione degli altri tre bit (FIN, PSH, e URG) va bene\&. Nmap sfrutta tutto ciò tramite questi tre tipi di scan:
 .PP
@@ -834,7 +834,7 @@ in entrambi i casi\&.
 Questo metodo di scansione avanzato permette di effettuare una scansione TCP completamente invisibile dell\*(Aqobiettivo (ovvero nessun pacchetto viene inviato dall\*(Aqindirizzo IP reale da cui si sta effettuando la scansione\&.) Viene diversamente utilizzato un unico attacco parallelo che utilizza la predicibilità dell\*(AqID relativo alla sequenza di frammentazione generato dallo
 \fIzombie host\fR
 per ottenere informazioni sulle porte aperte dell\*(Aqobiettivo\&. I sistemi IDS interpreteranno la scansione come se provenisse dalla macchina zombie specificata (che deve essere attiva e rispondere a certi criteri)\&. Tutti i dettagli su questa affascinante tecnica di scansione si trovano al seguente link
-\(lq \m[blue]\fBTCP Idle Scan (\-sI)\fR\m[]\&\s-2\u[7]\d\s+2\(rq\&.
+« \m[blue]\fBTCP Idle Scan (\-sI)\fR\m[]\&\s-2\u[7]\d\s+2»\&.
 .sp
 Oltre che essere straordinariamente nascosto (grazie alla sua natura "invisibile"), questo tipo di scansione permette di creare una mappa indicante le relazioni tra le macchine da un punto di vista dell\*(Aqindirizzo IP\&. I risultati dalla scansione mostrano le porte aperte
 \fIdalla prospettiva dell\*(Aqindirizzo IP della macchina zombie\&.\fR
@@ -925,7 +925,7 @@ se non si è sicuri\&.
 Quest\*(Aqopzione specifica quali porte Nmap deve escludere dalla scansione\&. I
 \fIport ranges\fR
 devono essere specificati in modo simile a
-\fB\-p\fR\&. Per le scansioni IP protocol (\fB\-sO\fR), questa opzione specifica il numero di protocolli che si vuole escludere (0\(en255)\&.
+\fB\-p\fR\&. Per le scansioni IP protocol (\fB\-sO\fR), questa opzione specifica il numero di protocolli che si vuole escludere (0–255)\&.
 .sp
 Quando si richiede di escludere le porte, queste vengono escluse da tutti i tipi di scansione\&. Ciò include anche la fase di discovery\&.
 .RE
@@ -939,7 +939,7 @@ il numero si riduce a 100\&.
 Nmap ha bisogno del file
 nmap\-services
 che contiene le informazioni di frequenza, in modo da sapere quali sono le porte più comuni (vedi
-\(lq\m[blue]\fBWell Known Port List: \fBnmap\-services\fR\fR\m[]\&\s-2\u[9]\d\s+2\(rq
+«\m[blue]\fBWell Known Port List: \fBnmap\-services\fR\fR\m[]\&\s-2\u[9]\d\s+2»
 per maggiori informazioni sulle "port frequencies")\&. Se la "port frequency information" non è disponibile, forse perché si sta utilizzando un file
 nmap\-services
 personalizzato, Nmap scansiona tutte le porte nominate più le porte nell\*(Aqintervallo 1\-1024\&. In questo caso, l\*(Aqopzione
@@ -1058,11 +1058,11 @@ cpe:/o:linux:linux_kernel:2\&.6\&.
 Se Nmap non è in grado di indovinare il sistema operativo di una macchina e le condizioni sono propizie (ad esempio una porta trovata aperta ed una trovata chiusa), Nmap fornirà una URL che potrà essere utilizzata per inviare il fingerprint (nel solo caso che si conosca con certezza il sistema operativo dell\*(Aqhost in questione)\&. Inviando questi fingerprint è possibile contribuire ad ampliare la gamma di sistemi operativi conosciuti da Nmap, così da renderlo più accurato per tutti\&.
 .PP
 L\*(AqOS detection abilita diversi altri test che utilizzano le informazioni che sono state ottenute durante questo processo\&. Un di questi è il "TCP Sequence Predictability Classification"\&. Questo test misura approssimativamente quanto è difficile stabilire una "forged TCP connection" verso l\*(Aqhost remoto\&. È utile per sfruttare exploit basati sul controllo del source\-IP (rlogin, filtri firewall, ecc\&.) o per nascondere la sorgente di un attacco\&. Questo tipo di spoofing viene raramente eseguito, ma molte macchine sono ancora vulnerabili ad esso\&. Il valore che indica la difficoltà è basato su campionamenti statistici e può variare\&. Generalmente è preferibile utilizzare la classificazione verbale, come
-\(lqworthy challenge\(rq
+«worthy challenge»
 o
-\(lqtrivial joke\(rq, che viene riportata solo nel normale output in modalità "verbose" (\fB\-v\fR)\&. Quando questa modalità è abilitata insieme all\*(Aqopzione
+«trivial joke», che viene riportata solo nel normale output in modalità "verbose" (\fB\-v\fR)\&. Quando questa modalità è abilitata insieme all\*(Aqopzione
 \fB\-O\fR, viene anche riportata la sequenza di generazione dell\*(AqIP ID\&. La maggior parte delle macchine è nella classe
-\(lqincremental\(rq, il che significa che incrementano il campo ID dell\*(Aqheader IP per ogni pacchetto inviato\&. Ciò le rende vulnerabili a diversi attacchi avanzati di spoofing ed "information gathering"\&.
+«incremental», il che significa che incrementano il campo ID dell\*(Aqheader IP per ogni pacchetto inviato\&. Ciò le rende vulnerabili a diversi attacchi avanzati di spoofing ed "information gathering"\&.
 .PP
 Altre informazioni extra abilitate dall\*(AqOS detection riguardano il tempo di attività (uptime) dell\*(Aqobiettivo\&. Sfruttando l\*(Aqopzione TCP timestamp (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[11]\d\s+2) cerca di indovinare quando una macchina ha effettuato l\*(Aqultimo reboot\&. Quest\*(Aqinformazione può non essere affidabile, in quanto il contatore del timestamp potrebbe non venire inizializzato a zero+ oppure andare in overflow ed essere troncato, quindi è riportato solo nella modalità "verbose"\&.
 .PP
@@ -1120,7 +1120,7 @@ safe,
 version
 e
 vuln\&. Queste sono tutte descritte nella sezione
-\(lq\m[blue]\fBScript Categories\fR\m[]\&\s-2\u[14]\d\s+2\(rq\&.
+«\m[blue]\fBScript Categories\fR\m[]\&\s-2\u[14]\d\s+2»\&.
 .PP
 Gli script non vengono eseguiti in una sandbox e quindi possono, accidentalmente o maliziosamente, danneggiare il sistema su cui vengono eseguiti o invadere la propria privacy\&. Non eseguire mai script di terze parti se non si ha la fiducia degli autori o non si ha preventivamente controllato personalmente gli script\&.
 .PP
@@ -1192,7 +1192,7 @@ scripts/script\&.db, che elenca le categorie cui ogni script appartiene\&.
 .sp
 Quando si usa il nome dagli script come riferimento dal file
 script\&.db, si può utilizzare come nella shell il carattere speciale
-\(lq*\(rq\&.
+«*»\&.
 .PP
 \fBnmap \-\-script "http\-*"\fR
 .RS 4
@@ -1345,7 +1345,7 @@ viene impostata a volte sul valore 1 per impedire a Nmap di inviare più di un p
 \fB\-\-min\-rtt\-timeout <time>\fR, \fB\-\-max\-rtt\-timeout <time>\fR, \fB\-\-initial\-rtt\-timeout <time>\fR (Adjust probe timeouts)
 .RS 4
 Nmap mantiene un valore di timeout aggiornato per determinare quanto ci vorrà per un probe response prima di ritrasmettere il probe\&. Questo viene calcolato basandosi sui tempi di response degli ultimi probe inviati\&. La formula si trova al link
-\m[blue]\fB\(lqIdle Scan Implementation Algorithms\(rq\fR\m[]\&\s-2\u[17]\d\s+2\&. Se la latenza della rete dovesse oscillare troppo questo timeout può crescere fino ad un valore di diversi secondi\&. Inoltre esso è impostato inizialmente ad un valore abbastanza alto e potrebbe restare su quel valore per tutto il tempo in cui Nmap effettua la scansione su host che non rispondono\&.
+\m[blue]\fB«Idle Scan Implementation Algorithms»\fR\m[]\&\s-2\u[17]\d\s+2\&. Se la latenza della rete dovesse oscillare troppo questo timeout può crescere fino ad un valore di diversi secondi\&. Inoltre esso è impostato inizialmente ad un valore abbastanza alto e potrebbe restare su quel valore per tutto il tempo in cui Nmap effettua la scansione su host che non rispondono\&.
 .sp
 Specificando limiti di
 \fB\-\-max\-rtt\-timeout\fR
@@ -1399,7 +1399,7 @@ indica il valore massimo di delay che Nmap può adottare\&. Un valore basso di q
 .sp
 Un altro uso dell\*(Aqopzione\fB\-\-scan\-delay\fR
 è quello in cui si desidera evitare sistemi anti\-intrusione (IDS/IPS, "intrusion\-detection" e "intrusion\-prevention system")\&. Questa tecnica viene utilizzata nella sezione
-\(lq\m[blue]\fBA practical example: bypassing default Snort 2\&.2\&.0 rules\fR\m[]\&\s-2\u[18]\d\s+2\(rq
+«\m[blue]\fBA practical example: bypassing default Snort 2\&.2\&.0 rules\fR\m[]\&\s-2\u[18]\d\s+2»
 per vincere il port scanner detector di default in Snort IDS\&. Molti altri IDS possono essere sconfitti con questo sistema\&.
 .RE
 .PP
@@ -1837,7 +1837,7 @@ e
 Version info\&.
 .sp
 Così come nell\*(Aqoutput XML, questa pagina di manuale non permette di documentare l\*(Aqintero formato\&. È disponibile una descrizione più dettagliata del formato grepable output nella sezione
-\(lq\m[blue]\fBGrepable Output (\-oG)\fR\m[]\&\s-2\u[23]\d\s+2\(rq\&.
+«\m[blue]\fBGrepable Output (\-oG)\fR\m[]\&\s-2\u[23]\d\s+2»\&.
 .RE
 .PP
 \fB\-oA <basename>\fR (Output to all formats)
@@ -1888,7 +1888,7 @@ e
 .RS 4
 Periodicamente stampa un messaggio di timing status ogni intervallo di
 \fItime\fR\&. Il tempo è una specifica del tipo descritto nella sezione
-\(lq\m[blue]\fBTiming and Performance\fR\m[]\&\s-2\u[24]\d\s+2\(rq
+«\m[blue]\fBTiming and Performance\fR\m[]\&\s-2\u[24]\d\s+2»
 di questo manuale; quindi per esempio, si utilizzerà
 \fB\-\-stats\-every 10s\fR
 per avere un aggiornamento dello stato ogni 10 secondi\&. Gli aggiornamenti vengono stampati sull\*(Aqinteractive output (a schermo) e sull\*(AqXML output\&.
@@ -2202,7 +2202,7 @@ Le patch che risolvono i bug sono molto meglio di una segnalazione\&. Le istruzi
 .SH "AUTORE"
 .PP
 Gordon
-\(lqFyodor\(rq
+«Fyodor»
 Lyon
 <fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
@@ -2221,12 +2221,12 @@ Centinaia di persone hanno dato validi contributi a Nmap nel corso degli anni\&.
 .SH "NOTE LEGALI"
 .SS "Copyright e Licenze di Nmap"
 .PP
-Nmap Security Scanner è (C) 1996\-2015 Insecure\&.Com LLC\&. Nmap è inoltre un marchio registrato di Insecure\&.Com LLC\&. Questo programma è free software, è liberamente redistribuibile e/o modificabile in accordo con i termini della GNU General Public License come pubblicata dalla Free Software Foundation; Versione 2 (\(lqGPL\(rq) MA SOLO CON TUTTE LE PRECISAZIONI ED ECCEZIONI QUI DESCRITTE\&. Questo garantisce il diritto di utilizzare, modificare e redistribuire questo software entro certe condizioni\&. Se si desidera incorporare la tecnologia Nmap in software proprietari, potremmo essere disponibili a vendere licenze alternative (contattare
+Nmap Security Scanner è (C) 1996\-2015 Insecure\&.Com LLC\&. Nmap è inoltre un marchio registrato di Insecure\&.Com LLC\&. Questo programma è free software, è liberamente redistribuibile e/o modificabile in accordo con i termini della GNU General Public License come pubblicata dalla Free Software Foundation; Versione 2 («GPL») MA SOLO CON TUTTE LE PRECISAZIONI ED ECCEZIONI QUI DESCRITTE\&. Questo garantisce il diritto di utilizzare, modificare e redistribuire questo software entro certe condizioni\&. Se si desidera incorporare la tecnologia Nmap in software proprietari, potremmo essere disponibili a vendere licenze alternative (contattare
 <sales@insecure\&.com>)\&. Molti produttori di security scanner usano già le tecnologie di Nmap come per esempio "host discovery", "port scanning", "OS detection", "version detection" e l\*(AqNmap Scripting Engine\&.
 .PP
 Si noti che la licenza GPL implica importanti vincoli sui
-\(lqprogetti derivati\(rq, sebbene essa non fornisca una precisa definizione di questi\&. Allo scopo di evitare malintesi, interpretiamo questo termine nel modo più ampio che la legge sul copyright permetta\&. Ad esempio, consideriamo un\*(Aqapplicazione come progetto derivato inteso ai fini di questa licenza se presenta una delle seguenti caratteristiche ottenute con software o contenuti coperti da questa licenza (d\*(Aqora in poi definiti
-\(lqCovered Software\(rq):
+«progetti derivati», sebbene essa non fornisca una precisa definizione di questi\&. Allo scopo di evitare malintesi, interpretiamo questo termine nel modo più ampio che la legge sul copyright permetta\&. Ad esempio, consideriamo un\*(Aqapplicazione come progetto derivato inteso ai fini di questa licenza se presenta una delle seguenti caratteristiche ottenute con software o contenuti coperti da questa licenza (d\*(Aqora in poi definiti
+«Covered Software»):
 .sp
 .RS 4
 .ie n \{\
@@ -2237,7 +2237,7 @@ Si noti che la licenza GPL implica importanti vincoli sui
 .IP \(bu 2.3
 .\}
 Integra codice sorgente di
-\(lqCovered Software\(rq
+«Covered Software»
 .RE
 .sp
 .RS 4
@@ -2264,7 +2264,7 @@ di Nmap\&.
 .IP \(bu 2.3
 .\}
 È progettato specificatamente per eseguire
-\(lqCovered Software\(rq
+«Covered Software»
 e ne utilizza i risultati (al contrario delle tipiche applicazioni shell o eseguibili da menù che eseguono qualsiasi cosa venga detto loro)\&.
 .RE
 .sp
@@ -2277,10 +2277,10 @@ e ne utilizza i risultati (al contrario delle tipiche applicazioni shell o esegu
 .IP \(bu 2.3
 .\}
 Integra/include/aggrega
-\(lqCovered Software\(rq
+«Covered Software»
 in un eseguibile di installazione proprietario, come ad esempio quelli prodotti da InstallShield\&. Includere Nmap con altro software in forma compressa o di archiviazione, non rientra in questi casi, fornire appropriati software open\-source di decompressione o di de\-archiviazione è ampiamente disponibile senza nessun ricarico\&. Ai fini di questa licenza, viene considerato programma di installazione ciò che include
-\(lqCovered Software\(rq, anche se in realtà recupera una copia di
-\(lqCovered Software\(rq
+«Covered Software», anche se in realtà recupera una copia di
+«Covered Software»
 da un\*(Aqaltra fonte in fase di installazione (come, ad esempio, scaricandola da Internet)\&.
 .RE
 .sp
@@ -2307,32 +2307,32 @@ Esegue un programma di aiuto, un modulo o uno script che presenta una delle cara
 .RE
 .PP
 Questa lista non è esclusiva, ma è concepita per chiarificare la nostra interpretazione di progetto derivato con alcuni esempi comuni\&. Altre persone potrebbero interpretare la licenza GPL in modo diverso, quindi dobbiamo considerare questo come un\*(Aqeccezione speciale alla GPL che applicheremo a
-\(lqCovered Software\(rq\&. Le opere che soddisfano una qualsiasi di queste condizioni, devono essere conformi a tutti i termini di questa licenza, in particolar modo i requisiti della Sezione 3 della licenza GPL di fornire il codice sorgente e permettere la libera ridistribuzione del lavoro nel suo complesso\&. Come altra eccezione ai termini della GPL, Insecure\&.Com LLC garantisce il permesso di collegare il codice di questo programma con qualunque versione della libreria OpenSSL che è distribuita sotto una licenza identica a quella che si trova nel file
+«Covered Software»\&. Le opere che soddisfano una qualsiasi di queste condizioni, devono essere conformi a tutti i termini di questa licenza, in particolar modo i requisiti della Sezione 3 della licenza GPL di fornire il codice sorgente e permettere la libera ridistribuzione del lavoro nel suo complesso\&. Come altra eccezione ai termini della GPL, Insecure\&.Com LLC garantisce il permesso di collegare il codice di questo programma con qualunque versione della libreria OpenSSL che è distribuita sotto una licenza identica a quella che si trova nel file
 docs/licenses/OpenSSL\&.txt
 e di redistribuire combinazioni collegate che includono entrambi\&.
 .PP
 Ogni redistribuzione di
-\(lqCovered Software\(rq, inclusa ogni eventuale opera derivata, deve sottostare e portare avanti tutti i termini di questa licenza, incluso sottostare a tutte le regole e restrizioni della GPL\&. Ad esempio, deve essere fornito il codice sorgente di un intero progetto ed autorizzata la sua libera e gratuita distribuzione\&. Tutti i riferimenti alla GPL con
-\(lqquesta Licenza\(rq, sono da considerarsi come inclusioni dei termini e delle condizioni nel testo di questa stessa licenza\&.
+«Covered Software», inclusa ogni eventuale opera derivata, deve sottostare e portare avanti tutti i termini di questa licenza, incluso sottostare a tutte le regole e restrizioni della GPL\&. Ad esempio, deve essere fornito il codice sorgente di un intero progetto ed autorizzata la sua libera e gratuita distribuzione\&. Tutti i riferimenti alla GPL con
+«questa Licenza», sono da considerarsi come inclusioni dei termini e delle condizioni nel testo di questa stessa licenza\&.
 .PP
 Dato che questa licenza impone eccezioni speciali alla GPL, "Covered Work" non è cumulabile (neanche con parte di un più ampio lavoro) con il semplice software GPL\&. I termini, le condizioni e le eccezioni di questa licenza devono altresì essere inclusi\&. Questa licenza è incompatibile con qualsiasi altra licenza open\-source\&. In alcuni casi potremmo porre sotto diversa licenza parti di Nmap o concedere permessi speciali di utilizzo in altro software open\-source\&. Per qualsiasi informazioni contattare
 <fyodor@nmap\&.org>\&. Allo stesso modo, non incorporiamo software incompatibile al principio di open\-source in
-\(lqCovered Software\(rq
+«Covered Software»
 senza uno speciale permesso dai titolari del copyright\&.
 .PP
 Se avete domande a proposito delle limitazioni imposte all\*(Aquso di Nmap in altri progetti, saremo felici di aiutarvi\&. Come detto poc\*(Aqanzi, offriamo anche licenze alternative per l\*(Aqintegrazione di Nmap in applicazioni o dispositivi proprietari\&. Questi contratti sono stati venduti a molti rivenditori di software e generalmente includono una licenza di durata illimitata, supporto tecnico prioritario e aggiornamenti, come anche l\*(Aqaiuto con la contribuzione allo sviluppo della tecnologia Nmap\&. Per ulteriori informazioni contattare
 <sales@insecure\&.com>\&.
 .PP
 Se si riceve questo file con accordo di licenza scritto, o un contratto per
-\(lqCovered Software\(rq
+«Covered Software»
 che afferma termini diversi da quelli appena descritti, allora si può scegliere di utilizzare e ridistribuire
-\(lqCovered Software\(rq
+«Covered Software»
 sotto quei termini anziché quelli qui riportati\&.
 .SS "Creative Commons License per questa Guida di Nmap"
 .PP
 Questa
 \fINmap Reference Guide\fR
-è protetta da copyright (C) 2005\(en2012 Insecure\&.Com LLC\&. È con ciò coperta dalla versione 3\&.0 della Creative Commons Attribution License\&. Questo permette la ridistribuzione e la modifica dell\*(Aqopera come si ritenga opportuno, a patto di far riferimento alla copia originale\&. In alternativa, si può scegliere di trattare questo documento come rientrante sotto la stessa licenza di Nmap stesso (discussa in precedenza)\&.
+è protetta da copyright (C) 2005–2012 Insecure\&.Com LLC\&. È con ciò coperta dalla versione 3\&.0 della Creative Commons Attribution License\&. Questo permette la ridistribuzione e la modifica dell\*(Aqopera come si ritenga opportuno, a patto di far riferimento alla copia originale\&. In alternativa, si può scegliere di trattare questo documento come rientrante sotto la stessa licenza di Nmap stesso (discussa in precedenza)\&.
 .SS "Disponibilità del Codice Sorgente e Contribuzioni della Comunità"
 .PP
 Il codice sorgente di questo software viene fornito perché crediamo che gli utenti abbiano il diritto di sapere esattamente cosa questo programma potrà fare prima di eseguirlo\&. Questo permette inoltre di scoprire falle di sicurezza\&.
@@ -2367,7 +2367,7 @@ per supportare il riconoscimento della versione di SSL\&. L\*(AqNmap Scripting E
 \m[blue]\fBLua programming language\fR\m[]\&\s-2\u[34]\d\s+2\&. La
 \m[blue]\fBLiblinear linear classification library\fR\m[]\&\s-2\u[35]\d\s+2
 viene utilizzata per le nostre tecniche di apprendimento automatico dell\*(AqOS version su IPv6 (vedi la sezione
-\(lq\m[blue]\fBIPv6 matching\fR\m[]\&\s-2\u[36]\d\s+2\(rq)\&. Tutto il software di terze parti descritto in questo paragrafo è liberamente ridistribuibile sotto licenza stile BSD\&.
+«\m[blue]\fBIPv6 matching\fR\m[]\&\s-2\u[36]\d\s+2»)\&. Tutto il software di terze parti descritto in questo paragrafo è liberamente ridistribuibile sotto licenza stile BSD\&.
 .SS "United States Export Control"
 .PP
 Nmap utilizza la crittografia solo quando compilato con il supporto opzionale ad OpenSSL ed a lui collegato\&. Quando compilato senza il supporto ad OpenSSL, Insecure\&.Com LLC ritiene che Nmap non sia soggetto ai controlli sull\*(Aqexport U\&.S\&.
@@ -2375,14 +2375,14 @@ Nmap utilizza la crittografia solo quando compilato con il supporto opzionale ad
 .PP
 Quando compilato col supporto ad OpenSSL o distribuito come codice sorgente, Insecure\&.Com LLC crede che Nmap rientri sotto U\&.S\&. ECCN
 \m[blue]\fB5D002\fR\m[]\&\s-2\u[38]\d\s+2
-(\(lqInformation Security Software\(rq)\&. Distribuiamo Nmap secondo l\*(Aqeccezione TSU per il software di crittografia disponibile pubblicamente definito in
+(«Information Security Software»)\&. Distribuiamo Nmap secondo l\*(Aqeccezione TSU per il software di crittografia disponibile pubblicamente definito in
 \m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[39]\d\s+2\&.
 .PP
 La presente traduzione ha il solo scopo di aiutare nella comprensione del testo originale
-\(lqNmap Reference Guide\(rq, non ne costituisce copia sostitutiva e nemmeno licenza alternativa di
-\(lqCovered Software\(rq\&. Per qualsiasi informazione o chiarimento e per la versione più aggiornata, fare riferimento al testo originale disponibile al link
+«Nmap Reference Guide», non ne costituisce copia sostitutiva e nemmeno licenza alternativa di
+«Covered Software»\&. Per qualsiasi informazione o chiarimento e per la versione più aggiornata, fare riferimento al testo originale disponibile al link
 \m[blue]\fB\%https://nmap.org/book/man.html\fR\m[]\&.
-.SH "NOTES"
+.SH "NOTE"
 .IP " 1." 4
 RFC 1122
 .RS 4

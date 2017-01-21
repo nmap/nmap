@@ -35,6 +35,9 @@ detected method.
 -- @args http-auth-finder.withindomain only spider URLs within the same
 --       domain. This widens the scope from <code>withinhost</code> and can
 --       not be used in combination. (default: false)
+--
+-- @see http-auth.nse
+-- @see http-brute.nse
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

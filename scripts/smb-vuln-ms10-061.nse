@@ -52,6 +52,8 @@ References:
 -- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2729
 -- |       http://technet.microsoft.com/en-us/security/bulletin/MS10-061
 -- |_      http://blogs.technet.com/b/srd/archive/2010/09/14/ms10-061-printer-spooler-vulnerability.aspx
+--
+-- @see stuxnet-detect.nse
 
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

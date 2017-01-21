@@ -47,13 +47,10 @@
 
       <web>
         <note>
-          <para>Este documento descreve a mais recente versão do Nmap,
-          disponível em <ulink url="http://insecure.org/nmap/download.html" />
-          ou em <ulink url="http://insecure.org/nmap/dist/?C=M&amp;O=D" />.
-          Por favor, assegure-se de que você está utilizando a última versão
-          antes de reclamar que uma opção não funciona como foi
-          descrita.</para>
-        </note>
+          <para>
+            Este documento descreve o Nmap versão 4.00. A documentação mais
+            recente está disponível em inglês em
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
       </web>
 
       <para>O Nmap (<quote>Network Mapper</quote>) é uma ferramenta de código
@@ -3570,30 +3567,6 @@ EXAMPLES:
             memória reais mais fáceis de se ver. Normalmente o Nmap pula essa
             parte pois o SO faz isso de qualquer forma no encerramento de um
             processo.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><option>--interactive</option> (Inicial em modo
-          interativo)</term>
-
-          <listitem>
-            <indexterm significance="normal">
-              <primary>--interactive</primary>
-            </indexterm>
-
-            <para>Inicia o Nmap em modo interativo, que oferece um prompt
-            interativo do Nmap, permitindo o início de múltiplos scans (tanto
-            síncronos quanto em background). Isto é útil para pessoas que
-            escaneiam a partir de sistemas multi-usuários e que normalmente
-            querem testar a segurança sem deixar todo mundo saber exatamente
-            quais sistemas eles estão escaneando Use
-            <option>--interactive</option> para ativar este modo e então tecle
-            <keycap>h</keycap> para uma ajuda (help). Esta opção é raramente
-            utilizada porque um shell adequado é mais familiar e tem mais
-            opções. Esta opção inclui um operador exclamação (!) para a
-            execução de comandos de shell, o que é uma das muitas razões de
-            não se instalar o Nmap com setuid root.</para>
           </listitem>
         </varlistentry>
 
