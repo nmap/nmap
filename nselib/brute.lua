@@ -701,7 +701,7 @@ Engine = {
       status, response = driver:connect()
 
       -- Did we successfully connect?
-      if status and response:isReduce() then
+      if status then
         if not username and not password then
           repeat
             if #self.retry_accounts > 0 then
@@ -753,13 +753,12 @@ Engine = {
         driver:disconnect()
         driver = nil
 
-        if not status and response:isReduce() then
-          local ret_creds = {}
-          ret_creds.username = username
-          ret_creds.password = password
-          return false, response, ret_creds
-        end
-
+      end
+      if not status and response:isReduce() then
+         local ret_creds = {}
+         ret_creds.username = username
+         ret_creds.password = password
+         return false, response, ret_creds
       end
 
       retries = retries - 1
