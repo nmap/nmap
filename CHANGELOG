@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Enable --ssl-ciphers to be used with Ncat in client mode, not only in
+  server (listen) mode. [Daniel Miller]
+
 o [GH#649] New service probe and match lines for the JMON and RSE services of
   IBM Explorer for z/OS. [Soldier of Fortran]
 
