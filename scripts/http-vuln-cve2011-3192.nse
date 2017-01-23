@@ -14,6 +14,9 @@ References:
 ]]
 
 ---
+-- @see http-slowloris-check.nse
+-- @see http-slowloris.nse
+--
 -- @usage
 -- nmap --script http-vuln-cve2011-3192.nse [--script-args http-vuln-cve2011-3192.hostname=nmap.scanme.org] -pT:80,443 <host>
 --

@@ -37,6 +37,8 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 ]]
 
 ---
+-- @see ms-sql-empty-password.nse
+--
 -- @usage
 -- nmap -p 445 --script ms-sql-brute --script-args mssql.instance-all,userdb=customuser.txt,passdb=custompass.txt <host>
 -- nmap -p 1433 --script ms-sql-brute --script-args userdb=customuser.txt,passdb=custompass.txt <host>

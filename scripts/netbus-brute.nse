@@ -9,6 +9,7 @@ Performs brute force password auditing against the Netbus backdoor ("remote admi
 ]]
 
 ---
+-- @see netbus-auth-bypass.nse
 -- @usage
 -- nmap -p 12345 --script netbus-brute <target>
 --
