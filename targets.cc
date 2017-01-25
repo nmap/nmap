@@ -552,7 +552,8 @@ static Target *setup_target(const HostGroupState *hs,
     if (!nmap_route_dst(ss, &rnfo)) {
       log_bogus_target(inet_ntop_ez(ss, sslen));
       error("%s: failed to determine route to %s", __func__, t->NameIP());
-      goto bail;
+      delete t;
+      return NULL:
     }
     if (rnfo.direct_connect) {
       t->setDirectlyConnected(true);
@@ -586,9 +587,6 @@ static Target *setup_target(const HostGroupState *hs,
 
   return t;
 
-bail:
-  delete t;
-  return NULL;
 }
 
 static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
@@ -604,7 +602,7 @@ static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
     return t;
   }
 
-tryagain:
+while(true) {
 
   if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
     const char *expr;
@@ -619,7 +617,7 @@ tryagain:
       else
         log_bogus_target(expr);
     }
-    goto tryagain;
+    continue;
   }
 
   assert(ss.ss_family == o.af());
@@ -630,18 +628,19 @@ tryagain:
     if (o.resume_ip.s_addr == ((struct sockaddr_in *) &ss)->sin_addr.s_addr)
       /* We will continue starting with the next IP. */
       o.resume_ip.s_addr = 0;
-    goto tryagain;
+    continue;
   }
 
   /* Check exclude list. */
   if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group))
-    goto tryagain;
+    continue;
 
   t = setup_target(hs, &ss, sslen, pingtype);
   if (t == NULL)
-    goto tryagain;
+    continue;
 
   return t;
+}
 }
 
 static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
