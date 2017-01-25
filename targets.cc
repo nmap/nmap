@@ -553,7 +553,7 @@ static Target *setup_target(const HostGroupState *hs,
       log_bogus_target(inet_ntop_ez(ss, sslen));
       error("%s: failed to determine route to %s", __func__, t->NameIP());
       delete t;
-      return NULL:
+      return NULL;
     }
     if (rnfo.direct_connect) {
       t->setDirectlyConnected(true);
