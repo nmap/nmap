@@ -125,16 +125,17 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 import pango
 
-import radialnet.util.drawing as drawing
+from . import radialnet.util.drawing as drawing
 
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.labels import *
-from radialnet.gui.Image import Application
-from radialnet.gui.NodeNotebook import NodeNotebook
+from .radialnet.bestwidgets.windows import *
+from .radialnet.bestwidgets.boxes import *
+from .radialnet.bestwidgets.labels import *
+from .radialnet.gui.Image import Application
+from .radialnet.gui.NodeNotebook import NodeNotebook
 
 
 DIMENSION_NORMAL = (600, 400)

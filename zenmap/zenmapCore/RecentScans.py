@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
+from builtins import object
 from os import access, R_OK, W_OK
 from os.path import dirname
 from zenmapCore.Paths import Path
@@ -183,7 +185,7 @@ if __name__ == "__main__":
     import sys
     from os.path import split
     r = RecentScans()
-    print ">>> Getting empty list:", r.get_recent_scans_list()
-    print ">>> Adding recent scan bla:", r.add_recent_scan("bla")
-    print ">>> Getting recent scan list:", r.get_recent_scans_list()
+    print(">>> Getting empty list:", r.get_recent_scans_list())
+    print(">>> Adding recent scan bla:", r.add_recent_scan("bla"))
+    print(">>> Getting recent scan list:", r.get_recent_scans_list())
     del r

@@ -125,6 +125,9 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from builtins import object
+from past.utils import old_div
 import os
 import sys
 import gtk
@@ -144,7 +147,7 @@ def get_pixels_for_cairo_image_surface(pixbuf):
     cairo.ImageSurface.create_for_data() method.
     """
     data = array.ArrayType('c')
-    format = pixbuf.get_rowstride() / pixbuf.get_width()
+    format = old_div(pixbuf.get_rowstride(), pixbuf.get_width())
 
     i = 0
     j = 0
@@ -167,7 +170,7 @@ def get_pixels_for_cairo_image_surface(pixbuf):
     return (FORMAT_RGBA * pixbuf.get_width(), data)
 
 
-class Image:
+class Image(object):
     """
     """
     def __init__(self, path=None):
@@ -187,7 +190,7 @@ class Image:
         if self.__path is None:
             return False
 
-        if icon + image_type not in self.__cache.keys():
+        if icon + image_type not in list(self.__cache.keys()):
 
             file = self.get_icon(icon, image_type)
             self.__cache[icon + image_type] = \

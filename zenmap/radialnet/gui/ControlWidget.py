@@ -125,17 +125,22 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import gtk
 import math
 import gobject
 
-import radialnet.util.drawing as drawing
-import radialnet.util.geometry as geometry
+from . import radialnet.util.drawing as drawing
+from . import radialnet.util.geometry as geometry
 
-from radialnet.bestwidgets.boxes import *
-from radialnet.core.Coordinate import PolarCoordinate
-from radialnet.gui.RadialNet import *
-from radialnet.bestwidgets.expanders import BWExpander
+from .radialnet.bestwidgets.boxes import *
+from .radialnet.core.Coordinate import PolarCoordinate
+from .radialnet.gui.RadialNet import *
+from .radialnet.bestwidgets.expanders import BWExpander
 
 
 OPTIONS = ['address',
@@ -382,8 +387,8 @@ class ControlVariableWidget(gtk.DrawingArea):
         """
         allocation = self.get_allocation()
 
-        self.__center_of_widget = (allocation.width / 2,
-                                   allocation.height / 2)
+        self.__center_of_widget = (old_div(allocation.width, 2),
+                                   old_div(allocation.height, 2))
 
         xc, yc = self.__center_of_widget
 
@@ -434,7 +439,7 @@ class ControlVariableWidget(gtk.DrawingArea):
     def __increment_value(self):
         """
         """
-        self.__update(self.__value() + self.__pointer_position / 4)
+        self.__update(self.__value() + old_div(self.__pointer_position, 4))
 
         self.queue_draw()
 
@@ -1298,8 +1303,8 @@ class ControlNavigation(gtk.DrawingArea):
         # Getting allocation reference
         allocation = self.get_allocation()
 
-        self.__center_of_widget = (allocation.width / 2,
-                                   allocation.height / 2)
+        self.__center_of_widget = (old_div(allocation.width, 2),
+                                   old_div(allocation.height, 2))
 
         self.__draw_rotate_control()
         self.__draw_move_control()

@@ -130,6 +130,9 @@
 # ScriptMetadata gets the description, categories, @usage, @output, and
 # arguments from the script itself.
 
+from __future__ import print_function
+from builtins import chr
+from builtins import object
 import re
 import os
 import sys
@@ -521,16 +524,16 @@ def get_script_entries(scripts_dir, nselib_dir):
 if __name__ == '__main__':
     import sys
     for entry in get_script_entries(sys.argv[1], sys.argv[2]):
-        print "*" * 75
-        print "Filename:", entry.filename
-        print "Categories:", entry.categories
-        print "License:", entry.license
-        print "Author:", entry.author
-        print "URL:", entry.url
-        print "Description:", entry.description
-        print "Arguments:", [x[0] for x in entry.arguments]
-        print "Output:"
-        print entry.output
-        print "Usage:"
-        print entry.usage
-        print "*" * 75
+        print("*" * 75)
+        print("Filename:", entry.filename)
+        print("Categories:", entry.categories)
+        print("License:", entry.license)
+        print("Author:", entry.author)
+        print("URL:", entry.url)
+        print("Description:", entry.description)
+        print("Arguments:", [x[0] for x in entry.arguments])
+        print("Output:")
+        print(entry.output)
+        print("Usage:")
+        print(entry.usage)
+        print("*" * 75)

@@ -81,10 +81,13 @@
 #    get_option_check_auxiliary_widget in OptionBuilder.py.
 # 7) Make sure the test case works now.
 
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from functools import reduce
 
 
-class option:
+class option(object):
     """A single option, part of a pool of potential options. It's just a name
     and a flag saying if the option takes no argument, if an argument is
     optional, or if an argument is required."""
@@ -640,7 +643,7 @@ class NmapOptions(object):
                 self["-d"] = int(arg)
             except ValueError:
                 if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "d", arg), True):
+                        [z == "d" for z in arg], True):
                     self.setdefault("-d", 0)
                     self["-d"] += len(arg) + 1
                 else:
@@ -720,7 +723,7 @@ class NmapOptions(object):
                     self["-v"] = -1
             except ValueError:
                 if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "v", arg), True):
+                        [z == "v" for z in arg], True):
                     self.setdefault("-v", 0)
                     self["-v"] += len(arg) + 1
                 else:

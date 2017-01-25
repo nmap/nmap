@@ -126,11 +126,17 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 import re
 
 from types import StringTypes
-from ConfigParser import DuplicateSectionError, NoSectionError, NoOptionError
-from ConfigParser import Error as ConfigParser_Error
+from configparser import DuplicateSectionError, NoSectionError, NoOptionError
+from configparser import Error as ConfigParser_Error
 
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
@@ -483,7 +489,7 @@ class NmapOutputHighlight(object):
         property_name = "%s_highlight" % property_name
         settings = self.sanity_settings(list(settings))
 
-        for pos in xrange(len(settings)):
+        for pos in range(len(settings)):
             config_parser.set(property_name, self.setts[pos], settings[pos])
 
     def sanity_settings(self, settings):
@@ -696,7 +702,7 @@ class PathsConfig(object):
 
 
 # Exceptions
-class ProfileNotFound:
+class ProfileNotFound(object):
     def __init__(self, profile):
         self.profile = profile
 
@@ -704,7 +710,7 @@ class ProfileNotFound:
         return "No profile named '" + self.profile + "' found!"
 
 
-class ProfileCouldNotBeSaved:
+class ProfileCouldNotBeSaved(object):
     def __init__(self, profile):
         self.profile = profile
 

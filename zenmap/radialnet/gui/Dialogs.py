@@ -125,11 +125,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 import pango
 
-from radialnet.core.Info import INFO
-from radialnet.gui.Image import Pixmaps
+from .radialnet.core.Info import INFO
+from .radialnet.gui.Image import Pixmaps
 
 
 class AboutDialog(gtk.AboutDialog):

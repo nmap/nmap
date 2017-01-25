@@ -8,6 +8,13 @@
 #                        {luis.mgarc@gmail.com}                                #
 #                                                                              #
 ################################################################################
+from __future__ import division
+from __future__ import print_function
+from builtins import hex
+from builtins import input
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import getopt
 import sys
 from scapy.all import *
@@ -225,19 +232,19 @@ def get_icmp_seq_number():
 #############################
 
 def print_start_separator():
-    print "---------------------------------- BEGIN TEST ----------------------------------"
+    print("---------------------------------- BEGIN TEST ----------------------------------")
 
 def print_end_separator():
-    print "---------------------------------- END OF TEST ---------------------------------"
+    print("---------------------------------- END OF TEST ---------------------------------")
 
 def print_sent_packet(test_packet):
     if type(test_packet)==list :
           for i in range(0, len(test_packet)) :
-            print "[+] Test Packet #" + str(i) + ":"
+            print("[+] Test Packet #" + str(i) + ":")
             test_packet[i].show2()
             hexdump(test_packet[i])
     else :
-        print "[+] Test Packet:"
+        print("[+] Test Packet:")
         test_packet.show2()
         hexdump(test_packet)
 
@@ -245,7 +252,7 @@ def store_line(line2print):
     output_data.append("#PARSE# "+line2print)
 
 def print_and_store_line(line2print):
-    print "[#] " + line2print
+    print("[#] " + line2print)
     store_line(line2print)
 
 def print_received_packet(packet):
@@ -291,7 +298,7 @@ def print_parseable_test_result(test_number, responses, ip_version):
                     break
                 except :
                     response[layers-i-2].remove_payload()
-                    print "Error displaying packet. Removing layer "+str(layers-i)
+                    print("Error displaying packet. Removing layer "+str(layers-i))
                     removed=removed+1
 
             # Print result status (Truncated, Full or Empty) along with the total number of layers and the number of layers that were chopped.
@@ -339,85 +346,85 @@ def print_test_number(test_num):
     print_and_store_line("test_no=" + str(test_num))
 
 def print_test_description(test_desc):
-    print "[+] Test Description: " + str(test_desc)
+    print("[+] Test Description: " + str(test_desc))
 
 def print_welcome_banner():
-    print "================================================================="
-    print "==            NMAP IPv6 OS DETECTION RESEARCH TOOL             =="
-    print "================================================================="
-    print " You are running ipv6fp, an internal research tool for the Nmap  "
-    print " Security Scanner. This program will send about 150 IPv6 network "
-    print " probes to a target system and collect any responses received.   "
-    print " The results will let us build a new IPv6 stack fingerprinting   "
-    print " engine in Nmap.                                                 "
-    print "                                                                 "
-    print " We'd like to thank you in advance for running this tool. After  "
-    print " the execution has finished, a file with the following name      "
-    print " will be created in the working directory:                       "
-    print "                                                                 "
-    print output_file_name_g.center(65)
-    print "                                                                 "
-    print " Please send it to the following address: " + result_report_email_g
-    print "                                                                 "
-    print "================================================================="
+    print("=================================================================")
+    print("==            NMAP IPv6 OS DETECTION RESEARCH TOOL             ==")
+    print("=================================================================")
+    print(" You are running ipv6fp, an internal research tool for the Nmap  ")
+    print(" Security Scanner. This program will send about 150 IPv6 network ")
+    print(" probes to a target system and collect any responses received.   ")
+    print(" The results will let us build a new IPv6 stack fingerprinting   ")
+    print(" engine in Nmap.                                                 ")
+    print("                                                                 ")
+    print(" We'd like to thank you in advance for running this tool. After  ")
+    print(" the execution has finished, a file with the following name      ")
+    print(" will be created in the working directory:                       ")
+    print("                                                                 ")
+    print(output_file_name_g.center(65))
+    print("                                                                 ")
+    print(" Please send it to the following address: " + result_report_email_g)
+    print("                                                                 ")
+    print("=================================================================")
 
 def print_debug_info():
-    print "== IPv6 Routing information ====================================="
-    print conf.route6
-    print "== IPv4 Routing information ====================================="
-    print conf.route
-    print "== Other Details ================================================"
-    print "[+] IPv4 Interface:      " + conf.iface
-    print "[+] IPv6 Interface:      " + conf.iface6
-    print "[+] User interface:      " + interface_g
-    print "[+] IPv6 enabled:        " + str(conf.ipv6_enabled)
-    print "[+] Python version:      " + sys.version.replace('\n', '')
-    print "[+] Scapy version:       " + conf.version
-    print "[+] Run as root:         " + str(os.geteuid()==0)
+    print("== IPv6 Routing information =====================================")
+    print(conf.route6)
+    print("== IPv4 Routing information =====================================")
+    print(conf.route)
+    print("== Other Details ================================================")
+    print("[+] IPv4 Interface:      " + conf.iface)
+    print("[+] IPv6 Interface:      " + conf.iface6)
+    print("[+] User interface:      " + interface_g)
+    print("[+] IPv6 enabled:        " + str(conf.ipv6_enabled))
+    print("[+] Python version:      " + sys.version.replace('\n', ''))
+    print("[+] Scapy version:       " + conf.version)
+    print("[+] Run as root:         " + str(os.geteuid()==0))
 
     if target_os_details_g!=None:
-        print "[+] OS Type:             " + target_os_details_g[0]
-        print "[+] OS Sub-type:         " + target_os_details_g[1]
-        print "[+] OS Version:          " + target_os_details_g[2]
+        print("[+] OS Type:             " + target_os_details_g[0])
+        print("[+] OS Sub-type:         " + target_os_details_g[1])
+        print("[+] OS Version:          " + target_os_details_g[2])
 
     if target_host6_g!=None :
-        print "[+] Dst IPv6 Address:    " + str(target_host6_g)
+        print("[+] Dst IPv6 Address:    " + str(target_host6_g))
 
     if target_host4_g!=None :
-        print "[+] Dst IPv4 Address:    " + str(target_host4_g)
+        print("[+] Dst IPv4 Address:    " + str(target_host4_g))
 
     if source_ipv6_addr_g!=None :
-        print "[+] Src IPv6 Address:    " + str(source_ipv6_addr_g)
+        print("[+] Src IPv6 Address:    " + str(source_ipv6_addr_g))
 
     if source_ipv4_addr_g!=None :
-        print "[+] Src IPv4 Address:    " + str(source_ipv4_addr_g)
+        print("[+] Src IPv4 Address:    " + str(source_ipv4_addr_g))
 
     if target_mac_addr_g!=None:
-        print "[+] Gateway MAC:         " + str(target_mac_addr_g)
+        print("[+] Gateway MAC:         " + str(target_mac_addr_g))
 
-    print "[+] Send eth:            " + str(send_eth_g)
-    print "[+] Open Port:           " + str(open_port_g)
-    print "[+] Open Port:           " + str(closed_port_g)
-    print "[+] Timeout:             " + str(capture_timeout_g)
-    print "[+] Retries:             " + str(packet_retries_g)
-    print "[+] Inter-test delay:    " + str(inter_test_delay_g)
-    print "[+] Inter-packet delay:  " + str(inter_packet_delay_g)
-    print "[+] Debug:               " + str(debug_g)
-    print "================================================================="
+    print("[+] Send eth:            " + str(send_eth_g))
+    print("[+] Open Port:           " + str(open_port_g))
+    print("[+] Open Port:           " + str(closed_port_g))
+    print("[+] Timeout:             " + str(capture_timeout_g))
+    print("[+] Retries:             " + str(packet_retries_g))
+    print("[+] Inter-test delay:    " + str(inter_test_delay_g))
+    print("[+] Inter-packet delay:  " + str(inter_packet_delay_g))
+    print("[+] Debug:               " + str(debug_g))
+    print("=================================================================")
 
 def print_test_results():
-    print "================================================================="
-    print "==             NMAP IPv6 OS DETECTION TEST RESULTS             =="
-    print "================================================================="
+    print("=================================================================")
+    print("==             NMAP IPv6 OS DETECTION TEST RESULTS             ==")
+    print("=================================================================")
     if target_host4_g!=None :
         for i in range(0, len(test4_replies)) :
             sys.stdout.write("IPv4 TEST #")
             sys.stdout.write(str(test4_ids[i]))
             sys.stdout.write("=")
             if test4_replies[i]!=None :
-                print "Response received"
+                print("Response received")
             else :
-                print "No response"
+                print("No response")
     if target_host6_g!=None :
         j=0
         for i in range(first_test_g, min( len(test6_replies), last_test_g+1) ) :
@@ -425,13 +432,13 @@ def print_test_results():
             sys.stdout.write(str(test6_ids[i]))
             sys.stdout.write("=")
             if test6_replies[j]!=None :
-                print "Response received"
+                print("Response received")
             else :
-                print "No response"
+                print("No response")
             j=j+1
-    print "================================================================="
-    print "==                     SUMMARY OF RESULTS                      =="
-    print "================================================================="
+    print("=================================================================")
+    print("==                     SUMMARY OF RESULTS                      ==")
+    print("=================================================================")
     print_and_store_line("currtime={" + str(time.time()) +", " + time.ctime()+"}" )
     if target_os_details_g!=None:
         print_and_store_line("ostype="+target_os_details_g[0])
@@ -450,24 +457,24 @@ def print_test_results():
         print_and_store_line("rvector6=" + str(result_vector6))
     if len(result_vector4) > 0 :
         print_and_store_line("rvector4=" + str(result_vector4))
-    print "                                                                 "
-    print " Thank you for running this tool. A file with the following name "
-    print " has been created in the working directory:                      "
-    print "                                                                 "
-    print output_file_name_g.center(65)
-    print "                                                                 "
+    print("                                                                 ")
+    print(" Thank you for running this tool. A file with the following name ")
+    print(" has been created in the working directory:                      ")
+    print("                                                                 ")
+    print(output_file_name_g.center(65))
+    print("                                                                 ")
     if target_os_details_g!=None:
-        print " Please send it to the following address: " + result_report_email_g
+        print(" Please send it to the following address: " + result_report_email_g)
     else :
-        print " Please edit the file to provide details about the target's      "
-        print " operating system type and version. Read the instructions at the "
-        print " top.                                                            "
-        print "                                                                 "
-        print " Once you're done, please send the file to the following address:"
-        print "                                                                 "
-        print result_report_email_g.center(65)
-    print "                                                                 "
-    print "================================================================="
+        print(" Please edit the file to provide details about the target's      ")
+        print(" operating system type and version. Read the instructions at the ")
+        print(" top.                                                            ")
+        print("                                                                 ")
+        print(" Once you're done, please send the file to the following address:")
+        print("                                                                 ")
+        print(result_report_email_g.center(65))
+    print("                                                                 ")
+    print("=================================================================")
 
 def get_results_file_header():
     text= [ '================================================================================',
@@ -528,7 +535,7 @@ def print_time_elapsed():
     print_and_store_line("elapsed=" + str(get_time_elapsed()))
 
 def print_usage(f = sys.stdout):
-    print >> f, """\
+    print("""\
 Usage: %(progname)s {Target} [Options]
 
   OPTIONS:
@@ -548,11 +555,11 @@ Usage: %(progname)s {Target} [Options]
        --addr4=ADDR     Specify the target's IPv4 address.
        --interactive    Ask parameter values interactively.
 """ % { "progname": sys.argv[0], "ot": DEFAULT_OPEN_PORT_IN_TARGET,
-        "ct": DEFAULT_CLOSED_PORT_IN_TARGET }
+        "ct": DEFAULT_CLOSED_PORT_IN_TARGET }, file=f)
 
 def print_debug(debug_msg):
     if( debug_g==True and debug_msg!=None):
-        print debug_msg
+        print(debug_msg)
 
 
 ########################
@@ -967,7 +974,7 @@ def sndrcv_ng(pkt, timeout=1, iface=None, inter = 0, verbose=1, retry=0, multi=0
                 send(pkt, inter=inter, verbose=verbose)
 
         elif pid < 0:
-            print "ERROR: unable to fork()"
+            print("ERROR: unable to fork()")
 
         # Packet reception child
         else:
@@ -1024,9 +1031,9 @@ def send_and_receive_eth(packet, verbosity=1):
     eth_hdr=Ether(dst=target_mac_addr_g)
     if type(packet)==list : # Test contains more than one packet
           for i in range(0, len(packet)) :
-            packet[i]=eth_hdr/packet[i]
+            packet[i]=old_div(eth_hdr,packet[i])
     else :
-        packet=eth_hdr/packet
+        packet=old_div(eth_hdr,packet)
 
     responses=send_and_receive(packet, verbosity=verbosity)
 
@@ -1040,9 +1047,9 @@ def send_and_receive_eth_multiple(packet, verbosity=1):
     eth_hdr=Ether(dst=target_mac_addr_g)
     if type(packet)==list : # Test contains more than one packet
           for i in range(0, len(packet)) :
-            packet[i]=eth_hdr/packet[i]
+            packet[i]=old_div(eth_hdr,packet[i])
     else :
-        packet=eth_hdr/packet
+        packet=old_div(eth_hdr,packet)
 
     responses=srp(packet, iface=interface_g, retry=packet_retries_g, timeout=capture_timeout_g, multi=1, verbose=verbosity, inter=inter_packet_delay_g);
     return responses
@@ -1081,13 +1088,13 @@ def run_test(test_number, test_id, test_description, test_packet, ip_version):
     # Check if we got a response. Print it if that's the case.
     received=[]
     if(len(responses)>0 ):
-        print "[+] Response received:"
+        print("[+] Response received:")
         for i in range(0, len(responses)) :
             print_received_packet(responses[i][1])
             received.append(responses[i][1])
     else :
         received=None
-        print "[+] No response received:"
+        print("[+] No response received:")
 
     print_parseable_test_result(test_number, received, ip_version)
 
@@ -1123,7 +1130,7 @@ def run_test_multiple(test_number_base, test_id, test_description, test_packet, 
     # Print packets that did not get any response
     for i in range(0, len(responses[1])) :
         print_sent_packet(responses[1][i])
-        print "[+] No response received:"
+        print("[+] No response received:")
 
     # Print packets that did get responses
     for i in range(0, len(responses[0])) :
@@ -1131,7 +1138,7 @@ def run_test_multiple(test_number_base, test_id, test_description, test_packet, 
             print_sent_packet(responses[0][i][0].payload)
         else :
             print_sent_packet(responses[0][i][0])
-        print "[+] Response received:"
+        print("[+] Response received:")
 
         if type(responses[0][i][1])==scapy.layers.l2.Ether :
             print_received_packet(responses[0][i][1].payload)
@@ -1177,9 +1184,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.seq=tcpSeqBase+0
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('WScale', 10), ('NOP', None), ('MSS',1460), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', None), ('MSS',1460), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=1
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 1
@@ -1192,9 +1199,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.seq=tcpSeqBase+1
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('MSS', 1400), ('WScale', 0), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L)), ('EOL', '')]
+    tcp_packet.options=[('MSS', 1400), ('WScale', 0), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0)), ('EOL', '')]
     tcp_packet.window=63
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 2
@@ -1207,9 +1214,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.seq=tcpSeqBase+2
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('Timestamp', (0xFFFFFFFF,0L)), ('NOP', ''), ('NOP', ''), ('WScale', 5), ('NOP', ''), ('MSS', 640)]
+    tcp_packet.options=[('Timestamp', (0xFFFFFFFF,0)), ('NOP', ''), ('NOP', ''), ('WScale', 5), ('NOP', ''), ('MSS', 640)]
     tcp_packet.window=4
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 3
@@ -1222,9 +1229,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.seq=tcpSeqBase+3
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L)), ('WScale', 10),  ('EOL', '')]
+    tcp_packet.options=[('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0)), ('WScale', 10),  ('EOL', '')]
     tcp_packet.window=4
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 4
@@ -1237,9 +1244,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.seq=tcpSeqBase+4
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('MSS', 536), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L)), ('WScale', 10), ('EOL', '')]
+    tcp_packet.options=[('MSS', 536), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0)), ('WScale', 10), ('EOL', '')]
     tcp_packet.window=16
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 5
@@ -1252,9 +1259,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.seq=tcpSeqBase+5
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('MSS', 265), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L))]
+    tcp_packet.options=[('MSS', 265), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0))]
     tcp_packet.window=512
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 6 ECN
@@ -1270,7 +1277,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.flags='CES'
     tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 1460), ('SAckOK', ''), ('NOP', ''), ('NOP', '')]
     tcp_packet.window=3
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 7 (T2)
@@ -1284,9 +1291,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags=''
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=128
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 8 (T3)
@@ -1300,9 +1307,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='SFUP'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=256
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 9 (T4)
@@ -1316,9 +1323,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='A'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=1024
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 10 (T5)
@@ -1332,9 +1339,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='S'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=31337
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 11 (T6)
@@ -1348,9 +1355,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='A'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=32768
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 12 (T7)
@@ -1364,9 +1371,9 @@ def set_up_ipv6_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='FPU'
-    tcp_packet.options=[('WScale', 15), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 15), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=65535
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 13 (IE 1)
@@ -1379,7 +1386,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.seq=295
     icmp_packet.id=0xABCD
     icmp_packet.data='\x00'*120
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 14 (IE 2)
@@ -1392,7 +1399,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.seq=295+1
     icmp_packet.id=0xABCD+1
     icmp_packet.data='\x00'*150
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 15 (U1)
@@ -1416,7 +1423,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 17
@@ -1426,7 +1433,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data=ASCII_PAYLOAD_32
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 18
@@ -1436,7 +1443,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data="A"*1232
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 19
@@ -1446,7 +1453,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data="B"*1233
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 20
@@ -1457,7 +1464,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data=ASCII_PAYLOAD_32
     icmp_packet.cksum=0xABCD
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 21
@@ -1468,7 +1475,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_NS()
     icmp_packet.code=0
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 22
@@ -1479,7 +1486,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_NS()
     icmp_packet.code=0x01
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 23
@@ -1490,7 +1497,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_NS()
     icmp_packet.code=0xAB
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 24
@@ -1501,7 +1508,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_NS()
     icmp_packet.code=0
     icmp_packet.tgt="::0"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 25
@@ -1512,7 +1519,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_NS()
     icmp_packet.code=0xCD
     icmp_packet.tgt="::0"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 26
@@ -1579,7 +1586,7 @@ def set_up_ipv6_tests(target):
     icmp_option_1.lladdr='1A:2B:3C:4D:5E:6F'
     icmp_option_2=ICMPv6NDOptMTU()
     icmp_option_2.mtu=1450
-    icmp_options=icmp_option_1/icmp_option_2
+    icmp_options=old_div(icmp_option_1,icmp_option_2)
     final_packet=ip_packet/icmp_packet/icmp_options
     test6_packets.append(final_packet)
 
@@ -1591,7 +1598,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.code=0
     icmp_packet.id=0
     icmp_packet.res=0
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 32
@@ -1602,7 +1609,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.code=0xFA
     icmp_packet.id=0
     icmp_packet.res=0
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 33
@@ -1613,7 +1620,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.code=0
     icmp_packet.id=0xABCD
     icmp_packet.res=0x1234
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 34
@@ -1624,7 +1631,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_RS()
     icmp_packet.code=0
     icmp_packet.res=0
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 35
@@ -1635,7 +1642,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_RS()
     icmp_packet.code=0xAA
     icmp_packet.res=0
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 36
@@ -1646,7 +1653,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_RS()
     icmp_packet.code=0
     icmp_packet.res=0xAB0000CD
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 37
@@ -1657,7 +1664,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=ICMPv6ND_RS()
     icmp_packet.code=0x01
     icmp_packet.res=0x00000001
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 38
@@ -1723,7 +1730,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x01\x02\x03\x04\x05\x06\x07\x08'
     icmp_packet.unused=0
     icmp_packet.data='\x00'
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 43
@@ -1737,7 +1744,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='x02\x03\x04\x05\x06\x07\x08\x09'
     icmp_packet.unused=0
     icmp_packet.data="\x09localhost\x00"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 44
@@ -1751,7 +1758,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x03\x04\x05\x06\x07\x08\x09\x0A'
     icmp_packet.unused=0
     icmp_packet.data="\x40"+"0123456789012345678901234567890123456789012345678901234567890123"+"\x00"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 45
@@ -1765,7 +1772,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x04\x05\x06\x07\x08\x09\x0A\x0B'
     icmp_packet.unused=0
     icmp_packet.data="\x3F"+"01234567890"+"\x00" # Wireshark reports "Malformed ICMPv6"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 46
@@ -1779,7 +1786,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x05\x06\x07\x08\x09\x0A\x0B\x0C'
     icmp_packet.unused=0
     icmp_packet.data='\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 47
@@ -1793,7 +1800,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x06\x07\x08\x09\x0A\x0B\x0C\x0D'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 48
@@ -1807,7 +1814,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x07\x08\x09\x0A\x0B\x0C\x0D\x0E'
     icmp_packet.unused=0
     icmp_packet.data='\x00'
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 49
@@ -1821,7 +1828,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F'
     icmp_packet.unused=0
     icmp_packet.data="\x09localhost\x00"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 50
@@ -1835,7 +1842,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x09\x0A\x0B\x0C\x0D\x0E\x0F\x00'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 51
@@ -1849,7 +1856,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x0A\x0B\x0C\x0D\x0E\x0F\x00\x01'
     icmp_packet.unused=0
     icmp_packet.data="\x09localhost\x00"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 52
@@ -1863,7 +1870,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x0C\x0D\x0E\x0F\x00\x01\x02\x03'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 53
@@ -1877,7 +1884,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x0D\x0E\x0F\x00\x01\x02\x03\x04'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 54
@@ -1891,7 +1898,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x0E\x0F\x00\x01\x02\x03\x04\x05'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 55
@@ -1905,7 +1912,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x0F\x00\x01\x02\x03\x04\x05\x06'
     icmp_packet.unused=0
     icmp_packet.data="\x09localhost\x00"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 56
@@ -1919,7 +1926,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x00\x01\x02\x03\x04\x05\x06\x07'
     icmp_packet.unused=0
     icmp_packet.data="\x09localhost\x00"
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 57
@@ -1933,7 +1940,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x01\x02\x03\x04\x05\x06\x07\x0A'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 58
@@ -1947,7 +1954,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x01\x02\x03\x04\x05\x06\x07\x0B'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 59
@@ -1961,7 +1968,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.nonce='\x01\x02\x03\x04\x05\x06\x07\x0C'
     icmp_packet.unused=0
     icmp_packet.data=target
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     ################################
@@ -1986,7 +1993,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     ext_hdr=IPv6ExtHdrDestOpt()
     ext_hdr.nh=59 # No Next Header
-    final_packet=ip_packet/ext_hdr
+    final_packet=old_div(ip_packet,ext_hdr)
     test6_packets.append(final_packet)
 
     # TEST 62
@@ -1995,7 +2002,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     ext_hdr=IPv6ExtHdrDestOpt()
     ext_hdr.nh=6 # TCP
-    final_packet=ip_packet/ext_hdr
+    final_packet=old_div(ip_packet,ext_hdr)
     test6_packets.append(final_packet)
 
     # TEST 63
@@ -2749,7 +2756,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     ip_packet.hlim=255
     icmp_packet=ICMPv6ND_INDSol() # RFC 3122
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 113
@@ -2780,7 +2787,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     icmp_packet=ICMPv6MPSol() # RFC 3122
     icmp_packet.id=0x3345
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 116
@@ -2805,7 +2812,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.id=0x1632
     icmp_packet.code=0
     icmp_packet.res=65535 # Component=65535 (all certs)
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 118
@@ -2817,7 +2824,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.id=0x1632
     icmp_packet.code=0
     icmp_packet.res=65530 # Component=65530 (Cert No. 65530)
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 119
@@ -2829,7 +2836,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.id=0 # From RFC 3971: the Identifier field MUST NOT be zero
     icmp_packet.code=0
     icmp_packet.res=65535 # Component=65535 (all certs)
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 120
@@ -2839,7 +2846,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.cksum=0x4444
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 121
@@ -2849,7 +2856,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.cksum=0x0000
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 122
@@ -2883,7 +2890,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data="\x16"*32
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     final_packet.plen=0
     test6_packets.append(final_packet)
 
@@ -2934,7 +2941,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     ip_packet.nh=255 # IANA Reserverd protocol value
     payload="\x3b" + "\x11"*31
-    final_packet=ip_packet/payload
+    final_packet=old_div(ip_packet,payload)
     test6_packets.append(final_packet)
 
     # TEST 129
@@ -2943,7 +2950,7 @@ def set_up_ipv6_tests(target):
     ip_packet=build_default_ipv6(target)
     ip_packet.nh=140 # Shim6
     payload="\x3b\x00\x81" + "\x00"*6
-    final_packet=ip_packet/payload
+    final_packet=old_div(ip_packet,payload)
     test6_packets.append(final_packet)
 
     # TEST 130
@@ -2951,7 +2958,7 @@ def set_up_ipv6_tests(target):
     test6_descriptions.append("IPv6/MobileIPv6 (Binding Refresh Request)")
     ip_packet=build_default_ipv6(target)
     payload=MIP6MH_BRR()
-    final_packet=ip_packet/payload
+    final_packet=old_div(ip_packet,payload)
     test6_packets.append(final_packet)
 
     # TEST 131
@@ -2959,7 +2966,7 @@ def set_up_ipv6_tests(target):
     test6_descriptions.append("IPv6/MobileIPv6 (Home Test Init)")
     ip_packet=build_default_ipv6(target)
     payload=MIP6MH_HoTI()
-    final_packet=ip_packet/payload
+    final_packet=old_div(ip_packet,payload)
     test6_packets.append(final_packet)
 
     # TEST 132
@@ -2967,7 +2974,7 @@ def set_up_ipv6_tests(target):
     test6_descriptions.append("IPv6/MobileIPv6 (Care-of Test Init)")
     ip_packet=build_default_ipv6(target)
     payload=MIP6MH_CoTI()
-    final_packet=ip_packet/payload
+    final_packet=old_div(ip_packet,payload)
     test6_packets.append(final_packet)
 
     # TEST 133
@@ -2991,7 +2998,7 @@ def set_up_ipv6_tests(target):
     # From RFC=3775: the Header Len field in the Mobility Header MUST NOT be less
     #    than the length specified for this particular type of message in
     mobile6.len=0
-    final_packet=ip_packet/mobile6
+    final_packet=old_div(ip_packet,mobile6)
     test6_packets.append(final_packet)
 
     # TEST 135
@@ -3013,7 +3020,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data="\x19"*32
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 137
@@ -3024,7 +3031,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data="\x1A"*32
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 138
@@ -3036,7 +3043,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.dport=open_port_g
     tcp_packet.sport=get_source_port_number()
     tcp_packet.flags='S'
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 139
@@ -3048,7 +3055,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.dport=open_port_g
     tcp_packet.sport=get_source_port_number()
     tcp_packet.flags='S'
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 140
@@ -3083,7 +3090,7 @@ def set_up_ipv6_tests(target):
     icmp_packet=build_default_icmpv6()
     icmp_packet.seq=get_icmp_seq_number()
     icmp_packet.data="\x1D"*32
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 143
@@ -3095,7 +3102,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.dport=open_port_g
     tcp_packet.sport=get_source_port_number()
     tcp_packet.flags='S'
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 144
@@ -3166,7 +3173,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.R=1
     icmp_packet.code=0
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 148
@@ -3178,7 +3185,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.S=1
     icmp_packet.code=0
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 149
@@ -3190,7 +3197,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.O=1
     icmp_packet.code=0
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 150
@@ -3204,7 +3211,7 @@ def set_up_ipv6_tests(target):
     icmp_packet.O=1
     icmp_packet.code=0
     icmp_packet.tgt=target;
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test6_packets.append(final_packet)
 
     # TEST 151
@@ -3216,7 +3223,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.sport=get_source_port_number()
     tcp_packet.flags='S'
     tcp_packet.options=[(0x1c, '\x80\x01')] # TCP UTO with timeout=1min
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 152
@@ -3228,7 +3235,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.sport=get_source_port_number()
     tcp_packet.flags='S'
     tcp_packet.options=[(0x1c, '\x00\x00')] # Timeout=0secs
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 153
@@ -3240,7 +3247,7 @@ def set_up_ipv6_tests(target):
     tcp_packet.sport=get_source_port_number()
     tcp_packet.flags='S'
     tcp_packet.options=[(0x1d, '\x01\x01\x0F\x0E\x0D\x0C\x0B\x0A\x09\x08\x07\x06\x05\x04\x03\x02\x01\x00')]
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
     # TEST 154
@@ -3260,7 +3267,7 @@ def set_up_ipv6_tests(target):
         #
         # For more info, check "SPACE COMMUNICATIONS PROTOCOL SPECIFICATION (SCPS), CCSDS 714.0-B-2"
     tcp_packet.options=[(0x14, '\xF0\x01')]
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test6_packets.append(final_packet)
 
 def set_up_ipv4_tests(target):
@@ -3280,9 +3287,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.seq=tcpSeqBase+0
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('WScale', 10), ('NOP', None), ('MSS',1460), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', None), ('MSS',1460), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=1
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 1
@@ -3300,9 +3307,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.seq=tcpSeqBase+1
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('MSS', 1400), ('WScale', 0), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L)), ('EOL', '')]
+    tcp_packet.options=[('MSS', 1400), ('WScale', 0), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0)), ('EOL', '')]
     tcp_packet.window=63
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 2
@@ -3320,9 +3327,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.seq=tcpSeqBase+2
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('Timestamp', (0xFFFFFFFF,0L)), ('NOP', ''), ('NOP', ''), ('WScale', 5), ('NOP', ''), ('MSS', 640)]
+    tcp_packet.options=[('Timestamp', (0xFFFFFFFF,0)), ('NOP', ''), ('NOP', ''), ('WScale', 5), ('NOP', ''), ('MSS', 640)]
     tcp_packet.window=4
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 3
@@ -3340,9 +3347,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.seq=tcpSeqBase+3
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L)), ('WScale', 10),  ('EOL', '')]
+    tcp_packet.options=[('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0)), ('WScale', 10),  ('EOL', '')]
     tcp_packet.window=4
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 4
@@ -3360,9 +3367,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.seq=tcpSeqBase+4
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('MSS', 536), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L)), ('WScale', 10), ('EOL', '')]
+    tcp_packet.options=[('MSS', 536), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0)), ('WScale', 10), ('EOL', '')]
     tcp_packet.window=16
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 5
@@ -3380,9 +3387,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.seq=tcpSeqBase+5
     tcp_packet.ack=tcpAck
     tcp_packet.flags='S'
-    tcp_packet.options=[('MSS', 265), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0L))]
+    tcp_packet.options=[('MSS', 265), ('SAckOK', ''), ('Timestamp', (0xFFFFFFFF,0))]
     tcp_packet.window=512
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 6 ECN
@@ -3403,7 +3410,7 @@ def set_up_ipv4_tests(target):
     tcp_packet.flags='CES'
     tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 1460), ('SAckOK', ''), ('NOP', ''), ('NOP', '')]
     tcp_packet.window=3
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 7 (T2)
@@ -3422,9 +3429,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags=''
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=128
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 8 (T3)
@@ -3443,9 +3450,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='SFUP'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=256
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 9 (T4)
@@ -3464,9 +3471,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='A'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=1024
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 10 (T5)
@@ -3485,9 +3492,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='S'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=31337
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 11 (T6)
@@ -3506,9 +3513,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='A'
-    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 10), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=32768
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 12 (T7)
@@ -3527,9 +3534,9 @@ def set_up_ipv4_tests(target):
     tcp_packet.ack=tcpAck
     tcp_packet.urgptr=0
     tcp_packet.flags='FPU'
-    tcp_packet.options=[('WScale', 15), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0L)), ('SAckOK', '')]
+    tcp_packet.options=[('WScale', 15), ('NOP', ''), ('MSS', 265), ('Timestamp', (0xFFFFFFFF,0)), ('SAckOK', '')]
     tcp_packet.window=65535
-    final_packet=ip_packet/tcp_packet
+    final_packet=old_div(ip_packet,tcp_packet)
     test4_packets.append(final_packet)
 
     # TEST 13 (IE 1)
@@ -3546,7 +3553,7 @@ def set_up_ipv4_tests(target):
     icmp_packet.seq=295
     icmp_packet.id=0xABCD
     icmp_packet.data='\x00'*120
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test4_packets.append(final_packet)
 
     # TEST 14 (IE 2)
@@ -3563,7 +3570,7 @@ def set_up_ipv4_tests(target):
     icmp_packet.seq=295+1
     icmp_packet.id=0xABCD+1
     icmp_packet.data='\x00'*150
-    final_packet=ip_packet/icmp_packet
+    final_packet=old_div(ip_packet,icmp_packet)
     test4_packets.append(final_packet)
 
     # TEST 15 (U1)
@@ -3653,7 +3660,7 @@ def get_target_mac_address(target, interface):
     try:
         target_tmp = inet_pton(AF_INET6, target)
     except socket.error:
-        print "inet_pton() failed on get_target_mac_address() - sigh."
+        print("inet_pton() failed on get_target_mac_address() - sigh.")
     
     byte_13 = hex(unpack('B', target_tmp[13])[0])[2:]
     byte_14 = hex(unpack('B', target_tmp[14])[0])[2:]
@@ -3785,7 +3792,7 @@ def argparser():
 
 def interactive_mode():
     global interface_g, send_eth_g, target_host6_g, target_host4_g, target_os_details_g, open_port_g, closed_port_g
-    print "[+] First of all, we need you to provide some details:"
+    print("[+] First of all, we need you to provide some details:")
 
     # Request target's IPv6 Address
     target_host6_g=ask_interactive_target_addr6()
@@ -3806,13 +3813,13 @@ def interactive_mode():
 
 def ask_interactive_target_addr6():
     while True:
-        addr=raw_input("  |_ Target's IPv6 address: ")
+        addr=eval(input("  |_ Target's IPv6 address: "))
         if addr!=None and len(addr)>0 :
             break
     return addr
 
 def ask_interactive_target_addr4():
-    addr=raw_input("  |_ Target's IP (version 4) address [Press ENTER to skip IPv4]: ")
+    addr=eval(input("  |_ Target's IP (version 4) address [Press ENTER to skip IPv4]: "))
     if addr==None or len(addr)==0 :
         return None
     else :
@@ -3820,15 +3827,15 @@ def ask_interactive_target_addr4():
 
 def ask_interactive_interface():
     while True:
-        print "  |_ Supplied IPv6 address is link-local. Please specify which"
-        iface=raw_input("     network interface should be used: ")
+        print("  |_ Supplied IPv6 address is link-local. Please specify which")
+        iface=eval(input("     network interface should be used: "))
         if iface!=None and len(iface)>0 :
             break
     return iface
 
 def ask_interactive_openport():
     while True:
-        port=raw_input("  |_ OPEN port in target [Press ENTER to default to "+str(DEFAULT_OPEN_PORT_IN_TARGET)+"]: ")
+        port=eval(input("  |_ OPEN port in target [Press ENTER to default to "+str(DEFAULT_OPEN_PORT_IN_TARGET)+"]: "))
         if port==None or len(port)==0 :
             return DEFAULT_OPEN_PORT_IN_TARGET
         elif port.isdigit() :
@@ -3836,7 +3843,7 @@ def ask_interactive_openport():
 
 def ask_interactive_closedport():
     while True:
-        port=raw_input("  |_ CLOSED port in target [Press ENTER to default to "+str(DEFAULT_CLOSED_PORT_IN_TARGET)+"]: ")
+        port=eval(input("  |_ CLOSED port in target [Press ENTER to default to "+str(DEFAULT_CLOSED_PORT_IN_TARGET)+"]: "))
         if port==None or len(port)==0 :
             return DEFAULT_CLOSED_PORT_IN_TARGET
         elif port.isdigit() :
@@ -3855,11 +3862,11 @@ def ask_interactive_osdetails():
     while True :
 
         # Request OS type
-        print "==================TARGET OS TYPES =================="
+        print("==================TARGET OS TYPES ==================")
         for i in range(0, len(os)):
-            print "    " + str(i) + ") " + os[i][0]
+            print("    " + str(i) + ") " + os[i][0])
         while True:
-            os_type=raw_input("[+] Please enter the target's OS type: ")
+            os_type=eval(input("[+] Please enter the target's OS type: "))
             if len(os_type)<=0 or os_type.isdigit()==False:
                 os_type=-1
             else :
@@ -3868,42 +3875,42 @@ def ask_interactive_osdetails():
                 break
 
         # Request OS sub-type
-        print "================TARGET OS SUB-TYPES ================"
+        print("================TARGET OS SUB-TYPES ================")
         for i in range(0, len(os[os_type][1])):
-            print "    " + str(i) + ") " + os[os_type][1][i]
+            print("    " + str(i) + ") " + os[os_type][1][i])
         while True:
-            os_subtype=raw_input("[+] Please enter the target's OS sub type: ")
+            os_subtype=eval(input("[+] Please enter the target's OS sub type: "))
             if len(os_subtype)<=0 or os_subtype.isdigit()==False:
                 os_subtype=-1
             else :
                 os_subtype=int(os_subtype)
             if os_subtype>=0 and os_subtype<len(os[os_type][1]) :
                 break
-        print "=================TARGET OS VERSION ================="
+        print("=================TARGET OS VERSION =================")
         if os[os_type][1][os_subtype]=="Other" :
             if os[os_type][0] == "Other" :
-                os_version=raw_input("[+] Please enter Vendor, OS name and OS version (Eg: Cisco Catalyst 4500 12.2SG): ")
+                os_version=eval(input("[+] Please enter Vendor, OS name and OS version (Eg: Cisco Catalyst 4500 12.2SG): "))
             else :
-                os_version=raw_input("[+] Please enter OS sub-type and OS version (eg: IOS 12.2SB): ")
+                os_version=eval(input("[+] Please enter OS sub-type and OS version (eg: IOS 12.2SB): "))
         else :
             if os[os_type][0] == "Windows" :
-                os_version=raw_input("[+] Please enter Windows version (Eg: SP2, Enterprise...): ")
+                os_version=eval(input("[+] Please enter Windows version (Eg: SP2, Enterprise...): "))
             elif os[os_type][0] == "Linux" :
-                os_version=raw_input("[+] Please enter kernel's version (Eg: 2.6.32): ")
+                os_version=eval(input("[+] Please enter kernel's version (Eg: 2.6.32): "))
             elif os[os_type][0] == "BSD" :
-                os_version=raw_input("[+] Please enter BSD's version (Eg: 8.1): ")
+                os_version=eval(input("[+] Please enter BSD's version (Eg: 8.1): "))
             elif os[os_type][0] == "Solaris" :
-                os_version=raw_input("[+] Please enter Solaris' version (Eg: 2009.06): ")
+                os_version=eval(input("[+] Please enter Solaris' version (Eg: 2009.06): "))
             elif os[os_type][0] == "MacOS X" :
-                os_version=raw_input("[+] Please enter the output of 'uname -a': ")
+                os_version=eval(input("[+] Please enter the output of 'uname -a': "))
             else:
-                os_version=raw_input("[+] Please enter any version information about the target OS: ")
+                os_version=eval(input("[+] Please enter any version information about the target OS: "))
 
-        print "[+] You have entered the following information:"
-        print " |_ OS Type:    " + os[os_type][0]
-        print " |_ OS Subtype: " + os[os_type][1][os_subtype]
-        print " |_ OS Version: " + os_version
-        final=raw_input("[+] [+] Is the information correct? [Y/n]: ")
+        print("[+] You have entered the following information:")
+        print(" |_ OS Type:    " + os[os_type][0])
+        print(" |_ OS Subtype: " + os[os_type][1][os_subtype])
+        print(" |_ OS Version: " + os_version)
+        final=eval(input("[+] [+] Is the information correct? [Y/n]: "))
 
         if final!="N" and final!="n" :
             break
@@ -3936,14 +3943,14 @@ def write_results_file():
 # Dummy signal handler to prevent Python from displaying a bunch of stack info
 # when users press CTRL-C
 def signal_handler(signal, frame):
-        print "\nQUITTING!"
+        print("\nQUITTING!")
         sys.exit(0)
 
 def test_connectivity():
     result6=False
     result4=True
 
-    print "[+] PERFORMING CONNECTIVITY TEST... "
+    print("[+] PERFORMING CONNECTIVITY TEST... ")
 
     if target_host6_g!=None :
         # Test we have IPv6 connectivity: send TCP SYN and check for responses
@@ -3956,7 +3963,7 @@ def test_connectivity():
         tcp_packet.ack=0
         tcp_packet.flags='S'
         icmp_packet=ICMPv6EchoRequest()
-        final_packets=[ip_packet1/tcp_packet, ip_packet2/icmp_packet]
+        final_packets=[old_div(ip_packet1,tcp_packet), old_div(ip_packet2,icmp_packet)]
         # Send the packet and listen for responses
         sys.stdout.write("[+] IPv6 connectivity: ")
         sys.stdout.flush()
@@ -3965,10 +3972,10 @@ def test_connectivity():
         else:
             response6=send_and_receive(final_packets, verbosity=0)
         if response6 :
-            print "YES"
+            print("YES")
             result6=True
         else :
-            print "NO"
+            print("NO")
             result6=False
 
     if target_host4_g!=None :
@@ -3988,7 +3995,7 @@ def test_connectivity():
         tcp_packet.ack=0
         tcp_packet.flags='S'
         icmp_packet=ICMP(type=8)
-        final_packets=[ip_packet1/tcp_packet, ip_packet2/icmp_packet]
+        final_packets=[old_div(ip_packet1,tcp_packet), old_div(ip_packet2,icmp_packet)]
         # Send the packet and listen for responses
         sys.stdout.write("[+] IPv4 connectivity: ")
         sys.stdout.flush()
@@ -3997,10 +4004,10 @@ def test_connectivity():
         else:
             response4=send_and_receive(final_packets, verbosity=0)
         if response4 :
-            print "YES"
+            print("YES")
             result4=True
         else :
-            print "NO"
+            print("NO")
             result4=False
 
         # Restore original L3 socket
@@ -4014,20 +4021,20 @@ def test_connectivity():
     else :
         print_debug_info()
         if result6==True and result4==False :
-            print "ERROR: It seems that you don't have IPv4 connectivity with the target. "
+            print("ERROR: It seems that you don't have IPv4 connectivity with the target. ")
         elif result6==False and result4==True :
-            print "ERROR: It seems that you don't have IPv6 connectivity with the target. "
+            print("ERROR: It seems that you don't have IPv6 connectivity with the target. ")
         else :
-            print "ERROR: It seems that you don't have IPv6 and IPv4 connectivity with the target. "
-        print "Please check the information displayed above for any configuration"
-        print "error. You may want to force the script to send packets at the "
+            print("ERROR: It seems that you don't have IPv6 and IPv4 connectivity with the target. ")
+        print("Please check the information displayed above for any configuration")
+        print("error. You may want to force the script to send packets at the ")
         if(send_eth_g==True) :
-            print "IP level (instead of the Ethernet level), passing --send-ip"
+            print("IP level (instead of the Ethernet level), passing --send-ip")
         else :
-            print "Ethernet level (instead of the IP level), passing --send-eth"
-        print "If you are sure your configuration is correct and you wish to"
-        print "skip this connectivity test, please run the script again passing"
-        print "the parameter --force"
+            print("Ethernet level (instead of the IP level), passing --send-eth")
+        print("If you are sure your configuration is correct and you wish to")
+        print("skip this connectivity test, please run the script again passing")
+        print("the parameter --force")
 
         return False
 
@@ -4042,7 +4049,7 @@ def main():
     # Parse command line parameters
     res=argparser()
     if res != None :
-        print res
+        print(res)
         exit(1)
 
     # Print welcome banner
@@ -4050,23 +4057,23 @@ def main():
 
     # If we are sending at the ethernet level, get some details
     if send_eth_g==True and target_mac_addr_g==None:
-        print "[+] Resolving target's MAC address"
+        print("[+] Resolving target's MAC address")
 
         # Obtain target's MAC address
         mac=get_target_mac_address(target_host6_g, interface_g)
         if mac == None:
-            print "ERROR: Could not resolve target's MAC address"
+            print("ERROR: Could not resolve target's MAC address")
             exit(1)
         else :
             target_mac_addr_g=mac
-            print "[+] "+ target_host6_g + " is at " + target_mac_addr_g
+            print("[+] "+ target_host6_g + " is at " + target_mac_addr_g)
 
     if send_eth_g==True:
 
         # Obtain source IPv6 address
         ipaddr=get_interface_src_ipv6(interface_g)
         if ipaddr== None:
-            print "ERROR: Could not determine IPv6 address of interface " + str(interface_g)
+            print("ERROR: Could not determine IPv6 address of interface " + str(interface_g))
             exit(1)
         else :
             source_ipv6_addr_g=ipaddr

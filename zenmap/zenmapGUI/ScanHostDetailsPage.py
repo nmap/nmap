@@ -126,6 +126,9 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 import gtk
 
 from zenmapGUI.higwidgets.higexpanders import HIGExpander
@@ -377,7 +380,7 @@ class HostDetails(HIGVBox):
             progress = gtk.ProgressBar()
 
             if 'accuracy' in os:
-                progress.set_fraction(float(os['accuracy']) / 100.0)
+                progress.set_fraction(old_div(float(os['accuracy']), 100.0))
                 progress.set_text(os['accuracy'] + '%')
             else:
                 progress.set_text(_('Not Available'))
@@ -445,7 +448,7 @@ class HostDetails(HIGVBox):
 
                 progress = gtk.ProgressBar()
                 progress.set_text(o['accuracy'] + '%')
-                progress.set_fraction(float(o['accuracy']) / 100.0)
+                progress.set_fraction(old_div(float(o['accuracy']), 100.0))
                 table.attach(progress, 4, 5, y1, y2)
                 y1 += 1
                 y2 += 1

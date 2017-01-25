@@ -127,6 +127,7 @@
 # ***************************************************************************/
 
 
+from builtins import object
 class DelayedObject(object):
     def __init__(self, klass, *args, **kwargs):
         object.__setattr__(self, "klass", klass)

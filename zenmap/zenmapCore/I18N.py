@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from future import standard_library
+standard_library.install_aliases()
 import locale
 import os
 import sys
@@ -172,10 +174,10 @@ def install_gettext(locale_dir):
     else:
         t = gettext.translation(
                 APP_NAME, locale_dir, languages=get_locales(), fallback=True)
-        t.install(unicode=True)
+        t.install(str=True)
 
 # Install a dummy _ function so modules can safely use it after importing this
 # module, even if they don't install the gettext version.
 
-import __builtin__
-__builtin__.__dict__["_"] = lambda s: s
+import builtins
+builtins.__dict__["_"] = lambda s: s

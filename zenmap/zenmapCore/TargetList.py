@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
+from builtins import object
 from os import access, R_OK, W_OK
 from os.path import dirname
 from zenmapCore.Paths import Path
@@ -184,7 +186,7 @@ if __name__ == "__main__":
     import sys
     from os.path import split
     t = TargetList()
-    print ">>> Getting empty list:", t.get_target_list()
-    print ">>> Adding target 127.0.0.1:", t.add_target("127.0.0.3")
-    print ">>> Getting target list:", t.get_target_list()
+    print(">>> Getting empty list:", t.get_target_list())
+    print(">>> Adding target 127.0.0.1:", t.add_target("127.0.0.3"))
+    print(">>> Getting target list:", t.get_target_list())
     del t

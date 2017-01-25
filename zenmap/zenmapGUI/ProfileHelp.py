@@ -126,10 +126,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import object
 from zenmapCore.UmitLogging import log
 
 
-class ProfileHelp:
+class ProfileHelp(object):
     def __init__(self, currentstate=None):
         self.currentstate = "Default"
         self.labels = {}

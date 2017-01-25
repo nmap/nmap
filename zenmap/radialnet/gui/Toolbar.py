@@ -125,15 +125,17 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
+from builtins import str
 import os
 import gtk
 import gobject
 
-from radialnet.bestwidgets.buttons import *
-from radialnet.gui.SaveDialog import SaveDialog
-from radialnet.gui.Dialogs import AboutDialog
-from radialnet.gui.LegendWindow import LegendWindow
-from radialnet.gui.HostsViewer import HostsViewer
+from .radialnet.bestwidgets.buttons import *
+from .radialnet.gui.SaveDialog import SaveDialog
+from .radialnet.gui.Dialogs import AboutDialog
+from .radialnet.gui.LegendWindow import LegendWindow
+from .radialnet.gui.HostsViewer import HostsViewer
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
 
@@ -322,11 +324,11 @@ class Toolbar(gtk.HBox):
 
             try:
                 self.radialnet.save_drawing_to_file(filename, filetype)
-            except Exception, e:
+            except Exception as e:
                 alert = HIGAlertDialog(parent=self.__save_chooser,
                         type=gtk.MESSAGE_ERROR,
                         message_format=_("Error saving snapshot"),
-                        secondary_text=unicode(e))
+                        secondary_text=str(e))
                 alert.run()
                 alert.destroy()
 

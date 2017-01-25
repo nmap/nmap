@@ -125,14 +125,18 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from past.utils import old_div
 import re
 import gtk
 import gobject
 
-from radialnet.bestwidgets.windows import *
+from .radialnet.bestwidgets.windows import *
 
-from radialnet.gui.NodeNotebook import NodeNotebook
-from radialnet.util.misc import ipv4_compare
+from .radialnet.gui.NodeNotebook import NodeNotebook
+from .radialnet.util.misc import ipv4_compare
 
 
 HOSTS_COLORS = ['#d5ffd5', '#ffffd5', '#ffd5d5']
@@ -170,7 +174,7 @@ class HostsViewer(BWMainWindow):
 
         self.__panel.add1(self.__list)
         self.__panel.add2(self.__view)
-        self.__panel.set_position(int(DIMENSION[0] / 5))
+        self.__panel.set_position(int(old_div(DIMENSION[0], 5)))
 
         self.add(self.__panel)
 

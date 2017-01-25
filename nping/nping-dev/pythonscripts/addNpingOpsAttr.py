@@ -1,6 +1,7 @@
-methname = raw_input("Method name: ")
-attrname = raw_input("Attr name: ")
-attrtype = raw_input("Attr type: ")
+from builtins import input
+methname = eval(input("Method name: "))
+attrname = eval(input("Attr name: "))
+attrtype = eval(input("Attr type: "))
 
 
 o = open("Output.txt","a") 

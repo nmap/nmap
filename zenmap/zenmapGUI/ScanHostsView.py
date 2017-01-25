@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from past.builtins import cmp
+from builtins import range
 import gtk
 
 from types import StringTypes
@@ -147,7 +149,7 @@ def cmp_treemodel_addr(model, iter_a, iter_b):
 
 
 class ScanHostsView(HIGVBox, object):
-    HOST_MODE, SERVICE_MODE = range(2)
+    HOST_MODE, SERVICE_MODE = list(range(2))
 
     def __init__(self, scan_interface):
         HIGVBox.__init__(self)

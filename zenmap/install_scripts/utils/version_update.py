@@ -131,6 +131,7 @@
 # number. For example:
 # python install_scripts/utils/version_update.py X.YY
 
+from __future__ import print_function
 import os
 import sys
 
@@ -139,21 +140,21 @@ VERSION_PY = os.path.join("zenmapCore", "Version.py")
 
 
 def update_version(base_dir, version):
-    print ">>> Updating %s" % os.path.join(base_dir, VERSION)
+    print(">>> Updating %s" % os.path.join(base_dir, VERSION))
     vf = open(os.path.join(base_dir, VERSION), "wb")
-    print >> vf, version
+    print(version, file=vf)
     vf.close()
-    print ">>> Updating %s" % os.path.join(base_dir, VERSION_PY)
+    print(">>> Updating %s" % os.path.join(base_dir, VERSION_PY))
     vf = open(os.path.join(base_dir, VERSION_PY), "w")
-    print >> vf, "VERSION = \"%s\"" % version
+    print("VERSION = \"%s\"" % version, file=vf)
     vf.close()
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print >> sys.stderr, "Usage: %s <version>" % sys.argv[0]
+        print("Usage: %s <version>" % sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
     version = sys.argv[1]
-    print ">>> Updating version number to \"%s\"" % version
+    print(">>> Updating version number to \"%s\"" % version)
     update_version(".", version)

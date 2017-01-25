@@ -139,6 +139,9 @@
 # Add options to the print dialog to control the font, coloring, and anything
 # else. This might go in a separate Print Setup dialog.
 
+from __future__ import division
+from builtins import object
+from past.utils import old_div
 import gtk
 import gobject
 import pango
@@ -169,11 +172,11 @@ class PrintState (object):
         layout.set_text("dummy")
         line = layout.get_line(0)
         # get_extents()[1][3] is the height of the logical rectangle.
-        line_height = line.get_extents()[1][3] / float(pango.SCALE)
+        line_height = old_div(line.get_extents()[1][3], float(pango.SCALE))
 
         page_height = context.get_height()
-        self.lines_per_page = int(page_height / line_height)
-        op.set_n_pages((len(self.lines) - 1) / self.lines_per_page + 1)
+        self.lines_per_page = int(old_div(page_height, line_height))
+        op.set_n_pages(old_div((len(self.lines) - 1), self.lines_per_page) + 1)
 
     def draw_page(self, op, context, page_nr):
         this_page_lines = self.lines[

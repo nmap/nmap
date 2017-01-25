@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import str
 import gobject
 import gtk
 import pango
@@ -288,7 +289,7 @@ class ScanChooser(HIGVBox):
     def add_scan(self, scan_name, parser):
         scan_id = 1
         new_scan_name = scan_name
-        while new_scan_name in self.scan_dict.keys():
+        while new_scan_name in list(self.scan_dict.keys()):
             new_scan_name = "%s (%s)" % (scan_name, scan_id)
             scan_id += 1
 

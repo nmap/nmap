@@ -125,14 +125,16 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
+from builtins import range
 import gtk
 import pango
 import gobject
 
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.expanders import BWExpander
-from radialnet.bestwidgets.labels import *
-from radialnet.bestwidgets.textview import *
+from .radialnet.bestwidgets.boxes import *
+from .radialnet.bestwidgets.expanders import BWExpander
+from .radialnet.bestwidgets.labels import *
+from .radialnet.bestwidgets.textview import *
 import zenmapCore.I18N
 
 

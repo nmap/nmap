@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import range
+from builtins import object
 import gtk
 
 
@@ -134,7 +136,7 @@ class ScansListStoreEntry(object):
     otherwise represented by very different classes."""
 
     # Possible states for the scan to be in.
-    UNINITIALIZED, RUNNING, FINISHED, FAILED, CANCELED = range(5)
+    UNINITIALIZED, RUNNING, FINISHED, FAILED, CANCELED = list(range(5))
 
     def __init__(self):
         self.state = self.UNINITIALIZED

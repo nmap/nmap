@@ -125,10 +125,14 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from __future__ import print_function
+from past.utils import old_div
+from builtins import object
 import math
 
 
-class PolarCoordinate:
+class PolarCoordinate(object):
     """
     Class to implement a polar coordinate object
     """
@@ -198,7 +202,7 @@ class PolarCoordinate:
         return (x, y)
 
 
-class CartesianCoordinate:
+class CartesianCoordinate(object):
     """
     Class to implement a cartesian coordinate object
     """
@@ -245,13 +249,13 @@ class CartesianCoordinate:
         if self.__x > 0:
 
             if self.__y >= 0:
-                t = math.atan(self.__y / self.__x)
+                t = math.atan(old_div(self.__y, self.__x))
 
             else:
-                t = math.atan(self.__y / self.__x) + 2 * math.pi
+                t = math.atan(old_div(self.__y, self.__x)) + 2 * math.pi
 
         elif self.__x < 0:
-            t = math.atan(self.__y / self.__x) + math.pi
+            t = math.atan(old_div(self.__y, self.__x)) + math.pi
 
         elif self.__x == 0:
 
@@ -259,10 +263,10 @@ class CartesianCoordinate:
                 t = 0
 
             if self.__y > 0:
-                t = math.pi / 2
+                t = old_div(math.pi, 2)
 
             else:
-                t = -math.pi / 2
+                t = old_div(-math.pi, 2)
 
         return (r, t)
 
@@ -274,5 +278,5 @@ if __name__ == "__main__":
     polar = PolarCoordinate(1, math.pi)
     cartesian = CartesianCoordinate(-1, 0)
 
-    print polar.to_cartesian()
-    print cartesian.to_polar()
+    print(polar.to_cartesian())
+    print(cartesian.to_polar())

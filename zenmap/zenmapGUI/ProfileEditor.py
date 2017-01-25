@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import str
 import gtk
 
 from zenmapGUI.higwidgets.higwindows import HIGWindow

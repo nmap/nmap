@@ -26,8 +26,8 @@ export LIBLINEAR_LIBS = @LIBLINEAR_LIBS@
 export NCATDIR=@NCATDIR@
 CC = @CC@
 CXX = @CXX@
-CCOPT = 
-DBGFLAGS = 
+CCOPT =
+DBGFLAGS =
 STRIP = @STRIP@
 LIBPCAPDIR = @libpcapdir@
 LIBPCREDIR = @LIBPCREDIR@
@@ -70,7 +70,7 @@ LINGUAS ?= $(ALL_LINGUAS)
 
 
 # DESTDIR is used by some package maintainers to install Nmap under
-# its usual directory structure into a different tree.  See the 
+# its usual directory structure into a different tree.  See the
 # CHANGELOG for more info.
 DESTDIR =
 
@@ -228,13 +228,13 @@ clean-liblinear:
 	-cd $(LIBLINEARDIR) && $(MAKE) clean
 
 clean-zenmap:
-	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
+	-cd $(ZENMAPDIR) && python3 setup.py clean --all
 	rm -f $(ZENMAPDIR)/zenmapCore/__init__.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Version.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
 
 clean-ndiff:
-	-cd $(NDIFFDIR) && $(PYTHON) setup.py clean --all
+	-cd $(NDIFFDIR) && python3 setup.py clean --all
 
 clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
@@ -319,7 +319,7 @@ $(NPINGDIR)/nping.h: nmap.h
 
 # Update the version number used by Zenmap.
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
-	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
+	cd $(ZENMAPDIR) && python3 install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
 nmap-update/default_channel.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+DEFAULT_CHANNEL[ \t]\+\(".*"\)/#define DEFAULT_CHANNEL "$(NMAP_UPDATE_CHANNEL)"/' $@ > $@.tmp
@@ -334,17 +334,17 @@ tests/check_dns: $(OBJS)
 # installing on a machine other than the one used to do the build. Use
 # this as the location of the interpreter whenever we're not doing a
 # local installation.
-DEFAULT_PYTHON_PATH = /usr/bin/env python
+DEFAULT_PYTHON_PATH = /usr/bin/env python3
 
 build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 # When DESTDIR is defined, assume we're building an executable
 # distribution rather than a local installation and force a generic
 # Python interpreter location.
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+	cd $(ZENMAPDIR) && python3 setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
 install-zenmap: $(ZENMAPDIR)/setup.py
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
+	cd $(ZENMAPDIR) && python3 setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
@@ -355,13 +355,13 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
 build-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+	cd $(NDIFFDIR) && python3 setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
 build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
+	cd $(NDIFFDIR) && python3 setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua nselib/*.luadoc
@@ -401,7 +401,7 @@ uninstall-nmap:
 	rm -rf $(DESTDIR)$(nmapdatadir)
 
 uninstall-zenmap:
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py uninstall
+	cd $(ZENMAPDIR) && python3 setup.py uninstall
 	rm -f $(DESTDIR)$(mandir)/man1/zenmap.1
 # Uninstall nmapfe only if it's a symlink.
 	if [ -L $(DESTDIR)$(bindir)/nmapfe ]; then \
@@ -410,7 +410,7 @@ uninstall-zenmap:
 	rm -f $(DESTDIR)$(bindir)/xnmap
 
 uninstall-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py uninstall
+	cd $(NDIFFDIR) && python3 setup.py uninstall
 
 uninstall-ncat:
 	@cd $(NCATDIR) && $(MAKE) uninstall
@@ -425,20 +425,20 @@ check-ncat:
 	@cd $(NCATDIR) && $(MAKE) check
 
 check-ndiff:
-	@cd $(NDIFFDIR) && $(PYTHON) ndifftest.py
+	@cd $(NDIFFDIR) && python3 ndifftest.py
 
 check-nsock:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
 
 check-zenmap:
-	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
+	@cd $(ZENMAPDIR)/test && python3 run_tests.py
 
 check-dns: tests/check_dns
 	$<
 
 check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-dns
 
-${srcdir}/configure: configure.ac 
+${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf
 
 ## autoheader might not change config.h.in, so touch a stamp file.
