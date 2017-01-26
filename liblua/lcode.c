@@ -764,8 +764,7 @@ int luaK_exp2RK (FuncState *fs, expdesc *e) {
     case VKINT: e->u.info = luaK_intK(fs, e->u.ival); e->k = VK; break;
     case VKFLT: e->u.info = luaK_numberK(fs, e->u.nval); e->k = VK; break;
     case VK: e->k = VK; break;
-    
-    default: break;
+    default: return luaK_exp2anyreg(fs, e);
   }
 
   if (e->u.info <= MAXINDEXRK)  /* constant fits in 'argC'? */
