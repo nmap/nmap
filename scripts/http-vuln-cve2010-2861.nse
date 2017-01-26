@@ -17,6 +17,10 @@ the password hash.
 ]]
 
 ---
+-- @see http-adobe-coldfusion-apsa1301.nse
+-- @see http-coldfusion-subzero.nse
+-- @see http-vuln-cve2009-3960.nse
+--
 -- @usage
 -- nmap --script http-vuln-cve2010-2861 <host>
 --

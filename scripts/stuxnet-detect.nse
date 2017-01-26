@@ -27,6 +27,8 @@ for the filename is given on the command line.
 --
 -- Host script results:
 -- |_stuxnet-detect: INFECTED (version 4c:04:00:00:01:00:00:00)
+--
+-- @see smb-vuln-ms10-061.nse
 
 author = "Mak Kolybabi"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

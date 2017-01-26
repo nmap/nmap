@@ -29,6 +29,12 @@
     </refsynopsisdiv>
     <refsect1 id="man-description">
       <title>Descriere</title>
+    <web>
+      <note><para>
+          Acest document descrie versiunea Nmap 3.95. Cea mai recentă
+          documentație este disponibilă în limba engleză la
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
       <para>Nmap (
       <quote>Network Mapper</quote>) este un instrument open source pentru
       explorarea retelei si audit de securitate A fost proiectat sa scaneze
@@ -2783,24 +2789,6 @@
             etc.). Variabila NMAP_PRIVILEGED poate fi setata ca o alternativa
             la
             <option>--privileged</option>.</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
-          <option>--interactive</option>(Porneste in modul interactiv)</term>
-          <listitem>
-            <para>Nmap porneste in modul interactiv, care ofera posibilitatea
-            de a lansa scanari multiple (fie sincron, fie in fundal). Este
-            folositor pentru oameni care scaneaza de pe sisteme
-            multi-utilizator ce doresc testarea securitatii fara ca ceilalti
-            utilizatori sa stie ce se realizeaza. Folositi
-            <option>--interactive</option>pentru activarea acestui mod si mai
-            apoi tastati
-            <keycap moreinfo="none">h</keycap>pentru ajutor. Aceasta optiune
-            este rar folosita deoarece shellurile uzuale sunt mult mai
-            familiare si mai complete. Aceasta optiune include un operator bang
-            (!) pentru executarea de comenzi shell, ceea ce este unul din
-            multele argumente pentru a nu seta Nmap ca root.</para>
           </listitem>
         </varlistentry>
         <varlistentry>

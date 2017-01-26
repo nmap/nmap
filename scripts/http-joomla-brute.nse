@@ -50,8 +50,7 @@ Joomla's default uri and form names:
 -- * userdb = String - Path to user list
 --
 --
--- Based on Patrik Karlsson's http-form-brute
---
+-- @see http-form-brute.nse
 
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

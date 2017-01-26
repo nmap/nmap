@@ -48,7 +48,7 @@ Most systems only have one password, it is recommended to use the
 -- 2016-03-22 - v0.1 - created by Soldier of Fortran
 
 author = "Soldier of Fortran"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service({175,2252}, "nje")

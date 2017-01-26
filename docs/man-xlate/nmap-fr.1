@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
-.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 11/11/2013
+.\"      Date: 18/01/2017
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
-.\"  Language: English
+.\"  Language: French
 .\"
-.TH "NMAP" "1" "11/11/2013" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "18/01/2017" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,17 +27,17 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "NOM"
 nmap \- Outil d\*(Aqexploration réseau et scanneur de ports/sécurité
 .SH "SYNOPSIS"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fITypes\ de\ scans\fR...] [\fIOptions\fR] {\fIspécifications\ des\ cibles\fR}
 .SH "DESCRIPTION"
 .PP
-Nmap (\(lqNetwork Mapper\(rq) est un outil open source d\*(Aqexploration réseau et d\*(Aqaudit de sécurité\&. Il a été conçu pour rapidement scanner de grands réseaux, mais il fonctionne aussi très bien sur une cible unique\&. Nmap innove en utilisant des paquets IP bruts (raw packets) pour déterminer quels sont les hôtes actifs sur le réseau, quels services (y compris le nom de l\*(Aqapplication et la version) ces hôtes offrent, quels systèmes d\*(Aqexploitation (et leurs versions) ils utilisent, quels types de dispositifs de filtrage/pare\-feux sont utilisés, ainsi que des douzaines d\*(Aqautres caractéristiques\&. Nmap est généralement utilisé pour les audits de sécurité mais de nombreux gestionnaires des systèmes et de réseau l\*(Aqapprécient pour des tâches de routine comme les inventaires de réseau, la gestion des mises à jour planifiées ou la surveillance des hôtes et des services actifs\&.
+Nmap (« Network Mapper ») est un outil open source d\*(Aqexploration réseau et d\*(Aqaudit de sécurité\&. Il a été conçu pour rapidement scanner de grands réseaux, mais il fonctionne aussi très bien sur une cible unique\&. Nmap innove en utilisant des paquets IP bruts (raw packets) pour déterminer quels sont les hôtes actifs sur le réseau, quels services (y compris le nom de l\*(Aqapplication et la version) ces hôtes offrent, quels systèmes d\*(Aqexploitation (et leurs versions) ils utilisent, quels types de dispositifs de filtrage/pare\-feux sont utilisés, ainsi que des douzaines d\*(Aqautres caractéristiques\&. Nmap est généralement utilisé pour les audits de sécurité mais de nombreux gestionnaires des systèmes et de réseau l\*(Aqapprécient pour des tâches de routine comme les inventaires de réseau, la gestion des mises à jour planifiées ou la surveillance des hôtes et des services actifs\&.
 .PP
 Le rapport de sortie de Nmap est une liste des cibles scannées ainsi que des informations complémentaires en fonction des options utilisées\&. L\*(Aqinformation centrale de la sortie est la
-\(lqtable des ports intéressants\(rq\&. Cette table liste le numéro de port et le protocole, le nom du service et son état\&. L\*(Aqétat est soit
+« table des ports intéressants »\&. Cette table liste le numéro de port et le protocole, le nom du service et son état\&. L\*(Aqétat est soit
 ouvert (open),
 filtré (filtered),
 fermé (closed)\ \& ou
@@ -61,14 +61,14 @@ lorsqu\*(Aqil n\*(Aqarrive pas à déterminer dans lequel des deux états possib
 En plus de la table des ports intéressants, Nmap peut aussi fournir de plus amples informations sur les cibles comme les noms DNS (reverse DNS), deviner les systèmes d\*(Aqexploitation utilisés, obtenir le type de matériel ou les adresses MAC\&.
 .PP
 Un scan classique avec Nmap est présenté dans
-Example\ \&1, \(lqUn scan Nmap représentatif\(rq
+Exemple 1, « Un scan Nmap représentatif »
 \&. Les seuls arguments de Nmap utilisés dans cet exemple sont
 \fB\-A\fR
 , qui permet la détection des OS et versions de logiciels utilisés,
 \fB\-T4\fR
 pour une exécution plus rapide, et les noms d\*(Aqhôte des cibles\&.
 .PP
-\fBExample\ \&1.\ \&Un scan Nmap représentatif\fR
+\fBExemple 1. Un scan Nmap représentatif\fR
 .sp
 .if n \{\
 .RS 4
@@ -131,7 +131,7 @@ et 4N9e Gutek
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2\&.
 .PP
 Mise a jour au 19 dec 2007\&.
-.SH "RéSUMé DES OPTIONS"
+.SH "RÉSUMÉ DES OPTIONS"
 .PP
 Ce résumé des options est affiché quand Nmap est exécuté sans aucun argument; la plus récente version est toujours disponible sur
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]
@@ -206,7 +206,8 @@ Les options qui prennent un argument de temps sont en milisecondes a moins que v
 
 \-T[0\-5]: Choisit une politique de temporisation (plus élevée, plus rapide)
 \-\-min\-hostgroup/max\-hostgroup <msec>: Tailles des groupes d\*(Aqhôtes à scanner en parallèle
-\-\-min\-parallelism/max\-parallelism <msec>: Parallélisation des paquets de tests (probes) \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
+\-\-min\-parallelism/max\-parallelism <nombre>: Parallélisation des paquets de tests (probes)
+\-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
 \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Spécifie le temps d\*(Aqaller\-retour des paquets de tests
 \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <time>: Précise
 le round trip time des paquets de tests\&.
@@ -259,7 +260,7 @@ nmap \-v \-iR 10000 \-P0 \-p 80
 .RE
 .\}
 .sp
-.SH "SPéCIFICATION DES CIBLES"
+.SH "SPÉCIFICATION DES CIBLES"
 .PP
 Tout ce qui n\*(Aqest pas une option (ou l\*(Aqargument d\*(Aqune option) dans la ligne de commande de Nmap est considéré comme une spécification d\*(Aqhôte cible\&. Le cas le plus simple est de spécifier une adresse IP cible ou un nom d\*(Aqhôte à scanner\&.
 .PP
@@ -312,11 +313,11 @@ Cette option offre les mêmes fonctionnalités que l\*(Aqoption
 \fIexclude_file\fR
 au lieu de la ligne de commande\&. Les cibles sont séparées entre elles dans le fichier par des retours chariot, des espaces ou des tabulations\&.
 .RE
-.SH "DéCOUVERTE DES HôTES"
+.SH "DÉCOUVERTE DES HÔTES"
 .PP
 Une des toutes premières étapes dans la reconnaissance d\*(Aqun réseau est de réduire un ensemble (quelques fois énorme) de plages d\*(AqIP à une liste d\*(Aqhôtes actifs ou intéressants\&. Scanner tous les ports de chacune des IP est lent et souvent inutile\&. Bien sûr, ce qui rend un hôte intéressant dépend grandement du but du scan\&. Les administrateurs de réseau peuvent être uniquement intéressés par les hôtes où un certain service est actif tandis que les auditeurs de sécurité peuvent s\*(Aqintéresser à tout équipement qui dispose d\*(Aqune adresse IP\&. Alors que l\*(Aqadministrateur se satisferait d\*(Aqun ping ICMP pour repérer les hôtes de son réseau, l\*(Aqauditeur pourrait utiliser un ensemble varié de douzaines de paquets de tests (probes) dans le but de contourner les restrictions des pare\-feux\&.
 .PP
-Parce que les besoins de découverte des hôtes sont si différents, Nmap propose une grande panoplie d\*(Aqoptions pour individualiser les techniques utilisées\&. La découverte d\*(Aqhôte est souvent appelée \(Fo scan ping \(Fc (ping scan), mais celle\-ci va bien au delà d\*(Aqune simple requête echo ICMP associée à l\*(Aqincontournable outil
+Parce que les besoins de découverte des hôtes sont si différents, Nmap propose une grande panoplie d\*(Aqoptions pour individualiser les techniques utilisées\&. La découverte d\*(Aqhôte est souvent appelée « scan ping » (ping scan), mais celle\-ci va bien au delà d\*(Aqune simple requête echo ICMP associée à l\*(Aqincontournable outil
 ping\&. Les utilisateurs peuvent entièrement éviter l\*(Aqétape scan ping en listant simplement les cibles (\fB\-sL\fR), en désactivant le scan ping(\fB\-P0\fR) ou alors en découvrant le réseau avec des combinaisons de tests TCP SYN/ACK, UDP et ICMP\&. Le but de ces tests est de solliciter une réponse des cibles qui prouvera qu\*(Aqune adresse IP est effectivement active (utilisée par un hôte ou un équipement réseau)\&. Sur de nombreux réseaux, seul un petit pourcentage des adresses IP sont actives à un moment donné\&. Ceci est particulièrement courant avec les plages d\*(Aqadresses privées (définies par la sainte RFC 1918) comme 10\&.0\&.0\&.0/8\&. Ce réseau comprend 16 millions d\*(AqIPs, mais il s\*(Aqest déjà vu utilisé par des entreprises disposant de moins d\*(Aqun millier de machines\&. La découverte des hôtes permet de trouver ces machines dans l\*(Aqimmensité de cet océan d\*(Aqadresses IP\&.
 .PP
 Lorsqu\*(Aqaucune option de découverte n\*(Aqest spécifiée, Nmap envoie un paquet TCP ACK sur le port 80 ainsi qu\*(Aqune requête d\*(Aqecho ICMP à chaque machine cible\&. Une exception à cette règle est qu\*(Aqun scan ARP est utilisé pour chaque cible du réseau Ethernet local\&. Pour les utilisateurs UNIX non\-privilégiés, un paquet SYN est utilisé à la place du ACK en utilisant l\*(Aqappel système\ \&
@@ -341,7 +342,7 @@ Cette option indique à Nmap de n\*(Aqeffectuer
 \fIque\fR
 le scan ping (la découverte des hôtes), puis d\*(Aqafficher la liste des hôtes disponibles qui ont répondu au scan\&. Aucun autre test (comme le scan des ports ou la détection d\*(AqOS) n\*(Aqest effectué\&. Ce scan est légèrement plus intrusif que la simple liste, et peut souvent être utilisé dans le même but\&. Il permet un survol d\*(Aqun réseau cible sans trop attirer l\*(Aqattention\&. Savoir combien d\*(Aqhôtes sont actifs est plus précieux pour un attaquant que la simple liste de chaque IP avec son nom d\*(Aqhôte\&.
 .sp
-Les gestionnaires des systèmes apprécient également cette option\&. Elle peut facilement être utilisée pour compter le nombre de machines disponibles sur un réseau ou pour contrôler la disponibilité d\*(Aqun serveur\&. Cette option est souvent appelée \(Fo balayage ping \(Fc (ping sweep)\&. Elle est plus fiable que sonder par ping l\*(Aqadresse de diffusion (broadcast) car beaucoup d\*(Aqhôtes ne répondent pas à ces requêtes\&.
+Les gestionnaires des systèmes apprécient également cette option\&. Elle peut facilement être utilisée pour compter le nombre de machines disponibles sur un réseau ou pour contrôler la disponibilité d\*(Aqun serveur\&. Cette option est souvent appelée « balayage ping » (ping sweep)\&. Elle est plus fiable que sonder par ping l\*(Aqadresse de diffusion (broadcast) car beaucoup d\*(Aqhôtes ne répondent pas à ces requêtes\&.
 .sp
 L\*(Aqoption
 \fB\-sP\fR
@@ -411,21 +412,21 @@ et
 précédemment évoquées\&. Si aucun port n\*(Aqest spécifié, le port par défaut est le 31338\&. Cette valeur par défaut peut être modifiée à la compilation en changeant la définition DEFAULT_UDP_PROBE_PORT dans le fichier
 nmap\&.h\&. Un numéro de port très peu courant est utilisé par défaut, car envoyer des paquets sur un port ouvert n\*(Aqest que peu souhaitable pour ce type de scan particulier\&.
 .sp
-Lorsqu\*(Aqon atteint un port fermé sur la cible, le test UDP s\*(Aqattend à recevoir un paquet ICMP \(Fo port unreachable \(Fc en retour\&. Ceci indique à Nmap que la machine est active et disponible\&. De nombreuses autres erreurs ICMP, comme \(Fo host/network unreachable \(Fc ou \(Fo TTL exceeded \(Fc indiquent un hôte inactif ou inaccessible\&. Une absence de réponse est également interprétée de la sorte\&. Si un port ouvert est atteint, la majorité des services ignorent simplement ce paquet vide et ne répondent rien\&. Ceci est la raison pour laquelle le port par défaut du test est le 31338, qui n\*(Aqa que très peu de chances d\*(Aqêtre utilisé\&. Très peu de services, comme chargen, répondront à un paquet UDP vide, dévoilant ainsi à Nmap leur présence\&.
+Lorsqu\*(Aqon atteint un port fermé sur la cible, le test UDP s\*(Aqattend à recevoir un paquet ICMP « port unreachable » en retour\&. Ceci indique à Nmap que la machine est active et disponible\&. De nombreuses autres erreurs ICMP, comme « host/network unreachable » ou « TTL exceeded » indiquent un hôte inactif ou inaccessible\&. Une absence de réponse est également interprétée de la sorte\&. Si un port ouvert est atteint, la majorité des services ignorent simplement ce paquet vide et ne répondent rien\&. Ceci est la raison pour laquelle le port par défaut du test est le 31338, qui n\*(Aqa que très peu de chances d\*(Aqêtre utilisé\&. Très peu de services, comme chargen, répondront à un paquet UDP vide, dévoilant ainsi à Nmap leur présence\&.
 .sp
-L\*(Aqavantage principal de ce type de scan est qu\*(Aqil permet de contourner les pare\-feux et dispositifs de filtrage qui n\*(Aqobservent que TCP\&. Les routeurs sans\-fil Linksys BEFW11S4 par exemple sont de ce type\&. L\*(Aqinterface externe de cet équipement filtre tous les ports TCP par défaut, mais les paquets de tests UDP se voient toujours répondre par des messages ICMP \(Fo port unreachable \(Fc, rendant ainsi l\*(Aqéquipement désuet\&.
+L\*(Aqavantage principal de ce type de scan est qu\*(Aqil permet de contourner les pare\-feux et dispositifs de filtrage qui n\*(Aqobservent que TCP\&. Les routeurs sans\-fil Linksys BEFW11S4 par exemple sont de ce type\&. L\*(Aqinterface externe de cet équipement filtre tous les ports TCP par défaut, mais les paquets de tests UDP se voient toujours répondre par des messages ICMP « port unreachable », rendant ainsi l\*(Aqéquipement désuet\&.
 .RE
 .PP
 \fB\-PE\fR; \fB\-PP\fR; \fB\-PM\fR(Types de ping ICMP)
 .RS 4
 En plus des inhabituels types de découverte des hôtes TCP et UDP précédemment évoqués, Nmap peut également envoyer les paquets standard émis par l\*(Aqéternel programme
 ping\&. Nmap envoie un paquet ICMP type 8 (echo request) aux adresses IP cibles, attendant un type 0 (echo reply) en provenance des hôtes disponibles\&. Malheureusement pour les explorateurs de réseaux, de nombreux hôtes et pare\-feux bloquent désormais ces paquets, au lieu d\*(Aqy répondre comme indiqué par la
-\m[blue]\fBRFC 1122\fR\m[]\&\s-2\u[3]\d\s+2\&. Pour cette raison, les scans \(Fo purs ICMP \(Fc sont rarement fiables contre des cibles inconnues d\*(AqInternet\&. Cependant, pour les administrateurs surveillants un réseau local cette approche peut être pratique et efficace\&. Utilisez l\*(Aqoption
+\m[blue]\fBRFC 1122\fR\m[]\&\s-2\u[3]\d\s+2\&. Pour cette raison, les scans « purs ICMP » sont rarement fiables contre des cibles inconnues d\*(AqInternet\&. Cependant, pour les administrateurs surveillants un réseau local cette approche peut être pratique et efficace\&. Utilisez l\*(Aqoption
 \fB\-PE\fR
 pour activer ce comportement de requête echo\&.
 .sp
-Même si la requête echo est le standard de la requête ICMP, Nmap ne s\*(Aqarrête pas là, Le standard ICMP (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[4]\d\s+2) spécifie également les requêtes \(Fo timestamp \(Fc, \(Fo information \(Fc et \(Fo adress mask \(Fc, dont les codes sont respectivement 13, 15 et 17\&. Si le but avoué de ces requêtes est d\*(Aqobtenir des informations comme le masque réseau ou l\*(Aqheure courante, elles peuvent facilement être utilisées pour la découverte des hôtes: un système qui y répond est actif et disponible\&. Nmap n\*(Aqimplante actuellement pas les requêtes d\*(Aqinformations, car elles ne sont que rarement supportées\&. La RFC 1122 insiste sur le fait
-\(lqqu\*(Aqun hôte ne DEVRAIT PAS implanter ces messages\(rq\&. Les requêtes timestamp et masque d\*(Aqadresse peuvent être émises avec les options
+Même si la requête echo est le standard de la requête ICMP, Nmap ne s\*(Aqarrête pas là, Le standard ICMP (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[4]\d\s+2) spécifie également les requêtes « timestamp », « information » et « adress mask », dont les codes sont respectivement 13, 15 et 17\&. Si le but avoué de ces requêtes est d\*(Aqobtenir des informations comme le masque réseau ou l\*(Aqheure courante, elles peuvent facilement être utilisées pour la découverte des hôtes: un système qui y répond est actif et disponible\&. Nmap n\*(Aqimplante actuellement pas les requêtes d\*(Aqinformations, car elles ne sont que rarement supportées\&. La RFC 1122 insiste sur le fait
+« qu\*(Aqun hôte ne DEVRAIT PAS implanter ces messages »\&. Les requêtes timestamp et masque d\*(Aqadresse peuvent être émises avec les options
 \fB\-PP\fR
 et
 \fB\-PM\fR, respectivement\&. Une réponse timestamp (code ICMP 14) ou masque d\*(Aqadresse (code ICMP 18) révèle que l\*(Aqhôte est disponible\&. Ces deux requêtes peuvent être très utiles quand les administrateurs bloquent spécifiquement les requêtes echo mais oublient que les autres requêtes ICMP peuvent être utilisées dans le même but\&.
@@ -512,7 +513,7 @@ Un port fermé est accessible (il reçoit et répond aux paquets émis par Nmap)
 .PP
 filtré (filtered)
 .RS 4
-Nmap ne peut pas toujours déterminer si un port est ouvert car les dispositifs de filtrage des paquets empêchent les paquets de tests (probes) d\*(Aqatteindre leur port cible\&. Le dispositif de filtrage peut être un pare\-feu dédié, des règles de routeurs filtrants ou un pare\-feu logiciel\&. Ces ports ennuient les attaquants car ils ne fournissent que très peu d\*(Aqinformations\&. Quelques fois ils répondent avec un message d\*(Aqerreur ICMP de type 3 code 13 (\(Fo destination unreachable: communication administratively prohibited \(Fc), mais les dispositifs de filtrage qui rejettent les paquets sans rien répondre sont bien plus courants\&. Ceci oblige Nmap à essayer plusieurs fois au cas où ces paquets de tests seraient rejetés à cause d\*(Aqune surcharge du réseau et pas du filtrage\&. Ceci ralenti terriblement les choses\&.
+Nmap ne peut pas toujours déterminer si un port est ouvert car les dispositifs de filtrage des paquets empêchent les paquets de tests (probes) d\*(Aqatteindre leur port cible\&. Le dispositif de filtrage peut être un pare\-feu dédié, des règles de routeurs filtrants ou un pare\-feu logiciel\&. Ces ports ennuient les attaquants car ils ne fournissent que très peu d\*(Aqinformations\&. Quelques fois ils répondent avec un message d\*(Aqerreur ICMP de type 3 code 13 (« destination unreachable: communication administratively prohibited »), mais les dispositifs de filtrage qui rejettent les paquets sans rien répondre sont bien plus courants\&. Ceci oblige Nmap à essayer plusieurs fois au cas où ces paquets de tests seraient rejetés à cause d\*(Aqune surcharge du réseau et pas du filtrage\&. Ceci ralenti terriblement les choses\&.
 .RE
 .PP
 non\-filtré (unfiltered)
@@ -549,13 +550,13 @@ fermé
 et
 filtré\&.
 .sp
-Cette technique est souvent appelée le scan demi\-ouvert (half\-open scanning), car il n\*(Aqétabli pas pleinement la connexion TCP\&. Il envoie un paquet SYN et attend sa réponse, comme s\*(Aqil voulait vraiment ouvrir une connexion\&. Une réponse SYN/ACK indique que le port est en écoute (ouvert), tandis qu\*(Aqune RST (reset) indique le contraire\&. Si aucune réponse n\*(Aqest reçue après plusieurs essais, le port est considéré comme étant filtré\&. Le port l\*(Aqest également si un message d\*(Aqerreur \(Fo unreachable ICMP (type 3, code 1,2, 3, 9, 10 ou 13) \(Fc est reçu\&.
+Cette technique est souvent appelée le scan demi\-ouvert (half\-open scanning), car il n\*(Aqétabli pas pleinement la connexion TCP\&. Il envoie un paquet SYN et attend sa réponse, comme s\*(Aqil voulait vraiment ouvrir une connexion\&. Une réponse SYN/ACK indique que le port est en écoute (ouvert), tandis qu\*(Aqune RST (reset) indique le contraire\&. Si aucune réponse n\*(Aqest reçue après plusieurs essais, le port est considéré comme étant filtré\&. Le port l\*(Aqest également si un message d\*(Aqerreur « unreachable ICMP (type 3, code 1,2, 3, 9, 10 ou 13) » est reçu\&.
 .RE
 .PP
 \fB\-sT\fR(Scan TCP connect())
 .RS 4
 Le scan TCP connect() est le type de scan par défaut quand le SYN n\*(Aqest pas utilisable\&. Tel est le cas lorsque l\*(Aqutilisateur n\*(Aqa pas les privilèges pour les paquets bruts (raw packets) ou lors d\*(Aqun scan de réseaux IPv6\&. Plutôt que d\*(Aqécrire des paquets bruts comme le font la plupart des autres types de scan, Nmap demande au système d\*(Aqexploitation qui l\*(Aqexécute d\*(Aqétablir une connexion au port de la machine cible grâce à l\*(Aqappel système
-connect()\&. C\*(Aqest le même appel système haut\-niveau qui est appelé par les navigateurs Web, les clients P2P et la plupart des applications réseaux qui veulent établir une connexion\&. Cet appel fait partie de l\*(Aqinterface d\*(Aqapplication connue sous le nom de \(Fo Berkeley Sockets API \(Fc\&. Au lieu de lire les réponses brutes sur le support physique, Nmap utilise cette application API pour obtenir l\*(Aqétat de chaque tentative de connexion\&.
+connect()\&. C\*(Aqest le même appel système haut\-niveau qui est appelé par les navigateurs Web, les clients P2P et la plupart des applications réseaux qui veulent établir une connexion\&. Cet appel fait partie de l\*(Aqinterface d\*(Aqapplication connue sous le nom de « Berkeley Sockets API »\&. Au lieu de lire les réponses brutes sur le support physique, Nmap utilise cette application API pour obtenir l\*(Aqétat de chaque tentative de connexion\&.
 .sp
 Si le scan SYN est disponible, il vaut mieux l\*(Aqutiliser\&. Nmap a bien moins de contrôles sur l\*(Aqappel système haut niveau \ \&
 connect()
@@ -571,14 +572,14 @@ sont aussi largement utilisés\&. DNS, SNMP ou DHCP (ports 53, 161/162 et 67/68)
 Le scan UDP est activé avec l\*(Aqoption\fB\-sU\fR\&. Il peut être combiné avec un scan TCP, comme le scan SYN (\ \&
 \fB\-sS\fR), pour vérifier les deux protocoles lors de la même exécution de Nmap\&.
 .sp
-Le scan UDP envoie un en\-tête UDP (sans données) à chaque port visé\&. Si un message ICMP \(Fo port unreachable (type 3, code 3) \(Fc est renvoyé, le port est alors
-fermé\&. Les autres messages d\*(Aqerreur \(Fo unreachable ICMP (type 3, codes 1, 2, 9, 10, or 13) \(Fc rendront le port
+Le scan UDP envoie un en\-tête UDP (sans données) à chaque port visé\&. Si un message ICMP « port unreachable (type 3, code 3) » est renvoyé, le port est alors
+fermé\&. Les autres messages d\*(Aqerreur « unreachable ICMP (type 3, codes 1, 2, 9, 10, or 13) » rendront le port
 filtré\&. À l\*(Aqoccasion, il arrive qu\*(Aqun service répond par un paquet UDP, prouvant que le port est dans l\*(Aqétat
 ouvert\&. Si aucune réponse n\*(Aqest renvoyée après plusieurs essais, le port est considéré comme étant
 ouvert|filtré\&. Cela signifie que le port peut être soit ouvert, soit qu\*(Aqun dispositif de filtrage bloque les communications\&. Le scan de versions (\ \&
 \fB\-sV\fR) peut être utilisé pour différencier les ports ouverts de ceux filtrés\&.
 .sp
-Une des grandes difficultés avec le scan UDP est de l\*(Aqexécuter rapidement\&. Les ports ouverts et filtrés ne renvoient que rarement des réponses, laissant Nmap expirer son délai de retransmission au cas où les paquets se soient perdus\&. Les ports fermés posent encore un plus grand problème: ils renvoient normalement une erreur ICMP \(Fo port unreachable \(Fc\&. Mais à la différence des paquets RST renvoyés par les ports TCP fermés en réponse à un scan SYN ou à un connect(), de nombreux hôtes limitent par défaut la cadence d\*(Aqémission de ces messages\&. Linux et Solaris étant particulièrement stricts à ce sujet\&. Par exemple, le kernel 2\&.4\&.20 limite cette cadence des destinations inaccessibles (\(Fo destination unreachable \(Fc) à un par seconde (cf\&.net/ipv4/icmp\&.c)\&.
+Une des grandes difficultés avec le scan UDP est de l\*(Aqexécuter rapidement\&. Les ports ouverts et filtrés ne renvoient que rarement des réponses, laissant Nmap expirer son délai de retransmission au cas où les paquets se soient perdus\&. Les ports fermés posent encore un plus grand problème: ils renvoient normalement une erreur ICMP « port unreachable »\&. Mais à la différence des paquets RST renvoyés par les ports TCP fermés en réponse à un scan SYN ou à un connect(), de nombreux hôtes limitent par défaut la cadence d\*(Aqémission de ces messages\&. Linux et Solaris étant particulièrement stricts à ce sujet\&. Par exemple, le kernel 2\&.4\&.20 limite cette cadence des destinations inaccessibles (« destination unreachable ») à un par seconde (cf\&.net/ipv4/icmp\&.c)\&.
 .sp
 Nmap détecte cette limitation de fréquence et s\*(Aqy ralenti conformément afin d\*(Aqéviter de saturer le réseau avec des paquets inutiles que la machine cible rejettera\&. Malheureusement, une limitation à la Linux d\*(Aqun paquet par seconde fera qu\*(Aqun scan des 65 536 ports prendra plus de 18 heures\&. Les idées pour accélérer les scans UDP incluent le scan des cibles en parallèle, ne scanner que les ports les plus courants en premier, scanner derrière le pare\-feu et utiliser l\*(Aqoption
 \fB\-\-host\-timeout\fRpour éviter les hôtes les plus lents\&.
@@ -594,8 +595,8 @@ pour différencier les ports entre
 ouverts
 et
 fermés\&. La page 65 indique que
-\(lqsi le port [de destination] est dans l\*(Aqétat fermé\&.\&.\&. un segment ne contenant pas le drapeau RST provoque l\*(Aqémission d\*(Aqun paquet RST comme réponse\&.\(rq\&. La page suivante indique que pour les paquets envoyés à des ports sans aucun des drapeaux SYN, RST ou ACK activés:
-\(lqil est peut vraisemblable que cela arrive, mais si cela est le cas, il faut rejeter le segment\&.\(rq
+« si le port [de destination] est dans l\*(Aqétat fermé\&.\&.\&. un segment ne contenant pas le drapeau RST provoque l\*(Aqémission d\*(Aqun paquet RST comme réponse\&. »\&. La page suivante indique que pour les paquets envoyés à des ports sans aucun des drapeaux SYN, RST ou ACK activés:
+« il est peut vraisemblable que cela arrive, mais si cela est le cas, il faut rejeter le segment\&. »
 .sp
 Pour les systèmes respectant ce texte de la RFC, chaque paquet ne contenant ni SYN, ni RST, ni ACK se voit renvoyé un RST si le port est fermé et aucune réponse si le port est ouvert\&. Tant qu\*(Aqaucun de ces drapeaux n\*(Aqest utilisé, toute combinaison des trois autres (FIN, PSH et URG) son valides\&. Nmap exploite cela avec les trois types de scans:
 .PP
@@ -618,7 +619,7 @@ Ces trois types de scan ont exactement le même comportement, sauf pour les drap
 fermé, tandis qu\*(Aqune absence de réponse signifiera qu\*(Aqil est dans l\*(Aqétat
 ouvert|filtré\&. Le port est marqué comme \ \&
 filtré
-si un message d\*(Aqerreur ICMP \(Fo unreachable (type 3, code 1, 2, 3, 9, 10 ou 13) \(Fc est reçu\&.
+si un message d\*(Aqerreur ICMP « unreachable (type 3, code 1, 2, 3, 9, 10 ou 13) » est reçu\&.
 .sp
 L\*(Aqavantage principal de ces types de scans est qu\*(Aqils peuvent furtivement traverser certains pare\-feux ou routeurs filtrants sans état de connexion (non\-statefull)\&. Un autre avantage est qu\*(Aqils sont même un peu plus furtifs que le scan SYN\&. N\*(Aqy comptez pas trop dessus cependant \-\- la plupart des IDS modernes sont configurés pour les détecter\&. L\*(Aqinconvénient majeur est que tous les systèmes ne respectent pas la RFC 793 à la lettre\&. Plusieurs systèmes renvoient des RST aux paquets quelque soit l\*(Aqétat du port de destination, qu\*(Aqil soit ouvert ou pas\&. Ceci fait que tous les ports sont considérés commefermé\&. Les plus connus des systèmes qui ont ce comportement sont Microsoft Windows, plusieurs équipements Cisco, BSDI et IBM OS/400\&. Ce type de scan fonctionne cependant très bien contre la plupart des systèmes basés sur UNIX\&. Un autre désagrément de ce type de scan et qu\*(Aqils ne peuvent pas distinguer les ports
 ouvertsde certains autres qui sont
@@ -709,9 +710,9 @@ pour sélectionner les numéros de protocoles à scanner \-\- le rapport de Nmap
 .sp
 Au delà de son intérêt propre, le scan de protocoles illustre la puissance des logiciels en libre accès\&. L\*(Aqidée de base est assez simple: je n\*(Aqavais même pas particulièrement pensé à l\*(Aqajouter ni reçu de requête me demandant une telle fonctionnalité\&. En fait, à l\*(Aqété 2000, Gerhard Rieger a eu cette idée et a écrit un excellent programme de correction pour l\*(Aqimplanter; il l\*(Aqa ensuite envoyé à la liste de distribution nmap\-hackers\&. Je l\*(Aqai par la suite ajouté à l\*(Aqarbre de développement de Nmap et j\*(Aqai publié la nouvelle version le lendemain même\&. Très peu de logiciels commerciaux peuvent se targuer d\*(Aqavoir des utilisateurs si enthousiastes concevant et proposant leur propres améliorations!
 .sp
-Le scan de protocole fonctionne d\*(Aqune façon similaire du scan UDP\&. Au lieu de parcourir les champs de numéro de port des paquets UDP, il envoie des paquets d\*(Aqen\-têtes IP et parcours les 8 bits du champ protocole IP\&. Les en\-têtes son généralement vides, ne contenant pas de données ni même l\*(Aqen\-tête du protocole sollicité\&. Les trois seules exceptions étant TCP, UDP et ICMP\&. Un en\-tête exact de ces protocoles est inclus, sinon certains systèmes refusent de les émettre et Nmap dispose déjà des fonctions permettant de construire ces en\-têtes\&. Au lieu de scruter les messages ICMP \(Fo port unreachable \(Fc, comme pour le scan UDP, le scan de protocole attend de recevoir les messages ICMP \(Fo\fIprotocol\fRunreachable \(Fc\&. Dès que Nmap reçoit une réponse d\*(Aqun protocole en provenance de la cible, Nmap considère ce protocole comme
-ouvert\&. Une erreur ICMP \(Fo protocol unreachable \(Fc (type 3, code 2) fait en sorte que le port est considéré comme étant
-fermé\&. Les autres messages d\*(Aqerreur ICMP \(Fo unreachable (type 3, code 1, 3, 9, 10, or 13) \(Fc font en sorte que le port est considéré comme étant
+Le scan de protocole fonctionne d\*(Aqune façon similaire du scan UDP\&. Au lieu de parcourir les champs de numéro de port des paquets UDP, il envoie des paquets d\*(Aqen\-têtes IP et parcours les 8 bits du champ protocole IP\&. Les en\-têtes son généralement vides, ne contenant pas de données ni même l\*(Aqen\-tête du protocole sollicité\&. Les trois seules exceptions étant TCP, UDP et ICMP\&. Un en\-tête exact de ces protocoles est inclus, sinon certains systèmes refusent de les émettre et Nmap dispose déjà des fonctions permettant de construire ces en\-têtes\&. Au lieu de scruter les messages ICMP « port unreachable », comme pour le scan UDP, le scan de protocole attend de recevoir les messages ICMP «\fIprotocol\fRunreachable »\&. Dès que Nmap reçoit une réponse d\*(Aqun protocole en provenance de la cible, Nmap considère ce protocole comme
+ouvert\&. Une erreur ICMP « protocol unreachable » (type 3, code 2) fait en sorte que le port est considéré comme étant
+fermé\&. Les autres messages d\*(Aqerreur ICMP « unreachable (type 3, code 1, 3, 9, 10, or 13) » font en sorte que le port est considéré comme étant
 filtré
 (tout en prouvant que le protocole ICMP est quant à lui
 ouvert)\&. Si aucune réponse n\*(Aqest reçue après plusieurs transmissions, le protocole est considéré comme étant
@@ -732,7 +733,7 @@ anonymous, password:
 .sp
 Cette vulnérabilité était très répandue en 1997 quand Nmap a été publié mais a largement été corrigée depuis\&. Il existe encore quelques serveurs vulnérables qui traînent, autant les essayer si rien d\*(Aqautre ne marche (!!!)\&. Si votre but est de contourner un pare\-feu, scannez le réseau cible pour trouver un port 21 ouvert (ou un serveur FTP sur tout autre port en activant la détection de version), essayez ensuite pour chacun d\*(Aqentre eux le scan par rebond FTP\&. Nmap vous indiquera si chaque hôte y est vulnérable ou pas\&. Si vous voulez juste essayer de masquer vos attaques, vous n\*(Aqavez pas besoin (et même en fait, vous ne devriez pas) vous limiter aux hôtes du réseau cible\&. Avant de vous lancer dans un scan sur des adresses Internet au hasard, à la recherche de serveurs FTP vulnérables, pensez bien que les gestionnaires des systèmes n\*(Aqapprécieront pas trop que vous détourniez leurs serveurs à cet effet\&.
 .RE
-.SH "SPéCIFICATIONS DES PORTS ET ORDRE DU SCAN"
+.SH "SPÉCIFICATIONS DES PORTS ET ORDRE DU SCAN"
 .PP
 En plus de toutes les méthodes de scan abordées précédemment, Nmap propose des options permettant la spécification des ports à scanner ainsi que l\*(Aqordre (au hasard ou séquentiel) dans lequel le scan doit se faire\&. Par défaut, Nmap scanne tous les ports jusqu\*(Aqau 1 024 inclusivement ainsi que les ports supérieurs listés dans le fichier
 nmap\-servicespour le ou les protocoles demandés)\&.
@@ -774,7 +775,7 @@ Par défaut, Nmap mélange au hasard l\*(Aqordre des ports (sauf que certains po
 \fB\-r\fR
 pour effectuer un scan de port séquentiel\&.
 .RE
-.SH "DéTECTION DE SERVICES ET DE VERSIONS"
+.SH "DÉTECTION DE SERVICES ET DE VERSIONS"
 .PP
 Supposons que Nmap vous ai signalé que les ports 25/tcp, 80/tcp et 53/udp d\*(Aqune machine distante sont ouverts\&. En utilisant sa base de données
 nmap\-servicesd\*(Aqenviron 2 200 services bien connus, Nmap indique que ces ports correspondent probablement à un serveur de messagerie (SMTP), un serveur Web (HTTP) et un serveur de noms (DNS), respectivement\&. Cette consultation est souvent pertinente \-\- une vaste majorité des démons écoutant sur le port 25, étant bien des serveurs de messagerie\&. Cependant, en sécurité, il ne faudrait pas trop parier là\-dessus ! Les gens peuvent lancer des services sur des ports bizarres et ils le font effectivement\&.
@@ -941,7 +942,7 @@ et Nmap tentera de garder la quantité de groupes au\-dessus de cette valeur\&. 
 Le premier usage de ces options est de spécifier un minimum assez grand pour que le scan entier se fasse plus vite\&. Un choix fréquent est 256 pour scanner un réseau de Classe C\&. S\*(Aqil s\*(Aqagit d\*(Aqun scan incluanrt beaucoup de ports, dépasser cette valeur n\*(Aqaidera pas à grand chose\&. S\*(Aqil s\*(Aqagit de scans sur peu de ports, une quantité de groupes de 2 048 ou plus peut faciliter la procédure\&.
 .RE
 .PP
-\fB\-\-min\-parallelism <millisecondes>\fR; \fB\-\-max\-parallelism\*(Aq <millisecondes>\fR (Ajuste la mise en parallèle des paquets de test, probes)
+\fB\-\-min\-parallelism <nombre>\fR; \fB\-\-max\-parallelism\*(Aq <nombre>\fR (Ajuste la mise en parallèle des paquets de test, probes)
 .RS 4
 Ces options permettent de contrôler le nombre total de probes idéal pour un groupe d\*(Aqhôtes\&. Elles permettent de scanner des ports et de découvrir des hôtes (host discovery)\&. Par défaut, Nmap calcule un parallélisme idéal et variable basé sur les performances du réseau\&. Si des paquets sont rejetés, Nmap ralentit sa cadence en permettant moins de probes simultanés\&. Le nombre idéal de probes augmente graduellement en même temps que le réseau démontre ses performances\&. Ces options fixent les limites maximales et minimales selon cette variable\&. Par défaut, le parallélisme idéal peut chuter à 1 si le réseau s\*(Aqavère trop faible et monter à plusieurs centaines dans des conditions parfaites\&.
 .sp
@@ -1035,9 +1036,9 @@ ne vaut pas le temps supplémentaire que cela suppose\&.
 .RS 4
 Bien que les contrôles avancés et précis du délai dont il est fait mention dans les sections précédentes soient précis et efficaces, certains peuvent les trouver compliqués\&. Qui plus est, choisir les valeurs appropriées peut parfois prendre plus de temps que le scan que vous essayez d\*(Aqoptimiser\&. De ce fait, Nmap offre une approche plus simple, avec six profils de timing\&. Vous pouvez les spécifier grâce à l\*(Aqoption
 \fB\-T\fR
-et aux numéros (0 à 5) ou aux noms correspondants\&. Les noms des profils sont paranoid (0), sneaky (1), polite (2), normal (3), agressive (4), et insane (5)\&. Les deux premiers sont pour éviter les IDS\&. Le profile \(Fo Polite \(Fc ralentit le scan afin d\*(Aqutiliser moins de bande passante et moins de ressources sur la machine cible\&. Le profil \(Fo Normal \(Fc est celui par défaut et donc
+et aux numéros (0 à 5) ou aux noms correspondants\&. Les noms des profils sont paranoid (0), sneaky (1), polite (2), normal (3), agressive (4), et insane (5)\&. Les deux premiers sont pour éviter les IDS\&. Le profile « Polite » ralentit le scan afin d\*(Aqutiliser moins de bande passante et moins de ressources sur la machine cible\&. Le profil « Normal » est celui par défaut et donc
 \fB\-T3\fR
-ne fait rien\&. Le profil \(Fo Agressive \(Fc accélère les scans, partant du principe que vous travaillez sur un réseau suffisamment rapide et efficace\&. Enfin, le profil \(Fo Insane \(Fc suppose que vous êtes sur un réseau extraordinairement rapide ou que vous êtes prêt à sacrifier un peu de précision pour plus de vitesse\&.
+ne fait rien\&. Le profil « Agressive » accélère les scans, partant du principe que vous travaillez sur un réseau suffisamment rapide et efficace\&. Enfin, le profil « Insane » suppose que vous êtes sur un réseau extraordinairement rapide ou que vous êtes prêt à sacrifier un peu de précision pour plus de vitesse\&.
 .sp
 Ces profils permettent à l\*(Aqutilisateur de spécifier à quel point il souhaite être agressif tout en laissant Nmap choisir les valeur adéquates\&. Les profils effectuent aussi quelques ajustements que les options avancées ne permettent pas encore\&. Par exemple,
 \fB\-T4\fR
@@ -1198,9 +1199,9 @@ ne vaut pas le temps supplémentaire que cela suppose\&.
 .RS 4
 Bien que les contrôles avancés et précis du délai dont il est fait mention dans les sections précédentes soient précis et efficaces, certains peuvent les trouver compliqués\&. Qui plus est, choisir les valeurs appropriées peut parfois prendre plus de temps que le scan que vous essayez d\*(Aqoptimiser\&. De ce fait, Nmap offre une approche plus simple, avec six profils de timing\&. Vous pouvez les spécifier grâce à l\*(Aqoption
 \fB\-T\fR
-et aux numéros (0 à 5) ou aux noms correspondants\&. Les noms des profils sont paranoid (0), sneaky (1), polite (2), normal (3), agressive (4), et insane (5)\&. Les deux premiers sont pour éviter les IDS\&. Le profile \(Fo Polite \(Fc ralentit le scan afin d\*(Aqutiliser moins de bande passante et moins de ressources sur la machine cible\&. Le profil \(Fo Normal \(Fc est celui par défaut et donc
+et aux numéros (0 à 5) ou aux noms correspondants\&. Les noms des profils sont paranoid (0), sneaky (1), polite (2), normal (3), agressive (4), et insane (5)\&. Les deux premiers sont pour éviter les IDS\&. Le profile « Polite » ralentit le scan afin d\*(Aqutiliser moins de bande passante et moins de ressources sur la machine cible\&. Le profil « Normal » est celui par défaut et donc
 \fB\-T3\fR
-ne fait rien\&. Le profil \(Fo Agressive \(Fc accélère les scans, partant du principe que vous travaillez sur un réseau suffisamment rapide et efficace\&. Enfin, le profil \(Fo Insane \(Fc suppose que vous êtes sur un réseau extraordinairement rapide ou que vous êtes prêt à sacrifier un peu de précision pour plus de vitesse\&.
+ne fait rien\&. Le profil « Agressive » accélère les scans, partant du principe que vous travaillez sur un réseau suffisamment rapide et efficace\&. Enfin, le profil « Insane » suppose que vous êtes sur un réseau extraordinairement rapide ou que vous êtes prêt à sacrifier un peu de précision pour plus de vitesse\&.
 .sp
 Ces profils permettent à l\*(Aqutilisateur de spécifier à quel point il souhaite être agressif tout en laissant Nmap choisir les valeur adéquates\&. Les profils effectuent aussi quelques ajustements que les options avancées ne permettent pas encore\&. Par exemple,
 \fB\-T4\fR
@@ -1250,15 +1251,15 @@ tout en mettant le délai maximum de scan TCP à 5 millisecondes\&.
 .SH "ÉVITEMENT DE PARE-FEUX/IDS ET MYSTIFICATION"
 .PP
 Beaucoup de pionniers d\*(AqInternet envisageaient un réseau global ouvert avec un espace d\*(Aqadressage IP universel permettant des connexions virtuelles entre n\*(Aqimporte quel noeuds\&. Ceci permet aux hôtes d\*(Aqagir en véritables relais, recevant et renvoyant l\*(Aqinformation les uns aux autres\&. Les gens pourraient accéder à l\*(Aqensemble de leur système domestique du bureau, en changeant les réglages de climatisation ou en déverrouillant leur porte pour les premiers invités\&. Cette vision d\*(Aqune connectivité universelle a été étouffée par la réduction de l\*(Aqespace d\*(Aqadressage et les considérations de sécurité\&. Au début des années 90, les organisations commencèrent à déployer des pare\-feux dans le but explicite de réduire la connectivité\&. De gigantesques réseaux furent cernés et coupés (NdT : le texte original dit
-\(lqbarrés par un cordon de police\(rq) d\*(AqInternet non filtré par des proxies applicatifs, la conversion des adresses réseau (network address translation) et les filtrages de paquets\&. Le flux d\*(Aqinformation libre céda la place à une régulation stricte de canaux de communication approuvés et du contenu qui y transitait\&.
+« barrés par un cordon de police ») d\*(AqInternet non filtré par des proxies applicatifs, la conversion des adresses réseau (network address translation) et les filtrages de paquets\&. Le flux d\*(Aqinformation libre céda la place à une régulation stricte de canaux de communication approuvés et du contenu qui y transitait\&.
 .PP
-Les outils d\*(Aqobstruction du réseau comme les pare\-feux peuvent rendre la cartographie d\*(Aqun réseau beaucoup trop difficile\&. Ce fait ne va pas aller en s\*(Aqarrangeant puisque l\*(Aqétouffement de toute possibilité de reconnaissance est souvent un point clé de l\*(Aqimplémentation des interfaces\&. Nonobstant, Nmap offre un certain nombre de fonctionnalités afin d\*(Aqaider à comprendre ces réseaux complexes ainsi que de s\*(Aqassurer que les filtres agissent comme ils sont censés le faire\&. Il supporte même des mécanismes pour contourner les défenses établies de façon trop faibles\&. Une des meilleures méthodes pour mieux comprendre votre réseau et la sécurité qui y est déployée est de tenter de la contourner\&. Mettez\-vous à la place de l\*(Aqattaquant et déployez les techniques de cette section contre vos réseaux\&. Lancez un scan \(Fo FTP bounce \(Fc, un \(Fo Idle scan \(Fc, une attaque par fragmentation, ou tentez d\*(Aqétablir un tunnel à travers un de vos propres proxies\&.
+Les outils d\*(Aqobstruction du réseau comme les pare\-feux peuvent rendre la cartographie d\*(Aqun réseau beaucoup trop difficile\&. Ce fait ne va pas aller en s\*(Aqarrangeant puisque l\*(Aqétouffement de toute possibilité de reconnaissance est souvent un point clé de l\*(Aqimplémentation des interfaces\&. Nonobstant, Nmap offre un certain nombre de fonctionnalités afin d\*(Aqaider à comprendre ces réseaux complexes ainsi que de s\*(Aqassurer que les filtres agissent comme ils sont censés le faire\&. Il supporte même des mécanismes pour contourner les défenses établies de façon trop faibles\&. Une des meilleures méthodes pour mieux comprendre votre réseau et la sécurité qui y est déployée est de tenter de la contourner\&. Mettez\-vous à la place de l\*(Aqattaquant et déployez les techniques de cette section contre vos réseaux\&. Lancez un scan « FTP bounce », un « Idle scan », une attaque par fragmentation, ou tentez d\*(Aqétablir un tunnel à travers un de vos propres proxies\&.
 .PP
 Outre le fait de restreindre l\*(Aqactivité du réseau, les compagnies surveillent de plus en plus le trafic à l\*(Aqaide de systèmes de détection d\*(Aqintrusion (IDS)\&. Tous les principaux IDSs sont prévus pour détecter les scans de Nmap parce que les scans sont parfois précurseurs d\*(Aqattaques\&. Beaucoup de ces produits ont récemment migré vers des systèmes de
 \fIprévention\fR
 et d\*(Aqintrusion (IPS) qui bloquent de façon active un trafic supposé malveillant\&. Malheureusement pour les administrateurs de réseau et les distributeurs d\*(AqIDS, la fiabilité de détection de mauvaises intentions par analyse des données de paquets demeure un problème\&. Les attaquants, avec de la patience, un certain niveau d\*(Aqexpertise et certaines quelques fonctions de Nmap, peuvent traverser un IDS sans être détectés\&. Dans le même temps, les administrateurs doivent composer avec un grand nombre de fausses alertes (false positive) qui bloquent et signalent une activité innocente\&.
 .PP
-De temps en temps, les gens suggèrent que Nmap ne devrait pas offrir de possibilités de contourner les règles des pare\-feux ou de tromper les IDSs\&. Ils font valoir que ces fonctionnalités sont utilisées par les attaquants de la même façon que les administrateurs les utilisent pour renforcer leur sécurité\&. Le problème avec cette logique est que ces méthodes seront toujours utilisées par les attaquants, qui ne feront que trouver d\*(Aqautres outils ou corriger ces fonctions sur Nmap\&. Dans le même temps, les administrateurs trouveront plus de difficultés à faire leur travail\&. Déployer seulement des serveurs FTP modernes et corrigés est une défense bien plus efficace que d\*(Aqempêcher la distribution d\*(Aqoutils permettant les attaques \(Fo FTP Bounce \(Fc\&.
+De temps en temps, les gens suggèrent que Nmap ne devrait pas offrir de possibilités de contourner les règles des pare\-feux ou de tromper les IDSs\&. Ils font valoir que ces fonctionnalités sont utilisées par les attaquants de la même façon que les administrateurs les utilisent pour renforcer leur sécurité\&. Le problème avec cette logique est que ces méthodes seront toujours utilisées par les attaquants, qui ne feront que trouver d\*(Aqautres outils ou corriger ces fonctions sur Nmap\&. Dans le même temps, les administrateurs trouveront plus de difficultés à faire leur travail\&. Déployer seulement des serveurs FTP modernes et corrigés est une défense bien plus efficace que d\*(Aqempêcher la distribution d\*(Aqoutils permettant les attaques « FTP Bounce »\&.
 .PP
 Il n\*(Aqy a pas de méthode miracle (ni d\*(Aqoption dans Nmap) pour détecter et tromper les pare\-feux et les systèmes IDS\&. Cela demande un niveau de connaissances et de l\*(Aqexpérience\&. Un tutoriel est prévu pour ce guide de référence qui ne fait que lister les options relatives à ces sujets et ce qu\*(Aqelles font\&.
 .PP
@@ -1272,7 +1273,7 @@ pour utiliser 16 bytes par fragment (ceci réduit le nombre de fragments)\&. Vou
 \fB\-\-mtu\fR\&. Par contre, ne spécifiez pas
 \fB\-f\fR
 si vous utilisez
-\fB\-\-mtu\fR\&. L\*(Aqoffset doit être un multiple de 8\&. Bien que les paquets fragmentés ne tromperont pas les filtrages de paquets et les pare\-feux, tenant compte de tous les fragments IP, comme l\*(Aqoption CONFIG_IP_ALWAYS_DEFRAG dans le noyau Linux, certains réseaux ne peuvent supporter la perte de performance que cela entraîne et de ce fait laisse ceci désactivé\&. D\*(Aqautres ne peuvent pas l\*(Aqactiver parce que les fragments peuvent prendre différentes routes au sein de leur réseau\&. Certains systèmes source défragmentent les paquets sortant dans le noyau\&. Linux, avec le module de connection \(Fo tracking iptables \(Fc est un très bon exemple\&. Faites donc ce genre de scan avec un sniffer comme Ethereal tournant en même temps afin de vous assurer que les paquets envoyés sont bien fragmentés\&. Si votre système d\*(Aqexploitation causait des problèmes, essayez l\*(Aqoption
+\fB\-\-mtu\fR\&. L\*(Aqoffset doit être un multiple de 8\&. Bien que les paquets fragmentés ne tromperont pas les filtrages de paquets et les pare\-feux, tenant compte de tous les fragments IP, comme l\*(Aqoption CONFIG_IP_ALWAYS_DEFRAG dans le noyau Linux, certains réseaux ne peuvent supporter la perte de performance que cela entraîne et de ce fait laisse ceci désactivé\&. D\*(Aqautres ne peuvent pas l\*(Aqactiver parce que les fragments peuvent prendre différentes routes au sein de leur réseau\&. Certains systèmes source défragmentent les paquets sortant dans le noyau\&. Linux, avec le module de connection « tracking iptables » est un très bon exemple\&. Faites donc ce genre de scan avec un sniffer comme Ethereal tournant en même temps afin de vous assurer que les paquets envoyés sont bien fragmentés\&. Si votre système d\*(Aqexploitation causait des problèmes, essayez l\*(Aqoption
 \fB\-\-send\-eth\fR
 pour contourner la couche IP et envoyer des trames en raw Ethernet\&.
 .RE
@@ -1390,7 +1391,7 @@ et recompilez\&. Une autre solution serait de générer la liste des IP cibles a
 Demande à Nmap d\*(Aqutiliser l\*(Aqadresse MAC spécifiée pour l\*(Aqensemble des trames en raw Ethernet qu\*(Aqil envoie\&. Cette option implique
 \fB\-\-send\-eth\fR
 pour s\*(Aqassurer que Nmap envoie vraiment des paquets au niveau Ethernet\&. Le MAC donné peut prendre plusieurs formes\&. S\*(Aqil s\*(Aqagit seulement de la chaîne
-\(lq0\(rq, Nmap choisit une adresse MAC totalement aléatoire pour la session\&. Si la chaîne est un nombre hexadécimal (avec les paires de nombres éventuellement séparées par les deux points), Nmap utilisera ceci comme adresse MAC\&. Si moins de 12 chiffres sont spécifiés, Nmap remplit le reste avec des valeurs aléatoires\&. Si l\*(Aqargument n\*(Aqest ni 0 ni une chaîne hexadécimale, Nmap recherche dans sa base de données
+« 0 », Nmap choisit une adresse MAC totalement aléatoire pour la session\&. Si la chaîne est un nombre hexadécimal (avec les paires de nombres éventuellement séparées par les deux points), Nmap utilisera ceci comme adresse MAC\&. Si moins de 12 chiffres sont spécifiés, Nmap remplit le reste avec des valeurs aléatoires\&. Si l\*(Aqargument n\*(Aqest ni 0 ni une chaîne hexadécimale, Nmap recherche dans sa base de données
 nmap\-mac\-prefixes
 un nom de fournisseur contenant la chaîne en question (non sensible à la casse)\&. Si une correspondance est trouvée, Nmap utilise le numéro OUI du distributeur (un préfixe de 3 bytes) et utilise les 3 bytes restants de façon aléatoire\&. Des exemples de valeurs
 \fB\-\-spoof\-mac\fR
@@ -1484,7 +1485,7 @@ pour une façon de générer un fichier XML portable qui rendra un format HTML s
 \fB\-oS <filespec>\fR (s0r713 ScRipT KIdd|3)
 .RS 4
 Le format de sortie Script kiddie est similaire à la sortie interactive, sauf qu\*(Aqil est post\-traité de façon à mieux coller au style l33t HaXXorZ qui s\*(Aqintéresse à Nmap soit les lettres majuscules et le contenu unique de sa prononciation\&. Les gens dénués d\*(Aqhumour devraient réaliser que cette option est surtout une moquerie envers les script kiddies avant de me descendre en flammes en m\*(Aqaccusant de
-\(lqles aider\(rq\&.
+« les aider »\&.
 .RE
 .PP
 \fB\-oG <filespec>\fR (sortie Grepable)
@@ -1650,7 +1651,7 @@ Depuis 2002, Nmap a proposé le support IPv6 pour ses fonctionnalités les plus 
 \fB\-6\fR
 \&. Bien sûr, vous devez utiliser la synthaxe IPv6 si vous spécifiez une adresse plutôt qu\*(Aqun nom d\*(Aqhôte\&. Une adresse doit ressembler à
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0, c\*(Aqest pourquoi les noms d\*(Aqhôtes sont recommandés\&. Les résultats de sortie ressemblent à ceux obtenus habituellement avec la notation IPv6 sur la ligne
-\(lqinteresting ports\(rq
+« interesting ports »
 \&.
 .sp
 Bien qu\*(Aqon ne puisse pas dire que l\*(AqIPv6 ait bouleversé le monde, son utilisation reste notable dans certains pays (particulièrement en Asie)\&. De plus, la plupart des systèmes d\*(Aqexploitation modernes le supportent\&. Pour utiliser Nmap avec des IPv6, la source et la cible du scan doivent être configurées pour l\*(AqIPv6\&. Si votre fournisseur d\*(Aqaccès Internet (comme dans la plupart des cas) ne vous a pas alloué d\*(Aqadresse IPv6, des tunnels libres sont disponibles et fonctionnent très bien avec Nmap\&. J\*(Aqen ai utilisé un que Hurricane Electric fournit sur
@@ -1733,15 +1734,6 @@ Cette option est l\*(Aqopposée de
 Cette option n\*(Aqest utile que dans le cadre du deboggage de fuites de mémoire\&. Elle force Nmap a libérer la mémoire allouée juste avant de quitter de facon a repérer les véritables fuites de mémoire\&. En temps normal Nmap ne fait pas ceci étant donné que l\*(AqOS le fait de toutes facons à la fin du processus\&.
 .RE
 .PP
-\fB\-\-interactive\fR (Démarrer en mode interactif)
-.RS 4
-Démarre Nmap en mode interactif, qui offre un prompt interactif avec Nmap permettant le lancement facile de plusieurs scans (que ce soit en synchronisation ou en arrière\-plan)\&. Cette procédure est utile pour les gens qui scannent à partir de systèmes multi\-utilisateurs puisqu\*(Aqils souhaitent souvent tester leur sécurité sans que d\*(Aqautres utilisateurs sur le système ne sachent précisément quels systèmes ils sont en train de scanner\&. Utilisez
-\fB\-\-interactive\fR
-pour activer ce mode puis entrez
-h
-pour obtenir l\*(Aqaide sur les commandes\&. Cette option est rarement utilisée parce que de vrais shells sont en général plus familiers et complets\&. Cette option inclus un opérateur dit \(Fo bang \(Fc (!) pour l\*(Aqexécution des commandes de shell, qui est une des raisons de ne pas installer Nmap en tant que setuid root\&.
-.RE
-.PP
 \fB\-V\fR; \fB\-\-version\fR (Affiche le numéro de version)
 .RS 4
 Donne le numéro de version de Nmap et quitte\&.
@@ -1751,7 +1743,7 @@ Donne le numéro de version de Nmap et quitte\&.
 .RS 4
 Affiche un petit écran d\*(Aqaide avec les options les plus courantes \&. Lancer Nmap sans aucun argument fait la même chose\&.
 .RE
-.SH "INTERACTION à LA VOLéE"
+.SH "INTERACTION À LA VOLÉE"
 .PP
 Au cours de l\*(Aqexécution de Nmap, toutes les touches pressées sont capturées\&. Ceci permet d\*(Aqinteragir avec le programme sans l\*(Aqarrêter et le relancer\&. Certaines touches spéciales changeront les options tandis que les autres touches afficheront un message d\*(Aqétat parlant du scan en cours\&. La convention est que
 \fIles minuscules baissent\fR
@@ -1808,7 +1800,7 @@ active le mode verbeux\&.
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Lance un scan furtif (stealth SYN scan) contre chaque machine active parmi les 255 machines du réseau de
-\(lqclasse C\(rq
+« classe C »
 sur lequel Scanme réside\&. Il essaie aussi de déterminer le système d\*(Aqexploitation sur chaque hôte actif\&. Cette démarche nécessite les privilèges de root puisqu\*(Aqon utilise un SYN scan et une détection d\*(AqOS\&.
 .PP
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
@@ -1858,15 +1850,15 @@ Des centaines de personnes ont apporté de précieuses contributions à Nmap au 
 CHANGELOG
 qui est distribué avec Nmap mais aussi disponible sur
 \m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
-.SH "DISPOSITIONS LéGALES"
+.SH "DISPOSITIONS LÉGALES"
 .SS "Droits d\*(Aqauteur et licence"
 .PP
 Le Nmap Security Scanner est sous droits d\*(Aqauteur (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap est aussi une marque déposée de Insecure\&.Com LLC\&. Ce programme est un logiciel libre; vous pouvez le redistribuer ou le modifier selon les termes de la licence GNU General Public License comme publiée par la Free Software Foundation; Version 2\&. Cela garantit vos droits d\*(Aqutilisation, de modification et de redistribution de ce logiciel, et ce, sous certaines conditions\&. Si vous souhaitez inclure la technologie Nmap dans un logiciel propriétaire, nous nous réservons le droit de vendre d\*(Aqautres licences (communiquez avec
 <sales@insecure\&.com>)\&. Beaucoup de distributeurs de scanners de sécurité ont déjà acquis une licence pour les technologies Nmap, notamment la découverte d\*(Aqhôte, le scan de ports, le détection du système d\*(Aqexploitation et la détection de service ou de version\&.
 .PP
 Notez que la licence GPL comporte d\*(Aqimportantes restrictions relativement aux
-\(lqtravaux dérivés\(rq, bien qu\*(Aqelle ne donne pas de détails suffisants quant à la définition de ceux\-ci\&. Afin d\*(Aqéviter toute incompréhension, nous considérons une application comme constituant un
-\(lqtravail dérivé\(rq
+« travaux dérivés », bien qu\*(Aqelle ne donne pas de détails suffisants quant à la définition de ceux\-ci\&. Afin d\*(Aqéviter toute incompréhension, nous considérons une application comme constituant un
+« travail dérivé »
 dans le cadre de cette licence au cas où elle correspondrait à l\*(Aqun de ces termes :
 .sp
 .RS 4
@@ -1928,15 +1920,15 @@ Lie à une librairie ou à un programme exécutable qui fait l\*(Aqune des proc�
 .RE
 .PP
 Le terme
-\(lqNmap\(rq
+« Nmap »
 doit être pris comme incluant aussi toute portion ou travail dérivé de Nmap\&. Cette liste n\*(Aqest pas exhaustive; elle est simplement conçue de façon à clarifier notre interprétation des travaux dérivés au moyen de quelques exemples connus\&. Ces restrictions s\*(Aqappliquent seulement lorsque vous redistribuez Nmap\&. Par exemple, rien ne vous empêche d\*(Aqécrire et de vendre une interface graphique propriétaire pour Nmap\&. Distribuez\-la seulement en entier et assurez\-vous de diriger les gensvers le lien
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
 de façon à télécharger Nmap\&.
 .PP
 Nous ne considérons pas ce document comme étant un ajout à la licence GPL, mais simplement une clarification de la façon dont nous interprétons
-\(lqles travaux dérivés\(rq
+« les travaux dérivés »
 qui s\*(Aqappliquent à notre produit Nmap sous licence GPL\&. Ceci est semblable à la façon dont Linus Torvalds a annoncé son interprétation des
-\(lq travaux dérivés\(rq
+«  travaux dérivés »
 qui s\*(Aqappliquent aux modules du noyau Linux\&. Notre interprétation fait seulement référence à Nmap; nous ne parlons d\*(Aqaucun autre produit sous GPL\&.
 .PP
 Si vous avez des questions à propos des restrictions de la licence GPL et de l\*(Aqutilisation de Nmap dans le cadre des travaux non\-GPL, nous serions heureux de vous aider\&. Tel que mentionné ci\-dessus, nous offrons une autre licence afin d\*(Aqintégrer Nmap au sein d\*(Aqapplications propriétaires\&. Ces contrats ont été vendus à de nombreux distributeurs du domaine de la sécurité et comportent généralement une licence perpétuelle tout en fournissant un support, des mises à jour prioritaires et une aide au développement constant de la technologie Nmap\&. Veuillez envoyer un courriel à
@@ -1986,7 +1978,7 @@ pour le support de détection de version dans le cas du SSL\&. Tous les logiciel
 .SS "Classification et contrôle des exportations depuis les États\-Unis (US Export Control Classification)"
 .PP
 Contrôle des exportations : Insecure\&.Com LLC pense que Nmap tombe sous la juridiction de l\*(AqUS ECCN (export control classification number), numéro 5D992\&. Cette catégorie est appelée
-\(lqInformation Security software not controlled by 5D002\(rq, logiciel de sécurité et d\*(Aqinformations non contrôlé par le chapitre 5D002\&. La seule restriction de cette classification concerne l\*(Aqanti\-terrorisme qui s\*(Aqapplique à la plupart des biens et des valeurs exportés vers des pays sensibles comme l\*(AqIran et la Corée du Nord\&. C\*(Aqest pourquoi l\*(Aqexportation de Nmap ne requiert aucune licence particulière, permis, ou autre autorisation gouvernementale\&.
+« Information Security software not controlled by 5D002 », logiciel de sécurité et d\*(Aqinformations non contrôlé par le chapitre 5D002\&. La seule restriction de cette classification concerne l\*(Aqanti\-terrorisme qui s\*(Aqapplique à la plupart des biens et des valeurs exportés vers des pays sensibles comme l\*(AqIran et la Corée du Nord\&. C\*(Aqest pourquoi l\*(Aqexportation de Nmap ne requiert aucune licence particulière, permis, ou autre autorisation gouvernementale\&.
 .SH "NOTES"
 .IP " 1." 4
 version originale en Anglais

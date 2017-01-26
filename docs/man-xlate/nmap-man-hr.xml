@@ -31,6 +31,12 @@
   <refsect1 id="man-description">
     <title>Opis</title>
 
+    <web>
+      <note><para>
+          Ovaj dokument opisuje Nmap verziju 3.95. Najnovija dokumentacija
+          dostupna je na engleskom jeziku, na
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
     <para>Nmap (<quote>Network Mapper</quote>) je open source alat za istraživanje
     mreže i sigurnosni auditing.  Dizajniran je za brzo skeniranje velikih mreža,
     ali radi jednako dobro i kad je u pitanju samo jedan host. Nmap koristi sirove
@@ -2253,23 +2259,6 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
           neprivilegiranim korisnicima korištenje sirovih paketa (poput Linux kernela isl.). Obavezno navedite ovu
           opciju prije bilo koje druge koja zahtijeva privilegije (poput SYN scan-a, OS detekcije isl.). Alternativa
           ovoj opciji je NMAP_PRIVILEGED varijabla.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (Startaj u interaktivnom modu)
-        </term>
-        <listitem>
-          <para>Starta Nmap u interaktivnom modu, što omogućava lako pokretanje više skenova (sinhrono ili u
-          pozadini). Ovo je korisno za korisnike koji skeniraju s multikorisničkih sustava, jer često žele testirati
-          sigurnost, bez da dozvole svima ostalima koji su ulogirani na sustav da vide što i koga oni skeniraju.
-          Koristite --interactive opciju kako bi aktivirali ovaj mod, te nakon toga pritisnite
-          <keycap moreinfo="none">h</keycap> za pomoć. Ovo se rijetko koristi, jer su shell-ovi obično poznatiji i
-          imaju dovoljno mogućnosti. Ova opcija uključuje bang (!) operator za izvršavanje shell naredbi, što je
-          jedan od glavnih razloga zašto ne bi trebalo instalirati Nmap sa setuid = root (op. prev. Ako instalirate
-          Nmap sa setuid=root, svatko tko ga pokrene, moći će napraviti na sustavu što god hoće, jer može iz Nmap-a
-          pokrenuti bilo koju naredbu s root pravima).</para>
         </listitem>
       </varlistentry>
 

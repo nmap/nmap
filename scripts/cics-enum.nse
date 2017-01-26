@@ -55,11 +55,11 @@ found for CICS transaction IDs.
 -- 2015-11-14 - v0.2 - rewrote iterator
 --
 -- @author Philip Young
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 
 author = "Philip Young aka Soldier of Fortran"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service({23,992}, "tn3270")
 

@@ -72,6 +72,8 @@ supported version numbers, port number and protocol, and program name.
 --    </table>
 --  </table>
 --</table>
+--
+-- @see rpc-grind.nse
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

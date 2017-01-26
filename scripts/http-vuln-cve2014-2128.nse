@@ -10,8 +10,12 @@ Authentication Bypass Vulnerability (CVE-2014-2128).
 ]]
 
 ---
+-- @see http-vuln-cve2014-2126.nse
+-- @see http-vuln-cve2014-2127.nse
+-- @see http-vuln-cve2014-2129.nse
+--
 -- @usage
--- nmap -p 443 --script http-vuln-cve2014-2127 <target>
+-- nmap -p 443 --script http-vuln-cve2014-2128 <target>
 --
 -- @output
 -- PORT    STATE SERVICE

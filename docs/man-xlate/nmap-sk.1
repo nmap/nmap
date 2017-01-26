@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/28/2013
+.\"      Date: 18. januára 2017
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
-.\"  Language: English
+.\"  Language: Slovak
 .\"
-.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "18. januára 2017" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,9 +27,9 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "MENO"
 nmap \- Nastroj na skumanie siete a scanner bezpecnosti/portov
-.SH "SYNOPSIS"
+.SH "PREHĽAD"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fITyp\ scanu\fR...] [\fIMoznosti\fR] {\fISpecifikacia\ cielovej\ stanice\fR}
 .SH "OPIS"
@@ -58,11 +58,11 @@ ak nedokaze urcit, ktory z dvoch stavov zodpoveda portu\&. \&. Ak bola vyzadovan
 .PP
 Okrem tabulky zaujimavych portov dokaze Nmap poskytnut dalsie informacie o cielovych staniciach, vratane reverznych nazvov DNS, odhadov operacneho systemu, typoch zariadeni a MAC adries\&.
 .PP
-Typicky Nmap scan je zobrazeny na tomto mieste\&.Example\ \&1, \(lqUkazkovy Nmap scan\(rq\&. Jedinymi parametrami Nmapu pouzitymi v tomto priklade su
+Typicky Nmap scan je zobrazeny na tomto mieste\&.Príklad 1, \(lqUkazkovy Nmap scan\(rq\&. Jedinymi parametrami Nmapu pouzitymi v tomto priklade su
 \fB\-A\fR, na povolenie detekcie OS a verzie,\fB\-T4\fR
 kvoli rychlejsiemu behu programu, a dva hostitelske nazvy cielovych stanic\&.
 .PP
-\fBExample\ \&1.\ \&Ukazkovy Nmap scan\fR
+\fBPríklad 1. Ukazkovy Nmap scan\fR
 .sp
 .if n \{\
 .RS 4
@@ -1365,15 +1365,6 @@ sa hodi pri schopnostiach kernelu Linuxu a pri podobnych systemoch, ktore mozu b
 \fB\-\-privileged\fR\&.
 .RE
 .PP
-\fB\-\-interactive\fR (Zacat v interaktivnom mode)
-.RS 4
-Nmap zacne pracovat v interaktivnom mode, ktory ponuka moznost pouzitia vyzvy na jednoduche spustenie viacnasobnych scanov, bud synchronne alebo v pozadi\&. Zide sa to pre pouzivatelov, ktori scanuju zo systemov typu multi\-user a casto chcu testovat bezpecnost bez toho, aby niekto v systeme vedel , ktore systemy sa presne scanuju\&. Tento mod sa aktivuje parametrom
-\fB\-\-interactive\fR
-a zadanim
-h
-pre napovedu\&. Tento parameter sa pouziva zriedkavo, pretoze poriadne shelly su dovernejsie zname a maju vela funkcii\&. Tento parameter zahrnuje operator ! kvoli spusteniu prikazov shellu, co je jednou z mnohych pricin, preco sa nema instalovat setuid root Nmapu\&.
-.RE
-.PP
 \fB\-V\fR; \fB\-\-version\fR (Zobrazit cislo verzie)
 .RS 4
 Zobrazi cislo verzie Nmapu a ukonci sa\&.
@@ -1393,7 +1384,7 @@ Zobrazi kratku obrazovku napovedy s najbeznejsimi prikazmi\&. To iste sa dosiahn
 .nr an-break-flag 1
 .br
 .ps +1
-\fBNote\fR
+\fBPoznámka\fR
 .ps -1
 .br
 .PP
@@ -1617,7 +1608,7 @@ na podporu detekcie verzie protokolu SSL\&. Kazdy z tu spomenuteho softwaru tret
 .PP
 Klasifikacia riadenia exportu z USA: Insecure\&.Com LLC sa domnieva, ze Nmap spada pod americky ECCN (export control classification number) 5D992\&. Tato kategoria sa nazyva
 \(lqInformation Security software not controlled by 5D002\(rq\&. Jedinym obmedzenim tejto klasifikacie je AT (anti\-terorizmus), ktory sa vztahuje na skoro vsetky tovary a odmieta exportovat do par nebezpecnych krajin ako su Iran a Severna Korea, preto exportovanie Nmapu nevyzaduje ziadnu specialnu licenciu, povolenie alebo ine splnomocnenie vladou\&.
-.SH "NOTES"
+.SH "POZNÁMKY"
 .IP " 1." 4
 povodnej anglickej verzie
 .RS 4

@@ -7,6 +7,10 @@ Reference:
 ]]
 
 ---
+-- @see http-coldfusion-subzero.nse
+-- @see http-vuln-cve2009-3960.nse
+-- @see http-vuln-cve2010-2861.nse
+--
 -- @usage nmap -sV --script http-adobe-coldfusion-apsa1301 <target>
 -- @usage nmap -p80 --script http-adobe-coldfusion-apsa1301 --script-args basepath=/cf/adminapi/ <target>
 --

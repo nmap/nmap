@@ -9,11 +9,11 @@ description = [[
 Performs brute force password auditing against FTP servers.
 
 Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bowes.
-
-06.08.16 - Modified by Sergey Khegay to support new brute.lua adaptability mechanism.
 ]]
 
 ---
+-- @see ftp-anon.nse
+--
 -- @usage
 -- nmap --script ftp-brute -p 21 <host>
 --
@@ -33,6 +33,7 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 --       Lowering this value may result in a higher throughput for servers
 --       having a delayed response on incorrect login attempts. (default: 5s)
 
+-- 06.08.16 - Modified by Sergey Khegay to support new brute.lua adaptability mechanism.
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}

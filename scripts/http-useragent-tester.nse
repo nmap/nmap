@@ -40,7 +40,7 @@ Checks if various crawling utilities are allowed by the host.
 -- |     libcurl-agent/1.0 redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
 -- |_    Wget/1.13.4 (linux-gnu) redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
 --
----
+-- @see http-mobileversion-checker.nse
 
 categories = {"discovery", "safe"}
 author = "George Chatzisofroniou"

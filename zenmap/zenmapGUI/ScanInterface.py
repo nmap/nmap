@@ -535,7 +535,16 @@ class ScanInterface(HIGVBox):
         """Run the given Nmap command. Add it to the list of running scans.
         Schedule a timer to refresh the output and check the scan for
         completion."""
-        command_execution = NmapCommand(command)
+        try:
+            command_execution = NmapCommand(command)
+        except IOError, e:
+            warn_dialog = HIGAlertDialog(
+                        message_format=_("Error building command"),
+                        secondary_text=_("Error message: %s") % str(e),
+                        type=gtk.MESSAGE_ERROR)
+            warn_dialog.run()
+            warn_dialog.destroy()
+            return
         command_execution.profile = profile
 
         try:

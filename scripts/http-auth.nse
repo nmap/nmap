@@ -41,6 +41,9 @@ authentication.
 -- </table>
 --
 -- @args http-auth.path  Define the request path
+--
+-- @see http-auth-finder.nse
+-- @see http-brute.nse
 
 -- HTTP authentication information gathering script
 -- rev 1.1 (2007-05-25)

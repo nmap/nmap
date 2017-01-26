@@ -602,12 +602,13 @@ static const struct luaL_Reg openssllib[] = {
 
 LUALIB_API int luaopen_openssl(lua_State *L) {
 
-  OpenSSL_add_all_algorithms();
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
+  OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
 #else
   /* This is now deprecated in OpenSSL 1.1.0 _ No explicit initialisation
     or de-initialisation is necessary */
+  // OpenSSL_add_all_algorithms();
   // ERR_load_crypto_strings();
 #endif
 
