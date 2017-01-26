@@ -716,6 +716,8 @@ class NmapOptions(object):
                 arg = ""
             try:
                 self["-v"] = int(arg)
+                if self["-v"] == 0:
+                    self["-v"] = -1
             except ValueError:
                 if reduce(lambda x, y: x and y,
                         map(lambda z: z == "v", arg), True):
@@ -778,6 +780,8 @@ class NmapOptions(object):
         if self["-f"]:
             opt_list.extend(["-f"] * self["-f"])
         if self["-v"]:
+            if self["-v"] == -1:
+                opt_list.append("-v0")
             opt_list.extend(["-v"] * self["-v"])
 
         if self["-F"]:

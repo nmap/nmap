@@ -33,6 +33,7 @@ Any other accept state is an incorrect behaviour.
 --PORT      STATE SERVICE VERSION
 --53344/udp open  walld   1 (RPC #100008)
 --
+-- @see rpcinfo.nse
 
 
 author = "Hani Benhabiles"

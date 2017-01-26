@@ -25,6 +25,8 @@ If you want to update your themes or module list refer to the link below.
 ]]
 
 ---
+-- @see http-vuln-cve2014-3704.nse
+--
 -- @args http-drupal-enum.root The base path. Defaults to <code>/</code>.
 -- @args http-drupal-enum.number Number of modules to check.
 -- Use this option with a number or "all" as an argument to test for all modules.

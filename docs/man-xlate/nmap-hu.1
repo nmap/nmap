@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/28/2013
+.\"      Date: 18/01/2017
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
-.\"  Language: English
+.\"  Language: Hungarian
 .\"
-.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "18/01/2017" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,17 +27,17 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "NÉV"
 nmap \- Hálózat feltérképező és biztonsági/kapu letapogató eszköz
-.SH "SYNOPSIS"
+.SH "ÁTTEKINTÉS"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fILetapogatási\ típus\fR...] [\fIBeállítások\fR] {\fIcél\ meghatározása\fR}
-.SH "LEíRáS"
+.SH "LEÍRÁS"
 .PP
-Az Nmap (\(lqNetwork Mapper\(rq) egy hálózatfelderítésre és biztonsági ellenőrzésre használható, nyílt forráskódú eszköz\&. Nagy hálózatok gyors feltérképezésére tervezték, ennek ellenére jól használható egyetlen számítógép ellenőrzésére is\&. Az Nmap egy új módon használja a nyers IP csomagokat annak kiderítésére, hogy mely számítógépek érhetők el a hálózaton, ezek a számítógépek milyen szolgáltatásokat (alkalmazás neve és változata) kínálnak fel, milyen operációs rendszert futtatnak (és annak melyik változatát), milyen csomagszűrőt/tűzfalat használnak, valamint számtalan egyéb jellemzőre\&. Noha az Nmap programot általában biztonsági ellenőrzésekre használják, sok hálózati rendszergazda hasznosnak fogja találni a napi rutinfeladatokban is, mint például a hálózati leltár elkészítésében, a szolgáltatások frissítésének ütemezésében, vagy egy számítógép/szolgáltatás üzemidejének meghatározásában\&.
+Az Nmap („Network Mapper\(rq) egy hálózatfelderítésre és biztonsági ellenőrzésre használható, nyílt forráskódú eszköz\&. Nagy hálózatok gyors feltérképezésére tervezték, ennek ellenére jól használható egyetlen számítógép ellenőrzésére is\&. Az Nmap egy új módon használja a nyers IP csomagokat annak kiderítésére, hogy mely számítógépek érhetők el a hálózaton, ezek a számítógépek milyen szolgáltatásokat (alkalmazás neve és változata) kínálnak fel, milyen operációs rendszert futtatnak (és annak melyik változatát), milyen csomagszűrőt/tűzfalat használnak, valamint számtalan egyéb jellemzőre\&. Noha az Nmap programot általában biztonsági ellenőrzésekre használják, sok hálózati rendszergazda hasznosnak fogja találni a napi rutinfeladatokban is, mint például a hálózati leltár elkészítésében, a szolgáltatások frissítésének ütemezésében, vagy egy számítógép/szolgáltatás üzemidejének meghatározásában\&.
 .PP
 Az Nmap kimenete egy lista a vizsgált célpontokról, mindegyikről kiegészítő információkkal, melyek részletessége a beállított paraméterektől függ\&. Ezek közül az információk közül a legfontosabb az
-\(lqérdekes kapuk táblázata\(rq\&. Ez a táblázat tartalmazza a kapuszámot és a protokollt, a szolgáltatás nevét és az állapotot\&. Az állapot lehet
+„érdekes kapuk táblázata\(rq\&. Ez a táblázat tartalmazza a kapuszámot és a protokollt, a szolgáltatás nevét és az állapotot\&. Az állapot lehet
 nyitott (open),
 szűrt (filtered),
 zárt (closed), vagy
@@ -59,14 +59,14 @@ kombinációt használja, amikor nem tudja meghatározni, hogy a kapu melyik ál
 Az érdekes kapuk táblázatának kiegészítéseként az Nmap további információkat tud szolgáltatni a célállomásról, beleértve a fordított DNS neveket, feltételezéseket az operációs rendszerről, az eszközök típusa és a MAC címek\&.
 .PP
 Az
-Example\ \&1, \(lqEgy jellegzetes Nmap letapogatás\(rq
+1. példa - Egy jellegzetes Nmap letapogatás
 feliratú ábrán egy tipikus Nmap letapogatás látható\&. Ebben a példában csak a
 \fB\-A\fR
 paramétert használtuk az operációs rendszer és a szolgáltatások érzékelésére, a parancsfájl (script) alapú ellenőrzésre és az útvonal feltárására; a
 \fB\-T4\fR
 paramétert a gyorsabb végrehajtásra; végül pedig a két célállomás nevét\&.
 .PP
-\fBExample\ \&1.\ \&Egy jellegzetes Nmap letapogatás\fR
+\fB1. példa - Egy jellegzetes Nmap letapogatás\fR
 .sp
 .if n \{\
 .RS 4
@@ -74,7 +74,7 @@ paramétert a gyorsabb végrehajtásra; végül pedig a két célállomás nevé
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://nmap\&.org )
+Starting nmap ( https://nmap\&.org )
 Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -117,7 +117,7 @@ Az Nmap legújabb változata a
 címről tölthető le\&. A legfrissebb kézikönyv a
 \m[blue]\fB\%https://nmap.org/man/\fR\m[]
 címről tölthető le\&.
-.SH "MEGJEGYZéS A FORDíTáSHOZ"
+.SH "MEGJEGYZÉS A FORDÍTÁSHOZ"
 .PP
 Az Nmap Referencia Útmutató jelen magyar változatát Mlatilik Zsolt készítette a 6184\-es
 \m[blue]\fBeredeti angol változat\fR\m[]\&\s-2\u[1]\d\s+2
@@ -125,7 +125,7 @@ alapján
 <drmac68@freemail\&.hu>\&. A fordítást annak reményében készítettem, hogy megkönnyítse a magyar nyelvű felhasználók számára a program használatát\&. Nem tudom garantálni, hogy ez a leírás olyan teljes vagy naprakész, mint az eredeti angol változat\&. Ez a fordítás a
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2
 alapján szabadon módosítható és terjeszthető\&.
-.SH "PARAMéTER öSSZEFOGLALó"
+.SH "PARAMÉTER ÖSSZEFOGLALÓ"
 .PP
 Ez az összefoglaló akkor jelenik meg, amikor az Nmap programot paraméterek nélkül indítjuk el\&. A legfrissebb változata a
 \m[blue]\fB\%https://nmap.org/data/nmap.usage.txt\fR\m[]
@@ -135,7 +135,7 @@ címen érhető el\&. Ez a lista segít emlékezni a legáltalánosabb paraméte
 .RS 4
 .\}
 .nf
-Nmap 4\&.53 ( http://nmap\&.org )
+Nmap 4\&.53 ( https://nmap\&.org )
 Használat: nmap [Letapogatási típus(ok)] [Paraméterek] {Célpont meghatározások}
 CÉLPONT MEGHATÁROZÁSOK:
   Átadhatók állomásnevek, IP címek, hálózatok, stb\&.
@@ -247,7 +247,7 @@ NÉZD MEG A MAN OLDALAKAT A TOVÁBBI PARAMÉTEREKHEZ, LEÍRÁSOKHOZ ÉS PÉLDÁK
 .RE
 .\}
 .sp
-.SH "A CéLPONT MEGHATáROZáSA"
+.SH "A CÉLPONT MEGHATÁROZÁSA"
 .PP
 Az Nmap parancssorban mindent, ami nem paraméter (vagy paraméter kiegészítés) célpont meghatározásként értelmez\&. Célpont meghatározása legegyszerűbben IP cím vagy állomásnév megadásával lehetséges\&.
 .PP
@@ -304,7 +304,7 @@ paraméter, csak a kivételeket nem a parancssorban adja át, hanem a
 \fIfájlnév\fR
 által meghatározott fájlban\&. A fájl formátumára ugyanazok érvényesek, mint a célpontokat tartalmazó fájlra\&.
 .RE
-.SH "ÁLLOMáS FELDERíTéSE"
+.SH "ÁLLOMÁS FELDERÍTÉSE"
 .PP
 Bármilyen hálózati felderítési feladat legelső lépése, hogy a (sokszor) hatalmas IP tartományt leszűkítsük egy olyan listára, mely csak az aktív vagy érdekes állomásokat tartalmazza\&. Minden IP cím minden egyes kapujának letapogatása lassú és általában szükségtelen is\&. Természetesen hogy mi tesz egy állomást érdekessé, az nagymértékben függ a letapogatás céljától\&. Rendszergazdák érdeklődhetnek csak egy bizonyos szolgáltatást futtató állomások után, míg egy biztonsági ellenőrzésnél érdekes lehet minden berendezés, amelynek IP címe van\&. Egy rendszergazdának elegendő lehet egy ICMP visszhang alapú letapogatás, hogy felderítse a hálózatán lévő állomásokat, míg egy behatolási teszt során próbák ezreinek különféle csoportjait is be kell vetni egy tűzfal korlátozásainak megkerülésére\&.
 .PP
@@ -452,7 +452,7 @@ leírás szerint válaszolna rájuk\&. Emiatt a kizárólag ICMP alapú letapoga
 paramétert a visszhang kérés engedélyezésére\&.
 .sp
 Noha a visszhang kérés a szabványos ICMP kérés, az Nmap ennél tovább megy\&. Az ICMP szabvány (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[4]\d\s+2) emellett meghatároz még időbélyeg kérést (13\-as kód), információ kérést (15\-ös kód) és címmaszk kérést (17\-es kód) is\&. Noha látszólag ezek a kérések arra szolgálnak, hogy információkat szerezzünk (például címmaszk vagy időbélyeg), de emellett könnyen használhatóak állomások felderítésére is\&. Amelyik rendszer válaszol az élő és elérhető\&. Az Nmap jelenleg nem támogatja az információ kérés csomagot, mivel ezt nem támogatják széles körben\&. Az RFC 1122 ragaszkodik ahhoz, hogy
-\(lqaz állomásoknak nem kellene támogatniuk ezeket az üzeneteket\(rq\&. Az időbélyeg és a címmaszk kérések a
+„az állomásoknak nem kellene támogatniuk ezeket az üzeneteket\(rq\&. Az időbélyeg és a címmaszk kérések a
 \fB\-PP\fR
 és a
 \fB\-PM\fR
@@ -529,7 +529,7 @@ Szintén hasznos lehet ez a paraméter a magánhálózatok letapogatásakor\&. N
 \fB\-\-dns\-servers\fR
 paraméterben addig, amíg meg nem találja a megfelelőt\&.
 .RE
-.SH "KAPULETAPOGATáSI ALAPOK"
+.SH "KAPULETAPOGATÁSI ALAPOK"
 .PP
 Bár az Nmap funkciói folyamatosan bővültek az évek folyamán, kezdetben még csak egy hatékony kapuletapogató volt és ez is maradt a fő funkciója\&. Az egyszerű
 \fBnmap \fR\fB\fIcélpont\fR\fR
@@ -578,7 +578,7 @@ zárt|szűrt
 .RS 4
 Ezt az állapotot akkor adja vissza az Nmap, amikor nem tudja meghatározni, hogy a kapu zárt vagy szűrt állapotú\&. Csak az IP ID üresjárati letapogatásnál használt\&.
 .RE
-.SH "KAPULETAPOGATáSI TECHNIKáK"
+.SH "KAPULETAPOGATÁSI TECHNIKÁK"
 .PP
 Mint kezdő autószerelő, több órás küzdelmet folytattam azért, hogy a munkához szükséges legelemibb szerszámok (kalapács, ragasztószalag, csavarkulcs stb\&.) kéznél legyenek\&. Miután szánalmas kudarcot vallottam, elvontattam a tragacsomat egy igazi szerelőhöz\&. Ő szintén sokáig kotorászott egy óriási szerszámos ládában de végül előhúzta a megfelelő ketyerét, amivel aztán könnyedén elvégezte a munkát\&. A kapuletapogatás művészete is hasonló\&. A szakértők ismerik a letapogatási technikák százait és minden feladathoz a megfelelőt (vagy több kombinációját) használják\&. Másfelől viszont a gyakorlatlan felhasználók és a szkriptkölykök minden feladathoz az alap SYN letapogatást használják\&. Mivel az Nmap ingyenesen elérhető, így a mesteri letapogatás egyetlen határa a tudás\&. Így természetesen legyőzi az autóipart, ahol már annak a meghatározásához is elég sok szaktudás kell, hogy miféle szerszámra lesz szükség\&. Ráadásul ezt még meg is kell venni egy rakás pénzért\&.
 .PP
@@ -650,9 +650,9 @@ nyitott
 és a
 zárt
 kapuk között\&. A 65\-dik oldalon ez áll:
-\(lqha a célkapu ZÁRT \&.\&.\&.\&. egy RST bitet nem tartalmazó bejövő csomagra válaszként egy RST csomagot kell küldeni\&.\(rq
+„ha a célkapu ZÁRT \&.\&.\&.\&. egy RST bitet nem tartalmazó bejövő csomagra válaszként egy RST csomagot kell küldeni\&.\(rq
 A következő oldalon azt tárgyalja, hogy egy nyitott kapura SYN, RST vagy ACK bit nélküli csomag
-\(lqvalószínűtlen, hogy érkezne, de ha mégis ez történne, a csomagot el kell dobni\&.\(rq
+„valószínűtlen, hogy érkezne, de ha mégis ez történne, a csomagot el kell dobni\&.\(rq
 .sp
 Ha olyan rendszereket tapogatunk le, amelyek megfelelnek ennek az RFC leírásnak, akkor bármilyen olyan próbacsomag, amely nem tartalmazza a SYN, ACK vagy RST bitet egy RST választ fog kiváltani, ha a célkapu zárt és nem vált ki választ, ha a célkapu nyitott\&. Amíg ez a három bit nem szerepel, a másik három bit (FIN, PSH, URG) tetszőleges kombinációja használható\&. Az Nmap ezt három letapogatási típussal használja ki:
 .PP
@@ -813,7 +813,7 @@ jelszó:\-wwwuser@)\&. Szintén elhaygható a kapu megadása (a bevezető kettő
 .sp
 Ez a sérülékenység az Nmap 1997\-es megjelenésekor széles körben elterjedt volt, de mára már nagyrészt javították\&. Ennek ellenére még mindig találhatók sérülékeny FTP kiszolgálók, tehát megéri kipróbálni, ha már minden más kudarcot vallott\&. Ha egy tűzfal megkerülése a cél, tapogassa le a célhálózatot nyitott 21\-es kaput után kutatva (vagy bármilyen FTP szolgáltatás után, ha az összes kaput vizsgálja változat ellenőrzésse), azután próbálja meg az ugráló letapogatást ezek használatával\&. Az Nmap megadja, hogy az állomás sérülékeny\-e ebből a szempontból\&. Ha csak a nyomait szeretné eltakarni, akkor nem szükséges kizárólag a célhálózatban lévő gépekre korlátoznia magát\&. Mielőtt nekiállna sérülékeny FTP kiszolgálókat keresni az Interneten, jegyezze meg, hogy a rendszergazdák nem szeretik, ha a kiszolgálóikat ilyen célból próbálják kihasználni\&.
 .RE
-.SH "KAPU MEGHATáROZáS éS LETAPOGATáSI SORREND"
+.SH "KAPU MEGHATÁROZÁS ÉS LETAPOGATÁSI SORREND"
 .PP
 Az előzőekben leírt letapogatási eljárások mellett az Nmap lehetőséget biztosít arra, hogy meghatározza a letapogatni kívánt kapukat és a letapogatás sorrendjét (véletlenszerűen vagy sorban)\&. Alapesetben az Nmap letapogatja az első 1024 kaput, valamint az
 nmap\-services
@@ -879,7 +879,7 @@ Alaphelyzetben az Nmap véletlenszerűen tapogatja le a kapukat (kivéve néhán
 \fB\-r\fR
 paraméter használatával sorrendben is letapogathatja a kapukat\&.
 .RE
-.SH "SZOLGáLTATáS éS VáLTOZAT éRZéKELéS"
+.SH "SZOLGÁLTATÁS ÉS VÁLTOZAT ÉRZÉKELÉS"
 .PP
 Állítsa rá az Nmap programot egy távoli állomásra és megtudhatja, hogy a 25/tcp, 80/tcp és az 53/udp kapuk nyitottak\&. Az
 nmap\-services
@@ -961,7 +961,7 @@ paranccsal, még akkor is ha a célpont tűzfal mögött van (vagy TCP burkoló 
 \fB\-sR\fR
 paraméterre ritkán van szükség\&.
 .RE
-.SH "OPERáCIóS RENDSZER éRZéKELéSE"
+.SH "OPERÁCIÓS RENDSZER ÉRZÉKELÉSE"
 .PP
 Az Nmap egyik legjobban ismert tulajdonsága az operációs rendszerek távoli felismerése a TCP/IP verem ujjlenyomata alapján\&. Az Nmap egy sor TCP és UDP csomagot küld a célpont felé és gyakorlatilag a válaszok minden egyes bitjét kielemzi\&. Tesztek tucatjainak végrehajtása után \- mint például a TCP ISN mintavételezés, a támogatott TCP beállítások, az IP ID mintavételezés és a kezdeti ablakméret ellenőrzése \- az Nmap összehasonlítja az eredményeket az
 nmap\-os\-db
@@ -970,12 +970,12 @@ adatbázisban tárolt több, mint 800 ismert ujjlenyomattal és egyezés esetén
 Ha az Nmap nem tudja kitalálni az operációs rendszer típusát és a feltételek jók (pl\&. található legalább egy nyitott és egy zárt kapu), az Nmap megad egy webcímet, ahová elküdheti az ujjlenyomatot az operációs rendszer típusával, feltéve ha biztos benne\&. Ezzel hozzájárulhat az ismert operációs rendszerek adatbázisának bővítéséhez és segíthet az Nmap programot még pontosabbá tenni mindenki számára\&.
 .PP
 Az operációs rendszer érzékelésének során számos olyan adatot is felhasznál a program, melyeket más folyamatok során már begyűjtött\&. Az egyik az üzemidő felmérése, mely a TCP időbélyeg paramétert használja (RFC 1323) annak kiderítésére, hogy az eszközt mikor indították újra legutoljára\&. Ez csak azoknál az eszközöknél működik, melyek kiadják ezt az információt\&. A másik a TCP sorszám megjósolhatóságának osztályozása\&. Ez azt méri, hogy mennyire nehéz hamisított TCP kapcsolatot felépíteni a célponttal\&. Ez hasznos lehet a forrás IP cím alapú bizalmi kapcsolatokat (távoli bejelentkezés, tűzfalak, szűrők stb\&.) kihasználó támadások esetén a támadás valódi forrásának az elrejtésében\&. Ezeket a megtévesztéseket ma már ritkán használják, de elég sok rendszer sérülékeny velük szemben\&. Az aktuális bonyolultsági szám egy statisztikai mintavételezés alapján alakul ki és változhat\&. Általában jobb az angol nyelvű szöveges osztályozást használni, mint például a
-\(lqméltó kihívás (worthy challenge)\(rq
+„méltó kihívás (worthy challenge)\(rq
 vagy az
-\(lqegyszerűen vicc (trivial joke)\(rq\&. EZek csak a bőbeszédű (\fB\-v\fR) üzemmód normál kimenetén jelennek meg\&. Ha a bőbeszédű üzemmódot a
+„egyszerűen vicc (trivial joke)\(rq\&. EZek csak a bőbeszédű (\fB\-v\fR) üzemmód normál kimenetén jelennek meg\&. Ha a bőbeszédű üzemmódot a
 \fB\-O\fR
 paraméter mellett használja, az IP ID sorszám előállításról is jelentést kap\&. A legtöbb eszköz a
-\(lqnövekményes (incremental)\(rq
+„növekményes (incremental)\(rq
 osztályba tartozik, ami azt jelenti, hogy minden egyes elküldött csomagnál növelik az IP fejléc ID mezőjének értékét\&. Ez sebezhetővé teszi őket néhány fejlett információ gyűjtési és megtévesztési támadással szemben\&.
 .PP
 Az operációs rendszer érzékelésének működésével, használatával és testreszabásával kapcsolatban a
@@ -1013,7 +1013,7 @@ Amikor az Nmap operációs rendszer érzékelést végez egy célponton és nem 
 \fB\-\-max\-os\-tries\fR
 értéket ad meg (pl\&. 1), felgyorsíthatja a folyamatot, de elmulaszthat egy olyan próbát, ami esetleg pontosan azonosíthatja az operációs rendszert\&. Emellett egy magasabb érték több próbát tesz lehetővé, ha a feltételek kedvezőek\&. Ez ritkán hasznos, kivéve ha az adatbázis bővítése céljából szeretne pontosabb ujjlenyomatot előállítani\&.
 .RE
-.SH "NMAP PARANCSFáJL MOTOR (NMAP SCRIPTING ENGINE (NSE))"
+.SH "NMAP PARANCSFÁJL MOTOR (NMAP SCRIPTING ENGINE (NSE))"
 .PP
 Az Nmap parancsfájl motor (NSE) egyesíti az Nmap hatékony hálózatkezelését a
 \m[blue]\fBLua\fR\m[]\&\s-2\u[8]\d\s+2
@@ -1023,7 +1023,7 @@ címen bőséges dokumentációt talál az NSE\-ről (beleértve a programozói 
 .PP
 \fIKiterjesztett változat érzékelés\fR
 (kategória
-version) \(em Bár az Nmap rendelkezik egy saját szolgáltatás\- és változatérzékelő rendszerrel, mely hatékonyságában és működési körében páratlan, egy bonyolultabb próbákat igénylő szolgáltatás felderítésekor ez az erő nem használható ki\&. Például a Skype\-Protocol 2\-es változatának azonosításához két független próbacsomagot kell elküldeni, melyre a beépített rendszer nem képes\&. Egy egyszerű NSE parancsfájl végre tudja hajtani ezt a feladatot és frissíteni tudja a kapukhoz tartozó szolgáltatások információit\&.
+version) — Bár az Nmap rendelkezik egy saját szolgáltatás\- és változatérzékelő rendszerrel, mely hatékonyságában és működési körében páratlan, egy bonyolultabb próbákat igénylő szolgáltatás felderítésekor ez az erő nem használható ki\&. Például a Skype\-Protocol 2\-es változatának azonosításához két független próbacsomagot kell elküldeni, melyre a beépített rendszer nem képes\&. Egy egyszerű NSE parancsfájl végre tudja hajtani ezt a feladatot és frissíteni tudja a kapukhoz tartozó szolgáltatások információit\&.
 .PP
 \fIKárokozó érzékelés\fR
 (kategóriák
@@ -1040,7 +1040,7 @@ vulnerability)\- Az NSE képességeinek kihasználásával könnyen azonosíthat
 safe,
 intrusive
 és
-discovery) \(em Egyrészt a parancsnyelv és a hatékony aszinkron hálózati programfelület, másrészt a korábbi letapogatások során begyűjtött információk segítségével az NSE lehetőséget nyújt ara, hogy a célgépen futó szolgáltatásokhoz ügyfélprogramokat készítsen\&. Ezekkel az ügyfelekkel olyan információkat is begyűjthet, mint például az elérhető NFS/SMB/RPC megosztások, egy IRC hálózaton lévő csatornák vagy az éppen bejelentkezett felhasználók száma\&.
+discovery) — Egyrészt a parancsnyelv és a hatékony aszinkron hálózati programfelület, másrészt a korábbi letapogatások során begyűjtött információk segítségével az NSE lehetőséget nyújt ara, hogy a célgépen futó szolgáltatásokhoz ügyfélprogramokat készítsen\&. Ezekkel az ügyfelekkel olyan információkat is begyűjthet, mint például az elérhető NFS/SMB/RPC megosztások, egy IRC hálózaton lévő csatornák vagy az éppen bejelentkezett felhasználók száma\&.
 .PP
 A különböző felhasználási formák miatt és a megfelelő parancsfájl kiválasztásának leegyszerűsítése érdekében minden parancsfájl tartalmaz egy mezőt, mellyel a fenti kategóriák bármelyikébe (akár több kategóriába is) besorolható\&. A kategóriák és parancsfájlok kapcsolatának nyilvántartására egy
 script\&.db
@@ -1134,7 +1134,7 @@ mezője, ha új parancsfájlokat adott hozzá a készlethez, vagy ha eltávolít
 scripts/
 könyvtárból\&.
 .RE
-.SH "IDőZíTéS éS TELJESíTMéNY"
+.SH "IDŐZÍTÉS ÉS TELJESÍTMÉNY"
 .PP
 Az Nmap fejlesztésének legfontosabb szempontja a teljesítmény\&. Egy alapértelmezett letapogatás (\fBnmap \fR\fB\fIgépnév\fR\fR) egy helyi hálózaton lévő gépen nagyjából 0\&.2 másodpercig tart\&. Ez épp egy pislogásnyi idő, amely azonban egyre nő, ahogy növekszik a célpontként meghatározott gépek száma\&. Továbbá bizonyos letapogatási formák, mint például az UDP letapogatás, vagy a változat érzékelés számottevően megnövelik a letapogatás időtartamát\&. Ugyanilyen hatása van bizonyos tűzfal beállításoknak, különösen ha korlátozták az egységnyi idő alatt kibocsátható válaszok számát\&. Bár az Nmap ezeknek a letapogatásoknak a felgyorsítására sok párhuzamosítást és fejlett eljárásokat használ, a felhasználó alapjaiban befolyásolhatja az Nmap működését\&. Szakértő felhasználók gondosan összeállított Nmap parancsokkal rövid idő alatt megszerezhetik a számukra fontos információkat\&.
 .PP
@@ -1271,7 +1271,7 @@ kapuk között\&.
 .RS 4
 Bár az előzőekben tárgyalt időzítési paraméterek eléggé hatékonyak és eredményesek, de néhány felhasználó túl bonyolultnak találhatja őket\&. Ráadásul a megfelelő értékek kiválasztása gyakran hosszabb idő igényel, mint az optimalizálni kívánt letapogatási művelet maga\&. Az Nmap felkínál egy egyszerűbb megközelítést is hat időzítési sablon segítségével\&. Ezeket megadhatja a
 \fB\-T\fR
-paraméterrel és a számukkal (0\(en5) vagy a nevükkel\&. A sablonok nevei:
+paraméterrel és a számukkal (0–5) vagy a nevükkel\&. A sablonok nevei:
 \fBparanoid\fR
 (\fB0\fR),
 \fBtrükkös [sneaky])\fR
@@ -1333,7 +1333,7 @@ megfelel a
 \fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 15m\fR
 beállításoknak és a TCP letapogatási késleltetést 5 milliszekundumra állítja\&.
 .RE
-.SH "TűZFAL/IDS MEGKERüLéS éS BECSAPáS"
+.SH "TŰZFAL/IDS MEGKERÜLÉS ÉS BECSAPÁS"
 .PP
 Az Internet úttörőinek szeme előtt egy teljesen nyitott hálózat lebegett, egy univerzális IP címtartománnyal, melyben bárki bárkivel kapcsolatot létesíthet\&. Itt bármely állomás információt kérhet és adhat bármely állomásnak\&. Az emberek a munkahelyükről is elérhetik az otthoni rendszereiket, beállíthatják a légkondicionálót, vagy kinyithatják az ajtó egy korán érkezett vendég előtt\&. Azonban a címtartomány szűkössége és bizonyos biztonsági megfontolások miatt ennek a látomásnak a megvalósítása nehézkessé vált\&. Az 1990\-es évek elején a cégek tűzfalakat kezdtek telepíteni azzal a kifejezett szándékkal hogy az információ szabad áramlását akadályozzák\&. Nagyméretű hálózatokat kerítettek le az Internetről alkalmazás szűrőkkel, hálózati címfordítókkal és csomagszűrőkkel\&. Az információ szabad áramát szigorúan szabályozott csatornákba kényszerítették\&.
 .PP
@@ -1477,7 +1477,7 @@ paraméterrel\&.
 Arra utasítja az Nmap programot, hogy az összes elküldött ethernet kerethez a megadott MAC címet használja\&. Ehhez a paraméterhez automatikusan hozzáadódik a
 \fB\-\-send\-eth\fR
 paraméter is, így biztosítva, hogy az Nmap valójában ethernet\-szintű csomagokat küldjön\&. A MAC cím több formátumban is megadható\&. Ha a megadott paraméter egy egyszerű
-\(lq0\(rq, az Nmap egy teljesen véletlen MAC címet választ arra munkamenetre\&. Ha a megadott karakterlánc páros számú hexadecimális számból áll (a párok elválaszthatók kettősponttal), az Nmap ezt a MAC címet fogja használni\&. Ha kevesebb, mint 12 számjegyet adott meg, az Nmap a fennmaradó részt véletlen értékekkel tölti fel\&. Ha a megadott érték nem 0 vagy hexadecimális karakterlánc, az Nmap elvégez egy keresést az
+„0\(rq, az Nmap egy teljesen véletlen MAC címet választ arra munkamenetre\&. Ha a megadott karakterlánc páros számú hexadecimális számból áll (a párok elválaszthatók kettősponttal), az Nmap ezt a MAC címet fogja használni\&. Ha kevesebb, mint 12 számjegyet adott meg, az Nmap a fennmaradó részt véletlen értékekkel tölti fel\&. Ha a megadott érték nem 0 vagy hexadecimális karakterlánc, az Nmap elvégez egy keresést az
 nmap\-mac\-prefixes
 fájlban, hogy található\-e a megadott karakterlánccal megegyező nevű gyártó (ez érzékeny a nagy\- és kisbetűkre)\&. Ha talál egyezést, az Nmap a gyártó OUI mezőjét fogja használni (3 bájtos előtag), a fennmaradó 3 bájtot pedig véletlen értékekkel tölti fel\&. Példák az érvényes
 \fB\-\-spoof\-mac\fR
@@ -1615,7 +1615,7 @@ paraméterek megadásával olyan hordozható XML fájlt hozhat létre, mely bár
 \fB\-oS <fájlnév>\fR (Szkriptkölyök kimenet) .\" -oS
 .RS 4
 A szkriptkölyök kimenet olyan, mint az interaktív kimenet, csak még átmegy egy végső feldolgozáson\&. Így jobban passzol az olyan hekkerek lelkivilágához, akik előzőleg lenézték az Nmap egységes helyesírását és a nagybetűk használatát\&. Gyenge humorérzékűek úgy gondolhatják, hogy ez a paraméter nevetségessé akarja tenni a szkriptkölyköket ahelyett, hogy
-\(lqsegítené őket\(rq\&.
+„segítené őket\(rq\&.
 .RE
 .PP
 \fB\-oG <fájlnév>\fR (grep által feldolgozható kimenet) .\" -oG
@@ -1789,7 +1789,7 @@ Megakadályozza, hogy az Nmap az XML kimeneti fájlban stíluslap bejegyzést ho
 xml\-stylesheet
 irányelv\&.
 .RE
-.SH "VEGYES PARAMéTEREK"
+.SH "VEGYES PARAMÉTEREK"
 .PP
 Ebben a szakaszban néhány olyan fontos (és kevésbé fontos) paraméter leírása található, melyek nem igazán illenek más fejezetekbe\&.
 .PP
@@ -1799,7 +1799,7 @@ Ebben a szakaszban néhány olyan fontos (és kevésbé fontos) paraméter leír
 \fB\-6\fR
 kapcsolót is meg kell adnia\&. Természetesen IPv6 formátumú címet kell megadnia, ha nem állomásnevet akar használni\&. Egy cím például így nézhet ki:
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0, tehát javasolt inkább az állomásnév használata\&. A kimenet ugyanúgy néz ki, mint általában, az egyetlen különbség az
-\(lqérdekes kapuknál\(rq
+„érdekes kapuknál\(rq
 látható IPv6 cím\&.
 .sp
 Bár az IPv6 nem terjedt el viharos gyorsasággal a világban, egyes országokban (általában Ázsiában) egyre inkább ezt használják és a legtöbb modern operációs rendszer támogatja\&. Ha az Nmap programot IPv6 támogatással akarja használni, akkor mind a forrás\- mind a célgépnek IPv6 beállítást kell használnia\&. Ha az Ön szolgáltatója (mint a legtöbb általában) nem biztosít Önnek IPv6 címet, igénybe vehet ingyenes alagút szolgáltatókat, melyek kiválóan működnek együtt az Nmap programmal\&. Az egyik legjobb ezek közül a BT Exact\&. Szintén jól használható még a Hurricane Electric nevű szolgáltató
@@ -1888,15 +1888,6 @@ paraméterrel egyenértékű az NMAP_UNPRIVILEGED környezeti változó beállí
 Ez a paraméter csak a memóriaszivárgási hibák keresésekor hasznos\&. Arra utasítja az Nmap programot, hogy a kilépés előtt szabadítsa fel a lefoglalt memóriát, így a memóriaszivárgás könnyen felderíthető\&. Normál helyzetben az Nmap átugorja ezt, mivel a program leállításakor az operációs rendszert ezt amúgy is végrehajtja\&.
 .RE
 .PP
-\fB\-\-interactive\fR (Indítás interaktív módban) .\" --interactive
-.RS 4
-Interaktív módban indítja el az Nmap programot, mely így egy készenléti jelet ad vissza\&. Így könnyen indíthatók párhuzamos letapogatások (akár szinkronban, akár a háttérben)\&. Ez olyan felhasználóknak hasznos, akik többfelhasználós rendszerben akarják letesztelni a biztonságukat és nem akarják a többi felhasználó tudomására hozni, hogy mely rendszert vizsgálják\&. Használja az
-\fB\-\-interactive\fR
-paramétert az üzzemód bekapcsolásához, majd nyomja le a
-h
-billentyűt a súgó megjelenítéséhez\&. Ezt a paramétert ritkán használják, mivel egy megfelelő parancshéj általában sokkal kényelmesebb és több funkcióval rendelkezik\&. Ennél a paraméternél használható a felkiáltójel (!) operátor, mellyel héjparancsokat lehet végrehajtani\&. Ez az egyik legfőbb érv, hogy miért nem szabad az Nmap programot setuid beállítással telepíteni\&.
-.RE
-.PP
 \fB\-V\fR; \fB\-\-version\fR (Programváltozat megjelenítése) .\" -V .\" --version
 .RS 4
 Megjeleníti az Nmap program változatszámát és kilép\&.
@@ -1906,7 +1897,7 @@ Megjeleníti az Nmap program változatszámát és kilép\&.
 .RS 4
 Megjelenít egy rövid súgót a leggyakrabban használt parancsokról és paraméterekről\&. Ugyanezt a képernyőt kapja, ha az Nmap parancsot paraméterek nélkül futtatja le\&.
 .RE
-.SH "FUTáSIDEJű KAPCSOLAT"
+.SH "FUTÁSIDEJŰ KAPCSOLAT"
 .PP
 Az Nmap program futása alatt minden billentyű lenyomása rögzítésre kerül\&. Így kapcsolat létesíthető a programmal anélkül, hogy le kellene állítani majd újraindítani azt\&. Bizonyos billentyűkkel módosíthat egyes paramétereket, míg a többi billentyű lenyomásával egy állapotjelentés jelenik meg az éppen futó letapogatásról\&. ltalános szabály, hogy
 \fIa kisbetűk növelik\fR
@@ -1942,7 +1933,7 @@ Stats: 0:00:08 elapsed; 111 hosts completed (5 up), 5 undergoing Service Scan
 .sp
 Service scan Timing: About 28\&.00% done; ETC: 16:18 (0:00:15 remaining)
 .RE
-.SH "PéLDáK"
+.SH "PÉLDÁK"
 .PP
 Ebben a fejezetben néhány példa következik az Nmap használatára, az egyszerűbb rutinfeladatoktól a bonyolultabb, beavatottabbak számára valókig\&. Néhány IP cím és tartománynév azért került be a példákba, hogy a dolgok eléggé konkrétak legyenek\&. Ezeket helyettesítse olyan IP címekkel és nevekkel, melyek a
 \fIsaját hálózatából\fR
@@ -1967,7 +1958,7 @@ paraméter engedélyezi a bőbeszédű üzemmódot\&.
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Elindít egy lopakodó SYN letapogatást minden olyan állomáson, mely a Scanme állomás
-\(lqC osztályú\(rq
+„C osztályú\(rq
 címterében található és elérhető\&. Emelett megpróbálja kideríteni, hogy az elérhető állomások milyen operációs rendszert futtatnak\&. A SYN letapogatás és az operációs rendszer felderítése miatt ennek a parancsnak a futtatásához rendszergazdai jogosultságok szükségesek\&.
 .PP
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
@@ -1983,7 +1974,7 @@ paraméterrel kikapcsoljuk, mivel egy kapu letapogatásakor felesleges először
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Visszhang próbák nélkül letapogat 4096 IP címet webkiszolgáló után kutatva, a kimenetet pedig elmenti greppel feldolgozható és XML formátumban\&.
-.SH "HIBáK"
+.SH "HIBÁK"
 .PP
 Akárcsak a program készítője, az Nmap sem tökéletes\&. De segíthet jobbá tenni, ha elküldi a felfedezett hibák leírását, vagy javítást készít hozzájuk\&. Ha az Nmap nem az elvárásai szerint működik, először mindig szerezze be a legfrissebb változatot a
 \m[blue]\fB\%https://nmap.org\fR\m[]
@@ -1996,7 +1987,7 @@ címre\&. Írjon le mindent, amit a hibával kapcsolatban tapasztalt\&. Adja meg
 A hibajavítások sokkal hasznosabbak, mint a hibajelentések\&. A hibajavítások elkészítésével kapcsolatban tanácsokat kaphat a
 \m[blue]\fB\%https://nmap.org/data/HACKING\fR\m[]
 címen\&. A hibajavítások elküldhetők az nmap\-dev listára (ez a javasolt), vagy közvetlenül a készítőnek is\&.
-.SH "SZERZő"
+.SH "SZERZŐ"
 .PP
 Fyodor
 <fyodor@nmap\&.org>
@@ -2015,9 +2006,9 @@ Nmap Biztonsági letapogató (C) 1996\-2007 Insecure\&.Com LLC\&. Az Nmap az Ins
 címre)\&. Több, biztonsági letapogatót forgalmazó cég kapott ilyen licencet az Nmap technológiájának használatára az állomás felderítés, kapupásztázás, operációs rendszer érzékelés és szolgáltatás/változat érzékelés területén\&.
 .PP
 A GPL fontos korlátozásokat alkalmaz a
-\(lqszármaztatott munkákkal\(rq
+„származtatott munkákkal\(rq
 kapcsolatban, bár jelenleg a kifejezés nincs részletesen meghatározva\&. A félreértések elkerülése érdekében \- és a GPL szándékait szem előtt tartva \- a készítők úgy vélik, hogy egy alkalmazás akkor tekinthető
-\(lqszármaztatott munkának\(rq, ha az alábbiak közül bármelyik teljesül:
+„származtatott munkának\(rq, ha az alábbiak közül bármelyik teljesül:
 .sp
 .RS 4
 .ie n \{\
@@ -2078,15 +2069,15 @@ Kapcsolódik olyan programkönyvtárhoz, vagy futtat olyan programot mely az el�
 .RE
 .PP
 Az
-\(lqNmap\(rq
+„Nmap\(rq
 kifejezés felhasználható az Nmap programból származtatott munkák bármely részére\&. A fenti lista nem kizárólagos, csak néhány példán keresztül megpróbálja tisztázni az Nmap készítőinek értelmezését a származtatott munkákkal kapcsolatban\&. Ezek a korlátozások kizárólag akkor érvényesek, ha Ön valójában továbbértékesíti az Nmap programot\&. Például semmi nem tiltja, hogy Ön kezelő felületet készítsen az Nmap programhoz és azt üzleti céllal forgalmazza\&. Terjessze a programot önállóan és hívja fel a felhasználók figyelmét, hogy az Nmap programot külön kell letölteniük a
 \m[blue]\fB\%https://nmap.org\fR\m[]
 címről\&.
 .PP
 A program készítői nem gondolják, hogy a fentiek további korlátozásokat adnának a GPL\-hez, kizárólag annak tisztázására szolgálnak, hogyan értelmezik a
-\(lqszármaztatott munkák\(rq
+„származtatott munkák\(rq
 fogalmát a GPL engedély alatt terjesztett Nmap programmal kapcsolatban\&. Ez hasonló ahhoz, ahogyan Linus Torvalds kifejtette a véleményét a Linux rendszermag\-modulokhoz kapcsolódó
-\(lqszármaztatott munkákkal\(rq
+„származtatott munkákkal\(rq
 kapcsolatban\&. A készítők értelmezése kizárólag az Nmap programra vonatkozik \- nem vonatkozik más GPL termékekre\&.
 .PP
 A készítők örömmel segítenek a GPL korlátozásainak értelmezésében, ha az Nmap programot nem GPL licenc alatt terjesztett munkában kívánja felhasználni és bármilyen kérdése merülne fel ezzel kapcsolatban\&. Ahogy a fentiekben már szóba került, a készítőktől más licenc is beszerezhető, ha az Nmap programot üzleti célú alkalmazásban vagy eszközben kívánja felhasználni\&. Több biztonsági eszköz szállítója kötött ilyen szerződést, amely általában tartalmaz egy állandó licencet az Nmap használatára, kiemelt támogatást és frissítést\&. Emellett segít fedezni az Nmap technológiájának folyamatos fejlesztésével járó költségeket is\&. További információkat a
@@ -2156,8 +2147,8 @@ egy beágyazott változatát használja\&. Az ebben a szakaszban szereplő valam
 .SS "USA export korlátozások.\" export korlátozások"
 .PP
 USA export korlátozás: az Insecure\&.Com LLC úgy véli, hogy az Nmap a US ECCN (export control classification number) 5D992 alá tartozik\&. Ennek a kategóriának az elnevezése:
-\(lqAz 5D002 alá nem tartozó információbiztonsági program\(rq\&. Ennek a besorolásnak egyetlen korlátozása a terrorizmus ellenesség, mely minden árura vonatkozik és megtiltja ezek exportálását olyan terrorista államoknak, mint Irán és Észak Korea\&. Így az Nmap exportálásához nem szükséges különleges engedély, hozzájárulás vagy kormányzati felhatalmazás\&.
-.SH "NOTES"
+„Az 5D002 alá nem tartozó információbiztonsági program\(rq\&. Ennek a besorolásnak egyetlen korlátozása a terrorizmus ellenesség, mely minden árura vonatkozik és megtiltja ezek exportálását olyan terrorista államoknak, mint Irán és Észak Korea\&. Így az Nmap exportálásához nem szükséges különleges engedély, hozzájárulás vagy kormányzati felhatalmazás\&.
+.SH "MEGJEGYZÉSEK"
 .IP " 1." 4
 eredeti angol változat
 .RS 4

@@ -9,6 +9,8 @@ Performs brute force password auditing against VNC servers.
 ]]
 
 ---
+-- @see realvnc-auth-bypass.nse
+--
 -- @usage
 -- nmap --script vnc-brute -p 5900 <host>
 --

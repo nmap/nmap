@@ -12,6 +12,8 @@ Performs password guessing against MySQL.
 ]]
 
 ---
+-- @see mysql-empty-password.nse
+--
 -- @usage
 -- nmap --script=mysql-brute <target>
 --

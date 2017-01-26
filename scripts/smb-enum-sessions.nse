@@ -58,7 +58,8 @@ the system, besides showing a message box to the user.
 -- |  |_ DOMAIN\rbowes since 2008-10-20 09:03:23
 -- |  Active SMB Sessions:
 -- |_ |_ ADMINISTRATOR is connected from 10.100.254.138 for [just logged in, it's probably you], idle for [not idle]
------------------------------------------------------------------------
+--
+-- @see smb-enum-users.nse
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"

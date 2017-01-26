@@ -142,6 +142,7 @@
 #include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
+#include <openssl/rsa.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
@@ -152,6 +153,9 @@
 /* Technically some of these things were added in 0x10100006
  * but that was pre-release. */
 #define HAVE_OPAQUE_STRUCTS 1
+#else
+#define X509_get0_notBefore X509_get_notBefore
+#define X509_get0_notAfter X509_get_notAfter
 #endif
 
 
@@ -457,9 +461,9 @@ static void x509_validity_to_table(lua_State *L, X509 *cert)
 {
   lua_newtable(L);
 
-  asn1_time_to_obj(L, X509_get_notBefore(cert));
+  asn1_time_to_obj(L, X509_get0_notBefore(cert));
   lua_setfield(L, -2, "notBefore");
-  asn1_time_to_obj(L, X509_get_notAfter(cert));
+  asn1_time_to_obj(L, X509_get0_notAfter(cert));
   lua_setfield(L, -2, "notAfter");
 }
 

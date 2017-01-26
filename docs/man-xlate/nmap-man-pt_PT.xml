@@ -44,6 +44,12 @@
 
     <refsect1 id="man-description">
       <title>Descrição</title>
+    <web>
+      <note><para>
+          Este documento descreve o Nmap versão 4.50. A documentação mais recente
+          está disponível em inglês em
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
       <para>O Nmap (<quote>Network Mapper</quote>) é uma ferramenta em código
       aberto para exploração de rede e auditoria de segurança. Foi
@@ -2893,26 +2899,6 @@ EXEMPLOS:
             de opção que requeiram privilégios (rastreio(scan) SYN, detecção de OS,
             etc.). A variável NMAP_PRIVILEGED pode ser configurada como uma
             alternativa equivalente de <option>--privileged</option>.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><option>--interactive</option> (Inicia em modo
-          interactivo)</term>
-
-          <listitem>
-            <para>Inicia o Nmap em modo interactivo oferecendo um prompt
-            interactivo do Nmap, permitindo o início de múltiplos rastreios(scans) (tanto
-            síncronos quanto em background). Isto é útil para pessoas que
-            fzem o rastreio(scan) a partir de sistemas multi-usuários e que normalmente
-            querem testar a segurança sem deixar todos os utilizadores saberem exactamente
-            quais sistemas eles estão rastreando. Use
-            <option>--interactive</option> para ativar este modo e então tecle
-            <keycap>h</keycap> para uma ajuda (help). Esta opção é raramente
-            utilizada porque um shell adequado é mais familiar e tem mais
-            opções. Esta opção inclui um operador exclamação (!) para a
-            execução de comandos de shell, o que é uma das muitas razões de
-            não se instalar o Nmap com setuid root.</para>
           </listitem>
         </varlistentry>
 
