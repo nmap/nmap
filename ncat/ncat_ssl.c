@@ -171,7 +171,7 @@ SSL_CTX *setup_ssl_listen(void)
     const SSL_METHOD *method;
 
     if (sslctx)
-        goto done;
+        return sslctx;
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     SSL_library_init();
@@ -234,9 +234,6 @@ SSL_CTX *setup_ssl_listen(void)
         if (SSL_CTX_use_PrivateKey_file(sslctx, o.sslkey, SSL_FILETYPE_PEM) != 1)
             bye("SSL_CTX_use_Privatekey_file(): %s.", ERR_error_string(ERR_get_error(), NULL));
     }
-
-done:
-    return sslctx;
 }
 
 SSL *new_ssl(int fd)
