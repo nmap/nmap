@@ -47,6 +47,11 @@
     </cmdsynopsis>
   </refsynopsisdiv>
 
+    <web>
+      <note><para>
+          Este documento describe Nmap versión 4.00. La última documentación está disponible en inglés en
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
   <refsect1 id="man-description">
     <title>Descripción</title>
 
@@ -3378,32 +3383,6 @@ medida que se incrementa el nivel de depuración.</para>
 	  de SO, etc.). Una forma alternativa a
 	  <option>--privileged</option> es fijar la variable de
 	  entorno NMAP_PRIVILEGED.</para>
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (Comienza en modo interactivo)
-        </term>
-        <listitem>
-
-          <para>Comienza Nmap en modo interactivo. En este modo, Nmap
-          ofrece un indicador interactivo que facilita el lanzamiento
-          de múltiples sondeos (tanto síncronos como en segundo
-          plano). Es útil para aquellas personas que tienen que
-          sondear desde sistemas multi-usuario, ya que generalmente
-          quieren hacer un análisis de seguridad sin que los demás
-          usuarios sepan exactamente qué sistemas se están
-          analizando. Puede utilizar la opción
-          <option>--interactive</option> para activar este modo y
-          después utilizar <keycap moreinfo="none">h</keycap> para
-          obtener la ayuda. Esta opción se utiliza muy poco porque los
-          intérpretes de línea de órdenes habituales son mucho más
-          cómodos y tienen más funciones. Esta opción incluye un
-          operador de exclamación («!») para ejecutar órdenes de la
-          shell, que es una de las muchas razones por las que Nmap no
-          se debe instalar con el bit «setuid» de root.</para>
 
         </listitem>
       </varlistentry>

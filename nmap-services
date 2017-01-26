@@ -1,7 +1,7 @@
 # THIS FILE IS GENERATED AUTOMATICALLY FROM A MASTER - DO NOT EDIT.
 # EDIT /nmap-private-dev/nmap-services-all IN SVN INSTEAD.
 # Well known service port numbers -*- mode: fundamental; -*-
-# From the Nmap Security Scanner ( http://nmap.org )
+# From the Nmap Security Scanner ( https://nmap.org/ )
 #
 # $Id: nmap-services 9746 2008-08-26 18:45:24Z fyodor $
 #
@@ -10,13 +10,13 @@
 # This collection of service data is (C) 1996-2011 by Insecure.Com
 # LLC.  It is distributed under the Nmap Open Source license as
 # provided in the COPYING file of the source distribution or at
-# http://nmap.org/data/COPYING .  Note that this license
+# https://svn.nmap.org/nmap/COPYING .  Note that this license
 # requires you to license your own work under a compatable open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).
 # Dozens of software vendors already license Nmap technology such as
 # host discovery, port scanning, OS detection, and version detection.
-# For more details, see http://nmap.org/book/man-legal.html
+# For more details, see https://nmap.org/book/man-legal.html
 #
 # Fields in this file are: Service name, portnum/protocol, open-frequency, optional comments
 #

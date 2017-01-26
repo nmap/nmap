@@ -173,10 +173,12 @@ SSL_CTX *setup_ssl_listen(void)
     if (sslctx)
         goto done;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     SSL_load_error_strings();
+#endif
 
     /* RAND_status initializes the random number generator through a variety of
        platform-dependent methods, then returns 1 if there is enough entropy or
@@ -585,12 +587,35 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     if (X509_add_ext(*cert, ext, -1) == 0)
         goto err;
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+    {
+        ASN1_TIME *tb, *ta;
+        tb = NULL;
+        ta = NULL;
+
+        if (X509_set_issuer_name(*cert, X509_get_subject_name(*cert)) == 0
+            || (tb = ASN1_STRING_dup(X509_get0_notBefore(*cert))) == 0
+            || X509_gmtime_adj(tb, 0) == 0
+            || X509_set1_notBefore(*cert, tb) == 0
+            || (ta = ASN1_STRING_dup(X509_get0_notAfter(*cert))) == 0
+            || X509_gmtime_adj(ta, 60) == 0
+            || X509_set1_notAfter(*cert, ta) == 0
+            || X509_set_pubkey(*cert, *key) == 0) {
+            ASN1_STRING_free(tb);
+            ASN1_STRING_free(ta);
+            goto err;
+        }
+        ASN1_STRING_free(tb);
+        ASN1_STRING_free(ta);
+    }
+#else
     if (X509_set_issuer_name(*cert, X509_get_subject_name(*cert)) == 0
         || X509_gmtime_adj(X509_get_notBefore(*cert), 0) == 0
         || X509_gmtime_adj(X509_get_notAfter(*cert), DEFAULT_CERT_DURATION) == 0
         || X509_set_pubkey(*cert, *key) == 0) {
         goto err;
     }
+#endif
 
     /* Sign it. */
     if (X509_sign(*cert, *key, EVP_sha1()) == 0)

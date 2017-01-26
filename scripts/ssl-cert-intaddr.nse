@@ -32,7 +32,8 @@ address itself is not private.  Nmap v7.30 or later is required.
 -- <table key="X509v3 Subject Alternative Name">
 --   <elem>10.3.4.5</elem>
 -- </table>
----
+--
+-- @see http-internal-ip-disclosure.nse
 
 author = "Steve Benson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

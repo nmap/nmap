@@ -7,13 +7,15 @@ other software may be vulnerable in the same way.
 ]]
 
 ---
--- @usage nmap -p80 --script http-rompager-xss <target>
--- @usage nmap -sV http-rompager-xss <target>
+-- @see http-vuln-misfortune-cookie.nse
+--
+-- @usage nmap -p80 --script http-vuln-cve2013-6786 <target>
+-- @usage nmap -sV http-vuln-cve2013-6786 <target>
 --
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-rompager-xss:
+-- | http-vuln-cve2013-6786:
 -- |   VULNERABLE:
 -- |   URL redirection and reflected XSS vulnerability in Allegro RomPager Web server
 -- |     State: VULNERABLE (Exploitable)

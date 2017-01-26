@@ -31,11 +31,10 @@
   <refsect1 id="man-description">
     <title>Leírás</title>
     <web>
-    <note><para>Ez a dokumentum az Nmap legfrissebb változatának leírása, mely a
-     <ulink url="https://nmap.org/download.html"></ulink> vagy a  
-     <ulink url="https://nmap.org/dist/?C=M&amp;O=D"></ulink> címekről tölthető le.  
-     Mielőtt egy paraméter hibás működését jeleznéd, kérlek győződj meg arról, hogy 
-     a legfrissebb változatot használod-e.</para></note>
+    <note><para>
+        Ez a dokumentum leírja az Nmap változata X. A legfrissebb dokumentáció
+        elérhető angolul
+        <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
     <para>Az Nmap (<quote>Network Mapper</quote>) egy hálózatfelderítésre és biztonsági 
     ellenőrzésre használható, nyílt forráskódú eszköz.  Nagy hálózatok gyors 
@@ -3473,29 +3472,6 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
         </listitem>
       </varlistentry>
 
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (Indítás interaktív módban)
-          <indexterm significance="normal"><primary>--interactive</primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Interaktív módban indítja el az Nmap programot, mely így egy készenléti 
-	  jelet ad vissza. Így könnyen indíthatók párhuzamos letapogatások (akár 
-	  szinkronban, akár a háttérben). Ez olyan felhasználóknak hasznos, akik 
-	  többfelhasználós rendszerben akarják letesztelni a biztonságukat és 
-	  nem akarják a többi felhasználó tudomására hozni, hogy mely rendszert 
-	  vizsgálják. Használja az <option>--interactive</option> paramétert az 
-	  üzzemód bekapcsolásához, majd nyomja le a <keycap moreinfo="none">h</keycap> 
-	  billentyűt a súgó megjelenítéséhez. Ezt a paramétert ritkán használják, 
-	  mivel egy megfelelő parancshéj általában sokkal kényelmesebb és több 
-	  funkcióval rendelkezik. Ennél a paraméternél használható a felkiáltójel 
-	  (!) operátor, mellyel héjparancsokat lehet végrehajtani. Ez az egyik 
-	  legfőbb érv, hogy miért nem szabad az Nmap programot setuid beállítással 
-	  telepíteni.</para>
-        </listitem>
-      </varlistentry>
 
       <varlistentry>
         <term>

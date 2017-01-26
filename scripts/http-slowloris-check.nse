@@ -56,6 +56,8 @@ Idea from Qualys blogpost:
 -- |     References:
 -- |       http://ha.ckers.org/slowloris/
 -- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750
+--
+-- @see http-slowloris.nse
 
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

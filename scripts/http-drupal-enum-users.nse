@@ -17,6 +17,8 @@ For more information,see:
 ]]
 
 ---
+-- @see http-vuln-cve2014-3704.nse
+--
 -- @usage
 -- nmap --script=http-drupal-enum-users --script-args http-drupal-enum-users.root="/path/" <targets>
 --

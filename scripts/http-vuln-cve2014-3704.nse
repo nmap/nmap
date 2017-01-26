@@ -31,6 +31,8 @@ Exploitation technique used to achieve RCE on the target is based on exploit/mul
 ]]
 
 ---
+-- @see http-sql-injection.nse
+--
 -- @usage
 -- nmap --script http-vuln-cve2014-3704 --script-args http-vuln-cve2014-3704.cmd="uname -a",http-vuln-cve2014-3704.uri="/drupal" <target>
 -- nmap --script http-vuln-cve2014-3704 --script-args http-vuln-cve2014-3704.uri="/drupal",http-vuln-cve2014-3704.cleanup=false <target>

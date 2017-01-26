@@ -9,6 +9,8 @@ author = "Brandon Enright"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 ---
+-- @see vnc-brute.nse
+--
 -- @output
 -- PORT     STATE SERVICE VERSION
 -- 5900/tcp open  vnc     VNC (protocol 3.8)

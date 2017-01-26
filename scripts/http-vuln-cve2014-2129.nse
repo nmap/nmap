@@ -10,8 +10,12 @@ Denial of Service Vulnerability (CVE-2014-2129).
 ]]
 
 ---
+-- @see http-vuln-cve2014-2126.nse
+-- @see http-vuln-cve2014-2127.nse
+-- @see http-vuln-cve2014-2128.nse
+--
 -- @usage
--- nmap -p 443 --script http-vuln-cve2014-2127 <target>
+-- nmap -p 443 --script http-vuln-cve2014-2129 <target>
 --
 -- @output
 -- PORT    STATE SERVICE

@@ -5,6 +5,8 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 
 ---
+-- @see http-vuln-cve2013-6786.nse
+--
 -- @usage
 -- nmap <target> -p 7547 --script=http-vuln-misfortune-cookie
 --

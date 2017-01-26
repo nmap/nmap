@@ -30,6 +30,11 @@
   </refsynopsisdiv>
   <refsect1 id="man-description">
     <title>Opis</title>
+    <web>
+      <note><para>
+          Tento dokument popisuje Nmap verzia 3.95. je k dispozícii v angličtine Najnovšie dokumentácie na
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
     <para>Nmap (<quote>Network Mapper</quote>) je open-source nastrojom na skumanie siete a kontrolu bezpecnosti.  
 	Bol vyvinuty s ohladom na rychle scanovanie velkych sieti, hoci funguje vyborne aj pri nasadeni proti jednotlivym hostitelom.
@@ -2631,26 +2636,6 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 		  Premenna NMAP_PRIVILEGED moze byt nastavena ako ekvivalentna
 		  alternativa k parametru
           <option>--privileged</option>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (Zacat v interaktivnom mode)
-        </term>
-        <listitem>
-          <para>Nmap zacne pracovat v interaktivnom mode, 
-		  ktory ponuka moznost pouzitia vyzvy na jednoduche spustenie
-		  viacnasobnych scanov, bud synchronne alebo v pozadi. Zide sa to 
-		  pre pouzivatelov, ktori scanuju zo systemov typu multi-user a
-		  casto chcu testovat bezpecnost bez toho, aby niekto v systeme vedel
-		  , ktore systemy sa presne scanuju. Tento mod sa aktivuje parametrom
-		  <option>--interactive</option> a zadanim <keycap moreinfo="none">h</keycap> pre napovedu.
-		  Tento parameter sa pouziva zriedkavo, pretoze poriadne shelly su dovernejsie zname a maju
-		  vela funkcii. Tento parameter zahrnuje operator ! kvoli spusteniu
-		  prikazov shellu, co je jednou z mnohych pricin, preco sa
-		  nema instalovat setuid root Nmapu.
-		  </para>
         </listitem>
       </varlistentry>
 

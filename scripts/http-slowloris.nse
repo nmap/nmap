@@ -52,6 +52,8 @@ when run from Windows.
 -- |   the DoS attack took +2m22s
 -- |   with 501 concurrent connections
 -- |_  and 441 sent queries
+--
+-- @see http-slowloris-check.nse
 
 author = {"Aleksandar Nikolic", "Ange Gutek"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

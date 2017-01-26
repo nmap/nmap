@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
-.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 09/23/2015
+.\"      Date: 18/01/2017
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
-.\"  Language: English
+.\"  Language: Portuguese
 .\"
-.TH "NMAP" "1" "09/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "18/01/2017" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,9 +27,9 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "NOME"
 nmap \- Ferramenta de exploração de Rede e Rastreio de Segurança / Portas
-.SH "SYNOPSIS"
+.SH "SINOPSE"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fITipo\ de\ Rastreio(Scan)\fR...] [\fIOpções\fR] {\fIEspecificação\ do\ Alvo\fR}
 .SH "DESCRIçãO"
@@ -55,13 +55,13 @@ fechada|filtrada (closed|filtered)quando não consegue determinar qual dos dois 
 Além da tabela de portas interessantes o Nmap pode fornecer informações adicionais sobre os alvos, incluíndo nomes de DNS reverso, suposições de sistema operativo, tipos de dispositivos e endereços MAC\&.
 .PP
 Um rastreio(scan) típico do Nmap é mostrado em
-Example\ \&1, \(lqUma amostra de rastreio(scan) do Nmap\(rq\&. Os únicos argumentos que o Nmap utiliza nesse exemplo são
+Exemplo 1, \(lqUma amostra de rastreio(scan) do Nmap\(rq\&. Os únicos argumentos que o Nmap utiliza nesse exemplo são
 \fB\-A\fR
 para permitir a detecção de SO e a versão
 \fB\-T4\fR
 para execução mais rápida e os nomes de anfitrião(hostnames) de dois alvos\&.
 .PP
-\fBExample\ \&1.\ \&Uma amostra de rastreio(scan) do Nmap\fR
+\fBExemplo 1. Uma amostra de rastreio(scan) do Nmap\fR
 .sp
 .if n \{\
 .RS 4
@@ -1349,15 +1349,6 @@ Informa ao Nmap para simplesmente assumir que ele tem privilégios suficientes p
 \fB\-\-privileged\fR\&.
 .RE
 .PP
-\fB\-\-interactive\fR (Inicia em modo interactivo)
-.RS 4
-Inicia o Nmap em modo interactivo oferecendo um prompt interactivo do Nmap, permitindo o início de múltiplos rastreios(scans) (tanto síncronos quanto em background)\&. Isto é útil para pessoas que fzem o rastreio(scan) a partir de sistemas multi\-usuários e que normalmente querem testar a segurança sem deixar todos os utilizadores saberem exactamente quais sistemas eles estão rastreando\&. Use
-\fB\-\-interactive\fR
-para ativar este modo e então tecle
-h
-para uma ajuda (help)\&. Esta opção é raramente utilizada porque um shell adequado é mais familiar e tem mais opções\&. Esta opção inclui um operador exclamação (!) para a execução de comandos de shell, o que é uma das muitas razões de não se instalar o Nmap com setuid root\&.
-.RE
-.PP
 \fB\-V\fR; \fB\-\-version\fR (Mostra o número da versão)
 .RS 4
 Mostra o número da versão do Nmap e sai\&.
@@ -1595,7 +1586,7 @@ para o suporte à detecção de versão do SSL\&. Todos os softwares de terceiro
 .PP
 Controle de Exportação dos EUA: A Insecure\&.Com LLC acredita que o Nmap se enquadra no US ECCN (número de classificação para controle de exportação) 5D992\&. Essa categoria é chamada de
 \(lqsoftware de Segurança da Informação não\-controlado pela 5D002\(rq\&. A única restrição a essa classificação é o AT (anti\-terrorismo) que se aplica a quase todos os produtos e nega a exportação a um punhado de nações não\-confiáveis tais como o Irão e a Coreia do Norte\&. Portanto, exportar o Nmap não requer nenhuma licença ou permissão especial ou qualquer outro tipo de autorização governamental\&.
-.SH "NOTES"
+.SH "NOTAS"
 .IP " 1." 4
 RFC 1122
 .RS 4

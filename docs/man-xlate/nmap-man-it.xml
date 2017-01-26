@@ -40,6 +40,12 @@
 
     <refsect1 id="man-description">
       <title>Descrizione</title>
+    <web>
+      <note><para>
+          Questo documento descrive la versione di Nmap 6.47. L'ultima
+          documentazione è disponibile in inglese all'indirizzo
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
+    </web>
 
       <para>Nmap (<quote>Network Mapper</quote>) è uno strumento open-source
       per la network exploration e l'auditing. È stato progettato per
@@ -2613,7 +2619,7 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
       </variablelist>
     </refsect1>
 
-    <refsect1 id="man-timing-and-performance">
+    <refsect1 id="man-performance">
       <title>Timing and Performance</title>
 
       <para>Le performance sono sempre state una delle principali

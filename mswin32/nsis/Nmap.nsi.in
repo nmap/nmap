@@ -21,10 +21,6 @@
 ;;  contain any quotes, even if the path contains spaces. Only absolute
 ;;  paths are supported.
 
-; The default compressor is zlib; lzma gives about 15% better compression.
-; http://nsis.sourceforge.net/Docs/Chapter4.html#4.8.2.4
-SetCompressor /SOLID /FINAL lzma
-
 ;--------------------------------
 ;Include Modern UI
 
@@ -38,7 +34,43 @@ SetCompressor /SOLID /FINAL lzma
 
   ;Name and file
   Name "Nmap"
+
+;--------------------------------
+; Sign the uninstaller
+; http://nsis.sourceforge.net/Signing_an_Uninstaller
+
+!ifdef INNER
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !echo "Inner invocation"                  ; just to see what's going on
+  OutFile "$%TEMP%\tempinstaller.exe"       ; not really important where this is
+  SetCompress off                           ; for speed
+!else
+  !echo "Outer invocation"
+
+  ; Call makensis again, defining INNER.  This writes an installer for us which, when
+  ; it is invoked, will just write the uninstaller to some location, and then exit.
+  ; Be sure to substitute the name of this script here.
+
+  !system "$\"${NSISDIR}\makensis$\" /DINNER Nmap.nsi" = 0
+
+  ; So now run that installer we just created as %TEMP%\tempinstaller.exe.  Since it
+  ; calls quit the return value isn't zero.
+
+  !system "$\"$%TEMP%\tempinstaller.exe$\"" = 2
+
+  ; That will have written an uninstaller binary for us.  Now we sign it with your
+  ; favourite code signing tool.
+
+  ;!system "icacls.exe $\"$%TEMP%\Uninstall.exe$\" /grant $\"$%USER%$\":M"
+  !system "copy /b $\"$%TEMP%\Uninstall.exe$\" Uninstall.exe"
+  !system "$\"C:/Program Files (x86)/Windows Kits/8.1/bin/x86/signtool.exe$\" sign /a /n $\"Insecure.Com LLC$\" /tr http://timestamp.digicert.com /td sha256 /fd sha256 Uninstall.exe" = 0
+
+  ; Good.  Now we can carry on writing the real installer.
+
   OutFile "NmapInstaller.exe"
+  SetCompressor /SOLID /FINAL lzma
+!endif
 
   ;Required for removing shortcuts
   RequestExecutionLevel admin
@@ -381,7 +413,13 @@ Function create_uninstaller
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1
   ;Create uninstaller
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
+!ifndef INNER
+  SetOutPath $INSTDIR
+
+  ; this packages the signed uninstaller
+
+  File "Uninstall.exe"
+!endif
   StrCpy $addremoveset "true"
   skipaddremove:
 FunctionEnd
@@ -400,6 +438,15 @@ OptionDisableSection_keep_${ID}:
 !macroend
 
 Function .onInit
+!ifdef INNER
+  ; If INNER is defined, then we aren't supposed to do anything except write out
+  ; the installer.  This is better than processing a command line option as it means
+  ; this entire code path is not present in the final (real) installer.
+
+  WriteUninstaller "$%TEMP%\Uninstall.exe"
+  Quit  ; just bail out quickly when running the "inner" installer
+!endif
+
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
 
@@ -446,6 +493,7 @@ FunctionEnd
 ;--------------------------------
 ;Uninstaller Section
 
+!ifdef INNER
 Section "Uninstall"
 
   StrCpy $R0 $INSTDIR "" -2
@@ -540,3 +588,4 @@ Section "Uninstall"
 
   SetDetailsPrint both
 SectionEnd
+!endif
