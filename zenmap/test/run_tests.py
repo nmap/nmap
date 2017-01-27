@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import unittest
+import gtk
 
 if __name__ == "__main__":
     import sys
@@ -11,9 +12,9 @@ if __name__ == "__main__":
         print("Python unittest discovery missing. Requires Python 2.7 or newer.")  # noqa
         sys.exit(0)
 
-    os.chdir("..")
+    os.chdir("../build/lib")
     suite = unittest.defaultTestLoader.discover(
-        start_dir=glob.glob("build/lib.*")[0],
+        start_dir=glob.glob("*")[0],
         pattern="*.py"
         )
     unittest.TextTestRunner().run(suite)

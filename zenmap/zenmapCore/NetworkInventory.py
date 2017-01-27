@@ -427,7 +427,7 @@ class NetworkInventory(object):
         a list of (full-path) filenames that were used to save the scans."""
         self._generate_filenames(path)
 
-        for scan, filename in list(self.filenames.items()):
+        for scan, filename in self.filenames.items():
             f = open(os.path.join(path, filename), "w")
             scan.write_xml(f)
             f.close()
@@ -580,10 +580,10 @@ class FilteredNetworkInventory(NetworkInventory):
         self.filter_text = filter_text.lower()
         self.search_parser.update(self.filter_text)
         self.filtered_hosts = []
-        for hostname, host in list(self.hosts.items()):
+        for hostname, host in self.hosts.items():
             # For each host in this scan
             # Test each given operator against the current host
-            for operator, args in list(self.search_dict.items()):
+            for operator, args in self.search_dict.items():
                 if not self._match_all_args(host, operator, args):
                     # No match => we discard this scan_result
                     break

@@ -5,16 +5,16 @@ from builtins import input
 from builtins import range
 o = open("OutputGettersSetters.txt","a") 
 
-classname = eval(input("Class Name: "))
-my_range = eval(input("Number of attrs: "))
+classname = input("Class Name: ")
+my_range = input("Number of attrs: ")
 methname= []
 attrname = []
 attrtype= []
 
 for i in range( int(my_range) ):
-    methname.append( eval(input("Method Name:")) )
-    attrname.append ( eval(input("Attr Name: ")) )
-    attrtype.append(eval(input("Attr type:")) )
+    methname.append( input("Method Name:") )
+    attrname.append ( input("Attr Name: ") )
+    attrtype.append(input("Attr type:") )
 
     for line in open("TemplateGettersSetters.txt"):
         line = line.replace("METHNAME",methname[i])

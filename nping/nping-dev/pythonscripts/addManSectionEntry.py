@@ -1,8 +1,8 @@
 
 from builtins import input
 from builtins import range
-sectionname = eval(input("Section name: "))
-hyphname = eval(input("Hyphened name: "))
+sectionname = input("Section name: ")
+hyphname = input("Hyphened name: ")
 
 
 o = open("OutputMan.txt","a") 
@@ -12,17 +12,17 @@ for line in open("man-section-template.xml"):
         o.write(line) 
 
 
-my_range = eval(input("Number of options: "))
+my_range = input("Number of options: ")
 optformat = []
 optarg= []
 optdesc= []
 optname= []
 
 for i in range( int(my_range) ):
-    optformat.append( eval(input("Option format (--tcp-connect): --")) )
-    optarg.append ( eval(input("Option arg (portnumber): ")) )
-    optdesc.append(eval(input("Option Description (TCP Connect Mode):")) )
-    optname.append(eval(input("Option name (tcp connect): ")) )
+    optformat.append( input("Option format (--tcp-connect): --") )
+    optarg.append ( input("Option arg (portnumber): ") )
+    optdesc.append(input("Option Description (TCP Connect Mode):") )
+    optname.append(input("Option name (tcp connect): ") )
 
 
     for line in open("man-section-entry-template.xml"):

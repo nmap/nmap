@@ -1,7 +1,7 @@
 from builtins import input
-methname = eval(input("Method name: "))
-attrname = eval(input("Attr name: "))
-attrtype = eval(input("Attr type: "))
+methname = input("Method name: ")
+attrname = input("Attr name: ")
+attrtype = input("Attr type: ")
 
 
 o = open("Output.txt","a") 

@@ -243,7 +243,7 @@ class SearchResult(object):
             self.parsed_scan = scan_result
 
             # Test each given operator against the current parsed result
-            for operator, args in list(kargs.items()):
+            for operator, args in kargs.items():
                 if not self._match_all_args(operator, args):
                     # No match => we discard this scan_result
                     break

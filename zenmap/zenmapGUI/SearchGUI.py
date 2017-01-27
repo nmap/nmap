@@ -419,7 +419,7 @@ class SearchGUI(gtk.VBox, object):
             # We compare the search entry field to the Expressions GUI. Every
             # (operator, value) pair must be present in the GUI after this loop
             # is done.
-            for op, args in list(self.search_dict.items()):
+            for op, args in self.search_dict.items():
                 for arg in args:
                     if (op not in gui_ops) or (arg not in gui_ops[op]):
                         # We need to add this pair to the GUI
@@ -514,7 +514,7 @@ class SearchGUI(gtk.VBox, object):
                 self.append_result(result)
                 matched += 1
 
-        for search_dir in list(self.search_dirs.values()):
+        for search_dir in self.search_dirs.values():
             total += len(search_dir.get_scan_results())
             for result in search_dir.search(**self.search_dict):
                 self.append_result(result)
@@ -637,7 +637,7 @@ class Criterion(gtk.HBox):
             self.operator_combo.append_text(name)
 
         # Select the default operator
-        for entry, operators in list(self.combo_entries.items()):
+        for entry, operators in self.combo_entries.items():
             for operator in operators:
                 if operator == self.default_operator:
                     self.operator_combo.set_active(sorted_entries.index(entry))

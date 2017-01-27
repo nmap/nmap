@@ -200,6 +200,7 @@ data_files = [
 # Add i18n files to data_files list
 os.walk(locale_dir, mo_find, data_files)
 
+
 # path_startswith and path_strip_prefix are used to deal with the installation
 # root (--root option, also known as DESTDIR).
 def path_startswith(path, prefix):

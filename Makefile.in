@@ -228,13 +228,13 @@ clean-liblinear:
 	-cd $(LIBLINEARDIR) && $(MAKE) clean
 
 clean-zenmap:
-	-cd $(ZENMAPDIR) && python3 setup.py clean --all
+	-cd $(ZENMAPDIR) && /usr/bin/env python3 setup.py clean --all
 	rm -f $(ZENMAPDIR)/zenmapCore/__init__.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Version.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
 
 clean-ndiff:
-	-cd $(NDIFFDIR) && python3 setup.py clean --all
+	-cd $(NDIFFDIR) && /usr/bin/env python3 setup.py clean --all
 
 clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
@@ -319,7 +319,7 @@ $(NPINGDIR)/nping.h: nmap.h
 
 # Update the version number used by Zenmap.
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
-	cd $(ZENMAPDIR) && python3 install_scripts/utils/version_update.py "$(NMAP_VERSION)"
+	cd $(ZENMAPDIR) && /usr/bin/env python3 install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
 nmap-update/default_channel.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+DEFAULT_CHANNEL[ \t]\+\(".*"\)/#define DEFAULT_CHANNEL "$(NMAP_UPDATE_CHANNEL)"/' $@ > $@.tmp
@@ -340,11 +340,11 @@ build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 # When DESTDIR is defined, assume we're building an executable
 # distribution rather than a local installation and force a generic
 # Python interpreter location.
-	cd $(ZENMAPDIR) && python3 setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+	cd $(ZENMAPDIR) && /usr/bin/env python3 setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
 install-zenmap: $(ZENMAPDIR)/setup.py
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
-	cd $(ZENMAPDIR) && python3 setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
+	cd $(ZENMAPDIR) && /usr/bin/env python3 setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
@@ -355,13 +355,13 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
 build-ndiff:
-	cd $(NDIFFDIR) && python3 setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+	cd $(NDIFFDIR) && /usr/bin/env python3 setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
 build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
-	cd $(NDIFFDIR) && python3 setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
+	cd $(NDIFFDIR) && /usr/bin/env python3 setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua nselib/*.luadoc
@@ -401,7 +401,7 @@ uninstall-nmap:
 	rm -rf $(DESTDIR)$(nmapdatadir)
 
 uninstall-zenmap:
-	cd $(ZENMAPDIR) && python3 setup.py uninstall
+	cd $(ZENMAPDIR) && /usr/bin/env python3 setup.py uninstall
 	rm -f $(DESTDIR)$(mandir)/man1/zenmap.1
 # Uninstall nmapfe only if it's a symlink.
 	if [ -L $(DESTDIR)$(bindir)/nmapfe ]; then \
@@ -410,7 +410,7 @@ uninstall-zenmap:
 	rm -f $(DESTDIR)$(bindir)/xnmap
 
 uninstall-ndiff:
-	cd $(NDIFFDIR) && python3 setup.py uninstall
+	cd $(NDIFFDIR) && /usr/bin/env python3 setup.py uninstall
 
 uninstall-ncat:
 	@cd $(NCATDIR) && $(MAKE) uninstall
@@ -425,13 +425,13 @@ check-ncat:
 	@cd $(NCATDIR) && $(MAKE) check
 
 check-ndiff:
-	@cd $(NDIFFDIR) && python3 ndifftest.py
+	@cd $(NDIFFDIR) && /usr/bin/env python3 ndifftest.py
 
 check-nsock:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
 
 check-zenmap:
-	@cd $(ZENMAPDIR)/test && python3 run_tests.py
+	@cd $(ZENMAPDIR)/test && /usr/bin/env python3 run_tests.py
 
 check-dns: tests/check_dns
 	$<

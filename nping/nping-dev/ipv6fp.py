@@ -3813,13 +3813,13 @@ def interactive_mode():
 
 def ask_interactive_target_addr6():
     while True:
-        addr=eval(input("  |_ Target's IPv6 address: "))
+        addr=input("  |_ Target's IPv6 address: ")
         if addr!=None and len(addr)>0 :
             break
     return addr
 
 def ask_interactive_target_addr4():
-    addr=eval(input("  |_ Target's IP (version 4) address [Press ENTER to skip IPv4]: "))
+    addr=input("  |_ Target's IP (version 4) address [Press ENTER to skip IPv4]: ")
     if addr==None or len(addr)==0 :
         return None
     else :
@@ -3828,14 +3828,14 @@ def ask_interactive_target_addr4():
 def ask_interactive_interface():
     while True:
         print("  |_ Supplied IPv6 address is link-local. Please specify which")
-        iface=eval(input("     network interface should be used: "))
+        iface=input("     network interface should be used: ")
         if iface!=None and len(iface)>0 :
             break
     return iface
 
 def ask_interactive_openport():
     while True:
-        port=eval(input("  |_ OPEN port in target [Press ENTER to default to "+str(DEFAULT_OPEN_PORT_IN_TARGET)+"]: "))
+        port=input("  |_ OPEN port in target [Press ENTER to default to "+str(DEFAULT_OPEN_PORT_IN_TARGET)+"]: ")
         if port==None or len(port)==0 :
             return DEFAULT_OPEN_PORT_IN_TARGET
         elif port.isdigit() :
@@ -3843,7 +3843,7 @@ def ask_interactive_openport():
 
 def ask_interactive_closedport():
     while True:
-        port=eval(input("  |_ CLOSED port in target [Press ENTER to default to "+str(DEFAULT_CLOSED_PORT_IN_TARGET)+"]: "))
+        port=input("  |_ CLOSED port in target [Press ENTER to default to "+str(DEFAULT_CLOSED_PORT_IN_TARGET)+"]: ")
         if port==None or len(port)==0 :
             return DEFAULT_CLOSED_PORT_IN_TARGET
         elif port.isdigit() :
@@ -3866,7 +3866,7 @@ def ask_interactive_osdetails():
         for i in range(0, len(os)):
             print("    " + str(i) + ") " + os[i][0])
         while True:
-            os_type=eval(input("[+] Please enter the target's OS type: "))
+            os_type=input("[+] Please enter the target's OS type: ")
             if len(os_type)<=0 or os_type.isdigit()==False:
                 os_type=-1
             else :
@@ -3879,7 +3879,7 @@ def ask_interactive_osdetails():
         for i in range(0, len(os[os_type][1])):
             print("    " + str(i) + ") " + os[os_type][1][i])
         while True:
-            os_subtype=eval(input("[+] Please enter the target's OS sub type: "))
+            os_subtype=input("[+] Please enter the target's OS sub type: ")
             if len(os_subtype)<=0 or os_subtype.isdigit()==False:
                 os_subtype=-1
             else :
@@ -3889,28 +3889,28 @@ def ask_interactive_osdetails():
         print("=================TARGET OS VERSION =================")
         if os[os_type][1][os_subtype]=="Other" :
             if os[os_type][0] == "Other" :
-                os_version=eval(input("[+] Please enter Vendor, OS name and OS version (Eg: Cisco Catalyst 4500 12.2SG): "))
+                os_version=input("[+] Please enter Vendor, OS name and OS version (Eg: Cisco Catalyst 4500 12.2SG): ")
             else :
-                os_version=eval(input("[+] Please enter OS sub-type and OS version (eg: IOS 12.2SB): "))
+                os_version=input("[+] Please enter OS sub-type and OS version (eg: IOS 12.2SB): ")
         else :
             if os[os_type][0] == "Windows" :
-                os_version=eval(input("[+] Please enter Windows version (Eg: SP2, Enterprise...): "))
+                os_version=input("[+] Please enter Windows version (Eg: SP2, Enterprise...): ")
             elif os[os_type][0] == "Linux" :
-                os_version=eval(input("[+] Please enter kernel's version (Eg: 2.6.32): "))
+                os_version=input("[+] Please enter kernel's version (Eg: 2.6.32): ")
             elif os[os_type][0] == "BSD" :
-                os_version=eval(input("[+] Please enter BSD's version (Eg: 8.1): "))
+                os_version=input("[+] Please enter BSD's version (Eg: 8.1): ")
             elif os[os_type][0] == "Solaris" :
-                os_version=eval(input("[+] Please enter Solaris' version (Eg: 2009.06): "))
+                os_version=input("[+] Please enter Solaris' version (Eg: 2009.06): ")
             elif os[os_type][0] == "MacOS X" :
-                os_version=eval(input("[+] Please enter the output of 'uname -a': "))
+                os_version=input("[+] Please enter the output of 'uname -a': ")
             else:
-                os_version=eval(input("[+] Please enter any version information about the target OS: "))
+                os_version=input("[+] Please enter any version information about the target OS: ")
 
         print("[+] You have entered the following information:")
         print(" |_ OS Type:    " + os[os_type][0])
         print(" |_ OS Subtype: " + os[os_type][1][os_subtype])
         print(" |_ OS Version: " + os_version)
-        final=eval(input("[+] [+] Is the information correct? [Y/n]: "))
+        final=input("[+] [+] Is the information correct? [Y/n]: ")
 
         if final!="N" and final!="n" :
             break
