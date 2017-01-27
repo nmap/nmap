@@ -1,4 +1,4 @@
-local ipOps = require "ipOps"
+	local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local ssh1 = require "ssh1"
@@ -347,28 +347,27 @@ local function portaction(host, port)
     }
     -- Check for bad keys	
     local bad_key=bin.pack("H",out.fingerprint)
-    if result[bad_key]~= out.fingerprint then
-    	if format:find( 'hex', 1, true ) or all_formats then
-      		table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
-    	end
-    	if format:find( 'bubble', 1, true ) or all_formats then
-      		table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
-    	end
-    	if format:find( 'visual', 1, true ) or all_formats then
-      		table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
-    	end
-    	if nmap.verbosity() > 1 or format:find( 'full', 1, true ) or all_formats then
-      		table.insert( output, key.full_key )
-    	end
-    	setmetatable(out, {
-        	__tostring = function(self)
-          	return table.concat(output, "\n")
-        	end
-      	})
-    	table.insert(output_tab, out)	
-    else
-    	stdnse.debug2("%s is a bad key.", out.fingerprintfile)
+    if result[bad_key] == out.fingerprint then
+    	stdnse.debug("%s known key found.", out.fingerprint)
     end
+    if format:find( 'hex', 1, true ) or all_formats then
+      	table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
+    end
+    if format:find( 'bubble', 1, true ) or all_formats then
+     	table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
+    end
+    if format:find( 'visual', 1, true ) or all_formats then
+      	table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
+    end
+    if nmap.verbosity() > 1 or format:find( 'full', 1, true ) or all_formats then
+      	table.insert( output, key.full_key )
+    end
+    setmetatable(out, {
+       	__tostring = function(self)
+       	return table.concat(output, "\n")
+       	end
+    })
+    table.insert(output_tab, out)	
   end
 
   -- if a known_hosts file was given, then check if it contains a key for the host being scanned
