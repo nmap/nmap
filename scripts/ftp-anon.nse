@@ -13,6 +13,8 @@ and highlights writeable files.
 ]]
 
 ---
+-- @see ftp-brute.nse
+--
 -- @args ftp-anon.maxlist The maximum number of files to return in the
 -- directory listing. By default it is 20, or unlimited if verbosity is
 -- enabled. Use a negative number to disable the limit, or

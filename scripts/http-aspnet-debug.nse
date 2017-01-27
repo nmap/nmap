@@ -13,10 +13,10 @@ application debugging configuration.
 ]]
 
 ---
--- @usage nmap --script http-debug <target>
--- @usage nmap --script http-debug --script-args http-aspnet-debug.path=/path <target>
+-- @usage nmap --script http-aspnet-debug <target>
+-- @usage nmap --script http-aspnet-debug --script-args http-aspnet-debug.path=/path <target>
 --
--- @args http-debug.path Path to URI. Default: /
+-- @args http-aspnet-debug.path Path to URI. Default: /
 --
 -- @output
 -- 80/tcp open  http    syn-ack

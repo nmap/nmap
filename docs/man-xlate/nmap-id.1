@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
-.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\"    Author: [see the "Penulis" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/28/2013
+.\"      Date: 01/18/2017
 .\"    Manual: Panduan Referensi Nmap
 .\"    Source: Nmap
-.\"  Language: English
+.\"  Language: Indonesian
 .\"
-.TH "NMAP" "1" "07/28/2013" "Nmap" "Panduan Referensi Nmap"
+.TH "NMAP" "1" "01/18/2017" "Nmap" "Panduan Referensi Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,9 +27,9 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "NAMA"
 nmap \- Tool eksplorasi jaringan dan keamanan / scanner port
-.SH "SYNOPSIS"
+.SH "SINOPSIS"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fIJenis\ Scan\fR...] [\fIOpsi\fR] {\fIspesifikasi\ target\fR}
 .SH "DESKRIPSI"
@@ -63,12 +63,12 @@ ketika ia tidak dapat menentukan status manakah yang menggambarkan sebuah port\&
 Selain tabel port yang menarik, Nmap dapat pula memberikan informasi lebih lanjut tentang target, termasuk nama reverse DNS, prakiraan sistem operasi, jenis device, dan alamat MAC\&.
 .PP
 Pemeriksaan Nmap yang umum ditunjukkan dalam
-Example\ \&1\&. Argumen yang digunakan pada contoh ini hanyalah
+Contoh 1\&. Argumen yang digunakan pada contoh ini hanyalah
 \fB\-A\fR, untuk memeriksa sistem operasi dan versi, pemeriksaan skrip, dan traceroute;
 \fB\-T4\fR
 untuk eksekusi yang lebih cepat; dan dua buah nama host target\&.
 .PP
-\fBExample\ \&1.\ \&Sebuah gambaran pemeriksaan Nmap\fR
+\fBContoh 1. Sebuah gambaran pemeriksaan Nmap\fR
 .\" -A: example of
 .sp
 .if n \{\
@@ -77,7 +77,7 @@ untuk eksekusi yang lebih cepat; dan dua buah nama host target\&.
 .nf
 # nmap \-A \-T4 scanme\&.nmap\&.org
 
-Starting Nmap ( http://nmap\&.org )
+Starting Nmap ( https://nmap\&.org )
 Interesting ports on scanme\&.nmap\&.org (64\&.13\&.134\&.52):
 Not shown: 994 filtered ports
 PORT    STATE  SERVICE VERSION
@@ -125,7 +125,7 @@ Ringkasan opsi ini ditampilkan ketika Nmap dijalankan tanpa argumen, dan versi t
 .RS 4
 .\}
 .nf
-Nmap 4\&.85BETA7 ( http://nmap\&.org )
+Nmap 4\&.85BETA7 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -486,7 +486,7 @@ atau
 .RS 4
 Traceroute dilakukan setelah scan menggunakan informasi dari hasil sscan untuk menentukan port dan protocol yang berpeluang besar mencapai target\&. Ia dapat digunakan untuk seluruh jenis scan kecuali scan connect (\fB\-sT\fR) dan scan idle (\fB\-sI\fR)\&. Seluruh pelacakan menggunakan model pewaktuan dinamis Nmap dan dilakukan secara paralel\&.
 .sp
-Traceroute bekerja dengan mengirimkan paket dengan TTL (time\-to\-live) rendah agar tidak memperoleh pesan ICMP Time Exceeded dari hop langsung antara scanner dan host target\&. Implementasi standar traceroute dimulai dengan TTL 1 dan menaikkan TTL hingga host tujuan tercapai\&. Traceroute Nmap dimulai dengan TTL tinggi dan kemudian menurunkan TTL hingga nol\&. Dengan melakukan secara terbalik Nmap menggunakan algoritma caching cerdas untuk mempercepat pelacakan atas banyak host\&. Secara rata\-rata Nmap mengirimkan paket kurang dari 5\(en10 per host, tergantung pada kondisi jaringan\&. Jika dilakukan scan atas satu subnet tunggal (misal 192\&.168\&.0\&.0/24) Nmap mungkin hanya perlu mengirim satu paket untuk kebanyakan host tersebut\&.
+Traceroute bekerja dengan mengirimkan paket dengan TTL (time\-to\-live) rendah agar tidak memperoleh pesan ICMP Time Exceeded dari hop langsung antara scanner dan host target\&. Implementasi standar traceroute dimulai dengan TTL 1 dan menaikkan TTL hingga host tujuan tercapai\&. Traceroute Nmap dimulai dengan TTL tinggi dan kemudian menurunkan TTL hingga nol\&. Dengan melakukan secara terbalik Nmap menggunakan algoritma caching cerdas untuk mempercepat pelacakan atas banyak host\&. Secara rata\-rata Nmap mengirimkan paket kurang dari 5–10 per host, tergantung pada kondisi jaringan\&. Jika dilakukan scan atas satu subnet tunggal (misal 192\&.168\&.0\&.0/24) Nmap mungkin hanya perlu mengirim satu paket untuk kebanyakan host tersebut\&.
 .RE
 .PP
 \fB\-n\fR (No DNS resolution) .\" -n
@@ -820,7 +820,7 @@ Opsi ini menentukan port yang ingin anda periksa dan meniadakan nilai baku\&. No
 \fB\-p\-\fR
 untuk memeriksa port dari 1 hingga 65535\&. Anda diperbolehkan memeriksa port nol
 .\" port zero
-jika anda menspesifikasikannya secara eksplisit\&. Untuk pemeriksaan protokol IP (\fB\-sO\fR), opsi ini menspesifikasikan nomor protokol yang ingin anda periksa (0\(en255)\&.
+jika anda menspesifikasikannya secara eksplisit\&. Untuk pemeriksaan protokol IP (\fB\-sO\fR), opsi ini menspesifikasikan nomor protokol yang ingin anda periksa (0–255)\&.
 .sp
 Ketika memeriksa port TCP dan UDP, anda dapat menentukan protokol tertentu dengan menambahkan
 T:
@@ -864,7 +864,7 @@ dengan informasi frekuensi untuk mengetahui port yang paling umum
 nmap\-services
 kustom,
 \fB\-F\fR
-berarti memeriksa hanya port yang ada di dalam file services (normalnya Nmap memeriksa seluruh port yang memiliki nama dan port 1\(en1024)\&.
+berarti memeriksa hanya port yang ada di dalam file services (normalnya Nmap memeriksa seluruh port yang memiliki nama dan port 1–1024)\&.
 .RE
 .PP
 \fB\-r\fR (Jangan randomisasi port) .\" -r .\" randomization of ports
@@ -1301,7 +1301,7 @@ tidak cukup berharga\&.
 .\" -T5
 Meski kendali waktu fine\-grained yang didiskusikan dalam bagian sebelumnya adalah powerful dan efektif, beberapa orang menganggapnya membingungkan\&. Terlebih lagi, memilih nilai yang tepat terkadang membutuhkan waktu lebih lama daripada pemeriksaan yang ingin dioptimisasi\&. Sehingga Nmap menawarkan pendekatan yang lebih mudah, dengan enam template waktu\&. Anda dapat menspesifikasikannya dengan opsi
 \fB\-T\fR
-dan angkanya (0\(en5) atau namanya\&. Nama templatenya adalah
+dan angkanya (0–5) atau namanya\&. Nama templatenya adalah
 \fBparanoid\fR\ \&(\fB0\fR),
 \fBsneaky\fR\ \&(\fB1\fR),
 \fBpolite\fR\ \&(\fB2\fR),
@@ -1400,7 +1400,7 @@ Fragmentasi hanya didukung oleh fitur paket raw Nmap, yang mencakup scan port TC
 .PP
 \fB\-D \fR\fB\fIdecoy1\fR\fR\fB[,\fIdecoy2\fR]\fR\fB[,ME]\fR\fB[,\&.\&.\&.]\fR (Cloak a scan with decoys) .\" -D .\" decoys
 .RS 4
-Menyebabkan dilakukannya decoy scan, yang membuat host remote menganggap bahwa host\-host yang anda berikan sebagai umpan (decoy) juga melakukan pemeriksaan jaringan target\&. Karenanya IDS mereka mungkin melaporkan scan port sebanyak 5\(en10 dari alamat IP yang unik, tetapi mereka tidak akan tahu IP mana yang memeriksa mereka dan mana yang umpan\&. Meski hal ini dapat dikalahkan dengan router path tracing, response\-dropping, dan mekanisme aktif lainnya, namun ia umumnya merupakan teknik efektif untuk menyembunyikan alamat IP anda\&.
+Menyebabkan dilakukannya decoy scan, yang membuat host remote menganggap bahwa host\-host yang anda berikan sebagai umpan (decoy) juga melakukan pemeriksaan jaringan target\&. Karenanya IDS mereka mungkin melaporkan scan port sebanyak 5–10 dari alamat IP yang unik, tetapi mereka tidak akan tahu IP mana yang memeriksa mereka dan mana yang umpan\&. Meski hal ini dapat dikalahkan dengan router path tracing, response\-dropping, dan mekanisme aktif lainnya, namun ia umumnya merupakan teknik efektif untuk menyembunyikan alamat IP anda\&.
 .sp
 Pisahkan setiap host umpan dengan koma, dan anda dapat secara opsional menggunakan
 ME.\" ME (decoy address)
@@ -1740,7 +1740,7 @@ dan hasilnya disimpan dalam file log XML bahkan bila opsi ini tidak diberikan\&.
 .RS 4
 Mencetak status waktu secara periodik setelah setiap interval
 \fItime\fR\&. Waktu adalah spesifikasi yang dijelaskan dalam
-the section called \(lqPEWAKTUAN DAN KINERJA\(rq; sehingga sebagai contoh, gunakan
+bagian bernama \(lqPEWAKTUAN DAN KINERJA\(rq; sehingga sebagai contoh, gunakan
 \fB\-\-stats\-every 10s\fR
 untuk memperoleh update status setiap 10 detik\&. Update dicetak ke output interaktif (layar) dan output XML\&.
 .RE
@@ -1958,15 +1958,6 @@ dapat diset sebagai alternatif ekivalen bagi
 Opsi ini hanya berguna untuk memory\-leak debugging\&. Ia membuat Nmap merilis memori yang telah dialokasikan sebelum ia berhenti sehingga kebocoran memori sebenarnya mudah ditemukan\&. Normalnya Nmap melewati langkah ini karena SO melakukannya setelah penghentian proses\&.
 .RE
 .PP
-\fB\-\-interactive\fR (Start in interactive mode) .\" --interactive .\" interactive mode
-.RS 4
-Mulai Nmap dalam mode interaktif, yang memberikan prompt interaktif Nmap yang memudahkan peluncuran multiple scan (baik secara synchronous atau di latar belakang)\&. Opsi ini bermanfaat bagi orang yang melakukan scan dari sistem multi\-user karena mereka ingin memeriksa keamanan mereka tanpa memberitahu yang lain sistem apa yang mereka periksa\&. Gunakan
-\fB\-\-interactive\fR
-untuk mengaktifkan mode ini dan kemudian ketik
-h
-untuk bantuan\&. Opsi ini jarang digunakan karena shell yang sesuai biasanya lebih dikenal dan lebih lengkap fiturnya\&. Opsi ini menyertakan operator bang (!) untuk mengeksekusi perintah shell, yang menjadi salah satu alasan tidak menginstalasi Nmap setuid root\&..\" setuid, why Nmap shouldn't be
-.RE
-.PP
 \fB\-V\fR; \fB\-\-version\fR (Print version number) .\" -V .\" --version
 .RS 4
 Mencetak angka versi Nmap dan keluar\&.
@@ -2094,7 +2085,7 @@ ke dalam bahasa Indonesia\&. Ia tidak ditulis oleh Insecure\&.Com LLC, dan tidak
 .\" copyright
 .\" GNU General Public License
 .PP
-The Nmap Security Scanner is (C) 1996\(en2009 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
+The Nmap Security Scanner is (C) 1996–2009 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
 <sales@insecure\&.com>)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
 .PP
 Note that the GPL places important restrictions on
@@ -2162,7 +2153,7 @@ Links to a library or executes a program that does any of the above\&.
 .PP
 The term
 \(lqNmap\(rq
-should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap\(emwe don\*(Aqt speak for other people\*(Aqs GPL works\&.
+should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap—we don\*(Aqt speak for other people\*(Aqs GPL works\&.
 .PP
 If you have any questions about the GPL licensing restrictions on using Nmap in non\-GPL works, we would be happy to help\&. As mentioned above, we also offer alternative license to integrate Nmap into proprietary applications and appliances\&. These contracts have been sold to many security vendors, and generally include a perpetual license as well as providing for priority support and updates as well as helping to fund the continued development of Nmap technology\&. Please email
 <sales@insecure\&.com>
@@ -2178,7 +2169,7 @@ If you received these files with a written license agreement or contract stating
 .PP
 This
 Nmap Reference Guide
-is (C) 2005\(en2008 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.5 of the
+is (C) 2005–2008 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.5 of the
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
@@ -2226,7 +2217,7 @@ All of the third\-party software described in this paragraph is freely redistrib
 .PP
 U\&.S\&. Export Control: Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN (export control classification number) 5D992\&. This category is called
 \(lqInformation Security software not controlled by 5D002\(rq\&. The only restriction of this classification is AT (anti\-terrorism), which applies to almost all goods and denies export to a handful of rogue nations such as Iran and North Korea\&. Thus exporting Nmap does not require any special license, permit, or other governmental authorization\&.
-.SH "NOTES"
+.SH "CATATAN"
 .IP " 1." 4
 versi Inggris
 .RS 4

@@ -34,7 +34,10 @@
     <title>Описание</title>
     <indexterm significance="normal"><primary>Nmap</primary><secondary>description of</secondary></indexterm>
     <web>
-    <note><para>Этот документ описывает самую последнюю версию Nmap, доступную на <ulink url="https://nmap.org/download.html"/> или <ulink url="https://nmap.org/dist/?C=M&amp;O=D"/>.  Пожалуйста, удостоверьтесь в том, что вы используете последнюю версию, перед тем как сообщать, что какая-то функция работает не так как было описано.</para></note>
+      <note><para>
+          Этот документ описывает версию Nmap 4.22SOC8. Последняя документация
+          доступна на английском языке в
+          <ulink url="https://nmap.org/book/man.html" />.</para></note>
     </web>
     <para>Nmap (<quote>Network Mapper</quote>) это утилита с открытым исходным кодом для исследования сети и 
     проверки безопасности.  Она была разработана для быстрого сканирования больших сетей, хотя прекрасно справляется 
@@ -3296,27 +3299,6 @@ rttvar: 14987 to: 100000</computeroutput>. Если вы не понимаете
         </listitem>
       </varlistentry>
 
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (Запустить в интерактивном режиме)
-          <indexterm significance="normal"><primary><option>--interactive</option></primary></indexterm>
-          <indexterm significance="normal"><primary><option>interactive mode</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Запускает Nmap в интерактивном режиме, который предлагает интерактивные подсказки Nmap, позволяющие 
-          запускать несколько процессов сканирования (параллельно или в фоне). Эта опция полезна для людей, которые 
-          запускают сканирование с многопользовательской системы, т.к. они часто хотят протестировать свою безопасность, 
-          при этом не давая узнать кому-либо другому в системе, что является целью их сканирования. Используйте опцию 
-          <option>--interactive</option>, для запуска этого режима, а затем нажмите 
-          <keycap moreinfo="none">h</keycap> для справки. Эта опция используется редко, т.к. собственные командные 
-          оболочки более знакомы и содержат больше возможностей. Эта опция включает оператор (!) для запуска команд 
-          оболочки, что является одной из многих причин, почему не следует устанавливать Nmap setuid root.
-	  setuid root.<indexterm significance="normal"><primary>setuid, why Nmap shouldn't be</primary></indexterm>
-          </para>
-        </listitem>
-      </varlistentry>
 
       <varlistentry>
         <term>

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/28/2013
+.\"      Date: 01/18/2017
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
-.\"  Language: English
+.\"  Language: Croatian
 .\"
-.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "01/18/2017" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -27,9 +27,9 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "NAME"
+.SH "IME"
 nmap \- Alat za istraživanje mreže i sigurnosni/port skener
-.SH "SYNOPSIS"
+.SH "PREGLED"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fITip\ skena\fR...] [\fIOpcije\fR] {\fIspecifikacija\ cilja\fR}
 .SH "OPIS"
@@ -62,11 +62,11 @@ kad ne može ustanoviti koje od dva stanja točnije opisuje port\&. Port tabela 
 Uz navedenu tabelu portova, Nmap može dati i dodatne informacije o ciljanom računalu, uključujući reverse DNS imena, pretopstavku o tome koji operativni sustav je s druge strane, tipove uređaja i MAC adrese\&.
 .PP
 Prikaz tipičnom Nmap skena je prikazan u:
-Example\ \&1, \(lqOvako izgleda primjer Nmap skena\(rq\&. Jedan od Nmap argumenata korišten u navedenom primjeru je
+Primjer 1, \(lqOvako izgleda primjer Nmap skena\(rq\&. Jedan od Nmap argumenata korišten u navedenom primjeru je
 \fB\-A\fR, opcija za otkrivanje OS\-a i njegove verzije, zatim\fB\-T4\fR
 za brže skeniranje, te nakon toga dva hosta koje želimo skenirati\&.
 .PP
-\fBExample\ \&1.\ \&Ovako izgleda primjer Nmap skena\fR
+\fBPrimjer 1. Ovako izgleda primjer Nmap skena\fR
 .sp
 .if n \{\
 .RS 4
@@ -211,7 +211,7 @@ PRIMJERI:
 .RE
 .\}
 .sp
-.SH "ODABIR CILJANOG RAčUNALA"
+.SH "ODABIR CILJANOG RAČUNALA"
 .PP
 Sve što unesete u komandnu liniju Nmap\-a, a nije opcija ili argument opcije (dakle nije parametar samog programa), tretira se kao ciljano računalo\&. Najjednostavniji slučaj je da unesete IP adrese ili naziv ciljanog hosta\&.
 .PP
@@ -260,7 +260,7 @@ Navedite zarezom odvojenu listu hostova koje želite isključiti iz skena iako s
 Ova opcija nudi istu funkcionalnost kao i prije opisana opcija
 \fB\-\-exclude\fR, s tim da hostove koje ne želite skenirati ne navodite u komandnoj liniji, već unutar datoteke\&. Hostovi mogu biti navedeni u datoteci (\fInaziv_datoteke\fR) koji kao delimiter koristi novi red, razmak ili tab\&.
 .RE
-.SH "POSTUPAK PRONALAžENJA HOSTOVA"
+.SH "POSTUPAK PRONALAŽENJA HOSTOVA"
 .PP
 Jedan od prvih koraka kad je u pitanju sakupljanje informacija o mreži je smanjivanje (ponekad velike) količine IP adresnih područja u popis aktivnih i zanimljivih hostova\&. Skeniranje svih portova za svaku adresu je sporo i najčešće nepotrebno\&. Naravno, ono što nekog hosta čini zanimljivim uvelike ovisi o razlogu samog skena\&. Mrežni administratori će možda biti zainteresirani samo za hostove koji imaju pokrenut određeni servis, dok će sigurnosni auditori biti zainteresirani za svaki uređaj s IP adresom\&. Administratoru će možda biti dovoljno korištenje ICMP pinga kako bi pronašao hostove na mreži, dok će vanjski penetration tester koristiti široki spektar alata i nebrojene sonde u pokušaju da obiđe zabrane postavljene na vatrozidu\&.
 .PP
@@ -1133,7 +1133,7 @@ Cisco\&.
 Ova opcija traži od Nmap\-a da koristi neispravne TCP i UDP checksume za pakete koje šalje na ciljano računalo\&. Kako skoro svaki IP stack odbacuje takve pakete, svaki odgovor koji dobijete najvjerovatnie dolazi od vatrozida ili IDS sustava koji nisu provjeravali checksum\&. Za više detalja o ovoj tehnici, pogledajte:
 \m[blue]\fB\%https://nmap.org/p60-12.txt\fR\m[]\&.
 .RE
-.SH "IZVJEšTAJI"
+.SH "IZVJEŠTAJI"
 .PP
 Svaki sigurnosni alat je koristan onoliko koliko dobar izvještaj ponudi\&. Kompleksni testovi i algoritmi su od malo koristi ako njihov rezultat nije predstavljen na organiziran i razumljiv način\&. Obzirom na različite načine korištenja Nmap\-a od strane ljudi i drugih programa, jedan format ne može zadovoljiti sve, tako da Nmap nudi više formata izvještaja, uključujući interaktivni mod koji direktno možete pročitati i XML kako bi ga kasnije mogli pregledavati i analizirati drugi automatizirani alati\&.
 .PP
@@ -1401,17 +1401,10 @@ Kaže Nmap\-u da jednostavno pretpostavi kako je dovoljno privilegiran da može 
 opcija je korisna na onim sustavima koji omogućuju neprivilegiranim korisnicima korištenje sirovih paketa (poput Linux kernela isl\&.)\&. Obavezno navedite ovu opciju prije bilo koje druge koja zahtijeva privilegije (poput SYN scan\-a, OS detekcije isl\&.)\&. Alternativa ovoj opciji je NMAP_PRIVILEGED varijabla\&.
 .RE
 .PP
-\fB\-\-interactive\fR (Startaj u interaktivnom modu)
-.RS 4
-Starta Nmap u interaktivnom modu, što omogućava lako pokretanje više skenova (sinhrono ili u pozadini)\&. Ovo je korisno za korisnike koji skeniraju s multikorisničkih sustava, jer često žele testirati sigurnost, bez da dozvole svima ostalima koji su ulogirani na sustav da vide što i koga oni skeniraju\&. Koristite \-\-interactive opciju kako bi aktivirali ovaj mod, te nakon toga pritisnite
-h
-za pomoć\&. Ovo se rijetko koristi, jer su shell\-ovi obično poznatiji i imaju dovoljno mogućnosti\&. Ova opcija uključuje bang (!) operator za izvršavanje shell naredbi, što je jedan od glavnih razloga zašto ne bi trebalo instalirati Nmap sa setuid = root (op\&. prev\&. Ako instalirate Nmap sa setuid=root, svatko tko ga pokrene, moći će napraviti na sustavu što god hoće, jer može iz Nmap\-a pokrenuti bilo koju naredbu s root pravima)\&.
-.RE
-.PP
 \fB\-\-noninteractive\fR (Za pokretanje Nmap\-a iz nekog drugog programa)
 .RS 4
 Ovu opciju možete navesti kad je Nmap pokrenut od strane neke druge aplikacije\&. Trenutno je jedina razlika u tome što je Runtime interaction (opisano u poglavlju nazvanom
-the section called \(lqINTERAKCIJA ZA VRIJEME IZVRšAVANJA\(rq) isključeno\&. Bez obzira na zbunjujuće slično ime, ova opcija
+the section called \(lqINTERAKCIJA ZA VRIJEME IZVRŠAVANJA\(rq) isključeno\&. Bez obzira na zbunjujuće slično ime, ova opcija
 \fInije\fR
 jednostavna suprotnost
 \fB\-\-interactive\fR
@@ -1427,7 +1420,7 @@ Ispiše broj verzije Nmap\-a i prekine izvršavanje programa
 .RS 4
 Ispiše kratki help ekran s najčešće korištenim mokandama i zastavicama\&. Pokretanje Nmap\-a bez ijednog argumenta napravi isto to\&.
 .RE
-.SH "INTERAKCIJA ZA VRIJEME IZVRšAVANJA"
+.SH "INTERAKCIJA ZA VRIJEME IZVRŠAVANJA"
 .if n \{\
 .sp
 .\}
@@ -1437,7 +1430,7 @@ Ispiše kratki help ekran s najčešće korištenim mokandama i zastavicama\&. P
 .nr an-break-flag 1
 .br
 .ps +1
-\fBNote\fR
+\fBBilješka\fR
 .ps -1
 .br
 .PP
@@ -1513,7 +1506,7 @@ Ova naredba zatraži Nmap da nasumično odabere 100 000 hostova i skenira ih u p
 \fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Skenira 4096 IP adresa za web serverom (bez prethodnog pinganja) i sprema izvještaj u grepabilnom iXML formatu\&.
-.SH "GREšKE"
+.SH "GREŠKE"
 .PP
 Poput svog autora niti Nmap nije savršen, no Vi možete pomoći slanjem prijava o greškama, pa čak i pišući patcheve\&. Ukoliko se Nmap ne ponaša onako kako očekujete od njega, najprije ga nadogradite na najnoviju verziju dostupnu na
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Ukoliko je problem i dalje tu, istražite da li je već otkriven i prijavljen\&. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap\-dev arhive na
@@ -1661,7 +1654,7 @@ za podršku detekcije SSL verzije\&. Sav gore navedeni softver se slobodno redis
 .PP
 Klasifikacija kontrole izvoza u US\-u: Insecure\&.Com LLC vjeruje da Nmap spada pod US ECCN (export control clasification number \- klasifikacijski broj kontrole izvoza) 5D992\&. Ta se kategorija zove
 \(lqSoftver informacijske sigurnosti koji nije kontroliran ECCN\-om 5D002\(rq\&. Jedina zabrana te klasifikacije je AT (anti terorizam), koja se primjenjuje na gotovo svu robu i zabranjuje izvoz hrpi lažljivih zemalja, poput Iran\-a i Sjeverne Koreje (op\&. prev\&. iliti onih s kojima Ameri nisu dobri)\&. Tako da Nmap ne zahtijeva nikakvu posebnu licencu, dozvolu ili bilo kakvu drugu autorizaciju američke vlade\&.
-.SH "NOTES"
+.SH "BILJEŠKE"
 .IP " 1." 4
 .RS 4
 \%http://www.insecure.org/nmap/

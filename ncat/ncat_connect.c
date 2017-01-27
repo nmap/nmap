@@ -246,6 +246,15 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         if ((o.sslcert == NULL) != (o.sslkey == NULL))
             bye("The --ssl-key and --ssl-cert options must be used together.");
     }
+    if (o.sslciphers == NULL) {
+      if (!SSL_CTX_set_cipher_list(ctx, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"))
+        bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
+    else {
+      printf("setting ciphers: %s\n", o.sslciphers);
+      if (!SSL_CTX_set_cipher_list(ctx, o.sslciphers))
+        bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
 }
 #endif
 

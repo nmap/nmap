@@ -23,6 +23,8 @@ password.
 ]]
 
 ---
+-- @see oracle-brute.nse
+--
 -- @usage
 -- nmap --script oracle-brute-stealth -p 1521 --script-args oracle-brute-stealth.sid=ORCL <host>
 --

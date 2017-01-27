@@ -47,6 +47,10 @@ The attack vector/probe used is: <code>/'"/><script>alert(1)</script></code>
 --
 -- @args http-phpself-xss.uri URI. Default: /
 -- @args http-phpself-xss.timeout Spidering timeout. (default 10s)
+--
+-- @see http-stored-xss.nse
+-- @see http-dombased-xss.nse
+-- @see http-xssed.nse
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive", "vuln"}

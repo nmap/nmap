@@ -38,11 +38,11 @@ CICS User ID enumeration script for the CESL/CESN Login screen.
 -- 2016-12-19 - v0.2 - Added RACF support
 --
 -- @author Philip Young
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 
 author = "Philip Young aka Soldier of Fortran"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service({23,992}, "tn3270")
 

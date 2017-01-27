@@ -28,6 +28,8 @@ TODO:
 ]]
 
 ---
+-- @see http-vuln-cve2014-8877.nse
+--
 -- @usage nmap -sV --script http-wordpress-enum <target>
 -- @usage nmap --script http-wordpress-enum --script-args check-latest=true,search-limit=10 <target>
 -- @usage nmap --script http-wordpress-enum --script-args type="themes" <target>

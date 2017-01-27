@@ -7,6 +7,10 @@ This was based on the exploit 'ColdSub-Zero.pyFusion v2'.
 ]]
 
 ---
+-- @see http-adobe-coldfusion-apsa1301.nse
+-- @see http-vuln-cve2009-3960.nse
+-- @see http-vuln-cve2010-2861.nse
+--
 -- @usage nmap -sV --script http-coldfusion-subzero <target>
 -- @usage nmap -p80 --script http-coldfusion-subzero --script-args basepath=/cf/ <target>
 --

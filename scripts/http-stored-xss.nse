@@ -48,8 +48,9 @@ strings to determine whether the payloads were successful.
 -- |    Uploaded on: /posts.php
 -- |_   Description: Unfiltered " (double quotation mark). An indication of potential XSS vulnerability.
 --
---
---
+-- @see http-dombased-xss.nse
+-- @see http-phpself-xss.nse
+-- @see http-xssed.nse
 ---
 
 categories = {"intrusive", "exploit", "vuln"}

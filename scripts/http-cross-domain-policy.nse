@@ -14,7 +14,7 @@ attacks and may allow attackers to access sensitive data. This script is useful 
 configurations and possible domain names available for purchase to exploit the application.
 
 The script queries instantdomainsearch.com to lookup the domains. This functionality is
-turned off by default, to enable it set the script argument http-crossdomainxml.domain-lookup.
+turned off by default, to enable it set the script argument http-cross-domain-policy.domain-lookup.
 
 References:
 * http://sethsec.blogspot.com/2014/03/exploiting-misconfigured-crossdomainxml.html
@@ -26,13 +26,13 @@ References:
 ]]
 
 ---
--- @usage nmap --script http-crossdomainxml <target>
--- @usage nmap -p 80 --script http-crossdomainxml --script-args http.domain-lookup=true <target>
+-- @usage nmap --script http-cross-domain-policy <target>
+-- @usage nmap -p 80 --script http-cross-domain-policy --script-args http-cross-domain-policy.domain-lookup=true <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 8080/tcp open  http-proxy syn-ack
--- | http-crossdomainxml-slaxml:
+-- | http-cross-domain-policy:
 -- |   VULNERABLE:
 -- |   Cross-domain policy file (crossdomain.xml)
 -- |     State: VULNERABLE
@@ -75,7 +75,7 @@ References:
 -- |_      https://www.adobe.com/devnet/articles/crossdomain_policy_file_spec.html
 --
 --
--- @args http-crossdomainxml.domain-lookup Boolean to check domain availability. Default:false
+-- @args http-cross-domain-policy.domain-lookup Boolean to check domain availability. Default:false
 --
 -- @xmloutput
 -- <elem key="title">Cross-domain and Client Access policies.</elem>

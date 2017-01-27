@@ -29,6 +29,11 @@
   </refsynopsisdiv>
   <refsect1 id="man-description">
     <title>描述</title>
+    <web>
+      <note><para>
+          本文档描述了Nmap版本4.50。最新文档以英语
+          <ulink url="https://nmap.org/book/man.html" />提供。</para></note>
+    </web>
 
     <para>Nmap (<quote>Network Mapper(网络映射器)</quote>) 是一款开放源代码的
     网络探测和安全审核的工具。它的设计目标是快速地扫描大型网络，当然用它扫描单个
@@ -2164,22 +2169,6 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
           原报文扫描。需要明确的是，在其它选项之前使用这些需要权
           限的选项(SYN扫描、操作系统检测等)。Nmap-PRIVILEGED变量
           设置等价于<option>--privileged</option>选项。</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--interactive</option> (在交互模式中启动)
-        </term>
-        <listitem>
-          <para>在交互模式中启动Nmap，提供交互式的Nmap提示，便于
-          进行多个扫描(同步或后台方式)。对于从多用户系统中扫描
-          的用户非常有效，这些用户常需要测试他们的安全性，但不希望
-          系统中的其它用户知道他们扫描哪些系统。使用<option>--interactive</option>
-          激活这种方式，然后输入<keycap moreinfo="none">h</keycap>可
-          获得帮助信息。由于需要对正确的shell程序和整个功能非常熟悉，
-          这个选项很少使用。这个选项包含了一个!操作符，用于执行shell命令，
-          这是不安装Nmap setuid root的多个原因之一。</para>
         </listitem>
       </varlistentry>
 
