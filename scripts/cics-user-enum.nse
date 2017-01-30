@@ -213,7 +213,7 @@ local function cics_test( host, port, commands, transaction )
   end
   tn:get_screen_debug(2)
 
-  if tn:find('SIGN ON TO CICS') and tn:find("Signon to CICS") then
+  if tn:find('SIGN ON TO CICS') or tn:find("Signon to CICS") then
       stdnse.verbose(2,"At CICS Login Transaction (%s)", transaction)
       tn:disconnect()
       return true
