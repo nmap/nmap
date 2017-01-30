@@ -151,7 +151,7 @@ Driver = {
       stdnse.debug(2,'Logging in with %s / %s for auth testing', cics_user, cics_pass)
       self.tn3270:send_cursor('CESN')
       self.tn3270:get_all_data()
-      self.tn3270:get_screen_debug()
+      self.tn3270:get_screen_debug(2)
       local fields = self.tn3270:writeable() -- Get the writeable field areas
       local user_loc = {fields[1][1],cics_user}   -- This is the 'UserID:' field
       local pass_loc = {fields[3][1],cics_pass}   -- This is the 'Password:' field ([2] is a group ID)
@@ -159,17 +159,17 @@ Driver = {
       self.tn3270:send_locations({user_loc,pass_loc})
       self.tn3270:get_all_data()
       stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
-      self.tn3270:get_screen_debug()
+      self.tn3270:get_screen_debug(2)
       local count = 1
       while not self.tn3270:find('DFHCE3549') and count < 6 do -- some systems show a message for a bit before we get to CICS again
           self.tn3270:get_all_data(1000) -- loop for 6 seconds
           count = count + 1
       end
     end
-    self.tn3270:get_screen_debug()
+    self.tn3270:get_screen_debug(2)
     self.tn3270:send_clear()
     self.tn3270:get_all_data()
-    self.tn3270:get_screen_debug()
+    self.tn3270:get_screen_debug(2)
     stdnse.verbose("Trying Transaction ID: %s", pass)
     self.tn3270:send_cursor(pass)
     self.tn3270:get_all_data()
@@ -184,7 +184,7 @@ Driver = {
 
     stdnse.debug(2,"Screen Recieved for Transaction ID: %s", pass)
     self.tn3270:get_screen_debug(2)
-    if self.tn3270:find('not recognized') then -- known invalid command
+    if self.tn3270:find('not recognized') or self.tn3270:find('DFHAC2002') then -- known invalid command
       stdnse.debug("Invalid CICS Transaction ID: %s", string.upper(pass))
       return false,  brute.Error:new( "Incorrect CICS Transaction ID" )
     elseif self.tn3270:isClear() then
@@ -320,10 +320,10 @@ local function cics_test( host, port, commands, user, pass )
     stdnse.verbose(2,'Logging in with %s / %s for auth testing', user, pass)
     tn:send_clear()
     tn:get_all_data()
-    tn:get_screen_debug()
+    tn:get_screen_debug(2)
     tn:send_cursor('CESN')
     tn:get_all_data()
-    tn:get_screen_debug()
+    tn:get_screen_debug(2)
     local fields = tn:writeable() -- Get the writeable field areas
     local user_loc = {fields[1][1],user}   -- This is the 'UserID:' field
     local pass_loc = {fields[3][1],pass}   -- This is the 'Password:' field ([2] is a group ID)
@@ -331,7 +331,7 @@ local function cics_test( host, port, commands, user, pass )
     tn:send_locations({user_loc,pass_loc})
     tn:get_all_data()
     stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
-    tn:get_screen_debug()
+    tn:get_screen_debug(2)
     count = 1
     while not tn:find('DFHCE3549') and count < 6 do
 	tn:get_all_data(1000) -- loop for 6 seconds
