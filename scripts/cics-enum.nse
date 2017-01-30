@@ -223,7 +223,7 @@ Driver = {
         return false, brute.Error:new( "Correct Transaction ID - Access Denied" )
       end
     elseif not (cics_user == nil and cics_pass == nil) and 
-           self.tn3270:find('TSS7251E') or self.tn3270:find('DFHAC2033') then
+           (self.tn3270:find('TSS7251E') or self.tn3270:find('DFHAC2033')) then
       -- We've logged on but we don't have access to this transaction
       -- TSS7251E  : Access Denied to PROGRAM <X>
       -- DFHAC2033 : You are not authorized to use transaction <X>
