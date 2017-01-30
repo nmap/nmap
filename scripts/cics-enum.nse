@@ -222,9 +222,11 @@ Driver = {
       else
         return false, brute.Error:new( "Correct Transaction ID - Access Denied" )
       end
-    elseif not (cics_user == nil and cics_pass == nil) and self.tn3270:find('TSS7251E') then
+    elseif not (cics_user == nil and cics_pass == nil) and 
+           self.tn3270:find('TSS7251E') or self.tn3270:find('DFHAC2033') then
       -- We've logged on but we don't have access to this transaction
-      -- TSS7251E : TSS7251E Access Denied to PROGRAM <X>
+      -- TSS7251E  : Access Denied to PROGRAM <X>
+      -- DFHAC2033 : You are not authorized to use transaction <X>
       stdnse.verbose("Valid CICS Transaction ID [Access Denied]: %s", string.upper(pass))
       if nmap.verbosity() > 3 then 
         return true, creds.Account:new("CICS ID [Access Denied]", string.upper(pass), creds.State.VALID)
@@ -334,7 +336,8 @@ local function cics_test( host, port, commands, user, pass )
     tn:get_screen_debug(2)
     count = 1
     while not tn:find('DFHCE3549') and count < 6 do
-	tn:get_all_data(1000) -- loop for 6 seconds
+	      tn:get_all_data(1000) -- loop for 6 seconds
+        tn:get_screen_debug(2)
         count = count + 1
     end
     if not tn:find('DFHCE3549') then
@@ -390,7 +393,7 @@ action = function(host, port)
     "CSPG", "CSPK", "CSPP", "CSPQ", "CSPS", "CSQC", "CSRK", "CSRS", "CSSF",
     "CSSY", "CSTE", "CSTP", "CSXM", "CSZI", "CTIN", "CTSD", "CVMI", "CWBA",
     "CWBG", "CWTO", "CWWU", "CWXN", "CWXU", "CW2A", "CXCU", "CXRE", "CXRT",
-  "DSNC"} -- Default CICS from https://www-01.ibm.com/support/knowledgecenter/SSGMCP_5.2.0/com.ibm.cics.ts.systemprogramming.doc/topics/dfha726.html
+    "DSNC"} -- Default CICS from https://www-01.ibm.com/support/knowledgecenter/SSGMCP_5.2.0/com.ibm.cics.ts.systemprogramming.doc/topics/dfha726.html
 
   cics_id_file = ( (cics_id_file and nmap.fetchfile(cics_id_file)) or cics_id_file )
   
