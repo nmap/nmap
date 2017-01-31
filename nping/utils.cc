@@ -318,7 +318,7 @@ int bitcmp(u8 *a, u8*b, int len){
  * supplied string.
  * @warning the supplied buffer is modified by this function. */
 int removechar(char *string, char c){
-  size_t len=0, i=0, j=0;
+  size_t i=0, j=0;
   if(string==NULL)
     return OP_FAILURE;
   
