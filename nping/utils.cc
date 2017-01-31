@@ -321,10 +321,11 @@ int removechar(char *string, char c){
   size_t len=0, i=0, j=0;
   if(string==NULL)
     return OP_FAILURE;
-  len=strlen(string);
-  while(j < len) {
-  	if(string[j] != c) string[i++] = string[j];
-  	j++;
+  
+  while(string[j] != '\0') {
+    if(string[j] != c)
+      string[i++] = string[j];
+    j++;
   }
   string[i] = '\0';
   return OP_SUCCESS;
