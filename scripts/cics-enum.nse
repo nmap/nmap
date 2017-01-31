@@ -28,6 +28,8 @@ found for CICS transaction IDs.
 --  to access CICS. Defaults to <code>CICS</code>.
 -- @args cics-enum.path Folder used to store valid transaction id 'screenshots'
 --  Defaults to <code>None</code> and doesn't store anything.
+-- @args cics-enum.user Username to use for authenticated enumeration
+-- @args cics-enum.pass Password to use for authenticated enumeration
 --
 -- @usage
 -- nmap --script=cics-enum -p 23 <targets>
