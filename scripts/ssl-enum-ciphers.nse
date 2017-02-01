@@ -38,11 +38,16 @@ vulnerability.
 
 This script is intrusive since it must initiate many connections to a server,
 and therefore is quite noisy.
+
+It is recommended to use this script in conjunction with version detection
+(<code>-sV</code>) in order to discover SSL/TLS services running on unexpected
+ports. For the most common SSL ports like 443, 25 (with STARTTLS), 3389, etc.
+the script is smart enough to run on its own.
 ]]
 
 ---
 -- @usage
--- nmap --script ssl-enum-ciphers -p 443 <host>
+-- nmap -sV --script ssl-enum-ciphers -p 443 <host>
 --
 -- @output
 -- PORT    STATE SERVICE REASON
