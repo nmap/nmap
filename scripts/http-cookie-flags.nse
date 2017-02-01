@@ -32,6 +32,7 @@ by it will be checked in addition to the root.
 -- |_      secure flag not set and HTTPS in use
 --
 -- @args path Specific URL path to check for session cookie flags. Default: / and those found by http-enum.
+-- @args cookie Specific cookie name to check flags on. Default: A variety of commonly used session cookie names and patterns.
 --
 -- @xmloutput
 -- <table key="/">
@@ -76,19 +77,9 @@ local session_cookie_patterns = {
   '[Ss][Ee][Ss][Ss][Ii][Oo][Nn][^%a]*[Ii][Dd]'
 }
 
--- return true if a cookie with the given name is probably a session cookie.
-local is_session_cookie = function(cookie_name)
-  for _, pattern in ipairs(session_cookie_patterns) do
-    if string.find(cookie_name, pattern) then
-      return true
-    end
-  end
-  return false
-end
-
 -- check cookies set on a particular URL path. returns a table with problem
 -- cookie names mapped to a table listing each problem found.
-local check_path = function(host, port, path)
+local check_path = function(is_session_cookie, host, port, path)
   stdnse.debug1("start check of %s %s %s", host.ip, port.number, path)
   local path_issues = stdnse.output_table()
   local resp = http.get(host, port, path)
@@ -125,24 +116,44 @@ end
 action = function(host, port)
   local all_issues = stdnse.output_table()
   local specified_path = stdnse.get_script_args(SCRIPT_NAME..".path")
+  local specified_cookie = stdnse.get_script_args(SCRIPT_NAME..".cookie")
+
+  -- create a function, is_session_cookie, which accepts a cookie name and
+  -- returns true if it is likely a session cookie, based user preferences
+  -- in script-args
+  local is_session_cookie
+  if specified_cookie == nil then
+    is_session_cookie = function(cookie_name)
+      for _, pattern in ipairs(session_cookie_patterns) do
+        if string.find(cookie_name, pattern) then
+          return true
+        end
+      end
+      return false
+    end
+  else
+    is_session_cookie = function(cookie_name)
+      return cookie_name==specified_cookie
+    end
+  end
 
   if specified_path == nil then
     stdnse.debug2('path script-arg is nil; checking / and anything from http-enum')
 
-    all_issues['/'] = check_path(host, port, '/')
+    all_issues['/'] = check_path(is_session_cookie, host, port, '/')
 
     -- check all interesting paths found by http-enum.nse if it was run
     local all_pages = stdnse.registry_get({host.ip, 'www', port.number, 'all_pages'})
     if all_pages then
       for _,path in ipairs(all_pages) do
-        all_issues[path] = check_path(host, port, path)
+        all_issues[path] = check_path(is_session_cookie, host, port, path)
       end
     end
     
   else
     stdnse.debug2('path script-arg is %s; checking only that path', specified_path)
 
-    all_issues[specified_path] = check_path(host, port, specified_path)
+    all_issues[specified_path] = check_path(is_session_cookie, host, port, specified_path)
   end
 
   if #all_issues>0 then
