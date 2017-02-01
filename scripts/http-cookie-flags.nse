@@ -70,7 +70,8 @@ local session_cookie_patterns = {
   '^CAKEPHP$',
   '^FedAuth$',
   '^ASPXAUTH$',
-  '[Ss][Ee][Ss][Ss][Ii][Oo][Nn]_*[Ii][Dd]'
+  '^session$',
+  '[Ss][Ee][Ss][Ss][Ii][Oo][Nn][^%a]*[Ii][Dd]'
 }
 
 -- return true if a cookie with the given name is probably a session cookie.
