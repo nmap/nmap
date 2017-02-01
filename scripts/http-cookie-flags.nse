@@ -13,7 +13,7 @@ by it will be checked in addition to the root.
 
 ---
 -- @usage
--- nmap -p 443 --script ssl-cert-intaddr <target>
+-- nmap -p 443 --script http-cookie-flags <target>
 --
 -- @output
 -- 443/tcp open  https
