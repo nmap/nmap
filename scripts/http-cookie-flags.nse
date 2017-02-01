@@ -31,7 +31,9 @@ by it will be checked in addition to the root.
 -- |     ASP.NET_SessionId: 
 -- |_      secure flag not set and HTTPS in use
 --
---@xmloutput
+-- @args path Specific URL path to check for session cookie flags. Default: / and those found by http-enum.
+--
+-- @xmloutput
 -- <table key="/">
 -- <table key="PHPSESSID">
 -- <elem>secure flag not set and HTTPS in use</elem>
@@ -122,15 +124,25 @@ end
 
 action = function(host, port)
   local all_issues = stdnse.output_table()
+  local specified_path = stdnse.get_script_args(SCRIPT_NAME..".path")
 
-  all_issues['/'] = check_path(host, port, '/')
+  if specified_path == nil then
+    stdnse.debug2('path script-arg is nil; checking / and anything from http-enum')
 
-  -- check all interesting paths found by http-enum.nse if it was run
-  local all_pages = stdnse.registry_get({host.ip, 'www', port.number, 'all_pages'})
-  if all_pages then
-    for _,path in ipairs(all_pages) do
-      all_issues[path] = check_path(host, port, path)
+    all_issues['/'] = check_path(host, port, '/')
+
+    -- check all interesting paths found by http-enum.nse if it was run
+    local all_pages = stdnse.registry_get({host.ip, 'www', port.number, 'all_pages'})
+    if all_pages then
+      for _,path in ipairs(all_pages) do
+        all_issues[path] = check_path(host, port, path)
+      end
     end
+    
+  else
+    stdnse.debug2('path script-arg is %s; checking only that path', specified_path)
+
+    all_issues[specified_path] = check_path(host, port, specified_path)
   end
 
   if #all_issues>0 then
@@ -138,4 +150,5 @@ action = function(host, port)
   else
     return nil
   end
+
 end
