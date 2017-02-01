@@ -119,8 +119,7 @@ action = function(host, port)
   local specified_cookie = stdnse.get_script_args(SCRIPT_NAME..".cookie")
 
   -- create a function, is_session_cookie, which accepts a cookie name and
-  -- returns true if it is likely a session cookie, based user preferences
-  -- in script-args
+  -- returns true if it is likely a session cookie, based on script-args
   local is_session_cookie
   if specified_cookie == nil then
     is_session_cookie = function(cookie_name)
@@ -137,23 +136,23 @@ action = function(host, port)
     end
   end
 
+  -- build a list of URL paths to check cookies for based on script-args and
+  -- http-enum results.
+  local paths_to_check = {}
   if specified_path == nil then
     stdnse.debug2('path script-arg is nil; checking / and anything from http-enum')
-
-    all_issues['/'] = check_path(is_session_cookie, host, port, '/')
-
-    -- check all interesting paths found by http-enum.nse if it was run
-    local all_pages = stdnse.registry_get({host.ip, 'www', port.number, 'all_pages'})
-    if all_pages then
-      for _,path in ipairs(all_pages) do
-        all_issues[path] = check_path(is_session_cookie, host, port, path)
-      end
+    paths_to_check[#paths_to_check+1] = '/'
+    for _,path in ipairs( stdnse.registry_get({host.ip, 'www', port.number, 'all_pages'}) ) do
+      paths_to_check[#paths_to_check+1] = path
     end
-    
   else
     stdnse.debug2('path script-arg is %s; checking only that path', specified_path)
+    paths_to_check[#paths_to_check+1] = specified_path
+  end
 
-    all_issues[specified_path] = check_path(is_session_cookie, host, port, specified_path)
+  -- check desired cookies on all desired paths
+  for _,path in ipairs(paths_to_check) do
+    all_issues[path] = check_path(is_session_cookie, host, port, path)
   end
 
   if #all_issues>0 then
