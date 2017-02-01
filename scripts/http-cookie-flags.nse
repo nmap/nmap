@@ -1,8 +1,8 @@
 
-local http = require('http')
-local shortport = require('shortport')
-local stdnse = require('stdnse')
-local string = require('string')
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 Examines cookies set by HTTP services.  Reports any session cookies set
