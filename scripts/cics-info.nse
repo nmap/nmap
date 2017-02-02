@@ -397,7 +397,7 @@ local function cics_info( host, port, commands, user, pass, cemt, trans )
       end
     end
     results["Transaction / Program"] = transactions
-  end
+  end -- Done with Transaction IDs
   tn:disconnect()
   return results
 end
