@@ -395,7 +395,9 @@ int IPv4Header::setFragOffset(){
 /** @warning Supplied value MUST be in host byte order because it will get
  *  converted by this method using htons() */
 int IPv4Header::setFragOffset(u16 i){
-  /* Removed TODO (Should we check here that i<8192 ?) */
+  /* Removed TODO (Should we check here that i<8192 ?) 
+     Explanation:- htons implements a simple conversion from hostshort
+     to network byte order. No checks required here. */
   h.ip_off = htons(i);
   return OP_SUCCESS;
 } /* End of setFragOffset() */
