@@ -146,24 +146,24 @@ action = function(host, port)
   local output = stdnse.output_table()
 
   -- Format protocol information.
-  local tbl = {}
+  local protocol = {}
   if comm.protocol.negotiation == "oldstyle" and comm.exports["(default)"] then
     if comm.exports["(default)"].hflags & nbd.NBD.handshake_flags.FIXED_NEWSTYLE then
-      table.insert(tbl, "The server software appears to support fixed newstyle negotiation, but not on this port.")
+      protocol["Fixed Newstyle Negotiation"] = "Supported by service, but not on this port."
     end
   end
-  table.insert(tbl, ("Negotiation: %s"):format(comm.protocol.negotiation))
-  table.insert(tbl, ("SSL/TLS Wrapped: %s"):format(comm.protocol.ssl_tls))
+  protocol["Negotiation"] = comm.protocol.negotiation
+  protocol["SSL/TLS Wrapped"] = comm.protocol.ssl_tls
 
-  output["Protocol"] = tbl
+  output["Protocol"] = protocol
 
   -- Format exported block device information.
-  local tbl = {}
+  local exports = {}
   local no_shares = true
   for name, info in pairs(comm.exports) do
     local exp = {}
     if type(info.size) == "number" then
-      table.insert(exp, ("Size: %d bytes"):format(info.size))
+      exp["Size"] = info.size .. " bytes"
     end
 
     if type(info.tflags) == "table" then
@@ -173,15 +173,15 @@ action = function(host, port)
           table.insert(keys, k)
         end
       end
-      exp["Transmission Flags"] = keys
+      exp["Transmission Flags"] = table.concat(keys, ", ")
     end
 
     no_shares = false
-    tbl[name] = exp
+    exports[name] = exp
   end
 
   if not no_shares then
-    output["Exported Block Devices"] = tbl
+    output["Exported Block Devices"] = exports
   end
 
   return output
