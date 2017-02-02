@@ -44,8 +44,7 @@ author = "Mak Kolybabi <mak@kolybabi.com>"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
--- XXX-MAK: The expanded port range is for testing against nmap.kolybabi.com.
-portrule = shortport.version_port_or_service({10807, 10808, 10809}, "nbd", "tcp")
+portrule = shortport.version_port_or_service(10809, "nbd", "tcp")
 
 enumerate_options = function(comm)
   -- Run the LIST command and store the responses.
