@@ -29,6 +29,20 @@
 -- password in <code>"mypass  #!comment: blah"</code> contain a space, two
 -- spaces, or do they just separate the password from the comment?
 --
+-- The library also contains the logic for profiling passwords in NSE.
+--
+-- An NSE developer that writes a discovery script and believes that some 
+-- of the gathered information might be useful for password profiling, can 
+-- simply use save_for_pwdprofiling(host, keyword) method to 
+-- pass them to the unpwdb. 
+--
+-- An NSE developer that writes a brute script and wants his engine to take 
+-- advantage of the password profiling when the user sets the 
+-- --brute.passprofile argument, only has to add these special discovery 
+-- scripts as dependencies. He may use unpwdb.PWDPROFILE_SCRIPTS table 
+-- that holds a list with them. Be aware that this may raise circular 
+-- dependencies though.
+--
 -- @usage
 -- require("unpwdb")
 --
@@ -71,8 +85,39 @@ local os = require "os"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("unpwdb", stdnse.seeall)
 
+-- Discovery scripts that retrieve useful keywords for password profiling
+-- should be listed below. Brute scripts may use this table as their 
+-- dependencies. Review carefully to avoid any circular dependencies.
+PWDPROFILE_SCRIPTS = {
+    "http-title",
+    "smb-enum-domains"
+}
+
+-- Length limits of a possible password candidate.
+-- Remove possible articles, determiners, and quantifiers with MIN_LENGTH.
+-- Avoid system exhaustion with MAX_LENGTH. The longer the keyword, the more
+-- passwords will be generated.
+local MIN_LENGTH = 4
+local MAX_LENGTH = 10
+local t_filters = {
+    "many",
+    "some",
+    "their",
+    "yours",
+    "each",
+    "every",
+    "this",
+    "that"
+}
+
+local filters = {}
+for i, v in ipairs(t_filters) do
+    filters[v] = true
+end
+
 local usertable = {}
 local passtable = {}
+local profiled_passtable = {}
 
 local customdata = false
 
@@ -207,7 +252,22 @@ local passwords_raw = function()
     return false, "Error parsing password list"
   end
 
+  passtable_count = #passtable
+  if profiled_passtable ~= nil then
+    if #profiled_passtable > 0 then
+      for i=1, #profiled_passtable do
+        passtable[passtable_count+i] = profiled_passtable[i]
+      end
+    end
+  end
+
   return true, table_iterator(passtable)
+end
+
+--- Adds profiled passwords to password iterator.
+-- Must be executed before passwords().
+add_profiled_pwds = function()
+  profiled_passtable = get_profiled_pwds()
 end
 
 --- Wraps time and count limits around an iterator.
@@ -329,5 +389,45 @@ function filter_iterator (iterator, filter)
     end
   end
 end
+
+-- Checks if the word is suitable as a keyword.
+local check_word = function( word )
+    if ( filters[string.lower(word)] ~= nil ) then
+        return false
+    end
+
+    if ( string.len(word) < MIN_LENGTH ) then
+        return false
+    end
+
+    if ( string.len(word) > MAX_LENGTH ) then
+        return false
+    end
+
+    return true
+end
+
+-- Public method that NSE discovery scripts should use to
+-- cache interesting keywords.
+save_for_pwdprofiling = function( host, key )
+
+  nmap.registry.pwdprofiling = nmap.registry.pwdprofiling or {}
+  nmap.registry.pwdprofiling.host = nmap.registry.pwdprofiling.host or {}
+  for i in string.gmatch(key, "%S+") do
+    if ( check_word(i) ) then
+        table.insert( nmap.registry.pwdprofiling.host, i )
+    end
+  end
+
+end
+
+-- Returns all the candidate passwords
+get_profiled_pwds = function( host )
+  if ( nmap.registry["pwdprofiling"] ) then
+    pwds = nmap.registry.pwdprofiling.host
+    return pwds
+  end
+end
+
 
 return _ENV;
