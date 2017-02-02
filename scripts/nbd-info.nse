@@ -184,5 +184,5 @@ action = function(host, port)
     output["Exported Block Devices"] = tbl
   end
 
-  return output, stdnse.format_output(true, output)
+  return output
 end
