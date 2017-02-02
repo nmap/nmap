@@ -71,8 +71,8 @@ NBD = {
 
   opt_rep_ext_types = {
     info = {
-      EXPORT   	  = 0x0000,
-      NAME     	  = 0x0001,
+      EXPORT      = 0x0000,
+      NAME        = 0x0001,
       DESCRIPTION = 0x0002,
       BLOCK_SIZE  = 0x0003,
     },
@@ -239,9 +239,9 @@ Comm = {
     if self.protocol.zero_pad == "required" then
       local status, err = self:receive(124)
       if not status then
-	stdnse.debug1("Failed to receive zero pad from server while attaching to export: %s", err)
-	self:close()
-	return false
+        stdnse.debug1("Failed to receive zero pad from server while attaching to export: %s", err)
+        self:close()
+        return false
       end
     end
 
@@ -508,21 +508,21 @@ Comm = {
 
     if rtype_name == "SERVER" then
       if rlen < 4 then
-	stdnse.debug1("SERVER option reply payload length must be 4 or greater, but is %d.", rlen)
-	return false
+        stdnse.debug1("SERVER option reply payload length must be 4 or greater, but is %d.", rlen)
+        return false
       end
 
       local nlen, pos = (">I4"):unpack(buf, pos)
       if pos + nlen - 1 > #buf then
-	stdnse.debug1("SERVER option reply payload name length extends past end of buffer.")
-	return false
+        stdnse.debug1("SERVER option reply payload name length extends past end of buffer.")
+        return false
       end
 
       -- An empty name represents the default export.
       local name = ""
       if nlen > 0 then
-	name = buf:sub(pos, pos + nlen - 1)
-	pos = pos + nlen
+        name = buf:sub(pos, pos + nlen - 1)
+        pos = pos + nlen
       end
       rep.export_name = name
 
@@ -551,7 +551,7 @@ Comm = {
     local tbl = {}
     for k, v in pairs(NBD.transmission_flags) do
       if (flags & v) ~= 0 then
-	tbl[k] = true
+        tbl[k] = true
       end
     end
 

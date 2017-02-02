@@ -85,7 +85,7 @@ newstyle_connection = function(comm, args)
     if i ~= 1 then
       local status = comm:reconnect()
       if not status then
-	return
+        return
       end
     end
 
@@ -170,9 +170,9 @@ action = function(host, port)
     if type(info.tflags) == "table" then
       local keys = {}
       for k, _ in pairs(info.tflags) do
-	if k ~= "HAS_FLAGS" then
-	  table.insert(keys, k)
-	end
+        if k ~= "HAS_FLAGS" then
+          table.insert(keys, k)
+        end
       end
       exp["Transmission Flags"] = keys
     end
