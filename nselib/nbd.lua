@@ -142,11 +142,17 @@ Comm = {
     self.socket = sd
     self.protocol = {ssl_tls = (proto == "ssl")}
 
-    if #rep ~= 8 then
+    if #rep < 8 then
       stdnse.debug1("Failed to receive first 64 bits of magic from server: %s", rep)
       self:close()
       return false
     end
+
+    -- We may have received 8-100+ bytes of data, depending on timing. To make
+    -- the code simpler, we will seed a buffer to be used by this object's
+    -- receive function until empty.
+    self.receive_buffer = rep:sub(9)
+    rep = rep:sub(1, 8)
 
     if rep ~= NBD.magic.init_passwd then
       stdnse.debug1("First 64 bits from server don't match expected magic: %s", stdnse.tohex(rep, {separator = ":"}))
@@ -278,6 +284,13 @@ Comm = {
   --         string containing the error message on failure.
   receive = function(self, len)
     assert(type(len) == "number")
+
+    -- Try to answer this request from the buffer.
+    if #self.receive_buffer >= len then
+      local rep = self.receive_buffer:sub(1, len)
+      self.receive_buffer = self.receive_buffer:sub(len + 1)
+      return true, rep
+    end
 
     return self.socket:receive_buf(match.numbytes(len), true)
   end,
