@@ -46,7 +46,7 @@ categories = {"discovery", "intrusive"}
 
 portrule = shortport.version_port_or_service(10809, "nbd", "tcp")
 
-enumerate_options = function(comm)
+local enumerate_options = function(comm)
   -- Run the LIST command and store the responses.
   local req = comm:build_opt_req("LIST")
   if not req then
@@ -69,7 +69,7 @@ enumerate_options = function(comm)
   end
 end
 
-newstyle_connection = function(comm, args)
+local newstyle_connection = function(comm, args)
   local names = {}
 
   for _, name in ipairs(args.export_name) do
