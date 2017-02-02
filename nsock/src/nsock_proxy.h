@@ -71,6 +71,7 @@
 enum nsock_proxy_type {
   PROXY_TYPE_HTTP = 0,
   PROXY_TYPE_SOCKS4,
+  PROXY_TYPE_SOCKS4A,
   PROXY_TYPE_COUNT,
 };
 
@@ -85,6 +86,10 @@ enum nsock_proxy_state {
   /* SOCKS 4 proxy states. */
   PROXY_STATE_SOCKS4_TCP_CONNECTED,
   PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED,
+
+  /* SOCKS 4A proxy states. */
+  PROXY_STATE_SOCKS4A_TCP_CONNECTED,
+  PROXY_STATE_SOCKS4A_TUNNEL_ESTABLISHED,
 };
 
 
@@ -124,7 +129,7 @@ struct proxy_chain_context {
 
   /* Nodes iterator in px_chain->nodes */
   struct proxy_node *px_current;
-  
+
   /* Current node connection state. */
   enum nsock_proxy_state px_state;
 

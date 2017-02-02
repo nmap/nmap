@@ -647,6 +647,7 @@ void parse_options(int argc, char **argv) {
     {"ff", no_argument, 0, 0},
     {"privileged", no_argument, 0, 0},
     {"unprivileged", no_argument, 0, 0},
+    {"force-not-raw", no_argument, 0, 0},
     {"mtu", required_argument, 0, 0},
     {"append_output", no_argument, 0, 0},
     {"append-output", no_argument, 0, 0},
@@ -867,6 +868,8 @@ void parse_options(int argc, char **argv) {
         } else if ((optcmp(long_options[option_index].name, "proxies") == 0) || (optcmp(long_options[option_index].name, "proxy") == 0)) {
           if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
             fatal("Invalid proxy chain specification");
+          if (!strncmp(optarg, "socks4a", 7))
+            o.socks4a = true;
         } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = 1;
         } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
@@ -997,6 +1000,8 @@ void parse_options(int argc, char **argv) {
           o.isr00t = 1;
         } else if (strcmp(long_options[option_index].name, "unprivileged") == 0) {
           o.isr00t = 0;
+        } else if (strcmp(long_options[option_index].name, "force-not-raw") == 0) {
+          o.not_raw = 1;
         } else if (strcmp(long_options[option_index].name, "mtu") == 0) {
           o.fragscan = atoi(optarg);
           if (o.fragscan <= 0 || o.fragscan % 8 != 0)
@@ -1302,6 +1307,9 @@ void parse_options(int argc, char **argv) {
 #ifndef NOLUA
         case 'C':
           o.script = 1;
+          break;
+        case 'K':
+          o.scriptportscan = true;
           break;
 #endif
         case 'F':
@@ -1997,7 +2005,7 @@ int nmap_main(int argc, char *argv[]) {
   }
   if (o.servicescan)
     o.scriptversion = 1;
-  if (o.scriptversion || o.script || o.scriptupdatedb)
+  if (o.scriptversion || o.script || o.scriptupdatedb || o.scriptportscan)
     open_nse();
 
   /* Run the script pre-scanning phase */
@@ -2031,7 +2039,7 @@ int nmap_main(int argc, char *argv[]) {
 
       if ((o.noportscan && !o.traceroute
 #ifndef NOLUA
-           && !o.script
+           && !o.script && !o.scriptportscan
 #endif
           ) || o.listscan) {
         /* We're done with the hosts */
@@ -2162,6 +2170,12 @@ int nmap_main(int argc, char *argv[]) {
 
       if (o.ipprotscan)
         ultra_scan(Targets, &ports, IPPROT_SCAN);
+
+#ifndef NOLUA
+      if(o.scriptportscan) {
+        script_scan(Targets, SCRIPT_PORTSCAN);
+      }
+#endif
 
       /* These lame functions can only handle one target at a time */
       if (o.idlescan) {
@@ -2974,6 +2988,9 @@ const char *scantype2str(stype scantype) {
     break;
   case SCRIPT_PRE_SCAN:
     return "Script Pre-Scan";
+    break;
+  case SCRIPT_PORTSCAN:
+    return "Script port Scan";
     break;
   case SCRIPT_SCAN:
     return "Script Scan";

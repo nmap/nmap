@@ -77,11 +77,12 @@ static void proxy_parser_delete(struct proxy_parser *parser);
 /* --- Implemented proxy backends --- */
 extern const struct proxy_spec ProxySpecHttp;
 extern const struct proxy_spec ProxySpecSocks4;
-
+extern const struct proxy_spec ProxySpecSocks4a;
 
 static const struct proxy_spec *ProxyBackends[] = {
   &ProxySpecHttp,
   &ProxySpecSocks4,
+  &ProxySpecSocks4a,
   NULL
 };
 

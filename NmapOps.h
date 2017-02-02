@@ -185,6 +185,7 @@ class NmapOps {
                              adjustments (quietly or with a warning to the
                              user). */
   int isr00t;
+  int not_raw;
   /* Whether we have pcap functions (can be false on Windows). */
   bool have_pcap;
   int debugging;
@@ -394,6 +395,7 @@ class NmapOps {
   char *exclude_portlist; /* exclude-ports list specified by user */
 
   nsock_proxychain proxy_chain;
+  bool socks4a;
 
 #ifndef NOLUA
   int script;
@@ -404,6 +406,7 @@ class NmapOps {
   int scriptupdatedb;
   bool scripthelp;
   double scripttimeout;
+  bool scriptportscan;
   void chooseScripts(char* argument);
   std::vector<std::string> chosenScripts;
 #endif

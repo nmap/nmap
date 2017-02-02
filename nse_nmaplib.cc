@@ -26,6 +26,7 @@ extern "C" {
 #include "nse_dnet.h"
 
 extern NmapOps o;
+extern reason_map_type reason_map;
 
 static const char *NSE_PROTOCOL_OP[] = {"tcp", "udp", "sctp", NULL};
 static const int NSE_PROTOCOL[] = {IPPROTO_TCP, IPPROTO_UDP, IPPROTO_SCTP};
@@ -439,9 +440,9 @@ static int l_condvar (lua_State *L)
  */
 static int l_get_ports (lua_State *L)
 {
-  static const char *state_op[] = {"open", "filtered", "unfiltered", "closed",
+  static const char *state_op[] = {"unknown", "open", "filtered", "unfiltered", "closed",
       "open|filtered", "closed|filtered", NULL};
-  static const int states[] = {PORT_OPEN, PORT_FILTERED, PORT_UNFILTERED,
+  static const int states[] = {PORT_UNKNOWN, PORT_OPEN, PORT_FILTERED, PORT_UNFILTERED,
       PORT_CLOSED, PORT_OPENFILTERED, PORT_CLOSEDFILTERED};
   Port *p = NULL;
   Port port; /* dummy Port for nextPort */
@@ -507,8 +508,8 @@ static int l_port_is_excluded (lua_State *L)
  * */
 static int l_set_port_state (lua_State *L)
 {
-  static const int opstate[] = {PORT_OPEN, PORT_CLOSED};
-  static const char *op[] = {"open", "closed", NULL};
+  static const int opstate[] = {PORT_OPEN, PORT_CLOSED, PORT_FILTERED};
+  static const char *op[] = {"open", "closed", "filtered", NULL};
   Target *target;
   Port *p;
   Port port;
@@ -527,8 +528,18 @@ static int l_set_port_state (lua_State *L)
           return 0;
         target->ports.setPortState(p->portno, p->proto, PORT_CLOSED);
         break;
+      case PORT_FILTERED:
+        if (p->state == PORT_FILTERED)
+          return 0;
+        target->ports.setPortState(p->portno, p->proto, PORT_FILTERED);
+        break;
     }
-    target->ports.setStateReason(p->portno, p->proto, ER_SCRIPT, 0, NULL);
+    if (lua_gettop(L) == 3)
+      target->ports.setStateReason(p->portno, p->proto, ER_SCRIPT, 0, NULL);
+    else {
+      int reason = lua_tointeger(L, 4);
+      target->ports.setStateReason(p->portno, p->proto, reason, 0, NULL);
+    }
   }
   return 0;
 }
@@ -1019,6 +1030,24 @@ int luaopen_nmap (lua_State *L)
   lua_setfield(L, nmap_idx, "get_interface_info");
   /* Store nmap.socket. */
   lua_setfield(L, nmap_idx, "dnet");
+
+  /* Create a table nmap.reasons which maps predefined, human-readable port
+     state reasons (see --reason) to internal numbers. */
+  lua_newtable(L);
+  std::map<reason_codes,reason_string > reason_map_copy = reason_map.get_reason_map();
+  std::map<reason_codes,reason_string >::iterator it = reason_map_copy.begin();
+  while (it != reason_map_copy.end()) {
+    std::string r_s = (*it).second.singular;
+    /* Replace all minus signs with underscores so they are valid variable names. */
+    for (int i = 0; i < r_s.size(); i++) {
+      if (r_s[i] == '-')
+        r_s[i] = '_';
+    }
+    lua_pushinteger(L, (*it).first);
+    lua_setfield(L, -2, r_s.c_str());
+    it++;
+  }
+  lua_setfield(L, nmap_idx, "reasons");
 
   lua_settop(L, nmap_idx);
 
