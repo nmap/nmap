@@ -204,7 +204,7 @@ class ScriptHelpXMLContentHandler (xml.sax.handler.ContentHandler):
             if u"path" not in attrs:
                 raise ValueError(
                         u'"directory" element did not have "path" attribute')
-            path = attrs[u"path"]
+            path = attrs[u"path"].encode("raw_unicode_escape").decode(sys.getfilesystemencoding())
             if dirname == u"scripts":
                 self.scripts_dir = path
             elif dirname == u"nselib":
