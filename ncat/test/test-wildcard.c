@@ -255,11 +255,11 @@ static int set_dNSNames(X509 *cert, const struct lstr dNSNames[])
         if (gen_name == NULL)
             goto stack_err;
         gen_name->type = GEN_DNS;
-    #if OPENSSL_VERSION_NUMBER < 0x10100000L
-        gen_name->d.dNSName = M_ASN1_IA5STRING_new();
-    #else
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
         gen_name->d.dNSName = ASN1_IA5STRING_new();
-    #endif
+#else
+        gen_name->d.dNSName = M_ASN1_IA5STRING_new();
+#endif
         if (gen_name->d.dNSName == NULL)
             goto name_err;
         if (ASN1_STRING_set(gen_name->d.dNSName, name->s, name->len) == 0)
@@ -581,7 +581,7 @@ int main(void)
 {
     unsigned int i;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
     SSL_library_init();
     ERR_load_crypto_strings();
     SSL_load_error_strings();
