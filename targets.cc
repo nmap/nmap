@@ -605,7 +605,7 @@ static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
   }
 
 tryagain:
-  
+
   if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
     const char *expr;
     /* We are going to have to pop in another expression. */
@@ -640,7 +640,7 @@ tryagain:
   t = setup_target(hs, &ss, sslen, pingtype);
   if (t == NULL)
     goto tryagain;
-  
+
   return t;
 }
 
@@ -649,7 +649,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   int i;
   bool arpping_done = false;
   struct timeval now;
-  
+
   hs->current_batch_sz = hs->next_batch_no = 0;
   hs->undefer();
   int count=0;
@@ -687,6 +687,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
     hs->hostbatch[hs->current_batch_sz++] = t[k];
     k++;
   }
+
   if (hs->current_batch_sz == 0)
     return;
 
