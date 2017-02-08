@@ -616,7 +616,7 @@ tryagain:
     }
     goto tryagain;
   }
-	
+
   assert(ss.ss_family == o.af());
 
   /* If we are resuming from a previous scan, we have already finished scanning
