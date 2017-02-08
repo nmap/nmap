@@ -659,7 +659,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   while (true){
     t1 = next_target(hs, exclude_group, ports, pingtype);
     if (t1 == NULL)
-    {	
+    {
       break;
     }
     for(int i=0;i<count;i++){
@@ -669,7 +669,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
     }
     if(indicator==0){
       t[count++]=t1;
-    }	
+    }
     indicator=0;
   }
   int k=0;
