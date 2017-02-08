@@ -659,9 +659,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   while (true){
     t1 = next_target(hs, exclude_group, ports, pingtype);
     if (t1 == NULL)
-    {
       break;
-    }
     for(int i=0;i<count;i++){
       if(strcmp(t[i]->targetipstr(),t1->targetipstr())==0){
         indicator = 1;
@@ -676,13 +674,12 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   while (k<count) {
     /* Does this target need to go in a separate host group? */
     if (target_needs_new_hostgroup(hs->hostbatch, hs->current_batch_sz, t[k])) {
-      if (hs->defer(t[k])){
+      if (hs->defer(t[k]))
         continue;
-      }
-      else{
+      else
         break;
-      }
     }
+
     o.decoys[o.decoyturn] = t[k]->source();
     hs->hostbatch[hs->current_batch_sz++] = t[k];
     k++;
