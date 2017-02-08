@@ -661,8 +661,7 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
     if (t1 == NULL)
     {	
       break;
-    
-    }	
+    }
     for(int i=0;i<count;i++){
       if(strcmp(t[i]->targetipstr(),t1->targetipstr())==0){
         indicator = 1;
@@ -671,23 +670,23 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
     if(indicator==0){
       t[count++]=t1;
     }	
-    indicator=0;				
-  }	
+    indicator=0;
+  }
   int k=0;
   while (k<count) {
     /* Does this target need to go in a separate host group? */
-	if (target_needs_new_hostgroup(hs->hostbatch, hs->current_batch_sz, t[k])) {
-	    if (hs->defer(t[k])){
-	      continue;
-	    }
-	    else{
-	      break;
-	    }
-	}
+    if (target_needs_new_hostgroup(hs->hostbatch, hs->current_batch_sz, t[k])) {
+      if (hs->defer(t[k])){
+        continue;
+      }
+      else{
+        break;
+      }
+    }
     o.decoys[o.decoyturn] = t[k]->source();
-    hs->hostbatch[hs->current_batch_sz++] = t[k];		
+    hs->hostbatch[hs->current_batch_sz++] = t[k];
     k++;
-  }			
+  }
   if (hs->current_batch_sz == 0)
     return;
 
