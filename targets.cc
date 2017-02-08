@@ -143,11 +143,13 @@
 #include "nmap_tty.h"
 #include "utils.h"
 #include "xml.h"
+
 extern NmapOps o;
 #ifdef WIN32
 /* from libdnet's intf-win32.c */
 extern "C" int g_has_npcap_loopback;
 #endif
+
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
 static void arpping(Target *hostbatch[], int num_hosts) {
@@ -588,11 +590,13 @@ bail:
   delete t;
   return NULL;
 }
+
 static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
   struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
   Target *t;
+
   /* First handle targets deferred in the last batch. */
   if (!hs->undeferred.empty()) {
     t = hs->undeferred.front();
@@ -601,6 +605,7 @@ static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
   }
 
 tryagain:
+  
   if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
     const char *expr;
     /* We are going to have to pop in another expression. */
@@ -635,13 +640,16 @@ tryagain:
   t = setup_target(hs, &ss, sslen, pingtype);
   if (t == NULL)
     goto tryagain;
+  
   return t;
 }
+
 static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   struct scan_lists *ports, int pingtype) {
   int i;
   bool arpping_done = false;
   struct timeval now;
+  
   hs->current_batch_sz = hs->next_batch_no = 0;
   hs->undefer();
   int count=0;
@@ -649,20 +657,21 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
   Target *t[1000];
   int indicator = 0;
   while (true){
-    t1 = next_target(hs, exclude_group, ports, pingtype, count);
+    t1 = next_target(hs, exclude_group, ports, pingtype);
     if (t1 == NULL)
     {	
       break;
+    
     }	
-  	for(int i=0;i<count;i++){
-  		if(strcmp(t[i]->targetipstr(),t1->targetipstr())==0){
-  			indicator = 1;
-  		}
-  	}
-  	if(indicator==0){
-  		t[count++]=t1;
-  	}	
-  	indicator=0;				
+    for(int i=0;i<count;i++){
+      if(strcmp(t[i]->targetipstr(),t1->targetipstr())==0){
+        indicator = 1;
+      }
+    }
+    if(indicator==0){
+      t[count++]=t1;
+    }	
+    indicator=0;				
   }	
   int k=0;
   while (k<count) {
