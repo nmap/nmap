@@ -143,8 +143,6 @@
 #include "nmap_tty.h"
 #include "utils.h"
 #include "xml.h"
-#include <iostream>
-using namespace std;
 extern NmapOps o;
 #ifdef WIN32
 /* from libdnet's intf-win32.c */
@@ -591,14 +589,14 @@ bail:
   return NULL;
 }
 static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
-  struct scan_lists *ports, int pingtype,int count) {
+  struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
   Target *t;
   /* First handle targets deferred in the last batch. */
   if (!hs->undeferred.empty()) {
     t = hs->undeferred.front();
-    hs->undeferred.pop_front();	
+    hs->undeferred.pop_front();
     return t;
   }
 
@@ -618,7 +616,7 @@ tryagain:
     }
     goto tryagain;
   }
-
+	
   assert(ss.ss_family == o.af());
 
   /* If we are resuming from a previous scan, we have already finished scanning
@@ -631,14 +629,12 @@ tryagain:
   }
 
   /* Check exclude list. */
-  if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group)){
+  if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group))
     goto tryagain;
-}
 
   t = setup_target(hs, &ss, sslen, pingtype);
-  if (t == NULL){
+  if (t == NULL)
     goto tryagain;
-  }
   return t;
 }
 static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
