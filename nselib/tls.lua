@@ -1182,6 +1182,12 @@ handshake_parse = {
       end,
 
       NewSessionTicket = function (buffer, j, msg_end, protocol)
+        -- Need 4 bytes for parsing.
+        local have = #buffer - j + 1
+        if have < 4 then
+          return nil, j, 4
+        end
+
         local b = {}
         -- Parse body.
         b.ticket_lifetime_hint, b.ticket, j = unpack(">I4 s2", buffer, j)

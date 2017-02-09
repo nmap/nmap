@@ -171,13 +171,18 @@ local function is_vuln(host, port, version)
         else
           -- If someone downloaded this script separately from Nmap,
           -- they are likely to be missing the parsing changes to the
-          -- TLS library.
+          -- TLS library. Try parsing the body inline.
+          if #body.data <= 4 then
+            stdnse.debug1("NewSessionTicket's body was too short to parse: %d bytes", #body.data)
+            return
+          end
+
           _, ticket = (">I4 s2"):unpack(body.data)
         end
         break
       end
     end
-  until pos > #buf
+  until ticket or pos > #buf
 
   if not ticket then
     stdnse.debug1("Server did not send a NewSessionTicket record.")
