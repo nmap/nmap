@@ -284,6 +284,11 @@ local function is_vuln(host, port, version)
     return
   end
 
+  if sid_new == "" then
+    stdnse.debug1("Server did not respond with a session ID.")
+    return
+  end
+
   -- Check whether the Session ID matches what we originally sent,
   -- which should be the case for a properly-functioning TLS stacks.
   if sid_new == sid_old then
