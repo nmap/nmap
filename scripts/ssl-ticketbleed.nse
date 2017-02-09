@@ -301,9 +301,7 @@ local function is_vuln(host, port, version)
     return
   end
 
-  stdnse.debug3("Server responded with the session ID: %s", stdnse.tohex(sid, {separator = ":"}))
-
-  return true
+  return sid
 end
 
 action = function(host, port)
@@ -335,8 +333,13 @@ Ticketbleed is vulnerability in the implementation of the TLS SessionTicket exte
     end
 
     -- Check for the presence of the vulnerability.
-    if is_vuln(host, port, ver) then
-      vuln_table.state = vulns.STATE.VULN
+    local sid = is_vuln(host, port, ver)
+    if sid then
+      vuln_table.state = vulns.STATE.EXPLOIT
+      vuln_table.exploit_results = {
+        stdnse.tohex(sid:sub(2)),
+        (sid:sub(2):gsub("[^%g ]", "."))
+      }
       break
     end
   end
