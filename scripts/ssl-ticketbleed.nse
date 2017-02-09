@@ -102,7 +102,7 @@ local function is_vuln(host, port, version)
 
   -- We are only interested in capturing the TLS responses from the
   -- server, not our traffic. We need to set the snaplen to be fairly
-  -- large to accommodate packets with many or large certificates/
+  -- large to accommodate packets with many or large certificates.
   local filter = ("src host %s and tcp and src port %d and dst port %d"):format(host.ip, port.number, lport)
   local pcap = nmap.new_socket()
   pcap:set_timeout(5)
