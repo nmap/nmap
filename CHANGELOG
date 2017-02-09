@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#686] Script tls-ticketbleed checks for the Ticketbleed vulnerability
+  (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
+
 o [Ncat] Enable --ssl-ciphers to be used with Ncat in client mode, not only in
   server (listen) mode. [Daniel Miller]
 
