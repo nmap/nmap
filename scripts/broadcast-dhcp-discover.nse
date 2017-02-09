@@ -23,6 +23,9 @@ The script needs to be run as a privileged user, typically root.
 ]]
 
 ---
+-- @see broadcast-dhcp6-discover.nse
+-- @see dhcp-discover.nse
+--
 -- @usage
 -- sudo nmap --script broadcast-dhcp-discover
 --
