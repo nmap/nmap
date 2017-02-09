@@ -166,7 +166,7 @@ local function is_vuln(host, port, version)
     for _, body in ipairs(record.body) do
       stdnse.debug1("Captured %s record.", body.type)
       if body.type == "NewSessionTicket" then
-        ticket = body.data
+        ticket = body.ticket
         break
       end
     end

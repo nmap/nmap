@@ -1180,6 +1180,14 @@ handshake_parse = {
 
         return b, j
       end,
+
+      NewSessionTicket = function (buffer, j, msg_end, protocol)
+        local b = {}
+        -- Parse body.
+        b.ticket_lifetime_hint, b.ticket, j = unpack(">I4 s2", buffer, j)
+
+        return b, j
+      end,
 }
 
 message_parse = {
