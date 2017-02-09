@@ -193,12 +193,17 @@ local function is_vuln(host, port, version)
   -- affected systems. The record must include both a Session ID and a
   -- TLS Session Ticket extension.
   --
-  -- Setting the Session ID to a single byte allows for the remaining
-  -- 31 bytes of the field to be filled with uninitialized memory when
-  -- it is echoed back in the ServerHelloDone record.
+  -- Setting the Session ID to a 16 bytes allows for the remaining 16
+  -- bytes of the field to be filled with uninitialized memory when it
+  -- is echoed back in the ServerHelloDone record. Using 16 bytes
+  -- reduces the chance of a false positive caused by the server
+  -- issuing us a new, valid session ID that just happens to match the
+  -- random one we provided.
+  local sid_old = stdnse.generate_random_string(16)
+
   local hello = tls.client_hello({
     ["protocol"] = version,
-    ["session_id"] = "\x01",
+    ["session_id"] = sid_old,
     -- Claim to support every cipher
     -- Doesn't work with IIS, but only F5 products should be affected
     ["ciphers"] = stdnse.keys(tls.CIPHERS),
@@ -267,46 +272,36 @@ local function is_vuln(host, port, version)
 
   -- Search for the ServerHello record, which contains the Session ID
   -- we want.
-  local accepted, sid
+  local sid_new
   for _, body in ipairs(record.body) do
     if body.type == "server_hello" then
-      accepted = body.extensions and body.extensions["SessionTicket TLS"]
-      sid = body.session_id
+      sid_new = body.session_id
     end
   end
 
-  if not sid then
+  if not sid_new then
     stdnse.debug1("Failed to receive a Server Hello record.")
     return
   end
 
-  if not accepted then
-    stdnse.debug1("Server did not accept our Session Ticket.")
-    return
-  end
-
   -- Check whether the Session ID matches what we originally sent,
   -- which should be the case for a properly-functioning TLS stacks.
-  if sid == "\x01" then
-    stdnse.debug1("Server properly echoed our single-byte session ID.")
+  if sid_new == sid_old then
+    stdnse.debug1("Server properly echoed our short, random session ID.")
     return
   end
 
-  -- Check whether the Session ID matches what we originally sent,
-  -- which should be the case for a properly-functioning TLS stacks.
-  if sid == "" then
-    stdnse.debug1("Server responded with an empty session ID.")
+  -- If the system is unaffected, it should provide a new session ID
+  -- unrelated to the one we provided. Check for the new session ID
+  -- being prefixed by the one we sent, indicating an affected system.
+  if sid_new:sub(1, #sid_old) ~= sid_old then
+    stdnse.debug1("Server responded with a new, unrelated session ID.")
+    stdnse.debug1("Original session ID: %s", stdnse.tohex(sid_old, {separator = ":"}))
+    stdnse.debug1("Received session ID: %s", stdnse.tohex(sid_new, {separator = ":"}))
     return
   end
 
-  -- We should receive the byte we sent out back as the start of the
-  -- session ID.
-  if sid:byte(1) ~= 1 then
-    stdnse.debug1("Server unexpectedly responded with entirely new session ID: %s", stdnse.tohex(sid, {separator = ":"}))
-    return
-  end
-
-  return sid
+  return sid_new
 end
 
 action = function(host, port)
