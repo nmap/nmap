@@ -342,8 +342,8 @@ Ticketbleed is vulnerability in the implementation of the TLS SessionTicket exte
     if sid then
       vuln_table.state = vulns.STATE.EXPLOIT
       vuln_table.exploit_results = {
-        stdnse.tohex(sid:sub(2)),
-        (sid:sub(2):gsub("[^%g ]", "."))
+        stdnse.tohex(sid:sub(17)),
+        (sid:sub(17):gsub("[^%g ]", "."))
       }
       break
     end
