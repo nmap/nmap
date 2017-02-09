@@ -47,6 +47,19 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = function(host, port)
+  -- Ensure we have the privileges necessary to run the PCAP operations this
+  -- script depends upon.
+  if not nmap.is_privileged() then
+    nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
+    if not nmap.registry[SCRIPT_NAME].rootfail then
+      stdnse.verbose1("Not running due to lack of privileges.")
+    end
+
+    nmap.registry[SCRIPT_NAME].rootfail = true
+
+    return false
+  end
+
   return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
 end
 
