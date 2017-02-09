@@ -1274,11 +1274,13 @@ end
 ---
 -- Read a SSL/TLS record
 -- @param buffer   The read buffer
--- @param i        The position in the buffer to start reading
+-- @param i        The position in the buffer to start reading (default: 1)
 -- @param fragment Message fragment left over from previous record (nil if none)
 -- @return The current position in the buffer
 -- @return The record that was read, as a table
 function record_read(buffer, i, fragment)
+  i = i or 1
+
   -- Ensure we have enough data for the header.
   if #buffer - i < TLS_RECORD_HEADER_LENGTH then
     return i, nil
@@ -1395,7 +1397,8 @@ function client_hello(t)
   table.insert(b, stdnse.generate_random_string(28))
 
   -- Set the session ID.
-  table.insert(b, '\0')
+  local sid = t["session_id"] or ""
+  table.insert(b, pack(">s1", sid))
 
   -- Cipher suites.
   ciphers = {}
