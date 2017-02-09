@@ -6,6 +6,7 @@ local shortport = require("shortport")
 local sslcert = require("sslcert")
 local stdnse = require("stdnse")
 local table = require("table")
+local tls = require "tls"
 local vulns = require("vulns")
 
 description = [[
