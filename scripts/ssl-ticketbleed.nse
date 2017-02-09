@@ -180,9 +180,9 @@ local function is_vuln(host, port, version)
     ["compressors"] = {"NULL"},
     ["extensions"] = {
       -- Claim to support every elliptic curve
-      --["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](stdnse.keys(tls.ELLIPTIC_CURVES)),
+      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](stdnse.keys(tls.ELLIPTIC_CURVES)),
       -- Claim to support every EC point format
-      --["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](stdnse.keys(tls.EC_POINT_FORMATS)),
+      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](stdnse.keys(tls.EC_POINT_FORMATS)),
       ["SessionTicket TLS"] = ticket,
     },
   })
@@ -303,8 +303,7 @@ Ticketbleed is vulnerability in the implementation of the TLS SessionTicket exte
   }
 
   -- Accept user-specified protocols.
---  local vers = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {"TLSv1.0", "TLSv1.1", "TLSv1.2"}
-  local vers = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {"TLSv1.0"}
+  local vers = stdnse.get_script_args(SCRIPT_NAME .. ".protocols") or {"TLSv1.0", "TLSv1.1", "TLSv1.2"}
   if type(vers) == "string" then
     vers = {vers}
   end
