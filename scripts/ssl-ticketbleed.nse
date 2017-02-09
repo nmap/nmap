@@ -166,7 +166,14 @@ local function is_vuln(host, port, version)
     for _, body in ipairs(record.body) do
       stdnse.debug1("Captured %s record.", body.type)
       if body.type == "NewSessionTicket" then
-        ticket = body.ticket
+        if body.ticket then
+          ticket = body.ticket
+        else
+          -- If someone downloaded this script separately from Nmap,
+          -- they are likely to be missing the parsing changes to the
+          -- TLS library.
+          _, ticket = (">I4 s2"):unpack(body.data)
+        end
         break
       end
     end
