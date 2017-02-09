@@ -8,7 +8,7 @@ local stdnse = require("stdnse")
 local table = require("table")
 local vulns = require("vulns")
 
-local have_tls, tls = pcall(require,"tls")
+local have_tls, tls = pcall(require, "tls")
 assert(have_tls, "This script requires the tls.lua library from https://nmap.org/nsedoc/lib/tls.html")
 
 description = [[
