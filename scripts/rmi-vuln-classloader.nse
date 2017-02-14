@@ -3,6 +3,7 @@ local rmi = require "rmi"
 local shortport = require "shortport"
 local string = require "string"
 local vulns = require "vulns"
+local stdnse = require "stdnse"
 
 description = [[
 Tests whether Java rmiregistry allows class loading.  The default
@@ -12,6 +13,8 @@ classifies this as a design feature.
 
 
 Based on original Metasploit module by mihi.
+
+14.02.2017 - Modified by SiL to specifically search for canary
 
 References:
 * https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_rmi_server.rb
@@ -97,6 +100,7 @@ Default configuration of RMI registry allows loading classes from remote URLs wh
   -- DCG's hashcode is f6b6898d8bf28643 hex or -669196253586618813 dec
   local status, j_array = registry.out:writeMethodCall(registry.out, 2, "f6b6898d8bf28643", 0, rmiArgs);
   local status, retByte = registry.out.dis:readByte();
+
   if not status then
     return false, "No return data received from server";
   end
@@ -105,9 +109,13 @@ Default configuration of RMI registry allows loading classes from remote URLs wh
     -- 0x51 : Returndata
     return false, "No return data received from server";
   end
-  local data = registry.out.dis.bReader.readBuffer;
 
-  if string.find(data, "RMI class loader disabled") == nil then
+  -- Formatted as Hex ('H') to avoid dealing with Null characters
+  local data = registry.out.dis.bReader:unpack('H'..tostring(registry.out.dis.bReader:bufferSize()))
+
+
+  -- Uses hex string for "file:./dummy.jar"
+  if string.find(data, "66696C653A2E2F64756D6D792E6A6172") ~= nil then
     rmi_vuln.state = vulns.STATE.VULN;
     return report:make_output(rmi_vuln);
   end
