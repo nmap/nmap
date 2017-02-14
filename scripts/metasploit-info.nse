@@ -57,7 +57,7 @@ local get_prefix = function(data)
   if string.len(data) <= 31 then
     return bin.pack("C",0xa0 + string.len(data))
   else
-    return "\xda"  .. bin.pack("s",string.len(data))
+    return "\xda"  .. bin.pack(">s",string.len(data))
   end
 
 end

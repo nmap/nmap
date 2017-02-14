@@ -810,7 +810,7 @@ ColumnInfo =
 
       pos, colinfo.unknown, colinfo.codepage, colinfo.flags, colinfo.charset = bin.unpack("<ISSC", data, pos )
 
-      pos, colinfo.tablenamelen = bin.unpack("s", data, pos )
+      pos, colinfo.tablenamelen = bin.unpack("<s", data, pos )
       pos, colinfo.tablename = bin.unpack("A" .. (colinfo.tablenamelen * 2), data, pos)
       pos, colinfo.msglen = bin.unpack("<C", data, pos )
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
