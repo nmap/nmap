@@ -166,6 +166,17 @@ verify_rakp_hmac_sha1 = function(salt, hash, password)
   return (digest == hash)
 end
 
+--[[
+Multi-byte fields in RMCP/ASF fields are specified as being transmitted in
+'Network Byte Order' - meaning most-significant byte first.
+RMCP and ASF-specified fields are therefore transferred most-significant byte
+first.
+The IPMI convention is to transfer multi-byte numeric fields least-significant
+Byte first. Therefore, unless otherwise specified:
+Data in the IPMI Session Header and IPMI Message fields are transmitted
+least-significant byte first.
+--]]
+
 parse_channel_auth_reply = function(reply)
   local data = {}
   local pos = 0
@@ -252,14 +263,14 @@ parse_open_session_reply = function(reply)
   -- bit [3:8]
   data["session_payload_type"] = bit.band(value, 0x3F)
 
-  pos, data["session_id"] = bin.unpack("I", reply, pos)
-  pos, data["session_sequence"] = bin.unpack("I", reply, pos)
+  pos, data["session_id"] = bin.unpack("<I", reply, pos)
+  pos, data["session_sequence"] = bin.unpack("<I", reply, pos)
   pos, data["message_length"] = bin.unpack("<S", reply, pos)
   pos, data["ignored1"] = bin.unpack("C", reply, pos)
   pos, data["error_code"] = bin.unpack("C", reply, pos)
   pos, data["ignored2"] = bin.unpack("<S", reply, pos)
-  pos, data["console_session_id"] = bin.unpack("I", reply, pos)
-  pos, data["bmc_session_id"] = bin.unpack("I", reply, pos)
+  pos, data["console_session_id"] = bin.unpack("<I", reply, pos)
+  pos, data["bmc_session_id"] = bin.unpack("<I", reply, pos)
 
   return data
 end

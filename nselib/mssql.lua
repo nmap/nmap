@@ -3121,7 +3121,7 @@ Auth = {
       local c = bit.bxor( string.byte( i ), xormask )
       local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
       local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-      return bin.pack("S", bit.bor( m1, m2 ) )
+      return bin.pack("<S", bit.bor( m1, m2 ) )
     end)
   end,
 

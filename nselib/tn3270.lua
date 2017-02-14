@@ -1006,7 +1006,7 @@ Telnet = {
     if self.state == self.TN3270E_DATA then
       -- we need to create the tn3270E (the E is important) header
       -- which, in basic 3270E is 5 bytes of 0x00
-      packet = string.pack("BBB I2",
+      packet = string.pack("BBB >I2",
         self.DT_3270_DATA, -- type
         0, -- request
         0, -- response

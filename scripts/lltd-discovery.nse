@@ -190,7 +190,7 @@ local QuickDiscoveryPacket = function(mac_src)
   local number_of_stations = 0
   local station_list = string.rep("\0", 6*4)
 
-  discover_up_lev_hdr = generation_number .. string.pack("I2", number_of_stations) .. station_list
+  discover_up_lev_hdr = generation_number .. string.pack(">I2", number_of_stations) .. station_list
 
   -- put them all together and return
   return ethernet_hdr .. demultiplex_hdr .. base_hdr .. discover_up_lev_hdr

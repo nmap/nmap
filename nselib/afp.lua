@@ -835,7 +835,7 @@ Proto = {
     end
 
     data = response:getPacketData()
-    pos, parms.server_time, parms.vol_count = bin.unpack("IC", data)
+    pos, parms.server_time, parms.vol_count = bin.unpack(">IC", data)
 
     -- we should now be at the leading zero preceding the first volume name
     -- next is the length of the volume name, move pos there

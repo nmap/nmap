@@ -42,7 +42,7 @@ portrule = shortport.portnumber(1604, "udp")
 -- @return string row delimited with \n containing all published applications
 function process_pa_response(response)
 
-  local pos, packet_len = bin.unpack("SS", response)
+  local pos, packet_len = bin.unpack("<S", response)
   local app_name
   local pa_list = {}
 

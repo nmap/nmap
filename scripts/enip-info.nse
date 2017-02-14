@@ -1422,7 +1422,7 @@ action = function(host,port)
       -- lookup device type based off number, return to output table
       output["Device Type"] = device_type_lookup(devnum) .. " (" .. devnum .. ")"
       -- unpack product code as a two byte int
-      pos, output["Product Code"] = bin.unpack("S", response, 53)
+      pos, output["Product Code"] = bin.unpack("<S", response, 53)
       -- Revision Nuumber
       local char1, char2
       pos, char1, char2 = bin.unpack("CC", response, 55)

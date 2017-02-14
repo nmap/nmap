@@ -79,7 +79,7 @@ Packet = {
       local data = tostring(self.header)
       data = data .. bin.pack("C", #self.authnames)
       for _, name in ipairs(self.authnames) do
-        data = data .. bin.pack("P", name)
+        data = data .. bin.pack(">P", name)
       end
       return data
     end,

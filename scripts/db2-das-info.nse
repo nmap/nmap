@@ -190,7 +190,7 @@ function read_db2_packet(socket)
     local _, endian = bin.unpack( "A2", packet.header.raw, ENDIANESS_OFFSET )
 
     if endian == "9z" then
-      _, packet.header.data_len = bin.unpack("I", packet.header.raw, DATA_LENGTH_OFFSET )
+      _, packet.header.data_len = bin.unpack("<I", packet.header.raw, DATA_LENGTH_OFFSET )
     else
       _, packet.header.data_len = bin.unpack(">I", packet.header.raw, DATA_LENGTH_OFFSET )
     end
@@ -270,7 +270,7 @@ function create_das_packet( magic, data )
   .. "\x01\x04\x00\x00\x00\x10\x39\x7a\x00\x05\x00\x00\x00\x00\x00\x00"
   .. "\x00\x00\x00\x00"
   .. bin.pack("C", magic)
-  .. bin.pack("S", data_len)
+  .. bin.pack("<S", data_len)
   .. "\x00\x00"
 
   packet.header.data_len = data_len
