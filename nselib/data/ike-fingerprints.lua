@@ -239,6 +239,15 @@ table.insert(fingerprints, {
 });
 
 
+table.insert(fingerprints, {
+  category = 'vendor',
+  vendor = 'Fortinet FortiGate',
+  version = "v5",
+  ostype = "Fortigate v5",
+  devicetype = 'Network Security Appliance',
+  cpe =   'cpe:/h:fortinet:fortigate',
+  fingerprint = '^8299031757a36082c6a621de....'
+});
 
 --------------------------------------------------------------------------------
 -- FreeS/WAN
