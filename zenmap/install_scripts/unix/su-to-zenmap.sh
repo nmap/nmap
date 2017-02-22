@@ -24,12 +24,16 @@ else
         if test "X$KDE_FULL_SESSION" = "Xtrue" ; then
           if which kdesu >/dev/null 2>&1 ; then
             SU_TO_ROOT_X=kdesu
+          elif which kdesu5 >/dev/null 2>&1 ; then
+            SU_TO_ROOT_X=kdesu5
           elif test -x /usr/lib/kde4/libexec/kdesu ; then
             SU_TO_ROOT_X=kde4su
           fi;
         fi;
       elif which kdesu >/dev/null 2>&1 ; then 
         SU_TO_ROOT_X=kdesu
+      elif which kdesu5 >/dev/null 2>&1 ; then
+        SU_TO_ROOT_X=kdesu5
       elif test -x /usr/lib/kde4/libexec/kdesu ; then
         SU_TO_ROOT_X=kde4su
       elif which ktsuss >/dev/null 2>&1 ; then
@@ -47,6 +51,7 @@ else
     case $SU_TO_ROOT_X in
       gksu) gksu -u "$PRIV" "$COMMAND";;
       kdesu) kdesu -u "$PRIV" -c "$COMMAND";;
+      kdesu5) kdesu5 -u "$PRIV" -c "$COMMAND";;
       kde4su) /usr/lib/kde4/libexec/kdesu -u "$PRIV" -c "$COMMAND";;
       ktsuss) ktsuss -u "$PRIV" "$COMMAND";;
   # As a last resort, open a new xterm use sudo/su
