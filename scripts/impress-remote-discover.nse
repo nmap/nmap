@@ -7,6 +7,8 @@ local stdnse = require "stdnse"
 
 description = [[
 Tests for the presence of the LibreOffice Impress Remote server.
+Checks if a PIN is valid if provided and will bruteforce the PIN
+if requested.
 ]]
 
 ---
@@ -29,7 +31,7 @@ Tests for the presence of the LibreOffice Impress Remote server.
 
 author = "Jer Hiebert"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"exploit", "intrusive", "malware", "vuln"}
+categories = {"exploit", "intrusive", "bruteforce", "vuln"}
 
 local function parse_args()
   local args = {}
