@@ -95,7 +95,7 @@ end
 
 
 local function validateIP(matched_ip)
-  local oct_1, oct_2, oct_3, oct_4 = matched_ip:match('(%d%d?%d?)%.(%d%d?%d?)%.(%d%d?%d)%.(%d%d?%d?)')
+  local oct_1, oct_2, oct_3, oct_4 = matched_ip:match('^(%d+)%.(%d+)%.(%d+)%.(%d+)$')
   if tonumber(oct_1) > 255 or tonumber(oct_2) > 255 or tonumber(oct_3) > 255 or tonumber(oct_4) > 255 then
     return false
   end
