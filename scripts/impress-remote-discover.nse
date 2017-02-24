@@ -84,6 +84,8 @@ end
 -- Returns the PIN and Remote Server version if the PIN is correct
 local remote_version = function(buffer, socket, pin)
   local line, err
+  -- The line we are looking for is 4 down in the response
+  -- so we loop through lines until we get to that one
   for j=0,3 do
     line, err = buffer()
     if not line then
@@ -127,6 +129,7 @@ local check_pin = function(host, port, pin)
 end
 
 local bruteforce = function(host, port)
+  -- There are 10000 possible PINs which we loop through
   for i=0,9999 do
     -- Pad the pin with leading zeros if required
     local pin = string.format("%04d", i)
