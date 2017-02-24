@@ -630,7 +630,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
       end
       if server_hello.protocol ~= protocol then
         ctx_log(1, protocol, "Protocol rejected. cipher: %s", server_hello.cipher)
-        protocol_worked = (protocol_worked == nil) and nil or false
+        protocol_worked = protocol_worked or nil
         break
       else
         protocol_worked = true
