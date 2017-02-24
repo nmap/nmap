@@ -85,16 +85,21 @@ local remote_version = function(buffer, socket, pin)
   for j=0,3 do
     line, err = buffer()
     if not line then
+      socket:close()
       stdnse.debug1("Failed to receive line from socket: %s", err)
       return
     end
 
     if string.match(line, "^LO_SERVER_INFO$") then
       line, err = buffer()
-      stdnse.debug1("Here's the version: %s", line)
-      return "Remote PIN: "..pin.."\nImpress Version: "..line
+      socket:close()
+      return pin, line
     end
   end
+
+  socket:close()
+  stdnse.debug1("Failed to parse version from socket.")
+  return
 end
 
 local check_pin = function(host, port, pin)
@@ -105,15 +110,18 @@ local check_pin = function(host, port, pin)
 
   local line, err = buffer()
   if not line then
-    stdnse.debug1("Failed to receive line from socket: %s", err)
     socket:close()
-    return line, err
-  elseif string.match(line, "^LO_SERVER_SERVER_PAIRED$") then
+    stdnse.debug1("Failed to receive line from socket: %s", err)
+    return
+  end
+
+  if string.match(line, "^LO_SERVER_SERVER_PAIRED$") then
     return remote_version(buffer, socket, pin)
   end
-  socket:close()
 
-  return "Remote Server present but incorrect PIN"
+  socket:close()
+  stdnse.debug1("Remote Server present but PIN was not accepted.")
+  return
 end
 
 local bruteforce = function(host, port)
@@ -131,19 +139,23 @@ local bruteforce = function(host, port)
 
     local line, err = buffer()
     if not line then
-      stdnse.debug1("Failed to receive line from socket: %s", err)
       socket:close()
-      return line, err
-    elseif string.match(line, "^LO_SERVER_SERVER_PAIRED$") then
+      stdnse.debug1("Failed to receive line from socket: %s", err)
+      return
+    end
+
+    if string.match(line, "^LO_SERVER_SERVER_PAIRED$") then
       return remote_version(buffer, socket, pin)
     end
+
     socket:close()
   end
 
-  return "Failed to bruteforce PIN"
+  stdnse.debug1("Failed to bruteforce PIN.")
+  return
 end
 
-portrule = shortport.port_or_service(1599, "libreoffice-impress-remote", "tcp")
+portrule = shortport.port_or_service(80, "libreoffice-impress-remote", "tcp")
 
 action = function(host, port)
   -- Parse and sanity check the command line arguments.
