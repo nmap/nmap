@@ -23,7 +23,7 @@ if requested.
 --       <code>false</code>).
 --
 -- @output
--- PORT   STATE SERVICE
+-- PORT     STATE SERVICE
 -- 1599/tcp open  LibreOffice Impress
 -- | impress-remote-discover:
 -- |   Command: id
@@ -118,7 +118,7 @@ local check_pin = function(host, port, pin)
     return remote_version(buffer, socket, pin)
   end
   socket:close()
-  
+
   return "Remote Server present but incorrect PIN"
 end
 
@@ -159,7 +159,7 @@ action = function(host, port)
   end
 
   if not result then
-  	return
+    return
   end
 
   return stdnse.format_output(true, result)
