@@ -145,13 +145,13 @@ end
 portrule = shortport.port_or_service(1599, "libreoffice-impress-remote", "tcp")
 
 action = function(host, port)
-  local result
   -- Parse and sanity check the command line arguments.
   local status, options = parse_args()
   if not status then
     return
   end
 
+  local result
   if options.bruteforce then
     result = bruteforce(host, port)
   else
