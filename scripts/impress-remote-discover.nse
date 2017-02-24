@@ -120,6 +120,10 @@ local bruteforce = function(host, port)
   for i=0,9999 do
     -- Pad the pin with leading zeros if required
     local pin = string.format("%04d", i)
+    if i % 100 == 0 then
+      stdnse.debug1("Bruteforce attempt %d with PIN %s...", i + 1, pin)
+    end
+
     local buffer, socket = remote_connect(host, port, pin)
     if not buffer then
       return
