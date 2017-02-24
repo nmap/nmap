@@ -60,7 +60,6 @@ local HELLO_MESSAGE = "\x01\x00\x00\x08\xff\xff\xff\xff"
 portrule = shortport.version_port_or_service({6633, 6653}, "openflow", "tcp")
 
 receive_message = function(host, port)
-
   -- Handshake Info:
   -- Versions 1.3.1 and later say hello with a bitmap of versions supported
   -- Earlier versions either say hello without the bitmap.
