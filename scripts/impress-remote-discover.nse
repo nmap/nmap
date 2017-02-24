@@ -17,8 +17,7 @@ if requested.
 -- 1599/tcp open  LibreOffice Impress
 -- | impress-remote-discover:
 -- |   Command: id
--- |   Results: uid=0(root) gid=0(wheel) groups=0(wheel)
--- |_
+-- |_  Results: uid=0(root) gid=0(wheel) groups=0(wheel)
 --
 -- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the
 --        PIN (default is <code>false</code>).
@@ -37,9 +36,9 @@ local function parse_args()
   if bruteforce then
     -- Sanity check the value from the user.
     if type(bruteforce) ~= "string" then
-      return false, "bruteforce argument must be a string."
+      return false, "Bruteforce argument must be a string."
     elseif bruteforce ~= "true" then
-      return false, "bruteforce argument must be either true or left out entirely."
+      return false, "Bruteforce argument must be either true or left out entirely."
     end
   end
   args.bruteforce = bruteforce or false
@@ -49,9 +48,9 @@ local function parse_args()
     -- Sanity check the value from the user.
     pin = tonumber(pin)
     if type(pin) ~= "number" then
-      return false, "pin argument must be a number."
+      return false, "PIN argument must be a number."
     elseif pin < 0 or pin > 9999 then
-      return false, "pin argument must be in range between 0000 and 9999 inclusive."
+      return false, "PIN argument must be in range between 0000 and 9999 inclusive."
     elseif bruteforce then
       return false, "When bruteforcing is enabled, a PIN cannot be set."
     end
@@ -160,7 +159,7 @@ local bruteforce = function(host, port)
   return
 end
 
-portrule = shortport.port_or_service(80, "libreoffice-impress-remote", "tcp")
+portrule = shortport.port_or_service(1599, "libreoffice-impress-remote", "tcp")
 
 action = function(host, port)
   -- Parse and sanity check the command line arguments.
