@@ -1384,7 +1384,8 @@ end
 -- Build a client_hello message
 --
 -- The options table has the following keys:
--- * <code>"protocol"</code> - The TLS protocol version string
+-- * <code>"protocol"</code> - The TLS protocol version string for the client_hello. This indicates the highest protocol version supported.
+-- * <code>"record_protocol"</code> - The TLS protocol version string for the TLS record. This indicates the lowest protocol version supported.
 -- * <code>"ciphers"</code> - a table containing the cipher suite names. Defaults to the NULL cipher
 -- * <code>"compressors"</code> - a table containing the compressor names. Default: NULL
 -- * <code>"extensions"</code> - a table containing the extension names. Default: no extensions
@@ -1487,7 +1488,7 @@ function client_hello(t)
   table.insert(h, pack(">s3", b))
 
   -- Record layer version should be SSLv3 (lowest compatible record version)
-  return record_write("handshake", "SSLv3", table.concat(h))
+  return record_write("handshake", t.record_protocol or "SSLv3", table.concat(h))
 end
 
 local function read_atleast(s, n)
