@@ -61,10 +61,10 @@ end
 
 local remote_connect = function(host, port, pin)
   local socket = nmap.new_socket()
-  local result
-  local status = true
-
-  socket:connect(host, port)
+  local status, err = socket:connect(host, port)
+  if not status then
+     return string.format("Can't connect: %s", err)
+  end
   socket:set_timeout(5000)
 
   local buffer, err = stdnse.make_buffer(socket, "\n")
