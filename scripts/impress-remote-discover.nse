@@ -136,7 +136,7 @@ action = function(host, port)
   -- Parse and sanity check the command line arguments.
   local status, options = parse_args()
   if not status then
-    return
+    return false, options
   end
 
   local result
