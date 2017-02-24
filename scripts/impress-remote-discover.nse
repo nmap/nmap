@@ -26,7 +26,7 @@ if requested.
 -- @args impress-remote-discover.pin PIN number for the remote (default is
 --       <code>0000</code>).
 
-author = "Jer Hiebert"
+author = "Jer Hiebert (jkhiebert@gmail.com)"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "bruteforce", "vuln"}
 
