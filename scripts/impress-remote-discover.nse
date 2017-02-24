@@ -3,9 +3,6 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 
--- -*- mode: lua -*-
--- vim: set filetype=lua :
-
 description = [[
 Tests for the presence of the LibreOffice Impress Remote server.
 Checks if a PIN is valid if provided and will bruteforce the PIN
