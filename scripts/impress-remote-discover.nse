@@ -61,8 +61,8 @@ end
 
 local remote_connect = function(host, port, pin)
   local socket = nmap.new_socket()
-  local result;
-  local status = true;
+  local result
+  local status = true
 
   socket:connect(host, port)
   socket:set_timeout(5000)
