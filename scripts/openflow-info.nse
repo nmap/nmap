@@ -158,7 +158,7 @@ retrieve_version_bitmap = function(message)
   local body = message.body
   while pos + 4 < #body - 1 do
     local element_length, element_type
-    element_type, element_type, pos = string.unpack(">I2 I2", body, pos)
+    element_type, element_length, pos = string.unpack(">I2 I2", body, pos)
     if pos + element_length < #body then
       stdnse.debug1("Ran out of data parsing element type %d at position %d.", element_type, pos)
       return
