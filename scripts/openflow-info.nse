@@ -6,7 +6,9 @@ local match = require "match"
 local table = require "table"
 
 description = [[
-Queries OpenFlow controllers for information
+Queries OpenFlow controllers for information. Newer versions of the OpenFlow
+protocol (1.3 and greater) will return a list of all protocol versions supported
+by the controller. Versions prior to 1.3 only return their own version number.
 ]]
 
 ---
@@ -37,12 +39,12 @@ categories = {"default", "safe"}
 -- protocol. If the bit identified by the number of left bitshift equal
 -- to a ofp version number is set, this OpenFlow version is supported.
 local openflow_versions = {
-  [0x02] = '1.0',
-  [0x04] = '1.1',
-  [0x08] = '1.2',
-  [0x10] = '1.3.X',
-  [0x20] = '1.4.X',
-  [0x40] = '1.5.X'
+  [0x02] = "1.0",
+  [0x04] = "1.1",
+  [0x08] = "1.2",
+  [0x10] = "1.3.X",
+  [0x20] = "1.4.X",
+  [0x40] = "1.5.X"
 }
 
 local OPENFLOW_HEADER_SIZE = 8
@@ -59,7 +61,7 @@ receive_message = function(host, port)
   -- Earlier versions either say hello without the bitmap.
   -- Some implementations are shy and don't make the first move, so we'll say
   -- hello first. We'll pretend to be a switch using version 1.0 of the protocol
-  local socket, message = comm.tryssl(host, port, HELLO_MESSAGE, { recv_first = false, bytes = 8 } )
+  local socket, message = comm.tryssl(host, port, HELLO_MESSAGE, { recv_first = false, bytes = OPENFLOW_HEADER_SIZE } )
 
   -- third and fourth bytes contain the length of the message, including the header
   local message_length = string.unpack(">I2", message, 3)
@@ -113,7 +115,7 @@ action = function(host, port)
     return false, message
   end
   local current_version = string.unpack(">I1", message, 1)
-  results['OpenFlow Running Version'] = openflow_versions[2^current_version]
+  results["OpenFlow Running Version"] = openflow_versions[2^current_version]
 
   local message_type = string.unpack(">I1", message, 2)
   if message_type == OFPT_HELLO then
@@ -125,7 +127,7 @@ action = function(host, port)
         end
       end
       table.sort(supported_versions)
-      results['OpenFlow Versions Supported'] = supported_versions
+      results["OpenFlow Versions Supported"] = supported_versions
     end
   end
 
