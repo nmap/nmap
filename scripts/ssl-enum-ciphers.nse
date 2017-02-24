@@ -605,8 +605,11 @@ local function find_ciphers_group(host, port, protocol, group, scores)
       if alert then
         ctx_log(2, protocol, "Got alert: %s", alert.body[1].description)
         if alert["protocol"] ~= protocol then
-          ctx_log(1, protocol, "Protocol rejected.")
-          protocol_worked = nil
+          ctx_log(1, protocol, "Protocol mismatch (received %s)", alert.protocol)
+          -- Sometimes this is not an actual rejection of the protocol. Check specifically:
+          if get_body(alert, "description", "protocol_version") then
+            protocol_worked = nil
+          end
           break
         elseif get_body(alert, "description", "handshake_failure") then
           protocol_worked = true
