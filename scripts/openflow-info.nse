@@ -55,29 +55,88 @@ local openflow_versions = {
 local OPENFLOW_HEADER_SIZE = 8
 local OFPT_HELLO = 0
 local OFPHET_VERSIONBITMAP = 1
-local HELLO_MESSAGE = "\x01\x00\x00\x08\xff\xff\xff\xff"
 
 portrule = shortport.version_port_or_service({6633, 6653}, "openflow", "tcp")
 
 receive_message = function(host, port)
+  local hello = string.pack(
+    ">I1 I1 I2 I4",
+    0x04,
+    OFPT_HELLO,
+    OPENFLOW_HEADER_SIZE,
+    0xFFFFFFFF
+  )
+
   -- Handshake Info:
   -- Versions 1.3.1 and later say hello with a bitmap of versions supported
   -- Earlier versions either say hello without the bitmap.
   -- Some implementations are shy and don't make the first move, so we'll say
   -- hello first. We'll pretend to be a switch using version 1.0 of the protocol
-  local socket, message = comm.tryssl(host, port, HELLO_MESSAGE, { recv_first = false, bytes = OPENFLOW_HEADER_SIZE } )
-
-  -- third and fourth bytes contain the length of the message, including the header
-  local message_length = string.unpack(">I2", message, 3)
-  if message_length > OPENFLOW_HEADER_SIZE then
-    local status, body = socket:receive_buf(match.numbytes(message_length - OPENFLOW_HEADER_SIZE), true)
-    if not status then
-      return false, body
-    end
-    message = message .. body
+  local socket, response = comm.tryssl(host, port, hello, {recv_first = false, bytes = OPENFLOW_HEADER_SIZE})
+  if not socket then
+    stdnse.debug1("Failed to connect to service: %s", response)
+    return
   end
-  socket:close()
-  return true, message
+
+  if #response < OPENFLOW_HEADER_SIZE then
+    socket:close()
+    stdnse.debug1("Initial packet received was %d bytes, need >= %d bytes.", #response, OPENFLOW_HEADER_SIZE)
+    return
+  end
+
+  -- The first byte is the protocol version number being used. So long as that
+  -- number is less than the currently-published versions, then we can be
+  -- confident in our parsing of the packet.
+  local pos = 1
+  local message = {}
+  local message_version, pos = string.unpack(">I1", response, 1)
+  if message_version > 0x06 then
+    socket:close()
+    stdnse.debug1("Initial packet received had unrecognized version %d.", message_version)
+    return
+  end
+  message.version = message_version
+
+  -- The second byte is the packet type.
+  local message_type, pos = string.unpack(">I1", response, pos)
+  message.type = message_type
+
+  -- The fourth and fifth bytes are the length of the entire message, including
+  -- the header and length itself.
+  local message_length, pos = string.unpack(">I2", response, pos)
+  if message_length < OPENFLOW_HEADER_SIZE then
+    socket:close()
+    stdnse.debug1("Response declares length as %d bytes, need >= %d bytes.", message_length, OPENFLOW_HEADER_SIZE)
+    return
+  end
+  message.length = message_length
+
+  -- The remainder of the header contains the ID.
+  local message_id, pos = string.unpack(">I4", response, pos)
+  message.id = message_id
+
+  -- All remaining data up to the message_length is the body.
+  assert(pos == 9)
+  message.body = response:sub(pos, message_length - 1)
+
+  -- If we have the whole packet, pass it up the call stack.
+  if message_length <= #message then
+    socket:close()
+    return message
+  end
+
+  -- If message length is larger than the data we already have, receive the
+  -- remainder of the packet.
+  local missing_bytes = message_length - #response
+  local status, body = socket:receive_buf(match.numbytes(missing_bytes), true)
+  if not status then
+    socket:close()
+    stdnse.debug1("Failed to receive missing %d bytes of response: %s", missing_bytes, body)
+    return
+  end
+  message.body = (response .. body):sub(pos, message_length - 1)
+
+  return message
 end
 
 retrieve_version_bitmap = function(message)
@@ -95,45 +154,52 @@ retrieve_version_bitmap = function(message)
   -- through elements until we find OFPHET_VERSIONBITMAP.
   -- Note: As of version 1.5, OFPHET_VERSIONBITMAP is the only standard hello element type.
   -- However, we can not assume that this will be the case for long.
-  local index = OPENFLOW_HEADER_SIZE + 1
-  while index < #message do
-    local element_type = string.unpack(">I2", message, index)
-    local element_length = string.unpack(">I2", message, index + 2)
-
-    if element_type == OFPHET_VERSIONBITMAP then
-      stdnse.debug(1, "Version Index: %i", index + 4)
-      return string.unpack(">I4", message, index + 4)
+  local pos = 1
+  local body = message.body
+  while pos + 4 < #body - 1 do
+    local element_length, element_type
+    element_type, element_type, pos = string.unpack(">I2 I2", body, pos)
+    if pos + element_length < #body then
+      stdnse.debug1("Ran out of data parsing element type %d at position %d.", element_type, pos)
+      return
     end
 
-    index = index + element_length
+    if element_type == OFPHET_VERSIONBITMAP then
+      return string.unpack(">I4", body, pos)
+    end
+
+    pos = pos + element_length
   end
-  return nil
+
+  return
 end
 
 action = function(host, port)
-  local supported_versions = {}
-  local results = {}
+  local output = stdnse.output_table()
 
-  local status, message = receive_message(host, port)
-  if not status then
-    return false, message
+  local message = receive_message(host, port)
+  if not message then
+    return
   end
-  local current_version = string.unpack(">I1", message, 1)
-  results["OpenFlow Running Version"] = openflow_versions[2^current_version]
 
-  local message_type = string.unpack(">I1", message, 2)
-  if message_type == OFPT_HELLO then
-    local version_bitmap = retrieve_version_bitmap(message)
-    if version_bitmap ~= nil then
-      for mask, version in pairs(openflow_versions) do
-        if mask & version_bitmap then
-          table.insert(supported_versions, version)
-        end
-      end
-      table.sort(supported_versions)
-      results["OpenFlow Versions Supported"] = supported_versions
+  output["OpenFlow Version Running"] = openflow_versions[2 ^ message.version]
+  if message.type ~= OFPT_HELLO then
+    return output
+  end
+
+  local version_bitmap = retrieve_version_bitmap(message)
+  if not version_bitmap then
+    return output
+  end
+
+  local supported_versions = {}
+  for mask, version in pairs(openflow_versions) do
+    if mask & version_bitmap then
+      table.insert(supported_versions, version)
     end
   end
+  table.sort(supported_versions)
+  output["OpenFlow Versions Supported"] = supported_versions
 
-  return results
+  return output
 end
