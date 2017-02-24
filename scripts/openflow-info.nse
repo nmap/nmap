@@ -15,7 +15,9 @@ For additional information:
 ]]
 
 ---
---@output
+-- @usage nmap -p 6633,6653 --script openflow-info <target>
+-- @output
+-- PORT     STATE SERVICE REASON
 -- 6653/tcp open  openflow
 -- | openflow-info:
 -- |   OpenFlow Running Version: 1.5.X
