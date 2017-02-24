@@ -76,7 +76,7 @@ local remote_connect = function(host, port, pin)
     stdnse.debug1("Failed to create buffer from socket: %s", err)
     return
   end
-  socket:send("LO_SERVER_CLIENT_PAIR\nFirefox OS\n"..pin.."\n\n")
+  socket:send("LO_SERVER_CLIENT_PAIR\nFirefox OS\n" .. pin .. "\n\n")
 
   return buffer, socket
 end
