@@ -49,7 +49,7 @@ local function parse_args()
     -- Default the pin to 0.
     pin = 0
   end
-  -- Pad the pin with zeros to make it four digits.
+  -- Pad the pin with leading zeros to make it four digits.
   pin = string.format("%04d", pin)
   args.pin = pin
 
@@ -88,6 +88,7 @@ local remote_connect = function(host, port, pin)
   return buffer, socket
 end
 
+-- Returns the PIN and Remote Server version if the PIN is correct
 local remote_version = function(buffer, socket, pin)
   for j=0,3 do
     line, err = buffer()
@@ -122,6 +123,7 @@ end
 
 local bruteforce = function(host, port)
   for i=0,9999 do
+    -- Pad the pin with leading zeros if required
     local pin = string.format("%04d", i)
     local buffer, socket = remote_connect(host, port, pin)
 
@@ -143,7 +145,7 @@ portrule = shortport.port_or_service(1599, "libreoffice-impress-remote", "tcp")
 
 action = function(host, port)
   local result
-    -- Parse and sanity check the command line arguments.
+  -- Parse and sanity check the command line arguments.
   local status, options = parse_args()
   if not status then
     return
