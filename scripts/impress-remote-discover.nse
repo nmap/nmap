@@ -63,12 +63,14 @@ local remote_connect = function(host, port, pin)
   local socket = nmap.new_socket()
   local status, err = socket:connect(host, port)
   if not status then
-     return string.format("Can't connect: %s", err)
+    stdnse.debug("Can't connect: %s", err)
+    return
   end
   socket:set_timeout(5000)
 
   local buffer, err = stdnse.make_buffer(socket, "\n")
   if err then
+    socket:close()
     stdnse.debug1("Failed to create buffer from socket: %s", err)
     return
   end
@@ -97,6 +99,10 @@ end
 
 local check_pin = function(host, port, pin)
   local buffer, socket = remote_connect(host, port, pin)
+  if not buffer then
+    return
+  end
+
   local line, err = buffer()
   if not line then
     stdnse.debug1("Failed to receive line from socket: %s", err)
@@ -115,6 +121,9 @@ local bruteforce = function(host, port)
     -- Pad the pin with leading zeros if required
     local pin = string.format("%04d", i)
     local buffer, socket = remote_connect(host, port, pin)
+    if not buffer then
+      return
+    end
 
     local line, err = buffer()
     if not line then
