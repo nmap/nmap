@@ -20,11 +20,11 @@ if requested.
 -- |   Results: uid=0(root) gid=0(wheel) groups=0(wheel)
 -- |_
 --
--- @args impress-remote-discover.pin PIN number for the remote (default is
---       <code>0000</code>).
---
 -- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the
 --        PIN (default is <code>false</code>).
+--
+-- @args impress-remote-discover.pin PIN number for the remote (default is
+--       <code>0000</code>).
 
 author = "Jer Hiebert"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -32,6 +32,20 @@ categories = {"exploit", "intrusive", "bruteforce", "vuln"}
 
 local function parse_args()
   local args = {}
+
+  local bruteforce = stdnse.get_script_args(SCRIPT_NAME .. '.bruteforce')
+  if bruteforce then
+    -- Sanity check the value from the user.
+    if type(bruteforce) ~= "string" then
+      return false, "bruteforce argument must be a string."
+    elseif bruteforce ~= "true" then
+      return false, "bruteforce argument must be either true or left out entirely."
+    end
+  else
+    -- Default bruteforce to false.
+    bruteforce = false
+  end
+  args.bruteforce = bruteforce
 
   local pin = stdnse.get_script_args(SCRIPT_NAME .. '.pin')
   if pin then
@@ -49,20 +63,6 @@ local function parse_args()
   -- Pad the pin with leading zeros to make it four digits.
   pin = string.format("%04d", pin)
   args.pin = pin
-
-  local bruteforce = stdnse.get_script_args(SCRIPT_NAME .. '.bruteforce')
-  if bruteforce then
-    -- Sanity check the value from the user.
-    if type(bruteforce) ~= "string" then
-      return false, "bruteforce argument must be a string."
-    elseif bruteforce ~= "true" then
-      return false, "bruteforce argument must be either true or left out entirely."
-    end
-  else
-    -- Default bruteforce to false.
-    bruteforce = false
-  end
-  args.bruteforce = bruteforce
 
   return true, args
 end
