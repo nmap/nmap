@@ -630,7 +630,12 @@ local function find_ciphers_group(host, port, protocol, group, scores)
       end
       if server_hello.protocol ~= protocol then
         ctx_log(1, protocol, "Protocol rejected. cipher: %s", server_hello.cipher)
-        protocol_worked = protocol_worked or nil
+        -- Some implementations will do this if a cipher is supported in some
+        -- other protocol version but not this one. Gotta keep trying.
+        if not remove(group, server_hello.cipher) then
+          -- But if we didn't even offer this cipher, then give up. Crazy!
+          protocol_worked = protocol_worked or nil
+        end
         break
       else
         protocol_worked = true
