@@ -9,6 +9,9 @@ description = [[
 Queries OpenFlow controllers for information. Newer versions of the OpenFlow
 protocol (1.3 and greater) will return a list of all protocol versions supported
 by the controller. Versions prior to 1.3 only return their own version number.
+
+For additional information:
+* https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-switch-v1.5.0.noipr.pdf
 ]]
 
 ---
