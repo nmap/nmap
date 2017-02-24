@@ -583,6 +583,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
   local results = {}
   local t = {
     ["protocol"] = protocol,
+    ["record_protocol"] = protocol, -- improve chances of immediate rejection
     ["extensions"] = base_extensions(host),
   }
 
