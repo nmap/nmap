@@ -33,7 +33,7 @@ categories = {"exploit", "intrusive", "bruteforce", "vuln"}
 local function parse_args()
   local args = {}
 
-  local bruteforce = stdnse.get_script_args(SCRIPT_NAME .. '.bruteforce')
+  local bruteforce = stdnse.get_script_args(SCRIPT_NAME .. ".bruteforce")
   if bruteforce then
     -- Sanity check the value from the user.
     if type(bruteforce) ~= "string" then
@@ -41,13 +41,10 @@ local function parse_args()
     elseif bruteforce ~= "true" then
       return false, "bruteforce argument must be either true or left out entirely."
     end
-  else
-    -- Default bruteforce to false.
-    bruteforce = false
   end
-  args.bruteforce = bruteforce
+  args.bruteforce = bruteforce or false
 
-  local pin = stdnse.get_script_args(SCRIPT_NAME .. '.pin')
+  local pin = stdnse.get_script_args(SCRIPT_NAME .. ".pin")
   if pin then
     -- Sanity check the value from the user.
     pin = tonumber(pin)
@@ -56,13 +53,8 @@ local function parse_args()
     elseif pin < 0 or pin > 9999 then
       return false, "pin argument must be in range between 0000 and 9999 inclusive."
     end
-  else
-    -- Default the pin to 0.
-    pin = 0
   end
-  -- Pad the pin with leading zeros to make it four digits.
-  pin = string.format("%04d", pin)
-  args.pin = pin
+  args.pin = pin or 0
 
   return true, args
 end
