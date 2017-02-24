@@ -1,6 +1,7 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
@@ -90,6 +91,7 @@ end
 
 -- Returns the PIN and Remote Server version if the PIN is correct
 local remote_version = function(buffer, socket, pin)
+  local line, err
   for j=0,3 do
     line, err = buffer()
     if not line then
@@ -107,8 +109,7 @@ end
 
 local check_pin = function(host, port, pin)
   local buffer, socket = remote_connect(host, port, pin)
-
-  line, err = buffer()
+  local line, err = buffer()
   if not line then
     stdnse.debug1("Failed to receive line from socket: %s", err)
     socket:close()
@@ -127,7 +128,7 @@ local bruteforce = function(host, port)
     local pin = string.format("%04d", i)
     local buffer, socket = remote_connect(host, port, pin)
 
-    line, err = buffer()
+    local line, err = buffer()
     if not line then
       stdnse.debug1("Failed to receive line from socket: %s", err)
       socket:close()
