@@ -10,14 +10,7 @@ if requested.
 ]]
 
 ---
--- @usage
--- nmap --script impress-remote-discover -p 1599 <host>
---
--- @args impress-remote-discover.pin PIN number for the remote (default is
---       <code>0000</code>).
---
--- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the PIN (default is
---       <code>false</code>).
+-- @usage nmap -p 1599 --script impress-remote-discover <host>
 --
 -- @output
 -- PORT     STATE SERVICE
@@ -26,6 +19,12 @@ if requested.
 -- |   Command: id
 -- |   Results: uid=0(root) gid=0(wheel) groups=0(wheel)
 -- |_
+--
+-- @args impress-remote-discover.pin PIN number for the remote (default is
+--       <code>0000</code>).
+--
+-- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the
+--        PIN (default is <code>false</code>).
 
 author = "Jer Hiebert"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
