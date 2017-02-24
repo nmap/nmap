@@ -52,6 +52,8 @@ local function parse_args()
       return false, "pin argument must be a number."
     elseif pin < 0 or pin > 9999 then
       return false, "pin argument must be in range between 0000 and 9999 inclusive."
+    elseif bruteforce then
+      return false, "When bruteforcing is enabled, a PIN cannot be set."
     end
   end
   args.pin = pin or 0
