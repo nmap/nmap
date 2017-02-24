@@ -16,8 +16,8 @@ if requested.
 -- PORT     STATE SERVICE
 -- 1599/tcp open  LibreOffice Impress
 -- | impress-remote-discover:
--- |   Command: id
--- |_  Results: uid=0(root) gid=0(wheel) groups=0(wheel)
+-- |   Remote PIN: pin
+-- |_  Impress Version: version
 --
 -- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the
 --        PIN (default is <code>false</code>).
