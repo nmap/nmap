@@ -115,12 +115,12 @@ receive_message = function(host, port)
   local message_id, pos = string.unpack(">I4", response, pos)
   message.id = message_id
 
-  -- All remaining data up to the message_length is the body.
-  assert(pos == 9)
-  message.body = response:sub(pos, message_length - 1)
+  -- All remaining data from the response, up until the message length, is the body.
+  assert(pos == OPENFLOW_HEADER_SIZE + 1)
+  message.body = response:sub(pos, message_length)
 
   -- If we have the whole packet, pass it up the call stack.
-  if message_length <= #message then
+  if message_length <= #response then
     socket:close()
     return message
   end
@@ -134,7 +134,7 @@ receive_message = function(host, port)
     stdnse.debug1("Failed to receive missing %d bytes of response: %s", missing_bytes, body)
     return
   end
-  message.body = (response .. body):sub(pos, message_length - 1)
+  message.body = (response .. body):sub(pos, message_length)
 
   return message
 end
@@ -168,7 +168,7 @@ retrieve_version_bitmap = function(message)
       return string.unpack(">I4", body, pos)
     end
 
-    pos = pos + element_length
+    pos = pos + element_length - 4
   end
 
   return
