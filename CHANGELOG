@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#700] Enabled support for TLS SNI on the Windows platform. [nnposter]
+
 o [GH#686] Script tls-ticketbleed checks for the Ticketbleed vulnerability
   (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
 
