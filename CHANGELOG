@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#694][NSE] ike-version now outputs information about supported attributes and
+  unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was submitted
+  by Alexis La Goutte. [Daniel Miller]
+
 o [GH#700] Enabled support for TLS SNI on the Windows platform. [nnposter]
 
 o [GH#686] Script tls-ticketbleed checks for the Ticketbleed vulnerability

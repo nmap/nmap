@@ -210,6 +210,7 @@ local function lookup(vendor_ids)
     vendor = nil,
     attribs = {},
   }
+  local unmatched = {}
 
   local status, fingerprints
   status, fingerprints = load_fingerprints()
@@ -242,9 +243,14 @@ local function lookup(vendor_ids)
             stdnse.debug2("IKE: Attribute: %s matches %s", vendor_id, row.text)
             break
           end
+        else
+          unmatched[#unmatched+1] = vendor_id
         end
       end
     end
+  end
+  if next(unmatched) then
+    info.unknown_ids = unmatched
   end
 
 
