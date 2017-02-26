@@ -689,7 +689,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 -- TODO: certificate validation (date, self-signed, etc)
                 local c, err
                 if certs == nil then
-                  stdnse.debug1("Failed to retrieve certificate")
+                  err = "no certificate message"
                 else
                    c, err = sslcert.parse_ssl_certificate(certs.certificates[1])
                 end
