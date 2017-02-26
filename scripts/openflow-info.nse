@@ -29,7 +29,7 @@ For additional information:
 -- |     1.4.X
 -- |_    1.5.X
 
-author = "Jay Smith"
+author = {"Jay Smith", "Mak Kolybabi <mak@kolybabi.com>"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
