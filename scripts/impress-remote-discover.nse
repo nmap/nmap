@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Tests for the presence of the LibreOffice Impress Remote server.
@@ -96,7 +97,8 @@ local remote_version = function(buffer, socket, pin)
     if string.match(line, "^LO_SERVER_INFO$") then
       line, err = buffer()
       socket:close()
-      return pin, line
+      -- return pin, line -- "Remote PIN: " .. pin .. "\nImpress Version: " .. line
+      return {["Remote PIN"] = pin, ["Impress Version"] = line}
     end
   end
 
@@ -179,5 +181,5 @@ action = function(host, port)
     return
   end
 
-  return stdnse.format_output(true, result)
+  return result, stdnse.format_output(true, result)
 end
