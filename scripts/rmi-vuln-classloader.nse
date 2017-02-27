@@ -105,6 +105,10 @@ Default configuration of RMI registry allows loading classes from remote URLs wh
     -- 0x51 : Returndata
     return false, "No return data received from server";
   end
+  -- Need to make sure we get a good chunk of data. It's going to be a java
+  -- stack trace. But if we don't get enough, I guess we can check with
+  -- whatever we get.
+  registry.out.dis:canRead(256)
   local data = registry.out.dis.bReader.readBuffer;
 
   if string.find(data, "RMI class loader disabled") == nil then
