@@ -8063,6 +8063,158 @@ table.insert(fingerprints, {
     }
   });
 
+-- Apache Ambari Web UI
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<title>Ambari</title>',
+        output = 'Apache Ambari WebUI'
+      }
+    }
+  });
+
+-- Apache Oozie Web Console
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/oozie/',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<title>Oozie Web Console</title>',
+        output = 'Apache Oozie Web Console'
+      }
+    }
+  });
+
+-- Apache Ranger Web UI
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/logn.jsp',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<title>%s*Ranger %- Sign In%s*</title>',
+        output = 'Apache Ranger WebUI'
+      }
+    }
+  });
+
+-- Cloudera Hue
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/about/',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = 'Hue&trade;%s(.-)%s[-]%s<a href="http://gethue.com"',
+        output = 'Cloudera Hue \\1'
+      }
+    }
+  });
+
+-- Cloduera Manager login page
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/cmf/login',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = 'clouderaManager.*version:%s'(.-)'',
+        output = 'Cloudera Manager version \\1 '
+      }
+    }
+  });
+
+-- Hadoop MapReduce JobHistory WebUI
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/jobhistory',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<title>%s*JobHistory%s*</title>',
+        output = 'Hadoop MapReduce JobHistory WebUI'
+      }
+    }
+  });
+
+-- Hadoop YARN Resource Manager
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/cluster/cluster',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = 'ResourceManager state:.-<td>%s*(.-)%s*</td>',
+        output = 'Hadoop YARN Resource Manager state \\1'
+      },
+      {
+        match = 'ResourceManager version:.-<td>%s*(.-)%s*</td>',
+        output = 'Hadoop YARN Resource Manager version \\1'
+      },
+      {
+        match = 'Hadoop version:.-<td>%s*(.-)%s*</td>'
+        output = 'Hadoop Version \\1'
+      }
+    }
+  });
+  
+-- Hadoop Node Resource Manager
+table.insert(fingerprints, {
+    category = 'info',
+    probes = {
+      {
+        path = '/node',
+        method = 'GET'
+      },
+    },
+    matches = {
+      {
+        match = '<h3>%s*NodeManager%s*</h3>',
+        output = 'Hadoop YARN Node Manager WebUI'
+      },
+      {
+        match = 'Node Manager Version:.-<td>%s*(.-)%s*</td>',
+        output = 'Hadoop YARN Node Manager version \\1'
+      },
+      {
+        match = 'Hadoop Version:.-<td>%s*(.-)%s*</td>'
+        output = 'Hadoop Version \\1'
+      }
+    }
+  });
+
 table.insert(fingerprints, {
     category = 'cms',
     probes = {
