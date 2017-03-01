@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#669][NSE] New script http-cookie-flags checks HTTP session cookies for
+  HTTPOnly and Secure flags. [Steve Benson]
+
 o [GH#694][NSE] ike-version now outputs information about supported attributes and
   unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was submitted
   by Alexis La Goutte. [Daniel Miller]

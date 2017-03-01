@@ -162,6 +162,7 @@ Entry { filename = "http-cisco-anyconnect.nse", categories = { "default", "disco
 Entry { filename = "http-coldfusion-subzero.nse", categories = { "exploit", } }
 Entry { filename = "http-comments-displayer.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-config-backup.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "http-cookie-flags.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-cross-domain-policy.nse", categories = { "external", "safe", "vuln", } }
 Entry { filename = "http-csrf.nse", categories = { "exploit", "intrusive", "vuln", } }
