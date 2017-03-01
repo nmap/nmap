@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#671][NSE] New script cics-info checks IBM TN3270 services for CICS transaction
+  services and extracts useful information. [Soldier of Fortran]
+
 o [GH#669][NSE] New script http-cookie-flags checks HTTP session cookies for
   HTTPOnly and Secure flags. [Steve Benson]
 
