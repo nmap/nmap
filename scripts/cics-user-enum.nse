@@ -108,7 +108,7 @@ Driver = {
     -- At this point we MUST be at CESL/CESN to try accounts.
     -- If we're not then we quit with an error
     if not (self.tn3270:find('SIGN ON TO CICS') or self.tn3270:find("Signon to CICS")) then
-    local err = brute.Error:new( "Can't get to CESL")
+    local err = brute.Error:new( "Can't get to Transaction")
       err:setRetry( true )
       return false, err
     end
@@ -213,7 +213,7 @@ local function cics_test( host, port, commands, transaction )
   end
   tn:get_screen_debug(2)
 
-  if tn:find('SIGN ON TO CICS') and tn:find("Signon to CICS") then
+  if tn:find('SIGN ON TO CICS') or tn:find("Signon to CICS") then
       stdnse.verbose(2,"At CICS Login Transaction (%s)", transaction)
       tn:disconnect()
       return true
@@ -228,7 +228,7 @@ end
 --  ^%D     = The first char must NOT be a digit
 -- [%w@#%$] = All letters including the special chars @, #, and $.
 local valid_name = function(x)
-  return (string.len(x) <= 7 and string.match(x,"^%D+[%w@#%$]"))
+  return (string.len(x) <= 8 and string.match(x,"^%D+[%w@#%$]"))
 end
 
 action = function(host, port)
@@ -244,8 +244,6 @@ action = function(host, port)
     engine.options.passonly = true
     engine.options:setTitle("CICS User ID")
     local status, result = engine:start()
-    -- port.version.extrainfo = "Security: " .. secprod
-    -- nmap.set_port_version(host, port)
     return result
   else
     return err
