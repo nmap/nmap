@@ -508,6 +508,11 @@ function dhcp_parse(data, transaction_id)
   -- Parse the options
   result['options'] = {}
   while true do
+    if #data - pos < 2 then
+      stdnse.debug1("Unexpected end of options")
+      break
+    end
+
     local option, length
     pos, option, length = bin.unpack(">CC", data, pos)
 
