@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#716][NSE] Fix for oracle-tns-version which was sending an invalid TNS
+  probe due to a string escaping mixup. [Alexandr Savca]
+
 o [GH#671][NSE] New script cics-user-brute does brute-force enumeration of CICS
   usernames on IBM TN3270 services. [Soldier of Fortran]
 
