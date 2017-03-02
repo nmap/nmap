@@ -141,9 +141,8 @@ class TargetList(object):
             self.target_list_file = False
 
         #import pdb; pdb.set_trace()
-        if (self.target_list_file and
-                (access(self.target_list_file, R_OK and W_OK) or
-                    access(dirname(self.target_list_file), R_OK and W_OK))):
+        if (self.target_list_file):
+
             self.using_file = True
 
             # Recovering saved targets
