@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script oracle-vuln-tns-poison checks for the TNS Poison vulnerability
+  in Oracle Database servers. [Alexandr Savca]
+
 o [GH#716][NSE] Fix for oracle-tns-version which was sending an invalid TNS
   probe due to a string escaping mixup. [Alexandr Savca]
 
