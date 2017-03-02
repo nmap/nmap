@@ -1,7 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
 o [GH#629][NSE] Added two new fingerprints to http-default-accounts
-  (APC Management Card, older NetScreen ScreenOS) [xelphene, nnposter]
+  (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
 
 o [GH#716][NSE] Fix for oracle-tns-version which was sending an invalid TNS
   probe due to a string escaping mixup. [Alexandr Savca]
