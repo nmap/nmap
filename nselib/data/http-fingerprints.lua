@@ -8065,7 +8065,7 @@ table.insert(fingerprints, {
 
 -- Apache Ambari Web UI
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
         path = '/',
@@ -8082,7 +8082,7 @@ table.insert(fingerprints, {
 
 -- Apache Oozie Web Console
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
         path = '/oozie/',
@@ -8099,10 +8099,10 @@ table.insert(fingerprints, {
 
 -- Apache Ranger Web UI
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
-        path = '/logn.jsp',
+        path = '/login.jsp',
         method = 'GET'
       },
     },
@@ -8116,7 +8116,7 @@ table.insert(fingerprints, {
 
 -- Cloudera Hue
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
         path = '/about/',
@@ -8125,15 +8125,15 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'Hue&trade;%s(.-)%s[-]%s<a href="http://gethue.com"',
+        match = 'Hue&trade;%s(.-)%s[-]%s<a href="http://gethue%.com"',
         output = 'Cloudera Hue \\1'
       }
     }
   });
 
--- Cloduera Manager login page
+-- Cloudera Manager login page
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
         path = '/cmf/login',
@@ -8142,7 +8142,7 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'clouderaManager.*version:%s'(.-)'',
+        match = 'clouderaManager.*version:%s'(.-)%'%',
         output = 'Cloudera Manager version \\1 '
       }
     }
@@ -8150,7 +8150,7 @@ table.insert(fingerprints, {
 
 -- Hadoop MapReduce JobHistory WebUI
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
         path = '/jobhistory',
@@ -8167,7 +8167,7 @@ table.insert(fingerprints, {
 
 -- Hadoop YARN Resource Manager
 table.insert(fingerprints, {
-    category = 'info',
+    category = 'management',
     probes = {
       {
         path = '/cluster/cluster',
@@ -8176,15 +8176,15 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'ResourceManager state:.-<td>%s*(.-)%s*</td>',
-        output = 'Hadoop YARN Resource Manager state \\1'
-      },
-      {
         match = 'ResourceManager version:.-<td>%s*(.-)%s*</td>',
         output = 'Hadoop YARN Resource Manager version \\1'
       },
       {
-        match = 'Hadoop version:.-<td>%s*(.-)%s*</td>'
+        match = 'ResourceManager state:.-<td>%s*(.-)%s*</td>',
+        output = 'Hadoop YARN Resource Manager state \\1'
+      },
+      {
+        match = 'Hadoop version:.-<td>%s*(.-)%s*</td>',
         output = 'Hadoop Version \\1'
       }
     }
@@ -8201,15 +8201,15 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = '<h3>%s*NodeManager%s*</h3>',
-        output = 'Hadoop YARN Node Manager WebUI'
-      },
-      {
         match = 'Node Manager Version:.-<td>%s*(.-)%s*</td>',
         output = 'Hadoop YARN Node Manager version \\1'
       },
       {
-        match = 'Hadoop Version:.-<td>%s*(.-)%s*</td>'
+        match = '<h3>%s*NodeManager%s*</h3>',
+        output = 'Hadoop YARN Node Manager WebUI'
+      },
+      {
+        match = 'Hadoop Version:.-<td>%s*(.-)%s*</td>',
         output = 'Hadoop Version \\1'
       }
     }
