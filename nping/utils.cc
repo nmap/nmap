@@ -316,26 +316,18 @@ int bitcmp(u8 *a, u8*b, int len){
 
 /** Removes every instance of the character stored in parameter "c" in the
  * supplied string.
- * @warning the supplied buffer is modified by this function. Whenever a
- * colon is found, the rest of the string is moved one position to the left
- * so the colon gets overwritten. */
+ * @warning the supplied buffer is modified by this function. */
 int removechar(char *string, char c){
-  size_t len=0, i=0, j=0;
+  size_t i=0, j=0;
   if(string==NULL)
     return OP_FAILURE;
-  len=strlen(string);
-  for(i=0; i<len; i++){
-    /* Found the character, move everything one position to the left */
-    if( string[i]== c ){
-        for(j=i; j<len-1; j++)
-            string[j]=string[j+1];
-        len-=1;
-        string[len]='\0';
-        /* Start again from the beginning because otherwise we don't catch
-         * consecutive colons */
-        i=-1; /* (get incremented by one by the loop control) */ 
-    }
+
+  while(string[j] != '\0') {
+    if(string[j] != c)
+      string[i++] = string[j];
+    j++;
   }
+  string[i] = '\0';
   return OP_SUCCESS;
 } /* End of removechar() */
 

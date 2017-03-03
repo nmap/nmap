@@ -1169,6 +1169,25 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  -- Version 416.7.I on Smart-UPS RT 2000 XL, 530.1800.D on APC Symmetra 80K,
+  --         652.19.D on Smart-UPS 1000, 3.4.4 on PDU AP7900
+  name = "APC Management Card",
+  category = "industrial",
+  paths = {
+    {path = "/"}
+  },
+  target_check = function (host, port, path, response)
+    return http_auth_realm(response) == "APC Management Card"
+  end,
+  login_combos = {
+    {username = "apc", password = "apc"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass)
+  end
+})
+
 ---
 --Printers
 ---

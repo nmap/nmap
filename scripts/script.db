@@ -59,6 +59,8 @@ Entry { filename = "cassandra-brute.nse", categories = { "brute", "intrusive", }
 Entry { filename = "cassandra-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "cccam-version.nse", categories = { "version", } }
 Entry { filename = "cics-enum.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "cics-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "cics-user-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cics-user-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
@@ -162,6 +164,7 @@ Entry { filename = "http-cisco-anyconnect.nse", categories = { "default", "disco
 Entry { filename = "http-coldfusion-subzero.nse", categories = { "exploit", } }
 Entry { filename = "http-comments-displayer.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-config-backup.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "http-cookie-flags.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-cross-domain-policy.nse", categories = { "external", "safe", "vuln", } }
 Entry { filename = "http-csrf.nse", categories = { "exploit", "intrusive", "vuln", } }

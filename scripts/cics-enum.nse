@@ -28,6 +28,8 @@ found for CICS transaction IDs.
 --  to access CICS. Defaults to <code>CICS</code>.
 -- @args cics-enum.path Folder used to store valid transaction id 'screenshots'
 --  Defaults to <code>None</code> and doesn't store anything.
+-- @args cics-enum.user Username to use for authenticated enumeration
+-- @args cics-enum.pass Password to use for authenticated enumeration
 --
 -- @usage
 -- nmap --script=cics-enum -p 23 <targets>
@@ -53,6 +55,7 @@ found for CICS transaction IDs.
 -- @changelog
 -- 2015-07-04 - v0.1 - created by Soldier of Fortran
 -- 2015-11-14 - v0.2 - rewrote iterator
+-- 2017-01-22 - v0.3 - added authenticated CICS ID enumeration
 --
 -- @author Philip Young
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -105,6 +108,8 @@ Driver = {
   login = function (self, user, pass) -- pass is actually the CICS transaction we want to try
     local commands = self.options['key1']
     local path = self.options['key2']
+    local cics_user = self.options['user']
+    local cics_pass = self.options['pass']
     local timeout = 300
     local max_blank = 1
     local loop = 1
@@ -143,8 +148,31 @@ Driver = {
       -- something is wrong but we can still try transactions. Print error to debug.
       stdnse.debug('Error. Failed to get to a blank screen under CICS (sending F3 followed by CLEAR). Try lowering maxthreads to fix.')
     end
+    -- If username/password provided try to authenticate first
+    if not (cics_user == nil and cics_pass == nil) then -- We're doing authenticated CICS testing now baby!
+      stdnse.debug(2,'Logging in with %s / %s for auth testing', cics_user, cics_pass)
+      self.tn3270:send_cursor('CESN')
+      self.tn3270:get_all_data()
+      self.tn3270:get_screen_debug(2)
+      local fields = self.tn3270:writeable() -- Get the writeable field areas
+      local user_loc = {fields[1][1],cics_user}   -- This is the 'UserID:' field
+      local pass_loc = {fields[3][1],cics_pass}   -- This is the 'Password:' field ([2] is a group ID)
+      stdnse.debug(2,'Trying CICS: %s : %s', user, pass)
+      self.tn3270:send_locations({user_loc,pass_loc})
+      self.tn3270:get_all_data()
+      stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
+      self.tn3270:get_screen_debug(2)
+      local count = 1
+      while not self.tn3270:find('DFHCE3549') and count < 6 do -- some systems show a message for a bit before we get to CICS again
+          self.tn3270:get_all_data(1000) -- loop for 6 seconds
+          count = count + 1
+      end
+    end
+    self.tn3270:get_screen_debug(2)
+    self.tn3270:send_clear()
+    self.tn3270:get_all_data()
+    self.tn3270:get_screen_debug(2)
     stdnse.verbose("Trying Transaction ID: %s", pass)
-    stdnse.debug(2,"Sending Transaction ID: %s", pass)
     self.tn3270:send_cursor(pass)
     self.tn3270:get_all_data()
 
@@ -158,7 +186,7 @@ Driver = {
 
     stdnse.debug(2,"Screen Recieved for Transaction ID: %s", pass)
     self.tn3270:get_screen_debug(2)
-    if self.tn3270:find('not recognized') then -- known invalid command
+    if self.tn3270:find('not recognized') or self.tn3270:find('DFHAC2002') then -- known invalid command
       stdnse.debug("Invalid CICS Transaction ID: %s", string.upper(pass))
       return false,  brute.Error:new( "Incorrect CICS Transaction ID" )
     elseif self.tn3270:isClear() then
@@ -172,6 +200,41 @@ Driver = {
       -- This will be the same screen for each so we dont bother saving it either
       stdnse.verbose("Valid CICS Transaction ID [requires auth]: %s", string.upper(pass))
       return true, creds.Account:new("CICS ID [requires auth]", string.upper(pass), creds.State.VALID)
+    elseif self.tn3270:find('DFHAC2008') or self.tn3270:find('DFHAC2206') or self.tn3270:find('DFHAC2028') or
+           self.tn3270:find('DFHRT4415') or self.tn3270:find('DFHRT4480') or self.tn3270:find('TSS7254E') then
+      -- these are technically valid CICS transactions
+      -- but they are of little/no value. If verbosity is turned way up we'll return these/save a screenshot
+      -- otherwise there's no point
+      -- DFHAC2008 -- TranID has been Disabled
+      -- DFHAC2206 -- Abend
+      -- DFHRT4415 -- Cannot access through terminal
+      -- DFHRT4480 -- No Longer Supported
+      -- DFHAC2028 -- cannot be used
+      -- TSS7254E  -- Access not available through this facility
+      stdnse.verbose("Valid CICS Transaction ID [Abbend or ID Disabled]: %s", string.upper(pass))
+      if nmap.verbosity() > 3 then
+        if path ~= nil then
+          stdnse.verbose(2,"Writting screen to: %s", path..string.upper(pass)..".txt")
+          status, err = save_screens(path..string.upper(pass)..".txt",self.tn3270:get_screen())
+          if not status then
+            stdnse.verbose(2,"Failed writting screen to: %s", path..string.upper(pass)..".txt")
+          end
+        end
+        return true, creds.Account:new("CICS ID [Abbend]", string.upper(pass), creds.State.VALID)
+      else
+        return false, brute.Error:new( "Correct Transaction ID - Access Denied" )
+      end
+    elseif not (cics_user == nil and cics_pass == nil) and
+           (self.tn3270:find('TSS7251E') or self.tn3270:find('DFHAC2033')) then
+      -- We've logged on but we don't have access to this transaction
+      -- TSS7251E  : Access Denied to PROGRAM <X>
+      -- DFHAC2033 : You are not authorized to use transaction <X>
+      stdnse.verbose("Valid CICS Transaction ID [Access Denied]: %s", string.upper(pass))
+      if nmap.verbosity() > 3 then
+        return true, creds.Account:new("CICS ID [Access Denied]", string.upper(pass), creds.State.VALID)
+      else
+        return false, brute.Error:new( "Correct Transaction ID - Access Denied" )
+      end
     else
       stdnse.verbose("Valid CICS Transaction ID: %s", string.upper(pass))
       if path ~= nil then
@@ -191,13 +254,16 @@ Driver = {
 --
 -- @param host host NSE object
 -- @param port port NSE object
+-- @param user CICS userID
+-- @param pass CICS userID password
 -- @param commands optional script-args of commands to use to get to CICS
 -- @return status true on success, false on failure
 
-local function cics_test( host, port, commands )
+local function cics_test( host, port, commands, user, pass )
   stdnse.debug("Checking for CICS")
   local tn = tn3270.Telnet:new()
   local status, err = tn:initiate(host,port)
+  local msg = 'Unable to get to CICS'
   local cics = false -- initially we're not at CICS
   if not status then
     stdnse.debug("Could not initiate TN3270: %s", err )
@@ -251,11 +317,42 @@ local function cics_test( host, port, commands )
   tn:get_screen_debug(2)
 
   if tn:find('Sign-off is complete.') then
-    tn:disconnect()
-    cics = true
+      cics = true
   end
+
+  if not (user == nil and pass == nil) then -- We're doing authenticated CICS testing now baby!
+    stdnse.verbose(2,'Logging in with %s / %s for auth testing', user, pass)
+    tn:send_clear()
+    tn:get_all_data()
+    tn:get_screen_debug(2)
+    tn:send_cursor('CESN')
+    tn:get_all_data()
+    tn:get_screen_debug(2)
+    local fields = tn:writeable() -- Get the writeable field areas
+    local user_loc = {fields[1][1],user}   -- This is the 'UserID:' field
+    local pass_loc = {fields[3][1],pass}   -- This is the 'Password:' field ([2] is a group ID)
+    stdnse.verbose('Trying CICS: %s : %s', user, pass)
+    tn:send_locations({user_loc,pass_loc})
+    tn:get_all_data()
+    stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
+    tn:get_screen_debug(2)
+    count = 1
+    while not tn:find('DFHCE3549') and count < 6 do
+	      tn:get_all_data(1000) -- loop for 6 seconds
+        tn:get_screen_debug(2)
+        count = count + 1
+    end
+    if not tn:find('DFHCE3549') then
+        cics = false
+        msg = 'Unable to access CICS with User: '..user..' / Pass: '..pass
+    else
+        tn:send_cursor('CESF')
+        tn:get_all_data()
+    end
+  end
+
   tn:disconnect()
-  return cics
+  return cics,msg
 end
 
 -- Filter iterator for unpwdb
@@ -276,6 +373,8 @@ action = function(host, port)
   local cics_id_file = stdnse.get_script_args("idlist")
   local path = stdnse.get_script_args(SCRIPT_NAME .. '.path') -- Folder for screenshots
   local commands = stdnse.get_script_args(SCRIPT_NAME .. '.commands') or 'cics'-- VTAM commands/macros to get to CICS
+  local username = stdnse.get_script_args(SCRIPT_NAME .. '.user') or nil
+  local password = stdnse.get_script_args(SCRIPT_NAME .. '.pass') or nil
   local cics_ids = {"CADP", "CATA", "CATD", "CATR", "CBAM", "CCIN", "CCRL", "CDBC", "CDBD",
     "CDBF", "CDBI", "CDBM", "CDBN", "CDBO", "CDBQ", "CDBT", "CDFS", "CDST",
     "CDTS", "CEBR", "CEBT", "CECI", "CECS", "CEDA", "CEDB", "CEDC", "CEDF",
@@ -296,7 +395,7 @@ action = function(host, port)
     "CSPG", "CSPK", "CSPP", "CSPQ", "CSPS", "CSQC", "CSRK", "CSRS", "CSSF",
     "CSSY", "CSTE", "CSTP", "CSXM", "CSZI", "CTIN", "CTSD", "CVMI", "CWBA",
     "CWBG", "CWTO", "CWWU", "CWXN", "CWXU", "CW2A", "CXCU", "CXRE", "CXRT",
-  "DSNC"} -- Default CICS from https://www-01.ibm.com/support/knowledgecenter/SSGMCP_5.2.0/com.ibm.cics.ts.systemprogramming.doc/topics/dfha726.html
+    "DSNC"} -- Default CICS from https://www-01.ibm.com/support/knowledgecenter/SSGMCP_5.2.0/com.ibm.cics.ts.systemprogramming.doc/topics/dfha726.html
 
   cics_id_file = ( (cics_id_file and nmap.fetchfile(cics_id_file)) or cics_id_file )
 
@@ -307,19 +406,21 @@ action = function(host, port)
       end
     end
   end
-
-  if cics_test(host, port, commands) then
-    local options = { key1 = commands, key2 = path }
+  local cicstst,msg = cics_test(host, port, commands, username, password)
+  if cicstst then
+    local title = 'CICS Transaction IDs'
+    if not(username == nil and password == nil) then title = 'CICS Transaction IDs for User: '.. username end
+    local options = { key1 = commands, key2 = path, user = username, pass = password }
     stdnse.debug("Starting CICS Transaction ID Enumeration")
     if path ~= nil then stdnse.verbose(2,"Saving Screenshots to: %s", path) end
     local engine = brute.Engine:new(Driver, host, port, options)
     engine.options.script_name = SCRIPT_NAME
     engine:setPasswordIterator(unpwdb.filter_iterator(iter(cics_ids), valid_cics))
     engine.options.passonly = true
-    engine.options:setTitle("CICS Transaction ID")
+    engine.options:setTitle(title)
     local status, result = engine:start()
     return result
   else
-    return "Could not get to CICS. Aborting."
+    return msg
   end
 end

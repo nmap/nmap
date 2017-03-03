@@ -228,18 +228,23 @@ function opencon(host, port, data, opts)
   return sd, response, early_resp
 end
 
---- This function tries to open a connection based on the best
---  option about which is the correct protocol
+--- Opens a SSL connection if possible, with fallback to plain text.
 --
---  If the best option fails, the function tries the other option
+-- For likely-SSL services (as determined by <code>shortport.ssl</code>), SSL
+-- is tried first. For UDP services, only plain text is currently supported.
 --
---  This function allows writing nse scripts in a way that the
---  API will take care of ssl issues, making failure detection
---  transparent to the programmer
+-- Either <code>data</code> or <code>opts.recv_before</code> is required:
+--
+-- * If the service sends a banner first, use <code>opts.recv_before</code>
+-- * If the service waits for client data first, provide that via <code>data</code>.
+-- * If you provide neither, then a service that waits for client data will
+--   only work with SSL and a service that sends a banner first will require you
+--   to do a read to get that banner.
 --
 -- @param host The host table
 -- @param port The port table
--- @param data The first data payload of the connection
+-- @param data The first data payload of the connection. Optional if
+--             <code>opts.recv_before</code> is true.
 -- @param opts Options, such as timeout
 -- @return sd The socket descriptor, or nil on error
 -- @return response The response received for the payload, or an error message
