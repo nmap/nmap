@@ -8142,7 +8142,7 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'clouderaManager.*version:%s'(.-)%'%',
+        match = 'var%s+clouderaManager%s*=%s*{.-version:%s\'(.-)\'',
         output = 'Cloudera Manager version \\1 '
       }
     }
@@ -8176,17 +8176,12 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'ResourceManager version:.-<td>%s*(.-)%s*</td>',
-        output = 'Hadoop YARN Resource Manager version \\1'
+        match = 'ResourceManager state:.-<td>%s*([^%s<]*)'
+                .. '.-ResourceManager version:.-<td>%s*([^%s<]*)'
+                .. '.-Hadoop version:.-<td>%s*([^%s<]*)',
+        output = 'Hadoop YARN Resource Manager version \\2,'
+                 .. ' state "\\1", Hadoop version \\3'
       },
-      {
-        match = 'ResourceManager state:.-<td>%s*(.-)%s*</td>',
-        output = 'Hadoop YARN Resource Manager state \\1'
-      },
-      {
-        match = 'Hadoop version:.-<td>%s*(.-)%s*</td>',
-        output = 'Hadoop Version \\1'
-      }
     }
   });
   
@@ -8201,17 +8196,12 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'Node Manager Version:.-<td>%s*(.-)%s*</td>',
-        output = 'Hadoop YARN Node Manager version \\1'
+        match = 'NodeManager state:.-<td>%s*([^%s<]*)'
+                .. '.-NodeManager version:.-<td>%s*([^%s<]*)'
+                .. '.-Hadoop version:.-<td>%s*([^%s<]*)',
+        output = 'Hadoop YARN Node Manager version \\2,'
+                 .. ' state "\\1", Hadoop version \\3'
       },
-      {
-        match = '<h3>%s*NodeManager%s*</h3>',
-        output = 'Hadoop YARN Node Manager WebUI'
-      },
-      {
-        match = 'Hadoop Version:.-<td>%s*(.-)%s*</td>',
-        output = 'Hadoop Version \\1'
-      }
     }
   });
 
