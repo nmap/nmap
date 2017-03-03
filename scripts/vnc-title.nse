@@ -15,8 +15,8 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "discovery"}
 
 ---
--- @see vnc-brute
--- @see realvnc-auth-bypass
+-- @see vnc-brute.nse
+-- @see realvnc-auth-bypass.nse
 --
 -- @output
 -- | vnc-title:
