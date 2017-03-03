@@ -5,7 +5,9 @@ local vnc = require "vnc"
 
 description = [[
 Tries to log into a VNC server and get its desktop name. Uses credentials
-discovered by vnc-brute, or None authentication types.
+discovered by vnc-brute, or None authentication types. If
+<code>realvnc-auth-bypass</code> was run and returned VULNERABLE, this script
+will use that vulnerability to bypass authentication.
 ]]
 
 author = "Daniel Miller"
