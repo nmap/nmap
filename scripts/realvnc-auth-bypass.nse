@@ -16,8 +16,20 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 -- @output
 -- PORT     STATE SERVICE VERSION
 -- 5900/tcp open  vnc     VNC (protocol 3.8)
--- |_realvnc-auth-bypass: Vulnerable
-
+-- | realvnc-auth-bypass:
+-- |   VULNERABLE:
+-- |   RealVNC 4.1.0 - 4.1.1 Authentication Bypass
+-- |     State: VULNERABLE
+-- |     IDs:  CVE:CVE-2006-2369
+-- |     Risk factor: High  CVSSv2: 7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)
+-- |       RealVNC 4.1.1, and other products that use RealVNC such as AdderLink IP and
+-- |       Cisco CallManager, allows remote attackers to bypass authentication via a
+-- |       request in which the client specifies an insecure security type such as
+-- |       "Type 1 - None", which is accepted even if it is not offered by the server.
+-- |     Disclosure date: 2006-05-08
+-- |     References:
+-- |       http://www.intelliadmin.com/index.php/2006/05/security-flaw-in-realvnc-411/
+-- |_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-2369
 categories = {"auth", "safe", "vuln"}
 
 
