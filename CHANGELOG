@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#620][GH#715][NSE] Added 8 new http-enum fingerprints for Hadoop
+  infrastructure components. [Thomas Debize, Varunram Ganesh]
+  
 o [GH#629][NSE] Added two new fingerprints to http-default-accounts
   (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
 
