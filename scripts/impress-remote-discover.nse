@@ -23,6 +23,9 @@ if requested.
 -- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the
 --        PIN (default is <code>false</code>).
 --
+-- @args impress-remote-discover.client String value of the client name
+--       (default is <code>Firefox OS</code>).
+--
 -- @args impress-remote-discover.pin PIN number for the remote (default is
 --       <code>0000</code>).
 
@@ -32,6 +35,16 @@ categories = {"exploit", "intrusive", "bruteforce", "vuln"}
 
 local function parse_args()
   local args = {}
+
+  local client_name = stdnse.get_script_args(SCRIPT_NAME .. ".client")
+  if client_name then
+    stdnse.debug("Client name provided: %s", client_name)
+    -- Sanity check the value from the user.
+    if type(client_name) ~= "string" then
+      return false, "Client argument must be a string."
+    end
+  end
+  args.client_name = client_name or "Firefox OS"
 
   local bruteforce = stdnse.get_script_args(SCRIPT_NAME .. ".bruteforce")
   if bruteforce then
@@ -61,7 +74,7 @@ local function parse_args()
   return true, args
 end
 
-local remote_connect = function(host, port, pin)
+local remote_connect = function(host, port, client_name, pin)
   local socket = nmap.new_socket()
   local status, err = socket:connect(host, port)
   if not status then
@@ -76,13 +89,13 @@ local remote_connect = function(host, port, pin)
     stdnse.debug1("Failed to create buffer from socket: %s", err)
     return
   end
-  socket:send("LO_SERVER_CLIENT_PAIR\nFirefox OS\n" .. pin .. "\n\n")
+  socket:send("LO_SERVER_CLIENT_PAIR\n" .. client_name .. "\n" .. pin .. "\n\n")
 
   return buffer, socket
 end
 
--- Returns the PIN and Remote Server version if the PIN is correct
-local remote_version = function(buffer, socket, pin)
+-- Returns the Client Name, PIN, and Remote Server version if the PIN and Client Name are correct
+local remote_version = function(buffer, socket, client_name, pin)
   local line, err
   -- The line we are looking for is 4 down in the response
   -- so we loop through lines until we get to that one
@@ -97,8 +110,7 @@ local remote_version = function(buffer, socket, pin)
     if string.match(line, "^LO_SERVER_INFO$") then
       line, err = buffer()
       socket:close()
-      -- return pin, line -- "Remote PIN: " .. pin .. "\nImpress Version: " .. line
-      return {["Remote PIN"] = pin, ["Impress Version"] = line}
+      return {["Client Name"] = client_name, ["Remote PIN"] = pin, ["Impress Version"] = line}
     end
   end
 
@@ -107,8 +119,8 @@ local remote_version = function(buffer, socket, pin)
   return
 end
 
-local check_pin = function(host, port, pin)
-  local buffer, socket = remote_connect(host, port, pin)
+local check_pin = function(host, port, client_name, pin)
+  local buffer, socket = remote_connect(host, port, client_name, pin)
   if not buffer then
     return
   end
@@ -121,15 +133,15 @@ local check_pin = function(host, port, pin)
   end
 
   if string.match(line, "^LO_SERVER_SERVER_PAIRED$") then
-    return remote_version(buffer, socket, pin)
+    return remote_version(buffer, socket, client_name, pin)
   end
 
   socket:close()
-  stdnse.debug1("Remote Server present but PIN was not accepted.")
+  stdnse.debug1("Remote Server present but PIN and/or Client Name was not accepted.")
   return
 end
 
-local bruteforce = function(host, port)
+local bruteforce = function(host, port, client_name)
   -- There are 10000 possible PINs which we loop through
   for i=0,9999 do
     -- Pad the pin with leading zeros if required
@@ -138,7 +150,7 @@ local bruteforce = function(host, port)
       stdnse.debug1("Bruteforce attempt %d with PIN %s...", i + 1, pin)
     end
 
-    local buffer, socket = remote_connect(host, port, pin)
+    local buffer, socket = remote_connect(host, port, client_name, pin)
     if not buffer then
       return
     end
@@ -151,7 +163,7 @@ local bruteforce = function(host, port)
     end
 
     if string.match(line, "^LO_SERVER_SERVER_PAIRED$") then
-      return remote_version(buffer, socket, pin)
+      return remote_version(buffer, socket, client_name, pin)
     end
 
     socket:close()
@@ -172,9 +184,9 @@ action = function(host, port)
 
   local result
   if options.bruteforce then
-    result = bruteforce(host, port)
+    result = bruteforce(host, port, options.client_name)
   else
-    result = check_pin(host, port, options.pin)
+    result = check_pin(host, port, options.client_name, options.pin)
   end
 
   if not result then
