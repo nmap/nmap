@@ -20,8 +20,8 @@ if requested.
 -- |   Remote PIN: pin
 -- |_  Impress Version: version
 --
--- @args impress-remote-discover.bruteforce Boolean to enable bruteforcing the
---        PIN (default is <code>false</code>).
+-- @args impress-remote-discover.bruteforce No value needed (default is 
+--       <code>false</code>).
 --
 -- @args impress-remote-discover.client String value of the client name
 --       (default is <code>Firefox OS</code>).
@@ -47,13 +47,11 @@ local function parse_args()
   args.client_name = client_name or "Firefox OS"
 
   local bruteforce = stdnse.get_script_args(SCRIPT_NAME .. ".bruteforce")
-  if bruteforce then
-    -- Sanity check the value from the user.
-    if type(bruteforce) ~= "string" then
-      return false, "Bruteforce argument must be a string."
-    elseif bruteforce ~= "true" then
-      return false, "Bruteforce argument must be either true or left out entirely."
-    end
+  if bruteforce and bruteforce ~= "false" then
+    -- accept any value but false.
+    bruteforce = true
+  else
+    bruteforce = false
   end
   args.bruteforce = bruteforce or false
 
