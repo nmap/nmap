@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#708][NSE] TLS SNI now works correctly for NSE HTTP requests initiated
+  with option any_af. As an added benefit, option any_af is now available for
+  all connections via comm.lua, not just HTTP requests. [nnposter]
+
 o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
   LibreOffice Impress presentation remote service and extract version info.
   Pairing is PIN-protected, and the script can optionally brute-force the PIN.

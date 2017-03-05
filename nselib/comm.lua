@@ -14,6 +14,7 @@
 -- * <code>connect_timeout</code> - socket timeout for connection. Default: same as <code>stdnse.get_timeout</code>
 -- * <code>request_timeout</code> - additional socket timeout for requests. This is added to the connect_timeout to get a total time for a request to receive a response. Default: 6000ms
 -- * <code>recv_before</code> - boolean, receive data before sending first payload
+-- * <code>any_af</code> - boolean, allow connecting to any address family, inet or inet6. By default, these functions will only use the same AF as nmap.address_family to resolve names.
 --
 -- If both <code>"bytes"</code> and <code>"lines"</code> are provided,
 -- <code>"lines"</code> takes precedence. If neither are given, the functions
@@ -63,6 +64,13 @@ local setup_connect = function(host, port, opts)
   local connect_timeout, request_timeout = get_timeouts(host, opts)
 
   sock:set_timeout(connect_timeout)
+
+  if type(host) == "string" and opts.any_af then
+    local status, addrs = nmap.resolve(host)
+    if status then
+      host = {ip = addrs[1], targetname = host}
+    end
+  end
 
   local status, err = sock:connect(host, port, opts.proto)
 
