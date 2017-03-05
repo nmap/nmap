@@ -525,6 +525,8 @@ Entry { filename = "teamspeak2-version.nse", categories = { "version", } }
 Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "teradici-storedcreds.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "teradici-version.nse", categories = { "version", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tls-ticketbleed.nse", categories = { "safe", "vuln", } }

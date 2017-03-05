@@ -56,6 +56,9 @@ typedef struct nse_nsock_udata
 
   void *ssl_session;
 
+  char *ssl_x509;
+  char *ssl_key;
+
   struct sockaddr_storage source_addr;
   size_t source_addrlen;
 
@@ -523,6 +526,16 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
       fatal("nsock_iod_set_hostname(\"%s\" failed in %s()", targetname, __func__);
   }
 
+#ifdef HAVE_OPENSSL
+  if (nu->ssl_x509 != NULL && nu->ssl_key != NULL) {
+    if (nsock_iod_set_ssl_client_cert(nu->nsiod, nu->ssl_x509, nu->ssl_key) == -1)
+      fatal("nsock_iod_set_ssl_client_cert failed in %s()", __func__);
+  } else {
+    if (nsock_iod_set_ssl_client_cert(nu->nsiod, NULL, NULL) == -1)
+      fatal("nsock_iod_set_ssl_client_cert failed in %s()", __func__);
+  }
+#endif
+
   nu->af = dest->ai_addr->sa_family;
   nu->thread = L;
   nu->action = "PRECONNECT";
@@ -882,6 +895,8 @@ static void initialize (lua_State *L, int idx, nse_nsock_udata *nu,
   nu->proto = proto;
   nu->af = af;
   nu->ssl_session = NULL;
+  nu->ssl_x509 = NULL;
+  nu->ssl_key = NULL;
   nu->source_addr.ss_family = AF_UNSPEC;
   nu->source_addrlen = sizeof(nu->source_addr);
   nu->timeout = DEFAULT_TIMEOUT;
@@ -946,6 +961,53 @@ static int nsock_gc (lua_State *L)
   return 0;
 }
 
+/* SSL client cert/key */
+
+static int l_set_ssl_client_cert(lua_State *L)
+{
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
+  size_t size;
+  const char *string = lua_tolstring(L, 2, &size);
+
+  if (nu->ssl_x509) {
+    free(nu->ssl_x509);
+    nu->ssl_x509 = NULL;
+  }
+
+  if (string != NULL) {
+    size = sizeof(char)*(strlen(string)+1);
+    nu->ssl_x509 = (char*)malloc(size);
+    if (nu->ssl_x509 == NULL) {
+      return nseU_safeerror(L, "memory allocation error");
+    }
+    strncpy(nu->ssl_x509, string, size);
+  }
+
+  return nseU_success(L);
+}
+
+static int l_set_ssl_client_key(lua_State *L)
+{
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
+  size_t size;
+  const char *string = lua_tolstring(L, 2, &size);
+
+  if (nu->ssl_key) {
+    free(nu->ssl_key);
+    nu->ssl_key = NULL;
+  }
+
+  if (string != NULL) {
+    size = sizeof(char)*(strlen(string)+1);
+    nu->ssl_key = (char*)malloc(size);
+    if (nu->ssl_key == NULL) {
+      return nseU_safeerror(L, "memory allocation error");
+    }
+    strncpy(nu->ssl_key, string, size);
+  }
+
+  return nseU_success(L);
+}
 
 /****************** PCAP_SOCKET ***********************************************/
 
@@ -1096,6 +1158,8 @@ LUALIB_API int luaopen_nsock (lua_State *L)
     {"receive_bytes", l_receive_bytes},
     {"receive_lines", l_receive_lines},
     {"reconnect_ssl", l_reconnect_ssl},
+    {"set_ssl_client_cert", l_set_ssl_client_cert},
+    {"set_ssl_client_key", l_set_ssl_client_key},
     {"set_timeout", l_set_timeout},
     {NULL, NULL}
   };

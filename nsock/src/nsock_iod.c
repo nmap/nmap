@@ -68,7 +68,10 @@
 #endif
 
 #include <string.h>
-    
+
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#endif
 
 /* nsock_iod is like a "file descriptor" for the nsock library. You use it to
  * request events. And here is how you create an nsock_iod. nsock_iod_new returns
@@ -138,6 +141,9 @@ nsock_iod nsock_iod_new2(nsock_pool nsockp, int sd, void *userdata) {
 
 #if HAVE_OPENSSL
   nsi->ssl_session = NULL;
+
+  nsi->client_x509 = NULL;
+  nsi->client_key = NULL;
 #endif
 
   if (nsp->px_chain) {
@@ -251,6 +257,16 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
      * 95% of the time because we can usually write to a socket. */
     SSL_free(nsi->ssl);
     nsi->ssl = NULL;
+  }
+
+  if (nsi->client_x509) {
+    X509_free(nsi->client_x509);
+    nsi->client_x509 = NULL;
+  }
+
+  if (nsi->client_key) {
+    EVP_PKEY_free(nsi->client_key);
+    nsi->client_key = NULL;
   }
 #endif
 
@@ -446,3 +462,79 @@ int nsock_iod_set_hostname(nsock_iod iod, const char *hostname) {
   return 0;
 }
 
+int nsock_iod_set_ssl_client_cert(nsock_iod iod, const char *x509, const char *key) {
+#ifdef HAVE_OPENSSL
+  struct niod *nsi = (struct niod *)iod;
+  X509 *r_x509 = NULL;
+  EVP_PKEY *r_key = NULL;
+  BIO *tmp_bio = NULL;
+
+  if (x509 == NULL && key == NULL) {
+    /* just free the existing creds, if any */
+
+    if (nsi->client_x509) {
+      X509_free(nsi->client_x509);
+      nsi->client_x509 = NULL;
+    }
+
+    if (nsi->client_key) {
+      EVP_PKEY_free(nsi->client_key);
+      nsi->client_key = NULL;
+    }
+
+    return 0;
+  } else if (x509 != NULL && key != NULL) {
+    /* try interpreting the provided input */
+
+    tmp_bio = BIO_new_mem_buf((void*)x509, sizeof(char)*strlen(x509));
+    if (tmp_bio != NULL) {
+      r_x509 = PEM_read_bio_X509(tmp_bio, NULL, 0, NULL);
+      BIO_free(tmp_bio);
+      tmp_bio = NULL;
+    }
+
+    tmp_bio = BIO_new_mem_buf((void*)key, sizeof(char)*strlen(key));
+    if (tmp_bio != NULL) {
+      r_key = PEM_read_bio_PrivateKey(tmp_bio, NULL, 0, NULL);
+      BIO_free(tmp_bio);
+      tmp_bio = NULL;
+    }
+
+    if (r_x509 == NULL || r_key == NULL) {
+      /* something went wrong */
+
+      if (r_x509 != NULL) {
+        X509_free(r_x509);
+        r_x509 = NULL;
+      }
+
+      if (r_key != NULL) {
+        EVP_PKEY_free(r_key);
+        r_key = NULL;
+      }
+
+      return -1;
+    } else {
+      /* set the new creds, releasing existing ones as necessary */
+
+      if (nsi->client_x509 != NULL) {
+        X509_free(nsi->client_x509);
+      }
+      nsi->client_x509 = r_x509;
+
+      if (nsi->client_key != NULL) {
+        EVP_PKEY_free(nsi->client_key);
+      }
+      nsi->client_key = r_key;
+
+      return 0;
+    }
+  } else {
+    /* if they set one but not the other, this is an error */
+
+    return -1;
+  }
+#else
+  return -1;
+#endif
+}

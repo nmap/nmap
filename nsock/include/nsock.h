@@ -443,6 +443,9 @@ int nsock_iod_set_localaddr(nsock_iod iod, struct sockaddr_storage *ss, size_t s
  * destroyed */
 int nsock_iod_set_ipoptions(nsock_iod iod, void *ipopts, size_t ipoptslen);
 
+/* sets an SSL client certificate and key before connect() */
+int nsock_iod_set_ssl_client_cert(nsock_iod iod, const char *x509, const char *key);
+
 /* Returns that host/port/protocol information for the last communication (or
  * comm. attempt) this nsi has been involved with.  By "involved" with I mean
  * interactions like establishing (or trying to) a connection or sending a UDP

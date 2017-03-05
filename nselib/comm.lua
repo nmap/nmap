@@ -64,6 +64,14 @@ local setup_connect = function(host, port, opts)
 
   sock:set_timeout(connect_timeout)
 
+  if opts and opts.ssl_client_x509 and opts.ssl_client_key then
+    sock:set_ssl_client_cert(opts.ssl_client_x509)
+    sock:set_ssl_client_key(opts.ssl_client_key)
+  elseif opts then
+    sock:set_ssl_client_cert(nil)
+    sock:set_ssl_client_key(nil)
+  end
+
   local status, err = sock:connect(host, port, opts.proto)
 
   if not status then

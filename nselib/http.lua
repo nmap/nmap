@@ -261,6 +261,16 @@ local function validate_options(options)
         stdnse.debug1('http: options.timeout contains a non-numeric value')
         bad = true
       end
+    elseif(key == 'ssl_client_x509') then
+      if(value ~= nil and type(value) ~= 'string') then
+        stdnse.debug1("http: ssl_client_x509 should be a string")
+        bad = true
+      end
+    elseif(key == 'ssl_client_key') then
+      if(value ~= nil and type(value) ~= 'string') then
+        stdnse.debug1("http: ssl_client_key should be a string")
+        bad = true
+      end
     elseif(key == 'header') then
       if(type(value) ~= 'table') then
         stdnse.debug1("http: options.header should be a table")
@@ -1197,7 +1207,7 @@ local function request(host, port, data, options)
     host = addrs[1] or host
   end
 
-  local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
+  local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout, ssl_client_x509 = options.ssl_client_x509, ssl_client_key = options.ssl_client_key })
 
   if not socket then
     stdnse.debug1("http.request socket error: %s", partial)
