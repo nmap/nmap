@@ -1079,14 +1079,14 @@ table.insert(fingerprints, {
     {username = "", password = ""}
   },
   login_check = function (host, port, path, user, pass)
-    local lpath = url.absolute(path, "gui/frmpages/gui_system.shtml")
+    local lurl = url.absolute(path, "gui/frmpages/gui_system.shtml")
     -- Check if authentication is required at all
-    local req = http_get_simple(host, port, lpath)
+    local req = http_get_simple(host, port, lurl)
     if req.status == 200 then
       return (req.body or ""):find('top.render_table("System Page"', 1, true)
     end
     -- realm="Menu Configuration"
-    return try_http_basic_login(host, port, lpath, user, pass, true)
+    return try_http_basic_login(host, port, lurl, user, pass, true)
   end
 })
 
@@ -1253,10 +1253,10 @@ table.insert(fingerprints, {
     -- determine proper login path by locale
     local req0 = http.get(host, port, path)
     if req0.status ~= 200 then return false end
-    local lpath = req0.body and req0.body:match('location%.href="(/[^"]+/)mainFrame%.cgi"')
-    if not lpath then return false end
+    local lurl = req0.body and req0.body:match('location%.href="(/[^"]+/)mainFrame%.cgi"')
+    if not lurl then return false end
     -- harvest the login form token
-    local req1 = http_get_simple(host, port, url.absolute(lpath, "authForm.cgi"),
+    local req1 = http_get_simple(host, port, url.absolute(lurl, "authForm.cgi"),
                                 {cookies="cookieOnOffChecker=on"})
     if req1.status ~= 200 then return false end
     local token = req1.body and req1.body:match('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"wimToken"%s+value%s*=%s*"(.-)"')
@@ -1268,7 +1268,7 @@ table.insert(fingerprints, {
                   password_work = "",
                   password = base64.enc(pass),
                   open = ""}
-    local req2 = http_post_simple(host, port, url.absolute(lpath, "login.cgi"),
+    local req2 = http_post_simple(host, port, url.absolute(lurl, "login.cgi"),
                                  {cookies=req1.cookies}, form)
     local loc = req2.header["location"] or ""
     -- successful login is a 302-redirect that sets a session cookie with numerical value
