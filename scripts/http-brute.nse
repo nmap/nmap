@@ -86,6 +86,7 @@ Driver = {
       header = {
         -- nil just means not set, so default http.lua behavior
         Host = self.hostname,
+        Connection = "keep-alive",
       }
     }
     if self.authmethod == "digest" then
@@ -140,7 +141,9 @@ action = function( host, port )
 
   local response = http.generic_request( host, port, method, path, { no_cache = true } )
 
-  if ( response.status ~= 401 ) then
+  -- Typically checking for response.status as 401 is sufficient 
+  -- but due to many of the non-standrard implementation we are checking for 4XX codes.
+  if ( not ( response.status == 401 or (response.status >= 400 and response.status <= 499 and response.header['www-authenticate']) ) ) then
     return ("  \n  Path \"%s\" does not require authentication"):format(path)
   end
 

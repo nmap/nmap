@@ -1171,9 +1171,10 @@ end
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>.
+-- @param extra_params A table containing socket which is already in operation for stateful connection
 -- @return A response table, see module documentation for description.
 -- @see generic_request
-local function request(host, port, data, options)
+local function request(host, port, data, options, extra_params)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
@@ -1197,7 +1198,14 @@ local function request(host, port, data, options)
     host = addrs[1] or host
   end
 
-  local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
+  local socket, partial, opts
+  if extra_params and extra_params.socket then
+    socket = extra_params.socket
+    partial = extra_params.partial
+    opts = extra_params.opts
+  else
+    socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
+  end
 
   if not socket then
     stdnse.debug1("http.request socket error: %s", partial)
@@ -1254,9 +1262,18 @@ function generic_request(host, port, method, path, options)
     -- request to get realm, nonce and other fields.
     local options_with_auth_removed = tcopy(options)
     options_with_auth_removed["auth"] = nil
-    local r = generic_request(host, port, method, path, options_with_auth_removed)
-    local h = r.header['www-authenticate']
-    if not r.status or (h and not string.find(h:lower(), "digest.-realm")) then
+
+    local response
+    local socket, partial, opts = comm.tryssl(host, port, build_request(host, port, method, path, options_with_auth_removed), { timeout = options.timeout })
+    repeat
+      response, partial = next_response(socket, method, partial)
+      if not response then
+        return http_error("There was error in receiving response of type 3 message.")
+      end
+    until not (response.status >= 100 and response.status <= 199)
+
+    local h = response.header['www-authenticate']
+    if not response.status or (h and not string.find(h:lower(), "digest.-realm")) then
       stdnse.debug1("http: the target doesn't support digest auth or there was an error during request.")
       return http_error("The target doesn't support digest auth or there was an error during request.")
     end
@@ -1264,6 +1281,13 @@ function generic_request(host, port, method, path, options)
     local dmd5 = sasl.DigestMD5:new(h, options.auth.username, options.auth.password, method, path)
     local _, digest_table = dmd5:calcDigest()
     options.digestauth = digest_table
+
+    print("response.header is " .. response.header['connection'])
+    if response.header['connection'] == "close" then
+      return request(host, port, build_request(host, port, method, path, options), options)
+    else
+      return request(host, port, build_request(host, port, method, path, options), options, { socket=socket })
+    end
   end
 
   if ntlm_auth and have_ssl then
@@ -1393,19 +1417,8 @@ function generic_request(host, port, method, path, options)
       ntlm)
 
     custom_options.ntlmauth = auth_blob
-    socket:send(build_request(host, port, method, path, custom_options))
 
-    repeat
-      response, partial = next_response(socket, method, partial)
-      if not response then
-        return http_error("There was error in receiving response of type 3 message.")
-      end
-    until not (response.status >= 100 and response.status <= 199)
-
-    socket:close()
-    response.ssl = ( opts == 'ssl' )
-
-    return response
+    return request(host, port, build_request(host, port, method, path, custom_options), custom_options, { socket=socket })
   end
 
   return request(host, port, build_request(host, port, method, path, options), options)
