@@ -61,7 +61,7 @@ For more information see:
 
 author = "Hani Benhabiles"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"exploit", "intrusive"}
+categories = {"exploit", "intrusive", "vuln"}
 
 
 portrule = shortport.http
