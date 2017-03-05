@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#679][GH#681][NSE] Refreshed script http-robtex-reverse-ip, reflecting
+  changes at the source site (www.robtex.com). [aDoN]
+
 o [GH#708][NSE] TLS SNI now works correctly for NSE HTTP requests initiated
   with option any_af. As an added benefit, option any_af is now available for
   all connections via comm.lua, not just HTTP requests. [nnposter]
