@@ -451,7 +451,7 @@ table.insert(fingerprints, {
     matches = {
       {
         match = 'IP_SHARER WEB',
-        output = 'Arris 2307'
+        output = 'Belkin/Arris 2307'
       }
     }
   });
