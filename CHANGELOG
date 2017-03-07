@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script oracle-vuln-tns-poison checks for the TNS Poison vulnerability
+  in Oracle Database servers. [Alexandr Savca]
+
 o [GH#679][GH#681][NSE] Refreshed script http-robtex-reverse-ip, reflecting
   changes at the source site (www.robtex.com). [aDoN]
 
