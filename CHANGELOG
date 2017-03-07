@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added several commands to redis-info to extract listening addresses,
+  connected clients, active channels, and cluster nodes. [Vasily Kulikov]
+
 o [GH#679][GH#681][NSE] Refreshed script http-robtex-reverse-ip, reflecting
   changes at the source site (www.robtex.com). [aDoN]
 
