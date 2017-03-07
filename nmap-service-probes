@@ -15480,3 +15480,11 @@ ports 6715
 sslports 6715
 
 match jmon m|^ACKNOWLEDGE| p/JMON for zOS (FMID HALG300)/ o|z/OS| cpe:/a:ibm:zos_explorer/ cpe:/o:ibm:z%2fos/
+
+##############################NEXT PROBE##############################
+# LibreOffice Impress Remote Server
+# Requests to pair a remote called "Nmap" with the pin 0000
+Probe TCP LibreOfficeImpressSCPair q|LO_SERVER_CLIENT_PAIR\nNmap\n0000\n\n|
+rarity 9
+ports 1599
+match impress-remote m|^LO_SERVER_VALIDATING_PIN\n$| p/LibreOffice Impress remote/ cpe:/a:libreoffice:libreoffice/

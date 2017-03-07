@@ -3,6 +3,24 @@
 o [NSE] New script oracle-vuln-tns-poison checks for the TNS Poison vulnerability
   in Oracle Database servers. [Alexandr Savca]
 
+o [GH#679][GH#681][NSE] Refreshed script http-robtex-reverse-ip, reflecting
+  changes at the source site (www.robtex.com). [aDoN]
+
+o [GH#708][NSE] TLS SNI now works correctly for NSE HTTP requests initiated
+  with option any_af. As an added benefit, option any_af is now available for
+  all connections via comm.lua, not just HTTP requests. [nnposter]
+
+o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
+  LibreOffice Impress presentation remote service and extract version info.
+  Pairing is PIN-protected, and the script can optionally brute-force the PIN.
+  New service probe and match line also added. [Jeremy Hiebert]
+
+o [GH#620][GH#715][NSE] Added 8 new http-enum fingerprints for Hadoop
+  infrastructure components. [Thomas Debize, Varunram Ganesh]
+
+o [GH#629][NSE] Added two new fingerprints to http-default-accounts
+  (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
+
 o [GH#716][NSE] Fix for oracle-tns-version which was sending an invalid TNS
   probe due to a string escaping mixup. [Alexandr Savca]
 
