@@ -82,6 +82,8 @@ Response = {
       if( not(status) ) then
         return false, "Failed to receive data from server"
       end
+      -- move past the terminal CRLF
+      local status, crlf = self.socket:receive_buf("\r\n", false)
 
       return true, { data = data, type = Response.Type.BULK }
     end
