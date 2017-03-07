@@ -243,13 +243,9 @@ compare_ip = function( left, op, right )
     return nil, table.concat( err, " " )
   end
 
-  if #left > #right then
-    left = bin.pack( "CA", 0x06, left )
-    right = bin.pack( "CA", 0x04, right )
-  elseif #right > #left then
-    right = bin.pack( "CA", 0x06, right )
-    left = bin.pack( "CA", 0x04, left )
-  end
+  -- by prepending the length, IPv4 (length 4) sorts before IPv6 (length 16)
+  left = string.pack("s1", left)
+  right = string.pack("s1", right)
 
   if ( op == "eq" ) then
     return ( left == right )
@@ -527,12 +523,12 @@ ip_to_str = function( ip, family )
   if not ip:match( ":" ) then
     -- ipv4 string
     for octet in string.gmatch( ip, "%d+" ) do
-      t[#t+1] = bin.pack( ">C", tonumber(octet) )
+      t[#t+1] = string.pack("B", octet)
     end
   else
     -- ipv6 string
     for hdt in string.gmatch( ip, "%x+" ) do
-      t[#t+1] = bin.pack( ">S", tonumber(hdt, 16) )
+      t[#t+1] = string.pack( ">I2", tonumber(hdt, 16) )
     end
   end
 
@@ -550,11 +546,9 @@ end
 -- @return String error message in case of an error
 str_to_ip = function (ip)
   if #ip == 4 then
-    local _, a, b, c, d = bin.unpack("C4", ip)
-    return ("%d.%d.%d.%d"):format(a, b, c, d)
+    return ("%d.%d.%d.%d"):format(string.unpack("BBBB", ip))
   elseif #ip == 16 then
-    local _, a, b, c, d, e, f, g, h = bin.unpack(">S8", ip)
-    local full = ("%x:%x:%x:%x:%x:%x:%x:%x"):format(a, b, c, d, e, f, g, h)
+    local full = ("%x:%x:%x:%x:%x:%x:%x:%x"):format(string.unpack((">I2"):rep(8), ip))
     full = full:gsub(":[:0]+", "::", 1) -- Collapse the first (should be longest?) series of :0:
     full = full:gsub("^0::", "::", 1) -- handle special case of ::1
     return full
@@ -651,6 +645,10 @@ end
 
 
 
+local bin_lookup = {
+  [0]="0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111",
+      "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111",
+}
 ---
 -- Converts a string of hexadecimal digits into the corresponding string of
 -- binary digits.
@@ -663,14 +661,22 @@ end
 -- <code>nil</code> in case of an error).
 -- @return     String error message in case of an error.
 hex_to_bin = function( hex )
-
-  if type( hex ) ~= "string" or hex == "" or hex:match( "[^%x]+" ) then
-    return nil, "Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number."
+  if type( hex ) ~= "string" then
+    return nil, "Error in ipOps.hex_to_bin: Expected string"
   end
 
-  local d = bin.pack("H", hex)
-  local _, b = bin.unpack("B" .. #d, d)
-  return b:sub(1, #hex * 4)
+  local status, result = pcall( string.gsub, hex, ".", function(nibble)
+      local n = bin_lookup[tonumber(nibble, 16)]
+      if n then
+        return n
+      else
+        error("Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number.")
+      end
+    end)
+  if status then
+    return result
+  end
+  return status, result
 end
 
 --Ignore the rest if we are not testing.
@@ -746,6 +752,20 @@ do
     }) do
     test_suite:add_test(op[4](compare_ip(op[1], op[2], op[3])),
       string.format("compare_ip(%s, %s, %s) (%s)", op[1], op[2], op[3], op[5]))
+  end
+end
+
+do
+  for _, h in ipairs({
+      {"a", "1010"},
+      {"aa", "10101010"},
+      {"12", "00010010"},
+      {"54321", "01010100001100100001"},
+      {"123error", false},
+      {"", ""},
+      {"bad 123", false},
+    }) do
+    test_suite:add_test(unittest.equal(hex_to_bin(h[1]), h[2]))
   end
 end
 
