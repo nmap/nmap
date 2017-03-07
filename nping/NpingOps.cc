@@ -689,7 +689,7 @@ int NpingOps::setSendPreference(int v){
    if( v!=PACKET_SEND_NOPREF && v!=PACKET_SEND_ETH_WEAK &&
        v!=PACKET_SEND_ETH_STRONG && v!=PACKET_SEND_ETH &&
        v!=PACKET_SEND_IP_WEAK && v!=PACKET_SEND_IP_STRONG &&
-       v!=PACKET_SEND_IP ){
+       v!=PACKET_SEND_IP && !this->getSendPreference() ){
         nping_fatal(QT_3,"setSendPreference(): Invalid value supplied\n");
         return OP_FAILURE;
     }else{

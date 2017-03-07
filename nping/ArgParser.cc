@@ -726,8 +726,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         }else{
             o.setSourceMAC(auxmac);      
         }
-        if( !o.issetSendPreference() )
-            o.setSendPreference(PACKET_SEND_ETH_STRONG);
+        o.setSendPreference(PACKET_SEND_ETH_STRONG);
     /* Ethernet type field */       
     } else if (optcmp(long_options[option_index].name, "ethertype") == 0 ||
                optcmp(long_options[option_index].name, "ethtype") == 0 ||
