@@ -39,7 +39,7 @@ Retrieves information (such as version number and architecture) from a Redis key
 --
 --
 
-author = {"Patrik Karlsson", "Vasily Kulikov"}
+author = {"Patrik Karlsson", "Vasiliy Kulikov"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"redis-brute"}
