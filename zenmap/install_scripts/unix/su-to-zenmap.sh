@@ -28,6 +28,8 @@ else
             SU_TO_ROOT_X=kdesu5
           elif test -x /usr/lib/kde4/libexec/kdesu ; then
             SU_TO_ROOT_X=kde4su
+          elif test -x /usr/lib/x86_64-linux-gnu/libexec/kf5/kdesu ; then
+            SU_TO_ROOT_X=kde5su
           fi;
         fi;
       elif which kdesu >/dev/null 2>&1 ; then 
@@ -36,6 +38,8 @@ else
         SU_TO_ROOT_X=kdesu5
       elif test -x /usr/lib/kde4/libexec/kdesu ; then
         SU_TO_ROOT_X=kde4su
+      elif test -x /usr/lib/x86_64-linux-gnu/libexec/kf5/kdesu ; then
+        SU_TO_ROOT_X=kde5su
       elif which ktsuss >/dev/null 2>&1 ; then
         SU_TO_ROOT_X=ktsuss
       elif which xterm>/dev/null 2>&1 ;then
@@ -53,6 +57,7 @@ else
       kdesu) kdesu -u "$PRIV" -c "$COMMAND";;
       kdesu5) kdesu5 -u "$PRIV" -c "$COMMAND";;
       kde4su) /usr/lib/kde4/libexec/kdesu -u "$PRIV" -c "$COMMAND";;
+      kde5su) /usr/lib/x86_64-linux-gnu/libexec/kf5/kdesu -u "$PRIV" -c "$COMMAND";;
       ktsuss) ktsuss -u "$PRIV" "$COMMAND";;
   # As a last resort, open a new xterm use sudo/su
       sdterm) xterm -e "sudo -u $PRIV $COMMAND";;
