@@ -47,7 +47,10 @@ match aastra-pbx m|^BUSY$| p|Aastra/Mitel 400-series PBX service port|
 match acap m|^\* ACAP \(IMPLEMENTATION \"CommuniGate Pro ACAP (\d[-.\w]+)\"\) | p/CommuniGate Pro ACAP server/ v/$1/ i/for mail client preference sharing/ cpe:/a:stalker:communigate_pro:$1/
 match acarsd m|^g\0\0\0\x1b\0\0\0\0\0\0\0acarsd\t([\w._-]+)\tAPI-([\w._-]+)\)\0\0\0\x06\x05\0\0\0\0\0\0<\?xml | p/acarsd/ v/$1/ i/API $2/ cpe:/a:acarsd:acarsd:$1/
 match acmp m|^ACMP Server Version ([\w._-]+)\r\n| p/Aagon ACMP Inventory/ v/$1/
-match activemq m|^\0\0\0.\x01ActiveMQ\0\0\0|s p/Apache ActiveMQ/ cpe:/a:apache:activemq/
+
+match apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0cProviderName\t\0\x08ActiveMQ.*\x0fPlatformDetails\t..JVM: (\d[^,]*), [^,]*, Oracle Corporation, OS: Linux, (\d\.[\d.]+)[^,]*, ([\w_-]+).*\x0fProviderVersion\t..(\d[\w._-]*)|s p/ActiveMQ OpenWire transport/ v/$4/ i/Java $1; arch: $3/ o/Linux $2/ cpe:/a:apache:activemq:$4/ cpe:/o:linux:linux_kernel:$2/a
+softmatch apachemq m|^\0\0..\x01ActiveMQ\0| p/ActiveMQ OpenWire transport/
+
 
 # Microsoft ActiveSync Version 3.7 Build 3083 (It's used for syncing
 # my ipaq it disappears when you remove the ipaq.)
@@ -153,8 +156,9 @@ match beidpcscd m|^\0\0\0\x1e\xffV\x92l\xfbUL\x87\xabw\x1f\xb2\n\xd8\xef/\0\0\0\
 
 match bf2rcon m|^### Battlefield 2 ModManager Rcon v([\d.]+)\.\n### Digest seed: \w+\n\n| p/Battlefield 2 ModManager Remote Console/ v/$1/
 
-softmatch bgp m|^\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\x15\x03\x06\x05| i/connection rejected/
-softmatch bgp m|^\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff..\x01\x04| i/open/
+match bgp m|^\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\x15\x03\x06\x05| i/connection rejected/
+match bgp m|^\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\x1d\x01\x04........\0\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\x15\x03\x06\x05| i/open; connection rejected/
+match bgp m|^\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff..\x01\x04| i/open/
 
 # https://en.bitcoin.it/wiki/Protocol_specification#Message_structure
 # https://en.bitcoin.it/wiki/Protocol_specification#version
@@ -2736,6 +2740,7 @@ match realplayfavs m|^_realplayfavs_::([\w\s]+)::connected\0$| p/RealPlayer Shar
 match realplayfavs m|^_realplayfavs_::| p/RealPlayer Shared Favorites/ cpe:/a:real:realplayer/
 match resvc m|^\{\w+\} NODEINFO \(\d+\) \{\d+\}Version: (\d[-.\w ]+) Microsoft Routing Server ready\r\n  | p/Microsoft Exchange routing server/ v/$1/ o/Windows/ cpe:/a:microsoft:exchange_server/ cpe:/o:microsoft:windows/a
 match remoteanything m|^(\d+\.\d+\.\d+) G\0\0\0\xb6\0.\t| p/TWD RemoteAnything/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+softmatch reverse-ssl m|^\x16\x03[\x00-\x03]..\x01...\x03[\x00-\x03].{32}| p|SSL/TLS ClientHello|
 match rexec m|^/bin/ip/rexexec: auth_proxy: auth_proxy rpc: negotiation failed, no common protocols or keys\n| p/Plan 9 rexexec/ o/Plan 9/ cpe:/o:belllabs:plan_9/a
 
 match rfbuoy m|^<rfBuoy/>| p/Datawell rfBuoy wavebuoy communication software/ d/specialized/
@@ -5438,9 +5443,9 @@ match http m|^HTTP/1\.0 400 Bad Request\r\nContent-type: text/html\r\n\r\n<HTML>
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nConnection: close\r\nServer: NetData Embedded HTTP Server\r\n| p/NetData embedded httpd/ cpe:/a:firehol:netdata/
 # Hosafe HOSAFE-2MB3W 1080P IP Security Camera
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: application/soap\+xml; charset=utf-8\r\nConnection: close\r\n\r\n$| p/Hosafe ONVIF camera SOAP httpd/ d/webcam/
-
+# "The 6258 port is for the older 1Password 3 extension"
 # Also matches Daylite Server Admin caldav
-#match http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Length: 0\r\nConnection: close\r\nAccept-Ranges: bytes\r\nDate: .* GMT\r\n\r\n| p/1Password Agent/ cpe:/a:agilebits:1password/
+softmatch http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Length: 0\r\nConnection: close\r\nAccept-Ranges: bytes\r\nDate: .* GMT\r\n\r\n| p/1Password Agent or Daylite Server Admin caldav/
 
 # full match including appliance model number under GetRequest
 softmatch http m|^UNKNOWN 400 Bad Request\r\nServer: Check Point SVN foundation\r\n| p/Check Point SVN foundation/
@@ -8792,7 +8797,8 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nWWW-Authenticate: Basic 
 match http m|^HTTP/1\.0 302 Found\r\nConnection: Close\r\nLocation: /search\?site=default_collection&client=default_frontend&output=xml_no_dtd&proxystylesheet=default_frontend&proxycustom=<HOME/>\r\nContent-Type: text/html\r\nContent-Length: 0\r\n\r\n$| p/Google Mini search appliance httpd/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Apache/x\.x\.x \(Unix\) mod_ssl/x\.x\.x OpenSSL/([\w._-]+)\r\n.*<title> FASTORA Filer Storage Manager </title>.*classid=\"clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11\">|s p/Apache httpd/ i/Fastora NAS T2 NAS device; OpenSSL $1/ d/storage-misc/ o/FreeBSD/ cpe:/a:apache:http_server/ cpe:/a:openssl:openssl:$1/ cpe:/o:freebsd:freebsd/a
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nCache-Control: private\r\nServer: IPOffice/([\w._()-]+)\r\nContent-Type: text/plain\r\nContent-Length: 13\r\n\r\nParsing error$| p/Avaya IP Office VoIP PBX httpd/ v/$1/ d/PBX/
-match http m|^HTTP/1\.0 301 Moved Permanently\r\nDate: .*\r\nCache-Control: private\r\nLocation: /index\.html\r\nServer: IPOffice/([\w._()-]+)\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nRedirect to index\.html$| p/Avaya IP Office VoIP PBX httpd/ v/$1/ d/PBX/
+match http m|^HTTP/1\.0 301 Moved Permanently\r\nDate: .*\r\n(?:Expires: .*\r\n)?Cache-Control: private(?:,max-age=\d+)?\r\nLocation: /index\.html\r\nServer: IPOffice/([\w._()-]+)\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nRedirect to index\.html$| p/Avaya IP Office VoIP PBX httpd/ v/$1/ d/PBX/
+match http m|^HTTP/1\.0 301 Moved Permanently\r\nDate: .*\r\n(?:Expires: .*\r\n)?Cache-Control: private(?:,max-age=\d+)?\r\nLocation: /index\.html\r\nServer: IPOffice/\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nRedirect to index\.html$| p/Avaya IP Office VoIP PBX httpd/ d/PBX/
 match http m|^HTTP/1\.0 404 Not Found\r\nConnection: close\r\nServer: SimpleHTTPtutorial v([\w._-]+)\r\n\r\n$| p/SimpleHTTPtutorial httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\n.*Server: uClinux-httpd ([\w._-]+)\nExpires: 0\n\n.*<title>DxClient NetViewer</title>.*<OBJECT\r\n\tclassid=\"clsid:EF34051A-402A-4ABE-AA20-04E1B4422BD9\"\r\n\tcodebase=\"DxClient_NetViewer\.cab#version=([\d,]+)\"\r\n|s p/uClinux-httpd/ v/$1/ i/DxClient NetViewer DVR viewer $SUBST(2,",",".")/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .*\r\nServer: Mbedthis-Appweb/([\w._-]+)\r\nContent-length: 0\r\nConnection: close\r\nLocation: http://http/tohttps\.jsp\r\n\r\n$| p/Mbedthis-Appweb/ v/$1/ i/Ruckus WAP http config/ d/WAP/ cpe:/a:mbedthis:appweb:$1/
@@ -9017,8 +9023,8 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nExpires: .*\r\nContent-Type: text/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWww-Authenticate: Basic REALM=\"elmeg\"\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nUnauthorized request\r\n$| p/Elmeg IP 290 VoIP phone http config/ d/VoIP phone/ cpe:/h:elmeg:ip_290/
 match http m|^HTTP/1\.1 401 Authorization Required\nDate: .* ([-+]\d+)\nServer: WebPidginZ \n([\w._-]+)\nWWW-Authenticate: Digest realm=\"WebPidginZLoginDigest\", nonce=\"[0-9a-f]+\", opaque=\"0000000000000000\", stale=false, algorithm=MD5, qop=\"auth\"\nConnection: close\nContent-type: text/html\n\n\n\n$| p/WebPidgin-Z instant messaging interface/ v/$2/ i/time zone: $1/
 
-match http m|^HTTP/1\.0 \d\d\d [^\r\n]+\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*?\"name\" : \"([^"]+)\",\n  \"cluster_name\" : \"([^"]+)\",\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",.*\"lucene_version\" : \"([^"]+)\"\n  },\n  \"tagline\" : \"You Know, for Search\"\n}\n|s p/Elasticsearch REST API/ v/$3/ i/name: $1; cluster: $2; Lucene $4/ cpe:/a:apache:lucene:$4/ cpe:/a:elasticsearch:elasticsearch:$3/
-match http m|^HTTP/1\.0 \d\d\d [\w ]+\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\"name\" : \"([^"]+)\",\r?\n  \"version\" : {\r?\n    \"number\" : \"([^"]+)\",.*\"lucene_version\" : \"([^"]+)\"\r?\n  },\r?\n  \"tagline\" : \"You Know, for Search\"\r?\n}|s p/Elasticsearch REST API/ v/$2/ i/name: $1; Lucene $3/ cpe:/a:apache:lucene:$3/ cpe:/a:elasticsearch:elasticsearch:$2/
+match http m|^HTTP/1\.0 \d\d\d [^\r\n]+\r\n[Cc]ontent-[Tt]ype: application/json; charset=UTF-8\r\n[Cc]ontent-[Ll]ength: \d+\r\n\r\n{.*?"name" : "([^"]+)",\n  "cluster_name" : "([^"]+)",(?:\n  "cluster_uuid" : "[^"]*",)?\n  "version" : {\n    "number" : "([\w._-]+)",.*"lucene_version" : "([^"]+)"\n  },\n  "tagline" : "You Know, for Search"\n}\n|s p/Elasticsearch REST API/ v/$3/ i/name: $1; cluster: $2; Lucene $4/ cpe:/a:apache:lucene:$4/ cpe:/a:elasticsearch:elasticsearch:$3/
+match http m|^HTTP/1\.0 \d\d\d [\w ]+\r\n[Cc]ontent-[Tt]ype: application/json; charset=UTF-8\r\n[Cc]ontent-[Ll]ength: \d+\r\n\r\n{.*"name" : "([^"]+)",(?:\r?\n  "cluster_uuid" : "[^"]*",)?\r?\n  "version" : {\r?\n    "number" : "([^"]+)",.*"lucene_version" : "([^"]+)"\r?\n  },\r?\n  "tagline" : "You Know, for Search"\r?\n}|s p/Elasticsearch REST API/ v/$2/ i/name: $1; Lucene $3/ cpe:/a:apache:lucene:$3/ cpe:/a:elasticsearch:elasticsearch:$2/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm="([^"]+)"\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n\{"error":\{"root_cause":\[\{"type":"security_exception","reason":"missing authentication token for REST request \[/| p/Elasticsearch REST API/ i/Shield plugin; realm: $1/ cpe:/a:elasticsearch:elasticsearch/
 
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"NETWORK\"\r\nContent-Type: text/html\r\nServer: Lancam Server\r\n\r\n| p/American Dynamics EDVR security recorder/ d/security-misc/
@@ -9901,6 +9907,10 @@ match http m|^HTTP/1\.[01] 401 Unauthorized\r\nContent-Type: text/html\r\nConten
 match http m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: sky\r\n\r\n| p/Sky+HD photo display httpd/ d/media device/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nLocation: https:///\r\nContent-length: 0\r\n\r\n$| p/Compact IP-DECT Base Station/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nConnection: close\r\nPragma: no-cache\r\nExpires: Fri, 01 Jan 1971 00:00:00 GMT\r\nCache-Control: no-cache, must-revalidate\r\nP3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"\r\nLocation: https://portal\.moovmanage\.com/| p/FleetConnect MoovManage WiFi gateway/ d/WAP/
+match http m|^HTTP/1\.1 404 Not Found\r\nDate: .* GMT\r\nAccept-Ranges: bytes\r\nContent-Length: 0\r\n\r\n| p/AgileBits 1Password 3/ cpe:/a:agilebits:1password/
+match http m|^HTTP/1\.1 200 Ok\r\nDate: .* GMT\r\nAccept-Ranges: bytes\r\nConnection: close\r\nLast-Modified: .* GMT\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\n\r\n\xef\xbb\xbf<html>\n<head>\n<meta http-equiv="Content-type" CONTENT="text/html; charset=UTF-8">\n<script type="text/javascript" src="/js/variable_6\.js"></script>| p/AirLive POE-100HD webcam http admin/ d/webcam/ cpe:/h:airlive:poe-100hd/a
+match http m|^HTTP/1\.1 303 See Other\r\nLocation: /logon\.htm\r\nContent-Length: 0\r\nServer: AMT\r\n\r\n| p/Intel Active Management Technology http admin/ d/remote management/ cpe:/h:intel:active_management_technology/
+match http m|^HTTP/1\.0 403 Forbidden\r\nContent-Type: text/plain; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nDate: .* GMT\r\nContent-Length: 17\r\n\r\nHost check error\n| p/Syncthing Web UI/ cpe:/a:syncthing:syncthing/
 
 #(insert http)
 
@@ -12252,6 +12262,7 @@ match smtp m|^220 ESMTP (?:\(NO U[BC]E\))* ?server ready at \w\w\w, \d\d \w\w\w 
 match smtp m|^220 ([\w._-]+) Mail ESMTP ready\r\n250-\1 Axigen ESMTP hello\r\n| p/Axigen smtpd/ h/$1/ cpe:/a:gecad:axigen_mail_server/
 # Sometimes the hostnames don't match!
 match smtp m|^220 ([\w._-]+) Mail ESMTP ready\r\n250-([\w._-]+) Axigen ESMTP hello\r\n| p/Axigen smtpd/ i/alt hostname: $2/ h/$1/ cpe:/a:gecad:axigen_mail_server/
+match smtp m|^220 ([\w._-]+)[^\r\n]*\r\n250-[^ ]* \[[^]]+\], this server offers \d+ extensions\r\n250| p/MailEnable smtpd/ o/Windows/ h/$1/ cpe:/a:mailenable:mailenable/ cpe:/o:microsoft:windows/a
 
 match smtp m|^220 $| p/OpenBSD spamd/
 
@@ -13110,6 +13121,7 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1739\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.15 - 9.2.16/ cpe:/a:postgresql:postgresql:9.2/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1742\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.17/ cpe:/a:postgresql:postgresql:9.2.17/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1746\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.18 - 9.2.19/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1747\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.20/ cpe:/a:postgresql:postgresql:9.2.20/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ cpe:/a:postgresql:postgresql:9.3/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ cpe:/a:postgresql:postgresql:9.3/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1872\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.6 - 9.3.9/ cpe:/a:postgresql:postgresql:9.3/
@@ -13120,12 +13132,17 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1 - 9.4.4/ cpe:/a:postgresql:postgresql:9.4/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ cpe:/a:postgresql:postgresql:9.4.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.14 - 9.3.15 or 9.4.6 - 9.4.8/ cpe:/a:postgresql:postgresql:9/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1987\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.16/ cpe:/a:postgresql:postgresql:9.3.16/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1990\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.9/ cpe:/a:postgresql:postgresql:9.4.9/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ cpe:/a:postgresql:postgresql:9.4.10/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2001\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.11/ cpe:/a:postgresql:postgresql:9.4.11/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ cpe:/a:postgresql:postgresql:9.5/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.4/ cpe:/a:postgresql:postgresql:9.5.4/
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ cpe:/a:postgresql:postgresql:9.5.5/
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ cpe:/a:postgresql:postgresql:9.6/
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2006\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.6/ cpe:/a:postgresql:postgresql:9.5.6/
+# 9.6.0 introduced a nonlocalized error message
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ cpe:/a:postgresql:postgresql:9.6/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.2/ cpe:/a:postgresql:postgresql:9.6.2/
 
 # PostgreSQL - Windows platforms
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1287\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/7.4.0 - 7.4.1/ o/Windows/ cpe:/a:postgresql:postgresql:7.4/ cpe:/o:microsoft:windows/a
@@ -13175,6 +13192,7 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1739\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.15 - 9.2.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1742\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.17/ o/Windows/ cpe:/a:postgresql:postgresql:9.2.17/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1746\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.18 - 9.2.19/ o/Windows/ cpe:/a:postgresql:postgresql:9.2/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1747\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.2.20/ o/Windows/ cpe:/a:postgresql:postgresql:9.2.20/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1837\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.0 - 9.3.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1834\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.3 - 9.3.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1872\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.6 - 9.3.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.3/ cpe:/o:microsoft:windows/a
@@ -13183,12 +13201,17 @@ match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backe
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1881\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.1 - 9.4.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1955\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1986\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.14 - 9.3.15 or 9.4.6 - 9.4.8/ o/Windows/ cpe:/a:postgresql:postgresql:9/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1987\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.3.16/ o/Windows/ cpe:/a:postgresql:postgresql:9.3.16/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1990\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.9/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.9/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2000\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.10/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.10/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2001\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.4.11/ o/Windows/ cpe:/a:postgresql:postgresql:9.4.11/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1991\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.0 - 9.5.3/ o/Windows/ cpe:/a:postgresql:postgresql:9.5/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1995\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.4/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.4/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2005\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.5/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.5/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2006\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.5.6/ o/Windows/ cpe:/a:postgresql:postgresql:9.5.6/ cpe:/o:microsoft:windows/a
+# 9.6.0 introduced a nonlocalized error message
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2008\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.0 - 9.6.1/ o/Windows/ cpe:/a:postgresql:postgresql:9.6/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2009\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/9.6.2/ o/Windows/ cpe:/a:postgresql:postgresql:9.6.2/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
@@ -13216,6 +13239,9 @@ softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M\xe3\x83\x95\xe3\x83\xad\xe3\x
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0.*?\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 softmatch postgresql m|^E\0\0\0.S[^\0]+\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
+
+softmatch postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*?1\.0.*?3\.0.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ v/9.6.0 or later/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
+softmatch postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ v/9.6.0 or later/ cpe:/a:postgresql:postgresql/
 
 match tcsd m|^\0\0\0\x1c\0\0 \x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/TCSD daemon/
 
@@ -13868,7 +13894,7 @@ ports 3388,3389
 match ssl m|^(?!x)x| p/BUGBUG: This should never match/
 
 # Windows 10
-match ms-wbt-server m|\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/
+match ms-wbt-server m|\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
 
 ##############################NEXT PROBE##############################
 Probe TCP TerminalServer q|\x03\0\0\x0b\x06\xe0\0\0\0\0\0|
@@ -14488,6 +14514,7 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x06\x40| p/Microsoft SQL Server 2008 R2/ v/10.50.1600; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x06\x51| p/Microsoft SQL Server 2008 R2/ v/10.50.1617; RTM+ MS11-049/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x09\xc4| p/Microsoft SQL Server 2008 R2/ v/10.50.2500; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp1/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x09\xf6| p/Microsoft SQL Server 2008 R2/ v/10.50.2550; SP1+ MS12-070/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x0f\xa0| p/Microsoft SQL Server 2008 R2/ v/10.50.4000; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x10\xb4| p/Microsoft SQL Server 2008 R2/ v/10.50.4276; SP2+ Cumulative Update 5/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x17\x70| p/Microsoft SQL Server 2008 R2/ v/10.50.6000; SP3/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp3/ cpe:/o:microsoft:windows/
@@ -14501,8 +14528,13 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x07\xd0| p/Microsoft SQL Server 2014/ v/12.00.2000/ o/Windows/ cpe:/a:microsoft:sql_server:2014/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x10\x04| p/Microsoft SQL Server 2014/ v/12.00.4100; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x10\x75| p/Microsoft SQL Server 2014/ v/12.00.4213; SP1+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp1/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x13\x88| p/Microsoft SQL Server 2014/ v/12.00.5000; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp2/ cpe:/o:microsoft:windows/
 
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0d\x00\x06\x41| p/Microsoft SQL Server 2016/ v/13.00.1601/ o/Windows/ cpe:/a:microsoft:sql_server:2016/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0d\x00\x0f\xa1| p/Microsoft SQL Server 2016/ v/13.00.4001; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2016:sp1/ cpe:/o:microsoft:windows/
+
+# No longer Windows-only
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0e\x00..|s p/Microsoft SQL Server vNext tech preview/ v/14.00.X/ cpe:/a:microsoft:sql_server/
 
 #Major version match lines - in the event that minor versions do not match
 softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08| p/Microsoft SQL Server 2000/ o/Windows/ cpe:/a:microsoft:sql_server:2000/ cpe:/o:microsoft:windows/
