@@ -14,6 +14,9 @@ local unittest = require "unittest"
 
 _ENV = stdnse.module("ipOps", stdnse.seeall)
 
+local pack = string.pack
+local unpack = string.unpack
+
 ---
 -- Checks to see if the supplied IP address is part of a non-routable
 -- address space.
@@ -161,7 +164,7 @@ fromdword = function( ip )
     stdnse.debug1("Error in ipOps.fromdword: Expected 32-bit number.")
     return nil
   end
-  return string.format("%d.%d.%d.%d", string.unpack("BBBB", string.pack(">I4", ip)))
+  return string.format("%d.%d.%d.%d", unpack("BBBB", pack(">I4", ip)))
 end
 
 ---
@@ -236,8 +239,8 @@ compare_ip = function( left, op, right )
   end
 
   -- by prepending the length, IPv4 (length 4) sorts before IPv6 (length 16)
-  left = string.pack("s1", left)
-  right = string.pack("s1", right)
+  left = pack("s1", left)
+  right = pack("s1", right)
 
   if ( op == "eq" ) then
     return ( left == right )
@@ -515,12 +518,12 @@ ip_to_str = function( ip, family )
   if not ip:match( ":" ) then
     -- ipv4 string
     for octet in string.gmatch( ip, "%d+" ) do
-      t[#t+1] = string.pack("B", octet)
+      t[#t+1] = pack("B", octet)
     end
   else
     -- ipv6 string
     for hdt in string.gmatch( ip, "%x+" ) do
-      t[#t+1] = string.pack( ">I2", tonumber(hdt, 16) )
+      t[#t+1] = pack( ">I2", tonumber(hdt, 16) )
     end
   end
 
@@ -538,9 +541,9 @@ end
 -- @return String error message in case of an error
 str_to_ip = function (ip)
   if #ip == 4 then
-    return ("%d.%d.%d.%d"):format(string.unpack("BBBB", ip))
+    return ("%d.%d.%d.%d"):format(unpack("BBBB", ip))
   elseif #ip == 16 then
-    local full = ("%x:%x:%x:%x:%x:%x:%x:%x"):format(string.unpack((">I2"):rep(8), ip))
+    local full = ("%x:%x:%x:%x:%x:%x:%x:%x"):format(unpack((">I2"):rep(8), ip))
     full = full:gsub(":[:0]+", "::", 1) -- Collapse the first (should be longest?) series of :0:
     full = full:gsub("^0::", "::", 1) -- handle special case of ::1
     return full
