@@ -183,7 +183,7 @@ OSPF = {
       assert( #data >= hello.header.length, "OSPF packet too short")
       pos, hello.netmask, hello.interval, hello.options, hello.prio,
       hello.router_dead_interval, hello.DR,
-      hello.BDR = bin.unpack("<ISCCIII", data, pos)
+      hello.BDR = bin.unpack("<I>SCCI<II", data, pos)
 
       hello.netmask = ipOps.fromdword(hello.netmask)
       hello.DR = ipOps.fromdword(hello.DR)
