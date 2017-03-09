@@ -3,8 +3,6 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
-local bin = require "bin"
-local bit = require "bit"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -163,13 +161,7 @@ fromdword = function( ip )
     stdnse.debug1("Error in ipOps.fromdword: Expected 32-bit number.")
     return nil
   end
-
-  local n1 = bit.band(bit.rshift(ip, 0),  0x000000FF)
-  local n2 = bit.band(bit.rshift(ip, 8),  0x000000FF)
-  local n3 = bit.band(bit.rshift(ip, 16), 0x000000FF)
-  local n4 = bit.band(bit.rshift(ip, 24), 0x000000FF)
-
-  return string.format("%d.%d.%d.%d", n1, n2, n3, n4)
+  return string.format("%d.%d.%d.%d", string.unpack("BBBB", string.pack(">I4", ip)))
 end
 
 ---
