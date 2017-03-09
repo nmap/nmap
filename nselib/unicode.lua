@@ -20,8 +20,8 @@ local lshift = bit.lshift
 local rshift = bit.rshift
 local byte = string.byte
 local char = string.char
-local pack = bin.pack
-local unpack = bin.unpack
+local pack = string.pack
+local unpack = string.unpack
 
 
 ---Decode a buffer containing Unicode data.
@@ -86,9 +86,9 @@ end
 --                 false (little-endian)
 --@return A string containing the code point in UTF-16 encoding.
 function utf16_enc(cp, bigendian)
-  local fmt = "<S"
+  local fmt = "<I2"
   if bigendian then
-    fmt = ">S"
+    fmt = ">I2"
   end
 
   if cp % 1.0 ~= 0.0 or cp < 0 then
@@ -116,16 +116,16 @@ end
 --@return pos The index in the string where the character ended
 --@return cp The code point of the character as a number
 function utf16_dec(buf, pos, bigendian)
-  local fmt = "<S"
+  local fmt = "<I2"
   if bigendian then
-    fmt = ">S"
+    fmt = ">I2"
   end
 
   local cp
-  pos, cp = unpack(fmt, buf, pos)
+  cp, pos = unpack(fmt, buf, pos)
   if cp >= 0xD800 and cp <= 0xDFFF then
     local high = lshift(cp - 0xD800, 10)
-    pos, cp = unpack(fmt, buf, pos)
+    cp, pos = unpack(fmt, buf, pos)
     cp = 0x10000 + high + cp - 0xDC00
   end
   return pos, cp
