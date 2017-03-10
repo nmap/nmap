@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#740] New script http-vuln-cve2017-5638 checks for the RCE bug in
+  Apache Struts. [Seth Jackson]
+
 o [NSE] Added several commands to redis-info to extract listening addresses,
   connected clients, active channels, and cluster nodes. [Vasiliy Kulikov]
 
