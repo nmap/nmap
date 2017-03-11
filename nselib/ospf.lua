@@ -299,10 +299,42 @@ OSPF = {
       end,
     },
     
+    ASExternal = {
+      new = function(self)
+        local o = {
+          header = OSPF.LSA.Header:new(),
+          netmask = 0,
+          ext_type = 1,
+          metric = 1,
+          fw_address = 0,
+          ext_tag = 0,
+        }
+        setmetatable(o, self)
+        self.__index = self
+        return o
+      end,
+      
+      parse = function(data)
+        local as_ext = OSPF.LSA.ASExternal:new()
+        local pos = OSPF.LSA.Header.size + 1
+        as_ext.header = OSPF.LSA.Header.parse(data)
+        
+        pos, as_ext.netmask, as_ext.metric, as_ext.fw_address, as_ext.ext_tag = bin.unpack("<I>III", data, pos)
+        as_ext.netmask = ipOps.fromdword(as_ext.netmask)
+        as_ext.ext_type = 1 + bit.rshift(bit.band(as_ext.metric, 0xFF000000), 31)
+        as_ext.metric = bit.band(as_ext.metric, 0x00FFFFFF)
+        as_ext.fw_address = ipOps.fromdword(as_ext.fw_address)
+        
+        return as_ext
+      end,
+    },
+    
     parse = function(data)
       local header = OSPF.LSA.Header.parse(data)
-      if ( header.type == 1 ) then
+      if header.type == 1 then
         return OSPF.LSA.Router.parse(data)
+      elseif header.type == 5 then
+        return OSPF.LSA.ASExternal.parse(data)
       end
       return header.length
     end,
