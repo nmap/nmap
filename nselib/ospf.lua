@@ -208,11 +208,9 @@ OSPF = {
     end,
 
   },
-
-  DBDescription = {
-
-    LSAHeader = {
-
+  
+  LSA = {
+    Header = {
       new = function(self)
         local o = {
           age = 0,
@@ -230,7 +228,7 @@ OSPF = {
       end,
       
       parse = function(data)
-        local lsa_h = OSPF.DBDescription.LSAHeader:new()
+        local lsa_h = OSPF.LSA.Header:new()
         local pos = 1
         pos, lsa_h.age, lsa_h.options, lsa_h.type, lsa_h.id, lsa_h.adv_router, lsa_h.sequence, lsa_h.checksum, lsa_h.length = bin.unpack(">SCC<II>H4H2S", data, pos)
         
@@ -240,6 +238,9 @@ OSPF = {
       end,
 
     },
+  },
+  
+  DBDescription = {
 
     new = function(self)
       local o = {
@@ -287,7 +288,7 @@ OSPF = {
       desc.master = ( bit.band(flags, 1) == 1 )
       
       while ( pos < desc.header.length ) do
-        table.insert(desc.lsa_headers, OSPF.DBDescription.LSAHeader.parse(data:sub(pos, pos + 20)))
+        table.insert(desc.lsa_headers, OSPF.LSA.Header.parse(data:sub(pos, pos + 20)))
         pos = pos + 20
       end
       
