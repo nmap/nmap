@@ -65,7 +65,7 @@ OSPF = {
         local _
         _, header.auth_data.keyid = bin.unpack(">C", data, pos+2)
         _, header.auth_data.length = bin.unpack(">C", data, pos+3)
-        _, header.auth_data.seq = bin.unpack(">C", data, pos+4)
+        _, header.auth_data.seq = bin.unpack(">I", data, pos+4)
         _, header.auth_data.hash = bin.unpack(">H"..header.auth_data.length, data, header.length+1)
       else
         -- Shouldn't happen
