@@ -227,6 +227,16 @@ OSPF = {
         self.__index = self
         return o
       end,
+      
+      parse = function(data)
+        local lsa_h = OSPF.DBDescription.LSAHeader:new()
+        local pos = 1
+        pos, lsa_h.age, lsa_h.options, lsa_h.type, lsa_h.id, lsa_h.adv_router, lsa_h.sequence, lsa_h.checksum, lsa_h.length = bin.unpack(">SCC<II>H4H2S", data, pos)
+        
+        lsa_h.id = ipOps.fromdword(lsa_h.id)
+        lsa_h.adv_router = ipOps.fromdword(lsa_h.adv_router)
+        return lsa_h
+      end,
 
     },
 
@@ -238,7 +248,8 @@ OSPF = {
         init = true,
         more = true,
         master = true,
-        sequence = math.random(123456789)
+        sequence = math.random(123456789),
+        lsa_headers = {}
       }
       setmetatable(o, self)
       self.__index = self
@@ -273,7 +284,12 @@ OSPF = {
       desc.init = ( bit.band(flags, 4) == 4 )
       desc.more = ( bit.band(flags, 2) == 2 )
       desc.master = ( bit.band(flags, 1) == 1 )
-
+      
+      while ( pos < desc.header.length ) do
+        table.insert(desc.lsa_headers, OSPF.DBDescription.LSAHeader.parse(data:sub(pos, pos + 20)))
+        pos = pos + 20
+      end
+      
       if ( desc.init or not(desc.more) ) then
         return desc
       end
