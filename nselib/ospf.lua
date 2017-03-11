@@ -211,6 +211,7 @@ OSPF = {
   
   LSA = {
     Header = {
+      size = 20,
       new = function(self)
         local o = {
           age = 0,
@@ -238,6 +239,66 @@ OSPF = {
       end,
 
     },
+    
+    Link = {
+      new = function(self)
+        local o = {
+          id = 0,
+          data = 0,
+          type = 2,
+          num_metrics = 0,
+          metric = 10,
+        }
+        setmetatable(o, self)
+        self.__index = self
+        return o
+      end,
+      
+      parse = function(data)
+        local lsa_link = OSPF.LSA.Link:new()
+        local pos = 1
+        pos, lsa_link.id, lsa_link.data, lsa_link.type, lsa_link.num_metrics, lsa_link.metric = bin.unpack("<IICC>S", data, pos)
+        lsa_link.id = ipOps.fromdword(lsa_link.id)
+        lsa_link.data = ipOps.fromdword(lsa_link.data)
+        return lsa_link
+      end,
+    },
+    
+    Router = {
+      new = function(self)
+        local o = {
+          header = OSPF.LSA.Header:new(),
+          flags = 0,
+          num_links = 0,
+          links = {},
+        }
+        setmetatable(o, self)
+        self.__index = self
+        return o
+      end,
+      
+      parse = function(data)
+        local router = OSPF.LSA.Router:new()
+        local pos = OSPF.LSA.Header.size + 1
+        router.header = OSPF.LSA.Header.parse(data)
+        pos, router.flags, router.num_links = bin.unpack(">CxS", data, pos)
+        
+        while ( pos < router.header.length ) do
+          table.insert(router.links, OSPF.LSA.Link.parse(data:sub(pos, pos + 12)))
+          pos = pos + 12
+        end
+        
+        return router
+      end,
+    },
+    
+    parse = function(data)
+      local header = OSPF.LSA.Header.parse(data)
+      if ( header.type == 1 ) then
+        return OSPF.LSA.Router.parse(data)
+      end
+      return header.length
+    end,
   },
   
   DBDescription = {
