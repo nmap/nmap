@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
             break;
         case 'e':
             if (o.cmdexec != NULL)
-                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+            	bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
             o.execmode = EXEC_PLAIN;
             break;
