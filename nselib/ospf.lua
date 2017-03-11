@@ -99,7 +99,7 @@ OSPF = {
       if self.auth_type == 0x00 then
         auth = bin.pack(">L", 0x00)
       elseif self.auth_type == 0x01 then
-        auth = bin.pack(">A8", self.auth_data.password)
+        auth = bin.pack(">A", self.auth_data.password)
       elseif self.auth_type == 0x02 then
         auth = bin.pack(">A".. self.auth_data.length, self.auth_data.hash)
       end
@@ -169,7 +169,7 @@ OSPF = {
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
+      self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
       return tostr()
     end,
 
@@ -327,7 +327,7 @@ OSPF = {
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
+      self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
       return tostr()
     end,
 
@@ -392,7 +392,7 @@ OSPF = {
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
+      self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
       return tostr()
     end,
     
