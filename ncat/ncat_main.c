@@ -259,8 +259,7 @@ int main(int argc, char *argv[])
        which may differ as a result of options like -n and -6. */
     struct host_list_node *allow_host_list = NULL;
     struct host_list_node *deny_host_list = NULL;
-
-	unsigned short proxyport = DEFAULT_PROXY_PORT;
+		unsigned short proxyport = DEFAULT_PROXY_PORT;
     int srcport = -1;
     char *source = NULL;
 
@@ -342,7 +341,6 @@ int main(int argc, char *argv[])
         int option_index;
         int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:nz",
                             long_options, &option_index);
-				
         /* That's the end of the options. */
         if (c == -1)
             break;
@@ -368,8 +366,8 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             if (o.cmdexec != NULL)
-                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
-						o.cmdexec = optarg;
+            	bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+			o.cmdexec = optarg;
             o.execmode = EXEC_SHELL;
             break;
         case 'e':
@@ -412,8 +410,8 @@ int main(int argc, char *argv[])
             break;
         case 'd':
             o.linedelay = tval2msecs(optarg);
-						if (o.linedelay == -1)
-								bye("Invalid -d delay \"%s\" (must be greater than 0).", optarg);	
+			if (o.linedelay == -1)
+				bye("Invalid -d delay \"%s\" (must be greater than 0).", optarg);	
             if (o.linedelay == -2)
                 bye("Very high -d delay to complete execution %s seconds. Default unit is seconds try milliseconds.", optarg);
             if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
