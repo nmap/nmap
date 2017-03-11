@@ -127,18 +127,17 @@
  ***************************************************************************/
 
 /* $Id$ */
-#include<stdio.h>
 #include "nsock.h"
 #include "ncat.h"
 #include "util.h"
 #include "sys_wrap.h"
-
 #include <getopt.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include<stdio.h>
 #include <errno.h>
 #ifndef WIN32
 #include <netdb.h>
