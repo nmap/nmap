@@ -390,7 +390,7 @@ long tval2msecs(const char *tspec) {
     return -1;
   ms = s * 1000.0;
   if (ms > LONG_MAX || ms < LONG_MIN)
-    return -2                         /* If the given time value is greater than Long_MAX and smaller than LONG_MIN */
+    return -2;                         /* If the given time value is greater than Long_MAX and smaller than LONG_MIN */
 
   return (long) ms;
 }
