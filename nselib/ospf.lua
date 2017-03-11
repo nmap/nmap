@@ -14,6 +14,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local ipOps = require "ipOps"
 local packet = require "packet"
+local openssl = require "openssl"
 _ENV = stdnse.module("ospf", stdnse.seeall)
 
 -- The OSPF class.
@@ -101,7 +102,7 @@ OSPF = {
       elseif self.auth_type == 0x01 then
         auth = bin.pack(">A", self.auth_data.password)
       elseif self.auth_type == 0x02 then
-        auth = bin.pack(">A".. self.auth_data.length, self.auth_data.hash)
+        auth = bin.pack(">SCCI", 0, self.auth_data.keyid, self.auth_data.length, self.auth_data.seq)
       end
       local hdr = bin.pack(">CCS", self.ver, self.type, self.length )
       .. bin.pack(">IISS", ipOps.todword(self.router_id), self.area_id, self.chksum, self.auth_type)
@@ -166,10 +167,20 @@ OSPF = {
           data = data .. bin.pack(">I", ipOps.todword(n))
         end
         self.header:setLength(#data)
+        if self.header.auth_data.hash then
+          data = data .. self.header.auth_data.hash
+        end
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      if self.header.auth_type == 0x02 then
+        while string.len(self.header.auth_data.key) < 16 do
+          self.header.auth_data.key = self.header.auth_data.key .. "\0"
+        end
+        self.header.auth_data.hash = openssl.md5(data .. bin.pack(">A", self.header.auth_data.key))
+      else
+        self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      end
       return tostr()
     end,
 
@@ -324,10 +335,20 @@ OSPF = {
 
         local data = bin.pack(">SCCI", self.mtu, self.options, flags, self.sequence)
         self.header:setLength(#data)
+        if self.header.auth_data.hash then
+          data = data .. self.header.auth_data.hash
+        end
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      if self.header.auth_type == 0x02 then
+        while string.len(self.header.auth_data.key) < 16 do
+          self.header.auth_data.key = self.header.auth_data.key .. "\0"
+        end
+        self.header.auth_data.hash = openssl.md5(data .. bin.pack(">A", self.header.auth_data.key))
+      else
+        self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      end
       return tostr()
     end,
 
@@ -335,7 +356,7 @@ OSPF = {
       local desc = OSPF.DBDescription:new()
       local pos = OSPF.Header.size + 1
       desc.header = OSPF.Header.parse(data)
-      assert( #data == desc.header.length, "OSPF packet too short")
+      assert( #data >= desc.header.length, "OSPF packet too short")
 
       local flags = 0
       pos, desc.mtu, desc.options, flags, desc.sequence = bin.unpack(">SCCI", data, pos)
@@ -389,10 +410,20 @@ OSPF = {
           data = data .. bin.pack(">III", req.type, ipOps.todword(req.id), ipOps.todword(req.adv_router))
         end
         self.header:setLength(#data)
+        if self.header.auth_data.hash then
+          data = data .. self.header.auth_data.hash
+        end
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      if self.header.auth_type == 0x02 then
+        while string.len(self.header.auth_data.key) < 16 do
+          self.header.auth_data.key = self.header.auth_data.key .. "\0"
+        end
+        self.header.auth_data.hash = openssl.md5(data .. bin.pack(">A", self.header.auth_data.key))
+      else
+        self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      end
       return tostr()
     end,
     
@@ -400,7 +431,7 @@ OSPF = {
       local ls_req = OSPF.LSRequest:new()
       local pos = OSPF.Header.size + 1
       ls_req.header = OSPF.Header.parse(data)
-      assert( #data == ls_req.header.length, "OSPF packet too short")
+      assert( #data >= ls_req.header.length, "OSPF packet too short")
 
       while ( pos < #data ) do
         local req = {}
@@ -428,11 +459,11 @@ OSPF = {
       local lsu = OSPF.LSUpdate:new()
       local pos = OSPF.Header.size + 1
       lsu.header = OSPF.Header.parse(data)
-      assert( #data == lsu.header.length, "OSPF packet too short")
+      assert( #data >= lsu.header.length, "OSPF packet too short")
       
       pos, lsu.num_lsas = bin.unpack(">I", data, pos)
       
-      while ( pos < #data ) do
+      while ( pos < lsu.header.length ) do
         local lsa = OSPF.LSA.parse(data:sub(pos))
         if ( type(lsa) == "table" ) then
           table.insert(lsu.lsas, lsa)
