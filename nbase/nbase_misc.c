@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * nbase_misc.c -- Some small miscellaneous utility/compatibility          *
  * functions.                                                              *
@@ -387,11 +386,11 @@ long tval2msecs(const char *tspec) {
   double s, ms;
 
   s = tval2secs(tspec);
-  if (s == -1)
+  if (s <= 0)
     return -1;
   ms = s * 1000.0;
   if (ms > LONG_MAX || ms < LONG_MIN)
-    return -1;
+    return -2;												/* If the given time value is greater than Long_MAX and smaller than LONG_MIN */
 
   return (long) ms;
 }
