@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
        which may differ as a result of options like -n and -6. */
     struct host_list_node *allow_host_list = NULL;
     struct host_list_node *deny_host_list = NULL;
-		unsigned short proxyport = DEFAULT_PROXY_PORT;
+    unsigned short proxyport = DEFAULT_PROXY_PORT;
     int srcport = -1;
     char *source = NULL;
 
