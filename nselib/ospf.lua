@@ -1,10 +1,11 @@
 ---
--- A minimalistic OSPF (Open Shortest Path First routing protocol) library, currently supporting IPv4 and the following
--- OSPF message types: HELLO
+-- A limited OSPF (Open Shortest Path First routing protocol) library, currently supporting IPv4 and the following
+-- OSPF message types: HELLO, DB_DESCRIPTION, LS_REQUEST, LS_UPDATE
 --
 -- The library consists of an OSPF class that contains code to handle OSPFv2 packets.
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
+-- @author Emiliano Ticci <emiticci@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"
@@ -517,6 +518,10 @@ OSPF = {
         return OSPF.Hello.parse( data )
       elseif( ospf_type == OSPF.Message.DB_DESCRIPTION ) then
         return OSPF.DBDescription.parse(data)
+      elseif( ospf_type == OSPF.Message.LS_REQUEST ) then
+        return OSPF.LSRequest.parse(data)
+      elseif( ospf_type == OSPF.Message.LS_UPDATE ) then
+        return OSPF.LSUpdate.parse(data)
       end
       return
     end,
