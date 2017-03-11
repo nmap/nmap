@@ -23,6 +23,7 @@ OSPF = {
   Message = {
     HELLO = 1,
     DB_DESCRIPTION = 2,
+    LS_REQUEST = 3,
     LS_UPDATE = 4,
   },
 
@@ -297,6 +298,60 @@ OSPF = {
       return desc
     end,
 
+  },
+  
+  LSRequest = {
+    new = function(self)
+      local o = {
+        header = OSPF.Header:new(OSPF.Message.LS_REQUEST),
+        ls_requests = {},
+      }
+      setmetatable(o, self)
+      self.__index = self
+      return o
+    end,
+    
+    --- Adds a request to the list of requests.
+    -- @param type LS Type.
+    -- @param id Link State ID
+    -- @param adv_router Advertising Router
+    addRequest = function(self, type, id, adv_router)
+      local request = {
+        type = type,
+        id = id,
+        adv_router = adv_router
+      }
+      table.insert(self.ls_requests, request)
+    end,
+    
+    __tostring = function(self)
+      local function tostr()
+        local data = ""
+        for _, req in ipairs(self.ls_requests) do
+          data = data .. bin.pack(">III", req.type, ipOps.todword(req.id), ipOps.todword(req.adv_router))
+        end
+        self.header:setLength(#data)
+        return tostring(self.header) .. data
+      end
+      local data = tostr()
+      self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
+      return tostr()
+    end,
+    
+    parse = function(data)
+      local ls_req = OSPF.LSRequest:new()
+      local pos = OSPF.Header.size + 1
+      ls_req.header = OSPF.Header.parse(data)
+      assert( #data == ls_req.header.length, "OSPF packet too short")
+
+      while ( pos < #data ) do
+        local req = {}
+        pos, req.type, req.id, req.adv_router = bin.unpack(">III", data, pos)
+        table.insert(ls_req.ls_requests, req)
+      end
+     
+      return ls_req
+    end,
   },
 
   Response = {
