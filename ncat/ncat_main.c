@@ -365,13 +365,13 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             if (o.cmdexec != NULL)
-							bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
 						o.cmdexec = optarg;
             o.execmode = EXEC_SHELL;
             break;
         case 'e':
             if (o.cmdexec != NULL)
-							bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
             o.execmode = EXEC_PLAIN;
             break;
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
         case 'd':
             o.linedelay = tval2msecs(optarg);
 						if (o.linedelay == -1)
-							bye("Invalid -d delay \"%s\" (must be greater than 0).", optarg);
+                bye("Invalid -d delay \"%s\" (must be greater than 0).", optarg);
             if (o.linedelay == -2)
                 bye("Very high -d delay to complete execution %s seconds. Default unit is seconds try milliseconds.", optarg);
             if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
