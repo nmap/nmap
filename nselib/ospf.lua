@@ -27,10 +27,6 @@ OSPF = {
     LS_UPDATE = 4,
   },
 
-  LSUpdate = {
-
-  },
-
   Header = {
     size = 24,
     new = function(self, type, area_id, router_id, auth_type, auth_data)
@@ -413,6 +409,40 @@ OSPF = {
       end
      
       return ls_req
+    end,
+  },
+  
+  LSUpdate = {
+    new = function(self)
+      local o = {
+        header = OSPF.Header:new(OSPF.Message.LS_UPDATE),
+        num_lsas = 0,
+        lsas = {},
+      }
+      setmetatable(o, self)
+      self.__index = self
+      return o
+    end,
+    
+    parse = function(data)
+      local lsu = OSPF.LSUpdate:new()
+      local pos = OSPF.Header.size + 1
+      lsu.header = OSPF.Header.parse(data)
+      assert( #data == lsu.header.length, "OSPF packet too short")
+      
+      pos, lsu.num_lsas = bin.unpack(">I", data, pos)
+      
+      while ( pos < #data ) do
+        local lsa = OSPF.LSA.parse(data:sub(pos))
+        if ( type(lsa) == "table" ) then
+          table.insert(lsu.lsas, lsa)
+          pos = pos + lsa.header.length
+        else
+          pos = pos + lsa
+        end
+      end
+      
+      return lsu
     end,
   },
 
