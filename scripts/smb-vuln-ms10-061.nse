@@ -1,4 +1,3 @@
-local bin = require "bin"
 local msrpc = require "msrpc"
 local smb = require "smb"
 local string = require "string"
@@ -120,12 +119,12 @@ aka "Print Spooler Service Impersonation Vulnerability."
 
     local parameters = lanman_result.parameters
     local data = lanman_result.data
-    local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
+    local pos, status, convert, entry_count, available_entries = string.unpack("<I2 I2 I2 I2", parameters)
     pos = 0
     local share_type, name, _
     for i = 1, entry_count, 1 do
-      _,share_type = bin.unpack(">s",data,pos+14)
-      pos, name = bin.unpack("<z", data, pos)
+      _,share_type = string.unpack(">H",data,pos+14)
+      pos, name = string.unpack("<z", data, pos)
 
       -- pos needs to be rounded to the next even multiple of 20
       pos = pos + ( 20 - (#name % 20) ) - 1
