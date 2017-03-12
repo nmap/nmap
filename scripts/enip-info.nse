@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -1371,7 +1370,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host,port)
   -- pack the request identity packet (0x63)
-  local enip_req_ident = bin.pack("H","63000000000000000000000000000000c1debed100000000")
+  local enip_req_ident = stdnse.fromhex("63000000000000000000000000000000c1debed100000000")
   -- create table for output
   local output = stdnse.output_table()
   -- create local vars for socket handling
@@ -1395,10 +1394,10 @@ action = function(host,port)
     return false, response
   end
   -- unpack the response command
-  local pos, command = bin.unpack("C", response, 1)
+  local pos, command = string.unpack("B", response, 1)
   -- unpack the response type id
   local typeid
-  pos, typeid = bin.unpack("C", response, 27)
+  pos, typeid = string.unpack("B", response, 27)
   -- if command is 0x63
   if ( command == 0x63) then
     -- if typeid == 0x0c (req ident)
@@ -1406,30 +1405,30 @@ action = function(host,port)
 
       -- vendor number
       local vennum
-      pos, vennum = bin.unpack("<S", response, 49)
+      pos, vennum = string.unpack("<I2", response, 49)
       -- look up vendor number and store in output table
       output["Vendor"] = vendor_lookup(vennum) .. " (" .. vennum .. ")"
       -- unpack product name into output table
-      pos, output["Product Name"] = bin.unpack("p", response, 63)
+      pos, output["Product Name"] = string.unpack("s1", response, 63)
       -- unpack the serial number
       local serial
-      pos, serial = bin.unpack("<I", response, 59)
+      pos, serial = string.unpack("<I4", response, 59)
       -- print it out in hex format
       output["Serial Number"] = string.format("%#0.8x", serial)
       -- device type number
       local devnum
-      pos, devnum = bin.unpack("<S", response, 51)
+      pos, devnum = string.unpack("<I2", response, 51)
       -- lookup device type based off number, return to output table
       output["Device Type"] = device_type_lookup(devnum) .. " (" .. devnum .. ")"
       -- unpack product code as a two byte int
-      pos, output["Product Code"] = bin.unpack("<S", response, 53)
+      pos, output["Product Code"] = string.unpack("<I2", response, 53)
       -- Revision Nuumber
       local char1, char2
-      pos, char1, char2 = bin.unpack("CC", response, 55)
+      pos, char1, char2 = string.unpack("BB", response, 55)
       output["Revision"] = char1 .. "." .. char2
       -- Device IP, this could be the same, as the IP scanning, or may be actual IP behind NAT
       local dword
-      pos, dword = bin.unpack("<I", response, 37)
+      pos, dword = string.unpack("<I4", response, 37)
       output["Device IP"] = ipOps.fromdword(dword)
       -- set Nmap output
       set_nmap(host, port)
