@@ -130,24 +130,22 @@ Let\*(Aqs use Ndiff to compare the output of two Nmap scans that use different o
 .\}
 .nf
 # \fBnmap \-F scanme\&.nmap\&.org \-oX scanme\-1\&.xml\fR
-# \fBnmap \-\-script=html\-title scanme\&.nmap\&.org \-oX scanme\-2\&.xml\fR
+# \fBnmap \-\-script=http\-title scanme\&.nmap\&.org \-oX scanme\-2\&.xml\fR
 $ \fBndiff \-v scanme\-1\&.xml scanme\-2\&.xml\fR
-\-Nmap 5\&.35DC1 at 2010\-07\-16 12:09
-+Nmap 5\&.35DC1 at 2010\-07\-16 12:13
+\-Nmap 7\&.40 at 2017\-03\-12 11:04
++Nmap 7\&.40 at 2017\-03\-12 11:03
 
- scanme\&.nmap\&.org (64\&.13\&.134\&.52):
- Host is up\&.
-\-Not shown: 95 filtered ports
-+Not shown: 993 filtered ports
- PORT      STATE  SERVICE VERSION
- 22/tcp    open   ssh
- 25/tcp    closed smtp
- 53/tcp    open   domain
-+70/tcp    closed gopher
- 80/tcp    open   http
-+|_ html\-title: Go ahead and ScanMe!
- 113/tcp   closed auth
-+31337/tcp closed Elite
+scanme\&.nmap\&.org (45\&.33\&.32\&.156):
+Host is up\&.
+\-Not shown: 97 closed ports
++Not shown: 995 closed ports
+PORT      STATE SERVICE    VERSION
+22/tcp    open  ssh
+25/tcp    open  smtp
+80/tcp    open  http
++|_ http\-title: Go ahead and ScanMe!
++9929/tcp  open  nping-echo
++31337/tcp open  Elite
 .fi
 .if n \{\
 .RE
@@ -160,7 +158,7 @@ or
 at the beginning of a line\&. We can see from the output that the scan without the
 \fB\-F\fR
 fast scan option found two additional ports: 70 and 31337\&. The
-html\-title
+http\-title
 script produced some additional output for port 80\&. From the port counts, we may infer that the fast scan scanned 100 ports (95 filtered, 3 open, and 2 closed), while the normal scan scanned 1000 (993 filtered, 3 open, and 4 closed)\&.
 .PP
 The
