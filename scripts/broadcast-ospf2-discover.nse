@@ -5,6 +5,8 @@ local packet = require "packet"
 local stdnse = require "stdnse"
 local target = require "target"
 
+local have_ssl, openssl = pcall(require,'openssl')
+
 description = [[
 Discover IPv4 networks using Open Shortest Path First version 2(OSPFv2) protocol.
 
@@ -299,6 +301,14 @@ local ospfListen = function(interface, timeout)
       stdnse.print_debug(2, "Packet received on interface %s.", interface.shortname)
       local p = packet.Packet:new(l3_data, #l3_data)
       local ospf_raw = string.sub(l3_data, p.ip_hl * 4 + 1)
+      -- Additional checks required for message digest authentication
+      if ospf_raw:byte(16) == 0x02 then
+        if not md5_key then
+          return fail("Argument md5_key must be present when message digest authentication is disclosed.")
+        elseif not have_ssl then
+          return fail("Cannot handle message digest authentication unless openssl is compiled in.")
+        end
+      end
       if ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_HELLO then
         stdnse.print_debug(2, "OSPFv2 Hello packet detected.")
         
@@ -306,10 +316,6 @@ local ospfListen = function(interface, timeout)
         stdnse.print_debug(2, "Captured OSPFv2 Hello packet with the following parameters:")
         ospfDumpHello(ospf_hello)
         
-        if ospf_hello.header.auth_type == 0x02 and not md5_key then
-          return fail("Argument md5_key must be present when message digest authentication is disclosed.")
-        end
-          
         ospfReplyHello(interface, ospf_hello)
         start = nmap.clock_ms()
       elseif ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_DBDESC then
