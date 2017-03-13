@@ -1,4 +1,3 @@
-local bit = require "bit"
 local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -49,8 +48,8 @@ action = function(host, port)
     nmap.set_port_state(host, port, "open")
 
     -- parse response for dns flags
-    if (bit.band(string.byte(result,3), 0x80) == 0x80
-        and bit.band(string.byte(result,4), 0x85) == 0x80)
+    if (string.byte(result,3) & 0x80) == 0x80
+        and (string.byte(result,4) & 0x85) == 0x80
     then
         return "Recursion appears to be enabled"
     end

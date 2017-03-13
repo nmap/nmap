@@ -1,4 +1,3 @@
-local bit = require "bit"
 local datafiles = require "datafiles"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -180,7 +179,7 @@ end
 -- EUI-64 from MAC, RFC 4291.
 local function decode_eui_64(eui_64)
   if eui_64[4] == 0xff and eui_64[5] == 0xfe then
-    return { bit.bxor(eui_64[1], 0x02),
+    return { (eui_64[1] ~ 0x02),
       eui_64[2], eui_64[3], eui_64[6], eui_64[7], eui_64[8] }
   end
 end
@@ -212,12 +211,12 @@ local function do_ipv6(addr)
     local port, client_ipv4
 
     -- Invert obs_port.
-    port = bit.bxor(obs_port, 0xffff)
+    port = obs_port ~ 0xffff
 
     -- Invert obs_client_ipv4.
     client_ipv4 = {}
     for _, octet in ipairs(obs_client_ipv4) do
-      client_ipv4[#client_ipv4 + 1] = bit.bxor(octet, 0xff)
+      client_ipv4[#client_ipv4 + 1] = octet ~ 0xff
     end
 
     output["Server IPv4 address"] = format_ipv4(server_ipv4)
