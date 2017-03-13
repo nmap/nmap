@@ -138,8 +138,8 @@ EIGRP = {
       elseif tlv.type == TLV.SEQ then
         -- Sequence
         index, tlv.addlen = bin.unpack(">S", eigrp_raw, index)
-        index, tlv.address = bin.unpack("<C".. tlv.addlen, eigrp_raw, index)
-        tlv.address = ipOps.fromdword(tlv.address)
+        index, tlv.address = bin.unpack("A".. tlv.addlen, eigrp_raw, index)
+        tlv.address = ipOps.str_to_ip(tlv.address)
         index = index + tlv.length - 7
       elseif tlv.type == TLV.SWVER then
         -- Software version
@@ -170,7 +170,7 @@ EIGRP = {
         index = index + tlv.length - 4
       elseif tlv.type == TLV.INT then
         -- Internal Route
-        index, tlv.nexth = bin.unpack("<I", eigrp_raw, index)
+        index, tlv.nexth = bin.unpack(">I", eigrp_raw, index)
         tlv.nexth = ipOps.fromdword(tlv.nexth)
         index, tlv.mask = bin.unpack(">S", eigrp_raw, index + 15)
         -- Destination varies in length
@@ -189,9 +189,9 @@ EIGRP = {
         tlv.dst = dst[1] .. '.' .. dst[2] .. '.' .. dst[3] .. '.' .. dst[4]
       elseif tlv.type == TLV.EXT then
         -- External Route
-        index, tlv.nexth = bin.unpack("<I", eigrp_raw, index)
+        index, tlv.nexth = bin.unpack(">I", eigrp_raw, index)
         tlv.nexth = ipOps.fromdword(tlv.nexth)
-        index, tlv.orouterid = bin.unpack("<I", eigrp_raw, index)
+        index, tlv.orouterid = bin.unpack(">I", eigrp_raw, index)
         tlv.orouterid = ipOps.fromdword(tlv.orouterid)
         index, tlv.oas = bin.unpack(">I", eigrp_raw, index)
         index, tlv.tag = bin.unpack(">I", eigrp_raw, index)

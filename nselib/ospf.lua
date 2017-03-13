@@ -55,7 +55,7 @@ OSPF = {
       assert( header.ver == 2, "Invalid OSPF version detected")
 
       pos, header.router_id, header.area_id, header.chksum, header.auth_type
-      = bin.unpack("<I>ISS", data, pos)
+      = bin.unpack(">IISS", data, pos)
 
       -- No authentication
       if header.auth_type == 0x00 then
@@ -183,7 +183,7 @@ OSPF = {
       assert( #data >= hello.header.length, "OSPF packet too short")
       pos, hello.netmask, hello.interval, hello.options, hello.prio,
       hello.router_dead_interval, hello.DR,
-      hello.BDR = bin.unpack("<ISCCIII", data, pos)
+      hello.BDR = bin.unpack(">ISCCIII", data, pos)
 
       hello.netmask = ipOps.fromdword(hello.netmask)
       hello.DR = ipOps.fromdword(hello.DR)
@@ -199,7 +199,7 @@ OSPF = {
 
       hello.neighbors = {}
       for i=1, neighbor_count do
-        pos, neighbor = bin.unpack("<I", data, pos)
+        pos, neighbor = bin.unpack(">I", data, pos)
         neighbor = ipOps.fromdword(neighbor)
         table.insert(hello.neighbors, neighbor)
       end

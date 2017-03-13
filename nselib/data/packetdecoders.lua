@@ -89,7 +89,7 @@ Decoders = {
         pos, sender.mac,
         sender.ip,
         target.mac,
-        target.ip = bin.unpack("<H" .. hwsize .. "IH" .. hwsize .. "I", data, pos)
+        target.ip = bin.unpack(">H" .. hwsize .. "IH" .. hwsize .. "I", data, pos)
 
         if ( not(self.results) ) then
           self.results = tab.new(3)
@@ -131,7 +131,7 @@ Decoders = {
           if ( addr_proto == 'CC' ) then
             -- IPv4 address, extract it
             pos, addr_len = bin.unpack(">S", data, pos)
-            pos, dev_addr = bin.unpack("<I", data, pos)
+            pos, dev_addr = bin.unpack(">I", data, pos)
             addr_list = addr_list .. ' ' .. ipOps.fromdword(dev_addr)
           end
           -- Add code here for IPv6, others
@@ -483,7 +483,7 @@ udp = {
       local data = layer3:sub(p.udp_offset + 9)
 
       local pos, ip, _, src, dst = 5
-      pos, ip, _, _, _, src, dst = bin.unpack("<ISSSA34A34", data, pos)
+      pos, ip, _, _, _, src, dst = bin.unpack(">ISSSA34A34", data, pos)
 
       ip = ipOps.fromdword(ip)
       src = netbios.name_decode(src)
@@ -662,7 +662,7 @@ udp = {
       if ( version ~= 0 ) then return end
       pos = pos + ( 7 - #secret )
       local virtip
-      pos, virtip = bin.unpack("<I", data, pos)
+      pos, virtip = bin.unpack(">I", data, pos)
 
       if ( not(self.dups[p.ip_src]) ) then
         if ( not(self.results) ) then

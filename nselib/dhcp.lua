@@ -66,7 +66,7 @@ local function read_ip(data, pos, length)
       local results = {}
       for i=1, length, 4 do
         local value
-        pos, value = bin.unpack("<I", data, pos)
+        pos, value = bin.unpack(">I", data, pos)
         table.insert(results, ipOps.fromdword(value))
       end
 
@@ -74,7 +74,7 @@ local function read_ip(data, pos, length)
     end
   else
     local value
-    pos, value = bin.unpack("<I", data, pos)
+    pos, value = bin.unpack(">I", data, pos)
 
     return pos, ipOps.fromdword(value)
   end
@@ -485,10 +485,10 @@ function dhcp_parse(data, transaction_id)
 
   -- Unpack the secs, flags, addresses, sname, and file
   pos, result['secs'], result['flags'] = bin.unpack(">SS", data, pos)
-  pos, result['ciaddr'] = bin.unpack("<I", data, pos)
-  pos, result['yiaddr'] = bin.unpack("<I", data, pos)
-  pos, result['siaddr'] = bin.unpack("<I", data, pos)
-  pos, result['giaddr'] = bin.unpack("<I", data, pos)
+  pos, result['ciaddr'] = bin.unpack(">I", data, pos)
+  pos, result['yiaddr'] = bin.unpack(">I", data, pos)
+  pos, result['siaddr'] = bin.unpack(">I", data, pos)
+  pos, result['giaddr'] = bin.unpack(">I", data, pos)
   pos, result['chaddr'] = bin.unpack("A16", data, pos)
   pos, result['sname']  = bin.unpack("A64", data, pos)
   pos, result['file']   = bin.unpack("A128", data, pos)

@@ -55,7 +55,7 @@ function action()
   for _, attr in ipairs(attribs) do
     local addr = attr:match("^%d*%-%d*%-%d*%-(........)")
     if ( addr ) then
-      local pos, dw_addr = bin.unpack( "<I", bin.pack("H", addr) )
+      local pos, dw_addr = bin.unpack( ">I", bin.pack("H", addr) )
       local ip = ipOps.fromdword(dw_addr)
 
       if ( not(ips[ip]) ) then
