@@ -1,8 +1,8 @@
-local bin = require "bin"
 local bit = require "bit"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -45,8 +45,7 @@ Ping = {
 
     -- returns the ping request as a string
     __tostring = function(self)
-      return bin.pack("HAH", "1b00003d0000000012", "CONNECTIONLESS_TDS",
-      "000000010000040005000500000102000003010104080000000000000000070204b1")
+      return stdnse.fromhex("1b00003d0000000012") .. "CONNECTIONLESS_TDS" .. stdnse.fromhex("000000010000040005000500000102000003010104080000000000000000070204b1")
     end
   },
 
@@ -69,7 +68,7 @@ Ping = {
     -- <code>dbinstance.name</code> and <code>dbinstance.port</code> fields
     parse = function(self)
       -- do a very basic length check
-      local pos, len = bin.unpack(">I", self.data)
+      local pos, len = string.unpack(">I4", self.data)
       len = bit.band(len, 0x0000FFFF)
 
       if ( len ~= #self.data ) then
@@ -78,16 +77,16 @@ Ping = {
       end
 
       local connectionless_tds
-      pos, connectionless_tds = bin.unpack("p", self.data, 9)
+      pos, connectionless_tds = string.unpack("s1", self.data, 9)
       if ( connectionless_tds ~= "CONNECTIONLESS_TDS" ) then
         stdnse.debug2("Did not find the expected CONNECTIONLESS_TDS header")
         return
       end
 
       self.dbinstance = {}
-      pos, self.dbinstance.name = bin.unpack("p", self.data, 40)
+      pos, self.dbinstance.name = string.unpack("s1", self.data, 40)
       pos = pos + 2
-      pos, self.dbinstance.port = bin.unpack(">S", self.data, pos)
+      pos, self.dbinstance.port = string.unpack(">I2", self.data, pos)
     end,
   }
 

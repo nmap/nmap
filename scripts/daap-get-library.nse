@@ -1,4 +1,3 @@
-local bin = require "bin"
 local http = require "http"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -70,8 +69,8 @@ function getLibraryName( host, port )
   if pos > 0 then
     local len
     pos = pos + 4
-    pos, len = bin.unpack( ">I", response.body, pos )
-    pos, libname = bin.unpack( "A" .. len, response.body, pos )
+    pos, len = string.unpack( ">I4", response.body, pos )
+    pos, libname = string.unpack( "c" .. len, response.body, pos )
   end
 
   return libname
@@ -90,14 +89,14 @@ local function getAttributeAsInt( data, name )
   if pos and pos > 0 then
     pos = pos + 4
     local len
-    pos, len = bin.unpack( ">I", data, pos )
+    pos, len = string.unpack( ">I4", data, pos )
 
     if ( len ~= 4 ) then
       stdnse.debug1("Unexpected length returned: %d", len )
       return
     end
 
-    pos, attrib = bin.unpack( ">I", data, pos )
+    pos, attrib = string.unpack( ">I4", data, pos )
   end
 
   return attrib
@@ -166,10 +165,10 @@ end
 local function getStringItem( data, pos )
   local len
 
-  pos, len = bin.unpack(">I", data, pos)
+  pos, len = string.unpack(">I4", data, pos)
 
   if ( len > 0 ) then
-    return bin.unpack( "A"..len, data, pos )
+    return string.unpack( "c"..len, data, pos )
   end
 
 end
@@ -194,7 +193,7 @@ parseItem = function( data, len )
   local item = {}
 
   while( len - pos > 0 ) do
-    pos, name = bin.unpack( "A4", data, pos )
+    pos, name = string.unpack("c4" .. data .. pos)
 
     if itemFetcher[name] then
       pos, item[name] = itemFetcher[name](data, pos )
@@ -239,10 +238,10 @@ function getItems( host, port, sessionid, revid, dbid, limit )
     pos = string.find(response.body, "mlit", pos)
     pos = pos + 4
 
-    pos, len = bin.unpack( ">I", response.body, pos )
+    pos, len = string.unpack( ">I", response.body, pos )
 
     if ( pos < response.body:len() and pos + len < response.body:len() ) then
-      pos, data = bin.unpack( "A" .. len, response.body, pos )
+      pos, data = string.unpack( "c" .. len, response.body, pos )
     else
       break
     end

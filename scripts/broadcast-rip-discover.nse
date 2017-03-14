@@ -1,7 +1,7 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 
@@ -90,7 +90,7 @@ RIPv2 = {
       -- RIPv2 stuff, should be 0 for RIPv1
       local tag, subnet, nexthop = 0, 0, 0
 
-      local data = bin.pack(">CCSSSIIII",
+      local data = string.pack(">B B I2 I2 B I4 I4 I4 I4",
         self.command, self.version, self.domain, self.family, self.tag,
         self.address, self.subnet, self.nexthop, self.metric)
 
@@ -113,7 +113,7 @@ RIPv2 = {
         return
       end
       local pos
-      pos, o.command, o.version = bin.unpack(">CCS", data)
+      pos, o.command, o.version = string.unpack(">B B I2", data)
       if ( o.command ~= RIPv2 and o.version ~= 2 ) then
         return
       end
@@ -124,7 +124,7 @@ RIPv2 = {
       while( #data - pos >= 20 ) do
         local family, address, metric, _, netmask, nexthop
         pos, family, _, address, netmask, nexthop,
-          metric = bin.unpack(">SSIIII", data, pos)
+        metric = string.unpack(">I2I2I4I4I4I4", data, pos)
 
         if ( family == RIPv2.AddressFamily.IP ) then
           local ip = ipOps.fromdword(address)

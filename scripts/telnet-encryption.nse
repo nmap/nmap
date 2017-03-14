@@ -1,7 +1,7 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -50,20 +50,20 @@ local function processOptions(data)
   local result = {}
   while ( pos < #data ) do
     local iac, cmd, option
-    pos, iac, cmd = bin.unpack("CC", data, pos)
+    pos, iac, cmd = string.unpack("BB", data, pos)
     if ( 0xFF ~= iac ) then
       break
     end
     if ( COMMAND.SubCommand == cmd ) then
       repeat
-        pos, iac = bin.unpack("C", data, pos)
+        pos, iac = string.unpack("B", data, pos)
       until( pos == #data or 0xFF == iac )
-      pos, cmd = bin.unpack("C", data, pos)
+      pos, cmd = string.unpack("B", data, pos)
       if ( not(cmd) == 0xF0 ) then
         return false, "Failed to parse options"
       end
     else
-      pos, option = bin.unpack("H", data, pos)
+      pos, option = stdnse.tohex(data)
       result[option] = result[option] or {}
       table.insert(result[option], cmd)
     end
@@ -77,7 +77,7 @@ action = function(host, port)
 
   local socket = nmap.new_socket()
   local status = socket:connect(host, port)
-  local data = bin.pack("H", "FFFD26FFFB26")
+  local data = bstdnse.fromhex("FFFD26FFFB26")
   local result
 
   socket:set_timeout(7500)

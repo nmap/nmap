@@ -2,7 +2,6 @@ local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local string = require "string"
-local bin = require "bin"
 local bit = require "bit"
 local stdnse = require "stdnse"
 
@@ -152,22 +151,22 @@ action = function(host, port)
   local o = stdnse.output_table()
   local pos = 5
 
-  pos, o["game"] = bin.unpack("p", data, pos)
-  pos, o["port"] = bin.unpack("p", data, pos)
-  pos, o["server name"] = bin.unpack("p", data, pos)
-  pos, o["game type"] = bin.unpack("p", data, pos)
-  pos, o["map"] = bin.unpack("p", data, pos)
-  pos, o["version"] = bin.unpack("p", data, pos)
-  pos, o["passworded"] = bin.unpack("p", data, pos)
-  pos, o["num players"] = bin.unpack("p", data, pos)
-  pos, o["max players"] = bin.unpack("p", data, pos)
+  pos, o["game"] = string.unpack("s1", data, pos)
+  pos, o["port"] = string.unpack("s1", data, pos)
+  pos, o["server name"] = string.unpack("s1", data, pos)
+  pos, o["game type"] = string.unpack("s1", data, pos)
+  pos, o["map"] = string.unpack("s1", data, pos)
+  pos, o["version"] = string.unpack("s1", data, pos)
+  pos, o["passworded"] = string.unpack("s1", data, pos)
+  pos, o["num players"] = string.unpack("s1", data, pos)
+  pos, o["max players"] = string.unpack("s1", data, pos)
 
   -- extract the key-value pairs
   local kv = stdnse.output_table()
   o["settings"] = kv
   while data:byte(pos) ~= 1 do
     local key, value
-    pos, key, value = bin.unpack("pp", data, pos)
+    pos, key, value = string.unpack("s1 s1", data, pos)
     kv[key] = value
   end
   pos = pos + 1
@@ -182,22 +181,22 @@ action = function(host, port)
 
     local player = stdnse.output_table()
     if bit.band(flags, 1) ~= 0 then
-      pos, player.name = bin.unpack("p", data, pos)
+      pos, player.name = string.unpack("s1", data, pos)
     end
     if bit.band(flags, 2) ~= 0 then
-      pos, player.team = bin.unpack("p", data, pos)
+      pos, player.team = string.unpack("s1", data, pos)
     end
     if bit.band(flags, 4) ~= 0 then
-      pos, player.skin = bin.unpack("p", data, pos)
+      pos, player.skin = string.unpack("s1", data, pos)
     end
     if bit.band(flags, 8) ~= 0 then
-      pos, player.score = bin.unpack("p", data, pos)
+      pos, player.score = string.unpack("s1", data, pos)
     end
     if bit.band(flags, 16) ~= 0 then
-      pos, player.ping = bin.unpack("p", data, pos)
+      pos, player.ping = string.unpack("s1", data, pos)
     end
     if bit.band(flags, 32) ~= 0 then
-      pos, player.time = bin.unpack("p", data, pos)
+      pos, player.time = string.unpack("s1", data, pos)
     end
 
     players["player " .. playernum] = player

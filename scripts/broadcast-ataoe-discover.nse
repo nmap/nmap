@@ -66,7 +66,7 @@ ATAoE = {
 
       pos, verflags, header.error,
         header.major, header.minor,
-        header.cmd, header.tag = bin.unpack(">CCSCCI", data)
+        header.cmd, header.tag = string.unpack(">B B B B B I4", data)
       header.version = bit.rshift(verflags, 4)
       header.flags = bit.band(verflags, 0x0F)
       return header
@@ -76,7 +76,7 @@ ATAoE = {
     __tostring = function(self)
       assert(self.tag, "No tag was specified in Config Info Request")
       local verflags = bit.lshift(self.version, 4)
-      return bin.pack(">CCSCCI", verflags, self.error, self.major, self.minor, self.cmd, self.tag)
+      return string.pack(">B B I2 B B I4", verflags, self.error, self.major, self.minor, self.cmd, self.tag)
     end,
   },
 
@@ -107,7 +107,7 @@ local function sendConfigInfoRequest(iface)
   local p = packet.Frame:new()
   p.mac_src = iface.mac
   p.mac_dst = packet.mactobin(ETHER_BROADCAST)
-  p.ether_type = bin.pack(">S", P_ATAOE)
+  p.ether_type = string.pack(">I2", P_ATAOE)
   p.buf = tostring(req)
   p:build_ether_frame()
 

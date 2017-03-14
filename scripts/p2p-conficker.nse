@@ -1,4 +1,3 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
@@ -276,7 +275,7 @@ local function p2p_checksum(data)
   stdnse.debug2("Conficker: Calculating checksum for %d-byte buffer", #data)
 
   -- Get the first character
-  pos, i = bin.unpack("<C", data)
+  pos, i = string.unpack("<B", data)
   while i ~= nil do
     local h = hash ~ i
     -- Incorporate the current character into the checksum
@@ -284,7 +283,7 @@ local function p2p_checksum(data)
     hash = hash & 0xFFFFFFFF
 
     -- Get the next character
-    pos, i = bin.unpack("<C", data, pos)
+    pos, i = string.unpack("<B", data, pos)
   end
 
   return hash
@@ -338,7 +337,7 @@ function p2p_parse(packet)
   local data = {}
 
   -- Get the key
-  pos, data['key1'], data['key2'] = bin.unpack("<II", packet, pos)
+  pos, data['key1'], data['key2'] = string.unpack("<I4 I4", packet, pos)
   if(data['key2'] == nil) then
     return false, "Packet was too short [1]"
   end
@@ -347,14 +346,14 @@ function p2p_parse(packet)
   packet = string.sub(packet, 1, pos - 1) .. p2p_cipher(string.sub(packet, pos), data['key1'], data['key2'])
 
   -- Parse the flags
-  pos, data['flags'] = bin.unpack("<S", packet, pos)
+  pos, data['flags'] = string.unpack("<I2", packet, pos)
   if(data['flags'] == nil) then
     return false, "Packet was too short [2]"
   end
 
   -- Get the IP, if it's present
   if(data['flags'] & mode_flags.FLAG_IP_INCLUDED) ~= 0 then
-    pos, data['ip'], data['port'] = bin.unpack("<IS", packet, pos)
+    pos, data['ip'], data['port'] = string.unpack("<I4I2", packet, pos)
     if(data['ip'] == nil) then
       return false, "Packet was too short [3]"
     end
@@ -362,7 +361,7 @@ function p2p_parse(packet)
 
   -- Read the first unknown value, if present
   if(data['flags'] & mode_flags.FLAG_UNKNOWN0_INCLUDED) ~= 0 then
-    pos, data['unknown0'] = bin.unpack("<I", packet, pos)
+    pos, data['unknown0'] = string.unpack("<I4", packet, pos)
     if(data['unknown0'] == nil) then
       return false, "Packet was too short [3]"
     end
@@ -370,7 +369,7 @@ function p2p_parse(packet)
 
   -- Read the second unknown value, if present
   if(data['flags'] & mode_flags.FLAG_UNKNOWN1_INCLUDED) ~= 0 then
-    pos, data['unknown1'] = bin.unpack("<I", packet, pos)
+    pos, data['unknown1'] = string.unpack("<I4", packet, pos)
     if(data['unknown1'] == nil) then
       return false, "Packet was too short [4]"
     end
@@ -378,11 +377,11 @@ function p2p_parse(packet)
 
   -- Read the data, if present
   if(data['flags'] & mode_flags.FLAG_DATA_INCLUDED) ~= 0 then
-    pos, data['data_flags'], data['data_length'] = bin.unpack("<CS", packet, pos)
+    pos, data['data_flags'], data['data_length'] = string.unpack("<BI2", packet, pos)
     if(data['data_length'] == nil) then
       return false, "Packet was too short [5]"
     end
-    pos, data['data'] = bin.unpack(string.format("A%d", data['data_length']), packet, pos)
+    pos, data['data'] = string.unpack(string.format("A%d", data['data_length']), packet, pos)
     if(data['data'] == nil) then
       return false, "Packet was too short [6]"
     end
@@ -402,7 +401,7 @@ function p2p_parse(packet)
     data['sysinfo_unknown1'],
     data['sysinfo_unknown2'],
     data['sysinfo_unknown3'],
-    data['sysinfo_unknown4'] = bin.unpack("<SCCSCCSISSISS", packet, pos)
+    data['sysinfo_unknown4'] = string.unpack("<I2 B B I2 B B I2 I4 I2 I2 I4 I2 I2", packet, pos)
     if(data['sysinfo_unknown4'] == nil) then
       return false, "Packet was too short [7]"
     end
@@ -412,7 +411,7 @@ function p2p_parse(packet)
   data['hash_data'] = string.sub(packet, 1, pos - 1)
 
   -- Read the hash
-  pos, data['hash'] = bin.unpack("<I", packet, pos)
+  pos, data['hash'] = string.unpack("<I4", packet, pos)
   if(data['hash'] == nil) then
     return false, "Packet was too short [8]"
   end
@@ -456,18 +455,18 @@ local function p2p_create_packet(protocol, do_encryption)
   end
 
   -- Add the key and flags that are always present (and skip over the boring stuff)
-  local packet = bin.pack("<IIS", key1, key2, flags)
+  local packet = string.pack("<I4 I4 I2 ", key1, key2, flags)
 
   -- Generate the checksum for the packet
   local hash = p2p_checksum(packet)
-  packet = packet .. bin.pack("<I", hash)
+  packet = packet .. string.pack("<I4", hash)
 
   -- Encrypt the full packet, except for the key and optional length
   packet = string.sub(packet, 1, 8) .. p2p_cipher(string.sub(packet, 9), key1, key2)
 
   -- Add the length in front if it's TCP
   if(protocol == "tcp") then
-    packet = bin.pack("<P", packet)
+    packet = string.pack("<s2", packet)
   end
 
   return true, packet
@@ -516,7 +515,7 @@ local function conficker_check(ip, port, protocol)
 
   -- If it's TCP, get the length and make sure we have the full packet
   if(protocol == "tcp") then
-    local _, length = bin.unpack("<S", response, 1)
+    local _, length = string.unpack("<I2", response, 1)
 
     while length > (#response - 2) do
       local response2
@@ -593,9 +592,9 @@ action = function(host)
 
   -- Reverse the IP's endianness
   ip = ipOps.todword(ip)
-  ip = bin.pack(">I", ip)
+  ip = string.pack(">I4", ip)
   local _
-  _, ip = bin.unpack("<I", ip)
+  _, ip = string.unpack("<I4", ip)
 
   -- Generate the ports
   local generated_ports = prng_generate_ports(ip, seed)
@@ -649,4 +648,3 @@ action = function(host)
 
   return stdnse.format_output(true, response)
 end
-

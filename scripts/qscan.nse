@@ -179,7 +179,8 @@ end
 -- @return Destination and source IP addresses and TCP ports
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return bin.pack('AA=S=S', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
+  -- please check
+  return ip.ip_bin_dst .. ip.ip_bin_src .. string.pack("I2=I2",ip.tcp_dport, ip.tcp_sport)
 end
 
 --- Updates a TCP Packet object
@@ -196,7 +197,7 @@ end
 -- @param host Host object
 -- @return TCP Packet object
 local genericpkt = function(host)
-  local pkt = bin.pack("H",
+  local pkt = stdnse.fromhex(
   "4500 002c 55d1 0000 8006 0000 0000 0000" ..
   "0000 0000 0000 0000 0000 0000 0000 0000" ..
   "6002 0c00 0000 0000 0204 05b4"
@@ -457,7 +458,8 @@ action = function(host)
 
       stats[j].sent = stats[j].sent + 1
 
-      local test = bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
+      --please check
+      local test = tcp.ip_bin_src .. tcp.ip_bin_dst .. string.pack("I2=I2",tcp.tcp_sport, tcp.tcp_dport)
       local status, length, _, layer3, stop = pcap:pcap_receive()
       while status and test ~= check(layer3) do
         status, length, _, layer3, stop = pcap:pcap_receive()
@@ -504,4 +506,3 @@ action = function(host)
 
   return "\n" .. report(stats)
 end
-

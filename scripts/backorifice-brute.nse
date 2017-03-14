@@ -1,4 +1,3 @@
-local bin = require "bin"
 local bit = require "bit"
 local brute = require "brute"
 local creds = require "creds"
@@ -95,7 +94,7 @@ local backorifice =
   -- @return err string containing error message on failure
   try_password = function(self, password, initial_seed)
     --initialize BackOrifice PING packet:   |MAGICSTRING|size|packetID|TYPE_PING|arg1|arg_separat|arg2|CRC/disregarded|
-    local PING_PACKET = bin.pack("A<IICACAC", "*!*QWTY?",  19,       0,     0x01,  "",       0x00,  "",           0x00)
+    local PING_PACKET = "*!*QWTY?" .. string.pack("<I4I4B",  19,       0,     0x01 ) ..  "" .. string.pack("B",        0x00) .. "" .. string.pack("B",           0x00)
     local seed, status, response, encrypted_ping
 
     if not(initial_seed) then
@@ -201,7 +200,7 @@ local backorifice =
       local key = bit.band(bit.arshift(seed,16), 0xff)
 
       crypto_byte = bit.bxor(data_byte,key)
-      output = bin.pack("AC",output,crypto_byte)
+      output = output .. string.pack("B", crypto_byte)
       --ARGSIZE limitation from BackOrifice server
       if i == 256 then break end
     end

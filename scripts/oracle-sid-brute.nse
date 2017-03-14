@@ -1,4 +1,3 @@
-local bin = require "bin"
 local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -56,7 +55,7 @@ local tns_type = {CONNECT=1, REFUSE=4, REDIRECT=5, RESEND=11}
 --
 local function create_tns_header(packetType, packetLength)
 
-  local request = bin.pack( ">SSCCS",
+  local request = string.unpack( ">I2 I2 B B I2",
     packetLength + 34, -- Packet Length
     0, -- Packet Checksum
     tns_type[packetType], -- Packet Type
@@ -82,7 +81,7 @@ local function create_connect_packet( host_ip, port_no, sid )
     "(DESCRIPTION=(CONNECT_DATA=(SID=%s)(CID=(PROGRAM=)(HOST=__jdbc__)(USER=)))\z
     (ADDRESS=(PROTOCOL=tcp)(HOST=%s)(PORT=%d)))", sid, host_ip, port_no)
 
-  local data = bin.pack(">SSSSSSSSSSICCA",
+  local data = string.pack(">I2I2I2I2I2I2I2I2I2I2IBBc",
     308, -- Version
     300, -- Version (Compatibility)
     0, -- Service Options
@@ -117,7 +116,7 @@ local function process_tns_packet( packet )
 
   -- just pull out the bare minimum to be able to match
   local _
-  _, tnspacket.Length, tnspacket.Checksum, tnspacket.Type = bin.unpack(">SSC", packet)
+  _, tnspacket.Length, tnspacket.Checksum, tnspacket.Type = string.unpack(">I2I2B", packet)
 
   return tnspacket
 

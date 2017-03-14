@@ -105,7 +105,7 @@ action = function(host, port)
   if status then
     local recvtime = os.time()
 
-    local _, sec, frac = bin.unpack(">II", buftres, 33)
+    local _, sec, frac = string.unpack(">I4I4", buftres, 33)
     -- The NTP epoch is 1900-01-01, so subtract 70 years to bring the date into
     -- the range Lua expects. The number of seconds at 1970-01-01 is taken from
     -- the NTP4 reference above.
@@ -125,7 +125,7 @@ action = function(host, port)
 
     -- Skip the first 10 bytes of the header, then get the data which is
     -- preceded by a 2-byte length.
-    _, data = bin.unpack(">P", bufrlres, 11)
+    _, data = string.unpack(">s2", bufrlres, 11)
 
     -- loop over capture pairs which represent (key, value)
     local function accumulate_output (...)
