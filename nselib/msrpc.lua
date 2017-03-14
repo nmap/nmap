@@ -52,6 +52,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local ipOps = require "ipOps"
 local math = require "math"
 local msrpctypes = require "msrpctypes"
 local netbios = require "netbios"
@@ -1266,9 +1267,9 @@ function epmapper_lookup(smbstate,handle)
         elseif address_type == 0x08 then
           pos,lookup_response.udp_port = bin.unpack(">S",data,pos)
         elseif address_type == 0x09 then
-          local i1,i2,i3,i4
-          pos,i1,i2,i3,i4 = bin.unpack("CCCC",data,pos)
-          lookup_response.ip_addr = string.format("%d.%d.%d.%d",i1,i2,i3,i4)
+          local ip
+          ip, pos = string.unpack("c4", data, pos)
+          lookup_response.ip_addr = ipOps.str_to_ip(ip)
         elseif address_type == 0x0f then
           lookup_response.ncacn_np = string.sub(data,pos,pos+address_len-2)
           floor_len = floor_len + address_len - 2
