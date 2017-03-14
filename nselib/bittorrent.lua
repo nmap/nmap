@@ -88,8 +88,7 @@
 -- structure is not supported by Lua, so I had to use lists to represent
 -- the dictionaries as well which made accessing the keys a bit quirky
 
-local bin = require "bin"
-local bit = require "bit"
+local ipOps = require "ipOps"
 local coroutine = require "coroutine"
 local http = require "http"
 local io = require "io"
@@ -449,13 +448,16 @@ local find_node_thread = function(pnt, timeout)
 
         --parse the nodes an add them to pnt.nodes_find_node
         if nodes then
-          for node_id, bin_node_ip, bin_node_port in nodes:gmatch("(....................)(....)(..)") do
-            local node_ip = string.format("%d.%d.%d.%d", bin_node_ip:byte(1), bin_node_ip:byte(2),
-              bin_node_ip:byte(3), bin_node_ip:byte(4))
-            local node_port = bit.lshift(bin_node_port:byte(1),8) + bin_node_port:byte(2)
-            local node_info = {}
-            node_info.port = node_port
-            node_info.node_id = node_id
+          local pos = 1
+          while pos < #nodes do
+            local node_id, node_ip, node_port
+            node_id, node_ip, node_port, pos = string.unpack(">c20 I4 I2", nodes, pos)
+            node_ip = ipOps.fromdword(node_ip)
+
+            local node_info = {
+              port = node_port,
+              node_id = node_id,
+            }
 
             if not (pnt.nodes[node_ip] or pnt.nodes_get_peers[node_ip]
               or pnt.nodes_find_node[node_ip]) then
@@ -537,15 +539,16 @@ local get_peers_thread = function(pnt, timeout)
 
         if nodes then
 
-          for node_id, bin_node_ip, bin_node_port in
-            nodes:gmatch("(....................)(....)(..)") do
+          local pos = 1
+          while pos < #nodes do
+            local node_id, node_ip, node_port
+            node_id, node_ip, node_port, pos = string.unpack(">c20 I4 I2", nodes, pos)
+            node_ip = ipOps.fromdword(node_ip)
 
-            local node_ip = string.format("%d.%d.%d.%d", bin_node_ip:byte(1), bin_node_ip:byte(2),
-              bin_node_ip:byte(3), bin_node_ip:byte(4))
-            local node_port = bit.lshift(bin_node_port:byte(1),8) + bin_node_port:byte(2)
-            local node_info = {}
-            node_info.port = node_port
-            node_info.node_id = node_id
+            local node_info = {
+              port = node_port,
+              node_id = node_id,
+            }
 
             if not (pnt.nodes[node_ip] or pnt.nodes_get_peers[node_ip] or
               pnt.nodes_find_node[node_ip]) then
@@ -556,10 +559,8 @@ local get_peers_thread = function(pnt, timeout)
         elseif peers then
 
           for _, peer in ipairs(peers) do
-            local bin_ip, bin_port = peer:match("(....)(..)")
-            local ip = string.format("%d.%d.%d.%d", bin_ip:byte(1),
-              bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-            local port = bit.lshift(bin_port:byte(1),8)+bin_port:byte(2)
+            local ip, port = string.unpack(">I4 I2", peer)
+            ip = ipOps.fromdword(ip)
 
             if not (pnt.peers[ip] or pnt.peers_dht_ping[ip]) then
               pnt.peers_dht_ping[ip] = {}
@@ -1079,18 +1080,15 @@ Torrent =
     for _, k in ipairs(t[1]) do
       if k.key == "peers" and type(k.value) == "string" then
         -- binary peers
-        for bin_ip, bin_port in string.gmatch(k.value, "(....)(..)") do
-          local ip = string.format("%d.%d.%d.%d",
-            bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-          local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-          local peer = {}
-          peer.ip = ip
-          peer.port = port
+        local pos=1
+        while pos < #k.value do
+          local ip, port
+          ip, port, pos = string.unpack(">I4 I2", k.value, pos)
+          ip = ipOps.fromdword(ip)
 
-          if not self.peers[peer.ip] then
-            self.peers[peer.ip] = {}
-            self.peers[peer.ip].port = peer.port
-            if peer.id then self.peers[peer.ip].id = peer.id end
+          if not self.peers[ip] then
+            self.peers[ip] = {}
+            self.peers[ip].port = port
           end
         end
         break
@@ -1204,19 +1202,14 @@ Torrent =
 
     -- parse peers from msg:sub(pos, #msg)
 
-    for bin_ip, bin_port in msg:sub(pos,#msg):gmatch("(....)(..)") do
-      local ip = string.format("%d.%d.%d.%d",
-        bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-      local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-      local peer = {}
-      peer.ip = ip
-      peer.port = port
-      if not self.peers[peer.ip] then
-        self.peers[peer.ip] = {}
-        self.peers[peer.ip].port = peer.port
-      else
-        self.peers[peer.ip].port = peer.port
+    while pos < #msg do
+      local ip, port
+      ip, port, pos = string.unpack(">I4 I2", msg, pos)
+      ip = ipOps.fromdword(ip)
+      if not self.peers[ip] then
+        self.peers[ip] = {}
       end
+      self.peers[ip].port = port
     end
 
     return true
