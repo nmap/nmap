@@ -531,7 +531,7 @@ Helper = {
 
   -- should only work against 127.0.0.1
   shutdownContainer = function(self)
-    self.comm:send(bin.pack("H", "1234000107"))
+    self.comm:send("\x12\x34\x00\x01\x07")
     self.comm:receive()
   end,
 
