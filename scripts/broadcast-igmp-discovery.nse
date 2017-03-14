@@ -119,7 +119,7 @@ local igmpParse = function(data)
     -- Checksum
     index, response.checksum = string.unpack(">I2", data, index)
     -- Multicast group
-    index, response.group = string.unpack("<I4", data, index)
+    index, response.group = bin.unpack("<I4", data, index)
     response.group = ipOps.fromdword(response.group)
     return response
   elseif response.type == 0x22 and #data >= 12 then
@@ -140,12 +140,12 @@ local igmpParse = function(data)
       index, group.auxdlen = string.unpack(">B", data, index)
       -- Number of source addresses
       index, group.nsrc = string.unpack(">I2", data, index)
-      index, group.address = string.unpack("<I4", data, index)
+      index, group.address = string.unpack(">I4", data, index)
       group.address = ipOps.fromdword(group.address)
       group.src = {}
       if group.nsrc > 0 then
         for i=1,group.nsrc do
-          index, source = string.unpack("<I4", data, index)
+          index, source = string.unpack(">I4", data, index)
           table.insert(group.src, ipOps.fromdword(source))
         end
       end

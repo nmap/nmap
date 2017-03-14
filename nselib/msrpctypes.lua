@@ -372,7 +372,7 @@ local function marshall_basetype(location, func, args)
   stdnse.debug4("MSRPC: Entering marshall_basetype()")
 
   if(location == HEAD or location == ALL) then
-    result = bin.pack("<A", func(table.unpack(args)))
+    result = func(table.unpack(args))
   else
     result = ""
   end
@@ -1702,7 +1702,7 @@ local function marshall_lsa_String_internal(location, str, max_length, do_null)
   end
 
   if(location == BODY or location == ALL) then
-    result = result .. bin.pack("<A", marshall_ptr(BODY, marshall_unicode, {str, do_null, max_length}, str))
+    result = result .. marshall_ptr(BODY, marshall_unicode, {str, do_null, max_length}, str)
   end
 
   stdnse.debug4("MSRPC: Leaving marshall_lsa_String_internal()")

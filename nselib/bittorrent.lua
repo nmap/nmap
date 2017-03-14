@@ -88,8 +88,7 @@
 -- structure is not supported by Lua, so I had to use lists to represent
 -- the dictionaries as well which made accessing the keys a bit quirky
 
-local bin = require "bin"
-local bit = require "bit"
+local ipOps = require "ipOps"
 local coroutine = require "coroutine"
 local http = require "http"
 local io = require "io"
@@ -325,9 +324,7 @@ local dht_ping_thread = function(pnt, timeout)
       local peer_ip, peer_info = next(pnt.peers_dht_ping)
 
       --transaction ids are 2 bytes long
-      local t_ID_hex = stdnse.tohex(transaction_id % 0xffff)
-      t_ID_hex = string.rep("0",4-#t_ID_hex)..t_ID_hex
-      peer_info.transaction_id = bin.pack("H",t_ID_hex)
+      peer_info.transaction_id = string.pack(">I2",transaction_id % 0xffff)
 
       -- mark it as received so we can distinguish from the others and
       -- successfully iterate while receiving
@@ -451,13 +448,16 @@ local find_node_thread = function(pnt, timeout)
 
         --parse the nodes an add them to pnt.nodes_find_node
         if nodes then
-          for node_id, bin_node_ip, bin_node_port in nodes:gmatch("(....................)(....)(..)") do
-            local node_ip = string.format("%d.%d.%d.%d", bin_node_ip:byte(1), bin_node_ip:byte(2),
-              bin_node_ip:byte(3), bin_node_ip:byte(4))
-            local node_port = bit.lshift(bin_node_port:byte(1),8) + bin_node_port:byte(2)
-            local node_info = {}
-            node_info.port = node_port
-            node_info.node_id = node_id
+          local pos = 1
+          while pos < #nodes do
+            local node_id, node_ip, node_port
+            node_id, node_ip, node_port, pos = string.unpack(">c20 I4 I2", nodes, pos)
+            node_ip = ipOps.fromdword(node_ip)
+
+            local node_info = {
+              port = node_port,
+              node_id = node_id,
+            }
 
             if not (pnt.nodes[node_ip] or pnt.nodes_get_peers[node_ip]
               or pnt.nodes_find_node[node_ip]) then
@@ -539,15 +539,16 @@ local get_peers_thread = function(pnt, timeout)
 
         if nodes then
 
-          for node_id, bin_node_ip, bin_node_port in
-            nodes:gmatch("(....................)(....)(..)") do
+          local pos = 1
+          while pos < #nodes do
+            local node_id, node_ip, node_port
+            node_id, node_ip, node_port, pos = string.unpack(">c20 I4 I2", nodes, pos)
+            node_ip = ipOps.fromdword(node_ip)
 
-            local node_ip = string.format("%d.%d.%d.%d", bin_node_ip:byte(1), bin_node_ip:byte(2),
-              bin_node_ip:byte(3), bin_node_ip:byte(4))
-            local node_port = bit.lshift(bin_node_port:byte(1),8) + bin_node_port:byte(2)
-            local node_info = {}
-            node_info.port = node_port
-            node_info.node_id = node_id
+            local node_info = {
+              port = node_port,
+              node_id = node_id,
+            }
 
             if not (pnt.nodes[node_ip] or pnt.nodes_get_peers[node_ip] or
               pnt.nodes_find_node[node_ip]) then
@@ -558,10 +559,8 @@ local get_peers_thread = function(pnt, timeout)
         elseif peers then
 
           for _, peer in ipairs(peers) do
-            local bin_ip, bin_port = peer:match("(....)(..)")
-            local ip = string.format("%d.%d.%d.%d", bin_ip:byte(1),
-              bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-            local port = bit.lshift(bin_port:byte(1),8)+bin_port:byte(2)
+            local ip, port = string.unpack(">I4 I2", peer)
+            ip = ipOps.fromdword(ip)
 
             if not (pnt.peers[ip] or pnt.peers_dht_ping[ip]) then
               pnt.peers_dht_ping[ip] = {}
@@ -608,7 +607,7 @@ Torrent =
     if not info_hash_hex then
       return false, "Erroneous magnet link"
     end
-    self.info_hash = bin.pack("H",info_hash_hex)
+    self.info_hash = stdnse.fromhex(info_hash_hex)
 
     local pos = #info_hash_hex + 21
     local name = magnet:sub(pos,#magnet):match("^&dn=(.-)&")
@@ -1081,18 +1080,15 @@ Torrent =
     for _, k in ipairs(t[1]) do
       if k.key == "peers" and type(k.value) == "string" then
         -- binary peers
-        for bin_ip, bin_port in string.gmatch(k.value, "(....)(..)") do
-          local ip = string.format("%d.%d.%d.%d",
-            bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-          local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-          local peer = {}
-          peer.ip = ip
-          peer.port = port
+        local pos=1
+        while pos < #k.value do
+          local ip, port
+          ip, port, pos = string.unpack(">I4 I2", k.value, pos)
+          ip = ipOps.fromdword(ip)
 
-          if not self.peers[peer.ip] then
-            self.peers[peer.ip] = {}
-            self.peers[peer.ip].port = peer.port
-            if peer.id then self.peers[peer.ip].id = peer.id end
+          if not self.peers[ip] then
+            self.peers[ip] = {}
+            self.peers[ip].port = port
           end
         end
         break
@@ -1140,23 +1136,23 @@ Torrent =
 
     -- The initial connection parameters' variables have hello_ prefixed names
     local hello_transaction_id = openssl.rand_bytes(4)
-    local hello_action = "00 00 00 00" -- 0 for a connection request
-    local hello_connection_id = "00 00 04 17 27 10 19 80" -- identification of the protocol
-    local hello_packet = bin.pack("HHA", hello_connection_id, hello_action, hello_transaction_id)
+    local hello_packet = "\0\0\x04\x17\x27\x10\x19\x80" -- identification of the protocol
+    .. "\0\0\0\0" -- 0 for a connection request
+    .. hello_transaction_id
     local status, msg = socket:sendto(host, port, hello_packet)
     if not status then return false, msg end
 
     status, msg = socket:receive()
     if not status then return false, "Could not connect to tracker:"..tracker.." reason:"..msg end
 
-    local _, r_action, r_transaction_id, r_connection_id  =bin.unpack("H4A4A8",msg)
+    local r_action, r_transaction_id, r_connection_id  =string.unpack(">I4c4c8",msg)
 
     if not (r_transaction_id == hello_transaction_id) then
       return false, "Received transaction ID not equivalent to sent transaction ID"
     end
 
     -- the action in the response has to be 0 too
-    if r_action ~= "00000000" then
+    if r_action ~= 0 then
       return false, "Wrong action field, usually caused by an erroneous request"
     end
 
@@ -1164,24 +1160,24 @@ Torrent =
     -- response holds the peers
 
     -- the announce connection parameters' variables are prefixed with a_
-    local a_action = "00 00 00 01" -- 1 for announce
+    local a_action = 1 -- 1 for announce
     local a_transaction_id = openssl.rand_bytes(4)
     local a_info_hash = self.info_hash -- info_hash of the torrent
     local a_peer_id = self:generate_peer_id()
-    local a_downloaded = "00 00 00 00 00 00 00 00" -- 0 bytes downloaded
+    local a_downloaded = 0 -- 0 bytes downloaded
 
-    local a_left = stdnse.tohex(self.size)  -- bytes left to download is the size of torrent
-    a_left = string.rep("0", 16-#a_left) .. a_left
+    local a_left = self.size  -- bytes left to download is the size of torrent
 
-    local a_uploaded = "00 00 00 00 00 00 00 00" -- 0 bytes uploaded
-    local a_event = "00 00 00 02" -- value of 2 for started torrent
-    local a_ip = "00 00 00 00" -- not necessary to specify our ip since it's resolved
+    local a_uploaded = 0 -- 0 bytes uploaded
+    local a_event = 2 -- value of 2 for started torrent
+    local a_ip = 0 -- not necessary to specify our ip since it's resolved
       -- by tracker automatically
     local a_key = openssl.rand_bytes(4)
-    local a_num_want = "FF FF FF FF" -- request for many many peers
-    local a_port = "1A E1" -- 6881 the port "we are listening on"
-    local a_extensions = "00 00" -- client recognizes no extensions of the bittorrent proto
-    local announce_packet = bin.pack("AHAAAHHHHHAHHH", r_connection_id, a_action, a_transaction_id,
+    local a_num_want = 0xFFFFFFFF -- request for many many peers
+    local a_port = 6881 -- the port "we are listening on"
+    local a_extensions = 0 -- client recognizes no extensions of the bittorrent proto
+    local announce_packet = string.pack(">c8 I4 c4 c40 c20 I8 I8 I8 I4 I4 c4 I4 I2 I2",
+      r_connection_id, a_action, a_transaction_id,
       a_info_hash, a_peer_id, a_downloaded, a_left, a_uploaded, a_event, a_ip, a_key,
       a_num_want, a_port, a_extensions)
 
@@ -1194,10 +1190,10 @@ Torrent =
     if not status then
       return false, "Didn't receive response to announce message, reason: "..msg
     end
-    local pos, p_action, p_transaction_id, p_interval, p_leechers, p_seeders = bin.unpack("H4A4H4H4H4",msg)
+    local p_action, p_transaction_id, p_interval, p_leechers, p_seeders, pos = string.unpack(">I4 c4 I4 I4 I4",msg)
 
     -- the action field in the response has to be 1 (like the sent response)
-    if not (p_action == "00000001") then
+    if not (p_action == 1) then
       return false, "Action in response to announce erroneous"
     end
     if not (p_transaction_id == a_transaction_id) then
@@ -1206,19 +1202,14 @@ Torrent =
 
     -- parse peers from msg:sub(pos, #msg)
 
-    for bin_ip, bin_port in msg:sub(pos,#msg):gmatch("(....)(..)") do
-      local ip = string.format("%d.%d.%d.%d",
-        bin_ip:byte(1), bin_ip:byte(2), bin_ip:byte(3), bin_ip:byte(4))
-      local port = bit.lshift(bin_port:byte(1), 8) + bin_port:byte(2)
-      local peer = {}
-      peer.ip = ip
-      peer.port = port
-      if not self.peers[peer.ip] then
-        self.peers[peer.ip] = {}
-        self.peers[peer.ip].port = peer.port
-      else
-        self.peers[peer.ip].port = peer.port
+    while pos < #msg do
+      local ip, port
+      ip, port, pos = string.unpack(">I4 I2", msg, pos)
+      ip = ipOps.fromdword(ip)
+      if not self.peers[ip] then
+        self.peers[ip] = {}
       end
+      self.peers[ip].port = port
     end
 
     return true

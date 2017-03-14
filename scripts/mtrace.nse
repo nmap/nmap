@@ -189,15 +189,15 @@ local traceParse = function(data)
   response.group = ipOps.fromdword(response.group)
 
   -- Source address
-  index, response.source = string.unpack("<I4", data, index)
+  index, response.source = string.unpack(">I4", data, index)
   response.source = ipOps.fromdword(response.source)
 
   -- Destination address
-  index, response.destination = string.unpack("<I4", data, index)
+  index, response.destination = string.unpack(">I4", data, index)
   response.receiver = ipOps.fromdword(response.destination)
 
   -- Response address
-  index, response.response = string.unpack("<I4", data, index)
+  index, response.response = string.unpack(">I4", data, index)
   response.response = ipOps.fromdword(response.response)
 
   -- Response TTL
@@ -224,15 +224,15 @@ local traceParse = function(data)
     index, block.query = string.unpack(">I4", data, index)
 
     -- In itf address
-    index, block.inaddr = string.unpack("<I4", data, index)
+    index, block.inaddr = string.unpack(">I4", data, index)
     block.inaddr = ipOps.fromdword(block.inaddr)
 
     -- Out itf address
-    index, block.outaddr = string.unpack("<I4", data, index)
+    index, block.outaddr = string.unpack(">I4", data, index)
     block.outaddr = ipOps.fromdword(block.outaddr)
 
     -- Previous rtr address
-    index, block.prevaddr = string.unpack("<I4", data, index)
+    index, block.prevaddr = string.unpack(">I4", data, index)
     block.prevaddr = ipOps.fromdword(block.prevaddr)
 
     -- In packets

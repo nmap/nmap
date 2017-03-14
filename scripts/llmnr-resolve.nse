@@ -126,7 +126,7 @@ local llmnrListen = function(interface, timeout, result)
 
         -- skip null byte, type, class, ttl, dlen
         index = index + 1 + 2 + 2 + 4 + 2
-        index, response.address = string.unpack("<I4", llmnr, index)
+        index, response.address = string.unpack(">I4", llmnr, index)
         response.address = ipOps.fromdword(response.address)
         table.insert(result, response)
       else

@@ -124,7 +124,7 @@ RIPv2 = {
       while( #data - pos >= 20 ) do
         local family, address, metric, _, netmask, nexthop
         pos, family, _, address, netmask, nexthop,
-          metric = string.unpack(">I2I2<I4I4I4>I4", data, pos)
+        metric = string.unpack(">I2I2I4I4I4I4", data, pos)
 
         if ( family == RIPv2.AddressFamily.IP ) then
           local ip = ipOps.fromdword(address)

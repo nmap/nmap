@@ -61,12 +61,8 @@ ASN1Decoder = {
 
     -- Boolean
     self.decoder["01"] = function( self, encStr, elen, pos )
-      local pos, val = bin.unpack("H", encStr, pos)
-      if val ~= "FF" then
-        return pos, true
-      else
-        return pos, false
-      end
+      local val = string.byte(encStr, pos)
+      return pos + 1, val ~= 0xFF
     end
 
     -- Integer
@@ -136,7 +132,8 @@ ASN1Decoder = {
     local etype, elen
     local newpos = pos
 
-    newpos, etype = bin.unpack("H1", encStr, newpos)
+    etype, newpos = string.unpack("c1", encStr, newpos)
+    etype = stdnse.tohex(etype)
     newpos, elen = self.decodeLength(encStr, newpos)
 
     if self.decoder[etype] then
@@ -250,12 +247,7 @@ ASN1Decoder = {
   -- @return The position after decoding.
   -- @return The decoded integer.
   decodeInt = function(encStr, len, pos)
-    local hexStr
-    pos, hexStr = bin.unpack("H" .. len, encStr, pos)
-    local value = tonumber(hexStr, 16)
-    if (value >= (256^len)/2) then
-      value = value - 256^len
-    end
+    local value, pos = string.unpack(">i" .. len, encStr, pos)
     return pos, value
   end,
 
@@ -281,7 +273,7 @@ ASN1Encoder = {
   encodeSeq = function(self, seqData)
     -- 0x30  = 00110000 =  00          1                   10000
     -- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)
-    return bin.pack('HAA' , '30', self.encodeLength(#seqData), seqData)
+    return "\x30" .. self.encodeLength(#seqData) .. seqData
   end,
 
   ---
@@ -341,9 +333,9 @@ ASN1Encoder = {
     -- Boolean encoder
     self.encoder['boolean'] = function( self, val )
       if val then
-        return bin.pack('H','01 01 FF')
+        return '\x01\x01\xFF'
       else
-        return bin.pack('H', '01 01 00')
+        return '\x01\x01\x00'
       end
     end
 
@@ -352,25 +344,25 @@ ASN1Encoder = {
       assert('table' == type(val), "val is not a table")
       assert(#val.type > 0, "Table is missing the type field")
       assert(val.value ~= nil, "Table is missing the value field")
-      return bin.pack("HAA", val.type, self.encodeLength(#val.value), val.value)
+      return stdnse.fromhex(val.type) .. self.encodeLength(#val.value) .. val.value
     end
 
     -- Integer encoder
     self.encoder['number'] = function( self, val )
       local ival = self.encodeInt(val)
       local len = self.encodeLength(#ival)
-      return bin.pack('HAA', '02', len, ival)
+      return "\x02" .. len .. ival
     end
 
     -- Octet String encoder
     self.encoder['string'] = function( self, val )
       local len = self.encodeLength(#val)
-      return bin.pack('HAA', '04', len, val)
+      return "\x04" .. len .. val
     end
 
     -- Null encoder
     self.encoder['nil'] = function( self, val )
-      return bin.pack('H', '05 00')
+      return '\x05\x00'
     end
 
   end,

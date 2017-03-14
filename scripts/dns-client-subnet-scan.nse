@@ -317,8 +317,6 @@ local get_addresses = function(address, mask, domain, nameserver, port)
   -- DNS library expects
   if ( "number" == type(address) ) then
     address = ipOps.fromdword(address)
-    local a, b, c, d = address:match("(%d+)%.(%d+)%.(%d+)%.(%d+)")
-    address = ("%d.%d.%d.%d"):format(d,c,b,a)
   end
 
   local subnet = { family = nmap.address_family(), address = address, mask = mask }

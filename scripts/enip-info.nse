@@ -1428,7 +1428,7 @@ action = function(host,port)
       output["Revision"] = char1 .. "." .. char2
       -- Device IP, this could be the same, as the IP scanning, or may be actual IP behind NAT
       local dword
-      pos, dword = string.unpack("<I4", response, 37)
+      pos, dword = string.unpack(">I4", response, 37)
       output["Device IP"] = ipOps.fromdword(dword)
       -- set Nmap output
       set_nmap(host, port)

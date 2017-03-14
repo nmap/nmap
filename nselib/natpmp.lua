@@ -95,13 +95,13 @@ Response = {
       end
 
       local pos
-      pos, self.version, self.op, self.rescode = bin.unpack("<CCS", self.data)
+      pos, self.version, self.op, self.rescode = bin.unpack(">CCS", self.data)
 
       if ( self.rescode ~= ResultCode.SUCCESS or self.op ~= 128 ) then
         return
       end
 
-      pos, self.time, self.ip = bin.unpack("<II", self.data, pos)
+      pos, self.time, self.ip = bin.unpack(">II", self.data, pos)
       self.ip = ipOps.fromdword(self.ip)
       self.time = stdnse.format_timestamp(self.time)
       return true
@@ -126,7 +126,7 @@ Response = {
       end
 
       local pos
-      pos, self.version, self.op, self.rescode = bin.unpack("<CCS", self.data)
+      pos, self.version, self.op, self.rescode = bin.unpack(">CCS", self.data)
 
       if ( self.rescode ~= ResultCode.SUCCESS ) then
         return

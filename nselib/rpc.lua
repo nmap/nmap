@@ -3100,7 +3100,7 @@ Util =
   end,
 
   marshall_opaque = function(data)
-    return bin.pack(">A", data) .. string.rep("\0", Util.CalcFillBytes(data:len()))
+    return data .. string.rep("\0", Util.CalcFillBytes(data:len()))
   end,
 
   unmarshall_opaque = function(len, data, pos)
@@ -3110,7 +3110,7 @@ Util =
   marshall_vopaque = function(data)
     local l = data:len()
     return (
-      Util.marshall_uint32(l) .. bin.pack(">A", data) ..
+      Util.marshall_uint32(l) .. data ..
       string.rep("\0", Util.CalcFillBytes(l))
       )
   end,

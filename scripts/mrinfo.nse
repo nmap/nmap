@@ -106,7 +106,7 @@ local mrinfoParse = function(data)
     if data:byte(index) == 0x00 then break end
     address = {}
     -- Local address
-    index, address.ip = string.unpack("<I", data, index)
+    index, address.ip = string.unpack(">I4", data, index)
     address.ip = ipOps.fromdword(address.ip)
     -- Link metric
     index, address.metric = string.unpack(">B", data, index)
@@ -120,7 +120,7 @@ local mrinfoParse = function(data)
     address.neighbors = {}
     -- Iterate over neighbors
     for i = 1, address.ncount do
-      index, neighbor = string.unpack("<I4", data, index)
+      index, neighbor = string.unpack(">I4", data, index)
       table.insert(address.neighbors, ipOps.fromdword(neighbor))
     end
     table.insert(response.addresses, address)

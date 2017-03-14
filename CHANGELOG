@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#743] New script broadcast-ospf2-discover discovers OSPF 2 routers
+  and neighbors. OSPFv2 authentication is supported. [Emiliano Ticci]
+
 o [NSE][GH#740] New script http-vuln-cve2017-5638 checks for the RCE bug in
   Apache Struts. [Seth Jackson]
 

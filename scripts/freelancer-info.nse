@@ -2,7 +2,6 @@ local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local string = require "string"
-local bit = require "bit"
 local stdnse = require "stdnse"
 
 description = [[
@@ -76,7 +75,7 @@ action = function(host, port)
   o["max. players"] = maxplayers:byte(1) - 1
 
   passwordbyte = passwordbyte:byte(1)
-  if bit.band(passwordbyte, 128) ~= 0 then
+  if passwordbyte & 128 ~= 0 then
     o["password"] = "yes"
   else
     o["password"] = "no"
