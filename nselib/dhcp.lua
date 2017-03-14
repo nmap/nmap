@@ -428,7 +428,7 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   packet = packet .. bin.pack(">CCCC", overrides['op'] or 1, overrides['htype'] or 1, overrides['hlen'] or 6, overrides['hops'] or 0)  -- BOOTREQUEST, 10mb ethernet, 6 bytes long, 0 hops
   packet = packet .. ( overrides['xid'] or transaction_id )                                                         -- Transaction ID =
   packet = packet .. bin.pack(">SS", overrides['secs'] or 0, overrides['flags'] or 0x0000)     -- Secs, flags
-  packet = packet .. bin.pack("A", ip_address)                                                 -- Client address
+  packet = packet .. ip_address                                                 -- Client address
   packet = packet .. bin.pack("<I", overrides['yiaddr'] or 0)                                  -- yiaddr
   packet = packet .. bin.pack("<I", overrides['siaddr'] or 0)                                  -- siaddr
   packet = packet .. bin.pack("<I", overrides['giaddr'] or 0)                                  -- giaddr

@@ -162,7 +162,7 @@ local make_eapol = function (arg)
   p.mac_dst = packet.mactobin(ETHER_BROADCAST)
   p.ether_type = ETHER_TYPE_EAPOL
 
-  local bin_payload = bin.pack(">A",arg.payload)
+  local bin_payload = arg.payload
   p.buf = bin.pack("C",arg.version) .. bin.pack("C",arg.type) .. bin.pack(">S",bin_payload:len()).. bin_payload
   p:build_ether_frame()
   return p.frame_buf
@@ -176,7 +176,7 @@ local make_eap = function (arg)
   if not arg.payload then arg.payload = "" end
   if not arg.header then return nil end
 
-  local bin_payload = bin.pack(">A",arg.payload)
+  local bin_payload = arg.payload
   arg.header.payload = bin.pack("C",arg.code) .. bin.pack("C",arg.id) .. bin.pack(">S",bin_payload:len() + EAP_HEADER_SIZE).. bin.pack("C",arg.type) .. bin_payload
 
   local v = make_eapol(arg.header)
