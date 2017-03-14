@@ -3,7 +3,6 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local http = require "http"
-local bin = require "bin"
 
 description = [[
 Gathers info from the Metasploit rpc service.  It requires a valid login pair.
@@ -55,9 +54,9 @@ local os_type
 -- returns a "prefix" that msgpack uses for strings
 local get_prefix = function(data)
   if string.len(data) <= 31 then
-    return bin.pack("C",0xa0 + string.len(data))
+    return string.pack("I1",0xa0 + string.len(data))
   else
-    return "\xda"  .. bin.pack(">s",string.len(data))
+    return "\xda"  .. string.pack(">H",string.len(data))
   end
 
 end

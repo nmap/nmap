@@ -1,4 +1,3 @@
-local bin = require "bin"
 local bit = require "bit"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -205,7 +204,7 @@ local function BOcrypt(data, password, initial_seed )
     local key = bit.band(bit.arshift(seed,16), 0xff)
 
     crypto_byte = bit.bxor(data_byte,key)
-    output = bin.pack("AC",output,crypto_byte)
+    output = output .. string.pack("B", crypto_byte)
     if i == 256 then break end --ARGSIZE limitation
   end
   return output
@@ -215,19 +214,19 @@ local function BOpack(type_packet, str1, str2)
   -- create BO packet
   local data = ""
   local size = #MAGICSTRING + 4*2 + 3 + #str1 + #str2
-  data = bin.pack("A<IICACAC",MAGICSTRING,size,g_packet,type_packet,str1,0x00,str2,0x00)
+  data = ,MAGICSTRING .. string.pack("<I4I4B",size,g_packet,type_packet) .. str1 .. string.pack("C",0x00) .. str2 .. string.pack("C",0x00)
   g_packet = g_packet + 1
   return data
 end
 
 local function BOunpack(packet)
-  local pos, magic = bin.unpack("A8",packet)
+  local pos, magic = string.unpack(tostring(packet))
 
   if magic ~= MAGICSTRING then return nil,TYPE.ERROR end  --received non-BO packet
 
   local packetsize, packetid, type_packet, data
-  pos, packetsize, packetid, type_packet = bin.unpack("<IIC",packet,pos)
-  pos, data = bin.unpack("A"..(packetsize-pos-1),packet,pos)
+  pos, packetsize, packetid, type_packet = string.unpack("<IIC",packet,pos)
+  pos, data = string.unpack("c"..(packetsize-pos-1),packet,pos)
 
   return data, type_packet
 end

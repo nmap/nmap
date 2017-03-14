@@ -192,11 +192,11 @@ action = function(host, port)
   status, err = socket:send(connectInitial)
   status, err = socket:send(userRequest)  -- send attach user request
   status, response = socket:receive_bytes(0) -- receive attach user confirm
-  pos,user1 = bin.unpack(">I2",response:sub(10,11)) -- user_channel-1001 - see http://msdn.microsoft.com/en-us/library/cc240918%28v=prot.10%29.aspx
+  pos,user1 = string.unpack(">I2",response:sub(10,11)) -- user_channel-1001 - see http://msdn.microsoft.com/en-us/library/cc240918%28v=prot.10%29.aspx
 
   status, err = socket:send(userRequest) -- send another attach user request
   status, response = socket:receive_bytes(0) -- receive another attach user confirm
-  pos,user2 = bin.unpack(">I2",response:sub(10,11)) -- second user's channel - 1001
+  pos,user2 = string.unpack(">I2",response:sub(10,11)) -- second user's channel - 1001
   user2 = user2+1001 -- second user's channel
   local data4 = string.pack(">I2 I2",user1,user2)
   local data5 = stdnse.fromhex("0300000c02f08038") -- channel join request TPDU

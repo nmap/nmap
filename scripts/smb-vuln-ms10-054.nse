@@ -1,7 +1,7 @@
-local bin = require "bin"
 local smb = require "smb"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 Tests whether target machines are vulnerable to the ms10-054 SMB remote memory
@@ -66,7 +66,7 @@ local function send_transaction2(smbstate, sub_command, function_parameters)
   end
 
   -- Parameters are 0x20 bytes long.
-  parameters = bin.pack("<SSSSCCSISSSSSCCS",
+  parameters = string.pack("<I2 I2 I2 I2 B B I2 I4 I2 I2 I2 I2 I2 B B I2",
   parameter_size,                  -- Total parameter count.
   data_size,                       -- Total data count.
   0x000a,                          -- Max parameter count.
@@ -133,7 +133,7 @@ to execute arbitrary code via a crafted SMB packet, aka "SMB Pool Overflow Vulne
   local status, smbstate = smb.start_ex(host, true, true, share, nil, nil, nil)
 
   local param = "0501" -- Query FS Attribute Info
-  local status, result = send_transaction2(smbstate,0x03,bin.pack("H",param))
+  local status, result = send_transaction2(smbstate,0x03,bstdnse.fromhex(param))
   status, result = smb.smb_read(smbstate,true) -- see if we can still talk to the victim
   if not status then -- if not , it has crashed
     ms10_054.state = vulns.STATE.VULN

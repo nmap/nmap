@@ -1,7 +1,7 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local srvloc = require "srvloc"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -55,7 +55,7 @@ function action()
   for _, attr in ipairs(attribs) do
     local addr = attr:match("^%d*%-%d*%-%d*%-(........)")
     if ( addr ) then
-      local pos, dw_addr = bin.unpack( "<I", bin.pack("H", addr) )
+      local pos, dw_addr = string.unpack( "<I4", stdnse.fromhex(addr) )
       local ip = ipOps.fromdword(dw_addr)
 
       if ( not(ips[ip]) ) then

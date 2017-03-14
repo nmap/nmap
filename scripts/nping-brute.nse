@@ -81,10 +81,10 @@ Driver =
     local family = IP6
     local target = self.host.bin_ip
     if #target == 4 then
-      target = bin.pack("Ax12", target)
+      target = target .. string.pack("x12")
       family = IP4
     end
-    return bin.pack("ACx15", target, family)
+    return target .. string.pack("Bx15", family)
   end,
 
   clienths = function(self, snonce, password)
@@ -102,7 +102,7 @@ Driver =
     local _, iv = bin.unpack("A16", cnonce)
     local plain = self:chsbody()
     local crypted = openssl.encrypt(self.AES_128_CBC, enckey, iv, plain)
-    local head = bin.pack("CC>SA>Ix4A", self.NEP_VERSION, NEP_HANDSHAKE_CLIENT, NEP_HANDSHAKE_CLIENT_LEN, seqb, now, nonce)
+    local head = string.pack("BB>I2", self.NEP_VERSION, NEP_HANDSHAKE_CLIENT, NEP_HANDSHAKE_CLIENT_LEN) ..  string.pack(">I4x4",seqb, now) .. nonce
     local mac = openssl.hmac(self.SHA256, mackey, head .. plain)
 
     return head .. crypted .. mac

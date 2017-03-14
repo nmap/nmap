@@ -1,9 +1,9 @@
-local bin = require "bin"
 local ipOps = require "ipOps"
 local math = require "math"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -45,7 +45,8 @@ local ipidseqport
 -- @return Destination and source IP addresses and TCP ports
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return bin.pack('AA=S=S', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
+  --please check this
+  return ip.ip_bin_dst .. ip.ip_bin_src .. string.pack("I2=I2",ip.tcp_dport, ip.tcp_sport)
 end
 
 --- Updates a TCP Packet object
@@ -62,7 +63,7 @@ end
 -- @param port Port number
 -- @return TCP Packet object
 local genericpkt = function(host, port)
-  local pkt = bin.pack("H",
+  local pkt = stdnse.fromhex(
   "4500 002c 55d1 0000 8006 0000 0000 0000" ..
   "0000 0000 0000 0000 0000 0000 0000 0000" ..
   "6002 0c00 0000 0000 0204 05b4"
@@ -225,7 +226,8 @@ action = function(host)
     try(sock:ip_send(tcp.buf, host))
 
     local status, len, _, layer3 = pcap:pcap_receive()
-    local test = bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
+    -- please check this
+    local test = tcp.ip_bin_src .. tcp.ip_bin_dst .. string.pack("I2=I2", tcp.tcp_sport, tcp.tcp_dport)
     while status and test ~= check(layer3) do
       status, len, _, layer3 = pcap:pcap_receive()
     end
@@ -250,4 +252,3 @@ action = function(host)
 
   return output
 end
-

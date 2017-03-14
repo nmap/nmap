@@ -1,4 +1,3 @@
-local bin = require "bin"
 local bit = require "bit"
 local comm = require "comm"
 local nmap = require "nmap"
@@ -128,7 +127,7 @@ local color_codes = {
 -- player info as a table on success and raise an error on failure.
 local function get_player_info(host, port, id)
   local player_info = stdnse.output_table()
-  local req_pl = bin.pack('>SSCC',
+  local req_pl = string.pack('>I2I2BB',
     ctrl_pkt_type,     -- packet type
     2+2+1+1,           -- packet length
     ccreq_player_info, -- operation code
@@ -142,7 +141,7 @@ local function get_player_info(host, port, id)
     rep_pl:len(), req_pl:len(),
     rep_pl:len()/req_pl:len() )
 
-  local pos, rep_pkt_type, rep_pl_len = bin.unpack('>SS', rep_pl)
+  local pos, rep_pkt_type, rep_pl_len = string.unpack('>I2I2', rep_pl)
   assert_w_table(rep_pl_len == rep_pl:len(),
     string.format("Incorrect reply packet length: %d"
       .. " received, %d bytes in packet",
@@ -153,7 +152,7 @@ local function get_player_info(host, port, id)
     "Bad reply packet type", player_info)
 
   -- frags and connect_time are sent little endian:
-  local pos, rep_opc, player_id, name, colors, frags, connect_time, client_address = bin.unpack('>CCzCxxx<iI>z', rep_pl, pos)
+  local pos, rep_opc, player_id, name, colors, frags, connect_time, client_address = string.unpack('>BBzBxxx<i4I4>z', rep_pl, pos)
   assert_w_table(pos == term_pos, "Error parsing reply (packet type/ length)",
     player_info)
   assert_w_table(rep_opc == ccrep_player_info,
@@ -192,7 +191,7 @@ end
 -- raise an error on failure.
 local function get_server_info(host, port)
   local server_info = stdnse.output_table()
-  local req_pl = bin.pack('>SSCzC',
+  local req_pl = string.pack('>I2I2BzB',
     ctrl_pkt_type,             -- packet type
     2+2+1+game_name:len()+1+1, -- packet length
     ccreq_server_info,         -- operation code
@@ -208,7 +207,7 @@ local function get_server_info(host, port)
     rep_pl:len(), req_pl:len(),
     rep_pl:len()/req_pl:len())
 
-  local pos, rep_pkt_type, rep_pl_len = bin.unpack('>SS', rep_pl)
+  local pos, rep_pkt_type, rep_pl_len = string.unpack('>I2I2', rep_pl)
   assert_w_table(rep_pkt_type == ctrl_pkt_type,
     string.format("Bad reply packet type 0x%x, expected 0x%x",
     rep_pkt_type, ctrl_pkt_type), server_info)
@@ -218,12 +217,12 @@ local function get_server_info(host, port)
     rep_pl_len, rep_pl:len()), server_info)
   local term_pos = rep_pl_len + 1
 
-  local pos, rep_opc = bin.unpack('>C', rep_pl, pos)
+  local pos, rep_opc = string.unpack('>B', rep_pl, pos)
   assert_w_table(rep_opc == ccrep_server_info,
     string.format("Bad operation code 0x%x in reply,"
       .. " expected 0x%x",
     rep_opc, ccrep_server_info), server_info)
-  local pos, server_address, server_host_name, level_name, cur_players, max_players, net_protocol_version = bin.unpack('>zzzCCC', rep_pl, pos)
+  local pos, server_address, server_host_name, level_name, cur_players, max_players, net_protocol_version = string.unpack('>zzzBBB', rep_pl, pos)
   assert_w_table(pos == term_pos, "Error parsing reply (packet type/length)",
     server_info)
 

@@ -28,9 +28,9 @@ categories = {"intrusive"}
 
 local shortport = require 'shortport'
 local stdnse = require 'stdnse'
+local string = require 'string'
 local httpspider = require 'httpspider'
 local string = require 'string'
-local bin = require 'bin'
 local bit = require 'bit'
 local table = require 'table'
 
@@ -339,7 +339,7 @@ portrule = shortport.http
 --@return the new position, and the value.
 local function unpack_rational(endian, data, pos)
   local v1, v2
-  pos, v1, v2 = bin.unpack(endian .. "II", data, pos)
+  pos, v1, v2 = string.unpack(endian .. "I4I4", data, pos)
   return pos, v1 / v2
 end
 
@@ -348,11 +348,11 @@ local function process_gps(data, pos, endian, result)
   local latitude, latitude_ref, longitude, longitude_ref
 
   -- The first entry in the gps section is a 16-bit size
-  pos, num_entries = bin.unpack(endian .. "S", data, pos)
+  pos, num_entries = string.unpack(endian .. "I2", data, pos)
 
   -- Loop through the entries to find the fun stuff
   for i=1, num_entries do
-    local pos, tag, format, components, value = bin.unpack(endian .. "SSII", data, pos)
+    local pos, tag, format, components, value = string.unpack(endian .. "I2I2I4I4", data, pos)
 
     if(tag == GPS_TAG_LATITUDE or tag == GPS_TAG_LONGITUDE) then
       local dummy, gps, h, m, s
@@ -403,7 +403,7 @@ local function parse_exif(exif_data)
   result = {}
 
   -- Read the verify the EXIF header
-  local pos, header1, header2, endian = bin.unpack(">ISS", exif_data, 1)
+  local pos, header1, header2, endian = string.unpack(">I4I2I2", exif_data, 1)
   if(header1 ~= 0x45786966 or header2 ~= 0x0000) then
     return false, "Invalid EXIF header"
   end
@@ -419,7 +419,7 @@ local function parse_exif(exif_data)
   end
 
   -- Read the first tiff header and the offset to the first data entry (should be 8)
-  pos, tiff_header_1, first_offset = bin.unpack(endian .. "SI", exif_data, pos)
+  pos, tiff_header_1, first_offset = string.unpack(endian .. "I2I4", exif_data, pos)
   if(tiff_header_1 ~= 0x002A or first_offset ~= 0x00000008) then
     return false, "Invalid tiff header"
   end
@@ -428,12 +428,12 @@ local function parse_exif(exif_data)
   pos = first_offset + 8 - 1
 
   -- The first 16-bit value is the number of entries
-  local pos, num_entries = bin.unpack(endian .. "S", exif_data, pos)
+  local pos, num_entries = string.unpack(endian .. "I2", exif_data, pos)
 
   -- Loop through the entries
   for i=1,num_entries do
     -- Read the entry's header
-    pos, tag, format, components, value = bin.unpack(endian .. "SSII", exif_data, pos)
+    pos, tag, format, components, value = string.unpack(endian .. "I2I2I4I4", exif_data, pos)
 
     -- Look at the tags we care about
     if(tag == TAG_GPSINFO) then
@@ -443,13 +443,13 @@ local function parse_exif(exif_data)
         return false, result
       end
     elseif(tag == TAG_MAKE) then
-      dummy, value = bin.unpack("z", exif_data, value + 8 - 1)
+      dummy, value = string.unpack("z", exif_data, value + 8 - 1)
       table.insert(result, string.format("Make: %s", value))
     elseif(tag == TAG_MODEL) then
-      dummy, value = bin.unpack("z", exif_data, value + 8 - 1)
+      dummy, value = string.unpack("z", exif_data, value + 8 - 1)
       table.insert(result, string.format("Model: %s", value))
     elseif(tag == TAG_DATETIME) then
-      dummy, value = bin.unpack("z", exif_data, value + 8 - 1)
+      dummy, value = string.unpack("z", exif_data, value + 8 - 1)
       table.insert(result, string.format("Date: %s", value))
     end
   end
@@ -462,14 +462,14 @@ local function parse_jpeg(s)
   local pos, sig, marker, size, exif_data
 
   -- Parse the jpeg header, make sure it's valid (we expect 0xFFD8)
-  pos, sig = bin.unpack(">S", s, pos)
+  pos, sig = string.unpack(">I2", s, pos)
   if(sig ~= 0xFFD8) then
     return false, "Unexpected signature"
   end
 
   -- Parse the sections to find the exif marker (0xffe1)
   while(true) do
-    pos, marker, size = bin.unpack(">SS", s, pos)
+    pos, marker, size = string.unpack(">I2I2", s, pos)
 
     -- Check if we found the exif metadata section, break if we did
     if(marker == 0xffe1) then
@@ -483,7 +483,7 @@ local function parse_jpeg(s)
     pos = pos + size - 2
   end
 
-  pos, exif_data = bin.unpack(string.format(">A%d", size), s, pos)
+  pos, exif_data = string.unpack(string.format(">A%d", size), s, pos)
 
   return parse_exif(exif_data)
 end
@@ -537,4 +537,3 @@ function action(host, port)
 
   return stdnse.format_output(true, results)
 end
-

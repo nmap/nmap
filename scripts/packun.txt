@@ -1,0 +1,2 @@
+jdwp-info.nse:  local _,_,stringID = bin.unpack(">B I8",result)
+ms-sql-ntlm-info.nse:  local pos, ttype = bin.unpack("B", response) 

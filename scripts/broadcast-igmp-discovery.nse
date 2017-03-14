@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
-local bin = require "bin"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
@@ -113,40 +112,40 @@ local igmpParse = function(data)
   local response = {}
   local group, source
   -- Report type (0x12 == v1, 0x16 == v2, 0x22 == v3)
-  index, response.type = bin.unpack(">C", data, index)
+  index, response.type = string.unpack(">B", data, index)
   if response.type == 0x12 or response.type == 0x16 then
     -- Max response time
-    index, response.maxrt = bin.unpack(">C", data, index)
+    index, response.maxrt = string.unpack(">B", data, index)
     -- Checksum
-    index, response.checksum = bin.unpack(">S", data, index)
+    index, response.checksum = string.unpack(">I2", data, index)
     -- Multicast group
-    index, response.group = bin.unpack("<I", data, index)
+    index, response.group = string.unpack("<I4", data, index)
     response.group = ipOps.fromdword(response.group)
     return response
   elseif response.type == 0x22 and #data >= 12 then
     -- Skip reserved byte
     index = index + 1
     -- Checksum
-    index, response.checksum = bin.unpack(">S", data, index)
+    index, response.checksum = string.unpack(">I2", data, index)
     -- Skip reserved byte
     index = index + 2
     -- Number of groups
-    index, response.ngroups = bin.unpack(">S", data, index)
+    index, response.ngroups = string.unpack(">I2", data, index)
     response.groups = {}
     for i=1,response.ngroups do
       group = {}
       -- Mode is either INCLUDE or EXCLUDE
-      index, group.mode = bin.unpack(">C", data, index)
+      index, group.mode = string.unpack(">B", data, index)
       -- Auxiliary data length in the group record (in 32bits units)
-      index, group.auxdlen = bin.unpack(">C", data, index)
+      index, group.auxdlen = string.unpack(">B", data, index)
       -- Number of source addresses
-      index, group.nsrc = bin.unpack(">S", data, index)
-      index, group.address = bin.unpack("<I", data, index)
+      index, group.nsrc = string.unpack(">I2", data, index)
+      index, group.address = string.unpack("<I4", data, index)
       group.address = ipOps.fromdword(group.address)
       group.src = {}
       if group.nsrc > 0 then
         for i=1,group.nsrc do
-          index, source = bin.unpack("<I", data, index)
+          index, source = string.unpack("<I4", data, index)
           table.insert(group.src, ipOps.fromdword(source))
         end
       end
@@ -214,7 +213,7 @@ local igmpRaw = function(interface, version)
   end
 
   -- Let's craft an IGMP Membership Query
-  local igmp_raw = bin.pack(">CCSI",
+  local igmp_raw = string.pack(">B B I2 I4",
     0x11, -- Membership Query, same for all versions
     version == 1 and 0 or 0x16, -- Max response time: 10 Seconds, for version 2 and 3
     0, -- Checksum, calculated later
@@ -222,7 +221,7 @@ local igmpRaw = function(interface, version)
     )
 
   if version == 3 then
-    igmp_raw = bin.pack(">ACCSI", igmp_raw,
+    igmp_raw = string.pack(">c B B I2 I4", igmp_raw,
       0, -- Reserved = 4 bits (Should be zeroed)
       -- Supress Flag = 1 bit
       -- QRV (Querier's Robustness Variable) = 3 bits
@@ -233,7 +232,7 @@ local igmpRaw = function(interface, version)
       )
   end
 
-  igmp_raw = igmp_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(igmp_raw)) .. igmp_raw:sub(5)
+  igmp_raw = igmp_raw:sub(1,2) .. string.pack(">I2", packet.in_cksum(igmp_raw)) .. igmp_raw:sub(5)
 
   return igmp_raw
 end
@@ -256,7 +255,7 @@ igmpQuery = function(interface, version)
   else
     local igmp_raw = igmpRaw(interface, version)
 
-    local ip_raw = bin.pack("H", "45c00040ed780000010218bc0a00c8750a00c86b") .. igmp_raw
+    local ip_raw = stdnse.fromhex("45c00040ed780000010218bc0a00c8750a00c86b") .. igmp_raw
     local igmp_packet = packet.Packet:new(ip_raw, ip_raw:len())
     igmp_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
     igmp_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))
@@ -267,7 +266,7 @@ igmpQuery = function(interface, version)
     sock:ethernet_open(interface.device)
 
     -- Ethernet IPv4 multicast, our ethernet address and type IP
-    local eth_hdr = bin.pack("HAH", "01 00 5e 00 00 01", interface.mac, "08 00")
+    local eth_hdr = stdnse.fromhex("01 00 5e 00 00 01") .. interface.mac .. stdnse.fromhex("08 00")
     sock:ethernet_send(eth_hdr .. igmp_packet.buf)
     sock:ethernet_close()
   end

@@ -1,9 +1,9 @@
-local bin = require "bin"
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
+local string = require "string"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
@@ -102,22 +102,23 @@ local icmp_packet = function(srcIP, dstIP, ttl, data_length, mtu, seqNo, icmp_id
   end
 
   -- Type=08; Code=00; Chksum=0000; ID=icmp_id; SeqNo=icmp_seqNo; Payload=icmp_payload(hex string);
-  local icmp_msg = bin.pack(">CCSASA", 8, 0, 0, icmp_id, seqNo, icmp_payload)
+  local icmp_msg = string.pack(">BBI2", 8,0,0) .. icmp_id .. string.pack("I2", seqNo) .. icmp_payload
 
   local icmp_checksum = packet.in_cksum(icmp_msg)
 
-  icmp_msg = bin.pack(">CCSASA", 8, 0, icmp_checksum, icmp_id, seqNo, icmp_payload)
+  icmp_msg = string.pack(">BBI2", 8,0,icmp_checksum) .. icmp_id .. string.pack("I2", seqNo) .. icmp_payload
 
 
-  --IP header
-  local ip_bin = bin.pack(">ASSACCx10", -- x10 = checksum & addresses
+  --[[IP header
+   ">ASSACCx10", -- x10 = checksum & addresses
     "\x45\x00", -- IPv4, no options, no DSCN, no ECN
     20 + #icmp_msg, -- total length
     0, -- IP ID
     "\x40\x00", -- DF
     ttl,
     1 -- ICMP
-    )
+  --]]
+  local ip_bin = "\x45\x00" .. string.pack("I2I2",20 + #icmp_msg,0) .. "\x40\x00" .. string.pack("BBx10", ttl, 1)
 
   -- IP+ICMP; Addresses and checksum need to be filled
   local icmp_bin = ip_bin .. icmp_msg

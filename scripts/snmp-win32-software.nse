@@ -1,8 +1,8 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local snmp = require "snmp"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -118,7 +118,7 @@ local function process_answer( tbl )
     if ( v.oid:match(sw_name) ) then
       local objid = v.oid:gsub(sw_name, sw_date)
       local install_date = get_value_from_table( tbl, objid )
-      local install_date_tab = { bin.unpack( ">SCCCCC", install_date ) }
+      local install_date_tab = { string.unpack( ">I2BBBB", install_date ) }
       setmetatable(install_date_tab, date_metatab)
 
       local sw_item = {
@@ -159,4 +159,3 @@ action = function(host, port)
 
   return sw
 end
-

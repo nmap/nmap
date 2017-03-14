@@ -1,4 +1,3 @@
-local bin = require "bin"
 local dns = require "dns"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -61,13 +60,13 @@ local function rr_filter(pktRR, label)
   for _, rec in ipairs(pktRR, label) do
     if ( rec[label] and 0 < #rec.data ) then
       if ( dns.types.OPT == rec.dtype ) then
-        local pos, _, len = bin.unpack(">SS", rec.data)
+        local pos, _, len = string.unpack(">I2 I2", rec.data)
         if ( len ~= #rec.data - pos + 1 ) then
           return false, "Failed to decode NSID"
         end
-        return true, select(2, bin.unpack("A" .. len, rec.data, pos))
+        return true, select(2, string.unpack("c" .. len, rec.data, pos))
       else
-        return true, select(2, bin.unpack("p", rec.data))
+        return true, select(2, string.unpack("s1", rec.data))
       end
     end
   end

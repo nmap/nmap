@@ -1,10 +1,10 @@
 local asn1 = require "asn1"
-local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
 
@@ -100,7 +100,7 @@ KRB5 = {
   tagDecoder = {
 
     ["18"] = function( self, encStr, elen, pos )
-      return bin.unpack("A" .. elen, encStr, pos)
+      return string.unpack("c" .. elen, encStr, pos)
     end,
 
     ["1B"] = function( ... ) return KRB5.tagDecoder["18"](...) end,
@@ -141,9 +141,9 @@ KRB5 = {
       local len = asn1.ASN1Encoder.encodeLength(#val[1])
 
       if ( val._type and types[val._type] ) then
-        return bin.pack("CAA", types[val._type], len, val[1])
+        return string.pack("B", types[val._type]) .. len ..  val[1]
       elseif ( val._type and 'number' == type(val._type) ) then
-        return bin.pack("CAA", val._type, len, val[1])
+        return string.pack("B", val._type) .. len .. val[1]
       end
 
     end,
@@ -174,7 +174,7 @@ KRB5 = {
     princ = encoder:encode( name_type ) .. princ
 
     -- not sure about how this works, but apparently it does
-    princ = bin.pack("H", "A003") .. princ
+    princ = stdnse.fromhex("A003") .. princ
     princ = self:encodeSequence(encoder,0x30, princ)
 
     return princ
@@ -228,13 +228,13 @@ KRB5 = {
 
     -- forwardable
     local kdc_options = 0x40000000
-    data = bin.pack(">I", kdc_options) .. data
+    data = string.pack(">I4", kdc_options) .. data
 
     -- add padding
     data = '\0' .. data
 
     -- hmm, wonder what this is
-    data = bin.pack("H", "A0070305") .. data
+    data = stdnse.fromhex("A0070305") .. data
     data = self:encodeSequence(encoder, 0x30, data)
     data = self:encodeSequence(encoder, 0xA4, data)
     data = self:encodeSequence(encoder, 0xA2, encoder:encode(KRB5.MessageType['AS-REQ'])) .. data
@@ -246,7 +246,7 @@ KRB5 = {
     data = self:encodeSequence(encoder, 0x6a, data)
 
     if ( protocol == "tcp" ) then
-      data = bin.pack(">I", #data) .. data
+      data = string.pack(">I4", #data) .. data
     end
 
     return data

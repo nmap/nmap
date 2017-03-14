@@ -1,4 +1,3 @@
-local bin = require "bin"
 local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -74,7 +73,7 @@ action = function(host, port)
     -- Detected; extract relevant data
     local _
     _, r.v_a, r.v_b, r.v_c, _, r.users, r.maxusers, r.bandwidth =
-    bin.unpack(">CCCLIII", result, 2)
+    string.unpack(">B B B I8 I4 I4 I4", result, 2)
   end
 
   mutex("done")

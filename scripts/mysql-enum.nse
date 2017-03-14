@@ -1,4 +1,3 @@
-local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local mysql = require "mysql"
@@ -78,9 +77,9 @@ Driver = {
       return false,brute.Error:new(response)
     end
     stdnse.debug1( "Trying %s ...", pass)
-    local auth_string = bin.pack("H","0000018d00000000") .. pass .. bin.pack("H","00504e5f5155454d4500"); -- old authentication method
+    local auth_string = stdnse.fromhex("0000018d00000000") .. pass .. stdnse.fromhex("00504e5f5155454d4500"); -- old authentication method
     local err
-    status, err = self.socket:send(bin.pack("c",string.len(auth_string)-3) .. auth_string) --send initial auth
+    status, err = self.socket:send(string.pack("b",string.len(auth_string)-3) .. auth_string) --send initial auth
     status, response = self.socket:receive_bytes(0)
     if not status then
       return false,brute.Error:new( "Incorrect username" )

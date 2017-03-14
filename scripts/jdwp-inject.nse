@@ -1,4 +1,3 @@
-local bin = require "bin"
 local io = require "io"
 local jdwp = require "jdwp"
 local stdnse = require "stdnse"
@@ -80,9 +79,8 @@ action = function(host, port)
     return stdnse.format_output(false, result)
   end
   -- get the result string
-  local _,_,stringID = bin.unpack(">CL",result)
+  local _,_,stringID = string.unpack(">BI8",result)
   status,result = jdwp.readString(socket,0,stringID)
   -- parse results
   return stdnse.format_output(status,result)
 end
-
