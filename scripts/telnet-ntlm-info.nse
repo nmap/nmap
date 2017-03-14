@@ -62,7 +62,7 @@ local _, ntlm_auth_blob = smbauth.get_security_blob(
 --
 -- Create MS-TNAP Login Packet (Option Command IS)
 -- Ref: http://msdn.microsoft.com/en-us/library/cc247789.aspx
-local tnap_login_packet = string.pack("<BBBBBBBI4I4 ACC",
+local tnap_login_packet = string.pack("<BBBBBBBI4I4",
   0xff, -- IAC
   0xfa, -- Sub-option (250)
   0x25, -- Subcommand: auth option
