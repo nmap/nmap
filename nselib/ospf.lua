@@ -1,20 +1,24 @@
 ---
--- A minimalistic OSPF (Open Shortest Path First routing protocol) library, currently supporting IPv4 and the following
--- OSPF message types: HELLO
+-- A limited OSPF (Open Shortest Path First routing protocol) library, currently supporting IPv4 and the following
+-- OSPF message types: HELLO, DB_DESCRIPTION, LS_REQUEST, LS_UPDATE
 --
 -- The library consists of an OSPF class that contains code to handle OSPFv2 packets.
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
+-- @author Emiliano Ticci <emiticci@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local bin = require "bin"
 local bit = require "bit"
 local math = require "math"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local ipOps = require "ipOps"
 local packet = require "packet"
 _ENV = stdnse.module("ospf", stdnse.seeall)
+
+local have_ssl, openssl = pcall(require, "openssl")
 
 -- The OSPF class.
 OSPF = {
@@ -23,11 +27,8 @@ OSPF = {
   Message = {
     HELLO = 1,
     DB_DESCRIPTION = 2,
+    LS_REQUEST = 3,
     LS_UPDATE = 4,
-  },
-
-  LSUpdate = {
-
   },
 
   Header = {
@@ -68,7 +69,7 @@ OSPF = {
         local _
         _, header.auth_data.keyid = bin.unpack(">C", data, pos+2)
         _, header.auth_data.length = bin.unpack(">C", data, pos+3)
-        _, header.auth_data.seq = bin.unpack(">C", data, pos+4)
+        _, header.auth_data.seq = bin.unpack(">I", data, pos+4)
         _, header.auth_data.hash = bin.unpack(">H"..header.auth_data.length, data, header.length+1)
       else
         -- Shouldn't happen
@@ -102,9 +103,9 @@ OSPF = {
       if self.auth_type == 0x00 then
         auth = bin.pack(">L", 0x00)
       elseif self.auth_type == 0x01 then
-        auth = bin.pack(">A8", self.auth_data.password)
+        auth = bin.pack(">A", self.auth_data.password)
       elseif self.auth_type == 0x02 then
-        auth = bin.pack(">A".. self.auth_data.length, self.auth_data.hash)
+        auth = bin.pack(">SCCI", 0, self.auth_data.keyid, self.auth_data.length, self.auth_data.seq)
       end
       local hdr = bin.pack(">CCS", self.ver, self.type, self.length )
       .. bin.pack(">IISS", ipOps.todword(self.router_id), self.area_id, self.chksum, self.auth_type)
@@ -169,10 +170,20 @@ OSPF = {
           data = data .. bin.pack(">I", ipOps.todword(n))
         end
         self.header:setLength(#data)
+        if self.header.auth_data.hash then
+          data = data .. self.header.auth_data.hash
+        end
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
+      if have_ssl and self.header.auth_type == 0x02 then
+        while string.len(self.header.auth_data.key) < 16 do
+          self.header.auth_data.key = self.header.auth_data.key .. "\0"
+        end
+        self.header.auth_data.hash = openssl.md5(data .. bin.pack(">A", self.header.auth_data.key))
+      else
+        self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      end
       return tostr()
     end,
 
@@ -208,10 +219,9 @@ OSPF = {
 
   },
 
-  DBDescription = {
-
-    LSAHeader = {
-
+  LSA = {
+    Header = {
+      size = 20,
       new = function(self)
         local o = {
           age = 0,
@@ -228,7 +238,112 @@ OSPF = {
         return o
       end,
 
+      parse = function(data)
+        local lsa_h = OSPF.LSA.Header:new()
+        local pos = 1
+        pos, lsa_h.age, lsa_h.options, lsa_h.type, lsa_h.id, lsa_h.adv_router, lsa_h.sequence, lsa_h.checksum, lsa_h.length = bin.unpack(">SCCIIH4H2S", data, pos)
+
+        lsa_h.id = ipOps.fromdword(lsa_h.id)
+        lsa_h.adv_router = ipOps.fromdword(lsa_h.adv_router)
+        return lsa_h
+      end,
+
     },
+
+    Link = {
+      new = function(self)
+        local o = {
+          id = 0,
+          data = 0,
+          type = 2,
+          num_metrics = 0,
+          metric = 10,
+        }
+        setmetatable(o, self)
+        self.__index = self
+        return o
+      end,
+
+      parse = function(data)
+        local lsa_link = OSPF.LSA.Link:new()
+        local pos = 1
+        pos, lsa_link.id, lsa_link.data, lsa_link.type, lsa_link.num_metrics, lsa_link.metric = bin.unpack(">IICCS", data, pos)
+        lsa_link.id = ipOps.fromdword(lsa_link.id)
+        lsa_link.data = ipOps.fromdword(lsa_link.data)
+        return lsa_link
+      end,
+    },
+
+    Router = {
+      new = function(self)
+        local o = {
+          header = OSPF.LSA.Header:new(),
+          flags = 0,
+          num_links = 0,
+          links = {},
+        }
+        setmetatable(o, self)
+        self.__index = self
+        return o
+      end,
+
+      parse = function(data)
+        local router = OSPF.LSA.Router:new()
+        local pos = OSPF.LSA.Header.size + 1
+        router.header = OSPF.LSA.Header.parse(data)
+        pos, router.flags, router.num_links = bin.unpack(">CxS", data, pos)
+
+        while ( pos < router.header.length ) do
+          table.insert(router.links, OSPF.LSA.Link.parse(data:sub(pos, pos + 12)))
+          pos = pos + 12
+        end
+
+        return router
+      end,
+    },
+
+    ASExternal = {
+      new = function(self)
+        local o = {
+          header = OSPF.LSA.Header:new(),
+          netmask = 0,
+          ext_type = 1,
+          metric = 1,
+          fw_address = 0,
+          ext_tag = 0,
+        }
+        setmetatable(o, self)
+        self.__index = self
+        return o
+      end,
+
+      parse = function(data)
+        local as_ext = OSPF.LSA.ASExternal:new()
+        local pos = OSPF.LSA.Header.size + 1
+        as_ext.header = OSPF.LSA.Header.parse(data)
+
+        pos, as_ext.netmask, as_ext.metric, as_ext.fw_address, as_ext.ext_tag = bin.unpack(">IIII", data, pos)
+        as_ext.netmask = ipOps.fromdword(as_ext.netmask)
+        as_ext.ext_type = 1 + bit.rshift(bit.band(as_ext.metric, 0xFF000000), 31)
+        as_ext.metric = bit.band(as_ext.metric, 0x00FFFFFF)
+        as_ext.fw_address = ipOps.fromdword(as_ext.fw_address)
+
+        return as_ext
+      end,
+    },
+
+    parse = function(data)
+      local header = OSPF.LSA.Header.parse(data)
+      if header.type == 1 then
+        return OSPF.LSA.Router.parse(data)
+      elseif header.type == 5 then
+        return OSPF.LSA.ASExternal.parse(data)
+      end
+      return header.length
+    end,
+  },
+
+  DBDescription = {
 
     new = function(self)
       local o = {
@@ -238,7 +353,8 @@ OSPF = {
         init = true,
         more = true,
         master = true,
-        sequence = math.random(123456789)
+        sequence = math.random(123456789),
+        lsa_headers = {}
       }
       setmetatable(o, self)
       self.__index = self
@@ -254,10 +370,20 @@ OSPF = {
 
         local data = bin.pack(">SCCI", self.mtu, self.options, flags, self.sequence)
         self.header:setLength(#data)
+        if self.header.auth_data.hash then
+          data = data .. self.header.auth_data.hash
+        end
         return tostring(self.header) .. data
       end
       local data = tostr()
-      self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
+      if have_ssl and self.header.auth_type == 0x02 then
+        while string.len(self.header.auth_data.key) < 16 do
+          self.header.auth_data.key = self.header.auth_data.key .. "\0"
+        end
+        self.header.auth_data.hash = openssl.md5(data .. bin.pack(">A", self.header.auth_data.key))
+      else
+        self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      end
       return tostr()
     end,
 
@@ -265,7 +391,7 @@ OSPF = {
       local desc = OSPF.DBDescription:new()
       local pos = OSPF.Header.size + 1
       desc.header = OSPF.Header.parse(data)
-      assert( #data == desc.header.length, "OSPF packet too short")
+      assert( #data >= desc.header.length, "OSPF packet too short")
 
       local flags = 0
       pos, desc.mtu, desc.options, flags, desc.sequence = bin.unpack(">SCCI", data, pos)
@@ -273,6 +399,11 @@ OSPF = {
       desc.init = ( bit.band(flags, 4) == 4 )
       desc.more = ( bit.band(flags, 2) == 2 )
       desc.master = ( bit.band(flags, 1) == 1 )
+
+      while ( pos < desc.header.length ) do
+        table.insert(desc.lsa_headers, OSPF.LSA.Header.parse(data:sub(pos, pos + 20)))
+        pos = pos + 20
+      end
 
       if ( desc.init or not(desc.more) ) then
         return desc
@@ -283,6 +414,104 @@ OSPF = {
 
   },
 
+  LSRequest = {
+    new = function(self)
+      local o = {
+        header = OSPF.Header:new(OSPF.Message.LS_REQUEST),
+        ls_requests = {},
+      }
+      setmetatable(o, self)
+      self.__index = self
+      return o
+    end,
+
+    --- Adds a request to the list of requests.
+    -- @param type LS Type.
+    -- @param id Link State ID
+    -- @param adv_router Advertising Router
+    addRequest = function(self, type, id, adv_router)
+      local request = {
+        type = type,
+        id = id,
+        adv_router = adv_router
+      }
+      table.insert(self.ls_requests, request)
+    end,
+
+    __tostring = function(self)
+      local function tostr()
+        local data = ""
+        for _, req in ipairs(self.ls_requests) do
+          data = data .. bin.pack(">III", req.type, ipOps.todword(req.id), ipOps.todword(req.adv_router))
+        end
+        self.header:setLength(#data)
+        if self.header.auth_data.hash then
+          data = data .. self.header.auth_data.hash
+        end
+        return tostring(self.header) .. data
+      end
+      local data = tostr()
+      if have_ssl and self.header.auth_type == 0x02 then
+        while string.len(self.header.auth_data.key) < 16 do
+          self.header.auth_data.key = self.header.auth_data.key .. "\0"
+        end
+        self.header.auth_data.hash = openssl.md5(data .. bin.pack(">A", self.header.auth_data.key))
+      else
+        self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(25))
+      end
+      return tostr()
+    end,
+
+    parse = function(data)
+      local ls_req = OSPF.LSRequest:new()
+      local pos = OSPF.Header.size + 1
+      ls_req.header = OSPF.Header.parse(data)
+      assert( #data >= ls_req.header.length, "OSPF packet too short")
+
+      while ( pos < #data ) do
+        local req = {}
+        pos, req.type, req.id, req.adv_router = bin.unpack(">III", data, pos)
+        table.insert(ls_req.ls_requests, req)
+      end
+
+      return ls_req
+    end,
+  },
+
+  LSUpdate = {
+    new = function(self)
+      local o = {
+        header = OSPF.Header:new(OSPF.Message.LS_UPDATE),
+        num_lsas = 0,
+        lsas = {},
+      }
+      setmetatable(o, self)
+      self.__index = self
+      return o
+    end,
+
+    parse = function(data)
+      local lsu = OSPF.LSUpdate:new()
+      local pos = OSPF.Header.size + 1
+      lsu.header = OSPF.Header.parse(data)
+      assert( #data >= lsu.header.length, "OSPF packet too short")
+
+      pos, lsu.num_lsas = bin.unpack(">I", data, pos)
+
+      while ( pos < lsu.header.length ) do
+        local lsa = OSPF.LSA.parse(data:sub(pos))
+        if ( type(lsa) == "table" ) then
+          table.insert(lsu.lsas, lsa)
+          pos = pos + lsa.header.length
+        else
+          pos = pos + lsa
+        end
+      end
+
+      return lsu
+    end,
+  },
+
   Response = {
 
     parse = function(data)
@@ -291,6 +520,10 @@ OSPF = {
         return OSPF.Hello.parse( data )
       elseif( ospf_type == OSPF.Message.DB_DESCRIPTION ) then
         return OSPF.DBDescription.parse(data)
+      elseif( ospf_type == OSPF.Message.LS_REQUEST ) then
+        return OSPF.LSRequest.parse(data)
+      elseif( ospf_type == OSPF.Message.LS_UPDATE ) then
+        return OSPF.LSUpdate.parse(data)
       end
       return
     end,
