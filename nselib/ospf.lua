@@ -448,6 +448,7 @@ OSPF = {
         for _, req in ipairs(self.ls_requests) do
           data[#data+1] = string.pack(">I4 I4 I4", req.type, ipOps.todword(req.id), ipOps.todword(req.adv_router))
         end
+        data = table.concat(data)
         self.header:setLength(#data)
         return tostring(self.header) .. data .. (self.header.auth_data.hash or "")
       end
