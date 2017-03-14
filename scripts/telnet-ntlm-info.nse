@@ -73,7 +73,6 @@ local tnap_login_packet = string.pack("<BBBBBBBI4I4 ACC",
   #ntlm_auth_blob, -- NTLM_DataSize (4 bytes, little-endian)
   0x00000002) .. ntlm_auth_blob .. string.pack("BB", 0xff, 0xf0) -- Sub-option End
   -- NTLM_BufferType (4 bytes, little-endian) -> 0x00000002
-  )
 
 portrule = shortport.port_or_service(23, "telnet")
 
