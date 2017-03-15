@@ -18,6 +18,8 @@ Detects the drupal version by scraping the index page.
 --  @output
 --    PORT   STATE SERVICE
 --    80/tcp open  http
+--    |_http-drupal-version: Version / Unable to retrieve the version / Did not follow redirection
+--    443/tcp open  http
 --    |_http-drupal-version: Version / Unable to retrieve the version
 --
 
