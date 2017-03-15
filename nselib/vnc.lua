@@ -380,6 +380,7 @@ VNC = {
   end,
 
   login_aten = function(self, username, password)
+    username = username or ""
     self.socket:send(username .. ("\0"):rep(24 - #username) .. password .. ("\0"):rep(24 - #password))
     return self:check_auth_result()
   end,
@@ -649,6 +650,7 @@ VNC = {
   end,
 
   login_plain = function(self, username, password)
+    username = username or ""
     local status = self.socket:send(bin.pack(">IIAA", #username, #password, username, password))
     if not status then
       return false, "Failed to send plain auth"
