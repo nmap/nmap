@@ -11,6 +11,7 @@ Detects the joomla version by scraping the configuration XML file.
 ---
 --  @usage
 --  nmap --script http-joomla-version <url>
+--  nmap --script http-joomla-version all4share.net
 --
 --  @args http-joomla-version.url The url to scan.
 --
@@ -26,7 +27,11 @@ author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+-- Most probably checking port 443 isn't required.
+-- If required enable the following command.
+-- portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+
+portrule = shortport.port_or_service( {80}, {"http"}, "tcp", "open")
 
 local scrap = function( host, port, path )
   local resp, version
