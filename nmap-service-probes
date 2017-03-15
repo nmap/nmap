@@ -11314,7 +11314,7 @@ match http m|^HTTP/1\.1 404 Not Found\nDate: .*\nServer: Webserver \(Windows\)\n
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"DMP\"\r\n\r\n| p/Cisco Digital Media Player/ d/media device/
 # too general?
 match http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 124\r\nConnection: close\r\n\r\n<html><head><title>405 Method Not Allowed</title></head><body><center><h1>405 Method Not Allowed</h1></center></body></html>| p/TP-LINK TD-W8968 http admin/ d/WAP/ cpe:/h:tp-link:td-w8968/a
-match http m|^HTTP/1\.1 403 Forbidden\r\nPragma: No-cache\r\nCache-Control: no-cache\r\nExpires: .*? ([A-Z]+)\r\nContent-Type: text/html;charset=utf-8\r\nContent-Length: \d+\r\nDate: .*\r\nConnection: close\r\nServer:  \r\n\r\n<html><head><title>Apache Tomcat/([\w._-]+) - Error report</title>| p/Apache Tomcat httpd/ v/$2/ i/timezone: $1/ cpe:/a:apache:tomcat:$2/
+match http m|^HTTP/1\.1 403 Forbidden\r\nPragma: No-cache\r\nCache-Control: no-cache\r\nExpires: .*? ([A-Z]+)\r\nContent-Type: text/html;charset=utf-8\r\nContent-Length: \d+\r\nDate: .*\r\nConnection: close\r\nServer: .*\r\n\r\n<html><head><title>Apache Tomcat/([\w._-]+) - Error report</title>| p/Apache Tomcat httpd/ v/$2/ i/timezone: $1/ cpe:/a:apache:tomcat:$2/
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*? UTC\r\nContent-type: text/html\r\nExpires: Thu, 16 Feb 1989 00:00:00 GMT\r\n\r\n<H1>501 Not Implemented</H1>\r\n\r\n\r\n| p/Cisco IOS httpd/ o/IOS/ cpe:/o:cisco:ios/a
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Origin: \r\nAccess-Control-Allow-Credentials: true\r\nAccess-Control-Max-Age: 86400\r\nAccess-Control-Allow-Headers: Content-Type, Authorization\r\nServer: nzbget-([\w._-]+)\r\n\r\n| p/NZBGet httpd/ v/$1/
 match http m|^HTTP/1\.1 501 Not Implemented\r\nContent-Length: 0\r\nConnection: close\r\n\r\nHTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Securesphere Gateway Authentication\"\r\nContent-Length: 0\r\nConnection: close\r\nSet-Cookie: session_id=\d+; Path=/\r\n\r\n| p/Imperva SecureSphere WAF http admin/
@@ -15010,11 +15010,11 @@ match pc-duo-gw m|^.........(.*)\0|s p/Vector PC-Duo Gateway Server/ i/Servernam
 
 ##############################NEXT PROBE##############################
 # Redis key-value store
-Probe TCP redis-server q|\*1\r\n\$4\r\ninfo\r\n|
+Probe TCP redis-server q|*1\r\n$4\r\ninfo\r\n|
 rarity 8
 ports 6379
 match redis m|-ERR operation not permitted\r\n|s p/Redis key-value store/
-match redis m|^\$\d+\r\nredis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
+match redis m|^\$\d+\r\n.*redis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
 
 ##############################NEXT PROBE##############################
 # Memcached distributed memory object caching system
