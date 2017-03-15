@@ -9,14 +9,17 @@ Detects the joomla version by scraping the configuration XML file.
 ]]
 
 ---
---@args http-joomla-version.url The url to scan.
--- Works for version >= 1.60
---@output
--- PORT   STATE SERVICE
--- 80/tcp open  http
--- |_http-joomla-version: Version / Unable to retrieve the version
--- 443/tcp open  http
--- |_http-joomla-version: Version / Unable to retrieve the version
+--  @usage
+--  nmap --script http-joomla-version <url>
+--
+--  @args http-joomla-version.url The url to scan.
+--
+--  @output
+--    PORT   STATE SERVICE
+--    80/tcp open  http
+--    |_http-joomla-version: Version / Unable to retrieve the version
+--    443/tcp open  http
+--    |_http-joomla-version: Version / Unable to retrieve the version
 --
 
 author = "Rewanth Cool"
@@ -25,7 +28,7 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
-local scrap = function(path)
+local scrap = function( host, port, path )
   local resp, version
 
   resp = http.get( host, port, path )
@@ -49,7 +52,7 @@ action = function(host, port)
   -- This path applies to all versions of Joomla from 1.6.0 until 3.6.3
   -- (including, of course, all the versions in the 2.5.x line),
   -- which is excellent!
-  version = scrap( "/administrator/manifests/files/joomla.xml" )
+  version = scrap( host, port, "/administrator/manifests/files/joomla.xml" )
   if(version ~= nil) then
     return version
   end
@@ -66,17 +69,17 @@ action = function(host, port)
       Sample Joomla website for this case
         https://www.webempresa.com
     ]]
-  version = scrap( "/language/en-GB/en-GB.xml" )
+  version = scrap( host, port, "/language/en-GB/en-GB.xml" )
   if(version ~= nil) then
     return version
   end
 
   -- This path detects Joomla websites with version > 1.5
-  version = scrap("/modules/custom.xml")
+  version = scrap( host, port, "/modules/custom.xml" )
   if(version ~= nil) then
     return version
   else
-    return "UNable to retrieve the Joomla version."
+    return "Unable to retrieve the Joomla version."
   end
 
 end
