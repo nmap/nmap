@@ -21,7 +21,7 @@ author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-portrule = shortport.http
+portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 action = function(host, port)
   local resp, version
