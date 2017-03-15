@@ -205,7 +205,7 @@ local tcp_funcs_v4 = {
   -- @param ttl the IP time to live
   -- @return the newly crafted IP packet
   getprobe = function(host, dport, ttl)
-    local pktbin = bin.pack("H",
+    local pktbin = stdnse.fromhex(
       "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000" ..
       "0000 0000 0000 0000 0000 0000 6002 0c00 0000 0000 0204 05b4"
     )
@@ -269,7 +269,7 @@ local udp_funcs_v4 = {
   -- @param ttl the IP time to live
   -- @return the newly crafted IP packet
   getprobe = function(host, dport, ttl)
-    local pktbin = bin.pack("H",
+    local pktbin = stdnse.fromhex(
       "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000" ..
       "0000 0000 0800 0000"
     )
@@ -332,7 +332,7 @@ local tcp_funcs_v6 = {
   -- @param ttl the IP time to live
   -- @return the newly crafted IP packet
   getprobe = function(host, dport, ttl)
-    local pktbin = bin.pack("H",
+    local pktbin = stdnse.fromhex(
       "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000" ..
       "0000 0000 0000 0000 0000 0000 6002 0c00 0000 0000 0204 05b4"
     )
@@ -394,7 +394,7 @@ local udp_funcs_v6 = {
   -- @param ttl the IP time to live
   -- @return the newly crafted IP packet
   getprobe = function(host, dport, ttl)
-    local pktbin = bin.pack("H",
+    local pktbin = stdnse.fromhex(
       "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000" ..
       "0000 0000 0800 0000"
     )

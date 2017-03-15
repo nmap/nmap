@@ -141,7 +141,7 @@ end
 --@param destination Target host to which the packet is sent.
 --@param trace_raw Traceroute raw Query.
 local traceSend = function(interface, destination, trace_raw)
-  local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. trace_raw
+  local ip_raw = stdnse.fromhex( "45c00040ed780000400218bc0a00c8750a00c86b") .. trace_raw
   local trace_packet = packet.Packet:new(ip_raw, ip_raw:len())
   trace_packet:ip_set_bin_src(ipOps.ip_to_str(interface.address))
   trace_packet:ip_set_bin_dst(ipOps.ip_to_str(destination))
