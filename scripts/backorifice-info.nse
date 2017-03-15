@@ -214,7 +214,7 @@ local function BOpack(type_packet, str1, str2)
   -- create BO packet
   local data = ""
   local size = #MAGICSTRING + 4*2 + 3 + #str1 + #str2
-  data = ,MAGICSTRING .. string.pack("<I4I4B",size,g_packet,type_packet) .. str1 .. string.pack("C",0x00) .. str2 .. string.pack("C",0x00)
+  data = MAGICSTRING .. string.pack("<I4I4B",size,g_packet,type_packet) .. str1 .. string.pack("C",0x00) .. str2 .. string.pack("C",0x00)
   g_packet = g_packet + 1
   return data
 end
