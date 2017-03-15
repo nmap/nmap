@@ -35,7 +35,7 @@ action = function(host, port)
     -- Probes sent, replies received, but no match.
     result = U.get_response(port.version.service_fp, "GetRequest")
     -- Loop through the ASCII probes most likely to receive random response
-    -- from Skype. Others will also recieve this response, but are harder to
+    -- from Skype. Others will also receive this response, but are harder to
     -- distinguish from an echo service.
     for _, p in ipairs({"HTTPOptions", "RTSPRequest"}) do
       rand = U.get_response(port.version.service_fp, p)

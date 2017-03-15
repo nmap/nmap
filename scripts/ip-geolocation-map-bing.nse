@@ -96,7 +96,7 @@ local render = function(params, options)
   local res = http.post("dev.virtualearth.net", 80, query, headers, nil, body)
   if not res or res.status ~= 200 then
     stdnse.debug1("Error %d from API: %s", res.status, res.body)
-    return false, ("Failed to recieve map using query '%s'."):format(query)
+    return false, ("Failed to receive map using query '%s'."):format(query)
   end
 
   local f = io.open(options["map_path"], "w")

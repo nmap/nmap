@@ -73,7 +73,7 @@ end
 -- @param  IPv6_Network A IPv6 Address  ( X:X:X:X::/YY )
 -- @param  IPv4SHosts   A IPv4 String can be: X.X.X.X or X.X.X.X/YY
 -- @param  addr_table   A table to hold the generated addresses.
--- @return  Number   Total succesfuly nodes added to the scan.
+-- @return  Number   Total successfully nodes added to the scan.
 -- @return  Error    A warning if something happened. (Nil otherwise)
 local From_4_to_6 = function (IPv6_Network, IPv4SHosts, addr_table)
 

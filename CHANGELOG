@@ -1148,7 +1148,7 @@ o [NSE] Fix Diffie-Hellman parameter extraction in tls.lua. [Jacob Gajek]
 
 Nmap 6.49BETA2 [2015-06-16]
 
-o [GH#154] Fix a crash (assertion error) when Nmap recieves an ICMP Host
+o [GH#154] Fix a crash (assertion error) when Nmap receives an ICMP Host
   Unreachable message.
 
 o [GH#158] Fix a configure failure when Python is not present, but no Python

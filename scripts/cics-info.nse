@@ -169,7 +169,7 @@ local function cics_info( host, port, commands, user, pass, cemt, trans )
     stdnse.verbose('Trying CICS: %s : %s', user, pass)
     tn:send_locations({user_loc,pass_loc})
     tn:get_all_data()
-    stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
+    stdnse.debug(2,"Screen Received for User ID: %s / %s", user, pass)
     tn:get_screen_debug(2)
     count = 1
     while not tn:find('DFHCE3549') and count < 6 do

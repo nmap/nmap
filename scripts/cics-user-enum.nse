@@ -117,7 +117,7 @@ Driver = {
     stdnse.verbose("Trying User ID: %s", pass)
     self.tn3270:send_cursor(pass)
     self.tn3270:get_all_data()
-    stdnse.debug(2,"Screen Recieved for User ID: %s", pass)
+    stdnse.debug(2,"Screen Received for User ID: %s", pass)
     self.tn3270:get_screen_debug(2)
     if self.tn3270:find('TSS7145E') or
        self.tn3270:find('ACF01004') or

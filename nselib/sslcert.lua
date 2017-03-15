@@ -545,7 +545,7 @@ StartTLS = {
         end,
         wrap_receive = function(self)
           -- mostly lifted from mssql.TDSStream.Receive
-          -- TODO: Modify that function to allow recieving arbitrary response
+          -- TODO: Modify that function to allow receiving arbitrary response
           -- types, since it's only because it forces type 0x04 that we had to
           -- do this here (where we expect type 0x12)
           local combinedData = ""
