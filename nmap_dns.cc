@@ -1508,12 +1508,12 @@ size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offs
   {
     if((*c)=='.')
     {
-      u8 lenght = accumulator.length();
-      *(buf+offset+ret) = lenght;
+      u8 length = accumulator.length();
+      *(buf+offset+ret) = length;
       ret += 1;
 
-      memcpy(buf+offset+ret, accumulator.c_str(), lenght);
-      ret += lenght;
+      memcpy(buf+offset+ret, accumulator.c_str(), length);
+      ret += length;
       accumulator.clear();
     }
     else

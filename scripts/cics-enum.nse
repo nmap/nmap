@@ -160,7 +160,7 @@ Driver = {
       stdnse.debug(2,'Trying CICS: %s : %s', user, pass)
       self.tn3270:send_locations({user_loc,pass_loc})
       self.tn3270:get_all_data()
-      stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
+      stdnse.debug(2,"Screen Received for User ID: %s / %s", user, pass)
       self.tn3270:get_screen_debug(2)
       local count = 1
       while not self.tn3270:find('DFHCE3549') and count < 6 do -- some systems show a message for a bit before we get to CICS again
@@ -184,7 +184,7 @@ Driver = {
       max_blank = max_blank + 1
     end
 
-    stdnse.debug(2,"Screen Recieved for Transaction ID: %s", pass)
+    stdnse.debug(2,"Screen Received for Transaction ID: %s", pass)
     self.tn3270:get_screen_debug(2)
     if self.tn3270:find('not recognized') or self.tn3270:find('DFHAC2002') then -- known invalid command
       stdnse.debug("Invalid CICS Transaction ID: %s", string.upper(pass))
@@ -334,7 +334,7 @@ local function cics_test( host, port, commands, user, pass )
     stdnse.verbose('Trying CICS: %s : %s', user, pass)
     tn:send_locations({user_loc,pass_loc})
     tn:get_all_data()
-    stdnse.debug(2,"Screen Recieved for User ID: %s / %s", user, pass)
+    stdnse.debug(2,"Screen Received for User ID: %s / %s", user, pass)
     tn:get_screen_debug(2)
     count = 1
     while not tn:find('DFHCE3549') and count < 6 do

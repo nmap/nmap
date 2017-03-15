@@ -124,7 +124,7 @@ Driver = {
     stdnse.verbose('Trying CICS: ' .. user ..' : ' .. pass)
     self.tn3270:send_locations({user_loc,pass_loc})
     self.tn3270:get_all_data()
-    stdnse.debug(2,"Screen Recieved for User ID: %s/%s", user, pass)
+    stdnse.debug(2,"Screen Received for User ID: %s/%s", user, pass)
     self.tn3270:get_screen_debug(2)
 
     local loop = 1
@@ -132,7 +132,7 @@ Driver = {
       stdnse.verbose('Trying CICS: ' .. user ..' : ' .. pass)
       self.tn3270:send_locations({user_loc,pass_loc})
       self.tn3270:get_all_data()
-      stdnse.debug(2,"Screen Recieved for User ID: %s/%s", user, pass)
+      stdnse.debug(2,"Screen Received for User ID: %s/%s", user, pass)
       self.tn3270:get_screen_debug(2)
       loop = loop + 1 -- We don't want this to loop forever
     end
@@ -143,7 +143,7 @@ Driver = {
       return false, err
     end
 
-    -- Now check what we recieved if its valid or not
+    -- Now check what we received if its valid or not
     if self.tn3270:find('TSS7101E') or
        self.tn3270:find('DFHCE3530') or
        self.tn3270:find('DFHCE3532') then

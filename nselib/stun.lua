@@ -139,7 +139,7 @@ Attribute = {
 
     local function parseAddress(data, pos)
       local _, addr = nil, {}
-      pos, _, addr.family, addr.port, addr.ip = bin.unpack("<CCSI", data, pos)
+      pos, _, addr.family, addr.port, addr.ip = bin.unpack(">CCSI", data, pos)
       if ( addr.ip ) then
         addr.ip = ipOps.fromdword(addr.ip)
       end

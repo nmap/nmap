@@ -182,7 +182,7 @@ action = function()
 
   local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
   local request_type = dhcp.request_types["DHCPDISCOVER"]
-  local ip_address = bin.pack(">I", ipOps.todword("0.0.0.0"))
+  local ip_address = ipOps.ip_to_str("0.0.0.0")
 
   -- we need to set the flags to broadcast
   local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil

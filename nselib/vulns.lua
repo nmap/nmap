@@ -391,7 +391,7 @@ STATE_MSG = {
   [STATE.VULN] = 'VULNERABLE',
   [STATE.DoS] = 'VULNERABLE (DoS)',
   [STATE.EXPLOIT] = 'VULNERABLE (Exploitable)',
-  [bit.bor(STATE.DoS,STATE.VULN)] = 'VUNERABLE (DoS)',
+  [bit.bor(STATE.DoS,STATE.VULN)] = 'VULNERABLE (DoS)',
   [bit.bor(STATE.EXPLOIT,STATE.VULN)] = 'VULNERABLE (Exploitable)',
 }
 

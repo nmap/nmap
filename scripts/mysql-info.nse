@@ -1,4 +1,3 @@
-local bit = require "bit"
 local mysql = require "mysql"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -53,7 +52,7 @@ local bitset = function(num, lookup)
   local caps = {}
 
   for k, v in pairs(lookup) do
-    if bit.band(num, v) > 0 then
+    if num & v > 0 then
       caps[#caps+1] = k
     end
   end

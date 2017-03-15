@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#743] New script broadcast-ospf2-discover discovers OSPF 2 routers
+  and neighbors. OSPFv2 authentication is supported. [Emiliano Ticci]
+
 o [NSE][GH#740] New script http-vuln-cve2017-5638 checks for the RCE bug in
   Apache Struts. [Seth Jackson]
 
@@ -1145,7 +1148,7 @@ o [NSE] Fix Diffie-Hellman parameter extraction in tls.lua. [Jacob Gajek]
 
 Nmap 6.49BETA2 [2015-06-16]
 
-o [GH#154] Fix a crash (assertion error) when Nmap recieves an ICMP Host
+o [GH#154] Fix a crash (assertion error) when Nmap receives an ICMP Host
   Unreachable message.
 
 o [GH#158] Fix a configure failure when Python is not present, but no Python

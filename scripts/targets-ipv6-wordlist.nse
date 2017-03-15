@@ -65,7 +65,7 @@ end
 -- @param   User_Segs      Number of segments to search.
 -- @param   User_Right     Boolean for fill right or left (Default)
 -- @return  Boolean        True if was successful the operation
--- @return  Number         Total of successfuly nodes added to the scan list.
+-- @return  Number         Total of successfully nodes added to the scan list.
 -- @return  Error          Any error generated, default: "" not nil.
 local CrearRangoHosts = function (Direccion, Prefijo, TablaPalabras,
     User_Segs, User_Right)

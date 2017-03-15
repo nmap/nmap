@@ -7,6 +7,7 @@ local string = require "string"
 local table = require "table"
 local target = require "target"
 local unicode = require "unicode"
+local ipOps = require "ipOps"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -135,15 +136,10 @@ local parseHello = function(data)
         -- Host ID (MAC Address)
         mac = get_mac_addr(v:sub(1,6))
       elseif t == 0x08 then
-        ipv6 = string.format(
-        "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-        v:byte(1), v:byte(2), v:byte(3), v:byte(4),
-        v:byte(5), v:byte(6), v:byte(7), v:byte(8),
-        v:byte(9), v:byte(10), v:byte(11), v:byte(12),
-        v:byte(13), v:byte(14), v:byte(15), v:byte(16))
+        ipv6 = ipOps.str_to_ip(v:sub(1,16))
       elseif t == 0x07 then
         -- IPv4 address
-        ipv4 = string.format("%d.%d.%d.%d",v:byte(1),v:byte(2),v:byte(3),v:byte(4)), mac
+        ipv4 = ipOps.str_to_ip(v:sub(1,4))
 
         -- Machine Name (Hostname)
       elseif t == 0x0f then

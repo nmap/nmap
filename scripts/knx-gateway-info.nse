@@ -1,7 +1,6 @@
 local nmap = require "nmap"
 local shortport = require "shortport"
 local bin = require "bin"
-local bit = require "bit"
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 
@@ -81,9 +80,9 @@ end
 -- Parse a KNX address from raw bytes
 -- @param addr Unpacked 2 bytes
 local parseKnxAddress = function(addr)
-  local a = bit.rshift(bit.band(addr, 0xf000),12)
-  local b = bit.rshift(bit.band(addr, 0x0f00), 8)
-  local c = bit.band(addr, 0xff)
+  local a = (addr & 0xf000) >> 12
+  local b = (addr & 0x0f00) >>  8
+  local c = addr & 0xff
   return a..'.'..b..'.'..c
 end
 
