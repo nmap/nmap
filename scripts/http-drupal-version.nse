@@ -25,11 +25,7 @@ author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
--- Most probably checking port 443 isn't required.
--- If required enable the following command.
--- portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
-
-portrule = shortport.port_or_service( {80}, {"http"}, "tcp", "open")
+portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 action = function(host, port)
   local resp, version, regex
