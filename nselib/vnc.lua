@@ -370,25 +370,57 @@ VNC = {
     return true
   end,
 
+  handshake_aten = function(self, buffer)
+    -- buffer is 24 bytes, currently unused, no idea what it's for.
+    if #buffer ~= 24 then
+      return false
+    end
+    self.aten = buffer
+    return true
+  end,
+
+  login_aten = function(self, username, password)
+    self.socket:send(username .. ("\0"):rep(24 - #username) .. password .. ("\0"):rep(24 - #password))
+    return self:check_auth_result()
+  end,
+
   handshake_tight = function(self)
+    -- TightVNC security type
     -- https://vncdotool.readthedocs.org/en/0.8.0/rfbproto.html#tight-security-type
-    local status, buf = self.socket:receive_buf(match.numbytes(4), true)
+    -- Sometimes also ATEN KVM VNC:
+    -- https://github.com/thefloweringash/chicken-aten-ikvm
+    local status, buf = self.socket:receive_bytes(4)
     if not status then
       return false, "Failed to get number of tunnels"
     end
+    -- If it's ATEN, it sends 24 bytes right away. Need to try parsing these
+    -- in case it's TightVNC instead, though.
+    local aten = #buf == 24 and buf
     local pos, ntunnels = bin.unpack(">I", buf)
+    -- reasonable limits: ATEN might send a huge number here
+    if ntunnels > 0x10000 then
+      return self:handshake_aten(aten)
+    end
     local tight = {
       tunnels = {},
       types = {}
     }
     if ntunnels > 0 then
-      status, buf = self.socket:receive_buf(match.numbytes(16 * ntunnels), true)
-      if not status then
-        return false, "Failed to get list of tunnels"
+      local have = #buf - pos + 1
+      if have < 16 * ntunnels then
+        local newbuf
+        status, newbuf = self.socket:receive_bytes(16 * ntunnels - have)
+        if not status then
+          if aten then
+            return self:handshake_aten(aten)
+          end
+          return false, "Failed to get list of tunnels"
+        end
+        buf = buf .. newbuf
+        aten = false -- we must have read something beyond 24 bytes
       end
 
       local have_none_tunnel = false
-      pos = 1
       for i=1, ntunnels do
         local tunnel = {}
         pos, tunnel.code, tunnel.vendor, tunnel.signature = bin.unpack(">IA4A8", buf, pos)
@@ -398,6 +430,7 @@ VNC = {
         tight.tunnels[#tight.tunnels+1] = tunnel
       end
 
+      -- at this point, might still be ATEN with a first byte of 1, but chances are it's Tight
       if have_none_tunnel then
         -- Try the "NOTUNNEL" tunnel, for simplicity, if it's available.
         self.socket:send(bin.pack(">I", 0))
@@ -407,23 +440,50 @@ VNC = {
       end
     end
 
-    status, buf = self.socket:receive_buf(match.numbytes(4), true)
-    if not status then
-      return false, "Failed to get number of Tight auth types"
-    end
-    local pos, nauth = bin.unpack(">I", buf)
-    if nauth > 0 then
-      status, buf = self.socket:receive_buf(match.numbytes(16 * nauth), true)
+    local have = #buf - pos + 1
+    if have < 4 then
+      local newbuf
+      status, newbuf = self.socket:receive_bytes(4 - have)
       if not status then
-        return false, "Failed to get list of Tight auth types"
+        if aten then
+          return self:handshake_aten(aten)
+        end
+        return false, "Failed to get number of Tight auth types"
+      end
+      buf = buf .. newbuf
+      if #buf > 24 then aten = false end
+    end
+    local nauth
+    pos, nauth = bin.unpack(">I", buf, pos)
+    -- reasonable limits: ATEN might send a huge number here
+    if nauth > 0x10000 then
+      return self:handshake_aten(aten)
+    end
+    if nauth > 0 then
+      have = #buf - pos + 1
+      if have < 16 * nauth then
+        local newbuf
+        status, newbuf = self.socket:receive_bytes(16 * nauth - have)
+        if not status then
+          if aten then
+            return self:handshake_aten(aten)
+          end
+          return false, "Failed to get list of Tight auth types"
+        end
+        buf = buf .. newbuf
+        if #buf > 24 then aten = false end
       end
 
-      pos = 1
       for i=1, nauth do
         local auth = {}
         pos, auth.code, auth.vendor, auth.signature = bin.unpack(">IA4A8", buf, pos)
         tight.types[#tight.types+1] = auth
       end
+    end
+
+    if aten and pos < 24 then
+      -- server sent 24 bytes but we could only parse some of them. Probably ATEN KVM
+      return self:handshake_aten(aten)
     end
 
     self.tight = tight
@@ -435,6 +495,10 @@ VNC = {
     local status, err = self:handshake_tight()
     if not status then
       return status, err
+    end
+
+    if self.aten then
+      return self:login_aten(username, password)
     end
 
     if #self.tight.types == 0 then
