@@ -377,25 +377,34 @@ VNC = {
       return false, "Failed to get number of tunnels"
     end
     local pos, ntunnels = bin.unpack(">I", buf)
-    status, buf = self.socket:receive_buf(match.numbytes(16 * ntunnels), true)
-    if not status then
-      return false, "Failed to get list of tunnels"
-    end
-
-    pos = 1
     local tight = {
       tunnels = {},
       types = {}
     }
-    for i=1, ntunnels do
-      local tunnel = {}
-      pos, tunnel.code, tunnel.vendor, tunnel.signature = bin.unpack(">IA4A8", buf, pos)
-      tight.tunnels[#tight.tunnels+1] = tunnel
-    end
-
     if ntunnels > 0 then
-      -- for now, just return the first one. TODO: choose a supported tunnel type
-      self.socket:send(bin.pack(">I", tight.tunnels[1].code))
+      status, buf = self.socket:receive_buf(match.numbytes(16 * ntunnels), true)
+      if not status then
+        return false, "Failed to get list of tunnels"
+      end
+
+      local have_none_tunnel = false
+      pos = 1
+      for i=1, ntunnels do
+        local tunnel = {}
+        pos, tunnel.code, tunnel.vendor, tunnel.signature = bin.unpack(">IA4A8", buf, pos)
+        if tunnel.code == 0 then
+          have_none_tunnel = true
+        end
+        tight.tunnels[#tight.tunnels+1] = tunnel
+      end
+
+      if have_none_tunnel then
+        -- Try the "NOTUNNEL" tunnel, for simplicity, if it's available.
+        self.socket:send(bin.pack(">I", 0))
+      else
+        -- for now, just return the first one. TODO: choose a supported tunnel type
+        self.socket:send(bin.pack(">I", tight.tunnels[1].code))
+      end
     end
 
     status, buf = self.socket:receive_buf(match.numbytes(4), true)
@@ -403,16 +412,18 @@ VNC = {
       return false, "Failed to get number of Tight auth types"
     end
     local pos, nauth = bin.unpack(">I", buf)
-    status, buf = self.socket:receive_buf(match.numbytes(16 * nauth), true)
-    if not status then
-      return false, "Failed to get list of Tight auth types"
-    end
+    if nauth > 0 then
+      status, buf = self.socket:receive_buf(match.numbytes(16 * nauth), true)
+      if not status then
+        return false, "Failed to get list of Tight auth types"
+      end
 
-    pos = 1
-    for i=1, nauth do
-      local auth = {}
-      pos, auth.code, auth.vendor, auth.signature = bin.unpack(">IA4A8", buf, pos)
-      tight.types[#tight.types+1] = auth
+      pos = 1
+      for i=1, nauth do
+        local auth = {}
+        pos, auth.code, auth.vendor, auth.signature = bin.unpack(">IA4A8", buf, pos)
+        tight.types[#tight.types+1] = auth
+      end
     end
 
     self.tight = tight
