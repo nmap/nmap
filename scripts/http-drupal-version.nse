@@ -33,9 +33,17 @@ portrule = shortport.port_or_service( {80}, {"http"}, "tcp", "open")
 
 action = function(host, port)
   local resp, version, regex
+  regex = '<meta name="[G|g]enerator" content="Drupal ([0-9 .]*)'
 
   resp = http.get( host, port, "/" )
-  regex = '<meta name="[G|g]enerator" content="Drupal ([0-9 .]*)'
+
+  -- check for a redirect
+  if resp.location then
+    redirect_url = resp.location[#resp.location]
+    if resp.status and tostring( resp.status ):match( "30%d" ) then
+      return {redirect_url = redirect_url}, ("Did not follow redirect to %s"):format( redirect_url )
+    end
+  end
 
   -- try and match version tags
   version = string.match(resp.body, regex)
