@@ -30,17 +30,11 @@ action = function(host, port)
   -- http://www.itwire.com/administrator/manifests/files/joomla.xml
   resp = http.get( host, port, "/administrator/manifests/files/joomla.xml" )
 
-  if ( resp.status == 403 or resp.status == 401) then
-    return "Joomla website but unable to retrieve Joomla version."
-  else if ( resp.status == 404 ) then
-    return "Unable to retrieve the Joomla version."
-  end
-
   -- try and match version tags
   version = string.match(resp.body, '<version>(.*)</version>')
   if( version ) then
-    return "version"
+    return version
   else
-    return "Unable to retrieve the Joomla version."
+    return "Failed to retrieve the Joomla version."
   end
 end
