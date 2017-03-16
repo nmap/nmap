@@ -18,7 +18,7 @@ Detects the WordPress version by scraping the readme page, meta tags and rss fee
 --  @output
 --    PORT   STATE SERVICE
 --    80/tcp open  http
---    |_http-wordpress-version: Version / Unable to retrieve the version / Did not follow redirection
+--    |_http-wordpress-version: Version / Unable to retrieve the version
 --    443/tcp open  http
 --    |_http-wordpress-version: Version / Unable to retrieve the version
 --
@@ -83,6 +83,6 @@ action = function(host, port)
     end
   end
 
+  -- This statement executes if the script is unable to retrieve WordPress version.
   return "Unable to retrieve the Wordpress version."
-
 end
