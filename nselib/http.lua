@@ -338,7 +338,7 @@ local function validate_options(options)
       stdnse.debug1("Proceeding with ntlm message")
     elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af') then
       if(type(value) ~= 'boolean') then
-        stdnse.debug1("http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
+        stdnse.debug1("http: options.%s must be a boolean value", key)
         bad = true
       end
     elseif(key == 'redirect_ok') then
