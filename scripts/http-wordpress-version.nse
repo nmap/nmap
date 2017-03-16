@@ -11,7 +11,7 @@ Detects the WordPress version by scraping the readme page, meta tags and rss fee
 ---
 --  @usage
 --  nmap --script http-wordpress-version <url>
---  nmap --script http-wordpress-version drupal.org
+--  nmap --script http-wordpress-version jquery.com
 --
 --  @args http-wordpress-version.url The url to scan.
 --
@@ -30,11 +30,13 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 action = function(host, port)
-  local resp, version, regex
+  local resp, version, regex, uri
 
   -- Scraping the readme.html file for version.
   regex = '[V|v]ersion ([0-9 .]*)'
-  resp = http.get( host, port, "/readme.html" )
+  uri = "/readme.html"
+  resp = http.get( host, port, uri )
+  stdnse.debug1("HTTP GET %s%s \n", host, uri)
 
   -- try and match version tags
   version = string.match(resp.body, regex)
@@ -44,7 +46,9 @@ action = function(host, port)
 
   -- Scraping the meta tags for version.
   regex =  '<meta name="generator" content="WordPress ([0-9 .]*)" />'
-  resp = http.get( host, port, "/" )
+  uri = "/"
+  resp = http.get( host, port )
+  stdnse.debug1("HTTP GET %s%s \n", host, uri)
 
   -- try and match version tags
   version = string.match(resp.body, regex)
@@ -54,6 +58,7 @@ action = function(host, port)
 
   -- Scraping the WordPress files for version.
   regex =  '/wp-includes\\/js\\/wp-emoji-release.min.js?ver=([0-9 .]*)'
+  stdnse.debug1("HTTP GET %s%s \n", host, uri)
 
   -- try and match version tags
   version = string.match(resp.body, regex)
@@ -64,10 +69,12 @@ action = function(host, port)
   -- Scraping all RSS feeds for finding version.
   links = {"?feed=rss", "?feed=rss2", "?feed=atom", "/feed", "/feed/", "/feed/rss/", "/feed/rss2/", "/feed/atom/"}
   regex = 'v=([0-9 .]*)</generator>'
+  stdnse.debug1("HTTP GET %s%s \n", host, uri)
 
   -- Iterating over every link of the RSS feed.
   for _, path in pairs(links) do
     resp = http.get( host, port, path )
+    stdnse.debug2("HTTP GET %s%s%s\n", host, uri, path)
 
     -- try and match version tags
     version = string.match(resp.body, regex)
