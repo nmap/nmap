@@ -232,6 +232,8 @@ static int resolve_internal(const char *hostname, unsigned short port,
     ncat_assert(hostname != NULL);
     ncat_assert(ss != NULL);
     ncat_assert(sslen != NULL);
+    
+    const char *hostname_home = "0.0.0.0";
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = af;
@@ -242,7 +244,13 @@ static int resolve_internal(const char *hostname, unsigned short port,
     rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
     ncat_assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
 
-    rc = getaddrinfo(hostname, portbuf, &hints, &result);
+
+    if(strcmp(hostname, "0") == 0){
+        rc = getaddrinfo(hostname_home, portbuf, &hints, &result);
+    } else {
+        rc = getaddrinfo(hostname, portbuf, &hints, &result);
+    }
+
     if (rc != 0)
         return rc;
     if (result == NULL)
