@@ -137,16 +137,19 @@ the tool? Many of these examples suppose a Unix environment. -->
   </para>
 
   <para>
-  By default, Ncat uses TCP and IPv4. The option
+  By default, Ncat uses TCP. The option
   <option>--udp</option><indexterm><primary><option>--udp</option> (Ncat option)</primary></indexterm>
   or
   <option>-u</option><indexterm><primary><option>-u</option> (Ncat option)</primary><see><option>--udp</option></see></indexterm>
   enables UDP instead,
-  <option>--sctp</option><indexterm><primary><option>--sctp</option> (Ncat option)</primary></indexterm>
-  enables SCTP,<indexterm><primary>SCTP</primary><secondary>in Ncat</secondary></indexterm>
   and
+  <option>--sctp</option><indexterm><primary><option>--sctp</option> (Ncat option)</primary></indexterm>
+  enables SCTP.<indexterm><primary>SCTP</primary><secondary>in Ncat</secondary></indexterm>
+  Ncat listens on both IPv4 and IPv6, and connects to either address family as well. The
   <option>-6</option><indexterm><primary><option>-6</option> (Ncat option)</primary></indexterm>
-  enables IPv6. See <xref linkend="ncat-protocols"/> for more details.
+  option forces IPv6-only, and
+  <option>-4</option><indexterm><primary><option>-4</option> (Ncat option)</primary></indexterm>
+  forces IPv4-only. See <xref linkend="ncat-protocols"/> for more details.
   The rest of this guide documents all the Ncat options through
   descriptions and examples. For a quick summary of options at any time,
   run
@@ -331,8 +334,8 @@ Content-Type: text/html; charset=UTF-8
 
   <para>
   IPv4,<indexterm significance="preferred"><primary>IPv4</primary><secondary>in Ncat</secondary></indexterm>
-  the Internet Protocol version 4, is the dominant version of the
-  Internet Protocol in use. Ncat uses it by default. Using the
+  the Internet Protocol version 4, is the most popular version of the
+  Internet Protocol in use. Using the
   <option>-4</option><indexterm><primary><option>-4 (Ncat option)</option></primary></indexterm>
   puts Ncat into IPv4-only mode; only IPv4 addresses will be used even
   if, for example, as hostname resolves to IPv6 addresses as well.
@@ -343,6 +346,8 @@ Content-Type: text/html; charset=UTF-8
   is the lesser-used successor to IPv4. Use
   <option>-6</option><indexterm><primary><option>-6</option> (Ncat option)</primary></indexterm>
   to put Ncat into IPv6-only mode.
+  By default, Ncat will listen on both IPv4 and IPv6, and will connect to
+  resolved addresses in the order they are returned by the operating system.
   </para>
 </sect1>
 

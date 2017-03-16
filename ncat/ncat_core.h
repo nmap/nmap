@@ -139,14 +139,20 @@
    a IPV4 INADDR_ANY and a IPV6 in6addr_any at most or a user defined address */
 #define NUM_LISTEN_ADDRS 2
 
+/* Structure to store a linked list of resolved addresses. */
+struct sockaddr_list {
+    union sockaddr_u addr;
+    size_t addrlen;
+    struct sockaddr_list* next;
+};
+
 extern union sockaddr_u listenaddrs[NUM_LISTEN_ADDRS];
 extern int num_listenaddrs;
 
 extern union sockaddr_u srcaddr;
 extern size_t srcaddrlen;
 
-extern union sockaddr_u targetss;
-extern size_t targetsslen;
+extern struct sockaddr_list *targetaddrs;
 
 enum exec_mode {
     EXEC_PLAIN,
@@ -234,6 +240,14 @@ void options_init(void);
    If the global o.nodns is true, then do not resolve any names with DNS. */
 int resolve(const char *hostname, unsigned short port,
             struct sockaddr_storage *ss, size_t *sslen, int af);
+
+/* Resolves the given hostname or IP address with getaddrinfo, and stores
+   all results into a linked list.
+   The rest of behavior is same as resolve(). */
+int resolve_multi(const char *hostname, unsigned short port,
+        struct sockaddr_list *sl, int af);
+
+void free_sockaddr_list(struct sockaddr_list *sl);
 
 int fdinfo_close(struct fdinfo *fdn);
 int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size);

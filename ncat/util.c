@@ -510,7 +510,7 @@ int do_connect(int type)
     /* We need a socket that can be inherited by child processes in
        ncat_exec_win.c, for --exec and --sh-exec. inheritable_socket is from
        nbase. */
-    sock = inheritable_socket(targetss.storage.ss_family, type, 0);
+    sock = inheritable_socket(targetaddrs->addr.storage.ss_family, type, 0);
 
     if (srcaddr.storage.ss_family != AF_UNSPEC) {
         size_t sa_len;
@@ -527,7 +527,7 @@ int do_connect(int type)
     }
 
     if (sock != -1) {
-        if (connect(sock, &targetss.sockaddr, (int) targetsslen) != -1)
+        if (connect(sock, &targetaddrs->addr.sockaddr, (int) targetaddrs->addrlen) != -1)
             return sock;
         else if (socket_errno() == EINPROGRESS || socket_errno() == EAGAIN)
             return sock;

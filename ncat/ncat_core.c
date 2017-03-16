@@ -153,8 +153,7 @@ int num_listenaddrs = 0;
 union sockaddr_u srcaddr;
 size_t srcaddrlen;
 
-union sockaddr_u targetss;
-size_t targetsslen;
+struct sockaddr_list *targetaddrs;
 
 /* Global options structure. */
 struct options o;
@@ -220,18 +219,22 @@ void options_init(void)
 }
 
 /* Internal helper for resolve and resolve_numeric. addl_flags is ored into
-   hints.ai_flags, so you can add AI_NUMERICHOST. */
+   hints.ai_flags, so you can add AI_NUMERICHOST.
+   sl is a pointer to first element of sockaddr linked list, which is always
+   statically allocated. Next list elements are dynamically allocated.
+   If multiple_addrs is false then only first address is returned. */
 static int resolve_internal(const char *hostname, unsigned short port,
-    struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags)
+    struct sockaddr_list *sl, int af, int addl_flags, int multiple_addrs)
 {
     struct addrinfo hints;
     struct addrinfo *result;
+    struct addrinfo *next;
+    struct sockaddr_list **item_ptr = &sl;
+    struct sockaddr_list *new_item;
     char portbuf[16];
     int rc;
 
     ncat_assert(hostname != NULL);
-    ncat_assert(ss != NULL);
-    ncat_assert(sslen != NULL);
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = af;
@@ -248,8 +251,19 @@ static int resolve_internal(const char *hostname, unsigned short port,
     if (result == NULL)
         return EAI_NONAME;
     ncat_assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
-    *sslen = result->ai_addrlen;
-    memcpy(ss, result->ai_addr, *sslen);
+    for (next = result; next != NULL; next = next->ai_next) {
+        if (*item_ptr == NULL)
+        {
+            *item_ptr = (struct sockaddr_list *)safe_malloc(sizeof(struct sockaddr_list));
+            (**item_ptr).next = NULL;
+        }
+        new_item = *item_ptr;
+        new_item->addrlen = next->ai_addrlen;
+        memcpy(&new_item->addr.storage, next->ai_addr, next->ai_addrlen);
+        if (!multiple_addrs)
+            break;
+        item_ptr = &new_item->next;
+    }
     freeaddrinfo(result);
 
     return 0;
@@ -268,12 +282,42 @@ int resolve(const char *hostname, unsigned short port,
     struct sockaddr_storage *ss, size_t *sslen, int af)
 {
     int flags;
+    struct sockaddr_list sl;
+    int result;
 
     flags = 0;
     if (o.nodns)
         flags |= AI_NUMERICHOST;
 
-    return resolve_internal(hostname, port, ss, sslen, af, flags);
+    result = resolve_internal(hostname, port, &sl, af, flags, 0);
+    *ss = sl.addr.storage;
+    *sslen = sl.addrlen;
+    return result;
+}
+
+/* Resolves the given hostname or IP address with getaddrinfo, and stores
+   all results into a linked list.
+   The rest of the behavior is same as resolve(). */
+int resolve_multi(const char *hostname, unsigned short port,
+    struct sockaddr_list *sl, int af)
+{
+    int flags;
+
+    flags = 0;
+    if (o.nodns)
+        flags |= AI_NUMERICHOST;
+
+    return resolve_internal(hostname, port, sl, af, flags, 1);
+}
+
+void free_sockaddr_list(struct sockaddr_list *sl)
+{
+    struct sockaddr_list *current, *next = sl;
+    while (next != NULL) {
+        current = next;
+        next = current->next;
+        free(current);
+    }
 }
 
 int fdinfo_close(struct fdinfo *fdn)

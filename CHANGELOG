@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#157] Ncat will now continue trying to connect to each resolved
+  address for a hostname before declaring the connection refused, allowing it
+  to fallback from IPv6 to IPv4 or to connect to names that use DNS failover.
+  [Jaromir Koncicky, Michal Hlavinka]
+
 o [NSE][GH#743] New script broadcast-ospf2-discover discovers OSPF 2 routers
   and neighbors. OSPFv2 authentication is supported. [Emiliano Ticci]
 

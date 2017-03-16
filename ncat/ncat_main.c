@@ -688,15 +688,18 @@ int main(int argc, char *argv[])
     }
 #endif  /* HAVE_SYS_UN_H */
 
+    /* Create a static target address, because at least one target address must be always allocated */
+    targetaddrs = (struct sockaddr_list *)safe_zalloc(sizeof(struct sockaddr_list));
+
     /* Will be AF_INET or AF_INET6 or AF_UNIX when valid */
-    memset(&targetss.storage, 0, sizeof(targetss.storage));
-    targetss.storage.ss_family = AF_UNSPEC;
-    srcaddr.storage = targetss.storage;
+    memset(&srcaddr.storage, 0, sizeof(srcaddr.storage));
+    srcaddr.storage.ss_family = AF_UNSPEC;
+    targetaddrs->addr.storage = srcaddr.storage;
 
     /* Clear the listenaddrs array */
     int i;
     for (i = 0; i < NUM_LISTEN_ADDRS; i++) {
-        listenaddrs[i].storage = targetss.storage;
+        listenaddrs[i].storage = srcaddr.storage;
     }
 
     if (o.proxyaddr) {
@@ -712,12 +715,12 @@ int main(int argc, char *argv[])
              * (due to the colons in the IPv6 address and host:port separator).
              */
 
-            targetsslen = parseproxy(o.proxyaddr,
-                &targetss.storage, &targetsslen, &proxyport);
+            targetaddrs->addrlen = parseproxy(o.proxyaddr,
+                &targetaddrs->addr.storage, &targetaddrs->addrlen, &proxyport);
             if (o.af == AF_INET) {
-                targetss.in.sin_port = htons(proxyport);
+                targetaddrs->addr.in.sin_port = htons(proxyport);
             } else { // might modify to else if and test AF_{INET6|UNIX|UNSPEC}
-                targetss.in6.sin6_port = htons(proxyport);
+                targetaddrs->addr.in6.sin6_port = htons(proxyport);
             }
         } else {
             bye("Invalid proxy type \"%s\".", o.proxytype);
@@ -796,10 +799,10 @@ int main(int argc, char *argv[])
     } else {
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
-            memset(&targetss.storage, 0, sizeof(struct sockaddr_un));
-            targetss.un.sun_family = AF_UNIX;
-            strncpy(targetss.un.sun_path, argv[optind], sizeof(targetss.un.sun_path));
-            targetsslen = SUN_LEN(&targetss.un);
+            memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_un));
+            targetaddrs->addr.un.sun_family = AF_UNIX;
+            strncpy(targetaddrs->addr.un.sun_path, argv[optind], sizeof(targetaddrs->addr.un.sun_path));
+            targetaddrs->addrlen = SUN_LEN(&targetaddrs->addr.un);
             o.target = argv[optind];
             optind++;
         } else
@@ -813,7 +816,7 @@ int main(int argc, char *argv[])
              * targetss contains data already and you don't want remove them
              */
             if( !o.proxytype
-                && (rc = resolve(o.target, 0, &targetss.storage, &targetsslen, o.af)) != 0)
+                && (rc = resolve_multi(o.target, 0, targetaddrs, o.af)) != 0)
 
                 bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
             optind++;
@@ -851,21 +854,28 @@ int main(int argc, char *argv[])
 
     if (o.proxytype && !o.listen)
         ; /* Do nothing - port is already set to proxyport  */
-    else if (targetss.storage.ss_family == AF_INET)
-        targetss.in.sin_port = htons(o.portno);
+    else {
+        struct sockaddr_list *targetaddrs_item = targetaddrs;
+        while (targetaddrs_item != NULL)
+        {
+            if (targetaddrs_item->addr.storage.ss_family == AF_INET)
+                targetaddrs_item->addr.in.sin_port = htons(o.portno);
 #ifdef HAVE_IPV6
-    else if (targetss.storage.ss_family == AF_INET6)
-        targetss.in6.sin6_port = htons(o.portno);
+            else if (targetaddrs_item->addr.storage.ss_family == AF_INET6)
+                targetaddrs_item->addr.in6.sin6_port = htons(o.portno);
 #endif
 #if HAVE_SYS_UN_H
-    /* If we use Unix domain sockets, we have to count with them. */
-    else if (targetss.storage.ss_family == AF_UNIX)
-        ; /* Do nothing. */
+            /* If we use Unix domain sockets, we have to count with them. */
+            else if (targetaddrs_item->addr.storage.ss_family == AF_UNIX)
+                ; /* Do nothing. */
 #endif
-    else if (targetss.storage.ss_family == AF_UNSPEC)
-        ; /* Leave unspecified. */
-    else
-        bye("Unknown address family %d.", targetss.storage.ss_family);
+            else if (targetaddrs_item->addr.storage.ss_family == AF_UNSPEC)
+                ; /* Leave unspecified. */
+            else
+                bye("Unknown address family %d.", targetaddrs_item->addr.storage.ss_family);
+            targetaddrs_item = targetaddrs_item->next;
+        }
+    }
 
     if (srcport != -1) {
         if (o.listen) {
@@ -877,7 +887,7 @@ int main(int argc, char *argv[])
                 /* We have a source port but not an explicit source address;
                    fill in an unspecified address of the same family as the
                    target. */
-                srcaddr.storage.ss_family = targetss.storage.ss_family;
+                srcaddr.storage.ss_family = targetaddrs->addr.storage.ss_family;
                 if (srcaddr.storage.ss_family == AF_INET)
                     srcaddr.in.sin_addr.s_addr = INADDR_ANY;
                 else if (srcaddr.storage.ss_family == AF_INET6)
@@ -969,8 +979,8 @@ static int ncat_listen_mode(void)
         bye("/bin/sh is not executable, so `-c' won't work.");
 #endif
 
-    if (targetss.storage.ss_family != AF_UNSPEC) {
-        listenaddrs[num_listenaddrs++] = targetss;
+    if (targetaddrs->addr.storage.ss_family != AF_UNSPEC) {
+        listenaddrs[num_listenaddrs++] = targetaddrs->addr;
     } else {
         size_t ss_len;
         int rc;
