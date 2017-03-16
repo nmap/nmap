@@ -47,7 +47,7 @@ action = function(host, port)
   -- Scraping the meta tags for version.
   regex =  '<meta name="generator" content="WordPress ([0-9 .]*)" />'
   uri = "/"
-  resp = http.get( host, port )
+  resp = http.get( host, port, uri )
   stdnse.debug1("HTTP GET %s%s \n", host, uri)
 
   -- try and match version tags
