@@ -869,7 +869,9 @@ static int ncat_listen_dgram(int proto)
          * We're using connected udp. This has the down side of only
          * being able to handle one udp client at a time
          */
-        Connect(socket_n, &remotess.sockaddr, sslen);
+        /* Connect only if not recvonly */
+        if (!o.recvonly)
+            Connect(socket_n, &remotess.sockaddr, sslen);
 
         /* clean slate for buf */
         zmem(buf, sizeof(buf));
