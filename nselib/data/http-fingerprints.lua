@@ -7044,7 +7044,90 @@ table.insert(fingerprints, {
 ----        Open Source CMS checks          ----
 ------------------------------------------------
 
--- Broad wordpress version identification
+-- Wordpress versions (Scraping readme file)
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = '/readme.html',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '[V|v]ersion ([0-9 .]*)',
+      output = 'Wordpress version: \\1'
+    }
+  }
+});
+
+-- Wordpress versions (Scraping metatags and wp-includes)
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = '/',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '<meta name="generator" content="WordPress ([0-9 .]*)" />',
+      output = 'WordPress version: \\1'
+    },
+    {
+      match = '/wp-includes\\/js\\/wp-emoji-release.min.js?ver=([0-9 .]*)',
+      output = 'WordPress version: \\1'
+    }
+  }
+});
+
+-- Wordpress versions (Scraping rss feed)
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      path = '?feed=rss',
+      method = 'GET'
+    },
+    {
+      path = '?feed=rss2',
+      method = 'GET'
+    },
+    {
+      path = '?feed=atom',
+      method = 'GET'
+    },
+    {
+      path = '/feed',
+      method = 'GET'
+    },
+    {
+      path = '/feed/',
+      method = 'GET'
+    },
+    {
+      path = '/feed/rss',
+      method = 'GET'
+    },
+    {
+      path = '/feed/rss2',
+      method = 'GET'
+    },
+    {
+      path = '/feed/atom',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '[v|V]=([0-9 .]*)</generator>',
+      output = 'Wordpress version: \\1'
+    }
+  }
+});
+
+-- Broad wordpress version identification (Gives major only versions)
 table.insert(fingerprints, {
     category = 'cms',
     probes = {
@@ -8369,18 +8452,30 @@ table.insert(fingerprints, {
     }
   });
 
--- Joomla! version
+-- Joomla versions
 table.insert(fingerprints, {
     category = 'cms',
     probes = {
       {
-        path = '/language/en-GB/en-GB.xml'
+        -- Detects versions >= 1.60
+        path = '/administrator/manifests/files/joomla.xml',
+        method = 'GET'
+      },
+      {
+        -- Detects version >= 1.50 and <= 1.5.26
+        path = '/language/en-GB/en-GB.xml',
+        method = 'GET'
+      },
+      {
+        -- Detects version < 1.50
+        path = '/modules/custom.xml',
+        method = 'GET'
       }
     },
     matches = {
       {
         match = '<version>(.-)</version>',
-        output = 'Joomla! '
+        output = 'Joomla version \\1'
       }
     }
   });
@@ -8422,6 +8517,24 @@ table.insert(fingerprints, {
       }
     }
   });
+
+-- Drupal version
+table.insert(fingerprints, {
+  category = 'cms',
+  probes = {
+    {
+      -- Must be executed on both ports 80, 443 for accurate results
+      path = '/',
+      method = 'GET'
+    }
+  },
+  matches = {
+    {
+      match = '<meta name="[G|g]enerator" content="Drupal ([0-9 .]*)',
+      output = 'Drupal version \\1'
+    }
+  }
+})
 
 -- Moodle
 table.insert(fingerprints, {
