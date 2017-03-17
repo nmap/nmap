@@ -7149,27 +7149,7 @@ table.insert(fingerprints, {
     },
     matches = {
       {
-        match = 'ver=20080708',
-        output = 'WordPress 2.6.x found'
-      },
-      {
-        match = 'ver=20081210',
-        output = 'WordPress 2.7.x found'
-      },
-      {
-        match = 'ver=20090514',
-        output = 'WordPress 2.8.x found'
-      },
-      {
-        match = 'ver=20091217',
-        output = 'WordPress 2.9.x found'
-      },
-      {
-        match = 'ver=20100601',
-        output = 'WordPress 3.0.x found'
-      },
-      {
-        output = 'Wordpress login page.'
+        output = 'Wordpress login page found.'
       }
     }
   });
