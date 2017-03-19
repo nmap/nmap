@@ -86,10 +86,10 @@ Warning: Supplied argument is not a valid File%-Handle resource in
 Warning: mysql_query%(%)
 Warning: pg_connect%(%): Unable to connect to PostgreSQL server: FATAL
 Warning: require(%)
-error in your SQL syntax near
 array_merge()
 data source=
 detected an internal error %[IBM%]%[CLI Driver%]%[DB2/6000%]
+error in your SQL syntax near
 getimagesize()
 include_path
 invalid query
