@@ -11,7 +11,7 @@ Detects the django version running on port 80 or 8000 by finding the diff in adm
 ---
 -- @usage
 -- nmap --script http-django-version <site-url>
--- nmap --script http-django-version myciip.com
+-- nmap --script http-django-version scanme.nmap.org
 --
 -- @args http-django-version.url. The url to scan.
 --
