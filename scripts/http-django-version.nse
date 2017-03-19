@@ -35,14 +35,17 @@ local parse = function(host, port, path)
   response = http.get(host, port, path)
   
   -- check for pattern in admin .html
-
-  str = string.match(response.body, '<div id="branding">(.*)</div>')
-  if (str) then
-    version = ">=1.5"
-    return version
+  if (string.match(response.body, '<h1>Not Found</h1>')) then
+    return "No Django server running"
   else
-    version = "<=1.5"
-    return version
+    str = string.match(response.body, '<div id="branding">(.*)</div>')
+    if (str) then
+      version = ">=1.5"
+      return version
+    else
+      version = "<=1.5"
+      return version
+    end
   end
 end
 
