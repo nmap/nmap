@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#773] Ncat in server mode properly handles TLS renegotiations and
+  other situations where SSL_read returns a non-fatal error. This was causing
+  SSL-over-TCP connections to be dropped. [Daniel Miller]
+
 o [Ncat][GH#157] Ncat will now continue trying to connect to each resolved
   address for a hostname before declaring the connection refused, allowing it
   to fallback from IPv6 to IPv4 or to connect to names that use DNS failover.
