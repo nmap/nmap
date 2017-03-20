@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Handle any and all socket connect errors the same: raise as an Nsock
+  error instead of fatal. This prevents Nmap and Ncat from quitting with
+  "Strange error from connect:" [Daniel Miller]
+
 o [Ncat][GH#773] Ncat in server mode properly handles TLS renegotiations and
   other situations where SSL_read returns a non-fatal error. This was causing
   SSL-over-TCP connections to be dropped. [Daniel Miller]
