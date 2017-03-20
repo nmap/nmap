@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -42,7 +41,7 @@ portrule = shortport.portnumber(1604, "udp")
 -- @return string row delimited with \n containing all published applications
 function process_pa_response(response)
 
-  local pos, packet_len = bin.unpack("<S", response)
+  local packet_len, pos = string.unpack("<I2", response)
   local app_name
   local pa_list = {}
 
@@ -54,7 +53,7 @@ function process_pa_response(response)
   local offset = 41
 
   while offset < packet_len do
-    pos, app_name = bin.unpack("z", response:sub(offset))
+    app_name, pos = string.unpack("z", response:sub(offset))
     offset = offset + pos - 1
 
     table.insert(pa_list, app_name)
