@@ -25,10 +25,10 @@ o [NSE][GH#740] New script http-vuln-cve2017-5638 checks for the RCE bug in
 o [NSE] Added several commands to redis-info to extract listening addresses,
   connected clients, active channels, and cluster nodes. [Vasiliy Kulikov]
 
-o [GH#679][GH#681][NSE] Refreshed script http-robtex-reverse-ip, reflecting
+o [NSE][GH#679][GH#681] Refreshed script http-robtex-reverse-ip, reflecting
   changes at the source site (www.robtex.com). [aDoN]
 
-o [GH#708][NSE] TLS SNI now works correctly for NSE HTTP requests initiated
+o [NSE][GH#708] TLS SNI now works correctly for NSE HTTP requests initiated
   with option any_af. As an added benefit, option any_af is now available for
   all connections via comm.lua, not just HTTP requests. [nnposter]
 
@@ -37,27 +37,27 @@ o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
   Pairing is PIN-protected, and the script can optionally brute-force the PIN.
   New service probe and match line also added. [Jeremy Hiebert]
 
-o [GH#620][GH#715][NSE] Added 8 new http-enum fingerprints for Hadoop
+o [NSE][GH#620][GH#715] Added 8 new http-enum fingerprints for Hadoop
   infrastructure components. [Thomas Debize, Varunram Ganesh]
 
-o [GH#629][NSE] Added two new fingerprints to http-default-accounts
+o [NSE][GH#629] Added two new fingerprints to http-default-accounts
   (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
 
-o [GH#716][NSE] Fix for oracle-tns-version which was sending an invalid TNS
+o [NSE][GH#716] Fix for oracle-tns-version which was sending an invalid TNS
   probe due to a string escaping mixup. [Alexandr Savca]
 
-o [GH#671][NSE] New script cics-user-brute does brute-force enumeration of CICS
+o [NSE][GH#671] New script cics-user-brute does brute-force enumeration of CICS
   usernames on IBM TN3270 services. [Soldier of Fortran]
 
-o [GH#671][NSE] New script cics-info checks IBM TN3270 services for CICS transaction
-  services and extracts useful information. [Soldier of Fortran]
+o [NSE][GH#671] New script cics-info checks IBM TN3270 services for CICS
+  transaction services and extracts useful information. [Soldier of Fortran]
 
-o [GH#669][NSE] New script http-cookie-flags checks HTTP session cookies for
+o [NSE][GH#669] New script http-cookie-flags checks HTTP session cookies for
   HTTPOnly and Secure flags. [Steve Benson]
 
-o [GH#694][NSE] ike-version now outputs information about supported attributes and
-  unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was submitted
-  by Alexis La Goutte. [Daniel Miller]
+o [NSE][GH#694] ike-version now outputs information about supported attributes
+  and unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was
+  submitted by Alexis La Goutte. [Daniel Miller]
 
 o [GH#700] Enabled support for TLS SNI on the Windows platform. [nnposter]
 
