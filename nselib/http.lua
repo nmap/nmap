@@ -762,6 +762,9 @@ parse_set_cookie = function (s)
   while s:sub(pos, pos) == ";" do
     pos = pos + 1
     pos = skip_space(s, pos)
+    if pos > #s then
+      break
+    end
     pos, name = get_token(s, pos)
     if not name then
       return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
