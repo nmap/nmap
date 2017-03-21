@@ -129,6 +129,10 @@ local remove = table.remove;
 local sort = table.sort;
 local unpack = table.unpack;
 
+local os = require "os"
+local time = os.time
+local difftime = os.difftime
+
 do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   local function loader (lib)
     lib = lib:gsub("%.", "/"); -- change Lua "module separator" to directory separator
@@ -389,7 +393,7 @@ do
     -- checking whether user gave --script-timeout option or not
     if cnse.script_timeout and cnse.script_timeout > 0 then
       -- comparing script's timeout with time elapsed
-      script_timeout = cnse.script_timeout < os.difftime(os.time(), self.start_time)
+      script_timeout = cnse.script_timeout < difftime(time(), self.start_time)
     end
     if self.type == "hostrule" or self.type == "portrule" then
       host_timeout = cnse.timedOut(self.host);
@@ -419,7 +423,7 @@ do
     if self.worker then
       self.start_time = self.parent.start_time
     else
-      self.start_time = os.time()
+      self.start_time = time()
     end
   end
 
