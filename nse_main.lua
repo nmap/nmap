@@ -991,6 +991,41 @@ local function run (threads_iter, hosts)
           thread:d("Waiting: %THREAD_AGAINST\n\t%s",
               (gsub(traceback(co), "\n", "\n\t")));
         end
+      elseif debugging() >= 1 then
+        local display = {}
+        local limit = 0
+        for co, thread in pairs(running) do
+          local this = display[thread.short_basename]
+          if not this then
+            this = {}
+            limit = limit + 1
+            if limit > 5 then
+              -- Only print stats if 5 or fewer scripts remaining
+              break
+            end
+          end
+          this[1] = (this[1] or 0) + 1
+          display[thread.short_basename] = this
+        end
+        for co, thread in pairs(waiting) do
+          local this = display[thread.short_basename]
+          if not this then
+            this = {}
+            limit = limit + 1
+            if limit > 5 then
+              -- Only print stats if 5 or fewer scripts remaining
+              break
+            end
+          end
+          this[2] = (this[2] or 0) + 1
+          display[thread.short_basename] = this
+        end
+        if limit <= 5 then
+          for name, stats in pairs(display) do
+            print_debug(1, "Script %s: %d threads running, %d threads waiting",
+              name, stats[1] or 0, stats[2] or 0)
+          end
+        end
       end
     elseif total > 0 and progress "mayBePrinted" then
       if verbosity() > 1 or debugging() > 0 then
