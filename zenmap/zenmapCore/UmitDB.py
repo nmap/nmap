@@ -266,13 +266,6 @@ class UmitDB(object):
     def create_db(self):
         drop_string = "DROP TABLE scans;"
 
-        try:
-            self.cursor.execute(drop_string)
-        except:
-            connection.rollback()
-        else:
-            connection.commit()
-
         creation_string = """CREATE TABLE scans (
             scans_id INTEGER PRIMARY KEY AUTOINCREMENT,
             scan_name TEXT,
@@ -280,8 +273,18 @@ class UmitDB(object):
             digest TEXT,
             date INTEGER)"""
 
-        self.cursor.execute(creation_string)
-        connection.commit()
+        try:
+            self.cursor.execute(drop_string)
+        except:
+            connection.rollback()
+        else:
+            connection.commit()
+            try:
+                self.cursor.execute(creation_string)
+            except:
+                connection.rollback()
+            else:
+                connection.commit()
 
     def add_scan(self, **kargs):
         return Scans(**kargs)
