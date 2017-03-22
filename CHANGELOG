@@ -19,8 +19,8 @@ o [Ncat][GH#157] Ncat will now continue trying to connect to each resolved
 o [NSE][GH#743] New script broadcast-ospf2-discover discovers OSPF 2 routers
   and neighbors. OSPFv2 authentication is supported. [Emiliano Ticci]
 
-o [NSE][GH#740] New script http-vuln-cve2017-5638 checks for the RCE bug in
-  Apache Struts. [Seth Jackson]
+o [NSE][GH#740][GH#759] New script http-vuln-cve2017-5638 checks for the RCE
+  bug in Apache Struts2. [Seth Jackson]
 
 o [NSE] Added several commands to redis-info to extract listening addresses,
   connected clients, active channels, and cluster nodes. [Vasiliy Kulikov]
