@@ -139,12 +139,12 @@ action = function(host, port)
   local status, err = socket:connect(host, port)
   local data
 
-  status, data = exchPacket(socket, bin.pack("H", handshake))
+  status, data = exchPacket(socket, stdnse.fromhex( handshake))
   if ( not(status) ) then
     return fail("Failed to perform handshake with MaxDB server")
   end
 
-  status, data = exchPacket(socket, bin.pack("H", dbm_version))
+  status, data = exchPacket(socket, stdnse.fromhex( dbm_version))
   if ( not(status) ) then
     return fail("Failed to request version information from server")
   end
@@ -159,7 +159,7 @@ action = function(host, port)
     table.insert(result, ("%s: %s"):format(f, version_info[f:upper()]))
   end
 
-  status, data = exchCommand(socket, bin.pack("H", db_enum))
+  status, data = exchCommand(socket, stdnse.fromhex( db_enum))
   socket:close()
   if ( not(status) ) then
     return fail("Failed to request version information from server")

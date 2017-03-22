@@ -79,7 +79,7 @@ local helloQuery = function(interface, dstip)
   local srcip = interface.address
 
   local hello_raw = helloRaw()
-  local ip_raw = bin.pack("H", "45c00040ed780000016718bc0a00c8750a00c86b") .. hello_raw
+  local ip_raw = stdnse.fromhex( "45c00040ed780000016718bc0a00c8750a00c86b") .. hello_raw
   hello_packet = packet.Packet:new(ip_raw, ip_raw:len())
   hello_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
   hello_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))

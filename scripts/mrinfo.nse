@@ -189,7 +189,7 @@ local mrinfoQuery = function(interface, dstip)
   local srcip = interface.address
 
   local mrinfo_raw = mrinfoRaw()
-  local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw
+  local ip_raw = stdnse.fromhex( "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw
   mrinfo_packet = packet.Packet:new(ip_raw, ip_raw:len())
   mrinfo_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
   mrinfo_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))

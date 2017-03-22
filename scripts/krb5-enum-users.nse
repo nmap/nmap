@@ -174,7 +174,7 @@ KRB5 = {
     princ = encoder:encode( name_type ) .. princ
 
     -- not sure about how this works, but apparently it does
-    princ = bin.pack("H", "A003") .. princ
+    princ = stdnse.fromhex( "A003") .. princ
     princ = self:encodeSequence(encoder,0x30, princ)
 
     return princ
@@ -234,7 +234,7 @@ KRB5 = {
     data = '\0' .. data
 
     -- hmm, wonder what this is
-    data = bin.pack("H", "A0070305") .. data
+    data = stdnse.fromhex( "A0070305") .. data
     data = self:encodeSequence(encoder, 0x30, data)
     data = self:encodeSequence(encoder, 0xA4, data)
     data = self:encodeSequence(encoder, 0xA2, encoder:encode(KRB5.MessageType['AS-REQ'])) .. data

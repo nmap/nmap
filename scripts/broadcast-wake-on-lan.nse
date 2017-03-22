@@ -36,7 +36,7 @@ end
 -- @param mac string containing the MAC without delimiters
 -- @return packet string containing the raw packet
 local function createWOLPacket(mac)
-  return "\xff\xff\xff\xff\xff\xff" .. string.rep(bin.pack("H", mac), 16)
+  return "\xff\xff\xff\xff\xff\xff" .. string.rep(stdnse.fromhex( mac), 16)
 end
 
 local function fail (err) return stdnse.format_output(false, err) end
