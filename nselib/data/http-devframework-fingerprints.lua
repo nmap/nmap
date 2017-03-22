@@ -383,4 +383,22 @@ tools = { Django = { rapidDetect = function(host, port)
     end
   },
 
+  Web2py = { rapidDetect = function(host, port)
+
+      local response = http.get(host, port, "/admin/default/index")
+
+      if response and response.body then
+          if(string.find(response.body, "web2py™ Web Framework") or 
+             string.find(response.body, "Massimo Di Pierro") or
+             string.find(response.body, "<span>web2py™ administrative interface</span>")) then
+              return "Web2py detected. Found traces on /admin/default/index"
+          end
+      end
+   end,
+
+   consumingDetect = function(page, path)
+     return
+   end
+  },         
+
 }

@@ -47,7 +47,7 @@ local stdnse = require "stdnse"
 local httpspider = require "httpspider"
 local _G = require "_G"
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.port_or_service( {80, 443, 8000}, {"http", "https"}, "tcp", "open")
 
 local function loadFingerprints(filename)
 
@@ -60,7 +60,6 @@ local function loadFingerprints(filename)
   stdnse.debug1("Loading fingerprints: %s", filename)
   local env = setmetatable({fingerprints = {}}, {__index = _G});
   file = loadfile(filename, "t", env)
-
   if( not(file) ) then
     stdnse.debug1("Couldn't load the file: %s", filename)
     return
@@ -68,7 +67,7 @@ local function loadFingerprints(filename)
 
   file()
   fingerprints = env.tools
-
+  
   return fingerprints
 
 end
