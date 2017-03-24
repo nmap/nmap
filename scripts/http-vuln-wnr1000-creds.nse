@@ -67,13 +67,17 @@ action = function(host, port)
 
     local detection_session = http.get(host, port, uri)
 
-    if detection_session then
+    if detection_session.status then
+      if not detection_session.body then
+        stdnse.debug1("No response body")
+        return vuln_report:make_output(vuln)
+      end
         -- gather the id
         local id_netgear = string.match(escape(detection_session.body), ('(id=%d+)'))
 
         if id_netgear == nil then
-            stdnse.debug1("Unable to obtain the id")
-            return
+          stdnse.debug1("Unable to obtain the id")
+          return vuln_report:make_output(vuln)
         else
             -- send the payload to get username and password
             local payload_session = http.post(host, port, uri .. "passwordrecovered.cgi?" .. id_netgear, { no_cache = true }, nil, "")
