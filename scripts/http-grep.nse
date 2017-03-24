@@ -71,7 +71,7 @@ The script searches for email and ip by default.
 -- @args http-grep.withindomain only spider URLs within the same
 --       domain. This widens the scope from <code>withinhost</code> and can
 --       not be used in combination. (default: false)
--- @args http.breakonmatch Returns output if there is a match for a single pattern type.
+-- @args http-grep.breakonmatch Returns output if there is a match for a single pattern type.
 -- @args http-grep.builtins supply a single or a list of built in types. supports email, phone, mastercard, discover,
 -- visa, amex, ssn and ip addresses. If you just put in script-args http-grep.builtins then all will be enabled.
 --

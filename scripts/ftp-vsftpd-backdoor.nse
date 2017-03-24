@@ -24,7 +24,7 @@ References:
 -- @usage
 -- nmap --script ftp-vsftpd-backdoor -p 21 <host>
 --
--- @args exploit.cmd or ftp-vsftpd-backdoor.cmd Command to execute in shell
+-- @args ftp-vsftpd-backdoor.cmd Command to execute in shell
 --       (default is <code>id</code>).
 --
 -- @output

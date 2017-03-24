@@ -16,7 +16,7 @@ present in modern implementation due to poor configuration of the service.
 -- @output
 -- PORT     STATE SERVICE
 -- 3632/tcp open  distccd
--- | distcc-test:
+-- | distcc-exec:
 -- |   VULNERABLE:
 -- |   distcc Daemon Command Execution
 -- |     State: VULNERABLE (Exploitable)

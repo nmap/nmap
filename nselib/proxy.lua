@@ -1,6 +1,9 @@
 ---
 -- Functions for proxy testing.
 --
+-- @args proxy.url Url that will be requested to the proxy
+-- @args proxy.pattern Pattern that will be searched inside the request results
+--
 -- @author Joao Correa <joao@livewire.com.br>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 

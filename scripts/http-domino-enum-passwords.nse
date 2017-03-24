@@ -30,12 +30,12 @@ and password or indirectly from results of http-brute or http-form-brute.
 
 ---
 -- @usage
--- nmap --script domino-enum-passwords -p 80 <host> --script-args domino-enum-passwords.username='patrik karlsson',domino-enum-passwords.password=secret
+-- nmap --script http-domino-enum-passwords -p 80 <host> --script-args http-domino-enum-passwords.username='patrik karlsson',http-domino-enum-passwords.password=secret
 --
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | domino-enum-passwords:
+-- | http-domino-enum-passwords:
 -- |   Information
 -- |     Information retrieved as: "Jim Brass"
 -- |   Internet hashes (salted, jtr: --format=DOMINOSEC)
@@ -64,17 +64,19 @@ and password or indirectly from results of http-brute or http-form-brute.
 -- |      Nick Stokes ID File has been downloaded (/tmp/id/Nick Stokes.id)
 -- |      Catherine Willows ID File has been downloaded (/tmp/id/Catherine Willows.id)
 -- |
--- |_  Results limited to 10 results (see domino-enum-passwords.count)
+-- |_  Results limited to 10 results (see http-domino-enum-passwords.count)
 --
 --
--- @args domino-enum-passwords.path points to the path protected by authentication
--- @args domino-enum-passwords.hostname sets the host header in case of virtual hosting
--- @args domino-enum-passwords.count the number of internet hashes and id files to fetch.
+-- @args http-domino-enum-passwords.path points to the path protected by
+--       authentication. Default:"/names.nsf/People?OpenView"
+-- @args http-domino-enum-passwords.hostname sets the host header in case of virtual hosting.
+--       Not needed if target is specified by name.
+-- @args http-domino-enum-passwords.count the number of internet hashes and id files to fetch.
 --       If a negative value is given, all hashes and id files are retrieved (default: 10)
--- @args domino-enum-passwords.idpath the path where downloaded ID files should be saved
+-- @args http-domino-enum-passwords.idpath the path where downloaded ID files should be saved
 --       If not given, the script will only indicate if the ID file is donwloadable or not
--- @args domino-enum-passwords.username Username for HTTP auth, if required
--- @args domino-enum-passwords.password Password for HTTP auth, if required
+-- @args http-domino-enum-passwords.username Username for HTTP auth, if required
+-- @args http-domino-enum-passwords.password Password for HTTP auth, if required
 
 --
 -- Version 0.4
@@ -212,15 +214,15 @@ local function fail (err) return stdnse.format_output(false, err) end
 
 action = function(host, port)
 
-  local path = "/names.nsf"
-  local download_path = stdnse.get_script_args('domino-enum-passwords.idpath')
-  local vhost= stdnse.get_script_args('domino-enum-passwords.hostname')
-  local user = stdnse.get_script_args('domino-enum-passwords.username')
-  local pass = stdnse.get_script_args('domino-enum-passwords.password')
+  local path = stdnse.get_script_args(SCRIPT_NAME .. '.path') or "/names.nsf/People?OpenView"
+  local download_path = stdnse.get_script_args(SCRIPT_NAME .. '.idpath')
+  local vhost= stdnse.get_script_args(SCRIPT_NAME .. '.hostname')
+  local user = stdnse.get_script_args(SCRIPT_NAME .. '.username')
+  local pass = stdnse.get_script_args(SCRIPT_NAME .. '.password')
   local pos, pager
   local links, result, hashes,legacyHashes, id_files = {}, {}, {}, {},{}
   local chunk_size = 30
-  local max_fetch = tonumber(stdnse.get_script_args('domino-enum-passwords.count')) or 10
+  local max_fetch = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.count')) or 10
   local http_response
   local has_creds = false
   -- authentication required?
@@ -242,12 +244,11 @@ action = function(host, port)
       end
       if not pass then
         local msg = has_creds and "No valid credentials were found" or "No credentials supplied"
-        return fail(("%s (see domino-enum-passwords.username and domino-enum-passwords.password)"):format(msg))
+        return fail(("%s (see http-domino-enum-passwords.username and http-domino-enum-passwords.password)"):format(msg))
       end
     end
   end
 
-  path = "/names.nsf/People?OpenView"
   http_response = http.get( vhost or host, port, path, { auth = { username = user, password = pass }, no_cache = true })
   if http_response.status and http_response.status ==200 then
     pager = getPager( http_response.body )
@@ -346,7 +347,7 @@ action = function(host, port)
   local result = stdnse.format_output(true, result)
 
   if ( max_fetch > 0 ) then
-    result = result .. ("  \n  Results limited to %d results (see domino-enum-passwords.count)"):format(max_fetch)
+    result = result .. ("  \n  Results limited to %d results (see http-domino-enum-passwords.count)"):format(max_fetch)
   end
 
   return result

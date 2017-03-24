@@ -53,7 +53,7 @@ the following rules:
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | http-brute:
+-- | http-form-brute:
 -- |   Accounts
 -- |     Patrik Karlsson:secret - Valid credentials
 -- |   Statistics

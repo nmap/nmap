@@ -23,7 +23,7 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 -- nmap -e <interface> --script lltd-discovery
 --
 -- @args lltd-discovery.interface string specifying which interface to do lltd discovery on.  If not specified, all ethernet interfaces are tried.
--- @args lltd-discover.timeout timespec specifying how long to listen for replies (default 30s)
+-- @args lltd-discovery.timeout timespec specifying how long to listen for replies (default 30s)
 --
 -- @output
 -- | lltd-discovery:

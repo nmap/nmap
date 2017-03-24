@@ -44,7 +44,6 @@ Reference:
 -- |       http://osvdb.org/72156
 -- |_      http://bugs.exim.org/show_bug.cgi?id=1106
 --
--- @args smtp.domain Define the domain to be used in the SMTP EHLO command.
 -- @args smtp-vuln-cve2011-1764.mailfrom Define the source email address to
 --       be used.
 -- @args smtp-vuln-cve2011-1764.mailto Define the destination email address

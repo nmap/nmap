@@ -42,7 +42,7 @@ Hidden fields will be listed below the screen with (row, col) coordinates.
 -- |
 -- |_Your IP(10.10.10.375   :64199), SNA LU(        )       05/30/15 13:33:37
 --
--- @args tn3270.commands a semi-colon separated list of commands you want to
+-- @args tn3270-screen.commands a semi-colon separated list of commands you want to
 --                       issue before printing the screen
 --
 --

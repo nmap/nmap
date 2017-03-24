@@ -15,11 +15,10 @@ of system.methodHelp for each method returned by listMethods.
 ]]
 
 ---
--- @usage nmap xmlrpc-info <target>
---
--- @args xmlrpc-info.url The URI path to request.
+-- @args xmlrpc-methods.url The URI path to request.
 --
 -- @output
+-- | xmlrpc-methods:
 -- |   Supported Methods:
 -- |     list
 -- |     system.listMethods

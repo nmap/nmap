@@ -31,7 +31,7 @@ For more information, see:
 --
 --@output
 -- Pre-scan script results:
--- | llmnr-query:
+-- | llmnr-resolve:
 -- |   acer-PC : 192.168.1.4
 -- |_  Use the newtargets script-arg to add the results as targets
 --

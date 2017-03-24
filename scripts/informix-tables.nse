@@ -43,8 +43,8 @@ Retrieves a list of tables and column definitions for each database on an Inform
 -- |     warehouses          warehouse_name      4
 -- |_    warehouses          warehouse_spec      4
 --
--- @args informix-query.username The username used for authentication
--- @args informix-query.password The password used for authentication
+-- @args informix-tables.username The username used for authentication
+-- @args informix-tables.password The password used for authentication
 --
 -- Version 0.1
 -- Created 27/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -63,8 +63,8 @@ action = function( host, port )
   local helper
   local status, data
   local result, output = {}, {}
-  local user = stdnse.get_script_args('informix-tables.username')
-  local pass = stdnse.get_script_args('informix-tables.password') or ""
+  local user = stdnse.get_script_args(SCRIPT_NAME .. '.username')
+  local pass = stdnse.get_script_args(SCRIPT_NAME .. '.password') or ""
   local query= [[
     SELECT cast(tabname as char(20)) table, cast(colname as char(20)) column, cast( cast(nrows as int) as char(20)) rows
     FROM "informix".systables st, "informix".syscolumns sc

@@ -33,12 +33,12 @@ Original check by by Worawit Wang (sleepya).
 
 ---
 -- @usage
--- nmap -sV --script=rdp-ms12-020 -p 3389 <target>
+-- nmap -sV --script=rdp-vuln-ms12-020 -p 3389 <target>
 --
 -- @output
 -- PORT     STATE SERVICE        VERSION
 -- 3389/tcp open  ms-wbt-server?
--- | rdp-ms12-020:
+-- | rdp-vuln-ms12-020:
 -- |   VULNERABLE:
 -- |   MS12-020 Remote Desktop Protocol Denial Of Service Vulnerability
 -- |     State: VULNERABLE

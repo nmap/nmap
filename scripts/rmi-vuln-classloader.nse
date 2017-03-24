@@ -24,7 +24,7 @@ References:
 -- @output
 -- PORT     STATE SERVICE
 -- 1099/tcp open  rmiregistry
--- | rmi-vuln:
+-- | rmi-vuln-classloader:
 -- |   VULNERABLE:
 -- |   RMI registry default configuration remote code execution vulnerability
 -- |     State: VULNERABLE

@@ -12,19 +12,19 @@ CICS User ID brute forcing script for the CESL login screen.
 ]]
 
 ---
--- @args cics-user-enum.commands Commands in a semi-colon seperated list needed
+-- @args cics-user-brute.commands Commands in a semi-colon seperated list needed
 --  to access CICS. Defaults to <code>CICS</code>.
 --
 -- @usage
--- nmap --script=cics-user-enum -p 23 <targets>
+-- nmap --script=cics-user-brute -p 23 <targets>
 --
--- nmap --script=cics-user-enum --script-args userdb=users.txt,
--- cics-user-enum.commands="exit;logon applid(cics42)" -p 23 <targets>
+-- nmap --script=cics-user-brute --script-args userdb=users.txt,
+-- cics-user-brute.commands="exit;logon applid(cics42)" -p 23 <targets>
 --
 -- @output
 -- PORT   STATE SERVICE
 -- 23/tcp open  tn3270
--- | cics-user-enum:
+-- | cics-user-brute:
 -- |   Accounts:
 -- |     PLAGUE: Valid - CICS User ID
 -- |_  Statistics: Performed 31 guesses in 114 seconds, average tps: 0

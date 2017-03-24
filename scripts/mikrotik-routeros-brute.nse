@@ -18,7 +18,7 @@ Additional information:
 -- |   Statistics
 -- |_    Performed 60 guesses in 602 seconds, average tps: 0
 --
--- @args mikrotik-routerous-brute.threads sets the number of threads. Default: 1
+-- @args mikrotik-routeros-brute.threads sets the number of threads. Default: 1
 --
 ---
 
