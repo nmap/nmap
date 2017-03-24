@@ -1,4 +1,3 @@
-local bin = require "bin"
 local coroutine = require "coroutine"
 local dhcp = require "dhcp"
 local ipOps = require "ipOps"
@@ -180,7 +179,7 @@ action = function()
 
   if( not(interfaces) ) then return fail("Failed to retrieve interfaces (try setting one explicitly using -e)") end
 
-  local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
+  local transaction_id = string.pack("<I4", math.random(0, 0x7FFFFFFF))
   local request_type = dhcp.request_types["DHCPDISCOVER"]
   local ip_address = ipOps.ip_to_str("0.0.0.0")
 
