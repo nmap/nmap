@@ -256,7 +256,7 @@ igmpQuery = function(interface, version)
   else
     local igmp_raw = igmpRaw(interface, version)
 
-    local ip_raw = bin.pack("H", "45c00040ed780000010218bc0a00c8750a00c86b") .. igmp_raw
+    local ip_raw = stdnse.fromhex( "45c00040ed780000010218bc0a00c8750a00c86b") .. igmp_raw
     local igmp_packet = packet.Packet:new(ip_raw, ip_raw:len())
     igmp_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
     igmp_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))

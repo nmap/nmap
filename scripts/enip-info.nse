@@ -1371,7 +1371,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host,port)
   -- pack the request identity packet (0x63)
-  local enip_req_ident = bin.pack("H","63000000000000000000000000000000c1debed100000000")
+  local enip_req_ident = stdnse.fromhex("63000000000000000000000000000000c1debed100000000")
   -- create table for output
   local output = stdnse.output_table()
   -- create local vars for socket handling

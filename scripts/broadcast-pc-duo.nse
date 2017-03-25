@@ -1,4 +1,3 @@
-local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
@@ -90,7 +89,7 @@ action = function()
     {
       host = { ip = "255.255.255.255" },
       port = { number = 1505, protocol = "udp" },
-      data =  bin.pack("H", "00808008ff00"),
+      data =  stdnse.fromhex("00808008ff00"),
       match= "^.........(%w*)\0",
       topic= "PC-Duo Hosts"
     },
@@ -98,7 +97,7 @@ action = function()
     {
       host = { ip = "255.255.255.255" },
       port = { number = 2303, protocol = "udp" },
-      data =  bin.pack("H", "20908008ff00"),
+      data =  stdnse.fromhex("20908008ff00"),
       match= "^.........(%w*)\0",
       topic= "PC-Duo Gateway Server"
     },
