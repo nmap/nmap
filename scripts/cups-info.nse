@@ -62,7 +62,7 @@ action = function(host, port)
       [ipp.IPP.PrinterState.IPP_PRINTER_PROCESSING] = "Processing",
       [ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
     }
-    local pos, state = string.unpack(">I4", printer.state)
+    local state = string.unpack(">I4", printer.state)
     table.insert(output, {
       name = printer.name,
       ("DNS-SD Name: %s"):format(printer.dns_sd_name or ""),

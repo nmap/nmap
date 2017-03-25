@@ -49,7 +49,7 @@ action = function(host, port)
     return nil
   end
 
-  local pos, realport = string.unpack(">I4", data)
+  local realport, pos = string.unpack(">I4", data)
   data = string.sub(data, pos)
 
   local nodes = stdnse.output_table()
