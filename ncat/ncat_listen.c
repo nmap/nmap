@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -333,7 +333,7 @@ static int ncat_listen_stream(int proto)
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
-        
+
 
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", client_fdlist.fdmax);
@@ -409,8 +409,13 @@ static int ncat_listen_stream(int proto)
                 if (o.broker) {
                     read_and_broadcast(i);
                 } else {
-                    /* Read from stdin and write to all clients. */
-                    rc = read_stdin();
+                    /* Read from stdin and write to all clients.
+                       Checking whether delimiter is used or not. */
+                    if(o.delimiter_used == 1)
+                        rc = read_stdin_delimiter();
+                    else
+                        rc = read_stdin();
+
                     if (rc == 0) {
                         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly)) {
                             /* There will be nothing more to send. If we're not
@@ -619,6 +624,65 @@ int read_stdin(void)
     }
 
     return nbytes;
+}
+
+/* Read from stdin and broadcast to all client sockets. Return the number of
+   bytes read, or -1 on error. */
+int read_stdin_delimiter(void)
+{
+    char buf[DEFAULT_TCP_BUF_LEN];
+
+    /* Converting the ascii valued delimiter parameter to character. */
+    char delimiter = (int)o.delimiter;
+
+    char tc[1];       /* Temporary character */
+    int index = 0;    /* Index of the array */
+    int nbytes;       /* Number of bytes to be broadcasted */
+
+    char *tempbuf = NULL;
+
+    /* Loop executes until it finds the delimiter or EOF
+      or sizeof(buf) < DEFAULT_TCP_BUF_LEN which is the maximum size. */
+    do {
+        nbytes = read(STDIN_FILENO, tc, sizeof(tc));
+        buf[index++] = tc[0];
+    } while(index < DEFAULT_TCP_BUF_LEN && tc[0] != delimiter && tc[0] != '\0' && nbytes != 0);
+
+    if (nbytes <= 0) {
+        if (nbytes < 0 && o.verbose)
+            logdebug("Error reading from stdin: %s\n", strerror(errno));
+        if (nbytes == 0 && o.debug)
+            logdebug("EOF on stdin\n");
+
+        /* Don't close the file because that allows a socket to be fd 0. */
+        FD_CLR(STDIN_FILENO, &master_readfds);
+        /* Buf mark that we've seen EOF so it doesn't get re-added to the
+           select list. */
+        stdin_eof = 1;
+
+        /* The data in the buffer along with the EOF added to the broadcast set. */
+        if(index > 1)
+          ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, index - 1);
+
+        return nbytes;
+    }
+
+    if (o.crlf)
+        fix_line_endings((char *) buf, &index, &tempbuf, &crlf_state);
+
+    if (o.linedelay)
+        ncat_delay_timer(o.linedelay);
+
+    /* Write to everything in the broadcast set. */
+    if (tempbuf != NULL) {
+        ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, tempbuf, index);
+        free(tempbuf);
+        tempbuf = NULL;
+    } else {
+        ncat_broadcast(&master_broadcastfds, &broadcast_fdlist, buf, index);
+    }
+
+    return index;
 }
 
 /* Read from a client socket and write to stdout. Return the number of bytes

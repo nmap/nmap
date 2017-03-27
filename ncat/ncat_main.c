@@ -61,7 +61,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -280,6 +280,7 @@ int main(int argc, char *argv[])
         {"lua-exec",        required_argument,  NULL,         0},
         {"lua-exec-internal",required_argument, NULL,         0},
 #endif
+        {"use-delimiter",   required_argument,  NULL,         'b'},
         {"max-conns",       required_argument,  NULL,         'm'},
         {"help",            no_argument,        NULL,         'h'},
         {"delay",           required_argument,  NULL,         'd'},
@@ -366,6 +367,12 @@ int main(int argc, char *argv[])
 #endif
         case 'C':
             o.crlf = 1;
+            break;
+        case 'b':
+            o.delimiter_used = 1;
+            o.delimiter = atoi(optarg);
+            if(o.delimiter <= 0 || o.delimiter >= 255)
+                bye("--use-delimiter expects integer less than 255 and greater than 0.");
             break;
         case 'c':
             if (o.cmdexec != NULL)
@@ -618,6 +625,7 @@ int main(int argc, char *argv[])
 "  -w, --wait <time>          Connect timeout\n"
 "  -z                         Zero-I/O mode, report connection status only\n"
 "      --append-output        Append rather than clobber specified output files\n"
+"      --use-delimiter        Breaks the data till delimiter before broadcasting data; expects ascii value of character (Max range: 255)\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
 "      --allow                Allow only given hosts to connect to Ncat\n"
@@ -650,6 +658,12 @@ int main(int argc, char *argv[])
             /* We consider an unrecognised option fatal. */
             bye("Unrecognised option.");
         }
+    }
+
+    /*  --use-delimiter can be used only for broadcasting purposes.
+        So checking for listen mode is necessary before moving forward. */
+    if(o.delimiter_used == 1 && o.listen != 1) {
+        bye("Currently --use-delimiter option is available only with -l option.");
     }
 
 #ifndef HAVE_OPENSSL

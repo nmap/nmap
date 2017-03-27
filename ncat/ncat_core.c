@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -171,6 +171,8 @@ void options_init(void)
     o.proto = IPPROTO_TCP;
     o.broker = 0;
     o.listen = 0;
+    o.delimiter = 0;
+    o.delimiter_used = 0; /* This gets activated when delimiter option gets enabled. (Works as a flag) */
     o.keepopen = 0;
     o.sendonly = 0;
     o.recvonly = 0;

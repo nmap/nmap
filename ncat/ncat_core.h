@@ -60,7 +60,7 @@
  * OpenSSL library which is distributed under a license identical to that  *
  * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
  * linked combinations including the two.                                  *
- *                                                                         * 
+ *                                                                         *
  * The Nmap Project has permission to redistribute Npcap, a packet         *
  * capturing driver and library for the Microsoft Windows platform.        *
  * Npcap is a separate work with it's own license rather than this Nmap    *
@@ -219,6 +219,10 @@ struct options {
     char *ssltrustfile;
     char *sslciphers;
     int zerobyte;
+
+    /* Use of delimiter for sending data */
+    int delimiter;
+    int delimiter_used;
 };
 
 extern struct options o;
