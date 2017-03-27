@@ -371,7 +371,8 @@ int main(int argc, char *argv[])
         case 'b':
             o.delimiter_used = 1;
             o.delimiter = atoi(optarg);
-            if(o.delimiter <= 0 || o.delimiter >= 255)
+            /* 0, -1 are considered as ASCII values for EOF. */
+            if(o.delimiter < -1 || o.delimiter >= 255)
                 bye("--use-delimiter expects integer less than 255 and greater than 0.");
             break;
         case 'c':
@@ -663,7 +664,7 @@ int main(int argc, char *argv[])
     /*  --use-delimiter can be used only for broadcasting purposes.
         So checking for listen mode is necessary before moving forward. */
     if(o.delimiter_used == 1 && o.listen != 1) {
-        bye("Currently --use-delimiter option is available only with -l option.");
+        bye("--use-delimiter option is binded with -l option.");
     }
 
 #ifndef HAVE_OPENSSL

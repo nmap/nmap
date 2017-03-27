@@ -187,6 +187,7 @@ static int crlf_state = 0;
 
 static void handle_connection(int socket_accept);
 static int read_stdin(void);
+static int read_stdin_delimiter(void);
 static int read_socket(int recv_fd);
 static void post_handle_connection(struct fdinfo sinfo);
 static void read_and_broadcast(int recv_socket);
