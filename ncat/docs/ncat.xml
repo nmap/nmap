@@ -942,6 +942,104 @@
     file.</para>
   </refsect1>
 
+  <reftsec1 id="ncat-diff">
+    <title> Differences between Ncat and Classical nc </title>
+    <para> There are a few changes and additional features in ncat as
+    compared to classical netcat. The following list highlights them
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+        <option>-i</option>
+        </term>
+        <listitem>
+        <para><option>-i</option> in netcat sets the delay interval for lines sent whereas
+        -i in ncat stands for idle read/write timeout</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-w</option>
+        </term>
+        <listitem>
+        <para><option>-w</option> in netcat sets the timeout for connects and final net reads whereas
+            <option>-w</option> in ncat sets the connect timeout</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-c</option>
+        </term>
+        <listitem>
+        <para><option>-c</option>  in netcat sends CRLF as line ending whereas
+            <option>-C</option>  does the same in ncat and <option>-c</option> in ncat executes the given command via /bin/sh </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-e</option>
+        </term>
+        <listitem>
+        <para><option>-e</option> executes the given command in ncat</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-g</option>
+        </term>
+        <listitem>
+        <para><option>-g</option> loose sources hop points for routing </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-G</option>
+        </term>
+        <listitem>
+        <para><option>-G</option> in netcat specifies the connection timeout in seconds whereas
+            <option>-G</option> in ncat sources hop pointers for routing</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-m</option>
+        </term>
+        <listitem>
+          <para><option>-m</option> in netcat sets SO_INTCOPROC_ALLOW on socket whereas
+              <option>-m</option> in ncat sets maximum smilutaneous connections</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-d</option>
+        </term>
+        <listitem>
+          <para><option>-d</option> in netcat detaches from stdin whereas
+              <option>-d</option> in ncat waits between read/writes</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-o</option>
+        </term>
+        <listitem>
+          <para><option>-o</option> in netcat issues socket options after connect/bind whereas
+              <option>-o</option> in ncat dumps session data to a file</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-x</option>
+        </term>
+        <listitem>
+          <para><option>-x</option> in netcat specifies proxy address and port whereas
+              <option>-x</option> in ncat dumps session data as hex data to a file </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </reftsec1>
+
   <refsect1 id="ncat-man-bugs">
     <title>Bugs</title>
 
@@ -1008,7 +1106,7 @@
 
   <para>Ncat is (C) 2005&ndash;2012 Insecure.Com LLC. It is distributed
   as free and open source software under the same license terms as our
-  Nmap software.  Precise terms and further details are available 
+  Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
   <notman>in <xref linkend="nmap-copyright"/>.</notman></para>
 </refsect2>
@@ -1093,4 +1191,3 @@ redistributable under BSD-style software licenses.</para>
 </refsect1>
 
 </refentry>
-
