@@ -143,13 +143,22 @@ class UmitConfigParser(ConfigParser):
         if not self.has_section(section):
             self.add_section(section)
 
-        ConfigParser.set(self, section, option, value)
-        self.save_changes()
+        try:
+            ConfigParser.set(self, section, option, value)
+        except Exception as e:
+            self.failed = e
+            return
+        else:
+            self.save_changes()
 
     def read(self, filename):
         log.debug(">>> Trying to parse: %s" % filename)
 
-        if ConfigParser.read(self, filename):
+        try:
+            ConfigParser.read(self, filename)
+        except Exception as e:
+            return
+        else:
             self.filenames = filename
 
         return self.filenames
