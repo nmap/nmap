@@ -15100,7 +15100,7 @@ Probe TCP redis-server q|\*1\r\n\$4\r\ninfo\r\n|
 rarity 8
 ports 6379
 match redis m|-ERR operation not permitted\r\n|s p/Redis key-value store/
-match redis m|^\$\d+\r\nredis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
+match redis m|^\$\d+\r\n(?:#[^\r\n]*\r\n)*redis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
 
 ##############################NEXT PROBE##############################
 # Memcached distributed memory object caching system
