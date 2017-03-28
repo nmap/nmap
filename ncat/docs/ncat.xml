@@ -943,89 +943,29 @@
   </refsect1>
 
   <reftsec1 id="ncat-diff">
-    <title> Differences between Ncat and Classical nc </title>
+    <title> Differences between Ncat and Traditional/OpenBSD nc </title>
     <para> There are a few changes and additional features in ncat as
-    compared to classical netcat. The following list highlights them
+    compared to Traditional/OpenBSD netcat. The following list highlights them
     </para>
 
     <variablelist>
-      <varlistentry>
-        <term>
-        <option>-i</option>
-        </term>
-        <listitem>
-        <para><option>-i</option> in netcat sets the delay interval for lines sent whereas
-        -i in ncat stands for idle read/write timeout</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-w</option>
-        </term>
-        <listitem>
-        <para><option>-w</option> in netcat sets the timeout for connects and final net reads whereas
-            <option>-w</option> in ncat sets the connect timeout</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-c</option>
-        </term>
-        <listitem>
-        <para><option>-c</option>  in netcat sends CRLF as line ending whereas
-            <option>-C</option>  does the same in ncat and <option>-c</option> in ncat executes the given command via /bin/sh </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-e</option>
-        </term>
-        <listitem>
-        <para><option>-e</option> executes the given command in ncat</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-g</option>
-        </term>
-        <listitem>
-        <para><option>-g</option> loose sources hop points for routing </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-G</option>
-        </term>
-        <listitem>
-        <para><option>-G</option> in netcat specifies the connection timeout in seconds whereas
-            <option>-G</option> in ncat sources hop pointers for routing</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>
-        <option>-m</option>
-        </term>
-        <listitem>
-          <para><option>-m</option> in netcat sets SO_INTCOPROC_ALLOW on socket whereas
-              <option>-m</option> in ncat sets maximum smilutaneous connections</para>
-        </listitem>
-      </varlistentry>
       <varlistentry>
         <term>
         <option>-d</option>
         </term>
         <listitem>
           <para><option>-d</option> in netcat detaches from stdin whereas
-              <option>-d</option> in ncat waits between read/writes</para>
+              <option>-d</option> in Ncat waits between read/writes</para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term>
-        <option>-o</option>
+        <option>-i</option>
         </term>
         <listitem>
-          <para><option>-o</option> in netcat issues socket options after connect/bind whereas
-              <option>-o</option> in ncat dumps session data to a file</para>
+        <para><option>-i</option> in netcat sets the delay interval for lines sent whereas
+        <option>-i</option> in Ncat stands for idle read/write timeout. Use <option>-d</option>
+        to accomplish the same in Ncat</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -1034,7 +974,26 @@
         </term>
         <listitem>
           <para><option>-x</option> in netcat specifies proxy address and port whereas
-              <option>-x</option> in ncat dumps session data as hex data to a file </para>
+              <option>-x</option> in Ncat dumps session data as hex data to a file </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-w</option>
+        </term>
+        <listitem>
+        <para><option>-w</option> in netcat sets the timeout for connects and final net reads whereas
+            <option>-w</option> in Ncat sets the connect timeout and <option>-i</option>sets the
+            idle connection read timeout</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        <option>-z</option>
+        </term>
+        <listitem>
+        <para><option>-z</option> in netcat will take a port range as input  whereas
+            <option>-z</option> in Ncat takes a single port as its input. </para>
         </listitem>
       </varlistentry>
     </variablelist>
