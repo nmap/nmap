@@ -944,7 +944,7 @@
 
   <reftsec1 id="ncat-diff">
     <title> Differences between Ncat and Traditional/OpenBSD nc </title>
-    <para> There are a few changes and additional features in ncat as
+    <para> There are a few changes and additional features in Ncat as
     compared to Traditional/OpenBSD netcat. The following list highlights them
     </para>
 
@@ -955,7 +955,8 @@
         </term>
         <listitem>
           <para><option>-d</option> in netcat detaches from stdin whereas
-              <option>-d</option> in Ncat waits between read/writes</para>
+              <option>-d</option> in Ncat waits between read/writes. Use <option> --recv-only</option>
+              to accomplish the same in Ncat</para>
         </listitem>
       </varlistentry>
       <varlistentry>
