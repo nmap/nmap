@@ -60,34 +60,34 @@ ASN1Decoder = {
     self.decoder = {}
 
     -- Boolean
-    self.decoder["01"] = function( self, encStr, elen, pos )
+    self.decoder["\x01"] = function( self, encStr, elen, pos )
       local val = string.byte(encStr, pos)
       return pos + 1, val ~= 0xFF
     end
 
     -- Integer
-    self.decoder["02"] = function( self, encStr, elen, pos )
+    self.decoder["\x02"] = function( self, encStr, elen, pos )
       return self.decodeInt(encStr, elen, pos)
     end
 
     -- Octet String
-    self.decoder["04"] = function( self, encStr, elen, pos )
+    self.decoder["\x04"] = function( self, encStr, elen, pos )
       return bin.unpack("A" .. elen, encStr, pos)
     end
 
     -- Null
-    self.decoder["05"] = function( self, encStr, elen, pos )
+    self.decoder["\x05"] = function( self, encStr, elen, pos )
       return pos, false
     end
 
     -- Object Identifier
-    self.decoder["06"] = function( self, encStr, elen, pos )
+    self.decoder["\x06"] = function( self, encStr, elen, pos )
       return self:decodeOID( encStr, elen, pos )
     end
 
     -- Context specific tags
     --
-    self.decoder["30"] = function( self, encStr, elen, pos )
+    self.decoder["\x30"] = function( self, encStr, elen, pos )
       return self:decodeSeq(encStr, elen, pos)
     end
   end,
@@ -133,7 +133,6 @@ ASN1Decoder = {
     local newpos = pos
 
     etype, newpos = string.unpack("c1", encStr, newpos)
-    etype = stdnse.tohex(etype)
     newpos, elen = self.decodeLength(encStr, newpos)
 
     if self.decoder[etype] then
@@ -222,7 +221,7 @@ ASN1Decoder = {
 
     last = pos + len - 1
     if pos <= last then
-      oid._snmp = '06'
+      oid._snmp = '\x06'
       pos, octet = bin.unpack("C", encStr, pos)
       oid[2] = math.fmod(octet, 40)
       octet = octet - oid[2]

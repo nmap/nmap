@@ -99,32 +99,32 @@ KRB5 = {
   -- A number of custom ASN1 decoders needed to decode the response
   tagDecoder = {
 
-    ["18"] = function( self, encStr, elen, pos )
+    ["\x18"] = function( self, encStr, elen, pos )
       return bin.unpack("A" .. elen, encStr, pos)
     end,
 
-    ["1B"] = function( ... ) return KRB5.tagDecoder["18"](...) end,
+    ["\x1B"] = function( ... ) return KRB5.tagDecoder["\x18"](...) end,
 
-    ["6B"] = function( self, encStr, elen, pos )
+    ["\x6B"] = function( self, encStr, elen, pos )
       local seq
       pos, seq = self:decodeSeq(encStr, elen, pos)
       return pos, seq
     end,
 
     -- Not really sure what these are, but they all decode sequences
-    ["7E"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A0"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A1"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A2"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A3"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A4"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A5"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A6"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A7"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A8"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["A9"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["AA"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-    ["AC"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
+    ["\x7E"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA0"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA1"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA2"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA3"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA4"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA5"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA6"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA7"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA8"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xA9"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xAA"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
+    ["\xAC"] = function( ... ) return KRB5.tagDecoder["\x6B"](...) end,
 
   },
 

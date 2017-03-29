@@ -28,20 +28,20 @@ end
 
 -- Complex tag encoders
 tagEncoder['table'] = function(self, val)
-  if val._snmp == '06' then -- OID
+  if val._snmp == '\x06' then -- OID
     local oidStr = string.char(val[1]*40 + val[2])
     for i = 3, #val do
       oidStr = oidStr .. self.encode_oid_component(val[i])
     end
     return bin.pack("HAA", '06', self.encodeLength(#oidStr), oidStr)
 
-  elseif (val._snmp == '40') then -- ipAddress
+  elseif (val._snmp == '\x40') then -- ipAddress
     return bin.pack("HC4", '40 04', table.unpack(val))
 
     -- counter or gauge or timeticks or opaque
-  elseif (val._snmp == '41' or val._snmp == '42' or val._snmp == '43' or val._snmp == '44') then
+  elseif (val._snmp == '\x41' or val._snmp == '\x42' or val._snmp == '\x43' or val._snmp == '\x44') then
     local val = self:encodeInt(val[1])
-    return bin.pack("HAA", val._snmp, self.encodeLength(#val), val)
+    return bin.pack("AAA", val._snmp, self.encodeLength(#val), val)
   end
 
   local encVal = ""
@@ -49,10 +49,7 @@ tagEncoder['table'] = function(self, val)
     encVal = encVal .. self:encode(v) -- todo: buffer?
   end
 
-  local tableType = "\x30"
-  if (val["_snmp"]) then
-    tableType = bin.pack("H", val["_snmp"])
-  end
+  local tableType = val._snmp or "\x30"
   return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
 end
 
@@ -85,18 +82,18 @@ local tagDecoder = {}
 
 -- Response-PDU
 -- TOOD: Figure out how to remove these dependencies
-tagDecoder["a2"] = function( self, encStr, elen, pos )
+tagDecoder["\xa2"] = function( self, encStr, elen, pos )
    local seq = {}
 
    pos, seq = self:decodeSeq(encStr, elen, pos)
-   seq._snmp = "a2"
+   seq._snmp = "\xa2"
    return pos, seq
 end
 
-tagDecoder["40"] = function( self, encStr, elen, pos )
+tagDecoder["\x40"] = function( self, encStr, elen, pos )
   local ip = {}
   pos, ip[1], ip[2], ip[3], ip[4] = bin.unpack("C4", encStr, pos)
-  ip._snmp = '40'
+  ip._snmp = '\x40'
   return pos, ip
 end
 
@@ -114,23 +111,23 @@ function decode(encStr, pos)
     decoder:registerBaseDecoders()
     -- Application specific tags
     -- tagDecoder["40"] = decoder.decoder["06"]  -- IP Address; same as OID
-    tagDecoder["41"] = decoder.decoder["02"]  -- Counter; same as Integer
-    tagDecoder["42"] = decoder.decoder["02"]  -- Gauge
-    tagDecoder["43"] = decoder.decoder["02"]  -- TimeTicks
-    tagDecoder["44"] = decoder.decoder["04"]  -- Opaque; same as Octet String
-    tagDecoder["45"] = decoder.decoder["06"]  -- NsapAddress
-    tagDecoder["46"] = decoder.decoder["02"]  -- Counter64
-    tagDecoder["47"] = decoder.decoder["02"]  -- UInteger32
+    tagDecoder["\x41"] = decoder.decoder["\x02"]  -- Counter; same as Integer
+    tagDecoder["\x42"] = decoder.decoder["\x02"]  -- Gauge
+    tagDecoder["\x43"] = decoder.decoder["\x02"]  -- TimeTicks
+    tagDecoder["\x44"] = decoder.decoder["\x04"]  -- Opaque; same as Octet String
+    tagDecoder["\x45"] = decoder.decoder["\x06"]  -- NsapAddress
+    tagDecoder["\x46"] = decoder.decoder["\x02"]  -- Counter64
+    tagDecoder["\x47"] = decoder.decoder["\x02"]  -- UInteger32
 
     -- Context specific tags
-    tagDecoder["a0"] = decoder.decoder["30"]  -- GetRequest-PDU
-    tagDecoder["a1"] = decoder.decoder["30"]  -- GetNextRequest-PDU
-    --tagDecoder["a2"] = decoder.decoder["30"]  -- Response-PDU
-    tagDecoder["a3"] = decoder.decoder["30"]  -- SetRequest-PDU
-    tagDecoder["a4"] = decoder.decoder["30"]  -- Trap-PDU
-    tagDecoder["a5"] = decoder.decoder["30"]  -- GetBulkRequest-PDU
-    tagDecoder["a6"] = decoder.decoder["30"]  -- InformRequest-PDU (not implemented here yet)
-    tagDecoder["a7"] = decoder.decoder["30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
+    tagDecoder["\xa0"] = decoder.decoder["\x30"]  -- GetRequest-PDU
+    tagDecoder["\xa1"] = decoder.decoder["\x30"]  -- GetNextRequest-PDU
+    --tagDecoder["\xa2"] = decoder.decoder["\x30"]  -- Response-PDU
+    tagDecoder["\xa3"] = decoder.decoder["\x30"]  -- SetRequest-PDU
+    tagDecoder["\xa4"] = decoder.decoder["\x30"]  -- Trap-PDU
+    tagDecoder["\xa5"] = decoder.decoder["\x30"]  -- GetBulkRequest-PDU
+    tagDecoder["\xa6"] = decoder.decoder["\x30"]  -- InformRequest-PDU (not implemented here yet)
+    tagDecoder["\xa7"] = decoder.decoder["\x30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
   end
 
 
@@ -174,7 +171,7 @@ function buildGetRequest(options, ...)
   if not options.errIdx then options.errIdx = 0 end
 
   local req = {}
-  req._snmp = 'a0'
+  req._snmp = '\xa0'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -206,7 +203,7 @@ function buildGetNextRequest(options, ...)
   options.errIdx = options.errIdx or 0
 
   local req = {}
-  req._snmp = 'a1'
+  req._snmp = '\xa1'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -242,7 +239,7 @@ function buildSetRequest(options, oid, value)
   if not options.errIdx then options.errIdx = 0 end
 
   local req = {}
-  req._snmp = 'a3'
+  req._snmp = '\xa3'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -268,14 +265,14 @@ end
 -- @return Table representing PDU
 function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
   local req = {}
-  req._snmp = 'a4'
+  req._snmp = '\xa4'
   if (type(enterpriseOid) == "string") then
     req[1] = str2oid(enterpriseOid)
   else
     req[1] = enterpriseOid
   end
   req[2] = {}
-  req[2]._snmp = '40'
+  req[2]._snmp = '\x40'
   for n in string.gmatch(agentIp, "%d+") do
     table.insert(req[2], tonumber(n))
   end
@@ -283,7 +280,7 @@ function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
   req[4] = specTrap
 
   req[5] = {}
-  req[5]._snmp = '43'
+  req[5]._snmp = '\x43'
   req[5][1] = timeStamp
 
   req[6] = {}
@@ -309,7 +306,7 @@ function buildGetResponse(options, oid, value)
   if not options.errIdx then options.errIdx = 0 end
 
   local resp = {}
-  resp._snmp = 'a2'
+  resp._snmp = '\xa2'
   resp[1] = options.reqId
   resp[2] = options.err
   resp[3] = options.errIdx
@@ -341,7 +338,7 @@ function str2oid(oidStr)
   for n in string.gmatch(oidStr, "%d+") do
     table.insert(oid, tonumber(n))
   end
-  oid._snmp = '06'
+  oid._snmp = '\x06'
   return oid
 end
 
@@ -373,7 +370,7 @@ function str2ip(ipStr)
   for n in string.gmatch(ipStr, "%d+") do
     table.insert(ip, tonumber(n))
   end
-  ip._snmp = '40'
+  ip._snmp = '\x40'
   return ip
 end
 
@@ -384,8 +381,10 @@ end
 -- @return Table with all decoded responses and their OIDs.
 function fetchResponseValues(resp)
   if (type(resp) == "string") then
+    local nsedebug = require "nsedebug"
     local _
     _, resp = decode(resp)
+    stdnse.debug1("Decoded: >>>%s<<<", nsedebug.tostr(resp))
   end
 
   if (type(resp) ~= "table") then
@@ -393,9 +392,9 @@ function fetchResponseValues(resp)
   end
 
   local varBind
-  if (resp._snmp and resp._snmp == 'a2') then
+  if (resp._snmp and resp._snmp == '\xa2') then
     varBind = resp[4]
-  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == 'a2') then
+  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == '\xa2') then
     varBind = resp[3][4]
   end
 
@@ -404,15 +403,15 @@ function fetchResponseValues(resp)
     for k, v in ipairs(varBind) do
       local val = v[2]
       if (type(v[2]) == "table") then
-        if (v[2]._snmp == '40') then
+        if (v[2]._snmp == '\x40') then
           val = v[2][1] .. '.' .. v[2][2] .. '.' .. v[2][3] .. '.' .. v[2][4]
-        elseif (v[2]._snmp == '41') then
+        elseif (v[2]._snmp == '\x41') then
           val = v[2][1]
-        elseif (v[2]._snmp == '42') then
+        elseif (v[2]._snmp == '\x42') then
           val = v[2][1]
-        elseif (v[2]._snmp == '43') then
+        elseif (v[2]._snmp == '\x43') then
           val = v[2][1]
-        elseif (v[2]._snmp == '44') then
+        elseif (v[2]._snmp == '\x44') then
           val = v[2][1]
         end
       end
@@ -554,15 +553,21 @@ Helper = {
     local oid = base_oid
     local options = {}
 
+    local nsedebug = require "nsedebug"
     local status, snmpdata = self:getnext(options, oid)
+    stdnse.debug1("got data: >>>%s<<<", nsedebug.tostr(snmpdata))
     while ( snmpdata and snmpdata[1] and snmpdata[1][1] and snmpdata[1][2] ) do
       oid  = snmpdata[1][2]
+      stdnse.debug1("Comparing %s to %s", oid, base_oid)
       if not oid:match(base_oid) or base_oid == oid then break end
 
+      stdnse.debug1("matched %s", base_oid)
       table.insert(snmp_table, { oid = oid, value = snmpdata[1][1] })
       local _ -- NSE don't want you to use global even if it is _
       _, snmpdata = self:getnext(options, oid)
+    stdnse.debug1("got data: >>>%s<<<", nsedebug.tostr(snmpdata))
     end
+    stdnse.debug1("done")
 
     return status, snmp_table
   end

@@ -91,7 +91,7 @@ DEREFPOLICY = {
 local tagEncoder = {}
 
 tagEncoder['table'] = function(self, val)
-  if (val._ldap == '0A') then
+  if (val._ldap == '\x0A') then
     local ival = self.encodeInt(val[1])
     local len = self.encodeLength(#ival)
     return bin.pack('HAA', '0A', len, ival)
@@ -110,10 +110,7 @@ tagEncoder['table'] = function(self, val)
   for _, v in ipairs(val) do
     encVal = encVal .. encode(v) -- todo: buffer?
   end
-  local tableType = "\x30"
-  if (val["_snmp"]) then
-    tableType = bin.pack("H", val["_snmp"])
-  end
+  local tableType = val._snmp or "\x30"
   return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
 
 end
@@ -142,16 +139,16 @@ end
 -- LDAP specific tag decoders
 local tagDecoder = {}
 
-tagDecoder["0A"] = function( self, encStr, elen, pos )
+tagDecoder["\x0A"] = function( self, encStr, elen, pos )
   return self.decodeInt(encStr, elen, pos)
 end
 
-tagDecoder["8A"] = function( self, encStr, elen, pos )
+tagDecoder["\x8A"] = function( self, encStr, elen, pos )
   return bin.unpack("A" .. elen, encStr, pos)
 end
 
 -- null decoder
-tagDecoder["31"] = function( self, encStr, elen, pos )
+tagDecoder["\x31"] = function( self, encStr, elen, pos )
   return pos, nil
 end
 
@@ -241,8 +238,8 @@ function searchRequest( socket, params )
   encoder:registerTagEncoders(tagEncoder)
   decoder:registerTagDecoders(tagDecoder)
 
-  request = request .. encode( { _ldap='0A', params.scope } )--scope
-  request = request .. encode( { _ldap='0A', params.derefPolicy } )--derefpolicy
+  request = request .. encode( { _ldap='\x0A', params.scope } )--scope
+  request = request .. encode( { _ldap='\x0A', params.derefPolicy } )--derefpolicy
   request = request .. encode( params.sizeLimit or 0)--sizelimit
   request = request .. encode( params.timeLimit or 0)--timelimit
   request = request .. encode( params.typesOnly or false)--TypesOnly
@@ -370,8 +367,8 @@ function udpSearchRequest( host, port, params )
   encoder:registerTagEncoders(tagEncoder)
   decoder:registerTagDecoders(tagDecoder)
 
-  request = request .. encode( { _ldap='0A', params.scope } )--scope
-  request = request .. encode( { _ldap='0A', params.derefPolicy } )--derefpolicy
+  request = request .. encode( { _ldap='\x0A', params.scope } )--scope
+  request = request .. encode( { _ldap='\x0A', params.derefPolicy } )--derefpolicy
   request = request .. encode( params.sizeLimit or 0)--sizelimit
   request = request .. encode( params.timeLimit or 0)--timelimit
   request = request .. encode( params.typesOnly or false)--TypesOnly
@@ -464,7 +461,7 @@ function bindRequest( socket, params )
 
   local catch = function() socket:close() stdnse.debug1("bindRequest failed") end
   local try = nmap.new_try(catch)
-  local ldapAuth = encode( { _ldaptype = 80, params.password } )
+  local ldapAuth = encode( { _ldaptype = '80', params.password } )
   local bindReq = encode( params.version ) .. encode( params.username ) .. ldapAuth
   local ldapMsg = encode(ldapMessageId) .. encodeLDAPOp( APPNO.BindRequest, true, bindReq )
   local packet
