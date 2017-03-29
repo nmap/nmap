@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The HTTP response object has a new member, fragment, which contains
+  a partially received body (if any) when the overall request fails to
+  complete. [nnposter]
+
 o [NSE][GH#731] NSE is now able to process HTTP responses with a Set-Cookie
   header that has an extraneous trailing semicolon. [nnposter]
 

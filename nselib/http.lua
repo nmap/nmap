@@ -17,6 +17,7 @@
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
 -- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>.
 -- * <code>body</code> - The full body, as returned by the server.
+-- * <code>fragment</code> - Partially received body (if any), in case of an error.
 --
 -- If a script is planning on making a lot of requests, the pipelining functions can
 -- be helpful. <code>pipeline_add</code> queues requests in a table, and
@@ -370,8 +371,17 @@ end
 -- header, partial = recv_header(socket, partial)
 -- ...
 -- </code>
--- On error, the functions return <code>nil</code> and the second return value
--- is an error message.
+-- On error, the functions return <code>nil</code>, the second return value
+-- is an error message, and the third value is an unfinished fragment of
+-- the response body (if any):
+-- <code>
+-- body, partial, fragment = recv_body(socket, partial)
+-- if not body then
+--   stdnse.debug1("Error encountered: %s", partial)
+--   stdnse.debug1("Only %d bytes of the body received", (#fragment or 0))
+-- end
+-- ...
+-- </code>
 
 -- Receive a single line (up to <code>\n</code>).
 local function recv_line(s, partial)
@@ -459,7 +469,7 @@ local function recv_length(s, length, partial)
     parts[#parts + 1] = last
     status, last = s:receive()
     if not status then
-      return nil
+      return nil, last, table.concat(parts)
     end
     length = length - #last
   end
@@ -477,7 +487,7 @@ end
 -- Receive until the end of a chunked message body, and return the dechunked
 -- body.
 local function recv_chunked(s, partial)
-  local chunks, chunk
+  local chunks, chunk, fragment
   local chunk_size
   local pos
 
@@ -487,7 +497,7 @@ local function recv_chunked(s, partial)
 
     line, partial = recv_line(s, partial)
     if not line then
-      return nil, partial
+      return nil, "Chunk size not received; " .. partial, table.concat(chunks)
     end
 
     pos = 1
@@ -496,14 +506,13 @@ local function recv_chunked(s, partial)
     -- Get the chunk-size.
     _, i, hex = string.find(line, "^([%x]+)", pos)
     if not i then
-      return nil, string.format("Chunked encoding didn't find hex; got %q.", string.sub(line, pos, pos + 10))
+      return nil,
+            ("Chunked encoding didn't find hex; got %q."):format(line:sub(pos, pos + 10)),
+            table.concat(chunks)
     end
     pos = i + 1
 
     chunk_size = tonumber(hex, 16)
-    if not chunk_size or chunk_size < 0 then
-      return nil, string.format("Chunk size %s is not a positive integer.", hex)
-    end
 
     -- Ignore chunk-extensions that may follow here.
     -- RFC 2616, section 2.1 ("Implied *LWS") seems to allow *LWS between the
@@ -514,9 +523,11 @@ local function recv_chunked(s, partial)
     -- starting with "...". We don't allow *LWS here, only ( SP | HT ), so the
     -- first interpretation will prevail.
 
-    chunk, partial = recv_length(s, chunk_size, partial)
+    chunk, partial, fragment = recv_length(s, chunk_size, partial)
     if not chunk then
-      return nil, partial
+      return nil,
+             "Incomplete chunk; " .. partial,
+             table.concat(chunks) .. fragment
     end
     chunks[#chunks + 1] = chunk
 
@@ -526,7 +537,9 @@ local function recv_chunked(s, partial)
       -- to support broken servers, such as the Citrix XML Service
       stdnse.debug2("Didn't find CRLF after chunk-data.")
     elseif not string.match(line, "^\r?\n") then
-      return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
+      return nil,
+             ("Didn't find CRLF after chunk-data; got %q."):format(line),
+             table.concat(chunks)
     end
   until chunk_size == 0
 
@@ -795,9 +808,17 @@ end
 
 -- Read one response from the socket <code>s</code> and return it after
 -- parsing.
+--
+-- In case of an error, a partially received response body (if any) is captured
+-- and preserved in the response object. A future possible enhancement is to
+-- extend this feature to also cover the response status line and headers.
+-- One way to implement it would be to repurpose the current third returned
+-- value from next_response() to be the partially built-up HTTP response
+-- object, not just a string representing the body fragment.
+
 local function next_response(s, method, partial)
   local response
-  local status_line, header, body
+  local status_line, header, body, fragment
   local status, err
 
   partial = partial or ""
@@ -828,9 +849,9 @@ local function next_response(s, method, partial)
     return nil, err
   end
 
-  body, partial = recv_body(s, response, method, partial)
+  body, partial, fragment = recv_body(s, response, method, partial)
   if not body then
-    return nil, partial
+    return nil, partial, fragment
   end
   response.body = body
 
@@ -1049,15 +1070,17 @@ end
 -- The header table has an entry for each received header with the header name
 -- being the key. The table also has an entry named "status" which contains the
 -- http status code of the request.
--- In case of an error, the status is nil and status-line describes the problem.
+-- In case of an error, the status is nil, status-line describes the problem,
+-- and fragment contains a partially received response body (if any).
 
-local function http_error(status_line)
+local function http_error(status_line, fragment)
   return {
     status = nil,
     ["status-line"] = status_line,
     header = {},
     rawheader = {},
     body = nil,
+    fragment = fragment
   }
 end
 
@@ -1203,9 +1226,10 @@ local function request(host, port, data, options)
   end
 
   repeat
-    response, partial = next_response(socket, method, partial)
+    local fragment
+    response, partial, fragment = next_response(socket, method, partial)
     if not response then
-      return http_error("There was an error in next_response function.")
+      return http_error("Error in next_response function; " .. partial, fragment)
     end
     -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
     -- Sometimes a server will tell us to "go ahead" with a POST body before
@@ -1318,9 +1342,10 @@ function generic_request(host, port, method, path, options)
     end
 
     repeat
-      response, partial = next_response(socket, method, partial)
+      local fragment
+      response, partial, fragment = next_response(socket, method, partial)
       if not response then
-        return http_error("There was error in receiving response of type 1 message.")
+        return http_error("There was error in receiving response of type 1 message; " .. partial, fragment)
       end
     until not (response.status >= 100 and response.status <= 199)
 
@@ -1394,9 +1419,10 @@ function generic_request(host, port, method, path, options)
     socket:send(build_request(host, port, method, path, custom_options))
 
     repeat
-      response, partial = next_response(socket, method, partial)
+      local fragment
+      response, partial, fragment = next_response(socket, method, partial)
       if not response then
-        return http_error("There was error in receiving response of type 3 message.")
+        return http_error("There was error in receiving response of type 3 message; " .. partial, fragment)
       end
     until not (response.status >= 100 and response.status <= 199)
 
