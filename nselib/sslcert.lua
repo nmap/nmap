@@ -317,9 +317,9 @@ StartTLS = {
 
     local decoder = asn1.ASN1Decoder:new()
     local len, pos, messageId, ldapOp, tmp = ""
-    pos, len = decoder.decodeLength(response, 2)
-    pos, messageId = ldap.decode(response, pos)
-    pos, tmp = bin.unpack("C", response, pos)
+    len, pos = decoder.decodeLength(response, 2)
+    messageId, pos = ldap.decode(response, pos)
+    tmp, pos = string.unpack("B", response, pos)
     ldapOp = asn1.intToBER(tmp)
 
     if ldapOp.number ~= ExtendedResponse then
@@ -330,8 +330,8 @@ StartTLS = {
     end
 
     local resultCode
-    pos, len = decoder.decodeLength(response, pos)
-    pos, resultCode = ldap.decode(response, pos)
+    len, pos = decoder.decodeLength(response, pos)
+    resultCode, pos = ldap.decode(response, pos)
 
     if resultCode ~= 0 then
       starttls_supported(host, port, false)

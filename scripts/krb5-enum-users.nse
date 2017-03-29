@@ -5,6 +5,7 @@ local nmap = require "nmap"
 local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
 
@@ -100,15 +101,13 @@ KRB5 = {
   tagDecoder = {
 
     ["\x18"] = function( self, encStr, elen, pos )
-      return bin.unpack("A" .. elen, encStr, pos)
+      return string.unpack("c" .. elen, encStr, pos)
     end,
 
     ["\x1B"] = function( ... ) return KRB5.tagDecoder["\x18"](...) end,
 
     ["\x6B"] = function( self, encStr, elen, pos )
-      local seq
-      pos, seq = self:decodeSeq(encStr, elen, pos)
-      return pos, seq
+      return self:decodeSeq(encStr, elen, pos)
     end,
 
     -- Not really sure what these are, but they all decode sequences
@@ -262,7 +261,7 @@ KRB5 = {
     local decoder = asn1.ASN1Decoder:new()
     decoder:registerTagDecoders(KRB5.tagDecoder)
     decoder:setStopOnError(true)
-    local pos, result = decoder:decode(data)
+    local result = decoder:decode(data)
     local msg = {}
 
 

@@ -85,16 +85,17 @@ local tagDecoder = {}
 tagDecoder["\xa2"] = function( self, encStr, elen, pos )
    local seq = {}
 
-   pos, seq = self:decodeSeq(encStr, elen, pos)
+   seq, pos = self:decodeSeq(encStr, elen, pos)
    seq._snmp = "\xa2"
-   return pos, seq
+   return seq, pos
 end
 
 tagDecoder["\x40"] = function( self, encStr, elen, pos )
   local ip = {}
-  pos, ip[1], ip[2], ip[3], ip[4] = bin.unpack("C4", encStr, pos)
+  -- TODO: possibly convert to ipOps.str_to_ip() if octets are not used separately elsewhere.
+  ip[1], ip[2], ip[3], ip[4], pos = string.unpack("BBBB", encStr, pos)
   ip._snmp = '\x40'
-  return pos, ip
+  return ip, pos
 end
 
 ---
@@ -102,8 +103,8 @@ end
 -- rules.
 -- @param encStr Encoded string.
 -- @param pos Current position in the string.
--- @return The position after decoding
 -- @return The decoded value(s).
+-- @return The position after decoding
 function decode(encStr, pos)
   local decoder = asn1.ASN1Decoder:new()
 
@@ -381,10 +382,7 @@ end
 -- @return Table with all decoded responses and their OIDs.
 function fetchResponseValues(resp)
   if (type(resp) == "string") then
-    local nsedebug = require "nsedebug"
-    local _
-    _, resp = decode(resp)
-    stdnse.debug1("Decoded: >>>%s<<<", nsedebug.tostr(resp))
+    resp = decode(resp)
   end
 
   if (type(resp) ~= "table") then
@@ -553,21 +551,15 @@ Helper = {
     local oid = base_oid
     local options = {}
 
-    local nsedebug = require "nsedebug"
     local status, snmpdata = self:getnext(options, oid)
-    stdnse.debug1("got data: >>>%s<<<", nsedebug.tostr(snmpdata))
     while ( snmpdata and snmpdata[1] and snmpdata[1][1] and snmpdata[1][2] ) do
       oid  = snmpdata[1][2]
-      stdnse.debug1("Comparing %s to %s", oid, base_oid)
       if not oid:match(base_oid) or base_oid == oid then break end
 
-      stdnse.debug1("matched %s", base_oid)
       table.insert(snmp_table, { oid = oid, value = snmpdata[1][1] })
       local _ -- NSE don't want you to use global even if it is _
       _, snmpdata = self:getnext(options, oid)
-    stdnse.debug1("got data: >>>%s<<<", nsedebug.tostr(snmpdata))
     end
-    stdnse.debug1("done")
 
     return status, snmp_table
   end

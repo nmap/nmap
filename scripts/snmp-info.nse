@@ -74,7 +74,7 @@ action = function (host, port)
     end
   end
 
-  local pos, decoded = snmp.decode(response)
+  local decoded = snmp.decode(response)
 
   -- Check for SNMP version 3 and msgid 0x4a69 (from the probe)
   if ((not decoded) or
@@ -93,7 +93,7 @@ action = function (host, port)
   end
 
   -- Decode the msgSecurityParameters octet-string
-  pos, decoded = snmp.decode(decoded[3])
+  decoded = snmp.decode(decoded[3])
 
   local output = stdnse.output_table()
   -- Decode the msgAuthoritativeEngineID octet-string

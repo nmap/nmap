@@ -113,7 +113,7 @@ function action(host,port)
   if ( not(status) ) then return data end
   socket:close()
 
-  local _, response = ldap.decode(data)
+  local response = ldap.decode(data)
 
   -- make sure the result code was a success
   local rescode = ( #response >= 2 ) and response[2]

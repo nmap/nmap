@@ -17,7 +17,6 @@
 --                             o Each script or library should now create its own Encoder and Decoder instance
 --
 
-local bin = require "bin"
 local bit = require "bit"
 local math = require "math"
 local stdnse = require "stdnse"
@@ -62,7 +61,7 @@ ASN1Decoder = {
     -- Boolean
     self.decoder["\x01"] = function( self, encStr, elen, pos )
       local val = string.byte(encStr, pos)
-      return pos + 1, val ~= 0xFF
+      return val ~= 0xFF, pos + 1
     end
 
     -- Integer
@@ -72,12 +71,12 @@ ASN1Decoder = {
 
     -- Octet String
     self.decoder["\x04"] = function( self, encStr, elen, pos )
-      return bin.unpack("A" .. elen, encStr, pos)
+      return string.unpack("c" .. elen, encStr, pos)
     end
 
     -- Null
     self.decoder["\x05"] = function( self, encStr, elen, pos )
-      return pos, false
+      return false, pos
     end
 
     -- Object Identifier
@@ -107,8 +106,8 @@ ASN1Decoder = {
   -- @param encStr Encoded string
   -- @param elen Length of the object in bytes
   -- @param pos Current position in the string
-  -- @return The position after decoding
   -- @return The decoded object
+  -- @return The position after decoding
 
   --- Allows for registration of additional tag decoders
   -- @name ASN1Decoder.registerTagDecoders
@@ -125,21 +124,21 @@ ASN1Decoder = {
   -- @name ASN1Decoder.decode
   -- @param encStr Encoded string.
   -- @param pos Current position in the string.
-  -- @return The position after decoding
   -- @return The decoded value(s).
+  -- @return The position after decoding
   decode = function(self, encStr, pos)
 
     local etype, elen
     local newpos = pos
 
     etype, newpos = string.unpack("c1", encStr, newpos)
-    newpos, elen = self.decodeLength(encStr, newpos)
+    elen, newpos = self.decodeLength(encStr, newpos)
 
     if self.decoder[etype] then
       return self.decoder[etype]( self, encStr, elen, newpos )
     else
       stdnse.debug1("no decoder for etype: " .. etype)
-      return newpos, nil
+      return nil, newpos
     end
   end,
 
@@ -149,23 +148,22 @@ ASN1Decoder = {
   -- @name ASN1Decoder.decodeLength
   -- @param encStr Encoded string.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The length of the following value.
+  -- @return The position after decoding.
   decodeLength = function(encStr, pos)
-    local elen
-    pos, elen = bin.unpack('C', encStr, pos)
+    local elen, newpos = string.unpack('B', encStr, pos)
     if (elen > 128) then
       elen = elen - 128
       local elenCalc = 0
       local elenNext
       for i = 1, elen do
         elenCalc = elenCalc * 256
-        pos, elenNext = bin.unpack("C", encStr, pos)
+        elenNext, newpos = string.unpack('B', encStr, newpos)
         elenCalc = elenCalc + elenNext
       end
       elen = elenCalc
     end
-    return pos, elen
+    return elen, newpos
   end,
 
   ---
@@ -174,20 +172,19 @@ ASN1Decoder = {
   -- @param encStr Encoded string.
   -- @param len Length of sequence in bytes.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The decoded sequence as a table.
+  -- @return The position after decoding.
   decodeSeq = function(self, encStr, len, pos)
     local seq = {}
     local sPos = 1
-    local sStr
-    pos, sStr = bin.unpack("A" .. len, encStr, pos)
+    local sStr, newpos = string.unpack("c" .. len, encStr, pos)
     while (sPos < len) do
       local newSeq
-      sPos, newSeq = self:decode(sStr, sPos)
+      newSeq, sPos = self:decode(sStr, sPos)
       if ( not(newSeq) and self.stoponerror ) then break end
       table.insert(seq, newSeq)
     end
-    return pos, seq
+    return seq, newpos
   end,
 
   -- Decode one component of an OID from a byte string. 7 bits of the component
@@ -200,11 +197,11 @@ ASN1Decoder = {
     local n = 0
 
     repeat
-      pos, octet = bin.unpack("C", encStr, pos)
+      octet, pos = string.unpack("B", encStr, pos)
       n = n * 128 + bit.band(0x7F, octet)
     until octet < 128
 
-    return pos, n
+    return n, pos
   end,
 
   --- Decodes an OID from a sequence of bytes.
@@ -212,8 +209,8 @@ ASN1Decoder = {
   -- @param encStr Encoded string.
   -- @param len Length of sequence in bytes.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The OID as an array.
+  -- @return The position after decoding.
   decodeOID = function(self, encStr, len, pos)
     local last
     local oid = {}
@@ -222,7 +219,7 @@ ASN1Decoder = {
     last = pos + len - 1
     if pos <= last then
       oid._snmp = '\x06'
-      pos, octet = bin.unpack("C", encStr, pos)
+      octet, pos = string.unpack("B", encStr, pos)
       oid[2] = math.fmod(octet, 40)
       octet = octet - oid[2]
       oid[1] = octet//40
@@ -230,11 +227,11 @@ ASN1Decoder = {
 
     while pos <= last do
       local c
-      pos, c = self.decode_oid_component(encStr, pos)
+      c, pos = self.decode_oid_component(encStr, pos)
       oid[#oid + 1] = c
     end
 
-    return pos, oid
+    return oid, pos
   end,
 
   ---
@@ -243,11 +240,10 @@ ASN1Decoder = {
   -- @param encStr Encoded string.
   -- @param len Length of integer in bytes.
   -- @param pos Current position in the string.
-  -- @return The position after decoding.
   -- @return The decoded integer.
+  -- @return The position after decoding.
   decodeInt = function(encStr, len, pos)
-    local value, pos = string.unpack(">i" .. len, encStr, pos)
-    return pos, value
+    return string.unpack(">i" .. len, encStr, pos)
   end,
 
 }
@@ -392,7 +388,7 @@ ASN1Encoder = {
       local valStr = ""
       while (val > 0) do
         lsb = math.fmod(val, 256)
-        valStr = valStr .. bin.pack("C", lsb)
+        valStr = valStr .. string.pack("B", lsb)
         val = math.floor(val/256)
       end
       if lsb > 127 then -- two's complement collision
@@ -410,12 +406,12 @@ ASN1Encoder = {
       local valStr = ""
       while (tcval > 0) do
         lsb = math.fmod(tcval, 256)
-        valStr = valStr .. bin.pack("C", lsb)
+        valStr = valStr .. string.pack("B", lsb)
         tcval = math.floor(tcval/256)
       end
       return string.reverse(valStr)
     else -- val == 0
-      return bin.pack("x")
+      return '\0'
     end
   end,
 
