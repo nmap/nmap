@@ -85,11 +85,11 @@ local tagDecoder = {}
 
 -- Response-PDU
 -- TOOD: Figure out how to remove these dependencies
-tagDecoder["A2"] = function( self, encStr, elen, pos )
+tagDecoder["a2"] = function( self, encStr, elen, pos )
    local seq = {}
 
    pos, seq = self:decodeSeq(encStr, elen, pos)
-   seq._snmp = "A2"
+   seq._snmp = "a2"
    return pos, seq
 end
 
@@ -123,14 +123,14 @@ function decode(encStr, pos)
     tagDecoder["47"] = decoder.decoder["02"]  -- UInteger32
 
     -- Context specific tags
-    tagDecoder["A0"] = decoder.decoder["30"]  -- GetRequest-PDU
-    tagDecoder["A1"] = decoder.decoder["30"]  -- GetNextRequest-PDU
-    --tagDecoder["A2"] = decoder.decoder["30"]  -- Response-PDU
-    tagDecoder["A3"] = decoder.decoder["30"]  -- SetRequest-PDU
-    tagDecoder["A4"] = decoder.decoder["30"]  -- Trap-PDU
-    tagDecoder["A5"] = decoder.decoder["30"]  -- GetBulkRequest-PDU
-    tagDecoder["A6"] = decoder.decoder["30"]  -- InformRequest-PDU (not implemented here yet)
-    tagDecoder["A7"] = decoder.decoder["30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
+    tagDecoder["a0"] = decoder.decoder["30"]  -- GetRequest-PDU
+    tagDecoder["a1"] = decoder.decoder["30"]  -- GetNextRequest-PDU
+    --tagDecoder["a2"] = decoder.decoder["30"]  -- Response-PDU
+    tagDecoder["a3"] = decoder.decoder["30"]  -- SetRequest-PDU
+    tagDecoder["a4"] = decoder.decoder["30"]  -- Trap-PDU
+    tagDecoder["a5"] = decoder.decoder["30"]  -- GetBulkRequest-PDU
+    tagDecoder["a6"] = decoder.decoder["30"]  -- InformRequest-PDU (not implemented here yet)
+    tagDecoder["a7"] = decoder.decoder["30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
   end
 
 
@@ -174,7 +174,7 @@ function buildGetRequest(options, ...)
   if not options.errIdx then options.errIdx = 0 end
 
   local req = {}
-  req._snmp = 'A0'
+  req._snmp = 'a0'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -206,7 +206,7 @@ function buildGetNextRequest(options, ...)
   options.errIdx = options.errIdx or 0
 
   local req = {}
-  req._snmp = 'A1'
+  req._snmp = 'a1'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -242,7 +242,7 @@ function buildSetRequest(options, oid, value)
   if not options.errIdx then options.errIdx = 0 end
 
   local req = {}
-  req._snmp = 'A3'
+  req._snmp = 'a3'
   req[1] = options.reqId
   req[2] = options.err
   req[3] = options.errIdx
@@ -268,7 +268,7 @@ end
 -- @return Table representing PDU
 function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
   local req = {}
-  req._snmp = 'A4'
+  req._snmp = 'a4'
   if (type(enterpriseOid) == "string") then
     req[1] = str2oid(enterpriseOid)
   else
@@ -309,7 +309,7 @@ function buildGetResponse(options, oid, value)
   if not options.errIdx then options.errIdx = 0 end
 
   local resp = {}
-  resp._snmp = 'A2'
+  resp._snmp = 'a2'
   resp[1] = options.reqId
   resp[2] = options.err
   resp[3] = options.errIdx
@@ -393,9 +393,9 @@ function fetchResponseValues(resp)
   end
 
   local varBind
-  if (resp._snmp and resp._snmp == 'A2') then
+  if (resp._snmp and resp._snmp == 'a2') then
     varBind = resp[4]
-  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == 'A2') then
+  elseif (resp[3] and resp[3]._snmp and resp[3]._snmp == 'a2') then
     varBind = resp[3][4]
   end
 
