@@ -17,7 +17,6 @@
 --                             o Each script or library should now create its own Encoder and Decoder instance
 --
 
-local bit = require "bit"
 local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -198,7 +197,7 @@ ASN1Decoder = {
 
     repeat
       octet, pos = string.unpack("B", encStr, pos)
-      n = n * 128 + bit.band(0x7F, octet)
+      n = n * 128 + (0x7F & octet)
     until octet < 128
 
     return n, pos
@@ -369,10 +368,10 @@ ASN1Encoder = {
   -- IDENTIFIER.
   encode_oid_component = function(n)
     local parts = {}
-    parts[1] = string.char(bit.mod(n, 128))
+    parts[1] = string.char(n % 128)
     while n >= 128 do
-      n = bit.rshift(n, 7)
-      parts[#parts + 1] = string.char(bit.mod(n, 128) + 0x80)
+      n = n >> 7
+      parts[#parts + 1] = string.char(n % 128 + 0x80)
     end
     return string.reverse(table.concat(parts))
   end,
@@ -428,8 +427,8 @@ ASN1Encoder = {
       local parts = {}
 
       while len > 0 do
-        parts[#parts + 1] = string.char(bit.mod(len, 256))
-        len = bit.rshift(len, 8)
+        parts[#parts + 1] = string.char(len % 256)
+        len = len >> 8
       end
 
       assert(#parts < 128)
@@ -470,16 +469,16 @@ end
 function intToBER( i )
   local ber = {}
 
-  if bit.band( i, BERCLASS.Application ) == BERCLASS.Application then
+  if i & BERCLASS.Application == BERCLASS.Application then
     ber.class = BERCLASS.Application
-  elseif bit.band( i, BERCLASS.ContextSpecific ) == BERCLASS.ContextSpecific then
+  elseif i & BERCLASS.ContextSpecific == BERCLASS.ContextSpecific then
     ber.class = BERCLASS.ContextSpecific
-  elseif bit.band( i, BERCLASS.Private ) == BERCLASS.Private then
+  elseif i & BERCLASS.Private == BERCLASS.Private then
     ber.class = BERCLASS.Private
   else
     ber.class = BERCLASS.Universal
   end
-  if bit.band( i, 32 ) == 32 then
+  if i & 32 == 32 then
     ber.constructed = true
     ber.number = i - ber.class - 32
   else
