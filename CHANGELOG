@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed several potential hangs in NSE scripts that used
+  receive_buf(pattern), which will not return if the service continues to send
+  data that does not match pattern. A new function in match.lua, pattern_limit,
+  is introduced to limit the number of bytes consumed while searching for the
+  pattern. [Daniel Miller, Jacek Wielemborek]
+
 o [NSE] The HTTP response object has a new member, fragment, which contains
   a partially received body (if any) when the overall request fails to
   complete. [nnposter]

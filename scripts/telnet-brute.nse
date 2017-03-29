@@ -1,6 +1,7 @@
 local comm = require "comm"
 local coroutine = require "coroutine"
 local creds = require "creds"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -258,7 +259,7 @@ end
 Connection.methods.get_line = function (self)
   if self.buffer:len() == 0 then
     -- refill the buffer
-    local status, data = self.socket:receive_buf("[\r\n:>%%%$#\255].*", true)
+    local status, data = self.socket:receive_buf(match.pattern_limit("[\r\n:>%%%$#\255].*", 2048), true)
     if not status then
       -- connection error
       self.error = data

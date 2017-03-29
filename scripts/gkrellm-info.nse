@@ -1,4 +1,5 @@
 local math = require "math"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -140,11 +141,11 @@ action = function(host, port)
   end
 
   -- If there's an error we get a response back, and only then
-  local status, data = socket:receive_buf("\n", false)
+  local status, data = socket:receive_buf(match.pattern_limit("\n", 2048), false)
   if( status and data ~= "<error>" ) then
     return fail("An unknown error occurred, aborting ...")
   elseif ( status ) then
-    status, data = socket:receive_buf("\n", false)
+    status, data = socket:receive_buf(match.pattern_limit("\n", 2048), false)
     if ( status ) then
       return fail(data)
     else
@@ -157,7 +158,7 @@ action = function(host, port)
   end
 
   local tags = {}
-  local status, tag = socket:receive_buf("\n", false)
+  local status, tag = socket:receive_buf(match.pattern_limit("\n", 2048), false)
   while(true) do
     if ( not(status) ) then
       break
@@ -175,7 +176,7 @@ action = function(host, port)
 
     while(true) do
       local data
-      status, data = socket:receive_buf("\n", false)
+      status, data = socket:receive_buf(match.pattern_limit("\n", 2048), false)
       if ( not(status) ) then
         break
       end

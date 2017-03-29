@@ -1,4 +1,5 @@
 local ftp = require "ftp"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -84,7 +85,7 @@ local function list(socket, target, max_lines)
 
   local listing = {}
   while not max_lines or #listing < max_lines do
-    local status, data = list_socket:receive_buf("\r?\n", false)
+    local status, data = list_socket:receive_buf(match.pattern_limit("\r?\n", 2048), false)
     if (not status and data == "EOF") or data == "" then
       break
     end

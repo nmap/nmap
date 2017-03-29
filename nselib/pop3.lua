@@ -5,6 +5,7 @@
 
 local base64 = require "base64"
 local comm = require "comm"
+local match = require "match"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -163,7 +164,7 @@ function capabilities(host, port)
     return nil, "Failed to send"
   end
 
-  status, line = socket:receive_buf("%.", false)
+  status, line = socket:receive_buf(match.pattern_limit("%.", 2048), false)
   if( not(status) ) then
     return nil, "Failed to receive"
   end

@@ -175,7 +175,7 @@ VNC = {
   -- @return status, true on success, false on failure
   -- @return error string containing error message if status is false
   handshake = function(self)
-    local status, data = self.socket:receive_buf("[\r\n]+", true)
+    local status, data = self.socket:receive_buf(match.pattern_limit("[\r\n]+", 16), true)
     if not status or not string.match(data, "^RFB %d%d%d%.%d%d%d[\r\n]") then
       stdnse.debug1("ERROR: Not a VNC port. Banner: %s", data)
       return false, "Not a VNC port."
