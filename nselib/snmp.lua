@@ -129,6 +129,7 @@ function decode(encStr, pos)
     tagDecoder["\xa5"] = decoder.decoder["\x30"]  -- GetBulkRequest-PDU
     tagDecoder["\xa6"] = decoder.decoder["\x30"]  -- InformRequest-PDU (not implemented here yet)
     tagDecoder["\xa7"] = decoder.decoder["\x30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
+    tagDecoder["\xa8"] = decoder.decoder["\x30"]  -- Report-PDU (not implemented here yet)
   end
 
 
