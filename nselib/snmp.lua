@@ -8,7 +8,6 @@
 -- 2015-06-11 Gioacchino Mazzurco - Use creds library to handle SNMP community
 
 local asn1 = require "asn1"
-local bin = require "bin"
 local creds = require "creds"
 local math = require "math"
 local nmap = require "nmap"
@@ -23,7 +22,7 @@ local tagEncoder = {}
 
 -- Override the boolean encoder
 tagEncoder['boolean'] = function(self, val)
-  return bin.pack('H', '05 00')
+  return '\x05\x00'
 end
 
 -- Complex tag encoders
@@ -33,15 +32,15 @@ tagEncoder['table'] = function(self, val)
     for i = 3, #val do
       oidStr = oidStr .. self.encode_oid_component(val[i])
     end
-    return bin.pack("HAA", '06', self.encodeLength(#oidStr), oidStr)
+    return val._snmp .. self.encodeLength(#oidStr) .. oidStr
 
   elseif (val._snmp == '\x40') then -- ipAddress
-    return bin.pack("HC4", '40 04', table.unpack(val))
+    return string.pack('Bs1', 0x40, string.pack('BBBB', table.unpack(val)))
 
     -- counter or gauge or timeticks or opaque
   elseif (val._snmp == '\x41' or val._snmp == '\x42' or val._snmp == '\x43' or val._snmp == '\x44') then
     local val = self:encodeInt(val[1])
-    return bin.pack("AAA", val._snmp, self.encodeLength(#val), val)
+    return val._snmp .. self.encodeLength(#val) .. val
   end
 
   local encVal = ""
@@ -50,7 +49,7 @@ tagEncoder['table'] = function(self, val)
   end
 
   local tableType = val._snmp or "\x30"
-  return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
+  return tableType .. self.encodeLength(#encVal) .. encVal
 end
 
 ---
