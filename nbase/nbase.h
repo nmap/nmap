@@ -207,9 +207,7 @@
 #include <netdb.h>
 #endif
 
-#if HAVE_INTTYPES_H
 #include <inttypes.h>
-#endif
 
 #include <stdio.h>
 
@@ -231,7 +229,6 @@
 #undef NDEBUG
 
 /* Integer types */
-#include <stdint.h>
 typedef uint8_t u8;
 typedef int8_t s8;
 typedef uint16_t u16;
