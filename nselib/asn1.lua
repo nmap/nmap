@@ -226,7 +226,7 @@ ASN1Decoder = {
       pos, octet = bin.unpack("C", encStr, pos)
       oid[2] = math.fmod(octet, 40)
       octet = octet - oid[2]
-      oid[1] = octet/40
+      oid[1] = octet//40
     end
 
     while pos <= last do
