@@ -1167,7 +1167,7 @@ table.insert(fingerprints, {
     {username = "apc", password = "apc"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
   end
 })
 
