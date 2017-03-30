@@ -164,6 +164,16 @@ local function url_build_defaults (host, port, parsed)
   return parts
 end
 
+---
+-- Encodes a string to make it safe for embedding into XML/HTML.
+--
+-- @param s The string to be encoded.
+-- @return A string with unsafe characters encoded
+---
+local function xmlencode (s)
+  return s:gsub("%W", function (c) return ("&#x%x;"):format(c:byte()) end)
+end
+
 fingerprints = {}
 
 ---
@@ -1333,24 +1343,26 @@ table.insert(fingerprints, {
                       .. "_"
                       .. stdnse.clock_ms()
                       .. math.random(100000, 999999)
-    local encpass = stdnse.tohex(pass):gsub("..", "&#x%0;")
+    local encpass = xmlencode(pass)
     local header = {["Content-Type"]="text/xml", ["SOAPAction"]='""'}
     local soapmsg = [[
-<?xml version='1.0' encoding='UTF-8'?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-<SOAP-ENV:Body>
-<ns1:doLogin xmlns:ns1="urn:FierySoapService" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-<sessionId xsi:type="xsd:string">__SESS__</sessionId>
-<in xsi:type="ns1:Login">
-<fieldsMask xsi:type="xsd:int">0</fieldsMask>
-<password xsi:type="xsd:string">__PASS__</password>
-<timeout xsi:type="xsd:int">30</timeout>
-<userName xsi:type="xsd:string" xsi:nil="true"/>
-</in>
-</ns1:doLogin>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
-]]
+      <?xml version='1.0' encoding='UTF-8'?>
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <SOAP-ENV:Body>
+          <ns1:doLogin xmlns:ns1="urn:FierySoapService" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+            <sessionId xsi:type="xsd:string">__SESS__</sessionId>
+            <in xsi:type="ns1:Login">
+              <fieldsMask xsi:type="xsd:int">0</fieldsMask>
+              <password xsi:type="xsd:string">__PASS__</password>
+              <timeout xsi:type="xsd:int">30</timeout>
+              <userName xsi:type="xsd:string" xsi:nil="true"/>
+            </in>
+          </ns1:doLogin>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+      ]]
+    -- strip off indentation
+    soapmsg = soapmsg:gsub("%f[^\0\n]%s+", "")
     -- username is not injected into the payload because it is implied
     soapmsg = soapmsg:gsub("__%w+__", {__SESS__=sessionid, __PASS__=encpass})
     local req = http_post_simple(host, port, url.absolute(path, "soap"),
