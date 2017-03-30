@@ -125,6 +125,23 @@ local function http_auth_realm(response)
 end
 
 ---
+-- Tests whether an HTTP response sets a named cookie with a given value
+-- @param response a standard HTTP response object
+-- @param name a case-insensitive cookie name that must be set
+-- @param pattern to validate the cookie value
+-- @return cookie value if such a cookie is found
+---
+local function sets_cookie(response, name, pattern)
+  name = name:lower()
+  for _, ck in ipairs(response.cookies or {}) do
+    if ck.name:lower() == name then
+      return (not pattern or ck.value:find(pattern)) and ck.value
+    end
+  end
+  return false
+end
+
+---
 -- Generates default scheme, host, and port components for a parsed URL.
 --
 -- This filter function generates the scheme, host, and port components from
@@ -189,14 +206,8 @@ table.insert(fingerprints, {
     {path = "/cacti/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/200 and sets cookie "Cacti" or "CactiEZ"
-    if response.status == 200 then
-      for _, ck in ipairs(response.cookies or {}) do
-        local cname = ck.name:lower()
-        if cname == "cacti" or cname == "cactiez" then return true end
-      end
-    end
-    return false
+    return response.status == 200
+           and (sets_cookie(response, "Cacti") or sets_cookie(response, "CactiEZ"))
   end,
   login_combos = {
     {username = "admin", password = "admin"}
@@ -217,13 +228,7 @@ table.insert(fingerprints, {
     {path = "/zabbix/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/200 and sets cookie "zbx_sessionid"
-    if response.status == 200 then
-      for _, ck in ipairs(response.cookies or {}) do
-        if ck.name:lower() == "zbx_sessionid" then return true end
-      end
-    end
-    return false
+    return response.status == 200 and sets_cookie(response, "zbx_sessionid")
   end,
   login_combos = {
     {username = "admin", password = "zabbix"}
@@ -243,13 +248,7 @@ table.insert(fingerprints, {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/302 and sets cookie "Xplico"
-    if response.status == 302 then
-      for _, ck in ipairs(response.cookies or {}) do
-        if ck.name:lower() == "xplico" then return true end
-      end
-    end
-    return false
+    return response.status == 302 and sets_cookie(response, "Xplico")
   end,
   login_combos = {
     {username = "admin", password = "xplico"},
@@ -343,13 +342,7 @@ table.insert(fingerprints, {
     {path = "/"}
   },
   target_check = function (host, port, path, response)
-    -- true if the response is HTTP/302 and sets cookie "grafana_sess"
-    if response.status == 302 then
-      for _, ck in ipairs(response.cookies or {}) do
-        if ck.name:lower() == "grafana_sess" then return true end
-      end
-    end
-    return false
+    return response.status == 302 and sets_cookie(response, "grafana_sess")
   end,
   login_combos = {
     {username = "admin", password = "admin"}
@@ -360,12 +353,7 @@ table.insert(fingerprints, {
     local json = ('{"user":"%s","email":"","password":"%s"}'):format(user, pass)
     local req = http_post_simple(host, port, url.absolute(path, "login"),
                                 {header=header}, json)
-    -- successful login is HTTP/200 that sets cookie "grafana_user"
-    if req.status ~= 200 then return false end
-    for _, ck in ipairs(req.cookies or {}) do
-      if ck.name:lower() == "grafana_user" then return ck.value == user end
-    end
-    return false
+    return req.status == 200 and sets_cookie(req, "grafana_user") == user
   end
 })
 
@@ -514,16 +502,9 @@ table.insert(fingerprints, {
     local req = http_post_simple(host, port,
                                 url.absolute(path, "portal/server.pt"),
                                 nil, form)
-    local loc = req.header["location"] or ""
-    -- successful login is a 302-redirect that sets cookie "plloginoccured"
-    -- to "true"
-    if not (req.status == 302 and loc:find("/portal/server%.pt[;?]")) then
-      return false
-    end
-    for _, ck in ipairs(req.cookies or {}) do
-      if ck.name:lower() == "plloginoccured" then return ck.value == "true" end
-    end
-    return false
+    return req.status == 302
+           and (req.header["location"] or ""):find("/portal/server%.pt[;?]")
+           and sets_cookie(req, "plloginoccured") == "true"
   end
 })
 
@@ -819,13 +800,7 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     local req = http_post_simple(host, port, url.absolute(path, "login.cgi"),
                                 nil, {password=pass})
-    -- successful login is a HTTP/200 that sets cookie xxxSID,
-    -- where xxx is the hardware model, such as GS108SID
-    if req.status ~= 200 then return false end
-    for _, ck in ipairs(req.cookies or {}) do
-      if ck.name:lower():find("sid$") then return true end
-    end
-    return false
+    return req.status == 200 and sets_cookie(req, "GS108SID", ".")
   end
 })
 
@@ -1280,13 +1255,9 @@ table.insert(fingerprints, {
                   open = ""}
     local req2 = http_post_simple(host, port, url.absolute(lurl, "login.cgi"),
                                  {cookies=req1.cookies}, form)
-    local loc = req2.header["location"] or ""
-    -- successful login is a 302-redirect that sets a session cookie with numerical value
-    if not (req2.status == 302 and loc:find("/mainFrame%.cgi$")) then return false end
-    for _, ck in ipairs(req2.cookies or {}) do
-      if ck.name:lower() == "wimsesid" then return ck.value:find("^%d+$") end
-    end
-    return false
+    return req2.status == 302
+           and (req2.header["location"] or ""):find("/mainFrame%.cgi$")
+           and sets_cookie(req2, "wimsesid", "^%d+$")
   end
 })
 
@@ -1395,14 +1366,7 @@ table.insert(fingerprints, {
     local lurl = url.absolute(path, "server_eps.html")
     -- obtain login nonce
     local req1 = http_get_simple(host, port, lurl)
-    if req1.status ~= 403 then return false end
-    local nonce = nil
-    for _, ck in ipairs(req1.cookies or {}) do
-      if ck.name == "SrvrNonce" then
-        nonce = ck.value
-        break
-      end
-    end
+    local nonce = req1.status == 403 and sets_cookie(req1, "SrvrNonce", ".")
     if not nonce then return false end
     -- credential is the MD5 hash of the nonce and the password (in upper case)
     local creds = stdnse.tohex(openssl.md5(nonce .. ":" .. pass:upper()))
@@ -1535,15 +1499,9 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     local req = http_post_simple(host, port, url.absolute(path, "cgi-bin/login"),
                                 nil, {password_value=pass, idle_timeout=60})
-    -- successful login is a 302-redirect that sets a session cookie with hex value
-    -- failed login is the same but the cookie contains an error message
-    if req.status ~= 302 then return false end
-    for _, ck in ipairs(req.cookies or {}) do
-      if ck.name:lower() == "session_id" then
-        -- observed variable cookie length between 37 and 40 digits
-        return #ck.value > 35 and ck.value:find("^%x+$") end
-    end
-    return false
+    -- successful login is a 302-redirect that sets a session cookie with hex
+    -- value; failed login is the same but the cookie contains an error message
+    return req.status == 302 and sets_cookie(req, "session_id", "^%x+$")
   end
 })
 
