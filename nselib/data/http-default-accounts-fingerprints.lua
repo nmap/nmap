@@ -310,7 +310,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 3.2.3
+  -- Version 3.2.3, 3.4.4, 4.0.8
   name = "Nagios",
   cpe = "cpe:/a:nagios:nagios",
   category = "web",
@@ -335,7 +335,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 3.1.1
+  -- Version 3.1.1, 4.0.2, 4.1.2
   name = "Grafana",
   category = "web",
   paths = {
@@ -718,7 +718,7 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Version H131-310CTU-C07_R01_4.5.5.27
-  name = "NexusLink-5631",
+  name = "Comtrend NexusLink-5631",
   category = "routers",
   paths = {
     {path = "/"}
@@ -761,7 +761,8 @@ table.insert(fingerprints, {
 
 table.insert(fingerprints, {
   -- Version 2.3, 2.4 on FVS318
-  name = "Netgear ProSafe Firewall",
+  name = "Netgear ProSafe Firewall FVS318",
+  cpe = "cpe:/h:netgear:fvs318",
   category = "routers",
   paths = {
     {path = "/"}
@@ -782,8 +783,9 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 2.00.08 on GS108PEv3
+  -- Version 2.00.03, .05, .07, .08 on GS108Ev3, GS108PEv3
   name = "Netgear ProSafe Plus Switch",
+  cpe = "cpe:/h:netgear:gs108*",
   category = "routers",
   paths = {
     {path = "/"}
@@ -930,7 +932,6 @@ table.insert(fingerprints, {
     {username = "admin", password = "setup"}
   },
   login_check = function (host, port, path, user, pass)
-    -- realm="Management(8)"
     return try_http_basic_login(host, port,
                                url.absolute(path, "manage/bdy_sys.htm"),
                                user, pass, false)
@@ -1039,7 +1040,6 @@ table.insert(fingerprints, {
     {username = "dm", password = "web"}
   },
   login_check = function (host, port, path, user, pass)
-    -- realm="WebPage Configuration"
     return try_http_basic_login(host, port,
                                url.absolute(path, "frmpages/index.html"),
                                user, pass, true)
@@ -1070,7 +1070,6 @@ table.insert(fingerprints, {
     if req.status == 200 then
       return (req.body or ""):find('top.render_table("System Page"', 1, true)
     end
-    -- realm="Menu Configuration"
     return try_http_basic_login(host, port, lurl, user, pass, true)
   end
 })
@@ -1096,7 +1095,6 @@ table.insert(fingerprints, {
     {username = "USER", password = "USER"}
   },
   login_check = function (host, port, path, user, pass)
-    -- realm="Schneider Web"
     return try_http_basic_login(host, port,
                                url.absolute(path, "secure/system/globaldata.htm?Language=English"),
                                user, pass, false)
@@ -1119,7 +1117,7 @@ table.insert(fingerprints, {
     {username = "admin", password = "password"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
   end
 })
 
@@ -1472,7 +1470,6 @@ table.insert(fingerprints, {
     {username = "root", password = ""}
   },
   login_check = function (host, port, path, user, pass)
-    -- realm="VMware HTTP server"
     return try_http_basic_login(host, port,
                                url.absolute(path, "folder?dcPath=ha-datacenter"),
                                user, pass, false)
