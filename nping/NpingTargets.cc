@@ -409,14 +409,18 @@ int NpingTargets::rewind(){
   return OP_SUCCESS;
 } /* End of rewind() */
 
+NpingTarget *NpingTargets::setcurrenths(){
+  this->currenths = Targets.back();
+  delete currenths;
+  Targets.pop_back();
+  return this->currenths;
+}
 /* Frees all of the Targets. Returns the number of freed targets. The number 
  * return should match value returned by getTargetsFetched().  */
 unsigned long int NpingTargets::freeTargets(){
   unsigned long int cnt=0;
   while(!this->Targets.empty()) {
-    this->currenths = Targets.back();
-    delete currenths;
-    Targets.pop_back();
+    setcurrenths();
     cnt++;
   }
   return cnt;
