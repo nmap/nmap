@@ -159,7 +159,7 @@ end
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
-  return stdnse.get_hostname(host)
+  return stdnse.get_hostname(host)..":"..tostring(port.number)
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
