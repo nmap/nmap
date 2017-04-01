@@ -2242,6 +2242,12 @@ if not unittest.testing() then
   return _ENV
 end
 
+local _test_id = 0
+local function test_id()
+  _test_id = _test_id + 1
+  return _test_id
+end
+
 test_suite = unittest.TestSuite:new()
 
 for test_name, test_code in pairs(COAP.header.codes.ids) do
@@ -2253,23 +2259,23 @@ for test_name, test_code in pairs(COAP.header.codes.ids) do
 
   -- Parse, implicitly from the first character.
   local pos, name = COAP.header.codes.parse(str)
-  test_suite:add_test(unittest.equal(name, test_name))
-  test_suite:add_test(unittest.equal(pos, #str + 1))
+  test_suite:add_test(unittest.equal(name, test_name), test_id())
+  test_suite:add_test(unittest.equal(pos, #str + 1), test_id())
 
   -- Parse, explicitly from the zero-indexed first character.
   local pos, name = COAP.header.codes.parse(str, 0)
-  test_suite:add_test(unittest.equal(name, test_name))
-  test_suite:add_test(unittest.equal(pos, #str + 1))
+  test_suite:add_test(unittest.equal(name, test_name), test_id())
+  test_suite:add_test(unittest.equal(pos, #str + 1), test_id())
 
   -- Parse, explicitly from the one-indexed first character.
   local pos, name = COAP.header.codes.parse(str, 1)
-  test_suite:add_test(unittest.equal(name, test_name))
-  test_suite:add_test(unittest.equal(pos, #str + 1))
+  test_suite:add_test(unittest.equal(name, test_name), test_id())
+  test_suite:add_test(unittest.equal(pos, #str + 1), test_id())
 
   -- Parse, explicitly from the one-indexed second character.
   local pos, name = COAP.header.codes.parse("!" .. str, 2)
-  test_suite:add_test(unittest.equal(name, test_name))
-  test_suite:add_test(unittest.equal(pos, #str + 2))
+  test_suite:add_test(unittest.equal(name, test_name), test_id())
+  test_suite:add_test(unittest.equal(pos, #str + 2), test_id())
 end
 
 local tests = {
@@ -2299,11 +2305,11 @@ for _, test in ipairs(tests) do
 
   -- Build the field.
   local str = COAP.header.options.value.uint.build(test_num)
-  test_suite:add_test(unittest.equal(str, test_str))
+  test_suite:add_test(unittest.equal(str, test_str), test_id())
 
   -- Parse the field.
   local num = COAP.header.options.value.uint.parse(test_str)
-  test_suite:add_test(unittest.equal(num, test_num))
+  test_suite:add_test(unittest.equal(num, test_num), test_id())
 end
 
 -- 3.1.  Option Format
@@ -2360,44 +2366,44 @@ for _, test in ipairs(tests) do
 
   -- Build the field.
   local str = COAP.header.options.delta_length.build(test_del, test_len)
-  test_suite:add_test(unittest.equal(str, test_str))
+  test_suite:add_test(unittest.equal(str, test_str), test_id())
 
   -- Parse, implicitly from the first character.
   local pos, del, len, err = COAP.header.options.delta_length.parse(test_str)
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
-  test_suite:add_test(unittest.equal(del, test_del))
-  test_suite:add_test(unittest.equal(len, test_len))
-  test_suite:add_test(unittest.is_nil(err))
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
+  test_suite:add_test(unittest.equal(del, test_del), test_id())
+  test_suite:add_test(unittest.equal(len, test_len), test_id())
+  test_suite:add_test(unittest.is_nil(err), test_id())
 
   -- -- Parse, explicitly from the zero-indexed first character.
   local pos, del, len, err = COAP.header.options.delta_length.parse(test_str, 0)
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
-  test_suite:add_test(unittest.equal(del, test_del))
-  test_suite:add_test(unittest.equal(len, test_len))
-  test_suite:add_test(unittest.is_nil(err))
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
+  test_suite:add_test(unittest.equal(del, test_del), test_id())
+  test_suite:add_test(unittest.equal(len, test_len), test_id())
+  test_suite:add_test(unittest.is_nil(err), test_id())
 
   -- Parse, explicitly from the one-indexed first character.
   local pos, del, len, err = COAP.header.options.delta_length.parse(test_str, 1)
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
-  test_suite:add_test(unittest.equal(del, test_del))
-  test_suite:add_test(unittest.equal(len, test_len))
-  test_suite:add_test(unittest.is_nil(err))
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
+  test_suite:add_test(unittest.equal(del, test_del), test_id())
+  test_suite:add_test(unittest.equal(len, test_len), test_id())
+  test_suite:add_test(unittest.is_nil(err), test_id())
 
   -- -- Parse, explicitly from the one-indexed second character.
   local pos, del, len, err = COAP.header.options.delta_length.parse("!" .. test_str, 2)
-  test_suite:add_test(unittest.equal(pos, #test_str + 2))
-  test_suite:add_test(unittest.equal(del, test_del))
-  test_suite:add_test(unittest.equal(len, test_len))
-  test_suite:add_test(unittest.is_nil(err))
+  test_suite:add_test(unittest.equal(pos, #test_str + 2), test_id())
+  test_suite:add_test(unittest.equal(del, test_del), test_id())
+  test_suite:add_test(unittest.equal(len, test_len), test_id())
+  test_suite:add_test(unittest.is_nil(err), test_id())
 
   -- Truncate string and attempt to parse, expecting error.
   local short_str = test_str:sub(1, #test_str - 1)
-  test_suite:add_test(unittest.equal(#short_str, #test_str - 1))
+  test_suite:add_test(unittest.equal(#short_str, #test_str - 1), test_id())
   local pos, del, len, err = COAP.header.options.delta_length.parse(short_str)
-  test_suite:add_test(unittest.is_false(pos))
-  test_suite:add_test(unittest.is_nil(del))
-  test_suite:add_test(unittest.is_nil(len))
-  test_suite:add_test(unittest.not_nil(err))
+  test_suite:add_test(unittest.is_false(pos), test_id())
+  test_suite:add_test(unittest.is_nil(del), test_id())
+  test_suite:add_test(unittest.is_nil(len), test_id())
+  test_suite:add_test(unittest.not_nil(err), test_id())
 end
 
 -- See section "3.1. Option Format" of the standard.
@@ -2496,27 +2502,27 @@ for _, test in ipairs(tests) do
 
   -- Build the packet.
   local str = COAP.header.options.build(test_opt1)
-  test_suite:add_test(unittest.equal(str, test_str))
+  test_suite:add_test(unittest.equal(str, test_str), test_id())
 
   -- Parse, implicitly from the first character.
   local pos, opt = COAP.header.options.parse(test_str)
-  test_suite:add_test(unittest.identical(opt, test_opt2))
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
+  test_suite:add_test(unittest.identical(opt, test_opt2), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
 
   -- Parse, explicitly from the zero-indexed first character.
   local pos, opt = COAP.header.options.parse(test_str, 0)
-  test_suite:add_test(unittest.identical(opt, test_opt2))
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
+  test_suite:add_test(unittest.identical(opt, test_opt2), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
 
   -- Parse, explicitly from the one-indexed first character.
   local pos, opt = COAP.header.options.parse(test_str, 1)
-  test_suite:add_test(unittest.identical(opt, test_opt2))
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
+  test_suite:add_test(unittest.identical(opt, test_opt2), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
 
   -- Parse, explicitly from the one-indexed second character.
   local pos, opt = COAP.header.options.parse("!" .. test_str, 2)
-  test_suite:add_test(unittest.identical(opt, test_opt2))
-  test_suite:add_test(unittest.equal(pos, #test_str + 2))
+  test_suite:add_test(unittest.identical(opt, test_opt2), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 2), test_id())
 end
 
 local tests = {
@@ -2551,27 +2557,27 @@ for _, test in ipairs(tests) do
 
   -- Build the packet.
   local str = COAP.header.build(test_hdr)
-  test_suite:add_test(unittest.equal(str, test_str))
+  test_suite:add_test(unittest.equal(str, test_str), test_id())
 
   -- Parse, implicitly from the first character.
   local pos, hdr = COAP.header.parse(test_str)
-  test_suite:add_test(unittest.identical(hdr, test_hdr))
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
+  test_suite:add_test(unittest.identical(hdr, test_hdr), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
 
   -- Parse, explicitly from the zero-indexed first character.
   local pos, hdr = COAP.header.parse(test_str, 0)
-  test_suite:add_test(unittest.identical(hdr, test_hdr))
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
+  test_suite:add_test(unittest.identical(hdr, test_hdr), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
 
   -- Parse, explicitly from the one-indexed first character.
   local pos, hdr = COAP.header.parse(test_str, 1)
-  test_suite:add_test(unittest.identical(hdr, test_hdr))
-  test_suite:add_test(unittest.equal(pos, #test_str + 1))
+  test_suite:add_test(unittest.identical(hdr, test_hdr), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 1), test_id())
 
   -- Parse, explicitly from the one-indexed second character.
   local pos, hdr = COAP.header.parse("!" .. test_str, 2)
-  test_suite:add_test(unittest.identical(hdr, test_hdr))
-  test_suite:add_test(unittest.equal(pos, #test_str + 2))
+  test_suite:add_test(unittest.identical(hdr, test_hdr), test_id())
+  test_suite:add_test(unittest.equal(pos, #test_str + 2), test_id())
 end
 
 local tests = {
@@ -2708,7 +2714,7 @@ for _, test in ipairs(tests) do
 
   -- Parse, implicitly from the first character.
   local status, res = COAP.payload.parse(hdr, test_str)
-  test_suite:add_test(unittest.identical(res, test_res))
+  test_suite:add_test(unittest.identical(res, test_res), test_id())
 end
 
 return _ENV;
