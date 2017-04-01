@@ -114,6 +114,7 @@ local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
 local sasl = require "sasl"
+local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -159,7 +160,14 @@ end
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
-  return stdnse.get_hostname(host)
+  if not host then return nil end
+  local ssl = shortport.ssl(host, port)
+  local pn = port.number
+  if not ssl and pn == 80 or ssl and pn == 443 then
+    return stdnse.get_hostname(host)
+  else
+    return stdnse.get_hostname(host) .. ":" .. pn
+  end
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
