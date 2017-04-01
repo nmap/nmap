@@ -161,6 +161,7 @@ end
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
   if not host then return nil end
+  port = type(port) == "number" and {number=port} or port
   local ssl = shortport.ssl(host, port)
   local pn = port.number
   if not ssl and pn == 80 or ssl and pn == 443 then
