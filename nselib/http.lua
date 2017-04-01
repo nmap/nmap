@@ -643,15 +643,13 @@ end
 
 -- Sets response["status-line"] and response.status.
 local function parse_status_line(status_line, response)
-  local version, status, reason_phrase
-
   response["status-line"] = status_line
-  version, status, reason_phrase = string.match(status_line,
-    "^HTTP/(%d%.%d) *(%d+) *(.*)\r?\n$")
+  local version, status, reason_phrase = string.match(status_line,
+    "^HTTP/(%d+%.%d+) +(%d+) +(.-)\r?\n$")
   if not version then
     return nil, string.format("Error parsing status-line %q.", status_line)
   end
-  -- We don't have a use for the version; ignore it.
+  -- We don't have a use for the version or the reason_phrase; ignore them.
   response.status = tonumber(status)
   if not response.status then
     return nil, string.format("Status code is not numeric: %s", status)
