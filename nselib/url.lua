@@ -182,14 +182,14 @@ function parse(url, default)
   local authority = parsed.authority
   if not authority then return parsed end
   authority = string.gsub(authority,"^([^@]*)@",
-  function(u) parsed.userinfo = u; return "" end)
+                function(u) parsed.userinfo = u; return "" end)
   authority = string.gsub(authority, ":([0-9]*)$",
-  function(p) if p ~= "" then parsed.port = p end; return "" end)
+                function(p) if p ~= "" then parsed.port = p end; return "" end)
   if authority ~= "" then parsed.host = authority end
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
   userinfo = string.gsub(userinfo, ":([^:]*)$",
-  function(p) parsed.password = p; return "" end)
+               function(p) parsed.password = p; return "" end)
   parsed.user = userinfo
   return parsed
 end
