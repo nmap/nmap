@@ -477,13 +477,6 @@ class FilteredNetworkInventory(NetworkInventory):
         search_keywords["cfp"] = "closed_filtered"
         self.search_parser = SearchParser(self, search_keywords)
 
-    # FIXME: This method doesn't do anything.  We just need to support
-    # the type of interface that SearchParser expects in order to use it.
-    # Perhaps, we will eventually refactor the SearchParser a little bit
-    # more?
-    def init_search_dirs(self, junk):
-        pass
-
     def get_hosts(self):
         if len(self.search_dict) > 0:
             return self.filtered_hosts
