@@ -60,7 +60,7 @@ ASN1Decoder = {
     -- Boolean
     self.decoder["\x01"] = function( self, encStr, elen, pos )
       local val = string.byte(encStr, pos)
-      return val ~= 0xFF, pos + 1
+      return val ~= 0, pos + 1
     end
 
     -- Integer
@@ -242,6 +242,10 @@ ASN1Decoder = {
   -- @return The decoded integer.
   -- @return The position after decoding.
   decodeInt = function(encStr, len, pos)
+    if len > 16 then
+      stdnse.debug2("asn1: Unable to decode %d-byte integer at %d", len, pos)
+      return nil, pos
+    end
     return string.unpack(">i" .. len, encStr, pos)
   end,
 
@@ -488,5 +492,36 @@ function intToBER( i )
   return ber
 end
 
+local unittest = require 'unittest'
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+do
+  local decode_tests = {
+    {unittest.is_false, "\x01\x01\x00", nil, "decode false"},
+    {unittest.is_true, "\x01\x01\x01", nil, "decode true"},
+    {unittest.is_true, "\x01\x01\xff", nil, "decode true (not 1)"},
+    {unittest.equal, "\x02\x01\x01", 1, "decode integer"},
+    {unittest.equal, "\x02\x02\xff\xff", -1, "decode negative integer"},
+    {unittest.equal, "\x02\x03\x01\x00\x00\x01", 65537, "decode integer"},
+    {unittest.equal, "\x04\x04nmap", "nmap", "decode octet string"},
+    {unittest.is_false, "\x05\x00", nil, "decode null as false"},
+    {unittest.identical, "\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x09\x04\x31",
+      {1, 2, 840, 113549, 1, 9, 4, _snmp="\x06"}, "decode OID"
+    },
+    {unittest.identical, "\x30\x09\x02\x01\x01\x02\x01\xff\x02\x01\x42",
+      {1, -1, 0x42}, "decode sequence"
+    },
+  }
+  local test_decoder = ASN1Decoder:new()
+  test_decoder:registerBaseDecoders()
+
+  for _, test in ipairs(decode_tests) do
+    test_suite:add_test(test[1](test_decoder:decode(test[2], 1), test[3]), test[4])
+  end
+end
 
 return _ENV;

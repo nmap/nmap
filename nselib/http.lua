@@ -114,6 +114,7 @@ local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
 local sasl = require "sasl"
+local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -159,7 +160,17 @@ end
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
-  return stdnse.get_hostname(host)
+  if not host then return nil end
+  if type(port) == "number" then
+    port = {number=port, protocol="tcp", state="open", version={}}
+  end
+  local ssl = shortport.ssl(host, port)
+  local pn = port.number
+  if not ssl and pn == 80 or ssl and pn == 443 then
+    return stdnse.get_hostname(host)
+  else
+    return stdnse.get_hostname(host) .. ":" .. pn
+  end
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -643,15 +654,13 @@ end
 
 -- Sets response["status-line"] and response.status.
 local function parse_status_line(status_line, response)
-  local version, status, reason_phrase
-
   response["status-line"] = status_line
-  version, status, reason_phrase = string.match(status_line,
-    "^HTTP/(%d%.%d) *(%d+) *(.*)\r?\n$")
+  local version, status, reason_phrase = string.match(status_line,
+    "^HTTP/(%d+%.%d+) +(%d+) +(.-)\r?\n$")
   if not version then
     return nil, string.format("Error parsing status-line %q.", status_line)
   end
-  -- We don't have a use for the version; ignore it.
+  -- We don't have a use for the version or the reason_phrase; ignore them.
   response.status = tonumber(status)
   if not response.status then
     return nil, string.format("Status code is not numeric: %s", status)

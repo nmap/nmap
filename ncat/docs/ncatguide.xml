@@ -1119,7 +1119,7 @@ Protocol mismatch.
     option and its short form
     <option>-d</option><indexterm><primary><option>-d</option> (Ncat option)</primary><see><option>--delay</option></see></indexterm>
     make Ncat wait the given amount of time between each discrete read
-    or write operation. For example, <command>--delay 500</command>
+    or write operation. For example, <command>--delay 500ms</command>
     enforces a delay of half a second.
     </para>
 

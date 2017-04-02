@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#766] The HTTP Host header will now include the port unless it is
+  the default one for a given scheme. [nnposter]
+
 o [NSE] Fixed several potential hangs in NSE scripts that used
   receive_buf(pattern), which will not return if the service continues to send
   data that does not match pattern. A new function in match.lua, pattern_limit,
