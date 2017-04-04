@@ -344,6 +344,7 @@ static int ncat_listen_stream(int proto)
         if (o.idletimeout > 0)
             ms_to_timeval(tvp, o.idletimeout);
 
+        /* The idle timer should only be running when there are active connections */
         if (get_conn_count())
             fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
         else
@@ -809,6 +810,7 @@ static int ncat_listen_dgram(int proto)
             if (o.idletimeout > 0)
                 ms_to_timeval(tvp, o.idletimeout);
 
+            /* The idle timer should only be running when there are active connections */
             if (get_conn_count())
                 fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
             else
