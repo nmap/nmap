@@ -506,7 +506,7 @@ do
     {unittest.is_true, "\x01\x01\xff", nil, "decode true (not 1)"},
     {unittest.equal, "\x02\x01\x01", 1, "decode integer"},
     {unittest.equal, "\x02\x02\xff\xff", -1, "decode negative integer"},
-    {unittest.equal, "\x02\x03\x01\x00\x00\x01", 65537, "decode integer"},
+    {unittest.equal, "\x02\x03\x01\x00\x02", 65538, "decode integer"},
     {unittest.equal, "\x04\x04nmap", "nmap", "decode octet string"},
     {unittest.is_false, "\x05\x00", nil, "decode null as false"},
     {unittest.identical, "\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x09\x04\x31",
