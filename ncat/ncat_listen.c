@@ -344,7 +344,10 @@ static int ncat_listen_stream(int proto)
         if (o.idletimeout > 0)
             ms_to_timeval(tvp, o.idletimeout);
 
-        fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
+        if (get_conn_count())
+            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
+        else
+            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, NULL);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
@@ -806,7 +809,10 @@ static int ncat_listen_dgram(int proto)
             if (o.idletimeout > 0)
                 ms_to_timeval(tvp, o.idletimeout);
 
-            fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
+            if (get_conn_count())
+                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
+            else
+                fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, NULL);
 
             if (o.debug > 1)
                 logdebug("select returned %d fds ready\n", fds_ready);

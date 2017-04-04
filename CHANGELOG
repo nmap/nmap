@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Made -i/--idle-timeout not cause Ncat in server mode to close while
+  waiting for an initial connection. This was also causing -i to interfere with
+  the HTTP proxy server mode. [Carlos Manso, Daniel Miller]
+
 o [NSE][GH#766] The HTTP Host header will now include the port unless it is
   the default one for a given scheme. [nnposter]
 
