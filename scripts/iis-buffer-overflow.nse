@@ -5,12 +5,6 @@ local vulns = require "vulns"
 
 -- NSE Buffer Overflow vulnerability in IIS
 
-description = [[
-Buffer overflow in the ScStoragePathFromUrl function in the WebDAV service
-in Internet Information Services (IIS) 6.0 in Microsoft Windows Server 2003 R2 allows
-remote attackers to execute arbitrary code via a long header beginning with http protocol.
-]]
-
 ---
 -- @usage
 -- ./nmap iis-buffer-overflow <target>
@@ -23,9 +17,13 @@ remote attackers to execute arbitrary code via a long header beginning with http
 -- |       State: LIKELY_VULNERABLE
 -- |       Risk factor: High CVSS: 10.0
 -- |       Description:
--- |         Buffer overflow in the ScStoragePathFromUrl function in the WebDAV service
--- |         in Internet Information Services (IIS) 6.0 in Microsoft Windows Server 2003 R2 allows
--- |         remote attackers to execute arbitrary code via a long header beginning with http protocol.
+-- |         Buffer overflow in the ScStoragePathFromUrl function in the WebDAV
+-- |         service in Internet Information Services (IIS) 6.0
+-- |         in Microsoft Windows Server 2003 R2 allows remote attackers to execute
+-- |         arbitrary code via a long header beginning with "If: <http://" in a
+-- |         PROPFIND request, as exploited in the wild in July or August 2016.
+-- |
+-- |         Original exploit by Zhiniang Peng and Chen Wu.
 -- |
 -- |    References:
 -- |     https://github.com/edwardz246003/IIS_exploit,
