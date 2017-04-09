@@ -259,7 +259,7 @@ table.insert(fingerprints, {
     -- harvest all hidden fields from the login form
     local resp1 = http_get_simple(host, port, lurl)
     if resp1.status ~= 200 then return false end
-    local html = resp1.body and resp1.body:match('<form%s+action%s*=%s*"[^"]*/users/login".->(.-)</form>')
+    local html = (resp1.body or ""):match('<form%s+action%s*=%s*"[^"]*/users/login".->(.-)</form>')
     if not html then return false end
     local form = {}
     for n, v in html:gmatch('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"(.-)"%s+value%s*=%s*"(.-)"') do
@@ -1224,13 +1224,13 @@ table.insert(fingerprints, {
     -- determine proper login path by locale
     local resp0 = http.get(host, port, path)
     if resp0.status ~= 200 then return false end
-    local lurl = resp0.body and resp0.body:match('location%.href="(/[^"]+/)mainFrame%.cgi"')
+    local lurl = (resp0.body or ""):match('location%.href="(/[^"]+/)mainFrame%.cgi"')
     if not lurl then return false end
     -- harvest the login form token
     local resp1 = http_get_simple(host, port, url.absolute(lurl, "authForm.cgi"),
                                  {cookies="cookieOnOffChecker=on"})
     if resp1.status ~= 200 then return false end
-    local token = resp1.body and resp1.body:match('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"wimToken"%s+value%s*=%s*"(.-)"')
+    local token = (resp1.body or ""):match('<input%s+type%s*=%s*"hidden"%s+name%s*=%s*"wimToken"%s+value%s*=%s*"(.-)"')
     if not token then return false end
     -- build the login form and submit it
     local form = {wimToken = token,
@@ -1324,8 +1324,7 @@ table.insert(fingerprints, {
     local resp = http_post_simple(host, port, url.absolute(path, "soap"),
                                  {header=header}, soapmsg)
     return resp.status == 200
-           and resp.body
-           and resp.body:find('<result xsi:type="xsd:boolean">true</result>', 1, true)
+           and (resp.body or ""):find('<result xsi:type="xsd:boolean">true</result>', 1, true)
   end
 })
 
