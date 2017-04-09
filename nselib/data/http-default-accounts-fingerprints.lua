@@ -529,9 +529,10 @@ table.insert(fingerprints, {
     {username = "beef", password = "beef"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_post_login(host, port, path, "login",
-                               "{%s*success%s*:%s*false%s*}",
-                               {["username-cfrm"]=user, ["password-cfrm"]=pass})
+    local resp = http_post_simple(host, port, url.absolute(path, "login"), nil,
+                                 {["username-cfrm"]=user, ["password-cfrm"]=pass})
+    return resp.status == 200
+           and (resp.body or ""):find("{%s*success%s*:%s*true%s*}")
   end
 })
 
