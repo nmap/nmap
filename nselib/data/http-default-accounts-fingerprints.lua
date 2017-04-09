@@ -618,7 +618,7 @@ table.insert(fingerprints, {
     return response.status == 200
            and response.body
            and response.body:find("Docsis", 1, true)
-           and response.body:find('window%.location%.href%s*=%s*"Docsis_system%.asp";')
+           and response.body:find("window%.location%.href%s*=%s*(['\"])Docsis_system%.asp%1")
   end,
   login_combos = {
     {username = "", password = ""}
@@ -1390,7 +1390,7 @@ table.insert(fingerprints, {
     return have_openssl
            and response.status == 200
            and response.header["command-status"]
-           and response.header["command-status"]:find("^0 %({.*systemName:.*,%s*controller:.*}%)")
+           and response.header["command-status"]:find("^0 %({%s*systemName:.*,%s*controller:.*}%)")
   end,
   login_combos = {
     {username = "monitor", password = "!monitor"},
