@@ -278,7 +278,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   --Version 5.3.1.1944 on EH6000
   name = "ExtraHop Web UI",
-  category = "new",
+  category = "web",
   paths = {
     {path = "/extrahop/"}
   },
