@@ -350,6 +350,15 @@ local actions = {
   [61] = {name="Client Identifier (client)",      func=read_string,         default=false},
   [66] = {name="TFTP Server Name",                func=read_string,         default=false},
   [67] = {name="Bootfile Name",                   func=read_string,         default=false},
+  [86] = {name="NDS Tree Name",                   func=read_string,         default=false},
+  [88] = {name="BCMCS Controller Domain Name",    func=read_string,         default=false},
+  [92] = {name="Associated IP option",            func=read_ip              default=false},
+  [95] = {name="LDAP",                            func=read_static_route,   default=false},
+  [100] = {name="PCode",                          func=read_string,         default=false},
+  [101] = {name="TCode",                          func=read_string,         default=false},
+  [100] = {name="PCode",                          func=read_string,         default=false},
+  [112] = {name="Netinfo Address",                func=read_ip,             default=false},
+  [113] = {name="Netinfo Tag",                    func=read_1_byte,         default=false},
   [252]= {name="WPAD",                            func=read_string,         default=false},
 }
 
