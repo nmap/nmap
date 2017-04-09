@@ -1,5 +1,7 @@
 local base64 = require "base64"
 local http = require "http"
+local json = require "json"
+local math = require "math"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -351,9 +353,10 @@ table.insert(fingerprints, {
   login_check = function (host, port, path, user, pass)
     local header = {["Accept"] = "application/json, text/plain, */*",
                     ["Content-Type"] = "application/json;charset=utf-8"}
-    local json = ('{"user":"%s","email":"","password":"%s"}'):format(user, pass)
+    local jin = {user=user, email="", password=pass}
+    json.make_object(jin)
     local resp = http_post_simple(host, port, url.absolute(path, "login"),
-                                 {header=header}, json)
+                                 {header=header}, json.generate(jin))
     return resp.status == 200 and sets_cookie(resp, "grafana_user") == user
   end
 })
@@ -806,7 +809,8 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  name = "Motorola AP-7532",
+  -- AP6521, AP6522, AP7522, AP7532
+  name = "Motorola AP",
   category = "routers",
   paths = {
     {path = "/"}
@@ -826,8 +830,9 @@ table.insert(fingerprints, {
                   password = pass}
     local lurl = url.absolute(path, "rest.fcgi/services/rest/login?" .. url.build_query(form))
     local resp = http_get_simple(host, port, lurl)
-    return resp.status == 200
-           and (resp.body or ""):find('[{,]%s*"status"%s*:%s*true%s*[,}]')
+    if not (resp.status == 200 and resp.body) then return false end
+    local jstatus, jout = json.parse(resp.body)
+    return jstatus and jout.status
   end
 })
 
