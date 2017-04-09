@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#807] Fixed a JSON library issue that was causing long integers
+  to be expressed in the scientific/exponent notation. [nnposter]
+
 o [Ncat] Made -i/--idle-timeout not cause Ncat in server mode to close while
   waiting for an initial connection. This was also causing -i to interfere with
   the HTTP proxy server mode. [Carlos Manso, Daniel Miller]

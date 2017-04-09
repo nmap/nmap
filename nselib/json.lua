@@ -233,7 +233,7 @@ function generate(obj)
   elseif obj == true then
     return "true"
   elseif type(obj) == "number" then
-    return string.format("%g", obj)
+    return tostring(obj)
   elseif type(obj) == "string" then
     return escape(obj)
   elseif type(obj) == "table" then
