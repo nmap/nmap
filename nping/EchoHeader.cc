@@ -302,7 +302,7 @@ int EchoHeader::setTimestamp(u32 val){
 /** Sets Timestamp.
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error. */
 int EchoHeader::setTimestamp(){
-  u32 t=(u32)time(NULL);  /* TODO: Make sure this does not cause problems */
+  u32 t=(u32)time(NULL);
   this->h.echo_ts=htonl(t);
   return OP_SUCCESS;
 } /* End of setTimestamp() */
