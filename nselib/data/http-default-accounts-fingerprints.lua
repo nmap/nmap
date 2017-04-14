@@ -826,7 +826,7 @@ table.insert(fingerprints, {
     {username = "admin", password = "motorola"}
   },
   login_check = function (host, port, path, user, pass)
-    local form = {_dc = stdnse.clock_ms(),
+    local form = {_dc = math.floor(stdnse.clock_ms()),
                   username = user,
                   password = pass}
     local lurl = url.absolute(path, "rest.fcgi/services/rest/login?" .. url.build_query(form))
@@ -1303,7 +1303,7 @@ table.insert(fingerprints, {
     -- but this would be too revealing
     local sessionid = host.ip
                       .. "_"
-                      .. stdnse.clock_ms()
+                      .. math.floor(stdnse.clock_ms())
                       .. math.random(100000, 999999)
     local encpass = xmlencode(pass)
     local header = {["Content-Type"]="text/xml", ["SOAPAction"]='""'}
