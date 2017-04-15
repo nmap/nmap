@@ -46,7 +46,7 @@ action = function(host, port)
     end
 
     for _, v in ipairs(regex) do
-      if response.body ~= nil and string.match(response.body, v)) then
+      if response.body ~= nil and string.match(response.body, v) then
         local hostname = host.targetname or host.ip
         local url = hostname .. path .. uri
         -- Trimming the hex values which are appended at the end of the string
