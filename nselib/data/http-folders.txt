@@ -1,4 +1,5 @@
 /.git/
+/.htaccess/
 /1/
 /2/
 /3/
@@ -607,6 +608,7 @@
 /privado/
 /private/
 /_private/
+/proc/
 /prod/
 /projectserver/
 /protected/
