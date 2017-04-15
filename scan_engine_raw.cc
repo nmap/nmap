@@ -721,10 +721,6 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                    || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 3)) {
           if (o.debugging)
             log_write(LOG_STDOUT, "Got Time Exceeded for %s\n", hss->target->targetipstr());
-          goodone = 1;
-          newstate = HOST_DOWN;
-          /* I don't want anything to do with timing this. */
-          adjust_timing = false;
         } else if (hdr.proto == IPPROTO_ICMP && ping->type == 4) {
           if (o.debugging)
             log_write(LOG_STDOUT, "Got ICMP source quench\n");
