@@ -29,7 +29,8 @@ action = function(host, port)
     "password",
     "USERNAME",
     "PASSWORD",
-    "passe",
+    "Login",
+    "login",
     "Admin Password"
   }
 
