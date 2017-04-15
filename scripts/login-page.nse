@@ -19,7 +19,31 @@ portrule = shortport.portnumber(80, "tcp")
 action = function(host, port)
 
   local path = "/"
-  local type = "php"
+  local type = stdnse.get_script_args(SCRIPT_NAME .. ".type") or "all"
+
+  local existing_types = {
+    "aspx",
+    "asp",
+    "brf",
+    "cgi",
+    "cfm",
+    "js",
+    "php"
+  }
+
+  local flag = 0
+  for _, v in ipairs(existing_types) do
+    if type == v then
+      flag = 1
+    end
+  end
+
+  if flag == 0 then
+    stdnse.debug("No database exists this type of websites yet.")
+    stdnse.debug("Continuing with the existing database to check for general pages.")
+    type = "all"
+  end
+
   local file = "nselib/data/web-login/" .. type .. ".lst"
 
   local regex = {
