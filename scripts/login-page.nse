@@ -18,6 +18,7 @@ portrule = shortport.portnumber(80, "tcp")
 
 action = function(host, port)
 
+  local path = "/"
   local type = "php"
   local file = "nselib/data/web-login/" .. type .. ".lst"
 
@@ -38,16 +39,17 @@ action = function(host, port)
 
   for uri in io.lines(uris) do
     local response = http.get(host, port, path .. uri)
+    local hostname = host.targetname or host.ip
 
     if response.body ~= nil then
-        stdnse.debug(string.format("Not nil : %s\n", host.targetname .. path .. uri))
+        stdnse.debug(string.format("Not nil : %s\n", hostname .. path .. uri))
     else
-        stdnse.debug(string.format("Nil : %s\n", host.targetname .. path .. uri))
+        stdnse.debug(string.format("Nil : %s\n", hostname .. path .. uri))
     end
 
     for _, v in ipairs(regex) do
       if response.body ~= nil and string.match(response.body, v) then
-        local hostname = host.targetname or host.ip
+
         local url = hostname .. path .. uri
         -- Trimming the hex values which are appended at the end of the string
         local trimmed_url = url:sub(1, -2)
