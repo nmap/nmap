@@ -53,8 +53,6 @@ action = function(host, port)
     "password",
     "USERNAME",
     "PASSWORD",
-    "Login",
-    "login",
     "Admin Password"
   }
 
