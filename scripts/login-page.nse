@@ -11,20 +11,27 @@ Displays both the user login and admin login pages in all websites.
 ]]
 
 ---
--- @usage nmap --script login-page <target>
--- @usage nmap --script login-page --script-args type="php" <target>
-
--- @args login-page.type Checks for pages of particular extension,
---       default is type is all which checks for all the extensions.
-
--- @output
--- PORT   STATE SERVICE REASON
--- 22/tcp open  ssh     syn-ack ttl 64
--- 80/tcp open  http    syn-ack ttl 64
--- | login-page:
--- |   192.168.146.145/admin/
--- |   192.168.146.145/admin/index.php
--- |_  192.168.146.145/admin/login.php
+--  @usage ./nmap --script login-page <target> -d
+--  @usage ./nmap --script login-page --script-args type="php" <target> -d
+--
+--  If timeout occurs frequently due to bad internet connection then
+--  @usage ./nmap --script login-page --script-args type="php" --host-timeout=<timeout> -d
+--
+--  If the user has prior knowledge on which port to check, he can save time by
+--  specifying that particular port as a command line argument
+--  @usage ./nmap --script login-page --script-args type="jsp" -p 80 -d
+--
+--  @args login-page.type Checks for pages of particular extension,
+--        default is type is all which checks for all the extensions.
+--
+--  @output
+--  PORT   STATE SERVICE REASON
+--  22/tcp open  ssh     syn-ack ttl 64
+--  80/tcp open  http    syn-ack ttl 64
+--  | login-page:
+--  |   192.168.146.145/admin/
+--  |   192.168.146.145/admin/index.php
+--  |_  192.168.146.145/admin/login.php
 ---
 
 author = "Rewanth Cool"
