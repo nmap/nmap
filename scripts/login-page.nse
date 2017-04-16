@@ -31,7 +31,15 @@ author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-portrule = shortport.portnumber(80, "tcp")
+portrule = function(host, port)
+  -- Working :
+  -- If -p argument is used, then the script will be executed only on the given ports.
+  -- If -p argument is not used, then the script will be executed on all the open ports.
+  stdnse.debug(string.format("Loading port %d", port.number))
+
+  local selected_ports = shortport.port_or_service({port.number}, "http", "tcp", {"open", "open|filtered"})
+  return selected_ports(host, port)
+end
 
 action = function(host, port)
 
@@ -81,6 +89,7 @@ action = function(host, port)
   }
 
   local output = {}
+  local hostname = host.targetname or host.ip
 
   -- Fetching all the uris from the db
   local uris = nmap.fetchfile(file)
@@ -89,12 +98,14 @@ action = function(host, port)
   -- Reading line by line and sending requests to those pages.
   for uri in io.lines(uris) do
     --[[
-        TODO : 
+        TODO :
         If there are multiple timeout errors then tell the user that something is wrong
         with his/her internet connection.
     ]]
+
+    stdnse.debug(string.format("Sending GET request to %s", hostname .. path .. uri))
+
     local response = http.get(host, port, path .. uri)
-    local hostname = host.targetname or host.ip
 
     for _, v in ipairs(regex) do
       if response.body ~= nil and string.match(response.body, v) then
