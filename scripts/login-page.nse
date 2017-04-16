@@ -100,6 +100,15 @@ action = function(host, port)
     end
   end
 
-  return output
+  local counter = 0
+  for _, v in ipairs(output) do
+    counter = counter + 1
+  end
+
+  if counter == 0 then
+    return nil
+  else
+    return output
+  end
 
 end
