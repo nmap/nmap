@@ -92,8 +92,8 @@ action = function(host, port)
       if response.body ~= nil and string.match(response.body, v) then
 
         local url = hostname .. path .. uri
-        -- Trimming the hex values which are appended at the end of the string
-        local trimmed_url = url:sub(1, -2)
+        -- Removing the non-alpha numeric strings if there exist any
+        local trimmed_url = url:gsub('%W','')
         table.insert(output, trimmed_url)
         break
       end
