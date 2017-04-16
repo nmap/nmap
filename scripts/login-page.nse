@@ -15,6 +15,8 @@ TODO:
     - httpspider library can be used to accomplish this task.
 - If there are frequent socket errors or http.request TIMEOUTS notify the user
   to check his internet connection and proxy instead of returning nil.
+- Current database are having only 150 entries for each extension, updating this
+  is a never ending process and this can be done frequently to obtain better results.
 ]]
 
 ---
@@ -22,12 +24,12 @@ TODO:
 --  @usage ./nmap --script login-page --script-args extension="php" <target> -d
 --
 --  If timeout occurs frequently due to bad internet connection then
---  @usage ./nmap --script login-page --script-args extension="php" --host-timeout=<timeout> -d
+--  @usage ./nmap --script login-page --script-args extension="php" <target> --host-timeout=<timeout> -d
 --
 --  Best way to run the script
 --  If the user has prior knowledge on which port to check, he can save time by
 --  specifying that particular port as a general command line argument using -p
---  @usage ./nmap --script login-page --script-args extension="jsp" -p 80 -d
+--  @usage ./nmap --script login-page --script-args extension="jsp" <target> -p 80 -d
 --
 --  @args login-page.extension Checks for pages of particular extension,
 --        default is extension is all which checks for all the extensions.
