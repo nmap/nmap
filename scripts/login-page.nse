@@ -12,17 +12,18 @@ Displays both the user login and admin login pages in all websites.
 
 ---
 --  @usage ./nmap --script login-page <target> -d
---  @usage ./nmap --script login-page --script-args type="php" <target> -d
+--  @usage ./nmap --script login-page --script-args extension="php" <target> -d
 --
 --  If timeout occurs frequently due to bad internet connection then
---  @usage ./nmap --script login-page --script-args type="php" --host-timeout=<timeout> -d
+--  @usage ./nmap --script login-page --script-args extension="php" --host-timeout=<timeout> -d
 --
+--  Best way to run the script
 --  If the user has prior knowledge on which port to check, he can save time by
---  specifying that particular port as a command line argument
---  @usage ./nmap --script login-page --script-args type="jsp" -p 80 -d
+--  specifying that particular port as a general command line argument using -p
+--  @usage ./nmap --script login-page --script-args extension="jsp" -p 80 -d
 --
---  @args login-page.type Checks for pages of particular extension,
---        default is type is all which checks for all the extensions.
+--  @args login-page.extension Checks for pages of particular extension,
+--        default is extension is all which checks for all the extensions.
 --
 --  @output
 --  PORT   STATE SERVICE REASON
@@ -51,9 +52,9 @@ end
 action = function(host, port)
 
   local path = "/"
-  local type = stdnse.get_script_args(SCRIPT_NAME .. ".type") or "all"
+  local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or "all"
 
-  local existing_types = {
+  local existing_extensions = {
     "aspx",
     "asp",
     "brf",
@@ -64,25 +65,30 @@ action = function(host, port)
     "php"
   }
 
-  -- Checking whether the user provided type is existing in our db or not.
+  -- Checking whether the user provided extension is existing in our db or not.
   local flag = 0
-  for _, v in ipairs(existing_types) do
-    if type == v then
+  local string_of_existing_extensions = ''
+  for _, v in ipairs(existing_extensions) do
+    string_of_existing_extensions = string_of_existing_extensions .. v .. ', '
+    if extension == v then
       flag = 1
     end
   end
 
-  -- If no such db exists then we combine all the db and check againsts them
-  if flag == 0 then
-    stdnse.debug("No database exists this type of websites yet.")
-    stdnse.debug("Continuing with the existing database to check for general pages.")
+  string_of_existing_extensions = string_of_existing_extensions .. 'all'
 
-    -- Extension type not found in the db, so assigning the type a special value
-    -- which checks for all types of extensions
-    type = "all"
+  -- If user provided extension is not in our db
+  if flag == 0 then
+    -- Extension type not found in the db, throwing a suggestion to end user.
+    local err = "There is no extension like '" .. extension .. "' in the db."
+    err = err .. " Send a mail to rewanth1997[at]gmail.com"
+    err = err .. " and it will be updated soon to db."
+    err = err .. " Available extensions are "
+    err = err .. string_of_existing_extensions .. "\n"
+    return err
   end
 
-  local file = "nselib/data/web-login/" .. type .. ".lst"
+  local file = "nselib/data/web-login/" .. extension .. ".lst"
 
   -- These regex are used while scraping the web pages for confirmation.
   local regex = {
@@ -104,12 +110,6 @@ action = function(host, port)
 
   -- Reading line by line and sending requests to those pages.
   for uri in io.lines(uris) do
-    --[[
-        TODO :
-        If there are multiple timeout errors then tell the user that something is wrong
-        with his/her internet connection.
-    ]]
-
     stdnse.debug(string.format("Sending GET request to %s", hostname .. path .. uri))
 
     local response = http.get(host, port, path .. uri)
