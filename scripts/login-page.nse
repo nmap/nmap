@@ -10,9 +10,26 @@ Exposes the admin login page in any website.
 Displays both the user login and admin login pages in all websites.
 ]]
 
+---
+-- @usage nmap --script login-page <target>
+-- @usage nmap --script login-page --script-args type="php" <target>
+
+-- @args login-page.type Checks for pages of particular extension,
+--       default is type is all which checks for all the extensions.
+
+-- @output
+-- PORT   STATE SERVICE REASON
+-- 22/tcp open  ssh     syn-ack ttl 64
+-- 80/tcp open  http    syn-ack ttl 64
+-- | login-page:
+-- |   192.168.146.145/admin/
+-- |   192.168.146.145/admin/index.php
+-- |_  192.168.146.145/admin/login.php
+---
+
 author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"auth", "discovery", "safe"}
+categories = {"discovery", "safe"}
 
 portrule = shortport.portnumber(80, "tcp")
 
