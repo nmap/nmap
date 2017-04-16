@@ -88,6 +88,11 @@ action = function(host, port)
 
   -- Reading line by line and sending requests to those pages.
   for uri in io.lines(uris) do
+    --[[
+        TODO : 
+        If there are multiple timeout errors then tell the user that something is wrong
+        with his/her internet connection.
+    ]]
     local response = http.get(host, port, path .. uri)
     local hostname = host.targetname or host.ip
 
