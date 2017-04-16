@@ -54,6 +54,10 @@ action = function(host, port)
   local path = "/"
   local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or "all"
 
+  --  NOTE:
+  --  If any new db file is created for non-existing extension
+  --  make sure to update the name of the extension here also
+  --  inorder to execute this script successfully.
   local existing_extensions = {
     "aspx",
     "asp",
