@@ -28,6 +28,7 @@ action = function(host, port)
     "cgi",
     "cfm",
     "js",
+    "jsp",
     "php"
   }
 
