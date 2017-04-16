@@ -7,7 +7,14 @@ local string = require "string"
 
 description = [[
 Exposes the admin login page in any website.
-Displays both the user login and admin login pages in all websites.
+Displays both the user login and admin login pages in any website.
+
+TODO:
+- Automatically crawl the website and find the extension instead of taking
+  it as a parameter from the user.
+    - httpspider library can be used to accomplish this task.
+- If there are frequent socket errors or http.request TIMEOUTS notify the user
+  to check his internet connection and proxy instead of returning nil.
 ]]
 
 ---
