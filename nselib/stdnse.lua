@@ -1445,4 +1445,28 @@ function keys(t)
   return ret
 end
 
+-- Returns the case insensitive pattern of given parameter
+-- Useful while doing case insensitive pattern match using string library.
+--
+-- Ex: generate_case_insensitive_pattern("user") = "[uU][sS][eE][rR]"
+--
+-- @param pattern The string
+-- @return A case insensitive patterned string
+function generate_case_insensitive_pattern(pattern)
+  -- Find an optional '%' (group 1) followed by any character (group 2)
+  local p = pattern:gsub("(%%?)(.)", function(percent, letter)
+
+    if percent ~= "" or not letter:match("%a") then
+      -- If the '%' matched, or `letter` is not a letter, return "as is"
+      return percent .. letter
+    else
+      -- Else, return a case-insensitive character class of the matched letter
+      return string.format("[%s%s]", letter:lower(), letter:upper())
+    end
+
+  end)
+
+  return p
+end
+
 return _ENV;
