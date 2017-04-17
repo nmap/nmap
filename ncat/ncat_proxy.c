@@ -262,9 +262,6 @@ int ncat_http_server(void)
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
 
-        if (fds_ready == 0)
-            bye("Idle timeout expired (%d ms).", o.idletimeout);
-
         for (i = 0; i <= listen_fdlist.fdmax && fds_ready > 0; i++) {
             /* Loop through descriptors until there is something ready */
             if (!FD_ISSET(i, &read_fds))
@@ -364,7 +361,8 @@ static void http_server_handler(int c)
     struct http_request request;
     char *buf;
 
-    socket_buffer_init(&sock, c);
+    if (socket_buffer_init(&sock, c) == -1)
+        logdebug("Unable to set the idle timeout on client socket\n");
 #if HAVE_OPENSSL
     if (o.ssl) {
         sock.fdn.ssl = new_ssl(sock.fdn.fd);
@@ -480,10 +478,12 @@ static int handle_connect(struct socket_buffer *client_sock,
 {
     union sockaddr_u su;
     size_t sslen = sizeof(su.storage);
-    int maxfd, s, rc;
+    int maxfd, s, rc, fds_ready;
     char *line;
     size_t len;
     fd_set m, r;
+    struct timeval tv;
+    struct timeval *tvp = NULL;
 
     if (request->uri.port == -1) {
         if (o.verbose)
@@ -530,13 +530,24 @@ static int handle_connect(struct socket_buffer *client_sock,
 
     errno = 0;
 
+    if (o.idletimeout > 0){
+        tvp = &tv;
+        ms_to_timeval(tvp, o.idletimeout);
+    }
+
     while (!socket_errno() || socket_errno() == EINTR) {
         char buf[DEFAULT_TCP_BUF_LEN];
         int len, rc;
 
         r = m;
 
-        fselect(maxfd + 1, &r, NULL, NULL, NULL);
+        fds_ready = fselect(maxfd + 1, &r, NULL, NULL, tvp);
+
+        if (fds_ready == 0){
+            if (o.debug)
+                logdebug("Closing socket(timeout %i)\n", o.idletimeout);
+            goto end;
+        }
 
         zmem(buf, sizeof(buf));
 
@@ -628,7 +639,8 @@ static int handle_method(struct socket_buffer *client_sock,
         return 504;
     }
 
-    socket_buffer_init(&server_sock, s);
+    if (socket_buffer_init(&server_sock, s) == -1)
+        logdebug("Unable to set the idle timeout on server socket\n");
 
     code = do_transaction(request, client_sock, &server_sock);
 
@@ -716,7 +728,7 @@ static int do_transaction(struct http_request *request,
         logdebug("Status-Line: %s", line);
     if (code != 0) {
         if (o.verbose)
-            logdebug("Error reading Status-Line.\n");
+            logdebug("Error reading Status-Line or idle connection.\n");
         return 0;
     }
     code = http_parse_status_line(line, &response);
@@ -730,7 +742,7 @@ static int do_transaction(struct http_request *request,
     code = http_read_header(server_sock, &line);
     if (code != 0) {
         if (o.verbose)
-            logdebug("Error reading header.\n");
+            logdebug("Error reading header or idle connection.\n");
         return 0;
     }
     if (o.debug > 1)

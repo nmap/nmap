@@ -145,7 +145,7 @@ struct socket_buffer {
     char *end;
 };
 
-void socket_buffer_init(struct socket_buffer *buf, int sd);
+int socket_buffer_init(struct socket_buffer *buf, int sd);
 
 int socket_buffer_read(struct socket_buffer *buf, char *out, size_t size);
 
