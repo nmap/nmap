@@ -632,6 +632,13 @@ static int handle_method(struct socket_buffer *client_sock,
 
     s = Socket(su.storage.ss_family, SOCK_STREAM, IPPROTO_TCP);
 
+    if (o.idletimeout > 0) {
+        struct timeval tv;
+        ms_to_timeval(&tv, o.idletimeout);
+        if (setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval)) == -1)
+            logdebug("Can't set timeout on socket %i", s);
+    }
+
     if (connect(s, &su.sockaddr, sslen) == -1) {
         if (o.debug)
             logdebug("Can't connect to %s.\n", inet_socktop(&su));
