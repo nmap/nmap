@@ -772,7 +772,7 @@ void printportoutput(Target *currenths, PortList *plist) {
           log_write(LOG_MACHINE, ", ");
         else
           first = 0;
-        strcpy(protocol, IPPROTO2STR(current->proto));
+        Strncpy(protocol, IPPROTO2STR(current->proto), sizeof(protocol));
         Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
         state = statenum2str(current->state);
         plist->getServiceDeductions(current->portno, current->proto, &sd);
@@ -1612,7 +1612,7 @@ static void printosclassificationoutput(const struct
                 sizeof(familygenerations[familyno]))
               fatal("buffer 0verfl0w of familygenerations");
             if (*familygenerations[familyno])
-              strcat(familygenerations[familyno], "|");
+              strncat(familygenerations[familyno], "|", sizeof(familygenerations[familyno]) - flen - 1);
             strncat(familygenerations[familyno],
                     OSR->OSC[classno]->OS_Generation,
                     sizeof(familygenerations[familyno]) - flen - 1);
@@ -2045,7 +2045,7 @@ void printosscanoutput(Target *currenths) {
         fatal("STRANGE ERROR #3877 -- please report to fyodor@nmap.org\n");
       if (p != numlst)
         *p++ = ',';
-      sprintf(p, "%X", currenths->seq.seqs[i]);
+      Snprintf(p, sizeof(p), "%X", currenths->seq.seqs[i]);
       while (*p)
         p++;
     }
@@ -2069,7 +2069,7 @@ void printosscanoutput(Target *currenths) {
         fatal("STRANGE ERROR #3876 -- please report to fyodor@nmap.org\n");
       if (p != numlst)
         *p++ = ',';
-      sprintf(p, "%hX", currenths->seq.ipids[i]);
+      Snprintf(p, sizeof(p), "%hX", currenths->seq.ipids[i]);
       while (*p)
         p++;
     }
@@ -2090,7 +2090,7 @@ void printosscanoutput(Target *currenths) {
         fatal("STRANGE ERROR #3878 -- please report to fyodor@nmap.org\n");
       if (p != numlst)
         *p++ = ',';
-      sprintf(p, "%X", currenths->seq.timestamps[i]);
+      Snprintf(p, sizeof(p), "%X", currenths->seq.timestamps[i]);
       while (*p)
         p++;
     }

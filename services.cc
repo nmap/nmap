@@ -203,7 +203,7 @@ static int nmap_services_init() {
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
 #ifndef WIN32
     error("Unable to find nmap-services!  Resorting to /etc/services");
-    strcpy(filename, "/etc/services");
+    Strncpy(filename, "/etc/services", sizeof(filename));
 #else
         int len, wnt = GetVersion() < 0x80000000;
     error("Unable to find nmap-services!  Resorting to /etc/services");
@@ -217,9 +217,9 @@ static int nmap_services_init() {
         else
         {
                 if(wnt)
-                        strcpy(filename + len, "\\drivers\\etc\\services");
+                        Strncpy(filename + len, "\\drivers\\etc\\services", sizeof(filename) - len);
                 else
-                        strcpy(filename + len, "\\services");
+                        Strncpy(filename + len, "\\services", sizeof(filename) - len);
         }
 #endif
   }

@@ -724,7 +724,7 @@ const char *NpingTarget::getNextHopIPStr(){
 const char *NpingTarget::getMACStr(u8 *mac){
   static char buffer[256];
   assert(mac!=NULL);
-  sprintf(buffer, "%02x:%02x:%02x:%02x:%02x:%02x", (u8)mac[0],(u8)mac[1],
+  Snprintf(buffer, sizeof(buffer), "%02x:%02x:%02x:%02x:%02x:%02x", (u8)mac[0],(u8)mac[1],
           (u8)mac[2], (u8)mac[4],(u8)mac[4],(u8)mac[5]);
   return buffer;
 }

@@ -211,8 +211,8 @@ int main(int argc, char *argv[]) {
     }
     /* copy rest of command-line arguments */
     for (i = 1; i < argc && strlen(command) + strlen(argv[i]) + 1 < sizeof(command); i++) {
-      strcat(command, " ");
-      strcat(command, argv[i]);
+      strncat(command, " ", sizeof(command) - strlen(command) - 1);
+      strncat(command, argv[i], sizeof(command) - strlen(command) - 1);
     }
     myargc = arg_parse(command, &myargv);
     if (myargc < 1) {
