@@ -75,44 +75,38 @@ action = function(host, port)
     "cfm",
     "js",
     "jsp",
-    "php"
+    "php",
+    "all"
   }
 
-  -- Checking whether the user provided extension is existing in our db or not.
-  local flag = 0
-  local string_of_existing_extensions = ''
-  for _, v in ipairs(existing_extensions) do
-    string_of_existing_extensions = string_of_existing_extensions .. v .. ', '
-    if extension == v then
-      flag = 1
-    end
+  -- If extension is not provided, then select complete list as default.
+  if extension == nil then
+    extension = "all"
   end
 
-  string_of_existing_extensions = string_of_existing_extensions .. 'all'
-
-  -- If user provided extension is not in our db
-  if flag == 0 then
-    -- Extension type not found in the db, throwing a suggestion to end user.
-    local err = "There is no extension like '" .. extension .. "' in the db."
-    err = err .. " Send a mail to rewanth1997[at]gmail.com"
-    err = err .. " and it will be updated soon to db."
-    err = err .. " Available extensions are "
-    err = err .. string_of_existing_extensions .. "\n"
-    return err
+  -- Raising an error if the extension provided by the user is not existing in our database.
+  if not stdnse.contains(existing_extensions, extension) then
+    -- Inserting error statements into the table to throw as an error.
+    table.insert(existing_extensions, "The above list are the available extensions.")
+    table.insert(existing_extensions, "Send a report to dev[at]nmap.org if you find a valid extension is missing in the above list.")
+    return existing_extensions
   end
 
   local file = "nselib/data/web-login/" .. extension .. ".lst"
 
-  -- These regex are used while scraping the web pages for confirmation.
+  -- Insensitive case regex for matching key words from the page
   local regex = {
-    "Username",
-    "Password",
-    "username",
-    "password",
-    "USERNAME",
-    "PASSWORD",
-    "Admin Password"
+    "[uU][sS][eE][rR][nN][aA][mM][eE]", -- English (Username)
+    "[pP][aA][sS][sS][wW][oO][rR][dD]", -- English (Password)
+    "[pP]/[wW]", -- English (P/W)
+    "[aA][dD][mM][iI][nN] [pP][aA][sS][sS][wW][oO][rR][dD]", -- English (Admin Password)
+    "[pP][eE][rR][sS][oO][nN][aA][lL]", -- English (Personal)
+    "[wW][aA][cC][hH][tT][wW][oO][oO][rR][dD]", --Dutch (Password)
+    "[sS][eE][nN][hH][aA]", --Portuguese (Password)
+    "[cC][lL][aA][vV][eE]", --Spanish (Key)
+    "[uU][sS][aA][gG][eE][rR]" --French (User)
   }
+
 
   local output = {}
   local hostname = host.targetname or host.ip
@@ -123,7 +117,7 @@ action = function(host, port)
 
   -- Reading line by line and sending requests to those pages.
   for uri in io.lines(uris) do
-    stdnse.debug(string.format("Sending GET request to %s", hostname .. path .. uri))
+    stdnse.debug(string.format("Sending GET request to %s", hostname .. ':' .. port.number .. path .. uri))
 
     local response = http.get(host, port, path .. uri)
 
@@ -139,17 +133,11 @@ action = function(host, port)
 
   end
 
-  -- Counter, that checks if output table is empty or not.
-  local counter = 0
-  for _, v in ipairs(output) do
-    counter = counter + 1
-  end
-
   -- If the output table is empty return nil.
-  if counter == 0 then
-    return nil
-  else
+  if #output > 0 then
     return output
+  else
+    return nil
   end
 
 end
