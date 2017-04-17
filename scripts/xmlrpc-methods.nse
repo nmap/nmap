@@ -111,7 +111,7 @@ action = function(host, port)
       setmetatable(output["Supported Methods"], under_80)
     end
     return output
-  elseif response.body:find("<name>faultCode</name>", nil, true) then
+  elseif response and response.body and response.body:find("<name>faultCode</name>", nil, true) then
     output.error = "XMLRPC instance doesn't support introspection."
     return output, output.error
   end
