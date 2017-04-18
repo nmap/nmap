@@ -1379,6 +1379,7 @@ local function main (hosts, scantype)
     print_verbose(1, "Script Post-scanning.");
   end
 
+  cnse.xml_start_tag("scriptscan" , { phase = scantype });
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
@@ -1388,6 +1389,10 @@ local function main (hosts, scantype)
         for _, script in ipairs(scripts) do
            local thread = script:new_thread("prerule");
            if thread then
+	     cnse.xml_newline();
+	     local x = string.match(thread.info,'[^M* ]*');
+	     cnse.xml_start_tag("script" , { id = x });
+	     cnse.xml_end_tag();
              yield(thread)
            end
         end
@@ -1398,6 +1403,10 @@ local function main (hosts, scantype)
           for _, script in ipairs(scripts) do
             local thread = script:new_thread("hostrule", host_copy(host));
             if thread then
+	      cnse.xml_newline();
+	      local x = string.match(thread.info,'[^M* ]*');
+	      cnse.xml_start_tag("script" , { id = x });
+	      cnse.xml_end_tag();
               thread.host = host;
               yield(thread);
             end
@@ -1407,6 +1416,10 @@ local function main (hosts, scantype)
             for _, script in ipairs(scripts) do
               local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
               if thread then
+	   	cnse.xml_newline();
+	   	local x = string.match(thread.info,'[^M* ]*');
+	   	cnse.xml_start_tag("script" , { id =  x });
+	   	cnse.xml_end_tag();
                 thread.host, thread.port = host, port;
                 yield(thread);
               end
@@ -1418,10 +1431,17 @@ local function main (hosts, scantype)
         for _, script in ipairs(scripts) do
           local thread = script:new_thread("postrule");
           if thread then
+	    cnse.xml_newline();
+	    local x = string.match(thread.info,'[^M* ]*');
+	    cnse.xml_start_tag("script" , { id = x });
+	    cnse.xml_end_tag();
             yield(thread);
           end
         end
       end
+    cnse.xml_newline();
+    cnse.xml_end_tag();
+    cnse.xml_newline();
     end
     print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
     run(wrap(threads_iter), hosts)
