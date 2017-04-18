@@ -29,7 +29,7 @@ https://github.com/countercept/doublepulsar-detection-script
 
 author = "Andrew Orr"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"vuln", "safe"}
+categories = {"vuln", "safe", "malware"}
 
 hostrule = function(host)
   return smb.get_port(host) ~= nil
@@ -118,22 +118,26 @@ The Double Pulsar SMB backdoor was detected running on the remote machine.
 
   local status, smbstate = smb.start_ex(host, true, true, share, nil, nil, nil)
 
-  -- the multiplex ID needs to be 65
-  smbstate["mid"] = 65;
-  -- 12 (not 11, not 13) nulls
-  local param = stdnse.fromhex("000000000000000000000000")
-  -- 0x000e is SESSION_SETUP
-  local status, result = send_transaction2(smbstate, 0xe, param)
   if not status then
-    stdnse.debug1("Error: " + result)
+    stdnse.debug1("Could not connect to IPC$ share over SMB.")
   else
-    local status, header, parameters, data = smb.smb_read(smbstate)
-    local _, _, _, _, _, _, _, _, _, _, signature, _, _, _, _, multiplex_id = bin.unpack("<CCCCCICSSlSSSSS", header)
-
-    if (multiplex_id == 81) then
-      double_pulsar.state = vulns.STATE.VULN
+    -- the multiplex ID needs to be 65
+    smbstate["mid"] = 65;
+    -- 12 (not 11, not 13) nulls
+    local param = ("\0"):rep(12)
+    -- 0x000e is SESSION_SETUP
+    local status, result = send_transaction2(smbstate, 0xe, param)
+    if not status then
+      stdnse.debug1("Error: ", result)
     else
-      stdnse.debug1("Machine is not vulnerable")
+      local status, header, parameters, data = smb.smb_read(smbstate)
+      local multiplex_id = string.unpack("<I2", header, string.packsize("BBBBB I4 B I2 I2 i8 I2 I2 I2 I2")+1)
+
+      if (multiplex_id == 81) then
+        double_pulsar.state = vulns.STATE.VULN
+      else
+        stdnse.debug1("Machine is not vulnerable")
+      end
     end
   end
   return report:make_output(double_pulsar)
