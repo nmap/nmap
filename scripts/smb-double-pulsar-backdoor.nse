@@ -11,10 +11,10 @@ https://github.com/countercept/doublepulsar-detection-script
 ]]
 
 ---
--- @usage nmap  -p 445 <target> --script=smb-vuln-double-pulsar
+-- @usage nmap -p 445 <target> --script=smb-double-pulsar-backdoor
 --
 -- @output
--- | smb-vuln-double-pulsar:
+-- | smb-double-pulsar-backdoor:
 -- |   VULNERABLE:
 -- |   Double Pulsar SMB Backdoor
 -- |     State: VULNERABLE
