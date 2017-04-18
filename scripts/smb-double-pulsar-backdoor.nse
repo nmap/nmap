@@ -57,7 +57,7 @@ local function send_transaction2(smbstate, sub_command, function_parameters, fun
   end
 
   -- Parameters are 0x20 bytes long.
-  parameters = bin.pack("<SSSSCCSISSSSSCCS",
+  parameters = string.pack("<I2 I2 I2 I2 B B I2 I4 I2 I2 I2 I2 I2 B B I2",
     parameter_size,                  -- Total parameter count.
     data_size,                       -- Total data count.
     0x000a,                          -- Max parameter count.
