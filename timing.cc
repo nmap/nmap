@@ -132,6 +132,8 @@
 
 /* $Id$ */
 
+#include <limits>
+
 #include "timing.h"
 #include "NmapOps.h"
 #include "utils.h"
