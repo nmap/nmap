@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#854] New script smb-double-pulsar-backdoor detects the Shadow
+  Brokers-leaked Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]
+
 o No longer allow ICMP Time Exceeded messages to mark a host as down during
   host discovery. Running traceroute at the same time as Nmap was causing
   interference. [David Fifield]
