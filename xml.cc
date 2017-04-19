@@ -187,9 +187,9 @@ All writing is done with log_write(LOG_XML), so if LOG_XML hasn't been
 opened, calling these functions has no effect.
 */
 
-#include "nmap.h"
 #include "output.h"
 #include "xml.h"
+#include <nbase.h>
 
 #include <assert.h>
 #include <stdarg.h>

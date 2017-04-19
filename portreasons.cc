@@ -131,8 +131,8 @@
  * Modified by Colin Rice <dah4k0r@gmail.com> 2011
  */
 
-#include "nmap.h"
 #include "portlist.h"
+#include "output.h"
 #include "NmapOps.h"
 #include "portreasons.h"
 #include "Target.h"
@@ -142,7 +142,6 @@
 #endif
 
 extern NmapOps o;
-class PortList;
 
 /* Set the ip_addr union to the AF_INET or AF_INET6 value stored in *ss as
    appropriate. Returns 0 on success or -1 if the address family of *ss is not

@@ -144,6 +144,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+class Target;
 
 struct probespec_tcpdata {
   u16 dport;
