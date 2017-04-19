@@ -1518,10 +1518,12 @@ local redirect_ok_rules = {
 
   -- make sure we're actually being redirected somewhere and not to the same url
   function (url, host, port)
+    -- url.path must be set if returning true
     -- path cannot be unchanged unless host has changed
-    -- loc.path must be set if returning true
-    if ( not url.path or url.path == "/" ) and url.host == ( host.targetname or host.ip) then return false end
-    if not url.path then return true end
+    -- TODO: Since we do not know here what the actual old path was then
+    --       the effectiveness of this code is a bit unclear.
+    if not url.path then return false end
+    if url.path == "/" and url.host == (host.targetname or host.ip) then return false end
     return true
   end,
 }
