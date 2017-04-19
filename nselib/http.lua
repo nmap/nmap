@@ -1479,7 +1479,7 @@ local redirect_ok_rules = {
   -- Check if there's any credentials in the url
   function (url, host, port)
     -- bail if userinfo is present
-    return ( url.userinfo and false ) or true
+    return not url.userinfo
   end,
 
   -- Check if the location is within the domain or host
