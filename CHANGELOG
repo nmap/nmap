@@ -9,6 +9,20 @@ o [NSE] Resolved several issues in the default HTTP redirect rules:
       loops
   [nnposter]
 
+o [NSE][GH#766] The HTTP Host header will now include the port unless it is
+  the default one for a given scheme. [nnposter]
+
+o [NSE] The HTTP response object has a new member, fragment, which contains
+  a partially received body (if any) when the overall request fails to
+  complete. [nnposter]
+
+o [NSE][GH#731] NSE is now able to process HTTP responses with a Set-Cookie
+  header that has an extraneous trailing semicolon. [nnposter]
+
+o [NSE][GH#708] TLS SNI now works correctly for NSE HTTP requests initiated
+  with option any_af. As an added benefit, option any_af is now available for
+  all connections via comm.lua, not just HTTP requests. [nnposter]
+
 o [NSE][GH#781] There is a new common function, url.get_default_port(),
   to obtain the default port number for a given scheme. [nnposter]
 
@@ -29,21 +43,11 @@ o [Ncat] Made -i/--idle-timeout not cause Ncat in server mode to close while
   waiting for an initial connection. This was also causing -i to interfere with
   the HTTP proxy server mode. [Carlos Manso, Daniel Miller]
 
-o [NSE][GH#766] The HTTP Host header will now include the port unless it is
-  the default one for a given scheme. [nnposter]
-
 o [NSE] Fixed several potential hangs in NSE scripts that used
   receive_buf(pattern), which will not return if the service continues to send
   data that does not match pattern. A new function in match.lua, pattern_limit,
   is introduced to limit the number of bytes consumed while searching for the
   pattern. [Daniel Miller, Jacek Wielemborek]
-
-o [NSE] The HTTP response object has a new member, fragment, which contains
-  a partially received body (if any) when the overall request fails to
-  complete. [nnposter]
-
-o [NSE][GH#731] NSE is now able to process HTTP responses with a Set-Cookie
-  header that has an extraneous trailing semicolon. [nnposter]
 
 o [Nsock] Handle any and all socket connect errors the same: raise as an Nsock
   error instead of fatal. This prevents Nmap and Ncat from quitting with
@@ -69,10 +73,6 @@ o [NSE] Added several commands to redis-info to extract listening addresses,
 
 o [NSE][GH#679][GH#681] Refreshed script http-robtex-reverse-ip, reflecting
   changes at the source site (www.robtex.com). [aDoN]
-
-o [NSE][GH#708] TLS SNI now works correctly for NSE HTTP requests initiated
-  with option any_af. As an added benefit, option any_af is now available for
-  all connections via comm.lua, not just HTTP requests. [nnposter]
 
 o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
   LibreOffice Impress presentation remote service and extract version info.
