@@ -136,11 +136,11 @@
 
 #include "nbase.h"
 #include <dnet.h>
+#include <pcap.h>
 
 #include <vector>
 #include <list>
 #include "timing.h"
-#include "tcpip.h"
 struct FingerPrint;
 struct FingerTest;
 class FingerPrintResultsIPv4;

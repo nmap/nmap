@@ -139,6 +139,7 @@
 #include "osscan.h"
 #include "linear.h"
 #include "FPModel.h"
+#include "tcpip.h"
 extern NmapOps o;
 #ifdef WIN32
 /* from libdnet's intf-win32.c */

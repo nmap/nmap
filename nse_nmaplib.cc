@@ -13,6 +13,7 @@ extern "C" {
 #include "FingerPrintResults.h"
 #include "Target.h"
 #include "TargetGroup.h"
+#include "tcpip.h"
 #include "portlist.h"
 #include "service_scan.h"
 #include "nmap_dns.h"

@@ -146,6 +146,7 @@
 #include "services.h"
 #include "protocols.h"
 #include "targets.h"
+#include "tcpip.h"
 #include "TargetGroup.h"
 #include "Target.h"
 #include "service_scan.h"

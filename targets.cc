@@ -135,6 +135,7 @@
 #include "nbase/nbase_addrset.h"
 #include "targets.h"
 #include "timing.h"
+#include "tcpip.h"
 #include "NmapOps.h"
 #include "TargetGroup.h"
 #include "Target.h"

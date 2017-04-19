@@ -139,7 +139,7 @@
 #include <dnet.h>
 
 #include "timing.h"
-#include "tcpip.h"
+#include <pcap.h>
 #include <list>
 #include <vector>
 #include <set>

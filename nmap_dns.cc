@@ -191,6 +191,7 @@
 #include "nsock.h"
 #include "nmap_error.h"
 #include "nmap_tty.h"
+#include "tcpip.h"
 #include "timing.h"
 #include "Target.h"
 

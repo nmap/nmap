@@ -170,6 +170,7 @@
 #include "Target.h"
 #include "nmap_error.h"
 #include "output.h"
+#include "tcpip.h"
 
 #include "struct_ip.h"
 

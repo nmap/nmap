@@ -135,6 +135,7 @@
 #include "osscan2.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include "tcpip.h"
 #include "Target.h"
 #include "utils.h"
 #include "FPEngine.h"

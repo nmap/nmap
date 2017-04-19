@@ -144,6 +144,7 @@
 #include "portreasons.h"
 #include "protocols.h"
 #include "FingerPrintResults.h"
+#include "tcpip.h"
 #include "Target.h"
 #include "utils.h"
 #include "xml.h"
