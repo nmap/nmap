@@ -1483,17 +1483,18 @@ local redirect_ok_rules = {
   end,
 
   -- Check if the location is within the domain or host
+  --
+  -- Notes:
+  -- * A domain match must be exact and at least a second-level domain
+  -- * ccTLDs are not treated as such. The rule will not stop a redirect
+  --   from foo.co.uk to bar.co.uk even though it logically should.
   function (url, host, port)
     local hostname = stdnse.get_hostname(host)
-    if ( hostname == host.ip and host.ip == url.host.ip ) then
-      return true
+    if hostname == host.ip then
+      return url.host == hostname
     end
-    local domain = hostname:match("^[^%.]-%.(.*)") or hostname
-    local match = ("^.*%s$"):format(domain)
-    if ( url.host:match(match) ) then
-      return true
-    end
-    return false
+    local domain = function (h) return (h:match("%..+%..+") or h):lower() end
+    return domain(hostname) == domain(url.host)
   end,
 
   -- Check whether the new location has the same port number
