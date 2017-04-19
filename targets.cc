@@ -141,7 +141,6 @@
 #include "Target.h"
 #include "scan_engine.h"
 #include "nmap_dns.h"
-#include "nmap_tty.h"
 #include "utils.h"
 #include "xml.h"
 

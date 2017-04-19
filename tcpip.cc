@@ -134,7 +134,6 @@
 #include "nmap.h"
 
 #include "nbase.h"
-#include "portreasons.h"
 #include <dnet.h>
 #include "tcpip.h"
 #include "NmapOps.h"

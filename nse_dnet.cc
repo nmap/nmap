@@ -2,7 +2,6 @@
 #include "nmap_error.h"
 #include "NmapOps.h"
 #include "tcpip.h"
-#include "protocols.h"
 #include "libnetutil/netutil.h"
 
 #include "nse_main.h"
