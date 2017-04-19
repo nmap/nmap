@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Resolved several issues in the default HTTP redirect rules:
+    - [GH#826] A redirect is now cancelled if the original URL contains
+      embedded credentials
+    - [GH#829] A redirect test is now more careful in determining whether
+      a redirect destination is related to the original host
+    - [GH#830] A redirect is now more strict in avoiding possible redirect
+      loops
+  [nnposter]
+
 o [NSE][GH#781] There is a new common function, url.get_default_port(),
   to obtain the default port number for a given scheme. [nnposter]
 
