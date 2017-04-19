@@ -164,6 +164,7 @@
 #include "timing.h"
 #include "osscan2.h"
 #include "nmap.h"
+#include "scan_lists.h"
 #include "NmapOps.h"
 #include "services.h"
 #include "Target.h"

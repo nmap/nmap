@@ -132,6 +132,7 @@
 #ifndef NMAP_FTP_H
 #define NMAP_FTP_H
 
+#include "scan_lists.h"
 #include "nbase.h" /* u16 */
 class Target;
 

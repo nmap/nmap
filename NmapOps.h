@@ -133,7 +133,8 @@
 #ifndef NMAP_OPS_H
 #define NMAP_OPS_H
 
-#include "nmap.h"
+#include "nmap.h" /* MAX_DECOYS */
+#include "scan_lists.h"
 #include "output.h"
 #include <nsock.h>
 #include <string>

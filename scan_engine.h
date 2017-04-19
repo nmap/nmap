@@ -134,7 +134,7 @@
 #ifndef SCAN_ENGINE_H
 #define SCAN_ENGINE_H
 
-#include "nmap.h" /* stype */
+#include "scan_lists.h"
 
 #include <dnet.h>
 

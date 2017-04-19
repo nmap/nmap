@@ -139,6 +139,7 @@
 #include "Target.h"
 #include "utils.h"
 #include "protocols.h"
+#include "scan_lists.h"
 
 #include "nmap_tty.h"
 
