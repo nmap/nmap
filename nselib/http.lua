@@ -1473,7 +1473,7 @@ function put(host, port, path, options, putdata)
 end
 
 -- A battery of tests a URL is subjected to in order to decide if it may be
--- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
+-- redirected to.
 local redirect_ok_rules = {
 
   -- Check if there's any credentials in the url
@@ -1528,8 +1528,7 @@ local redirect_ok_rules = {
   end,
 }
 
---- Check if the given URL is okay to redirect to. Return a table with keys
--- "host", "port", and "path" if okay, nil otherwise.
+--- Provides the default behavior for HTTP redirects.
 --
 -- Redirects will be followed unless they:
 -- * contain credentials
@@ -1537,11 +1536,10 @@ local redirect_ok_rules = {
 -- * have a different port number or URI scheme
 -- * redirect to the same URI
 -- * exceed the maximum number of redirects specified
--- @param url table as returned by url.parse
 -- @param host table as received by the action function
 -- @param port table as received by the action function
 -- @param counter number of redirects to follow.
--- @return loc table containing the new location
+-- @return a default closure suitable for option "redirect_ok"
 function redirect_ok(host, port, counter)
   -- convert a numeric port to a table
   if ( "number" == type(port) ) then
