@@ -374,9 +374,6 @@ typedef enum { STYPE_UNKNOWN, HOST_DISCOVERY, ACK_SCAN, SYN_SCAN, FIN_SCAN, XMAS
 
 /***********************PROTOTYPES**********************************/
 
-/* print Interactive usage information */
-void printinteractiveusage();
-
 /* port manipulators */
 void getpts(const char *expr, struct scan_lists * ports); /* someone stole the name getports()! */
 void getpts_simple(const char *origexpr, int range_type,
@@ -387,15 +384,11 @@ void free_scan_lists(struct scan_lists *ports);
 /* Renamed main so that interactive mode could preprocess when necessary */
 int nmap_main(int argc, char *argv[]);
 
-void nmap_free_mem();
-
 /* general helper functions */
 const char *statenum2str(int state);
 const char *scantype2str(stype scantype);
-void reaper(int signo);
 
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file);
-int nmap_fileexistsandisreadable(const char* pathname);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 
 #endif /* NMAP_H */

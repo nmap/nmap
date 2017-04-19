@@ -1761,6 +1761,17 @@ void  apply_delayed_options() {
   }
 }
 
+// Free some global memory allocations.
+// This is used for detecting memory leaks.
+void nmap_free_mem() {
+  PortList::freePortMap();
+  cp_free();
+  free_services();
+  AllProbes::service_scan_free();
+  traceroute_hop_cache_clear();
+  nsock_set_default_engine(NULL);
+}
+
 int nmap_main(int argc, char *argv[]) {
   int i;
   std::vector<Target *> Targets;
@@ -2286,17 +2297,6 @@ int nmap_main(int argc, char *argv[]) {
     nmap_free_mem();
   }
   return 0;
-}
-
-// Free some global memory allocations.
-// This is used for detecting memory leaks.
-void nmap_free_mem() {
-  PortList::freePortMap();
-  cp_free();
-  free_services();
-  AllProbes::service_scan_free();
-  traceroute_hop_cache_clear();
-  nsock_set_default_engine(NULL);
 }
 
 /* Reads in a (normal or machine format) Nmap log file and gathers enough
