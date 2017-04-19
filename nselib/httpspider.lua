@@ -133,7 +133,7 @@ Options = {
         local parsed_u = url.parse(tostring(u))
 
         if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
-          if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
+          if ( parsed_u.port ~= tonumber(o.base_url:getPort()) ) then
             return false
           end
         elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
@@ -149,7 +149,7 @@ Options = {
       o.withindomain = function(u)
         local parsed_u = url.parse(tostring(u))
         if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
-          if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
+          if ( parsed_u.port ~= tonumber(o.base_url:getPort()) ) then
             return false
           end
         elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
@@ -553,7 +553,7 @@ Crawler = {
   iswithinhost = function(self, u)
     local parsed_u = url.parse(tostring(u))
     if ( self.options.base_url:getPort() ~= 80 and self.options.base_url:getPort() ~= 443 ) then
-      if ( tonumber(parsed_u.port) ~= tonumber(self.options.base_url:getPort()) ) then
+      if ( parsed_u.port ~= tonumber(self.options.base_url:getPort()) ) then
         return false
       end
     elseif ( parsed_u.scheme ~= self.options.base_url:getProto() ) then
@@ -570,7 +570,7 @@ Crawler = {
   iswithindomain = function(self, u)
     local parsed_u = url.parse(tostring(u))
     if ( self.options.base_url:getPort() ~= 80 and self.options.base_url:getPort() ~= 443 ) then
-      if ( tonumber(parsed_u.port) ~= tonumber(self.options.base_url:getPort()) ) then
+      if ( parsed_u.port ~= tonumber(self.options.base_url:getPort()) ) then
         return false
       end
     elseif ( parsed_u.scheme ~= self.options.base_url:getProto() ) then

@@ -1504,7 +1504,7 @@ local redirect_ok_rules = {
         url_port = 443
       end
     end
-    if (not url_port) or tonumber(url_port) == port.number then
+    if not url_port or url_port == port.number then
       return true
     end
     return false

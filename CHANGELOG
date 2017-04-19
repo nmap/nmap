@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#833] Function url.parse() now returns the port part as a number,
+  not a string, which eliminates various inconsistencies in scripts that
+  consume the function. [nnposter]
+
 o [NSE][GH#854] New script smb-double-pulsar-backdoor detects the Shadow
   Brokers-leaked Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]
 

@@ -175,9 +175,9 @@ local function url_build_defaults (host, port, parsed)
   local parts = tcopy(parsed or {})
   parts.host = parts.host or stdnse.get_hostname(host, port)
   parts.scheme = parts.scheme or shortport.ssl(host, port) and "https" or "http"
-  local pn = parts.port or tostring(port.number)
-  if not (parts.scheme == "http" and pn == "80"
-       or parts.scheme == "https" and pn == "443") then
+  local pn = parts.port or port.number
+  if not (parts.scheme == "http" and pn == 80
+       or parts.scheme == "https" and pn == 443) then
     parts.port = pn
   end
   return parts
