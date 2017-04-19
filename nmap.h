@@ -232,8 +232,6 @@
 
 #define MAX_DECOYS 128 /* How many decoys are allowed? */
 
-#define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
-
 /* TCP Options for TCP SYN probes: MSS 1460 */
 #define TCP_SYN_PROBE_OPTIONS "\x02\x04\x05\xb4"
 #define TCP_SYN_PROBE_OPTIONS_LEN (sizeof(TCP_SYN_PROBE_OPTIONS)-1)
