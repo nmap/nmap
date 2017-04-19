@@ -137,7 +137,6 @@
 #include "nmap_tty.h"
 #include "charpool.h"
 #include "FingerPrintResults.h"
-#include "Target.h"
 #include "nmap_error.h"
 
 #include <errno.h>
