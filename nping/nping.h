@@ -191,10 +191,6 @@
     #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-#if HAVE_RPC_TYPES_H
-    #include <rpc/types.h>
-#endif
-
 #if HAVE_SYS_SOCKET_H
     #include <sys/socket.h>
 #endif

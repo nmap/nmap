@@ -166,11 +166,6 @@
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-#if HAVE_RPC_TYPES_H
-/* Is this needed any more since rpcgrind was converted to NSE? */
-#include <rpc/types.h>
-#endif
-
 /* For systems without SCTP in netinet/in.h, such as MacOS X */
 #ifndef IPPROTO_SCTP
 #define IPPROTO_SCTP 132
