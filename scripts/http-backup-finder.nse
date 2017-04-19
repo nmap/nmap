@@ -122,13 +122,8 @@ action = function(host, port)
     if ( parsed.path:match(".*%.*.$") ) then
       -- iterate over possible backup files
       for link in backupNames(parsed.path) do
-        local host, port = parsed.host, parsed.port
-
-        -- if no port was found, try to deduce it from the scheme
-        if ( not(port) ) then
-          port = (parsed.scheme == 'https') and 443
-          port = port or ((parsed.scheme == 'http') and 80)
-        end
+        local host = parsed.host
+        local port = parsed.port or url.get_default_port(parsed.scheme)
 
         -- the url.escape doesn't work here as it encodes / to %2F
         -- which results in 400 bad request, so we simple do a space

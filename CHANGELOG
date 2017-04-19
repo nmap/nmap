@@ -1,8 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#781] There is a new common function, url.get_default_port(),
+  to obtain the default port number for a given scheme. [nnposter]
+
 o [NSE][GH#833] Function url.parse() now returns the port part as a number,
-  not a string, which eliminates various inconsistencies in scripts that
-  consume the function. [nnposter]
+  not a string. [nnposter]
 
 o [NSE][GH#854] New script smb-double-pulsar-backdoor detects the Shadow
   Brokers-leaked Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]

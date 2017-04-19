@@ -233,9 +233,7 @@ LinkExtractor = {
       base_href = base_href .. '/'
     end
 
-    if ( ( base_url:getProto() == 'https' and base_url:getPort() == 443 ) or
-        ( base_url:getProto() == 'http' and base_url:getPort() == 80 ) ) then
-
+    if base_url:getPort() == url.get_default_port(base_url:getProto()) then
       if ( leading_slash ) then
         return ("%s://%s/%s"):format(base_url:getProto(), base_url:getHost(), rel_url)
       else
@@ -427,14 +425,7 @@ URL = {
     self.proto, self.host, self.port, self.file = self.raw:match("^(http[s]?)://([^:/]*)[:]?(%d*)")
     if ( self.proto and self.host ) then
       self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^#]*)") or '/'
-      self.port = tonumber(self.port)
-      if ( not(self.port) ) then
-        if ( self.proto:match("https") ) then
-          self.port = 443
-        elseif ( self.proto:match("http")) then
-          self.port = 80
-        end
-      end
+      self.port = tonumber(self.port) or url.get_default_port(self.proto)
 
       self.path  = self.file:match("^([^?]*)[%?]?")
       self.dir   = self.path:match("^(.+%/)") or "/"

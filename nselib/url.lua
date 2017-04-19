@@ -373,4 +373,16 @@ function build_query(query)
   return table.concat(qstr, '&')
 end
 
+---
+-- Provides the default port for a given URI scheme.
+--
+-- @param scheme for determining the port, such as "http" or "https".
+-- @return A port number as an integer, such as 443 for scheme "https",
+--         or nil in case of an undefined scheme
+-----------------------------------------------------------------------------
+function get_default_port (scheme)
+  local ports = {http=80, https=443}
+  return ports[(scheme or ""):lower()]
+end
+
 return _ENV;

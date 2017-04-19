@@ -157,6 +157,11 @@ local function table_augment(to, from)
   end
 end
 
+--- Provide the default port for a given scheme.
+-- The localization is necessary because functions in http.lua like to use
+-- "url" as a local parameter
+local get_default_port = url.get_default_port
+
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
@@ -164,12 +169,11 @@ local function get_host_field(host, port)
   if type(port) == "number" then
     port = {number=port, protocol="tcp", state="open", version={}}
   end
-  local ssl = shortport.ssl(host, port)
-  local pn = port.number
-  if not ssl and pn == 80 or ssl and pn == 443 then
+  local scheme = shortport.ssl(host, port) and "https" or "http"
+  if port.number == get_default_port(scheme) then
     return stdnse.get_hostname(host)
   else
-    return stdnse.get_hostname(host) .. ":" .. pn
+    return stdnse.get_hostname(host) .. ":" .. port.number
   end
 end
 
@@ -1496,14 +1500,7 @@ local redirect_ok_rules = {
   function (url, host, port)
     -- port fixup, adds default ports 80 and 443 in case no url.port was
     -- defined, we do this based on the url scheme
-    local url_port = url.port
-    if ( not(url_port) ) then
-      if ( url.scheme == "http" ) then
-        url_port = 80
-      elseif( url.scheme == "https" ) then
-        url_port = 443
-      end
-    end
+    local url_port = url.port or get_default_port(url.scheme)
     if not url_port or url_port == port.number then
       return true
     end
@@ -1581,11 +1578,7 @@ function parse_redirect(host, port, path, response)
     u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
   end
   -- do port fixup
-  if ( not(u.port) ) then
-    if ( u.scheme == "http" ) then u.port = 80
-    elseif ( u.scheme == "https") then u.port = 443
-    else u.port = port.number end
-  end
+  u.port = u.port or get_default_port(u.scheme) or port.number
   if ( not(u.path) ) then
     u.path = "/"
   end
@@ -1679,15 +1672,7 @@ function get_url( u, options )
   local port = {}
 
   port.service = parsed.scheme
-  port.number = parsed.port
-
-  if not port.number then
-    if parsed.scheme == 'https' then
-      port.number = 443
-    else
-      port.number = 80
-    end
-  end
+  port.number = parsed.port or get_default_port(parsed.scheme) or 80
 
   local path = parsed.path or "/"
   if parsed.query then
