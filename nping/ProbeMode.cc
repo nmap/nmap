@@ -136,6 +136,11 @@
 #include "output.h"
 #include "NpingOps.h"
 
+#ifdef WIN32
+/* Need DnetName2PcapName */
+#include "libnetutil/netutil.h"
+#endif
+
 extern NpingOps o;
 
 

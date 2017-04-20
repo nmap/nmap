@@ -183,6 +183,8 @@
 
 #ifdef WIN32
 #include "nmap_winconfig.h"
+/* Need DnetName2PcapName */
+#include "libnetutil/netutil.h"
 #endif
 
 #include "nmap.h"

@@ -4,6 +4,11 @@
 #include "tcpip.h"
 #include "protocols.h"
 
+#ifdef WIN32
+/* Need DnetName2PcapName */
+#include "libnetutil/netutil.h"
+#endif
+
 #include "nse_nsock.h"
 #include "nse_main.h"
 #include "nse_utility.h"
