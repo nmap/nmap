@@ -146,6 +146,7 @@
 #include "FingerPrintResults.h"
 #include "tcpip.h"
 #include "Target.h"
+#include "nmap_error.h"
 #include "utils.h"
 #include "xml.h"
 #include "nbase.h"

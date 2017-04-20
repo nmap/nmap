@@ -138,6 +138,7 @@
 #include "nsock.h"
 #include "Target.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "protocols.h"
 #include "scan_lists.h"
 

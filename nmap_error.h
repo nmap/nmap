@@ -170,6 +170,10 @@ NORETURN void pfatal(const char *err, ...)
 void gh_perror(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
 
+#ifndef HAVE_STRERROR
+char *strerror(int errnum);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

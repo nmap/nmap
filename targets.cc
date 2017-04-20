@@ -142,6 +142,7 @@
 #include "scan_engine.h"
 #include "nmap_dns.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "xml.h"
 
 extern NmapOps o;

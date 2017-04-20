@@ -131,6 +131,7 @@
 
 #include "nmap.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "NmapOps.h"
 
 #include <fcntl.h>
@@ -190,14 +191,6 @@ void nmap_hexdump(unsigned char *cp, unsigned int length) {
   return;
 }
 
-
-#ifndef HAVE_STRERROR
-char *strerror(int errnum) {
-  static char buf[1024];
-  sprintf(buf, "your system is too old for strerror of errno %d\n", errnum);
-  return buf;
-}
-#endif
 
 /* Like the perl equivalent, removes the terminating newline from string IF one
    exists. It then returns the POSSIBLY MODIFIED string. */

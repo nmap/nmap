@@ -147,6 +147,7 @@
 #include "Target.h"
 #include "targets.h"
 #include "utils.h"
+#include "nmap_error.h"
 
 #include "struct_ip.h"
 

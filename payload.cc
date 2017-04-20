@@ -143,6 +143,7 @@
 #include "nbase.h"
 #include "payload.h"
 #include "utils.h"
+#include "nmap_error.h"
 
 extern NmapOps o;
 
