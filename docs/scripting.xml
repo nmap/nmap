@@ -14,7 +14,7 @@
     growing and diverse set of scripts distributed with Nmap, or write
     their own to meet custom needs.</para>
 
-    <para>We designed NSE to be versatile, with the following tasks in mind:</para>    
+    <para>We designed NSE to be versatile, with the following tasks in mind:</para>
 
     <variablelist>
       <varlistentry>
@@ -56,9 +56,12 @@
           <para>When a new vulnerability is discovered, you often want
        to scan your networks quickly to identify vulnerable systems
        before the bad guys do.  While Nmap isn't a
-       comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>, 
+       comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>,
        NSE is powerful enough to handle even demanding vulnerability
-       checks.  Many vulnerability detection scripts are already available and we plan to distribute more as they are written.
+       checks. When the Heartbleed bug affected hundreds of thousands of
+       systems worldwide, Nmap's developers responded with the
+       <literal>ssl-heartbleed</literal> detection script within 2 days.
+       Many vulnerability detection scripts are already available and we plan to distribute more as they are written.
        </para>
 
         </listitem>
@@ -69,13 +72,10 @@
           <para>
 	   Many attackers and some automated worms leave backdoors to
 	   enable later reentry.  Some of these can be detected by
-	   Nmap's regular expression based version detection.  For
-	   example, within hours of the MyDoom worm hitting the
-	   Internet, Jay Moran<indexterm><primary>Moran,
-	   Jay</primary></indexterm> posted an Nmap version detection
-	   probe and signature so that others could quickly scan their
-	   networks for MyDoom infections.  NSE is needed to reliably
-	   detect more complex worms and backdoors.
+     Nmap's regular expression based version detection, but more complex worms
+     and backdoors require NSE's advanced capabilities to reliably detect.
+     NSE has been used to detect the Double Pulsar NSA backdoor in SMB and
+     backdoored versions of UnrealIRCd, vsftpd, and ProFTPd.
        </para>
 
         </listitem>
@@ -104,24 +104,24 @@
     <para>
       Scripts are written in the
       embedded
-      <ulink url="http://www.lua.org/">Lua programming language</ulink>, version 5.2.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
-      The language itself is well documented in the books 
+      <ulink url="http://www.lua.org/">Lua programming language</ulink>, version 5.3.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
+      The language itself is well documented in the books
 <web>
-      <citetitle><ulink url="http://www.amazon.com/dp/8590379825?tag=secbks-20">Programming
-	in Lua, Second Edition</ulink></citetitle> and
-      <citetitle><ulink url="http://www.amazon.com/dp/8590379833?tag=secbks-20">Lua
-	5.1 Reference Manual</ulink></citetitle>.  
+      <citetitle><ulink url="http://www.amazon.com/dp/8590379868?tag=secbks-20">Programming
+	in Lua, Fourth Edition</ulink></citetitle> and
+      <citetitle><ulink url="http://www.amazon.com/dp/9888381229?tag=secbks-20">Lua
+	5.2 Reference Manual</ulink></citetitle>.
 </web>
 <print>
-      <citetitle>Programming in Lua, Second Edition</citetitle> and
-      <citetitle>Lua 5.1 Reference Manual</citetitle>.  
+      <citetitle>Programming in Lua, Fourth Edition</citetitle> and
+      <citetitle>Lua 5.2 Reference Manual</citetitle>.
 </print>
 
-The reference manual, updated for Lua 5.2, is also 
-      <ulink url="http://www.lua.org/manual/5.2/">freely available
-	online</ulink>, as is the 
+The reference manual, updated for Lua 5.3, is also
+      <ulink url="http://www.lua.org/manual/5.3/">freely available
+        online</ulink>, as is the
       <ulink url="http://www.lua.org/pil/">first edition of <citetitle>Programming in
-	Lua</citetitle></ulink>. Given the availability of these excellent general
+  Lua</citetitle></ulink>. Given the availability of these excellent general
       Lua programming references, this document only covers aspects and
       extensions specific to Nmap's scripting engine.
     </para>
@@ -135,7 +135,7 @@ The reference manual, updated for Lua 5.2, is also
     </para>
 
       <para>
-        A typical script scan is shown in the  
+        A typical script scan is shown in the
       <xref linkend="nse-ex1" xrefstyle="select: label nopage"/>.
         Service scripts producing output in this example are
       <literal>ssh-hostkey</literal>, which provides the system's RSA and DSA SSH keys, and <literal>rpcinfo</literal>, which queries
@@ -212,7 +212,7 @@ Black Hat Briefings in 2010.</para>
     <option>-sC</option> or <option>--script</option>. Every host will
     be assumed up and still only host scripts will be run. This
     technique is useful for scripts like
-    <filename>whois</filename><indexterm><primary><filename>whois</filename> script</primary></indexterm>
+    <filename>whois-ip</filename><indexterm><primary><filename>whois-ip</filename> script</primary></indexterm>
     that only use the remote system's address and don't require it to be
     up.
     </para>
@@ -383,7 +383,7 @@ Black Hat Briefings in 2010.</para>
             <option>exploit</option>
           </term>
           <listitem>
-            <para>These scripts aim to actively exploit some vulnerability.</para>
+            <para>These scripts aim to actively exploit some vulnerability. Examples include <literal>jdwp-exec</literal> and <literal>http-shellshock</literal>.</para>
           </listitem>
         </varlistentry>
 
@@ -395,7 +395,7 @@ Black Hat Briefings in 2010.</para>
           <listitem>
             <para>Scripts in this category may send data to a
             third-party database or other network resource. An example
-            of this is <literal>whois</literal>, which makes a
+            of this is <literal>whois-ip</literal>, which makes a
             connection to
             whois<indexterm><primary>whois</primary></indexterm> servers
             to learn about the address of the target. There is always
@@ -549,7 +549,7 @@ Black Hat Briefings in 2010.</para>
           against each target host which matches
           its <literal>hostrule</literal> function.  Examples
           are <ulink role="hidepdf"
-          url="https://nmap.org/nsedoc/scripts/whois.html">whois</ulink>,
+          url="https://nmap.org/nsedoc/scripts/whois-ip.html">whois-ip</ulink>,
           which looks up ownership information for a target IP,
           and <ulink role="hidepdf"
           url="https://nmap.org/nsedoc/scripts/path-mtu.html">path-mtu</ulink>
@@ -650,8 +650,8 @@ advanced users in special cases.  For example, you might want to do a
 configuration review on a bunch of MS SQL servers, some of which are
 running on nonstandard ports.  Rather than slow the Nmap scan by
 running extensive version detection (<option>-sV
---version-all</option>) so that Nmap will recognize the ms-sql
-service, you can force the ms-sql-config script to run against all the
+--version-all</option>) so that Nmap will recognize the <literal>ms-sql</literal>
+service, you can force the <literal>ms-sql-config</literal> script to run against all the
 targetted hosts and ports by specifying <option>--script
 +ms-sql-config</option>.</para>
 
@@ -735,8 +735,8 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
             specification, Nmap prints the script name, its categories, and its
             description. The specifications are the same as those accepted by
             <option>--script</option>; so for example if you want help about
-            the <literal>ftp-anon</literal> script, you would run
-            <command>nmap --script-help ftp-anon</command>. A sample of script
+            the <literal>ssl-enum-ciphers</literal> script, you would run
+            <command>nmap --script-help ssl-enum-ciphers</command>. A sample of script
             help is shown in <xref linkend="nse-script-help"/>.
             </para>
             <example id="nse-script-help">
@@ -745,10 +745,16 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
 <screen>
 $ nmap --script-help "afp-* and discovery"
 
-Starting Nmap 5.36TEST4 ( https://nmap.org ) at 2011-01-27 13:04 PST
+Starting Nmap 7.40 ( https://nmap.org ) at 2017-04-21 14:15 UTC
+
+afp-ls
+Categories: discovery safe
+https://nmap.org/nsedoc/scripts/afp-ls.html
+  Attempts to get useful information about files from AFP volumes.
+  The output is intended to resemble the output of <code>ls</code>.
 
 afp-serverinfo
-Categories: discovery safe
+Categories: default discovery safe
 https://nmap.org/nsedoc/scripts/afp-serverinfo.html
   Shows AFP server information. This information includes the server's
   hostname, IPv4 and IPv6 addresses, and hardware type (for example
@@ -823,10 +829,13 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
         The scripts
         in this category are slightly different from other scripts because their
         output blends in with the version scan results and they do not produce any
-        script scan output.
+        script scan output to the screen.  If the
+        <option>-oX</option><indexterm><primary><option>-oX</option></primary></indexterm>
+        option is used, typical script output will still be available in the
+        XML output file.
       </para>
       <para>
-        Another option which affects the scripting engine is 
+        Another option which affects the scripting engine is
 	<option>-A</option>.<indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
         The aggressive Nmap mode implies
 	the <option>-sC</option> option.
@@ -901,7 +910,7 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.2/manual.html#3.4.7">precedence</ulink>
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.3/manual.html#3.4.8">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
@@ -989,9 +998,6 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
       Values may also be tables enclosed in <literal>{}</literal>, just as in
       Lua. A table may contain simple string values, for example a list of proxy
       hosts; or more name-value pairs, including nested tables.
-      Nested subtables are commonly used to pass arguments specific to one
-      script, in a table named after the script. That is what is happening with
-      the <varname>whois</varname> table in the example below.
       </para>
 
       <para>Script arguments are often qualified with the relevant
@@ -1000,21 +1006,21 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
       the timeout for responses to the
       <literal>broadcast-ping</literal> script (and only that script)
       by setting <literal>broadcast-ping.timeout</literal> to the
-      number of milliseconds you're willing to wait.  Sometimes,
+      amount of time you're willing to wait.  Sometimes,
       however, you want a script argument applied more widely.  If you
       remove the qualification and specify just
-      <literal>timeout=250</literal>, you will be setting the value
+      <literal>timeout=250ms</literal>, you will be setting the value
       for more than a dozen scripts in addition to
       <literal>broadcast-ping</literal>.  You can even combine
       qualified and unqualified arguments, and the most specific match
       takes precedence.  For example, you could specify
-      <literal>rlogin-brute.timeout=20000,timeout=250</literal>.  In
-      that case, the timeout will be 20,000 for the
-      <literal>rlogin-brute</literal> scripts, and 250 for all other
+      <literal>rlogin-brute.timeout=20s,timeout=250ms</literal>.  In
+      that case, the timeout will be 20 seconds for the
+      <literal>rlogin-brute</literal> script, and 250 milliseconds for all other
       scripts which support this variable
       (<literal>broadcast-ping</literal>,
       <literal>lltd-discovery</literal>, etc.)</para>
-      
+
       <para>Rather than pass the arguments on the command line with
       <option>--script-args</option>, you may store them in a file
       (separated by commas or newlines) and specify just the file name
@@ -1029,7 +1035,7 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
 <informalexample>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <literallayout>
-<command>nmap -sC --script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</command>
+  <command>nmap -sC --script-args 'user=foo,pass=",{}=bar",paths={/admin,/cgi-bin},xmpp-info.server_name=localhost'</command>
 </literallayout>
 </informalexample>
       Notice that the script arguments are surrounded in single quotes. For the
@@ -1039,12 +1045,13 @@ https://nmap.org/nsedoc/scripts/afp-showmount.html
       relevant manual. The command results in this Lua table:
 <programlisting>
 nmap.registry.args = {
-	user = "foo",
-	pass = ",{}=bar",
-	whois = {
-		whodb = "nofollow+ripe"
-	},
-	xmpp-info.server_name="localhost"
+  user = "foo",
+  pass = ",{}=bar",
+  paths = {
+    "/admin",
+    "/cgi-bin"
+  },
+  xmpp-info.server_name="localhost"
 }
 </programlisting>
       While you could access the values directly from <literal>nmap.registry.args</literal>, it is normally better to use the <literal>stdnse.get_script_args</literal> function like this:
@@ -1057,9 +1064,8 @@ local server_name = stdnse.get_script_args("xmpp-info.server_name")
       <literal>nmap.registry.args</literal> table. For this reason, short or
       ambiguous names like <literal>user</literal> are not recommended. Some
       scripts prefix their arguments with their script name, like
-      <literal>smtp-open-relay.domain</literal>. Others, like
-      <literal>whois</literal> in the example above, take their arguments in a
-      table named after the script. Arguments used by libraries, which can
+      <literal>smtp-open-relay.domain</literal>.
+      Arguments used by libraries, which can
       affect many scripts, usually have names beginning with the name of the
       library, like <literal>smbuser</literal> and
       <literal>creds.snmp</literal>.
