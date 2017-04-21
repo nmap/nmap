@@ -171,7 +171,7 @@
 
 #include "scan_lists.h"
 #ifndef NOLUA
-class ScriptResults;
+#include "nse_main.h"
 #endif
 #include <nsock.h>
 class PortList;
