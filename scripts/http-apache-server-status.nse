@@ -67,6 +67,7 @@ action = function(host, port)
   -- Fail if there is no data in the response, the response body or if the HTTP status code is not successful
   if not response or not response.status or response.status ~= 200 or not response.body then
     stdnse.debug(1, "Failed to retrieve: %s", path)
+		stdnse.debug(1, "Apache server is not running")
     return
   end
 
