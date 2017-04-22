@@ -447,9 +447,14 @@ Helper = {
       local creds_store = creds.Credentials:new(creds.ALL_DATA, host, port)
       for _,cs in ipairs({creds.State.PARAM, creds.State.VALID}) do
         local account = creds_store:getCredentials(cs)()
-        if (account and account.pass) then
-          o.community = account.pass == "<empty>" and "" or account.pass
-          break
+        if account then
+          if account.pass and account.pass ~= "<empty>" and account.pass ~= "" then
+            o.community = account.pass
+            break
+          elseif account.user then
+            o.community = account.user
+            break
+          end
         end
       end
     end

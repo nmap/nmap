@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#862] SNMP scripts will now take a community string provided like
+  `--script-args creds.snmp=private`, which previously did not work because it
+  was interpreted as a username. [Daniel Miller]
+
 o [NSE] Resolved several issues in the default HTTP redirect rules:
     - [GH#826] A redirect is now cancelled if the original URL contains
       embedded credentials
