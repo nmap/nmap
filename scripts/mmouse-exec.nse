@@ -1,4 +1,5 @@
 local creds = require "creds"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -52,7 +53,7 @@ portrule = shortport.port_or_service(51010, "mmouse", "tcp")
 local function receiveData(socket, cmd)
   local status, data = ""
   repeat
-    status, data = socket:receive_buf("\04", true)
+    status, data = socket:receive_buf(match.pattern_limit("\04", 2048), true)
     if ( not(status) ) then
       return false, "Failed to receive data from server"
     end

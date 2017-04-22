@@ -22,13 +22,13 @@ requests using a given subnet.
 --   nmap -sU -p 53 --script dns-client-subnet-scan  --script-args \
 --     'dns-client-subnet-scan.domain=www.example.com, \
 --     dns-client-subnet-scan.address=192.168.0.1 \
---     [,dns-client-subnet.nameserver=8.8.8.8] \
---     [,dns-client-subnet.mask=24]' <target>
+--     [,dns-client-subnet-scan.nameserver=8.8.8.8] \
+--     [,dns-client-subnet-scan.mask=24]' <target>
 --   nmap --script dns-client-subnet-scan --script-args \
 --     'dns-client-subnet-scan.domain=www.example.com, \
 --     dns-client-subnet-scan.address=192.168.0.1 \
---     dns-client-subnet.nameserver=8.8.8.8, \
---     [,dns-client-subnet.mask=24]'
+--     dns-client-subnet-scan.nameserver=8.8.8.8, \
+--     [,dns-client-subnet-scan.mask=24]'
 --
 -- @output
 -- 53/udp open  domain  udp-response
@@ -42,10 +42,10 @@ requests using a given subnet.
 -- |   .
 -- |_  .
 ---
--- @args dns-client-subnet.domain The domain to lookup eg. www.example.org
--- @args dns-client-subnet.address The client subnet address to use
--- @args dns-client-subnet.mask [optional] The number of bits to use as subnet mask (default: 24)
--- @args dns-client-subnet.nameserver [optional] nameserver to use.  (default = host.ip)
+-- @args dns-client-subnet-scan.domain The domain to lookup eg. www.example.org
+-- @args dns-client-subnet-scan.address The client subnet address to use
+-- @args dns-client-subnet-scan.mask [optional] The number of bits to use as subnet mask (default: 24)
+-- @args dns-client-subnet-scan.nameserver [optional] nameserver to use.  (default = host.ip)
 --
 
 author = "John R. Bond"
@@ -317,8 +317,6 @@ local get_addresses = function(address, mask, domain, nameserver, port)
   -- DNS library expects
   if ( "number" == type(address) ) then
     address = ipOps.fromdword(address)
-    local a, b, c, d = address:match("(%d+)%.(%d+)%.(%d+)%.(%d+)")
-    address = ("%d.%d.%d.%d"):format(d,c,b,a)
   end
 
   local subnet = { family = nmap.address_family(), address = address, mask = mask }

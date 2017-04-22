@@ -7,6 +7,7 @@ local string = require "string"
 local table = require "table"
 local target = require "target"
 local unicode = require "unicode"
+local ipOps = require "ipOps"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -22,7 +23,7 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 -- nmap -e <interface> --script lltd-discovery
 --
 -- @args lltd-discovery.interface string specifying which interface to do lltd discovery on.  If not specified, all ethernet interfaces are tried.
--- @args lltd-discover.timeout timespec specifying how long to listen for replies (default 30s)
+-- @args lltd-discovery.timeout timespec specifying how long to listen for replies (default 30s)
 --
 -- @output
 -- | lltd-discovery:
@@ -135,15 +136,10 @@ local parseHello = function(data)
         -- Host ID (MAC Address)
         mac = get_mac_addr(v:sub(1,6))
       elseif t == 0x08 then
-        ipv6 = string.format(
-        "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-        v:byte(1), v:byte(2), v:byte(3), v:byte(4),
-        v:byte(5), v:byte(6), v:byte(7), v:byte(8),
-        v:byte(9), v:byte(10), v:byte(11), v:byte(12),
-        v:byte(13), v:byte(14), v:byte(15), v:byte(16))
+        ipv6 = ipOps.str_to_ip(v:sub(1,16))
       elseif t == 0x07 then
         -- IPv4 address
-        ipv4 = string.format("%d.%d.%d.%d",v:byte(1),v:byte(2),v:byte(3),v:byte(4)), mac
+        ipv4 = ipOps.str_to_ip(v:sub(1,4))
 
         -- Machine Name (Hostname)
       elseif t == 0x0f then
@@ -190,7 +186,7 @@ local QuickDiscoveryPacket = function(mac_src)
   local number_of_stations = 0
   local station_list = string.rep("\0", 6*4)
 
-  discover_up_lev_hdr = generation_number .. string.pack("I2", number_of_stations) .. station_list
+  discover_up_lev_hdr = generation_number .. string.pack(">I2", number_of_stations) .. station_list
 
   -- put them all together and return
   return ethernet_hdr .. demultiplex_hdr .. base_hdr .. discover_up_lev_hdr

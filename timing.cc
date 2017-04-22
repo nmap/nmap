@@ -135,6 +135,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "xml.h"
 
 #include <math.h>

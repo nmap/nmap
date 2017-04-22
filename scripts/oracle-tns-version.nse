@@ -25,12 +25,14 @@ end
 -- Lifted from nmap-service-probes
 -- TODO: Figure out if we can send a better probe than this. We might need to
 --       send ADDRESS, CID, etc.
-local oracle_tns_probe = "\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))"
+local oracle_tns_probe = "\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x004\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))"
 
 local ERR_CODES = {
   ["1189"] = "unauthorized",
   ["1194"] = "insecure transport",
+  ["12154"] = "unknown identifier",
   ["12504"] = "requires service name",
+  ["12505"] = "unknown sid",
   ["12514"] = "unknown service name",
 }
 

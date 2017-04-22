@@ -135,13 +135,14 @@
 #include "nbase/nbase_addrset.h"
 #include "targets.h"
 #include "timing.h"
+#include "tcpip.h"
 #include "NmapOps.h"
 #include "TargetGroup.h"
 #include "Target.h"
 #include "scan_engine.h"
 #include "nmap_dns.h"
-#include "nmap_tty.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "xml.h"
 
 extern NmapOps o;

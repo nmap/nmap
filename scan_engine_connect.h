@@ -133,7 +133,10 @@
 #ifndef SCAN_ENGINE_CONNECT_H
 #define SCAN_ENGINE_CONNECT_H
 
-#include "scan_engine.h"
+#include <nbase.h>
+class UltraProbe;
+class UltraScanInfo;
+class HostScanStats;
 
 UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
                                  u16 destport, u8 tryno, u8 pingseq);

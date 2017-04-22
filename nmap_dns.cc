@@ -183,6 +183,8 @@
 
 #ifdef WIN32
 #include "nmap_winconfig.h"
+/* Need DnetName2PcapName */
+#include "libnetutil/netutil.h"
 #endif
 
 #include "nmap.h"
@@ -191,6 +193,7 @@
 #include "nsock.h"
 #include "nmap_error.h"
 #include "nmap_tty.h"
+#include "tcpip.h"
 #include "timing.h"
 #include "Target.h"
 
@@ -1508,12 +1511,12 @@ size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offs
   {
     if((*c)=='.')
     {
-      u8 lenght = accumulator.length();
-      *(buf+offset+ret) = lenght;
+      u8 length = accumulator.length();
+      *(buf+offset+ret) = length;
       ret += 1;
 
-      memcpy(buf+offset+ret, accumulator.c_str(), lenght);
-      ret += lenght;
+      memcpy(buf+offset+ret, accumulator.c_str(), length);
+      ret += length;
       accumulator.clear();
     }
     else

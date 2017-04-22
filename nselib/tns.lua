@@ -616,7 +616,7 @@ Packet.SNS = {
   --
   -- @return string containing the packet
   __tostring = function( self )
-    return  bin.pack("SH", self.flags,
+    return  bin.pack(">SH", self.flags,
     [[
     deadbeef00920b1006000004000004000300000000000400050b10060000080
     001000015cb353abecb00120001deadbeef0003000000040004000100010002

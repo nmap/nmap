@@ -140,12 +140,14 @@
 #include "scan_engine_connect.h"
 #include "scan_engine_raw.h"
 #include "timing.h"
+#include "tcpip.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
 #include "payload.h"
 #include "Target.h"
 #include "targets.h"
 #include "utils.h"
+#include "nmap_error.h"
 
 #include "struct_ip.h"
 

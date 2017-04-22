@@ -40,7 +40,7 @@ portrule = shortport.portnumber(1604, "udp")
 --
 function process_server_response(response)
 
-  local pos, packet_len = bin.unpack("SS", response)
+  local pos, packet_len = bin.unpack("<S", response)
   local server_name
   local server_list = {}
 

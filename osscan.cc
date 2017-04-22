@@ -132,12 +132,9 @@
 /* $Id$ */
 
 #include "osscan.h"
-#include "timing.h"
 #include "NmapOps.h"
-#include "nmap_tty.h"
 #include "charpool.h"
 #include "FingerPrintResults.h"
-#include "Target.h"
 #include "nmap_error.h"
 
 #include <errno.h>

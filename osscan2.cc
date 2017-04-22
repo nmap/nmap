@@ -135,8 +135,10 @@
 #include "osscan2.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include "tcpip.h"
 #include "Target.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "FPEngine.h"
 #include "FingerPrintResults.h"
 #include <dnet.h>

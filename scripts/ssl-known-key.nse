@@ -2,9 +2,9 @@ local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local sslcert = require "sslcert"
 local tls = require "tls"
-local bin = require "bin"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
@@ -82,7 +82,7 @@ local get_fingerprints = function(path)
         section = line
       elseif section ~= nil then
         -- Add fingerprint to section.
-        local fingerprint = bin.pack("H", line)
+        local fingerprint = stdnse.fromhex(line)
         if #fingerprint == 20 then
           fingerprints[fingerprint] = section
           stdnse.debug4("Added key %s to database.", line)

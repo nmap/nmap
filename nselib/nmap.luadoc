@@ -615,6 +615,12 @@ function receive_bytes(n)
 -- matching against regular expressions or byte counts. These functions are
 -- suitable as arguments to <code>receive_buf</code>.
 --
+-- NOTE: If a pattern is used, receive_buf will continue to receive data until
+-- the pattern matches or there is a timeout. If the service never stops
+-- sending non-matching data, receive_buf will never return. Using
+-- <code>match.pattern_limit</code> can avoid this by imposing a limit on how
+-- many bytes to read before returning the entire non-matching buffer.
+--
 -- The second argument to <code>receive_buf</code> is a Boolean value
 -- controlling whether the delimiting string is returned along with the
 -- received data (true) or discarded (false).

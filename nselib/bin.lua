@@ -204,7 +204,7 @@ do
     assert(_ENV.pack("xc3", 2, 3, 4) == "\x00\x02\x03\x04")
     assert(_ENV.pack("c2x2", 2, 3, 4) == "\x02\x03\x00\x00")
 
-    assert(_ENV.pack("C2SIL", 0x123, 0xfff1, 0x1ffff, 0x112345678, 0x1234567812345678) == "\x23\xf1\xff\xff\x78\x56\x34\x12\x78\x56\x34\x12\x78\x56\x34\x12")
+    assert(_ENV.pack("<C2SIL", 0x123, 0xfff1, 0x1ffff, 0x112345678, 0x1234567812345678) == "\x23\xf1\xff\xff\x78\x56\x34\x12\x78\x56\x34\x12\x78\x56\x34\x12")
 end
 
 local function unpacker (fixer, status, ...)

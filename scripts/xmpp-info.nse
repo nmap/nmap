@@ -1,3 +1,4 @@
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -201,7 +202,7 @@ local id_database = {
 }
 
 local receive_tag = function(conn)
-  local status, data = conn:receive_buf(">", true)
+  local status, data = conn:receive_buf(match.pattern_limit(">", 256), true)
   if data then stdnse.debug2("%s", data) end
   return status and xmpp.XML.parse_tag(data)
 end

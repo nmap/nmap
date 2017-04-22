@@ -74,7 +74,7 @@ function action(host,port)
 
   -- In order to discover what protocol to use (SSL/TCP) we need to send a
   -- few bytes to the server. An anonymous bind should do it
-  local anon_bind = bin.pack("H", "300c020101600702010304008000" )
+  local anon_bind = stdnse.fromhex( "300c020101600702010304008000" )
   local socket, _, opt = comm.tryssl( host, port, anon_bind, nil )
   if ( not(socket) ) then
     return fail("Failed to connect to LDAP server")
@@ -98,13 +98,13 @@ function action(host,port)
   -- The following section could do with more documentation
   -- It's based on packet dumps from the getpass utility available from Novell Cool Solutions
   -- encode the account name as a sequence
-  data = ldap.encode( { _ldaptype = '30', bin.pack("H", "020101") .. data } )
+  data = ldap.encode( { _ldaptype = '30', stdnse.fromhex( "020101") .. data } )
   data = ldap.encode( { _ldaptype = '81', data } )
   data = ldap.encode( { _ldaptype = '80', NMASLDAP_GET_PASSWORD_REQUEST } ) .. data
   data = ldap.encode( { _ldaptype = '77', data } )
 
   -- encode the whole extended request as a sequence
-  data = ldap.encode( { _ldaptype = '30', bin.pack("H", "020102") .. data } )
+  data = ldap.encode( { _ldaptype = '30', stdnse.fromhex( "020102") .. data } )
 
   status = socket:send(data)
   if ( not(status) ) then return fail("Failed to send request") end
@@ -113,7 +113,7 @@ function action(host,port)
   if ( not(status) ) then return data end
   socket:close()
 
-  local _, response = ldap.decode(data)
+  local response = ldap.decode(data)
 
   -- make sure the result code was a success
   local rescode = ( #response >= 2 ) and response[2]

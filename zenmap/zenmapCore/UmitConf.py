@@ -438,7 +438,10 @@ class CommandProfile (Profile, object):
         return command_string
 
     def get_description(self, profile):
-        return self._get_it(profile, 'description')
+        desc = self._get_it(profile, 'description')
+        if isinstance(desc, list):
+            desc = " ".join(desc)
+        return desc
 
     def set_command(self, profile, command=''):
         self._set_it(profile, 'command', command)

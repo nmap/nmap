@@ -196,7 +196,7 @@ end
 -- @param host Host object
 -- @return TCP Packet object
 local genericpkt = function(host)
-  local pkt = bin.pack("H",
+  local pkt = stdnse.fromhex(
   "4500 002c 55d1 0000 8006 0000 0000 0000" ..
   "0000 0000 0000 0000 0000 0000 0000 0000" ..
   "6002 0c00 0000 0000 0204 05b4"

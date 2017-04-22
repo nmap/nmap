@@ -1,5 +1,6 @@
 local brute = require "brute"
 local creds = require "creds"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -45,7 +46,7 @@ Driver = {
   end,
 
   login = function(self, username, password)
-    local status, line = self.socket:receive_buf("\r\n", false)
+    local status, line = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
     if ( line:match("^220 VMware Authentication Daemon.*SSL Required") ) then
       self.socket:reconnect_ssl()
     end
@@ -57,7 +58,7 @@ Driver = {
       return false, err
     end
 
-    local status, response = self.socket:receive_buf("\r\n", false)
+    local status, response = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
     if ( not(status) or not(response:match("^331") ) ) then
       local err = brute.Error:new( "Received unexpected response from server" )
       err:setRetry( true )
@@ -70,7 +71,7 @@ Driver = {
       err:setRetry( true )
       return false, err
     end
-    status, response = self.socket:receive_buf("\r\n", false)
+    status, response = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
 
     if ( response:match("^230") ) then
       return true, creds.Account:new(username, password, creds.State.VALID)
@@ -93,7 +94,7 @@ local function checkAuthd(host, port)
     return false, "Failed to connect to server"
   end
 
-  local status, line = socket:receive_buf("\r\n", false)
+  local status, line = socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
   socket:close()
   if ( not(status) ) then
     return false, "Failed to receive response from server"

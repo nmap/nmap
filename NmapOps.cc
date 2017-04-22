@@ -133,7 +133,6 @@
 #include "nbase.h"
 #include "NmapOps.h"
 #include "osscan.h"
-#include "services.h"
 #include "nmap_error.h"
 #ifdef WIN32
 #include "winfix.h"

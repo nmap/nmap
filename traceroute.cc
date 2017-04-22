@@ -176,6 +176,7 @@ individually.
 #include "timing.h"
 #include "NmapOps.h"
 #include "Target.h"
+#include "tcpip.h"
 
 #include "struct_ip.h"
 

@@ -1,4 +1,5 @@
 local nmap = require "nmap"
+local match = require "match"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -97,7 +98,7 @@ action = function(host, port)
       return fail("Failed to send request to server")
     end
 
-    local status, resp = socket:receive_buf("\r\n\r\n", false)
+    local status, resp = socket:receive_buf(match.pattern_limit("\r\n\r\n", 2048), false)
     if ( not(status) ) then
       return fail("Failed to receive response from server")
     end

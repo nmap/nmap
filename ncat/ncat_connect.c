@@ -171,6 +171,7 @@ static struct conn_state cs = {
     0
 };
 
+static void try_nsock_connect(nsock_pool nsp, struct sockaddr_list *conn_addr);
 static void connect_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void post_connect(nsock_pool nsp, nsock_iod iod);
 static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data);
@@ -551,8 +552,8 @@ static int do_proxy_socks4(void)
     socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetss),
-            inet_port(&targetss));
+        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+            inet_port(&targetaddrs->addr));
     }
 
     /* Fill the socks4_data struct */
@@ -652,8 +653,8 @@ static int do_proxy_socks5(void)
     socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetss),
-            inet_port(&targetss));
+        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+            inet_port(&targetaddrs->addr));
     }
 
     zmem(&socks5msg,sizeof(socks5msg));
@@ -983,7 +984,7 @@ int ncat_connect(void)
 
             if (o.af != AF_INET)
                 bye("Sorry, -g can only currently be used with IPv4.");
-            ipopts = buildsrcrte(targetss.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
+            ipopts = buildsrcrte(targetaddrs->addr.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
 
             nsock_iod_set_ipoptions(cs.sock_nsi, ipopts, ipoptslen);
             free(ipopts); /* Nsock has its own copy */
@@ -993,49 +994,18 @@ int ncat_connect(void)
         if (o.af == AF_UNIX) {
             if (o.proto == IPPROTO_UDP) {
                 nsock_connect_unixsock_datagram(mypool, cs.sock_nsi, connect_handler, NULL,
-                                                &targetss.sockaddr,
-                                                SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
+                                                &targetaddrs->addr.sockaddr,
+                                                SUN_LEN((struct sockaddr_un *)&targetaddrs->addr.sockaddr));
             } else {
                 nsock_connect_unixsock_stream(mypool, cs.sock_nsi, connect_handler, o.conntimeout,
-                                              NULL, &targetss.sockaddr,
-                                              SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
+                                              NULL, &targetaddrs->addr.sockaddr,
+                                              SUN_LEN((struct sockaddr_un *)&targetaddrs->addr.sockaddr));
             }
         } else
 #endif
-        if (o.proto == IPPROTO_UDP) {
-            nsock_connect_udp(mypool, cs.sock_nsi, connect_handler,
-                              NULL, &targetss.sockaddr, targetsslen,
-                              inet_port(&targetss));
-        }
-#ifdef HAVE_OPENSSL
-        else if (o.proto == IPPROTO_SCTP && o.ssl) {
-            nsock_connect_ssl(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              IPPROTO_SCTP, inet_port(&targetss),
-                              NULL);
-        }
-#endif
-        else if (o.proto == IPPROTO_SCTP) {
-            nsock_connect_sctp(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              inet_port(&targetss));
-        }
-#ifdef HAVE_OPENSSL
-        else if (o.ssl) {
-            nsock_connect_ssl(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              IPPROTO_TCP, inet_port(&targetss),
-                              NULL);
-        }
-#endif
-        else {
-            nsock_connect_tcp(mypool, cs.sock_nsi, connect_handler,
-                              o.conntimeout, NULL,
-                              &targetss.sockaddr, targetsslen,
-                              inet_port(&targetss));
+        {
+            /* Add connection to first resolved address. */
+            try_nsock_connect(mypool, targetaddrs);
         }
     } else {
         /* A proxy connection. */
@@ -1071,6 +1041,8 @@ int ncat_connect(void)
     /* connect */
     rc = nsock_loop(mypool, -1);
 
+    free_sockaddr_list(targetaddrs);
+
     if (o.verbose) {
         struct timeval end_time;
         double time;
@@ -1094,6 +1066,45 @@ int ncat_connect(void)
     return rc == NSOCK_LOOP_ERROR ? 1 : 0;
 }
 
+static void try_nsock_connect(nsock_pool nsp, struct sockaddr_list *conn_addr)
+{
+    if (o.proto == IPPROTO_UDP) {
+        nsock_connect_udp(nsp, cs.sock_nsi, connect_handler, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          inet_port(&conn_addr->addr));
+    }
+#ifdef HAVE_OPENSSL
+    else if (o.proto == IPPROTO_SCTP && o.ssl) {
+        nsock_connect_ssl(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          IPPROTO_SCTP, inet_port(&conn_addr->addr),
+                          NULL);
+    }
+#endif
+    else if (o.proto == IPPROTO_SCTP) {
+        nsock_connect_sctp(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          inet_port(&conn_addr->addr));
+    }
+#ifdef HAVE_OPENSSL
+    else if (o.ssl) {
+        nsock_connect_ssl(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          IPPROTO_TCP, inet_port(&conn_addr->addr),
+                          NULL);
+    }
+#endif
+    else {
+        nsock_connect_tcp(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          inet_port(&conn_addr->addr));
+    }
+}
+
 static void send_udp_null(nsock_pool nsp)
 {
   char *NULL_PROBE = "\0";
@@ -1105,17 +1116,31 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
+    struct sockaddr_list *next_addr = (struct sockaddr_list *)data;
 
     ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
-    if (status == NSE_STATUS_ERROR) {
-        if (!o.zerobyte||o.verbose)
-          loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
-        exit(1);
-    } else if (status == NSE_STATUS_TIMEOUT) {
-        if (!o.zerobyte||o.verbose)
-          loguser("%s.\n", socket_strerror(ETIMEDOUT));
-        exit(1);
+    if (status == NSE_STATUS_ERROR || status == NSE_STATUS_TIMEOUT) {
+        int errcode = (status == NSE_STATUS_TIMEOUT)?ETIMEDOUT:nse_errorcode(evt);
+        /* If there are more resolved addresses, try connecting to next one */
+        if (next_addr != NULL) {
+            if (o.verbose) {
+                union sockaddr_u peer;
+                zmem(&peer, sizeof(peer.storage));
+                nsock_iod_get_communication_info(cs.sock_nsi, NULL, NULL, NULL,
+                    &peer.sockaddr, sizeof(peer.storage));
+                loguser("Connection to %s failed: %s.\n", inet_socktop(&peer), socket_strerror(errcode));
+                loguser("Trying next address...\n");
+            }
+            try_nsock_connect(nsp, next_addr);
+            return;
+        }
+        else {
+            free_sockaddr_list(targetaddrs);
+            if (!o.zerobyte||o.verbose)
+              loguser("%s.\n", socket_strerror(errcode));
+            exit(1);
+        }
     } else {
         ncat_assert(status == NSE_STATUS_SUCCESS);
     }

@@ -23,11 +23,11 @@ peers as targets.
 --
 -- @args bittorrent-discovery.torrent a string containing the filename of the torrent file
 -- @args bittorrent-discovery.magnet a string containing the magnet link of the torrent
--- @args bittorrent-discover.timeout desired (not actual) timeout for the DHT discovery (default = 30s)
--- @args bittorrent-discover.include-nodes boolean selecting whether to show only nodes
+-- @args bittorrent-discovery.timeout desired (not actual) timeout for the DHT discovery (default = 30s)
+-- @args bittorrent-discovery.include-nodes boolean selecting whether to show only nodes
 --
 -- @output
--- | bittorrent-peers:
+-- | bittorrent-discovery:
 -- |   Peers:
 -- |     97.88.178.168
 -- |     89.100.184.36

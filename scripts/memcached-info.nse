@@ -1,4 +1,5 @@
 local nmap = require "nmap"
+local match = require "match"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local tab = require "tab"
@@ -72,7 +73,7 @@ end
 local function recvResponse(socket)
   local kvs = {}
   repeat
-    local status, response = socket:receive_buf("\r\n", false)
+    local status, response = socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
     if ( not(status) ) then
       return false, "Failed to receive response from server"
     end

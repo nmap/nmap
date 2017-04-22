@@ -1180,6 +1180,20 @@ handshake_parse = {
 
         return b, j
       end,
+
+      NewSessionTicket = function (buffer, j, msg_end, protocol)
+        -- Need 4 bytes for parsing.
+        local have = #buffer - j + 1
+        if have < 4 then
+          return nil, j, 4
+        end
+
+        local b = {}
+        -- Parse body.
+        b.ticket_lifetime_hint, b.ticket, j = unpack(">I4 s2", buffer, j)
+
+        return b, j
+      end,
 }
 
 message_parse = {
@@ -1274,11 +1288,13 @@ end
 ---
 -- Read a SSL/TLS record
 -- @param buffer   The read buffer
--- @param i        The position in the buffer to start reading
+-- @param i        The position in the buffer to start reading (default: 1)
 -- @param fragment Message fragment left over from previous record (nil if none)
 -- @return The current position in the buffer
 -- @return The record that was read, as a table
 function record_read(buffer, i, fragment)
+  i = i or 1
+
   -- Ensure we have enough data for the header.
   if #buffer - i < TLS_RECORD_HEADER_LENGTH then
     return i, nil
@@ -1368,7 +1384,8 @@ end
 -- Build a client_hello message
 --
 -- The options table has the following keys:
--- * <code>"protocol"</code> - The TLS protocol version string
+-- * <code>"protocol"</code> - The TLS protocol version string for the client_hello. This indicates the highest protocol version supported.
+-- * <code>"record_protocol"</code> - The TLS protocol version string for the TLS record. This indicates the lowest protocol version supported.
 -- * <code>"ciphers"</code> - a table containing the cipher suite names. Defaults to the NULL cipher
 -- * <code>"compressors"</code> - a table containing the compressor names. Default: NULL
 -- * <code>"extensions"</code> - a table containing the extension names. Default: no extensions
@@ -1395,7 +1412,8 @@ function client_hello(t)
   table.insert(b, stdnse.generate_random_string(28))
 
   -- Set the session ID.
-  table.insert(b, '\0')
+  local sid = t["session_id"] or ""
+  table.insert(b, pack(">s1", sid))
 
   -- Cipher suites.
   ciphers = {}
@@ -1470,7 +1488,7 @@ function client_hello(t)
   table.insert(h, pack(">s3", b))
 
   -- Record layer version should be SSLv3 (lowest compatible record version)
-  return record_write("handshake", "SSLv3", table.concat(h))
+  return record_write("handshake", t.record_protocol or "SSLv3", table.concat(h))
 end
 
 local function read_atleast(s, n)

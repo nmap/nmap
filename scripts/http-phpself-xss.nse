@@ -147,12 +147,8 @@ PHP files are not handling safely the variable $_SERVER["PHP_SELF"] causing Refl
 
     --Only work with .php files
     if ( parsed.path and parsed.path:match(".*.php") ) then
-        --The following port/scheme code was seen in http-backup-finder and its neat =)
-        local host, port = parsed.host, parsed.port
-        if ( not(port) ) then
-          port = (parsed.scheme == 'https') and 443
-          port = port or ((parsed.scheme == 'http') and 80)
-        end
+        local host = parsed.host
+        local port = parsed.port or url.get_default_port(parsed.scheme)
         local escaped_link = parsed.path:gsub(" ", "%%20")
         if launch_probe(host,port,escaped_link) then
           table.insert(vulnpages, parsed.scheme..'://'..host..escaped_link..PHP_SELF_PROBE)

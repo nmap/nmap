@@ -194,8 +194,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
       end
 
       local response = p:raw(p.udp_offset + 8, #p.buf)
-      local res
-      _, res = snmp.decode(response)
+      local res = snmp.decode(response)
 
       if type(res) == "table" then
         communities:add(nil, res[2], creds.State.VALID)

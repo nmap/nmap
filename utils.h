@@ -137,8 +137,7 @@
 #endif
 
 #include "nbase.h"
-
-#include "nmap_error.h"
+#include <assert.h>
 
 /* Arithmatic difference modulo 2^32 */
 #ifndef MOD_DIFF
@@ -161,9 +160,7 @@
 /* Return num if it is between min and max.  Otherwise return min or max
    (whichever is closest to num). */
 template<class T> T box(T bmin, T bmax, T bnum) {
-  if (bmin > bmax)
-    fatal("box(%d, %d, %d) called (min,max,num)", (int) bmin, (int) bmax, (int) bnum);
-  //  assert(bmin <= bmax);
+  assert(bmin <= bmax);
   if (bnum >= bmax)
     return bmax;
   if (bnum <= bmin)
@@ -189,10 +186,6 @@ char *cstring_unescape(char *str, unsigned int *len);
 void bintohexstr(char *buf, int buflen, char *src, int srclen);
 
 u8 *parse_hex_string(char *str, size_t *outlen);
-
-#ifndef HAVE_STRERROR
-char *strerror(int errnum);
-#endif
 
 int cpe_get_part(const char *cpe);
 

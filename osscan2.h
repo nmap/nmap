@@ -129,18 +129,16 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id: osscan.h 3636 2006-07-04 23:04:56Z fyodor $ */
-
 #ifndef OSSCAN2_H
 #define OSSCAN2_H
 
 #include "nbase.h"
 #include <dnet.h>
+#include <pcap.h>
 
 #include <vector>
 #include <list>
 #include "timing.h"
-#include "tcpip.h"
 struct FingerPrint;
 struct FingerTest;
 class FingerPrintResultsIPv4;

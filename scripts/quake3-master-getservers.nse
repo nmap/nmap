@@ -1,4 +1,5 @@
 local bin = require "bin"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -117,15 +118,8 @@ local function getservers(host, port, q3protocol)
 
   local servers = {}
   for _, value in ipairs(pieces) do
-    local parts = {bin.unpack("CCCC>S", value)}
-    if #parts > 5 then
-      local o1 = parts[2]
-      local o2 = parts[3]
-      local o3 = parts[4]
-      local o4 = parts[5]
-      local p = parts[6]
-      table.insert(servers, {string.format("%d.%d.%d.%d", o1, o2, o3, o4), p})
-    end
+    local ip, port = string.unpack("c4 >I2", value)
+    table.insert(servers, {ipOps.str_to_ip(ip), port})
   end
   socket:close()
   return servers

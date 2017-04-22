@@ -131,7 +131,7 @@ function toBson(dict)
   end
   dbg("Packet length is %d",length)
   --Final pack
-  return true, bin.pack("I", length) .. elements .. "\0"
+  return true, bin.pack("<I", length) .. elements .. "\0"
 end
 
 -- Reads a null-terminated string. If length is supplied, it is just cut
@@ -376,7 +376,7 @@ MongoData ={
 --Adds unsigned int32 to the message body
 --@param value the value to add
 function MongoData:addUnsignedInt32(value)
-  self.valueString = self.valueString..bin.pack("I",value)
+  self.valueString = self.valueString..bin.pack("<I",value)
 end
 -- Adds a string to the message body
 --@param value the string to add

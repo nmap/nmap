@@ -1,6 +1,7 @@
 local brute = require "brute"
 local comm = require "comm"
 local creds = require "creds"
+local match = require "match"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -62,7 +63,7 @@ Driver =
 
     -- Create a buffer and receive the first line
     local response
-    status, response = self.socket:receive_buf("\r?\n", false)
+    status, response = self.socket:receive_buf(match.pattern_limit("\r?\n", 2048), false)
 
     if (response == nil or string.match(response,"<name>faultString</name><value><string>authentication error</string>")) then
       stdnse.debug2("Bad login: %s/%s", username, password)

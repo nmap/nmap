@@ -2,7 +2,6 @@
 #include "nmap_error.h"
 #include "NmapOps.h"
 #include "tcpip.h"
-#include "protocols.h"
 #include "libnetutil/netutil.h"
 
 #include "nse_main.h"
@@ -277,16 +276,26 @@ static int ip_send (lua_State *L)
     else
       nexthop = &route.nexthop;
 
-    if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &hdr.src, nexthop, dstmac))
-      return luaL_error(L, "failed to determine next hop MAC address");
-
     /* Use cached ethernet device, and use udata's eth and interface to keep
      * track of if we're reusing the same device from the previous packet, and
      * close the cached device if not.
      */
     memset(&eth, 0, sizeof(eth));
-    memcpy(eth.srcmac, route.ii.mac, sizeof(eth.srcmac));
-    memcpy(eth.dstmac, dstmac, sizeof(eth.dstmac));
+
+#ifdef WIN32
+    // Only determine mac addr info if it's not the Npcap Loopback Adapter.
+    // Npcap loopback doesn't have a MAC address and isn't an ethernet device,
+    // so getNextHopMAC crashes.
+    if (!(g_has_npcap_loopback && route.ii.device_type == devt_loopback)) {
+#endif
+      if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &hdr.src, nexthop, dstmac))
+        return luaL_error(L, "failed to determine next hop MAC address");
+
+      memcpy(eth.srcmac, route.ii.mac, sizeof(eth.srcmac));
+      memcpy(eth.dstmac, dstmac, sizeof(eth.dstmac));
+#ifdef WIN32
+    } // end if not Npcap loopback
+#endif
 
     /* close any current ethernet associated with this userdata */
     lua_getfield(L, 1, "ethernet_close");

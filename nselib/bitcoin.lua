@@ -68,7 +68,7 @@ NetworkAddress = {
 
     local na = NetworkAddress:new()
     local _
-    _, na.service, na.ipv6_prefix, na.host, na.port = bin.unpack("<LH12I>S", data)
+    _, na.service, na.ipv6_prefix, na.host, na.port = bin.unpack("<LH12>IS", data)
     na.host = ipOps.fromdword(na.host)
     return na
   end,

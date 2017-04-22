@@ -16,7 +16,7 @@ with the payload "s", it replies with various game server status info.
 
 When run as a version detection script (<code>-sV</code>), the script
 will report on the game name, version, actual port, and whether it has a
-password. When run explicitly (<code>--script ase-info</code>), the
+password. When run explicitly (<code>--script allseeingeye-info</code>), the
 script will additionally report on the server name, game type, map name,
 current number of players, maximum number of players, player
 information, and various other information.
@@ -37,7 +37,7 @@ http://sourceforge.net/projects/gameq/
 -- @output
 -- PORT      STATE SERVICE      REASON       VERSION
 -- 27138/udp open  allseeingeye udp-response All-Seeing Eye (game: chrome 1.2.0.0ww; port: 27015; no password)
--- | ase-info:
+-- | allseeingeye-info:
 -- |   game: chrome
 -- |   port: 27015
 -- |   server name: ChromeNet Server

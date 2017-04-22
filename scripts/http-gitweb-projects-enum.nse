@@ -25,7 +25,7 @@ Retrieves a list of Git projects, owners and descriptions from a gitweb (web int
 -- |   Number of projects: 172
 -- |_  Number of owners: 42
 --
--- @args http-gitweb.projects-enum.path specifies the location of gitweb
+-- @args http-gitweb-projects-enum.path specifies the location of gitweb
 --       (default: /)
 
 author = "riemann"

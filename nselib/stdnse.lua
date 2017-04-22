@@ -403,6 +403,30 @@ function tohex( s, options )
   return hex
 end
 
+---Decode a hexadecimal string to raw bytes
+--
+-- The string can contain any amount of whitespace and capital or lowercase
+-- hexadecimal digits. There must be an even number of hex digits, since it
+-- takes 2 hex digits to make a byte.
+--
+-- @param hex A string in hexadecimal representation
+-- @return A string of bytes or nil if string could not be decoded
+-- @return Error message if string could not be decoded
+function fromhex (hex)
+  local len = #hex
+  local out = {}
+  local i = 1
+  while i <= len do
+    local p, q, c1, c2 = find(hex, "^%s*(%x)%s*(%x)%s*", i)
+    if not p then
+      return nil, format("Invalid characters or odd number of hex digits at %d", i)
+    end
+    out[#out+1] = char(tonumber(c1..c2, 16))
+    i = q + 1
+  end
+  return concat(out)
+end
+
 ---Format a MAC address as colon-separated hex bytes.
 --@param mac The MAC address in binary, such as <code>host.mac_addr</code>
 --@return The MAC address in XX:XX:XX:XX:XX:XX format
@@ -832,18 +856,30 @@ end
 -- given. This works also for arguments given as top-level array values, like
 -- --script-args=unsafe; for these it returns the value 1.
 local function arg_value(argname)
+  -- First look for the literal script-arg name
+  -- as a key/value pair
   if nmap.registry.args[argname] then
     return nmap.registry.args[argname]
   end
-  -- if scriptname.arg is not there, check "arg"
-  local argument_frags = strsplit("%.", argname)
-  if nmap.registry.args[argument_frags[2]] then
-    return nmap.registry.args[argument_frags[2]]
-  end
-
+  -- and alone, as a boolean flag
   for _, v in ipairs(nmap.registry.args) do
     if v == argname then
       return 1
+    end
+  end
+
+  -- if scriptname.arg is not there, check "arg"
+  local shortname = argname:match("%.([^.]*)$")
+  if shortname then
+    -- as a key/value pair
+    if nmap.registry.args[shortname] then
+      return nmap.registry.args[shortname]
+    end
+    -- and alone, as a boolean flag
+    for _, v in ipairs(nmap.registry.args) do
+      if v == shortname then
+        return 1
+      end
     end
   end
   return nil

@@ -5,8 +5,6 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 
-local bit = require "bit"
-local bin = require "bin"
 local string = require "string"
 local table = require "table"
 local stdnse = require "stdnse"
@@ -15,13 +13,11 @@ _ENV = stdnse.module("unicode", stdnse.seeall)
 
 -- Localize a few functions for a tiny speed boost, since these will be looped
 -- over every char of a string
-local band = bit.band
-local lshift = bit.lshift
-local rshift = bit.rshift
 local byte = string.byte
 local char = string.char
-local pack = bin.pack
-local unpack = bin.unpack
+local pack = string.pack
+local unpack = string.unpack
+local concat = table.concat
 
 
 ---Decode a buffer containing Unicode data.
@@ -86,9 +82,9 @@ end
 --                 false (little-endian)
 --@return A string containing the code point in UTF-16 encoding.
 function utf16_enc(cp, bigendian)
-  local fmt = "<S"
+  local fmt = "<I2"
   if bigendian then
-    fmt = ">S"
+    fmt = ">I2"
   end
 
   if cp % 1.0 ~= 0.0 or cp < 0 then
@@ -98,7 +94,7 @@ function utf16_enc(cp, bigendian)
     return pack(fmt, cp)
   elseif cp <= 0x10FFFF then
     cp = cp - 0x10000
-    return pack(fmt .. fmt, 0xD800 + rshift(cp, 10), 0xDC00 + band(cp, 0x3FF))
+    return pack(fmt .. fmt, 0xD800 + (cp >> 10), 0xDC00 + (cp & 0x3FF))
   else
     return nil
   end
@@ -116,16 +112,16 @@ end
 --@return pos The index in the string where the character ended
 --@return cp The code point of the character as a number
 function utf16_dec(buf, pos, bigendian)
-  local fmt = "<S"
+  local fmt = "<I2"
   if bigendian then
-    fmt = ">S"
+    fmt = ">I2"
   end
 
   local cp
-  pos, cp = unpack(fmt, buf, pos)
+  cp, pos = unpack(fmt, buf, pos)
   if cp >= 0xD800 and cp <= 0xDFFF then
-    local high = lshift(cp - 0xD800, 10)
-    pos, cp = unpack(fmt, buf, pos)
+    local high = (cp - 0xD800) << 10
+    cp, pos = unpack(fmt, buf, pos)
     cp = 0x10000 + high + cp - 0xDC00
   end
   return pos, cp
@@ -161,8 +157,8 @@ function utf8_enc(cp)
   end
 
   while n > 1 do
-    bytes[n] = char(0x80 + band(cp, 0x3F))
-    cp = rshift(cp, 6)
+    bytes[n] = char(0x80 + (cp & 0x3F))
+    cp = cp >> 6
     n = n - 1
   end
   bytes[1] = char(mask + cp)
@@ -209,7 +205,7 @@ function utf8_dec(buf, pos)
     if bv < 0x80 or bv > 0xBF then
       return nil, string.format("Invalid UTF-8 sequence at %d", pos + i)
     end
-    cp = lshift(cp, 6) + band(bv, 0x3F)
+    cp = (cp << 6) + (bv & 0x3F)
   end
 
   return pos + 1 + n, cp

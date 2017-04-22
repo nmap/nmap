@@ -133,7 +133,10 @@
 #ifndef SCAN_ENGINE_RAW_H
 #define SCAN_ENGINE_RAW_H
 
-#include "scan_engine.h"
+#include <nbase.h>
+class UltraProbe;
+class UltraScanInfo;
+class HostScanStats;
 #include <vector>
 
 class Target;

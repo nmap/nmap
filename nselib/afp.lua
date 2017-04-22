@@ -113,6 +113,7 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
@@ -706,15 +707,14 @@ Proto = {
         -- return an error? maybe not, lets just ignore this
       elseif tag == 0x01 then
         -- four byte ip
-        local octet = {}
-        pos, octet[1], octet[2], octet[3], octet[4] = bin.unpack("CCCC", packet.data, pos)
-        table.insert(result.network_addresses, string.format("%d.%d.%d.%d", octet[1], octet[2], octet[3], octet[4]))
+        local ip
+        ip, pos = string.unpack("c4", packet.data, pos)
+        table.insert(result.network_addresses, ipOps.str_to_ip(ip))
       elseif tag == 0x02 then
         -- four byte ip and two byte port
-        local octet = {}
-        local port
-        pos, octet[1], octet[2], octet[3], octet[4], port = bin.unpack(">CCCCS", packet.data, pos)
-        table.insert(result.network_addresses, string.format("%d.%d.%d.%d:%d", octet[1], octet[2], octet[3], octet[4], port))
+        local ip, port
+        ip, port, pos = string.unpack("c4 >I2", packet.data, pos)
+        table.insert(result.network_addresses, string.format("%s:%d", ipOps.str_to_ip(ip), port))
       elseif tag == 0x03 then
         -- ddp address (two byte network, one byte
         -- node, one byte socket) not tested, anyone
@@ -735,37 +735,24 @@ Proto = {
         -- four byte ip and two byte port, client
         -- should use ssh. not tested, should work as it
         -- is the same as tag 0x02
-        local octet = {}
-        local port
-        pos, octet[1], octet[2], octet[3], octet[4], port = bin.unpack(">CCCCS", packet.data, pos)
-        table.insert(result.network_addresses, string.format("ssh://%d.%d.%d.%d:%d", octet[1], octet[2], octet[3], octet[4], port))
+        local ip, port
+        ip, port, pos = string.unpack("c4 >I2", packet.data, pos)
+        table.insert(result.network_addresses, string.format("ssh://%s:%d", ipOps.str_to_ip(ip), port))
       elseif tag == 0x06 then
         -- 16 byte ipv6
         -- not tested, but should work (next tag is
         -- tested)
-        local octet = {}
+        local ip
+        ip, pos = string.unpack("c16", packet.data, pos)
 
-        for j = 1, 8 do
-          local o
-          pos, o = bin.unpack(">S", packet.data, pos)
-          octet[j] = string.format("%04x", o)
-        end
-
-        table.insert(result.network_addresses, table.concat(octet, ':'))
+        table.insert(result.network_addresses, ipOps.str_to_ip(ip))
       elseif tag == 0x07 then
         -- 16 byte ipv6 and two byte port
-        local octet = {}
-        local port
-
-        for j = 1, 8 do
-          local o
-          pos, o = bin.unpack(">S", packet.data, pos)
-          octet[j] = string.format("%04x", o)
-        end
-        pos, port = bin.unpack(">S", packet.data, pos)
+        local ip, port
+        ip, port, pos = string.unpack(">c16 I2", packet.data, pos)
 
         table.insert(result.network_addresses,
-          string.format("[%s]:%d", table.concat(octet, ':'), port))
+          string.format("[%s]:%d", ipOps.str_to_ip(ip), port))
       end
     end
 
@@ -835,7 +822,7 @@ Proto = {
     end
 
     data = response:getPacketData()
-    pos, parms.server_time, parms.vol_count = bin.unpack("IC", data)
+    pos, parms.server_time, parms.vol_count = bin.unpack(">IC", data)
 
     -- we should now be at the leading zero preceding the first volume name
     -- next is the length of the volume name, move pos there

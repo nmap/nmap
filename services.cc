@@ -130,7 +130,7 @@
 
 /* $Id$ */
 
-#include "nmap.h"
+#include "scan_lists.h"
 #include "services.h"
 #include "NmapOps.h"
 #include "charpool.h"

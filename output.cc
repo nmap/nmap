@@ -144,7 +144,9 @@
 #include "portreasons.h"
 #include "protocols.h"
 #include "FingerPrintResults.h"
+#include "tcpip.h"
 #include "Target.h"
+#include "nmap_error.h"
 #include "utils.h"
 #include "xml.h"
 #include "nbase.h"
@@ -664,7 +666,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   if (prevstate != PORT_UNKNOWN) {
     log_write(LOG_PLAIN, "\n");
-    if (o.defeat_rst_ratelimit) {
+    if (o.defeat_rst_ratelimit && o.TCPScan()) {
       log_write(LOG_PLAIN, "Some closed ports may be reported as filtered due to --defeat-rst-ratelimit\n");
     }
   }

@@ -134,16 +134,17 @@
 #ifndef SCAN_ENGINE_H
 #define SCAN_ENGINE_H
 
-#include "nmap.h" /* stype */
+#include "scan_lists.h"
 
 #include <dnet.h>
 
 #include "timing.h"
-#include "tcpip.h"
+#include <pcap.h>
 #include <list>
 #include <vector>
 #include <set>
 #include <algorithm>
+class Target;
 
 struct probespec_tcpdata {
   u16 dport;

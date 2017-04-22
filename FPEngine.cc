@@ -139,8 +139,11 @@
 #include "osscan.h"
 #include "linear.h"
 #include "FPModel.h"
+#include "tcpip.h"
 extern NmapOps o;
 #ifdef WIN32
+/* Need DnetName2PcapName */
+#include "libnetutil/netutil.h"
 /* from libdnet's intf-win32.c */
 extern "C" int g_has_npcap_loopback;
 #endif

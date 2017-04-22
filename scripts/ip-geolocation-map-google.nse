@@ -81,7 +81,7 @@ local render = function(params, options)
 
   local res = http.get("maps.googleapis.com", 80, query)
   if not res or res.status ~= 200 then
-    return false, ("Failed to recieve map using query '%s'."):format(query)
+    return false, ("Failed to receive map using query '%s'."):format(query)
   end
 
   local f = io.open(options["map_path"], "w")

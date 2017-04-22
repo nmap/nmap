@@ -14,6 +14,9 @@ to a privileged port (udp/546).
 ]]
 
 ---
+-- @see broadcast-dhcp-discover.nse
+-- @see dhcp-discover.nse
+--
 -- @usage
 -- nmap -6 --script broadcast-dhcp6-discover
 --

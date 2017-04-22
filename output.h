@@ -169,7 +169,7 @@
  "think Solaris can support advanced localhost scans.  You can probably "\
  "use \"-Pn -sT localhost\" though.\n\n"
 
-#include "nmap.h"
+#include "scan_lists.h"
 #ifndef NOLUA
 #include "nse_main.h"
 #endif

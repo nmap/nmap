@@ -343,39 +343,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) != 0)
       optval = socket_errno(); /* Stupid Solaris */
 
-    switch (optval) {
-      case 0:
+    if (optval == 0) {
         nse->status = NSE_STATUS_SUCCESS;
-        break;
-      /* EACCES can be caused by ICMPv6 dest-unreach-admin, or when a port is
-         blocked by Windows Firewall (WSAEACCES). */
-      case EACCES:
-      case ECONNREFUSED:
-      case EHOSTUNREACH:
-      case ENETDOWN:
-      case ENETUNREACH:
-      case ENETRESET:
-      case ECONNABORTED:
-      case ETIMEDOUT:
-      case EHOSTDOWN:
-      case ECONNRESET:
-#ifdef WIN32
-      case WSAEADDRINUSE:
-      case WSAEADDRNOTAVAIL:
-#endif
-#ifndef WIN32
-      case EPIPE: /* Has been seen after connect on Linux. */
-      case ENOPROTOOPT: /* Also seen on Linux, perhaps in response to protocol unreachable. */
-#endif
+    }
+    else {
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = optval;
-        break;
-
-      default:
-        /* I'd like for someone to report it */
-        fatal("Strange connect error from %s (%d): %s",
-              inet_ntop_ez(&iod->peer, iod->peerlen), optval,
-              socket_strerror(optval));
     }
 
     /* Now special code for the SSL case where the TCP connection was successful. */

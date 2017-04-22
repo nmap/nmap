@@ -134,12 +134,12 @@
 #include "nmap.h"
 
 #include "nbase.h"
-#include "portreasons.h"
 #include <dnet.h>
 #include "tcpip.h"
 #include "NmapOps.h"
 #include "Target.h"
 #include "utils.h"
+#include "nmap_error.h"
 #include "libnetutil/netutil.h"
 
 #include "struct_ip.h"

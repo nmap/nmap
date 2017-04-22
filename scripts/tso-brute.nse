@@ -135,11 +135,11 @@ Driver = {
     end
 
 
-    stdnse.debug(2,"Screen Recieved for User ID: %s", user)
+    stdnse.debug(2,"Screen Received for User ID: %s", user)
     self.tn3270:get_screen_debug(2)
 
     if not self.tn3270:find('Enter LOGON parameters below') then
-      stdnse.debug(2,"Screen Recieved for User ID: %s", user)
+      stdnse.debug(2,"Screen Received for User ID: %s", user)
       self.tn3270:get_screen_debug(2)
         -- This error occurs on too many concurrent application requests it
         -- should be temporary. We use the new setReduce function.
@@ -172,7 +172,7 @@ Driver = {
         self.tn3270:get_all_data()
       end
 
-      stdnse.debug(2,"Screen Recieved for User/Pass: %s/%s", user, pass)
+      stdnse.debug(2,"Screen Received for User/Pass: %s/%s", user, pass)
       self.tn3270:get_screen_debug(2)
 
       if not always_logon and self.tn3270:find("already logged on") then

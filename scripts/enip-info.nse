@@ -1371,7 +1371,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host,port)
   -- pack the request identity packet (0x63)
-  local enip_req_ident = bin.pack("H","63000000000000000000000000000000c1debed100000000")
+  local enip_req_ident = stdnse.fromhex("63000000000000000000000000000000c1debed100000000")
   -- create table for output
   local output = stdnse.output_table()
   -- create local vars for socket handling
@@ -1422,14 +1422,14 @@ action = function(host,port)
       -- lookup device type based off number, return to output table
       output["Device Type"] = device_type_lookup(devnum) .. " (" .. devnum .. ")"
       -- unpack product code as a two byte int
-      pos, output["Product Code"] = bin.unpack("S", response, 53)
+      pos, output["Product Code"] = bin.unpack("<S", response, 53)
       -- Revision Nuumber
       local char1, char2
       pos, char1, char2 = bin.unpack("CC", response, 55)
       output["Revision"] = char1 .. "." .. char2
       -- Device IP, this could be the same, as the IP scanning, or may be actual IP behind NAT
       local dword
-      pos, dword = bin.unpack("<I", response, 37)
+      pos, dword = bin.unpack(">I", response, 37)
       output["Device IP"] = ipOps.fromdword(dword)
       -- set Nmap output
       set_nmap(host, port)

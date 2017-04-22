@@ -114,14 +114,7 @@ local DHE_ALGORITHMS_EXPORT = {
   ["DHE_DSS_EXPORT1024"] = 1
 }
 
--- Helper function to convert hex string to byte array
-local function fromhex(hexstr)
-  return string.gsub(hexstr, "%s*(%x%x)%s*",
-    function(c)
-      return string.char(tonumber(c, 16))
-    end
-  )
-end
+local fromhex = stdnse.fromhex
 
 -- Common Diffie-Hellman groups
 --

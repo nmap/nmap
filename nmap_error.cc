@@ -143,6 +143,14 @@ extern NmapOps o;
 #endif /* WIN32 */
 
 
+#ifndef HAVE_STRERROR
+char *strerror(int errnum) {
+  static char buf[1024];
+  sprintf(buf, "your system is too old for strerror of errno %d\n", errnum);
+  return buf;
+}
+#endif
+
 void fatal(const char *fmt, ...) {
   time_t timep;
   struct timeval tv;

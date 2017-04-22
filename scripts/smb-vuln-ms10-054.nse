@@ -133,7 +133,7 @@ to execute arbitrary code via a crafted SMB packet, aka "SMB Pool Overflow Vulne
   local status, smbstate = smb.start_ex(host, true, true, share, nil, nil, nil)
 
   local param = "0501" -- Query FS Attribute Info
-  local status, result = send_transaction2(smbstate,0x03,bin.pack("H",param))
+  local status, result = send_transaction2(smbstate,0x03,stdnse.fromhex(param))
   status, result = smb.smb_read(smbstate,true) -- see if we can still talk to the victim
   if not status then -- if not , it has crashed
     ms10_054.state = vulns.STATE.VULN

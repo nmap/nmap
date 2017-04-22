@@ -135,6 +135,7 @@
 #include "nmap.h"
 #include "NmapOps.h"
 #include "utils.h"
+#include "nmap_error.h"
 
 #ifdef MTRACE
 #include "mcheck.h"

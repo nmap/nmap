@@ -49,7 +49,7 @@ Response = {
   end,
 
   receive = function(self)
-    local status, data = self.socket:receive_buf("\r\n", false)
+    local status, data = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
     if ( not(status) ) then
       return false, "Failed to receive data from server"
     end
@@ -82,6 +82,8 @@ Response = {
       if( not(status) ) then
         return false, "Failed to receive data from server"
       end
+      -- move past the terminal CRLF
+      local status, crlf = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
 
       return true, { data = data, type = Response.Type.BULK }
     end
@@ -93,12 +95,12 @@ Response = {
 
       for i=1, count do
         -- peel of the length
-        local status = self.socket:receive_buf("\r\n", false)
+        local status = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
         if( not(status) ) then
           return false, "Failed to receive data from server"
         end
 
-        status, data = self.socket:receive_buf("\r\n", false)
+        status, data = self.socket:receive_buf(match.pattern_limit("\r\n", 2048), false)
         if( not(status) ) then
           return false, "Failed to receive data from server"
         end

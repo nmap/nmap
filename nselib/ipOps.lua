@@ -3,8 +3,7 @@
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
-local bin = require "bin"
-local bit = require "bit"
+local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -15,6 +14,9 @@ local unittest = require "unittest"
 
 
 _ENV = stdnse.module("ipOps", stdnse.seeall)
+
+local pack = string.pack
+local unpack = string.unpack
 
 ---
 -- Checks to see if the supplied IP address is part of a non-routable
@@ -163,13 +165,7 @@ fromdword = function( ip )
     stdnse.debug1("Error in ipOps.fromdword: Expected 32-bit number.")
     return nil
   end
-
-  local n1 = bit.band(bit.rshift(ip, 0),  0x000000FF)
-  local n2 = bit.band(bit.rshift(ip, 8),  0x000000FF)
-  local n3 = bit.band(bit.rshift(ip, 16), 0x000000FF)
-  local n4 = bit.band(bit.rshift(ip, 24), 0x000000FF)
-
-  return string.format("%d.%d.%d.%d", n1, n2, n3, n4)
+  return string.format("%d.%d.%d.%d", unpack("BBBB", pack(">I4", ip)))
 end
 
 ---
@@ -243,13 +239,9 @@ compare_ip = function( left, op, right )
     return nil, table.concat( err, " " )
   end
 
-  if #left > #right then
-    left = bin.pack( "CA", 0x06, left )
-    right = bin.pack( "CA", 0x04, right )
-  elseif #right > #left then
-    right = bin.pack( "CA", 0x06, right )
-    left = bin.pack( "CA", 0x04, left )
-  end
+  -- by prepending the length, IPv4 (length 4) sorts before IPv6 (length 16)
+  left = pack("s1", left)
+  right = pack("s1", right)
 
   if ( op == "eq" ) then
     return ( left == right )
@@ -527,12 +519,12 @@ ip_to_str = function( ip, family )
   if not ip:match( ":" ) then
     -- ipv4 string
     for octet in string.gmatch( ip, "%d+" ) do
-      t[#t+1] = bin.pack( ">C", tonumber(octet) )
+      t[#t+1] = pack("B", octet)
     end
   else
     -- ipv6 string
     for hdt in string.gmatch( ip, "%x+" ) do
-      t[#t+1] = bin.pack( ">S", tonumber(hdt, 16) )
+      t[#t+1] = pack( ">I2", tonumber(hdt, 16) )
     end
   end
 
@@ -550,11 +542,9 @@ end
 -- @return String error message in case of an error
 str_to_ip = function (ip)
   if #ip == 4 then
-    local _, a, b, c, d = bin.unpack("C4", ip)
-    return ("%d.%d.%d.%d"):format(a, b, c, d)
+    return ("%d.%d.%d.%d"):format(unpack("BBBB", ip))
   elseif #ip == 16 then
-    local _, a, b, c, d, e, f, g, h = bin.unpack(">S8", ip)
-    local full = ("%x:%x:%x:%x:%x:%x:%x:%x"):format(a, b, c, d, e, f, g, h)
+    local full = ("%x:%x:%x:%x:%x:%x:%x:%x"):format(unpack((">I2"):rep(8), ip))
     full = full:gsub(":[:0]+", "::", 1) -- Collapse the first (should be longest?) series of :0:
     full = full:gsub("^0::", "::", 1) -- handle special case of ::1
     return full
@@ -651,6 +641,10 @@ end
 
 
 
+local bin_lookup = {
+  [0]="0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111",
+      "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111",
+}
 ---
 -- Converts a string of hexadecimal digits into the corresponding string of
 -- binary digits.
@@ -663,14 +657,48 @@ end
 -- <code>nil</code> in case of an error).
 -- @return     String error message in case of an error.
 hex_to_bin = function( hex )
-
-  if type( hex ) ~= "string" or hex == "" or hex:match( "[^%x]+" ) then
-    return nil, "Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number."
+  if type( hex ) ~= "string" then
+    return nil, "Error in ipOps.hex_to_bin: Expected string"
   end
 
-  local d = bin.pack("H", hex)
-  local _, b = bin.unpack("B" .. #d, d)
-  return b:sub(1, #hex * 4)
+  local status, result = pcall( string.gsub, hex, ".", function(nibble)
+      local n = bin_lookup[tonumber(nibble, 16)]
+      if n then
+        return n
+      else
+        error("Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number.")
+      end
+    end)
+  if status then
+    return result
+  end
+  return status, result
+end
+
+---
+-- Convert a CIDR subnet mask to dotted decimal notation.
+--
+-- @param subnet CIDR string representing the subnet mask.
+-- @usage
+-- local netmask = ipOps.cidr_to_subnet( "/16" )
+-- @return Dotted decimal representation of the suppliet subnet mask (e.g. "255.255.0.0")
+cidr_to_subnet = function( subnet )
+  local bits = subnet:match("/(%d%d)$")
+  if not bits then return nil end
+  return fromdword((0xFFFFFFFF >> tonumber(bits)) ~ 0xFFFFFFFF)
+end
+
+---
+-- Convert a dotted decimal subnet mask to CIDR notation.
+--
+-- @param subnet Dotted decimal string representing the subnet mask.
+-- @usage
+-- local cidr = ipOps.subnet_to_cidr( "255.255.0.0" )
+-- @return CIDR representation of the supplied subnet mask (e.g. "/16").
+subnet_to_cidr = function( subnet )
+  local dword, err = todword(subnet)
+  if not dword then return nil, err end
+  return "/" .. tostring(32 - (math.tointeger(math.log((dword ~ 0xFFFFFFFF) + 1, 2))))
 end
 
 --Ignore the rest if we are not testing.
@@ -682,7 +710,9 @@ test_suite = unittest.TestSuite:new()
 test_suite:add_test(unittest.is_true(isPrivate("192.168.123.123")), "192.168.123.123 is private")
 test_suite:add_test(unittest.is_false(isPrivate("1.1.1.1")), "1.1.1.1 is not private")
 test_suite:add_test(unittest.equal(todword("65.66.67.68"),0x41424344), "todword")
+test_suite:add_test(unittest.equal(todword("127.0.0.1"),0x7f000001), "todword")
 test_suite:add_test(unittest.equal(fromdword(0xffffffff),"255.255.255.255"), "fromdword")
+test_suite:add_test(unittest.equal(fromdword(0x7f000001),"127.0.0.1"), "fromdword")
 test_suite:add_test(unittest.equal(str_to_ip("\x01\x02\x03\x04"),"1.2.3.4"), "str_to_ip (ipv4)")
 test_suite:add_test(unittest.equal(str_to_ip("\0\x01\xbe\xef\0\0\0\0\0\0\x02\x03\0\0\0\x01"),"1:beef::203:0:1"), "str_to_ip (ipv6)")
 test_suite:add_test(unittest.equal(str_to_ip(("\0"):rep(15) .. "\x01"),"::1"), "str_to_ip (ipv6)")
@@ -750,6 +780,20 @@ do
 end
 
 do
+  for _, h in ipairs({
+      {"a", "1010"},
+      {"aa", "10101010"},
+      {"12", "00010010"},
+      {"54321", "01010100001100100001"},
+      {"123error", false},
+      {"", ""},
+      {"bad 123", false},
+    }) do
+    test_suite:add_test(unittest.equal(hex_to_bin(h[1]), h[2]))
+  end
+end
+
+do
   for _, op in ipairs({
     {"192.168.13.1", "192/8", unittest.is_true, "IPv4 CIDR"},
     {"193.168.13.1", "192/8", unittest.is_false, "IPv4 CIDR"},
@@ -784,5 +828,7 @@ do
   test_suite:add_test(unittest.is_nil(expand_ip("2001:db8::1", "ipv4")),
       "IPv6 to IPv4")
 end
+test_suite:add_test(unittest.equal(cidr_to_subnet("/16"), "255.255.0.0"), "cidr_to_subnet")
+test_suite:add_test(unittest.equal(subnet_to_cidr("255.255.0.0"), "/16"), "subnet_to_cidr")
 
 return _ENV;

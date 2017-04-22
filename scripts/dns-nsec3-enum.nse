@@ -175,7 +175,7 @@ local function generate_hash(domain, iter, salt)
   for word in string.gmatch(random_domain, "[^%.]+") do
     packed_domain[#packed_domain+1] = bin.pack("p", word)
   end
-  salt = bin.pack("H", salt)
+  salt = stdnse.fromhex( salt)
   local to_hash = bin.pack("AxA", table.concat(packed_domain), salt)
   iter = iter - 1
   local hash = openssl.sha1(to_hash)

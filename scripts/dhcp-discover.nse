@@ -30,6 +30,9 @@ Some of the more useful fields:
 ]]
 
 ---
+-- @see broadcast-dhcp6-discover.nse
+-- @see broadcast-dhcp-discover.nse
+--
 -- @args dhcptype The type of DHCP request to make. By default,  DHCPINFORM is sent, but this
 --                argument can change it to DHCPOFFER,  DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK,
 --                DHCPRELEASE or DHCPINFORM. Not all types will evoke a response from all servers,

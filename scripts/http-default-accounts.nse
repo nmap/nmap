@@ -368,5 +368,7 @@ action = function(host, port)
       end
     end
   end
-  return output, stdnse.format_output(true, text_output)
+  if #text_output > 0 then
+    return output, stdnse.format_output(true, text_output)
+  end
 end

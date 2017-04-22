@@ -600,6 +600,29 @@ sub {
 };
 kill_children;
 
+($s_pid, $s_out, $s_in) = ncat("-4", "-lk");
+test "Connect fallback with IPv4 server",
+sub {
+	my $resp;
+
+	my ($c_pid, $c_out, $c_in) = ncat("localhost");
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+
+($s_pid, $s_out, $s_in) = ncat("-6", "-lk");
+test "Connect fallback with IPv6 server",
+sub {
+	my $resp;
+
+	my ($c_pid, $c_out, $c_in) = ncat("localhost");
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+
+kill_children;
 # Test UNIX domain sockets listening
 {
 local $xfail = 1 if !$HAVE_UNIXSOCK;

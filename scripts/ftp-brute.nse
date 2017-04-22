@@ -23,7 +23,7 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | my-ftp-brute:
+-- | ftp-brute:
 -- |   Accounts
 -- |     root:root - Valid credentials
 -- |   Statistics

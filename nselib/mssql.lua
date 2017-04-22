@@ -810,7 +810,7 @@ ColumnInfo =
 
       pos, colinfo.unknown, colinfo.codepage, colinfo.flags, colinfo.charset = bin.unpack("<ISSC", data, pos )
 
-      pos, colinfo.tablenamelen = bin.unpack("s", data, pos )
+      pos, colinfo.tablenamelen = bin.unpack("<s", data, pos )
       pos, colinfo.tablename = bin.unpack("A" .. (colinfo.tablenamelen * 2), data, pos)
       pos, colinfo.msglen = bin.unpack("<C", data, pos )
       pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
@@ -1884,7 +1884,7 @@ LoginPacket =
     offset = offset + self.database:len() * 2
 
     -- client MAC address, hardcoded to 00:00:00:00:00:00
-    data = data .. bin.pack("A", self.MAC)
+    data = data .. self.MAC
 
     -- offset to auth info
     data = data .. bin.pack("<S", offset)
@@ -1896,16 +1896,16 @@ LoginPacket =
     data = data .. bin.pack("<S", 0)
 
     -- Auth info wide strings
-    data = data .. bin.pack("A", Util.ToWideChar(self.client) )
+    data = data .. Util.ToWideChar(self.client)
     if ( not(ntlmAuth) ) then
-      data = data .. bin.pack("A", Util.ToWideChar(self.username) )
-      data = data .. bin.pack("A", Auth.TDS7CryptPass(self.password) )
+      data = data .. Util.ToWideChar(self.username)
+      data = data .. Auth.TDS7CryptPass(self.password)
     end
-    data = data .. bin.pack("A", Util.ToWideChar(self.app) )
-    data = data .. bin.pack("A", Util.ToWideChar(self.server) )
-    data = data .. bin.pack("A", Util.ToWideChar(self.library) )
-    data = data .. bin.pack("A", Util.ToWideChar(self.locale) )
-    data = data .. bin.pack("A", Util.ToWideChar(self.database) )
+    data = data .. Util.ToWideChar(self.app)
+    data = data .. Util.ToWideChar(self.server)
+    data = data .. Util.ToWideChar(self.library)
+    data = data .. Util.ToWideChar(self.locale)
+    data = data .. Util.ToWideChar(self.database)
 
     if ( ntlmAuth ) then
       local NTLMSSP_NEGOTIATE = 1
@@ -1916,7 +1916,7 @@ LoginPacket =
       data = data .. bin.pack("<II", NTLMSSP_NEGOTIATE, flags)
       data = data .. bin.pack("<SSI", #self.domain, #self.domain, 32)
       data = data .. bin.pack("<SSI", #workstation, #workstation, 32)
-      data = data .. bin.pack("A", self.domain:upper())
+      data = data .. self.domain:upper()
     end
 
     return PacketType.Login, data
@@ -1961,8 +1961,8 @@ NTAuthenticationPacket = {
     .. bin.pack("<SSI", #hostname, #hostname, hostname_offset)
     .. bin.pack("<SSI", #sessionkey, #sessionkey, sessionkey_offset)
     .. bin.pack("<I", flags)
-    .. bin.pack("A", domain)
-    .. bin.pack("A", user )
+    .. domain
+    .. user
     .. lm_response .. ntlm_response
 
     return PacketType.NTAuthentication, data
@@ -3121,7 +3121,7 @@ Auth = {
       local c = bit.bxor( string.byte( i ), xormask )
       local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
       local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-      return bin.pack("S", bit.bor( m1, m2 ) )
+      return bin.pack("<S", bit.bor( m1, m2 ) )
     end)
   end,
 

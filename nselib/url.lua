@@ -182,14 +182,14 @@ function parse(url, default)
   local authority = parsed.authority
   if not authority then return parsed end
   authority = string.gsub(authority,"^([^@]*)@",
-  function(u) parsed.userinfo = u; return "" end)
-  authority = string.gsub(authority, ":([0-9]*)$",
-  function(p) if p ~= "" then parsed.port = p end; return "" end)
+                function(u) parsed.userinfo = u; return "" end)
+  authority = string.gsub(authority, ":(%d+)$",
+                function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
   userinfo = string.gsub(userinfo, ":([^:]*)$",
-  function(p) parsed.password = p; return "" end)
+               function(p) parsed.password = p; return "" end)
   parsed.user = userinfo
   return parsed
 end
@@ -371,6 +371,18 @@ function build_query(query)
     qstr[#qstr+1] = escape(i) .. '=' .. escape(v)
   end
   return table.concat(qstr, '&')
+end
+
+---
+-- Provides the default port for a given URI scheme.
+--
+-- @param scheme for determining the port, such as "http" or "https".
+-- @return A port number as an integer, such as 443 for scheme "https",
+--         or nil in case of an undefined scheme
+-----------------------------------------------------------------------------
+function get_default_port (scheme)
+  local ports = {http=80, https=443}
+  return ports[(scheme or ""):lower()]
 end
 
 return _ENV;

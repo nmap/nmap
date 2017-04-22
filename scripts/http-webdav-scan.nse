@@ -95,7 +95,7 @@ end
 
 
 local function validateIP(matched_ip)
-  local oct_1, oct_2, oct_3, oct_4 = matched_ip:match('(%d%d?%d?)%.(%d%d?%d?)%.(%d%d?%d)%.(%d%d?%d?)')
+  local oct_1, oct_2, oct_3, oct_4 = matched_ip:match('^(%d+)%.(%d+)%.(%d+)%.(%d+)$')
   if tonumber(oct_1) > 255 or tonumber(oct_2) > 255 or tonumber(oct_3) > 255 or tonumber(oct_4) > 255 then
     return false
   end
@@ -104,14 +104,11 @@ end
 
 -- a function to extract internal ip addresses from PROPFIND response.
 local function getIPs(body)
-  local ip_pat1 = '192%.168%.%d+%.%d+'
-  local ip_pat2 = '10%.%d+%.%d+%.%d+'
-  local ip_pat3 = '172%.%d+%.%d+%.%d+'
-  local ip_pats = {
-    ip_pat1,
-    ip_pat2,
-    ip_pat3,
-  }
+  local ip_pats = {'%f[%d]192%.168%.%d+%.%d+',
+                   '%f[%d]10%.%d+%.%d+%.%d+',
+                   '%f[%d]172%.1[6-9]%.%d+%.%d+',
+                   '%f[%d]172%.2%d%.%d+%.%d+',
+                   '%f[%d]172%.3[01]%.%d+%.%d+'}
   local result = {}
   for _, ip_pat in pairs(ip_pats) do
     for ip in body:gmatch(ip_pat) do

@@ -494,11 +494,6 @@ class SearchResult(object):
         else:
             return False
 
-    def match_dir(self, dir):
-        # The dir: operator is handled by the SearchParser class, we ignore it
-        # here.
-        return True
-
 
 class SearchDummy(SearchResult):
     """A dummy search class that returns no results. It is used as a

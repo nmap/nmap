@@ -16,8 +16,6 @@ different test host can be passed as <code>proxy.url</code>
 argument.
 ]]
 ---
---@args proxy.url URL that will be requested to the proxy.
---@args proxy.pattern Pattern that will be searched inside the request results.
 --@output
 -- PORT     STATE  SERVICE
 -- 1080/tcp open   socks

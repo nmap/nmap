@@ -221,8 +221,6 @@
 
 #undef HAVE_MACH_O_DYLD_H
 
-#undef HAVE_RPC_TYPES_H
-
 #undef HAVE_SYS_STAT_H
 
 #undef SPRINTF_RETURNS_STRING

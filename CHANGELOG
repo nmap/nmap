@@ -1,5 +1,111 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Resolved several issues in the default HTTP redirect rules:
+    - [GH#826] A redirect is now cancelled if the original URL contains
+      embedded credentials
+    - [GH#829] A redirect test is now more careful in determining whether
+      a redirect destination is related to the original host
+    - [GH#830] A redirect is now more strict in avoiding possible redirect
+      loops
+  [nnposter]
+
+o [NSE][GH#766] The HTTP Host header will now include the port unless it is
+  the default one for a given scheme. [nnposter]
+
+o [NSE] The HTTP response object has a new member, fragment, which contains
+  a partially received body (if any) when the overall request fails to
+  complete. [nnposter]
+
+o [NSE][GH#731] NSE is now able to process HTTP responses with a Set-Cookie
+  header that has an extraneous trailing semicolon. [nnposter]
+
+o [NSE][GH#708] TLS SNI now works correctly for NSE HTTP requests initiated
+  with option any_af. As an added benefit, option any_af is now available for
+  all connections via comm.lua, not just HTTP requests. [nnposter]
+
+o [NSE][GH#781] There is a new common function, url.get_default_port(),
+  to obtain the default port number for a given scheme. [nnposter]
+
+o [NSE][GH#833] Function url.parse() now returns the port part as a number,
+  not a string. [nnposter]
+
+o [NSE][GH#854] New script smb-double-pulsar-backdoor detects the Shadow
+  Brokers-leaked Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]
+
+o No longer allow ICMP Time Exceeded messages to mark a host as down during
+  host discovery. Running traceroute at the same time as Nmap was causing
+  interference. [David Fifield]
+
+o [NSE][GH#807] Fixed a JSON library issue that was causing long integers
+  to be expressed in the scientific/exponent notation. [nnposter]
+
+o [Ncat] Made -i/--idle-timeout not cause Ncat in server mode to close while
+  waiting for an initial connection. This was also causing -i to interfere with
+  the HTTP proxy server mode. [Carlos Manso, Daniel Miller]
+
+o [NSE] Fixed several potential hangs in NSE scripts that used
+  receive_buf(pattern), which will not return if the service continues to send
+  data that does not match pattern. A new function in match.lua, pattern_limit,
+  is introduced to limit the number of bytes consumed while searching for the
+  pattern. [Daniel Miller, Jacek Wielemborek]
+
+o [Nsock] Handle any and all socket connect errors the same: raise as an Nsock
+  error instead of fatal. This prevents Nmap and Ncat from quitting with
+  "Strange error from connect:" [Daniel Miller]
+
+o [Ncat][GH#773] Ncat in server mode properly handles TLS renegotiations and
+  other situations where SSL_read returns a non-fatal error. This was causing
+  SSL-over-TCP connections to be dropped. [Daniel Miller]
+
+o [Ncat][GH#157] Ncat will now continue trying to connect to each resolved
+  address for a hostname before declaring the connection refused, allowing it
+  to fallback from IPv6 to IPv4 or to connect to names that use DNS failover.
+  [Jaromir Koncicky, Michal Hlavinka]
+
+o [NSE][GH#743] New script broadcast-ospf2-discover discovers OSPF 2 routers
+  and neighbors. OSPFv2 authentication is supported. [Emiliano Ticci]
+
+o [NSE][GH#740][GH#759] New script http-vuln-cve2017-5638 checks for the RCE
+  bug in Apache Struts2. [Seth Jackson]
+
+o [NSE] Added several commands to redis-info to extract listening addresses,
+  connected clients, active channels, and cluster nodes. [Vasiliy Kulikov]
+
+o [NSE][GH#679][GH#681] Refreshed script http-robtex-reverse-ip, reflecting
+  changes at the source site (www.robtex.com). [aDoN]
+
+o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
+  LibreOffice Impress presentation remote service and extract version info.
+  Pairing is PIN-protected, and the script can optionally brute-force the PIN.
+  New service probe and match line also added. [Jeremy Hiebert]
+
+o [NSE][GH#620][GH#715] Added 8 new http-enum fingerprints for Hadoop
+  infrastructure components. [Thomas Debize, Varunram Ganesh]
+
+o [NSE][GH#629] Added two new fingerprints to http-default-accounts
+  (APC Management Card, older NetScreen ScreenOS) [Steve Benson, nnposter]
+
+o [NSE][GH#716] Fix for oracle-tns-version which was sending an invalid TNS
+  probe due to a string escaping mixup. [Alexandr Savca]
+
+o [NSE][GH#671] New script cics-user-brute does brute-force enumeration of CICS
+  usernames on IBM TN3270 services. [Soldier of Fortran]
+
+o [NSE][GH#671] New script cics-info checks IBM TN3270 services for CICS
+  transaction services and extracts useful information. [Soldier of Fortran]
+
+o [NSE][GH#669] New script http-cookie-flags checks HTTP session cookies for
+  HTTPOnly and Secure flags. [Steve Benson]
+
+o [NSE][GH#694] ike-version now outputs information about supported attributes
+  and unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was
+  submitted by Alexis La Goutte. [Daniel Miller]
+
+o [GH#700] Enabled support for TLS SNI on the Windows platform. [nnposter]
+
+o [GH#686] Script tls-ticketbleed checks for the Ticketbleed vulnerability
+  (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
+
 o [Ncat] Enable --ssl-ciphers to be used with Ncat in client mode, not only in
   server (listen) mode. [Daniel Miller]
 
@@ -1100,7 +1206,7 @@ o [NSE] Fix Diffie-Hellman parameter extraction in tls.lua. [Jacob Gajek]
 
 Nmap 6.49BETA2 [2015-06-16]
 
-o [GH#154] Fix a crash (assertion error) when Nmap recieves an ICMP Host
+o [GH#154] Fix a crash (assertion error) when Nmap receives an ICMP Host
   Unreachable message.
 
 o [GH#158] Fix a configure failure when Python is not present, but no Python

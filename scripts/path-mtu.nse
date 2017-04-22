@@ -183,13 +183,13 @@ local setmtu = function(pkt, mtu)
 end
 
 local basepkt = function(proto)
-  local ibin = bin.pack("H",
+  local ibin = stdnse.fromhex(
     "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000"
   )
-  local tbin = bin.pack("H",
+  local tbin = stdnse.fromhex(
     "0000 0000 0000 0000 0000 0000 6002 0c00 0000 0000 0204 05b4"
   )
-  local ubin = bin.pack("H",
+  local ubin = stdnse.fromhex(
     "0000 0000 0800 0000"
   )
 

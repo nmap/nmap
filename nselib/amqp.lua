@@ -13,7 +13,8 @@
 --  o AMQP
 --    - This class contains the core functions needed to communicate with AMQP
 --
-
+-- @args amqp.version Can be used to specify the client version to use (currently, 0-8, 0-9 or 0-9-1)
+--
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 -- @author Sebastian Dragomir <velorien@gmail.com>
 

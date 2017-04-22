@@ -15,6 +15,8 @@ local mininteger = require "math".mininteger
 local _ENV = {}
 
 --- Returns the one's complement of <code>a</code>.
+--
+-- REPLACEMENT: <code>~a</code>
 -- @param a Number.
 -- @return The one's complement of <code>a</code>.
 function bnot(a)
@@ -22,6 +24,8 @@ function bnot(a)
 end
 
 --- Returns the bitwise and of all its arguments.
+--
+-- REPLACEMENT: <code>a & b</code>
 -- @param ... A variable number of Numbers to and.
 -- @return The anded result.
 function band(a, b, ...)
@@ -34,6 +38,8 @@ function band(a, b, ...)
 end
 
 --- Returns the bitwise or of all its arguments.
+--
+-- REPLACEMENT: <code>a | b</code>
 -- @param ... A variable number of Numbers to or.
 -- @return The ored result.
 function bor(a, b, ...)
@@ -46,6 +52,8 @@ function bor(a, b, ...)
 end
 
 --- Returns the bitwise exclusive or of all its arguments.
+--
+-- REPLACEMENT: <code>a ~ b</code>
 -- @param ... A variable number of Numbers to exclusive or.
 -- @return The exclusive ored result.
 function bxor(a, b, ...)
@@ -58,6 +66,8 @@ function bxor(a, b, ...)
 end
 
 --- Returns <code>a</code> left-shifted by <code>b</code> places.
+--
+-- REPLACEMENT: <code>a << b</code>
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function lshift(a, b)
@@ -65,6 +75,8 @@ function lshift(a, b)
 end
 
 --- Returns <code>a</code> right-shifted by <code>b</code> places.
+--
+-- REPLACEMENT: <code>a >> b</code>
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function rshift(a, b)
@@ -88,6 +100,8 @@ function arshift(a, b)
 end
 
 --- Returns the integer remainder of <code>a</code> divided by <code>b</code>.
+--
+-- REPLACEMENT: <code>a % b</code>
 -- @param a Dividend.
 -- @param b Divisor.
 function mod(a, b)

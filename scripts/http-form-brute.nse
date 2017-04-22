@@ -53,7 +53,7 @@ the following rules:
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | http-brute:
+-- | http-form-brute:
 -- |   Accounts
 -- |     Patrik Karlsson:secret - Valid credentials
 -- |   Statistics
@@ -347,7 +347,7 @@ local function path_ok (path, hostname, port)
   if pparts.authority then
     if pparts.userinfo
       or ( pparts.host ~= hostname )
-      or ( pparts.port and tonumber(pparts.port) ~= port.number ) then
+      or ( pparts.port and pparts.port ~= port.number ) then
       return false
     end
   end

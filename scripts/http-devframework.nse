@@ -26,10 +26,11 @@ Note that the <code>consumingDetect</code> callback will not take place only if
 ---
 -- @usage nmap -p80 --script http-devframework.nse <target>
 --
--- @args http-errors.rapid boolean value that determines if a rapid detection
+-- @args http-devframework.rapid boolean value that determines if a rapid detection
 --       should take place. The main difference of a rapid vs a lengthy detection
 --       is that second one requires crawling through the website. Default: false
 --       (lengthy detection is performed)
+-- @args http-devframework.fingerprintfile File containing fingerprints. Default: nselib/data/http-devframework-fingerprints.lua
 --
 -- @output
 -- PORT   STATE SERVICE REASON

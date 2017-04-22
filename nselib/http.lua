@@ -17,6 +17,7 @@
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
 -- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>.
 -- * <code>body</code> - The full body, as returned by the server.
+-- * <code>fragment</code> - Partially received body (if any), in case of an error.
 --
 -- If a script is planning on making a lot of requests, the pipelining functions can
 -- be helpful. <code>pipeline_add</code> queues requests in a table, and
@@ -72,7 +73,7 @@
 -- * <code>bypass_cache</code>: Do not perform a lookup in the local HTTP cache.
 -- * <code>no_cache</code>: Do not save the result of this request to the local HTTP cache.
 -- * <code>no_cache_body</code>: Do not save the body of the response to the local HTTP cache.
--- * <code>any_af</code>: Allow connecting to any address family, inet or inet6. By default, these functions will only use the same AF as nmap.address_family to resolve names.
+-- * <code>any_af</code>: Allow connecting to any address family, inet or inet6. By default, these functions will only use the same AF as nmap.address_family to resolve names. (This option is a straight pass-thru to <code>comm.lua</code> functions.)
 -- * <code>redirect_ok</code>: Closure that overrides the default redirect_ok used to validate whether to follow HTTP redirects or not. False, if no HTTP redirects should be followed. Alternatively, a number may be passed to change the number of redirects to follow.
 --   The following example shows how to write a custom closure that follows 5 consecutive redirects, without the safety checks in the default redirect_ok:
 --   <code>
@@ -113,6 +114,7 @@ local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
 local sasl = require "sasl"
+local shortport = require "shortport"
 local slaxml = require "slaxml"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -155,10 +157,24 @@ local function table_augment(to, from)
   end
 end
 
+--- Provide the default port for a given scheme.
+-- The localization is necessary because functions in http.lua like to use
+-- "url" as a local parameter
+local get_default_port = url.get_default_port
+
 --- Get a value suitable for the Host header field.
 -- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
-  return stdnse.get_hostname(host)
+  if not host then return nil end
+  if type(port) == "number" then
+    port = {number=port, protocol="tcp", state="open", version={}}
+  end
+  local scheme = shortport.ssl(host, port) and "https" or "http"
+  if port.number == get_default_port(scheme) then
+    return stdnse.get_hostname(host)
+  else
+    return stdnse.get_hostname(host) .. ":" .. port.number
+  end
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -338,7 +354,7 @@ local function validate_options(options)
       stdnse.debug1("Proceeding with ntlm message")
     elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af') then
       if(type(value) ~= 'boolean') then
-        stdnse.debug1("http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
+        stdnse.debug1("http: options.%s must be a boolean value", key)
         bad = true
       end
     elseif(key == 'redirect_ok') then
@@ -370,8 +386,17 @@ end
 -- header, partial = recv_header(socket, partial)
 -- ...
 -- </code>
--- On error, the functions return <code>nil</code> and the second return value
--- is an error message.
+-- On error, the functions return <code>nil</code>, the second return value
+-- is an error message, and the third value is an unfinished fragment of
+-- the response body (if any):
+-- <code>
+-- body, partial, fragment = recv_body(socket, partial)
+-- if not body then
+--   stdnse.debug1("Error encountered: %s", partial)
+--   stdnse.debug1("Only %d bytes of the body received", (#fragment or 0))
+-- end
+-- ...
+-- </code>
 
 -- Receive a single line (up to <code>\n</code>).
 local function recv_line(s, partial)
@@ -459,7 +484,7 @@ local function recv_length(s, length, partial)
     parts[#parts + 1] = last
     status, last = s:receive()
     if not status then
-      return nil
+      return nil, last, table.concat(parts)
     end
     length = length - #last
   end
@@ -477,7 +502,7 @@ end
 -- Receive until the end of a chunked message body, and return the dechunked
 -- body.
 local function recv_chunked(s, partial)
-  local chunks, chunk
+  local chunks, chunk, fragment
   local chunk_size
   local pos
 
@@ -487,7 +512,7 @@ local function recv_chunked(s, partial)
 
     line, partial = recv_line(s, partial)
     if not line then
-      return nil, partial
+      return nil, "Chunk size not received; " .. partial, table.concat(chunks)
     end
 
     pos = 1
@@ -496,14 +521,13 @@ local function recv_chunked(s, partial)
     -- Get the chunk-size.
     _, i, hex = string.find(line, "^([%x]+)", pos)
     if not i then
-      return nil, string.format("Chunked encoding didn't find hex; got %q.", string.sub(line, pos, pos + 10))
+      return nil,
+            ("Chunked encoding didn't find hex; got %q."):format(line:sub(pos, pos + 10)),
+            table.concat(chunks)
     end
     pos = i + 1
 
     chunk_size = tonumber(hex, 16)
-    if not chunk_size or chunk_size < 0 then
-      return nil, string.format("Chunk size %s is not a positive integer.", hex)
-    end
 
     -- Ignore chunk-extensions that may follow here.
     -- RFC 2616, section 2.1 ("Implied *LWS") seems to allow *LWS between the
@@ -514,9 +538,11 @@ local function recv_chunked(s, partial)
     -- starting with "...". We don't allow *LWS here, only ( SP | HT ), so the
     -- first interpretation will prevail.
 
-    chunk, partial = recv_length(s, chunk_size, partial)
+    chunk, partial, fragment = recv_length(s, chunk_size, partial)
     if not chunk then
-      return nil, partial
+      return nil,
+             "Incomplete chunk; " .. partial,
+             table.concat(chunks) .. fragment
     end
     chunks[#chunks + 1] = chunk
 
@@ -526,7 +552,9 @@ local function recv_chunked(s, partial)
       -- to support broken servers, such as the Citrix XML Service
       stdnse.debug2("Didn't find CRLF after chunk-data.")
     elseif not string.match(line, "^\r?\n") then
-      return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
+      return nil,
+             ("Didn't find CRLF after chunk-data; got %q."):format(line),
+             table.concat(chunks)
     end
   until chunk_size == 0
 
@@ -630,15 +658,13 @@ end
 
 -- Sets response["status-line"] and response.status.
 local function parse_status_line(status_line, response)
-  local version, status, reason_phrase
-
   response["status-line"] = status_line
-  version, status, reason_phrase = string.match(status_line,
-    "^HTTP/(%d%.%d) *(%d+) *(.*)\r?\n$")
+  local version, status, reason_phrase = string.match(status_line,
+    "^HTTP/(%d+%.%d+) +(%d+) +(.-)\r?\n$")
   if not version then
     return nil, string.format("Error parsing status-line %q.", status_line)
   end
-  -- We don't have a use for the version; ignore it.
+  -- We don't have a use for the version or the reason_phrase; ignore them.
   response.status = tonumber(status)
   if not response.status then
     return nil, string.format("Status code is not numeric: %s", status)
@@ -762,6 +788,9 @@ parse_set_cookie = function (s)
   while s:sub(pos, pos) == ";" do
     pos = pos + 1
     pos = skip_space(s, pos)
+    if pos > #s then
+      break
+    end
     pos, name = get_token(s, pos)
     if not name then
       return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
@@ -792,9 +821,17 @@ end
 
 -- Read one response from the socket <code>s</code> and return it after
 -- parsing.
+--
+-- In case of an error, a partially received response body (if any) is captured
+-- and preserved in the response object. A future possible enhancement is to
+-- extend this feature to also cover the response status line and headers.
+-- One way to implement it would be to repurpose the current third returned
+-- value from next_response() to be the partially built-up HTTP response
+-- object, not just a string representing the body fragment.
+
 local function next_response(s, method, partial)
   local response
-  local status_line, header, body
+  local status_line, header, body, fragment
   local status, err
 
   partial = partial or ""
@@ -825,9 +862,9 @@ local function next_response(s, method, partial)
     return nil, err
   end
 
-  body, partial = recv_body(s, response, method, partial)
+  body, partial, fragment = recv_body(s, response, method, partial)
   if not body then
-    return nil, partial
+    return nil, partial, fragment
   end
   response.body = body
 
@@ -1046,15 +1083,17 @@ end
 -- The header table has an entry for each received header with the header name
 -- being the key. The table also has an entry named "status" which contains the
 -- http status code of the request.
--- In case of an error, the status is nil and status-line describes the problem.
+-- In case of an error, the status is nil, status-line describes the problem,
+-- and fragment contains a partially received response body (if any).
 
-local function http_error(status_line)
+local function http_error(status_line, fragment)
   return {
     status = nil,
     ["status-line"] = status_line,
     header = {},
     rawheader = {},
     body = nil,
+    fragment = fragment
   }
 end
 
@@ -1192,12 +1231,7 @@ local function request(host, port, data, options)
 
   method = string.match(data, "^(%S+)")
 
-  if type(host) == "string" and options.any_af then
-    local status, addrs = nmap.resolve(host)
-    host = addrs[1] or host
-  end
-
-  local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
+  local socket, partial, opts = comm.tryssl(host, port, data, {timeout = options.timeout, any_af = options.any_af})
 
   if not socket then
     stdnse.debug1("http.request socket error: %s", partial)
@@ -1205,9 +1239,10 @@ local function request(host, port, data, options)
   end
 
   repeat
-    response, partial = next_response(socket, method, partial)
+    local fragment
+    response, partial, fragment = next_response(socket, method, partial)
     if not response then
-      return http_error("There was an error in next_response function.")
+      return http_error("Error in next_response function; " .. partial, fragment)
     end
     -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
     -- Sometimes a server will tell us to "go ahead" with a POST body before
@@ -1320,9 +1355,10 @@ function generic_request(host, port, method, path, options)
     end
 
     repeat
-      response, partial = next_response(socket, method, partial)
+      local fragment
+      response, partial, fragment = next_response(socket, method, partial)
       if not response then
-        return http_error("There was error in receiving response of type 1 message.")
+        return http_error("There was error in receiving response of type 1 message; " .. partial, fragment)
       end
     until not (response.status >= 100 and response.status <= 199)
 
@@ -1396,9 +1432,10 @@ function generic_request(host, port, method, path, options)
     socket:send(build_request(host, port, method, path, custom_options))
 
     repeat
-      response, partial = next_response(socket, method, partial)
+      local fragment
+      response, partial, fragment = next_response(socket, method, partial)
       if not response then
-        return http_error("There was error in receiving response of type 3 message.")
+        return http_error("There was error in receiving response of type 3 message; " .. partial, fragment)
       end
     until not (response.status >= 100 and response.status <= 199)
 
@@ -1436,42 +1473,36 @@ function put(host, port, path, options, putdata)
 end
 
 -- A battery of tests a URL is subjected to in order to decide if it may be
--- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
+-- redirected to.
 local redirect_ok_rules = {
 
   -- Check if there's any credentials in the url
   function (url, host, port)
     -- bail if userinfo is present
-    return ( url.userinfo and false ) or true
+    return not url.userinfo
   end,
 
   -- Check if the location is within the domain or host
+  --
+  -- Notes:
+  -- * A domain match must be exact and at least a second-level domain
+  -- * ccTLDs are not treated as such. The rule will not stop a redirect
+  --   from foo.co.uk to bar.co.uk even though it logically should.
   function (url, host, port)
     local hostname = stdnse.get_hostname(host)
-    if ( hostname == host.ip and host.ip == url.host.ip ) then
-      return true
+    if hostname == host.ip then
+      return url.host == hostname
     end
-    local domain = hostname:match("^[^%.]-%.(.*)") or hostname
-    local match = ("^.*%s$"):format(domain)
-    if ( url.host:match(match) ) then
-      return true
-    end
-    return false
+    local domain = function (h) return (h:match("%..+%..+") or h):lower() end
+    return domain(hostname) == domain(url.host)
   end,
 
   -- Check whether the new location has the same port number
   function (url, host, port)
     -- port fixup, adds default ports 80 and 443 in case no url.port was
     -- defined, we do this based on the url scheme
-    local url_port = url.port
-    if ( not(url_port) ) then
-      if ( url.scheme == "http" ) then
-        url_port = 80
-      elseif( url.scheme == "https" ) then
-        url_port = 443
-      end
-    end
-    if (not url_port) or tonumber(url_port) == port.number then
+    local url_port = url.port or get_default_port(url.scheme)
+    if not url_port or url_port == port.number then
       return true
     end
     return false
@@ -1487,16 +1518,17 @@ local redirect_ok_rules = {
 
   -- make sure we're actually being redirected somewhere and not to the same url
   function (url, host, port)
+    -- url.path must be set if returning true
     -- path cannot be unchanged unless host has changed
-    -- loc.path must be set if returning true
-    if ( not url.path or url.path == "/" ) and url.host == ( host.targetname or host.ip) then return false end
-    if not url.path then return true end
+    -- TODO: Since we do not know here what the actual old path was then
+    --       the effectiveness of this code is a bit unclear.
+    if not url.path then return false end
+    if url.path == "/" and url.host == (host.targetname or host.ip) then return false end
     return true
   end,
 }
 
---- Check if the given URL is okay to redirect to. Return a table with keys
--- "host", "port", and "path" if okay, nil otherwise.
+--- Provides the default behavior for HTTP redirects.
 --
 -- Redirects will be followed unless they:
 -- * contain credentials
@@ -1504,11 +1536,10 @@ local redirect_ok_rules = {
 -- * have a different port number or URI scheme
 -- * redirect to the same URI
 -- * exceed the maximum number of redirects specified
--- @param url table as returned by url.parse
 -- @param host table as received by the action function
 -- @param port table as received by the action function
 -- @param counter number of redirects to follow.
--- @return loc table containing the new location
+-- @return a default closure suitable for option "redirect_ok"
 function redirect_ok(host, port, counter)
   -- convert a numeric port to a table
   if ( "number" == type(port) ) then
@@ -1548,11 +1579,7 @@ function parse_redirect(host, port, path, response)
     u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
   end
   -- do port fixup
-  if ( not(u.port) ) then
-    if ( u.scheme == "http" ) then u.port = 80
-    elseif ( u.scheme == "https") then u.port = 443
-    else u.port = port.number end
-  end
+  u.port = u.port or get_default_port(u.scheme) or port.number
   if ( not(u.path) ) then
     u.path = "/"
   end
@@ -1646,15 +1673,7 @@ function get_url( u, options )
   local port = {}
 
   port.service = parsed.scheme
-  port.number = parsed.port
-
-  if not port.number then
-    if parsed.scheme == 'https' then
-      port.number = 443
-    else
-      port.number = 80
-    end
-  end
+  port.number = parsed.port or get_default_port(parsed.scheme) or 80
 
   local path = parsed.path or "/"
   if parsed.query then
