@@ -753,13 +753,12 @@ Engine = {
         driver:disconnect()
         driver = nil
 
-        if not status and response:isReduce() then
-          local ret_creds = {}
-          ret_creds.username = username
-          ret_creds.password = password
-          return false, response, ret_creds
-        end
-
+      end
+      if not status and response:isReduce() then
+         local ret_creds = {}
+         ret_creds.username = username
+         ret_creds.password = password
+         return false, response, ret_creds
       end
 
       retries = retries - 1
