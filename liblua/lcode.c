@@ -758,19 +758,18 @@ void luaK_exp2val (FuncState *fs, expdesc *e) {
 int luaK_exp2RK (FuncState *fs, expdesc *e) {
   luaK_exp2val(fs, e);
   switch (e->k) {  /* move constants to 'k' */
-    case VTRUE: e->u.info = boolK(fs, 1); goto vk;
-    case VFALSE: e->u.info = boolK(fs, 0); goto vk;
-    case VNIL: e->u.info = nilK(fs); goto vk;
-    case VKINT: e->u.info = luaK_intK(fs, e->u.ival); goto vk;
-    case VKFLT: e->u.info = luaK_numberK(fs, e->u.nval); goto vk;
-    case VK:
-     vk:
-      e->k = VK;
-      if (e->u.info <= MAXINDEXRK)  /* constant fits in 'argC'? */
-        return RKASK(e->u.info);
-      else break;
-    default: break;
+    case VTRUE: e->u.info = boolK(fs, 1); e->k = VK; break;
+    case VFALSE: e->u.info = boolK(fs, 0); e->k = VK; break;
+    case VNIL: e->u.info = nilK(fs); e->k = VK; break;
+    case VKINT: e->u.info = luaK_intK(fs, e->u.ival); e->k = VK; break;
+    case VKFLT: e->u.info = luaK_numberK(fs, e->u.nval); e->k = VK; break;
+    case VK: e->k = VK; break;
+    default: return luaK_exp2anyreg(fs, e);
   }
+
+  if (e->u.info <= MAXINDEXRK)  /* constant fits in 'argC'? */
+        return RKASK(e->u.info);
+
   /* not a constant in the right range: put it in a register */
   return luaK_exp2anyreg(fs, e);
 }
