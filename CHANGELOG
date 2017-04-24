@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script argument "vulns.short" will reduce vulns library script
+  output to a single line containing the target name or IP, the vulnerability
+  state, and the CVE ID or title of the vulnerability. [Daniel Miller]
+
 o [NSE][GH#862] SNMP scripts will now take a community string provided like
   `--script-args creds.snmp=private`, which previously did not work because it
   was interpreted as a username. [Daniel Miller]

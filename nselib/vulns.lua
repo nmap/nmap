@@ -156,6 +156,18 @@
 --  action = function(...) return tactions[SCRIPT_TYPE](...) end
 -- </code>
 --
+--
+-- Library debug messages:
+--
+-- * Level 2: show the <code>NOT VULNERABLE</code> entries.
+-- * Level 3: show all the vulnerabilities that are saved into the registry.
+-- * Level 5: show all the other debug messages (useful for debugging).
+--
+-- Note: Vulnerability tables are always re-constructed before they are
+-- saved in the registry. We do this to avoid using vulnerability tables
+-- that are referenced by other objects to let the Lua garbage-collector
+-- collect these last objects.
+--
 -- @args vulns.showall  If set, the library will show and report all the
 --   registered vulnerabilities which includes the
 --   <code>NOT VULNERABLE</code> ones. By default the library will only
@@ -167,16 +179,9 @@
 --                               portule/hostrule scripts.
 --   vulns.make_output(): the default output function for postrule scripts.
 --   vulns.format_vuln() and vulns.format_vuln_table() functions.
---
--- Library debug messages:
---   Level 2: show the <code>NOT VULNERABLE</code> entries.
---   Level 3: show all the vulnerabilities that are saved into the registry.
---   Level 5: show all the other debug messages (useful for debugging).
---
--- Note: Vulnerability tables are always re-constructed before they are
--- saved in the registry. We do this to avoid using vulnerability tables
--- that are referenced by other objects to let the Lua garbage-collector
--- collect these last objects.
+-- @args vulns.short If set, vulnerabilities will be output in short format, a
+--   single line consisting of the host's target name or IP, the state, and
+--   either the CVE ID or the title of the vulnerability. Does not affect XML output.
 --
 -- @author Djalal Harouni
 -- @author Henri Doreau
@@ -374,6 +379,8 @@ local SHOW_ALL = stdnse.get_script_args('vulns.showall') or
                     stdnse.get_script_args('vuln.showall') or
                     stdnse.get_script_args('vulns.show-all') or
                     stdnse.get_script_args('vuln.show-all')
+
+local SHORT_OUTPUT = stdnse.get_script_args('vulns.short')
 
 -- The different states of the vulnerability
 STATE = {
@@ -1810,6 +1817,13 @@ local format_vuln_base = function(vuln_table, showall)
             or "", STATE_MSG[vuln_table.state])
     return nil
   end
+  if SHORT_OUTPUT then
+    return {("%s %s %s"):format(
+        vuln_table.host.targetname or vuln_table.host.ip,
+        STATE_MSG[vuln_table.state],
+        vuln_table.IDS.CVE or vuln_table.title
+      )}
+  end
   local output_table = stdnse.output_table()
   local out = {}
   output_table.title = vuln_table.title
@@ -2243,7 +2257,9 @@ Report = {
     -- VULNERABLE: LIKELY_VULN, VULN, DoS, EXPLOIT
     if vuln_count > 0 then
       output_table.state = "VULNERABLE"
-      insert(output, "VULNERABLE:")
+      if not SHORT_OUTPUT then
+        insert(output, "VULNERABLE:")
+      end
       for i, vuln_table in ipairs(self.entries.vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table)
         if type(out_t) == "table" then
@@ -2264,7 +2280,9 @@ Report = {
       if SHOW_ALL then
         if vuln_count > 0 then insert(output, "") end
         output_table.state = "NOT VULNERABLE"
-        insert(output, "NOT VULNERABLE:")
+        if not SHORT_OUTPUT then
+          insert(output, "NOT VULNERABLE:")
+        end
       end
       for i, vuln_table in ipairs(self.entries.not_vulns) do
         local vuln_out, out_t = format_vuln_base(vuln_table, SHOW_ALL)
