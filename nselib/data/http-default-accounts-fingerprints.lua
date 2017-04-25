@@ -568,7 +568,7 @@ table.insert(fingerprints, {
   target_check = function (host, port, path, response)
     local realm = http_auth_realm(response) or ""
     -- Exact PCRE: "^level 15?( or view)? access$"
-    return realm:gsub("_"," "):find("^level 15? .*%f[^%s]access$")
+    return realm:gsub("_"," "):find("^level 15?%f[ ].* access$")
   end,
   login_combos = {
     {username = "", password = ""},
