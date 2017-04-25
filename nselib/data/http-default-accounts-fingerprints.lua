@@ -474,9 +474,10 @@ table.insert(fingerprints, {
     {username = "admin", password = "axis2"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_post_login(host, port, path, "login",
-                              "%sname%s*=%s*(['\"]?)password%1[%s>]",
-                              {submit=" Login ", userName=user, password=pass})
+    local resp = http_post_simple(host, port, url.absolute(path, "login"), nil,
+                                 {userName=user,password=pass,submit=" Login "})
+    return resp.status == 200
+           and (resp.body or ""):lower():find("<a%s+href%s*=%s*(['\"])axis2%-admin/logout%1")
   end
 })
 
