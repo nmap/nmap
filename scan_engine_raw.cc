@@ -140,6 +140,10 @@
 #include "utils.h"
 #include <string>
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 extern NmapOps o;
 
 /* Pass an arp packet, including ethernet header. Must be 42bytes */

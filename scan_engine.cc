@@ -151,6 +151,10 @@
 
 #include "struct_ip.h"
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #include <math.h>
 #include <list>
 #include <map>

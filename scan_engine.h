@@ -139,6 +139,11 @@
 #include <dnet.h>
 
 #include "timing.h"
+
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #include <pcap.h>
 #include <list>
 #include <vector>

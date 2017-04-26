@@ -168,6 +168,10 @@
 # endif
 #endif
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #include <algorithm>
 #include <list>
 

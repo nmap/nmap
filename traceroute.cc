@@ -180,6 +180,10 @@ individually.
 
 #include "struct_ip.h"
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #include <dnet.h>
 
 #include <algorithm>

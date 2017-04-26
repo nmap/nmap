@@ -173,6 +173,10 @@
 #include <shlobj.h>
 #endif
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #if HAVE_OPENSSL
 #include <openssl/opensslv.h>
 #endif

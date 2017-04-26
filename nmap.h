@@ -166,11 +166,6 @@
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-/* For systems without SCTP in netinet/in.h, such as MacOS X */
-#ifndef IPPROTO_SCTP
-#define IPPROTO_SCTP 132
-#endif
-
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 

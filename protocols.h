@@ -139,6 +139,10 @@
 #include <netdb.h>
 #endif
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 #define PROTOCOL_TABLE_SIZE 256
 
 struct protocol_list {

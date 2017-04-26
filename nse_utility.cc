@@ -8,6 +8,10 @@
 #include "nse_main.h"
 #include "nse_utility.h"
 
+#ifndef IPPROTO_SCTP
+#include "libnetutil/netutil.h"
+#endif
+
 int nseU_checkinteger (lua_State *L, int arg)
 {
   lua_Number n = luaL_checknumber(L, arg);
