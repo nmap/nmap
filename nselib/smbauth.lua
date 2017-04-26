@@ -158,17 +158,17 @@ end
 --@param hash_type     The hash type to use.
 --@param is_admin      [optional] Set to 'true' the account is known to be an administrator.
 function add_account(host, username, domain, password, password_hash, hash_type, is_admin)
-  -- Save the username in a global list -- TODO: restore this
-  --  if(nmap.registry.usernames == nil) then
-  --    nmap.registry.usernames = {}
-  --  end
-  --  nmap.registry.usernames[username] = true
-  --
-  --  -- Save the username/password pair in a global list
-  --  if(nmap.registry.smbaccounts == nil) then
-  --    nmap.registry.smbaccounts = {}
-  --  end
-  --  nmap.registry.smbaccounts[username] = password
+
+  if(nmap.registry.usernames == nil) then
+     nmap.registry.usernames = {}
+  end
+  nmap.registry.usernames[username] = true
+
+  -- Save the username/password pair in a global list
+  if(nmap.registry.smbaccounts == nil) then
+     nmap.registry.smbaccounts = {}
+  end
+  nmap.registry.smbaccounts[username] = password
 
   -- Check if we've already recorded this account
   if(account_exists(host, username, domain)) then
