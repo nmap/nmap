@@ -125,7 +125,7 @@ local unicode = require "unicode"
 
 _ENV = stdnse.module("http", stdnse.seeall)
 
----Use ssl if we have it
+--Use ssl if we have it
 local have_ssl, openssl = pcall(require,'openssl')
 
 USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
@@ -2881,6 +2881,53 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Save it as a content-type, if we have one
   if(contenttype) then
     stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'content-type', contenttype}, parsed['path_query'])
+  end
+end
+
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+do
+  local cookie_tests = {
+--[[ Uncomment after #844 is merged
+    { -- #844
+      " SESSIONID=IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014;secure", {
+        name = "SESSIONID",
+        value = "IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014",
+        secure = true
+      }
+    },
+--]]
+    { -- #866
+      " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1", {
+        name = "SID",
+        value = "c98fefa3ad659caa20b89582419bb14f",
+        ["max-age"] = "1200",
+        version = "1"
+      }
+    },
+    { -- #731
+      "session_id=76ca8bc8c19;", {
+        name = "session_id",
+        value = "76ca8bc8c19"
+        }
+    },
+    { -- #229
+      "c1=aaa; path=/bbb/ccc,ddd/eee", {
+        name = "c1",
+        value = "aaa",
+        path = "/bbb/ccc,ddd/eee"
+      }
+    },
+  }
+
+  for _, test in ipairs(cookie_tests) do
+    local parsed = parse_set_cookie(test[1])
+    test_suite:add_test(unittest.keys_equal(parsed, test[2], test[1]))
   end
 end
 
