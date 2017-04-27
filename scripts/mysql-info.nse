@@ -13,6 +13,7 @@ isn't run (see the portrule).
 ]]
 
 ---
+-- @usage nmap -sV --script mysql-info <target>
 -- @output
 -- 3306/tcp open  mysql
 -- |  mysql-info:
