@@ -19,7 +19,7 @@ with salt and number of iterations used. This technique is known as
 "NSEC3 walking".
 
 That info should then be fed into an offline cracker, like
-<code>unhash</code> from http://dnscurve.org/nsec3walker.html, to
+<code>unhash</code> from https://dnscurve.org/nsec3walker.html, to
 bruteforce the actual names from the hashes. Assuming that the script
 output was written into a text file <code>hashes.txt</code> like:
 <code>
@@ -46,7 +46,7 @@ Use the <code>dns-nsec-enum</code> script to handle servers that use NSEC
 rather than NSEC3.
 
 References:
-* http://dnscurve.org/nsec3walker.html
+* https://dnscurve.org/nsec3walker.html
 ]]
 ---
 -- @usage
