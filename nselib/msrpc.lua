@@ -3450,11 +3450,6 @@ function atsvc_jobadd(smbstate, server, command, time)
   local arguments
   local pos, align
 
-  -- Set up the time
-  if(time == nil) then
-    -- TODO
-  end
-
   stdnse.debug2("MSRPC: Calling AddJob(%s) [%s]", command, smbstate['ip'])
 
   --        [in,unique,string,charset(UTF16)] uint16 *servername,
