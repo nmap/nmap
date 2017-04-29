@@ -24,6 +24,10 @@ o [NSE] The HTTP response object has a new member, fragment, which contains
   a partially received body (if any) when the overall request fails to
   complete. [nnposter]
 
+o [NSE][GH#866] NSE now allows cookies to have arbitrary attributes, which
+  are silently ignored (in accordance with RFC 6265). Unrecognized attributes
+  were previously causing HTTP requests with such cookies to fail. [nnposter]
+
 o [NSE][GH#844] NSE now correctly parses a Set-Cookie header that has unquoted
   whitespace in the cookie value (which is allowed per RFC 6265). [nnposter]
 
