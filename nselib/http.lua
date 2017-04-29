@@ -751,9 +751,8 @@ end
 --
 -- Every key except "name" and "value" is optional.
 --
--- This function attempts to support the cookie syntax defined in RFC 2109
--- along with the backwards-compatibility suggestions from its section 10,
--- "HISTORICAL". Values need not be quoted, but if they start with a quote they
+-- This function attempts to support the header parser defined in RFC 6265,
+-- Section 5.2. Values need not be quoted, but if they start with a quote they
 -- will be interpreted as a quoted string.
 parse_set_cookie = function (s)
   local name, value
@@ -762,27 +761,22 @@ parse_set_cookie = function (s)
   local cookie = {}
 
   -- Get the NAME=VALUE part.
-  local pos = skip_space(s, 1)
-  pos, cookie.name = get_token(s, pos)
-  if not cookie.name then
+  local pos
+  _, pos, cookie.name = s:find("^[ \t]*(.-)[ \t]*=[ \t]*")
+  if not (cookie.name or ""):find("^[^;]+$") then
     return nil, "Can't get cookie name."
   end
-  pos = skip_space(s, pos)
-  if s:sub(pos, pos) ~= "=" then
-    return nil, string.format("Expected '=' after cookie name \"%s\".", cookie.name)
-  end
   pos = pos + 1
-  pos = skip_space(s, pos)
   if s:sub(pos, pos) == "\"" then
     pos, cookie.value = get_quoted_string(s, pos)
+    if not cookie.value then
+      return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
+    end
+    pos = skip_space(s, pos)
   else
-    _, pos, cookie.value = s:find("([^; \t]*)", pos)
+    _, pos, cookie.value = s:find("^(.-)[ \t]*%f[;\0]", pos)
     pos = pos + 1
   end
-  if not cookie.value then
-    return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
-  end
-  pos = skip_space(s, pos)
 
   -- Loop over the attributes.
   while s:sub(pos, pos) == ";" do
@@ -2893,7 +2887,6 @@ test_suite = unittest.TestSuite:new()
 
 do
   local cookie_tests = {
---[[ Uncomment after #844 is merged
     { -- #844
       " SESSIONID=IgAAABjN8b3xxxNsLRIiSpHLPn1lE=&IgAAAxxxMT6Bw==&Huawei USG6320&langfrombrows=en-US&copyright=2014;secure", {
         name = "SESSIONID",
@@ -2901,7 +2894,6 @@ do
         secure = true
       }
     },
---]]
     { -- #866
       " SID=c98fefa3ad659caa20b89582419bb14f; Max-Age=1200; Version=1", {
         name = "SID",
