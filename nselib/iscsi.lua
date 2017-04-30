@@ -589,7 +589,9 @@ Helper = {
     end
 
     local auth_method = resp.kvp:get("AuthMethod")[1]
-    if ( auth_method:upper() ~= "NONE" ) then
+    if not auth_method then
+      stdnse.debug1("Missing AuthMethod, proceeding as if NONE was sent.")
+    elseif ( auth_method:upper() ~= "NONE" ) then
       return false, "ERROR: iscsi.Helper.discoverTargets: Unsupported authentication method"
     end
 
