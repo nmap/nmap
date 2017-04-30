@@ -1,8 +1,7 @@
 Nmap [![Build Status](https://travis-ci.org/nmap/nmap.svg?branch=master)](https://travis-ci.org/nmap/nmap)
 ====
 
-Nmap is released under a GPL-style license, the full text of which is available
-in [the COPYING file](COPYING).
+Nmap is released under a custom license, which is based on (but not compatible with) GPLv2. The Nmap license allows free usage by end users, and we also offer a commercial license for companies that wish to redistribute Nmap technology with their products. See [Nmap Copyright and Licensing][https://nmap.org/book/man-legal.html] for full details.
 
 The latest version of this software as well as binary installers for Windows,
 macOS, and Linux (RPM) are available from https://nmap.org/
