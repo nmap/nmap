@@ -155,6 +155,7 @@
 /unicast/c1/s1/live
 /user.pin.mp2
 /user_defined
+/user=admin_password=tlJwpbo6_channel=1_stream=0.sdp?real_stream
 /video
 /video.3gp
 /video.cgi
