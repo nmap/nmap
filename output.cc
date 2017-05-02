@@ -664,12 +664,7 @@ void printportoutput(Target *currenths, PortList *plist) {
     prevstate = istate;
   }
 
-  if (prevstate != PORT_UNKNOWN) {
-    log_write(LOG_PLAIN, "\n");
-    if (o.defeat_rst_ratelimit && o.TCPScan()) {
-      log_write(LOG_PLAIN, "Some closed ports may be reported as filtered due to --defeat-rst-ratelimit\n");
-    }
-  }
+  log_write(LOG_PLAIN, "\n");
 
   if (o.reason)
     print_state_summary(plist, STATE_REASON_FULL);
@@ -878,6 +873,10 @@ void printportoutput(Target *currenths, PortList *plist) {
   }
   xml_end_tag(); /* ports */
   xml_newline();
+
+  if (o.defeat_rst_ratelimit && o.TCPScan() && plist->getStateCounts(PORT_FILTERED) > 0) {
+    log_write(LOG_PLAIN, "Some closed ports may be reported as filtered due to --defeat-rst-ratelimit\n");
+  }
 
   // Now we write the table for the user
   log_write(LOG_PLAIN, "%s", Tbl->printableTable(NULL));
