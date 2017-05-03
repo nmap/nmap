@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The --no-shutdown option now also works in connect mode, not only in
+  listen mode.
+
 o [NSE] New script argument "vulns.short" will reduce vulns library script
   output to a single line containing the target name or IP, the vulnerability
   state, and the CVE ID or title of the vulnerability. [Daniel Miller]
