@@ -5,27 +5,21 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Performs a HEAD request for the root folder ("/") of a web server and displays the HTTP headers returned.
+Performs a HEAD request for the root folder ("/") or path argument of a web server and displays if a HSTS is enabled or disabled. based on http-headers.nse
 ]]
 
 ---
 -- @output
 -- PORT   STATE SERVICE
--- 80/tcp open  http
--- | http-headers:
--- |   Date: Fri, 25 Jan 2013 17:39:08 GMT
--- |   Server: Apache/2.2.14 (Ubuntu)
--- |   Accept-Ranges: bytes
--- |   Vary: Accept-Encoding
--- |   Connection: close
--- |   Content-Type: text/html
--- |
--- |_  (Request type: HEAD)
+-- 443/tcp open  http
+-- | check-hsts:
+--  _HSTS disabled. - Possily unsafe
+
 --
 --@args path The path to request, such as <code>/index.php</code>. Default <code>/</code>.
 --@args useget Set to force GET requests instead of HEAD.
 
-author = "Ron Bowes"
+author = "Jose Carlos Ramos"
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -64,6 +58,15 @@ action = function(host, port)
   end
 
   table.insert(result.rawheader, "(Request type: " .. request_type .. ")")
+  
 
-  return stdnse.format_output(true, result.rawheader)
+  if(result.header['strict-transport-security']) then
+      table.insert(result.header, "(Request type: " .. request_type .. ")")
+      return stdnse.format_output(true, "HSTS enabled!")
+  else
+      return stdnse.format_output(true, "HSTS disabled. - Possily unsafe")
+  end
+  
+
+  --return stdnse.format_output(true, result.rawheader)
 end
