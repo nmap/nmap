@@ -455,7 +455,17 @@ class ScanInterface(HIGVBox):
             warn_dialog.destroy()
             return
 
-        self.execute_command(command, target, profile)
+        try:
+            self.execute_command(command, target, profile)
+        except IOError, e:
+            self.toolbar.scan_button.set_sensitive(False)
+            warn_dialog = HIGAlertDialog(
+                        message_format=_("No Suitable Temp Directory Was Found"),
+                        secondary_text=_("Error Message:%s") % str(e),
+                        type=gtk.MESSAGE_ERROR)
+            warn_dialog.run()
+            warn_dialog.destroy()
+
 
     def _displayed_scan_change_cb(self, widget):
         self.update_cancel_button()
