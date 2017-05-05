@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Extended Memcached service probe and added match for Apache ZooKeeper. 
+  [Paulino Calderon]
+
 o [NSE] New script vmware-version queries VMWare SOAP API for version and
   product information. Submitted in 2011, this was mistakenly turned into a
   service probe that was unable to elicit any matches. [Aleksey Tyurin]

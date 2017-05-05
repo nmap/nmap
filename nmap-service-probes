@@ -14846,13 +14846,13 @@ match stomp m|^ERROR\nmessage:Illegal command\ncontent-type:text/plain\nversion:
 # match ipds m|^%%\[ Error: syntaxerror; Offending Command:|s p/IPDS Service/ d/printer/
 
 ##############################NEXT PROBE##############################
-# memcache, text mode protocol
-Probe TCP Memcache q|stats\r\n|
+# Sends string 'stats' and matches memcached and zookeeper
+Probe TCP StatsRequest q|stats\r\n|
 rarity 8
-ports 11211
+ports 2181,11211
 match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/Memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/ cpe:/a:memcached:memcached:$3/
 match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$3/ i/PID $1; uptime $2 seconds/ cpe:/a:memcached:memcached:$3/
-
+match zookeeper m|^Zookeeper version: ([\w.-]+), built on ([\w./]+)| p/Zookeeper/ v/$1/ i/Built on $2/ cpe:/a:zookeeper:zookeeper:$1/
 
 ##############################NEXT PROBE##############################
 # Beast Trojan v2
