@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o New service probes and matches for Apache HBase and Hadoop MapReduce. 
+  [Paulino Calderon]
+
 o [NSE][GH#876] New script http-vuln-cve2017-5689 detects a privilege escalation 
   vulnerability (INTEL-SA-00075) in Intel Active Management Technology (AMT)
   capable systems. [Andrew Orr]

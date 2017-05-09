@@ -10712,6 +10712,7 @@ match magent m|^Agent Ready\.\.\.\r\n| p/MicroWorld mwagent.exe/ o/Windows/ cpe:
 match magent m|^Agent Ready\.\.\.\r\nGET / HTTP/1\.0\r\n\r\nGET 501 command not implemented ERROR\r\n| p/MicroWorld mwagent.exe/ o/Windows/ cpe:/o:microsoft:windows/a
 match magent m|^Agent Ready v([\w._]+)+\.\.\.(?:\[[\w._-]+\])\r\nGET / HTTP/1\.0 501 command not implemented ERROR\r\n 501 command not implemented ERROR\r\n| p/MicroWorld mwagent.exe/ v/$1/ i/eScan antivirus management console/ o/Windows/ cpe:/o:microsoft:windows/a
 
+match mapreduce m|name:\x20mapreduce\r\nversion:\x20(.+)\r\n\r\n| p/Hadoop MapReduce/ v/$1/ cpe:/a:hadoop:mapreduce:$1/
 match mas-financial m|^409 Invalid Protocol PVXAS/1\.0\r\n| p/MAS200 Financial System/ o/Windows/ cpe:/o:microsoft:windows/a
 match mas-financial m|^The Host cannot run the specified program\.$| p/MAS200 Financial System/ o/Windows/ cpe:/o:microsoft:windows/a
 
@@ -14951,10 +14952,10 @@ Probe TCP ibm-db2 q|\x01\xc2\0\0\0\x04\0\0\xb6\x01\0\0SQLDB2RA\0\x01\0\0\x04\x01
 rarity 8
 ports 523,50000-50025,60000-60025
 
+match hbase m|FatalConnectionException\x12.Expected\x20HEADER=HBas| p/Apache HBase/ cpe:/a:apache:hbase/
 match ibm-db2 m|(?<=.)DB2/([^\0]+)\0\0\0\0\0\0\0\0.{1,4}\0\0\0\0\0\0\0SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$2.$3.$4/ o/$1/ cpe:/a:ibm:db2:$2.$3.$4/
 match ibm-db2 m|^\0\xa9\x10..\x01\0\0SQLDB2RA\x01\0\x05\0.{10,13}SQLCA|s p/IBM DB2 Database Server/ cpe:/a:ibm:db2/
 match ibm-db2 m|^\0\xa9\x10..\x01\x0e\x10SQLDB2RA\x01\0\x05\0.{10,13}SQLCA|s p/IBM DB2 Database Server/ cpe:/a:ibm:db2/
-
 
 ##############################NEXT PROBE##############################
 Probe TCP pervasive-relational q|Client string for PARC version 1 Wire Encryption version 1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
