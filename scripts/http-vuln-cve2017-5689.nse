@@ -80,7 +80,7 @@ author = "Andrew Orr"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "auth", "exploit" }
 
-portrule = shortport.port_or_service({623, 664, 16992, 16993, 16994, 16995}, "amt-soap-http")
+portrule = shortport.port_or_service({623, 664, 16992, 16993}, "amt-soap-http")
 
 action = function(host, port)
   local vuln = {
@@ -108,7 +108,7 @@ digest parameter.
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local response = http.get(host, port, '/index.htm')
 
-  if response.header['server'] and response.header['server']:find('Intel(R) Active Management Technology', 1, true) 
+  if response.header['server'] and response.header['server']:find('Intel(R)', 1, true) 
     and response.status and response.status == 401 then
       local www_authenticate = http.parse_www_authenticate(response.header['www-authenticate'])
       local auth_header = string.format("Digest username=\"admin\", realm=\"%s\", nonce=\"%s\", uri=\"index.htm\"," .. 
