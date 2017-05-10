@@ -17,7 +17,6 @@ categories = {"dos", "vuln", "exploit", "intrusive"}
 
 local string = require "string"
 local shortport = require "shortport"
-local bin = require "bin"
 local comm = require "comm"
 local stdnse = require "stdnse"
 
@@ -51,7 +50,7 @@ string.char(0x01)
 ..string.char(0x00)
 ..string.char(0xff)
 
-local packet1_len = bin.pack("i", string.len(packet1)-1)
+local packet1_len = string.pack("i", string.len(packet1)-1)
 packet1_len = string.sub(packet1_len,1,3)
 
 local payload = packet1_len..packet1
