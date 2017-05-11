@@ -73,6 +73,7 @@ _ENV = stdnse.module("unpwdb", stdnse.seeall)
 
 local usertable = {}
 local passtable = {}
+local profiled_passtable = {}
 
 local customdata = false
 
@@ -207,9 +208,144 @@ local passwords_raw = function()
     return false, "Error parsing password list"
   end
 
+  passtable_count = #passtable
+  if #profiled_passtable > 0 then
+    for i=1, #profiled_passtable do
+      passtable[passtable_count+i] = profiled_passtable[i]
+    end
+  end
+
   return true, table_iterator(passtable)
 end
 
+---
+-- Password profiling code.
+--
+-- Contains all the logic for profiling passwords in NSE.
+--
+-- @author "George Chatzisofroniou <sophron () latthi com>"
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+--
+
+-- Length limits of a possible keyword.
+-- Remove possible articles, determiners, and quantifiers with MIN_LENGTH.
+-- Avoid system exhaustion with MAX_LENGTH. The longer the keyword, the more
+-- passwords will be generated.
+local MIN_LENGTH = 4
+local MAX_LENGTH = 10
+local SUFFIX_APPEND = true
+
+-- Used to filter out common articles, determiners, and quantifiers.
+local t_filters = {
+    "many",
+    "some",
+    "their",
+    "yours",
+    "each",
+    "every",
+    "this",
+    "that"
+}
+
+-- Common suffixes.
+local suffixes = {
+    "0",
+    "1",
+    "12",
+    "123",
+    "1234",
+    "password",
+    "pass",
+    "!",
+    "@",
+    "$"
+}
+
+-- Include the last 5 years to the above list.
+local cur_year = tonumber(os.date("%Y"))
+for i=0,5 do
+    table.insert(suffixes, cur_year - 4)
+end
+
+local filters = {}
+for i, v in ipairs(t_filters) do
+    filters[v] = true
+end
+
+-- Check if the word is suitable as a keyword.
+local check_word = function( word )
+    if ( filters[string.lower(word)] ~= nil ) then
+        return false
+    end
+
+    if ( string.len(word) < MIN_LENGTH ) then
+        return false
+    end
+
+    if ( string.len(word) > MAX_LENGTH ) then
+        return false
+    end
+
+    return true
+end
+
+-- Public method that NSE discovery scripts should use to
+-- cache interesting keywords.
+save_for_pwdprofiling = function( host, key )
+
+  nmap.registry.pwdprofiling = nmap.registry.pwdprofiling or {}
+  nmap.registry.pwdprofiling.host = nmap.registry.pwdprofiling.host or {}
+  for i in string.gmatch(key, "%S+") do
+    if ( check_word(i) ) then
+        table.insert( nmap.registry.pwdprofiling.host, i )
+    end
+  end
+
+end
+
+-- Simple copy table method.
+local shallow_copy = function( original )
+
+  local copy = {}
+  for k, v in pairs(original) do
+    copy[k] = v
+  end
+  return copy
+
+end
+
+local mangle_words = function( pwds )
+  local mutants = {}
+
+  for _, m in pairs(pwds) do
+    table.insert(mutants, string.lower(m))
+  end
+
+  -- Appends suffixes listed in suffixes table
+  if ( SUFFIX_APPEND == true or tonumber(SUFFIX_APPEND) == 1 ) then
+    imutants = shallow_copy(mutants)
+    for _, p in ipairs(imutants) do
+      for __, s in ipairs(suffixes) do
+        table.insert(mutants, p .. s)
+      end
+    end
+  end
+
+  return mutants
+end
+
+get_profiled_pwds = function( host )
+  if ( nmap.registry["pwdprofiling"] ) then
+    mangledpwds = mangle_words(nmap.registry.pwdprofiling.host)
+    return mangledpwds
+  end
+end
+
+-- Adds profiled passwords to password iterator
+-- Must be executed before passwords()
+add_profiled_passwords = function()
+  profiled_passtable = get_profiled_pwds()
+end
 --- Wraps time and count limits around an iterator.
 --
 -- When either limit expires, starts returning <code>nil</code>. Calling the
