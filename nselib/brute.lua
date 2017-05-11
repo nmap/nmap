@@ -301,6 +301,7 @@ local os = require "os"
 local stdnse = require "stdnse"
 local table = require "table"
 local unpwdb = require "unpwdb"
++local pwdprofile = require "pwdprofile"
 local math = require "math"
 _ENV = stdnse.module("brute", stdnse.seeall)
 
@@ -593,8 +594,7 @@ Engine = {
       tps = {},
       iterator = nil,
       usernames = usernames_iterator(),
-      passwords = passwords_iterator(),
-      found_accounts = {},
+      passwords = passwords_iterator(stdnse.get_script_args("brute.passprofile")),      found_accounts = {},
       account_guesses = {},
       options = Options:new(),
 
@@ -1285,13 +1285,17 @@ end
 
 --- Default password iterator that uses unpwdb
 --
-function passwords_iterator ()
-  local status, passwords = unpwdb.passwords()
-  if not status then
-    return "Failed to load passwords"
+passwords_iterator = function(passprofile_arg)
+
+  if (passprofile_arg=="true" or passprofile_arg==true or tonumber(passprofile_arg)==1) then
+    unpwdb.add_profiled_pwds()
   end
-  return passwords
-end
+
+   local status, passwords = unpwdb.passwords()
+
+   if ( not(status) ) then return "Failed to load passwords" end
+   return passwords
+ end
 
 Iterators = {
 
