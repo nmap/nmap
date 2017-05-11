@@ -2576,7 +2576,7 @@ if(this->getRole()!=ROLE_SERVER){
  if( this->getMode()==TCP_CONNECT || this->getMode()==UDP_UNPRIV )
     nping_print(DBG_2,"Nping will send packets in unprivileged mode using regular system calls");
  else
-    nping_print(DBG_2,"Nping will send packets at %s",  this->sendEth() ? "raw ethernet level" : "raw IP level" );
+    this->setMode(TCP_CONNECT);
 }
 
 /** ECHO MODE ************************************************************/
