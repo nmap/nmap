@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Ndiff
 #
 # This programs reads two Nmap XML files and displays a list of their
@@ -115,6 +114,7 @@ class Host(object):
     """A single host, with a state, addresses, host names, a dict mapping port
     specs to Ports, and a list of OS matches. Host states are strings, or None
     for "unknown"."""
+
     def __init__(self):
         self.state = None
         self.addresses = []
@@ -123,7 +123,6 @@ class Host(object):
         self.extraports = {}
         self.os = []
         self.script_results = []
-
     def get_id(self):
         """Return an id that is used to determine if hosts are "the same"
         across scans."""
@@ -240,6 +239,29 @@ class Host(object):
         frag.appendChild(elem)
         return frag
 
+    def __cmp__(self,other):
+        i = len(self.addresses)
+        j = len(other.addresses)
+        flag = 0
+        if ((i==0) or (j==0)):
+            while ((k<i) and (k<j)):
+                if (self.addresses[k] == other.addresses[k]):
+                        flag = 1
+                        break
+                k = k+1
+        else:
+            while ((k<i) and (k<j)):
+                if (self.addresses[k] == other.addresses[k]):
+                    if (self.hostname[k] == other.hostnames[k]):
+                        flag = 1
+                        break
+                k = k+1
+        if (flag):
+            return 0 # ie if both the hosts are equal
+        elif (self.get_id() < other.get_id()):
+            return -1
+        else:
+            return 1
 
 class Address(object):
     def __init__(self, s):
