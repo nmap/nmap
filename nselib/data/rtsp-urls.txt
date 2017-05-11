@@ -175,3 +175,4 @@
 /videostream.cgi?rate=0
 /vis
 /wfov
+/user=admin_password=tlJwpbo6_channel=1_stream=0.sdp?real_stream
