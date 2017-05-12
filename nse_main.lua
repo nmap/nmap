@@ -669,6 +669,7 @@ do
       author = rawget(env, "author"),
       license = rawget(env, "license"),
       dependencies = rawget(env, "dependencies"),
+      selection = script_params.selection or "(unknown)",
       threads = {},
       -- Make sure that the following are boolean types.
       selected_by_name = not not script_params.verbosity,
@@ -705,69 +706,69 @@ local function get_chosen_scripts (rules)
     "database appears to be corrupt or out of date;\n"..
     "\tplease update using: nmap --script-updatedb");
 
-  local chosen_scripts, files_loaded = {}, {};
-  local used_rules, forced_rules = {}, {};
+    local chosen_scripts, files_loaded = {}, {};
+    local used_rules, forced_rules = {}, {};
 
-  -- Was this category selection forced to run (e.g. "+script").
-  -- Return:
-  --    Boolean: True if it's forced otherwise false.
-  --    String: The new cleaned string.
-  local function is_forced_set (str)
-    local specification = match(str, "^%+(.*)$");
-    if specification then
-      return true, specification;
-    else
-      return false, str;
-    end
-  end
-
-  for i, rule in ipairs(rules) do
-    rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
-    local original_rule = rule;
-    local forced, rule = is_forced_set(rule);
-    used_rules[rule] = false; -- has not been used yet
-    forced_rules[rule] = forced;
-    -- Here we escape backslashes which might appear in Windows filenames.
-    rule = gsub(rule, "\\([^\\])", "\\\\%1");
-    rules[i] = rule;
-  end
-
-  -- Checks if a given script, script_entry, should be loaded. A script_entry
-  -- should be in the form: { filename = "name.nse", categories = { ... } }
-  function db_env.Entry (script_entry)
-    local categories = rawget(script_entry, "categories");
-    local filename = rawget(script_entry, "filename");
-    assert(type(categories) == "table" and type(filename) == "string", "script database appears corrupt, try `nmap --script-updatedb`");
-    local escaped_basename = match(filename, "([^/\\]-)%.nse$") or match(filename, "([^/\\]-)$");
-    local selected_by_name = false;
-    -- The script selection parameters table.
-    local script_params = {};
-
-    -- Test if path is a glob pattern that matches script_entry.filename.
-    local function match_script (path)
-      path = gsub(path, "%.nse$", ""); -- remove optional extension
-      path = gsub(path, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
-      path = gsub(path, "%*", ".*"); -- change to Lua wildcard
-      path = "^"..path.."$"; -- anchor to beginning and end
-      local found = not not find(escaped_basename, path);
-      selected_by_name = selected_by_name or found;
-      return found;
+    -- Was this category selection forced to run (e.g. "+script").
+    -- Return:
+    --    Boolean: True if it's forced otherwise false.
+    --    String: The new cleaned string.
+    local function is_forced_set (str)
+      local specification = match(str, "^%+(.*)$");
+      if specification then
+        return true, specification;
+      else
+        return false, str;
+      end
     end
 
-    local T = locale {
-      V "space"^0 * V "expression" * V "space"^0 * P(-1);
+    for i, rule in ipairs(rules) do
+      rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
+      local original_rule = rule;
+      local forced, rule = is_forced_set(rule);
+      used_rules[rule] = false; -- has not been used yet
+      forced_rules[rule] = forced;
+      -- Here we escape backslashes which might appear in Windows filenames.
+      rule = gsub(rule, "\\([^\\])", "\\\\%1");
+      rules[i] = rule;
+    end
 
-      expression = V "disjunct" + V "conjunct" + V "value";
-      disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
-      conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
-      value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
-              P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
-              K "true" * Cc(true) +
-              K "false" * Cc(false) +
-              V "category" +
-              V "path";
+    -- Checks if a given script, script_entry, should be loaded. A script_entry
+    -- should be in the form: { filename = "name.nse", categories = { ... } }
+    function db_env.Entry (script_entry)
+      local categories = rawget(script_entry, "categories");
+      local filename = rawget(script_entry, "filename");
+      assert(type(categories) == "table" and type(filename) == "string", "script database appears corrupt, try `nmap --script-updatedb`");
+      local escaped_basename = match(filename, "([^/\\]-)%.nse$") or match(filename, "([^/\\]-)$");
+      local selected_by_name = false;
+      -- The script selection parameters table.
+      local script_params = {};
 
-      category = K "all" * Cc(true); -- pseudo-category "all" matches everything
+      -- Test if path is a glob pattern that matches script_entry.filename.
+      local function match_script (path)
+        path = gsub(path, "%.nse$", ""); -- remove optional extension
+        path = gsub(path, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
+        path = gsub(path, "%*", ".*"); -- change to Lua wildcard
+        path = "^"..path.."$"; -- anchor to beginning and end
+        local found = not not find(escaped_basename, path);
+        selected_by_name = selected_by_name or found;
+        return found;
+      end
+
+      local T = locale {
+        V "space"^0 * V "expression" * V "space"^0 * P(-1);
+
+        expression = V "disjunct" + V "conjunct" + V "value";
+        disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
+        conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
+        value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
+                P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
+                K "true" * Cc(true) +
+                K "false" * Cc(false) +
+                V "category" +
+                V "path";
+
+        category = K "all" * Cc(true); -- pseudo-category "all" matches everything
       path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
     };
 
@@ -1388,6 +1389,9 @@ local function main (hosts, scantype)
         for _, script in ipairs(scripts) do
            local thread = script:new_thread("prerule");
            if thread then
+	     cnse.xml_newline();
+	     cnse.xml_start_tag("script" , { selection = script.selection, id = script.id, phase = "PRE_SCAN" });
+	     cnse.xml_end_tag();
              yield(thread)
            end
         end
@@ -1398,6 +1402,9 @@ local function main (hosts, scantype)
           for _, script in ipairs(scripts) do
             local thread = script:new_thread("hostrule", host_copy(host));
             if thread then
+	      cnse.xml_newline();
+	      cnse.xml_start_tag("script" , { selection = script.selection, id = script.id, phase = "HOST_SCAN" });
+	      cnse.xml_end_tag();
               thread.host = host;
               yield(thread);
             end
@@ -1409,6 +1416,9 @@ local function main (hosts, scantype)
               if thread then
                 thread.host, thread.port = host, port;
                 yield(thread);
+                cnse.xml_newline();
+                cnse.xml_start_tag("script" , { selection = script.selection, id = script.id, phase = "PORT_SCAN" });
+                cnse.xml_end_tag();
               end
             end
           end
@@ -1418,6 +1428,9 @@ local function main (hosts, scantype)
         for _, script in ipairs(scripts) do
           local thread = script:new_thread("postrule");
           if thread then
+            cnse.xml_newline();
+            cnse.xml_start_tag("script" , { selection = script.selection, id = script.id, phase = "POST_SCAN" });
+            cnse.xml_end_tag();
             yield(thread);
           end
         end
