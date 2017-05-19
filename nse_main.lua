@@ -842,7 +842,8 @@ local function get_chosen_scripts (rules)
   -- calculate runlevels
   local name_script = {};
   for i, script in ipairs(chosen_scripts) do
-    assert(name_script[script.short_basename] == nil);
+    assert(name_script[script.short_basename] == nil,
+      ("duplicate script ID: '%s'"):formt(script.short_basename));
     name_script[script.short_basename] = script;
   end
   local chain = {}; -- chain of script names
