@@ -356,7 +356,8 @@
       function toggle(divID) {
         var item = document.getElementById(divID);
         if (item) {
-          item.className=(item.className=='hidden')?'unhidden':'hidden';
+          item.className = (item.className=='hidden')?'unhidden':'hidden';
+          document.getElementsByClassName("noprint")[2].innerHTML = (item.className=='hidden')?"<small>(click to expand)</small>":"<small>(click to close)</small>";
         }
       }
            
