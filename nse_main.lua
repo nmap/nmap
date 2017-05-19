@@ -723,13 +723,14 @@ local function get_chosen_scripts (rules)
 
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
-    local original_rule = rule;
     local forced, rule = is_forced_set(rule);
-    used_rules[rule] = false; -- has not been used yet
-    forced_rules[rule] = forced;
-    -- Here we escape backslashes which might appear in Windows filenames.
-    rule = gsub(rule, "\\([^\\])", "\\\\%1");
-    rules[i] = rule;
+    if rule and rule ~= "" then
+      used_rules[rule] = false; -- has not been used yet
+      forced_rules[rule] = forced;
+      -- Here we escape backslashes which might appear in Windows filenames.
+      rule = gsub(rule, "\\([^\\])", "\\\\%1");
+      rules[i] = rule;
+    end
   end
 
   -- Checks if a given script, script_entry, should be loaded. A script_entry
