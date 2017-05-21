@@ -126,7 +126,12 @@
 # ***************************************************************************/
 
 
-class Linear2DInterpolator:
+from __future__ import division
+from __future__ import print_function
+from builtins import range
+from builtins import object
+from past.utils import old_div
+class Linear2DInterpolator(object):
     """
     Implements a bidimensional linear interpolator.
     """
@@ -175,13 +180,13 @@ class Linear2DInterpolator:
         (ai, bi) = self.__start_point
         (af, bf) = self.__final_point
 
-        a_conversion_factor = float(af - ai) / sum(pass_vector)
-        b_conversion_factor = float(bf - bi) / sum(pass_vector)
+        a_conversion_factor = old_div(float(af - ai), sum(pass_vector))
+        b_conversion_factor = old_div(float(bf - bi), sum(pass_vector))
 
         a_pass = 0
         b_pass = 0
 
-        self.__interpolated_points = range(number_of_pass)
+        self.__interpolated_points = list(range(number_of_pass))
 
         for i in range(0, number_of_pass):
 
@@ -203,10 +208,10 @@ class Linear2DInterpolator:
         (ai, bi) = self.__start_point
         (af, bf) = self.__final_point
 
-        a_pass = float(af - ai) / number_of_pass
-        b_pass = float(bf - bi) / number_of_pass
+        a_pass = old_div(float(af - ai), number_of_pass)
+        b_pass = old_div(float(bf - bi), number_of_pass)
 
-        self.__interpolated_points = range(number_of_pass)
+        self.__interpolated_points = list(range(number_of_pass))
 
         for i in range(1, number_of_pass + 1):
             self.__interpolated_points[i - 1] = (ai + a_pass * i,
@@ -224,4 +229,4 @@ if __name__ == "__main__":
     i.set_start_point(0, 0)
     i.set_final_point(1, 1)
 
-    print len(i.get_points(10)), i.get_points(10)
+    print(len(i.get_points(10)), i.get_points(10))

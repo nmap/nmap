@@ -126,6 +126,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
 import sys
 
 try:
@@ -157,7 +161,7 @@ try:
     umitdb = Path.db
 except:
     import os.path
-    from BasePaths import base_paths
+    from .BasePaths import base_paths
 
     umitdb = os.path.join(Path.user_config_dir, base_paths["db"])
     Path.db = umitdb
@@ -236,14 +240,14 @@ class Table(object):
 
     def insert(self, **kargs):
         sql = "INSERT INTO %s ("
-        for k in kargs.keys():
+        for k in list(kargs.keys()):
             sql += k
             sql += ", "
         else:
             sql = sql[:][:-2]
             sql += ") VALUES ("
 
-        for v in xrange(len(kargs.values())):
+        for v in range(len(list(kargs.values()))):
             sql += "?, "
         else:
             sql = sql[:][:-2]
@@ -314,19 +318,19 @@ class UmitDB(object):
 class Scans(Table, object):
     def __init__(self, **kargs):
         Table.__init__(self, "scans")
-        if "scans_id" in kargs.keys():
+        if "scans_id" in list(kargs.keys()):
             self.scans_id = kargs["scans_id"]
         else:
             log.debug(">>> Creating new scan result entry at data base")
             fields = ["scan_name", "nmap_xml_output", "date"]
 
-            for k in kargs.keys():
+            for k in list(kargs.keys()):
                 if k not in fields:
                     raise Exception(
                             "Wrong table field passed to creation method. "
                             "'%s'" % k)
 
-            if ("nmap_xml_output" not in kargs.keys() or
+            if ("nmap_xml_output" not in list(kargs.keys()) or
                     not kargs["nmap_xml_output"]):
                 raise Exception("Can't save result without xml output")
 
@@ -427,5 +431,5 @@ if __name__ == "__main__":
 
     sql = "SELECT * FROM scans;"
     u.cursor.execute(sql)
-    print "Scans:",
+    print("Scans:", end=' ')
     pprint(u.cursor.fetchall())

@@ -1,25 +1,53 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
 <?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
-<!-- Nmap 5.51SVN scan initiated Mon May 23 19:47:12 2011 as: nmap -F -oX scanme-1.xml scanme.nmap.org -->
-<nmaprun scanner="nmap" args="nmap -F -oX scanme-2.xml scanme.nmap.org" start="1306205244" startstr="Mon May 23 19:47:24 2011" version="5.51SVN" xmloutputversion="1.03">
-<scaninfo type="syn" protocol="tcp" numservices="100" services="7,9,13,21-23,25-26,37,53,79-81,88,106,110-111,113,119,135,139,143-144,179,199,389,427,443-445,465,513-515,543-544,548,554,587,631,646,873,990,993,995,1025-1029,1110,1433,1720,1723,1755,1900,2000-2001,2049,2121,2717,3000,3128,3306,3389,3986,4899,5000,5009,5051,5060,5101,5190,5357,5432,5631,5666,5800,5900,6000-6001,6646,7070,8000,8008-8009,8080-8081,8443,8888,9100,9999-10000,32768,49152-49157"/>
+<!-- Nmap 7.40SVN scan initiated Wed Jan 25 18:53:10 2017 as: nmap -F -oX xml_test13.xml scanme.nmap.org -->
+<nmaprun scanner="nmap" args="nmap -F -oX xml_test13.xml scanme.nmap.org" start="1485350590" startstr="Wed Jan 25 18:53:10 2017" version="7.40SVN" xmloutputversion="1.04">
+<scaninfo type="connect" protocol="tcp" numservices="100" services="7,9,13,21-23,25-26,37,53,79-81,88,106,110-111,113,119,135,139,143-144,179,199,389,427,443-445,465,513-515,543-544,548,554,587,631,646,873,990,993,995,1025-1029,1110,1433,1720,1723,1755,1900,2000-2001,2049,2121,2717,3000,3128,3306,3389,3986,4899,5000,5009,5051,5060,5101,5190,5357,5432,5631,5666,5800,5900,6000-6001,6646,7070,8000,8008-8009,8080-8081,8443,8888,9100,9999-10000,32768,49152-49157"/>
 <verbose level="0"/>
 <debugging level="0"/>
-<host starttime="1306205232" endtime="1306205234"><status state="up" reason="echo-reply"/>
-<address addr="74.207.244.221" addrtype="ipv4"/>
+<host starttime="1485350590" endtime="1485350594"><status state="up" reason="syn-ack" reason_ttl="0"/>
+<address addr="45.33.32.156" addrtype="ipv4"/>
 <hostnames>
 <hostname name="scanme.nmap.org" type="user"/>
-<hostname name="li86-221.members.linode.com" type="PTR"/>
+<hostname name="scanme.nmap.org" type="PTR"/>
 </hostnames>
-<ports><extraports state="closed" count="97">
-<extrareasons reason="resets" count="97"/>
+<ports><extraports state="closed" count="70">
+<extrareasons reason="conn-refused" count="70"/>
 </extraports>
-<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="55"/><service name="ssh" method="table" conf="3"/></port>
-<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="55"/><service name="http" method="table" conf="3"/></port>
-<port protocol="tcp" portid="1720"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="H.323/Q.931" method="table" conf="3"/></port>
+<port protocol="tcp" portid="13"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="daytime" method="table" conf="3"/></port>
+<port protocol="tcp" portid="21"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="25"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="smtp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="26"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="rsftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="81"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="hosts2-ns" method="table" conf="3"/></port>
+<port protocol="tcp" portid="389"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ldap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="513"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="login" method="table" conf="3"/></port>
+<port protocol="tcp" portid="548"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="afp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="554"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="rtsp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="990"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ftps" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1026"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="LSA-or-nterm" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1110"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="nfsd-status" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1723"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="pptp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2000"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="cisco-sccp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2717"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="pn-requester" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3000"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ppp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3986"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mapper-ws_ethd" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5009"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="airport-admin" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5051"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ida-agent" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5060"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="sip" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5190"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="aol" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5357"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="wsdapi" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5432"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="postgresql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5631"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="pcanywheredata" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5666"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="nrpe" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8081"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="blackice-icecap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9100"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="jetdirect" method="table" conf="3"/></port>
+<port protocol="tcp" portid="49156"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="unknown" method="table" conf="3"/></port>
 </ports>
-<times srtt="87034" rttvar="12802" to="138242"/>
+<times srtt="424367" rttvar="24249" to="521363"/>
 </host>
-<runstats><finished time="1306205234" timestr="Mon May 23 19:47:14 2011" elapsed="1.53" summary="Nmap done at Mon May 23 19:47:14 2011; 1 IP address (1 host up) scanned in 1.53 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+<runstats><finished time="1485350594" timestr="Wed Jan 25 18:53:14 2017" elapsed="3.77" summary="Nmap done at Wed Jan 25 18:53:14 2017; 1 IP address (1 host up) scanned in 3.77 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
 </runstats>
 </nmaprun>

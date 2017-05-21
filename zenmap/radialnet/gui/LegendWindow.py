@@ -125,20 +125,23 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from __future__ import absolute_import
+from past.utils import old_div
 import gtk
 import pango
 import math
 import cairo
 
 import zenmapCore.I18N
-import radialnet.util.drawing as drawing
+from . import radialnet.util.drawing as drawing
 
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
-from radialnet.bestwidgets.labels import *
-from radialnet.gui.Image import Pixmaps
-from radialnet.gui.NodeNotebook import NodeNotebook
-from radialnet.util.drawing import *
+from .radialnet.bestwidgets.windows import *
+from .radialnet.bestwidgets.boxes import *
+from .radialnet.bestwidgets.labels import *
+from .radialnet.gui.Image import Pixmaps
+from .radialnet.gui.NodeNotebook import NodeNotebook
+from .radialnet.util.drawing import *
 DIMENSION_NORMAL = (350, 450)
 
 
@@ -180,7 +183,7 @@ def draw_circle(context, x, y, size, color, label):
 
 def draw_square(context, x, y, size, color):
     context.set_source_rgb(0, 0, 0)
-    context.rectangle(x, y - size / 2, size, size)
+    context.rectangle(x, y - old_div(size, 2), size, size)
     context.stroke_preserve()
     context.set_source_rgb(*color)
     context.fill()

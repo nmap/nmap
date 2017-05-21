@@ -126,12 +126,13 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 import gobject
 
-from higspinner import HIGSpinner
-from higboxes import HIGHBox
-from higbuttons import HIGButton
+from .higspinner import HIGSpinner
+from .higboxes import HIGHBox
+from .higbuttons import HIGButton
 
 
 class HIGNotebook(gtk.Notebook):

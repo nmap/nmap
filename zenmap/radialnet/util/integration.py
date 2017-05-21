@@ -125,6 +125,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import range
+from builtins import object
 from radialnet.core.Graph import *
 from radialnet.gui.RadialNet import NetNode
 import zenmapCore.NmapParser

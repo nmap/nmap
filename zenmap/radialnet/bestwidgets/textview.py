@@ -125,6 +125,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import str
+from builtins import range
 import gtk
 from radialnet.bestwidgets.boxes import *
 
@@ -250,7 +252,7 @@ class BWTextEditor(BWScrolledWindow):
 
             count = text.count('\n') + text.count('\r')
 
-            lines = range(1, count + 2)
+            lines = list(range(1, count + 2))
             lines = [str(i).strip() for i in lines]
 
             self.__textbuffer.set_text(text)

@@ -125,9 +125,12 @@
 # * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
 # *                                                                         *
 # ***************************************************************************/
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import sys
 
-if sys.version_info[0] != 2:
+if sys.version_info[0] < 2:
     sys.exit("Sorry, Zenmap requires Python 2")
 
 import errno
@@ -195,7 +198,7 @@ data_files = [
         ]
 
 # Add i18n files to data_files list
-os.path.walk(locale_dir, mo_find, data_files)
+os.walk(locale_dir, mo_find, data_files)
 
 
 # path_startswith and path_strip_prefix are used to deal with the installation
@@ -356,7 +359,7 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def set_modules_path(self):
@@ -427,7 +430,7 @@ for dir in dirs:
                 break
 
         # Replace the path definitions.
-        for path, replacement in interesting_paths.items():
+        for path, replacement in list(interesting_paths.items()):
             pcontent = re.sub("%s\s+=\s+.+" % path,
                               "%s = %s" % (path, repr(replacement)),
                               pcontent)
@@ -489,7 +492,7 @@ for dir in dirs:
         try:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
         finally:
             f.close()
 
@@ -513,7 +516,7 @@ class my_uninstall(Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
                 log.error("Couldn't open the installation record '%s'. "
                         "Have you installed yet?" % INSTALLED_FILES_NAME)
@@ -536,7 +539,7 @@ class my_uninstall(Command):
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
+            except OSError as e:
                 log.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
@@ -547,7 +550,7 @@ class my_uninstall(Command):
                 log.info("Removing the directory '%s'." % dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
                     log.info("Directory '%s' not empty; not removing." % dir)
                 else:

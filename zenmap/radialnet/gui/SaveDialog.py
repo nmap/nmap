@@ -125,9 +125,10 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 import os.path
-import radialnet.gui.RadialNet as RadialNet
+from . import radialnet.gui.RadialNet as RadialNet
 import zenmapGUI.FileChoosers
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox

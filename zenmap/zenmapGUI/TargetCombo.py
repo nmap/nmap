@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import range
 import gtk
 
 from zenmapCore.TargetList import target_list

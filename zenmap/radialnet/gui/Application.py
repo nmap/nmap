@@ -125,17 +125,18 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import absolute_import
 import gtk
 
-from radialnet.util.integration import make_graph_from_nmap_parser
-from radialnet.core.Info import INFO
-from radialnet.core.XMLHandler import XMLReader
-from radialnet.gui.ControlWidget import ControlWidget, ControlFisheye
-from radialnet.gui.Toolbar import Toolbar
-from radialnet.gui.Image import Pixmaps
-from radialnet.gui.RadialNet import *
-from radialnet.bestwidgets.windows import *
-from radialnet.bestwidgets.boxes import *
+from .radialnet.util.integration import make_graph_from_nmap_parser
+from .radialnet.core.Info import INFO
+from .radialnet.core.XMLHandler import XMLReader
+from .radialnet.gui.ControlWidget import ControlWidget, ControlFisheye
+from .radialnet.gui.Toolbar import Toolbar
+from .radialnet.gui.Image import Pixmaps
+from .radialnet.gui.RadialNet import *
+from .radialnet.bestwidgets.windows import *
+from .radialnet.bestwidgets.boxes import *
 
 
 DIMENSION = (640, 480)

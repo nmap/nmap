@@ -125,6 +125,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import range
 from radialnet.core.Coordinate import CartesianCoordinate
 from radialnet.util.geometry import *
 import math

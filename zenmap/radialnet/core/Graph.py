@@ -126,6 +126,9 @@
 # ***************************************************************************/
 
 
+from __future__ import division
+from past.utils import old_div
+from builtins import object
 class Node(object):
     """
     Node class
@@ -166,7 +169,7 @@ class Node(object):
         self.__edges.append(edge)
 
 
-class Edge:
+class Edge(object):
     """
     """
     def __init__(self, nodes):
@@ -190,13 +193,13 @@ class Edge:
         """
         """
         self.__weights = weights
-        self.__weights_mean = sum(self.__weights) / len(self.__weights)
+        self.__weights_mean = old_div(sum(self.__weights), len(self.__weights))
 
     def add_weight(self, weight):
         """
         """
         self.__weights.append(weight)
-        self.__weights_mean = sum(self.__weights) / len(self.__weights)
+        self.__weights_mean = old_div(sum(self.__weights), len(self.__weights))
 
     def get_weights_mean(self):
         """
@@ -204,7 +207,7 @@ class Edge:
         return self.__weights_mean
 
 
-class Graph:
+class Graph(object):
     """
     Network Graph class
     """

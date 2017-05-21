@@ -2,6 +2,10 @@
 
 # Unit tests for Ndiff.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
 import subprocess
 import sys
 import unittest
@@ -22,7 +26,7 @@ for x in dir(ndiff):
 sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
 
-import StringIO
+import io
 
 
 class scan_test(unittest.TestCase):
@@ -52,7 +56,7 @@ class scan_test(unittest.TestCase):
         scan.load_from_file("test-scans/single.xml")
         host = scan.hosts[0]
         self.assertEqual(len(host.ports), 5)
-        self.assertEqual(host.extraports.items(), [("filtered", 95)])
+        self.assertEqual(list(host.extraports.items()), [("filtered", 95)])
 
     def test_extraports_multi(self):
         """Test that the correct number of known ports is returned when there
@@ -197,8 +201,8 @@ class host_test(unittest.TestCase):
         h = s.hosts[0]
         self.assertEqual(len(h.ports), 5)
         self.assertEqual(len(h.extraports), 1)
-        self.assertEqual(h.extraports.keys()[0], u"filtered")
-        self.assertEqual(h.extraports.values()[0], 95)
+        self.assertEqual(list(h.extraports.keys())[0], u"filtered")
+        self.assertEqual(list(h.extraports.values())[0], 95)
         self.assertEqual(h.state, "up")
 
 
@@ -703,7 +707,7 @@ class scan_diff_xml_test(unittest.TestCase):
         a.load_from_file("test-scans/empty.xml")
         b = Scan()
         b.load_from_file("test-scans/simple.xml")
-        f = StringIO.StringIO()
+        f = io.StringIO()
         self.scan_diff = ScanDiffXML(a, b, f)
         self.scan_diff.output()
         self.xml = f.getvalue()
@@ -712,7 +716,7 @@ class scan_diff_xml_test(unittest.TestCase):
     def test_well_formed(self):
         try:
             document = xml.dom.minidom.parseString(self.xml)
-        except Exception, e:
+        except Exception as e:
             self.fail(u"Parsing XML diff output caused the exception: %s"
                     % str(e))
 
@@ -739,8 +743,8 @@ def host_apply_diff(host, diff):
         host.os = diff.host_b.os[:]
 
     if diff.extraports_changed:
-        for state in host.extraports.keys():
-            for port in host.ports.values():
+        for state in list(host.extraports.keys()):
+            for port in list(host.ports.values()):
                 if port.state == state:
                     del host.ports[port.spec]
         host.extraports = diff.host_b.extraports.copy()

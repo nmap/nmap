@@ -131,17 +131,22 @@ higwidgets/higspinner.py
 
    a pygtk spinner, based on the epiphany/nautilus implementation
 """
+from __future__ import division
+from __future__ import absolute_import
 
+from builtins import range
+from past.utils import old_div
+from builtins import object
 __all__ = ['HIGSpinner']
 
 import os
 import gtk
 import gobject
 
-from gtkutils import gobject_register
+from .gtkutils import gobject_register
 
 
-class HIGSpinnerImages:
+class HIGSpinnerImages(object):
     def __init__(self):
         """This class holds list of GDK Pixbuffers.
 
@@ -215,7 +220,7 @@ class HIGSpinnerImages:
         self.images_height = height
 
 
-class HIGSpinnerCache:
+class HIGSpinnerCache(object):
     """This hols a copy of the images used on the HIGSpinners instances."""
     def __init__(self):
 
@@ -429,8 +434,8 @@ class HIGSpinner(gtk.EventBox):
 
         width = self.current_pixbuf.get_width()
         height = self.current_pixbuf.get_height()
-        x_offset = (self.allocation.width - width) / 2
-        y_offset = (self.allocation.height - height) / 2
+        x_offset = old_div((self.allocation.width - width), 2)
+        y_offset = old_div((self.allocation.height - height), 2)
 
         pix_area = gtk.gdk.Rectangle(x_offset + self.allocation.x,
                                      y_offset + self.allocation.y,

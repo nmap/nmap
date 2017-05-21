@@ -135,18 +135,19 @@ GNOME Human Interface Guidelines (aka HIG).
 This is mostly implemented by subclassing from the GTK classes, and
 providing defaults that better match the HIG specifications/recommendations.
 """
+from __future__ import absolute_import
 
-from gtkutils import *
-from higboxes import *
-from higbuttons import *
-from higdialogs import *
-from higentries import *
-from higexpanders import *
-from higlabels import *
-from higlogindialogs import *
-from higprogressbars import *
-from higscrollers import *
-from higspinner import *
-from higtables import *
-from higtextviewers import *
-from higwindows import *
+from .gtkutils import *
+from .higboxes import *
+from .higbuttons import *
+from .higdialogs import *
+from .higentries import *
+from .higexpanders import *
+from .higlabels import *
+from .higlogindialogs import *
+from .higprogressbars import *
+from .higscrollers import *
+from .higspinner import *
+from .higtables import *
+from .higtextviewers import *
+from .higwindows import *

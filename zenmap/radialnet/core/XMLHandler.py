@@ -127,6 +127,8 @@
 
 
 # Prevent loading PyXML
+from builtins import str
+from builtins import object
 import xml
 xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
@@ -141,7 +143,7 @@ def convert_to_utf8(text):
     return text.encode('utf8', 'replace')
 
 
-class XMLNode:
+class XMLNode(object):
     """
     """
     def __init__(self, name):
@@ -185,7 +187,7 @@ class XMLNode:
     def get_keys(self):
         """
         """
-        return self.__attrs.keys()
+        return list(self.__attrs.keys())
 
     def get_attr(self, attr):
         """

@@ -1,84 +1,560 @@
-<?xml version="1.0" ?>
-<!-- nmap 3.75 scan initiated Mon Jul 18 23:11:23 2005 as: nmap -sV -v -v -v -d -d -O -p80,22 -oX xml_test9.xml 10.0.0.100-180 -->
-<nmaprun scanner="nmap" args="nmap -sV -v -v -v -d -d -O -p80,22 -oX xml_test9.xml 10.0.0.100-180" start="1121739083" version="3.75" xmloutputversion="1.01">
-<scaninfo type="syn" protocol="tcp" numservices="2" services="22,80" />
-<verbose level="5" />
-<debugging level="2" />
-<host><status state="up" />
-<address addr="10.0.0.100" addrtype="ipv4" />
-<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
-<hostnames><hostname name="canopo" type="PTR" /></hostnames>
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="22" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
-<osmatch name="Linux 2.4.18 - 2.6.7" accuracy="100" />
-</os>
-<uptime seconds="209980" lastboot="Sat Jul 16 12:52:52 2005" />
-<tcpsequence index="4310523" class="random positive increments" difficulty="Good luck!" values="E2D760AD,E2E59C0F,E3457AA2,E294986A,E28A3A45,E27C9419" />
-<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
-<tcptssequence class="1000HZ" values="C840990,C8409FF,C840A6E,C840ADD,C840B4C,C840BBB" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.40SVN scan initiated Wed Jan 25 20:16:14 2017 as: nmap -sV -v -v -v -d -d -p80,22 -oX xml_test9.xml 10.0.0.100-180 -->
+<nmaprun scanner="nmap" args="nmap -sV -v -v -v -d -d -p80,22 -oX xml_test9.xml 10.0.0.100-180" start="1485355574" startstr="Wed Jan 25 20:16:14 2017" version="7.40SVN" xmloutputversion="1.04">
+<scaninfo type="syn" protocol="tcp" numservices="2" services="22,80"/>
+<verbose level="5"/>
+<debugging level="2"/>
+<taskbegin task="Ping Scan" time="1485355574"/>
+<taskend task="Ping Scan" time="1485355576" extrainfo="81 total hosts"/>
+<taskbegin task="Parallel DNS resolution of 81 hosts." time="1485355576"/>
+<taskend task="Parallel DNS resolution of 81 hosts." time="1485355582"/>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.105" addrtype="ipv4"/>
 </host>
-<host><status state="up" />
-<address addr="10.0.0.138" addrtype="ipv4" />
-<address addr="00:90:D0:1C:85:AD" addrtype="mac" vendor="Thomson Belgium" />
-<hostnames><hostname name="SpeedTouch.canopo" type="PTR" /></hostnames>
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" method="table" conf="3" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="80" />
-<portused state="closed" proto="tcp" portid="22" />
-<osclass type="broadband router" vendor="Alcatel" osfamily="embedded" accuracy="100" />
-<osmatch name="Alcatel Speed Touch *DSL modem/router" accuracy="100" />
-</os>
-<uptime seconds="34093" lastboot="Mon Jul 18 13:44:21 2005" />
-<tcpsequence index="1" class="64K rule" difficulty="Trivial joke" values="4C4D601,4C6CA01,4C7C401,4C8BE01,4C9B801,4CAB201" />
-<ipidsequence class="Incremental" values="6D7,6D8,6D9,6DA,6DB,6DC" />
-<tcptssequence class="2HZ" values="10A59,10A5A,10A5A,10A5A,10A5A,10A5A" />
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.118" addrtype="ipv4"/>
 </host>
-<host><status state="up" />
-<address addr="10.0.0.140" addrtype="ipv4" />
-<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
-<hostnames><hostname name="servidor.canopo" type="PTR" /></hostnames>
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="22" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
-<osmatch name="Linux 2.4.18 - 2.6.7" accuracy="100" />
-</os>
-<uptime seconds="209985" lastboot="Sat Jul 16 12:52:51 2005" />
-<tcpsequence index="1351396" class="random positive increments" difficulty="Good luck!" values="E347AB00,E37465BF,E3249AA6,E35AC707,E3015E55,E3640321" />
-<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
-<tcptssequence class="1000HZ" values="C841C39,C841CA8,C841D18,C841D87,C841DF6,C841E65" />
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.120" addrtype="ipv4"/>
 </host>
-<host><status state="up" />
-<address addr="10.0.0.150" addrtype="ipv4" />
-<hostnames />
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.53" method="probed" conf="10" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="80" />
-<portused state="closed" proto="tcp" portid="22" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
-<osmatch name="Linux 2.5.25 - 2.6.3 or Gentoo 1.2 Linux 2.4.19 rc1-rc7)" accuracy="100" />
-</os>
-<uptime seconds="11809" lastboot="Mon Jul 18 19:55:55 2005" />
-<tcpsequence index="3756994" class="random positive increments" difficulty="Good luck!" values="69122F00,69482CCE,687FC128,68DC90DB,68A2545D,68D07062" />
-<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
-<tcptssequence class="1000HZ" values="B42EE6,B42F55,B42FC4,B43033,B430A2,B43111" />
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.121" addrtype="ipv4"/>
 </host>
-<runstats><finished time="1121739164" /><hosts up="4" down="77" total="81" />
-<!-- Nmap run completed at Mon Jul 18 23:12:44 2005; 81 IP addresses (4 hosts up) scanned in 81.153 seconds -->
-</runstats></nmaprun>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.122" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.123" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.125" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.126" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.127" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.128" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.130" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.131" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.134" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.135" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.136" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.137" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.138" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.139" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.140" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.142" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.143" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.144" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.145" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.146" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.147" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.148" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.149" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.150" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.151" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.152" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.153" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.154" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.155" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.156" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.157" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.158" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.159" addrtype="ipv4"/>
+</host>
+<taskbegin task="SYN Stealth Scan" time="1485355582"/>
+<taskend task="SYN Stealth Scan" time="1485355583" extrainfo="88 total ports"/>
+<taskbegin task="Service scan" time="1485355584"/>
+<taskend task="Service scan" time="1485355596" extrainfo="46 services on 44 hosts"/>
+<taskbegin task="NSE" time="1485355596"/>
+<taskend task="NSE" time="1485355603"/>
+<taskbegin task="NSE" time="1485355603"/>
+<taskend task="NSE" time="1485355603"/>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.100" addrtype="ipv4"/>
+<hostnames>
+<hostname name="testmail.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat Enterprise Linux) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service></port>
+</ports>
+<times srtt="13998" rttvar="13643" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.101" addrtype="ipv4"/>
+<hostnames>
+<hostname name="intra.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="7526" rttvar="5819" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355582"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.102" addrtype="ipv4"/>
+<hostnames>
+<hostname name="videos.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="127"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="8732" rttvar="6749" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.103" addrtype="ipv4"/>
+<hostnames>
+<hostname name="license.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="9386" rttvar="7062" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.104" addrtype="ipv4"/>
+<hostnames>
+<hostname name="recruitment.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1p1 Ubuntu 2ubuntu2.8" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1p1</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.7" extrainfo="(Ubuntu)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.7</cpe></service></port>
+</ports>
+<times srtt="9368" rttvar="7052" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355582"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.106" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="127"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="8689" rttvar="6722" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.107" addrtype="ipv4"/>
+<hostnames>
+<hostname name="data.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="8.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:8.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="9344" rttvar="7041" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355582"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.108" addrtype="ipv4"/>
+<hostnames>
+<hostname name="soft.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="127"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="8667" rttvar="6711" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.109" addrtype="ipv4"/>
+<hostnames>
+<hostname name="iwcaam.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service></port>
+</ports>
+<times srtt="9322" rttvar="7028" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.110" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="5.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.2.15" hostname="www.nitt.edu" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.15</cpe></service></port>
+</ports>
+<times srtt="8647" rttvar="6701" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.111" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.4" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.4</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service></port>
+</ports>
+<times srtt="12108" rttvar="7590" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.112" addrtype="ipv4"/>
+<hostnames>
+<hostname name="vinnum.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.4" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.4</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service></port>
+</ports>
+<times srtt="13543" rttvar="12630" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.113" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat Enterprise Linux)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service></port>
+</ports>
+<times srtt="6909" rttvar="13343" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.114" addrtype="ipv4"/>
+<hostnames>
+<hostname name="misnew.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat Enterprise Linux) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service></port>
+</ports>
+<times srtt="5810" rttvar="10007" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.115" addrtype="ipv4"/>
+<hostnames>
+<hostname name="pearson-05-pc.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="7397" rttvar="9155" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.116" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="7386" rttvar="9156" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.117" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="63"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="6015" rttvar="9876" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.119" addrtype="ipv4"/>
+<hostnames>
+<hostname name="imme17.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="7.2p2 Ubuntu 4ubuntu2.1" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:7.2p2</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.18" extrainfo="(Ubuntu)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.18</cpe></service></port>
+</ports>
+<times srtt="5991" rttvar="9881" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.124" addrtype="ipv4"/>
+<hostnames>
+<hostname name="info.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.4" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.4</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service></port>
+</ports>
+<times srtt="7317" rttvar="9175" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="64"/>
+<address addr="10.0.0.129" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ssh" product="SCS sshd" version="4.1.2" extrainfo="protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="39942" rttvar="28473" to="153834"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.132" addrtype="ipv4"/>
+<hostnames>
+<hostname name="library.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="5.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="63"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="15318" rttvar="15340" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.133" addrtype="ipv4"/>
+<hostnames>
+<hostname name="samrat.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="8.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:8.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="18687" rttvar="16140" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.141" addrtype="ipv4"/>
+<hostnames>
+<hostname name="nms.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft HTTPAPI httpd" version="2.0" extrainfo="SSDP/UPnP" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+</ports>
+<times srtt="18785" rttvar="16130" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.160" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="3253" rttvar="5000" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355582"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.161" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="63"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="63"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="10471" rttvar="15330" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.162" addrtype="ipv4"/>
+<hostnames>
+<hostname name="ns2.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="18527" rttvar="18527" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.163" addrtype="ipv4"/>
+<hostnames>
+<hostname name="pragyan.org.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" extrainfo="PHP 7.0.11" method="probed" conf="10"><cpe>cpe:/a:php:php:7.0.11</cpe></service></port>
+</ports>
+<times srtt="10375" rttvar="15373" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.164" addrtype="ipv4"/>
+<hostnames>
+<hostname name="recal.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="4.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:4.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.3" extrainfo="(Red Hat)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.3</cpe></service></port>
+</ports>
+<times srtt="10243" rttvar="15436" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.165" addrtype="ipv4"/>
+<hostnames>
+<hostname name="dns1.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="6373" rttvar="6373" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.166" addrtype="ipv4"/>
+<hostnames>
+<hostname name="www.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="63"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service></port>
+</ports>
+<times srtt="10343" rttvar="15373" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.167" addrtype="ipv4"/>
+<hostnames>
+<hostname name="versionnitt.net" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.15" hostname="www.connectnit.org" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.15</cpe></service></port>
+</ports>
+<times srtt="10213" rttvar="15434" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.168" addrtype="ipv4"/>
+<hostnames>
+<hostname name="mtech.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="6301" rttvar="6301" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.169" addrtype="ipv4"/>
+<hostnames>
+<hostname name="testing.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="7553" rttvar="7553" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.170" addrtype="ipv4"/>
+<hostnames>
+<hostname name="www.festember.org" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="15649" rttvar="15649" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.171" addrtype="ipv4"/>
+<hostnames>
+<hostname name="mbaadmission.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="5.6" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.6</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.21" extrainfo="(Fedora)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.21</cpe></service></port>
+</ports>
+<times srtt="11292" rttvar="16268" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.172" addrtype="ipv4"/>
+<hostnames>
+<hostname name="sensors.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="7507" rttvar="7507" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.173" addrtype="ipv4"/>
+<hostnames>
+<hostname name="webmail.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="5.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.15" extrainfo="(Red Hat)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.15</cpe></service></port>
+</ports>
+<times srtt="11408" rttvar="11926" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.174" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="20466" rttvar="20466" to="102330"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.175" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="20460" rttvar="20460" to="102300"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.176" addrtype="ipv4"/>
+<hostnames>
+<hostname name="antispam.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="6.6" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache Tomcat/Coyote JSP engine" version="1.1" method="probed" conf="10"><cpe>cpe:/a:apache:coyote_http_connector:1.1</cpe></service></port>
+</ports>
+<times srtt="14045" rttvar="13670" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355603"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.177" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="6.6" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache Tomcat/Coyote JSP engine" version="1.1" method="probed" conf="10"><cpe>cpe:/a:apache:coyote_http_connector:1.1</cpe></service></port>
+</ports>
+<times srtt="14037" rttvar="13664" to="100000"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.178" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="20450" rttvar="20450" to="102250"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.179" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="20439" rttvar="20439" to="102195"/>
+</host>
+<host starttime="1485355574" endtime="1485355583"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.180" addrtype="ipv4"/>
+<hostnames>
+<hostname name="flash.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="20428" rttvar="20428" to="102140"/>
+</host>
+<runstats><finished time="1485355603" timestr="Wed Jan 25 20:16:43 2017" elapsed="29.62" summary="Nmap done at Wed Jan 25 20:16:43 2017; 81 IP addresses (44 hosts up) scanned in 29.62 seconds" exit="success"/><hosts up="44" down="37" total="81"/>
+</runstats>
+</nmaprun>

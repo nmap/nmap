@@ -1,12 +1,17 @@
-<?xml version="1.0" ?>
-<!-- nmap 3.75 scan initiated Tue Jul 19 09:32:35 2005 as: nmap -sP -oX xml_test12.xml localhost -->
-<nmaprun scanner="nmap" args="nmap -sP -oX xml_test12.xml localhost" start="1121776355" version="3.75" xmloutputversion="1.01">
-<verbose level="0" />
-<debugging level="0" />
-<host><status state="up" />
-<address addr="127.0.0.1" addrtype="ipv4" />
-<hostnames><hostname name="localhost.localdomain" type="PTR" /></hostnames>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.40SVN scan initiated Wed Jan 25 20:18:21 2017 as: nmap -sP -oX xml_test12.xml localhost -->
+<nmaprun scanner="nmap" args="nmap -sP -oX xml_test12.xml localhost" start="1485355701" startstr="Wed Jan 25 20:18:21 2017" version="7.40SVN" xmloutputversion="1.04">
+<verbose level="0"/>
+<debugging level="0"/>
+<host><status state="up" reason="localhost-response" reason_ttl="0"/>
+<address addr="127.0.0.1" addrtype="ipv4"/>
+<hostnames>
+<hostname name="localhost" type="user"/>
+<hostname name="localhost" type="PTR"/>
+</hostnames>
 </host>
-<runstats><finished time="1121776355" /><hosts up="1" down="0" total="1" />
-<!-- Nmap run completed at Tue Jul 19 09:32:35 2005; 1 IP address (1 host up) scanned in 0.163 seconds -->
-</runstats></nmaprun>
+<runstats><finished time="1485355701" timestr="Wed Jan 25 20:18:21 2017" elapsed="0.01" summary="Nmap done at Wed Jan 25 20:18:21 2017; 1 IP address (1 host up) scanned in 0.01 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

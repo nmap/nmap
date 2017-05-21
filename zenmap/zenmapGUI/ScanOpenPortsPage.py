@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from past.builtins import cmp
+from builtins import range
 import gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox

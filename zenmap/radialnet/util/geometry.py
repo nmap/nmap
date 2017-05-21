@@ -125,6 +125,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from past.utils import old_div
 import math
 
 
@@ -163,7 +165,7 @@ def atan_scale(point, scale_ceil):
 def normalize_angle(angle):
     """
     """
-    new_angle = 360.0 * (float(angle / 360) - int(angle / 360))
+    new_angle = 360.0 * (float(old_div(angle, 360)) - int(old_div(angle, 360)))
 
     if new_angle < 0:
         return 360 + new_angle
@@ -219,4 +221,4 @@ def calculate_short_path(iangle, fangle):
 def angle_from_object(distance, size):
     """
     """
-    return math.degrees(math.atan2(size / 2.0, distance))
+    return math.degrees(math.atan2(old_div(size, 2.0), distance))

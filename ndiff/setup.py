@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import errno
 import sys
 import os
@@ -94,7 +97,7 @@ class checked_install(distutils.command.install.install):
         self.saved_prefix = sys.prefix
         try:
             distutils.command.install.install.finalize_options(self)
-        except distutils.errors.DistutilsPlatformError, e:
+        except distutils.errors.DistutilsPlatformError as e:
             raise distutils.errors.DistutilsPlatformError(str(e) + """
 Installing your distribution's python-dev package may solve this problem.""")
 
@@ -227,7 +230,7 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def write_installed_files(self):
@@ -242,7 +245,7 @@ for dir in dirs:
         try:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
         finally:
             f.close()
 
@@ -266,7 +269,7 @@ class my_uninstall(distutils.cmd.Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
                 log.error("Couldn't open the installation record '%s'. "
                         "Have you installed yet?" % INSTALLED_FILES_NAME)
@@ -289,7 +292,7 @@ class my_uninstall(distutils.cmd.Command):
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
+            except OSError as e:
                 log.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
@@ -300,7 +303,7 @@ class my_uninstall(distutils.cmd.Command):
                 log.info("Removing the directory '%s'." % dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
                     log.info("Directory '%s' not empty; not removing." % dir)
                 else:

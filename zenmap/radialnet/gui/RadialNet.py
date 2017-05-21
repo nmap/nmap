@@ -125,6 +125,11 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import gtk
 import math
 import time
@@ -132,17 +137,18 @@ import copy
 import cairo
 import gobject
 
-import radialnet.util.drawing as drawing
-import radialnet.util.geometry as geometry
-import radialnet.util.misc as misc
+from . import radialnet.util.drawing as drawing
+from . import radialnet.util.geometry as geometry
+from . import radialnet.util.misc as misc
 
-from radialnet.core.Coordinate import PolarCoordinate, CartesianCoordinate
-from radialnet.core.Interpolation import Linear2DInterpolator
-from radialnet.core.Graph import Graph, Node
-from radialnet.gui.NodeWindow import NodeWindow
-from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
+from .radialnet.core.Coordinate import PolarCoordinate, CartesianCoordinate
+from .radialnet.core.Interpolation import Linear2DInterpolator
+from .radialnet.core.Graph import Graph, Node
+from .radialnet.gui.NodeWindow import NodeWindow
+from .radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
 
 from zenmapCore.BasePaths import fs_enc
+from functools import reduce
 
 REGION_COLORS = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
 REGION_RED = 0
@@ -195,7 +201,7 @@ class RadialNet(gtk.DrawingArea):
         self.__interpolation_slow_in_out = True
 
         self.__animating = False
-        self.__animation_rate = 1000 / 60  # 60Hz (human perception factor)
+        self.__animation_rate = old_div(1000, 60)  # 60Hz (human perception factor)
         self.__number_of_frames = 60
 
         self.__scale = 1.0
@@ -586,7 +592,7 @@ class RadialNet(gtk.DrawingArea):
         """
         if float(zoom) >= 1:
 
-            self.set_scale(float(zoom) / 100.0)
+            self.set_scale(old_div(float(zoom), 100.0))
             self.queue_draw()
 
     def get_ring_gap(self):
@@ -785,7 +791,7 @@ class RadialNet(gtk.DrawingArea):
                 node, point = result
                 x, y = point
 
-                if node in self.__node_views.keys():
+                if node in list(self.__node_views.keys()):
 
                     self.__node_views[node].present()
 
@@ -894,8 +900,8 @@ class RadialNet(gtk.DrawingArea):
         # getting allocation reference
         allocation = self.get_allocation()
 
-        self.__center_of_widget = (allocation.width / 2,
-                                   allocation.height / 2)
+        self.__center_of_widget = (old_div(allocation.width, 2),
+                                   old_div(allocation.height, 2))
 
         aw, ah = allocation.width, allocation.height
         xc, yc = self.__center_of_widget
@@ -1087,8 +1093,8 @@ class RadialNet(gtk.DrawingArea):
 
                 context.set_font_size(8)
                 context.set_line_width(1)
-                context.move_to(xc + (xa + xb) / 2 + 1,
-                                     yc - (ya + yb) / 2 + 4)
+                context.move_to(xc + old_div((xa + xb), 2) + 1,
+                                     yc - old_div((ya + yb), 2) + 4)
                 context.show_text(str(round(latency, 2)))
                 context.stroke()
 
@@ -1167,7 +1173,7 @@ class RadialNet(gtk.DrawingArea):
 
             icons = list()
 
-            if type in ICON_DICT.keys():
+            if type in list(ICON_DICT.keys()):
                 icons.append(self.__icon.get_pixbuf(ICON_DICT[type]))
 
             if node.get_info('filtered'):
@@ -1242,7 +1248,7 @@ class RadialNet(gtk.DrawingArea):
         level_of_detail = self.__ring_gap * self.__fisheye_interest
         spread_distance = distance - distance * self.__fisheye_spread
 
-        value = level_of_detail / (spread_distance + 1)
+        value = old_div(level_of_detail, (spread_distance + 1))
 
         if value < self.__min_ring_gap:
             value = self.__min_ring_gap
@@ -1413,7 +1419,7 @@ class RadialNet(gtk.DrawingArea):
                     child_need = child.get_draw_info('space_need')
                     child_total = node_total * child_need / children_need
 
-                    theta = child_total / 2 + min + self.__rotate
+                    theta = old_div(child_total, 2) + min + self.__rotate
 
                     child.set_coordinate_theta(theta)
                     child.set_draw_info({'range': (min, min + child_total)})
@@ -1441,11 +1447,11 @@ class RadialNet(gtk.DrawingArea):
             if len(children) > 0:
 
                 min, max = node.get_draw_info('range')
-                factor = float(max - min) / len(children)
+                factor = old_div(float(max - min), len(children))
 
                 for child in children:
 
-                    theta = factor / 2 + min + self.__rotate
+                    theta = old_div(factor, 2) + min + self.__rotate
 
                     child.set_coordinate_theta(theta)
                     child.set_draw_info({'range': (min, min + factor)})
@@ -1529,9 +1535,9 @@ class RadialNet(gtk.DrawingArea):
             self.__calc_node_positions()
 
         # steps for slow-in/slow-out animation
-        steps = range(self.__number_of_frames)
+        steps = list(range(self.__number_of_frames))
 
-        for i in range(len(steps) / 2):
+        for i in range(old_div(len(steps), 2)):
             steps[self.__number_of_frames - 1 - i] = steps[i]
 
         # normalize angles and calculate interpolated points
@@ -1877,7 +1883,7 @@ class NetNode(Node):
                 # If all fields are empty, we don't put it into the sequences
                 # list
                 if reduce(lambda x, y: x + y,
-                        host.tcpsequence.values(), "") != "":
+                        list(host.tcpsequence.values()), "") != "":
                     tcp = {}
                     if host.tcpsequence.get("index", "") != "":
                         tcp["index"] = int(host.tcpsequence["index"])
@@ -1889,14 +1895,14 @@ class NetNode(Node):
                     tcp["difficulty"] = host.tcpsequence.get("difficulty", "")
                     sequences["tcp"] = tcp
                 if reduce(lambda x, y: x + y,
-                        host.ipidsequence.values(), "") != "":
+                        list(host.ipidsequence.values()), "") != "":
                     ip_id = {}
                     ip_id["class"] = host.ipidsequence.get("class", "")
                     ip_id["values"] = host.ipidsequence.get(
                             "values", "").split(",")
                     sequences["ip_id"] = ip_id
                 if reduce(lambda x, y: x + y,
-                        host.tcptssequence.values(), "") != "":
+                        list(host.tcptssequence.values()), "") != "":
                     tcp_ts = {}
                     tcp_ts["class"] = host.tcptssequence.get("class", "")
                     tcp_ts["values"] = host.tcptssequence.get(

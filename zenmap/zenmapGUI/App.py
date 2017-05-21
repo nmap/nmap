@@ -126,11 +126,14 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import imp
 import os
 import signal
 import sys
-import ConfigParser
+import configparser
 import shutil
 
 # Cause an exception if PyGTK can't open a display. Normally this just
@@ -183,7 +186,7 @@ def _destroy_callback(window):
         gtk.main_quit()
     try:
         from zenmapCore.UmitDB import UmitDB
-    except ImportError, e:
+    except ImportError as e:
         log.debug(">>> Not cleaning up database: %s." % str(e))
     else:
         # Cleaning up data base
@@ -243,7 +246,7 @@ def install_excepthook():
                 message_format=_("Import error"),
                 secondary_text=_("""A required module was not found.
 
-""" + unicode(value)))
+""" + str(value)))
             d.run()
             d.destroy()
         else:
@@ -286,7 +289,7 @@ def run():
         # template directory.
         zenmapCore.Paths.create_user_config_dir(
                 Path.user_config_dir, Path.config_dir)
-    except (IOError, OSError), e:
+    except (IOError, OSError) as e:
         error_dialog = HIGAlertDialog(
                 message_format=_(
                     "Error creating the per-user configuration directory"),
@@ -310,7 +313,7 @@ scan profiles. Check for access to the directory and try again.""") % (
     try:
         # Read the ~/.zenmap/zenmap.conf configuration file.
         zenmapCore.UmitConf.config_parser.read(Path.user_config_file)
-    except ConfigParser.ParsingError, e:
+    except configparser.ParsingError as e:
         # ParsingError can leave some values as lists instead of strings. Just
         # blow it all away if we have this problem.
         zenmapCore.UmitConf.config_parser = zenmapCore.UmitConf.config_parser.__class__()

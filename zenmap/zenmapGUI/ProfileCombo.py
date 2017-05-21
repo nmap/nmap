@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import range
 import gtk
 
 from zenmapCore.UmitConf import CommandProfile

@@ -126,6 +126,8 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import str
+from builtins import object
 import gobject
 import gtk
 
@@ -340,7 +342,7 @@ class OptionTab(object):
         self.widgets_list = []
         for option_element in root_tab.childNodes:
             if (hasattr(option_element, "tagName") and
-                    option_element.tagName in actions.keys()):
+                    option_element.tagName in list(actions.keys())):
                 parse_func = actions[option_element.tagName]
                 widget = parse_func(option_element)
                 self.widgets_list.append(widget)
@@ -492,7 +494,7 @@ class OptionBuilder(object):
         self.tabs = self.__parse_tabs()
 
     def update(self):
-        for tab in self.tabs.values():
+        for tab in list(self.tabs.values()):
             tab.update()
 
     def __parse_section_names(self):

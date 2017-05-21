@@ -126,6 +126,7 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from builtins import object
 import gtk
 import gtk.gdk
 import pango

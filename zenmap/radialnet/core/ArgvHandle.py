@@ -125,10 +125,12 @@
 # *                                                                         *
 # ***************************************************************************/
 
+from __future__ import print_function
+from builtins import object
 import sys
 
 
-class ArgvHandle:
+class ArgvHandle(object):
     """
     """
     def __init__(self, argv):
@@ -165,4 +167,4 @@ if __name__ == '__main__':
 
     h = ArgvHandle(sys.argv)
 
-    print h.get_last_value()
+    print(h.get_last_value())

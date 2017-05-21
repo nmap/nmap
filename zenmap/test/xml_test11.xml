@@ -1,86 +1,1750 @@
-<?xml version="1.0" ?>
-<!-- nmap 3.75 scan initiated Tue Jul 19 00:24:43 2005 as: nmap -A -sV -v -v -v -d -d -O -p80,22 -oX xml_test11.xml 10.0.0.100-180 -->
-<nmaprun scanner="nmap" args="nmap -A -sV -v -v -v -d -d -O -p80,22 -oX xml_test11.xml 10.0.0.100-180" start="1121743483" version="3.75" xmloutputversion="1.01">
-<scaninfo type="syn" protocol="tcp" numservices="2" services="22,80" />
-<verbose level="5" />
-<debugging level="2" />
-<host><status state="up" />
-<address addr="10.0.0.100" addrtype="ipv4" />
-<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
-<hostnames><hostname name="canopo" type="PTR" /></hostnames>
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
-</ports>
-<os>
-  <portused state="open" proto="tcp" portid="22" />
-  <osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
-  <osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
-  <osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
-  <osmatch name="Linux 2.4.18 - 2.6.7" accuracy="100" />
-</os>
-<uptime seconds="214382" lastboot="Sat Jul 16 12:52:51 2005" />
-<tcpsequence index="3471462" class="random positive increments" difficulty="Good luck!" values="F805E39D,F7B2C1BC,F8651E67,F8513329,F81A71B0,F8603963" />
-<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
-<tcptssequence class="1000HZ" values="CC73164,CC731D3,CC73242,CC732B1,CC73320,CC7338F" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.40SVN scan initiated Wed Jan 25 20:16:44 2017 as: nmap -A -sV -v -v -v -d -d -O -p80,22 -oX xml_test11.xml 10.0.0.100-180 -->
+<nmaprun scanner="nmap" args="nmap -A -sV -v -v -v -d -d -O -p80,22 -oX xml_test11.xml 10.0.0.100-180" start="1485355604" startstr="Wed Jan 25 20:16:44 2017" version="7.40SVN" xmloutputversion="1.04">
+<scaninfo type="syn" protocol="tcp" numservices="2" services="22,80"/>
+<verbose level="5"/>
+<debugging level="2"/>
+<taskbegin task="NSE" time="1485355604"/>
+<taskend task="NSE" time="1485355604"/>
+<taskbegin task="NSE" time="1485355604"/>
+<taskend task="NSE" time="1485355604"/>
+<taskbegin task="Ping Scan" time="1485355604"/>
+<taskend task="Ping Scan" time="1485355606" extrainfo="81 total hosts"/>
+<taskbegin task="Parallel DNS resolution of 81 hosts." time="1485355606"/>
+<taskend task="Parallel DNS resolution of 81 hosts." time="1485355613"/>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.105" addrtype="ipv4"/>
 </host>
-<host><status state="up" />
-<address addr="10.0.0.138" addrtype="ipv4" />
-<address addr="00:90:D0:1C:85:AD" addrtype="mac" vendor="Thomson Belgium" />
-<hostnames><hostname name="SpeedTouch.canopo" type="PTR" /></hostnames>
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" method="table" conf="3" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="80" />
-<portused state="closed" proto="tcp" portid="22" />
-<osclass type="broadband router" vendor="Alcatel" osfamily="embedded" accuracy="100" />
-<osmatch name="Alcatel Speed Touch *DSL modem/router" accuracy="100" />
-</os>
-<uptime seconds="38496" lastboot="Mon Jul 18 13:44:20 2005" />
-<tcpsequence index="1" class="64K rule" difficulty="Trivial joke" values="2674DC01,2676D001,2677CA01,2678C401,2679BE01,267AB801" />
-<ipidsequence class="Incremental" values="78D,78E,78F,790,791,792" />
-<tcptssequence class="2HZ" values="12CBC,12CBD,12CBD,12CBD,12CBD,12CBD" />
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.118" addrtype="ipv4"/>
 </host>
-<host><status state="up" />
-<address addr="10.0.0.140" addrtype="ipv4" />
-<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
-<hostnames><hostname name="servidor.canopo" type="PTR" /></hostnames>
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="22" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
-<osmatch name="Linux 2.4.18 - 2.6.7" accuracy="100" />
-</os>
-<uptime seconds="214388" lastboot="Sat Jul 16 12:52:51 2005" />
-<tcpsequence index="2030985" class="random positive increments" difficulty="Good luck!" values="F8EE1623,F89FFC06,F84EF04C,F8F1B700,F87B071D,F8F384A3" />
-<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
-<tcptssequence class="1000HZ" values="CC7485C,CC748CB,CC7493A,CC749A9,CC74A18,CC74A87" />
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.120" addrtype="ipv4"/>
 </host>
-<host><status state="up" />
-<address addr="10.0.0.150" addrtype="ipv4" />
-<hostnames />
-<ports><extraports state="unknown" count="0" />
-<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
-<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.53" method="probed" conf="10" /></port>
-</ports>
-<os><portused state="open" proto="tcp" portid="80" />
-<portused state="closed" proto="tcp" portid="22" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
-<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
-<osmatch name="Linux 2.5.25 - 2.6.3 or Gentoo 1.2 Linux 2.4.19 rc1-rc7)" accuracy="100" />
-<osmatch name="Linux 2.6.3 - 2.6.8" accuracy="100" />
-</os>
-<uptime seconds="16213" lastboot="Mon Jul 18 19:55:55 2005" />
-<tcpsequence index="1961051" class="random positive increments" difficulty="Good luck!" values="7E43048C,7E790295,7DF24B6C,7E55B1D0,7EA183B0" />
-<ipidsequence class="All zeros" values="0,0,0,0,0" />
-<tcptssequence class="1000HZ" values="F761F3,F76262,F762D1,F76340,F763AF" />
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.121" addrtype="ipv4"/>
 </host>
-<runstats><finished time="1121743568" /><hosts up="4" down="77" total="81" />
-<!-- Nmap run completed at Tue Jul 19 00:26:08 2005; 81 IP addresses (4 hosts up) scanned in 85.282 seconds -->
-</runstats></nmaprun>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.122" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.123" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.125" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.126" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.127" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.128" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.130" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.131" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.134" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.135" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.136" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.137" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.138" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.139" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.140" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.142" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.143" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.144" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.145" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.146" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.147" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.148" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.149" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.150" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.151" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.152" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.153" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.154" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.155" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.156" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.157" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.158" addrtype="ipv4"/>
+</host>
+<host><status state="down" reason="no-response" reason_ttl="0"/>
+<address addr="10.0.0.159" addrtype="ipv4"/>
+</host>
+<taskbegin task="SYN Stealth Scan" time="1485355613"/>
+<taskend task="SYN Stealth Scan" time="1485355614" extrainfo="88 total ports"/>
+<taskbegin task="Service scan" time="1485355614"/>
+<taskend task="Service scan" time="1485355626" extrainfo="46 services on 44 hosts"/>
+<taskbegin task="Traceroute" time="1485355653"/>
+<taskend task="Traceroute" time="1485355655"/>
+<taskbegin task="Parallel DNS resolution of 46 hosts." time="1485355655"/>
+<taskend task="Parallel DNS resolution of 46 hosts." time="1485355662"/>
+<taskbegin task="NSE" time="1485355662"/>
+<taskprogress task="NSE" time="1485355693" percent="99.98" remaining="1" etc="1485355693"/>
+<taskend task="NSE" time="1485355701"/>
+<taskbegin task="NSE" time="1485355701"/>
+<taskend task="NSE" time="1485355701"/>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.100" addrtype="ipv4"/>
+<hostnames>
+<hostname name="testmail.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat Enterprise Linux) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service><script id="http-title" output="Horde :: Log in&#xa;Requested resource was http://testmail.nitt.edu/horde/login.php"><elem key="title">Horde :: Log in</elem>
+<elem key="redirect_url">http://testmail.nitt.edu/horde/login.php</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="Linux 3.10 - 4.2" accuracy="100" line="60363">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="4.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:4</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.2 - 4.6" accuracy="100" line="62027">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="4.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:4</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P&#xa;OS:=x86_64-apple-darwin16.0.0)SEQ(SP=107%GCD=1%ISR=105%TI=Z%II=I%TS=A)OPS(O&#xa;OS:1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11N&#xa;OS:W7%O6=M5B4ST11)WIN(W1=7120%W2=7120%W3=7120%W4=7120%W5=7120%W6=7120)ECN(R&#xa;OS:=Y%DF=Y%TG=40%W=7210%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=A&#xa;OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)U1(&#xa;OS:R=N)IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="27519" lastboot="Wed Jan 25 12:39:42 2017"/>
+<distance value="2"/>
+<tcpsequence index="263" difficulty="Good luck!" values="CE7631B1,D6694773,CF33076E,5F1D8958,FACB54D,CE4C75B"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="1A2C3E6,1A2C463,1A2C4BE,1A2C521,1A2C58A,1A2C5FC"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.100" rtt="33.62" host="testmail.nitt.edu"/>
+</trace>
+<times srtt="16556" rttvar="11252" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.101" addrtype="ipv4"/>
+<hostnames>
+<hostname name="intra.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS TRACE GET HEAD POST&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Microsoft-IIS/7.5"><elem>Microsoft-IIS/7.5</elem>
+</script><script id="http-title" output="Welcome to OCTA Intranet Website"><elem key="title">Welcome to OCTA Intranet Website</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="40576"/>
+<osmatch name="Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1" accuracy="100" line="72148">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::-</cpe><cpe>cpe:/o:microsoft:windows_7::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp1</cpe><cpe>cpe:/o:microsoft:windows_server_2008:r2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8" accuracy="100"><cpe>cpe:/o:microsoft:windows_8</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=40576%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=FE%GCD=1%ISR=10A%TI=I%CI=I%II=I&#xa;OS:%SS=S%TS=7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8S&#xa;OS:T11%O5=M5B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=20&#xa;OS:00%W6=2000)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)T1(R=Y%DF=Y%T=8&#xa;OS:0%S=O%A=S+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3(&#xa;OS:R=Y%DF=Y%T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%F&#xa;OS:=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%&#xa;OS:T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD&#xa;OS:=0%Q=)U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE&#xa;OS:(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="11336850" lastboot="Fri Sep 16 15:10:51 2016"/>
+<distance value="2"/>
+<tcpsequence index="254" difficulty="Good luck!" values="F0DF59E0,A4110CAC,78DA93FF,D82BBEB8,13D03D93,EB4285E8"/>
+<ipidsequence class="Incremental" values="18B1,18B2,18B3,18B4,18B5,18B6"/>
+<tcptssequence class="100HZ" values="43928BE5,43928BF2,43928BFB,43928C05,43928C0F,43928C1B"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.101" rtt="18.98" host="intra.octa.edu"/>
+</trace>
+<times srtt="13330" rttvar="10309" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.102" addrtype="ipv4"/>
+<hostnames>
+<hostname name="videos.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="127"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="30715"/>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=22%CU=30715%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(CI=I%II=I)&#xa;SEQ(CI=I)&#xa;T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.102" rtt="18.96" host="videos.octa.edu"/>
+</trace>
+<times srtt="11968" rttvar="9459" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.103" addrtype="ipv4"/>
+<hostnames>
+<hostname name="license.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS TRACE GET HEAD POST&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Microsoft-IIS/7.5"><elem>Microsoft-IIS/7.5</elem>
+</script><script id="http-title" output="IIS7"><elem key="title">IIS7</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="42879"/>
+<osmatch name="Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1" accuracy="100" line="72148">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::-</cpe><cpe>cpe:/o:microsoft:windows_7::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp1</cpe><cpe>cpe:/o:microsoft:windows_server_2008:r2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8" accuracy="100"><cpe>cpe:/o:microsoft:windows_8</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=42879%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=104%GCD=1%ISR=107%TI=I%CI=I%II=&#xa;OS:I%SS=S%TS=7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8&#xa;OS:ST11%O5=M5B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2&#xa;OS:000%W6=2000)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)T1(R=Y%DF=Y%T=&#xa;OS:80%S=O%A=S+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3&#xa;OS:(R=Y%DF=Y%T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%&#xa;OS:F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y&#xa;OS:%T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%R&#xa;OS:D=0%Q=)U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)I&#xa;OS:E(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="1184943" lastboot="Thu Jan 12 03:09:18 2017"/>
+<distance value="2"/>
+<tcpsequence index="260" difficulty="Good luck!" values="4D111912,6AE4E9DB,D1831E04,10BDA7F8,7C10177,CB4B3D65"/>
+<ipidsequence class="Incremental" values="380F,3810,3811,3812,3813,3814"/>
+<tcptssequence class="100HZ" values="70FF744,70FF759,70FF763,70FF76D,70FF779,70FF783"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.103" rtt="452.29" host="license.nitt.edu"/>
+</trace>
+<times srtt="65508" rttvar="115761" to="528552"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.104" addrtype="ipv4"/>
+<hostnames>
+<hostname name="recruitment.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1p1 Ubuntu 2ubuntu2.8" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1p1</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.7" extrainfo="(Ubuntu)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.7</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-title" output="Application Form"><elem key="title">Application Form</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="40234"/>
+<osmatch name="Linux 3.2 - 4.6" accuracy="100" line="62027">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="4.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:4</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=40234%PV=Y%DS=2%DC=T%G=N%TM=5888B&#xa;OS:AB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=105%GCD=1%ISR=105%TI=Z%II=I%TS=8)&#xa;OS:OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4&#xa;OS:ST11NW7%O6=M5B4ST11)WIN(W1=7120%W2=7120%W3=7120%W4=7120%W5=7120%W6=7120)&#xa;OS:ECN(R=Y%DF=Y%T=40%W=7210%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%&#xa;OS:F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T&#xa;OS:5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=&#xa;OS:Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF&#xa;OS:=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40&#xa;OS:%CD=S)&#xa;"/>
+</os>
+<uptime seconds="1749224" lastboot="Thu Jan  5 14:24:37 2017"/>
+<distance value="2"/>
+<tcpsequence index="261" difficulty="Good luck!" values="B7F0A622,BFFFFC8B,69B79A8F,62CB06B7,77775ED5,1A9B2C8C"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="other" values="19DB1852,19DB1888,19DB18A0,19DB18BB,19DB18D7,19DB18F1"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.104" rtt="452.29" host="recruitment.nitt.edu"/>
+</trace>
+<times srtt="65736" rttvar="115737" to="528684"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.106" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="127"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="37435"/>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=22%CU=37435%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(CI=I%II=I)&#xa;T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.106" rtt="18.93"/>
+</trace>
+<times srtt="9334" rttvar="9227" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.107" addrtype="ipv4"/>
+<hostnames>
+<hostname name="data.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="8.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:8.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS TRACE GET HEAD POST&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-title" output="IIS Windows Server"><elem key="title">IIS Windows Server</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="42796"/>
+<osmatch name="Microsoft Windows Server 2012 R2 Update 1" accuracy="100" line="71193">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2012" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2012:r2</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows 7, Windows Server 2012, or Windows 8.1 Update 1" accuracy="100" line="72823">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7:::ultimate</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2012" accuracy="100"><cpe>cpe:/o:microsoft:windows_2012</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=42796%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=105%GCD=2%ISR=10F%TI=I%CI=I%II=&#xa;OS:I%SS=S%TS=7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8&#xa;OS:ST11%O5=M5B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2&#xa;OS:000%W6=2000)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=Y%Q=)T1(R=Y%DF=Y%T=&#xa;OS:80%S=O%A=S+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3&#xa;OS:(R=Y%DF=Y%T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%&#xa;OS:F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y&#xa;OS:%T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%R&#xa;OS:D=0%Q=)U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)I&#xa;OS:E(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="6084533" lastboot="Wed Nov 16 10:09:28 2016"/>
+<distance value="2"/>
+<tcpsequence index="261" difficulty="Good luck!" values="5BF01339,87205161,EF6E49D7,6899999D,FA5D5EE5,780C4017"/>
+<ipidsequence class="Incremental" values="4E86,4E87,4E88,4E89,4E8A,4E8B"/>
+<tcptssequence class="100HZ" values="24442586,2444259C,244425A6,244425B0,244425BC,244425C6"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.107" rtt="18.92" host="data.octa.edu"/>
+</trace>
+<times srtt="11697" rttvar="7311" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.108" addrtype="ipv4"/>
+<hostnames>
+<hostname name="soft.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="127"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="31460"/>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=22%CU=31460%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(CI=I%II=I)&#xa;T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.108" rtt="452.25" host="soft.octa.edu"/>
+</trace>
+<times srtt="65314" rttvar="117549" to="535510"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.109" addrtype="ipv4"/>
+<hostnames>
+<hostname name="hostel.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-title" output="    NITT HOSTELS"><elem key="title">    NITT HOSTELS&#xa;</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="OpenWrt Kamikaze 7.09 (Linux 2.6.22)" accuracy="98" line="58536">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="98"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt 0.9 - 7.09 (Linux 2.4.30 - 2.4.34)" accuracy="94" line="43963">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.4</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt White Russian 0.9 (Linux 2.4.30)" accuracy="94" line="44002">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.4.30</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="92" line="53603">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.4.18" accuracy="92" line="42322">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:2.4.18</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt (Linux 3.3)" accuracy="92" line="59028">
+<osclass type="broadband router" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:3.3</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWRT Attitude Adjustment 12.09 (Linux 3.3)" accuracy="92" line="63508">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:3.3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.10" accuracy="91" line="60203">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="91"><cpe>cpe:/o:linux:linux_kernel:3.10</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.18 - 2.6.24" accuracy="91" line="47175">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="91"><cpe>cpe:/o:linux:linux_kernel:2.6.24</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.9 - 2.6.21" accuracy="91" line="56163">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="91"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=FB%GCD=1%ISR=FD%TI=Z%II=I%TS=U)&#xa;OPS(O1=M5B4NNSNW7%O2=M5B4NNSNW7%O3=M5B4NW7%O4=M5B4NNSNW7%O5=M5B4NNSNW7%O6=M5B4NNS)&#xa;WIN(W1=3908%W2=3908%W3=3908%W4=3908%W5=3908%W6=3908)&#xa;ECN(R=Y%DF=Y%TG=40%W=3908%O=M5B4NNSNW7%CC=N%Q=)&#xa;T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<distance value="2"/>
+<tcpsequence index="251" difficulty="Good luck!" values="B2917DDC,C7E6FEAC,DC1B1BB2,DA16492D,A6459DA5,8E50F8A0"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="none returned (unsupported)"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.109" rtt="13.03" host="hostel.nitt.edu"/>
+</trace>
+<times srtt="11231" rttvar="6976" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.110" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="5.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.2.15" hostname="www.nitt.edu" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.15</cpe></service><script id="http-git" output="&#xa;  10.0.0.110:80/.git/&#xa;    Git repository found!&#xa;    Repository description: Unnamed repository; edit this file &apos;description&apos; to name the...&#xa;    Remotes:&#xa;      https://github.com/boopathi/pragyan.git&#xa;    Project type: PHP application (guessed from .gitignore)&#xa;"><table key="10.0.0.110:80/.git/">
+<table key="project-type">
+<table key=".gitignore">
+<elem>PHP application</elem>
+</table>
+</table>
+<table key="remotes">
+<elem>https://github.com/boopathi/pragyan.git</elem>
+</table>
+<table key="files-found">
+<elem key=".git/COMMIT_EDITMSG">false</elem>
+<elem key=".gitignore">true</elem>
+<elem key=".git/info/exclude">true</elem>
+<elem key=".git/description">true</elem>
+<elem key=".git/config">true</elem>
+</table>
+<elem key="repository-description">Unnamed repository; edit this file &apos;description&apos; to name the repository.&#xa;</elem>
+</table>
+</script><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.2.15 (Red Hat)"><elem>Apache/2.2.15 (Red Hat)</elem>
+</script><script id="http-title" output="NIT Trichy&#xa;Requested resource was http://10.0.0.110/home/"><elem key="title">NIT Trichy</elem>
+<elem key="redirect_url">http://10.0.0.110/home/</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="44406"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=44406%PV=Y%DS=2%DC=T%G=N%TM=5888B&#xa;OS:AB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=103%GCD=1%ISR=107%TI=Z%CI=Z%II=I%&#xa;OS:TS=A)OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5&#xa;OS:=M5B4ST11NW7%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=&#xa;OS:3890)ECN(R=Y%DF=Y%T=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%&#xa;OS:A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0&#xa;OS:%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S&#xa;OS:=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R&#xa;OS:=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N&#xa;OS:%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="3473774" lastboot="Fri Dec 16 15:22:07 2016"/>
+<distance value="2"/>
+<tcpsequence index="259" difficulty="Good luck!" values="7F91C0B9,30B25526,65EFAEFF,67940F5D,9E83ECEC,37ABC57C"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="CF0C714B,CF0C7223,CF0C7286,CF0C72EE,CF0C7360,CF0C73C6"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.110" rtt="18.89"/>
+</trace>
+<times srtt="11256" rttvar="7410" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.111" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.4" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.4</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS GET HEAD POST TRACE&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>TRACE</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.4.6 (Red Hat)"><elem>Apache/2.4.6 (Red Hat)</elem>
+</script><script id="http-title" output="Test Page for the Apache HTTP Server on Red Hat Enterprise Linux"><elem key="title">Test Page for the Apache HTTP Server on Red Hat Enterprise Linux</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="100" line="53676">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.4 - 3.10" accuracy="100" line="62270">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P&#xa;OS:=x86_64-apple-darwin16.0.0)SEQ(SP=100%GCD=1%ISR=109%TI=Z%II=I%TS=A)OPS(O&#xa;OS:1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11N&#xa;OS:W7%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)ECN(R&#xa;OS:=Y%DF=Y%TG=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=A&#xa;OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)U1(&#xa;OS:R=N)IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="1992444" lastboot="Mon Jan  2 18:50:57 2017"/>
+<distance value="2"/>
+<tcpsequence index="256" difficulty="Good luck!" values="359BC6D5,92301E1B,4B819039,85AA15BF,723ABECA,1117A227"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="76C1243E,76C12515,76C12578,76C125E0,76C12653,76C126B9"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.111" rtt="133.66"/>
+</trace>
+<times srtt="72284" rttvar="102685" to="483024"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.112" addrtype="ipv4"/>
+<hostnames>
+<hostname name="vinnum.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.4" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.4</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS TRACE&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.4.6 (Red Hat) PHP/5.4.16"><elem>Apache/2.4.6 (Red Hat) PHP/5.4.16</elem>
+</script><script id="http-title" output="Test Page for the Apache HTTP Server on Red Hat Enterprise Linux"><elem key="title">Test Page for the Apache HTTP Server on Red Hat Enterprise Linux</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="100" line="53676">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.10" accuracy="100" line="59983">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3.10</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.4 - 3.10" accuracy="100" line="62270">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P&#xa;OS:=x86_64-apple-darwin16.0.0)SEQ(SP=104%GCD=1%ISR=10A%TI=Z%II=I%TS=A)OPS(O&#xa;OS:1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11N&#xa;OS:W7%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)ECN(R&#xa;OS:=Y%DF=Y%TG=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=A&#xa;OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)U1(&#xa;OS:R=N)IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="2632680" lastboot="Mon Dec 26 09:00:21 2016"/>
+<distance value="2"/>
+<tcpsequence index="260" difficulty="Good luck!" values="894C2938,196A1FE5,F8164E78,84B98BCA,70C8B7BC,C811820E"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="9CEA5DCF,9CEA5EA6,9CEA5F09,9CEA5F71,9CEA5FE3,9CEA604A"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.112" rtt="17.48" host="vinnum.nitt.edu"/>
+</trace>
+<times srtt="13222" rttvar="10012" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.113" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat Enterprise Linux)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: POST OPTIONS GET HEAD TRACE&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>TRACE</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.4.6 (Red Hat Enterprise Linux)"><elem>Apache/2.4.6 (Red Hat Enterprise Linux)</elem>
+</script><script id="http-title" output="Test Page for the Apache HTTP Server on Red Hat Enterprise Linux"><elem key="title">Test Page for the Apache HTTP Server on Red Hat Enterprise Linux</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="100" line="53676">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.10" accuracy="100" line="59983">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3.10</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.4 - 3.10" accuracy="100" line="62270">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P&#xa;OS:=x86_64-apple-darwin16.0.0)SEQ(SP=104%GCD=1%ISR=104%TI=Z%II=I%TS=A)OPS(O&#xa;OS:1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11N&#xa;OS:W7%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)ECN(R&#xa;OS:=Y%DF=Y%TG=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=A&#xa;OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)U1(&#xa;OS:R=N)IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="1740274" lastboot="Thu Jan  5 16:53:47 2017"/>
+<distance value="2"/>
+<tcpsequence index="260" difficulty="Good luck!" values="8CCA264A,A3B9C384,9EEEA827,77DDD233,112E6930,35579E69"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="67B957B6,67B9588D,67B958F0,67B95958,67B959CA,67B95A31"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.113" rtt="17.45"/>
+</trace>
+<times srtt="13657" rttvar="9920" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.114" addrtype="ipv4"/>
+<hostnames>
+<hostname name="misnew.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat Enterprise Linux) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.4.6 (Red Hat Enterprise Linux) PHP/5.4.16"><elem>Apache/2.4.6 (Red Hat Enterprise Linux) PHP/5.4.16</elem>
+</script><script id="http-title" output="Site doesn&apos;t have a title (text/html; charset=UTF-8)."></script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="100" line="53676">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.10" accuracy="100" line="59983">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3.10</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.4 - 3.10" accuracy="100" line="62270">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P&#xa;OS:=x86_64-apple-darwin16.0.0)SEQ(SP=105%GCD=1%ISR=10D%TI=Z%II=I%TS=A)OPS(O&#xa;OS:1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11N&#xa;OS:W7%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)ECN(R&#xa;OS:=Y%DF=Y%TG=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=A&#xa;OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)U1(&#xa;OS:R=N)IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="113925" lastboot="Tue Jan 24 12:39:36 2017"/>
+<distance value="2"/>
+<tcpsequence index="261" difficulty="Good luck!" values="CE45F3D2,392E19D7,7C1EF1C8,F3651342,90D0639E,A2EDD8B9"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="6C93834,6C9389D,6C93900,6C93968,6C939DA,6C93A41"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.114" rtt="16.90" host="misnew.octa.edu"/>
+</trace>
+<times srtt="15201" rttvar="10488" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.115" addrtype="ipv4"/>
+<hostnames>
+<hostname name="pearson-05-pc.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS TRACE GET HEAD POST&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Microsoft-IIS/7.5"><elem>Microsoft-IIS/7.5</elem>
+</script><script id="http-title" output="IIS7"><elem key="title">IIS7</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="33438"/>
+<osmatch name="Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1" accuracy="100" line="72148">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::-</cpe><cpe>cpe:/o:microsoft:windows_7::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp1</cpe><cpe>cpe:/o:microsoft:windows_server_2008:r2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8" accuracy="100"><cpe>cpe:/o:microsoft:windows_8</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=33438%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=FE%GCD=1%ISR=10C%TI=I%CI=I%II=I&#xa;OS:%SS=S%TS=7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8S&#xa;OS:T11%O5=M5B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=20&#xa;OS:00%W6=2000)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)T1(R=Y%DF=Y%T=8&#xa;OS:0%S=O%A=S+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3(&#xa;OS:R=Y%DF=Y%T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%F&#xa;OS:=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%&#xa;OS:T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD&#xa;OS:=0%Q=)U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE&#xa;OS:(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="1735465" lastboot="Thu Jan  5 18:13:56 2017"/>
+<distance value="2"/>
+<tcpsequence index="254" difficulty="Good luck!" values="5E95C592,8F948AF9,3078F82A,91135160,2B13E118,67131E55"/>
+<ipidsequence class="Incremental" values="4F,50,51,52,54,55"/>
+<tcptssequence class="100HZ" values="A57FECC,A57FED7,A57FEE0,A57FEEB,A57FEF6,A57FF01"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.115" rtt="438.71" host="pearson-05-pc.octa.edu"/>
+</trace>
+<times srtt="65815" rttvar="114490" to="523775"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.116" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-server-header" output="Microsoft-IIS/7.5"><elem>Microsoft-IIS/7.5</elem>
+</script><script id="http-title" output="IIS7"><elem key="title">IIS7</elem>
+</script></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="7.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:7.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS TRACE GET HEAD POST&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Microsoft-IIS/7.5"><elem>Microsoft-IIS/7.5</elem>
+</script><script id="http-title" output="IIS7"><elem key="title">IIS7</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="33509"/>
+<osmatch name="Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1" accuracy="100" line="72148">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::-</cpe><cpe>cpe:/o:microsoft:windows_7::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp1</cpe><cpe>cpe:/o:microsoft:windows_server_2008:r2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8" accuracy="100"><cpe>cpe:/o:microsoft:windows_8</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=33509%PV=Y%DS=2%DC=T%G=N%TM=5888B&#xa;OS:AB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=104%GCD=1%ISR=10B%TI=I%CI=I%II=I%&#xa;OS:SS=S%TS=7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST&#xa;OS:11%O5=M5B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=200&#xa;OS:0%W6=2000)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)T1(R=Y%DF=Y%T=80&#xa;OS:%S=O%A=S+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3(R&#xa;OS:=Y%DF=Y%T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%F=&#xa;OS:R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T&#xa;OS:=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=&#xa;OS:0%Q=)U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(&#xa;OS:R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="903049" lastboot="Sun Jan 15 09:27:32 2017"/>
+<distance value="2"/>
+<tcpsequence index="260" difficulty="Good luck!" values="560461F5,B08B00C4,E3AAB94F,ED716727,87A209A3,E8B34DAE"/>
+<ipidsequence class="Incremental" values="3B78,3B79,3B7A,3B7B,3B7C,3B7E"/>
+<tcptssequence class="100HZ" values="561D45D,561D466,561D470,561D47A,561D485,561D490"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.116" rtt="438.70"/>
+</trace>
+<times srtt="63628" rttvar="112657" to="514256"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.117" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="63"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="tcp" portid="80"/>
+<osmatch name="Linux 3.10 - 4.2" accuracy="100" line="60363">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="4.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:4</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=80%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5&#xa;OS:%P=x86_64-apple-darwin16.0.0)SEQ(SP=108%GCD=2%ISR=10C%TI=Z%CI=I%II=I%TS=&#xa;OS:A)OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5&#xa;OS:B4ST11NW7%O6=M5B4ST11)WIN(W1=7120%W2=7120%W3=7120%W4=7120%W5=7120%W6=712&#xa;OS:0)ECN(R=Y%DF=Y%TG=40%W=7210%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%TG=40%S=O%A&#xa;OS:=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0&#xa;OS:%Q=)T5(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%TG=40%W=0&#xa;OS:%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=N)U1(R=N)IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="2631736" lastboot="Mon Dec 26 09:16:05 2016"/>
+<distance value="2"/>
+<tcpsequence index="264" difficulty="Good luck!" values="CEB46E5D,BA58B0E3,CE527ECD,59EB95C1,D24CDE3B,54ECD337"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="9CDBF5E6,9CDBF642,9CDBF6A5,9CDBF70D,9CDBF77F,9CDBF7E6"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.117" rtt="23.24"/>
+</trace>
+<times srtt="15899" rttvar="11955" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.119" addrtype="ipv4"/>
+<hostnames>
+<hostname name="imme17.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="7.2p2 Ubuntu 4ubuntu2.1" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:7.2p2</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.18" extrainfo="(Ubuntu)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.18</cpe></service><script id="http-generator" output="Drupal 7 (http://drupal.org)"/><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-robots.txt" output="36 disallowed entries &#xa;/includes/ /misc/ /modules/ /profiles/ /scripts/ &#xa;/themes/ /CHANGELOG.txt /cron.php /INSTALL.mysql.txt &#xa;/INSTALL.pgsql.txt /INSTALL.sqlite.txt /install.php /INSTALL.txt &#xa;/LICENSE.txt /MAINTAINERS.txt /update.php /UPGRADE.txt /xmlrpc.php &#xa;/admin/ /comment/reply/ /filter/tips/ /node/add/ /search/ &#xa;/user/register/ /user/password/ /user/login/ /user/logout/ /?q=admin/ &#xa;/?q=comment/reply/ /?q=filter/tips/ /?q=node/add/ /?q=search/ &#xa;/?q=user/password/ /?q=user/register/ /?q=user/login/ /?q=user/logout/"/><script id="http-title" output="International Conference on Emerging Trends in Materials and M..."><elem key="title">International Conference on Emerging Trends in Materials and Manufacturing Engineering | International Conference on Emerging Trends in Materials and Manufacturing Engineering</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="39046"/>
+<osmatch name="Linux 3.2 - 4.6" accuracy="100" line="62027">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="4.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:4</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=39046%PV=Y%DS=2%DC=T%G=N%TM=5888B&#xa;OS:AB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=FF%GCD=1%ISR=101%TI=Z%II=I%TS=8)O&#xa;OS:PS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4S&#xa;OS:T11NW7%O6=M5B4ST11)WIN(W1=7120%W2=7120%W3=7120%W4=7120%W5=7120%W6=7120)E&#xa;OS:CN(R=Y%DF=Y%T=40%W=7210%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F&#xa;OS:=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5&#xa;OS:(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z&#xa;OS:%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=&#xa;OS:N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%&#xa;OS:CD=S)&#xa;"/>
+</os>
+<uptime seconds="1179193" lastboot="Thu Jan 12 04:45:08 2017"/>
+<distance value="2"/>
+<tcpsequence index="255" difficulty="Good luck!" values="EE599374,FAB6B13C,26EF2A51,E1CC72CE,EC8DAABC,DBE3E7DD"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="other" values="10F00D3D,10F00D54,10F00D6D,10F00D87,10F00DA3,10F00DBD"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.119" rtt="17.39" host="imme17.nitt.edu"/>
+</trace>
+<times srtt="10415" rttvar="6904" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.124" addrtype="ipv4"/>
+<hostnames>
+<hostname name="info.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="6.4" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.4</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="http" product="Apache httpd" version="2.4.6" extrainfo="(Red Hat) PHP/5.4.16" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.6</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: POST OPTIONS GET HEAD TRACE&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>TRACE</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.4.6 (Red Hat) PHP/5.4.16"><elem>Apache/2.4.6 (Red Hat) PHP/5.4.16</elem>
+</script><script id="http-title" output="Information System"><elem key="title">Information System</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="35103"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=35103%PV=Y%DS=2%DC=T%G=N%TM=5888B&#xa;OS:AB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=103%GCD=1%ISR=107%TI=Z%CI=Z%II=I%&#xa;OS:TS=A)OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5&#xa;OS:=M5B4ST11NW7%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=&#xa;OS:3890)ECN(R=Y%DF=Y%T=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%&#xa;OS:A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0&#xa;OS:%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S&#xa;OS:=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R&#xa;OS:=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N&#xa;OS:%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="222315" lastboot="Mon Jan 23 06:33:06 2017"/>
+<distance value="2"/>
+<tcpsequence index="259" difficulty="Good luck!" values="6A977482,7301CBBB,27B582D4,396F1E07,767925A6,1DD9DEF8"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="D3F1D6C,D3F1DC7,D3F1E2A,D3F1E92,D3F1F04,D3F1F6B"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.124" rtt="6.70" host="info.nitt.edu"/>
+</trace>
+<times srtt="10431" rttvar="6393" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="64"/>
+<address addr="10.0.0.129" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ssh" product="SCS sshd" version="4.1.2" extrainfo="protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="64"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="tcp" portid="80"/>
+<portused state="closed" proto="udp" portid="36874"/>
+<osmatch name="Extreme Networks ExtremeXOS 12.5.1 or 15.3" accuracy="100" line="23804">
+<osclass type="switch" vendor="Extreme Networks" osfamily="ExtremeXOS" osgen="15.X" accuracy="100"><cpe>cpe:/o:extremenetworks:extremexos:15.3</cpe></osclass>
+<osclass type="switch" vendor="Extreme Networks" osfamily="ExtremeXOS" osgen="12.X" accuracy="100"><cpe>cpe:/o:extremenetworks:extremexos:12.5.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=80%CU=36874%PV=Y%DS=1%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=C3%GCD=1%ISR=CC%TI=Z%CI=Z%TS=7)&#xa;OS:OPS(O1=M5B4NNT11NW5%O2=M5B4NNT11NW5%O3=M5B4NNT11NW5%O4=M5B4NNT11NW5%O5=M&#xa;OS:5B4NNT11NW5%O6=M5B4NNT11)WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=&#xa;OS:16A0)ECN(R=Y%DF=Y%T=40%W=16D0%O=M5B4NW5%CC=N%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S&#xa;OS:+%F=AS%RD=0%Q=)T2(R=N)T3(R=Y%DF=Y%T=40%W=16A0%S=O%A=S+%F=AS%O=M5B4NNT11N&#xa;OS:W5%RD=0%Q=)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%&#xa;OS:W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=&#xa;OS:)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%&#xa;OS:UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="1053464" lastboot="Fri Jan 13 15:40:37 2017"/>
+<distance value="1"/>
+<tcpsequence index="195" difficulty="Good luck!" values="9A41171D,9A845F71,9A44BB77,9A68CBF3,9ABDD4D6,9A34DDAA"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="100HZ" values="6475864,647586E,6475876,6475882,647588E,6475897"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.0.0.129" rtt="111.05"/>
+</trace>
+<times srtt="46877" rttvar="27838" to="158229"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="63"/>
+<address addr="10.0.0.132" addrtype="ipv4"/>
+<hostnames>
+<hostname name="library.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="63"/><service name="ssh" product="OpenSSH" version="5.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="63"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="tcp" portid="80"/>
+<portused state="closed" proto="udp" portid="43759"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="100" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="100"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=80%CU=43759%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=F9%GCD=1%ISR=107%TI=Z%CI=Z%II=I&#xa;OS:%TS=A)OPS(O1=M5B4ST11NW6%O2=M5B4ST11NW6%O3=M5B4NNT11NW6%O4=M5B4ST11NW6%O&#xa;OS:5=M5B4ST11NW6%O6=M5B4ST11)WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6&#xa;OS:=3890)ECN(R=Y%DF=Y%T=40%W=3908%O=M5B4NNSNW6%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O&#xa;OS:%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=&#xa;OS:0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%&#xa;OS:S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(&#xa;OS:R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=&#xa;OS:N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="1735297" lastboot="Thu Jan  5 18:16:44 2017"/>
+<distance value="2"/>
+<tcpsequence index="249" difficulty="Good luck!" values="639BCED4,A7560054,725C810E,9B3801E7,69397F20,899C46BC"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="676D663F,676D669A,676D66FD,676D6765,676D67D7,676D683E"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.132" rtt="111.04" host="library.nitt.edu"/>
+</trace>
+<times srtt="23439" rttvar="30351" to="144843"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.133" addrtype="ipv4"/>
+<hostnames>
+<hostname name="samrat.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft IIS httpd" version="8.5" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:8.5</cpe><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-generator" output="Microsoft FrontPage 4.0"/><script id="http-methods" output="&#xa;  Supported Methods: OPTIONS TRACE GET HEAD POST&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-server-header" output="Microsoft-IIS/8.5"><elem>Microsoft-IIS/8.5</elem>
+</script><script id="http-title" output="Information System -&#45; Intranet"><elem key="title">Information System -&#45; Intranet</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="43731"/>
+<osmatch name="Microsoft Windows Server 2012 R2 Update 1" accuracy="100" line="71193">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2012" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2012:r2</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows 7, Windows Server 2012, or Windows 8.1 Update 1" accuracy="100" line="72823">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7:::ultimate</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2012" accuracy="100"><cpe>cpe:/o:microsoft:windows_2012</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=43731%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=104%GCD=1%ISR=105%TI=I%CI=I%II=&#xa;OS:I%SS=S%TS=7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8&#xa;OS:ST11%O5=M5B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2&#xa;OS:000%W6=2000)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=Y%Q=)T1(R=Y%DF=Y%T=&#xa;OS:80%S=O%A=S+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3&#xa;OS:(R=Y%DF=Y%T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%&#xa;OS:F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y&#xa;OS:%T=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%R&#xa;OS:D=0%Q=)U1(R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)I&#xa;OS:E(R=Y%DFI=N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="1735541" lastboot="Thu Jan  5 18:12:40 2017"/>
+<distance value="2"/>
+<tcpsequence index="260" difficulty="Good luck!" values="8DF0DE62,D40F042E,BF6B98C2,B9A9F4C7,AACE4D89,4C51BCB7"/>
+<ipidsequence class="Incremental" values="7302,7303,7304,7305,7306,7307"/>
+<tcptssequence class="100HZ" values="A581C6D,A581C76,A581C80,A581C8A,A581C95,A581CA0"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.133" rtt="19.29" host="samrat.octa.edu"/>
+</trace>
+<times srtt="11826" rttvar="7368" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="127"/>
+<address addr="10.0.0.141" addrtype="ipv4"/>
+<hostnames>
+<hostname name="nms.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="127"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="127"/><service name="http" product="Microsoft HTTPAPI httpd" version="2.0" extrainfo="SSDP/UPnP" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-server-header" output="Microsoft-HTTPAPI/2.0"><elem>Microsoft-HTTPAPI/2.0</elem>
+</script><script id="http-title" output="Not Found"><elem key="title">Not Found</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="32274"/>
+<osmatch name="Microsoft Windows Server 2008 SP2 or Windows 10 or Xbox One" accuracy="100" line="70733">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="10" accuracy="100"><cpe>cpe:/o:microsoft:windows_10</cpe></osclass>
+<osclass type="media device" vendor="Microsoft" osfamily="embedded" accuracy="100"><cpe>cpe:/h:microsoft:xbox_one</cpe></osclass>
+</osmatch>
+<osmatch name="Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1" accuracy="100" line="72148">
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="7" accuracy="100"><cpe>cpe:/o:microsoft:windows_7::-</cpe><cpe>cpe:/o:microsoft:windows_7::sp1</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="2008" accuracy="100"><cpe>cpe:/o:microsoft:windows_server_2008::sp1</cpe><cpe>cpe:/o:microsoft:windows_server_2008:r2</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8" accuracy="100"><cpe>cpe:/o:microsoft:windows_8</cpe></osclass>
+<osclass type="general purpose" vendor="Microsoft" osfamily="Windows" osgen="8.1" accuracy="100"><cpe>cpe:/o:microsoft:windows_8.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=32274%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=104%GCD=1%ISR=10E%TI=I%II=I%TS=&#xa;OS:7)OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5&#xa;OS:B4NW8ST11%O6=M5B4ST11)WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=200&#xa;OS:0)ECN(R=Y%DF=Y%T=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)T1(R=Y%DF=Y%T=80%S=O%A=S&#xa;OS:+%F=AS%RD=0%Q=)T2(R=Y%DF=Y%T=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)T3(R=Y%DF=Y%&#xa;OS:T=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)T4(R=Y%DF=Y%T=80%W=0%S=A%A=O%F=R%O=%RD=&#xa;OS:0%Q=)T5(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=80%W=0%&#xa;OS:S=A%A=O%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(&#xa;OS:R=Y%DF=N%T=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=&#xa;OS:N%T=80%CD=Z)&#xa;"/>
+</os>
+<uptime seconds="641788" lastboot="Wed Jan 18 10:01:53 2017"/>
+<distance value="2"/>
+<tcpsequence index="260" difficulty="Good luck!" values="B0661FF1,34420CD1,C1A92D06,5DC9985C,7AB2D0F6,198AA30E"/>
+<ipidsequence class="Incremental" values="6063,6064,6065,6066,606A,6071"/>
+<tcptssequence class="100HZ" values="3D32D7D,3D32D86,3D32D90,3D32D9B,3D32DA6,3D32DB0"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.141" rtt="368.70" host="nms.octa.edu"/>
+</trace>
+<times srtt="55488" rttvar="94771" to="434572"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.160" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.160" rtt="15.45"/>
+</trace>
+<times srtt="51666" rttvar="80986" to="375610"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.161" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="63"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="closed" reason="reset" reason_ttl="63"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><portused state="closed" proto="tcp" portid="22"/>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=22%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(CI=Z)&#xa;T5(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=N)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.161" rtt="22.92"/>
+</trace>
+<times srtt="14277" rttvar="16022" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.162" addrtype="ipv4"/>
+<hostnames>
+<hostname name="ns2.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.162" rtt="30.17" host="ns2.nitt.edu"/>
+</trace>
+<times srtt="39128" rttvar="25416" to="140792"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.163" addrtype="ipv4"/>
+<hostnames>
+<hostname name="amruthavarshini.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="6.6.1" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6.1</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" extrainfo="PHP 7.0.11" method="probed" conf="10"><cpe>cpe:/a:php:php:7.0.11</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-robots.txt" output="1 disallowed entry &#xa;/*+"/><script id="http-title" output="404 Not Found&#xa;Requested resource was ./17/home/"><elem key="title">404 Not Found</elem>
+<elem key="redirect_url">./17/home/</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="OpenWrt 0.9 - 7.09 (Linux 2.4.30 - 2.4.34)" accuracy="95" line="43963">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.4</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt White Russian 0.9 (Linux 2.4.30)" accuracy="95" line="44002">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.4.30</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt Kamikaze 7.09 (Linux 2.6.22)" accuracy="95" line="58536">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.4.18" accuracy="92" line="42322">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:2.4.18</cpe></osclass>
+</osmatch>
+<osmatch name="Crestron XPanel control system" accuracy="92" line="18640">
+<osclass type="specialized" vendor="Crestron" osfamily="2-Series" accuracy="92"><cpe>cpe:/o:crestron:2_series</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-AC66U router (Linux 2.6)" accuracy="91" line="7773">
+<osclass type="broadband router" vendor="Asus" osfamily="embedded" accuracy="91"><cpe>cpe:/h:asus:rt-ac66u</cpe></osclass>
+<osclass type="broadband router" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="91"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt (Linux 2.4.32)" accuracy="91" line="43895">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="91"><cpe>cpe:/o:linux:linux_kernel:2.4.32</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N10 router or AXIS 211A Network Camera (Linux 2.6)" accuracy="90" line="44656">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="90"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="90"><cpe>cpe:/h:asus:rt-n10</cpe></osclass>
+<osclass type="webcam" vendor="AXIS" osfamily="embedded" accuracy="90"><cpe>cpe:/h:axis:211_network_camera</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.18" accuracy="90" line="46700">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="90"><cpe>cpe:/o:linux:linux_kernel:2.6.18</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N16 WAP (Linux 2.6)" accuracy="90" line="57878">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="90"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="90"><cpe>cpe:/h:asus:rt-n16</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=106%GCD=1%ISR=10B%TI=Z%II=I%TS=U)&#xa;SEQ(SP=106%GCD=1%ISR=10B%TI=Z%TS=U)&#xa;OPS(O1=M5B4NNSNW7%O2=M578NNSNW7%O3=M280NW7%O4=M22CNNSNW7%O5=M218NNSNW7%O6=M109NNS)&#xa;WIN(W1=7210%W2=7210%W3=7210%W4=7210%W5=7210%W6=7210)&#xa;ECN(R=Y%DF=Y%TG=40%W=7210%O=M5B4NNSNW7%CC=N%Q=)&#xa;T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<distance value="3"/>
+<tcpsequence index="262" difficulty="Good luck!" values="339C4F09,D2022660,D2AAE568,35FAFBC,ACF9CE01,3C601D3C"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="none returned (unsupported)"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.163" rtt="165.76" host="amruthavarshini.nitt.edu"/>
+</trace>
+<times srtt="35675" rttvar="47907" to="227303"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.164" addrtype="ipv4"/>
+<hostnames>
+<hostname name="alumni.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="4.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:4.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.3" extrainfo="(Red Hat)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.3</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-robots.txt" output="1 disallowed entry &#xa;/"/><script id="http-server-header" output="Apache/2.2.3 (Red Hat)"><elem>Apache/2.2.3 (Red Hat)</elem>
+</script><script id="http-title" output="RECAL ASSOCIATION - Home"><elem key="title">RECAL ASSOCIATION - Home</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="32558"/>
+<osmatch name="Linux 2.6.9 - 2.6.18" accuracy="97" line="56117">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="97"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.18" accuracy="96" line="46736">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6.18</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.9 - 2.6.27" accuracy="96" line="56282">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt 0.9 - 7.09 (Linux 2.4.30 - 2.4.34)" accuracy="95" line="43963">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.4</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-AC66U router (Linux 2.6)" accuracy="95" line="7773">
+<osclass type="broadband router" vendor="Asus" osfamily="embedded" accuracy="95"><cpe>cpe:/h:asus:rt-ac66u</cpe></osclass>
+<osclass type="broadband router" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.21" accuracy="95" line="47909">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.21</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N10 router or AXIS 211A Network Camera (Linux 2.6)" accuracy="95" line="44656">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="95"><cpe>cpe:/h:asus:rt-n10</cpe></osclass>
+<osclass type="webcam" vendor="AXIS" osfamily="embedded" accuracy="95"><cpe>cpe:/h:axis:211_network_camera</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N16 WAP (Linux 2.6)" accuracy="95" line="57878">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="95"><cpe>cpe:/h:asus:rt-n16</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N66U WAP (Linux 2.6)" accuracy="95" line="57919">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="95"><cpe>cpe:/h:asus:rt-n66u</cpe></osclass>
+</osmatch>
+<osmatch name="Tomato 1.28 (Linux 2.6.22)" accuracy="95" line="58613">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=32558%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=BF%GCD=1%ISR=CE%TI=Z%CI=Z%II=I%TS=A)&#xa;OPS(O1=M5B4ST11NW7%O2=M578ST11NW7%O3=M280NNT11NW7%O4=M22CST11NW7%O5=M218ST11NW7%O6=M109ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%T=40%W=16D0%O=M5B4NNSNW7%CC=N%Q=)&#xa;T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="53767" lastboot="Wed Jan 25 05:22:14 2017"/>
+<distance value="3"/>
+<tcpsequence index="201" difficulty="Good luck!" values="A8DFA8D4,A89EAAC3,A9442EF6,A97A474D,A9036C9D,A910C5AB"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="3337A19,3337A82,3337AEA,3337B53,3337BBE,3337C2C"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.164" rtt="25.75" host="alumni.nitt.edu"/>
+</trace>
+<times srtt="11406" rttvar="10349" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.165" addrtype="ipv4"/>
+<hostnames>
+<hostname name="dns1.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.165" rtt="22.89" host="dns1.nitt.edu"/>
+</trace>
+<times srtt="27849" rttvar="29712" to="146697"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.166" addrtype="ipv4"/>
+<hostnames>
+<hostname name="nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="63"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-robots.txt" output="1 disallowed entry &#xa;/*+"/><script id="http-server-header" output="Apache"><elem>Apache</elem>
+</script><script id="http-title" output="NIT Trichy&#xa;Requested resource was http://www.nitt.edu/"><elem key="title">NIT Trichy</elem>
+<elem key="redirect_url">http://www.nitt.edu/</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="34619"/>
+<osmatch name="OpenWrt 0.9 - 7.09 (Linux 2.4.30 - 2.4.34)" accuracy="97" line="43963">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="97"><cpe>cpe:/o:linux:linux_kernel:2.4</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt White Russian 0.9 (Linux 2.4.30)" accuracy="97" line="44002">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="97"><cpe>cpe:/o:linux:linux_kernel:2.4.30</cpe></osclass>
+</osmatch>
+<osmatch name="OpenWrt Kamikaze 7.09 (Linux 2.6.22)" accuracy="97" line="58536">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="97"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-AC66U router (Linux 2.6)" accuracy="95" line="7773">
+<osclass type="broadband router" vendor="Asus" osfamily="embedded" accuracy="95"><cpe>cpe:/h:asus:rt-ac66u</cpe></osclass>
+<osclass type="broadband router" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N16 WAP (Linux 2.6)" accuracy="94" line="57878">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="94"><cpe>cpe:/h:asus:rt-n16</cpe></osclass>
+</osmatch>
+<osmatch name="Asus RT-N66U WAP (Linux 2.6)" accuracy="94" line="57919">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="94"><cpe>cpe:/h:asus:rt-n66u</cpe></osclass>
+</osmatch>
+<osmatch name="Tomato 1.28 (Linux 2.6.22)" accuracy="94" line="58613">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.4.18" accuracy="94" line="42322">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.4.18</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.2" accuracy="92" line="61330">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:3.2</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.0" accuracy="92" line="59215">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:3.0</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="OS:SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=22%CU=34619%PV=Y%DS=2%DC=T%G=Y%TM=588&#xa;OS:8BAB5%P=x86_64-apple-darwin16.0.0)SEQ(SP=105%GCD=1%ISR=109%TI=Z%CI=Z%II=&#xa;OS:I%TS=U)SEQ(SP=106%GCD=1%ISR=109%TI=Z%CI=Z%TS=U)OPS(O1=M5B4NNSNW7%O2=M578&#xa;OS:NNSNW7%O3=M280NW7%O4=M22CNNSNW7%O5=M218NNSNW7%O6=M109NNS)WIN(W1=7210%W2=&#xa;OS:7210%W3=7210%W4=7210%W5=7210%W6=7210)ECN(R=Y%DF=Y%T=40%W=7210%O=M5B4NNSN&#xa;OS:W7%CC=N%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%D&#xa;OS:F=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=41%W=0%S=Z%A=S+%F=AR%O&#xa;OS:=%RD=0%Q=)T6(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=N)U1(R=Y%DF=N&#xa;OS:%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%C&#xa;OS:D=S)&#xa;"/>
+</os>
+<distance value="2"/>
+<tcpsequence index="262" difficulty="Good luck!" values="979DC175,64AAA1E4,E2B49664,3C7393D,1177309B,60937C2A"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="none returned (unsupported)"/>
+<trace port="22" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.166" rtt="12.22" host="nitt.edu"/>
+</trace>
+<times srtt="64132" rttvar="102310" to="473372"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.167" addrtype="ipv4"/>
+<hostnames>
+<hostname name="zenith.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.15" hostname="www.connectnit.org" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.15</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS TRACE&#xa;  Potentially risky methods: TRACE"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+<elem>TRACE</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>TRACE</elem>
+</table>
+</script><script id="http-title" output="404 Not Found"><elem key="title">404 Not Found</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<portused state="closed" proto="udp" portid="42858"/>
+<osmatch name="Linux 2.6.22 - 2.6.36" accuracy="96" line="49008">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="LG Bp430 Blu-ray Player" accuracy="95" line="40780">
+<osclass type="media device" vendor="LG" osfamily="embedded" accuracy="95"/>
+</osmatch>
+<osmatch name="Linux 2.6.32" accuracy="95" line="51706">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.34" accuracy="95" line="54007">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.34</cpe></osclass>
+</osmatch>
+<osmatch name="Check Point VPN-1 UTM appliance" accuracy="95" line="12581">
+<osclass type="firewall" vendor="Check Point" osfamily="embedded" accuracy="95"/>
+</osmatch>
+<osmatch name="AXIS 210A or 211 Network Camera (Linux 2.6.17)" accuracy="95" line="58808">
+<osclass type="webcam" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.17</cpe></osclass>
+<osclass type="webcam" vendor="AXIS" osfamily="embedded" accuracy="95"><cpe>cpe:/h:axis:210a_network_camera</cpe><cpe>cpe:/h:axis:211_network_camera</cpe></osclass>
+</osmatch>
+<osmatch name="DirecTV HR34 DVR (Linux 2.6.22)" accuracy="94" line="56643">
+<osclass type="media device" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+<osclass type="media device" vendor="DirecTV" osfamily="embedded" accuracy="94"><cpe>cpe:/h:directv:hr34</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.1" accuracy="94" line="59871">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.1</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.2" accuracy="94" line="61384">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.2</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.24 - 2.6.36" accuracy="94" line="49732">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=80%CT=%CU=42858%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=CA%GCD=1%ISR=D4%TI=Z%CI=Z%II=I%TS=A)&#xa;OPS(O1=M5B4ST11NW6%O2=M578ST11NW6%O3=M280NNT11NW6%O4=M22CST11NW6%O5=M218ST11NW6%O6=M109ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%T=40%W=16D0%O=M5B4NNSNW6%CC=Y%Q=)&#xa;T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="3472179" lastboot="Fri Dec 16 15:48:42 2016"/>
+<distance value="3"/>
+<tcpsequence index="202" difficulty="Good luck!" values="9910BBE,901801E,9CACB11,9FB59AC,93DA3C9,A108B4D"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="CEF450E0,CEF45149,CEF451B1,CEF4521A,CEF45285,CEF452F4"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.167" rtt="15.52" host="zenith.nitt.edu"/>
+</trace>
+<times srtt="10478" rttvar="8284" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.168" addrtype="ipv4"/>
+<hostnames>
+<hostname name="mtech.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.168" rtt="19.15" host="mtech.nitt.edu"/>
+</trace>
+<times srtt="63240" rttvar="102472" to="473128"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.169" addrtype="ipv4"/>
+<hostnames>
+<hostname name="testing.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.169" rtt="14.34" host="testing.octa.edu"/>
+</trace>
+<times srtt="15465" rttvar="9383" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.170" addrtype="ipv4"/>
+<hostnames>
+<hostname name="www.festember.org" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.170" rtt="7.41" host="www.festember.org"/>
+</trace>
+<times srtt="16113" rttvar="12483" to="100000"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.171" addrtype="ipv4"/>
+<hostnames>
+<hostname name="mbaadmission.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="5.6" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.6</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.21" extrainfo="(Fedora)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.21</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST OPTIONS"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>OPTIONS</elem>
+</table>
+</script><script id="http-server-header" output="Apache/2.2.21 (Fedora)"><elem>Apache/2.2.21 (Fedora)</elem>
+</script><script id="http-title" output="Registration DoMS NITT&#xa;Requested resource was http://mbaadmission.nitt.edu/Reg_2015/"><elem key="title">Registration DoMS NITT</elem>
+<elem key="redirect_url">http://mbaadmission.nitt.edu/Reg_2015/</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="34085"/>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="96" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="96" line="53676">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32" accuracy="95" line="52918">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.1" accuracy="95" line="53581">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.8" accuracy="95" line="62764">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:3.8</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.9" accuracy="95" line="53893">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.2" accuracy="95" line="61384">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:3.2</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.39" accuracy="95" line="55211">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.39</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.5" accuracy="94" line="62342">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.5</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.1" accuracy="94" line="59871">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.1</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=34085%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=108%GCD=1%ISR=10A%TI=Z%CI=Z%II=I%TS=A)&#xa;OPS(O1=M5B4ST11NW5%O2=M578ST11NW5%O3=M280NNT11NW5%O4=M22CST11NW5%O5=M218ST11NW5%O6=M109ST11)&#xa;WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)&#xa;ECN(R=Y%DF=Y%T=40%W=3908%O=M5B4NNSNW5%CC=Y%Q=)&#xa;T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="1735286" lastboot="Thu Jan  5 18:16:55 2017"/>
+<distance value="3"/>
+<tcpsequence index="264" difficulty="Good luck!" values="B4ECA56F,889E4874,8BFD8EFE,71A35FF9,F6C920F8,7317D5C4"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="676D6B74,676D6BDE,676D6C45,676D6CAF,676D6D1A,676D6D89"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.171" rtt="426.91" host="mbaadmission.nitt.edu"/>
+</trace>
+<times srtt="63851" rttvar="110244" to="504827"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.172" addrtype="ipv4"/>
+<hostnames>
+<hostname name="mettle.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.172" rtt="76.15" host="mettle.octa.edu"/>
+</trace>
+<times srtt="52069" rttvar="65496" to="314053"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.173" addrtype="ipv4"/>
+<hostnames>
+<hostname name="vayu.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="5.3" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:5.3</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache httpd" version="2.2.15" extrainfo="(Red Hat)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.2.15</cpe></service><script id="http-server-header" output="Apache/2.2.15 (Red Hat)"><elem>Apache/2.2.15 (Red Hat)</elem>
+</script><script id="http-title" output="Did not follow redirect to https://webmail.nitt.edu/hordenew"><elem key="redirect_url">https://webmail.nitt.edu/hordenew</elem>
+</script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<osmatch name="Synology DiskStation Manager 5.2-5644" accuracy="95" line="95538">
+<osclass type="storage-misc" vendor="Synology" osfamily="DiskStation Manager" osgen="5.X" accuracy="95"><cpe>cpe:/a:synology:diskstation_manager:5.2</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.10" accuracy="94" line="53646">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.13" accuracy="94" line="53676">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.4 - 3.10" accuracy="93" line="62270">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="93"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.10" accuracy="93" line="59983">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="93"><cpe>cpe:/o:linux:linux_kernel:3.10</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.9" accuracy="93" line="53893">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="93"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="93"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32" accuracy="92" line="52568">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.39" accuracy="92" line="55247">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:2.6.39</cpe></osclass>
+</osmatch>
+<osmatch name="Crestron XPanel control system" accuracy="92" line="18640">
+<osclass type="specialized" vendor="Crestron" osfamily="2-Series" accuracy="92"><cpe>cpe:/o:crestron:2_series</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32 - 3.1" accuracy="92" line="53581">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="92"><cpe>cpe:/o:linux:linux_kernel:3</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=F6%GCD=1%ISR=107%TI=Z%II=I%TS=A)&#xa;OPS(O1=M5B4ST11NW7%O2=M578ST11NW7%O3=M280NNT11NW7%O4=M22CST11NW7%O5=M218ST11NW7%O6=M109ST11)&#xa;WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)&#xa;ECN(R=Y%DF=Y%TG=40%W=3908%O=M5B4NNSNW7%CC=Y%Q=)&#xa;T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=Y%DFI=N%TG=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="385660" lastboot="Sat Jan 21 09:10:41 2017"/>
+<distance value="3"/>
+<tcpsequence index="245" difficulty="Good luck!" values="85F65A37,B9D7218A,9C868479,CDA0200B,933EA018,5EAEE7AF"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="1000HZ" values="16FBC36E,16FBC3D7,16FBC43F,16FBC4A8,16FBC514,16FBC582"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.173" rtt="100.56" host="vayu.octa.edu"/>
+</trace>
+<times srtt="70011" rttvar="90337" to="431359"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.174" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.174" rtt="29.11"/>
+</trace>
+<times srtt="62006" rttvar="95156" to="442630"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.175" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.175" rtt="20.12"/>
+</trace>
+<times srtt="49735" rttvar="75135" to="350275"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.176" addrtype="ipv4"/>
+<hostnames>
+<hostname name="antispam.octa.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="6.6" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache Tomcat/Coyote JSP engine" version="1.1" method="probed" conf="10"><cpe>cpe:/a:apache:coyote_http_connector:1.1</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST PUT DELETE OPTIONS&#xa;  Potentially risky methods: PUT DELETE"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>PUT</elem>
+<elem>DELETE</elem>
+<elem>OPTIONS</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>PUT</elem>
+<elem>DELETE</elem>
+</table>
+</script><script id="http-server-header" output="Apache-Coyote/1.1"><elem>Apache-Coyote/1.1</elem>
+</script><script id="http-title" output="Site doesn&apos;t have a title (text/html)."></script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="43676"/>
+<osmatch name="Linux 2.6.23 - 2.6.38" accuracy="96" line="49212">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.22" accuracy="95" line="48175">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osmatch name="HP P2000 G3 NAS device" accuracy="95" line="32549">
+<osclass type="storage-misc" vendor="HP" osfamily="embedded" accuracy="95"><cpe>cpe:/h:hp:p2000_g3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.31 - 2.6.32" accuracy="95" line="51201">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.31</cpe><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32" accuracy="95" line="52513">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="AXIS 210A or 211 Network Camera (Linux 2.6.17)" accuracy="95" line="58808">
+<osclass type="webcam" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.17</cpe></osclass>
+<osclass type="webcam" vendor="AXIS" osfamily="embedded" accuracy="95"><cpe>cpe:/h:axis:210a_network_camera</cpe><cpe>cpe:/h:axis:211_network_camera</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.26 - 2.6.35" accuracy="94" line="50253">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.1" accuracy="94" line="59871">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.1</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.2" accuracy="94" line="61384">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.2</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.17 - 2.6.36" accuracy="94" line="45979">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=43676%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=C3%GCD=1%ISR=C9%TI=Z%CI=Z%II=I%TS=8)&#xa;OPS(O1=M5B4ST11NW6%O2=M578ST11NW6%O3=M280NNT11NW6%O4=M22CST11NW6%O5=M218ST11NW6%O6=M109ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%T=40%W=16D0%O=M5B4NNSNW6%CC=Y%Q=)&#xa;T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="14761937" lastboot="Sun Aug  7 23:46:04 2016"/>
+<distance value="3"/>
+<tcpsequence index="195" difficulty="Good luck!" values="DF38724F,DF4C98BE,DFBDC3C7,DFFC6EF5,E028F58B,DFEB663E"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="other" values="DDBA9571,DDBA958B,DDBA95A5,DDBA95BF,DDBA95DA,DDBA95F6"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.176" rtt="406.05" host="antispam.octa.edu"/>
+</trace>
+<times srtt="60854" rttvar="105354" to="482270"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="echo-reply" reason_ttl="62"/>
+<address addr="10.0.0.177" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="ssh" product="OpenSSH" version="6.6" extrainfo="protocol 2.0" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:6.6</cpe></service></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="62"/><service name="http" product="Apache Tomcat/Coyote JSP engine" version="1.1" method="probed" conf="10"><cpe>cpe:/a:apache:coyote_http_connector:1.1</cpe></service><script id="http-methods" output="&#xa;  Supported Methods: GET HEAD POST PUT DELETE OPTIONS&#xa;  Potentially risky methods: PUT DELETE"><table key="Supported Methods">
+<elem>GET</elem>
+<elem>HEAD</elem>
+<elem>POST</elem>
+<elem>PUT</elem>
+<elem>DELETE</elem>
+<elem>OPTIONS</elem>
+</table>
+<table key="Potentially risky methods">
+<elem>PUT</elem>
+<elem>DELETE</elem>
+</table>
+</script><script id="http-server-header" output="Apache-Coyote/1.1"><elem>Apache-Coyote/1.1</elem>
+</script><script id="http-title" output="Site doesn&apos;t have a title (text/html)."></script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22"/>
+<portused state="closed" proto="udp" portid="33290"/>
+<osmatch name="Linux 2.6.23 - 2.6.38" accuracy="96" line="49212">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="96"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.22" accuracy="95" line="48175">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.22</cpe></osclass>
+</osmatch>
+<osmatch name="HP P2000 G3 NAS device" accuracy="95" line="32549">
+<osclass type="storage-misc" vendor="HP" osfamily="embedded" accuracy="95"><cpe>cpe:/h:hp:p2000_g3</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.31 - 2.6.32" accuracy="95" line="51201">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.31</cpe><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.32" accuracy="95" line="52513">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.32</cpe></osclass>
+</osmatch>
+<osmatch name="AXIS 210A or 211 Network Camera (Linux 2.6.17)" accuracy="95" line="58808">
+<osclass type="webcam" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="95"><cpe>cpe:/o:linux:linux_kernel:2.6.17</cpe></osclass>
+<osclass type="webcam" vendor="AXIS" osfamily="embedded" accuracy="95"><cpe>cpe:/h:axis:210a_network_camera</cpe><cpe>cpe:/h:axis:211_network_camera</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 2.6.26 - 2.6.35" accuracy="94" line="50253">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.6</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.1" accuracy="94" line="59871">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.1</cpe></osclass>
+</osmatch>
+<osmatch name="Linux 3.2" accuracy="94" line="61384">
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="3.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:3.2</cpe></osclass>
+</osmatch>
+<osmatch name="DD-WRT v24-sp1 (Linux 2.4.36)" accuracy="94" line="43763">
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="94"><cpe>cpe:/o:linux:linux_kernel:2.4.36</cpe></osclass>
+</osmatch>
+<osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=22%CT=%CU=33290%PV=Y%DS=3%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;SEQ(SP=C5%GCD=1%ISR=CC%TI=Z%CI=Z%II=I%TS=8)&#xa;SEQ(SP=C6%GCD=1%ISR=CC%TI=Z%CI=Z%TS=8)&#xa;OPS(O1=M5B4ST11NW6%O2=M578ST11NW6%O3=M280NNT11NW6%O4=M22CST11NW6%O5=M218ST11NW6%O6=M109ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%T=40%W=16D0%O=M5B4NNSNW6%CC=Y%Q=)&#xa;T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=41%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=40%CD=S)&#xa;"/>
+</os>
+<uptime seconds="14763344" lastboot="Sun Aug  7 23:22:37 2016"/>
+<distance value="3"/>
+<tcpsequence index="198" difficulty="Good luck!" values="E4DF6E3A,E4B49196,E531B392,E4B3EC84,E4E1E003,E4B6D420"/>
+<ipidsequence class="All zeros" values="0,0,0,0,0,0"/>
+<tcptssequence class="other" values="DDBFFE02,DDBFFE1D,DDBFFE36,DDBFFE51,DDBFFE6B,DDBFFE87"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="192.168.20.1" rtt="0.95"/>
+<hop ttl="3" ipaddr="10.0.0.177" rtt="150.26"/>
+</trace>
+<times srtt="31322" rttvar="39424" to="189018"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.178" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.178" rtt="331.56"/>
+</trace>
+<times srtt="57636" rttvar="91763" to="424688"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.179" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.179" rtt="59.22"/>
+</trace>
+<times srtt="23095" rttvar="23915" to="118755"/>
+</host>
+<host starttime="1485355604" endtime="1485355701"><status state="up" reason="reset" reason_ttl="63"/>
+<address addr="10.0.0.180" addrtype="ipv4"/>
+<hostnames>
+<hostname name="flash.nitt.edu.nitt.edu" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<os><osfingerprint fingerprint="SCAN(V=7.40SVN%E=4%D=1/25%OT=%CT=%CU=%PV=Y%DS=2%DC=T%G=N%TM=5888BAB5%P=x86_64-apple-darwin16.0.0)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;"/>
+</os>
+<distance value="2"/>
+<trace port="80" proto="tcp">
+<hop ttl="1" ipaddr="10.1.64.1" rtt="19.79"/>
+<hop ttl="2" ipaddr="10.0.0.180" rtt="26.87" host="flash.nitt.edu.nitt.edu"/>
+</trace>
+<times srtt="33816" rttvar="34797" to="173004"/>
+</host>
+<taskbegin task="NSE" time="1485355701"/>
+<taskend task="NSE" time="1485355701"/>
+<taskbegin task="NSE" time="1485355701"/>
+<taskend task="NSE" time="1485355701"/>
+<runstats><finished time="1485355701" timestr="Wed Jan 25 20:18:21 2017" elapsed="97.33" summary="Nmap done at Wed Jan 25 20:18:21 2017; 81 IP addresses (44 hosts up) scanned in 97.33 seconds" exit="success"/><hosts up="44" down="37" total="81"/>
+</runstats>
+</nmaprun>
