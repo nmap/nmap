@@ -147,7 +147,11 @@ class TargetList(object):
             self.using_file = True
 
             # Recovering saved targets
-            target_file = open(self.target_list_file, "r")
+            try:
+                target_file = open(self.target_list_file, "r")
+            except:
+                self.using_file = False
+                
             self.temp_list = [
                     t for t in target_file.read().split(";")
                     if t != "" and t != "\n"]
