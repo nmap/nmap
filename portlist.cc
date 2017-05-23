@@ -923,6 +923,11 @@ bool PortList::isTCPwrapped(u16 portno) const {
       log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but service has no name\n", portno);
     }
     return false;
+  } else if (port->service->name == NULL) {
+    if (o.debugging > 1) {
+      log_write(LOG_STDOUT, "PortList::isTCPwrapped(%d) requested but service has no name", portno);
+    }
+    return false;
   } else {
     return (strcmp(port->service->name,"tcpwrapped")==0);
   }
