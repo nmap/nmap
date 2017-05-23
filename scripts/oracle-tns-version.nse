@@ -80,6 +80,9 @@ action = function (host, port)
   local errno = response and response:match("%(ERR=(%d+)%)", 12)
   if errno then
     port.version.extrainfo = ERR_CODES[errno] or ("error: "..errno)
+    -- Add Oracle Error Code Reference URL
+    port.version.extrainfo = port.version.extrainfo ..
+    string.format(", see http://psoug.org/oraerror/TNS-%05d.htm", errno)
   end
 
   if vsnnum or errno then
