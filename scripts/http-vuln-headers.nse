@@ -99,28 +99,26 @@ action = function(host, port)
     return fail("Response didn't include a proper header")
   end
 
-  print("SSup bro")
-
   for _, line in pairs(response.rawheader) do
-    if line:match("strict.transport.security") or line:match("Strict.Transport.Security") then
+    if line:match("[Ss]trict.[Tt]ransport.[Ss]ecurity") then
       table.insert(hsts_header, line)
     end
-    if line:match("public.key.pins") or line:match("Public.Key.Pins") then
+    if line:match("[Pp]ublic.[Kk]ey.[Pp]ins") then
       table.insert(hpkp_header, line)
     end
-    if line:match("x.frame.options") or line:match("X.Frame.Options") then
+    if line:match("[Xx].[Ff]rame.[Oo]ptions") then
       table.insert(xframe_header, line)
     end
-    if line:match("x.xss.protection") or line:match("X.XSS.Protection") then
+    if line:match("[Xx].[Xx][Ss][Ss].[Pp]rotection") then
       table.insert(x_xss_header, line)
     end
-    if line:match("x.contents.type.options") or line:match("X.Content.Type.Options") then
+    if line:match("[Xx].[Cc]ontent.[Tt]ype.[Oo]ptions") then
       table.insert(x_content_type_header, line)
     end
-    if line:match("content.security.policy") or line:match("Content.Security.Policy") then
+    if line:match("[Cc]ontent.[Ss]ecurity.[Pp]olicy") then
       table.insert(csp_header, line)
     end
-    if line:match("x.permitted.cross.domain.policies") or line:match("X.Permitted.Cross.Domain.Policies") then
+    if line:match("[Xx].[Pp]ermitted.[Cc]ross.[Dd]omain.[Pp]olicies") then
       table.insert(x_cross_domain_header, line)
     end
   end
@@ -252,7 +250,7 @@ action = function(host, port)
       if line:match("REPORT.URI") or line:match("report.uri") then
         table.insert(output_info, "Description: Specifies a URI to which the user agent sends reports about policy violation.")
       end
-      if line:match("REPROT.TO") or line:match("report.to") then
+      if line:match("REPORT.TO") or line:match("report.to") then
         table.insert(output_info, "Description: Specifies a group (defined in Report-To header) to which the user agent sends reports about policy violation. ")
       end
     end
