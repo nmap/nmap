@@ -4,35 +4,13 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Checks for the HTTP response headers related to security given in OWASP Secure Headers Project 
-and shows whether they are configured.
-
-HTTP Strict-Transport-Security (HSTS) (RFC 6797) forces a web browser to communicate with a 
-web server over HTTPS.
-
-HTTP Public Key Pinning (HPKP) (RFC 7469) allows HTTPS websites to resist impersonation by attackers 
-using mis-issued or otherwise fraudulent certificates.the HTTPS web server serves a list of “pinned” 
-public key hashes; on subsequent connections clients expect that server to use one or more of those 
-public keys in its certificate chain.
-
-X-Frame-Options (RFC 7034) is a HTTP header field that allows the server to communicate to the browser 
-to display or not the content of the frames included in the current page that are part of other web 
-pages. It improves the protection of web applications against Clickjacking.
-
-X-XSS-Protection enables the Cross-Site Scripting filter in the browser.
-
-X-Content-Type-Options response HTTP header is a marker used by the server to indicate that the MIME
-types advertised in the Content-Type headers should not be changed and be followed.
-
-Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain 
-types of attacks.  If enabled, CSP has significant impact on the way browser renders pages. CSP prevents
-a wide range of attacks, including Cross-site scripting and other cross-site injections. 
-
-X-Permitted-Cross-Domain-Policies are cross-domain policy files is an XML document that grants a web
-client permission to handle data across domains. When clients request content hosted on a particular source domain 
-and that content make requests directed towards a domain other than its own, the remote domain 
-needs to host a cross-domain policy file that grants access to the source domain, allowing the 
-client to continue the transaction.  
+Checks for the HTTP response headers related to security given in OWASP Secure Headers Project,
+shows whether they are configured and gives a brief description of them. 
+ 
+The script requests the server for the header with http.head and parses it to list headers founds with their
+configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
+X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy and 
+X-Permitted-Cross-Domain-Policies
 
 References: https://www.owasp.org/index.php/OWASP_Secure_Headers_Project
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
@@ -56,7 +34,7 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- |  Description: The browser must not display this content in any frame.
 -- |  X-XSS-Protection is configured.
 -- |  Header: X-XSS-Protection: 1; mode=block
--- |  Description:  Rather than sanitize the page, when a XSS attack is detected, the browser will prevent rendering of the page. 
+-- |  Description: Rather than sanitize the page, when a XSS attack is detected, the browser will prevent rendering of the page. 
 -- |  X-Content-Type-Options is configured.
 -- |  Header: X-Content-Type-Options: nosniff
 -- |  Description: Will prevent the browser from MIME-sniffing a response away from the declared content-type. 
@@ -66,6 +44,28 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- |  X-Permitted-Cross-Domain-Policies are configured.
 -- |  Header: X-Permitted-Cross-Domain-Policies: none 
 -- |_ Description : No policy files are allowed anywhere on the target server, including this master policy file. 
+--
+--
+-- @xmloutput
+-- <elem>HSTS is configured</elem>
+-- <elem key="Header">Strict-Transport-Security: max-age=31536000</elem>
+-- <elem>HPKP is configured</elem>
+-- <elem key="Header">Public-Key-Pins: pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="; report-uri="http://example.com/pkp-report"; max-age=10000; includeSubDomains</elem>
+-- <elem>X-Frame-Options is configured</elem>
+-- <elem key="Header">X-Frame-Options: DENY</elem>
+-- <elem key="Description">The browser must not display this content in any frame.</elem>
+-- <elem>X-XSS-Protection is configured</elem>
+-- <elem key="Header">X-XSS-Protection: 1; mode=block</elem>
+-- <elem key=Description>Rather than sanitize the page, when a XSS attack is detected, the browser will prevent rendering of the page.</elem>
+-- <elem>X-Content-Type-Options is configured.</elem>
+-- <elem key="Header">X-Content-Type-Options: nosniff</elem>
+-- <elem key="Description">Will prevent the browser from MIME-sniffing a response away from the declared content-type.</elem>
+-- <elem>Content-Security-Policy is configured.</elem>
+-- <elem key="Header">Content-Security-Policy: script-src 'self'</elem>
+-- <elem key="Description">Loading policy for all resources type in case of a resource type dedicated directive is not defined (fallback).</elem>
+-- <elem>X-Permitted-Cross-Domain-Policies are configured.</elem>
+-- <elem key="Header">X-Permitted-Cross-Domain-Policies: none</elem>
+-- <elem key="Header">No policy files are allowed anywhere on the target server, including this master policy file.</elem>
 --
 -- @args http-vuln-headers.path The URL path to request. The default path is "/".
 
@@ -88,6 +88,7 @@ action = function(host, port)
   local x_content_type_header = {}
   local csp_header = {}
   local x_cross_domain_header = {}
+  local cookie = {}
 
   response = http.head(host, port, path)
 
@@ -120,6 +121,9 @@ action = function(host, port)
     end
     if line:match("[Xx].[Pp]ermitted.[Cc]ross.[Dd]omain.[Pp]olicies") then
       table.insert(x_cross_domain_header, line)
+    end
+    if line:match("[Cc]ookie") then
+      table.insert(cookie, line)
     end
   end
 
@@ -271,6 +275,15 @@ action = function(host, port)
       elseif line:match("ALL") or line:match("all") then
         table.insert(output_info, "Description: All policy files on this target domain are allowed.")
       end  
+    end
+
+  end
+
+  for #cookie > 0 then
+    for _,line in pairs(cookie) do
+      if port.number == 443 and line:match("[Ss]ecure") then 
+        table.insert(output_info, "Cookies are secured with Secure Flag in HTTPS Connection")
+      end
     end
 
   end
