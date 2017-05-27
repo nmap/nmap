@@ -1316,7 +1316,7 @@ local function start_session_extended(smb, log_errors, overrides)
   local sp_nego = false
   if ( smb['security_blob'] and #smb['security_blob'] > 11 ) then
     local pos, oid = bin.unpack(">A6", smb['security_blob'], 5)
-    sp_nego = ( oid == "\x2b\x06\x01\x05\x05\x02" ) -- check for SPNEGO OID 1.3.6.1.5.5.2
+    sp_nego = ( oid == "\x2b\x06\x01\x05\x05\x02" or oid == "\x06\x06\x2b\x06\x01\x05" ) -- check for SPNEGO OID 1.3.6.1.5.5.2
   end
 
   local ntlm_challenge_accepted = false
@@ -3075,6 +3075,12 @@ function share_get_details(host, share)
   local i
   local details = {}
 
+  --Transform name to FQPN form
+  status, share = get_fqpn(host, share)
+  if not status then
+    stdnse.debug1("SMB:Couldn't obtain FQPN share name. Trying with '%s'", share)
+  end
+
   -- Save the name
   details['name'] = share
 
@@ -3442,7 +3448,7 @@ end
 -- 'false' is simply returned.
 function is_admin(host, username, domain, password, password_hash, hash_type)
   local msrpc = require "msrpc" -- avoid require cycle
-  local status, smbstate, err, result
+  local status, smbstate, err, result, fqpn_share
   local overrides = get_overrides(username, domain, password, password_hash, hash_type)
 
   stdnse.debug1("SMB: Checking if %s is an administrator", username)
@@ -3467,8 +3473,9 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
     stop(smbstate)
     return false
   end
-
-  status, err      = tree_connect(smbstate, "IPC$", overrides)
+  
+  _, fqpn_share = get_fqpn(host, "IPC$")
+  status, err      = tree_connect(smbstate, fqpn_share, overrides)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
     stop(smbstate)
@@ -3500,6 +3507,19 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
   stop(smbstate)
 
   return true
+end
+
+---
+-- Returns the fully qualified path name (FQPN) for shares.
+-- This is required for modern versions of Windows.
+-- Returns \\<ip>\<sharename> when successful. Otherwise, returns the same share name.
+---
+function get_fqpn(host, sharename)
+  if host.ip and sharename then
+    return true, string.format("\\\\%s\\%s", host.ip, sharename)
+  end
+  stdnse.debug1("SMB: get_fqpn: Couldn't determine server IP address")
+  return false, sharename
 end
 
 command_codes =
@@ -4213,10 +4233,11 @@ namedpipes =
       self.name = namedpipes.make_pipe_name( self._host.ip, self._pipeSubPath )
 
       stdnse.debug2("%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
-      local status, result, errorMessage
+      local status, result, errorMessage, fqpn_share
       local bool_negotiate_protocol, bool_start_session, bool_disable_extended = true, true, false
+      _, fqpn_share = get_fqpn(host, "IPC$")
       status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
-        "IPC$", self._pipeSubPath, bool_disable_extended, self._overrides )
+        fqpn_share, self._pipeSubPath, bool_disable_extended, self._overrides )
 
       if status then
         self._smbstate = result

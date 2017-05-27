@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#266][GH#704][GH#238][GH#883] NSE libraries smb and msrpc now use 
+  fully qualified paths. SMB scripts now work against all modern versions 
+  of Microsoft Windows. [Paulino Calderon]
+
 o New service probes and matches for Apache HBase and Hadoop MapReduce. 
   [Paulino Calderon]
 

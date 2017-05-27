@@ -181,6 +181,7 @@ action = function(host)
   local output = ls.new_listing()
 
   for _, share in ipairs(arg_shares) do
+    stdnse.debug1("Share name:%s", share)
     local status, smbstate = smb.start_ex(host, true, true, share,
       nil, nil, nil)
     if ( not(status) ) then
@@ -199,7 +200,7 @@ action = function(host)
 
       ls.new_vol(
         output,
-        '\\\\' .. stdnse.get_hostname(host) .. '\\' .. share .. path,
+        share .. path,
         false)
       continue = list_files(host, share, smbstate, path, options,
         output, ls.config('maxdepth'))

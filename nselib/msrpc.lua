@@ -200,8 +200,10 @@ local UUID2EXE = {
 --@return status true or false
 --@return smbstate if status is true, or an error message.
 function start_smb(host, path, disable_extended, overrides)
+  local sharename
   overrides = overrides or {}
-  return smb.start_ex(host, true, true, "IPC$", path, disable_extended, overrides)
+  _, sharename = smb.get_fqpn(host, "IPC$")
+  return smb.start_ex(host, true, true, sharename, path, disable_extended, overrides)
 end
 
 --- A wrapper around the <code>smb.stop</code> function.
@@ -663,10 +665,17 @@ end
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'shares', which is a list of the system's shares.
 function srvsvc_netsharegetinfo(smbstate, server, share, level)
-  local status, result
+  stdnse.debug2("Calling NetShareGetInfo(%s, %s, %d)", server, share, level)
+  local status, result, sharename
   local arguments
   local pos, align
 
+  --NetGetShareInfo seems to reject FQPN and reads the server value from the request
+  --If any function called this function using a FQPN, this should take care of it.
+  _, _, sharename = string.find(share, "\\\\.*\\(.*)")
+  if sharename then
+    share = sharename
+  end
   --    [in]   [string,charset(UTF16)] uint16 *server_unc,
   arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
 
@@ -4705,7 +4714,8 @@ function get_share_info(host, name)
   end
 
   -- Call NetShareGetInfo
-  local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
+  
+  local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 1)
   if(status == false) then
     smb.stop(smbstate)
     return false, netsharegetinfo_result
