@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script smb-vuln-ms17-010 detects a critical remote code execution 
+  vulnerability affecting SMBv1 servers in Microsoft Windows systems (ms17-010).
+  The script also reports patched systems. [Paulino Calderon]
+
 o [NSE][GH#266][GH#704][GH#238][GH#883] NSE libraries smb and msrpc now use 
   fully qualified paths. SMB scripts now work against all modern versions 
   of Microsoft Windows. [Paulino Calderon]
