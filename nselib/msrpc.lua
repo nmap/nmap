@@ -4722,6 +4722,7 @@ function get_share_info(host, name)
       stdnse.debug2("Calling NetShareGetInfo with information level 1")
       status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 1)
       if status then
+        smb.stop(smbstate)
         return true, netsharegetinfo_result
       end
     end
