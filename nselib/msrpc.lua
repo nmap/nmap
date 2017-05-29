@@ -4715,8 +4715,16 @@ function get_share_info(host, name)
 
   -- Call NetShareGetInfo
   
-  local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 1)
+  local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
+  stdnse.debug2("NetShareGetInfo status:%s result:%s", status, netsharegetinfo_result)
   if(status == false) then
+    if(string.find(netsharegetinfo_result, "NT_STATUS_WERR_ACCESS_DENIED")) then
+      stdnse.debug2("Calling NetShareGetInfo with information level 1")
+      status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 1)
+      if status then
+        return true, netsharegetinfo_result
+      end
+    end
     smb.stop(smbstate)
     return false, netsharegetinfo_result
   end
