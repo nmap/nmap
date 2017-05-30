@@ -705,6 +705,14 @@ Crawler = {
   -- Adds a default blacklist blocking binary files such as images,
   -- compressed archives and executable files
   addDefaultBlacklist = function(self)
+    -- References:
+    --[[
+      Image file formats: https://en.wikipedia.org/wiki/Image_file_formats
+      Video file formats: https://en.wikipedia.org/wiki/Video_file_format
+      Audio file formats: https://en.wikipedia.org/wiki/Audio_file_format
+      Doc file extension: https://en.wikipedia.org/wiki/List_of_Microsoft_Office_filename_extensions
+      Archive formats: https://en.wikipedia.org/wiki/List_of_archive_formats
+    ]]
     local extensions = {
       image_extensions = {"png", "jpg", "jpeg", "gif", "bmp", "jfif", "exif",
       "tiff", "bmp", "ppm", "pgm", "pbm", "pnm", "webp", "heif", "bat", "bpg",
