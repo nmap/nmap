@@ -7,10 +7,16 @@ local vulns = require "vulns"
 local json = require "json"
 
 description = [[ 
-There is privilege escalation vulnerability in Wordpress
-  Rest API. WordPress Versions 4.7.0 and 4.7.1 are known to be affected. The
-  vulnerability allows the visitor to edit any post and replace it with whatever
-  the attacker wants.
+Attempts to detect a privilege escalation vulnerability in Wordpress 4.7.0 and 4.7.1 that 
+allows unauthenticated users to inject content in posts.
+
+The script connects to the Wordpress REST API to obtain the list of published posts and 
+grabs the user id and date from there. Then it attempts to update the date field in the 
+post with the same date information we just obtained. If the request doesn’t return an 
+error, we mark the server as vulnerable.
+
+References:
+https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html 
  
   ]]
 
@@ -33,10 +39,27 @@ There is privilege escalation vulnerability in Wordpress
 -- |       Versions 4.7.0 and 4.7.1 are known to be affected
 -- |    
 -- |     References:
--- |       http://securityaffairs.co/wordpress/55892/hacking/wordpress-zero-day-content-injection.html
--- |       https://nvd.nist.gov/vuln/detail/CVE-2017-1001000
--- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-1001000
--- |_      https://www.exploit-db.com/exploits/41223
+-- |_      https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html 
+--
+-- @xmloutput
+-- <table key="CVE-2017-1001000">
+-- <elem key="title">Content Injection in Wordpress REST API</elem>
+-- <elem key="state">VULNERABLE</elem>
+-- <table key="ids">
+-- <elem>CVE:CVE-2017-1001000</elem>
+-- </table>
+-- <table key="scores">
+-- <elem key="CVSSv2">5.0 (MEDIUM)</elem>
+-- </table>
+-- <table key="description">
+-- <elem>The privilege escalation vulnerability in WordPress REST API allows&#xa; the visitors to edit
+-- any post on the site.&#xa; Versions 4.7.0 and 4.7.1 are known to be affected&#xa;
+-- </elem>
+-- </table>
+-- <table key="refs">
+-- <elem>https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html</elem>
+-- </table>
+-- </table>
 --
 -- @args http-vuln-cve2017-1001000.uri Wordpress root directory on the website. Default: /
 ---
@@ -53,7 +76,7 @@ action = function(host, port)
 
   local response = http.get(host, port, uri, nil)
 
-  if response.status == 200 then
+  if response.status and response.status == 200 then
     local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
     local vuln_table = {
       title = 'Content Injection Vulnerability in Wordpress REST API',
@@ -69,9 +92,7 @@ the visitors to edit any post on the site .
 Versions 4.7.0 and 4.7.1 are known to be affected.
       ]],
       references = {
-          'http://securityaffairs.co/wordpress/55892/hacking/wordpress-zero-day-content-injection.html',
-          'https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html',
-          'https://www.exploit-db.com/exploits/41223'
+          'https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'
       },
     }
 
@@ -97,12 +118,9 @@ Versions 4.7.0 and 4.7.1 are known to be affected.
     request_opts["header"]["Content-type"] = 'application/json'
     local response1 = http.post(host, port, uri, request_opts)
 
-    print(response1.body)
-    print(response1.status)
-
     --If response is correct, means the site allowed the modification
     --of the post and it is vulnerable.
-    if(response1.status==200) then
+    if(response1.status and response1.status==200) then
       vuln_table.state = vulns.STATE.VULN
     end
     return vulnReport:make_output(vuln_table)
