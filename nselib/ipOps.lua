@@ -519,7 +519,7 @@ ip_to_str = function( ip, family )
   if not ip:match( ":" ) then
     -- ipv4 string
     for octet in string.gmatch( ip, "%d+" ) do
-      t[#t+1] = pack("B", octet)
+      t[#t+1] = pack(">B", octet)
     end
   else
     -- ipv6 string
