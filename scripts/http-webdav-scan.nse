@@ -1,4 +1,5 @@
 local http = require "http"
+local ipOps = require "ipOps"
 local table = require "table"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -93,15 +94,6 @@ local function get_options (host, port, path)
   end
 end
 
-
-local function validateIP(matched_ip)
-  local oct_1, oct_2, oct_3, oct_4 = matched_ip:match('^(%d+)%.(%d+)%.(%d+)%.(%d+)$')
-  if tonumber(oct_1) > 255 or tonumber(oct_2) > 255 or tonumber(oct_3) > 255 or tonumber(oct_4) > 255 then
-    return false
-  end
-  return true
-end
-
 -- a function to extract internal ip addresses from PROPFIND response.
 local function getIPs(body)
   local ip_pats = {'%f[%d]192%.168%.%d+%.%d+',
@@ -112,7 +104,7 @@ local function getIPs(body)
   local result = {}
   for _, ip_pat in pairs(ip_pats) do
     for ip in body:gmatch(ip_pat) do
-      if validateIP(ip) then
+      if ipOps.expand_ip(ip) then
         result[ip] = true
       end
     end
