@@ -336,7 +336,7 @@ StartTLS = {
     if resultCode ~= 0 then
       starttls_supported(host, port, false)
       stdnse.debug1(string.format(
-        "STARTTLS failed (LDAP error code is: %d)", resultCode))
+        "STARTTLS failed (LDAP error code is: %s)", tonumber(resultCode) or "not a number"))
       return false, "STARTTLS failed"
     end
 
