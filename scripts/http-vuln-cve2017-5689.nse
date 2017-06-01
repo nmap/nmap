@@ -111,13 +111,15 @@ digest parameter.
   if response.header['server'] and response.header['server']:find('Intel(R)', 1, true) 
     and response.status and response.status == 401 then
       local www_authenticate = http.parse_www_authenticate(response.header['www-authenticate'])
-      local auth_header = string.format("Digest username=\"admin\", realm=\"%s\", nonce=\"%s\", uri=\"index.htm\"," .. 
-                    "cnonce=\"%s\", nc=1, qop=\"auth\", response=\"\"", www_authenticate[1]['params']['realm'],
-                    www_authenticate[1]['params']['nonce'], stdnse.generate_random_string(10))
-      local opt = { header = { ['Authorization'] = auth_header } }
-      response = http.get(host, port, '/index.htm', opt)
-      if response.status and response.status == 200 then
-        vuln.state = vulns.STATE.VULN
+      if www_authenticate[1]['params'] and www_authenticate[1]['params']['realm'] and www_authenticate[1]['params']['nonce'] then 
+        local auth_header = string.format("Digest username=\"admin\", realm=\"%s\", nonce=\"%s\", uri=\"index.htm\"," .. 
+          "cnonce=\"%s\", nc=1, qop=\"auth\", response=\"\"", www_authenticate[1]['params']['realm'],
+          www_authenticate[1]['params']['nonce'], stdnse.generate_random_string(10))
+        local opt = { header = { ['Authorization'] = auth_header } }
+        response = http.get(host, port, '/index.htm', opt)
+        if response.status and response.status == 200 then
+          vuln.state = vulns.STATE.VULN
+        end
       end
   end        
 
