@@ -133,7 +133,7 @@ action = function( host, port )
   local thread_num = tonumber(stdnse.get_script_args("http-wordpress-brute.threads")) or DEFAULT_THREAD_NUM
 
   engine = brute.Engine:new( Driver, host, port, { uservar = uservar, passvar = passvar } )
-  engine:setMaxThreads(thread_num)
+  engine:setMaxThreads(tonumber(thread_num))
   engine.options.script_name = SCRIPT_NAME
   status, result = engine:start()
 
