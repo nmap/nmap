@@ -393,7 +393,7 @@ tools = { Django = { rapidDetect = function(host, port)
           local vl = v:lower()
           local m = vl:match("express")
           if m then
-            return string.format("Express detected. Found '%s' in % header", m, h)
+            return string.format("Express detected. Found %s in %s header", m, h)
           end
         end
       end
