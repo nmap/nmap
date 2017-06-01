@@ -262,6 +262,7 @@ Entry { filename = "http-vuln-cve2014-3704.nse", categories = { "exploit", "intr
 Entry { filename = "http-vuln-cve2014-8877.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2015-1427.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2015-1635.nse", categories = { "safe", "vuln", } }
+Entry { filename = "http-vuln-cve2017-1001000.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2017-5638.nse", categories = { "vuln", } }
 Entry { filename = "http-vuln-cve2017-5689.nse", categories = { "auth", "exploit", "vuln", } }
 Entry { filename = "http-vuln-misfortune-cookie.nse", categories = { "intrusive", "vuln", } }
