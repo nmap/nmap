@@ -46,14 +46,13 @@ MySQL ODBC
 ODBC DB2
 ODBC Driver
 ODBC Error
-ODBC Microsoft Access Driver
+ODBC Microsoft Access
 ODBC Oracle
 ODBC SQL
 ODBC SQL Server
 OLE/DB provider returned message
 ORA%-0
 ORA%-1
-ORA-01756
 Oracle DB2
 Oracle Driver
 Oracle Error
@@ -77,7 +76,7 @@ The error occurred in
 The script whose uid is
 Type mismatch
 Unable to jump to row
-Unable to select * from
+Unable to select %* from
 Unclosed quotation mark
 Unknown column
 Unterminated string constant
@@ -85,8 +84,8 @@ Warning: Cannot modify header information %- headers already sent
 Warning: Supplied argument is not a valid File%-Handle resource in
 Warning: mysql_query%(%)
 Warning: pg_connect%(%): Unable to connect to PostgreSQL server: FATAL
-Warning: require(%)
-array_merge()
+Warning: require%(%)
+array_merge%(%)
 data source=
 detected an internal error %[IBM%]%[CLI Driver%]%[DB2/6000%]
 error in your SQL syntax near
