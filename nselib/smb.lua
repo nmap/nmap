@@ -3189,7 +3189,7 @@ function share_get_list(host)
   -- Ensure that the server returns the proper error message
   -- first try anonymously, then using a user account (in case anonymous connections are not supported)
   for _, anon in ipairs({true, false}) do
-    status, result = share_host_returns_proper_error(host)
+    status, result = share_host_returns_proper_error(host, anon)
 
     if(status == true and result == false) then
       return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
