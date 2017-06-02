@@ -705,14 +705,35 @@ Crawler = {
   -- Adds a default blacklist blocking binary files such as images,
   -- compressed archives and executable files
   addDefaultBlacklist = function(self)
+    -- References:
+    --[[
+      Image file formats: https://en.wikipedia.org/wiki/Image_file_formats
+      Video file formats: https://en.wikipedia.org/wiki/Video_file_format
+      Audio file formats: https://en.wikipedia.org/wiki/Audio_file_format
+      Doc file extension: https://en.wikipedia.org/wiki/List_of_Microsoft_Office_filename_extensions
+      Archive formats: https://en.wikipedia.org/wiki/List_of_archive_formats
+    ]]
     local extensions = {
-      image_extensions = {"png","jpg","jpeg","gif","bmp"},
-      video_extensions = {"avi","flv","ogg","mp4","wmv"},
-      audio_extensions = {"aac","m4a","mp3","wav"},
-      doc_extensions = {"pdf", "doc", "docx", "docm", "xls", "xlsx", "xlsm",
-      "ppt", "pptx", "pptm", "odf", "ods", "odp", "ps", "xps"},
+      image_extensions = {"png", "jpg", "jpeg", "gif", "bmp", "jfif", "exif",
+      "tiff", "bmp", "ppm", "pgm", "pbm", "pnm", "webp", "heif", "bat", "bpg",
+      "cgm", "svg"},
+      video_extensions = {"avi", "flv", "ogg", "mp4", "m4p", "m4v", "wmv",
+      "vob", "ogv", "drc", "mng", "avi", "mov", "yuv", "rm", "rmvb", "asf",
+      "amv", "webm", "mkv", "mpg", "mp2", "mpeg", "mpe", "mpv", "svi", "3gp",
+      "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"},
+      audio_extensions = {"aac", "m4a", "mp3", "wav", "aa", "aax", "act", "aiff",
+      "amr", "ape", "au", "awb", "dct", "dss", "dvf", "flac", "gsm", "iklax",
+      "ivs", "m4a", "m4b", "m4p", "mmf", "mpc", "msc", "ogg", "oga", "mogg",
+      "oups", "ra", "rm", "raw", "sln", "tta", "vox", "wma", "wv", "webm"},
+      doc_extensions = {"pdf", "doc", "docx", "docm", "xla", "xls", "xlsx",
+      "xlsm", "ppt", "pptx", "pptm", "odf", "ods", "odp", "ps", "xps", "dot",
+      "wbk", "dotx", "dotm", "docb", "xlt", "xlm", "xltx", "xltm", "xlsb",
+      "xlam", "xll", "xlw", "pot", "pps", "potx", "potm", "ppam", "ppsx", "ppsm",
+      "sldx", "sldm", "pub"},
       archive_extensions = {"zip", "tar.gz", "gz", "rar", "7z", "sit", "sitx",
-      "tgz", "tar.bz", "tar", "iso"},
+      "tgz", "tar.bz", "tar", "iso", "a", "ar", "cpio", "shar", "lbr", "iso",
+      "mar", "sbx", "bz2", "lz", "lzma", "lzo", "rz", "sz", "s7z", "ace", "afa",
+      "alz", "apk", "tar.bz2", "tar.Z", "tar.lzma", "tlz", "tbz2", "xp3", "zz"},
       exe_extensions = {"exe", "com", "msi", "bin","dmg"}
     }
     local blacklist = {}
