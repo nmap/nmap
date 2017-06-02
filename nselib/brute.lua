@@ -701,6 +701,11 @@ Engine = {
       status, response = driver:connect()
 
       -- Did we successfully connect?
+
+      if not status and response:isReduce() then
+          return false, response
+        end
+        
       if status then
         if not username and not password then
           repeat
@@ -790,7 +795,7 @@ Engine = {
         break
       end
 
-      -- Updtae tick and add this thread to the batch
+      -- Update tick and add this thread to the batch
       self.tick = self.tick + 1
 
       if not (self.batch:isFull()) and not thread_data.in_batch then
