@@ -2498,6 +2498,7 @@ end
 -- data is given as a string, not a file.
 --
 --@param host          The host object
+--@param data          The string containing the data to be written
 --@param share         The share to upload it to (eg, C$).
 --@param remotefile    The remote file on the machine. It is relative to the share's root.
 --@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user.
