@@ -1,3 +1,5 @@
+/.git/
+/.htaccess/
 /1/
 /2/
 /3/
@@ -43,6 +45,7 @@
 /analog/
 /anthill/
 /apache/
+/apache2/
 /app/
 /appl/
 /applets/
@@ -117,6 +120,7 @@
 /cash/
 /caspsamp/
 /catalog/
+/category/
 /cbi-bin/
 /ccard/
 /ccards/
@@ -171,6 +175,7 @@
 /communicator/
 /comp/
 /company/
+/components/
 /compra/
 /compras/
 /compressed/
@@ -183,6 +188,7 @@
 /console/
 /contact/
 /contacts/
+/contactUs/
 /content/
 /content.ie5/
 /controlpanel/
@@ -382,6 +388,7 @@
 /image/
 /imagenes/
 /imagery/
+/Images/
 /images/
 /img/
 /imp/
@@ -428,6 +435,7 @@
 /jsp/
 /junk/
 /k/
+/keygen/
 /kiva/
 /known/
 /l/
@@ -452,6 +460,8 @@
 /logger/
 /logging/
 /login/
+/logo/
+/logos/
 /logon/
 /logout/
 /logs/
@@ -471,6 +481,7 @@
 /map/
 /maps/
 /marketing/
+/media/
 /mediawiki/
 /mem/
 /member/
@@ -597,6 +608,7 @@
 /privado/
 /private/
 /_private/
+/proc/
 /prod/
 /projectserver/
 /protected/
@@ -695,6 +707,7 @@
 /software/
 /solaris/
 /source/
+/spam/
 /sql/
 /squid/
 /src/
@@ -846,6 +859,7 @@
 /webpub-ui/
 /webreports/
 /webreps/
+/webservices/
 /webshare/
 /WebShop/
 /website/
@@ -866,6 +880,8 @@
 /wordpress/
 /work/
 /world/
+/wp-admin/
+/wp-login/
 /wsdocs/
 /WS_FTP/
 /wstats/
