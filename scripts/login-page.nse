@@ -48,15 +48,7 @@ author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-portrule = function(host, port)
-  -- Working :
-  -- If -p argument is used, then the script will be executed only on the given ports.
-  -- If -p argument is not used, then the script will be executed on all the open ports.
-  stdnse.debug(string.format("Loading port %d", port.number))
-
-  local selected_ports = shortport.port_or_service({port.number}, "http", "tcp", {"open", "open|filtered"})
-  return selected_ports(host, port)
-end
+portrule = shortport.http
 
 action = function(host, port)
 
