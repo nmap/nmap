@@ -1447,6 +1447,7 @@ end
 
 -- Returns the case insensitive pattern of given parameter
 -- Useful while doing case insensitive pattern match using string library.
+-- https://stackoverflow.com/questions/11401890/case-insensitive-lua-pattern-matching
 --
 -- Ex: generate_case_insensitive_pattern("user") = "[uU][sS][eE][rR]"
 --
@@ -1461,7 +1462,7 @@ function generate_case_insensitive_pattern(pattern)
       return percent .. letter
     else
       -- Else, return a case-insensitive character class of the matched letter
-      return string.format("[%s%s]", letter:lower(), letter:upper())
+      return format("[%s%s]", letter:lower(), letter:upper())
     end
 
   end)
