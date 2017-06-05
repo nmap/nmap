@@ -13180,6 +13180,7 @@ fallback GetRequest
 
 # TIME \x52-\x7f is 2013 - 2038
 # Combination of extension data and null bytes in the session ID should be pretty unique.
+# This is a softmatch because we want to try sending TerminalServerCookie instead.
 softmatch ssl m|^\x16\x03[\x01-\x03]..\x02\0\0M\x03[\x01-\x03][\x52-\x7f].{31} ..\0\0.{28}[\0-\xd0].\0\0\x05\xff\x01\0\x01\0\x0b|s p/Microsoft SChannel TLS/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # SSLv3 - TLSv1.2 ServerHello
@@ -13274,7 +13275,7 @@ match caigos-conspectus m|^\0\0\0\0\0\0\0>r\0\0\0\0\0\0\0\xf8\x926\x01\x14\0\0\0
 
 match digitalwatchdog m|^\x01\0\0\0\0\0\0\(PSPROTOCOL\0\0\0\0\0\0\xa0\0\0\x01\0\0\0\x0c\0\0\0\0\0\0\0\0\xe0\0\0\x04\0\0\0\0\0\0\0\0| p/Digital Watchdog IP camera unknown service/ d/webcam/
 # Need more matches. Same response to Kerberos, runs on 1489 and 1490(secure)
-match docbroker m|^\0\0\0\x080\x06\x02\x01\0\x02\x01i| p/Documentum Conotent Server/ cpe:/a:emc:documentum_content_server/
+match docbroker m|^\0\0\0\x080\x06\x02\x01\0\x02\x01i| p/Documentum Content Server/ cpe:/a:emc:documentum_content_server/
 match fastobjects-db m|^\xce\xfa\x01\0\x16\0\0\0\0\0\0\x003\xf6\0\0\0\0\0\0\0\0$| p/Versant FastObjects database/
 
 # Flexlm might be too general: -Doug
