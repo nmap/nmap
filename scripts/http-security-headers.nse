@@ -108,6 +108,7 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- </table>
 --
 -- @args http-security-headers.path The URL path to request. The default path is "/".
+---
 
 author = {"Icaro Torres", "Vinamra Bhatia"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
