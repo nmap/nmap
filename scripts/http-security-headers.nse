@@ -6,12 +6,12 @@ local string = require "string"
 
 description = [[
 Checks for the HTTP response headers related to security given in OWASP Secure Headers Project,
-shows whether they are configured and gives a brief description of them. 
+shows whether they are configured and gives a brief description of the header and its configuration value.
  
 The script requests the server for the header with http.head and parses it to list headers founds with their
 configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
 X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy and 
-X-Permitted-Cross-Domain-Policies
+X-Permitted-Cross-Domain-Policies, Set-Cookie, Except-CT, Cache-Control, Pragma, Expires.
 
 References: https://www.owasp.org/index.php/OWASP_Secure_Headers_Project
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
@@ -153,7 +153,7 @@ action = function(host, port)
   if response.header['strict-transport-security'] then
     output_info.Strict_Transport_Security = {}
     table.insert(output_info.Strict_Transport_Security, "HSTS is configured.")
-    table.insert(output_info.Strict_Transport_Security, "Header: " .. "Strict-Transport-Security: " .. response.header['strict-transport-security'])
+    table.insert(output_info.Strict_Transport_Security, "Header: Strict-Transport-Security: " .. response.header['strict-transport-security'])
   elseif shortport.ssl(host,port) then
     output_info.Strict_Transport_Security = {}
     table.insert(output_info.Strict_Transport_Security, "HSTS not configured in HTTPS Server")
@@ -162,13 +162,13 @@ action = function(host, port)
   if response.header['public-key-pins-report-only'] then
     output_info.Public_Key_Pins_Report_Only = {}
     table.insert(output_info.Public_Key_Pins_Report_Only, "HPKP is configured.")
-    table.insert(output_info.Public_Key_Pins_Report_Only, "Header: " .. "Public-Key-Pins-Report-Only: " .. response.header['public-key-pins-report-only'])
+    table.insert(output_info.Public_Key_Pins_Report_Only, "Header: Public-Key-Pins-Report-Only: " .. response.header['public-key-pins-report-only'])
   end
 
   if response.header['x-frame-options'] then
     output_info.X_Frame_Options = {}
     table.insert(output_info.X_Frame_Options, "X-Frame-Options is configured.")
-    table.insert(output_info.X_Frame_Options, "Header: " .. "X-Frame-Options: " .. response.header['x-frame-options'])
+    table.insert(output_info.X_Frame_Options, "Header: X-Frame-Options: " .. response.header['x-frame-options'])
 
     xframe_header = string.lower(response.header['x-frame-options'])
     if string.match(xframe_header,'deny') then
@@ -184,7 +184,7 @@ action = function(host, port)
   if response.header['x-xss-protection'] then
     output_info.X_XSS_Protection = {}
     table.insert(output_info.X_XSS_Protection, "X-XSS-Protection is configured.")
-    table.insert(output_info.X_XSS_Protection, "Header: " .. "X-XSS-Protection: " .. response.header['x-xss-protection'])
+    table.insert(output_info.X_XSS_Protection, "Header: X-XSS-Protection: " .. response.header['x-xss-protection'])
 
     x_xss_header = string.lower(response.header['x-xss-protection'])
     if string.match(x_xss_header,'block') then
@@ -200,11 +200,11 @@ action = function(host, port)
   if response.header['x-content-type-options'] then
     output_info.X_Content_Type_Options = {}
     table.insert(output_info.X_Content_Type_Options, "X-Content-Type-Options is configured.")
-    table.insert(output_info.X_Content_Type_Options, "Header: " .. "X-Content-Type-Options: " .. response.header['x-content-type-options'])
+    table.insert(output_info.X_Content_Type_Options, "Header: X-Content-Type-Options: " .. response.header['x-content-type-options'])
 
     x_content_type_header = string.lower(response.header['x-content-type-options'])
     if string.match(x_content_type_header,'nosniff') then
-      table.insert(output_info.X_Content_Type_Options, "Will prevent the browser from MIME-sniffing a response away from the declared content-type. ")
+      table.insert(output_info.X_Content_Type_Options, "Description: Will prevent the browser from MIME-sniffing a response away from the declared content-type. ")
     end
 
   end
@@ -212,7 +212,7 @@ action = function(host, port)
   if response.header['content-security-policy'] then
     output_info.Content_Security_Policy = {}
     table.insert(output_info.Content_Security_Policy, "Content-Security-Policy is configured.")
-    table.insert(output_info.Content_Security_Policy, "Header: " .. "Content-Security-Policy: " .. response.header['content-security-policy'])
+    table.insert(output_info.Content_Security_Policy, "Header: Content-Security-Policy: " .. response.header['content-security-policy'])
 
     csp_header = string.lower(response.header['content-security-policy'])
     if string.match(csp_header,'base.uri') then
@@ -290,7 +290,7 @@ action = function(host, port)
   if response.header['x-permitted-cross-domain-policies'] then
     output_info.X_Permitted_Cross_Domain_Policies = {}
     table.insert(output_info.X_Permitted_Cross_Domain_Policies, "X-Permitted-Cross-Domain-Policies are configured.")
-    table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Header: " .. "X-Permitted-Cross-Domain-Policies: " .. response.header['x-permitted-cross-domain-policies'])
+    table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Header: X-Permitted-Cross-Domain-Policies: " .. response.header['x-permitted-cross-domain-policies'])
  
     x_cross_domain_header = string.lower(response.header['x-permitted-cross-domain-policies'])
     if string.match(x_cross_domain_header,'none') then
@@ -316,25 +316,25 @@ action = function(host, port)
   if response.header['except-ct'] then
     output_info.Except_Ct = {}
     table.insert(output_info.Except_Ct, "Except-CT is configured.")
-    table.insert(output_info.Except_Ct, "Header: " .. "Except-CT: " .. response.header['except-ct'])
+    table.insert(output_info.Except_Ct, "Header: Except-CT: " .. response.header['except-ct'])
   end
 
   if response.header['cache-control'] then
     output_info.Cache_Control = {}
     table.insert(output_info.Cache_Control, "Cache-Control is configured.")
-    table.insert(output_info.Cache_Control, "Header: " .. "Cache-Control: " .. response.header['cache-control'])
+    table.insert(output_info.Cache_Control, "Header: Cache-Control: " .. response.header['cache-control'])
   end
 
   if response.header['pragma'] then
     output_info.Pragma = {}
     table.insert(output_info.Pragma, "Pragma is configured.")
-    table.insert(output_info.Pragma, "Header: " .. "Pragma: " .. response.header['pragma'])
+    table.insert(output_info.Pragma, "Header: Pragma: " .. response.header['pragma'])
   end
 
   if response.header['expires'] then
     output_info.Expires = {}
     table.insert(output_info.Expires, "Expires is configured.")
-    table.insert(output_info.Expires, "Header: " .. "Expires: " .. response.header['expires'])
+    table.insert(output_info.Expires, "Header: Expires: " .. response.header['expires'])
   end
 
   return output_info, stdnse.format_output(true, output_info)
