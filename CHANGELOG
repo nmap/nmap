@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script http-security-headers Checks for the HTTP response headers 
+  related to security given in OWASP Secure Headers Project, shows whether they
+  are configured and gives a brief description of the header and its 
+  configuration value. [Vinamra Bhatia]
+
 o [NSE] New script http-vuln-cve2017-1001000 detects a privilege escalation 
   vulnerability in Wordpress 4.7.0 and 4.7.1 (CVE2017-1001000) [Vinamra Bhatia]
 
