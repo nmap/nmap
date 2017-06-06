@@ -357,10 +357,17 @@
         var item = document.getElementById(divID);
         if (item) {
           item.className = (item.className=='hidden')?'unhidden':'hidden';
-          document.getElementsByClassName("noprint")[2].innerHTML = (item.className=='hidden')?"<small>(click to expand)</small>":"<small>(click to close)</small>";
         }
       }
-           
+
+      function toggleMetrics(divID) {
+        var item = document.getElementById(divID);
+        if (item) {
+          item.className = (item.className=='hidden')?'unhidden':'hidden';
+          document.getElementsByClassName("noprintMetrics")[0].innerHTML=(item.className=='hidden')?"(click to expand)":"(click to close)";
+        }
+      }
+
       function togglePorts(tableID,portState) {
         var table = document.getElementById(tableID);    
         var tbody = table.getElementsByTagName("tbody")[0];
@@ -585,8 +592,8 @@
   <br />
   
   <xsl:element name="a">
-    <xsl:attribute name="href">javascript:toggle('metrics_<xsl:value-of select="$var_address"/>');</xsl:attribute>
-    Misc Metrics <span class="noprint"><small> (click to expand)</small></span>
+    <xsl:attribute name="href">javascript:toggleMetrics('metrics_<xsl:value-of select="$var_address"/>');</xsl:attribute>
+    Misc Metrics <span class="noprint"><small class="noprintMetrics"> (click to expand)</small></span>
   </xsl:element>
   
   
