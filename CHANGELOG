@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removed script http-hsts-verify. http-security-headers includes
+  all the checks earlier implemented by http-hsts-verify. [Vinamra Bhatia]
+
 o [NSE] New script http-security-headers Checks for the HTTP response headers 
   related to security given in OWASP Secure Headers Project, shows whether they
   are configured and gives a brief description of the header and its 
