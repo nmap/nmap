@@ -4277,32 +4277,10 @@ static int yy_get_next_buffer (void)
     void pcap__switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
 {
     
-	/* TODO. We should be able to replace this entire function body
-	 * with
-	 *		pcap_pop_buffer_state();
-	 *		pcap_push_buffer_state(new_buffer);
+	/* Replaced old function body with two calls to pop and push buffer state
      */
-	pcap_ensure_buffer_stack ();
-	if ( YY_CURRENT_BUFFER == new_buffer )
-		return;
-
-	if ( YY_CURRENT_BUFFER )
-		{
-		/* Flush out information for old buffer. */
-		*(yy_c_buf_p) = (yy_hold_char);
-		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = (yy_c_buf_p);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
-		}
-
-	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-	pcap__load_buffer_state( );
-
-	/* We don't actually know whether we did this switch during
-	 * EOF (pcap_wrap()) processing, but the only time this flag
-	 * is looked at is after pcap_wrap() is called, so it's safe
-	 * to go ahead and always set it.
-	 */
-	(yy_did_buffer_switch_on_eof) = 1;
+    pcap_pop_buffer_state();
+    pcap_push_buffer_state(new_buffer);
 }
 
 static void pcap__load_buffer_state  (void)
