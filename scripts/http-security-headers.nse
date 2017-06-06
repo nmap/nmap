@@ -10,8 +10,8 @@ shows whether they are configured and gives a brief description of the header an
  
 The script requests the server for the header with http.head and parses it to list headers founds with their
 configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
-X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy and 
-X-Permitted-Cross-Domain-Policies, Set-Cookie, Except-CT, Cache-Control, Pragma, Expires.
+X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy,
+X-Permitted-Cross-Domain-Policies, Set-Cookie, Except-CT, Cache-Control, Pragma and Expires.
 
 References: https://www.owasp.org/index.php/OWASP_Secure_Headers_Project
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
