@@ -65,4 +65,3 @@ action = function()
   end
   return stdnse.format_output(true, ("Sent WOL packet to: %s"):format(MAC))
 end
-
