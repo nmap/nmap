@@ -246,6 +246,8 @@ class my_install(install):
         # default). Because we need the unchanged value later, remember it
         # here.
         self.saved_prefix = self.prefix
+        if self.saved_prefix == None:
+            self.saved_prefix = os.path.normpath(sys.prefix)
         install.finalize_options(self)
 
     def run(self):
