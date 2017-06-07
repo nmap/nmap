@@ -5,8 +5,8 @@ local table = require "table"
 local string = require "string"
 
 description = [[
-Checks for the HTTP response headers related to security given in OWASP Secure Headers Project,
-shows whether they are configured and gives a brief description of the header and its configuration value.
+Checks for the HTTP response headers related to security given in OWASP Secure Headers Project
+and gives a brief description of the header and its configuration value.
  
 The script requests the server for the header with http.head and parses it to list headers founds with their
 configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
@@ -26,84 +26,66 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- 80/tcp open  http    syn-ack
 -- | http-security-headers: 
 -- |   Strict_Transport_Security: 
--- |     HSTS is configured.
 -- |     Header: Strict-Transport-Security: max-age=15552000; preload
 -- |   Public_Key_Pins_Report_Only: 
--- |     HPKP is configured.
 -- |     Header: Public-Key-Pins-Report-Only: max-age=500; pin-sha256="WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18="; pin-sha256="r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="; pin-sha256="q4PO2G2cbkZhZ82+JgmRUyGMoAeozA+BSXVXQWB8XWQ="; report-uri="http://reports.fb.com/hpkp/"
 -- |   X_Frame_Options: 
--- |     X-Frame-Options is configured.
 -- |     Header: X-Frame-Options: DENY
 -- |     Description: The browser must not display this content in any frame.
 -- |   X_XSS_Protection: 
--- |     X-XSS-Protection is configured.
 -- |     Header: X-XSS-Protection: 0
 -- |     Description: The XSS filter is disabled.
 -- |   X_Content_Type_Options: 
--- |     X-Content-Type-Options is configured.
 -- |     Header: X-Content-Type-Options: nosniff
 -- |     Will prevent the browser from MIME-sniffing a response away from the declared content-type. 
--- |   Content-Security-Policy is configured.
+-- |   Content-Security-Policy:
 -- |     Header: Content-Security-Policy: script-src 'self'
 -- |     Description: Loading policy for all resources type in case of a resource type dedicated directive is not defined (fallback).
--- |   X-Permitted-Cross-Domain-Policies are configured.
+-- |   X-Permitted-Cross-Domain-Policies:
 -- |     Header: X-Permitted-Cross-Domain-Policies: none 
 -- |     Description : No policy files are allowed anywhere on the target server, including this master policy file. 
 -- |   Cache_Control: 
--- |     Cache-Control is configured.
 -- |     Header: Cache-Control: private, no-cache, no-store, must-revalidate
 -- |   Pragma: 
--- |     Pragma is configured.
 -- |     Header: Pragma: no-cache
 -- |   Expires: 
--- |     Expires is configured.
 -- |_    Header: Expires: Sat, 01 Jan 2000 00:00:00 GMT
 --
 --
 -- @xmloutput
 -- <table key="Strict_Transport_Policy">
--- <elem>HSTS is configured</elem>
 -- <elem>Header: Strict-Transport-Security: max-age=31536000</elem>
 -- </table>
 -- <table key="Public_Key_Pins_Report_Only">
--- <elem>HPKP is configured</elem>
 -- <elem>Header: Public-Key-Pins-Report-Only: pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="; report-uri="http://example.com/pkp-report"; max-age=10000; includeSubDomains</elem>
 -- </table>
 -- <table key="X_Frame_Options">
--- <elem>X-Frame-Options is configured</elem>
 -- <elem>Header: X-Frame-Options: DENY</elem>
 -- <elem>Description: The browser must not display this content in any frame.</elem>
 -- </table>
 -- <table key="X-XSS-Protection">
--- <elem>X-XSS-Protection is configured</elem>
 -- <elem>Header: X-XSS-Protection: 1; mode=block</elem>
 -- <elem>Description: Rather than sanitize the page, when a XSS attack is detected, the browser will prevent rendering of the page.</elem>
 -- </table>
 -- <table key="X_Content_Type_Options">
--- <elem>X-Content-Type-Options is configured.</elem>
 -- <elem>Header: X-Content-Type-Options: nosniff</elem>
 -- <elem>Description: Will prevent the browser from MIME-sniffing a response away from the declared content-type.</elem>
 -- </table>
 -- <table key="Content_Security_Policy">
--- <elem>Content-Security-Policy is configured.</elem>
 -- <elem>Header: Content-Security-Policy: script-src 'self'</elem>
 -- <elem>Description: Loading policy for all resources type in case of a resource type dedicated directive is not defined (fallback).</elem>
 -- </table>
 -- <table key="X_Permitted_Cross_Domain_Policies">
--- <elem>X-Permitted-Cross-Domain-Policies are configured.</elem>
 -- <elem>Header: X-Permitted-Cross-Domain-Policies: none</elem>
 -- <elem>Description: No policy files are allowed anywhere on the target server, including this master policy file.</elem>
 -- </table>
 -- <table key="Cache_Control">
--- <elem>Cache-Control is configured</elem>
 -- <elem>Header: Cache-Control: private, no-cache, no-store, must-revalidate</elem>
 -- </table>
 -- <table key="Pragma">
--- <elem>Pragma is configured</elem>
 -- <elem>Header: Pragma: no-cache</elem
 -- </table>
 -- <table key="Expires">
--- <elem>Expired is configured</elem>
 -- <elem>Header: Expires: Sat, 01 Jan 2000 00:00:00 GMT</elem
 -- </table>
 --
@@ -153,7 +135,6 @@ action = function(host, port)
 
   if response.header['strict-transport-security'] then
     output_info.Strict_Transport_Security = {}
-    table.insert(output_info.Strict_Transport_Security, "HSTS is configured.")
     table.insert(output_info.Strict_Transport_Security, "Header: Strict-Transport-Security: " .. response.header['strict-transport-security'])
   elseif shortport.ssl(host,port) then
     output_info.Strict_Transport_Security = {}
@@ -162,13 +143,11 @@ action = function(host, port)
 
   if response.header['public-key-pins-report-only'] then
     output_info.Public_Key_Pins_Report_Only = {}
-    table.insert(output_info.Public_Key_Pins_Report_Only, "HPKP is configured.")
     table.insert(output_info.Public_Key_Pins_Report_Only, "Header: Public-Key-Pins-Report-Only: " .. response.header['public-key-pins-report-only'])
   end
 
   if response.header['x-frame-options'] then
     output_info.X_Frame_Options = {}
-    table.insert(output_info.X_Frame_Options, "X-Frame-Options is configured.")
     table.insert(output_info.X_Frame_Options, "Header: X-Frame-Options: " .. response.header['x-frame-options'])
 
     xframe_header = string.lower(response.header['x-frame-options'])
@@ -184,7 +163,6 @@ action = function(host, port)
 
   if response.header['x-xss-protection'] then
     output_info.X_XSS_Protection = {}
-    table.insert(output_info.X_XSS_Protection, "X-XSS-Protection is configured.")
     table.insert(output_info.X_XSS_Protection, "Header: X-XSS-Protection: " .. response.header['x-xss-protection'])
 
     x_xss_header = string.lower(response.header['x-xss-protection'])
@@ -200,7 +178,6 @@ action = function(host, port)
 
   if response.header['x-content-type-options'] then
     output_info.X_Content_Type_Options = {}
-    table.insert(output_info.X_Content_Type_Options, "X-Content-Type-Options is configured.")
     table.insert(output_info.X_Content_Type_Options, "Header: X-Content-Type-Options: " .. response.header['x-content-type-options'])
 
     x_content_type_header = string.lower(response.header['x-content-type-options'])
@@ -212,7 +189,6 @@ action = function(host, port)
 
   if response.header['content-security-policy'] then
     output_info.Content_Security_Policy = {}
-    table.insert(output_info.Content_Security_Policy, "Content-Security-Policy is configured.")
     table.insert(output_info.Content_Security_Policy, "Header: Content-Security-Policy: " .. response.header['content-security-policy'])
 
     csp_header = string.lower(response.header['content-security-policy'])
@@ -290,7 +266,6 @@ action = function(host, port)
 
   if response.header['x-permitted-cross-domain-policies'] then
     output_info.X_Permitted_Cross_Domain_Policies = {}
-    table.insert(output_info.X_Permitted_Cross_Domain_Policies, "X-Permitted-Cross-Domain-Policies are configured.")
     table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Header: X-Permitted-Cross-Domain-Policies: " .. response.header['x-permitted-cross-domain-policies'])
  
     x_cross_domain_header = string.lower(response.header['x-permitted-cross-domain-policies'])
@@ -315,26 +290,22 @@ action = function(host, port)
   end
 
   if response.header['expect-ct'] then
-    output_info.Expect_Ct = {}
-    table.insert(output_info.Expect_Ct, "Expect-CT is configured.")
-    table.insert(output_info.Expect_Ct, "Header: Expect-CT: " .. response.header['expect-ct'])
+    output_info.Expect_CT = {}
+    table.insert(output_info.Expect_CT, "Header: Expect-CT: " .. response.header['expect-ct'])
   end
 
   if response.header['cache-control'] then
     output_info.Cache_Control = {}
-    table.insert(output_info.Cache_Control, "Cache-Control is configured.")
     table.insert(output_info.Cache_Control, "Header: Cache-Control: " .. response.header['cache-control'])
   end
 
   if response.header['pragma'] then
     output_info.Pragma = {}
-    table.insert(output_info.Pragma, "Pragma is configured.")
     table.insert(output_info.Pragma, "Header: Pragma: " .. response.header['pragma'])
   end
 
   if response.header['expires'] then
     output_info.Expires = {}
-    table.insert(output_info.Expires, "Expires is configured.")
     table.insert(output_info.Expires, "Header: Expires: " .. response.header['expires'])
   end
 
