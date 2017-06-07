@@ -11,7 +11,7 @@ shows whether they are configured and gives a brief description of the header an
 The script requests the server for the header with http.head and parses it to list headers founds with their
 configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
 X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy,
-X-Permitted-Cross-Domain-Policies, Set-Cookie, Except-CT, Cache-Control, Pragma and Expires.
+X-Permitted-Cross-Domain-Policies, Set-Cookie, Expect-CT, Cache-Control, Pragma and Expires.
 
 References: https://www.owasp.org/index.php/OWASP_Secure_Headers_Project
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
@@ -314,10 +314,10 @@ action = function(host, port)
     end
   end
 
-  if response.header['except-ct'] then
-    output_info.Except_Ct = {}
-    table.insert(output_info.Except_Ct, "Except-CT is configured.")
-    table.insert(output_info.Except_Ct, "Header: Except-CT: " .. response.header['except-ct'])
+  if response.header['expect-ct'] then
+    output_info.Expect_Ct = {}
+    table.insert(output_info.Expect_Ct, "Expect-CT is configured.")
+    table.insert(output_info.Expect_Ct, "Header: Expect-CT: " .. response.header['expect-ct'])
   end
 
   if response.header['cache-control'] then
