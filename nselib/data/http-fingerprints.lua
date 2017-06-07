@@ -4686,55 +4686,55 @@ table.insert(fingerprints, {
     probes = {
       {
         path = '/actuator/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/auditevents/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/autoconfig/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/beans/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/configprops/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/env/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/flyway/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/health/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/loggers/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/liquibase/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/metrics/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/mappings/',
-        method = 'HEAD'
+        method = 'GET'
       },
       {
         path = '/trace/',
-        method = 'HEAD'
+        method = 'GET'
       }
     },
     matches = {
