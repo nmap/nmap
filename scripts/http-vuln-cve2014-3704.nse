@@ -371,6 +371,10 @@ action = function(host, port)
 
   local user, passwd = do_sql_query(host, port, uri, nil)
 
+  if not user then
+    return vulnReport:make_output(vuln)
+  end
+
   if user ~= nil and passwd ~= nil then
     stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
     local data = {
