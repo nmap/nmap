@@ -199,7 +199,7 @@ char *socket_buffer_readline(struct socket_buffer *buf, size_t *n, size_t maxlen
             do {
                 errno = 0;
                 i = fdinfo_recv(&buf->fdn, buf->buffer, sizeof(buf->buffer));
-            } while (i == -1 && errno == EINTR);
+            } while (i == -1 && (errno == EINTR || errno == EAGAIN));
             if (i <= 0) {
                 free(line);
                 return NULL;
