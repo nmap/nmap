@@ -4685,6 +4685,90 @@ table.insert(fingerprints, {
     category = 'management',
     probes = {
       {
+        path = '/actuator/',
+        method = 'HEAD'
+      },
+      {
+        path = '/auditevents/',
+        method = 'HEAD'
+      },
+      {
+        path = '/autoconfig/',
+        method = 'HEAD'
+      },
+      {
+        path = '/beans/',
+        method = 'HEAD'
+      },
+      {
+        path = '/configprops/',
+        method = 'HEAD'
+      },
+      {
+        path = '/env/',
+        method = 'HEAD'
+      },
+      {
+        path = '/flyway/',
+        method = 'HEAD'
+      },
+      {
+        path = '/health/',
+        method = 'HEAD'
+      },
+      {
+        path = '/loggers/',
+        method = 'HEAD'
+      },
+      {
+        path = '/liquibase/',
+        method = 'HEAD'
+      },
+      {
+        path = '/metrics/',
+        method = 'HEAD'
+      },
+      {
+        path = '/mappings/',
+        method = 'HEAD'
+      },
+      {
+        path = '/trace/',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        output = 'Spring Boot Actuator endpoint'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
+        path = '/heapdump/',
+        method = 'GET'
+      },
+      {
+        path = '/jolokia/',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        output = 'Spring MVC Endpoint'
+      }
+    }
+  });
+
+
+
+table.insert(fingerprints, {
+    category = 'management',
+    probes = {
+      {
         path = '/vmware/',
         method = 'HEAD'
       },
