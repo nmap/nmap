@@ -244,6 +244,7 @@
 
   a:hover {
     text-decoration: underline;
+    cursor: pointer;
   }
 
   a.up {
