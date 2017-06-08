@@ -89,15 +89,15 @@ array_merge%(%)
 data source=
 detected an internal error %[IBM%]%[CLI Driver%]%[DB2/6000%]
 error in your SQL syntax near
-getimagesize()
+getimagesize%(%)
 include_path
 invalid query
 is not allowed to access
 missing expression
-mysql_fetch_array()
-mysql_fetch_assoc()
-mysql_fetch_row()
-mysql_free_result()
+mysql_fetch_array%(%)
+mysql_fetch_assoc%(%)
+mysql_fetch_row%(%)
+mysql_free_result%(%)
 mySQL error with query
 mysql error
 num_rows
@@ -106,5 +106,5 @@ on line
 server at
 server object error
 supplied argument is not a valid MySQL result resource
-session_start()
+session_start%(%)
 unexpected end of SQL command
