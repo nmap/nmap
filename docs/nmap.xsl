@@ -360,11 +360,16 @@
         }
       }
 
-      function toggleMetrics(divID) {
-        var item = document.getElementById(divID);
-        if (item) {
-          item.className = (item.className=='hidden')?'unhidden':'hidden';
-          document.getElementsByClassName("noprintMetrics")[0].innerHTML=(item.className=='hidden')?"(click to expand)":"(click to close)";
+      function toggleMetrics(elem) {
+        if (elem) {
+          if(elem.nextElementSibling.className=='hidden'){
+            elem.nextElementSibling.className = 'unhidden';
+            elem.children[0].innerHTML = "<small>(click to close)</small>";
+          }
+          else {
+            elem.nextElementSibling.className = 'hidden';
+            elem.children[0].innerHTML = "<small>(click to expand)</small>";
+          }
         }
       }
 
@@ -592,8 +597,8 @@
   <br />
   
   <xsl:element name="a">
-    <xsl:attribute name="href">javascript:toggleMetrics('metrics_<xsl:value-of select="$var_address"/>');</xsl:attribute>
-    Misc Metrics <span class="noprint"><small class="noprintMetrics"> (click to expand)</small></span>
+    <xsl:attribute name="onclick">javascript:toggleMetrics(this);</xsl:attribute>
+    Misc Metrics <span class="noprint"><small> (click to expand) </small></span>
   </xsl:element>
   
   
