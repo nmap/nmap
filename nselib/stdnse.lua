@@ -1447,7 +1447,7 @@ end
 
 -- Returns the case insensitive pattern of given parameter
 -- Useful while doing case insensitive pattern match using string library.
--- https://stackoverflow.com/questions/11401890/case-insensitive-lua-pattern-matching
+-- https://stackoverflow.com/questions/11401890/case-insensitive-lua-pattern-matching/11402486#11402486
 --
 -- Ex: generate_case_insensitive_pattern("user") = "[uU][sS][eE][rR]"
 --
