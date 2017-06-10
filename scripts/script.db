@@ -463,6 +463,7 @@ Entry { filename = "smb-security-mode.nse", categories = { "default", "discovery
 Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-system-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-vuln-conficker.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
+Entry { filename = "smb-vuln-cve-2017-7494.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "smb-vuln-cve2009-3103.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
 Entry { filename = "smb-vuln-ms06-025.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
 Entry { filename = "smb-vuln-ms07-029.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }

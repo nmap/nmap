@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script smb-vuln-cve-2017-7494 detects a remote code execution
+  vulnerability affecting Samba versions 3.5.0 and greater with writable
+  shares. [Wong Wai Tuck]
+
 o [NSE] Removed script http-hsts-verify. http-security-headers includes
   all the checks earlier implemented by http-hsts-verify. [Vinamra Bhatia]
 
