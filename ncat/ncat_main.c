@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
         case 'd':
             o.linedelay = tval2msecs(optarg);
             if (o.linedelay <= 0)
-                bye("Invalid -d delay \"%s\" (must be an integer greater than 0 and less than 29199335161).", optarg);
+                bye("Invalid -d delay \"%s\" (must be a positive integer less than %ds).", optarg, INT_MAX/1000);
             if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
                 bye("Since April 2010, the default unit for -d is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.linedelay / 1000.0 / 60, optarg, o.linedelay / 1000.0);
             break;
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
         case 'i':
             o.idletimeout = tval2msecs(optarg);
             if (o.idletimeout <= 0)
-                bye("Invalid -i timeout \"%s\" (must be an integer greater than 0 and less than 29199335161).", optarg);
+                bye("Invalid -i timeout \"%s\" (must be a positive integer less than %ds).", optarg, INT_MAX/1000);
             if (o.idletimeout >= 100 * 1000 && tval_unit(optarg) == NULL)
                 bye("Since April 2010, the default unit for -i is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.idletimeout / 1000.0 / 60, optarg, o.idletimeout / 1000.0);
             break;
@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
         case 'w':
             o.conntimeout = tval2msecs(optarg);
             if (o.conntimeout <= 0)
-                bye("Invalid -w timeout \"%s\" (must be an integer greater than 0 and less than 29199335161).", optarg);
+                bye("Invalid -w timeout \"%s\" (must be a positive integer less than %ds).", optarg, INT_MAX/1000);
             if (o.conntimeout >= 100 * 1000 && tval_unit(optarg) == NULL)
                 bye("Since April 2010, the default unit for -w is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.conntimeout / 1000.0 / 60, optarg, o.conntimeout / 1000.0);
             break;
@@ -602,10 +602,10 @@ int main(int argc, char *argv[])
 "  -G <n>                     Loose source routing hop pointer (4, 8, 12, ...)\n"
 "  -m, --max-conns <n>        Maximum <n> simultaneous connections\n"
 "  -h, --help                 Display this help screen\n"
-"  -d, --delay <time>         Wait between read/writes (Max limit: 29199335161)\n"
+"  -d, --delay <time>         Wait between read/writes (Max limit: %ds)\n"
 "  -o, --output <filename>    Dump session data to a file\n"
 "  -x, --hex-dump <filename>  Dump session data as hex to a file\n"
-"  -i, --idle-timeout <time>  Idle read/write timeout (Max limit: 29199335161)\n"
+"  -i, --idle-timeout <time>  Idle read/write timeout (Max limit: %ds)\n"
 "  -p, --source-port port     Specify source port to use\n"
 "  -s, --source addr          Specify source address to use (doesn't affect -l)\n"
 "  -l, --listen               Bind and listen for incoming connections\n"
@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
 "  -u, --udp                  Use UDP instead of default TCP\n"
 "      --sctp                 Use SCTP instead of default TCP\n"
 "  -v, --verbose              Set verbosity level (can be used several times)\n"
-"  -w, --wait <time>          Connect timeout (Max limit: 29199335161)\n"
+"  -w, --wait <time>          Connect timeout (Max limit: %ds)\n"
 "  -z                         Zero-I/O mode, report connection status only\n"
 "      --append-output        Append rather than clobber specified output files\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
 "      --version              Display Ncat's version information and exit\n"
 "\n"
 "See the ncat(1) manpage for full options, descriptions and usage examples\n"
-            );
+            , INT_MAX/1000, INT_MAX/1000, INT_MAX/1000);
             exit(EXIT_SUCCESS);
         case '?':
             /* Consider unrecognised parameters/arguments as fatal. */
