@@ -168,6 +168,7 @@
     <ClCompile Include="..\scan_engine.cc" />
     <ClCompile Include="..\scan_engine_connect.cc" />
     <ClCompile Include="..\scan_engine_raw.cc" />
+    <ClCompile Include="..\scan_lists.cc" />
     <ClCompile Include="..\service_scan.cc" />
     <ClCompile Include="..\services.cc" />
     <ClCompile Include="..\Target.cc" />
@@ -221,6 +222,7 @@
     <ClInclude Include="..\scan_engine.h" />
     <ClInclude Include="..\scan_engine_connect.h" />
     <ClInclude Include="..\scan_engine_raw.h" />
+    <ClInclude Include="..\scan_lists.h" />
     <ClInclude Include="..\service_scan.h" />
     <ClInclude Include="..\services.h" />
     <ClInclude Include="..\targets.h" />
