@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] smb library's share_get_list now properly uses anonymous connections
+  first before falling back authenticating as a known user.
+
 o [NSE] New script smb-vuln-cve-2017-7494 detects a remote code execution
   vulnerability affecting Samba versions 3.5.0 and greater with writable
   shares. [Wong Wai Tuck]

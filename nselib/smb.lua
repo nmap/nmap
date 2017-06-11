@@ -2498,6 +2498,7 @@ end
 -- data is given as a string, not a file.
 --
 --@param host          The host object
+--@param data          The string containing the data to be written
 --@param share         The share to upload it to (eg, C$).
 --@param remotefile    The remote file on the machine. It is relative to the share's root.
 --@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user.
@@ -3189,7 +3190,7 @@ function share_get_list(host)
   -- Ensure that the server returns the proper error message
   -- first try anonymously, then using a user account (in case anonymous connections are not supported)
   for _, anon in ipairs({true, false}) do
-    status, result = share_host_returns_proper_error(host)
+    status, result = share_host_returns_proper_error(host, anon)
 
     if(status == true and result == false) then
       return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
