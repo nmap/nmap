@@ -1859,262 +1859,166 @@ int isipprivate(const struct sockaddr_storage *addr) {
 
 char *nexthdrtoa(u8 nextheader, int acronym){
 
-static char buffer[129];
-memset(buffer, 0, 129);
-
-
-switch(nextheader){
-
-    case 0:
-        if(acronym)
-            strncpy(buffer, "HOPOPT", 128);
-        else
-            strncpy(buffer, "IPv6 Hop-by-Hop Option", 128);
-    break;
-
-
-    case 1:
-        if(acronym)
-            strncpy(buffer, "ICMP", 128);
-        else
-            strncpy(buffer, "Internet Control Message", 128);
-    break;
-
-
-    case 2:
-        if(acronym)
-            strncpy(buffer, "IGMP", 128);
-        else
-            strncpy(buffer, "Internet Group Management", 128);
-    break;
-
-
-    case 4:
-        if(acronym)
-            strncpy(buffer, "IP", 128);
-        else
-            strncpy(buffer, "IP in IP (encapsulation)", 128);
-    break;
-
-
-    case 6:
-        if(acronym)
-            strncpy(buffer, "TCP", 128);
-        else
-            strncpy(buffer, "Transmission Control Protocol", 128);
-    break;
-
-
-    case 8:
-        if(acronym)
-            strncpy(buffer, "EGP", 128);
-        else
-            strncpy(buffer, "Exterior Gateway Protocol", 128);
-    break;
-
-
-    case 9:
-        if(acronym)
-            strncpy(buffer, "IGP", 128);
-        else
-            strncpy(buffer, "Interior Gateway Protocol", 128);
-    break;
-
-
-    case 12:
-        if(acronym)
-            strncpy(buffer, "PUP", 128);
-        else
-            strncpy(buffer, "PARC Universal Packet Protocol", 128);
-    break;
-
-
-    case 17:
-        if(acronym)
-            strncpy(buffer, "UDP", 128);
-        else
-            strncpy(buffer, "User Datagram Protocol", 128);
-    break;
-
-
-    case 22:
-        if(acronym)
-            strncpy(buffer, "XNS-IDP", 128);
-        else
-            strncpy(buffer, "Xerox Network System Internet Datagram Protocol", 128);
-    break;
-
-
-    case 33:
-        if(acronym)
-            strncpy(buffer, "DCCP", 128);
-        else
-            strncpy(buffer, "Datagram Congestion Control Protocol", 128);
-    break;
-
-
-    case 41:
-        if(acronym)
-            strncpy(buffer, "IPv6", 128);
-        else
-            strncpy(buffer, "Internet Protocol version 6", 128);
-    break;
-
-
-    case 43:
-        if(acronym)
-            strncpy(buffer, "IPv6-Route", 128);
-        else
-            strncpy(buffer, "Routing Header for IPv6", 128);
-    break;
-
-
-    case 44:
-        if(acronym)
-            strncpy(buffer, "IPv6-Frag", 128);
-        else
-            strncpy(buffer, "Fragment Header for IPv6", 128);
-    break;
-
-
-    case 46:
-        if(acronym)
-            strncpy(buffer, "RSVP", 128);
-        else
-            strncpy(buffer, "Resource Reservation Protocol", 128);
-    break;
-
-
-    case 47:
-        if(acronym)
-            strncpy(buffer, "Cisco GRE Tunnels", 128);
-        else
-            strncpy(buffer, "Cisco Generic Routing Encapsulation Tunnels", 128);
-    break;
-
-
-    case 50:
-        if(acronym)
-            strncpy(buffer, "ESP", 128);
-        else
-            strncpy(buffer, "Encap Security Payload", 128);
-    break;
-
-
-    case 51:
-        if(acronym)
-            strncpy(buffer, "AH", 128);
-        else
-            strncpy(buffer, "Authentication Header", 128);
-    break;
-
-
-    case 55:
-        if(acronym)
-            strncpy(buffer, "MOBILE", 128);
-        else
-            strncpy(buffer, "IP Mobility", 128);
-    break;
-
-
-    case 58:
-        if(acronym)
-            strncpy(buffer, "IPv6-ICMP", 128);
-        else
-            strncpy(buffer, "ICMP for IPv6", 128);
-    break;
-
-
-    case 59:
-        if(acronym)
-            strncpy(buffer, "IPv6-NoNxt", 128);
-        else
-            strncpy(buffer, "No Next Header for IPv6", 128);
-    break;
-
-
-    case 60:
-        if(acronym)
-            strncpy(buffer, "IPv6-Opts", 128);
-        else
-            strncpy(buffer, "Destination Options for IPv6", 128);
-    break;
-
-
-    case 70:
-        if(acronym)
-            strncpy(buffer, "VISA", 128);
-        else
-            strncpy(buffer, "VISA Protocol", 128);
-    break;
-
-
-    case 88:
-        if(acronym)
-            strncpy(buffer, "EIGRP", 128);
-        else
-            strncpy(buffer, "Enhanced Interior Gateway Routing Protocol ", 128);
-    break;
-
-
-    case 94:
-        if(acronym)
-            strncpy(buffer, "IPIP", 128);
-        else
-            strncpy(buffer, "IP-within-IP Encapsulation Protocol", 128);
-    break;
-
-
-    case 103:
-        if(acronym)
-            strncpy(buffer, "PIM", 128);
-        else
-            strncpy(buffer, "Protocol Independent Multicast", 128);
-    break;
-
-
-    case 108:
-        if(acronym)
-            strncpy(buffer, "IPComp", 128);
-        else
-            strncpy(buffer, "Compression Header Protocol", 128);
-    break;
-
-
-    case 132:
-        if(acronym)
-            strncpy(buffer, "SCTP", 128);
-        else
-            strncpy(buffer, "Stream Control Transmission Protocol", 128);
-    break;
-
-
-    case 133:
-        if(acronym)
-            strncpy(buffer, "FC", 128);
-        else
-            strncpy(buffer, "Fibre Channel", 128);
-    break;
-
-
-    case 135:
-        if(acronym)
-            strncpy(buffer, "MH", 128);
-        else
-            strncpy(buffer, "Mobility Header", 128);
-    break;
-
-
-    case 136:
-        if(acronym)
-            strncpy(buffer, "UDPLite", 128);
-        else
-            strncpy(buffer, "User Datagram Protocol Lite", 128);
-    break;
-
-
-  } /* End of switch */
-
+  static char buffer[129];
+  memset(buffer, 0, 129);
+
+  char *protocol[256];
+  int i;
+
+  // Initializing all the values to ""
+  for(i = 0; i < 256; i++) {
+      protocol[i] = "";
+  }
+
+  protocol[0] =  "hopopt";
+  protocol[1] =  "icmp";
+  protocol[2] =  "igmp";
+  protocol[3] =  "ggp";
+  protocol[4] =  "ipv4";
+  protocol[5] =  "st";
+  protocol[6] =  "tcp";
+  protocol[7] =  "cbt";
+  protocol[8] =  "egp";
+  protocol[9] =  "igp";
+  protocol[10] =  "bbn-rcc-mon";
+  protocol[11] =  "nvp-ii";
+  protocol[12] =  "pup";
+  protocol[13] =  "argus";
+  protocol[14] =  "emcon";
+  protocol[15] =  "xnet";
+  protocol[16] =  "chaos";
+  protocol[17] =  "udp";
+  protocol[18] =  "mux";
+  protocol[19] =  "dcn-meas";
+  protocol[20] =  "hmp";
+  protocol[21] =  "prm";
+  protocol[22] =  "xns-idp";
+  protocol[23] =  "trunk-1";
+  protocol[24] =  "trunk-2";
+  protocol[25] =  "leaf-1";
+  protocol[26] =  "leaf-2";
+  protocol[27] =  "rdp";
+  protocol[28] =  "irtp";
+  protocol[29] =  "iso-tp4";
+  protocol[30] =  "netblt";
+  protocol[31] =  "mfe-nsp";
+  protocol[32] =  "merit-inp";
+  protocol[33] =  "dccp";
+  protocol[34] =  "3pc";
+  protocol[35] =  "idpr";
+  protocol[36] =  "xtp";
+  protocol[37] =  "ddp";
+  protocol[38] =  "idpr-cmtp";
+  protocol[39] =  "tp++";
+  protocol[40] =  "il";
+  protocol[41] =  "ipv6";
+  protocol[42] =  "sdrp";
+  protocol[43] =  "ipv6-route";
+  protocol[44] =  "ipv6-frag";
+  protocol[45] =  "idrp";
+  protocol[46] =  "rsvp";
+  protocol[47] =  "gre";
+  protocol[48] =  "dsp";
+  protocol[49] =  "bna";
+  protocol[50] =  "esp";
+  protocol[51] =  "ah";
+  protocol[52] =  "i-nlsp";
+  protocol[53] =  "swipe";
+  protocol[54] =  "narp";
+  protocol[55] =  "mobile";
+  protocol[56] =  "tlsp";
+  protocol[57] =  "skip";
+  protocol[58] =  "ipv6-icmp";
+  protocol[59] =  "ipv6-nonxt";
+  protocol[60] =  "ipv6-opts";
+  protocol[61] =  "anyhost";
+  protocol[62] =  "cftp";
+  protocol[63] =  "anylocalnet";
+  protocol[64] =  "sat-expak";
+  protocol[65] =  "kryptolan";
+  protocol[66] =  "rvd";
+  protocol[67] =  "ippc";
+  protocol[68] =  "anydistribfs";
+  protocol[69] =  "sat-mon";
+  protocol[70] =  "visa";
+  protocol[71] =  "ipcv";
+  protocol[72] =  "cpnx";
+  protocol[73] =  "cphb";
+  protocol[74] =  "wsn";
+  protocol[75] =  "pvp";
+  protocol[76] =  "br-sat-mon";
+  protocol[77] =  "sun-nd";
+  protocol[78] =  "wb-mon";
+  protocol[79] =  "wb-expak";
+  protocol[80] =  "iso-ip";
+  protocol[81] =  "vmtp";
+  protocol[82] =  "secure-vmtp";
+  protocol[83] =  "vines";
+  protocol[84] =  "iptm";
+  protocol[85] =  "nsfnet-igp";
+  protocol[86] =  "dgp";
+  protocol[87] =  "tcf";
+  protocol[88] =  "eigrp";
+  protocol[89] =  "ospfigp";
+  protocol[90] =  "sprite-rpc";
+  protocol[91] =  "larp";
+  protocol[92] =  "mtp";
+  protocol[93] =  "ax.25";
+  protocol[94] =  "ipip";
+  protocol[95] =  "micp";
+  protocol[96] =  "scc-sp";
+  protocol[97] =  "etherip";
+  protocol[98] =  "encap";
+  protocol[99] =  "anyencrypt";
+  protocol[100] =  "gmtp";
+  protocol[101] =  "ifmp";
+  protocol[102] =  "pnni";
+  protocol[103] =  "pim";
+  protocol[104] =  "aris";
+  protocol[105] =  "scps";
+  protocol[106] =  "qnx";
+  protocol[107] =  "a/n";
+  protocol[108] =  "ipcomp";
+  protocol[109] =  "snp";
+  protocol[110] =  "compaq-peer";
+  protocol[111] =  "ipx-in-ip";
+  protocol[112] =  "vrrp";
+  protocol[113] =  "pgm";
+  protocol[114] =  "any0hop";
+  protocol[115] =  "l2tp";
+  protocol[116] =  "ddx";
+  protocol[117] =  "iatp";
+  protocol[118] =  "stp";
+  protocol[119] =  "srp";
+  protocol[120] =  "uti";
+  protocol[121] =  "smp";
+  protocol[122] =  "sm";
+  protocol[123] =  "ptp";
+  protocol[124] =  "isis-ipv4";
+  protocol[125] =  "fire";
+  protocol[126] =  "crtp";
+  protocol[127] =  "crudp";
+  protocol[128] =  "sscopmce";
+  protocol[129] =  "iplt";
+  protocol[130] =  "sps";
+  protocol[131] =  "pipe";
+  protocol[132] =  "sctp";
+  protocol[133] =  "fc";
+  protocol[134] =  "rsvp-e2e-ignore";
+  protocol[135] =  "mobility-hdr";
+  protocol[136] =  "udplite";
+  protocol[137] =  "mpls-in-ip";
+  protocol[138] =  "manet";
+  protocol[139] =  "hip";
+  protocol[140] =  "shim6";
+  protocol[141] =  "wesp";
+  protocol[142] =  "rohc";
+  protocol[253] =  "experimental1";
+  protocol[254] =  "experimental2";
+
+  if ( protocol[nextheader] ) {
+    strncpy(buffer, protocol[nextheader], 128);
+  }
 
    return buffer;
 
