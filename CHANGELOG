@@ -1,47 +1,99 @@
-# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id: CHANGELOG 36805 2017-06-11 20:17:30Z dmiller $); -*-text-*-
+
+Nmap 7.50 [2017-06-13]
+
+o [Windows] Updated the bundled Npcap from 0.78 to 0.91, with several bugfixes
+  for WiFi connectivity problems and stability issues. [Daniel Miller, Yang Luo]
+
+o Integrated all of your service/version detection fingerprints submitted from
+  September to March (855 of them). The signature count went up 2.9% to 11,418.
+  We now detect 1193 protocols from apachemq, bro, and clickhouse to jmon,
+  slmp, and zookeeper. Highlights: http://seclists.org/nmap-dev/2017/q2/140
+
+o [NSE] Added 14 NSE scripts from 12 authors, bringing the total up to 566!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below:
+
+  + [GH#743] broadcast-ospf2-discover discovers OSPF 2 routers and neighbors.
+    OSPFv2 authentication is supported. [Emiliano Ticci]
+
+  + [GH#671] cics-info checks IBM TN3270 services for CICS transaction services
+    and extracts useful information. [Soldier of Fortran]
+
+  + [GH#671] cics-user-brute does brute-force enumeration of CICS usernames on
+    IBM TN3270 services. [Soldier of Fortran]
+
+  + [GH#669] http-cookie-flags checks HTTP session cookies for HTTPOnly and
+    Secure flags. [Steve Benson]
+
+  + http-security-headers checks for the HTTP response headers related to
+    security given in OWASP Secure Headers Project, giving a brief description
+    of the header and its configuration value. [Vinamra Bhatia, Ícaro Torres]
+
+  + [GH#740][GH#759] http-vuln-cve2017-5638 checks for the RCE bug in Apache
+    Struts2. [Seth Jackson]
+
+  + [GH#876] http-vuln-cve2017-5689 detects a privilege escalation
+    vulnerability (INTEL-SA-00075) in Intel Active Management Technology (AMT)
+    capable systems. [Andrew Orr]
+
+  + http-vuln-cve2017-1001000 detects a privilege escalation vulnerability in
+    Wordpress 4.7.0 and 4.7.1 (CVE-2017-1001000) [Vinamra Bhatia]
+
+  + [GH#713] impress-remote-discover attempts to pair with the LibreOffice
+    Impress presentation remote service and extract version info.  Pairing is
+    PIN-protected, and the script can optionally brute-force the PIN.  New
+    service probe and match line also added. [Jeremy Hiebert]
+
+  + [GH#854] smb-double-pulsar-backdoor detects the Shadow Brokers-leaked
+    Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]
+
+  + smb-vuln-cve-2017-7494 detects a remote code execution vulnerability
+    affecting Samba versions 3.5.0 and greater with writable shares.
+    [Wong Wai Tuck]
+
+  + smb-vuln-ms17-010 detects a critical remote code execution vulnerability
+    affecting SMBv1 servers in Microsoft Windows systems (ms17-010).  The
+    script also reports patched systems. [Paulino Calderon]
+
+  + [GH#686] tls-ticketbleed checks for the Ticketbleed vulnerability
+    (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
+
+  + vmware-version queries VMWare SOAP API for version and product information.
+    Submitted in 2011, this was mistakenly turned into a service probe that was
+    unable to elicit any matches. [Aleksey Tyurin]
+
+o [Ncat] A series of changes and fixes based on feedback from the Red Hat community:
+
+  + [GH#157] Ncat will now continue trying to connect to each resolved address
+    for a hostname before declaring the connection refused, allowing it to
+    fallback from IPv6 to IPv4 or to connect to names that use DNS failover.
+    [Jaromir Koncicky, Michal Hlavinka]
+
+  + The --no-shutdown option now also works in connect mode, not only in listen mode.
+
+  + Made -i/--idle-timeout not cause Ncat in server mode to close while
+    waiting for an initial connection. This was also causing -i to interfere
+    with the HTTP proxy server mode. [Carlos Manso, Daniel Miller]
+
+  + [GH#773] Ncat in server mode properly handles TLS renegotiations and other
+    situations where SSL_read returns a non-fatal error. This was causing
+    SSL-over-TCP connections to be dropped. [Daniel Miller]
+
+  + Enable --ssl-ciphers to be used with Ncat in client mode, not only in
+    server (listen) mode. [Daniel Miller]
+
+o [NSE][GH#266][GH#704][GH#238][GH#883] NSE libraries smb and msrpc now use
+  fully qualified paths. SMB scripts now work against all modern versions
+  of Microsoft Windows. [Paulino Calderon]
 
 o [NSE] smb library's share_get_list now properly uses anonymous connections
   first before falling back authenticating as a known user.
 
-o [NSE] New script smb-vuln-cve-2017-7494 detects the "SambaCry"
-  remote code execution vulnerability affecting Samba versions 3.5.0
-  and greater with writable shares. [Wong Wai Tuck]
-
-o [NSE] Removed script http-hsts-verify. http-security-headers includes
-  all the checks earlier implemented by http-hsts-verify. [Vinamra Bhatia]
-
-o [NSE] New script http-security-headers Checks for the HTTP response headers 
-  related to security given in OWASP Secure Headers Project, shows whether they
-  are configured and gives a brief description of the header and its 
-  configuration value. [Vinamra Bhatia]
-
-o [NSE] New script http-vuln-cve2017-1001000 detects a privilege escalation 
-  vulnerability in Wordpress 4.7.0 and 4.7.1 (CVE2017-1001000) [Vinamra Bhatia]
-
-o [NSE] New script smb-vuln-ms17-010 detects a critical remote code execution 
-  vulnerability affecting SMBv1 servers in Microsoft Windows systems (ms17-010).
-  The script also reports patched systems. [Paulino Calderon]
-
-o [NSE][GH#266][GH#704][GH#238][GH#883] NSE libraries smb and msrpc now use 
-  fully qualified paths. SMB scripts now work against all modern versions 
-  of Microsoft Windows. [Paulino Calderon]
-
-o New service probes and matches for Apache HBase and Hadoop MapReduce. 
+o New service probes and matches for Apache HBase and Hadoop MapReduce.
   [Paulino Calderon]
 
-o [NSE][GH#876] New script http-vuln-cve2017-5689 detects a privilege escalation 
-  vulnerability (INTEL-SA-00075) in Intel Active Management Technology (AMT)
-  capable systems. [Andrew Orr]
-
-o Extended Memcached service probe and added match for Apache ZooKeeper. 
+o Extended Memcached service probe and added match for Apache ZooKeeper.
   [Paulino Calderon]
-
-o [NSE] New script vmware-version queries VMWare SOAP API for version and
-  product information. Submitted in 2011, this was mistakenly turned into a
-  service probe that was unable to elicit any matches. [Aleksey Tyurin]
-
-o [Ncat] The --no-shutdown option now also works in connect mode, not only in
-  listen mode.
 
 o [NSE] New script argument "vulns.short" will reduce vulns library script
   output to a single line containing the target name or IP, the vulnerability
@@ -87,19 +139,12 @@ o [NSE][GH#781] There is a new common function, url.get_default_port(),
 o [NSE][GH#833] Function url.parse() now returns the port part as a number,
   not a string. [nnposter]
 
-o [NSE][GH#854] New script smb-double-pulsar-backdoor detects the Shadow
-  Brokers-leaked Double Pulsar backdoor in Windows SMB servers. [Andrew Orr]
-
 o No longer allow ICMP Time Exceeded messages to mark a host as down during
   host discovery. Running traceroute at the same time as Nmap was causing
   interference. [David Fifield]
 
 o [NSE][GH#807] Fixed a JSON library issue that was causing long integers
   to be expressed in the scientific/exponent notation. [nnposter]
-
-o [Ncat] Made -i/--idle-timeout not cause Ncat in server mode to close while
-  waiting for an initial connection. This was also causing -i to interfere with
-  the HTTP proxy server mode. [Carlos Manso, Daniel Miller]
 
 o [NSE] Fixed several potential hangs in NSE scripts that used
   receive_buf(pattern), which will not return if the service continues to send
@@ -111,31 +156,11 @@ o [Nsock] Handle any and all socket connect errors the same: raise as an Nsock
   error instead of fatal. This prevents Nmap and Ncat from quitting with
   "Strange error from connect:" [Daniel Miller]
 
-o [Ncat][GH#773] Ncat in server mode properly handles TLS renegotiations and
-  other situations where SSL_read returns a non-fatal error. This was causing
-  SSL-over-TCP connections to be dropped. [Daniel Miller]
-
-o [Ncat][GH#157] Ncat will now continue trying to connect to each resolved
-  address for a hostname before declaring the connection refused, allowing it
-  to fallback from IPv6 to IPv4 or to connect to names that use DNS failover.
-  [Jaromir Koncicky, Michal Hlavinka]
-
-o [NSE][GH#743] New script broadcast-ospf2-discover discovers OSPF 2 routers
-  and neighbors. OSPFv2 authentication is supported. [Emiliano Ticci]
-
-o [NSE][GH#740][GH#759] New script http-vuln-cve2017-5638 checks for the RCE
-  bug in Apache Struts2. [Seth Jackson]
-
 o [NSE] Added several commands to redis-info to extract listening addresses,
   connected clients, active channels, and cluster nodes. [Vasiliy Kulikov]
 
 o [NSE][GH#679][GH#681] Refreshed script http-robtex-reverse-ip, reflecting
   changes at the source site (www.robtex.com). [aDoN]
-
-o [NSE][GH#713] New script impress-remote-discover attempts to pair with the
-  LibreOffice Impress presentation remote service and extract version info.
-  Pairing is PIN-protected, and the script can optionally brute-force the PIN.
-  New service probe and match line also added. [Jeremy Hiebert]
 
 o [NSE][GH#620][GH#715] Added 8 new http-enum fingerprints for Hadoop
   infrastructure components. [Thomas Debize, Varunram Ganesh]
@@ -146,26 +171,11 @@ o [NSE][GH#629] Added two new fingerprints to http-default-accounts
 o [NSE][GH#716] Fix for oracle-tns-version which was sending an invalid TNS
   probe due to a string escaping mixup. [Alexandr Savca]
 
-o [NSE][GH#671] New script cics-user-brute does brute-force enumeration of CICS
-  usernames on IBM TN3270 services. [Soldier of Fortran]
-
-o [NSE][GH#671] New script cics-info checks IBM TN3270 services for CICS
-  transaction services and extracts useful information. [Soldier of Fortran]
-
-o [NSE][GH#669] New script http-cookie-flags checks HTTP session cookies for
-  HTTPOnly and Secure flags. [Steve Benson]
-
 o [NSE][GH#694] ike-version now outputs information about supported attributes
   and unknown vendor ids. Also, a new fingerprint for FortiGate VPNs was
   submitted by Alexis La Goutte. [Daniel Miller]
 
 o [GH#700] Enabled support for TLS SNI on the Windows platform. [nnposter]
-
-o [GH#686] Script tls-ticketbleed checks for the Ticketbleed vulnerability
-  (CVE-2016-9244) in F5 BIG-IP appliances. [Mak Kolybabi]
-
-o [Ncat] Enable --ssl-ciphers to be used with Ncat in client mode, not only in
-  server (listen) mode. [Daniel Miller]
 
 o [GH#649] New service probe and match lines for the JMON and RSE services of
   IBM Explorer for z/OS. [Soldier of Fortran]
@@ -189,9 +199,6 @@ o [Zenmap][GH#626] Zenmap now properly handles the -v0 (no output) option,
 
 o [GH#630] Updated or removed some OpenSSL library calls that were deprecated
   in OpenSSL 1.1. [eroen]
-
-o [NSE] New script http-hsts-verify reports whether or not HTTP Strict
-  Transport Security is configured. [Ícaro Torres]
 
 o [NSE] Script ssh-hostkey now recognizes and reports Ed25519 keys [nnposter]
 
@@ -1087,13 +1094,13 @@ o [NSE] [GH#106] Added a new NSE module, ls.lua, for accumulating and
   scripts have been converted to use this module. [Pierre Lalet]
 
 o [NSE] bacnet-info.nse and s7-info.nse were added to the version category.
-  [Paulino Calderon] 
+  [Paulino Calderon]
 
 o [NSE] Added 124 new identifiers to bacnet-info.nse vendor database.
-  [Paulino Calderon] 
+  [Paulino Calderon]
 
-o [NSE] Fixed bacnet-info.nse to bind to the service port detected 
-  during scan instead of fixed port. [Paulino Calderon] 
+o [NSE] Fixed bacnet-info.nse to bind to the service port detected
+  during scan instead of fixed port. [Paulino Calderon]
 
 o [NSE] Enhanced reporting of elliptic curve names and strengths in
   ssl-enum-ciphers. The name of the curve is now reported instead of just "ec"
