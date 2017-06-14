@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local smb = require "smb"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
@@ -120,14 +121,14 @@ local function check_ms17010(host, port, sharename)
       0x455c   -- E\
       )
     stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
-    result, err = smb.smb_send(smbstate, smb_header, smb_params, '', overrides)
+    local result, err = smb.smb_send(smbstate, smb_header, smb_params, '', overrides)
     if(result == false) then
       stdnse.debug1("There was an error in the SMB_COM_TRANSACTION request")
       return false, err
     end
 
-    result, smb_header, _, _ = smb.smb_read(smbstate)
-    _ , smb_cmd, err = string.unpack("<c4 B I4", smb_header)
+    local result, smb_header, _, _ = smb.smb_read(smbstate)
+    local _ , smb_cmd, err = string.unpack("<c4 B I4", smb_header)
     if smb_cmd == 37 then -- SMB command for Trans is 0x25
       stdnse.debug1("Valid SMB_COM_TRANSACTION response received")
 
