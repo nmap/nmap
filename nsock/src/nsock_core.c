@@ -1345,6 +1345,7 @@ void nsock_trace_handler_callback(struct npool *ms, struct nevent *nse) {
         nsock_log_info("Callback: %s %s %sfor EID %li [%s]",
                        nse_type2str(nse->type), nse_status2str(nse->status),
                        errstr, nse->id, get_peeraddr_string(nsi));
+        fatal("Connection terminated by the server.");
       } else {
         str = nse_readbuf(nse, &strlength);
         if (strlength < 80) {
@@ -1387,4 +1388,3 @@ void nsock_trace_handler_callback(struct npool *ms, struct nevent *nse) {
       fatal("Invalid nsock event type (%d)", nse->type);
   }
 }
-
