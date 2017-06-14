@@ -698,8 +698,8 @@ Engine = {
 
     repeat
       local driver = self.driver:new(self.host, self.port, self.driver_options)
-print(self:activeThreads())  
-    status, response = driver:connect()
+
+      status, response = driver:connect()
 
       -- Temporary workaround. Did not connect sucessfully
       -- due to stressed server

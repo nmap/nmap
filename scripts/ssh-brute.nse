@@ -48,7 +48,7 @@ Driver = {
     stdnse.debug(2, "connecting to %s:%d", self.host.ip, self.port.number)
     local status, session, err = pcall(libssh2.session_open, self.host, self.port.number)
     if not status then
-      stdnse.debug(1, "libssh2 error: %s", session)
+      stdnse.debug(2, "libssh2 error: %s", session)
       local err = brute.Error:new(session)
       err:setReduce(true)
       return false, err
