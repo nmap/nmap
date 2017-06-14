@@ -55,6 +55,7 @@ by it will be checked in addition to the root.
 -- </table>
 --
 -- @see http-enum.nse
+-- @see http-security-headers.nse
 
 categories = { "default", "safe", "vuln" }
 author = "Steve Benson"
