@@ -1,0 +1,66 @@
+﻿Build started 5/22/2017 10:38:55 PM.
+     1>Project "C:\Users\Boom\Desktop\nmap-diff\nmap-7.40 - Copy-tampered - Copy\libz\contrib\vstudio\vc11\zlibvc.vcxproj" on node 3 (Build target(s)).
+     1>PreBuildEvent:
+         cd ..\..\masmx86
+         bld_ml32.bat
+         :VCEnd
+         Microsoft (R) Macro Assembler Version 12.00.31101.0
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+          Assembling: match686.asm
+          Assembling: inffas32.asm
+         Microsoft (R) Macro Assembler Version 12.00.31101.0
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I..\..\.. /I..\..\masmx86 /Zi /nologo /W3 /WX- /O2 /Ob1 /Oy- /GL /D WIN32 /D _CRT_NONSTDC_NO_DEPRECATE /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_WARNINGS /D ZLIB_WINAPI /D ASMV /D ASMINF /GF /Gm- /MT /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /FAcs /Fa"Release_lib\Tmp\\" /Fo"Release_lib\Tmp\\" /Fd"Release_lib\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\..\adler32.c ..\..\..\compress.c ..\..\..\crc32.c ..\..\..\deflate.c ..\..\..\gzclose.c ..\..\..\gzlib.c ..\..\..\gzread.c ..\..\..\gzwrite.c ..\..\..\infback.c ..\..\..\inffast.c ..\..\..\inflate.c ..\..\..\inftrees.c ..\..\minizip\ioapi.c ..\..\minizip\iowin32.c ..\..\..\trees.c ..\..\..\uncompr.c ..\..\..\zutil.c
+         adler32.c
+         compress.c
+         crc32.c
+         deflate.c
+         gzclose.c
+         gzlib.c
+         gzread.c
+         gzwrite.c
+         infback.c
+         inffast.c
+         inflate.c
+         inftrees.c
+         ioapi.c
+         iowin32.c
+         trees.c
+         uncompr.c
+         zutil.c
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I..\..\.. /I..\..\masmx86 /Zi /nologo /W3 /WX- /O2 /Ob1 /Oy- /GL /D ZLIB_INTERNAL /D WIN32 /D _CRT_NONSTDC_NO_DEPRECATE /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_WARNINGS /D ZLIB_WINAPI /D ASMV /D ASMINF /GF /Gm- /MT /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /FAcs /Fa"Release_lib\Tmp\\" /Fo"Release_lib\Tmp\\" /Fd"Release_lib\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\minizip\unzip.c ..\..\minizip\zip.c
+         unzip.c
+         zip.c
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D NDEBUG /l"0x040c" /nologo /fo"Release_lib\Tmp\zlib.res" zlib.rc 
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\Lib.exe /OUT:"Release_lib\zlib.lib" /NOLOGO /LTCG Release_lib\Tmp\zlib.res
+         Release_lib\Tmp\adler32.obj
+         Release_lib\Tmp\compress.obj
+         Release_lib\Tmp\crc32.obj
+         Release_lib\Tmp\deflate.obj
+         Release_lib\Tmp\gzclose.obj
+         Release_lib\Tmp\gzlib.obj
+         Release_lib\Tmp\gzread.obj
+         Release_lib\Tmp\gzwrite.obj
+         Release_lib\Tmp\infback.obj
+         Release_lib\Tmp\inffast.obj
+         Release_lib\Tmp\inflate.obj
+         Release_lib\Tmp\inftrees.obj
+         Release_lib\Tmp\ioapi.obj
+         Release_lib\Tmp\iowin32.obj
+         Release_lib\Tmp\trees.obj
+         Release_lib\Tmp\uncompr.obj
+         Release_lib\Tmp\unzip.obj
+         Release_lib\Tmp\zip.obj
+         Release_lib\Tmp\zutil.obj
+     1>LINK : warning LNK4068: /MACHINE not specified; defaulting to X86
+         zlibvc.vcxproj -> C:\Users\Boom\Desktop\nmap-diff\nmap-7.40 - Copy-tampered - Copy\libz\contrib\vstudio\vc11\Release_lib\zlib.lib
+     1>Done Building Project "C:\Users\Boom\Desktop\nmap-diff\nmap-7.40 - Copy-tampered - Copy\libz\contrib\vstudio\vc11\zlibvc.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:16.12

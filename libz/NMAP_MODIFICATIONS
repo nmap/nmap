@@ -1,0 +1,13 @@
+diff --git a/libz/configure b/libz/configure
+index b77a8a8..9e8c8ff 100755
+--- a/libz/configure
++++ b/libz/configure
+@@ -124,7 +124,8 @@ case "$1" in
+     *)
+       echo "unknown option: $1" | tee -a configure.log
+       echo "$0 --help for help" | tee -a configure.log
+-      leave 1;;
++      # leave 1;;  # Hack for nmap compilation
++      shift;;
+     esac
+ done
