@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id: CHANGELOG 36805 2017-06-11 20:17:30Z dmiller $); -*-text-*-
 
+o [NSE][GH#141] http-useragent-checker now checks for changes in HTTP status
+  (usually 403 Forbidden) in addition to redirects to indicate forbidden User
+  Agents. [Gyanendra Mishra]
+
 Nmap 7.50 [2017-06-13]
 
 o [Windows] Updated the bundled Npcap from 0.78 to 0.91, with several bugfixes
