@@ -146,7 +146,9 @@ eap_str = {
   [51] = "EAP-GPSK",
   [52] = "EAP-pwd",
   [53] = "EAP-EKE Version 1",
-  -- 54-253 Unassigned
+  [54] = "EAP Method Type for PT-EAP",
+  [55] = "TEAP",
+  -- 56-253 Unassigned
   [254] = "Reserved for the Expanded Type",
   [255] = "Experimental",
 }

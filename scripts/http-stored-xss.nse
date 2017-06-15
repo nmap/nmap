@@ -51,7 +51,7 @@ strings to determine whether the payloads were successful.
 -- @see http-dombased-xss.nse
 -- @see http-phpself-xss.nse
 -- @see http-xssed.nse
----
+-- @see http-unsafe-output-escaping.nse
 
 categories = {"intrusive", "exploit", "vuln"}
 author = "George Chatzisofroniou"

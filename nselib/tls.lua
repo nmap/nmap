@@ -176,12 +176,15 @@ HashAlgorithms = {
   sha256 = 4,
   sha384 = 5,
   sha512 = 6,
+  intrinsic = 8,
 }
 SignatureAlgorithms = {
   anonymous = 0,
   rsa = 1,
   dsa = 2,
   ecdsa = 3,
+  ed25519 = 7,
+  ed448 = 8,
 }
 
 ---
@@ -212,6 +215,10 @@ EXTENSIONS = {
   ["client_certificate_type"] = 19,
   ["server_certificate_type"] = 20,
   ["padding"] = 21, -- Temporary, expires 2015-03-12
+  ["encrypt_then_mac"] = 22, -- rfc7366
+  ["extended_master_secret"] = 23, -- rfc7627
+  ["token_binding"] = 24, -- Temporary, expires 2018-02-04
+  ["cached_info"] = 25, -- rfc7924
   ["SessionTicket TLS"] = 35,
   ["next_protocol_negotiation"] = 13172,
   ["renegotiation_info"] = 65281,

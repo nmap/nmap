@@ -17,12 +17,14 @@ Checks if various crawling utilities are allowed by the host.
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
 -- | http-useragent-tester:
--- |
--- |     Allowed User Agents:
--- |
+-- |   Status for browser useragent: 200
+-- |   Redirected To: https://www.example.com/
+-- |   Allowed User Agents:
+-- |     Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)
+-- |     libwww
 -- |     lwp-trivial
+-- |     libcurl-agent/1.0
 -- |     PHP/
--- |     Python-urllib/2.5
 -- |     GT::WWW
 -- |     Snoopy
 -- |     MFC_Tear_Sample
@@ -33,14 +35,36 @@ Checks if various crawling utilities are allowed by the host.
 -- |     http client
 -- |     PECL::HTTP
 -- |     WWW-Mechanize/1.34
--- |
--- |     Forbidden User Agents:
--- |
--- |     libwww redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
--- |     libcurl-agent/1.0 redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
--- |_    Wget/1.13.4 (linux-gnu) redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
+-- |   Change in Status Code:
+-- |     Python-urllib/2.5: 403
+-- |_    Wget/1.13.4 (linux-gnu): 403
 --
--- @see http-mobileversion-checker.nse
+-- @xmloutput
+-- <elem key="Status for browser useragent">200</elem>
+-- <elem key="Redirected To">https://www.example.com/</elem>
+-- <table key="Allowed User Agents">
+--   <elem>Mozilla/5.0 (compatible; Nmap Scripting Engine;
+--   https://nmap.org/book/nse.html)</elem>
+--   <elem>libwww</elem>
+--   <elem>lwp-trivial</elem>
+--   <elem>libcurl-agent/1.0</elem>
+--   <elem>PHP/</elem>
+--   <elem>GT::WWW</elem>
+--   <elem>Snoopy</elem>
+--   <elem>MFC_Tear_Sample</elem>
+--   <elem>HTTP::Lite</elem>
+--   <elem>PHPCrawl</elem>
+--   <elem>URI::Fetch</elem>
+--   <elem>Zend_Http_Client</elem>
+--   <elem>http client</elem>
+--   <elem>PECL::HTTP</elem>
+--   <elem>WWW-Mechanize/1.34</elem>
+-- </table>
+-- <table key="Change in Status Code">
+--   <elem key="Python-urllib/2.5">403</elem>
+--   <elem key="Wget/1.13.4 (linux-gnu)">403</elem>
+-- </table>
+---
 
 categories = {"discovery", "safe"}
 author = "George Chatzisofroniou"
@@ -72,12 +96,11 @@ getLastLoc = function(host, port, useragent)
   stdnse.debug2("Making a request with User-Agent: " .. useragent)
 
   local response = http.get(host, port, '/', options)
-
   if response.location then
-    return response.location[#response.location] or false
+    return response.location[#response.location],response.status or false, response.status
   end
 
-  return false
+  return false, response.status
 
 end
 
@@ -87,6 +110,7 @@ action = function(host, port)
 
   local moreagents = stdnse.get_script_args("http-useragent-tester.useragents") or nil
   local newtargets = stdnse.get_script_args("newtargets") or nil
+  local output = stdnse.output_table()
 
   -- We don't crawl any site. We initialize a crawler to use its iswithinhost method.
   local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
@@ -118,25 +142,33 @@ action = function(host, port)
   end
 
   -- We perform a normal browser request and get the returned location
-  local loc = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
+  local loc, status = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
+  output['Status for browser useragent'] = status
 
-  local allowed, forb = {}, {}
+  if loc then
+    output['Redirected To'] = loc
+  end
+
+  local allowed, forb, status_changed = {}, {}, {}
 
   for _, l in ipairs(HTTPlibs) do
 
-    local libloc = getLastLoc(host, port, l)
+    local libloc, libstatus = getLastLoc(host, port, l)
 
     -- If the library's request returned a different location, that means the request was redirected somewhere else, hence is forbidden.
-    if loc ~= libloc then
-      local msg = l .. " redirected to: " .. libloc
+    if libloc and loc ~= libloc then
+      forb[l] = {}
       local libhost = http.parse_url(libloc)
       if not crawler:iswithinhost(libhost.host) then
-        msg = msg .. " (different host)"
+        forb[l]['Different Host'] = tostring(libloc)
         if newtargets then
           target.add(libhost.host)
         end
+      else
+        forb[l]['Same Host'] = tostring(libloc)
       end
-      table.insert(forb, msg)
+    elseif status ~= libstatus then
+      status_changed[l] = libstatus
     else
       table.insert(allowed, l)
     end
@@ -144,13 +176,17 @@ action = function(host, port)
   end
 
   if next(allowed) ~= nil then
-    table.insert(allowed, 1, "Allowed User Agents:")
+    output['Allowed User Agents'] = allowed
   end
 
   if next(forb) ~= nil then
-    table.insert(forb, 1, "Forbidden User Agents:")
+    output['Forbidden/Redirected User Agents'] = forb
   end
 
-  return {allowed, forb}
+  if next(status_changed) ~= nil then
+    output['Change in Status Code'] = status_changed
+  end
+
+  return output
 
 end

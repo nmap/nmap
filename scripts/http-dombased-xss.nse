@@ -34,6 +34,7 @@ http://www.webappsec.org/projects/articles/071105.shtml
 -- @see http-stored-xss.nse
 -- @see http-phpself-xss.nse
 -- @see http-xssed.nse
+-- @see http-unsafe-output-escaping.nse
 ---
 
 categories = {"intrusive", "exploit", "vuln"}
