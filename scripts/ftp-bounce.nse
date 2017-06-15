@@ -204,7 +204,7 @@ action = function(host, port)
   fc = get_ftp_code(socket)
   if (fc >= 500 and fc <= 599) then
     socket:close()
-    return "server forbids bouncing"
+    return "server not vulnerable to FTP bounce attack"
   end
   if fc == 0 then
     socket:close()
