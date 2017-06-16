@@ -5,7 +5,7 @@ local base64 = require "base64"
 local table = require "table"
 local io = require "io"
 
-local libssh2 = stdnse.silent_require "libssh2"
+local libssh2_util = require "libssh2-utility"
 
 description = [[
 This script takes a table of paths to private keys, passphrases, and usernames and checks each pair to 
@@ -44,19 +44,20 @@ portrule = shortport.port_or_service(22, 'ssh')
 action = function (host, port) 
   local result = stdnse.output_table()
   local r = {}
-  local session = libssh2.session_open(host, port.number)
+  local helper = libssh2_util.SSHConnection:new()
+  helper:connect(host, port)
   if publickeys and usernames then
     for j=1,#usernames do
       for i=1,#publickeys do
         stdnse.debug("Checking key: " .. publickeys[i] .. " for user " .. usernames[j])
-        local status, result = pcall(libssh2.read_publickey, publickeys[i])
+        local status, result = helper:read_publickey(publickeys[i])
         if not status then
           stdnse.verbose("Error reading key: " .. result)
-        elseif libssh2.publickey_canauth(session, usernames[j], result) then
+        elseif helper:publickey_canauth(username, result) then
           table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
           stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j])
-          libssh2.session_close(session)
-          session = libssh2.session_open(host, port.number)
+          helper:disconnect()
+          helper:connect(host, port)
         end
       end
     end
@@ -73,11 +74,11 @@ action = function (host, port)
       local msg = sections[3]
       stdnse.debug("Checking key: " .. key .. " for user " .. user)
       key = base64.dec(key)
-      if libssh2.publickey_canauth(session, user, key) then
+      if helper:publickey_canauth(user, key) then
         table.insert(r, msg)
         stdnse.verbose("Found accepted key: " .. msg)
-        libssh2.session_close(session)
-        session = libssh2.session_open(host, port.number)
+        helper:disconnect()
+        helper:connect(host, port)
       end
     end
   end
@@ -86,15 +87,18 @@ action = function (host, port)
     for j=1,#usernames do
       for i=1,#privatekeys do
         stdnse.debug("Checking key: " .. privatekeys[i] .. " for user " .. usernames[j])
-        local status, result = pcall(libssh2.userauth_publickey, session, usernames[j], privatekeys[i], "")
-        if status and result then
+        if not helper:publickey_auth(usernames[j], privatekeys[i], "") then
+          helper:disconnect()
+          stdnse.verbose("Failed to authenticate")
+          return "Authentication Failed"
+        else
           table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
           stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
-          libssh2.session_close(session)
-          session = libssh2.session_open(host, port.number)
-        elseif not status then
-          stdnse.verbose("Error attempting to auth: " .. msg)
+          
+          helper:disconnect()
+          helper:connect(host, port)
         end
+
       end
     end
   end
