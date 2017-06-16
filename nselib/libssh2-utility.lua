@@ -112,6 +112,12 @@ function SSHConnection:publickey_auth(username, privatekey_file, passphrase)
   if not passphrase then
     local passphrase = ""
   end
+  if not self.session then
+    return false
+  end
+  print(self.session)
+  print(username)
+  print(privatekey_file)
   if libssh2.userauth_publickey(self.session, username, privatekey_file, passphrase) then
     self.authenticated = true
     return true
@@ -146,6 +152,19 @@ function SSHConnection:list(username)
     return methods
   end
   return false
+end
+
+
+function SSHConnection:read_publickey(publickey)
+  local status, result  = pcall(libssh2.read_publickey, publickey)
+  return status, result
+end
+
+
+function SSHConnection:publickey_canauth(username, result)
+  if self.session then
+  libssh2.publickey_canauth(self.session, username, result)
+  end
 end
 
 return _ENV;
