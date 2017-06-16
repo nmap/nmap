@@ -75,7 +75,6 @@ action = function (host, port)
   stdnse.verbose("Output of command: " .. output)
   local result = stdnse.output_table()
   result.output = {}
-  table.insert(result.output, output)
-  conn:disconnect()  
+  table.insert(result.output, output)  
   return result
 end
