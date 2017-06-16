@@ -3,7 +3,7 @@ local stdnse = require "stdnse"
 local brute = require "brute"
 local creds = require "creds"
 
-local libssh2 = stdnse.silent_require "libssh2"
+local libssh2_util = require "libssh2-utility"
 
 description = [[
 Performs brute-force password guessing against ssh servers.
@@ -35,7 +35,7 @@ local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or "5s"
 Driver = {
   new = function(self, host, port, options)
     stdnse.debug(2, "creating brute driver")
-    local o = {}
+    local o = { helper = libssh2_util.SSHConnection:new()}
     setmetatable(o, self)
     self.__index = self
     o.host = host
@@ -45,58 +45,48 @@ Driver = {
   end,
 
   connect = function (self)
-    stdnse.debug(2, "connecting to %s:%d", self.host.ip, self.port.number)
-    local status, session, err = pcall(libssh2.session_open, self.host, self.port.number)
+    local status, err = self.helper:connect_pcall(self.host, self.port)
     if not status then
-      stdnse.debug(2, "libssh2 error: %s", session)
-      local err = brute.Error:new(session)
+      stdnse.debug(2, "libssh2 error: %s", self.helper.session)
+      local err = brute.Error:new(self.helper.session)
       err:setReduce(true)
       return false, err
-    elseif not session then
+    elseif not self.helper.session then
       stdnse.debug(2, "failure to connect: %s", err);
       local err = brute.Error:new(err)
       err:setAbort(true)
       return false, err
     else
-      self.ssh_session = session
+      self.ssh_session = self.helper.session
       libssh2.set_timeout(self.ssh_session, self.options.ssh_timeout)
       return true
     end
   end,
 
-  disconnect = function(self)
-    stdnse.debug(2, "disconnecting from %s:%d", self.host.ip, self.port.number);
-    local status, err = pcall(libssh2.session_close, self.ssh_session)
-    if not status then
-      stdnse.debug(2, "libssh2 error: %s", ok)
+  login = function(self, username, password)
+    stdnse.verbose(1, "Trying username/password pair: %s:%s", username, password)
+    local status, resp = self.helper:password_auth(username, password)
+    if ( status ) then
+      return true, creds.Account:new(username, password, creds.State.VALID)
     end
+    return false, brute.Error:new( "Incorrect password" )
   end,
 
-  login = function(self, username, password)
-    stdnse.verbose(2, "Trying username/password pair: %s:%s", username, password)
-    local status, ok = pcall(libssh2.userauth_password, self.ssh_session, username, password)
-    if not status then
-      stdnse.debug(2, "libssh2 error: %s", ok)
-      return false, brute.Error:new(ok)
-    elseif not ok then
-      stdnse.debug(2, "login failed for %s:%s", username, password)
-      return false, brute.Error:new("login failed")
-    else
-      stdnse.verbose(1, "Found working Credentials: %s:%s", username, password)
-      return true, creds.Account:new(username, password, "OPEN")
-    end
+  disconnect = function(self)
+    return self.helper:disconnect()
   end,
 }
 
-password_auth_allowed = function (host, port)
-  local status, ssh_session = pcall(libssh2.session_open, host, port.number)
-  if status and ssh_session then
-    local status, methods = pcall(libssh2.userauth_list, ssh_session, "root")
-    if status then
-      for _, value in pairs(methods) do
-        if value == "password" then
-            return true
-        end  
+local function password_auth_allowed(host, port)
+  local helper = libssh2_util.SSHConnection:new()
+  if not helper:connect(host, port) then
+    return "Failed to connect to ssh server"
+  end
+  methods = helper:list("root")
+  if methods then 
+    for _, value in pairs(methods) do
+      if value == "password" then
+        return true
       end
     end
   end
@@ -116,4 +106,3 @@ action = function (host, port)
     return "Password authenication not allowed" 
   end
 end
-
