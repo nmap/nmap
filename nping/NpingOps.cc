@@ -869,18 +869,6 @@ int NpingOps::getCurrentRound(){
   return this->current_round;
 } /* End of getCurrentRound() */
 
-
-bool NpingOps::havePcap(){
-  return this->have_pcap;
-} /* End of havePcap() */
-
-
-int NpingOps::setHavePcap(bool val){
-  this->have_pcap=val;
-  return OP_SUCCESS;
-} /* End of setHavePcap() */
-
-
 /** Sets DisablePacketCapture.
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setDisablePacketCapture(bool val){
@@ -2292,22 +2280,7 @@ bool NpingOps::once(){
 
 void NpingOps::validateOptions() {
 
-/** DETERMINE ROOT PRIVILEGES ************************************************/
 const char *privreq = "root privileges";
-#ifdef WIN32
-    //if (!this->have_pcap)
-        privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating systems and NT 4.0 with SP4 or greater.  For previous Windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
-#endif
-
-if (this->havePcap()==false){
-    #ifdef WIN32
-        nping_fatal(QT_3, "Nping requires %s", privreq);
-    #else
-        nping_fatal(QT_3, "Nping requires libpcap to be installed on your system.");
-    #endif
-}
-
-
 /** ROLE SELECTION ***********************************************************/
   /* Ensure that at least one role is selected */
   if ( !this->issetRole() ) {
@@ -3057,7 +3030,7 @@ int NpingOps::setDelayedRcvd(const char *str, nsock_event_id id){
 } /* End of setDelayedRcvd() */
 
 
-/** Returns a pointer to a delayed RCVD output string. It returns non-NULL 
+/** Returns a pointer to a delayed RCVD output string. It returns non-NULL
   * strings only once per prior setDelayedRcvd() call. This is, when a string
   * has been set through a setDelayRcdv() call, the first time getDelayRcvd()
   * is called, it returns that string. Subsequent calls will return NULL until
