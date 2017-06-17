@@ -71,7 +71,7 @@ SQLException
 Supplied argument is not a valid MySQL result resource in
 Supplied argument is not a valid PostgreSQL result
 Syntax error in query expression
-System.IndexOutOfRangeException
+System%.IndexOutOfRangeException
 The error occurred in
 The script whose uid is
 Type mismatch
