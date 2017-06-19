@@ -208,6 +208,9 @@ int select_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, i
   iod->watched_events |= ev_set;
   iod->watched_events &= ~ev_clr;
 
+  ev_set |= EV_EXCEPT;
+  ev_clr &= ~EV_EXCEPT;
+
   sd = nsock_iod_get_sd(iod);
 
   /* -- set events -- */
@@ -233,7 +236,7 @@ int select_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, i
 
   /* -- update max_sd -- */
   if (ev_set != EV_NONE)
-    sinfo->max_sd = MAX(sinfo->max_sd,sd);
+    sinfo->max_sd = MAX(sinfo->max_sd, sd);
   else if (ev_clr != EV_NONE && iod->events_pending == 1 && (sinfo->max_sd == sd))
     sinfo->max_sd--;
 
