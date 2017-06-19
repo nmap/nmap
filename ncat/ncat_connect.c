@@ -1216,8 +1216,8 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
 
 
     if (status == NSE_STATUS_EOF) {
-      if (!o.noshutdown)
-        shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
+        if (!o.noshutdown)
+            shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
         /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
             nsock_loop_quit(nsp);
