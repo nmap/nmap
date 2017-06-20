@@ -1571,7 +1571,11 @@ function parse_redirect(host, port, path, response)
   if ( not(u.host) ) then
     -- we're dealing with a relative url
     u.host = stdnse.get_hostname(host)
-    u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
+    if ( u.path:sub(1,1) == "/") then
+      u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
+    else
+      u.path = ((path:sub(1,1) == "/" and "" ) or "/" ) .. path .. ((path:sub(#path,#path) == "/" and "" ) or "/" ) .. u.path
+    end
   end
   -- do port fixup
   u.port = u.port or get_default_port(u.scheme) or port.number
@@ -1640,6 +1644,30 @@ function get(host, port, path, options)
     response, state = lookup_cache("GET", u.host, u.port, u.path, options);
     if ( response == nil ) then
       response = generic_request(u.host, u.port, "GET", u.path, options)
+      if(response.cookies and #response.cookies>0) then 
+        if (options and options.cookies and #options.cookies>0) then
+          --We replace the value of the cookie if same name cookie exists
+          --Else, we append it in the end.
+          local flag = 0
+          for k,v in pairs(response.cookies) do
+            for k1,v1 in pairs(options.cookies) do
+              flag = 0   
+              if(v.name == v1.name) then
+                options.cookies[k1].value = response.cookies[k].value
+                flag = 1
+                break
+              end 
+            end
+            if (flag == 0) then
+              options.cookies[#options.cookies+1] = response.cookies[k]
+            end
+          end
+        else
+          if options and options.cookies then
+            options.cookies = response.cookies
+          end
+        end
+      end      
       insert_cache(state, response);
     end
     u = parse_redirect(host, port, path, response)
