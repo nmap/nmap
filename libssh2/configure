@@ -2429,7 +2429,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-ac_config_headers="$ac_config_headers src/libssh2_config.h example/libssh2_config.h"
+ac_config_headers="$ac_config_headers src/libssh2_config.h"
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
@@ -18580,7 +18580,7 @@ $as_echo "$as_me: WARNING: non-block sockets disabled" >&2;}
   fi
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile tests/Makefile example/Makefile docs/Makefile libssh2.pc"
+ac_config_files="$ac_config_files Makefile src/Makefile libssh2.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -19634,14 +19634,10 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "src/libssh2_config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libssh2_config.h" ;;
-    "example/libssh2_config.h") CONFIG_HEADERS="$CONFIG_HEADERS example/libssh2_config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
-    "example/Makefile") CONFIG_FILES="$CONFIG_FILES example/Makefile" ;;
-    "docs/Makefile") CONFIG_FILES="$CONFIG_FILES docs/Makefile" ;;
     "libssh2.pc") CONFIG_FILES="$CONFIG_FILES libssh2.pc" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
