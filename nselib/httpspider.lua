@@ -841,31 +841,29 @@ Crawler = {
       else
         -- fetch the url, and then push it to the processed table
         response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache, cookies = self.options.cookies } )
-        if(response.cookies and #response.cookies>0) then 
-          if (options and options.cookies and #options.cookies>0) then
+          if (self.options and self.options.cookies and #self.options.cookies>0) then
             --We replace the value of the cookie if same name cookie exists
             --Else, we append it in the end.
             local flag = 0
             for k,v in pairs(response.cookies) do
-              for k1,v1 in pairs(options.cookies) do
+              for k1,v1 in pairs(self.options.cookies) do
                 flag = 0   
                 if(v.name == v1.name) then
-                  options.cookies[k1].value = response.cookies[k].value
+                  self.options.cookies[k1].value = response.cookies[k].value
                   flag = 1
                   break
                 end 
               end
               if (flag == 0) then
-                options.cookies[#options.cookies+1] = response.cookies[k]
+                self.options.cookies[#options.cookies+1] = response.cookies[k]
               end
             end
           else
-            if options and options.cookies then
-              options.cookies = response.cookies
+            if self.options and self.options.cookies then
+              self.options.cookies = response.cookies
             end
-          end
-        end           
-      end
+          end         
+        end
 
       self.processed[tostring(url)] = true
 
