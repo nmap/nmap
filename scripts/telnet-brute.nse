@@ -100,6 +100,7 @@ local is_login_success = function (str)
       or lcstr:find("main%smenu%f[^%w]")                -- Netgear RM356
       or lcstr:find("main\x1B%[%d+;%d+hmenu%f[^%w]")    -- Netgear RM356
       or lcstr:find("^enter terminal emulation:%s*$")   -- Hummingbird telnetd
+      or lcstr:find("%f[%w]select an option%f[%W]")     -- Zebra PrintServer
 end
 
 
