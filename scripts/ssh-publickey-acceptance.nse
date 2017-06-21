@@ -90,7 +90,7 @@ action = function (host, port)
         if not helper:publickey_auth(usernames[j], privatekeys[i], "") then
           helper:disconnect()
           stdnse.verbose("Failed to authenticate")
-          return "Authentication Failed"
+          helper:connect(host,port)
         else
           table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
           stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
