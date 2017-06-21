@@ -181,6 +181,10 @@
 #include <openssl/opensslv.h>
 #endif
 
+#if HAVE_LIBSSH2
+#include "libssh2/libssh2v.h"
+#endif
+
 /* To get the version number only. */
 #ifdef WIN32
 #include "libdnet-stripped/include/dnet_winconfig.h"
@@ -2832,6 +2836,12 @@ static void display_nmap_version() {
   with.push_back(std::string("openssl-") + get_word_or_quote(OPENSSL_VERSION_TEXT, 1));
 #else
   without.push_back("openssl");
+#endif
+
+#if HAVE_LIBSSH2
+  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+#else
+  without.push_back("libssh2");
 #endif
 
 #ifdef PCRE_INCLUDED

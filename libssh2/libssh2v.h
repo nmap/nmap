@@ -1,0 +1,2 @@
+#define LIBSSH2_VERSION_TEXT "1.8.0"
+
