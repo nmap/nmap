@@ -1,0 +1,1 @@
+#define LIBZ_VERSION_TEXT "1.2.8"
