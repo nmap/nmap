@@ -185,6 +185,10 @@
 #include "libssh2/libssh2v.h"
 #endif
 
+#if ZLIB_INCLUDED
+#include "libz/libzv.h"
+#endif
+
 /* To get the version number only. */
 #ifdef WIN32
 #include "libdnet-stripped/include/dnet_winconfig.h"
@@ -2844,6 +2848,12 @@ static void display_nmap_version() {
   without.push_back("libssh2");
 #endif
 
+#if ZLIB_INCLUDED
+  with.push_back(std::string("libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+#else
+  without.push_back("libz");
+#endif
+  
 #ifdef PCRE_INCLUDED
   with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
 #else
