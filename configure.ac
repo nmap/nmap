@@ -355,6 +355,7 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
     ;;
   *)
     specialssldir="$with_openssl"
+    ac_configure_args="$ac_configure_args '--with-libssl-prefix=$with_openssl'"
     CPPFLAGS="$CPPFLAGS -I$with_openssl/include"
     LDFLAGS="$LDFLAGS -L$with_openssl/lib"
     ;;
