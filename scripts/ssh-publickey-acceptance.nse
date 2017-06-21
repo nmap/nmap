@@ -1,7 +1,7 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local base64 = require "base64"
-
+local string = require "string"
 local table = require "table"
 local io = require "io"
 
@@ -53,7 +53,7 @@ action = function (host, port)
         local status, result = helper:read_publickey(publickeys[i])
         if not status then
           stdnse.verbose("Error reading key: " .. result)
-        elseif helper:publickey_canauth(username, result) then
+        elseif helper:publickey_canauth(usernames[j], result) then
           table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
           stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j])
           helper:disconnect()
