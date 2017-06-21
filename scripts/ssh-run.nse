@@ -1,5 +1,6 @@
 local stdnse = require "stdnse"
 local shortport = require "shortport"
+local table = require "table"
 local libssh2_util = require "libssh2-utility"
 
 description = [[

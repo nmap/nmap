@@ -57,8 +57,7 @@ Driver = {
       err:setAbort(true)
       return false, err
     else
-      self.ssh_session = self.helper.session
-      libssh2.set_timeout(self.ssh_session, self.options.ssh_timeout)
+      self.helper:set_timeout(self.options.ssh_timeout)
       return true
     end
   end,
@@ -82,7 +81,7 @@ local function password_auth_allowed(host, port)
   if not helper:connect(host, port) then
     return "Failed to connect to ssh server"
   end
-  methods = helper:list("root")
+  local methods = helper:list("root")
   if methods then 
     for _, value in pairs(methods) do
       if value == "password" then
