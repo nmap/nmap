@@ -172,7 +172,8 @@ action = function(host, port)
     -- Check if timeout happended
     -- Add it to the corresponding key
     if err == "Timeout occurred." then
-      output[v] = err
+      --Ignore the timeout errors
+      --output[v] = err
 
     -- Socket connection creation failed
     -- Ignore this case and continue the loop interation
