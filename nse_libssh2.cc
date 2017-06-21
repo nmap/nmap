@@ -732,7 +732,7 @@ static int channel_write (lua_State *L, int status, lua_KContext ctx) {
     if (lua_isstring(L, 3))
         buf = lua_tolstring(L, 3, &buflen);
     else
-        luaL_error(L, "Invalid buffer");
+        return luaL_error(L, "Invalid buffer");
 
     while ((rc = libssh2_channel_write(*channel, buf, buflen)) == LIBSSH2_ERROR_EAGAIN) {
         luaL_getmetafield(L, 1, "filter");
