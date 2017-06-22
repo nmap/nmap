@@ -97,14 +97,10 @@ local function get_socket(host, port, request)
   sd:send(request)
 
   local status, data = sd:receive_buf("*#*1##", false)
-  if data == "EOF" then
-    return nil, nil, "Received EOF with no response."
-  end
 
-  if data == "TIMEOUT" then
-    return nil, nil, "Timeout occurred."
+  if not status then
+    return nil, nil, data
   end
-
   -- Ignore if the response is EOF which is of length 3
   -- Gateway length will be greater than 3
   if #data > 3 then
@@ -170,21 +166,8 @@ action = function(host, port)
     stdnse.debug("Fetching the list of " .. v .. " devices.")
 
     local sd, data, err = get_socket(host, port, "*##*#" .. _ .. "*0##")
-    -- Check if timeout happended
-    -- Add it to the corresponding key
-    if err == "Timeout occurred." then
-      --Ignore the timeout errors
-      --output[v] = err
 
-    -- Socket connection creation failed
-    -- Ignore this case and continue the loop interation
-    -- to fetch results of other services
-    elseif sd == nil then
-      -- Do nothing
-      -- return err
-
-    -- If there is no error, perform operations
-    else
+    if sd then
       resultant = trim_begin_and_end(data)
       results = custom_split("##", resultant)
 
