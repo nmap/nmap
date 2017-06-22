@@ -82,7 +82,7 @@ References:
 
 author = "Wong Wai Tuck"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"vuln", "safe"}
+categories = {"vuln", "intrusive"}
 
 local REG_EXP_SUCCESS = {"XPATH syntax error: &#039;(.-)&#039;",
   "XPATH syntax error: '(.-)'"}
@@ -113,7 +113,6 @@ to execute aribitrary SQL commands via unspecified vectors.
 
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   vuln_table.state = vulns.STATE.NOT_VULN
-
 
   local uri = stdnse.get_script_args(SCRIPT_NAME .. '.uri') or '/'
   uri = uri .. 'index.php?option=com_fields&view=fields&layout=modal&list[fullordering]=updatexml(1,concat(1,user()),1)'
