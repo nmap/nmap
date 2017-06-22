@@ -135,7 +135,7 @@ end
 
 action = function(host, port)
 
-  local output = {}
+  local output = stdnse.output_table()
 
   local sd, gateway, err = get_socket(host, port, "*#13**15##")
 
