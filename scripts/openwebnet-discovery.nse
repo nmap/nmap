@@ -25,7 +25,6 @@ of lights, multimedia and many other services running on server/servers.
 -- |   Burglar Alarm: 1
 -- |_  Lighting: 114
 --
--- Version: 0.1, Updated on 21/06/2017
 
 author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -33,45 +32,47 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(20000, "openwebnet")
 
-local device = {}
-device[2] = "MHServer"
-device[4] = "MH200"
-device[6] = "F452"
-device[7] = "F452V"
-device[11] = "MHServer2"
-device[12] = "F453AV"
-device[13] = "H4684"
-device[15] = "F427 (Gateway Open-KNX)"
-device[16] = "F453"
-device[23] = "H4684"
-device[27] = "L4686SDK"
-device[44] = "MH200N"
-device[51] = "F454"
-device[200] = "F454 (new?)"
+local device = {
+  [2] = "MHServer",
+  [4] = "MH200",
+  [6] = "F452",
+  [7] = "F452V",
+  [11] = "MHServer2",
+  [12] = "F453AV",
+  [13] = "H4684",
+  [15] = "F427 (Gateway Open-KNX)",
+  [16] = "F453",
+  [23] = "H4684",
+  [27] = "L4686SDK",
+  [44] = "MH200N",
+  [51] = "F454",
+  [200] = "F454 (new?)"
+}
 
-local who = {}
-who[0] = "Scenarios"
-who[1] = "Lighting"
-who[2] = "Automation"
-who[3] = "Power Management"
-who[4] = "Heating"
-who[5] = "Burglar Alarm"
-who[6] = "Door Entry System"
-who[7] = "Multimedia"
-who[9] = "Auxiliary"
-who[13] = "Device Communication"
-who[14] = "Light+shutters actuators lock"
-who[15] = "WHO=15 - CEN"
-who[16] = "Sound System"
-who[17] = "Scenario Programming"
-who[18] = "Energy Management"
-who[24] = "Lighting Management"
-who[25] = "WHO=25 - CEN plus"
-who[1000] = "Diagnostic"
-who[1001] = "Automation Diagnostic"
-who[1004] = "Heating Diagnostic"
-who[1008] = "Door Entry System Diagnostic"
-who[1013] = "Device Diagnostic"
+local who = {
+  [0] = "Scenarios",
+  [1] = "Lighting",
+  [2] = "Automation",
+  [3] = "Power Management",
+  [4] = "Heating",
+  [5] = "Burglar Alarm",
+  [6] = "Door Entry System",
+  [7] = "Multimedia",
+  [9] = "Auxiliary",
+  [13] = "Device Communication",
+  [14] = "Light+shutters actuators lock",
+  [15] = "=15 - CEN",
+  [16] = "Sound System",
+  [17] = "Scenario Programming",
+  [18] = "Energy Management",
+  [24] = "Lighting Management",
+  [25] = "=25 - CEN plus",
+  [1000] = "Diagnostic",
+  [1001] = "Automation Diagnostic",
+  [1004] = "Heating Diagnostic",
+  [1008] = "Door Entry System Diagnostic",
+  [1013] = "Device Diagnostic"
+}
 
 -- Initiates a socket connection and returns the received data.
 local function get_socket(host, port, request)
