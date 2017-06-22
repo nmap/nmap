@@ -91,8 +91,6 @@ local function get_socket(host, port, request)
     return nil, nil, "Received a negative ACK as response."
   end
 
-  stdnse.sleep(2)
-
   -- Request for fetching Gateway address
   sd:send(request)
 
