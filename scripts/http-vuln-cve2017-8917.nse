@@ -13,10 +13,10 @@ version 3.7. This component is publicly accessible, which means this can be
 exploited by any malicious individual visiting the site.
 
 The script attempts to inject an SQL statement that runs the <code>user()</code>
-information functionon the target website. A successful injection will return
+information function on the target website. A successful injection will return
 the current MySQL user name and host name in the extra_info table.
 
-This script is based on a python script written by brianwrf.
+This script is based on a Python script written by brianwrf.
 
 References:
 * https://blog.sucuri.net/2017/05/sql-injection-vulnerability-joomla-3-7.html
