@@ -2,7 +2,6 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local comm = require "comm"
 local string = require "string"
-local match = require "match"
 
 description = [[
 OpenWebNet is a communications protocol developed by Bticino since 2000.
@@ -123,7 +122,7 @@ action = function(host, port)
   -- Requests for Gateway
   sd:send("*#13**15##")
 
-  local status, gateway = sd:receive_buf(match.pattern_limit(ACK, 1024), true)
+  local status, gateway = sd:receive_buf(ACK, true)
   if not status then
     return gateway
   end
