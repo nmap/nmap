@@ -57,22 +57,7 @@ local who = {
   [3] = "Power Management",
   [4] = "Heating",
   [5] = "Burglar Alarm",
-  [6] = "Door Entry System",
-  [7] = "Multimedia",
-  [9] = "Auxiliary",
-  [13] = "Device Communication",
-  [14] = "Light+shutters actuators lock",
-  [15] = "CEN",
-  [16] = "Sound System",
-  [17] = "Scenario Programming",
-  [18] = "Energy Management",
-  [24] = "Lighting Management",
-  [25] = "CEN plus",
-  [1000] = "Diagnostic",
-  [1001] = "Automation Diagnostic",
-  [1004] = "Heating Diagnostic",
-  [1008] = "Door Entry System Diagnostic",
-  [1013] = "Device Diagnostic"
+  [6] = "Door Entry System"
 }
 
 local ACK = "*#*1##"
@@ -133,7 +118,7 @@ action = function(host, port)
     return err
   end
 
-  stdnse.debug("Requesting for Gateway address")
+  stdnse.debug("Requesting for Gateway address.")
 
   -- Requests for Gateway
   sd:send("*#13**15##")
@@ -160,7 +145,7 @@ action = function(host, port)
         table.insert(res, data)
       end
       if data == ACK then
-        stdnse.debug("Done receiving data")
+        stdnse.debug("Done receiving data for " .. v .. "devices.")
         break
       end
 
