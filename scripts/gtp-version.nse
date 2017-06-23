@@ -4,6 +4,14 @@ local stdnse = require "stdnse"
 local bin = require "bin"
 local nmap = require "nmap"
 
+-- nmap -sC --script=scripts/gtp-version.nse -sU -p 2152,2123 127.0.0.1
+-- ...
+-- PORT     STATE SERVICE
+-- 2123/udp open  gtp-control
+-- |_gtp-version:  v1
+-- 2152/udp open  gtp-user
+-- |_gtp-version:  v1
+
 
 description = [[
 Scans for GTPv1/v2 services using EchoRequest.
@@ -33,7 +41,7 @@ local ECHOREQUEST_V1 = bin.pack(">CCSISCC",
   -- next extension header type
   0x00)
 
-local ECHOREQUEST_V2 = bin.pack(">CCSCCC",
+local ECHOREQUEST_V2 = bin.pack(">CCSCCCC",
   -- GTPv2
   0x40,
   -- EchoRequest
@@ -41,7 +49,7 @@ local ECHOREQUEST_V2 = bin.pack(">CCSCCC",
   -- message length
   0x0004,
   -- sequence number
-  0xde, 0xfe, 0xc8)
+  0xde, 0xfe, 0xc8, 0x00)
 
 
 action = function(host, port)
