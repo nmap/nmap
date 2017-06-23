@@ -2,6 +2,7 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local comm = require "comm"
 local string = require "string"
+local match = require "match"
 
 description = [[
 OpenWebNet is a communications protocol developed by Bticino since 2000.
@@ -61,12 +62,12 @@ local who = {
   [9] = "Auxiliary",
   [13] = "Device Communication",
   [14] = "Light+shutters actuators lock",
-  [15] = "=15 - CEN",
+  [15] = "CEN",
   [16] = "Sound System",
   [17] = "Scenario Programming",
   [18] = "Energy Management",
   [24] = "Lighting Management",
-  [25] = "=25 - CEN plus",
+  [25] = "CEN plus",
   [1000] = "Diagnostic",
   [1001] = "Automation Diagnostic",
   [1004] = "Heating Diagnostic",
@@ -74,38 +75,28 @@ local who = {
   [1013] = "Device Diagnostic"
 }
 
--- Initiates a socket connection and returns the received data.
+local ACK = "*#*1##"
+local NACK = "*#*0##"
+
+-- Initiates a socket connection
+-- Returns the socket and error message
 local function get_socket(host, port, request)
 
   local sd, response, early_resp = comm.opencon(host, port, request)
 
   if sd == nil then
-    return nil, nil, "Socket connection error."
+    return nil, "Socket connection error."
   end
 
   if not response then
-    return nil, nil, "Poor internet connection or no response."
+    return nil, "Poor internet connection or no response."
   end
 
-  if response == "*#*0##" then
-    return nil, nil, "Received a negative ACK as response."
+  if response == NACK then
+    return nil, "Received a negative ACK as response."
   end
 
-  -- Request for fetching Gateway address
-  sd:send(request)
-
-  local status, data = sd:receive_buf("*#*1##", false)
-
-  if not status then
-    return nil, nil, data
-  end
-  -- Ignore if the response is EOF which is of length 3
-  -- Gateway length will be greater than 3
-  if #data > 3 then
-    -- Appending the delimiters to the data received for showing output
-    data = "*#*1##" .. data .. "1##"
-    return sd, data, nil
-  end
+  return sd, nil
 end
 
 -- Removes *#*1## from the beginning and ending
@@ -135,46 +126,51 @@ action = function(host, port)
 
   local output = stdnse.output_table()
 
-  local sd, gateway, err = get_socket(host, port, "*#13**15##")
+  local sd, err = get_socket(host, port, ACK)
 
   -- Socket connection creation failed
   if sd == nil then
     return err
   end
 
-  output["Gateway"] = gateway
+  stdnse.debug("Requesting for Gateway address")
 
-  local resultant = trim_begin_and_end(gateway)
-  local results = custom_split("##", resultant)
+  -- Requests for Gateway
+  sd:send("*#13**15##")
 
-  for _, v in pairs(results) do
-    -- Retrieving the device ID from Gateway
-    -- Its WHO value is equal to 13
-    local device_id = string.match(v,"(%d+)##$")
-    if device_id == nil then
-      -- Do nothing, ignore the failed case
-    elseif tonumber(device_id) > 0 then
-      output["Device"] = device[tonumber(device_id)]
-    end
+  local status, gateway = sd:receive_buf(match.pattern_limit(ACK, 1024), true)
+  if not status then
+    return gateway
   end
+
+  output["Gateway"] = ACK .. gateway
 
   -- Fetching list of each device
   for _, v in pairs(who) do
 
     stdnse.debug("Fetching the list of " .. v .. " devices.")
+    local res = {}
+    sd:send("*##*#" .. _ .. "*0##")
 
-    local sd, data, err = get_socket(host, port, "*##*#" .. _ .. "*0##")
+    local status, data
 
-    if sd then
-      resultant = trim_begin_and_end(data)
-      results = custom_split("##", resultant)
-
-      -- Count of number of available services
-      if #results > 0 then
-        output[v] = #results
+    repeat
+      status, data = sd:receive_buf("##", true)
+      if status and data ~= ACK then
+        table.insert(res, data)
+      end
+      if data == ACK then
+        stdnse.debug("Done receiving data")
+        break
       end
 
-    end
+      -- If response is NACK, it means the request method is not supported
+      if data == NACK then
+        res = {}
+      end
+    until not status
+
+    output[v] = #res
   end
 
   return output
