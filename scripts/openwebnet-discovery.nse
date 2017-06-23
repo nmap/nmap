@@ -122,12 +122,26 @@ action = function(host, port)
   -- Requests for Gateway
   sd:send("*#13**15##")
 
-  local status, gateway = sd:receive_buf(ACK, true)
-  if not status then
-    return gateway
-  end
+  local status, gateway
 
-  output["Gateway"] = ACK .. gateway
+  repeat
+    status, data = sd:receive_buf("##", true)
+    if status and data ~= ACK then
+      stdnse.debug("Gatway = " .. data)
+      gateway = data
+    end
+    if data == ACK then
+      stdnse.debug("Done receiving data.")
+      break
+    end
+
+    -- If response is NACK, it means the request method is not supported
+    if data == NACK then
+      gateway = ""
+    end
+  until not status
+
+  output["Gateway"] = ACK .. gateway .. ACK
 
   -- Fetching list of each device
   for _, v in pairs(who) do
