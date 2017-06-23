@@ -83,6 +83,32 @@ local function get_socket(host, port, request)
   return sd, nil
 end
 
+local function get_response(sd, request)
+
+  local res = {}
+  local status, data
+
+  sd:send(request)
+
+  repeat
+    status, data = sd:receive_buf("##", true)
+    if status and data ~= ACK then
+      table.insert(res, data)
+    end
+    if data == ACK then
+      stdnse.debug("Done receiving data for " .. v .. "devices.")
+      break
+    end
+
+    -- If response is NACK, it means the request method is not supported
+    if data == NACK then
+      res = {}
+    end
+  until not status
+
+  return res
+end
+
 -- Removes *#*1## from the beginning and ending
 local function trim_begin_and_end(gateway)
   local trim_begin = string.sub(gateway, 7)
@@ -119,56 +145,17 @@ action = function(host, port)
 
   stdnse.debug("Requesting for Gateway address.")
 
-  -- Requests for Gateway
-  sd:send("*#13**15##")
-
-  local status, gateway
-
-  repeat
-    status, data = sd:receive_buf("##", true)
-    if status and data ~= ACK then
-      stdnse.debug("Gatway = " .. data)
-      gateway = data
-    end
-    if data == ACK then
-      stdnse.debug("Done receiving data.")
-      break
-    end
-
-    -- If response is NACK, it means the request method is not supported
-    if data == NACK then
-      gateway = ""
-    end
-  until not status
-
-  output["Gateway"] = ACK .. gateway .. ACK
+  local res = get_response(sd, "*#13**15##")
+  output["Gateway"] = res
 
   -- Fetching list of each device
   for _, v in pairs(who) do
 
     stdnse.debug("Fetching the list of " .. v .. " devices.")
-    local res = {}
-    sd:send("*##*#" .. _ .. "*0##")
 
-    local status, data
-
-    repeat
-      status, data = sd:receive_buf("##", true)
-      if status and data ~= ACK then
-        table.insert(res, data)
-      end
-      if data == ACK then
-        stdnse.debug("Done receiving data for " .. v .. "devices.")
-        break
-      end
-
-      -- If response is NACK, it means the request method is not supported
-      if data == NACK then
-        res = {}
-      end
-    until not status
-
+    local res = get_response(sd, "*##*#" .. _ .. "*0##")
     output[v] = #res
+
   end
 
   return output
