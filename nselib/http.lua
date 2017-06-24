@@ -1571,13 +1571,13 @@ function parse_redirect(host, port, path, response)
   if ( not(u.host) ) then
     -- we're dealing with a relative url
     u.host = stdnse.get_hostname(host)
-    u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
   end
   -- do port fixup
   u.port = u.port or get_default_port(u.scheme) or port.number
   if ( not(u.path) ) then
     u.path = "/"
   end
+  u.path = url.absolute(path, u.path)
   if ( u.query ) then
     u.path = ("%s?%s"):format( u.path, u.query )
   end
