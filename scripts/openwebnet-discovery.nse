@@ -128,6 +128,28 @@ local function get_response(sd, request)
   return res
 end
 
+local function format_dimensions(res)
+
+  if res["Time"] then
+    res["Time"] = string.gsub(res["Time"], "%.", ":")
+  end
+
+  if res["Date"] then
+    res["Date"] = string.match(res["Date"],"%.(%d.+)$")
+  end
+
+  if res["Device Type"] then
+    res["Device Type"] = device[ tonumber( res["Device Type"] ) ]
+  end
+
+  if res["MAC address"] then
+    res["MAC address"] = string.gsub(res["MAC address"], "%.", "-")
+  end
+
+  return res
+
+end
+
 -- Removes *#*1## from the beginning and ending
 local function trim_begin_and_end(gateway)
   local trim_begin = string.sub(gateway, 7)
@@ -184,6 +206,9 @@ action = function(host, port)
                   ), "*", ".")
 
   end
+
+  -- Format the output based on dimension
+  output = format_dimensions(output)
 
   -- Fetching list of each device
   for _, v in pairs(who) do
