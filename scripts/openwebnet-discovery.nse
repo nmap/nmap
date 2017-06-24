@@ -115,7 +115,6 @@ local function get_response(sd, request)
       table.insert(res, data)
     end
     if data == ACK then
-      stdnse.debug("Done receiving data for " .. v .. "devices.")
       break
     end
 
@@ -150,29 +149,6 @@ local function format_dimensions(res)
 
 end
 
--- Removes *#*1## from the beginning and ending
-local function trim_begin_and_end(gateway)
-  local trim_begin = string.sub(gateway, 7)
-  local trim_end = string.sub(trim_begin, 1, -6)
-  return trim_end
-end
-
--- Returns table after appending the delimiter
--- The return table contains the list of devices
-local function custom_split(delimiter, resultant)
-  -- Trim at the end point to check for multiple entries
-  local fields = stdnse.strsplit(delimiter, resultant)
-
-  local results = {}
-  for _,v in pairs(fields) do
-    if #v > 0 then
-      table.insert(results, v .. delimiter)
-    end
-  end
-
-  return results
-end
-
 action = function(host, port)
 
   local output = stdnse.output_table()
@@ -187,7 +163,7 @@ action = function(host, port)
   -- Fetching list of dimensions of a device
   for _, v in pairs(device_dimensions) do
 
-    stdnse.debug("Fetching  " .. _)
+    stdnse.debug("Fetching " .. _)
 
     local res = get_response(sd, v)
 
