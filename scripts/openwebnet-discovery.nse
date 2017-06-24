@@ -14,17 +14,23 @@ of lights, multimedia and many other services running on server/servers.
 -- nmap --script openwebnet-discovery
 --
 -- @output
--- | openwebnet-discovery:
--- |   Gateway: *#*1##*#13**15*12##*#1##
--- |   Heating: 1
--- |   Power Management: 1
--- |   Multimedia: 1
--- |   Device: F453AV
--- |   Automation: 3
--- |   Door Entry System: 2
--- |   Burglar Alarm: 1
--- |_  Lighting: 114
---
+--  | openwebnet-discover:
+--  |   MAC address: 0-3-80-1-211-17
+--  |   Kernel Version: 2.3.8
+--  |   Net mask: 255.255.255.0
+--  |   IP address: 192.168.200.35
+--  |   Time: 19:58:33:001
+--  |   Date: 24.06.2017
+--  |   Device Type: F453AV
+--  |   Distribution Version: 3.0.1
+--  |   Firmware version: 3.0.14
+--  |   Uptime: 5.3.28.38
+--  |   Scenarios: 0
+--  |   Lighting: 115
+--  |   Automation: 13
+--  |   Heating: 0
+--  |   Burglar Alarm: 12
+--  |_  Door Entry System: 0
 
 author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
@@ -57,6 +63,19 @@ local who = {
   [4] = "Heating",
   [5] = "Burglar Alarm",
   [6] = "Door Entry System"
+}
+
+local device_dimensions = {
+  ["Time"] = "*#13**0##",
+  ["Date"] = "*#13**1##",
+  ["IP address"]	= "*#13**10##",
+  ["Net mask"] = "*#13**11##",
+  ["MAC address"]	= "*#13**12##",
+  ["Device Type"]	= "*#13**15##",
+  ["Firmware version"] = "*#13**16##",
+  ["Uptime"] = "*#13**19##",
+  ["Kernel Version"] = "*#13**23##",
+  ["Distribution Version"] = "*#13**24##"
 }
 
 local ACK = "*#*1##"
@@ -143,10 +162,28 @@ action = function(host, port)
     return err
   end
 
-  stdnse.debug("Requesting for Gateway address.")
+  -- Fetching list of dimensions of a device
+  for _, v in pairs(device_dimensions) do
 
-  local res = get_response(sd, "*#13**15##")
-  output["Gateway"] = res
+    stdnse.debug("Fetching  " .. _)
+
+    local res = get_response(sd, v)
+
+    -- Extracts substring from the result
+    -- Ex:
+    --  Request - *#13**16##
+    --  Response - *#13**16*3*0*14##
+    --  Trimmed Output - 3*0*14##
+
+    output[_] = string.gsub(
+                  string.sub(
+                    string.gsub(
+                      res[1], string.gsub(
+                        string.sub(v,1,-3) .. "*","*","%%*"
+                      ), ""), 1, -3
+                  ), "*", ".")
+
+  end
 
   -- Fetching list of each device
   for _, v in pairs(who) do
