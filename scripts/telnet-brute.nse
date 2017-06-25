@@ -97,8 +97,8 @@ local is_login_success = function (str)
   local lcstr = str:lower()
   return lcstr:find("[/>%%%$#]%s*$")                    -- general prompt
       or lcstr:find("^last login%s*:")                  -- linux telnetd
-      or lcstr:find("main%smenu%f[^%w]")                -- Netgear RM356
-      or lcstr:find("main\x1B%[%d+;%d+hmenu%f[^%w]")    -- Netgear RM356
+      or lcstr:find("main%smenu%f[%W]")                 -- Netgear RM356
+      or lcstr:find("main\x1B%[%d+;%d+hmenu%f[%W]")     -- Netgear RM356
       or lcstr:find("^enter terminal emulation:%s*$")   -- Hummingbird telnetd
       or lcstr:find("%f[%w]select an option%f[%W]")     -- Zebra PrintServer
 end
@@ -112,11 +112,11 @@ end
 -- @return Verdict (true or false)
 local is_login_failure = function (str)
   local lcstr = str:lower()
-  return lcstr:find("%f[%w]incorrect%f[^%w]")
-      or lcstr:find("%f[%w]failed%f[^%w]")
-      or lcstr:find("%f[%w]denied%f[^%w]")
-      or lcstr:find("%f[%w]invalid%f[^%w]")
-      or lcstr:find("%f[%w]bad%f[^%w]")
+  return lcstr:find("%f[%w]incorrect%f[%W]")
+      or lcstr:find("%f[%w]failed%f[%W]")
+      or lcstr:find("%f[%w]denied%f[%W]")
+      or lcstr:find("%f[%w]invalid%f[%W]")
+      or lcstr:find("%f[%w]bad%f[%W]")
 end
 
 
