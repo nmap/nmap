@@ -101,9 +101,6 @@ end
 -- @param passphrase A passphrase for the privatekey.
 -- @return true on success or false on failure.
 function SSHConnection:publickey_auth(username, privatekey_file, passphrase)
-  if not passphrase then
-    local passphrase = ""
-  end
   if not self.session then
     return false
   end
