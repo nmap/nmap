@@ -9,6 +9,7 @@
 -- @name libssh2-utility
 
 local stdnse = require "stdnse"
+local table = require "table"
 
 local libssh2 = stdnse.silent_require "libssh2"
 
@@ -64,15 +65,15 @@ function SSHConnection:run_remote(cmd)
   local channel = libssh2.open_channel(self.session)
   libssh2.channel_exec(self.session, channel, cmd) 
   libssh2.channel_send_eof(self.session, channel)
-  local buff = ""
+  local buff = {}
   local data = ""
   while not libssh2.channel_eof(channel) do
     data = libssh2.channel_read(self.session, channel)
     if data then
-      buff = buff .. data
+      table.insert(buff, data)
     end
   end
-  return buff
+  return table.concat(buff)
 end
 
 ---
