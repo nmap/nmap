@@ -900,6 +900,7 @@ static int gc (lua_State *L) {
     struct ssh_userdata *sshu = NULL;
 
     sshu = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+    if (!sshu) { return 0; }
     if (sshu) {
         // lua_pushvalue(L, lua_upvalueindex(1));
         // lua_getfield(L, -1, "session_close");
