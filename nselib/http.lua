@@ -86,6 +86,7 @@
 --     end
 --   end
 --   </code>
+-- * <code>no_cookie_overwrite</code>: Do not overwrite the cookies initially provided and when a duplicate cookie is received, ignore it.
 --
 -- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
@@ -353,7 +354,7 @@ local function validate_options(options)
       end
     elseif (key == 'ntlmauth') then
       stdnse.debug1("Proceeding with ntlm message")
-    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af') then
+    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af' or key == 'no_cookie_overwrite') then
       if(type(value) ~= 'boolean') then
         stdnse.debug1("http: options.%s must be a boolean value", key)
         bad = true
@@ -838,7 +839,6 @@ local function next_response(s, method, partial)
     cookies={},
     body=""
   }
-
   status_line, partial = recv_line(s, partial)
   if not status_line then
     return nil, partial
@@ -1252,6 +1252,45 @@ local function request(host, port, data, options)
   return response
 end
 
+--- This function merges the cookies received in <code>response.cookies</code> 
+-- to the cookies that already exist in the options. 
+--
+-- The merge is based on RFC 6265 and when a different cookie with same <code>
+-- name</code>, <code>path</code> and <code>domain</code> is received, it replaces
+-- the old cookie, else it gets appended at the end of <code>options.cookies</code table.
+
+-- @param response The response received from the server
+-- @param options The options table having previously received cookies.
+-- @return A response table
+-- @return An options table, with the cookies from the response table appended.
+-- @see get
+local function merge_cookie_table(response, options)
+  local flag = false
+  for r_index,r_cookie in pairs(response.cookies) do
+    for o_index,o_cookie in pairs(options.cookies) do
+      flag = false
+      if(r_cookie.name == o_cookie.name) then
+        --We need to check if domain and path are equal.
+        --Note:If both domain and path are nil for r_cookie and o_cookie,
+        --we need to change the cookie value 
+        --Nmap http library doesnt take cookie.domain into consideration anywhere.
+        --See RFC 6265 Section 5.3 for how duplicate cookies are handled
+        if(r_cookie.domain == o_cookie.domain and r_cookie.path == o_cookie.path) then 
+          --If options.no_cookie_overwrite is set, we simply ignore this cookie
+          if(options.no_cookie_overwrite == true ) then break end 
+          options.cookies[o_index].value = response.cookies[r_index].value
+          flag = true
+          break
+        end
+      end 
+    end
+    if (flag == false) then
+      options.cookies[#options.cookies+1] = response.cookies[r_index]
+    end
+  end
+  return response, options
+end
+
 ---Do a single request with a given method. The response is returned as the standard
 -- response table (see the module documentation).
 --
@@ -1636,10 +1675,20 @@ function get(host, port, path, options)
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
+  if (options == nil) then options = {} end
   repeat
     response, state = lookup_cache("GET", u.host, u.port, u.path, options);
     if ( response == nil ) then
+      -- Check for response 
       response = generic_request(u.host, u.port, "GET", u.path, options)
+      if(response.cookies and #response.cookies>0) then
+        if (options.cookies and #options.cookies>0) then
+          response, options = merge_cookie_table(response, options)
+          --We call this function.
+        else --If we dont have anything in the options, we simply make it equal to received cookies.
+          options.cookies = response.cookies
+        end
+      end
       insert_cache(state, response);
     end
     u = parse_redirect(host, port, path, response)
