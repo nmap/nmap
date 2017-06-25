@@ -14,41 +14,41 @@ see if the target ssh server accepts them for publickey authentication. If no ke
 
 ---
 -- @usage
---  nmap -p 22 --script ssh-publickey-acceptance --script-args "ssh.usernames={'root', 'user'}, ssh.privatekeys={'./id_rsa1', './id_rsa2'}"  <target> 
+--  nmap -p 22 --script ssh-publickey-acceptance --script-args "ssh.usernames={'root', 'user'}, ssh.privatekeys={'./id_rsa1', './id_rsa2'}"  <target>
 --
--- @usage 
+-- @usage
 --  nmap -p 22 --script ssh-publickey-acceptance --script-args 'ssh.usernames={"root", "user"}, publickeys={"./id_rsa1.pub", "./id_rsa2.pub"}'  <target>
 --
 -- @output
 -- 22/tcp open  ssh     syn-ack
--- | ssh-publickey-acceptance: 
--- |   Accepted Public Keys: 
+-- | ssh-publickey-acceptance:
+-- |   Accepted Public Keys:
 -- |_    Key ./id_rsa1 accepted for user root
 --
 -- @args ssh.privatekeys Table containing filenames of privatekeys to test
 -- @args ssh.publickeys Table containing filenames of publickkeys to test
 -- @args ssh.usernames Table containing usernames to check
--- @args knownbad   If specified, check if keys from publickeydb are accepted 
--- @args publickeydb  Specifies alternative publickeydb 
+-- @args knownbad   If specified, check if keys from publickeydb are accepted
+-- @args publickeydb  Specifies alternative publickeydb
 
 author = "Devin Bjelland"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-local privatekeys = stdnse.get_script_args("ssh.privatekeys")
-local usernames = stdnse.get_script_args("ssh.usernames")
-local knownbad = stdnse.get_script_args("known-bad")
-local publickeys = stdnse.get_script_args("ssh.publickeys")
-local publickeydb = stdnse.get_script_args("publickeydb") or "nselib/data/publickeydb"
+local privatekeys = stdnse.get_script_args "ssh.privatekeys"
+local usernames = stdnse.get_script_args "ssh.usernames"
+local knownbad = stdnse.get_script_args "known-bad"
+local publickeys = stdnse.get_script_args "ssh.publickeys"
+local publickeydb = stdnse.get_script_args "publickeydb" or "nselib/data/publickeydb"
 portrule = shortport.port_or_service(22, 'ssh')
 
-action = function (host, port) 
+function action (host, port)
   local result = stdnse.output_table()
   local r = {}
   local helper = libssh2_util.SSHConnection:new()
   helper:connect(host, port)
   if publickeys and usernames then
-    for j=1,#usernames do
-      for i=1,#publickeys do
+    for j = 1, #usernames do
+      for i = 1, #publickeys do
         stdnse.debug("Checking key: " .. publickeys[i] .. " for user " .. usernames[j])
         local status, result = helper:read_publickey(publickeys[i])
         if not status then
@@ -84,17 +84,17 @@ action = function (host, port)
   end
 
   if privatekeys and usernames then
-    for j=1,#usernames do
-      for i=1,#privatekeys do
+    for j = 1, #usernames do
+      for i = 1, #privatekeys do
         stdnse.debug("Checking key: " .. privatekeys[i] .. " for user " .. usernames[j])
         if not helper:publickey_auth(usernames[j], privatekeys[i], "") then
           helper:disconnect()
-          stdnse.verbose("Failed to authenticate")
-          helper:connect(host,port)
+          stdnse.verbose "Failed to authenticate"
+          helper:connect(host, port)
         else
           table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
           stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
-          
+
           helper:disconnect()
           helper:connect(host, port)
         end
@@ -105,9 +105,9 @@ action = function (host, port)
 
   if #r > 0 then
     result["Accepted Public Keys"] = r
-  else 
-    result["Accepted Public Keys"] = "No public keys accepted" 
+  else
+    result["Accepted Public Keys"] = "No public keys accepted"
   end
 
   return result
-end  
+end

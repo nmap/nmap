@@ -26,16 +26,21 @@ Performs brute-force password guessing against ssh servers.
 
 author = "Devin Bjelland"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {'brute', 'intrusive'}
+categories = {
+  'brute',
+  'intrusive',
+}
 
 portrule = shortport.port_or_service(22, 'ssh')
 
 local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or "5s"
 
 Driver = {
-  new = function(self, host, port, options)
+  new = function (self, host, port, options)
     stdnse.debug(2, "creating brute driver")
-    local o = { helper = libssh2_util.SSHConnection:new()}
+    local o = {
+      helper = libssh2_util.SSHConnection:new(),
+    }
     setmetatable(o, self)
     self.__index = self
     o.host = host
@@ -52,7 +57,7 @@ Driver = {
       err:setReduce(true)
       return false, err
     elseif not self.helper.session then
-      stdnse.debug(2, "failure to connect: %s", err);
+      stdnse.debug(2, "failure to connect: %s", err)
       local err = brute.Error:new(err)
       err:setAbort(true)
       return false, err
@@ -62,27 +67,27 @@ Driver = {
     end
   end,
 
-  login = function(self, username, password)
+  login = function (self, username, password)
     stdnse.verbose(1, "Trying username/password pair: %s:%s", username, password)
     local status, resp = self.helper:password_auth(username, password)
-    if ( status ) then
+    if status then
       return true, creds.Account:new(username, password, creds.State.VALID)
     end
-    return false, brute.Error:new( "Incorrect password" )
+    return false, brute.Error:new "Incorrect password"
   end,
 
-  disconnect = function(self)
+  disconnect = function (self)
     return self.helper:disconnect()
   end,
 }
 
-local function password_auth_allowed(host, port)
+local function password_auth_allowed (host, port)
   local helper = libssh2_util.SSHConnection:new()
   if not helper:connect(host, port) then
     return "Failed to connect to ssh server"
   end
-  local methods = helper:list("root")
-  if methods then 
+  local methods = helper:list "root"
+  if methods then
     for _, value in pairs(methods) do
       if value == "password" then
         return true
@@ -92,16 +97,18 @@ local function password_auth_allowed(host, port)
   return false
 end
 
-action = function (host, port)
+function action (host, port)
   local timems = stdnse.parse_timespec(arg_timeout) --todo: use this!
   local ssh_timeout = 1000 * timems
-  if password_auth_allowed(host, port) then 
-    local options = {ssh_timeout = ssh_timeout}  
+  if password_auth_allowed(host, port) then
+    local options = {
+      ssh_timeout = ssh_timeout,
+    }
     local engine = brute.Engine:new(Driver, host, port, options)
     engine.options.script_name = SCRIPT_NAME
     local _, result = engine:start()
     return result
   else
-    return "Password authenication not allowed" 
+    return "Password authenication not allowed"
   end
 end

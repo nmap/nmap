@@ -1,7 +1,7 @@
 ---
 -- Utility functions for libssh2.
 --
--- Provides helper class for the libssh2 binding that abstracts away 
+-- Provides helper class for the libssh2 binding that abstracts away
 -- details of running remote commands.
 --
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -19,7 +19,7 @@ SSHConnection = {}
 -- Returns a new connection object.
 --
 -- @return A connection object.
-function SSHConnection:new()
+function SSHConnection:new ()
   local o = {}
   setmetatable(o, self)
   self.__index = self
@@ -32,7 +32,7 @@ end
 -- @param host A host to connect to.
 -- @param port A port to connect to.
 -- @return true on success or nil on failure
-function SSHConnection:connect(host, port)
+function SSHConnection:connect (host, port)
   self.session = libssh2.session_open(host, port.number)
   if self.session then
     return true
@@ -47,8 +47,8 @@ end
 -- @param port A port to connect to.
 -- @return true on success or error message on failure
 -- @return error code if error was triggered
-function SSHConnection:connect_pcall(host, port)
-  local status, err 
+function SSHConnection:connect_pcall (host, port)
+  local status, err
   status, self.session, err = pcall(libssh2.session_open, host, port.number)
   return status, err
 end
@@ -58,12 +58,12 @@ end
 --
 -- @param cmd A command to run.
 -- @return The command output.
-function SSHConnection:run_remote(cmd)
+function SSHConnection:run_remote (cmd)
   if not (self.session and self.authenticated) then
     return false
-  end  
+  end
   local channel = libssh2.open_channel(self.session)
-  libssh2.channel_exec(self.session, channel, cmd) 
+  libssh2.channel_exec(self.session, channel, cmd)
   libssh2.channel_send_eof(self.session, channel)
   local buff = {}
   local data = ""
@@ -82,7 +82,7 @@ end
 -- @param username A username to authenticate as.
 -- @param password A password to authenticate as.
 -- @return true on success or false on failure.
-function SSHConnection:password_auth(username, password)
+function SSHConnection:password_auth (username, password)
   if not self.session then
     return false
   end
@@ -101,7 +101,7 @@ end
 -- @param privatekey_file A path to a privatekey.
 -- @param passphrase A passphrase for the privatekey.
 -- @return true on success or false on failure.
-function SSHConnection:publickey_auth(username, privatekey_file, passphrase)
+function SSHConnection:publickey_auth (username, privatekey_file, passphrase)
   if not self.session then
     return false
   end
@@ -118,7 +118,7 @@ end
 
 ---
 -- Closes connection.
-function SSHConnection:disconnect()
+function SSHConnection:disconnect ()
   if self.session then
     libssh2.session_close(self.session)
   end
@@ -126,9 +126,9 @@ end
 
 ---
 -- Sends ssh timeout
--- 
+--
 -- @param ssh_timeout Time in miliseconds before considering the situation an error.
-function SSHConnection:set_timeout(ssh_timeout)
+function SSHConnection:set_timeout (ssh_timeout)
   if self.session then
     libssh2.set_timeout(self.session, ssh_timeout)
   end
@@ -139,7 +139,7 @@ end
 --
 -- @param username A username to authenticate as.
 -- @return A list with the authentication methods on success or false on failure.
-function SSHConnection:list(username)
+function SSHConnection:list (username)
   if not self.session then
     return false
   end
@@ -156,8 +156,8 @@ end
 -- @param publickey An SSH public key file.
 -- @return true on success or false on error.
 -- @return publick key data on success or error code on error.
-function SSHConnection:read_publickey(publickey)
-  local status, result  = pcall(libssh2.read_publickey, publickey)
+function SSHConnection:read_publickey (publickey)
+  local status, result = pcall(libssh2.read_publickey, publickey)
   return status, result
 end
 
@@ -166,12 +166,12 @@ end
 --
 -- @param username A username to authenticate as.
 -- @param key Base64 decrypted public key.
-function SSHConnection:publickey_canauth(username, key)
+function SSHConnection:publickey_canauth (username, key)
   if self.session then
-  libssh2.publickey_canauth(self.session, username, key)
+    libssh2.publickey_canauth(self.session, username, key)
   end
 end
 
-return _ENV;
+return _ENV
 
 
