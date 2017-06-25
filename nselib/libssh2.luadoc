@@ -1,4 +1,4 @@
---
+---
 -- Provides a binding for the libssh2 library.
 --
 -- SSH2 is a complex protocol and libssh2 simplifies many tasks involved in
@@ -12,7 +12,7 @@
 --
 -- @author Devin Bjelland
 -- @author Sergey Khegay
--- @copyright same as Nmap
+-- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 module "libssh2"
 

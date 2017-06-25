@@ -40,11 +40,12 @@ end
 
 
 ---
--- Sets up a connection with a server.
+-- Sets up a connection with a server. Call performed with pcall.
 --
 -- @param host A host to connect to.
 -- @param port A port to connect to.
--- @return true on success or nil on failure
+-- @return true on success or error message on failure
+-- @return error code if error was triggered
 function SSHConnection:connect_pcall(host, port)
   local status, err 
   status, self.session, err = pcall(libssh2.session_open, host, port.number)
@@ -90,15 +91,6 @@ function SSHConnection:password_auth(username, password)
   else
     return false
   end
-  -- if not session then
-  --   return false
-  -- end
-  -- if libssh2.userauth_password(session, username, password) then
-  --   self.authenticated = true
-  --   return true
-  -- else
-  --   return false
-  -- end
 end
 
 ---
@@ -136,13 +128,19 @@ end
 
 ---
 -- Sends ssh timeout
+-- 
+-- @param ssh_timeout Time in miliseconds before considering the situation an error.
 function SSHConnection:set_timeout(ssh_timeout)
   if self.session then
     libssh2.set_timeout(self.session, ssh_timeout)
   end
 end
 
-
+---
+-- Attempt to retrieve a list of supported authentication methods
+--
+-- @param username A username to authenticate as.
+-- @return A list with the authentication methods on success or false on failure.
 function SSHConnection:list(username)
   if not self.session then
     return false
@@ -154,16 +152,25 @@ function SSHConnection:list(username)
   return false
 end
 
-
+---
+-- Attempts to read public key file
+--
+-- @param publickey An SSH public key file.
+-- @return true on success or false on error.
+-- @return publick key data on success or error code on error.
 function SSHConnection:read_publickey(publickey)
   local status, result  = pcall(libssh2.read_publickey, publickey)
   return status, result
 end
 
-
-function SSHConnection:publickey_canauth(username, result)
+---
+-- Attempts authentication with publick key
+--
+-- @param username A username to authenticate as.
+-- @param key Base64 decrypted public key.
+function SSHConnection:publickey_canauth(username, key)
   if self.session then
-  libssh2.publickey_canauth(self.session, username, result)
+  libssh2.publickey_canauth(self.session, username, key)
   end
 end
 
