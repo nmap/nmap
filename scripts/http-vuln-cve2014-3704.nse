@@ -216,9 +216,11 @@ local function do_sql_query(host, port, uri, user)
     }
   }
   local res = http.post(host, port, uri .. "/user/login", opt, nil, r)
-  --TODO: Check return status
 
-  return user, passwd
+  if string.match(res.body, ">Have you forgotten your password?") then
+    return user, passwd
+  end
+
 end
 
 local function set_php_filter(host, port, uri, session, disable)
