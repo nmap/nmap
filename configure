@@ -6951,6 +6951,8 @@ $as_echo "#define ZLIB_INCLUDED 1" >>confdefs.h
     ZLIB_DIST_CLEAN=""
   fi
 
+$as_echo "#define HAVE_LIBZ_V 1" >>confdefs.h
+
 
 $as_echo "#define have_libz 1" >>confdefs.h
 

@@ -727,7 +727,7 @@ if test $with_libz = yes -a $with_libssh2 = yes; then
     ZLIB_CLEAN=""
     ZLIB_DIST_CLEAN=""
   fi
-
+  AC_DEFINE(HAVE_LIBZ_V, 1, [Have zlib library for versioning])
   AC_DEFINE(have_libz, 1, [Have zlib library])
 else
   trace_no_use="$trace_no_use zlib (libssh2 dependency)"

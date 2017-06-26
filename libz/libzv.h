@@ -1,1 +1,1 @@
-#define LIBZ_VERSION_TEXT "1.2.8"
+#define LIBZ_VERSION_TEXT "Libz 1.2.8"
