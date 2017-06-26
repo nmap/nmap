@@ -1,4 +1,7 @@
-# Nmap Changelog ($Id: CHANGELOG 36805 2017-06-11 20:17:30Z dmiller $); -*-text-*-
+# Nmap Changelog ($Id$); -*-text-*-
+
+o [NSE] http-vuln-cve2017-8917 checks for an SQL injection vulnerability
+  affecting Joomla! 3.7.x before 3.7.1. [Wong Wai Tuck]
 
 o [NSE][GH#141] http-useragent-checker now checks for changes in HTTP status
   (usually 403 Forbidden) in addition to redirects to indicate forbidden User
