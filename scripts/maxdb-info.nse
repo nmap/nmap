@@ -32,7 +32,7 @@ Retrieves version and database information from a SAP Max DB database.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = { "default", "version" }
+categories = { "default", "version", "safe" }
 
 
 portrule = shortport.version_port_or_service(7210, "maxdb", "tcp")
