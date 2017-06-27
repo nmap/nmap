@@ -372,6 +372,7 @@ action = function(host, port)
   end
 
   stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
+  vuln.state = vulns.STATE.EXPLOIT
   local data = {
     ['name'] = user,
     ['pass'] = passwd,
@@ -384,7 +385,6 @@ action = function(host, port)
   if res.status == 302 and res.cookies[1].name ~= nil then
 
     stdnse.debug(1, string.format("logged in as admin user (username: '%s'; passwd: '%s'). Target is vulnerable.", user, passwd))
-    vuln.state = vulns.STATE.EXPLOIT
 
     if cmd ~= nil then
       local session = {}
