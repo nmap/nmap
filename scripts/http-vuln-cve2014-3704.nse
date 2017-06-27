@@ -414,11 +414,16 @@ action = function(host, port)
       end
     end
 
-    -- cleanup: remove admin user
-    if cleanup == nil then
-      do_sql_query(host, port, uri, user)
-    end
-
-    return vulnReport:make_output(vuln)
+  else
+    vuln.state = vulns.STATE.LIKELY_VULN
+    vuln.check_results = "Account created but unable to log in."
   end
+
+  -- cleanup: remove admin user
+  if cleanup == nil then
+    do_sql_query(host, port, uri, user)
+  end
+
+  return vulnReport:make_output(vuln)
+
 end
