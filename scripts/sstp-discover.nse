@@ -28,7 +28,7 @@ Current SSTP server implementations:
 --    - http://billing.purevpn.com/sstp-manual-setup-hostname-list.php
 
 author = "Niklaus Schiess <nschiess@adversec.com>"
-categories = {'discovery', 'default'}
+categories = {'discovery', 'default', 'safe'}
 
 ---
 --@output
