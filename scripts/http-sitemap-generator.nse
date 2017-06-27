@@ -113,7 +113,7 @@ end
 local function normalize_path(p)
   local n=0
   repeat
-    p, n = string.gsub(p, "/./", "/")
+    p, n = string.gsub(p, "/%./", "/")
   until n==0
   repeat
     p, n = string.gsub(p, "/[^/]-/%.%.", "")
