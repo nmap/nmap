@@ -138,16 +138,26 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
 
   for _, path in ipairs(PATHS) do
     local response = http.put(host, port, path, options, DUMMY_CSR)
-    stdnse.debug1(response['status-line'])
-    stdnse.debug1(response['body'])
+    stdnse.debug1("Status of CSR: %s", response.status)
+    stdnse.debug2("Response for CSR: %s", response.body)
     -- 200 means it worked
-    if response.status == 200 and http.response_contains(response, "BEGIN CERTIFICATE") then
-      vuln_table.state = vulns.STATE.VULN
-      table.insert(vuln_table.extra_info, response.body) -- 4.10 does not return the signed CRL
-      break
+    if response.status == 200 then
+      if response.body == "" then
+        --likely version 4.10, so have to get the cert out from searching
+        local get_cert_response = http.get(host, port, "/puppet-ca/v1/certificate/agentzero.localdomain?environment=production", options)
+        response = get_cert_response
+        stdnse.debug2("Response for Get Cert: %s", get_cert_response.body)
+      end
 
+      if http.response_contains(response, "BEGIN CERTIFICATE") then
+        vuln_table.state = vulns.STATE.VULN
+        table.insert(vuln_table.extra_info, response.body)
+        break
+      end
     elseif http.response_contains(response, "already has a signed certificate; ignoring certificate request") then
       vuln_table.state = vulns.STATE.VULN
+      local get_cert_response = http.get(host, port, "/production/certificate/agentzero.localdomain", options)
+      table.insert(vuln_table.extra_info, get_cert_response.body)
       break
     end
   end
