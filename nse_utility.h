@@ -6,7 +6,11 @@ class Target;
 
 #ifdef HAVE_CONFIG_H
 #include "nmap_config.h"
-#endif
+#else
+#ifdef WIN32
+#include "nmap_winconfig.h"
+#endif /* WIN32 */
+#endif /* HAVE_CONFIG_H */
 
 #if HAVE_STDINT_H
 #include <stdint.h>

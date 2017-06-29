@@ -698,7 +698,16 @@ Engine = {
 
     repeat
       local driver = self.driver:new(self.host, self.port, self.driver_options)
+
       status, response = driver:connect()
+
+      -- Temporary workaround. Did not connect sucessfully
+      -- due to stressed server
+      if not status and response:isReduce() then
+          local ret_creds = {}
+          ret_creds.connect_phase = true
+          return false, response, ret_creds
+      end
 
       -- Did we successfully connect?
       if status then
@@ -833,11 +842,13 @@ Engine = {
           end
         end
       elseif ret_creds then
-        -- add credentials to a vault
-        self.retry_accounts[#self.retry_accounts + 1] = {
-          username = ret_creds.username,
-          password = ret_creds.password,
-        }
+        if not ret_creds.connect_phase then
+            -- add credentials to a vault
+            self.retry_accounts[#self.retry_accounts + 1] = {
+              username = ret_creds.username,
+              password = ret_creds.password,
+            }
+        end
         -- notify the main thread that there were an error on this coroutine
         thread_data.protocol_error = true
 
