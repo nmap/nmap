@@ -136,6 +136,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
+local nsedebug = require "nsedebug"
 _ENV = stdnse.module("smb", stdnse.seeall)
 
 -- These arrays are filled in with constants at the bottom of this file
@@ -691,6 +692,46 @@ function smb_encode_header(smb, command, overrides)
   return header
 end
 
+---
+--Creates a SMB2 SYNC header packet
+---
+function smb2_encode_header_sync(smb, command, overrides)
+  stdnse.debug3("Creating SMB2 header for command '%s'", command)
+  -- Make sure we have an overrides array
+  overrides = overrides or {}
+
+  -- Used for the ProtocolId
+  local sig = "\xFESMB"
+
+  local structureSize = 64
+  local flags = 0
+
+  if smb['MessageId'] then
+    smb['MessageId'] = smb['MessageId'] + 1
+  end
+
+  local header = string.pack("<c4 I2 I2 I4 I2 I2 I4 I4 I8 I4 I4 I8 I8 I8",
+    sig,
+    structureSize,
+    (overrides['CreditCharge'] or 0),
+    (overrides['Status'] or 0),         -- 4 bytes. (ChannelSequence/Reserved)/Status. 
+    command,                            -- 2 bytes. Commands.
+    (overrides['CreditR'] or 0),        -- 2 bytes. CreditRequest/CreditResponse.
+    (overrides['Flags'] or flags),      -- 4 bytes. Flags. TODO
+    (overrides['NextCommand'] or 0),    -- 4 bytes. NextCommand.
+    (overrides['MessageId'] or smb['MessageId'] or 0),       -- 8 bytes. MessageId.
+    (overrides['Reserved'] or 0x0000feff),       -- 4 bytes. Reserved.
+    (overrides['TreeId'] or smb['TreeId'] or 0),         -- 4 bytes. TreeId.
+    (overrides['SessionId'] or smb['SessionId'] or 0),      -- 8 bytes. SessionId.
+    (overrides['Signature1'] or 0),     -- 8 bytes. Signature1.
+    (overrides['Signature2'] or 0)      -- 8 bytes. Signature2.
+    )
+
+  nsedebug.print_hex(header)
+  return header
+end
+
+
 --- Converts a string containing the parameters section into the encoded
 --  parameters string.
 --
@@ -830,6 +871,32 @@ function smb_send(smb, header, parameters, data, overrides)
   return status, err
 end
 
+--@param smb        The SMB object associated with the connection
+--@param header     The header, encoded with <code>smb_get_header</code>.
+--@param data       The data.
+--@param overrides  Overrides table.
+--@return (result, err) If result is false, err is the error message. Otherwise, err is
+--        undefined
+function smb2_send(smb, header, data, overrides)
+  overrides = overrides or {}
+  local body               = header .. data
+  local attempts           = 5
+  local status, err
+
+  local out = bin.pack(">I<A", #body, body)
+  repeat
+    attempts = attempts - 1
+    stdnse.debug3("SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
+    status, err = smb['socket']:send(out)
+  until(status or (attempts == 0))
+
+  if(attempts == 0) then
+    stdnse.debug1("SMB: Sending packet failed after 5 tries! Giving up.")
+  end
+
+  return status, err
+end
+
 --- Reads the next packet from the socket, and parses it into the header, parameters,
 --  and data.
 --
@@ -942,6 +1009,289 @@ function smb_read(smb, read_data)
   return true, header, parameters, data
 end
 
+--- Reads the next packet from the socket, and parses it into the header, parameters,
+--  and data.
+--@return (status, header, data) If status is true, the header,
+--        , and data are all the raw arrays (with the lengths already
+--        removed). If status is false, header contains an error message and 
+--        data are undefined.
+function smb2_read(smb, read_data)
+  local status
+  local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
+  local attempts = 5
+
+  stdnse.debug3("SMB2: Receiving SMB2 packet")
+
+  -- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
+  smb['socket']:set_timeout(TIMEOUT)
+
+  -- perform 5 attempt to read the Netbios header
+  local netbios
+  repeat
+    attempts = attempts - 1
+    status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
+
+    if ( not(status) and netbios_data == "EOF" ) then
+      return false, "SMB2: ERROR: Server disconnected the connection"
+    end
+  until(status or (attempts == 0))
+
+  -- Make sure the connection is still alive
+  if(status ~= true) then
+    return false, "SMB2: Failed to receive bytes after 5 attempts: " .. netbios_data
+  end
+
+  -- The length of the packet is 4 bytes of big endian (for our purposes).
+  -- The NetBIOS header is 24 bits, big endian
+  pos, netbios_length   = bin.unpack(">I", netbios_data)
+  if(netbios_length == nil) then
+    return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
+  end
+  -- Make the length 24 bits
+  netbios_length = bit.band(netbios_length, 0x00FFFFFF)
+
+  -- The total length is the netbios_length, plus 4 (for the length itself)
+  length = netbios_length + 4
+
+  local attempts = 5
+  local smb_data
+  repeat
+    attempts = attempts - 1
+    status, smb_data = smb['socket']:receive_buf(match.numbytes(netbios_length), true)
+  until(status or (attempts == 0))
+
+  -- Make sure the connection is still alive
+  if(status ~= true) then
+    return false, "SMB2: Failed to receive bytes after 5 attempts: " .. smb_data
+  end
+
+  local result = netbios_data .. smb_data
+  if(#result ~= length) then
+    stdnse.debug1("SMB2: ERROR: Received wrong number of bytes, there will likely be issues (received %d, expected %d)", #result, length)
+    return false, string.format("SMB2: ERROR: Didn't receive the expected number of bytes; received %d, expected %d. This will almost certainly cause some errors.", #result, length)
+  end
+
+
+  -- The header is 64 bytes.
+  pos, header = bin.unpack("<A64", result, pos)
+  if(header == nil) then
+    return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [3]"
+  end
+
+  -- Read that many bytes of data.
+  if(read_data == nil or read_data == true) then
+    pos, data = bin.unpack("<A" .. #result - pos + 1, result, pos)
+    if(data == nil) then
+      return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [7]"
+    end
+  else
+    data = nil
+  end
+
+  stdnse.debug3("SMB2: Received %d bytes", #result)
+  return true, header, data
+end
+
+-- Negotiate SMBv1 connection and dialect
+function negotiate_v1(smb, overrides)
+  local header, parameters, data
+  local result, err
+  local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, uid, tid, mid
+
+  header = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
+  -- Make sure we have overrides
+  overrides = overrides or {}
+
+  -- Parameters are blank
+  parameters = ""
+  data = bin.pack("<CzCz", 2, (overrides['dialect'] or "NT LM 0.12"), 2, "")
+
+  -- Send the negotiate request
+  stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
+  result, err = smb_send(smb, header, parameters, data, overrides)
+  if(status == false) then
+    return false, err
+  end
+  -- Read the result
+  status, header, parameters, data = smb_read(smb)
+  if(status ~= true) then
+    return false, header
+  end
+
+  -- Parse out the header
+  pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+
+  -- Get the protocol version
+  local protocol_version = string.char(header1, header2, header3, header4)
+  if(protocol_version == ("\xFESMB")) then
+    return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
+  end
+
+  return true, overrides['dialect'] or "NT LM 0.12 (SMBv1)"
+end
+
+-- Negotiate SMBv2 connection and dialects
+function negotiate_v2(smb, overrides)
+  local header, parameters, data
+  local StructureSize = 36
+  local DialectCount = #overrides['Dialects']
+  -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set, 
+  -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set. 
+  -- The server MUST ignore this bit.
+  local SecurityMode = overrides["SecurityMode"] or 0x01
+  local Capabilities = overrides["Capabilities"] or 0
+  local GUID1 = overrides["GUID1"] or 1
+  local GUID2 = overrides["GUID2"] or 1
+  local ClientStartTime = overrides["ClientStartTime"] or 0x0
+
+  header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
+   
+  data = string.pack("<I2 I2 I2 I2 I4 I8 I8", 
+    StructureSize,  --2 bytes
+    DialectCount,   --2 bytes
+    SecurityMode,   --2 bytes
+    0,       -- Reserved (2 bytes)
+    Capabilities,   --4 bytes
+    GUID1,          --8 bytes
+    GUID2          --8 bytes
+    )
+  local is_0311 = false
+  for _, dialect in ipairs(overrides['Dialects']) do
+    if dialect == 0x0311 then
+      is_0311 = true
+      ClientStartTime = #header + #data 
+    end
+  end
+  if is_0311 then
+    data = data .. string.pack("<I8", ClientStartTime)
+  else
+    data = data .. string.pack("<I8", 0x0)
+  end
+  if(overrides['Dialects'] == nil) then
+    for _, d in ipairs(smb2_dialect) do
+      data = data .. string.pack("<I2", d)
+    end
+  else
+    for _, v in ipairs(overrides['Dialects']) do
+      data = data .. string.pack("<I2", v)
+    end
+  end
+  nsedebug.print_hex(data)
+  local params = ""
+  status, err = smb2_send(smb, header, data)
+  if not status then
+    return false, err
+  end
+  status, header, data = smb2_read(smb)
+
+
+  local protocol_version, structure_size, credit_charge, status = string.unpack("<c4 I2 I2 I4", header)
+  -- Get the protocol version
+  if(protocol_version ~= ("\xFESMB") or structure_size ~= 64) then
+    return false, "SMB: Server returned an invalid SMBv2 packet"
+  end
+  stdnse.debug1("Status '%s'", status)
+
+  local data_structure_size, security_mode
+  data_structure_size, security_mode, smb['dialect'] = string.unpack("<I2 I2 I2", data)
+  if(smb['dialect'] == nil) then
+    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
+  end
+
+  if(data_structure_size ~= 65) then
+    return false, string.format("Server returned an unknown structure size in SMB2 NEGOTIATE response")
+  end
+
+  stdnse.debug2("Dialect accepted by server: %s", smb['dialect'])
+  -- To be consistent with our current SMBv1 implementation, let's set this values if not present
+  if(smb['time'] == nil) then
+    smb['time'] = 0
+  end
+  if(smb['timezone'] == nil) then
+    smb['timezone'] = 0
+  end
+  if(smb['key_length'] == nil) then
+    smb['key_length'] = 0
+  end
+  if(smb['byte_count'] == nil) then
+    smb['byte_count'] = 0
+  end
+
+  -- Convert the time and timezone to more useful values
+  smb['time'] = (smb['time'] // 10000000) - 11644473600
+  smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
+  smb['timezone'] = -(smb['timezone'] / 60)
+  if(smb['timezone'] == 0) then
+    smb['timezone_str'] = "UTC+0"
+  elseif(smb['timezone'] < 0) then
+    smb['timezone_str'] = "UTC-" .. math.abs(smb['timezone'])
+  else
+    smb['timezone_str'] = "UTC+" .. smb['timezone']
+  end
+
+  -- Let's parse the SMB data section
+
+  if status == 0 then
+    return true, overrides['Dialects']
+  else
+    return false, string.format("Status error code:%s",status)
+  end
+end
+
+
+---
+-- Returns list of supported dialects for SMBv1, SMBv2 and SMBv3.
+-- @param host       The SMB host to connect to.
+-- @param overrides [optional] Overrides for various fields.
+-- @return (status, result) If status is false, result is an error message. Otherwise, result is table of dialects
+---
+function list_dialects(host, overrides)
+  local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
+  local smb2_versions = {"2.02", "2.10", "3.00", "3.02", "3.11"}
+  local dialects = {}
+  for i, v in pairs(smb2_dialects) do
+    dialects[v] = smb2_versions[i]
+  end
+  local supported_dialects = {}
+  local status, smb1_dialects 
+  local smbstate
+
+  -- Check for SMBv1 first
+  stdnse.debug2("Checking if SMBv1 is supported")
+  status, smbstate = start(host)
+  if(status == false) then
+    return false, smbstate
+  end
+  
+  status, smb1_dialects = negotiate_v1(smbstate, overrides)
+  if status then --Add SMBv1 as a dialect
+    table.insert(supported_dialects, smb1_dialects)
+  end
+  stop(smbstate)
+  status = false -- Finish SMBv1 and close connection
+
+  -- Check SMB2 and SMB3 dialects
+  for i, dialect in pairs(smb2_dialects) do
+    -- we need a clean connection for each negotiate request
+    status, smbstate = start(host)
+    if(status == false) then
+      return false, smbstate
+    end
+    stdnse.debug2("Checking if dialect '%s' is supported", dialect)
+    overrides['Dialects'] = {dialect}
+    status, dialect = negotiate_v2(smbstate, overrides)
+    if status then
+      stdnse.debug2("SMB2: Dialect '%s' is supported", dialects[dialect])
+      table.insert(supported_dialects, dialects[dialect[1]])
+    end
+    --clean smb connection
+    stop(smbstate)
+    status = false
+  end 
+
+  return true, supported_dialects
+end
+
 --- Sends out <code>SMB_COM_NEGOTIATE</code>, which is typically the first SMB packet sent out.
 --
 -- Sends the following:
@@ -980,7 +1330,7 @@ function negotiate_protocol(smb, overrides)
   local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
 
   header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
-
+  local headertmp = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
   -- Make sure we have overrides
   overrides = overrides or {}
 
@@ -1000,7 +1350,64 @@ function negotiate_protocol(smb, overrides)
 
   -- Send the negotiate request
   stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
-  local result, err = smb_send(smb, header, parameters, data, overrides)
+  --local result, err = smb_send(smb, header, parameters, data, overrides)
+  if(status == false) then
+    return false, err
+  end
+
+ local StructureSize = 36
+  local DialectCount
+  -- Data is a list of strings, terminated by a blank one.
+  if(overrides['Dialects'] == nil) then
+    DialectCount = 2
+  else
+    DialectCount = #overrides['Dialects']
+  end
+
+  local SecurityMode = overrides["SecurityMode"] or 0x01
+  local Reserved = 0
+  local Capabilities = overrides["SecurityMode"] or 0
+  local GUID1 = overrides["GUID1"] or 1
+  local GUID2 = overrides["GUID2"] or 1
+  local ClientStartTime = overrides["ClientStartTime"] or 0x0
+  local Dialects1 = 0x0202      --Dialect 2.0.2
+  local Dialects2 = 0x0210      --Dialect 2.1.0
+  local Dialects3 = 0x0300      --Dialect 3.0
+  local Dialects3_0_2 = 0x0302  --Dialect 3.0.2
+  local Dialects3_1_1 = 0x0311  --Dialect 3.1.1
+  local Dialects = {0x0300, 0x0311}
+ data = string.pack("<I2 I2 I2 I2 I4 I8 I8", 
+    StructureSize,  --2 bytes
+    DialectCount,   --2 bytes
+    SecurityMode,   --2 bytes
+    Reserved,       --2 bytes
+    Capabilities,   --4 bytes
+    GUID1,          --8 bytes
+    GUID2          --8 bytes
+    )
+  local is_0311 = false
+  for _, v in ipairs(Dialects) do
+    if v == 0x0311 then
+      is_0311 = true
+      ClientStartTime = #headertmp + #data 
+    end
+  end
+  if is_0311 then
+    data = data .. string.pack("<I8", ClientStartTime)
+  else
+    data = data .. string.pack("<I8", 0x0)
+  end
+  if(overrides['Dialects'] == nil) then
+    for _, d in ipairs(Dialects) do
+      data = data .. string.pack("<I2", d)
+    end
+  else
+    for _, v in ipairs(overrides['Dialects']) do
+      data = data .. string.pack("<I", v)
+    end
+  end
+  nsedebug.print_hex(data)
+  status, err = smb2_send(smb, headertmp, data)
   if(status == false) then
     return false, err
   end
@@ -2498,7 +2905,6 @@ end
 -- data is given as a string, not a file.
 --
 --@param host          The host object
---@param data          The string containing the data to be written
 --@param share         The share to upload it to (eg, C$).
 --@param remotefile    The remote file on the machine. It is relative to the share's root.
 --@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user.
@@ -3190,7 +3596,7 @@ function share_get_list(host)
   -- Ensure that the server returns the proper error message
   -- first try anonymously, then using a user account (in case anonymous connections are not supported)
   for _, anon in ipairs({true, false}) do
-    status, result = share_host_returns_proper_error(host, anon)
+    status, result = share_host_returns_proper_error(host)
 
     if(status == true and result == false) then
       return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
@@ -3597,7 +4003,27 @@ command_codes =
   SMB_COM_READ_BULK                 = 0xD8,
   SMB_COM_WRITE_BULK                = 0xD9,
   SMB_COM_WRITE_BULK_DATA           = 0xDA,
-  SMB_NO_FURTHER_COMMANDS           = 0xFF
+  SMB_NO_FURTHER_COMMANDS           = 0xFF,
+  
+  SMB2_COM_NEGOTIATE              = 0x0000,
+  SMB2_COM_SESSION_SETUP          = 0x0001,
+  SMB2_COM_LOGOFF                 = 0x0002,
+  SMB2_COM_TREE_CONNECT           = 0x0003,
+  SMB2_COM_TREE_DISCONNECT        = 0x0004,
+  SMB2_COM_CREATE                 = 0x0005,
+  SMB2_COM_CLOSE                  = 0x0006,
+  SMB2_COM_FLUSH                  = 0x0007,
+  SMB2_COM_READ                   = 0x0008,
+  SMB2_COM_WRITE                  = 0x0009,
+  SMB2_COM_LOCK                   = 0x000A,
+  SMB2_COM_IOCTL                  = 0x000B,
+  SMB2_COM_CANCEL                 = 0x000C,
+  SMB2_COM_ECHO                   = 0x000D,
+  SMB2_COM_QUERY_DIRECTORY        = 0x000E,
+  SMB2_COM_CHANGE_NOTIFY          = 0x000F,
+  SMB2_COM_QUERY_INFO             = 0x0010,
+  SMB2_COM_SET_INFO               = 0x0011,
+  SMB2_COM_OPLOCK_BREAK           = 0x0012
 }
 
 for i, v in pairs(command_codes) do
