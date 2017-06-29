@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#910] added libssh2 support, ssh-brute, ssh-run, ssh-auth-methods,
+  ssh-publickey-acceptance [Evangelos Deirmentzoglou]
+
 o [NSE] http-vuln-cve2017-8917 checks for an SQL injection vulnerability
   affecting Joomla! 3.7.x before 3.7.1. [Wong Wai Tuck]
 

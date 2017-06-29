@@ -1,0 +1,17 @@
+###########################################################################
+# libssh2 installation details
+###########################################################################
+
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: @PROJECT_NAME@
+URL: @PROJECT_URL@
+Description: @PROJECT_DESCRIPTION@
+Version: @LIBSSH2_VERSION@
+Requires.private: @PC_REQUIRES_PRIVATE@
+Libs: -L${libdir} -lssh2 @PC_LIBS@
+Libs.private: @PC_LIBS@
+Cflags: -I${includedir}

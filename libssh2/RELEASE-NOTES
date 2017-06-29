@@ -1,0 +1,31 @@
+libssh2 1.8.0
+
+This release includes the following changes:
+
+ o added a basic dockerised test suite
+ o crypto: add support for the mbedTLS backend
+
+This release includes the following bugfixes:
+
+ o libgcrypt: fixed a NULL pointer dereference on OOM
+ o VMS: can't use %zd for off_t format
+ o VMS: update vms/libssh2_config.h
+ o windows: link with crypt32.lib
+ o libssh2_channel_open: speeling error fixed in channel error message
+ o msvc: fixed 14 compilation warnings
+ o tests: HAVE_NETINET_IN_H was not defined correctly
+ o openssl: add OpenSSL 1.1.0 compatibility
+ o cmake: Add CLEAR_MEMORY option, analogously to that for autoconf
+ o configure: make the --with-* options override the OpenSSL default
+ o libssh2_wait_socket: set err_msg on errors
+ o libssh2_wait_socket: Fix comparison with api_timeout to use milliseconds
+ 
+This release would not have looked like this without help, code, reports and
+advice from friends like these:
+
+  Alexander Lamaison, Antenore Gatta, Brad Harder, Charles Collicutt,
+  Craig A. Berry, Dan Fandrich, Daniel Stenberg, Kamil Dudka, Keno Fischer,
+  Taylor Holberton, Viktor Szakats, Will Cosgrove, Zenju
+  (12 contributors)
+
+        Thanks! (and sorry if I forgot to mention someone)

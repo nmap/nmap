@@ -54,7 +54,9 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+     <AdditionalIncludeDirectories>..\libssh2\include;.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\libssh2\include;.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -74,10 +76,10 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+     <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib;libssh2.lib</AdditionalDependencies>
       <OutputFile>.\Debug\nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Debug_dll;..\liblua;lib;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;..\libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -89,8 +91,12 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y</Command>
+      <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y
+xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <ResourceOutputFileName>$(IntDir)%(Filename).res</ResourceOutputFileName>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -101,7 +107,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libssh2\include;.;..;..\liblua;..\nbase;..\libpcre;..\nsock\include;pcap-include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -115,10 +121,10 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;libssh2.lib;liblinear.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
       <OutputFile>.\Release/nmap.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libssh2\win32\Release_dll;lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblinear;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <ProgramDatabaseFile>.\Release/nmap.pdb</ProgramDatabaseFile>
@@ -129,7 +135,8 @@
       <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y</Command>
+      <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\..\..\nmap-mswin32-aux\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y
+xcopy /y /d  "$(ProjectDir)..\libssh2\win32\$(Configuration)_dll\*.dll" "$(ProjectDir)$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -149,6 +156,7 @@
     <ClCompile Include="..\NmapOutputTable.cc" />
     <ClCompile Include="..\nse_debug.cc" />
     <ClCompile Include="..\nse_fs.cc" />
+    <ClCompile Include="..\nse_libssh2.cc" />
     <ClCompile Include="..\nse_lpeg.cc" />
     <ClCompile Include="..\nse_main.cc" />
     <ClCompile Include="..\nse_utility.cc" />
@@ -203,6 +211,7 @@
     <ClInclude Include="..\NmapOutputTable.h" />
     <ClInclude Include="..\nse_debug.h" />
     <ClInclude Include="..\nse_fs.h" />
+    <ClInclude Include="..\nse_libssh2.h" />
     <ClInclude Include="..\nse_lpeg.h" />
     <ClInclude Include="..\nse_main.h" />
     <ClInclude Include="..\nse_utility.h" />
@@ -329,6 +338,14 @@
     <ProjectReference Include="..\libpcre\libpcre.vcxproj">
       <Project>{5de86c7a-de72-4265-8807-4ca38f94f22a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\libssh2\win32\libssh2.vcxproj">
+      <Project>{ed957342-e43b-496e-92d9-4c76b525bdf5}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <ProjectReference Include="..\nbase\nbase.vcxproj">
       <Project>{b630c8f7-3138-43e8-89ed-78742fa2ac5f}</Project>
