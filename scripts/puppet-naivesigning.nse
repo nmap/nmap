@@ -28,49 +28,14 @@ References:
 -- PORT     STATE SERVICE REASON
 -- 8140/tcp open  puppet  syn-ack ttl 64
 -- | puppet-naivesigning:
--- |   VULNERABLE:
--- |   Puppet Naive autosigning enabled!
--- |     State: VULNERABLE
--- |       Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be able to obtain a configuration catalog, which might contain sensitive information.
--- |
--- |     Extra information:
--- |       -----BEGIN CERTIFICATE-----
--- |   MIIEPTCCAiWgAwIBAgIBDDANBgkqhkiG9w0BAQsFADAoMSYwJAYDVQQDDB1QdXBw
--- |   ZXQgQ0E6IHVidW50dS5sb2NhbGRvbWFpbjAeFw0xNzA2MjMyMTMzMTdaFw0yMjA2
--- |   MjMyMTMzMTdaMGMxCzAJBgNVBAYTAlVLMQ8wDQYDVQQIEwZMb25kb24xDzANBgNV
--- |   BAcTBkxvbmRvbjEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMQ8w
--- |   DQYDVQQDEwZhZ2VuY3kwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMUgqxSl
--- |   Co1RhT7kNIhjPZmSsPeLDiIBqIaqxx++N5D747CHd3d/EJPh/tQ21X+Nm0GNFpAF
--- |   XMDQ6pgZ8dJTrUNKHhp228JSRY4al6/IxRJYz63PUtvyCCCw3/xXmFsPZUYjlS6F
--- |   OmXwiAX6ur+A+Cl97rUWzqBCzcgXk+lQNbnzAgMBAAGjgbowgbcwNQYJYIZIAYb4
--- |   QgENBChQdXBwZXQgUnVieS9PcGVuU1NMIEludGVybmFsIENlcnRpZmljYXRlMA4G
--- |   A1UdDwEB/wQEAwIFoDAgBgNVHSUBAf8EFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIw
--- |   DAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUWOuZxF8f5zG08o8Vxxw//Ev8oTowHwYD
--- |   VR0jBBgwFoAUVAOu7b1ebCy4YvgFEW9XmU0O7dMwDQYJKoZIhvcNAQELBQADggIB
--- |   AFq3uAcCQcfG0oSl94IJSibdAsBHq4Li0GKgiemWypg0t2TVTf7yrdws5wXdh708
--- |   aFGXXdoY/T8uwNsfZ+wvY5TAiuwYYFuiYFihBRt54aVgAkUc0Zw83AYa8awnugD+
--- |   KcXGEV9MMf7EljYAf04U/TuB5D7yP0+i/Bax2Oonvh3ye21Z6gt886MtlqJBu6QC
--- |   7nSNB+U8NNm6OVez+1HbHVlCWykRSbzJJFa5w9lDEq2X1DHCepUtQwTOSLt8aCa4
--- |   guaFTeAgeIeZeG3V65Dl4DtuQAE6B9We7CBt4NNhRVw9Ho8qiRpoprwu9fQCa7up
--- |   d/bghpEghnlKAMkCrJh1c/KCxpRaiOOwCjKXkwunvtpalOj0VLsmU8/bBZRHgAEy
--- |   k97juRzBcCkRnHz2i4Dx8JDGGt1HCOOx7gY2yyQy19bAubIbxfV/GT2JnFs7S2Ue
--- |   XjwcX7OCvs2HO5Fonbd3XfQZ3edOrMgOgho6tFbrnMPtYC8QFlQC9aCRRi2SWknR
--- |   8eb2qLkhJ2tQS7wcoViExaNkJIkl9N7OMAlpf2UeKtXY2GERTtQKwtZdfmmxPyzC
--- |   cWmPBtJPGXBv4XjEHgLr4dVEzfJ7hOmScG+f0mbedmj2Q/UaOUxr2sOhWJ9hHwjP
--- |   GzRUe6rBqQTYLfgQlZFsv579UWxao7sLnY31A1R/8JTJ
--- |_  -----END CERTIFICATE-----
+-- |   Puppet Naive autosigning enabled! Naive autosigning causes the Puppet CA to autosign ALL CSRs.
+-- |   Attackers will be able to obtain a configuration catalog, which might contain sensitive information.
+-- |   -----BEGIN CERTIFICATE-----
+-- |   MIIFfjCCA2agAwIBAgIBEjANBgkqhkiG9w0BAQsFADAoMSYwJAYDVQQDDB1QdXBw
+-- |_  ZXQgQ0E6IHVidW50dS5sb2NhbGRvbWFpbjAeFw0xNzA2MjkxNjQzMjZaFw0yMjA
 --
 -- @xmloutput
--- <table key="NMAP-1">
--- <elem key="title">Puppet Naive autosigning enabled!</elem>
--- <elem key="state">VULNERABLE</elem>
--- <table key="description">
--- <elem>Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be able to obtain a configuration catalog, which might contain sensitive information.&#xa;</elem>
--- </table>
--- <table key="extra_info">
--- <elem>-&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;MIIEPTCCAiWgAwIBAgIBDjANBgkqhkiG9w0BAQsFADAoMSYwJAYDVQQDDB1QdXBw&#xa;ZXQgQ0E6IHVidW50dS5sb2NhbGRvbWFpbjAeFw0xNzA2MjMyMTUwNDNaFw0yMjA2&#xa;MjMyMTUwNDNaMGMxCzAJBgNVBAYTAlVLMQ8wDQYDVQQIEwZMb25kb24xDzANBgNV&#xa;BAcTBkxvbmRvbjEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMQ8w&#xa;DQYDVQQDEwZhZ2VuY3kwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMUgqxSl&#xa;Co1RhT7kNIhjPZmSsPeLDiIBqIaqxx++N5D747CHd3d/EJPh/tQ21X+Nm0GNFpAF&#xa;XMDQ6pgZ8dJTrUNKHhp228JSRY4al6/IxRJYz63PUtvyCCCw3/xXmFsPZUYjlS6F&#xa;OmXwiAX6ur+A+Cl97rUWzqBCzcgXk+lQNbnzAgMBAAGjgbowgbcwNQYJYIZIAYb4&#xa;QgENBChQdXBwZXQgUnVieS9PcGVuU1NMIEludGVybmFsIENlcnRpZmljYXRlMA4G&#xa;A1UdDwEB/wQEAwIFoDAgBgNVHSUBAf8EFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIw&#xa;DAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUWOuZxF8f5zG08o8Vxxw//Ev8oTowHwYD&#xa;VR0jBBgwFoAUVAOu7b1ebCy4YvgFEW9XmU0O7dMwDQYJKoZIhvcNAQELBQADggIB&#xa;ALfpFcl9eBrtGOG5/PKIRlCjubY+tPrO99YgUmKLULiOowYQM94b9iySescaD6LI&#xa;hPhdksA4StOZWqwdUVmWOwSO9rreDv00aeYIt/yPCodopjX8jTsqCK5xNcApe5op&#xa;zpax530E5PYkJBtji/l92tFy638y+Ze4tJJBzARjSSUgrTp4GLgM0NzV3fwTCVsw&#xa;f2SfQxTPQk/AmS7KSBywruaLrAACOsx9Yw7RUAqDy6WFh/mxCur+RH1YvPh+O3Ok&#xa;03ZN21K34mSZkGcO7mIfVBMugh7u65QExrOvCSjNXhdZt6qjJp22rFguyoJ24sWQ&#xa;fa4IFRNY9vQn75mVIanKrXlp3ocGJ+sKQIrTQkvXfB3ODKAbqnqHAOCmxjNgS8M4&#xa;gBYREfFeOYirQT8Fc8PDiGoZpTTQZEJ6KLMXUg9KUesR6v3vMXEuC3Vmm3HW88/B&#xa;+BuCYnkItJuh4LhYuZqGUcbIQWQlg8V35p9xVwdeH0rtpx/s9keuLV/PP2EuLQWD&#xa;QgD2NDB1yuOr1Ti0eebVCp4D3Gx/E98TJce0hm0a2lOz2q0/iLun5+RJgrRUX1b3&#xa;qwQlWzg3rR6Q7HK85GCyy8/2EO9NMeGnhYtKgW7m4tbuxdlTSKcikUk4GOl0FlCa&#xa;TOpB8yAEoBBf0p0OVpptKLeyALLaRI+txO/YV/HMeY0y&#xa;-&#45;&#45;&#45;&#45;END CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;</elem>
--- </table>
--- </table>
+-- <script id="puppet-naivesigning" output="&#xa;  Puppet Naive autosigning enabled! Naive autosigning causes the Puppet CA to autosign ALL CSRs.&#xa;  Attackers will be able to obtain a configuration catalog, which might contain sensitive information.&#xa;  -&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;  MIIFfjCCA2agAwIBAgIBEjANBgkqhkiG9w0BAQsFADAoMSYwJAYDVQQDDB1QdXBw&#xa;  ZXQgQ0E6IHVidW50dS5sb2NhbGRvbWFpbjAeFw0xNzA2MjkxNjQzMjZaFw0yMjA&#xa;"/>
 --
 ---
 
@@ -117,8 +82,8 @@ local DEFAULT_ENV = "production"
 
 -- different versions have different paths to the certificate signing endpoint
 local PATHS = {
-  v3='/%s/certificate_request/%s', -- version 3.8
-  v4='/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10
+  v3 = '/%s/certificate_request/%s', -- version 3.8
+  v4 = '/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10
 }
 
 local function has_node_csr (csr, node)
@@ -203,16 +168,15 @@ action = function(host, port)
       if http.response_contains(response, "BEGIN CERTIFICATE") then
         is_enabled = true
         table.insert(certificate, response.body)
-        table.insert(puppet_table, certificate)
+        table.insert(puppet_table, string.sub(certificate[1], 1, 156))
         break
       end
     elseif http.response_contains(response, "has a signed certificate; ignoring certificate request") then
-      stdnse.debug1("it should come here")
       is_enabled = true
       local get_cert_path = string.format("/%s/certificate/%s", env, node)
       local get_cert_response = http.get(host, port, get_cert_path, options)
       table.insert(certificate, get_cert_response.body)
-      table.insert(puppet_table, certificate)
+      table.insert(puppet_table, string.sub(certificate[1], 1, 156))
       break
     end
   end
