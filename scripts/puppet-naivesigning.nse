@@ -4,6 +4,7 @@ local http = require "http"
 local vulns = require "vulns"
 local table = require "table"
 local io = require "io"
+local base64 = require "base64"
 
 description = [[
 Detects if naive signing is enabled on a Puppet server. This enables attackers
@@ -81,7 +82,7 @@ portrule = shortport.port_or_service( {8140} , "puppet", "tcp", "open")
 
 -- dummy certificate signing request to sign
 -- note that replacing the requested node name from the CSR doesn't work
--- you have to generate a new CSR 
+-- you have to generate a new CSR
 local DUMMY_CSR= [[
 -----BEGIN CERTIFICATE REQUEST-----
 MIIEZTCCAk0CAQAwIDEeMBwGA1UEAwwVYWdlbnR6ZXJvLmxvY2FsZG9tYWluMIIC
@@ -110,6 +111,7 @@ zUdrhHojoA2wRsT3zGiXjct8VKVydnRoFRHHoZTQXk6sR81pgV0XiA23pB42dOqZ
 L3Gga99UTASI0PZ/dEQA2sooKhIt7pCDMw==
 -----END CERTIFICATE REQUEST-----
 ]]
+
 local DEFAULT_NODE = "agentzero.localdomain"
 local DEFAULT_ENV = "production"
 
@@ -119,17 +121,21 @@ local PATHS = {
   v4='/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10
 }
 
-action = function(host, port)
-  local vuln_table = {
-    title = "Puppet Naive autosigning enabled!",
-    state = vulns.STATE.NOT_VULN,
-    description = [[
-Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be able to obtain a configuration catalog, which might contain sensitive information.
-]],
-    extra_info = {}
-  }
-  local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
+local function has_node_csr (csr, node)
+  local _, _, csr_b64 = string.find(csr, "%-%-%-%-%-BEGIN CERTIFICATE REQUEST%-%-%-%-%-(.-)%-%-%-%-%-END CERTIFICATE REQUEST%-%-%-%-%-")
+  string.gsub(csr_b64, "\n", "")
+  stdnse.debug1(csr_b64)
+  local decoded_csr = base64.dec(csr_b64)
+  return string.find(decoded_csr, node)
+end
 
+
+action = function(host, port)
+  local puppet_table = {
+    "Puppet Naive autosigning enabled! Naive autosigning causes the Puppet CA to autosign ALL CSRs.",
+    "Attackers will be able to obtain a configuration catalog, which might contain sensitive information."
+  }
+  local is_enabled = false
   local options = {}
   options['header'] = {}
 
@@ -156,6 +162,12 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
 
   stdnse.debug1("CSR: %s", csr)
 
+  -- check if the CSR matches the node name provided, if it doesn't return an error message
+  if not has_node_csr(csr, node) then
+    return string.format("[ERROR][%s] The node %s is not in the CSR\n%s",
+      SCRIPT_NAME, node, csr)
+  end
+
   -- set acceptable API response to s, so response is returned
   -- see https://github.com/puppetlabs/puppet/blob/master/api/docs/http_certificate_request.md#supported-response-formats
   options['header']['Accept'] = 's'
@@ -175,6 +187,9 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
     local response = http.put(host, port, path, options, csr)
     stdnse.debug1("Status of CSR: %s", response.status)
     stdnse.debug2("Response for CSR: %s", response.body)
+
+    local certificate = {}
+    certificate.name = "SIGNED CERTIFICATE"
     -- 200 means it worked
     if response.status == 200 then
       if response.body == "" then
@@ -186,18 +201,20 @@ Naive autosigning causes the Puppet CA to autosign ALL CSRs. Attackers will be a
       end
 
       if http.response_contains(response, "BEGIN CERTIFICATE") then
-        vuln_table.state = vulns.STATE.VULN
-        table.insert(vuln_table.extra_info, response.body)
+        is_enabled = true
+        table.insert(certificate, response.body)
+        table.insert(puppet_table, certificate)
         break
       end
     elseif http.response_contains(response, "has a signed certificate; ignoring certificate request") then
       stdnse.debug1("it should come here")
-      vuln_table.state = vulns.STATE.VULN
+      is_enabled = true
       local get_cert_path = string.format("/%s/certificate/%s", env, node)
       local get_cert_response = http.get(host, port, get_cert_path, options)
-      table.insert(vuln_table.extra_info, get_cert_response.body)
+      table.insert(certificate, get_cert_response.body)
+      table.insert(puppet_table, certificate)
       break
     end
   end
-  return vuln_report:make_output(vuln_table)
+  return stdnse.format_output(is_enabled, puppet_table)
 end
