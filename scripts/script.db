@@ -93,7 +93,7 @@ Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "dns-ip6-arpa-scan.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsec-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsec3-enum.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "dns-nsid.nse", categories = { "default", "discovery", } }
+Entry { filename = "dns-nsid.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-recursion.nse", categories = { "default", "safe", } }
@@ -245,7 +245,7 @@ Entry { filename = "http-virustotal.nse", categories = { "external", "malware", 
 Entry { filename = "http-vlcstreamer-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2006-3392.nse", categories = { "exploit", "intrusive", "vuln", } }
-Entry { filename = "http-vuln-cve2009-3960.nse", categories = { "exploit", "intrusive", } }
+Entry { filename = "http-vuln-cve2009-3960.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2010-0738.nse", categories = { "auth", "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2010-2861.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "safe", "vuln", } }
@@ -323,7 +323,7 @@ Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "llmnr-resolve.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "lltd-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
-Entry { filename = "maxdb-info.nse", categories = { "default", "version", } }
+Entry { filename = "maxdb-info.nse", categories = { "default", "safe", "version", } }
 Entry { filename = "mcafee-epo-agent.nse", categories = { "safe", "version", } }
 Entry { filename = "membase-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "membase-http-info.nse", categories = { "discovery", "safe", } }
@@ -513,7 +513,7 @@ Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "
 Entry { filename = "ssl-poodle.nse", categories = { "safe", "vuln", } }
 Entry { filename = "sslv2-drown.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
-Entry { filename = "sstp-discover.nse", categories = { "default", "discovery", } }
+Entry { filename = "sstp-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "stun-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "stun-version.nse", categories = { "version", } }
 Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
@@ -555,7 +555,7 @@ Entry { filename = "vnc-title.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "voldemort-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "vtam-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vuze-dht-info.nse", categories = { "discovery", "safe", } }
-Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "version", "vuln", } }
+Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "safe", "version", "vuln", } }
 Entry { filename = "weblogic-t3-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "whois-domain.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "whois-ip.nse", categories = { "discovery", "external", "safe", } }
