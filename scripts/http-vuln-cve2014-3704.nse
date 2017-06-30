@@ -217,7 +217,7 @@ local function do_sql_query(host, port, uri, user)
   }
   local res = http.post(host, port, uri .. "?q=/user/login", opt, nil, r)
 
-  if string.match(res.body, ">Have you forgotten your password?") then
+  if not string.match(res.body, "Username field is required.") then
     return user, passwd
   end
 
