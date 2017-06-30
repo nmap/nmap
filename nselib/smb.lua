@@ -883,7 +883,7 @@ function smb2_send(smb, header, data, overrides)
   local attempts           = 5
   local status, err
 
-  local out = bin.pack(">I<A", #body, body)
+  local out = string.pack(">I<c" .. #body, #body, body)
   repeat
     attempts = attempts - 1
     stdnse.debug3("SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
@@ -1043,7 +1043,8 @@ function smb2_read(smb, read_data)
 
   -- The length of the packet is 4 bytes of big endian (for our purposes).
   -- The NetBIOS header is 24 bits, big endian
-  pos, netbios_length   = bin.unpack(">I", netbios_data)
+  netbios_length, pos   = string.unpack(">I", netbios_data)
+  stdnse.debug3("Pos:%s Netbios length:%s", pos, netbios_length)
   if(netbios_length == nil) then
     return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
   end
@@ -1073,14 +1074,16 @@ function smb2_read(smb, read_data)
 
 
   -- The header is 64 bytes.
-  pos, header = bin.unpack("<A64", result, pos)
+  header, pos = string.unpack("<c64", result, pos)
+  stdnse.debug3("Position:%s", pos)
+  nsedebug.print_hex(header)
   if(header == nil) then
     return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [3]"
   end
 
   -- Read that many bytes of data.
   if(read_data == nil or read_data == true) then
-    pos, data = bin.unpack("<A" .. #result - pos + 1, result, pos)
+    data, pos = string.unpack("<c" .. #result - pos + 1, result, pos)
     if(data == nil) then
       return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [7]"
     end
@@ -1193,6 +1196,8 @@ function negotiate_v2(smb, overrides)
   stdnse.debug1("Status '%s'", status)
 
   local data_structure_size, security_mode
+  stdnse.debug3("Data length:%d", #data)
+  nsedebug.print_hex(data)
   data_structure_size, security_mode, smb['dialect'] = string.unpack("<I2 I2 I2", data)
   if(smb['dialect'] == nil) then
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
