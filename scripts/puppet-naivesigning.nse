@@ -23,6 +23,7 @@ References:
 
 ---
 -- @usage nmap -p 8140 --script puppet-naivesigning <target>
+-- @usage nmap -p 8140 --script puppet-naivesigning --script-args puppet-naivesigning.csr=other.csr,puppet-naivesigning.node=agency <target>
 --
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -36,7 +37,9 @@ References:
 --
 -- @xmloutput
 -- <script id="puppet-naivesigning" output="&#xa;  Puppet Naive autosigning enabled! Naive autosigning causes the Puppet CA to autosign ALL CSRs.&#xa;  Attackers will be able to obtain a configuration catalog, which might contain sensitive information.&#xa;  -&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;  MIIFfjCCA2agAwIBAgIBEjANBgkqhkiG9w0BAQsFADAoMSYwJAYDVQQDDB1QdXBw&#xa;  ZXQgQ0E6IHVidW50dS5sb2NhbGRvbWFpbjAeFw0xNzA2MjkxNjQzMjZaFw0yMjA&#xa;"/>
---
+--@args puppet-naivesigning.node - The name of the node in the CSR -> Default: "agentzero.localdomain"
+--@args puppet-naivesigning.env - The environment that is provided to the endpoints -> Default: "production"
+--@args puppet-naivesigning.csr - The file containing the Certificate Signing Request ot replace the default one -> Default: nil
 ---
 
 author = "Wong Wai Tuck"
@@ -77,6 +80,7 @@ L3Gga99UTASI0PZ/dEQA2sooKhIt7pCDMw==
 -----END CERTIFICATE REQUEST-----
 ]]
 
+-- this node name matches the default certificate request
 local DEFAULT_NODE = "agentzero.localdomain"
 local DEFAULT_ENV = "production"
 
@@ -86,10 +90,13 @@ local PATHS = {
   v4 = '/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10
 }
 
+--- Checks if the csr's requester matches the provided node's name
+--  @param csr The whole certificate signing request as a string
+--  @param node The name of the node that you wish to check
+--  @return the start and end index of the node's name in the decoded CSR, if the node's name is not found
 local function has_node_csr (csr, node)
   local _, _, csr_b64 = string.find(csr, "%-%-%-%-%-BEGIN CERTIFICATE REQUEST%-%-%-%-%-(.-)%-%-%-%-%-END CERTIFICATE REQUEST%-%-%-%-%-")
   string.gsub(csr_b64, "\n", "")
-  stdnse.debug1(csr_b64)
   local decoded_csr = base64.dec(csr_b64)
   return string.find(decoded_csr, node)
 end
@@ -125,7 +132,7 @@ action = function(host, port)
     csr = DUMMY_CSR
   end
 
-  stdnse.debug1("CSR: %s", csr)
+  stdnse.debug2("CSR: %s", csr)
 
   -- check if the CSR matches the node name provided, if it doesn't return an error message
   if not has_node_csr(csr, node) then
