@@ -209,7 +209,7 @@ action = function(host, port)
 
     stdnse.debug("Fetching the list of " .. who[_] .. " devices.")
 
-    local res = get_response(sd, "*##*#" .. _ .. "*0##")
+    local res = get_response(sd, "*#" .. _ .. "*0##")
     output[who[_]] = #res
 
   end
