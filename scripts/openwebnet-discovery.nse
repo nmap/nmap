@@ -23,7 +23,7 @@ References:
 --  |   MAC Address: 0:3:50:1:d3:11
 --  |   Device Type: F453AV
 --  |   Firmware Version: 3.0.14
---  |   Uptime: 12d9m42h1s
+--  |   Uptime: 12d9h42m1s
 --  |   Kernel Version: 2.3.8
 --  |   Distribution Version: 3.0.1
 --  |   Date: 02.07.2017
@@ -85,6 +85,8 @@ local who = {
 }
 
 local device_dimension = {
+  ["Time"] = "0",
+  ["Date"] = "1",
   ["Date and Time"] = "22",
   ["IP Address"] = "10",
   ["Net Mask"] = "11",
@@ -172,7 +174,7 @@ local function format_dimensions(res)
   if res["Uptime"] then
     local t = {}
     local units = {
-      [0] = "d", "m", "h", "s"
+      [0] = "d", "h", "m", "s"
     }
     local counter = 0
 
@@ -230,7 +232,7 @@ action = function(host, port)
 
     stdnse.debug("Fetching the list of " .. who[i] .. " devices.")
 
-    local res = get_response(sd, "*#" .. _ .. "*0##")
+    local res = get_response(sd, "*#" .. i .. "*0##")
     output[who[i]] = #res
 
   end
