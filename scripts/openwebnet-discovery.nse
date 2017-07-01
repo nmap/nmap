@@ -65,7 +65,22 @@ local who = {
   [3] = "Power Management",
   [4] = "Heating",
   [5] = "Burglar Alarm",
-  [6] = "Door Entry System"
+  [6] = "Door Entry System",
+  [7] = "Multimedia",
+  [9] = "Auxiliary",
+  [13] = "Device Communication",
+  [14] = "Light+shutters actuators lock",
+  [15] = "CEN",
+  [16] = "Sound System",
+  [17] = "Scenario Programming",
+  [18] = "Energy Management",
+  [24] = "Lighting Management",
+  [25] = "CEN plus",
+  [1000] = "Diagnostic",
+  [1001] = "Automation Diagnostic",
+  [1004] = "Heating Diagnostic",
+  [1008] = "Door Entry System Diagnostic",
+  [1013] = "Device Diagnostic"
 }
 
 local device_dimensions = {
@@ -190,12 +205,12 @@ action = function(host, port)
   output = format_dimensions(output)
 
   -- Fetching list of each device
-  for _, v in pairs(who) do
+  for _ = 0, 6 do
 
-    stdnse.debug("Fetching the list of " .. v .. " devices.")
+    stdnse.debug("Fetching the list of " .. who[_] .. " devices.")
 
     local res = get_response(sd, "*##*#" .. _ .. "*0##")
-    output[v] = #res
+    output[who[_]] = #res
 
   end
 
