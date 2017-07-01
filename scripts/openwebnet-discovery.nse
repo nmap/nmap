@@ -18,19 +18,20 @@ References:
 --
 -- @output
 --  | openwebnet-discover:
---  |   MAC address: 0-3-80-1-211-17
---  |   Kernel Version: 2.3.8
---  |   Net mask: 255.255.255.0
---  |   IP address: 192.168.200.35
---  |   Time: 19:58:33:001
---  |   Date: 24.06.2017
+--  |   IP Address: 192.168.200.35
+--  |   Net Mask: 255.255.255.0
+--  |   MAC Address: 0:3:50:1:d3:11
 --  |   Device Type: F453AV
+--  |   Firmware Version: 3.0.14
+--  |   Uptime: 12d9m42h1s
+--  |   Kernel Version: 2.3.8
 --  |   Distribution Version: 3.0.1
---  |   Firmware version: 3.0.14
---  |   Uptime: 5.3.28.38
+--  |   Date: 02.07.2017
+--  |   Time: 02:11:58
 --  |   Scenarios: 0
 --  |   Lighting: 115
---  |   Automation: 13
+--  |   Automation: 15
+--  |   Power Management: 0
 --  |   Heating: 0
 --  |   Burglar Alarm: 12
 --  |_  Door Entry System: 0
