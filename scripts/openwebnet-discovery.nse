@@ -5,8 +5,11 @@ local string = require "string"
 
 description = [[
 OpenWebNet is a communications protocol developed by Bticino since 2000.
-Retrieves the Gateway and device type. Retrieves the count and addresses
-of lights, multimedia and many other services running on server/servers.
+Retrieves device identifying information and number of connected devices.
+
+References:
+  https://www.myopen-legrandgroup.com/solution-gallery/openwebnet/
+  http://www.pimyhome.org/wiki/index.php/OWN_OpenWebNet_Language_Reference
 ]]
 
 ---
