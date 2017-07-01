@@ -159,8 +159,13 @@ local function format_dimensions(res)
     res["Device Type"] = device[ tonumber( res["Device Type"] ) ]
   end
 
-  if res["MAC address"] then
-    res["MAC address"] = string.gsub(res["MAC address"], "%.", "-")
+  if res["MAC Address"] then
+    local t = {}
+    for _, v in ipairs(stdnse.strsplit("%.%s*", res["MAC Address"])) do
+      table.insert(t, stdnse.tohex(tonumber(v)))
+    end
+
+    res["MAC Address"] = table.concat(t, ":")
   end
 
   return res
