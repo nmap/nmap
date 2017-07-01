@@ -87,15 +87,20 @@ local who = {
 local device_dimension = {
   ["Time"] = "0",
   ["Date"] = "1",
-  ["Date and Time"] = "22",
   ["IP Address"] = "10",
   ["Net Mask"] = "11",
   ["MAC Address"] = "12",
   ["Device Type"] = "15",
   ["Firmware Version"] = "16",
+  ["Hardware Version"] = "17",
   ["Uptime"] = "19",
+  ["Micro Version"] = "20",
+  ["Date and Time"] = "22",
   ["Kernel Version"] = "23",
-  ["Distribution Version"] = "24"
+  ["Distribution Version"] = "24",
+  ["Gateway IP address"] = "50",
+  ["DNS IP address 1"] = "51",
+  ["DNS IP address 2"] = "52"
 }
 
 local ACK = "*#*1##"
