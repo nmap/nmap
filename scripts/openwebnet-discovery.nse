@@ -83,17 +83,16 @@ local who = {
   [1013] = "Device Diagnostic"
 }
 
-local device_dimensions = {
-  ["Time"] = "*#13**0##",
-  ["Date"] = "*#13**1##",
-  ["IP address"]	= "*#13**10##",
-  ["Net mask"] = "*#13**11##",
-  ["MAC address"]	= "*#13**12##",
-  ["Device Type"]	= "*#13**15##",
-  ["Firmware version"] = "*#13**16##",
-  ["Uptime"] = "*#13**19##",
-  ["Kernel Version"] = "*#13**23##",
-  ["Distribution Version"] = "*#13**24##"
+local device_dimension = {
+  ["Date and Time"] = "22",
+  ["IP Address"] = "10",
+  ["Net Mask"] = "11",
+  ["MAC Address"] = "12",
+  ["Device Type"] = "15",
+  ["Firmware Version"] = "16",
+  ["Uptime"] = "19",
+  ["Kernel Version"] = "23",
+  ["Distribution Version"] = "24"
 }
 
 local ACK = "*#*1##"
@@ -179,25 +178,25 @@ action = function(host, port)
   end
 
   -- Fetching list of dimensions of a device
-  for _, v in pairs(device_dimensions) do
+  for _, _ in ipairs({"IP Address", "Net Mask", "MAC Address", "Device Type", "Firmware Version", "Uptime", "Date and Time", "Kernel Version", "Distribution Version"}) do
+
+    local head = "*#13**"
+    local tail = "##"
 
     stdnse.debug("Fetching " .. _)
 
-    local res = get_response(sd, v)
+    local res = get_response(sd, head .. device_dimension[_] .. tail)
 
     -- Extracts substring from the result
     -- Ex:
     --  Request - *#13**16##
     --  Response - *#13**16*3*0*14##
-    --  Trimmed Output - 3*0*14##
+    --  Trimmed Output - 3*0*14
 
-    output[_] = string.gsub(
-                  string.sub(
-                    string.gsub(
-                      res[1], string.gsub(
-                        string.sub(v,1,-3) .. "*","*","%%*"
-                      ), ""), 1, -3
-                  ), "*", ".")
+    local regex = string.gsub(head, "*", "%%*") .. device_dimension[_] .. "%*" .."(.+)" .. tail
+    local tempRes = string.match(res[1], regex)
+
+    output[_] = string.gsub(tempRes, "*", ".")
 
   end
 
