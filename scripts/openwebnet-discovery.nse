@@ -200,14 +200,14 @@ action = function(host, port)
   end
 
   -- Fetching list of dimensions of a device
-  for _, _ in ipairs({"IP Address", "Net Mask", "MAC Address", "Device Type", "Firmware Version", "Uptime", "Date and Time", "Kernel Version", "Distribution Version"}) do
+  for _, device in ipairs({"IP Address", "Net Mask", "MAC Address", "Device Type", "Firmware Version", "Uptime", "Date and Time", "Kernel Version", "Distribution Version"}) do
 
     local head = "*#13**"
     local tail = "##"
 
-    stdnse.debug("Fetching " .. _)
+    stdnse.debug("Fetching " .. device)
 
-    local res = get_response(sd, head .. device_dimension[_] .. tail)
+    local res = get_response(sd, head .. device_dimension[device] .. tail)
 
     -- Extracts substring from the result
     -- Ex:
@@ -215,10 +215,10 @@ action = function(host, port)
     --  Response - *#13**16*3*0*14##
     --  Trimmed Output - 3*0*14
 
-    local regex = string.gsub(head, "*", "%%*") .. device_dimension[_] .. "%*" .."(.+)" .. tail
+    local regex = string.gsub(head, "*", "%%*") .. device_dimension[device] .. "%*" .."(.+)" .. tail
     local tempRes = string.match(res[1], regex)
 
-    output[_] = string.gsub(tempRes, "*", ".")
+    output[device] = string.gsub(tempRes, "*", ".")
 
   end
 
@@ -226,12 +226,12 @@ action = function(host, port)
   output = format_dimensions(output)
 
   -- Fetching list of each device
-  for _ = 0, 6 do
+  for i = 0, 6 do
 
-    stdnse.debug("Fetching the list of " .. who[_] .. " devices.")
+    stdnse.debug("Fetching the list of " .. who[i] .. " devices.")
 
     local res = get_response(sd, "*#" .. _ .. "*0##")
-    output[who[_]] = #res
+    output[who[i]] = #res
 
   end
 
