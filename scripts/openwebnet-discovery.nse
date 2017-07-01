@@ -146,12 +146,13 @@ end
 
 local function format_dimensions(res)
 
-  if res["Time"] then
-    res["Time"] = string.gsub(res["Time"], "%.", ":")
-  end
+  if res["Date and Time"] then
+    res["Date"] = string.match(res["Date and Time"], "((%d+)%.(%d+)%.(%d+))$")
 
-  if res["Date"] then
-    res["Date"] = string.match(res["Date"],"%.(%d.+)$")
+    res["Time"] = string.match(res["Date and Time"], "^((%d+)%.(%d+)%.(%d+))")
+    res["Time"] = string.gsub(res["Time"], "%.", ":")
+
+    res["Date and Time"] = nil
   end
 
   if res["Device Type"] then
