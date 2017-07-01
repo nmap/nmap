@@ -168,6 +168,21 @@ local function format_dimensions(res)
     res["MAC Address"] = table.concat(t, ":")
   end
 
+  if res["Uptime"] then
+    local t = {}
+    local units = {
+      [0] = "d", "m", "h", "s"
+    }
+    local counter = 0
+
+    for _, v in ipairs(stdnse.strsplit("%.%s*", res["Uptime"])) do
+      table.insert(t, v .. units[counter])
+      counter = counter + 1
+    end
+
+    res["Uptime"] = table.concat(t, "")
+  end
+
   return res
 
 end
