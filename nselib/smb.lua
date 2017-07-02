@@ -1146,6 +1146,10 @@ function negotiate_v2(smb, overrides)
   local GUID1 = overrides["GUID1"] or 1
   local GUID2 = overrides["GUID2"] or 1
   local ClientStartTime = overrides["ClientStartTime"] or 0x0
+  local total_data = 0
+  local padding_data = "" -- Data counter and padding string to align contexts
+  local context_data -- Holds Context data 
+  local is_0311 = false -- Flag for SMB 3.11 
 
   header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
    
@@ -1158,18 +1162,24 @@ function negotiate_v2(smb, overrides)
     GUID1,          --8 bytes
     GUID2          --8 bytes
     )
-  local is_0311 = false
+
   for _, dialect in ipairs(overrides['Dialects']) do
     if dialect == 0x0311 then
       is_0311 = true
-      ClientStartTime = #header + #data 
     end
   end
+
   if is_0311 then
-    data = data .. string.pack("<I8", ClientStartTime)
+    total_data = #header + #data + (DialectCount*2)
+    while ((total_data)%8 ~= 0) do
+        total_data = total_data + 1
+        padding_data = padding_data .. string.pack("<c1", 0x0)
+    end -- while to create 8 byte aligned padding
+    data = data .. string.pack("<I4 I2 I2", total_data+8, 0x2, 0x0)
   else
-    data = data .. string.pack("<I8", 0x0)
-  end
+    data = data .. string.pack("<I8", ClientStartTime) -- If it is not 3.11, we set it to 0
+  end -- if is_0311
+
   if(overrides['Dialects'] == nil) then
     for _, d in ipairs(smb2_dialect) do
       data = data .. string.pack("<I2", d)
@@ -1179,8 +1189,26 @@ function negotiate_v2(smb, overrides)
       data = data .. string.pack("<I2", v)
     end
   end
-  nsedebug.print_hex(data)
-  local params = ""
+
+  if is_0311 then
+    data = data .. padding_data
+    local negotiate_context_list, context_data
+    context_data = string.pack("<I2 I2 I2", 0x2, 0x2, 0x0001)
+    data = data .. string.pack("<I2 I2 I4 c" .. #context_data, 0x0002, #context_data, 0x0, context_data)
+
+    -- We add the padding between contexts so they are 8 byte aligned
+    total_data = #header+#data
+    padding_data = ""
+    while((total_data)%8 ~= 0) do
+      padding_data = padding_data .. string.pack("<c1", 0x0)
+      total_data = total_data + 1
+    end
+    data = data .. padding_data
+    context_data = context_data .. string.pack("<I2 I2 I2 I16 I16", 0x1, 0x20, 0x0001, 0x0, 0x1)
+    data = data .. string.pack("<I2 I2 I4 c" .. #context_data, 0x0001, #context_data, 0x0, context_data)
+     
+  end
+  
   status, err = smb2_send(smb, header, data)
   if not status then
     return false, err
@@ -1286,7 +1314,7 @@ function list_dialects(host, overrides)
     overrides['Dialects'] = {dialect}
     status, dialect = negotiate_v2(smbstate, overrides)
     if status then
-      stdnse.debug2("SMB2: Dialect '%s' is supported", dialects[dialect])
+      stdnse.debug2("SMB2: Dialect '%s' is supported", dialects[dialect[1]])
       table.insert(supported_dialects, dialects[dialect[1]])
     end
     --clean smb connection
