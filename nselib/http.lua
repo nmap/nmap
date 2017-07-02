@@ -87,6 +87,12 @@
 --   end
 --   </code>
 -- * <code>no_cookie_overwrite</code>: Do not overwrite the cookies initially provided and when a duplicate cookie is received, ignore it.
+-- * <code>enable_cookies</code>: Cookies are accessible to other http calls
+-- The following example code demonstrates how the cookies can be passed and updated for every subsequent http calls.
+--
+-- <code> 
+-- http.get(host, port, {no_cookie_overwrite=false, cookies = options.cookies, enable_cookie = true})
+-- </code
 --
 -- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
@@ -354,7 +360,7 @@ local function validate_options(options)
       end
     elseif (key == 'ntlmauth') then
       stdnse.debug1("Proceeding with ntlm message")
-    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af' or key == 'no_cookie_overwrite') then
+    elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body' or key == 'any_af' or key == 'no_cookie_overwrite' or key == 'enable_cookies') then
       if(type(value) ~= 'boolean') then
         stdnse.debug1("http: options.%s must be a boolean value", key)
         bad = true
@@ -1681,7 +1687,8 @@ function get(host, port, path, options)
     if ( response == nil ) then
       -- Check for response 
       response = generic_request(u.host, u.port, "GET", u.path, options)
-      if(response.cookies and #response.cookies>0) then
+      --enable_cookies in options make sure that cookies are available in the next http calls.
+      if(response.cookies and #response.cookies>0 and options.enable_cookie == true) then
         if (options.cookies and #options.cookies>0) then
           response, options = merge_cookie_table(response, options)
           --We call this function.
