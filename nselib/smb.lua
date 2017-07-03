@@ -1130,6 +1130,104 @@ function negotiate_v1(smb, overrides)
     return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
   end
 
+  -- Check if we fell off the packet (if that happened, the last parameter will be nil)
+  if(header1 == nil or mid == nil) then
+    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [8]"
+  end
+
+  -- Since this is the first response seen, check any necessary flags here
+  if(bit.band(flags2, 0x0800) ~= 0x0800) then
+    smb['extended_security'] = false
+  end
+
+  -- Parse the parameter section
+  pos, smb['dialect'] = bin.unpack("<S", parameters)
+  if(smb['dialect'] == nil) then
+    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
+  end
+
+  -- Check if we ran off the packet
+  if(smb['dialect'] == nil) then
+    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [10]"
+  end
+  -- Check if the server didn't like our requested protocol
+  if(smb['dialect'] ~= 0) then
+    return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
+  end
+
+  pos, smb['security_mode'], smb['max_mpx'], smb['max_vc'], smb['max_buffer'], smb['max_raw_buffer'], smb['session_key'], smb['capabilities'], smb['time'], smb['timezone'], smb['key_length'] = bin.unpack("<CSSIIIILsC", parameters, pos)
+  if(smb['security_mode'] == nil or smb['capabilities'] == nil) then
+    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [11]"
+  end
+  -- Some broken implementations of SMB don't send these variables
+  if(smb['time'] == nil) then
+    smb['time'] = 0
+  end
+  if(smb['timezone'] == nil) then
+    smb['timezone'] = 0
+  end
+  if(smb['key_length'] == nil) then
+    smb['key_length'] = 0
+  end
+  if(smb['byte_count'] == nil) then
+    smb['byte_count'] = 0
+  end
+
+  -- Convert the time and timezone to more useful values
+  smb['time'] = (smb['time'] // 10000000) - 11644473600
+  smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
+  smb['timezone'] = -(smb['timezone'] / 60)
+  if(smb['timezone'] == 0) then
+    smb['timezone_str'] = "UTC+0"
+  elseif(smb['timezone'] < 0) then
+    smb['timezone_str'] = "UTC-" .. math.abs(smb['timezone'])
+  else
+    smb['timezone_str'] = "UTC+" .. smb['timezone']
+  end
+
+  -- Data section
+  if(smb['extended_security'] == true) then
+    pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
+    if(smb['server_challenge'] == nil) then
+      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
+    end
+
+    pos, smb['server_guid'] = bin.unpack("<A16", data, pos)
+    if(smb['server_guid'] == nil) then
+      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
+    end
+
+    -- do we have a security blob?
+    if ( #data - pos > 0 ) then
+      pos, smb['security_blob'] = bin.unpack("<A" .. #data - pos, data, pos )
+    end
+  else
+    pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
+    if(smb['server_challenge'] == nil) then
+      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
+    end
+
+    -- Get the (null-terminated) domain as a Unicode string
+    smb['domain'] = ""
+    smb['server'] = ""
+
+    local remainder = unicode.utf16to8(string.sub(data, pos))
+    pos, pos = string.find(remainder, "\0", 1, true)
+    if pos == nil then
+      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
+    end
+    smb['domain'] = string.sub(remainder, 1, pos)
+
+    -- Get the server name as a Unicode string
+    -- Note: This can be nil, Samba leaves this off
+    local pos2 = pos + 1
+    pos, pos = string.find(remainder, "\0", pos2, true)
+    if pos ~= nil then
+      smb['server'] = string.sub(remainder, pos2, pos)
+    end
+  end
+
+
   return true, overrides['dialect'] or "NT LM 0.12 (SMBv1)"
 end
 
@@ -1363,7 +1461,6 @@ function negotiate_protocol(smb, overrides)
   local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
 
   header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
-  local headertmp = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
   -- Make sure we have overrides
   overrides = overrides or {}
 
@@ -1383,7 +1480,7 @@ function negotiate_protocol(smb, overrides)
 
   -- Send the negotiate request
   stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
-  --local result, err = smb_send(smb, header, parameters, data, overrides)
+  local result, err = smb_send(smb, header, parameters, data, overrides)
   if(status == false) then
     return false, err
   end
@@ -1418,33 +1515,6 @@ function negotiate_protocol(smb, overrides)
     GUID1,          --8 bytes
     GUID2          --8 bytes
     )
-  local is_0311 = false
-  for _, v in ipairs(Dialects) do
-    if v == 0x0311 then
-      is_0311 = true
-      ClientStartTime = #headertmp + #data 
-    end
-  end
-  if is_0311 then
-    data = data .. string.pack("<I8", ClientStartTime)
-  else
-    data = data .. string.pack("<I8", 0x0)
-  end
-  if(overrides['Dialects'] == nil) then
-    for _, d in ipairs(Dialects) do
-      data = data .. string.pack("<I2", d)
-    end
-  else
-    for _, v in ipairs(overrides['Dialects']) do
-      data = data .. string.pack("<I", v)
-    end
-  end
-  nsedebug.print_hex(data)
-  status, err = smb2_send(smb, headertmp, data)
-  if(status == false) then
-    return false, err
-  end
-
   -- Read the result
   status, header, parameters, data = smb_read(smb)
   if(status ~= true) then
