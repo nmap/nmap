@@ -330,6 +330,11 @@ local function validate_options(options)
                 stdnse.debug1("http: options.cookies[i].max-age should be a string")
                 bad = true
               end
+            elseif(cookie_key == 'domain') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].domain should be a string")
+                bad = true
+              end
             elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
               stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
               -- Ignore unrecognized attributes (per RFC 6265, Section 5.2)
@@ -1280,6 +1285,17 @@ end
 local function merge_cookie_table(response, options)
   local flag = false
   for r_index,r_cookie in pairs(response.cookies) do
+    local maxage = r_cookie['max-age']
+    local expires = r_cookie.expires
+    --MaxAge attribute has precedence over expires
+    if(maxage <=0 ) then
+      break
+    end
+    --Else, time of execution of script will probably be less than cookie life.
+    if maxage == nil and expires ~= nil then 
+      --parse the cookie date
+      --compare it with the present date.
+    end
     for o_index,o_cookie in pairs(options.cookies) do
       flag = false
       if(r_cookie.name == o_cookie.name) then
