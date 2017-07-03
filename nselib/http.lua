@@ -87,13 +87,20 @@
 --   end
 --   </code>
 -- * <code>no_cookie_overwrite</code>: Do not overwrite the cookies initially provided and when a duplicate cookie is received, ignore it.
--- * <code>enable_cookies</code>: Cookies are accessible to other http calls
--- The following example code demonstrates how the cookies can be passed and updated for every subsequent http calls.
---
+-- * <code>enable_cookies</code>: Cookies are accessible to other http calls.
+-- The following example code demonstrates how the cookies can be passed.(enable_cookies options automatically gets enabled if we pass the cookie jar)
 -- <code> 
--- http.get(host, port, {no_cookie_overwrite=false, cookies = options.cookies, enable_cookie = true})
--- </code
---
+-- http.get(host, port, {cookies = options.cookies})
+-- </code>
+-- The following example code demonstrates how the cookies can be passed and if we dont want the passed cookies to be overwritten on receiving the same cookie
+-- jar in the next request.
+-- <code> 
+-- http.get(host, port, {no_cookie_overwrite=false, cookies = options.cookies})
+-- </code>
+-- The following example code demonstrates how to get the cookies received in redirected request to come in the cookie jar
+-- <code> 
+-- http.get(host, port, {enable_cookie = true})
+-- </code>
 -- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
 -- @args http.useragent The value of the User-Agent header field sent with
@@ -1682,13 +1689,14 @@ function get(host, port, path, options)
   local response, state, location
   local u = { host = host, port = port, path = path }
   if (options == nil) then options = {} end
+  if (options.cookies ~= nil) then options.enable_cookies = true end
   repeat
     response, state = lookup_cache("GET", u.host, u.port, u.path, options);
     if ( response == nil ) then
       -- Check for response 
       response = generic_request(u.host, u.port, "GET", u.path, options)
       --enable_cookies in options make sure that cookies are available in the next http calls.
-      if(response.cookies and #response.cookies>0 and options.enable_cookie == true) then
+      if (response.cookies and #response.cookies>0 and options.enable_cookie == true) then
         if (options.cookies and #options.cookies>0) then
           response, options = merge_cookie_table(response, options)
           --We call this function.
