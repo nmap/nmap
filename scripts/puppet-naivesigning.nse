@@ -106,7 +106,7 @@ action = function(host, port)
     "Puppet Naive autosigning enabled! Naive autosigning causes the Puppet CA to autosign ALL CSRs.",
     "Attackers will be able to obtain a configuration catalog, which might contain sensitive information."
   }
-  local is_enabled = false
+  local scan_success = false
   local options = {}
   options['header'] = {}
 
@@ -172,13 +172,13 @@ action = function(host, port)
       end
 
       if http.response_contains(response, "BEGIN CERTIFICATE") then
-        is_enabled = true
+        scan_success = true
         table.insert(certificate, response.body)
         table.insert(puppet_table, string.sub(certificate[1], 1, 156))
         break
       end
     elseif http.response_contains(response, "has a signed certificate; ignoring certificate request") then
-      is_enabled = true
+      scan_success = true
       local get_cert_path = string.format("/%s/certificate/%s", env, node)
       local get_cert_response = http.get(host, port, get_cert_path, options)
       table.insert(certificate, get_cert_response.body)
@@ -190,5 +190,5 @@ action = function(host, port)
       return
     end
   end
-  return stdnse.format_output(is_enabled, puppet_table)
+  return stdnse.format_output(scan_success, puppet_table)
 end
