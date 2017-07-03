@@ -184,6 +184,10 @@ action = function(host, port)
       table.insert(certificate, get_cert_response.body)
       table.insert(puppet_table, string.sub(certificate[1], 1, 156))
       break
+    elseif not response.status then
+      puppet_table = "Puppet CA timeout!"
+    else
+      return
     end
   end
   return stdnse.format_output(is_enabled, puppet_table)
