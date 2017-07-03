@@ -1282,11 +1282,12 @@ end
 -- @return A response table
 -- @return An options table, with the cookies from the response table appended.
 -- @see get
-local function merge_cookie_table(response, options)
+local function merge_cookie_table(host, path, response, options)
   local flag = false
   for r_index,r_cookie in pairs(response.cookies) do
     local maxage = r_cookie['max-age']
     local expires = r_cookie.expires
+    local cookie_path = r_cookie.path
     --MaxAge attribute has precedence over expires
     if(maxage <=0 ) then
       break
@@ -1295,6 +1296,9 @@ local function merge_cookie_table(response, options)
     if maxage == nil and expires ~= nil then 
       --parse the cookie date
       --compare it with the present date.
+    end
+    if cookie_path ~= nil and string.find(cookie_path, path) == nil then
+      break
     end
     for o_index,o_cookie in pairs(options.cookies) do
       flag = false
@@ -1713,7 +1717,7 @@ function get(host, port, path, options)
       --enable_cookies in options make sure that cookies are available in the next http calls.
       if (response.cookies and #response.cookies>0 and options.enable_cookie == true) then
         if (options.cookies and #options.cookies>0) then
-          response, options = merge_cookie_table(response, options)
+          response, options = merge_cookie_table(host, path, response, options)
           --We call this function.
         else --If we dont have anything in the options, we simply make it equal to received cookies.
           options.cookies = response.cookies
