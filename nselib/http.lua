@@ -1302,7 +1302,6 @@ local function merge_cookie_table(response, options)
         --We need to check if domain and path are equal.
         --Note:If both domain and path are nil for r_cookie and o_cookie,
         --we need to change the cookie value 
-        --Nmap http library doesnt take cookie.domain into consideration anywhere.
         --See RFC 6265 Section 5.3 for how duplicate cookies are handled
         if(r_cookie.domain == o_cookie.domain and r_cookie.path == o_cookie.path) then 
           --If options.no_cookie_overwrite is set, we simply ignore this cookie
