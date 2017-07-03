@@ -14,8 +14,7 @@ as well as any other sensitive information found in the configuration files.
 
 This script makes use of the Puppet HTTP API interface to sign the request.
 
-Tested on versions 3.8.5, 4.10, however the certificate does not return in the
-same PUT request for version 4.10.
+This script has been Tested on versions 3.8.5, 4.10.
 
 References:
 * https://docs.puppet.com/puppet/4.10/ssl_autosign.html#security-implications-of-nave-autosigning
@@ -39,7 +38,7 @@ References:
 -- <script id="puppet-naivesigning" output="&#xa;  Puppet Naive autosigning enabled! Naive autosigning causes the Puppet CA to autosign ALL CSRs.&#xa;  Attackers will be able to obtain a configuration catalog, which might contain sensitive information.&#xa;  -&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;  MIIFfjCCA2agAwIBAgIBEjANBgkqhkiG9w0BAQsFADAoMSYwJAYDVQQDDB1QdXBw&#xa;  ZXQgQ0E6IHVidW50dS5sb2NhbGRvbWFpbjAeFw0xNzA2MjkxNjQzMjZaFw0yMjA&#xa;"/>
 --@args puppet-naivesigning.node - The name of the node in the CSR -> Default: "agentzero.localdomain"
 --@args puppet-naivesigning.env - The environment that is provided to the endpoints -> Default: "production"
---@args puppet-naivesigning.csr - The file containing the Certificate Signing Request ot replace the default one -> Default: nil
+--@args puppet-naivesigning.csr - The file containing the Certificate Signing Request to replace the default one -> Default: nil
 ---
 
 author = "Wong Wai Tuck"
@@ -87,7 +86,7 @@ local DEFAULT_ENV = "production"
 -- different versions have different paths to the certificate signing endpoint
 local PATHS = {
   v3 = '/%s/certificate_request/%s', -- version 3.8
-  v4 = '/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10
+  v4v5 = '/puppet-ca/v1/certificate_request/%s?environment=%s' -- version 4.10 and 5.0
 }
 
 --- Checks if the csr's requester matches the provided node's name
@@ -151,7 +150,7 @@ action = function(host, port)
   for version, path in pairs(PATHS) do
     if version == "v3" then
       path = string.format(path, env, node)
-    elseif version == "v4" then
+    elseif version == "v4v5" then
       path = string.format(path, node, env)
     end
 
