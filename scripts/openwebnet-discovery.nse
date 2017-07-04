@@ -8,8 +8,8 @@ OpenWebNet is a communications protocol developed by Bticino since 2000.
 Retrieves device identifying information and number of connected devices.
 
 References:
-  https://www.myopen-legrandgroup.com/solution-gallery/openwebnet/
-  http://www.pimyhome.org/wiki/index.php/OWN_OpenWebNet_Language_Reference
+* https://www.myopen-legrandgroup.com/solution-gallery/openwebnet/
+* http://www.pimyhome.org/wiki/index.php/OWN_OpenWebNet_Language_Reference
 ]]
 
 ---
