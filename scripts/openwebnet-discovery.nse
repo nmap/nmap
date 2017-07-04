@@ -145,7 +145,8 @@ local function get_response(sd, request)
 
     -- If response is NACK, it means the request method is not supported
     if data == NACK then
-      res = {}
+      res = nil
+      break
     end
   until not status
 
