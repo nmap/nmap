@@ -12,7 +12,40 @@ local stdnse = require "stdnse"
 local netbios = require "netbios"
 local nmap = require "nmap"
 local table = require "table"
+local match = require "match"
+local bit = require "bit"
+local nsedebug = require "nsedebug"
 _ENV = stdnse.module("smb2", stdnse.seeall)
+
+local TIMEOUT = 10000
+local command_names = {}
+local command_codes =
+{
+  SMB2_COM_NEGOTIATE              = 0x0000,
+  SMB2_COM_SESSION_SETUP          = 0x0001,
+  SMB2_COM_LOGOFF                 = 0x0002,
+  SMB2_COM_TREE_CONNECT           = 0x0003,
+  SMB2_COM_TREE_DISCONNECT        = 0x0004,
+  SMB2_COM_CREATE                 = 0x0005,
+  SMB2_COM_CLOSE                  = 0x0006,
+  SMB2_COM_FLUSH                  = 0x0007,
+  SMB2_COM_READ                   = 0x0008,
+  SMB2_COM_WRITE                  = 0x0009,
+  SMB2_COM_LOCK                   = 0x000A,
+  SMB2_COM_IOCTL                  = 0x000B,
+  SMB2_COM_CANCEL                 = 0x000C,
+  SMB2_COM_ECHO                   = 0x000D,
+  SMB2_COM_QUERY_DIRECTORY        = 0x000E,
+  SMB2_COM_CHANGE_NOTIFY          = 0x000F,
+  SMB2_COM_QUERY_INFO             = 0x0010,
+  SMB2_COM_SET_INFO               = 0x0011,
+  SMB2_COM_OPLOCK_BREAK           = 0x0012
+}
+
+for i, v in pairs(command_codes) do
+  command_names[v] = i
+end
+
 
 ---
 -- Creates a SMB2 SYNC header packet.
@@ -36,7 +69,7 @@ function smb2_encode_header_sync(smb, command, overrides)
   end
 
   -- Header structure
-  local header = string.pack("<c4 I2 I2 I4 I2 I2 I4 I4 I8 I4 I4 I8 I8 c16",
+  local header = string.pack("<c4 I2 I2 I4 I2 I2 I4 I4 I8 I4 I4 I8 c16",
     sig,                                -- 4 bytes: ProtocolId
     structureSize,                      -- 2 bytes: StructureSize. Must be 64.
     (overrides['CreditCharge'] or 0),   -- 2 bytes: CreditCharge. 
@@ -49,7 +82,7 @@ function smb2_encode_header_sync(smb, command, overrides)
     (overrides['Reserved'] or 0),              -- 4 bytes: Reserved.
     (overrides['TreeId'] or smb['TreeId'] or 0),        -- 4 bytes: TreeId.
     (overrides['SessionId'] or smb['SessionId'] or 0),  -- 8 bytes: SessionId.
-    (overrides['Signature'] or 0),     -- 16 bytes: Signature.
+    (overrides['Signature'] or '1234567890123456')     -- 16 bytes: Signature.
     )
 
   return header
@@ -289,6 +322,8 @@ function negotiate_v2(smb, overrides)
     smb['timezone'] = 0
   end
   if(smb['key_length'] == nil) then
+
+
     smb['key_length'] = 0
   end
   if(smb['byte_count'] == nil) then
@@ -316,30 +351,4 @@ function negotiate_v2(smb, overrides)
   end
 end
 
-
-local command_codes =
-{
-  SMB2_COM_NEGOTIATE              = 0x0000,
-  SMB2_COM_SESSION_SETUP          = 0x0001,
-  SMB2_COM_LOGOFF                 = 0x0002,
-  SMB2_COM_TREE_CONNECT           = 0x0003,
-  SMB2_COM_TREE_DISCONNECT        = 0x0004,
-  SMB2_COM_CREATE                 = 0x0005,
-  SMB2_COM_CLOSE                  = 0x0006,
-  SMB2_COM_FLUSH                  = 0x0007,
-  SMB2_COM_READ                   = 0x0008,
-  SMB2_COM_WRITE                  = 0x0009,
-  SMB2_COM_LOCK                   = 0x000A,
-  SMB2_COM_IOCTL                  = 0x000B,
-  SMB2_COM_CANCEL                 = 0x000C,
-  SMB2_COM_ECHO                   = 0x000D,
-  SMB2_COM_QUERY_DIRECTORY        = 0x000E,
-  SMB2_COM_CHANGE_NOTIFY          = 0x000F,
-  SMB2_COM_QUERY_INFO             = 0x0010,
-  SMB2_COM_SET_INFO               = 0x0011,
-  SMB2_COM_OPLOCK_BREAK           = 0x0012
-}
-
-for i, v in pairs(command_codes) do
-  command_names[v] = i
-end
+return _ENV;

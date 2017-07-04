@@ -946,6 +946,37 @@ end
 
 ---
 -- Negotiates SMBv1 connections
+-- 
+-- Sends the following:
+-- * List of known protocols
+--
+-- Receives:
+-- * The preferred dialect
+-- * The security mode
+-- * Max number of multiplexed connections, virtual circuits, and buffer sizes
+-- * The server's system time and timezone
+-- * The "encryption key" (aka, the server challenge)
+-- * The capabilities
+-- * The server and domain names
+--
+--@param smb       The SMB object associated with the connection
+--@param overrides [optional] Overrides for various fields
+--@return (status, result) If status is false, result is an error message. Otherwise, result is
+--        nil and the following elements are added to <code>smb</code>:
+--      * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
+--      * 'max_mpx'          Maximum number of multiplexed connections
+--      * 'max_vc'           Maximum number of virtual circuits
+--      * 'max_buffer'       Maximum buffer size
+--      * 'max_raw_buffer'   Maximum buffer size for raw connections (considered obsolete)
+--      * 'session_key'      A value that's basically just echoed back
+--      * 'capabilities'     The server's capabilities
+--      * 'time'             The server's time (in UNIX-style seconds since 1970)
+--      * 'date'             The server's date in a user-readable format
+--      * 'timezone'         The server's timezone, in hours from UTC
+--      * 'timezone_str'     The server's timezone, as a string
+--      * 'server_challenge' A random string used for challenge/response
+--      * 'domain'           The server's primary domain or workgroup
+--      * 'server'           The server's name
 -- @param smb The SMB object associated with the connection.
 -- @param overrides Overrides table.
 -- @return (status, dialect) If status is true, the negotiated dialect in human readable form is returned as the second value.
@@ -1087,6 +1118,23 @@ function negotiate_v1(smb, overrides)
 end
 
 ---
+-- Wrapper function to negotiate the protocol to use in the SMB connection.
+-- By default it attempts to negotiate with using following dialects:
+-- * NT LM 12.0 (SMBv1)
+---
+function negotiate_protocol(smb, overrides)
+  local status, dialect
+  status, dialect = negotiate_v1(smb, overrides)
+  if status then
+    return true
+  else 
+    stdnse.debug1("Couldn't negotiate a SMBv1 connection:%s", dialect)
+    -- TODO: Try SMB2/SMB3 dialects if SMBv1 failed.
+    return false, string.format("Could not negotiate a connection:%s", dialect)
+  end
+end
+
+---
 -- Returns list of supported dialects for SMBv1, SMBv2 and SMBv3.
 -- @param host       The SMB host to connect to.
 -- @param overrides [optional] Overrides for various fields.
@@ -1126,7 +1174,7 @@ function list_dialects(host, overrides)
     end
     stdnse.debug2("Checking if dialect '%s' is supported", dialect)
     overrides['Dialects'] = {dialect}
-    status, dialect = negotiate_v2(smbstate, overrides)
+    status, dialect = smb2.negotiate_v2(smbstate, overrides)
     if status then
       stdnse.debug2("SMB2: Dialect '%s' is supported", dialects[dialect[1]])
       table.insert(supported_dialects, dialects[dialect[1]])
@@ -1138,185 +1186,6 @@ function list_dialects(host, overrides)
 
   return true, supported_dialects
 end
-
---- Sends out <code>SMB_COM_NEGOTIATE</code>, which is typically the first SMB packet sent out.
---
--- Sends the following:
--- * List of known protocols
---
--- Receives:
--- * The preferred dialect
--- * The security mode
--- * Max number of multiplexed connections, virtual circuits, and buffer sizes
--- * The server's system time and timezone
--- * The "encryption key" (aka, the server challenge)
--- * The capabilities
--- * The server and domain names
---
---@param smb       The SMB object associated with the connection
---@param overrides [optional] Overrides for various fields
---@return (status, result) If status is false, result is an error message. Otherwise, result is
---        nil and the following elements are added to <code>smb</code>:
---      * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
---      * 'max_mpx'          Maximum number of multiplexed connections
---      * 'max_vc'           Maximum number of virtual circuits
---      * 'max_buffer'       Maximum buffer size
---      * 'max_raw_buffer'   Maximum buffer size for raw connections (considered obsolete)
---      * 'session_key'      A value that's basically just echoed back
---      * 'capabilities'     The server's capabilities
---      * 'time'             The server's time (in UNIX-style seconds since 1970)
---      * 'date'             The server's date in a user-readable format
---      * 'timezone'         The server's timezone, in hours from UTC
---      * 'timezone_str'     The server's timezone, as a string
---      * 'server_challenge' A random string used for challenge/response
---      * 'domain'           The server's primary domain or workgroup
---      * 'server'           The server's name
-function negotiate_protocol(smb, overrides)
-  local header, parameters, data
-  local pos
-  local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
-
-  header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
-  -- Make sure we have overrides
-  overrides = overrides or {}
-
-  -- Parameters are blank
-  parameters = ""
-
-  -- Data is a list of strings, terminated by a blank one.
-  if(overrides['dialects'] == nil) then
-    data       = bin.pack("<CzCz", 2, (overrides['dialect'] or "NT LM 0.12"), 2, "")
-  else
-    data = ""
-    for _, v in ipairs(overrides['dialects']) do
-      data = data .. bin.pack("<Cz", 2, v)
-    end
-    data = data .. bin.pack("Cz", 2, "")
-  end
-
-  -- Send the negotiate request
-  stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
-  local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(status == false) then
-    return false, err
-  end
-
- -- Read the result
-  status, header, parameters, data = smb_read(smb)
-  if(status ~= true) then
-    return false, header
-  end
-
-  -- Parse out the header
-  local uid, tid
-  pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-
-  -- Get the protocol version
-  local protocol_version = string.char(header1, header2, header3, header4)
-  if(protocol_version == ("\xFESMB")) then
-    return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
-  end
-
-  -- Check if we fell off the packet (if that happened, the last parameter will be nil)
-  if(header1 == nil or mid == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [8]"
-  end
-
-  -- Since this is the first response seen, check any necessary flags here
-  if(bit.band(flags2, 0x0800) ~= 0x0800) then
-    smb['extended_security'] = false
-  end
-
-  -- Parse the parameter section
-  pos, smb['dialect'] = bin.unpack("<S", parameters)
-  if(smb['dialect'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
-  end
-
-  -- Check if we ran off the packet
-  if(smb['dialect'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [10]"
-  end
-  -- Check if the server didn't like our requested protocol
-  if(smb['dialect'] ~= 0) then
-    return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
-  end
-
-  pos, smb['security_mode'], smb['max_mpx'], smb['max_vc'], smb['max_buffer'], smb['max_raw_buffer'], smb['session_key'], smb['capabilities'], smb['time'], smb['timezone'], smb['key_length'] = bin.unpack("<CSSIIIILsC", parameters, pos)
-  if(smb['security_mode'] == nil or smb['capabilities'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [11]"
-  end
-  -- Some broken implementations of SMB don't send these variables
-  if(smb['time'] == nil) then
-    smb['time'] = 0
-  end
-  if(smb['timezone'] == nil) then
-    smb['timezone'] = 0
-  end
-  if(smb['key_length'] == nil) then
-    smb['key_length'] = 0
-  end
-  if(smb['byte_count'] == nil) then
-    smb['byte_count'] = 0
-  end
-
-  -- Convert the time and timezone to more useful values
-  smb['time'] = (smb['time'] // 10000000) - 11644473600
-  smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
-  smb['timezone'] = -(smb['timezone'] / 60)
-  if(smb['timezone'] == 0) then
-    smb['timezone_str'] = "UTC+0"
-  elseif(smb['timezone'] < 0) then
-    smb['timezone_str'] = "UTC-" .. math.abs(smb['timezone'])
-  else
-    smb['timezone_str'] = "UTC+" .. smb['timezone']
-  end
-
-  -- Data section
-  if(smb['extended_security'] == true) then
-    pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
-    if(smb['server_challenge'] == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
-    end
-
-    pos, smb['server_guid'] = bin.unpack("<A16", data, pos)
-    if(smb['server_guid'] == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
-    end
-
-    -- do we have a security blob?
-    if ( #data - pos > 0 ) then
-      pos, smb['security_blob'] = bin.unpack("<A" .. #data - pos, data, pos )
-    end
-  else
-    pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
-    if(smb['server_challenge'] == nil) then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
-    end
-
-    -- Get the (null-terminated) domain as a Unicode string
-    smb['domain'] = ""
-    smb['server'] = ""
-
-    local remainder = unicode.utf16to8(string.sub(data, pos))
-    pos, pos = string.find(remainder, "\0", 1, true)
-    if pos == nil then
-      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
-    end
-    smb['domain'] = string.sub(remainder, 1, pos)
-
-    -- Get the server name as a Unicode string
-    -- Note: This can be nil, Samba leaves this off
-    local pos2 = pos + 1
-    pos, pos = string.find(remainder, "\0", pos2, true)
-    if pos ~= nil then
-      smb['server'] = string.sub(remainder, pos2, pos)
-    end
-  end
-
-  return true
-end
-
 
 --- This is an internal function and should not be called externally. Use
 --  the start_session() function instead.
@@ -3115,7 +2984,7 @@ function share_anonymous_can_read(host, share)
   end
 
   -- Negotiate the protocol
-  status, err = negotiate_protocol(smbstate, overrides)
+  status, err = negotiate_v1(smbstate, overrides)
   if(status == false) then
     stop(smbstate)
     return false, err
