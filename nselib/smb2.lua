@@ -1,6 +1,8 @@
 ---
 -- Implements the SMB2/SMB3 protocol.
 -- 
+-- This is a work in progress and features/functionality will be added as needed by the scripts.
+-- 
 -- @author Paulino Calderon <paulino@calderonpale.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html  
 ---
@@ -19,9 +21,8 @@ _ENV = stdnse.module("smb2", stdnse.seeall)
 -- @param smb The SMB object associated with the connection.
 -- @param command The SMB2 command to execute.
 -- @param overrides Overrides table.
--- @return header The SMB2 SYNC header of the given command.
+-- @return header The encoded SMB2 SYNC header.
 ---
-
 function smb2_encode_header_sync(smb, command, overrides)
   overrides = overrides or {}
 
@@ -29,36 +30,40 @@ function smb2_encode_header_sync(smb, command, overrides)
   local structureSize = 64 -- SYNC header structure size
   local flags = 0 -- TODO: Set flags that will work for all dialects
 
+  -- Increase the message id
   if smb['MessageId'] then
     smb['MessageId'] = smb['MessageId'] + 1
   end
 
-  local header = string.pack("<c4 I2 I2 I4 I2 I2 I4 I4 I8 I4 I4 I8 I8 I8",
-    sig,
-    structureSize,
-    (overrides['CreditCharge'] or 0),
-    (overrides['Status'] or 0),         -- 4 bytes. (ChannelSequence/Reserved)/Status. 
-    command,                            -- 2 bytes. Commands.
-    (overrides['CreditR'] or 0),        -- 2 bytes. CreditRequest/CreditResponse.
-    (overrides['Flags'] or flags),      -- 4 bytes. Flags. TODO
-    (overrides['NextCommand'] or 0),    -- 4 bytes. NextCommand.
-    (overrides['MessageId'] or smb['MessageId'] or 0),       -- 8 bytes. MessageId.
-    (overrides['Reserved'] or 0x0000feff),       -- 4 bytes. Reserved.
-    (overrides['TreeId'] or smb['TreeId'] or 0),         -- 4 bytes. TreeId.
-    (overrides['SessionId'] or smb['SessionId'] or 0),      -- 8 bytes. SessionId.
-    (overrides['Signature1'] or 0),     -- 8 bytes. Signature1.
-    (overrides['Signature2'] or 0)      -- 8 bytes. Signature2.
+  -- Header structure
+  local header = string.pack("<c4 I2 I2 I4 I2 I2 I4 I4 I8 I4 I4 I8 I8 c16",
+    sig,                                -- 4 bytes: ProtocolId
+    structureSize,                      -- 2 bytes: StructureSize. Must be 64.
+    (overrides['CreditCharge'] or 0),   -- 2 bytes: CreditCharge. 
+    (overrides['Status'] or 0),         -- 4 bytes: (ChannelSequence/Reserved)/Status. 
+    command,                            -- 2 bytes: Command.
+    (overrides['CreditR'] or 0),        -- 2 bytes: CreditRequest/CreditResponse.
+    (overrides['Flags'] or flags),      -- 4 bytes: Flags. TODO
+    (overrides['NextCommand'] or 0),    -- 4 bytes: NextCommand.
+    (overrides['MessageId'] or smb['MessageId'] or 0),  -- 8 bytes: MessageId.
+    (overrides['Reserved'] or 0),              -- 4 bytes: Reserved.
+    (overrides['TreeId'] or smb['TreeId'] or 0),        -- 4 bytes: TreeId.
+    (overrides['SessionId'] or smb['SessionId'] or 0),  -- 8 bytes: SessionId.
+    (overrides['Signature'] or 0),     -- 16 bytes: Signature.
     )
 
   return header
 end
 
---@param smb        The SMB object associated with the connection
---@param header     The header, encoded with <code>smb_get_header</code>.
---@param data       The data.
---@param overrides  Overrides table.
---@return (result, err) If result is false, err is the error message. Otherwise, err is
+---
+-- Sends a SMB2 packet 
+-- @param smb        The SMB object associated with the connection
+-- @param header     The header encoded with <code>smb_encode_sync_header</code>.
+-- @param data       The data.
+-- @param overrides  Overrides table.
+-- @return (result, err) If result is false, err is the error message. Otherwise, err is
 --        undefined
+---
 function smb2_send(smb, header, data, overrides)
   overrides = overrides or {}
   local body               = header .. data
@@ -79,12 +84,16 @@ function smb2_send(smb, header, data, overrides)
   return status, err
 end
 
---- Reads the next packet from the socket, and parses it into the header, parameters,
---  and data.
---@return (status, header, data) If status is true, the header,
---        , and data are all the raw arrays (with the lengths already
---        removed). If status is false, header contains an error message and 
---        data are undefined.
+---
+-- Reads the next SMB2 packet from the socket, and parses it into the header and data.
+-- Netbios handling based on smb.lua
+--
+-- @param smb The SMB object associated with the connection
+-- @param read_data [optional] Return data section. Set to false if you only need the header. Default: true
+-- @return (status, header, data) If status is true, the header,
+--         and data are all the raw arrays of bytes.
+--         If status is false, header contains an error message and data is undefined.
+---
 function smb2_read(smb, read_data)
   local status
   local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
@@ -142,16 +151,13 @@ function smb2_read(smb, read_data)
     return false, string.format("SMB2: ERROR: Didn't receive the expected number of bytes; received %d, expected %d. This will almost certainly cause some errors.", #result, length)
   end
 
-
   -- The header is 64 bytes.
   header, pos = string.unpack("<c64", result, pos)
-  stdnse.debug3("Position:%s", pos)
-  nsedebug.print_hex(header)
   if(header == nil) then
     return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [3]"
   end
 
-  -- Read that many bytes of data.
+  -- Read the data section or skip it if read_data is false.
   if(read_data == nil or read_data == true) then
     data, pos = string.unpack("<c" .. #result - pos + 1, result, pos)
     if(data == nil) then
@@ -161,11 +167,18 @@ function smb2_read(smb, read_data)
     data = nil
   end
 
-  stdnse.debug3("SMB2: Received %d bytes", #result)
+  stdnse.debug3("SMB2: smb2_read() received %d bytes", #result)
   return true, header, data
 end
 
--- Negotiate SMBv2 connection and dialects
+---
+-- Sends SMB2_COM_NEGOTIATE command for SMB2/SMB3 dialects
+-- This function works for dialects 2.0, 2.1, 3.0.
+--
+-- @param smb The associated SMB connection object.
+-- @param overrides Overrides table.
+-- @return (status, dialect) If status is true, the negotiated dialect is returned as the second value.
+--                            Otherwise if status is false, the error message is returned.
 function negotiate_v2(smb, overrides)
   local header, parameters, data
   local StructureSize = 36
