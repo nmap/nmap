@@ -242,7 +242,9 @@ action = function(host, port)
     stdnse.debug("Fetching the list of " .. who[i] .. " devices.")
 
     local res = get_response(sd, "*#" .. i .. "*0##")
-    output[who[i]] = #res
+    if res and #res > 0 then
+      output[who[i]] = #res
+    end
 
   end
 
