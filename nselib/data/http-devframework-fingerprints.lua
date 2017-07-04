@@ -390,7 +390,7 @@ tools = { Django = { rapidDetect = function(host, port)
       -- Check for "X-Powered-By" header
       for h, v in pairs(response.header) do
         if h == "X-Powered-By" then
-          local m = v:match("express")
+          local m = v:match("Express")
           if m then
             return string.format("Express detected. Found %s in %s header", m, h)
           end
