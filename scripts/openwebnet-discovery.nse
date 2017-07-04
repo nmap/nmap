@@ -20,21 +20,16 @@ References:
 --  | openwebnet-discover:
 --  |   IP Address: 192.168.200.35
 --  |   Net Mask: 255.255.255.0
---  |   MAC Address: 0:3:50:1:d3:11
+--  |   MAC Address: 00:03:50:01:d3:17
 --  |   Device Type: F453AV
 --  |   Firmware Version: 3.0.14
 --  |   Uptime: 12d9h42m1s
+--  |   Date and Time: 4-07-2017T19:17:27
 --  |   Kernel Version: 2.3.8
 --  |   Distribution Version: 3.0.1
---  |   Date: 02.07.2017
---  |   Time: 02:11:58
---  |   Scenarios: 0
 --  |   Lighting: 115
 --  |   Automation: 15
---  |   Power Management: 0
---  |   Heating: 0
---  |   Burglar Alarm: 12
---  |_  Door Entry System: 0
+--  |_  Burglar Alarm: 12
 
 author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
