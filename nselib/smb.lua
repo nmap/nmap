@@ -2984,7 +2984,7 @@ function share_anonymous_can_read(host, share)
   end
 
   -- Negotiate the protocol
-  status, err = negotiate_v1(smbstate, overrides)
+  status, err = negotiate_protocol(smbstate, overrides)
   if(status == false) then
     stop(smbstate)
     return false, err
