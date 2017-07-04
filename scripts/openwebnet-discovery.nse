@@ -155,12 +155,16 @@ end
 local function format_dimensions(res)
 
   if res["Date and Time"] then
-    res["Date"] = string.match(res["Date and Time"], "((%d+)%.(%d+)%.(%d+))$")
+    local params = {
+      [0] = "hour", "min", "sec", "msec", "dayOfWeek", "year", "month", "day"
+    }
 
-    res["Time"] = string.match(res["Date and Time"], "^((%d+)%.(%d+)%.(%d+))")
-    res["Time"] = string.gsub(res["Time"], "%.", ":")
+    local values = {}
+    for counter, val in ipairs(stdnse.strsplit("%.%s*", res["Date and Time"])) do
+      values[ params[counter - 1] ] = val
+    end
 
-    res["Date and Time"] = nil
+    res["Date and Time"] = stdnse.format_timestamp(values)
   end
 
   if res["Device Type"] then
