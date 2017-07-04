@@ -168,12 +168,10 @@ local function format_dimensions(res)
   end
 
   if res["MAC Address"] then
-    local t = {}
-    for _, v in ipairs(stdnse.strsplit("%.%s*", res["MAC Address"])) do
-      table.insert(t, stdnse.tohex(tonumber(v)))
+    res["MAC Address"] = string.gsub(res["MAC Address"], "(%d+)%.", function(num)
+      return string.format("%02x:", num)
     end
-
-    res["MAC Address"] = table.concat(t, ":")
+    )
   end
 
   if res["Uptime"] then
