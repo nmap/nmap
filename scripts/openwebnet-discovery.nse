@@ -182,7 +182,6 @@ local function format_dimensions(res)
 
     for counter, v in ipairs(stdnse.strsplit("%.%s*", res["Uptime"])) do
       table.insert(t, v .. units[counter - 1])
-      counter = counter + 1
     end
 
     res["Uptime"] = table.concat(t, "")
