@@ -113,7 +113,7 @@ end
 local function normalize_path(p)
   local n=0
   p = p:gsub("/%.%f[/]", "")
-  p = p:gsub("/%.$", "")
+  p = p:gsub("/%.$", "/")
   repeat
     p, n = string.gsub(p, "/[^/]-/%.%.", "")
   until n==0
