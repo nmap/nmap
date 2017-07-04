@@ -95,9 +95,9 @@
 -- The following example code demonstrates how the cookies can be passed and if we dont want the passed cookies to be overwritten on receiving the same cookie
 -- jar in the next request.
 -- <code> 
--- http.get(host, port, {no_cookie_overwrite=false, cookies = options.cookies})
+-- http.get(host, port, {no_cookie_overwrite=true, cookies = options.cookies})
 -- </code>
--- The following example code demonstrates how to get the cookies received in redirected request to come in the cookie jar
+-- The following example code demonstrates how to enable the cookies. Cookies received in subsequent redirect requests will be added in the cookie jar.
 -- <code> 
 -- http.get(host, port, {enable_cookie = true})
 -- </code>
