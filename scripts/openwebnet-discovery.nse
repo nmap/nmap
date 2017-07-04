@@ -108,15 +108,18 @@ local function get_socket(host, port, request)
   local sd, response, early_resp = comm.opencon(host, port, request, {recv_before=true})
 
   if sd == nil then
-    return nil, "Socket connection error."
+    stdnse.debug("Socket connection error.")
+    return nil, response
   end
 
   if not response then
-    return nil, "Poor internet connection or no response."
+    stdnse.debug("Poor internet connection or no response.")
+    return nil, response
   end
 
   if response == NACK then
-    return nil, "Received a negative ACK as response."
+    stdnse.debug("Received a negative ACK as response.")
+    return nil, response
   end
 
   return sd, nil
