@@ -302,8 +302,6 @@ function negotiate_v2(smb, overrides)
   stdnse.debug1("Status '%s'", status)
 
   local data_structure_size, security_mode
-  stdnse.debug3("Data length:%d", #data)
-  nsedebug.print_hex(data)
   data_structure_size, security_mode, smb['dialect'] = string.unpack("<I2 I2 I2", data)
   if(smb['dialect'] == nil) then
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"

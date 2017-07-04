@@ -10,11 +10,19 @@ Determines the supported protocols and dialects of a SMB server.
 -- @usage nmap -p 445 <target> --script=smb-double-pulsar-backdoor
 --
 -- @output
+-- | smb-protocols: 
+-- |   dialects: 
+-- |     NT LM 0.12 (SMBv1)[dangerous, but default]
+-- |     2.02
+-- |     2.10
+-- |     3.00
+-- |     3.02
+-- |_    3.11
 ---
 
 author = "Paulino Calderon"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"safe", "version"}
+categories = {"safe", "discovery"}
 
 hostrule = function(host)
   return smb.get_port(host) ~= nil
