@@ -110,7 +110,7 @@ local NACK = "*#*0##"
 -- Returns the socket and error message
 local function get_socket(host, port, request)
 
-  local sd, response, early_resp = comm.opencon(host, port, request)
+  local sd, response, early_resp = comm.opencon(host, port, request, {recv_before=true})
 
   if sd == nil then
     return nil, "Socket connection error."
@@ -200,7 +200,7 @@ action = function(host, port)
 
   local output = stdnse.output_table()
 
-  local sd, err = get_socket(host, port, ACK)
+  local sd, err = get_socket(host, port, nil)
 
   -- Socket connection creation failed
   if sd == nil then
