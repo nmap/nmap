@@ -219,10 +219,14 @@ action = function(host, port)
     --  Response - *#13**16*3*0*14##
     --  Trimmed Output - 3*0*14
 
-    local regex = string.gsub(head, "*", "%%*") .. device_dimension[device] .. "%*" .."(.+)" .. tail
-    local tempRes = string.match(res[1], regex)
+    if res and next(res) then
+      local regex = string.gsub(head, "*", "%%*") .. device_dimension[device] .. "%*" .."(.+)" .. tail
+      local tempRes = string.match(res[1], regex)
 
-    output[device] = string.gsub(tempRes, "*", ".")
+      if tempRes then
+        output[device] = string.gsub(tempRes, "*", ".")
+      end
+    end
 
   end
 
