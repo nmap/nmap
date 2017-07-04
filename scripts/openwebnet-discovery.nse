@@ -179,10 +179,9 @@ local function format_dimensions(res)
     local units = {
       [0] = "d", "h", "m", "s"
     }
-    local counter = 0
 
-    for _, v in ipairs(stdnse.strsplit("%.%s*", res["Uptime"])) do
-      table.insert(t, v .. units[counter])
+    for counter, v in ipairs(stdnse.strsplit("%.%s*", res["Uptime"])) do
+      table.insert(t, v .. units[counter - 1])
       counter = counter + 1
     end
 
