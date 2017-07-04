@@ -217,8 +217,14 @@ local function do_sql_query(host, port, uri, user)
   }
   local res = http.post(host, port, uri .. "?q=/user/login", opt, nil, r)
 
-  if not string.match(res.body, "Username field is required.") then
-    return user, passwd
+  local regexLinuxFile = "includes/database/database.inc"
+  local regexWindowsFile = "includes\\database\\database.inc"
+  local regexFunction = "addcslashes%(%)"
+
+  if string.match(res.body, regexFunction) then
+    if string.match(res.body, regexLinuxFile) or string.match(res.body, regexWindowsFile) then
+      return user, passwd
+    end
   end
 
 end
