@@ -234,7 +234,7 @@ action = function(host, port)
   output = format_dimensions(output)
 
   -- Fetching list of each device
-  for i = 0, 6 do
+  for i = 1, 6 do
 
     stdnse.debug("Fetching the list of " .. who[i] .. " devices.")
 
