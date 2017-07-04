@@ -56,6 +56,7 @@ categories = {
   "safe",
   "discovery",
   "default",
+  "version"
 }
 
 

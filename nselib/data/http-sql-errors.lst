@@ -5,9 +5,11 @@ ADODB%.Field error
 ASP%.NET is configured to show verbose error messages
 ASP%.NET_SessionId
 Active Server Pages error
+An error occured
 An illegal character has been found in the statement
 An unexpected token \"END%-OF%-STATEMENT\" was found
 CLI Driver
+Call to member function
 Can\'t connect to local
 Custom Error Message
 DB2 Driver
@@ -19,6 +21,7 @@ Error Diagnostic Information
 Error Message : Error loading required libraries
 Error Report
 Error converting data type varchar to numeric
+Error executing Database Query
 Fatal error
 Incorrect syntax near
 Internal Server Error
@@ -30,7 +33,11 @@ JDBC Error
 JDBC MySQL
 JDBC Oracle
 JDBC SQL
+Microsoft JET Database
+Microsoft OLE DB Provider for Oracle
 Microsoft OLE DB Provider for ODBC Drivers
+Microsoft OLE DB Provider for SQL Server
+Microsoft SQL Native Client error
 Microsoft VBScript compilation error
 Microsoft VBScript error
 MySQL Driver
@@ -56,33 +63,48 @@ PHP Warning
 Parent Directory
 Permission denied: \'GetObject\'
 PostgreSQL query failed: ERROR: parser: parse error
+SQL Error
 SQL Server Driver%]%[SQL Server
+SQL Server JDBC Driver
 SQL command not properly ended
 SQLException
+Supplied argument is not a valid MySQL result resource in
 Supplied argument is not a valid PostgreSQL result
 Syntax error in query expression
+System%.IndexOutOfRangeException
 The error occurred in
 The script whose uid is
 Type mismatch
 Unable to jump to row
-Unclosed quotation mark before the character string
+Unable to select %* from
+Unclosed quotation mark
+Unknown column
 Unterminated string constant
 Warning: Cannot modify header information %- headers already sent
 Warning: Supplied argument is not a valid File%-Handle resource in
 Warning: mysql_query%(%)
 Warning: pg_connect%(%): Unable to connect to PostgreSQL server: FATAL
-You have an error in your SQL syntax near
+Warning: require%(%)
+array_merge%(%)
 data source=
 detected an internal error %[IBM%]%[CLI Driver%]%[DB2/6000%]
+error in your SQL syntax near
+getimagesize%(%)
 include_path
 invalid query
 is not allowed to access
 missing expression
+mysql_fetch_array%(%)
+mysql_fetch_assoc%(%)
+mysql_fetch_row%(%)
+mysql_free_result%(%)
 mySQL error with query
 mysql error
+num_rows
 on MySQL result index
 on line
 server at
 server object error
 supplied argument is not a valid MySQL result resource
+session_start%(%)
 unexpected end of SQL command

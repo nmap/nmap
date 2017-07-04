@@ -24,6 +24,8 @@ Performs a HEAD request for the root folder ("/") of a web server and displays t
 --
 --@args path The path to request, such as <code>/index.php</code>. Default <code>/</code>.
 --@args useget Set to force GET requests instead of HEAD.
+--
+--@see http-security-headers.nse
 
 author = "Ron Bowes"
 

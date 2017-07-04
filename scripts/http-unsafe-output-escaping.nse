@@ -38,6 +38,10 @@ indication of potential XSS vulnerability.
 --       domain. This widens the scope from <code>withinhost</code> and can
 --       not be used in combination. (default: false)
 --
+-- @see http-dombased-xss.nse
+-- @see http-stored-xss.nse
+-- @see http-phpself-xss.nse
+-- @see http-xssed.nse
 
 author = "Martin Holst Swende"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"

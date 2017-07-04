@@ -1,0 +1,33 @@
+!include "win32/config.mk"
+
+!if "$(WITH_WINCNG)" == "1"
+!include "Makefile.WinCNG.inc"
+!else
+!include "Makefile.OpenSSL.inc"
+!endif
+!include "Makefile.inc"
+
+OBJECTS=$(CSOURCES:.c=.obj)
+
+# SUBDIRS=src example
+SUBDIRS=src
+
+all-sub: win32\objects.mk
+	-for %D in ($(SUBDIRS)) do $(MAKE) /nologo /f %D/NMakefile BUILD=$(BUILD) SUBDIR=%D all-sub
+
+clean: 
+	-rmdir 2>NUL /s/q $(TARGET)
+	-del 2>NUL win32\objects.mk
+
+real-clean vclean: clean
+	-del 2>NUL libssh2.dll
+	-del 2>NUL libssh2.exp
+	-del 2>NUL libssh2.ilk
+	-del 2>NUL libssh2.lib
+	-del 2>NUL *.pdb
+
+win32\objects.mk: Makefile.inc
+	@echo OBJECTS = \>$@
+	@for %O in ($(OBJECTS)) do @echo $$(INTDIR)\%O \>>$@
+	@echo $$(EOL)>>$@
+

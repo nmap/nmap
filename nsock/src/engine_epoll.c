@@ -74,12 +74,12 @@
 
 #define EPOLL_R_FLAGS (EPOLLIN | EPOLLPRI)
 #define EPOLL_W_FLAGS EPOLLOUT
-#ifdef EPOLLRDHUP
-  #define EPOLL_X_FLAGS (EPOLLERR | EPOLLRDHUP| EPOLLHUP)
-#else
-  /* EPOLLRDHUP was introduced later and might be unavailable on older systems. */
-  #define EPOLL_X_FLAGS (EPOLLERR | EPOLLHUP)
-#endif /* EPOLLRDHUP */
+
+/* EPOLLRDHUP was introduced later and might be unavailable on older systems. */
+#ifndef EPOLLRDHUP
+  #define EPOLLRDHUP 0
+#endif
+#define EPOLL_X_FLAGS (EPOLLERR | EPOLLRDHUP| EPOLLHUP)
 
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
@@ -178,8 +178,6 @@ int epoll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, 
     epev.events |= EPOLL_R_FLAGS;
   if (ev & EV_WRITE)
     epev.events |= EPOLL_W_FLAGS;
-  if (ev & EV_EXCEPT)
-    epev.events |= EPOLL_X_FLAGS;
 
   sd = nsock_iod_get_sd(iod);
   if (epoll_ctl(einfo->epfd, EPOLL_CTL_ADD, sd, &epev) < 0)
@@ -233,8 +231,6 @@ int epoll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, in
     epev.events |= EPOLL_R_FLAGS;
   if (iod->watched_events & EV_WRITE)
     epev.events |= EPOLL_W_FLAGS;
-  if (iod->watched_events & EV_EXCEPT)
-    epev.events |= EPOLL_X_FLAGS;
 
   sd = nsock_iod_get_sd(iod);
 
@@ -328,7 +324,7 @@ static inline int get_evmask(struct epoll_engine_info *einfo, int n) {
   if (einfo->events[n].events & EPOLL_W_FLAGS)
     evmask |= EV_WRITE;
   if (einfo->events[n].events & EPOLL_X_FLAGS)
-    evmask |= (EV_READ | EV_WRITE | EV_EXCEPT);
+    evmask |= EV_EXCEPT;
 
   return evmask;
 }

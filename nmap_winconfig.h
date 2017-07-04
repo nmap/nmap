@@ -144,6 +144,8 @@
 
 #define HAVE_OPENSSL 1
 #define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
+/* Since MSVC 2010, stdint.h is included as part of C99 compatibility */
+#define HAVE_STDINT_H 1
 
 #define LUA_INCLUDED 1
 #undef PCAP_INCLUDED

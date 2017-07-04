@@ -353,17 +353,17 @@ void win_init()
 #ifdef _MSC_VER
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
 		{
-			error("WARNING: your winpcap is too old to use.  Nmap may not function.\n");
+			error("WARNING: Failed to load wpcap.dll.  Nmap may not function.\n");
 			o.have_pcap = false;
 		}
 #endif
 		if(o.debugging)
-			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
+			printf("wpcap.dll present, library version: %s\n", pcap_lib_version());
 
 	}
 #ifdef _MSC_VER
 	__except (1) {
-			error("WARNING: Could not import all necessary Npcap functions.  You may need to upgrade to version 0.07 or higher from http://www.npcap.org.  Resorting to connect() mode -- Nmap may not function completely");
+			error("WARNING: Could not import all necessary Npcap functions. You may need to upgrade to the latest version from http://www.npcap.org. Resorting to connect() mode -- Nmap may not function completely");
 		o.have_pcap=false;
 		}
 #endif
