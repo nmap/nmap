@@ -15,6 +15,7 @@ local table = require "table"
 local match = require "match"
 local bit = require "bit"
 local nsedebug = require "nsedebug"
+local math = require "math"
 _ENV = stdnse.module("smb2", stdnse.seeall)
 
 local TIMEOUT = 10000
@@ -41,11 +42,30 @@ local command_codes =
   SMB2_COM_SET_INFO               = 0x0011,
   SMB2_COM_OPLOCK_BREAK           = 0x0012
 }
+local smb2_values_codes = {}
+local smb2_values = {
+  -- Security Mode
+  SMB2_NEGOTIATE_SIGNING_ENABLED      = 0x0001,
+  SMB2_NEGOTIATE_SIGNING_REQUIRED     = 0x0002,
+  -- Capabilities
+  SMB2_GLOBAL_CAP_DFS                 = 0x00000001,
+  SMB2_GLOBAL_CAP_LEASING             = 0x00000002,
+  SMB2_GLOBAL_CAP_LARGE_MTU           = 0x00000004,
+  SMB2_GLOBAL_CAP_MULTI_CHANNEL       = 0x00000008,
+  SMB2_GLOBAL_CAP_PERSISTENT_HANDLES  = 0x00000010,
+  SMB2_GLOBAL_CAP_DIRECTORY_LEASING   = 0x00000020,
+  SMB2_GLOBAL_CAP_ENCRYPTION          = 0x00000040,
+  -- Context Types
+  SMB2_ENCRYPTION_CAPABILITIES        = 0x0002,
+  SMB2_PREAUTH_INTEGRITY_CAPABILITIES = 0x0001
+}
 
 for i, v in pairs(command_codes) do
   command_names[v] = i
 end
-
+for i, v in pairs(smb2_values) do
+  smb2_values_codes[v] = i
+end
 
 ---
 -- Creates a SMB2 SYNC header packet.
@@ -205,8 +225,10 @@ function smb2_read(smb, read_data)
 end
 
 ---
--- Sends SMB2_COM_NEGOTIATE command for SMB2/SMB3 dialects
--- This function works for dialects 2.0, 2.1, 3.0.
+-- Sends SMB2_COM_NEGOTIATE command for a SMB2/SMB3 connection.
+-- This function works for dialects 2.02, 2.10, 3.0, 3.02 and 3.11.
+-- 
+-- Packet structure: https://msdn.microsoft.com/en-us/library/cc246543.aspx
 --
 -- @param smb The associated SMB connection object.
 -- @param overrides Overrides table.
@@ -214,66 +236,87 @@ end
 --                            Otherwise if status is false, the error message is returned.
 function negotiate_v2(smb, overrides)
   local header, parameters, data
-  local StructureSize = 36
-  local DialectCount = #overrides['Dialects']
+  local StructureSize = 36 -- Must be set to 36.
+  local DialectCount = #overrides['Dialects'] or 1
   -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set, 
   -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set. 
   -- The server MUST ignore this bit.
-  local SecurityMode = overrides["SecurityMode"] or 0x01
-  local Capabilities = overrides["Capabilities"] or 0
-  local GUID1 = overrides["GUID1"] or 1
-  local GUID2 = overrides["GUID2"] or 1
-  local ClientStartTime = overrides["ClientStartTime"] or 0x0
-  local total_data = 0
-  local padding_data = "" -- Data counter and padding string to align contexts
+  local SecurityMode = overrides["SecurityMode"] or smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED'] 
+  local Capabilities = overrides["Capabilities"] or 0 -- SMB 3.x dialect requires capabilities to be constructed
+  local GUID = overrides["GUID"] or "1234567890123456"
+  local ClientStartTime = overrides["ClientStartTime"] or 0 -- ClientStartTime only used in dialects > 3.11
+  local total_data = 0  -- Data counter
+  local padding_data = "" -- Padding string to align contexts
   local context_data -- Holds Context data 
   local is_0311 = false -- Flag for SMB 3.11 
 
   header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
-   
-  data = string.pack("<I2 I2 I2 I2 I4 I8 I8", 
-    StructureSize,  --2 bytes
-    DialectCount,   --2 bytes
-    SecurityMode,   --2 bytes
-    0,       -- Reserved (2 bytes)
-    Capabilities,   --4 bytes
-    GUID1,          --8 bytes
-    GUID2          --8 bytes
-    )
 
-  for _, dialect in ipairs(overrides['Dialects']) do
-    if dialect == 0x0311 then
-      is_0311 = true
-    end
+  -- We construct the first block that works for dialects 2.02 up to 3.11.
+  data = string.pack("<I2 I2 I2 I2 I4 c16", 
+    StructureSize,  -- 2 bytes: StructureSize
+    DialectCount,   -- 2 bytes: DialectCount
+    SecurityMode,   -- 2 bytes: SecurityMode
+    0,              -- 2 bytes: Reserved - Must be 0
+    Capabilities,   -- 4 bytes: Capabilities - 0 for dialects > 3.x
+    GUID            -- 16 bytes: ClientGuid
+  )
+
+  -- The next block gets interpreted in different ways depending on the dialect
+  if stdnse.contains(overrides['Dialects'], 0x0311) then
+    is_0311 = true
   end
 
+  -- If we are dealing with 3.11 we need to set the following fields:
+  -- NegotiateContextOffset, NegotiateContextCount, and Reserved2
   if is_0311 then
     total_data = #header + #data + (DialectCount*2)
     while ((total_data)%8 ~= 0) do
         total_data = total_data + 1
         padding_data = padding_data .. string.pack("<c1", 0x0)
     end -- while to create 8 byte aligned padding
-    data = data .. string.pack("<I4 I2 I2", total_data+8, 0x2, 0x0)
-  else
+    data = data .. string.pack("<I4 I2 I2", 
+                    total_data+8,   -- NegotiateContextOffset (4 bytes)
+                    0x2,            -- NegotiateContextCount (2 bytes) 
+                    0x0             -- Reserved2 (2 bytes)
+                   )
+  else  -- If it's not 3.11, the bytes are the ClientStartTime (8 bytes)
     data = data .. string.pack("<I8", ClientStartTime) -- If it is not 3.11, we set it to 0
   end -- if is_0311
 
-  if(overrides['Dialects'] == nil) then
+  -- Now we build the Dialect list, 16 bit integers
+  if(overrides['Dialects'] == nil) then  -- If no custom dialect is defined, used the built in list
     for _, d in ipairs(smb2_dialect) do
       data = data .. string.pack("<I2", d)
     end
-  else
+  else  -- Dialects are set in overrides table
     for _, v in ipairs(overrides['Dialects']) do
       data = data .. string.pack("<I2", v)
     end
   end
 
+  -- If 3.11, we now need to add some padding between the dialects and the NegotiateContextList
+  -- I was only able to get this to work using both NegotiateContexts: 
+  -- * SMB2_PREAUTH_INTEGRITY_CAPABILITIES
+  -- * SMB2_ENCRYPTION_CAPABILITIES
   if is_0311 then
     data = data .. padding_data
     local negotiate_context_list, context_data
-    context_data = string.pack("<I2 I2 I2", 0x2, 0x2, 0x0001)
-    data = data .. string.pack("<I2 I2 I4 c" .. #context_data, 0x0002, #context_data, 0x0, context_data)
 
+    -- We set SMB2_ENCRYPTION_CAPABILITIES first
+    context_data = string.pack("<I2 I2 I2",
+                    0x2,      -- CipherCount (2 bytes): 2 ciphers available
+                    0x0002,   -- Ciphers (2 bytes each): AES-128-GCM
+                    0x0001    -- Ciphers (2 bytes each): AES-128-CCM
+                  )
+    data = data .. string.pack("<I2 I2 I4 c" .. #context_data, 
+                    smb2_values['SMB2_ENCRYPTION_CAPABILITIES'],-- ContextType (2 bytes)
+                    #context_data,                              -- DataLength (2 bytes)
+                    0x0,                                        -- Reserved (4 bytes)
+                    context_data                                -- Data (SMB2_ENCRYPTION_CAPABILITIES)
+                  )
+
+    -- We now add SMB2_PREAUTH_INTEGRITY_CAPABILITIES
     -- We add the padding between contexts so they are 8 byte aligned
     total_data = #header+#data
     padding_data = ""
@@ -282,8 +325,19 @@ function negotiate_v2(smb, overrides)
       total_data = total_data + 1
     end
     data = data .. padding_data
-    context_data = context_data .. string.pack("<I2 I2 I2 I16 I16", 0x1, 0x20, 0x0001, 0x0, 0x1)
-    data = data .. string.pack("<I2 I2 I4 c" .. #context_data, 0x0001, #context_data, 0x0, context_data)
+    context_data = context_data .. string.pack("<I2 I2 I2 I16 I16",
+                                    0x1,  -- HashAlgorithmCount (2 bytes)
+                                    0x20, -- SaltLength (2 bytes)
+                                    0x0001,  -- HashAlgorithms (2 bytes each): SHA-512
+                                    0x0,      -- Salt
+                                    0x1       -- Salt
+    )
+    data = data .. string.pack("<I2 I2 I4 c" .. #context_data,
+                    smb2_values['SMB2_PREAUTH_INTEGRITY_CAPABILITIES'], -- ContextType (2 bytes)
+                    #context_data,                                      -- DataLength (2 bytes)
+                    0x0,                                                -- Reserved (4 bytes)
+                    context_data                                        -- Data (variable)
+    )
      
   end
   
@@ -293,13 +347,12 @@ function negotiate_v2(smb, overrides)
   end
   status, header, data = smb2_read(smb)
 
-
   local protocol_version, structure_size, credit_charge, status = string.unpack("<c4 I2 I2 I4", header)
   -- Get the protocol version
   if(protocol_version ~= ("\xFESMB") or structure_size ~= 64) then
     return false, "SMB: Server returned an invalid SMBv2 packet"
   end
-  stdnse.debug1("Status '%s'", status)
+  stdnse.debug2("SMB2_COM_NEGOTIATE returned status '%s'", status)
 
   local data_structure_size, security_mode
   data_structure_size, security_mode, smb['dialect'] = string.unpack("<I2 I2 I2", data)

@@ -1172,7 +1172,7 @@ function list_dialects(host, overrides)
     if(status == false) then
       return false, smbstate
     end
-    stdnse.debug2("Checking if dialect '%s' is supported", dialects[dialect[1]])
+    stdnse.debug2("Checking if dialect '%s' is supported", dialects[1])
     overrides['Dialects'] = {dialect}
     status, dialect = smb2.negotiate_v2(smbstate, overrides)
     if status then
