@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] iec-identify probes for the IEC 60870-5-104 SCADA protocol.
+  [Aleksandr Timorin, Daniel Miller]
+
 o [GH#910] added libssh2 support, ssh-brute, ssh-run, ssh-auth-methods,
   ssh-publickey-acceptance [Evangelos Deirmentzoglou]
 
