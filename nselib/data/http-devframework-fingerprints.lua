@@ -383,4 +383,23 @@ tools = { Django = { rapidDetect = function(host, port)
     end
   },
 
+  Express = { rapidDetect = function(host, port)
+
+      local response = http.get(host, port, "/")
+
+      -- Check for "X-Powered-By" header
+      for h, v in pairs(response.header) do
+        if h == "X-Powered-By" then
+          local m = v:match("Express")
+          if m then
+            return string.format("Express detected. Found %s in %s header", m, h)
+          end
+        end
+      end
+
+    consumingDetect = function(page, path)
+      return
+    end
+  },
+
 }
