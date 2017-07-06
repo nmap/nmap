@@ -1114,7 +1114,7 @@ function negotiate_v1(smb, overrides)
   end
 
 
-  return true, overrides['dialect'] or "NT LM 0.12 (SMBv1)"
+  return true, overrides['dialect'] or "NT LM 0.12"
 end
 
 ---
@@ -1160,7 +1160,7 @@ function list_dialects(host, overrides)
   
   status, smb1_dialects = negotiate_v1(smbstate, overrides)
   if status then --Add SMBv1 as a dialect
-    table.insert(supported_dialects, smb1_dialects .. "[dangerous, but default]")
+    table.insert(supported_dialects, smb1_dialects)
   end
   stop(smbstate)
   status = false -- Finish SMBv1 and close connection
@@ -1172,7 +1172,7 @@ function list_dialects(host, overrides)
     if(status == false) then
       return false, smbstate
     end
-    stdnse.debug2("Checking if dialect '%s' is supported", dialects[1])
+    stdnse.debug2("Checking if dialect '%s' is supported", dialect)
     overrides['Dialects'] = {dialect}
     status, dialect = smb2.negotiate_v2(smbstate, overrides)
     if status then

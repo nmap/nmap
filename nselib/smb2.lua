@@ -176,7 +176,6 @@ function smb2_read(smb, read_data)
   -- The length of the packet is 4 bytes of big endian (for our purposes).
   -- The NetBIOS header is 24 bits, big endian
   netbios_length, pos   = string.unpack(">I", netbios_data)
-  stdnse.debug3("Pos:%s Netbios length:%s", pos, netbios_length)
   if(netbios_length == nil) then
     return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
   end
@@ -285,10 +284,8 @@ function negotiate_v2(smb, overrides)
   end -- if is_0311
 
   -- Now we build the Dialect list, 16 bit integers
-  if(overrides['Dialects'] == nil) then  -- If no custom dialect is defined, used the built in list
-    for _, d in ipairs(smb2_dialect) do
-      data = data .. string.pack("<I2", d)
-    end
+  if(overrides['Dialects'] == nil) then  -- If no custom dialect is defined, used the default 2.10
+    data = data .. string.pack("<I2", 0x0210)
   else  -- Dialects are set in overrides table
     for _, v in ipairs(overrides['Dialects']) do
       data = data .. string.pack("<I2", v)
@@ -354,16 +351,17 @@ function negotiate_v2(smb, overrides)
   end
   stdnse.debug2("SMB2_COM_NEGOTIATE returned status '%s'", status)
 
-  local data_structure_size, security_mode
-  data_structure_size, security_mode, smb['dialect'] = string.unpack("<I2 I2 I2", data)
-  if(smb['dialect'] == nil) then
-    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
+  local data_structure_size, security_mode, negotiate_context_count
+  data_structure_size, smb['security_mode'], smb['dialect'], 
+    negotiate_context_count, smb['server_guid'], smb['capabilities'],
+    smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'], smb['start_time'] = string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8", data)
+  if(smb['dialect'] == nil or smb['capabilities'] == nil or smb['server_guid'] == nil or smb['security_mode'] == nil) then
+    return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing)"
   end
 
   if(data_structure_size ~= 65) then
     return false, string.format("Server returned an unknown structure size in SMB2 NEGOTIATE response")
   end
-
   stdnse.debug2("Dialect accepted by server: %s", smb['dialect'])
   -- To be consistent with our current SMBv1 implementation, let's set this values if not present
   if(smb['time'] == nil) then
@@ -372,28 +370,10 @@ function negotiate_v2(smb, overrides)
   if(smb['timezone'] == nil) then
     smb['timezone'] = 0
   end
-  if(smb['key_length'] == nil) then
 
-
-    smb['key_length'] = 0
-  end
-  if(smb['byte_count'] == nil) then
-    smb['byte_count'] = 0
-  end
-
-  -- Convert the time and timezone to more useful values
+  -- Convert the time and timezone to human readable values (taken from smb.lua)
   smb['time'] = (smb['time'] // 10000000) - 11644473600
   smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
-  smb['timezone'] = -(smb['timezone'] / 60)
-  if(smb['timezone'] == 0) then
-    smb['timezone_str'] = "UTC+0"
-  elseif(smb['timezone'] < 0) then
-    smb['timezone_str'] = "UTC-" .. math.abs(smb['timezone'])
-  else
-    smb['timezone_str'] = "UTC+" .. smb['timezone']
-  end
-
-  -- Let's parse the SMB data section
 
   if status == 0 then
     return true, overrides['Dialects']

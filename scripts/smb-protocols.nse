@@ -29,12 +29,16 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local custom_dialect = stdnse.get_script_args(SCRIPT_NAME..".dialect") or nil
   local status, supported_dialects, overrides 
   local output = stdnse.output_table()
   overrides = overrides or {}
   status, supported_dialects = smb.list_dialects(host, overrides)
   if status then
+    for i, v in pairs(supported_dialects) do
+      if v == "NT LM 0.12" then
+        supported_dialects[i] = v .. " (SMBv1) [dangerous, but default]"
+      end
+    end
     output.dialects = supported_dialects    
   end
 
