@@ -351,6 +351,11 @@ function negotiate_v2(smb, overrides)
   end
   stdnse.debug2("SMB2_COM_NEGOTIATE returned status '%s'", status)
 
+  if status ~= 0 then
+    stdnse.debug2("SMB2_COM_NEGOTIATE command failed: Dialect not supported.")
+    return false, "SMB2: Dialect is not supported. Exiting."
+  end
+
   local data_structure_size, security_mode, negotiate_context_count
   data_structure_size, smb['security_mode'], smb['dialect'], 
     negotiate_context_count, smb['server_guid'], smb['capabilities'],
