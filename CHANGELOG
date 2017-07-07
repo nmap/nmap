@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix line endings in the list of Oracle SIDs used by oracle-sid-brute.
+  Carriage Return characters were being sent in the connection packets, likely
+  resulting in failure of the script. [Anant Shrivastava]
+
 o [NSE] iec-identify probes for the IEC 60870-5-104 SCADA protocol.
   [Aleksandr Timorin, Daniel Miller]
 
