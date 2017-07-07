@@ -319,7 +319,6 @@ local function validate_options(options)
             elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
               stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
               -- Ignore unrecognized attributes (per RFC 6265, Section 5.2)
-              -- bad = true
             end
           end
         end
