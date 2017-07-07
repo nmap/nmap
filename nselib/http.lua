@@ -12,7 +12,7 @@
 --
 -- These functions return a table of values, including:
 -- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK". In case of an error, a description will be provided in this line.
--- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
+-- * <code>status</code> - The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
 -- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present.
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
 -- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>.
@@ -58,6 +58,7 @@
 -- * <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
 -- * <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
 -- * <code>body</code>: The body of the response
+-- * <code>fragment</code>: Partially received body (if any), in case of an error.
 -- * <code>location</code>: a list of the locations of redirects that were followed.
 --
 -- Many of the functions optionally allow an 'options' table. This table can alter the HTTP headers
