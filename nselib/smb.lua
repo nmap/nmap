@@ -1142,11 +1142,6 @@ end
 ---
 function list_dialects(host, overrides)
   local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
-  local smb2_versions = {"2.02", "2.10", "3.00", "3.02", "3.11"}
-  local dialects = {}
-  for i, v in pairs(smb2_dialects) do
-    dialects[v] = smb2_versions[i]
-  end
   local supported_dialects = {}
   local status, smb1_dialects 
   local smbstate
@@ -1167,17 +1162,18 @@ function list_dialects(host, overrides)
 
   -- Check SMB2 and SMB3 dialects
   for i, dialect in pairs(smb2_dialects) do
+    local dialect_human = stdnse.tohex(dialect, {separator = ".", group = 2})
     -- we need a clean connection for each negotiate request
     status, smbstate = start(host)
     if(status == false) then
       return false, smbstate
     end
-    stdnse.debug2("Checking if dialect '%s' is supported", dialect)
+    stdnse.debug2("Checking if dialect '%s' is supported", dialect_human)
     overrides['Dialects'] = {dialect}
     status, dialect = smb2.negotiate_v2(smbstate, overrides)
     if status then
-      stdnse.debug2("SMB2: Dialect '%s' is supported", dialects[dialect[1]])
-      table.insert(supported_dialects, dialects[dialect[1]])
+      stdnse.debug2("SMB2: Dialect '%s' is supported", dialect_human)
+      table.insert(supported_dialects, dialect_human)
     end
     --clean smb connection
     stop(smbstate)
