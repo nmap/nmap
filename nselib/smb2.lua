@@ -1,8 +1,18 @@
 ---
--- Implements the SMB2/SMB3 protocol.
+-- Implements the Server Message Block (SMB) protocol version 2 and 3.
 -- 
--- This is a work in progress and features/functionality will be added as needed by the scripts.
--- 
+-- The implementation extends smb.lua to support SMB dialects 2.02, 2.10, 3.0,
+--  3.02 and 3.11. This is a work in progress and not all commands are
+--  implemented yet. Features/functionality will be added as the scripts
+--  get updated. I tried to be consistent with the current implementation of
+--  smb.lua but some fields may have changed name or don't exist anymore.
+--
+-- TODO:
+-- * Add smb2 support for current smb scripts 
+-- * MSRPC over SMB2/SMB3
+-- * Implement ASYNC SMB header
+-- * Implement message signing and encryption
+--
 -- @author Paulino Calderon <paulino@calderonpale.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html  
 ---
@@ -71,7 +81,9 @@ end
 
 ---
 -- Creates a SMB2 SYNC header packet.
--- SMB2 Packet Header - SYNC: https://msdn.microsoft.com/en-us/library/cc246529.aspx
+--
+-- SMB2 Packet Header - SYNC: 
+-- * https://msdn.microsoft.com/en-us/library/cc246529.aspx
 --
 -- @param smb The SMB object associated with the connection.
 -- @param command The SMB2 command to execute.
@@ -141,7 +153,7 @@ end
 
 ---
 -- Reads the next SMB2 packet from the socket, and parses it into the header and data.
--- Netbios handling based on smb.lua
+-- Netbios handling based taken from smb.lua.
 --
 -- @param smb The SMB object associated with the connection
 -- @param read_data [optional] Return data section. Set to false if you only need the header. Default: true
@@ -179,7 +191,7 @@ function smb2_read(smb, read_data)
   -- The NetBIOS header is 24 bits, big endian
   netbios_length, pos   = string.unpack(">I", netbios_data)
   if(netbios_length == nil) then
-    return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
+    return false, "SMB2: ERROR:Server returned less data than it was supposed to"
   end
   -- Make the length 24 bits
   netbios_length = bit.band(netbios_length, 0x00FFFFFF)
@@ -366,7 +378,9 @@ function negotiate_v2(smb, overrides)
   local data_structure_size, security_mode, negotiate_context_count
   data_structure_size, smb['security_mode'], smb['dialect'], 
     negotiate_context_count, smb['server_guid'], smb['capabilities'],
-    smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'], smb['start_time'] = string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8", data)
+    smb['max_trans'], smb['max_read'], smb['max_write'], smb['time'], 
+    smb['start_time'] = string.unpack("<I2 I2 I2 I2 c16 I4 I4 I4 I4 I8 I8", data)
+
   if(smb['dialect'] == nil or smb['capabilities'] == nil or smb['server_guid'] == nil or smb['security_mode'] == nil) then
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing)"
   end
@@ -374,7 +388,6 @@ function negotiate_v2(smb, overrides)
   if(data_structure_size ~= 65) then
     return false, string.format("Server returned an unknown structure size in SMB2 NEGOTIATE response")
   end
-  stdnse.debug2("Dialect accepted by server: %s", smb['dialect'])
   -- To be consistent with our current SMBv1 implementation, let's set this values if not present
   if(smb['time'] == nil) then
     smb['time'] = 0

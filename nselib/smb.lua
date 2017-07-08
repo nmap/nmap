@@ -1038,6 +1038,7 @@ function negotiate_v1(smb, overrides)
   end
   -- Check if the server didn't like our requested protocol
   if(smb['dialect'] ~= 0) then
+    stdnse.debug2("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
     return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
   end
 
@@ -1113,8 +1114,10 @@ function negotiate_v1(smb, overrides)
     end
   end
 
-
-  return true, overrides['dialect'] or "NT LM 0.12"
+  stdnse.debug2("SMB_COM_NEGOTIATE got status:%s", status)
+  if status == 0 then
+    return true, overrides['dialect'] or "NT LM 0.12"
+  end
 end
 
 ---

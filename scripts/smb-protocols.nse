@@ -67,9 +67,9 @@ action = function(host,port)
   if #output.dialects>0 then
     return output
   else
-    stdnse.debug1("No dialects were accepted.")
+    stdnse.debug1("No dialects were accepted")
     if nmap.verbosity()>1 then
-      return "No dialect accepted. Something may be blocking the responses"
+      return "No dialects accepted. Something may be blocking the responses"
     end
   end
 end

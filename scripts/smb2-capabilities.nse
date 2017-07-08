@@ -4,6 +4,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local bit = require "bit"
 local table = require "table"
+local nmap = require "nmap"
 
 description = [[
 Attempts to list the supported capabilities in a SMBv2 server for each
