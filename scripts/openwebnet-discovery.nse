@@ -134,6 +134,15 @@ local function get_response(sd, request)
 
   repeat
     status, data = sd:receive_buf("##", true)
+
+    if status == nil then
+      stdnse.debug("Error: " .. tostring(data))
+      -- Captures the NACK after TIMEOUT occured.
+      -- Avoids false results.
+      status, data = sd:receive_buf("##", true)
+      break
+    end
+
     if status and data ~= ACK then
       table.insert(res, data)
     end
