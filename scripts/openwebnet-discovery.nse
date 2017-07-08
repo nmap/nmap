@@ -155,12 +155,12 @@ local function format_dimensions(res)
 
   if res["Date and Time"] then
     local params = {
-      [0] = "hour", "min", "sec", "msec", "dayOfWeek", "year", "month", "day"
+      "hour", "min", "sec", "msec", "dayOfWeek", "year", "month", "day"
     }
 
     local values = {}
     for counter, val in ipairs(stdnse.strsplit("%.%s*", res["Date and Time"])) do
-      values[ params[counter - 1] ] = val
+      values[ params[counter] ] = val
     end
 
     res["Date and Time"] = stdnse.format_timestamp(values)
@@ -184,11 +184,11 @@ local function format_dimensions(res)
   if res["Uptime"] then
     local t = {}
     local units = {
-      [0] = "d", "h", "m", "s"
+      "d", "h", "m", "s"
     }
 
     for counter, v in ipairs(stdnse.strsplit("%.%s*", res["Uptime"])) do
-      table.insert(t, v .. units[counter - 1])
+      table.insert(t, v .. units[counter])
     end
 
     res["Uptime"] = table.concat(t, "")
