@@ -206,6 +206,10 @@ function smb2_read(smb, read_data)
   end
 
   -- The header is 64 bytes.
+  if (pos + 64 > #result) then
+    stdnse.debug2("SMB2: SMB2 packet too small. Size needed to be at least '%d' but we got '%d' bytes", pos+64, #result)
+    return false, "SMB2: ERROR: Header packet too small."
+  end
   header, pos = string.unpack("<c64", result, pos)
   if(header == nil) then
     return false, "SMB2: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [3]"
