@@ -217,14 +217,8 @@ local function do_sql_query(host, port, uri, user)
   }
   local res = http.post(host, port, uri .. "?q=/user/login", opt, nil, r)
 
-  local regexLinuxFile = "includes/database/database.inc"
-  local regexWindowsFile = "includes\\database\\database.inc"
-  local regexFunction = "addcslashes%(%)"
-
-  if string.match(res.body, regexFunction) then
-    if string.match(res.body, regexLinuxFile) or string.match(res.body, regexWindowsFile) then
-      return user, passwd
-    end
+  if string.match(res.body, "includes[\\/]database[\\/]database%.inc") and string.match(res.body, "addcslashes%(%)") then
+    return user, passwd
   end
 
 end
