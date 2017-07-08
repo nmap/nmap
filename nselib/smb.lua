@@ -985,7 +985,7 @@ end
 function negotiate_v1(smb, overrides)
   local header, parameters, data
   local result, err
-  local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, uid, tid, mid
+  local pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, uid, tid, mid
 
   header = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
   -- Make sure we have overrides

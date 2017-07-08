@@ -16,6 +16,8 @@ local match = require "match"
 local bit = require "bit"
 local nsedebug = require "nsedebug"
 local math = require "math"
+local os = require "os"
+
 _ENV = stdnse.module("smb2", stdnse.seeall)
 
 local TIMEOUT = 10000
@@ -248,6 +250,7 @@ function negotiate_v2(smb, overrides)
   local padding_data = "" -- Padding string to align contexts
   local context_data -- Holds Context data 
   local is_0311 = false -- Flag for SMB 3.11 
+  local status, err
 
   header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
 
