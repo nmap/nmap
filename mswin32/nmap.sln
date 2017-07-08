@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap", "nmap.vcxproj", "{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -27,6 +27,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblinear", "..\liblinear\liblinear.vcxproj", "{A7BE3D76-F20C-40C5-8986-DE4028B3B57D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap-update", "..\nmap-update\nmap-update.vcxproj", "{BBF27339-C7B6-4F52-B742-897796C1F13B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libz", "..\libz\contrib\vstudio\vc11\zlibvc.vcxproj", "{8FD826F8-3739-44E6-8CC8-997122E53B8D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "..\libssh2\win32\libssh2.vcxproj", "{ED957342-E43B-496E-92D9-4C76B525BDF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +99,18 @@ Global
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Ncat Static|Win32.Build.0 = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|Win32.ActiveCfg = Release|Win32
 		{BBF27339-C7B6-4F52-B742-897796C1F13B}.Release|Win32.Build.0 = Release|Win32
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Debug|Win32.Build.0 = Debug|Win32
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Ncat Static|Win32.ActiveCfg = Release|Win32
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Ncat Static|Win32.Build.0 = Release|Win32
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Release|Win32.ActiveCfg = Release|Win32
+		{8FD826F8-3739-44E6-8CC8-997122E53B8D}.Release|Win32.Build.0 = Release|Win32
+		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Debug|Win32.Build.0 = Debug|Win32
+		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Ncat Static|Win32.ActiveCfg = Debug|Win32
+		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Ncat Static|Win32.Build.0 = Debug|Win32
+		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Release|Win32.ActiveCfg = Release|Win32
+		{ED957342-E43B-496E-92D9-4C76B525BDF5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

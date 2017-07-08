@@ -294,10 +294,6 @@ int poll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int
     pinfo->events[sd].events |= POLL_R_FLAGS;
   if (iod->watched_events & EV_WRITE)
     pinfo->events[sd].events |= POLL_W_FLAGS;
-#ifndef WIN32
-  if (iod->watched_events & EV_EXCEPT)
-    pinfo->events[sd].events |= POLL_X_FLAGS;
-#endif
 
   return 1;
 }
@@ -403,7 +399,7 @@ static inline int get_evmask(struct npool *nsp, struct niod *nsi) {
       if (pev->revents & POLL_W_FLAGS)
         evmask |= EV_WRITE;
       if (pev->events && (pev->revents & POLL_X_FLAGS))
-        evmask |= (EV_READ | EV_WRITE | EV_EXCEPT);
+        evmask |= EV_EXCEPT;
   }
   return evmask;
 }

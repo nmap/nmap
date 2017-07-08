@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local smb = require "smb"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
@@ -5,7 +6,8 @@ local string = require "string"
 
 description = [[
 Attempts to detect if a Microsoft SMBv1 server is vulnerable to a remote code
- execution vulnerability (ms17-010). 
+ execution vulnerability (ms17-010, a.k.a. EternalBlue).
+ The vulnerability is actively exploited by WannaCry and Petya ransomware and other malware.
 
 The script connects to the $IPC tree, executes a transaction on FID 0 and
  checks if the error "STATUS_INSUFF_SERVER_RESOURCES" is returned to
@@ -18,7 +20,7 @@ References:
 * https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
 * https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
 * https://msdn.microsoft.com/en-us/library/ee441489.aspx
-* https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/smb/smb_ms17_010.rb 
+* https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/smb/smb_ms17_010.rb
 * https://github.com/cldrn/nmap-nse-scripts/wiki/Notes-about-smb-vuln-ms17-010
 ]]
 
@@ -26,9 +28,11 @@ References:
 -- @usage nmap -p445 --script smb-vuln-ms17-010 <target>
 -- @usage nmap -p445 --script vuln <target>
 --
+-- @see smb-double-pulsar-backdoor.nse
+--
 -- @output
 -- Host script results:
--- | smb-vuln-ms17-010: 
+-- | smb-vuln-ms17-010:
 -- |   VULNERABLE:
 -- |   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
 -- |     State: VULNERABLE
@@ -36,7 +40,7 @@ References:
 -- |     Risk factor: HIGH
 -- |       A critical remote code execution vulnerability exists in Microsoft SMBv1
 -- |        servers (ms17-010).
--- |       
+-- |
 -- |     Disclosure date: 2017-03-14
 -- |     References:
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
@@ -114,28 +118,28 @@ local function check_ms17010(host, port, sharename)
       0x0,     --
       0x0700,  -- BCC (Length of "\PIPE\")
       0x5c50,  -- \P
-      0x4950,  -- IP 
+      0x4950,  -- IP
       0x455c   -- E\
-    )
+      )
     stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
-    result, err = smb.smb_send(smbstate, smb_header, smb_params, '', overrides)
+    local result, err = smb.smb_send(smbstate, smb_header, smb_params, '', overrides)
     if(result == false) then
       stdnse.debug1("There was an error in the SMB_COM_TRANSACTION request")
       return false, err
     end
 
-    result, smb_header, _, _ = smb.smb_read(smbstate)
-    _ , smb_cmd, err = string.unpack("<c4 B I4", smb_header)
+    local result, smb_header, _, _ = smb.smb_read(smbstate)
+    local _ , smb_cmd, err = string.unpack("<c4 B I4", smb_header)
     if smb_cmd == 37 then -- SMB command for Trans is 0x25
       stdnse.debug1("Valid SMB_COM_TRANSACTION response received")
 
       --STATUS_INSUFF_SERVER_RESOURCES indicate that the machine is not patched
-      if err == 0xc0000205 then 
+      if err == 0xc0000205 then
         stdnse.debug1("STATUS_INSUFF_SERVER_RESOURCES response received")
         return true
       elseif err == 0xc0000022 then
         stdnse.debug1("STATUS_ACCESS_DENIED response received. This system is likely patched.")
-	return false, "This system is patched."
+        return false, "This system is patched."
       elseif err == 0xc0000008 then
         stdnse.debug1("STATUS_INVALID_HANDLE response received. This system is likely patched.")
         return false, "This system is patched."
@@ -157,10 +161,10 @@ action = function(host,port)
     description = [[
 A critical remote code execution vulnerability exists in Microsoft SMBv1
  servers (ms17-010).
-]],
+    ]],
     references = {
-    'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx',
-    'https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/'
+      'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx',
+      'https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/'
     },
     dates = {
       disclosure = {year = '2017', month = '03', day = '14'},

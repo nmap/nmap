@@ -14,6 +14,8 @@ https://github.com/countercept/doublepulsar-detection-script
 ---
 -- @usage nmap -p 445 <target> --script=smb-double-pulsar-backdoor
 --
+-- @see smb-vuln-ms17-010.nse
+--
 -- @output
 -- | smb-double-pulsar-backdoor:
 -- |   VULNERABLE:
