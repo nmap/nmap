@@ -1,0 +1,191 @@
+****************************************************************************************
+* Taken from https://github.com/lightos/Panoptic/blob/master/cases.xml
+* Copyright (c) 2013-2015 Roberto Christopher Salgado Bjerre, Miroslav Stampar.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation the
+* rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+* 
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+****************************************************************************************
+/php5/php.ini
+/php4/php.ini
+/php/php.ini
+/PHP/php.ini
+/WINDOWS/php.ini
+/WINNT/php.ini
+/apache/php/php.ini
+/xampp/apache/bin/php.ini
+/NetServer/bin/stable/apache/php.ini
+/Program Files/MySQL/MySQL Server 5.0/data/{HOST}.err
+/Program Files/MySQL/MySQL Server 5.0/data/mysql.log
+/Program Files/MySQL/MySQL Server 5.0/data/mysql.err
+/Program Files/MySQL/MySQL Server 5.0/data/mysql-bin.log
+/Program Files/MySQL/MySQL Server 5.0/data/mysql-bin.index
+/Program Files/MySQL/data/{HOST}.err
+/Program Files/MySQL/data/mysql.log
+/Program Files/MySQL/data/mysql.err
+/Program Files/MySQL/data/mysql-bin.log
+/Program Files/MySQL/data/mysql-bin.index
+/MySQL/data/{HOST}.err
+/MySQL/data/mysql.log
+/MySQL/data/mysql.err
+/MySQL/data/mysql-bin.log
+/MySQL/data/mysql-bin.index
+/Program Files/MySQL/MySQL Server 5.0/my.ini
+/Program Files/MySQL/MySQL Server 5.0/my.cnf
+/Program Files/MySQL/my.ini
+/Program Files/MySQL/my.cnf
+/MySQL/my.ini
+/MySQL/my.cnf
+/mysql/bin/my.ini
+/PostgreSQL/log/pgadmin.log
+/Program Files/PostgreSQL/8.3/data/pg_hba.conf
+/Program Files/PostgreSQL/8.3/data/pg_ident.conf
+/Program Files/PostgreSQL/8.3/data/postgresql.conf
+/Program Files/PostgreSQL/8.4/data/pg_hba.conf
+/Program Files/PostgreSQL/8.4/data/pg_ident.conf
+/Program Files/PostgreSQL/8.4/data/postgresql.conf
+/Program Files/PostgreSQL/9.0/data/pg_hba.conf
+/Program Files/PostgreSQL/9.0/data/pg_ident.conf
+/Program Files/PostgreSQL/9.0/data/postgresql.conf
+/Program Files/PostgreSQL/9.1/data/pg_hba.conf
+/Program Files/PostgreSQL/9.1/data/pg_ident.conf
+/Program Files/PostgreSQL/9.1/data/postgresql.conf
+/wamp/logs/access.log
+/wamp/logs/apache_error.log
+/wamp/logs/genquery.log
+/wamp/logs/mysql.log
+/wamp/logs/slowquery.log
+/wamp/bin/apache/apache2.2.22/logs/access.log
+/wamp/bin/apache/apache2.2.22/logs/error.log
+/wamp/bin/apache/apache2.2.21/logs/access.log
+/wamp/bin/apache/apache2.2.21/logs/error.log
+/wamp/bin/mysql/mysql5.5.24/data/mysql-bin.index
+/wamp/bin/mysql/mysql5.5.16/data/mysql-bin.index
+/wamp/bin/apache/apache2.2.21/conf/httpd.conf
+/wamp/bin/apache/apache2.2.22/conf/httpd.conf
+/wamp/bin/apache/apache2.2.21/wampserver.conf
+/wamp/bin/apache/apache2.2.22/wampserver.conf
+/wamp/bin/apache/apache2.2.22/conf/wampserver.conf
+/wamp/bin/mysql/mysql5.5.24/my.ini
+/wamp/bin/mysql/mysql5.5.24/wampserver.conf
+/wamp/bin/mysql/mysql5.5.16/my.ini
+/wamp/bin/mysql/mysql5.5.16/wampserver.conf
+/wamp/bin/php/php5.3.8/php.ini
+/wamp/bin/php/php5.4.3/php.ini
+/xampp/apache/logs/access.log
+/xampp/apache/logs/error.log
+/xampp/mysql/data/mysql-bin.index
+/xampp/mysql/data/mysql.err
+/xampp/mysql/data/{HOST}.err
+/xampp/sendmail/sendmail.log
+/xampp/apache/conf/httpd.conf
+/xampp/FileZillaFTP/FileZilla Server.xml
+/xampp/MercuryMail/mercury.ini
+/xampp/php/php.ini
+/xampp/phpMyAdmin/config.inc.php
+/xampp/sendmail/sendmail.ini
+/xampp/webalizer/webalizer.conf
+/xampp/htdocs/aca.txt
+/xampp/htdocs/admin.php
+/xampp/htdocs/leer.txt
+/WINNT/system32/logfiles/MSFTPSVC
+/WINNT/system32/logfiles/MSFTPSVC1
+/WINNT/system32/logfiles/MSFTPSVC2
+/WINDOWS/system32/logfiles/MSFTPSVC
+/WINDOWS/system32/logfiles/MSFTPSVC1
+/WINDOWS/system32/logfiles/MSFTPSVC2
+/WINNT/system32/logfiles/SMTPSVC
+/WINNT/system32/logfiles/SMTPSVC1
+/WINNT/system32/logfiles/SMTPSVC2
+/WINNT/system32/logfiles/SMTPSVC3
+/WINNT/system32/logfiles/SMTPSVC4
+/WINNT/system32/logfiles/SMTPSVC5
+/WINDOWS/system32/logfiles/SMTPSVC
+/WINDOWS/system32/logfiles/SMTPSVC1
+/WINDOWS/system32/logfiles/SMTPSVC2
+/WINDOWS/system32/logfiles/SMTPSVC3
+/WINDOWS/system32/logfiles/SMTPSVC4
+/WINDOWS/system32/logfiles/SMTPSVC5
+/WINNT/system32/logfiles/W3SVC/inetsvn1.log
+/WINNT/system32/logfiles/W3SVC1/inetsvn1.log
+/WINNT/system32/logfiles/W3SVC2/inetsvn1.log
+/WINNT/system32/logfiles/W3SVC3/inetsvn1.log
+/WINDOWS/system32/logfiles/W3SVC/inetsvn1.log
+/WINDOWS/system32/logfiles/W3SVC1/inetsvn1.log
+/WINDOWS/system32/logfiles/W3SVC2/inetsvn1.log
+/WINDOWS/system32/logfiles/W3SVC3/inetsvn1.log
+/Program Files/Apache Group/Apache/logs/access.log
+/Program Files/Apache Group/Apache/logs/error.log
+/Program Files/Apache Software Foundation/Apache2.2/logs/error.log
+/Program Files/Apache Software Foundation/Apache2.2/logs/access.log
+/Program Files/Apache Group/Apache/conf/httpd.conf
+/Program Files/Apache Group/Apache2/conf/httpd.conf
+/Program Files/xampp/apache/conf/apache.conf
+/Program Files/xampp/apache/conf/apache2.conf
+/Program Files/xampp/apache/conf/httpd.conf
+/Program Files/Apache Group/Apache/apache.conf
+/Program Files/Apache Group/Apache/conf/apache.conf
+/Program Files/Apache Group/Apache2/conf/apache.conf
+/Program Files/Apache Group/Apache/apache2.conf
+/Program Files/Apache Group/Apache/conf/apache2.conf
+/Program Files/Apache Group/Apache2/conf/apache2.conf
+/Program Files/Apache Software Foundation/Apache2.2/conf/httpd.conf
+/Program Files/[JBOSS]/server/default/conf/jboss-minimal.xml
+/Program Files/[JBOSS]/server/default/conf/jboss-service.xml
+/Program Files/[JBOSS]/server/default/conf/jndi.properties
+/Program Files/[JBOSS]/server/default/conf/log4j.xml
+/Program Files/[JBOSS]/server/default/conf/login-config.xml
+/Program Files/[JBOSS]/server/default/conf/standardjaws.xml
+/Program Files/[JBOSS]/server/default/conf/standardjboss.xml
+/Program Files/[JBOSS]/server/default/conf/server.log.properties
+/Program Files/[JBOSS]/server/default/deploy/jboss-logging.xml
+/[JBOSS]/server/default/conf/jboss-minimal.xml
+/[JBOSS]/server/default/conf/jboss-service.xml
+/[JBOSS]/server/default/conf/jndi.properties
+/[JBOSS]/server/default/conf/log4j.xml
+/[JBOSS]/server/default/conf/login-config.xml
+/[JBOSS]/server/default/conf/standardjaws.xml
+/[JBOSS]/server/default/conf/standardjboss.xml
+/[JBOSS]/server/default/conf/server.log.properties
+/[JBOSS]/server/default/deploy/jboss-logging.xml
+/Program Files/[JBOSS]/server/default/log/server.log
+/Program Files/[JBOSS]/server/default/log/boot.log
+/[JBOSS]/server/default/log/server.log
+/[JBOSS]/server/default/log/boot.log
+/Program Files/Vidalia Bundle/Polipo/polipo.conf
+/WINNT/system32/logfiles/Firewall/pfirewall.log
+/WINNT/system32/logfiles/Firewall/pfirewall.log.old
+/WINDOWS/system32/logfiles/Firewall/pfirewall.log
+/WINDOWS/system32/logfiles/Firewall/pfirewall.log.old
+/WINDOWS/system32/drivers/etc/hosts
+/WINDOWS/system32/drivers/etc/lmhosts.sam
+/WINDOWS/system32/drivers/etc/networks
+/WINDOWS/system32/drivers/etc/protocol
+/WINDOWS/system32/drivers/etc/services
+/boot.ini
+/WINDOWS/Debug/NetSetup.LOG
+/WINDOWS/comsetup.log
+/WINDOWS/repair/setup.log
+/WINDOWS/setupact.log
+/WINDOWS/setupapi.log
+/WINDOWS/setuperr.log
+/WINDOWS/updspapi.log
+/WINDOWS/wmsetup.log
+/WINDOWS/WindowsUpdate.log
+/WINDOWS/ODBC.INI
+/WINDOWS/system32/Macromed/Flash/FlashInstall.log
+/WINDOWS/system32/Macromed/Flash/install.log
