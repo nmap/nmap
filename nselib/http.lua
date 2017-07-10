@@ -1288,6 +1288,7 @@ local function merge_cookie_table(host, path, response, options)
     local maxage = r_cookie['max-age']
     local expires = r_cookie.expires
     local cookie_path = r_cookie.path
+    local domain = r_cookie.domain
     --MaxAge attribute has precedence over expires
     if(maxage <=0 ) then
       break
@@ -1298,6 +1299,9 @@ local function merge_cookie_table(host, path, response, options)
       --compare it with the present date.
     end
     if cookie_path ~= nil and string.find(cookie_path, path) == nil then
+      break
+    end
+    if domain ~=nil and string.find(host, domain) == nil then
       break
     end
     for o_index,o_cookie in pairs(options.cookies) do
