@@ -5,6 +5,7 @@ local string = require "string"
 local json = require "json"
 local url = require "url"
 local httpspider = require "httpspider"
+local table = require "table"
 
 description = [[
 Attempts to discover JSONP endpoints in web servers. JSONP endpoints can be
@@ -50,8 +51,7 @@ local callbacks = {"cb", "jsonp", "jsonpcallback", "jcb", "call"}
 --Checks the body and returns if valid json data is present in callback function
 local checkjson = function(body)
    
-  local func, json_data
-  _, _, func, json_data = string.find(body, "(%S+)%((.*)%)")  --Check this!
+  local _, _, func, json_data = string.find(body, "(%S+)%((.*)%)")  --Check this!
 
   --Check if the json_data is valid
   --If valid, we have a JSONP endpoint with func as the function name
@@ -74,7 +74,7 @@ local callback_url = function(host, port, target)
       if func == "testing" then
         report = "Callback function is completely controllable from the URL"
       else
-        local p = string.find(func1, "testing")
+        local p = string.find(func, "testing")
         if p then 
           report = "Callback function is partially controllable from URL"
         end
