@@ -105,7 +105,7 @@ local NACK = "*#*0##"
 -- Returns the socket and error message
 local function get_socket(host, port, request)
 
-  local sd, response, early_resp = comm.opencon(host, port, request, {recv_before=true})
+  local sd, response, early_resp = comm.opencon(host, port, request, {recv_before=true, request_timeout=10000})
 
   if sd == nil then
     stdnse.debug("Socket connection error.")
