@@ -20,7 +20,7 @@ References:
 --  | openwebnet-discover:
 --  |   IP Address: 192.168.200.35
 --  |   Net Mask: 255.255.255.0
---  |   MAC Address: 00:03:50:01:d3:17
+--  |   MAC Address: 00:03:50:01:d3:11
 --  |   Device Type: F453AV
 --  |   Firmware Version: 3.0.14
 --  |   Uptime: 12d9h42m1s
@@ -30,6 +30,20 @@ References:
 --  |   Lighting: 115
 --  |   Automation: 15
 --  |_  Burglar Alarm: 12
+--
+-- @xmloutput
+--  <elem key="IP Address">192.168.200.35</elem>
+--  <elem key="Net Mask">255.255.255.0</elem>
+--  <elem key="MAC Address">00:03:50:01:d3:11</elem>
+--  <elem key="Device Type">F453AV</elem>
+--  <elem key="Firmware Version">3.0.14</elem>
+--  <elem key="Uptime">12d9h42m1s</elem>
+--  <elem key="Date and Time">4-07-2017T19:17:27</elem>
+--  <elem key="Kernel Version">2.3.8</elem>
+--  <elem key="Distribution Version">3.0.1</elem>
+--  <elem key="Lighting">115</elem>
+--  <elem key="Automation">15</elem>
+--  <elem key="Burglar Alarm">12</elem>
 
 author = "Rewanth Cool"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
