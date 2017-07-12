@@ -185,8 +185,8 @@ local function format_dimensions(res)
   end
 
   if res["MAC Address"] then
-    res["MAC Address"] = string.gsub(res["MAC Address"], "(%d+)(%.?)", function(num, _)
-      if _ == "." then
+    res["MAC Address"] = string.gsub(res["MAC Address"], "(%d+)(%.?)", function(num, separator)
+      if separator == "." then
         return string.format("%02x:", num)
       else
         return string.format("%02x", num)
