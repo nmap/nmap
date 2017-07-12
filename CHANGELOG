@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fix handling of the objectSID Active Directory attribute
+  by ldap.lua. [Tom Sellers]
+
 o [NSE] Fix line endings in the list of Oracle SIDs used by oracle-sid-brute.
   Carriage Return characters were being sent in the connection packets, likely
   resulting in failure of the script. [Anant Shrivastava]
