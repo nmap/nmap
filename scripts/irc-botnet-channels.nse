@@ -73,7 +73,7 @@ local DEFAULT_CHANNELS = {
   "RxBot",
 }
 
-portrule = shortport.port_or_service({6666, 6667, 6697, 6679}, {"irc", "ircs"})
+portrule = shortport.port_or_service({6666, 6667, 6697, 6679, 7000}, {"irc", "ircs"})
 
 -- Parse an IRC message. Returns nil, errmsg in case of error. Otherwise returns
 -- true, prefix, command, params. prefix may be nil. params is an array of
