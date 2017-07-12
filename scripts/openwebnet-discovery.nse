@@ -137,10 +137,15 @@ local function get_response(sd, request)
 
     if status == nil then
       stdnse.debug("Error: " .. tostring(data))
-      -- Captures the NACK after TIMEOUT occured.
-      -- Avoids false results.
-      status, data = sd:receive_buf("##", true)
-      break
+      if tostring(data) == "TIMEOUT" then
+        -- Avoids false results by capturing NACK after TIMEOUT occured.
+        status, data = sd:receive_buf("##", true)
+        break
+      else
+        -- Captures other kind of errors like EOF
+        sd:close()
+        return res
+      end
     end
 
     if status and data ~= ACK then
@@ -260,5 +265,9 @@ action = function(host, port)
 
   end
 
-  return output
+  if #output > 0 then
+    return output
+  else
+    return nil
+  end
 end
