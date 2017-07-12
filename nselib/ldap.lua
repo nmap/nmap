@@ -870,20 +870,36 @@ function convertZuluTimeStamp(timestamp)
 end
 
 --- Converts the objectSid Active Directory attribute
---  from hex to a human readable string
+--  from an octet string to a human readable string
 --
 --  Example: 1-5-21-542885397-2936741293-3965599772-500
 --
--- @param hex string form of objectSid from LDAP response
+--  Reference:
+--    https://msdn.microsoft.com/en-us/library/gg465313.aspx
+--    https://msdn.microsoft.com/en-us/library/dd302645.aspx
+--
+-- @param data octet string form of objectSid from LDAP response
 -- @return string containing human readable form
 function convertObjectSid(data)
 
   local pos, revision, auth, sub_auth_size, sub_auth, result
 
+  -- Revision = 1 byte unsigned int, spec says currently MUST be set to 0x01
   revision, pos = string.unpack('I1', data, 1)
+
+  -- SubAuthorityCount = 1 byte unsigned int, specifies # of elements in
+  -- SubAuthority array.
   sub_auth_size, pos = string.unpack('I1', data, pos)
+
+  -- IdentifierAuthority = 6 bytes unsigned int, big endian, authority under
+  -- which the side was created. Typically '5' which indicates SECURITY_NT_AUTHORITY
   auth, pos = string.unpack('>I6', data, pos)
 
+
+  -- SubAuthority = variable length (SubAuthorityCount length) array of 4 byte
+  -- unsigned integers, little endian.  This value uniquely identifies the
+  -- principle relative relative to the IdentifierAuthority. The last value is
+  -- the RID of the user.
   sub_auth = ''
   local tmp
   local cnt = 0
