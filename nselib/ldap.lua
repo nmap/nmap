@@ -739,7 +739,7 @@ function searchResultToFile( searchEntries, filename )
         for i=2, #attrib do
           -- do some additional Windows decoding
           if ( attrib[1] == "objectSid" ) then
-            host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = string.format( "%s", convertObjectSid(attrib[i]))
+            host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = string.format( "%s", convertObjectSid( attrib[i] ) )
 
           elseif ( attrib[1] == "objectGUID") then
             local o = {string.unpack(("B"):rep(16), attrib[i] )}
@@ -892,7 +892,7 @@ function convertObjectSid(data)
   sub_auth_size, pos = string.unpack('I1', data, pos)
 
   -- IdentifierAuthority = 6 bytes unsigned int, big endian, authority under
-  -- which the side was created. Typically '5' which indicates SECURITY_NT_AUTHORITY
+  -- which the side was created. Typically '5' which indicates NT_AUTHORITY
   auth, pos = string.unpack('>I6', data, pos)
 
 
