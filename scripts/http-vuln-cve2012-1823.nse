@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
+local exploit = require "exploit"
 
 description = [[
 Detects PHP-CGI installations that are vulnerable to CVE-2012-1823, This
@@ -57,7 +58,7 @@ portrule = shortport.http
 
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/"
-  local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or "uname -a"
+  local cmd = exploit.get_shell_cmd(SCRIPT_NAME) or  "uname -a"
 
   local vuln = {
        title = 'PHP-CGI Remote code execution and source code disclosure',

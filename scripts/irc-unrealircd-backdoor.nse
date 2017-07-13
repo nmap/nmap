@@ -4,6 +4,7 @@ local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local exploit = require "exploit"
 
 description = [[
 Checks if an IRC server is backdoored by running a time-based command (ping)
@@ -100,9 +101,8 @@ action = function(host, port)
   local command_linux = "sleep " .. delay
 
   -- Set up an extra command, if the user requested one
-  local command_extra = ""
-  if(stdnse.get_script_args('irc-unrealircd-backdoor.command')) then
-    command_extra = stdnse.get_script_args('irc-unrealircd-backdoor.command')
+  local command_extra = exploit.get_shell_cmd(SCRIPT_NAME) or ""
+  if #command_extra > 0 then
     -- Replace "%IP%" with the ip address
     command_extra = string.gsub(command_extra, '%%IP%%', host.ip)
   end
