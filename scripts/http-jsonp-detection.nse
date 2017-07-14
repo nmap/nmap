@@ -26,15 +26,14 @@ References : https://securitycafe.ro/2017/01/18/practical-jsonp-injection/
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- | http-jsonp-detection: 
--- |   JSONP endpoint found at /rest/contactsjp.php. Function name is callback
--- |_  Callback function is completely controllable from the URL
+-- | http-jsonp-injection: 
+-- | The following JSONP endpoints were detected: 
+-- |_/rest/contactsjp.php  Completely controllable from URL
 -- 
 --
 -- @xmloutput
--- <table>
--- <elem>JSONP endpoint found at /rest/contactsjp.php. Function name is callback</elem>
--- <elem>Callback function is completely controllable from the URL</elem>
+-- <table key='jsonp_endpoints'>
+-- <elem>/rest/contactsjp.php</elem>
 -- </table>
 -- 
 -- @args http-jsonp-detection.path The URL path to request. The default path is "/".
@@ -42,16 +41,17 @@ References : https://securitycafe.ro/2017/01/18/practical-jsonp-injection/
 
 author = {"Vinamra Bhatia"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {""} --to be figured out!
+categories = {"safe", "vuln", "discovery"}
 
-portrule = shortport.port_or_service({80,443}, "http", "tcp")
+portrule = shortport.http
 
 local callbacks = {"cb", "jsonp", "jsonpcallback", "jcb", "call"}
 
 --Checks the body and returns if valid json data is present in callback function
 local checkjson = function(body)
    
-  local _, _, func, json_data = string.find(body, "(%S+)%((.*)%)")  --Check this!
+  local func, json_data
+  _, _, func, json_data = string.find(body, "(%S+)%((.*)%)")  --Check this!
 
   --Check if the json_data is valid
   --If valid, we have a JSONP endpoint with func as the function name
@@ -63,20 +63,21 @@ end
 --Checks if the callback function is controllable from URL
 local callback_url = function(host, port, target)
   local path, response, report
-  path = target .. "?callback=testing"
+  local value = stdnse.generate_random_string(8)
+  path = target .. "?callback=" .. value
   response = http.get(host, port, path)
-  if response and response.body and response.status==200 then
+  if response and response.body and response.status and response.status==200 then
 
     local status, func
     status, func = checkjson(response.body)
 
     if status == true then
-      if func == "testing" then
-        report = "Callback function is completely controllable from the URL"
+      if func == value then
+        report = "Completely controllable from URL"
       else
-        local p = string.find(func, "testing")
+        local p = string.find(func, value)
         if p then 
-          report = "Callback function is partially controllable from URL"
+          report = "Partially controllable from URL"
         end
       end
     end
@@ -91,13 +92,13 @@ local callback_bruteforce = function(host, port, target)
     path = target
     path = path .. "?" .. p .. "=test"
     response = http.get(host, port, path)
-    if response and response.body and response.status==200 then 
+    if response and response.body and response.status and response.status==200 then 
 
       local status, func
       status, func = checkjson(response.body)
 
-      if status == true then  
-        report = "JSONP endpoint found at " .. path .. ". Callback variable is " .. p
+      if status == true and func == "test" then  
+        report = path
         break
       end
     end
@@ -107,8 +108,10 @@ end
 
 action = function(host, port)
   local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
-  local output = stdnse.output_table()
-  output = {}
+  local output_xml = stdnse.output_table()
+  output_xml = {}
+  output_xml['jsonp-endpoints'] = {}
+  local output_str = "\nThe following JSONP endpoints were detected: " 
 
   -- crawl to find jsonp endpoints urls
   local crawler = httpspider.Crawler:new(host, port, path, {scriptname = SCRIPT_NAME})
@@ -131,24 +134,24 @@ action = function(host, port)
 
     local target = tostring(r.url)
     target = url.parse(target)
-    target = target.path 
+    target = target.path
 
     -- First we try to get the response and look for jsonp endpoint there 
-    if r.response and r.response.body and r.response.status==200 then
+    if r.response and r.response.body and r.response.status and r.response.status==200 then
 
-      local report, status, func
+      local status, func, report
       status, func = checkjson(r.response.body)
 
       if status == true then
         --We have found JSONP endpoint
         --Put it inside a returnable table.
-        report = "JSONP endpoint found at " .. target .. ". Function name is " .. func
-        table.insert(output, report)
+        output_str = output_str .. "\n" .. target 
+        table.insert(output_xml['jsonp-endpoints'], target)
 
         --Try if the callback function is controllable from URL.     
         report = callback_url(host, port, target)        
         if report ~= nil then
-          table.insert(output,report)
+          output_str = output_str .. "\t" .. report
         end
 
       else 
@@ -156,7 +159,8 @@ action = function(host, port)
         --Try to bruteforce through most comman callback URLs
         report = callback_bruteforce(host, port, target)
         if report ~= nil then
-          table.insert(output,report)
+          table.insert(output_xml['jsonp-endpoints'], target)
+          output_str =  output_str .. "\n" .. report
         end
       end 
 
@@ -165,10 +169,10 @@ action = function(host, port)
   end
 
   --A way to print returnable 
-  if next(output) then
-    return output
-  else
-    return "Couldn't find any JSONP endpoints."
+  if output_xml == nil then 
+    output_str = "Couldn't find any JSONP endpoints."
   end 
+
+  return output_xml, output_str
 
 end 
