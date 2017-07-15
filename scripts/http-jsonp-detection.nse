@@ -26,7 +26,7 @@ References : https://securitycafe.ro/2017/01/18/practical-jsonp-injection/
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- | http-jsonp-injection: 
+-- | http-jsonp-detection: 
 -- | The following JSONP endpoints were detected: 
 -- |_/rest/contactsjp.php  Completely controllable from URL
 -- 
@@ -169,10 +169,11 @@ action = function(host, port)
   end
 
   --A way to print returnable 
-  if output_xml == nil then 
-    output_str = "Couldn't find any JSONP endpoints."
-  end 
-
-  return output_xml, output_str
-
+  if next(output_xml['jsonp-endpoints']) then 
+    return output_xml, output_str
+  else
+    output_str = "\nCouldnt find any JSONP endpoints"
+    return output_xml, output_str
+  end
+  
 end 
