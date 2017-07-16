@@ -61,10 +61,13 @@ local checkjson = function(body)
 end
 
 --Checks if the callback function is controllable from URL
-local callback_url = function(host, port, target)
+local callback_url = function(host, port, target, callback_variable)
   local path, response, report
   local value = stdnse.generate_random_string(8)
-  path = target .. "?callback=" .. value
+  if callback_variable == nil then
+    callback_variable = "callback"
+  end
+  path = target .. "?" .. callback_variable .. "=" .. value
   response = http.get(host, port, path)
   if response and response.body and response.status and response.status==200 then
 
@@ -97,8 +100,9 @@ local callback_bruteforce = function(host, port, target)
       local status, func
       status, func = checkjson(response.body)
 
-      if status == true and func == "test" then  
-        report = path
+      if status == true then  
+        report = callback_url(host, port, target, callback_variable)
+        report = string.format(("%s\t%s", target, report)
         break
       end
     end
@@ -145,13 +149,13 @@ action = function(host, port)
       if status == true then
         --We have found JSONP endpoint
         --Put it inside a returnable table.
-        output_str = output_str .. "\n" .. target 
+        output_str = string.format("%s\n%s", output_str, target) 
         table.insert(output_xml['jsonp-endpoints'], target)
 
         --Try if the callback function is controllable from URL.     
         report = callback_url(host, port, target)        
         if report ~= nil then
-          output_str = output_str .. "\t" .. report
+          output_str = string.format("%s\t%s", output_str, report)
         end
 
       else 
@@ -160,7 +164,7 @@ action = function(host, port)
         report = callback_bruteforce(host, port, target)
         if report ~= nil then
           table.insert(output_xml['jsonp-endpoints'], target)
-          output_str =  output_str .. "\n" .. report
+          output_str = string.format("%s\n%s", output_str, report)
         end
       end 
 
@@ -173,7 +177,7 @@ action = function(host, port)
     return output_xml, output_str
   else
     output_str = "\nCouldnt find any JSONP endpoints"
-    return output_xml, output_str
+    stdnse.verbose(1, output_str)
   end
-  
+
 end 
