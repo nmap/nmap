@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] puppet-naivesigning checks for a misconfiguration in the Puppet CA
+  where naive signing is enabled, allowing for any CSR to be automatically
+  signed. [Wong Wai Tuck]
+
 o [NSE] Fix line endings in the list of Oracle SIDs used by oracle-sid-brute.
   Carriage Return characters were being sent in the connection packets, likely
   resulting in failure of the script. [Anant Shrivastava]

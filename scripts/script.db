@@ -395,7 +395,6 @@ Entry { filename = "omp2-enum-targets.nse", categories = { "discovery", "safe", 
 Entry { filename = "omron-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "openlookup-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "openvas-otp-brute.nse", categories = { "brute", "intrusive", } }
-Entry { filename = "openwebnet-discovery.nse", categories = { "discovery", "safe", } }
 Entry { filename = "oracle-brute-stealth.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "oracle-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "oracle-enum-users.nse", categories = { "auth", "intrusive", } }
@@ -412,6 +411,7 @@ Entry { filename = "pop3-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "pop3-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
+Entry { filename = "puppet-naivesigning.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "qconn-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "quake1-info.nse", categories = { "default", "discovery", "safe", "version", } }
@@ -501,11 +501,7 @@ Entry { filename = "snmp-win32-users.nse", categories = { "auth", "default", "sa
 Entry { filename = "socks-auth-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "socks-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
-Entry { filename = "ssh-auth-methods.nse", categories = { } }
-Entry { filename = "ssh-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "ssh-publickey-acceptance.nse", categories = { } }
-Entry { filename = "ssh-run.nse", categories = { "intrusive", } }
 Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-ccs-injection.nse", categories = { "safe", "vuln", } }
