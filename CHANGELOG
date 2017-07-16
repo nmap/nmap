@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#938] Fix handling of the objectSID Active Directory attribute
+  by ldap.lua. [Tom Sellers]
+
 o [NSE] puppet-naivesigning checks for a misconfiguration in the Puppet CA
   where naive signing is enabled, allowing for any CSR to be automatically
   signed. [Wong Wai Tuck]

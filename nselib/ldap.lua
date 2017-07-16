@@ -6,7 +6,7 @@
 --
 -- Credit goes out to Martin Swende who provided me with the initial code that got me started writing this.
 --
--- Version 0.7
+-- Version 0.8
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Revised to fit better fit ASN.1 library
 -- Revised 02/02/2010 - v0.3 - Revised to fit OO ASN.1 Library
@@ -15,6 +15,7 @@
 -- Revised 10/29/2011 - v0.5 - Added support for performing wildcard searches via the substring filter.
 -- Revised 10/30/2011 - v0.6 - Added support for the ldap extensibleMatch filter type for searches
 -- Revised 04/04/2016 - v0.7 - Added support for searchRequest over upd ( udpSearchRequest ) - Tom Sellers
+-- Revised 07/11/2017 - v0.8 - Added support for decoding the objectSID Active Directory attribute - Tom Sellers
 --
 
 local asn1 = require "asn1"
@@ -654,7 +655,7 @@ function searchResultToTable( searchEntries )
         for i=2, #attrib do
           -- do some additional Windows decoding
           if ( attrib[1] == "objectSid" ) then
-            table.insert( attribs, string.format( "%s: %d", attrib[1], decode( attrib[i] ) ) )
+            table.insert( attribs, string.format( "%s: %s", attrib[1], convertObjectSid( attrib[i] ) ) )
           elseif ( attrib[1] == "objectGUID") then
             local o = {string.unpack(("B"):rep(16), attrib[i] )}
             table.insert( attribs, string.format( "%s: %x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x%x",
@@ -738,7 +739,7 @@ function searchResultToFile( searchEntries, filename )
         for i=2, #attrib do
           -- do some additional Windows decoding
           if ( attrib[1] == "objectSid" ) then
-            host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = string.format( "%d", decode( attrib[i] ) )
+            host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = string.format( "%s", convertObjectSid(attrib[i]))
 
           elseif ( attrib[1] == "objectGUID") then
             local o = {string.unpack(("B"):rep(16), attrib[i] )}
@@ -865,6 +866,35 @@ function convertZuluTimeStamp(timestamp)
   else
     return 'Invalid date format'
   end
+
+end
+
+--- Converts the objectSid Active Directory attribute
+--  from hex to a human readable string
+--
+--  Example: 1-5-21-542885397-2936741293-3965599772-500
+--
+-- @param hex string form of objectSid from LDAP response
+-- @return string containing human readable form
+function convertObjectSid(data)
+
+  local pos, revision, auth, sub_auth_size, sub_auth, result
+
+  revision, pos = string.unpack('I1', data, 1)
+  sub_auth_size, pos = string.unpack('I1', data, pos)
+  auth, pos = string.unpack('>I6', data, pos)
+
+  sub_auth = ''
+  local tmp
+  local cnt = 0
+  while (cnt < sub_auth_size) do
+    tmp, pos = string.unpack('<I4', data, pos)
+    sub_auth = sub_auth .. '-' .. tmp
+    cnt = cnt + 1
+  end
+
+  result = revision .. '-' .. auth .. sub_auth
+  return result
 
 end
 
