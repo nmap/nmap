@@ -150,8 +150,8 @@ local function get_response(sd, request)
     status, data = sd:receive_buf("##", true)
 
     if status == nil then
-      stdnse.debug("Error: " .. tostring(data))
-      if tostring(data) == "TIMEOUT" then
+      stdnse.debug("Error: " .. data)
+      if data == "TIMEOUT" then
         -- Avoids false results by capturing NACK after TIMEOUT occured.
         status, data = sd:receive_buf("##", true)
         break
