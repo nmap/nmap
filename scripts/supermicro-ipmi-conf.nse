@@ -47,20 +47,9 @@ local shortport = require "shortport"
 local string = require "string"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
+local exploit = require "exploit"
 
 portrule = shortport.portnumber(49152, "tcp")
-
----
---Writes string to file
-local function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
-end
 
 action = function(host, port)
   local fw = stdnse.get_script_args(SCRIPT_NAME..".out") or host.ip.."_bmc.conf"
@@ -84,7 +73,7 @@ network's Active Directory.]],
   if open_session and open_session.status ==200 and string.len(open_session.body)>200 then
     local s = open_session.body:gsub("%z", ".")
     vuln.state = vulns.STATE.EXPLOIT
-    local status, err = write_file(fw,s)
+    local status, err = exploit.write_file(fw,s)
     local extra_info
     if status then
       extra_info = string.format("\nConfiguration file saved to '%s'\n", fw)

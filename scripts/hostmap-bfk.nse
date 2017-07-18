@@ -4,6 +4,7 @@ local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
 local target = require "target"
+local exploit = require "exploit"
 
 description = [[
 Discovers hostnames that resolve to the target's IP address by querying the online database at http://www.bfk.de/bfk_dnslogger.html.
@@ -67,8 +68,6 @@ categories = {"external", "discovery"}
 
 local HOSTMAP_SERVER = "www.bfk.de"
 
-local write_file
-
 hostrule = function(host)
   return not ipOps.isPrivate(host.ip)
 end
@@ -106,7 +105,7 @@ action = function(host)
   local filename_prefix = stdnse.get_script_args("hostmap-bfk.prefix")
   if filename_prefix then
     local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
-    local status, err = write_file(filename, hostnames_str .. "\n")
+    local status, err = exploit.write_file(filename, hostnames_str .. "\n")
     if status then
       output_tab.filename = filename
     else
@@ -115,14 +114,4 @@ action = function(host)
   end
 
   return output_tab
-end
-
-function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
 end
