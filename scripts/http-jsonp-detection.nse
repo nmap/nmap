@@ -104,8 +104,12 @@ local callback_bruteforce = function(host, port, target)
       status, func = checkjson(response.body)
 
       if status == true then  
-        report = callback_url(host, port, target, callback_variable)
-        report = string.format("%s\t%s", target, report)
+        report = callback_url(host, port, target, p)
+        if report ~= nil then 
+          report = string.format("%s\t%s", target, report)
+        else
+          report = target
+        end
         break
       end
     end
