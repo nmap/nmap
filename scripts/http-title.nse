@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local unpwdb = require "unpwdb"
 
 description = [[
 Shows the title of the default page of a web server.
@@ -30,7 +31,6 @@ author = "Diman Todorov"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
-
 
 portrule = shortport.http
 
@@ -78,6 +78,7 @@ action = function(host, port)
   if redirect_url then
     output_str = output_str .. "\n" .. ("Requested resource was %s"):format( redirect_url )
   end
+  unpwdb.save_for_pwdprofiling( host, title )
 
   return output_tab, output_str
 end

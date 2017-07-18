@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local unpwdb = require "unpwdb"
 
 description = [[
 Performs brute force password auditing against FTP servers.
@@ -37,8 +38,10 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
+dependencies = unpwdb.PWDPROFILE_SCRIPTS
 
 portrule = shortport.port_or_service(21, "ftp")
+
 
 local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 arg_timeout = (arg_timeout or 5) * 1000

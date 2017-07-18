@@ -593,7 +593,7 @@ Engine = {
       tps = {},
       iterator = nil,
       usernames = usernames_iterator(),
-      passwords = passwords_iterator(),
+      passwords = passwords_iterator(stdnse.get_script_args("brute.passprofile")),
       found_accounts = {},
       account_guesses = {},
       options = Options:new(),
@@ -1296,7 +1296,11 @@ end
 
 --- Default password iterator that uses unpwdb
 --
-function passwords_iterator ()
+function passwords_iterator (passprofile_arg)
+  if (passprofile_arg=="true" or passprofile_arg==true or tonumber(passprofile_arg)==1) then
+    unpwdb.add_profiled_pwds()
+  end
+
   local status, passwords = unpwdb.passwords()
   if not status then
     return "Failed to load passwords"
