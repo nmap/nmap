@@ -49,15 +49,18 @@ local callbacks = {"cb", "jsonp", "jsonpcallback", "jcb", "call"}
 
 --Checks the body and returns if valid json data is present in callback function
 local checkjson = function(body)
-   
-  local func, json_data
-  _, _, func, json_data = string.find(body, "(%S+)%((.*)%)")  --Check this!
 
+  local func, json_data
+  _, _, func, json_data = string.find(body, "^(%S+)%((.*)%)") 
+  
   --Check if the json_data is valid
   --If valid, we have a JSONP endpoint with func as the function name
 
-  local status, json = json.parse(json_data)
-  return status, func
+  if json_data and (json_data:match("%[{") or json_data:match("{")) then
+    local status, json = json.parse(json_data)
+    return status, func
+  end
+  return false, nil
 end
 
 --Checks if the callback function is controllable from URL
@@ -102,7 +105,7 @@ local callback_bruteforce = function(host, port, target)
 
       if status == true then  
         report = callback_url(host, port, target, callback_variable)
-        report = string.format(("%s\t%s", target, report)
+        report = string.format("%s\t%s", target, report)
         break
       end
     end
