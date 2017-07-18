@@ -3449,19 +3449,18 @@ end
 -- 'false' is simply returned.
 function is_admin(host, username, domain, password, password_hash, hash_type)
   local msrpc = require "msrpc" -- avoid require cycle
-  local status, smbstate, err, result, fqpn_share
   local overrides = get_overrides(username, domain, password, password_hash, hash_type)
 
   stdnse.debug1("SMB: Checking if %s is an administrator", username)
 
-  status, smbstate = start(host)
+  local status, smbstate = start(host)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to start SMB: %s [%s]", smbstate, username)
     stop(smbstate)
     return false
   end
 
-  status, err      = negotiate_protocol(smbstate, overrides)
+  local status, err      = negotiate_protocol(smbstate, overrides)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to negotiate protocol: %s [%s]", err, username)
     stop(smbstate)
@@ -3474,8 +3473,8 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
     stop(smbstate)
     return false
   end
-  
-  _, fqpn_share = get_fqpn(host, "IPC$")
+
+  local _, fqpn_share = get_fqpn(host, "IPC$")
   status, err      = tree_connect(smbstate, fqpn_share, overrides)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
@@ -4234,10 +4233,10 @@ namedpipes =
       self.name = namedpipes.make_pipe_name( self._host.ip, self._pipeSubPath )
 
       stdnse.debug2("%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
-      local status, result, errorMessage, fqpn_share
+      local errorMessage
       local bool_negotiate_protocol, bool_start_session, bool_disable_extended = true, true, false
-      _, fqpn_share = get_fqpn(host, "IPC$")
-      status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
+      local _, fqpn_share = get_fqpn(host, "IPC$")
+      local status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
         fqpn_share, self._pipeSubPath, bool_disable_extended, self._overrides )
 
       if status then

@@ -2,6 +2,7 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local comm = require "comm"
 local string = require "string"
+local table = require "table"
 
 description = [[
 OpenWebNet is a communications protocol developed by Bticino since 2000.
