@@ -1043,7 +1043,9 @@ local function try_protocol(host, port, protocol, upresults)
   results["ciphers"] = ciphers
 
   -- Format the compressor table.
-  table.sort(compressors)
+  if compressors then
+    table.sort(compressors)
+  end
   results["compressors"] = compressors
 
   results["cipher preference"] = cipher_pref
