@@ -1,4 +1,4 @@
-﻿# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id$); -*-text-*-
 
 o [NSE][GH#934] The HTTP response object has a new member, version, which
   contains the HTTP protocol version string returned by the server, e.g. "1.0".
