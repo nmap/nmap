@@ -1,7 +1,7 @@
 ﻿# Nmap Changelog ($Id$); -*-text-*-
 
 o [NSE][GH#934] The HTTP response object has a new member, version, which
-  contains the HTTP protocol version string returned by the server, e.g. "1.1".
+  contains the HTTP protocol version string returned by the server, e.g. "1.0".
   [nnposter]
 
 o [NSE] openwebnet-discovery retrieves device identifying information and
