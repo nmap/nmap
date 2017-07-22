@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#935] Function http.pipeline_go no longer assumes that persistent
+  connections are supported on HTTP 1.0 target (unless the target explicitly
+  declares otherwise), as per RFC 7230. [nnposter]
+
 o [NSE][GH#934] The HTTP response object has a new member, version, which
   contains the HTTP protocol version string returned by the server, e.g. "1.0".
   [nnposter]

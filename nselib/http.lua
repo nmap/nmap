@@ -872,7 +872,7 @@ end
 --  If the value is not available, an arbitrary value is used. If the connection
 --  is not explicitly closed by the server, this same value is attempted.
 --
---  @param response The http response - Might be a table or a raw response
+--  @param response The HTTP response table
 --  @return The max number of requests on a keep-alive connection
 local function getPipelineMax(response)
   -- Allow users to override this with a script-arg
@@ -883,16 +883,11 @@ local function getPipelineMax(response)
   end
 
   if response then
-    if response.header and response.header.connection ~= "close" then
-      if response.header["keep-alive"] then
-        local max = string.match( response.header["keep-alive"], "max=(%d*)")
-        if(max == nil) then
-          return 40
-        end
-        return tonumber(max)
-      else
-        return 40
-      end
+    local hdr = response.header or {}
+    local opts = stdnse.strsplit("%s+", (hdr.connection or ""):lower())
+    if stdnse.contains(opts, "close") then return 1 end
+    if response.version >= "1.1" or stdnse.contains(opts, "keep-alive") then
+      return tonumber((hdr["keep-alive"] or ""):match("max=(%d+)")) or 40
     end
   end
   return 1
