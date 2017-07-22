@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#936] Function url.escape no longer encodes so-called "unreserved"
+  characters, including hyphen, period, underscore, and tilde, as per RFC 3986.
+  [nnposter]
+
 o [NSE][GH#935] Function http.pipeline_go no longer assumes that persistent
   connections are supported on HTTP 1.0 target (unless the target explicitly
   declares otherwise), as per RFC 7230. [nnposter]

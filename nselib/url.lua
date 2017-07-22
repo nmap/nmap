@@ -66,7 +66,7 @@ local segment_set = make_set {
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
-  return string.gsub(s, "([^A-Za-z0-9_])", function (c)
+  return string.gsub(s, "([^A-Za-z0-9_.~-])", function (c)
     if segment_set[c] then return c
     else return string.format("%%%02x", string.byte(c)) end
   end)
@@ -108,7 +108,7 @@ end
 -- @return Escaped representation of string.
 -----------------------------------------------------------------------------
 function escape(s)
-  return string.gsub(s, "([^A-Za-z0-9_])", function(c)
+  return string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
     return string.format("%%%02x", string.byte(c))
   end)
 end
