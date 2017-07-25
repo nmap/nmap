@@ -23,6 +23,7 @@ try to enumerate common DNS SRV records.
 --                          Defaults to "nselib/data/vhosts-default.lst"
 -- @args dns-brute.threads  Thread to use (default 5).
 -- @args dns-brute.srv      Perform lookup for SRV records
+-- @args dns-brute.force    Force scan (e.g. ignore wildcard detection)
 -- @args dns-brute.srvlist  The filename of a list of SRV records to try.
 --                          Defaults to "nselib/data/dns-srv-names"
 -- @args dns-brute.domain   Domain name to brute force if no host is specified
@@ -104,10 +105,10 @@ local function array_iter(array, i, j)
   end)
 end
 
-local function thread_main(domainname, results, name_iter)
+local function thread_main(domainname, records, results, name_iter)
   local condvar = nmap.condvar( results )
   for name in name_iter do
-    for _, dtype in ipairs({"A", "AAAA"}) do
+    for _, dtype in ipairs(records) do
       local res = resolve(name..'.'..domainname, dtype)
       if(res) then
         for _,addr in ipairs(res) do
@@ -131,7 +132,7 @@ local function thread_main(domainname, results, name_iter)
   condvar("signal")
 end
 
-local function srv_main(domainname, srvresults, srv_iter)
+local function srv_main(domainname, records, srvresults, srv_iter)
   local condvar = nmap.condvar( srvresults )
   for name in srv_iter do
     local res = resolve(name..'.'..domainname, "SRV")
@@ -139,7 +140,7 @@ local function srv_main(domainname, srvresults, srv_iter)
       for _,addr in ipairs(res) do
         local hostn = name..'.'..domainname
         addr = stdnse.strsplit(":",addr)
-        for _, dtype in ipairs({"A", "AAAA"}) do
+        for _, dtype in ipairs(records) do
           local srvres = resolve(addr[4], dtype)
           if(srvres) then
             for srvhost,srvip in ipairs(srvres) do
@@ -164,13 +165,59 @@ local function srv_main(domainname, srvresults, srv_iter)
   condvar("signal")
 end
 
+local function detect_wildcard(domainname, record)
+  local rand_host1 = stdnse.generate_random_string(24).."."..domainname
+  local rand_host2 = stdnse.generate_random_string(24).."."..domainname
+  local res1 = resolve(rand_host1, record)
+  
+  stdnse.debug1("Detecting wildcard for \"%s\" records using random hostname \"%s\".", record, rand_host1)
+  if res1 then
+    stdnse.debug1("Random hostname resolved. Comparing to second random hostname \"%s\".", rand_host2)
+    local res2 = resolve(rand_host2, record) 
+
+    if (res1[1] == res2[1]) then
+      stdnse.debug1("Both random hostnames resolved to the same IP. Wildcard detected.")
+      return true
+    end
+  end
+  
+  return false
+end
+
 action = function(host)
   local domainname = stdnse.get_script_args('dns-brute.domain')
   if not domainname then
     domainname = guess_domain(host)
   end
+
   if not domainname then
     return string.format("Can't guess domain of \"%s\"; use %s.domain script argument.", stdnse.get_hostname(host), SCRIPT_NAME)
+  end
+  
+  if stdnse.get_script_args('dns-brute.force') then
+    records = {"A", "AAAA"}
+  else
+    records = {} -- hold record types to query after wildcard detection.
+    local wildcard_a = detect_wildcard(domainname, "A")
+    local wildcard_aaaa = detect_wildcard(domainname, "AAAA")
+
+    -- cancel if wildcards detected for both A and AAAA records. Otherwise warn only.
+    if wildcard_a and wildcard_aaaa then
+      stdnse.debug(0, "It looks like \"%s\" uses a wildcard A and AAAA records. Skipping both.", domainname)
+      return nil
+    end
+
+    if wildcard_a then
+      stdnse.debug(0, "It looks like \"%s\" uses a wildcard A record. Skipping A records.", domainname)
+    else
+      table.insert(records, "A")
+    end
+    
+    if wildcard_aaaa then
+      return stdnse.debug(0, "It looks like \"%s\" uses a wildcard AAAA record. Skipping AAAA records.", domainname)
+    else
+      table.insert(records, "AAAA")
+    end
   end
 
   if not nmap.registry.bruteddomains then
@@ -213,7 +260,7 @@ action = function(host)
   repeat
     local j = math.min(i+howmany, #hostlist)
     local name_iter = array_iter(hostlist, i, j)
-    threads[stdnse.new_thread(thread_main, domainname, results, name_iter)] = true
+    threads[stdnse.new_thread(thread_main, domainname, records, results, name_iter)] = true
     i = j+1
   until i > #hostlist
   local done
@@ -251,7 +298,7 @@ action = function(host)
       repeat
         local j = math.min(i+howmany, #srvlist)
         local name_iter = array_iter(srvlist, i, j)
-        threads[stdnse.new_thread(srv_main, domainname, srvresults, name_iter)] = true
+        threads[stdnse.new_thread(srv_main, domainname, records, srvresults, name_iter)] = true
         i = j+1
       until i > #srvlist
       local done
