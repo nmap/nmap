@@ -48,37 +48,15 @@ portrule = shortport.port_or_service({21,990}, {"ftp","ftps"})
 -- list sent.
 -- ---------------------
 local function list(socket, buffer, target, max_lines)
-  local status, err
 
-  -- ask the server for a Passive Mode: it should give us a port to
-  -- listen to, where it will dump the directory listing
-  status, err = socket:send("PASV\r\n")
-  if not status then
-    return status, err
+  local list_socket, err = ftp.pasv(socket, buffer)
+  if not list_socket then
+    return nil, err
   end
-  local code, message = ftp.read_reply(buffer)
-
-  -- Compute the PASV port as given by the server
-  -- The server should answer with something like
-  -- 2xx Entering Passive Mode (a,b,c,d,hp,lp)
-  --                           (-- IP--,PORT)
-  -- PORT is (hp x 256) + lp
-  local high, low = string.match(message, "%(%d+,%d+,%d+,%d+,(%d+),(%d+)%)")
-  if not high then
-    return nil, string.format("Can't parse PASV response: %q", message)
-  end
-
-  local pasv_port = high * 256 + low
 
   -- Send the LIST command on the commands socket. "Fire and forget"; we
   -- don't need to take care of the answer on this socket.
-  status, err = socket:send("LIST\r\n")
-  if not status then
-    return status, err
-  end
-
-  local list_socket = nmap.new_socket()
-  status, err = list_socket:connect(target, pasv_port, "tcp")
+  local status, err = socket:send("LIST\r\n")
   if not status then
     return status, err
   end
