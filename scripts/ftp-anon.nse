@@ -76,30 +76,6 @@ local function list(socket, buffer, target, max_lines)
   return true, listing
 end
 
-local function is_ssl(socket)
-  return pcall(socket.get_ssl_certificate, socket)
-end
-
--- Try to reconnect over STARTTLS.
--- Returns a new connected socket and buffer
-local function reconnect_ssl(socket, host, port)
-  socket:close()
-  local status, socket = sslcert.isPortSupported({service="ftp"})(host, port)
-  if status then
-    socket:set_timeout(8000)
-    return socket, stdnse.make_buffer(socket, "\r?\n")
-  end
-end
-
--- Should we try STARTTLS based on this error?
-local function should_try_ssl(code, message)
-  return code and code >= 400 and (
-        message:match('[Ss][Ss][Ll]') or
-        message:match('[Tt][Ll][Ss]') or
-        message:match('[Ss][Ee][Cc][Uu][Rr]')
-        )
-end
-
 --- Connects to the FTP server and checks if the server allows anonymous logins.
 action = function(host, port)
   local max_list = stdnse.get_script_args("ftp-anon.maxlist")
@@ -119,67 +95,18 @@ action = function(host, port)
 
   local socket, code, message, buffer = ftp.connect(host, port, {request_timeout=8000})
   if not socket then
-    stdnse.debug1("Couldn't connect: %s", code)
+    stdnse.debug1("Couldn't connect: %s", code or message)
+    return nil
+  end
+  if code and code ~= 220 then
+    stdnse.debug1("banner code %d %q.", code, message)
     return nil
   end
 
-  local try = nmap.new_try( function()
-    socket:close()
-  end)
-
-  -- Read banner.
-  ::TRY_AGAIN::
-  local already_ssl = is_ssl(socket)
-  if code and code == 220 then
-    try(socket:send("USER anonymous\r\n"))
-    code, message = ftp.read_reply(buffer)
-    if code == 331 then
-      -- 331: User name okay, need password.
-      try(socket:send("PASS IEUser@\r\n"))
-      code, message = ftp.read_reply(buffer)
-    elseif not already_ssl and should_try_ssl(code, message) then
-      socket, buffer = reconnect_ssl(socket, host, port)
-      if not socket then
-        return nil
-      end
-      code = 220
-      goto TRY_AGAIN
-    end
-
-    if code == 332 then
-      -- 332: Need account for login.
-      -- This is rarely seen but may come in response to a
-      -- USER or PASS command. As we're doing this
-      -- anonymously, send back a blank ACCT.
-      try(socket:send("ACCT\r\n"))
-      code, message = ftp.read_reply(buffer)
-      if code == 331 then
-        -- 331: User name okay, need password.
-        try(socket:send("PASS IEUser@\r\n"))
-        code, message = ftp.read_reply(buffer)
-      elseif not already_ssl and should_try_ssl(code, message) then
-        socket, buffer = reconnect_ssl(socket, host, port)
-        if not socket then
-          return nil
-        end
-        code = 220
-        goto TRY_AGAIN
-      end
-    end
-  end
-
-  if code and code >= 200 and code < 300 then
-    -- We are primarily looking for 230: User logged in, proceed.
-  else
+  local status, code, message = ftp.auth(socket, buffer, "anonymous", "IEUser@")
+  if not status then
     if not code then
       stdnse.debug1("got socket error %q.", message)
-    elseif not already_ssl and should_try_ssl(code, message) then
-      socket, buffer = reconnect_ssl(socket, host, port)
-      if not socket then
-        return nil
-      end
-      code = 220
-      goto TRY_AGAIN
     elseif code == 421 or code == 530 then
       -- Don't log known error codes.
       -- 421: Service not available, closing control connection.
@@ -196,7 +123,7 @@ action = function(host, port)
 
   if not max_list or max_list > 0 then
     local status, listing = list(socket, buffer, host, max_list)
-    socket:close()
+    ftp.close(socket)
 
     if not status then
       result[#result + 1] = "Can't get directory listing: " .. listing

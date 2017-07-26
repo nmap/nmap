@@ -119,6 +119,121 @@ function close(socket)
   socket:close()
 end
 
+--- Issue a STARTTLS command.
+--
+-- @param socket The connected command socket
+-- @param buffer The socket read buffer
+-- @return Boolean true if AUTH TLS succeeded, false otherwise
+-- @return error string on failure
+function starttls(socket, buffer)
+  -- Send AUTH TLS command, ask the service to start encryption
+  local status, err = socket:send("AUTH TLS\r\n")
+  if not status then
+    return nil, err
+  end
+  local code, result = read_reply(buffer)
+  return code == 234, result
+end
+
+local function is_ssl(socket)
+  return pcall(socket.get_ssl_certificate, socket)
+end
+
+-- Should we try STARTTLS based on this error?
+local function should_try_ssl(code, message)
+  return code and code >= 400 and (
+        message:match('[Ss][Ss][Ll]') or
+        message:match('[Tt][Ll][Ss]') or
+        message:match('[Ss][Ee][Cc][Uu][Rr]')
+        )
+end
+
+-- Try to reconnect over STARTTLS.
+local function reconnect_ssl(socket, buffer)
+  local status, err = starttls(socket, buffer)
+  if status then
+    status, err = socket:reconnect_ssl()
+    if status then
+      return true
+    end
+  end
+  return nil, err
+end
+
+--- Authenticate with username and password
+--
+-- May negotiate AUTH TLS if required
+-- @param socket The connected command socket
+-- @param buffer The socket read buffer
+-- @param username The username to send
+-- @param password The password to send
+-- @param acct (optional) If the server requires it, send this account name. Default: username
+-- @return Boolean true if auth succeeded, false otherwise
+-- @return FTP response code
+-- @return FTP response message
+function auth(socket, buffer, username, password, acct)
+  local already_ssl = is_ssl(socket)
+  ::TRY_AGAIN::
+  local status, err = socket:send(("USER %s\r\n"):format(username))
+  if not status then
+    return nil, err
+  end
+  local code, message = read_reply(buffer)
+  if code == 331 then
+    -- 331: User name okay, need password.
+    status, err =socket:send(("PASS %s\r\n"):format(password))
+    if not status then
+      return nil, err
+    end
+    code, message = read_reply(buffer)
+  elseif not already_ssl and should_try_ssl(code, message) then
+    if not reconnect_ssl(socket, buffer) then
+      return nil
+    end
+    already_ssl = true
+    goto TRY_AGAIN
+  end
+
+  if code == 332 then
+    -- 332: Need account for login.
+    -- This is rarely seen but may come in response to a
+    -- USER or PASS command.
+    status, err = socket:send("ACCT %s\r\n"):format(acct or username)
+    if not status then
+      return nil, err
+    end
+    code, message = read_reply(buffer)
+    if code == 331 then
+      -- 331: User name okay, need password.
+      status, err = socket:send("PASS %s\r\n"):format(password)
+      if not status then
+        return nil, err
+      end
+      code, message = read_reply(buffer)
+    elseif not already_ssl and should_try_ssl(code, message) then
+      if not reconnect_ssl(socket, buffer) then
+        return nil
+      end
+      already_ssl = true
+      goto TRY_AGAIN
+    end
+  end
+
+  if code and code >= 200 and code < 300 then
+    -- We are primarily looking for 230: User logged in, proceed.
+    return true, code, message
+  else
+    if code and not already_ssl and should_try_ssl(code, message) then
+      if not reconnect_ssl(socket, buffer) then
+        return nil
+      end
+      already_ssl = true
+      goto TRY_AGAIN
+    end
+    return nil, code, message
+  end
+end
+
 --- Start PASV mode
 --
 -- For IPv6 connections, attempts to use EPSV (RFC 2428). If the server sends an address that is not the target address, then this is an error.

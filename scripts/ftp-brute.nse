@@ -1,9 +1,8 @@
 local brute = require "brute"
 local creds = require "creds"
-local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
+local ftp = require "ftp"
 
 description = [[
 Performs brute force password auditing against FTP servers.
@@ -56,62 +55,42 @@ Driver = {
 
   connect = function( self )
     self.socket = brute.new_socket()
-    local status, err = self.socket:connect(self.host, self.port)
-    self.socket:set_timeout(arg_timeout)
-    if(not(status)) then
-      return false, brute.Error:new( "Couldn't connect to host: " .. err )
+    -- discard buffer, we'll create a new one over the BruteSocket later
+    local realsocket, code, message, buffer = ftp.connect(self.host, self.port, {request_timeout=arg_timeout})
+    if not realsocket then
+      return false, brute.Error:new( "Couldn't connect to host: " .. (code or message) )
     end
+    self.socket.socket = realsocket
     return true
   end,
 
   login = function (self, user, pass)
-    local status, err
-    local res = ""
-
-    status, err = self.socket:send("USER " .. user .. "\r\n")
-    if(not(status)) then
-      return false, brute.Error:new("Couldn't send login: " .. err)
-    end
-
-    status, err = self.socket:send("PASS " .. pass .. "\r\n")
-    if(not(status)) then
-      return false, brute.Error:new("Couldn't send login: " .. err)
-    end
-
-    -- Create a buffer and receive the first line
     local buffer = stdnse.make_buffer(self.socket, "\r?\n")
-    local line = buffer()
+    local status, code, message = ftp.auth(self.socket, buffer, user, pass)
 
-    -- Loop over the lines
-    while(line)do
-      stdnse.debug1("Received: %s", line)
-      if(string.match(line, "^230")) then
-        stdnse.debug1("Successful login: %s/%s", user, pass)
-        return true, creds.Account:new( user, pass, creds.State.VALID)
-      elseif(string.match(line, "^530")) then
+    if not status then
+      if not code then
+        return false, brute.Error:new("socket error during login: " .. message)
+      elseif code == 530 then
         return false, brute.Error:new( "Incorrect password" )
-      elseif(string.match(line, "^421")) then
+      elseif code == 421 then
         local err = brute.Error:new("Too many connections")
         err:setReduce(true)
         return false, err
-      elseif(string.match(line, "^220")) then
-      elseif(string.match(line, "^331")) then
       else
-        stdnse.debug1("WARNING: Unhandled response: %s", line)
+        stdnse.debug1("WARNING: Unhandled response: %d %s", code, message)
         local err = brute.Error:new("Unhandled response")
         err:setRetry(true)
         return false, err
       end
-
-      line = buffer()
     end
 
-
-    return false, brute.Error:new("Login didn't return a proper response")
+    stdnse.debug1("Successful login: %s/%s", user, pass)
+    return true, creds.Account:new( user, pass, creds.State.VALID)
   end,
 
   disconnect = function( self )
-    self.socket:close()
+    ftp.close(self.socket)
     return true
   end
 }
