@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] ftp-syst sends a SYST command to FTP servers to get system version
+  information. [Daniel Miller]
+
+o [NSE] FTP scripts like ftp-anon and ftp-brute now correctly handle
+  TLS-protected FTP services and use STARTTLS when necessary. [Daniel Miller]
+
 o [NSE][GH#936] Function url.escape no longer encodes so-called "unreserved"
   characters, including hyphen, period, underscore, and tilde, as per RFC 3986.
   [nnposter]

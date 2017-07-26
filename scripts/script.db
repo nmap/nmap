@@ -127,6 +127,7 @@ Entry { filename = "ftp-bounce.nse", categories = { "default", "safe", } }
 Entry { filename = "ftp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ftp-proftpd-backdoor.nse", categories = { "exploit", "intrusive", "malware", "vuln", } }
+Entry { filename = "ftp-syst.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ftp-vsftpd-backdoor.nse", categories = { "exploit", "intrusive", "malware", "vuln", } }
 Entry { filename = "ftp-vuln-cve2010-4221.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ganglia-info.nse", categories = { "default", "discovery", "safe", } }
