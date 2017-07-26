@@ -1,7 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] ftp-syst sends a SYST command to FTP servers to get system version
-  information. [Daniel Miller]
+o [NSE] ftp-syst sends SYST and STAT commands to FTP servers to get system
+  version and connection information. [Daniel Miller]
 
 o [NSE] FTP scripts like ftp-anon and ftp-brute now correctly handle
   TLS-protected FTP services and use STARTTLS when necessary. [Daniel Miller]
