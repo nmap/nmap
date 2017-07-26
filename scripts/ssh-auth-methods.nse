@@ -3,7 +3,10 @@ local stdnse = require "stdnse"
 local libssh2_util = require "libssh2-utility"
 
 description = [[
-Returns authenication methods a ssh server supports.
+Returns authentication methods that a SSH server supports.
+
+This is in the "intrusive" category because it starts an authentication with a
+username which may be invalid. The abandoned connection will likely be logged.
 ]]
 
 ---
@@ -18,9 +21,10 @@ Returns authenication methods a ssh server supports.
 -- |_    password
 
 author = "Devin Bjelland"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+categories = {"auth", "intrusive"}
 
-local username = stdnse.get_script_args "ssh.user" or stdnse.generate_random_string(5)
+local username = stdnse.get_script_args("ssh.user") or stdnse.generate_random_string(5)
 portrule = shortport.port_or_service(22, 'ssh')
 
 function action (host, port)

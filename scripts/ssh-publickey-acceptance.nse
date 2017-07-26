@@ -33,6 +33,7 @@ see if the target ssh server accepts them for publickey authentication. If no ke
 
 author = "Devin Bjelland"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"auth", "intrusive"}
 
 local privatekeys = stdnse.get_script_args "ssh.privatekeys"
 local usernames = stdnse.get_script_args "ssh.usernames"
