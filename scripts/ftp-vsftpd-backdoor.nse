@@ -158,17 +158,14 @@ vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
   end
 
   -- Create socket.
-  local sock, err = ftp.connect(host, port,
-    {recv_before = false,
-    timeout = 8000})
+  local sock, code, message, buffer = ftp.connect(host, port,
+    {request_timeout = 8000})
   if not sock then
-    stdnse.debug1("can't connect: %s", err)
+    stdnse.debug1("can't connect: %s", code)
     return nil
   end
 
   -- Read banner.
-  local buffer = stdnse.make_buffer(sock, "\r?\n")
-  local code, message = ftp.read_reply(buffer)
   if not code then
     stdnse.debug1("can't read banner: %s", message)
     sock:close()

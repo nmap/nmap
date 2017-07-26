@@ -5,6 +5,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local sslcert = require "sslcert"
 
 description = [[
 Checks if an FTP server allows anonymous logins.
@@ -38,7 +39,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
 
-portrule = shortport.port_or_service(21, "ftp")
+portrule = shortport.port_or_service({21,990}, {"ftp","ftps"})
 
 -- ---------------------
 -- Directory listing function.
@@ -46,12 +47,11 @@ portrule = shortport.port_or_service(21, "ftp")
 -- LIST on the commands socket, connect to the data one and read the directory
 -- list sent.
 -- ---------------------
-local function list(socket, target, max_lines)
+local function list(socket, buffer, target, max_lines)
   local status, err
 
   -- ask the server for a Passive Mode: it should give us a port to
   -- listen to, where it will dump the directory listing
-  local buffer = stdnse.make_buffer(socket, "\r?\n")
   status, err = socket:send("PASV\r\n")
   if not status then
     return status, err
@@ -98,14 +98,32 @@ local function list(socket, target, max_lines)
   return true, listing
 end
 
+local function is_ssl(socket)
+  return pcall(socket.get_ssl_certificate, socket)
+end
+
+-- Try to reconnect over STARTTLS.
+-- Returns a new connected socket and buffer
+local function reconnect_ssl(socket, host, port)
+  socket:close()
+  local status, socket = sslcert.isPortSupported({service="ftp"})(host, port)
+  if status then
+    socket:set_timeout(8000)
+    return socket, stdnse.make_buffer(socket, "\r?\n")
+  end
+end
+
+-- Should we try STARTTLS based on this error?
+local function should_try_ssl(code, message)
+  return code and code >= 400 and (
+        message:match('[Ss][Ss][Ll]') or
+        message:match('[Tt][Ll][Ss]') or
+        message:match('[Ss][Ee][Cc][Uu][Rr]')
+        )
+end
+
 --- Connects to the FTP server and checks if the server allows anonymous logins.
 action = function(host, port)
-  local socket = nmap.new_socket()
-  local code, message
-  local err_catch = function()
-    socket:close()
-  end
-
   local max_list = stdnse.get_script_args("ftp-anon.maxlist")
   if not max_list then
     if nmap.verbosity() == 0 then
@@ -120,13 +138,20 @@ action = function(host, port)
     end
   end
 
-  local try = nmap.new_try(err_catch)
 
-  try(socket:connect(host, port))
-  local buffer = stdnse.make_buffer(socket, "\r?\n")
+  local socket, code, message, buffer = ftp.connect(host, port, {request_timeout=8000})
+  if not socket then
+    stdnse.debug1("Couldn't connect: %s", code)
+    return nil
+  end
+
+  local try = nmap.new_try( function()
+    socket:close()
+  end)
 
   -- Read banner.
-  code, message = ftp.read_reply(buffer)
+  ::TRY_AGAIN::
+  local already_ssl = is_ssl(socket)
   if code and code == 220 then
     try(socket:send("USER anonymous\r\n"))
     code, message = ftp.read_reply(buffer)
@@ -134,6 +159,13 @@ action = function(host, port)
       -- 331: User name okay, need password.
       try(socket:send("PASS IEUser@\r\n"))
       code, message = ftp.read_reply(buffer)
+    elseif not already_ssl and should_try_ssl(code, message) then
+      socket, buffer = reconnect_ssl(socket, host, port)
+      if not socket then
+        return nil
+      end
+      code = 220
+      goto TRY_AGAIN
     end
 
     if code == 332 then
@@ -147,6 +179,13 @@ action = function(host, port)
         -- 331: User name okay, need password.
         try(socket:send("PASS IEUser@\r\n"))
         code, message = ftp.read_reply(buffer)
+      elseif not already_ssl and should_try_ssl(code, message) then
+        socket, buffer = reconnect_ssl(socket, host, port)
+        if not socket then
+          return nil
+        end
+        code = 220
+        goto TRY_AGAIN
       end
     end
   end
@@ -156,12 +195,20 @@ action = function(host, port)
   else
     if not code then
       stdnse.debug1("got socket error %q.", message)
+    elseif not already_ssl and should_try_ssl(code, message) then
+      socket, buffer = reconnect_ssl(socket, host, port)
+      if not socket then
+        return nil
+      end
+      code = 220
+      goto TRY_AGAIN
     elseif code == 421 or code == 530 then
       -- Don't log known error codes.
       -- 421: Service not available, closing control connection.
       -- 530: Not logged in.
     else
       stdnse.debug1("got code %d %q.", code, message)
+      return ("got code %d %q."):format(code, message)
     end
     return nil
   end
@@ -170,7 +217,7 @@ action = function(host, port)
   result[#result + 1] = "Anonymous FTP login allowed (FTP code " .. code .. ")"
 
   if not max_list or max_list > 0 then
-    local status, listing = list(socket, host, max_list)
+    local status, listing = list(socket, buffer, host, max_list)
     socket:close()
 
     if not status then
