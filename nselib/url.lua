@@ -151,6 +151,10 @@ end
 function parse(url, default)
   -- initialize default parameters
   local parsed = {}
+
+  -- Save the original URL
+  parsed.original = url
+
   for i,v in base.pairs(default or parsed) do parsed[i] = v end
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
@@ -173,12 +177,31 @@ function parse(url, default)
     return ""
   end)
   -- get params
-  url = string.gsub(url, "%;(.*)", function(p)
-    parsed.params = p
-    return ""
-  end)
+  -- Split up the query, if necessary
+  if(parsed.query) then
+    parsed.params = {}
+    local values = stdnse.strsplit('&', parsed.query)
+    for i, v in ipairs(values) do
+      local name, value = table.unpack(stdnse.strsplit('=', v))
+      parsed.params[name] = value
+    end
+  end
+
   -- path is whatever was left
   parsed.path = url
+
+  -- Checks for folder route and extension
+  if(string.match(parsed.path, "/$")) then
+    parsed.is_folder = true
+  else
+    parsed.is_folder = false
+    local split_str = stdnse.strsplit('%.', parsed.path)
+    if(split_str and #split_str > 1) then
+      parsed.extension = split_str[#split_str]
+    end
+  end
+
+  -- Represents host:port, port = nil if not used.
   local authority = parsed.authority
   if not authority then return parsed end
   authority = string.gsub(authority,"^([^@]*)@",
