@@ -2440,6 +2440,18 @@ function clean_404(body)
   return body
 end
 
+local function cache_404_response(host, port, response)
+  if type(host) == "table" and host.registry then
+    host.registry.http_404 = host.registry.http_404 or {}
+    local portnum = port
+    if type(port) == "table" then
+      portnum = port.number
+    end
+    host.registry.http_404[portnum] = response
+  end
+  return table.unpack(response)
+end
+
 ---Try requesting a non-existent file to determine how the server responds to
 -- unknown pages ("404 pages")
 --
@@ -2473,6 +2485,16 @@ end
 -- @return body Body is a hash of the cleaned-up body that can be used when
 --              detecting a 404 page that doesn't return a 404 error code.
 function identify_404(host, port)
+  if type(host) == "table" and host.registry and host.registry.http_404 then
+    local portnum = port
+    if type(port) == "table" then
+      portnum = port.number
+    end
+    local result = host.registry.http_404[portnum]
+    if result then
+      return table.unpack(result)
+    end
+  end
   local data
   local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
 
@@ -2484,12 +2506,13 @@ function identify_404(host, port)
   data = get(host, port, URL_404_1,{redirect_ok=false})
   if(data == nil) then
     stdnse.debug1("HTTP: Failed while testing for 404 status code")
+    -- do not cache; maybe it will work next time?
     return false, "Failed while testing for 404 error message"
   end
 
   if(data.status and data.status == 404) then
     stdnse.debug1("HTTP: Host returns proper 404 result.")
-    return true, 404
+    return cache_404_response(host, port, {true, 404})
   end
 
   if(data.status and data.status == 200) then
@@ -2502,6 +2525,7 @@ function identify_404(host, port)
       local data3 = get(host, port, URL_404_3)
       if(data2 == nil or data3 == nil) then
         stdnse.debug1("HTTP: Failed while testing for extra 404 error messages")
+        -- do not cache; maybe it will work next time?
         return false, "Failed while testing for extra 404 error messages"
       end
 
@@ -2513,7 +2537,9 @@ function identify_404(host, port)
           data2.status = -1
         end
         stdnse.debug1("HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
-        return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
+        return cache_404_response(host, port, {false,
+            string.format("HTTP 404 status changed for second request (became %d).", data2.status)
+          })
       end
 
       -- Check if the return code became something other than 200
@@ -2522,7 +2548,9 @@ function identify_404(host, port)
           data3.status = -1
         end
         stdnse.debug1("HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
-        return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
+        return cache_404_response(host, port, {false,
+            string.format("HTTP 404 status changed for third request (became %d).", data3.status)
+          })
       end
 
       -- Check if the returned bodies (once cleaned up) matches the first returned body
@@ -2532,33 +2560,38 @@ function identify_404(host, port)
       if(clean_body ~= clean_body2) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response."
+        return cache_404_response(host, port, {false,
+            "Two known 404 pages returned valid and different pages; unable to identify valid response."
+          })
       end
 
       if(clean_body ~= clean_body3) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return false, "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
+        return cache_404_response(host, port, {false,
+            "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
+          })
       end
 
+      cache_404_response(host, port, {true, 200, clean_body})
       return true, 200, clean_body
     end
 
     stdnse.debug1("HTTP: The 200 response didn't contain a body.")
-    return true, 200
+    return cache_404_response(host, port, {true, 200})
   end
 
   -- Loop through any expected error codes
   for _,code in pairs(bad_responses) do
     if(data.status and data.status == code) then
       stdnse.debug1("HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
-      return true, code
+      return cache_404_response(host, port, {true, code})
     end
   end
 
   stdnse.debug1("Unexpected response returned for 404 check: %s", get_status_string(data))
 
-  return true, data.status
+  return cache_404_response(host, port, {true, data.status})
 end
 
 --- Determine whether or not the page that was returned is a 404 page.
