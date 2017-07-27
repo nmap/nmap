@@ -1,5 +1,5 @@
 local comm = require "comm"
-local shortport = require "shortport"
+local irc = require "irc"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -73,7 +73,7 @@ local DEFAULT_CHANNELS = {
   "RxBot",
 }
 
-portrule = shortport.port_or_service({6666, 6667, 6697, 6679}, {"irc", "ircs"})
+portrule = irc.portrule
 
 -- Parse an IRC message. Returns nil, errmsg in case of error. Otherwise returns
 -- true, prefix, command, params. prefix may be nil. params is an array of
@@ -277,6 +277,10 @@ function action(host, port)
   end
 
   irc = irc_connect(host, port)
+  if not irc then
+    stdnse.debug1("Could not connect")
+    return nil
+  end
   irc_send_message(irc, "LIST", concat_channel_list(search_channels))
 
   channels = {}

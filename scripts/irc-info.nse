@@ -1,6 +1,6 @@
 local comm = require "comm"
 local nmap = require "nmap"
-local shortport = require "shortport"
+local irc = require "irc"
 local stdnse = require "stdnse"
 
 description = [[
@@ -43,7 +43,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
+portrule = irc.portrule
 
 local banner_timeout = 60
 

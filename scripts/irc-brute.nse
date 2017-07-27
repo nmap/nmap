@@ -2,7 +2,7 @@ local brute = require "brute"
 local comm = require "comm"
 local creds = require "creds"
 local match = require "match"
-local shortport = require "shortport"
+local irc = require "irc"
 local stdnse = require "stdnse"
 
 description=[[
@@ -33,7 +33,7 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories={"brute","intrusive"}
 
-portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
+portrule = irc.portrule
 
 Driver = {
 
