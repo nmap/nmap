@@ -152,6 +152,7 @@ typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BI
 class NetBlock {
 public:
   virtual ~NetBlock() {}
+  std::string tag;
   std::string hostname;
   std::list<struct sockaddr_storage> resolvedaddrs;
 

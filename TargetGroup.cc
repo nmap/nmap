@@ -272,11 +272,24 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
 
 /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
    fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
-   parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
-NetBlock *NetBlock::parse_expr(const char *target_expr, int af) {
+   parameter is AF_INET or AF_INET6. Returns NULL in case of error. 
+   The expression may have a suffix such as 192.168.0.1^mytag which
+   will not be considered part of the address or hostname and can be
+   included in [xml] output to tie it back to the expression given for
+   input. */
+NetBlock *NetBlock::parse_expr(const char *target_expr_, int af) {
+  char* target_expr = strdup(target_expr_);
   NetBlock *netblock;
   char *hostexp;
   int bits;
+
+  /* parse off a ^tag suffix, if it exists */
+  std::string tag;
+  size_t tagpos = std::string(target_expr).rfind('^');
+  if (tagpos != std::string::npos) {
+    tag.assign(target_expr+tagpos+1);
+    target_expr[tagpos] = 0;
+  }
 
   hostexp = split_netmask(target_expr, &bits);
   if (hostexp == NULL) {
@@ -294,10 +307,13 @@ NetBlock *NetBlock::parse_expr(const char *target_expr, int af) {
     goto bail;
   netblock->apply_netmask(bits);
 
+  free(target_expr);
   free(hostexp);
+  netblock->tag = tag;
   return netblock;
 
 bail:
+  free(target_expr);
   free(hostexp);
   return NULL;
 }
@@ -691,6 +707,7 @@ NetBlock *NetBlockHostname::resolve() const {
   if (netblock == NULL)
     return NULL;
 
+  netblock->tag = this->tag;
   netblock->hostname = this->hostname;
   netblock->resolvedaddrs = resolvedaddrs;
   netblock->apply_netmask(this->bits);
