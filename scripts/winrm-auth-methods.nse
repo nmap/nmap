@@ -10,7 +10,7 @@ Returns authentication methods a winrm server supports.
 
 ---
 -- @usage
--- nmap --script winrm-auth-methods <target>
+-- nmap --script winrm-auth-methods -p 5985 <target>
 --
 -- @output
 -- 5985/tcp open  wsman
@@ -25,8 +25,7 @@ author = "Evangelos Deirmentzoglou"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-portrule = shortport.port_or_service(5985, 5986)
-local data = stdnse.generate_random_string(5)
+portrule = shortport.port_or_service({5985, 5986},{'wsman','wsmans'})
 
 
 action = function(host, port)
@@ -34,7 +33,7 @@ action = function(host, port)
   local r = {}
   local result = stdnse.output_table()
   local url = stdnse.get_script_args(SCRIPT_NAME .. '.root') or "/wsman"
-  local response = http.post( host, port, url, nil, nil, data )
+  local response = http.post( host, port, url, nil, nil, stdnse.generate_random_string(5) )
 
   if response.header["www-authenticate"] and string.match(response.header["www-authenticate"], "Negotiate") then
     table.insert(r, "Negotiate")
@@ -49,9 +48,9 @@ action = function(host, port)
     table.insert(r, "CredSSP")
   end
   if #r > 0 then
-    result["Accepted Authentication Methods"] = r
+    result = r
   else
-    result["Accepted Authentication Methods"] = "Server does not support authentication."
+    result = "Server does not support authentication."
   end
 
   return result
