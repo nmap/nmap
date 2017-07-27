@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#950] Added wildcard detection to dns-brute. Only hostnames that
+  resolve to unique addresses will be listed. [Aaron Heesakkers]
+
 o [NSE] ftp-syst sends SYST and STAT commands to FTP servers to get system
   version and connection information. [Daniel Miller]
 

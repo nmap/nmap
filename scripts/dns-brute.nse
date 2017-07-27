@@ -12,6 +12,8 @@ description = [[
 Attempts to enumerate DNS hostnames by brute force guessing of common
 subdomains. With the <code>dns-brute.srv</code> argument, dns-brute will also
 try to enumerate common DNS SRV records.
+
+Wildcard records are listed as "*A" and "*AAAA" for IPv4 and IPv6 respectively.
 ]]
 -- 2011-01-26
 
@@ -34,7 +36,9 @@ try to enumerate common DNS SRV records.
 -- |     mail.foo.com - 127.0.0.2
 -- |     blog.foo.com - 127.0.1.3
 -- |     ns1.foo.com - 127.0.0.4
--- |_    admin.foo.com - 127.0.0.5
+-- |     admin.foo.com - 127.0.0.5
+-- |_    *A: 127.0.0.123
+--
 -- @xmloutput
 -- <table key="DNS Brute-force hostnames">
 --   <table>
@@ -57,6 +61,7 @@ try to enumerate common DNS SRV records.
 --     <elem key="address">127.0.0.5</elem>
 --     <elem key="hostname">admin.foo.com</elem>
 --   </table>
+--   <elem key="*A">127.0.0.123</elem>
 -- </table>
 -- <table key="SRV results"></table>
 
@@ -104,26 +109,35 @@ local function array_iter(array, i, j)
   end)
 end
 
+local record_mt = {
+  __tostring = function(t)
+    return ("%s - %s"):format(t.hostname, t.address)
+  end
+}
+
+local function make_record(hostn, addr)
+  local record = { hostname=hostn, address=addr }
+  setmetatable(record, record_mt)
+  return record
+end
+
 local function thread_main(domainname, results, name_iter)
   local condvar = nmap.condvar( results )
   for name in name_iter do
     for _, dtype in ipairs({"A", "AAAA"}) do
       local res = resolve(name..'.'..domainname, dtype)
       if(res) then
-        for _,addr in ipairs(res) do
-          local hostn = name..'.'..domainname
-          if target.ALLOW_NEW_TARGETS then
-            stdnse.debug1("Added target: "..hostn)
-            local status,err = target.add(hostn)
-          end
-          stdnse.debug1("Hostname: "..hostn.." IP: "..addr)
-          local record = { hostname=hostn, address=addr }
-          setmetatable(record, {
-            __tostring = function(t)
-              return string.format("%s - %s", t.hostname, t.address)
+        table.sort(res)
+        if results["*" .. dtype] ~= res[1] then
+          for _,addr in ipairs(res) do
+            local hostn = name..'.'..domainname
+            if target.ALLOW_NEW_TARGETS then
+              stdnse.debug1("Added target: "..hostn)
+              local status,err = target.add(hostn)
             end
-          })
-          results[#results+1] = record
+            stdnse.debug2("Hostname: "..hostn.." IP: "..addr)
+            results[#results+1] = make_record(hostn, addr)
+          end
         end
       end
     end
@@ -148,13 +162,7 @@ local function srv_main(domainname, srvresults, srv_iter)
                 local status,err = target.add(srvip)
               end
               stdnse.debug1("Hostname: "..hostn.." IP: "..srvip)
-              local record = { hostname=hostn, address=srvip }
-              setmetatable(record, {
-                __tostring = function(t)
-                  return string.format("%s - %s", t.hostname, t.address)
-                end
-              })
-              srvresults[#srvresults+1] = record
+              srvresults[#srvresults+1] = make_record(hostn, srvip)
             end
           end
         end
@@ -164,11 +172,33 @@ local function srv_main(domainname, srvresults, srv_iter)
   condvar("signal")
 end
 
+local function detect_wildcard(domainname, record)
+  local rand_host1 = stdnse.generate_random_string(24).."."..domainname
+  local rand_host2 = stdnse.generate_random_string(24).."."..domainname
+  local res1 = resolve(rand_host1, record)
+
+  stdnse.debug1("Detecting wildcard for \"%s\" records using random hostname \"%s\".", record, rand_host1)
+  if res1 then
+    stdnse.debug1("Random hostname resolved. Comparing to second random hostname \"%s\".", rand_host2)
+    local res2 = resolve(rand_host2, record)
+    table.sort(res1)
+    table.sort(res2)
+
+    if (res1[1] == res2[1]) then
+      stdnse.debug1("Both random hostnames resolved to the same IP. Wildcard detected.")
+      return res1[1]
+    end
+  end
+
+  return nil
+end
+
 action = function(host)
   local domainname = stdnse.get_script_args('dns-brute.domain')
   if not domainname then
     domainname = guess_domain(host)
   end
+
   if not domainname then
     return string.format("Can't guess domain of \"%s\"; use %s.domain script argument.", stdnse.get_hostname(host), SCRIPT_NAME)
   end
@@ -206,6 +236,10 @@ action = function(host)
   end
 
   local threads, results, srvresults = {}, {}, {}
+  for _, dtype in ipairs({"A", "AAAA"}) do
+    results["*" .. dtype] = detect_wildcard(domainname, dtype)
+  end
+
   local condvar = nmap.condvar( results )
   local i = 1
   local howmany = math.floor(#hostlist/max_threads)+1
