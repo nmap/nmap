@@ -32,7 +32,7 @@ action = function(host, port)
 
   local r = {}
   local result = stdnse.output_table()
-  local url = stdnse.get_script_args(SCRIPT_NAME .. '.root') or "/wsman"
+  local url = "/wsman"
   local response = http.post( host, port, url, nil, nil, stdnse.generate_random_string(5) )
 
   if response.header["www-authenticate"] and string.match(response.header["www-authenticate"], "Negotiate") then
