@@ -60,7 +60,7 @@ categories = {"discovery", "version"}
 --
 --
 
-portrule = shortport.port_or_service(47808, "bacnet", {"udp","tcp"})
+portrule = shortport.version_port_or_service(47808, "bacnet", {"udp","tcp"})
 
 ---
 --  Table to look up the Vendor Name based on Vendor ID

@@ -50,7 +50,7 @@ categories = {"discovery", "version"}
 
 
 -- port rule for devices running on TCP/102
-portrule = shortport.port_or_service(102, "iso-tsap", "tcp")
+portrule = shortport.version_port_or_service(102, "iso-tsap", "tcp")
 
 ---
 -- Function to send and receive the S7COMM Packet

@@ -51,7 +51,7 @@ categories = {"discovery", "version"}
 -- Function to define the portrule as per nmap standards
 --
 --
-portrule = shortport.port_or_service(9600, "fins", {"tcp", "udp"})
+portrule = shortport.version_port_or_service(9600, "fins", {"tcp", "udp"})
 
 ---
 --  Function to set the nmap output for the host, if a valid OMRON FINS packet
