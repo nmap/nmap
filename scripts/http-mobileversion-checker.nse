@@ -71,7 +71,7 @@ action = function(host, port)
   -- If the mobile browser request is redirected to a different page, that must be the mobile version's page.
   if loc ~= mobloc then
     local msg = "Found mobile version: " .. mobloc
-    local mobhost = http.parse_url(mobloc)
+    local mobhost = url.parse(mobloc)
     if not crawler:iswithinhost(mobhost.host) then
       msg = msg .. " (Redirected to a different host)"
       if newtargets then
