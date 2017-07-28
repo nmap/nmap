@@ -2,7 +2,6 @@ local smb = require "smb"
 local smb2 = require "smb2"
 local stdnse = require "stdnse"
 local string = require "string"
-local bit = require "bit"
 local table = require "table"
 local nmap = require "nmap"
 
@@ -63,10 +62,10 @@ action = function(host,port)
       -- * Message signing enabled
       -- * Message signing required
       local signing_enabled, signing_required 
-      if ( bit.band(smbstate['security_mode'], 0x0001) == 0x0001) then
+      if smbstate['security_mode'] & 0x01 == 0x01 then
         signing_enabled = true
       end
-      if ( bit.band(smbstate['security_mode'], 0x0002) == 0x0002) then
+      if smbstate['security_mode'] & 0x02 == 0x02 then
         signing_required = true
       end
 

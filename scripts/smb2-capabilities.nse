@@ -2,7 +2,6 @@ local smb = require "smb"
 local smb2 = require "smb2"
 local stdnse = require "stdnse"
 local string = require "string"
-local bit = require "bit"
 local table = require "table"
 local nmap = require "nmap"
 
