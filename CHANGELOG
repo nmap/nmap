@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#930] Fix ndmp-version and ndmp-fs-info when scanning Veritas Backup
+  Exec Agent 15 or 16. [Andrew Orr]
+
 o [NSE][GH#943] Added new SMB2/3 library and scripts:
   + smb-protocols discovers if a server supports dialects
     NT LM 0.12 (SMBv1), 2.02, 2.10, 3.00, 3.02 and 3.11.
