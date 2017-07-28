@@ -1,9 +1,6 @@
 local smb = require "smb"
-local vulns = require "vulns"
 local stdnse = require "stdnse"
-local string = require "string"
 local smb2 = require "smb2"
-local table = require "table"
 
 description = [[
 Attempts to obtain the current system date and the start date of a SMB2 server.
