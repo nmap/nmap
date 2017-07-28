@@ -6,6 +6,14 @@
 local stdnse = require "stdnse"
 _ENV = stdnse.module("irc", stdnse.seeall)
 
+--- Portrule for matching IRC services
+--
+-- @usage portrule = irc.portrule
+--
+-- @param host
+-- @param port
+-- @return Boolean true if the port is likely to be IRC
+-- @class function
 portrule = (require "shortport").port_or_service(
   {
     -- Shodan.io top 3 IRC ports
