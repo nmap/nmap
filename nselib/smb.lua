@@ -949,37 +949,26 @@ end
 -- Sends the following:
 -- * List of known protocols
 --
--- Receives:
--- * The preferred dialect
--- * The security mode
--- * Max number of multiplexed connections, virtual circuits, and buffer sizes
--- * The server's system time and timezone
--- * The "encryption key" (aka, the server challenge)
--- * The capabilities
--- * The server and domain names
+-- This function adds to <code>smb</code>:
+-- * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
+-- * 'max_mpx'          Maximum number of multiplexed connections
+-- * 'max_vc'           Maximum number of virtual circuits
+-- * 'max_buffer'       Maximum buffer size
+-- * 'max_raw_buffer'   Maximum buffer size for raw connections (considered obsolete)
+-- * 'session_key'      A value that's basically just echoed back
+-- * 'capabilities'     The server's capabilities
+-- * 'time'             The server's time (in UNIX-style seconds since 1970)
+-- * 'date'             The server's date in a user-readable format
+-- * 'timezone'         The server's timezone, in hours from UTC
+-- * 'timezone_str'     The server's timezone, as a string
+-- * 'server_challenge' A random string used for challenge/response
+-- * 'domain'           The server's primary domain or workgroup
+-- * 'server'           The server's name
 --
---@param smb       The SMB object associated with the connection
---@param overrides [optional] Overrides for various fields
---@return (status, result) If status is false, result is an error message. Otherwise, result is
---        nil and the following elements are added to <code>smb</code>:
---      * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
---      * 'max_mpx'          Maximum number of multiplexed connections
---      * 'max_vc'           Maximum number of virtual circuits
---      * 'max_buffer'       Maximum buffer size
---      * 'max_raw_buffer'   Maximum buffer size for raw connections (considered obsolete)
---      * 'session_key'      A value that's basically just echoed back
---      * 'capabilities'     The server's capabilities
---      * 'time'             The server's time (in UNIX-style seconds since 1970)
---      * 'date'             The server's date in a user-readable format
---      * 'timezone'         The server's timezone, in hours from UTC
---      * 'timezone_str'     The server's timezone, as a string
---      * 'server_challenge' A random string used for challenge/response
---      * 'domain'           The server's primary domain or workgroup
---      * 'server'           The server's name
 -- @param smb The SMB object associated with the connection.
 -- @param overrides Overrides table.
--- @return (status, dialect) If status is true, the negotiated dialect in human readable form is returned as the second value.
---                            If status is false, the error message is returned.
+-- @return Boolean status
+-- @return The negotiated dialect in human readable form or an error message.
 ---
 function negotiate_v1(smb, overrides)
   local header, parameters, data
@@ -1123,6 +1112,9 @@ end
 -- Wrapper function to negotiate the protocol to use in the SMB connection.
 -- By default it attempts to negotiate with using following dialects:
 -- * NT LM 12.0 (SMBv1)
+-- @param smb The SMB object
+-- @param overrides Overrides table
+-- @return Boolean status
 ---
 function negotiate_protocol(smb, overrides)
   local status, dialect
@@ -1131,7 +1123,10 @@ function negotiate_protocol(smb, overrides)
     return true
   else 
     stdnse.debug1("Couldn't negotiate a SMBv1 connection:%s", dialect)
-    -- TODO: Try SMB2/SMB3 dialects if SMBv1 failed.
+    status, dialect = smb2.negotiate_v2(smb, overrides)
+    if status then
+      return true
+    end
     return false, string.format("Could not negotiate a connection:%s", dialect)
   end
 end
@@ -1140,7 +1135,8 @@ end
 -- Returns list of supported dialects for SMBv1, SMBv2 and SMBv3.
 -- @param host       The SMB host to connect to.
 -- @param overrides [optional] Overrides for various fields.
--- @return (status, result) If status is false, result is an error message. Otherwise, result is table of dialects
+-- @return Boolean status
+-- @return Table of supported dialects or error message
 ---
 function list_dialects(host, overrides)
   local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
@@ -1356,6 +1352,11 @@ local function start_session_extended(smb, log_errors, overrides)
   local os, lanmanager
   local username, domain, password, password_hash, hash_type
   local busy_count = 0
+
+  -- If we are working with SMB2/SMB3, use smb2.start_session instead
+  if smb["smb2_protocol_enabled"] or smb["smb3_protocol_enabled"] then
+    return smb2.start_session(smb, log_errors, overrides)
+  end
 
   -- Set a default status_name, in case everything fails
   status_name = "An unknown error has occurred"
@@ -2561,6 +2562,7 @@ end
 -- data is given as a string, not a file.
 --
 --@param host          The host object
+--@param data          The string containing the data to be written
 --@param share         The share to upload it to (eg, C$).
 --@param remotefile    The remote file on the machine. It is relative to the share's root.
 --@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user.
@@ -3511,19 +3513,18 @@ end
 -- 'false' is simply returned.
 function is_admin(host, username, domain, password, password_hash, hash_type)
   local msrpc = require "msrpc" -- avoid require cycle
-  local status, smbstate, err, result, fqpn_share
   local overrides = get_overrides(username, domain, password, password_hash, hash_type)
 
   stdnse.debug1("SMB: Checking if %s is an administrator", username)
 
-  status, smbstate = start(host)
+  local status, smbstate = start(host)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to start SMB: %s [%s]", smbstate, username)
     stop(smbstate)
     return false
   end
 
-  status, err      = negotiate_protocol(smbstate, overrides)
+  local status, err      = negotiate_protocol(smbstate, overrides)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to negotiate protocol: %s [%s]", err, username)
     stop(smbstate)
@@ -3536,8 +3537,8 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
     stop(smbstate)
     return false
   end
-  
-  _, fqpn_share = get_fqpn(host, "IPC$")
+
+  local _, fqpn_share = get_fqpn(host, "IPC$")
   status, err      = tree_connect(smbstate, fqpn_share, overrides)
   if(status == false) then
     stdnse.debug1("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
@@ -4296,10 +4297,10 @@ namedpipes =
       self.name = namedpipes.make_pipe_name( self._host.ip, self._pipeSubPath )
 
       stdnse.debug2("%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
-      local status, result, errorMessage, fqpn_share
+      local errorMessage
       local bool_negotiate_protocol, bool_start_session, bool_disable_extended = true, true, false
-      _, fqpn_share = get_fqpn(host, "IPC$")
-      status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
+      local _, fqpn_share = get_fqpn(host, "IPC$")
+      local status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
         fqpn_share, self._pipeSubPath, bool_disable_extended, self._overrides )
 
       if status then
