@@ -284,10 +284,8 @@ function negotiate_v2(smb, overrides)
   -- NegotiateContextOffset, NegotiateContextCount, and Reserved2
   if is_0311 then
     total_data = #header + #data + (DialectCount*2)
-    while ((total_data)%8 ~= 0) do
-        total_data = total_data + 1
-        padding_data = padding_data .. string.pack("<c1", 0x0)
-    end -- while to create 8 byte aligned padding
+    padding_data = string.rep("\0", (8 - total_data % 8) % 8)
+    total_data = total_data + #padding_data
     data = data .. string.pack("<I4 I2 I2", 
                     total_data+8,   -- NegotiateContextOffset (4 bytes)
                     0x2,            -- NegotiateContextCount (2 bytes) 
@@ -320,21 +318,16 @@ function negotiate_v2(smb, overrides)
                     0x0002,   -- Ciphers (2 bytes each): AES-128-GCM
                     0x0001    -- Ciphers (2 bytes each): AES-128-CCM
                   )
-    data = data .. string.pack("<I2 I2 I4 c" .. #context_data, 
+    data = data .. string.pack("<I2 I2 I4", 
                     smb2_values['SMB2_ENCRYPTION_CAPABILITIES'],-- ContextType (2 bytes)
                     #context_data,                              -- DataLength (2 bytes)
-                    0x0,                                        -- Reserved (4 bytes)
-                    context_data                                -- Data (SMB2_ENCRYPTION_CAPABILITIES)
-                  )
+                    0x0                                         -- Reserved (4 bytes)
+                  ) .. context_data                             -- Data (SMB2_ENCRYPTION_CAPABILITIES)
 
     -- We now add SMB2_PREAUTH_INTEGRITY_CAPABILITIES
     -- We add the padding between contexts so they are 8 byte aligned
-    total_data = #header+#data
-    padding_data = ""
-    while((total_data)%8 ~= 0) do
-      padding_data = padding_data .. string.pack("<c1", 0x0)
-      total_data = total_data + 1
-    end
+    total_data = #header + #data
+    padding_data = string.rep("\0", (8 - total_data % 8) % 8)
     data = data .. padding_data
     context_data = context_data .. string.pack("<I2 I2 I2 I16 I16",
                                     0x1,  -- HashAlgorithmCount (2 bytes)
@@ -343,12 +336,11 @@ function negotiate_v2(smb, overrides)
                                     0x0,      -- Salt
                                     0x1       -- Salt
     )
-    data = data .. string.pack("<I2 I2 I4 c" .. #context_data,
+    data = data .. string.pack("<I2 I2 I4",
                     smb2_values['SMB2_PREAUTH_INTEGRITY_CAPABILITIES'], -- ContextType (2 bytes)
                     #context_data,                                      -- DataLength (2 bytes)
-                    0x0,                                                -- Reserved (4 bytes)
-                    context_data                                        -- Data (variable)
-    )
+                    0x0                                                -- Reserved (4 bytes)
+    ) .. context_data
      
   end
   
