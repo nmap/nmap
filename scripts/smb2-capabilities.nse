@@ -65,36 +65,37 @@ action = function(host,port)
     -- we need a clean connection for each negotiate request
     status, smbstate = smb.start(host)
     if(status == false) then
-      return false, smbstate
+      stdnse.debug1("Could not establish a connection.")
+      return nil
     end
     -- We set our overrides Dialects table with the dialect we are testing
     overrides['Dialects'] = {dialect}
-    status, _ = smb2.negotiate_v2(smbstate, overrides)
+    status = smb2.negotiate_v2(smbstate, overrides)
     if status then
       local capabilities = {}
       stdnse.debug2("SMB2: Server capabilities: '%s'", smbstate['capabilities'])
 
       -- We check the capabilities flags. Not all of them are supported by
       -- every dialect but we dumb check anyway.
-      if ( bit.band(smbstate['capabilities'], 0x00000001) == 0x00000001) then
+      if smbstate['capabilities'] & 0x01 == 0x01 then
         table.insert(capabilities, "Distributed File System")
       end
-      if ( bit.band(smbstate['capabilities'], 0x00000002) == 0x00000002) then
+      if smbstate['capabilities'] & 0x02 == 0x02 then
         table.insert(capabilities, "Leasing")
       end
-      if ( bit.band(smbstate['capabilities'], 0x00000004) == 0x00000004) then
+      if smbstate['capabilities'] & 0x04 == 0x04 then
          table.insert(capabilities, "Multi-credit operations")
       end
-      if ( bit.band(smbstate['capabilities'], 0x00000008) == 0x00000008) then
+      if smbstate['capabilities'] & 0x08 == 0x08 then
          table.insert(capabilities, "Multiple Channel support")
       end
-      if ( bit.band(smbstate['capabilities'], 0x00000010) == 0x00000010) then
+      if smbstate['capabilities'] & 0x10 == 0x10 then
          table.insert(capabilities, "Persistent handles")
       end
-      if ( bit.band(smbstate['capabilities'], 0x00000020) == 0x00000020) then
+      if smbstate['capabilities'] & 0x20 == 0x20 then
          table.insert(capabilities, "Directory Leasing")
       end
-      if ( bit.band(smbstate['capabilities'], 0x00000040) == 0x00000040) then
+      if smbstate['capabilities'] & 0x40 == 0x40 then
         table.insert(capabilities, "Encryption")
       end
       if #capabilities<1 then
