@@ -245,7 +245,12 @@ end
 function negotiate_v2(smb, overrides)
   local header, parameters, data
   local StructureSize = 36 -- Must be set to 36.
-  local DialectCount = #overrides['Dialects'] or 1
+  local DialectCount
+  if overrides['Dialects'] then
+    DialectCount = #overrides['Dialects']
+  else
+    DialectCount = 1
+  end
   -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set, 
   -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set. 
   -- The server MUST ignore this bit.
