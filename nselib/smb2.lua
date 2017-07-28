@@ -7,12 +7,6 @@
 --  get updated. I tried to be consistent with the current implementation of
 --  smb.lua but some fields may have changed name or don't exist anymore.
 --
--- TODO:
--- * Add smb2 support for current smb scripts 
--- * MSRPC over SMB2/SMB3
--- * Implement ASYNC SMB header
--- * Implement message signing and encryption
---
 -- @author Paulino Calderon <paulino@calderonpale.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html  
 ---
@@ -23,8 +17,6 @@ local netbios = require "netbios"
 local nmap = require "nmap"
 local table = require "table"
 local match = require "match"
-local bit = require "bit"
-local nsedebug = require "nsedebug"
 local math = require "math"
 local os = require "os"
 
@@ -128,8 +120,8 @@ end
 -- @param header     The header encoded with <code>smb_encode_sync_header</code>.
 -- @param data       The data.
 -- @param overrides  Overrides table.
--- @return (result, err) If result is false, err is the error message. Otherwise, err is
---        undefined
+-- @return Boolean Status.
+-- @return An error message if status is false.
 ---
 function smb2_send(smb, header, data, overrides)
   overrides = overrides or {}
@@ -194,8 +186,7 @@ function smb2_read(smb, read_data)
     return false, "SMB2: ERROR:Server returned less data than it was supposed to"
   end
   -- Make the length 24 bits
-  netbios_length = bit.band(netbios_length, 0x00FFFFFF)
-
+  netbios_length = netbios_length & 0x00FFFFFF
   -- The total length is the netbios_length, plus 4 (for the length itself)
   length = netbios_length + 4
 
@@ -377,7 +368,7 @@ function negotiate_v2(smb, overrides)
   if status ~= 0 then
     stdnse.debug2("SMB2_COM_NEGOTIATE command failed: Dialect not supported.")
     return false, "SMB2: Dialect is not supported. Exiting."
-  end
+  end 
 
   local data_structure_size, security_mode, negotiate_context_count
   data_structure_size, smb['security_mode'], smb['dialect'], 
@@ -407,224 +398,13 @@ function negotiate_v2(smb, overrides)
   smb['start_time'] = (smb['start_time'] // 10000000) - 11644473600
   smb['start_date'] = os.date("%Y-%m-%d %H:%M:%S", smb['start_time'])
 
+  local security_buffer_offset, security_buffer_length, neg_context_offset
+  security_buffer_offset, security_buffer_length, neg_context_offset = string.unpack("<I2 I2 I4", data)
   if status == 0 then
     return true, overrides['Dialects']
   else
     return false, string.format("Status error code:%s",status)
   end
-end
-
-function start_session(smb, log_errors, overrides)
-  local header, data
-    -- Make sure we have overrides
-  overrides = overrides or {}
-  local StructureSize = 25
-  local Flags = 0x00
-  local SecurityMode = 0x01
-  local Capabilities = overrides["Capabilities"] or 0
-  local Channel = 0
-  local SecurityBufferOffset = 0x58
-  local PreviousSessionId = 0
-
-  -- Set a default status_name, in case everything fails
-  local status_name = "An unknown error has occurred"
-
-  local username, domain, password, password_hash, hash_type
-  local result
-  -- Get the first account, unless they overrode it
-  if(overrides ~= nil and overrides['username'] ~= nil) then
-    result = true
-    username      = overrides['username']
-    domain        = overrides['domain']
-    password      = overrides['password']
-    password_hash = overrides['password_hash']
-    hash_type     = overrides['hash_type']
-  else
-    result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
-    stdnse.debug1("password_hash: %s; hash_type: %s", password_hash, hash_type)
-    if(not(result)) then
-      return result, username
-    end
-  end
-
-  -- check what kind of security blob we were given in the negotiate protocol request
-  local sp_nego = false
-  if ( smb['SecurityBlob'] and #smb['SecurityBlob'] > 11 ) then
-    local pos, oid = bin.unpack(">A6", smb['SecurityBlob'], 5)
-    sp_nego = ( oid == "\x2b\x06\x01\x05\x05\x02" ) -- check for SPNEGO OID 1.3.6.1.5.5.2
-  end
-
-  while result ~= false do
-    -- These are loop variables
-    local security_blob = nil
-    local security_blob_length = 0
-
-    repeat
-      -- Get the new security blob, passing the old security blob as a parameter. If there was no previous security blob, then nil is passed, which creates a new one
-      if ( not(security_blob) ) then
-        status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
-        if ( sp_nego ) then
-          local enc = asn1.ASN1Encoder:new()
-          local mechtype = enc:encode( { type = 'A0', value = enc:encode( { type = '30', value = enc:encode( { type = '06', value = bin.pack("H", "2b06010401823702020a") } ) } ) } )
-          local oid = enc:encode( { type = '06', value = bin.pack("H", "2b0601050502") } )
-
-          security_blob = enc:encode(security_blob)
-          security_blob = enc:encode( { type = 'A2', value = security_blob } )
-          security_blob = mechtype .. security_blob
-          security_blob = enc:encode( { type = '30', value = security_blob } )
-          security_blob = enc:encode( { type = 'A0', value = security_blob } )
-          security_blob = oid .. security_blob
-          security_blob = enc:encode( { type = '60', value = security_blob } )
-        end
-      else
-        if ( sp_nego ) then
-          if ( smb['domain'] or smb['server'] and ( not(domain) or #domain == 0 ) ) then
-            domain = smb['domain'] or smb['server']
-          end
-          hash_type = "ntlm"
-        end
-        status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
-        if ( sp_nego ) then
-          local enc = asn1.ASN1Encoder:new()
-          security_blob = enc:encode(security_blob)
-          security_blob = enc:encode( { type = 'A2', value = security_blob } )
-          security_blob = enc:encode( { type = '30', value = security_blob } )
-          security_blob = enc:encode( { type = 'A1', value = security_blob } )
-        end
-      end
-
-      -- There was an error processing the security blob
-      if(status == false) then
-        return false, string.format("SMB: ERROR: Security blob: %s", security_blob)
-      end
-
-      local data = bin.pack("<SCCIISSL", 
-                            StructureSize,  --2 bytes
-                            Flags,   --1 bytes
-                            SecurityMode,   --1 bytes
-                            Capabilities,       --4 bytes
-                            Channel,   --4 bytes
-                            SecurityBufferOffset,          --2 bytes
-                            #security_blob,          --2 bytes
-                            PreviousSessionId  --8 bytes
-                            )
-
-      header     = smb_encode_header_sync(smb, command_codes['SMB2_COM_SESSION_SETUP'], overrides)
-
-      -- Data is a list of strings, terminated by a blank one.
-      data = data .. bin.pack("<A",
-        security_blob         -- Security blob
-        )
-      -- Send the session setup request
-      stdnse.debug2("SMB: Sending SMB2_COM_SESSION_SETUP")
-      result, err = smb2_send(smb, header, data, overrides)
-      if(result == false) then
-        return false, err
-      end
-
-      -- Read the result
-      status, header, data = smb2_read(smb)
-      if(status ~= true) then
-        return false, header
-      end
-
-      -- Parse out the header
-      pos, header1, header2, header3, header4, h_StructureSize, CreditCharge, Status, Command, CreditR, h_Flags, NextCommand, MessageId, Reserved, TreeId, smb['SessionId'], Signature1, Signature2 = bin.unpack("<CCCCSSISSIILIILLL", header)
-      if(header1 == nil) then
-        return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [17]"
-      end
-
-      -- Get a human readable name
-      status_name = get_status_name(Status)
-
-      -- Only parse the parameters if it's ok or if we're going to keep going
-      if(status_name == "NT_STATUS_SUCCESS" or status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
-        -- Parse the parameters
-        local s_StructureSize, s_SessionFlags, s_SecurityBufferOffset, s_SecurityBufferLength
-        pos, s_StructureSize, s_SessionFlags, s_SecurityBufferOffset, s_SecurityBufferLength = bin.unpack("<SSSS", data)
-        if(s_SecurityBufferLength == nil) then
-          return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [18]"
-        end
-        smb['is_guest']   = bit.band(s_SessionFlags, 1)
-
-        -- Parse the data
-        pos, security_blob = bin.unpack(string.format("<A%d", s_SecurityBufferLength), data, pos)
-
-        if ( status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED" and sp_nego ) then
-          local start = security_blob:find("NTLMSSP")
-          security_blob = security_blob:sub(start)
-        end
-
-        if(security_blob == nil) then
-          return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
-        end
-        if(status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
-          local host_info = smbauth.get_host_info_from_security_blob(security_blob)
-          if ( host_info ) then
-            smb['fqdn'] = host_info['fqdn']
-            smb['domain_dns'] = host_info['dns_domain_name']
-            smb['forest_dns'] = host_info['dns_forest_name']
-            smb['server'] = host_info['netbios_computer_name']
-            smb['domain'] = host_info['netbios_domain_name']
-          end
-        end
-
-        -- If it's ok, do a cleanup and return true
-        if(status_name == "NT_STATUS_SUCCESS") then
-          -- Check if they were logged in as a guest
-          if(log_errors == nil or log_errors == true) then
-            if(smb['is_guest'] == 1) then
-              stdnse.debug1("SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username))
-            else
-              stdnse.debug2("SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username))
-            end
-          end
-
-          -- Set the initial sequence number
-          smb['sequence'] = 1
-
-          return true
-        end -- Status is ok
-      end -- Should we parse the parameters/data?
-    until status_name ~= "NT_STATUS_MORE_PROCESSING_REQUIRED"
-
-    -- Check if we got the error NT_STATUS_REQUEST_NOT_ACCEPTED
-    if(status == 0xc00000d0) then
-      busy_count = busy_count + 1
-
-      if(busy_count > 9) then
-        return false, "SMB: ERROR: Server has too many active connections; giving up."
-      end
-
-      local backoff = math.random() * 10
-      stdnse.debug1("SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
-      stdnse.sleep(backoff)
-    else
-      -- Display a message to the user, and try the next account
-      if(log_errors == nil or log_errors == true) then
-        stdnse.debug1("SMB: Extended login to %s as %s\\%s failed (%s)", smb['ip'], domain, stdnse.string_or_blank(username), status_name)
-      end
-
-      --Go to the next account
-      if(overrides == nil or overrides['username'] == nil) then
-        smbauth.next_account(smb['host'])
-        result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
-        if(not(result)) then
-          return false, username
-        end
-      else
-        result = false
-      end
-      result = false
-    end
-
-  end -- Loop over the accounts
-
-  if(log_errors == nil or log_errors == true) then
-    stdnse.debug1("SMB: ERROR: All logins failed, sorry it didn't work out!")
-  end
-
-  return false, status_name
 end
 
 return _ENV;
