@@ -415,6 +415,7 @@ end
 
 local function in_chunks(t, size)
   size = math.floor(size)
+  if size < 1 then size = 1 end
   local ret = {}
   for i = 1, #t, size do
     local chunk = {}
@@ -787,7 +788,7 @@ local function get_chunk_size(host, protocol)
   local cipher_len_remaining = 255 - #tls.client_hello(len_t)
   -- if we're over 255 anyway, just go for it.
   -- Each cipher adds 2 bytes
-  local max_chunks = cipher_len_remaining > 0 and cipher_len_remaining / 2 or CHUNK_SIZE
+  local max_chunks = cipher_len_remaining > 1 and cipher_len_remaining // 2 or CHUNK_SIZE
   -- otherwise, use the min
   return max_chunks < CHUNK_SIZE and max_chunks or CHUNK_SIZE
 end
