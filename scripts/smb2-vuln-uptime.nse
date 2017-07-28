@@ -7,7 +7,7 @@ local table = require "table"
 
 description = [[
 Attempts to detect missing patches in Windows systems by checking the
-uptime returned during the SMB2 protocol negotiation. 
+uptime returned during the SMB2 protocol negotiation.
 
 SMB2 protocol negotiation response returns the system boot time
  pre-authentication. This information can be used to determine
@@ -17,7 +17,7 @@ Remember that a rebooted system may still be vulnerable. This check
 only reveals unpatched systems based on the uptime, no additional probes are sent.
 
 References:
-* https://twitter.com/breakersall/status/880496571581857793 
+* https://twitter.com/breakersall/status/880496571581857793
 ]]
 
 ---
@@ -25,14 +25,14 @@ References:
 -- @usage nmap -p445 --script smb2-vuln-uptime --script-args smb2-vuln-uptime.skip-os=true <target>
 --
 -- @output
--- | smb2-vuln-uptime: 
+-- | smb2-vuln-uptime:
 -- |   VULNERABLE:
 -- |   MS17-010: Security update for Windows SMB Server
 -- |     State: LIKELY VULNERABLE
 -- |     IDs:  ms:ms17-010  CVE:2017-0147
 -- |       This system is missing a security update that resolves vulnerabilities in
 -- |        Microsoft Windows SMB Server.
--- |       
+-- |
 -- |     References:
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=2017-0147
 -- |_      https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
@@ -111,7 +111,7 @@ local function check_vulns(host, port)
   overrides = {}
   overrides['Dialects'] = {0x0202}
   status, smbstate = smb.start(host)
-  status, _ = smb2.negotiate_v2(smbstate, overrides)
+  status = smb2.negotiate_v2(smbstate, overrides)
 
   if status then
     stdnse.debug2("SMB2: Date: %s (%s) Start date:%s (%s)",
@@ -119,7 +119,7 @@ local function check_vulns(host, port)
             smbstate['start_date'], smbstate['start_time'])
 
     for _, vuln in pairs(ms_vulns) do
-      if smbstate['start_time'] < vuln['disclosure_time'] then 
+      if smbstate['start_time'] < vuln['disclosure_time'] then
         stdnse.debug2("Vulnerability detected")
         vuln.extra_info = string.format("The system hasn't been rebooted since %s", smbstate['start_date'])
         table.insert(vulns_detected, vuln)
