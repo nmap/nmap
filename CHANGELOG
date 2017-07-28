@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#943] Added new SMB2/3 library and scripts:
+  + smb-protocols discovers if a server supports dialects
+    NT LM 0.12 (SMBv1), 2.02, 2.10, 3.00, 3.02 and 3.11.
+  + smb2-time determines the current date and boot date of SMB2 servers.
+  + smb2-capabilities lists the supported capabilities of SMB2/SMB3 servers.
+  + smb2-security-mode determines the message signing configuration of
+    SMB2/SMB3 servers.
+  + smb2-vuln-uptime attempts to discover missing critical
+    patches in Microsoft Windows systems based on the SMB2
+    server uptime. [Paulino Calderon]
+
 o [NSE][GH#950] Added wildcard detection to dns-brute. Only hostnames that
   resolve to unique addresses will be listed. [Aaron Heesakkers]
 

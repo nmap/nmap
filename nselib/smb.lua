@@ -136,6 +136,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
+local smb2 = require "smb2"
 _ENV = stdnse.module("smb", stdnse.seeall)
 
 -- These arrays are filled in with constants at the bottom of this file
@@ -942,69 +943,52 @@ function smb_read(smb, read_data)
   return true, header, parameters, data
 end
 
---- Sends out <code>SMB_COM_NEGOTIATE</code>, which is typically the first SMB packet sent out.
---
+---
+-- Negotiates SMBv1 connections
+-- 
 -- Sends the following:
 -- * List of known protocols
 --
--- Receives:
--- * The preferred dialect
--- * The security mode
--- * Max number of multiplexed connections, virtual circuits, and buffer sizes
--- * The server's system time and timezone
--- * The "encryption key" (aka, the server challenge)
--- * The capabilities
--- * The server and domain names
+-- This function adds to <code>smb</code>:
+-- * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
+-- * 'max_mpx'          Maximum number of multiplexed connections
+-- * 'max_vc'           Maximum number of virtual circuits
+-- * 'max_buffer'       Maximum buffer size
+-- * 'max_raw_buffer'   Maximum buffer size for raw connections (considered obsolete)
+-- * 'session_key'      A value that's basically just echoed back
+-- * 'capabilities'     The server's capabilities
+-- * 'time'             The server's time (in UNIX-style seconds since 1970)
+-- * 'date'             The server's date in a user-readable format
+-- * 'timezone'         The server's timezone, in hours from UTC
+-- * 'timezone_str'     The server's timezone, as a string
+-- * 'server_challenge' A random string used for challenge/response
+-- * 'domain'           The server's primary domain or workgroup
+-- * 'server'           The server's name
 --
---@param smb       The SMB object associated with the connection
---@param overrides [optional] Overrides for various fields
---@return (status, result) If status is false, result is an error message. Otherwise, result is
---        nil and the following elements are added to <code>smb</code>:
---      * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
---      * 'max_mpx'          Maximum number of multiplexed connections
---      * 'max_vc'           Maximum number of virtual circuits
---      * 'max_buffer'       Maximum buffer size
---      * 'max_raw_buffer'   Maximum buffer size for raw connections (considered obsolete)
---      * 'session_key'      A value that's basically just echoed back
---      * 'capabilities'     The server's capabilities
---      * 'time'             The server's time (in UNIX-style seconds since 1970)
---      * 'date'             The server's date in a user-readable format
---      * 'timezone'         The server's timezone, in hours from UTC
---      * 'timezone_str'     The server's timezone, as a string
---      * 'server_challenge' A random string used for challenge/response
---      * 'domain'           The server's primary domain or workgroup
---      * 'server'           The server's name
-function negotiate_protocol(smb, overrides)
+-- @param smb The SMB object associated with the connection.
+-- @param overrides Overrides table.
+-- @return Boolean status
+-- @return The negotiated dialect in human readable form or an error message.
+---
+function negotiate_v1(smb, overrides)
   local header, parameters, data
-  local pos
-  local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
+  local result, err
+  local pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, uid, tid, mid
 
-  header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
-
+  header = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
   -- Make sure we have overrides
   overrides = overrides or {}
 
   -- Parameters are blank
   parameters = ""
-
-  -- Data is a list of strings, terminated by a blank one.
-  if(overrides['dialects'] == nil) then
-    data       = bin.pack("<CzCz", 2, (overrides['dialect'] or "NT LM 0.12"), 2, "")
-  else
-    data = ""
-    for _, v in ipairs(overrides['dialects']) do
-      data = data .. bin.pack("<Cz", 2, v)
-    end
-    data = data .. bin.pack("Cz", 2, "")
-  end
+  data = bin.pack("<CzCz", 2, (overrides['dialect'] or "NT LM 0.12"), 2, "")
 
   -- Send the negotiate request
   stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
-  local result, err = smb_send(smb, header, parameters, data, overrides)
+  result, err = smb_send(smb, header, parameters, data, overrides)
   if(status == false) then
     return false, err
   end
-
   -- Read the result
   status, header, parameters, data = smb_read(smb)
   if(status ~= true) then
@@ -1012,7 +996,6 @@ function negotiate_protocol(smb, overrides)
   end
 
   -- Parse out the header
-  local uid, tid
   pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
   -- Get the protocol version
@@ -1043,6 +1026,7 @@ function negotiate_protocol(smb, overrides)
   end
   -- Check if the server didn't like our requested protocol
   if(smb['dialect'] ~= 0) then
+    stdnse.debug2("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
     return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
   end
 
@@ -1118,9 +1102,80 @@ function negotiate_protocol(smb, overrides)
     end
   end
 
-  return true
+  stdnse.debug2("SMB_COM_NEGOTIATE got status:%s", status)
+  if status == 0 then
+    return true, overrides['dialect'] or "NT LM 0.12"
+  end
 end
 
+---
+-- Wrapper function to negotiate the protocol to use in the SMB connection.
+-- By default it attempts to negotiate with using following dialects:
+-- * NT LM 12.0 (SMBv1)
+-- @param smb The SMB object
+-- @param overrides Overrides table
+-- @return Boolean status
+---
+function negotiate_protocol(smb, overrides)
+  local status, dialect
+  status, dialect = negotiate_v1(smb, overrides)
+  if status then
+    return true
+  else 
+    stdnse.debug1("Couldn't negotiate a SMBv1 connection:%s", dialect)
+    return false, string.format("Could not negotiate a connection:%s", dialect)
+  end
+end
+
+---
+-- Returns list of supported dialects for SMBv1, SMBv2 and SMBv3.
+-- @param host       The SMB host to connect to.
+-- @param overrides [optional] Overrides for various fields.
+-- @return Boolean status
+-- @return Table of supported dialects or error message
+---
+function list_dialects(host, overrides)
+  local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
+  local supported_dialects = {}
+  local status, smb1_dialects 
+  local smbstate
+
+  -- Check for SMBv1 first
+  stdnse.debug2("Checking if SMBv1 is supported")
+  status, smbstate = start(host)
+  if(status == false) then
+    return false, smbstate
+  end
+  
+  status, smb1_dialects = negotiate_v1(smbstate, overrides)
+  if status then --Add SMBv1 as a dialect
+    table.insert(supported_dialects, smb1_dialects)
+  end
+  stop(smbstate)
+  status = false -- Finish SMBv1 and close connection
+
+  -- Check SMB2 and SMB3 dialects
+  for i, dialect in pairs(smb2_dialects) do
+    local dialect_human = stdnse.tohex(dialect, {separator = ".", group = 2})
+    -- we need a clean connection for each negotiate request
+    status, smbstate = start(host)
+    if(status == false) then
+      return false, smbstate
+    end
+    stdnse.debug2("Checking if dialect '%s' is supported", dialect_human)
+    overrides['Dialects'] = {dialect}
+    status, dialect = smb2.negotiate_v2(smbstate, overrides)
+    if status then
+      stdnse.debug2("SMB2: Dialect '%s' is supported", dialect_human)
+      table.insert(supported_dialects, dialect_human)
+    end
+    --clean smb connection
+    stop(smbstate)
+    status = false
+  end 
+
+  return true, supported_dialects
+end
 
 --- This is an internal function and should not be called externally. Use
 --  the start_session() function instead.

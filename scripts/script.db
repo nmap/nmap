@@ -463,6 +463,7 @@ Entry { filename = "smb-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb-mbenum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb-os-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb-print-text.nse", categories = { "intrusive", } }
+Entry { filename = "smb-protocols.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb-psexec.nse", categories = { "intrusive", } }
 Entry { filename = "smb-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusive", } }
@@ -477,6 +478,10 @@ Entry { filename = "smb-vuln-ms10-054.nse", categories = { "dos", "intrusive", "
 Entry { filename = "smb-vuln-ms10-061.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "smb-vuln-ms17-010.nse", categories = { "safe", "vuln", } }
 Entry { filename = "smb-vuln-regsvc-dos.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
+Entry { filename = "smb2-capabilities.nse", categories = { "discovery", "safe", } }
+Entry { filename = "smb2-security-mode.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "smb2-time.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "smb2-vuln-uptime.nse", categories = { "safe", "vuln", } }
 Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
 Entry { filename = "smtp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
