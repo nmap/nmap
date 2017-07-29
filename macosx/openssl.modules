@@ -22,7 +22,7 @@
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
         makeinstallargs="INSTALL_PREFIX='$(DESTDIR)' install_sw" 
         supports-non-srcdir-builds="no">
-        <branch repo="openssl" version="1.0.2h" module="openssl-1.0.2h.tar.gz"/>
+        <branch repo="openssl" version="1.0.2l" module="openssl-1.0.2l.tar.gz"/>
     </autotools>
 
     <distutils id="scons">
