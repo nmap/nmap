@@ -71,7 +71,7 @@
  *  OpenSSL. To see exactly what ciphers are enabled, use the command
  *   openssl ciphers -v '...'
  * where ... is the string below. */
-#define CIPHERS_SECURE "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"
+#define CIPHERS_SECURE "ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH"
 
 /* This list of ciphers is for speed and compatibility, not security. Any cipher
  *  is accepted, and the list is sorted by speed based on Brian Hatch's

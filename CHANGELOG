@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated the default ciphers list for Ncat and the secure ciphers list for
+  Nsock to use "!aNULL:!eNULL" instead of "!ADH". With the addition of ECDH
+  ciphersuites, anonymous ECDH suites were being allowed. [Daniel Miller]
+
 o [NSE][GH#930] Fix ndmp-version and ndmp-fs-info when scanning Veritas Backup
   Exec Agent 15 or 16. [Andrew Orr]
 
