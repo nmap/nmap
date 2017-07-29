@@ -95,6 +95,12 @@ sub ncat_server {
 	return @ret;
 }
 
+sub ncat_server_noport {
+	my @ret = ncat("--test", "-l", @_);
+	wait_listen($ret[3]);
+	return @ret;
+}
+
 sub host_for_args {
 	if (grep(/^-[^-]*6/, @_)) {
 		return "::1";
@@ -453,94 +459,113 @@ $SIG{CHLD} = "IGNORE";
 # Individual tests begin here.
 
 # Test server with no hostname or port.
-($s_pid, $s_out, $s_in) = ncat("-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport();
 test "Server default listen address and port",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out);
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", "::1");
-	syswrite($c_in2, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-4", "-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport();
+test "Server default listen address and port",
+sub {
+	my $resp;
+
+	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", "::1");
+	syswrite($c_in2, "abc\n");
+	close $c_in2;
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4");
 test "Server -4 default listen address and port",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-6", "-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6");
 test "Server -6 default listen address and port",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("-6", $IPV6_ADDR);
 	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out);
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-};
-kill_children;
-
-# Test server with no hostname.
-($s_pid, $s_out, $s_in) = ncat("-l", $HOST);
-test "Server default port",
-sub {
-	my $resp;
-
-	my ($c_pid, $c_out, $c_in) = ncat($HOST);
-	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
 # Test server with no port.
-($s_pid, $s_out, $s_in) = ncat("-l", $PORT);
+($s_pid, $s_out, $s_in) = ncat_server_noport("-l", $HOST);
+test "Server default port",
+sub {
+	my $resp;
+
+	my ($c_pid, $c_out, $c_in) = ncat($HOST);
+	syswrite($c_in, "abc\n");
+	close $c_in;
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+};
+kill_children;
+
+# Test server with no address.
+($s_pid, $s_out, $s_in) = ncat_server();
 test "Server default listen address",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT);
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
+{
+  # Expected to fail because we can't detect connection failure for IPv6 and retry IPv4
+  local $xfail=1;
 # Test server with UDP.
-($s_pid, $s_out, $s_in) = ncat("-l", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp", "-4");
 test "Server default listen address --udp IPV4",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
 
 };
 kill_children;
+}
 
-($s_pid, $s_out, $s_in) = ncat("-l", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp", "-6");
 test "Server default listen address --udp IPV6",
 sub {
 	my $resp;
 
-	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
+	my ($c_pid1, $c_out1, $c_in1) = ncat("localhost", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
@@ -548,76 +573,104 @@ kill_children;
 
 {
 local $xfail = 1;
-($s_pid, $s_out, $s_in) = ncat("-l", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp");
 test "Server default listen address --udp IPV4 + IPV6",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("--udp");
+test "Server default listen address --udp IPV4 + IPV6",
+sub {
+  my $resp;
 
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
 };
 
-($s_pid, $s_out, $s_in) = ncat("-l", "-6", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6", "--udp");
 test "Server default listen address -6 --udp",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\", not \"\" from 127.0.0.1";
+};
+kill_children;
 
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6", "--udp");
+test "Server default listen address -6 --udp",
+sub {
+  my $resp;
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-l", "-4", "--udp");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4", "--udp");
 test "Server default listen address -4 --udp",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from 127.0.0.1";
+};
+kill_children;
+
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4", "--udp");
+test "Server default listen address -4 --udp",
+sub {
+	my $resp;
 
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
+	close $c_in1;
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\", not \"\" from ::1";
 };
 kill_children;
 
-($s_pid, $s_out, $s_in) = ncat("-4", "-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-4");
 test "Connect fallback with IPv4 server",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("localhost");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 
-($s_pid, $s_out, $s_in) = ncat("-6", "-lk");
+($s_pid, $s_out, $s_in) = ncat_server_noport("-6");
 test "Connect fallback with IPv6 server",
 sub {
 	my $resp;
 
 	my ($c_pid, $c_out, $c_in) = ncat("localhost");
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
@@ -626,14 +679,14 @@ kill_children;
 # Test UNIX domain sockets listening
 {
 local $xfail = 1 if !$HAVE_UNIXSOCK;
-($s_pid, $s_out, $s_in) = ncat("-l", "-U", $UNIXSOCK);
+($s_pid, $s_out, $s_in) = ncat_server_noport("-U", $UNIXSOCK);
 test "Server UNIX socket listen on $UNIXSOCK (STREAM)",
 sub {
 	my $resp;
 
-	unlink($UNIXSOCK);
 	my ($c_pid, $c_out, $c_in) = ncat("-U", $UNIXSOCK);
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
 };
@@ -643,14 +696,14 @@ unlink($UNIXSOCK);
 
 {
 local $xfail = 1 if !$HAVE_UNIXSOCK;
-($s_pid, $s_out, $s_in) = ncat("-l", "-U", "--udp", $UNIXSOCK);
+($s_pid, $s_out, $s_in) = ncat_server_noport("-U", "--udp", $UNIXSOCK);
 test "Server UNIX socket listen on $UNIXSOCK --udp (DGRAM)",
 sub {
 	my $resp;
 
-	unlink($UNIXSOCK);
 	my ($c_pid, $c_out, $c_in) = ncat("-U", "--udp", $UNIXSOCK);
 	syswrite($c_in, "abc\n");
+	close $c_in;
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
 };
@@ -741,11 +794,11 @@ sub {
 	local $SIG{CHLD} = sub { };
 	local *SOCK;
 
-	my ($s_pid, $s_out, $s_in) = ncat_server();
+	my ($s_pid, $s_out, $s_in) = ncat_server("-4");
 
 	socket(SOCK, PF_INET, SOCK_STREAM, getprotobyname("tcp")) or die;
 	my $addr = gethostbyname($HOST);
-	connect(SOCK, sockaddr_in($PORT, $addr)) or die;
+	connect(SOCK, sockaddr_in($PORT, $addr)) or die $!;
 	# Shut down the socket with a RST.
 	setsockopt(SOCK, SOL_SOCKET, SO_LINGER, pack("II", 1, 0)) or die;
 	close(SOCK) or die;
