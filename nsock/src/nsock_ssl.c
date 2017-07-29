@@ -80,8 +80,7 @@
 
 extern struct timeval nsock_tod;
 
-/* Create an SSL_CTX and do initialization that is common to all init modes. */
-static SSL_CTX *ssl_init_common() {
+static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
   SSL_CTX *ctx;
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
@@ -89,7 +88,7 @@ static SSL_CTX *ssl_init_common() {
   SSL_library_init();
 #endif
 
-  ctx = SSL_CTX_new(SSLv23_client_method());
+  ctx = SSL_CTX_new(method);
   if (!ctx) {
     fatal("OpenSSL failed to create a new SSL_CTX: %s",
           ERR_error_string(ERR_get_error(), NULL));
@@ -105,17 +104,18 @@ static SSL_CTX *ssl_init_common() {
   return ctx;
 }
 
+/* Create an SSL_CTX and do initialization that is common to all init modes. */
+static SSL_CTX *ssl_init_common() {
+  return ssl_init_helper(SSLv23_client_method());
+}
+
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
  * SSL_CTX, which is like a template that sets options for all connections that
  * are made from it. The connections made from this context will use only secure
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
-nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
-  struct npool *ms = (struct npool *)ms_pool;
+static nsock_ssl_ctx nsock_pool_ssl_init_helper(struct npool *ms, int flags) {
   char rndbuf[128];
-
-  if (ms->sslctx == NULL)
-    ms->sslctx = ssl_init_common();
 
   /* Get_random_bytes may or may not provide high-quality randomness. Add it to
    * the entropy pool without increasing the entropy estimate (third argument of
@@ -145,6 +145,49 @@ nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
 
   return ms->sslctx;
 }
+
+nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
+  struct npool *ms = (struct npool *)ms_pool;
+
+  if (ms->sslctx == NULL)
+    ms->sslctx = ssl_init_common();
+  return nsock_pool_ssl_init_helper(ms, flags);
+}
+
+#ifdef HAVE_DTLS_CLIENT_METHOD
+
+/* Create an SSL_CTX and do initialisation, creating a DTLS client */
+static SSL_CTX *dtls_init_common() {
+  return ssl_init_helper(DTLS_client_method());
+}
+
+/* Initializes an Nsock pool to create DTLS connections. Very much similar to
+ * nsock_pool_ssl_init, just with DTLS. */
+nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
+  SSL_CTX *dtls_ctx = NULL;
+  struct npool *ms = (struct npool *)ms_pool;
+
+  if (ms->sslctx == NULL)
+    ms->sslctx = dtls_init_common();
+  dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms, flags);
+
+  /* Don't add padding or the ClientHello will fragment and not connect properly. */
+  SSL_CTX_clear_options(dtls_ctx, SSL_OP_TLSEXT_PADDING);
+
+  if (!SSL_CTX_set_cipher_list(dtls_ctx, "DEFAULT"))
+    fatal("Unable to set OpenSSL cipher list: %s",
+          ERR_error_string(ERR_get_error(), NULL));
+
+  return dtls_ctx;
+}
+
+#else /* OpenSSL Version does not support DTLS */
+
+nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
+  fatal("%s called with no OpenSSL DTLS support", __func__);
+}
+
+#endif
 
 /* Check server certificate verification, after a connection is established. We
  * check first that a certificate was even offered, then call
@@ -177,6 +220,10 @@ int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
 #else /* NOT HAVE_OPENSSL */
 
 nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
+  fatal("%s called with no OpenSSL support", __func__);
+}
+
+nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
   fatal("%s called with no OpenSSL support", __func__);
 }
 

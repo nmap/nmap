@@ -750,3 +750,39 @@ int fix_line_endings(char *src, int *len, char **dst, int *state)
 
     return 1;
 }
+
+/*-
+ * next_protos_parse parses a comma separated list of strings into a string
+ * in a format suitable for passing to SSL_CTX_set_next_protos_advertised.
+ *   outlen: (output) set to the length of the resulting buffer on success.
+ *   err: NULL on failure
+ *   in: a NULL terminated string like "abc,def,ghi"
+ *
+ *   returns: a malloc'd buffer or NULL on failure.
+ */
+unsigned char *next_protos_parse(size_t *outlen, const char *in)
+{
+    size_t len;
+    unsigned char *out;
+    size_t i, start = 0;
+
+    len = strlen(in);
+    if (len >= 65535)
+        return NULL;
+
+    out = safe_malloc(strlen(in) + 1);
+    for (i = 0; i <= len; ++i) {
+        if (i == len || in[i] == ',') {
+            if (i - start > 255) {
+                free(out);
+                return NULL;
+            }
+            out[start] = i - start;
+            start = i + 1;
+        } else
+            out[i + 1] = in[i];
+    }
+
+    *outlen = len + 1;
+    return out;
+}

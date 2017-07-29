@@ -256,6 +256,30 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
       if (!SSL_CTX_set_cipher_list(ctx, o.sslciphers))
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
     }
+
+#ifdef HAVE_ALPN_SUPPORT
+
+    if (o.sslalpn) {
+        size_t alpn_len;
+        unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
+
+        if (alpn == NULL)
+            bye("Could not parse ALPN string");
+
+        if (o.debug)
+            logdebug("Using ALPN String %s\n", o.sslalpn);
+
+        /* SSL_CTX_set_alpn_protos returns 0 on success */
+        if (SSL_CTX_set_alpn_protos(ctx, alpn, alpn_len) != 0){
+            free(alpn);
+            bye("SSL_CTX_set_alpn_protos: %s.", ERR_error_string(ERR_get_error(), NULL));
+        }
+
+        free(alpn);
+    }
+
+#endif
+
 }
 #endif
 
@@ -878,6 +902,51 @@ static int do_proxy_socks5(void)
     return(sd);
 }
 
+static nsock_iod new_iod(nsock_pool mypool) {
+   nsock_iod nsi = nsock_iod_new(mypool, NULL);
+   if (nsi == NULL)
+     bye("Failed to create nsock_iod.");
+   if (nsock_iod_set_hostname(nsi, o.target) == -1)
+     bye("Failed to set hostname on iod.");
+
+   switch (srcaddr.storage.ss_family) {
+     case AF_UNSPEC:
+       break;
+     case AF_INET:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           sizeof(srcaddr.in));
+       break;
+#ifdef AF_INET6
+     case AF_INET6:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           sizeof(srcaddr.in6));
+       break;
+#endif
+#if HAVE_SYS_UN_H
+     case AF_UNIX:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+       break;
+#endif
+     default:
+       nsock_iod_set_localaddr(nsi, &srcaddr.storage,
+           sizeof(srcaddr.storage));
+       break;
+   }
+
+   if (o.numsrcrtes) {
+     unsigned char *ipopts = NULL;
+     size_t ipoptslen = 0;
+
+     if (o.af != AF_INET)
+       bye("Sorry, -g can only currently be used with IPv4.");
+     ipopts = buildsrcrte(targetaddrs->addr.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
+
+     nsock_iod_set_ipoptions(nsi, ipopts, ipoptslen);
+     free(ipopts); /* Nsock has its own copy */
+   }
+   return nsi;
+}
 
 int ncat_connect(void)
 {
@@ -908,18 +977,15 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-    set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
+#ifdef HAVE_DTLS_CLIENT_METHOD
+    if(o.proto == IPPROTO_UDP)
+        set_ssl_ctx_options((SSL_CTX *) nsock_pool_dtls_init(mypool, 0));
+    else
+#endif
+        set_ssl_ctx_options((SSL_CTX *) nsock_pool_ssl_init(mypool, 0));
 #endif
 
     if (!o.proxytype) {
-        /* A non-proxy connection. Create an iod for a new socket. */
-        cs.sock_nsi = nsock_iod_new(mypool, NULL);
-        if (cs.sock_nsi == NULL)
-            bye("Failed to create nsock_iod.");
-
-        if (nsock_iod_set_hostname(cs.sock_nsi, o.target) == -1)
-            bye("Failed to set hostname on iod.");
-
 #if HAVE_SYS_UN_H
         /* For DGRAM UNIX socket we have to use source socket */
         if (o.af == AF_UNIX && o.proto == IPPROTO_UDP)
@@ -945,50 +1011,13 @@ int ncat_connect(void)
                 strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
                 free (tmp_name);
             }
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
 
             if (o.verbose)
                 loguser("[%s] used as source DGRAM Unix domain socket.\n", srcaddr.un.sun_path);
         }
-        else
 #endif
-        switch (srcaddr.storage.ss_family) {
-          case AF_UNSPEC:
-            break;
-          case AF_INET:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    sizeof(srcaddr.in));
-            break;
-#ifdef AF_INET6
-          case AF_INET6:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    sizeof(srcaddr.in6));
-            break;
-#endif
-#if HAVE_SYS_UN_H
-          case AF_UNIX:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
-            break;
-#endif
-          default:
-            nsock_iod_set_localaddr(cs.sock_nsi, &srcaddr.storage,
-                                    sizeof(srcaddr.storage));
-            break;
-        }
-
-        if (o.numsrcrtes) {
-            unsigned char *ipopts = NULL;
-            size_t ipoptslen = 0;
-
-            if (o.af != AF_INET)
-                bye("Sorry, -g can only currently be used with IPv4.");
-            ipopts = buildsrcrte(targetaddrs->addr.in.sin_addr, o.srcrtes, o.numsrcrtes, o.srcrteptr, &ipoptslen);
-
-            nsock_iod_set_ipoptions(cs.sock_nsi, ipopts, ipoptslen);
-            free(ipopts); /* Nsock has its own copy */
-        }
+        /* A non-proxy connection. Create an iod for a new socket. */
+        cs.sock_nsi = new_iod(mypool);
 
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
@@ -1068,35 +1097,27 @@ int ncat_connect(void)
 
 static void try_nsock_connect(nsock_pool nsp, struct sockaddr_list *conn_addr)
 {
+#ifdef HAVE_OPENSSL
+    if (o.ssl) {
+        nsock_connect_ssl(nsp, cs.sock_nsi, connect_handler,
+                          o.conntimeout, (void *)conn_addr->next,
+                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
+                          o.proto, inet_port(&conn_addr->addr),
+                          NULL);
+    }
+    else
+#endif
     if (o.proto == IPPROTO_UDP) {
         nsock_connect_udp(nsp, cs.sock_nsi, connect_handler, (void *)conn_addr->next,
                           &conn_addr->addr.sockaddr, conn_addr->addrlen,
                           inet_port(&conn_addr->addr));
     }
-#ifdef HAVE_OPENSSL
-    else if (o.proto == IPPROTO_SCTP && o.ssl) {
-        nsock_connect_ssl(nsp, cs.sock_nsi, connect_handler,
-                          o.conntimeout, (void *)conn_addr->next,
-                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
-                          IPPROTO_SCTP, inet_port(&conn_addr->addr),
-                          NULL);
-    }
-#endif
     else if (o.proto == IPPROTO_SCTP) {
         nsock_connect_sctp(nsp, cs.sock_nsi, connect_handler,
                           o.conntimeout, (void *)conn_addr->next,
                           &conn_addr->addr.sockaddr, conn_addr->addrlen,
                           inet_port(&conn_addr->addr));
     }
-#ifdef HAVE_OPENSSL
-    else if (o.ssl) {
-        nsock_connect_ssl(nsp, cs.sock_nsi, connect_handler,
-                          o.conntimeout, (void *)conn_addr->next,
-                          &conn_addr->addr.sockaddr, conn_addr->addrlen,
-                          IPPROTO_TCP, inet_port(&conn_addr->addr),
-                          NULL);
-    }
-#endif
     else {
         nsock_connect_tcp(nsp, cs.sock_nsi, connect_handler,
                           o.conntimeout, (void *)conn_addr->next,
@@ -1132,6 +1153,13 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
                 loguser("Connection to %s failed: %s.\n", inet_socktop(&peer), socket_strerror(errcode));
                 loguser("Trying next address...\n");
             }
+#ifdef HAVE_OPENSSL
+            /* If it's an SSL reconnect, clear out any old session info */
+            if (nsock_iod_check_ssl(cs.sock_nsi)) {
+              nsock_iod_delete(cs.sock_nsi, NSOCK_PENDING_NOTIFY);
+              cs.sock_nsi = new_iod(nsp);
+            }
+#endif
             try_nsock_connect(nsp, next_addr);
             return;
         }

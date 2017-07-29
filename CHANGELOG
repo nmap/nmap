@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#446] Added Datagram TLS (DTLS) support to Ncat in connect (client)
+  mode with --udp --ssl. Also added Application Layer Protocol Negotiation
+  (ALPN) support with the --ssl-alpn option. [denandz, Daniel Miller]
+
 o Updated the default ciphers list for Ncat and the secure ciphers list for
   Nsock to use "!aNULL:!eNULL" instead of "!ADH". With the addition of ECDH
   ciphersuites, anonymous ECDH suites were being allowed. [Daniel Miller]

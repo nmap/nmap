@@ -264,6 +264,8 @@ static int ncat_listen_stream(int proto)
 
 #ifdef HAVE_OPENSSL
     if (o.ssl)
+        if (o.sslalpn)
+            bye("ALPN is not supported in listen mode\n");
         setup_ssl_listen();
 #endif
 
@@ -711,6 +713,11 @@ static int ncat_listen_dgram(int proto)
     struct timeval tv;
     struct timeval *tvp = NULL;
     unsigned int num_sockets;
+
+#ifdef HAVE_OPENSSL
+    if(o.ssl)
+        bye("DTLS is not supported in listen mode\n");
+#endif
 
     for (i = 0; i < NUM_LISTEN_ADDRS; i++) {
         sockfd[i].fd = -1;
