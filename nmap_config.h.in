@@ -238,6 +238,8 @@ extern "C" int gethostname (char *, unsigned int);
 #undef PCAP_INCLUDED
 #undef DNET_INCLUDED
 #undef PCRE_INCLUDED
+#undef LIBSSH2_INCLUDED
+#undef ZLIB_INCLUDED
 
 #undef DEC
 #undef LINUX

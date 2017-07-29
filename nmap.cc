@@ -2843,13 +2843,21 @@ static void display_nmap_version() {
 #endif
 
 #if HAVE_LIBSSH2
+#ifdef LIBSSH2_INCLUDED
+  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+#else
   with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+#endif
 #else
   without.push_back("libssh2");
 #endif
 
 #if HAVE_LIBZ_V
+#ifdef ZLIB_INCLUDED
+  with.push_back(std::string("nmap-libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+#else
   with.push_back(std::string("libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+#endif
 #else
   without.push_back("libz");
 #endif
