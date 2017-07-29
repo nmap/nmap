@@ -46,3 +46,4 @@ libpcre/stamp-h1
 ndiff/INSTALLED_FILES
 libz/contrib/vstudio/vc11/Debug_lib/
 libz/contrib/vstudio/vc11/Release_lib/
+libz/zconf.h
