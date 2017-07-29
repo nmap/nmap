@@ -152,9 +152,6 @@ function parse(url, default)
   -- initialize default parameters
   local parsed = {}
 
-  -- Save the original URL
-  parsed.original = url
-
   for i,v in base.pairs(default or parsed) do parsed[i] = v end
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
@@ -177,15 +174,10 @@ function parse(url, default)
     return ""
   end)
   -- get params
-  -- Split up the query, if necessary
-  if(parsed.query) then
-    parsed.params = {}
-    local values = stdnse.strsplit('&', parsed.query)
-    for i, v in ipairs(values) do
-      local name, value = table.unpack(stdnse.strsplit('=', v))
-      parsed.params[name] = value
-    end
-  end
+  url = string.gsub(url, "%;(.*)", function(p)
+    parsed.params = p
+    return ""
+  end)
 
   -- path is whatever was left
   parsed.path = url
@@ -197,7 +189,7 @@ function parse(url, default)
     parsed.is_folder = false
     local split_str = stdnse.strsplit('%.', parsed.path)
     if(split_str and #split_str > 1) then
-      parsed.extension = split_str[#split_str]
+      parsed.extension = stdnse.strsplit("%;", split_str[#split_str])[1]
     end
   end
 
