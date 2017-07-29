@@ -1,75 +1,38 @@
 ---Implements the HTTP client protocol in a standard form that Nmap scripts can
 -- take advantage of.
 --
--- Because HTTP has so many uses, there are a number of interfaces to this library.
--- The most obvious and common ones are simply <code>get</code>, <code>post</code>,
--- and <code>head</code>; or, if more control is required, <code>generic_request</code>
--- can be used. These functions do what one would expect. The <code>get_url</code>
--- helper function can be used to parse and retrieve a full URL.
+-- Because HTTP has so many uses, there are a number of interfaces to this
+-- library.
+--
+-- The most obvious and common ones are simply <code>get</code>,
+-- <code>post</code>, and <code>head</code>; or, if more control is required,
+-- <code>generic_request</code> can be used. These functions take host and port
+-- as their main parameters and they do what one would expect. The
+-- <code>get_url</code> helper function can be used to parse and retrieve a full
+-- URL.
 --
 -- HTTPS support is transparent. The library uses <code>comm.tryssl</code> to
 -- determine whether SSL is required for a request.
 --
 -- These functions return a table of values, including:
--- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK". In case of an error, a description will be provided in this line.
+-- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK", followed by a newline. In case of an error, a description will be provided in this line.
 -- * <code>status</code> - The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
 -- * <code>version</code> - HTTP protocol version string, as stated in the status line. Example: "1.1"
 -- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present.
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
--- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>.
--- * <code>body</code> - The full body, as returned by the server.
+-- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the expected keys, such as <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
+-- * <code>body</code> - The full body, as returned by the server. Chunked encoding is handled transparently.
 -- * <code>fragment</code> - Partially received body (if any), in case of an error.
+-- * <code>location</code> - A numbered array of the locations of redirects that were followed.
 --
--- If a script is planning on making a lot of requests, the pipelining functions can
--- be helpful. <code>pipeline_add</code> queues requests in a table, and
--- <code>pipeline_go</code> performs the requests, returning the results as an array,
--- with the responses in the same order as the queries were added. As a simple example:
---<code>
---  -- Start by defining the 'all' variable as nil
---  local all = nil
---
---  -- Add two 'GET' requests and one 'HEAD' to the queue. These requests are not performed
---  -- yet. The second parameter represents the 'options' table, which we don't need.
---  all = http.pipeline_add('/book',    nil, all)
---  all = http.pipeline_add('/test',    nil, all)
---  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
---
---  -- Perform all three requests as parallel as Nmap is able to
---  local results = http.pipeline_go('nmap.org', 80, all)
---</code>
---
--- At this point, <code>results</code> is an array with three elements. Each element
--- is a table containing the HTTP result, as discussed above.
---
--- One more interface provided by the HTTP library helps scripts determine whether or not
--- a page exists. The <code>identify_404</code> function will try several URLs on the
--- server to determine what the server's 404 pages look like. It will attempt to identify
--- customized 404 pages that may not return the actual status code 404. If successful,
--- the function <code>page_exists</code> can then be used to determine whether or not
--- a page existed.
---
--- Some other miscellaneous functions that can come in handy are <code>response_contains</code>,
--- <code>can_use_head</code>, and <code>save_path</code>. See the appropriate documentation
--- for them.
---
--- The response to each function is typically a table with the following keys:
--- * <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline). In case of an error, a description will be provided in this line.
--- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
--- * <code>version</code>: HTTP protocol version string, as stated in the status line. Example: "1.1"
--- * <code>header</code>: A table of header values, where the keys are lowercase and the values are exactly what the server sent
--- * <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
--- * <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
--- * <code>body</code>: The body of the response
--- * <code>fragment</code>: Partially received body (if any), in case of an error.
--- * <code>location</code>: a list of the locations of redirects that were followed.
---
--- Many of the functions optionally allow an 'options' table. This table can alter the HTTP headers
--- or other values like the timeout. The following are valid values in 'options' (note: not all
--- options will necessarily affect every function):
+-- Many of the functions optionally allow an "options" input table, which can
+-- modify the HTTP request or its processing in many ways like adding headers or
+-- setting the timeout. The following are valid keys in "options"
+-- (note: not all options will necessarily affect every function):
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request. For example, <code>options['header']['Content-Type'] = 'text/xml'</code>
--- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override). This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request).
--- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: <code>name</code>, <code>value</code>, <code>path</code>, <code>expires</code>. Only <code>name</code> and <code>value</code> fields are required.
+-- * <code>content</code>: The content of the message. This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request). (A corresponding Content-Length header will be added automatically. Set header['Content-Length'] to override it).
+-- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: <code>name</code>, <code>value</code> and <code>path</code>. Only <code>name</code> and <code>value</code> fields are required.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication.
 --   If a server requires HTTP Digest authentication, then there must also be a key <code>digest</code>, with value <code>true</code>.
 --   If a server requires NTLM authentication, then there must also be a key <code>ntlm</code>, with value <code>true</code>.
@@ -89,6 +52,41 @@
 --     end
 --   end
 --   </code>
+
+-- If a script is planning on making a lot of requests, the pipelining functions
+-- can be helpful. <code>pipeline_add</code> queues requests in a table, and
+-- <code>pipeline_go</code> performs the requests, returning the results as an
+-- array, with the responses in the same order as the requests were added.
+-- As a simple example:
+--<code>
+--  -- Start by defining the 'all' variable as nil
+--  local all = nil
+--
+--  -- Add two GET requests and one HEAD to the queue but these requests are
+--  -- not performed yet. The second parameter represents the "options" table
+--  -- (which we don't need in this example).
+--  all = http.pipeline_add('/book',    nil, all)
+--  all = http.pipeline_add('/test',    nil, all)
+--  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
+--
+--  -- Perform all three requests as parallel as Nmap is able to
+--  local results = http.pipeline_go('nmap.org', 80, all)
+--</code>
+--
+-- At this point, <code>results</code> is an array with three elements.
+-- Each element is a table containing the HTTP result, as discussed above.
+--
+-- One more interface provided by the HTTP library helps scripts determine
+-- whether or not a page exists. The <code>identify_404</code> function will
+-- try several URLs on the server to determine what the server's 404 pages look
+-- like. It will attempt to identify customized 404 pages that may not return
+-- the actual status code 404. If successful, the function
+-- <code>page_exists</code> can then be used to determine whether or not a page
+-- exists.
+--
+-- Some other miscellaneous functions that can come in handy are
+-- <code>response_contains</code>, <code>can_use_head</code>, and
+-- <code>save_path</code>. See the appropriate documentation for details.
 --
 -- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
@@ -895,8 +893,8 @@ end
 
 --- Builds a string to be added to the request mod_options table
 --
---  @param cookies A cookie jar just like the table returned parse_set_cookie.
---  @param path If the argument exists, only cookies with this path are included to the request
+--  @param cookies A cookie jar just like the table returned by parse_set_cookie.
+--  @param path If the argument exists, only cookies with this path are included in the request
 --  @return A string to be added to the mod_options table
 local function buildCookies(cookies, path)
   if type(cookies) == 'string' then return cookies end
