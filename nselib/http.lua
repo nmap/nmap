@@ -52,7 +52,7 @@
 --     end
 --   end
 --   </code>
-
+--
 -- If a script is planning on making a lot of requests, the pipelining functions
 -- can be helpful. <code>pipeline_add</code> queues requests in a table, and
 -- <code>pipeline_go</code> performs the requests, returning the results as an
