@@ -141,7 +141,7 @@ build-pcap: $(LIBPCAPDIR)/Makefile
 
 build-libssh2: $(LIBSSH2DIR)/src/Makefile
 	@echo Compiling libssh2; cd $(LIBSSH2DIR)/src && $(MAKE);
-	cd $(LIBSSH2DIR)/src && $(MAKE) prefix=$(NDIR)/$(LIBSSH2DIR) install-libLTLIBRARIES;
+	cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) install-libLTLIBRARIES;
 
 build-zlib: $(ZLIBDIR)/Makefile
 	@echo Compiling zlib; cd $(ZLIBDIR) && $(MAKE);
@@ -220,8 +220,8 @@ clean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
 
 clean-libssh2:
-	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix=$(NDIR)/$(LIBSSH2DIR) uninstall-libLTLIBRARIES
-	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix=$(NDIR)/$(LIBSSH2DIR) clean
+	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) uninstall-libLTLIBRARIES
+	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) clean
 	-cd $(LIBSSH2DIR) && $(MAKE) clean
 
 clean-zlib:
@@ -270,7 +270,7 @@ distclean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 
 distclean-libssh2:
-	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix=$(NDIR)/$(LIBSSH2DIR) distclean
+	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) distclean
 	-cd $(LIBSSH2DIR) && $(MAKE) distclean
 
 distclean-zlib:
