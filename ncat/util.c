@@ -770,7 +770,7 @@ unsigned char *next_protos_parse(size_t *outlen, const char *in)
     if (len >= 65535)
         return NULL;
 
-    out = safe_malloc(strlen(in) + 1);
+    out = (unsigned char *)safe_malloc(strlen(in) + 1);
     for (i = 0; i <= len; ++i) {
         if (i == len || in[i] == ',') {
             if (i - start > 255) {
