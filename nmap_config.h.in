@@ -198,7 +198,7 @@
 
 #undef HAVE_LIBSSH2
 
-#undef HAVE_LIBZ_V
+#undef HAVE_LIBZ
 
 #undef HAVE_OPENSSL_EC
 

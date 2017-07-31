@@ -144,6 +144,8 @@
 
 #define HAVE_OPENSSL 1
 #define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
+#define HAVE_LIBSSH2 1
+#define HAVE_LIBZ 1
 /* Since MSVC 2010, stdint.h is included as part of C99 compatibility */
 #define HAVE_STDINT_H 1
 
@@ -151,6 +153,8 @@
 #undef PCAP_INCLUDED
 #define DNET_INCLUDED 1
 #define PCRE_INCLUDED 1
+#define LIBSSH2_INCLUDED 1
+#define ZLIB_INCLUDED 1
 
 #endif /* NMAP_WINCONFIG_H */
 

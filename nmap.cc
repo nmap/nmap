@@ -185,7 +185,7 @@
 #include "libssh2/libssh2v.h"
 #endif
 
-#if HAVE_LIBZ_V
+#if HAVE_LIBZ
 #include "libz/libzv.h"
 #endif
 
@@ -2852,7 +2852,7 @@ static void display_nmap_version() {
   without.push_back("libssh2");
 #endif
 
-#if HAVE_LIBZ_V
+#if HAVE_LIBZ
 #ifdef ZLIB_INCLUDED
   with.push_back(std::string("nmap-libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
 #else
