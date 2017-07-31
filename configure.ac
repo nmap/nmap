@@ -613,7 +613,10 @@ if test $with_libz != no; then
 
   if test $have_libz != yes; then
     AC_CONFIG_SUBDIRS(libz)
-    ac_configure_args="$ac_configure_args '--with-libz-prefix=\$(top_srcdir)/$ZLIBDIR'"
+    # TODO: This doesn't work because libssh2's configure script is looking for
+    # already-built libs.  Giving up for now: build libz first or install
+    # headers/libs on your own if you want compression support for SSH.
+    #ac_configure_args="$ac_configure_args '--with-libz-prefix=../../$ZLIBDIR'"
     CPPFLAGS="-I\$(top_srcdir)/$ZLIBDIR $CPPFLAGS"
     ZLIB_LIBS="$ZLIBDIR/libz.a"
     ZLIB_BUILD="build-zlib"
