@@ -14,7 +14,8 @@ The script attempts to initiate a connection using the dialects:
 * 3.02       (SMBv3)
 * 3.11       (SMBv3)
 
-Aditionally if SMBv1 is found enabled, it will mark it as insecure.
+Additionally if SMBv1 is found enabled, it will mark it as insecure. This
+script is the successor to the (removed) smbv2-enabled script.
 ]]
 
 ---
