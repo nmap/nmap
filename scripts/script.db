@@ -482,7 +482,6 @@ Entry { filename = "smb2-capabilities.nse", categories = { "discovery", "safe", 
 Entry { filename = "smb2-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb2-time.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb2-vuln-uptime.nse", categories = { "safe", "vuln", } }
-Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
 Entry { filename = "smtp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smtp-enum-users.nse", categories = { "auth", "external", "intrusive", } }
