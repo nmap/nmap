@@ -1,8 +1,6 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local http = require "http"
-local vulns = require "vulns"
-local string = require "string"
 local table = require "table"
 local io = require "io"
 local base64 = require "base64"
@@ -91,7 +89,7 @@ local PATHS = {
 }
 
 --- Checks if the csr's requester matches the provided node's name
---  @param csr The whole certificate signing request as a string
+--  @param csr The whole certificate signing request
 --  @param node The name of the node that you wish to check
 --  @return the start and end index of the node's name in the decoded CSR, if the node's name is not found
 local function has_node_csr (csr, node)
@@ -187,8 +185,6 @@ action = function(host, port)
       break
     elseif not response.status then
       puppet_table = "Puppet CA timeout!"
-    else
-      return
     end
   end
   return stdnse.format_output(scan_success, puppet_table)
