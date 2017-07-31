@@ -12589,7 +12589,7 @@ match smtp-proxy m|^220 OutgoingFilter SMTP\r\n502 OutgoingFilter Command not im
 Probe TCP Help q|HELP\r\n|
 rarity 3
 ports 1,7,21,25,79,113,119,515,587,1111,1311,12345,2401,2627,3000,3493,6560,6666-6670,14690,22490
-sslports 465
+sslports 465,990
 totalwaitms 7500
 
 # http://www.computerpokercompetition.org/
