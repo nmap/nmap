@@ -181,8 +181,9 @@ action = function(host, port)
   if next(output_xml['jsonp-endpoints']) then 
     return output_xml, output_str
   else
-    output_str = "\nCouldnt find any JSONP endpoints"
-    stdnse.verbose(1, output_str)
+    if nmap.verbosity() > 1 then
+      return "Couldn't find any JSONP endpoints."
+    end
   end
 
 end 
