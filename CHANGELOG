@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Add a new helper function for nmap-service-probes match lines: $I(1,">") will
+  unpack an unsigned big-endian integer value up to 8 bytes wide from capture
+  1. The second option can be "<" for little-endian. [Daniel Miller]
+
 Nmap 7.60 [2017-07-31]
 
 o [Windows] Updated the bundled Npcap from 0.91 to 0.93, fixing several issues
