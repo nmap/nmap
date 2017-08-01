@@ -291,6 +291,7 @@ void NmapOps::Initialize() {
   else
     isr00t = !(geteuid());
 #endif
+  not_raw = 0;
   have_pcap = true;
   debugging = 0;
   verbose = 0;
@@ -385,6 +386,7 @@ void NmapOps::Initialize() {
   scriptupdatedb = 0;
   scripthelp = false;
   scripttimeout = 0;
+  scriptportscan = false;
   chosenScripts.clear();
 #endif
   memset(&sourcesock, 0, sizeof(sourcesock));
@@ -397,6 +399,7 @@ void NmapOps::Initialize() {
   exclude_portlist = NULL;
   proxy_chain = NULL;
   resuming = false;
+  socks4a = false;
 }
 
 bool NmapOps::SCTPScan() {
@@ -404,7 +407,11 @@ bool NmapOps::SCTPScan() {
 }
 
 bool NmapOps::TCPScan() {
-  return ackscan|bouncescan|connectscan|finscan|idlescan|maimonscan|nullscan|synscan|windowscan|xmasscan;
+  return ackscan|bouncescan|connectscan|finscan|idlescan|maimonscan|nullscan|synscan|windowscan|xmasscan
+#ifndef NOLUA
+    |scriptportscan
+#endif
+    ;
 }
 
 bool NmapOps::UDPScan() {
@@ -412,7 +419,13 @@ bool NmapOps::UDPScan() {
 }
 
 bool NmapOps::RawScan() {
-  if (ackscan||finscan||idlescan||ipprotscan||maimonscan||nullscan||osscan||synscan||udpscan||windowscan||xmasscan||sctpinitscan||sctpcookieechoscan||traceroute)
+  if (not_raw)
+    return false;
+  if (ackscan||finscan||idlescan||ipprotscan||maimonscan||nullscan||osscan||synscan||udpscan||windowscan||xmasscan||sctpinitscan||sctpcookieechoscan||traceroute
+#ifndef NOLUA
+      ||scriptportscan
+#endif
+      )
     return true;
   if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP|PINGTYPE_SCTP_INIT))
     return true;

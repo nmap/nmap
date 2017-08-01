@@ -26,6 +26,7 @@
 
 /* Script Scan phases */
 #define NSE_PRE_SCAN  "NSE_PRE_SCAN"
+#define NSE_PORTSCAN  "NSE_PORTSCAN"
 #define NSE_SCAN      "NSE_SCAN"
 #define NSE_POST_SCAN "NSE_POST_SCAN"
 
@@ -643,6 +644,9 @@ static int run_main (lua_State *L)
   {
     case SCRIPT_PRE_SCAN:
       lua_pushliteral(L, NSE_PRE_SCAN);
+      break;
+    case SCRIPT_PORTSCAN:
+      lua_pushstring(L, NSE_PORTSCAN);
       break;
     case SCRIPT_SCAN:
       lua_pushliteral(L, NSE_SCAN);

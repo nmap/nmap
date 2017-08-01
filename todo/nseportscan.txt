@@ -1,0 +1,4 @@
+1. "All 1000 scanned ports on localhost (127.0.0.1) are unknown"
+2. Allow nmap.set_port_state to set reason displayed in --reason
+3. Panic when -sK is on and no portscanning script was specified
+4. Update the scanning progress (now it's always "NSE Timing: About 0.00% done").

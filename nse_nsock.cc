@@ -536,8 +536,13 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
   {
     case TCP:
       nu->proto = IPPROTO_TCP;
-      nsock_connect_tcp(nsp, nu->nsiod, callback, nu->timeout, nu,
-          dest->ai_addr, dest->ai_addrlen, port);
+      if (o.socks4a) {
+        nsock_connect_tcp_socks4a(nsp, nu->nsiod, callback, nu->timeout, nu,
+                                  targetname, port);
+      } else {
+        nsock_connect_tcp(nsp, nu->nsiod, callback, nu->timeout, nu,
+                          dest->ai_addr, dest->ai_addrlen, port);
+      }
       break;
     case UDP:
       nu->proto = IPPROTO_UDP;

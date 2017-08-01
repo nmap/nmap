@@ -40,6 +40,7 @@ local NAME = "NSE";
 
 -- Script Scan phases.
 local NSE_PRE_SCAN  = "NSE_PRE_SCAN";
+local NSE_PORTSCAN  = "NSE_PORTSCAN";
 local NSE_SCAN      = "NSE_SCAN";
 local NSE_POST_SCAN = "NSE_POST_SCAN";
 
@@ -64,6 +65,7 @@ local CONCURRENCY_LIMIT = 1000;
 -- Table of different supported rules.
 local NSE_SCRIPT_RULES = {
   prerule = "prerule",
+  scanrule = "scanrule",
   hostrule = "hostrule",
   portrule = "portrule",
   postrule = "postrule",
@@ -639,6 +641,7 @@ do
     end
     assert(next(rules), filename.." is missing required function: 'rule'");
     local prerule = rules.prerule;
+    local scanrule = rules.scanrule;
     local hostrule = rules.hostrule;
     local portrule = rules.portrule;
     local postrule = rules.postrule;
@@ -660,6 +663,7 @@ do
       id = match(filename, "^.-[/\\]([^\\/]-)%.nse$") or short_basename,
       script_closure_generator = script_closure_generator,
       prerule = prerule,
+      scanrule = scanrule,
       hostrule = hostrule,
       portrule = portrule,
       postrule = postrule,
@@ -1371,6 +1375,12 @@ local function main (hosts, scantype)
 
   if scantype == NSE_PRE_SCAN then
     print_verbose(1, "Script Pre-scanning.");
+  elseif (scantype == NSE_PORTSCAN) then
+    if #hosts > 1 then
+      print_verbose(1, "NSE ports scanning %d hosts.", #hosts);
+    elseif #hosts == 1 then
+      print_verbose(1, "NSE ports scanning %s.", hosts[1].ip);
+    end
   elseif scantype == NSE_SCAN then
     if #hosts > 1 then
       print_verbose(1, "Script scanning %d hosts.", #hosts);
@@ -1392,6 +1402,17 @@ local function main (hosts, scantype)
            if thread then
              yield(thread)
            end
+        end
+      -- activate scanrule scripts
+      elseif (scantype == NSE_PORTSCAN) then
+        for j, host in ipairs(hosts) do
+          for _, script in ipairs(scripts) do
+            local thread = script:new_thread("scanrule", tcopy(host));
+            if thread then
+              thread.args, thread.host = {n = 1, tcopy(host)}, host;
+              yield(thread);
+            end
+          end
         end
       -- activate hostrule and portrule scripts
       elseif scantype == NSE_SCAN then

@@ -538,6 +538,13 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *ss, size_t sslen, unsigned short port);
 
+/* For now this a copy of nsock_connect_tcp, except that it takes targetname as
+ * an char * argument and passes a dummy sockaddr to nsock_connect_internal */
+nsock_event_id nsock_connect_tcp_socks4a(nsock_pool nsp, nsock_iod nsiod,
+                                         nsock_ev_handler handler, int timeout_msecs,
+                                         void *userdata, const char *targetname,
+                                         unsigned short port);
+
 nsock_event_id nsock_connect_tcp_direct(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
                                         int timeout_msecs, void *userdata, struct sockaddr *ss,
                                         size_t sslen, unsigned short port);

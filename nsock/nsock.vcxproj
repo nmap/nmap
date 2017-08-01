@@ -209,6 +209,7 @@
     <ClCompile Include="src\nsock_write.c" />
     <ClCompile Include="src\proxy_http.c" />
     <ClCompile Include="src\proxy_socks4.c" />
+    <ClCompile Include="src\proxy_socks4a.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\error.h" />

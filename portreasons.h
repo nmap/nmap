@@ -215,6 +215,8 @@ public:
             return reason_map.find(ER_UNKNOWN);
         return itr;
     };
+    /* Note that this only returns a copy of the reason map. */
+    std::map<reason_codes,reason_string > get_reason_map() { return reason_map; }
 };
 
 /* Function to translate ICMP code and typ to reason code */

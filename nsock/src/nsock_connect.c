@@ -326,8 +326,10 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
  * ORDER.  ss should be a sockaddr_storage, sockaddr_in6, or sockaddr_in as
  * appropriate (just like what you would pass to connect).  sslen should be the
  * sizeof the structure you are passing in. */
-nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
-                                 void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port) {
+nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod,
+                                 nsock_ev_handler handler, int timeout_msecs,
+                                 void *userdata, struct sockaddr *saddr,
+                                 size_t sslen, unsigned short port) {
   struct niod *nsi = (struct niod *)ms_iod;
   struct npool *ms = (struct npool *)nsp;
   struct nevent *nse;
@@ -343,6 +345,35 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, ss, sslen, port);
+  nsock_pool_add_event(ms, nse);
+
+  return nse->id;
+}
+
+/* Currently a copy of nsock_connect_tcp, called by l_connect only when a
+ * socks4a proxy is specified.  This will help us to avoid targetname
+ * resolution later on for socks4a connections. */
+nsock_event_id nsock_connect_tcp_socks4a(nsock_pool nsp, nsock_iod ms_iod,
+                                 nsock_ev_handler handler, int timeout_msecs,
+                                 void *userdata, const char *targetname,
+                                 unsigned short port) {
+  struct niod *nsi = (struct niod *)ms_iod;
+  struct npool *ms = (struct npool *)nsp;
+  struct nevent *nse;
+
+  assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
+
+  nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
+  assert(nse);
+
+  nsock_log_info(ms, "TCP connection requested to %s:%hu (IOD #%li) EID %li",
+                 targetname, port, nsi->id, nse->id);
+
+  /* For now this holders is needed to keep nsock_connect_internal working */
+  struct sockaddr_storage ss;
+
+  /* Do the actual connect() */
+  nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, &ss, sizeof(ss), port);
   nsock_pool_add_event(ms, nse);
 
   return nse->id;
