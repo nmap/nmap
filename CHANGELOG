@@ -1,5 +1,65 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.60 [2017-07-31]
+
+o [Windows] Updated the bundled Npcap from 0.91 to 0.93, fixing several issues
+  with installation and compatibility with the Windows 10 Creators Update.
+
+o [NSE][GH#910] NSE scripts now have complete SSH support via libssh2,
+  including password brute-forcing and running remote commands, thanks to the
+  combined efforts of three Summer of Code students: [Devin Bjelland, Sergey
+  Khegay, Evangelos Deirmentzoglou]
+
+o [NSE] Added 14 NSE scripts from 6 authors, bringing the total up to 579!
+  They are all listed at https://nmap.org/nsedoc/, and the summaries are below:
+
+  + ftp-syst sends SYST and STAT commands to FTP servers to get system version
+    and connection information. [Daniel Miller]
+
+  + [GH#916] http-vuln-cve2017-8917 checks for an SQL injection vulnerability affecting
+    Joomla! 3.7.x before 3.7.1. [Wong Wai Tuck]
+
+  + iec-identify probes for the IEC 60870-5-104 SCADA protocol. [Aleksandr
+    Timorin, Daniel Miller]
+
+  + [GH#915] openwebnet-discovery retrieves device identifying information and
+    number of connected devices running on openwebnet protocol. [Rewanth Cool]
+
+  + puppet-naivesigning checks for a misconfiguration in the Puppet CA where
+    naive signing is enabled, allowing for any CSR to be automatically signed.
+    [Wong Wai Tuck]
+
+  + [GH#943] smb-protocols discovers if a server supports dialects NT LM 0.12
+    (SMBv1), 2.02, 2.10, 3.00, 3.02 and 3.11. This replaces the old
+    smbv2-enabled script. [Paulino Calderon]
+
+  + [GH#943] smb2-capabilities lists the supported capabilities of SMB2/SMB3
+    servers. [Paulino Calderon]
+
+  + [GH#943] smb2-time determines the current date and boot date of SMB2
+    servers. [Paulino Calderon]
+
+  + [GH#943] smb2-security-mode determines the message signing configuration of
+    SMB2/SMB3 servers. [Paulino Calderon]
+
+  + [GH#943] smb2-vuln-uptime attempts to discover missing critical patches in
+    Microsoft Windows systems based on the SMB2 server uptime. [Paulino Calderon]
+
+  + ssh-auth-methods lists the authentication methods offered by an SSH server.
+    [Devin Bjelland]
+
+  + ssh-brute performs brute-forcing of SSH password credentials. [Devin Bjelland]
+
+  + ssh-publickey-acceptance checks public or private keys to see if they could
+    be used to log in to a target. A list of known-compromised key pairs is
+    included and checked by default. [Devin Bjelland]
+
+  + ssh-run uses user-provided credentials to run commands on targets via SSH.
+    [Devin Bjelland]
+
+o [NSE] Removed smbv2-enabled, which was incompatible with the new SMBv2/3
+  improvements. It was fully replaced by the smb-protocols script.
+
 o [Ncat][GH#446] Added Datagram TLS (DTLS) support to Ncat in connect (client)
   mode with --udp --ssl. Also added Application Layer Protocol Negotiation
   (ALPN) support with the --ssl-alpn option. [Denis Andzakovic, Daniel Miller]
@@ -11,22 +71,10 @@ o Updated the default ciphers list for Ncat and the secure ciphers list for
 o [NSE][GH#930] Fix ndmp-version and ndmp-fs-info when scanning Veritas Backup
   Exec Agent 15 or 16. [Andrew Orr]
 
-o [NSE][GH#943] Added new SMB2/3 library and scripts:
-  + smb-protocols discovers if a server supports dialects
-    NT LM 0.12 (SMBv1), 2.02, 2.10, 3.00, 3.02 and 3.11.
-  + smb2-time determines the current date and boot date of SMB2 servers.
-  + smb2-capabilities lists the supported capabilities of SMB2/SMB3 servers.
-  + smb2-security-mode determines the message signing configuration of
-    SMB2/SMB3 servers.
-  + smb2-vuln-uptime attempts to discover missing critical
-    patches in Microsoft Windows systems based on the SMB2
-    server uptime. [Paulino Calderon]
+o [NSE][GH#943] Added new SMB2/3 library and related scripts. [Paulino Calderon]
 
 o [NSE][GH#950] Added wildcard detection to dns-brute. Only hostnames that
   resolve to unique addresses will be listed. [Aaron Heesakkers]
-
-o [NSE] ftp-syst sends SYST and STAT commands to FTP servers to get system
-  version and connection information. [Daniel Miller]
 
 o [NSE] FTP scripts like ftp-anon and ftp-brute now correctly handle
   TLS-protected FTP services and use STARTTLS when necessary. [Daniel Miller]
@@ -43,28 +91,12 @@ o [NSE][GH#934] The HTTP response object has a new member, version, which
   contains the HTTP protocol version string returned by the server, e.g. "1.0".
   [nnposter]
 
-o [NSE] openwebnet-discovery retrieves device identifying information and
- number of connected devices running on openwebnet protocol. [Rewanth Cool]
-
 o [NSE][GH#938] Fix handling of the objectSID Active Directory attribute
   by ldap.lua. [Tom Sellers]
-
-o [NSE] puppet-naivesigning checks for a misconfiguration in the Puppet CA
-  where naive signing is enabled, allowing for any CSR to be automatically
-  signed. [Wong Wai Tuck]
 
 o [NSE] Fix line endings in the list of Oracle SIDs used by oracle-sid-brute.
   Carriage Return characters were being sent in the connection packets, likely
   resulting in failure of the script. [Anant Shrivastava]
-
-o [NSE] iec-identify probes for the IEC 60870-5-104 SCADA protocol.
-  [Aleksandr Timorin, Daniel Miller]
-
-o [GH#910] added libssh2 support, ssh-brute, ssh-run, ssh-auth-methods,
-  ssh-publickey-acceptance [Evangelos Deirmentzoglou]
-
-o [NSE] http-vuln-cve2017-8917 checks for an SQL injection vulnerability
-  affecting Joomla! 3.7.x before 3.7.1. [Wong Wai Tuck]
 
 o [NSE][GH#141] http-useragent-checker now checks for changes in HTTP status
   (usually 403 Forbidden) in addition to redirects to indicate forbidden User
