@@ -355,12 +355,18 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
 TargetGroup::~TargetGroup() {
   if (this->netblock != NULL)
     delete this->netblock;
+  if (this->target_expr != NULL)
+    free(this->target_expr);
 }
 
 /* Initializes (or reinitializes) the object with a new expression, such
    as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
    Returns 0 for success */
 int TargetGroup::parse_expr(const char *target_expr, int af) {
+  this->target_expr = (char*)malloc(strlen(target_expr)+1);
+  if (this->target_expr)
+    strcpy( this->target_expr, target_expr );
+
   if (this->netblock != NULL)
     delete this->netblock;
   this->netblock = NetBlock::parse_expr(target_expr, af);
@@ -399,7 +405,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
      specifications appearing in IPv4 mode. */
   if (o.af() == AF_INET && dynamic_cast<NetBlockIPv6Netmask *>(this->netblock) != NULL) {
     error("%s looks like an IPv6 target specification -- you have to use the -6 option.",
-      this->netblock->str().c_str());
+      this->target_expr);
     return -1;
   }
   if ((o.af() == AF_INET && dynamic_cast<NetBlockIPv4Ranges *>(this->netblock) == NULL) ||
