@@ -2359,3 +2359,36 @@ index 622c6a2..3145975 100644
      AC_MSG_RESULT($ac_cv_dnet_streams_mib2)
      if test $ac_cv_dnet_streams_mib2 = yes ; then
          AC_DEFINE(HAVE_STREAMS_MIB2, 1,
+
+o Fix route detection on FreeBSD 11, where net/route.h requires sys/types.h
+
+Index: configure.in
+===================================================================
+--- configure.in	(revision 36845)
++++ configure.in	(working copy)
+@@ -165,10 +165,10 @@
+ 	AC_CHECK_HEADERS(fcntl.h unistd.h)
+ 	AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi.h sys/dlpihdr.h sys/dlpi_ext.h \
+ 	    sys/ioctl.h sys/mib.h sys/ndd_var.h sys/socket.h sys/sockio.h \
+-	    sys/sysctl.h sys/time.h)
++	    sys/sysctl.h sys/time.h sys/types.h)
+ 	AC_CHECK_HEADERS(net/bpf.h net/if.h net/if_var.h \
+ 	    net/if_arp.h net/if_dl.h net/pfilt.h \
+-	    net/pfvar.h net/radix.h net/raw.h net/route.h netinet/in_var.h \
++	    net/pfvar.h net/radix.h net/raw.h netinet/in_var.h \
+ 	    netinet/in6_var.h \
+ 	    net/if_tun.h linux/if_tun.h netinet/ip_fw.h linux/ip_fw.h \
+ 	    linux/ip_fwchains.h linux/netfilter_ipv4/ipchains_core.h)
+@@ -175,6 +175,12 @@
+ 	AC_CHECK_HEADERS(ip_fil_compat.h netinet/ip_fil_compat.h ip_compat.h \
+ 	    netinet/ip_compat.h ip_fil.h netinet/ip_fil.h)
+ 	AC_CHECK_HEADERS(hpsecurity.h stropts.h)
++	AC_CHECK_HEADERS(net/route.h, [], [],
++   [
++#ifdef HAVE_SYS_SOCKET_H
++#include <sys/socket.h>
++#endif
++    ])
+ fi
+ 
+ dnl Checks for typedefs, structures, and compiler characteristics.
