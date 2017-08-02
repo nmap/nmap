@@ -264,9 +264,11 @@ static int ncat_listen_stream(int proto)
 
 #ifdef HAVE_OPENSSL
     if (o.ssl)
+    {
         if (o.sslalpn)
             bye("ALPN is not supported in listen mode\n");
         setup_ssl_listen();
+    }
 #endif
 
 /* Not sure if this problem exists on Windows, but fcntl and /dev/null don't */
