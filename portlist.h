@@ -153,6 +153,7 @@
 #define PORT_CLOSEDFILTERED 8 /* Idle scan */
 #define PORT_HIGHEST_STATE 9 /* ***IMPORTANT -- BUMP THIS UP WHEN STATES ARE
                                 ADDED *** */
+const char *statenum2str(int state);
 
 #define TCPANDUDPANDSCTP IPPROTO_MAX
 #define UDPANDSCTP (IPPROTO_MAX + 1)

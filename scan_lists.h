@@ -192,7 +192,6 @@ void removepts(const char *expr, struct scan_lists * ports);
 void free_scan_lists(struct scan_lists *ports);
 
 /* general helper functions */
-const char *statenum2str(int state);
 const char *scantype2str(stype scantype);
 
 #endif /* SCAN_LISTS_H */
