@@ -516,6 +516,9 @@ public:
     this->pre_max_rtt_timeout   = -1;
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
+#ifndef NOLUA
+    this->pre_scripttimeout     = -1;
+#endif
     this->iflist                = false;
     this->advanced              = false;
     this->af                    = AF_UNSPEC;
@@ -530,6 +533,9 @@ public:
   int   pre_init_rtt_timeout, pre_min_rtt_timeout, pre_max_rtt_timeout;
   int   pre_max_retries;
   long  pre_host_timeout;
+#ifndef NOLUA
+  double pre_scripttimeout;
+#endif
   char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
   bool  iflist, decoys, advanced;
   char  *exclude_spec, *exclude_file;
@@ -745,7 +751,7 @@ void parse_options(int argc, char **argv) {
         l = tval2secs(optarg);
         if ( l <= 0 )
           fatal("Bogus --script-timeout argument specified");
-        o.scripttimeout = l;
+        delayed_options.pre_scripttimeout = l;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -1403,6 +1409,9 @@ void parse_options(int argc, char **argv) {
         o.setMaxTCPScanDelay(5);
         o.setMaxSCTPScanDelay(5);
         o.setMaxRetransmissions(2);
+#ifndef NOLUA
+        o.scripttimeout = 600; // 10 minutes
+#endif
       } else {
         fatal("Unknown timing mode (-T argument).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
       }
@@ -1503,6 +1512,10 @@ void  apply_delayed_options() {
     o.setMaxRetransmissions(delayed_options.pre_max_retries);
   if (delayed_options.pre_host_timeout != -1)
     o.host_timeout = delayed_options.pre_host_timeout;
+#ifndef NOLUA
+  if (delayed_options.pre_scripttimeout != -1)
+    o.scripttimeout = delayed_options.pre_scripttimeout;
+#endif
 
 
   if (o.osscan) {
