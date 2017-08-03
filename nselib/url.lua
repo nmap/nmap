@@ -160,7 +160,7 @@ function parse(url, default)
     return ""
   end)
   -- get scheme. Lower-case according to RFC 3986 section 3.1.
-  url = string.gsub(url, "^([%w][%w%+%-%.]*)%:",
+  url = string.gsub(url, "^(%w[%w.+-]*):",
   function(s) parsed.scheme = string.lower(s); return "" end)
   -- get authority
   url = string.gsub(url, "^//([^/]*)", function(n)
