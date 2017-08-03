@@ -749,7 +749,7 @@ void parse_options(int argc, char **argv) {
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
         l = tval2secs(optarg);
-        if ( l <= 0 )
+        if ( l < 0 )
           fatal("Bogus --script-timeout argument specified");
         delayed_options.pre_scripttimeout = l;
       } else
