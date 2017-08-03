@@ -182,11 +182,19 @@
 #endif
 
 #if HAVE_LIBSSH2
+#ifdef LIBSSH2_INCLUDED
 #include "libssh2/libssh2v.h"
+#else
+#include "libssh2.h"
+#endif
 #endif
 
 #if HAVE_LIBZ
+#ifdef ZLIB_INCLUDED
 #include "libz/libzv.h"
+#else
+#include "zlib.h"
+#endif
 #endif
 
 /* To get the version number only. */
@@ -2722,7 +2730,7 @@ static void display_nmap_version() {
 #ifdef LIBSSH2_INCLUDED
   with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
 #else
-  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
 #endif
 #else
   without.push_back("libssh2");
@@ -2732,7 +2740,7 @@ static void display_nmap_version() {
 #ifdef ZLIB_INCLUDED
   with.push_back(std::string("nmap-libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
 #else
-  with.push_back(std::string("libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+  with.push_back(std::string("libz-") + get_word_or_quote(ZLIB_VERSION, 0));
 #endif
 #else
   without.push_back("libz");
