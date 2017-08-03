@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local base64 = require "base64"
@@ -8,8 +9,11 @@ local io = require "io"
 local libssh2_util = require "libssh2-utility"
 
 description = [[
-This script takes a table of paths to private keys, passphrases, and usernames and checks each pair to 
-see if the target ssh server accepts them for publickey authentication. If no keys are given or the known-bad option is given, the script will check if a list of known static public keys are accepted for authentication.
+This script takes a table of paths to private keys, passphrases, and usernames
+and checks each pair to see if the target ssh server accepts them for publickey
+authentication. If no keys are given or the known-bad option is given, the
+script will check if a list of known static public keys are accepted for
+authentication.
 ]]
 
 ---
@@ -39,7 +43,7 @@ local privatekeys = stdnse.get_script_args "ssh.privatekeys"
 local usernames = stdnse.get_script_args "ssh.usernames"
 local knownbad = stdnse.get_script_args "known-bad"
 local publickeys = stdnse.get_script_args "ssh.publickeys"
-local publickeydb = stdnse.get_script_args "publickeydb" or "nselib/data/publickeydb"
+local publickeydb = stdnse.get_script_args "publickeydb" or nmap.fetchfile("nselib/data/publickeydb")
 portrule = shortport.port_or_service(22, 'ssh')
 
 function action (host, port)
