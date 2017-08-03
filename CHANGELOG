@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#957] Fix reporting of zlib and libssh2 versions in "nmap --version". We
+  were always reporting the version number of the included source, even when a
+  different version was linked. [Pavel Zhukov]
+
 o Add a new helper function for nmap-service-probes match lines: $I(1,">") will
   unpack an unsigned big-endian integer value up to 8 bytes wide from capture
   1. The second option can be "<" for little-endian. [Daniel Miller]
