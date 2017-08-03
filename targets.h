@@ -167,6 +167,8 @@ public:
   const std::list<struct sockaddr_storage> &get_resolved_addrs(void) const;
   /* is the current expression a named host */
   int get_namedhost() const;
+  private:
+    char *target_expr;
 };
 
 class HostGroupState {
