@@ -573,3 +573,113 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
   } while (current_range && *current_range);
 
 }
+
+void free_scan_lists(struct scan_lists *ports) {
+  if (ports->tcp_ports)
+    free(ports->tcp_ports);
+  if (ports->udp_ports)
+    free(ports->udp_ports);
+  if (ports->sctp_ports)
+    free(ports->sctp_ports);
+  if (ports->prots)
+    free(ports->prots);
+  if (ports->syn_ping_ports)
+    free(ports->syn_ping_ports);
+  if (ports->ack_ping_ports)
+    free(ports->ack_ping_ports);
+  if (ports->udp_ping_ports)
+    free(ports->udp_ping_ports);
+  if (ports->proto_ping_ports)
+    free(ports->proto_ping_ports);
+}
+
+
+
+/* Just a routine for obtaining a string for printing based on the scantype */
+const char *scantype2str(stype scantype) {
+
+  switch (scantype) {
+  case STYPE_UNKNOWN:
+    return "Unknown Scan Type";
+    break;
+  case HOST_DISCOVERY:
+    return "Host Discovery";
+    break;
+  case ACK_SCAN:
+    return "ACK Scan";
+    break;
+  case SYN_SCAN:
+    return "SYN Stealth Scan";
+    break;
+  case FIN_SCAN:
+    return "FIN Scan";
+    break;
+  case XMAS_SCAN:
+    return "XMAS Scan";
+    break;
+  case UDP_SCAN:
+    return "UDP Scan";
+    break;
+  case CONNECT_SCAN:
+    return "Connect Scan";
+    break;
+  case NULL_SCAN:
+    return "NULL Scan";
+    break;
+  case WINDOW_SCAN:
+    return "Window Scan";
+    break;
+  case SCTP_INIT_SCAN:
+    return "SCTP INIT Scan";
+    break;
+  case SCTP_COOKIE_ECHO_SCAN:
+    return "SCTP COOKIE-ECHO Scan";
+    break;
+  case MAIMON_SCAN:
+    return "Maimon Scan";
+    break;
+  case IPPROT_SCAN:
+    return "IPProto Scan";
+    break;
+  case PING_SCAN:
+    return "Ping Scan";
+    break;
+  case PING_SCAN_ARP:
+    return "ARP Ping Scan";
+    break;
+  case PING_SCAN_ND:
+    return "ND Ping Scan";
+    break;
+  case IDLE_SCAN:
+    return "Idle Scan";
+    break;
+  case BOUNCE_SCAN:
+    return "Bounce Scan";
+    break;
+  case SERVICE_SCAN:
+    return "Service Scan";
+    break;
+  case OS_SCAN:
+    return "OS Scan";
+    break;
+  case SCRIPT_PRE_SCAN:
+    return "Script Pre-Scan";
+    break;
+  case SCRIPT_SCAN:
+    return "Script Scan";
+    break;
+  case SCRIPT_POST_SCAN:
+    return "Script Post-Scan";
+    break;
+  case TRACEROUTE:
+    return "Traceroute" ;
+    break;
+  default:
+    assert(0);
+    break;
+  }
+
+  return NULL; /* Unreached */
+
+}
+

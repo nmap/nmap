@@ -24,6 +24,11 @@ NDMP = {
     CONNECT_CLIENT_AUTH = 0x00000901,
   },
 
+  -- Error types
+  ErrorType = {
+    NOT_AUTHORIZED_ERROR = 0x00000004
+  },
+
   -- The fragment header, 4 bytes where the highest bit is used to determine
   -- whether the fragment is the last or not.
   FragmentHeader = {
@@ -166,6 +171,10 @@ NDMP.Message.ConfigGetHostInfo = {
     msg.frag_header = NDMP.FragmentHeader.parse(data)
     data = data:sub(NDMP.FragmentHeader.size + 1)
     msg.header = NDMP.Header.parse(data)
+    if ( msg.header.error == NDMP.ErrorType.NOT_AUTHORIZED_ERROR ) then
+      -- no data to parse
+      return msg
+    end
     msg.data = data:sub(NDMP.Header.size + 1)
 
     msg.hostinfo = {}
@@ -202,6 +211,10 @@ NDMP.Message.ConfigGetFsInfo = {
     msg.frag_header = NDMP.FragmentHeader.parse(data)
     data = data:sub(NDMP.FragmentHeader.size + 1)
     msg.header = NDMP.Header.parse(data)
+    if ( msg.header.error == NDMP.ErrorType.NOT_AUTHORIZED_ERROR ) then
+      -- no data to parse
+      return msg
+    end
     msg.data = data:sub(NDMP.Header.size + 1)
 
     local pos, err, count = bin.unpack(">II", msg.data)

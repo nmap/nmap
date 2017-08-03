@@ -108,10 +108,12 @@ local function get_file_extension(f)
   return string.match(f, ".-/.-%.([^/%.]*)$") or "Other"
 end
 
--- removes /../ from paths; for example
+-- removes /../ and /./ from paths; for example
 -- normalize_path("/a/v/../../da/as/d/a/a/aa/../") -> "/da/as/d/a/a/"
 local function normalize_path(p)
   local n=0
+  p = p:gsub("/%.%f[/]", "")
+  p = p:gsub("/%.$", "/")
   repeat
     p, n = string.gsub(p, "/[^/]-/%.%.", "")
   until n==0

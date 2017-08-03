@@ -56,10 +56,13 @@ categories = {
   "safe",
   "discovery",
   "default",
+  "version"
 }
 
 
-portrule = shortport.http
+portrule = function(host, port)
+  return (shortport.http(host,port) and nmap.version_intensity() >= 7)
+end
 
 local ELEMENTS = {["Type"] = "Type",
 ["DeviceName"] = "Device",

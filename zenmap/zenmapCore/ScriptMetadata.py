@@ -363,22 +363,25 @@ class ScriptMetadata (object):
 
     def get_metadata(self, filename):
         entry = self.Entry(filename)
-        entry.description = self.get_string_variable(filename, "description")
-        entry.arguments = self.get_arguments(entry.filename)
-        entry.license = self.get_string_variable(filename, "license")
-        entry.author = self.get_list_variable(filename, "author") or [
-                self.get_string_variable(filename, "author")]
-
-        filepath = os.path.join(self.scripts_dir, filename)
-        f = open(filepath, "r")
         try:
-            for tag_name, tag_text in nsedoc_tags_iter(f):
-                if tag_name == "output" and not entry.output:
-                    entry.output = tag_text
-                elif tag_name == "usage" and not entry.usage:
-                    entry.usage = tag_text
-        finally:
-            f.close()
+            entry.description = self.get_string_variable(filename, "description")
+            entry.arguments = self.get_arguments(entry.filename)
+            entry.license = self.get_string_variable(filename, "license")
+            entry.author = self.get_list_variable(filename, "author") or [
+                    self.get_string_variable(filename, "author")]
+
+            filepath = os.path.join(self.scripts_dir, filename)
+            f = open(filepath, "r")
+            try:
+                for tag_name, tag_text in nsedoc_tags_iter(f):
+                    if tag_name == "output" and not entry.output:
+                        entry.output = tag_text
+                    elif tag_name == "usage" and not entry.usage:
+                        entry.usage = tag_text
+            finally:
+                f.close()
+        except IOError as e:
+            entry.description = "Error getting metadata: {}".format(e)
 
         return entry
 

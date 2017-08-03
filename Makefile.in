@@ -30,6 +30,8 @@ CCOPT =
 DBGFLAGS = 
 STRIP = @STRIP@
 LIBPCAPDIR = @libpcapdir@
+LIBSSH2DIR = @LIBSSH2DIR@
+ZLIBDIR = @ZLIBDIR@
 LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
 ZENMAPDIR = @ZENMAPDIR@
@@ -50,8 +52,10 @@ CPPFLAGS = @CPPFLAGS@ $(DEFS)
 CFLAGS = @CFLAGS@ $(DBGFLAGS) $(CCOPT)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(OPENSSL_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
+LIBS =  @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(LIBSSH2_LIBS) $(OPENSSL_LIBS) $(ZLIB_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
+LIBSSH2_LIBS = @LIBSSH2_LIBS@
+ZLIB_LIBS = @ZLIB_LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 INSTALL = @INSTALL@
@@ -96,6 +100,11 @@ NSE_SRC+=nse_openssl.cc nse_ssl_cert.cc
 NSE_HDRS+=nse_openssl.h nse_ssl_cert.h
 NSE_OBJS+=nse_openssl.o nse_ssl_cert.o
 endif
+ifneq (@LIBSSH2_LIBS@,)
+NSE_SRC+=nse_libssh2.cc
+NSE_HDRS+=nse_libssh2.h
+NSE_OBJS+=nse_libssh2.o
+endif
 endif
 
 export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan.cc MACLookup.cc main.cc nmap.cc nmap_dns.cc nmap_error.cc nmap_ftp.cc NmapOps.cc NmapOutputTable.cc nmap_tty.cc osscan2.cc osscan.cc output.cc payload.cc portlist.cc portreasons.cc protocols.cc scan_engine.cc scan_engine_connect.cc scan_engine_raw.cc scan_lists.cc service_scan.cc services.cc Target.cc TargetGroup.cc targets.cc tcpip.cc timing.cc traceroute.cc utils.cc xml.cc $(NSE_SRC)
@@ -115,7 +124,7 @@ FPModel.o: CXXFLAGS += -g0
 
 all: $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING) $(BUILDNCAT) @NMAP_UPDATE_BUILD@
 
-$(TARGET): build-netutil @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
+$(TARGET): build-netutil @LIBLINEAR_BUILD@ @PCAP_BUILD@ @LIBSSH2_BUILD@ @ZLIB_BUILD@ @PCRE_BUILD@ @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
 	$(OBJS) main.o
 	@echo Compiling nmap
 	rm -f $@
@@ -129,6 +138,13 @@ build-dnet: $(LIBDNETDIR)/Makefile
 
 build-pcap: $(LIBPCAPDIR)/Makefile
 	@echo Compiling libpcap; cd $(LIBPCAPDIR) && $(MAKE)
+
+build-libssh2: $(LIBSSH2DIR)/src/Makefile
+	@echo Compiling libssh2; cd $(LIBSSH2DIR)/src && $(MAKE);
+	cd $(LIBSSH2DIR)/src && $(MAKE) libdir="/lib" prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) install-libLTLIBRARIES;
+
+build-zlib: $(ZLIBDIR)/Makefile
+	@echo Compiling zlib; cd $(ZLIBDIR) && $(MAKE);
 
 build-nbase: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
@@ -182,7 +198,7 @@ release-rpms:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ \
+clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ @LIBSSH2_CLEAN@ @ZLIB_CLEAN@\
 clean-nsock clean-nbase clean-netutil @NPING_CLEAN@ @ZENMAP_CLEAN@ \
 @NCAT_CLEAN@ @NMAP_UPDATE_CLEAN@ @NDIFF_CLEAN@ clean-tests
 	rm -f $(OBJS) main.o $(TARGET)
@@ -193,8 +209,8 @@ clean-nsock clean-nbase clean-netutil @NPING_CLEAN@ @ZENMAP_CLEAN@ \
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: @LUA_DIST_CLEAN@ @LIBLINEAR_DIST_CLEAN@ @PCAP_DIST_CLEAN@ \
-@PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ \
+distclean: @LUA_DIST_CLEAN@ @LIBLINEAR_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @LIBSSH2_DIST_CLEAN@\
+@ZLIB_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ \
 @NCAT_DIST_CLEAN@ @NMAP_UPDATE_DIST_CLEAN@ distclean-netutil \
 distclean-nsock distclean-nbase @NDIFF_DIST_CLEAN@ clean debugclean
 	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h \
@@ -202,6 +218,14 @@ distclean-nsock distclean-nbase @NDIFF_DIST_CLEAN@ clean debugclean
 
 clean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
+
+clean-libssh2:
+	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) uninstall-libLTLIBRARIES
+	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) clean
+	-cd $(LIBSSH2DIR) && $(MAKE) clean
+
+clean-zlib:
+	-cd $(ZLIBDIR) && $(MAKE) clean
 
 clean-pcre:
 	-cd $(LIBPCREDIR) && $(MAKE) clean
@@ -244,6 +268,13 @@ clean-tests:
 
 distclean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
+
+distclean-libssh2:
+	-cd $(LIBSSH2DIR)/src && $(MAKE) prefix="" DESTDIR=$(NDIR)/$(LIBSSH2DIR) distclean
+	-cd $(LIBSSH2DIR) && $(MAKE) distclean
+
+distclean-zlib:
+	-cd $(ZLIBDIR) && $(MAKE) distclean
 
 distclean-pcre:
 	-cd $(LIBPCREDIR) && $(MAKE) distclean

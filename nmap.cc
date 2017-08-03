@@ -181,6 +181,14 @@
 #include <openssl/opensslv.h>
 #endif
 
+#if HAVE_LIBSSH2
+#include "libssh2/libssh2v.h"
+#endif
+
+#if HAVE_LIBZ
+#include "libz/libzv.h"
+#endif
+
 /* To get the version number only. */
 #ifdef WIN32
 #include "libdnet-stripped/include/dnet_winconfig.h"
@@ -508,6 +516,9 @@ public:
     this->pre_max_rtt_timeout   = -1;
     this->pre_max_retries       = -1;
     this->pre_host_timeout      = -1;
+#ifndef NOLUA
+    this->pre_scripttimeout     = -1;
+#endif
     this->iflist                = false;
     this->advanced              = false;
     this->af                    = AF_UNSPEC;
@@ -522,6 +533,9 @@ public:
   int   pre_init_rtt_timeout, pre_min_rtt_timeout, pre_max_rtt_timeout;
   int   pre_max_retries;
   long  pre_host_timeout;
+#ifndef NOLUA
+  double pre_scripttimeout;
+#endif
   char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
   bool  iflist, decoys, advanced;
   char  *exclude_spec, *exclude_file;
@@ -735,9 +749,9 @@ void parse_options(int argc, char **argv) {
         o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name, "script-timeout") == 0) {
         l = tval2secs(optarg);
-        if ( l <= 0 )
+        if ( l < 0 )
           fatal("Bogus --script-timeout argument specified");
-        o.scripttimeout = l;
+        delayed_options.pre_scripttimeout = l;
       } else
 #endif
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
@@ -1395,6 +1409,9 @@ void parse_options(int argc, char **argv) {
         o.setMaxTCPScanDelay(5);
         o.setMaxSCTPScanDelay(5);
         o.setMaxRetransmissions(2);
+#ifndef NOLUA
+        o.scripttimeout = 600; // 10 minutes
+#endif
       } else {
         fatal("Unknown timing mode (-T argument).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
       }
@@ -1495,6 +1512,10 @@ void  apply_delayed_options() {
     o.setMaxRetransmissions(delayed_options.pre_max_retries);
   if (delayed_options.pre_host_timeout != -1)
     o.host_timeout = delayed_options.pre_host_timeout;
+#ifndef NOLUA
+  if (delayed_options.pre_scripttimeout != -1)
+    o.scripttimeout = delayed_options.pre_scripttimeout;
+#endif
 
 
   if (o.osscan) {
@@ -2445,143 +2466,6 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
 }
 
 
-void free_scan_lists(struct scan_lists *ports) {
-  if (ports->tcp_ports)
-    free(ports->tcp_ports);
-  if (ports->udp_ports)
-    free(ports->udp_ports);
-  if (ports->sctp_ports)
-    free(ports->sctp_ports);
-  if (ports->prots)
-    free(ports->prots);
-  if (ports->syn_ping_ports)
-    free(ports->syn_ping_ports);
-  if (ports->ack_ping_ports)
-    free(ports->ack_ping_ports);
-  if (ports->udp_ping_ports)
-    free(ports->udp_ping_ports);
-  if (ports->proto_ping_ports)
-    free(ports->proto_ping_ports);
-}
-
-
-
-
-/* Just a routine for obtaining a string for printing based on the scantype */
-const char *scantype2str(stype scantype) {
-
-  switch (scantype) {
-  case STYPE_UNKNOWN:
-    return "Unknown Scan Type";
-    break;
-  case HOST_DISCOVERY:
-    return "Host Discovery";
-    break;
-  case ACK_SCAN:
-    return "ACK Scan";
-    break;
-  case SYN_SCAN:
-    return "SYN Stealth Scan";
-    break;
-  case FIN_SCAN:
-    return "FIN Scan";
-    break;
-  case XMAS_SCAN:
-    return "XMAS Scan";
-    break;
-  case UDP_SCAN:
-    return "UDP Scan";
-    break;
-  case CONNECT_SCAN:
-    return "Connect Scan";
-    break;
-  case NULL_SCAN:
-    return "NULL Scan";
-    break;
-  case WINDOW_SCAN:
-    return "Window Scan";
-    break;
-  case SCTP_INIT_SCAN:
-    return "SCTP INIT Scan";
-    break;
-  case SCTP_COOKIE_ECHO_SCAN:
-    return "SCTP COOKIE-ECHO Scan";
-    break;
-  case MAIMON_SCAN:
-    return "Maimon Scan";
-    break;
-  case IPPROT_SCAN:
-    return "IPProto Scan";
-    break;
-  case PING_SCAN:
-    return "Ping Scan";
-    break;
-  case PING_SCAN_ARP:
-    return "ARP Ping Scan";
-    break;
-  case PING_SCAN_ND:
-    return "ND Ping Scan";
-    break;
-  case IDLE_SCAN:
-    return "Idle Scan";
-    break;
-  case BOUNCE_SCAN:
-    return "Bounce Scan";
-    break;
-  case SERVICE_SCAN:
-    return "Service Scan";
-    break;
-  case OS_SCAN:
-    return "OS Scan";
-    break;
-  case SCRIPT_PRE_SCAN:
-    return "Script Pre-Scan";
-    break;
-  case SCRIPT_SCAN:
-    return "Script Scan";
-    break;
-  case SCRIPT_POST_SCAN:
-    return "Script Post-Scan";
-    break;
-  case TRACEROUTE:
-    return "Traceroute" ;
-    break;
-  default:
-    assert(0);
-    break;
-  }
-
-  return NULL; /* Unreached */
-
-}
-
-const char *statenum2str(int state) {
-  switch (state) {
-  case PORT_OPEN:
-    return "open";
-    break;
-  case PORT_FILTERED:
-    return "filtered";
-    break;
-  case PORT_UNFILTERED:
-    return "unfiltered";
-    break;
-  case PORT_CLOSED:
-    return "closed";
-    break;
-  case PORT_OPENFILTERED:
-    return "open|filtered";
-    break;
-  case PORT_CLOSEDFILTERED:
-    return "closed|filtered";
-    break;
-  default:
-    return "unknown";
-    break;
-  }
-  return "unknown";
-}
-
 static char *executable_dir(const char *argv0) {
   char *path, *dir;
 
@@ -2834,6 +2718,26 @@ static void display_nmap_version() {
   without.push_back("openssl");
 #endif
 
+#if HAVE_LIBSSH2
+#ifdef LIBSSH2_INCLUDED
+  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+#else
+  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION_TEXT, 1));
+#endif
+#else
+  without.push_back("libssh2");
+#endif
+
+#if HAVE_LIBZ
+#ifdef ZLIB_INCLUDED
+  with.push_back(std::string("nmap-libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+#else
+  with.push_back(std::string("libz-") + get_word_or_quote(LIBZ_VERSION_TEXT, 1));
+#endif
+#else
+  without.push_back("libz");
+#endif
+  
 #ifdef PCRE_INCLUDED
   with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
 #else

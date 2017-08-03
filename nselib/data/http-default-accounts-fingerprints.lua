@@ -1147,9 +1147,8 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 416.7.I on Smart-UPS RT 2000 XL, 530.1800.D on APC Symmetra 80K,
-  --         652.19.D on Smart-UPS 1000, 3.4.4 on PDU AP7900
-  name = "APC Management Card",
+  -- Version 3.2.5 on AP9606, 2.5.0, 2.6.4 on AP9617, AP9619, 1.1.6 on AP7900
+  name = "APC Management Card (basic auth)",
   category = "industrial",
   paths = {
     {path = "/"}

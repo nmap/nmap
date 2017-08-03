@@ -828,6 +828,54 @@ static char *substvar(char *tmplvar, char **tmplvarend,
         i += findstrlen;
       }
     }
+  } else if (strcmp(substcommand, "I") == 0 ){
+    // Parse an unsigned int
+    u64 val = 0;
+    bool bigendian = true;
+    char buf[24]; //0xffffffffffffffff = 18446744073709551615, 20 chars
+    int buflen;
+    if (command_args.num_args != 2 ||
+        command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT ||
+        command_args.arg_types[1] != SUBSTARGS_ARGTYPE_STRING ||
+        command_args.str_args_len[1] != 1) {
+      return NULL;
+    }
+    subnum = command_args.int_args[0];
+    if (subnum > 9 || subnum <= 0) return NULL;
+    if (subnum >= nummatches) return NULL;
+    offstart = ovector[subnum * 2];
+    offend = ovector[subnum * 2 + 1];
+    assert(offstart >= 0 && offstart < subjectlen);
+
+    // overflow
+    if (offend - offstart > 8) {
+      return NULL;
+    }
+    switch (command_args.str_args[1][0]) {
+      case '>':
+        bigendian = true;
+        break;
+      case '<':
+        bigendian = false;
+        break;
+      default:
+        return NULL;
+        break;
+    }
+    if (bigendian) {
+      for(i=offstart; i < offend; i++) {
+        val = (val<<8) + subject[i];
+      }
+    } else {
+      for(i=offend - 1; i > offstart - 1; i--) {
+        val = (val<<8) + subject[i];
+      }
+    }
+    buflen = Snprintf(buf, sizeof(buf), "%lu", val);
+    if (buflen < 0 || buflen > (int) sizeof(buf)) {
+      return NULL;
+    }
+    strbuf_append(&result, &n, &len, buf, buflen);
   } else return NULL; // Unknown command
 
   strbuf_finish(&result, &n, &len);

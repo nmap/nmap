@@ -308,8 +308,8 @@ Content-Type: text/html; charset=UTF-8
   with only one client, and the
   <option>--keep-open</option><indexterm><primary><option>--keep-open</option> (Ncat option)</primary><secondary>not supported with UDP</secondary></indexterm>
   option doesn't work, the reason for this being that UDP has no notion
-  of a connection. UDP may not be combined with
-  SSL.<indexterm><primary>SSL</primary><secondary>not supported with UDP</secondary></indexterm>
+  of a connection. UDP may be secured by a form of SSL called Datagram TLS (DTLS)<indexterm><primary>DTLS</primary><secondary>Datagram TLS</secondary></indexterm>.
+  This is currently only supported in connect (client) mode.<indexterm><primary>SSL</primary><secondary>not supported with UDP in server mode</secondary></indexterm>
   </para>
 
   <para>
@@ -440,7 +440,7 @@ Content-Type: text/html; charset=UTF-8
     client) or accept (as a server) is a matter of choice between the greatest
     compatibility and the greatest security. The default set, expressed as an
     OpenSSL cipherlist, is
-    <literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal>, a reasonable balance
+    <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH</literal>, a reasonable balance
     between the two ends of the spectrum. To set a different priority or
     initial choice, use the <option>--ssl-ciphers</option> option.
     <indexterm><primary><option>--ssl-ciphers</option> (Ncat option)</primary></indexterm>

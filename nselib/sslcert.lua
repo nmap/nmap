@@ -204,28 +204,20 @@ StartTLS = {
     -- Works for FTP (21)
 
     -- Open a standard TCP socket
-    local s, err = comm.opencon(host, port)
+    local s, code, result, buf = ftp.connect(host, port)
     if not s then
-      return false, string.format("Failed to connect to FTP server: %s", err)
+      return false, string.format("Failed to connect to FTP server: %s", code)
     end
-    local buf = stdnse.make_buffer(s, "\r?\n")
-
-    local code, result = ftp.read_reply(buf)
     if code ~= 220 then
       return false, string.format("FTP protocol error: %s", code or result)
     end
 
     -- Send AUTH TLS command, ask the service to start encryption
-    s:send("AUTH TLS\r\n")
-    code, result = ftp.read_reply(buf)
-    if code ~= 234 then
+    local status, err = ftp.starttls(s, buf)
+    if not status then
       starttls_supported(host, port, false)
-      stdnse.debug1("AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
-
-      -- Send QUIT to clean up server side connection
-      s:send("QUIT\r\n")
-
-      return false, string.format("FTP AUTH TLS error: %s", code or result)
+      ftp.close(s)
+      return false, string.format("FTP AUTH TLS error: %s", err)
     end
     -- Should have a solid TLS over FTP session now...
     starttls_supported(host, port, true)

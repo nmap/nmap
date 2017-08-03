@@ -977,3 +977,31 @@ void random_port_cheat(u16 *ports, int portcount) {
     }
   }
 }
+
+const char *statenum2str(int state) {
+  switch (state) {
+  case PORT_OPEN:
+    return "open";
+    break;
+  case PORT_FILTERED:
+    return "filtered";
+    break;
+  case PORT_UNFILTERED:
+    return "unfiltered";
+    break;
+  case PORT_CLOSED:
+    return "closed";
+    break;
+  case PORT_OPENFILTERED:
+    return "open|filtered";
+    break;
+  case PORT_CLOSEDFILTERED:
+    return "closed|filtered";
+    break;
+  default:
+    return "unknown";
+    break;
+  }
+  return "unknown";
+}
+

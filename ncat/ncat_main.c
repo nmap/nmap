@@ -320,12 +320,14 @@ int main(int argc, char *argv[])
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   required_argument,  NULL,         0},
         {"ssl-ciphers",     required_argument,  NULL,         0},
+        {"ssl-alpn",        required_argument,  NULL,         0},
 #else
         {"ssl-cert",        optional_argument,  NULL,         0},
         {"ssl-key",         optional_argument,  NULL,         0},
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   optional_argument,  NULL,         0},
         {"ssl-ciphers",     optional_argument,  NULL,         0},
+        {"ssl-alpn",        optional_argument,  NULL,         0},
 #endif
         {0, 0, 0, 0}
     };
@@ -536,7 +538,16 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
                 o.ssl = 1;
                 o.sslciphers = Strdup(optarg);
+#ifdef HAVE_ALPN_SUPPORT
+            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+                o.ssl = 1;
+                o.sslalpn = Strdup(optarg);
             }
+#else
+            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+                bye("OpenSSL does not have ALPN support compiled in. The --ssl-alpn option cannot be chosen.");
+            }
+#endif
 #else
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
                 bye("OpenSSL isn't compiled in. The --ssl-cert option cannot be chosen.");
@@ -548,6 +559,8 @@ int main(int argc, char *argv[])
                 bye("OpenSSL isn't compiled in. The --ssl-trustfile option cannot be chosen.");
             } else if (strcmp(long_options[option_index].name, "ssl-ciphers") == 0) {
                 bye("OpenSSL isn't compiled in. The --ssl-ciphers option cannot be chosen.");
+            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+                bye("OpenSSL isn't compiled in. The --ssl-alpn option cannot be chosen.");
             }
 #endif
 #ifdef HAVE_LUA
@@ -637,6 +650,7 @@ int main(int argc, char *argv[])
 "      --ssl-verify           Verify trust and domain name of certificates\n"
 "      --ssl-trustfile        PEM file containing trusted SSL certificates\n"
 "      --ssl-ciphers          Cipherlist containing SSL ciphers to use\n"
+"      --ssl-alpn             ALPN protocol list to use.\n"
 #endif
 "      --version              Display Ncat's version information and exit\n"
 "\n"
@@ -903,9 +917,11 @@ int main(int argc, char *argv[])
     }
 
     if (o.proto == IPPROTO_UDP) {
-        /* Don't allow a false sense of security if someone tries SSL over UDP. */
+
+#ifndef HAVE_DTLS_CLIENT_METHOD
         if (o.ssl)
-            bye("UDP mode does not support SSL.");
+            bye("OpenSSL does not have DTLS support compiled in.");
+#endif
         if (o.keepopen && o.cmdexec == NULL)
             bye("UDP mode does not support the -k or --keep-open options, except with --exec or --sh-exec.");
         if (o.broker)

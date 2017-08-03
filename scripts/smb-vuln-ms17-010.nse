@@ -7,6 +7,7 @@ local string = require "string"
 description = [[
 Attempts to detect if a Microsoft SMBv1 server is vulnerable to a remote code
  execution vulnerability (ms17-010, a.k.a. EternalBlue).
+ The vulnerability is actively exploited by WannaCry and Petya ransomware and other malware.
 
 The script connects to the $IPC tree, executes a transaction on FID 0 and
  checks if the error "STATUS_INSUFF_SERVER_RESOURCES" is returned to

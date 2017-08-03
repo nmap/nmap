@@ -215,6 +215,7 @@ void options_init(void)
     o.sslverify = 0;
     o.ssltrustfile = NULL;
     o.sslciphers = NULL;
+    o.sslalpn = NULL;
 #endif
 }
 

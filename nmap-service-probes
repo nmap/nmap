@@ -6152,7 +6152,7 @@ match zmodem m|^\*\*\x18B0100000023be50\r\x8a\x11$| p/ZMODEM/
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
 ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,1026,1080,1042,1214,1220,1234,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,3872,4000,4444,4567,4660,4711,5000,5427,5060,5222,5269,5280,5432,5800-5803,5900,5985,6103,6346,6544,6600,6699,6969,7002,7007,7070,7100,7402,7776,8000-8010,8080-8085,8088,8118,8181,8530,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10001,10005,11371,13013,13666,13722,14534,15000,17988,18264,31337,40193,50000,55555
-sslports 443,993,995,1311,1443,3443,4443,5061,7443,8443,8531,9443,10443,14443,44443,60443
+sslports 443,993,995,1311,1443,3443,4443,5061,5986,7443,8443,8531,9443,10443,14443,44443,60443
 
 match adobe-crossdomain m|^<\?xml version=\"1\.0\"\?>\r\n<!DOCTYPE cross-domain-policy SYSTEM \"/xml/dtds/cross-domain-policy\.dtd\">\r\n<cross-domain-policy>\r\n    <!-- This is a master socket policy file -->\r\n    <!-- No other socket policies on the host will be permitted -->\r\n    <site-control permitted-cross-domain-policies=\"master-only\"/>\r\n    <!-- This will allow access to port 1800 -->\r\n    <allow-access-from domain=\"([^\"]*)\" to-ports=\"([^\"]*)\"/>\r\n</cross-domain-policy>\r\n| p/Adobe cross-domain policy/ i/Snom 870 VoIP phone; domain: $1; ports: $2/ d/VoIP phone/ cpe:/h:snom:870/
 
@@ -12589,7 +12589,7 @@ match smtp-proxy m|^220 OutgoingFilter SMTP\r\n502 OutgoingFilter Command not im
 Probe TCP Help q|HELP\r\n|
 rarity 3
 ports 1,7,21,25,79,113,119,515,587,1111,1311,12345,2401,2627,3000,3493,6560,6666-6670,14690,22490
-sslports 465
+sslports 465,990
 totalwaitms 7500
 
 # http://www.computerpokercompetition.org/
@@ -12978,7 +12978,7 @@ softmatch ftp m|^220[\s-].*ftp[^\r]*\r\n214[\s-]|i
 # TLSv1-only servers, based on a failed handshake alert.
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 rarity 1
-ports 322,443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2252,2443,3443,4433,4443,4444,4911,5061,5443,5550,6443,7210,7272,7443,8009,8181,8194,8443,8531,8883,9001,9443,10443,14443,44443,60443
+ports 322,443,444,465,548,636,989,990,992,993,994,995,1241,1311,1443,2000,2252,2443,3443,4433,4443,4444,4911,5061,5443,5550,6443,6679,6697,7000,7210,7272,7443,8009,8181,8194,8443,8531,8883,9001,9443,10443,14443,44443,60443
 fallback GetRequest
 
 # OpenSSL/0.9.7aa, 0.9.8e
@@ -14845,6 +14845,8 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x13\x88| p/Microsoft SQL Server 2005/ v/9.00.5000; SP4/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp4/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x13\xcd| p/Microsoft SQL Server 2005/ v/9.00.5069; SP4+ MS12-070/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp4/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00\x14\xcc| p/Microsoft SQL Server 2005/ v/9.00.5324; SP4+ MS12-070 cumulative/ o/Windows/ cpe:/a:microsoft:sql_server:2005:sp4/ cpe:/o:microsoft:windows/
+# Generic match for SQL Server 2005
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09\x00(..)|s p/Microsoft SQL Server 2005/ v/9.00.$I(1,">")/ o/Windows/ cpe:/a:microsoft:sql_server:2005/ cpe:/o:microsoft:windows/
 
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x04\x33| p/Microsoft SQL Server 2008/ v/10.00.1075; CTP/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x06\x40| p/Microsoft SQL Server 2008/ v/10.00.1600; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2008:gold/ cpe:/o:microsoft:windows/
@@ -14858,6 +14860,8 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x15\xa2| p/Microsoft SQL Server 2008/ v/10.00.5538; SP3+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp3/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x17\x70| p/Microsoft SQL Server 2008/ v/10.00.6000; SP4/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp4/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00\x18\x61| p/Microsoft SQL Server 2008/ v/10.00.6241; SP4+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2008:sp4/ cpe:/o:microsoft:windows/
+# Generic match for SQL Server 2008
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00(..)|s p/Microsoft SQL Server 2008/ v/10.00.$I(1,">")/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
 
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x06\x40| p/Microsoft SQL Server 2008 R2/ v/10.50.1600; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x06\x51| p/Microsoft SQL Server 2008 R2/ v/10.50.1617; RTM+ MS11-049/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2/ cpe:/o:microsoft:windows/
@@ -14866,31 +14870,33 @@ match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x0f\xa0| p/Microsoft SQL Server 2008 R2/ v/10.50.4000; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x10\xb4| p/Microsoft SQL Server 2008 R2/ v/10.50.4276; SP2+ Cumulative Update 5/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x17\x70| p/Microsoft SQL Server 2008 R2/ v/10.50.6000; SP3/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp3/ cpe:/o:microsoft:windows/
+# Generic match for SQL Server 2008 R2
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32(..)|s p/Microsoft SQL Server 2008 R2/ v/10.50.$I(1,">")/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2/ cpe:/o:microsoft:windows/
 
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x08\x34| p/Microsoft SQL Server 2012/ v/11.00.2100; RTM/ o/Windows/ cpe:/a:microsoft:sql_server:2012:gold/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x0b\xb8| p/Microsoft SQL Server 2012/ v/11.00.3000; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x0c\x38| p/Microsoft SQL Server 2012/ v/11.00.3128; SP1+/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x13\xc2| p/Microsoft SQL Server 2012/ v/11.00.5058; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp2/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00\x17\x84| p/Microsoft SQL Server 2012/ v/11.00.6020; SP3/ o/Windows/ cpe:/a:microsoft:sql_server:2012:sp3/ cpe:/o:microsoft:windows/
+# Generic match for SQL Server 2012
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00(..)| p/Microsoft SQL Server 2012/ v/11.00.$I(1,">")/ o/Windows/ cpe:/a:microsoft:sql_server:2012/ cpe:/o:microsoft:windows/
 
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x07\xd0| p/Microsoft SQL Server 2014/ v/12.00.2000/ o/Windows/ cpe:/a:microsoft:sql_server:2014/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x10\x04| p/Microsoft SQL Server 2014/ v/12.00.4100; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x10\x75| p/Microsoft SQL Server 2014/ v/12.00.4213; SP1+ MS15-058/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp1/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00\x13\x88| p/Microsoft SQL Server 2014/ v/12.00.5000; SP2/ o/Windows/ cpe:/a:microsoft:sql_server:2014:sp2/ cpe:/o:microsoft:windows/
+# Generic match for SQL Server 2014
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00(..)|s p/Microsoft SQL Server 2014/ v/12.00.$I(1,">")/ o/Windows/ cpe:/a:microsoft:sql_server:2014/ cpe:/o:microsoft:windows/
 
+# Generic match for SQL Server 2016
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0d\x00\x06\x41| p/Microsoft SQL Server 2016/ v/13.00.1601/ o/Windows/ cpe:/a:microsoft:sql_server:2016/ cpe:/o:microsoft:windows/
 match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0d\x00\x0f\xa1| p/Microsoft SQL Server 2016/ v/13.00.4001; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2016:sp1/ cpe:/o:microsoft:windows/
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0d\x00(..)| p/Microsoft SQL Server 2016/ v/13.00.$I(1,">")/ o/Windows/ cpe:/a:microsoft:sql_server:2016/ cpe:/o:microsoft:windows/
 
 # No longer Windows-only
-match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0e\x00..|s p/Microsoft SQL Server vNext tech preview/ v/14.00.X/ cpe:/a:microsoft:sql_server/
+# Generic match for SQL Server vNext
+match ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0e\x00(..)|s p/Microsoft SQL Server vNext tech preview/ v/14.00.$I(1,">")/ cpe:/a:microsoft:sql_server/
 
-#Major version match lines - in the event that minor versions do not match
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08| p/Microsoft SQL Server 2000/ o/Windows/ cpe:/a:microsoft:sql_server:2000/ cpe:/o:microsoft:windows/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09| p/Microsoft SQL Server 2005/ o/Windows/ cpe:/a:microsoft:sql_server:2005/ cpe:/o:microsoft:windows/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00| p/Microsoft SQL Server 2008/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32| p/Microsoft SQL Server 2008 R2/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2/ cpe:/o:microsoft:windows/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0b\x00| p/Microsoft SQL Server 2012/ o/Windows/ cpe:/a:microsoft:sql_server:2012/ cpe:/o:microsoft:windows/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0c\x00| p/Microsoft SQL Server 2014/ o/Windows/ cpe:/a:microsoft:sql_server:2014/ cpe:/o:microsoft:windows/
 softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01| p/Microsoft SQL Server/ o/Windows/ cpe:/a:microsoft:sql_server/ cpe:/o:microsoft:windows/
 
 match ms-sql-s m|^\x04\x01\x00\x2b\x00\x00\x00\x00\x00\x00\x1a\x00\x06\x01\x00\x20\x00\x01\x02\x00\x21\x00\x01\x03\x00\x22\x00\x00\x04\x00\x22\x00\x01\xff\x08\x00\x02\x10\x00\x00\x02\x00\x00| p/Dionaea honeypot MS-SQL server/

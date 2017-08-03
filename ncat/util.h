@@ -230,4 +230,6 @@ struct fdinfo *get_fdinfo(const fd_list_t *, int);
 
 int fix_line_endings(char *src, int *len, char **dst, int *state);
 
+unsigned char *next_protos_parse(size_t *outlen, const char *in);
+
 #endif

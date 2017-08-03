@@ -43,6 +43,8 @@ categories = {"version"}
 
 portrule = function (host, port)
   -- Run for any port that has a service fingerprint indicating an unknown service
+  -- OK to run at any version intensity (e.g. not checking nmap.version_intensity)
+  -- because no traffic is sent and lower intensity is more likely to not match.
   return port.version and port.version.service_fp
 end
 

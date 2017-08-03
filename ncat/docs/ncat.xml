@@ -314,6 +314,8 @@
           particularly handy for talking to SSL enabled HTTP servers, etc.</para>
           <para>In server mode, this option listens for incoming SSL connections,
           rather than plain untunneled traffic.</para>
+          <para>In UDP connect mode, this option enables Datagram TLS (DTLS).
+          This is not supported in server mode.</para>
         </listitem>
       </varlistentry>
 
@@ -392,9 +394,23 @@
             when connecting to servers or when accepting SSL connections from
             clients. The syntax is described in the OpenSSL ciphers(1) man
             page, and defaults to
-            <literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal></para>
+            <literal>ALL:!aNULL:!eNULL:!LOW:!EXP:!MD5:@STRENGTH</literal></para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-alpn <replaceable>ALPN list</replaceable></option> (Specify ALPN protocol list)
+          <indexterm><primary><option>--ssl-alpn</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This option allows you to specify a comma-separated list of
+            protocols to send via the Application-Layer Protocol Negotiation
+            (ALPN) TLS extension. Not supported by all versions of OpenSSL.
+          </para>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
 
   </refsect1>

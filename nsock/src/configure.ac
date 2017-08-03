@@ -263,6 +263,14 @@ if test "$use_openssl" = "yes"; then
   AC_TRY_LINK([#include <openssl/ssl.h>], [SSL_set_tlsext_host_name(NULL, NULL)],
     [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_SSL_SET_TLSEXT_HOST_NAME)],
     [AC_MSG_RESULT([no])])
+  AC_MSG_CHECKING([for DTLS_client_method])
+  AC_TRY_LINK([#include <openssl/ssl.h>], [DTLS_client_method()],
+    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_DTLS_CLIENT_METHOD)],
+    [AC_MSG_RESULT([no])])
+  AC_MSG_CHECKING([for SSL_set_alpn_protos])
+  AC_TRY_LINK([#include <openssl/ssl.h>], [SSL_set_alpn_protos(NULL, NULL, 0)],
+    [AC_MSG_RESULT([yes]); AC_DEFINE(HAVE_ALPN_SUPPORT)],
+    [AC_MSG_RESULT([no])])
   LIBS="$LIBS_TMP"
 
 fi

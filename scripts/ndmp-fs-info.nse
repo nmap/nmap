@@ -54,6 +54,7 @@ action = function(host, port)
 
   status, msg = helper:getFsInfo()
   if ( not(status) ) then return fail("Failed to get filesystem information from server") end
+  if ( msg.header.error == ndmp.NDMP.ErrorType.NOT_AUTHORIZED_ERROR ) then return fail("Not authorized to get filesystem information from server") end
   helper:close()
 
   local result = tab.new(3)
