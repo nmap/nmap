@@ -183,7 +183,7 @@ function parse(url, default)
   parsed.path = url
 
   -- Checks for folder route and extension
-  if(string.match(parsed.path, "/$")) then
+  if parsed.path:sub(-1) == "/" then
     parsed.is_folder = true
   else
     parsed.is_folder = false
