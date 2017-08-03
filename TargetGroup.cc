@@ -260,6 +260,10 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
 
   sslen = sizeof(ss);
   if (resolve_numeric(hostexp, 0, &ss, &sslen, AF_INET6) == 0) {
+    if (af != AF_INET6) {
+      error("%s looks like an IPv6 target specification -- you have to use the -6 option.", hostexp);
+      return NULL;
+    }
     NetBlockIPv6Netmask *netblock_ipv6;
 
     netblock_ipv6 = new NetBlockIPv6Netmask();

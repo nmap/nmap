@@ -395,20 +395,6 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     delete netblock_hostname;
   }
 
-  /* Check for proper address family. Give a specific error message for IPv6
-     specifications appearing in IPv4 mode. */
-  if (o.af() == AF_INET && dynamic_cast<NetBlockIPv6Netmask *>(this->netblock) != NULL) {
-    error("%s looks like an IPv6 target specification -- you have to use the -6 option.",
-      this->netblock->str().c_str());
-    return -1;
-  }
-  if ((o.af() == AF_INET && dynamic_cast<NetBlockIPv4Ranges *>(this->netblock) == NULL) ||
-      (o.af() == AF_INET6 && dynamic_cast<NetBlockIPv6Netmask *>(this->netblock) == NULL)) {
-    error("Address family mismatch in target specification \"%s\".",
-      this->netblock->str().c_str());
-    return -1;
-  }
-
   if (this->netblock->next(ss, sslen))
     return 0;
   else
