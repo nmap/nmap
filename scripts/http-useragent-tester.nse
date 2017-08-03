@@ -76,6 +76,7 @@ local httpspider = require "httpspider"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local url = require "url"
 
 getLastLoc = function(host, port, useragent)
 
