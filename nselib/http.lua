@@ -2720,7 +2720,7 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
   end
 
   if parsed.raw_querystring then
-    parsed.path_query = parsed.path .. "?" .. parsed['raw_querystring']
+    parsed.path_query = parsed.path .. "?" .. parsed.raw_querystring
   else
     parsed.path_query = parsed.path
   end
