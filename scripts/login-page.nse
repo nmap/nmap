@@ -50,65 +50,46 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.http
 
-action = function(host, port)
-
-  local path = "/"
-  local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or "all"
-
-  --  NOTE:
-  --  If any new db file is created for non-existing extension
-  --  make sure to update the name of the extension here also
-  --  inorder to execute this script successfully.
-  local existing_extensions = {
-    "aspx",
-    "asp",
-    "brf",
-    "cgi",
-    "cfm",
-    "js",
-    "jsp",
-    "php",
-    "all"
-  }
-
-  -- If extension is not provided, then select complete list as default.
-  if extension == nil then
-    extension = "all"
-  end
-
-  -- Raising an error if the extension provided by the user is not existing in our database.
-  if not stdnse.contains(existing_extensions, extension) then
-    -- Inserting error statements into the table to throw as an error.
-    table.insert(existing_extensions, "The above list are the available extensions.")
-    table.insert(existing_extensions, "Send a report to dev[at]nmap.org if you find a valid extension is missing in the above list.")
-    return existing_extensions
-  end
-
-  local file = "nselib/data/web-login/" .. extension .. ".lst"
-
-  -- Insensitive case regex for matching key words from the page
-  local regex = {
-    "[uU][sS][eE][rR][nN][aA][mM][eE]", -- English (Username)
-    "[pP][aA][sS][sS][wW][oO][rR][dD]", -- English (Password)
-    "[pP]/[wW]", -- English (P/W)
-    "[aA][dD][mM][iI][nN] [pP][aA][sS][sS][wW][oO][rR][dD]", -- English (Admin Password)
-    "[pP][eE][rR][sS][oO][nN][aA][lL]", -- English (Personal)
-    "[wW][aA][cC][hH][tT][wW][oO][oO][rR][dD]", --Dutch (Password)
-    "[sS][eE][nN][hH][aA]", --Portuguese (Password)
-    "[cC][lL][aA][vV][eE]", --Spanish (Key)
-    "[uU][sS][aA][gG][eE][rR]" --French (User)
-  }
-
-
+local append_data_to_table(tbl, data)
   local output = {}
+
+  for _, val in pairs(tbl) do
+    table.insert(output, val .. "." .. data)
+  end
+
+  return output
+end
+
+ -- This function concatenates the strings and tables (depth = 1) in
+ -- a given table.
+ --
+ -- @param tbl A table is given as an input which contains values as string
+ -- or table (depth = 1).
+ -- @return Returns table after concatinating all the values.
+local function concat_table_in_tables(tbl)
+
+   local t = {}
+   for _, v in ipairs(tbl) do
+     if type(v) == "table" then
+       for _, q in ipairs(v) do
+         table.insert(t, q)
+       end
+     else
+       table.insert(t, v)
+     end
+   end
+
+   return t
+
+ end
+
+local function check_page(host, port, tbl)
+
   local hostname = host.targetname or host.ip
 
-  -- Fetching all the uris from the db
-  local uris = nmap.fetchfile(file)
-  stdnse.debug(string.format("Working on %s", uris))
+  local output = {}
 
-  -- Reading line by line and sending requests to those pages.
-  for uri in io.lines(uris) do
+  for _, uri in pairs(tbl) do
     stdnse.debug(string.format("Sending GET request to %s", hostname .. ':' .. port.number .. path .. uri))
 
     local response = http.get(host, port, path .. uri)
@@ -124,6 +105,211 @@ action = function(host, port)
     end
 
   end
+
+  return output
+
+end
+
+action = function(host, port)
+
+  local path = "/"
+  local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or "all"
+
+  local extensions = {
+    "aspx",
+    "asp",
+    "brf",
+    "cgi",
+    "cfm",
+    "js",
+    "jsp",
+    "php",
+    "all"
+  }
+
+  local var = {
+    "acceso",
+    "account",
+    "adm/admloginuser",
+    "adm",
+    "adm_auth",
+    "admin2",
+    "admin2/index",
+    "admin2/login",
+    "admin/account",
+    "admin/admin",
+    "admin/admin_login",
+    "admin/admin-login",
+    "admin/adminLogin",
+    "admin_area/admin",
+    "adminarea/admin",
+    "admin_area/index",
+    "adminarea/index",
+    "admin_area/login",
+    "adminarea/login",
+    "admin",
+    "admincontrol",
+    "admincontrol/login",
+    "admin/controlpanel",
+    "admin/cp",
+    "admincp/index",
+    "admincp/login",
+    "adm/index",
+    "admin/home",
+    "admin/index",
+    "administrator/account",
+    "administrator",
+    "administrator/index",
+    "administrator/login",
+    "administratorlogin",
+    "admin_login",
+    "admin-login",
+    "admin/login",
+    "adminLogin",
+    "adminpanel",
+    "admloginuser",
+    "affiliate",
+    "bb-admin/admin",
+    "bb-admin/index",
+    "bb-admin/login",
+    "controlpanel",
+    "cp",
+    "home",
+    "login",
+    "memberadmin",
+    "modelsearch/admin",
+    "modelsearch/index",
+    "modelsearch/login",
+    "moderator/admin",
+    "moderator",
+    "moderator/login",
+    "pages/admin/admin-login",
+    "panel-administracion/admin",
+    "panel-administracion/index",
+    "panel-administracion/login",
+    "siteadmin/index",
+    "siteadmin/login",
+    "user",
+    "webadmin/admin",
+    "webadmin",
+    "webadmin/index",
+    "webadmin/login",
+  }
+
+  local directories = {
+    "adm/",
+    "admin/",
+    "admin1/",
+    "admin2/",
+    "admin3/",
+    "admin4/",
+    "admin5/",
+    "admin_area/",
+    "adminarea/",
+    "administrator/",
+    "administratorlogin/",
+    "adminLogin/",
+    "bb-admin/",
+    "instadmin/",
+    "memberadmin/",
+    "moderator/",
+    "panel-administracion/",
+    "usuario/",
+    "usuarios/",
+    "webadmin/",
+  }
+
+  local htmlFiles = {
+    "account.html",
+    "adm.html",
+    "admin/account.html",
+    "admin/admin.html",
+    "admin/admin_login.html",
+    "admin/admin-login.html",
+    "admin/adminLogin.html",
+    "admin_area/admin.html",
+    "adminarea/admin.html",
+    "admin_area/index.html",
+    "adminarea/index.html",
+    "admin_area/login.html",
+    "adminarea/login.html",
+    "admincontrol.html",
+    "admincontrol/login.html",
+    "admin/controlpanel.html",
+    "admin/cp.html",
+    "admincp/index.html",
+    "adm/index.html",
+    "admin/home.html",
+    "admin.html",
+    "admin/index.html",
+    "administrator/account.html",
+    "administrator.html",
+    "administrator/index.html",
+    "administrator/login.html",
+    "admin_login.html",
+    "admin-login.html",
+    "admin/login.html",
+    "adminLogin.html",
+    "adminpanel.html",
+    "bb-admin/admin.html",
+    "bb-admin/index.html",
+    "bb-admin/login.html",
+    "controlpanel.html",
+    "cp.html",
+    "home.html",
+    "login.html",
+    "modelsearch/admin.html",
+    "modelsearch/index.html",
+    "modelsearch/login.html",
+    "moderator/admin.html",
+    "moderator.html",
+    "moderator/login.html",
+    "pages/admin/admin-login.html",
+    "panel-administracion/admin.html",
+    "panel-administracion/index.html",
+    "panel-administracion/login.html",
+    "siteadmin/login.html",
+    "user.html",
+    "webadmin/admin.html",
+    "webadmin.html",
+    "webadmin/index.html",
+    "webadmin/login.html",
+  }
+
+  extension = extension or "all"
+
+  -- Raising an error if the extension provided by the user is not existing in our database.
+  if not stdnse.contains(extensions, extension) then
+    stdnse.debug("Invalid or missing extension.")
+    return "Try executing script with --script-args extension."
+  end
+
+  -- Insensitive case regex for matching key words from the page
+  local regex = {
+    stdnse.generate_case_insensitive_pattern("username"), -- English (Username)
+    stdnse.generate_case_insensitive_pattern("password"), -- English (Password)
+    stdnse.generate_case_insensitive_pattern("p/w"), -- English (P/W)
+    stdnse.generate_case_insensitive_pattern("admin password"), -- English (Admin Password)
+    stdnse.generate_case_insensitive_pattern("personal"), -- English (Personal)
+    stdnse.generate_case_insensitive_pattern("wachtwoord"), --Dutch (Password)
+    stdnse.generate_case_insensitive_pattern("senha"), --Portuguese (Password)
+    stdnse.generate_case_insensitive_pattern("clave"), --Spanish (Key)
+    stdnse.generate_case_insensitive_pattern("usager"), --French (User)
+  }
+
+  local output = {}
+  table.insert(output, check_page(directories))
+  table.insert(output, check_page(htmlFiles))
+
+  if extension == "all" then
+    for _, ext in pairs(extensions) do
+      table.insert(output, check_page(append_data_to_table(var, ext)))
+    end
+  else
+    table.insert(output, check_page(append_data_to_table(var, extension)))
+  end
+
+  output = concat_table_in_tables(output)
 
   -- If the output table is empty return nil.
   if #output > 0 then
