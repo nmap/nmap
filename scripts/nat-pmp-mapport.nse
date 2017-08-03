@@ -6,9 +6,9 @@ local table = require "table"
 
 description = [[
 Maps a WAN port on the router to a local port on the client using the NAT Port Mapping Protocol (NAT-PMP).  It supports the following operations:
-o map - maps a new external port on the router to an internal port of the requesting IP
-o unmap - unmaps a previously mapped port for the requesting IP
-o unmapall - unmaps all previously mapped ports for the requesting IP
+* map - maps a new external port on the router to an internal port of the requesting IP
+* unmap - unmaps a previously mapped port for the requesting IP
+* unmapall - unmaps all previously mapped ports for the requesting IP
 ]]
 
 ---
@@ -41,6 +41,7 @@ o unmapall - unmaps all previously mapped ports for the requesting IP
 --
 -- @args nat-pmp-mapport.lifetime the lifetime of the mapping in seconds (default: 3600)
 --
+-- @see nat-pmp-info.nse
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
