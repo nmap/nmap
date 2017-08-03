@@ -182,12 +182,26 @@
 #endif
 
 #if HAVE_LIBSSH2
+#ifdef LIBSSH2_INCLUDED
 #include "libssh2/libssh2v.h"
-#endif
+#else
+#include "libssh2.h"
+#ifndef LIBSSH2_VERSION_TEXT
+#define LIBSSH2_VERSION_TEXT "Libssh2 #LIBSSH2_VERSION"
+#endif /* LIBSSH2_VERSION_TEXT */
+#endif /* LIBSSH2_INCLUDED */
+#endif /* HAVE_LIBSSH2 */
 
 #if HAVE_LIBZ
+#ifdef LIBZ_INCLUDED
 #include "libz/libzv.h"
-#endif
+#else
+#include "zlib.h"
+#ifndef LIBZ_VERSION_TEXT
+#define LIBZ_VERSION_TEXT "Libz #LIBZ_VERSION"
+#endif /* LIBZ_VERSION_TEXT */
+#endif /* LIBZ_INCLUDED */
+#endif /* HAVE_LIBZ */
 
 /* To get the version number only. */
 #ifdef WIN32
