@@ -45,7 +45,7 @@ categories = {"safe", "vuln", "discovery"}
 
 portrule = shortport.http
 
-local callbacks = {"cb", "jsonp", "jsonpcallback", "jcb", "call"}
+local callbacks = {"callback", "cb", "jsonp", "jsonpcallback", "jcb", "call"}
 
 --Checks the body and returns if valid json data is present in callback function
 local checkjson = function(body)
