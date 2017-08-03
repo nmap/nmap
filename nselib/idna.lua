@@ -8,7 +8,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local unicode = require "unicode"
 local unittest = require "unittest"
-local idnaMappings = require "idnaMappings".tbl
+local idnaMappings = require "data.idnaMappings".tbl
 
 _ENV = stdnse.module("idna", stdnse.seeall)
 
