@@ -105,7 +105,7 @@ Possibly vulnerable (Based on the same firmware): WR743ND,WR842ND,WA-901ND,WR941
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
-  local status, lfi_success, contents, _, outfile_status, outfile_err = exploit.lfi_check(host, port, payload, rfile, filewrite)
+  local status, lfi_success, contents, _, outfile_status, outfile_err = exploit.lfi_check(host, port, TRAVERSAL_QRY, rfile, filewrite)
   if lfi_success then
     vuln.state = vulns.STATE.EXPLOIT
     local  _, _, rfile_content = string.find(contents, 'SCRIPT>(.*)')
