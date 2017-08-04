@@ -383,16 +383,13 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
      hostname, without doing local DNS resolution (like with a proxy scan), this
      has to be made conditional (and perhaps an error if the netmask doesn't
      limit it to exactly one address). */
-  NetBlockHostname *netblock_hostname;
-  netblock_hostname = dynamic_cast<NetBlockHostname *>(this->netblock);
-  if (netblock_hostname != NULL) {
-    this->netblock = netblock_hostname->resolve();
-    if (this->netblock == NULL) {
-      error("Failed to resolve \"%s\".", netblock_hostname->hostname.c_str());
-      delete netblock_hostname;
-      return -1;
-    }
-    delete netblock_hostname;
+  NetBlock *netblock_resolved = this->netblock->resolve();
+  if (netblock_resolved != NULL) {
+    this->netblock = netblock_resolved;
+  }
+  else {
+    error("Failed to resolve \"%s\".", this->netblock->hostname.c_str());
+    return -1;
   }
 
   if (this->netblock->next(ss, sslen))

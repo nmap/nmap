@@ -162,6 +162,11 @@ public:
 
   bool is_resolved_address(const struct sockaddr_storage *ss) const;
 
+  /* For NetBlock subclasses that need to "resolve" themselves into a different
+   * NetBlock subclass, override this method. Otherwise, it's safe to reassign
+   * the return value to the pointer that this method was called through.
+   * On error, return NULL. */
+  virtual NetBlock *resolve() { return this; }
   virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
   virtual void apply_netmask(int bits) = 0;
   virtual std::string str() const = 0;
@@ -203,7 +208,7 @@ public:
   int af;
   int bits;
 
-  NetBlock *resolve() const;
+  NetBlock *resolve();
 
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);

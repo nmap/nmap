@@ -628,7 +628,7 @@ std::string NetBlockIPv6Netmask::str() const {
   return result.str();
 }
 
-NetBlock *NetBlockHostname::resolve() const {
+NetBlock *NetBlockHostname::resolve() {
   struct addrinfo *addrs, *addr;
   std::list<struct sockaddr_storage> resolvedaddrs;
   NetBlock *netblock;
