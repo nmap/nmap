@@ -7076,7 +7076,7 @@ table.insert(fingerprints, {
       output = 'WordPress version: \\1'
     },
     {
-      match = '/wp-includes\\/js\\/wp-emoji-release.min.js?ver=([0-9 .]*)',
+      match = '/wp-includes/js/wp-emoji-release.min.js?ver=([0-9 .]*)',
       output = 'WordPress version: \\1'
     }
   }
