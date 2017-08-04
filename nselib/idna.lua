@@ -285,6 +285,13 @@ function toASCII(codepoints, transitionalProcessing, checkHyphens, checkBidi, ch
   encoder = encoder or unicode.utf8_enc
   decoder = decoder or unicode.utf8_dec
 
+  local inputString = unicode.encode(codepoints, encoder)
+
+  -- Checks for invalid domain codepoints and proceeds further.
+  if not match(inputString, "[^a-z0-9_%%]") then
+    return inputString
+  end
+
   local decoded_tbl, disallowedCodePoints = map(codepoints, useSTD3ASCIIRules, transitionalProcessing)
 
   if decoded_tbl == nil then
