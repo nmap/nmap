@@ -7055,7 +7055,7 @@ table.insert(fingerprints, {
   },
   matches = {
     {
-      match = '[V|v]ersion ([0-9 .]*)',
+      match = '<img alt="WordPress" src=".+wordpress.+".+[V|v]ersion ([0-9 .]*)',
       output = 'Wordpress version: \\1'
     }
   }
